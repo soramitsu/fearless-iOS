@@ -5,7 +5,7 @@ typealias DappBrowserListModuleCreationResult = (
     input: DappBrowserListModuleInput
 )
 
-protocol DappBrowserListRouterInput: PresentDismissable {
+protocol DappBrowserListRouterInput: PresentDismissable, SheetAlertPresentable, WebPresentable {
     func showDapp(
         from view: ControllerBackedProtocol?,
         dapp: TonDapp,

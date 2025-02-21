@@ -132,7 +132,36 @@ extension DappBrowserPresenter: DappBrowserViewOutput {
     }
 
     func didSelect(dapp: TonDapp) {
-        router.showDapp(from: view, dapp: dapp, wallet: wallet, moduleOutput: self)
+        let confirmAction = SheetAlertPresentableAction(title: R.string.localizable.commonConfirm(preferredLanguages: selectedLocale.rLanguages), style: .pinkBackgroundWhiteText ,handler: { [weak self] in
+            guard let self else {
+                return
+            }
+            
+            self.router.showDapp(
+                from: self.view,
+                dapp: dapp,
+                wallet: self.wallet,
+                moduleOutput: self
+            )
+        })
+        
+        let termsAction = SheetAlertPresentableAction(title: R.string.localizable.aboutTermsAndConditions(preferredLanguages: selectedLocale.rLanguages), style: .grayBackgroundPinkText, handler: { [weak self] in
+            guard let self, let view = self.view else {
+                return
+            }
+            
+            self.router.showWeb(url: ApplicationConfig.shared.termsURL, from: view, style: .modal)
+        })
+        
+        let declineAction = SheetAlertPresentableAction(title: R.string.localizable.commonDecline(preferredLanguages: selectedLocale.rLanguages), style: .grayBackgroundWhiteText)
+        
+        router.present(
+            message: R.string.localizable.webThirdPartyWarningDescription(preferredLanguages: selectedLocale.rLanguages),
+            title: R.string.localizable.webThirdPartyWarningTitle(preferredLanguages: selectedLocale.rLanguages),
+            closeAction: nil,
+            from: view,
+            actions: [confirmAction, declineAction, termsAction]
+        )
     }
 
     func didTapOnWalletSelectButton() {

@@ -1246,3 +1246,6 @@
 "сurrencies.stub.text" = "通貨";
 "common.transaction.sent" = "Transaction sent";
 "common.transaction.sent.description" = "Your transaction has been successfully sent to the blockchain";
+"web.third.party.warning.title" = "You’re going to visit a third-party website";
+"web.third.party.warning.description" = "Fearless Wallet isn’t liable for failures on this or any other website as stated in the Fearless Wallet terms of service.\n\nBy interacting with this or any other third-party website you agree to be subject to its Terms and Privacy Policy.";
+"common.decline" = "Decline";

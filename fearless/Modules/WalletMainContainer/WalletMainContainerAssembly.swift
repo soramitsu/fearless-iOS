@@ -47,7 +47,9 @@ final class WalletMainContainerAssembly {
 
         let featureToggleProvider = FeatureToggleProvider(
             networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
-            operationQueue: OperationQueue()
+            operationQueue: OperationQueue(),
+            settingsManager: SettingsManager.shared,
+            eventCenter: EventCenter.shared
         )
 
         let interactor = WalletMainContainerInteractor(

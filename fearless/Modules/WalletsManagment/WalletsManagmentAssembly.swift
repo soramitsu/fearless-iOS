@@ -3,6 +3,7 @@ import SoraFoundation
 import RobinHood
 import SoraUI
 import SSFNetwork
+import SoraKeystore
 
 final class WalletsManagmentAssembly {
     static func configureModule(
@@ -32,7 +33,9 @@ final class WalletsManagmentAssembly {
 
         let featureToggleProvider = FeatureToggleProvider(
             networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
-            operationQueue: OperationQueue()
+            operationQueue: OperationQueue(),
+            settingsManager: SettingsManager.shared,
+            eventCenter: EventCenter.shared
         )
 
         let interactor = WalletsManagmentInteractor(

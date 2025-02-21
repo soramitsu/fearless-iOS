@@ -5,7 +5,7 @@ typealias DappBrowserModuleCreationResult = (
     input: DappBrowserModuleInput
 )
 
-protocol DappBrowserRouterInput: AccountManagementPresentable {
+protocol DappBrowserRouterInput: AccountManagementPresentable, SheetAlertPresentable, WebPresentable {
     func showWalletManagment(
         from view: ControllerBackedProtocol?,
         moduleOutput: WalletsManagmentModuleOutput?

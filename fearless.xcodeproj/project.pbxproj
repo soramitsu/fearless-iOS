@@ -2068,6 +2068,7 @@
 		F83EA1F4ECE14C390C0B287F /* StakingUnbondSetupInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D101339CC1292531CC4DB0AC /* StakingUnbondSetupInteractor.swift */; };
 		F865D752EBD2363E971BE267 /* MainNftContainerAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E69C4F66805399A3DB4ED8 /* MainNftContainerAssembly.swift */; };
 		F952CDC56E85FA82DDEBE5D3 /* FeatureToggleListRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EE06DBE885C0467D8929FE /* FeatureToggleListRouter.swift */; };
+		FA0025882D68503E00B84297 /* FeatureToggleConfigSyncComplete.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0025872D68503700B84297 /* FeatureToggleConfigSyncComplete.swift */; };
 		FA00488F282CC7710032FF49 /* SelectValidatorsStartFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA00488E282CC7710032FF49 /* SelectValidatorsStartFlow.swift */; };
 		FA004891282CCA400032FF49 /* SelectValidatorsStartParachainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA004890282CCA400032FF49 /* SelectValidatorsStartParachainStrategy.swift */; };
 		FA004893282CCA520032FF49 /* SelectValidatorsStartRelaychainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA004892282CCA520032FF49 /* SelectValidatorsStartRelaychainStrategy.swift */; };
@@ -5374,6 +5375,7 @@
 		F829E7F8B39EE7D977001510 /* ControllerAccountProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountProtocols.swift; sourceTree = "<group>"; };
 		F9416E68AE4D5613E9434226 /* StakingPoolCreateConfirmViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateConfirmViewController.swift; sourceTree = "<group>"; };
 		F9B5FD28F2B9A0B0D8ED3607 /* PolkaswapSwapConfirmationInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PolkaswapSwapConfirmationInteractor.swift; sourceTree = "<group>"; };
+		FA0025872D68503700B84297 /* FeatureToggleConfigSyncComplete.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureToggleConfigSyncComplete.swift; sourceTree = "<group>"; };
 		FA00488E282CC7710032FF49 /* SelectValidatorsStartFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartFlow.swift; sourceTree = "<group>"; };
 		FA004890282CCA400032FF49 /* SelectValidatorsStartParachainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartParachainStrategy.swift; sourceTree = "<group>"; };
 		FA004892282CCA520032FF49 /* SelectValidatorsStartRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartRelaychainStrategy.swift; sourceTree = "<group>"; };
@@ -11436,6 +11438,7 @@
 		84EBC54824F660A700459D15 /* Events */ = {
 			isa = PBXGroup;
 			children = (
+				FA0025872D68503700B84297 /* FeatureToggleConfigSyncComplete.swift */,
 				FA46449D2D49E13E00E21668 /* SelectedCurrencyChanged.swift */,
 				071606C32C7C6C2400C1DF75 /* PricesUpdated.swift */,
 				0701B9CC2C78FF7900DCD395 /* AccountScoreSettingsChanged.swift */,
@@ -18927,6 +18930,7 @@
 				84DED3F726662CF200A153BB /* TitleValueSelectionControl.swift in Sources */,
 				FAADC1BC2926597400DA9903 /* ScanQRRouter.swift in Sources */,
 				076D9D6629507B39002762E3 /* PolkaswapSettingsFactory.swift in Sources */,
+				FA0025882D68503E00B84297 /* FeatureToggleConfigSyncComplete.swift in Sources */,
 				07B018D328C714B300E05510 /* ScamServiceOperationFactory.swift in Sources */,
 				07E346D4288E616E00A8FAEC /* WalletBalanceBuilder.swift in Sources */,
 				84F30EA125FD3EE700039D09 /* ChildSubscriptionFactory.swift in Sources */,

@@ -1,4 +1,5 @@
 import UIKit
+import SSFNetwork
 import SoraFoundation
 import SoraKeystore
 import SSFModels
@@ -8,6 +9,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static let walletIndex: Int = 0
     static let crowdloanIndex: Int = 1
     static let stakingIndex: Int = 3
+    static let dappIndex: Int = 1
 
     static func createView() -> MainTabBarViewProtocol? {
         guard

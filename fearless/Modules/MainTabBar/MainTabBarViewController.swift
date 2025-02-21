@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import SSFModels
+import SoraKeystore
 
 final class MainTabBarViewController: UITabBarController {
     private var presenter: MainTabBarPresenterProtocol
@@ -84,6 +85,8 @@ final class MainTabBarViewController: UITabBarController {
     }
 
     private func update(with wallet: MetaAccountModel) {
+        let isDappEnabled = SettingsManager.shared.dappEnabled
+        
         if let tabBar = self.tabBar as? TabBar {
             tabBar.setup(for: wallet.ecosystem)
         }
@@ -92,7 +95,7 @@ final class MainTabBarViewController: UITabBarController {
         case .regular:
             indexes = [0, 2, 3, 4, 5]
         case .ton:
-            indexes = [0, 1, 5]
+            indexes = isDappEnabled ? [0, 1, 5] : [0, 5]
         }
         let tonViewControllers = indexes.map { fullViewControllersList[$0] }
         selectedIndex = 0
@@ -134,5 +137,9 @@ extension MainTabBarViewController: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
         self.wallet = event.account
         update(with: event.account)
+    }
+    
+    func processFeatureToggleConfigSyncComplete(event: FeatureToggleConfigSyncComplete) {
+        update(with: wallet)
     }
 }

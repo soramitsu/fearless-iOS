@@ -58,10 +58,34 @@ final class DappBrowserListPresenter {
 // MARK: - DappBrowserListViewOutput
 extension DappBrowserListPresenter: DappBrowserListViewOutput {
     func didSelect(dapp: TonDapp) {
-        router.showDapp(
+        let confirmAction = SheetAlertPresentableAction(title: R.string.localizable.commonConfirm(preferredLanguages: selectedLocale.rLanguages), style: .pinkBackgroundWhiteText ,handler: { [weak self] in
+            guard let self else {
+                return
+            }
+            
+            self.router.showDapp(
+                from: self.view,
+                dapp: dapp,
+                wallet: self.wallet
+            )
+        })
+        
+        let termsAction = SheetAlertPresentableAction(title: R.string.localizable.aboutTermsAndConditions(preferredLanguages: selectedLocale.rLanguages), style: .grayBackgroundPinkText, handler: { [weak self] in
+            guard let self, let view = self.view else {
+                return
+            }
+            
+            self.router.showWeb(url: ApplicationConfig.shared.termsURL, from: view, style: .modal)
+        })
+        
+        let declineAction = SheetAlertPresentableAction(title: R.string.localizable.commonDecline(preferredLanguages: selectedLocale.rLanguages), style: .grayBackgroundWhiteText)
+        
+        router.present(
+            message: R.string.localizable.webThirdPartyWarningDescription(preferredLanguages: selectedLocale.rLanguages),
+            title: R.string.localizable.webThirdPartyWarningTitle(preferredLanguages: selectedLocale.rLanguages),
+            closeAction: nil,
             from: view,
-            dapp: dapp,
-            wallet: wallet
+            actions: [confirmAction, declineAction, termsAction]
         )
     }
 

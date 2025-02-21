@@ -16,6 +16,7 @@ enum SettingsKey: String {
     case shouldPlayAssetManagementAnimateKey
     case accountScoreEnabled
     case shouldShowAddWalletBanner
+    case dappEnabled
 }
 
 extension SettingsManagerProtocol {
@@ -101,6 +102,16 @@ extension SettingsManagerProtocol {
 
         set {
             set(value: newValue, for: SettingsKey.shouldShowAddWalletBanner.rawValue)
+        }
+    }
+    
+    var dappEnabled: Bool {
+        get {
+            bool(for: SettingsKey.dappEnabled.rawValue) ?? true
+        }
+
+        set {
+            set(value: newValue, for: SettingsKey.dappEnabled.rawValue)
         }
     }
 }

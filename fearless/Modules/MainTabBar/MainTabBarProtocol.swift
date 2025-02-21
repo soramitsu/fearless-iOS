@@ -21,7 +21,11 @@ protocol MainTabBarInteractorOutputProtocol: AnyObject {
 
 protocol MainTabBarWireframeProtocol: SheetAlertPresentable, AuthorizationAccessible, WarningPresentable, AppUpdatePresentable, PresentDismissable {
     func presentAccountImport(on view: MainTabBarViewProtocol?)
-    func replaceStaking(on view: MainTabBarViewProtocol?, type: AssetSelectionStakingType, moduleOutput: StakingMainModuleOutput?)
+    func replaceStaking(
+        on view: MainTabBarViewProtocol?,
+        type: AssetSelectionStakingType,
+        moduleOutput: StakingMainModuleOutput?
+    )
     func presentPolkaswap(on view: ControllerBackedProtocol?, wallet: MetaAccountModel)
 }
 

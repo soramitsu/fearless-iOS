@@ -3,6 +3,7 @@ import WalletConnectSign
 import UIKit
 import SoraFoundation
 import SSFUtils
+import SoraKeystore
 
 final class MainTabBarPresenter {
     private weak var view: MainTabBarViewProtocol?
