@@ -218,7 +218,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
     }
 
     func showPolkaswap(
-        from view: ChainAccountViewProtocol?,
+        from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {
@@ -227,10 +227,28 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         }
         let navigationController = FearlessNavigationController(rootViewController: module.view.controller)
 
-        view?.controller.navigationController?.present(
+        view?.controller.present(
             navigationController,
             animated: true
         )
+    }
+    
+    func presentCrossChainSwapFlow(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) {
+        
+        guard let controller = CrossChainSwapSetupAssembly.configureModule(
+            wallet: wallet,
+            chainAsset: chainAsset,
+            moduleOutput: nil
+        )?.view.controller else {
+            return
+        }
+        let navigationController = FearlessNavigationController(rootViewController: controller)
+
+        view?.controller.present(navigationController, animated: true)
     }
 
     func presentLockedInfo(

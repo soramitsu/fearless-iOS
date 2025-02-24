@@ -124,7 +124,12 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
         delegate: SelectNetworkDelegate?
     )
     func showPolkaswap(
-        from view: ChainAccountViewProtocol?,
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) 
+    func presentCrossChainSwapFlow(
+        from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     )

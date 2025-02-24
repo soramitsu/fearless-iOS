@@ -69,6 +69,11 @@ final class SelectAssetCell: UITableViewCell {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        iconImageView.rounded()
+    }
 
     private func setupLayout() {
         contentView.addSubview(iconImageView)

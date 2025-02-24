@@ -270,11 +270,19 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     }
 
     func didTapPolkaswapButton() {
-        wireframe.showPolkaswap(
-            from: view,
-            chainAsset: chainAsset,
-            wallet: wallet
-        )
+        if chainAsset.chain.isSora {
+            wireframe.showPolkaswap(
+                from: view,
+                chainAsset: chainAsset,
+                wallet: wallet
+            )
+        } else {
+            wireframe.presentCrossChainSwapFlow(
+                from: view,
+                chainAsset: chainAsset,
+                wallet: wallet
+            )
+        }
     }
 
     func didTapLockedInfoButton() {

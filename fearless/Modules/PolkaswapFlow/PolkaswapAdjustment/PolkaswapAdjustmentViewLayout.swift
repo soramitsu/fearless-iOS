@@ -21,6 +21,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         let button = UIButton()
         button.setImage(R.image.iconBack(), for: .normal)
         button.layer.masksToBounds = true
+        button.clipsToBounds = true
         button.backgroundColor = R.color.colorWhite8()
         return button
     }()
