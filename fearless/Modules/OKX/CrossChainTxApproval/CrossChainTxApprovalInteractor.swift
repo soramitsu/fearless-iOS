@@ -2,6 +2,10 @@ import UIKit
 import BigInt
 import SSFModels
 
+enum CrossChainFundsPermissionInteractorError: Error {
+    case noApproveOrRevokeNeeded
+}
+
 protocol CrossChainFundsPermissionInteractorOutput: AnyObject {}
 
 final class CrossChainFundsPermissionInteractor {
@@ -69,23 +73,27 @@ final class CrossChainFundsPermissionInteractor {
     private func fetchRemoteBalance(for chainAssets: [ChainAsset]) async throws -> [ChainAssetKey: AccountInfo?] {
         try await balanceFetching.fetchByUniqKey(for: chainAssets, wallet: wallet)
     }
-}
-
-// MARK: - CrossChainFundsPermissionInteractorInput
-extension CrossChainFundsPermissionInteractor: CrossChainFundsPermissionInteractorInput {
-    func fetchBalance(for chainAssets: [ChainAsset]) async throws -> [ChainAssetKey : AccountInfo?] {
-        async let local = try await fetchLocalBalance(for: chainAssets)
-        async let remote = try await fetchRemoteBalance(for: chainAssets)
-
-        let merged = try await local.merging(remote) { local, remote in remote ?? local }
-        return merged
+    
+    private func estimateApproveFee() async throws -> BigUInt {
+        let approveTransaction = try await fetchApproveTransaction()
+        self.approveTransaction = approveTransaction
+        let fee = try await swapService.estimateFee(
+            approveTransaction: approveTransaction,
+            chain: swapFromChainAsset.chain,
+            chainAsset: swapFromChainAsset
+        )
+        return fee
     }
     
-    func setup(with output: CrossChainFundsPermissionInteractorOutput) {
-        self.output = output
+    private func estimateRevokeFee(dexTokenApproveAddress: String) async throws -> BigUInt {
+        let fee = try await swapService.estimateFeeForApproveTx(
+            dexTokenApproveAddress: dexTokenApproveAddress,
+            chainAsset: swapFromChainAsset
+        )
+        return fee
     }
     
-    func approveSpending() async throws -> String {
+    private func approveSpending() async throws -> String {
         var transaction = approveTransaction
     
         if transaction == nil {
@@ -103,14 +111,49 @@ extension CrossChainFundsPermissionInteractor: CrossChainFundsPermissionInteract
         )
     }
     
-    func estimateFee() async throws -> BigUInt {
-        let approveTransaction = try await fetchApproveTransaction()
-        self.approveTransaction = approveTransaction
-        let fee = try await swapService.estimateFee(
-            approveTransaction: approveTransaction,
-            chain: swapFromChainAsset.chain,
-            chainAsset: swapFromChainAsset
-        )
-        return fee
+    private func revoke(dexTokenApproveAddress: String) async throws -> String {
+        let hash = try await swapService.revoke(chainAsset: swapFromChainAsset, dexTokenApproveAddress: dexTokenApproveAddress)
+        return hash
+    }
+}
+
+// MARK: - CrossChainFundsPermissionInteractorInput
+extension CrossChainFundsPermissionInteractor: CrossChainFundsPermissionInteractorInput {
+    func fetchBalance(for chainAssets: [ChainAsset]) async throws -> [ChainAssetKey : AccountInfo?] {
+        async let local = try await fetchLocalBalance(for: chainAssets)
+        async let remote = try await fetchRemoteBalance(for: chainAssets)
+
+        let merged = try await local.merging(remote) { local, remote in remote ?? local }
+        return merged
+    }
+    
+    func setup(with output: CrossChainFundsPermissionInteractorOutput) {
+        self.output = output
+    }
+    
+    func submit(mode: CrossChainFundsPermissionMode) async throws -> String {
+        switch mode {
+        case .none:
+            throw CrossChainFundsPermissionInteractorError.noApproveOrRevokeNeeded
+        case .approve:
+            return try await approveSpending()
+        case .revoke(let dexTokenApproveAddress):
+            return try await revoke(dexTokenApproveAddress: dexTokenApproveAddress)
+        }
+    }
+    
+    func estimateFee(mode: CrossChainFundsPermissionMode) async throws -> BigUInt {
+        switch mode {
+        case .none:
+            throw CrossChainFundsPermissionInteractorError.noApproveOrRevokeNeeded
+        case .approve:
+            return try await estimateApproveFee()
+        case .revoke(let dexTokenApproveAddress):
+            return try await estimateRevokeFee(dexTokenApproveAddress: dexTokenApproveAddress)
+        }
+    }
+    
+    func checkTransactionSucceed(txHash: String) async throws -> Bool {
+        return try await swapService.isTransactionExists(txHash: txHash)
     }
 }

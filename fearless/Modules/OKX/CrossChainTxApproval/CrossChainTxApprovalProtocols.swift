@@ -9,6 +9,13 @@ protocol CrossChainFundsPermissionRouterInput: AnyObject, AnyDismissable, SheetA
         approveTxHash: String?,
         from view: ControllerBackedProtocol?
     )
+    
+    func presentFundsPermission(
+        mode: CrossChainFundsPermissionMode,
+        crossChainSwapParameters: CrossChainSwapParameters,
+        revokeTxHash: String?,
+        from view: ControllerBackedProtocol?
+    )
 }
 
 protocol CrossChainFundsPermissionModuleInput: AnyObject {}

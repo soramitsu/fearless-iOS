@@ -8,7 +8,8 @@ import Web3
 final class CrossChainFundsPermissionAssembly {
     static func configureModule(
         mode: CrossChainFundsPermissionMode,
-        crossChainSwapParameters: CrossChainSwapParameters
+        crossChainSwapParameters: CrossChainSwapParameters,
+        revokeTxHash: String?
     ) -> CrossChainFundsPermissionModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
             
@@ -79,7 +80,8 @@ final class CrossChainFundsPermissionAssembly {
             feeBalanceViewModelFactory: feeBalanceViewModelFactory,
             crossChainSwapParameters: crossChainSwapParameters,
             dataValidatingFactory: dataValidatingFactory,
-            logger: Logger.shared
+            logger: Logger.shared,
+            revokeTxHash: revokeTxHash
         )
         
         let view = CrossChainFundsPermissionViewController(

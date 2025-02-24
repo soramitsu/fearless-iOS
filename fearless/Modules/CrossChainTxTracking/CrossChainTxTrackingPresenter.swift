@@ -92,7 +92,8 @@ final class CrossChainTxTrackingPresenter {
             sourceChainAsset: sourceChainAsset,
             destinationChainAsset: destinationChainAsset,
             locale: selectedLocale,
-            wallet: wallet
+            wallet: wallet,
+            destinationChainAssets: destinationChainAssets
         )
 
         await provideViewModel(viewModel)

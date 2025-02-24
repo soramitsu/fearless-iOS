@@ -91,6 +91,8 @@ final class CrossChainFundsPermissionViewLayout: UIView {
         amountView.bindBalance(viewModel: viewModel.amountViewModel)
         symbolView.bind(viewModel: viewModel.symbolViewModel)
         warningView.textLabel.text = viewModel.warningText
+        confirmButton.imageWithTitleView?.title = viewModel.confirmButtonTitle
+
     }
     
     func bind(feeViewModel: BalanceViewModelProtocol?) {
@@ -134,9 +136,6 @@ final class CrossChainFundsPermissionViewLayout: UIView {
             preferredLanguages: locale.rLanguages
         )
         feeView.titleLabel.text = R.string.localizable.commonNetworkFee(
-            preferredLanguages: locale.rLanguages
-        )
-        confirmButton.imageWithTitleView?.title = R.string.localizable.commonApprove(
             preferredLanguages: locale.rLanguages
         )
         warningView.titleLabel.text = R.string.localizable.commonImportant(

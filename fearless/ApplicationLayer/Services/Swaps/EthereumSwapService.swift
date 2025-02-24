@@ -6,6 +6,7 @@ import Web3ContractABI
 enum OKXEthereumSwapServiceError: Error {
     case invalidChainId
     case unknownAllowanceResponse
+    case unknownApproveResponse
 }
 
 protocol OKXEthereumSwapService: EthereumService {
@@ -35,6 +36,16 @@ protocol OKXEthereumSwapService: EthereumService {
         chain: ChainModel,
         chainAsset: ChainAsset
     ) async throws -> BigUInt
+    
+    func estimateFeeForApproveTx(
+        dexTokenApproveAddress: String,
+        chainAsset: ChainAsset
+    ) async throws -> BigUInt
+    
+    func revoke(
+        chainAsset: ChainAsset,
+        dexTokenApproveAddress: String
+    ) async throws -> String
 }
 
 final class OKXEthereumSwapServiceImpl: BaseEthereumService, OKXEthereumSwapService {
@@ -48,6 +59,61 @@ final class OKXEthereumSwapServiceImpl: BaseEthereumService, OKXEthereumSwapServ
         self.senderAddress = senderAddress
 
         super.init(ws: eth)
+    }
+    
+    func revoke(chainAsset: ChainAsset, dexTokenApproveAddress: String) async throws -> String {
+        guard
+            let contractAddress = EthereumAddress(hexString: chainAsset.asset.id),
+            let chainId = BigUInt(string: chainAsset.chain.chainId)
+        else {
+            throw EthereumServiceError.invalidTransaction
+        }
+        let spenderAddress = try EthereumAddress(rawAddress: dexTokenApproveAddress.hexToBytes())
+        let senderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
+        let chainIdValue = EthereumQuantity(quantity: chainId)
+        let contract = ws.Contract(type: GenericERC20Contract.self, address: contractAddress)
+        let call = contract.approve(spender: spenderAddress, value: .zero)
+        let nonce = try await queryNonce(ethereumAddress: senderAddress)
+        let gasPrice = try await queryGasPrice()
+        let transferGasLimit = try await queryGasLimit(from: senderAddress, amount: EthereumQuantity(quantity: .zero), transfer: call)
+        let supportsEip1559 = await checkChainSupportEip1559()
+        let transactionType: EthereumTransaction.TransactionType = supportsEip1559 ? .eip1559 : .legacy
+
+        guard let transferData = call.encodeABI() else {
+            throw TransferServiceError.transferFailed(reason: "Cannot create ERC20 transfer transaction")
+        }
+
+        let tx = EthereumTransaction(
+            nonce: nonce,
+            gasPrice: gasPrice,
+            maxFeePerGas: gasPrice,
+            maxPriorityFeePerGas: gasPrice,
+            gasLimit: transferGasLimit,
+            from: senderAddress,
+            to: contractAddress,
+            value: EthereumQuantity(quantity: BigUInt.zero),
+            data: transferData,
+            accessList: [:],
+            transactionType: transactionType
+        )
+
+        let rawTransaction = try tx.sign(with: privateKey, chainId: chainIdValue)
+
+        let result = try await withCheckedThrowingContinuation { continuation in
+            do {
+                try ws.sendRawTransaction(transaction: rawTransaction) { resp in
+                    if let hash = resp.result {
+                        continuation.resume(with: .success(hash))
+                    } else if let error = resp.error {
+                        continuation.resume(with: .failure(error))
+                    }
+                }
+            } catch {
+                continuation.resume(with: .failure(error))
+            }
+        }
+
+        return result.hex()
     }
 
     func approve(approveTransaction: OKXApproveTransaction, chain: ChainModel, chainAsset: ChainAsset) async throws -> String {
@@ -211,6 +277,34 @@ final class OKXEthereumSwapServiceImpl: BaseEthereumService, OKXEthereumSwapServ
         let call = EthereumCall(from: senderAddress, to: contractAddress, data: data)
         let gasLimit = try await queryGasLimit(call: call)
         return gasPrice.quantity * gasLimit.quantity
+    }
+    
+    func estimateFeeForApproveTx(dexTokenApproveAddress: String, chainAsset: ChainAsset) async throws -> BigUInt {
+        guard
+            let contractAddress = EthereumAddress(hexString: chainAsset.asset.id)
+        else {
+            throw EthereumServiceError.invalidTransaction
+        }
+        let spenderAddress = try EthereumAddress(rawAddress: dexTokenApproveAddress.hexToBytes())
+        let senderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
+
+        let contract = ws.Contract(type: GenericERC20Contract.self, address: contractAddress)
+        let call = contract.approve(spender: spenderAddress, value: .zero)
+        let gasPrice = try await queryGasPrice()
+
+        return try await withCheckedThrowingContinuation { continuation in
+            call.estimateGas(from: senderAddress, gas: nil, value: EthereumQuantity(integerLiteral: 0)) { gasLimit, error in
+                if let gasLimit = gasLimit{
+                    continuation.resume(with: .success(gasLimit.quantity * gasPrice.quantity))
+                } else {
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(throwing: OKXEthereumSwapServiceError.unknownAllowanceResponse)
+                    }
+                }
+            }
+        }
     }
 
     func getAllowance(dexTokenApproveAddress: String, chainAsset: ChainAsset) async throws -> BigUInt {

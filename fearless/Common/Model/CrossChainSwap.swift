@@ -18,6 +18,7 @@ protocol CrossChainSwap {
     var selectedDexId: String? { get }
     var slippage: String? { get }
     var dexName: String? { get }
+    var estimatedTime: String? { get }
 
     var quotes: [OKXDexQuote]? { get }
 }

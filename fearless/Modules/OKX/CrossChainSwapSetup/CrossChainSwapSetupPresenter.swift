@@ -19,10 +19,8 @@ protocol CrossChainSwapSetupInteractorInput: AnyObject, CrossChainBaseInteractor
     func fetchBalance(for chainAssets: [ChainAsset]) async throws -> [ChainAssetKey: AccountInfo?]
     func fetchDexs(chainAsset: ChainAsset) async throws -> OKXResponse<OKXLiquiditySource>
     func fetchOkxChainAsset(nativeChainAsset: ChainAsset) async throws -> ChainAsset?
-    func fetchFundsPermissionMode(
-        swapFromChainAsset: ChainAsset,
-        amount: String
-    ) async throws -> CrossChainFundsPermissionMode
+    func fetchDexTokenApproveAddress(chainAsset: ChainAsset) async throws -> String?
+    func fetchAllowance(swapFromChainAsset: ChainAsset, dexTokenApproveAddress: String) async throws -> BigUInt?
 }
 
 final class CrossChainSwapSetupPresenter {
@@ -54,8 +52,8 @@ final class CrossChainSwapSetupPresenter {
     private var fromNetworkFee: Decimal?
     private var automaticallySelectedDexId: String?
     private var slippage: Decimal = 0.01
-    private var fundsPermissionMode: CrossChainFundsPermissionMode?
-
+    private var allowance: BigUInt?
+    private var dexTokenApproveAddress: String?
     private var dexTask: Task<Void, Never>?
     private var quotesTask: Task<Void, Never>?
     private var swapTask: Task<Void, Never>?
@@ -101,6 +99,27 @@ final class CrossChainSwapSetupPresenter {
 
         return amount
     }
+    
+    private var mode: CrossChainFundsPermissionMode {
+        guard let allowance else {
+            return .none
+        }
+        
+        let amount = BigUInt(string: amountUnwrapped)
+        if allowance > amount.or(.zero) {
+            return CrossChainFundsPermissionMode.none
+        }
+        
+        if allowance > 0, allowance < amount.or(.zero), let dexTokenApproveAddress {
+            return .revoke(dexTokenApproveAddress: dexTokenApproveAddress)
+        }
+        
+        if allowance < amount.or(.zero), let dexTokenApproveAddress {
+            return .approve(dexTokenApproveAddress: dexTokenApproveAddress)
+        }
+        
+        return CrossChainFundsPermissionMode.none
+    }
 
     // MARK: - Constructors
 
@@ -131,8 +150,6 @@ final class CrossChainSwapSetupPresenter {
 
     private func reloadData() {
         fetchInfo()
-        refreshFundsPermission()
-
         setupTimer()
     }
 
@@ -190,7 +207,7 @@ final class CrossChainSwapSetupPresenter {
                 DispatchQueue.main.async { [weak self] in
                     self?.view?.setButtonLoadingState(isLoading: false)
 
-                    if let error = error as? OKXDexError, let view = self?.view {
+                    if let error = error as? OKXDexError {
                         let message = error.decode(with: swapFromChainAsset)
                         switch error {
                         case .insufficientLiquidity:
@@ -202,7 +219,10 @@ final class CrossChainSwapSetupPresenter {
                             )
                         }
                     } else {
-//                        self?.router.present(error: error, from: self?.view, locale: self?.selectedLocale)
+                        self?.showReloadableError(
+                            title: R.string.localizable.commonImportant(preferredLanguages: self?.selectedLocale.rLanguages),
+                            message: error.localizedDescription
+                        )
                     }
                 }
             }
@@ -240,7 +260,7 @@ final class CrossChainSwapSetupPresenter {
     }
 
     private func checkLoadingState() {
-        let isReady = swap != nil && fundsPermissionMode != nil
+        let isReady = swap != nil && allowance != nil
 
         DispatchQueue.main.async { [weak self] in
             self?.view?.setButtonLoadingState(isLoading: !isReady)
@@ -362,6 +382,7 @@ final class CrossChainSwapSetupPresenter {
         }
 
         subscribeOnBalance()
+        fetchAllowance()
         fetchInfo()
     }
 
@@ -485,6 +506,22 @@ final class CrossChainSwapSetupPresenter {
         )
         view?.didReceiveError(viewModel: errorViewModel)
     }
+    
+    private func showReloadableError(title: String, message: String) {
+        let errorViewModel = ErrorViewModel(
+            title: title,
+            message: message,
+            actionTitle: R.string.localizable.commonRetry(preferredLanguages: selectedLocale.rLanguages),
+            actionHandler: { [weak self] in
+                DispatchQueue.main.async {
+                    self?.view?.didReceiveError(viewModel: nil)
+                }
+                
+                self?.fetchInfo()
+            }
+        )
+        view?.didReceiveError(viewModel: errorViewModel)
+    }
 
     private func showLiquidityError() {
         let errorViewModel = ErrorViewModel(
@@ -508,25 +545,33 @@ final class CrossChainSwapSetupPresenter {
         }
     }
     
-    private func refreshFundsPermission() {
+    private func fetchAllowance() {
         guard let chainAsset = swapFromChainAsset else {
             return
         }
         
         Task {
             do {
-                fundsPermissionMode = try await interactor.fetchFundsPermissionMode(
-                    swapFromChainAsset: chainAsset,
-                    amount: amountUnwrapped
-                )
+                guard let dexTokenApproveAddress = try await self.interactor.fetchDexTokenApproveAddress(chainAsset: chainAsset) else {
+                    allowance = .zero
+                    checkLoadingState()
+                    return
+                }
+                
+                self.allowance = try await interactor.fetchAllowance(swapFromChainAsset: chainAsset, dexTokenApproveAddress: dexTokenApproveAddress)
+                self.dexTokenApproveAddress = dexTokenApproveAddress
+                
+                checkLoadingState()
             } catch {
-                fundsPermissionMode = CrossChainFundsPermissionMode.none
+                logger?.customError(error)
+                try await Task.sleep(nanoseconds: 3_000_000_000)
+                fetchAllowance()
             }
         }
     }
     
     private func proceedToNextScreen() {
-        guard let swapFromChainAsset, let swapToChainAsset, let swap, let fundsPermissionMode else {
+        guard let swapFromChainAsset, let swapToChainAsset, let swap, let allowance else {
             return
         }
         
@@ -541,16 +586,16 @@ final class CrossChainSwapSetupPresenter {
             swap: swap,
             slippage: slippage
         )
-        
-        switch fundsPermissionMode {
-        case .none:
+              
+        switch mode {
+        case CrossChainFundsPermissionMode.none:
             self.router.presentConfirm(
                 crossChainSwapParameters: parameters,
                 from: self.view
             )
         case .approve, .revoke:
             self.router.presentFundsPermission(
-                mode: fundsPermissionMode,
+                mode: mode,
                 crossChainSwapParameters: parameters,
                 from: view
             )
@@ -723,7 +768,7 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
             wallet: wallet,
             from: view,
             moduleOutput: self,
-            selectedSort: selectedSort
+            selectedBridgeId: selectedDexIds?.first
         )
     }
     
@@ -784,9 +829,10 @@ extension CrossChainSwapSetupPresenter: Localizable {
 
 extension CrossChainSwapSetupPresenter: CrossChainSwapSetupModuleInput {
     func didSelect(sourceChainAsset: ChainAsset?) {
-        fundsPermissionMode = nil
+        allowance = nil
+        dexTokenApproveAddress = nil
         didSelectSourceChainAsset(sourceChainAsset)
-        refreshFundsPermission()
+        fetchAllowance()
     }
 }
 
@@ -815,6 +861,12 @@ extension CrossChainSwapSetupPresenter: SelectAssetModuleOutput {
 extension CrossChainSwapSetupPresenter: DexListModuleOutput {
     func didUpdateSelectedDexIds(_ selectedDexIds: [String]?) {
         self.selectedDexIds = selectedDexIds
+        provideViewModel()
+        fetchInfo()
+    }
+    
+    func didSelectBridge(id: String?) {
+        self.selectedDexIds = [id].compactMap { $0 }
         provideViewModel()
         fetchInfo()
     }

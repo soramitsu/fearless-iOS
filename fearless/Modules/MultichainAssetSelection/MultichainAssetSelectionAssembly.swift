@@ -11,7 +11,8 @@ final class MultichainAssetSelectionAssembly {
         selectAssetModuleOutput: SelectAssetModuleOutput?,
         contextTag: Int? = nil,
         selectedChainAsset: ChainAsset?,
-        filter: ((ChainAsset) throws -> Bool)?
+        filter: ((ChainAsset) throws -> Bool)?,
+        onSelectHandler: ((ChainAsset?) -> Void)? = nil
     ) -> MultichainAssetSelectionModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
@@ -31,7 +32,8 @@ final class MultichainAssetSelectionAssembly {
             selectAssetModuleOutput: selectAssetModuleOutput,
             assetFetching: assetFetching,
             selectedChainAsset: selectedChainAsset,
-            filter: filter
+            filter: filter,
+            onSelectHandler: onSelectHandler
         )
         guard let selectAssetModule = createSelectAssetModule(
             wallet: wallet,

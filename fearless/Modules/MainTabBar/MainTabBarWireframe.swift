@@ -4,17 +4,61 @@ import WalletConnectSign
 import SSFModels
 
 final class MainTabBarWireframe: MainTabBarWireframeProtocol {
-    func presentPolkaswap(on view: ControllerBackedProtocol?, wallet: MetaAccountModel) {
+    func showPolkaswap(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) {
+        guard let module = SwapContainerAssembly.configureModule(wallet: wallet, chainAsset: chainAsset) else {
+            return
+        }
+        let navigationController = FearlessNavigationController(rootViewController: module.view.controller)
+
+        view?.controller.present(
+            navigationController,
+            animated: true
+        )
+    }
+    
+    func presentCrossChainFlow(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) {
+        
+        guard let controller = CrossChainSwapSetupAssembly.configureModule(
+            wallet: wallet,
+            chainAsset: chainAsset,
+            moduleOutput: nil
+        )?.view.controller else {
+            return
+        }
+        let navigationController = FearlessNavigationController(rootViewController: controller)
+
+        view?.controller.present(navigationController, animated: true)
+    }
+    
+    func presentSwapAssetSelection(
+        on view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel,
+        onSelectHandler: ((ChainAsset?) -> Void)?
+    ) {
         guard
             let tabBarController = view?.controller,
-            let viewController = SwapContainerAssembly.configureModule(wallet: wallet, chainAsset: nil)?.view.controller
+            let module = MultichainAssetSelectionAssembly.configureModule(
+                 flow: .okxSource,
+                 wallet: wallet,
+                 selectAssetModuleOutput: nil,
+                 selectedChainAsset: nil,
+                 filter: nil,
+                 onSelectHandler: onSelectHandler
+            )
         else {
             return
         }
 
-        let navigationController = FearlessNavigationController(rootViewController: viewController)
         let presentingController = tabBarController.topModalViewController
-        presentingController.present(navigationController, animated: true, completion: nil)
+        presentingController.present(module.view.controller, animated: true, completion: nil)
     }
 
     func presentAccountImport(on view: MainTabBarViewProtocol?) {

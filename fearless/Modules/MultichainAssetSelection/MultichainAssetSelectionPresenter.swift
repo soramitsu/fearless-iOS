@@ -29,6 +29,7 @@ final class MultichainAssetSelectionPresenter {
     private let assetFetching: MultichainAssetFetching
     private var filter: ((ChainAsset) throws -> Bool)?
     private var fetchAssetsTask: Task<Void, Never>?
+    private var onSelectHandler: ((ChainAsset?) -> Void)?
 
     // MARK: - Constructors
 
@@ -41,7 +42,8 @@ final class MultichainAssetSelectionPresenter {
         selectAssetModuleOutput: SelectAssetModuleOutput?,
         assetFetching: MultichainAssetFetching,
         selectedChainAsset: ChainAsset?,
-        filter: ((ChainAsset) throws -> Bool)?
+        filter: ((ChainAsset) throws -> Bool)?,
+        onSelectHandler: ((ChainAsset?) -> Void)? = nil
     ) {
         self.interactor = interactor
         self.router = router
@@ -50,6 +52,7 @@ final class MultichainAssetSelectionPresenter {
         self.selectAssetModuleOutput = selectAssetModuleOutput
         self.assetFetching = assetFetching
         self.filter = filter
+        self.onSelectHandler = onSelectHandler
 
         selectedChain = selectedChainAsset?.chain
 
@@ -185,6 +188,7 @@ extension MultichainAssetSelectionPresenter: MultichainAssetSelectionModuleInput
 
 extension MultichainAssetSelectionPresenter: SelectAssetModuleOutput {
     func assetSelection(didCompleteWith chainAsset: ChainAsset?, contextTag: Int?) {
+        onSelectHandler?(chainAsset)
         selectAssetModuleOutput?.assetSelection(didCompleteWith: chainAsset, contextTag: contextTag)
     }
     

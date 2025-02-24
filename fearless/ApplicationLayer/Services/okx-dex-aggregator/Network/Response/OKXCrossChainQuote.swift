@@ -87,4 +87,8 @@ extension OKXCrossChainQuote: CrossChainSwap {
     var dexName: String? {
         routerList.compactMap { $0.router.bridgeName }.joined(separator: " → ")
     }
+    
+    var estimatedTime: String? {
+        routerList.first?.estimateTime
+    }
 }

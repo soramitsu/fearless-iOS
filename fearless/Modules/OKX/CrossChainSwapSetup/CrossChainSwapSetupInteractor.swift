@@ -5,6 +5,7 @@ import BigInt
 enum CrossChainSwapSetupInteractorError: Error {
     case cannotFindTokenAddress
     case accountNotFound
+    case connectionUnavailable
 }
 
 protocol CrossChainSwapSetupInteractorOutput: AnyObject {
@@ -77,32 +78,20 @@ extension CrossChainSwapSetupInteractor: CrossChainSwapSetupInteractorInput {
         return chainAssets.first { $0.asset.symbol.lowercased() == nativeChainAsset.asset.symbol.lowercased() }
     }
     
-    func fetchFundsPermissionMode(swapFromChainAsset: ChainAsset, amount: String) async throws -> CrossChainFundsPermissionMode {
+    func fetchDexTokenApproveAddress(chainAsset: ChainAsset) async throws -> String? {
+        return try await okxService.fetchAvailableChains(preferredDataSourceType: .combine).data?.first(where: { chainAsset.chain.chainId == "\($0.chainId)" })?.dexTokenApproveAddress
+    }
+    
+    func fetchAllowance(swapFromChainAsset: ChainAsset, dexTokenApproveAddress: String) async throws -> BigUInt? {
         guard let swapService = try? dependencyContainer.getEthereumSwapService(for: swapFromChainAsset) else {
-            return .none
+            throw CrossChainSwapSetupInteractorError.connectionUnavailable
         }
         
         guard !swapFromChainAsset.asset.isUtility else {
-            return .none
+            return .zero
         }
 
-        guard let amount = BigUInt(string: amount) else {
-            return .none
-        }
-
-        guard let dexTokenApproveAddress = try await okxService.fetchAvailableChains(preferredDataSourceType: .combine).data?.first(where: { swapFromChainAsset.chain.chainId == "\($0.chainId)" })?.dexTokenApproveAddress else {
-            throw CrossChainSwapConfirmInteractorError.invalidApproveTransactionResponse
-        }
         let allowance = try await swapService.getAllowance(dexTokenApproveAddress: dexTokenApproveAddress, chainAsset: swapFromChainAsset)
-
-        if allowance > 0, allowance < amount {
-            return .revoke(dexTokenApproveAddress: dexTokenApproveAddress)
-        }
-        
-        if allowance < amount {
-            return .approve(dexTokenApproveAddress: dexTokenApproveAddress)
-        }
-        
-        return .none
+        return allowance
     }
 }

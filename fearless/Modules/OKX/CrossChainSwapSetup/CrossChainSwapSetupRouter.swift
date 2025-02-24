@@ -68,7 +68,7 @@ final class CrossChainSwapSetupRouter: CrossChainSwapSetupRouterInput {
         wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?,
         moduleOutput: BridgeListModuleOutput?,
-        selectedSort: UInt8
+        selectedBridgeId: String?
     ) {
         guard let module = BridgeListAssembly.configureModule(
             sourceChainAsset: sourceChainAsset,
@@ -76,7 +76,7 @@ final class CrossChainSwapSetupRouter: CrossChainSwapSetupRouterInput {
             amount: amount,
             wallet: wallet,
             moduleOutput: moduleOutput,
-            selectedSort: selectedSort
+            selectedBridgeId: selectedBridgeId
         ) else {
             return
         }
@@ -91,7 +91,8 @@ final class CrossChainSwapSetupRouter: CrossChainSwapSetupRouterInput {
     ) {
         guard let module = CrossChainFundsPermissionAssembly.configureModule(
             mode: mode,
-            crossChainSwapParameters: crossChainSwapParameters
+            crossChainSwapParameters: crossChainSwapParameters,
+            revokeTxHash: nil
         ) else {
             return
         }

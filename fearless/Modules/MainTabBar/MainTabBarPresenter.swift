@@ -48,7 +48,18 @@ extension MainTabBarPresenter: MainTabBarPresenterProtocol {
         guard let wallet = SelectedWalletSettings.shared.value else {
             return
         }
-        wireframe.presentPolkaswap(on: view, wallet: wallet)
+        
+        wireframe.presentSwapAssetSelection(on: view, wallet: wallet) { chainAsset in
+            guard let chainAsset else {
+                return
+            }
+            
+            if chainAsset.chain.isSora {
+                self.wireframe.showPolkaswap(from: self.view, chainAsset: chainAsset, wallet: wallet)
+            } else {
+                self.wireframe.presentCrossChainFlow(from: self.view, chainAsset: chainAsset, wallet: wallet)
+            }
+        }
     }
 
     func didLoad(view: MainTabBarViewProtocol) {

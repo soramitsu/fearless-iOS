@@ -5,12 +5,18 @@ enum CrossChainFundsPermissionMode {
     case approve(dexTokenApproveAddress: String)
     case revoke(dexTokenApproveAddress: String)
     
-    func title(for locale: Locale) -> String? {
+    func title(amount: String, locale: Locale) -> String? {
         switch self {
         case .approve:
-            return "Spending Approval"
+            return R.string.localizable.erc20FundsPermissionApproveTitle(
+                amount,
+                preferredLanguages: locale.rLanguages
+            )
         case .revoke:
-            return "Revoke approval"
+            return R.string.localizable.erc20FundsPermissionRevokeTitle(
+                amount,
+                preferredLanguages: locale.rLanguages
+            )
         case .none:
             return nil
         }
@@ -40,11 +46,11 @@ enum CrossChainFundsPermissionMode {
 }
 
 struct CrossChainFundsPermissionViewModel {
-    let titleLabelText: String?
     let amountLabelText: NSAttributedString?
     let fromViewModel: TitleMultiValueViewModel?
     let requestFromViewModel: TitleMultiValueViewModel?
     let amountViewModel: BalanceViewModelProtocol?
     let warningText: String?
     let symbolViewModel: SymbolViewModel
+    let confirmButtonTitle: String?
 }

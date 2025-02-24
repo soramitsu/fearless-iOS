@@ -96,4 +96,8 @@ extension OKXSwap: CrossChainSwap {
             quote1.amountOut > quote2.amountOut
         }.first?.dexName
     }
+    
+    var estimatedTime: String? {
+        nil
+    }
 }

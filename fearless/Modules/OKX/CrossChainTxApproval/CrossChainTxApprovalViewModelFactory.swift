@@ -23,7 +23,6 @@ final class CrossChainFundsPermissionViewModelFactory {
     ) -> CrossChainFundsPermissionViewModel {
         let formatter = amountFormatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo, usageCase: .detailsCrypto)
 
-        let titleLabelText = mode.title(for: locale)
         let fromAmount = swap.fromAmount.flatMap { BigUInt(string: $0) }
         let fromAmountDecimal = fromAmount.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(chainAsset.asset.precision)) }
         let amountViewModel = fromAmountDecimal.flatMap { balanceViewModelFactory.balanceFromPrice($0, priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency), usageCase: .detailsCrypto) }
@@ -39,10 +38,7 @@ final class CrossChainFundsPermissionViewModelFactory {
         )
         let inputAmount = fromAmountDecimal.flatMap { formatter.value(for: locale).stringFromDecimal($0) }
         let amountString = inputAmount.flatMap {
-            R.string.localizable.erc20FundsPermissionApproveTitle(
-                $0,
-                preferredLanguages: locale.rLanguages
-            )
+            return mode.title(amount: $0, locale: locale)
         }
         let amountAttributedString = NSMutableAttributedString(string: amountString.or(""))
         amountAttributedString.addAttribute(
@@ -52,13 +48,13 @@ final class CrossChainFundsPermissionViewModelFactory {
         )
         
         return CrossChainFundsPermissionViewModel(
-            titleLabelText: titleLabelText,
             amountLabelText: amountAttributedString,
             fromViewModel: fromViewModel,
             requestFromViewModel: requestFromViewModel,
             amountViewModel: amountViewModel?.value(for: locale),
             warningText: mode.warningText(for: locale),
-            symbolViewModel: symbolViewModel
+            symbolViewModel: symbolViewModel,
+            confirmButtonTitle: mode.title(amount: "", locale: locale)
         )
     }
 }

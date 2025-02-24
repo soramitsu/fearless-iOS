@@ -106,10 +106,19 @@ final class CrossChainSwapConfirmPresenter {
     
     private func checkApproveTransactionSucceed(approveTxHash: String) {
         Task {
-            let isSucceed = try await interactor.checkTransactionSucceed(approveTxHash: approveTxHash)
-            if isSucceed {
-                self.approveTxHash = nil
-                refreshFee()
+            do {
+                let isSucceed = try await interactor.checkTransactionSucceed(approveTxHash: approveTxHash)
+                if isSucceed {
+                    self.approveTxHash = nil
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                        self?.refreshFee()
+                    }
+                }
+            } catch {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                    self?.checkApproveTransactionSucceed(approveTxHash: approveTxHash)
+                }
             }
         }
     }
@@ -252,13 +261,12 @@ final class CrossChainSwapConfirmPresenter {
     // MARK: Private methods
 
     private func calculateTotalFiatFee() {
-        let fee = swap.fee.flatMap { BigUInt(string: $0) }.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(swapFromChainAsset.asset.precision)) }
-        let sourceChainFeeNativeToken = swapFromChainAsset.chain.chainAssets.first(where: { $0.asset.id == swapFromChainAsset.asset.id })
+        let utilityChainAsset = swapFromChainAsset.chain.utilityChainAssets().first ?? swapFromChainAsset
+        let fee = swap.fee.flatMap { BigUInt(string: $0) }.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(utilityChainAsset.asset.precision)) }
 
         let sourceChainFiatFee: Decimal? = fee.flatMap { fee in
             guard
-                let sourceChainFeeNativeToken,
-                let price = sourceChainFeeNativeToken.asset.getPrice(for: wallet.selectedCurrency),
+                let price = utilityChainAsset.asset.getPrice(for: wallet.selectedCurrency),
                 let priceDecimal = Decimal(string: price.price)
             else {
                 return nil

@@ -8,7 +8,7 @@ protocol BridgeListViewModelFactory {
         locale: Locale,
         sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
-        selectedSort: UInt8,
+        selectedBridgeId: String?,
         sourceChainAssets: [ChainAsset]?
     ) -> BridgeListViewModel
 }
@@ -25,7 +25,7 @@ final class BridgeListViewModelFactoryImpl: BridgeListViewModelFactory {
         locale: Locale,
         sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
-        selectedSort: UInt8,
+        selectedBridgeId: String?,
         sourceChainAssets: [ChainAsset]?
     ) -> BridgeListViewModel {
         let cellModels = buildViewModels(
@@ -33,7 +33,7 @@ final class BridgeListViewModelFactoryImpl: BridgeListViewModelFactory {
             sourceChainAsset: sourceChainAsset,
             destinationChainAsset: destinationChainAsset,
             locale: locale,
-            selectedSort: selectedSort,
+            selectedBridgeId: selectedBridgeId,
             sourceChainAssets: sourceChainAssets
         )
         return BridgeListViewModel(title: "Trade Routes", cellModels: cellModels)
@@ -44,7 +44,7 @@ final class BridgeListViewModelFactoryImpl: BridgeListViewModelFactory {
         sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
         locale: Locale,
-        selectedSort: UInt8,
+        selectedBridgeId: String?,
         sourceChainAssets: [ChainAsset]?
     ) -> [BridgeListTableCellModel]? {
         guard let crossChainQuotes else {
@@ -71,12 +71,11 @@ final class BridgeListViewModelFactoryImpl: BridgeListViewModelFactory {
                 .flatMap { TimeInterval($0) }
                 .flatMap { formatter.string(from: TimeInterval($0)) }
 
-            let fee = quote.fee.flatMap { BigUInt(string: $0) }.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(sourceChainAsset.asset.precision)) }
-            let sourceChainFeeNativeToken = sourceChainAsset.chain.chainAssets.first(where: { $0.asset.id == sourceChainAsset.asset.id })
+            let sourceChainFeeNativeToken = sourceChainAsset.chain.utilityChainAssets().first ?? sourceChainAsset
+            let fee = quote.fee.flatMap { BigUInt(string: $0) }.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(sourceChainFeeNativeToken.asset.precision)) }
 
             let sourceChainFiatFee: Decimal? = fee.flatMap { fee in
                 guard
-                    let sourceChainFeeNativeToken,
                     let price = sourceChainFeeNativeToken.asset.getPrice(for: wallet.selectedCurrency),
                     let priceDecimal = Decimal(string: price.price)
                 else {
@@ -116,8 +115,9 @@ final class BridgeListViewModelFactoryImpl: BridgeListViewModelFactory {
                 txTime: txTime,
                 txCommission: txCommission,
                 route: nil,
-                isSelected: index == selectedSort,
-                sort: UInt8(index)
+                isSelected: quote.selectedDexId == selectedBridgeId,
+                sort: UInt8(index),
+                bridgeId: quote.selectedDexId
             )
         }
     }

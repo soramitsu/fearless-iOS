@@ -82,7 +82,7 @@ class CrossChainSwapSetupViewModelFactoryImpl: CrossChainSwapSetupViewModelFacto
         let txCommission = totalFiatFeeString.flatMap { "\(wallet.selectedCurrency.symbol) \($0)" }
         
         let slippageTitle = (slippage * 100).description + "%"
-
+        let slippageViewModel = TitleMultiValueViewModel(title: slippageTitle, subtitle: nil, detailsButtonVisible: true)
         
         let sourceChainIconViewModel = sourceChainAsset.chain.icon.flatMap { RemoteImageViewModel(url: $0)}
         let targetChainIconViewModel = targetChainAsset.chain.icon.flatMap { RemoteImageViewModel(url: $0)}
@@ -106,17 +106,26 @@ class CrossChainSwapSetupViewModelFactoryImpl: CrossChainSwapSetupViewModelFacto
         
         let routeViewModels: [ImageMarkedLabelViewModel] = [fromRouteViewModels, toRouteViewModels].compactMap { $0 }.reduce([], +)
         
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.hour, .minute, .second]
+        formatter.unitsStyle = .abbreviated
+        let txTime = (swap.estimatedTime)
+            .flatMap { TimeInterval($0) }
+            .flatMap { formatter.string(from: TimeInterval($0)) }
+        let routeViewModel = TitleMultiValueViewModel(title: swap.dexName?.capitalized, subtitle: nil, detailsButtonVisible: true)
+        
         return CrossChainSwapViewModel(
             minimumReceived: minimumReceiveAmountViewModel?.value(for: locale),
-            route: swap.dexName?.capitalized,
+            route: routeViewModel,
             sendTokenRatio: sendTokenRatioString,
             receiveTokenRatio: receiveTokenRatioString,
             fee: txCommission,
             sendTokenRatioTitle: sendTokenRatioTitle,
             receiveTokenRatioTitle: receiveTokenRatioTitle,
             liquiditySources: liquiditySources,
-            slippageTitle: slippageTitle,
-            routeViewModels: routeViewModels
+            slippageTitle: slippageViewModel,
+            routeViewModels: routeViewModels,
+            txTime: txTime
         )
     }
 

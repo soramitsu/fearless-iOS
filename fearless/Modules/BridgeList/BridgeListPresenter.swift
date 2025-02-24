@@ -13,7 +13,7 @@ protocol BridgeListInteractorInput: AnyObject {
 }
 
 final class BridgeListPresenter {
-    weak var moduleOutput: BridgeListModuleOutput?
+    var moduleOutput: BridgeListModuleOutput?
 
     // MARK: Private properties
 
@@ -24,7 +24,7 @@ final class BridgeListPresenter {
     private let sourceChainAsset: ChainAsset
     private let destinationChainAsset: ChainAsset
 
-    private var selectedSort: UInt8 = 0
+    private var selectedBridgeId: String?
 
     private var quotes: [OKXCrossChainQuote]?
     private var sourceChainAssets: [ChainAsset]?
@@ -38,14 +38,14 @@ final class BridgeListPresenter {
         sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
         viewModelFactory: BridgeListViewModelFactory,
-        selectedSort: UInt8
+        selectedBridgeId: String?
     ) {
         self.interactor = interactor
         self.router = router
         self.sourceChainAsset = sourceChainAsset
         self.destinationChainAsset = destinationChainAsset
         self.viewModelFactory = viewModelFactory
-        self.selectedSort = selectedSort
+        self.selectedBridgeId = selectedBridgeId
 
         self.localizationManager = localizationManager
     }
@@ -96,7 +96,7 @@ final class BridgeListPresenter {
             locale: selectedLocale,
             sourceChainAsset: sourceChainAsset,
             destinationChainAsset: destinationChainAsset,
-            selectedSort: selectedSort,
+            selectedBridgeId: selectedBridgeId,
             sourceChainAssets: sourceChainAssets
         )
 
@@ -119,12 +119,12 @@ extension BridgeListPresenter: BridgeListViewOutput {
     }
 
     func didTapSaveButton() {
-        moduleOutput?.didUpdateSelectedSort(selectedSort)
+        moduleOutput?.didSelectBridge(id: selectedBridgeId)
         router.dismiss(view: view)
     }
-
-    func didSelectSort(_ sort: UInt8) {
-        selectedSort = sort
+    
+    func didSelectBridge(id: String?) {
+        selectedBridgeId = id
         provideViewModel()
     }
 }

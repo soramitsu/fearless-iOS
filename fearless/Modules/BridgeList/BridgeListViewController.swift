@@ -5,7 +5,7 @@ protocol BridgeListViewOutput: AnyObject {
     func didLoad(view: BridgeListViewInput)
     func didTapBackButton()
     func didTapSaveButton()
-    func didSelectSort(_ sort: UInt8)
+    func didSelectBridge(id: String?)
 }
 
 final class BridgeListViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
@@ -104,6 +104,6 @@ extension BridgeListViewController: UITableViewDelegate, UITableViewDataSource {
             return
         }
 
-        output.didSelectSort(viewModel.sort)
+        output.didSelectBridge(id: viewModel.bridgeId)
     }
 }

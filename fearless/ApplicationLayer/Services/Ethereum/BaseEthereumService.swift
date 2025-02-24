@@ -31,7 +31,7 @@ class BaseEthereumService: EthereumService {
         return try await withCheckedThrowingContinuation { continuation in
             ws.getTransactionReceipt(transactionHash: hash) { resp in
                 if let response = resp.result {
-                    continuation.resume(with: .success(response?.blockHash != nil))
+                    continuation.resume(with: .success(response?.status != nil))
                 } else if let error = resp.error {
                     continuation.resume(with: .failure(error))
                 } else {

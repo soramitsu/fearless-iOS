@@ -10,7 +10,8 @@ protocol CrossChainTxTrackingViewModelFactory {
         sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
         locale: Locale,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        destinationChainAssets:[ChainAsset]
     ) -> CrossChainTxTrackingViewModel
 
     func buildFailureViewModel(
@@ -145,16 +146,19 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
         sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
         locale: Locale,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        destinationChainAssets: [ChainAsset]
     ) -> CrossChainTxTrackingViewModel {
+        let receivedChainAsset = destinationChainAssets.first(where: { $0.asset.id == status.refundTokenAddress }) ?? destinationChainAsset
+
         let date = DateFormatter.crossChainDate.value(for: locale).string(from: Date(timeIntervalSince1970: TimeInterval(transaction.timestamp)))
 
         let sourceBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: sourceChainAsset)
-        let destinationBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: destinationChainAsset)
+        let destinationBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: receivedChainAsset)
 
         let toAmountValue = BigUInt(string: status.toAmount)
         let toAmountViewModel: LocalizableResource<BalanceViewModelProtocol>? = toAmountValue.flatMap {
-            let toAmountDecimal = Decimal.fromSubstrateAmount($0, precision: Int16(destinationChainAsset.asset.precision))
+            let toAmountDecimal = Decimal.fromSubstrateAmount($0, precision: Int16(receivedChainAsset.asset.precision))
 
             guard let toAmountDecimal, toAmountDecimal > 0 else {
                 return nil
@@ -162,7 +166,7 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
 
             return destinationBalanceViewModelFactory?.balanceFromPrice(
                 toAmountDecimal,
-                priceData: destinationChainAsset.asset.getPrice(for: wallet.selectedCurrency),
+                priceData: receivedChainAsset.asset.getPrice(for: wallet.selectedCurrency),
                 usageCase: .detailsCrypto
             )
         }
@@ -181,8 +185,8 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
         let sourceFee = Decimal(string: status.sourceChainGasfee)
         let sourceFeeViewModel = sourceFee.flatMap { sourceUtilityBalanceViewModelFactory?.balanceFromPrice($0, priceData: sourceUtilityChainAsset?.asset.getPrice(for: wallet.selectedCurrency), usageCase: .detailsCrypto) }
 
-        let destinationUtilityChainAsset = destinationChainAsset.chain.utilityChainAssets().first
-        let destinationUtilityBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: destinationUtilityChainAsset)
+        let destinationUtilityChainAsset = receivedChainAsset.chain.utilityChainAssets().first
+        let destinationUtilityBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: receivedChainAsset)
         let destinationFee = Decimal(string: status.sourceChainGasfee)
         let destinationFeeViewModel = destinationFee.flatMap { destinationUtilityBalanceViewModelFactory?.balanceFromPrice($0, priceData: destinationUtilityChainAsset?.asset.getPrice(for: wallet.selectedCurrency), usageCase: .detailsCrypto) }
         let detailStatus = OKXCrossChainTxDetailStatus(rawValue: status.detailStatus) ?? .fromFailure
@@ -191,12 +195,12 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
             detailStatus: detailStatus,
             locale: locale,
             sourceChainAsset: sourceChainAsset,
-            destinationChainAsset: destinationChainAsset
+            destinationChainAsset: receivedChainAsset
         )
 
         let statusViewModels = buildStatusViewModels(
             sourceChainAsset: sourceChainAsset,
-            destinationChainAsset: destinationChainAsset,
+            destinationChainAsset: receivedChainAsset,
             status: detailStatus
         )
         let address = wallet.fetch(for: sourceChainAsset.chain.accountRequest())?.toAddress()
@@ -215,7 +219,7 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
             toChainFee: destinationFeeViewModel?.value(for: locale),
             detailStatus: status.detailStatus,
             fromHashViewTitle: R.string.localizable.commonNetworkHash(sourceChainAsset.chain.name, preferredLanguages: locale.rLanguages),
-            toHashViewTitle: R.string.localizable.commonNetworkHash(destinationChainAsset.chain.name, preferredLanguages: locale.rLanguages),
+            toHashViewTitle: R.string.localizable.commonNetworkHash(receivedChainAsset.chain.name, preferredLanguages: locale.rLanguages),
             fromFeeViewTitle: R.string.localizable.xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages),
             toFeeViewTitle: R.string.localizable.xcmDestinationNetworkFeeTitle(preferredLanguages: locale.rLanguages),
             statusViewModel: statusViewModel

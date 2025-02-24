@@ -38,7 +38,7 @@ protocol CrossChainSwapSetupRouterInput: AnyObject, PresentDismissable, SheetAle
         wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?,
         moduleOutput: BridgeListModuleOutput?,
-        selectedSort: UInt8
+        selectedBridgeId: String?
     )
     
     func presentFundsPermission(

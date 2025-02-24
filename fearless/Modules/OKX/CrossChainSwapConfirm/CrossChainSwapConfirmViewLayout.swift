@@ -113,7 +113,7 @@ final class CrossChainSwapConfirmViewLayout: UIView {
         receiveRatioView.valueTop.text = viewModel?.receiveTokenRatio
         sendRatioView.titleLabel.text = viewModel?.sendTokenRatioTitle
         receiveRatioView.titleLabel.text = viewModel?.receiveTokenRatioTitle
-        slippageView.valueTop.text = viewModel?.slippageTitle
+        slippageView.bind(viewModel: viewModel?.slippageTitle)
 
     }
 

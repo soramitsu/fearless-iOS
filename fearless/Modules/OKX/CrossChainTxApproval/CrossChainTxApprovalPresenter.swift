@@ -14,9 +14,10 @@ protocol CrossChainFundsPermissionViewInput: ControllerBackedProtocol {
 
 protocol CrossChainFundsPermissionInteractorInput: AnyObject {
     func setup(with output: CrossChainFundsPermissionInteractorOutput)
-    func approveSpending() async throws -> String
-    func estimateFee() async throws -> BigUInt
+    func submit(mode: CrossChainFundsPermissionMode) async throws -> String
     func fetchBalance(for chainAssets: [ChainAsset]) async throws -> [ChainAssetKey: AccountInfo?]
+    func estimateFee(mode: CrossChainFundsPermissionMode) async throws -> BigUInt
+    func checkTransactionSucceed(txHash: String) async throws -> Bool
 }
 
 final class CrossChainFundsPermissionPresenter {
@@ -36,6 +37,7 @@ final class CrossChainFundsPermissionPresenter {
     private var swapFromBalance: Decimal?
     private var utilityBalance: Decimal?
     private var fee: Decimal?
+    private var revokeTxHash: String?
     
     // MARK: - Constructors
     init(
@@ -50,7 +52,8 @@ final class CrossChainFundsPermissionPresenter {
         feeBalanceViewModelFactory: BalanceViewModelFactoryProtocol?,
         crossChainSwapParameters: CrossChainSwapParameters,
         dataValidatingFactory: SendDataValidatingFactory,
-        logger: LoggerProtocol?
+        logger: LoggerProtocol?,
+        revokeTxHash: String?
     ) {
         self.interactor = interactor
         self.router = router
@@ -63,11 +66,30 @@ final class CrossChainFundsPermissionPresenter {
         self.crossChainSwapParameters = crossChainSwapParameters
         self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
+        self.revokeTxHash = revokeTxHash
         
         self.localizationManager = localizationManager
     }
     
     // MARK: - Private methods
+    
+    private func checkRevokeTransactionSucceed(revokeTxHash: String) {
+        Task {
+            do {
+                let isSucceed = try await interactor.checkTransactionSucceed(txHash: revokeTxHash)
+                if isSucceed {
+                    self.revokeTxHash = nil
+                    
+                    try await Task.sleep(nanoseconds: 1000000000)
+                    try await refreshFee()
+                }
+            } catch {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                    self?.checkRevokeTransactionSucceed(revokeTxHash: revokeTxHash)
+                }
+            }
+        }
+    }
     
     @MainActor private func provideViewModel() {
         let viewModel = viewModelFactory.buildViewModel(
@@ -82,20 +104,34 @@ final class CrossChainFundsPermissionPresenter {
     }
     
     private func refreshFee() async throws {
+        await MainActor.run {
+            view?.bind(feeViewModel: nil)
+            view?.setButtonLoadingState(isLoading: true)
+        }
+        
+        if let revokeTxHash {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                self?.checkRevokeTransactionSucceed(revokeTxHash: revokeTxHash)
+            }
+            return
+        }
+        
         guard let utilityChainAsset = chainAsset.chain.utilityChainAssets().first else {
             return
         }
         
-        await MainActor.run {
-            view?.bind(feeViewModel: nil)
-        }
-        
         do {
-            let fee = try await interactor.estimateFee()
+            let fee = try await interactor.estimateFee(mode: mode)
             let feeDecimal = Decimal.fromSubstrateAmount(fee, precision: Int16(utilityChainAsset.asset.precision))
             let feeViewModel = feeDecimal.flatMap { feeBalanceViewModelFactory?.balanceFromPrice($0, priceData: utilityChainAsset.asset.getPrice(for: wallet.selectedCurrency), usageCase: .detailsCrypto) }
             
             self.fee = Decimal.fromSubstrateAmount(fee, precision: Int16(utilityChainAsset.asset.precision))
+            
+            await MainActor.run {
+                view?.bind(feeViewModel: feeViewModel?.value(for: selectedLocale))
+                view?.setButtonLoadingState(isLoading: false)
+
+            }
         } catch {
             logger?.customError(error)
             
@@ -151,8 +187,8 @@ final class CrossChainFundsPermissionPresenter {
         }
 
         do {
-            let txHash = try await interactor.approveSpending()
-            await proceed(txHash: txHash)
+            let hash = try await interactor.submit(mode: mode)
+            await proceed(txHash: hash)
         } catch {
             await MainActor.run {
                 view?.setButtonLoadingState(isLoading: false)
@@ -164,11 +200,24 @@ final class CrossChainFundsPermissionPresenter {
     @MainActor private func proceed(txHash: String) {
         view?.setButtonLoadingState(isLoading: false)
         
-        router.presentConfirm(
-            crossChainSwapParameters: crossChainSwapParameters,
-            approveTxHash: txHash,
-            from: view
-        )
+        switch mode {
+        case .approve:
+            router.presentConfirm(
+                crossChainSwapParameters: crossChainSwapParameters,
+                approveTxHash: txHash,
+                from: view
+            )
+        case let .revoke(dexTokenApproveAddress):
+            router.presentFundsPermission(
+                mode: .approve(dexTokenApproveAddress: dexTokenApproveAddress),
+                crossChainSwapParameters: crossChainSwapParameters,
+                revokeTxHash: txHash,
+                from: view
+            )
+        case .none:
+            break
+        }
+        
     }
     
     private func showDefaultError(title: String, message: String) {

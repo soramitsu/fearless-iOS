@@ -9,4 +9,5 @@ struct BridgeListTableCellModel {
     let route: String?
     let isSelected: Bool
     let sort: UInt8
+    let bridgeId: String?
 }

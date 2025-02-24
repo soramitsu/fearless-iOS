@@ -2,6 +2,7 @@ import UIKit
 import SoraUI
 
 class TitleMultiValueView: UIView {
+    let contentStackView = UIFactory.default.createHorizontalStackView(spacing: 8)
     let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = R.color.colorLightGray()
@@ -53,8 +54,20 @@ class TitleMultiValueView: UIView {
         return stackView
     }()
     
+    let detailsButton: ExtendedTouchAreaButton = {
+        let button = ExtendedTouchAreaButton()
+        button.setImage(R.image.iconDetails(), for: .normal)
+        button.isHidden = true
+        return button
+    }()
+    
 
-    var selectHandler: (() -> Void)?
+    var selectHandler: (() -> Void)? {
+        didSet {
+            detailsButton.isHidden = selectHandler == nil
+        }
+    }
+    
     var infoHandler: (() -> Void)? {
         didSet {
             infoButton.isHidden = infoHandler == nil
@@ -81,7 +94,6 @@ class TitleMultiValueView: UIView {
         super.init(frame: frame)
 
         setupLayout()
-        setupGesture()
     }
 
     @available(*, unavailable)
@@ -119,24 +131,18 @@ class TitleMultiValueView: UIView {
     }
 
     func setupLayout() {
-        
         addSubview(borderView)
+        addSubview(contentStackView)
         borderView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        addSubview(titleStackView)
+        contentStackView.addArrangedSubview(titleStackView)
 
+        contentStackView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
         titleStackView.addArrangedSubview(titleLabel)
-        titleStackView.snp.makeConstraints { make in
-            make.leading.equalToSuperview()
-            make.top.bottom.equalToSuperview().inset(UIConstants.horizontalInset)
-        }
-
-        addSubview(valueLabelsStack)
-        valueLabelsStack.snp.makeConstraints { make in
-            make.trailing.top.bottom.equalToSuperview()
-            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8.0)
-        }
+        contentStackView.addArrangedSubview(valueLabelsStack)
 
         valueLabelsStack.addArrangedSubview(valueTop)
         valueLabelsStack.addArrangedSubview(valueBottom)
@@ -147,7 +153,10 @@ class TitleMultiValueView: UIView {
             make.size.equalTo(12)
         }
         
+        contentStackView.addArrangedSubview(detailsButton)
+        
         infoButton.addTarget(self, action: #selector(handleTapInfoButton), for: .touchUpInside)
+        detailsButton.addTarget(self, action: #selector(handleTapGesture), for: .touchUpInside)
     }
 
     @objc func handleTapInfoButton() {
@@ -156,11 +165,6 @@ class TitleMultiValueView: UIView {
     
     @objc func handleTapGesture() {
         selectHandler?()
-    }
-
-    func setupGesture() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
-        valueLabelsStack.addGestureRecognizer(tapGesture)
     }
 
     func startLoadingIfNeeded() {

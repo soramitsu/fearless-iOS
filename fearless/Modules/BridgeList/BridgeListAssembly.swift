@@ -12,7 +12,7 @@ final class BridgeListAssembly {
         amount: String,
         wallet: MetaAccountModel,
         moduleOutput: BridgeListModuleOutput?,
-        selectedSort: UInt8
+        selectedBridgeId: String?
     ) -> BridgeListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
@@ -55,7 +55,7 @@ final class BridgeListAssembly {
             sourceChainAsset: sourceChainAsset,
             destinationChainAsset: destinationChainAsset,
             viewModelFactory: BridgeListViewModelFactoryImpl(wallet: wallet),
-            selectedSort: selectedSort
+            selectedBridgeId: selectedBridgeId
         )
 
         let view = BridgeListViewController(
