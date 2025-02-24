@@ -56,7 +56,15 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         
         var chainAssetCellModels: [ChainAccountBalanceCellViewModel] = []
         if let fakeAsset = chainAssets.first, soraCardStatus != .notStarted {
+            
             let priceAttributedString = soraCardStatus == .successful ? bankInfo?.iban : soraCardStatus?.text
+            
+            var soraCardBalance = ""
+
+            if let bankInfo = bankInfo {
+                soraCardBalance = "€\(bankInfo.balance)"
+            }
+
             chainAssetCellModels.append(ChainAccountBalanceCellViewModel(
                 assetContainsChainAssets: [],
                 chainIconViewViewModel: .init(
@@ -69,7 +77,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 assetInfo: nil,
                 imageViewModel: nil,
                 imageName: "soraCardAssetList",
-                balanceString: .normal("€\(bankInfo?.balance)"),
+                balanceString: .normal(soraCardBalance),
                 priceAttributedString: .normal(priceAttributedString),
                 totalAmountString: .normal(""),
                 options: [],
