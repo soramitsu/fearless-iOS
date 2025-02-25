@@ -19,6 +19,7 @@ final class ChainAccountPresenter {
     weak var moduleOutput: ChainAccountModuleOutput?
     private let balanceInfoModule: BalanceInfoModuleInput
 
+    private lazy var coinbaseProvider = CoinbasePurchaseProvivder()
     private lazy var rampProvider = RampProvider()
     private lazy var moonpayProvider: PurchaseProviderProtocol = {
         let config: ApplicationConfigProtocol = ApplicationConfig.shared
@@ -134,10 +135,12 @@ final class ChainAccountPresenter {
                     availableProviders.append(moonpayProvider)
                 case .ramp:
                     availableProviders.append(rampProvider)
+                case .coinbase:
+                    availableProviders.append(coinbaseProvider)
                 }
             }
 
-            let providersAggregator = PurchaseAggregator.defaultAggregator(with: availableProviders)
+            let providersAggregator = PurchaseAggregator.defaultAggregator(with: availableProviders, chain: chainAsset.chain)
             actions = providersAggregator.buildPurchaseActions(asset: chainAsset.asset, address: address)
         }
         return actions

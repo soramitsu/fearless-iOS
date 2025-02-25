@@ -1914,6 +1914,7 @@
 		FA17B4D427E9CF2D006E0735 /* UtilityConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA17B4D327E9CF2C006E0735 /* UtilityConstants.swift */; };
 		FA1A023C274F51A900DA07CB /* ChainAccountBalanceTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1A023B274F51A900DA07CB /* ChainAccountBalanceTableCell.swift */; };
 		FA1A023E274F55D900DA07CB /* HorizontalKeyValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1A023D274F55D900DA07CB /* HorizontalKeyValueView.swift */; };
+		FA1CD8832D6C5FD900F37F9B /* CoinbasePurchaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1CD8822D6C5FD900F37F9B /* CoinbasePurchaseProvider.swift */; };
 		FA1D01F92BBE713D005B7071 /* LiquidityPoolListCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1D01EE2BBE713D005B7071 /* LiquidityPoolListCellModel.swift */; };
 		FA1D01FA2BBE713D005B7071 /* LiquidityPoolListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1D01EF2BBE713D005B7071 /* LiquidityPoolListViewModel.swift */; };
 		FA1D01FB2BBE713D005B7071 /* LiquidityPoolsListViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1D01F02BBE713D005B7071 /* LiquidityPoolsListViewLayout.swift */; };
@@ -2236,7 +2237,6 @@
 		FA4387D82CDB44C400A95790 /* DexListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4387D72CDB44C400A95790 /* DexListViewModel.swift */; };
 		FA4387DA2CDB58D000A95790 /* UIColor+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4387D92CDB58D000A95790 /* UIColor+Hex.swift */; };
 		FA4387DC2CDB961500A95790 /* GradientBorderedTriangularedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4387DB2CDB961500A95790 /* GradientBorderedTriangularedView.swift */; };
-		FA43BA902C86C00A00D626A8 /* SubstrateDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FA43BA872C86C00A00D626A8 /* SubstrateDataModel.xcdatamodeld */; };
 		FA43BA922C86C03600D626A8 /* PriceDataMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA43BA912C86C03500D626A8 /* PriceDataMapper.swift */; };
 		FA43BA942C86C03E00D626A8 /* PricesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA43BA932C86C03D00D626A8 /* PricesService.swift */; };
 		FA43BA982C86C04C00D626A8 /* AssetRepositoryFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA43BA952C86C04C00D626A8 /* AssetRepositoryFactory.swift */; };
@@ -2684,6 +2684,7 @@
 		FA8FD18B2AFB7E6C00354482 /* AssetNetworksTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8FD18A2AFB7E6C00354482 /* AssetNetworksTableCell.swift */; };
 		FA8FD18E2AFBA2EA00354482 /* AssetNetworksTableCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8FD18D2AFBA2EA00354482 /* AssetNetworksTableCellModel.swift */; };
 		FA8FD1902AFBA34700354482 /* AssetNetworksViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8FD18F2AFBA34700354482 /* AssetNetworksViewModelFactory.swift */; };
+		FA901A052D6C61F000FE3C8E /* SubstrateDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FA9019FB2D6C61F000FE3C8E /* SubstrateDataModel.xcdatamodeld */; };
 		FA904D8E2B0488E000DAEC2D /* AssetNetworksFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA904D8D2B0488E000DAEC2D /* AssetNetworksFilter.swift */; };
 		FA904D902B04958500DAEC2D /* SortTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA904D8F2B04958500DAEC2D /* SortTableCell.swift */; };
 		FA904D922B04AE8A00DAEC2D /* SortFilterItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA904D912B04AE8A00DAEC2D /* SortFilterItem.swift */; };
@@ -5379,6 +5380,7 @@
 		FA17B4D327E9CF2C006E0735 /* UtilityConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UtilityConstants.swift; sourceTree = "<group>"; };
 		FA1A023B274F51A900DA07CB /* ChainAccountBalanceTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAccountBalanceTableCell.swift; sourceTree = "<group>"; };
 		FA1A023D274F55D900DA07CB /* HorizontalKeyValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalKeyValueView.swift; sourceTree = "<group>"; };
+		FA1CD8822D6C5FD900F37F9B /* CoinbasePurchaseProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinbasePurchaseProvider.swift; sourceTree = "<group>"; };
 		FA1D01EE2BBE713D005B7071 /* LiquidityPoolListCellModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LiquidityPoolListCellModel.swift; sourceTree = "<group>"; };
 		FA1D01EF2BBE713D005B7071 /* LiquidityPoolListViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LiquidityPoolListViewModel.swift; sourceTree = "<group>"; };
 		FA1D01F02BBE713D005B7071 /* LiquidityPoolsListViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LiquidityPoolsListViewLayout.swift; sourceTree = "<group>"; };
@@ -5640,14 +5642,6 @@
 		FA4387D72CDB44C400A95790 /* DexListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DexListViewModel.swift; sourceTree = "<group>"; };
 		FA4387D92CDB58D000A95790 /* UIColor+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Hex.swift"; sourceTree = "<group>"; };
 		FA4387DB2CDB961500A95790 /* GradientBorderedTriangularedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientBorderedTriangularedView.swift; sourceTree = "<group>"; };
-		FA43BA882C86C00A00D626A8 /* SubstrateDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel.xcdatamodel; sourceTree = "<group>"; };
-		FA43BA892C86C00A00D626A8 /* SubstrateDataModel_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v4.xcdatamodel; sourceTree = "<group>"; };
-		FA43BA8A2C86C00A00D626A8 /* SubstrateDataModel_v8.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v8.xcdatamodel; sourceTree = "<group>"; };
-		FA43BA8B2C86C00A00D626A8 /* SubstrateDataModel_v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v2.xcdatamodel; sourceTree = "<group>"; };
-		FA43BA8C2C86C00A00D626A8 /* SubstrateDataModel_v7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v7.xcdatamodel; sourceTree = "<group>"; };
-		FA43BA8D2C86C00A00D626A8 /* SubstrateDataModel_v5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v5.xcdatamodel; sourceTree = "<group>"; };
-		FA43BA8E2C86C00A00D626A8 /* SubstrateDataModel_v6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v6.xcdatamodel; sourceTree = "<group>"; };
-		FA43BA8F2C86C00A00D626A8 /* SubstrateDataModel_v3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v3.xcdatamodel; sourceTree = "<group>"; };
 		FA43BA912C86C03500D626A8 /* PriceDataMapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PriceDataMapper.swift; sourceTree = "<group>"; };
 		FA43BA932C86C03D00D626A8 /* PricesService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PricesService.swift; sourceTree = "<group>"; };
 		FA43BA952C86C04C00D626A8 /* AssetRepositoryFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetRepositoryFactory.swift; sourceTree = "<group>"; };
@@ -6090,6 +6084,15 @@
 		FA8FD18A2AFB7E6C00354482 /* AssetNetworksTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetNetworksTableCell.swift; sourceTree = "<group>"; };
 		FA8FD18D2AFBA2EA00354482 /* AssetNetworksTableCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetNetworksTableCellModel.swift; sourceTree = "<group>"; };
 		FA8FD18F2AFBA34700354482 /* AssetNetworksViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetNetworksViewModelFactory.swift; sourceTree = "<group>"; };
+		FA9019FC2D6C61F000FE3C8E /* SubstrateDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel.xcdatamodel; sourceTree = "<group>"; };
+		FA9019FD2D6C61F000FE3C8E /* SubstrateDataModel_v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v2.xcdatamodel; sourceTree = "<group>"; };
+		FA9019FE2D6C61F000FE3C8E /* SubstrateDataModel_v3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v3.xcdatamodel; sourceTree = "<group>"; };
+		FA9019FF2D6C61F000FE3C8E /* SubstrateDataModel_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v4.xcdatamodel; sourceTree = "<group>"; };
+		FA901A002D6C61F000FE3C8E /* SubstrateDataModel_v5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v5.xcdatamodel; sourceTree = "<group>"; };
+		FA901A012D6C61F000FE3C8E /* SubstrateDataModel_v6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v6.xcdatamodel; sourceTree = "<group>"; };
+		FA901A022D6C61F000FE3C8E /* SubstrateDataModel_v7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v7.xcdatamodel; sourceTree = "<group>"; };
+		FA901A032D6C61F000FE3C8E /* SubstrateDataModel_v8.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v8.xcdatamodel; sourceTree = "<group>"; };
+		FA901A042D6C61F000FE3C8E /* SubstrateDataModel_v9.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v9.xcdatamodel; sourceTree = "<group>"; };
 		FA904D8D2B0488E000DAEC2D /* AssetNetworksFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetNetworksFilter.swift; sourceTree = "<group>"; };
 		FA904D8F2B04958500DAEC2D /* SortTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortTableCell.swift; sourceTree = "<group>"; };
 		FA904D912B04AE8A00DAEC2D /* SortFilterItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortFilterItem.swift; sourceTree = "<group>"; };
@@ -8950,6 +8953,7 @@
 		8436EDE0258957B3004D9E97 /* PurchaseProvider */ = {
 			isa = PBXGroup;
 			children = (
+				FA1CD8822D6C5FD900F37F9B /* CoinbasePurchaseProvider.swift */,
 				8436EDE125895804004D9E97 /* RampProvider.swift */,
 				8436EDE625895846004D9E97 /* PurchaseProvider.swift */,
 				8436EDEE25896722004D9E97 /* PurchaseAggregator+Default.swift */,
@@ -9499,7 +9503,7 @@
 		8467FD4E24EFD0EC005D486C /* Storage */ = {
 			isa = PBXGroup;
 			children = (
-				FA43BA872C86C00A00D626A8 /* SubstrateDataModel.xcdatamodeld */,
+				FA9019FB2D6C61F000FE3C8E /* SubstrateDataModel.xcdatamodeld */,
 				FACD42852A5BE811009975AA /* Migration */,
 				FA74359C29C0736F0085A47E /* StorageWrapper.swift */,
 				8457F91126EB9088006803E1 /* EntityToModel */,
@@ -18593,6 +18597,7 @@
 				FA072C25277C0FA900731718 /* ApplicationSettingsPresentable.swift in Sources */,
 				F462B35C260C86880005AB01 /* ViewHolder.swift in Sources */,
 				84C515FB26D84F8C000DBA45 /* AccountImportWrapper.swift in Sources */,
+				FA901A052D6C61F000FE3C8E /* SubstrateDataModel.xcdatamodeld in Sources */,
 				849014DE24AA8F60008F705E /* MainTabBarInteractor.swift in Sources */,
 				FAD4290E2A86567F001D6A16 /* BannersViewLayout.swift in Sources */,
 				FAD0068027EA252400C97E09 /* AboutViewModelFactory.swift in Sources */,
@@ -19306,7 +19311,6 @@
 				F4D6FF3926B3E33E002313AF /* AnalyticsContainerViewFactory.swift in Sources */,
 				FA6262462AC2E35A005D3D95 /* WalletConnectSessionRouter.swift in Sources */,
 				F4C086C726D1159E00716AEC /* SubqueryEraStakersInfoSource.swift in Sources */,
-				FA43BA902C86C00A00D626A8 /* SubstrateDataModel.xcdatamodeld in Sources */,
 				C6CA20412B072955001503C2 /* NftFiltersAssembly.swift in Sources */,
 				FA6DB7C32757C9B000233FBA /* ChainAccountViewLayout.swift in Sources */,
 				AEF5071E262369C00098574D /* PurchaseProviderProtocol.swift in Sources */,
@@ -20165,6 +20169,7 @@
 				FAC6CD9A2BA809160013A17E /* ReceiveInfo.swift in Sources */,
 				4D822D169784790EBF173EEE /* WalletMainContainerPresenter.swift in Sources */,
 				CFAC59D34B15A2FAC4CD8256 /* WalletMainContainerInteractor.swift in Sources */,
+				FA1CD8832D6C5FD900F37F9B /* CoinbasePurchaseProvider.swift in Sources */,
 				6FA6FA6944AD6519FB8A2AC0 /* WalletMainContainerViewController.swift in Sources */,
 				FA7254412AC2E48500EC47A6 /* ABIParsing.swift in Sources */,
 				D403B7725ED25E20A20F9D6A /* WalletMainContainerViewLayout.swift in Sources */,
@@ -21183,8 +21188,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
-				branch = "fearless-wallet";
-				kind = branch;
+				kind = revision;
+				revision = b3e2bf1bc380d0e046b603921cbb63dcefb920cf;
 			};
 		};
 		FAB482E92C58A8AA00594D89 /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
@@ -22025,19 +22030,20 @@
 /* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
-		FA43BA872C86C00A00D626A8 /* SubstrateDataModel.xcdatamodeld */ = {
+		FA9019FB2D6C61F000FE3C8E /* SubstrateDataModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				FA43BA882C86C00A00D626A8 /* SubstrateDataModel.xcdatamodel */,
-				FA43BA892C86C00A00D626A8 /* SubstrateDataModel_v4.xcdatamodel */,
-				FA43BA8A2C86C00A00D626A8 /* SubstrateDataModel_v8.xcdatamodel */,
-				FA43BA8B2C86C00A00D626A8 /* SubstrateDataModel_v2.xcdatamodel */,
-				FA43BA8C2C86C00A00D626A8 /* SubstrateDataModel_v7.xcdatamodel */,
-				FA43BA8D2C86C00A00D626A8 /* SubstrateDataModel_v5.xcdatamodel */,
-				FA43BA8E2C86C00A00D626A8 /* SubstrateDataModel_v6.xcdatamodel */,
-				FA43BA8F2C86C00A00D626A8 /* SubstrateDataModel_v3.xcdatamodel */,
+				FA9019FC2D6C61F000FE3C8E /* SubstrateDataModel.xcdatamodel */,
+				FA9019FD2D6C61F000FE3C8E /* SubstrateDataModel_v2.xcdatamodel */,
+				FA9019FE2D6C61F000FE3C8E /* SubstrateDataModel_v3.xcdatamodel */,
+				FA9019FF2D6C61F000FE3C8E /* SubstrateDataModel_v4.xcdatamodel */,
+				FA901A002D6C61F000FE3C8E /* SubstrateDataModel_v5.xcdatamodel */,
+				FA901A012D6C61F000FE3C8E /* SubstrateDataModel_v6.xcdatamodel */,
+				FA901A022D6C61F000FE3C8E /* SubstrateDataModel_v7.xcdatamodel */,
+				FA901A032D6C61F000FE3C8E /* SubstrateDataModel_v8.xcdatamodel */,
+				FA901A042D6C61F000FE3C8E /* SubstrateDataModel_v9.xcdatamodel */,
 			);
-			currentVersion = FA43BA8A2C86C00A00D626A8 /* SubstrateDataModel_v8.xcdatamodel */;
+			currentVersion = FA901A042D6C61F000FE3C8E /* SubstrateDataModel_v9.xcdatamodel */;
 			path = SubstrateDataModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

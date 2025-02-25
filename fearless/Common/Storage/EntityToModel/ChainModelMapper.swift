@@ -110,7 +110,8 @@ final class ChainModelMapper {
             assetType: assetType,
             priceProvider: priceProvider,
             coingeckoPriceId: entity.priceId,
-            priceData: priceDatas
+            priceData: priceDatas,
+            coinbaseUrl: entity.coinbaseUrl
         )
     }
 
@@ -150,6 +151,7 @@ final class ChainModelMapper {
             assetEntity.isUtility = assetModel.isUtility
             assetEntity.isNative = assetModel.isNative
             assetEntity.staking = assetModel.staking?.rawValue
+            assetEntity.coinbaseUrl = assetModel.coinbaseUrl
 
             let priceProviderContext = CDPriceProvider(context: context)
             priceProviderContext.type = assetModel.priceProvider?.type.rawValue
@@ -187,6 +189,7 @@ final class ChainModelMapper {
             }
 
             assetEntity.priceData = Set(priceData) as NSSet
+            print("CoinbaseURL debug: updateEntityAsset: coinbaseUrl: \(assetEntity.coinbaseUrl)")
 
             return assetEntity
         }
