@@ -19,6 +19,7 @@ enum Banners: Int {
 protocol BannersViewModelFactoryProtocol {
     func createViewModel(
         wallets: [MetaAccountModel],
+        currentWallet: MetaAccountModel?,
         soraCardStatus: KYCUserStatus?,
         delegate: BannerCellDelegate?,
         locale: Locale,
@@ -146,6 +147,7 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
 
     func createViewModel(
         wallets: [MetaAccountModel],
+        currentWallet: MetaAccountModel?,
         soraCardStatus: KYCUserStatus?,
         delegate: BannerCellDelegate?,
         locale: Locale,
@@ -153,10 +155,12 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
     ) -> BannersViewModel {
         var banners: [Banners] = []
         
-        if soraCardStatus == .notStarted &&  !wallets.contains(where: { $0.ecosystem.isTon }) {
-            banners.append(.soraCard)
+        if let currentWallet {
+            if soraCardStatus == .notStarted && !currentWallet.ecosystem.isTon {
+                banners.append(.soraCard)
+            }
         }
-        
+      
         if soraCardStatus == .successful {
             banners.append(.buyXor)
         }

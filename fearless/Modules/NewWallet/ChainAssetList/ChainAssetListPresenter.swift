@@ -72,7 +72,7 @@ final class ChainAssetListPresenter {
                 self.view?.didReceive(viewModel: viewModel)
                 
                 DispatchQueue.global().async {
-                    self.bannersInput?.reload()
+                    self.bannersInput?.reload(with: self.wallet)
                 }
 
             }

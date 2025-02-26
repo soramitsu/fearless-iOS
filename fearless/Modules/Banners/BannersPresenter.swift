@@ -36,6 +36,8 @@ final class BannersPresenter {
 
     private var wallets: [MetaAccountModel] = []
     private var soraCardStatus: KYCUserStatus?
+    
+    private var currentWallet: MetaAccountModel?
 
     // MARK: - Constructors
 
@@ -65,6 +67,7 @@ final class BannersPresenter {
     private func provideViewModel() {
         let bannersViewModel = viewModelFactory.createViewModel(
             wallets: wallets,
+            currentWallet: currentWallet,
             soraCardStatus: soraCardStatus,
             delegate: self,
             locale: selectedLocale,
@@ -205,6 +208,7 @@ extension BannersPresenter: BannersModuleInput {
     func reload(with wallet: MetaAccountModel) {
         self.wallets = self.wallets.filter { $0.metaId != wallet.metaId }
         self.wallets.append(wallet)
+        self.currentWallet = wallet
         provideViewModel()
     }
 
