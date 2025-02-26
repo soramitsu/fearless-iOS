@@ -613,6 +613,8 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
 
     func handleViewWillAppear() {
         reloadData()
+        allowance = nil
+        fetchAllowance()
     }
 
     func handleDismissingSwipe() {

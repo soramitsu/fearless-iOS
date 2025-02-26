@@ -202,6 +202,7 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     func didPullToRefresh() {
         interactor.updateData()
         fetchOkxFlowAvailable(preferredDataSourceType: .remote)
+        moduleOutput?.updateTransactionHistory(for: chainAsset)
     }
 
     func addressDidCopied() {

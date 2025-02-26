@@ -149,7 +149,7 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
         wallet: MetaAccountModel,
         destinationChainAssets: [ChainAsset]
     ) -> CrossChainTxTrackingViewModel {
-        let receivedChainAsset = destinationChainAssets.first(where: { $0.asset.id == status.refundTokenAddress }) ?? destinationChainAsset
+        let receivedChainAsset = destinationChainAssets.first(where: { $0.asset.id.lowercased() == status.refundTokenAddress?.lowercased() }) ?? destinationChainAsset
 
         let date = DateFormatter.crossChainDate.value(for: locale).string(from: Date(timeIntervalSince1970: TimeInterval(transaction.timestamp)))
 

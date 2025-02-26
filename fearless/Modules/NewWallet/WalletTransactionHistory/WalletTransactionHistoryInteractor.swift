@@ -19,12 +19,9 @@ final class WalletTransactionHistoryInteractor {
     var filters: [FilterSet]
     let transactionsPerPage: Int
     let eventCenter: EventCenterProtocol
-    let applicationHandler: ApplicationHandler
 
     private(set) var dataLoadingState: WalletTransactionHistoryDataState = .waitingCached
     private(set) var pages: [AssetTransactionPageData] = []
-
-    private var reloadTimer: Timer?
 
     init(
         chain: ChainModel,
@@ -36,8 +33,7 @@ final class WalletTransactionHistoryInteractor {
         selectedFilter: WalletHistoryRequest,
         transactionsPerPage: Int = 100,
         filters: [FilterSet],
-        eventCenter: EventCenterProtocol,
-        applicationHandler: ApplicationHandler
+        eventCenter: EventCenterProtocol
     ) {
         self.selectedAccount = selectedAccount
         self.dependencyContainer = dependencyContainer
@@ -47,10 +43,7 @@ final class WalletTransactionHistoryInteractor {
         self.transactionsPerPage = transactionsPerPage
         self.filters = filters
         self.eventCenter = eventCenter
-        self.applicationHandler = applicationHandler
         chainAsset = ChainAsset(chain: chain, asset: asset)
-
-        applicationHandler.delegate = self
     }
 
     private func loadTransactions(for pagination: Pagination) {
@@ -240,21 +233,6 @@ final class WalletTransactionHistoryInteractor {
         }
     }
 
-    private func setupReloadTimer() {
-        reloadTimer = Timer.scheduledTimer(
-            withTimeInterval: Constants.reloadInterval,
-            repeats: true,
-            block: { [weak self] _ in
-                guard let strongSelf = self else {
-                    return
-                }
-                let pagination = Pagination(count: strongSelf.transactionsPerPage)
-                strongSelf.dataLoadingState = .filtering(page: pagination, previousPage: nil)
-                strongSelf.loadTransactions(for: pagination)
-            }
-        )
-    }
-
     func getUtilityAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
         guard let chainAsset = chainAsset else { return nil }
         if chainAsset.chain.isSora, !chainAsset.isUtility,
@@ -304,7 +282,6 @@ extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractor
         self.presenter = presenter
 
         setupDependencies(for: chainAsset)
-        setupReloadTimer()
 
         presenter?.didReceive(filters: filters)
 
@@ -312,8 +289,6 @@ extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractor
     }
 
     func loadNext() -> Bool {
-        reloadTimer?.invalidate()
-
         switch dataLoadingState {
         case .waitingCached:
             return false
@@ -371,6 +346,8 @@ extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractor
             dataLoadingState = .waitingCached
             pages = []
             reload()
+        } else {
+            reload()
         }
     }
 }
@@ -383,15 +360,5 @@ extension WalletTransactionHistoryInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
         selectedAccount = event.account
         reload()
-    }
-}
-
-extension WalletTransactionHistoryInteractor: ApplicationHandlerDelegate {
-    func didReceiveDidEnterBackground(notification _: Notification) {
-        reloadTimer?.invalidate()
-    }
-
-    func didReceiveWillEnterForeground(notification _: Notification) {
-        setupReloadTimer()
     }
 }

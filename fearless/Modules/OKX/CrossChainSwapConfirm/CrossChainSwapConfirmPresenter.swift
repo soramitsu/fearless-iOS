@@ -409,7 +409,16 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
                 } catch {
                     await MainActor.run {
                         self.view?.setButtonLoadingState(isLoading: false)
-                        self.router.presentError(for: error.localizedDescription, message: "", view: view, locale: self.selectedLocale)
+                        
+                        if let rpcError = error as? RPCResponse<EthereumQuantity>.Error {
+                            self.showDefaultError(
+                                title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: self.selectedLocale.rLanguages),
+                                message: rpcError.message
+                            )
+                        } else {
+                            self.router.presentError(for: error.localizedDescription, message: "", view: view, locale: self.selectedLocale)
+                        }
+                        
                     }
                 }
             }

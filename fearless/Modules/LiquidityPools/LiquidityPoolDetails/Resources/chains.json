@@ -6619,8 +6619,8 @@
         }
       ],
       "history": {
-        "type": "etherscan",
-        "url": "https://api.etherscan.io/api"
+          "type": "oklink",
+          "url": "https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=ETH"
       }
     },
     "assets": [

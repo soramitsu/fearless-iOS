@@ -10,12 +10,14 @@ final class OklinkHistoryOperationFactory {
     private func createOperation(
         address: String,
         url: URL,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        page: String?
     ) -> BaseOperation<OklinkHistoryResponse> {
         var urlComponents = URLComponents(string: url.absoluteString)
         var queryItems = urlComponents?.queryItems
         queryItems?.append(URLQueryItem(name: "address", value: address))
         queryItems?.append(URLQueryItem(name: "symbol", value: chainAsset.asset.symbol))
+        queryItems?.append(URLQueryItem(name: "page", value: page))
 
         switch chainAsset.asset.assetType.ethereumAssetType {
         case .erc20:
@@ -79,7 +81,10 @@ final class OklinkHistoryOperationFactory {
         chain: ChainModel
     ) -> BaseOperation<AssetTransactionPageData?> {
         ClosureOperation {
-            let remoteTransactions = try remoteOperation.extractNoCancellableResultData().data.first?.transactionLists
+            let response = try remoteOperation.extractNoCancellableResultData().data.first
+            let remoteTransactions = response?.transactionLists
+            let currentPage = (response?.page).flatMap { Int($0) }
+            let totalPage = (response?.totalPage).flatMap { Int($0) }
 
             let transactions = remoteTransactions?
                 .filter { asset.assetType.ethereumAssetType == .normal ? true : $0.tokenContractAddress.lowercased() == asset.id.lowercased() }
@@ -88,7 +93,19 @@ final class OklinkHistoryOperationFactory {
                     AssetTransactionData.createTransaction(from: $0, address: address, chain: chain, asset: asset)
                 }.filter { $0.amount.decimalValue > 0 } ?? []
 
-            return AssetTransactionPageData(transactions: transactions)
+            let context: [String: String]? = response.flatMap {
+                let currentPage = Int($0.page)
+                let totalPage = Int($0.totalPage)
+                
+                guard let currentPage, let totalPage, currentPage < totalPage else {
+                    return nil
+                }
+                
+                let nextPageValue = "\(currentPage + 1)"
+                return ["page" : nextPageValue]
+            }
+            
+            return AssetTransactionPageData(transactions: transactions, context: context)
         }
     }
 }
@@ -99,7 +116,7 @@ extension OklinkHistoryOperationFactory: HistoryOperationFactoryProtocol {
         chain: ChainModel,
         address: String,
         filters _: [WalletTransactionHistoryFilter],
-        pagination _: Pagination
+        pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
         guard let baseUrl = chain.externalApi?.history?.url else {
             return CompoundOperationWrapper.createWithError(SubqueryHistoryOperationFactoryError.urlMissing)
@@ -108,7 +125,8 @@ extension OklinkHistoryOperationFactory: HistoryOperationFactoryProtocol {
         let remoteOperation = createOperation(
             address: address,
             url: baseUrl,
-            chainAsset: ChainAsset(chain: chain, asset: asset)
+            chainAsset: ChainAsset(chain: chain, asset: asset),
+            page: pagination.context?["page"]
         )
 
         let mapOperation = createMapOperation(
