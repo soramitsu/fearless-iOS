@@ -153,7 +153,7 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
     ) -> BannersViewModel {
         var banners: [Banners] = []
         
-        if soraCardStatus == .notStarted {
+        if soraCardStatus == .notStarted &&  !wallets.contains(where: { $0.ecosystem.isTon }) {
             banners.append(.soraCard)
         }
         
