@@ -16,6 +16,7 @@ final class ProfilePresenter {
     private var selectedCurrency: Currency?
     private var balance: WalletBalanceInfo?
     private var missingAccountIssue: [ChainIssue] = []
+    private var accountScoreViewModel: AccountScoreViewModel?
 
     init(
         viewModelFactory: ProfileViewModelFactoryProtocol,
@@ -53,12 +54,23 @@ final class ProfilePresenter {
             language: language,
             currency: currency,
             balance: balance,
-            missingAccountIssue: missingAccountIssue
+            missingAccountIssue: missingAccountIssue,
+            accountScoreViewModel: accountScoreViewModel
         )
         let state = ProfileViewState.loaded(viewModel)
         DispatchQueue.main.async {
             self.view?.didReceive(state: state)
         }
+    }
+    
+    func provideAccountScoreViewModel() {
+        guard let wallet = selectedWallet else {
+            return
+        }
+        
+        let viewModel = viewModelFactory.buildAccountScoreViewModel(wallet: wallet)
+        self.accountScoreViewModel = viewModel
+        receiveState()
     }
 }
 
@@ -238,7 +250,12 @@ extension ProfilePresenter: EventVisitorProtocol {
     }
     
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        let isAccountChanged = event.account.metaId != selectedWallet?.metaId
         selectedWallet = event.account
+        
+        if isAccountChanged {
+            provideAccountScoreViewModel()
+        }
     }
 }
 

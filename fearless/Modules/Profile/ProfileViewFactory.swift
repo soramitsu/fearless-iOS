@@ -16,16 +16,14 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
                 sortDescriptors: [NSSortDescriptor.accountsByOrder]
             )
 
-        let accountScoreFetcher = NomisAccountStatisticsFetcher(
-            networkWorker: NetworkWorkerImpl(),
-            signer: NomisRequestSigner()
-        )
+        let accountScoreRepository = AccountScoreRepository(fetcher: ServiceAssembly.shared.nomisAccountScoreFetcher)
+
         let settings = SettingsManager.shared
         let profileViewModelFactory = ProfileViewModelFactory(
             iconGenerator: UniversalIconGenerator(),
             biometry: BiometryAuth(),
             settings: settings,
-            accountScoreFetcher: accountScoreFetcher
+            accountScoreFetcher: accountScoreRepository
         )
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)

@@ -2680,6 +2680,7 @@
 		FA8F6386298253ED004B8CD4 /* AddConnectionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8F6385298253ED004B8CD4 /* AddConnectionError.swift */; };
 		FA8F63AB29825C90004B8CD4 /* AccountShareFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8F63A529825C90004B8CD4 /* AccountShareFactory.swift */; };
 		FA8F63B1298273FE004B8CD4 /* DecodedTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8F63B0298273FE004B8CD4 /* DecodedTypes.swift */; };
+		FA8FA47F2D6ECA2E0038FFCF /* AccountScoreRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8FA47E2D6ECA230038FFCF /* AccountScoreRepository.swift */; };
 		FA8FD1882AF4BEDD00354482 /* Swime in Frameworks */ = {isa = PBXBuildFile; productRef = FA8FD1872AF4BEDD00354482 /* Swime */; };
 		FA8FD18B2AFB7E6C00354482 /* AssetNetworksTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8FD18A2AFB7E6C00354482 /* AssetNetworksTableCell.swift */; };
 		FA8FD18E2AFBA2EA00354482 /* AssetNetworksTableCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8FD18D2AFBA2EA00354482 /* AssetNetworksTableCellModel.swift */; };
@@ -6081,6 +6082,7 @@
 		FA8F6385298253ED004B8CD4 /* AddConnectionError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddConnectionError.swift; sourceTree = "<group>"; };
 		FA8F63A529825C90004B8CD4 /* AccountShareFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountShareFactory.swift; sourceTree = "<group>"; };
 		FA8F63B0298273FE004B8CD4 /* DecodedTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodedTypes.swift; sourceTree = "<group>"; };
+		FA8FA47E2D6ECA230038FFCF /* AccountScoreRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountScoreRepository.swift; sourceTree = "<group>"; };
 		FA8FD18A2AFB7E6C00354482 /* AssetNetworksTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetNetworksTableCell.swift; sourceTree = "<group>"; };
 		FA8FD18D2AFBA2EA00354482 /* AssetNetworksTableCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetNetworksTableCellModel.swift; sourceTree = "<group>"; };
 		FA8FD18F2AFBA34700354482 /* AssetNetworksViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetNetworksViewModelFactory.swift; sourceTree = "<group>"; };
@@ -16326,6 +16328,7 @@
 		FAD5FF2C2C464705003201F5 /* Nomis */ = {
 			isa = PBXGroup;
 			children = (
+				FA8FA47E2D6ECA230038FFCF /* AccountScoreRepository.swift */,
 				FA4B098C2C4674C9001B73F9 /* Request */,
 				FAD5FF2A2C46464B003201F5 /* NomisAccountStatisticsFetcher.swift */,
 				FA4B098D2C47804F001B73F9 /* NomisRequestSigner.swift */,
@@ -20217,6 +20220,7 @@
 				FA34EEEC2B98723C0042E73E /* BalanceLocksDetailViewController.swift in Sources */,
 				C6FBA7052C743D52008B18D9 /* OKXDexSwapRequestParameters.swift in Sources */,
 				FAFFAE8129AC84B10074AF1F /* SubqueryDelegatorHistoryElement.swift in Sources */,
+				FA8FA47F2D6ECA2E0038FFCF /* AccountScoreRepository.swift in Sources */,
 				10B4951F5E0C515EFBDBC32E /* StakingPoolCreateConfirmPresenter.swift in Sources */,
 				FA7254362AC2E48500EC47A6 /* String+EIP55.swift in Sources */,
 				FA6262532AC2E35A005D3D95 /* MultiSelectNetworksPresenter.swift in Sources */,

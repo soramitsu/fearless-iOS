@@ -16,10 +16,8 @@ final class ConnectedAccountsAssembly {
         )
         let router = ConnectedAccountsRouter()
 
-        let accountScoreFetcher = NomisAccountStatisticsFetcher(
-            networkWorker: NetworkWorkerImpl(),
-            signer: NomisRequestSigner()
-        )
+        let accountScoreFetcher = AccountScoreRepository(fetcher: ServiceAssembly.shared.nomisAccountScoreFetcher)
+        
         let viewModelFactory = ConnectedAccountsViewModelFactoryImpl(
             accountScoreFetcher: accountScoreFetcher,
             settings: SettingsManager.shared

@@ -10,6 +10,8 @@ protocol WalletMainContainerViewModelFactoryProtocol {
         selectedMetaAccount: MetaAccountModel,
         locale: Locale
     ) -> WalletMainContainerViewModel
+    
+    func buildAccountScoreViewModel(wallet: MetaAccountModel) -> AccountScoreViewModel
 }
 
 final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFactoryProtocol {
@@ -19,6 +21,19 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
     init(accountScoreFetcher: AccountStatisticsFetching, settings: SettingsManagerProtocol) {
         self.accountScoreFetcher = accountScoreFetcher
         self.settings = settings
+    }
+    
+    func buildAccountScoreViewModel(wallet: MetaAccountModel) -> AccountScoreViewModel {
+        let ethAddress = wallet.ecosystem.ethereumAddress?.toHex(includePrefix: true)
+
+        return AccountScoreViewModel(
+            fetcher: accountScoreFetcher,
+            address: ethAddress,
+            chain: nil,
+            settings: settings,
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared
+        )
     }
 
     func buildViewModel(
@@ -59,22 +74,11 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
             chainAddress = address
         }
 
-        let ethAddress = selectedMetaAccount.ecosystem.ethereumAddress?.toHex(includePrefix: true)
-        let accountScoreViewModel = AccountScoreViewModel(
-            fetcher: accountScoreFetcher,
-            address: ethAddress,
-            chain: nil,
-            settings: settings,
-            eventCenter: EventCenter.shared,
-            logger: Logger.shared
-        )
-
         return WalletMainContainerViewModel(
             walletName: selectedMetaAccount.name,
             selectedFilter: selectedFilterName,
             selectedFilterImage: selectedFilterImage,
             address: chainAddress,
-            accountScoreViewModel: accountScoreViewModel,
             walletIcon: selectedMetaAccount.icon(),
             isSelectableNetwork: selectedMetaAccount.ecosystem.isRegular
         )

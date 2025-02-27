@@ -40,10 +40,8 @@ final class WalletMainContainerAssembly {
             walletRepository: AnyDataProviderRepository(accountRepository),
             stashItemRepository: substrateRepositoryFactory.createStashItemRepository()
         )
-        let accountScoreFetcher = NomisAccountStatisticsFetcher(
-            networkWorker: NetworkWorkerImpl(),
-            signer: NomisRequestSigner()
-        )
+
+        let accountScoreRepository = AccountScoreRepository(fetcher: ServiceAssembly.shared.nomisAccountScoreFetcher)
 
         let featureToggleProvider = FeatureToggleProvider(
             networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
@@ -74,7 +72,7 @@ final class WalletMainContainerAssembly {
         }
 
         let viewModelFactory = WalletMainContainerViewModelFactory(
-            accountScoreFetcher: accountScoreFetcher,
+            accountScoreFetcher: accountScoreRepository,
             settings: SettingsManager.shared
         )
         let presenter = WalletMainContainerPresenter(

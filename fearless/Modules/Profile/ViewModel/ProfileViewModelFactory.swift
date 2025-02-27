@@ -12,8 +12,11 @@ protocol ProfileViewModelFactoryProtocol: AnyObject {
         language: Language,
         currency: Currency,
         balance: WalletBalanceInfo?,
-        missingAccountIssue: [ChainIssue]
+        missingAccountIssue: [ChainIssue],
+        accountScoreViewModel: AccountScoreViewModel?
     ) -> ProfileViewModelProtocol
+    
+    func buildAccountScoreViewModel(wallet: MetaAccountModel) -> AccountScoreViewModel
 }
 
 enum ProfileOption: UInt, CaseIterable {
@@ -52,6 +55,19 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     }
 
     // MARK: - Public methods
+    
+    func buildAccountScoreViewModel(wallet: MetaAccountModel) -> AccountScoreViewModel {
+        let ethAddress = wallet.ecosystem.ethereumAddress?.toHex(includePrefix: true)
+
+        return AccountScoreViewModel(
+            fetcher: accountScoreFetcher,
+            address: ethAddress,
+            chain: nil,
+            settings: settings,
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared
+        )
+    }
 
     func createProfileViewModel(
         from wallet: MetaAccountModel,
@@ -59,12 +75,14 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         language: Language,
         currency: Currency,
         balance: WalletBalanceInfo?,
-        missingAccountIssue: [ChainIssue]
+        missingAccountIssue: [ChainIssue],
+        accountScoreViewModel: AccountScoreViewModel?
     ) -> ProfileViewModelProtocol {
         let profileUserViewModel = createUserViewModel(
             from: wallet,
             balance: balance,
-            locale: locale
+            locale: locale,
+            accountScoreViewModel: accountScoreViewModel
         )
         let profileOptionViewModel = createOptionViewModels(
             language: language,
@@ -95,7 +113,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private func createUserViewModel(
         from wallet: MetaAccountModel,
         balance: WalletBalanceInfo?,
-        locale: Locale
+        locale: Locale,
+        accountScoreViewModel: AccountScoreViewModel?
     ) -> WalletsManagmentCellViewModel {
         var fiatBalance: String = ""
         var dayChange: NSAttributedString?
@@ -109,10 +128,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 locale: locale
             )
         }
-
-        let address = wallet.ecosystem.ethereumAddress?.toHex(includePrefix: true)
-        let accountScoreViewModel = AccountScoreViewModel(fetcher: accountScoreFetcher, address: address, chain: nil, settings: settings, eventCenter: EventCenter.shared, logger: Logger.shared)
-
+        
         return WalletsManagmentCellViewModel(
             isSelected: false,
             walletName: wallet.name,

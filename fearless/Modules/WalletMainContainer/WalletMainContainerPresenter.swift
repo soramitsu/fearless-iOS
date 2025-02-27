@@ -46,6 +46,11 @@ final class WalletMainContainerPresenter {
     }
 
     // MARK: - Private methods
+    
+    private func provideAccountScoreViewModel() {
+        let viewModel = viewModelFactory.buildAccountScoreViewModel(wallet: wallet)
+        view?.didReceiveAccountScoreViewModel(viewModel)
+    }
 
     private func provideViewModel() {
         let viewModel = viewModelFactory.buildViewModel(
@@ -97,6 +102,7 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
         self.view = view
         interactor.setup(with: self)
         provideViewModel()
+        provideAccountScoreViewModel()
     }
 
     func didTapOnSwitchWallet() {

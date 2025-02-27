@@ -48,7 +48,7 @@ enum NftSendAssembly {
             )
             let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(walletLocalSubscriptionFactory: walletLocalSubscriptionFactory, selectedMetaAccount: wallet)
 
-            let accountStatisticsFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerImpl(), signer: NomisRequestSigner())
+            let accountStatisticsFetcher = AccountScoreRepository(fetcher: ServiceAssembly.shared.nomisAccountScoreFetcher)
             let scamInfoFetcher = ScamInfoFetcher(
                 scamServiceOperationFactory: scamServiceOperationFactory,
                 accountScoreFetching: accountStatisticsFetcher,

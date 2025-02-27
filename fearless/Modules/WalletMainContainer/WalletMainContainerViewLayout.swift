@@ -113,7 +113,6 @@ final class WalletMainContainerViewLayout: UIView {
             addressCopyableLabel.isHidden = true
         }
 
-        accountScoreView.bind(viewModel: viewModel.accountScoreViewModel)
         switchWalletButton.setImage(viewModel.walletIcon, for: .normal)
         selectNetworkButton.applySelectableStyle(viewModel.isSelectableNetwork)
     }

@@ -21,6 +21,7 @@ final class ServiceAssembly {
     lazy var userDefaults = SettingsManager.shared
     lazy var localToggle = LocalToggleService.shared
     lazy var walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
+    lazy var nomisAccountScoreFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerImpl(), signer: NomisRequestSigner())
 
     private var _accountInfoRemoteServiceDefault: AccountInfoRemoteService?
     func accountInfoRemoteServiceDefault() -> AccountInfoRemoteService {

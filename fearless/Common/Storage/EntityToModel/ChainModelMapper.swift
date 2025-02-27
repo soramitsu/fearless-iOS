@@ -189,7 +189,6 @@ final class ChainModelMapper {
             }
 
             assetEntity.priceData = Set(priceData) as NSSet
-            print("CoinbaseURL debug: updateEntityAsset: coinbaseUrl: \(assetEntity.coinbaseUrl)")
 
             return assetEntity
         }

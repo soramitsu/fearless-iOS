@@ -8,6 +8,7 @@ typealias WalletMainContainerModuleCreationResult = (
 protocol WalletMainContainerViewInput: ControllerBackedProtocol, HiddableBarWhenPushed {
     func didReceiveViewModel(_ viewModel: WalletMainContainerViewModel)
     func didReceiveNftAvailability(isNftAvailable: Bool)
+    func didReceiveAccountScoreViewModel(_ viewModel: AccountScoreViewModel)
 }
 
 protocol WalletMainContainerViewOutput: AnyObject {
