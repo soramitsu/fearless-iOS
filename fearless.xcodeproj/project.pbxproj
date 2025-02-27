@@ -1991,6 +1991,7 @@
 		FA286B1D2A3043DB008BD527 /* CrossChainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA286B0A2A3043DB008BD527 /* CrossChainViewModelFactory.swift */; };
 		FA286B242A3070C8008BD527 /* AssetDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA286B232A3070C8008BD527 /* AssetDetail.swift */; };
 		FA28A9B229D2E451005AA42E /* MultiassetV9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = FA28A9B129D2E451005AA42E /* MultiassetV9.xcmappingmodel */; };
+		FA2B7FE02D702DE800311544 /* CrossChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2B7FDF2D702DE600311544 /* CrossChain.swift */; };
 		FA2C997E28645F24007D9675 /* ParachainRewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2C997D28645F24007D9675 /* ParachainRewardCalculatorService.swift */; };
 		FA2DF9952A8C970E0047F440 /* NFTFetchingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2DF9942A8C970E0047F440 /* NFTFetchingService.swift */; };
 		FA2DF99B2A8C99AA0047F440 /* EtherscanNftResponseElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2DF99A2A8C99AA0047F440 /* EtherscanNftResponseElement.swift */; };
@@ -5458,6 +5459,7 @@
 		FA286B0A2A3043DB008BD527 /* CrossChainViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CrossChainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA286B232A3070C8008BD527 /* AssetDetail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetDetail.swift; sourceTree = "<group>"; };
 		FA28A9B129D2E451005AA42E /* MultiassetV9.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MultiassetV9.xcmappingmodel; sourceTree = "<group>"; };
+		FA2B7FDF2D702DE600311544 /* CrossChain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossChain.swift; sourceTree = "<group>"; };
 		FA2C997D28645F24007D9675 /* ParachainRewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainRewardCalculatorService.swift; sourceTree = "<group>"; };
 		FA2DF9942A8C970E0047F440 /* NFTFetchingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTFetchingService.swift; sourceTree = "<group>"; };
 		FA2DF99A2A8C99AA0047F440 /* EtherscanNftResponseElement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherscanNftResponseElement.swift; sourceTree = "<group>"; };
@@ -14819,6 +14821,7 @@
 		FA79F95C2D06EB0A001E5E1B /* Base */ = {
 			isa = PBXGroup;
 			children = (
+				FA2B7FDF2D702DE600311544 /* CrossChain.swift */,
 				FA26D23D2D59AACD000FBED3 /* CrossChainSwapParameters.swift */,
 				FA79F95E2D06EB54001E5E1B /* CrossChainBaseInteractor.swift */,
 			);
@@ -20081,6 +20084,7 @@
 				FAA92B912D424232004EA8F7 /* AsyncStorageRequestFactoryDefault.swift in Sources */,
 				FAA92B922D424232004EA8F7 /* StorageKeyDataExtractor.swift in Sources */,
 				FAA92B932D424232004EA8F7 /* ChildStorageResponseDecodingWorker.swift in Sources */,
+				FA2B7FE02D702DE800311544 /* CrossChain.swift in Sources */,
 				FAA92B942D424232004EA8F7 /* CachedRequest.swift in Sources */,
 				FAA92B952D424232004EA8F7 /* JSONRPCWorkerDefault.swift in Sources */,
 				FAA92B962D424232004EA8F7 /* JSONRPCListWorker.swift in Sources */,

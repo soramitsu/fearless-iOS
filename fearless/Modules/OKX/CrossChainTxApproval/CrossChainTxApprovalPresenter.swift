@@ -80,11 +80,11 @@ final class CrossChainFundsPermissionPresenter {
                 if isSucceed {
                     self.revokeTxHash = nil
                     
-                    try await Task.sleep(nanoseconds: 1000000000)
+                    try await Task.sleep(nanoseconds: UInt64(CrossChain.Constants.approveTxSecondsDelay) * 1000000000)
                     try await refreshFee()
                 }
             } catch {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(CrossChain.Constants.approveTxSecondsDelay)) { [weak self] in
                     self?.checkRevokeTransactionSucceed(revokeTxHash: revokeTxHash)
                 }
             }

@@ -111,12 +111,12 @@ final class CrossChainSwapConfirmPresenter {
                 if isSucceed {
                     self.approveTxHash = nil
                     
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                    DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(CrossChain.Constants.approveTxSecondsDelay)) { [weak self] in
                         self?.refreshFee()
                     }
                 }
             } catch {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(CrossChain.Constants.approveTxSecondsDelay)) { [weak self] in
                     self?.checkApproveTransactionSucceed(approveTxHash: approveTxHash)
                 }
             }
@@ -125,7 +125,7 @@ final class CrossChainSwapConfirmPresenter {
 
     private func refreshFee() {
         if let approveTxHash {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(CrossChain.Constants.approveTxSecondsDelay)) { [weak self] in
                 self?.checkApproveTransactionSucceed(approveTxHash: approveTxHash)
             }
             return
