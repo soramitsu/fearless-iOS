@@ -47,6 +47,7 @@ final class CrossChainSwapConfirmPresenter {
     private var crossChainTx: CrossChainTx?
     private var slippage: Decimal
     private var approveTxHash: String?
+    private var feeErrorCounter: Int = 0
 
     // MARK: - Constructors
 
@@ -108,14 +109,21 @@ final class CrossChainSwapConfirmPresenter {
         Task {
             do {
                 let isSucceed = try await interactor.checkTransactionSucceed(approveTxHash: approveTxHash)
+                await MainActor.run {
+                    view?.didReceiveError(viewModel: nil)
+                }
+                
                 if isSucceed {
                     self.approveTxHash = nil
                     
                     DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(CrossChain.Constants.approveTxSecondsDelay)) { [weak self] in
                         self?.refreshFee()
                     }
+                } else {
+                    showDefaultError(title: "Approve transaction failed", message: "Please return back and try again")
                 }
             } catch {
+                print(error)
                 DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(CrossChain.Constants.approveTxSecondsDelay)) { [weak self] in
                     self?.checkApproveTransactionSucceed(approveTxHash: approveTxHash)
                 }
@@ -125,6 +133,10 @@ final class CrossChainSwapConfirmPresenter {
 
     private func refreshFee() {
         if let approveTxHash {
+            showDefaultError(
+                title: R.string.localizable.approveTransactionPendingTitle(preferredLanguages: selectedLocale.rLanguages),
+                message: R.string.localizable.blockchainTransactionPendingDescription(preferredLanguages: selectedLocale.rLanguages)
+            )
             DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(CrossChain.Constants.approveTxSecondsDelay)) { [weak self] in
                 self?.checkApproveTransactionSucceed(approveTxHash: approveTxHash)
             }
@@ -148,18 +160,29 @@ final class CrossChainSwapConfirmPresenter {
                     view?.setButtonLoadingState(isLoading: false)
                 }
             } catch {
+                feeErrorCounter += 1
+                if feeErrorCounter < 3 {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(CrossChain.Constants.refreshSecondsDelay)) { [weak self] in
+                        self?.refreshFee()
+                    }
+                    return
+                }
+                
                 await MainActor.run {
                     self.view?.setButtonLoadingState(isLoading: false)
                 }
                 logger?.customError(error)
                 
                 if let rpcError = error as? RPCResponse<EthereumQuantity>.Error {
-                    await MainActor.run {
-                        self.showDefaultError(
-                            title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: self.selectedLocale.rLanguages),
-                            message: rpcError.message
-                        )
-                    }
+                    showReloadableError(
+                        title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
+                        message: rpcError.message
+                    )
+                } else {
+                    showReloadableError(
+                        title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
+                        message: error.localizedDescription
+                    )
                 }
             }
         }
@@ -325,7 +348,29 @@ final class CrossChainSwapConfirmPresenter {
             actionTitle: nil,
             actionHandler: nil
         )
-        view?.didReceiveError(viewModel: errorViewModel)
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveError(viewModel: errorViewModel)
+        }
+    }
+    
+    private func showReloadableError(title: String, message: String) {
+        let errorViewModel = ErrorViewModel(
+            title: title,
+            message: message,
+            actionTitle: R.string.localizable.commonRetry(preferredLanguages: selectedLocale.rLanguages),
+            actionHandler: { [weak self] in
+                DispatchQueue.main.async {
+                    self?.view?.didReceiveError(viewModel: nil)
+                }
+                
+                self?.refreshFee()
+            }
+        )
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveError(viewModel: errorViewModel)
+        }
     }
 }
 

@@ -2270,6 +2270,9 @@
 		FA4C3D122886794D00176398 /* SelfSizingTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4C3D112886794D00176398 /* SelfSizingTableView.swift */; };
 		FA4CC6642817C3AC00A7E85F /* StackedTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4CC6632817C3AC00A7E85F /* StackedTableView.swift */; };
 		FA4CC666281801CB00A7E85F /* StakingUnitInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4CC665281801CB00A7E85F /* StakingUnitInfoView.swift */; };
+		FA4D45912D7183ED00D4C227 /* OKXDexAggregatorHistoryRequestParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4D45902D7183DA00D4C227 /* OKXDexAggregatorHistoryRequestParameters.swift */; };
+		FA4D45932D7185A500D4C227 /* OKXSwapTransactionHistoryDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4D45922D71859000D4C227 /* OKXSwapTransactionHistoryDetails.swift */; };
+		FA4D45952D71866300D4C227 /* OKXDexToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4D45942D71866100D4C227 /* OKXDexToken.swift */; };
 		FA5032B22C4E58C500075909 /* AccountStatisticsPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5032B12C4E58C500075909 /* AccountStatisticsPresentable.swift */; };
 		FA5085AC2C33C6D4002DF97D /* SafeArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5085AA2C33C6D4002DF97D /* SafeArray.swift */; };
 		FA5085AD2C33C6D4002DF97D /* SafeDictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5085AB2C33C6D4002DF97D /* SafeDictionary.swift */; };
@@ -5678,6 +5681,9 @@
 		FA4C3D112886794D00176398 /* SelfSizingTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfSizingTableView.swift; sourceTree = "<group>"; };
 		FA4CC6632817C3AC00A7E85F /* StackedTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackedTableView.swift; sourceTree = "<group>"; };
 		FA4CC665281801CB00A7E85F /* StakingUnitInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingUnitInfoView.swift; sourceTree = "<group>"; };
+		FA4D45902D7183DA00D4C227 /* OKXDexAggregatorHistoryRequestParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OKXDexAggregatorHistoryRequestParameters.swift; sourceTree = "<group>"; };
+		FA4D45922D71859000D4C227 /* OKXSwapTransactionHistoryDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OKXSwapTransactionHistoryDetails.swift; sourceTree = "<group>"; };
+		FA4D45942D71866100D4C227 /* OKXDexToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OKXDexToken.swift; sourceTree = "<group>"; };
 		FA5032B12C4E58C500075909 /* AccountStatisticsPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountStatisticsPresentable.swift; sourceTree = "<group>"; };
 		FA5085AA2C33C6D4002DF97D /* SafeArray.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SafeArray.swift; sourceTree = "<group>"; };
 		FA5085AB2C33C6D4002DF97D /* SafeDictionary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SafeDictionary.swift; sourceTree = "<group>"; };
@@ -12421,6 +12427,8 @@
 		C6FBA6F02C743C88008B18D9 /* Response */ = {
 			isa = PBXGroup;
 			children = (
+				FA4D45942D71866100D4C227 /* OKXDexToken.swift */,
+				FA4D45922D71859000D4C227 /* OKXSwapTransactionHistoryDetails.swift */,
 				FA634C0F2D12C9AC00EDA155 /* OKXTransactionHistoryElement.swift */,
 				C6FBA7122C743D5E008B18D9 /* OKXApproveTransaction.swift */,
 				C6FBA70F2C743D5E008B18D9 /* OKXDexProtocol.swift */,
@@ -12449,6 +12457,7 @@
 		C6FBA6F12C743C96008B18D9 /* Parameters */ = {
 			isa = PBXGroup;
 			children = (
+				FA4D45902D7183DA00D4C227 /* OKXDexAggregatorHistoryRequestParameters.swift */,
 				FAE52A9E2D5B4B2100D0DFBB /* OKXWalletPostTransactionTransactionsByAddressParameters.swift */,
 				FA634C112D12CD5600EDA155 /* OKXWalletTransactionByHashParameters.swift */,
 				C6FBA7012C743D51008B18D9 /* OKXDexAllTokensRequestParameters.swift */,
@@ -18191,6 +18200,7 @@
 				FAA0137528DA12E3000A5230 /* StakingRedeemConfirmationRelaychainViewModelFactory.swift in Sources */,
 				FA97E68B2A0281230035F5D7 /* GiantsquidRewardOperationFactory.swift in Sources */,
 				FA2E9BC127A2A1000023FAD2 /* FilterSectionHeaderView.swift in Sources */,
+				FA4D45952D71866300D4C227 /* OKXDexToken.swift in Sources */,
 				FA17B4D127E9CF21006E0735 /* main.swift in Sources */,
 				FAA0133C28DA12B6000A5230 /* StakingPoolManagementProtocols.swift in Sources */,
 				FACD42842A5BE7F4009975AA /* AwaitOperation.swift in Sources */,
@@ -19895,6 +19905,7 @@
 				CE2792E78B14CE02394D8CF4 /* ReferralCrowdloanViewLayout.swift in Sources */,
 				2B0FC94B4AE9AFE9532F493F /* ReferralCrowdloanViewFactory.swift in Sources */,
 				FAA0137228DA12E3000A5230 /* StakingRedeemConfirmationParachainViewModelFactory.swift in Sources */,
+				FA4D45912D7183ED00D4C227 /* OKXDexAggregatorHistoryRequestParameters.swift in Sources */,
 				FAD4291B2A86567F001D6A16 /* WalletNameRouter.swift in Sources */,
 				FA5137AF29AC6F2F00560EBA /* PolkaswapDisclaimerViewModelFactory.swift in Sources */,
 				07DE95B928A1119400E9C2CB /* BalanceInfoViewModelFactory.swift in Sources */,
@@ -19916,6 +19927,7 @@
 				B58B2D9494687F357821D53D /* AnalyticsValidatorsProtocols.swift in Sources */,
 				8BBA871751CAB9F0A8506317 /* AnalyticsValidatorsWireframe.swift in Sources */,
 				F4433D7A26C16D070002A91E /* AnalyticsValidatorsViewModel.swift in Sources */,
+				FA4D45932D7185A500D4C227 /* OKXSwapTransactionHistoryDetails.swift in Sources */,
 				FAFFAE8929AC84B10074AF1F /* SubqueryRewardData.swift in Sources */,
 				340AC2484415B10F247C135E /* AnalyticsValidatorsPresenter.swift in Sources */,
 				07DE95D728A225DE00E9C2CB /* WalletMainContainerViewModel.swift in Sources */,

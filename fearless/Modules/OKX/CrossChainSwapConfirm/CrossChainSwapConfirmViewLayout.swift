@@ -122,9 +122,10 @@ final class CrossChainSwapConfirmViewLayout: UIView {
     }
     
     func bind(errorViewModel: ErrorViewModel?) {
+        errorView.isHidden = errorViewModel == nil
+
         if let errorVM = errorViewModel {
             errorView.bindError(viewModel: errorVM)
-            errorView.isHidden = false
         }
     }
 
@@ -182,7 +183,7 @@ final class CrossChainSwapConfirmViewLayout: UIView {
         contentView.stackView.addArrangedSubview(infoViewsStackView)
         contentView.stackView.addArrangedSubview(errorView)
         errorView.snp.makeConstraints { make in
-            make.width.equalToSuperview().inset(UIConstants.bigOffset)
+            make.width.equalToSuperview()
         }
 
         multiViews.forEach { view in

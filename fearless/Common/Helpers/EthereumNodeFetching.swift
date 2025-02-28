@@ -150,6 +150,9 @@ final class EthereumNodeFetching {
             httpsURL = ethereumChain.blastProjectIdInjectedURL(baseURL: httpsURL)
         }
 
+#if DEBUG
+        print("Initialize http eth node: \(httpsURL.absoluteString)")
+#endif
         return Web3(rpcURL: httpsURL.absoluteString).eth
     }
 }

@@ -19,6 +19,7 @@ protocol OKXDexAggregatorService {
     func fetchTransactionByHash(parameters: OKXWalletTransactionByHashParameters) async throws -> OKXResponse<OKXTransactionHistoryElement>
     func fetchTransactionsHistory(parameters: OKXWalletPostTransactionTransactionsByAddressParameters) async throws -> OKXResponse<[OKXTransactionHistoryElement]>
     func fetchAvailableBlockchains() async throws -> OKXResponse<[OKXChain]>
+    func fetchSwapTransactionStatus(parameters: OKXDexAggregatorHistoryRequestParameters) async throws -> OKXResponse<OKXSwapTransactionHistoryDetails>
 }
 
 final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
@@ -222,6 +223,25 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
 
         return response
     }
+    
+    func fetchSwapTransactionStatus(parameters: OKXDexAggregatorHistoryRequestParameters) async throws -> OKXResponse<OKXSwapTransactionHistoryDetails> {
+        let request = RequestConfig(
+            baseURL: ApplicationConfig.shared.okxDexAggregatorURL,
+            method: .get,
+            endpoint: "api/v5/dex/aggregator/history",
+            queryItems: parameters.urlParameters,
+            headers: nil,
+            body: nil
+        )
+
+        request.signingType = .custom(signer: signer)
+        let response: OKXResponse<OKXSwapTransactionHistoryDetails> = try await networkWorker.performRequest(with: request)
+
+        try validateResponseCode(response.code, msg: response.msg)
+
+        return response
+    }
+
 
     func fetchCrossChainQuote(parameters: OKXDexCrossChainQuoteParameters) async throws -> OKXResponse<OKXCrossChainQuote> {
         let request = RequestConfig(

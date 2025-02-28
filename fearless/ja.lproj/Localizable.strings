@@ -1268,3 +1268,6 @@
 "erc20.funds.permission.approve.title" = "Spending Approval\n%@";
 "erc20.funds.permission.revoke.title" = "Revoke Approval\n%@";
 "cross.chain.funds.permission.request.from.title" = "Request from";
+"approve.transaction.pending.title" = "Approve tx is processing";
+"blockchain.transaction.pending.description" = "Your transaction is awaiting confirmation on the network.";
+"revoke.transaction.pending.title" = "Revoke tx is processing";

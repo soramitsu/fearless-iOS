@@ -16,7 +16,7 @@ enum OKXCrossChainTxDetailStatus: String {
             self = .waiting
         case "success":
             self = .success
-        case "fail":
+        case "fail", "failure":
             self = .fromFailure
         default:
             self = .notFound

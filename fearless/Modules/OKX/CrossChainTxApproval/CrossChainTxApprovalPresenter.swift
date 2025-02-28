@@ -38,6 +38,7 @@ final class CrossChainFundsPermissionPresenter {
     private var utilityBalance: Decimal?
     private var fee: Decimal?
     private var revokeTxHash: String?
+    private var feeErrorCounter: Int = 0
     
     // MARK: - Constructors
     init(
@@ -74,6 +75,11 @@ final class CrossChainFundsPermissionPresenter {
     // MARK: - Private methods
     
     private func checkRevokeTransactionSucceed(revokeTxHash: String) {
+        showDefaultError(
+            title: R.string.localizable.revokeTransactionPendingTitle(preferredLanguages: selectedLocale.rLanguages),
+            message: R.string.localizable.blockchainTransactionPendingDescription(preferredLanguages: selectedLocale.rLanguages)
+        )
+
         Task {
             do {
                 let isSucceed = try await interactor.checkTransactionSucceed(txHash: revokeTxHash)
@@ -81,7 +87,12 @@ final class CrossChainFundsPermissionPresenter {
                     self.revokeTxHash = nil
                     
                     try await Task.sleep(nanoseconds: UInt64(CrossChain.Constants.approveTxSecondsDelay) * 1000000000)
+                    await MainActor.run {
+                        view?.didReceiveError(viewModel: nil)
+                    }
                     try await refreshFee()
+                } else {
+                    showDefaultError(title: "Approve transaction failed", message: "Please return back and try again")
                 }
             } catch {
                 DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(CrossChain.Constants.approveTxSecondsDelay)) { [weak self] in
@@ -133,15 +144,24 @@ final class CrossChainFundsPermissionPresenter {
 
             }
         } catch {
+            feeErrorCounter += 1
+            if feeErrorCounter < 3 {
+                try await refreshFee()
+                return
+            }
+            
             logger?.customError(error)
             
             if let rpcError = error as? RPCResponse<EthereumQuantity>.Error {
-                await MainActor.run {
-                    self.showDefaultError(
-                        title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: self.selectedLocale.rLanguages),
-                        message: rpcError.message
-                    )
-                }
+                showReloadableError(
+                    title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
+                    message: rpcError.message
+                )
+            } else {
+                showReloadableError(
+                    title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
+                    message: error.localizedDescription
+                )
             }
         }
     }
@@ -227,7 +247,31 @@ final class CrossChainFundsPermissionPresenter {
             actionTitle: nil,
             actionHandler: nil
         )
-        view?.didReceiveError(viewModel: errorViewModel)
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveError(viewModel: errorViewModel)
+        }
+    }
+    
+    private func showReloadableError(title: String, message: String) {
+        let errorViewModel = ErrorViewModel(
+            title: title,
+            message: message,
+            actionTitle: R.string.localizable.commonRetry(preferredLanguages: selectedLocale.rLanguages),
+            actionHandler: { [weak self] in
+                DispatchQueue.main.async {
+                    self?.view?.didReceiveError(viewModel: nil)
+                }
+                
+                Task {
+                    try await self?.refreshFee()
+                }
+            }
+        )
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveError(viewModel: errorViewModel)
+        }
     }
 }
 

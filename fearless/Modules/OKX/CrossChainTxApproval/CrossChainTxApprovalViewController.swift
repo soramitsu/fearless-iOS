@@ -75,7 +75,8 @@ extension CrossChainFundsPermissionViewController: CrossChainFundsPermissionView
     
     func didReceiveError(viewModel: ErrorViewModel?) {
         rootView.bind(errorViewModel: viewModel)
-        rootView.confirmButton.set(enabled: false, changeStyle: true)
+        let enabled = viewModel == nil
+        rootView.confirmButton.set(enabled: enabled, changeStyle: true)
     }
 }
 

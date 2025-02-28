@@ -32,7 +32,15 @@ struct OKXResponse<T: Decodable>: Decodable {
         }
 
         self.code = code
-        data = try? container.decode([T].self, forKey: .data)
+        
+        var data: [T]?
+        if let dataArray = try? container.decode([T].self, forKey: .data) {
+            data = dataArray
+        }
+        if let dataObject = try? container.decode(T.self, forKey: .data) {
+            data = [dataObject]
+        }
+        self.data = data
         msg = try? container.decodeIfPresent(String.self, forKey: .msg)
     }
 }

@@ -7434,14 +7434,6 @@
     ],
     "nodes": [
       {
-        "url": "https://optimism-mainnet.blastapi.io/",
-        "name": "Blast https node"
-      },
-      {
-        "url": "wss://optimism-mainnet.blastapi.io/",
-        "name": "Blast wss node"
-      },
-      {
         "url": "https://optimism.publicnode.com/",
         "name": "Public http node"
       },

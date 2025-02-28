@@ -37,10 +37,21 @@ extension CrossChainTxTrackingInteractor: CrossChainTxTrackingInteractorInput {
         self.output = output
     }
 
-    func queryTransactionStatus() async throws -> OKXCrossChainTransactionStatus {
+    func queryCrossChainStatus() async throws -> OKXCrossChainTransactionStatus {
         let parameters = OKXDexCrossChainStatusParameters(hash: txHash, chainId: chainAsset.chain.chainId)
         let response = try await okxService.fetchCrossChainTransactionStatus(parameters: parameters)
 
+        guard let status = response.data?.first else {
+            throw CrossChainTxTrackingInteractorError.invalidResponse
+        }
+
+        return status
+    }
+    
+    func querySwapStatus() async throws -> OKXSwapTransactionHistoryDetails {
+        let parameters = OKXDexAggregatorHistoryRequestParameters(chainId: chainAsset.chain.chainId, txHash: txHash)
+        let response = try await okxService.fetchSwapTransactionStatus(parameters: parameters)
+        
         guard let status = response.data?.first else {
             throw CrossChainTxTrackingInteractorError.invalidResponse
         }

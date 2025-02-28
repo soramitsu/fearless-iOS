@@ -8,7 +8,8 @@ protocol CrossChainTxTrackingViewInput: ControllerBackedProtocol, LoadableViewPr
 
 protocol CrossChainTxTrackingInteractorInput: AnyObject {
     func setup(with output: CrossChainTxTrackingInteractorOutput)
-    func queryTransactionStatus() async throws -> OKXCrossChainTransactionStatus
+    func queryCrossChainStatus() async throws -> OKXCrossChainTransactionStatus
+    func querySwapStatus() async throws -> OKXSwapTransactionHistoryDetails
     func queryChain(chainId: String) async throws -> ChainModel?
     func fetchChainAssets(chain: ChainModel) async throws -> [ChainAsset]
 }
@@ -99,12 +100,12 @@ final class CrossChainTxTrackingPresenter {
         await provideViewModel(viewModel)
     }
 
-    private func handleSwapTransaction(_ status: OKXCrossChainTransactionStatus) async throws {
-        guard let sourceChain = try await interactor.queryChain(chainId: status.fromChainId) else {
+    private func handleSwapTransaction(_ status: OKXSwapTransactionHistoryDetails) async throws {
+        guard let sourceChain = try await interactor.queryChain(chainId: status.chainId) else {
             return
         }
         let okxChainAssets = try await interactor.fetchChainAssets(chain: sourceChain)
-        let destinationChainAsset = okxChainAssets.first(where: { $0.asset.id.lowercased() == status.toTokenAddress.lowercased() })
+        let destinationChainAsset = okxChainAssets.first(where: { $0.asset.id.lowercased() == status.toTokenDetails?.tokenAddress?.lowercased() })
 
         let viewModel = viewModelFactory.buildSwapViewModel(
             transaction: transaction,
@@ -121,11 +122,9 @@ final class CrossChainTxTrackingPresenter {
     private func fetchData() {
         Task {
             do {
-                let status = try await interactor.queryTransactionStatus()
+                let status = try await interactor.queryCrossChainStatus()
 
-                if status.transactionFinished {
-                    timer?.invalidate()
-                }
+                
 
                 guard !status.transactionFailed else {
                     await handleFailedTransaction(status)
@@ -135,16 +134,19 @@ final class CrossChainTxTrackingPresenter {
                 let isCrossChain = status.toChainId.isNotEmpty || (transaction.reason?.isNotEmpty).or(false)
 
                 if isCrossChain {
+                    if status.transactionFinished {
+                        timer?.invalidate()
+                    }
+                    
                     try await handleCrossChainTransaction(status)
                 } else {
-                    await MainActor.run {
-                        router.presentHistoryDetails(
-                            chainAsset: chainAsset,
-                            transaction: transaction,
-                            wallet: wallet,
-                            from: view
-                        )
+                    let status = try await interactor.querySwapStatus()
+                    
+                    if status.transactionFinished {
+                        timer?.invalidate()
                     }
+                    
+                    try await handleSwapTransaction(status)
                 }
             } catch {
                 print("fetch tx status error: ", error)

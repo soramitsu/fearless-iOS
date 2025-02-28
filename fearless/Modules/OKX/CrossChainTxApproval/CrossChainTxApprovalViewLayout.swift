@@ -100,9 +100,10 @@ final class CrossChainFundsPermissionViewLayout: UIView {
     }
     
     func bind(errorViewModel: ErrorViewModel?) {
+        errorView.isHidden = errorViewModel == nil
+
         if let errorVM = errorViewModel {
             errorView.bindError(viewModel: errorVM)
-            errorView.isHidden = false
         }
     }
 
@@ -176,6 +177,8 @@ final class CrossChainFundsPermissionViewLayout: UIView {
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
         }
+        
+        contentView.scrollView.contentInset = .init(top: 0, left: 0, bottom: UIConstants.bigOffset * 2 + UIConstants.actionHeight, right: 0)
 
         infoBackground.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
