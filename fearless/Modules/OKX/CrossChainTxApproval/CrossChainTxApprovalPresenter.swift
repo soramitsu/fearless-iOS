@@ -259,18 +259,22 @@ final class CrossChainFundsPermissionPresenter {
             message: message,
             actionTitle: R.string.localizable.commonRetry(preferredLanguages: selectedLocale.rLanguages),
             actionHandler: { [weak self] in
-                DispatchQueue.main.async {
-                    self?.view?.didReceiveError(viewModel: nil)
-                }
-                
-                Task {
-                    try await self?.refreshFee()
-                }
+                self?.handleReload()
             }
         )
         
         DispatchQueue.main.async { [weak self] in
             self?.view?.didReceiveError(viewModel: errorViewModel)
+        }
+    }
+    
+    private func handleReload() {
+        DispatchQueue.main.async {
+            self?.view?.didReceiveError(viewModel: nil)
+        }
+        
+        Task {
+            try await refreshFee()
         }
     }
 }
