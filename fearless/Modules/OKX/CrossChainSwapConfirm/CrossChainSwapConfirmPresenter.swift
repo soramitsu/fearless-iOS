@@ -331,15 +331,6 @@ final class CrossChainSwapConfirmPresenter {
             self?.view?.didReceive(feeViewModel: feeViewModel)
         }
     }
-
-    @objc private func handleTimerTick() {
-//        fetchInfo()
-    }
-
-    private func setupTimer() {
-//        timer?.invalidate()
-//        timer = Timer.scheduledTimer(timeInterval: 15.0, target: self, selector: #selector(handleTimerTick), userInfo: nil, repeats: true)
-    }
     
     private func showDefaultError(title: String, message: String) {
         let errorViewModel = ErrorViewModel(
@@ -377,10 +368,6 @@ final class CrossChainSwapConfirmPresenter {
 // MARK: - CrossChainSwapConfirmViewOutput
 
 extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
-    func handleDismissingSwipe() {
-        timer?.invalidate()
-        timer = nil
-    }
 
     func didLoad(view: CrossChainSwapConfirmViewInput) {
         self.view = view
@@ -391,7 +378,6 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
         provideImageViewModel()
         subscribeOnBalance()
         calculateTotalFiatFee()
-        setupTimer()
         fetchInfo()
         fetchCrossChainTx()
 
@@ -427,29 +413,33 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
             Task {
                 do {
                     let isCrossChain = self.swapFromChainAsset.chain.chainId != self.swapToChainAsset.chain.chainId
-
+                    let reason = isCrossChain ? CrossChain.Constants.txReasonCrossChain : CrossChain.Constants.txReasonSwap
                     
                     let txHash = try await self.interactor.confirmSwap(tx: crossChainTx)
-                    let transaction = AssetTransactionData(transactionId: txHash, status: .pending, assetId: "", peerId: "", peerFirstName: nil, peerLastName: nil, peerName: nil, details: "", amount: AmountDecimal(value: sendAmountDecimal.or(.zero)), fees: [], timestamp: Int64(Date().timeIntervalSince1970), type: "", reason: "crosschain", context: nil)
+                    let transaction = AssetTransactionData(
+                        transactionId: txHash,
+                        status: .pending,
+                        assetId: "",
+                        peerId: "",
+                        peerFirstName: nil,
+                        peerLastName: nil,
+                        peerName: nil,
+                        details: "",
+                        amount: AmountDecimal(value: sendAmountDecimal.or(.zero)),
+                        fees: [],
+                        timestamp: Int64(Date().timeIntervalSince1970),
+                        type: "",
+                        reason: reason,
+                        context: nil
+                    )
 
                     await MainActor.run {
-                        self.handleDismissingSwipe()
-                        
-                        if isCrossChain {
                             self.router.presentStatusTrackingScreen(
                                 transaction: transaction,
                                 chainAsset: self.swapFromChainAsset,
                                 wallet: self.wallet,
                                 from: self.view
                             )
-                        } else {
-                            self.router.complete(
-                                on: self.view,
-                                title: txHash,
-                                chainAsset: self.swapFromChainAsset
-                            )
-                            
-                        }
                     }
                 } catch {
                     await MainActor.run {

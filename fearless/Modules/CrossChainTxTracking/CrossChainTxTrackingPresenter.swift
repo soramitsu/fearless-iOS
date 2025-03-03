@@ -131,7 +131,7 @@ final class CrossChainTxTrackingPresenter {
                     return
                 }
 
-                let isCrossChain = status.toChainId.isNotEmpty || (transaction.reason?.isNotEmpty).or(false)
+                let isCrossChain = status.toChainId.isNotEmpty || transaction.reason == CrossChain.Constants.txReasonCrossChain
 
                 if isCrossChain {
                     if status.transactionFinished {

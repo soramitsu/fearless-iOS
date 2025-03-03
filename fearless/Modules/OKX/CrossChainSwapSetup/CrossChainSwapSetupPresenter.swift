@@ -102,7 +102,7 @@ final class CrossChainSwapSetupPresenter {
     
     private var mode: CrossChainFundsPermissionMode {
         guard let allowance else {
-            return .none
+            return CrossChainFundsPermissionMode.none
         }
         
         let amount = BigUInt(string: amountUnwrapped)
@@ -260,7 +260,7 @@ final class CrossChainSwapSetupPresenter {
     }
 
     private func checkLoadingState() {
-        let isReady = swap != nil && allowance != nil
+        let isReady = swap != nil && (swapFromChainAsset?.asset.isUtility == true || allowance != nil)
 
         DispatchQueue.main.async { [weak self] in
             self?.view?.setButtonLoadingState(isLoading: !isReady)
@@ -550,6 +550,11 @@ final class CrossChainSwapSetupPresenter {
             return
         }
         
+        guard chainAsset.isUtility == false else {
+            checkLoadingState()
+            return
+        }
+
         Task {
             do {
                 guard let dexTokenApproveAddress = try await self.interactor.fetchDexTokenApproveAddress(chainAsset: chainAsset) else {
@@ -571,7 +576,7 @@ final class CrossChainSwapSetupPresenter {
     }
     
     private func proceedToNextScreen() {
-        guard let swapFromChainAsset, let swapToChainAsset, let swap, let allowance else {
+        guard let swapFromChainAsset, let swapToChainAsset, let swap else {
             return
         }
         
