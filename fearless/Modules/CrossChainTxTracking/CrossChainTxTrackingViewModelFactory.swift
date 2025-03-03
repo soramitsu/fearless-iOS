@@ -37,11 +37,13 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
         transaction: AssetTransactionData,
         status: OKXSwapTransactionHistoryDetails,
         sourceChainAsset: ChainAsset,
-        destinationChainAsset _: ChainAsset?,
+        destinationChainAsset: ChainAsset?,
         locale: Locale,
         wallet: MetaAccountModel
     ) -> CrossChainTxTrackingViewModel {
         let sourceBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: sourceChainAsset)
+        let destinationBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: destinationChainAsset)
+
         let date = DateFormatter.crossChainDate.value(for: locale).string(from: Date(timeIntervalSince1970: TimeInterval(transaction.timestamp)))
         let statusViewModels = buildSwapStatusViewModels(
             chainAsset: sourceChainAsset,
@@ -59,6 +61,23 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
             priceData: sourceChainAsset.asset.getPrice(for: wallet.selectedCurrency),
             usageCase: .detailsCrypto
         )
+        
+        
+        let destinationAmount = destinationChainAsset.flatMap { asset in
+            return status.toTokenDetails?.amount.flatMap { amountString in
+                BigUInt(string: amountString) }.flatMap { amount in
+                    Decimal.fromSubstrateAmount(amount, precision: Int16(asset.asset.precision))
+                }
+        }
+        
+        let destinationAmountViewModel = destinationAmount.flatMap {
+            destinationBalanceViewModelFactory?.balanceFromPrice(
+                $0,
+                priceData: destinationChainAsset?.asset.getPrice(for: wallet.selectedCurrency),
+                usageCase: .detailsCrypto
+            )
+        }
+        
         let address = wallet.fetch(for: sourceChainAsset.chain.accountRequest())?.toAddress()
 
         let statusTitle = statusTitle(detailStatus: status.swapDetailStatus, locale: locale)
@@ -69,11 +88,7 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
             destinationChainAsset: sourceChainAsset
         )
 
-        let transactionType = TransactionType(rawValue: transaction.type)
-
-        let toAmountViewModel = transactionType == .incoming ? amountViewModel : nil
-        let fromAmountViewModel = (transactionType == .outgoing || transactionType == .bridge) ? amountViewModel : nil
-        let crossChainStatus = status.status.flatMap { OKXCrossChainTxStatus(rawValue: $0) }
+        let crossChainStatus = status.status.flatMap { OKXCrossChainTxStatus(rawValue: $0.uppercased()) }
         let detailStatus = status.swapDetailStatus
         let statusViewModel = buildStatusViewModel(
             status: crossChainStatus,
@@ -87,8 +102,8 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
             statusDescription: statusDescription,
             walletName: address,
             date: date,
-            amount: fromAmountViewModel?.value(for: locale),
-            receivedAmount: toAmountViewModel?.value(for: locale),
+            amount: amountViewModel?.value(for: locale),
+            receivedAmount: destinationAmountViewModel?.value(for: locale),
             fromChainTxHash: status.txHash,
             toChainTxHash: nil,
             fromChainFee: sourceFeeViewModel?.value(for: locale),
