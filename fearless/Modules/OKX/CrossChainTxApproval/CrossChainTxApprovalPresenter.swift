@@ -269,7 +269,7 @@ final class CrossChainFundsPermissionPresenter {
     }
     
     private func handleReload() {
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
             self?.view?.didReceiveError(viewModel: nil)
         }
         
