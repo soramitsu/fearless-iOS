@@ -107,7 +107,7 @@ extension SettingsManagerProtocol {
     
     var dappEnabled: Bool {
         get {
-            bool(for: SettingsKey.dappEnabled.rawValue) ?? true
+            bool(for: SettingsKey.dappEnabled.rawValue) ?? false
         }
 
         set {
