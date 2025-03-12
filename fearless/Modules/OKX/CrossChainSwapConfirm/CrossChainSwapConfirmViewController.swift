@@ -55,6 +55,10 @@ final class CrossChainSwapConfirmViewController: UIViewController, ViewHolder, H
 // MARK: - CrossChainSwapConfirmViewInput
 
 extension CrossChainSwapConfirmViewController: CrossChainSwapConfirmViewInput {
+    func didReceive(viewType: CrossChainSwapViewType) {
+        rootView.titleLabel.text = viewType.title(for: selectedLocale)
+    }
+    
     func setButtonLoadingState(isLoading: Bool) {
         rootView.confirmButton.set(loading: isLoading)
     }

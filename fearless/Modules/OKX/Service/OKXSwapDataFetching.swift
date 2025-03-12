@@ -1,6 +1,10 @@
 import SSFModels
 import Web3
 
+enum OKXSwapsDataFetchingError: Error {
+    case noData
+}
+
 final class OKXSwapsDataFetching {
     private let okxService: OKXDexAggregatorService
     private let wallet: MetaAccountModel
@@ -24,7 +28,7 @@ extension OKXSwapsDataFetching: OKXDataFetching {
         amount: String,
         selectedDexIds: [String]?,
         slippage: String
-    ) async throws -> OKXQuoteInfo? {
+    ) async throws -> OKXQuoteInfo {
         guard let address = wallet.fetch(for: sourceChainAsset.chain.accountRequest())?.toAddress() else {
             throw CrossChainSwapSetupInteractorError.accountNotFound
         }
@@ -48,10 +52,13 @@ extension OKXSwapsDataFetching: OKXDataFetching {
             dexIds: dexIds
         )
 
-        let swap = try await okxService.fetchSwapInfo(parameters: parameters).data?.first
-        let gas = swap?.routerResult.estimateGasFee
+        guard let swap = try await okxService.fetchSwapInfo(parameters: parameters).data?.first else {
+            throw OKXSwapsDataFetchingError.noData
+        }
+        
+        let gas = swap.routerResult.estimateGasFee
         let gasPrice = try await ethereumService.queryGasPrice()
-        let fee = gas.flatMap { BigUInt(string: $0).or(.zero) * gasPrice.quantity }
+        let fee = BigUInt(string: gas).or(.zero) * gasPrice.quantity
 
         return OKXQuoteInfo(fee: fee, swap: swap)
     }
@@ -83,6 +90,8 @@ extension OKXSwapsDataFetching: OKXDataFetching {
             toTokenAddress: toTokenAddress,
             slippage: slippage,
             userWalletAddress: address,
+            fromTokenReferrerWalletAddress: CrossChain.Constants.referrerAddress,
+            feePercent: CrossChain.Constants.walletFeePercent,
             dexIds: dexIds
         )
 

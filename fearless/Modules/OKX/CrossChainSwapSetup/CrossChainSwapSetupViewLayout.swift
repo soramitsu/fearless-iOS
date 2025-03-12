@@ -52,6 +52,8 @@ final class CrossChainSwapSetupViewLayout: UIView {
     }()
 
     let originNetworkFeeView = createMultiView()
+    let walletFeeView = createMultiView()
+    let totalFeeView = createMultiView()
     let minReceivedView = createMultiView()
     let bridgeNameView = createMultiView()
     let sendRatioView = createMultiView()
@@ -84,8 +86,6 @@ final class CrossChainSwapSetupViewLayout: UIView {
         setupLayout()
         applyLocalization()
         backgroundColor = R.color.colorBlack19()
-        
-        navigationBar.setCenterViews([navigationIcon])
     }
 
     @available(*, unavailable)
@@ -96,8 +96,20 @@ final class CrossChainSwapSetupViewLayout: UIView {
     // MARK: - Public methods
 
     func bind(viewModel: CrossChainSwapViewModel?) {
-        [minReceivedView, bridgeNameView, sendRatioView, receiveRatioView, originNetworkFeeView, liquidityView, slippageView, routeView, estimatedTimeView].forEach { $0.isHidden = viewModel == nil }
-
+        [
+            originNetworkFeeView,
+            walletFeeView,
+            minReceivedView,
+            bridgeNameView,
+            sendRatioView,
+            receiveRatioView,
+            totalFeeView,
+            liquidityView,
+            slippageView,
+            routeView,
+            estimatedTimeView
+        ].forEach { $0.isHidden = viewModel == nil }
+        walletFeeView.isHidden = viewModel?.walletFee == nil
         slippageView.isHidden = viewModel?.slippageTitle == nil
         liquidityView.isHidden = viewModel?.liquiditySources == nil
         estimatedTimeView.isHidden = viewModel?.txTime == nil
@@ -108,16 +120,16 @@ final class CrossChainSwapSetupViewLayout: UIView {
         receiveRatioView.valueTop.text = viewModel?.receiveTokenRatio
         sendRatioView.titleLabel.text = viewModel?.sendTokenRatioTitle
         receiveRatioView.titleLabel.text = viewModel?.receiveTokenRatioTitle
-        originNetworkFeeView.valueTop.text = viewModel?.fee
+        totalFeeView.valueTop.text = viewModel?.fee
         slippageView.bind(viewModel: viewModel?.slippageTitle)
         estimatedTimeView.valueTop.text = viewModel?.txTime
         routeView.bind(viewModels: viewModel?.routeViewModels)
+        walletFeeView.bindBalance(viewModel: viewModel?.walletFee)
         errorView.isHidden = true
         bridgeNameView.detailsButton.isHidden = viewModel?.liquiditySources != nil
     }
-
+    
     func bind(originFeeViewModel: BalanceViewModelProtocol?) {
-        originNetworkFeeView.isHidden = originFeeViewModel == nil
         originNetworkFeeView.bindBalance(viewModel: originFeeViewModel)
     }
 
@@ -180,6 +192,7 @@ final class CrossChainSwapSetupViewLayout: UIView {
             make.width.equalTo(self).offset(viewOffset)
         }
 
+        contentView.stackView.addArrangedSubview(originNetworkFeeView)
         contentView.stackView.addArrangedSubview(minReceivedView)
         contentView.stackView.addArrangedSubview(routeView)
         contentView.stackView.addArrangedSubview(sendRatioView)
@@ -188,16 +201,40 @@ final class CrossChainSwapSetupViewLayout: UIView {
         contentView.stackView.addArrangedSubview(estimatedTimeView)
         contentView.stackView.addArrangedSubview(bridgeNameView)
         contentView.stackView.addArrangedSubview(liquidityView)
-        contentView.stackView.addArrangedSubview(originNetworkFeeView)
+        contentView.stackView.addArrangedSubview(walletFeeView)
+        contentView.stackView.addArrangedSubview(totalFeeView)
 
-        [minReceivedView, bridgeNameView, sendRatioView, receiveRatioView, slippageView, originNetworkFeeView, liquidityView, routeView, estimatedTimeView].forEach {
+        [
+            originNetworkFeeView,
+            minReceivedView,
+            bridgeNameView,
+            sendRatioView,
+            receiveRatioView,
+            slippageView,
+            totalFeeView,
+            liquidityView,
+            routeView,
+            estimatedTimeView,
+            walletFeeView
+        ].forEach {
             $0.snp.makeConstraints { make in
                 make.width.equalTo(self).offset(viewOffset)
                 make.height.equalTo(LayoutConstants.networkFeeViewHeight)
             }
         }
 
-        [minReceivedView, bridgeNameView, sendRatioView, receiveRatioView, slippageView, originNetworkFeeView, liquidityView, routeView, estimatedTimeView].forEach { $0.isHidden = true }
+        [
+            minReceivedView,
+            bridgeNameView,
+            sendRatioView,
+            receiveRatioView,
+            slippageView,
+            totalFeeView,
+            liquidityView,
+            routeView,
+            estimatedTimeView,
+            walletFeeView
+        ].forEach { $0.isHidden = true }
     }
 
     private func applyLocalization() {
@@ -206,13 +243,15 @@ final class CrossChainSwapSetupViewLayout: UIView {
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
 
-        originNetworkFeeView.titleLabel.text = R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages)
+        originNetworkFeeView.titleLabel.text = R.string.localizable.xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages)
+        totalFeeView.titleLabel.text = R.string.localizable.crossChainSwapTotalFeeTitle(preferredLanguages: locale.rLanguages)
         minReceivedView.titleLabel.text = R.string.localizable.polkaswapMinReceived(preferredLanguages: locale.rLanguages)
         bridgeNameView.titleLabel.text = R.string.localizable.crossChainTradeRouteTitle(preferredLanguages: locale.rLanguages)
         slippageView.titleLabel.text = R.string.localizable.lpSlippageTitle(preferredLanguages: locale.rLanguages)
         liquidityView.titleLabel.text = R.string.localizable.crossChainLiquiditySourcesTitle(preferredLanguages: locale.rLanguages)
         routeView.titleLabel.text = R.string.localizable.polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
         estimatedTimeView.titleLabel.text = R.string.localizable.accountStatsAvgTransactionTimeTitle(preferredLanguages: locale.rLanguages)
+        walletFeeView.titleLabel.text = R.string.localizable.crossChainSwapWalletFeeTitle(preferredLanguages: locale.rLanguages)
     }
 
     private static func createMultiView() -> TitleMultiValueView {

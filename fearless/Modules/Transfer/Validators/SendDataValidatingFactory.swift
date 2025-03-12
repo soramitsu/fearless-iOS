@@ -22,6 +22,26 @@ class SendDataValidatingFactory: NSObject {
     ) {
         basePresentable = presentable
     }
+    
+    func destinationUtilityBalanceNotZero(
+        balance: Decimal?,
+        locale: Locale
+    ) -> DataValidating {
+        ErrorConditionViolation(onError: { [weak self] in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.basePresentable.presentDestinationUtilityBalanceZero(from: view, locale: locale)
+
+        }, preservesCondition: {
+            guard let balance else {
+                return false
+            }
+            
+            return balance > .zero
+        })
+    }
 
     func canPayFeeAndAmount(
         balanceType: BalanceType,

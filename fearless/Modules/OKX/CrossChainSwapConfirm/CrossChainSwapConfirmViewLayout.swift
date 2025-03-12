@@ -114,7 +114,7 @@ final class CrossChainSwapConfirmViewLayout: UIView {
         sendRatioView.titleLabel.text = viewModel?.sendTokenRatioTitle
         receiveRatioView.titleLabel.text = viewModel?.receiveTokenRatioTitle
         slippageView.bind(viewModel: viewModel?.slippageTitle)
-
+        originNetworkFeeView.update(topText: viewModel?.fee)
     }
 
     func bind(feeViewModel: TitleMultiValueViewModel?) {
@@ -135,8 +135,7 @@ final class CrossChainSwapConfirmViewLayout: UIView {
         confirmButton.imageWithTitleView?.title = R.string.localizable
             .commonConfirm(preferredLanguages: locale.rLanguages)
 
-        titleLabel.text = R.string.localizable.xcmTitle(preferredLanguages: locale.rLanguages)
-        originNetworkFeeView.titleLabel.text = R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages)
+        originNetworkFeeView.titleLabel.text = R.string.localizable.crossChainSwapTotalFeeTitle(preferredLanguages: locale.rLanguages)
         minReceivedView.titleLabel.text = R.string.localizable.polkaswapMinReceived(preferredLanguages: locale.rLanguages)
         routeView.titleLabel.text = R.string.localizable.polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
         slippageView.titleLabel.text = R.string.localizable.lpSlippageTitle(preferredLanguages: locale.rLanguages)

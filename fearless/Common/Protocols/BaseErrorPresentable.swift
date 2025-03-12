@@ -7,6 +7,7 @@ protocol BaseErrorPresentable {
     func presentExsitentialDepositNotReceived(from view: ControllerBackedProtocol, locale: Locale?)
     func presentFeeTooHigh(from view: ControllerBackedProtocol, locale: Locale?)
     func presentExtrinsicFailed(from view: ControllerBackedProtocol, locale: Locale?)
+    func presentDestinationUtilityBalanceZero(from view: ControllerBackedProtocol, locale: Locale?)
 
     func presentExistentialDepositWarning(
         existentianDepositValue: String,
@@ -241,6 +242,15 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
             .walletSendDeadRecipientTitle(preferredLanguages: locale?.rLanguages)
         let message = R.string.localizable
             .walletSendDeadRecipientMessage(preferredLanguages: locale?.rLanguages)
+
+        presentError(for: title, message: message, view: view, locale: locale)
+    }
+    
+    func presentDestinationUtilityBalanceZero(from view: any ControllerBackedProtocol, locale: Locale?) {
+        let title = R.string.localizable
+            .validationDestinationChainUtilityBalanceZeroTitle(preferredLanguages: locale?.rLanguages)
+        let message = R.string.localizable
+            .validationDestinationChainUtilityBalanceZeroDescription(preferredLanguages: locale?.rLanguages)
 
         presentError(for: title, message: message, view: view, locale: locale)
     }

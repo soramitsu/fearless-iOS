@@ -2,7 +2,7 @@ import Foundation
 import SSFModels
 import BigInt
 
-protocol CrossChainSwapSetupViewModelFactory {
+protocol CrossChainSwapSetupViewModelFactory: ErrorViewModelFactory {
     func buildNetworkViewModel(chain: ChainModel) -> SelectNetworkViewModel
     func buildSwapViewModel(
         swap: CrossChainSwap,
@@ -15,6 +15,13 @@ protocol CrossChainSwapSetupViewModelFactory {
         dexs: [OKXDexQuote]?,
         slippage: Decimal
     ) -> CrossChainSwapViewModel
+    
+    func buildFeeViewModel(
+        originNetworkFee: Decimal?,
+        sourceChainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        locale: Locale
+    ) -> BalanceViewModelProtocol?
 }
 
 class CrossChainSwapSetupViewModelFactoryImpl: CrossChainSwapSetupViewModelFactory {
@@ -42,11 +49,16 @@ class CrossChainSwapSetupViewModelFactoryImpl: CrossChainSwapSetupViewModelFacto
         let utilityFeeChainAsset = sourceChainAsset.chain.utilityChainAssets().first ?? sourceChainAsset
         let sourceBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: sourceChainAsset)
         let targetBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: targetChainAsset)
-        let feeBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityFeeChainAsset)
 
         let minimumReceiveAmount = swap.toAmount.flatMap { BigUInt(string: $0) }
         let minimumReceiveAmountDecimal = minimumReceiveAmount.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(targetChainAsset.asset.precision)) }
-        let minimumReceiveAmountViewModel = minimumReceiveAmountDecimal.flatMap { targetBalanceViewModelFactory?.balanceFromPrice($0, priceData: targetChainAsset.asset.getPrice(for: wallet.selectedCurrency), usageCase: .detailsCrypto) }
+        let minimumReceiveAmountViewModel = minimumReceiveAmountDecimal.flatMap {
+            targetBalanceViewModelFactory?.balanceFromPrice(
+                $0,
+                priceData: targetChainAsset.asset.getPrice(for: wallet.selectedCurrency),
+                usageCase: .detailsCrypto
+            )
+        }
 
         let receiveAmount = swap.toAmount.flatMap { BigUInt(string: $0) }
         let receiveAmountDecimal = receiveAmount.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(targetChainAsset.asset.precision)) }
@@ -113,6 +125,8 @@ class CrossChainSwapSetupViewModelFactoryImpl: CrossChainSwapSetupViewModelFacto
             .flatMap { TimeInterval($0) }
             .flatMap { formatter.string(from: TimeInterval($0)) }
         let routeViewModel = TitleMultiValueViewModel(title: swap.dexName?.capitalized, subtitle: nil, detailsButtonVisible: true)
+        let walletFee = swap.fromAmount.flatMap { BigUInt(string: $0) }.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(sourceChainAsset.asset.precision))}.or(.zero) * Decimal(string: CrossChain.Constants.walletFeePercent).or(.zero)/100
+        let walletFeeViewModel = sourceBalanceViewModelFactory?.balanceFromPrice(walletFee, priceData: sourceChainAsset.asset.getPrice(for: wallet.selectedCurrency), usageCase: .detailsCrypto)
         
         return CrossChainSwapViewModel(
             minimumReceived: minimumReceiveAmountViewModel?.value(for: locale),
@@ -125,8 +139,30 @@ class CrossChainSwapSetupViewModelFactoryImpl: CrossChainSwapSetupViewModelFacto
             liquiditySources: liquiditySources,
             slippageTitle: slippageViewModel,
             routeViewModels: routeViewModels,
-            txTime: txTime
+            txTime: txTime,
+            walletFee: walletFeeViewModel?.value(for: locale)
         )
+    }
+    
+    func buildFeeViewModel(
+        originNetworkFee: Decimal?,
+        sourceChainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        locale: Locale
+    ) -> BalanceViewModelProtocol? {
+        let utilityFeeChainAsset = sourceChainAsset.chain.utilityChainAssets().first ?? sourceChainAsset
+
+        let feeBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityFeeChainAsset)
+        
+        let originNetworkFeeViewModel = originNetworkFee.flatMap {
+            feeBalanceViewModelFactory?.balanceFromPrice(
+                $0,
+                priceData: utilityFeeChainAsset.asset.getPrice(for: wallet.selectedCurrency),
+                usageCase: .detailsCrypto
+            )
+        }
+        
+        return originNetworkFeeViewModel?.value(for: locale)
     }
 
     private func buildBalanceViewModelFactory(

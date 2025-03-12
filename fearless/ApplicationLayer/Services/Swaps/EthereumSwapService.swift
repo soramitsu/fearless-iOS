@@ -27,8 +27,11 @@ protocol OKXEthereumSwapService: EthereumService {
     ) async throws -> String
 
     func estimateFee(
-        swap: CrossChainTx,
-        chainAsset: ChainAsset
+        swap: CrossChainTx
+    ) async throws -> BigUInt
+    
+    func estimateFee(
+        quote: CrossChainSwap
     ) async throws -> BigUInt
     
     func estimateFee(
@@ -53,6 +56,7 @@ final class OKXEthereumSwapServiceImpl: BaseEthereumService, OKXEthereumSwapServ
     private let senderAddress: String
     private var feeSubscriptionId: String?
     private var baseFeePerGas: BigUInt?
+    private var useFixedFee: Bool = true
 
     init(privateKey: EthereumPrivateKey, senderAddress: String, eth: Web3.Eth) {
         self.privateKey = privateKey
@@ -195,15 +199,15 @@ final class OKXEthereumSwapServiceImpl: BaseEthereumService, OKXEthereumSwapServ
 
         let nonce = try await queryNonce(ethereumAddress: senderAddress)
 
-        let gasLimitValue = BigUInt(string: "1200000")
+        let gasLimitValue = BigUInt(string: "1700000")
         let gasPriceValue = BigUInt(string: swapGasPrice)
         let maxPriorityFeePerGasValue = BigUInt(string: maxPriorityFeePerGas)
 
         let ethereumGasLimit = EthereumQuantity(quantity: gasLimitValue)
         let ethereumGasPrice = EthereumQuantity(quantity: gasPriceValue)
         let ethereumMaxPriorityFeePerGas = EthereumQuantity(quantity: maxPriorityFeePerGasValue)
-
-        let ethereumValue = chainAsset.isUtility ? EthereumQuantity(quantity: value) : EthereumQuantity(quantity: .zero)
+        let fee = gasLimitValue.or(.zero) * gasPriceValue.or(.zero)
+        let ethereumValue = chainAsset.isUtility ? EthereumQuantity(quantity: value.or(.zero) + fee) : EthereumQuantity(quantity: fee)
         let contractAddress = EthereumAddress(hexString: swap.address)
 
         let supportsEip1559 = await checkChainSupportEip1559()
@@ -243,24 +247,17 @@ final class OKXEthereumSwapServiceImpl: BaseEthereumService, OKXEthereumSwapServ
             }
         }
     }
+    
+    func estimateFee(quote: any CrossChainSwap) async throws -> BigUInt {
+        let swapGasPrice = try await queryGasPrice()
+        let swapGasLimit =  useFixedFee ? BigUInt(string: "1700000") : quote.gasLimit.flatMap { BigUInt(string: $0) }
+        return swapGasPrice.quantity * swapGasLimit.or(.zero)
+    }
 
-    func estimateFee(swap: CrossChainTx, chainAsset: ChainAsset) async throws -> BigUInt {
-        guard
-            let swapFromAmount = swap.amount,
-            let contractAddress = EthereumAddress(hexString: swap.address)
-        else {
-            throw EthereumServiceError.invalidTransaction
-        }
-
-        let data = try EthereumData.string(swap.transactionHex)
-        let value = BigUInt(string: swapFromAmount)
-        let senderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
-        let gasPrice = try await queryGasPrice()
-        let ethereumValue: EthereumQuantity? = chainAsset.isUtility ? EthereumQuantity(quantity: value) : nil
-
-        let call = EthereumCall(from: senderAddress, to: contractAddress, value: ethereumValue, data: data)
-        let gasLimit = try await queryGasLimit(call: call)
-        return gasPrice.quantity * gasLimit.quantity
+    func estimateFee(swap: CrossChainTx) async throws -> BigUInt {
+        let swapGasPrice = try await queryGasPrice()
+        let swapGasLimit =  useFixedFee ? BigUInt(string: "1700000") : swap.gasLimit.flatMap { BigUInt(string: $0) }
+        return swapGasPrice.quantity * swapGasLimit.or(.zero)
     }
     
     func estimateFee(approveTransaction: OKXApproveTransaction, chain: ChainModel, chainAsset: ChainAsset) async throws -> BigUInt {

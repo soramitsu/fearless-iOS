@@ -143,13 +143,17 @@ final class CrossChainSwapSetupViewController: UIViewController, ViewHolder, Hid
 // MARK: - CrossChainViewInput
 
 extension CrossChainSwapSetupViewController: CrossChainSwapSetupViewInput {
+    func didReceive(viewType: CrossChainSwapViewType) {
+        rootView.navigationTitleLabel.text = viewType.title(for: selectedLocale)
+    }
+    
     func setButtonLoadingState(isLoading: Bool) {
         rootView.actionButton.set(loading: isLoading)
         updatePreviewButton()
     }
 
-    func didReceive(originFeeViewModel: LocalizableResource<BalanceViewModelProtocol>?) {
-        rootView.bind(originFeeViewModel: originFeeViewModel?.value(for: selectedLocale))
+    func didReceive(originFeeViewModel: BalanceViewModelProtocol?) {
+        rootView.bind(originFeeViewModel: originFeeViewModel)
     }
 
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?) {
@@ -214,29 +218,31 @@ extension CrossChainSwapSetupViewController: AmountInputViewModelObserver {
         rootView.amountView.inputFieldText = amountFromInputViewModel?.displayAmount
         rootView.receiveView.inputFieldText = amountToInputViewModel?.displayAmount
 
-        NSObject.cancelPreviousPerformRequests(
-            withTarget: self,
-            selector: #selector(updateAmounts),
-            object: nil
-        )
-        perform(#selector(updateAmounts), with: nil, afterDelay: 0.7)
+       
+        if rootView.amountView.textField.isFirstResponder {
+            NSObject.cancelPreviousPerformRequests(
+                withTarget: self,
+                selector: #selector(updateAmounts),
+                object: nil
+            )
+            
+            perform(#selector(updateAmounts), with: nil, afterDelay: 0.7)
+        }
     }
 
     @objc private func updateAmounts() {
-        if rootView.amountView.textField.isFirstResponder {
-            guard let amountFrom = amountFromInputViewModel?.decimalAmount else {
-                if amountFromInputViewModel?.isValid == false {
-                    updatePreviewButton()
-                }
-                
-                if (rootView.amountView.textField.text?.isEmpty).or(true) {
-                    output.updateFromAmount(0)
-                }
-
-                return
+        guard let amountFrom = amountFromInputViewModel?.decimalAmount else {
+            if amountFromInputViewModel?.isValid == false {
+                updatePreviewButton()
             }
-            output.updateFromAmount(amountFrom)
+            
+            if (rootView.amountView.textField.text?.isEmpty).or(true) {
+                output.updateFromAmount(0)
+            }
+            
+            return
         }
+        output.updateFromAmount(amountFrom)
     }
 }
 
@@ -281,8 +287,8 @@ extension CrossChainSwapSetupViewController: UITextFieldDelegate {
     }
 
     func textFieldDidEndEditing(_: UITextField) {
-        rootView.amountView.set(highlighted: false, animated: false)
-        rootView.receiveView.set(highlighted: false, animated: false)
+//        rootView.amountView.set(highlighted: false, animated: false)
+//        rootView.receiveView.set(highlighted: false, animated: false)
     }
 
     func textFieldShouldClear(_: UITextField) -> Bool {

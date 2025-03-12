@@ -69,7 +69,7 @@ class AccountScoreViewModel {
 
         Task {
             do {
-                let stream = try await fetcher.subscribeForStatistics(address: address, cacheOptions: .onAll)
+                let stream = try await fetcher.subscribeForStatistics(address: address)
 
                 do {
                     for try await statistics in stream {

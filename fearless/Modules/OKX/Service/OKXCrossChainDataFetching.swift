@@ -2,6 +2,10 @@ import SSFModels
 import Web3
 import SSFAccountManagment
 
+enum OKXCrossChainDataFetchingError: Error {
+    case noData
+}
+
 final class OKXCrossChainDataFetching {
     private let okxService: OKXDexAggregatorService
     private let wallet: MetaAccountModel
@@ -22,7 +26,7 @@ extension OKXCrossChainDataFetching: OKXDataFetching {
         amount: String,
         selectedDexIds: [String]?,
         slippage: String
-    ) async throws -> OKXQuoteInfo? {
+    ) async throws -> OKXQuoteInfo {
         let fromTokenAddress = sourceChainAsset.asset.currencyId ?? sourceChainAsset.asset.id
         let toTokenAddress = destinationChainAsset.asset.currencyId ?? destinationChainAsset.asset.id
         let quoteParameters = OKXDexCrossChainQuoteParameters(
@@ -31,14 +35,16 @@ extension OKXCrossChainDataFetching: OKXDataFetching {
             amount: amount,
             fromTokenAddress: fromTokenAddress,
             toTokenAddress: toTokenAddress,
-            sort: 1,
+            sort: 0,
             slippage: slippage,
             allowBridge: selectedDexIds?.compactMap { UInt32($0) }
         )
 
-        let swap = try await okxService.fetchCrossChainQuote(parameters: quoteParameters).data?.first
-        let feeString = swap?.routerList.first?.fromChainNetworkFee
-
+        guard let swap = try await okxService.fetchCrossChainQuote(parameters: quoteParameters).data?.first else {
+            throw OKXCrossChainDataFetchingError.noData
+        }
+        
+        let feeString = swap.routerList.first?.fromChainNetworkFee
         let fee = feeString.flatMap { BigUInt(string: $0) }
 
         return OKXQuoteInfo(fee: fee, swap: swap)
@@ -63,9 +69,11 @@ extension OKXCrossChainDataFetching: OKXDataFetching {
             amount: amount,
             fromTokenAddress: fromTokenAddress,
             toTokenAddress: toTokenAddress,
-            sort: 1,
+            sort: 0,
             slippage: slippage,
             userWalletAddress: address,
+            referrerAddress: CrossChain.Constants.referrerAddress,
+            feePercent: CrossChain.Constants.walletFeePercent,
             allowBridge: selectedDexIds?.compactMap { UInt32($0) }
         )
 

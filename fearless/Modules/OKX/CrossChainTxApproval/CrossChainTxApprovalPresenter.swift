@@ -151,18 +151,7 @@ final class CrossChainFundsPermissionPresenter {
             }
             
             logger?.customError(error)
-            
-            if let rpcError = error as? RPCResponse<EthereumQuantity>.Error {
-                showReloadableError(
-                    title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
-                    message: rpcError.message
-                )
-            } else {
-                showReloadableError(
-                    title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
-                    message: error.localizedDescription
-                )
-            }
+            handleReloadableError(error)
         }
     }
     
@@ -212,7 +201,7 @@ final class CrossChainFundsPermissionPresenter {
         } catch {
             await MainActor.run {
                 view?.setButtonLoadingState(isLoading: false)
-                router.present(error: error, from: view, locale: selectedLocale)
+                handleDefaultError(error)
             }
         }
     }
@@ -275,6 +264,32 @@ final class CrossChainFundsPermissionPresenter {
         
         Task {
             try await refreshFee()
+        }
+    }
+    
+    private func handleDefaultError(_ error: Error) {
+        let viewModel = viewModelFactory.buildViewModel(
+            error: error,
+            actionTitle: nil,
+            actionHandler: nil,
+            locale: selectedLocale)
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveError(viewModel: viewModel)
+        }
+    }
+    
+    private func handleReloadableError(_ error: Error) {
+        let viewModel = viewModelFactory.buildViewModel(
+            error: error,
+            actionTitle: R.string.localizable.commonRetry(preferredLanguages: selectedLocale.rLanguages),
+            actionHandler: { [weak self] in
+                self?.handleReload()
+            },
+            locale: selectedLocale)
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveError(viewModel: viewModel)
         }
     }
 }

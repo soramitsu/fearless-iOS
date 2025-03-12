@@ -8,7 +8,7 @@ protocol OKXDataFetching {
         amount: String,
         selectedDexIds: [String]?,
         slippage: String
-    ) async throws -> OKXQuoteInfo?
+    ) async throws -> OKXQuoteInfo
 
     func fetchTransactionData(
         sourceChainAsset: ChainAsset,

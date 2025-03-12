@@ -25,6 +25,7 @@ final class CrossChainTxTrackingPresenter {
     private let transaction: AssetTransactionData
     private var timer: Timer?
     private let chainAsset: ChainAsset
+    private var alreadyFetched: Bool = false
 
     // MARK: - Constructors
 
@@ -50,6 +51,8 @@ final class CrossChainTxTrackingPresenter {
     // MARK: - Private methods
 
     private func provideViewModel(_ viewModel: CrossChainTxTrackingViewModel) async {
+        alreadyFetched = true
+        
         await MainActor.run(body: {
             view?.didStopLoading()
             view?.didReceive(viewModel: viewModel)
@@ -123,9 +126,7 @@ final class CrossChainTxTrackingPresenter {
         Task {
             do {
                 let status = try await interactor.queryCrossChainStatus()
-
                 
-
                 guard !status.transactionFailed else {
                     await handleFailedTransaction(status)
                     return
@@ -167,12 +168,16 @@ extension CrossChainTxTrackingPresenter: CrossChainTxTrackingViewOutput {
     func didLoad(view: CrossChainTxTrackingViewInput) {
         self.view = view
         interactor.setup(with: self)
-        fetchData()
         setupTimer()
     }
     
     func viewWillAppear() {
+        guard !alreadyFetched else {
+            return
+        }
+        
         view?.didStartLoading()
+        fetchData()
     }
 
     func didTapBackButton() {

@@ -20,7 +20,6 @@ final class CrossChainSwapSetupInteractor: CrossChainBaseInteractor {
     private let okxService: OKXDexAggregatorService
     private let balanceFetching: EthereumRemoteBalanceFetching
     private let accountInfoFetchingProvider: AccountInfoFetching
-    private let assetFetching: MultichainAssetFetching
     
     init(
         okxService: OKXDexAggregatorService,
@@ -34,9 +33,11 @@ final class CrossChainSwapSetupInteractor: CrossChainBaseInteractor {
         self.wallet = wallet
         self.balanceFetching = balanceFetching
         self.accountInfoFetchingProvider = accountInfoFetchingProvider
-        self.assetFetching = assetFetching
         
-        super.init(dependencyContainer: dependencyContainer)
+        super.init(
+            dependencyContainer: dependencyContainer,
+            assetFetching: assetFetching
+        )
     }
 
     private func fetchLocalBalance(for chainAssets: [ChainAsset]) async throws -> [ChainAssetKey: AccountInfo?] {
@@ -75,7 +76,7 @@ extension CrossChainSwapSetupInteractor: CrossChainSwapSetupInteractorInput {
             return chainAssets.first { $0.isUtility }
         }
 
-        return chainAssets.first { $0.asset.symbol.lowercased() == nativeChainAsset.asset.symbol.lowercased() }
+        return chainAssets.first { $0.asset.id.lowercased() == nativeChainAsset.asset.id.lowercased() }
     }
     
     func fetchDexTokenApproveAddress(chainAsset: ChainAsset) async throws -> String? {
@@ -83,7 +84,7 @@ extension CrossChainSwapSetupInteractor: CrossChainSwapSetupInteractorInput {
     }
     
     func fetchAllowance(swapFromChainAsset: ChainAsset, dexTokenApproveAddress: String) async throws -> BigUInt? {
-        guard let swapService = try? dependencyContainer.getEthereumSwapService(for: swapFromChainAsset) else {
+        guard let swapService = dependencyContainer.getEthereumSwapService(for: swapFromChainAsset) else {
             throw CrossChainSwapSetupInteractorError.connectionUnavailable
         }
         

@@ -1,4 +1,5 @@
 import Foundation
+import Commons
 import SoraFoundation
 import SSFModels
 import BigInt
@@ -11,6 +12,7 @@ protocol CrossChainSwapConfirmViewInput: ControllerBackedProtocol, LoadableViewP
     func didReceive(feeViewModel: TitleMultiValueViewModel?)
     func setButtonLoadingState(isLoading: Bool)
     func didReceiveError(viewModel: ErrorViewModel?)
+    func didReceive(viewType: CrossChainSwapViewType)
 }
 
 protocol CrossChainSwapConfirmInteractorInput: AnyObject, CrossChainBaseInteractor {
@@ -21,12 +23,11 @@ protocol CrossChainSwapConfirmInteractorInput: AnyObject, CrossChainBaseInteract
     func checkTransactionSucceed(approveTxHash: String) async throws -> Bool
 }
 
-final class CrossChainSwapConfirmPresenter {
+final class CrossChainSwapConfirmPresenter: CrossChainSwapBasePresenter<CrossChainSwapConfirmInteractor> {
     // MARK: Private properties
 
     private weak var view: CrossChainSwapConfirmViewInput?
     private let router: CrossChainSwapConfirmRouterInput
-    private let interactor: CrossChainSwapConfirmInteractorInput
     private let viewModelFactory: CrossChainSwapConfirmViewModelFactory
     private let dataValidatingFactory: SendDataValidatingFactory
     private let logger: LoggerProtocol?
@@ -34,12 +35,10 @@ final class CrossChainSwapConfirmPresenter {
     private let swapFromChainAsset: ChainAsset
     private let swapToChainAsset: ChainAsset
     private var swap: CrossChainSwap
-    private let wallet: MetaAccountModel
 
     private var swapFromBalance: Decimal?
     private var swapToBalance: Decimal?
     private var utilityBalance: Decimal?
-    private var totalFiatFee: Decimal?
     private var timer: Timer?
     private let amount: String
     private let selectedDexIds: [String]?
@@ -48,11 +47,12 @@ final class CrossChainSwapConfirmPresenter {
     private var slippage: Decimal
     private var approveTxHash: String?
     private var feeErrorCounter: Int = 0
+    private var viewType: CrossChainSwapViewType
 
     // MARK: - Constructors
 
     init(
-        interactor: CrossChainSwapConfirmInteractorInput,
+        interactor: CrossChainSwapConfirmInteractor,
         router: CrossChainSwapConfirmRouterInput,
         localizationManager: LocalizationManagerProtocol,
         swapFromChainAsset: ChainAsset,
@@ -67,24 +67,51 @@ final class CrossChainSwapConfirmPresenter {
         slippage: Decimal,
         approveTxHash: String?
     ) {
-        self.interactor = interactor
         self.router = router
         self.swapFromChainAsset = swapFromChainAsset
         self.swapToChainAsset = swapToChainAsset
         self.swap = swap
         self.viewModelFactory = viewModelFactory
-        self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
         self.amount = amount
         self.selectedDexIds = selectedDexIds
         self.logger = logger
         self.slippage = slippage
         self.approveTxHash = approveTxHash
+        self.viewType = CrossChainSwapViewType(isCrossChainSwap: swapFromChainAsset.chain.chainId != swapToChainAsset.chain.chainId)
 
+        super.init(
+            wallet: wallet,
+            interactor: interactor
+        )
+        
         self.localizationManager = localizationManager
     }
 
-    // MARK: - Data Fetching
+    // MARK: Private
+    
+    private func updateButtonLoadingState(isLoading: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.setButtonLoadingState(isLoading: isLoading)
+        }
+    }
+    
+    @objc private func handleTimerTick() {
+        fetchInfo()
+    }
+
+    private func setupTimer() {
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(
+            timeInterval: 15.0,
+            target: self,
+            selector: #selector(
+                handleTimerTick
+            ),
+            userInfo: nil,
+            repeats: true
+        )
+    }
 
     private func fetchCrossChainTx() {
         Task {
@@ -98,7 +125,6 @@ final class CrossChainSwapConfirmPresenter {
                 )
 
                 self.crossChainTx = crossChainTx
-                refreshFee()
             } catch {
                 logger?.customError(error)
             }
@@ -115,80 +141,35 @@ final class CrossChainSwapConfirmPresenter {
                 
                 if isSucceed {
                     self.approveTxHash = nil
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(CrossChain.Constants.approveTxSecondsDelay)) { [weak self] in
-                        self?.refreshFee()
-                    }
                 } else {
-                    showDefaultError(title: "Approve transaction failed", message: "Please return back and try again")
+                    showDefaultError(
+                        title: "Approve transaction failed",
+                        message: "Please return back and try again"
+                    )
                 }
             } catch {
-                print(error)
-                DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(CrossChain.Constants.approveTxSecondsDelay)) { [weak self] in
-                    self?.checkApproveTransactionSucceed(approveTxHash: approveTxHash)
-                }
-            }
-        }
-    }
-
-    private func refreshFee() {
-        if let approveTxHash {
-            showDefaultError(
-                title: R.string.localizable.approveTransactionPendingTitle(preferredLanguages: selectedLocale.rLanguages),
-                message: R.string.localizable.blockchainTransactionPendingDescription(preferredLanguages: selectedLocale.rLanguages)
-            )
-            DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(CrossChain.Constants.approveTxSecondsDelay)) { [weak self] in
-                self?.checkApproveTransactionSucceed(approveTxHash: approveTxHash)
-            }
-            return
-        }
-        
-        guard let utilityChainAsset = swapFromChainAsset.chain.utilityChainAssets().first, let crossChainTx else {
-            return
-        }
-
-        Task {
-            do {
-                await MainActor.run {
-                    view?.setButtonLoadingState(isLoading: true)
-                }
-
-                let fee = try await interactor.estimateFee(tx: crossChainTx)
-                self.fromNetworkFee = Decimal.fromSubstrateAmount(fee, precision: Int16(utilityChainAsset.asset.precision))
-
-                await MainActor.run {
-                    view?.setButtonLoadingState(isLoading: false)
-                }
-            } catch {
-                feeErrorCounter += 1
-                if feeErrorCounter < 3 {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(CrossChain.Constants.refreshSecondsDelay)) { [weak self] in
-                        self?.refreshFee()
-                    }
-                    return
-                }
-                
-                await MainActor.run {
-                    self.view?.setButtonLoadingState(isLoading: false)
-                }
                 logger?.customError(error)
-                
-                if let rpcError = error as? RPCResponse<EthereumQuantity>.Error {
-                    showReloadableError(
-                        title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
-                        message: rpcError.message
-                    )
-                } else {
-                    showReloadableError(
-                        title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
-                        message: error.localizedDescription
-                    )
-                }
             }
         }
     }
 
     private func fetchInfo() {
+        if let approveTxHash {
+            showDefaultError(
+                title: R.string.localizable.approveTransactionPendingTitle(
+                    preferredLanguages: selectedLocale.rLanguages
+                ),
+                message: R.string.localizable.blockchainTransactionPendingDescription(
+                    preferredLanguages: selectedLocale.rLanguages
+                )
+            )
+            
+            checkApproveTransactionSucceed(approveTxHash: approveTxHash)
+            return
+        }
+        
+        timer?.invalidate()
+
         Task {
             do {
                 let swapSetupInfo = try await interactor.fetchSwapSetupInfo(
@@ -199,24 +180,26 @@ final class CrossChainSwapConfirmPresenter {
                     selectedDexIds: selectedDexIds
                 )
 
-                if let swap = swapSetupInfo?.swap {
-                    self.swap = swap
-                }
-
-                calculateTotalFiatFee()
-                provideViewModel()
-            } catch {
-                logger?.customError(error)
-
-                calculateTotalFiatFee()
+                self.swap = swapSetupInfo.swap
+                self.fromNetworkFee = try await estimateFee(for: swapSetupInfo.swap, chainAsset: swapFromChainAsset)
+                self.totalFiatFee = try await calculateTotalFiatFee(
+                    for: swapSetupInfo.swap,
+                    swapFromChainAsset: swapFromChainAsset,
+                    originNetworkFee: fromNetworkFee
+                )
+                
                 provideViewModel()
                 
+                updateButtonLoadingState(isLoading: false)
+            } catch {
+                logger?.customError(error)
+                                
                 DispatchQueue.main.async { [weak self] in
                     guard let self else {
                         return
                     }
                     
-                    self.view?.setButtonLoadingState(isLoading: false)
+                    updateButtonLoadingState(isLoading: false)
 
                     if let error = error as? OKXDexError{
                         let message = error.decode(with: self.swapFromChainAsset)
@@ -280,57 +263,6 @@ final class CrossChainSwapConfirmPresenter {
 
         view?.didReceive(doubleImageViewModel: viewModel)
     }
-
-    // MARK: Private methods
-
-    private func calculateTotalFiatFee() {
-        let utilityChainAsset = swapFromChainAsset.chain.utilityChainAssets().first ?? swapFromChainAsset
-        let fee = swap.fee.flatMap { BigUInt(string: $0) }.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(utilityChainAsset.asset.precision)) }
-
-        let sourceChainFiatFee: Decimal? = fee.flatMap { fee in
-            guard
-                let price = utilityChainAsset.asset.getPrice(for: wallet.selectedCurrency),
-                let priceDecimal = Decimal(string: price.price)
-            else {
-                return nil
-            }
-            return fee * priceDecimal
-        }
-
-        let sourceChainAssets = swapFromChainAsset.chain.chainAssets
-        let crossChainFeeToken = sourceChainAssets.first(where: { $0.asset.currencyId == swap.contractAddress })
-        let crossChainFeeNativeToken = swapFromChainAsset.chain.chainAssets.first(where: { $0.asset.id == crossChainFeeToken?.asset.id })
-        let crossChainFee: Decimal? = swap.crossChainFee.flatMap { BigUInt(string: $0) }.flatMap {
-            guard let crossChainFeeNativeToken else {
-                return nil
-            }
-
-            return Decimal.fromSubstrateAmount($0, precision: Int16(crossChainFeeNativeToken.asset.precision))
-        }
-
-        let crossChainFiatFee: Decimal? = crossChainFee.flatMap { fee in
-            guard let crossChainFeeNativeToken,
-                  let price = crossChainFeeNativeToken.asset.getPrice(for: wallet.selectedCurrency),
-                  let priceDecimal = Decimal(string: price.price)
-            else {
-                return nil
-            }
-
-            return fee * priceDecimal
-        }
-
-        let fiatFee = swap.fiatFee.flatMap { Decimal(string: $0) }
-
-        let totalFiatFee = [crossChainFiatFee, sourceChainFiatFee, fiatFee].compactMap { $0 }.reduce(0, +)
-
-        self.totalFiatFee = totalFiatFee
-        let totalFiatString = "\(wallet.selectedCurrency.symbol) \(totalFiatFee.string(maximumFractionDigits: 8))"
-        let feeViewModel = TitleMultiValueViewModel(title: totalFiatString, subtitle: nil)
-
-        DispatchQueue.main.async { [weak self] in
-            self?.view?.didReceive(feeViewModel: feeViewModel)
-        }
-    }
     
     private func showDefaultError(title: String, message: String) {
         let errorViewModel = ErrorViewModel(
@@ -355,7 +287,7 @@ final class CrossChainSwapConfirmPresenter {
                     self?.view?.didReceiveError(viewModel: nil)
                 }
                 
-                self?.refreshFee()
+                self?.fetchInfo()
             }
         )
         
@@ -377,11 +309,12 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
         provideAmountInfoViewModel()
         provideImageViewModel()
         subscribeOnBalance()
-        calculateTotalFiatFee()
         fetchInfo()
+        setupTimer()
         fetchCrossChainTx()
 
-        self.view?.setButtonLoadingState(isLoading: true)
+        view.didReceive(viewType: viewType)
+        updateButtonLoadingState(isLoading: true)
     }
 
     func didTapConfirmButton() {
@@ -408,7 +341,7 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
                 return
             }
 
-            self.view?.setButtonLoadingState(isLoading: true)
+            updateButtonLoadingState(isLoading: true)
 
             Task {
                 do {
@@ -443,9 +376,14 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
                     }
                 } catch {
                     await MainActor.run {
-                        self.view?.setButtonLoadingState(isLoading: false)
+                        self.updateButtonLoadingState(isLoading: false)
                         
                         if let rpcError = error as? RPCResponse<EthereumQuantity>.Error {
+                            self.showDefaultError(
+                                title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: self.selectedLocale.rLanguages),
+                                message: rpcError.message
+                            )
+                        } else if let rpcError = error as? RPCResponse<EthereumData>.Error {
                             self.showDefaultError(
                                 title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: self.selectedLocale.rLanguages),
                                 message: rpcError.message

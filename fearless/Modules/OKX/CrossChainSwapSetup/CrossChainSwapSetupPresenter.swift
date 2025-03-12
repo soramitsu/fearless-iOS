@@ -5,13 +5,14 @@ import BigInt
 
 protocol CrossChainSwapSetupViewInput: ControllerBackedProtocol {
     func setButtonLoadingState(isLoading: Bool)
-    func didReceive(originFeeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
+    func didReceive(originFeeViewModel: BalanceViewModelProtocol?)
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?)
     func didReceive(destinationAssetBalanceViewModel: AssetBalanceViewModelProtocol?)
     func didReceiveSwapFrom(amountInputViewModel: IAmountInputViewModel?)
     func didReceiveSwapTo(amountInputViewModel: IAmountInputViewModel?)
     func didReceiveViewModel(viewModel: CrossChainSwapViewModel?)
     func didReceiveError(viewModel: ErrorViewModel?)
+    func didReceive(viewType: CrossChainSwapViewType)
 }
 
 protocol CrossChainSwapSetupInteractorInput: AnyObject, CrossChainBaseInteractorInput {
@@ -23,15 +24,13 @@ protocol CrossChainSwapSetupInteractorInput: AnyObject, CrossChainBaseInteractor
     func fetchAllowance(swapFromChainAsset: ChainAsset, dexTokenApproveAddress: String) async throws -> BigUInt?
 }
 
-final class CrossChainSwapSetupPresenter {
+final class CrossChainSwapSetupPresenter: CrossChainSwapBasePresenter<CrossChainSwapSetupInteractor> {
     // MARK: Private properties
 
     private weak var moduleOutput: CrossChainSwapSetupModuleOutput?
     private weak var view: CrossChainSwapSetupViewInput?
     private let router: CrossChainSwapSetupRouterInput
-    private let interactor: CrossChainSwapSetupInteractorInput
     private let viewModelFactory: CrossChainSwapSetupViewModelFactory
-    private let wallet: MetaAccountModel
     private var initialChainAsset: ChainAsset?
     private var swapFromChainAsset: ChainAsset?
     private var swapToChainAsset: ChainAsset?
@@ -46,28 +45,27 @@ final class CrossChainSwapSetupPresenter {
     private var swapToInputResult: AmountInputResult?
     private var swapToBalance: Decimal?
     private var utilityBalance: Decimal?
+    private var destinationUtilityBalance: Decimal?
     private var selectedDexIds: [String]?
     private var dexs: [OKXDexQuote]?
     private var selectedSort: UInt8 = 0
-    private var fromNetworkFee: Decimal?
     private var automaticallySelectedDexId: String?
-    private var slippage: Decimal = 0.01
+    private var slippage: Decimal = 0.03
     private var allowance: BigUInt?
     private var dexTokenApproveAddress: String?
     private var dexTask: Task<Void, Never>?
     private var quotesTask: Task<Void, Never>?
     private var swapTask: Task<Void, Never>?
 
-    private var totalFiatFee: Decimal?
-
     private var timer: Timer?
+    private var viewType: CrossChainSwapViewType = .undefined
 
     private var balanceMinusFee: Decimal? {
-        guard swapFromChainAsset?.isUtility == true, let swapFromBalance, let fromNetworkFee else {
+        guard swapFromChainAsset?.isUtility == true, let swapFromBalance, let originNetworkFee else {
             return swapFromBalance
         }
 
-        return swapFromBalance - fromNetworkFee
+        return swapFromBalance - originNetworkFee
     }
 
     private var amountUnwrapped: String {
@@ -124,7 +122,7 @@ final class CrossChainSwapSetupPresenter {
     // MARK: - Constructors
 
     init(
-        interactor: CrossChainSwapSetupInteractorInput,
+        interactor: CrossChainSwapSetupInteractor,
         router: CrossChainSwapSetupRouterInput,
         localizationManager: LocalizationManagerProtocol,
         viewModelFactory: CrossChainSwapSetupViewModelFactory,
@@ -134,27 +132,38 @@ final class CrossChainSwapSetupPresenter {
         moduleOutput: CrossChainSwapSetupModuleOutput?,
         logger: LoggerProtocol?
     ) {
-        self.interactor = interactor
         self.router = router
         self.viewModelFactory = viewModelFactory
-        self.wallet = wallet
-        initialChainAsset = chainAsset
         self.dataValidatingFactory = dataValidatingFactory
         self.moduleOutput = moduleOutput
         self.logger = logger
+        initialChainAsset = chainAsset
+
+        super.init(wallet: wallet, interactor: interactor)
 
         self.localizationManager = localizationManager
     }
 
     // MARK: - Private methods
+    
+    private func updateViewType() {
+        var isCrossChainSwap: Bool?
+        
+        if let swapFromChainAsset, let swapToChainAsset {
+            isCrossChainSwap = swapFromChainAsset.chain.chainId != swapToChainAsset.chain.chainId
+        }
+        
+        viewType = CrossChainSwapViewType(isCrossChainSwap: isCrossChainSwap)
+        view?.didReceive(viewType: viewType)
+    }
 
     private func reloadData() {
         fetchInfo()
         setupTimer()
     }
-
+    
     private func fetchInfo() {
-        guard let swapFromChainAsset, let swapToChainAsset, let utilityChainAsset = swapFromChainAsset.chain.utilityChainAssets().first, amountUnwrapped.isNotEmpty else {
+        guard let swapFromChainAsset, let swapToChainAsset, amountUnwrapped.isNotEmpty else {
             return
         }
         
@@ -171,39 +180,49 @@ final class CrossChainSwapSetupPresenter {
         
         Task {
             do {
-                let swapSetupInfo = try await interactor.fetchSwapSetupInfo(
+                let quote = try await interactor.fetchSwapSetupInfo(
                     chainAsset: swapFromChainAsset,
                     destinationChainAsset: swapToChainAsset,
                     amount: amountUnwrapped,
                     slippage: slippage.stringWithPointSeparator,
                     selectedDexIds: selectedDexIds
                 )
-
-                self.swap = swapSetupInfo?.swap
+                    
+                self.swap = quote.swap
+                self.originNetworkFee = try await estimateFee(
+                    for: quote.swap,
+                    chainAsset: swapFromChainAsset
+                )
+                self.totalFiatFee = try await calculateTotalFiatFee(
+                    for: quote.swap,
+                    swapFromChainAsset: swapFromChainAsset,
+                    originNetworkFee: originNetworkFee
+                )
+                
                 if (selectedDexIds?.isEmpty).or(true) {
-                    self.dexs = swapSetupInfo?.swap?.quotes
+                    self.dexs = quote.swap.quotes
                 }
                 
-                self.fromNetworkFee = swapSetupInfo?.fee.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(utilityChainAsset.asset.precision)) }
 
                 if selectedDexIds?.isEmpty != false {
-                    automaticallySelectedDexId = swapSetupInfo?.swap?.selectedDexId
+                    automaticallySelectedDexId = quote.swap.selectedDexId
                 }
-                calculateTotalFiatFee()
+                
                 provideViewModel()
+                provideFeeViewModel()
                 provideDestinationInput()
                 checkLoadingState()
             } catch {
                 logger?.customError(error)
 
-                self.fromNetworkFee = nil
+                self.originNetworkFee = nil
                 self.swap = nil
                 self.swapToInputResult = .absolute(0)
-
-                calculateTotalFiatFee()
+                self.totalFiatFee = nil
                 provideViewModel()
                 provideDestinationAssetViewModel()
                 checkLoadingState()
+                
                 DispatchQueue.main.async { [weak self] in
                     self?.view?.setButtonLoadingState(isLoading: false)
 
@@ -260,10 +279,27 @@ final class CrossChainSwapSetupPresenter {
     }
 
     private func checkLoadingState() {
-        let isReady = swap != nil && (swapFromChainAsset?.asset.isUtility == true || allowance != nil)
+        let isReady = swap != nil && (swapFromChainAsset?.asset.isUtility == true || allowance != nil) && originNetworkFee != nil || swapToInputResult == nil
 
         DispatchQueue.main.async { [weak self] in
             self?.view?.setButtonLoadingState(isLoading: !isReady)
+        }
+    }
+    
+    private func provideFeeViewModel() {
+        guard let swapFromChainAsset else {
+            return
+        }
+
+        let viewModel = viewModelFactory.buildFeeViewModel(
+            originNetworkFee: originNetworkFee,
+            sourceChainAsset: swapFromChainAsset,
+            wallet: wallet,
+            locale: selectedLocale
+        )
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceive(originFeeViewModel: viewModel)
         }
     }
 
@@ -358,7 +394,7 @@ final class CrossChainSwapSetupPresenter {
     }
 
     private func subscribeOnBalance() {
-        let chainAssets = [swapFromChainAsset, swapToChainAsset, swapFromChainAsset?.chain.utilityChainAssets().first].compactMap { $0 }
+        let chainAssets = [swapFromChainAsset, swapToChainAsset, swapFromChainAsset?.chain.utilityChainAssets().first, swapToChainAsset?.chain.utilityChainAssets().first].compactMap { $0 }
 
         Task {
             do {
@@ -395,13 +431,22 @@ final class CrossChainSwapSetupPresenter {
         swapToInputResult = nil
         provideDestinationAssetViewModel()
         view?.didReceiveViewModel(viewModel: nil)
-
+        updateViewType()
         subscribeOnBalance()
         fetchInfo()
 
     }
 
     private func handle(accountInfo: AccountInfo?, for chainAssetKey: ChainAssetKey) {
+        if let swapToChainAsset, let utilityChainAsset = swapToChainAsset.chain.utilityChainAssets().first, chainAssetKey == utilityChainAsset.uniqueKey(for: wallet) {
+            destinationUtilityBalance = accountInfo.map {
+                Decimal.fromSubstrateAmount(
+                    $0.data.sendAvailable,
+                    precision: Int16(utilityChainAsset.asset.precision)
+                )
+            } ?? .zero
+        }
+        
         if let swapFromChainAsset, let utilityChainAsset = swapFromChainAsset.chain.utilityChainAssets().first, chainAssetKey == utilityChainAsset.uniqueKey(for: wallet) {
             utilityBalance = accountInfo.map {
                 Decimal.fromSubstrateAmount(
@@ -432,69 +477,21 @@ final class CrossChainSwapSetupPresenter {
         }
     }
 
-    private func calculateTotalFiatFee() {
-        guard let swap, let sourceChainAsset = swapFromChainAsset else {
-            self.totalFiatFee = nil
-            return
-        }
-
-        let sourceChainFeeNativeToken = sourceChainAsset.chain.utilityChainAssets().first
-        let fee: Decimal? = swap.fee
-            .flatMap { BigUInt(string: $0) }
-            .flatMap {
-                guard let sourceChainFeeNativeToken else {
-                    return nil
-                }
-                return Decimal.fromSubstrateAmount($0, precision: Int16(sourceChainFeeNativeToken.asset.precision))
-            }
-
-        let sourceChainFiatFee: Decimal? = fee.flatMap { fee in
-            guard
-                let sourceChainFeeNativeToken,
-                let price = sourceChainFeeNativeToken.asset.getPrice(for: wallet.selectedCurrency),
-                let priceDecimal = Decimal(string: price.price)
-            else {
-                return nil
-            }
-            return fee * priceDecimal
-        }
-
-        let sourceChainAssets = sourceChainAsset.chain.chainAssets
-        let crossChainFeeToken = sourceChainAssets.first(where: { $0.asset.currencyId == swap.contractAddress })
-        let crossChainFeeNativeToken = sourceChainAsset.chain.chainAssets.first(where: { $0.asset.id == crossChainFeeToken?.asset.id })
-        let crossChainFee: Decimal? = swap.crossChainFee.flatMap { BigUInt(string: $0) }.flatMap {
-            guard let crossChainFeeNativeToken else {
-                return nil
-            }
-
-            return Decimal.fromSubstrateAmount($0, precision: Int16(crossChainFeeNativeToken.asset.precision))
-        }
-
-        let crossChainFiatFee: Decimal? = crossChainFee.flatMap { fee in
-            guard let crossChainFeeNativeToken,
-                  let price = crossChainFeeNativeToken.asset.getPrice(for: wallet.selectedCurrency),
-                  let priceDecimal = Decimal(string: price.price)
-            else {
-                return nil
-            }
-
-            return fee * priceDecimal
-        }
-
-        let fiatFee = swap.fiatFee.flatMap { Decimal(string: $0) }
-
-        let totalFiatFee = [crossChainFiatFee, sourceChainFiatFee, fiatFee].compactMap { $0 }.reduce(0, +)
-
-        self.totalFiatFee = totalFiatFee
-    }
-
     @objc private func handleTimerTick() {
         fetchInfo()
     }
 
     private func setupTimer() {
         timer?.invalidate()
-        timer = Timer.scheduledTimer(timeInterval: 15.0, target: self, selector: #selector(handleTimerTick), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(
+            timeInterval: 15.0,
+            target: self,
+            selector: #selector(
+                handleTimerTick
+            ),
+            userInfo: nil,
+            repeats: true
+        )
     }
 
     private func showDefaultError(title: String, message: String) {
@@ -643,7 +640,7 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
 
         swapVariant = .desiredInput
         swapFromInputResult = .absolute(newValue)
-        provideAssetViewModel()
+//        provideAssetViewModel()
         reloadData()
     }
 
@@ -718,10 +715,10 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
 
         let balance: BalanceType = swapFromChainAsset.asset.isUtility ? .utility(balance: swapFromBalance) : .orml(balance: swapFromBalance, utilityBalance: utilityBalance)
         DataValidationRunner(validators: [
-            dataValidatingFactory.has(fee: fromNetworkFee, locale: selectedLocale, onError: {}),
+            dataValidatingFactory.has(fee: originNetworkFee, locale: selectedLocale, onError: {}),
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: balance,
-                feeAndTip: fromNetworkFee,
+                feeAndTip: originNetworkFee,
                 sendAmount: swapFromInputResult?.absoluteValue(from: swapFromBalance.or(.zero)),
                 locale: selectedLocale
             )

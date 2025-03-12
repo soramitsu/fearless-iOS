@@ -2,7 +2,7 @@ import Foundation
 import SSFModels
 import BigInt
 
-final class CrossChainFundsPermissionViewModelFactory {
+final class CrossChainFundsPermissionViewModelFactory: ErrorViewModelFactory {
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let amountFormatterFactory: AssetBalanceFormatterFactoryProtocol
 

@@ -63,12 +63,6 @@ final class BridgeListTableCell: UITableViewCell {
         return label
     }()
 
-    let detailsImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = R.image.iconArrowRightNormal()
-        return imageView
-    }()
-
     let dexLogoImageView: UIImageView = {
         let imageView = UIImageView()
         return imageView
@@ -113,7 +107,6 @@ final class BridgeListTableCell: UITableViewCell {
     private func setupSubviews() {
         contentView.addSubview(triangularedBackgroundView)
         triangularedBackgroundView.addSubview(mainStackView)
-        triangularedBackgroundView.addSubview(detailsImageView)
 
         mainStackView.addArrangedSubview(routeStackView)
         mainStackView.addArrangedSubview(amountLabel)
@@ -136,14 +129,7 @@ final class BridgeListTableCell: UITableViewCell {
         mainStackView.snp.makeConstraints { make in
             make.leading.top.bottom.equalToSuperview().inset(12)
         }
-
-        detailsImageView.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(12)
-            make.centerY.equalToSuperview()
-            make.size.equalTo(16)
-            make.leading.equalTo(mainStackView.snp.trailing).offset(8)
-        }
-
+        
         dexLogoImageView.snp.makeConstraints { make in
             make.size.equalTo(Constants.dexLogoImageSize)
         }

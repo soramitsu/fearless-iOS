@@ -23,7 +23,7 @@ class OKXDexSwapRequestParameters: NetworkRequestUrlParameters, Decodable {
     let swapReceiverAddress: String?
 
     /// recipient address of a purchased token if not set, userWalletAddress will receive a purchased token (e.g.,0x3f6a3f57569358a512ccc0e513f171516b0fd42a)
-    let referrerAddress: String?
+    let fromTokenReferrerWalletAddress: String?
 
     /// The percentage of fromTokenAmount will be sent to the referrer's address, the rest will be set as the input amount to be sold. min percentage：0 max percentage：3
     let feePercent: String?
@@ -47,7 +47,7 @@ class OKXDexSwapRequestParameters: NetworkRequestUrlParameters, Decodable {
     let callDataMemo: String?
 
     /// toToken referrer address (Only supports SPL-Token commissions which use token account.) The toToken address that receives the commission. When using the API, the fee rate can be adjusted by adding feePercent. Note: This doesn’t support transactions involving wrapped tokens such as those between SOL and WSOL. In a single transaction, either a fromToken commission or a toToken commission can be selected.
-    let toTokenReferrerAddress: String?
+    let toTokenReferrerWalletAddress: String?
 
     /// Used for transactions on the Solana network and similar to gasPrice on Ethereum. This price determines the priority level of the transaction. The higher the price, the more likely that the transaction can be processed faster.
     let computeUnitPrice: String?
@@ -63,7 +63,7 @@ class OKXDexSwapRequestParameters: NetworkRequestUrlParameters, Decodable {
         slippage: String,
         userWalletAddress: String,
         swapReceiverAddress: String? = nil,
-        referrerAddress: String? = nil,
+        fromTokenReferrerWalletAddress: String? = nil,
         feePercent: String? = nil,
         gaslimit: String? = nil,
         gasLevel: String? = nil,
@@ -71,7 +71,7 @@ class OKXDexSwapRequestParameters: NetworkRequestUrlParameters, Decodable {
         solTokenAccountAddress: String? = nil,
         priceImpactProtectionPercentage: String? = nil,
         callDataMemo: String? = nil,
-        toTokenReferrerAddress: String? = nil,
+        toTokenReferrerWalletAddress: String? = nil,
         computeUnitPrice: String? = nil,
         computeUnitLimit: String? = nil
     ) {
@@ -82,7 +82,7 @@ class OKXDexSwapRequestParameters: NetworkRequestUrlParameters, Decodable {
         self.slippage = slippage
         self.userWalletAddress = userWalletAddress
         self.swapReceiverAddress = swapReceiverAddress
-        self.referrerAddress = referrerAddress
+        self.fromTokenReferrerWalletAddress = fromTokenReferrerWalletAddress
         self.feePercent = feePercent
         self.gaslimit = gaslimit
         self.gasLevel = gasLevel
@@ -90,7 +90,7 @@ class OKXDexSwapRequestParameters: NetworkRequestUrlParameters, Decodable {
         self.solTokenAccountAddress = solTokenAccountAddress
         self.priceImpactProtectionPercentage = priceImpactProtectionPercentage
         self.callDataMemo = callDataMemo
-        self.toTokenReferrerAddress = toTokenReferrerAddress
+        self.toTokenReferrerWalletAddress = toTokenReferrerWalletAddress
         self.computeUnitPrice = computeUnitPrice
         self.computeUnitLimit = computeUnitLimit
     }

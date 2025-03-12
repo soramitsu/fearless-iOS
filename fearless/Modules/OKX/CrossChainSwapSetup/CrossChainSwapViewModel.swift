@@ -12,4 +12,5 @@ struct CrossChainSwapViewModel {
     let slippageTitle: TitleMultiValueViewModel?
     let routeViewModels: [ImageMarkedLabelViewModel]?
     let txTime: String?
+    let walletFee: BalanceViewModelProtocol?
 }

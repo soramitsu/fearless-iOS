@@ -12,14 +12,9 @@ final class AccountScoreRepository {
 
 extension AccountScoreRepository: AccountStatisticsFetching {
     func subscribeForStatistics(
-        address: String,
-        cacheOptions: CachedNetworkRequestTrigger
+        address: String
     ) async throws -> AsyncThrowingStream<CachedNetworkResponse<AccountStatisticsResponse>, any Error> {
-        if let value = cache[address] {
-            return AsyncThrowingStream(unfolding: { CachedNetworkResponse(value: AccountStatisticsResponse(data: value), type: .cache) } )
-        }
-        
-        let stream = try await fetcher.subscribeForStatistics(address: address, cacheOptions: cacheOptions)
+        let stream = try await fetcher.subscribeForStatistics(address: address)
         
         return stream
     }
@@ -31,6 +26,4 @@ extension AccountScoreRepository: AccountStatisticsFetching {
         
         return try await fetcher.fetchStatistics(address: address)
     }
-    
-    
 }

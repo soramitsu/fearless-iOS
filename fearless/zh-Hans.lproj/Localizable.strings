@@ -1276,3 +1276,9 @@
 "approve.transaction.pending.title" = "Approve tx is processing";
 "blockchain.transaction.pending.description" = "Your transaction is awaiting confirmation on the network.";
 "revoke.transaction.pending.title" = "Revoke tx is processing";
+"okx.swap.title" = "Swap";
+"okx.bridge.title" = "Cross-Chain Swap";
+"validation.destination.chain.utility.balance.zero.title" = "Zero utility token balance detected in the destination chain";
+"validation.destination.chain.utility.balance.zero.description" = "Your account must have more than 0 utility tokens to complete the cross-chain swap. Please deposit tokens and try again.";
+"cross.chain.swap.total.fee.title" = "Total fees";
+"cross.chain.swap.wallet.fee.title" = "Wallet fee";

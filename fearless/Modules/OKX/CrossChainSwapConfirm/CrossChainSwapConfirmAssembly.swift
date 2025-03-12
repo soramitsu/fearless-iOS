@@ -34,6 +34,7 @@ final class CrossChainSwapConfirmAssembly {
             eth: eth
         )
         let dependencyContainer = CrossChainDependencyContainer(okxService: okxService, wallet: crossChainSwapParameters.wallet)
+        let assetFetching = OKXMultichainAssetFetching(okxService: okxService, sourceChainId: nil)
 
         let interactor = CrossChainSwapConfirmInteractor(
             swapService: swapService,
@@ -43,7 +44,8 @@ final class CrossChainSwapConfirmAssembly {
             okxService: okxService,
             amount: crossChainSwapParameters.amount,
             swap: crossChainSwapParameters.swap,
-            dependencyContainer: dependencyContainer
+            dependencyContainer: dependencyContainer,
+            assetFetching: assetFetching
         )
         let router = CrossChainSwapConfirmRouter()
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)

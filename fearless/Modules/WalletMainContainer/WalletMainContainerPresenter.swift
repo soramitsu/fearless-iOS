@@ -183,7 +183,7 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
     func didReceiveAccount(_ account: MetaAccountModel) {
         wallet = account
         provideViewModel()
-
+        provideAccountScoreViewModel()
         balanceInfoModuleInput?.replace(infoType: .networkManagement(wallet: account))
     }
 

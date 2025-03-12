@@ -29,7 +29,7 @@ final class CrossChainDependencyContainer {
         }
     }
     
-    func getEthereumSwapService(for chainAsset: ChainAsset) throws -> OKXEthereumSwapService? {
+    func getEthereumSwapService(for chainAsset: ChainAsset) -> OKXEthereumSwapService? {
         guard
             let eth = try? EthereumNodeFetching().getHttps(for: chainAsset.chain),
             let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()),

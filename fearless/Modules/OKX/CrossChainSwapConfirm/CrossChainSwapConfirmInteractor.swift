@@ -33,7 +33,8 @@ final class CrossChainSwapConfirmInteractor: CrossChainBaseInteractor {
         okxService: OKXDexAggregatorService,
         amount: String,
         swap: CrossChainSwap,
-        dependencyContainer: CrossChainDependencyContainer
+        dependencyContainer: CrossChainDependencyContainer,
+        assetFetching: MultichainAssetFetching
     ) {
         self.swapService = swapService
         self.wallet = wallet
@@ -43,7 +44,10 @@ final class CrossChainSwapConfirmInteractor: CrossChainBaseInteractor {
         self.amount = amount
         self.swap = swap
 
-        super.init(dependencyContainer: dependencyContainer)
+        super.init(
+            dependencyContainer: dependencyContainer,
+            assetFetching: assetFetching
+        )
     }
 
     private func fetchSecretKey(
@@ -78,7 +82,7 @@ extension CrossChainSwapConfirmInteractor: CrossChainSwapConfirmInteractorInput 
     }
 
     func estimateFee(tx: CrossChainTx) async throws -> BigUInt {
-        try await swapService.estimateFee(swap: tx, chainAsset: swapFromChainAsset)
+        try await swapService.estimateFee(swap: tx)
     }
 
     func subscribeOnBalance(for chainAssets: [ChainAsset]) {

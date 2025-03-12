@@ -100,6 +100,17 @@ class TitleMultiValueView: UIView {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    func update(topText: String?) {
+        guard topText != nil else {
+            startLoadingIfNeeded()
+            return
+        }
+
+        stopLoadingIfNeeded()
+        valueTop.text = topText
+        valueBottom.isHidden = true
+    }
 
     func bind(viewModel: TitleMultiValueViewModel?) {
         guard viewModel != nil else {
