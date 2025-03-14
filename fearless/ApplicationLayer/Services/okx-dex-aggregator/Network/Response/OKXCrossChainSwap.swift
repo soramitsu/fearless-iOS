@@ -26,7 +26,7 @@ extension OKXCrossChainSwap: CrossChainTx {
     }
 
     var amount: String? {
-        fromTokenAmount
+        tx.value
     }
 
     var transactionHex: String {

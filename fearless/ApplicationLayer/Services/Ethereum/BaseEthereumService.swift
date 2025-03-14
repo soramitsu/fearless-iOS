@@ -129,7 +129,7 @@ class BaseEthereumService: EthereumService {
 
     func queryNonce(ethereumAddress: EthereumAddress) async throws -> EthereumQuantity {
         try await withCheckedThrowingContinuation { continuation in
-            ws.getTransactionCount(address: ethereumAddress, block: .pending) { resp in
+            ws.getTransactionCount(address: ethereumAddress, block: .latest) { resp in
                 if let nonce = resp.result {
                     continuation.resume(with: .success(nonce))
                 } else if let error = resp.error {

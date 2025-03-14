@@ -1,4 +1,5 @@
 import Foundation
+import BigInt
 
 struct OKXSwap: Decodable {
     let routerResult: OKXQuote
@@ -11,7 +12,7 @@ extension OKXSwap: CrossChainTx {
     }
 
     var amount: String? {
-        routerResult.fromTokenAmount
+        tx.value
     }
 
     var transactionHex: String {
@@ -80,7 +81,7 @@ extension OKXSwap: CrossChainSwap {
     }
 
     var fee: String? {
-        nil
+        String(BigUInt(string: tx.gas).or(.zero) * BigUInt(string: tx.gasPrice).or(.zero))
     }
 
     var selectedDexId: String? {

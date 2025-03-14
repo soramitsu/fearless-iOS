@@ -103,7 +103,7 @@ final class CrossChainSwapConfirmPresenter: CrossChainSwapBasePresenter<CrossCha
     private func setupTimer() {
         timer?.invalidate()
         timer = Timer.scheduledTimer(
-            timeInterval: 15.0,
+            timeInterval: 3.0,
             target: self,
             selector: #selector(
                 handleTimerTick
@@ -172,6 +172,7 @@ final class CrossChainSwapConfirmPresenter: CrossChainSwapBasePresenter<CrossCha
 
         Task {
             do {
+                let utilityChainAsset = swapFromChainAsset.chain.utilityChainAssets().first ?? swapFromChainAsset
                 let swapSetupInfo = try await interactor.fetchSwapSetupInfo(
                     chainAsset: swapFromChainAsset,
                     destinationChainAsset: swapToChainAsset,
@@ -181,7 +182,11 @@ final class CrossChainSwapConfirmPresenter: CrossChainSwapBasePresenter<CrossCha
                 )
 
                 self.swap = swapSetupInfo.swap
-                self.fromNetworkFee = try await estimateFee(for: swapSetupInfo.swap, chainAsset: swapFromChainAsset)
+                self.fromNetworkFee = swapSetupInfo.swap.fee.flatMap {
+                    BigUInt($0)
+                }.flatMap {
+                    Decimal.fromSubstrateAmount($0, precision: Int16(utilityChainAsset.asset.precision))
+                }
                 self.totalFiatFee = try await calculateTotalFiatFee(
                     for: swapSetupInfo.swap,
                     swapFromChainAsset: swapFromChainAsset,

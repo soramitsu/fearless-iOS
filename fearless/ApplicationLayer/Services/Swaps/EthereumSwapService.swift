@@ -199,32 +199,23 @@ final class OKXEthereumSwapServiceImpl: BaseEthereumService, OKXEthereumSwapServ
 
         let nonce = try await queryNonce(ethereumAddress: senderAddress)
 
-        let gasLimitValue = BigUInt(string: "1700000")
+        let gasLimitValue = BigUInt(string: "1500000")
         let gasPriceValue = BigUInt(string: swapGasPrice)
-        let maxPriorityFeePerGasValue = BigUInt(string: maxPriorityFeePerGas)
-
+        
         let ethereumGasLimit = EthereumQuantity(quantity: gasLimitValue)
         let ethereumGasPrice = EthereumQuantity(quantity: gasPriceValue)
-        let ethereumMaxPriorityFeePerGas = EthereumQuantity(quantity: maxPriorityFeePerGasValue)
-        let fee = gasLimitValue.or(.zero) * gasPriceValue.or(.zero)
-        let ethereumValue = chainAsset.isUtility ? EthereumQuantity(quantity: value.or(.zero) + fee) : EthereumQuantity(quantity: fee)
+        let ethereumValue = EthereumQuantity(quantity: value.or(.zero))
         let contractAddress = EthereumAddress(hexString: swap.address)
-
-        let supportsEip1559 = await checkChainSupportEip1559()
-        let transactionType: EthereumTransaction.TransactionType = supportsEip1559 ? .eip1559 : .legacy
 
         let tx = EthereumTransaction(
             nonce: nonce,
             gasPrice: ethereumGasPrice,
-            maxFeePerGas: ethereumGasPrice,
-            maxPriorityFeePerGas: ethereumMaxPriorityFeePerGas,
             gasLimit: ethereumGasLimit,
             from: senderAddress,
             to: contractAddress,
             value: ethereumValue,
             data: data,
-            accessList: [:],
-            transactionType: transactionType
+            transactionType: .legacy
         )
 
         let signedTransaction = try tx.sign(
@@ -255,9 +246,11 @@ final class OKXEthereumSwapServiceImpl: BaseEthereumService, OKXEthereumSwapServ
     }
 
     func estimateFee(swap: CrossChainTx) async throws -> BigUInt {
-        let swapGasPrice = try await queryGasPrice()
+        let chainGasPrice = try await queryGasPrice()
+        let swapGasPrice = swap.gasPrice.flatMap { BigUInt($0) }
+        let maxGasPrice = [chainGasPrice.quantity, swapGasPrice].compactMap { $0 }.max()
         let swapGasLimit =  useFixedFee ? BigUInt(string: "1700000") : swap.gasLimit.flatMap { BigUInt(string: $0) }
-        return swapGasPrice.quantity * swapGasLimit.or(.zero)
+        return maxGasPrice.or(.zero) * swapGasLimit.or(.zero)
     }
     
     func estimateFee(approveTransaction: OKXApproveTransaction, chain: ChainModel, chainAsset: ChainAsset) async throws -> BigUInt {

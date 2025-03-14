@@ -163,7 +163,12 @@ final class CrossChainSwapSetupPresenter: CrossChainSwapBasePresenter<CrossChain
     }
     
     private func fetchInfo() {
-        guard let swapFromChainAsset, let swapToChainAsset, amountUnwrapped.isNotEmpty else {
+        guard
+            let swapFromChainAsset,
+            let swapToChainAsset,
+            let utilityChainAsset = swapFromChainAsset.chain.utilityChainAssets().first,
+            amountUnwrapped.isNotEmpty
+        else {
             return
         }
         
@@ -187,12 +192,13 @@ final class CrossChainSwapSetupPresenter: CrossChainSwapBasePresenter<CrossChain
                     slippage: slippage.stringWithPointSeparator,
                     selectedDexIds: selectedDexIds
                 )
-                    
                 self.swap = quote.swap
-                self.originNetworkFee = try await estimateFee(
-                    for: quote.swap,
-                    chainAsset: swapFromChainAsset
-                )
+                self.originNetworkFee = quote.swap.fee.flatMap {
+                    BigUInt($0)
+                }.flatMap {
+                    Decimal.fromSubstrateAmount($0, precision: Int16(utilityChainAsset.asset.precision))
+                }
+
                 self.totalFiatFee = try await calculateTotalFiatFee(
                     for: quote.swap,
                     swapFromChainAsset: swapFromChainAsset,
@@ -202,7 +208,6 @@ final class CrossChainSwapSetupPresenter: CrossChainSwapBasePresenter<CrossChain
                 if (selectedDexIds?.isEmpty).or(true) {
                     self.dexs = quote.swap.quotes
                 }
-                
 
                 if selectedDexIds?.isEmpty != false {
                     automaticallySelectedDexId = quote.swap.selectedDexId
@@ -328,7 +333,7 @@ final class CrossChainSwapSetupPresenter: CrossChainSwapBasePresenter<CrossChain
         }
     }
 
-    private func provideAssetViewModel() {
+    private func provideAssetViewModel(updateAmountInput: Bool = true) {
         let inputAmount = swapFromInputResult?
             .absoluteValue(from: balanceMinusFee ?? .zero)
 
@@ -347,7 +352,10 @@ final class CrossChainSwapSetupPresenter: CrossChainSwapBasePresenter<CrossChain
             .value(for: selectedLocale)
 
         DispatchQueue.main.async { [weak self] in
-            self?.view?.didReceiveSwapFrom(amountInputViewModel: inputViewModel)
+            if updateAmountInput {
+                self?.view?.didReceiveSwapFrom(amountInputViewModel: inputViewModel)
+            }
+            
             self?.view?.didReceive(assetBalanceViewModel: assetBalanceViewModel)
         }
     }
@@ -640,7 +648,7 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
 
         swapVariant = .desiredInput
         swapFromInputResult = .absolute(newValue)
-//        provideAssetViewModel()
+        provideAssetViewModel(updateAmountInput: false)
         reloadData()
     }
 
