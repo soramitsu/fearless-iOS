@@ -2571,6 +2571,7 @@
 		FA7D46CF2AF24A1B005D681B /* SoraSubsquidPayoutValidatorForNominatorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7D46CE2AF24A1B005D681B /* SoraSubsquidPayoutValidatorForNominatorFactory.swift */; };
 		FA80391728DD70D7007365E8 /* AccountOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA80391628DD70D7007365E8 /* AccountOperationFactory.swift */; };
 		FA851FF127917494004F5979 /* WalletTransactionDetailsViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA851FF027917494004F5979 /* WalletTransactionDetailsViewState.swift */; };
+		FA8521C22D893D4E0050590D /* SCardListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8521C12D893D400050590D /* SCardListViewModel.swift */; };
 		FA85373627EC874500918A1E /* InactiveBondAlertConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA85373527EC874500918A1E /* InactiveBondAlertConfig.swift */; };
 		FA86441D2767194B00956D8E /* WalletTransactionHistoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA86441C2767194B00956D8E /* WalletTransactionHistoryCell.swift */; };
 		FA86442027671C7700956D8E /* WalletTransactionHistoryCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA86441F27671C7700956D8E /* WalletTransactionHistoryCellViewModel.swift */; };
@@ -5914,6 +5915,7 @@
 		FA80391428DC2DA2007365E8 /* StakingPoolPalletID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolPalletID.swift; sourceTree = "<group>"; };
 		FA80391628DD70D7007365E8 /* AccountOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountOperationFactory.swift; sourceTree = "<group>"; };
 		FA851FF027917494004F5979 /* WalletTransactionDetailsViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransactionDetailsViewState.swift; sourceTree = "<group>"; };
+		FA8521C12D893D400050590D /* SCardListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCardListViewModel.swift; sourceTree = "<group>"; };
 		FA85373527EC874500918A1E /* InactiveBondAlertConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InactiveBondAlertConfig.swift; sourceTree = "<group>"; };
 		FA86441C2767194B00956D8E /* WalletTransactionHistoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransactionHistoryCell.swift; sourceTree = "<group>"; };
 		FA86441F27671C7700956D8E /* WalletTransactionHistoryCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransactionHistoryCellViewModel.swift; sourceTree = "<group>"; };
@@ -12573,6 +12575,7 @@
 		C6267B8228BDF6A5001E31BF /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				FA8521C12D893D400050590D /* SCardListViewModel.swift */,
 				C6267B8328BDF6A5001E31BF /* ChainAssetListViewModelFactory.swift */,
 				C6267B8428BDF6A5001E31BF /* ChainAssetListViewModel.swift */,
 				C6267B8528BDF6A5001E31BF /* ChainAccountBalanceCellViewModel.swift */,
@@ -19335,6 +19338,7 @@
 				C648FFC828DC43A70072951B /* EmptyView.swift in Sources */,
 				58F693958EF69F59D7C9760E /* StakingRewardPayoutsInteractor.swift in Sources */,
 				FAA0139628DA1312000A5230 /* StakingBondMoreConfirmationPoolViewModelState.swift in Sources */,
+				FA8521C22D893D4E0050590D /* SCardListViewModel.swift in Sources */,
 				FAD428FA2A86567F001D6A16 /* BackupRiskWarningsViewLayout.swift in Sources */,
 				0701B8BB2C78F69500DCD395 /* ChainModel+Nomis.swift in Sources */,
 				50758C9BBB27AE5732FF78BA /* StakingRewardPayoutsViewController.swift in Sources */,

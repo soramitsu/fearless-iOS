@@ -23,9 +23,7 @@ protocol ChainAssetListViewModelFactoryProtocol {
 final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtocol {
     internal let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
 
-    init(
-        assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
-    ) {
+    init(assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol) {
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
     }
 
@@ -54,40 +52,29 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             assetChainAssetsArray: assetChainAssetsArray
         )
         
-        var chainAssetCellModels: [ChainAccountBalanceCellViewModel] = []
-        if let fakeAsset = chainAssets.first, soraCardStatus != .notStarted {
+        var sections: [any TableSection] = []
             
-            let priceAttributedString = soraCardStatus == .successful ? bankInfo?.iban : soraCardStatus?.text
-            
-            var soraCardBalance = ""
-
-            if let bankInfo = bankInfo {
-                soraCardBalance = "€\(bankInfo.balance)"
-            }
-
-            chainAssetCellModels.append(ChainAccountBalanceCellViewModel(
-                assetContainsChainAssets: [],
-                chainIconViewViewModel: .init(
-                    maxImagesCount: 1,
-                    chainImages: []
-                ),
-                chainAsset: fakeAsset,
-                assetName: "Fiat",
-                middleText: "SORA Card",
-                assetInfo: nil,
-                imageViewModel: nil,
-                imageName: "soraCardAssetList",
-                balanceString: .normal(soraCardBalance),
-                priceAttributedString: .normal(priceAttributedString),
-                totalAmountString: .normal(""),
-                options: [],
-                isColdBoot: false,
-                locale: locale,
-                hideButtonIsVisible: false
-            ))
+        let priceAttributedString = soraCardStatus == .successful ? bankInfo?.iban : soraCardStatus?.text
+        
+        var soraCardBalance = ""
+        
+        if let bankInfo = bankInfo {
+            soraCardBalance = "€\(bankInfo.balance)"
         }
         
-        chainAssetCellModels.append(contentsOf: sortedAssetChainAssets.compactMap { assetChainAssets in
+        let cells = [
+            SCardListViewModel(
+                name: "Fiat",
+                description: "SORA Card",
+                imageName: "soraCardAssetList",
+                balanceString: .normal(soraCardBalance),
+                priceAttributedString: .normal(priceAttributedString)
+            )
+        ]
+        
+        sections.append(SCardListSection(cells: cells))
+        
+        let assetViewModels =  sortedAssetChainAssets.compactMap { assetChainAssets in
             let priceData = assetChainAssets.mainChainAsset.asset.getPrice(for: wallet.selectedCurrency)
             
             return buildChainAccountBalanceCellViewModel(
@@ -100,7 +87,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 chainsWithIssue: chainsWithIssue,
                 displayType: displayType
             )
-        })
+        }
+        sections.append(ChainAssetListSection(cells: assetViewModels))
 
         let isColdBoot = wallet.assetsVisibility.isEmpty
         let shouldRunManageAssetAnimate = shouldRunManageAssetAnimate && !isColdBoot
@@ -112,7 +100,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             chainsWithIssue: chainsWithIssue,
             chainSettings: chainSettings,
             shouldRunManageAssetAnimate: shouldRunManageAssetAnimate,
-            cells: chainAssetCellModels
+            sections: sections
         )
         let viewModel = ChainAssetListViewModel(
             displayState: displayState
@@ -129,15 +117,15 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         chainsWithIssue: [ChainIssue],
         chainSettings: [ChainSettings],
         shouldRunManageAssetAnimate: Bool,
-        cells: [ChainAccountBalanceCellViewModel]
+        sections: [any TableSection]
     ) -> AssetListState {
         switch displayType {
         case .chain:
-            if cells.isEmpty {
+            if sections.isEmpty {
                 return .allIsHidden
             }
             guard chainAssets.count == 1, let chain = chainAssets.first?.chain else {
-                return .defaultList(cells: cells, withAnimate: shouldRunManageAssetAnimate)
+                return .defaultList(sections: sections, withAnimate: shouldRunManageAssetAnimate)
             }
 
             let hasIssuesCkeckResult = checkHasIssue(
@@ -151,12 +139,12 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             } else if hasIssuesCkeckResult.hasNetworkIssue {
                 return .chainHasNetworkIssue(chain: chain)
             } else {
-                return .defaultList(cells: cells, withAnimate: shouldRunManageAssetAnimate)
+                return .defaultList(sections: sections, withAnimate: shouldRunManageAssetAnimate)
             }
         case .assetChains:
-            return .defaultList(cells: cells, withAnimate: shouldRunManageAssetAnimate)
+            return .defaultList(sections: sections, withAnimate: shouldRunManageAssetAnimate)
         case .search:
-            return .search(cells: cells)
+            return .search(sections: sections)
         }
     }
 

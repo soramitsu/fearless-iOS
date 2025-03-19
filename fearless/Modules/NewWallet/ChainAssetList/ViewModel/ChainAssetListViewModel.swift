@@ -2,6 +2,11 @@ import Foundation
 import SoraFoundation
 import SSFModels
 
+protocol TableSection {
+    associatedtype T
+    var cells: [T] { get }
+}
+
 struct ChainAssetListViewModel {
     let displayState: AssetListState
 }
@@ -12,21 +17,38 @@ enum AssetListDisplayType {
     case search
 }
 
+struct ChainAssetListSection: TableSection {
+    typealias T = ChainAccountBalanceCellViewModel
+    let cells: [ChainAccountBalanceCellViewModel]
+}
+
+struct SCardListSection: TableSection {
+    typealias T = SCardListViewModel
+    let cells: [SCardListViewModel]
+}
+
 enum AssetListState {
-    case defaultList(cells: [ChainAccountBalanceCellViewModel], withAnimate: Bool)
+    case defaultList(sections: [any TableSection], withAnimate: Bool)
     case allIsHidden
     case chainHasNetworkIssue(chain: ChainModel)
     case chainHasAccountIssue(chain: ChainModel)
-    case search(cells: [ChainAccountBalanceCellViewModel])
-
-    var rows: [ChainAccountBalanceCellViewModel] {
+    case search(sections: [any TableSection])
+    
+    func sections() -> [any TableSection] {
         switch self {
-        case let .defaultList(cells, _):
-            return cells
-        case let .search(cells):
-            return cells
+        case .defaultList(let sections, _), .search(let sections):
+            return sections
         default:
             return []
+        }
+    }
+    
+    var isEmpty: Bool {
+        switch self {
+        case .defaultList(let sections, _), .search(let sections):
+            return sections.map { $0.cells }.reduce([], +).first == nil
+        default:
+            return true
         }
     }
 

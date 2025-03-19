@@ -19,6 +19,7 @@ protocol ChainAssetListViewOutput: AnyObject {
     func didFinishManageAssetAnimate()
     func didTapResolveNetworkIssue(for chain: ChainModel)
     func didTapResolveAccountIssue(for chain: ChainModel)
+    func didTapSoraCardCell()
 }
 
 protocol ChainAssetListInteractorInput: AnyObject {
@@ -94,6 +95,9 @@ protocol ChainAssetListRouterInput:
         from view: ControllerBackedProtocol?,
         issues: [ChainIssue],
         wallet: MetaAccountModel
+    )
+    func showSoraCard(
+        on view: ControllerBackedProtocol?
     )
 }
 

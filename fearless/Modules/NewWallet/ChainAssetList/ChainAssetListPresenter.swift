@@ -221,6 +221,10 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     func didTapResolveNetworkIssue(for chain: ChainModel) {
         interactor.retryConnection(for: chain.chainId)
     }
+    
+    func didTapSoraCardCell() {
+        router.showSoraCard(on: view)
+    }
 }
 
 // MARK: - ChainAssetListInteractorOutput

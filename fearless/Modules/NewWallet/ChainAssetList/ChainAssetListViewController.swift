@@ -102,8 +102,8 @@ private extension ChainAssetListViewController {
         }
     }
 
-    func cellViewModel(for indexPath: IndexPath) -> ChainAccountBalanceCellViewModel? {
-        guard let cellModel = viewModel?.displayState.rows[safe: indexPath.row] else {
+    func cellViewModel(for indexPath: IndexPath) -> Any? {
+        guard let cellModel = viewModel?.displayState.sections()[indexPath.section].cells[indexPath.row] else {
             return nil
         }
         return cellModel
@@ -192,7 +192,7 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
             rootView.removeFooterView()
             rootView.tableView.reloadData()
         case .search:
-            let isEmpty = viewModel.displayState.rows.isEmpty
+            let isEmpty = viewModel.displayState.sections()[0].cells.isEmpty
             isEmpty ? rootView.removeFooterView() : rootView.setFooterView()
             isEmpty ? rootView.removeHeaderView() : rootView.setHeaderView()
             rootView.tableView.reloadData()
@@ -218,7 +218,7 @@ extension ChainAssetListViewController: SwipableTableViewCellDelegate {
         guard let indexPath = indexPath else {
             return
         }
-        if let viewModelForAction = cellViewModel(for: indexPath) {
+        if let viewModelForAction = cellViewModel(for: indexPath) as? ChainAccountBalanceCellViewModel {
             output.didTapAction(actionType: actionType, viewModel: viewModelForAction)
         }
     }
@@ -230,14 +230,27 @@ extension ChainAssetListViewController: UITableViewDelegate {
     func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let viewModel = cellViewModel(for: indexPath) else { return }
 
-        output.didSelectViewModel(viewModel)
+        if let chainAssetViewModel = viewModel as? ChainAccountBalanceCellViewModel {
+            output.didSelectViewModel(chainAssetViewModel)
+        }
+        
+        if let _ = viewModel as? SCardListViewModel {
+            output.didTapSoraCardCell()
+        }
     }
 
     func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if
             let assetCell = cell as? ChainAccountBalanceTableCell,
-            let viewModel = viewModel?.displayState.rows[safe: indexPath.row] {
-            assetCell.bind(to: viewModel)
+            let viewModel = viewModel?.displayState.sections()[safe: indexPath.section]?.cells[safe: indexPath.row] {
+            
+            if let chainAssetViewModel = viewModel as? ChainAccountBalanceCellViewModel {
+                assetCell.bind(to: chainAssetViewModel)
+            }
+            
+            if let sCardViewModel = viewModel as? SCardListViewModel {
+                assetCell.bind(to: sCardViewModel)
+            }
         }
     }
 
@@ -253,8 +266,12 @@ extension ChainAssetListViewController: UITableViewDelegate {
 // MARK: - UITableViewDataSource
 
 extension ChainAssetListViewController: UITableViewDataSource {
-    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        viewModel?.displayState.rows.count ?? .zero
+    func numberOfSections(in tableView: UITableView) -> Int {
+        viewModel?.displayState.sections().count ?? .zero
+    }
+    
+    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+        viewModel?.displayState.sections()[section].cells.count ?? .zero
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
@@ -294,6 +311,6 @@ extension ChainAssetListViewController: EmptyStateDataSource {
 extension ChainAssetListViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
         guard let viewModel = viewModel else { return false }
-        return viewModel.displayState.rows.isEmpty
+        return viewModel.displayState.isEmpty
     }
 }

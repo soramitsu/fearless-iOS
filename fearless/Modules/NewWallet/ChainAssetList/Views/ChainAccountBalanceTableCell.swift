@@ -119,6 +119,14 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
     }
 
     // MARK: - Public methods
+    
+    func bind(to scardCellViewModel: SCardListViewModel) {
+        balanceView.valueLabel.apply(state: scardCellViewModel.balanceString)
+        priceView.keyLabel.apply(state: scardCellViewModel.priceAttributedString)
+        chainNameLabel.apply(state: .normal(scardCellViewModel.name))
+        balanceView.keyLabel.apply(state: .normal(scardCellViewModel.description))
+        placeholderIconImageView.image = UIImage(named: scardCellViewModel.imageName)
+    }
 
     func bind(to viewModel: ChainAccountBalanceCellViewModel) {
         viewModel.imageViewModel?.cancel(on: assetIconImageView)

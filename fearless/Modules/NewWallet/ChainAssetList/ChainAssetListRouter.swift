@@ -1,4 +1,5 @@
 import Foundation
+import SCard
 import SSFModels
 
 final class ChainAssetListRouter: ChainAssetListRouterInput {
@@ -144,5 +145,12 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
         }
 
         view?.controller.present(module.view.controller, animated: true)
+    }
+    
+    func showSoraCard(
+        on view: ControllerBackedProtocol?
+    ) {
+        guard let viewController = view?.controller else { return }
+        SCard.shared?.start(in: viewController)
     }
 }
