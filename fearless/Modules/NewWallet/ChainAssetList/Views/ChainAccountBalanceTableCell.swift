@@ -126,6 +126,7 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         chainNameLabel.apply(state: .normal(scardCellViewModel.name))
         balanceView.keyLabel.apply(state: .normal(scardCellViewModel.description))
         placeholderIconImageView.image = UIImage(named: scardCellViewModel.imageName)
+        assetIconImageView.image = nil
     }
 
     func bind(to viewModel: ChainAccountBalanceCellViewModel) {
