@@ -699,7 +699,7 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
             output: self,
             flow: .okxDestination(sourceChainId: swapFromChainAsset.chain.chainId),
             selectedChainAsset: swapToChainAsset,
-            filter: { $0.chainAssetId != swapFromChainAsset.chainAssetId }
+            filter: { $0.chainAssetId != swapFromChainAsset.chainAssetId && $0.chain.chainId == swapFromChainAsset.chain.chainId }
         )
     }
 
