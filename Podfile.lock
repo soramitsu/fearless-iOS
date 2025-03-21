@@ -9,7 +9,7 @@ PODS:
   - Cuckoo (2.0.14):
     - Cuckoo/Swift (= 2.0.14)
   - Cuckoo/Swift (2.0.14)
-  - FearlessKeys (0.1.4)
+  - FearlessKeys (0.1.5)
   - FireMock (3.1)
   - IdensicMobileSDK (1.33.1)
   - JOSESwift (2.4.0)
@@ -99,7 +99,7 @@ PODS:
 DEPENDENCIES:
   - Charts (~> 4.1.0)
   - Cuckoo
-  - FearlessKeys (= 0.1.4)
+  - FearlessKeys (= 0.1.5)
   - FireMock
   - "IdensicMobileSDK (from `{:http=>\"https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.8.tar.gz\"}`)"
   - Kingfisher (= 7.10.2)
@@ -181,7 +181,7 @@ SPEC CHECKSUMS:
   Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
   CocoaLumberjack: 6a459bc897d6d80bd1b8c78482ec7ad05dffc3f0
   Cuckoo: 09ffb20a6bd95272e4272f37dadc69c620b9eea7
-  FearlessKeys: 5ec2782533624d237c899677a8c10859fbbc6668
+  FearlessKeys: 54697ac7bdb2a16aa4525bed06c8769a351606db
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IdensicMobileSDK: 17ea7880e6b29440944bc7c02d1a6937fec60337
   JOSESwift: 7ff178bb9173ff42c6e990929a9f2fa702a34f69
@@ -207,6 +207,6 @@ SPEC CHECKSUMS:
   SwiftLint: 6c8820d22c8f74baadd5684e00bb7356c34610a1
   SwiftyBeaver: ade157e4f857812e7d7f15f2e3396bb8733f8a1c
 
-PODFILE CHECKSUM: 30880a3848267e912ab7171173055109f4448512
+PODFILE CHECKSUM: 9b704c339863ad38d04591ca0bcc340678db7eb1
 
 COCOAPODS: 1.15.2

@@ -62,17 +62,19 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             soraCardBalance = "€\(bankInfo.balance)"
         }
         
-        let cells = [
-            SCardListViewModel(
-                name: "Fiat",
-                description: "SORA Card",
-                imageName: "soraCardAssetList",
-                balanceString: .normal(soraCardBalance),
-                priceAttributedString: .normal(priceAttributedString)
-            )
-        ]
-        
-        sections.append(SCardListSection(cells: cells))
+        if soraCardStatus != .notStarted {
+            let cells = [
+                SCardListViewModel(
+                    name: "Fiat",
+                    description: "SORA Card",
+                    imageName: "soraCardAssetList",
+                    balanceString: .normal(soraCardBalance),
+                    priceAttributedString: .normal(priceAttributedString)
+                )
+            ]
+            
+            sections.append(SCardListSection(cells: cells))
+        }
         
         let assetViewModels =  sortedAssetChainAssets.compactMap { assetChainAssets in
             let priceData = assetChainAssets.mainChainAsset.asset.getPrice(for: wallet.selectedCurrency)

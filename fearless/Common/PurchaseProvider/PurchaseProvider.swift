@@ -30,6 +30,11 @@ extension PurchaseAggregator: PurchaseProviderProtocol {
         providers = providers.map { $0.with(callbackUrl: callbackUrl) }
         return self
     }
+    
+    func with(chainName: String) -> Self {
+        providers = providers.map { $0.with(chainName: chainName ) }
+        return self
+    }
 
     func buildPurchaseActions(asset: AssetModel, address: String) -> [PurchaseAction] {
         providers.flatMap { $0.buildPurchaseActions(asset: asset, address: address) }

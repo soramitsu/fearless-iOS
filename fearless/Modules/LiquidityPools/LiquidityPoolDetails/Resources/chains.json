@@ -50,9 +50,11 @@
         "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/DOT.svg",
         "color": "FF0066",
         "staking": "relaychain",
+        "coinbaseUrl": "addresses={\"{address}\":[\"polkadot\"]}&assets=[\"DOT\"]",
         "purchaseProviders": [
           "moonpay",
-          "ramp"
+          "ramp",
+          "coinbase"
         ],
         "type": "normal",
         "priceProvider": {
