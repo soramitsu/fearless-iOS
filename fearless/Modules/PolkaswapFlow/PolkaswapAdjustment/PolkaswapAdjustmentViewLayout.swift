@@ -257,6 +257,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         func makeCommonConstraints(for view: UIView) {
             view.snp.makeConstraints { make in
                 make.leading.trailing.equalToSuperview()
+                make.height.equalTo(40)
             }
         }
 

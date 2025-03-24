@@ -36,6 +36,7 @@ final class ConnectionPool {
 
     init(connectionFactory: ConnectionFactoryProtocol) {
         self.connectionFactory = connectionFactory
+        applicationHandler.delegate = self
     }
 
     private func clearUnusedConnections() {
@@ -100,5 +101,15 @@ extension ConnectionPool: WebSocketEngineDelegate {
         }
 
         delegate?.webSocketDidChangeState(chainId: chainId, state: newState)
+    }
+}
+
+extension ConnectionPool: ApplicationHandlerDelegate {
+    func didReceiveWillEnterForeground(notification: Notification) {
+        connections.forEach {
+            let connection = ($0.connection.target as? ChainConnection)
+            connection?.disconnectIfNeeded()
+            connection?.connectIfNeeded()
+        }
     }
 }
