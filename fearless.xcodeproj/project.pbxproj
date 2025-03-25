@@ -2082,6 +2082,13 @@
 		FA072C14277AE2FE00731718 /* QRCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C13277AE2FE00731718 /* QRCaptureService.swift */; };
 		FA072C21277B19A900731718 /* ImageGalleryProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C20277B19A900731718 /* ImageGalleryProtocols.swift */; };
 		FA072C25277C0FA900731718 /* ApplicationSettingsPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C24277C0FA900731718 /* ApplicationSettingsPresentable.swift */; };
+		FA074CAF2D9276E50080B68B /* AddERC20TokenAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA074CA82D9276E50080B68B /* AddERC20TokenAssembly.swift */; };
+		FA074CB02D9276E50080B68B /* AddERC20TokenProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA074CAB2D9276E50080B68B /* AddERC20TokenProtocols.swift */; };
+		FA074CB12D9276E50080B68B /* AddERC20TokenPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA074CAA2D9276E50080B68B /* AddERC20TokenPresenter.swift */; };
+		FA074CB22D9276E50080B68B /* AddERC20TokenInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA074CA92D9276E50080B68B /* AddERC20TokenInteractor.swift */; };
+		FA074CB32D9276E50080B68B /* AddERC20TokenRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA074CAC2D9276E50080B68B /* AddERC20TokenRouter.swift */; };
+		FA074CB42D9276E50080B68B /* AddERC20TokenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA074CAD2D9276E50080B68B /* AddERC20TokenViewController.swift */; };
+		FA074CB62D9278C40080B68B /* AddERC20TokenError.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA074CB52D9278C40080B68B /* AddERC20TokenError.swift */; };
 		FA08B3652A31A09E00D9D126 /* BigUInt+StringInitializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA08B3642A31A09E00D9D126 /* BigUInt+StringInitializable.swift */; };
 		FA09AD352C37ABA000BE0B9C /* TransactionObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA09AD342C37ABA000BE0B9C /* TransactionObserver.swift */; };
 		FA09AD372C37AF9200BE0B9C /* SubstrateTransactionObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA09AD362C37AF9200BE0B9C /* SubstrateTransactionObserver.swift */; };
@@ -5392,6 +5399,13 @@
 		FA072C13277AE2FE00731718 /* QRCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCaptureService.swift; sourceTree = "<group>"; };
 		FA072C20277B19A900731718 /* ImageGalleryProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageGalleryProtocols.swift; sourceTree = "<group>"; };
 		FA072C24277C0FA900731718 /* ApplicationSettingsPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationSettingsPresentable.swift; sourceTree = "<group>"; };
+		FA074CA82D9276E50080B68B /* AddERC20TokenAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddERC20TokenAssembly.swift; sourceTree = "<group>"; };
+		FA074CA92D9276E50080B68B /* AddERC20TokenInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddERC20TokenInteractor.swift; sourceTree = "<group>"; };
+		FA074CAA2D9276E50080B68B /* AddERC20TokenPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddERC20TokenPresenter.swift; sourceTree = "<group>"; };
+		FA074CAB2D9276E50080B68B /* AddERC20TokenProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddERC20TokenProtocols.swift; sourceTree = "<group>"; };
+		FA074CAC2D9276E50080B68B /* AddERC20TokenRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddERC20TokenRouter.swift; sourceTree = "<group>"; };
+		FA074CAD2D9276E50080B68B /* AddERC20TokenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddERC20TokenViewController.swift; sourceTree = "<group>"; };
+		FA074CB52D9278C40080B68B /* AddERC20TokenError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddERC20TokenError.swift; sourceTree = "<group>"; };
 		FA08B3642A31A09E00D9D126 /* BigUInt+StringInitializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BigUInt+StringInitializable.swift"; sourceTree = "<group>"; };
 		FA09AD342C37ABA000BE0B9C /* TransactionObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionObserver.swift; sourceTree = "<group>"; };
 		FA09AD362C37AF9200BE0B9C /* SubstrateTransactionObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateTransactionObserver.swift; sourceTree = "<group>"; };
@@ -13450,6 +13464,20 @@
 			path = QRService;
 			sourceTree = "<group>";
 		};
+		FA074CAE2D9276E50080B68B /* AddERC20Token */ = {
+			isa = PBXGroup;
+			children = (
+				FA074CB52D9278C40080B68B /* AddERC20TokenError.swift */,
+				FA074CA82D9276E50080B68B /* AddERC20TokenAssembly.swift */,
+				FA074CA92D9276E50080B68B /* AddERC20TokenInteractor.swift */,
+				FA074CAA2D9276E50080B68B /* AddERC20TokenPresenter.swift */,
+				FA074CAB2D9276E50080B68B /* AddERC20TokenProtocols.swift */,
+				FA074CAC2D9276E50080B68B /* AddERC20TokenRouter.swift */,
+				FA074CAD2D9276E50080B68B /* AddERC20TokenViewController.swift */,
+			);
+			path = AddERC20Token;
+			sourceTree = "<group>";
+		};
 		FA09AD332C37AB9400BE0B9C /* TransactionObserver */ = {
 			isa = PBXGroup;
 			children = (
@@ -14832,6 +14860,7 @@
 		FA8644492768611E00956D8E /* NewWallet */ = {
 			isa = PBXGroup;
 			children = (
+				FA074CAE2D9276E50080B68B /* AddERC20Token */,
 				C6267B8028BDF6A5001E31BF /* ChainAssetList */,
 				2C42012908B4F046FC9BB712 /* WalletChainAccountDashboard */,
 				FA6DB7BB2757C9AF00233FBA /* ChainAccount */,
@@ -17825,6 +17854,7 @@
 				84786E1F25FA6C390089DFF7 /* CDStashItem+CoreDataCodable.swift in Sources */,
 				840882B02514024800177E20 /* SelectedConnectionChanged.swift in Sources */,
 				FA7741E02B6A350200358315 /* StakingRewardsFetcherAssembly.swift in Sources */,
+				FA074CB62D9278C40080B68B /* AddERC20TokenError.swift in Sources */,
 				84C3F7832602086100D47501 /* StakingViewState.swift in Sources */,
 				FA2FC7FD28B3807C00CC0A42 /* StakingPoolListTableCell.swift in Sources */,
 				849014DC24AA8F60008F705E /* MainTabBarPresenter.swift in Sources */,
@@ -19142,6 +19172,12 @@
 				FAF9C2B22AAF3FDF00A61D21 /* GetPreinstalledWalletPresenter.swift in Sources */,
 				90EFE3768F1375470FDBE6F6 /* PurchaseViewFactory.swift in Sources */,
 				F4A198EE2631AA2000CD6E61 /* StakingBalanceUnbondingItemView.swift in Sources */,
+				FA074CAF2D9276E50080B68B /* AddERC20TokenAssembly.swift in Sources */,
+				FA074CB02D9276E50080B68B /* AddERC20TokenProtocols.swift in Sources */,
+				FA074CB12D9276E50080B68B /* AddERC20TokenPresenter.swift in Sources */,
+				FA074CB22D9276E50080B68B /* AddERC20TokenInteractor.swift in Sources */,
+				FA074CB32D9276E50080B68B /* AddERC20TokenRouter.swift in Sources */,
+				FA074CB42D9276E50080B68B /* AddERC20TokenViewController.swift in Sources */,
 				C63468E228F2C964005CB1F1 /* ContactTableCell.swift in Sources */,
 				076D9D57294B38E1002762E3 /* PolkaswapPreviewParams.swift in Sources */,
 				07ECB80B2C6C6E76000E0A14 /* TonConnectError.swift in Sources */,

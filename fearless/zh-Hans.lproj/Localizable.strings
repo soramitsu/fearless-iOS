@@ -1251,3 +1251,13 @@
 "сurrencies.stub.text" = "货币";
 "common.transaction.sent" = "Transaction sent";
 "common.transaction.sent.description" = "Your transaction has been successfully sent to the blockchain";
+"add.token.title" = "添加代币";
+"add.token.address.title" = "合约地址";
+"add.token.address.placeholder" = "输入ERC20合约地址";
+"add.token.name.title" = "代币名称";
+"add.token.symbol.title" = "代币符号";
+"add.token.decimals.title" = "小数位数";
+"add.token.total.supply.title" = "总供应量";
+"add.token.add.button" = "添加";
+"add.token.invalid.address" = "无效的代币地址";
+"add.token.invalid.data" = "无法获取代币数据";

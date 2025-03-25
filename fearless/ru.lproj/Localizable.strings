@@ -1257,3 +1257,13 @@
 "web.third.party.warning.title" = "You’re going to visit a third-party website";
 "web.third.party.warning.description" = "Fearless Wallet isn’t liable for failures on this or any other website as stated in the Fearless Wallet terms of service.\n\nBy interacting with this or any other third-party website you agree to be subject to its Terms and Privacy Policy.";
 "common.decline" = "Decline";
+"add.token.title" = "Добавить токен";
+"add.token.address.title" = "Адрес контракта";
+"add.token.address.placeholder" = "Введите адрес контракта ERC20";
+"add.token.name.title" = "Название токена";
+"add.token.symbol.title" = "Символ токена";
+"add.token.decimals.title" = "Количество десятичных знаков";
+"add.token.total.supply.title" = "Общее предложение";
+"add.token.add.button" = "Добавить";
+"add.token.invalid.address" = "Неверный адрес токена";
+"add.token.invalid.data" = "Не удалось получить данные токена";
