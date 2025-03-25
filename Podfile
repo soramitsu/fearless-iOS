@@ -22,7 +22,7 @@ abstract_target 'fearlessAll' do
   pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
   pod 'IdensicMobileSDK', :http => 'https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.8.tar.gz'
   pod 'SoraUIKit', :git => 'https://github.com/soramitsu/ios-ui', :tag => ‘1.1.13’
-  pod 'SCard', :git => 'https://github.com/sora-xor/sora-card-ios', :tag => ‘1.7.0’ #:path => "./sora-card-ios"
+  pod 'SCard', :git => 'https://github.com/sora-xor/sora-card-ios', :tag => ‘1.8.2’ #:path => "./sora-card-ios"
   pod 'FearlessKeys', '0.1.5'
 
   target 'fearlessTests' do
