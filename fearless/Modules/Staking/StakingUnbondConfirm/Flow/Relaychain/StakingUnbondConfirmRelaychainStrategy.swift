@@ -5,6 +5,7 @@ import RobinHood
 import BigInt
 import SSFModels
 import SSFRuntimeCodingService
+import SSFCrypto
 
 protocol StakingUnbondConfirmRelaychainStrategyOutput: AnyObject {
     func didReceiveStakingLedger(result: Result<StakingLedger?, Error>)

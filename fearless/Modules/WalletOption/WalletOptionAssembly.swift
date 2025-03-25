@@ -2,10 +2,11 @@ import UIKit
 import SoraFoundation
 import SoraUI
 import RobinHood
+import SSFModels
 
 final class WalletOptionAssembly {
     static func configureModule(
-        with wallet: ManagedMetaAccountModel,
+        with wallet: MetaAccountModel,
         delegate: WalletOptionModuleOutput?
     ) -> WalletOptionModuleCreationResult? {
         let localizationManager = LocalizationManager.shared

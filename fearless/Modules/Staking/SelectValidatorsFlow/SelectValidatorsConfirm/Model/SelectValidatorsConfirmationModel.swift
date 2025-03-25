@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 struct SelectValidatorsConfirmRelaychainModel {
     let wallet: DisplayAddress

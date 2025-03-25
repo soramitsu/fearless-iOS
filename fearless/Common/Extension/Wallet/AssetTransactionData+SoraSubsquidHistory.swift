@@ -26,14 +26,14 @@ extension AssetTransactionData {
             context: nil
         )
 
-        switch (item.module, item.method) {
+        switch (item.module?.lowercased(), item.method?.lowercased()) {
         case ("staking", "rewarded"):
             return createRewardTransaction(
                 from: item,
                 fee: transactionFee,
                 status: status
             )
-        case ("assets", "transfer"):
+        case (.some(_), "transfer"):
             return createTransferTransaction(
                 from: item,
                 address: address,

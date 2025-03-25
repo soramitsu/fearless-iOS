@@ -4,6 +4,7 @@ import SSFPools
 import SSFModels
 import SoraFoundation
 import SSFStorageQueryKit
+import SSFCrypto
 
 protocol AvailableLiquidityPoolsListInteractorInput {
     func setup(with output: AvailableLiquidityPoolsListInteractorOutput)
@@ -24,7 +25,7 @@ final class AvailableLiquidityPoolsListPresenter {
     private let type: LiquidityPoolListType
 
     private var pairs: [LiquidityPair]?
-    private var reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>?
+    private var reserves: SSFStorageQueryKit.CachedStorageResponse<[PolkaswapPoolReservesInfo]>?
     private var apy: [PoolApyInfo]?
     private var searchText: String?
 
@@ -132,7 +133,7 @@ extension AvailableLiquidityPoolsListPresenter: AvailableLiquidityPoolsListInter
         provideViewModel()
     }
 
-    func didReceivePoolsReserves(reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>) {
+    func didReceivePoolsReserves(reserves: SSFStorageQueryKit.CachedStorageResponse<[PolkaswapPoolReservesInfo]>) {
         self.reserves = reserves.merge(with: self.reserves, priorityType: .remote)
         provideViewModel()
     }

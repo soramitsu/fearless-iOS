@@ -17,7 +17,7 @@ final class BlockscoutHistoryOperationFactory {
                 .appendingPathComponent("addresses")
                 .appendingPathComponent(address)
 
-            if case .erc20 = chainAsset.asset.ethereumType {
+            if case .erc20 = chainAsset.asset.assetType.ethereumAssetType {
                 let contract = chainAsset.asset.id
                 url = url.appendingPathComponent("token-transfers")
 

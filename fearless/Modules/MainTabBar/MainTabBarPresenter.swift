@@ -3,6 +3,7 @@ import WalletConnectSign
 import UIKit
 import SoraFoundation
 import SSFUtils
+import SoraKeystore
 
 final class MainTabBarPresenter {
     private weak var view: MainTabBarViewProtocol?
@@ -10,6 +11,7 @@ final class MainTabBarPresenter {
     private let wireframe: MainTabBarWireframeProtocol
     private let appVersionObserver: AppVersionObserver
     private let applicationHandler: ApplicationHandler
+    private let eventCenter: EventCenterProtocol
 
     private let reachability: ReachabilityManager?
     private let networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol
@@ -25,7 +27,8 @@ final class MainTabBarPresenter {
         networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol,
         reachability: ReachabilityManager?,
         walletConnectCoordinator: WalletConnectCoordinator,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        eventCenter: EventCenterProtocol
     ) {
         self.wireframe = wireframe
         self.interactor = interactor
@@ -34,8 +37,9 @@ final class MainTabBarPresenter {
         self.networkStatusPresenter = networkStatusPresenter
         self.reachability = reachability
         self.walletConnectCoordinator = walletConnectCoordinator
-        self.localizationManager = localizationManager
+        self.eventCenter = eventCenter
 
+        self.localizationManager = localizationManager
         applicationHandler.delegate = self
     }
 }
@@ -55,14 +59,12 @@ extension MainTabBarPresenter: MainTabBarPresenterProtocol {
 
         appVersionObserver.checkVersion(from: view, callback: nil)
         try? reachability?.add(listener: self)
+        
+        eventCenter.add(observer: self, dispatchIn: .main)
     }
 }
 
 extension MainTabBarPresenter: MainTabBarInteractorOutputProtocol {
-    func didReloadSelectedAccount() {
-        crowdloanListView = wireframe.showNewCrowdloan(on: view) as? UINavigationController
-    }
-
     func didRequestImportAccount() {
         wireframe.presentAccountImport(on: view)
     }
@@ -89,5 +91,15 @@ extension MainTabBarPresenter: ReachabilityListenerDelegate {
 extension MainTabBarPresenter: StakingMainModuleOutput {
     func didSwitchStakingType(_ type: AssetSelectionStakingType) {
         wireframe.replaceStaking(on: view, type: type, moduleOutput: self)
+    }
+}
+
+extension MainTabBarPresenter: EventVisitorProtocol {
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        guard event.account.ecosystem.isRegular else {
+            return
+        }
+        
+        wireframe.replaceStaking(on: view, type: .normal(chainAsset: nil), moduleOutput: self)
     }
 }

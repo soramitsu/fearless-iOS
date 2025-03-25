@@ -2,12 +2,14 @@ import UIKit
 import SSFModels
 import SSFPolkaswap
 import SSFPools
+import SSFAccountManagment
+import SSFCrypto
 import SSFStorageQueryKit
 
 protocol LiquidityPoolDetailsInteractorOutput: AnyObject {
     func didReceiveLiquidityPair(liquidityPair: LiquidityPair?)
     func didReceiveUserPool(pool: AccountPool?)
-    func didReceivePoolReserves(reserves: CachedStorageResponse<PolkaswapPoolReservesInfo>?)
+    func didReceivePoolReserves(reserves: SSFStorageQueryKit.CachedStorageResponse<PolkaswapPoolReservesInfo>)
     func didReceivePoolAPY(apy: PoolApyInfo?)
 
     func didReceiveLiquidityPairError(error: Error)

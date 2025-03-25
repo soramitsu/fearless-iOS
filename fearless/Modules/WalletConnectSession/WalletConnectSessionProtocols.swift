@@ -9,4 +9,6 @@ protocol WalletConnectSessionRouterInput: PresentDismissable, SheetAlertPresenta
 
 protocol WalletConnectSessionModuleInput: AnyObject {}
 
-protocol WalletConnectSessionModuleOutput: AnyObject {}
+protocol WalletConnectSessionModuleOutput: AnyObject {
+    func tonConnectSend(dessision: TonConnectSendDessision)
+}

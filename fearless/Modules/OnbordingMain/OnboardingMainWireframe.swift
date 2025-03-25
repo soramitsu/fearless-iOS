@@ -2,8 +2,18 @@ import Foundation
 import SSFCloudStorage
 
 final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
-    func showSignup(from view: OnboardingMainViewProtocol?) {
-        guard let usernameSetup = UsernameSetupViewFactory.createViewForOnboarding() else {
+    lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
+
+    func didCompleteCreate(from view: ControllerBackedProtocol?) {
+        guard let pincodeViewController = PinViewFactory.createPinSetupView()?.controller else {
+            return
+        }
+
+        rootAnimator.animateTransition(to: pincodeViewController)
+    }
+    
+    func showSignup(from view: OnboardingMainViewProtocol?, ecosystem: AccountCreateEcosystem) {
+        guard let usernameSetup = UsernameSetupViewFactory.createViewForOnboarding(ecosystem: ecosystem) else {
             return
         }
 
@@ -14,10 +24,11 @@ final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
 
     func showAccountRestore(
         defaultSource: AccountImportSource,
+        flow: AccountImportFlow,
         from view: OnboardingMainViewProtocol?
     ) {
         guard let restorationController = AccountImportViewFactory
-            .createViewForOnboarding(defaultSource: defaultSource)?.controller
+            .createViewForOnboarding(defaultSource: defaultSource, flow: flow)?.controller
         else {
             return
         }
@@ -32,7 +43,7 @@ final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
             let navigationController = view?.controller.navigationController,
             navigationController.viewControllers.count == 1,
             navigationController.presentedViewController == nil {
-            showAccountRestore(defaultSource: .keystore, from: view)
+            showAccountRestore(defaultSource: .keystore, flow: .wallet(step: .substrate), from: view)
         }
     }
 

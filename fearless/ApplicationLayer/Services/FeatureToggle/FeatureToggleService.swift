@@ -2,6 +2,7 @@ import Foundation
 import SSFNetwork
 import RobinHood
 import SSFUtils
+import SoraKeystore
 
 enum FeatureToggleServiceError: Error {
     case urlBroken
@@ -19,17 +20,23 @@ final class FeatureToggleProvider {
 
     private let networkOperationFactory: NetworkOperationFactoryProtocol
     private let operationQueue: OperationQueue
-
+    private let settingsManager: SettingsManagerProtocol
+    private let eventCenter: EventCenterProtocol
+    
     private(set) var snapshot: FeatureToggleConfig?
     private(set) var pendingRequests: [PendingRequest] = []
 
     init(
         networkOperationFactory: NetworkOperationFactoryProtocol,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        settingsManager: SettingsManagerProtocol,
+        eventCenter: EventCenterProtocol
     ) {
         self.networkOperationFactory = networkOperationFactory
         self.operationQueue = operationQueue
-
+        self.settingsManager = settingsManager
+        self.eventCenter = eventCenter
+        
         do {
             try setup()
         } catch {
@@ -58,6 +65,9 @@ final class FeatureToggleProvider {
         let request = PendingRequest(resultClosure: closure, queue: queue)
 
         if let snapshot = snapshot {
+            settingsManager.dappEnabled = snapshot.dappEnabled.or(FeatureToggleConfig.defaultConfig.dappEnabled ?? true)
+            eventCenter.notify(with: FeatureToggleConfigSyncComplete(config: snapshot))
+            
             deliver(snapshot: snapshot, to: request)
         } else {
             pendingRequests.append(request)
@@ -70,6 +80,9 @@ final class FeatureToggleProvider {
             if let snapshot = snapshot {
                 self.snapshot = snapshot
                 resolveRequests()
+                
+                settingsManager.dappEnabled = snapshot.dappEnabled.or(FeatureToggleConfig.defaultConfig.dappEnabled ?? true)
+                eventCenter.notify(with: FeatureToggleConfigSyncComplete(config: snapshot))
             }
         case .failure:
             handleDefault()

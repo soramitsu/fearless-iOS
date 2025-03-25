@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFModels
+import SSFAccountManagment
 
 protocol AccountFetching {
     func fetchAllMetaAccounts(
@@ -74,17 +75,18 @@ extension AccountFetching {
         }
 
         for chainAccount in meta.chainAccounts {
-            let chainFormat: ChainFormat = chainAccount.ethereumBased ? .ethereum : .substrate(chain.addressPrefix)
+            let chainFormat: ChainFormat = chainAccount.ecosystem.isEthereumBased ? .ethereum : .substrate(chain.addressPrefix)
             if let chainAddress = try? chainAccount.accountId.toAddress(using: chainFormat),
+               let substrateCryptoType = meta.ecosystem.substrateCryptoType,
                chainAddress == address {
                 let account = ChainAccountResponse(
                     chainId: chain.chainId,
                     accountId: chainAccount.accountId,
                     publicKey: chainAccount.publicKey,
                     name: meta.name,
-                    cryptoType: CryptoType(rawValue: meta.substrateCryptoType) ?? .sr25519,
+                    cryptoType: CryptoType(rawValue: substrateCryptoType) ?? .sr25519,
                     addressPrefix: chain.addressPrefix,
-                    isEthereumBased: chainAccount.ethereumBased,
+                    ecosystem: chainAccount.ecosystem,
                     isChainAccount: true,
                     walletId: meta.metaId
                 )
@@ -156,14 +158,17 @@ extension AccountFetching {
                         }
 
                         for chainAccount in meta.chainAccounts {
+                            guard let substrateCryptoType = meta.ecosystem.substrateCryptoType else {
+                                continue
+                            }
                             responses.append(ChainAccountResponse(
                                 chainId: chain.chainId,
                                 accountId: chainAccount.accountId,
                                 publicKey: chainAccount.publicKey,
                                 name: meta.name,
-                                cryptoType: CryptoType(rawValue: meta.substrateCryptoType) ?? .sr25519,
+                                cryptoType: CryptoType(rawValue: substrateCryptoType) ?? .sr25519,
                                 addressPrefix: chain.addressPrefix,
-                                isEthereumBased: false,
+                                ecosystem: chainAccount.ecosystem,
                                 isChainAccount: true,
                                 walletId: meta.metaId
                             ))
@@ -204,7 +209,15 @@ extension AccountFetching {
                         }
 
                         for chainAccount in meta.chainAccounts {
-                            let chainFormat: ChainFormat = chainAccount.ethereumBased ? .ethereum : .substrate(chain.addressPrefix)
+                            let chainFormat: ChainFormat
+                            switch chainAccount.ecosystem {
+                            case .substrate:
+                                chainFormat = .substrate(chain.addressPrefix)
+                            case .ethereumBased, .ethereum:
+                                chainFormat = .ethereum
+                            case .ton:
+                                chainFormat = .ton(bounceable: true)
+                            }
                             if let chainAddress = try? chainAccount.accountId.toAddress(using: chainFormat),
                                chainAddress == address {
                                 closure(.success(meta))

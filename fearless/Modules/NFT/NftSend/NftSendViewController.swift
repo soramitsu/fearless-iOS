@@ -83,7 +83,7 @@ extension NftSendViewController: NftSendViewInput {
 
     func didReceive(viewModel: RecipientViewModel) {
         rootView.bind(viewModel: viewModel)
-        rootView.actionButton.set(enabled: viewModel.isValid)
+        rootView.actionButton.set(enabled: viewModel.isValid == true)
     }
 }
 

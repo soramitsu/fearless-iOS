@@ -15,12 +15,16 @@ final class WalletDetailsPresenter {
     private var searchText: String?
 
     init(
+        chains: [ChainModel]?,
         interactor: WalletDetailsInteractorInputProtocol,
         wireframe: WalletDetailsWireframeProtocol,
         viewModelFactory: WalletDetailsViewModelFactoryProtocol,
         flow: WalletDetailsFlow,
         localizationManager: LocalizationManagerProtocol
     ) {
+        if let chains {
+            self.chains = chains
+        }
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
@@ -138,22 +142,8 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
                 self.wireframe.present(from: view, url: url)
             case let .reefscan(url):
                 self.wireframe.present(from: view, url: url)
-            case .replace:
-                let model = UniqueChainModel(meta: self.flow.wallet, chain: chainAccount.chain)
-                let options: [ReplaceChainOption] = ReplaceChainOption.allCases
-                self.wireframe.showUniqueChainSourceSelection(
-                    from: view,
-                    items: options,
-                    callback: { [weak self] selectedIndex in
-                        let option = options[selectedIndex]
-                        switch option {
-                        case .create:
-                            self?.wireframe.showCreate(uniqueChainModel: model, from: view)
-                        case .import:
-                            self?.wireframe.showImport(uniqueChainModel: model, from: view)
-                        }
-                    }
-                )
+            case let .tonviewer(url):
+                self.wireframe.present(from: view, url: url)
             case let .oklink(url: url):
                 self.wireframe.present(from: view, url: url)
             }
@@ -167,6 +157,10 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
     }
 
     func didReceive(chains: [ChainModel]) {
+        guard self.chains.isEmpty else {
+            provideViewModel(chains: self.chains)
+            return
+        }
         self.chains = chains
         provideViewModel(chains: chains)
     }
@@ -200,7 +194,7 @@ private extension WalletDetailsPresenter {
     }
 
     func createActions(for chain: ChainModel, address: String) -> [ChainAction] {
-        var actions: [ChainAction] = [.copyAddress, .switchNode, .export, .replace]
+        var actions: [ChainAction] = [.copyAddress, .switchNode, .export]
         if let explorers = chain.externalApi?.explorers {
             let explorerActions: [ChainAction] = explorers.compactMap {
                 switch $0.type {
@@ -225,6 +219,10 @@ private extension WalletDetailsPresenter {
                 case .oklink:
                     if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
                         return .oklink(url: url)
+                    }
+                case .tonviewer:
+                    if $0.types.contains(.tonAccount), let url = $0.explorerUrl(for: address, type: .tonAccount) {
+                        return .tonviewer(url: url)
                     }
                 }
                 return nil

@@ -16,14 +16,14 @@ final class WalletConnectProposalViewController: UIViewController, ViewHolder {
     // MARK: Private properties
 
     private let output: WalletConnectProposalViewOutput
-    private let status: WalletConnectProposalPresenter.SessionStatus
+    private let status: SessionStatus
 
     private var viewModel: WalletConnectProposalViewModel?
 
     // MARK: - Constructor
 
     init(
-        status: WalletConnectProposalPresenter.SessionStatus,
+        status: SessionStatus,
         output: WalletConnectProposalViewOutput,
         localizationManager: LocalizationManagerProtocol?
     ) {
@@ -99,7 +99,20 @@ extension WalletConnectProposalViewController: WalletConnectProposalViewInput {
     func didReceive(viewModel: WalletConnectProposalViewModel) {
         self.viewModel = viewModel
         if let indexPath = viewModel.indexPath {
-            rootView.tableView.reloadRows(at: [indexPath], with: .automatic)
+            let visibleWalletCells: [WalletConnectProposalWalletsTableCell] = rootView.tableView.visibleCells.compactMap {
+                guard let cell = $0 as? WalletConnectProposalWalletsTableCell else {
+                    return nil
+                }
+                return cell
+            }
+            let visibleWalletCellIndexPaths = visibleWalletCells.compactMap {
+                rootView.tableView.indexPath(for: $0)
+            }
+            if visibleWalletCellIndexPaths.contains(indexPath) {
+                rootView.tableView.reloadRows(at: visibleWalletCellIndexPaths, with: .automatic)
+            } else {
+                rootView.tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
         } else {
             rootView.tableView.reloadData()
         }
@@ -149,13 +162,11 @@ extension WalletConnectProposalViewController: UITableViewDataSource {
             guard let cell = cell as? WalletConnectProposalExpandableTableCell else {
                 return UITableViewCell()
             }
-            cell.locale = selectedLocale
             cell.bind(viewModel: viewModel)
         case let .optionalExpandable(viewModel):
             guard let cell = cell as? WalletConnectProposalExpandableTableCell else {
                 return UITableViewCell()
             }
-            cell.locale = selectedLocale
             cell.bind(viewModel: viewModel)
         case .wallet:
             break

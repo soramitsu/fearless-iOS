@@ -105,7 +105,7 @@ private extension AccountImportViewController {
         switch presenter.flow {
         case .wallet:
             title = R.string.localizable.importWallet(preferredLanguages: locale.rLanguages)
-        case .chain:
+        case .chain, .ethereum:
             title = R.string.localizable.onboardingRestoreAccount(preferredLanguages: locale.rLanguages)
         }
 
@@ -235,11 +235,16 @@ extension AccountImportViewController: AccountImportViewProtocol {
 
             rootView.passwordContainerView.isHidden = true
             rootView.uploadViewContainer.isHidden = true
+        case .tonMnemonic:
+            rootView.setAdvancedVisibility(false)
+            rootView.textViewContainer.isHidden = false
+            rootView.passwordContainerView.isHidden = true
+            rootView.uploadViewContainer.isHidden = true
         case .seed:
             switch chainType {
             case .substrate, .both:
                 rootView.setAdvancedVisibility(true)
-            case .ethereum:
+            case .ethereum, .ton:
                 rootView.setAdvancedVisibility(false)
             }
             rootView.textViewContainer.isHidden = false

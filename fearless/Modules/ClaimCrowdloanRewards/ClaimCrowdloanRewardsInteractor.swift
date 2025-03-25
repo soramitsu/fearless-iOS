@@ -3,6 +3,7 @@ import SSFUtils
 import SSFModels
 import RobinHood
 import SSFSigner
+import SSFAccountManagment
 
 final class ClaimCrowdloanRewardsInteractor {
     // MARK: - Private properties
@@ -62,7 +63,7 @@ final class ClaimCrowdloanRewardsInteractor {
             do {
                 let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
                 let tokensLocksRequest = TokensLocksRequest(accountId: accountIdVariant, currencyId: currencyId)
-                let locks: TokenLocks? = try await storageRequestPerformer.performSingle(tokensLocksRequest)
+                let locks: TokenLocks? = try await storageRequestPerformer.performSingle(tokensLocksRequest, chain: chainAsset.chain)
 
                 await MainActor.run {
                     output?.didReceiveTokenLocks(locks)
@@ -85,7 +86,7 @@ final class ClaimCrowdloanRewardsInteractor {
             do {
                 let accountId = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
                 let balancesLocksRequest = BalancesLocksRequest(accountId: accountId)
-                let locks: BalanceLocks? = try await storageRequestPerformer.performSingle(balancesLocksRequest)
+                let locks: BalanceLocks? = try await storageRequestPerformer.performSingle(balancesLocksRequest, chain: chainAsset.chain)
 
                 await MainActor.run {
                     output?.didReceiveBalanceLocks(locks)

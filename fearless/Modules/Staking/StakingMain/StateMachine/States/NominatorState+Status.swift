@@ -1,6 +1,7 @@
 import Foundation
 import IrohaCrypto
 import BigInt
+import SSFCrypto
 
 extension NominatorState {
     var status: NominationViewStatus {

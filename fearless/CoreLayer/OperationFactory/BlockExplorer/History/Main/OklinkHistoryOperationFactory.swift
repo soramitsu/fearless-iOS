@@ -17,7 +17,7 @@ final class OklinkHistoryOperationFactory {
         queryItems?.append(URLQueryItem(name: "address", value: address))
         queryItems?.append(URLQueryItem(name: "symbol", value: chainAsset.asset.symbol))
 
-        switch chainAsset.asset.ethereumType {
+        switch chainAsset.asset.assetType.ethereumAssetType {
         case .erc20:
             queryItems?.append(URLQueryItem(name: "protocolType", value: "token_20"))
         case .bep20, .normal, .none:
@@ -83,7 +83,7 @@ final class OklinkHistoryOperationFactory {
             let remoteTransactions = try remoteOperation.extractNoCancellableResultData().data.first?.transactionLists
 
             let transactions = remoteTransactions?
-                .filter { asset.ethereumType == .normal ? true : $0.tokenContractAddress.lowercased() == asset.id.lowercased() }
+                .filter { asset.assetType.ethereumAssetType == .normal ? true : $0.tokenContractAddress.lowercased() == asset.id.lowercased() }
                 .sorted(by: { $0.transactionTime > $1.transactionTime })
                 .compactMap {
                     AssetTransactionData.createTransaction(from: $0, address: address, chain: chain, asset: asset)

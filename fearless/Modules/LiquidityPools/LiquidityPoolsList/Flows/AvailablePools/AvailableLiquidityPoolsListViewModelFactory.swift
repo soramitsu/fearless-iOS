@@ -5,11 +5,12 @@ import SSFPolkaswap
 import SSFModels
 import BigInt
 import SSFStorageQueryKit
+import SSFCrypto
 
 protocol AvailableLiquidityPoolsListViewModelFactory {
     func buildViewModel(
         pairs: [LiquidityPair]?,
-        reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>?,
+        reserves: SSFStorageQueryKit.CachedStorageResponse<[PolkaswapPoolReservesInfo]>?,
         apyInfos: [PoolApyInfo]?,
         chain: ChainModel,
         locale: Locale,
@@ -69,7 +70,7 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
 
     func buildViewModel(
         pairs: [LiquidityPair]?,
-        reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>?,
+        reserves: SSFStorageQueryKit.CachedStorageResponse<[PolkaswapPoolReservesInfo]>?,
         apyInfos: [PoolApyInfo]?,
         chain: ChainModel,
         locale: Locale,

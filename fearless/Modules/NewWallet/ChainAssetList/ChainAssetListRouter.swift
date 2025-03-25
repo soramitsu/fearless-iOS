@@ -34,12 +34,12 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
         )
     }
 
-    func showSendFlow(
+    @MainActor func showSendFlow(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {
-        guard let controller = SendAssembly.configureModule(
+        guard let controller = TransferAssembly.configureModule(
             wallet: wallet,
             initialData: .chainAsset(chainAsset)
         )?.view.controller else {
@@ -89,7 +89,8 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
 
     func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
         guard let controller = UsernameSetupViewFactory.createViewForOnboarding(
-            flow: .chain(model: uniqueChainModel)
+            flow: .chain(model: uniqueChainModel),
+            ecosystem: .regular // TODO: - Select ecosystem
         )?.controller else {
             return
         }

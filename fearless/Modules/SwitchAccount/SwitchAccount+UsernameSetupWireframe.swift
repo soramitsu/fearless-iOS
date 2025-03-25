@@ -5,9 +5,10 @@ extension SwitchAccount {
         func proceed(
             from view: UsernameSetupViewProtocol?,
             flow _: AccountCreateFlow = .wallet,
-            model: UsernameSetupModel
+            model: UsernameSetupModel,
+            ecosystem: AccountCreateEcosystem
         ) {
-            guard let accountCreation = AccountCreateViewFactory.createViewForSwitch(model: model) else {
+            guard let accountCreation = AccountCreateViewFactory.createViewForSwitch(ecosystem: ecosystem, model: model) else {
                 return
             }
 

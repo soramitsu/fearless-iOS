@@ -14,10 +14,8 @@ final class PolkaswapAdjustmentAssembly {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let xorChainAsset = chainRegistry.getChain(for: Chain.soraMain.genesisHash)?.utilityChainAssets().first,
-            let connection = chainRegistry.getConnection(for: xorChainAsset.chain.chainId),
-            let accountResponse = wallet.fetch(for: xorChainAsset.chain.accountRequest()),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: xorChainAsset.chain.chainId)
+            let connection = chainRegistry.getConnection(for: Chain.soraMain.genesisHash),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: Chain.soraMain.genesisHash)
         else {
             return nil
         }
@@ -39,22 +37,13 @@ final class PolkaswapAdjustmentAssembly {
         let operationFactory = PolkaswapOperationFactory(
             storageRequestFactory: storageOperationFactory,
             chainRegistry: chainRegistry,
-            chainId: xorChainAsset.chain.chainId
+            chainId: Chain.soraMain.genesisHash
         )
         let logger = Logger.shared
 
         let subscriptionService = PolkaswapRemoteSubscriptionService(
             connection: connection,
             logger: logger
-        )
-
-        let extrinsicService = ExtrinsicService(
-            accountId: accountResponse.accountId,
-            chainFormat: xorChainAsset.chain.chainFormat,
-            cryptoType: accountResponse.cryptoType,
-            runtimeRegistry: runtimeService,
-            engine: connection,
-            operationManager: operationManager
         )
 
         let mapper = PolkaswapSettingMapper()
@@ -68,29 +57,27 @@ final class PolkaswapAdjustmentAssembly {
         let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         let interactor = PolkaswapAdjustmentInteractor(
-            xorChainAsset: xorChainAsset,
+            wallet: wallet,
             subscriptionService: subscriptionService,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             feeProxy: ExtrinsicFeeProxy(),
             settingsRepository: AnyDataProviderRepository(settingsRepository),
-            extrinsicService: extrinsicService,
             operationFactory: operationFactory,
             operationManager: operationManager,
             userDefaultsStorage: SettingsManager.shared,
-            callFactory: callFactory
+            callFactory: callFactory,
+            chainModelRepo: ServiceAssembly.shared.asyncChainModelRepository()
         )
         let router = PolkaswapAdjustmentRouter()
 
         let viewModelFactory = PolkaswapAdjustmentViewModelFactory(
             wallet: wallet,
-            xorChainAsset: xorChainAsset,
             assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
         )
 
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
         let presenter = PolkaswapAdjustmentPresenter(
             wallet: wallet,
-            xorChainAsset: xorChainAsset,
             swapChainAsset: chainAsset,
             viewModelFactory: viewModelFactory,
             dataValidatingFactory: dataValidatingFactory,

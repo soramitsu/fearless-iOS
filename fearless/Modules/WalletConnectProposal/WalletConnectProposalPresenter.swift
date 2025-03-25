@@ -11,12 +11,20 @@ protocol WalletConnectProposalInteractorInput: AnyObject {
     func setup(with output: WalletConnectProposalInteractorOutput)
     func submit(proposalDecision: WalletConnectProposalDecision) async throws
     func submitDisconnect(topic: String) async throws
+    func confirmConnectionRequest(
+        wallet: MetaAccountModel,
+        tonChainModel: ChainModel,
+        params: TonConnectParameters,
+        manifest: TonConnectManifest
+    ) async throws
+    func disconnect(app: TonConnectApp) async
 }
 
 final class WalletConnectProposalPresenter {
     // MARK: Private properties
 
     private weak var view: WalletConnectProposalViewInput?
+    private weak var moduleOutput: WalletConnectProposalModuleOutput?
     private let router: WalletConnectProposalRouterInput
     private let interactor: WalletConnectProposalInteractorInput
 
@@ -43,6 +51,7 @@ final class WalletConnectProposalPresenter {
         router: WalletConnectProposalRouterInput,
         localizationManager: LocalizationManagerProtocol
     ) {
+        moduleOutput = status.moduleOutput
         self.status = status
         self.walletConnectModelFactory = walletConnectModelFactory
         self.viewModelFactory = viewModelFactory
@@ -57,42 +66,20 @@ final class WalletConnectProposalPresenter {
 
     private func provideViewModel() {
         switch status {
-        case let .proposal(proposal):
-            provideProposalSessionViewModel(proposal: proposal)
+        case .proposal:
+            buildViewModel()
             setOptionalChains()
-        case let .active(session):
-            provideActiveSessionViewModel(session: session)
+        case .active:
+            buildViewModel()
         }
     }
 
-    private func provideProposalSessionViewModel(proposal: Session.Proposal) {
+    private func buildViewModel() {
         guard chains.isNotEmpty, wallets.isNotEmpty else {
             return
         }
         do {
-            let viewModel = try viewModelFactory.buildProposalSessionViewModel(
-                proposal: proposal,
-                chains: chains,
-                wallets: wallets,
-                locale: selectedLocale
-            )
-            DispatchQueue.main.async {
-                self.view?.didReceive(viewModel: viewModel)
-            }
-            self.viewModel = viewModel
-        } catch {
-            logger.customError(error)
-            handle(error: error)
-        }
-    }
-
-    private func provideActiveSessionViewModel(session: Session) {
-        guard chains.isNotEmpty, wallets.isNotEmpty else {
-            return
-        }
-        do {
-            let viewModel = try viewModelFactory.buildActiveSessionViewModel(
-                session: session,
+            let viewModel = try viewModelFactory.buildViewModel(
                 chains: chains,
                 wallets: wallets,
                 locale: selectedLocale
@@ -132,7 +119,7 @@ final class WalletConnectProposalPresenter {
         }
     }
 
-    private func submitApprove() {
+    private func submitWalletConnectApprove() {
         guard let proposal = status.proposal else { return }
         let selectedWallets = wallets.filter { wallet in
             viewModel?.selectedWalletIds?.contains(wallet.metaId) == true
@@ -250,6 +237,90 @@ final class WalletConnectProposalPresenter {
         let optionalChains = walletConnectModelFactory.resolveChains(for: Set(optionalBlockchains), chains: chains)
         optionalChainsIds = optionalChains.map { $0.chainId }
     }
+
+    private func setLocalWalletsIfNeeded(wallets: [MetaAccountModel]) {
+        switch status {
+        case let .proposal(proposalVariant):
+            switch proposalVariant {
+            case .walletConnect:
+                self.wallets = wallets
+            case .tonConnect:
+                self.wallets = wallets.filter { $0.ecosystem.tonAddress != nil }
+                if self.wallets.isEmpty {
+                    showMissingAccountAlert()
+                    return
+                }
+            case .tonJsBridge:
+                self.wallets = [SelectedWalletSettings.shared.value].compactMap { $0 }
+            }
+        case .active:
+            self.wallets = wallets
+        }
+        provideViewModel()
+    }
+
+    private func submitTonJsBridgeApprove(
+        manifest: TonConnectManifest,
+        params: TonConnectParameters,
+        invocationId: String
+    ) {
+        let dessision: TonConnectDessision = .approve(
+            manifest: manifest,
+            params: params,
+            invocationId: invocationId
+        )
+        moduleOutput?.tonConnect(dessision: dessision)
+        Task { @MainActor in
+            router.dismiss(view: view)
+        }
+    }
+
+    private func confirmTonConnectionRequest(
+        manifest: TonConnectManifest,
+        params: TonConnectParameters
+    ) {
+        Task {
+            do {
+                guard
+                    let tonChainModel = self.chains.first(where: { $0.ecosystem == .ton }),
+                    let selectedWallet = wallets.filter({ wallet in
+                        viewModel?.selectedWalletIds?.contains(wallet.metaId) == true
+                    }).first
+                else {
+                    throw ConvenienceError(error: "Missing ton chain model")
+                }
+                try await interactor.confirmConnectionRequest(
+                    wallet: selectedWallet,
+                    tonChainModel: tonChainModel,
+                    params: params,
+                    manifest: manifest
+                )
+                Task { @MainActor in
+                    router.dismiss(view: view)
+                }
+            } catch {
+                logger.customError(error)
+            }
+        }
+    }
+
+    private func showMissingAccountAlert() {
+        Task { @MainActor in
+            let title = R.string.localizable.accountNeededTitle(preferredLanguages: selectedLocale.rLanguages)
+            let message = R.string.localizable.accountNeededMessage(preferredLanguages: selectedLocale.rLanguages)
+            let closeActionTitle = R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
+            let closeAction = SheetAlertPresentableAction(title: closeActionTitle) { [weak self] in
+                self?.router.dismiss(view: self?.view)
+            }
+            router.present(
+                message: message,
+                title: title,
+                closeAction: nil,
+                from: view,
+                actions: [closeAction]
+            )
+        }
+    }
 }
 
 // MARK: - WalletConnectProposalViewOutput
@@ -269,16 +340,59 @@ extension WalletConnectProposalPresenter: WalletConnectProposalViewOutput {
 
     func mainActionButtonDidTapped() {
         switch status {
-        case .proposal:
-            submitApprove()
-        case let .active(session):
-            view?.didStartLoading()
-            submitDisconnect(topic: session.topic, name: session.peer.name)
+        case let .proposal(connect):
+            switch connect {
+            case .walletConnect:
+                submitWalletConnectApprove()
+            case let .tonJsBridge(manifest, payload, invocationId, _):
+                submitTonJsBridgeApprove(
+                    manifest: manifest,
+                    params: payload,
+                    invocationId: invocationId
+                )
+            case let .tonConnect(manifest: manifest, requestPayload: requestPayload):
+                confirmTonConnectionRequest(
+                    manifest: manifest,
+                    params: requestPayload
+                )
+            }
+        case let .active(active):
+            switch active {
+            case let .walletConnect(session):
+                view?.didStartLoading()
+                submitDisconnect(topic: session.topic, name: session.peer.name)
+            case let .tonConnect(app, _):
+                view?.didStartLoading()
+                Task {
+                    await interactor.disconnect(app: app)
+                    moduleOutput?.disconnected()
+                    let description = R.string.localizable.walletConnectConnectionDissconnected(app.name, preferredLanguages: selectedLocale.rLanguages)
+                    await showAllDone(description: description)
+                }
+            }
         }
     }
 
     func rejectButtonDidTapped() {
-        submitReject()
+        switch status {
+        case let .proposal(connect):
+            switch connect {
+            case .walletConnect:
+                submitReject()
+            case let .tonJsBridge(_, _, invocationId, _):
+                moduleOutput?.tonConnect(dessision: .reject(invocationId: invocationId))
+                router.dismiss(view: view)
+            case .tonConnect:
+                router.dismiss(view: view)
+            }
+        case let .active(active):
+            switch active {
+            case .walletConnect:
+                submitReject()
+            case .tonConnect:
+                router.dismiss(view: view)
+            }
+        }
     }
 
     func didSelectRowAt(_ indexPath: IndexPath) {
@@ -310,8 +424,7 @@ extension WalletConnectProposalPresenter: WalletConnectProposalInteractorOutput 
     func didReceive(walletsResult: Result<[MetaAccountModel], Error>) {
         switch walletsResult {
         case let .success(wallets):
-            self.wallets = wallets
-            provideViewModel()
+            setLocalWalletsIfNeeded(wallets: wallets)
         case let .failure(failure):
             logger.customError(failure)
         }
@@ -341,30 +454,5 @@ extension WalletConnectProposalPresenter: WalletConnectProposalModuleInput {}
 extension WalletConnectProposalPresenter: MultiSelectNetworksModuleOutput {
     func selectedChain(ids: [SSFModels.ChainModel.Id]?) {
         optionalChainsIds = ids
-    }
-}
-
-extension WalletConnectProposalPresenter {
-    enum SessionStatus {
-        case proposal(Session.Proposal)
-        case active(Session)
-
-        var proposal: Session.Proposal? {
-            switch self {
-            case let .proposal(proposal):
-                return proposal
-            case .active:
-                return nil
-            }
-        }
-
-        var session: Session? {
-            switch self {
-            case .proposal:
-                return nil
-            case let .active(session):
-                return session
-            }
-        }
     }
 }

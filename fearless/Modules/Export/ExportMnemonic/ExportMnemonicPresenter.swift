@@ -12,6 +12,7 @@ final class ExportMnemonicPresenter {
     let localizationManager: LocalizationManager
 
     private(set) var exportDatas: [ExportMnemonicData]?
+    private(set) var isShownAlert = false
 
     init(flow: ExportFlow, localizationManager: LocalizationManager) {
         self.flow = flow
@@ -32,7 +33,7 @@ final class ExportMnemonicPresenter {
             text = R.string.localizable
                 .exportMnemonicWithDpTemplate(
                     exportData.chain.name,
-                    exportData.mnemonic.toString(),
+                    exportData.mnemonic.joined(separator: " "),
                     derivationPath,
                     preferredLanguages: locale.rLanguages
                 )
@@ -40,7 +41,7 @@ final class ExportMnemonicPresenter {
             text = R.string.localizable
                 .exportMnemonicWithoutDpTemplate(
                     exportData.chain.name,
-                    exportData.mnemonic.toString(),
+                    exportData.mnemonic.joined(separator: " "),
                     preferredLanguages: locale.rLanguages
                 )
         }
@@ -55,6 +56,9 @@ final class ExportMnemonicPresenter {
 
 extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
     func didLoadView() {
+        guard !isShownAlert else {
+            return
+        }
         let locale = localizationManager.selectedLocale
 
         let title = R.string.localizable.accountExportWarningTitle(preferredLanguages: locale.rLanguages)
@@ -72,6 +76,9 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
             message: message,
             actions: [exportAction, cancelAction],
             closeAction: nil,
+            dismissCompletion: { [weak self] in
+                self?.isShownAlert = true
+            },
             icon: R.image.iconWarningBig()
         )
 
@@ -108,8 +115,8 @@ extension ExportMnemonicPresenter: ExportMnemonicInteractorOutputProtocol {
                 chain: exportData.chain,
                 cryptoType: exportData.cryptoType,
                 derivationPath: exportData.derivationPath,
-                mnemonic: exportData.mnemonic.allWords(),
-                ethereumBased: exportData.chain.isEthereumBased
+                mnemonic: exportData.mnemonic,
+                ecosystem: exportData.chain.ecosystem
             )
         }
 

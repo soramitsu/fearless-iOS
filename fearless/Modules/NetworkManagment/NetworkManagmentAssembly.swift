@@ -5,6 +5,7 @@ import SSFModels
 
 final class NetworkManagmentAssembly {
     static func configureModule(
+        initialFilter: NetworkManagmentFilter? = nil,
         wallet: MetaAccountModel,
         chains: [ChainModel]?,
         contextTag: Int?,
@@ -27,6 +28,7 @@ final class NetworkManagmentAssembly {
         let router = NetworkManagmentRouter()
 
         let presenter = NetworkManagmentPresenter(
+            initialFilter: initialFilter,
             wallet: wallet,
             interactor: interactor,
             router: router,

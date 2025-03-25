@@ -63,6 +63,10 @@ final class ProfilePresenter {
 }
 
 extension ProfilePresenter: ProfilePresenterProtocol {
+    func openDebugMenu() {
+        wireframe.openDebugMenu(from: view)
+    }
+
     func didLoad(view: ProfileViewProtocol) {
         self.view = view
         interactor.setup(with: self)
@@ -72,7 +76,12 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         guard let wallet = selectedWallet else {
             return
         }
-        wireframe.showAccountDetails(from: view, metaAccount: wallet)
+        switch wallet.ecosystem {
+        case .regular:
+            wireframe.showAccountDetails(from: view, metaAccount: wallet)
+        case .ton:
+            break
+        }
     }
 
     func activateOption(_ option: ProfileOption) {
@@ -220,12 +229,15 @@ extension ProfilePresenter: Localizable {
 }
 
 extension ProfilePresenter: EventVisitorProtocol {
-    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+    func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {
         if selectedCurrency != event.account.selectedCurrency {
             selectedWallet = event.account
             let currency = event.account.selectedCurrency
             interactor.update(currency: currency)
         }
+    }
+    
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
         selectedWallet = event.account
     }
 }

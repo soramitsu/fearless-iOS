@@ -58,7 +58,7 @@ class LocalAuthInteractor {
         biometryAuth.authenticate(
             localizedReason: R.string.localizable.askBiometryReason(preferredLanguages: locale.rLanguages),
             completionQueue: .global(qos: .userInteractive)
-        ) { [weak self] (result: Bool) -> Void in
+        ) { [weak self] (result: Bool) in
 
             self?.processBiometryAuth(result: result)
         }
@@ -130,7 +130,7 @@ extension LocalAuthInteractor: LocalAuthInteractorInputProtocol {
         secretManager.loadSecret(
             for: KeystoreTag.pincode.rawValue,
             completionQueue: .global(qos: .userInteractive)
-        ) { [weak self] (secret: SecretDataRepresentable?) -> Void in
+        ) { [weak self] (secret: SecretDataRepresentable?) in
             self?.processStored(pin: secret?.toUTF8String())
         }
     }

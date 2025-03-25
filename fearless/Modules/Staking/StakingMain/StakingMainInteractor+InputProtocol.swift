@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import RobinHood
 import SSFModels
+import SSFCrypto
 
 extension StakingMainInteractor: StakingMainInteractorInputProtocol {
     func changeActiveState(_ isActive: Bool) {
@@ -305,6 +306,35 @@ extension StakingMainInteractor: EventVisitorProtocol {
         }) else { return }
         updateAfterChainAssetSave()
         updateAfterSelectedAccountChange()
+    }
+    
+    func processPricesUpdated() {
+        guard let selectedChainAsset else {
+            return
+        }
+        
+        chainAssetFetching.fetch(
+            shouldUseCache: false,
+            filters: [.chainAssetId(selectedChainAsset.chainAssetId)],
+            sortDescriptors: []
+        ) { [weak self] result in
+            switch result {
+            case .success(let chainAssets):
+                if let updatedChainAsset = chainAssets.first {
+                    self?.selectedChainAsset = updatedChainAsset
+
+                    
+                    DispatchQueue.main.async {
+                        self?.updateAfterChainAssetSave()
+                        self?.presenter?.didUpdate(newChainAsset: updatedChainAsset)
+                    }
+                }
+            case .failure(let error):
+                self?.logger?.error(error.localizedDescription)
+            case .none:
+                break
+            }
+        }
     }
 }
 

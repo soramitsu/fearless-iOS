@@ -24,12 +24,12 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         )
     }
 
-    func presentSendFlow(
+    @MainActor func presentSendFlow(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {
-        guard let controller = SendAssembly.configureModule(
+        guard let controller = TransferAssembly.configureModule(
             wallet: wallet,
             initialData: .chainAsset(chainAsset)
         )?.view.controller else {
@@ -172,6 +172,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
 
     func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
         guard let createController = AccountCreateViewFactory.createViewForOnboarding(
+            ecosystem: .regular,
             model: UsernameSetupModel(username: uniqueChainModel.meta.name),
             flow: .chain(model: uniqueChainModel)
         )?.controller else {

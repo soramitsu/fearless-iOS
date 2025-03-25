@@ -96,4 +96,8 @@ extension NSPredicate {
     static func enabledCHain() -> NSPredicate {
         NSPredicate(format: "%K == false", #keyPath(CDChain.disabled))
     }
+    
+    static func regularEcosystem() -> NSPredicate {
+        NSPredicate(format: "%K == nil", #keyPath(CDMetaAccount.tonAddress))
+    }
 }

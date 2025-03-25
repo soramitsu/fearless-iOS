@@ -17,7 +17,7 @@ protocol ExportGenericViewModelProtocol {
     var chain: ChainModel? { get }
     var cryptoType: CryptoType? { get }
     var derivationPath: String? { get }
-    var ethereumBased: Bool { get }
+    var ecosystem: Ecosystem { get }
 
     func accept(binder: ExportGenericViewModelBinding, locale: Locale) -> UIView
 }
@@ -30,16 +30,11 @@ struct MultiExportViewModel: MultipleExportGenericViewModelProtocol {
 
 struct ExportStringViewModel: ExportGenericViewModelProtocol {
     let option: ExportOption
-
     let chain: ChainModel?
-
     let cryptoType: CryptoType?
-
     let derivationPath: String?
-
     let data: String
-
-    let ethereumBased: Bool
+    let ecosystem: Ecosystem
 
     func accept(binder: ExportGenericViewModelBinding, locale: Locale) -> UIView {
         if option == .seed {
@@ -52,16 +47,11 @@ struct ExportStringViewModel: ExportGenericViewModelProtocol {
 
 struct ExportMnemonicViewModel: ExportGenericViewModelProtocol {
     let option: ExportOption
-
     let chain: ChainModel?
-
     let cryptoType: CryptoType?
-
     let derivationPath: String?
-
     let mnemonic: [String]
-
-    let ethereumBased: Bool
+    let ecosystem: Ecosystem
 
     func accept(binder: ExportGenericViewModelBinding, locale: Locale) -> UIView {
         binder.bind(mnemonicViewModel: self, locale: locale)

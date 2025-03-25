@@ -43,7 +43,7 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
     private var chainAssets: [ChainAsset] = []
     private let chainsRepository: AsyncCoreDataRepositoryDefault<ChainModel, CDChain>
 
-    init() {
+    private init() {
         chainsRepository = ChainRepositoryFactory().createAsyncRepository()
         setup()
     }

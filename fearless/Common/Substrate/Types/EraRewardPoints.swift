@@ -1,4 +1,5 @@
 import SSFUtils
+import IrohaCrypto
 import Foundation
 
 typealias RewardPoint = UInt32
@@ -27,5 +28,15 @@ struct IndividualReward: Decodable {
 
         let rewardScaled = try container.decode(StringScaleMapper<RewardPoint>.self)
         rewardPoint = rewardScaled.value
+    }
+}
+
+private extension AccountAddress {
+    func toAccountId() throws -> AccountId {
+        if hasPrefix("0x") {
+            return try AccountId(hexStringSSF: self)
+        } else {
+            return try SS58AddressFactory().accountId(from: self)
+        }
     }
 }

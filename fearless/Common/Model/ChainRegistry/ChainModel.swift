@@ -24,7 +24,7 @@ extension ChainModel {
 
 extension ChainModel {
     func match(_ caip2ChainId: Caip2ChainId) -> Bool {
-        switch chainBaseType {
+        switch ecosystem {
         case .substrate:
             let namespace = "polkadot"
             let knownChainCaip2ChainId = Caip2ChainId(
@@ -32,13 +32,15 @@ extension ChainModel {
                 reference: chainId
             )
             return knownChainCaip2ChainId.reference.hasPrefix(caip2ChainId.reference) && namespace == caip2ChainId.namespace
-        case .ethereum:
+        case .ethereum, .ethereumBased:
             let namespace = "eip155"
             let knownChainCaip2ChainId = Caip2ChainId(
                 namespace: namespace,
                 reference: chainId.replacingOccurrences(of: "0x", with: "")
             )
             return caip2ChainId == knownChainCaip2ChainId
+        case .ton:
+            return false
         }
     }
 }

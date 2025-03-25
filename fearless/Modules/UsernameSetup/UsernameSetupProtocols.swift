@@ -11,17 +11,22 @@ protocol UsernameSetupPresenterProtocol: AnyObject {
 }
 
 protocol UsernameSetupWireframeProtocol: SheetAlertPresentable {
-    func proceed(from view: UsernameSetupViewProtocol?, flow: AccountCreateFlow, model: UsernameSetupModel)
+    func proceed(
+        from view: UsernameSetupViewProtocol?,
+        flow: AccountCreateFlow,
+        model: UsernameSetupModel,
+        ecosystem: AccountCreateEcosystem
+    )
 }
 
 protocol UsernameSetupViewFactoryProtocol: AnyObject {
-    static func createViewForOnboarding(flow: AccountCreateFlow) -> UsernameSetupViewProtocol?
-    static func createViewForAdding() -> UsernameSetupViewProtocol?
-    static func createViewForSwitch() -> UsernameSetupViewProtocol?
+    static func createViewForOnboarding(flow: AccountCreateFlow, ecosystem: AccountCreateEcosystem) -> UsernameSetupViewProtocol?
+    static func createViewForAdding(ecosystem: AccountCreateEcosystem) -> UsernameSetupViewProtocol?
+    static func createViewForSwitch(ecosystem: AccountCreateEcosystem) -> UsernameSetupViewProtocol?
 }
 
 extension UsernameSetupViewFactoryProtocol {
-    static func createViewForOnboarding() -> UsernameSetupViewProtocol? {
-        Self.createViewForOnboarding(flow: .wallet)
+    static func createViewForOnboarding(ecosystem: AccountCreateEcosystem) -> UsernameSetupViewProtocol? {
+        Self.createViewForOnboarding(flow: .wallet, ecosystem: ecosystem)
     }
 }

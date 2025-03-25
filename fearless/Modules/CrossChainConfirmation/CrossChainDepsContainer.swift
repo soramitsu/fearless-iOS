@@ -41,23 +41,11 @@ final class CrossChainDepsContainer {
             originalChainAsset: originalChainAsset,
             originalRuntimeMetadataItem: originalRuntimeMetadataItem
         )
-        let existentialDepositService = (destChainModel?.chainId).map {
-            ExistentialDepositService(
-                operationManager: OperationManagerFacade.sharedManager,
-                chainRegistry: chainRegistry,
-                chainId: $0
-            )
-        }
-        let storageRequestPerformer: StorageRequestPerformer? = (destChainModel?.chainId).flatMap {
-            guard
-                let runtimeService = chainRegistry.getRuntimeProvider(for: $0),
-                let connection = chainRegistry.getConnection(for: $0)
-            else {
-                return nil
-            }
-
-            return StorageRequestPerformerDefault(runtimeService: runtimeService, connection: connection)
-        }
+        let existentialDepositService = ExistentialDepositService(
+            operationManager: OperationManagerFacade.sharedManager,
+            chainRegistry: chainRegistry
+        )
+        let storageRequestPerformer = StorageRequestPerformerDefault(chainRegistry: chainRegistry)
 
         let deps = CrossChainConfirmationDeps(
             xcmServices: xcmServices,
@@ -99,12 +87,11 @@ final class CrossChainDepsContainer {
             cryptoType: cryptoType,
             chainMetadata: originalRuntimeMetadataItem,
             accountId: accountId,
-            signingWrapperData: signingWrapperData,
-            chainType: originalChainAsset.chain.chainBaseType
+            signingWrapperData: signingWrapperData
         )
 
         let sourceConfig = ApplicationConfig.shared
-        let services = XcmAssembly.createExtrincisServices(
+        let services = try XcmAssembly.createExtrincisServices(
             fromChainData: fromChainData,
             sourceConfig: sourceConfig,
             chainRegistry: ChainRegistryFacade.sharedRegistry
@@ -119,9 +106,7 @@ final class CrossChainDepsContainer {
         accountResponse: ChainAccountResponse
     ) throws -> Data {
         let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
-        let tag: String = chain.isEthereumBased
-            ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId)
-            : KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId)
+        let tag: String = KeystoreTagV2.secretKeyTag(for: chain.ecosystem, metaId: metaId, accountId: accountId)
 
         let keystore = Keychain()
         let secretKey = try keystore.fetchKey(for: tag)

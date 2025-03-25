@@ -19,6 +19,7 @@ final class ChainAccountPresenter {
     weak var moduleOutput: ChainAccountModuleOutput?
     private let balanceInfoModule: BalanceInfoModuleInput
 
+    private lazy var coinbaseProvider = CoinbasePurchaseProvivder()
     private lazy var rampProvider = RampProvider()
     private lazy var moonpayProvider: PurchaseProviderProtocol = {
         let config: ApplicationConfigProtocol = ApplicationConfig.shared
@@ -100,14 +101,17 @@ final class ChainAccountPresenter {
         ) ?? Decimal.zero
 
         let transferrableBalance = freeBalance - frozenValue.or(.zero)
-        let transferrableValue = balanceViewModelFactory.balanceFromPrice(transferrableBalance, priceData: priceData, usageCase: .detailsCrypto)
-        let totalLocked = balanceLocksValue.or(.zero) + frozenValue.or(.zero)
-        let lockedValue = balanceViewModelFactory.balanceFromPrice(totalLocked, priceData: priceData, usageCase: .detailsCrypto)
+        let transferrableValue = balanceViewModelFactory.balanceFromPrice(transferrableBalance, priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency), usageCase: .detailsCrypto)
+        let lockedComponents = [balanceLocksValue, frozenValue].compactMap { $0 }
+        let totalLocked = lockedComponents.first != nil ? lockedComponents.reduce(0, +) : nil
+        let lockedValue = totalLocked.flatMap {
+            balanceViewModelFactory.balanceFromPrice($0, priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency), usageCase: .detailsCrypto)
+        }
 
         let balanceViewModel = ChainAccountBalanceViewModel(
             transferrableValue: transferrableValue,
             lockedValue: lockedValue,
-            hasLockedTokens: totalLocked > Decimal.zero
+            hasLockedTokens: totalLocked.or(.zero) > Decimal.zero
         )
 
         DispatchQueue.main.async { [weak self] in
@@ -129,10 +133,12 @@ final class ChainAccountPresenter {
                     availableProviders.append(moonpayProvider)
                 case .ramp:
                     availableProviders.append(rampProvider)
+                case .coinbase:
+                    availableProviders.append(coinbaseProvider)
                 }
             }
 
-            let providersAggregator = PurchaseAggregator.defaultAggregator(with: availableProviders)
+            let providersAggregator = PurchaseAggregator.defaultAggregator(with: availableProviders, chain: chainAsset.chain)
             actions = providersAggregator.buildPurchaseActions(asset: chainAsset.asset, address: address)
         }
         return actions
@@ -283,8 +289,9 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
     func didReceiveExportOptions(options: [ExportOption]) {
         var items: [ChainAction] = []
         items.append(.export)
-        if !chainAsset.chain.isEthereum { items.append(.switchNode) }
-        items.append(.replace)
+        if chainAsset.chain.ecosystem.isSubstrate || chainAsset.chain.ecosystem.isEthereumBased {
+            items.append(.switchNode)
+        }
         if interactor.checkIsClaimAvailable() { items.append(.claimCrowdloanRewards) }
 
         let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
@@ -308,8 +315,6 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
                     from: self.view,
                     chain: self.chainAsset.chain
                 )
-            case .replace:
-                self.startReplaceAccountFlow()
             case .claimCrowdloanRewards:
                 self.wireframe.showClaimCrowdloanRewardsFlow(from: self.view, chainAsset: self.chainAsset, wallet: self.wallet)
             default:

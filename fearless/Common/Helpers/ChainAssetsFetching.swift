@@ -36,7 +36,8 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
         case supportNfts
         case enabled(wallet: MetaAccountModel)
         case enabledChains
-
+        case chainAssetId(_ chainAssetId: ChainAssetId)
+        
         var searchText: String? {
             switch self {
             case let .search(text):
@@ -236,7 +237,14 @@ private extension ChainAssetsFetching {
         case let .chainIds(ids):
             return chainAssets.filter { ids.contains($0.chain.chainId) }
         case .supportNfts:
-            return chainAssets.filter { $0.chain.isEthereum }
+            return chainAssets.filter {
+                switch $0.chain.ecosystem {
+                case .ethereum, .ton:
+                    return true
+                case .substrate, .ethereumBased:
+                    return false
+                }
+            }
         case let .assetNames(names):
             return chainAssets.filter { names.map { $0.lowercased() }.contains($0.asset.symbol.lowercased()) }
         case let .enabled(wallet):
@@ -246,6 +254,8 @@ private extension ChainAssetsFetching {
             return chainAssets.filter { enabled.contains($0.identifier) }
         case .enabledChains:
             return chainAssets.filter { !$0.chain.disabled }
+        case .chainAssetId(let chainAssetId):
+            return chainAssets.filter { $0.chainAssetId == chainAssetId }
         }
     }
 

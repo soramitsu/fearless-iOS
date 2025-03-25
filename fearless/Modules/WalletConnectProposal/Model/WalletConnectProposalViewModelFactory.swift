@@ -3,15 +3,7 @@ import WalletConnectSign
 import SSFModels
 
 protocol WalletConnectProposalViewModelFactory {
-    func buildProposalSessionViewModel(
-        proposal: Session.Proposal,
-        chains: [ChainModel],
-        wallets: [MetaAccountModel],
-        locale: Locale
-    ) throws -> WalletConnectProposalViewModel
-
-    func buildActiveSessionViewModel(
-        session: Session,
+    func buildViewModel(
         chains: [ChainModel],
         wallets: [MetaAccountModel],
         locale: Locale
@@ -25,23 +17,173 @@ protocol WalletConnectProposalViewModelFactory {
 
 final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalViewModelFactory {
     private let walletConnectModelFactory: WalletConnectModelFactory
-    private let status: WalletConnectProposalPresenter.SessionStatus
+    private let status: SessionStatus
 
     init(
-        status: WalletConnectProposalPresenter.SessionStatus,
+        status: SessionStatus,
         walletConnectModelFactory: WalletConnectModelFactory
     ) {
         self.status = status
         self.walletConnectModelFactory = walletConnectModelFactory
     }
 
-    func buildProposalSessionViewModel(
-        proposal: Session.Proposal,
+    func buildViewModel(
         chains: [ChainModel],
         wallets: [MetaAccountModel],
         locale: Locale
     ) throws -> WalletConnectProposalViewModel {
-        let dApp = createDAppViewModel(from: proposal)
+        let wallets = filterWallets(wallets: wallets)
+        switch status {
+        case let .proposal(connectProposal):
+            switch connectProposal {
+            case .walletConnect:
+                return try buildWalletConenctProposalSessionViewModel(
+                    chains: chains,
+                    wallets: wallets,
+                    locale: locale
+                )
+            case .tonJsBridge, .tonConnect:
+                return try buildTonConenctProposalSessionViewModel(
+                    chains: chains,
+                    wallets: wallets,
+                    locale: locale
+                )
+            }
+        case let .active(actionConnect):
+            switch actionConnect {
+            case .walletConnect:
+                return try buildWalletConnectActiveSessionViewModel(
+                    chains: chains,
+                    wallets: wallets,
+                    locale: locale
+                )
+            case .tonConnect:
+                return try buildTonConenctActiveSessionViewModel(
+                    chains: chains,
+                    wallets: wallets,
+                    locale: locale
+                )
+            }
+        }
+    }
+
+    func didTapOn(
+        _ indexPath: IndexPath,
+        cells: [WalletConnectProposalCellModel]
+    ) -> WalletConnectProposalViewModel? {
+        guard let viewModel = cells[safe: indexPath.row] else {
+            return nil
+        }
+
+        var updatedCells = cells
+        switch viewModel {
+        case .dAppInfo, .requiredNetworks, .optionalNetworks:
+            return nil
+        case let .requiredExpandable(viewModel):
+            let toggledViewModel = viewModel.toggle()
+            updatedCells[indexPath.row] = .requiredExpandable(toggledViewModel)
+        case let .optionalExpandable(viewModel):
+            let toggledViewModel = viewModel.toggle()
+            updatedCells[indexPath.row] = .optionalExpandable(toggledViewModel)
+        case let .wallet(viewModel):
+            switch status {
+            case let .proposal(connectProposal):
+                switch connectProposal {
+                case .walletConnect:
+                    let toggledViewModel = viewModel.toggle()
+                    updatedCells[indexPath.row] = .wallet(toggledViewModel)
+                case .tonJsBridge, .tonConnect:
+                    updatedCells = cells.map { $0.deselectWallet() }
+                    let toggledViewModel = viewModel.toggle()
+                    updatedCells[indexPath.row] = .wallet(toggledViewModel)
+                }
+            case .active:
+                break
+            }
+        }
+
+        return WalletConnectProposalViewModel(
+            indexPath: indexPath,
+            cells: updatedCells,
+            expiryDate: nil
+        )
+    }
+
+    // MARK: - Private methods
+    
+    private func filterWallets(wallets: [MetaAccountModel]) -> [MetaAccountModel] {
+        return wallets.filter { wallet in
+            switch status {
+            case .proposal(let connectProposal):
+                switch connectProposal {
+                case .walletConnect:
+                    return wallet.ecosystem.isRegular
+                case .tonJsBridge, .tonConnect:
+                    return wallet.ecosystem.isTon
+                }
+            case .active(let actionConnect):
+                switch actionConnect {
+                case .walletConnect:
+                    return wallet.ecosystem.isRegular
+                case .tonConnect:
+                    return wallet.ecosystem.isTon
+                }
+            }
+        }
+    }
+
+    private func createDAppViewModel() -> WalletConnectProposalCellModel.DetailsViewModel {
+        switch status {
+        case let .proposal(proposal):
+            switch proposal {
+            case let .walletConnect(proposal):
+                return WalletConnectProposalCellModel.DetailsViewModel(
+                    title: proposal.proposer.name,
+                    subtitle: URL(string: proposal.proposer.url)?.host ?? proposal.proposer.url,
+                    icon: RemoteImageViewModel(string: proposal.proposer.icons.first)
+                )
+            case let .tonJsBridge(manifest, _, _, _):
+                return WalletConnectProposalCellModel.DetailsViewModel(
+                    title: manifest.name,
+                    subtitle: manifest.host,
+                    icon: RemoteImageViewModel(url: manifest.iconUrl)
+                )
+            case let .tonConnect(manifest, _):
+                return WalletConnectProposalCellModel.DetailsViewModel(
+                    title: manifest.name,
+                    subtitle: manifest.host,
+                    icon: RemoteImageViewModel(url: manifest.iconUrl)
+                )
+            }
+        case let .active(session):
+            switch session {
+            case let .walletConnect(session):
+                return WalletConnectProposalCellModel.DetailsViewModel(
+                    title: session.peer.name,
+                    subtitle: URL(string: session.peer.url)?.host ?? session.peer.url,
+                    icon: RemoteImageViewModel(string: session.peer.url)
+                )
+            case let .tonConnect(app, _):
+                return WalletConnectProposalCellModel.DetailsViewModel(
+                    title: app.name,
+                    subtitle: app.appUrl.host ?? "",
+                    icon: RemoteImageViewModel(url: app.iconUrl)
+                )
+            }
+        }
+    }
+
+    // MARK: - Private wallet connect methods
+
+    func buildWalletConenctProposalSessionViewModel(
+        chains: [ChainModel],
+        wallets: [MetaAccountModel],
+        locale: Locale
+    ) throws -> WalletConnectProposalViewModel {
+        guard let proposal = status.proposal else {
+            throw ConvenienceError(error: "Missing wallet connect proposal")
+        }
+        let dApp = createDAppViewModel()
 
         let requiredNetworks = try createNetworksViewModel(
             from: proposal.requiredNamespaces,
@@ -60,13 +202,15 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
         let requiredExpandable = try createProposalPermissionsViewModel(
             from: proposal.requiredNamespaces,
             chains: chains,
-            cellTitle: R.string.localizable.reviewRequiredPermissions(preferredLanguages: locale.rLanguages)
+            cellTitle: R.string.localizable.reviewRequiredPermissions(preferredLanguages: locale.rLanguages),
+            locale: locale
         )
 
         let optionalExpandable = try? createProposalPermissionsViewModel(
             from: proposal.optionalNamespaces,
             chains: chains,
-            cellTitle: R.string.localizable.reviewOptionalPermissions(preferredLanguages: locale.rLanguages)
+            cellTitle: R.string.localizable.reviewOptionalPermissions(preferredLanguages: locale.rLanguages),
+            locale: locale
         )
 
         let walletCellViewModels = createWalletsCellModels(from: wallets, forActiveSession: false)
@@ -88,22 +232,21 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
         )
     }
 
-    func buildActiveSessionViewModel(
-        session: Session,
+    func buildWalletConnectActiveSessionViewModel(
         chains: [ChainModel],
         wallets: [MetaAccountModel],
         locale: Locale
     ) throws -> WalletConnectProposalViewModel {
-        let dApp = WalletConnectProposalCellModel.DetailsViewModel(
-            title: session.peer.name,
-            subtitle: URL(string: session.peer.url)?.host ?? session.peer.url,
-            icon: RemoteImageViewModel(string: session.peer.url)
-        )
+        guard let session = status.session else {
+            throw ConvenienceError(error: "Missing wallet connect session")
+        }
+        let dApp = createDAppViewModel()
 
         guard let requiredExpandable = try createSessionPermissionsViewModel(
             from: session.namespaces,
             chains: chains,
-            cellTitle: R.string.localizable.reviewPermissions(preferredLanguages: locale.rLanguages)
+            cellTitle: R.string.localizable.reviewPermissions(preferredLanguages: locale.rLanguages),
+            locale: locale
         ) else {
             throw AutoNamespacesError.requiredChainsNotSatisfied
         }
@@ -130,51 +273,6 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
             indexPath: nil,
             cells: cells,
             expiryDate: dateString
-        )
-    }
-
-    func didTapOn(
-        _ indexPath: IndexPath,
-        cells: [WalletConnectProposalCellModel]
-    ) -> WalletConnectProposalViewModel? {
-        guard let viewModel = cells[safe: indexPath.row] else {
-            return nil
-        }
-
-        var updatedCells = cells
-        switch viewModel {
-        case .dAppInfo, .requiredNetworks, .optionalNetworks:
-            return nil
-        case let .requiredExpandable(viewModel):
-            let toggledViewModel = viewModel.toggle()
-            updatedCells[indexPath.row] = .requiredExpandable(toggledViewModel)
-        case let .optionalExpandable(viewModel):
-            let toggledViewModel = viewModel.toggle()
-            updatedCells[indexPath.row] = .optionalExpandable(toggledViewModel)
-        case let .wallet(viewModel):
-            guard case .proposal = status else {
-                return nil
-            }
-            let toggledViewModel = viewModel.toggle()
-            updatedCells[indexPath.row] = .wallet(toggledViewModel)
-        }
-
-        return WalletConnectProposalViewModel(
-            indexPath: indexPath,
-            cells: updatedCells,
-            expiryDate: nil
-        )
-    }
-
-    // MARK: - Private methods
-
-    private func createDAppViewModel(
-        from proposal: Session.Proposal
-    ) -> WalletConnectProposalCellModel.DetailsViewModel {
-        WalletConnectProposalCellModel.DetailsViewModel(
-            title: proposal.proposer.name,
-            subtitle: URL(string: proposal.proposer.url)?.host ?? proposal.proposer.url,
-            icon: RemoteImageViewModel(string: proposal.proposer.icons.first)
         )
     }
 
@@ -212,7 +310,8 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
     private func createProposalPermissionsViewModel(
         from namespaces: [String: ProposalNamespace]?,
         chains: [ChainModel],
-        cellTitle: String
+        cellTitle: String,
+        locale: Locale
     ) throws -> WalletConnectProposalCellModel.ExpandableViewModel? {
         guard let namespaces = namespaces else {
             return nil
@@ -246,9 +345,11 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
 
         return WalletConnectProposalCellModel.ExpandableViewModel(
             cellTitle: cellTitle,
-            chain: resolvedChains.map { $0.name }.joined(separator: ", "),
-            methods: methods,
-            events: events,
+            title: resolvedChains.map { $0.name }.joined(separator: ", "),
+            title2: R.string.localizable.commonMethods(preferredLanguages: locale.rLanguages),
+            subtitle2: methods,
+            title3: R.string.localizable.commonEvents(preferredLanguages: locale.rLanguages),
+            subtitle3: events,
             isExpanded: false
         )
     }
@@ -256,7 +357,8 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
     private func createSessionPermissionsViewModel(
         from namespaces: [String: SessionNamespace],
         chains: [ChainModel],
-        cellTitle: String
+        cellTitle: String,
+        locale: Locale
     ) throws -> WalletConnectProposalCellModel.ExpandableViewModel? {
         let blockchains = namespaces
             .map { $0.value }
@@ -283,9 +385,11 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
 
         return WalletConnectProposalCellModel.ExpandableViewModel(
             cellTitle: cellTitle,
-            chain: resolvedChains.map { $0.name }.joined(separator: ", "),
-            methods: methods,
-            events: events,
+            title: resolvedChains.map { $0.name }.joined(separator: ", "),
+            title2: R.string.localizable.commonMethods(preferredLanguages: locale.rLanguages),
+            subtitle2: methods,
+            title3: R.string.localizable.commonEvents(preferredLanguages: locale.rLanguages),
+            subtitle3: events,
             isExpanded: false
         )
     }
@@ -294,11 +398,13 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
         from wallets: [MetaAccountModel],
         forActiveSession: Bool
     ) -> [WalletConnectProposalCellModel] {
-        wallets.enumerated().map { index, wallet in
+        let selectedWallet = SelectedWalletSettings.shared.value
+        return wallets.enumerated().map { index, wallet in
             let viewModel = WalletConnectProposalCellModel.WalletViewModel(
                 metaId: wallet.metaId,
                 walletName: wallet.name,
-                isSelected: forActiveSession ? true : index == 0
+                isSelected: forActiveSession ? true : wallet.metaId == selectedWallet?.metaId,
+                icon: wallet.ecosystem.isRegular ? R.image.iconBirdGreen()! : R.image.tonIcon()!
             )
             return WalletConnectProposalCellModel.wallet(viewModel)
         }
@@ -323,5 +429,88 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
             return chain == nil ? nil : wallet
         }
         return wallet
+    }
+
+    // MARK: - Private ton connect methods
+
+    func buildTonConenctProposalSessionViewModel(
+        chains: [ChainModel],
+        wallets: [MetaAccountModel],
+        locale: Locale
+    ) throws -> WalletConnectProposalViewModel {
+        guard
+            let manifest = status.tonManifest,
+            let tonChain = chains.first(where: { $0.ecosystem == .ton })
+        else {
+            throw ConvenienceError(error: "Missing wallet connect proposal")
+        }
+        let dApp = createDAppViewModel()
+
+        let requiredNetworks = WalletConnectProposalCellModel.DetailsViewModel(
+            title: R.string.localizable.requiredNetworks(preferredLanguages: locale.rLanguages),
+            subtitle: tonChain.name,
+            icon: RemoteImageViewModel(url: tonChain.icon)
+        )
+
+        let walletCellViewModels = createWalletsCellModels(from: wallets, forActiveSession: false)
+
+        let requiredExpandableViewModel = WalletConnectProposalCellModel.ExpandableViewModel(
+            cellTitle: R.string.localizable.tonConnectAlertTitle(preferredLanguages: locale.rLanguages),
+            title: R.string.localizable.tonConnectAlertSubtitle(preferredLanguages: locale.rLanguages),
+            title2: R.string.localizable.tonConnectAlertDescription(preferredLanguages: locale.rLanguages),
+            subtitle2: manifest.url.absoluteString,
+            title3: nil,
+            subtitle3: nil,
+            isExpanded: false
+        )
+
+        let infoCells = [
+            WalletConnectProposalCellModel.dAppInfo(dApp),
+            WalletConnectProposalCellModel(requiredNetworksViewModel: requiredNetworks),
+            WalletConnectProposalCellModel(requiredExpandableViewModel: requiredExpandableViewModel)
+        ].compactMap { $0 }
+
+        let cells = [infoCells, walletCellViewModels].reduce([], +)
+
+        return WalletConnectProposalViewModel(
+            indexPath: nil,
+            cells: cells,
+            expiryDate: nil
+        )
+    }
+    
+    func buildTonConenctActiveSessionViewModel(
+        chains: [ChainModel],
+        wallets: [MetaAccountModel],
+        locale: Locale
+    ) throws -> WalletConnectProposalViewModel {
+        guard
+            let app = status.tonApp,
+            let tonChain = chains.first(where: { $0.ecosystem == .ton })
+        else {
+            throw ConvenienceError(error: "Missing wallet connect proposal")
+        }
+        let dApp = createDAppViewModel()
+
+        let requiredNetworks = WalletConnectProposalCellModel.DetailsViewModel(
+            title: R.string.localizable.requiredNetworks(preferredLanguages: locale.rLanguages),
+            subtitle: tonChain.name,
+            icon: RemoteImageViewModel(url: tonChain.icon)
+        )
+
+        let walletCellViewModels = createWalletsCellModels(from: wallets, forActiveSession: false)
+
+        let infoCells = [
+            WalletConnectProposalCellModel.dAppInfo(dApp),
+            WalletConnectProposalCellModel(requiredNetworksViewModel: requiredNetworks)
+        ].compactMap { $0 }
+
+        let cells = [infoCells, walletCellViewModels].reduce([], +)
+
+        return WalletConnectProposalViewModel(
+            indexPath: nil,
+            cells: cells,
+            expiryDate: nil
+        )
     }
 }

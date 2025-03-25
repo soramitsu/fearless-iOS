@@ -4,7 +4,7 @@ import RobinHood
 import SSFStorageQueryKit
 import SSFRuntimeCodingService
 
-protocol NMapKeyParamProtocol {
+public protocol NMapKeyParamProtocol {
     func encode(encoder: DynamicScaleEncoding, type: String) throws -> Data
 }
 

@@ -84,7 +84,8 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
             walletRepository: accountRepository,
             chainsIssuesCenter: chainsIssuesCenter,
-            walletConnectDisconnectService: walletConnectDisconnectService
+            walletConnectDisconnectService: walletConnectDisconnectService,
+            tonConnectService: ServiceAssembly.shared.tonConnectService()
         )
 
         let presenter = ProfilePresenter(

@@ -1,3 +1,5 @@
+import SSFModels
+
 typealias AssetManagementModuleCreationResult = (
     view: AssetManagementViewInput,
     input: AssetManagementModuleInput

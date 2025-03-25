@@ -3,6 +3,7 @@ import RobinHood
 import BigInt
 import SSFModels
 import SSFRuntimeCodingService
+import SSFAccountManagment
 
 class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProtocol, RuntimeConstantFetching {
     weak var presenter: CrowdloanContributionInteractorOutputProtocol!

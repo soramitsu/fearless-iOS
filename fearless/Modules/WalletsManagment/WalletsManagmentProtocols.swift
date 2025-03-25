@@ -1,4 +1,6 @@
 import Foundation
+import SSFModels
+
 typealias WalletsManagmentModuleCreationResult = (view: WalletsManagmentViewInput, input: WalletsManagmentModuleInput)
 
 protocol WalletsManagmentViewInput: ControllerBackedProtocol {
@@ -8,7 +10,6 @@ protocol WalletsManagmentViewInput: ControllerBackedProtocol {
 protocol WalletsManagmentViewOutput: AnyObject {
     func didLoad(view: WalletsManagmentViewInput)
     func didTapNewWallet()
-    func didTapImportWallet()
     func didTapOptions(for indexPath: IndexPath)
     func didTapClose()
     func didTap(on indexPath: IndexPath)
@@ -32,7 +33,7 @@ protocol WalletsManagmentInteractorOutput: AnyObject {
 protocol WalletsManagmentRouterInput: SheetAlertPresentable, ErrorPresentable, AccountScorePresentable {
     func showOptions(
         from view: WalletsManagmentViewInput?,
-        metaAccount: ManagedMetaAccountModel,
+        metaAccount: MetaAccountModel,
         delegate: WalletOptionModuleOutput?
     )
     func dissmis(

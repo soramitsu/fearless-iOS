@@ -4,6 +4,7 @@ import SSFExtrinsicKit
 import SSFSigner
 import SSFUtils
 import BigInt
+import SSFCrypto
 
 final class SubstrateTransferService: TransferServiceProtocol {
     private let extrinsicService: SSFExtrinsicKit.ExtrinsicServiceProtocol
@@ -25,7 +26,7 @@ final class SubstrateTransferService: TransferServiceProtocol {
             guard let address = address,
                   let accountId = try? AddressFactory.accountId(from: address, chain: chain)
             else {
-                return AddressFactory.randomAccountId(for: chain)
+                return AddressFactory.randomAccountId(for: chain.chainFormat)
             }
 
             return accountId
@@ -68,7 +69,7 @@ final class SubstrateTransferService: TransferServiceProtocol {
             guard let address = address,
                   let accountId = try? AddressFactory.accountId(from: address, chain: chain)
             else {
-                return AddressFactory.randomAccountId(for: chain)
+                return AddressFactory.randomAccountId(for: chain.chainFormat)
             }
 
             return accountId

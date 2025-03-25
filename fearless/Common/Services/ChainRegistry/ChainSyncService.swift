@@ -108,7 +108,7 @@ final class ChainSyncService {
             remoteChains: [ChainModel],
             localChains: [ChainModel]
         )> = ClosureOperation {
-            let localChains = try localFetchOperation.extractNoCancellableResultData()
+            let localChains = (try? localFetchOperation.extractNoCancellableResultData()) ?? []
 
             return (
                 remoteChains: remoteChains,
@@ -161,6 +161,9 @@ final class ChainSyncService {
 
         let newOrUpdated: [ChainModel] = remoteChains.compactMap { remoteItem in
             if let localItem = localMapping[remoteItem.chainId] {
+                if localItem.options?.contains(.remoteAssets) == true {
+                    return compareForRemoteAssetsOption(localItem: localItem, remoteItem: remoteItem)
+                }
                 return localItem != remoteItem ? remoteItem : nil
             } else {
                 return remoteItem
@@ -176,6 +179,25 @@ final class ChainSyncService {
         handle(syncChanges: syncChanges)
     }
 
+    private func compareForRemoteAssetsOption(
+        localItem: ChainModel,
+        remoteItem: ChainModel
+    ) -> ChainModel? {
+        let updatedLocalChain = localItem.replacingAssets([])
+        let updatedRemoteChain = remoteItem.replacingAssets([])
+
+        let localUtilityAsset = localItem.assets.first(where: { $0.isUtility })
+        let remoteUtilityAsset = remoteItem.assets.first(where: { $0.isUtility })
+
+        if updatedLocalChain != updatedRemoteChain || localUtilityAsset != remoteUtilityAsset {
+            let assets = localItem.assets.union(remoteItem.assets)
+            let remoteChain = remoteItem.replacingAssets(Array(assets))
+            return remoteChain
+        } else {
+            return nil
+        }
+    }
+
     private func handle(syncChanges: SyncChanges) {
         let localSaveOperation = repository.saveOperation({
             syncChanges.newOrUpdatedItems
@@ -184,6 +206,7 @@ final class ChainSyncService {
         })
 
         localSaveOperation.completionBlock = {
+            print("save operation: ", localSaveOperation.result)
             DispatchQueue.global(qos: .userInitiated).async { [weak self] in
                 self?.complete(result: .success(syncChanges))
             }

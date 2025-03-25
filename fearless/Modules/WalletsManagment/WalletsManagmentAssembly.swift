@@ -3,13 +3,15 @@ import SoraFoundation
 import RobinHood
 import SoraUI
 import SSFNetwork
+import SoraKeystore
 
 final class WalletsManagmentAssembly {
     static func configureModule(
         viewType: WalletsManagmentType = .wallets,
         shouldSaveSelected: Bool,
         contextTag: Int = 0,
-        moduleOutput: WalletsManagmentModuleOutput?
+        moduleOutput: WalletsManagmentModuleOutput?,
+        filter: NSPredicate? = nil
     ) -> WalletsManagmentModuleCreationResult? {
         let sharedDefaultQueue = OperationManagerFacade.sharedDefaultQueue
         let localizationManager = LocalizationManager.shared
@@ -18,7 +20,7 @@ final class WalletsManagmentAssembly {
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let managedMetaAccountRepository = accountRepositoryFactory.createManagedMetaAccountRepository(
-            for: nil,
+            for: filter,
             sortDescriptors: []
         )
 
@@ -31,7 +33,9 @@ final class WalletsManagmentAssembly {
 
         let featureToggleProvider = FeatureToggleProvider(
             networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
-            operationQueue: OperationQueue()
+            operationQueue: OperationQueue(),
+            settingsManager: SettingsManager.shared,
+            eventCenter: EventCenter.shared
         )
 
         let interactor = WalletsManagmentInteractor(

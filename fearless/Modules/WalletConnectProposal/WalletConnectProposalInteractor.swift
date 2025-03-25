@@ -17,17 +17,23 @@ final class WalletConnectProposalInteractor {
     private let walletRepository: AnyDataProviderRepository<MetaAccountModel>
     private let chainRepository: AnyDataProviderRepository<ChainModel>
     private let operationQueue: OperationQueue
+    private let tonConnectService: TonConnectService
+    private let eventCenter: EventCenterProtocol
 
     init(
         walletConnect: WalletConnectService,
         walletRepository: AnyDataProviderRepository<MetaAccountModel>,
         chainRepository: AnyDataProviderRepository<ChainModel>,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        tonConnectService: TonConnectService,
+        eventCenter: EventCenterProtocol
     ) {
         self.walletConnect = walletConnect
         self.walletRepository = walletRepository
         self.chainRepository = chainRepository
         self.operationQueue = operationQueue
+        self.tonConnectService = tonConnectService
+        self.eventCenter = eventCenter
     }
 
     // MARK: - Private methods
@@ -62,6 +68,10 @@ final class WalletConnectProposalInteractor {
 // MARK: - WalletConnectProposalInteractorInput
 
 extension WalletConnectProposalInteractor: WalletConnectProposalInteractorInput {
+    func disconnect(app: TonConnectApp) async {
+        await tonConnectService.saveDisconnected(app: app)
+    }
+    
     func setup(with output: WalletConnectProposalInteractorOutput) {
         self.output = output
         fetchWallets()
@@ -74,5 +84,20 @@ extension WalletConnectProposalInteractor: WalletConnectProposalInteractorInput 
 
     func submitDisconnect(topic: String) async throws {
         try await walletConnect.disconnect(topic: topic)
+    }
+
+    func confirmConnectionRequest(
+        wallet: MetaAccountModel,
+        tonChainModel: ChainModel,
+        params: TonConnectParameters,
+        manifest: TonConnectManifest
+    ) async throws {
+        try await tonConnectService.confirmConnectionRequest(
+            wallet: wallet,
+            tonChainModel: tonChainModel,
+            params: params,
+            manifest: manifest
+        )
+        eventCenter.notify(with: TonConnectEstablished())
     }
 }

@@ -80,6 +80,10 @@ extension AssetModelMapper: CoreDataMapperProtocol {
             return createPriceData(from: priceData)
         }
 
+        guard let assetType = ChainAssetType(storageValue: entity.type) else {
+            throw ConvenienceError(error: "ChainAssetType mapper error")
+        }
+
         return AssetModel(
             id: entity.id!,
             name: name!,
@@ -93,11 +97,11 @@ extension AssetModelMapper: CoreDataMapperProtocol {
             isNative: entity.isNative,
             staking: staking,
             purchaseProviders: purchaseProviders,
-            type: createChainAssetModelType(from: entity.type),
-            ethereumType: createEthereumAssetType(from: entity.ethereumType),
+            assetType: assetType,
             priceProvider: priceProvider,
             coingeckoPriceId: entity.priceId,
-            priceData: priceDatas
+            priceData: priceDatas,
+            coinbaseUrl: entity.coinbaseUrl
         )
     }
 
@@ -115,11 +119,11 @@ extension AssetModelMapper: CoreDataMapperProtocol {
         entity.color = model.color
         entity.name = model.name
         entity.currencyId = model.currencyId
-        entity.type = model.type?.rawValue
+        entity.type = model.assetType.rawValue
         entity.isUtility = model.isUtility
         entity.isNative = model.isNative
         entity.staking = model.staking?.rawValue
-        entity.ethereumType = model.ethereumType?.rawValue
+        entity.coinbaseUrl = model.coinbaseUrl
 
         let priceProviderContext = CDPriceProvider(context: context)
         priceProviderContext.type = model.priceProvider?.type.rawValue

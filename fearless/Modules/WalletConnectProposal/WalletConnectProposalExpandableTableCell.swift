@@ -57,6 +57,7 @@ final class WalletConnectProposalExpandableTableCell: UITableViewCell {
         let label = UILabel()
         label.font = .h4Title
         label.textColor = R.color.colorStrokeGray()
+        label.numberOfLines = 0
         return label
     }()
 
@@ -88,12 +89,6 @@ final class WalletConnectProposalExpandableTableCell: UITableViewCell {
         return label
     }()
 
-    var locale: Locale = .current {
-        didSet {
-            applyLocalization()
-        }
-    }
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         backgroundColor = R.color.colorBlack19()
@@ -109,12 +104,17 @@ final class WalletConnectProposalExpandableTableCell: UITableViewCell {
 
     func bind(viewModel: WalletConnectProposalCellModel.ExpandableViewModel) {
         visibleTitle.text = viewModel.cellTitle
-        chainNameLabel.text = viewModel.chain
-        methodsLabel.text = viewModel.methods
-        eventsLabel.text = viewModel.events
+        chainNameLabel.text = viewModel.title
 
-        eventsTitleLabel.isHidden = viewModel.events.isEmpty
-        eventsLabel.isHidden = viewModel.events.isEmpty
+        methodsTitleLabel.text = viewModel.title2
+        methodsLabel.text = viewModel.subtitle2
+        methodsTitleLabel.isHidden = !viewModel.isVisibleSection2()
+        methodsLabel.isHidden = !viewModel.isVisibleSection3()
+
+        eventsTitleLabel.text = viewModel.title3
+        eventsLabel.text = viewModel.subtitle3
+        eventsTitleLabel.isHidden = !viewModel.isVisibleSection3()
+        eventsLabel.isHidden = !viewModel.isVisibleSection3()
 
         expandableBackground.isHidden = !viewModel.isExpanded
         expandableAccesoryImageView.image = viewModel.isExpanded ? R.image.basicMinus() : R.image.basicPlus()
@@ -162,10 +162,5 @@ final class WalletConnectProposalExpandableTableCell: UITableViewCell {
         expandableContentStack.setCustomSpacing(UIConstants.minimalOffset, after: methodsTitleLabel)
         expandableContentStack.setCustomSpacing(UIConstants.bigOffset, after: methodsLabel)
         expandableContentStack.setCustomSpacing(UIConstants.minimalOffset, after: eventsTitleLabel)
-    }
-
-    private func applyLocalization() {
-        methodsTitleLabel.text = R.string.localizable.commonMethods(preferredLanguages: locale.rLanguages)
-        eventsTitleLabel.text = R.string.localizable.commonEvents(preferredLanguages: locale.rLanguages)
     }
 }

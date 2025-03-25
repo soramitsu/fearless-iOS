@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 final class NftCollectionRouter: NftCollectionRouterInput {
     func openNftDetails(nft: NFT, type: NftType, wallet: MetaAccountModel, address: String, from view: ControllerBackedProtocol?) {

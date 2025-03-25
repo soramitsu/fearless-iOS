@@ -10,7 +10,7 @@ final class CrossChainConfirmationViewModelFactory: CrossChainConfirmationViewMo
             hex: data.originChainAsset.asset.color
         )?.cgColor
         let originSymbolViewModel = SymbolViewModel(
-            symbolViewModel: data.originChainAsset.chain.icon.map { RemoteImageViewModel(url: $0) },
+            iconViewModel: data.originChainAsset.chain.icon.map { RemoteImageViewModel(url: $0) },
             shadowColor: originShadowColor
         )
 
@@ -18,13 +18,13 @@ final class CrossChainConfirmationViewModelFactory: CrossChainConfirmationViewMo
             hex: data.originChainAsset.asset.color
         )?.cgColor
         let destSymbolViewModel = SymbolViewModel(
-            symbolViewModel: data.destChainModel.icon.map { RemoteImageViewModel(url: $0) },
+            iconViewModel: data.destChainModel.icon.map { RemoteImageViewModel(url: $0) },
             shadowColor: destShadowColor
         )
 
         let doubleImageViewViewModel = PolkaswapDoubleSymbolViewModel(
-            leftViewModel: originSymbolViewModel.symbolViewModel,
-            rightViewModel: destSymbolViewModel.symbolViewModel,
+            leftViewModel: originSymbolViewModel.iconViewModel,
+            rightViewModel: destSymbolViewModel.iconViewModel,
             leftShadowColor: originShadowColor,
             rightShadowColor: destShadowColor
         )

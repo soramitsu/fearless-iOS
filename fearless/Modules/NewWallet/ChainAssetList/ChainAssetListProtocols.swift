@@ -5,10 +5,11 @@ typealias ChainAssetListModuleCreationResult = (view: ChainAssetListViewInput, i
 
 protocol ChainAssetListViewInput: ControllerBackedProtocol {
     func didReceive(viewModel: ChainAssetListViewModel)
-    func reloadBanners()
+    func reloadBanners(shouldShowBanners: Bool)
 }
 
 protocol ChainAssetListViewOutput: AnyObject {
+    func didAppear(view: ChainAssetListViewInput)
     func didLoad(view: ChainAssetListViewInput)
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel)
     func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel)
@@ -39,7 +40,7 @@ protocol ChainAssetListInteractorOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceiveWallet(wallet: MetaAccountModel)
     func didReceiveChainsWithIssues(_ issues: [ChainIssue])
-    func updateViewModel(isInitSearchState: Bool)
+    func updateViewModel()
     func didReceive(accountInfosByChainAssets: [ChainAsset: AccountInfo?])
     func handleWalletChanged(wallet: MetaAccountModel)
     func didReceive(chainSettings: [ChainSettings])

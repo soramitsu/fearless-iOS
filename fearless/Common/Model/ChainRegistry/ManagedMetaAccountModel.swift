@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 struct ManagedMetaAccountModel: Equatable {
     static let noOrder: UInt32 = 0

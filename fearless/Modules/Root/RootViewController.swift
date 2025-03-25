@@ -22,10 +22,6 @@ class RootViewController: UIViewController, ViewHolder {
         view = RootViewLayout()
     }
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
-
     private func applyState() {
         switch state {
         case .plain:

@@ -11,6 +11,12 @@ protocol RuntimeConstantFetching {
         closure: @escaping (Result<T, Error>) -> Void
     )
 
+    func fetchConstant<T: LosslessStringConvertible & Equatable & Hashable>(
+        for path: ConstantCodingPath,
+        runtimeCodingService: RuntimeCodingServiceProtocol,
+        operationManager: OperationManagerProtocol
+    ) async throws -> T
+
     func fetchCompoundConstant<T: Decodable>(
         for path: ConstantCodingPath,
         runtimeCodingService: RuntimeCodingServiceProtocol,
@@ -62,6 +68,27 @@ extension RuntimeConstantFetching {
         }
 
         operationManager.enqueue(operations: [constOperation, codingFactoryOperation], in: .transient)
+    }
+
+    func fetchConstant<T: LosslessStringConvertible & Equatable & Hashable>(
+        for path: ConstantCodingPath,
+        runtimeCodingService: RuntimeCodingServiceProtocol,
+        operationManager: OperationManagerProtocol
+    ) async throws -> T {
+        try await withUnsafeThrowingContinuation { continuation in
+            fetchConstant(
+                for: path,
+                runtimeCodingService: runtimeCodingService,
+                operationManager: operationManager
+            ) { (result: Swift.Result<T, Error>) in
+                switch result {
+                case let .success(constant):
+                    continuation.resume(returning: constant)
+                case let .failure(error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
     }
 
     func fetchCompoundConstant<T: Decodable>(

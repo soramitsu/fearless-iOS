@@ -24,6 +24,7 @@ final class BannerCollectionViewCell: UICollectionViewCell {
         let label = UILabel()
         label.textColor = R.color.colorWhite()
         label.font = .h3Title
+        label.numberOfLines = 0
         return label
     }()
 
@@ -141,7 +142,7 @@ final class BannerCollectionViewCell: UICollectionViewCell {
         titleLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(16)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalTo(closeButton.snp.leading).inset(16)
+            make.trailing.equalTo(closeButton.snp.leading).offset(16)
         }
 
         addSubview(subtitleLabel)
@@ -152,7 +153,7 @@ final class BannerCollectionViewCell: UICollectionViewCell {
         }
 
         addSubview(actionButton)
-        actionButton.snp.makeConstraints { make in
+        actionButton.snp.remakeConstraints { make in
             make.top.greaterThanOrEqualTo(subtitleLabel.snp.bottom).offset(UIConstants.defaultOffset)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)

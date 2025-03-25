@@ -58,7 +58,6 @@ final class WalletsManagmentViewController: UIViewController, ViewHolder {
 
     private func configure() {
         rootView.addNewWalletButton.addTarget(self, action: #selector(addNewWalletTapped), for: .touchUpInside)
-        rootView.importWalletButton.addTarget(self, action: #selector(importWalletTapped), for: .touchUpInside)
         rootView.backButton.addTarget(self, action: #selector(closeDidTapped), for: .touchUpInside)
     }
 
@@ -66,10 +65,6 @@ final class WalletsManagmentViewController: UIViewController, ViewHolder {
 
     @objc private func addNewWalletTapped() {
         output.didTapNewWallet()
-    }
-
-    @objc private func importWalletTapped() {
-        output.didTapImportWallet()
     }
 
     @objc private func closeDidTapped() {

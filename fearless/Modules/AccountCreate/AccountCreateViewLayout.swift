@@ -138,7 +138,7 @@ final class AccountCreateViewLayout: UIView {
         return label
     }()
 
-    private let expandableControlContainerView: BorderedContainerView = {
+    let expandableControlContainerView: BorderedContainerView = {
         let view = UIFactory().createBorderedContainerView()
         view.backgroundColor = R.color.colorBlack19()
         view.borderType = .bottom
@@ -147,7 +147,7 @@ final class AccountCreateViewLayout: UIView {
         return view
     }()
 
-    private let expandableControl: ExpandableActionControl = {
+    let expandableControl: ExpandableActionControl = {
         let view = UIFactory().createExpandableActionControl()
         view.backgroundColor = R.color.colorBlack19()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -397,7 +397,7 @@ private extension AccountCreateViewLayout {
             backupButton.snp.makeConstraints { make in
                 make.height.equalTo(UIConstants.actionHeight)
             }
-        case .chain:
+        case .chain, .ethereum:
             backupButton.isHidden = true
         case .backup:
             expandableControl.isHidden = true
@@ -409,7 +409,7 @@ private extension AccountCreateViewLayout {
             .commonAdvanced(preferredLanguages: locale.rLanguages)
 
         switch flow {
-        case .wallet, .chain:
+        case .wallet, .chain, .ethereum:
             detailsLabel.text = R.string.localizable.accountCreateDetails(preferredLanguages: locale.rLanguages)
             nextButton.imageWithTitleView?.title = R.string.localizable
                 .accountConfirmationTitle(preferredLanguages: locale.rLanguages)

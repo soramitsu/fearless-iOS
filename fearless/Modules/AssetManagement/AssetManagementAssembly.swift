@@ -36,34 +36,8 @@ final class AssetManagementAssembly {
             assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
         )
 
-        let repository = SubstrateRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared
-        ).createAccountInfoStorageItemRepository()
-        let ethereumBalanceRepositoryWrapper = EthereumBalanceRepositoryCacheWrapper(
-            logger: Logger.shared,
-            repository: repository,
-            operationManager: OperationManagerFacade.sharedManager
-        )
-
-        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-            SubstrateDataStorageFacade.shared.createAsyncRepository()
-
+        let accountInfoRemote = ServiceAssembly.shared.accountInfoRemoteServiceDefault()
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
-            chainRegistry: chainRegistry,
-            repositoryWrapper: ethereumBalanceRepositoryWrapper
-        )
-
-        let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
-            chainRegistry: chainRegistry
-        )
-
-        let accountInfoRemote = AccountInfoRemoteServiceDefault(
-            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository),
-            ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
-            storagePerformer: storagePerformer
-        )
-
         let walletAssetsObserver = WalletAssetsObserverImpl(
             wallet: wallet,
             chainRegistry: chainRegistry,

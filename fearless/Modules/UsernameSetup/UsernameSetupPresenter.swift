@@ -5,16 +5,19 @@ final class UsernameSetupPresenter {
     private weak var view: UsernameSetupViewProtocol?
     private var wireframe: UsernameSetupWireframeProtocol
     private let flow: AccountCreateFlow
+    private let ecosystem: AccountCreateEcosystem
 
     private var viewModel: InputViewModelProtocol
 
     init(
         wireframe: UsernameSetupWireframeProtocol,
         flow: AccountCreateFlow,
+        ecosystem: AccountCreateEcosystem,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.wireframe = wireframe
         self.flow = flow
+        self.ecosystem = ecosystem
 
         let inputHandling = InputHandler(
             value: flow.predefinedUsername,
@@ -48,6 +51,12 @@ extension UsernameSetupPresenter: UsernameSetupPresenterProtocol {
                 icon: model.chain.icon.map { RemoteImageViewModel(url: $0) }
             )
             view.bindUniqueChain(viewModel: uniqueChainModel)
+        case .ethereum(wallet: let wallet, chains: let chains):
+            let selectableViewModel = SelectableViewModel(
+                underlyingViewModel: viewModel,
+                selectable: false
+            )
+            view.bindUsername(viewModel: selectableViewModel)
         }
         self.view = view
     }
@@ -60,7 +69,7 @@ extension UsernameSetupPresenter: UsernameSetupPresenterProtocol {
         let action = SheetAlertPresentableAction(title: actionTitle) { [weak self] in
             guard let self = self else { return }
             let model = UsernameSetupModel(username: username)
-            self.wireframe.proceed(from: self.view, flow: self.flow, model: model)
+            self.wireframe.proceed(from: self.view, flow: self.flow, model: model, ecosystem: ecosystem)
         }
 
         let title = R.string.localizable.commonNoScreenshotTitle(preferredLanguages: rLanguages)

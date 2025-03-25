@@ -42,17 +42,10 @@ final class CrossChainAssembly {
 
         let existentialDepositService = ExistentialDepositService(
             operationManager: OperationManagerFacade.sharedManager,
-            chainRegistry: chainRegistry,
-            chainId: chainAsset.chain.chainId
+            chainRegistry: chainRegistry
         )
         let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
-        let storageRequestPerformer: StorageRequestPerformer? = runtimeService.flatMap {
-            guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
-                return nil
-            }
-
-            return StorageRequestPerformerDefault(runtimeService: $0, connection: connection)
-        }
+        let storageRequestPerformer = StorageRequestPerformerDefault(chainRegistry: chainRegistry)
 
         let interactor = CrossChainInteractor(
             chainAssetFetching: chainAssetFetching,

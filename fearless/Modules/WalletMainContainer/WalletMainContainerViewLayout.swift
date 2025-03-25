@@ -31,7 +31,6 @@ final class WalletMainContainerViewLayout: UIView {
 
     let switchWalletButton: UIButton = {
         let button = UIButton()
-        button.setImage(R.image.iconFearlessRounded(), for: .normal)
         return button
     }()
 
@@ -115,6 +114,8 @@ final class WalletMainContainerViewLayout: UIView {
         }
 
         accountScoreView.bind(viewModel: viewModel.accountScoreViewModel)
+        switchWalletButton.setImage(viewModel.walletIcon, for: .normal)
+        selectNetworkButton.applySelectableStyle(viewModel.isSelectableNetwork)
     }
 
     func addBalance(_ view: UIView) {

@@ -4,6 +4,7 @@ import RobinHood
 import BigInt
 import SSFExtrinsicKit
 import SSFModels
+import SSFCrypto
 
 protocol CrossChainInteractorOutput: AnyObject {
     func didReceiveAccountInfo(
@@ -202,7 +203,7 @@ final class CrossChainInteractor {
             do {
                 let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
                 let request = AssetsAccountRequest(accountId: accountIdVariant, currencyId: currencyId)
-                let assetAccountInfo: AssetAccountInfo? = try await storageRequestPerformer?.performSingle(request)
+                let assetAccountInfo: AssetAccountInfo? = try await storageRequestPerformer?.performSingle(request, chain: chainAsset.chain)
 
                 await MainActor.run {
                     output?.didReceiveAssetAccountInfo(assetAccountInfo: assetAccountInfo)
@@ -322,7 +323,7 @@ extension CrossChainInteractor: CrossChainInteractorInput {
                 let chainAsset = ChainAsset(chain: destinationChain, asset: asset)
                 let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
                 let request = SystemAccountRequest(accountId: accountIdVariant, chainAsset: chainAsset)
-                let accountInfo: AccountInfo? = try await deps?.destinationStorageRequestPerformer?.performSingle(request)
+                let accountInfo: AccountInfo? = try await deps?.destinationStorageRequestPerformer?.performSingle(request, chain: chainAsset.chain)
 
                 await MainActor.run {
                     output?.didReceiveDestinationAccountInfo(accountInfo: accountInfo)

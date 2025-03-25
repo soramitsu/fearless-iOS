@@ -55,7 +55,7 @@ class BiometryAuth: BiometryAuthProtocol {
         context.evaluatePolicy(
             LAPolicy.deviceOwnerAuthenticationWithBiometrics,
             localizedReason: localizedReason
-        ) { (result: Bool, _: Error?) -> Void in
+        ) { (result: Bool, _: Error?) in
             completionQueue.async {
                 completionBlock(result)
             }

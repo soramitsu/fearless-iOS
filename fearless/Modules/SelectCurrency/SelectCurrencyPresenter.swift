@@ -57,7 +57,6 @@ extension SelectCurrencyPresenter: SelectCurrencyViewOutput {
         guard var currency = supportedСurrencies?.first(where: { $0.id == viewModel.id }) else { return }
         currency.isSelected = true
         interactor.didSelect(currency)
-        router.proceed(from: view)
     }
 
     func back() {
@@ -81,6 +80,10 @@ extension SelectCurrencyPresenter: SelectCurrencyInteractorOutput {
     func didRecieve(selectedCurrency: Currency) {
         self.selectedCurrency = selectedCurrency
         provideViewModel()
+    }
+    
+    func didComplete() {
+        router.proceed(from: view)
     }
 }
 

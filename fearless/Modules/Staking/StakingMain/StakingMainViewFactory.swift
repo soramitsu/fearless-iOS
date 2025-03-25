@@ -7,7 +7,7 @@ import RobinHood
 
 // swiftlint:disable function_body_length
 final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
-    static func createView(moduleOutput: StakingMainModuleOutput?) -> StakingMainViewProtocol? {
+    static func createView(moduleOutput: StakingMainModuleOutput?) -> ControllerBackedProtocol? {
         guard let selectedAccount = SelectedWalletSettings.shared.value else {
             return nil
         }
@@ -90,7 +90,8 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             dataValidatingFactory: dataValidatingFactory,
             logger: logger,
             selectedMetaAccount: selectedAccount,
-            moduleOutput: moduleOutput
+            moduleOutput: moduleOutput,
+            eventCenter: eventCenter
         )
 
         view.presenter = presenter

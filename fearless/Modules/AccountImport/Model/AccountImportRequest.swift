@@ -53,6 +53,7 @@ enum MetaAccountImportRequestSource {
     case mnemonic(data: MnemonicImportRequestData)
     case seed(data: SeedImportRequestData)
     case keystore(data: KeystoreImportRequestData)
+    case ton(mnemonic: String)
 }
 
 struct MetaAccountImportRequest {
@@ -63,33 +64,30 @@ struct MetaAccountImportRequest {
 }
 
 struct ChainAccountImportMnemonicRequest {
+    let wallet: MetaAccountModel
     let mnemonic: IRMnemonicProtocol
     let username: String
     let derivationPath: String
     let cryptoType: CryptoType
-    let isEthereum: Bool
-    let meta: MetaAccountModel
-    let chainId: ChainModel.Id
+    let chains: [ChainModel]
 }
 
 struct ChainAccountImportSeedRequest {
+    let wallet: MetaAccountModel
     let seed: String
     let username: String
     let derivationPath: String
     let cryptoType: CryptoType
-    let isEthereum: Bool
-    let meta: MetaAccountModel
-    let chainId: ChainModel.Id
+    let chains: [ChainModel]
 }
 
 struct ChainAccountImportKeystoreRequest {
+    let wallet: MetaAccountModel
     let keystore: String
     let password: String
     let username: String
     let cryptoType: CryptoType
-    let isEthereum: Bool
-    let meta: MetaAccountModel
-    let chainId: ChainModel.Id
+    let chains: [ChainModel]
 }
 
 enum UniqueChainImportRequestSource {
@@ -114,9 +112,7 @@ enum UniqueChainImportRequestSource {
 }
 
 struct UniqueChainImportRequest {
-    let source: UniqueChainImportRequestSource
     let username: String
     let cryptoType: CryptoType
-    let meta: MetaAccountModel
-    let chain: ChainModel
+    let chains: [ChainModel]
 }

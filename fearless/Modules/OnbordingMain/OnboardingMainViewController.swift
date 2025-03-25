@@ -2,93 +2,117 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
+final class OnboardingMainViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
+    typealias RootViewType = OnboardingMainViewLayout
+
     var presenter: OnboardingMainPresenterProtocol!
 
-    @IBOutlet private var termsLabel: UILabel!
-    @IBOutlet private var signUpButton: TriangularedButton!
-    @IBOutlet private var restoreButton: TriangularedButton!
-    @IBOutlet private var logoView: UIImageView!
-    @IBOutlet var preInstalledButton: TriangularedButton!
+    private let ecosystem: AccountCreateEcosystem?
+    private var shouldDismiss: Bool
+    init(ecosystem: AccountCreateEcosystem?) {
+        self.ecosystem = ecosystem
+        self.shouldDismiss = ecosystem != nil
+        super.init(nibName: nil, bundle: nil)
+    }
 
-    @IBOutlet private var restoreBottomConstraint: NSLayoutConstraint!
-    @IBOutlet private var restoreWidthConstraint: NSLayoutConstraint!
-    @IBOutlet private var signupWidthConstraint: NSLayoutConstraint!
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
-    @IBOutlet private var termsBottomConstraint: NSLayoutConstraint!
-
-    var localizationManager: LocalizationManagerProtocol?
-
-    var termDecorator: AttributedStringDecoratorProtocol?
-
-    // MARK: Appearance
+    override func loadView() {
+        view = OnboardingMainViewLayout()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        setupLocalization()
-        configureLogoView()
-        configureTermsLabel()
-        adjustLayout()
-
         presenter.setup()
+        rootView.preInstalledButton.isHidden = true
+        bindActions()
+        setupGestureRecognizer()
 
-        preInstalledButton.isHidden = true
-    }
-
-    private func configureTermsLabel() {
-        if let attributedText = termsLabel.attributedText {
-            termsLabel.attributedText = termDecorator?.decorate(attributedString: attributedText)
+        if let ecosystem {
+            ecosystemHasBeenSelected()
+            presenter.didSelect(ecosystem: ecosystem)
         }
     }
 
-    private func configureLogoView() {
-        logoView.tintColor = R.color.colorWhite()!
-    }
-
-    private func setupLocalization() {
-        signUpButton.imageWithTitleView?.title = R.string.localizable
-            .usernameSetupTitle20(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
-        restoreButton.imageWithTitleView?.title = R.string.localizable
-            .onboardingRestoreWallet(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
-        preInstalledButton.imageWithTitleView?.title = R.string.localizable.onboardingPreinstalledWalletButtonText(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
-        preInstalledButton.imageWithTitleView?.iconImage = R.image.iconPreinstalledWallet()
-        let text = NSAttributedString(string: R.string.localizable
-            .onboardingTermsAndConditions1(preferredLanguages: localizationManager?.selectedLocale.rLanguages))
-        termsLabel.attributedText = text
-    }
-
-    private func adjustLayout() {
-        if isAdaptiveHeightDecreased {
-            restoreBottomConstraint.constant *= designScaleRatio.height
-            termsBottomConstraint.constant *= designScaleRatio.height
+    private func bindActions() {
+        rootView.selectRegularBannerView.actionButton.addAction { [weak self] in
+            guard let self else { return }
+            self.presenter.didSelect(ecosystem: .regular)
+            self.ecosystemHasBeenSelected()
+        }
+        rootView.selectRegularBannerView.addTapGestureRecognizer { [weak self] in
+            guard let self else { return }
+            self.presenter.didSelect(ecosystem: .regular)
+            self.ecosystemHasBeenSelected()
+        }
+        rootView.selectTonBannerView.actionButton.addAction { [weak self] in
+            guard let self else { return }
+            self.presenter.didSelect(ecosystem: .ton)
+            self.ecosystemHasBeenSelected()
+        }
+        rootView.selectTonBannerView.addTapGestureRecognizer { [weak self] in
+            guard let self else { return }
+            self.presenter.didSelect(ecosystem: .ton)
+            self.ecosystemHasBeenSelected()
         }
 
-        if isAdaptiveWidthDecreased {
-            restoreWidthConstraint.constant *= designScaleRatio.width
-            signupWidthConstraint.constant *= designScaleRatio.width
+        rootView.signUpButton.addAction { [weak self] in
+            self?.presenter.activateSignup()
+        }
+        rootView.restoreButton.addAction { [weak self] in
+            self?.presenter.activateAccountRestore()
+        }
+        rootView.preInstalledButton.addAction { [weak self] in
+            self?.presenter.didTapGetPreinstalled()
+        }
+        rootView.backButton.addAction { [weak self] in
+            if self?.shouldDismiss == true {
+                self?.presenter.dismiss()
+            }
+            UIView.animate(
+                withDuration: 0.25,
+                delay: 0,
+                options: .curveLinear
+            ) { [weak self] in
+                self?.rootView.bannerContainer.isHidden = false
+                self?.rootView.buttonContainer.alpha = 0
+                self?.rootView.bannerContainer.alpha = 1
+            } completion: { [weak self] _ in
+                self?.rootView.buttonContainer.isHidden = true
+                self?.rootView.backButton.isHidden = true
+            }
         }
     }
 
-    // MARK: Action
+    private func setupGestureRecognizer() {
+        let gesture = UITapGestureRecognizer()
+        rootView.termsLabel.addGestureRecognizer(gesture)
 
-    @IBAction private func actionSignup(sender _: AnyObject) {
-        presenter.activateSignup()
+        gesture.addTarget(self, action: #selector(actionTerms(gestureRecognizer: )))
     }
 
-    @IBAction private func actionRestoreAccess(sender _: AnyObject) {
-        presenter.activateAccountRestore()
+    private func ecosystemHasBeenSelected() {
+        UIView.animate(
+            withDuration: 0.25,
+            delay: 0,
+            options: .curveLinear
+        ) { [weak self] in
+            self?.rootView.buttonContainer.isHidden = false
+            self?.rootView.buttonContainer.alpha = 1
+            self?.rootView.bannerContainer.alpha = 0
+        } completion: { [weak self] _ in
+            self?.rootView.bannerContainer.isHidden = true
+            self?.rootView.backButton.isHidden = false
+        }
     }
 
-    @IBAction func actionPreinstalled() {
-        presenter.didTapGetPreinstalled()
-    }
-
-    @IBAction private func actionTerms(gestureRecognizer: UITapGestureRecognizer) {
+    @objc private func actionTerms(gestureRecognizer: UITapGestureRecognizer) {
         if gestureRecognizer.state == .ended {
-            let location = gestureRecognizer.location(in: termsLabel.superview)
+            let location = gestureRecognizer.location(in: rootView.termsLabel.superview)
 
-            if location.x < termsLabel.center.x {
+            if location.x < rootView.termsLabel.center.x {
                 presenter.activateTerms()
             } else {
                 presenter.activatePrivacy()
@@ -99,6 +123,13 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
 
 extension OnboardingMainViewController: OnboardingMainViewProtocol {
     func didReceive(preinstalledWalletEnabled: Bool) {
-        preInstalledButton.isHidden = !preinstalledWalletEnabled
+        rootView.preInstalledButton.isHidden = !preinstalledWalletEnabled
+    }
+}
+
+// MARK: - Localizable
+extension OnboardingMainViewController: Localizable {
+    func applyLocalization() {
+        rootView.locale = selectedLocale
     }
 }

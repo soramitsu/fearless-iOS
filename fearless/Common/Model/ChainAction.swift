@@ -7,9 +7,9 @@ enum ChainAction {
     case subscan(url: URL)
     case etherscan(url: URL)
     case oklink(url: URL)
+    case tonviewer(url: URL)
     case switchNode
     case export
-    case replace
     case reefscan(url: URL)
     case claimCrowdloanRewards
 
@@ -21,10 +21,8 @@ enum ChainAction {
             return R.image.iconRetry()
         case .copyAddress:
             return R.image.iconCopy()
-        case .polkascan, .subscan, .etherscan, .reefscan, .oklink:
+        case .polkascan, .subscan, .etherscan, .reefscan, .oklink, .tonviewer:
             return R.image.iconOpenWeb()
-        case .replace:
-            return R.image.iconReplace()
         case .claimCrowdloanRewards:
             return R.image.iconInfo()
         }
@@ -44,8 +42,6 @@ enum ChainAction {
         case .subscan:
             return R.string.localizable
                 .transactionDetailsViewSubscan(preferredLanguages: locale.rLanguages)
-        case .replace:
-            return R.string.localizable.replaceAccount(preferredLanguages: locale.rLanguages)
         case .etherscan:
             return R.string.localizable.transactionDetailsViewEtherscan(preferredLanguages: locale.rLanguages)
         case .reefscan:
@@ -54,6 +50,8 @@ enum ChainAction {
             return R.string.localizable.poolStakingManagementClaimTitle(preferredLanguages: locale.rLanguages)
         case .oklink:
             return R.string.localizable.transactionDetailsViewOklink(preferredLanguages: locale.rLanguages)
+        case .tonviewer:
+            return "Tonviewer"
         }
     }
 }

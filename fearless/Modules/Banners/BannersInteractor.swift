@@ -1,5 +1,7 @@
 import UIKit
+import SoraKeystore
 import RobinHood
+import SSFModels
 
 protocol BannersInteractorOutput: AnyObject {
     func didReceive(error: Error)
@@ -13,13 +15,16 @@ final class BannersInteractor {
 
     private let walletProvider: StreamableProvider<ManagedMetaAccountModel>
     private let eventCenter: EventCenterProtocol
+    private let userDefaults: SettingsManagerProtocol
 
     init(
         walletProvider: StreamableProvider<ManagedMetaAccountModel>,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        userDefaults: SettingsManagerProtocol
     ) {
         self.walletProvider = walletProvider
         self.eventCenter = eventCenter
+        self.userDefaults = userDefaults
     }
 
     // MARK: - Private methods
@@ -28,6 +33,15 @@ final class BannersInteractor {
 // MARK: - BannersInteractorInput
 
 extension BannersInteractor: BannersInteractorInput {
+    var shouldShowAddWalletBanner: Bool {
+        get {
+            userDefaults.shouldShowAddWalletBanner
+        }
+        set {
+            userDefaults.shouldShowAddWalletBanner = newValue
+        }
+    }
+
     func setup(with output: BannersInteractorOutput) {
         self.output = output
     }
@@ -51,12 +65,20 @@ extension BannersInteractor: BannersInteractorInput {
 
     func subscribeToWallet() {
         let updateClosure: ([DataProviderChange<ManagedMetaAccountModel>]) -> Void = { [weak self] changes in
-            guard let selectedWallet = changes.firstToLastChange(filter: { wallet in
-                wallet.isSelected
-            }) else {
+            guard let wallet = changes.reduceToLastChange() else {
                 return
             }
-            self?.output?.didReceive(wallet: selectedWallet.info)
+            self?.output?.didReceive(wallet: wallet.info)
+            changes.forEach { change in
+                switch change {
+                case .insert(newItem: let newItem):
+                    self?.output?.didReceive(wallet: newItem.info)
+                case .update(newItem: let newItem):
+                    self?.output?.didReceive(wallet: newItem.info)
+                case .delete(deletedIdentifier: let deletedIdentifier):
+                    break
+                }
+            }
         }
 
         let failureClosure: (Error) -> Void = { [weak self] error in

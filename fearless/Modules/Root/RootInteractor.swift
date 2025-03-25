@@ -7,7 +7,9 @@ import SoraFoundation
 final class RootInteractor {
     weak var presenter: RootInteractorOutputProtocol?
 
-    private let chainRegistry: ChainRegistryProtocol
+    private lazy var chainRegistry: ChainRegistryProtocol = {
+        ChainRegistryFacade.sharedRegistry
+    }()
     private let settings: SelectedWalletSettings
     private let applicationConfig: ApplicationConfigProtocol
     private let eventCenter: EventCenterProtocol
@@ -15,18 +17,18 @@ final class RootInteractor {
     private let logger: LoggerProtocol?
     private let onboardingService: OnboardingServiceProtocol
     private let onboardingConfigResolver: OnboardingConfigVersionResolver
+    private let pricesService: PricesServiceProtocol
 
     init(
-        chainRegistry: ChainRegistryProtocol,
         settings: SelectedWalletSettings,
         applicationConfig: ApplicationConfigProtocol,
         eventCenter: EventCenterProtocol,
         migrators: [Migrating],
         logger: LoggerProtocol? = nil,
         onboardingService: OnboardingServiceProtocol,
-        onboardingConfigResolver: OnboardingConfigVersionResolver
+        onboardingConfigResolver: OnboardingConfigVersionResolver,
+        pricesService: PricesServiceProtocol
     ) {
-        self.chainRegistry = chainRegistry
         self.settings = settings
         self.applicationConfig = applicationConfig
         self.eventCenter = eventCenter
@@ -34,6 +36,7 @@ final class RootInteractor {
         self.logger = logger
         self.onboardingService = onboardingService
         self.onboardingConfigResolver = onboardingConfigResolver
+        self.pricesService = pricesService
     }
 
     private func setupURLHandlingService() {
@@ -44,8 +47,13 @@ final class RootInteractor {
             callbackUrl: callbackUrl,
             eventCenter: eventCenter
         )
+        let tonConnectUrlHandler = TonConnectUrlHandling()
 
-        URLHandlingService.shared.setup(children: [purchaseHandler, keystoreImportService])
+        URLHandlingService.shared.setup(children: [
+            purchaseHandler,
+            keystoreImportService,
+            tonConnectUrlHandler
+        ])
     }
 
     private func runMigrators() {
@@ -61,13 +69,14 @@ final class RootInteractor {
 
 extension RootInteractor: RootInteractorInputProtocol {
     func setup(runMigrations: Bool) {
+        pricesService.setup()
+        
         setupURLHandlingService()
+        if runMigrations {
+            self.runMigrators()
+        }
 
         settings.setup(runningCompletionIn: .global()) { result in
-            if runMigrations {
-                self.runMigrators()
-            }
-
             switch result {
             case let .success(wallet):
                 if let wallet = wallet {

@@ -23,4 +23,12 @@ protocol WalletConnectProposalRouterInput: PresentDismissable, ErrorPresentable,
 
 protocol WalletConnectProposalModuleInput: AnyObject {}
 
-protocol WalletConnectProposalModuleOutput: AnyObject {}
+protocol WalletConnectProposalModuleOutput: AnyObject {
+    func tonConnect(dessision: TonConnectDessision)
+    func disconnected()
+}
+
+extension WalletConnectProposalModuleOutput {
+    func tonConnect(dessision: TonConnectDessision) {}
+    func disconnected() {}
+}

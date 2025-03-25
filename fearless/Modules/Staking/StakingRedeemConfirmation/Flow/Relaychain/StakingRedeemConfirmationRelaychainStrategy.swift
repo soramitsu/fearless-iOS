@@ -5,6 +5,7 @@ import SSFUtils
 import BigInt
 import SSFModels
 import SSFRuntimeCodingService
+import SSFCrypto
 
 protocol StakingRedeemConfirmationRelaychainStrategyOutput: AnyObject {
     func didReceiveStakingLedger(result: Result<StakingLedger?, Error>)

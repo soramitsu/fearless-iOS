@@ -3,10 +3,11 @@ import SSFPools
 import SSFPolkaswap
 import SSFModels
 import SSFStorageQueryKit
+import SSFCrypto
 
 protocol AvailableLiquidityPoolsListInteractorOutput: AnyObject {
     func didReceiveLiquidityPairs(pairs: [LiquidityPair]?)
-    func didReceivePoolsReserves(reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>)
+    func didReceivePoolsReserves(reserves: SSFStorageQueryKit.CachedStorageResponse<[PolkaswapPoolReservesInfo]>)
     func didReceivePoolsAPY(apy: [PoolApyInfo]?)
 
     func didReceiveLiquidityPairsError(error: Error)

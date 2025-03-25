@@ -3,8 +3,6 @@ import RobinHood
 import BigInt
 import IrohaCrypto
 import SSFModels
-import SSFModels
-
 final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
     let rewardAssetRate: Decimal = RewardCalculatorConstants.defaultRewardAssetRate
 

@@ -75,6 +75,7 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>)
     func didReceive(eraCountdownResult: Result<EraCountdown, Error>)
     func didReceive(rewardChainAsset: ChainAsset?)
+    func didUpdate(newChainAsset: ChainAsset)
 
     func didReceiveMaxNominatorsPerValidator(_ maxNominatorsPerValidator: UInt32?)
 
@@ -212,7 +213,7 @@ protocol StakingMainWireframeProtocol: SheetAlertPresentable, ErrorPresentable, 
 }
 
 protocol StakingMainViewFactoryProtocol: AnyObject {
-    static func createView(moduleOutput: StakingMainModuleOutput?) -> StakingMainViewProtocol?
+    static func createView(moduleOutput: StakingMainModuleOutput?) -> ControllerBackedProtocol?
 }
 
 protocol StakingMainModuleOutput: AnyObject {

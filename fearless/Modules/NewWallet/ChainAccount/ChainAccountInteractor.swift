@@ -24,7 +24,7 @@ final class ChainAccountInteractor {
     private let walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
     private let dependencyContainer = BalanceInfoDepencyContainer()
     private var currentDependencies: BalanceInfoDependencies?
-    private let ethRemoteBalanceFetching: EthereumRemoteBalanceFetching
+    private let accountInfoRemoteService: AccountInfoRemoteService
     private let chainRegistry: ChainRegistryProtocol
 
     private var remoteFetchTimer: Timer?
@@ -39,7 +39,7 @@ final class ChainAccountInteractor {
         chainAssetFetching: ChainAssetFetchingProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
-        ethRemoteBalanceFetching: EthereumRemoteBalanceFetching,
+        accountInfoRemoteService: AccountInfoRemoteService,
         chainRegistry: ChainRegistryProtocol
     ) {
         self.wallet = wallet
@@ -51,7 +51,7 @@ final class ChainAccountInteractor {
         self.chainAssetFetching = chainAssetFetching
         self.storageRequestFactory = storageRequestFactory
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
-        self.ethRemoteBalanceFetching = ethRemoteBalanceFetching
+        self.accountInfoRemoteService = accountInfoRemoteService
         self.chainRegistry = chainRegistry
     }
 
@@ -108,6 +108,12 @@ final class ChainAccountInteractor {
     }
 
     private func fetchBalanceLocks() {
+        guard chainAsset.chain.ecosystem == .substrate else {
+            presenter?.didReceiveBalanceLocks(.zero)
+            presenter?.didReceiveAssetFrozen(.zero)
+            return
+        }
+        
         guard
             let balanceLocksFetcher = currentDependencies?.balanceLocksFetcher,
             let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
@@ -177,7 +183,7 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
                     .getAvailableExportOptions(
                         for: self.wallet,
                         accountId: accountId,
-                        isEthereum: response.isEthereumBased
+                        ecosystem: response.ecosystem
                     )
                 self.presenter?.didReceiveExportOptions(options: options)
             default:
@@ -198,10 +204,11 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     }
 
     func updateData() {
+        fetchChainAssetBasedData()
+        
         guard
             remoteFetchTimer == nil,
-            let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-            chainAsset.chain.isEthereum
+            !chainAsset.chain.ecosystem.isSubstrate
         else {
             return
         }
@@ -210,7 +217,13 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
             timer.invalidate()
             self?.remoteFetchTimer = nil
         })
-        ethRemoteBalanceFetching.fetch(for: chainAsset, accountId: accountId, completionBlock: { _, _ in })
+        Task {
+            do {
+                _ = try await accountInfoRemoteService.fetchAccountInfo(for: chainAsset, wallet: wallet)
+            } catch {
+                Logger.shared.customError(error)
+            }
+        }
     }
 
     func checkIsClaimAvailable() -> Bool {
