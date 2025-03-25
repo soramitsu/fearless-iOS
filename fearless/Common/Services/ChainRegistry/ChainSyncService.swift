@@ -14,7 +14,7 @@ enum ChainSyncServiceError: Error {
 }
 
 final class ChainSyncService {
-    static let fetchLocalData = true
+    static let fetchLocalData = false
 
     struct SyncChanges {
         let newOrUpdatedItems: [ChainModel]
@@ -206,6 +206,7 @@ final class ChainSyncService {
         })
 
         localSaveOperation.completionBlock = {
+            print("save operation: ", localSaveOperation.result)
             DispatchQueue.global(qos: .userInitiated).async { [weak self] in
                 self?.complete(result: .success(syncChanges))
             }
