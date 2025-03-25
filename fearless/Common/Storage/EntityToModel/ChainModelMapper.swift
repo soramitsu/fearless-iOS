@@ -94,7 +94,6 @@ final class ChainModelMapper {
             }
             return createPriceData(from: priceData)
         }
-        print("CoinbaseURL debug: createAsset: coinbaseUrl: \(entity.coinbaseUrl)")
         return AssetModel(
             id: id,
             name: name,
@@ -189,7 +188,6 @@ final class ChainModelMapper {
                 }
             }
             assetEntity.priceData = Set(priceData) as NSSet
-            print("CoinbaseURL debug: updateEntityAsset: coinbaseUrl: \(assetEntity.coinbaseUrl)")
 
             return assetEntity
         }

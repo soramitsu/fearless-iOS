@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import BigInt
 import SSFModels
+import SCard
 
 final class ChainAccountPresenter {
     weak var view: ChainAccountViewProtocol?
@@ -18,6 +19,7 @@ final class ChainAccountPresenter {
     var wallet: MetaAccountModel
     weak var moduleOutput: ChainAccountModuleOutput?
     private let balanceInfoModule: BalanceInfoModuleInput
+    private var soraCardStatus: KYCUserStatus?
 
     private lazy var coinbaseProvider = CoinbasePurchaseProvivder()
     private lazy var rampProvider = RampProvider()
@@ -59,13 +61,23 @@ final class ChainAccountPresenter {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.mode = mode
         self.localizationManager = localizationManager
+        
+        Task {
+            if let soraCardService = try? await SCard.shared {
+                for await userStatus in soraCardService.userStatusStream {
+                    soraCardStatus = userStatus
+                    provideViewModel()
+                }
+            }
+        }
     }
 
     private func provideViewModel() {
         let chainAccountViewModel = viewModelFactory.buildChainAccountViewModel(
             chainAsset: chainAsset,
             wallet: wallet,
-            mode: mode
+            mode: mode,
+            soraCardStatus: soraCardStatus
         )
 
         DispatchQueue.main.async {
@@ -135,6 +147,10 @@ final class ChainAccountPresenter {
                     availableProviders.append(rampProvider)
                 case .coinbase:
                     availableProviders.append(coinbaseProvider)
+                case .soracard:
+                    if soraCardStatus == .successful {
+                        availableProviders.append(SoraCardPurchaseProvider())
+                    }
                 }
             }
 

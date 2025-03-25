@@ -25,10 +25,6 @@ final class CoinbasePurchaseProvivder: PurchaseProviderProtocol {
     }
 
     private func buildURLForAsset(_ asset: AssetModel, address: String) -> URL? {
-        guard let chainName else {
-            return nil
-        }
-        
         guard let endpoint = asset.coinbaseUrl?.replacingOccurrences(of: "{address}", with: address) else {
             return nil
         }

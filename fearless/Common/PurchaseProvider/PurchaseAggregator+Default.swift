@@ -13,7 +13,8 @@ extension PurchaseAggregator {
                 with: moonpaySecretKeyData,
                 apiKey: config.moonPayApiKey
             ),
-            CoinbasePurchaseProvivder()
+            CoinbasePurchaseProvivder(),
+            SoraCardPurchaseProvider()
         ]
         return PurchaseAggregator(providers: purchaseProviders ?? defaultProviders)
             .with(appName: config.purchaseAppName)

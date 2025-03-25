@@ -1,4 +1,5 @@
 import Foundation
+import SCard
 import UIKit
 import SSFModels
 
@@ -115,6 +116,12 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         from view: ControllerBackedProtocol?,
         action: PurchaseAction
     ) {
+        if action.url.scheme == "soracard" {
+            guard let viewController = view?.controller else { return }
+            SCard.shared?.showExchange(in: viewController)
+            return
+        }
+        
         let webView = PurchaseViewFactory.createView(
             for: action
         )

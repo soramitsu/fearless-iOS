@@ -1,4 +1,5 @@
 import Foundation
+import SCard
 import SSFModels
 import SSFCrypto
 
@@ -6,7 +7,8 @@ protocol ChainAccountViewModelFactoryProtocol {
     func buildChainAccountViewModel(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        mode: ChainAccountViewMode
+        mode: ChainAccountViewMode,
+        soraCardStatus: KYCUserStatus?
     ) -> ChainAccountViewModel
 }
 
@@ -20,7 +22,8 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
     func buildChainAccountViewModel(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        mode: ChainAccountViewMode
+        mode: ChainAccountViewMode,
+        soraCardStatus: KYCUserStatus?
     ) -> ChainAccountViewModel {
         var address: String?
         if
@@ -30,7 +33,13 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
         }
         let allAssets = Array(chainAsset.chain.assets)
         let chainAssetModel = allAssets.first(where: { $0.id == chainAsset.asset.id })
-        let buyButtonVisible = !(chainAssetModel?.purchaseProviders?.first == nil)
+        
+        var availableProviders = chainAssetModel?.purchaseProviders ?? []
+        if soraCardStatus != .successful {
+            availableProviders = availableProviders.filter { $0 != .soracard }
+        }
+        let buyButtonVisible = !availableProviders.isEmpty
+        
         let polkaswapButtonVisible = chainAsset.chain.options?.contains(.polkaswap) == true
 
         var xcmButtomVisible: Bool = false

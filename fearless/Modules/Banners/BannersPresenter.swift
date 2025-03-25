@@ -134,6 +134,8 @@ extension BannersPresenter: BannerCellDelegate {
             router.showCreateNewWallet(ecosystem: .ton, from: view)
         case .soraCard:
             router.showSoraCard(on: view)
+        case .buy(_, _):
+            router.showBuyXor(on: view)
         }
     }
 
@@ -156,6 +158,9 @@ extension BannersPresenter: BannerCellDelegate {
             interactor.shouldShowAddWalletBanner = false
             provideViewModel()
         case .soraCard:
+            SCard.shared?.isSCBannerHidden = true
+            provideViewModel()
+        case .buy(_, _):
             SCard.shared?.isSCBannerHidden = true
             provideViewModel()
         }

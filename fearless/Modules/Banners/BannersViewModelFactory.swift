@@ -6,7 +6,7 @@ struct BannersViewModel {
     let banners: [CollectionViewModel]
 }
 
-enum Banners: Int {
+enum Banners {
     case backup
     case buyXor
     case liquidityPools
@@ -14,6 +14,7 @@ enum Banners: Int {
     case addRegularWallet
     case addTonWallet
     case soraCard
+    case buy(assetName: String, icon: ImageResource)
 }
 
 protocol BannersViewModelFactoryProtocol {
@@ -53,6 +54,20 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
                     subtitle: subtitle,
                     buttonTitle: buttonAction,
                     image: R.image.fearlessBanner()!,
+                    dismissable: true,
+                    fullsizeImage: false,
+                    bannerType: bannerType,
+                    delegate: delegate
+                )
+            case .buy(let assetName, let icon):
+                let title = "Buy or sell \(assetName.uppercased())"
+                let subtitle = ""
+                let buttonAction = "Buy \(assetName.uppercased())"
+                return BannerCellViewModelDefault(
+                    title: title,
+                    subtitle: subtitle,
+                    buttonTitle: buttonAction,
+                    image: UIImage(resource: icon),
                     dismissable: true,
                     fullsizeImage: false,
                     bannerType: bannerType,
@@ -161,8 +176,10 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
             }
         }
       
-        if soraCardStatus == .successful {
-            banners.append(.buyXor)
+        if soraCardStatus == .successful, !(SCard.shared?.isSCBannerHidden).orTrue() {
+            banners.append(.buy(assetName: "eth", icon: .init(name: "SCEthBanner", bundle: .main)))
+            banners.append(.buy(assetName: "usdt", icon: .init(name: "SCUsdtBanner", bundle: .main)))
+            banners.append(.buy(assetName: "usdc", icon: .init(name: "SCUsdcBanner", bundle: .main)))
         }
         
         if let wallet = SelectedWalletSettings.shared.value, !wallet.hasBackup {
