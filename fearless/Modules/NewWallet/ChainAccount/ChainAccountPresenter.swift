@@ -139,7 +139,7 @@ final class ChainAccountPresenter {
             let chainAssetModel = allAssets.first(where: { $0.id == chainAsset.asset.id })
 
             var availableProviders: [PurchaseProviderProtocol] = []
-            chainAssetModel?.purchaseProviders?.compactMap { $0 }.forEach {
+            chainAssetModel?.purchaseProviders?.forEach {
                 switch $0 {
                 case .moonpay:
                     availableProviders.append(moonpayProvider)
@@ -147,7 +147,7 @@ final class ChainAccountPresenter {
                     availableProviders.append(rampProvider)
                 case .coinbase:
                     availableProviders.append(coinbaseProvider)
-                case .soracard:
+                case .soraCard:
                     if soraCardStatus == .successful {
                         availableProviders.append(SoraCardPurchaseProvider())
                     }
