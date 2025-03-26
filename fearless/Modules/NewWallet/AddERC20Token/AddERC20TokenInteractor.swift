@@ -138,8 +138,9 @@ extension AddERC20TokenInteractor: AddERC20TokenInteractorInput {
                     operationManager.enqueue(operations: [saveOperation], in: .transient)
                 }
 
+                let chainAsset = ChainAsset(chain: chain, asset: asset)
                 await MainActor.run {
-                    output?.didFinishSavingToken()
+                    output?.didFinishSavingToken(chainAsset: chainAsset)
                 }
             } catch {
                 await MainActor.run {

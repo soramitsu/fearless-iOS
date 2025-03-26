@@ -137,9 +137,9 @@ extension AddERC20TokenPresenter: AddERC20TokenInteractorOutput {
 
     }
 
-    func didFinishSavingToken() {
+    func didFinishSavingToken(chainAsset: ChainAsset) {
         isLoading = false
-        moduleOutput?.didFinishAddingToken()
+        moduleOutput?.didFinishAddingToken(chainAsset: chainAsset)
         router.dismiss(view: view)
     }
 }

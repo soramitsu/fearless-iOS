@@ -256,7 +256,10 @@ extension AssetManagementPresenter: NetworkManagmentModuleOutput {
 }
 
 extension AssetManagementPresenter: AddERC20TokenModuleOutput {
-    func didFinishAddingToken() {
-        getInitialData()
+    func didFinishAddingToken(chainAsset: ChainAsset) {
+        Task {
+            _ = await interactor.change(hidden: false, assetId: chainAsset.identifier, wallet: wallet)
+            getInitialData()
+        }
     }
 }

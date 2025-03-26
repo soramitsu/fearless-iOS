@@ -4,7 +4,7 @@ import RobinHood
 import Web3
 
 protocol AddERC20TokenModuleOutput: AnyObject {
-    func didFinishAddingToken()
+    func didFinishAddingToken(chainAsset: ChainAsset)
 }
 
 protocol AddERC20TokenViewInput: ControllerBackedProtocol {
@@ -29,7 +29,7 @@ protocol AddERC20TokenInteractorInput: AnyObject {
 protocol AddERC20TokenInteractorOutput: AnyObject {
     func didReceive(tokenInfo: ERC20TokenInfo)
     func didReceive(error: Error)
-    func didFinishSavingToken()
+    func didFinishSavingToken(chainAsset: ChainAsset)
 }
 
 protocol AddERC20TokenRouterInput: AnyObject, AnyDismissable, ErrorPresentable, SheetAlertPresentable {
