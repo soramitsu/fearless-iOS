@@ -1303,3 +1303,4 @@ To find out more, contact %@";
 "add.token.add.button" = "Adicionar";
 "add.token.invalid.address" = "Endereço do token inválido";
 "add.token.invalid.data" = "Falha ao buscar dados do token";
+"add.token.already.exists" = "Este token já foi adicionado à sua carteira";

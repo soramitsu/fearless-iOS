@@ -7,6 +7,7 @@
         <attribute name="existentialDeposit" optional="YES" attributeType="String"/>
         <attribute name="icon" optional="YES" attributeType="URI"/>
         <attribute name="id" attributeType="String"/>
+        <attribute name="isCustom" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="isNative" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isUtility" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>

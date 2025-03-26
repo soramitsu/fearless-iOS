@@ -101,7 +101,8 @@ extension AssetModelMapper: CoreDataMapperProtocol {
             priceProvider: priceProvider,
             coingeckoPriceId: entity.priceId,
             priceData: priceDatas,
-            coinbaseUrl: entity.coinbaseUrl
+            coinbaseUrl: entity.coinbaseUrl,
+            isCustom: entity.isCustom
         )
     }
 
@@ -124,6 +125,7 @@ extension AssetModelMapper: CoreDataMapperProtocol {
         entity.isNative = model.isNative
         entity.staking = model.staking?.rawValue
         entity.coinbaseUrl = model.coinbaseUrl
+        entity.isCustom = model.isCustom
 
         let priceProviderContext = CDPriceProvider(context: context)
         priceProviderContext.type = model.priceProvider?.type.rawValue

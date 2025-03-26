@@ -29,6 +29,12 @@ final class AssetManagementViewLayout: UIView {
         return button
     }()
 
+    let addTokenButton: UIButton = {
+        let button = UIButton()
+        button.setImage(R.image.iconAdd(), for: .normal)
+        return button
+    }()
+
     let searchTextField: SearchTextField = {
         let searchTextField = SearchTextField()
         searchTextField.triangularedView?.cornerCut = [.bottomRight, .topLeft]
@@ -74,7 +80,7 @@ final class AssetManagementViewLayout: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         navigationBar.setLeftViews([doneButton])
-        navigationBar.setRightViews([filterNetworksButton])
+        navigationBar.setRightViews([addTokenButton, filterNetworksButton])
     }
 
     func setAddAssetButton(visible: Bool) {

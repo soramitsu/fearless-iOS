@@ -112,7 +112,8 @@ final class ChainModelMapper {
             priceProvider: priceProvider,
             coingeckoPriceId: entity.priceId,
             priceData: priceDatas,
-            coinbaseUrl: entity.coinbaseUrl
+            coinbaseUrl: entity.coinbaseUrl,
+            isCustom: entity.isCustom
         )
     }
 
@@ -153,6 +154,7 @@ final class ChainModelMapper {
             assetEntity.isNative = assetModel.isNative
             assetEntity.staking = assetModel.staking?.rawValue
             assetEntity.coinbaseUrl = assetModel.coinbaseUrl
+            assetEntity.isCustom = assetModel.isCustom
 
             let priceProviderContext = CDPriceProvider(context: context)
             priceProviderContext.type = assetModel.priceProvider?.type.rawValue

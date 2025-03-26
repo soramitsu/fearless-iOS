@@ -11,6 +11,12 @@ protocol AssetManagementRouterInput: PresentDismissable, ErrorPresentable, Sheet
         wallet: MetaAccountModel,
         delegate: NetworkManagmentModuleOutput?
     )
+    
+    func showAddERC20Token(
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel,
+        moduleOutput: AddERC20TokenModuleOutput?
+    )
 }
 
 protocol AssetManagementModuleInput: AnyObject {}

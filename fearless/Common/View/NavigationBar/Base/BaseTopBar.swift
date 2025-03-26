@@ -3,7 +3,7 @@ import UIKit
 class BaseTopBar: UIView {
     var leftStackView: UIStackView = UIFactory.default.createHorizontalStackView(spacing: 8)
     var centerStackView: UIStackView = UIFactory.default.createHorizontalStackView()
-    var rightStackView: UIStackView = UIFactory.default.createHorizontalStackView()
+    var rightStackView: UIStackView = UIFactory.default.createHorizontalStackView(spacing: 8)
 
     override init(frame: CGRect) {
         super.init(frame: frame)

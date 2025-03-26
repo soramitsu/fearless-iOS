@@ -224,6 +224,10 @@ extension AssetManagementPresenter: AssetManagementViewOutput {
             provideViewModel()
         }
     }
+
+    func addTokenButtonDidTapped() {
+        router.showAddERC20Token(from: view, wallet: wallet, moduleOutput: self)
+    }
 }
 
 // MARK: - AssetManagementInteractorOutput
@@ -248,5 +252,11 @@ extension AssetManagementPresenter: NetworkManagmentModuleOutput {
     func did(select: NetworkManagmentFilter, contextTag _: Int?) {
         networkFilter = select
         provideViewModel()
+    }
+}
+
+extension AssetManagementPresenter: AddERC20TokenModuleOutput {
+    func didFinishAddingToken() {
+        getInitialData()
     }
 }

@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 final class AddERC20TokenPresenter {
     // MARK: - Private properties
@@ -9,22 +10,33 @@ final class AddERC20TokenPresenter {
     private let router: AddERC20TokenRouterInput
     private let logger: LoggerProtocol
     private let localizationManager: LocalizationManagerProtocol
+    private let wallet: MetaAccountModel
+    private weak var moduleOutput: AddERC20TokenModuleOutput?
 
     private var currentTokenInfo: ERC20TokenInfo?
-    private var isLoading = false
+    private var isLoading = false {
+        didSet {
+            view?.didReceive(isLoading: isLoading)
+        }
+    }
+    private var selectedChain: ChainModel?
 
     // MARK: - Constructors
 
     init(
+        wallet: MetaAccountModel,
         interactor: AddERC20TokenInteractorInput,
         router: AddERC20TokenRouterInput,
         logger: LoggerProtocol,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        moduleOutput: AddERC20TokenModuleOutput?
     ) {
+        self.wallet = wallet
         self.interactor = interactor
         self.router = router
         self.logger = logger
         self.localizationManager = localizationManager
+        self.moduleOutput = moduleOutput
     }
 }
 
@@ -38,25 +50,66 @@ extension AddERC20TokenPresenter: AddERC20TokenViewOutput {
     }
 
     func didTapSave() {
-        guard let tokenInfo = currentTokenInfo else { return }
+        guard let tokenInfo = currentTokenInfo, let chain = selectedChain else { return }
         
         isLoading = true
         provideViewModel()
         
-        interactor.saveToken(tokenInfo)
+        interactor.saveToken(tokenInfo, for: chain)
     }
 
     func didChangeTokenAddress(_ address: String) {
+        let ethereumAddressRegex = "^0x[a-fA-F0-9]{40}$"
+        let addressPredicate = NSPredicate(format: "SELF MATCHES %@", ethereumAddressRegex)
+        
+        guard addressPredicate.evaluate(with: address) else {
+            return
+        }
+        
         guard !address.isEmpty else {
             currentTokenInfo = nil
             provideViewModel()
             return
         }
-
+        
+        guard let selectedChain = selectedChain else {
+            return
+        }
+        
         isLoading = true
         provideViewModel()
         
-        interactor.validateAndFetchToken(address: address)
+        Task {
+            do {
+                try await interactor.validateAndFetchToken(
+                    address: address,
+                    chain: selectedChain
+                )
+            } catch {
+                if let view {
+                    await MainActor.run {
+                        isLoading = false
+                        router.presentError(
+                            for: error.localizedDescription,
+                            message: "",
+                            view: view,
+                            locale: selectedLocale
+                        )
+                    }
+                }
+            }
+        }
+    }
+    
+    func didTapSelectNetwork() {
+        router.showSelectNetwork(
+            from: view,
+            wallet: wallet,
+            selectedChainId: selectedChain?.chainId,
+            chainModels: nil,
+            contextTag: nil,
+            delegate: self
+        )
     }
 }
 
@@ -72,20 +125,29 @@ extension AddERC20TokenPresenter: AddERC20TokenInteractorOutput {
     func didReceive(error: Error) {
         logger.customError(error)
         isLoading = false
-        //TODO: Handle custom error
-        router.present(error: error, from: view, locale: selectedLocale)
+
+        if let view {
+            router.presentError(
+                for: error.localizedDescription,
+                message: "",
+                view: view,
+                locale: selectedLocale
+            )
+        }
+
+    }
+
+    func didFinishSavingToken() {
+        isLoading = false
+        moduleOutput?.didFinishAddingToken()
+        router.dismiss(view: view)
     }
 }
-
-// MARK: - ADDERC20TokenModuleInput
-
-extension AddERC20TokenPresenter: AddERC20TokenModuleInput { }
 
 // MARK: - Localizable
 
 extension AddERC20TokenPresenter: Localizable {
     func applyLocalization() {
-        // Здесь можно добавить локализацию, если потребуется
     }
 }
 
@@ -105,4 +167,35 @@ private extension AddERC20TokenPresenter {
 
         view?.didReceive(viewModel: viewModel)
     }
+
+    func provideSelectNetworkViewModel() {
+        guard let chain = selectedChain else {
+            view?.didReceive(selectNetworkViewModel: nil)
+            return
+        }
+
+        let viewModel = SelectNetworkViewModel(
+            chainName: chain.name,
+            iconViewModel: chain.icon.map { RemoteImageViewModel(url: $0) }
+        )
+        
+        view?.didReceive(selectNetworkViewModel: viewModel)
+    }
 }
+
+extension AddERC20TokenPresenter: SelectNetworkDelegate {
+    func chainSelection(
+        view _: SelectNetworkViewInput,
+        didCompleteWith chain: ChainModel?,
+        contextTag _: Int?
+    ) {
+        guard let chain = chain else {
+            return
+        }
+
+        selectedChain = chain
+        provideSelectNetworkViewModel()
+    }
+}
+
+extension AddERC20TokenPresenter: AddERC20TokenModuleInput {}

@@ -1265,3 +1265,4 @@ ait olduğundan emin olun.";
 "add.token.add.button" = "Ekle";
 "add.token.invalid.address" = "Geçersiz token adresi";
 "add.token.invalid.data" = "Token verileri alınamadı";
+"add.token.already.exists" = "Bu token zaten cüzdanınıza eklenmiş";

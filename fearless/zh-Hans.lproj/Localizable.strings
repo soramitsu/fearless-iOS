@@ -1261,3 +1261,4 @@
 "add.token.add.button" = "添加";
 "add.token.invalid.address" = "无效的代币地址";
 "add.token.invalid.data" = "无法获取代币数据";
+"add.token.already.exists" = "该代币已添加到您的钱包中";

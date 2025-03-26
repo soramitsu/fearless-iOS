@@ -11,6 +11,7 @@ protocol AssetManagementViewOutput: AnyObject {
     func didSelectRow(at indexPath: IndexPath, viewModel: AssetManagementViewModel)
     func didTap(on section: Int, viewModel: AssetManagementViewModel)
     func didPullToRefresh()
+    func addTokenButtonDidTapped()
 }
 
 final class AssetManagementViewController: UIViewController, ViewHolder, HiddableBarWhenPushed, KeyboardViewAdoptable {
@@ -76,6 +77,7 @@ final class AssetManagementViewController: UIViewController, ViewHolder, Hiddabl
         rootView.searchTextField.onTextDidChanged = { [weak self] text in
             self?.output.searchTextDidChanged(text)
         }
+        rootView.addTokenButton.addTarget(self, action: #selector(handleAddTokenButtonTap), for: .touchUpInside)
     }
 
     private func configureTableView() {
@@ -102,6 +104,11 @@ final class AssetManagementViewController: UIViewController, ViewHolder, Hiddabl
     }
 
     // MARK: - Actions
+
+    @objc
+    private func handleAddTokenButtonTap() {
+        output.addTokenButtonDidTapped()
+    }
 
     @objc
     private func handleTap(sender: UIGestureRecognizer) {

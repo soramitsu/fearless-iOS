@@ -1267,3 +1267,4 @@
 "add.token.add.button" = "Добавить";
 "add.token.invalid.address" = "Неверный адрес токена";
 "add.token.invalid.data" = "Не удалось получить данные токена";
+"add.token.already.exists" = "Этот токен уже добавлен в ваш кошелек";

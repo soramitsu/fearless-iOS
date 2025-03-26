@@ -164,7 +164,12 @@ final class ChainSyncService {
                 if localItem.options?.contains(.remoteAssets) == true {
                     return compareForRemoteAssetsOption(localItem: localItem, remoteItem: remoteItem)
                 }
-                return localItem != remoteItem ? remoteItem : nil
+                
+                let customAssets = localItem.assets.filter { $0.isCustom }
+                let updatedAssets = remoteItem.assets.union(customAssets)
+                let updatedChain = remoteItem.replacingAssets(Array(updatedAssets))
+                
+                return localItem != updatedChain ? updatedChain : nil
             } else {
                 return remoteItem
             }
@@ -188,9 +193,11 @@ final class ChainSyncService {
 
         let localUtilityAsset = localItem.assets.first(where: { $0.isUtility })
         let remoteUtilityAsset = remoteItem.assets.first(where: { $0.isUtility })
+        
+        let customAssets = localItem.assets.filter { $0.isCustom }
 
         if updatedLocalChain != updatedRemoteChain || localUtilityAsset != remoteUtilityAsset {
-            let assets = localItem.assets.union(remoteItem.assets)
+            let assets = localItem.assets.union(remoteItem.assets).union(customAssets)
             let remoteChain = remoteItem.replacingAssets(Array(assets))
             return remoteChain
         } else {

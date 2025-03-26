@@ -1268,4 +1268,5 @@ belongs to the right network";
 "add.token.total.supply.title" = "Total Supply";
 "add.token.add.button" = "Add";
 "add.token.invalid.address" = "Invalid token address";
-"add.token.invalid.data" = "Failed to fetch token data";
+"add.token.invalid.data" = "Could not fetch token data";
+"add.token.already.exists" = "This token is already added to your wallet";

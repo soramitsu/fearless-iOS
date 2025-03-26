@@ -5406,6 +5406,7 @@
 		FA074CAC2D9276E50080B68B /* AddERC20TokenRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddERC20TokenRouter.swift; sourceTree = "<group>"; };
 		FA074CAD2D9276E50080B68B /* AddERC20TokenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddERC20TokenViewController.swift; sourceTree = "<group>"; };
 		FA074CB52D9278C40080B68B /* AddERC20TokenError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddERC20TokenError.swift; sourceTree = "<group>"; };
+		FA074CB72D93C1130080B68B /* shared-features-spm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "shared-features-spm"; path = "../shared-features-spm"; sourceTree = SOURCE_ROOT; };
 		FA08B3642A31A09E00D9D126 /* BigUInt+StringInitializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BigUInt+StringInitializable.swift"; sourceTree = "<group>"; };
 		FA09AD342C37ABA000BE0B9C /* TransactionObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionObserver.swift; sourceTree = "<group>"; };
 		FA09AD362C37AF9200BE0B9C /* SubstrateTransactionObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateTransactionObserver.swift; sourceTree = "<group>"; };
@@ -9962,6 +9963,7 @@
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
+				FA074CB72D93C1130080B68B /* shared-features-spm */,
 				849013AA24A80984008F705E /* fearless */,
 				849013C124A80986008F705E /* fearlessTests */,
 				8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */,

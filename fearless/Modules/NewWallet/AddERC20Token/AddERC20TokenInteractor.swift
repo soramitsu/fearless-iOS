@@ -3,30 +3,31 @@ import Web3
 import SSFModels
 import RobinHood
 import Web3ContractABI
+import PromiseKit
+import SSFNetwork
 
 final class AddERC20TokenInteractor {
     // MARK: - Private properties
 
     private weak var output: AddERC20TokenInteractorOutput?
-    private let web3: Web3.Eth
-    private let chain: ChainModel
     private let storage: AnyDataProviderRepository<ChainModel>
     private let operationManager: OperationManagerProtocol
+    private let ethereumNodeFetching: EthereumNodeFetching
+    private let chainAssetFetching: ChainAssetFetchingProtocol
+    private var web3: Web3.Eth?
 
     // MARK: - Constructors
 
     init(
-        chain: ChainModel,
         storage: AnyDataProviderRepository<ChainModel>,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        ethereumNodeFetching: EthereumNodeFetching,
+        chainAssetFetching: ChainAssetFetchingProtocol
     ) {
-        self.chain = chain
         self.storage = storage
         self.operationManager = operationManager
-        
-        // Инициализация Web3 с RPC URL для Ethereum
-        let rpcURL = "https://mainnet.infura.io/v3/YOUR-PROJECT-ID" // Замените на ваш RPC URL
-        self.web3 = Web3(rpcURL: rpcURL).eth
+        self.ethereumNodeFetching = ethereumNodeFetching
+        self.chainAssetFetching = chainAssetFetching
     }
 }
 
@@ -37,50 +38,59 @@ extension AddERC20TokenInteractor: AddERC20TokenInteractorInput {
         self.output = output
     }
 
-    func validateAndFetchToken(address: String) {
-        Task {
-            do {
-                // Проверяем, что адрес валидный
-                let contractAddress = try EthereumAddress(rawAddress: address.hexToBytes())
-
-                // Создаем контракт ERC20
-                let contract = web3.Contract(type: GenericERC20Contract.self, address: contractAddress)
-
-                // Получаем данные токена
-                async let name = contract.name().call()
-                async let symbol = contract.symbol().call()
-                async let decimals = contract.decimals().call()
-                async let totalSupply = contract.totalSupply().call()
-
-                let (nameResult, symbolResult, decimalsResult, totalSupplyResult) = await (name, symbol, decimals, totalSupply)
-
-                guard let name = nameResult.value?["_name"] as? String,
-                      let symbol = symbolResult.value?["_symbol"] as? String,
-                      let decimals = decimalsResult.value?["_decimals"] as? UInt8,
-                      let totalSupply = totalSupplyResult.value?["_totalSupply"] as? BigUInt else {
+    func validateAndFetchToken(address: String, chain: ChainModel) async throws {
+        let chainAssets = try await chainAssetFetching.fetchAwait(
+            shouldUseCache: true,
+            filters: [.chainId(chain.chainId)],
+            sortDescriptors: []
+        )
+        
+        if chainAssets.contains(where: { $0.asset.id.lowercased() == address.lowercased() }) {
+            throw AddERC20TokenError.tokenAlreadyExists
+        }
+        
+        firstly {
+            let web3 = try ethereumNodeFetching.getNode(for: chain)
+            let contractAddress = try EthereumAddress(rawAddress: address.hexToBytes())
+            let contract = web3.Contract(type: GenericERC20Contract.self, address: contractAddress)
+            return Promise.value(contract)
+        }.then { contract -> Promise<(String, String, UInt8, BigUInt)> in
+            let namePromise = contract.name().call()
+            let symbolPromise = contract.symbol().call()
+            let decimalsPromise = contract.decimals().call()
+            let totalSupplyPromise = contract.totalSupply().call()
+            
+            return when(fulfilled: [
+                namePromise,
+                symbolPromise,
+                decimalsPromise,
+                totalSupplyPromise
+            ]).map { results in
+                guard let name = results[0]["_name"] as? String,
+                      let symbol = results[1]["_symbol"] as? String,
+                      let decimals = results[2]["_decimals"] as? UInt8,
+                      let totalSupply = results[3]["_totalSupply"] as? BigUInt else {
                     throw AddERC20TokenError.invalidTokenData
                 }
-
-                let tokenInfo = ERC20TokenInfo(
-                    address: address,
-                    name: name,
-                    symbol: symbol,
-                    decimals: decimals,
-                    totalSupply: totalSupply
-                )
-
-                await MainActor.run {
-                    output?.didReceive(tokenInfo: tokenInfo)
-                }
-            } catch {
-                await MainActor.run {
-                    output?.didReceive(error: error)
-                }
+                
+                return (name, symbol, decimals, totalSupply)
             }
+        }.done { name, symbol, decimals, totalSupply in
+            let tokenInfo = ERC20TokenInfo(
+                address: address,
+                name: name,
+                symbol: symbol,
+                decimals: decimals,
+                totalSupply: totalSupply
+            )
+            
+            self.output?.didReceive(tokenInfo: tokenInfo)
+        }.catch { error in
+            self.output?.didReceive(error: error)
         }
     }
 
-    func saveToken(_ token: ERC20TokenInfo) {
+    func saveToken(_ token: ERC20TokenInfo, for chain: ChainModel) {
         Task {
             do {
                 // Создаем новый AssetModel
@@ -101,7 +111,8 @@ extension AddERC20TokenInteractor: AddERC20TokenInteractorInput {
                     priceProvider: nil,
                     coingeckoPriceId: nil,
                     priceData: [],
-                    coinbaseUrl: nil
+                    coinbaseUrl: nil,
+                    isCustom: true
                 )
 
                 // Создаем обновленную цепь с новым ассетом
@@ -128,7 +139,7 @@ extension AddERC20TokenInteractor: AddERC20TokenInteractorInput {
                 }
 
                 await MainActor.run {
-                    output?.didReceive(tokenInfo: token)
+                    output?.didFinishSavingToken()
                 }
             } catch {
                 await MainActor.run {

@@ -196,7 +196,8 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
             assetType: .ton(tonType: .jetton),
             priceProvider: nil,
             coingeckoPriceId: nil,
-            priceData: balanceInfo.priceData
+            priceData: balanceInfo.priceData,
+            isCustom: false
         )
     }
 

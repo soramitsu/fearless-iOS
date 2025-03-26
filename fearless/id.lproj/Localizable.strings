@@ -1253,3 +1253,4 @@ akan muncul di sini";
 "add.token.add.button" = "Tambah";
 "add.token.invalid.address" = "Alamat token tidak valid";
 "add.token.invalid.data" = "Gagal mengambil data token";
+"add.token.already.exists" = "Token ini sudah ditambahkan ke dompet Anda";
