@@ -32,7 +32,8 @@ final class AddERC20TokenRouter: AddERC20TokenRouterInput {
                 includingAllNetworks: false,
                 searchTextsViewModel: nil,
                 delegate: delegate,
-                contextTag: contextTag
+                contextTag: contextTag,
+                predicate: NSPredicate.ethereumEcosystem()
             )
         else {
             return

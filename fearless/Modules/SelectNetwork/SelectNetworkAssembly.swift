@@ -12,12 +12,13 @@ enum SelectNetworkAssembly {
         includingAllNetworks: Bool = true,
         searchTextsViewModel: TextSearchViewModel?,
         delegate: SelectNetworkDelegate?,
-        contextTag: Int? = nil
+        contextTag: Int? = nil,
+        predicate: NSPredicate? = NSPredicate.enabledCHain()
     ) -> SelectNetworkModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let repository = ChainRepositoryFactory().createRepository(
-            for: NSPredicate.enabledCHain(),
+            for: predicate,
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 

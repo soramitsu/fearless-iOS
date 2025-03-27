@@ -100,4 +100,8 @@ extension NSPredicate {
     static func regularEcosystem() -> NSPredicate {
         NSPredicate(format: "%K == nil", #keyPath(CDMetaAccount.tonAddress))
     }
+    
+    static func ethereumEcosystem() -> NSPredicate {
+        NSPredicate(format: "%K == %@", #keyPath(CDChain.ecosystem), "ethereum")
+    }
 }

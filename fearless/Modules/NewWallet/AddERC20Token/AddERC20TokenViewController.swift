@@ -16,6 +16,7 @@ final class AddERC20TokenViewController: UIViewController {
         field.animatedInputField.textField.autocapitalizationType = .none
         field.animatedInputField.textField.autocorrectionType = .no
         field.animatedInputField.textField.keyboardType = .asciiCapable
+        field.animatedInputField.textField.returnKeyType = .send
         return field
     }()
 
@@ -106,6 +107,7 @@ final class AddERC20TokenViewController: UIViewController {
         }
 
         [tokenAddressField, tokenNameField, tokenSymbolField, tokenDecimalsField, tokenTotalSupplyField].forEach { field in
+            field.isHidden = true
             stackView.addArrangedSubview(field)
             field.snp.makeConstraints { make in
                 make.height.equalTo(52)
@@ -161,22 +163,26 @@ extension AddERC20TokenViewController: AddERC20TokenViewInput {
     func didReceive(viewModel: AddERC20TokenViewModel) {
         self.viewModel = viewModel
 
-        tokenAddressField.animatedInputField.text = viewModel.tokenAddress
+        tokenNameField.isHidden = viewModel.tokenName == nil
+        tokenSymbolField.isHidden = viewModel.tokenSymbol == nil
+        tokenDecimalsField.isHidden = viewModel.tokenDecimals == nil
+        tokenTotalSupplyField.isHidden = viewModel.tokenTotalSupply == nil
+        
         tokenNameField.animatedInputField.text = viewModel.tokenName
         tokenSymbolField.animatedInputField.text = viewModel.tokenSymbol
         tokenDecimalsField.animatedInputField.text = viewModel.tokenDecimals.map { String($0) }
         tokenTotalSupplyField.animatedInputField.text = viewModel.tokenTotalSupply.map { String($0) }
 
-        saveButton.isEnabled = viewModel.isSaveEnabled
-        saveButton.applyEnabledStyle()
+        saveButton.set(enabled: viewModel.isSaveEnabled, changeStyle: true)
     }
 
     func didReceive(isLoading: Bool) {
-        saveButton.set(enabled: !isLoading, changeStyle: true)
         saveButton.set(loading: isLoading)
     }
 
     func didReceive(selectNetworkViewModel: SelectNetworkViewModel?) {
+        tokenAddressField.isHidden = selectNetworkViewModel == nil
+        
         guard let selectNetworkViewModel else {
             selectNetworkView.subtitle = R.string.localizable.commonSelectNetwork(preferredLanguages: selectedLocale.rLanguages)
             selectNetworkView.iconView.image = R.image.addressPlaceholder()
@@ -206,6 +212,10 @@ extension AddERC20TokenViewController: Localizable {
 
 extension AddERC20TokenViewController: AnimatedTextFieldDelegate {
     func animatedTextFieldShouldReturn(_ textField: AnimatedTextField) -> Bool {
+        if textField === tokenAddressField.animatedInputField {
+            output?.didChangeTokenAddress(textField.text ?? "")
+        }
+        
         textField.resignFirstResponder()
         return false
     }

@@ -20,6 +20,7 @@ final class AddERC20TokenPresenter {
         }
     }
     private var selectedChain: ChainModel?
+    private var debounceTimer: Timer?
 
     // MARK: - Constructors
 
@@ -59,25 +60,23 @@ extension AddERC20TokenPresenter: AddERC20TokenViewOutput {
     }
 
     func didChangeTokenAddress(_ address: String) {
+        debounceTimer?.invalidate()
+        debounceTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
+            self?.validateTokenAddress(address)
+        }
+    }
+    
+    private func validateTokenAddress(_ address: String) {
         let ethereumAddressRegex = "^0x[a-fA-F0-9]{40}$"
         let addressPredicate = NSPredicate(format: "SELF MATCHES %@", ethereumAddressRegex)
         
-        guard addressPredicate.evaluate(with: address) else {
-            return
-        }
-        
-        guard !address.isEmpty else {
+        guard addressPredicate.evaluate(with: address), let selectedChain = selectedChain else {
             currentTokenInfo = nil
             provideViewModel()
             return
         }
         
-        guard let selectedChain = selectedChain else {
-            return
-        }
-        
         isLoading = true
-        provideViewModel()
         
         Task {
             do {
@@ -193,6 +192,11 @@ extension AddERC20TokenPresenter: SelectNetworkDelegate {
             return
         }
 
+        if selectedChain?.chainId != chain.chainId {
+            currentTokenInfo = nil
+            provideViewModel()
+        }
+        
         selectedChain = chain
         provideSelectNetworkViewModel()
     }
