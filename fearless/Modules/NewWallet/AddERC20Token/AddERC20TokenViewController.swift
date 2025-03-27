@@ -53,6 +53,7 @@ final class AddERC20TokenViewController: UIViewController {
     private let stackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
+        stack.alignment = .center
         stack.spacing = 16
         stack.layoutMargins = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
         return stack
@@ -104,6 +105,7 @@ final class AddERC20TokenViewController: UIViewController {
         stackView.addArrangedSubview(selectNetworkView)
         selectNetworkView.snp.makeConstraints { make in
             make.height.equalTo(48)
+            make.leading.trailing.equalToSuperview().inset(16)
         }
 
         [tokenAddressField, tokenNameField, tokenSymbolField, tokenDecimalsField, tokenTotalSupplyField].forEach { field in
@@ -111,12 +113,14 @@ final class AddERC20TokenViewController: UIViewController {
             stackView.addArrangedSubview(field)
             field.snp.makeConstraints { make in
                 make.height.equalTo(52)
+                make.leading.trailing.equalToSuperview().inset(16)
             }
         }
 
         stackView.addArrangedSubview(saveButton)
         saveButton.snp.makeConstraints { make in
             make.height.equalTo(48)
+            make.leading.trailing.equalToSuperview().inset(16)
         }
 
         scrollView.snp.makeConstraints { make in

@@ -160,6 +160,7 @@ private extension AddERC20TokenPresenter {
             tokenSymbol: currentTokenInfo?.symbol,
             tokenDecimals: currentTokenInfo?.decimals,
             tokenTotalSupply: currentTokenInfo?.totalSupply,
+            iconURL: currentTokenInfo?.iconURL,
             isSaveEnabled: currentTokenInfo != nil && !isLoading,
             isLoading: isLoading
         )

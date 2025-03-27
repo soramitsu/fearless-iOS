@@ -47,20 +47,13 @@ protocol AddERC20TokenModuleInput: AnyObject {}
 
 typealias AddERC20TokenModuleCreationResult = (view: AddERC20TokenViewInput, input: AddERC20TokenModuleInput)
 
-struct ERC20TokenInfo {
-    let address: String
-    let name: String
-    let symbol: String
-    let decimals: UInt8
-    let totalSupply: BigUInt
-}
-
 struct AddERC20TokenViewModel {
     let tokenAddress: String
     let tokenName: String?
     let tokenSymbol: String?
     let tokenDecimals: UInt8?
     let tokenTotalSupply: BigUInt?
+    let iconURL: URL?
     let isSaveEnabled: Bool
     let isLoading: Bool
 } 

@@ -29,6 +29,11 @@ final class AddERC20TokenInteractor {
         self.ethereumNodeFetching = ethereumNodeFetching
         self.chainAssetFetching = chainAssetFetching
     }
+
+    private func getTokenIconURL(address: String) -> URL? {
+        let baseURL = "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets"
+        return URL(string: "\(baseURL)/\(address)/logo.png")
+    }
 }
 
 // MARK: - AddERC20TokenInteractorInput
@@ -81,7 +86,8 @@ extension AddERC20TokenInteractor: AddERC20TokenInteractorInput {
                 name: name,
                 symbol: symbol,
                 decimals: decimals,
-                totalSupply: totalSupply
+                totalSupply: totalSupply,
+                iconURL: self.getTokenIconURL(address: address)
             )
             
             self.output?.didReceive(tokenInfo: tokenInfo)
@@ -93,13 +99,12 @@ extension AddERC20TokenInteractor: AddERC20TokenInteractorInput {
     func saveToken(_ token: ERC20TokenInfo, for chain: ChainModel) {
         Task {
             do {
-                // Создаем новый AssetModel
                 let asset = AssetModel(
                     id: token.address,
                     name: token.name,
                     symbol: token.symbol,
                     precision: UInt16(token.decimals),
-                    icon: nil,
+                    icon: token.iconURL,
                     currencyId: token.address,
                     existentialDeposit: nil,
                     color: nil,
@@ -115,12 +120,10 @@ extension AddERC20TokenInteractor: AddERC20TokenInteractorInput {
                     isCustom: true
                 )
 
-                // Создаем обновленную цепь с новым ассетом
                 var updatedAssets = chain.assets
                 updatedAssets.insert(asset)
                 let updatedChain = chain.replacingAssets(Array(updatedAssets))
 
-                // Создаем и выполняем операцию сохранения
                 let saveOperation = storage.saveOperation({ [updatedChain] }, { [] })
                 
                 try await withCheckedThrowingContinuation { continuation in

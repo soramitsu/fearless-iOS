@@ -7,4 +7,5 @@ struct ERC20TokenInfo {
     let symbol: String
     let decimals: UInt8
     let totalSupply: BigUInt
+    let iconURL: URL?
 } 
