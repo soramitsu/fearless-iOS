@@ -11,7 +11,7 @@ final class AddERC20TokenPresenter {
     private let logger: LoggerProtocol
     private let localizationManager: LocalizationManagerProtocol
     private let wallet: MetaAccountModel
-    private weak var moduleOutput: AddERC20TokenModuleOutput?
+    private var moduleOutput: AddERC20TokenModuleOutput?
 
     private var currentTokenInfo: ERC20TokenInfo?
     private var isLoading = false {

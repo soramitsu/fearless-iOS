@@ -15,6 +15,7 @@ final class AddERC20TokenInteractor {
     private let ethereumNodeFetching: EthereumNodeFetching
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private var web3: Web3.Eth?
+    private let retryOperation: RetryOperation
 
     // MARK: - Constructors
 
@@ -28,6 +29,7 @@ final class AddERC20TokenInteractor {
         self.operationManager = operationManager
         self.ethereumNodeFetching = ethereumNodeFetching
         self.chainAssetFetching = chainAssetFetching
+        self.retryOperation = RetryOperation()
     }
 
     private func getTokenIconURL(address: String) -> URL? {
@@ -54,46 +56,52 @@ extension AddERC20TokenInteractor: AddERC20TokenInteractorInput {
             throw AddERC20TokenError.tokenAlreadyExists
         }
         
-        firstly {
-            let web3 = try ethereumNodeFetching.getNode(for: chain)
-            let contractAddress = try EthereumAddress(rawAddress: address.hexToBytes())
-            let contract = web3.Contract(type: GenericERC20Contract.self, address: contractAddress)
-            return Promise.value(contract)
-        }.then { contract -> Promise<(String, String, UInt8, BigUInt)> in
-            let namePromise = contract.name().call()
-            let symbolPromise = contract.symbol().call()
-            let decimalsPromise = contract.decimals().call()
-            let totalSupplyPromise = contract.totalSupply().call()
-            
-            return when(fulfilled: [
-                namePromise,
-                symbolPromise,
-                decimalsPromise,
-                totalSupplyPromise
-            ]).map { results in
-                guard let name = results[0]["_name"] as? String,
-                      let symbol = results[1]["_symbol"] as? String,
-                      let decimals = results[2]["_decimals"] as? UInt8,
-                      let totalSupply = results[3]["_totalSupply"] as? BigUInt else {
-                    throw AddERC20TokenError.invalidTokenData
+        _ = try await retryOperation.executeWithPromise(
+            operation: {
+                firstly {
+                    let web3 = try self.ethereumNodeFetching.getNode(for: chain)
+                    let contractAddress = try EthereumAddress(rawAddress: address.hexToBytes())
+                    let contract = web3.Contract(type: GenericERC20Contract.self, address: contractAddress)
+                    return Promise.value(contract)
+                }.then { contract -> Promise<(String, String, UInt8, BigUInt)> in
+                    let namePromise = contract.name().call()
+                    let symbolPromise = contract.symbol().call()
+                    let decimalsPromise = contract.decimals().call()
+                    let totalSupplyPromise = contract.totalSupply().call()
+                    
+                    return when(fulfilled: [
+                        namePromise,
+                        symbolPromise,
+                        decimalsPromise,
+                        totalSupplyPromise
+                    ]).map { results in
+                        guard let name = results[0]["_name"] as? String,
+                              let symbol = results[1]["_symbol"] as? String,
+                              let decimals = results[2]["_decimals"] as? UInt8,
+                              let totalSupply = results[3]["_totalSupply"] as? BigUInt else {
+                            throw AddERC20TokenError.invalidTokenData
+                        }
+                        
+                        return (name, symbol, decimals, totalSupply)
+                    }
+                }.map { name, symbol, decimals, totalSupply in
+                    let tokenInfo = ERC20TokenInfo(
+                        address: address,
+                        name: name,
+                        symbol: symbol,
+                        decimals: decimals,
+                        totalSupply: totalSupply,
+                        iconURL: self.getTokenIconURL(address: address)
+                    )
+                    
+                    self.output?.didReceive(tokenInfo: tokenInfo)
+                    return tokenInfo
                 }
-                
-                return (name, symbol, decimals, totalSupply)
+            },
+            onError: { [weak self] error in
+                self?.output?.didReceive(error: error)
             }
-        }.done { name, symbol, decimals, totalSupply in
-            let tokenInfo = ERC20TokenInfo(
-                address: address,
-                name: name,
-                symbol: symbol,
-                decimals: decimals,
-                totalSupply: totalSupply,
-                iconURL: self.getTokenIconURL(address: address)
-            )
-            
-            self.output?.didReceive(tokenInfo: tokenInfo)
-        }.catch { error in
-            self.output?.didReceive(error: error)
-        }
+        )
     }
 
     func saveToken(_ token: ERC20TokenInfo, for chain: ChainModel) {

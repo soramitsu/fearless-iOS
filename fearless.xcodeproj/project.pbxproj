@@ -2513,6 +2513,22 @@
 		FA68301C2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA68301B2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift */; };
 		FA69A94727CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = FA69A94627CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel */; };
 		FA6A6DBD27B60A84007D1A20 /* ChainNodeModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6A6DBC27B60A84007D1A20 /* ChainNodeModelMapper.swift */; };
+		FA6BB2ED2D95BAE5001DD3BB /* Web3 in Frameworks */ = {isa = PBXBuildFile; productRef = FA6BB2EC2D95BAE5001DD3BB /* Web3 */; };
+		FA6BB2EF2D95BAE5001DD3BB /* Web3ContractABI in Frameworks */ = {isa = PBXBuildFile; productRef = FA6BB2EE2D95BAE5001DD3BB /* Web3ContractABI */; };
+		FA6BB2F12D95BAE5001DD3BB /* Web3PromiseKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA6BB2F02D95BAE5001DD3BB /* Web3PromiseKit */; };
+		FA6BB2F42D95C027001DD3BB /* WalletConnect in Frameworks */ = {isa = PBXBuildFile; productRef = FA6BB2F32D95C027001DD3BB /* WalletConnect */; };
+		FA6BB2F62D95C027001DD3BB /* WalletConnectAuth in Frameworks */ = {isa = PBXBuildFile; productRef = FA6BB2F52D95C027001DD3BB /* WalletConnectAuth */; };
+		FA6BB2F82D95C027001DD3BB /* WalletConnectChat in Frameworks */ = {isa = PBXBuildFile; productRef = FA6BB2F72D95C027001DD3BB /* WalletConnectChat */; };
+		FA6BB2FA2D95C027001DD3BB /* WalletConnectHistory in Frameworks */ = {isa = PBXBuildFile; productRef = FA6BB2F92D95C027001DD3BB /* WalletConnectHistory */; };
+		FA6BB2FC2D95C027001DD3BB /* WalletConnectModal in Frameworks */ = {isa = PBXBuildFile; productRef = FA6BB2FB2D95C027001DD3BB /* WalletConnectModal */; };
+		FA6BB2FE2D95C027001DD3BB /* WalletConnectNetworking in Frameworks */ = {isa = PBXBuildFile; productRef = FA6BB2FD2D95C027001DD3BB /* WalletConnectNetworking */; };
+		FA6BB3002D95C027001DD3BB /* WalletConnectNotify in Frameworks */ = {isa = PBXBuildFile; productRef = FA6BB2FF2D95C027001DD3BB /* WalletConnectNotify */; };
+		FA6BB3022D95C027001DD3BB /* WalletConnectPairing in Frameworks */ = {isa = PBXBuildFile; productRef = FA6BB3012D95C027001DD3BB /* WalletConnectPairing */; };
+		FA6BB3042D95C027001DD3BB /* WalletConnectPush in Frameworks */ = {isa = PBXBuildFile; productRef = FA6BB3032D95C027001DD3BB /* WalletConnectPush */; };
+		FA6BB3062D95C027001DD3BB /* WalletConnectRouter in Frameworks */ = {isa = PBXBuildFile; productRef = FA6BB3052D95C027001DD3BB /* WalletConnectRouter */; };
+		FA6BB3082D95C027001DD3BB /* WalletConnectSync in Frameworks */ = {isa = PBXBuildFile; productRef = FA6BB3072D95C027001DD3BB /* WalletConnectSync */; };
+		FA6BB30A2D95C027001DD3BB /* WalletConnectVerify in Frameworks */ = {isa = PBXBuildFile; productRef = FA6BB3092D95C027001DD3BB /* WalletConnectVerify */; };
+		FA6BB30C2D95C027001DD3BB /* Web3Wallet in Frameworks */ = {isa = PBXBuildFile; productRef = FA6BB30B2D95C027001DD3BB /* Web3Wallet */; };
 		FA6C175329935DAE00A55254 /* AssetTransactionData+GiantsquidHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6C175029935DAD00A55254 /* AssetTransactionData+GiantsquidHistory.swift */; };
 		FA6C175429935DAE00A55254 /* AssetTransactionData+SubqueryHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6C175129935DAD00A55254 /* AssetTransactionData+SubqueryHistory.swift */; };
 		FA6C175529935DAE00A55254 /* AssetTransactionData+SubsquidHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6C175229935DAE00A55254 /* AssetTransactionData+SubsquidHistory.swift */; };
@@ -2568,11 +2584,6 @@
 		FA7254432AC2E48500EC47A6 /* WalletConnectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA72541D2AC2E48400EC47A6 /* WalletConnectService.swift */; };
 		FA7254442AC2E48500EC47A6 /* WalletConnectSocketFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA72541E2AC2E48400EC47A6 /* WalletConnectSocketFactory.swift */; };
 		FA7254452AC2E48500EC47A6 /* WalletConnectPayloadFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA72541F2AC2E48500EC47A6 /* WalletConnectPayloadFactory.swift */; };
-		FA7254672AC2F12D00EC47A6 /* WalletConnect in Frameworks */ = {isa = PBXBuildFile; productRef = FA7254662AC2F12D00EC47A6 /* WalletConnect */; };
-		FA7254692AC2F12D00EC47A6 /* WalletConnectAuth in Frameworks */ = {isa = PBXBuildFile; productRef = FA7254682AC2F12D00EC47A6 /* WalletConnectAuth */; };
-		FA72546B2AC2F12D00EC47A6 /* WalletConnectNetworking in Frameworks */ = {isa = PBXBuildFile; productRef = FA72546A2AC2F12D00EC47A6 /* WalletConnectNetworking */; };
-		FA72546D2AC2F12D00EC47A6 /* WalletConnectPairing in Frameworks */ = {isa = PBXBuildFile; productRef = FA72546C2AC2F12D00EC47A6 /* WalletConnectPairing */; };
-		FA72546F2AC2F12D00EC47A6 /* Web3Wallet in Frameworks */ = {isa = PBXBuildFile; productRef = FA72546E2AC2F12D00EC47A6 /* Web3Wallet */; };
 		FA7336FD2A132F740096A291 /* AlchemyHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7336FC2A132F740096A291 /* AlchemyHistoryOperationFactory.swift */; };
 		FA7337092A1339890096A291 /* AssetTransactionData+AlchemyHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7337082A1339890096A291 /* AssetTransactionData+AlchemyHistory.swift */; };
 		FA740A8D2CC8C03400981508 /* GradientBorderedTriangularedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA740A8C2CC8C03400981508 /* GradientBorderedTriangularedView.swift */; };
@@ -2647,9 +2658,6 @@
 		FA8F6386298253ED004B8CD4 /* AddConnectionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8F6385298253ED004B8CD4 /* AddConnectionError.swift */; };
 		FA8F63AB29825C90004B8CD4 /* AccountShareFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8F63A529825C90004B8CD4 /* AccountShareFactory.swift */; };
 		FA8F63B1298273FE004B8CD4 /* DecodedTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8F63B0298273FE004B8CD4 /* DecodedTypes.swift */; };
-		FA8FD1812AF4B55100354482 /* Web3 in Frameworks */ = {isa = PBXBuildFile; productRef = FA8FD1802AF4B55100354482 /* Web3 */; };
-		FA8FD1832AF4B55100354482 /* Web3ContractABI in Frameworks */ = {isa = PBXBuildFile; productRef = FA8FD1822AF4B55100354482 /* Web3ContractABI */; };
-		FA8FD1852AF4B55100354482 /* Web3PromiseKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA8FD1842AF4B55100354482 /* Web3PromiseKit */; };
 		FA8FD1882AF4BEDD00354482 /* Swime in Frameworks */ = {isa = PBXBuildFile; productRef = FA8FD1872AF4BEDD00354482 /* Swime */; };
 		FA8FD18B2AFB7E6C00354482 /* AssetNetworksTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8FD18A2AFB7E6C00354482 /* AssetNetworksTableCell.swift */; };
 		FA8FD18E2AFBA2EA00354482 /* AssetNetworksTableCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8FD18D2AFBA2EA00354482 /* AssetNetworksTableCellModel.swift */; };
@@ -2879,6 +2887,7 @@
 		FABA16442B0C9511001AF2F0 /* NetworkManagmentInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABA16382B0C9510001AF2F0 /* NetworkManagmentInteractor.swift */; };
 		FABA16452B0C9511001AF2F0 /* NetworkManagmentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABA16392B0C9510001AF2F0 /* NetworkManagmentViewController.swift */; };
 		FABA16462B0C9511001AF2F0 /* NetworkManagmentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABA163A2B0C9510001AF2F0 /* NetworkManagmentViewModel.swift */; };
+		FABFB1732D953985002375C8 /* ERC20TokenInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABFB1712D953985002375C8 /* ERC20TokenInfo.swift */; };
 		FAC0BBAF291CE2B700E6F106 /* StakingPoolMainError.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC0BBAE291CE2B700E6F106 /* StakingPoolMainError.swift */; };
 		FAC0BBB2291D074500E6F106 /* RuntimeCallPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC0BBB1291D074400E6F106 /* RuntimeCallPath.swift */; };
 		FAC0BBCF291D0EB000E6F106 /* SendViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC0BBB5291D0EAF00E6F106 /* SendViewModelFactory.swift */; };
@@ -3105,6 +3114,7 @@
 		FADBA5F12B5FD0C200CFCF30 /* ClaimCrowdloanRewardViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADBA5F02B5FD0C200CFCF30 /* ClaimCrowdloanRewardViewModelFactory.swift */; };
 		FADBA5F32B5FE36200CFCF30 /* ChainAccountViewMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADBA5F22B5FE36200CFCF30 /* ChainAccountViewMode.swift */; };
 		FADBA5F42B5FE5C900CFCF30 /* ChainAccountPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7C02757C9AF00233FBA /* ChainAccountPresenter.swift */; };
+		FAE1EEDD2D9674B900276048 /* RetryOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE1EEDB2D9674B900276048 /* RetryOperation.swift */; };
 		FAE39AEF2A9DBDD30011A9D6 /* NftCollectionViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39AEE2A9DBDD30011A9D6 /* NftCollectionViewModelFactory.swift */; };
 		FAE39AF12A9DBDDA0011A9D6 /* NftCollectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39AF02A9DBDDA0011A9D6 /* NftCollectionViewModel.swift */; };
 		FAE39AF32A9E1A4F0011A9D6 /* ChainsSetupCompleted.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39AF22A9E1A4F0011A9D6 /* ChainsSetupCompleted.swift */; };
@@ -5406,7 +5416,6 @@
 		FA074CAC2D9276E50080B68B /* AddERC20TokenRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddERC20TokenRouter.swift; sourceTree = "<group>"; };
 		FA074CAD2D9276E50080B68B /* AddERC20TokenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddERC20TokenViewController.swift; sourceTree = "<group>"; };
 		FA074CB52D9278C40080B68B /* AddERC20TokenError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddERC20TokenError.swift; sourceTree = "<group>"; };
-		FA074CB72D93C1130080B68B /* shared-features-spm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "shared-features-spm"; path = "../shared-features-spm"; sourceTree = SOURCE_ROOT; };
 		FA08B3642A31A09E00D9D126 /* BigUInt+StringInitializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BigUInt+StringInitializable.swift"; sourceTree = "<group>"; };
 		FA09AD342C37ABA000BE0B9C /* TransactionObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionObserver.swift; sourceTree = "<group>"; };
 		FA09AD362C37AF9200BE0B9C /* SubstrateTransactionObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateTransactionObserver.swift; sourceTree = "<group>"; };
@@ -6197,6 +6206,7 @@
 		FABA16382B0C9510001AF2F0 /* NetworkManagmentInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManagmentInteractor.swift; sourceTree = "<group>"; };
 		FABA16392B0C9510001AF2F0 /* NetworkManagmentViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManagmentViewController.swift; sourceTree = "<group>"; };
 		FABA163A2B0C9510001AF2F0 /* NetworkManagmentViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManagmentViewModel.swift; sourceTree = "<group>"; };
+		FABFB1712D953985002375C8 /* ERC20TokenInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ERC20TokenInfo.swift; sourceTree = "<group>"; };
 		FAC0BBAE291CE2B700E6F106 /* StakingPoolMainError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolMainError.swift; sourceTree = "<group>"; };
 		FAC0BBB1291D074400E6F106 /* RuntimeCallPath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RuntimeCallPath.swift; sourceTree = "<group>"; };
 		FAC0BBB5291D0EAF00E6F106 /* SendViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendViewModelFactory.swift; sourceTree = "<group>"; };
@@ -6429,6 +6439,7 @@
 		FADBA5EE2B5FD05C00CFCF30 /* ClaimCrowdloanRewardsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaimCrowdloanRewardsViewModel.swift; sourceTree = "<group>"; };
 		FADBA5F02B5FD0C200CFCF30 /* ClaimCrowdloanRewardViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaimCrowdloanRewardViewModelFactory.swift; sourceTree = "<group>"; };
 		FADBA5F22B5FE36200CFCF30 /* ChainAccountViewMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAccountViewMode.swift; sourceTree = "<group>"; };
+		FAE1EEDB2D9674B900276048 /* RetryOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetryOperation.swift; sourceTree = "<group>"; };
 		FAE39AEE2A9DBDD30011A9D6 /* NftCollectionViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftCollectionViewModelFactory.swift; sourceTree = "<group>"; };
 		FAE39AF02A9DBDDA0011A9D6 /* NftCollectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftCollectionViewModel.swift; sourceTree = "<group>"; };
 		FAE39AF22A9E1A4F0011A9D6 /* ChainsSetupCompleted.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainsSetupCompleted.swift; sourceTree = "<group>"; };
@@ -6576,46 +6587,54 @@
 			files = (
 				FA1FAD702D62FEBE00ECD456 /* SSFTransferService in Frameworks */,
 				FA1FAD5A2D62FEBE00ECD456 /* SSFLogger in Frameworks */,
+				FA6BB3002D95C027001DD3BB /* WalletConnectNotify in Frameworks */,
+				FA6BB2FE2D95C027001DD3BB /* WalletConnectNetworking in Frameworks */,
 				FA1FAD5E2D62FEBE00ECD456 /* SSFNetwork in Frameworks */,
 				FA1FAD4C2D62FEBE00ECD456 /* SSFChainRegistry in Frameworks */,
-				FA72546F2AC2F12D00EC47A6 /* Web3Wallet in Frameworks */,
 				070ED7EF2C4543D900DF4098 /* TonAPI in Frameworks */,
 				FA1FAD4E2D62FEBE00ECD456 /* SSFCloudStorage in Frameworks */,
-				FA72546B2AC2F12D00EC47A6 /* WalletConnectNetworking in Frameworks */,
+				FA6BB3082D95C027001DD3BB /* WalletConnectSync in Frameworks */,
 				070ED7EB2C4543D900DF4098 /* EventSource in Frameworks */,
 				FA1FAD6E2D62FEBE00ECD456 /* SSFStorageQueryKit in Frameworks */,
 				FA1FAD742D62FEBE00ECD456 /* SSFXCM in Frameworks */,
+				FA6BB3062D95C027001DD3BB /* WalletConnectRouter in Frameworks */,
 				FA1FAD522D62FEBE00ECD456 /* SSFEraKit in Frameworks */,
+				FA6BB2F62D95C027001DD3BB /* WalletConnectAuth in Frameworks */,
+				FA6BB30A2D95C027001DD3BB /* WalletConnectVerify in Frameworks */,
 				FA1FAD642D62FEBE00ECD456 /* SSFPoolsStorage in Frameworks */,
 				FA1FAD6C2D62FEBE00ECD456 /* SSFSingleValueCache in Frameworks */,
 				FA8FD1882AF4BEDD00354482 /* Swime in Frameworks */,
 				FA1FAD482D62FEBE00ECD456 /* SSFAssetManagment in Frameworks */,
 				FA1FAD582D62FEBE00ECD456 /* SSFKeyPair in Frameworks */,
 				070ED7ED2C4543D900DF4098 /* StreamURLSessionTransport in Frameworks */,
-				FA8FD1832AF4B55100354482 /* Web3ContractABI in Frameworks */,
 				FA1FAD6A2D62FEBE00ECD456 /* SSFSigner in Frameworks */,
 				FA1FAD4A2D62FEBE00ECD456 /* SSFChainConnection in Frameworks */,
 				FA1FAD3E2D62FEBE00ECD456 /* IrohaCrypto in Frameworks */,
 				FA1FAD442D62FEBE00ECD456 /* SSFAccountManagment in Frameworks */,
 				FA1FAD722D62FEBE00ECD456 /* SSFUtils in Frameworks */,
-				FA8FD1812AF4B55100354482 /* Web3 in Frameworks */,
-				FA8FD1852AF4B55100354482 /* Web3PromiseKit in Frameworks */,
 				FA1FAD682D62FEBE00ECD456 /* SSFRuntimeCodingService in Frameworks */,
 				0701B8A32C78F54200DCD395 /* Cosmos in Frameworks */,
 				FA1FAD662D62FEBE00ECD456 /* SSFQRService in Frameworks */,
-				FA7254672AC2F12D00EC47A6 /* WalletConnect in Frameworks */,
+				FA6BB2F42D95C027001DD3BB /* WalletConnect in Frameworks */,
+				FA6BB2F12D95BAE5001DD3BB /* Web3PromiseKit in Frameworks */,
+				FA6BB2FC2D95C027001DD3BB /* WalletConnectModal in Frameworks */,
 				FA1FAD402D62FEBE00ECD456 /* MPQRCoreSDK in Frameworks */,
 				070ED7F12C4543D900DF4098 /* TonStreamingAPI in Frameworks */,
+				FA6BB3042D95C027001DD3BB /* WalletConnectPush in Frameworks */,
 				FA1FAD782D62FEBE00ECD456 /* TonConnectAPI in Frameworks */,
-				FA72546D2AC2F12D00EC47A6 /* WalletConnectPairing in Frameworks */,
+				FA6BB30C2D95C027001DD3BB /* Web3Wallet in Frameworks */,
 				FA1FAD502D62FEBE00ECD456 /* SSFCrypto in Frameworks */,
-				FA7254692AC2F12D00EC47A6 /* WalletConnectAuth in Frameworks */,
 				FA1FAD7A2D62FEBE00ECD456 /* keccak in Frameworks */,
+				FA6BB2F82D95C027001DD3BB /* WalletConnectChat in Frameworks */,
+				FA6BB2ED2D95BAE5001DD3BB /* Web3 in Frameworks */,
 				FA1FAD762D62FEBE00ECD456 /* SoraKeystore in Frameworks */,
+				FA6BB2FA2D95C027001DD3BB /* WalletConnectHistory in Frameworks */,
+				FA6BB3022D95C027001DD3BB /* WalletConnectPairing in Frameworks */,
 				FA1FAD5C2D62FEBE00ECD456 /* SSFModels in Frameworks */,
 				070ED7D22C3E7DE100DF4098 /* TonSwift in Frameworks */,
 				FA1FAD562D62FEBE00ECD456 /* SSFHelpers in Frameworks */,
 				FA1FAD542D62FEBE00ECD456 /* SSFExtrinsicKit in Frameworks */,
+				FA6BB2EF2D95BAE5001DD3BB /* Web3ContractABI in Frameworks */,
 				FA1FAD622D62FEBE00ECD456 /* SSFPools in Frameworks */,
 				FA1FAD602D62FEBE00ECD456 /* SSFPolkaswap in Frameworks */,
 				FA1FAD422D62FEBE00ECD456 /* RobinHood in Frameworks */,
@@ -9963,7 +9982,6 @@
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
-				FA074CB72D93C1130080B68B /* shared-features-spm */,
 				849013AA24A80984008F705E /* fearless */,
 				849013C124A80986008F705E /* fearlessTests */,
 				8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */,
@@ -10028,6 +10046,7 @@
 		849013D124A92686008F705E /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				FAE1EEDC2D9674B900276048 /* Retry */,
 				FAC6CD9B2BA8096D0013A17E /* Localization */,
 				FA6C178F2993601A00A55254 /* AddressChainDefiner */,
 				07FBC9E328BE269F00ED65B4 /* ChainIssuesCenter */,
@@ -13469,6 +13488,7 @@
 		FA074CAE2D9276E50080B68B /* AddERC20Token */ = {
 			isa = PBXGroup;
 			children = (
+				FABFB1722D953985002375C8 /* Models */,
 				FA074CB52D9278C40080B68B /* AddERC20TokenError.swift */,
 				FA074CA82D9276E50080B68B /* AddERC20TokenAssembly.swift */,
 				FA074CA92D9276E50080B68B /* AddERC20TokenInteractor.swift */,
@@ -15706,6 +15726,14 @@
 			path = NetworkManagment;
 			sourceTree = "<group>";
 		};
+		FABFB1722D953985002375C8 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				FABFB1712D953985002375C8 /* ERC20TokenInfo.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		FAC0BBB0291D074400E6F106 /* RuntimeCall */ = {
 			isa = PBXGroup;
 			children = (
@@ -16276,6 +16304,14 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		FAE1EEDC2D9674B900276048 /* Retry */ = {
+			isa = PBXGroup;
+			children = (
+				FAE1EEDB2D9674B900276048 /* RetryOperation.swift */,
+			);
+			path = Retry;
+			sourceTree = "<group>";
+		};
 		FAE39AF42A9E63690011A9D6 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -16667,14 +16703,6 @@
 			);
 			name = fearless;
 			packageProductDependencies = (
-				FA7254662AC2F12D00EC47A6 /* WalletConnect */,
-				FA7254682AC2F12D00EC47A6 /* WalletConnectAuth */,
-				FA72546A2AC2F12D00EC47A6 /* WalletConnectNetworking */,
-				FA72546C2AC2F12D00EC47A6 /* WalletConnectPairing */,
-				FA72546E2AC2F12D00EC47A6 /* Web3Wallet */,
-				FA8FD1802AF4B55100354482 /* Web3 */,
-				FA8FD1822AF4B55100354482 /* Web3ContractABI */,
-				FA8FD1842AF4B55100354482 /* Web3PromiseKit */,
 				FA8FD1872AF4BEDD00354482 /* Swime */,
 				070ED7D12C3E7DE100DF4098 /* TonSwift */,
 				070ED7EA2C4543D900DF4098 /* EventSource */,
@@ -16713,6 +16741,22 @@
 				FA1FAD752D62FEBE00ECD456 /* SoraKeystore */,
 				FA1FAD772D62FEBE00ECD456 /* TonConnectAPI */,
 				FA1FAD792D62FEBE00ECD456 /* keccak */,
+				FA6BB2EC2D95BAE5001DD3BB /* Web3 */,
+				FA6BB2EE2D95BAE5001DD3BB /* Web3ContractABI */,
+				FA6BB2F02D95BAE5001DD3BB /* Web3PromiseKit */,
+				FA6BB2F32D95C027001DD3BB /* WalletConnect */,
+				FA6BB2F52D95C027001DD3BB /* WalletConnectAuth */,
+				FA6BB2F72D95C027001DD3BB /* WalletConnectChat */,
+				FA6BB2F92D95C027001DD3BB /* WalletConnectHistory */,
+				FA6BB2FB2D95C027001DD3BB /* WalletConnectModal */,
+				FA6BB2FD2D95C027001DD3BB /* WalletConnectNetworking */,
+				FA6BB2FF2D95C027001DD3BB /* WalletConnectNotify */,
+				FA6BB3012D95C027001DD3BB /* WalletConnectPairing */,
+				FA6BB3032D95C027001DD3BB /* WalletConnectPush */,
+				FA6BB3052D95C027001DD3BB /* WalletConnectRouter */,
+				FA6BB3072D95C027001DD3BB /* WalletConnectSync */,
+				FA6BB3092D95C027001DD3BB /* WalletConnectVerify */,
+				FA6BB30B2D95C027001DD3BB /* Web3Wallet */,
 			);
 			productName = fearless;
 			productReference = 849013A824A80984008F705E /* fearless.app */;
@@ -16780,13 +16824,12 @@
 			);
 			mainGroup = 8490139F24A80984008F705E;
 			packageReferences = (
-				FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */,
-				FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift" */,
 				FA8FD1862AF4BEDD00354482 /* XCRemoteSwiftPackageReference "Swime" */,
 				070ED7D02C3E7DE100DF4098 /* XCRemoteSwiftPackageReference "ton-swift" */,
 				070ED7E92C4543D900DF4098 /* XCRemoteSwiftPackageReference "ton-api-swift" */,
 				0701B8A12C78F54200DCD395 /* XCRemoteSwiftPackageReference "Cosmos" */,
 				FA1FAD3C2D62FEBE00ECD456 /* XCRemoteSwiftPackageReference "shared-features-spm" */,
+				FA6BB2F22D95C027001DD3BB /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */,
 			);
 			productRefGroup = 849013A924A80984008F705E /* Products */;
 			projectDirPath = "";
@@ -17611,6 +17654,7 @@
 				FA2FC7C928B3805400CC0A42 /* JoinPoolCall.swift in Sources */,
 				AEF50586261EE6230098574D /* PurchaseProviderPickerTableViewCell.swift in Sources */,
 				FA4B92AE2844D0E60003BCEF /* SelectCurrencyCellViewModel.swift in Sources */,
+				FABFB1732D953985002375C8 /* ERC20TokenInfo.swift in Sources */,
 				842876AD24AE049B00D91AD8 /* SelectionSubtitleTableViewCell.swift in Sources */,
 				FAD067D12C20453E0050291F /* DefaultEraStakersFetching.swift in Sources */,
 				FA15BC112823AFE10037C023 /* ParachainStakingLocalSubscriptionHandler.swift in Sources */,
@@ -18424,6 +18468,7 @@
 				AEB99798261310D5005C60A5 /* StoriesProgressBar.swift in Sources */,
 				AEE5FB1626457AA9002B8FDC /* StakingRewardDestSetupPresenter.swift in Sources */,
 				FA887A452C107A1100CA720F /* LiquidityPoolSupplyConfirmViewModel.swift in Sources */,
+				FAE1EEDD2D9674B900276048 /* RetryOperation.swift in Sources */,
 				8468B86E24F63D1400B76BC6 /* AddAccount+OnboardingMainWireframe.swift in Sources */,
 				FAA0137028DA12E3000A5230 /* StakingRedeemConfirmationParachainViewModelState.swift in Sources */,
 				FAFFAE9C29AC84B10074AF1F /* ParachainSubsquidRewardResponse.swift in Sources */,
@@ -20824,23 +20869,15 @@
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
 				kind = revision;
-				revision = b3e2bf1bc380d0e046b603921cbb63dcefb920cf;
+				revision = 6a5f34a80eb8fbcbb19841b87c008e423a94c67d;
 			};
 		};
-		FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */ = {
+		FA6BB2F22D95C027001DD3BB /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/WalletConnect/WalletConnectSwiftV2";
 			requirement = {
 				kind = exactVersion;
 				version = 1.9.9;
-			};
-		};
-		FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/bnsports/Web3.swift.git";
-			requirement = {
-				kind = exactVersion;
-				version = 7.7.7;
 			};
 		};
 		FA8FD1862AF4BEDD00354482 /* XCRemoteSwiftPackageReference "Swime" */ = {
@@ -21039,45 +21076,82 @@
 			package = FA1FAD3C2D62FEBE00ECD456 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = keccak;
 		};
-		FA7254662AC2F12D00EC47A6 /* WalletConnect */ = {
+		FA6BB2EC2D95BAE5001DD3BB /* Web3 */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
-			productName = WalletConnect;
-		};
-		FA7254682AC2F12D00EC47A6 /* WalletConnectAuth */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
-			productName = WalletConnectAuth;
-		};
-		FA72546A2AC2F12D00EC47A6 /* WalletConnectNetworking */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
-			productName = WalletConnectNetworking;
-		};
-		FA72546C2AC2F12D00EC47A6 /* WalletConnectPairing */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
-			productName = WalletConnectPairing;
-		};
-		FA72546E2AC2F12D00EC47A6 /* Web3Wallet */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
-			productName = Web3Wallet;
-		};
-		FA8FD1802AF4B55100354482 /* Web3 */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3;
 		};
-		FA8FD1822AF4B55100354482 /* Web3ContractABI */ = {
+		FA6BB2EE2D95BAE5001DD3BB /* Web3ContractABI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3ContractABI;
 		};
-		FA8FD1842AF4B55100354482 /* Web3PromiseKit */ = {
+		FA6BB2F02D95BAE5001DD3BB /* Web3PromiseKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3PromiseKit;
+		};
+		FA6BB2F32D95C027001DD3BB /* WalletConnect */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6BB2F22D95C027001DD3BB /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
+			productName = WalletConnect;
+		};
+		FA6BB2F52D95C027001DD3BB /* WalletConnectAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6BB2F22D95C027001DD3BB /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
+			productName = WalletConnectAuth;
+		};
+		FA6BB2F72D95C027001DD3BB /* WalletConnectChat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6BB2F22D95C027001DD3BB /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
+			productName = WalletConnectChat;
+		};
+		FA6BB2F92D95C027001DD3BB /* WalletConnectHistory */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6BB2F22D95C027001DD3BB /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
+			productName = WalletConnectHistory;
+		};
+		FA6BB2FB2D95C027001DD3BB /* WalletConnectModal */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6BB2F22D95C027001DD3BB /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
+			productName = WalletConnectModal;
+		};
+		FA6BB2FD2D95C027001DD3BB /* WalletConnectNetworking */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6BB2F22D95C027001DD3BB /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
+			productName = WalletConnectNetworking;
+		};
+		FA6BB2FF2D95C027001DD3BB /* WalletConnectNotify */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6BB2F22D95C027001DD3BB /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
+			productName = WalletConnectNotify;
+		};
+		FA6BB3012D95C027001DD3BB /* WalletConnectPairing */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6BB2F22D95C027001DD3BB /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
+			productName = WalletConnectPairing;
+		};
+		FA6BB3032D95C027001DD3BB /* WalletConnectPush */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6BB2F22D95C027001DD3BB /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
+			productName = WalletConnectPush;
+		};
+		FA6BB3052D95C027001DD3BB /* WalletConnectRouter */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6BB2F22D95C027001DD3BB /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
+			productName = WalletConnectRouter;
+		};
+		FA6BB3072D95C027001DD3BB /* WalletConnectSync */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6BB2F22D95C027001DD3BB /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
+			productName = WalletConnectSync;
+		};
+		FA6BB3092D95C027001DD3BB /* WalletConnectVerify */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6BB2F22D95C027001DD3BB /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
+			productName = WalletConnectVerify;
+		};
+		FA6BB30B2D95C027001DD3BB /* Web3Wallet */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6BB2F22D95C027001DD3BB /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */;
+			productName = Web3Wallet;
 		};
 		FA8FD1872AF4BEDD00354482 /* Swime */ = {
 			isa = XCSwiftPackageProductDependency;

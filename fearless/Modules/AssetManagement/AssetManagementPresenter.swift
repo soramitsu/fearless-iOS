@@ -22,7 +22,7 @@ protocol AssetManagementInteractorInput: AnyObject {
         hidden: Bool,
         assetId: String,
         wallet: MetaAccountModel
-    ) async -> MetaAccountModel
+    ) -> MetaAccountModel
     func fetchAccountInfo(
         for chainAsset: ChainAsset,
         wallet: MetaAccountModel
@@ -72,7 +72,7 @@ final class AssetManagementPresenter {
 
     // MARK: - Private methods
 
-    private func provideViewModel() {
+    private func provideViewModel(wallet: MetaAccountModel? = nil) {
         guard chainAssets.isNotEmpty else {
             return
         }
@@ -80,7 +80,7 @@ final class AssetManagementPresenter {
             let viewModel = viewModelFactory.buildViewModel(
                 chainAssets: chainAssets,
                 accountInfos: accountInfos,
-                wallet: wallet,
+                wallet: wallet ?? self.wallet,
                 locale: selectedLocale,
                 filter: networkFilter,
                 search: searchText,
@@ -158,7 +158,7 @@ extension AssetManagementPresenter: AssetManagementViewOutput {
         Task {
             if let section = viewModel.list[safe: indexPath.section],
                let cellViewModel = section.cells[safe: indexPath.row] {
-                let updatedWallet = await interactor.change(
+                let updatedWallet = interactor.change(
                     hidden: cellViewModel.hidden.inverted(),
                     assetId: cellViewModel.chainAsset.identifier,
                     wallet: wallet
@@ -257,9 +257,11 @@ extension AssetManagementPresenter: NetworkManagmentModuleOutput {
 
 extension AssetManagementPresenter: AddERC20TokenModuleOutput {
     func didFinishAddingToken(chainAsset: ChainAsset) {
-        Task {
-            _ = await interactor.change(hidden: false, assetId: chainAsset.identifier, wallet: wallet)
-            getInitialData()
-        }
+        let updatedWallet = interactor.change(
+            hidden: false,
+            assetId: chainAsset.identifier,
+            wallet: wallet
+        )
+        getInitialData()
     }
 }

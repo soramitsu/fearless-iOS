@@ -37,7 +37,7 @@ actor AssetManagementInteractor {
         wallet: MetaAccountModel,
         assetId: String,
         hidden: Bool
-    ) async -> MetaAccountModel {
+    ) -> MetaAccountModel {
         var visibilities = wallet.assetsVisibility.filter { $0.assetId != assetId }
         let assetVisibility = AssetVisibility(assetId: assetId, hidden: hidden)
         visibilities.append(assetVisibility)
@@ -48,26 +48,34 @@ actor AssetManagementInteractor {
     }
 
     private func performSave(wallet: MetaAccountModel) {
-        SelectedWalletSettings.shared.performSave(value: wallet) { [eventCenter] result in
+        SelectedWalletSettings.shared.performSave(value: wallet) { [eventCenter, wallet, weak self] result in
             switch result {
             case .success:
                 eventCenter.notify(with: MetaAccountModelChangedEvent(account: wallet))
+                
+                Task {
+                    await self?.didFinishSaving(wallet: wallet)
+                }
             case .failure:
                 break
             }
         }
     }
+    
+    private func didFinishSaving(wallet: MetaAccountModel) {
+        output?.didReceiveUpdated(wallet: wallet)
+    }
 }
 
 // MARK: - AssetManagementInteractorInput
 
-extension AssetManagementInteractor: AssetManagementInteractorInput {
+extension AssetManagementInteractor: @preconcurrency AssetManagementInteractorInput {
     func change(
         hidden: Bool,
         assetId: String,
         wallet: MetaAccountModel
-    ) async -> MetaAccountModel {
-        let updatedWallet = await updateVisibility(
+    ) -> MetaAccountModel {
+        let updatedWallet = updateVisibility(
             wallet: wallet,
             assetId: assetId,
             hidden: hidden
@@ -123,12 +131,6 @@ extension AssetManagementInteractor: AssetManagementInteractorInput {
 
 extension AssetManagementInteractor: EventVisitorProtocol {
     nonisolated func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {
-        Task {
-            await output?.didReceiveUpdated(wallet: event.account)
-        }
-    }
-    
-    nonisolated func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
         Task {
             await output?.didReceiveUpdated(wallet: event.account)
         }

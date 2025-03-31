@@ -93,14 +93,6 @@ final class AssetManagementViewController: UIViewController, ViewHolder, Hiddabl
         rootView.tableView.estimatedSectionFooterHeight = 0
 
         rootView.tableView.contentInsetAdjustmentBehavior = .never
-
-        if let refreshControl = rootView.tableView.refreshControl {
-            refreshControl.addTarget(
-                self,
-                action: #selector(handlePullToRefresh),
-                for: .valueChanged
-            )
-        }
     }
 
     // MARK: - Actions

@@ -145,7 +145,10 @@ private extension PricesService {
             }
             var updatedAssets: [AssetModel] = []
             chain.chainAssets.forEach { chainAsset in
-                let assetPrices = prices.filter { $0.priceId == chainAsset.asset.priceId || $0.coingeckoPriceId == chainAsset.asset.coingeckoPriceId }
+                let assetPrices = prices.filter {
+                    (chainAsset.asset.priceId != nil && $0.priceId == chainAsset.asset.priceId) ||
+                    (chainAsset.asset.coingeckoPriceId != nil && $0.coingeckoPriceId == chainAsset.asset.coingeckoPriceId)
+                }
                 let updatedAsset = chainAsset.asset.replacingPrice(assetPrices)
                 updatedAssets.append(updatedAsset)
             }
