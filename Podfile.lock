@@ -101,7 +101,7 @@ DEPENDENCIES:
   - Cuckoo
   - FearlessKeys (= 0.1.5)
   - FireMock
-  - "IdensicMobileSDK (from `{http: \"https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.8.tar.gz\"}`)"
+  - "IdensicMobileSDK (from `{:http=>\"https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.8.tar.gz\"}`)"
   - Kingfisher (= 7.10.2)
   - MediaView (from `https://github.com/bnsports/MediaView.git`, branch `dev`)
   - R.swift (= 6.1.0)

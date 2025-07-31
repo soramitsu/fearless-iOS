@@ -111,7 +111,8 @@ final class ChainModelMapper {
             priceProvider: priceProvider,
             coingeckoPriceId: entity.priceId,
             priceData: priceDatas,
-            coinbaseUrl: entity.coinbaseUrl
+            coinbaseUrl: entity.coinbaseUrl,
+            isCustom: false
         )
     }
 

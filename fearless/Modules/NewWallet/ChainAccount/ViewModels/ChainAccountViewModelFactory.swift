@@ -37,7 +37,7 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
         var availableProviders = chainAssetModel?.purchaseProviders ?? []
         if soraCardStatus != .successful {
             availableProviders = availableProviders.filter { provider in
-                provider != .soraCard
+                provider != .soracard
             }
         }
         let buyButtonVisible = !availableProviders.isEmpty

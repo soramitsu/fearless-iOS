@@ -147,7 +147,7 @@ final class ChainAccountPresenter {
                     availableProviders.append(rampProvider)
                 case .coinbase:
                     availableProviders.append(coinbaseProvider)
-                case .soraCard:
+                case .soracard:
                     if soraCardStatus == .successful {
                         availableProviders.append(SoraCardPurchaseProvider())
                     }
