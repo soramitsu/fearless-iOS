@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="19455" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19454"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -26,9 +26,9 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SZx-HO-Kbp" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
-                    <rect key="frame" x="16" y="152" width="343" height="52"/>
+                    <rect key="frame" x="16" y="172" width="343" height="52"/>
                     <subviews>
-                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SAz-7m-UGT" customClass="AnimatedTextField" customModule="SoraUI">
+                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SAz-7m-UGT" customClass="AnimatedTextField" customModule="SoraUI">
                             <rect key="frame" x="0.0" y="0.0" width="287" height="52"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <userDefinedRuntimeAttributes>
@@ -75,7 +75,7 @@
                                 <action selector="nodeFieldDidChange" destination="-1" eventType="editingChanged" id="Hpg-d1-Usb"/>
                             </connections>
                         </view>
-                        <view contentMode="scaleToFill" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="5Qb-2e-fYb" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
+                        <view contentMode="scaleToFill" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="751" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5Qb-2e-fYb" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
                             <rect key="frame" x="287" y="0.0" width="56" height="52"/>
                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             <userDefinedRuntimeAttributes>
@@ -133,7 +133,7 @@
                     </userDefinedRuntimeAttributes>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tqM-kh-6Wz" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
-                    <rect key="frame" x="16" y="84" width="343" height="52"/>
+                    <rect key="frame" x="16" y="104" width="343" height="52"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="U75-aQ-sz9" customClass="AnimatedTextField" customModule="SoraUI">
                             <rect key="frame" x="0.0" y="0.0" width="343" height="52"/>
@@ -204,7 +204,7 @@
                     </userDefinedRuntimeAttributes>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gvf-pt-o8p" customClass="DetailsTriangularedView" customModule="fearless" customModuleProvider="target">
-                    <rect key="frame" x="16" y="16" width="343" height="52"/>
+                    <rect key="frame" x="16" y="36" width="343" height="52"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="52" id="HU0-Xc-fvP"/>
@@ -250,7 +250,7 @@
                         <userDefinedRuntimeAttribute type="color" keyPath="subtitleColor">
                             <color key="value" name="colorWhite"/>
                         </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="number" keyPath="_layout">
+                        <userDefinedRuntimeAttribute type="number" keyPath="privateLayout">
                             <integer key="value" value="2"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="number" keyPath="_iconRadius">
@@ -279,16 +279,8 @@
             <point key="canvasLocation" x="139" y="131"/>
         </view>
     </objects>
-    <designables>
-        <designable name="5Qb-2e-fYb">
-            <size key="intrinsicContentSize" width="56" height="24"/>
-        </designable>
-        <designable name="gvf-pt-o8p">
-            <size key="intrinsicContentSize" width="23" height="15"/>
-        </designable>
-    </designables>
     <resources>
-        <image name="iconCopy" width="24" height="24"/>
+        <image name="iconCopy" width="16" height="16"/>
         <image name="iconKsmSmallBg" width="24" height="24"/>
         <namedColor name="colorBlack">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
