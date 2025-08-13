@@ -20,10 +20,7 @@ abstract_target 'fearlessAll' do
   pod 'SVGKit'
   pod 'Charts', '~> 4.1.0'
   pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
-  pod 'IdensicMobileSDK', :http => 'https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.8.tar.gz'
-  pod 'SoraUIKit', :git => 'https://github.com/soramitsu/ios-ui', :tag => ‘1.1.13’
-  pod 'SCard', :git => 'https://github.com/sora-xor/sora-card-ios', :tag => ‘1.8.2’ #:path => "./sora-card-ios"
-  pod 'FearlessKeys', '0.1.5'
+  pod 'SoraUIKit', :git => 'https://github.com/soramitsu/ios-ui', :tag => '1.1.13'
 
   target 'fearlessTests' do
     inherit! :search_paths
@@ -39,14 +36,18 @@ abstract_target 'fearlessAll' do
 
   target 'fearlessIntegrationTests'
 
-  target 'fearless'
+  target 'fearless' do
+    pod 'IdensicMobileSDK', :http => 'https://github.com/paywings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.9.tar.gz'
+    pod 'SCard', :git => 'https://github.com/sora-xor/sora-card-ios', :tag => ‘1.8.3’
+    pod 'FearlessKeys', '0.1.5'
+  end
 
 end
 
 post_install do |installer|
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
-            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.1'
             config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
             xcconfig_path = config.base_configuration_reference.real_path
             xcconfig = File.read(xcconfig_path)

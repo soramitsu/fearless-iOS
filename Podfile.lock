@@ -3,33 +3,35 @@ PODS:
     - Charts/Core (= 4.1.0)
   - Charts/Core (4.1.0):
     - SwiftAlgorithms (~> 1.0)
-  - CocoaLumberjack (3.8.5):
-    - CocoaLumberjack/Core (= 3.8.5)
-  - CocoaLumberjack/Core (3.8.5)
-  - Cuckoo (2.0.15):
-    - Cuckoo/Swift (= 2.0.15)
-  - Cuckoo/Swift (2.0.15)
+  - CocoaLumberjack (3.9.0):
+    - CocoaLumberjack/Core (= 3.9.0)
+  - CocoaLumberjack/Core (3.9.0)
+  - Cuckoo (2.1.1):
+    - Cuckoo/Swift (= 2.1.1)
+  - Cuckoo/Swift (2.1.1)
   - FearlessKeys (0.1.5)
   - FireMock (3.1)
-  - IdensicMobileSDK (1.33.1)
-  - JOSESwift (2.4.0)
+  - IdensicMobileSDK (1.35.0)
+  - JOSESwift (3.0.0)
   - Kingfisher (7.10.2)
   - MediaView (0.2.0)
-  - PayWingsKycSDK (1.0.6)
-  - PayWingsOAuthSDK (2.0.2):
-    - JOSESwift (= 2.4.0)
-    - RecaptchaEnterprise (= 18.3.0)
+  - PayWingsKycSDK (1.0.7.1)
+  - PayWingsOAuthSDK (2.0.6.3):
+    - JOSESwift (= 3.0.0)
+    - RecaptchaEnterprise (= 18.7.0)
   - R.swift (6.1.0):
     - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
   - ReachabilitySwift (5.2.4)
-  - RecaptchaEnterprise (18.3.0):
-    - RecaptchaInterop (~> 100.0.0)
-  - RecaptchaInterop (100.0.0)
-  - SCard (1.8.0):
+  - RecaptchaEnterprise (18.7.0):
+    - RecaptchaEnterpriseSDK (= 18.7.0)
+    - RecaptchaInterop (~> 101.0.0)
+  - RecaptchaEnterpriseSDK (18.7.0)
+  - RecaptchaInterop (101.0.0)
+  - SCard (1.8.3):
     - IdensicMobileSDK
-    - PayWingsKycSDK (= 1.0.6)
-    - PayWingsOAuthSDK (= 2.0.2)
+    - PayWingsKycSDK (= 1.0.7.1)
+    - PayWingsOAuthSDK (= 2.0.6.3)
     - R.swift (~> 6.1.0)
     - SnapKit
     - SoraUIKit
@@ -93,7 +95,7 @@ PODS:
     - CocoaLumberjack (~> 3.0)
   - SwiftAlgorithms (1.0.0)
   - SwiftFormat/CLI (0.47.13)
-  - SwiftLint (0.58.2)
+  - SwiftLint (0.59.1)
   - SwiftyBeaver (2.1.1)
 
 DEPENDENCIES:
@@ -101,12 +103,12 @@ DEPENDENCIES:
   - Cuckoo
   - FearlessKeys (= 0.1.5)
   - FireMock
-  - "IdensicMobileSDK (from `{:http=>\"https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.8.tar.gz\"}`)"
+  - "IdensicMobileSDK (from `{:http=>\"https://github.com/paywings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.9.tar.gz\"}`)"
   - Kingfisher (= 7.10.2)
   - MediaView (from `https://github.com/bnsports/MediaView.git`, branch `dev`)
   - R.swift (= 6.1.0)
   - ReachabilitySwift
-  - SCard (from `https://github.com/sora-xor/sora-card-ios`, tag `1.8.2`)
+  - SCard (from `https://github.com/sora-xor/sora-card-ios`, tag `1.8.3`)
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
@@ -132,6 +134,7 @@ SPEC REPOS:
     - R.swift.Library
     - ReachabilitySwift
     - RecaptchaEnterprise
+    - RecaptchaEnterpriseSDK
     - RecaptchaInterop
     - SnapKit
     - SoraFoundation
@@ -147,13 +150,13 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   IdensicMobileSDK:
-    :http: https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.8.tar.gz
+    :http: https://github.com/paywings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.9.tar.gz
   MediaView:
     :branch: dev
     :git: https://github.com/bnsports/MediaView.git
   SCard:
     :git: https://github.com/sora-xor/sora-card-ios
-    :tag: 1.8.2
+    :tag: 1.8.3
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
@@ -163,13 +166,13 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   IdensicMobileSDK:
-    :http: https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.8.tar.gz
+    :http: https://github.com/paywings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.9.tar.gz
   MediaView:
     :commit: c7b4538a06d4177df1f27419575812e3673a8fee
     :git: https://github.com/bnsports/MediaView.git
   SCard:
     :git: https://github.com/sora-xor/sora-card-ios
-    :tag: 1.8.2
+    :tag: 1.8.3
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
@@ -179,22 +182,23 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
-  CocoaLumberjack: 6a459bc897d6d80bd1b8c78482ec7ad05dffc3f0
-  Cuckoo: a13251337e0737757fc0151b3dd849a2ab054ae2
+  CocoaLumberjack: 5644158777912b7de7469fa881f8a3f259c2512a
+  Cuckoo: 4fbf31d8e00be78bc3e913f30dbb275bd21e0623
   FearlessKeys: 54697ac7bdb2a16aa4525bed06c8769a351606db
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
-  IdensicMobileSDK: 17ea7880e6b29440944bc7c02d1a6937fec60337
-  JOSESwift: 7ff178bb9173ff42c6e990929a9f2fa702a34f69
+  IdensicMobileSDK: f422056d6d82176e695ebe28f699a22468f8bb4d
+  JOSESwift: 7784b1b844194d0f534eb6ac4fba5af683bccc79
   Kingfisher: 99edc495d3b7607e6425f0d6f6847b2abd6d716d
   MediaView: 10ff6a5c7950a7c72c5da9e9b89cc85a981e6abc
-  PayWingsKycSDK: bfd7f03a22d0df4ff40937d7fdb64e992db2dee0
-  PayWingsOAuthSDK: 40168c32d47402bf33ef1c167ce2261dac6da102
+  PayWingsKycSDK: d2b3c2decc258e8a6f29f165e475076442b3e37b
+  PayWingsOAuthSDK: 5a2b25f356e0e9cc07bc078751a1e755d08893a9
   R.swift: ec98ff71c4ab2f6fd01dd077e5afd15e63a4834c
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
   ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
-  RecaptchaEnterprise: 9b60bc1e1633d120e24a098d80546776fab1282e
-  RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
-  SCard: 47934799b4433b025fb985da719f70a491d3d207
+  RecaptchaEnterprise: a5914ad9db6ff79eaca7258d82ecef6f10009936
+  RecaptchaEnterpriseSDK: 5e72d7f19d2f679b68c25071c33b40f817e21149
+  RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
+  SCard: eccd377d41fb26ec5734146639e18f15a603e002
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
   SoraFoundation: 988d90ee3159311b02e42aeba0cf7e85d8bc724c
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
@@ -204,9 +208,9 @@ SPEC CHECKSUMS:
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
-  SwiftLint: 365bcd9ffc83d0deb874e833556d82549919d6cd
+  SwiftLint: 3d48e2fb2a3468fdaccf049e5e755df22fb40c2c
   SwiftyBeaver: ade157e4f857812e7d7f15f2e3396bb8733f8a1c
 
-PODFILE CHECKSUM: 772c06d69f730d7554ede2f231b20837139dbd35
+PODFILE CHECKSUM: e18f1d181759fafa35448e7203f457f4a7951396
 
 COCOAPODS: 1.16.2
