@@ -50,6 +50,15 @@ post_install do |installer|
             xcconfig_mod = xcconfig.gsub(/DT_TOOLCHAIN_DIR/, "TOOLCHAIN_DIR")
             File.open(xcconfig_path, "w") { |file| file << xcconfig_mod }
           end
+        # Workaround for CocoaPods treating text files as sources in FearlessKeys
+        if target.name == 'FearlessKeys'
+            sources_phase = target.sources_build_phase
+            sources_phase.files_references.each do |fr|
+                if fr.path.to_s.end_with?('google-keys.txt')
+                    sources_phase.remove_file_reference(fr)
+                end
+            end
+        end
         if target.name == 'SSFXCM'
             target.build_configurations.each do |config|
                 if config.name == 'Dev'

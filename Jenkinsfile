@@ -23,4 +23,6 @@ def appPipeline = new org.ios.AppPipeline(
   uploadToNexusFor: ['master','develop','staging']
 )
 
-appPipeline.runPipeline('fearless')
+withEnv(["DEVELOPER_DIR=/Applications/Xcode_15.4.app/Contents/Developer"]) {
+  appPipeline.runPipeline('fearless')
+}
