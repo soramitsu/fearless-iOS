@@ -33,7 +33,7 @@ withEnv([
   "CPATH=/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
   "LIBRARY_PATH=/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib",
   "MACOSX_DEPLOYMENT_TARGET=13.0",
-  "PATH=/Applications/Xcode_15.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin:${PATH}"
+  "PATH=/Applications/Xcode_15.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin:${env.PATH}"
 ]) {
   appPipeline.runPipeline('fearless')
 }
