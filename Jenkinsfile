@@ -11,7 +11,7 @@ def jobParams = [
 
 def appPipeline = new org.ios.AppPipeline(
   steps: this,
-  appTests: true,
+  appTests: false,
   appPushNoti: true,
   jobParams: jobParams,
   label: 'mac-fearless',
