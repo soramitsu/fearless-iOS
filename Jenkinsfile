@@ -34,7 +34,7 @@ withEnv([
   "LIBRARY_PATH=/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib",
   "MACOSX_DEPLOYMENT_TARGET=13.0",
   // Help bundler compile the json gem against the SDK
-  "BUNDLE_BUILD__JSON=--with-cflags='-std=c99 -isysroot $SDKROOT' --with-ldflags='-Wl,-syslibroot,$SDKROOT'",
+  "BUNDLE_BUILD__JSON=--with-cflags='-std=c99 -isysroot \$SDKROOT' --with-ldflags='-Wl,-syslibroot,\$SDKROOT'",
   // Do not override PATH to avoid shell lookup issues in Jenkins
 ]) {
   appPipeline.runPipeline('fearless')

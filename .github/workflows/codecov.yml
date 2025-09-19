@@ -12,15 +12,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
       
-      - name: Configure GitHub auth for private pods
+      - name: Configure GitHub auth for private pods (optional)
         env:
           GH_READ_TOKEN: ${{ secrets.GH_READ_TOKEN }}
         run: |
-          if [ -z "$GH_READ_TOKEN" ]; then
-            echo "GH_READ_TOKEN secret not set. Cannot access private pods like FearlessKeys." >&2
-            exit 1
+          if [ -n "$GH_READ_TOKEN" ]; then
+            echo "Using GH_READ_TOKEN for authenticated access to soramitsu/*"
+            git config --global url."https://${GH_READ_TOKEN}:x-oauth-basic@github.com/soramitsu/".insteadOf "https://github.com/soramitsu/"
+          else
+            echo "GH_READ_TOKEN not set; proceeding without GitHub auth"
           fi
-          git config --global url."https://${GH_READ_TOKEN}:x-oauth-basic@github.com/soramitsu/".insteadOf "https://github.com/soramitsu/"
       
       - name: Install Dependencies & Test
         run: |
