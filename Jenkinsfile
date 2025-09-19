@@ -23,19 +23,4 @@ def appPipeline = new org.ios.AppPipeline(
   uploadToNexusFor: ['master','develop','staging']
 )
 
-withEnv([
-  "DEVELOPER_DIR=/Applications/Xcode_15.4.app/Contents/Developer",
-  // Ensure native gem builds find a compiler
-  "CC=xcrun clang",
-  "CXX=xcrun clang++",
-  // Point builds at the macOS SDK headers and libs for mkmf
-  "SDKROOT=/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
-  "CPATH=/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
-  "LIBRARY_PATH=/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib",
-  "MACOSX_DEPLOYMENT_TARGET=13.0",
-  // Help bundler compile the json gem against the SDK
-  "BUNDLE_BUILD__JSON=--with-cflags='-std=c99 -isysroot \$SDKROOT' --with-ldflags='-Wl,-syslibroot,\$SDKROOT'",
-  // Do not override PATH to avoid shell lookup issues in Jenkins
-]) {
-  appPipeline.runPipeline('fearless')
-}
+appPipeline.runPipeline('fearless')
