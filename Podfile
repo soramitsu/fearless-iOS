@@ -50,6 +50,20 @@ post_install do |installer|
             xcconfig_mod = xcconfig.gsub(/DT_TOOLCHAIN_DIR/, "TOOLCHAIN_DIR")
             File.open(xcconfig_path, "w") { |file| file << xcconfig_mod }
           end
+        # Ensure text payloads in FearlessKeys are not in Compile Sources
+        if target.name == 'FearlessKeys'
+            target.build_phases.each do |phase|
+                if phase.is_a?(Xcodeproj::Project::Object::PBXSourcesBuildPhase)
+                    # iterate over a dup to avoid concurrent modification issues
+                    phase.files.dup.each do |build_file|
+                        ref = build_file.file_ref
+                        if ref && ref.path && ref.path.to_s.end_with?('google-keys.txt')
+                            phase.remove_file_reference(ref)
+                        end
+                    end
+                end
+            end
+        end
         if target.name == 'SSFXCM'
             target.build_configurations.each do |config|
                 if config.name == 'Dev'
