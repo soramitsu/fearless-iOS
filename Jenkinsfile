@@ -23,6 +23,17 @@ def appPipeline = new org.ios.AppPipeline(
   uploadToNexusFor: ['master','develop','staging']
 )
 
-withEnv(["DEVELOPER_DIR=/Applications/Xcode_15.4.app/Contents/Developer"]) {
+def xcode154 = "/Applications/Xcode_15.4.app/Contents/Developer"
+def envList = []
+try {
+  if (new File(xcode154).exists()) {
+    envList << "DEVELOPER_DIR=${xcode154}"
+  } else {
+    echo "Xcode 15.4 not found at ${xcode154}; using default Xcode."
+  }
+} catch (Throwable t) {
+  echo "Skipping Xcode pin check due to: ${t.message}"
+}
+withEnv(envList) {
   appPipeline.runPipeline('fearless')
 }
