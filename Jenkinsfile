@@ -42,9 +42,10 @@ try {
 } catch (Throwable t) {
   echo "Skipping Xcode pin check due to: ${t.message}"
 }
-withEnv(envList) {
-  // Pre-resolve SPM packages and stub missing IrohaCrypto umbrella header
-  sh '''
+node('mac-fearless') {
+  withEnv(envList) {
+    // Pre-resolve SPM packages and stub missing IrohaCrypto umbrella header
+    sh '''
 set -euxo pipefail
 
 # Resolve Swift Package dependencies up-front to materialize the checkout
@@ -61,5 +62,6 @@ EOF
 fi
 '''
 
-  appPipeline.runPipeline('fearless')
+    appPipeline.runPipeline('fearless')
+  }
 }
