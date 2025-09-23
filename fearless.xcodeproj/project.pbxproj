@@ -19261,8 +19261,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
-				branch = "master";
-				kind = branch;
+				kind = revision;
+				revision = 2b13aea1e4284e8c47204895ace1f56ae2536212;
 			};
 		};
 		FA8FD1862AF4BEDD00354482 /* XCRemoteSwiftPackageReference "Swime" */ = {
