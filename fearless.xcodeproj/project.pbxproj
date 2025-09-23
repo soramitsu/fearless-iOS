@@ -19261,7 +19261,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
-				branch = "price-update-center";
+				branch = "main";
 				kind = branch;
 			};
 		};
