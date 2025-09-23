@@ -23,13 +23,21 @@ def appPipeline = new org.ios.AppPipeline(
   uploadToNexusFor: ['master','develop','staging']
 )
 
-def xcode154 = "/Applications/Xcode_15.4.app/Contents/Developer"
 def envList = []
 try {
-  if (new File(xcode154).exists()) {
-    envList << "DEVELOPER_DIR=${xcode154}"
+  def candidates = [
+    '/Applications/Xcode_15.4.app/Contents/Developer',
+    '/Applications/Xcode_15.3.app/Contents/Developer',
+    '/Applications/Xcode_15.2.app/Contents/Developer',
+    '/Applications/Xcode_15.1.app/Contents/Developer',
+    '/Applications/Xcode_15.0.app/Contents/Developer'
+  ]
+  def picked = candidates.find { new File(it).exists() }
+  if (picked) {
+    envList << "DEVELOPER_DIR=${picked}"
+    echo "Pinning DEVELOPER_DIR to ${picked} for SPM/IrohaCrypto compatibility."
   } else {
-    echo "Xcode 15.4 not found at ${xcode154}; using default Xcode."
+    echo 'No Xcode 15.x found under /Applications. Using default Xcode (may fail with IrohaCrypto on 18.x).'
   }
 } catch (Throwable t) {
   echo "Skipping Xcode pin check due to: ${t.message}"
