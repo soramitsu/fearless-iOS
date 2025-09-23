@@ -44,22 +44,42 @@ try {
 }
 node('mac-fearless') {
   withEnv(envList) {
-    // Pre-resolve SPM packages and stub missing IrohaCrypto umbrella header
+    // Pre-resolve SPM packages and repair IrohaCrypto module map path + stub header
     sh '''
 set -euxo pipefail
 
 # Resolve Swift Package dependencies up-front to materialize the checkout
 xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless || true
 
-# Create a temporary umbrella header expected by shared-features-spm's IrohaCrypto modulemap
-ROOT="$WORKSPACE/DerivedData/fearless/SourcePackages/checkouts/shared-features-spm/Sources/IrohaCrypto"
-mkdir -p "$ROOT"
-if [ ! -f "$ROOT/IrohaCrypto-umbrella.h" ]; then
-  cat > "$ROOT/IrohaCrypto-umbrella.h" <<'EOF'
+# Function to patch module.modulemap and place umbrella header alongside it (in include/)
+patch_path() {
+  local base="$1"
+  local mm="$base/SourcePackages/checkouts/shared-features-spm/Sources/IrohaCrypto/include/module.modulemap"
+  if [ -f "$mm" ]; then
+    echo "Patching module.modulemap at: $mm"
+    # Rewrite umbrella path to a stable path inside include/
+    if grep -q 'umbrella header "../IrohaCrypto-umbrella.h"' "$mm"; then
+      sed -i '' 's#umbrella header "\../IrohaCrypto-umbrella.h"#umbrella header "IrohaCrypto-umbrella.h"#' "$mm" || true
+    fi
+    # Create umbrella header next to module map (include/)
+    local include_dir="$(dirname "$mm")"
+    local hdr="$include_dir/IrohaCrypto-umbrella.h"
+    if [ ! -f "$hdr" ]; then
+      cat > "$hdr" <<'EOF'
 // Temporary umbrella header to satisfy IrohaCrypto module.modulemap
 #import <Foundation/Foundation.h>
 EOF
-fi
+    fi
+  fi
+}
+
+# Try patching in workspace DerivedData
+patch_path "$WORKSPACE/DerivedData/fearless"
+
+# Fallback: patch in default Xcode DerivedData locations (if used by the builder)
+for dd in "$HOME/Library/Developer/Xcode/DerivedData"/*; do
+  patch_path "$dd" || true
+done
 '''
 
     appPipeline.runPipeline('fearless')
