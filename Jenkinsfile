@@ -43,5 +43,23 @@ try {
   echo "Skipping Xcode pin check due to: ${t.message}"
 }
 withEnv(envList) {
+  // Pre-resolve SPM packages and stub missing IrohaCrypto umbrella header
+  sh '''
+set -euxo pipefail
+
+# Resolve Swift Package dependencies up-front to materialize the checkout
+xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless || true
+
+# Create a temporary umbrella header expected by shared-features-spm's IrohaCrypto modulemap
+ROOT="$WORKSPACE/DerivedData/fearless/SourcePackages/checkouts/shared-features-spm/Sources/IrohaCrypto"
+mkdir -p "$ROOT"
+if [ ! -f "$ROOT/IrohaCrypto-umbrella.h" ]; then
+  cat > "$ROOT/IrohaCrypto-umbrella.h" <<'EOF'
+// Temporary umbrella header to satisfy IrohaCrypto module.modulemap
+#import <Foundation/Foundation.h>
+EOF
+fi
+'''
+
   appPipeline.runPipeline('fearless')
 }
