@@ -19261,7 +19261,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
-				branch = "main";
+				branch = "master";
 				kind = branch;
 			};
 		};
