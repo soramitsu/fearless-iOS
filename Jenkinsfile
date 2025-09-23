@@ -59,7 +59,7 @@ patch_path() {
     echo "Patching module.modulemap at: $mm"
     # Rewrite umbrella path to a stable path inside include/
     # Replace relative umbrella to point inside include/
-    sed -E -i '' 's#umbrella header "\.\./IrohaCrypto-umbrella\.h"#umbrella header "IrohaCrypto-umbrella.h"#g' "$mm" || true
+    sed -i '' 's|umbrella header "../IrohaCrypto-umbrella.h"|umbrella header "IrohaCrypto-umbrella.h"|g' "$mm" || true
     # Create umbrella header next to module map (include/)
     local include_dir="$(dirname "$mm")"
     local hdr="$include_dir/IrohaCrypto-umbrella.h"
