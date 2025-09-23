@@ -48,6 +48,12 @@ node('mac-fearless') {
     sh '''
 set -euxo pipefail
 
+# Reset SPM caches for a clean resolve (avoid stale builds)
+rm -rf "$WORKSPACE/DerivedData/fearless/SourcePackages" || true
+for dd in "$HOME/Library/Developer/Xcode/DerivedData"/*; do
+  rm -rf "$dd/SourcePackages" || true
+done
+
 # Resolve Swift Package dependencies up-front to materialize the checkout
 xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless || true
 
