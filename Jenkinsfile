@@ -60,12 +60,20 @@ patch_path() {
     # Rewrite umbrella path to a stable path inside include/
     # Replace relative umbrella to point inside include/
     sed -i '' 's|umbrella header "../IrohaCrypto-umbrella.h"|umbrella header "IrohaCrypto-umbrella.h"|g' "$mm" || true
-    # Create umbrella header next to module map (include/)
+    # Create umbrella header both next to module map (include/) and its parent (to satisfy ../ reference)
     local include_dir="$(dirname "$mm")"
-    local hdr="$include_dir/IrohaCrypto-umbrella.h"
-    if [ ! -f "$hdr" ]; then
-      cat > "$hdr" <<'EOF'
+    local parent_dir="$(dirname "$include_dir")"
+    local hdr_include="$include_dir/IrohaCrypto-umbrella.h"
+    local hdr_parent="$parent_dir/IrohaCrypto-umbrella.h"
+    if [ ! -f "$hdr_include" ]; then
+      cat > "$hdr_include" <<'EOF'
 // Temporary umbrella header to satisfy IrohaCrypto module.modulemap
+#import <Foundation/Foundation.h>
+EOF
+    fi
+    if [ ! -f "$hdr_parent" ]; then
+      cat > "$hdr_parent" <<'EOF'
+// Temporary umbrella header to satisfy IrohaCrypto module.modulemap (parent path)
 #import <Foundation/Foundation.h>
 EOF
     fi
