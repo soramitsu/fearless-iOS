@@ -19262,7 +19262,7 @@
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
 				kind = revision;
-				revision = 2b13aea1e4284e8c47204895ace1f56ae2536212;
+				revision = 6d6cb16b7f1f12028fe93d50a4e928a938af141e;
 			};
 		};
 		FA8FD1862AF4BEDD00354482 /* XCRemoteSwiftPackageReference "Swime" */ = {

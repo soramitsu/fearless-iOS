@@ -16,6 +16,12 @@ WORKSPACE="fearless.xcworkspace"
 echo "==> Using scheme: ${SCHEME}"
 echo "==> Destination: ${DEST}"
 
+# Apply SPM IrohaCrypto hotfix so SSFModels can import IrohaCrypto under Xcode 16+
+if [ -x "scripts/spm-iroha-hotfix.sh" ]; then
+  echo "\n==> Applying SPM IrohaCrypto hotfix"
+  scripts/spm-iroha-hotfix.sh "${SCHEME}" "${WORKSPACE}" || true
+fi
+
 function run_tests() {
   local config=$1
   echo "\n==> Running ${config} tests"
