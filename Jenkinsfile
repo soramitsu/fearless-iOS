@@ -44,7 +44,7 @@ try {
 }
 node('mac-fearless') {
   withEnv(envList) {
-    // Pre-resolve SPM packages and repair IrohaCrypto module map path + stub header
+    // Pre-resolve SPM packages, install CocoaPods, and repair IrohaCrypto module map path + stub header
     sh '''
 set -euxo pipefail
 
@@ -56,6 +56,19 @@ done
 
 # Resolve Swift Package dependencies up-front to materialize the checkout
 xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless || true
+
+# If a GitHub token is present, configure it so private pods (e.g., FearlessKeys) can be fetched
+if [ -n "${GH_PAT_READ:-}" ]; then
+  git config --global url."https://${GH_PAT_READ}@github.com/".insteadOf "https://github.com/" || true
+fi
+
+# Install CocoaPods dependencies to align build with Podfile/lock state
+if command -v bundle >/dev/null 2>&1 && [ -f Gemfile ]; then
+  bundle install --path vendor/bundle || true
+  bundle exec pod install --repo-update
+else
+  pod install --repo-update
+fi
 
 # Function to patch module.modulemap and place umbrella header alongside it (in include/)
 patch_path() {
