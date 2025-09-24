@@ -53,11 +53,21 @@ Verification matrix (execute manually):
 - [ ] Staking: optimize validators list loading and caching on slow networks.
 - [ ] Localization: audit new/changed strings across all `.lproj`; fill gaps.
 - [ ] Performance: reduce cold start time; trim excessive logging in Release.
+- [ ] Fearless Utils (upstream hygiene):
+  - Align podspec with modern toolchains (iOS 13+, drop armv7). No functional changes.
+  - Add optional SwiftPM manifest to enable SPM consumption (side‑by‑side with CocoaPods).
+  - Verify IrohaCrypto consumption consistency across app and utils (prefer single source to avoid duplicate modules).
+  - Ensure CI builds on Xcode 16/18 with iPhoneOS SDK 18.x (no armv7, correct module visibility).
+  - Target: open PR to soramitsu/fearless-utils-iOS with minimal, non‑breaking changes; coordinate release tagging.
 
 ## Xcode & App Store Compliance
 - Keep Xcode and Swift toolchain aligned with supported App Store requirements.
 - Update deployment targets and signing settings as needed; verify Release builds on CI.
 - Ensure third‑party libraries and binary artifacts meet App Store policies.
+ - CI hygiene for iOS 18 SDK:
+   - Deduplicate SwiftPM packages (e.g., Web3) to a single source to avoid resolver conflicts.
+   - Patch or bump modules with brittle module.modulemap (e.g., IrohaCrypto via shared‑features‑spm) and upstream fixes.
+   - Make private keys/pods optional in PR builds (e.g., gate FearlessKeys by env and limit to Release).
 
 ## Sources of Truth
 - Product roadmap (Aha!): https://soramitsucoltd.aha.io/shared/97bc3006ee3c1baa0598863615cf8d14
