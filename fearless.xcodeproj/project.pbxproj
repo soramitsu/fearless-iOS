@@ -15795,7 +15795,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "source $PODS_ROOT/FearlessKeys/FearlessKeys/Classes/google-keys.txt\nGOOGLE_CLIENT_ID=$google_client_id\nGOOGLE_URL_SCHEME=$google_url_scheme\nINFO_PLIST=\"$BUILT_PRODUCTS_DIR/$INFOPLIST_PATH\"\n/usr/libexec/PlistBuddy -c \"Set :GIDClientID $google_client_id\" \"$INFO_PLIST\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 $google_url_scheme\" \"$INFO_PLIST\"\n";
+			shellScript = "set -e\nKEYS_FILE=\"$PODS_ROOT/FearlessKeys/FearlessKeys/Classes/google-keys.txt\"\nINFO_PLIST=\"$BUILT_PRODUCTS_DIR/$INFOPLIST_PATH\"\n# Load from file if it exists\nif [ -f \"$KEYS_FILE\" ]; then\n  # shellcheck disable=SC1090\n  . \"$KEYS_FILE\" || true\nfi\n# Prefer file vars, then env fallbacks\nGOOGLE_CLIENT_ID=\"${google_client_id:-${GOOGLE_CLIENT_ID:-}}\"\nGOOGLE_URL_SCHEME=\"${google_url_scheme:-${GOOGLE_URL_SCHEME:-}}\"\nif [ -n \"$GOOGLE_CLIENT_ID\" ] && [ -n \"$GOOGLE_URL_SCHEME\" ]; then\n  /usr/libexec/PlistBuddy -c \"Set :GIDClientID $GOOGLE_CLIENT_ID\" \"$INFO_PLIST\" || /usr/libexec/PlistBuddy -c \"Add :GIDClientID string $GOOGLE_CLIENT_ID\" \"$INFO_PLIST\" || true\n  /usr/libexec/PlistBuddy -c \"Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 $GOOGLE_URL_SCHEME\" \"$INFO_PLIST\" || true\n  echo \"Injected Google keys into Info.plist\"\nelse\n  echo \"Google keys not provided; skipping injection (non-fatal).\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
