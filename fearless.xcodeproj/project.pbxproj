@@ -19273,9 +19273,9 @@
 				minimumVersion = 3.0.0;
 			};
 		};
-		FAB482E92C58A8AA00594D89 /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
+		FAB482E92C58A8AA00594D89 /* XCRemoteSwiftPackageReference "web3-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/bnsports/Web3.swift.git";
+			repositoryURL = "https://github.com/soramitsu/web3-swift";
 			requirement = {
 				kind = exactVersion;
 				version = 7.7.7;
