@@ -3,10 +3,6 @@ import SoraKeystore
 import RobinHood
 import SSFModels
 
-enum AssetManagementMigratorError: Error {
-    case walletNotExist
-}
-
 // MARK: - AssetManagementMigrator
 
 final class AssetManagementMigrator: Migrating {
@@ -158,7 +154,9 @@ enum AssetManagementMigratorAssembly {
 
         let walletRepository = AccountRepositoryFactory.createRepository()
 
-        let chainRepository = ChainRepositoryFactory().createRepository()
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain()
+        )
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue

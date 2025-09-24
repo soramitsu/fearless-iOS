@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 
-public enum NumberFormatterUsageCase {
+enum NumberFormatterUsageCase {
     case listCrypto
     case listCryptoWith(minimumFractionDigits: Int, maximumFractionDigits: Int)
     case detailsCrypto
@@ -11,7 +11,7 @@ public enum NumberFormatterUsageCase {
     case inputFiat
 }
 
-public extension NumberFormatter {
+extension NumberFormatter {
     static func formatter(
         for usageCase: NumberFormatterUsageCase,
         locale: Locale,
@@ -136,7 +136,7 @@ public extension NumberFormatter {
     }
 }
 
-public extension NumberFormatter {
+extension NumberFormatter {
     static func decimalFormatter(
         precision _: Int,
         rounding: NumberFormatter.RoundingMode,

@@ -25,7 +25,6 @@ protocol StakingRebondSetupInteractorInputProtocol: AnyObject {
 protocol StakingRebondSetupInteractorOutputProtocol: AnyObject {
     func didReceiveStakingLedger(result: Result<StakingLedger?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
-    func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveActiveEra(result: Result<ActiveEraInfo?, Error>)
     func didReceiveController(result: Result<ChainAccountResponse?, Error>)
     func didReceiveStashItem(result: Result<StashItem?, Error>)

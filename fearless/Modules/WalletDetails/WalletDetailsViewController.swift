@@ -85,6 +85,7 @@ extension WalletDetailsViewController: WalletDetailsViewProtocol {
     func didReceive(state: WalletDetailsViewState) {
         self.state = state
         applyState()
+        reloadEmptyState(animated: true)
     }
 
     func didReceive(locale: Locale) {
@@ -216,4 +217,44 @@ extension WalletDetailsViewController: KeyboardViewAdoptable {
 
     func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { 0 }
     func updateWhileKeyboardFrameChanging(_: CGRect) {}
+}
+
+// MARK: - EmptyStateViewOwnerProtocol
+
+extension WalletDetailsViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+// MARK: - EmptyStateDataSource
+
+extension WalletDetailsViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        let emptyView = EmptyView()
+        emptyView.image = R.image.iconWarningGray()
+        emptyView.title = R.string.localizable
+            .emptyViewTitle(preferredLanguages: rootView.locale?.rLanguages)
+        emptyView.text = R.string.localizable.emptyViewDescription(preferredLanguages: rootView.locale?.rLanguages)
+        emptyView.iconMode = .smallFilled
+        return emptyView
+    }
+
+    var contentViewForEmptyState: UIView {
+        rootView.container
+    }
+}
+
+// MARK: - EmptyStateDelegate
+
+extension WalletDetailsViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        switch state {
+        case let .normal(viewModel):
+            return viewModel.sections.isEmpty
+        case let .export(viewModel):
+            return viewModel.sections.isEmpty
+        case .none:
+            return false
+        }
+    }
 }

@@ -27,6 +27,10 @@ protocol AssetManagementInteractorInput: AnyObject {
         for chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) async throws -> AccountInfo?
+    func updatedVisibility(
+        for chainAssets: [ChainAsset],
+        wallet: MetaAccountModel
+    ) async -> MetaAccountModel
 }
 
 final class AssetManagementPresenter {
@@ -40,9 +44,9 @@ final class AssetManagementPresenter {
     private let viewModelFactory: AssetManagementViewModelFactory
     private var networkFilter: NetworkManagmentFilter?
 
+    private var viewModel: AssetManagementViewModel?
     private var chainAssets: [ChainAsset] = []
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
-    private var prices: [PriceData] = []
     private var pendingAccountInfoChainAssets: [ChainAssetId] = []
     private var searchText: String?
 
@@ -76,13 +80,13 @@ final class AssetManagementPresenter {
             let viewModel = viewModelFactory.buildViewModel(
                 chainAssets: chainAssets,
                 accountInfos: accountInfos,
-                prices: prices,
                 wallet: wallet,
                 locale: selectedLocale,
                 filter: networkFilter,
                 search: searchText,
                 pendingAccountInfoChainAssets: pendingAccountInfoChainAssets
             )
+            self.viewModel = viewModel
             await view?.didReceive(viewModel: viewModel)
         }
     }
@@ -140,7 +144,6 @@ final class AssetManagementPresenter {
             at: indexPath,
             pendingAccountInfoChainAssets: pendingAccountInfoChainAssets,
             accountInfos: accountInfos,
-            prices: prices,
             locale: selectedLocale,
             wallet: wallet
         )
@@ -168,11 +171,13 @@ extension AssetManagementPresenter: AssetManagementViewOutput {
                 guard !invertedAssetHidden else {
                     return
                 }
-                await fetchAccountInfoAndUpdateViewModel(
-                    chainAsset: cellViewModel.chainAsset,
-                    viewModel: viewModel,
-                    indexPath: indexPath
-                )
+                Task {
+                    await fetchAccountInfoAndUpdateViewModel(
+                        chainAsset: cellViewModel.chainAsset,
+                        viewModel: viewModel,
+                        indexPath: indexPath
+                    )
+                }
             }
         }
     }
@@ -208,26 +213,22 @@ extension AssetManagementPresenter: AssetManagementViewOutput {
         }
         getInitialData()
     }
+
+    func didPullToRefresh() {
+        Task {
+            guard let chainAssets = viewModel?.dispayedChainAssets else {
+                return
+            }
+            let updatedWallet = await interactor.updatedVisibility(for: chainAssets, wallet: wallet)
+            wallet = updatedWallet
+            provideViewModel()
+        }
+    }
 }
 
 // MARK: - AssetManagementInteractorOutput
 
 extension AssetManagementPresenter: AssetManagementInteractorOutput {
-    func didReceivePricesData(
-        result: Result<[PriceData], Error>
-    ) {
-        switch result {
-        case let .success(priceDataResult):
-            guard prices.isEmpty else {
-                return
-            }
-            prices = priceDataResult
-            provideViewModel()
-        case let .failure(error):
-            logger.customError(error)
-        }
-    }
-
     func didReceiveUpdated(wallet: MetaAccountModel) {
         self.wallet = wallet
     }

@@ -25,7 +25,6 @@ final class PolkaswapAdjustmentAssembly {
         let operationManager = OperationManagerFacade.sharedManager
 
         let repositoryFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -72,7 +71,6 @@ final class PolkaswapAdjustmentAssembly {
             xorChainAsset: xorChainAsset,
             subscriptionService: subscriptionService,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-            priceLocalSubscriber: priceLocalSubscriber,
             feeProxy: ExtrinsicFeeProxy(),
             settingsRepository: AnyDataProviderRepository(settingsRepository),
             extrinsicService: extrinsicService,
@@ -102,12 +100,29 @@ final class PolkaswapAdjustmentAssembly {
             localizationManager: localizationManager
         )
 
+        guard
+            let bannersModule = Self.configureBannersModule(output: presenter, wallet: wallet)
+        else {
+            return nil
+        }
+
         let view = PolkaswapAdjustmentViewController(
             output: presenter,
+            bannersViewController: bannersModule.view.controller,
             localizationManager: localizationManager
         )
         dataValidatingFactory.view = view
+        presenter.bannersModuleInput = bannersModule.input
 
         return (view, presenter)
+    }
+
+    // MARK: - Cofigure Modules
+
+    private static func configureBannersModule(
+        output: BannersModuleOutput?,
+        wallet: MetaAccountModel
+    ) -> BannersModuleCreationResult? {
+        BannersAssembly.configureModule(output: output, type: .embed, wallet: wallet)
     }
 }

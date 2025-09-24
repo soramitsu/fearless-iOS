@@ -2,6 +2,13 @@ import Foundation
 import SoraFoundation
 
 extension DateFormatter {
+    static var iso: DateFormatter {
+        let df = DateFormatter()
+        df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        df.timeZone = TimeZone(abbreviation: "UTC")
+        return df
+    }
+
     static var txHistory: LocalizableResource<DateFormatter> {
         LocalizableResource { locale in
             let format = DateFormatter.dateFormat(fromTemplate: "HHmm", options: 0, locale: locale)

@@ -88,6 +88,7 @@ final class NftSendViewLayout: UIView {
 
     var locale = Locale.current {
         didSet {
+            searchView.locale = locale
             if locale != oldValue {
                 applyLocalization()
             }

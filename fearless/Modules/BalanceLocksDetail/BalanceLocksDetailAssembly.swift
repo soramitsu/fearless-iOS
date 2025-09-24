@@ -5,10 +5,7 @@ import SSFUtils
 
 final class BalanceLocksDetailAssembly {
     static func configureModule(chainAsset: ChainAsset, wallet: MetaAccountModel) -> BalanceLocksDetailModuleCreationResult? {
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
-        guard
-            let balanceLocksFetching = BalanceLocksFetchingFactory.buildBalanceLocksFetcher(for: chainAsset)
-        else {
+        guard let balanceLocksFetching = BalanceLocksFetchingFactory.buildBalanceLocksFetcher(for: chainAsset) else {
             return nil
         }
 
@@ -17,8 +14,7 @@ final class BalanceLocksDetailAssembly {
         let interactor = BalanceLocksDetailInteractor(
             wallet: wallet,
             chainAsset: chainAsset,
-            balanceLocksFetching: balanceLocksFetching,
-            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared
+            balanceLocksFetching: balanceLocksFetching
         )
         let router = BalanceLocksDetailRouter()
 
@@ -37,7 +33,8 @@ final class BalanceLocksDetailAssembly {
             localizationManager: localizationManager,
             logger: Logger.shared,
             viewModelFactory: viewModelFactory,
-            chainAsset: chainAsset
+            chainAsset: chainAsset,
+            selectedCurrency: wallet.selectedCurrency
         )
 
         let view = BalanceLocksDetailViewController(

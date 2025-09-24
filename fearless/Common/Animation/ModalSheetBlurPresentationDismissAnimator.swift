@@ -1,11 +1,11 @@
 import Foundation
 import SoraUI
 
-public final class ModalSheetBlurPresentationDismissAnimator: NSObject {
+final class ModalSheetBlurPresentationDismissAnimator: NSObject {
     let animator: BlockViewAnimatorProtocol
     let finalPositionOffset: CGFloat
 
-    public init(animator: BlockViewAnimatorProtocol, finalPositionOffset: CGFloat) {
+    init(animator: BlockViewAnimatorProtocol, finalPositionOffset: CGFloat) {
         self.animator = animator
         self.finalPositionOffset = finalPositionOffset
 
@@ -14,11 +14,11 @@ public final class ModalSheetBlurPresentationDismissAnimator: NSObject {
 }
 
 extension ModalSheetBlurPresentationDismissAnimator: UIViewControllerAnimatedTransitioning {
-    public func transitionDuration(using _: UIViewControllerContextTransitioning?) -> TimeInterval {
+    func transitionDuration(using _: UIViewControllerContextTransitioning?) -> TimeInterval {
         animator.duration
     }
 
-    public func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         guard let presentedController = transitionContext.viewController(forKey: .from) else {
             return
         }

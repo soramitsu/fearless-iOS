@@ -119,6 +119,8 @@ final class SendViewLayout: UIView {
         }
     }
 
+    let accountScoreView = AccountScoreView()
+
     var keyboardAdoptableConstraint: Constraint?
 
     override init(frame: CGRect) {
@@ -164,6 +166,10 @@ final class SendViewLayout: UIView {
         scamWarningView.isHidden = false
 
         scamWarningView.bind(scamInfo: scamInfo, assetName: amountView.symbol ?? "")
+    }
+
+    func bind(accountScoreViewModel: AccountScoreViewModel?) {
+        searchView.bind(accountScoreViewModel: accountScoreViewModel)
     }
 
     func bind(viewModel: RecipientViewModel) {

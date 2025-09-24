@@ -35,6 +35,7 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
         case chainIds([ChainModel.Id])
         case supportNfts
         case enabled(wallet: MetaAccountModel)
+        case enabledChains
 
         var searchText: String? {
             switch self {
@@ -243,6 +244,8 @@ private extension ChainAssetsFetching {
                 .filter { !$0.hidden }
                 .map { $0.assetId }
             return chainAssets.filter { enabled.contains($0.identifier) }
+        case .enabledChains:
+            return chainAssets.filter { !$0.chain.disabled }
         }
     }
 
@@ -305,11 +308,17 @@ private extension ChainAssetsFetching {
 
     func sortByPrice(chainAssets: [ChainAsset], order: SortOrder) -> [ChainAsset] {
         chainAssets.sorted {
+            let firstPriceDataSorted = $0.asset.priceData.sorted { $0.currencyId < $1.currencyId }
+            let firstPriceString = firstPriceDataSorted.first?.price ?? ""
+            let firstPrice = Decimal(string: firstPriceString)
+            let secondPriceDataSorted = $1.asset.priceData.sorted { $0.currencyId < $1.currencyId }
+            let secondPriceString = secondPriceDataSorted.first?.price ?? ""
+            let secondPrice = Decimal(string: secondPriceString)
             switch order {
             case .ascending:
-                return $0.asset.price ?? 0 < $1.asset.price ?? 0
+                return firstPrice ?? 0 < secondPrice ?? 0
             case .descending:
-                return $0.asset.price ?? 0 > $1.asset.price ?? 0
+                return secondPrice ?? 0 > firstPrice ?? 0
             }
         }
     }

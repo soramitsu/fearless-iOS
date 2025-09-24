@@ -13,8 +13,6 @@ final class CrossChainAssembly {
     ) -> CrossChainModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        let repositoryFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -22,6 +20,7 @@ final class CrossChainAssembly {
         )
 
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
         let operationQueue = OperationQueue()
@@ -58,7 +57,6 @@ final class CrossChainAssembly {
         let interactor = CrossChainInteractor(
             chainAssetFetching: chainAssetFetching,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-            priceLocalSubscriber: priceLocalSubscriber,
             depsContainer: depsContainer,
             runtimeItemRepository: AnyDataProviderRepository(runtimeMetadataRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,

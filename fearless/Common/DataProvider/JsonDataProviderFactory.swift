@@ -28,7 +28,7 @@ class JsonDataProviderFactory: JsonDataProviderFactoryProtocol {
 
         let source = JsonSingleProviderSource<T>(url: url)
 
-        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = try SingleValueCacheRepositoryFactoryDefault().createSingleValueCacheRepository()
+        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = SingleValueCacheRepositoryFactoryDefault().createSingleValueCacheRepository()
 
         let singleValueProvider = SingleValueProvider(
             targetIdentifier: localKey,

@@ -5,14 +5,13 @@ import SSFModels
 
 struct NodeSelectionViewFactory {
     static func createView(chain: ChainModel) -> NodeSelectionViewProtocol? {
-        let repository: CoreDataRepository<ChainModel, CDChain> = ChainRepositoryFactory().createRepository(
+        let repository = ChainRepositoryFactory().createAsyncRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
         let interactor = NodeSelectionInteractor(
             chain: chain,
-            repository: AnyDataProviderRepository(repository),
-            operationManager: OperationManagerFacade.sharedManager,
+            repository: AsyncAnyRepository(repository),
             eventCenter: EventCenter.shared,
             chainRegistry: ChainRegistryFacade.sharedRegistry
         )

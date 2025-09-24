@@ -15,6 +15,7 @@ protocol SendViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didStopFeeCalculation()
     func didStopTipCalculation()
     func didReceive(viewModel: RecipientViewModel)
+    func didReceive(accountScoreViewModel: AccountScoreViewModel?)
     func didBlockUserInteractive(isUserInteractiveAmount: Bool)
     func setInputAccessoryView(visible: Bool)
     func setHistoryButton(isVisible: Bool)
@@ -49,7 +50,7 @@ protocol SendInteractorInput: AnyObject {
     )
     func estimateFee(for amount: BigUInt, tip: BigUInt?, for address: String?, chainAsset: ChainAsset)
     func validate(address: String?, for chain: ChainModel) -> AddressValidationResult
-    func fetchScamInfo(for address: String)
+    func fetchScamInfo(for address: String, chain: ChainModel)
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset?
     func getPossibleChains(for address: String) async -> [ChainModel]?
     func calculateEquilibriumBalance(chainAsset: ChainAsset, amount: Decimal)
@@ -61,7 +62,6 @@ protocol SendInteractorInput: AnyObject {
 protocol SendInteractorOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
-    func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceiveTip(result: Result<BigUInt, Error>)
     func didReceive(scamInfo: ScamInfo?)
@@ -107,6 +107,10 @@ protocol SendRouterInput: SheetAlertPresentable, ErrorPresentable, BaseErrorPres
         selectedAssetId: AssetModel.Id?,
         chainAssets: [ChainAsset]?,
         output: SelectAssetModuleOutput
+    )
+    func showManageAsset(
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel
     )
 }
 

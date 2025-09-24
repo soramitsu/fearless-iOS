@@ -6,13 +6,6 @@ import SSFModels
 import SSFUtils
 import RobinHood
 
-protocol AccountInfoRemoteService {
-    func fetchAccountInfos(
-        for chain: ChainModel,
-        wallet: MetaAccountModel
-    ) async throws -> [ChainAssetId: AccountInfo?]
-}
-
 final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
     private let runtimeItemRepository: AsyncAnyRepository<RuntimeMetadataItem>
     private let ethereumRemoteBalanceFetching: EthereumRemoteBalanceFetching

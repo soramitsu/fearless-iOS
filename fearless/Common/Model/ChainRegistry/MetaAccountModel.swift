@@ -21,6 +21,10 @@ struct MetaAccountModel: Equatable, Codable {
     let assetsVisibility: [AssetVisibility]
     let hasBackup: Bool
     let favouriteChainIds: [ChainModel.Id]
+
+    var utilsModel: SSFModels.MetaAccountModel {
+        SSFModels.MetaAccountModel(metaId: metaId, name: name, substrateAccountId: substrateAccountId, substrateCryptoType: substrateCryptoType, substratePublicKey: substratePublicKey, ethereumAddress: ethereumAddress, ethereumPublicKey: ethereumPublicKey, chainAccounts: chainAccounts, assetKeysOrder: assetKeysOrder, assetFilterOptions: [], canExportEthereumMnemonic: canExportEthereumMnemonic, unusedChainIds: unusedChainIds, selectedCurrency: selectedCurrency, networkManagmentFilter: networkManagmentFilter, assetsVisibility: assetsVisibility, zeroBalanceAssetsHidden: false, hasBackup: hasBackup, favouriteChainIds: favouriteChainIds)
+    }
 }
 
 extension MetaAccountModel {
@@ -34,6 +38,10 @@ extension MetaAccountModel: Identifiable {
 }
 
 extension MetaAccountModel {
+    func isVisible(chainAsset: ChainAsset) -> Bool {
+        assetsVisibility.first(where: { $0.assetId == chainAsset.identifier })?.hidden == false
+    }
+
     func insertingChainAccount(_ newChainAccount: ChainAccountModel) -> MetaAccountModel {
         var newChainAccounts = chainAccounts.filter {
             $0.chainId != newChainAccount.chainId

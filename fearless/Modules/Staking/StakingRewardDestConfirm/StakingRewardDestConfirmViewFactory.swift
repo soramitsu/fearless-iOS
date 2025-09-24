@@ -40,6 +40,7 @@ struct StakingRewardDestConfirmViewFactory {
             dataValidatingFactory: dataValidatingFactory,
             chain: chain,
             asset: asset,
+            wallet: selectedAccount,
             logger: Logger.shared
         )
 
@@ -90,7 +91,6 @@ struct StakingRewardDestConfirmViewFactory {
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
@@ -118,7 +118,6 @@ struct StakingRewardDestConfirmViewFactory {
         let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         return StakingRewardDestConfirmInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,

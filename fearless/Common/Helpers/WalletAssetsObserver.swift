@@ -5,6 +5,10 @@ import SoraKeystore
 
 protocol WalletAssetsObserver: ApplicationServiceProtocol {
     func update(wallet: MetaAccountModel)
+    func updateVisibility(
+        wallet: MetaAccountModel?,
+        chainAssets: [ChainAsset]
+    ) async -> MetaAccountModel
 }
 
 final class WalletAssetsObserverImpl: WalletAssetsObserver {
@@ -18,8 +22,6 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     private lazy var walletAssetsObserverQueue: DispatchQueue = {
         DispatchQueue(label: "co.jp.soramitsu.asset.observer.deliveryQueue")
     }()
-
-    private var currentTask: Task<Void, Error>?
 
     init(
         wallet: MetaAccountModel,
@@ -46,12 +48,24 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         setup()
     }
 
+    func updateVisibility(
+        wallet: MetaAccountModel?,
+        chainAssets: [ChainAsset]
+    ) async -> MetaAccountModel {
+        if let wallet {
+            self.wallet = wallet
+        }
+        let chains = chainAssets
+            .map { $0.chain }
+            .uniq(predicate: { $0.chainId })
+        let updatedWallet = await updateVisibility(for: chains)
+        return updatedWallet
+    }
+
     // MARK: - ApplicationServiceProtocol
 
     func setup() {
-        guard wallet.assetsVisibility.isEmpty else {
-            return
-        }
+        eventCenter.add(observer: self)
         chainRegistry.chainsSubscribe(
             self,
             runningInQueue: walletAssetsObserverQueue
@@ -61,63 +75,59 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     }
 
     func throttle() {
-        currentTask?.cancel()
         chainRegistry.chainsUnsubscribe(self)
     }
 
     // MARK: - Private methods
 
-    private func handleChains(changes: [DataProviderChange<ChainModel>], accounts: [ChainAccountModel]?) {
-        currentTask = Task {
-            let result = await withTaskGroup(
-                of: (ChainModel, [ChainAssetId: AccountInfo?]).self,
-                returning: [ChainModel: [ChainAssetId: AccountInfo?]].self,
-                body: { [wallet] group in
-                    changes.forEach { change in
-                        switch change {
-                        case let .insert(chain):
-                            if let accounts {
-                                if accounts.contains(where: { $0.chainId == chain.chainId }) {
-                                    group.addTask {
-                                        await self.fetchAccountInfos(chain: chain, wallet: wallet)
-                                    }
-                                } else {
-                                    return
-                                }
-                            } else {
-                                group.addTask {
-                                    await self.fetchAccountInfos(chain: chain, wallet: wallet)
-                                }
-                            }
-                        case .update, .delete:
-                            break
-                        }
-                    }
-
-                    var taskResults = [ChainModel: [ChainAssetId: AccountInfo?]]()
-                    for await result in group {
-                        taskResults[result.0] = result.1
-                    }
-                    return taskResults
+    private func handleChains(changes: [DataProviderChange<ChainModel>], accounts _: [ChainAccountModel]?) {
+        Task {
+            let chains = changes.filter {
+                switch $0 {
+                case .insert, .update:
+                    return true
+                default:
+                    return false
                 }
-            )
-            guard result.isNotEmpty else {
-                return
-            }
-            updateCurrentWallet(with: result)
+            }.compactMap { $0.item }
+
+            updateCurrentWallet(with: chains)
             performSaveAndNotify()
         }
     }
 
-    private func fetchAccountInfos(chain: ChainModel, wallet: MetaAccountModel) async -> (ChainModel, [ChainAssetId: AccountInfo?]) {
-        do {
-            let accountInfos = try await accountInfoRemote.fetchAccountInfos(for: chain, wallet: wallet)
-            return (chain, accountInfos)
-        } catch {
-            logger.customError(error)
-            let empty = emptyAccountInfos(for: chain)
-            return (chain, empty)
+    private func updateCurrentWallet(with chains: [ChainModel]) {
+        let filtered = chains.filter { wallet.assetsVisibility.map { $0.identifier }.contains($0.utilityChainAssets().first?.identifier) == false }
+        setDefaultVisibilitiesIfNeeded(chains: filtered)
+    }
+
+    private func updateVisibility(for chains: [ChainModel]) async -> MetaAccountModel {
+        let result = await withTaskGroup(
+            of: (ChainModel, [ChainAssetId: AccountInfo?])?.self,
+            returning: [ChainModel: [ChainAssetId: AccountInfo?]].self
+        ) { group in
+            chains.forEach { chain in
+                group.addTask {
+                    do {
+                        let accountInfos = try await self.accountInfoRemote.fetchAccountInfos(for: chain, wallet: self.wallet)
+                        return (chain, accountInfos)
+                    } catch {
+                        return nil
+                    }
+                }
+            }
+
+            var taskResults = [ChainModel: [ChainAssetId: AccountInfo?]]()
+            for await result in group {
+                guard let result else {
+                    continue
+                }
+                taskResults[result.0] = result.1
+            }
+            return taskResults
         }
+        updateCurrentWallet(with: result)
+        return wallet
     }
 
     private func checkNewAccounts(for wallet: MetaAccountModel) {
@@ -223,5 +233,11 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
             "asset.management.should.migrate.wallet",
             wallet.metaId
         ].joined(separator: ":")
+    }
+}
+
+extension WalletAssetsObserverImpl: EventVisitorProtocol {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        wallet = event.account
     }
 }

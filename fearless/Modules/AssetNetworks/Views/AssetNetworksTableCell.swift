@@ -78,6 +78,7 @@ final class AssetNetworksTableCell: UITableViewCell {
 
     override func prepareForReuse() {
         super.prepareForReuse()
+        viewModel?.iconViewModel?.cancel(on: networkIconImageView)
         viewModel = nil
     }
 

@@ -6,9 +6,7 @@ final class WalletNameAssembly {
         let localizationManager = LocalizationManager.shared
 
         let interactor = WalletNameInteractor(
-            operationManager: OperationManagerFacade.sharedManager,
-            eventCenter: EventCenter.shared,
-            repository: AccountRepositoryFactory.createRepository()
+            eventCenter: EventCenter.shared
         )
         let router = WalletNameRouter()
 

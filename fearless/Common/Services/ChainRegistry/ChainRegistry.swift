@@ -108,12 +108,16 @@ final class ChainRegistry {
                     case let .insert(newChain):
                         try self.handleInsert(newChain)
                     case let .update(updatedChain):
-                        try self.handleUpdate(updatedChain)
+                        let currentChain = self.chains.first { $0.chainId == updatedChain.chainId }
+                        if let chain = currentChain,
+                           chain.nodes != updatedChain.nodes || chain.selectedNode != updatedChain.selectedNode {
+                            try self.handleUpdate(updatedChain)
+                        }
                     case let .delete(chainId):
                         self.handleDelete(chainId)
                     }
                 } catch {
-                    self.logger?.error("Unexpected error on handling chains update: \(error)")
+                    self.logger?.error("Chain: \(change.item?.name), Unexpected error on handling chains update: \(error)")
                 }
             }
 
@@ -226,14 +230,25 @@ final class ChainRegistry {
             return
         }
         chains.append(newChain)
-        _ = try ethereumConnectionPool.setupConnection(for: newChain)
+
+        do {
+            _ = try ethereumConnectionPool.setupConnection(for: newChain)
+        } catch {
+            logger?.customError(error)
+        }
     }
 
     private func handleUpdatedEthereumChain(updatedChain: ChainModel) throws {
         guard let ethereumConnectionPool = self.ethereumConnectionPool else {
             return
         }
-        _ = try ethereumConnectionPool.setupConnection(for: updatedChain)
+
+        do {
+            _ = try ethereumConnectionPool.setupConnection(for: updatedChain)
+        } catch {
+            logger?.customError(error)
+        }
+
         chains = chains.filter { $0.chainId != updatedChain.chainId }
         chains.append(updatedChain)
     }
@@ -306,7 +321,7 @@ extension ChainRegistry: ChainRegistryProtocol {
             return nil
         }
 
-        return readLock.concurrentlyRead { substrateConnectionPool.getConnection(for: chainId) }
+        return substrateConnectionPool.getConnection(for: chainId)
     }
 
     func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth? {
@@ -385,63 +400,26 @@ extension ChainRegistry: ChainRegistryProtocol {
     func retryConnection(for chainId: ChainModel.Id) {
         guard
             let chain = chains.first(where: { $0.chainId == chainId }),
-            let currentConnection = getConnection(for: chainId),
-            let currentURL = currentConnection.url
+            let currentConnection = getConnection(for: chainId)
         else {
             return
         }
-        connectionNeedsReconnect(for: chain, previusUrl: currentURL)
+        currentConnection.connectIfNeeded()
     }
 }
 
 // MARK: - ConnectionPoolDelegate
 
 extension ChainRegistry: ConnectionPoolDelegate {
-    func webSocketDidChangeState(url: URL, state: WebSocketEngine.State) {
+    func webSocketDidChangeState(chainId: SSFModels.ChainModel.Id, state: SSFUtils.WebSocketEngine.State) {
         guard let changedStateChain = chains.first(where: { chain in
-            chain.nodes.first { node in
-                node.url == url
-            } != nil
+            chain.chainId == chainId
         }) else {
             return
         }
 
-        if case .connected = state {
-            let reconnectedEvent = ChainReconnectingEvent(chain: changedStateChain, state: state)
-            eventCenter.notify(with: reconnectedEvent)
-        }
-
-        switch state {
-        case let .waitingReconnection(attempt: attempt):
-            if attempt > NetworkConstants.websocketReconnectAttemptsLimit {
-                connectionNeedsReconnect(for: changedStateChain, previusUrl: url)
-            }
-        case .notConnected:
-            connectionNeedsReconnect(for: changedStateChain, previusUrl: url)
-        default:
-            break
-        }
-    }
-
-    func connectionNeedsReconnect(for chain: ChainModel, previusUrl: URL) {
-        guard chain.selectedNode == nil else {
-            return
-        }
-
-        do {
-            if chain.isEthereum {
-                // TODO: Ethereum reconnect
-            } else {
-                _ = try substrateConnectionPool?.setupConnection(for: chain, ignoredUrl: previusUrl)
-            }
-
-            let event = ChainsUpdatedEvent(updatedChains: [chain])
-            eventCenter.notify(with: event)
-        } catch {
-            logger?.error("\(chain.name) error: \(error.localizedDescription)")
-            let reconnectedEvent = ChainReconnectingEvent(chain: chain, state: .notConnected)
-            eventCenter.notify(with: reconnectedEvent)
-        }
+        let reconnectedEvent = ChainReconnectingEvent(chain: changedStateChain, state: state)
+        eventCenter.notify(with: reconnectedEvent)
     }
 }
 
@@ -461,10 +439,12 @@ extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
         usedRuntimePaths _: [String: [String]],
         runtimeItem _: SSFModels.RuntimeMetadataItemProtocol?
     ) async throws -> SSFRuntimeCodingService.RuntimeProviderProtocol {
-        let runtimeProvider = readLock.concurrentlyRead { runtimeProviderPool.getRuntimeProvider(for: chainId) }
-        guard let runtimeProvider else {
-            throw ChainRegistryError.runtimeMetadaUnavailable
+        guard let chain = chains.first(where: { $0.chainId == chainId }) else {
+            throw ChainRegistryError.chainUnavailable(chainId: chainId)
         }
+        let chainTypes = chainsTypesMap[chainId]
+
+        let runtimeProvider = runtimeProviderPool.setupRuntimeProvider(for: chain, chainTypes: chainTypes)
         return runtimeProvider
     }
 

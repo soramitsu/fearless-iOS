@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFUtils
+import SSFModels
 
 enum SubqueryRewardOperationFactoryError: Error {
     case urlMissing

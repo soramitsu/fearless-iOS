@@ -7,15 +7,10 @@ final class SelectAssetInteractor {
 
     private weak var output: SelectAssetInteractorOutput?
 
-    private let operationQueue: OperationQueue
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    private let assetRepository: AnyDataProviderRepository<AssetModel>
     private let wallet: MetaAccountModel
 
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
-
-    private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private var chainAssets: [ChainAsset]?
 
     private lazy var accountInfosDeliveryQueue = {
@@ -25,25 +20,18 @@ final class SelectAssetInteractor {
     init(
         chainAssetFetching: ChainAssetFetchingProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
-        assetRepository: AnyDataProviderRepository<AssetModel>,
         chainAssets: [ChainAsset]?,
-        operationQueue: OperationQueue,
         wallet: MetaAccountModel
     ) {
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriber = priceLocalSubscriber
-        self.assetRepository = assetRepository
         self.chainAssets = chainAssets
-        self.operationQueue = operationQueue
         self.wallet = wallet
     }
 
     private func fetchChainAssets() {
         if let chainAssets = self.chainAssets {
             subscribeToAccountInfo(for: chainAssets)
-            subscribeToPrice(for: chainAssets)
             output?.didReceiveChainAssets(result: .success(chainAssets))
             return
         }
@@ -64,7 +52,6 @@ final class SelectAssetInteractor {
                     self?.output?.didReceiveChainAssets(result: .failure(BaseOperationError.parentOperationCancelled))
                 }
                 self?.subscribeToAccountInfo(for: chainAssets)
-                self?.subscribeToPrice(for: chainAssets)
             case let .failure(error):
                 self?.output?.didReceiveChainAssets(result: .failure(error))
             }
@@ -79,6 +66,15 @@ extension SelectAssetInteractor: SelectAssetInteractorInput {
         self.output = output
         fetchChainAssets()
     }
+
+    func update(with chainAssets: [ChainAsset]) {
+        self.chainAssets = chainAssets
+        output?.didReceiveChainAssets(result: .success(chainAssets))
+        if chainAssets.isEmpty {
+            output?.didReceiveChainAssets(result: .failure(BaseOperationError.parentOperationCancelled))
+        }
+        subscribeToAccountInfo(for: chainAssets)
+    }
 }
 
 extension SelectAssetInteractor: AccountInfoSubscriptionAdapterHandler {
@@ -87,54 +83,12 @@ extension SelectAssetInteractor: AccountInfoSubscriptionAdapterHandler {
     }
 }
 
-extension SelectAssetInteractor: PriceLocalSubscriptionHandler {
-    func handlePrices(result: Result<[PriceData], Error>) {
-        switch result {
-        case let .success(prices):
-            DispatchQueue.global().async {
-                self.updatePrices(with: prices)
-            }
-        case .failure:
-            break
-        }
-
-        output?.didReceivePricesData(result: result)
-    }
-}
-
 private extension SelectAssetInteractor {
-    func subscribeToPrice(for chainAssets: [ChainAsset]) {
-        guard chainAssets.isNotEmpty else {
-            output?.didReceivePricesData(result: .success([]))
-            return
-        }
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
-    }
-
     func subscribeToAccountInfo(for chainAssets: [ChainAsset]) {
         accountInfoSubscriptionAdapter.subscribe(
             chainsAssets: chainAssets,
             handler: self,
             deliveryOn: accountInfosDeliveryQueue
         )
-    }
-
-    func updatePrices(with priceData: [PriceData]) {
-        let updatedAssets = priceData.compactMap { priceData -> AssetModel? in
-            let chainAsset = chainAssets?.first(where: { $0.asset.priceId == priceData.priceId })
-
-            guard let asset = chainAsset?.asset else {
-                return nil
-            }
-            return asset.replacingPrice(priceData)
-        }
-
-        let saveOperation = assetRepository.saveOperation {
-            updatedAssets
-        } _: {
-            []
-        }
-
-        operationQueue.addOperation(saveOperation)
     }
 }

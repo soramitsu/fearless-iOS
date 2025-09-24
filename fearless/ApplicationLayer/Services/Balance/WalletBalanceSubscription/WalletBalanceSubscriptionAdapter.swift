@@ -43,6 +43,11 @@ protocol WalletBalanceSubscriptionAdapterProtocol {
         listener: WalletBalanceSubscriptionListener
     )
 
+    func subscribeNetworkManagementBalance(
+        wallet: MetaAccountModel,
+        listener: WalletBalanceSubscriptionListener
+    )
+
     func unsubscribe(listener: WalletBalanceSubscriptionListener)
 }
 
@@ -51,18 +56,14 @@ enum WalletBalanceListenerType {
     case wallet(wallet: MetaAccountModel)
     case chainAsset(wallet: MetaAccountModel, chainAsset: ChainAsset)
     case chainAssets(chainAssets: [ChainAsset], wallet: MetaAccountModel)
+    case networkManagement(wallet: MetaAccountModel)
 }
 
-final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol {
+final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol, ChainAssetListBuilder {
     static let shared = createWalletBalanceAdapter()
-
-    // MARK: - PriceLocalStorageSubscriber
-
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
 
     // MARK: - Private properties
 
-    private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private lazy var walletBalanceBuilder = {
         WalletBalanceBuilder()
     }()
@@ -78,7 +79,6 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     private lazy var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private lazy var chainAssets: [ChainAsset] = []
     private lazy var wallets: [MetaAccountModel] = []
-    private lazy var prices: [PriceData] = []
 
     private let listenersLock = ReaderWriterLock()
     private let accountInfoWorkQueue = DispatchQueue(
@@ -90,13 +90,11 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 
     private init(
         metaAccountRepository: AsyncAnyRepository<MetaAccountModel>,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAssetFetcher: ChainAssetFetchingProtocol,
         eventCenter: EventCenterProtocol,
         logger: Logger,
         accountInfoFetchingProvider: AccountInfoFetchingProtocol
     ) {
-        self.priceLocalSubscriber = priceLocalSubscriber
         walletRepository = metaAccountRepository
         self.chainAssetFetcher = chainAssetFetcher
         self.eventCenter = eventCenter
@@ -164,6 +162,27 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         }
     }
 
+    func subscribeNetworkManagementBalance(
+        wallet: MetaAccountModel,
+        listener: WalletBalanceSubscriptionListener
+    ) {
+        let weakListener = WeakWrapper(target: listener)
+        listenersLock.exclusivelyWrite { [weak self] in
+            self?.listeners.append(weakListener)
+        }
+        updateWalletsIfNeeded(with: wallet)
+        let selectedChainAssets = filterChainAssets(
+            with: NetworkManagmentFilter(identifier: wallet.networkManagmentFilter),
+            chainAssets: chainAssets,
+            wallet: wallet,
+            search: nil
+        )
+
+        if let balances = buildBalance(for: [wallet], chainAssets: selectedChainAssets) {
+            notify(listener: listener, result: .success(balances))
+        }
+    }
+
     func unsubscribe(listener: WalletBalanceSubscriptionListener) {
         listenersLock.exclusivelyWrite { [weak self] in
             guard let strongSelf = self else {
@@ -185,8 +204,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         let walletBalances = walletBalanceBuilder.buildBalance(
             for: accountInfos,
             wallets,
-            chainAssets,
-            prices
+            chainAssets
         )
         return walletBalances
     }
@@ -195,19 +213,18 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         self.chainAssets = chainAssets
         self.wallets = (self.wallets + wallets).uniq(predicate: { $0.metaId })
         subscribeToAccountInfo(for: wallets, chainAssets)
-        let currencies = wallets.map { $0.selectedCurrency }
-        subscribeToPrices(for: chainAssets, currencies: currencies)
     }
 
     private func fetchInitialData() {
         Task {
             do {
                 async let wallets = self.walletRepository.fetchAll()
-                async let chainAssets = chainAssetFetcher.fetchAwait(shouldUseCache: false, filters: [], sortDescriptors: [])
+                async let chainAssets = chainAssetFetcher.fetchAwait(shouldUseCache: false, filters: [.enabledChains], sortDescriptors: [])
                 try await handle(wallets, chainAssets)
 
                 let accountInfos = try await fetchAccountInfos(wallets: wallets, chainAssets: chainAssets)
                 self.accountInfos = accountInfos
+                self.buildAndNotifyIfNeeded(with: try await wallets.map { $0.metaId }, updatedChainAssets: try await chainAssets)
             } catch {
                 let unwrappedListeners = listenersLock.concurrentlyRead {
                     listeners.compactMap {
@@ -266,14 +283,6 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         }
     }
 
-    private func subscribeToPrices(for chainAssets: [ChainAsset], currencies: [Currency]?) {
-        var uniqueQurrencies: [Currency]? = currencies
-        if let currencies = currencies {
-            uniqueQurrencies = Array(Set(currencies))
-        }
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, currencies: uniqueQurrencies, listener: self)
-    }
-
     private func notify(
         listener: WalletBalanceSubscriptionListener,
         result: WalletBalancesResult
@@ -319,6 +328,17 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
                    let balances = buildBalance(for: [wallet], chainAssets: chainAssets) {
                     notify(listener: listener, result: .success(balances))
                 }
+            case let .networkManagement(wallet):
+                let selectedChainAssets = filterChainAssets(
+                    with: NetworkManagmentFilter(identifier: wallet.networkManagmentFilter),
+                    chainAssets: chainAssets,
+                    wallet: wallet,
+                    search: nil
+                )
+                if updatedWalletsIds.contains(wallet.metaId),
+                   let balances = buildBalance(for: [wallet], chainAssets: selectedChainAssets) {
+                    notify(listener: listener, result: .success(balances))
+                }
             }
         }
     }
@@ -356,8 +376,10 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
            let wallet = wallets[safe: index] {
             if wallet.selectedCurrency != event.account.selectedCurrency {
                 wallets[index] = event.account
-                let currencies = wallets.map { $0.selectedCurrency }
-                subscribeToPrices(for: chainAssets, currencies: currencies)
+            }
+            if wallet.networkManagmentFilter != event.account.networkManagmentFilter {
+                wallets[index] = event.account
+                buildAndNotifyIfNeeded(with: [wallet.metaId], updatedChainAssets: chainAssets)
             }
             wallets[index] = event.account
         }
@@ -383,10 +405,21 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
         Task {
             let chainAssets = try await chainAssetFetcher.fetchAwait(
                 shouldUseCache: false,
-                filters: [],
+                filters: [.enabledChains],
                 sortDescriptors: []
             )
             subscribeToAccountInfo(for: wallets, chainAssets)
+        }
+    }
+
+    func processPricesUpdated() {
+        Task {
+            self.chainAssets = try await chainAssetFetcher.fetchAwait(
+                shouldUseCache: false,
+                filters: [.enabledChains],
+                sortDescriptors: []
+            )
+            buildAndNotifyIfNeeded(with: wallets.map { $0.metaId }, updatedChainAssets: chainAssets)
         }
     }
 }
@@ -421,40 +454,14 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
     }
 }
 
-// MARK: - PriceLocalSubscriptionHandler
-
-extension WalletBalanceSubscriptionAdapter: PriceLocalSubscriptionHandler {
-    func handlePrices(result: Result<[PriceData], Error>) {
-        switch result {
-        case let .success(prices):
-            self.prices = prices
-            buildAndNotifyIfNeeded(with: wallets.map { $0.metaId }, updatedChainAssets: chainAssets)
-        case let .failure(error):
-            let unwrappedListeners = listenersLock.concurrentlyRead {
-                listeners.compactMap {
-                    if let target = $0.target as? WalletBalanceSubscriptionListener {
-                        return target
-                    }
-
-                    return nil
-                }
-            }
-            unwrappedListeners.forEach { listener in
-                notify(listener: listener, result: .failure(error))
-            }
-            logger.error("WalletBalanceFetcher error: \(error.localizedDescription)")
-        }
-    }
-}
-
 private extension WalletBalanceSubscriptionAdapter {
     static func createWalletBalanceAdapter() -> WalletBalanceSubscriptionAdapter {
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepositoryAsync = accountRepositoryFactory.createAsyncMetaAccountRepository(for: nil, sortDescriptors: [])
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
@@ -475,7 +482,6 @@ private extension WalletBalanceSubscriptionAdapter {
 
         return WalletBalanceSubscriptionAdapter(
             metaAccountRepository: accountRepositoryAsync,
-            priceLocalSubscriber: priceLocalSubscriber,
             chainAssetFetcher: chainAssetFetching,
             eventCenter: EventCenter.shared,
             logger: logger,

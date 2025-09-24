@@ -42,10 +42,6 @@ final class ClaimCrowdloanRewardsAssembly {
             metaId: wallet.metaId,
             accountResponse: accountResponse
         )
-        let networkInfoFetcher = NetworkInfoFetchingImpl(
-            storageRequestFactory: storageRequestFactory,
-            operationManager: operationManager
-        )
         let storageRequestPerformer = StorageRequestPerformerDefault(
             runtimeService: runtimeService,
             connection: connection
@@ -68,8 +64,6 @@ final class ClaimCrowdloanRewardsAssembly {
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,
             signer: signer,
-            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
-            networkInfoFetcher: networkInfoFetcher,
             chainRegistry: chainRegistry,
             storageRequestPerformer: storageRequestPerformer,
             accountInfoFetcher: accountInfoFetcher

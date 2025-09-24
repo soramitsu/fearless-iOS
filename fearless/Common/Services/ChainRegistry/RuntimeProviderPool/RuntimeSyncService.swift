@@ -314,7 +314,7 @@ extension RuntimeSyncService: RuntimeSyncServiceProtocol {
             return
         }
 
-        if knownConnection.url != connection.url {
+        if knownConnection.connectionName != connection.connectionName {
             knownChains[chain.chainId] = connection
 
             performSync(for: chain.chainId)

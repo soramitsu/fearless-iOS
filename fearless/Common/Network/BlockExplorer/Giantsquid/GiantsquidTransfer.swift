@@ -27,6 +27,7 @@ struct GiantsquidTransfer: Decodable {
     let type: String?
     let feeAmount: String?
     let signedData: GiantsquidSignedData?
+    let blockHash: String?
 
     var timestampInSeconds: Int64 {
         let locale = LocalizationManager.shared.selectedLocale

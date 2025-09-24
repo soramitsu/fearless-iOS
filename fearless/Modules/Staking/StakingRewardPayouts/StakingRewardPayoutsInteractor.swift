@@ -7,7 +7,6 @@ import SSFRuntimeCodingService
 final class StakingRewardPayoutsInteractor {
     weak var presenter: StakingRewardPayoutsInteractorOutputProtocol!
 
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     private let payoutService: PayoutRewardsServiceProtocol
     private let chainAsset: ChainAsset
@@ -17,7 +16,6 @@ final class StakingRewardPayoutsInteractor {
     private let logger: LoggerProtocol?
     let connection: JSONRPCEngine
 
-    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     private var payoutOperationsWrapper: CompoundOperationWrapper<PayoutsInfo>?
 
@@ -28,7 +26,6 @@ final class StakingRewardPayoutsInteractor {
     }
 
     init(
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         payoutService: PayoutRewardsServiceProtocol,
         chainAsset: ChainAsset,
@@ -38,7 +35,6 @@ final class StakingRewardPayoutsInteractor {
         logger: LoggerProtocol? = nil,
         connection: JSONRPCEngine
     ) {
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.payoutService = payoutService
         self.eraCountdownOperationFactory = eraCountdownOperationFactory
@@ -71,8 +67,6 @@ final class StakingRewardPayoutsInteractor {
 
 extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputProtocol {
     func setup() {
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
-
         activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
 
         fetchEraCompletionTime()
@@ -114,12 +108,6 @@ extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputPro
         operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
 
         payoutOperationsWrapper = wrapper
-    }
-}
-
-extension StakingRewardPayoutsInteractor: PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
-        presenter.didReceive(priceResult: result)
     }
 }
 

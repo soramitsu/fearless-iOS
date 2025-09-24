@@ -6,6 +6,12 @@ protocol ChainAssetListBuilder {
     var assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol { get }
 }
 
+extension ChainAssetListBuilder {
+    var assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol {
+        AssetBalanceFormatterFactory()
+    }
+}
+
 struct AssetChainAssets {
     let chainAssets: [ChainAsset]
     let mainChainAsset: ChainAsset
@@ -288,7 +294,6 @@ extension ChainAssetListBuilder {
     func createAssetChainAssets(
         from chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
-        pricesData: [PriceData],
         wallet: MetaAccountModel
     ) -> [AssetChainAssets] {
         let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.normalizedSymbol() })
@@ -310,8 +315,7 @@ extension ChainAssetListBuilder {
                 accountInfos: accountInfos,
                 wallet: wallet
             )
-            let priceId = mainChainAsset.asset.priceId ?? mainChainAsset.asset.id
-            let priceData = pricesData.first(where: { $0.priceId == priceId })
+            let priceData = mainChainAsset.asset.getPrice(for: wallet.selectedCurrency)
             let totalFiatBalance = getTotalFiatBalance(
                 for: assetChainAssets,
                 accountInfos: accountInfos,
@@ -344,6 +348,14 @@ extension ChainAssetListBuilder {
         guard wallet.assetsVisibility.isNotEmpty else {
             return defaultByPopular(chainAssets: chainAssets)
         }
+        let enabled = enabled(chainAssets: chainAssets, for: wallet)
+        return enabled
+    }
+
+    func enabled(
+        chainAssets: [ChainAsset],
+        for wallet: MetaAccountModel
+    ) -> [ChainAsset] {
         let enabledAssetIds: [String] = wallet.assetsVisibility
             .filter { !$0.hidden }
             .map { $0.assetId }

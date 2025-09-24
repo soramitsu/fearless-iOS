@@ -79,21 +79,6 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
         }
     }
 
-    func update(walletName: String) {
-        let updatedWallet = flow.wallet.replacingName(walletName)
-        let saveOperation = repository.saveOperation {
-            [updatedWallet]
-        } _: {
-            []
-        }
-
-        saveOperation.completionBlock = { [eventCenter] in
-            eventCenter.notify(with: WalletNameChanged(wallet: updatedWallet))
-        }
-
-        operationManager.enqueue(operations: [saveOperation], in: .transient)
-    }
-
     func getAvailableExportOptions(for chainAccount: ChainAccountInfo) {
         guard let address = chainAccount.account.toAddress() else {
             presenter.didReceive(error: ChainAccountFetchingError.accountNotExists)

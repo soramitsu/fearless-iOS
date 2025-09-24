@@ -65,9 +65,7 @@ final class AllDonePresenter {
             view?.didReceive(explorer: nil)
             return
         }
-        let explorer = chainAsset?.chain.externalApi?.explorers?.first(where: {
-            $0.type == .subscan || $0.type == .etherscan || $0.type == .reef
-        })
+        let explorer = chainAsset?.chain.externalApi?.explorers?.first
         view?.didReceive(explorer: explorer)
         self.explorer = explorer
     }

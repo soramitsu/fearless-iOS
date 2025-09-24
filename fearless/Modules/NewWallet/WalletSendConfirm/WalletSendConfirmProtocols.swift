@@ -19,7 +19,6 @@ protocol WalletSendConfirmInteractorInputProtocol: AnyObject {
 
     func setup()
     func submitExtrinsic()
-    func estimateFee()
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset?
     func fetchEquilibriumTotalBalance(chainAsset: ChainAsset, amount: Decimal)
     func provideConstants()
@@ -28,7 +27,6 @@ protocol WalletSendConfirmInteractorInputProtocol: AnyObject {
 protocol WalletSendConfirmInteractorOutputProtocol: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
-    func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId?)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceive(eqTotalBalance: Decimal)
     func didTransfer(result: Result<String, Error>)

@@ -49,9 +49,7 @@ protocol ValidatorInfoInteractorInputProtocol: AnyObject {
 
 // MARK: - Presenter
 
-protocol ValidatorInfoInteractorOutputProtocol: AnyObject {
-    func didReceivePriceData(result: Result<PriceData?, Error>)
-}
+protocol ValidatorInfoInteractorOutputProtocol: AnyObject {}
 
 protocol ValidatorInfoPresenterProtocol: AnyObject {
     func setup()
@@ -59,6 +57,7 @@ protocol ValidatorInfoPresenterProtocol: AnyObject {
 
     func presentAccountOptions()
     func presentTotalStake()
+    func presentMinStake()
     func presentIdentityItem(_ value: ValidatorInfoViewModel.IdentityItemValue)
 }
 

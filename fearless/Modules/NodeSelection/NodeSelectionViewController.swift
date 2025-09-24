@@ -13,6 +13,10 @@ final class NodeSelectionViewController: UIViewController, ViewHolder {
     var tableState: NodeSelectionTableState = .normal
     var locale = Locale.current
 
+    var loadableContentView: UIView {
+        rootView.tableView
+    }
+
     init(presenter: NodeSelectionPresenterProtocol) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
@@ -67,10 +71,12 @@ final class NodeSelectionViewController: UIViewController, ViewHolder {
             rootView.bind(to: viewModel)
 
             rootView.tableView.reloadData()
+            didStopLoading()
         }
     }
 
     @objc private func automaticNodeSwitchChangedValue(_ sender: UISwitch) {
+        didStartLoading()
         presenter.didChangeValueForAutomaticNodeSwitch(isOn: sender.isOn)
     }
 
@@ -168,6 +174,7 @@ extension NodeSelectionViewController: UITableViewDelegate, UITableViewDataSourc
 
         let cellViewModel = viewModel.sections[indexPath.section].viewModels[indexPath.row]
 
+        didStartLoading()
         presenter.didSelectNode(cellViewModel.node)
     }
 }

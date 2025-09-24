@@ -189,11 +189,8 @@ extension NftCollectionCell: SkeletonLoadable {
         let labelMaxWidth = frame.size.width - UIConstants.defaultOffset * 2
         let chainNameWidth = chainNameLabel.text?.widthOfString(usingFont: chainNameLabel.font) ?? defaultBigWidth
         let collectionNameWidth = collectionNameLabel.text?.widthOfString(usingFont: collectionNameLabel.font) ?? defaultBigWidth
-        let nftCountWidth = nftCountLabel.text?.widthOfString(usingFont: nftCountLabel.font) ?? defaultBigWidth
-
         let chainNameSize = CGSize(width: min(chainNameWidth, labelMaxWidth), height: 10)
         let collectionNameSize = CGSize(width: min(collectionNameWidth, labelMaxWidth), height: 12)
-        let nftCountSize = CGSize(width: min(nftCountWidth, labelMaxWidth), height: 12)
 
         return [
             SingleSkeleton.createRow(

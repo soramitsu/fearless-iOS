@@ -188,7 +188,6 @@ extension AssetTransactionData {
         let from = item.address ?? ""
         let to = item.data?.to
         let assetId = item.data?.assetId ?? ""
-        let amount = item.data?.amount ?? ""
         let timestamp = item.itemTimestamp
 
         return AssetTransactionData(

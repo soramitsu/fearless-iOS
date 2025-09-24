@@ -4,13 +4,13 @@ import UIKit
 import SnapKit
 
 // swiftlint:disable type_name
-public final class ModalSheetBlurPresentationAppearanceAnimator: NSObject {
+final class ModalSheetBlurPresentationAppearanceAnimator: NSObject {
     static let UITransitionViewFearlessTag = 130_130
     static let UIVisualEffectViewFearlessTag = 013_013
 
     private let animator: BlockViewAnimatorProtocol
 
-    public init(animator: BlockViewAnimatorProtocol) {
+    init(animator: BlockViewAnimatorProtocol) {
         self.animator = animator
 
         super.init()
@@ -18,11 +18,11 @@ public final class ModalSheetBlurPresentationAppearanceAnimator: NSObject {
 }
 
 extension ModalSheetBlurPresentationAppearanceAnimator: UIViewControllerAnimatedTransitioning {
-    public func transitionDuration(using _: UIViewControllerContextTransitioning?) -> TimeInterval {
+    func transitionDuration(using _: UIViewControllerContextTransitioning?) -> TimeInterval {
         animator.duration
     }
 
-    public func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         guard
             let toViewController = transitionContext.viewController(forKey: .to),
             let fromViewController = transitionContext.viewController(forKey: .from)

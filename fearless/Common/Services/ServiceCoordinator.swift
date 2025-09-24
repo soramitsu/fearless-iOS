@@ -19,6 +19,7 @@ final class ServiceCoordinator {
     private let polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol
     private let walletConnect: WalletConnectService
     private let walletAssetsObserver: WalletAssetsObserver
+    private let pricesService: PricesServiceProtocol
 
     init(
         walletSettings: SelectedWalletSettings,
@@ -27,7 +28,8 @@ final class ServiceCoordinator {
         scamSyncService: ScamSyncServiceProtocol,
         polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol,
         walletConnect: WalletConnectService,
-        walletAssetsObserver: WalletAssetsObserver
+        walletAssetsObserver: WalletAssetsObserver,
+        pricesService: PricesServiceProtocol
     ) {
         self.walletSettings = walletSettings
         self.accountInfoService = accountInfoService
@@ -36,6 +38,7 @@ final class ServiceCoordinator {
         self.polkaswapSettingsService = polkaswapSettingsService
         self.walletConnect = walletConnect
         self.walletAssetsObserver = walletAssetsObserver
+        self.pricesService = pricesService
     }
 }
 
@@ -50,6 +53,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
     func setup() {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         chainRegistry.syncUp()
+        chainRegistry.subscribeToChians()
 
         githubPhishingService.setup()
         accountInfoService.setup()
@@ -57,6 +61,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         polkaswapSettingsService.syncUp()
         walletConnect.setup()
         walletAssetsObserver.setup()
+        pricesService.setup()
     }
 
     func throttle() {
@@ -145,7 +150,33 @@ extension ServiceCoordinator {
             scamSyncService: scamSyncService,
             polkaswapSettingsService: polkaswapSettingsService,
             walletConnect: walletConnect,
-            walletAssetsObserver: walletAssetsObserver
+            walletAssetsObserver: walletAssetsObserver,
+            pricesService: PricesService.shared
         )
+    }
+
+    private static func createPackageChainRegistry() -> SSFChainRegistry.ChainRegistryProtocol {
+        let chainSyncService = SSFChainRegistry.ChainSyncService(
+            chainsUrl: ApplicationConfig.shared.chainsSourceUrl,
+            operationQueue: OperationQueue(),
+            dataFetchFactory: SSFNetwork.NetworkOperationFactory()
+        )
+
+        let chainsTypesSyncService = SSFChainRegistry.ChainsTypesSyncService(
+            url: ApplicationConfig.shared.chainTypesSourceUrl,
+            dataOperationFactory: SSFNetwork.NetworkOperationFactory(),
+            operationQueue: OperationQueue()
+        )
+
+        let runtimeSyncService = SSFChainRegistry.RuntimeSyncService(dataOperationFactory: NetworkOperationFactory())
+
+        let chainRegistry = SSFChainRegistry.ChainRegistry(
+            runtimeProviderPool: SSFChainRegistry.RuntimeProviderPool(),
+            connectionPool: SSFChainRegistry.ConnectionPool(),
+            chainSyncService: chainSyncService,
+            chainsTypesSyncService: chainsTypesSyncService,
+            runtimeSyncService: runtimeSyncService
+        )
+        return chainRegistry
     }
 }

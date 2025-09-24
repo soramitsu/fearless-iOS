@@ -23,9 +23,7 @@ protocol StakingBondMoreConfirmationInteractorInputProtocol: AnyObject {
     func submit(builderClosure: ExtrinsicBuilderClosure?)
 }
 
-protocol StakingBondMoreConfirmationOutputProtocol: AnyObject {
-    func didReceivePriceData(result: Result<PriceData?, Error>)
-}
+protocol StakingBondMoreConfirmationOutputProtocol: AnyObject {}
 
 protocol StakingBondMoreConfirmationWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     StakingErrorPresentable,

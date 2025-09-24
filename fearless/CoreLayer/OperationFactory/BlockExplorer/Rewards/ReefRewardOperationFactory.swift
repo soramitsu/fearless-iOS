@@ -29,31 +29,10 @@ final class ReefRewardOperationFactory {
 
     private func prepareHistoryRequestForAddress(
         _ address: String,
-        startTimestamp: Int64?,
-        endTimestamp: Int64?
+        startTimestamp _: Int64?,
+        endTimestamp _: Int64?
     ) -> String {
-        let timestampFilter: String = {
-            let locale = LocalizationManager.shared.selectedLocale
-            guard startTimestamp != nil || endTimestamp != nil else { return "" }
-
-            var result = "AND: {"
-            let dateFormatter = DateFormatter.suibsquidInputDate.value(for: locale)
-            if let startTimestamp = startTimestamp {
-                let startDate = Date(timeIntervalSince1970: TimeInterval(startTimestamp))
-                let startDateString = dateFormatter.string(from: startDate)
-                result.append("timestamp_gte:\"\(startDateString)\"")
-            }
-
-            if let endTimestamp = endTimestamp {
-                let endDate = Date(timeIntervalSince1970: TimeInterval(endTimestamp))
-                let endDateString = dateFormatter.string(from: endDate)
-                result.append("timestamp_lte:\"\(endDateString)\"")
-            }
-            result.append("}")
-            return result
-        }()
-
-        return """
+        """
         query MyQuery {
                 stakings(limit: 20, where: {signer: {id_eq: "\(address)"}}, orderBy: timestamp_DESC) {
                     type

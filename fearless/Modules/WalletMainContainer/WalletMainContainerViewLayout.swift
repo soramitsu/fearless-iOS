@@ -4,7 +4,6 @@ final class WalletMainContainerViewLayout: UIView {
     private enum Constants {
         static let walletIconSize: CGFloat = 40.0
         static let accessoryButtonSize: CGFloat = 32.0
-        static let issuesButtonSize = CGSize(width: 140, height: 24)
     }
 
     var locale: Locale = .current {
@@ -35,6 +34,8 @@ final class WalletMainContainerViewLayout: UIView {
         button.setImage(R.image.iconFearlessRounded(), for: .normal)
         return button
     }()
+
+    let accountScoreView = AccountScoreView()
 
     private let walletNameTitle: UILabel = {
         let label = UILabel()
@@ -74,6 +75,7 @@ final class WalletMainContainerViewLayout: UIView {
 
     // MARK: - FWSegmentedControl
 
+    let segmentContainer = UIView()
     let segmentedControl = FWSegmentedControl()
 
     // MARK: - UIPageViewController
@@ -111,6 +113,8 @@ final class WalletMainContainerViewLayout: UIView {
         } else {
             addressCopyableLabel.isHidden = true
         }
+
+        accountScoreView.bind(viewModel: viewModel.accountScoreViewModel)
     }
 
     func addBalance(_ view: UIView) {
@@ -118,6 +122,10 @@ final class WalletMainContainerViewLayout: UIView {
         view.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }
+    }
+
+    func bind(accountScoreViewModel: AccountScoreViewModel) {
+        accountScoreView.bind(viewModel: accountScoreViewModel)
     }
 
     // MARK: - Private methods
@@ -148,6 +156,8 @@ final class WalletMainContainerViewLayout: UIView {
         setupWalletBalanceLayout()
         setupSegmentedLayout()
         setupListLayout()
+
+        segmentContainer.isHidden = true
     }
 
     private func setupNavigationViewLayout() {
@@ -201,6 +211,12 @@ final class WalletMainContainerViewLayout: UIView {
     }
 
     private func setupWalletBalanceLayout() {
+        insertSubview(accountScoreView, belowSubview: navigationContainerView)
+        accountScoreView.snp.makeConstraints { make in
+            make.top.equalTo(navigationContainerView.snp.bottom).offset(4)
+            make.centerX.equalTo(switchWalletButton.snp.centerX)
+        }
+
         addressCopyableLabel.snp.makeConstraints { make in
             make.width.lessThanOrEqualTo(200)
             make.height.equalTo(24)
@@ -221,7 +237,6 @@ final class WalletMainContainerViewLayout: UIView {
 
     private func setupSegmentedLayout() {
         contentView.setCustomSpacing(32, after: walletBalanceVStackView)
-        let segmentContainer = UIView()
         contentView.addArrangedSubview(segmentContainer)
         segmentContainer.addSubview(segmentedControl)
         segmentedControl.snp.makeConstraints { make in

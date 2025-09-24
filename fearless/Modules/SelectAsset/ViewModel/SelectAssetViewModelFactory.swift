@@ -39,7 +39,6 @@ protocol SelectAssetViewModelFactoryProtocol {
         wallet: MetaAccountModel,
         chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
-        prices: PriceDataUpdated,
         locale: Locale,
         selectedAssetId: String?
     ) -> [SelectAssetCellViewModel]
@@ -56,7 +55,6 @@ final class SelectAssetViewModelFactory: SelectAssetViewModelFactoryProtocol {
         wallet: MetaAccountModel,
         chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
-        prices: PriceDataUpdated,
         locale: Locale,
         selectedAssetId: String?
     ) -> [SelectAssetCellViewModel] {
@@ -68,7 +66,7 @@ final class SelectAssetViewModelFactory: SelectAssetViewModelFactoryProtocol {
             }
             let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] ?? nil
 
-            let priceData = prices.pricesData.first(where: { $0.priceId == chainAsset.asset.priceId })
+            let priceData = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
             fiatBalanceByChainAsset[chainAsset] = getFiatBalance(
                 for: chainAsset,
                 accountInfo: accountInfo,
@@ -77,8 +75,7 @@ final class SelectAssetViewModelFactory: SelectAssetViewModelFactoryProtocol {
         }
 
         let selectAssetCellModels: [SelectAssetCellViewModel] = chainAssets.compactMap { chainAsset in
-            let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
-            let priceData = prices.pricesData.first(where: { $0.priceId == priceId })
+            let priceData = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
 
             return buildSelectAssetCellViewModel(
                 chainAsset: chainAsset,
@@ -244,8 +241,7 @@ private extension SelectAssetViewModelFactory {
     func sortAssetList(
         wallet: MetaAccountModel,
         chainAssets: [ChainAsset],
-        accountInfos: [ChainAssetKey: AccountInfo?],
-        priceData: [PriceData]
+        accountInfos: [ChainAssetKey: AccountInfo?]
     ) -> [ChainAsset] {
         func fetchAccountIds(
             for ca1: ChainAsset,
@@ -290,11 +286,8 @@ private extension SelectAssetViewModelFactory {
             let ca1AccountInfo = accountInfos[ca1.uniqueKey(accountId: accountIds.ca1AccountId)] ?? nil
             let ca2AccountInfo = accountInfos[ca2.uniqueKey(accountId: accountIds.ca2AccountId)] ?? nil
 
-            let ca1PriceId = ca1.asset.priceId ?? ca1.asset.id
-            let ca1PriceData = priceData.first(where: { $0.priceId == ca1PriceId })
-
-            let ca2PriceId = ca2.asset.priceId ?? ca2.asset.id
-            let ca2PriceData = priceData.first(where: { $0.priceId == ca2PriceId })
+            let ca1PriceData = ca1.asset.getPrice(for: wallet.selectedCurrency)
+            let ca2PriceData = ca2.asset.getPrice(for: wallet.selectedCurrency)
 
             let fiatBalanceCa1 = getFiatBalance(for: ca1, accountInfo: ca1AccountInfo, priceData: ca1PriceData)
             let fiatBalanceCa2 = getFiatBalance(for: ca2, accountInfo: ca2AccountInfo, priceData: ca2PriceData)

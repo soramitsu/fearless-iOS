@@ -1,6 +1,7 @@
 import Foundation
 import WalletConnectSign
 import SoraFoundation
+import SSFQRService
 
 protocol WalletConnectActiveSessionsViewInput: ControllerBackedProtocol, HiddableBarWhenPushed, LoadableViewProtocol {
     func didReceive(viewModels: [WalletConnectActiveSessionsViewModel])
@@ -114,7 +115,7 @@ extension WalletConnectActiveSessionsPresenter: ScanQRModuleOutput {
             do {
                 try await interactor.setupConnection(uri: uri)
             } catch {
-                await MainActor.run(body: {
+                _ = await MainActor.run(body: {
                     router.present(error: error, from: view, locale: selectedLocale)
                 })
             }

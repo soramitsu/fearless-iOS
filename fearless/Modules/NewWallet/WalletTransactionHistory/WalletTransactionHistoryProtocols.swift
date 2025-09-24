@@ -7,7 +7,7 @@ protocol WalletTransactionHistoryViewProtocol: ControllerBackedProtocol, Draggab
 }
 
 protocol WalletTransactionHistoryPresenterProtocol: AnyObject {
-    func setup()
+    func setup(with view: WalletTransactionHistoryViewProtocol)
     func loadNext() -> Bool
     func didSelect(viewModel: WalletTransactionHistoryCellViewModel)
     func didTapFiltersButton()
@@ -29,6 +29,7 @@ protocol WalletTransactionHistoryInteractorOutputProtocol: AnyObject {
     )
 
     func didReceive(filters: [FilterSet])
+    func didReceiveUnsupported()
 }
 
 protocol WalletTransactionHistoryWireframeProtocol: AnyObject, FiltersPresentable {

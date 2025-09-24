@@ -1,6 +1,7 @@
 import UIKit
 import SoraKeystore
 import RobinHood
+import SSFModels
 
 final class SelectCurrencyInteractor {
     // MARK: - Private properties

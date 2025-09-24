@@ -1,4 +1,5 @@
 import Foundation
+import SSFQRService
 import SoraFoundation
 import SSFUtils
 import SSFModels
@@ -63,7 +64,7 @@ final class WalletMainContainerPresenter {
             do {
                 try await interactor.walletConnect(uri: uri)
             } catch {
-                await MainActor.run(body: {
+                _ = await MainActor.run(body: {
                     router.present(error: error, from: view, locale: selectedLocale)
                 })
             }
@@ -113,6 +114,11 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
             wallet: wallet
         )
     }
+
+    func didTapAccountScore() {
+        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
+        router.presentAccountScore(address: address, from: view)
+    }
 }
 
 // MARK: - WalletMainContainerInteractorOutput
@@ -161,7 +167,7 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         wallet = account
         provideViewModel()
 
-        balanceInfoModuleInput?.replace(infoType: .wallet(wallet: account))
+        balanceInfoModuleInput?.replace(infoType: .networkManagement(wallet: account))
     }
 
     func didReceiveControllerAccountIssue(issue: ControllerAccountIssue, hasStashItem: Bool) {
@@ -217,6 +223,10 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
             actions: [action]
         )
     }
+
+    func didReceiveNftAvailability(isNftAvailable: Bool) {
+        view?.didReceiveNftAvailability(isNftAvailable: isNftAvailable)
+    }
 }
 
 // MARK: - Localizable
@@ -258,8 +268,10 @@ extension WalletMainContainerPresenter: ScanQRModuleOutput {
                 wallet: wallet,
                 initialData: .init(qrInfoType: qrInfoType)
             )
-        case let .uri(uri):
+        case let .walletConnect(uri):
             walletConnect(with: uri)
+        case .preinstalledWallet:
+            break
         }
     }
 }

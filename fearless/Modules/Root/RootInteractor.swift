@@ -72,7 +72,6 @@ extension RootInteractor: RootInteractorInputProtocol {
             case let .success(wallet):
                 if let wallet = wallet {
                     self.chainRegistry.performHotBoot()
-                    self.chainRegistry.subscribeToChians()
                     self.logger?.debug("Selected account: \(wallet.metaId)")
                 } else {
                     self.chainRegistry.performColdBoot()

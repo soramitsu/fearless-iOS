@@ -78,7 +78,7 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
     }
 
     func destroyRuntimeProvider(for chainId: ChainModel.Id) {
-        let runtimeProvider = runtimeProviders[chainId]
+        let runtimeProvider = lock.concurrentlyRead { runtimeProviders[chainId] }
         runtimeProvider?.cleanup()
 
         lock.exclusivelyWrite { [weak self] in

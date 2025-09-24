@@ -22,7 +22,7 @@ enum ParachainHistoryOperationFactoryAssembly {
             return ParachainSubsquidHistoryOperationFactory(url: blockExplorer?.url)
         case .sora:
             return ParachainSubsquidHistoryOperationFactory(url: blockExplorer?.url)
-        case .alchemy, .etherscan, .oklink, .reef, .zeta:
+        case .alchemy, .etherscan, .oklink, .reef, .blockscout, .fire, .vicscan, .zchain, .klaytn:
             return nil
         }
     }

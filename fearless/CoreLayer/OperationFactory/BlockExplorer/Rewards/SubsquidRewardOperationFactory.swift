@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import SoraFoundation
+import SSFModels
 
 enum ArrosquidRewardOperationFactoryError: Error {
     case urlMissing

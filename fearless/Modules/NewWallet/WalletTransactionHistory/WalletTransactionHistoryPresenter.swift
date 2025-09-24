@@ -53,7 +53,8 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
         interactor.applyFilters(filters)
     }
 
-    func setup() {
+    func setup(with view: WalletTransactionHistoryViewProtocol) {
+        self.view = view
         interactor.setup(with: self)
     }
 
@@ -85,6 +86,10 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
 }
 
 extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorOutputProtocol {
+    func didReceiveUnsupported() {
+        view?.didReceive(state: .unsupported)
+    }
+
     func didReceive(filters: [FilterSet]) {
         self.filters = filters
     }
@@ -130,6 +135,9 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
     private func buildFiltering(for chain: ChainModel) -> WalletTransactionHistoryViewFilterMode {
         if chain.isReef {
             return .single
+        }
+        guard chainAsset.chain.externalApi?.history?.type?.hasFilters == true else {
+            return .disabled
         }
 
         return (chainAsset.chain.externalApi?.history?.type != .etherscan && chainAsset.chain.externalApi?.history != nil) ? .multiple : .disabled

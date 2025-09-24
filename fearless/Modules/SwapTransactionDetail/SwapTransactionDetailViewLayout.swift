@@ -242,13 +242,13 @@ final class SwapTransactionDetailViewLayout: UIView {
 
         subscanButton.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(UIConstants.bigOffset)
-            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(UIConstants.actionHeight)
         }
 
         shareButton.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(UIConstants.actionHeight)
             make.width.equalTo(subscanButton.snp.width)
             make.leading.equalTo(subscanButton.snp.trailing).offset(UIConstants.bigOffset)

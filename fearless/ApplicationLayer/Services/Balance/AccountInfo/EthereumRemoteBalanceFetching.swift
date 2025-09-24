@@ -91,6 +91,7 @@ final actor EthereumRemoteBalanceFetching {
     }
 
     nonisolated private func cache(accountInfo: AccountInfo?, chainAsset: ChainAsset, accountId: AccountId) throws {
+        guard let accountInfo else { return }
         let storagePath = chainAsset.storagePath
 
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(

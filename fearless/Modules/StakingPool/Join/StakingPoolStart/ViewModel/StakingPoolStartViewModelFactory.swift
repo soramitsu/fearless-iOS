@@ -2,10 +2,6 @@ import Foundation
 import UIKit
 import SSFModels
 
-enum StakingPoolStartViewModelFactoryError: Error {
-    case numberFormatterPercentError
-}
-
 protocol StakingPoolStartViewModelFactoryProtocol {
     func buildViewModel(
         rewardsDelay: TimeInterval?,
@@ -82,11 +78,14 @@ final class StakingPoolStartViewModelFactory {
         apr: Decimal?,
         locale: Locale
     ) -> DetailsTriangularedAttributedViewModel? {
+        let image = R.image.iconDollar()!
         guard let apr = apr else {
-            return nil
+            return DetailsTriangularedAttributedViewModel(icon: image, title: nil)
         }
 
-        guard let percentString = NumberFormatter.percent.stringFromDecimal(apr) else {
+        let formatter = NumberFormatter.percent
+        formatter.locale = locale
+        guard let percentString = formatter.stringFromDecimal(apr) else {
             return nil
         }
 
@@ -103,8 +102,6 @@ final class StakingPoolStartViewModelFactory {
             value: R.color.colorPink()!,
             range: range
         )
-
-        let image = R.image.iconDollar()!
 
         return DetailsTriangularedAttributedViewModel(icon: image, title: attributedTitle)
     }

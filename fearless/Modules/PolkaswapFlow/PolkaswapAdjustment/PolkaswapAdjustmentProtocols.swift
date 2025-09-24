@@ -18,6 +18,7 @@ protocol PolkaswapAdjustmentViewInput: ControllerBackedProtocol {
     func didReceive(variant: SwapVariant)
     func didReceiveDetails(viewModel: PolkaswapAdjustmentDetailsViewModel?)
     func setButtonLoadingState(isLoading: Bool)
+    func hideBanners()
 }
 
 protocol PolkaswapAdjustmentViewOutput: AnyObject {
@@ -56,7 +57,6 @@ protocol PolkaswapAdjustmentInteractorInput: AnyObject {
 
 protocol PolkaswapAdjustmentInteractorOutput: AnyObject {
     func didReceive(error: Error)
-    func didReceivePricesData(result: Result<[PriceData], Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceiveDex(infos: [PolkaswapDexInfo], fromAssetId: String, toAssetId: String)

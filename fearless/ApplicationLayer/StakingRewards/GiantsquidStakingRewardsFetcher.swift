@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFModels
+import SSFNetwork
 
 final class GiantsquidStakingRewardsFetcher {
     private let chain: ChainModel
@@ -69,7 +70,7 @@ extension GiantsquidStakingRewardsFetcher: StakingRewardsFetcher {
             baseURL: blockExplorer.url,
             query: queryString
         )
-        let worker = NetworkWorker()
+        let worker = NetworkWorkerImpl()
         let response: GraphQLResponse<GiantsquidResponseData> = try await worker.performRequest(with: request)
 
         switch response {

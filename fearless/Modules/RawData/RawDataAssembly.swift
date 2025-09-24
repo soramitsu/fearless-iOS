@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import SSFUtils
+import SSFModels
 
 final class RawDataAssembly {
     static func configureModule(

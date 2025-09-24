@@ -12,8 +12,6 @@ final class StakingBalancePresenter {
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
 
-    private var priceData: PriceData?
-
     init(
         interactor: StakingBalanceInteractorInputProtocol,
         wireframe: StakingBalanceWireframeProtocol,
@@ -35,7 +33,7 @@ final class StakingBalancePresenter {
     private func updateView() {
         guard let viewModel = viewModelFactory.buildViewModel(
             viewModelState: viewModelState,
-            priceData: priceData
+            priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency)
         ) else {
             return
         }
@@ -136,6 +134,8 @@ final class StakingBalancePresenter {
     }
 }
 
+extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {}
+
 extension StakingBalancePresenter: StakingBalancePresenterProtocol {
     func setup() {
         viewModelState.setStateListener(self)
@@ -172,19 +172,6 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
             }
 
             self?.presentRebond(for: view, locale: locale)
-        }
-    }
-}
-
-extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
-    func didReceive(priceResult: Result<PriceData?, Error>) {
-        switch priceResult {
-        case let .success(priceData):
-            self.priceData = priceData
-            updateView()
-        case .failure:
-            priceData = nil
-            updateView()
         }
     }
 }

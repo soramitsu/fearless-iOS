@@ -3,7 +3,6 @@ import SSFModels
 import RobinHood
 
 protocol AssetManagementInteractorOutput: AnyObject {
-    func didReceivePricesData(result: Result<[PriceData], Error>)
     func didReceiveUpdated(wallet: MetaAccountModel)
 }
 
@@ -13,48 +12,25 @@ actor AssetManagementInteractor {
     private weak var output: AssetManagementInteractorOutput?
 
     private let chainAssetFetching: ChainAssetFetchingProtocol
-    private var pricesProvider: AnySingleValueProvider<[PriceData]>?
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let accountInfoFetchingProvider: AccountInfoFetching
     private let eventCenter: EventCenterProtocol
     private let accountInfoRemoteService: AccountInfoRemoteService
-
-    private var bufferWallet: MetaAccountModel?
+    private let walletAssetObserver: WalletAssetsObserver
 
     init(
         chainAssetFetching: ChainAssetFetchingProtocol,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         accountInfoFetchingProvider: AccountInfoFetching,
         eventCenter: EventCenterProtocol,
-        accountInfoRemoteService: AccountInfoRemoteService
+        accountInfoRemoteService: AccountInfoRemoteService,
+        walletAssetObserver: WalletAssetsObserver
     ) {
         self.chainAssetFetching = chainAssetFetching
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.accountInfoFetchingProvider = accountInfoFetchingProvider
         self.eventCenter = eventCenter
         self.accountInfoRemoteService = accountInfoRemoteService
+        self.walletAssetObserver = walletAssetObserver
 
         self.eventCenter.add(observer: self)
-    }
-
-    deinit {
-        guard let bufferWallet else {
-            return
-        }
-        SelectedWalletSettings.shared.performSave(value: bufferWallet) { [eventCenter, bufferWallet] result in
-            switch result {
-            case .success:
-                eventCenter.notify(with: MetaAccountModelChangedEvent(account: bufferWallet))
-            case .failure:
-                break
-            }
-        }
-    }
-
-    // MARK: - Private methods
-
-    private func fetchPrices(for chainAssets: [ChainAsset]) {
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 
     private func updateVisibility(
@@ -67,8 +43,19 @@ actor AssetManagementInteractor {
         visibilities.append(assetVisibility)
 
         let updatedWallet = wallet.replacingAssetsVisibility(visibilities)
-        bufferWallet = updatedWallet
+        performSave(wallet: updatedWallet)
         return updatedWallet
+    }
+
+    private func performSave(wallet: MetaAccountModel) {
+        SelectedWalletSettings.shared.performSave(value: wallet) { [eventCenter] result in
+            switch result {
+            case .success:
+                eventCenter.notify(with: MetaAccountModelChangedEvent(account: wallet))
+            case .failure:
+                break
+            }
+        }
     }
 }
 
@@ -80,7 +67,6 @@ extension AssetManagementInteractor: AssetManagementInteractorInput {
         assetId: String,
         wallet: MetaAccountModel
     ) async -> MetaAccountModel {
-        let wallet = bufferWallet ?? wallet
         let updatedWallet = await updateVisibility(
             wallet: wallet,
             assetId: assetId,
@@ -96,10 +82,9 @@ extension AssetManagementInteractor: AssetManagementInteractorInput {
     func getAvailableChainAssets() async throws -> [ChainAsset] {
         let chainAssets = try await chainAssetFetching.fetchAwait(
             shouldUseCache: true,
-            filters: [],
+            filters: [.enabledChains],
             sortDescriptors: []
         )
-        fetchPrices(for: chainAssets)
         return chainAssets
     }
 
@@ -123,15 +108,14 @@ extension AssetManagementInteractor: AssetManagementInteractorInput {
         )
         return accountInfo
     }
-}
 
-// MARK: - PriceLocalSubscriptionHandler
-
-extension AssetManagementInteractor: PriceLocalSubscriptionHandler {
-    nonisolated func handlePrices(result: Result<[PriceData], Error>) {
-        Task {
-            await output?.didReceivePricesData(result: result)
-        }
+    func updatedVisibility(
+        for chainAssets: [ChainAsset],
+        wallet: MetaAccountModel
+    ) async -> MetaAccountModel {
+        let updatedWallet = await walletAssetObserver.updateVisibility(wallet: wallet, chainAssets: chainAssets)
+        performSave(wallet: updatedWallet)
+        return updatedWallet
     }
 }
 

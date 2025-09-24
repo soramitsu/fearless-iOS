@@ -33,7 +33,7 @@ final class MoonpayProvider: PurchaseProviderProtocol {
     }
 
     func buildPurchaseActions(asset: AssetModel, address: String) -> [PurchaseAction] {
-        if let url = buildURLForToken(asset.id, address: address) {
+        if let url = buildURLForToken(asset.symbol, address: address) {
             return [PurchaseAction(title: Constants.title, url: url, icon: Constants.icon!)]
         }
         return []

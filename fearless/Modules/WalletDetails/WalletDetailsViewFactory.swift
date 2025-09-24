@@ -7,6 +7,7 @@ final class WalletDetailsViewFactory {
         flow: WalletDetailsFlow
     ) -> WalletDetailsViewProtocol {
         let chainsRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 

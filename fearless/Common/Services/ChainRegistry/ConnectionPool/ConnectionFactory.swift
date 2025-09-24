@@ -6,9 +6,9 @@ typealias ChainConnection = JSONRPCEngine
 protocol ConnectionFactoryProtocol {
     func createConnection(
         connectionName: String?,
-        for url: URL,
+        for urls: [URL],
         delegate: WebSocketEngineDelegate
-    ) -> ChainConnection
+    ) throws -> ChainConnection
 }
 
 final class ConnectionFactory {
@@ -25,14 +25,19 @@ final class ConnectionFactory {
 extension ConnectionFactory: ConnectionFactoryProtocol {
     func createConnection(
         connectionName: String?,
-        for url: URL,
+        for urls: [URL],
         delegate: WebSocketEngineDelegate
-    ) -> ChainConnection {
+    ) throws -> ChainConnection {
+        guard let connectionStrategy = ConnectionStrategyImpl(
+            urls: urls,
+            callbackQueue: processingQueue
+        ) else {
+            throw ConnectionPoolError.noConnection
+        }
         let engine = WebSocketEngine(
             connectionName: connectionName,
-            url: url,
-            processingQueue: processingQueue,
-            logger: nil
+            connectionStrategy: connectionStrategy,
+            processingQueue: processingQueue
         )
         engine.delegate = delegate
         return engine

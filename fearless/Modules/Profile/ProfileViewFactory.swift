@@ -4,6 +4,7 @@ import SoraKeystore
 import IrohaCrypto
 import SSFUtils
 import RobinHood
+import SSFNetwork
 
 final class ProfileViewFactory: ProfileViewFactoryProtocol {
     static func createView() -> ProfileViewProtocol? {
@@ -14,17 +15,24 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
                 for: nil,
                 sortDescriptors: [NSSortDescriptor.accountsByOrder]
             )
+
+        let accountScoreFetcher = NomisAccountStatisticsFetcher(
+            networkWorker: NetworkWorkerImpl(),
+            signer: NomisRequestSigner()
+        )
         let settings = SettingsManager.shared
         let profileViewModelFactory = ProfileViewModelFactory(
             iconGenerator: UniversalIconGenerator(),
             biometry: BiometryAuth(),
-            settings: settings
+            settings: settings,
+            accountScoreFetcher: accountScoreFetcher
         )
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
 
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 

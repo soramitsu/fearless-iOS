@@ -16,6 +16,7 @@ final class WalletMainContainerInteractor {
     private let deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol
     private let applicationHandler: ApplicationHandler
     private let walletConnectService: WalletConnectService
+    private let featureToggleService: FeatureToggleProviderProtocol
 
     // MARK: - Constructor
 
@@ -27,7 +28,8 @@ final class WalletMainContainerInteractor {
         eventCenter: EventCenterProtocol,
         deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol,
         applicationHandler: ApplicationHandler,
-        walletConnectService: WalletConnectService
+        walletConnectService: WalletConnectService,
+        featureToggleService: FeatureToggleProviderProtocol
     ) {
         self.wallet = wallet
         self.chainRepository = chainRepository
@@ -37,10 +39,11 @@ final class WalletMainContainerInteractor {
         self.deprecatedAccountsCheckService = deprecatedAccountsCheckService
         self.applicationHandler = applicationHandler
         self.walletConnectService = walletConnectService
+        self.featureToggleService = featureToggleService
         applicationHandler.delegate = self
     }
 
-    // MARK: - Private methods
+    // MARK: - Private method
 
     private func fetchNetworkManagmentFilter() {
         guard let identifier = wallet.networkManagmentFilter else {
@@ -67,21 +70,6 @@ final class WalletMainContainerInteractor {
         operationQueue.addOperation(operation)
     }
 
-    private func save(
-        _ updatedAccount: MetaAccountModel
-    ) {
-        SelectedWalletSettings.shared.performSave(value: updatedAccount) { [weak self] result in
-            switch result {
-            case let .success(account):
-                self?.wallet = account
-                self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
-                self?.fetchNetworkManagmentFilter()
-            case .failure:
-                break
-            }
-        }
-    }
-
     private func checkDeprecatedAccountIssues() {
         Task {
             if let issue = try? await deprecatedAccountsCheckService.checkAccountDeprecations(wallet: wallet) {
@@ -99,6 +87,20 @@ final class WalletMainContainerInteractor {
             }
         }
     }
+
+    private func checkNftAvailability() {
+        let fetchOperation = featureToggleService.fetchConfigOperation()
+
+        fetchOperation.completionBlock = {
+            let config = try? fetchOperation.extractNoCancellableResultData()
+
+            DispatchQueue.main.async { [weak self] in
+                self?.output?.didReceiveNftAvailability(isNftAvailable: config?.nftEnabled == true)
+            }
+        }
+
+        operationQueue.addOperation(fetchOperation)
+    }
 }
 
 // MARK: - WalletMainContainerInteractorInput
@@ -108,6 +110,7 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         self.output = output
         eventCenter.add(observer: self, dispatchIn: .main)
         fetchNetworkManagmentFilter()
+        checkNftAvailability()
     }
 
     func walletConnect(uri: String) async throws {

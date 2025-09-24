@@ -6,7 +6,7 @@ extension ChainAsset {
     var assetDisplayInfo: AssetBalanceDisplayInfo { asset.displayInfo(with: chain.icon) }
 
     var identifier: String {
-        [chain.identifier, asset.identifier].joined(separator: " : ")
+        [chain.identifier, asset.id].joined(separator: " : ")
     }
 
     var storagePath: StorageCodingPath {

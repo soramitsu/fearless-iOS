@@ -10,9 +10,13 @@ final class ValidatorInfoPresenter {
     private let viewModelFactory: ValidatorInfoViewModelFactoryProtocol
     private let viewModelState: ValidatorInfoViewModelState
     private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
     private let logger: LoggerProtocol?
+    private var viewModel: ValidatorInfoViewModel?
 
-    private(set) var priceDataResult: Result<PriceData?, Error>?
+    private var priceData: PriceData? {
+        chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+    }
 
     init(
         interactor: ValidatorInfoInteractorInputProtocol,
@@ -20,6 +24,7 @@ final class ValidatorInfoPresenter {
         viewModelFactory: ValidatorInfoViewModelFactoryProtocol,
         viewModelState: ValidatorInfoViewModelState,
         chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil
     ) {
@@ -28,6 +33,7 @@ final class ValidatorInfoPresenter {
         self.viewModelFactory = viewModelFactory
         self.viewModelState = viewModelState
         self.chainAsset = chainAsset
+        self.wallet = wallet
         self.logger = logger
         self.localizationManager = localizationManager
     }
@@ -60,19 +66,20 @@ final class ValidatorInfoPresenter {
     }
 
     private func updateView() {
-        let priceData = try? priceDataResult?.get()
-
         if let viewModel = viewModelFactory.buildViewModel(
             viewModelState: viewModelState,
             priceData: priceData,
             locale: selectedLocale
         ) {
+            self.viewModel = viewModel
             view?.didRecieve(state: .validatorInfo(viewModel))
         } else {
             view?.didRecieve(state: .empty)
         }
     }
 }
+
+extension ValidatorInfoPresenter: ValidatorInfoInteractorOutputProtocol {}
 
 extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
     func setup() {
@@ -97,8 +104,6 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
     }
 
     func presentTotalStake() {
-        let priceData = try? priceDataResult?.get()
-
         guard let viewModel = viewModelFactory.buildStakingAmountViewModels(
             viewModelState: viewModelState,
             priceData: priceData
@@ -110,6 +115,13 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
             from: view,
             items: viewModel
         )
+    }
+
+    func presentMinStake() {
+        if case let .elected(exposure) = viewModel?.staking.status, let amount = exposure.minStakeToGetRewards?.amount {
+            let text = R.string.localizable.validatorInfoMinStakeAlertText(amount, preferredLanguages: selectedLocale.rLanguages)
+            wireframe.presentInfo(message: text, title: "", from: view)
+        }
     }
 
     func presentIdentityItem(_ value: ValidatorInfoViewModel.IdentityItemValue) {
@@ -133,13 +145,6 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
                 show(url)
             }
         }
-    }
-}
-
-extension ValidatorInfoPresenter: ValidatorInfoInteractorOutputProtocol {
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        priceDataResult = result
-        updateView()
     }
 }
 

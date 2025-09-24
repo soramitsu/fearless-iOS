@@ -29,7 +29,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     let stakingRemoteSubscriptionService: StakingRemoteSubscriptionServiceProtocol
     let stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let priceLocalSubscriber: PriceLocalStorageSubscriber
     let stakingServiceFactory: StakingServiceFactoryProtocol
     let accountProviderFactory: AccountProviderFactoryProtocol
     let eventCenter: EventCenterProtocol
@@ -48,7 +47,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     var rewardChainAsset: ChainAsset? {
         didSet {
             presenter?.didReceive(rewardChainAsset: rewardChainAsset)
-            subsribeRewardAssetPrice()
         }
     }
 
@@ -57,7 +55,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     private var chainSubscriptionId: UUID?
     private var accountSubscriptionId: UUID?
 
-    var priceProvider: AnySingleValueProvider<[PriceData]>?
     var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     var stashControllerProvider: StreamableProvider<StashItem>?
     var validatorProvider: AnyDataProvider<DecodedValidator>?
@@ -80,7 +77,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         stakingRemoteSubscriptionService: StakingRemoteSubscriptionServiceProtocol,
         stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         stakingServiceFactory: StakingServiceFactoryProtocol,
         accountProviderFactory: AccountProviderFactoryProtocol,
         eventCenter: EventCenterProtocol,
@@ -98,7 +94,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         self.stakingRemoteSubscriptionService = stakingRemoteSubscriptionService
         self.stakingAccountUpdatingService = stakingAccountUpdatingService
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.stakingServiceFactory = stakingServiceFactory
         self.accountProviderFactory = accountProviderFactory
         self.eventCenter = eventCenter
@@ -403,15 +398,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
                 break
             }
         }
-    }
-
-    private func subsribeRewardAssetPrice() {
-        guard let chainAsset = rewardChainAsset else {
-            presenter?.didReceive(rewardAssetPrice: nil)
-            return
-        }
-
-        priceProvider = priceLocalSubscriber.subscribeToPrices(for: [chainAsset, stakingSettings.value].compactMap { $0 }, listener: self)
     }
 
 //    Parachain

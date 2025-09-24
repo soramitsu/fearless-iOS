@@ -2,6 +2,7 @@ import UIKit
 import SoraUI
 import SoraFoundation
 import SSFModels
+import SSFQRService
 
 final class ReceiveAndRequestAssetAssembly {
     static func configureModule(
@@ -10,25 +11,18 @@ final class ReceiveAndRequestAssetAssembly {
     ) -> ReceiveAndRequestAssetModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let repositoryFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             selectedMetaAccount: wallet
         )
 
         let interactor = ReceiveAndRequestAssetInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             chainAsset: chainAsset
         )
         let router = ReceiveAndRequestAssetRouter()
 
-        let qrService = QRService(
-            operationFactory: QROperationFactory(),
-            encoder: QREncoder()
-        )
+        let qrService = QRServiceDefault()
         let sharingFactory = AccountShareFactory()
 
         let presenter = ReceiveAndRequestAssetPresenter(

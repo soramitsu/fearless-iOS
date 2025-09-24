@@ -9,23 +9,6 @@ enum BalanceType {
     case orml(balance: Decimal?, utilityBalance: Decimal?)
 }
 
-enum ExistentialDepositValidationParameters {
-    case utility(spendingAmount: Decimal?, totalAmount: Decimal?, minimumBalance: Decimal?)
-    case orml(minimumBalance: Decimal?, feeAndTip: Decimal?, utilityBalance: Decimal?)
-    case equilibrium(minimumBalance: Decimal?, totalBalance: Decimal?)
-
-    var minimumBalance: Decimal? {
-        switch self {
-        case let .utility(_, _, minimumBalance):
-            return minimumBalance
-        case let .orml(minimumBalance, _, _):
-            return minimumBalance
-        case let .equilibrium(minimumBalance, _):
-            return minimumBalance
-        }
-    }
-}
-
 class SendDataValidatingFactory: NSObject {
     private lazy var xcmAmountInspector: XcmMinAmountInspector = {
         XcmMinAmountInspectorImpl()
@@ -90,9 +73,11 @@ class SendDataValidatingFactory: NSObject {
     }
 
     func exsitentialDepositIsNotViolated(
-        parameters: ExistentialDepositValidationParameters,
-        locale: Locale,
+        spending: Decimal,
+        balance: Decimal,
+        minimumBalance: Decimal,
         chainAsset: ChainAsset,
+        locale: Locale,
         canProceedIfViolated: Bool = true,
         sendAllEnabled: Bool = false,
         proceedAction: @escaping () -> Void,
@@ -105,7 +90,7 @@ class SendDataValidatingFactory: NSObject {
             }
 
             let symbol = chainAsset.chain.utilityAssets().first?.symbolUppercased ?? chainAsset.asset.symbolUppercased
-            let existentianDepositValue = "\(parameters.minimumBalance ?? .zero) \(symbol)"
+            let existentianDepositValue = "\(minimumBalance) \(symbol)"
 
             if !canProceedIfViolated {
                 self?.basePresentable.presentExistentialDepositError(
@@ -129,51 +114,13 @@ class SendDataValidatingFactory: NSObject {
             if sendAllEnabled, canProceedIfViolated {
                 return true
             }
-            switch parameters {
-            case let .utility(spendingAmount, totalAmount, minimumBalance):
-                guard let spendingAmount = spendingAmount else {
-                    return true
-                }
-
-                if case .ormlChain = chainAsset.chainAssetType {
-                    return true
-                }
-
-                if
-                    let totalAmount = totalAmount,
-                    let minimumBalance = minimumBalance,
-                    totalAmount >= spendingAmount {
-                    return totalAmount - spendingAmount >= minimumBalance
-                } else {
-                    return false
-                }
-            case let .orml(minimumBalance, feeAndTip, utilityBalance):
-                guard minimumBalance ?? 0 > 0 else {
-                    return true
-                }
-                guard let feeAndTip = feeAndTip else {
-                    return true
-                }
-
-                if let utilityBalance = utilityBalance, let minimumBalance = minimumBalance {
-                    return utilityBalance - feeAndTip >= minimumBalance
-                } else {
-                    return false
-                }
-            case let .equilibrium(minimumBalance, totalBalance):
-                guard let minimumBalance = minimumBalance,
-                      let totalBalance = totalBalance
-                else {
-                    return false
-                }
-
-                return totalBalance > minimumBalance
-            }
+            return balance - spending >= minimumBalance
         })
     }
 
     func destinationExistentialDepositIsNotViolated(
-        parameters: ExistentialDepositValidationParameters,
+        willReceived: Decimal,
+        minimumBalance: Decimal,
         locale: Locale,
         chainAsset: ChainAsset
     ) -> DataValidating {
@@ -189,46 +136,7 @@ class SendDataValidatingFactory: NSObject {
                 return true
             }
 
-            switch parameters {
-            case let .utility(spendingAmount, totalAmount, minimumBalance):
-                guard let spendingAmount = spendingAmount else {
-                    return true
-                }
-
-                if case .ormlChain = chainAsset.chainAssetType {
-                    return true
-                }
-
-                if
-                    let totalAmount = totalAmount,
-                    let minimumBalance = minimumBalance,
-                    totalAmount >= spendingAmount {
-                    return totalAmount - spendingAmount >= minimumBalance
-                } else {
-                    return false
-                }
-            case let .orml(minimumBalance, feeAndTip, utilityBalance):
-                guard minimumBalance ?? 0 > 0 else {
-                    return true
-                }
-                guard let feeAndTip = feeAndTip else {
-                    return true
-                }
-
-                if let utilityBalance = utilityBalance, let minimumBalance = minimumBalance {
-                    return utilityBalance - feeAndTip >= minimumBalance
-                } else {
-                    return false
-                }
-            case let .equilibrium(minimumBalance, totalBalance):
-                guard let minimumBalance = minimumBalance,
-                      let totalBalance = totalBalance
-                else {
-                    return false
-                }
-
-                return totalBalance > minimumBalance
-            }
+            return willReceived >= minimumBalance
         })
     }
 

@@ -58,7 +58,7 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
                     continuation.resume(with: .failure(error))
                 }
             }
-            operationQueue.addOperation(fetchOperation)
+            self?.operationQueue.addOperation(fetchOperation)
         }
     }
 
@@ -166,7 +166,7 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
                     continuation.resume(with: .failure(error))
                 }
             }
-            operationQueue.addOperation(chainsOperation)
+            self?.operationQueue.addOperation(chainsOperation)
         }
     }
 
@@ -185,7 +185,7 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
                     continuation.resume(with: .failure(error))
                 }
             }
-            operationQueue.addOperation(runtimeOperation)
+            self?.operationQueue.addOperation(runtimeOperation)
         }
     }
 

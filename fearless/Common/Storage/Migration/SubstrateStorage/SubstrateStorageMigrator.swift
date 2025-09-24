@@ -204,7 +204,7 @@ extension SubstrateStorageMigrator: StorageMigrating {
     }
 
     func migrate(_ completion: @escaping () -> Void) {
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+        DispatchQueue.global(qos: .utility).async { [weak self] in
             self?.performMigration()
 
             DispatchQueue.main.async {

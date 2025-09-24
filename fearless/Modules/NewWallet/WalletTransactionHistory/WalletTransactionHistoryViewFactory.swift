@@ -23,8 +23,8 @@ enum WalletTransactionHistoryViewFactory {
             selectedAccount: selectedAccount,
             dependencyContainer: dependencyContainer,
             logger: Logger.shared,
-            defaultFilter: WalletHistoryRequest(assets: [asset.identifier]),
-            selectedFilter: WalletHistoryRequest(assets: [asset.identifier]),
+            defaultFilter: WalletHistoryRequest(assets: [asset.id]),
+            selectedFilter: WalletHistoryRequest(assets: [asset.id]),
             filters: transactionHistoryFilters(for: chain),
             eventCenter: EventCenter.shared,
             applicationHandler: ApplicationHandler()
@@ -59,6 +59,10 @@ enum WalletTransactionHistoryViewFactory {
     }
 
     static func transactionHistoryFilters(for chain: ChainModel) -> [FilterSet] {
+        guard chain.externalApi?.history?.type?.hasFilters == true else {
+            return []
+        }
+
         var filters: [WalletTransactionHistoryFilter] = [
             WalletTransactionHistoryFilter(type: .transfer, selected: true)
         ]
@@ -84,7 +88,6 @@ enum WalletTransactionHistoryViewFactory {
     private static func createHistoryDeps(
         for chain: ChainModel
     ) -> (HistoryServiceProtocol, HistoryDataProviderFactoryProtocol)? {
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 

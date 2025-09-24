@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import SoraKeystore
+import SSFQRService
 
 final class GetPreinstalledWalletAssembly {
     static func configureModuleForExistingUser() -> GetPreinstalledWalletModuleCreationResult? {
@@ -20,7 +21,6 @@ final class GetPreinstalledWalletAssembly {
             delegate: nil,
             delegateQueue: nil
         )
-        let qrExtractionService = QRExtractionService(processingQueue: .global())
 
         guard let keystoreImportService: KeystoreImportServiceProtocol =
             URLHandlingService.shared.findService()
@@ -36,8 +36,9 @@ final class GetPreinstalledWalletAssembly {
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
 
+        let qrService = QRServiceDefault(matchers: [QRPreinstalledWalletMatcher()])
         let interactor = GetPreinstalledWalletInteractor(
-            qrExtractionService: qrExtractionService,
+            qrService: qrService,
             qrScanService: qrScanService,
             accountOperationFactory: accountOperationFactory,
             accountRepository: accountRepository,

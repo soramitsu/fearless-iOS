@@ -20,7 +20,7 @@ final class AmountInputViewV2: UIView {
 
         view.fillColor = R.color.colorSemiBlack()!
         view.highlightedFillColor = R.color.colorSemiBlack()!
-
+        view.shadowOpacity = 0.0
         view.strokeColor = R.color.colorWhite8()!
         view.highlightedStrokeColor = R.color.colorWhite8()!
         view.strokeWidth = 0.5
@@ -111,6 +111,10 @@ final class AmountInputViewV2: UIView {
     }
 
     // MARK: - Public methods
+
+    func set(highlighted: Bool, animated: Bool) {
+        triangularedBackgroundView.set(highlighted: highlighted, animated: animated)
+    }
 
     func bind(viewModel: AssetBalanceViewModelProtocol) {
         iconView.isHidden = (viewModel.iconViewModel == nil)

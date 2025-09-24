@@ -199,16 +199,16 @@ private final class Spacer: UIView {
             func resetColors() {
                 colors = [.systemRed, .systemBlue, .systemGreen, .systemOrange, .systemTeal, .systemPink, .systemPurple, .systemIndigo].reversed()
             }
-            func addBorder(view: UIView) {
+            func addBorder(setupView: UIView) {
                 if colors.isEmpty {
                     resetColors()
                 }
-                view.border(colors.removeFirst(), width: 1)
-                for subview in view.subviews {
-                    addBorder(view: subview)
+                setupView.border(colors.removeFirst(), width: 1)
+                for subview in setupView.subviews {
+                    addBorder(setupView: subview)
                 }
             }
-            addBorder(view: self)
+            addBorder(setupView: self)
         }
 
         @discardableResult func border(_ color: UIColor, width: CGFloat) -> UIView {

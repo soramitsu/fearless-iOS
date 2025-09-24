@@ -21,7 +21,6 @@ protocol AssetNetworksInteractorInput: AnyObject {
 protocol AssetNetworksInteractorOutput: AnyObject {
     func didReceiveChainAssets(_ chainAssets: [ChainAsset])
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
-    func didReceivePricesData(result: Result<[PriceData], Error>)
     func didReceive(chainSettings: [ChainSettings])
     func didReceiveChainsWithIssues(_ issues: [ChainIssue])
 }

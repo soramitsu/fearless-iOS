@@ -18,14 +18,16 @@ final class StakingAmountPresenter {
     let viewModelFactory: StakingAmountViewModelFactoryProtocol?
     private var balance: Decimal?
     private var calculator: RewardCalculatorEngineProtocol?
-    private var priceData: PriceData?
     private var loadingFee: Bool = false
     private var asset: AssetModel
     private var chain: ChainModel
     private var loadingPayouts: Bool = false
 
+    private var priceData: PriceData? {
+        asset.getPrice(for: selectedAccount.selectedCurrency)
+    }
+
     init(
-        amount _: Decimal?,
         asset: AssetModel,
         chain: ChainModel,
         selectedAccount: MetaAccountModel,
@@ -248,13 +250,6 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
             from: view,
             context: context
         )
-    }
-
-    func didReceive(price: PriceData?) {
-        priceData = price
-        provideAsset()
-        provideFee()
-        provideRewardDestination()
     }
 
     func didReceive(balance: AccountData?) {

@@ -3,8 +3,8 @@ import SoraFoundation
 
 protocol BannersViewOutput: AnyObject {
     func didLoad(view: BannersViewInput)
-    func didTapOnCell(at indexPath: IndexPath)
-    func didCloseCell(at indexPath: IndexPath)
+    func didTapOnBanner(_ banner: Banners)
+    func didCloseBanner(_ banner: Banners)
 }
 
 final class BannersViewController: UIViewController, ViewHolder {
@@ -72,18 +72,12 @@ extension BannersViewController: Localizable {
 // MARK: - BannerCellectionCellDelegate
 
 extension BannersViewController: BannerCellectionCellDelegate {
-    func didActionButtonTapped(indexPath: IndexPath?) {
-        guard let indexPath = indexPath else {
-            return
-        }
-        output.didTapOnCell(at: indexPath)
+    func didActionButtonTapped(banner: Banners) {
+        output.didTapOnBanner(banner)
     }
 
-    func didCloseButtonTapped(indexPath: IndexPath?) {
-        guard let indexPath = indexPath else {
-            return
-        }
-        output.didCloseCell(at: indexPath)
+    func didCloseButtonTapped(banner: Banners) {
+        output.didCloseBanner(banner)
     }
 }
 

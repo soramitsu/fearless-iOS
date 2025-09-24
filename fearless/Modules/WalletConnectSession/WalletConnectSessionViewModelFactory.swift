@@ -3,6 +3,7 @@ import WalletConnectSign
 import SoraFoundation
 import SSFModels
 import SSFUtils
+import SoraKeystore
 
 protocol WalletConnectSessionViewModelFactory {
     func buildViewModel(
@@ -19,19 +20,25 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
     private let walletConnectModelFactory: WalletConnectModelFactory
     private let walletConnectPayloaFactory: WalletConnectPayloadFactory
     private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
+    private let accountScoreFetcher: AccountStatisticsFetching
+    private let settings: SettingsManagerProtocol
 
     init(
         request: Request,
         session: Session?,
         walletConnectModelFactory: WalletConnectModelFactory,
         walletConnectPayloaFactory: WalletConnectPayloadFactory,
-        assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
+        assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol,
+        accountScoreFetcher: AccountStatisticsFetching,
+        settings: SettingsManagerProtocol
     ) {
         self.request = request
         self.session = session
         self.walletConnectModelFactory = walletConnectModelFactory
         self.walletConnectPayloaFactory = walletConnectPayloaFactory
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
+        self.accountScoreFetcher = accountScoreFetcher
+        self.settings = settings
     }
 
     func buildViewModel(
@@ -102,12 +109,23 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
         balanceInfo: WalletBalanceInfos?,
         locale: Locale
     ) -> WalletsManagmentCellViewModel {
+        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
+        let accountScoreViewModel = AccountScoreViewModel(
+            fetcher: accountScoreFetcher,
+            address: address,
+            chain: nil,
+            settings: settings,
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared
+        )
+
         guard let balance = balanceInfo?[wallet.metaId] else {
             return WalletsManagmentCellViewModel(
                 isSelected: false,
                 walletName: wallet.name,
                 fiatBalance: nil,
-                dayChange: nil
+                dayChange: nil,
+                accountScoreViewModel: accountScoreViewModel
             )
         }
         let balanceTokenFormatterValue = tokenFormatter(
@@ -129,7 +147,8 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
             isSelected: false,
             walletName: wallet.name,
             fiatBalance: totalFiatValue,
-            dayChange: dayChange
+            dayChange: dayChange,
+            accountScoreViewModel: accountScoreViewModel
         )
 
         return viewModel

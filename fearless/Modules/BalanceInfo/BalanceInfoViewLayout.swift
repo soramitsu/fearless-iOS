@@ -35,10 +35,9 @@ final class BalanceInfoViewLayout: UIView {
         priceLabel.attributedText = viewModel?.dayChangeAttributedString
         balanceLabel.text = viewModel?.balanceString
 
-        balanceLabel.layoutIfNeeded()
-        priceLabel.layoutIfNeeded()
-
         if viewModel == nil {
+            balanceLabel.layoutIfNeeded()
+            priceLabel.layoutIfNeeded()
             startLoadingIfNeeded()
         } else {
             stopLoadingIfNeeded()

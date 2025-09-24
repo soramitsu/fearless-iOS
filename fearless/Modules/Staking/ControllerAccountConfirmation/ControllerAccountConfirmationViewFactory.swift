@@ -83,7 +83,6 @@ struct ControllerAccountConfirmationViewFactory {
         )
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
@@ -123,7 +122,6 @@ struct ControllerAccountConfirmationViewFactory {
                 selectedMetaAccount: selectedAccount
             ),
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            priceLocalSubscriber: priceLocalSubscriber,
             runtimeService: runtimeService,
             extrinsicService: extrinsicService,
             signingWrapper: signingWrapper,

@@ -20,4 +20,16 @@ final class ChainRepositoryFactory {
             mapper: AnyCoreDataMapper(mapper)
         )
     }
+
+    func createAsyncRepository(
+        for filter: NSPredicate? = nil,
+        sortDescriptors: [NSSortDescriptor] = []
+    ) -> AsyncCoreDataRepositoryDefault<ChainModel, CDChain> {
+        let mapper = ChainModelMapper()
+        return storageFacade.createAsyncRepository(
+            filter: filter,
+            sortDescriptors: sortDescriptors,
+            mapper: AnyCoreDataMapper(mapper)
+        )
+    }
 }

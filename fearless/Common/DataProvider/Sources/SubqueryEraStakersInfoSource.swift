@@ -1,6 +1,7 @@
 import RobinHood
 import Foundation
 import SSFUtils
+import SSFModels
 
 final class SubqueryEraStakersInfoSource {
     let url: URL
