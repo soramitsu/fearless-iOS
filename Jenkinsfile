@@ -54,20 +54,30 @@ for dd in "$HOME/Library/Developer/Xcode/DerivedData"/*; do
   rm -rf "$dd/SourcePackages" || true
 done
 
-# Resolve Swift Package dependencies up-front to materialize the checkout
-xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless || true
+# Resolve Swift Package dependencies only if the workspace is present (post-checkout)
+if [ -f fearless.xcworkspace/contents.xcworkspacedata ] || [ -f fearless.xcworkspace ]; then
+  xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless || true
+else
+  echo "Skipping SPM resolve: workspace not yet present"
+fi
 
 # If a GitHub token is present, configure it so private pods (e.g., FearlessKeys) can be fetched
 if [ -n "${GH_PAT_READ:-}" ]; then
   git config --global url."https://${GH_PAT_READ}@github.com/".insteadOf "https://github.com/" || true
 fi
 
-# Install CocoaPods dependencies to align build with Podfile/lock state
-if command -v bundle >/dev/null 2>&1 && [ -f Gemfile ]; then
-  bundle install --path vendor/bundle || true
-  bundle exec pod install --repo-update
+# Install CocoaPods dependencies if CocoaPods is available and Podfile exists
+if [ -f Podfile ]; then
+  if command -v pod >/dev/null 2>&1; then
+    pod install --repo-update || true
+  elif command -v bundle >/dev/null 2>&1 && [ -f Gemfile ]; then
+    bundle install --path vendor/bundle || true
+    bundle exec pod install --repo-update || true
+  else
+    echo "Skipping pod install: CocoaPods not available on this agent"
+  fi
 else
-  pod install --repo-update
+  echo "Skipping pod install: Podfile not found"
 fi
 
 # Function to patch module.modulemap and place umbrella header alongside it (in include/)
