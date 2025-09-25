@@ -162,10 +162,10 @@ else
 fi
 
 # Build Debug on simulator (no signing)
-xcodebuild -workspace fearless.xcworkspace -scheme fearless -configuration Debug -destination "platform=iOS Simulator,name=Any iOS Simulator Device" clean build
+xcodebuild -workspace fearless.xcworkspace -scheme fearless -configuration Debug -destination "generic/platform=iOS Simulator" clean build
 
 # Run unit tests on simulator
-xcodebuild -workspace fearless.xcworkspace -scheme fearless -destination "platform=iOS Simulator,name=Any iOS Simulator Device" test
+xcodebuild -workspace fearless.xcworkspace -scheme fearless -destination "generic/platform=iOS Simulator" test
 '''
     } else {
       appPipeline.runPipeline('fearless')
