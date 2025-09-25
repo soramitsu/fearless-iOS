@@ -79,8 +79,8 @@ if [ -f Podfile ]; then
   if [ "$IS_PR" = "1" ]; then
     if /usr/bin/grep -q "pod 'FearlessKeys'" Podfile; then
       cp Podfile Podfile.ci.bak
-      # macOS sed in-place
-      sed -i '' "s/^\([[:space:]]*pod 'FearlessKeys'.*\)$/# CI PR: disabled \1/" Podfile || true
+      # Comment out the FearlessKeys pod line (first match) without relying on sed backrefs
+      awk 'BEGIN{done=0} { if(done==0 && $0 ~ /^[[:space:]]*pod '\''FearlessKeys'\''/){ print "# CI PR: disabled "$0; done=1 } else { print } }' Podfile > Podfile.ci.tmp && mv Podfile.ci.tmp Podfile
       echo "Disabled FearlessKeys pod for PR build"
     fi
   else
