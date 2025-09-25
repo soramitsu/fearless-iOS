@@ -44,6 +44,8 @@ try {
 }
 node('mac-fearless') {
   withEnv(envList) {
+    // Ensure repository is checked out so workspace files exist
+    checkout scm
     // Pre-resolve SPM packages, install CocoaPods, and repair IrohaCrypto module map path + stub header
     sh '''
 set -euxo pipefail
@@ -151,9 +153,12 @@ done
       sh '''
 set -euxo pipefail
 
-# Ensure SPM is resolved (no-op if already done)
-if [ -f fearless.xcworkspacedata ] || [ -f fearless.xcworkspace/contents.xcworkspacedata ]; then
+# Ensure SPM is resolved
+if [ -f fearless.xcworkspace/contents.xcworkspacedata ]; then
   xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless || true
+else
+  echo "Workspace not found; aborting PR simulator build." >&2
+  exit 1
 fi
 
 # Build Debug on simulator (no signing)
