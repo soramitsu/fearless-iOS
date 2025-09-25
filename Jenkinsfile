@@ -76,7 +76,7 @@ if [ -n "${GH_PAT_READ:-}" ]; then
 fi
 
 # Install CocoaPods dependencies if CocoaPods is available and Podfile exists
-if [ -f Podfile ]; then
+  if [ -f Podfile ]; then
   # For PR builds, temporarily disable the private FearlessKeys pod to avoid cloning without secrets
   if [ "$IS_PR" = "1" ]; then
     if /usr/bin/grep -q "pod 'FearlessKeys'" Podfile; then
@@ -114,6 +114,13 @@ if [ -f Podfile ]; then
   # Restore original Podfile if we modified it (so workspace diff stays minimal)
   if [ -f Podfile.ci.bak ]; then
     mv -f Podfile.ci.bak Podfile || true
+  fi
+
+  # Verify Pods were installed; fail fast with a clear message if not
+  if [ ! -f "Pods/Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.debug.xcconfig" ]; then
+    echo "CocoaPods installation appears incomplete: missing Target Support Files for Pods-fearlessAll-fearless" >&2
+    echo "Ensure CocoaPods is available on this agent or allow the Jenkinsfile to install it via RubyGems." >&2
+    exit 1
   fi
 else
   echo "Skipping pod install: Podfile not found"
