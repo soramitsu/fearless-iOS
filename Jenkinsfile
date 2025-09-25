@@ -48,6 +48,13 @@ node('mac-fearless') {
     sh '''
 set -euxo pipefail
 
+# Determine PR vs trusted branch
+IS_PR=0
+if [ -n "${CHANGE_ID:-}" ]; then
+  IS_PR=1
+fi
+echo "Build context: IS_PR=${IS_PR} BRANCH_NAME=${BRANCH_NAME:-unknown}"
+
 # Reset SPM caches for a clean resolve (avoid stale builds)
 rm -rf "$WORKSPACE/DerivedData/fearless/SourcePackages" || true
 for dd in "$HOME/Library/Developer/Xcode/DerivedData"/*; do
@@ -68,6 +75,22 @@ fi
 
 # Install CocoaPods dependencies if CocoaPods is available and Podfile exists
 if [ -f Podfile ]; then
+  # For PR builds, temporarily disable the private FearlessKeys pod to avoid cloning without secrets
+  if [ "$IS_PR" = "1" ]; then
+    if /usr/bin/grep -q "pod 'FearlessKeys'" Podfile; then
+      cp Podfile Podfile.ci.bak
+      # macOS sed in-place
+      sed -i '' "s/^\([[:space:]]*pod 'FearlessKeys'.*\)$/# CI PR: disabled \1/" Podfile || true
+      echo "Disabled FearlessKeys pod for PR build"
+    fi
+  else
+    # Trusted branches: enable keys and configure GitHub token if provided
+    export INCLUDE_FEARLESS_KEYS=1
+    if [ -n "${GH_PAT_READ:-}" ]; then
+      git config --global url."https://${GH_PAT_READ}@github.com/".insteadOf "https://github.com/" || true
+    fi
+  fi
+
   if command -v pod >/dev/null 2>&1; then
     pod install --repo-update || true
   elif command -v bundle >/dev/null 2>&1 && [ -f Gemfile ]; then
@@ -75,6 +98,11 @@ if [ -f Podfile ]; then
     bundle exec pod install --repo-update || true
   else
     echo "Skipping pod install: CocoaPods not available on this agent"
+  fi
+
+  # Restore original Podfile if we modified it (so workspace diff stays minimal)
+  if [ -f Podfile.ci.bak ]; then
+    mv -f Podfile.ci.bak Podfile || true
   fi
 else
   echo "Skipping pod install: Podfile not found"
