@@ -145,7 +145,25 @@ for dd in "$HOME/Library/Developer/Xcode/DerivedData"/*; do
   patch_path "$dd" || true
 done
 '''
+    // For PRs, run simulator build + tests only (no ad-hoc archive/signing). For trusted branches, run full pipeline.
+    if ("${env.CHANGE_ID}"?.trim()) {
+      echo "PR detected (CHANGE_ID=${env.CHANGE_ID}). Running simulator build + tests instead of archive."
+      sh '''
+set -euxo pipefail
 
-    appPipeline.runPipeline('fearless')
+# Ensure SPM is resolved (no-op if already done)
+if [ -f fearless.xcworkspacedata ] || [ -f fearless.xcworkspace/contents.xcworkspacedata ]; then
+  xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless || true
+fi
+
+# Build Debug on simulator (no signing)
+xcodebuild -workspace fearless.xcworkspace -scheme fearless -configuration Debug -destination "platform=iOS Simulator,OS=latest,name=iPhone 15" clean build
+
+# Run unit tests on simulator
+xcodebuild -workspace fearless.xcworkspace -scheme fearless -destination "platform=iOS Simulator,OS=latest,name=iPhone 15" test
+'''
+    } else {
+      appPipeline.runPipeline('fearless')
+    }
   }
 }
