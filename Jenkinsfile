@@ -69,7 +69,9 @@ done
 
 # Resolve Swift Package dependencies only if the workspace is present (post-checkout)
 if [ -f fearless.xcworkspace/contents.xcworkspacedata ] || [ -f fearless.xcworkspace ]; then
-  xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless || true
+  export SP_DIR="$WORKSPACE/SourcePackages"
+  mkdir -p "$SP_DIR" || true
+  xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath "$SP_DIR" || true
   # Ensure Git LFS binaries within SPM checkouts (e.g., MPQRCoreSDK) are pulled
   if ! command -v git-lfs >/dev/null 2>&1; then
     echo "git-lfs not found; attempting install via Homebrew" || true
@@ -78,7 +80,7 @@ if [ -f fearless.xcworkspace/contents.xcworkspacedata ] || [ -f fearless.xcworks
     fi
   fi
   for spdir in \
-    "$WORKSPACE/SourcePackages/checkouts/shared-features-spm" \
+    "$SP_DIR/checkouts/shared-features-spm" \
     "$WORKSPACE/DerivedData"/*/SourcePackages/checkouts/shared-features-spm \
     "$WORKSPACE/DerivedData/fearless/SourcePackages/checkouts/shared-features-spm" \
     "$HOME/Library/Developer/Xcode/DerivedData"/*/SourcePackages/checkouts/shared-features-spm; do
@@ -205,12 +207,12 @@ fi
 
 # Try building on Simulator first (no signing). If it fails (e.g., missing simulator slice for binary SPM deps),
 # fall back to building for generic iOS device with signing disabled.
-if xcodebuild -workspace fearless.xcworkspace -scheme fearless -configuration Debug -destination "generic/platform=iOS Simulator" clean build; then
+if xcodebuild -workspace fearless.xcworkspace -scheme fearless -configuration Debug -destination "generic/platform=iOS Simulator" -clonedSourcePackagesDirPath "$SP_DIR" clean build; then
   # Run unit tests on simulator if build succeeded
-  xcodebuild -workspace fearless.xcworkspace -scheme fearless -destination "generic/platform=iOS Simulator" test
+  xcodebuild -workspace fearless.xcworkspace -scheme fearless -destination "generic/platform=iOS Simulator" -clonedSourcePackagesDirPath "$SP_DIR" test
 else
   echo "Simulator build failed; falling back to device build with signing disabled"
-  xcodebuild -workspace fearless.xcworkspace -scheme fearless -configuration Debug -destination "generic/platform=iOS" CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO clean build
+  xcodebuild -workspace fearless.xcworkspace -scheme fearless -configuration Debug -destination "generic/platform=iOS" -clonedSourcePackagesDirPath "$SP_DIR" CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO clean build
 fi
 '''
     } else {
