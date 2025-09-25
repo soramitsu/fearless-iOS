@@ -198,8 +198,9 @@ done
 set -euxo pipefail
 
 # Ensure SPM is resolved
+export SP_DIR="${SP_DIR:-$WORKSPACE/SourcePackages}"
 if [ -f fearless.xcworkspace/contents.xcworkspacedata ]; then
-  xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless || true
+  xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath "$SP_DIR" || true
 else
   echo "Workspace not found; aborting PR simulator build." >&2
   exit 1
