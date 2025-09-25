@@ -98,6 +98,15 @@ if [ -f Podfile ]; then
   elif command -v bundle >/dev/null 2>&1 && [ -f Gemfile ]; then
     bundle install --path vendor/bundle || true
     bundle exec pod install --repo-update || true
+  elif command -v gem >/dev/null 2>&1; then
+    echo "CocoaPods not found; attempting user-local install via RubyGems"
+    gem install --user-install cocoapods -N || true
+    export PATH="$HOME/.gem/ruby/$(ruby -e 'print RUBY_VERSION.split(".")[0,2].join(".")')/bin:$PATH"
+    if command -v pod >/dev/null 2>&1; then
+      pod install --repo-update || true
+    else
+      echo "CocoaPods still unavailable after gem install; skipping pod install"
+    fi
   else
     echo "Skipping pod install: CocoaPods not available on this agent"
   fi
