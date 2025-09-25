@@ -50,6 +50,10 @@ node('mac-fearless') {
     sh '''
 set -euxo pipefail
 
+# Ensure UTF-8 locale for Ruby/CocoaPods
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
 # Determine PR vs trusted branch
 IS_PR=0
 if [ -n "${CHANGE_ID:-}" ]; then
