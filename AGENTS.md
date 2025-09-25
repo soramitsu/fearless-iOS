@@ -142,6 +142,9 @@ The project mixes CocoaPods and Swift Package Manager. Follow these steps in ord
 - Environment variables:
   - `GH_PAT_READ` (optional): GitHub PAT for private pods (`FearlessKeys`).
   - `DEVELOPER_DIR` (optional): Jenkinsfile auto‑pins to Xcode 15.x if present for SPM stability; otherwise default Xcode is used.
+- Private keys in PRs:
+  - PR builds do NOT require private keys. The Jenkinsfile detects PR context (`CHANGE_ID`) and temporarily comments out the `pod 'FearlessKeys'` line before `pod install`, then restores the file. This prevents private repo access and allows PRs to build without secrets.
+  - Trusted branches (develop/master/release): Jenkins sets `INCLUDE_FEARLESS_KEYS=1` and, if `GH_PAT_READ` is present, rewrites GitHub URLs to use the token so `pod install` can fetch `FearlessKeys`.
 - Steps performed before archive:
   - Clean SPM caches; resolve packages if the workspace exists.
   - Configure GitHub token (if provided) and run `pod install --repo-update` when `pod` is available.
