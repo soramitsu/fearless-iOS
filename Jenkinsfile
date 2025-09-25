@@ -77,7 +77,11 @@ if [ -f fearless.xcworkspace/contents.xcworkspacedata ] || [ -f fearless.xcworks
       brew install git-lfs || true
     fi
   fi
-  for spdir in "$WORKSPACE/DerivedData"/*/SourcePackages/checkouts/shared-features-spm "$WORKSPACE/DerivedData/fearless/SourcePackages/checkouts/shared-features-spm" "$HOME/Library/Developer/Xcode/DerivedData"/*/SourcePackages/checkouts/shared-features-spm; do
+  for spdir in \
+    "$WORKSPACE/SourcePackages/checkouts/shared-features-spm" \
+    "$WORKSPACE/DerivedData"/*/SourcePackages/checkouts/shared-features-spm \
+    "$WORKSPACE/DerivedData/fearless/SourcePackages/checkouts/shared-features-spm" \
+    "$HOME/Library/Developer/Xcode/DerivedData"/*/SourcePackages/checkouts/shared-features-spm; do
     if [ -d "$spdir" ]; then
       (cd "$spdir" && git lfs install --local || true && git lfs pull || true)
     fi
