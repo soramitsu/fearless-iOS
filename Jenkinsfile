@@ -101,8 +101,14 @@ fi
   elif command -v gem >/dev/null 2>&1; then
     echo "CocoaPods not found; attempting user-local install via RubyGems"
     gem install --user-install cocoapods -N || true
-    export PATH="$HOME/.gem/ruby/$(ruby -e 'print RUBY_VERSION.split(".")[0,2].join(".")')/bin:$PATH"
-    if command -v pod >/dev/null 2>&1; then
+    # Prepend the user gem bin dir (accurate for the current Ruby) to PATH
+    export GEM_BIN_DIR="$(ruby -e 'require "rubygems"; print Gem.user_dir + "/bin"')"
+    export PATH="$GEM_BIN_DIR:$PATH"
+    hash -r || true
+    # Try invoking pod explicitly from the user gem bin dir if PATH is not picked up
+    if [ -x "$GEM_BIN_DIR/pod" ]; then
+      "$GEM_BIN_DIR/pod" install --repo-update || true
+    elif command -v pod >/dev/null 2>&1; then
       pod install --repo-update || true
     else
       echo "CocoaPods still unavailable after gem install; skipping pod install"
