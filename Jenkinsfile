@@ -70,6 +70,18 @@ done
 # Resolve Swift Package dependencies only if the workspace is present (post-checkout)
 if [ -f fearless.xcworkspace/contents.xcworkspacedata ] || [ -f fearless.xcworkspace ]; then
   xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless || true
+  # Ensure Git LFS binaries within SPM checkouts (e.g., MPQRCoreSDK) are pulled
+  if ! command -v git-lfs >/dev/null 2>&1; then
+    echo "git-lfs not found; attempting install via Homebrew" || true
+    if command -v brew >/dev/null 2>&1; then
+      brew install git-lfs || true
+    fi
+  fi
+  for spdir in "$WORKSPACE/DerivedData"/*/SourcePackages/checkouts/shared-features-spm "$WORKSPACE/DerivedData/fearless/SourcePackages/checkouts/shared-features-spm" "$HOME/Library/Developer/Xcode/DerivedData"/*/SourcePackages/checkouts/shared-features-spm; do
+    if [ -d "$spdir" ]; then
+      (cd "$spdir" && git lfs install --local || true && git lfs pull || true)
+    fi
+  done
 else
   echo "Skipping SPM resolve: workspace not yet present"
 fi
