@@ -69,6 +69,12 @@ fi
 # 2) Resolve SPM into a deterministic location
 SP_DIR="${SP_DIR:-$WORKSPACE_DIR/SourcePackages}"
 mkdir -p "$SP_DIR"
+# Mirror Web3.swift registry package to our source-control fork to avoid duplicate identities
+if command -v swift >/dev/null 2>&1; then
+  swift package config set-mirror \
+    --package-url https://github.com/bnsports/Web3.swift.git \
+    --mirror-url https://github.com/soramitsu/web3-swift || true
+fi
 if [[ -f fearless.xcworkspace/contents.xcworkspacedata ]]; then
   xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath "$SP_DIR" || true
 else
