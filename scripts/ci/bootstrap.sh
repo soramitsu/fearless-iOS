@@ -66,17 +66,20 @@ else
   echo "[bootstrap] No Podfile found; skipping pod install"
 fi
 
-# 2) Resolve SPM into a deterministic location
+# 2) Resolve SPM into a deterministic location (clean + mirrors)
 SP_DIR="${SP_DIR:-$WORKSPACE_DIR/SourcePackages}"
-mkdir -p "$SP_DIR"
-# Mirror Web3.swift registry package to our source-control fork to avoid duplicate identities
+# Clean previous SPM state to avoid sticky duplicates
+rm -rf "$SP_DIR" || true
+rm -rf "$WORKSPACE_DIR/DerivedData"/*/SourcePackages || true
+rm -f "$WORKSPACE_DIR/fearless.xcworkspace/xcshareddata/swiftpm/Package.resolved" || true
+# Set mirrors to unify Web3 identities
 if command -v swift >/dev/null 2>&1; then
-  swift package config set-mirror \
-    --package-url https://github.com/bnsports/Web3.swift.git \
-    --mirror-url https://github.com/soramitsu/web3-swift || true
+  swift package config set-mirror --package-name web3.swift --mirror-url https://github.com/soramitsu/web3-swift || true
+  swift package config set-mirror --package-url https://github.com/bnsports/Web3.swift.git --mirror-url https://github.com/soramitsu/web3-swift || true
 fi
+mkdir -p "$SP_DIR"
 if [[ -f fearless.xcworkspace/contents.xcworkspacedata ]]; then
-  xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath "$SP_DIR" || true
+  xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath "$SP_DIR"
 else
   echo "[bootstrap] WARNING: Workspace not found; skipping SPM resolve"
 fi
