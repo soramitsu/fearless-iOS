@@ -83,13 +83,24 @@ if ! command -v git-lfs >/dev/null 2>&1; then
   fi
 fi
 if command -v git-lfs >/dev/null 2>&1; then
+  TARGET_CHECKOUT=""
   for spdir in \
     "$SP_DIR/checkouts/shared-features-spm" \
     "$WORKSPACE_DIR/DerivedData"/*/SourcePackages/checkouts/shared-features-spm \
     "$HOME/Library/Developer/Xcode/DerivedData"/*/SourcePackages/checkouts/shared-features-spm; do
     [[ -d "$spdir" ]] || continue
-    (cd "$spdir" && git lfs install --local && git lfs pull) || true
+    TARGET_CHECKOUT="$spdir"
+    (cd "$spdir" && git lfs install --local && git lfs fetch --all && git lfs checkout) || true
   done
+  if [[ -n "$TARGET_CHECKOUT" ]]; then
+    if [[ ! -d "$TARGET_CHECKOUT/Binaries/MPQRCoreSDK.xcframework" ]]; then
+      echo "[bootstrap] ERROR: MPQRCoreSDK.xcframework not present after git lfs. Checked: $TARGET_CHECKOUT/Binaries/MPQRCoreSDK.xcframework" >&2
+      echo "[bootstrap] Ensure git-lfs is installed on the agent and repo bandwidth allows LFS pulls." >&2
+      exit 1
+    fi
+  else
+    echo "[bootstrap] WARNING: shared-features-spm checkout not found under $SP_DIR or DerivedData; SPM may resolve elsewhere"
+  fi
 else
   echo "[bootstrap] WARNING: git-lfs not available; MPQRCoreSDK may be missing"
 fi
@@ -106,4 +117,3 @@ fi
 
 popd >/dev/null
 echo "[bootstrap] Completed CI bootstrap"
-
