@@ -29,7 +29,7 @@ node('mac-fearless') {
 
   if ("${env.CHANGE_ID}"?.trim()) {
     echo "PR detected (CHANGE_ID=${env.CHANGE_ID}). Running simulator build + tests instead of archive."
-    sh 'bash -lc "set -euxo pipefail; SP_DIR=\"$WORKSPACE/SourcePackages\"; if [ -f fearless.xcworkspacedata ] || [ -f fearless.xcworkspace/contents.xcworkspacedata ]; then xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath \"$SP_DIR\" || true; fi; if xcodebuild -workspace fearless.xcworkspace -scheme fearless -configuration Debug -destination \"generic/platform=iOS Simulator\" -clonedSourcePackagesDirPath \"$SP_DIR\" clean build; then xcodebuild -workspace fearless.xcworkspace -scheme fearless -destination \"generic/platform=iOS Simulator\" -clonedSourcePackagesDirPath \"$SP_DIR\" test; else echo \"Simulator build failed; falling back to device build with signing disabled\"; xcodebuild -workspace fearless.xcworkspace -scheme fearless -configuration Debug -destination \"generic/platform=iOS\" -clonedSourcePackagesDirPath \"$SP_DIR\" CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO clean build; fi"'
+    sh 'bash scripts/ci/run-pr.sh'
   } else {
     appPipeline.runPipeline('fearless')
   }
