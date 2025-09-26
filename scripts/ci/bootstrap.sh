@@ -120,5 +120,11 @@ if [[ -f "$IROHA_MM" ]]; then
   [[ -f "$par_dir/IrohaCrypto-umbrella.h" ]] || printf '%s\n%s\n' "// Temporary umbrella (parent)" "#import <Foundation/Foundation.h>" > "$par_dir/IrohaCrypto-umbrella.h"
 fi
 
+# Also patch any module maps under DerivedData for Xcode 16+/18 stability
+if [[ -x "scripts/spm-iroha-hotfix.sh" ]]; then
+  echo "[bootstrap] Applying DerivedData IrohaCrypto hotfix"
+  scripts/spm-iroha-hotfix.sh fearless fearless.xcworkspace || true
+fi
+
 popd >/dev/null
 echo "[bootstrap] Completed CI bootstrap"

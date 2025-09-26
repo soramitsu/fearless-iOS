@@ -11,6 +11,26 @@ if [[ -f "$WORKSPACE_DIR/fearless.xcworkspace/contents.xcworkspacedata" ]]; then
     -workspace "$WORKSPACE_DIR/fearless.xcworkspace" \
     -scheme fearless \
     -clonedSourcePackagesDirPath "$SP_DIR" || true
+
+  # Re-apply IrohaCrypto module.modulemap hotfix after resolve (resolve may reset files)
+  echo "[run-pr] Applying IrohaCrypto modulemap hotfix in SourcePackages checkout"
+  IROHA_MM="$SP_DIR/checkouts/shared-features-spm/Sources/IrohaCrypto/include/module.modulemap"
+  if [[ -f "$IROHA_MM" ]]; then
+    # Normalize umbrella header path and ensure stub umbrellas exist
+    sed -i '' 's|umbrella header "../IrohaCrypto-umbrella.h"|umbrella header "IrohaCrypto-umbrella.h"|g' "$IROHA_MM" || true
+    inc_dir=$(dirname "$IROHA_MM")
+    par_dir=$(dirname "$inc_dir")
+    [[ -f "$inc_dir/IrohaCrypto-umbrella.h" ]] || printf '%s\n%s\n' "// Temporary umbrella" "#import <Foundation/Foundation.h>" > "$inc_dir/IrohaCrypto-umbrella.h"
+    [[ -f "$par_dir/IrohaCrypto-umbrella.h" ]] || printf '%s\n%s\n' "// Temporary umbrella (parent)" "#import <Foundation/Foundation.h>" > "$par_dir/IrohaCrypto-umbrella.h"
+  else
+    echo "[run-pr] WARNING: module.modulemap not found at $IROHA_MM; skipping SP_DIR hotfix"
+  fi
+
+  # Also patch any module maps under DerivedData for safety
+  if [[ -x "scripts/spm-iroha-hotfix.sh" ]]; then
+    echo "[run-pr] Applying DerivedData IrohaCrypto hotfix"
+    scripts/spm-iroha-hotfix.sh fearless "$WORKSPACE_DIR/fearless.xcworkspace" || true
+  fi
 else
   echo "[run-pr] ERROR: Workspace not found at $WORKSPACE_DIR/fearless.xcworkspace" >&2
   exit 1
@@ -42,4 +62,3 @@ else
 fi
 
 echo "[run-pr] PR build completed"
-
