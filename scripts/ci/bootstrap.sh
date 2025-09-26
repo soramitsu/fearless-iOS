@@ -72,11 +72,7 @@ SP_DIR="${SP_DIR:-$WORKSPACE_DIR/SourcePackages}"
 rm -rf "$SP_DIR" || true
 rm -rf "$WORKSPACE_DIR/DerivedData"/*/SourcePackages || true
 rm -f "$WORKSPACE_DIR/fearless.xcworkspace/xcshareddata/swiftpm/Package.resolved" || true
-# Set mirrors to unify Web3 identities
-if command -v swift >/dev/null 2>&1; then
-  swift package config set-mirror --package-name web3.swift --mirror-url https://github.com/soramitsu/web3-swift || true
-  swift package config set-mirror --package-url https://github.com/bnsports/Web3.swift.git --mirror-url https://github.com/soramitsu/web3-swift || true
-fi
+# Note: SPM mirrors not set here; project pins Web3 to a single source to avoid duplication
 mkdir -p "$SP_DIR"
 if [[ -f fearless.xcworkspace/contents.xcworkspacedata ]]; then
   xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath "$SP_DIR"

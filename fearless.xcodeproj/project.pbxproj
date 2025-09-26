@@ -19275,10 +19275,10 @@
 		};
 		FAB482E92C58A8AA00594D89 /* XCRemoteSwiftPackageReference "web3-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/soramitsu/web3-swift";
+			repositoryURL = "https://github.com/bnsports/Web3.swift.git";
 			requirement = {
 				kind = exactVersion;
-				version = 7.7.7;
+				version = 7.7.9;
 			};
 		};
 		FAF600732C48D79500E56558 /* XCRemoteSwiftPackageReference "Cosmos" */ = {
