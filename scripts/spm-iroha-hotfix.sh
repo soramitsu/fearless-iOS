@@ -57,6 +57,36 @@ patch_path() {
   fi
 }
 
+# Patch any module maps found under a base directory using globbing
+patch_any_under_base() {
+  local base="$1"
+  local found=0
+  # shellcheck disable=SC2044
+  for mm in $(/usr/bin/find "$base" -type f -path "*/SourcePackages/checkouts/*/Sources/IrohaCrypto/include/module.modulemap" 2>/dev/null | /usr/bin/sed 's/ /\n/g'); do
+    [ -f "$mm" ] || continue
+    found=1
+    echo "==> Patching module.modulemap (glob): $mm"
+    _sed_inplace 's|umbrella header "../IrohaCrypto-umbrella.h"|umbrella header "IrohaCrypto-umbrella.h"|g' "$mm" || true
+    local include_dir="$(dirname "$mm")"
+    local parent_dir="$(dirname "$include_dir")"
+    local hdr_include="$include_dir/IrohaCrypto-umbrella.h"
+    local hdr_parent="$parent_dir/IrohaCrypto-umbrella.h"
+    if [ ! -f "$hdr_include" ]; then
+      printf '%s\n' \
+        '// Temporary umbrella header to satisfy IrohaCrypto module.modulemap' \
+        '#import <Foundation/Foundation.h>' > "$hdr_include"
+    fi
+    if [ ! -f "$hdr_parent" ]; then
+      printf '%s\n' \
+        '// Temporary umbrella header to satisfy IrohaCrypto module.modulemap (parent path)' \
+        '#import <Foundation/Foundation.h>' > "$hdr_parent"
+    fi
+  done
+  if [ "$found" = 0 ]; then
+    echo "==> No IrohaCrypto module.modulemap found under: $base"
+  fi
+}
+
 # Common DerivedData candidates
 echo "==> Searching for module maps to patch"
 
@@ -76,5 +106,13 @@ for dd in "$HOME/Library/Developer/Xcode/DerivedData"/*; do
   patch_path "$dd"
 done
 
-echo "==> SPM IrohaCrypto hotfix completed"
+# 4) Workspace/local SourcePackages (CI often uses clonedSourcePackagesDirPath)
+if [ -n "${WORKSPACE_DIR:-}" ] && [ -d "$WORKSPACE_DIR/SourcePackages" ]; then
+  patch_any_under_base "$WORKSPACE_DIR"
+fi
 
+if [ -d "SourcePackages" ]; then
+  patch_any_under_base "$(pwd)"
+fi
+
+echo "==> SPM IrohaCrypto hotfix completed"
