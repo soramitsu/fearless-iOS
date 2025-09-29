@@ -72,6 +72,15 @@ if [ -f fearless.xcworkspace/contents.xcworkspacedata ] || [ -f fearless.xcworks
   export SP_DIR="$WORKSPACE/SourcePackages"
   mkdir -p "$SP_DIR" || true
   xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath "$SP_DIR" || true
+  # Apply IrohaCrypto module.modulemap umbrella hotfix directly in workspace SourcePackages checkout
+  IROHA_MM="$SP_DIR/checkouts/shared-features-spm/Sources/IrohaCrypto/include/module.modulemap"
+  if [ -f "$IROHA_MM" ]; then
+    echo "Hotfix: patching $IROHA_MM (workspace SPM checkout)"
+    sed -i '' 's|umbrella header "../IrohaCrypto-umbrella.h"|umbrella header "IrohaCrypto-umbrella.h"|g' "$IROHA_MM" || true
+    inc_dir=$(dirname "$IROHA_MM"); par_dir=$(dirname "$inc_dir")
+    [ -f "$inc_dir/IrohaCrypto-umbrella.h" ] || printf '%s\n%s\n' "// Temporary umbrella" "#import <Foundation/Foundation.h>" > "$inc_dir/IrohaCrypto-umbrella.h"
+    [ -f "$par_dir/IrohaCrypto-umbrella.h" ] || printf '%s\n%s\n' "// Temporary umbrella (parent)" "#import <Foundation/Foundation.h>" > "$par_dir/IrohaCrypto-umbrella.h"
+  fi
   # Ensure Git LFS binaries within SPM checkouts (e.g., MPQRCoreSDK) are pulled
   if ! command -v git-lfs >/dev/null 2>&1; then
     echo "git-lfs not found; attempting install via Homebrew" || true
@@ -192,7 +201,7 @@ for dd in "$HOME/Library/Developer/Xcode/DerivedData"/*; do
 done
 '''
     // For PRs, run simulator build + tests only (no ad-hoc archive/signing). For trusted branches, run full pipeline.
-    if ("${env.CHANGE_ID}"?.trim()) {
+if ("${env.CHANGE_ID}"?.trim()) {
       echo "PR detected (CHANGE_ID=${env.CHANGE_ID}). Running simulator build + tests instead of archive."
       sh '''
 set -euxo pipefail
@@ -201,6 +210,15 @@ set -euxo pipefail
 export SP_DIR="${SP_DIR:-$WORKSPACE/SourcePackages}"
 if [ -f fearless.xcworkspace/contents.xcworkspacedata ]; then
   xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath "$SP_DIR" || true
+  # Re-apply IrohaCrypto hotfix after resolve (resolve can reset files)
+  IROHA_MM="$SP_DIR/checkouts/shared-features-spm/Sources/IrohaCrypto/include/module.modulemap"
+  if [ -f "$IROHA_MM" ]; then
+    echo "Hotfix (PR step): patching $IROHA_MM"
+    sed -i '' 's|umbrella header "../IrohaCrypto-umbrella.h"|umbrella header "IrohaCrypto-umbrella.h"|g' "$IROHA_MM" || true
+    inc_dir=$(dirname "$IROHA_MM"); par_dir=$(dirname "$inc_dir")
+    [ -f "$inc_dir/IrohaCrypto-umbrella.h" ] || printf '%s\n%s\n' "// Temporary umbrella" "#import <Foundation/Foundation.h>" > "$inc_dir/IrohaCrypto-umbrella.h"
+    [ -f "$par_dir/IrohaCrypto-umbrella.h" ] || printf '%s\n%s\n' "// Temporary umbrella (parent)" "#import <Foundation/Foundation.h>" > "$par_dir/IrohaCrypto-umbrella.h"
+  fi
 else
   echo "Workspace not found; aborting PR simulator build." >&2
   exit 1
