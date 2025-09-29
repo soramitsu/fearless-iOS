@@ -80,6 +80,8 @@ if [ -f fearless.xcworkspace/contents.xcworkspacedata ] || [ -f fearless.xcworks
     inc_dir=$(dirname "$IROHA_MM"); par_dir=$(dirname "$inc_dir")
     [ -f "$inc_dir/IrohaCrypto-umbrella.h" ] || printf '%s\n%s\n' "// Temporary umbrella" "#import <Foundation/Foundation.h>" > "$inc_dir/IrohaCrypto-umbrella.h"
     [ -f "$par_dir/IrohaCrypto-umbrella.h" ] || printf '%s\n%s\n' "// Temporary umbrella (parent)" "#import <Foundation/Foundation.h>" > "$par_dir/IrohaCrypto-umbrella.h"
+    echo "[debug] module.modulemap contents:"; sed -n '1,120p' "$IROHA_MM" || true
+    echo "[debug] include dir listing:"; ls -la "$inc_dir" || true
   fi
   # Ensure Git LFS binaries within SPM checkouts (e.g., MPQRCoreSDK) are pulled
   if ! command -v git-lfs >/dev/null 2>&1; then
@@ -218,6 +220,8 @@ if [ -f fearless.xcworkspace/contents.xcworkspacedata ]; then
     inc_dir=$(dirname "$IROHA_MM"); par_dir=$(dirname "$inc_dir")
     [ -f "$inc_dir/IrohaCrypto-umbrella.h" ] || printf '%s\n%s\n' "// Temporary umbrella" "#import <Foundation/Foundation.h>" > "$inc_dir/IrohaCrypto-umbrella.h"
     [ -f "$par_dir/IrohaCrypto-umbrella.h" ] || printf '%s\n%s\n' "// Temporary umbrella (parent)" "#import <Foundation/Foundation.h>" > "$par_dir/IrohaCrypto-umbrella.h"
+    echo "[debug] module.modulemap contents (PR step):"; sed -n '1,120p' "$IROHA_MM" || true
+    echo "[debug] include dir listing (PR step):"; ls -la "$inc_dir" || true
   fi
 else
   echo "Workspace not found; aborting PR simulator build." >&2
