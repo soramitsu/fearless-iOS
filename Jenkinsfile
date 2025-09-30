@@ -240,10 +240,9 @@ else
   exit 1
 fi
 
-  # Try building on Simulator first (no signing). If it fails (e.g., missing simulator slice for binary SPM deps),
-  # fall back to building for generic iOS device with signing disabled.
+  # Simulator-only builds for PRs (no signing). On failure, surface the raw error and stop.
   mkdir -p build || true
-  if xcodebuild \
+  if ! xcodebuild \
       -workspace fearless.xcworkspace \
       -scheme fearless \
       -configuration Debug \
@@ -251,24 +250,25 @@ fi
       -clonedSourcePackagesDirPath "$SP_DIR" \
       CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
       clean build | tee build/pr.build.raw.log; then
-    # Run unit tests on simulator if build succeeded
-    xcodebuild \
+    echo "\n[PR] Simulator build failed. Tail of raw log:" >&2
+    tail -n 300 build/pr.build.raw.log || true
+    echo "\n[PR] First matching error lines:" >&2
+    (rg -n "\\berror:|Failed frontend command" build/pr.build.raw.log || true) >&2
+    exit 65
+  fi
+
+  if ! xcodebuild \
       -workspace fearless.xcworkspace \
       -scheme fearless \
       -destination "generic/platform=iOS Simulator" \
       -clonedSourcePackagesDirPath "$SP_DIR" \
       CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
-      test | tee build/pr.test.raw.log
-  else
-    echo "Simulator build failed; falling back to device build with signing disabled"
-    xcodebuild \
-      -workspace fearless.xcworkspace \
-      -scheme fearless \
-      -configuration Debug \
-      -destination "generic/platform=iOS" \
-      -clonedSourcePackagesDirPath "$SP_DIR" \
-      CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
-      clean build | tee build/pr.device.build.raw.log
+      test | tee build/pr.test.raw.log; then
+    echo "\n[PR] Simulator tests failed. Tail of raw log:" >&2
+    tail -n 300 build/pr.test.raw.log || true
+    echo "\n[PR] First matching error lines:" >&2
+    (rg -n "\\berror:|Failed frontend command" build/pr.test.raw.log || true) >&2
+    exit 65
   fi
 '''
     } else {
