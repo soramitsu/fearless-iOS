@@ -240,15 +240,36 @@ else
   exit 1
 fi
 
-# Try building on Simulator first (no signing). If it fails (e.g., missing simulator slice for binary SPM deps),
-# fall back to building for generic iOS device with signing disabled.
-if xcodebuild -workspace fearless.xcworkspace -scheme fearless -configuration Debug -destination "generic/platform=iOS Simulator" -clonedSourcePackagesDirPath "$SP_DIR" clean build; then
-  # Run unit tests on simulator if build succeeded
-  xcodebuild -workspace fearless.xcworkspace -scheme fearless -destination "generic/platform=iOS Simulator" -clonedSourcePackagesDirPath "$SP_DIR" test
-else
-  echo "Simulator build failed; falling back to device build with signing disabled"
-  xcodebuild -workspace fearless.xcworkspace -scheme fearless -configuration Debug -destination "generic/platform=iOS" -clonedSourcePackagesDirPath "$SP_DIR" CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO clean build
-fi
+  # Try building on Simulator first (no signing). If it fails (e.g., missing simulator slice for binary SPM deps),
+  # fall back to building for generic iOS device with signing disabled.
+  mkdir -p build || true
+  if xcodebuild \
+      -workspace fearless.xcworkspace \
+      -scheme fearless \
+      -configuration Debug \
+      -destination "generic/platform=iOS Simulator" \
+      -clonedSourcePackagesDirPath "$SP_DIR" \
+      CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+      clean build | tee build/pr.build.raw.log; then
+    # Run unit tests on simulator if build succeeded
+    xcodebuild \
+      -workspace fearless.xcworkspace \
+      -scheme fearless \
+      -destination "generic/platform=iOS Simulator" \
+      -clonedSourcePackagesDirPath "$SP_DIR" \
+      CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+      test | tee build/pr.test.raw.log
+  else
+    echo "Simulator build failed; falling back to device build with signing disabled"
+    xcodebuild \
+      -workspace fearless.xcworkspace \
+      -scheme fearless \
+      -configuration Debug \
+      -destination "generic/platform=iOS" \
+      -clonedSourcePackagesDirPath "$SP_DIR" \
+      CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+      clean build | tee build/pr.device.build.raw.log
+  fi
 '''
     } else {
       appPipeline.runPipeline('fearless')
