@@ -1,8 +1,0 @@
-framework module XNetworking {
-    umbrella header "XNetworking.h"
-
-    export *
-    module * { export * }
-
-    use Foundation
-}
