@@ -253,7 +253,11 @@ fi
     echo "\n[PR] Simulator build failed. Tail of raw log:" >&2
     tail -n 300 build/pr.build.raw.log || true
     echo "\n[PR] First matching error lines:" >&2
-    (rg -n "\\berror:|Failed frontend command" build/pr.build.raw.log || true) >&2
+    if command -v rg >/dev/null 2>&1; then
+      (rg -n "\\berror:|Failed frontend command" build/pr.build.raw.log || true) >&2
+    else
+      (grep -nE "(^| )error:|Failed frontend command" build/pr.build.raw.log || true) >&2
+    fi
     exit 65
   fi
 
@@ -267,7 +271,11 @@ fi
     echo "\n[PR] Simulator tests failed. Tail of raw log:" >&2
     tail -n 300 build/pr.test.raw.log || true
     echo "\n[PR] First matching error lines:" >&2
-    (rg -n "\\berror:|Failed frontend command" build/pr.test.raw.log || true) >&2
+    if command -v rg >/dev/null 2>&1; then
+      (rg -n "\\berror:|Failed frontend command" build/pr.test.raw.log || true) >&2
+    else
+      (grep -nE "(^| )error:|Failed frontend command" build/pr.test.raw.log || true) >&2
+    fi
     exit 65
   fi
 '''
