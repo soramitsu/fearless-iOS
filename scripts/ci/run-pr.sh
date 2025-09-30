@@ -34,9 +34,9 @@ if [[ -f "$WORKSPACE_DIR/fearless.xcworkspace/contents.xcworkspacedata" ]]; then
     echo "[run-pr] Applying DerivedData IrohaCrypto hotfix"
     scripts/spm-iroha-hotfix.sh fearless "$WORKSPACE_DIR/fearless.xcworkspace" || true
   fi
-  if [[ -x "scripts/spm-shared-features-fixes.sh" ]]; then
+  if [[ -f "scripts/spm-shared-features-fixes.sh" ]]; then
     echo "[run-pr] Applying shared-features-spm manifest fixes"
-    scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR" || true
+    bash scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR" || true
   fi
 else
   echo "[run-pr] ERROR: Workspace not found at $WORKSPACE_DIR/fearless.xcworkspace" >&2

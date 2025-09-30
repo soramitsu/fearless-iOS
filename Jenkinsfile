@@ -87,8 +87,8 @@ done
     echo "[debug] include dir listing:"; ls -la "$inc_dir" || true
   fi
   # Apply manifest fixes for shared-features-spm (e.g., SSFModels -> RobinHood)
-  if [ -x scripts/spm-shared-features-fixes.sh ]; then
-    scripts/spm-shared-features-fixes.sh "$WORKSPACE" || true
+  if [ -f scripts/spm-shared-features-fixes.sh ]; then
+    bash scripts/spm-shared-features-fixes.sh "$WORKSPACE" || true
   fi
   # Ensure Git LFS binaries within SPM checkouts (e.g., MPQRCoreSDK) are pulled
   if ! command -v git-lfs >/dev/null 2>&1; then
@@ -232,8 +232,8 @@ if [ -f fearless.xcworkspace/contents.xcworkspacedata ]; then
     echo "[debug] module.modulemap contents (PR step):"; sed -n '1,120p' "$IROHA_MM" || true
     echo "[debug] include dir listing (PR step):"; ls -la "$inc_dir" || true
   fi
-  if [ -x scripts/spm-shared-features-fixes.sh ]; then
-    scripts/spm-shared-features-fixes.sh "$WORKSPACE" || true
+  if [ -f scripts/spm-shared-features-fixes.sh ]; then
+    bash scripts/spm-shared-features-fixes.sh "$WORKSPACE" || true
   fi
 else
   echo "Workspace not found; aborting PR simulator build." >&2

@@ -91,9 +91,9 @@ else
 fi
 
 # 5) Patch shared-features-spm manifest for explicit-module build compatibility
-if [ -x scripts/spm-shared-features-fixes.sh ]; then
+if [ -f scripts/spm-shared-features-fixes.sh ]; then
   echo "==> Applying shared-features-spm manifest fixes"
-  scripts/spm-shared-features-fixes.sh "$(pwd)" || true
+  bash scripts/spm-shared-features-fixes.sh "$(pwd)" || true
 fi
 
 cat <<EOF
