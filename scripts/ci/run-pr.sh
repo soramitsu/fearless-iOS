@@ -7,6 +7,9 @@ WORKSPACE_DIR=${WORKSPACE:-$(pwd)}
 SP_DIR="$WORKSPACE_DIR/SourcePackages"
 
 if [[ -f "$WORKSPACE_DIR/fearless.xcworkspace/contents.xcworkspacedata" ]]; then
+  # Clean previous SPM state to prevent duplicate Web3 sources
+  rm -rf "$SP_DIR" || true
+  rm -f "$WORKSPACE_DIR/fearless.xcworkspace/xcshareddata/swiftpm/Package.resolved" || true
   xcodebuild -resolvePackageDependencies \
     -workspace "$WORKSPACE_DIR/fearless.xcworkspace" \
     -scheme fearless \
@@ -30,6 +33,10 @@ if [[ -f "$WORKSPACE_DIR/fearless.xcworkspace/contents.xcworkspacedata" ]]; then
   if [[ -x "scripts/spm-iroha-hotfix.sh" ]]; then
     echo "[run-pr] Applying DerivedData IrohaCrypto hotfix"
     scripts/spm-iroha-hotfix.sh fearless "$WORKSPACE_DIR/fearless.xcworkspace" || true
+  fi
+  if [[ -x "scripts/spm-shared-features-fixes.sh" ]]; then
+    echo "[run-pr] Applying shared-features-spm manifest fixes"
+    scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR" || true
   fi
 else
   echo "[run-pr] ERROR: Workspace not found at $WORKSPACE_DIR/fearless.xcworkspace" >&2

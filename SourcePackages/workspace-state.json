@@ -1,0 +1,852 @@
+{
+  "object" : {
+    "artifacts" : [
+      {
+        "kind" : {
+          "xcframework" : {
+
+          }
+        },
+        "packageRef" : {
+          "identity" : "shared-features-spm",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/soramitsu/shared-features-spm.git",
+          "name" : "Modules"
+        },
+        "path" : "/Users/williamrichter/Git/fearless-iOS/SourcePackages/checkouts/shared-features-spm/Binaries/sr25519lib.xcframework",
+        "source" : {
+          "type" : "local"
+        },
+        "targetName" : "sr25519lib"
+      },
+      {
+        "kind" : {
+          "xcframework" : {
+
+          }
+        },
+        "packageRef" : {
+          "identity" : "shared-features-spm",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/soramitsu/shared-features-spm.git",
+          "name" : "Modules"
+        },
+        "path" : "/Users/williamrichter/Git/fearless-iOS/SourcePackages/checkouts/shared-features-spm/Binaries/sorawallet.xcframework",
+        "source" : {
+          "type" : "local"
+        },
+        "targetName" : "sorawallet"
+      },
+      {
+        "kind" : {
+          "xcframework" : {
+
+          }
+        },
+        "packageRef" : {
+          "identity" : "shared-features-spm",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/soramitsu/shared-features-spm.git",
+          "name" : "Modules"
+        },
+        "path" : "/Users/williamrichter/Git/fearless-iOS/SourcePackages/checkouts/shared-features-spm/Binaries/blake2lib.xcframework",
+        "source" : {
+          "type" : "local"
+        },
+        "targetName" : "blake2lib"
+      },
+      {
+        "kind" : {
+          "xcframework" : {
+
+          }
+        },
+        "packageRef" : {
+          "identity" : "shared-features-spm",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/soramitsu/shared-features-spm.git",
+          "name" : "Modules"
+        },
+        "path" : "/Users/williamrichter/Git/fearless-iOS/SourcePackages/checkouts/shared-features-spm/Binaries/libed25519.xcframework",
+        "source" : {
+          "type" : "local"
+        },
+        "targetName" : "libed25519"
+      },
+      {
+        "kind" : {
+          "xcframework" : {
+
+          }
+        },
+        "packageRef" : {
+          "identity" : "shared-features-spm",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/soramitsu/shared-features-spm.git",
+          "name" : "Modules"
+        },
+        "path" : "/Users/williamrichter/Git/fearless-iOS/SourcePackages/checkouts/shared-features-spm/Binaries/MPQRCoreSDK.xcframework",
+        "source" : {
+          "type" : "local"
+        },
+        "targetName" : "MPQRCoreSDK"
+      },
+      {
+        "kind" : {
+          "xcframework" : {
+
+          }
+        },
+        "packageRef" : {
+          "identity" : "shared-features-spm",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/soramitsu/shared-features-spm.git",
+          "name" : "Modules"
+        },
+        "path" : "/Users/williamrichter/Git/fearless-iOS/SourcePackages/artifacts/shared-features-spm/XNetworking/XNetworking.xcframework",
+        "source" : {
+          "checksum" : "651cd3955842fcd4817f22457c8bb3f93e5081959ef651894093b522117143ab",
+          "type" : "remote",
+          "url" : "https://nexus.iroha.tech/repository/maven-soramitsu/jp/co/soramitsu/xnetworking/lib-IOS/1.0.10/lib-IOS-1.0.10.zip"
+        },
+        "targetName" : "XNetworking"
+      }
+    ],
+    "dependencies" : [
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "appauth-ios",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/openid/AppAuth-iOS.git",
+          "name" : "AppAuth"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "2781038865a80e2c425a1da12cc1327bcd56501f",
+            "version" : "1.7.6"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "AppAuth-iOS"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "bigint",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/attaswift/BigInt.git",
+          "name" : "BigInt"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "e07e00fa1fd435143a2dcf8b7eec9a7710b2fdfe",
+            "version" : "5.7.0"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "BigInt"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "cosmos",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/evgenyneu/Cosmos.git",
+          "name" : "Cosmos"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "40ba10aaf175bf50abefd0e518bd3b40862af3b1",
+            "version" : "25.0.1"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "Cosmos"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "cryptoswift",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
+          "name" : "CryptoSwift"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "e45a26384239e028ec87fbcc788f513b67e10d8f",
+            "version" : "1.9.0"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "CryptoSwift"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "fearless-starscream",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/soramitsu/fearless-starscream",
+          "name" : "Starscream"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "3e1de9baeab87de379e0cb01c64d5db18fbf130f",
+            "version" : "4.0.12"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "fearless-starscream"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "google-api-objectivec-client-for-rest",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/google/google-api-objectivec-client-for-rest.git",
+          "name" : "GoogleAPIClientForREST"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "a8c1e0b1173659d0be452680582c28556372ef74",
+            "version" : "3.5.5"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "google-api-objectivec-client-for-rest"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "googlesignin-ios",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/google/GoogleSignIn-iOS",
+          "name" : "GoogleSignIn"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "a7965d134c5d3567026c523e0a8a583f73b62b0d",
+            "version" : "7.1.0"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "GoogleSignIn-iOS"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "gtm-session-fetcher",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/google/gtm-session-fetcher.git",
+          "name" : "GTMSessionFetcher"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "a2ab612cb980066ee56d90d60d8462992c07f24b",
+            "version" : "3.5.0"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "gtm-session-fetcher"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "gtmappauth",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/google/GTMAppAuth.git",
+          "name" : "GTMAppAuth"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "5d7d66f647400952b1758b230e019b07c0b4b22a",
+            "version" : "4.1.1"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "GTMAppAuth"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "nimble",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/Quick/Nimble",
+          "name" : "Nimble"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "e9d769113660769a4d9dd3afb855562c0b7ae7b0",
+            "version" : "7.3.4"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "Nimble"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "promisekit",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/mxcl/PromiseKit.git",
+          "name" : "PromiseKit"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "8a98e31a47854d3180882c8068cc4d9381bf382d",
+            "version" : "6.22.1"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "PromiseKit"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "qrcode",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/WalletConnect/QRCode",
+          "name" : "QRCode"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "263f280d2c8144adfb0b6676109846cfc8dd552b",
+            "version" : "14.3.1"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "QRCode"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "quick",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/Quick/Quick",
+          "name" : "Quick"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "f2b5a06440ea87eba1a167cab37bf6496646c52e",
+            "version" : "1.3.4"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "Quick"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "reachability.swift",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/ashleymills/Reachability.swift",
+          "name" : "Reachability"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "21d1dc412cfecbe6e34f1f4c4eb88d3f912654a6",
+            "version" : "5.2.4"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "Reachability.swift"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "secp256k1.swift",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/Boilertalk/secp256k1.swift.git",
+          "name" : "secp256k1"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "cd187c632fb812fd93711a9f7e644adb7e5f97f0",
+            "version" : "0.1.7"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "secp256k1.swift"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "shared-features-spm",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/soramitsu/shared-features-spm.git",
+          "name" : "Modules"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "6d6cb16b7f1f12028fe93d50a4e928a938af141e"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "shared-features-spm"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-algorithms",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/apple/swift-algorithms.git",
+          "name" : "swift-algorithms"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "87e50f483c54e6efd60e885f7f5aa946cee68023",
+            "version" : "1.2.1"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-algorithms"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-asn1",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/apple/swift-asn1.git",
+          "name" : "swift-asn1"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "f70225981241859eb4aa1a18a75531d26637c8cc",
+            "version" : "1.4.0"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-asn1"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-async-algorithms",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/apple/swift-async-algorithms.git",
+          "name" : "swift-async-algorithms"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "042e1c4d9d19748c9c228f8d4ebc97bb1e339b0b",
+            "version" : "1.0.4"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-async-algorithms"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-atomics",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/apple/swift-atomics.git",
+          "name" : "swift-atomics"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "b601256eab081c0f92f059e12818ac1d4f178ff7",
+            "version" : "1.3.0"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-atomics"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-certificates",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/apple/swift-certificates.git",
+          "name" : "swift-certificates"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "4b092f15164144c24554e0a75e080a960c5190a6",
+            "version" : "1.14.0"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-certificates"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-collections",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/apple/swift-collections.git",
+          "name" : "swift-collections"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "7b847a3b7008b2dc2f47ca3110d8c782fb2e5c7e",
+            "version" : "1.3.0"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-collections"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-crypto",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/apple/swift-crypto.git",
+          "name" : "swift-crypto"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "95ba0316a9b733e92bb6b071255ff46263bbe7dc",
+            "version" : "3.15.1"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-crypto"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-http-structured-headers",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/apple/swift-http-structured-headers.git",
+          "name" : "swift-http-structured-headers"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "1625f271afb04375bf48737a5572613248d0e7a0",
+            "version" : "1.4.0"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-http-structured-headers"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-http-types",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/apple/swift-http-types.git",
+          "name" : "swift-http-types"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "a0a57e949a8903563aba4615869310c0ebf14c03",
+            "version" : "1.4.0"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-http-types"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-log",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/apple/swift-log.git",
+          "name" : "swift-log"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "ce592ae52f982c847a4efc0dd881cc9eb32d29f2",
+            "version" : "1.6.4"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-log"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-nio",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/apple/swift-nio.git",
+          "name" : "swift-nio"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "a18bddb0acf7a40d982b2f128ce73ce4ee31f352",
+            "version" : "2.86.2"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-nio"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-nio-extras",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/apple/swift-nio-extras.git",
+          "name" : "swift-nio-extras"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "a55c3dd3a81d035af8a20ce5718889c0dcab073d",
+            "version" : "1.29.0"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-nio-extras"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-nio-http2",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/apple/swift-nio-http2.git",
+          "name" : "swift-nio-http2"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "5e9e99ec96c53bc2c18ddd10c1e25a3cd97c55e5",
+            "version" : "1.38.0"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-nio-http2"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-nio-ssl",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/apple/swift-nio-ssl.git",
+          "name" : "swift-nio-ssl"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "b2b043a8810ab6d51b3ff4df17f057d87ef1ec7c",
+            "version" : "2.34.1"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-nio-ssl"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-nio-transport-services",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/apple/swift-nio-transport-services.git",
+          "name" : "swift-nio-transport-services"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "e645014baea2ec1c2db564410c51a656cf47c923",
+            "version" : "1.25.1"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-nio-transport-services"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-numerics",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/apple/swift-numerics.git",
+          "name" : "swift-numerics"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "0c0290ff6b24942dadb83a929ffaaa1481df04a2",
+            "version" : "1.1.1"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-numerics"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-qrcode-generator",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/dagronf/swift-qrcode-generator",
+          "name" : "swift-qrcode-generator"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "5ca09b6a2ad190f94aa3d6ddef45b187f8c0343b",
+            "version" : "1.0.3"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-qrcode-generator"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-service-lifecycle",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/swift-server/swift-service-lifecycle.git",
+          "name" : "swift-service-lifecycle"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "e7187309187695115033536e8fc9b2eb87fd956d",
+            "version" : "2.8.0"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-service-lifecycle"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swift-system",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/apple/swift-system.git",
+          "name" : "swift-system"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "395a77f0aa927f0ff73941d7ac35f2b46d47c9db",
+            "version" : "1.6.3"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "swift-system"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swiftimagereadwrite",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/dagronf/SwiftImageReadWrite",
+          "name" : "SwiftImageReadWrite"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "5596407d1cf61b953b8e658fa8636a471df3c509",
+            "version" : "1.1.6"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "SwiftImageReadWrite"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swiftybeaver",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/SwiftyBeaver/SwiftyBeaver.git",
+          "name" : "SwiftyBeaver"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "8cba041db09596183331d123f337d0eb2e6e8e91",
+            "version" : "2.1.1"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "SwiftyBeaver"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "swime",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/sendyhalim/Swime",
+          "name" : "Swime"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "4e538834483059ceefaaad8cdb3abe0d7d1c5146",
+            "version" : "3.1.0"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "Swime"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "tweetnacl-swiftwrap",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/bitmark-inc/tweetnacl-swiftwrap",
+          "name" : "TweetNacl"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "f8fd111642bf2336b11ef9ea828510693106e954",
+            "version" : "1.1.0"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "tweetnacl-swiftwrap"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "walletconnectswiftv2",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/WalletConnect/WalletConnectSwiftV2",
+          "name" : "WalletConnect"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "58d2b49eeac5cf94432e2647b9107577c156a25c",
+            "version" : "1.9.9"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "WalletConnectSwiftV2"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "web3-swift",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/soramitsu/web3-swift",
+          "name" : "Web3"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "a526779488e5fe2fa993d9614f11f57b00cc1858",
+            "version" : "7.7.7"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "web3-swift"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "websocket-kit",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/vapor/websocket-kit",
+          "name" : "websocket-kit"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "8666c92dbbb3c8eefc8008c9c8dcf50bfd302167",
+            "version" : "2.16.1"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "websocket-kit"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "xxhash-swift",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/daisuke-t-jp/xxHash-Swift",
+          "name" : "xxHash-Swift"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "e86a07ab4867f81481d430e1370a5ec97b6e3359",
+            "version" : "1.1.1"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "xxHash-Swift"
+      }
+    ],
+    "prebuilts" : [
+
+    ]
+  },
+  "version" : 7
+}

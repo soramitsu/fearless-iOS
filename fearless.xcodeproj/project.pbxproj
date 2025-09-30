@@ -1488,7 +1488,7 @@
 		C61166692B3BFA9000F483C4 /* NftHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61166682B3BFA9000F483C4 /* NftHeaderCell.swift */; };
 		C611666C2B3C03B800F483C4 /* NftHeaderCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C611666B2B3C03B800F483C4 /* NftHeaderCellViewModel.swift */; };
 		C6182B0F2C631AAC0089558D /* IrohaCrypto in Frameworks */ = {isa = PBXBuildFile; productRef = C6182B0E2C631AAC0089558D /* IrohaCrypto */; };
-		C6182B112C631AAC0089558D /* MPQRCoreSDK in Frameworks */ = {isa = PBXBuildFile; productRef = C6182B102C631AAC0089558D /* MPQRCoreSDK */; };
+/* removed duplicate direct dependency on MPQRCoreSDK; use SSFQRService which depends on it */
 		C6182B132C631AAC0089558D /* RobinHood in Frameworks */ = {isa = PBXBuildFile; productRef = C6182B122C631AAC0089558D /* RobinHood */; };
 		C6182B152C631AAC0089558D /* SSFAccountManagment in Frameworks */ = {isa = PBXBuildFile; productRef = C6182B142C631AAC0089558D /* SSFAccountManagment */; };
 		C6182B172C631AAC0089558D /* SSFAccountManagmentStorage in Frameworks */ = {isa = PBXBuildFile; productRef = C6182B162C631AAC0089558D /* SSFAccountManagmentStorage */; };
@@ -6067,7 +6067,7 @@
 				C6182B3B2C631AAC0089558D /* SSFSigner in Frameworks */,
 				C6182B2B2C631AAC0089558D /* SSFLogger in Frameworks */,
 				C6182B2F2C631AAC0089558D /* SSFNetwork in Frameworks */,
-				C6182B112C631AAC0089558D /* MPQRCoreSDK in Frameworks */,
+				/* C6182B112C631AAC0089558D MPQRCoreSDK in Frameworks removed */
 				C6182B292C631AAC0089558D /* SSFKeyPair in Frameworks */,
 				C6182B2D2C631AAC0089558D /* SSFModels in Frameworks */,
 				C6182B3F2C631AAC0089558D /* SSFStorageQueryKit in Frameworks */,
@@ -19262,7 +19262,8 @@
         repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
         requirement = {
                 kind = revision;
-                revision = 2b13aea1e4284e8c47204895ace1f56ae2536212;
+                // Pinned to a revision verified with Xcode 16/18 to avoid IrohaCrypto module map issues
+                revision = 6d6cb16b7f1f12028fe93d50a4e928a938af141e;
         };
 		};
 		FA8FD1862AF4BEDD00354482 /* XCRemoteSwiftPackageReference "Swime" */ = {
@@ -19275,10 +19276,10 @@
 		};
 		FAB482E92C58A8AA00594D89 /* XCRemoteSwiftPackageReference "web3-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/bnsports/Web3.swift.git";
+			repositoryURL = "https://github.com/soramitsu/web3-swift";
 			requirement = {
 				kind = exactVersion;
-				version = 7.7.9;
+				version = 7.7.7;
 			};
 		};
 		FAF600732C48D79500E56558 /* XCRemoteSwiftPackageReference "Cosmos" */ = {
@@ -19296,10 +19297,7 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = IrohaCrypto;
 		};
-		C6182B102C631AAC0089558D /* MPQRCoreSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MPQRCoreSDK;
-		};
+/* C6182B102C631AAC0089558D MPQRCoreSDK product dependency removed */
 		C6182B122C631AAC0089558D /* RobinHood */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = RobinHood;

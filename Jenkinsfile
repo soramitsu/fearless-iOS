@@ -68,8 +68,11 @@ for dd in "$HOME/Library/Developer/Xcode/DerivedData"/*; do
 done
 
 # Resolve Swift Package dependencies only if the workspace is present (post-checkout)
-if [ -f fearless.xcworkspace/contents.xcworkspacedata ] || [ -f fearless.xcworkspace ]; then
+  if [ -f fearless.xcworkspace/contents.xcworkspacedata ] || [ -f fearless.xcworkspace ]; then
   export SP_DIR="$WORKSPACE/SourcePackages"
+  # Clean previous SPM state to avoid sticky duplicates (e.g., Web3 registry vs source)
+  rm -rf "$SP_DIR" || true
+  rm -f "$WORKSPACE/fearless.xcworkspace/xcshareddata/swiftpm/Package.resolved" || true
   mkdir -p "$SP_DIR" || true
   xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath "$SP_DIR" || true
   # Apply IrohaCrypto module.modulemap umbrella hotfix directly in workspace SourcePackages checkout
@@ -82,6 +85,10 @@ if [ -f fearless.xcworkspace/contents.xcworkspacedata ] || [ -f fearless.xcworks
     [ -f "$par_dir/IrohaCrypto-umbrella.h" ] || printf '%s\n%s\n' "// Temporary umbrella (parent)" "#import <Foundation/Foundation.h>" > "$par_dir/IrohaCrypto-umbrella.h"
     echo "[debug] module.modulemap contents:"; sed -n '1,120p' "$IROHA_MM" || true
     echo "[debug] include dir listing:"; ls -la "$inc_dir" || true
+  fi
+  # Apply manifest fixes for shared-features-spm (e.g., SSFModels -> RobinHood)
+  if [ -x scripts/spm-shared-features-fixes.sh ]; then
+    scripts/spm-shared-features-fixes.sh "$WORKSPACE" || true
   fi
   # Ensure Git LFS binaries within SPM checkouts (e.g., MPQRCoreSDK) are pulled
   if ! command -v git-lfs >/dev/null 2>&1; then
@@ -211,6 +218,8 @@ set -euxo pipefail
 # Ensure SPM is resolved
 export SP_DIR="${SP_DIR:-$WORKSPACE/SourcePackages}"
 if [ -f fearless.xcworkspace/contents.xcworkspacedata ]; then
+  # Clear any previous resolution and resolve afresh to pick up mirrors/pins
+  rm -f "$WORKSPACE/fearless.xcworkspace/xcshareddata/swiftpm/Package.resolved" || true
   xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath "$SP_DIR" || true
   # Re-apply IrohaCrypto hotfix after resolve (resolve can reset files)
   IROHA_MM="$SP_DIR/checkouts/shared-features-spm/Sources/IrohaCrypto/include/module.modulemap"
@@ -222,6 +231,9 @@ if [ -f fearless.xcworkspace/contents.xcworkspacedata ]; then
     [ -f "$par_dir/IrohaCrypto-umbrella.h" ] || printf '%s\n%s\n' "// Temporary umbrella (parent)" "#import <Foundation/Foundation.h>" > "$par_dir/IrohaCrypto-umbrella.h"
     echo "[debug] module.modulemap contents (PR step):"; sed -n '1,120p' "$IROHA_MM" || true
     echo "[debug] include dir listing (PR step):"; ls -la "$inc_dir" || true
+  fi
+  if [ -x scripts/spm-shared-features-fixes.sh ]; then
+    scripts/spm-shared-features-fixes.sh "$WORKSPACE" || true
   fi
 else
   echo "Workspace not found; aborting PR simulator build." >&2

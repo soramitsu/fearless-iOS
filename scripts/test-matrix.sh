@@ -7,10 +7,10 @@ set -euo pipefail
 #   scripts/test-matrix.sh [SCHEME] [DESTINATION]
 # Defaults:
 #   SCHEME=fearless
-#   DESTINATION="platform=iOS Simulator,OS=latest,name=iPhone 15"
+#   DESTINATION="platform=iOS Simulator,name=Any iOS Simulator Device"
 
 SCHEME="${1:-fearless}"
-DEST="${2:-platform=iOS Simulator,OS=latest,name=iPhone 15}"
+DEST="${2:-platform=iOS Simulator,name=Any iOS Simulator Device}"
 WORKSPACE="fearless.xcworkspace"
 
 echo "==> Using scheme: ${SCHEME}"
