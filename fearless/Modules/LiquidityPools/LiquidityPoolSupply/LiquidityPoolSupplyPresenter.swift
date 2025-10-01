@@ -513,7 +513,7 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyInteractorOutput {
         logger.customError(error)
     }
 
-    func didReceivePoolAPY(apyInfo: SSFPolkaswap.PoolApyInfo?) {
+    func didReceivePoolAPY(apyInfo: PoolApyInfo?) {
         self.apyInfo = apyInfo
         provideViewModel()
     }

@@ -291,7 +291,7 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmViewOut
 // MARK: - LiquidityPoolSupplyConfirmInteractorOutput
 
 extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmInteractorOutput {
-    func didReceivePoolAPY(apyInfo: SSFPolkaswap.PoolApyInfo?) {
+    func didReceivePoolAPY(apyInfo: PoolApyInfo?) {
         self.apyInfo = apyInfo
         provideViewModel()
     }
