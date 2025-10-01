@@ -20,6 +20,29 @@ extension ChainModel {
     }
 }
 
+// MARK: - Polkadot Runtime Compatibility (in-target shim)
+enum PolkadotRuntimeCompatibility {
+    enum BlockProviderHint { case relay, local }
+    enum Pallet { case vesting, multisig, proxy, nfts }
+
+    static let assetHubParaIds: Set<String> = ["1000"]
+
+    static func blockProviderHint(for pallet: Pallet, on chain: ChainModel) -> BlockProviderHint? {
+        guard let paraId = chain.paraId, assetHubParaIds.contains(paraId) else { return nil }
+        switch pallet {
+        case .vesting: return .relay
+        case .multisig: return .local
+        case .proxy: return .relay
+        case .nfts: return .relay
+        }
+    }
+
+    static func isTrustedAliaser(chain: ChainModel) -> Bool {
+        guard let paraId = chain.paraId else { return false }
+        return assetHubParaIds.contains(paraId)
+    }
+}
+
 // MARK: - Wallet connect
 
 extension ChainModel {
