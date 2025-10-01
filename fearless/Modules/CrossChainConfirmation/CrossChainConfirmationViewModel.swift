@@ -8,4 +8,5 @@ struct CrossChainConfirmationViewModel {
     let amount: String
     let originalChainFee: BalanceViewModelProtocol
     let destChainFee: BalanceViewModelProtocol
+    let originPreservationNote: String?
 }

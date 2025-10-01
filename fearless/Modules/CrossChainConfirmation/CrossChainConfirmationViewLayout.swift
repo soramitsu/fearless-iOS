@@ -53,6 +53,7 @@ final class CrossChainConfirmationViewLayout: UIView {
     let destNetworkView = UIFactory.default.createConfirmationMultiView()
     let originalChainFeeView = UIFactory.default.createConfirmationMultiView()
     let destChainFeeView = UIFactory.default.createConfirmationMultiView()
+    let originPreservationView = UIFactory.default.createConfirmationMultiView()
 
     let confirmButton: TriangularedButton = {
         let button = TriangularedButton()
@@ -91,6 +92,16 @@ final class CrossChainConfirmationViewLayout: UIView {
         destNetworkView.valueTop.text = confirmViewModel.destNetworkName
         originalChainFeeView.bindBalance(viewModel: confirmViewModel.originalChainFee)
         destChainFeeView.bindBalance(viewModel: confirmViewModel.destChainFee)
+
+        if let note = confirmViewModel.originPreservationNote {
+            originPreservationView.isHidden = false
+            originPreservationView.titleLabel.text = "XCM Origin Preservation"
+            originPreservationView.valueTop.text = note
+        } else {
+            originPreservationView.isHidden = true
+            originPreservationView.titleLabel.text = nil
+            originPreservationView.valueTop.text = nil
+        }
     }
 
     private func configure() {
@@ -149,6 +160,7 @@ final class CrossChainConfirmationViewLayout: UIView {
         infoViewsStackView.addArrangedSubview(destNetworkView)
         infoViewsStackView.addArrangedSubview(originalChainFeeView)
         infoViewsStackView.addArrangedSubview(destChainFeeView)
+        infoViewsStackView.addArrangedSubview(originPreservationView)
 
         navigationBar.snp.makeConstraints { make in
             make.leading.top.trailing.equalToSuperview()
@@ -190,7 +202,8 @@ final class CrossChainConfirmationViewLayout: UIView {
             destNetworkView,
             sendToView,
             originalChainFeeView,
-            destChainFeeView
+            destChainFeeView,
+            originPreservationView
         ].forEach { makeCellHeightConstraints(for: $0) }
     }
 }
