@@ -13,6 +13,7 @@ final class BalanceLocksDetailViewController: UIViewController, ViewHolder {
     private var liquidityPoolsViewModel: LocalizableResource<BalanceViewModelProtocol>?
     private var governanceViewModel: LocalizableResource<BalanceViewModelProtocol>?
     private var crowdloanViewModel: LocalizableResource<BalanceViewModelProtocol>?
+    private var vestingHint: String?
     private var totalViewModel: LocalizableResource<BalanceViewModelProtocol>?
     private var assetFrozenViewModel: LocalizableResource<BalanceViewModelProtocol>?
     private var assetBlockedViewModel: LocalizableResource<BalanceViewModelProtocol>?
@@ -67,6 +68,14 @@ extension BalanceLocksDetailViewController: BalanceLocksDetailViewInput {
         crowdloanViewModel = viewModel
 
         rootView.crowdloansView.bindBalance(viewModel: viewModel?.value(for: selectedLocale))
+        // If there is a vesting hint (parachain/Asset Hub case), show it under the value
+        rootView.crowdloansView.valueBottom.text = vestingHint
+    }
+
+    @MainActor func didReceiveVestingHint(_ hint: String?) async {
+        vestingHint = hint
+        // Refresh bottom value if view model is already set
+        rootView.crowdloansView.valueBottom.text = vestingHint
     }
 
     @MainActor func didReceiveStakingLocksViewModel(_ viewModel: BalanceLocksDetailStakingViewModel?) async {
