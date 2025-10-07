@@ -250,7 +250,8 @@ fi
   if xcrun simctl list devices | grep -Fq "iPhone 17"; then
     DEST_STR="platform=iOS Simulator,name=iPhone 17"
   else
-    FIRST_IPHONE=$(xcrun simctl list devices | grep -F "iPhone " | head -n1 | awk -F ' \(' '{print $1}' || true)
+    # Select first available iPhone simulator name safely (Groovy-friendly)
+    FIRST_IPHONE=$(xcrun simctl list devices | grep -F "iPhone " | head -n1 | cut -d '(' -f1 | sed 's/[[:space:]]*$//' || true)
     if [ -n "$FIRST_IPHONE" ]; then
       DEST_STR="platform=iOS Simulator,name=$FIRST_IPHONE"
     fi
