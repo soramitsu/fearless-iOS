@@ -12,21 +12,37 @@ BASE_DIR="${1:-$(pwd)}"
 
 patch_manifest() {
   local pkg_swift="$1/SourcePackages/checkouts/shared-features-spm/Package.swift"
-  if [[ -f "$pkg_swift" ]]; then
-    if /usr/bin/grep -q 'name:\s*"SSFModels"' "$pkg_swift"; then
-      # Ensure RobinHood present
-      if ! /usr/bin/grep -q 'target(\s*name:\s*"SSFModels"[\s\S]*dependencies:\s*\[[^]]*RobinHood' "$pkg_swift"; then
-        echo "[spm-fixes] Adding RobinHood to SSFModels dependencies in $pkg_swift"
-        /usr/bin/sed -i '' -e 's/dependencies:\s*\[\s*"IrohaCrypto"\s*\]/dependencies: [ "IrohaCrypto", "RobinHood" ]/' "$pkg_swift" || true
-      fi
-      # Ensure BigInt present
-      if ! /usr/bin/grep -q 'target(\s*name:\s*"SSFModels"[\s\S]*dependencies:\s*\[[^]]*BigInt' "$pkg_swift"; then
-        echo "[spm-fixes] Adding BigInt to SSFModels dependencies in $pkg_swift"
-        /usr/bin/sed -i '' -e 's/dependencies:\s*\[\s*"IrohaCrypto"\(,\s*"RobinHood"\)\?\s*\]/dependencies: [ "IrohaCrypto", "RobinHood", "BigInt" ]/' "$pkg_swift" || true
-      fi
+  if [[ ! -f "$pkg_swift" ]]; then
+    echo "[spm-fixes] Package.swift not found at $pkg_swift (skip)"
+    return 0
+  fi
+
+  # Rewrite the SSFModels target dependencies line to include RobinHood and BigInt, using awk for BSD portability
+  local tmp_file
+  tmp_file=$(mktemp)
+  awk '
+    BEGIN{in_models=0; patched=0}
+    /name:[[:space:]]*"SSFModels"/ {in_models=1}
+    in_models==1 && /dependencies:[[:space:]]*\[/ {
+      # Replace the entire dependencies array for SSFModels
+      print "            dependencies: [ \"IrohaCrypto\", \"RobinHood\", \"BigInt\" ]";
+      patched=1; next
+    }
+    /\)\s*,\s*$/ { if(in_models==1){ in_models=0 } }
+    { print }
+    END{ if(patched==1) { } }
+  ' "$pkg_swift" > "$tmp_file"
+
+  if ! diff -q "$pkg_swift" "$tmp_file" >/dev/null 2>&1; then
+    echo "[spm-fixes] Updated SSFModels dependencies in $pkg_swift"
+    if mv "$tmp_file" "$pkg_swift" 2>/dev/null; then
+      :
+    else
+      echo "[spm-fixes] Skipping write (no permission) for $pkg_swift in this environment" >&2
+      rm -f "$tmp_file"
     fi
   else
-    echo "[spm-fixes] Package.swift not found at $pkg_swift (skip)"
+    rm -f "$tmp_file"
   fi
 }
 
