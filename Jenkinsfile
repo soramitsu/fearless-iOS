@@ -247,10 +247,10 @@ fi
   mkdir -p build || true
   # Pick a concrete iOS Simulator device when available (prefer iPhone 17)
   DEST_STR="generic/platform=iOS Simulator"
-  if xcrun simctl list devices | grep -q "iPhone 17"; then
+  if xcrun simctl list devices | grep -Fq "iPhone 17"; then
     DEST_STR="platform=iOS Simulator,name=iPhone 17"
   else
-    FIRST_IPHONE=$(xcrun simctl list devices | grep -E "^\s*iPhone .*\((Booted|Shutdown)\)" | head -n1 | sed -E 's/^\s*([^\(]+)\s*\(.*/\1/' || true)
+    FIRST_IPHONE=$(xcrun simctl list devices | grep -F "iPhone " | head -n1 | awk -F ' \(' '{print $1}' || true)
     if [ -n "$FIRST_IPHONE" ]; then
       DEST_STR="platform=iOS Simulator,name=$FIRST_IPHONE"
     fi
