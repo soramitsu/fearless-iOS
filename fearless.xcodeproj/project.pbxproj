@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FAFE10062DCAF11200E5C0DE /* ModelsCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFE10022DCAF11100E5C0DE /* ModelsCompatibility.swift */; };
+		FAFE10072DCAF11200E5C0DE /* NetworkWorkerCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFE10032DCAF11100E5C0DE /* NetworkWorkerCompatibility.swift */; };
+		FAFE10082DCAF11200E5C0DE /* Data+Bytes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFE10042DCAF11100E5C0DE /* Data+Bytes.swift */; };
+		FAFE10092DCAF11200E5C0DE /* PriceData+Identifiable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFE10052DCAF11100E5C0DE /* PriceData+Identifiable.swift */; };
 		002561414AF1F8F3B4B65538 /* WalletTransactionDetailsWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7416F3AFA5F4D1130B1C410 /* WalletTransactionDetailsWireframe.swift */; };
 		0077B6854FDCA7ECCD557B09 /* StakingPoolCreateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D651E438F86F37CC07D6D3F /* StakingPoolCreateViewController.swift */; };
 		00E9DD69FCE94A4F4929B419 /* AccountStatisticsProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BF646F59913E95891915BDC /* AccountStatisticsProtocols.swift */; };
@@ -3025,6 +3029,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FAFE10022DCAF11100E5C0DE /* ModelsCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ModelsCompatibility.swift; path = "Common/Compatibility/ModelsCompatibility.swift"; sourceTree = SOURCE_ROOT; };
+		FAFE10032DCAF11100E5C0DE /* NetworkWorkerCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NetworkWorkerCompatibility.swift; path = "Common/Compatibility/NetworkWorkerCompatibility.swift"; sourceTree = SOURCE_ROOT; };
+		FAFE10042DCAF11100E5C0DE /* Data+Bytes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Data+Bytes.swift"; path = "Common/Compatibility/Data+Bytes.swift"; sourceTree = SOURCE_ROOT; };
+		FAFE10052DCAF11100E5C0DE /* PriceData+Identifiable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "PriceData+Identifiable.swift"; path = "Common/Compatibility/PriceData+Identifiable.swift"; sourceTree = SOURCE_ROOT; };
 		002A29AE58EB53E915330490 /* ControllerAccountViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountViewFactory.swift; sourceTree = "<group>"; };
 		0033D320A9033F5200279087 /* SelectedValidatorListFlow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SelectedValidatorListFlow.swift; sourceTree = "<group>"; };
 		003FA37F2B240C5D7605340D /* StakingMainInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingMainInteractor.swift; sourceTree = "<group>"; };
@@ -8914,6 +8922,7 @@
 		849013D124A92686008F705E /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				FAFE10012DCAF11000E5C0DE /* Compatibility */,
 				FAC6CD9B2BA8096D0013A17E /* Localization */,
 				FA6C178F2993601A00A55254 /* AddressChainDefiner */,
 				07FBC9E328BE269F00ED65B4 /* ChainIssuesCenter */,
