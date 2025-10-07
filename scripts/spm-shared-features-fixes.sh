@@ -17,24 +17,30 @@ patch_manifest() {
     return 0
   fi
 
-  # Rewrite the SSFModels target dependencies line to include RobinHood and BigInt, using awk for BSD portability
+  # Rewrite the SSFModels target dependencies line to include RobinHood and BigInt.
+  # Try sed first for common single-line forms; fall back to awk block rewrite.
   local tmp_file
   tmp_file=$(mktemp)
-  awk '
-    BEGIN{in_models=0; patched=0}
-    /name:[[:space:]]*"SSFModels"/ {in_models=1}
-    in_models==1 && /dependencies:[[:space:]]*\[/ {
-      # Replace the entire dependencies array for SSFModels
-      print "            dependencies: [ \"IrohaCrypto\", \"RobinHood\", \"BigInt\" ]";
-      patched=1; next
-    }
-    /\)\s*,\s*$/ { if(in_models==1){ in_models=0 } }
-    { print }
-    END{ if(patched==1) { } }
-  ' "$pkg_swift" > "$tmp_file"
+  # sed path: only replace the simple single-line list when present
+  if /usr/bin/grep -qE 'name:[[:space:]]*"SSFModels"' "$pkg_swift" && \
+     /usr/bin/grep -qE 'target\([[:space:]]*name:[[:space:]]*"SSFModels"[\s\S]*dependencies:[[:space:]]*\[[[:space:]]*"IrohaCrypto"[[:space:]]*\]' "$pkg_swift"; then
+    /usr/bin/sed -E 's/(target\([[:space:]]*name:[[:space:]]*"SSFModels"[\s\S]*dependencies:[[:space:]]*)\[[^\]]*\]/\1[ "IrohaCrypto", "RobinHood", "BigInt" ]/' "$pkg_swift" > "$tmp_file" || cp "$pkg_swift" "$tmp_file"
+  else
+    awk '
+      BEGIN{in_models=0; patched=0}
+      /name:[[:space:]]*"SSFModels"/ {in_models=1}
+      in_models==1 && /dependencies:[[:space:]]*\[/ {
+        print "            dependencies: [ \"IrohaCrypto\", \"RobinHood\", \"BigInt\" ]";
+        patched=1; next
+      }
+      /\)\s*,\s*$/ { if(in_models==1){ in_models=0 } }
+      { print }
+    ' "$pkg_swift" > "$tmp_file"
+  fi
 
   if ! diff -q "$pkg_swift" "$tmp_file" >/dev/null 2>&1; then
     echo "[spm-fixes] Updated SSFModels dependencies in $pkg_swift"
+    /usr/bin/grep -nE 'target\([[:space:]]*name:[[:space:]]*"SSFModels"|dependencies:[[:space:]]*\[' "$tmp_file" | sed -n '1,6p' || true
     if mv "$tmp_file" "$pkg_swift" 2>/dev/null; then
       :
     else
