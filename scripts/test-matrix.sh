@@ -30,17 +30,30 @@ function run_tests() {
     # Ensure testability for Release builds when running unit tests on simulator
     extra+=(ENABLE_TESTABILITY=YES)
   fi
-  xcodebuild \
-    -workspace "${WORKSPACE}" \
-    -scheme "${SCHEME}" \
-    -configuration "${config}" \
-    -destination "${DEST}" \
-    -enableCodeCoverage YES \
-    "${extra[@]}" \
-    clean test | xcpretty || {
-      echo "xcodebuild ${config} tests failed" >&2
-      exit 1
-    }
+  if ((${#extra[@]})); then
+    xcodebuild \
+      -workspace "${WORKSPACE}" \
+      -scheme "${SCHEME}" \
+      -configuration "${config}" \
+      -destination "${DEST}" \
+      -enableCodeCoverage YES \
+      "${extra[@]}" \
+      clean test | xcpretty || {
+        echo "xcodebuild ${config} tests failed" >&2
+        exit 1
+      }
+  else
+    xcodebuild \
+      -workspace "${WORKSPACE}" \
+      -scheme "${SCHEME}" \
+      -configuration "${config}" \
+      -destination "${DEST}" \
+      -enableCodeCoverage YES \
+      clean test | xcpretty || {
+        echo "xcodebuild ${config} tests failed" >&2
+        exit 1
+      }
+  fi
 }
 
 # Ensure tooling available
@@ -58,14 +71,24 @@ if ! command -v xcpretty >/dev/null 2>&1; then
     if [[ "${config}" == "Release" ]]; then
       extra+=(ENABLE_TESTABILITY=YES)
     fi
-    xcodebuild \
-      -workspace "${WORKSPACE}" \
-      -scheme "${SCHEME}" \
-      -configuration "${config}" \
-      -destination "${DEST}" \
-      -enableCodeCoverage YES \
-      "${extra[@]}" \
-      clean test
+    if ((${#extra[@]})); then
+      xcodebuild \
+        -workspace "${WORKSPACE}" \
+        -scheme "${SCHEME}" \
+        -configuration "${config}" \
+        -destination "${DEST}" \
+        -enableCodeCoverage YES \
+        "${extra[@]}" \
+        clean test
+    else
+      xcodebuild \
+        -workspace "${WORKSPACE}" \
+        -scheme "${SCHEME}" \
+        -configuration "${config}" \
+        -destination "${DEST}" \
+        -enableCodeCoverage YES \
+        clean test
+    fi
   }
 fi
 

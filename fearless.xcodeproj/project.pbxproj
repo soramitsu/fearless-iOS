@@ -19270,14 +19270,10 @@
                 revision = 6d6cb16b7f1f12028fe93d50a4e928a938af141e;
         };
 		};
-		FAFE00012DCAF00100E5C0DE /* XCRemoteSwiftPackageReference "FearlessUtilsCompat" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "Packages/FearlessUtilsCompat";
-			requirement = {
-				kind = branch;
-				branch = main;
-			};
-		};
+        FAFE00012DCAF00100E5C0DE /* XCLocalSwiftPackageReference "FearlessUtilsCompat" */ = {
+            isa = XCLocalSwiftPackageReference;
+            relativePath = "Packages/FearlessUtilsCompat";
+        };
 		FA8FD1862AF4BEDD00354482 /* XCRemoteSwiftPackageReference "Swime" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sendyhalim/Swime";
