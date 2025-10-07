@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FAFE10AB2DCAF13000E5C0DE /* LiquidityPoolsCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFE10AA2DCAF13000E5C0DE /* LiquidityPoolsCompatibility.swift */; };
 		FAFE10062DCAF11200E5C0DE /* ModelsCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFE10022DCAF11100E5C0DE /* ModelsCompatibility.swift */; };
 		FAFE10072DCAF11200E5C0DE /* NetworkWorkerCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFE10032DCAF11100E5C0DE /* NetworkWorkerCompatibility.swift */; };
 		FAFE10082DCAF11200E5C0DE /* Data+Bytes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFE10042DCAF11100E5C0DE /* Data+Bytes.swift */; };
@@ -3029,6 +3030,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FAFE10AA2DCAF13000E5C0DE /* LiquidityPoolsCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiquidityPoolsCompatibility.swift; path = "Common/Compatibility/LiquidityPoolsCompatibility.swift"; sourceTree = SOURCE_ROOT; };
 		FAFE10022DCAF11100E5C0DE /* ModelsCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ModelsCompatibility.swift; path = "Common/Compatibility/ModelsCompatibility.swift"; sourceTree = SOURCE_ROOT; };
 		FAFE10032DCAF11100E5C0DE /* NetworkWorkerCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NetworkWorkerCompatibility.swift; path = "Common/Compatibility/NetworkWorkerCompatibility.swift"; sourceTree = SOURCE_ROOT; };
 		FAFE10042DCAF11100E5C0DE /* Data+Bytes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Data+Bytes.swift"; path = "Common/Compatibility/Data+Bytes.swift"; sourceTree = SOURCE_ROOT; };
