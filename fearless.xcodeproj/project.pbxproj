@@ -51,6 +51,7 @@
 		070CDD8A2ACBE59700F3F20A /* ReceiveAndRequestAssetAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070CDD812ACBE59700F3F20A /* ReceiveAndRequestAssetAssembly.swift */; };
 		070CDD8B2ACBE59700F3F20A /* ReceiveAndRequestAssetProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070CDD822ACBE59700F3F20A /* ReceiveAndRequestAssetProtocols.swift */; };
 		070CDD8C2ACBE59700F3F20A /* ReceiveAndRequestAssetInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070CDD832ACBE59700F3F20A /* ReceiveAndRequestAssetInteractor.swift */; };
+		FAFE00032DCAF00100E5C0DE /* FearlessUtils in Frameworks */ = {isa = PBXBuildFile; productRef = FAFE00022DCAF00100E5C0DE /* FearlessUtils */; };
 		0713097D28C63893002B17D0 /* ScamSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0713097C28C63893002B17D0 /* ScamSyncService.swift */; };
 		0713097F28C6F60D002B17D0 /* ScamSyncServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0713097E28C6F60D002B17D0 /* ScamSyncServiceFactory.swift */; };
 		0713098128C6F7BB002B17D0 /* CDScamInfo+CoreDataCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0713098028C6F7BB002B17D0 /* CDScamInfo+CoreDataCodable.swift */; };
@@ -6061,6 +6062,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAFE00032DCAF00100E5C0DE /* FearlessUtils in Frameworks */,
 				C6182B212C631AAC0089558D /* SSFCrypto in Frameworks */,
 				C6182B272C631AAC0089558D /* SSFHelpers in Frameworks */,
 				C6182B172C631AAC0089558D /* SSFAccountManagmentStorage in Frameworks */,
@@ -15378,6 +15380,7 @@
 				FAB482EA2C58A8AA00594D89 /* Web3 */,
 				FAB482EC2C58A8AA00594D89 /* Web3ContractABI */,
 				FAB482EE2C58A8AA00594D89 /* Web3PromiseKit */,
+				FAFE00022DCAF00100E5C0DE /* FearlessUtils */,
 			);
 			productName = fearless;
 			productReference = 849013A824A80984008F705E /* fearless.app */;
@@ -15450,6 +15453,7 @@
 				FA8810962BDCAF260084CC4B /* XCRemoteSwiftPackageReference "shared-features-spm" */,
 				FAF600732C48D79500E56558 /* XCRemoteSwiftPackageReference "Cosmos" */,
 				FAB482E92C58A8AA00594D89 /* XCRemoteSwiftPackageReference "Web3.swift" */,
+				FAFE00012DCAF00100E5C0DE /* XCRemoteSwiftPackageReference "FearlessUtilsCompat" */,
 			);
 			productRefGroup = 849013A924A80984008F705E /* Products */;
 			projectDirPath = "";
@@ -19266,6 +19270,14 @@
                 revision = 6d6cb16b7f1f12028fe93d50a4e928a938af141e;
         };
 		};
+		FAFE00012DCAF00100E5C0DE /* XCRemoteSwiftPackageReference "FearlessUtilsCompat" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "Packages/FearlessUtilsCompat";
+			requirement = {
+				kind = branch;
+				branch = main;
+			};
+		};
 		FA8FD1862AF4BEDD00354482 /* XCRemoteSwiftPackageReference "Swime" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sendyhalim/Swime";
@@ -19459,6 +19471,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = FAF600732C48D79500E56558 /* XCRemoteSwiftPackageReference "Cosmos" */;
 			productName = Cosmos;
+		};
+		FAFE00022DCAF00100E5C0DE /* FearlessUtils */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FAFE00012DCAF00100E5C0DE /* XCRemoteSwiftPackageReference "FearlessUtilsCompat" */;
+			productName = FearlessUtils;
 		};
 /* End XCSwiftPackageProductDependency section */
 
