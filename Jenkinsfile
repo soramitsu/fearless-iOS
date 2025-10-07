@@ -44,6 +44,9 @@ try {
 }
 node('mac-fearless') {
   withEnv(envList) {
+    // Clean workspace to avoid stale Git objects breaking PR fetch
+    deleteDir()
+    echo 'Workspace cleaned to avoid stale Git object graph.'
     // Ensure repository is checked out so workspace files exist
     checkout scm
     // Pre-resolve SPM packages, install CocoaPods, and repair IrohaCrypto module map path + stub header
