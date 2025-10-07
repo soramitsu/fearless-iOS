@@ -16,6 +16,23 @@ WORKSPACE="fearless.xcworkspace"
 echo "==> Using scheme: ${SCHEME}"
 echo "==> Destination: ${DEST}"
 
+# If destination is a placeholder, pick a concrete available simulator (preferring iPhone 17)
+if [[ "$DEST" == *"Any iOS Simulator Device"* ]]; then
+  echo "==> Autodetecting a concrete simulator device"
+  if xcrun simctl list devices | grep -q "iPhone 17"; then
+    DEV_NAME="iPhone 17"
+  else
+    DEV_NAME=$(xcrun simctl list devices | grep -E "^\s*iPhone .*\((Booted|Shutdown)\)" | head -n1 | sed -E 's/^\s*([^\(]+)\s*\(.*/\1/' || true)
+  fi
+  if [[ -n "${DEV_NAME:-}" ]]; then
+    DEST="platform=iOS Simulator,name=${DEV_NAME}"
+  else
+    # Fallback: leave generic platform spec (build-only may work; tests might still need a device)
+    DEST="generic/platform=iOS Simulator"
+  fi
+  echo "==> Using detected destination: ${DEST}"
+fi
+
 # Apply SPM IrohaCrypto hotfix so SSFModels can import IrohaCrypto under Xcode 16+
 if [ -x "scripts/spm-iroha-hotfix.sh" ]; then
   echo "\n==> Applying SPM IrohaCrypto hotfix"

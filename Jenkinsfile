@@ -245,11 +245,22 @@ fi
 
   # Simulator-only builds for PRs (no signing). On failure, surface the raw error and stop.
   mkdir -p build || true
+  # Pick a concrete iOS Simulator device when available (prefer iPhone 17)
+  DEST_STR="generic/platform=iOS Simulator"
+  if xcrun simctl list devices | grep -q "iPhone 17"; then
+    DEST_STR="platform=iOS Simulator,name=iPhone 17"
+  else
+    FIRST_IPHONE=$(xcrun simctl list devices | grep -E "^\s*iPhone .*\((Booted|Shutdown)\)" | head -n1 | sed -E 's/^\s*([^\(]+)\s*\(.*/\1/' || true)
+    if [ -n "$FIRST_IPHONE" ]; then
+      DEST_STR="platform=iOS Simulator,name=$FIRST_IPHONE"
+    fi
+  fi
+
   if ! xcodebuild \
       -workspace fearless.xcworkspace \
       -scheme fearless \
       -configuration Debug \
-      -destination "generic/platform=iOS Simulator" \
+      -destination "$DEST_STR" \
       -clonedSourcePackagesDirPath "$SP_DIR" \
       CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
       clean build | tee build/pr.build.raw.log; then
@@ -267,7 +278,7 @@ fi
   if ! xcodebuild \
       -workspace fearless.xcworkspace \
       -scheme fearless \
-      -destination "generic/platform=iOS Simulator" \
+      -destination "$DEST_STR" \
       -clonedSourcePackagesDirPath "$SP_DIR" \
       CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
       test | tee build/pr.test.raw.log; then
