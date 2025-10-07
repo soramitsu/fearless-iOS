@@ -39,6 +39,16 @@ if [ -x "scripts/spm-iroha-hotfix.sh" ]; then
   scripts/spm-iroha-hotfix.sh "${SCHEME}" "${WORKSPACE}" || true
 fi
 
+# Patch shared-features-spm manifest and sources for missing SSFModels deps
+if [ -x "scripts/spm-shared-features-fixes.sh" ]; then
+  echo "\n==> Applying shared-features-spm fixes (SSFModels deps, Web3 API drift)"
+  scripts/spm-shared-features-fixes.sh "$(pwd)" || true
+fi
+
+# Ensure SPM dependencies are re-resolved after patching Package.swift in checkouts
+echo "\n==> Resolving Swift Package dependencies"
+xcodebuild -resolvePackageDependencies -workspace "${WORKSPACE}" -scheme "${SCHEME}" || true
+
 function run_tests() {
   local config=$1
   echo "\n==> Running ${config} tests"
