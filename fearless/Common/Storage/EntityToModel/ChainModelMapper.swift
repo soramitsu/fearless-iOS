@@ -313,15 +313,12 @@ final class ChainModelMapper {
             crowdloans = ChainModel.ExternalResource(type: type, url: url)
         }
 
-        var pricing: ChainModel.BlockExplorer?
-        if let type = entity.pricingApiType, let url = entity.pricingApiUrl {
-            pricing = ChainModel.BlockExplorer(type: type, url: url)
-        }
+        // Pricing API removed in new SSFModels; ignore if present
 
         let explorers = createExplorers(from: entity)
 
         if staking != nil || history != nil || crowdloans != nil || explorers != nil {
-            return ChainModel.ExternalApiSet(staking: staking, history: history, crowdloans: crowdloans, explorers: explorers, pricing: pricing)
+            return ChainModel.ExternalApiSet(staking: staking, history: history, crowdloans: crowdloans, explorers: explorers)
         } else {
             return nil
         }
@@ -425,17 +422,17 @@ final class ChainModelMapper {
     }
 
     private func updateExternalApis(in entity: CDChain, from apis: ChainModel.ExternalApiSet?) {
-        entity.stakingApiType = apis?.staking?.type?.rawValue
+        entity.stakingApiType = apis?.staking?.type.rawValue
         entity.stakingApiUrl = apis?.staking?.url
 
-        entity.historyApiType = apis?.history?.type?.rawValue
+        entity.historyApiType = apis?.history?.type.rawValue
         entity.historyApiUrl = apis?.history?.url
 
         entity.crowdloansApiType = apis?.crowdloans?.type
         entity.crowdloansApiUrl = apis?.crowdloans?.url
 
-        entity.pricingApiType = apis?.pricing?.type?.rawValue
-        entity.pricingApiUrl = apis?.pricing?.url
+        entity.pricingApiType = nil
+        entity.pricingApiUrl = nil
     }
 
     private func createChainAssetModelType(from rawValue: String?) -> SubstrateAssetType? {
