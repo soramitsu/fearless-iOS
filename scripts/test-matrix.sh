@@ -22,7 +22,7 @@ if [[ "$DEST" == *"Any iOS Simulator Device"* ]]; then
   if xcrun simctl list devices | grep -q "iPhone 17"; then
     DEV_NAME="iPhone 17"
   else
-    DEV_NAME=$(xcrun simctl list devices | grep -E "^\s*iPhone .*\((Booted|Shutdown)\)" | head -n1 | sed -E 's/^\s*([^\(]+)\s*\(.*/\1/' || true)
+    DEV_NAME=$(xcrun simctl list devices | grep -F "iPhone " | head -n1 | cut -d '(' -f1 | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' || true)
   fi
   if [[ -n "${DEV_NAME:-}" ]]; then
     DEST="platform=iOS Simulator,name=${DEV_NAME}"
