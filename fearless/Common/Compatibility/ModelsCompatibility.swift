@@ -52,6 +52,9 @@ public extension AssetModel {
 
     // Legacy fields accessors
     var existentialDeposit: String? { nil }
+    var staking: RawStakingType? { tokenProperties?.stacking.flatMap { RawStakingType(rawValue: $0) } }
+    var isNative: Bool { tokenProperties?.isNative ?? false }
+    func getPrice(for _: Currency) -> PriceData? { nil }
 }
 
 // MARK: - External API compatibility
@@ -138,4 +141,3 @@ public extension ChainModel {
     var addressPrefix: UInt16 { UInt16(properties.addressPrefix) ?? 0 }
     var identityChain: String? { nil }
 }
-
