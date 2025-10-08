@@ -71,6 +71,27 @@ patch_manifest() {
   else
     rm -f "$tmp_file"
   fi
+
+  # Ensure SSFPolkaswap has explicit SPM deps it imports directly (Reachability, SwiftyBeaver, SoraKeystore)
+  local pkg_tmp
+  pkg_tmp=$(mktemp)
+  awk '
+    BEGIN{in_target=0; changed=0}
+    /target\(\s*name:\s*"SSFPolkaswap"/ { in_target=1 }
+    in_target==1 && /dependencies:\s*\[/ {
+      # Normalize dependencies for SSFPolkaswap
+      print "            dependencies: [\n                \"SSFUtils\",\n                \"SSFChainRegistry\",\n                \"RobinHood\",\n                \"SSFModels\",\n                \"SSFStorageQueryKit\",\n                \"SSFPools\",\n                \"sorawallet\",\n                \"SSFPoolsStorage\",\n                \"SSFExtrinsicKit\",\n                \"SoraKeystore\",\n                \"SwiftyBeaver\",\n                .product(name: \"Reachability\", package: \"Reachability.swift\")\n            ]";
+      changed=1; next
+    }
+    /\)\s*,\s*$/ { if(in_target==1){ in_target=0 } }
+    { print }
+  ' "$pkg_swift" > "$pkg_tmp"
+  if ! diff -q "$pkg_swift" "$pkg_tmp" >/dev/null 2>&1; then
+    echo "[spm-fixes] Updated SSFPolkaswap dependencies (added Reachability, SwiftyBeaver, SoraKeystore)"
+    if mv "$pkg_tmp" "$pkg_swift" 2>/dev/null; then :; else rm -f "$pkg_tmp"; fi
+  else
+    rm -f "$pkg_tmp"
+  fi
 }
 
 # Try workspace-level SourcePackages first
