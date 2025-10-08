@@ -1,9 +1,9 @@
 import Foundation
 import SSFModels
 import SSFPools
-import SSFPolkaswap
 import SSFStorageQueryKit
 import SSFXCM
+import BigInt
 
 // Temporary compatibility layer to unblock build while SSF APIs evolve.
 
@@ -21,12 +21,23 @@ public struct PoolApyInfo {
     }
 }
 
-// Wrap current reserves struct to expected name in app code.
+// Public reserves struct (SSFPolkaswap.PolkaswapPoolReserves is internal).
+public struct PolkaswapPoolReserves {
+    public let reserves: BigUInt
+    public let fee: BigUInt
+
+    public init(reserves: BigUInt, fee: BigUInt) {
+        self.reserves = reserves
+        self.fee = fee
+    }
+}
+
+// Wrap reserves and optional pool identifier used by UI
 public struct PolkaswapPoolReservesInfo {
-    public let reserves: SSFPolkaswap.PolkaswapPoolReserves
+    public let reserves: PolkaswapPoolReserves
     public let poolId: String?
 
-    public init(reserves: SSFPolkaswap.PolkaswapPoolReserves, poolId: String? = nil) {
+    public init(reserves: PolkaswapPoolReserves, poolId: String? = nil) {
         self.reserves = reserves
         self.poolId = poolId
     }

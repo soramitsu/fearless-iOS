@@ -164,8 +164,7 @@ final class LiquidityPoolSupplyPresenter {
             targetAsset: targetAssetInfo,
             baseAssetAmount: baseAssetAmount,
             targetAssetAmount: targetAssetAmount,
-            slippage: slippadgeTolerance,
-            availablePairs: pairs
+            slippage: slippadgeTolerance
         )
 
         interactor.estimateFee(supplyLiquidityInfo: supplyLiquidityInfo)

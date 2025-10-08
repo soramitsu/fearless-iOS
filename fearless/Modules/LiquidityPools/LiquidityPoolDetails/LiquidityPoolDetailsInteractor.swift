@@ -57,7 +57,8 @@ extension LiquidityPoolDetailsInteractor: LiquidityPoolDetailsInteractorInput {
 
                 for try await pool in poolStream {
                     await MainActor.run {
-                        output?.didReceiveLiquidityPair(liquidityPair: pool.value)
+                        // Flatten double optional coming from CachedStorageResponse<LiquidityPair?>
+                        output?.didReceiveLiquidityPair(liquidityPair: pool.value ?? nil)
                     }
 
                     if let reservesId = pool.value?.reservesId {

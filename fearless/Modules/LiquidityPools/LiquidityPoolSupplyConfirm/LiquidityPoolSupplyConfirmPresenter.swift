@@ -115,8 +115,7 @@ final class LiquidityPoolSupplyConfirmPresenter {
             targetAsset: targetAssetInfo,
             baseAssetAmount: inputData.baseAssetAmount,
             targetAssetAmount: inputData.targetAssetAmount,
-            slippage: inputData.slippageTolerance,
-            availablePairs: availablePairs
+            slippage: inputData.slippageTolerance
         )
 
         interactor.estimateFee(supplyLiquidityInfo: supplyLiquidityInfo)
@@ -261,8 +260,7 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmViewOut
             targetAsset: targetAssetInfo,
             baseAssetAmount: inputData.baseAssetAmount,
             targetAssetAmount: inputData.targetAssetAmount,
-            slippage: inputData.slippageTolerance,
-            availablePairs: availablePairs
+            slippage: inputData.slippageTolerance
         )
 
         interactor.submit(supplyLiquidityInfo: supplyLiquidityInfo)
