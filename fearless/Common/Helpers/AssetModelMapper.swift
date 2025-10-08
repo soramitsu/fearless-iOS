@@ -38,7 +38,7 @@ final class AssetModelMapper {
 }
 
 extension AssetModelMapper: CoreDataMapperProtocol {
-    var entityIdentifierFieldName: String { #keyPath(CDAsset.priceId) }
+    var entityIdentifierFieldName: String { #keyPath(CDAsset.id) }
 
     func transform(entity: CDAsset) throws -> AssetModel {
         var symbol: String?

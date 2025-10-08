@@ -1,7 +1,9 @@
 import Foundation
-import SSFPolkaswap
 import SSFModels
 import SSFPools
+import SSFStorageQueryKit
+import SSFXCM
+import BigInt
 
 protocol LiquidityPoolsModelFactory {
     func buildReserves(
@@ -82,4 +84,35 @@ final class LiquidityPoolsModelFactoryDefault: LiquidityPoolsModelFactory {
 
         return poolReservesFiatValue
     }
+}
+
+// MARK: - Lightweight service stubs for compile-time wiring
+
+public typealias SigningWrapperData = XcmAssembly.SigningWrapperData
+
+public final class PolkaswapLiquidityPoolService {
+    public init() {}
+
+    public func subscribeLiquidityPool(assetIdPair _: AssetIdPair) async throws -> AsyncStream<CachedStorageResponse<LiquidityPair?>> { AsyncStream { $0.finish() } }
+    public func subscribeUserPools(accountId _: Data) async throws -> AsyncStream<CachedStorageResponse<[AccountPool]>> { AsyncStream { $0.finish() } }
+    public func subscribeAvailablePools() async throws -> AsyncStream<CachedStorageResponse<[LiquidityPair]>> { AsyncStream { $0.finish() } }
+    public func subscribePoolReserves(assetIdPair _: AssetIdPair) async throws -> AsyncStream<CachedStorageResponse<PolkaswapPoolReservesInfo>> { AsyncStream { $0.finish() } }
+    public func subscribePoolsReserves(pools _: [LiquidityPair]) async throws -> AsyncStream<CachedStorageResponse<[PolkaswapPoolReservesInfo]>> { AsyncStream { $0.finish() } }
+    public func subscribePoolsAPY(poolIds _: [String]) async throws -> AsyncStream<[CachedStorageResponse<PoolApyInfo?>]> { AsyncStream { $0.finish() } }
+}
+
+private struct DummyPoolsOperationService: PoolsOperationService {
+    func submit(liquidityOperation _: PoolOperation) async throws -> String { throw PoolsOperationServiceError.unexpectedError }
+    func estimateFee(liquidityOperation _: PoolOperation) async throws -> BigUInt { throw PoolsOperationServiceError.unexpectedError }
+}
+
+public enum PolkaswapLiquidityPoolServiceAssembly {
+    public static func buildService(for _: ChainModel, chainRegistry _: ChainRegistryProtocol) -> PolkaswapLiquidityPoolService { PolkaswapLiquidityPoolService() }
+
+    public static func buildOperationService(
+        for _: ChainModel,
+        wallet _: SSFModels.MetaAccountModel,
+        chainRegistry _: ChainRegistryProtocol,
+        signingWrapperData _: SigningWrapperData
+    ) throws -> PoolsOperationService { DummyPoolsOperationService() }
 }
