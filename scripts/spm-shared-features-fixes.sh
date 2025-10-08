@@ -17,6 +17,27 @@ patch_manifest() {
     return 0
   fi
 
+  # 0) Ensure top-level BigInt package dependency exists
+  if ! /usr/bin/grep -q "BigInt.git" "$pkg_swift"; then
+    echo "[spm-fixes] Injecting BigInt package dependency"
+    # Insert BigInt package line into the top-level dependencies array
+    # This is a best-effort injection; keeps formatting minimal
+    /usr/bin/awk '
+      BEGIN{in_deps=0; injected=0}
+      /dependencies:[[:space:]]*\[/ { print; in_deps=1; next }
+      in_deps==1 {
+        if(injected==0){
+          print "        .package(url: \"https://github.com/attaswift/BigInt.git\", from: \"5.3.0\"),";
+          injected=1;
+        }
+        print;
+        if($0 ~ /\]/){ in_deps=0 }
+        next
+      }
+      { print }
+    ' "$pkg_swift" > "$pkg_swift.tmp" && mv "$pkg_swift.tmp" "$pkg_swift" || true
+  fi
+
   # Rewrite the SSFModels target dependencies line to include RobinHood and BigInt.
   # Try sed first for common single-line forms; fall back to awk block rewrite.
   local tmp_file
