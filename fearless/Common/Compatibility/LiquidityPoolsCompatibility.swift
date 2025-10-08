@@ -24,9 +24,11 @@ public struct PoolApyInfo {
 // Wrap current reserves struct to expected name in app code.
 public struct PolkaswapPoolReservesInfo {
     public let reserves: SSFPolkaswap.PolkaswapPoolReserves
+    public let poolId: String?
 
-    public init(reserves: SSFPolkaswap.PolkaswapPoolReserves) {
+    public init(reserves: SSFPolkaswap.PolkaswapPoolReserves, poolId: String? = nil) {
         self.reserves = reserves
+        self.poolId = poolId
     }
 }
 
@@ -44,14 +46,9 @@ public struct AssetIdPair {
 }
 
 // Backward helpers for frequently used conveniences.
-public extension ChainModel {
-    // Old code used chain.assets; map to tokens set if available.
-    var assets: [AssetModel] { Array(tokens.tokens ?? []) }
-}
-
 public extension AssetModel {
     // Old code accessed currencyId/color directly on AssetModel.
-    var currencyId: String { tokenProperties?.currencyId ?? id }
+    var currencyId: String? { tokenProperties?.currencyId ?? id }
     var color: String { tokenProperties?.color ?? "" }
 
     // Legacy placeholder; project code guards usage with optionals.
@@ -61,6 +58,20 @@ public extension AssetModel {
 public extension SSFPools.LiquidityPair {
     // Legacy access used a dexId; return a safe default.
     var dexId: String { "0" }
+}
+
+public extension SSFPools.AccountPool {
+    var liquidityPair: SSFPools.LiquidityPair {
+        SSFPools.LiquidityPair(
+            pairId: poolId,
+            chainId: chainId,
+            baseAssetId: baseAssetId,
+            targetAssetId: targetAssetId,
+            reserves: nil,
+            apy: apy,
+            reservesId: reservesId
+        )
+    }
 }
 
 // No-op service implementations to satisfy existing assemblies during transition.
@@ -131,4 +142,3 @@ public enum PolkaswapLiquidityPoolServiceAssembly {
         DummyPoolsOperationService()
     }
 }
-
