@@ -90,6 +90,62 @@ final class LiquidityPoolsModelFactoryDefault: LiquidityPoolsModelFactory {
 
 public typealias SigningWrapperData = XcmAssembly.SigningWrapperData
 
+// Compatibility types used across Liquidity Pools code
+public struct PoolApyInfo {
+    public let apy: Decimal?
+    public let poolId: String?
+
+    public init(apy: Decimal?, poolId: String?) {
+        self.apy = apy
+        self.poolId = poolId
+    }
+}
+
+public struct PolkaswapPoolReserves {
+    public let reserves: BigUInt
+    public let fee: BigUInt
+
+    public init(reserves: BigUInt, fee: BigUInt) {
+        self.reserves = reserves
+        self.fee = fee
+    }
+}
+
+public struct PolkaswapPoolReservesInfo {
+    public let reserves: PolkaswapPoolReserves
+    public let poolId: String?
+
+    public init(reserves: PolkaswapPoolReserves, poolId: String? = nil) {
+        self.reserves = reserves
+        self.poolId = poolId
+    }
+}
+
+public struct AssetIdPair {
+    public let baseAssetIdCode: String
+    public let targetAssetIdCode: String
+
+    public init(baseAssetIdCode: String, targetAssetIdCode: String) {
+        self.baseAssetIdCode = baseAssetIdCode
+        self.targetAssetIdCode = targetAssetIdCode
+    }
+
+    public var poolId: String { "\(baseAssetIdCode)-\(targetAssetIdCode)" }
+}
+
+public extension ChainModel {
+    var assets: [AssetModel] { Array(tokens.tokens ?? []) }
+}
+
+public extension AssetModel {
+    var currencyId: String { tokenProperties?.currencyId ?? id }
+    var color: String { tokenProperties?.color ?? "" }
+}
+
+public extension SSFPools.LiquidityPair {
+    var dexId: String { "0" }
+}
+
 public final class PolkaswapLiquidityPoolService {
     public init() {}
 
@@ -115,4 +171,30 @@ public enum PolkaswapLiquidityPoolServiceAssembly {
         chainRegistry _: ChainRegistryProtocol,
         signingWrapperData _: SigningWrapperData
     ) throws -> PoolsOperationService { DummyPoolsOperationService() }
+}
+
+// Public initializers for SSFPools value types (memberwise inits are internal)
+public extension PooledAssetInfo {
+    init(id: String, precision: Int16) {
+        self.id = id
+        self.precision = precision
+    }
+}
+
+public extension SupplyLiquidityInfo {
+    init(
+        dexId: String,
+        baseAsset: PooledAssetInfo,
+        targetAsset: PooledAssetInfo,
+        baseAssetAmount: Decimal,
+        targetAssetAmount: Decimal,
+        slippage: Decimal
+    ) {
+        self.dexId = dexId
+        self.baseAsset = baseAsset
+        self.targetAsset = targetAsset
+        self.baseAssetAmount = baseAssetAmount
+        self.targetAssetAmount = targetAssetAmount
+        self.slippage = slippage
+    }
 }
