@@ -61,3 +61,6 @@ public extension AssetModel {
     // Legacy convenience used throughout presenters; return nil when not available
     func getPrice(for _: Any) -> PriceData? { nil }
 }
+
+// Allow using AssetModel with Repository/CoreData APIs expecting Identifiable
+extension AssetModel: Identifiable {}
