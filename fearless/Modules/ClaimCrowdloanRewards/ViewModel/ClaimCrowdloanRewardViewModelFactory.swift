@@ -1,6 +1,5 @@
 import Foundation
 import SSFModels
-import Foundation
 import SoraFoundation
 
 protocol ClaimCrowdloanRewardViewModelFactoryProtocol {

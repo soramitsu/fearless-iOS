@@ -57,4 +57,3 @@ enum PolkadotRuntimeCompatibility {
         return assetHubParaIds.contains(paraId)
     }
 }
-

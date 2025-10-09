@@ -28,4 +28,3 @@ public extension SupplyLiquidityInfo {
         self.slippage = slippage
     }
 }
-

@@ -17,7 +17,7 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             )
 
         let accountScoreFetcher = NomisAccountStatisticsFetcher(
-            networkWorker: NetworkWorkerImpl(),
+            networkWorker: NetworkWorkerDefault(),
             signer: NomisRequestSigner()
         )
         let settings = SettingsManager.shared

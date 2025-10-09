@@ -26,7 +26,7 @@ final class BackupWalletAssembly {
         )
         let router = BackupWalletRouter()
         let accountScoreFetcher = NomisAccountStatisticsFetcher(
-            networkWorker: NetworkWorkerImpl(),
+            networkWorker: NetworkWorkerDefault(),
             signer: NomisRequestSigner()
         )
 

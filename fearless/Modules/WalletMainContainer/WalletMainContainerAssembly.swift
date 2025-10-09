@@ -36,7 +36,7 @@ final class WalletMainContainerAssembly {
             stashItemRepository: substrateRepositoryFactory.createStashItemRepository()
         )
         let accountScoreFetcher = NomisAccountStatisticsFetcher(
-            networkWorker: NetworkWorkerImpl(),
+            networkWorker: NetworkWorkerDefault(),
             signer: NomisRequestSigner()
         )
 

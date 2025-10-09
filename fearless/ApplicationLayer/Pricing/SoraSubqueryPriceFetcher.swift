@@ -67,7 +67,7 @@ final class SoraSubqueryPriceFetcherDefault: SoraSubqueryPriceFetcher {
             baseURL: url,
             query: queryString(priceIds: priceIds, cursor: cursor)
         )
-        let worker = NetworkWorkerImpl()
+        let worker = NetworkWorkerDefault()
         let response: GraphQLResponse<SoraSubqueryPriceResponse> = try await worker.performRequest(with: request)
 
         switch response {

@@ -37,7 +37,7 @@ extension OnboardingService: OnboardingServiceProtocol {
             body: nil,
             timeout: 5
         )
-        let worker = NetworkWorkerImpl()
+        let worker = NetworkWorkerDefault()
         return try await worker.performRequest(with: request)
     }
 }

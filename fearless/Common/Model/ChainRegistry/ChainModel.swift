@@ -21,6 +21,7 @@ extension ChainModel {
 }
 
 // MARK: - Polkadot Runtime Compatibility (in-target shim)
+
 enum PolkadotRuntimeCompatibility {
     enum BlockProviderHint { case relay, local }
     enum Pallet { case vesting, multisig, proxy, nfts }

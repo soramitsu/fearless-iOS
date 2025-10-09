@@ -59,7 +59,7 @@ enum ContactsAssembly {
         )
         let router = ContactsRouter()
 
-        let accountScoreFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerImpl(), signer: NomisRequestSigner())
+        let accountScoreFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerDefault(), signer: NomisRequestSigner())
         let presenter = ContactsPresenter(
             interactor: interactor,
             router: router,

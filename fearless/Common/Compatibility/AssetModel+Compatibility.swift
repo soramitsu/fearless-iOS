@@ -58,4 +58,3 @@ public extension AssetModel {
     var purchaseProviders: [PurchaseProvider]? { nil }
     var priceData: [PriceData] { [] }
 }
-

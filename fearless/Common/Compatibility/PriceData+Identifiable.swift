@@ -6,4 +6,3 @@ import SSFModels
 extension PriceData: Identifiable {
     public var id: String { priceId }
 }
-

@@ -48,7 +48,7 @@ final class ReefStakingRewardsFetcher {
             baseURL: blockExplorer.url,
             query: queryString(address: address, offset: max(1, rewards.count))
         )
-        let worker = NetworkWorkerImpl()
+        let worker = NetworkWorkerDefault()
         let response: GraphQLResponse<ReefResponseData> = try await worker.performRequest(with: request)
 
         switch response {
