@@ -244,3 +244,14 @@ public extension PolkaswapLiquidityPoolService {
     func fetchUserPool(assetIdPair _: AssetIdPair, accountId _: Data) async throws -> AccountPool? { nil }
     func fetchTotalIssuance(reservesId _: Data) async throws -> BigUInt? { nil }
 }
+
+// MARK: - Network compatibility shims (used by AccountStatistics)
+
+public enum CachedNetworkRequestTrigger {
+    case onAll
+}
+
+public struct CachedNetworkResponse<T> {
+    public var value: T?
+    public init(value: T?) { self.value = value }
+}
