@@ -2,7 +2,6 @@ import Foundation
 import SoraFoundation
 import SSFModels
 import SSFNetwork
-import SSFIndexers
 
 final class SoraStakingRewardsFetcher {
     private let chain: ChainModel
