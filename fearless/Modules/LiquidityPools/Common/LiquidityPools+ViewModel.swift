@@ -140,6 +140,8 @@ public extension ChainModel {
 public extension AssetModel {
     var currencyId: String { tokenProperties?.currencyId ?? id }
     var color: String { tokenProperties?.color ?? "" }
+    // Legacy convenience used broadly in presenters; return nil by default
+    func getPrice(for _: Any) -> PriceData? { nil }
 }
 
 public extension SSFPools.LiquidityPair {
@@ -197,4 +199,33 @@ public extension SupplyLiquidityInfo {
         self.targetAssetAmount = targetAssetAmount
         self.slippage = slippage
     }
+}
+
+// Public initializer for RemoveLiquidityInfo used by presenters
+public extension RemoveLiquidityInfo {
+    init(
+        dexId: String,
+        baseAsset: PooledAssetInfo,
+        targetAsset: PooledAssetInfo,
+        baseAssetAmount: Decimal,
+        targetAssetAmount: Decimal,
+        baseAssetReserves: Decimal,
+        totalIssuances: Decimal,
+        slippage: Decimal
+    ) {
+        self.dexId = dexId
+        self.baseAsset = baseAsset
+        self.targetAsset = targetAsset
+        self.baseAssetAmount = baseAssetAmount
+        self.targetAssetAmount = targetAssetAmount
+        self.baseAssetReserves = baseAssetReserves
+        self.totalIssuances = totalIssuances
+        self.slippage = slippage
+    }
+}
+
+// Extra API surface used by Remove Liquidity interactor
+public extension PolkaswapLiquidityPoolService {
+    func fetchUserPool(assetIdPair _: AssetIdPair, accountId _: Data) async throws -> AccountPool? { nil }
+    func fetchTotalIssuance(reservesId _: Data) async throws -> BigUInt? { nil }
 }
