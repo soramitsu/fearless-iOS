@@ -148,6 +148,21 @@ public extension SSFPools.LiquidityPair {
     var dexId: String { "0" }
 }
 
+// Convenience mapping used by presenters when navigating from account pools
+public extension SSFPools.AccountPool {
+    var liquidityPair: SSFPools.LiquidityPair {
+        SSFPools.LiquidityPair(
+            pairId: poolId,
+            chainId: chainId,
+            baseAssetId: baseAssetId,
+            targetAssetId: targetAssetId,
+            reserves: nil,
+            apy: apy,
+            reservesId: reservesId
+        )
+    }
+}
+
 public final class PolkaswapLiquidityPoolService {
     public init() {}
 
