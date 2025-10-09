@@ -101,7 +101,8 @@ extension LiquidityPoolSupplyInteractor: LiquidityPoolSupplyInteractorInput {
             do {
                 for try await apy in apyStream {
                     await MainActor.run {
-                        output?.didReceivePoolAPY(apyInfo: apy.first(where: { $0.value?.poolId == address })?.value)
+                        let match = apy.first { ($0.value ?? nil)?.poolId == address }
+                        output?.didReceivePoolAPY(apyInfo: match?.value ?? nil)
                     }
                 }
             } catch {

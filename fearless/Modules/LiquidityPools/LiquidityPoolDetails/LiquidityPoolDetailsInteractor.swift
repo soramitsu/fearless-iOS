@@ -61,7 +61,7 @@ extension LiquidityPoolDetailsInteractor: LiquidityPoolDetailsInteractorInput {
                         output?.didReceiveLiquidityPair(liquidityPair: pool.value ?? nil)
                     }
 
-                    if let reservesId = pool.value?.reservesId {
+                    if let reservesId = (pool.value ?? nil)?.reservesId {
                         fetchApy(reservesId: reservesId)
                     }
                 }
@@ -124,7 +124,8 @@ extension LiquidityPoolDetailsInteractor: LiquidityPoolDetailsInteractorInput {
             do {
                 for try await apy in apyStream {
                     await MainActor.run {
-                        output?.didReceivePoolAPY(apy: apy.first(where: { $0.value?.poolId == address })?.value)
+                        let match = apy.first { ($0.value ?? nil)?.poolId == address }
+                        output?.didReceivePoolAPY(apy: match?.value ?? nil)
                     }
                 }
             } catch {

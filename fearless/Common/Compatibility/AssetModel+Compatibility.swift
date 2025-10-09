@@ -57,4 +57,7 @@ public extension AssetModel {
     var staking: RawStakingType? { tokenProperties?.stacking.flatMap { RawStakingType(rawValue: $0) } }
     var purchaseProviders: [PurchaseProvider]? { nil }
     var priceData: [PriceData] { [] }
+
+    // Legacy convenience used throughout presenters; return nil when not available
+    func getPrice(for _: Any) -> PriceData? { nil }
 }
