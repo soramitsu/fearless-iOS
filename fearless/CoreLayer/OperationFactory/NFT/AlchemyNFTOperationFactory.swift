@@ -2,7 +2,7 @@ import Foundation
 import SSFModels
 import RobinHood
 #if canImport(FearlessKeys)
-import FearlessKeys
+    import FearlessKeys
 #endif
 
 enum AlchemyNFTOperationFactoryError: Error {

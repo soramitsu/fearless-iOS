@@ -7,7 +7,7 @@ final class LiquidityPoolsOverviewAssembly {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         guard
             let chain = chainRegistry.availableChains.first(where: { $0.chainId == chainId }),
-            let engine = try? (chainRegistry as ChainRegistryProtocol).getSubstrateConnection(for: chain)
+            let engine = try? chainRegistry.getSubstrateConnection(for: chain)
         else {
             return nil
         }

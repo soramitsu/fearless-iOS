@@ -6,11 +6,12 @@ import Web3Wallet
 #if canImport(FearlessKeys)
     import FearlessKeys
 #else
-    enum WalletConnectDebug {
+    // Fallback names avoid clashing with the WalletConnect module name
+    enum WalletConnectKeysDebug {
         static let projectId = ""
     }
 
-    enum WalletConnect {
+    enum WalletConnectKeys {
         static let projectId = ""
     }
 #endif
@@ -48,10 +49,18 @@ final class WalletConnectServiceImpl: WalletConnectService {
     // MARK: - ApplicationServiceProtocol
 
     func setup() {
-        #if F_DEV
-            let projectId = WalletConnectDebug.projectId
+        #if canImport(FearlessKeys)
+            #if F_DEV
+                let projectId = WalletConnectDebug.projectId
+            #else
+                let projectId = WalletConnect.projectId
+            #endif
         #else
-            let projectId = WalletConnect.projectId
+            #if F_DEV
+                let projectId = WalletConnectKeysDebug.projectId
+            #else
+                let projectId = WalletConnectKeys.projectId
+            #endif
         #endif
         Networking.configure(
             projectId: projectId,
