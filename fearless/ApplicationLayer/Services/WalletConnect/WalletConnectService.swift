@@ -4,14 +4,15 @@ import Combine
 import WalletConnectSign
 import Web3Wallet
 #if canImport(FearlessKeys)
-import FearlessKeys
+    import FearlessKeys
 #else
-enum WalletConnectDebug {
-    static let projectId = ""
-}
-enum WalletConnect {
-    static let projectId = ""
-}
+    enum WalletConnectDebug {
+        static let projectId = ""
+    }
+
+    enum WalletConnect {
+        static let projectId = ""
+    }
 #endif
 
 protocol WalletConnectService: ApplicationServiceProtocol {

@@ -1,4 +1,8 @@
 PODS:
+  - Charts (4.1.0):
+    - Charts/Core (= 4.1.0)
+  - Charts/Core (4.1.0):
+    - SwiftAlgorithms (~> 1.0)
   - CocoaLumberjack (3.8.4):
     - CocoaLumberjack/Core (= 3.8.4)
   - CocoaLumberjack/Core (3.8.4)
@@ -66,10 +70,12 @@ PODS:
   - Sourcery/CLI-Only (1.9.2)
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
+  - SwiftAlgorithms (1.0.0)
   - SwiftFormat/CLI (0.47.13)
   - SwiftLint (0.54.0)
 
 DEPENDENCIES:
+  - Charts (~> 4.1.0)
   - Cuckoo
   - FireMock
   - MediaView (from `https://github.com/bnsports/MediaView.git`, branch `dev`)
@@ -84,6 +90,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
+    - Charts
     - CocoaLumberjack
     - Cuckoo
     - FireMock
@@ -93,6 +100,7 @@ SPEC REPOS:
     - SoraUI
     - Sourcery
     - SVGKit
+    - SwiftAlgorithms
     - SwiftFormat
     - SwiftLint
 
@@ -113,6 +121,7 @@ CHECKOUT OPTIONS:
     :tag: 1.0.1
 
 SPEC CHECKSUMS:
+  Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
   CocoaLumberjack: df59726690390bb8aaaa585938564ba1c8dbbb44
   Cuckoo: 20b8aed94022e0e43e90f7c9e4fb0c86f0926a01
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
@@ -124,9 +133,10 @@ SPEC CHECKSUMS:
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
   Sourcery: 179539341c2261068528cd15a31837b7238fd901
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
+  SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
   SwiftLint: c1de071d9d08c8aba837545f6254315bc900e211
 
-PODFILE CHECKSUM: 738adfb857453a0720eb01fc03e849988943f86c
+PODFILE CHECKSUM: a0c5ea2ccf57e3e86764db80bc6fdd0ef3c12069
 
 COCOAPODS: 1.16.2

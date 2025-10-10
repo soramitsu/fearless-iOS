@@ -4,24 +4,24 @@ import IrohaCrypto
 import SSFUtils
 import SSFModels
 #if canImport(FearlessKeys)
-import FearlessKeys
+    import FearlessKeys
 #else
-// Fallback stubs when FearlessKeys is not available (PR/local builds)
-enum BlockExplorerApiKeys {
-    static let etherscanApiKey = ""
-    static let polygonscanApiKey = ""
-    static let bscscanApiKey = ""
-    static let oklinkApiKey = ""
-    static let opMainnetApiKey = ""
-}
+    // Fallback stubs when FearlessKeys is not available (PR/local builds)
+    enum BlockExplorerApiKeys {
+        static let etherscanApiKey = ""
+        static let polygonscanApiKey = ""
+        static let bscscanApiKey = ""
+        static let oklinkApiKey = ""
+        static let opMainnetApiKey = ""
+    }
 
-enum BlockExplorerApiKeysDebug {
-    static let etherscanApiKey = ""
-    static let polygonscanApiKey = ""
-    static let bscscanApiKey = ""
-    static let oklinkApiKey = ""
-    static let opMainnetApiKey = ""
-}
+    enum BlockExplorerApiKeysDebug {
+        static let etherscanApiKey = ""
+        static let polygonscanApiKey = ""
+        static let bscscanApiKey = ""
+        static let oklinkApiKey = ""
+        static let opMainnetApiKey = ""
+    }
 #endif
 
 enum BlockExplorerApiKey {

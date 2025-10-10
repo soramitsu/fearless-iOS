@@ -2,24 +2,24 @@ import Foundation
 import SSFModels
 import Web3
 #if canImport(FearlessKeys)
-import FearlessKeys
+    import FearlessKeys
 #else
-// Fallback stubs when the private FearlessKeys pod is not included
-enum EthereumNodesApiKeys {
-    static let ethereumApiKey = ""
-    static let sepoliaApiKey = ""
-    static let goerliApiKey = ""
-    static let bscApiKey = ""
-    static let polygonApiKey = ""
-}
+    // Fallback stubs when the private FearlessKeys pod is not included
+    enum EthereumNodesApiKeys {
+        static let ethereumApiKey = ""
+        static let sepoliaApiKey = ""
+        static let goerliApiKey = ""
+        static let bscApiKey = ""
+        static let polygonApiKey = ""
+    }
 
-enum EthereumNodesApiKeysDebug {
-    static let ethereumApiKey = ""
-    static let sepoliaApiKey = ""
-    static let goerliApiKey = ""
-    static let bscApiKey = ""
-    static let polygonApiKey = ""
-}
+    enum EthereumNodesApiKeysDebug {
+        static let ethereumApiKey = ""
+        static let sepoliaApiKey = ""
+        static let goerliApiKey = ""
+        static let bscApiKey = ""
+        static let polygonApiKey = ""
+    }
 #endif
 
 enum EthereumChain: String {

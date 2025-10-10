@@ -1,12 +1,12 @@
 import Foundation
 import SSFNetwork
 #if canImport(FearlessKeys)
-import FearlessKeys
+    import FearlessKeys
 #else
-enum NomisApiKeys {
-    static let nomisClientId = ""
-    static let nomisApiKey = ""
-}
+    enum NomisApiKeys {
+        static let nomisClientId = ""
+        static let nomisApiKey = ""
+    }
 #endif
 
 final class NomisRequestSigner: RequestSigner {

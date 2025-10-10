@@ -5,7 +5,7 @@ import IrohaCrypto
 import SSFUtils
 import SSFModels
 #if canImport(FearlessKeys)
-import FearlessKeys
+    import FearlessKeys
 #endif
 
 final class EtherscanHistoryOperationFactory {
