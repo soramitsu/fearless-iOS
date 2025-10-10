@@ -8924,7 +8924,6 @@
 		849013D124A92686008F705E /* Common */ = {
 			isa = PBXGroup;
 			children = (
-				FAFE10012DCAF11000E5C0DE /* Compatibility */,
 				FAC6CD9B2BA8096D0013A17E /* Localization */,
 				FA6C178F2993601A00A55254 /* AddressChainDefiner */,
 				07FBC9E328BE269F00ED65B4 /* ChainIssuesCenter */,
