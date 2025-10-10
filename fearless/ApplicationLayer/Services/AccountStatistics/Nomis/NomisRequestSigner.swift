@@ -1,6 +1,13 @@
 import Foundation
 import SSFNetwork
+#if canImport(FearlessKeys)
 import FearlessKeys
+#else
+enum NomisApiKeys {
+    static let nomisClientId = ""
+    static let nomisApiKey = ""
+}
+#endif
 
 final class NomisRequestSigner: RequestSigner {
     func sign(request: inout URLRequest, config _: SSFNetwork.RequestConfig) throws {
