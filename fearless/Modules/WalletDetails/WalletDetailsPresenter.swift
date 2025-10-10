@@ -221,13 +221,13 @@ private extension WalletDetailsPresenter {
                         return .polkascan(url: url)
                     }
                 case .unknown:
-                    return nil
+                    return nil as ChainAction?
                 case .oklink:
                     if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
                         return .oklink(url: url)
                     }
                 }
-                return nil
+                return nil as ChainAction?
             }
             actions.append(contentsOf: explorerActions)
         }
