@@ -29,10 +29,6 @@
 @_exported import SnapKit
 #endif
 
-#if canImport(Charts)
-@_exported import Charts
-#endif
-
 #if canImport(Reachability)
 @_exported import Reachability
 #endif

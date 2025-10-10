@@ -1,4 +1,4 @@
-platform :ios, '13.0'
+platform :ios, '14.1'
 
 source 'https://github.com/soramitsu/SSFSpecs.git'
 source 'https://github.com/CocoaPods/Specs.git'
@@ -21,8 +21,7 @@ abstract_target 'fearlessAll' do
   # Migrated to SPM via Packages/FearlessDependencies
   # pod 'Kingfisher', '7.10.2' , :inhibit_warnings => true
   pod 'SVGKit'
-  # Migrated to SPM via Packages/FearlessDependencies
-  # pod 'Charts', '~> 4.1.0'
+  pod 'Charts', '~> 4.1.0'
   pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
   # Guard private pod behind env flag so PR/local builds without credentials succeed
   if ENV['INCLUDE_FEARLESS_KEYS'] == '1'
@@ -50,7 +49,7 @@ end
 post_install do |installer|
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
-            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.1'
             config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
             xcconfig_path = config.base_configuration_reference.real_path
             xcconfig = File.read(xcconfig_path)

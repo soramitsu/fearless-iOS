@@ -7,7 +7,7 @@ import PackageDescription
 let package = Package(
     name: "FearlessDependencies",
     platforms: [
-        .iOS(.v13)
+        .iOS(.v14)
     ],
     products: [
         .library(name: "FearlessDependencies", targets: ["FearlessDependencies"])
@@ -26,8 +26,6 @@ let package = Package(
         // Image loading and layout (migrated from CocoaPods)
         .package(url: "https://github.com/onevcat/Kingfisher", exact: "7.10.2"),
         .package(url: "https://github.com/SnapKit/SnapKit", exact: "5.0.0"),
-        // Charts (migrated from CocoaPods)
-        .package(url: "https://github.com/danielgindi/Charts", exact: "4.1.0"),
     ],
     targets: [
         .target(
@@ -52,8 +50,6 @@ let package = Package(
                 // Image loading and layout
                 .product(name: "Kingfisher", package: "Kingfisher"),
                 .product(name: "SnapKit", package: "SnapKit"),
-                // Charts
-                .product(name: "Charts", package: "Charts"),
             ],
             path: "Sources/FearlessDependencies"
         )
