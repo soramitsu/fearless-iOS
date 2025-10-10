@@ -57,6 +57,7 @@
 		070CDD8B2ACBE59700F3F20A /* ReceiveAndRequestAssetProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070CDD822ACBE59700F3F20A /* ReceiveAndRequestAssetProtocols.swift */; };
 		070CDD8C2ACBE59700F3F20A /* ReceiveAndRequestAssetInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070CDD832ACBE59700F3F20A /* ReceiveAndRequestAssetInteractor.swift */; };
 		FAFE00032DCAF00100E5C0DE /* FearlessUtils in Frameworks */ = {isa = PBXBuildFile; productRef = FAFE00022DCAF00100E5C0DE /* FearlessUtils */; };
+		FAFE10022DCF000100E5C0DE /* FearlessDependencies in Frameworks */ = {isa = PBXBuildFile; productRef = FAFE10012DCF000100E5C0DE /* FearlessDependencies */; };
 		0713097D28C63893002B17D0 /* ScamSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0713097C28C63893002B17D0 /* ScamSyncService.swift */; };
 		0713097F28C6F60D002B17D0 /* ScamSyncServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0713097E28C6F60D002B17D0 /* ScamSyncServiceFactory.swift */; };
 		0713098128C6F7BB002B17D0 /* CDScamInfo+CoreDataCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0713098028C6F7BB002B17D0 /* CDScamInfo+CoreDataCodable.swift */; };
@@ -6073,6 +6074,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FAFE00032DCAF00100E5C0DE /* FearlessUtils in Frameworks */,
+				FAFE10022DCF000100E5C0DE /* FearlessDependencies in Frameworks */,
 				C6182B212C631AAC0089558D /* SSFCrypto in Frameworks */,
 				C6182B272C631AAC0089558D /* SSFHelpers in Frameworks */,
 				C6182B172C631AAC0089558D /* SSFAccountManagmentStorage in Frameworks */,
@@ -6085,28 +6087,28 @@
 				C6182B3F2C631AAC0089558D /* SSFStorageQueryKit in Frameworks */,
 				C6182B312C631AAC0089558D /* SSFPolkaswap in Frameworks */,
 				C6182B3D2C631AAC0089558D /* SSFSingleValueCache in Frameworks */,
-				FA72546F2AC2F12D00EC47A6 /* Web3Wallet in Frameworks */,
+				/* Web3Wallet linked via FearlessDependencies */
 				C6182B1F2C631AAC0089558D /* SSFCloudStorage in Frameworks */,
 				C6182B232C631AAC0089558D /* SSFEraKit in Frameworks */,
 				C6182B472C631AAC0089558D /* SoraKeystore in Frameworks */,
 				C6182B372C631AAC0089558D /* SSFQRService in Frameworks */,
 				C6182B352C631AAC0089558D /* SSFPoolsStorage in Frameworks */,
-				FA72546B2AC2F12D00EC47A6 /* WalletConnectNetworking in Frameworks */,
+				/* WalletConnectNetworking linked via FearlessDependencies */
 				C6182B1D2C631AAC0089558D /* SSFChainRegistry in Frameworks */,
 				C6182B432C631AAC0089558D /* SSFUtils in Frameworks */,
-				FAF600752C48D79600E56558 /* Cosmos in Frameworks */,
+				/* Cosmos linked via FearlessDependencies */
 				C6182B412C631AAC0089558D /* SSFTransferService in Frameworks */,
 				C6182B0F2C631AAC0089558D /* IrohaCrypto in Frameworks */,
 				C6182B492C631AAC0089558D /* keccak in Frameworks */,
-				FA8FD1882AF4BEDD00354482 /* Swime in Frameworks */,
-				FAB482ED2C58A8AA00594D89 /* Web3ContractABI in Frameworks */,
-				FAB482EB2C58A8AA00594D89 /* Web3 in Frameworks */,
+				/* Swime linked via FearlessDependencies */
+				/* Web3ContractABI linked via FearlessDependencies */
+				/* Web3 linked via FearlessDependencies */
 				C6182B452C631AAC0089558D /* SSFXCM in Frameworks */,
-				FA7254672AC2F12D00EC47A6 /* WalletConnect in Frameworks */,
-				FA72546D2AC2F12D00EC47A6 /* WalletConnectPairing in Frameworks */,
+				/* WalletConnect linked via FearlessDependencies */
+				/* WalletConnectPairing linked via FearlessDependencies */
 				C6182B1B2C631AAC0089558D /* SSFChainConnection in Frameworks */,
-				FA7254692AC2F12D00EC47A6 /* WalletConnectAuth in Frameworks */,
-				FAB482EF2C58A8AA00594D89 /* Web3PromiseKit in Frameworks */,
+				/* WalletConnectAuth linked via FearlessDependencies */
+				/* Web3PromiseKit linked via FearlessDependencies */
 				C5AFED6C37C2C29E9903D136 /* Pods_fearlessAll_fearless.framework in Frameworks */,
 				C6182B392C631AAC0089558D /* SSFRuntimeCodingService in Frameworks */,
 				C6182B332C631AAC0089558D /* SSFPools in Frameworks */,
@@ -15380,17 +15382,8 @@
 			);
 			name = fearless;
 			packageProductDependencies = (
-				FA7254662AC2F12D00EC47A6 /* WalletConnect */,
-				FA7254682AC2F12D00EC47A6 /* WalletConnectAuth */,
-				FA72546A2AC2F12D00EC47A6 /* WalletConnectNetworking */,
-				FA72546C2AC2F12D00EC47A6 /* WalletConnectPairing */,
-				FA72546E2AC2F12D00EC47A6 /* Web3Wallet */,
-				FA8FD1872AF4BEDD00354482 /* Swime */,
-				FAF600742C48D79600E56558 /* Cosmos */,
-				FAB482EA2C58A8AA00594D89 /* Web3 */,
-				FAB482EC2C58A8AA00594D89 /* Web3ContractABI */,
-				FAB482EE2C58A8AA00594D89 /* Web3PromiseKit */,
 				FAFE00022DCAF00100E5C0DE /* FearlessUtils */,
+				FAFE10012DCF000100E5C0DE /* FearlessDependencies */,
 			);
 			productName = fearless;
 			productReference = 849013A824A80984008F705E /* fearless.app */;
@@ -15464,6 +15457,7 @@
 				FAF600732C48D79500E56558 /* XCRemoteSwiftPackageReference "Cosmos" */,
 				FAB482E92C58A8AA00594D89 /* XCRemoteSwiftPackageReference "Web3.swift" */,
 				FAFE00012DCAF00100E5C0DE /* XCRemoteSwiftPackageReference "FearlessUtilsCompat" */,
+				FAFE10002DCF000100E5C0DE /* XCLocalSwiftPackageReference "FearlessDependencies" */,
 			);
 			productRefGroup = 849013A924A80984008F705E /* Products */;
 			projectDirPath = "";
@@ -18934,7 +18928,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -18990,7 +18984,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -19010,7 +19004,7 @@
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = fearless/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -19037,7 +19031,7 @@
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = fearless/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -19154,7 +19148,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -19175,7 +19169,7 @@
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = fearless/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -19284,6 +19278,10 @@
             isa = XCLocalSwiftPackageReference;
             relativePath = "Packages/FearlessUtilsCompat";
         };
+		FAFE10002DCF000100E5C0DE /* XCLocalSwiftPackageReference "FearlessDependencies" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "Packages/FearlessDependencies";
+		};
 		FA8FD1862AF4BEDD00354482 /* XCRemoteSwiftPackageReference "Swime" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sendyhalim/Swime";
@@ -19482,6 +19480,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = FAFE00012DCAF00100E5C0DE /* XCRemoteSwiftPackageReference "FearlessUtilsCompat" */;
 			productName = FearlessUtils;
+		};
+		FAFE10012DCF000100E5C0DE /* FearlessDependencies */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FAFE10002DCF000100E5C0DE /* XCLocalSwiftPackageReference "FearlessDependencies" */;
+			productName = FearlessDependencies;
 		};
 /* End XCSwiftPackageProductDependency section */
 

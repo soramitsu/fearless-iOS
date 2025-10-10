@@ -41,7 +41,11 @@ else
   echo "==> Podfile not found; skipping CocoaPods"
 fi
 
-# 2) Resolve SPM to workspace-local SourcePackages (for deterministic paths)
+# 2) Apply mirrors (if configured) and resolve SPM to workspace-local SourcePackages (for deterministic paths)
+if [ -f scripts/deps/apply-mirrors.sh ]; then
+  echo "==> Applying mirrors configuration (if any)"
+  bash scripts/deps/apply-mirrors.sh || true
+fi
 SP_DIR="${SP_DIR:-$(pwd)/SourcePackages}"
 mkdir -p "$SP_DIR"
 echo "==> Resolving SwiftPM packages to $SP_DIR"

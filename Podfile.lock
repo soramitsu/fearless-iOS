@@ -1,23 +1,15 @@
 PODS:
-  - Charts (4.1.0):
-    - Charts/Core (= 4.1.0)
-  - Charts/Core (4.1.0):
-    - SwiftAlgorithms (~> 1.0)
   - CocoaLumberjack (3.8.4):
     - CocoaLumberjack/Core (= 3.8.4)
   - CocoaLumberjack/Core (3.8.4)
   - Cuckoo (1.10.4):
     - Cuckoo/Swift (= 1.10.4)
   - Cuckoo/Swift (1.10.4)
-  - FearlessKeys (0.1.4)
   - FireMock (3.1)
-  - Kingfisher (7.10.2)
   - MediaView (0.2.0)
   - R.swift (6.1.0):
     - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
-  - ReachabilitySwift (5.0.0)
-  - SnapKit (5.0.1)
   - SoraFoundation (1.0.0):
     - SoraFoundation/DateProcessing (= 1.0.0)
     - SoraFoundation/Localization (= 1.0.0)
@@ -74,21 +66,14 @@ PODS:
   - Sourcery/CLI-Only (1.9.2)
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
-  - SwiftAlgorithms (1.0.0)
   - SwiftFormat/CLI (0.47.13)
   - SwiftLint (0.54.0)
-  - SwiftyBeaver (2.0.0)
 
 DEPENDENCIES:
-  - Charts (~> 4.1.0)
   - Cuckoo
-  - FearlessKeys (= 0.1.4)
   - FireMock
-  - Kingfisher (= 7.10.2)
   - MediaView (from `https://github.com/bnsports/MediaView.git`, branch `dev`)
   - R.swift (= 6.1.0)
-  - ReachabilitySwift
-  - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
   - SoraUI (~> 1.10.3)
@@ -96,29 +81,20 @@ DEPENDENCIES:
   - SVGKit
   - SwiftFormat/CLI (~> 0.47.13)
   - SwiftLint
-  - SwiftyBeaver
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
-    - Charts
     - CocoaLumberjack
     - Cuckoo
     - FireMock
-    - Kingfisher
     - R.swift
     - R.swift.Library
-    - ReachabilitySwift
-    - SnapKit
     - SoraFoundation
     - SoraUI
     - Sourcery
     - SVGKit
-    - SwiftAlgorithms
     - SwiftFormat
     - SwiftLint
-    - SwiftyBeaver
-  https://github.com/soramitsu/SSFSpecs.git:
-    - FearlessKeys
 
 EXTERNAL SOURCES:
   MediaView:
@@ -137,27 +113,20 @@ CHECKOUT OPTIONS:
     :tag: 1.0.1
 
 SPEC CHECKSUMS:
-  Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
   CocoaLumberjack: df59726690390bb8aaaa585938564ba1c8dbbb44
   Cuckoo: 20b8aed94022e0e43e90f7c9e4fb0c86f0926a01
-  FearlessKeys: 5ec2782533624d237c899677a8c10859fbbc6668
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
-  Kingfisher: 99edc495d3b7607e6425f0d6f6847b2abd6d716d
   MediaView: 10ff6a5c7950a7c72c5da9e9b89cc85a981e6abc
   R.swift: ec98ff71c4ab2f6fd01dd077e5afd15e63a4834c
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
-  ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
-  SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
   SoraFoundation: 988d90ee3159311b02e42aeba0cf7e85d8bc724c
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
   Sourcery: 179539341c2261068528cd15a31837b7238fd901
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
-  SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
   SwiftLint: c1de071d9d08c8aba837545f6254315bc900e211
-  SwiftyBeaver: 014b0c12065026b731bac80305294f27d63e27f6
 
-PODFILE CHECKSUM: 799dd3f98ecbb1ee8642ce82c15a1e3b02718864
+PODFILE CHECKSUM: 735b17cfa37b6d8d5c7f4b0d1d13b8f3e7b7b4f1
 
 COCOAPODS: 1.16.2

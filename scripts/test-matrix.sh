@@ -16,14 +16,26 @@ WORKSPACE="fearless.xcworkspace"
 echo "==> Using scheme: ${SCHEME}"
 echo "==> Destination: ${DEST}"
 
-# If destination is a placeholder, pick a concrete available simulator (preferring iPhone 17)
-if [[ "$DEST" == *"Any iOS Simulator Device"* ]]; then
-  echo "==> Autodetecting a concrete simulator device"
-  if xcrun simctl list devices | grep -q "iPhone 17"; then
-    DEV_NAME="iPhone 17"
-  else
-    DEV_NAME=$(xcrun simctl list devices | grep -F "iPhone " | head -n1 | cut -d '(' -f1 | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' || true)
-  fi
+pick_latest_iphone() {
+  # Try descending generations to prefer the most modern simulator present
+  local list
+  list=$(xcrun simctl list devices 2>/dev/null || true)
+  for gen in $(seq 25 -1 8); do
+    for variant in "iPhone ${gen}" "iPhone ${gen} Pro" "iPhone ${gen} Pro Max"; do
+      if printf '%s\n' "$list" | grep -Fq "$variant"; then
+        echo "$variant"
+        return 0
+      fi
+    done
+  done
+  # Fallback: first available iPhone entry, if any
+  printf '%s\n' "$list" | grep -F "iPhone " | head -n1 | cut -d '(' -f1 | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' || true
+}
+
+# If destination is a placeholder, pick a concrete available simulator (prefer newest iPhone)
+if [[ "$DEST" == *"Any iOS Simulator Device"* || "$DEST" == "" ]]; then
+  echo "==> Autodetecting a concrete simulator device (latest iPhone if available)"
+  DEV_NAME=$(pick_latest_iphone || true)
   if [[ -n "${DEV_NAME:-}" ]]; then
     DEST="platform=iOS Simulator,name=${DEV_NAME}"
   else

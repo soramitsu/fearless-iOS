@@ -1,5 +1,5 @@
 {
-  "originHash" : "a3b043c77fb624f47237675f99121d13b34e25de9614d918c11f7c7c2d37ccd7",
+  "originHash" : "a34c4ad870be7d8729137b75b6f632b41076c5b7274008422d3d0fc58796689a",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "e07e00fa1fd435143a2dcf8b7eec9a7710b2fdfe",
         "version" : "5.7.0"
+      }
+    },
+    {
+      "identity" : "charts",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/danielgindi/Charts",
+      "state" : {
+        "revision" : "07b23476ad52b926be772f317d8f1d4511ee8d02",
+        "version" : "4.1.0"
       }
     },
     {
@@ -83,6 +92,15 @@
       }
     },
     {
+      "identity" : "kingfisher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onevcat/Kingfisher",
+      "state" : {
+        "revision" : "3ec0ab0bca4feb56e8b33e289c9496e89059dd08",
+        "version" : "7.10.2"
+      }
+    },
+    {
       "identity" : "nimble",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Quick/Nimble",
@@ -142,6 +160,15 @@
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
         "revision" : "6d6cb16b7f1f12028fe93d50a4e928a938af141e"
+      }
+    },
+    {
+      "identity" : "snapkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SnapKit/SnapKit",
+      "state" : {
+        "revision" : "328b53b7e3d3d0f32d03adaf7c84297a7310cdf5",
+        "version" : "5.0.0"
       }
     },
     {

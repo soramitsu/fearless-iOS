@@ -1,0 +1,19 @@
+{
+  "spm": [
+    {
+      "original": "https://github.com/soramitsu/web3-swift",
+      "mirror": ""
+    },
+    {
+      "original": "https://github.com/soramitsu/shared-features-spm.git",
+      "mirror": ""
+    }
+  ],
+  "git": [
+    {
+      "original": "https://github.com/",
+      "mirror": "${GH_PAT_READ:+https://${GH_PAT_READ}@github.com/}"
+    }
+  ]
+}
+

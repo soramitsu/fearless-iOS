@@ -1,4 +1,4 @@
-platform :ios, '14.1'
+platform :ios, '13.0'
 
 source 'https://github.com/soramitsu/SSFSpecs.git'
 source 'https://github.com/CocoaPods/Specs.git'
@@ -11,14 +11,18 @@ abstract_target 'fearlessAll' do
   pod 'SoraKeystore', :git => 'https://github.com/soramitsu/keystore-iOS.git', :tag => '1.0.1'
   pod 'SoraUI', '~> 1.10.3'
   pod 'SoraFoundation', '~> 1.0.0'
-  pod 'SwiftyBeaver'
-  pod 'ReachabilitySwift'
-  pod 'SnapKit', '~> 5.0.0'
+  # Migrated to SPM via Packages/FearlessDependencies
+  # pod 'SwiftyBeaver'
+  # pod 'ReachabilitySwift'
+  # Migrated to SPM via Packages/FearlessDependencies
+  # pod 'SnapKit', '~> 5.0.0'
   pod 'SwiftFormat/CLI', '~> 0.47.13'
   pod 'Sourcery', '~> 1.4'
-  pod 'Kingfisher', '7.10.2' , :inhibit_warnings => true
+  # Migrated to SPM via Packages/FearlessDependencies
+  # pod 'Kingfisher', '7.10.2' , :inhibit_warnings => true
   pod 'SVGKit'
-  pod 'Charts', '~> 4.1.0'
+  # Migrated to SPM via Packages/FearlessDependencies
+  # pod 'Charts', '~> 4.1.0'
   pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
   # Guard private pod behind env flag so PR/local builds without credentials succeed
   if ENV['INCLUDE_FEARLESS_KEYS'] == '1'

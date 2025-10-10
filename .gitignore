@@ -64,3 +64,6 @@ Templates/
 SourcePackages/
 .swiftpm/
 .build/
+
+# Ignore project-level SPM resolved file; use workspace-level only
+fearless.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved

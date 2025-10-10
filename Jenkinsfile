@@ -73,9 +73,14 @@ done
 # Resolve Swift Package dependencies only if the workspace is present (post-checkout)
   if [ -f fearless.xcworkspace/contents.xcworkspacedata ] || [ -f fearless.xcworkspace ]; then
   export SP_DIR="$WORKSPACE/SourcePackages"
+  # Apply mirrors (if configured) for faster/private access
+  if [ -f scripts/deps/apply-mirrors.sh ]; then
+    bash scripts/deps/apply-mirrors.sh || true
+  fi
   # Clean previous SPM state to avoid sticky duplicates (e.g., Web3 registry vs source)
   rm -rf "$SP_DIR" || true
   rm -f "$WORKSPACE/fearless.xcworkspace/xcshareddata/swiftpm/Package.resolved" || true
+  rm -f "$WORKSPACE/fearless.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved" || true
   mkdir -p "$SP_DIR" || true
   xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath "$SP_DIR" || true
   # Apply IrohaCrypto module.modulemap umbrella hotfix directly in workspace SourcePackages checkout
@@ -223,6 +228,7 @@ export SP_DIR="${SP_DIR:-$WORKSPACE/SourcePackages}"
 if [ -f fearless.xcworkspace/contents.xcworkspacedata ]; then
   # Clear any previous resolution and resolve afresh to pick up mirrors/pins
   rm -f "$WORKSPACE/fearless.xcworkspace/xcshareddata/swiftpm/Package.resolved" || true
+  rm -f "$WORKSPACE/fearless.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved" || true
   xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath "$SP_DIR" || true
   # Re-apply IrohaCrypto hotfix after resolve (resolve can reset files)
   IROHA_MM="$SP_DIR/checkouts/shared-features-spm/Sources/IrohaCrypto/include/module.modulemap"
