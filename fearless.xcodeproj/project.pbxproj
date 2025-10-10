@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		012B4273E4109F0B65117BAE /* Identifiable+Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012B4273E4109F0B65117BAEFR /* Identifiable+Models.swift */; }
-		2D5B1A6B315FEF23A885A55E /* FearlessKeysShim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5B1A6B315FEF23A885A55EFR /* FearlessKeysShim.swift */; }
+		012B4273E4109F0B65117BAE /* Identifiable+Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5C /* Identifiable+Models.swift */; };
+		2D5B1A6B315FEF23A885A55E /* FearlessKeysShim.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1E2F3A4B5C60718293A4B5C /* FearlessKeysShim.swift */; };
 		FAFE10AB2DCAF13000E5C0DE /* LiquidityPoolsCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFE10AA2DCAF13000E5C0DE /* LiquidityPoolsCompatibility.swift */; };
 		FAFE10062DCAF11200E5C0DE /* ModelsCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFE10022DCAF11100E5C0DE /* ModelsCompatibility.swift */; };
 		FAFE10072DCAF11200E5C0DE /* NetworkWorkerCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFE10032DCAF11100E5C0DE /* NetworkWorkerCompatibility.swift */; };
@@ -3033,8 +3033,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		012B4273E4109F0B65117BAEFR /* Identifiable+Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "fearless/Common/Extensions/Identifiable+Models.swift"; sourceTree = "<group>"; };
-		2D5B1A6B315FEF23A885A55EFR /* FearlessKeysShim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "fearless/Common/Keys/FearlessKeysShim.swift"; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5C /* Identifiable+Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "fearless/Common/Extensions/Identifiable+Models.swift"; sourceTree = "<group>"; };
+		D1E2F3A4B5C60718293A4B5C /* FearlessKeysShim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "fearless/Common/Keys/FearlessKeysShim.swift"; sourceTree = "<group>"; };
 		FAFE10AA2DCAF13000E5C0DE /* LiquidityPoolsCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiquidityPoolsCompatibility.swift; path = "Common/Compatibility/LiquidityPoolsCompatibility.swift"; sourceTree = SOURCE_ROOT; };
 		FAFE10022DCAF11100E5C0DE /* ModelsCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ModelsCompatibility.swift; path = "Common/Compatibility/ModelsCompatibility.swift"; sourceTree = SOURCE_ROOT; };
 		FAFE10032DCAF11100E5C0DE /* NetworkWorkerCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NetworkWorkerCompatibility.swift; path = "Common/Compatibility/NetworkWorkerCompatibility.swift"; sourceTree = SOURCE_ROOT; };
