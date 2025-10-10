@@ -118,7 +118,8 @@ final class WalletConnectSignerImpl: WalletConnectSigner {
         }
 
         let secretKey = try extractPrivateKey(for: chain)
-        let privateKey = try EthereumPrivateKey(privateKey: secretKey.bytes)
+        // web3-swift expects [UInt8]; convert Data to an Array<UInt8>
+        let privateKey = try EthereumPrivateKey(privateKey: Array(secretKey))
 
         guard let senderAddress = wallet.fetch(for: chain.accountRequest())?.toAddress() else {
             throw AutoNamespacesError.requiredAccountsNotSatisfied
