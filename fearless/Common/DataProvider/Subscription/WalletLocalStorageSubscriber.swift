@@ -19,7 +19,7 @@ extension WalletLocalStorageSubscriber {
     func subscribeToAccountInfoProvider(
         for accountId: AccountId,
         chainAsset: ChainAsset,
-        notifyJustWhenUpdated: Bool
+        notifyJustWhenUpdated _: Bool
     ) -> StreamableProvider<AccountInfoStorageWrapper>? {
         guard let accountInfoProvider = try? walletLocalSubscriptionFactory.getAccountProvider(
             for: accountId,
