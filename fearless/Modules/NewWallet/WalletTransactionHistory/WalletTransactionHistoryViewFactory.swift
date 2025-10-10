@@ -59,7 +59,11 @@ enum WalletTransactionHistoryViewFactory {
     }
 
     static func transactionHistoryFilters(for chain: ChainModel) -> [FilterSet] {
-        guard chain.externalApi?.history?.type?.hasFilters == true else {
+        if let history = chain.externalApi?.history {
+            guard history.type.hasFilters else {
+                return []
+            }
+        } else {
             return []
         }
 
