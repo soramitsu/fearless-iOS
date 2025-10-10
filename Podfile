@@ -20,7 +20,10 @@ abstract_target 'fearlessAll' do
   pod 'SVGKit'
   pod 'Charts', '~> 4.1.0'
   pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
-  pod 'FearlessKeys', '0.1.4'
+  # Guard private pod behind env flag so PR/local builds without credentials succeed
+  if ENV['INCLUDE_FEARLESS_KEYS'] == '1'
+    pod 'FearlessKeys', '0.1.4'
+  end
 
   target 'fearlessTests' do
     inherit! :search_paths
