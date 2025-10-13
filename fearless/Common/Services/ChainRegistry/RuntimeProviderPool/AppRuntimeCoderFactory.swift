@@ -9,10 +9,10 @@ final class AppRuntimeCoderFactory: RuntimeCoderFactoryProtocol {
     let metadata: RuntimeMetadata
 
     init(snapshot: RuntimeSnapshot) {
-        self.catalog = snapshot.typeRegistryCatalog
-        self.specVersion = snapshot.specVersion
-        self.txVersion = snapshot.txVersion
-        self.metadata = snapshot.metadata
+        catalog = snapshot.typeRegistryCatalog
+        specVersion = snapshot.specVersion
+        txVersion = snapshot.txVersion
+        metadata = snapshot.metadata
     }
 
     func createEncoder() -> DynamicScaleEncoding {
@@ -23,4 +23,3 @@ final class AppRuntimeCoderFactory: RuntimeCoderFactoryProtocol {
         try DynamicScaleDecoder(data: data, registry: catalog, version: UInt64(specVersion))
     }
 }
-

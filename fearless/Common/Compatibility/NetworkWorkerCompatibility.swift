@@ -7,6 +7,7 @@ public typealias NetworkWorkerImpl = NetworkWorkerDefault
 // Lightweight cache control placeholders to satisfy existing interfaces.
 public enum CachedNetworkRequestTrigger {
     case none
+    case onAll
 }
 
 public struct CachedNetworkResponse<T: Decodable> {
