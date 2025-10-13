@@ -33,10 +33,10 @@ extension AccountStatisticsInteractor: AccountStatisticsInteractorInput {
         }
         Task {
             do {
-                let stream = try await accountScoreFetcher.subscribeForStatistics(address: address, cacheOptions: .onAll)
+                let stream = try await accountScoreFetcher.subscribeForStatistics(address: address)
 
                 for try await accountScore in stream {
-                    output?.didReceiveAccountStatistics(accountScore.value)
+                    output?.didReceiveAccountStatistics(accountScore)
                 }
             } catch {
                 output?.didReceiveAccountStatisticsError(error)
