@@ -29,7 +29,8 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
         }
         let allAssets = Array(chainAsset.chain.assets)
         let chainAssetModel = allAssets.first(where: { $0.id == chainAsset.asset.id })
-        let buyButtonVisible = !(chainAssetModel?.purchaseProviders?.first == nil)
+        // Legacy purchaseProviders no longer available; hide Buy button by default
+        let buyButtonVisible = false
         let polkaswapButtonVisible = chainAsset.chain.options?.contains(.polkaswap) == true
 
         var xcmButtomVisible: Bool = false
