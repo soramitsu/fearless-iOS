@@ -62,5 +62,7 @@ public extension AssetModel {
     func getPrice(for _: Any) -> PriceData? { nil }
 }
 
-// Allow using AssetModel with Repository/CoreData APIs expecting Identifiable
-extension AssetModel: Identifiable {}
+// Allow using AssetModel with Repository/CoreData APIs expecting RobinHood.Identifiable
+extension AssetModel: RobinHood.Identifiable {
+    public var identifier: String { id }
+}
