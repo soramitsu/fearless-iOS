@@ -21,7 +21,7 @@ final class ChainSyncService {
         let removedItems: [ChainModel]
     }
 
-    private let syncService: SSFChainRegistry.ChainSyncServiceProtocol
+    private let syncService: SSFChainRegistry.ChainSyncService
     private let repository: AnyDataProviderRepository<ChainModel>
     private let eventCenter: EventCenterProtocol
     private let retryStrategy: ReconnectionStrategyProtocol
@@ -37,7 +37,7 @@ final class ChainSyncService {
     private lazy var scheduler = Scheduler(with: self, callbackQueue: DispatchQueue.global())
 
     init(
-        syncService: SSFChainRegistry.ChainSyncServiceProtocol,
+        syncService: SSFChainRegistry.ChainSyncService,
         repository: AnyDataProviderRepository<ChainModel>,
         eventCenter: EventCenterProtocol,
         operationQueue: OperationQueue,
