@@ -20,16 +20,7 @@ public class NomisAccountStatisticsRequest: RequestConfig {
             method: .get,
             endpoint: finalEndpoint,
             headers: nil,
-            body: nil,
-            timeout: 10
+            body: nil
         )
-    }
-
-    override public var cacheKey: String {
-        if let endpoint = endpoint {
-            return endpoint + address
-        }
-
-        return address
     }
 }
