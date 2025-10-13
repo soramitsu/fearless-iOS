@@ -245,13 +245,4 @@ public extension PolkaswapLiquidityPoolService {
     func fetchTotalIssuance(reservesId _: Data) async throws -> BigUInt? { nil }
 }
 
-// MARK: - Network compatibility shims (used by AccountStatistics)
-
-public enum CachedNetworkRequestTrigger {
-    case onAll
-}
-
-public struct CachedNetworkResponse<T> {
-    public var value: T?
-    public init(value: T?) { self.value = value }
-}
+// (removed) Network compatibility shims are defined centrally under Common/Compatibility
