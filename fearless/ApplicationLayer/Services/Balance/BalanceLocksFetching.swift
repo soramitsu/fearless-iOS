@@ -100,7 +100,7 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
     }
 
     func fetchStakingLocks(for accountId: AccountId) async throws -> StakingLocks {
-        guard chainAsset.asset.staking != nil else {
+        guard chainAsset.chain.hasStakingRewardHistory || chainAsset.chain.isSora else {
             throw BalanceLocksFetchingError.stakingNotFound
         }
 
@@ -151,7 +151,7 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
     }
 
     func fetchNominationPoolLocks(for accountId: AccountId) async throws -> StakingLocks {
-        guard chainAsset.asset.staking != nil else {
+        guard chainAsset.chain.hasStakingRewardHistory || chainAsset.chain.isSora else {
             throw BalanceLocksFetchingError.stakingNotFound
         }
 
