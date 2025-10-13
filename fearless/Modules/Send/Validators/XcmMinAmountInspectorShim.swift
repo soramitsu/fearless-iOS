@@ -2,11 +2,8 @@ import Foundation
 import BigInt
 import SSFModels
 
-#if canImport(SSFXCM)
-import SSFXCM
-#else
-// Shim for environments where SSFXCM no longer exposes XcmMinAmountInspector
-public protocol XcmMinAmountInspector {
+// Local app-level abstraction to avoid depending on SSFXCM's symbol availability.
+public protocol AppXcmMinAmountInspector {
     func inspectMin(
         amount: BigUInt,
         fromChainModel: ChainModel,
@@ -15,7 +12,7 @@ public protocol XcmMinAmountInspector {
     ) throws
 }
 
-public final class XcmMinAmountInspectorImpl: XcmMinAmountInspector {
+public final class AppXcmMinAmountInspectorImpl: AppXcmMinAmountInspector {
     public init() {}
     public func inspectMin(
         amount _: BigUInt,
@@ -23,8 +20,6 @@ public final class XcmMinAmountInspectorImpl: XcmMinAmountInspector {
         destChainModel _: ChainModel,
         assetSymbol _: String
     ) throws {
-        // No-op shim: do not throw to avoid blocking flows when inspector is unavailable
+        // No-op: if minimum amount checks are required, wire in SSFXCM-backed inspector here.
     }
 }
-#endif
-

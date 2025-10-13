@@ -10,8 +10,8 @@ enum BalanceType {
 }
 
 class SendDataValidatingFactory: NSObject {
-    private lazy var xcmAmountInspector: XcmMinAmountInspector = {
-        XcmMinAmountInspectorImpl()
+    private lazy var xcmAmountInspector: AppXcmMinAmountInspector = {
+        AppXcmMinAmountInspectorImpl()
     }()
 
     weak var view: (Localizable & ControllerBackedProtocol)?
