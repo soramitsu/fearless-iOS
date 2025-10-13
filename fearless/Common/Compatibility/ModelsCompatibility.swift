@@ -54,6 +54,7 @@ public extension AssetModel {
     var existentialDeposit: String? { nil }
     var staking: RawStakingType? { tokenProperties?.stacking.flatMap { RawStakingType(rawValue: $0) } }
     var isNative: Bool { tokenProperties?.isNative ?? false }
+    var purchaseProviders: [PurchaseProvider]? { nil }
     func getPrice(for _: Currency) -> PriceData? { nil }
 }
 
