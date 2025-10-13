@@ -7,7 +7,9 @@ final class LiquidityPoolsOverviewAssembly {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         guard
             let chain = chainRegistry.availableChains.first(where: { $0.chainId == chainId }),
-            let engine = try? chainRegistry.getSubstrateConnection(for: chain)
+            // Prefer the concrete ChainRegistry implementation to access the synchronous API and avoid async context
+            let concrete = chainRegistry as? ChainRegistry,
+            let engine = try? concrete.getSubstrateConnection(for: chain)
         else {
             return nil
         }
