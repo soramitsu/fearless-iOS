@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BBCCDDEEAABB112233445566 /* XcmMinAmountInspectorShim.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCCDDEEFF112233445566 /* XcmMinAmountInspectorShim.swift */; };
 		012B4273E4109F0B65117BAE /* Identifiable+Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5C /* Identifiable+Models.swift */; };
 		2D5B1A6B315FEF23A885A55E /* FearlessKeysShim.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1E2F3A4B5C60718293A4B5C /* FearlessKeysShim.swift */; };
 		FAFE10AB2DCAF13000E5C0DE /* LiquidityPoolsCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFE10AA2DCAF13000E5C0DE /* LiquidityPoolsCompatibility.swift */; };
@@ -3033,6 +3034,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		AABBCCDDEEFF112233445566 /* XcmMinAmountInspectorShim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "fearless/Modules/Send/Validators/XcmMinAmountInspectorShim.swift"; sourceTree = "<group>"; };
 		A1B2C3D4E5F60718293A4B5C /* Identifiable+Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "fearless/Common/Extensions/Identifiable+Models.swift"; sourceTree = "<group>"; };
 		D1E2F3A4B5C60718293A4B5C /* FearlessKeysShim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "fearless/Common/Keys/FearlessKeysShim.swift"; sourceTree = "<group>"; };
 		FAFE10AA2DCAF13000E5C0DE /* LiquidityPoolsCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiquidityPoolsCompatibility.swift; path = "Common/Compatibility/LiquidityPoolsCompatibility.swift"; sourceTree = SOURCE_ROOT; };
@@ -15842,6 +15844,7 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BBCCDDEEAABB112233445566 /* XcmMinAmountInspectorShim.swift in Sources */,
 				012B4273E4109F0B65117BAE /* Identifiable+Models.swift in Sources */,
 				2D5B1A6B315FEF23A885A55E /* FearlessKeysShim.swift in Sources */,
 				AEF505102616769F0098574D /* InitiatedBonding.swift in Sources */,

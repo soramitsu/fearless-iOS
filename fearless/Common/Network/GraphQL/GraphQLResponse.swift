@@ -26,4 +26,3 @@ public enum GraphQLResponse<T: Decodable>: Decodable {
         }
     }
 }
-
