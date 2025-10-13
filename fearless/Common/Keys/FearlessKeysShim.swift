@@ -12,11 +12,5 @@ import Foundation
         public static let alchemyApiKey: String = ""
     }
 
-    public enum BlockExplorerApiKeys {
-        public static let oklinkApiKey: String = ""
-    }
-
-    public enum BlockExplorerApiKeysDebug {
-        public static let oklinkApiKey: String = ""
-    }
+    // BlockExplorerApiKeys are provided by BlockExplorerApiKey.swift when FearlessKeys is absent.
 #endif
