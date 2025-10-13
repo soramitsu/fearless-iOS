@@ -488,9 +488,7 @@ private extension AccountInfoFetching {
 
             switch equilibriumAccountInfo?.data {
             case let .v0data(info):
-                guard let currencyId = chainAsset.asset.currencyId else {
-                    return [chainAsset: nil]
-                }
+                let currencyId = chainAsset.asset.currencyId
 
                 let map = info.mapBalances()
                 let equilibriumFree = map[currencyId]
@@ -675,9 +673,7 @@ private extension AccountInfoFetching {
             case let .v0data(info):
                 let map = info.mapBalances()
                 chainAsset.chain.chainAssets.forEach { chainAsset in
-                    guard let currencyId = chainAsset.asset.currencyId else {
-                        return
-                    }
+                    let currencyId = chainAsset.asset.currencyId
                     let equilibriumFree = map[currencyId]
                     let accountInfo = AccountInfo(equilibriumFree: equilibriumFree)
                     completionBlock(chainAsset, accountInfo)

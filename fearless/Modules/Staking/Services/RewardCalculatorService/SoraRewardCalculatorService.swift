@@ -86,12 +86,13 @@ final class SoraRewardCalculatorService {
 
     private func fetchQuotes() {
         guard let swapToChainAsset = rewardChainAsset,
-              let swapFromAssetId = chainAsset.asset.currencyId,
-              let swapToAssetId = swapToChainAsset.asset.currencyId,
               let marketSourcer = marketSource
         else {
             return
         }
+
+        let swapFromAssetId = chainAsset.asset.currencyId
+        let swapToAssetId = swapToChainAsset.asset.currencyId
 
         let amount: BigUInt = 1_000_000_000_000_000_000
         let amountString = String(amount)
