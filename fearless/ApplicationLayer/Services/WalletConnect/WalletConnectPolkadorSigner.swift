@@ -101,7 +101,6 @@ final class WalletConnectPolkadorSigner: WalletConnectPayloadSigner {
         .with(address: transaction.address)
         .with(nonce: UInt32(transaction.nonce))
         .with(era: transaction.era, blockHash: transaction.blockHash)
-        .with(payloadType: transaction.method.payloadType)
 
         switch transaction.method {
         case let .callable(value):
