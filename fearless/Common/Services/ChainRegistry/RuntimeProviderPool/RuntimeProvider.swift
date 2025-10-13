@@ -168,14 +168,7 @@ final class RuntimeProvider {
     }
 
     private func deliver(snapshot: RuntimeSnapshot?, to request: PendingRequest) {
-        let coderFactory = snapshot.map {
-            RuntimeCoderFactory(
-                catalog: $0.typeRegistryCatalog,
-                specVersion: $0.specVersion,
-                txVersion: $0.txVersion,
-                metadata: $0.metadata
-            )
-        }
+        let coderFactory = snapshot.map { AppRuntimeCoderFactory(snapshot: $0) }
 
         dispatchInQueueWhenPossible(request.queue) {
             request.resultClosure(coderFactory)
