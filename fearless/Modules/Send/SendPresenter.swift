@@ -565,7 +565,8 @@ final class SendPresenter {
                     let strongSelf = self,
                     let amount = sendAmountDecimal?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
                 else { return }
-                let appId: BigUInt? = chainAsset.chain.options?.contains(.checkAppId) == true ? .zero : nil
+                // SSF ChainOptions no longer includes .checkAppId; appId is not used
+                let appId: BigUInt? = nil
 
                 let transfer = Transfer(
                     chainAsset: chainAsset,
