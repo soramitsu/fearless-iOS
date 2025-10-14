@@ -136,7 +136,7 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
         if chain.isReef {
             return .single
         }
-        guard chainAsset.chain.externalApi?.history?.type?.hasFilters == true else {
+        guard chainAsset.chain.externalApi?.history?.type.hasFilters == true else {
             return .disabled
         }
 
