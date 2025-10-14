@@ -135,8 +135,8 @@ private extension PricesService {
         uniqChains.forEach { chain in
             var updatedAssets: [AssetModel] = []
             chain.chainAssets.forEach { chainAsset in
-                let assetPrices = prices.filter { $0.priceId == chainAsset.asset.priceId }
-                let updatedAsset = chainAsset.asset.replacingPrice(assetPrices)
+                let assetPrice = prices.first { $0.priceId == chainAsset.asset.priceId }
+                let updatedAsset = chainAsset.asset.replacingPrice(assetPrice)
                 updatedAssets.append(updatedAsset)
             }
             let updatedChain = chain.replacing(updatedAssets)
