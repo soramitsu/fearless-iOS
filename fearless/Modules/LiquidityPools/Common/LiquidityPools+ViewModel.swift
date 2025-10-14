@@ -163,15 +163,15 @@ public extension SSFPools.AccountPool {
     }
 }
 
-public final class PolkaswapLiquidityPoolService {
-    public init() {}
+final class PolkaswapLiquidityPoolService {
+    init() {}
 
-    public func subscribeLiquidityPool(assetIdPair _: AssetIdPair) async throws -> AsyncStream<CachedStorageResponse<LiquidityPair?>> { AsyncStream { $0.finish() } }
-    public func subscribeUserPools(accountId _: Data) async throws -> AsyncStream<CachedStorageResponse<[AccountPool]>> { AsyncStream { $0.finish() } }
-    public func subscribeAvailablePools() async throws -> AsyncStream<CachedStorageResponse<[LiquidityPair]>> { AsyncStream { $0.finish() } }
-    public func subscribePoolReserves(assetIdPair _: AssetIdPair) async throws -> AsyncStream<CachedStorageResponse<PolkaswapPoolReservesInfo>> { AsyncStream { $0.finish() } }
-    public func subscribePoolsReserves(pools _: [LiquidityPair]) async throws -> AsyncStream<CachedStorageResponse<[PolkaswapPoolReservesInfo]>> { AsyncStream { $0.finish() } }
-    public func subscribePoolsAPY(poolIds _: [String]) async throws -> AsyncStream<[CachedStorageResponse<PoolApyInfo?>]> { AsyncStream { $0.finish() } }
+    func subscribeLiquidityPool(assetIdPair _: AssetIdPair) async throws -> AsyncStream<CachedStorageResponse<LiquidityPair?>> { AsyncStream { $0.finish() } }
+    func subscribeUserPools(accountId _: Data) async throws -> AsyncStream<CachedStorageResponse<[AccountPool]>> { AsyncStream { $0.finish() } }
+    func subscribeAvailablePools() async throws -> AsyncStream<CachedStorageResponse<[LiquidityPair]>> { AsyncStream { $0.finish() } }
+    func subscribePoolReserves(assetIdPair _: AssetIdPair) async throws -> AsyncStream<CachedStorageResponse<PolkaswapPoolReservesInfo>> { AsyncStream { $0.finish() } }
+    func subscribePoolsReserves(pools _: [LiquidityPair]) async throws -> AsyncStream<CachedStorageResponse<[PolkaswapPoolReservesInfo]>> { AsyncStream { $0.finish() } }
+    func subscribePoolsAPY(poolIds _: [String]) async throws -> AsyncStream<[CachedStorageResponse<PoolApyInfo?>]> { AsyncStream { $0.finish() } }
 }
 
 private struct DummyPoolsOperationService: PoolsOperationService {
@@ -179,10 +179,10 @@ private struct DummyPoolsOperationService: PoolsOperationService {
     func estimateFee(liquidityOperation _: PoolOperation) async throws -> BigUInt { throw PoolsOperationServiceError.unexpectedError }
 }
 
-public enum PolkaswapLiquidityPoolServiceAssembly {
-    public static func buildService(for _: ChainModel, chainRegistry _: ChainRegistryProtocol) -> PolkaswapLiquidityPoolService { PolkaswapLiquidityPoolService() }
+enum PolkaswapLiquidityPoolServiceAssembly {
+    static func buildService(for _: ChainModel, chainRegistry _: ChainRegistryProtocol) -> PolkaswapLiquidityPoolService { PolkaswapLiquidityPoolService() }
 
-    public static func buildOperationService(
+    static func buildOperationService(
         for _: ChainModel,
         wallet _: SSFModels.MetaAccountModel,
         chainRegistry _: ChainRegistryProtocol,
