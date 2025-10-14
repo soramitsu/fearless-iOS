@@ -47,12 +47,14 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
 
         let substrateAccountId = try Data(hexStringSSF: entity.substrateAccountId!)
         let ethereumAddress = try entity.ethereumAddress.map { try Data(hexStringSSF: $0) }
-        let assetsVisibility: [AssetVisibility]? = (entity.assetsVisibility?.allObjects as? [CDAssetVisibility])?.compactMap {
-            guard let assetId = $0.assetId else {
-                return nil
+        // Read assetsVisibility relationship via KVC to avoid hard dependency on generated classes/props
+        var assetsVisibility: [AssetVisibility] = []
+        if let rel = (entity.value(forKey: "assetsVisibility") as? NSSet)?.allObjects as? [NSManagedObject] {
+            assetsVisibility = rel.compactMap { obj in
+                guard let assetId = obj.value(forKey: "assetId") as? String else { return nil }
+                let hidden = (obj.value(forKey: "hidden") as? Bool) ?? false
+                return AssetVisibility(assetId: assetId, hidden: hidden)
             }
-
-            return AssetVisibility(assetId: assetId, hidden: $0.hidden)
         }
         var favouriteChainIds: [String] = []
         if let entityFavouriteChainIds = entity.favouriteChainIds {
@@ -73,7 +75,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             unusedChainIds: entity.unusedChainIds as? [String],
             selectedCurrency: selectedCurrency ?? Currency.defaultCurrency(),
             networkManagmentFilter: entity.networkManagmentFilter,
-            assetsVisibility: assetsVisibility ?? [],
+            assetsVisibility: assetsVisibility,
             hasBackup: entity.hasBackup,
             favouriteChainIds: favouriteChainIds
         )
@@ -98,19 +100,23 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         entity.hasBackup = model.hasBackup
         entity.favouriteChainIds = model.favouriteChainIds as NSArray
 
+        // Persist assetsVisibility via KVC/entity name to keep compatibility across model versions
+        let relationSet = entity.mutableSetValue(forKey: "assetsVisibility")
         for assetVisibility in model.assetsVisibility {
-            var assetVisibilityEntity = entity.assetsVisibility?.first { entity in
-                (entity as? CDAssetVisibility)?.assetId == assetVisibility.assetId
-            } as? CDAssetVisibility
-
-            if assetVisibilityEntity == nil {
-                let newEntity = CDAssetVisibility(context: context)
-                entity.addToAssetsVisibility(newEntity)
-                assetVisibilityEntity = newEntity
+            var match: NSManagedObject?
+            for case let obj as NSManagedObject in relationSet {
+                if let assetId = obj.value(forKey: "assetId") as? String, assetId == assetVisibility.assetId {
+                    match = obj
+                    break
+                }
             }
-
-            assetVisibilityEntity?.assetId = assetVisibility.assetId
-            assetVisibilityEntity?.hidden = assetVisibility.hidden
+            if match == nil {
+                let newObj = NSEntityDescription.insertNewObject(forEntityName: "CDAssetVisibility", into: context)
+                relationSet.add(newObj)
+                match = newObj
+            }
+            match?.setValue(assetVisibility.assetId, forKey: "assetId")
+            match?.setValue(assetVisibility.hidden, forKey: "hidden")
         }
 
         for chainAccount in model.chainAccounts {
