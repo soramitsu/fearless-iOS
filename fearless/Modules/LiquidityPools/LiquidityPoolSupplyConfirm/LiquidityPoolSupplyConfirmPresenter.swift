@@ -98,10 +98,11 @@ final class LiquidityPoolSupplyConfirmPresenter {
     // MARK: - Private methods
 
     private func refreshFee() {
+        let chainAssets = Array(chain.tokens.tokens ?? [])
         guard
             let dexId,
-            let baseAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.baseAssetId }),
-            let targetAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.targetAssetId })
+            let baseAsset = chainAssets.first(where: { $0.currencyId == liquidityPair.baseAssetId }),
+            let targetAsset = chainAssets.first(where: { $0.currencyId == liquidityPair.targetAssetId })
         else {
             return
         }
@@ -243,10 +244,11 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmViewOut
     }
 
     func didTapConfirmButton() {
+        let chainAssets = Array(chain.tokens.tokens ?? [])
         guard
             let dexId,
-            let baseAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.baseAssetId }),
-            let targetAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.targetAssetId })
+            let baseAsset = chainAssets.first(where: { $0.currencyId == liquidityPair.baseAssetId }),
+            let targetAsset = chainAssets.first(where: { $0.currencyId == liquidityPair.targetAssetId })
         else {
             return
         }
