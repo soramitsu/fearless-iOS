@@ -132,12 +132,6 @@ public extension ChainModel {
         )
     }
 
-    // Map legacy assets field onto tokens container
-    var assets: Set<AssetModel> {
-        get { tokens.tokens ?? [] }
-        set { tokens = ChainRemoteTokens(type: .config, whitelist: nil, utilityId: nil, tokens: newValue) }
-    }
-
     // Legacy fields
     var addressPrefix: UInt16 { UInt16(properties.addressPrefix) ?? 0 }
     var identityChain: String? { nil }
