@@ -15846,6 +15846,7 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAFE10092DCAF11200E5C0DE /* PriceData+Identifiable.swift in Sources */,
 				F1E2D3C4B5A60718293A4B5C /* GraphQLResponse.swift in Sources */,
 				BBCCDDEEAABB112233445566 /* XcmMinAmountInspectorShim.swift in Sources */,
 				012B4273E4109F0B65117BAE /* Identifiable+Models.swift in Sources */,
