@@ -146,7 +146,8 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         }
 
         let options = DataProviderObserverOptions(
-            notifyIfNoDiff: true
+            alwaysNotifyOnRefresh: true,
+            waitsInProgressSyncOnAdd: false
         )
 
         priceProvider.addObserver(

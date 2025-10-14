@@ -22,24 +22,15 @@ final class HistoryOperationFactoriesAssembly {
             return GiantsquidHistoryOperationFactory(txStorage: txStorage)
         case .sora:
             return SoraSubsquidHistoryOperationFactory(txStorage: AnyDataProviderRepository(txStorage), chainRegistry: ChainRegistryFacade.sharedRegistry)
-        case .alchemy:
-            return AlchemyHistoryOperationFactory(txStorage: txStorage, alchemyService: AlchemyService())
+        // Alchemy history type removed in SSFModels; use Etherscan when present via explorer
+        // or handle via giantsquid/subsquid based on chain configuration.
         case .etherscan:
             return EtherscanHistoryOperationFactory()
         case .oklink:
             return OklinkHistoryOperationFactory()
         case .reef:
             return ReefSubsquidHistoryOperationFactory(txStorage: txStorage)
-        case .blockscout:
-            return BlockscoutHistoryOperationFactory()
-        case .fire:
-            return FireHistoryOperationFactory()
-        case .vicscan:
-            return ViscanHistoryOperationFactory()
-        case .zchain:
-            return ZChainHistoryOperationFactory()
-        case .klaytn:
-            return KaiaHistoryOperationFactory()
+        // Removed explorers in new enum; fall back to giantsquid/subsquid routing elsewhere
         case .none:
             return nil
         }
