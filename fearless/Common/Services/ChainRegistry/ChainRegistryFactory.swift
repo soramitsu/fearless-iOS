@@ -72,14 +72,9 @@ final class ChainRegistryFactory {
         let chainRepository = chainRepositoryFactory.createRepository()
         let chainProvider = createChainProvider(from: repositoryFacade, chainRepository: chainRepository)
 
-        let syncService = SSFChainRegistry.ChainSyncService(
-            chainsUrl: ApplicationConfig.shared.chainsSourceUrl,
-            operationQueue: OperationQueue(),
-            dataFetchFactory: NetworkOperationFactory()
-        )
-
         let chainSyncService = ChainSyncService(
-            syncService: syncService,
+            chainsUrl: ApplicationConfig.shared.chainsSourceUrl,
+            dataFetchFactory: NetworkOperationFactory(),
             repository: AnyDataProviderRepository(chainRepository),
             eventCenter: EventCenter.shared,
             operationQueue: OperationManagerFacade.syncQueue,

@@ -156,27 +156,7 @@ extension ServiceCoordinator {
     }
 
     private static func createPackageChainRegistry() -> SSFChainRegistry.ChainRegistryProtocol {
-        let chainSyncService = SSFChainRegistry.ChainSyncService(
-            chainsUrl: ApplicationConfig.shared.chainsSourceUrl,
-            operationQueue: OperationQueue(),
-            dataFetchFactory: SSFNetwork.NetworkOperationFactory()
-        )
-
-        let chainsTypesSyncService = SSFChainRegistry.ChainsTypesSyncService(
-            url: ApplicationConfig.shared.chainTypesSourceUrl,
-            dataOperationFactory: SSFNetwork.NetworkOperationFactory(),
-            operationQueue: OperationQueue()
-        )
-
-        let runtimeSyncService = SSFChainRegistry.RuntimeSyncService(dataOperationFactory: NetworkOperationFactory())
-
-        let chainRegistry = SSFChainRegistry.ChainRegistry(
-            runtimeProviderPool: SSFChainRegistry.RuntimeProviderPool(),
-            connectionPool: SSFChainRegistry.ConnectionPool(),
-            chainSyncService: chainSyncService,
-            chainsTypesSyncService: chainsTypesSyncService,
-            runtimeSyncService: runtimeSyncService
-        )
-        return chainRegistry
+        // Use app's default registry which conforms to SSFChainRegistry.ChainRegistryProtocol
+        return ChainRegistryFactory.createDefaultRegistry()
     }
 }

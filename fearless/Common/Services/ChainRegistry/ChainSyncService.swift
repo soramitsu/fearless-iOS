@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import RobinHood
 import SSFUtils
+import SSFNetwork
 import SSFModels
 import SSFChainRegistry
 
@@ -21,7 +22,8 @@ final class ChainSyncService {
         let removedItems: [ChainModel]
     }
 
-    private let syncService: SSFChainRegistry.ChainSyncService
+    private let chainsUrl: URL
+    private let dataFetchFactory: NetworkOperationFactoryProtocol
     private let repository: AnyDataProviderRepository<ChainModel>
     private let eventCenter: EventCenterProtocol
     private let retryStrategy: ReconnectionStrategyProtocol
@@ -37,7 +39,8 @@ final class ChainSyncService {
     private lazy var scheduler = Scheduler(with: self, callbackQueue: DispatchQueue.global())
 
     init(
-        syncService: SSFChainRegistry.ChainSyncService,
+        chainsUrl: URL,
+        dataFetchFactory: NetworkOperationFactoryProtocol,
         repository: AnyDataProviderRepository<ChainModel>,
         eventCenter: EventCenterProtocol,
         operationQueue: OperationQueue,
@@ -45,7 +48,8 @@ final class ChainSyncService {
         logger: LoggerProtocol? = nil,
         applicationHandler: ApplicationHandlerProtocol
     ) {
-        self.syncService = syncService
+        self.chainsUrl = chainsUrl
+        self.dataFetchFactory = dataFetchFactory
         self.repository = repository
         self.eventCenter = eventCenter
         self.operationQueue = operationQueue
@@ -92,7 +96,15 @@ final class ChainSyncService {
         } else {
             Task {
                 do {
-                    let remoteChains = try await syncService.getChainModels()
+                    let request = RequestConfig(
+                        baseURL: chainsUrl,
+                        method: .get,
+                        endpoint: nil,
+                        headers: nil,
+                        body: nil
+                    )
+                    let worker = NetworkWorkerDefault()
+                    let remoteChains: [ChainModel] = try await worker.performRequest(with: request)
                     handle(remoteChains: remoteChains)
                 } catch {
                     complete(result: .failure(error))
