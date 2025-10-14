@@ -6,7 +6,7 @@ import SSFNetwork
 
 final class AlchemyRequest: RequestConfig {
     private enum Constants {
-        #if DEBUG
+        #if canImport(FearlessKeys) && DEBUG
             static let baseURL = URL(string: "https://eth-mainnet.g.alchemy.com/v2/\(ThirdPartyServicesApiKeysDebug.alchemyApiKey)")!
         #else
             static let baseURL = URL(string: "https://eth-mainnet.g.alchemy.com/v2/\(ThirdPartyServicesApiKeys.alchemyApiKey)")!

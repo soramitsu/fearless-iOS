@@ -157,6 +157,6 @@ extension ServiceCoordinator {
 
     private static func createPackageChainRegistry() -> SSFChainRegistry.ChainRegistryProtocol {
         // Use app's default registry which conforms to SSFChainRegistry.ChainRegistryProtocol
-        return ChainRegistryFactory.createDefaultRegistry()
+        ChainRegistryFactory.createDefaultRegistry()
     }
 }
