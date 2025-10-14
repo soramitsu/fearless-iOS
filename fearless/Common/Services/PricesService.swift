@@ -144,7 +144,9 @@ private extension PricesService {
                 }
                 updatedAssets.append(updatedAsset)
             }
-            let updatedChain = chain.replacing(updatedAssets)
+            var mutableChain = chain
+            mutableChain.assets = Set(updatedAssets)
+            let updatedChain = mutableChain
             updatedChains.append(updatedChain)
         }
         let saveOperation = chainRepository.saveOperation({
