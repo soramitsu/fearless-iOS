@@ -136,7 +136,12 @@ private extension PricesService {
             var updatedAssets: [AssetModel] = []
             chain.chainAssets.forEach { chainAsset in
                 let assetPrice = prices.first { $0.priceId == chainAsset.asset.priceId }
-                let updatedAsset = chainAsset.asset.replacingPrice(assetPrice)
+                let updatedAsset: AssetModel
+                if let assetPrice {
+                    updatedAsset = chainAsset.asset.replacingPrice(assetPrice)
+                } else {
+                    updatedAsset = chainAsset.asset
+                }
                 updatedAssets.append(updatedAsset)
             }
             let updatedChain = chain.replacing(updatedAssets)
