@@ -38,7 +38,8 @@ final class AssetModelMapper {
 }
 
 extension AssetModelMapper: CoreDataMapperProtocol {
-    var entityIdentifierFieldName: String { #keyPath(CDAsset.id) }
+    // Avoid #keyPath ambiguity with Identifiable.id in Swift 6
+    var entityIdentifierFieldName: String { "id" }
 
     func transform(entity: CDAsset) throws -> AssetModel {
         var symbol: String?
@@ -115,7 +116,7 @@ extension AssetModelMapper: CoreDataMapperProtocol {
         entity.color = model.color
         entity.name = model.name
         entity.currencyId = model.currencyId
-        entity.type = model.type?.rawValue
+        entity.type = model.substrateType?.rawValue
         entity.isUtility = model.isUtility
         entity.isNative = model.isNative
         entity.staking = model.staking?.rawValue
@@ -132,15 +133,7 @@ extension AssetModelMapper: CoreDataMapperProtocol {
         let purchaseProviders: [String]? = model.purchaseProviders?.map(\.rawValue)
         entity.purchaseProviders = purchaseProviders
 
-        let priceData: [CDPriceData] = model.priceData.map { priceData in
-            let entity = CDPriceData(context: context)
-            entity.currencyId = priceData.currencyId
-            entity.priceId = priceData.priceId
-            entity.price = priceData.price
-            entity.fiatDayByChange = String("\(priceData.fiatDayChange)")
-            entity.coingeckoPriceId = priceData.coingeckoPriceId
-            return entity
-        }
+        let priceData: [CDPriceData] = []
 
         if let oldPrices = entity.priceData as? Set<CDPriceData> {
             oldPrices.forEach { cdPriceData in
