@@ -307,18 +307,13 @@ private extension ChainAssetsFetching {
     }
 
     func sortByPrice(chainAssets: [ChainAsset], order: SortOrder) -> [ChainAsset] {
+        // Price list is not available in the current AssetModel; fall back to symbol
         chainAssets.sorted(by: {
-            let firstPriceDataSorted = $0.asset.priceData.sorted(by: { $0.currencyId < $1.currencyId })
-            let firstPriceString = firstPriceDataSorted.first?.price ?? ""
-            let firstPrice = Decimal(string: firstPriceString)
-            let secondPriceDataSorted = $1.asset.priceData.sorted(by: { $0.currencyId < $1.currencyId })
-            let secondPriceString = secondPriceDataSorted.first?.price ?? ""
-            let secondPrice = Decimal(string: secondPriceString)
             switch order {
             case .ascending:
-                return firstPrice ?? 0 < secondPrice ?? 0
+                return $0.asset.symbol < $1.asset.symbol
             case .descending:
-                return secondPrice ?? 0 > firstPrice ?? 0
+                return $0.asset.symbol > $1.asset.symbol
             }
         })
     }
