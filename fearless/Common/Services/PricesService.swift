@@ -129,35 +129,10 @@ private extension PricesService {
         }
     }
 
-    func handle(prices: [PriceData], for chainAssets: [ChainAsset]) {
-        var updatedChains: [ChainModel] = []
-        let uniqChains: [ChainModel] = chainAssets.compactMap { $0.chain }.uniq { $0.chainId }
-        uniqChains.forEach { chain in
-            var updatedAssets: [AssetModel] = []
-            chain.chainAssets.forEach { chainAsset in
-                let assetPrice = prices.first { $0.priceId == chainAsset.asset.priceId }
-                let updatedAsset: AssetModel
-                if let assetPrice {
-                    updatedAsset = chainAsset.asset.replacingPrice(assetPrice)
-                } else {
-                    updatedAsset = chainAsset.asset
-                }
-                updatedAssets.append(updatedAsset)
-            }
-            var mutableChain = chain
-            mutableChain.assets = Set(updatedAssets)
-            let updatedChain = mutableChain
-            updatedChains.append(updatedChain)
-        }
-        let saveOperation = chainRepository.saveOperation({
-            updatedChains
-        }, {
-            []
-        })
-        saveOperation.completionBlock = { [weak self] in
-            self?.eventCenter.notify(with: PricesUpdated())
-        }
-        operationQueue.addOperation(saveOperation)
+    func handle(prices _: [PriceData], for _: [ChainAsset]) {
+        // Prices are consumed directly by UI formatters via wallet-selected currency.
+        // Persisting into ChainModel assets is no longer supported here.
+        eventCenter.notify(with: PricesUpdated())
     }
 
     func handle(error: Error) {
