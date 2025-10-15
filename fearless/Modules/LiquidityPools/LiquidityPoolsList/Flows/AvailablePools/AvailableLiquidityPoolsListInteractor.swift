@@ -116,11 +116,13 @@ extension AvailableLiquidityPoolsListInteractor: AvailableLiquidityPoolsListInte
                 let apyStream = try await liquidityPoolService.subscribePoolsAPY(poolIds: poolIds)
                 for try await apy in apyStream {
                     if apy.first?.type == .remote {
-                        receivedPoolIds.append(contentsOf: apy.compactMap { $0.value?.poolId })
+                        let ids = apy.compactMap { $0.value ?? nil }.compactMap { $0.poolId }
+                        receivedPoolIds.append(contentsOf: ids)
                     }
 
                     await MainActor.run {
-                        output?.didReceivePoolsAPY(apy: apy.compactMap { $0.value })
+                        let values = apy.compactMap { $0.value ?? nil }
+                        output?.didReceivePoolsAPY(apy: values)
                     }
                 }
             } catch {
