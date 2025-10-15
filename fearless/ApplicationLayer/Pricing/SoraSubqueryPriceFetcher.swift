@@ -12,7 +12,7 @@ final class SoraSubqueryPriceFetcherDefault: SoraSubqueryPriceFetcher {
 
             guard let blockExplorer = chainAssets.first(where: { chainAsset in
                 chainAsset.chain.knownChainEquivalent == .soraMain
-            })?.chain.externalApi?.pricing else {
+            })?.chain.externalApi?.history else {
                 throw SubqueryPriceFetcherError.missingBlockExplorer
             }
             let priceIds = chainAssets.map { $0.asset.priceProvider?.id }.compactMap { $0 }

@@ -14,7 +14,7 @@ let package = Package(
     ],
     dependencies: [
         // WalletConnect v2 stack
-        .package(url: "https://github.com/WalletConnect/WalletConnectSwiftV2", exact: "1.9.9"),
+        .package(url: "https://github.com/WalletConnect/WalletConnectSwiftV2", exact: "1.20.3"),
         // Web3
         .package(url: "https://github.com/soramitsu/web3-swift", exact: "7.7.7"),
         // UI helpers

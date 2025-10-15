@@ -106,8 +106,7 @@ final class CrossChainDepsContainer {
         let sourceConfig = ApplicationConfig.shared
         let services = XcmAssembly.createExtrincisServices(
             fromChainData: fromChainData,
-            sourceConfig: sourceConfig,
-            chainRegistry: ChainRegistryFacade.sharedRegistry
+            sourceConfig: sourceConfig
         )
 
         return services

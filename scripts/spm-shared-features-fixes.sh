@@ -128,3 +128,22 @@ for dd in "$HOME/Library/Developer/Xcode/DerivedData"/*; do
 done
 
 echo "[spm-fixes] Completed EthereumPrivateKey call patches"
+
+# 3) Patch scrypt SSE2 selection to avoid undefined symbol on arm64 simulators
+patch_scrypt_sse2_guard() {
+  local base="$1/SourcePackages/checkouts/shared-features-spm/Sources/scrypt"
+  local file="$base/crypto_scrypt.c"
+  [[ -f "$file" ]] || return 0
+  # Replace simulator-preferring SSE2 with SSSE3 feature guard, so on arm64 sim we don't reference the SSE2 symbol.
+  /usr/bin/sed -i '' \
+    -e $'s/#if TARGET_IPHONE_SIMULATOR/#if defined(__SSSE3__)/' \
+    "$file" || true
+}
+
+# Apply in workspace and DerivedData
+patch_scrypt_sse2_guard "$BASE_DIR"
+for dd in "$HOME/Library/Developer/Xcode/DerivedData"/*; do
+  patch_scrypt_sse2_guard "$dd"
+done
+
+echo "[spm-fixes] Applied scrypt SSE2 guard patch (arm64-sim safe)"

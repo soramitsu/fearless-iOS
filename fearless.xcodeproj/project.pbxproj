@@ -19279,10 +19279,10 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 		FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/WalletConnect/WalletConnectSwiftV2";
-			requirement = {
-				kind = exactVersion;
-				version = 1.9.9;
-			};
+	requirement = {
+		kind = exactVersion;
+		version = 1.20.3;
+	};
 		};
 		FA8810962BDCAF260084CC4B /* XCRemoteSwiftPackageReference "shared-features-spm" */ = {
 			isa = XCRemoteSwiftPackageReference;

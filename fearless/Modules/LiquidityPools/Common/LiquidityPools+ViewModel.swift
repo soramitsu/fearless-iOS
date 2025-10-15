@@ -193,8 +193,7 @@ enum PolkaswapLiquidityPoolServiceAssembly {
 // Public initializers for SSFPools value types (memberwise inits are internal)
 public extension PooledAssetInfo {
     init(id: String, precision: Int16) {
-        self.id = id
-        self.precision = precision
+        self = PooledAssetInfo(id: id, precision: precision)
     }
 }
 
@@ -207,12 +206,14 @@ public extension SupplyLiquidityInfo {
         targetAssetAmount: Decimal,
         slippage: Decimal
     ) {
-        self.dexId = dexId
-        self.baseAsset = baseAsset
-        self.targetAsset = targetAsset
-        self.baseAssetAmount = baseAssetAmount
-        self.targetAssetAmount = targetAssetAmount
-        self.slippage = slippage
+        self = SupplyLiquidityInfo(
+            dexId: dexId,
+            baseAsset: baseAsset,
+            targetAsset: targetAsset,
+            baseAssetAmount: baseAssetAmount,
+            targetAssetAmount: targetAssetAmount,
+            slippage: slippage
+        )
     }
 }
 
@@ -228,14 +229,16 @@ public extension RemoveLiquidityInfo {
         totalIssuances: Decimal,
         slippage: Decimal
     ) {
-        self.dexId = dexId
-        self.baseAsset = baseAsset
-        self.targetAsset = targetAsset
-        self.baseAssetAmount = baseAssetAmount
-        self.targetAssetAmount = targetAssetAmount
-        self.baseAssetReserves = baseAssetReserves
-        self.totalIssuances = totalIssuances
-        self.slippage = slippage
+        self = RemoveLiquidityInfo(
+            dexId: dexId,
+            baseAsset: baseAsset,
+            targetAsset: targetAsset,
+            baseAssetAmount: baseAssetAmount,
+            targetAssetAmount: targetAssetAmount,
+            baseAssetReserves: baseAssetReserves,
+            totalIssuances: totalIssuances,
+            slippage: slippage
+        )
     }
 }
 

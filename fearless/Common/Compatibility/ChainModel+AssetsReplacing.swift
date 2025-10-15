@@ -10,4 +10,3 @@ extension ChainModel {
         return self
     }
 }
-

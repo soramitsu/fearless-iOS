@@ -222,7 +222,7 @@ private extension WalletDetailsPresenter {
                     }
                 case .unknown:
                     return nil
-                // .oklink may not be present in current ExternalApiExplorerType
+                    // .oklink may not be present in current ExternalApiExplorerType
                 }
                 return nil
             }

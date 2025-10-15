@@ -33,6 +33,8 @@ final class HistoryOperationFactoriesAssembly {
         // Removed explorers in new enum; fall back to giantsquid/subsquid routing elsewhere
         case .none:
             return nil
+        default:
+            return nil
         }
     }
 }

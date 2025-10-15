@@ -314,11 +314,9 @@ extension RuntimeSyncService: RuntimeSyncServiceProtocol {
             return
         }
 
-        if knownConnection.connectionName != connection.connectionName {
-            knownChains[chain.chainId] = connection
-
-            performSync(for: chain.chainId)
-        }
+        // Connection identity cannot be compared via name; assume changed and resync
+        knownChains[chain.chainId] = connection
+        performSync(for: chain.chainId)
     }
 
     func unregister(chainId: ChainModel.Id) {

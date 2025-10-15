@@ -125,7 +125,7 @@ final class ChainModelMapper {
             assetEntity.color = assetModel.color
             assetEntity.name = assetModel.name
             assetEntity.currencyId = assetModel.currencyId
-            assetEntity.type = assetModel.type?.rawValue
+            assetEntity.type = assetModel.substrateType?.rawValue
             assetEntity.isUtility = assetModel.isUtility
             assetEntity.isNative = assetModel.isNative
             assetEntity.staking = assetModel.staking?.rawValue
@@ -142,15 +142,7 @@ final class ChainModelMapper {
             let purchaseProviders: [String]? = assetModel.purchaseProviders?.map(\.rawValue)
             assetEntity.purchaseProviders = purchaseProviders
 
-            let priceData: [CDPriceData] = assetModel.priceData.map { priceData in
-                let entity = CDPriceData(context: context)
-                entity.currencyId = priceData.currencyId
-                entity.priceId = priceData.priceId
-                entity.price = priceData.price
-                entity.fiatDayByChange = String("\(priceData.fiatDayChange)")
-                entity.coingeckoPriceId = priceData.coingeckoPriceId
-                return entity
-            }
+            let priceData: [CDPriceData] = []
 
             if
                 let oldAssets = entity.assets as? Set<CDAsset>,
@@ -342,7 +334,7 @@ final class ChainModelMapper {
             else {
                 return nil
             }
-            return XcmAvailableAsset(id: id, symbol: symbol, minAmount: nil)
+            return XcmAvailableAsset(id: id, symbol: symbol)
         }
         let destinations: [XcmAvailableDestination] = availableDestinations.compactMap { entity in
             guard
@@ -361,7 +353,7 @@ final class ChainModelMapper {
                 else {
                     return nil
                 }
-                return XcmAvailableAsset(id: id, symbol: symbol, minAmount: entity.minAmount)
+                return XcmAvailableAsset(id: id, symbol: symbol)
             }
             return XcmAvailableDestination(
                 chainId: chainId,
@@ -483,7 +475,7 @@ final class ChainModelMapper {
                 let entity = CDXcmAvailableAsset(context: context)
                 entity.id = $0.id
                 entity.symbol = $0.symbol
-                entity.minAmount = $0.minAmount
+                // minAmount not available in current model
                 return entity
             }
             destinationEntity.assets = Set(availableAssets) as NSSet
@@ -565,16 +557,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             identityChain: entity.identityChain
         )
 
-        let assetsArray: [AssetModel] = entity.assets.or([]).compactMap { anyAsset in
-            guard let asset = anyAsset as? CDAsset else {
-                return nil
-            }
-
-            return createAsset(from: asset)
-        }
-        let assets = Set(assetsArray)
-
-        chainModel.assets = assets
+        // Assets are represented via tokens in current models; skip direct assignment
 
         return chainModel
     }

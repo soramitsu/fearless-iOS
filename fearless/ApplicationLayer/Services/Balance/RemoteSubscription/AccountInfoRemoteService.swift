@@ -92,7 +92,9 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
     ) throws -> [ChainAssetId: AccountInfo?] {
         try result.reduce([ChainAssetId: AccountInfo?]()) { part, response in
             var partial = part
-            let id = ChainAssetId(id: response.request.requestId)
+            let components = response.request.requestId.split(separator: ":", maxSplits: 1).map(String.init)
+            guard components.count == 2 else { return partial }
+            let id = ChainAssetId(chainId: components[0], assetId: components[1])
 
             let accountInfo = try mapAccountInfo(response: response, chain: chain)
             partial[id] = accountInfo
@@ -120,13 +122,13 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         case .equilibrium:
             let eqAccountInfo = try json.map(to: EquilibriumAccountInfo.self)
             let map = eqAccountInfo.data.info?.mapBalances()
-            let chainAssetId = ChainAssetId(id: response.request.requestId)
-            guard
-                let chainAsset = chain.chainAssets.first(where: { $0.chainAssetId == chainAssetId }),
-                let currencyId = chainAsset.asset.currencyId
-            else {
+            let comps = response.request.requestId.split(separator: ":", maxSplits: 1).map(String.init)
+            guard comps.count == 2 else { return nil }
+            let chainAssetId = ChainAssetId(chainId: comps[0], assetId: comps[1])
+            guard let chainAsset = chain.chainAssets.first(where: { $0.chainAssetId == chainAssetId }) else {
                 return nil
             }
+            let currencyId = chainAsset.asset.currencyId
 
             let balance = map?[currencyId]
             accountInfo = AccountInfo(equilibriumFree: balance)
@@ -139,7 +141,7 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
     }
 
     private func createSubstrateRequest(for chainAsset: ChainAsset, accountId: AccountId) -> any MixStorageRequest {
-        if chainAsset.chain.knownChainEquivalent == .genshiro {
+        if chainAsset.chain.isEquilibrium {
             let request = EquilibriumAccountInfotorageRequest(
                 parametersType: .encodable(param: accountId),
                 storagePath: chainAsset.storagePath,

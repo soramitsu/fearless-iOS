@@ -31,6 +31,7 @@ final class RuntimeProvider {
             try DynamicScaleDecoder(data: data, registry: catalog, version: UInt64(specVersion))
         }
     }
+
     struct PendingRequest {
         let resultClosure: (RuntimeCoderFactoryProtocol?) -> Void
         let queue: DispatchQueue?
