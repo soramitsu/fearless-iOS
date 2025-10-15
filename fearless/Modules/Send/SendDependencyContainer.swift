@@ -44,7 +44,7 @@ final class SendDepencyContainer {
         }
         currentDependecies?.transferService.unsubscribe()
 
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainRegistry: ChainRegistryProtocol = ChainRegistryFacade.sharedRegistry
         let runtimeService = chainRegistry.getRuntimeProvider(
             for: chainAsset.chain.chainId
         )
@@ -110,12 +110,12 @@ final class SendDepencyContainer {
 
         switch chainAsset.chain.chainBaseType {
         case .substrate:
-            guard let nativeRuntimeService = ChainRegistryFacade.sharedRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            guard let nativeRuntimeService = (ChainRegistryFacade.sharedRegistry as ChainRegistryProtocol).getRuntimeProvider(for: chainAsset.chain.chainId) else {
                 throw ChainRegistryError.runtimeMetadaUnavailable
             }
 
-            let chainRegistry = ChainRegistryFacade.sharedRegistry
-            let connection = try chainRegistry.getSubstrateConnection(for: chainAsset.chain)
+            let chainRegistryConcrete = ChainRegistryFacade.sharedRegistry as! ChainRegistry
+            let connection = try chainRegistryConcrete.getSubstrateConnection(for: chainAsset.chain)
             let operationManager = OperationManagerFacade.sharedManager
 
             let extrinsicService = SSFExtrinsicKit.ExtrinsicService(
@@ -148,7 +148,7 @@ final class SendDepencyContainer {
 
             return EthereumTransferService(
                 ws: ws,
-                privateKey: try EthereumPrivateKey(privateKey: secretKey.bytes),
+                privateKey: try EthereumPrivateKey(privateKey: Array(secretKey)),
                 senderAddress: address
             )
         }

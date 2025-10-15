@@ -14,8 +14,7 @@ extension ChainModel.ExternalApiExplorerType {
                 return R.string.localizable.transactionDetailsViewEtherscan(preferredLanguages: locale.rLanguages)
             case .reef:
                 return R.string.localizable.transactionDetailsViewReefscan(preferredLanguages: locale.rLanguages)
-            case .oklink:
-                return R.string.localizable.transactionDetailsViewOklink(preferredLanguages: locale.rLanguages)
+            // .oklink may not be available in current models
             case .unknown:
                 return ""
             }
