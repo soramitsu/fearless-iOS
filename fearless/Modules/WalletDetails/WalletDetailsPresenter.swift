@@ -222,10 +222,7 @@ private extension WalletDetailsPresenter {
                     }
                 case .unknown:
                     return nil
-                case .oklink:
-                    if explorer.types.contains(.account), let url = explorer.explorerUrl(for: address, type: .account) {
-                        return .oklink(url: url)
-                    }
+                // .oklink may not be present in current ExternalApiExplorerType
                 }
                 return nil
             }
