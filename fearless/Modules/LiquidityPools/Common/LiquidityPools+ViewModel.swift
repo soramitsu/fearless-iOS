@@ -240,7 +240,7 @@ public extension RemoveLiquidityInfo {
 }
 
 // Extra API surface used by Remove Liquidity interactor
-public extension PolkaswapLiquidityPoolService {
+extension PolkaswapLiquidityPoolService {
     func fetchUserPool(assetIdPair _: AssetIdPair, accountId _: Data) async throws -> AccountPool? { nil }
     func fetchTotalIssuance(reservesId _: Data) async throws -> BigUInt? { nil }
 }
