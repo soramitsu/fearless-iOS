@@ -101,7 +101,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
     }
 
     func connect(uri: String) async throws {
-        guard let walletConnectUri = try? WalletConnectURI(string: uri) else {
+        guard let walletConnectUri = WalletConnectURI(string: uri) else {
             let preferredLanguages = LocalizationManager.shared.selectedLocale.rLanguages
             let title = R.string.localizable.walletConnectInvalidUrlTitle(preferredLanguages: preferredLanguages)
             let message = R.string.localizable.walletConnectInvalidUrlMessage(preferredLanguages: preferredLanguages)
