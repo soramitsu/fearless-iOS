@@ -1,5 +1,4 @@
 import Foundation
-import Auth
 import Web3
 import CryptoSwift
 
