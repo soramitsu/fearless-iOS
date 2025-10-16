@@ -1,5 +1,6 @@
 import Foundation
 import Web3
+import WalletConnectSigner
 import CryptoSwift
 
 struct DefaultCryptoProvider: CryptoProvider {
