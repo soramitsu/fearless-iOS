@@ -37,12 +37,8 @@
 @_exported import SwiftyBeaver
 #endif
 
-#if canImport(WalletConnect)
-@_exported import WalletConnect
-#endif
-
-#if canImport(WalletConnectAuth)
-@_exported import WalletConnectAuth
+#if canImport(WalletConnectSign)
+@_exported import WalletConnectSign
 #endif
 
 #if canImport(WalletConnectNetworking)
@@ -55,4 +51,8 @@
 
 #if canImport(Web3Wallet)
 @_exported import Web3Wallet
+#endif
+
+#if canImport(Auth)
+@_exported import Auth
 #endif

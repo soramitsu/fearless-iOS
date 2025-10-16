@@ -31,9 +31,8 @@ let package = Package(
         .target(
             name: "FearlessDependencies",
             dependencies: [
-                // WalletConnect products
+                // WalletConnect products (align with 1.20.x manifest)
                 .product(name: "WalletConnect", package: "WalletConnectSwiftV2"),
-                .product(name: "WalletConnectAuth", package: "WalletConnectSwiftV2"),
                 .product(name: "WalletConnectNetworking", package: "WalletConnectSwiftV2"),
                 .product(name: "WalletConnectPairing", package: "WalletConnectSwiftV2"),
                 .product(name: "Web3Wallet", package: "WalletConnectSwiftV2"),

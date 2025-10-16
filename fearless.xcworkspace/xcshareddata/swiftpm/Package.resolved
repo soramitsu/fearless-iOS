@@ -20,15 +20,6 @@
       }
     },
     {
-      "identity" : "charts",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/danielgindi/Charts",
-      "state" : {
-        "revision" : "07b23476ad52b926be772f317d8f1d4511ee8d02",
-        "version" : "4.1.0"
-      }
-    },
-    {
       "identity" : "cosmos",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/evgenyneu/Cosmos.git",
@@ -383,8 +374,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/WalletConnect/WalletConnectSwiftV2",
       "state" : {
-        "revision" : "58d2b49eeac5cf94432e2647b9107577c156a25c",
-        "version" : "1.9.9"
+        "revision" : "3327c0a8c014b155534b91520554d812e2960077",
+        "version" : "1.20.3"
       }
     },
     {
