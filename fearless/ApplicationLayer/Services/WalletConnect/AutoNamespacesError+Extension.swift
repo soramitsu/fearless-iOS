@@ -15,6 +15,8 @@ extension AutoNamespacesError: LocalizedError {
             return R.string.localizable.requiredMethodsNotSatisfied(preferredLanguages: preferredLanguages)
         case .requiredEventsNotSatisfied:
             return R.string.localizable.requiredEventsNotSatisfied(preferredLanguages: preferredLanguages)
+        @unknown default:
+            return "Unsupported namespaces"
         }
     }
 }
