@@ -4,7 +4,7 @@ import Combine
 import WalletConnectSign
 import Web3Wallet
 #if canImport(WalletKit)
-import WalletKit
+    import WalletKit
 #endif
 #if canImport(FearlessKeys)
     import FearlessKeys
@@ -119,7 +119,8 @@ final class WalletConnectServiceImpl: WalletConnectService {
         case let .approve(proposal, namespaces):
             try await Web3Wallet.instance.approve(proposalId: proposal.id, namespaces: namespaces)
         case let .reject(proposal):
-            try await Web3Wallet.instance.reject(proposalId: proposal.id, reason: RejectionReason.userRejected)
+            // Fallback: disconnect pairing to reflect rejection on older SDKs without explicit reject API
+            try await Web3Wallet.instance.disconnectPairing(topic: proposal.pairingTopic)
         }
     }
 
