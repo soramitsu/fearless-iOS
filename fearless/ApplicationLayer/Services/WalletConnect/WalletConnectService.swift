@@ -107,48 +107,88 @@ final class WalletConnectServiceImpl: WalletConnectService {
             let message = R.string.localizable.walletConnectInvalidUrlMessage(preferredLanguages: preferredLanguages)
             throw ConvenienceContentError(title: title, message: message)
         }
-        try await Web3Wallet.instance.pair(uri: walletConnectUri)
+        #if canImport(ReownWalletKit)
+            try await WalletKit.instance.pair(uri: walletConnectUri)
+        #else
+            try await Web3Wallet.instance.pair(uri: walletConnectUri)
+        #endif
     }
 
     func getSessions() -> [Session] {
-        Web3Wallet.instance.getSessions()
+        #if canImport(ReownWalletKit)
+            return WalletKit.instance.getSessions()
+        #else
+            return Web3Wallet.instance.getSessions()
+        #endif
     }
 
     func submit(proposalDecision: WalletConnectProposalDecision) async throws {
         switch proposalDecision {
         case let .approve(proposal, namespaces):
-            try await Web3Wallet.instance.approve(proposalId: proposal.id, namespaces: namespaces)
+            #if canImport(ReownWalletKit)
+                _ = try await WalletKit.instance.approve(proposalId: proposal.id, namespaces: namespaces)
+            #else
+                try await Web3Wallet.instance.approve(proposalId: proposal.id, namespaces: namespaces)
+            #endif
         case let .reject(proposal):
-            // Fallback: disconnect pairing to reflect rejection on older SDKs without explicit reject API
-            try await Web3Wallet.instance.disconnectPairing(topic: proposal.pairingTopic)
+            #if canImport(ReownWalletKit)
+                try await WalletKit.instance.rejectSession(proposalId: proposal.id, reason: RejectionReason.userRejected)
+            #else
+                // Fallback: disconnect pairing to reflect rejection on older SDKs without explicit reject API
+                try await Web3Wallet.instance.disconnectPairing(topic: proposal.pairingTopic)
+            #endif
         }
     }
 
     func submit(signDecision: WalletConnectSignDecision) async throws {
         switch signDecision {
         case let .signed(request, signature):
-            try await Web3Wallet.instance.respond(
-                topic: request.topic,
-                requestId: request.id,
-                response: .response(signature)
-            )
+            #if canImport(ReownWalletKit)
+                try await WalletKit.instance.respond(
+                    topic: request.topic,
+                    requestId: request.id,
+                    response: .response(signature)
+                )
+            #else
+                try await Web3Wallet.instance.respond(
+                    topic: request.topic,
+                    requestId: request.id,
+                    response: .response(signature)
+                )
+            #endif
         case let .rejected(request, error):
-            try await Web3Wallet.instance.respond(
-                topic: request.topic,
-                requestId: request.id,
-                response: .error(error)
-            )
+            #if canImport(ReownWalletKit)
+                try await WalletKit.instance.respond(
+                    topic: request.topic,
+                    requestId: request.id,
+                    response: .error(error)
+                )
+            #else
+                try await Web3Wallet.instance.respond(
+                    topic: request.topic,
+                    requestId: request.id,
+                    response: .error(error)
+                )
+            #endif
         }
     }
 
     func disconnect(topic: String) async throws {
-        try await Web3Wallet.instance.disconnect(topic: topic)
+        #if canImport(ReownWalletKit)
+            try await WalletKit.instance.disconnect(topic: topic)
+        #else
+            try await Web3Wallet.instance.disconnect(topic: topic)
+        #endif
     }
 
     // MARK: - Private methods
 
     private func setupSubscription() {
+        #if canImport(ReownWalletKit)
+        WalletKit.instance.sessionProposalPublisher
+        #else
         Web3Wallet.instance.sessionProposalPublisher
+        #endif
             .receive(on: DispatchQueue.main)
             .sink { [weak self] proposal, _ in
                 guard let self = self else {
@@ -160,7 +200,11 @@ final class WalletConnectServiceImpl: WalletConnectService {
             }
             .store(in: &cancellablesBag)
 
+        #if canImport(ReownWalletKit)
+        WalletKit.instance.sessionsPublisher
+        #else
         Web3Wallet.instance.sessionsPublisher
+        #endif
             .receive(on: DispatchQueue.main)
             .sink { [weak self] sessions in
                 guard let self = self else {
@@ -172,13 +216,21 @@ final class WalletConnectServiceImpl: WalletConnectService {
             }
             .store(in: &cancellablesBag)
 
+        #if canImport(ReownWalletKit)
+        WalletKit.instance.sessionRequestPublisher
+        #else
         Web3Wallet.instance.sessionRequestPublisher
+        #endif
             .receive(on: DispatchQueue.main)
             .sink { [weak self] request, _ in
                 guard let self = self else {
                     return
                 }
+                #if canImport(ReownWalletKit)
+                let session = WalletKit.instance.getSessions().first { $0.topic == request.topic }
+                #else
                 let session = Web3Wallet.instance.getSessions().first { $0.topic == request.topic }
+                #endif
                 self.listeners.forEach {
                     ($0.target as? WalletConnectServiceDelegate)?.sign(request: request, session: session)
                 }
