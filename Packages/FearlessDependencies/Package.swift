@@ -13,8 +13,8 @@ let package = Package(
         .library(name: "FearlessDependencies", targets: ["FearlessDependencies"])
     ],
     dependencies: [
-        // WalletConnect v2 stack
-        .package(url: "https://github.com/WalletConnect/WalletConnectSwiftV2", exact: "1.20.3"),
+        // Reown (WalletConnect successor)
+        .package(url: "https://github.com/reown-com/reown-swift", from: "1.0.0"),
         // Web3
         .package(url: "https://github.com/soramitsu/web3-swift", exact: "7.7.7"),
         // UI helpers
@@ -31,11 +31,11 @@ let package = Package(
         .target(
             name: "FearlessDependencies",
             dependencies: [
-                // WalletConnect products (align with 1.20.x manifest)
-                .product(name: "WalletConnect", package: "WalletConnectSwiftV2"),
-                .product(name: "WalletConnectNetworking", package: "WalletConnectSwiftV2"),
-                .product(name: "WalletConnectPairing", package: "WalletConnectSwiftV2"),
-                .product(name: "Web3Wallet", package: "WalletConnectSwiftV2"),
+                // Reown products (module names are compatible with WalletConnect v2)
+                .product(name: "WalletConnect", package: "reown-swift"),
+                .product(name: "WalletConnectNetworking", package: "reown-swift"),
+                .product(name: "WalletConnectPairing", package: "reown-swift"),
+                .product(name: "ReownWalletKit", package: "reown-swift"),
                 // Web3 products
                 .product(name: "Web3", package: "web3-swift"),
                 .product(name: "Web3ContractABI", package: "web3-swift"),

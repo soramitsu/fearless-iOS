@@ -49,10 +49,6 @@
 @_exported import WalletConnectPairing
 #endif
 
-#if canImport(Web3Wallet)
-@_exported import Web3Wallet
-#endif
-
-#if canImport(Auth)
-@_exported import Auth
+#if canImport(ReownWalletKit)
+@_exported import ReownWalletKit
 #endif

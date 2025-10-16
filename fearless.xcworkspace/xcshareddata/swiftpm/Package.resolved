@@ -1,5 +1,5 @@
 {
-  "originHash" : "a34c4ad870be7d8729137b75b6f632b41076c5b7274008422d3d0fc58796689a",
+  "originHash" : "f89e83374015d1e35c355b4ba0f1600fd22b2412db006f00510b8a9190952451",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -134,6 +134,15 @@
       "state" : {
         "revision" : "21d1dc412cfecbe6e34f1f4c4eb88d3f912654a6",
         "version" : "5.2.4"
+      }
+    },
+    {
+      "identity" : "reown-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/reown-com/reown-swift",
+      "state" : {
+        "revision" : "7590a3f421c0679dce49364ab44869a7c4d0290f",
+        "version" : "1.7.3"
       }
     },
     {
@@ -370,6 +379,15 @@
       }
     },
     {
+      "identity" : "wallet-mobile-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/MobileWalletProtocol/wallet-mobile-sdk",
+      "state" : {
+        "revision" : "4293df51d3500b8e876ca4bf0d7548adf097569a",
+        "version" : "1.1.2"
+      }
+    },
+    {
       "identity" : "walletconnectswiftv2",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/WalletConnect/WalletConnectSwiftV2",
@@ -403,6 +421,15 @@
       "state" : {
         "revision" : "e86a07ab4867f81481d430e1370a5ec97b6e3359",
         "version" : "1.1.1"
+      }
+    },
+    {
+      "identity" : "yttrium",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/reown-com/yttrium",
+      "state" : {
+        "revision" : "ed8e8f5af2029406263be5993e484c3a69c1db7a",
+        "version" : "0.9.68"
       }
     }
   ],
