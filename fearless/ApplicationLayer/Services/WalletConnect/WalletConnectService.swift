@@ -3,8 +3,8 @@ import SoraFoundation
 import Combine
 import WalletConnectSign
 import Web3Wallet
-#if canImport(WalletKit)
-    import WalletKit
+#if canImport(ReownWalletKit)
+import ReownWalletKit
 #endif
 #if canImport(FearlessKeys)
     import FearlessKeys
@@ -71,7 +71,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
             projectId: projectId,
             socketFactory: WalletConnectSocketFactory()
         )
-        #if canImport(WalletKit)
+        #if canImport(ReownWalletKit)
             WalletKit.configure(
                 metadata: AppMetadata.createFearlessMetadata(),
                 crypto: DefaultCryptoProvider()

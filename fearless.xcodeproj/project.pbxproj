@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+        FAFEAA112DCF200100E5C0DE /* ReownWalletKit in Frameworks */ = {isa = PBXBuildFile; productRef = FAFEAA132DCF200100E5C0DE /* ReownWalletKit */; };
 		F1E2D3C4B5A60718293A4B5C /* GraphQLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D60718293A4B5C /* GraphQLResponse.swift */; };
 		BBCCDDEEAABB112233445566 /* XcmMinAmountInspectorShim.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCCDDEEFF112233445566 /* XcmMinAmountInspectorShim.swift */; };
 		012B4273E4109F0B65117BAE /* Identifiable+Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5C /* Identifiable+Models.swift */; };
@@ -6124,6 +6125,7 @@
 				C6182B152C631AAC0089558D /* SSFAccountManagment in Frameworks */,
 				C6182B252C631AAC0089558D /* SSFExtrinsicKit in Frameworks */,
 				C6182B132C631AAC0089558D /* RobinHood in Frameworks */,
+                FAFEAA112DCF200100E5C0DE /* ReownWalletKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -15392,6 +15394,7 @@
 			packageProductDependencies = (
 				FAFE00022DCAF00100E5C0DE /* FearlessUtils */,
 				FAFE10012DCF000100E5C0DE /* FearlessDependencies */,
+                FAFEAA132DCF200100E5C0DE /* ReownWalletKit */,
 			);
 			productName = fearless;
 			productReference = 849013A824A80984008F705E /* fearless.app */;
@@ -15466,6 +15469,7 @@
 				FAB482E92C58A8AA00594D89 /* XCRemoteSwiftPackageReference "Web3.swift" */,
 				FAFE00012DCAF00100E5C0DE /* XCRemoteSwiftPackageReference "FearlessUtilsCompat" */,
 				FAFE10002DCF000100E5C0DE /* XCLocalSwiftPackageReference "FearlessDependencies" */,
+                FAFEAA122DCF200100E5C0DE /* XCRemoteSwiftPackageReference "reown-swift" */,
 			);
 			productRefGroup = 849013A924A80984008F705E /* Products */;
 			projectDirPath = "";
@@ -19276,6 +19280,14 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+        FAFEAA122DCF200100E5C0DE /* XCRemoteSwiftPackageReference "reown-swift" */ = {
+            isa = XCRemoteSwiftPackageReference;
+            repositoryURL = "https://github.com/reown-com/reown-swift";
+            requirement = {
+                kind = upToNextMajorVersion;
+                minimumVersion = 1.0.0;
+            };
+        };
 		FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/WalletConnect/WalletConnectSwiftV2";
@@ -19328,6 +19340,11 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+        FAFEAA132DCF200100E5C0DE /* ReownWalletKit */ = {
+            isa = XCSwiftPackageProductDependency;
+            package = FAFEAA122DCF200100E5C0DE /* XCRemoteSwiftPackageReference "reown-swift" */;
+            productName = ReownWalletKit;
+        };
 		C6182B0E2C631AAC0089558D /* IrohaCrypto */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = IrohaCrypto;
