@@ -62,9 +62,11 @@ final class WalletConnectServiceImpl: WalletConnectService {
                 let projectId = WalletConnectKeys.projectId
             #endif
         #endif
+        let groupIdentifier = "group." + (Bundle.main.bundleIdentifier ?? "jp.co.soramitsu.fearlesswallet.dev")
         Networking.configure(
             projectId: projectId,
-            socketFactory: WalletConnectSocketFactory()
+            socketFactory: WalletConnectSocketFactory(),
+            groupIdentifier: groupIdentifier
         )
         Web3Wallet.configure(
             metadata: AppMetadata.createFearlessMetadata(),
@@ -89,7 +91,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
     }
 
     func connect(uri: String) async throws {
-        guard let walletConnectUri = WalletConnectURI(string: uri) else {
+        guard let walletConnectUri = try? WalletConnectURI(string: uri) else {
             let preferredLanguages = LocalizationManager.shared.selectedLocale.rLanguages
             let title = R.string.localizable.walletConnectInvalidUrlTitle(preferredLanguages: preferredLanguages)
             let message = R.string.localizable.walletConnectInvalidUrlMessage(preferredLanguages: preferredLanguages)
@@ -107,7 +109,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
         case let .approve(proposal, namespaces):
             try await Web3Wallet.instance.approve(proposalId: proposal.id, namespaces: namespaces)
         case let .reject(proposal):
-            try await Web3Wallet.instance.reject(proposalId: proposal.id, reason: .userRejected)
+            try await Web3Wallet.instance.reject(proposalId: proposal.id, reason: RejectionReason.userRejected)
         }
     }
 
