@@ -3,6 +3,9 @@ import SoraFoundation
 import Combine
 import WalletConnectSign
 import Web3Wallet
+#if canImport(WalletKit)
+import WalletKit
+#endif
 #if canImport(FearlessKeys)
     import FearlessKeys
 #else
@@ -68,10 +71,17 @@ final class WalletConnectServiceImpl: WalletConnectService {
             projectId: projectId,
             socketFactory: WalletConnectSocketFactory()
         )
-        Web3Wallet.configure(
-            metadata: AppMetadata.createFearlessMetadata(),
-            crypto: DefaultCryptoProvider()
-        )
+        #if canImport(WalletKit)
+            WalletKit.configure(
+                metadata: AppMetadata.createFearlessMetadata(),
+                crypto: DefaultCryptoProvider()
+            )
+        #else
+            Web3Wallet.configure(
+                metadata: AppMetadata.createFearlessMetadata(),
+                crypto: DefaultCryptoProvider()
+            )
+        #endif
         setupSubscription()
     }
 
@@ -109,7 +119,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
         case let .approve(proposal, namespaces):
             try await Web3Wallet.instance.approve(proposalId: proposal.id, namespaces: namespaces)
         case let .reject(proposal):
-            try await Sign.instance.reject(proposalId: proposal.id, reason: RejectionReason.userRejected)
+            try await Web3Wallet.instance.reject(proposalId: proposal.id, reason: RejectionReason.userRejected)
         }
     }
 
