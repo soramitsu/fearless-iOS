@@ -64,9 +64,9 @@ final class WalletConnectServiceImpl: WalletConnectService {
         #endif
         let groupIdentifier = "group." + (Bundle.main.bundleIdentifier ?? "jp.co.soramitsu.fearlesswallet.dev")
         Networking.configure(
+            groupIdentifier: groupIdentifier,
             projectId: projectId,
-            socketFactory: WalletConnectSocketFactory(),
-            groupIdentifier: groupIdentifier
+            socketFactory: WalletConnectSocketFactory()
         )
         Web3Wallet.configure(
             metadata: AppMetadata.createFearlessMetadata(),
@@ -109,7 +109,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
         case let .approve(proposal, namespaces):
             try await Web3Wallet.instance.approve(proposalId: proposal.id, namespaces: namespaces)
         case let .reject(proposal):
-            try await Web3Wallet.instance.reject(proposalId: proposal.id, reason: RejectionReason.userRejected)
+            try await Sign.instance.reject(proposalId: proposal.id, reason: RejectionReason.userRejected)
         }
     }
 
