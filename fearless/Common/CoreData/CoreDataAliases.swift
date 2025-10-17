@@ -21,6 +21,7 @@ public typealias CDPhishingItem = SSFAssetManagmentStorage.CDPhishingItem
 public typealias CDPriceData = SSFAssetManagmentStorage.CDPriceData
 public typealias CDPriceProvider = SSFAssetManagmentStorage.CDPriceProvider
 public typealias CDContactItem = SSFAssetManagmentStorage.CDContactItem
+public typealias CDContact = SSFAssetManagmentStorage.CDContact
 public typealias CDExternalApi = SSFAssetManagmentStorage.CDExternalApi
 public typealias CDXcmAvailableDestination = SSFAssetManagmentStorage.CDXcmAvailableDestination
 public typealias CDXcmAvailableAsset = SSFAssetManagmentStorage.CDXcmAvailableAsset

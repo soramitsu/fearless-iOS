@@ -1,8 +1,9 @@
 import Foundation
 import RobinHood
 import CoreData
+import SSFAssetManagmentStorage
 
-extension CDContact: CoreDataCodable {
+extension SSFAssetManagmentStorage.CDContact: CoreDataCodable {
     public func populate(
         from decoder: Decoder,
         using _: NSManagedObjectContext
