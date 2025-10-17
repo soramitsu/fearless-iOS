@@ -1,8 +1,9 @@
 import Foundation
 import CoreData
 import RobinHood
+import SSFAssetManagmentStorage
 
-extension CDChainStorageItem: CoreDataCodable {
+extension SSFAssetManagmentStorage.CDChainStorageItem: CoreDataCodable {
     public func populate(from decoder: Decoder, using _: NSManagedObjectContext) throws {
         let container = try decoder.container(keyedBy: ChainStorageItem.CodingKeys.self)
 
