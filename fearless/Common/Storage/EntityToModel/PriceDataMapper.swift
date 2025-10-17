@@ -11,9 +11,9 @@ enum PriceDataMapperError: Error {
 
 final class PriceDataModelMapper: CoreDataMapperProtocol {
     typealias DataProviderModel = PriceData
-    typealias CoreDataEntity = SSFAssetManagmentStorage.CDPriceData
+    typealias CoreDataEntity = CDPriceData
 
-    func transform(entity: SSFAssetManagmentStorage.CDPriceData) throws -> PriceData {
+    func transform(entity: CDPriceData) throws -> PriceData {
         guard let currencyId = entity.currencyId,
               let priceId = entity.priceId,
               let price = entity.price else {
@@ -28,7 +28,7 @@ final class PriceDataModelMapper: CoreDataMapperProtocol {
         )
     }
 
-    func populate(entity: SSFAssetManagmentStorage.CDPriceData, from model: PriceData, using _: NSManagedObjectContext) throws {
+    func populate(entity: CDPriceData, from model: PriceData, using _: NSManagedObjectContext) throws {
         entity.currencyId = model.currencyId
         entity.priceId = model.priceId
         entity.price = model.price
