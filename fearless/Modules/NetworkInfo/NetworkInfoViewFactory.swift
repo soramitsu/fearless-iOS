@@ -1,4 +1,5 @@
 import Foundation
+import SSFAssetManagmentStorage
 import SoraFoundation
 import RobinHood
 import SoraKeystore
