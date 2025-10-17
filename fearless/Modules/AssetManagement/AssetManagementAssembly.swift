@@ -4,6 +4,7 @@ import SSFModels
 import RobinHood
 import SoraKeystore
 import SSFStorageQueryKit
+import SSFAssetManagmentStorage
 
 final class AssetManagementAssembly {
     static func configureModule(

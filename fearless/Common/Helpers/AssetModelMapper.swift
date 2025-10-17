@@ -1,4 +1,5 @@
 import Foundation
+import SSFAssetManagmentStorage
 import CoreData
 import RobinHood
 import SSFModels

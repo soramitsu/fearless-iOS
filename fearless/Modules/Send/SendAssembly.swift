@@ -13,6 +13,7 @@ import SSFNetwork
 import SSFChainRegistry
 import SSFChainConnection
 import SoraKeystore
+import SSFAssetManagmentStorage
 
 final class SendAssembly {
     static func configureModule(

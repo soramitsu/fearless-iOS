@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFAssetManagmentStorage
 import SSFModels
 
 final class ChainRepositoryFactory {

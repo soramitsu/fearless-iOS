@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFModels
+import SSFAssetManagmentStorage
 
 final class AssetRepositoryFactory {
     let storageFacade: StorageFacadeProtocol
