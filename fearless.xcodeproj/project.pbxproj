@@ -670,7 +670,7 @@
 		84452F7725D5E2B300F47EC5 /* runtime-kusama.json in Resources */ = {isa = PBXBuildFile; fileRef = 84452F7325D5E2B300F47EC5 /* runtime-kusama.json */; };
 		84452F9325D5EE7300F47EC5 /* DataOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84452F9225D5EE7300F47EC5 /* DataOperationFactory.swift */; };
 		84452F9D25D6768000F47EC5 /* RuntimeMetadataItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84452F9C25D6768000F47EC5 /* RuntimeMetadataItem.swift */; };
-		84452FA525D679F200F47EC5 /* CDRuntimeMetadataItem+CoreDataCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84452FA425D679F200F47EC5 /* CDRuntimeMetadataItem+CoreDataCodable.swift */; };
+/* 84452FA525D679F200F47EC5 removed CDRuntimeMetadataItem+CoreDataCodable.swift in Sources */
 		8448221826B1624E007F4492 /* SelectValidatorsConfirmViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8448221726B1624E007F4492 /* SelectValidatorsConfirmViewLayout.swift */; };
 		8448221C26B1850D007F4492 /* TitleIconViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8448221B26B1850D007F4492 /* TitleIconViewModel.swift */; };
 		8449660A25E15ECA00F2E9F5 /* RewardDestinationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8449660925E15ECA00F2E9F5 /* RewardDestinationViewModel.swift */; };
@@ -3713,7 +3713,7 @@
 		84452F7325D5E2B300F47EC5 /* runtime-kusama.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "runtime-kusama.json"; sourceTree = "<group>"; };
 		84452F9225D5EE7300F47EC5 /* DataOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataOperationFactory.swift; sourceTree = "<group>"; };
 		84452F9C25D6768000F47EC5 /* RuntimeMetadataItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeMetadataItem.swift; sourceTree = "<group>"; };
-		84452FA425D679F200F47EC5 /* CDRuntimeMetadataItem+CoreDataCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDRuntimeMetadataItem+CoreDataCodable.swift"; sourceTree = "<group>"; };
+/* 84452FA425D679F200F47EC5 removed CDRuntimeMetadataItem+CoreDataCodable.swift file ref */
 		8448221726B1624E007F4492 /* SelectValidatorsConfirmViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmViewLayout.swift; sourceTree = "<group>"; };
 		8448221B26B1850D007F4492 /* TitleIconViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleIconViewModel.swift; sourceTree = "<group>"; };
 		8449660925E15ECA00F2E9F5 /* RewardDestinationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardDestinationViewModel.swift; sourceTree = "<group>"; };
@@ -8651,7 +8651,7 @@
 				8434C9E525403686009E4191 /* CDTransactionHistoryItem+CoreDataDecodable.swift */,
 				84FAB0642542CA4200319F74 /* CDContactItem+CoreDataDecodable.swift */,
 				2A66CF4E25D109770006E4C1 /* CDPhishingItem+CoreDataDecodable.swift */,
-				84452FA425D679F200F47EC5 /* CDRuntimeMetadataItem+CoreDataCodable.swift */,
+				/* CDRuntimeMetadataItem+CoreDataCodable.swift removed */
 				84786E1E25FA6C390089DFF7 /* CDStashItem+CoreDataCodable.swift */,
 				0713098028C6F7BB002B17D0 /* CDScamInfo+CoreDataCodable.swift */,
 				C63468E528F37912005CB1F1 /* CDContact + CoreDataCodable.swift */,
@@ -16022,7 +16022,7 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 				076D9D5E29500F5B002762E3 /* PolkaswapSwapConfirmationViewModel.swift in Sources */,
 				84C6801424D7013500006BF5 /* SubtitleContentView.swift in Sources */,
 				FA15BC132823B35C0037C023 /* ParachainStakingLocalStorageSubscriber.swift in Sources */,
-				84452FA525D679F200F47EC5 /* CDRuntimeMetadataItem+CoreDataCodable.swift in Sources */,
+				/* CDRuntimeMetadataItem+CoreDataCodable.swift in Sources removed */,
 				844EFB5A265FCD9F0090ACB1 /* CrowdloanContributionProtocols.swift in Sources */,
 				073B34BC2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift in Sources */,
 				F47BBD93263199830087DA11 /* StakingBalanceUnbondingWidgetView.swift in Sources */,
