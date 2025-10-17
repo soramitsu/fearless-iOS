@@ -15,11 +15,21 @@ final class PriceDataModelMapper: CoreDataMapperProtocol {
     func transform(entity: NSManagedObject) throws -> PriceData {
         guard
             let currencyId = entity.value(forKey: "currencyId") as? String,
-            let priceId = entity.value(forKey: "priceId") as? String,
-            let price = entity.value(forKey: "price") as? Decimal
+            let priceId = entity.value(forKey: "priceId") as? String
         else {
             throw PriceDataMapperError.missedRequiredFields
         }
+        let priceString: String? = {
+            if let d = entity.value(forKey: "price") as? Decimal {
+                return NSDecimalNumber(decimal: d).stringValue
+            }
+            if let n = entity.value(forKey: "price") as? NSDecimalNumber {
+                return n.stringValue
+            }
+            if let s = entity.value(forKey: "price") as? String { return s }
+            return nil
+        }()
+        guard let price = priceString else { throw PriceDataMapperError.missedRequiredFields }
 
         let fiatDayStr = entity.value(forKey: "fiatDayByChange") as? String
         let coingeckoPriceId = entity.value(forKey: "coingeckoPriceId") as? String

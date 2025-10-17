@@ -28,13 +28,13 @@ final class AssetModelMapper {
             let priceId = object.value(forKey: "priceId") as? String
         else { return nil }
 
-        let priceDecimal: Decimal? = {
-            if let d = object.value(forKey: "price") as? Decimal { return d }
-            if let n = object.value(forKey: "price") as? NSDecimalNumber { return n.decimalValue }
+        let priceString: String? = {
+            if let d = object.value(forKey: "price") as? Decimal { return NSDecimalNumber(decimal: d).stringValue }
+            if let n = object.value(forKey: "price") as? NSDecimalNumber { return n.stringValue }
+            if let s = object.value(forKey: "price") as? String { return s }
             return nil
         }()
-
-        guard let price = priceDecimal else { return nil }
+        guard let price = priceString else { return nil }
 
         let fiatDayStr = object.value(forKey: "fiatDayByChange") as? String
         let coingeckoPriceId = object.value(forKey: "coingeckoPriceId") as? String
