@@ -22,7 +22,7 @@ final class AssetModelMapper {
         return EthereumAssetType(rawValue: rawValue)
     }
 
-    private func createPriceData(from entity: CDPriceData) -> PriceData? {
+    private func createPriceData(from entity: SSFAssetManagmentStorage.CDPriceData) -> PriceData? {
         guard let currencyId = entity.currencyId,
               let priceId = entity.priceId,
               let price = entity.price else {

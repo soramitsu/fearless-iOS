@@ -3,6 +3,7 @@ import RobinHood
 import CoreData
 import IrohaCrypto
 import SSFModels
+import SSFAssetManagmentStorage
 
 enum ChainNodeMapperError: Error {
     case missedRequiredFields
@@ -10,7 +11,7 @@ enum ChainNodeMapperError: Error {
 }
 
 final class ChainNodeModelMapper: CoreDataMapperProtocol {
-    func transform(entity: CDChainNode) throws -> ChainNodeModel {
+    func transform(entity: SSFAssetManagmentStorage.CDChainNode) throws -> ChainNodeModel {
         guard let url = entity.url,
               let name = entity.name else {
             throw ChainNodeMapperError.missedRequiredFields
@@ -23,7 +24,7 @@ final class ChainNodeModelMapper: CoreDataMapperProtocol {
         )
     }
 
-    func populate(entity: CDChainNode, from model: ChainNodeModel, using _: NSManagedObjectContext) throws {
+    func populate(entity: SSFAssetManagmentStorage.CDChainNode, from model: ChainNodeModel, using _: NSManagedObjectContext) throws {
         entity.name = model.name
         entity.url = model.url
         entity.apiKeyName = model.apikey?.keyName
@@ -34,5 +35,5 @@ final class ChainNodeModelMapper: CoreDataMapperProtocol {
 
     typealias DataProviderModel = ChainNodeModel
 
-    typealias CoreDataEntity = CDChainNode
+    typealias CoreDataEntity = SSFAssetManagmentStorage.CDChainNode
 }

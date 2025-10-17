@@ -1,8 +1,9 @@
 import Foundation
 import CoreData
 import RobinHood
+import SSFAssetManagmentStorage
 
-extension CDPhishingItem: CoreDataCodable {
+extension SSFAssetManagmentStorage.CDPhishingItem: CoreDataCodable {
     public func populate(from decoder: Decoder, using _: NSManagedObjectContext) throws {
         let phishingItem = try PhishingItem(from: decoder)
 

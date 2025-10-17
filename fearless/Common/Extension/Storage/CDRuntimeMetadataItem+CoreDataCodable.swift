@@ -1,8 +1,9 @@
 import Foundation
 import RobinHood
 import CoreData
+import SSFAssetManagmentStorage
 
-extension CDRuntimeMetadataItem: CoreDataCodable {
+extension SSFAssetManagmentStorage.CDRuntimeMetadataItem: CoreDataCodable {
     public func populate(from decoder: Decoder, using _: NSManagedObjectContext) throws {
         let item = try RuntimeMetadataItem(from: decoder)
 

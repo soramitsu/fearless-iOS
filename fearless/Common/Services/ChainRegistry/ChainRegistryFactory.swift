@@ -4,6 +4,7 @@ import RobinHood
 import SSFModels
 import SSFNetwork
 import SSFChainRegistry
+import SSFAssetManagmentStorage
 
 /**
  *  Class is designed to handle creation of `ChainRegistryProtocol` instance for application.
@@ -43,7 +44,7 @@ final class ChainRegistryFactory {
     static func createDefaultRegistry(
         from repositoryFacade: StorageFacadeProtocol
     ) -> ChainRegistryProtocol & SSFChainRegistry.ChainRegistryProtocol {
-        let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
+        let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, SSFAssetManagmentStorage.CDRuntimeMetadataItem> =
             repositoryFacade.createRepository()
 
         let dataFetchOperationFactory = DataOperationFactory()
@@ -138,7 +139,7 @@ final class ChainRegistryFactory {
 
     private static func createChainProvider(
         from repositoryFacade: StorageFacadeProtocol,
-        chainRepository: CoreDataRepository<ChainModel, CDChain>
+        chainRepository: CoreDataRepository<ChainModel, SSFAssetManagmentStorage.CDChain>
     ) -> StreamableProvider<ChainModel> {
         let chainObserver = CoreDataContextObservable(
             service: repositoryFacade.databaseService,
