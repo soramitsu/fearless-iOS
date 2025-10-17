@@ -12,7 +12,6 @@ import SSFExtrinsicKit
 import SSFNetwork
 import SSFChainRegistry
 import SSFChainConnection
-import SoraKeystore
 import SSFAssetManagmentStorage
 
 final class SendAssembly {

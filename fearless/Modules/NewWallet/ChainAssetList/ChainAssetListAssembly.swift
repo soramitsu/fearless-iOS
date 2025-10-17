@@ -3,6 +3,7 @@ import SoraFoundation
 import RobinHood
 import SoraKeystore
 import SSFStorageQueryKit
+import SSFAssetManagmentStorage
 
 final class ChainAssetListAssembly {
     static func configureModule(
