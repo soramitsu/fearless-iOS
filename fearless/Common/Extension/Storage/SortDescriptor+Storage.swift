@@ -1,8 +1,8 @@
 import Foundation
-import SSFAccountManagmentStorage
+import SSFAssetManagmentStorage
 
 extension NSSortDescriptor {
     static var chainsByAddressPrefix: NSSortDescriptor {
-        NSSortDescriptor(key: #keyPath(CDChain.addressPrefix), ascending: true)
+        NSSortDescriptor(key: #keyPath(SSFAssetManagmentStorage.CDChain.addressPrefix), ascending: true)
     }
 }
