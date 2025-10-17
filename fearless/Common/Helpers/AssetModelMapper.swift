@@ -22,18 +22,29 @@ final class AssetModelMapper {
         return EthereumAssetType(rawValue: rawValue)
     }
 
-    private func createPriceData(from entity: CDPriceData) -> PriceData? {
-        guard let currencyId = entity.currencyId,
-              let priceId = entity.priceId,
-              let price = entity.price else {
+    private func createPriceData(from object: NSManagedObject) -> PriceData? {
+        guard
+            let currencyId = object.value(forKey: "currencyId") as? String,
+            let priceId = object.value(forKey: "priceId") as? String
+        else { return nil }
+
+        let priceDecimal: Decimal? = {
+            if let d = object.value(forKey: "price") as? Decimal { return d }
+            if let n = object.value(forKey: "price") as? NSDecimalNumber { return n.decimalValue }
             return nil
-        }
+        }()
+
+        guard let price = priceDecimal else { return nil }
+
+        let fiatDayStr = object.value(forKey: "fiatDayByChange") as? String
+        let coingeckoPriceId = object.value(forKey: "coingeckoPriceId") as? String
+
         return PriceData(
             currencyId: currencyId,
             priceId: priceId,
             price: price,
-            fiatDayChange: Decimal(string: entity.fiatDayByChange ?? ""),
-            coingeckoPriceId: entity.coingeckoPriceId
+            fiatDayChange: Decimal(string: fiatDayStr ?? ""),
+            coingeckoPriceId: coingeckoPriceId
         )
     }
 }
@@ -75,12 +86,14 @@ extension AssetModelMapper: CoreDataMapperProtocol {
             priceProvider = PriceProvider(type: type, id: id, precision: Int16(precision))
         }
 
-        let priceDatas: [PriceData] = entity.priceData.or([]).compactMap { data in
-            guard let priceData = data as? CDPriceData else {
-                return nil
+        let priceDatas: [PriceData] = {
+            if entity.entity.relationshipsByName["priceData"] != nil,
+               let set = entity.value(forKey: "priceData") as? NSSet {
+                return set.compactMap { $0 as? NSManagedObject }.compactMap { createPriceData(from: $0) }
+            } else {
+                return []
             }
-            return createPriceData(from: priceData)
-        }
+        }()
 
         return AssetModel(
             id: entity.id!,
@@ -134,16 +147,18 @@ extension AssetModelMapper: CoreDataMapperProtocol {
         let purchaseProviders: [String]? = model.purchaseProviders?.map(\.rawValue)
         entity.purchaseProviders = purchaseProviders
 
-        let priceData: [CDPriceData] = []
-
-        if let oldPrices = entity.priceData as? Set<CDPriceData> {
-            oldPrices.forEach { cdPriceData in
-                if !priceData.contains(where: { $0.currencyId == cdPriceData.currencyId }) {
-                    context.delete(cdPriceData)
+        if entity.entity.relationshipsByName["priceData"] != nil {
+            let priceData: [NSManagedObject] = []
+            if let oldPrices = entity.value(forKey: "priceData") as? NSSet {
+                oldPrices.forEach { any in
+                    if let cdPriceData = any as? NSManagedObject,
+                       let cid = cdPriceData.value(forKey: "currencyId") as? String,
+                       !priceData.contains(where: { ($0.value(forKey: "currencyId") as? String) == cid }) {
+                        context.delete(cdPriceData)
+                    }
                 }
             }
+            entity.setValue(Set(priceData) as NSSet, forKey: "priceData")
         }
-
-        entity.priceData = Set(priceData) as NSSet
     }
 }
