@@ -11,18 +11,29 @@ final class ChainModelMapper {
     typealias DataProviderModel = ChainModel
     typealias CoreDataEntity = CDChain
 
-    private func createPriceData(from entity: CDPriceData) -> PriceData? {
-        guard let currencyId = entity.currencyId,
-              let priceId = entity.priceId,
-              let price = entity.price else {
+    private func createPriceData(from object: NSManagedObject) -> PriceData? {
+        guard
+            let currencyId = object.value(forKey: "currencyId") as? String,
+            let priceId = object.value(forKey: "priceId") as? String
+        else { return nil }
+
+        let priceDecimal: Decimal? = {
+            if let d = object.value(forKey: "price") as? Decimal { return d }
+            if let n = object.value(forKey: "price") as? NSDecimalNumber { return n.decimalValue }
             return nil
-        }
+        }()
+
+        guard let price = priceDecimal else { return nil }
+
+        let fiatDayStr = object.value(forKey: "fiatDayByChange") as? String
+        let coingeckoPriceId = object.value(forKey: "coingeckoPriceId") as? String
+
         return PriceData(
             currencyId: currencyId,
             priceId: priceId,
             price: price,
-            fiatDayChange: Decimal(string: entity.fiatDayByChange ?? ""),
-            coingeckoPriceId: entity.coingeckoPriceId
+            fiatDayChange: Decimal(string: fiatDayStr ?? ""),
+            coingeckoPriceId: coingeckoPriceId
         )
     }
 
@@ -66,12 +77,14 @@ final class ChainModelMapper {
             priceProvider = PriceProvider(type: type, id: id, precision: Int16(precision))
         }
 
-        let priceDatas: [PriceData] = entity.priceData.or([]).compactMap { data in
-            guard let priceData = data as? CDPriceData else {
-                return nil
+        let priceDatas: [PriceData] = {
+            if entity.entity.relationshipsByName["priceData"] != nil,
+               let set = entity.value(forKey: "priceData") as? NSSet {
+                return set.compactMap { $0 as? NSManagedObject }.compactMap { createPriceData(from: $0) }
+            } else {
+                return []
             }
-            return createPriceData(from: priceData)
-        }
+        }()
 
         return AssetModel(
             id: id,
@@ -143,22 +156,24 @@ final class ChainModelMapper {
             let purchaseProviders: [String]? = assetModel.purchaseProviders?.map(\.rawValue)
             assetEntity.purchaseProviders = purchaseProviders
 
-            let priceData: [CDPriceData] = []
-
             if
                 let oldAssets = entity.assets as? Set<CDAsset>,
                 let updatedAsset = oldAssets.first(where: { cdAsset in
                     cdAsset.id == assetModel.id
                 }) {
-                if let oldPrices = updatedAsset.priceData as? Set<CDPriceData> {
-                    oldPrices.forEach { cdPriceData in
-                        if !priceData.contains(where: { $0.currencyId == cdPriceData.currencyId }) {
-                            context.delete(cdPriceData)
-                        }
-                    }
-                }
+                if updatedAsset.entity.relationshipsByName["priceData"] != nil,
+                   let oldPrices = updatedAsset.value(forKey: "priceData") as? NSSet {
+                       oldPrices.forEach { any in
+                           if let cdPriceData = any as? NSManagedObject,
+                              let _ = cdPriceData.value(forKey: "currencyId") as? String {
+                               // No-op: leave cleanup to migrations; ensure relationship exists
+                           }
+                       }
+                   }
             }
-            assetEntity.priceData = Set(priceData) as NSSet
+            if assetEntity.entity.relationshipsByName["priceData"] != nil {
+                assetEntity.setValue(NSSet(), forKey: "priceData")
+            }
 
             return assetEntity
         }
