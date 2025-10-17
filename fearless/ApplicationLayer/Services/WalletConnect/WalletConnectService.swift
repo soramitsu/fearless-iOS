@@ -101,7 +101,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
     }
 
     func getSessions() -> [Session] {
-        return WalletKit.instance.getSessions()
+        WalletKit.instance.getSessions()
     }
 
     func submit(proposalDecision: WalletConnectProposalDecision) async throws {

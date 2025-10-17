@@ -1,5 +1,5 @@
 {
-  "originHash" : "f89e83374015d1e35c355b4ba0f1600fd22b2412db006f00510b8a9190952451",
+  "originHash" : "f16c3748b2521abc9e665465554020f3ad60527690e2cbe485ae7eb48d5b1d9e",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -385,15 +385,6 @@
       "state" : {
         "revision" : "4293df51d3500b8e876ca4bf0d7548adf097569a",
         "version" : "1.1.2"
-      }
-    },
-    {
-      "identity" : "walletconnectswiftv2",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/WalletConnect/WalletConnectSwiftV2",
-      "state" : {
-        "revision" : "3327c0a8c014b155534b91520554d812e2960077",
-        "version" : "1.20.3"
       }
     },
     {
