@@ -1,5 +1,4 @@
 import Foundation
-import SSFAssetManagmentStorage
 import RobinHood
 import CoreData
 import SSFModels
@@ -11,29 +10,35 @@ enum PriceDataMapperError: Error {
 
 final class PriceDataModelMapper: CoreDataMapperProtocol {
     typealias DataProviderModel = PriceData
-    typealias CoreDataEntity = CDPriceData
+    typealias CoreDataEntity = NSManagedObject
 
-    func transform(entity: CDPriceData) throws -> PriceData {
-        guard let currencyId = entity.currencyId,
-              let priceId = entity.priceId,
-              let price = entity.price else {
+    func transform(entity: NSManagedObject) throws -> PriceData {
+        guard
+            let currencyId = entity.value(forKey: "currencyId") as? String,
+            let priceId = entity.value(forKey: "priceId") as? String,
+            let price = entity.value(forKey: "price") as? Decimal
+        else {
             throw PriceDataMapperError.missedRequiredFields
         }
+
+        let fiatDayStr = entity.value(forKey: "fiatDayByChange") as? String
+        let coingeckoPriceId = entity.value(forKey: "coingeckoPriceId") as? String
+
         return PriceData(
             currencyId: currencyId,
             priceId: priceId,
             price: price,
-            fiatDayChange: Decimal(string: entity.fiatDayByChange ?? ""),
-            coingeckoPriceId: entity.coingeckoPriceId
+            fiatDayChange: Decimal(string: fiatDayStr ?? ""),
+            coingeckoPriceId: coingeckoPriceId
         )
     }
 
-    func populate(entity: CDPriceData, from model: PriceData, using _: NSManagedObjectContext) throws {
-        entity.currencyId = model.currencyId
-        entity.priceId = model.priceId
-        entity.price = model.price
-        entity.fiatDayByChange = String("\(model.fiatDayChange)")
-        entity.coingeckoPriceId = model.coingeckoPriceId
+    func populate(entity: NSManagedObject, from model: PriceData, using _: NSManagedObjectContext) throws {
+        entity.setValue(model.currencyId, forKey: "currencyId")
+        entity.setValue(model.priceId, forKey: "priceId")
+        entity.setValue(model.price, forKey: "price")
+        entity.setValue(String("\(model.fiatDayChange)"), forKey: "fiatDayByChange")
+        entity.setValue(model.coingeckoPriceId, forKey: "coingeckoPriceId")
     }
 
     var entityIdentifierFieldName: String { "priceId" }
