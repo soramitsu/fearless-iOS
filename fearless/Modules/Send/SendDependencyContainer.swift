@@ -10,6 +10,7 @@ import SSFSigner
 import SSFCrypto
 import Foundation
 import SSFRuntimeCodingService
+import SSFAssetManagmentStorage
 
 struct SendDependencies {
     let wallet: MetaAccountModel
@@ -191,7 +192,7 @@ final class SendDepencyContainer {
             operationManager: operationManager
         )
         let repositoryFacade = SubstrateDataStorageFacade.shared
-        let settingsRepository: CoreDataRepository<PolkaswapRemoteSettings, CDPolkaswapRemoteSettings> =
+        let settingsRepository: CoreDataRepository<PolkaswapRemoteSettings, SSFAssetManagmentStorage.CDPolkaswapRemoteSettings> =
             repositoryFacade.createRepository(
                 filter: nil,
                 sortDescriptors: [],

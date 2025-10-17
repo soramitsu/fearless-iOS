@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFUtils
+import SSFAssetManagmentStorage
 
 final class PolkaswapSettingsFactory {
     static func createService() -> PolkaswapSettingsSyncServiceProtocol {
@@ -8,7 +9,7 @@ final class PolkaswapSettingsFactory {
 
         let mapper = PolkaswapSettingMapper()
 
-        let repository: CoreDataRepository<PolkaswapRemoteSettings, CDPolkaswapRemoteSettings>
+        let repository: CoreDataRepository<PolkaswapRemoteSettings, SSFAssetManagmentStorage.CDPolkaswapRemoteSettings>
             = repositoryFacade.createRepository(
                 filter: nil,
                 sortDescriptors: [],

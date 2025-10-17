@@ -18,7 +18,7 @@ final class SubstrateRepositoryFactory: SubstrateRepositoryFactoryProtocol {
     }
 
     func createChainStorageItemRepository() -> AnyDataProviderRepository<ChainStorageItem> {
-        let repository: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
+        let repository: CoreDataRepository<ChainStorageItem, SSFAssetManagmentStorage.CDChainStorageItem> =
             storageFacade.createRepository()
 
         return AnyDataProviderRepository(repository)
