@@ -4,6 +4,7 @@ import RobinHood
 import SSFModels
 import SSFNetwork
 import SoraKeystore
+import SSFAssetManagmentStorage
 
 enum ContactSource {
     case token(chainAsset: ChainAsset)
@@ -40,10 +41,10 @@ enum ContactsAssembly {
         let localizationManager = LocalizationManager.shared
 
         let repositoryFacade = SubstrateDataStorageFacade.shared
-        let mapper: CodableCoreDataMapper<Contact, CDContact> =
-            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDContact.address))
+        let mapper: CodableCoreDataMapper<Contact, SSFAssetManagmentStorage.CDContact> =
+            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(SSFAssetManagmentStorage.CDContact.address))
 
-        let repository: CoreDataRepository<Contact, CDContact> =
+        let repository: CoreDataRepository<Contact, SSFAssetManagmentStorage.CDContact> =
             repositoryFacade.createRepository(
                 filter: nil,
                 sortDescriptors: [],

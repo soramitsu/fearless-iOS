@@ -163,13 +163,13 @@ final class ChainModelMapper {
                 }) {
                 if updatedAsset.entity.relationshipsByName["priceData"] != nil,
                    let oldPrices = updatedAsset.value(forKey: "priceData") as? NSSet {
-                       oldPrices.forEach { any in
-                           if let cdPriceData = any as? NSManagedObject,
-                              let _ = cdPriceData.value(forKey: "currencyId") as? String {
-                               // No-op: leave cleanup to migrations; ensure relationship exists
-                           }
-                       }
-                   }
+                    oldPrices.forEach { any in
+                        if let cdPriceData = any as? NSManagedObject,
+                           let _ = cdPriceData.value(forKey: "currencyId") as? String {
+                            // No-op: leave cleanup to migrations; ensure relationship exists
+                        }
+                    }
+                }
             }
             if assetEntity.entity.relationshipsByName["priceData"] != nil {
                 assetEntity.setValue(NSSet(), forKey: "priceData")
