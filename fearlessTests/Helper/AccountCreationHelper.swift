@@ -6,6 +6,8 @@ import RobinHood
 import SSFUtils
 import SSFModels
 
+private typealias AppMetaAccountModel = fearless.MetaAccountModel
+
 final class AccountCreationHelper {
     static func createMetaAccountFromMnemonic(
         _ mnemonicString: String? = nil,
@@ -112,7 +114,7 @@ final class AccountCreationHelper {
         try selectMetaAccount(accountItem, settings: settings)
     }
 
-    static func selectMetaAccount(_ accountItem: fearless.MetaAccountModel, settings: SelectedWalletSettings) throws {
+    static func selectMetaAccount(_ accountItem: AppMetaAccountModel, settings: SelectedWalletSettings) throws {
         settings.save(value: accountItem)
         settings.setup(runningCompletionIn: .global()) { _ in}
     }
