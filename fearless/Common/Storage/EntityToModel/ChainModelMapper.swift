@@ -438,9 +438,6 @@ final class ChainModelMapper {
 
         entity.crowdloansApiType = apis?.crowdloans?.type
         entity.crowdloansApiUrl = apis?.crowdloans?.url
-
-        entity.pricingApiType = nil
-        entity.pricingApiUrl = nil
     }
 
     private func createChainAssetModelType(from rawValue: String?) -> SubstrateAssetType? {
@@ -558,7 +555,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             disabled: entity.disabled,
             chainId: entity.chainId!,
             parentId: entity.parentId,
-            paraId: entity.paraId,
+            paraId: nil,
             name: entity.name!,
             xcm: xcm,
             nodes: Set(nodes),
@@ -570,7 +567,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             selectedNode: selectedNode,
             customNodes: customNodesSet,
             iosMinAppVersion: entity.minimalAppVersion,
-            identityChain: entity.identityChain
+            identityChain: nil
         )
 
         // Assets are represented via tokens in current models; skip direct assignment
@@ -588,7 +585,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         }
         entity.disabled = model.disabled
         entity.chainId = model.chainId
-        entity.paraId = model.paraId
+        // entity.paraId is not available in current storage
         entity.parentId = model.parentId
         entity.name = model.name
         entity.types = model.types?.url
@@ -602,7 +599,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.isTipRequired = model.isTipRequired
         entity.minimalAppVersion = model.iosMinAppVersion
         entity.options = model.options?.map(\.rawValue) as? NSArray
-        entity.identityChain = model.identityChain
+        // entity.identityChain is not available in current storage
         updateEntityAsset(for: entity, from: model, context: context)
         updateEntityNodes(for: entity, from: model, context: context)
         updateExternalApis(in: entity, from: model.externalApi)
