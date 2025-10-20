@@ -148,7 +148,7 @@
         <attribute name="controller" optional="YES" attributeType="String"/>
         <attribute name="stash" optional="YES" attributeType="String"/>
     </entity>
-    <entity name="CDTransactionHistoryItem" representedClassName="CDTransactionHistoryItem" syncable="YES" codeGenerationType="none">
+    <entity name="CDTransactionHistoryItem" representedClassName="CDTransactionHistoryItem" syncable="YES" codeGenerationType="class">
         <attribute name="blockNumber" optional="YES" attributeType="Integer 64" usesScalarValueType="NO"/>
         <attribute name="call" optional="YES" attributeType="Binary"/>
         <attribute name="callName" attributeType="String"/>

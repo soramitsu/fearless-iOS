@@ -26,4 +26,4 @@ public typealias CDExternalApi = SSFAssetManagmentStorage.CDExternalApi
 public typealias CDXcmAvailableDestination = SSFAssetManagmentStorage.CDXcmAvailableDestination
 public typealias CDXcmAvailableAsset = SSFAssetManagmentStorage.CDXcmAvailableAsset
 public typealias CDChainXcmConfig = SSFAssetManagmentStorage.CDChainXcmConfig
-public typealias CDTransactionHistoryItem = SSFAssetManagmentStorage.CDTransactionHistoryItem
+// Use local generated class for transaction history, not provided by storage module

@@ -1,9 +1,8 @@
 import Foundation
 import RobinHood
 import CoreData
-import SSFAssetManagmentStorage
 
-extension SSFAssetManagmentStorage.CDTransactionHistoryItem: CoreDataCodable {
+extension CDTransactionHistoryItem: CoreDataCodable {
     public func populate(from decoder: Decoder, using _: NSManagedObjectContext) throws {
         let container = try decoder.container(keyedBy: TransactionHistoryItem.CodingKeys.self)
 

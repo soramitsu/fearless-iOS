@@ -3,7 +3,6 @@ import SSFUtils
 import RobinHood
 import SoraFoundation
 import SSFModels
-import SSFAssetManagmentStorage
 
 struct WalletTransactionHistoryModule {
     let view: WalletTransactionHistoryViewProtocol?
@@ -93,7 +92,7 @@ enum WalletTransactionHistoryViewFactory {
     private static func createHistoryDeps(
         for chain: ChainModel
     ) -> (HistoryServiceProtocol, HistoryDataProviderFactoryProtocol)? {
-        let txStorage: CoreDataRepository<TransactionHistoryItem, SSFAssetManagmentStorage.CDTransactionHistoryItem> =
+        let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 
         guard

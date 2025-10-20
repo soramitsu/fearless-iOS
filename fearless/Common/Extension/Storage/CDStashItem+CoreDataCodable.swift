@@ -1,8 +1,9 @@
 import Foundation
 import CoreData
 import RobinHood
+import SSFAssetManagmentStorage
 
-extension CDStashItem: CoreDataCodable {
+extension SSFAssetManagmentStorage.CDStashItem: CoreDataCodable {
     public func populate(from decoder: Decoder, using _: NSManagedObjectContext) throws {
         let stashItem = try StashItem(from: decoder)
 
