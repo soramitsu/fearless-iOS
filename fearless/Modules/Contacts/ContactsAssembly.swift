@@ -3,6 +3,7 @@ import SoraFoundation
 import RobinHood
 import SSFModels
 import SSFNetwork
+import SSFAssetManagmentStorage
 import SoraKeystore
 import SSFAssetManagmentStorage
 
@@ -26,7 +27,7 @@ enum ContactsAssembly {
         source: ContactSource,
         moduleOutput: ContactsModuleOutput
     ) -> ContactsModuleCreationResult? {
-        let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
+        let txStorage: CoreDataRepository<TransactionHistoryItem, SSFAssetManagmentStorage.CDTransactionHistoryItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 
         guard
