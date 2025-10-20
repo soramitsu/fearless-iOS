@@ -42,12 +42,12 @@ extension NSPredicate {
     }
 
     static func filterByStash(_ address: String) -> NSPredicate {
-        NSPredicate(format: "%K == %@", #keyPath(CDStashItem.stash), address)
+        NSPredicate(format: "%K == %@", "stash", address)
     }
 
     static func filterByStashOrController(_ address: String) -> NSPredicate {
         let stash = filterByStash(address)
-        let controller = NSPredicate(format: "%K == %@", #keyPath(CDStashItem.controller), address)
+        let controller = NSPredicate(format: "%K == %@", "controller", address)
 
         return NSCompoundPredicate(orPredicateWithSubpredicates: [stash, controller])
     }
