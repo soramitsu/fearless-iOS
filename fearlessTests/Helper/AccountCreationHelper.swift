@@ -116,8 +116,11 @@ final class AccountCreationHelper {
         try selectMetaAccount(accountItem, settings: settings)
     }
 
-    static func selectMetaAccount(_ accountItem: AppMetaAccountModel, settings: SelectedWalletSettings) throws {
-        settings.save(value: accountItem)
+    static func selectMetaAccount(_ accountItem: Any, settings: SelectedWalletSettings) throws {
+        guard let model = accountItem as? fearless.MetaAccountModel else {
+            throw NSError(domain: "AccountCreationHelper", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid account item type"])
+        }
+        settings.save(value: model)
         settings.setup(runningCompletionIn: .global()) { _ in}
     }
 }
