@@ -42,7 +42,8 @@ enum ContactsAssembly {
 
         let repositoryFacade = SubstrateDataStorageFacade.shared
         let mapper: CodableCoreDataMapper<Contact, SSFAssetManagmentStorage.CDContact> =
-            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(SSFAssetManagmentStorage.CDContact.address))
+            // Use literal to avoid module-qualified #keyPath limitation
+            CodableCoreDataMapper(entityIdentifierFieldName: "address")
 
         let repository: CoreDataRepository<Contact, SSFAssetManagmentStorage.CDContact> =
             repositoryFacade.createRepository(
