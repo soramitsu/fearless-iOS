@@ -6,6 +6,7 @@ import SSFUtils
 import SSFChainRegistry
 import SSFNetwork
 import SSFStorageQueryKit
+import SSFAssetManagmentStorage
 
 protocol ServiceCoordinatorProtocol: ApplicationServiceProtocol {
     func updateOnAccountChange()
@@ -116,7 +117,7 @@ extension ServiceCoordinator {
             eventCenter: EventCenter.shared
         )
 
-        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
+        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, SSFAssetManagmentStorage.CDRuntimeMetadataItem> =
             SubstrateDataStorageFacade.shared.createAsyncRepository()
 
         let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
