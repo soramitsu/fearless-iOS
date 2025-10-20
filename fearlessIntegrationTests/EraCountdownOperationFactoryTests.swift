@@ -28,7 +28,9 @@ class EraCountdownOperationFactoryTests: XCTestCase {
         )
         operationWrapper.targetOperation.completionBlock = {
             do {
-                let eraCountdown = try operationWrapper.targetOperation.extractNoCancellableResultData()
+                let eraCountdown = try operationWrapper
+                    .targetOperation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
                 Logger.shared.info(
                     "Estimating era completion time (in seconds): \(eraCountdown.timeIntervalTillNextActiveEraStart())"
                 )
