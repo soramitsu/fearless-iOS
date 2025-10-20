@@ -8,7 +8,8 @@ enum PolkaswapSettingMapperError: Error {
 }
 
 final class PolkaswapSettingMapper {
-    var entityIdentifierFieldName: String { #keyPath(SSFAssetManagmentStorage.CDPolkaswapRemoteSettings.version) }
+    // Use a literal to avoid #keyPath module-qualification issues
+    var entityIdentifierFieldName: String { "version" }
 
     typealias DataProviderModel = PolkaswapRemoteSettings
     typealias CoreDataEntity = SSFAssetManagmentStorage.CDPolkaswapRemoteSettings
