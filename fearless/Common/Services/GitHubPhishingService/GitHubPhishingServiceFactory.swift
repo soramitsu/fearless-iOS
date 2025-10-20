@@ -1,9 +1,10 @@
 import Foundation
 import RobinHood
+import SSFAssetManagmentStorage
 
 class GitHubPhishingServiceFactory {
     static func createService() -> ApplicationServiceProtocol {
-        let storage: CoreDataRepository<PhishingItem, CDPhishingItem> =
+        let storage: CoreDataRepository<PhishingItem, SSFAssetManagmentStorage.CDPhishingItem> =
             SubstrateDataStorageFacade.shared.createRepository()
         let config: ApplicationConfigProtocol = ApplicationConfig.shared
         let url = config.phishingListURL
