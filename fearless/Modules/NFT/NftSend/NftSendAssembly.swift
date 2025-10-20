@@ -6,6 +6,7 @@ import Web3
 import RobinHood
 import SSFUtils
 import SSFNetwork
+import SSFAssetManagmentStorage
 
 enum NftSendAssemblyError: Error {
     case substrateNftNotImplemented
@@ -17,9 +18,10 @@ enum NftSendAssembly {
             let localizationManager = LocalizationManager.shared
 
             let repositoryFacade = SubstrateDataStorageFacade.shared
-            let mapper: CodableCoreDataMapper<ScamInfo, CDScamInfo> =
-                CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDScamInfo.address))
-            let scamRepository: CoreDataRepository<ScamInfo, CDScamInfo> =
+            let mapper: CodableCoreDataMapper<ScamInfo, SSFAssetManagmentStorage.CDScamInfo> =
+                // Use literal to avoid module-qualified #keyPath limitation
+                CodableCoreDataMapper(entityIdentifierFieldName: "address")
+            let scamRepository: CoreDataRepository<ScamInfo, SSFAssetManagmentStorage.CDScamInfo> =
                 repositoryFacade.createRepository(
                     filter: nil,
                     sortDescriptors: [],
