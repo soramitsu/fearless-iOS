@@ -5,7 +5,6 @@ import SSFModels
 import SSFNetwork
 import SSFAssetManagmentStorage
 import SoraKeystore
-import SSFAssetManagmentStorage
 
 enum ContactSource {
     case token(chainAsset: ChainAsset)

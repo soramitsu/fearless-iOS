@@ -1,6 +1,7 @@
 import RobinHood
 
 import SSFModels
+import SSFAssetManagmentStorage
 import SoraFoundation
 
 enum WalletTransactionHistoryDependencyContainerError: Error {
@@ -21,7 +22,7 @@ final class WalletTransactionHistoryDependencyContainer {
     }
 
     func createDependencies(for chainAsset: ChainAsset, selectedAccount: MetaAccountModel) throws {
-        let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
+        let txStorage: CoreDataRepository<TransactionHistoryItem, SSFAssetManagmentStorage.CDTransactionHistoryItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 
         guard
