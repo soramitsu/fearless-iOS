@@ -3,6 +3,7 @@ import SSFAssetManagmentStorage
 
 extension NSSortDescriptor {
     static var chainsByAddressPrefix: NSSortDescriptor {
-        NSSortDescriptor(key: #keyPath(SSFAssetManagmentStorage.CDChain.addressPrefix), ascending: true)
+        // Use literal to avoid module-qualified #keyPath limitation
+        NSSortDescriptor(key: "addressPrefix", ascending: true)
     }
 }
