@@ -138,17 +138,17 @@
         <attribute name="txVersion" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="version" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
-    <entity name="CDScamInfo" representedClassName="CDScamInfo" syncable="YES" codeGenerationType="class">
+    <entity name="CDScamInfo" representedClassName="CDScamInfo" syncable="YES" codeGenerationType="none">
         <attribute name="address" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="subtype" optional="YES" attributeType="String"/>
         <attribute name="type" optional="YES" attributeType="String"/>
     </entity>
-    <entity name="CDStashItem" representedClassName="CDStashItem" syncable="YES" codeGenerationType="class">
+    <entity name="CDStashItem" representedClassName="CDStashItem" syncable="YES" codeGenerationType="none">
         <attribute name="controller" optional="YES" attributeType="String"/>
         <attribute name="stash" optional="YES" attributeType="String"/>
     </entity>
-    <entity name="CDTransactionHistoryItem" representedClassName="CDTransactionHistoryItem" syncable="YES" codeGenerationType="class">
+    <entity name="CDTransactionHistoryItem" representedClassName="CDTransactionHistoryItem" syncable="YES" codeGenerationType="none">
         <attribute name="blockNumber" optional="YES" attributeType="Integer 64" usesScalarValueType="NO"/>
         <attribute name="call" optional="YES" attributeType="Binary"/>
         <attribute name="callName" attributeType="String"/>
