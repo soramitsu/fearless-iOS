@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 @testable import fearless
 
 enum ChainModelGenerator {
@@ -99,7 +100,7 @@ enum ChainModelGenerator {
             customNodes: nil,
             iosMinAppVersion: nil
         )
-        let chainAssetsArray: [ChainAssetModel] = (0..<count).map { index in
+        let chainAssetsArray: [ChainAsset] = (0..<count).map { index in
             let asset = generateAssetWithId(
                 AssetModel.Id(index),
                 symbol: "\(index)",
@@ -112,14 +113,9 @@ enum ChainModelGenerator {
         return chain
     }
     
-    static func generateChainAsset(_ asset: AssetModel, chain: ChainModel, staking: RawStakingType? = nil, chainAssetType: ChainAssetType = .normal) -> ChainAssetModel {
-        ChainAssetModel(
-            assetId: asset.id,
-            type: chainAssetType,
-            asset: asset,
-            chain: chain,
-            isUtility: asset.chainId == chain.chainId,
-            isNative: true)
+    static func generateChainAsset(_ asset: AssetModel, chain: ChainModel, staking: RawStakingType? = nil) -> ChainAsset {
+        // SSFModels uses ChainAsset(chain:asset:)
+        ChainAsset(chain: chain, asset: asset)
     }
 
     static func generateAssetWithId(
