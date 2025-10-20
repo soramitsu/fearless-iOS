@@ -8,8 +8,8 @@ class EraCountdownOperationFactoryTests: XCTestCase {
     func testService() {
         let operationManager = SSFUtils.OperationManagerFacade.sharedManager
 
-        let chainId = chainRegistry.availableChainIds?.first ?? ""
         let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: SubstrateStorageTestFacade())
+        let chainId = chainRegistry.availableChainIds?.first ?? ""
         let connection = chainRegistry.getConnection(for: chainId)!
         let runtimeService = chainRegistry.getRuntimeProvider(for: chainId)!
 

@@ -1,5 +1,5 @@
 {
-  "originHash" : "63872357be3b8d8ea5520be135fe981d8816f9791ecdf1f6a79c9211e5ad62a2",
+  "originHash" : "f16c3748b2521abc9e665465554020f3ad60527690e2cbe485ae7eb48d5b1d9e",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -83,6 +83,15 @@
       }
     },
     {
+      "identity" : "kingfisher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onevcat/Kingfisher",
+      "state" : {
+        "revision" : "3ec0ab0bca4feb56e8b33e289c9496e89059dd08",
+        "version" : "7.10.2"
+      }
+    },
+    {
       "identity" : "nimble",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Quick/Nimble",
@@ -128,6 +137,15 @@
       }
     },
     {
+      "identity" : "reown-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/reown-com/reown-swift",
+      "state" : {
+        "revision" : "7590a3f421c0679dce49364ab44869a7c4d0290f",
+        "version" : "1.7.3"
+      }
+    },
+    {
       "identity" : "secp256k1.swift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Boilertalk/secp256k1.swift.git",
@@ -141,7 +159,16 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
-        "revision" : "2b13aea1e4284e8c47204895ace1f56ae2536212"
+        "revision" : "6d6cb16b7f1f12028fe93d50a4e928a938af141e"
+      }
+    },
+    {
+      "identity" : "snapkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SnapKit/SnapKit",
+      "state" : {
+        "revision" : "328b53b7e3d3d0f32d03adaf7c84297a7310cdf5",
+        "version" : "5.0.0"
       }
     },
     {
@@ -352,21 +379,21 @@
       }
     },
     {
-      "identity" : "walletconnectswiftv2",
+      "identity" : "wallet-mobile-sdk",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/WalletConnect/WalletConnectSwiftV2",
+      "location" : "https://github.com/MobileWalletProtocol/wallet-mobile-sdk",
       "state" : {
-        "revision" : "58d2b49eeac5cf94432e2647b9107577c156a25c",
-        "version" : "1.9.9"
+        "revision" : "4293df51d3500b8e876ca4bf0d7548adf097569a",
+        "version" : "1.1.2"
       }
     },
     {
-      "identity" : "web3.swift",
+      "identity" : "web3-swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/bnsports/Web3.swift.git",
+      "location" : "https://github.com/soramitsu/web3-swift",
       "state" : {
-        "revision" : "455588927d55d0798b539f93f6c3880913307dc9",
-        "version" : "7.7.9"
+        "revision" : "a526779488e5fe2fa993d9614f11f57b00cc1858",
+        "version" : "7.7.7"
       }
     },
     {
@@ -385,6 +412,15 @@
       "state" : {
         "revision" : "e86a07ab4867f81481d430e1370a5ec97b6e3359",
         "version" : "1.1.1"
+      }
+    },
+    {
+      "identity" : "yttrium",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/reown-com/yttrium",
+      "state" : {
+        "revision" : "ed8e8f5af2029406263be5993e484c3a69c1db7a",
+        "version" : "0.9.68"
       }
     }
   ],
