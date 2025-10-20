@@ -6,6 +6,8 @@ import RobinHood
 import SSFUtils
 import SSFModels
 
+// Disambiguate MetaAccountModel locally to the app’s model
+private typealias MetaAccountModel = fearless.MetaAccountModel
 private typealias AppMetaAccountModel = fearless.MetaAccountModel
 
 final class AccountCreationHelper {
