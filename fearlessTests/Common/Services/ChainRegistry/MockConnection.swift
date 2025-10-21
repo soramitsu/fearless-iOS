@@ -2,61 +2,46 @@ import Foundation
 @testable import fearless
 import SSFUtils
 
-final class MockConnection {
-    let internalConnection = MockJSONRPCEngine()
-}
+// Minimal JSONRPCEngine stub used by tests
+final class MockConnection: ChainConnection {
+    var url: URL? = URL(string: "wss://mock")
 
-extension MockConnection: ChainConnection {
-    func connectIfNeeded() {
-        
-    }
-    
-    var pendingEngineRequests: [SSFUtils.JSONRPCRequest] {
-        []
-    }
-    
-    func connect(with pendingRequests: [SSFUtils.JSONRPCRequest]) {
+    private(set) var pendingRequests: [JSONRPCRequest] = []
 
-    }
-    
-    func generateRequestId() -> UInt16 {
-        0
-    }
-    
-    func addSubscription(_ subscription: JSONRPCSubscribing) { }
-    
-    func disconnectIfNeeded() { }
-    
-    var url: URL? {
-        get {
-            internalConnection.url
-        }
-        set(newValue) { }
+    var pendingEngineRequests: [JSONRPCRequest] { pendingRequests }
+
+    func callMethod<P: Encodable, T: Decodable>(
+        _ method: String,
+        params: P?,
+        options: JSONRPCOptions,
+        completion closure: ((Result<T, Error>) -> Void)?
+    ) throws -> UInt16 {
+        _ = (method, params, options)
+        // Return a dummy id; no actual transport
+        return 0
     }
 
-    var state: WebSocketEngine.State {
-        .connected
+    func subscribe<P: Encodable, T: Decodable>(
+        _ method: String,
+        params: P?,
+        updateClosure: @escaping (T) -> Void,
+        failureClosure: @escaping (Error, Bool) -> Void
+    ) throws -> UInt16 {
+        _ = (method, params, updateClosure, failureClosure)
+        return 0
     }
 
-    func callMethod<P, T>(_ method: String, params: P?, options: JSONRPCOptions, completion closure: ((Result<T, Error>) -> Void)?) throws -> UInt16 where P : Encodable, T : Decodable {
-        try internalConnection.callMethod(
-            method,
-            params: params,
-            options: options,
-            completion: closure
-        )
-    }
+    func cancelForIdentifier(_ identifier: UInt16) { _ = identifier }
 
-    func subscribe<P, T>(_ method: String, params: P?, updateClosure: @escaping (T) -> Void, failureClosure: @escaping (Error, Bool) -> Void) throws -> UInt16 where P : Encodable, T : Decodable {
-        try internalConnection.subscribe(
-            method,
-            params: params,
-            updateClosure: updateClosure,
-            failureClosure: failureClosure
-        )
-    }
+    func generateRequestId() -> UInt16 { 0 }
 
-    func cancelForIdentifier(_ identifier: UInt16) {
-        internalConnection.cancelForIdentifier(identifier)
-    }
+    func addSubscription(_ subscription: JSONRPCSubscribing) { _ = subscription }
+
+    func reconnect(url: URL) { self.url = url }
+
+    func connectIfNeeded() {}
+
+    func disconnectIfNeeded() {}
+
+    func unsubsribe(_ identifier: UInt16) throws { _ = identifier }
 }

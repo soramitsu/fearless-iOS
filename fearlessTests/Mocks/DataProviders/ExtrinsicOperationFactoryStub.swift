@@ -1,3 +1,4 @@
+import Foundation
 @testable import fearless
 import RobinHood
 import BigInt
@@ -30,12 +31,8 @@ final class ExtrinsicOperationFactoryStub: ExtrinsicOperationFactoryProtocol {
         _ closure: @escaping ExtrinsicBuilderIndexedClosure,
         numberOfExtrinsics: Int
     ) -> CompoundOperationWrapper<[FeeExtrinsicResult]> {
-        let feeDetails = FeeDetails(
-            baseFee: BigUInt(stringLiteral: "10000000000"),
-            lenFee: BigUInt(stringLiteral: "0"),
-            adjustedWeightFee: BigUInt(stringLiteral: "10005000")
-        )
-        let dispatchInfo = RuntimeDispatchInfo(inclusionFee: feeDetails)
+        let feeValue = BigUInt(stringLiteral: "10000005000")
+        let dispatchInfo = RuntimeDispatchInfo(feeValue: feeValue)
 
         return CompoundOperationWrapper.createWithResult([.success(dispatchInfo)])
     }
