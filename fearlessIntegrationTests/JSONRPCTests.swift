@@ -1,6 +1,8 @@
 import XCTest
 @testable import fearless
 import SSFUtils
+import SSFModels
+import SSFRuntimeCodingService
 import RobinHood
 import IrohaCrypto
 import BigInt
@@ -274,7 +276,7 @@ class JSONRPCTests: XCTestCase {
 
         // when
 
-        let operation = JSONRPCListOperation<RuntimeVersion>(engine: engine,
+        let operation = JSONRPCListOperation<SSFModels.RuntimeVersion>(engine: engine,
                                                              method: "chain_getRuntimeVersion",
                                                              parameters: [])
 
@@ -296,7 +298,7 @@ class JSONRPCTests: XCTestCase {
         let chainId = Chain.westend.genesisHash
         let storageFacade = SubstrateStorageTestFacade()
 
-        let operationManager = OperationManagerFacade.sharedManager
+        let operationManager = SSFUtils.OperationManagerFacade.sharedManager
 
         let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: storageFacade)
         let connection = chainRegistry.getConnection(for: chainId)!
@@ -316,7 +318,7 @@ class JSONRPCTests: XCTestCase {
         let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
         let factoryClosure: () throws -> RuntimeCoderFactoryProtocol = {
-            try coderFactoryOperation.extractNoCancellableResultData()
+            try coderFactoryOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
         }
 
         // when
@@ -335,7 +337,7 @@ class JSONRPCTests: XCTestCase {
             waitUntilFinished: true
         )
 
-        let resultsCount = try wrapper.targetOperation.extractNoCancellableResultData().count
+        let resultsCount = try wrapper.targetOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled).count
 
         // then
 
@@ -374,8 +376,8 @@ class JSONRPCTests: XCTestCase {
 
         let accountId = try SS58AddressFactory().accountId(from: address)
 
-        let keyParams1: () throws -> [StringScaleMapper<EraIndex>] = {
-            (0..<EraIndex(keysCount)).map { StringScaleMapper(value: $0) }
+        let keyParams1: () throws -> [SSFUtils.StringScaleMapper<EraIndex>] = {
+            (0..<EraIndex(keysCount)).map { SSFUtils.StringScaleMapper(value: $0) }
         }
 
         let keyParams2: () throws -> [AccountId] = {
@@ -385,7 +387,7 @@ class JSONRPCTests: XCTestCase {
         let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
         let factoryClosure: () throws -> RuntimeCoderFactoryProtocol = {
-            try coderFactoryOperation.extractNoCancellableResultData()
+            try coderFactoryOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
         }
 
         // when
@@ -405,7 +407,7 @@ class JSONRPCTests: XCTestCase {
             waitUntilFinished: true
         )
 
-        let resultsCount = try wrapper.targetOperation.extractNoCancellableResultData().count
+        let resultsCount = try wrapper.targetOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled).count
 
         // then
 

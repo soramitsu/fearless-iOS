@@ -15,7 +15,7 @@ class StakingDurationOperationFactoryTests: XCTestCase {
 
             OperationQueue().addOperations(operationWrapper.allOperations, waitUntilFinished: true)
 
-            let duration = try operationWrapper.targetOperation.extractNoCancellableResultData()
+            let duration = try operationWrapper.targetOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
             XCTAssertEqual(duration.era, 6 * 3600)
             XCTAssertEqual(duration.unlocking, 28 * 6 * 3600)

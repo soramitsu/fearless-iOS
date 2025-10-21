@@ -36,23 +36,28 @@ enum ChainModelGenerator {
             )
 
             let chain = ChainModel(
-                            chainId: chainId,
-                            parentId: nil,
-                            name: String(chainId.reversed()),
-                            assets: [],
-                            nodes: [node],
-                            addressPrefix: UInt16(index),
-                            types: types,
-                            icon: URL(string: "https://github.com")!,
-                            options: options.isEmpty ? nil : options,
-                            externalApi: externalApi,
-                            customNodes: nil,
-                            iosMinAppVersion: nil
-                        )
-            let asset = generateAssetWithId("", symbol: "", assetPresicion: 12, chainId: chainId)
-            let chainAsset = generateChainAsset(asset, chain: chain, staking: staking)
-            let chainAssets = Set(arrayLiteral: chainAsset)
-            chain.assets = chainAssets
+                rank: nil,
+                disabled: false,
+                chainId: chainId,
+                parentId: nil,
+                paraId: nil,
+                name: String(chainId.reversed()),
+                xcm: nil,
+                nodes: [node],
+                addressPrefix: UInt16(index),
+                types: types,
+                icon: URL(string: "https://github.com")!,
+                options: options.isEmpty ? nil : options,
+                externalApi: externalApi,
+                selectedNode: nil,
+                customNodes: nil,
+                iosMinAppVersion: nil,
+                identityChain: nil
+            )
+
+            let asset = generateAssetWithId("asset_\(index)", symbol: "TST\(index)", assetPresicion: 12, chainId: chainId)
+            // Set tokens on the chain to reflect generated assets
+            chain.tokens = ChainRemoteTokens(type: .config, whitelist: nil, utilityId: nil, tokens: Set([asset]))
             return chain
         }
     }
@@ -87,18 +92,23 @@ enum ChainModelGenerator {
         )
 
         let chain = ChainModel(
+            rank: nil,
+            disabled: false,
             chainId: chainId,
             parentId: nil,
+            paraId: nil,
             name: UUID().uuidString,
-            assets: [],
+            xcm: nil,
             nodes: [node],
             addressPrefix: addressPrefix,
             types: nil,
             icon: Constants.dummyURL,
             options: options.isEmpty ? nil : options,
             externalApi: externalApi,
+            selectedNode: nil,
             customNodes: nil,
-            iosMinAppVersion: nil
+            iosMinAppVersion: nil,
+            identityChain: nil
         )
         let chainAssetsArray: [ChainAsset] = (0..<count).map { index in
             let asset = generateAssetWithId(
@@ -108,8 +118,8 @@ enum ChainModelGenerator {
             )
             return generateChainAsset(asset, chain: chain, staking: staking)
         }
-        let chainAssets = Set(chainAssetsArray)
-        chain.assets = chainAssets
+        let assets = Set(chainAssetsArray.map { $0.asset })
+        chain.tokens = ChainRemoteTokens(type: .config, whitelist: nil, utilityId: nil, tokens: assets)
         return chain
     }
     
@@ -124,20 +134,22 @@ enum ChainModelGenerator {
         assetPresicion: UInt16 = (9...18).randomElement()!,
         chainId: String = ""
     ) -> AssetModel {
-        AssetModel(
+        // Map to current SSFModels initializer; keep values simple for tests
+        let tokenProps = TokenProperties(priceId: nil, currencyId: nil, color: nil, type: nil, isNative: false, stacking: nil)
+        return AssetModel(
             id: identifier,
+            name: symbol.isEmpty ? "Test Asset" : symbol,
             symbol: symbol,
-            chainId: chainId,
+            isUtility: true,
             precision: assetPresicion,
             icon: nil,
-            priceId: nil,
+            substrateType: nil,
+            ethereumType: nil,
+            tokenProperties: tokenProps,
             price: nil,
-            fiatDayChange: nil,
-            transfersEnabled: true,
-            currencyId: nil,
-            displayName: nil,
-            existentialDeposit: nil,
-            color: nil
+            priceId: nil,
+            coingeckoPriceId: nil,
+            priceProvider: nil
         )
     }
 

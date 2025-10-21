@@ -9,1101 +9,6 @@ import Foundation
 
 
 
-public class MockJSONRPCResponseHandling: JSONRPCResponseHandling, Cuckoo.ProtocolMock {
-    
-    public typealias MocksType = JSONRPCResponseHandling
-    
-    public typealias Stubbing = __StubbingProxy_JSONRPCResponseHandling
-    public typealias Verification = __VerificationProxy_JSONRPCResponseHandling
-
-    public let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
-
-    
-    private var __defaultImplStub: JSONRPCResponseHandling?
-
-    public func enableDefaultImplementation(_ stub: JSONRPCResponseHandling) {
-        __defaultImplStub = stub
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-    
-
-    
-
-    
-
-    
-    
-    
-    
-    public func handle(data: Data)  {
-        
-    return cuckoo_manager.call(
-    """
-    handle(data: Data)
-    """,
-            parameters: (data),
-            escapingParameters: (data),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.handle(data: data))
-        
-    }
-    
-    
-    
-    
-    
-    public func handle(error: Error)  {
-        
-    return cuckoo_manager.call(
-    """
-    handle(error: Error)
-    """,
-            parameters: (error),
-            escapingParameters: (error),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.handle(error: error))
-        
-    }
-    
-    
-
-    public struct __StubbingProxy_JSONRPCResponseHandling: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-    
-        public init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
-        }
-        
-        
-        
-        
-        func handle<M1: Cuckoo.Matchable>(data: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Data)> where M1.MatchedType == Data {
-            let matchers: [Cuckoo.ParameterMatcher<(Data)>] = [wrap(matchable: data) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCResponseHandling.self, method:
-    """
-    handle(data: Data)
-    """, parameterMatchers: matchers))
-        }
-        
-        
-        
-        
-        func handle<M1: Cuckoo.Matchable>(error: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
-            let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: error) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCResponseHandling.self, method:
-    """
-    handle(error: Error)
-    """, parameterMatchers: matchers))
-        }
-        
-        
-    }
-
-    public struct __VerificationProxy_JSONRPCResponseHandling: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
-    
-        public init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
-        }
-    
-        
-    
-        
-        
-        
-        @discardableResult
-        func handle<M1: Cuckoo.Matchable>(data: M1) -> Cuckoo.__DoNotUse<(Data), Void> where M1.MatchedType == Data {
-            let matchers: [Cuckoo.ParameterMatcher<(Data)>] = [wrap(matchable: data) { $0 }]
-            return cuckoo_manager.verify(
-    """
-    handle(data: Data)
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        @discardableResult
-        func handle<M1: Cuckoo.Matchable>(error: M1) -> Cuckoo.__DoNotUse<(Error), Void> where M1.MatchedType == Error {
-            let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: error) { $0 }]
-            return cuckoo_manager.verify(
-    """
-    handle(error: Error)
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-    }
-}
-
-
-public class JSONRPCResponseHandlingStub: JSONRPCResponseHandling {
-    
-
-    
-
-    
-    
-    
-    
-    public func handle(data: Data)   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    
-    
-    
-    
-    public func handle(error: Error)   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    
-}
-
-
-
-
-
-
-
-
-
-
-public class MockJSONRPCSubscribing: JSONRPCSubscribing, Cuckoo.ProtocolMock {
-    
-    public typealias MocksType = JSONRPCSubscribing
-    
-    public typealias Stubbing = __StubbingProxy_JSONRPCSubscribing
-    public typealias Verification = __VerificationProxy_JSONRPCSubscribing
-
-    public let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
-
-    
-    private var __defaultImplStub: JSONRPCSubscribing?
-
-    public func enableDefaultImplementation(_ stub: JSONRPCSubscribing) {
-        __defaultImplStub = stub
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-    
-
-    
-    
-    
-    
-    public var requestId: UInt16 {
-        get {
-            return cuckoo_manager.getter("requestId",
-                superclassCall:
-                    
-                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                    ,
-                defaultCall: __defaultImplStub!.requestId)
-        }
-        
-    }
-    
-    
-    
-    
-    
-    public var requestData: Data {
-        get {
-            return cuckoo_manager.getter("requestData",
-                superclassCall:
-                    
-                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                    ,
-                defaultCall: __defaultImplStub!.requestData)
-        }
-        
-    }
-    
-    
-    
-    
-    
-    public var requestOptions: JSONRPCOptions {
-        get {
-            return cuckoo_manager.getter("requestOptions",
-                superclassCall:
-                    
-                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                    ,
-                defaultCall: __defaultImplStub!.requestOptions)
-        }
-        
-    }
-    
-    
-    
-    
-    
-    public var remoteId: String? {
-        get {
-            return cuckoo_manager.getter("remoteId",
-                superclassCall:
-                    
-                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                    ,
-                defaultCall: __defaultImplStub!.remoteId)
-        }
-        
-        set {
-            cuckoo_manager.setter("remoteId",
-                value: newValue,
-                superclassCall:
-                    
-                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                    ,
-                defaultCall: __defaultImplStub!.remoteId = newValue)
-        }
-        
-    }
-    
-    
-
-    
-
-    
-    
-    
-    
-    public func handle(data: Data) throws {
-        
-    return try cuckoo_manager.callThrows(
-    """
-    handle(data: Data) throws
-    """,
-            parameters: (data),
-            escapingParameters: (data),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.handle(data: data))
-        
-    }
-    
-    
-    
-    
-    
-    public func handle(error: Error, unsubscribed: Bool)  {
-        
-    return cuckoo_manager.call(
-    """
-    handle(error: Error, unsubscribed: Bool)
-    """,
-            parameters: (error, unsubscribed),
-            escapingParameters: (error, unsubscribed),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.handle(error: error, unsubscribed: unsubscribed))
-        
-    }
-    
-    
-
-    public struct __StubbingProxy_JSONRPCSubscribing: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-    
-        public init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
-        }
-        
-        
-        
-        var requestId: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockJSONRPCSubscribing, UInt16> {
-            return .init(manager: cuckoo_manager, name: "requestId")
-        }
-        
-        
-        
-        
-        var requestData: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockJSONRPCSubscribing, Data> {
-            return .init(manager: cuckoo_manager, name: "requestData")
-        }
-        
-        
-        
-        
-        var requestOptions: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockJSONRPCSubscribing, JSONRPCOptions> {
-            return .init(manager: cuckoo_manager, name: "requestOptions")
-        }
-        
-        
-        
-        
-        var remoteId: Cuckoo.ProtocolToBeStubbedOptionalProperty<MockJSONRPCSubscribing, String> {
-            return .init(manager: cuckoo_manager, name: "remoteId")
-        }
-        
-        
-        
-        
-        
-        func handle<M1: Cuckoo.Matchable>(data: M1) -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(Data)> where M1.MatchedType == Data {
-            let matchers: [Cuckoo.ParameterMatcher<(Data)>] = [wrap(matchable: data) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCSubscribing.self, method:
-    """
-    handle(data: Data) throws
-    """, parameterMatchers: matchers))
-        }
-        
-        
-        
-        
-        func handle<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(error: M1, unsubscribed: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Error, Bool)> where M1.MatchedType == Error, M2.MatchedType == Bool {
-            let matchers: [Cuckoo.ParameterMatcher<(Error, Bool)>] = [wrap(matchable: error) { $0.0 }, wrap(matchable: unsubscribed) { $0.1 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCSubscribing.self, method:
-    """
-    handle(error: Error, unsubscribed: Bool)
-    """, parameterMatchers: matchers))
-        }
-        
-        
-    }
-
-    public struct __VerificationProxy_JSONRPCSubscribing: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
-    
-        public init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
-        }
-    
-        
-        
-        
-        var requestId: Cuckoo.VerifyReadOnlyProperty<UInt16> {
-            return .init(manager: cuckoo_manager, name: "requestId", callMatcher: callMatcher, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        var requestData: Cuckoo.VerifyReadOnlyProperty<Data> {
-            return .init(manager: cuckoo_manager, name: "requestData", callMatcher: callMatcher, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        var requestOptions: Cuckoo.VerifyReadOnlyProperty<JSONRPCOptions> {
-            return .init(manager: cuckoo_manager, name: "requestOptions", callMatcher: callMatcher, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        var remoteId: Cuckoo.VerifyOptionalProperty<String> {
-            return .init(manager: cuckoo_manager, name: "remoteId", callMatcher: callMatcher, sourceLocation: sourceLocation)
-        }
-        
-        
-    
-        
-        
-        
-        @discardableResult
-        func handle<M1: Cuckoo.Matchable>(data: M1) -> Cuckoo.__DoNotUse<(Data), Void> where M1.MatchedType == Data {
-            let matchers: [Cuckoo.ParameterMatcher<(Data)>] = [wrap(matchable: data) { $0 }]
-            return cuckoo_manager.verify(
-    """
-    handle(data: Data) throws
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        @discardableResult
-        func handle<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(error: M1, unsubscribed: M2) -> Cuckoo.__DoNotUse<(Error, Bool), Void> where M1.MatchedType == Error, M2.MatchedType == Bool {
-            let matchers: [Cuckoo.ParameterMatcher<(Error, Bool)>] = [wrap(matchable: error) { $0.0 }, wrap(matchable: unsubscribed) { $0.1 }]
-            return cuckoo_manager.verify(
-    """
-    handle(error: Error, unsubscribed: Bool)
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-    }
-}
-
-
-public class JSONRPCSubscribingStub: JSONRPCSubscribing {
-    
-    
-    
-    
-    public var requestId: UInt16 {
-        get {
-            return DefaultValueRegistry.defaultValue(for: (UInt16).self)
-        }
-        
-    }
-    
-    
-    
-    
-    
-    public var requestData: Data {
-        get {
-            return DefaultValueRegistry.defaultValue(for: (Data).self)
-        }
-        
-    }
-    
-    
-    
-    
-    
-    public var requestOptions: JSONRPCOptions {
-        get {
-            return DefaultValueRegistry.defaultValue(for: (JSONRPCOptions).self)
-        }
-        
-    }
-    
-    
-    
-    
-    
-    public var remoteId: String? {
-        get {
-            return DefaultValueRegistry.defaultValue(for: (String?).self)
-        }
-        
-        set { }
-        
-    }
-    
-    
-
-    
-
-    
-    
-    
-    
-    public func handle(data: Data) throws  {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    
-    
-    
-    
-    public func handle(error: Error, unsubscribed: Bool)   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    
-}
-
-
-
-
-
-
-
-
-
-
-public class MockJSONRPCEngine: JSONRPCEngine, Cuckoo.ProtocolMock {
-    
-    public typealias MocksType = JSONRPCEngine
-    
-    public typealias Stubbing = __StubbingProxy_JSONRPCEngine
-    public typealias Verification = __VerificationProxy_JSONRPCEngine
-
-    public let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
-
-    
-    private var __defaultImplStub: JSONRPCEngine?
-
-    public func enableDefaultImplementation(_ stub: JSONRPCEngine) {
-        __defaultImplStub = stub
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-    
-
-    
-    
-    
-    
-    public var url: URL? {
-        get {
-            return cuckoo_manager.getter("url",
-                superclassCall:
-                    
-                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                    ,
-                defaultCall: __defaultImplStub!.url)
-        }
-        
-        set {
-            cuckoo_manager.setter("url",
-                value: newValue,
-                superclassCall:
-                    
-                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                    ,
-                defaultCall: __defaultImplStub!.url = newValue)
-        }
-        
-    }
-    
-    
-    
-    
-    
-    public var pendingEngineRequests: [JSONRPCRequest] {
-        get {
-            return cuckoo_manager.getter("pendingEngineRequests",
-                superclassCall:
-                    
-                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                    ,
-                defaultCall: __defaultImplStub!.pendingEngineRequests)
-        }
-        
-    }
-    
-    
-
-    
-
-    
-    
-    
-    
-    public func callMethod<P: Encodable, T: Decodable>(_ method: String, params: P?, options: JSONRPCOptions, completion closure: ((Result<T, Error>) -> Void)?) throws -> UInt16 {
-        
-    return try cuckoo_manager.callThrows(
-    """
-    callMethod(_: String, params: P?, options: JSONRPCOptions, completion: ((Result<T, Error>) -> Void)?) throws -> UInt16
-    """,
-            parameters: (method, params, options, closure),
-            escapingParameters: (method, params, options, closure),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.callMethod(method, params: params, options: options, completion: closure))
-        
-    }
-    
-    
-    
-    
-    
-    public func subscribe<P: Encodable, T: Decodable>(_ method: String, params: P?, updateClosure: @escaping (T) -> Void, failureClosure: @escaping (Error, Bool) -> Void) throws -> UInt16 {
-        
-    return try cuckoo_manager.callThrows(
-    """
-    subscribe(_: String, params: P?, updateClosure: @escaping (T) -> Void, failureClosure: @escaping (Error, Bool) -> Void) throws -> UInt16
-    """,
-            parameters: (method, params, updateClosure, failureClosure),
-            escapingParameters: (method, params, updateClosure, failureClosure),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.subscribe(method, params: params, updateClosure: updateClosure, failureClosure: failureClosure))
-        
-    }
-    
-    
-    
-    
-    
-    public func cancelForIdentifier(_ identifier: UInt16)  {
-        
-    return cuckoo_manager.call(
-    """
-    cancelForIdentifier(_: UInt16)
-    """,
-            parameters: (identifier),
-            escapingParameters: (identifier),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.cancelForIdentifier(identifier))
-        
-    }
-    
-    
-    
-    
-    
-    public func generateRequestId() -> UInt16 {
-        
-    return cuckoo_manager.call(
-    """
-    generateRequestId() -> UInt16
-    """,
-            parameters: (),
-            escapingParameters: (),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.generateRequestId())
-        
-    }
-    
-    
-    
-    
-    
-    public func addSubscription(_ subscription: JSONRPCSubscribing)  {
-        
-    return cuckoo_manager.call(
-    """
-    addSubscription(_: JSONRPCSubscribing)
-    """,
-            parameters: (subscription),
-            escapingParameters: (subscription),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.addSubscription(subscription))
-        
-    }
-    
-    
-    
-    
-    
-    public func reconnect(url: URL)  {
-        
-    return cuckoo_manager.call(
-    """
-    reconnect(url: URL)
-    """,
-            parameters: (url),
-            escapingParameters: (url),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.reconnect(url: url))
-        
-    }
-    
-    
-    
-    
-    
-    public func connectIfNeeded()  {
-        
-    return cuckoo_manager.call(
-    """
-    connectIfNeeded()
-    """,
-            parameters: (),
-            escapingParameters: (),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.connectIfNeeded())
-        
-    }
-    
-    
-    
-    
-    
-    public func disconnectIfNeeded()  {
-        
-    return cuckoo_manager.call(
-    """
-    disconnectIfNeeded()
-    """,
-            parameters: (),
-            escapingParameters: (),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.disconnectIfNeeded())
-        
-    }
-    
-    
-
-    public struct __StubbingProxy_JSONRPCEngine: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-    
-        public init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
-        }
-        
-        
-        
-        var url: Cuckoo.ProtocolToBeStubbedOptionalProperty<MockJSONRPCEngine, URL> {
-            return .init(manager: cuckoo_manager, name: "url")
-        }
-        
-        
-        
-        
-        var pendingEngineRequests: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockJSONRPCEngine, [JSONRPCRequest]> {
-            return .init(manager: cuckoo_manager, name: "pendingEngineRequests")
-        }
-        
-        
-        
-        
-        
-        func callMethod<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable, P: Encodable, T: Decodable>(_ method: M1, params: M2, options: M3, completion closure: M4) -> Cuckoo.ProtocolStubThrowingFunction<(String, P?, JSONRPCOptions, ((Result<T, Error>) -> Void)?), UInt16> where M1.MatchedType == String, M2.OptionalMatchedType == P, M3.MatchedType == JSONRPCOptions, M4.OptionalMatchedType == ((Result<T, Error>) -> Void) {
-            let matchers: [Cuckoo.ParameterMatcher<(String, P?, JSONRPCOptions, ((Result<T, Error>) -> Void)?)>] = [wrap(matchable: method) { $0.0 }, wrap(matchable: params) { $0.1 }, wrap(matchable: options) { $0.2 }, wrap(matchable: closure) { $0.3 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCEngine.self, method:
-    """
-    callMethod(_: String, params: P?, options: JSONRPCOptions, completion: ((Result<T, Error>) -> Void)?) throws -> UInt16
-    """, parameterMatchers: matchers))
-        }
-        
-        
-        
-        
-        func subscribe<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, P: Encodable, T: Decodable>(_ method: M1, params: M2, updateClosure: M3, failureClosure: M4) -> Cuckoo.ProtocolStubThrowingFunction<(String, P?, (T) -> Void, (Error, Bool) -> Void), UInt16> where M1.MatchedType == String, M2.OptionalMatchedType == P, M3.MatchedType == (T) -> Void, M4.MatchedType == (Error, Bool) -> Void {
-            let matchers: [Cuckoo.ParameterMatcher<(String, P?, (T) -> Void, (Error, Bool) -> Void)>] = [wrap(matchable: method) { $0.0 }, wrap(matchable: params) { $0.1 }, wrap(matchable: updateClosure) { $0.2 }, wrap(matchable: failureClosure) { $0.3 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCEngine.self, method:
-    """
-    subscribe(_: String, params: P?, updateClosure: @escaping (T) -> Void, failureClosure: @escaping (Error, Bool) -> Void) throws -> UInt16
-    """, parameterMatchers: matchers))
-        }
-        
-        
-        
-        
-        func cancelForIdentifier<M1: Cuckoo.Matchable>(_ identifier: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(UInt16)> where M1.MatchedType == UInt16 {
-            let matchers: [Cuckoo.ParameterMatcher<(UInt16)>] = [wrap(matchable: identifier) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCEngine.self, method:
-    """
-    cancelForIdentifier(_: UInt16)
-    """, parameterMatchers: matchers))
-        }
-        
-        
-        
-        
-        func generateRequestId() -> Cuckoo.ProtocolStubFunction<(), UInt16> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCEngine.self, method:
-    """
-    generateRequestId() -> UInt16
-    """, parameterMatchers: matchers))
-        }
-        
-        
-        
-        
-        func addSubscription<M1: Cuckoo.Matchable>(_ subscription: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(JSONRPCSubscribing)> where M1.MatchedType == JSONRPCSubscribing {
-            let matchers: [Cuckoo.ParameterMatcher<(JSONRPCSubscribing)>] = [wrap(matchable: subscription) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCEngine.self, method:
-    """
-    addSubscription(_: JSONRPCSubscribing)
-    """, parameterMatchers: matchers))
-        }
-        
-        
-        
-        
-        func reconnect<M1: Cuckoo.Matchable>(url: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(URL)> where M1.MatchedType == URL {
-            let matchers: [Cuckoo.ParameterMatcher<(URL)>] = [wrap(matchable: url) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCEngine.self, method:
-    """
-    reconnect(url: URL)
-    """, parameterMatchers: matchers))
-        }
-        
-        
-        
-        
-        func connectIfNeeded() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCEngine.self, method:
-    """
-    connectIfNeeded()
-    """, parameterMatchers: matchers))
-        }
-        
-        
-        
-        
-        func disconnectIfNeeded() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCEngine.self, method:
-    """
-    disconnectIfNeeded()
-    """, parameterMatchers: matchers))
-        }
-        
-        
-    }
-
-    public struct __VerificationProxy_JSONRPCEngine: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
-    
-        public init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
-        }
-    
-        
-        
-        
-        var url: Cuckoo.VerifyOptionalProperty<URL> {
-            return .init(manager: cuckoo_manager, name: "url", callMatcher: callMatcher, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        var pendingEngineRequests: Cuckoo.VerifyReadOnlyProperty<[JSONRPCRequest]> {
-            return .init(manager: cuckoo_manager, name: "pendingEngineRequests", callMatcher: callMatcher, sourceLocation: sourceLocation)
-        }
-        
-        
-    
-        
-        
-        
-        @discardableResult
-        func callMethod<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable, P: Encodable, T: Decodable>(_ method: M1, params: M2, options: M3, completion closure: M4) -> Cuckoo.__DoNotUse<(String, P?, JSONRPCOptions, ((Result<T, Error>) -> Void)?), UInt16> where M1.MatchedType == String, M2.OptionalMatchedType == P, M3.MatchedType == JSONRPCOptions, M4.OptionalMatchedType == ((Result<T, Error>) -> Void) {
-            let matchers: [Cuckoo.ParameterMatcher<(String, P?, JSONRPCOptions, ((Result<T, Error>) -> Void)?)>] = [wrap(matchable: method) { $0.0 }, wrap(matchable: params) { $0.1 }, wrap(matchable: options) { $0.2 }, wrap(matchable: closure) { $0.3 }]
-            return cuckoo_manager.verify(
-    """
-    callMethod(_: String, params: P?, options: JSONRPCOptions, completion: ((Result<T, Error>) -> Void)?) throws -> UInt16
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        @discardableResult
-        func subscribe<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, P: Encodable, T: Decodable>(_ method: M1, params: M2, updateClosure: M3, failureClosure: M4) -> Cuckoo.__DoNotUse<(String, P?, (T) -> Void, (Error, Bool) -> Void), UInt16> where M1.MatchedType == String, M2.OptionalMatchedType == P, M3.MatchedType == (T) -> Void, M4.MatchedType == (Error, Bool) -> Void {
-            let matchers: [Cuckoo.ParameterMatcher<(String, P?, (T) -> Void, (Error, Bool) -> Void)>] = [wrap(matchable: method) { $0.0 }, wrap(matchable: params) { $0.1 }, wrap(matchable: updateClosure) { $0.2 }, wrap(matchable: failureClosure) { $0.3 }]
-            return cuckoo_manager.verify(
-    """
-    subscribe(_: String, params: P?, updateClosure: @escaping (T) -> Void, failureClosure: @escaping (Error, Bool) -> Void) throws -> UInt16
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        @discardableResult
-        func cancelForIdentifier<M1: Cuckoo.Matchable>(_ identifier: M1) -> Cuckoo.__DoNotUse<(UInt16), Void> where M1.MatchedType == UInt16 {
-            let matchers: [Cuckoo.ParameterMatcher<(UInt16)>] = [wrap(matchable: identifier) { $0 }]
-            return cuckoo_manager.verify(
-    """
-    cancelForIdentifier(_: UInt16)
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        @discardableResult
-        func generateRequestId() -> Cuckoo.__DoNotUse<(), UInt16> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
-    """
-    generateRequestId() -> UInt16
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        @discardableResult
-        func addSubscription<M1: Cuckoo.Matchable>(_ subscription: M1) -> Cuckoo.__DoNotUse<(JSONRPCSubscribing), Void> where M1.MatchedType == JSONRPCSubscribing {
-            let matchers: [Cuckoo.ParameterMatcher<(JSONRPCSubscribing)>] = [wrap(matchable: subscription) { $0 }]
-            return cuckoo_manager.verify(
-    """
-    addSubscription(_: JSONRPCSubscribing)
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        @discardableResult
-        func reconnect<M1: Cuckoo.Matchable>(url: M1) -> Cuckoo.__DoNotUse<(URL), Void> where M1.MatchedType == URL {
-            let matchers: [Cuckoo.ParameterMatcher<(URL)>] = [wrap(matchable: url) { $0 }]
-            return cuckoo_manager.verify(
-    """
-    reconnect(url: URL)
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        @discardableResult
-        func connectIfNeeded() -> Cuckoo.__DoNotUse<(), Void> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
-    """
-    connectIfNeeded()
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        @discardableResult
-        func disconnectIfNeeded() -> Cuckoo.__DoNotUse<(), Void> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
-    """
-    disconnectIfNeeded()
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-    }
-}
-
-
-public class JSONRPCEngineStub: JSONRPCEngine {
-    
-    
-    
-    
-    public var url: URL? {
-        get {
-            return DefaultValueRegistry.defaultValue(for: (URL?).self)
-        }
-        
-        set { }
-        
-    }
-    
-    
-    
-    
-    
-    public var pendingEngineRequests: [JSONRPCRequest] {
-        get {
-            return DefaultValueRegistry.defaultValue(for: ([JSONRPCRequest]).self)
-        }
-        
-    }
-    
-    
-
-    
-
-    
-    
-    
-    
-    public func callMethod<P: Encodable, T: Decodable>(_ method: String, params: P?, options: JSONRPCOptions, completion closure: ((Result<T, Error>) -> Void)?) throws -> UInt16  {
-        return DefaultValueRegistry.defaultValue(for: (UInt16).self)
-    }
-    
-    
-    
-    
-    
-    public func subscribe<P: Encodable, T: Decodable>(_ method: String, params: P?, updateClosure: @escaping (T) -> Void, failureClosure: @escaping (Error, Bool) -> Void) throws -> UInt16  {
-        return DefaultValueRegistry.defaultValue(for: (UInt16).self)
-    }
-    
-    
-    
-    
-    
-    public func cancelForIdentifier(_ identifier: UInt16)   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    
-    
-    
-    
-    public func generateRequestId() -> UInt16  {
-        return DefaultValueRegistry.defaultValue(for: (UInt16).self)
-    }
-    
-    
-    
-    
-    
-    public func addSubscription(_ subscription: JSONRPCSubscribing)   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    
-    
-    
-    
-    public func reconnect(url: URL)   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    
-    
-    
-    
-    public func connectIfNeeded()   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    
-    
-    
-    
-    public func disconnectIfNeeded()   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    
-}
-
-
-
-
-
-import Cuckoo
-@testable import fearless
-@testable import SoraKeystore
-
-import Foundation
-
-
-
-
-
-
 public class MockKeystoreProtocol: KeystoreProtocol, Cuckoo.ProtocolMock {
     
     public typealias MocksType = KeystoreProtocol
@@ -2333,6 +1238,26 @@ import RobinHood
     }
     
     
+    
+    
+    
+     func createAsyncMetaAccountRepository(for filter: NSPredicate?, sortDescriptors: [NSSortDescriptor]) -> AsyncAnyRepository<MetaAccountModel> {
+        
+    return cuckoo_manager.call(
+    """
+    createAsyncMetaAccountRepository(for: NSPredicate?, sortDescriptors: [NSSortDescriptor]) -> AsyncAnyRepository<MetaAccountModel>
+    """,
+            parameters: (filter, sortDescriptors),
+            escapingParameters: (filter, sortDescriptors),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.createAsyncMetaAccountRepository(for: filter, sortDescriptors: sortDescriptors))
+        
+    }
+    
+    
 
      struct __StubbingProxy_AccountRepositoryFactoryProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -2384,6 +1309,17 @@ import RobinHood
             return .init(stub: cuckoo_manager.createStub(for: MockAccountRepositoryFactoryProtocol.self, method:
     """
     createManagedMetaAccountRepository(for: NSPredicate?, sortDescriptors: [NSSortDescriptor]) -> AnyDataProviderRepository<ManagedMetaAccountModel>
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func createAsyncMetaAccountRepository<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(for filter: M1, sortDescriptors: M2) -> Cuckoo.ProtocolStubFunction<(NSPredicate?, [NSSortDescriptor]), AsyncAnyRepository<MetaAccountModel>> where M1.OptionalMatchedType == NSPredicate, M2.MatchedType == [NSSortDescriptor] {
+            let matchers: [Cuckoo.ParameterMatcher<(NSPredicate?, [NSSortDescriptor])>] = [wrap(matchable: filter) { $0.0 }, wrap(matchable: sortDescriptors) { $0.1 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockAccountRepositoryFactoryProtocol.self, method:
+    """
+    createAsyncMetaAccountRepository(for: NSPredicate?, sortDescriptors: [NSSortDescriptor]) -> AsyncAnyRepository<MetaAccountModel>
     """, parameterMatchers: matchers))
         }
         
@@ -2454,6 +1390,18 @@ import RobinHood
         }
         
         
+        
+        
+        @discardableResult
+        func createAsyncMetaAccountRepository<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(for filter: M1, sortDescriptors: M2) -> Cuckoo.__DoNotUse<(NSPredicate?, [NSSortDescriptor]), AsyncAnyRepository<MetaAccountModel>> where M1.OptionalMatchedType == NSPredicate, M2.MatchedType == [NSSortDescriptor] {
+            let matchers: [Cuckoo.ParameterMatcher<(NSPredicate?, [NSSortDescriptor])>] = [wrap(matchable: filter) { $0.0 }, wrap(matchable: sortDescriptors) { $0.1 }]
+            return cuckoo_manager.verify(
+    """
+    createAsyncMetaAccountRepository(for: NSPredicate?, sortDescriptors: [NSSortDescriptor]) -> AsyncAnyRepository<MetaAccountModel>
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -2495,6 +1443,14 @@ import RobinHood
     
      func createManagedMetaAccountRepository(for filter: NSPredicate?, sortDescriptors: [NSSortDescriptor]) -> AnyDataProviderRepository<ManagedMetaAccountModel>  {
         return DefaultValueRegistry.defaultValue(for: (AnyDataProviderRepository<ManagedMetaAccountModel>).self)
+    }
+    
+    
+    
+    
+    
+     func createAsyncMetaAccountRepository(for filter: NSPredicate?, sortDescriptors: [NSSortDescriptor]) -> AsyncAnyRepository<MetaAccountModel>  {
+        return DefaultValueRegistry.defaultValue(for: (AsyncAnyRepository<MetaAccountModel>).self)
     }
     
     
@@ -2843,7 +1799,7 @@ import UIKit.UIImage
                     
                     Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                     ,
-                defaultCall: __defaultImplStub!.availableBiometryType)
+                defaultCall:  __defaultImplStub!.availableBiometryType)
         }
         
     }
@@ -3002,9 +1958,9 @@ import UIKit.UIImage
             return cuckoo_manager.getter("availableBiometryType",
                 superclassCall:
                     
-                    super.availableBiometryType
+                                    super.availableBiometryType
                     ,
-                defaultCall: __defaultImplStub!.availableBiometryType)
+                defaultCall:  __defaultImplStub!.availableBiometryType)
         }
         
     }
@@ -3262,9 +2218,9 @@ import Cuckoo
 @testable import fearless
 @testable import SoraKeystore
 
-import SSFUtils
 import Foundation
 import RobinHood
+import SSFUtils
 
 
 
@@ -3390,9 +2346,14 @@ import Cuckoo
 @testable import fearless
 @testable import SoraKeystore
 
-import SSFUtils
 import Foundation
 import RobinHood
+import SSFChainConnection
+import SSFChainRegistry
+import SSFModels
+import SSFRuntimeCodingService
+import SSFUtils
+import Web3
 
 
 
@@ -3428,7 +2389,39 @@ import RobinHood
                     
                     Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                     ,
-                defaultCall: __defaultImplStub!.availableChainIds)
+                defaultCall:  __defaultImplStub!.availableChainIds)
+        }
+        
+    }
+    
+    
+    
+    
+    
+     var availableChains: [ChainModel] {
+        get {
+            return cuckoo_manager.getter("availableChains",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall:  __defaultImplStub!.availableChains)
+        }
+        
+    }
+    
+    
+    
+    
+    
+     var chainsTypesMap: [String: Data] {
+        get {
+            return cuckoo_manager.getter("chainsTypesMap",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall:  __defaultImplStub!.chainsTypesMap)
         }
         
     }
@@ -3437,6 +2430,46 @@ import RobinHood
 
     
 
+    
+    
+    
+    
+     func resetConnection(for chainId: ChainModel.Id)  {
+        
+    return cuckoo_manager.call(
+    """
+    resetConnection(for: ChainModel.Id)
+    """,
+            parameters: (chainId),
+            escapingParameters: (chainId),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.resetConnection(for: chainId))
+        
+    }
+    
+    
+    
+    
+    
+     func retryConnection(for chainId: ChainModel.Id)  {
+        
+    return cuckoo_manager.call(
+    """
+    retryConnection(for: ChainModel.Id)
+    """,
+            parameters: (chainId),
+            escapingParameters: (chainId),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.retryConnection(for: chainId))
+        
+    }
+    
     
     
     
@@ -3454,26 +2487,6 @@ import RobinHood
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
             defaultCall: __defaultImplStub!.getConnection(for: chainId))
-        
-    }
-    
-    
-    
-    
-    
-     func setupConnection(for chainModel: ChainModel) -> ChainConnection? {
-        
-    return cuckoo_manager.call(
-    """
-    setupConnection(for: ChainModel) -> ChainConnection?
-    """,
-            parameters: (chainModel),
-            escapingParameters: (chainModel),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.setupConnection(for: chainModel))
         
     }
     
@@ -3501,6 +2514,26 @@ import RobinHood
     
     
     
+     func getChain(for chainId: ChainModel.Id) -> ChainModel? {
+        
+    return cuckoo_manager.call(
+    """
+    getChain(for: ChainModel.Id) -> ChainModel?
+    """,
+            parameters: (chainId),
+            escapingParameters: (chainId),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.getChain(for: chainId))
+        
+    }
+    
+    
+    
+    
+    
      func chainsSubscribe(_ target: AnyObject, runningInQueue: DispatchQueue, updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void)  {
         
     return cuckoo_manager.call(
@@ -3514,6 +2547,26 @@ import RobinHood
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
             defaultCall: __defaultImplStub!.chainsSubscribe(target, runningInQueue: runningInQueue, updateClosure: updateClosure))
+        
+    }
+    
+    
+    
+    
+    
+     func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth? {
+        
+    return cuckoo_manager.call(
+    """
+    getEthereumConnection(for: ChainModel.Id) -> Web3.Eth?
+    """,
+            parameters: (chainId),
+            escapingParameters: (chainId),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.getEthereumConnection(for: chainId))
         
     }
     
@@ -3635,23 +2688,48 @@ import RobinHood
         
         
         
+        var availableChains: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockChainRegistryProtocol, [ChainModel]> {
+            return .init(manager: cuckoo_manager, name: "availableChains")
+        }
         
-        func getConnection<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), ChainConnection?> where M1.MatchedType == ChainModel.Id {
+        
+        
+        
+        var chainsTypesMap: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockChainRegistryProtocol, [String: Data]> {
+            return .init(manager: cuckoo_manager, name: "chainsTypesMap")
+        }
+        
+        
+        
+        
+        
+        func resetConnection<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ChainModel.Id)> where M1.MatchedType == ChainModel.Id {
             let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockChainRegistryProtocol.self, method:
     """
-    getConnection(for: ChainModel.Id) -> ChainConnection?
+    resetConnection(for: ChainModel.Id)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func setupConnection<M1: Cuckoo.Matchable>(for chainModel: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel), ChainConnection?> where M1.MatchedType == ChainModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ChainModel)>] = [wrap(matchable: chainModel) { $0 }]
+        func retryConnection<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ChainModel.Id)> where M1.MatchedType == ChainModel.Id {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockChainRegistryProtocol.self, method:
     """
-    setupConnection(for: ChainModel) -> ChainConnection?
+    retryConnection(for: ChainModel.Id)
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func getConnection<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), ChainConnection?> where M1.MatchedType == ChainModel.Id {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockChainRegistryProtocol.self, method:
+    """
+    getConnection(for: ChainModel.Id) -> ChainConnection?
     """, parameterMatchers: matchers))
         }
         
@@ -3669,11 +2747,33 @@ import RobinHood
         
         
         
+        func getChain<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), ChainModel?> where M1.MatchedType == ChainModel.Id {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockChainRegistryProtocol.self, method:
+    """
+    getChain(for: ChainModel.Id) -> ChainModel?
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
         func chainsSubscribe<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(_ target: M1, runningInQueue: M2, updateClosure: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(AnyObject, DispatchQueue, ([DataProviderChange<ChainModel>]) -> Void)> where M1.MatchedType == AnyObject, M2.MatchedType == DispatchQueue, M3.MatchedType == ([DataProviderChange<ChainModel>]) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<(AnyObject, DispatchQueue, ([DataProviderChange<ChainModel>]) -> Void)>] = [wrap(matchable: target) { $0.0 }, wrap(matchable: runningInQueue) { $0.1 }, wrap(matchable: updateClosure) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockChainRegistryProtocol.self, method:
     """
     chainsSubscribe(_: AnyObject, runningInQueue: DispatchQueue, updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void)
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func getEthereumConnection<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), Web3.Eth?> where M1.MatchedType == ChainModel.Id {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockChainRegistryProtocol.self, method:
+    """
+    getEthereumConnection(for: ChainModel.Id) -> Web3.Eth?
     """, parameterMatchers: matchers))
         }
         
@@ -3754,7 +2854,45 @@ import RobinHood
         }
         
         
+        
+        
+        var availableChains: Cuckoo.VerifyReadOnlyProperty<[ChainModel]> {
+            return .init(manager: cuckoo_manager, name: "availableChains", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+        
+        
+        
+        
+        var chainsTypesMap: Cuckoo.VerifyReadOnlyProperty<[String: Data]> {
+            return .init(manager: cuckoo_manager, name: "chainsTypesMap", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+        
+        
     
+        
+        
+        
+        @discardableResult
+        func resetConnection<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), Void> where M1.MatchedType == ChainModel.Id {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+            return cuckoo_manager.verify(
+    """
+    resetConnection(for: ChainModel.Id)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
+        
+        
+        @discardableResult
+        func retryConnection<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), Void> where M1.MatchedType == ChainModel.Id {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+            return cuckoo_manager.verify(
+    """
+    retryConnection(for: ChainModel.Id)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
         
         
         
@@ -3764,18 +2902,6 @@ import RobinHood
             return cuckoo_manager.verify(
     """
     getConnection(for: ChainModel.Id) -> ChainConnection?
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        @discardableResult
-        func setupConnection<M1: Cuckoo.Matchable>(for chainModel: M1) -> Cuckoo.__DoNotUse<(ChainModel), ChainConnection?> where M1.MatchedType == ChainModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ChainModel)>] = [wrap(matchable: chainModel) { $0 }]
-            return cuckoo_manager.verify(
-    """
-    setupConnection(for: ChainModel) -> ChainConnection?
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -3795,11 +2921,35 @@ import RobinHood
         
         
         @discardableResult
+        func getChain<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), ChainModel?> where M1.MatchedType == ChainModel.Id {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+            return cuckoo_manager.verify(
+    """
+    getChain(for: ChainModel.Id) -> ChainModel?
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
+        
+        
+        @discardableResult
         func chainsSubscribe<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(_ target: M1, runningInQueue: M2, updateClosure: M3) -> Cuckoo.__DoNotUse<(AnyObject, DispatchQueue, ([DataProviderChange<ChainModel>]) -> Void), Void> where M1.MatchedType == AnyObject, M2.MatchedType == DispatchQueue, M3.MatchedType == ([DataProviderChange<ChainModel>]) -> Void {
             let matchers: [Cuckoo.ParameterMatcher<(AnyObject, DispatchQueue, ([DataProviderChange<ChainModel>]) -> Void)>] = [wrap(matchable: target) { $0.0 }, wrap(matchable: runningInQueue) { $0.1 }, wrap(matchable: updateClosure) { $0.2 }]
             return cuckoo_manager.verify(
     """
     chainsSubscribe(_: AnyObject, runningInQueue: DispatchQueue, updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
+        
+        
+        @discardableResult
+        func getEthereumConnection<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), Web3.Eth?> where M1.MatchedType == ChainModel.Id {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+            return cuckoo_manager.verify(
+    """
+    getEthereumConnection(for: ChainModel.Id) -> Web3.Eth?
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -3881,22 +3031,52 @@ import RobinHood
     }
     
     
-
-    
-
     
     
     
-    
-     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?  {
-        return DefaultValueRegistry.defaultValue(for: (ChainConnection?).self)
+     var availableChains: [ChainModel] {
+        get {
+            return DefaultValueRegistry.defaultValue(for: ([ChainModel]).self)
+        }
+        
     }
     
     
     
     
     
-     func setupConnection(for chainModel: ChainModel) -> ChainConnection?  {
+     var chainsTypesMap: [String: Data] {
+        get {
+            return DefaultValueRegistry.defaultValue(for: ([String: Data]).self)
+        }
+        
+    }
+    
+    
+
+    
+
+    
+    
+    
+    
+     func resetConnection(for chainId: ChainModel.Id)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func retryConnection(for chainId: ChainModel.Id)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?  {
         return DefaultValueRegistry.defaultValue(for: (ChainConnection?).self)
     }
     
@@ -3912,8 +3092,24 @@ import RobinHood
     
     
     
+     func getChain(for chainId: ChainModel.Id) -> ChainModel?  {
+        return DefaultValueRegistry.defaultValue(for: (ChainModel?).self)
+    }
+    
+    
+    
+    
+    
      func chainsSubscribe(_ target: AnyObject, runningInQueue: DispatchQueue, updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth?  {
+        return DefaultValueRegistry.defaultValue(for: (Web3.Eth?).self)
     }
     
     
@@ -3967,8 +3163,8 @@ import Cuckoo
 @testable import fearless
 @testable import SoraKeystore
 
-import SSFUtils
 import Foundation
+import SSFUtils
 
 
 
@@ -4001,19 +3197,19 @@ import Foundation
     
     
     
-     func createConnection(connectionName: String?, for url: URL, delegate: WebSocketEngineDelegate) -> ChainConnection {
+     func createConnection(connectionName: String?, for urls: [URL], delegate: WebSocketEngineDelegate) throws -> ChainConnection {
         
-    return cuckoo_manager.call(
+    return try cuckoo_manager.callThrows(
     """
-    createConnection(connectionName: String?, for: URL, delegate: WebSocketEngineDelegate) -> ChainConnection
+    createConnection(connectionName: String?, for: [URL], delegate: WebSocketEngineDelegate) throws -> ChainConnection
     """,
-            parameters: (connectionName, url, delegate),
-            escapingParameters: (connectionName, url, delegate),
+            parameters: (connectionName, urls, delegate),
+            escapingParameters: (connectionName, urls, delegate),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.createConnection(connectionName: connectionName, for: url, delegate: delegate))
+            defaultCall: __defaultImplStub!.createConnection(connectionName: connectionName, for: urls, delegate: delegate))
         
     }
     
@@ -4029,11 +3225,11 @@ import Foundation
         
         
         
-        func createConnection<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(connectionName: M1, for url: M2, delegate: M3) -> Cuckoo.ProtocolStubFunction<(String?, URL, WebSocketEngineDelegate), ChainConnection> where M1.OptionalMatchedType == String, M2.MatchedType == URL, M3.MatchedType == WebSocketEngineDelegate {
-            let matchers: [Cuckoo.ParameterMatcher<(String?, URL, WebSocketEngineDelegate)>] = [wrap(matchable: connectionName) { $0.0 }, wrap(matchable: url) { $0.1 }, wrap(matchable: delegate) { $0.2 }]
+        func createConnection<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(connectionName: M1, for urls: M2, delegate: M3) -> Cuckoo.ProtocolStubThrowingFunction<(String?, [URL], WebSocketEngineDelegate), ChainConnection> where M1.OptionalMatchedType == String, M2.MatchedType == [URL], M3.MatchedType == WebSocketEngineDelegate {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, [URL], WebSocketEngineDelegate)>] = [wrap(matchable: connectionName) { $0.0 }, wrap(matchable: urls) { $0.1 }, wrap(matchable: delegate) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockConnectionFactoryProtocol.self, method:
     """
-    createConnection(connectionName: String?, for: URL, delegate: WebSocketEngineDelegate) -> ChainConnection
+    createConnection(connectionName: String?, for: [URL], delegate: WebSocketEngineDelegate) throws -> ChainConnection
     """, parameterMatchers: matchers))
         }
         
@@ -4057,11 +3253,11 @@ import Foundation
         
         
         @discardableResult
-        func createConnection<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(connectionName: M1, for url: M2, delegate: M3) -> Cuckoo.__DoNotUse<(String?, URL, WebSocketEngineDelegate), ChainConnection> where M1.OptionalMatchedType == String, M2.MatchedType == URL, M3.MatchedType == WebSocketEngineDelegate {
-            let matchers: [Cuckoo.ParameterMatcher<(String?, URL, WebSocketEngineDelegate)>] = [wrap(matchable: connectionName) { $0.0 }, wrap(matchable: url) { $0.1 }, wrap(matchable: delegate) { $0.2 }]
+        func createConnection<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(connectionName: M1, for urls: M2, delegate: M3) -> Cuckoo.__DoNotUse<(String?, [URL], WebSocketEngineDelegate), ChainConnection> where M1.OptionalMatchedType == String, M2.MatchedType == [URL], M3.MatchedType == WebSocketEngineDelegate {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, [URL], WebSocketEngineDelegate)>] = [wrap(matchable: connectionName) { $0.0 }, wrap(matchable: urls) { $0.1 }, wrap(matchable: delegate) { $0.2 }]
             return cuckoo_manager.verify(
     """
-    createConnection(connectionName: String?, for: URL, delegate: WebSocketEngineDelegate) -> ChainConnection
+    createConnection(connectionName: String?, for: [URL], delegate: WebSocketEngineDelegate) throws -> ChainConnection
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -4079,7 +3275,7 @@ import Foundation
     
     
     
-     func createConnection(connectionName: String?, for url: URL, delegate: WebSocketEngineDelegate) -> ChainConnection  {
+     func createConnection(connectionName: String?, for urls: [URL], delegate: WebSocketEngineDelegate) throws -> ChainConnection  {
         return DefaultValueRegistry.defaultValue(for: (ChainConnection).self)
     }
     
@@ -4094,8 +3290,9 @@ import Cuckoo
 @testable import fearless
 @testable import SoraKeystore
 
-import SSFUtils
 import Foundation
+import SSFModels
+import SSFUtils
 import SoraFoundation
 
 
@@ -4103,9 +3300,9 @@ import SoraFoundation
 
 
 
- class MockConnectionPoolProtocol: ConnectionPoolProtocol, Cuckoo.ProtocolMock {
+ class MockConnectionPoolProtocol<T>: ConnectionPoolProtocol, Cuckoo.ProtocolMock {
     
-     typealias MocksType = ConnectionPoolProtocol
+     typealias MocksType = DefaultImplCaller<T>
     
      typealias Stubbing = __StubbingProxy_ConnectionPoolProtocol
      typealias Verification = __VerificationProxy_ConnectionPoolProtocol
@@ -4113,10 +3310,57 @@ import SoraFoundation
      let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    private var __defaultImplStub: ConnectionPoolProtocol?
+     class DefaultImplCaller<T>: ConnectionPoolProtocol {
+        private let reference: Any
+    
+        
+        
+        init<_CUCKOO$$GENERIC: ConnectionPoolProtocol>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> Any?) where _CUCKOO$$GENERIC.T == T {
+            self.reference = reference
+    
+            
+            _storage$1$setupConnection = defaultImpl.pointee.setupConnection
+            _storage$2$getConnection = defaultImpl.pointee.getConnection
+            _storage$3$setDelegate = defaultImpl.pointee.setDelegate
+            _storage$4$resetConnection = defaultImpl.pointee.resetConnection
+            
+        }
+        
+        
+    
+        
+        private let _storage$1$setupConnection: (ChainModel)  -> T
+         func setupConnection(for chain: ChainModel) throws -> T {
+            return  _storage$1$setupConnection(chain)
+        }
+        
+        private let _storage$2$getConnection: (ChainModel.Id)  -> T?
+         func getConnection(for chainId: ChainModel.Id) -> T? {
+            return  _storage$2$getConnection(chainId)
+        }
+        
+        private let _storage$3$setDelegate: (ConnectionPoolDelegate)  -> Void
+         func setDelegate(_ delegate: ConnectionPoolDelegate)  {
+            return  _storage$3$setDelegate(delegate)
+        }
+        
+        private let _storage$4$resetConnection: (ChainModel.Id)  -> Void
+         func resetConnection(for chainId: ChainModel.Id)  {
+            return  _storage$4$resetConnection(chainId)
+        }
+        
+    }
 
-     func enableDefaultImplementation(_ stub: ConnectionPoolProtocol) {
-        __defaultImplStub = stub
+    private var __defaultImplStub: DefaultImplCaller<T>?
+
+     func enableDefaultImplementation<_CUCKOO$$GENERIC: ConnectionPoolProtocol>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T {
+        var mutableStub = stub
+        __defaultImplStub = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+
+     func enableDefaultImplementation<_CUCKOO$$GENERIC: ConnectionPoolProtocol>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.T == T {
+        __defaultImplStub = DefaultImplCaller(from: stub, keeping: nil)
         cuckoo_manager.enableDefaultStubImplementation()
     }
     
@@ -4129,11 +3373,11 @@ import SoraFoundation
     
     
     
-     func setupConnection(for chain: ChainModel) throws -> ChainConnection {
+     func setupConnection(for chain: ChainModel) throws -> T {
         
     return try cuckoo_manager.callThrows(
     """
-    setupConnection(for: ChainModel) throws -> ChainConnection
+    setupConnection(for: ChainModel) throws -> T
     """,
             parameters: (chain),
             escapingParameters: (chain),
@@ -4149,31 +3393,11 @@ import SoraFoundation
     
     
     
-     func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> ChainConnection {
-        
-    return try cuckoo_manager.callThrows(
-    """
-    setupConnection(for: ChainModel, ignoredUrl: URL?) throws -> ChainConnection
-    """,
-            parameters: (chain, ignoredUrl),
-            escapingParameters: (chain, ignoredUrl),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.setupConnection(for: chain, ignoredUrl: ignoredUrl))
-        
-    }
-    
-    
-    
-    
-    
-     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
+     func getConnection(for chainId: ChainModel.Id) -> T? {
         
     return cuckoo_manager.call(
     """
-    getConnection(for: ChainModel.Id) -> ChainConnection?
+    getConnection(for: ChainModel.Id) -> T?
     """,
             parameters: (chainId),
             escapingParameters: (chainId),
@@ -4206,6 +3430,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func resetConnection(for chainId: ChainModel.Id)  {
+        
+    return cuckoo_manager.call(
+    """
+    resetConnection(for: ChainModel.Id)
+    """,
+            parameters: (chainId),
+            escapingParameters: (chainId),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.resetConnection(for: chainId))
+        
+    }
+    
+    
 
      struct __StubbingProxy_ConnectionPoolProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -4217,33 +3461,22 @@ import SoraFoundation
         
         
         
-        func setupConnection<M1: Cuckoo.Matchable>(for chain: M1) -> Cuckoo.ProtocolStubThrowingFunction<(ChainModel), ChainConnection> where M1.MatchedType == ChainModel {
+        func setupConnection<M1: Cuckoo.Matchable>(for chain: M1) -> Cuckoo.ProtocolStubThrowingFunction<(ChainModel), T> where M1.MatchedType == ChainModel {
             let matchers: [Cuckoo.ParameterMatcher<(ChainModel)>] = [wrap(matchable: chain) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockConnectionPoolProtocol.self, method:
     """
-    setupConnection(for: ChainModel) throws -> ChainConnection
+    setupConnection(for: ChainModel) throws -> T
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func setupConnection<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(for chain: M1, ignoredUrl: M2) -> Cuckoo.ProtocolStubThrowingFunction<(ChainModel, URL?), ChainConnection> where M1.MatchedType == ChainModel, M2.OptionalMatchedType == URL {
-            let matchers: [Cuckoo.ParameterMatcher<(ChainModel, URL?)>] = [wrap(matchable: chain) { $0.0 }, wrap(matchable: ignoredUrl) { $0.1 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockConnectionPoolProtocol.self, method:
-    """
-    setupConnection(for: ChainModel, ignoredUrl: URL?) throws -> ChainConnection
-    """, parameterMatchers: matchers))
-        }
-        
-        
-        
-        
-        func getConnection<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), ChainConnection?> where M1.MatchedType == ChainModel.Id {
+        func getConnection<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), T?> where M1.MatchedType == ChainModel.Id {
             let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockConnectionPoolProtocol.self, method:
     """
-    getConnection(for: ChainModel.Id) -> ChainConnection?
+    getConnection(for: ChainModel.Id) -> T?
     """, parameterMatchers: matchers))
         }
         
@@ -4255,6 +3488,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockConnectionPoolProtocol.self, method:
     """
     setDelegate(_: ConnectionPoolDelegate)
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func resetConnection<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ChainModel.Id)> where M1.MatchedType == ChainModel.Id {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockConnectionPoolProtocol.self, method:
+    """
+    resetConnection(for: ChainModel.Id)
     """, parameterMatchers: matchers))
         }
         
@@ -4278,11 +3522,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func setupConnection<M1: Cuckoo.Matchable>(for chain: M1) -> Cuckoo.__DoNotUse<(ChainModel), ChainConnection> where M1.MatchedType == ChainModel {
+        func setupConnection<M1: Cuckoo.Matchable>(for chain: M1) -> Cuckoo.__DoNotUse<(ChainModel), T> where M1.MatchedType == ChainModel {
             let matchers: [Cuckoo.ParameterMatcher<(ChainModel)>] = [wrap(matchable: chain) { $0 }]
             return cuckoo_manager.verify(
     """
-    setupConnection(for: ChainModel) throws -> ChainConnection
+    setupConnection(for: ChainModel) throws -> T
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -4290,23 +3534,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func setupConnection<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(for chain: M1, ignoredUrl: M2) -> Cuckoo.__DoNotUse<(ChainModel, URL?), ChainConnection> where M1.MatchedType == ChainModel, M2.OptionalMatchedType == URL {
-            let matchers: [Cuckoo.ParameterMatcher<(ChainModel, URL?)>] = [wrap(matchable: chain) { $0.0 }, wrap(matchable: ignoredUrl) { $0.1 }]
-            return cuckoo_manager.verify(
-    """
-    setupConnection(for: ChainModel, ignoredUrl: URL?) throws -> ChainConnection
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        @discardableResult
-        func getConnection<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), ChainConnection?> where M1.MatchedType == ChainModel.Id {
+        func getConnection<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), T?> where M1.MatchedType == ChainModel.Id {
             let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
             return cuckoo_manager.verify(
     """
-    getConnection(for: ChainModel.Id) -> ChainConnection?
+    getConnection(for: ChainModel.Id) -> T?
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -4323,11 +3555,23 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func resetConnection<M1: Cuckoo.Matchable>(for chainId: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), Void> where M1.MatchedType == ChainModel.Id {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: chainId) { $0 }]
+            return cuckoo_manager.verify(
+    """
+    resetConnection(for: ChainModel.Id)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
 
- class ConnectionPoolProtocolStub: ConnectionPoolProtocol {
+ class ConnectionPoolProtocolStub<T>: ConnectionPoolProtocol {
     
 
     
@@ -4336,24 +3580,16 @@ import SoraFoundation
     
     
     
-     func setupConnection(for chain: ChainModel) throws -> ChainConnection  {
-        return DefaultValueRegistry.defaultValue(for: (ChainConnection).self)
+     func setupConnection(for chain: ChainModel) throws -> T  {
+        return DefaultValueRegistry.defaultValue(for: (T).self)
     }
     
     
     
     
     
-     func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> ChainConnection  {
-        return DefaultValueRegistry.defaultValue(for: (ChainConnection).self)
-    }
-    
-    
-    
-    
-    
-     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?  {
-        return DefaultValueRegistry.defaultValue(for: (ChainConnection?).self)
+     func getConnection(for chainId: ChainModel.Id) -> T?  {
+        return DefaultValueRegistry.defaultValue(for: (T?).self)
     }
     
     
@@ -4361,6 +3597,14 @@ import SoraFoundation
     
     
      func setDelegate(_ delegate: ConnectionPoolDelegate)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func resetConnection(for chainId: ChainModel.Id)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -4402,19 +3646,19 @@ import SoraFoundation
     
     
     
-     func webSocketDidChangeState(url: URL, state: WebSocketEngine.State)  {
+     func webSocketDidChangeState(chainId: ChainModel.Id, state: WebSocketEngine.State)  {
         
     return cuckoo_manager.call(
     """
-    webSocketDidChangeState(url: URL, state: WebSocketEngine.State)
+    webSocketDidChangeState(chainId: ChainModel.Id, state: WebSocketEngine.State)
     """,
-            parameters: (url, state),
-            escapingParameters: (url, state),
+            parameters: (chainId, state),
+            escapingParameters: (chainId, state),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.webSocketDidChangeState(url: url, state: state))
+            defaultCall: __defaultImplStub!.webSocketDidChangeState(chainId: chainId, state: state))
         
     }
     
@@ -4430,11 +3674,11 @@ import SoraFoundation
         
         
         
-        func webSocketDidChangeState<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(url: M1, state: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(URL, WebSocketEngine.State)> where M1.MatchedType == URL, M2.MatchedType == WebSocketEngine.State {
-            let matchers: [Cuckoo.ParameterMatcher<(URL, WebSocketEngine.State)>] = [wrap(matchable: url) { $0.0 }, wrap(matchable: state) { $0.1 }]
+        func webSocketDidChangeState<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(chainId: M1, state: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(ChainModel.Id, WebSocketEngine.State)> where M1.MatchedType == ChainModel.Id, M2.MatchedType == WebSocketEngine.State {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id, WebSocketEngine.State)>] = [wrap(matchable: chainId) { $0.0 }, wrap(matchable: state) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockConnectionPoolDelegate.self, method:
     """
-    webSocketDidChangeState(url: URL, state: WebSocketEngine.State)
+    webSocketDidChangeState(chainId: ChainModel.Id, state: WebSocketEngine.State)
     """, parameterMatchers: matchers))
         }
         
@@ -4458,11 +3702,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func webSocketDidChangeState<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(url: M1, state: M2) -> Cuckoo.__DoNotUse<(URL, WebSocketEngine.State), Void> where M1.MatchedType == URL, M2.MatchedType == WebSocketEngine.State {
-            let matchers: [Cuckoo.ParameterMatcher<(URL, WebSocketEngine.State)>] = [wrap(matchable: url) { $0.0 }, wrap(matchable: state) { $0.1 }]
+        func webSocketDidChangeState<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(chainId: M1, state: M2) -> Cuckoo.__DoNotUse<(ChainModel.Id, WebSocketEngine.State), Void> where M1.MatchedType == ChainModel.Id, M2.MatchedType == WebSocketEngine.State {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id, WebSocketEngine.State)>] = [wrap(matchable: chainId) { $0.0 }, wrap(matchable: state) { $0.1 }]
             return cuckoo_manager.verify(
     """
-    webSocketDidChangeState(url: URL, state: WebSocketEngine.State)
+    webSocketDidChangeState(chainId: ChainModel.Id, state: WebSocketEngine.State)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -4480,7 +3724,7 @@ import SoraFoundation
     
     
     
-     func webSocketDidChangeState(url: URL, state: WebSocketEngine.State)   {
+     func webSocketDidChangeState(chainId: ChainModel.Id, state: WebSocketEngine.State)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -4497,6 +3741,7 @@ import Cuckoo
 
 import Foundation
 import RobinHood
+import SSFModels
 
 
 
@@ -4884,364 +4129,11 @@ import Cuckoo
 @testable import fearless
 @testable import SoraKeystore
 
-import SSFUtils
 import Foundation
 import RobinHood
-
-
-
-
-
-
- class MockRuntimeProviderProtocol: RuntimeProviderProtocol, Cuckoo.ProtocolMock {
-    
-     typealias MocksType = RuntimeProviderProtocol
-    
-     typealias Stubbing = __StubbingProxy_RuntimeProviderProtocol
-     typealias Verification = __VerificationProxy_RuntimeProviderProtocol
-
-     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
-
-    
-    private var __defaultImplStub: RuntimeProviderProtocol?
-
-     func enableDefaultImplementation(_ stub: RuntimeProviderProtocol) {
-        __defaultImplStub = stub
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-    
-
-    
-    
-    
-    
-     var chainId: ChainModel.Id {
-        get {
-            return cuckoo_manager.getter("chainId",
-                superclassCall:
-                    
-                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                    ,
-                defaultCall: __defaultImplStub!.chainId)
-        }
-        
-    }
-    
-    
-    
-    
-    
-     var snapshot: RuntimeSnapshot? {
-        get {
-            return cuckoo_manager.getter("snapshot",
-                superclassCall:
-                    
-                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                    ,
-                defaultCall: __defaultImplStub!.snapshot)
-        }
-        
-    }
-    
-    
-
-    
-
-    
-    
-    
-    
-     func setup()  {
-        
-    return cuckoo_manager.call(
-    """
-    setup()
-    """,
-            parameters: (),
-            escapingParameters: (),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.setup())
-        
-    }
-    
-    
-    
-    
-    
-     func setupHot()  {
-        
-    return cuckoo_manager.call(
-    """
-    setupHot()
-    """,
-            parameters: (),
-            escapingParameters: (),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.setupHot())
-        
-    }
-    
-    
-    
-    
-    
-     func cleanup()  {
-        
-    return cuckoo_manager.call(
-    """
-    cleanup()
-    """,
-            parameters: (),
-            escapingParameters: (),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.cleanup())
-        
-    }
-    
-    
-    
-    
-    
-     func fetchCoderFactoryOperation(with timeout: TimeInterval, closure: RuntimeMetadataClosure?) -> BaseOperation<RuntimeCoderFactoryProtocol> {
-        
-    return cuckoo_manager.call(
-    """
-    fetchCoderFactoryOperation(with: TimeInterval, closure: RuntimeMetadataClosure?) -> BaseOperation<RuntimeCoderFactoryProtocol>
-    """,
-            parameters: (timeout, closure),
-            escapingParameters: (timeout, closure),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.fetchCoderFactoryOperation(with: timeout, closure: closure))
-        
-    }
-    
-    
-
-     struct __StubbingProxy_RuntimeProviderProtocol: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-    
-         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
-        }
-        
-        
-        
-        var chainId: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockRuntimeProviderProtocol, ChainModel.Id> {
-            return .init(manager: cuckoo_manager, name: "chainId")
-        }
-        
-        
-        
-        
-        var snapshot: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockRuntimeProviderProtocol, RuntimeSnapshot?> {
-            return .init(manager: cuckoo_manager, name: "snapshot")
-        }
-        
-        
-        
-        
-        
-        func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderProtocol.self, method:
-    """
-    setup()
-    """, parameterMatchers: matchers))
-        }
-        
-        
-        
-        
-        func setupHot() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderProtocol.self, method:
-    """
-    setupHot()
-    """, parameterMatchers: matchers))
-        }
-        
-        
-        
-        
-        func cleanup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderProtocol.self, method:
-    """
-    cleanup()
-    """, parameterMatchers: matchers))
-        }
-        
-        
-        
-        
-        func fetchCoderFactoryOperation<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(with timeout: M1, closure: M2) -> Cuckoo.ProtocolStubFunction<(TimeInterval, RuntimeMetadataClosure?), BaseOperation<RuntimeCoderFactoryProtocol>> where M1.MatchedType == TimeInterval, M2.OptionalMatchedType == RuntimeMetadataClosure {
-            let matchers: [Cuckoo.ParameterMatcher<(TimeInterval, RuntimeMetadataClosure?)>] = [wrap(matchable: timeout) { $0.0 }, wrap(matchable: closure) { $0.1 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderProtocol.self, method:
-    """
-    fetchCoderFactoryOperation(with: TimeInterval, closure: RuntimeMetadataClosure?) -> BaseOperation<RuntimeCoderFactoryProtocol>
-    """, parameterMatchers: matchers))
-        }
-        
-        
-    }
-
-     struct __VerificationProxy_RuntimeProviderProtocol: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
-    
-         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
-        }
-    
-        
-        
-        
-        var chainId: Cuckoo.VerifyReadOnlyProperty<ChainModel.Id> {
-            return .init(manager: cuckoo_manager, name: "chainId", callMatcher: callMatcher, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        var snapshot: Cuckoo.VerifyReadOnlyProperty<RuntimeSnapshot?> {
-            return .init(manager: cuckoo_manager, name: "snapshot", callMatcher: callMatcher, sourceLocation: sourceLocation)
-        }
-        
-        
-    
-        
-        
-        
-        @discardableResult
-        func setup() -> Cuckoo.__DoNotUse<(), Void> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
-    """
-    setup()
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        @discardableResult
-        func setupHot() -> Cuckoo.__DoNotUse<(), Void> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
-    """
-    setupHot()
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        @discardableResult
-        func cleanup() -> Cuckoo.__DoNotUse<(), Void> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
-    """
-    cleanup()
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        @discardableResult
-        func fetchCoderFactoryOperation<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(with timeout: M1, closure: M2) -> Cuckoo.__DoNotUse<(TimeInterval, RuntimeMetadataClosure?), BaseOperation<RuntimeCoderFactoryProtocol>> where M1.MatchedType == TimeInterval, M2.OptionalMatchedType == RuntimeMetadataClosure {
-            let matchers: [Cuckoo.ParameterMatcher<(TimeInterval, RuntimeMetadataClosure?)>] = [wrap(matchable: timeout) { $0.0 }, wrap(matchable: closure) { $0.1 }]
-            return cuckoo_manager.verify(
-    """
-    fetchCoderFactoryOperation(with: TimeInterval, closure: RuntimeMetadataClosure?) -> BaseOperation<RuntimeCoderFactoryProtocol>
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-    }
-}
-
-
- class RuntimeProviderProtocolStub: RuntimeProviderProtocol {
-    
-    
-    
-    
-     var chainId: ChainModel.Id {
-        get {
-            return DefaultValueRegistry.defaultValue(for: (ChainModel.Id).self)
-        }
-        
-    }
-    
-    
-    
-    
-    
-     var snapshot: RuntimeSnapshot? {
-        get {
-            return DefaultValueRegistry.defaultValue(for: (RuntimeSnapshot?).self)
-        }
-        
-    }
-    
-    
-
-    
-
-    
-    
-    
-    
-     func setup()   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    
-    
-    
-    
-     func setupHot()   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    
-    
-    
-    
-     func cleanup()   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    
-    
-    
-    
-     func fetchCoderFactoryOperation(with timeout: TimeInterval, closure: RuntimeMetadataClosure?) -> BaseOperation<RuntimeCoderFactoryProtocol>  {
-        return DefaultValueRegistry.defaultValue(for: (BaseOperation<RuntimeCoderFactoryProtocol>).self)
-    }
-    
-    
-}
-
-
-
-
+import SSFModels
+import SSFRuntimeCodingService
+import SSFUtils
 
 import Cuckoo
 @testable import fearless
@@ -5249,6 +4141,8 @@ import Cuckoo
 
 import Foundation
 import RobinHood
+import SSFModels
+import SSFRuntimeCodingService
 
 
 
@@ -5426,6 +4320,8 @@ import Cuckoo
 @testable import SoraKeystore
 
 import Foundation
+import SSFModels
+import SSFRuntimeCodingService
 
 
 
@@ -5704,9 +4600,10 @@ import Cuckoo
 @testable import fearless
 @testable import SoraKeystore
 
-import SSFUtils
 import Foundation
 import RobinHood
+import SSFModels
+import SSFUtils
 
 
 
@@ -6036,8 +4933,9 @@ import Cuckoo
 @testable import fearless
 @testable import SoraKeystore
 
-import SSFUtils
 import Foundation
+import SSFModels
+import SSFUtils
 
 
 
@@ -6214,8 +5112,9 @@ import Cuckoo
 @testable import fearless
 @testable import SoraKeystore
 
-import SSFUtils
 import Foundation
+import SSFModels
+import SSFUtils
 
 
 
@@ -6342,6 +5241,7 @@ import Cuckoo
 @testable import SoraKeystore
 
 import Foundation
+import SSFModels
 
 
 
@@ -6691,6 +5591,7 @@ import Cuckoo
 
 import Foundation
 import RobinHood
+import SSFModels
 
 
 
@@ -6867,8 +5768,9 @@ import Cuckoo
 @testable import fearless
 @testable import SoraKeystore
 
-import SSFUtils
 import Foundation
+import SSFModels
+import SSFUtils
 
 
 
@@ -7046,6 +5948,7 @@ import Cuckoo
 @testable import SoraKeystore
 
 import Foundation
+import SSFModels
 
 
 
@@ -7078,11 +5981,11 @@ import Foundation
     
     
     
-     func attachToAccountInfo(of accountId: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) -> UUID? {
+     func attachToAccountInfo(of accountId: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) async -> String? {
         
-    return cuckoo_manager.call(
+    return await cuckoo_manager.call(
     """
-    attachToAccountInfo(of: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) -> UUID?
+    attachToAccountInfo(of: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) async -> String?
     """,
             parameters: (accountId, chainAsset, queue, closure),
             escapingParameters: (accountId, chainAsset, queue, closure),
@@ -7090,7 +5993,7 @@ import Foundation
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.attachToAccountInfo(of: accountId, chainAsset: chainAsset, queue: queue, closure: closure))
+            defaultCall: await __defaultImplStub!.attachToAccountInfo(of: accountId, chainAsset: chainAsset, queue: queue, closure: closure))
         
     }
     
@@ -7098,11 +6001,11 @@ import Foundation
     
     
     
-     func detachFromAccountInfo(for subscriptionId: UUID, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)  {
+     func detachFromAccountInfo(for subscriptionId: String, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)  {
         
     return cuckoo_manager.call(
     """
-    detachFromAccountInfo(for: UUID, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)
+    detachFromAccountInfo(for: String, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)
     """,
             parameters: (subscriptionId, chainAssetKey, queue, closure),
             escapingParameters: (subscriptionId, chainAssetKey, queue, closure),
@@ -7126,22 +6029,22 @@ import Foundation
         
         
         
-        func attachToAccountInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(of accountId: M1, chainAsset: M2, queue: M3, closure: M4) -> Cuckoo.ProtocolStubFunction<(AccountId, ChainAsset, DispatchQueue?, RemoteSubscriptionClosure?), UUID?> where M1.MatchedType == AccountId, M2.MatchedType == ChainAsset, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure {
+        func attachToAccountInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(of accountId: M1, chainAsset: M2, queue: M3, closure: M4) -> Cuckoo.ProtocolStubFunction<(AccountId, ChainAsset, DispatchQueue?, RemoteSubscriptionClosure?), String?> where M1.MatchedType == AccountId, M2.MatchedType == ChainAsset, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure {
             let matchers: [Cuckoo.ParameterMatcher<(AccountId, ChainAsset, DispatchQueue?, RemoteSubscriptionClosure?)>] = [wrap(matchable: accountId) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: queue) { $0.2 }, wrap(matchable: closure) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockWalletRemoteSubscriptionServiceProtocol.self, method:
     """
-    attachToAccountInfo(of: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) -> UUID?
+    attachToAccountInfo(of: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) async -> String?
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func detachFromAccountInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(for subscriptionId: M1, chainAssetKey: M2, queue: M3, closure: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(UUID, ChainAssetKey, DispatchQueue?, RemoteSubscriptionClosure?)> where M1.MatchedType == UUID, M2.MatchedType == ChainAssetKey, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure {
-            let matchers: [Cuckoo.ParameterMatcher<(UUID, ChainAssetKey, DispatchQueue?, RemoteSubscriptionClosure?)>] = [wrap(matchable: subscriptionId) { $0.0 }, wrap(matchable: chainAssetKey) { $0.1 }, wrap(matchable: queue) { $0.2 }, wrap(matchable: closure) { $0.3 }]
+        func detachFromAccountInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(for subscriptionId: M1, chainAssetKey: M2, queue: M3, closure: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(String, ChainAssetKey, DispatchQueue?, RemoteSubscriptionClosure?)> where M1.MatchedType == String, M2.MatchedType == ChainAssetKey, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure {
+            let matchers: [Cuckoo.ParameterMatcher<(String, ChainAssetKey, DispatchQueue?, RemoteSubscriptionClosure?)>] = [wrap(matchable: subscriptionId) { $0.0 }, wrap(matchable: chainAssetKey) { $0.1 }, wrap(matchable: queue) { $0.2 }, wrap(matchable: closure) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockWalletRemoteSubscriptionServiceProtocol.self, method:
     """
-    detachFromAccountInfo(for: UUID, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)
+    detachFromAccountInfo(for: String, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)
     """, parameterMatchers: matchers))
         }
         
@@ -7165,11 +6068,11 @@ import Foundation
         
         
         @discardableResult
-        func attachToAccountInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(of accountId: M1, chainAsset: M2, queue: M3, closure: M4) -> Cuckoo.__DoNotUse<(AccountId, ChainAsset, DispatchQueue?, RemoteSubscriptionClosure?), UUID?> where M1.MatchedType == AccountId, M2.MatchedType == ChainAsset, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure {
+        func attachToAccountInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(of accountId: M1, chainAsset: M2, queue: M3, closure: M4) -> Cuckoo.__DoNotUse<(AccountId, ChainAsset, DispatchQueue?, RemoteSubscriptionClosure?), String?> where M1.MatchedType == AccountId, M2.MatchedType == ChainAsset, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure {
             let matchers: [Cuckoo.ParameterMatcher<(AccountId, ChainAsset, DispatchQueue?, RemoteSubscriptionClosure?)>] = [wrap(matchable: accountId) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: queue) { $0.2 }, wrap(matchable: closure) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    attachToAccountInfo(of: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) -> UUID?
+    attachToAccountInfo(of: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) async -> String?
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -7177,11 +6080,11 @@ import Foundation
         
         
         @discardableResult
-        func detachFromAccountInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(for subscriptionId: M1, chainAssetKey: M2, queue: M3, closure: M4) -> Cuckoo.__DoNotUse<(UUID, ChainAssetKey, DispatchQueue?, RemoteSubscriptionClosure?), Void> where M1.MatchedType == UUID, M2.MatchedType == ChainAssetKey, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure {
-            let matchers: [Cuckoo.ParameterMatcher<(UUID, ChainAssetKey, DispatchQueue?, RemoteSubscriptionClosure?)>] = [wrap(matchable: subscriptionId) { $0.0 }, wrap(matchable: chainAssetKey) { $0.1 }, wrap(matchable: queue) { $0.2 }, wrap(matchable: closure) { $0.3 }]
+        func detachFromAccountInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(for subscriptionId: M1, chainAssetKey: M2, queue: M3, closure: M4) -> Cuckoo.__DoNotUse<(String, ChainAssetKey, DispatchQueue?, RemoteSubscriptionClosure?), Void> where M1.MatchedType == String, M2.MatchedType == ChainAssetKey, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure {
+            let matchers: [Cuckoo.ParameterMatcher<(String, ChainAssetKey, DispatchQueue?, RemoteSubscriptionClosure?)>] = [wrap(matchable: subscriptionId) { $0.0 }, wrap(matchable: chainAssetKey) { $0.1 }, wrap(matchable: queue) { $0.2 }, wrap(matchable: closure) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    detachFromAccountInfo(for: UUID, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)
+    detachFromAccountInfo(for: String, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -7199,15 +6102,15 @@ import Foundation
     
     
     
-     func attachToAccountInfo(of accountId: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) -> UUID?  {
-        return DefaultValueRegistry.defaultValue(for: (UUID?).self)
+     func attachToAccountInfo(of accountId: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) async -> String?  {
+        return DefaultValueRegistry.defaultValue(for: (String?).self)
     }
     
     
     
     
     
-     func detachFromAccountInfo(for subscriptionId: UUID, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)   {
+     func detachFromAccountInfo(for subscriptionId: String, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -7249,19 +6152,19 @@ import Foundation
     
     
     
-     override func attachToAccountInfo(of accountId: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) -> UUID? {
+     override func attachToAccountInfo(of accountId: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) async -> String? {
         
-    return cuckoo_manager.call(
+    return await cuckoo_manager.call(
     """
-    attachToAccountInfo(of: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) -> UUID?
+    attachToAccountInfo(of: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) async -> String?
     """,
             parameters: (accountId, chainAsset, queue, closure),
             escapingParameters: (accountId, chainAsset, queue, closure),
             superclassCall:
                 
-                super.attachToAccountInfo(of: accountId, chainAsset: chainAsset, queue: queue, closure: closure)
+                await super.attachToAccountInfo(of: accountId, chainAsset: chainAsset, queue: queue, closure: closure)
                 ,
-            defaultCall: __defaultImplStub!.attachToAccountInfo(of: accountId, chainAsset: chainAsset, queue: queue, closure: closure))
+            defaultCall: await __defaultImplStub!.attachToAccountInfo(of: accountId, chainAsset: chainAsset, queue: queue, closure: closure))
         
     }
     
@@ -7269,11 +6172,11 @@ import Foundation
     
     
     
-     override func detachFromAccountInfo(for subscriptionId: UUID, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)  {
+     override func detachFromAccountInfo(for subscriptionId: String, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)  {
         
     return cuckoo_manager.call(
     """
-    detachFromAccountInfo(for: UUID, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)
+    detachFromAccountInfo(for: String, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)
     """,
             parameters: (subscriptionId, chainAssetKey, queue, closure),
             escapingParameters: (subscriptionId, chainAssetKey, queue, closure),
@@ -7297,22 +6200,22 @@ import Foundation
         
         
         
-        func attachToAccountInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(of accountId: M1, chainAsset: M2, queue: M3, closure: M4) -> Cuckoo.ClassStubFunction<(AccountId, ChainAsset, DispatchQueue?, RemoteSubscriptionClosure?), UUID?> where M1.MatchedType == AccountId, M2.MatchedType == ChainAsset, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure {
+        func attachToAccountInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(of accountId: M1, chainAsset: M2, queue: M3, closure: M4) -> Cuckoo.ClassStubFunction<(AccountId, ChainAsset, DispatchQueue?, RemoteSubscriptionClosure?), String?> where M1.MatchedType == AccountId, M2.MatchedType == ChainAsset, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure {
             let matchers: [Cuckoo.ParameterMatcher<(AccountId, ChainAsset, DispatchQueue?, RemoteSubscriptionClosure?)>] = [wrap(matchable: accountId) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: queue) { $0.2 }, wrap(matchable: closure) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockWalletRemoteSubscriptionService.self, method:
     """
-    attachToAccountInfo(of: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) -> UUID?
+    attachToAccountInfo(of: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) async -> String?
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func detachFromAccountInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(for subscriptionId: M1, chainAssetKey: M2, queue: M3, closure: M4) -> Cuckoo.ClassStubNoReturnFunction<(UUID, ChainAssetKey, DispatchQueue?, RemoteSubscriptionClosure?)> where M1.MatchedType == UUID, M2.MatchedType == ChainAssetKey, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure {
-            let matchers: [Cuckoo.ParameterMatcher<(UUID, ChainAssetKey, DispatchQueue?, RemoteSubscriptionClosure?)>] = [wrap(matchable: subscriptionId) { $0.0 }, wrap(matchable: chainAssetKey) { $0.1 }, wrap(matchable: queue) { $0.2 }, wrap(matchable: closure) { $0.3 }]
+        func detachFromAccountInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(for subscriptionId: M1, chainAssetKey: M2, queue: M3, closure: M4) -> Cuckoo.ClassStubNoReturnFunction<(String, ChainAssetKey, DispatchQueue?, RemoteSubscriptionClosure?)> where M1.MatchedType == String, M2.MatchedType == ChainAssetKey, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure {
+            let matchers: [Cuckoo.ParameterMatcher<(String, ChainAssetKey, DispatchQueue?, RemoteSubscriptionClosure?)>] = [wrap(matchable: subscriptionId) { $0.0 }, wrap(matchable: chainAssetKey) { $0.1 }, wrap(matchable: queue) { $0.2 }, wrap(matchable: closure) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockWalletRemoteSubscriptionService.self, method:
     """
-    detachFromAccountInfo(for: UUID, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)
+    detachFromAccountInfo(for: String, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)
     """, parameterMatchers: matchers))
         }
         
@@ -7336,11 +6239,11 @@ import Foundation
         
         
         @discardableResult
-        func attachToAccountInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(of accountId: M1, chainAsset: M2, queue: M3, closure: M4) -> Cuckoo.__DoNotUse<(AccountId, ChainAsset, DispatchQueue?, RemoteSubscriptionClosure?), UUID?> where M1.MatchedType == AccountId, M2.MatchedType == ChainAsset, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure {
+        func attachToAccountInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(of accountId: M1, chainAsset: M2, queue: M3, closure: M4) -> Cuckoo.__DoNotUse<(AccountId, ChainAsset, DispatchQueue?, RemoteSubscriptionClosure?), String?> where M1.MatchedType == AccountId, M2.MatchedType == ChainAsset, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure {
             let matchers: [Cuckoo.ParameterMatcher<(AccountId, ChainAsset, DispatchQueue?, RemoteSubscriptionClosure?)>] = [wrap(matchable: accountId) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: queue) { $0.2 }, wrap(matchable: closure) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    attachToAccountInfo(of: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) -> UUID?
+    attachToAccountInfo(of: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) async -> String?
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -7348,11 +6251,11 @@ import Foundation
         
         
         @discardableResult
-        func detachFromAccountInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(for subscriptionId: M1, chainAssetKey: M2, queue: M3, closure: M4) -> Cuckoo.__DoNotUse<(UUID, ChainAssetKey, DispatchQueue?, RemoteSubscriptionClosure?), Void> where M1.MatchedType == UUID, M2.MatchedType == ChainAssetKey, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure {
-            let matchers: [Cuckoo.ParameterMatcher<(UUID, ChainAssetKey, DispatchQueue?, RemoteSubscriptionClosure?)>] = [wrap(matchable: subscriptionId) { $0.0 }, wrap(matchable: chainAssetKey) { $0.1 }, wrap(matchable: queue) { $0.2 }, wrap(matchable: closure) { $0.3 }]
+        func detachFromAccountInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(for subscriptionId: M1, chainAssetKey: M2, queue: M3, closure: M4) -> Cuckoo.__DoNotUse<(String, ChainAssetKey, DispatchQueue?, RemoteSubscriptionClosure?), Void> where M1.MatchedType == String, M2.MatchedType == ChainAssetKey, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure {
+            let matchers: [Cuckoo.ParameterMatcher<(String, ChainAssetKey, DispatchQueue?, RemoteSubscriptionClosure?)>] = [wrap(matchable: subscriptionId) { $0.0 }, wrap(matchable: chainAssetKey) { $0.1 }, wrap(matchable: queue) { $0.2 }, wrap(matchable: closure) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    detachFromAccountInfo(for: UUID, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)
+    detachFromAccountInfo(for: String, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -7370,15 +6273,15 @@ import Foundation
     
     
     
-     override func attachToAccountInfo(of accountId: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) -> UUID?  {
-        return DefaultValueRegistry.defaultValue(for: (UUID?).self)
+     override func attachToAccountInfo(of accountId: AccountId, chainAsset: ChainAsset, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?) async -> String?  {
+        return DefaultValueRegistry.defaultValue(for: (String?).self)
     }
     
     
     
     
     
-     override func detachFromAccountInfo(for subscriptionId: UUID, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)   {
+     override func detachFromAccountInfo(for subscriptionId: String, chainAssetKey: ChainAssetKey, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -7395,6 +6298,10 @@ import Cuckoo
 
 import Foundation
 import RobinHood
+import SSFAssetManagmentStorage
+import SSFModels
+import SSFStorageQueryKit
+import SSFUtils
 
 
 

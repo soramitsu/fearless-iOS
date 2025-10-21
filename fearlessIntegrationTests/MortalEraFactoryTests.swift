@@ -1,6 +1,7 @@
 import XCTest
 @testable import fearless
 import IrohaCrypto
+import RobinHood
 import SSFModels
 
 class MortalEraFactoryTests: XCTestCase {

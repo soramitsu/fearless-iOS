@@ -55,7 +55,8 @@ class CrowdloanTests: XCTestCase {
 
             let contributionsOperation: BaseOperation<[CrowdloanContributionResponse]> =
                 OperationCombiningService(operationManager: operationManager) {
-                    let crowdloans = try crowdloansWrapper.targetOperation.extractNoCancellableResultData()
+                    let crowdloans = try crowdloansWrapper.targetOperation
+                        .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
                     return crowdloans.map { crowdloan in
                         crowdloanOperationFactory.fetchContributionOperation(
                             connection: connection,
