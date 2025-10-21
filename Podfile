@@ -37,6 +37,10 @@ abstract_target 'fearlessAll' do
     pod 'FireMock', :inhibit_warnings => true
     pod 'SoraKeystore', :git => 'https://github.com/soramitsu/keystore-iOS.git', :tag => '1.0.1'
     pod 'Sourcery', '~> 1.4'
+    # Ensure UI/framework deps are available to the tests as well
+    pod 'SoraUI', '~> 1.10.3'
+    pod 'SVGKit'
+    pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
 
   end
 

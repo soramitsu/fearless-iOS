@@ -1,5 +1,4 @@
 import Foundation
-import CommonWallet
 
 class WalletCommandProtocolMock: WalletCommandProtocol {
     func execute() throws {}

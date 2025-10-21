@@ -1,7 +1,6 @@
 import XCTest
 @testable import fearless
 import SoraKeystore
-import CommonWallet
 import RobinHood
 import SoraFoundation
 import SSFUtils

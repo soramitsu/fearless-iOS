@@ -2,7 +2,6 @@ import Foundation
 @testable import fearless
 import BigInt
 import IrohaCrypto
-import CommonWallet
 
 struct WestendStub {
     static let address: String = "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq"
