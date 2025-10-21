@@ -28,7 +28,8 @@ class ControllerAccountTests: XCTestCase {
                                                    asset: asset,
                                                    selectedAccount: selectedAccount,
                                                    dataValidatingFactory: dataValidatingFactory,
-                                                   logger: Logger.shared)
+                                                   logger: Logger.shared,
+                                                   balanceViewModelFactory: StubBalanceViewModelFactory())
 
         presenter.view = view
         dataValidatingFactory.view = view
@@ -85,7 +86,7 @@ class ControllerAccountTests: XCTestCase {
             nonce: 0,
             consumers: 0,
             providers: 0,
-            data: AccountData(free: 100000000000000, reserved: 0, miscFrozen: 0, feeFrozen: 0)
+            data: AccountData(free: 100000000000000, reserved: 0, frozen: 0, flags: 0)
         )
         presenter.didReceiveAccountInfo(result: .success(controllerAccountInfo), address: controllerAddress)
 
@@ -93,7 +94,7 @@ class ControllerAccountTests: XCTestCase {
             nonce: 0,
             consumers: 0,
             providers: 0,
-            data: AccountData(free: 100000000000000, reserved: 0, miscFrozen: 0, feeFrozen: 0)
+            data: AccountData(free: 100000000000000, reserved: 0, frozen: 0, flags: 0)
         )
         presenter.didReceiveAccountInfo(result: .success(stashAccountInfo), address: stashAddress)
 
@@ -102,7 +103,7 @@ class ControllerAccountTests: XCTestCase {
             lenFee: BigUInt(stringLiteral: "0"),
             adjustedWeightFee: BigUInt(stringLiteral: "331759000")
         )
-        let fee = RuntimeDispatchInfo(inclusionFee: feeDetails)
+        let fee = RuntimeDispatchInfo(feeValue: feeDetails.baseFee + feeDetails.lenFee + feeDetails.adjustedWeightFee)
         presenter.didReceiveFee(result: .success(fee))
 
         // when
@@ -126,10 +127,10 @@ class ControllerAccountTests: XCTestCase {
             nonce: 0,
             consumers: 0,
             providers: 0,
-            data: AccountData(free: 10, reserved: 0, miscFrozen: 0, feeFrozen: 0)
+            data: AccountData(free: 10, reserved: 0, frozen: 0, flags: 0)
         )
         presenter.didReceiveAccountInfo(result: .success(accountInfoSmallBalance), address: stashAddress)
-        let extraFee = RuntimeDispatchInfo(inclusionFee: feeDetails)
+        let extraFee = RuntimeDispatchInfo(feeValue: feeDetails.baseFee + feeDetails.lenFee + feeDetails.adjustedWeightFee)
         presenter.didReceiveFee(result: .success(extraFee))
 
         // when

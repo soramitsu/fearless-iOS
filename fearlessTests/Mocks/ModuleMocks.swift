@@ -1,7 +1,11 @@
 import Cuckoo
 @testable import fearless
-
 import Foundation
+import SSFModels
+
+// Resolve type name ambiguity between fearless and SSFModels in generated mocks
+typealias ChainAccountResponse = fearless.ChainAccountResponse
+typealias MetaAccountModel = fearless.MetaAccountModel
 
 
 
@@ -70017,7 +70021,6 @@ import SoraFoundation
     
     
 }
-
 
 
 
