@@ -28,7 +28,8 @@ class AccountConfirmTests: XCTestCase {
                                                                  username: "myusername",
                                                                  substrateDerivationPath: "",
                                                                  ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
-                                                                 cryptoType: .sr25519)
+                                                                 cryptoType: .sr25519,
+                                                                 defaultChainId: nil)
 
         let accountOperationFactory = MetaAccountOperationFactory(keystore: keychain)
 

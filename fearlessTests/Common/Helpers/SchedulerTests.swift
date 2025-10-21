@@ -9,16 +9,15 @@ class SchedulerTests: XCTestCase {
 
         let delay: TimeInterval = 0.1
 
-        let delegate = MockSchedulerDelegate()
-        let scheduler = Scheduler(with: delegate)
+        class TestDelegate: SchedulerDelegate {
+            let exp: XCTestExpectation
+            init(exp: XCTestExpectation) { self.exp = exp }
+            func didTrigger(scheduler: SchedulerProtocol) { exp.fulfill() }
+        }
 
         let expectation = XCTestExpectation()
-
-        stub(delegate) { stub in
-            when(stub).didTrigger(scheduler: any()).then { _ in
-                expectation.fulfill()
-            }
-        }
+        let delegate = TestDelegate(exp: expectation)
+        let scheduler = Scheduler(with: delegate)
 
         // when
 

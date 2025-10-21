@@ -1,5 +1,6 @@
 import Foundation
 @testable import fearless
+import SSFModels
 
 enum AccountGenerator {
     static func generateMetaAccount(generatingChainAccounts count: Int) -> MetaAccountModel {
@@ -7,7 +8,7 @@ enum AccountGenerator {
         return generateMetaAccount(with: Set(chainAccounts))
     }
 
-    static func generateMetaAccount(with chainAccounts: Set<ChainAccountModel> = []) -> MetaAccountModel {
+    static func generateMetaAccount(with chainAccounts: Set<SSFModels.ChainAccountModel> = []) -> MetaAccountModel {
         return MetaAccountModel(
             metaId: UUID().uuidString,
             name: UUID().uuidString,
@@ -27,8 +28,8 @@ enum AccountGenerator {
         )
     }
 
-    static func generateChainAccount() -> ChainAccountModel {
-        ChainAccountModel(
+    static func generateChainAccount() -> SSFModels.ChainAccountModel {
+        SSFModels.ChainAccountModel(
             chainId: Data.random(of: 32)!.toHex(),
             accountId: Data.random(of: 32)!,
             publicKey: Data.random(of: 32)!,

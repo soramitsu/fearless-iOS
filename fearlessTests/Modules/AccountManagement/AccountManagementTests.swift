@@ -5,7 +5,16 @@ import SSFUtils
 import IrohaCrypto
 import RobinHood
 import Cuckoo
+import SSFAssetManagmentStorage
 import SoraFoundation
+
+// Provide minimal compatibility for removed balance provider APIs used in tests
+typealias GetBalanceMetaAccountHandler = (MetaAccountModel) -> Void
+typealias GetBalanceManagedMetaAccountsHandler = ([ManagedMetaAccountModel]) -> Void
+protocol GetBalanceProviderProtocol {
+    func getBalance(for metaAccount: MetaAccountModel, handler: GetBalanceMetaAccountHandler)
+    func getBalances(for managedAccounts: [ManagedMetaAccountModel], handler: GetBalanceManagedMetaAccountsHandler)
+}
 
 class MockGetBalanceProvider: GetBalanceProviderProtocol {
     func getBalance(
@@ -32,7 +41,7 @@ class AccountManagementTests: XCTestCase {
 
         let accountsCount = 10
         let accounts: [ManagedMetaAccountModel] = (0..<accountsCount).map { index in
-            let info = AccountGenerator.generateMetaAccount()
+            let info = AccountGenerator.generateMetaAccount(generatingChainAccounts: 0)
 
             return ManagedMetaAccountModel(
                 info: info,
