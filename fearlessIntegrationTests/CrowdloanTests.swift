@@ -4,12 +4,12 @@ import SSFUtils
 import RobinHood
 import SoraKeystore
 import IrohaCrypto
+import SSFModels
 
 class CrowdloanTests: XCTestCase {
     func testFetchContributions() {
         do {
-            let operationManager = OperationManagerFacade.sharedManager
-            let chainId = Chain.kusama.genesisHash
+            let operationManager = SSFUtils.OperationManagerFacade.sharedManager
             let selectedAccountId = try "FiLhWLARS32oxm4s64gmEMSppAdugsvaAx1pCjweTLGn5Rf".toAccountId()
 
             let chainRegistry = ChainRegistryFactory.createDefaultRegistry(
@@ -27,6 +27,8 @@ class CrowdloanTests: XCTestCase {
 
             wait(for: [syncCompletionExpectation], timeout: 10)
 
+            let chainId = chainRegistry.availableChainIds?.first ?? ""
+
             guard let connection = chainRegistry.getConnection(for: chainId) else {
                 throw ChainRegistryError.connectionUnavailable
             }
@@ -42,7 +44,8 @@ class CrowdloanTests: XCTestCase {
 
             let crowdloanOperationFactory = CrowdloanOperationFactory(
                 requestOperationFactory: storageRequestFactory,
-                operationManager: operationManager
+                operationManager: operationManager,
+                chainRegistry: chainRegistry
             )
 
             let crowdloansWrapper = crowdloanOperationFactory.fetchCrowdloansOperation(
@@ -77,7 +80,8 @@ class CrowdloanTests: XCTestCase {
 
             wait(for: [expectation], timeout: 30)
 
-            let contributions = try contributionsOperation.extractNoCancellableResultData()
+            let contributions = try contributionsOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
             Logger.shared.info("Did receive contributions")
             Logger.shared.info("\(contributions)")
