@@ -6,6 +6,7 @@ import SoraKeystore
 import SoraFoundation
 @testable import fearless
 import BigInt
+import SSFModels
 
 class ControllerAccountTests: XCTestCase {
 
@@ -43,23 +44,32 @@ class ControllerAccountTests: XCTestCase {
             description: "Show Confirmation screen if user has sufficient balance to pay fee"
         )
         stub(wireframe) { stub in
-            when(stub).showConfirmation(from: any(),
-                                        controllerAccountItem: any(),
-                                        asset: any(), chain: any(),
-                                        selectedAccount: any()).then { _ in
+            when(stub).showConfirmation(from: any(ControllerBackedProtocol?.self),
+                                        controllerAccountItem: any(ChainAccountResponse.self),
+                                        asset: any(AssetModel.self),
+                                        chain: any(ChainModel.self),
+                                        selectedAccount: any(fearless.MetaAccountModel.self)).then { _ in
                 showConfirmationExpectation.fulfill()
             }
             
             when(stub).present(viewModel: any(), from: any()).thenDoNothing()
         }
         stub(viewModelFactory) { stub in
-            when(stub).createViewModel(stashItem: any(), stashAccountItem: any(), chosenAccountItem: any())
-                .then { _ in ControllerAccountViewModel(
+            when(stub).createViewModel(
+                stashItem: any(StashItem.self),
+                stashAccountItem: any(ChainAccountResponse?.self),
+                chosenAccountItem: any(ChainAccountResponse?.self),
+                chainAsset: any(SSFModels.ChainAsset.self)
+            )
+            .then { _ in
+                ControllerAccountViewModel(
+                    chainAsset: SSFModels.ChainAsset(chain: chain, asset: asset),
                     stashViewModel: .init(closure: { _ in AccountInfoViewModel(title: "", address: "", name: "", icon: nil)}),
                     controllerViewModel: .init(closure: { _ in AccountInfoViewModel(title: "", address: "", name: "", icon: nil)}),
                     currentAccountIsController: false,
                     actionButtonIsEnabled: true
-                )}
+                )
+            }
         }
         stub(view) { stub in
             when(stub).reload(with: any()).thenDoNothing()

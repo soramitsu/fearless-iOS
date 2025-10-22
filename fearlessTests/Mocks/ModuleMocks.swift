@@ -1,9 +1,9 @@
 import Cuckoo
 @testable import fearless
-import Foundation
-import SSFModels
 
-// Resolve type name ambiguity between fearless and SSFModels in generated mocks
+import Foundation
+
+// Resolve type name ambiguity by pinning to app-local models
 typealias ChainAccountResponse = fearless.ChainAccountResponse
 typealias MetaAccountModel = fearless.MetaAccountModel
 
