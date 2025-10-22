@@ -18,7 +18,7 @@ class ControllerAccountTests: XCTestCase {
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
         let chain = ChainModelGenerator.generateChain(generatingAssets: 1,
-                                                      addressPrefix: UInt16(SNAddressType.genericSubstrate.rawValue))
+                                                      addressPrefix: UInt16(SSFModels.SNAddressType.genericSubstrate.rawValue))
         let asset = ChainModelGenerator.generateAssetWithId("test", symbol: "test")
         let selectedAccount = AccountGenerator.generateMetaAccount()
         let presenter = ControllerAccountPresenter(wireframe: wireframe,
@@ -57,8 +57,8 @@ class ControllerAccountTests: XCTestCase {
         stub(viewModelFactory) { stub in
             when(stub).createViewModel(
                 stashItem: any(StashItem.self),
-                stashAccountItem: any(ChainAccountResponse?.self),
-                chosenAccountItem: any(ChainAccountResponse?.self),
+                stashAccountItem: Cuckoo.any(Optional<ChainAccountResponse>.self),
+                chosenAccountItem: Cuckoo.any(Optional<ChainAccountResponse>.self),
                 chainAsset: any(SSFModels.ChainAsset.self)
             )
             .then { _ in
@@ -79,7 +79,7 @@ class ControllerAccountTests: XCTestCase {
         let stashAddress = "stashAddress"
 
         let stashItem = StashItem(stash: stashAddress, controller: controllerAddress)
-        presenter.didReceiveStashItem(result: .success(stashItem))
+        presenter.didReceiveStashItem(result: Result<StashItem, Error>.success(stashItem))
 
         let chainAccountItem = ChainAccountResponse(chainId: chain.chainId,
                                                     accountId: selectedAccount.substrateAccountId,
@@ -90,7 +90,7 @@ class ControllerAccountTests: XCTestCase {
                                                     isEthereumBased: false,
                                                     isChainAccount: false,
                                                     walletId: selectedAccount.metaId)
-        presenter.didReceiveControllerAccount(result: .success(chainAccountItem))
+        presenter.didReceiveControllerAccount(result: Result<ChainAccountResponse, Error>.success(chainAccountItem))
 
         let controllerAccountInfo = AccountInfo(
             nonce: 0,
@@ -98,7 +98,7 @@ class ControllerAccountTests: XCTestCase {
             providers: 0,
             data: AccountData(free: 100000000000000, reserved: 0, frozen: 0, flags: 0)
         )
-        presenter.didReceiveAccountInfo(result: .success(controllerAccountInfo), address: controllerAddress)
+        presenter.didReceiveAccountInfo(result: Result<AccountInfo, Error>.success(controllerAccountInfo), address: controllerAddress)
 
         let stashAccountInfo = AccountInfo(
             nonce: 0,
@@ -106,7 +106,7 @@ class ControllerAccountTests: XCTestCase {
             providers: 0,
             data: AccountData(free: 100000000000000, reserved: 0, frozen: 0, flags: 0)
         )
-        presenter.didReceiveAccountInfo(result: .success(stashAccountInfo), address: stashAddress)
+        presenter.didReceiveAccountInfo(result: Result<AccountInfo, Error>.success(stashAccountInfo), address: stashAddress)
 
         let feeDetails = FeeDetails(
             baseFee: BigUInt(stringLiteral: "12600002654"),
@@ -114,7 +114,7 @@ class ControllerAccountTests: XCTestCase {
             adjustedWeightFee: BigUInt(stringLiteral: "331759000")
         )
         let fee = RuntimeDispatchInfo(feeValue: feeDetails.baseFee + feeDetails.lenFee + feeDetails.adjustedWeightFee)
-        presenter.didReceiveFee(result: .success(fee))
+        presenter.didReceiveFee(result: Result<RuntimeDispatchInfo, Error>.success(fee))
 
         // when
         presenter.proceed()
@@ -139,9 +139,9 @@ class ControllerAccountTests: XCTestCase {
             providers: 0,
             data: AccountData(free: 10, reserved: 0, frozen: 0, flags: 0)
         )
-        presenter.didReceiveAccountInfo(result: .success(accountInfoSmallBalance), address: stashAddress)
+        presenter.didReceiveAccountInfo(result: Result<AccountInfo, Error>.success(accountInfoSmallBalance), address: stashAddress)
         let extraFee = RuntimeDispatchInfo(feeValue: feeDetails.baseFee + feeDetails.lenFee + feeDetails.adjustedWeightFee)
-        presenter.didReceiveFee(result: .success(extraFee))
+        presenter.didReceiveFee(result: Result<RuntimeDispatchInfo, Error>.success(extraFee))
 
         // when
         presenter.proceed()

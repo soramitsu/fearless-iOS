@@ -1,6 +1,7 @@
 import Foundation
 @testable import fearless
 import RobinHood
+import SSFRuntimeCodingService
 import SSFUtils
 
 final class CrowdloansOperationFactoryStub: CrowdloanOperationFactoryProtocol {

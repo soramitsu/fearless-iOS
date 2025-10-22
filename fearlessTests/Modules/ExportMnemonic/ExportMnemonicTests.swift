@@ -102,9 +102,9 @@ class ExportMnemonicTests: XCTestCase {
             .newMetaAccountOperation(request: importRequest, isBackuped: false)
             .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-        XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount?.substrateCryptoType)
-        XCTAssertEqual(givenAccount.substrateAccountId, importedAccount?.substrateAccountId)
-        XCTAssertEqual(givenAccount.substratePublicKey, importedAccount?.substratePublicKey)
+        XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount.substrateCryptoType)
+        XCTAssertEqual(givenAccount.substrateAccountId, importedAccount.substrateAccountId)
+        XCTAssertEqual(givenAccount.substratePublicKey, importedAccount.substratePublicKey)
     }
     
     func testEthereumExport() throws {
@@ -204,8 +204,8 @@ class ExportMnemonicTests: XCTestCase {
             .newMetaAccountOperation(request: importRequest, isBackuped: false)
             .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-        XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount?.substrateCryptoType)
-        XCTAssertEqual(givenAccount.substrateAccountId, importedAccount?.substrateAccountId)
-        XCTAssertEqual(givenAccount.substratePublicKey, importedAccount?.substratePublicKey)
+        XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount.substrateCryptoType)
+        XCTAssertEqual(givenAccount.substrateAccountId, importedAccount.substrateAccountId)
+        XCTAssertEqual(givenAccount.substratePublicKey, importedAccount.substratePublicKey)
     }
 }
