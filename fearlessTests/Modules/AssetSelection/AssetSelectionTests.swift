@@ -4,10 +4,11 @@ import BigInt
 import Cuckoo
 import SoraFoundation
 import RobinHood
+import SSFModels
 
 class MockAccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
     
-    func subscribe(chainAsset: ChainAsset, accountId: AccountId, handler: AccountInfoSubscriptionAdapterHandler?, deliveryOn queue: DispatchQueue?) {
+    func subscribe(chainAsset: ChainAsset, accountId: AccountId, handler: AccountInfoSubscriptionAdapterHandler?, deliveryOn queue: DispatchQueue?, notifyJustWhenUpdated: Bool) {
         let accountInfo  = AccountInfo(
             nonce: 0,
             consumers: 1,
@@ -15,8 +16,8 @@ class MockAccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
             data: AccountData(
                 free: BigUInt(100000),
                 reserved: 0,
-                miscFrozen: 0,
-                feeFrozen: 0
+                frozen: 0,
+                flags: 0
             )
         )
         
@@ -24,7 +25,7 @@ class MockAccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
         handler?.handleAccountInfo(result: .success(accountInfo), accountId: accountId, chainAsset: chainAsset)
     }
     
-    func subscribe(chainsAssets: [ChainAsset], handler: AccountInfoSubscriptionAdapterHandler?, deliveryOn queue: DispatchQueue?) {
+    func subscribe(chainsAssets: [ChainAsset], handler: AccountInfoSubscriptionAdapterHandler?, deliveryOn queue: DispatchQueue?, notifyJustWhenUpdated: Bool) {
         chainsAssets.forEach { chainAsset in
             let accountInfo  = AccountInfo(
                 nonce: 0,
@@ -33,8 +34,8 @@ class MockAccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
                 data: AccountData(
                     free: BigUInt(100000),
                     reserved: 0,
-                    miscFrozen: 0,
-                    feeFrozen: 0
+                    frozen: 0,
+                    flags: 0
                 )
             )
             
@@ -45,6 +46,9 @@ class MockAccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
     func reset() {
     }
+
+    func unsubscribe(chainAsset: ChainAsset) {}
+    func update(wallet: MetaAccountModel) {}
 }
 
 class AssetSelectionTests: XCTestCase {
@@ -58,7 +62,7 @@ class AssetSelectionTests: XCTestCase {
             ChainModelGenerator.generateChain(
                 generatingAssets: assetsPerChain,
                 addressPrefix: UInt16(index),
-                staking: .relaychain
+                staking: .relayChain
             )
         }
 
@@ -86,7 +90,7 @@ class AssetSelectionTests: XCTestCase {
         
         let selectedChain = chains.last!
         let selectedAsset = selectedChain.assets.first!
-        let chainAsset = ChainAsset(chain: selectedChain, asset: selectedAsset.asset)
+        let chainAsset = SSFModels.ChainAsset(chain: selectedChain, asset: selectedAsset.asset)
 
         let presenter = AssetSelectionPresenter(
             interactor: interactor,

@@ -3,10 +3,6 @@ import Cuckoo
 
 import Foundation
 
-// Resolve type name ambiguity by pinning to app-local models
-typealias ChainAccountResponse = fearless.ChainAccountResponse
-typealias MetaAccountModel = fearless.MetaAccountModel
-
 
 
 
@@ -70021,6 +70017,7 @@ import SoraFoundation
     
     
 }
+
 
 
 

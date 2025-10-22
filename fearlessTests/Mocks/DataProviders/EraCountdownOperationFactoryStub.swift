@@ -2,6 +2,7 @@ import Foundation
 @testable import fearless
 import RobinHood
 import SSFUtils
+import SSFRuntimeCodingService
 
 struct EraCountdownOperationFactoryStub: EraCountdownOperationFactoryProtocol {
     let eraCountdown: EraCountdown

@@ -3,6 +3,7 @@ import XCTest
 import RobinHood
 import SoraFoundation
 import Cuckoo
+import SSFModels
 
 class AnalyticsRewardDetailsTests: XCTestCase {
 
@@ -21,7 +22,7 @@ class AnalyticsRewardDetailsTests: XCTestCase {
         
         let asset = ChainModelGenerator.generateAssetWithId("887a17c7-1370-4de0-97dd-5422e294fa75", symbol: "dot")
         let chain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 0)
-        let chainAsset = ChainAsset(chain: chain, asset: asset)
+        let chainAsset = SSFModels.ChainAsset(chain: chain, asset: asset)
 
         let presenter = AnalyticsRewardDetailsPresenter(
             rewardModel: rewardModel,
