@@ -95,9 +95,12 @@ class ExportMnemonicTests: XCTestCase {
                                                              username: "testUsername",
                                                              substrateDerivationPath: substrateDerivationPath,
                                                              ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
-                                                             cryptoType: cryptoType)
+                                                             cryptoType: cryptoType,
+                                                             defaultChainId: nil)
         let operationFactory = MetaAccountOperationFactory(keystore: keychain)
-        let importedAccount = try operationFactory.newMetaAccountOperation(request: importRequest).extractResultData()
+        let importedAccount = try operationFactory
+            .newMetaAccountOperation(request: importRequest, isBackuped: false)
+            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
         XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount?.substrateCryptoType)
         XCTAssertEqual(givenAccount.substrateAccountId, importedAccount?.substrateAccountId)
@@ -194,9 +197,12 @@ class ExportMnemonicTests: XCTestCase {
                                                              username: "testUsername",
                                                              substrateDerivationPath: substrateDerivationPath,
                                                              ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
-                                                             cryptoType: cryptoType)
+                                                             cryptoType: cryptoType,
+                                                             defaultChainId: nil)
         let operationFactory = MetaAccountOperationFactory(keystore: keychain)
-        let importedAccount = try operationFactory.newMetaAccountOperation(request: importRequest).extractResultData()
+        let importedAccount = try operationFactory
+            .newMetaAccountOperation(request: importRequest, isBackuped: false)
+            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
         XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount?.substrateCryptoType)
         XCTAssertEqual(givenAccount.substrateAccountId, importedAccount?.substrateAccountId)

@@ -72,7 +72,8 @@ class RecommendationsComposerTests: XCTestCase {
             stakeReturn: 0.9,
             hasSlashes: true,
             maxNominatorsRewarded: 128,
-            blocked: false
+            blocked: false,
+            elected: true
         ),
 
         ElectedValidatorInfo(
@@ -147,7 +148,8 @@ class RecommendationsComposerTests: XCTestCase {
                 stakeReturn: 0.6,
                 hasSlashes: false,
                 maxNominatorsRewarded: 128,
-                blocked: false
+                blocked: false,
+                elected: true
             )
         ]
 

@@ -2,6 +2,9 @@ import Foundation
 @testable import fearless
 import RobinHood
 import BigInt
+import SSFModels
+import SSFRuntimeCodingService
+import SSFAssetManagmentStorage
 
 final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryProtocol {
     var operationManager: RobinHood.OperationManagerProtocol
@@ -13,7 +16,7 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
 
     func getAccountProvider(
         for accountId: AccountId,
-        chainAsset: ChainAsset
+        chainAsset: SSFModels.ChainAsset
     ) throws -> StreamableProvider<AccountInfoStorageWrapper> {
         let codingPath = chainAsset.storagePath
 
@@ -25,7 +28,7 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
         return getProvider(for: localKey)
     }
 
-    func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {
+    func getRuntimeProvider(for chainId: SSFModels.ChainModel.Id) -> RuntimeProviderProtocol? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         return chainRegistry.getRuntimeProvider(for: chainId)
     }
@@ -43,7 +46,7 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
         let observable = CoreDataContextObservable(
             service: facade.databaseService,
             mapper: AnyCoreDataMapper(mapper),
-            predicate: { $0.identifier == key },
+            predicate: { ($0.value(forKey: "identifier") as? String) == key },
             processingQueue: processingQueue
         )
 
