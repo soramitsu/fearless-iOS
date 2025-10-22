@@ -79,9 +79,9 @@ class ControllerAccountTests: XCTestCase {
         let stashAddress = "stashAddress"
 
         let stashItem = StashItem(stash: stashAddress, controller: controllerAddress)
-        presenter.didReceiveStashItem(result: Result<StashItem, Error>.success(stashItem))
+        presenter.didReceiveStashItem(result: Result<StashItem?, Error>.success(stashItem))
 
-        let chainAccountItem = ChainAccountResponse(chainId: chain.chainId,
+        let chainAccountItem = fearless.ChainAccountResponse(chainId: chain.chainId,
                                                     accountId: selectedAccount.substrateAccountId,
                                                     publicKey: selectedAccount.substratePublicKey,
                                                     name: "test",
@@ -90,7 +90,7 @@ class ControllerAccountTests: XCTestCase {
                                                     isEthereumBased: false,
                                                     isChainAccount: false,
                                                     walletId: selectedAccount.metaId)
-        presenter.didReceiveControllerAccount(result: Result<ChainAccountResponse, Error>.success(chainAccountItem))
+        presenter.didReceiveControllerAccount(result: Result<fearless.ChainAccountResponse?, Error>.success(chainAccountItem))
 
         let controllerAccountInfo = AccountInfo(
             nonce: 0,
@@ -98,7 +98,7 @@ class ControllerAccountTests: XCTestCase {
             providers: 0,
             data: AccountData(free: 100000000000000, reserved: 0, frozen: 0, flags: 0)
         )
-        presenter.didReceiveAccountInfo(result: Result<AccountInfo, Error>.success(controllerAccountInfo), address: controllerAddress)
+        presenter.didReceiveAccountInfo(result: Result<AccountInfo?, Error>.success(controllerAccountInfo), address: controllerAddress)
 
         let stashAccountInfo = AccountInfo(
             nonce: 0,
@@ -106,7 +106,7 @@ class ControllerAccountTests: XCTestCase {
             providers: 0,
             data: AccountData(free: 100000000000000, reserved: 0, frozen: 0, flags: 0)
         )
-        presenter.didReceiveAccountInfo(result: Result<AccountInfo, Error>.success(stashAccountInfo), address: stashAddress)
+        presenter.didReceiveAccountInfo(result: Result<AccountInfo?, Error>.success(stashAccountInfo), address: stashAddress)
 
         let feeDetails = FeeDetails(
             baseFee: BigUInt(stringLiteral: "12600002654"),

@@ -1,11 +1,10 @@
 import Cuckoo
 @testable import fearless
 
-// Ensure ambiguous types always resolve to fearless variants
+import Foundation
+// Global disambiguation for the entire mocks file
 typealias ChainAccountResponse = fearless.ChainAccountResponse
 typealias MetaAccountModel = fearless.MetaAccountModel
-
-import Foundation
 
 
 
@@ -3189,12 +3188,6 @@ import Cuckoo
 
 import IrohaCrypto
 import SSFModels
-// Disambiguate after SSFModels import
-typealias ChainAccountResponse = fearless.ChainAccountResponse
-typealias MetaAccountModel = fearless.MetaAccountModel
-// Disambiguate common types after SSFModels import
-typealias ChainAccountResponse = fearless.ChainAccountResponse
-typealias MetaAccountModel = fearless.MetaAccountModel
 import SoraFoundation
 
 
@@ -7510,12 +7503,6 @@ import Cuckoo
 @testable import fearless
 
 import SSFModels
-// Disambiguate after SSFModels import
-typealias ChainAccountResponse = fearless.ChainAccountResponse
-typealias MetaAccountModel = fearless.MetaAccountModel
-// Disambiguate after SSFModels import
-typealias ChainAccountResponse = fearless.ChainAccountResponse
-typealias MetaAccountModel = fearless.MetaAccountModel
 
 
 
@@ -70033,3 +70020,6 @@ import SoraFoundation
     
     
 }
+
+
+
