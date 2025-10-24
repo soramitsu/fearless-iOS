@@ -57,8 +57,8 @@ class ControllerAccountTests: XCTestCase {
         stub(viewModelFactory) { stub in
             when(stub).createViewModel(
                 stashItem: any(StashItem.self),
-                stashAccountItem: Cuckoo.any(Optional<ChainAccountResponse>.self),
-                chosenAccountItem: Cuckoo.any(Optional<ChainAccountResponse>.self),
+                stashAccountItem: Cuckoo.any(Optional<fearless.ChainAccountResponse>.self),
+                chosenAccountItem: Cuckoo.any(Optional<fearless.ChainAccountResponse>.self),
                 chainAsset: any(SSFModels.ChainAsset.self)
             )
             .then { _ in
@@ -139,7 +139,7 @@ class ControllerAccountTests: XCTestCase {
             providers: 0,
             data: AccountData(free: 10, reserved: 0, frozen: 0, flags: 0)
         )
-        presenter.didReceiveAccountInfo(result: Result<AccountInfo, Error>.success(accountInfoSmallBalance), address: stashAddress)
+        presenter.didReceiveAccountInfo(result: Result<AccountInfo?, Error>.success(accountInfoSmallBalance), address: stashAddress)
         let extraFee = RuntimeDispatchInfo(feeValue: feeDetails.baseFee + feeDetails.lenFee + feeDetails.adjustedWeightFee)
         presenter.didReceiveFee(result: Result<RuntimeDispatchInfo, Error>.success(extraFee))
 
