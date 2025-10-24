@@ -62,7 +62,7 @@ class AccountCreateTests: XCTestCase {
 
         wait(for: [setupExpectation], timeout: Constants.defaultExpectationDuration)
 
-        presenter.proceed()
+        presenter.proceed(withReplaced: nil)
 
         // then
 

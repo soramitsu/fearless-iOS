@@ -2,6 +2,7 @@ import XCTest
 @testable import fearless
 import RobinHood
 import IrohaCrypto
+import SSFModels
 
 class AccountItemMapperTests: XCTestCase {
     func testSaveAndFetchItem() throws {
@@ -22,18 +23,19 @@ class AccountItemMapperTests: XCTestCase {
             metaId: UUID().uuidString,
             name: "meta",
             substrateAccountId: accountId,
-            substrateCryptoType: CryptoType.ecdsa.rawValue,
+            substrateCryptoType: SSFModels.CryptoType.ecdsa.rawValue,
             substratePublicKey: keypair.publicKey().rawData(),
             ethereumAddress: address.asSecretData(),
             ethereumPublicKey: keypair.publicKey().rawData(),
             chainAccounts: [],
             assetKeysOrder: nil,
-            assetFilterOptions: [],
             canExportEthereumMnemonic: true,
             unusedChainIds: nil,
-            selectedCurrency: Currency.defaultCurrency(),
-            chainIdForFilter: nil,
-            assetsVisibility: []
+            selectedCurrency: SSFModels.Currency.defaultCurrency(),
+            networkManagmentFilter: nil,
+            assetsVisibility: [],
+            hasBackup: false,
+            favouriteChainIds: []
         )
 
         settings.save(value: metaAccountItem)

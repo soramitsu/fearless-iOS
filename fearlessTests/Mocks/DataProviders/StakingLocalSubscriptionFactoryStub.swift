@@ -183,7 +183,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
 
     func getTotalReward(
         for address: AccountAddress,
-        api: SSFModels.ChainModel.BlockExplorer,
+        chain: SSFModels.ChainModel,
         assetPrecision: Int16
     ) throws -> AnySingleValueProvider<TotalRewardItem> {
         AnySingleValueProvider(SingleValueProviderStub(item: totalReward))

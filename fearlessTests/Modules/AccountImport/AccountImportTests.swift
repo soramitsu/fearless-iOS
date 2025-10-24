@@ -35,7 +35,8 @@ class AccountImportTests: XCTestCase {
             operationManager: OperationManager(),
             settings: settings,
             keystoreImportService: keystoreImportService,
-            eventCenter: eventCenter
+            eventCenter: eventCenter,
+            defaultSource: .mnemonic
         )
 
         let expectedUsername = "myname"
@@ -43,7 +44,7 @@ class AccountImportTests: XCTestCase {
 
         let presenter = AccountImportPresenter(wireframe: wireframe,
                                                interactor: interactor,
-                                               flow: .wallet(step: .first))
+                                               flow: .wallet(step: .mnemonic))
         interactor.presenter = presenter
         presenter.view = view
 

@@ -2,8 +2,9 @@ import Foundation
 @testable import fearless
 import RobinHood
 import BigInt
+import SSFModels
 import SSFRuntimeCodingService
-import SSFAssetManagmentStorage
+import SSFAccountManagmentStorage
 
 final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryProtocol {
     var operationManager: RobinHood.OperationManagerProtocol
@@ -15,7 +16,7 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
 
     func getAccountProvider(
         for accountId: AccountId,
-        chainAsset: ChainAsset
+        chainAsset: SSFModels.ChainAsset
     ) throws -> StreamableProvider<AccountInfoStorageWrapper> {
         let codingPath = chainAsset.storagePath
 
@@ -27,13 +28,13 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
         return getProvider(for: localKey)
     }
 
-    func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {
+    func getRuntimeProvider(for chainId: SSFModels.ChainModel.Id) -> RuntimeProviderProtocol? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         return chainRegistry.getRuntimeProvider(for: chainId)
     }
 
     private func getProvider(for key: String) -> StreamableProvider<AccountInfoStorageWrapper> {
-        let facade = fearless.SubstrateDataStorageFacade.shared
+        let facade = SSFAccountManagmentStorage.UserDataStorageFacade.shared!
 
         let mapper: CodableCoreDataMapper<AccountInfoStorageWrapper, CDAccountInfo> =
             CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDAccountInfo.identifier))

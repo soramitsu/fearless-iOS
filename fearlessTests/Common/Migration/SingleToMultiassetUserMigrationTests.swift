@@ -3,6 +3,7 @@ import CoreData
 import RobinHood
 import SSFUtils
 import IrohaCrypto
+import SSFCrypto
 import SoraKeystore
 @testable import fearless
 
