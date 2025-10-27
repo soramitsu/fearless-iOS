@@ -3017,6 +3017,8 @@
 		FF2BFCFD981582584A9DA42D /* NetworkInfoWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04806331BF10F63A49326941 /* NetworkInfoWireframe.swift */; };
 		FF83EAA1EA340E92F0FD99E5 /* AddCustomNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C23EA8830B337C4F8142A395 /* AddCustomNodeTests.swift */; };
 /* cleaned WalletSelectAccountCommand build entries */
+AA1111000011223344556677 /* WalletSelectAccountCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1111000011223344556675 /* WalletSelectAccountCommand.swift */; };
+AA1111000011223344556678 /* WalletSelectAccountCommandFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -6069,6 +6071,8 @@
 		FFEBC03AB1841681427D38AF /* StakingRewardPayoutsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingRewardPayoutsViewController.swift; sourceTree = "<group>"; };
 		FFF3E2C8682E9BCCB0A6872D /* AccountConfirmViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = AccountConfirmViewController.xib; sourceTree = "<group>"; };
 /* cleaned WalletSelectAccountCommand file references */
+AA1111000011223344556675 /* WalletSelectAccountCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WalletSelectAccountCommand.swift; path = fearless/Modules/Wallet/Commands/WalletSelectAccountCommand.swift; sourceTree = SOURCE_ROOT; };
+AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WalletSelectAccountCommandFactory.swift; path = fearless/Modules/Wallet/Commands/WalletSelectAccountCommandFactory.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -19542,3 +19546,5 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 	};
 	rootObject = 849013A024A80984008F705E /* Project object */;
 }
+            AA1111000011223344556677 /* WalletSelectAccountCommand.swift in Sources */,
+            AA1111000011223344556678 /* WalletSelectAccountCommandFactory.swift in Sources */,
