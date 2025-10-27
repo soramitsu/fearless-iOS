@@ -42,9 +42,11 @@ class AccountImportTests: XCTestCase {
         let expectedUsername = "myname"
         let expectedMnemonic = "great fog follow obtain oyster raw patient extend use mirror fix balance blame sudden vessel"
 
-        let presenter = AccountImportPresenter(wireframe: wireframe,
-                                               interactor: interactor,
-                                               flow: .wallet(step: .mnemonic))
+        let presenter = AccountImportPresenter(
+            wireframe: wireframe,
+            interactor: interactor,
+            flow: .wallet(step: .substrate)
+        )
         interactor.presenter = presenter
         presenter.view = view
 

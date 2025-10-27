@@ -2,6 +2,7 @@ import Foundation
 @testable import fearless
 import RobinHood
 import SSFRuntimeCodingService
+import SSFModels
 import SSFUtils
 
 final class SlashesOperationFactoryStub: SlashesOperationFactoryProtocol {
