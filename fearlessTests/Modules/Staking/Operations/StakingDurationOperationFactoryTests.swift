@@ -6,7 +6,9 @@ class StakingDurationOperationFactoryTests: XCTestCase {
         do {
             // given
 
-            let runtimeService = try RuntimeCodingServiceStub.createWestendService()
+            // Build a minimal stub with a coding factory suitable for tests
+            let codingFactory = try WestendStubHelper.makeCoderFactory()
+            let runtimeService = RuntimeCodingServiceStub(factory: codingFactory)
             let operationFactory = StakingDurationOperationFactory()
 
             // when
@@ -15,7 +17,7 @@ class StakingDurationOperationFactoryTests: XCTestCase {
 
             OperationQueue().addOperations(operationWrapper.allOperations, waitUntilFinished: true)
 
-            let duration = try operationWrapper.targetOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            let duration = try operationWrapper.targetOperation.extractResultData(throwing: fearless.BaseOperationError.parentOperationCancelled)
 
             XCTAssertEqual(duration.era, 6 * 3600)
             XCTAssertEqual(duration.unlocking, 28 * 6 * 3600)

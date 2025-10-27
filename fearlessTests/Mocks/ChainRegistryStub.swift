@@ -4,7 +4,7 @@ import RobinHood
 import Cuckoo
 
 extension MockChainRegistryProtocol {
-    func applyDefault(for chains: Set<ChainModel>) -> MockChainRegistryProtocol {
+    func applyDefault(for chains: Set<fearless.ChainModel>) -> MockChainRegistryProtocol {
         stub(self) { stub in
             let availableChainIds = Set(chains.map({ $0.chainId }))
             stub.availableChainIds.get.thenReturn(availableChainIds)
