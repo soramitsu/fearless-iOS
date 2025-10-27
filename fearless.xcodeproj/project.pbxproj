@@ -3016,6 +3016,8 @@
 		FEB21960BEBE9863BEC63F50 /* FiltersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDED6FBACD36C077521CB24D /* FiltersViewController.swift */; };
 		FF2BFCFD981582584A9DA42D /* NetworkInfoWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04806331BF10F63A49326941 /* NetworkInfoWireframe.swift */; };
 		FF83EAA1EA340E92F0FD99E5 /* AddCustomNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C23EA8830B337C4F8142A395 /* AddCustomNodeTests.swift */; };
+FADE20012DED000100E5C0D0 /* WalletSelectAccountCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADE20002DED000100E5C0D0 /* WalletSelectAccountCommand.swift */; };
+FADE20032DED000100E5C0D0 /* WalletSelectAccountCommandFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADE20022DED000100E5C0D0 /* WalletSelectAccountCommandFactory.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -6067,6 +6069,8 @@
 		FFC6DBA90336C1C8A40F3601 /* PolkaswapTransaktionSettingsProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PolkaswapTransaktionSettingsProtocols.swift; sourceTree = "<group>"; };
 		FFEBC03AB1841681427D38AF /* StakingRewardPayoutsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingRewardPayoutsViewController.swift; sourceTree = "<group>"; };
 		FFF3E2C8682E9BCCB0A6872D /* AccountConfirmViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = AccountConfirmViewController.xib; sourceTree = "<group>"; };
+FADE20002DED000100E5C0D0 /* WalletSelectAccountCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WalletSelectAccountCommand.swift; path = fearless/Modules/Wallet/Commands/WalletSelectAccountCommand.swift; sourceTree = SOURCE_ROOT; };
+FADE20022DED000100E5C0D0 /* WalletSelectAccountCommandFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WalletSelectAccountCommandFactory.swift; path = fearless/Modules/Wallet/Commands/WalletSelectAccountCommandFactory.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -15864,10 +15868,10 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		849013A424A80984008F705E /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+849013A424A80984008F705E /* Sources */ = {
+    isa = PBXSourcesBuildPhase;
+    buildActionMask = 2147483647;
+    files = (
 				FAFE10062DCAF11200E5C0DE /* ModelsCompatibility.swift in Sources */,
 				FAFE10092DCAF11200E5C0DE /* PriceData+Identifiable.swift in Sources */,
 				F1E2D3C4B5A60718293A4B5C /* GraphQLResponse.swift in Sources */,
@@ -15997,7 +16001,9 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 				FAD9AAC32B8DFE0200AA603B /* PrefixRequest.swift in Sources */,
 				849014C824AA8A28008F705E /* BiometryAuth.swift in Sources */,
 				FA4B75B02C6F325F001B954F /* OKXMultichainAssetSelection.swift in Sources */,
-				84690797264154E80030E693 /* SlashesOperationFactory.swift in Sources */,
+            84690797264154E80030E693 /* SlashesOperationFactory.swift in Sources */,
+            FADE20012DED000100E5C0D0 /* WalletSelectAccountCommand.swift in Sources */,
+            FADE20032DED000100E5C0D0 /* WalletSelectAccountCommandFactory.swift in Sources */,
 				8424A8C7262EC0E50091BFB1 /* PayoutInfo.swift in Sources */,
 				8428768C24AE046300D91AD8 /* AboutPresenter.swift in Sources */,
 				FA62626B2AC2E35A005D3D95 /* WalletConnectProposalViewModel.swift in Sources */,
