@@ -1,48 +1,54 @@
 import Foundation
 import SoraFoundation
-import CommonWallet
 @testable import fearless
+import SSFModels
 
 struct StubBalanceViewModelFactory: BalanceViewModelFactoryProtocol {
-    func balanceFromPrice(_ amount: Decimal, priceData: fearless.PriceData?, isApproximately: Bool) -> SoraFoundation.LocalizableResource<fearless.BalanceViewModelProtocol> {
+    func priceFromAmount(_ amount: Decimal, priceData: PriceData) -> LocalizableResource<String> {
+        LocalizableResource { _ in "$\(amount)" }
+    }
+
+    func amountFromValue(_ value: Decimal, usageCase: NumberFormatterUsageCase) -> LocalizableResource<String> {
+        LocalizableResource { _ in value.description }
+    }
+
+    func plainAmountFromValue(_ value: Decimal, usageCase: NumberFormatterUsageCase) -> LocalizableResource<String> {
+        LocalizableResource { _ in value.description }
+    }
+
+    func balanceFromPrice(
+        _ amount: Decimal,
+        priceData: PriceData?,
+        isApproximately: Bool,
+        usageCase: NumberFormatterUsageCase
+    ) -> LocalizableResource<BalanceViewModelProtocol> {
         LocalizableResource { _ in
-            BalanceViewModel(amount: amount.description, price: priceData?.price.description)
+            let price = priceData?.price
+            return BalanceViewModel(amount: amount.description, price: price)
         }
     }
-    
-    func createAssetBalanceViewModel(_ amount: Decimal?, balance: Decimal?, priceData: fearless.PriceData?) -> SoraFoundation.LocalizableResource<fearless.AssetBalanceViewModelProtocol> {
+
+    func createBalanceInputViewModel(_ amount: Decimal?) -> LocalizableResource<IAmountInputViewModel> {
+        LocalizableResource { _ in
+            AmountInputViewModel(symbol: "KSM", amount: amount, formatter: NumberFormatter())
+        }
+    }
+
+    func createAssetBalanceViewModel(
+        _ amount: Decimal?,
+        balance: Decimal?,
+        priceData: PriceData?,
+        selectable: Bool
+    ) -> LocalizableResource<AssetBalanceViewModelProtocol> {
         LocalizableResource { _ in
             AssetBalanceViewModel(
                 symbol: "KSM",
                 balance: balance?.description,
                 fiatBalance: nil,
-                price: priceData?.price.description,
-                iconViewModel: nil
+                price: priceData?.price,
+                iconViewModel: nil,
+                selectable: selectable
             )
-        }
-    }
-    
-    func priceFromAmount(_ amount: Decimal, priceData: PriceData) -> LocalizableResource<String> {
-        LocalizableResource { _ in
-            "$100"
-        }
-    }
-
-    func amountFromValue(_ value: Decimal) -> LocalizableResource<String> {
-        LocalizableResource { _ in
-            "$100"
-        }
-    }
-
-    func balanceFromPrice(_ amount: Decimal, priceData: PriceData?) -> LocalizableResource<BalanceViewModelProtocol> {
-        LocalizableResource { _ in
-            BalanceViewModel(amount: amount.description, price: priceData?.price.description)
-        }
-    }
-
-    func createBalanceInputViewModel(_ amount: Decimal?) -> LocalizableResource<fearless.IAmountInputViewModel> {
-        LocalizableResource { _ in
-            fearless.AmountInputViewModel(symbol: "KSM", amount: amount, formatter: NumberFormatter())
         }
     }
 }
