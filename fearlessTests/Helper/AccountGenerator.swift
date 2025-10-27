@@ -19,12 +19,13 @@ enum AccountGenerator {
             ethereumPublicKey: Data.random(of: 20)!,
             chainAccounts: chainAccounts,
             assetKeysOrder: nil,
-            assetFilterOptions: [],
             canExportEthereumMnemonic: true,
             unusedChainIds: nil,
             selectedCurrency: Currency.defaultCurrency(),
-            chainIdForFilter: nil,
-            assetsVisibility: []
+            networkManagmentFilter: nil,
+            assetsVisibility: [],
+            hasBackup: false,
+            favouriteChainIds: []
         )
     }
 
