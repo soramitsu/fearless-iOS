@@ -15866,6 +15866,8 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 				AEF505102616769F0098574D /* InitiatedBonding.swift in Sources */,
 				FA9A8F072A6FADFB008FA99F /* EtherscanHistoryElement.swift in Sources */,
 				FAF92E6627B4275F005467CE /* Bool+ToInt.swift in Sources */,
+				AA1111000011223344556677 /* WalletSelectAccountCommand.swift in Sources */,
+				AA1111000011223344556678 /* WalletSelectAccountCommandFactory.swift in Sources */,
 				8434C9E625403686009E4191 /* CDTransactionHistoryItem+CoreDataDecodable.swift in Sources */,
 				FA5137B229AC6F2F00560EBA /* PolkaswapDisclaimerPresenter.swift in Sources */,
 				FA6DB7C82757C9B000233FBA /* ChainAccountInteractor.swift in Sources */,
@@ -19546,5 +19548,3 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 	};
 	rootObject = 849013A024A80984008F705E /* Project object */;
 }
-            AA1111000011223344556677 /* WalletSelectAccountCommand.swift in Sources */,
-            AA1111000011223344556678 /* WalletSelectAccountCommandFactory.swift in Sources */,
