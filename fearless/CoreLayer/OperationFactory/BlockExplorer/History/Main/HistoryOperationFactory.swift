@@ -26,8 +26,7 @@ final class HistoryOperationFactoriesAssembly {
         // or handle via giantsquid/subsquid based on chain configuration.
         case .etherscan:
             return EtherscanHistoryOperationFactory()
-        case .oklink:
-            return OklinkHistoryOperationFactory()
+        // .oklink case was removed in newer SSFModels; fallback to giantsquid/subsquid routing elsewhere
         case .reef:
             return ReefSubsquidHistoryOperationFactory(txStorage: txStorage)
         // Removed explorers in new enum; fall back to giantsquid/subsquid routing elsewhere

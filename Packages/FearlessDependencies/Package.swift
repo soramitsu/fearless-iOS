@@ -17,6 +17,8 @@ let package = Package(
         .package(url: "https://github.com/reown-com/reown-swift", from: "1.0.0"),
         // Web3
         .package(url: "https://github.com/soramitsu/web3-swift", exact: "7.7.7"),
+        // Explicitly add BigInt to satisfy transitive usage in SSFModels under explicit module builds
+        .package(url: "https://github.com/attaswift/BigInt.git", from: "5.3.0"),
         // UI helpers
         .package(url: "https://github.com/evgenyneu/Cosmos.git", exact: "25.0.1"),
         .package(url: "https://github.com/sendyhalim/Swime", from: "3.1.0"),
@@ -40,6 +42,8 @@ let package = Package(
                 .product(name: "Web3", package: "web3-swift"),
                 .product(name: "Web3ContractABI", package: "web3-swift"),
                 .product(name: "Web3PromiseKit", package: "web3-swift"),
+                // Numeric helpers
+                .product(name: "BigInt", package: "BigInt"),
                 // UI helpers
                 .product(name: "Cosmos", package: "Cosmos"),
                 .product(name: "Swime", package: "Swime"),
