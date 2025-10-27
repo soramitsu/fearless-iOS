@@ -14,8 +14,10 @@ final class EraValidatorServiceStub: EraValidatorServiceProtocol {
 
     func throttle() {}
 
+    func update(to chain: Chain, engine: JSONRPCEngine) {}
+
     func fetchInfoOperation() -> BaseOperation<EraStakersInfo> {
-        return RobinHood.BaseOperation.createWithResult(info)
+        return BaseOperation.createWithResult(info)
     }
 }
 
