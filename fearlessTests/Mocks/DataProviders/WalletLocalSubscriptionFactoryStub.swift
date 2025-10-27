@@ -18,7 +18,8 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
         for accountId: AccountId,
         chainAsset: SSFModels.ChainAsset
     ) throws -> StreamableProvider<AccountInfoStorageWrapper> {
-        let codingPath = chainAsset.storagePath
+        // Use fearless-specific storage path to avoid SSFModels ambiguity
+        let codingPath = chainAsset.fearlessStoragePath
 
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,

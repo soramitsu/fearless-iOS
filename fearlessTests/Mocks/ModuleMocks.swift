@@ -31565,11 +31565,11 @@ import SoraFoundation
         
         
         
-        func showConfirmation<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, controllerAccountItem: M2, asset: M3, chain: M4, selectedAccount: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, fearless.fearless.ChainAccountResponse, AssetModel, ChainModel, fearless.fearless.MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == fearless.fearless.ChainAccountResponse, M3.MatchedType == AssetModel, M4.MatchedType == ChainModel, M5.MatchedType == fearless.fearless.MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, fearless.fearless.ChainAccountResponse, AssetModel, ChainModel, fearless.fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: controllerAccountItem) { $0.1 }, wrap(matchable: asset) { $0.2 }, wrap(matchable: chain) { $0.3 }, wrap(matchable: selectedAccount) { $0.4 }]
+        func showConfirmation<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, controllerAccountItem: M2, asset: M3, chain: M4, selectedAccount: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, fearless.ChainAccountResponse, AssetModel, ChainModel, fearless.MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == fearless.ChainAccountResponse, M3.MatchedType == AssetModel, M4.MatchedType == ChainModel, M5.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, fearless.ChainAccountResponse, AssetModel, ChainModel, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: controllerAccountItem) { $0.1 }, wrap(matchable: asset) { $0.2 }, wrap(matchable: chain) { $0.3 }, wrap(matchable: selectedAccount) { $0.4 }]
             return .init(stub: cuckoo_manager.createStub(for: MockControllerAccountWireframeProtocol.self, method:
     """
-    showConfirmation(from: ControllerBackedProtocol?, controllerAccountItem: fearless.fearless.ChainAccountResponse, asset: AssetModel, chain: ChainModel, selectedAccount: fearless.fearless.MetaAccountModel)
+    showConfirmation(from: ControllerBackedProtocol?, controllerAccountItem: fearless.ChainAccountResponse, asset: AssetModel, chain: ChainModel, selectedAccount: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
@@ -70017,6 +70017,7 @@ import SoraFoundation
     
     
 }
+
 
 
 
