@@ -212,11 +212,11 @@ import SoraFoundation
     
     
     
-     func presentAccountSelection(_ accounts: [ChainAccountResponse], selectedAccountItem: ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from view: ControllerBackedProtocol?, context: AnyObject?)  {
+     func presentAccountSelection(_ accounts: [fearless.ChainAccountResponse], selectedAccountItem: fearless.ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from view: ControllerBackedProtocol?, context: AnyObject?)  {
         
     return cuckoo_manager.call(
     """
-    presentAccountSelection(_: [ChainAccountResponse], selectedAccountItem: ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from: ControllerBackedProtocol?, context: AnyObject?)
+    presentAccountSelection(_: [fearless.ChainAccountResponse], selectedAccountItem: fearless.ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from: ControllerBackedProtocol?, context: AnyObject?)
     """,
             parameters: (accounts, selectedAccountItem, title, delegate, view, context),
             escapingParameters: (accounts, selectedAccountItem, title, delegate, view, context),
@@ -240,11 +240,11 @@ import SoraFoundation
         
         
         
-        func presentAccountSelection<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.OptionalMatchable, M6: Cuckoo.OptionalMatchable>(_ accounts: M1, selectedAccountItem: M2, title: M3, delegate: M4, from view: M5, context: M6) -> Cuckoo.ProtocolStubNoReturnFunction<([ChainAccountResponse], ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)> where M1.MatchedType == [ChainAccountResponse], M2.OptionalMatchedType == ChainAccountResponse, M3.MatchedType == LocalizableResource<String>, M4.MatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == ControllerBackedProtocol, M6.OptionalMatchedType == AnyObject {
-            let matchers: [Cuckoo.ParameterMatcher<([ChainAccountResponse], ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)>] = [wrap(matchable: accounts) { $0.0 }, wrap(matchable: selectedAccountItem) { $0.1 }, wrap(matchable: title) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: view) { $0.4 }, wrap(matchable: context) { $0.5 }]
+        func presentAccountSelection<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.OptionalMatchable, M6: Cuckoo.OptionalMatchable>(_ accounts: M1, selectedAccountItem: M2, title: M3, delegate: M4, from view: M5, context: M6) -> Cuckoo.ProtocolStubNoReturnFunction<([fearless.ChainAccountResponse], fearless.ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)> where M1.MatchedType == [fearless.ChainAccountResponse], M2.OptionalMatchedType == fearless.ChainAccountResponse, M3.MatchedType == LocalizableResource<String>, M4.MatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == ControllerBackedProtocol, M6.OptionalMatchedType == AnyObject {
+            let matchers: [Cuckoo.ParameterMatcher<([fearless.ChainAccountResponse], fearless.ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)>] = [wrap(matchable: accounts) { $0.0 }, wrap(matchable: selectedAccountItem) { $0.1 }, wrap(matchable: title) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: view) { $0.4 }, wrap(matchable: context) { $0.5 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAccountSelectionPresentable.self, method:
     """
-    presentAccountSelection(_: [ChainAccountResponse], selectedAccountItem: ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from: ControllerBackedProtocol?, context: AnyObject?)
+    presentAccountSelection(_: [fearless.ChainAccountResponse], selectedAccountItem: fearless.ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from: ControllerBackedProtocol?, context: AnyObject?)
     """, parameterMatchers: matchers))
         }
         
@@ -268,11 +268,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func presentAccountSelection<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.OptionalMatchable, M6: Cuckoo.OptionalMatchable>(_ accounts: M1, selectedAccountItem: M2, title: M3, delegate: M4, from view: M5, context: M6) -> Cuckoo.__DoNotUse<([ChainAccountResponse], ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?), Void> where M1.MatchedType == [ChainAccountResponse], M2.OptionalMatchedType == ChainAccountResponse, M3.MatchedType == LocalizableResource<String>, M4.MatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == ControllerBackedProtocol, M6.OptionalMatchedType == AnyObject {
-            let matchers: [Cuckoo.ParameterMatcher<([ChainAccountResponse], ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)>] = [wrap(matchable: accounts) { $0.0 }, wrap(matchable: selectedAccountItem) { $0.1 }, wrap(matchable: title) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: view) { $0.4 }, wrap(matchable: context) { $0.5 }]
+        func presentAccountSelection<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.OptionalMatchable, M6: Cuckoo.OptionalMatchable>(_ accounts: M1, selectedAccountItem: M2, title: M3, delegate: M4, from view: M5, context: M6) -> Cuckoo.__DoNotUse<([fearless.ChainAccountResponse], fearless.ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?), Void> where M1.MatchedType == [fearless.ChainAccountResponse], M2.OptionalMatchedType == fearless.ChainAccountResponse, M3.MatchedType == LocalizableResource<String>, M4.MatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == ControllerBackedProtocol, M6.OptionalMatchedType == AnyObject {
+            let matchers: [Cuckoo.ParameterMatcher<([fearless.ChainAccountResponse], fearless.ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)>] = [wrap(matchable: accounts) { $0.0 }, wrap(matchable: selectedAccountItem) { $0.1 }, wrap(matchable: title) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: view) { $0.4 }, wrap(matchable: context) { $0.5 }]
             return cuckoo_manager.verify(
     """
-    presentAccountSelection(_: [ChainAccountResponse], selectedAccountItem: ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from: ControllerBackedProtocol?, context: AnyObject?)
+    presentAccountSelection(_: [fearless.ChainAccountResponse], selectedAccountItem: fearless.ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from: ControllerBackedProtocol?, context: AnyObject?)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -290,7 +290,7 @@ import SoraFoundation
     
     
     
-     func presentAccountSelection(_ accounts: [ChainAccountResponse], selectedAccountItem: ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from view: ControllerBackedProtocol?, context: AnyObject?)   {
+     func presentAccountSelection(_ accounts: [fearless.ChainAccountResponse], selectedAccountItem: fearless.ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from view: ControllerBackedProtocol?, context: AnyObject?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -18009,11 +18009,11 @@ import SoraFoundation
     
     
     
-     func exportWallet(wallet: MetaAccountModel, accounts: [ChainAccountInfo], password: String)  {
+     func exportWallet(wallet: fearless.MetaAccountModel, accounts: [ChainAccountInfo], password: String)  {
         
     return cuckoo_manager.call(
     """
-    exportWallet(wallet: MetaAccountModel, accounts: [ChainAccountInfo], password: String)
+    exportWallet(wallet: fearless.MetaAccountModel, accounts: [ChainAccountInfo], password: String)
     """,
             parameters: (wallet, accounts, password),
             escapingParameters: (wallet, accounts, password),
@@ -18029,11 +18029,11 @@ import SoraFoundation
     
     
     
-     func exportAccount(address: String, password: String, chain: ChainModel, wallet: MetaAccountModel)  {
+     func exportAccount(address: String, password: String, chain: ChainModel, wallet: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    exportAccount(address: String, password: String, chain: ChainModel, wallet: MetaAccountModel)
+    exportAccount(address: String, password: String, chain: ChainModel, wallet: fearless.MetaAccountModel)
     """,
             parameters: (address, password, chain, wallet),
             escapingParameters: (address, password, chain, wallet),
@@ -18057,22 +18057,22 @@ import SoraFoundation
         
         
         
-        func exportWallet<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(wallet: M1, accounts: M2, password: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(MetaAccountModel, [ChainAccountInfo], String)> where M1.MatchedType == MetaAccountModel, M2.MatchedType == [ChainAccountInfo], M3.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(MetaAccountModel, [ChainAccountInfo], String)>] = [wrap(matchable: wallet) { $0.0 }, wrap(matchable: accounts) { $0.1 }, wrap(matchable: password) { $0.2 }]
+        func exportWallet<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(wallet: M1, accounts: M2, password: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(fearless.MetaAccountModel, [ChainAccountInfo], String)> where M1.MatchedType == fearless.MetaAccountModel, M2.MatchedType == [ChainAccountInfo], M3.MatchedType == String {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.MetaAccountModel, [ChainAccountInfo], String)>] = [wrap(matchable: wallet) { $0.0 }, wrap(matchable: accounts) { $0.1 }, wrap(matchable: password) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAccountExportPasswordInteractorInputProtocol.self, method:
     """
-    exportWallet(wallet: MetaAccountModel, accounts: [ChainAccountInfo], password: String)
+    exportWallet(wallet: fearless.MetaAccountModel, accounts: [ChainAccountInfo], password: String)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func exportAccount<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(address: M1, password: M2, chain: M3, wallet: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(String, String, ChainModel, MetaAccountModel)> where M1.MatchedType == String, M2.MatchedType == String, M3.MatchedType == ChainModel, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(String, String, ChainModel, MetaAccountModel)>] = [wrap(matchable: address) { $0.0 }, wrap(matchable: password) { $0.1 }, wrap(matchable: chain) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
+        func exportAccount<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(address: M1, password: M2, chain: M3, wallet: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(String, String, ChainModel, fearless.MetaAccountModel)> where M1.MatchedType == String, M2.MatchedType == String, M3.MatchedType == ChainModel, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(String, String, ChainModel, fearless.MetaAccountModel)>] = [wrap(matchable: address) { $0.0 }, wrap(matchable: password) { $0.1 }, wrap(matchable: chain) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAccountExportPasswordInteractorInputProtocol.self, method:
     """
-    exportAccount(address: String, password: String, chain: ChainModel, wallet: MetaAccountModel)
+    exportAccount(address: String, password: String, chain: ChainModel, wallet: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
@@ -18096,11 +18096,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func exportWallet<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(wallet: M1, accounts: M2, password: M3) -> Cuckoo.__DoNotUse<(MetaAccountModel, [ChainAccountInfo], String), Void> where M1.MatchedType == MetaAccountModel, M2.MatchedType == [ChainAccountInfo], M3.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(MetaAccountModel, [ChainAccountInfo], String)>] = [wrap(matchable: wallet) { $0.0 }, wrap(matchable: accounts) { $0.1 }, wrap(matchable: password) { $0.2 }]
+        func exportWallet<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(wallet: M1, accounts: M2, password: M3) -> Cuckoo.__DoNotUse<(fearless.MetaAccountModel, [ChainAccountInfo], String), Void> where M1.MatchedType == fearless.MetaAccountModel, M2.MatchedType == [ChainAccountInfo], M3.MatchedType == String {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.MetaAccountModel, [ChainAccountInfo], String)>] = [wrap(matchable: wallet) { $0.0 }, wrap(matchable: accounts) { $0.1 }, wrap(matchable: password) { $0.2 }]
             return cuckoo_manager.verify(
     """
-    exportWallet(wallet: MetaAccountModel, accounts: [ChainAccountInfo], password: String)
+    exportWallet(wallet: fearless.MetaAccountModel, accounts: [ChainAccountInfo], password: String)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -18108,11 +18108,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func exportAccount<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(address: M1, password: M2, chain: M3, wallet: M4) -> Cuckoo.__DoNotUse<(String, String, ChainModel, MetaAccountModel), Void> where M1.MatchedType == String, M2.MatchedType == String, M3.MatchedType == ChainModel, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(String, String, ChainModel, MetaAccountModel)>] = [wrap(matchable: address) { $0.0 }, wrap(matchable: password) { $0.1 }, wrap(matchable: chain) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
+        func exportAccount<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(address: M1, password: M2, chain: M3, wallet: M4) -> Cuckoo.__DoNotUse<(String, String, ChainModel, fearless.MetaAccountModel), Void> where M1.MatchedType == String, M2.MatchedType == String, M3.MatchedType == ChainModel, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(String, String, ChainModel, fearless.MetaAccountModel)>] = [wrap(matchable: address) { $0.0 }, wrap(matchable: password) { $0.1 }, wrap(matchable: chain) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    exportAccount(address: String, password: String, chain: ChainModel, wallet: MetaAccountModel)
+    exportAccount(address: String, password: String, chain: ChainModel, wallet: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -18130,7 +18130,7 @@ import SoraFoundation
     
     
     
-     func exportWallet(wallet: MetaAccountModel, accounts: [ChainAccountInfo], password: String)   {
+     func exportWallet(wallet: fearless.MetaAccountModel, accounts: [ChainAccountInfo], password: String)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -18138,7 +18138,7 @@ import SoraFoundation
     
     
     
-     func exportAccount(address: String, password: String, chain: ChainModel, wallet: MetaAccountModel)   {
+     func exportAccount(address: String, password: String, chain: ChainModel, wallet: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -19782,11 +19782,11 @@ import SSFModels
     
     
     
-     func fetchExportDataForWallet(wallet: MetaAccountModel, accounts: [ChainAccountInfo])  {
+     func fetchExportDataForWallet(wallet: fearless.MetaAccountModel, accounts: [ChainAccountInfo])  {
         
     return cuckoo_manager.call(
     """
-    fetchExportDataForWallet(wallet: MetaAccountModel, accounts: [ChainAccountInfo])
+    fetchExportDataForWallet(wallet: fearless.MetaAccountModel, accounts: [ChainAccountInfo])
     """,
             parameters: (wallet, accounts),
             escapingParameters: (wallet, accounts),
@@ -19802,11 +19802,11 @@ import SSFModels
     
     
     
-     func fetchExportDataForAddress(_ address: String, chain: ChainModel, wallet: MetaAccountModel)  {
+     func fetchExportDataForAddress(_ address: String, chain: ChainModel, wallet: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    fetchExportDataForAddress(_: String, chain: ChainModel, wallet: MetaAccountModel)
+    fetchExportDataForAddress(_: String, chain: ChainModel, wallet: fearless.MetaAccountModel)
     """,
             parameters: (address, chain, wallet),
             escapingParameters: (address, chain, wallet),
@@ -19830,22 +19830,22 @@ import SSFModels
         
         
         
-        func fetchExportDataForWallet<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(wallet: M1, accounts: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(MetaAccountModel, [ChainAccountInfo])> where M1.MatchedType == MetaAccountModel, M2.MatchedType == [ChainAccountInfo] {
-            let matchers: [Cuckoo.ParameterMatcher<(MetaAccountModel, [ChainAccountInfo])>] = [wrap(matchable: wallet) { $0.0 }, wrap(matchable: accounts) { $0.1 }]
+        func fetchExportDataForWallet<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(wallet: M1, accounts: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(fearless.MetaAccountModel, [ChainAccountInfo])> where M1.MatchedType == fearless.MetaAccountModel, M2.MatchedType == [ChainAccountInfo] {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.MetaAccountModel, [ChainAccountInfo])>] = [wrap(matchable: wallet) { $0.0 }, wrap(matchable: accounts) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockExportMnemonicInteractorInputProtocol.self, method:
     """
-    fetchExportDataForWallet(wallet: MetaAccountModel, accounts: [ChainAccountInfo])
+    fetchExportDataForWallet(wallet: fearless.MetaAccountModel, accounts: [ChainAccountInfo])
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func fetchExportDataForAddress<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(_ address: M1, chain: M2, wallet: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String, ChainModel, MetaAccountModel)> where M1.MatchedType == String, M2.MatchedType == ChainModel, M3.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(String, ChainModel, MetaAccountModel)>] = [wrap(matchable: address) { $0.0 }, wrap(matchable: chain) { $0.1 }, wrap(matchable: wallet) { $0.2 }]
+        func fetchExportDataForAddress<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(_ address: M1, chain: M2, wallet: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String, ChainModel, fearless.MetaAccountModel)> where M1.MatchedType == String, M2.MatchedType == ChainModel, M3.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(String, ChainModel, fearless.MetaAccountModel)>] = [wrap(matchable: address) { $0.0 }, wrap(matchable: chain) { $0.1 }, wrap(matchable: wallet) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockExportMnemonicInteractorInputProtocol.self, method:
     """
-    fetchExportDataForAddress(_: String, chain: ChainModel, wallet: MetaAccountModel)
+    fetchExportDataForAddress(_: String, chain: ChainModel, wallet: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
@@ -19869,11 +19869,11 @@ import SSFModels
         
         
         @discardableResult
-        func fetchExportDataForWallet<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(wallet: M1, accounts: M2) -> Cuckoo.__DoNotUse<(MetaAccountModel, [ChainAccountInfo]), Void> where M1.MatchedType == MetaAccountModel, M2.MatchedType == [ChainAccountInfo] {
-            let matchers: [Cuckoo.ParameterMatcher<(MetaAccountModel, [ChainAccountInfo])>] = [wrap(matchable: wallet) { $0.0 }, wrap(matchable: accounts) { $0.1 }]
+        func fetchExportDataForWallet<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(wallet: M1, accounts: M2) -> Cuckoo.__DoNotUse<(fearless.MetaAccountModel, [ChainAccountInfo]), Void> where M1.MatchedType == fearless.MetaAccountModel, M2.MatchedType == [ChainAccountInfo] {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.MetaAccountModel, [ChainAccountInfo])>] = [wrap(matchable: wallet) { $0.0 }, wrap(matchable: accounts) { $0.1 }]
             return cuckoo_manager.verify(
     """
-    fetchExportDataForWallet(wallet: MetaAccountModel, accounts: [ChainAccountInfo])
+    fetchExportDataForWallet(wallet: fearless.MetaAccountModel, accounts: [ChainAccountInfo])
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -19881,11 +19881,11 @@ import SSFModels
         
         
         @discardableResult
-        func fetchExportDataForAddress<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(_ address: M1, chain: M2, wallet: M3) -> Cuckoo.__DoNotUse<(String, ChainModel, MetaAccountModel), Void> where M1.MatchedType == String, M2.MatchedType == ChainModel, M3.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(String, ChainModel, MetaAccountModel)>] = [wrap(matchable: address) { $0.0 }, wrap(matchable: chain) { $0.1 }, wrap(matchable: wallet) { $0.2 }]
+        func fetchExportDataForAddress<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(_ address: M1, chain: M2, wallet: M3) -> Cuckoo.__DoNotUse<(String, ChainModel, fearless.MetaAccountModel), Void> where M1.MatchedType == String, M2.MatchedType == ChainModel, M3.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(String, ChainModel, fearless.MetaAccountModel)>] = [wrap(matchable: address) { $0.0 }, wrap(matchable: chain) { $0.1 }, wrap(matchable: wallet) { $0.2 }]
             return cuckoo_manager.verify(
     """
-    fetchExportDataForAddress(_: String, chain: ChainModel, wallet: MetaAccountModel)
+    fetchExportDataForAddress(_: String, chain: ChainModel, wallet: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -19903,7 +19903,7 @@ import SSFModels
     
     
     
-     func fetchExportDataForWallet(wallet: MetaAccountModel, accounts: [ChainAccountInfo])   {
+     func fetchExportDataForWallet(wallet: fearless.MetaAccountModel, accounts: [ChainAccountInfo])   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -19911,7 +19911,7 @@ import SSFModels
     
     
     
-     func fetchExportDataForAddress(_ address: String, chain: ChainModel, wallet: MetaAccountModel)   {
+     func fetchExportDataForAddress(_ address: String, chain: ChainModel, wallet: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -20144,11 +20144,11 @@ import SSFModels
     
     
     
-     func openConfirmationForMnemonic(_ mnemonic: IRMnemonicProtocol, wallet: MetaAccountModel, from view: ExportGenericViewProtocol?)  {
+     func openConfirmationForMnemonic(_ mnemonic: IRMnemonicProtocol, wallet: fearless.MetaAccountModel, from view: ExportGenericViewProtocol?)  {
         
     return cuckoo_manager.call(
     """
-    openConfirmationForMnemonic(_: IRMnemonicProtocol, wallet: MetaAccountModel, from: ExportGenericViewProtocol?)
+    openConfirmationForMnemonic(_: IRMnemonicProtocol, wallet: fearless.MetaAccountModel, from: ExportGenericViewProtocol?)
     """,
             parameters: (mnemonic, wallet, view),
             escapingParameters: (mnemonic, wallet, view),
@@ -20303,11 +20303,11 @@ import SSFModels
         
         
         
-        func openConfirmationForMnemonic<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(_ mnemonic: M1, wallet: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(IRMnemonicProtocol, MetaAccountModel, ExportGenericViewProtocol?)> where M1.MatchedType == IRMnemonicProtocol, M2.MatchedType == MetaAccountModel, M3.OptionalMatchedType == ExportGenericViewProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(IRMnemonicProtocol, MetaAccountModel, ExportGenericViewProtocol?)>] = [wrap(matchable: mnemonic) { $0.0 }, wrap(matchable: wallet) { $0.1 }, wrap(matchable: view) { $0.2 }]
+        func openConfirmationForMnemonic<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(_ mnemonic: M1, wallet: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(IRMnemonicProtocol, fearless.MetaAccountModel, ExportGenericViewProtocol?)> where M1.MatchedType == IRMnemonicProtocol, M2.MatchedType == fearless.MetaAccountModel, M3.OptionalMatchedType == ExportGenericViewProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(IRMnemonicProtocol, fearless.MetaAccountModel, ExportGenericViewProtocol?)>] = [wrap(matchable: mnemonic) { $0.0 }, wrap(matchable: wallet) { $0.1 }, wrap(matchable: view) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockExportMnemonicWireframeProtocol.self, method:
     """
-    openConfirmationForMnemonic(_: IRMnemonicProtocol, wallet: MetaAccountModel, from: ExportGenericViewProtocol?)
+    openConfirmationForMnemonic(_: IRMnemonicProtocol, wallet: fearless.MetaAccountModel, from: ExportGenericViewProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -20409,11 +20409,11 @@ import SSFModels
         
         
         @discardableResult
-        func openConfirmationForMnemonic<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(_ mnemonic: M1, wallet: M2, from view: M3) -> Cuckoo.__DoNotUse<(IRMnemonicProtocol, MetaAccountModel, ExportGenericViewProtocol?), Void> where M1.MatchedType == IRMnemonicProtocol, M2.MatchedType == MetaAccountModel, M3.OptionalMatchedType == ExportGenericViewProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(IRMnemonicProtocol, MetaAccountModel, ExportGenericViewProtocol?)>] = [wrap(matchable: mnemonic) { $0.0 }, wrap(matchable: wallet) { $0.1 }, wrap(matchable: view) { $0.2 }]
+        func openConfirmationForMnemonic<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(_ mnemonic: M1, wallet: M2, from view: M3) -> Cuckoo.__DoNotUse<(IRMnemonicProtocol, fearless.MetaAccountModel, ExportGenericViewProtocol?), Void> where M1.MatchedType == IRMnemonicProtocol, M2.MatchedType == fearless.MetaAccountModel, M3.OptionalMatchedType == ExportGenericViewProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(IRMnemonicProtocol, fearless.MetaAccountModel, ExportGenericViewProtocol?)>] = [wrap(matchable: mnemonic) { $0.0 }, wrap(matchable: wallet) { $0.1 }, wrap(matchable: view) { $0.2 }]
             return cuckoo_manager.verify(
     """
-    openConfirmationForMnemonic(_: IRMnemonicProtocol, wallet: MetaAccountModel, from: ExportGenericViewProtocol?)
+    openConfirmationForMnemonic(_: IRMnemonicProtocol, wallet: fearless.MetaAccountModel, from: ExportGenericViewProtocol?)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -20511,7 +20511,7 @@ import SSFModels
     
     
     
-     func openConfirmationForMnemonic(_ mnemonic: IRMnemonicProtocol, wallet: MetaAccountModel, from view: ExportGenericViewProtocol?)   {
+     func openConfirmationForMnemonic(_ mnemonic: IRMnemonicProtocol, wallet: fearless.MetaAccountModel, from view: ExportGenericViewProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -26341,11 +26341,11 @@ import SSFModels
     
     
     
-     func updateWallet(_ wallet: MetaAccountModel)  {
+     func updateWallet(_ wallet: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    updateWallet(_: MetaAccountModel)
+    updateWallet(_: fearless.MetaAccountModel)
     """,
             parameters: (wallet),
             escapingParameters: (wallet),
@@ -26420,11 +26420,11 @@ import SSFModels
         
         
         
-        func updateWallet<M1: Cuckoo.Matchable>(_ wallet: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(MetaAccountModel)> where M1.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(MetaAccountModel)>] = [wrap(matchable: wallet) { $0 }]
+        func updateWallet<M1: Cuckoo.Matchable>(_ wallet: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(fearless.MetaAccountModel)> where M1.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.MetaAccountModel)>] = [wrap(matchable: wallet) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockProfileInteractorInputProtocol.self, method:
     """
-    updateWallet(_: MetaAccountModel)
+    updateWallet(_: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
@@ -26482,11 +26482,11 @@ import SSFModels
         
         
         @discardableResult
-        func updateWallet<M1: Cuckoo.Matchable>(_ wallet: M1) -> Cuckoo.__DoNotUse<(MetaAccountModel), Void> where M1.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(MetaAccountModel)>] = [wrap(matchable: wallet) { $0 }]
+        func updateWallet<M1: Cuckoo.Matchable>(_ wallet: M1) -> Cuckoo.__DoNotUse<(fearless.MetaAccountModel), Void> where M1.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.MetaAccountModel)>] = [wrap(matchable: wallet) { $0 }]
             return cuckoo_manager.verify(
     """
-    updateWallet(_: MetaAccountModel)
+    updateWallet(_: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -26536,7 +26536,7 @@ import SSFModels
     
     
     
-     func updateWallet(_ wallet: MetaAccountModel)   {
+     func updateWallet(_ wallet: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -26594,11 +26594,11 @@ import SSFModels
     
     
     
-     func didReceive(wallet: MetaAccountModel)  {
+     func didReceive(wallet: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    didReceive(wallet: MetaAccountModel)
+    didReceive(wallet: fearless.MetaAccountModel)
     """,
             parameters: (wallet),
             escapingParameters: (wallet),
@@ -26702,11 +26702,11 @@ import SSFModels
         
         
         
-        func didReceive<M1: Cuckoo.Matchable>(wallet: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(MetaAccountModel)> where M1.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(MetaAccountModel)>] = [wrap(matchable: wallet) { $0 }]
+        func didReceive<M1: Cuckoo.Matchable>(wallet: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(fearless.MetaAccountModel)> where M1.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.MetaAccountModel)>] = [wrap(matchable: wallet) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockProfileInteractorOutputProtocol.self, method:
     """
-    didReceive(wallet: MetaAccountModel)
+    didReceive(wallet: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
@@ -26774,11 +26774,11 @@ import SSFModels
         
         
         @discardableResult
-        func didReceive<M1: Cuckoo.Matchable>(wallet: M1) -> Cuckoo.__DoNotUse<(MetaAccountModel), Void> where M1.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(MetaAccountModel)>] = [wrap(matchable: wallet) { $0 }]
+        func didReceive<M1: Cuckoo.Matchable>(wallet: M1) -> Cuckoo.__DoNotUse<(fearless.MetaAccountModel), Void> where M1.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.MetaAccountModel)>] = [wrap(matchable: wallet) { $0 }]
             return cuckoo_manager.verify(
     """
-    didReceive(wallet: MetaAccountModel)
+    didReceive(wallet: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -26844,7 +26844,7 @@ import SSFModels
     
     
     
-     func didReceive(wallet: MetaAccountModel)   {
+     func didReceive(wallet: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -26918,11 +26918,11 @@ import SSFModels
     
     
     
-     func showAccountDetails(from view: ProfileViewProtocol?, metaAccount: MetaAccountModel)  {
+     func showAccountDetails(from view: ProfileViewProtocol?, metaAccount: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    showAccountDetails(from: ProfileViewProtocol?, metaAccount: MetaAccountModel)
+    showAccountDetails(from: ProfileViewProtocol?, metaAccount: fearless.MetaAccountModel)
     """,
             parameters: (view, metaAccount),
             escapingParameters: (view, metaAccount),
@@ -27058,11 +27058,11 @@ import SSFModels
     
     
     
-     func showSelectCurrency(from view: ProfileViewProtocol?, with: MetaAccountModel)  {
+     func showSelectCurrency(from view: ProfileViewProtocol?, with: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    showSelectCurrency(from: ProfileViewProtocol?, with: MetaAccountModel)
+    showSelectCurrency(from: ProfileViewProtocol?, with: fearless.MetaAccountModel)
     """,
             parameters: (view, with),
             escapingParameters: (view, with),
@@ -27246,11 +27246,11 @@ import SSFModels
         
         
         
-        func showAccountDetails<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, metaAccount: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(ProfileViewProtocol?, MetaAccountModel)> where M1.OptionalMatchedType == ProfileViewProtocol, M2.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ProfileViewProtocol?, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: metaAccount) { $0.1 }]
+        func showAccountDetails<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, metaAccount: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(ProfileViewProtocol?, fearless.MetaAccountModel)> where M1.OptionalMatchedType == ProfileViewProtocol, M2.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ProfileViewProtocol?, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: metaAccount) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockProfileWireframeProtocol.self, method:
     """
-    showAccountDetails(from: ProfileViewProtocol?, metaAccount: MetaAccountModel)
+    showAccountDetails(from: ProfileViewProtocol?, metaAccount: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
@@ -27323,11 +27323,11 @@ import SSFModels
         
         
         
-        func showSelectCurrency<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, with: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(ProfileViewProtocol?, MetaAccountModel)> where M1.OptionalMatchedType == ProfileViewProtocol, M2.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ProfileViewProtocol?, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: with) { $0.1 }]
+        func showSelectCurrency<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, with: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(ProfileViewProtocol?, fearless.MetaAccountModel)> where M1.OptionalMatchedType == ProfileViewProtocol, M2.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ProfileViewProtocol?, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: with) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockProfileWireframeProtocol.self, method:
     """
-    showSelectCurrency(from: ProfileViewProtocol?, with: MetaAccountModel)
+    showSelectCurrency(from: ProfileViewProtocol?, with: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
@@ -27439,11 +27439,11 @@ import SSFModels
         
         
         @discardableResult
-        func showAccountDetails<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, metaAccount: M2) -> Cuckoo.__DoNotUse<(ProfileViewProtocol?, MetaAccountModel), Void> where M1.OptionalMatchedType == ProfileViewProtocol, M2.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ProfileViewProtocol?, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: metaAccount) { $0.1 }]
+        func showAccountDetails<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, metaAccount: M2) -> Cuckoo.__DoNotUse<(ProfileViewProtocol?, fearless.MetaAccountModel), Void> where M1.OptionalMatchedType == ProfileViewProtocol, M2.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ProfileViewProtocol?, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: metaAccount) { $0.1 }]
             return cuckoo_manager.verify(
     """
-    showAccountDetails(from: ProfileViewProtocol?, metaAccount: MetaAccountModel)
+    showAccountDetails(from: ProfileViewProtocol?, metaAccount: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -27523,11 +27523,11 @@ import SSFModels
         
         
         @discardableResult
-        func showSelectCurrency<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, with: M2) -> Cuckoo.__DoNotUse<(ProfileViewProtocol?, MetaAccountModel), Void> where M1.OptionalMatchedType == ProfileViewProtocol, M2.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ProfileViewProtocol?, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: with) { $0.1 }]
+        func showSelectCurrency<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, with: M2) -> Cuckoo.__DoNotUse<(ProfileViewProtocol?, fearless.MetaAccountModel), Void> where M1.OptionalMatchedType == ProfileViewProtocol, M2.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ProfileViewProtocol?, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: with) { $0.1 }]
             return cuckoo_manager.verify(
     """
-    showSelectCurrency(from: ProfileViewProtocol?, with: MetaAccountModel)
+    showSelectCurrency(from: ProfileViewProtocol?, with: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -27641,7 +27641,7 @@ import SSFModels
     
     
     
-     func showAccountDetails(from view: ProfileViewProtocol?, metaAccount: MetaAccountModel)   {
+     func showAccountDetails(from view: ProfileViewProtocol?, metaAccount: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -27697,7 +27697,7 @@ import SSFModels
     
     
     
-     func showSelectCurrency(from view: ProfileViewProtocol?, with: MetaAccountModel)   {
+     func showSelectCurrency(from view: ProfileViewProtocol?, with: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -30274,11 +30274,11 @@ import SoraFoundation
     
     
     
-     func createViewModel(stashItem: StashItem, stashAccountItem: ChainAccountResponse?, chosenAccountItem: ChainAccountResponse?, chainAsset: ChainAsset) -> ControllerAccountViewModel {
+     func createViewModel(stashItem: StashItem, stashAccountItem: fearless.ChainAccountResponse?, chosenAccountItem: fearless.ChainAccountResponse?, chainAsset: ChainAsset) -> ControllerAccountViewModel {
         
     return cuckoo_manager.call(
     """
-    createViewModel(stashItem: StashItem, stashAccountItem: ChainAccountResponse?, chosenAccountItem: ChainAccountResponse?, chainAsset: ChainAsset) -> ControllerAccountViewModel
+    createViewModel(stashItem: StashItem, stashAccountItem: fearless.ChainAccountResponse?, chosenAccountItem: fearless.ChainAccountResponse?, chainAsset: ChainAsset) -> ControllerAccountViewModel
     """,
             parameters: (stashItem, stashAccountItem, chosenAccountItem, chainAsset),
             escapingParameters: (stashItem, stashAccountItem, chosenAccountItem, chainAsset),
@@ -30302,11 +30302,11 @@ import SoraFoundation
         
         
         
-        func createViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.Matchable>(stashItem: M1, stashAccountItem: M2, chosenAccountItem: M3, chainAsset: M4) -> Cuckoo.ProtocolStubFunction<(StashItem, ChainAccountResponse?, ChainAccountResponse?, ChainAsset), ControllerAccountViewModel> where M1.MatchedType == StashItem, M2.OptionalMatchedType == ChainAccountResponse, M3.OptionalMatchedType == ChainAccountResponse, M4.MatchedType == ChainAsset {
-            let matchers: [Cuckoo.ParameterMatcher<(StashItem, ChainAccountResponse?, ChainAccountResponse?, ChainAsset)>] = [wrap(matchable: stashItem) { $0.0 }, wrap(matchable: stashAccountItem) { $0.1 }, wrap(matchable: chosenAccountItem) { $0.2 }, wrap(matchable: chainAsset) { $0.3 }]
+        func createViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.Matchable>(stashItem: M1, stashAccountItem: M2, chosenAccountItem: M3, chainAsset: M4) -> Cuckoo.ProtocolStubFunction<(StashItem, fearless.ChainAccountResponse?, fearless.ChainAccountResponse?, ChainAsset), ControllerAccountViewModel> where M1.MatchedType == StashItem, M2.OptionalMatchedType == fearless.ChainAccountResponse, M3.OptionalMatchedType == fearless.ChainAccountResponse, M4.MatchedType == ChainAsset {
+            let matchers: [Cuckoo.ParameterMatcher<(StashItem, fearless.ChainAccountResponse?, fearless.ChainAccountResponse?, ChainAsset)>] = [wrap(matchable: stashItem) { $0.0 }, wrap(matchable: stashAccountItem) { $0.1 }, wrap(matchable: chosenAccountItem) { $0.2 }, wrap(matchable: chainAsset) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockControllerAccountViewModelFactoryProtocol.self, method:
     """
-    createViewModel(stashItem: StashItem, stashAccountItem: ChainAccountResponse?, chosenAccountItem: ChainAccountResponse?, chainAsset: ChainAsset) -> ControllerAccountViewModel
+    createViewModel(stashItem: StashItem, stashAccountItem: fearless.ChainAccountResponse?, chosenAccountItem: fearless.ChainAccountResponse?, chainAsset: ChainAsset) -> ControllerAccountViewModel
     """, parameterMatchers: matchers))
         }
         
@@ -30330,11 +30330,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func createViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.Matchable>(stashItem: M1, stashAccountItem: M2, chosenAccountItem: M3, chainAsset: M4) -> Cuckoo.__DoNotUse<(StashItem, ChainAccountResponse?, ChainAccountResponse?, ChainAsset), ControllerAccountViewModel> where M1.MatchedType == StashItem, M2.OptionalMatchedType == ChainAccountResponse, M3.OptionalMatchedType == ChainAccountResponse, M4.MatchedType == ChainAsset {
-            let matchers: [Cuckoo.ParameterMatcher<(StashItem, ChainAccountResponse?, ChainAccountResponse?, ChainAsset)>] = [wrap(matchable: stashItem) { $0.0 }, wrap(matchable: stashAccountItem) { $0.1 }, wrap(matchable: chosenAccountItem) { $0.2 }, wrap(matchable: chainAsset) { $0.3 }]
+        func createViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.Matchable>(stashItem: M1, stashAccountItem: M2, chosenAccountItem: M3, chainAsset: M4) -> Cuckoo.__DoNotUse<(StashItem, fearless.ChainAccountResponse?, fearless.ChainAccountResponse?, ChainAsset), ControllerAccountViewModel> where M1.MatchedType == StashItem, M2.OptionalMatchedType == fearless.ChainAccountResponse, M3.OptionalMatchedType == fearless.ChainAccountResponse, M4.MatchedType == ChainAsset {
+            let matchers: [Cuckoo.ParameterMatcher<(StashItem, fearless.ChainAccountResponse?, fearless.ChainAccountResponse?, ChainAsset)>] = [wrap(matchable: stashItem) { $0.0 }, wrap(matchable: stashAccountItem) { $0.1 }, wrap(matchable: chosenAccountItem) { $0.2 }, wrap(matchable: chainAsset) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    createViewModel(stashItem: StashItem, stashAccountItem: ChainAccountResponse?, chosenAccountItem: ChainAccountResponse?, chainAsset: ChainAsset) -> ControllerAccountViewModel
+    createViewModel(stashItem: StashItem, stashAccountItem: fearless.ChainAccountResponse?, chosenAccountItem: fearless.ChainAccountResponse?, chainAsset: ChainAsset) -> ControllerAccountViewModel
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -30352,7 +30352,7 @@ import SoraFoundation
     
     
     
-     func createViewModel(stashItem: StashItem, stashAccountItem: ChainAccountResponse?, chosenAccountItem: ChainAccountResponse?, chainAsset: ChainAsset) -> ControllerAccountViewModel  {
+     func createViewModel(stashItem: StashItem, stashAccountItem: fearless.ChainAccountResponse?, chosenAccountItem: fearless.ChainAccountResponse?, chainAsset: ChainAsset) -> ControllerAccountViewModel  {
         return DefaultValueRegistry.defaultValue(for: (ControllerAccountViewModel).self)
     }
     
@@ -30738,11 +30738,11 @@ import SoraFoundation
     
     
     
-     func estimateFee(for account: ChainAccountResponse)  {
+     func estimateFee(for account: fearless.ChainAccountResponse)  {
         
     return cuckoo_manager.call(
     """
-    estimateFee(for: ChainAccountResponse)
+    estimateFee(for: fearless.ChainAccountResponse)
     """,
             parameters: (account),
             escapingParameters: (account),
@@ -30817,11 +30817,11 @@ import SoraFoundation
         
         
         
-        func estimateFee<M1: Cuckoo.Matchable>(for account: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ChainAccountResponse)> where M1.MatchedType == ChainAccountResponse {
-            let matchers: [Cuckoo.ParameterMatcher<(ChainAccountResponse)>] = [wrap(matchable: account) { $0 }]
+        func estimateFee<M1: Cuckoo.Matchable>(for account: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(fearless.ChainAccountResponse)> where M1.MatchedType == fearless.ChainAccountResponse {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.ChainAccountResponse)>] = [wrap(matchable: account) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockControllerAccountInteractorInputProtocol.self, method:
     """
-    estimateFee(for: ChainAccountResponse)
+    estimateFee(for: fearless.ChainAccountResponse)
     """, parameterMatchers: matchers))
         }
         
@@ -30879,11 +30879,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func estimateFee<M1: Cuckoo.Matchable>(for account: M1) -> Cuckoo.__DoNotUse<(ChainAccountResponse), Void> where M1.MatchedType == ChainAccountResponse {
-            let matchers: [Cuckoo.ParameterMatcher<(ChainAccountResponse)>] = [wrap(matchable: account) { $0 }]
+        func estimateFee<M1: Cuckoo.Matchable>(for account: M1) -> Cuckoo.__DoNotUse<(fearless.ChainAccountResponse), Void> where M1.MatchedType == fearless.ChainAccountResponse {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.ChainAccountResponse)>] = [wrap(matchable: account) { $0 }]
             return cuckoo_manager.verify(
     """
-    estimateFee(for: ChainAccountResponse)
+    estimateFee(for: fearless.ChainAccountResponse)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -30933,7 +30933,7 @@ import SoraFoundation
     
     
     
-     func estimateFee(for account: ChainAccountResponse)   {
+     func estimateFee(for account: fearless.ChainAccountResponse)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -31011,11 +31011,11 @@ import SoraFoundation
     
     
     
-     func didReceiveStashAccount(result: Result<ChainAccountResponse?, Error>)  {
+     func didReceiveStashAccount(result: Result<fearless.ChainAccountResponse?, Error>)  {
         
     return cuckoo_manager.call(
     """
-    didReceiveStashAccount(result: Result<ChainAccountResponse?, Error>)
+    didReceiveStashAccount(result: Result<fearless.ChainAccountResponse?, Error>)
     """,
             parameters: (result),
             escapingParameters: (result),
@@ -31031,11 +31031,11 @@ import SoraFoundation
     
     
     
-     func didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>)  {
+     func didReceiveControllerAccount(result: Result<fearless.ChainAccountResponse?, Error>)  {
         
     return cuckoo_manager.call(
     """
-    didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>)
+    didReceiveControllerAccount(result: Result<fearless.ChainAccountResponse?, Error>)
     """,
             parameters: (result),
             escapingParameters: (result),
@@ -31051,11 +31051,11 @@ import SoraFoundation
     
     
     
-     func didReceiveAccounts(result: Result<[ChainAccountResponse], Error>)  {
+     func didReceiveAccounts(result: Result<[fearless.ChainAccountResponse], Error>)  {
         
     return cuckoo_manager.call(
     """
-    didReceiveAccounts(result: Result<[ChainAccountResponse], Error>)
+    didReceiveAccounts(result: Result<[fearless.ChainAccountResponse], Error>)
     """,
             parameters: (result),
             escapingParameters: (result),
@@ -31150,33 +31150,33 @@ import SoraFoundation
         
         
         
-        func didReceiveStashAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<ChainAccountResponse?, Error>)> where M1.MatchedType == Result<ChainAccountResponse?, Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveStashAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<fearless.ChainAccountResponse?, Error>)> where M1.MatchedType == Result<fearless.ChainAccountResponse?, Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<fearless.ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockControllerAccountInteractorOutputProtocol.self, method:
     """
-    didReceiveStashAccount(result: Result<ChainAccountResponse?, Error>)
+    didReceiveStashAccount(result: Result<fearless.ChainAccountResponse?, Error>)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func didReceiveControllerAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<ChainAccountResponse?, Error>)> where M1.MatchedType == Result<ChainAccountResponse?, Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveControllerAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<fearless.ChainAccountResponse?, Error>)> where M1.MatchedType == Result<fearless.ChainAccountResponse?, Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<fearless.ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockControllerAccountInteractorOutputProtocol.self, method:
     """
-    didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>)
+    didReceiveControllerAccount(result: Result<fearless.ChainAccountResponse?, Error>)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func didReceiveAccounts<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<[ChainAccountResponse], Error>)> where M1.MatchedType == Result<[ChainAccountResponse], Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<[ChainAccountResponse], Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveAccounts<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<[fearless.ChainAccountResponse], Error>)> where M1.MatchedType == Result<[fearless.ChainAccountResponse], Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<[fearless.ChainAccountResponse], Error>)>] = [wrap(matchable: result) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockControllerAccountInteractorOutputProtocol.self, method:
     """
-    didReceiveAccounts(result: Result<[ChainAccountResponse], Error>)
+    didReceiveAccounts(result: Result<[fearless.ChainAccountResponse], Error>)
     """, parameterMatchers: matchers))
         }
         
@@ -31245,11 +31245,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func didReceiveStashAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<ChainAccountResponse?, Error>), Void> where M1.MatchedType == Result<ChainAccountResponse?, Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveStashAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<fearless.ChainAccountResponse?, Error>), Void> where M1.MatchedType == Result<fearless.ChainAccountResponse?, Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<fearless.ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
             return cuckoo_manager.verify(
     """
-    didReceiveStashAccount(result: Result<ChainAccountResponse?, Error>)
+    didReceiveStashAccount(result: Result<fearless.ChainAccountResponse?, Error>)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -31257,11 +31257,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func didReceiveControllerAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<ChainAccountResponse?, Error>), Void> where M1.MatchedType == Result<ChainAccountResponse?, Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveControllerAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<fearless.ChainAccountResponse?, Error>), Void> where M1.MatchedType == Result<fearless.ChainAccountResponse?, Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<fearless.ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
             return cuckoo_manager.verify(
     """
-    didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>)
+    didReceiveControllerAccount(result: Result<fearless.ChainAccountResponse?, Error>)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -31269,11 +31269,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func didReceiveAccounts<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<[ChainAccountResponse], Error>), Void> where M1.MatchedType == Result<[ChainAccountResponse], Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<[ChainAccountResponse], Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveAccounts<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<[fearless.ChainAccountResponse], Error>), Void> where M1.MatchedType == Result<[fearless.ChainAccountResponse], Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<[fearless.ChainAccountResponse], Error>)>] = [wrap(matchable: result) { $0 }]
             return cuckoo_manager.verify(
     """
-    didReceiveAccounts(result: Result<[ChainAccountResponse], Error>)
+    didReceiveAccounts(result: Result<[fearless.ChainAccountResponse], Error>)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -31335,7 +31335,7 @@ import SoraFoundation
     
     
     
-     func didReceiveStashAccount(result: Result<ChainAccountResponse?, Error>)   {
+     func didReceiveStashAccount(result: Result<fearless.ChainAccountResponse?, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -31343,7 +31343,7 @@ import SoraFoundation
     
     
     
-     func didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>)   {
+     func didReceiveControllerAccount(result: Result<fearless.ChainAccountResponse?, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -31351,7 +31351,7 @@ import SoraFoundation
     
     
     
-     func didReceiveAccounts(result: Result<[ChainAccountResponse], Error>)   {
+     func didReceiveAccounts(result: Result<[fearless.ChainAccountResponse], Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -31417,11 +31417,11 @@ import SoraFoundation
     
     
     
-     func showConfirmation(from view: ControllerBackedProtocol?, controllerAccountItem: ChainAccountResponse, asset: AssetModel, chain: ChainModel, selectedAccount: MetaAccountModel)  {
+     func showConfirmation(from view: ControllerBackedProtocol?, controllerAccountItem: fearless.ChainAccountResponse, asset: AssetModel, chain: ChainModel, selectedAccount: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    showConfirmation(from: ControllerBackedProtocol?, controllerAccountItem: ChainAccountResponse, asset: AssetModel, chain: ChainModel, selectedAccount: MetaAccountModel)
+    showConfirmation(from: ControllerBackedProtocol?, controllerAccountItem: fearless.ChainAccountResponse, asset: AssetModel, chain: ChainModel, selectedAccount: fearless.MetaAccountModel)
     """,
             parameters: (view, controllerAccountItem, asset, chain, selectedAccount),
             escapingParameters: (view, controllerAccountItem, asset, chain, selectedAccount),
@@ -31477,11 +31477,11 @@ import SoraFoundation
     
     
     
-     func presentAccountSelection(_ accounts: [ChainAccountResponse], selectedAccountItem: ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from view: ControllerBackedProtocol?, context: AnyObject?)  {
+     func presentAccountSelection(_ accounts: [fearless.ChainAccountResponse], selectedAccountItem: fearless.ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from view: ControllerBackedProtocol?, context: AnyObject?)  {
         
     return cuckoo_manager.call(
     """
-    presentAccountSelection(_: [ChainAccountResponse], selectedAccountItem: ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from: ControllerBackedProtocol?, context: AnyObject?)
+    presentAccountSelection(_: [fearless.ChainAccountResponse], selectedAccountItem: fearless.ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from: ControllerBackedProtocol?, context: AnyObject?)
     """,
             parameters: (accounts, selectedAccountItem, title, delegate, view, context),
             escapingParameters: (accounts, selectedAccountItem, title, delegate, view, context),
@@ -31565,11 +31565,11 @@ import SoraFoundation
         
         
         
-        func showConfirmation<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, controllerAccountItem: M2, asset: M3, chain: M4, selectedAccount: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAccountResponse, AssetModel, ChainModel, MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAccountResponse, M3.MatchedType == AssetModel, M4.MatchedType == ChainModel, M5.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAccountResponse, AssetModel, ChainModel, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: controllerAccountItem) { $0.1 }, wrap(matchable: asset) { $0.2 }, wrap(matchable: chain) { $0.3 }, wrap(matchable: selectedAccount) { $0.4 }]
+        func showConfirmation<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, controllerAccountItem: M2, asset: M3, chain: M4, selectedAccount: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, fearless.fearless.ChainAccountResponse, AssetModel, ChainModel, fearless.fearless.MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == fearless.fearless.ChainAccountResponse, M3.MatchedType == AssetModel, M4.MatchedType == ChainModel, M5.MatchedType == fearless.fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, fearless.fearless.ChainAccountResponse, AssetModel, ChainModel, fearless.fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: controllerAccountItem) { $0.1 }, wrap(matchable: asset) { $0.2 }, wrap(matchable: chain) { $0.3 }, wrap(matchable: selectedAccount) { $0.4 }]
             return .init(stub: cuckoo_manager.createStub(for: MockControllerAccountWireframeProtocol.self, method:
     """
-    showConfirmation(from: ControllerBackedProtocol?, controllerAccountItem: ChainAccountResponse, asset: AssetModel, chain: ChainModel, selectedAccount: MetaAccountModel)
+    showConfirmation(from: ControllerBackedProtocol?, controllerAccountItem: fearless.fearless.ChainAccountResponse, asset: AssetModel, chain: ChainModel, selectedAccount: fearless.fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
@@ -31598,11 +31598,11 @@ import SoraFoundation
         
         
         
-        func presentAccountSelection<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.OptionalMatchable, M6: Cuckoo.OptionalMatchable>(_ accounts: M1, selectedAccountItem: M2, title: M3, delegate: M4, from view: M5, context: M6) -> Cuckoo.ProtocolStubNoReturnFunction<([ChainAccountResponse], ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)> where M1.MatchedType == [ChainAccountResponse], M2.OptionalMatchedType == ChainAccountResponse, M3.MatchedType == LocalizableResource<String>, M4.MatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == ControllerBackedProtocol, M6.OptionalMatchedType == AnyObject {
-            let matchers: [Cuckoo.ParameterMatcher<([ChainAccountResponse], ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)>] = [wrap(matchable: accounts) { $0.0 }, wrap(matchable: selectedAccountItem) { $0.1 }, wrap(matchable: title) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: view) { $0.4 }, wrap(matchable: context) { $0.5 }]
+        func presentAccountSelection<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.OptionalMatchable, M6: Cuckoo.OptionalMatchable>(_ accounts: M1, selectedAccountItem: M2, title: M3, delegate: M4, from view: M5, context: M6) -> Cuckoo.ProtocolStubNoReturnFunction<([fearless.ChainAccountResponse], fearless.ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)> where M1.MatchedType == [fearless.ChainAccountResponse], M2.OptionalMatchedType == fearless.ChainAccountResponse, M3.MatchedType == LocalizableResource<String>, M4.MatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == ControllerBackedProtocol, M6.OptionalMatchedType == AnyObject {
+            let matchers: [Cuckoo.ParameterMatcher<([fearless.ChainAccountResponse], fearless.ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)>] = [wrap(matchable: accounts) { $0.0 }, wrap(matchable: selectedAccountItem) { $0.1 }, wrap(matchable: title) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: view) { $0.4 }, wrap(matchable: context) { $0.5 }]
             return .init(stub: cuckoo_manager.createStub(for: MockControllerAccountWireframeProtocol.self, method:
     """
-    presentAccountSelection(_: [ChainAccountResponse], selectedAccountItem: ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from: ControllerBackedProtocol?, context: AnyObject?)
+    presentAccountSelection(_: [fearless.ChainAccountResponse], selectedAccountItem: fearless.ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from: ControllerBackedProtocol?, context: AnyObject?)
     """, parameterMatchers: matchers))
         }
         
@@ -31659,11 +31659,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showConfirmation<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, controllerAccountItem: M2, asset: M3, chain: M4, selectedAccount: M5) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAccountResponse, AssetModel, ChainModel, MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAccountResponse, M3.MatchedType == AssetModel, M4.MatchedType == ChainModel, M5.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAccountResponse, AssetModel, ChainModel, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: controllerAccountItem) { $0.1 }, wrap(matchable: asset) { $0.2 }, wrap(matchable: chain) { $0.3 }, wrap(matchable: selectedAccount) { $0.4 }]
+        func showConfirmation<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, controllerAccountItem: M2, asset: M3, chain: M4, selectedAccount: M5) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, fearless.ChainAccountResponse, AssetModel, ChainModel, fearless.MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == fearless.ChainAccountResponse, M3.MatchedType == AssetModel, M4.MatchedType == ChainModel, M5.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, fearless.ChainAccountResponse, AssetModel, ChainModel, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: controllerAccountItem) { $0.1 }, wrap(matchable: asset) { $0.2 }, wrap(matchable: chain) { $0.3 }, wrap(matchable: selectedAccount) { $0.4 }]
             return cuckoo_manager.verify(
     """
-    showConfirmation(from: ControllerBackedProtocol?, controllerAccountItem: ChainAccountResponse, asset: AssetModel, chain: ChainModel, selectedAccount: MetaAccountModel)
+    showConfirmation(from: ControllerBackedProtocol?, controllerAccountItem: fearless.ChainAccountResponse, asset: AssetModel, chain: ChainModel, selectedAccount: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -31695,11 +31695,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func presentAccountSelection<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.OptionalMatchable, M6: Cuckoo.OptionalMatchable>(_ accounts: M1, selectedAccountItem: M2, title: M3, delegate: M4, from view: M5, context: M6) -> Cuckoo.__DoNotUse<([ChainAccountResponse], ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?), Void> where M1.MatchedType == [ChainAccountResponse], M2.OptionalMatchedType == ChainAccountResponse, M3.MatchedType == LocalizableResource<String>, M4.MatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == ControllerBackedProtocol, M6.OptionalMatchedType == AnyObject {
-            let matchers: [Cuckoo.ParameterMatcher<([ChainAccountResponse], ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)>] = [wrap(matchable: accounts) { $0.0 }, wrap(matchable: selectedAccountItem) { $0.1 }, wrap(matchable: title) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: view) { $0.4 }, wrap(matchable: context) { $0.5 }]
+        func presentAccountSelection<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.OptionalMatchable, M6: Cuckoo.OptionalMatchable>(_ accounts: M1, selectedAccountItem: M2, title: M3, delegate: M4, from view: M5, context: M6) -> Cuckoo.__DoNotUse<([fearless.ChainAccountResponse], fearless.ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?), Void> where M1.MatchedType == [fearless.ChainAccountResponse], M2.OptionalMatchedType == fearless.ChainAccountResponse, M3.MatchedType == LocalizableResource<String>, M4.MatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == ControllerBackedProtocol, M6.OptionalMatchedType == AnyObject {
+            let matchers: [Cuckoo.ParameterMatcher<([fearless.ChainAccountResponse], fearless.ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)>] = [wrap(matchable: accounts) { $0.0 }, wrap(matchable: selectedAccountItem) { $0.1 }, wrap(matchable: title) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: view) { $0.4 }, wrap(matchable: context) { $0.5 }]
             return cuckoo_manager.verify(
     """
-    presentAccountSelection(_: [ChainAccountResponse], selectedAccountItem: ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from: ControllerBackedProtocol?, context: AnyObject?)
+    presentAccountSelection(_: [fearless.ChainAccountResponse], selectedAccountItem: fearless.ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from: ControllerBackedProtocol?, context: AnyObject?)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -31753,7 +31753,7 @@ import SoraFoundation
     
     
     
-     func showConfirmation(from view: ControllerBackedProtocol?, controllerAccountItem: ChainAccountResponse, asset: AssetModel, chain: ChainModel, selectedAccount: MetaAccountModel)   {
+     func showConfirmation(from view: ControllerBackedProtocol?, controllerAccountItem: fearless.ChainAccountResponse, asset: AssetModel, chain: ChainModel, selectedAccount: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -31777,7 +31777,7 @@ import SoraFoundation
     
     
     
-     func presentAccountSelection(_ accounts: [ChainAccountResponse], selectedAccountItem: ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from view: ControllerBackedProtocol?, context: AnyObject?)   {
+     func presentAccountSelection(_ accounts: [fearless.ChainAccountResponse], selectedAccountItem: fearless.ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from view: ControllerBackedProtocol?, context: AnyObject?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -33421,11 +33421,11 @@ import SoraFoundation
     
     
     
-     func present(chainAsset: ChainAsset, wallet: MetaAccountModel, flow: ValidatorInfoFlow, from view: ControllerBackedProtocol?)  {
+     func present(chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: ValidatorInfoFlow, from view: ControllerBackedProtocol?)  {
         
     return cuckoo_manager.call(
     """
-    present(chainAsset: ChainAsset, wallet: MetaAccountModel, flow: ValidatorInfoFlow, from: ControllerBackedProtocol?)
+    present(chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: ValidatorInfoFlow, from: ControllerBackedProtocol?)
     """,
             parameters: (chainAsset, wallet, flow, view),
             escapingParameters: (chainAsset, wallet, flow, view),
@@ -33461,11 +33461,11 @@ import SoraFoundation
     
     
     
-     func presentSearch(from view: ControllerBackedProtocol?, flow: ValidatorSearchFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)  {
+     func presentSearch(from view: ControllerBackedProtocol?, flow: ValidatorSearchFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    presentSearch(from: ControllerBackedProtocol?, flow: ValidatorSearchFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    presentSearch(from: ControllerBackedProtocol?, flow: ValidatorSearchFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """,
             parameters: (view, flow, chainAsset, wallet),
             escapingParameters: (view, flow, chainAsset, wallet),
@@ -33481,11 +33481,11 @@ import SoraFoundation
     
     
     
-     func proceed(from view: ControllerBackedProtocol?, flow: SelectedValidatorListFlow, delegate: SelectedValidatorListDelegate, chainAsset: ChainAsset, wallet: MetaAccountModel)  {
+     func proceed(from view: ControllerBackedProtocol?, flow: SelectedValidatorListFlow, delegate: SelectedValidatorListDelegate, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    proceed(from: ControllerBackedProtocol?, flow: SelectedValidatorListFlow, delegate: SelectedValidatorListDelegate, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    proceed(from: ControllerBackedProtocol?, flow: SelectedValidatorListFlow, delegate: SelectedValidatorListDelegate, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """,
             parameters: (view, flow, delegate, chainAsset, wallet),
             escapingParameters: (view, flow, delegate, chainAsset, wallet),
@@ -33501,11 +33501,11 @@ import SoraFoundation
     
     
     
-     func confirm(from view: ControllerBackedProtocol?, flow: SelectValidatorsConfirmFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)  {
+     func confirm(from view: ControllerBackedProtocol?, flow: SelectValidatorsConfirmFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    confirm(from: ControllerBackedProtocol?, flow: SelectValidatorsConfirmFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    confirm(from: ControllerBackedProtocol?, flow: SelectValidatorsConfirmFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """,
             parameters: (view, flow, chainAsset, wallet),
             escapingParameters: (view, flow, chainAsset, wallet),
@@ -33589,11 +33589,11 @@ import SoraFoundation
         
         
         
-        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(chainAsset: M1, wallet: M2, flow: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ChainAsset, MetaAccountModel, ValidatorInfoFlow, ControllerBackedProtocol?)> where M1.MatchedType == ChainAsset, M2.MatchedType == MetaAccountModel, M3.MatchedType == ValidatorInfoFlow, M4.OptionalMatchedType == ControllerBackedProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(ChainAsset, MetaAccountModel, ValidatorInfoFlow, ControllerBackedProtocol?)>] = [wrap(matchable: chainAsset) { $0.0 }, wrap(matchable: wallet) { $0.1 }, wrap(matchable: flow) { $0.2 }, wrap(matchable: view) { $0.3 }]
+        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(chainAsset: M1, wallet: M2, flow: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ChainAsset, fearless.MetaAccountModel, ValidatorInfoFlow, ControllerBackedProtocol?)> where M1.MatchedType == ChainAsset, M2.MatchedType == fearless.MetaAccountModel, M3.MatchedType == ValidatorInfoFlow, M4.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainAsset, fearless.MetaAccountModel, ValidatorInfoFlow, ControllerBackedProtocol?)>] = [wrap(matchable: chainAsset) { $0.0 }, wrap(matchable: wallet) { $0.1 }, wrap(matchable: flow) { $0.2 }, wrap(matchable: view) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockCustomValidatorListWireframeProtocol.self, method:
     """
-    present(chainAsset: ChainAsset, wallet: MetaAccountModel, flow: ValidatorInfoFlow, from: ControllerBackedProtocol?)
+    present(chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: ValidatorInfoFlow, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -33611,33 +33611,33 @@ import SoraFoundation
         
         
         
-        func presentSearch<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ValidatorSearchFlow, ChainAsset, MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ValidatorSearchFlow, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ValidatorSearchFlow, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
+        func presentSearch<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ValidatorSearchFlow, ChainAsset, fearless.MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ValidatorSearchFlow, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ValidatorSearchFlow, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockCustomValidatorListWireframeProtocol.self, method:
     """
-    presentSearch(from: ControllerBackedProtocol?, flow: ValidatorSearchFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    presentSearch(from: ControllerBackedProtocol?, flow: ValidatorSearchFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, flow: M2, delegate: M3, chainAsset: M4, wallet: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, SelectedValidatorListFlow, SelectedValidatorListDelegate, ChainAsset, MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == SelectedValidatorListFlow, M3.MatchedType == SelectedValidatorListDelegate, M4.MatchedType == ChainAsset, M5.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, SelectedValidatorListFlow, SelectedValidatorListDelegate, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: delegate) { $0.2 }, wrap(matchable: chainAsset) { $0.3 }, wrap(matchable: wallet) { $0.4 }]
+        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, flow: M2, delegate: M3, chainAsset: M4, wallet: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, SelectedValidatorListFlow, SelectedValidatorListDelegate, ChainAsset, fearless.MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == SelectedValidatorListFlow, M3.MatchedType == SelectedValidatorListDelegate, M4.MatchedType == ChainAsset, M5.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, SelectedValidatorListFlow, SelectedValidatorListDelegate, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: delegate) { $0.2 }, wrap(matchable: chainAsset) { $0.3 }, wrap(matchable: wallet) { $0.4 }]
             return .init(stub: cuckoo_manager.createStub(for: MockCustomValidatorListWireframeProtocol.self, method:
     """
-    proceed(from: ControllerBackedProtocol?, flow: SelectedValidatorListFlow, delegate: SelectedValidatorListDelegate, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    proceed(from: ControllerBackedProtocol?, flow: SelectedValidatorListFlow, delegate: SelectedValidatorListDelegate, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func confirm<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, SelectValidatorsConfirmFlow, ChainAsset, MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == SelectValidatorsConfirmFlow, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, SelectValidatorsConfirmFlow, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
+        func confirm<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, SelectValidatorsConfirmFlow, ChainAsset, fearless.MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == SelectValidatorsConfirmFlow, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, SelectValidatorsConfirmFlow, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockCustomValidatorListWireframeProtocol.self, method:
     """
-    confirm(from: ControllerBackedProtocol?, flow: SelectValidatorsConfirmFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    confirm(from: ControllerBackedProtocol?, flow: SelectValidatorsConfirmFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
@@ -33694,11 +33694,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(chainAsset: M1, wallet: M2, flow: M3, from view: M4) -> Cuckoo.__DoNotUse<(ChainAsset, MetaAccountModel, ValidatorInfoFlow, ControllerBackedProtocol?), Void> where M1.MatchedType == ChainAsset, M2.MatchedType == MetaAccountModel, M3.MatchedType == ValidatorInfoFlow, M4.OptionalMatchedType == ControllerBackedProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(ChainAsset, MetaAccountModel, ValidatorInfoFlow, ControllerBackedProtocol?)>] = [wrap(matchable: chainAsset) { $0.0 }, wrap(matchable: wallet) { $0.1 }, wrap(matchable: flow) { $0.2 }, wrap(matchable: view) { $0.3 }]
+        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(chainAsset: M1, wallet: M2, flow: M3, from view: M4) -> Cuckoo.__DoNotUse<(ChainAsset, fearless.MetaAccountModel, ValidatorInfoFlow, ControllerBackedProtocol?), Void> where M1.MatchedType == ChainAsset, M2.MatchedType == fearless.MetaAccountModel, M3.MatchedType == ValidatorInfoFlow, M4.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainAsset, fearless.MetaAccountModel, ValidatorInfoFlow, ControllerBackedProtocol?)>] = [wrap(matchable: chainAsset) { $0.0 }, wrap(matchable: wallet) { $0.1 }, wrap(matchable: flow) { $0.2 }, wrap(matchable: view) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    present(chainAsset: ChainAsset, wallet: MetaAccountModel, flow: ValidatorInfoFlow, from: ControllerBackedProtocol?)
+    present(chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: ValidatorInfoFlow, from: ControllerBackedProtocol?)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -33718,11 +33718,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func presentSearch<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ValidatorSearchFlow, ChainAsset, MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ValidatorSearchFlow, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ValidatorSearchFlow, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
+        func presentSearch<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ValidatorSearchFlow, ChainAsset, fearless.MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ValidatorSearchFlow, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ValidatorSearchFlow, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    presentSearch(from: ControllerBackedProtocol?, flow: ValidatorSearchFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    presentSearch(from: ControllerBackedProtocol?, flow: ValidatorSearchFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -33730,11 +33730,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, flow: M2, delegate: M3, chainAsset: M4, wallet: M5) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, SelectedValidatorListFlow, SelectedValidatorListDelegate, ChainAsset, MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == SelectedValidatorListFlow, M3.MatchedType == SelectedValidatorListDelegate, M4.MatchedType == ChainAsset, M5.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, SelectedValidatorListFlow, SelectedValidatorListDelegate, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: delegate) { $0.2 }, wrap(matchable: chainAsset) { $0.3 }, wrap(matchable: wallet) { $0.4 }]
+        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, flow: M2, delegate: M3, chainAsset: M4, wallet: M5) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, SelectedValidatorListFlow, SelectedValidatorListDelegate, ChainAsset, fearless.MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == SelectedValidatorListFlow, M3.MatchedType == SelectedValidatorListDelegate, M4.MatchedType == ChainAsset, M5.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, SelectedValidatorListFlow, SelectedValidatorListDelegate, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: delegate) { $0.2 }, wrap(matchable: chainAsset) { $0.3 }, wrap(matchable: wallet) { $0.4 }]
             return cuckoo_manager.verify(
     """
-    proceed(from: ControllerBackedProtocol?, flow: SelectedValidatorListFlow, delegate: SelectedValidatorListDelegate, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    proceed(from: ControllerBackedProtocol?, flow: SelectedValidatorListFlow, delegate: SelectedValidatorListDelegate, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -33742,11 +33742,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func confirm<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, SelectValidatorsConfirmFlow, ChainAsset, MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == SelectValidatorsConfirmFlow, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, SelectValidatorsConfirmFlow, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
+        func confirm<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, SelectValidatorsConfirmFlow, ChainAsset, fearless.MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == SelectValidatorsConfirmFlow, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, SelectValidatorsConfirmFlow, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    confirm(from: ControllerBackedProtocol?, flow: SelectValidatorsConfirmFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    confirm(from: ControllerBackedProtocol?, flow: SelectValidatorsConfirmFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -33800,7 +33800,7 @@ import SoraFoundation
     
     
     
-     func present(chainAsset: ChainAsset, wallet: MetaAccountModel, flow: ValidatorInfoFlow, from view: ControllerBackedProtocol?)   {
+     func present(chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: ValidatorInfoFlow, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -33816,7 +33816,7 @@ import SoraFoundation
     
     
     
-     func presentSearch(from view: ControllerBackedProtocol?, flow: ValidatorSearchFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)   {
+     func presentSearch(from view: ControllerBackedProtocol?, flow: ValidatorSearchFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -33824,7 +33824,7 @@ import SoraFoundation
     
     
     
-     func proceed(from view: ControllerBackedProtocol?, flow: SelectedValidatorListFlow, delegate: SelectedValidatorListDelegate, chainAsset: ChainAsset, wallet: MetaAccountModel)   {
+     func proceed(from view: ControllerBackedProtocol?, flow: SelectedValidatorListFlow, delegate: SelectedValidatorListDelegate, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -33832,7 +33832,7 @@ import SoraFoundation
     
     
     
-     func confirm(from view: ControllerBackedProtocol?, flow: SelectValidatorsConfirmFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)   {
+     func confirm(from view: ControllerBackedProtocol?, flow: SelectValidatorsConfirmFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -34483,11 +34483,11 @@ import SoraFoundation
     
     
     
-     func present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from view: RecommendedValidatorListViewProtocol?)  {
+     func present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from view: RecommendedValidatorListViewProtocol?)  {
         
     return cuckoo_manager.call(
     """
-    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from: RecommendedValidatorListViewProtocol?)
+    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from: RecommendedValidatorListViewProtocol?)
     """,
             parameters: (flow, chainAsset, wallet, view),
             escapingParameters: (flow, chainAsset, wallet, view),
@@ -34503,11 +34503,11 @@ import SoraFoundation
     
     
     
-     func proceed(from parameter0: RecommendedValidatorListViewProtocol?, flow parameter1: SelectValidatorsConfirmFlow, wallet parameter2: MetaAccountModel, chainAsset parameter3: ChainAsset)  {
+     func proceed(from parameter0: RecommendedValidatorListViewProtocol?, flow parameter1: SelectValidatorsConfirmFlow, wallet parameter2: fearless.MetaAccountModel, chainAsset parameter3: ChainAsset)  {
         
     return cuckoo_manager.call(
     """
-    proceed(from: RecommendedValidatorListViewProtocol?, flow: SelectValidatorsConfirmFlow, wallet: MetaAccountModel, chainAsset: ChainAsset)
+    proceed(from: RecommendedValidatorListViewProtocol?, flow: SelectValidatorsConfirmFlow, wallet: fearless.MetaAccountModel, chainAsset: ChainAsset)
     """,
             parameters: (parameter0, parameter1, parameter2, parameter3),
             escapingParameters: (parameter0, parameter1, parameter2, parameter3),
@@ -34531,22 +34531,22 @@ import SoraFoundation
         
         
         
-        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(flow: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ValidatorInfoFlow, ChainAsset, MetaAccountModel, RecommendedValidatorListViewProtocol?)> where M1.MatchedType == ValidatorInfoFlow, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.OptionalMatchedType == RecommendedValidatorListViewProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoFlow, ChainAsset, MetaAccountModel, RecommendedValidatorListViewProtocol?)>] = [wrap(matchable: flow) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
+        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(flow: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ValidatorInfoFlow, ChainAsset, fearless.MetaAccountModel, RecommendedValidatorListViewProtocol?)> where M1.MatchedType == ValidatorInfoFlow, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.OptionalMatchedType == RecommendedValidatorListViewProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoFlow, ChainAsset, fearless.MetaAccountModel, RecommendedValidatorListViewProtocol?)>] = [wrap(matchable: flow) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRecommendedValidatorListWireframeProtocol.self, method:
     """
-    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from: RecommendedValidatorListViewProtocol?)
+    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from: RecommendedValidatorListViewProtocol?)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from parameter0: M1, flow parameter1: M2, wallet parameter2: M3, chainAsset parameter3: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(RecommendedValidatorListViewProtocol?, SelectValidatorsConfirmFlow, MetaAccountModel, ChainAsset)> where M1.OptionalMatchedType == RecommendedValidatorListViewProtocol, M2.MatchedType == SelectValidatorsConfirmFlow, M3.MatchedType == MetaAccountModel, M4.MatchedType == ChainAsset {
-            let matchers: [Cuckoo.ParameterMatcher<(RecommendedValidatorListViewProtocol?, SelectValidatorsConfirmFlow, MetaAccountModel, ChainAsset)>] = [wrap(matchable: parameter0) { $0.0 }, wrap(matchable: parameter1) { $0.1 }, wrap(matchable: parameter2) { $0.2 }, wrap(matchable: parameter3) { $0.3 }]
+        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from parameter0: M1, flow parameter1: M2, wallet parameter2: M3, chainAsset parameter3: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(RecommendedValidatorListViewProtocol?, SelectValidatorsConfirmFlow, fearless.MetaAccountModel, ChainAsset)> where M1.OptionalMatchedType == RecommendedValidatorListViewProtocol, M2.MatchedType == SelectValidatorsConfirmFlow, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == ChainAsset {
+            let matchers: [Cuckoo.ParameterMatcher<(RecommendedValidatorListViewProtocol?, SelectValidatorsConfirmFlow, fearless.MetaAccountModel, ChainAsset)>] = [wrap(matchable: parameter0) { $0.0 }, wrap(matchable: parameter1) { $0.1 }, wrap(matchable: parameter2) { $0.2 }, wrap(matchable: parameter3) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRecommendedValidatorListWireframeProtocol.self, method:
     """
-    proceed(from: RecommendedValidatorListViewProtocol?, flow: SelectValidatorsConfirmFlow, wallet: MetaAccountModel, chainAsset: ChainAsset)
+    proceed(from: RecommendedValidatorListViewProtocol?, flow: SelectValidatorsConfirmFlow, wallet: fearless.MetaAccountModel, chainAsset: ChainAsset)
     """, parameterMatchers: matchers))
         }
         
@@ -34570,11 +34570,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(flow: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.__DoNotUse<(ValidatorInfoFlow, ChainAsset, MetaAccountModel, RecommendedValidatorListViewProtocol?), Void> where M1.MatchedType == ValidatorInfoFlow, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.OptionalMatchedType == RecommendedValidatorListViewProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoFlow, ChainAsset, MetaAccountModel, RecommendedValidatorListViewProtocol?)>] = [wrap(matchable: flow) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
+        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(flow: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.__DoNotUse<(ValidatorInfoFlow, ChainAsset, fearless.MetaAccountModel, RecommendedValidatorListViewProtocol?), Void> where M1.MatchedType == ValidatorInfoFlow, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.OptionalMatchedType == RecommendedValidatorListViewProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoFlow, ChainAsset, fearless.MetaAccountModel, RecommendedValidatorListViewProtocol?)>] = [wrap(matchable: flow) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from: RecommendedValidatorListViewProtocol?)
+    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from: RecommendedValidatorListViewProtocol?)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -34582,11 +34582,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from parameter0: M1, flow parameter1: M2, wallet parameter2: M3, chainAsset parameter3: M4) -> Cuckoo.__DoNotUse<(RecommendedValidatorListViewProtocol?, SelectValidatorsConfirmFlow, MetaAccountModel, ChainAsset), Void> where M1.OptionalMatchedType == RecommendedValidatorListViewProtocol, M2.MatchedType == SelectValidatorsConfirmFlow, M3.MatchedType == MetaAccountModel, M4.MatchedType == ChainAsset {
-            let matchers: [Cuckoo.ParameterMatcher<(RecommendedValidatorListViewProtocol?, SelectValidatorsConfirmFlow, MetaAccountModel, ChainAsset)>] = [wrap(matchable: parameter0) { $0.0 }, wrap(matchable: parameter1) { $0.1 }, wrap(matchable: parameter2) { $0.2 }, wrap(matchable: parameter3) { $0.3 }]
+        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from parameter0: M1, flow parameter1: M2, wallet parameter2: M3, chainAsset parameter3: M4) -> Cuckoo.__DoNotUse<(RecommendedValidatorListViewProtocol?, SelectValidatorsConfirmFlow, fearless.MetaAccountModel, ChainAsset), Void> where M1.OptionalMatchedType == RecommendedValidatorListViewProtocol, M2.MatchedType == SelectValidatorsConfirmFlow, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == ChainAsset {
+            let matchers: [Cuckoo.ParameterMatcher<(RecommendedValidatorListViewProtocol?, SelectValidatorsConfirmFlow, fearless.MetaAccountModel, ChainAsset)>] = [wrap(matchable: parameter0) { $0.0 }, wrap(matchable: parameter1) { $0.1 }, wrap(matchable: parameter2) { $0.2 }, wrap(matchable: parameter3) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    proceed(from: RecommendedValidatorListViewProtocol?, flow: SelectValidatorsConfirmFlow, wallet: MetaAccountModel, chainAsset: ChainAsset)
+    proceed(from: RecommendedValidatorListViewProtocol?, flow: SelectValidatorsConfirmFlow, wallet: fearless.MetaAccountModel, chainAsset: ChainAsset)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -34604,7 +34604,7 @@ import SoraFoundation
     
     
     
-     func present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from view: RecommendedValidatorListViewProtocol?)   {
+     func present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from view: RecommendedValidatorListViewProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -34612,7 +34612,7 @@ import SoraFoundation
     
     
     
-     func proceed(from parameter0: RecommendedValidatorListViewProtocol?, flow parameter1: SelectValidatorsConfirmFlow, wallet parameter2: MetaAccountModel, chainAsset parameter3: ChainAsset)   {
+     func proceed(from parameter0: RecommendedValidatorListViewProtocol?, flow parameter1: SelectValidatorsConfirmFlow, wallet parameter2: fearless.MetaAccountModel, chainAsset parameter3: ChainAsset)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -37254,11 +37254,11 @@ import SoraFoundation
     
     
     
-     func proceedToCustomList(from view: ControllerBackedProtocol?, flow: CustomValidatorListFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)  {
+     func proceedToCustomList(from view: ControllerBackedProtocol?, flow: CustomValidatorListFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    proceedToCustomList(from: ControllerBackedProtocol?, flow: CustomValidatorListFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    proceedToCustomList(from: ControllerBackedProtocol?, flow: CustomValidatorListFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """,
             parameters: (view, flow, chainAsset, wallet),
             escapingParameters: (view, flow, chainAsset, wallet),
@@ -37274,11 +37274,11 @@ import SoraFoundation
     
     
     
-     func proceedToRecommendedList(from view: SelectValidatorsStartViewProtocol?, flow: RecommendedValidatorListFlow, wallet: MetaAccountModel, chainAsset: ChainAsset)  {
+     func proceedToRecommendedList(from view: SelectValidatorsStartViewProtocol?, flow: RecommendedValidatorListFlow, wallet: fearless.MetaAccountModel, chainAsset: ChainAsset)  {
         
     return cuckoo_manager.call(
     """
-    proceedToRecommendedList(from: SelectValidatorsStartViewProtocol?, flow: RecommendedValidatorListFlow, wallet: MetaAccountModel, chainAsset: ChainAsset)
+    proceedToRecommendedList(from: SelectValidatorsStartViewProtocol?, flow: RecommendedValidatorListFlow, wallet: fearless.MetaAccountModel, chainAsset: ChainAsset)
     """,
             parameters: (view, flow, wallet, chainAsset),
             escapingParameters: (view, flow, wallet, chainAsset),
@@ -37362,22 +37362,22 @@ import SoraFoundation
         
         
         
-        func proceedToCustomList<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, CustomValidatorListFlow, ChainAsset, MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == CustomValidatorListFlow, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, CustomValidatorListFlow, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
+        func proceedToCustomList<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, CustomValidatorListFlow, ChainAsset, fearless.MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == CustomValidatorListFlow, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, CustomValidatorListFlow, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsStartWireframeProtocol.self, method:
     """
-    proceedToCustomList(from: ControllerBackedProtocol?, flow: CustomValidatorListFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    proceedToCustomList(from: ControllerBackedProtocol?, flow: CustomValidatorListFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func proceedToRecommendedList<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, wallet: M3, chainAsset: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(SelectValidatorsStartViewProtocol?, RecommendedValidatorListFlow, MetaAccountModel, ChainAsset)> where M1.OptionalMatchedType == SelectValidatorsStartViewProtocol, M2.MatchedType == RecommendedValidatorListFlow, M3.MatchedType == MetaAccountModel, M4.MatchedType == ChainAsset {
-            let matchers: [Cuckoo.ParameterMatcher<(SelectValidatorsStartViewProtocol?, RecommendedValidatorListFlow, MetaAccountModel, ChainAsset)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: chainAsset) { $0.3 }]
+        func proceedToRecommendedList<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, wallet: M3, chainAsset: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(SelectValidatorsStartViewProtocol?, RecommendedValidatorListFlow, fearless.MetaAccountModel, ChainAsset)> where M1.OptionalMatchedType == SelectValidatorsStartViewProtocol, M2.MatchedType == RecommendedValidatorListFlow, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == ChainAsset {
+            let matchers: [Cuckoo.ParameterMatcher<(SelectValidatorsStartViewProtocol?, RecommendedValidatorListFlow, fearless.MetaAccountModel, ChainAsset)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: chainAsset) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsStartWireframeProtocol.self, method:
     """
-    proceedToRecommendedList(from: SelectValidatorsStartViewProtocol?, flow: RecommendedValidatorListFlow, wallet: MetaAccountModel, chainAsset: ChainAsset)
+    proceedToRecommendedList(from: SelectValidatorsStartViewProtocol?, flow: RecommendedValidatorListFlow, wallet: fearless.MetaAccountModel, chainAsset: ChainAsset)
     """, parameterMatchers: matchers))
         }
         
@@ -37434,11 +37434,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func proceedToCustomList<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, CustomValidatorListFlow, ChainAsset, MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == CustomValidatorListFlow, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, CustomValidatorListFlow, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
+        func proceedToCustomList<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, CustomValidatorListFlow, ChainAsset, fearless.MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == CustomValidatorListFlow, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, CustomValidatorListFlow, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    proceedToCustomList(from: ControllerBackedProtocol?, flow: CustomValidatorListFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    proceedToCustomList(from: ControllerBackedProtocol?, flow: CustomValidatorListFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -37446,11 +37446,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func proceedToRecommendedList<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, wallet: M3, chainAsset: M4) -> Cuckoo.__DoNotUse<(SelectValidatorsStartViewProtocol?, RecommendedValidatorListFlow, MetaAccountModel, ChainAsset), Void> where M1.OptionalMatchedType == SelectValidatorsStartViewProtocol, M2.MatchedType == RecommendedValidatorListFlow, M3.MatchedType == MetaAccountModel, M4.MatchedType == ChainAsset {
-            let matchers: [Cuckoo.ParameterMatcher<(SelectValidatorsStartViewProtocol?, RecommendedValidatorListFlow, MetaAccountModel, ChainAsset)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: chainAsset) { $0.3 }]
+        func proceedToRecommendedList<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, wallet: M3, chainAsset: M4) -> Cuckoo.__DoNotUse<(SelectValidatorsStartViewProtocol?, RecommendedValidatorListFlow, fearless.MetaAccountModel, ChainAsset), Void> where M1.OptionalMatchedType == SelectValidatorsStartViewProtocol, M2.MatchedType == RecommendedValidatorListFlow, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == ChainAsset {
+            let matchers: [Cuckoo.ParameterMatcher<(SelectValidatorsStartViewProtocol?, RecommendedValidatorListFlow, fearless.MetaAccountModel, ChainAsset)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: chainAsset) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    proceedToRecommendedList(from: SelectValidatorsStartViewProtocol?, flow: RecommendedValidatorListFlow, wallet: MetaAccountModel, chainAsset: ChainAsset)
+    proceedToRecommendedList(from: SelectValidatorsStartViewProtocol?, flow: RecommendedValidatorListFlow, wallet: fearless.MetaAccountModel, chainAsset: ChainAsset)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -37504,7 +37504,7 @@ import SoraFoundation
     
     
     
-     func proceedToCustomList(from view: ControllerBackedProtocol?, flow: CustomValidatorListFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)   {
+     func proceedToCustomList(from view: ControllerBackedProtocol?, flow: CustomValidatorListFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -37512,7 +37512,7 @@ import SoraFoundation
     
     
     
-     func proceedToRecommendedList(from view: SelectValidatorsStartViewProtocol?, flow: RecommendedValidatorListFlow, wallet: MetaAccountModel, chainAsset: ChainAsset)   {
+     func proceedToRecommendedList(from view: SelectValidatorsStartViewProtocol?, flow: RecommendedValidatorListFlow, wallet: fearless.MetaAccountModel, chainAsset: ChainAsset)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -38436,11 +38436,11 @@ import SoraFoundation
     
     
     
-     func present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from view: ControllerBackedProtocol?)  {
+     func present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from view: ControllerBackedProtocol?)  {
         
     return cuckoo_manager.call(
     """
-    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from: ControllerBackedProtocol?)
+    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from: ControllerBackedProtocol?)
     """,
             parameters: (flow, chainAsset, wallet, view),
             escapingParameters: (flow, chainAsset, wallet, view),
@@ -38456,11 +38456,11 @@ import SoraFoundation
     
     
     
-     func proceed(from parameter0: SelectedValidatorListViewProtocol?, flow parameter1: SelectValidatorsConfirmFlow, wallet parameter2: MetaAccountModel, chainAsset parameter3: ChainAsset)  {
+     func proceed(from parameter0: SelectedValidatorListViewProtocol?, flow parameter1: SelectValidatorsConfirmFlow, wallet parameter2: fearless.MetaAccountModel, chainAsset parameter3: ChainAsset)  {
         
     return cuckoo_manager.call(
     """
-    proceed(from: SelectedValidatorListViewProtocol?, flow: SelectValidatorsConfirmFlow, wallet: MetaAccountModel, chainAsset: ChainAsset)
+    proceed(from: SelectedValidatorListViewProtocol?, flow: SelectValidatorsConfirmFlow, wallet: fearless.MetaAccountModel, chainAsset: ChainAsset)
     """,
             parameters: (parameter0, parameter1, parameter2, parameter3),
             escapingParameters: (parameter0, parameter1, parameter2, parameter3),
@@ -38564,22 +38564,22 @@ import SoraFoundation
         
         
         
-        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(flow: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ValidatorInfoFlow, ChainAsset, MetaAccountModel, ControllerBackedProtocol?)> where M1.MatchedType == ValidatorInfoFlow, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.OptionalMatchedType == ControllerBackedProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoFlow, ChainAsset, MetaAccountModel, ControllerBackedProtocol?)>] = [wrap(matchable: flow) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
+        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(flow: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ValidatorInfoFlow, ChainAsset, fearless.MetaAccountModel, ControllerBackedProtocol?)> where M1.MatchedType == ValidatorInfoFlow, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoFlow, ChainAsset, fearless.MetaAccountModel, ControllerBackedProtocol?)>] = [wrap(matchable: flow) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockSelectedValidatorListWireframeProtocol.self, method:
     """
-    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from: ControllerBackedProtocol?)
+    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from parameter0: M1, flow parameter1: M2, wallet parameter2: M3, chainAsset parameter3: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(SelectedValidatorListViewProtocol?, SelectValidatorsConfirmFlow, MetaAccountModel, ChainAsset)> where M1.OptionalMatchedType == SelectedValidatorListViewProtocol, M2.MatchedType == SelectValidatorsConfirmFlow, M3.MatchedType == MetaAccountModel, M4.MatchedType == ChainAsset {
-            let matchers: [Cuckoo.ParameterMatcher<(SelectedValidatorListViewProtocol?, SelectValidatorsConfirmFlow, MetaAccountModel, ChainAsset)>] = [wrap(matchable: parameter0) { $0.0 }, wrap(matchable: parameter1) { $0.1 }, wrap(matchable: parameter2) { $0.2 }, wrap(matchable: parameter3) { $0.3 }]
+        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from parameter0: M1, flow parameter1: M2, wallet parameter2: M3, chainAsset parameter3: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(SelectedValidatorListViewProtocol?, SelectValidatorsConfirmFlow, fearless.MetaAccountModel, ChainAsset)> where M1.OptionalMatchedType == SelectedValidatorListViewProtocol, M2.MatchedType == SelectValidatorsConfirmFlow, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == ChainAsset {
+            let matchers: [Cuckoo.ParameterMatcher<(SelectedValidatorListViewProtocol?, SelectValidatorsConfirmFlow, fearless.MetaAccountModel, ChainAsset)>] = [wrap(matchable: parameter0) { $0.0 }, wrap(matchable: parameter1) { $0.1 }, wrap(matchable: parameter2) { $0.2 }, wrap(matchable: parameter3) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockSelectedValidatorListWireframeProtocol.self, method:
     """
-    proceed(from: SelectedValidatorListViewProtocol?, flow: SelectValidatorsConfirmFlow, wallet: MetaAccountModel, chainAsset: ChainAsset)
+    proceed(from: SelectedValidatorListViewProtocol?, flow: SelectValidatorsConfirmFlow, wallet: fearless.MetaAccountModel, chainAsset: ChainAsset)
     """, parameterMatchers: matchers))
         }
         
@@ -38647,11 +38647,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(flow: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.__DoNotUse<(ValidatorInfoFlow, ChainAsset, MetaAccountModel, ControllerBackedProtocol?), Void> where M1.MatchedType == ValidatorInfoFlow, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.OptionalMatchedType == ControllerBackedProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoFlow, ChainAsset, MetaAccountModel, ControllerBackedProtocol?)>] = [wrap(matchable: flow) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
+        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(flow: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.__DoNotUse<(ValidatorInfoFlow, ChainAsset, fearless.MetaAccountModel, ControllerBackedProtocol?), Void> where M1.MatchedType == ValidatorInfoFlow, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoFlow, ChainAsset, fearless.MetaAccountModel, ControllerBackedProtocol?)>] = [wrap(matchable: flow) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from: ControllerBackedProtocol?)
+    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from: ControllerBackedProtocol?)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -38659,11 +38659,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from parameter0: M1, flow parameter1: M2, wallet parameter2: M3, chainAsset parameter3: M4) -> Cuckoo.__DoNotUse<(SelectedValidatorListViewProtocol?, SelectValidatorsConfirmFlow, MetaAccountModel, ChainAsset), Void> where M1.OptionalMatchedType == SelectedValidatorListViewProtocol, M2.MatchedType == SelectValidatorsConfirmFlow, M3.MatchedType == MetaAccountModel, M4.MatchedType == ChainAsset {
-            let matchers: [Cuckoo.ParameterMatcher<(SelectedValidatorListViewProtocol?, SelectValidatorsConfirmFlow, MetaAccountModel, ChainAsset)>] = [wrap(matchable: parameter0) { $0.0 }, wrap(matchable: parameter1) { $0.1 }, wrap(matchable: parameter2) { $0.2 }, wrap(matchable: parameter3) { $0.3 }]
+        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from parameter0: M1, flow parameter1: M2, wallet parameter2: M3, chainAsset parameter3: M4) -> Cuckoo.__DoNotUse<(SelectedValidatorListViewProtocol?, SelectValidatorsConfirmFlow, fearless.MetaAccountModel, ChainAsset), Void> where M1.OptionalMatchedType == SelectedValidatorListViewProtocol, M2.MatchedType == SelectValidatorsConfirmFlow, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == ChainAsset {
+            let matchers: [Cuckoo.ParameterMatcher<(SelectedValidatorListViewProtocol?, SelectValidatorsConfirmFlow, fearless.MetaAccountModel, ChainAsset)>] = [wrap(matchable: parameter0) { $0.0 }, wrap(matchable: parameter1) { $0.1 }, wrap(matchable: parameter2) { $0.2 }, wrap(matchable: parameter3) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    proceed(from: SelectedValidatorListViewProtocol?, flow: SelectValidatorsConfirmFlow, wallet: MetaAccountModel, chainAsset: ChainAsset)
+    proceed(from: SelectedValidatorListViewProtocol?, flow: SelectValidatorsConfirmFlow, wallet: fearless.MetaAccountModel, chainAsset: ChainAsset)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -38729,7 +38729,7 @@ import SoraFoundation
     
     
     
-     func present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from view: ControllerBackedProtocol?)   {
+     func present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -38737,7 +38737,7 @@ import SoraFoundation
     
     
     
-     func proceed(from parameter0: SelectedValidatorListViewProtocol?, flow parameter1: SelectValidatorsConfirmFlow, wallet parameter2: MetaAccountModel, chainAsset parameter3: ChainAsset)   {
+     func proceed(from parameter0: SelectedValidatorListViewProtocol?, flow parameter1: SelectValidatorsConfirmFlow, wallet parameter2: fearless.MetaAccountModel, chainAsset parameter3: ChainAsset)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -41896,11 +41896,11 @@ import SoraFoundation
     
     
     
-     func present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from view: ControllerBackedProtocol?)  {
+     func present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from view: ControllerBackedProtocol?)  {
         
     return cuckoo_manager.call(
     """
-    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from: ControllerBackedProtocol?)
+    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from: ControllerBackedProtocol?)
     """,
             parameters: (flow, chainAsset, wallet, view),
             escapingParameters: (flow, chainAsset, wallet, view),
@@ -42004,11 +42004,11 @@ import SoraFoundation
         
         
         
-        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(flow: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ValidatorInfoFlow, ChainAsset, MetaAccountModel, ControllerBackedProtocol?)> where M1.MatchedType == ValidatorInfoFlow, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.OptionalMatchedType == ControllerBackedProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoFlow, ChainAsset, MetaAccountModel, ControllerBackedProtocol?)>] = [wrap(matchable: flow) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
+        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(flow: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ValidatorInfoFlow, ChainAsset, fearless.MetaAccountModel, ControllerBackedProtocol?)> where M1.MatchedType == ValidatorInfoFlow, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoFlow, ChainAsset, fearless.MetaAccountModel, ControllerBackedProtocol?)>] = [wrap(matchable: flow) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockValidatorSearchWireframeProtocol.self, method:
     """
-    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from: ControllerBackedProtocol?)
+    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -42076,11 +42076,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(flow: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.__DoNotUse<(ValidatorInfoFlow, ChainAsset, MetaAccountModel, ControllerBackedProtocol?), Void> where M1.MatchedType == ValidatorInfoFlow, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.OptionalMatchedType == ControllerBackedProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoFlow, ChainAsset, MetaAccountModel, ControllerBackedProtocol?)>] = [wrap(matchable: flow) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
+        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(flow: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.__DoNotUse<(ValidatorInfoFlow, ChainAsset, fearless.MetaAccountModel, ControllerBackedProtocol?), Void> where M1.MatchedType == ValidatorInfoFlow, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoFlow, ChainAsset, fearless.MetaAccountModel, ControllerBackedProtocol?)>] = [wrap(matchable: flow) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from: ControllerBackedProtocol?)
+    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from: ControllerBackedProtocol?)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -42146,7 +42146,7 @@ import SoraFoundation
     
     
     
-     func present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from view: ControllerBackedProtocol?)   {
+     func present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -44596,11 +44596,11 @@ import SoraFoundation
     
     
     
-     func present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from view: YourValidatorListViewProtocol?)  {
+     func present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from view: YourValidatorListViewProtocol?)  {
         
     return cuckoo_manager.call(
     """
-    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from: YourValidatorListViewProtocol?)
+    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from: YourValidatorListViewProtocol?)
     """,
             parameters: (flow, chainAsset, wallet, view),
             escapingParameters: (flow, chainAsset, wallet, view),
@@ -44616,11 +44616,11 @@ import SoraFoundation
     
     
     
-     func proceedToSelectValidatorsStart(from view: YourValidatorListViewProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: SelectValidatorsStartFlow)  {
+     func proceedToSelectValidatorsStart(from view: YourValidatorListViewProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: SelectValidatorsStartFlow)  {
         
     return cuckoo_manager.call(
     """
-    proceedToSelectValidatorsStart(from: YourValidatorListViewProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: SelectValidatorsStartFlow)
+    proceedToSelectValidatorsStart(from: YourValidatorListViewProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: SelectValidatorsStartFlow)
     """,
             parameters: (view, chainAsset, wallet, flow),
             escapingParameters: (view, chainAsset, wallet, flow),
@@ -44704,22 +44704,22 @@ import SoraFoundation
         
         
         
-        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(flow: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ValidatorInfoFlow, ChainAsset, MetaAccountModel, YourValidatorListViewProtocol?)> where M1.MatchedType == ValidatorInfoFlow, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.OptionalMatchedType == YourValidatorListViewProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoFlow, ChainAsset, MetaAccountModel, YourValidatorListViewProtocol?)>] = [wrap(matchable: flow) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
+        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(flow: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ValidatorInfoFlow, ChainAsset, fearless.MetaAccountModel, YourValidatorListViewProtocol?)> where M1.MatchedType == ValidatorInfoFlow, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.OptionalMatchedType == YourValidatorListViewProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoFlow, ChainAsset, fearless.MetaAccountModel, YourValidatorListViewProtocol?)>] = [wrap(matchable: flow) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockYourValidatorListWireframeProtocol.self, method:
     """
-    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from: YourValidatorListViewProtocol?)
+    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from: YourValidatorListViewProtocol?)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func proceedToSelectValidatorsStart<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(YourValidatorListViewProtocol?, ChainAsset, MetaAccountModel, SelectValidatorsStartFlow)> where M1.OptionalMatchedType == YourValidatorListViewProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.MatchedType == SelectValidatorsStartFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(YourValidatorListViewProtocol?, ChainAsset, MetaAccountModel, SelectValidatorsStartFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
+        func proceedToSelectValidatorsStart<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(YourValidatorListViewProtocol?, ChainAsset, fearless.MetaAccountModel, SelectValidatorsStartFlow)> where M1.OptionalMatchedType == YourValidatorListViewProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == SelectValidatorsStartFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(YourValidatorListViewProtocol?, ChainAsset, fearless.MetaAccountModel, SelectValidatorsStartFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockYourValidatorListWireframeProtocol.self, method:
     """
-    proceedToSelectValidatorsStart(from: YourValidatorListViewProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: SelectValidatorsStartFlow)
+    proceedToSelectValidatorsStart(from: YourValidatorListViewProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: SelectValidatorsStartFlow)
     """, parameterMatchers: matchers))
         }
         
@@ -44776,11 +44776,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(flow: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.__DoNotUse<(ValidatorInfoFlow, ChainAsset, MetaAccountModel, YourValidatorListViewProtocol?), Void> where M1.MatchedType == ValidatorInfoFlow, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.OptionalMatchedType == YourValidatorListViewProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoFlow, ChainAsset, MetaAccountModel, YourValidatorListViewProtocol?)>] = [wrap(matchable: flow) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
+        func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(flow: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.__DoNotUse<(ValidatorInfoFlow, ChainAsset, fearless.MetaAccountModel, YourValidatorListViewProtocol?), Void> where M1.MatchedType == ValidatorInfoFlow, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.OptionalMatchedType == YourValidatorListViewProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(ValidatorInfoFlow, ChainAsset, fearless.MetaAccountModel, YourValidatorListViewProtocol?)>] = [wrap(matchable: flow) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from: YourValidatorListViewProtocol?)
+    present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from: YourValidatorListViewProtocol?)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -44788,11 +44788,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func proceedToSelectValidatorsStart<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.__DoNotUse<(YourValidatorListViewProtocol?, ChainAsset, MetaAccountModel, SelectValidatorsStartFlow), Void> where M1.OptionalMatchedType == YourValidatorListViewProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.MatchedType == SelectValidatorsStartFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(YourValidatorListViewProtocol?, ChainAsset, MetaAccountModel, SelectValidatorsStartFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
+        func proceedToSelectValidatorsStart<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.__DoNotUse<(YourValidatorListViewProtocol?, ChainAsset, fearless.MetaAccountModel, SelectValidatorsStartFlow), Void> where M1.OptionalMatchedType == YourValidatorListViewProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == SelectValidatorsStartFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(YourValidatorListViewProtocol?, ChainAsset, fearless.MetaAccountModel, SelectValidatorsStartFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    proceedToSelectValidatorsStart(from: YourValidatorListViewProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: SelectValidatorsStartFlow)
+    proceedToSelectValidatorsStart(from: YourValidatorListViewProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: SelectValidatorsStartFlow)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -44846,7 +44846,7 @@ import SoraFoundation
     
     
     
-     func present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: MetaAccountModel, from view: YourValidatorListViewProtocol?)   {
+     func present(flow: ValidatorInfoFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from view: YourValidatorListViewProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -44854,7 +44854,7 @@ import SoraFoundation
     
     
     
-     func proceedToSelectValidatorsStart(from view: YourValidatorListViewProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: SelectValidatorsStartFlow)   {
+     func proceedToSelectValidatorsStart(from view: YourValidatorListViewProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: SelectValidatorsStartFlow)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -45929,11 +45929,11 @@ import SoraFoundation
     
     
     
-     func showBondMore(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingBondMoreFlow)  {
+     func showBondMore(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingBondMoreFlow)  {
         
     return cuckoo_manager.call(
     """
-    showBondMore(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingBondMoreFlow)
+    showBondMore(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingBondMoreFlow)
     """,
             parameters: (view, chainAsset, wallet, flow),
             escapingParameters: (view, chainAsset, wallet, flow),
@@ -45949,11 +45949,11 @@ import SoraFoundation
     
     
     
-     func showUnbond(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingUnbondSetupFlow)  {
+     func showUnbond(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingUnbondSetupFlow)  {
         
     return cuckoo_manager.call(
     """
-    showUnbond(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingUnbondSetupFlow)
+    showUnbond(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingUnbondSetupFlow)
     """,
             parameters: (view, chainAsset, wallet, flow),
             escapingParameters: (view, chainAsset, wallet, flow),
@@ -45969,11 +45969,11 @@ import SoraFoundation
     
     
     
-     func showRedeem(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRedeemConfirmationFlow)  {
+     func showRedeem(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRedeemConfirmationFlow)  {
         
     return cuckoo_manager.call(
     """
-    showRedeem(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRedeemConfirmationFlow)
+    showRedeem(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRedeemConfirmationFlow)
     """,
             parameters: (view, chainAsset, wallet, flow),
             escapingParameters: (view, chainAsset, wallet, flow),
@@ -45989,11 +45989,11 @@ import SoraFoundation
     
     
     
-     func showRebondSetup(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel)  {
+     func showRebondSetup(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    showRebondSetup(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showRebondSetup(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """,
             parameters: (view, chainAsset, wallet),
             escapingParameters: (view, chainAsset, wallet),
@@ -46009,11 +46009,11 @@ import SoraFoundation
     
     
     
-     func showRebondConfirm(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRebondConfirmationFlow)  {
+     func showRebondConfirm(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRebondConfirmationFlow)  {
         
     return cuckoo_manager.call(
     """
-    showRebondConfirm(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRebondConfirmationFlow)
+    showRebondConfirm(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRebondConfirmationFlow)
     """,
             parameters: (view, chainAsset, wallet, flow),
             escapingParameters: (view, chainAsset, wallet, flow),
@@ -46117,55 +46117,55 @@ import SoraFoundation
         
         
         
-        func showBondMore<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingBondMoreFlow)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.MatchedType == StakingBondMoreFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingBondMoreFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
+        func showBondMore<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingBondMoreFlow)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == StakingBondMoreFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingBondMoreFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingBalanceWireframeProtocol.self, method:
     """
-    showBondMore(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingBondMoreFlow)
+    showBondMore(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingBondMoreFlow)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func showUnbond<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingUnbondSetupFlow)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.MatchedType == StakingUnbondSetupFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingUnbondSetupFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
+        func showUnbond<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingUnbondSetupFlow)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == StakingUnbondSetupFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingUnbondSetupFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingBalanceWireframeProtocol.self, method:
     """
-    showUnbond(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingUnbondSetupFlow)
+    showUnbond(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingUnbondSetupFlow)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func showRedeem<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingRedeemConfirmationFlow)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.MatchedType == StakingRedeemConfirmationFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingRedeemConfirmationFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
+        func showRedeem<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingRedeemConfirmationFlow)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == StakingRedeemConfirmationFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingRedeemConfirmationFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingBalanceWireframeProtocol.self, method:
     """
-    showRedeem(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRedeemConfirmationFlow)
+    showRedeem(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRedeemConfirmationFlow)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func showRebondSetup<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }]
+        func showRebondSetup<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingBalanceWireframeProtocol.self, method:
     """
-    showRebondSetup(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showRebondSetup(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func showRebondConfirm<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingRebondConfirmationFlow)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.MatchedType == StakingRebondConfirmationFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingRebondConfirmationFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
+        func showRebondConfirm<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingRebondConfirmationFlow)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == StakingRebondConfirmationFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingRebondConfirmationFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingBalanceWireframeProtocol.self, method:
     """
-    showRebondConfirm(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRebondConfirmationFlow)
+    showRebondConfirm(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRebondConfirmationFlow)
     """, parameterMatchers: matchers))
         }
         
@@ -46233,11 +46233,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showBondMore<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingBondMoreFlow), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.MatchedType == StakingBondMoreFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingBondMoreFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
+        func showBondMore<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingBondMoreFlow), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == StakingBondMoreFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingBondMoreFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    showBondMore(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingBondMoreFlow)
+    showBondMore(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingBondMoreFlow)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -46245,11 +46245,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showUnbond<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingUnbondSetupFlow), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.MatchedType == StakingUnbondSetupFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingUnbondSetupFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
+        func showUnbond<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingUnbondSetupFlow), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == StakingUnbondSetupFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingUnbondSetupFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    showUnbond(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingUnbondSetupFlow)
+    showUnbond(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingUnbondSetupFlow)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -46257,11 +46257,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showRedeem<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingRedeemConfirmationFlow), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.MatchedType == StakingRedeemConfirmationFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingRedeemConfirmationFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
+        func showRedeem<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingRedeemConfirmationFlow), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == StakingRedeemConfirmationFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingRedeemConfirmationFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    showRedeem(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRedeemConfirmationFlow)
+    showRedeem(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRedeemConfirmationFlow)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -46269,11 +46269,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showRebondSetup<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }]
+        func showRebondSetup<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }]
             return cuckoo_manager.verify(
     """
-    showRebondSetup(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showRebondSetup(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -46281,11 +46281,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showRebondConfirm<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingRebondConfirmationFlow), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.MatchedType == StakingRebondConfirmationFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingRebondConfirmationFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
+        func showRebondConfirm<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingRebondConfirmationFlow), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == StakingRebondConfirmationFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingRebondConfirmationFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    showRebondConfirm(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRebondConfirmationFlow)
+    showRebondConfirm(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRebondConfirmationFlow)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -46351,7 +46351,7 @@ import SoraFoundation
     
     
     
-     func showBondMore(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingBondMoreFlow)   {
+     func showBondMore(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingBondMoreFlow)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -46359,7 +46359,7 @@ import SoraFoundation
     
     
     
-     func showUnbond(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingUnbondSetupFlow)   {
+     func showUnbond(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingUnbondSetupFlow)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -46367,7 +46367,7 @@ import SoraFoundation
     
     
     
-     func showRedeem(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRedeemConfirmationFlow)   {
+     func showRedeem(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRedeemConfirmationFlow)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -46375,7 +46375,7 @@ import SoraFoundation
     
     
     
-     func showRebondSetup(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel)   {
+     func showRebondSetup(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -46383,7 +46383,7 @@ import SoraFoundation
     
     
     
-     func showRebondConfirm(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRebondConfirmationFlow)   {
+     func showRebondConfirm(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRebondConfirmationFlow)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -47589,11 +47589,11 @@ import SoraFoundation
     
     
     
-     func showConfirmation(from view: ControllerBackedProtocol?, flow: StakingBondMoreConfirmationFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)  {
+     func showConfirmation(from view: ControllerBackedProtocol?, flow: StakingBondMoreConfirmationFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    showConfirmation(from: ControllerBackedProtocol?, flow: StakingBondMoreConfirmationFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showConfirmation(from: ControllerBackedProtocol?, flow: StakingBondMoreConfirmationFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """,
             parameters: (view, flow, chainAsset, wallet),
             escapingParameters: (view, flow, chainAsset, wallet),
@@ -47677,11 +47677,11 @@ import SoraFoundation
         
         
         
-        func showConfirmation<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, StakingBondMoreConfirmationFlow, ChainAsset, MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == StakingBondMoreConfirmationFlow, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, StakingBondMoreConfirmationFlow, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
+        func showConfirmation<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, StakingBondMoreConfirmationFlow, ChainAsset, fearless.MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == StakingBondMoreConfirmationFlow, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, StakingBondMoreConfirmationFlow, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingBondMoreWireframeProtocol.self, method:
     """
-    showConfirmation(from: ControllerBackedProtocol?, flow: StakingBondMoreConfirmationFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showConfirmation(from: ControllerBackedProtocol?, flow: StakingBondMoreConfirmationFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
@@ -47738,11 +47738,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showConfirmation<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, StakingBondMoreConfirmationFlow, ChainAsset, MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == StakingBondMoreConfirmationFlow, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, StakingBondMoreConfirmationFlow, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
+        func showConfirmation<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, StakingBondMoreConfirmationFlow, ChainAsset, fearless.MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == StakingBondMoreConfirmationFlow, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, StakingBondMoreConfirmationFlow, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    showConfirmation(from: ControllerBackedProtocol?, flow: StakingBondMoreConfirmationFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showConfirmation(from: ControllerBackedProtocol?, flow: StakingBondMoreConfirmationFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -47796,7 +47796,7 @@ import SoraFoundation
     
     
     
-     func showConfirmation(from view: ControllerBackedProtocol?, flow: StakingBondMoreConfirmationFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)   {
+     func showConfirmation(from view: ControllerBackedProtocol?, flow: StakingBondMoreConfirmationFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -51453,11 +51453,11 @@ import SoraFoundation
     
     
     
-     func didReceive(selectedWallet: MetaAccountModel)  {
+     func didReceive(selectedWallet: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    didReceive(selectedWallet: MetaAccountModel)
+    didReceive(selectedWallet: fearless.MetaAccountModel)
     """,
             parameters: (selectedWallet),
             escapingParameters: (selectedWallet),
@@ -52053,11 +52053,11 @@ import SoraFoundation
     
     
     
-     func didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>)  {
+     func didReceiveControllerAccount(result: Result<fearless.ChainAccountResponse?, Error>)  {
         
     return cuckoo_manager.call(
     """
-    didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>)
+    didReceiveControllerAccount(result: Result<fearless.ChainAccountResponse?, Error>)
     """,
             parameters: (result),
             escapingParameters: (result),
@@ -52221,11 +52221,11 @@ import SoraFoundation
         
         
         
-        func didReceive<M1: Cuckoo.Matchable>(selectedWallet: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(MetaAccountModel)> where M1.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(MetaAccountModel)>] = [wrap(matchable: selectedWallet) { $0 }]
+        func didReceive<M1: Cuckoo.Matchable>(selectedWallet: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(fearless.MetaAccountModel)> where M1.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.MetaAccountModel)>] = [wrap(matchable: selectedWallet) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method:
     """
-    didReceive(selectedWallet: MetaAccountModel)
+    didReceive(selectedWallet: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
@@ -52551,11 +52551,11 @@ import SoraFoundation
         
         
         
-        func didReceiveControllerAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<ChainAccountResponse?, Error>)> where M1.MatchedType == Result<ChainAccountResponse?, Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveControllerAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<fearless.ChainAccountResponse?, Error>)> where M1.MatchedType == Result<fearless.ChainAccountResponse?, Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<fearless.ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method:
     """
-    didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>)
+    didReceiveControllerAccount(result: Result<fearless.ChainAccountResponse?, Error>)
     """, parameterMatchers: matchers))
         }
         
@@ -52656,11 +52656,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func didReceive<M1: Cuckoo.Matchable>(selectedWallet: M1) -> Cuckoo.__DoNotUse<(MetaAccountModel), Void> where M1.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(MetaAccountModel)>] = [wrap(matchable: selectedWallet) { $0 }]
+        func didReceive<M1: Cuckoo.Matchable>(selectedWallet: M1) -> Cuckoo.__DoNotUse<(fearless.MetaAccountModel), Void> where M1.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.MetaAccountModel)>] = [wrap(matchable: selectedWallet) { $0 }]
             return cuckoo_manager.verify(
     """
-    didReceive(selectedWallet: MetaAccountModel)
+    didReceive(selectedWallet: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -53016,11 +53016,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func didReceiveControllerAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<ChainAccountResponse?, Error>), Void> where M1.MatchedType == Result<ChainAccountResponse?, Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveControllerAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<fearless.ChainAccountResponse?, Error>), Void> where M1.MatchedType == Result<fearless.ChainAccountResponse?, Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<fearless.ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
             return cuckoo_manager.verify(
     """
-    didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>)
+    didReceiveControllerAccount(result: Result<fearless.ChainAccountResponse?, Error>)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -53122,7 +53122,7 @@ import SoraFoundation
     
     
     
-     func didReceive(selectedWallet: MetaAccountModel)   {
+     func didReceive(selectedWallet: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -53362,7 +53362,7 @@ import SoraFoundation
     
     
     
-     func didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>)   {
+     func didReceiveControllerAccount(result: Result<fearless.ChainAccountResponse?, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -53460,11 +53460,11 @@ import SoraFoundation
     
     
     
-     func showSetupAmount(from view: StakingMainViewProtocol?, amount: Decimal?, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel, rewardChainAsset: ChainAsset?)  {
+     func showSetupAmount(from view: StakingMainViewProtocol?, amount: Decimal?, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel, rewardChainAsset: ChainAsset?)  {
         
     return cuckoo_manager.call(
     """
-    showSetupAmount(from: StakingMainViewProtocol?, amount: Decimal?, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel, rewardChainAsset: ChainAsset?)
+    showSetupAmount(from: StakingMainViewProtocol?, amount: Decimal?, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel, rewardChainAsset: ChainAsset?)
     """,
             parameters: (view, amount, chain, asset, selectedAccount, rewardChainAsset),
             escapingParameters: (view, amount, chain, asset, selectedAccount, rewardChainAsset),
@@ -53500,11 +53500,11 @@ import SoraFoundation
     
     
     
-     func proceedToSelectValidatorsStart(from view: StakingMainViewProtocol?, existingBonding: ExistingBonding, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel)  {
+     func proceedToSelectValidatorsStart(from view: StakingMainViewProtocol?, existingBonding: ExistingBonding, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    proceedToSelectValidatorsStart(from: StakingMainViewProtocol?, existingBonding: ExistingBonding, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel)
+    proceedToSelectValidatorsStart(from: StakingMainViewProtocol?, existingBonding: ExistingBonding, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel)
     """,
             parameters: (view, existingBonding, chain, asset, selectedAccount),
             escapingParameters: (view, existingBonding, chain, asset, selectedAccount),
@@ -53560,11 +53560,11 @@ import SoraFoundation
     
     
     
-     func showRewardPayoutsForNominator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: MetaAccountModel)  {
+     func showRewardPayoutsForNominator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    showRewardPayoutsForNominator(from: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showRewardPayoutsForNominator(from: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """,
             parameters: (view, stashAddress, chainAsset, wallet),
             escapingParameters: (view, stashAddress, chainAsset, wallet),
@@ -53580,11 +53580,11 @@ import SoraFoundation
     
     
     
-     func showRewardPayoutsForValidator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: MetaAccountModel)  {
+     func showRewardPayoutsForValidator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    showRewardPayoutsForValidator(from: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showRewardPayoutsForValidator(from: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """,
             parameters: (view, stashAddress, chainAsset, wallet),
             escapingParameters: (view, stashAddress, chainAsset, wallet),
@@ -53600,11 +53600,11 @@ import SoraFoundation
     
     
     
-     func showStakingBalance(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingBalanceFlow)  {
+     func showStakingBalance(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingBalanceFlow)  {
         
     return cuckoo_manager.call(
     """
-    showStakingBalance(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingBalanceFlow)
+    showStakingBalance(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingBalanceFlow)
     """,
             parameters: (view, chainAsset, wallet, flow),
             escapingParameters: (view, chainAsset, wallet, flow),
@@ -53620,11 +53620,11 @@ import SoraFoundation
     
     
     
-     func showNominatorValidators(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel)  {
+     func showNominatorValidators(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    showNominatorValidators(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showNominatorValidators(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """,
             parameters: (view, chainAsset, wallet),
             escapingParameters: (view, chainAsset, wallet),
@@ -53640,11 +53640,11 @@ import SoraFoundation
     
     
     
-     func showRewardDestination(from view: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel, rewardChainAsset: ChainAsset?)  {
+     func showRewardDestination(from view: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel, rewardChainAsset: ChainAsset?)  {
         
     return cuckoo_manager.call(
     """
-    showRewardDestination(from: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel, rewardChainAsset: ChainAsset?)
+    showRewardDestination(from: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel, rewardChainAsset: ChainAsset?)
     """,
             parameters: (view, chain, asset, selectedAccount, rewardChainAsset),
             escapingParameters: (view, chain, asset, selectedAccount, rewardChainAsset),
@@ -53660,11 +53660,11 @@ import SoraFoundation
     
     
     
-     func showControllerAccount(from view: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel)  {
+     func showControllerAccount(from view: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    showControllerAccount(from: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel)
+    showControllerAccount(from: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel)
     """,
             parameters: (view, chain, asset, selectedAccount),
             escapingParameters: (view, chain, asset, selectedAccount),
@@ -53700,11 +53700,11 @@ import SoraFoundation
     
     
     
-     func showBondMore(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingBondMoreFlow)  {
+     func showBondMore(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingBondMoreFlow)  {
         
     return cuckoo_manager.call(
     """
-    showBondMore(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingBondMoreFlow)
+    showBondMore(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingBondMoreFlow)
     """,
             parameters: (view, chainAsset, wallet, flow),
             escapingParameters: (view, chainAsset, wallet, flow),
@@ -53720,11 +53720,11 @@ import SoraFoundation
     
     
     
-     func showRedeem(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRedeemConfirmationFlow)  {
+     func showRedeem(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRedeemConfirmationFlow)  {
         
     return cuckoo_manager.call(
     """
-    showRedeem(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRedeemConfirmationFlow)
+    showRedeem(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRedeemConfirmationFlow)
     """,
             parameters: (view, chainAsset, wallet, flow),
             escapingParameters: (view, chainAsset, wallet, flow),
@@ -53740,11 +53740,11 @@ import SoraFoundation
     
     
     
-     func showAnalytics(from view: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: AnalyticsRewardsFlow)  {
+     func showAnalytics(from view: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: AnalyticsRewardsFlow)  {
         
     return cuckoo_manager.call(
     """
-    showAnalytics(from: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: AnalyticsRewardsFlow)
+    showAnalytics(from: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: AnalyticsRewardsFlow)
     """,
             parameters: (view, mode, chainAsset, wallet, flow),
             escapingParameters: (view, mode, chainAsset, wallet, flow),
@@ -53760,11 +53760,11 @@ import SoraFoundation
     
     
     
-     func showYourValidatorInfo(chainAsset: ChainAsset, selectedAccount: MetaAccountModel, flow: ValidatorInfoFlow, from view: ControllerBackedProtocol?)  {
+     func showYourValidatorInfo(chainAsset: ChainAsset, selectedAccount: fearless.MetaAccountModel, flow: ValidatorInfoFlow, from view: ControllerBackedProtocol?)  {
         
     return cuckoo_manager.call(
     """
-    showYourValidatorInfo(chainAsset: ChainAsset, selectedAccount: MetaAccountModel, flow: ValidatorInfoFlow, from: ControllerBackedProtocol?)
+    showYourValidatorInfo(chainAsset: ChainAsset, selectedAccount: fearless.MetaAccountModel, flow: ValidatorInfoFlow, from: ControllerBackedProtocol?)
     """,
             parameters: (chainAsset, selectedAccount, flow, view),
             escapingParameters: (chainAsset, selectedAccount, flow, view),
@@ -53868,11 +53868,11 @@ import SoraFoundation
         
         
         
-        func showSetupAmount<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable, M6: Cuckoo.OptionalMatchable>(from view: M1, amount: M2, chain: M3, asset: M4, selectedAccount: M5, rewardChainAsset: M6) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingMainViewProtocol?, Decimal?, ChainModel, AssetModel, MetaAccountModel, ChainAsset?)> where M1.OptionalMatchedType == StakingMainViewProtocol, M2.OptionalMatchedType == Decimal, M3.MatchedType == ChainModel, M4.MatchedType == AssetModel, M5.MatchedType == MetaAccountModel, M6.OptionalMatchedType == ChainAsset {
-            let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?, Decimal?, ChainModel, AssetModel, MetaAccountModel, ChainAsset?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: amount) { $0.1 }, wrap(matchable: chain) { $0.2 }, wrap(matchable: asset) { $0.3 }, wrap(matchable: selectedAccount) { $0.4 }, wrap(matchable: rewardChainAsset) { $0.5 }]
+        func showSetupAmount<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable, M6: Cuckoo.OptionalMatchable>(from view: M1, amount: M2, chain: M3, asset: M4, selectedAccount: M5, rewardChainAsset: M6) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingMainViewProtocol?, Decimal?, ChainModel, AssetModel, fearless.MetaAccountModel, ChainAsset?)> where M1.OptionalMatchedType == StakingMainViewProtocol, M2.OptionalMatchedType == Decimal, M3.MatchedType == ChainModel, M4.MatchedType == AssetModel, M5.MatchedType == fearless.MetaAccountModel, M6.OptionalMatchedType == ChainAsset {
+            let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?, Decimal?, ChainModel, AssetModel, fearless.MetaAccountModel, ChainAsset?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: amount) { $0.1 }, wrap(matchable: chain) { $0.2 }, wrap(matchable: asset) { $0.3 }, wrap(matchable: selectedAccount) { $0.4 }, wrap(matchable: rewardChainAsset) { $0.5 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method:
     """
-    showSetupAmount(from: StakingMainViewProtocol?, amount: Decimal?, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel, rewardChainAsset: ChainAsset?)
+    showSetupAmount(from: StakingMainViewProtocol?, amount: Decimal?, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel, rewardChainAsset: ChainAsset?)
     """, parameterMatchers: matchers))
         }
         
@@ -53890,11 +53890,11 @@ import SoraFoundation
         
         
         
-        func proceedToSelectValidatorsStart<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, existingBonding: M2, chain: M3, asset: M4, selectedAccount: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingMainViewProtocol?, ExistingBonding, ChainModel, AssetModel, MetaAccountModel)> where M1.OptionalMatchedType == StakingMainViewProtocol, M2.MatchedType == ExistingBonding, M3.MatchedType == ChainModel, M4.MatchedType == AssetModel, M5.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?, ExistingBonding, ChainModel, AssetModel, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: existingBonding) { $0.1 }, wrap(matchable: chain) { $0.2 }, wrap(matchable: asset) { $0.3 }, wrap(matchable: selectedAccount) { $0.4 }]
+        func proceedToSelectValidatorsStart<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, existingBonding: M2, chain: M3, asset: M4, selectedAccount: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingMainViewProtocol?, ExistingBonding, ChainModel, AssetModel, fearless.MetaAccountModel)> where M1.OptionalMatchedType == StakingMainViewProtocol, M2.MatchedType == ExistingBonding, M3.MatchedType == ChainModel, M4.MatchedType == AssetModel, M5.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?, ExistingBonding, ChainModel, AssetModel, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: existingBonding) { $0.1 }, wrap(matchable: chain) { $0.2 }, wrap(matchable: asset) { $0.3 }, wrap(matchable: selectedAccount) { $0.4 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method:
     """
-    proceedToSelectValidatorsStart(from: StakingMainViewProtocol?, existingBonding: ExistingBonding, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel)
+    proceedToSelectValidatorsStart(from: StakingMainViewProtocol?, existingBonding: ExistingBonding, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
@@ -53923,66 +53923,66 @@ import SoraFoundation
         
         
         
-        func showRewardPayoutsForNominator<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, stashAddress: M2, chainAsset: M3, wallet: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, AccountAddress, ChainAsset, MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AccountAddress, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AccountAddress, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: stashAddress) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
+        func showRewardPayoutsForNominator<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, stashAddress: M2, chainAsset: M3, wallet: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, AccountAddress, ChainAsset, fearless.MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AccountAddress, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AccountAddress, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: stashAddress) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method:
     """
-    showRewardPayoutsForNominator(from: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showRewardPayoutsForNominator(from: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func showRewardPayoutsForValidator<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, stashAddress: M2, chainAsset: M3, wallet: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, AccountAddress, ChainAsset, MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AccountAddress, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AccountAddress, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: stashAddress) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
+        func showRewardPayoutsForValidator<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, stashAddress: M2, chainAsset: M3, wallet: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, AccountAddress, ChainAsset, fearless.MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AccountAddress, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AccountAddress, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: stashAddress) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method:
     """
-    showRewardPayoutsForValidator(from: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showRewardPayoutsForValidator(from: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func showStakingBalance<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingBalanceFlow)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.MatchedType == StakingBalanceFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingBalanceFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
+        func showStakingBalance<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingBalanceFlow)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == StakingBalanceFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingBalanceFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method:
     """
-    showStakingBalance(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingBalanceFlow)
+    showStakingBalance(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingBalanceFlow)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func showNominatorValidators<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }]
+        func showNominatorValidators<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method:
     """
-    showNominatorValidators(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showNominatorValidators(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func showRewardDestination<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.OptionalMatchable>(from view: M1, chain: M2, asset: M3, selectedAccount: M4, rewardChainAsset: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainModel, AssetModel, MetaAccountModel, ChainAsset?)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainModel, M3.MatchedType == AssetModel, M4.MatchedType == MetaAccountModel, M5.OptionalMatchedType == ChainAsset {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainModel, AssetModel, MetaAccountModel, ChainAsset?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chain) { $0.1 }, wrap(matchable: asset) { $0.2 }, wrap(matchable: selectedAccount) { $0.3 }, wrap(matchable: rewardChainAsset) { $0.4 }]
+        func showRewardDestination<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.OptionalMatchable>(from view: M1, chain: M2, asset: M3, selectedAccount: M4, rewardChainAsset: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainModel, AssetModel, fearless.MetaAccountModel, ChainAsset?)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainModel, M3.MatchedType == AssetModel, M4.MatchedType == fearless.MetaAccountModel, M5.OptionalMatchedType == ChainAsset {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainModel, AssetModel, fearless.MetaAccountModel, ChainAsset?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chain) { $0.1 }, wrap(matchable: asset) { $0.2 }, wrap(matchable: selectedAccount) { $0.3 }, wrap(matchable: rewardChainAsset) { $0.4 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method:
     """
-    showRewardDestination(from: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel, rewardChainAsset: ChainAsset?)
+    showRewardDestination(from: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel, rewardChainAsset: ChainAsset?)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func showControllerAccount<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chain: M2, asset: M3, selectedAccount: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainModel, AssetModel, MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainModel, M3.MatchedType == AssetModel, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainModel, AssetModel, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chain) { $0.1 }, wrap(matchable: asset) { $0.2 }, wrap(matchable: selectedAccount) { $0.3 }]
+        func showControllerAccount<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chain: M2, asset: M3, selectedAccount: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainModel, AssetModel, fearless.MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainModel, M3.MatchedType == AssetModel, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainModel, AssetModel, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chain) { $0.1 }, wrap(matchable: asset) { $0.2 }, wrap(matchable: selectedAccount) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method:
     """
-    showControllerAccount(from: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel)
+    showControllerAccount(from: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
@@ -54000,44 +54000,44 @@ import SoraFoundation
         
         
         
-        func showBondMore<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingBondMoreFlow)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.MatchedType == StakingBondMoreFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingBondMoreFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
+        func showBondMore<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingBondMoreFlow)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == StakingBondMoreFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingBondMoreFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method:
     """
-    showBondMore(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingBondMoreFlow)
+    showBondMore(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingBondMoreFlow)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func showRedeem<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingRedeemConfirmationFlow)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.MatchedType == StakingRedeemConfirmationFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingRedeemConfirmationFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
+        func showRedeem<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingRedeemConfirmationFlow)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == StakingRedeemConfirmationFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingRedeemConfirmationFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method:
     """
-    showRedeem(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRedeemConfirmationFlow)
+    showRedeem(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRedeemConfirmationFlow)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func showAnalytics<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, mode: M2, chainAsset: M3, wallet: M4, flow: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, AnalyticsContainerViewMode, ChainAsset, MetaAccountModel, AnalyticsRewardsFlow)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AnalyticsContainerViewMode, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel, M5.MatchedType == AnalyticsRewardsFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AnalyticsContainerViewMode, ChainAsset, MetaAccountModel, AnalyticsRewardsFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: mode) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }, wrap(matchable: flow) { $0.4 }]
+        func showAnalytics<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, mode: M2, chainAsset: M3, wallet: M4, flow: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, AnalyticsContainerViewMode, ChainAsset, fearless.MetaAccountModel, AnalyticsRewardsFlow)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AnalyticsContainerViewMode, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel, M5.MatchedType == AnalyticsRewardsFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AnalyticsContainerViewMode, ChainAsset, fearless.MetaAccountModel, AnalyticsRewardsFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: mode) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }, wrap(matchable: flow) { $0.4 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method:
     """
-    showAnalytics(from: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: AnalyticsRewardsFlow)
+    showAnalytics(from: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: AnalyticsRewardsFlow)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func showYourValidatorInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(chainAsset: M1, selectedAccount: M2, flow: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ChainAsset, MetaAccountModel, ValidatorInfoFlow, ControllerBackedProtocol?)> where M1.MatchedType == ChainAsset, M2.MatchedType == MetaAccountModel, M3.MatchedType == ValidatorInfoFlow, M4.OptionalMatchedType == ControllerBackedProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(ChainAsset, MetaAccountModel, ValidatorInfoFlow, ControllerBackedProtocol?)>] = [wrap(matchable: chainAsset) { $0.0 }, wrap(matchable: selectedAccount) { $0.1 }, wrap(matchable: flow) { $0.2 }, wrap(matchable: view) { $0.3 }]
+        func showYourValidatorInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(chainAsset: M1, selectedAccount: M2, flow: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ChainAsset, fearless.MetaAccountModel, ValidatorInfoFlow, ControllerBackedProtocol?)> where M1.MatchedType == ChainAsset, M2.MatchedType == fearless.MetaAccountModel, M3.MatchedType == ValidatorInfoFlow, M4.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainAsset, fearless.MetaAccountModel, ValidatorInfoFlow, ControllerBackedProtocol?)>] = [wrap(matchable: chainAsset) { $0.0 }, wrap(matchable: selectedAccount) { $0.1 }, wrap(matchable: flow) { $0.2 }, wrap(matchable: view) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method:
     """
-    showYourValidatorInfo(chainAsset: ChainAsset, selectedAccount: MetaAccountModel, flow: ValidatorInfoFlow, from: ControllerBackedProtocol?)
+    showYourValidatorInfo(chainAsset: ChainAsset, selectedAccount: fearless.MetaAccountModel, flow: ValidatorInfoFlow, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -54105,11 +54105,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showSetupAmount<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable, M6: Cuckoo.OptionalMatchable>(from view: M1, amount: M2, chain: M3, asset: M4, selectedAccount: M5, rewardChainAsset: M6) -> Cuckoo.__DoNotUse<(StakingMainViewProtocol?, Decimal?, ChainModel, AssetModel, MetaAccountModel, ChainAsset?), Void> where M1.OptionalMatchedType == StakingMainViewProtocol, M2.OptionalMatchedType == Decimal, M3.MatchedType == ChainModel, M4.MatchedType == AssetModel, M5.MatchedType == MetaAccountModel, M6.OptionalMatchedType == ChainAsset {
-            let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?, Decimal?, ChainModel, AssetModel, MetaAccountModel, ChainAsset?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: amount) { $0.1 }, wrap(matchable: chain) { $0.2 }, wrap(matchable: asset) { $0.3 }, wrap(matchable: selectedAccount) { $0.4 }, wrap(matchable: rewardChainAsset) { $0.5 }]
+        func showSetupAmount<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable, M6: Cuckoo.OptionalMatchable>(from view: M1, amount: M2, chain: M3, asset: M4, selectedAccount: M5, rewardChainAsset: M6) -> Cuckoo.__DoNotUse<(StakingMainViewProtocol?, Decimal?, ChainModel, AssetModel, fearless.MetaAccountModel, ChainAsset?), Void> where M1.OptionalMatchedType == StakingMainViewProtocol, M2.OptionalMatchedType == Decimal, M3.MatchedType == ChainModel, M4.MatchedType == AssetModel, M5.MatchedType == fearless.MetaAccountModel, M6.OptionalMatchedType == ChainAsset {
+            let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?, Decimal?, ChainModel, AssetModel, fearless.MetaAccountModel, ChainAsset?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: amount) { $0.1 }, wrap(matchable: chain) { $0.2 }, wrap(matchable: asset) { $0.3 }, wrap(matchable: selectedAccount) { $0.4 }, wrap(matchable: rewardChainAsset) { $0.5 }]
             return cuckoo_manager.verify(
     """
-    showSetupAmount(from: StakingMainViewProtocol?, amount: Decimal?, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel, rewardChainAsset: ChainAsset?)
+    showSetupAmount(from: StakingMainViewProtocol?, amount: Decimal?, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel, rewardChainAsset: ChainAsset?)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -54129,11 +54129,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func proceedToSelectValidatorsStart<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, existingBonding: M2, chain: M3, asset: M4, selectedAccount: M5) -> Cuckoo.__DoNotUse<(StakingMainViewProtocol?, ExistingBonding, ChainModel, AssetModel, MetaAccountModel), Void> where M1.OptionalMatchedType == StakingMainViewProtocol, M2.MatchedType == ExistingBonding, M3.MatchedType == ChainModel, M4.MatchedType == AssetModel, M5.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?, ExistingBonding, ChainModel, AssetModel, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: existingBonding) { $0.1 }, wrap(matchable: chain) { $0.2 }, wrap(matchable: asset) { $0.3 }, wrap(matchable: selectedAccount) { $0.4 }]
+        func proceedToSelectValidatorsStart<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, existingBonding: M2, chain: M3, asset: M4, selectedAccount: M5) -> Cuckoo.__DoNotUse<(StakingMainViewProtocol?, ExistingBonding, ChainModel, AssetModel, fearless.MetaAccountModel), Void> where M1.OptionalMatchedType == StakingMainViewProtocol, M2.MatchedType == ExistingBonding, M3.MatchedType == ChainModel, M4.MatchedType == AssetModel, M5.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?, ExistingBonding, ChainModel, AssetModel, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: existingBonding) { $0.1 }, wrap(matchable: chain) { $0.2 }, wrap(matchable: asset) { $0.3 }, wrap(matchable: selectedAccount) { $0.4 }]
             return cuckoo_manager.verify(
     """
-    proceedToSelectValidatorsStart(from: StakingMainViewProtocol?, existingBonding: ExistingBonding, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel)
+    proceedToSelectValidatorsStart(from: StakingMainViewProtocol?, existingBonding: ExistingBonding, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -54165,11 +54165,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showRewardPayoutsForNominator<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, stashAddress: M2, chainAsset: M3, wallet: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, AccountAddress, ChainAsset, MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AccountAddress, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AccountAddress, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: stashAddress) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
+        func showRewardPayoutsForNominator<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, stashAddress: M2, chainAsset: M3, wallet: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, AccountAddress, ChainAsset, fearless.MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AccountAddress, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AccountAddress, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: stashAddress) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    showRewardPayoutsForNominator(from: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showRewardPayoutsForNominator(from: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -54177,11 +54177,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showRewardPayoutsForValidator<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, stashAddress: M2, chainAsset: M3, wallet: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, AccountAddress, ChainAsset, MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AccountAddress, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AccountAddress, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: stashAddress) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
+        func showRewardPayoutsForValidator<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, stashAddress: M2, chainAsset: M3, wallet: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, AccountAddress, ChainAsset, fearless.MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AccountAddress, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AccountAddress, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: stashAddress) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    showRewardPayoutsForValidator(from: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showRewardPayoutsForValidator(from: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -54189,11 +54189,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showStakingBalance<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingBalanceFlow), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.MatchedType == StakingBalanceFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingBalanceFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
+        func showStakingBalance<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingBalanceFlow), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == StakingBalanceFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingBalanceFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    showStakingBalance(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingBalanceFlow)
+    showStakingBalance(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingBalanceFlow)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -54201,11 +54201,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showNominatorValidators<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }]
+        func showNominatorValidators<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }]
             return cuckoo_manager.verify(
     """
-    showNominatorValidators(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showNominatorValidators(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -54213,11 +54213,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showRewardDestination<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.OptionalMatchable>(from view: M1, chain: M2, asset: M3, selectedAccount: M4, rewardChainAsset: M5) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainModel, AssetModel, MetaAccountModel, ChainAsset?), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainModel, M3.MatchedType == AssetModel, M4.MatchedType == MetaAccountModel, M5.OptionalMatchedType == ChainAsset {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainModel, AssetModel, MetaAccountModel, ChainAsset?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chain) { $0.1 }, wrap(matchable: asset) { $0.2 }, wrap(matchable: selectedAccount) { $0.3 }, wrap(matchable: rewardChainAsset) { $0.4 }]
+        func showRewardDestination<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.OptionalMatchable>(from view: M1, chain: M2, asset: M3, selectedAccount: M4, rewardChainAsset: M5) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainModel, AssetModel, fearless.MetaAccountModel, ChainAsset?), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainModel, M3.MatchedType == AssetModel, M4.MatchedType == fearless.MetaAccountModel, M5.OptionalMatchedType == ChainAsset {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainModel, AssetModel, fearless.MetaAccountModel, ChainAsset?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chain) { $0.1 }, wrap(matchable: asset) { $0.2 }, wrap(matchable: selectedAccount) { $0.3 }, wrap(matchable: rewardChainAsset) { $0.4 }]
             return cuckoo_manager.verify(
     """
-    showRewardDestination(from: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel, rewardChainAsset: ChainAsset?)
+    showRewardDestination(from: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel, rewardChainAsset: ChainAsset?)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -54225,11 +54225,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showControllerAccount<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chain: M2, asset: M3, selectedAccount: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainModel, AssetModel, MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainModel, M3.MatchedType == AssetModel, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainModel, AssetModel, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chain) { $0.1 }, wrap(matchable: asset) { $0.2 }, wrap(matchable: selectedAccount) { $0.3 }]
+        func showControllerAccount<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chain: M2, asset: M3, selectedAccount: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainModel, AssetModel, fearless.MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainModel, M3.MatchedType == AssetModel, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainModel, AssetModel, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chain) { $0.1 }, wrap(matchable: asset) { $0.2 }, wrap(matchable: selectedAccount) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    showControllerAccount(from: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel)
+    showControllerAccount(from: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -54249,11 +54249,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showBondMore<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingBondMoreFlow), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.MatchedType == StakingBondMoreFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingBondMoreFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
+        func showBondMore<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingBondMoreFlow), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == StakingBondMoreFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingBondMoreFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    showBondMore(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingBondMoreFlow)
+    showBondMore(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingBondMoreFlow)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -54261,11 +54261,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showRedeem<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingRedeemConfirmationFlow), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.MatchedType == StakingRedeemConfirmationFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, MetaAccountModel, StakingRedeemConfirmationFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
+        func showRedeem<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, chainAsset: M2, wallet: M3, flow: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingRedeemConfirmationFlow), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.MatchedType == StakingRedeemConfirmationFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, ChainAsset, fearless.MetaAccountModel, StakingRedeemConfirmationFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: flow) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    showRedeem(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRedeemConfirmationFlow)
+    showRedeem(from: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRedeemConfirmationFlow)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -54273,11 +54273,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showAnalytics<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, mode: M2, chainAsset: M3, wallet: M4, flow: M5) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, AnalyticsContainerViewMode, ChainAsset, MetaAccountModel, AnalyticsRewardsFlow), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AnalyticsContainerViewMode, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel, M5.MatchedType == AnalyticsRewardsFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AnalyticsContainerViewMode, ChainAsset, MetaAccountModel, AnalyticsRewardsFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: mode) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }, wrap(matchable: flow) { $0.4 }]
+        func showAnalytics<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, mode: M2, chainAsset: M3, wallet: M4, flow: M5) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, AnalyticsContainerViewMode, ChainAsset, fearless.MetaAccountModel, AnalyticsRewardsFlow), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AnalyticsContainerViewMode, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel, M5.MatchedType == AnalyticsRewardsFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AnalyticsContainerViewMode, ChainAsset, fearless.MetaAccountModel, AnalyticsRewardsFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: mode) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }, wrap(matchable: flow) { $0.4 }]
             return cuckoo_manager.verify(
     """
-    showAnalytics(from: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: AnalyticsRewardsFlow)
+    showAnalytics(from: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: AnalyticsRewardsFlow)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -54285,11 +54285,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showYourValidatorInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(chainAsset: M1, selectedAccount: M2, flow: M3, from view: M4) -> Cuckoo.__DoNotUse<(ChainAsset, MetaAccountModel, ValidatorInfoFlow, ControllerBackedProtocol?), Void> where M1.MatchedType == ChainAsset, M2.MatchedType == MetaAccountModel, M3.MatchedType == ValidatorInfoFlow, M4.OptionalMatchedType == ControllerBackedProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(ChainAsset, MetaAccountModel, ValidatorInfoFlow, ControllerBackedProtocol?)>] = [wrap(matchable: chainAsset) { $0.0 }, wrap(matchable: selectedAccount) { $0.1 }, wrap(matchable: flow) { $0.2 }, wrap(matchable: view) { $0.3 }]
+        func showYourValidatorInfo<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(chainAsset: M1, selectedAccount: M2, flow: M3, from view: M4) -> Cuckoo.__DoNotUse<(ChainAsset, fearless.MetaAccountModel, ValidatorInfoFlow, ControllerBackedProtocol?), Void> where M1.MatchedType == ChainAsset, M2.MatchedType == fearless.MetaAccountModel, M3.MatchedType == ValidatorInfoFlow, M4.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainAsset, fearless.MetaAccountModel, ValidatorInfoFlow, ControllerBackedProtocol?)>] = [wrap(matchable: chainAsset) { $0.0 }, wrap(matchable: selectedAccount) { $0.1 }, wrap(matchable: flow) { $0.2 }, wrap(matchable: view) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    showYourValidatorInfo(chainAsset: ChainAsset, selectedAccount: MetaAccountModel, flow: ValidatorInfoFlow, from: ControllerBackedProtocol?)
+    showYourValidatorInfo(chainAsset: ChainAsset, selectedAccount: fearless.MetaAccountModel, flow: ValidatorInfoFlow, from: ControllerBackedProtocol?)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -54355,7 +54355,7 @@ import SoraFoundation
     
     
     
-     func showSetupAmount(from view: StakingMainViewProtocol?, amount: Decimal?, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel, rewardChainAsset: ChainAsset?)   {
+     func showSetupAmount(from view: StakingMainViewProtocol?, amount: Decimal?, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel, rewardChainAsset: ChainAsset?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -54371,7 +54371,7 @@ import SoraFoundation
     
     
     
-     func proceedToSelectValidatorsStart(from view: StakingMainViewProtocol?, existingBonding: ExistingBonding, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel)   {
+     func proceedToSelectValidatorsStart(from view: StakingMainViewProtocol?, existingBonding: ExistingBonding, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -54395,7 +54395,7 @@ import SoraFoundation
     
     
     
-     func showRewardPayoutsForNominator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: MetaAccountModel)   {
+     func showRewardPayoutsForNominator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -54403,7 +54403,7 @@ import SoraFoundation
     
     
     
-     func showRewardPayoutsForValidator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: MetaAccountModel)   {
+     func showRewardPayoutsForValidator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -54411,7 +54411,7 @@ import SoraFoundation
     
     
     
-     func showStakingBalance(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingBalanceFlow)   {
+     func showStakingBalance(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingBalanceFlow)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -54419,7 +54419,7 @@ import SoraFoundation
     
     
     
-     func showNominatorValidators(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel)   {
+     func showNominatorValidators(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -54427,7 +54427,7 @@ import SoraFoundation
     
     
     
-     func showRewardDestination(from view: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel, rewardChainAsset: ChainAsset?)   {
+     func showRewardDestination(from view: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel, rewardChainAsset: ChainAsset?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -54435,7 +54435,7 @@ import SoraFoundation
     
     
     
-     func showControllerAccount(from view: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: MetaAccountModel)   {
+     func showControllerAccount(from view: ControllerBackedProtocol?, chain: ChainModel, asset: AssetModel, selectedAccount: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -54451,7 +54451,7 @@ import SoraFoundation
     
     
     
-     func showBondMore(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingBondMoreFlow)   {
+     func showBondMore(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingBondMoreFlow)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -54459,7 +54459,7 @@ import SoraFoundation
     
     
     
-     func showRedeem(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRedeemConfirmationFlow)   {
+     func showRedeem(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRedeemConfirmationFlow)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -54467,7 +54467,7 @@ import SoraFoundation
     
     
     
-     func showAnalytics(from view: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: AnalyticsRewardsFlow)   {
+     func showAnalytics(from view: ControllerBackedProtocol?, mode: AnalyticsContainerViewMode, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: AnalyticsRewardsFlow)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -54475,7 +54475,7 @@ import SoraFoundation
     
     
     
-     func showYourValidatorInfo(chainAsset: ChainAsset, selectedAccount: MetaAccountModel, flow: ValidatorInfoFlow, from view: ControllerBackedProtocol?)   {
+     func showYourValidatorInfo(chainAsset: ChainAsset, selectedAccount: fearless.MetaAccountModel, flow: ValidatorInfoFlow, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -58460,11 +58460,11 @@ import SoraFoundation
     
     
     
-     func didReceiveController(result: Result<ChainAccountResponse?, Error>)  {
+     func didReceiveController(result: Result<fearless.ChainAccountResponse?, Error>)  {
         
     return cuckoo_manager.call(
     """
-    didReceiveController(result: Result<ChainAccountResponse?, Error>)
+    didReceiveController(result: Result<fearless.ChainAccountResponse?, Error>)
     """,
             parameters: (result),
             escapingParameters: (result),
@@ -58561,11 +58561,11 @@ import SoraFoundation
         
         
         
-        func didReceiveController<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<ChainAccountResponse?, Error>)> where M1.MatchedType == Result<ChainAccountResponse?, Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveController<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<fearless.ChainAccountResponse?, Error>)> where M1.MatchedType == Result<fearless.ChainAccountResponse?, Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<fearless.ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRebondSetupInteractorOutputProtocol.self, method:
     """
-    didReceiveController(result: Result<ChainAccountResponse?, Error>)
+    didReceiveController(result: Result<fearless.ChainAccountResponse?, Error>)
     """, parameterMatchers: matchers))
         }
         
@@ -58647,11 +58647,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func didReceiveController<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<ChainAccountResponse?, Error>), Void> where M1.MatchedType == Result<ChainAccountResponse?, Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveController<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<fearless.ChainAccountResponse?, Error>), Void> where M1.MatchedType == Result<fearless.ChainAccountResponse?, Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<fearless.ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
             return cuckoo_manager.verify(
     """
-    didReceiveController(result: Result<ChainAccountResponse?, Error>)
+    didReceiveController(result: Result<fearless.ChainAccountResponse?, Error>)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -58717,7 +58717,7 @@ import SoraFoundation
     
     
     
-     func didReceiveController(result: Result<ChainAccountResponse?, Error>)   {
+     func didReceiveController(result: Result<fearless.ChainAccountResponse?, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -58775,11 +58775,11 @@ import SoraFoundation
     
     
     
-     func proceed(view: StakingRebondSetupViewProtocol?, amount: Decimal, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRebondConfirmationFlow)  {
+     func proceed(view: StakingRebondSetupViewProtocol?, amount: Decimal, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRebondConfirmationFlow)  {
         
     return cuckoo_manager.call(
     """
-    proceed(view: StakingRebondSetupViewProtocol?, amount: Decimal, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRebondConfirmationFlow)
+    proceed(view: StakingRebondSetupViewProtocol?, amount: Decimal, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRebondConfirmationFlow)
     """,
             parameters: (view, amount, chainAsset, wallet, flow),
             escapingParameters: (view, amount, chainAsset, wallet, flow),
@@ -58883,11 +58883,11 @@ import SoraFoundation
         
         
         
-        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(view: M1, amount: M2, chainAsset: M3, wallet: M4, flow: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingRebondSetupViewProtocol?, Decimal, ChainAsset, MetaAccountModel, StakingRebondConfirmationFlow)> where M1.OptionalMatchedType == StakingRebondSetupViewProtocol, M2.MatchedType == Decimal, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel, M5.MatchedType == StakingRebondConfirmationFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(StakingRebondSetupViewProtocol?, Decimal, ChainAsset, MetaAccountModel, StakingRebondConfirmationFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: amount) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }, wrap(matchable: flow) { $0.4 }]
+        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(view: M1, amount: M2, chainAsset: M3, wallet: M4, flow: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingRebondSetupViewProtocol?, Decimal, ChainAsset, fearless.MetaAccountModel, StakingRebondConfirmationFlow)> where M1.OptionalMatchedType == StakingRebondSetupViewProtocol, M2.MatchedType == Decimal, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel, M5.MatchedType == StakingRebondConfirmationFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(StakingRebondSetupViewProtocol?, Decimal, ChainAsset, fearless.MetaAccountModel, StakingRebondConfirmationFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: amount) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }, wrap(matchable: flow) { $0.4 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRebondSetupWireframeProtocol.self, method:
     """
-    proceed(view: StakingRebondSetupViewProtocol?, amount: Decimal, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRebondConfirmationFlow)
+    proceed(view: StakingRebondSetupViewProtocol?, amount: Decimal, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRebondConfirmationFlow)
     """, parameterMatchers: matchers))
         }
         
@@ -58955,11 +58955,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(view: M1, amount: M2, chainAsset: M3, wallet: M4, flow: M5) -> Cuckoo.__DoNotUse<(StakingRebondSetupViewProtocol?, Decimal, ChainAsset, MetaAccountModel, StakingRebondConfirmationFlow), Void> where M1.OptionalMatchedType == StakingRebondSetupViewProtocol, M2.MatchedType == Decimal, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel, M5.MatchedType == StakingRebondConfirmationFlow {
-            let matchers: [Cuckoo.ParameterMatcher<(StakingRebondSetupViewProtocol?, Decimal, ChainAsset, MetaAccountModel, StakingRebondConfirmationFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: amount) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }, wrap(matchable: flow) { $0.4 }]
+        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(view: M1, amount: M2, chainAsset: M3, wallet: M4, flow: M5) -> Cuckoo.__DoNotUse<(StakingRebondSetupViewProtocol?, Decimal, ChainAsset, fearless.MetaAccountModel, StakingRebondConfirmationFlow), Void> where M1.OptionalMatchedType == StakingRebondSetupViewProtocol, M2.MatchedType == Decimal, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel, M5.MatchedType == StakingRebondConfirmationFlow {
+            let matchers: [Cuckoo.ParameterMatcher<(StakingRebondSetupViewProtocol?, Decimal, ChainAsset, fearless.MetaAccountModel, StakingRebondConfirmationFlow)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: amount) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }, wrap(matchable: flow) { $0.4 }]
             return cuckoo_manager.verify(
     """
-    proceed(view: StakingRebondSetupViewProtocol?, amount: Decimal, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRebondConfirmationFlow)
+    proceed(view: StakingRebondSetupViewProtocol?, amount: Decimal, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRebondConfirmationFlow)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -59025,7 +59025,7 @@ import SoraFoundation
     
     
     
-     func proceed(view: StakingRebondSetupViewProtocol?, amount: Decimal, chainAsset: ChainAsset, wallet: MetaAccountModel, flow: StakingRebondConfirmationFlow)   {
+     func proceed(view: StakingRebondSetupViewProtocol?, amount: Decimal, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, flow: StakingRebondConfirmationFlow)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -60181,11 +60181,11 @@ import SoraFoundation
     
     
     
-     func didReceiveController(result: Result<ChainAccountResponse?, Error>)  {
+     func didReceiveController(result: Result<fearless.ChainAccountResponse?, Error>)  {
         
     return cuckoo_manager.call(
     """
-    didReceiveController(result: Result<ChainAccountResponse?, Error>)
+    didReceiveController(result: Result<fearless.ChainAccountResponse?, Error>)
     """,
             parameters: (result),
             escapingParameters: (result),
@@ -60271,11 +60271,11 @@ import SoraFoundation
         
         
         
-        func didReceiveController<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<ChainAccountResponse?, Error>)> where M1.MatchedType == Result<ChainAccountResponse?, Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveController<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<fearless.ChainAccountResponse?, Error>)> where M1.MatchedType == Result<fearless.ChainAccountResponse?, Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<fearless.ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardDestConfirmInteractorOutputProtocol.self, method:
     """
-    didReceiveController(result: Result<ChainAccountResponse?, Error>)
+    didReceiveController(result: Result<fearless.ChainAccountResponse?, Error>)
     """, parameterMatchers: matchers))
         }
         
@@ -60345,11 +60345,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func didReceiveController<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<ChainAccountResponse?, Error>), Void> where M1.MatchedType == Result<ChainAccountResponse?, Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveController<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<fearless.ChainAccountResponse?, Error>), Void> where M1.MatchedType == Result<fearless.ChainAccountResponse?, Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<fearless.ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
             return cuckoo_manager.verify(
     """
-    didReceiveController(result: Result<ChainAccountResponse?, Error>)
+    didReceiveController(result: Result<fearless.ChainAccountResponse?, Error>)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -60407,7 +60407,7 @@ import SoraFoundation
     
     
     
-     func didReceiveController(result: Result<ChainAccountResponse?, Error>)   {
+     func didReceiveController(result: Result<fearless.ChainAccountResponse?, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -61739,11 +61739,11 @@ import SoraFoundation
     
     
     
-     func didReceiveController(result: Result<ChainAccountResponse?, Error>)  {
+     func didReceiveController(result: Result<fearless.ChainAccountResponse?, Error>)  {
         
     return cuckoo_manager.call(
     """
-    didReceiveController(result: Result<ChainAccountResponse?, Error>)
+    didReceiveController(result: Result<fearless.ChainAccountResponse?, Error>)
     """,
             parameters: (result),
             escapingParameters: (result),
@@ -61759,11 +61759,11 @@ import SoraFoundation
     
     
     
-     func didReceiveStash(result: Result<ChainAccountResponse?, Error>)  {
+     func didReceiveStash(result: Result<fearless.ChainAccountResponse?, Error>)  {
         
     return cuckoo_manager.call(
     """
-    didReceiveStash(result: Result<ChainAccountResponse?, Error>)
+    didReceiveStash(result: Result<fearless.ChainAccountResponse?, Error>)
     """,
             parameters: (result),
             escapingParameters: (result),
@@ -61799,11 +61799,11 @@ import SoraFoundation
     
     
     
-     func didReceiveRewardDestinationAccount(result: Result<RewardDestination<ChainAccountResponse>?, Error>)  {
+     func didReceiveRewardDestinationAccount(result: Result<RewardDestination<fearless.ChainAccountResponse>?, Error>)  {
         
     return cuckoo_manager.call(
     """
-    didReceiveRewardDestinationAccount(result: Result<RewardDestination<ChainAccountResponse>?, Error>)
+    didReceiveRewardDestinationAccount(result: Result<RewardDestination<fearless.ChainAccountResponse>?, Error>)
     """,
             parameters: (result),
             escapingParameters: (result),
@@ -61859,11 +61859,11 @@ import SoraFoundation
     
     
     
-     func didReceiveAccounts(result: Result<[ChainAccountResponse], Error>)  {
+     func didReceiveAccounts(result: Result<[fearless.ChainAccountResponse], Error>)  {
         
     return cuckoo_manager.call(
     """
-    didReceiveAccounts(result: Result<[ChainAccountResponse], Error>)
+    didReceiveAccounts(result: Result<[fearless.ChainAccountResponse], Error>)
     """,
             parameters: (result),
             escapingParameters: (result),
@@ -61949,22 +61949,22 @@ import SoraFoundation
         
         
         
-        func didReceiveController<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<ChainAccountResponse?, Error>)> where M1.MatchedType == Result<ChainAccountResponse?, Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveController<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<fearless.ChainAccountResponse?, Error>)> where M1.MatchedType == Result<fearless.ChainAccountResponse?, Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<fearless.ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardDestSetupInteractorOutputProtocol.self, method:
     """
-    didReceiveController(result: Result<ChainAccountResponse?, Error>)
+    didReceiveController(result: Result<fearless.ChainAccountResponse?, Error>)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func didReceiveStash<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<ChainAccountResponse?, Error>)> where M1.MatchedType == Result<ChainAccountResponse?, Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveStash<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<fearless.ChainAccountResponse?, Error>)> where M1.MatchedType == Result<fearless.ChainAccountResponse?, Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<fearless.ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardDestSetupInteractorOutputProtocol.self, method:
     """
-    didReceiveStash(result: Result<ChainAccountResponse?, Error>)
+    didReceiveStash(result: Result<fearless.ChainAccountResponse?, Error>)
     """, parameterMatchers: matchers))
         }
         
@@ -61982,11 +61982,11 @@ import SoraFoundation
         
         
         
-        func didReceiveRewardDestinationAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<RewardDestination<ChainAccountResponse>?, Error>)> where M1.MatchedType == Result<RewardDestination<ChainAccountResponse>?, Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<RewardDestination<ChainAccountResponse>?, Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveRewardDestinationAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<RewardDestination<fearless.ChainAccountResponse>?, Error>)> where M1.MatchedType == Result<RewardDestination<fearless.ChainAccountResponse>?, Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<RewardDestination<fearless.ChainAccountResponse>?, Error>)>] = [wrap(matchable: result) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardDestSetupInteractorOutputProtocol.self, method:
     """
-    didReceiveRewardDestinationAccount(result: Result<RewardDestination<ChainAccountResponse>?, Error>)
+    didReceiveRewardDestinationAccount(result: Result<RewardDestination<fearless.ChainAccountResponse>?, Error>)
     """, parameterMatchers: matchers))
         }
         
@@ -62015,11 +62015,11 @@ import SoraFoundation
         
         
         
-        func didReceiveAccounts<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<[ChainAccountResponse], Error>)> where M1.MatchedType == Result<[ChainAccountResponse], Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<[ChainAccountResponse], Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveAccounts<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<[fearless.ChainAccountResponse], Error>)> where M1.MatchedType == Result<[fearless.ChainAccountResponse], Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<[fearless.ChainAccountResponse], Error>)>] = [wrap(matchable: result) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardDestSetupInteractorOutputProtocol.self, method:
     """
-    didReceiveAccounts(result: Result<[ChainAccountResponse], Error>)
+    didReceiveAccounts(result: Result<[fearless.ChainAccountResponse], Error>)
     """, parameterMatchers: matchers))
         }
         
@@ -62089,11 +62089,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func didReceiveController<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<ChainAccountResponse?, Error>), Void> where M1.MatchedType == Result<ChainAccountResponse?, Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveController<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<fearless.ChainAccountResponse?, Error>), Void> where M1.MatchedType == Result<fearless.ChainAccountResponse?, Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<fearless.ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
             return cuckoo_manager.verify(
     """
-    didReceiveController(result: Result<ChainAccountResponse?, Error>)
+    didReceiveController(result: Result<fearless.ChainAccountResponse?, Error>)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -62101,11 +62101,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func didReceiveStash<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<ChainAccountResponse?, Error>), Void> where M1.MatchedType == Result<ChainAccountResponse?, Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveStash<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<fearless.ChainAccountResponse?, Error>), Void> where M1.MatchedType == Result<fearless.ChainAccountResponse?, Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<fearless.ChainAccountResponse?, Error>)>] = [wrap(matchable: result) { $0 }]
             return cuckoo_manager.verify(
     """
-    didReceiveStash(result: Result<ChainAccountResponse?, Error>)
+    didReceiveStash(result: Result<fearless.ChainAccountResponse?, Error>)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -62125,11 +62125,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func didReceiveRewardDestinationAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<RewardDestination<ChainAccountResponse>?, Error>), Void> where M1.MatchedType == Result<RewardDestination<ChainAccountResponse>?, Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<RewardDestination<ChainAccountResponse>?, Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveRewardDestinationAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<RewardDestination<fearless.ChainAccountResponse>?, Error>), Void> where M1.MatchedType == Result<RewardDestination<fearless.ChainAccountResponse>?, Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<RewardDestination<fearless.ChainAccountResponse>?, Error>)>] = [wrap(matchable: result) { $0 }]
             return cuckoo_manager.verify(
     """
-    didReceiveRewardDestinationAccount(result: Result<RewardDestination<ChainAccountResponse>?, Error>)
+    didReceiveRewardDestinationAccount(result: Result<RewardDestination<fearless.ChainAccountResponse>?, Error>)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -62161,11 +62161,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func didReceiveAccounts<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<[ChainAccountResponse], Error>), Void> where M1.MatchedType == Result<[ChainAccountResponse], Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<[ChainAccountResponse], Error>)>] = [wrap(matchable: result) { $0 }]
+        func didReceiveAccounts<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<[fearless.ChainAccountResponse], Error>), Void> where M1.MatchedType == Result<[fearless.ChainAccountResponse], Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<[fearless.ChainAccountResponse], Error>)>] = [wrap(matchable: result) { $0 }]
             return cuckoo_manager.verify(
     """
-    didReceiveAccounts(result: Result<[ChainAccountResponse], Error>)
+    didReceiveAccounts(result: Result<[fearless.ChainAccountResponse], Error>)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -62223,7 +62223,7 @@ import SoraFoundation
     
     
     
-     func didReceiveController(result: Result<ChainAccountResponse?, Error>)   {
+     func didReceiveController(result: Result<fearless.ChainAccountResponse?, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -62231,7 +62231,7 @@ import SoraFoundation
     
     
     
-     func didReceiveStash(result: Result<ChainAccountResponse?, Error>)   {
+     func didReceiveStash(result: Result<fearless.ChainAccountResponse?, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -62247,7 +62247,7 @@ import SoraFoundation
     
     
     
-     func didReceiveRewardDestinationAccount(result: Result<RewardDestination<ChainAccountResponse>?, Error>)   {
+     func didReceiveRewardDestinationAccount(result: Result<RewardDestination<fearless.ChainAccountResponse>?, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -62271,7 +62271,7 @@ import SoraFoundation
     
     
     
-     func didReceiveAccounts(result: Result<[ChainAccountResponse], Error>)   {
+     func didReceiveAccounts(result: Result<[fearless.ChainAccountResponse], Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -62329,11 +62329,11 @@ import SoraFoundation
     
     
     
-     func proceed(view: StakingRewardDestSetupViewProtocol?, rewardDestination: RewardDestination<ChainAccountResponse>, asset: AssetModel, chain: ChainModel, selectedAccount: MetaAccountModel)  {
+     func proceed(view: StakingRewardDestSetupViewProtocol?, rewardDestination: RewardDestination<fearless.ChainAccountResponse>, asset: AssetModel, chain: ChainModel, selectedAccount: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    proceed(view: StakingRewardDestSetupViewProtocol?, rewardDestination: RewardDestination<ChainAccountResponse>, asset: AssetModel, chain: ChainModel, selectedAccount: MetaAccountModel)
+    proceed(view: StakingRewardDestSetupViewProtocol?, rewardDestination: RewardDestination<fearless.ChainAccountResponse>, asset: AssetModel, chain: ChainModel, selectedAccount: fearless.MetaAccountModel)
     """,
             parameters: (view, rewardDestination, asset, chain, selectedAccount),
             escapingParameters: (view, rewardDestination, asset, chain, selectedAccount),
@@ -62429,11 +62429,11 @@ import SoraFoundation
     
     
     
-     func presentAccountSelection(_ accounts: [ChainAccountResponse], selectedAccountItem: ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from view: ControllerBackedProtocol?, context: AnyObject?)  {
+     func presentAccountSelection(_ accounts: [fearless.ChainAccountResponse], selectedAccountItem: fearless.ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from view: ControllerBackedProtocol?, context: AnyObject?)  {
         
     return cuckoo_manager.call(
     """
-    presentAccountSelection(_: [ChainAccountResponse], selectedAccountItem: ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from: ControllerBackedProtocol?, context: AnyObject?)
+    presentAccountSelection(_: [fearless.ChainAccountResponse], selectedAccountItem: fearless.ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from: ControllerBackedProtocol?, context: AnyObject?)
     """,
             parameters: (accounts, selectedAccountItem, title, delegate, view, context),
             escapingParameters: (accounts, selectedAccountItem, title, delegate, view, context),
@@ -62457,11 +62457,11 @@ import SoraFoundation
         
         
         
-        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(view: M1, rewardDestination: M2, asset: M3, chain: M4, selectedAccount: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingRewardDestSetupViewProtocol?, RewardDestination<ChainAccountResponse>, AssetModel, ChainModel, MetaAccountModel)> where M1.OptionalMatchedType == StakingRewardDestSetupViewProtocol, M2.MatchedType == RewardDestination<ChainAccountResponse>, M3.MatchedType == AssetModel, M4.MatchedType == ChainModel, M5.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(StakingRewardDestSetupViewProtocol?, RewardDestination<ChainAccountResponse>, AssetModel, ChainModel, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: rewardDestination) { $0.1 }, wrap(matchable: asset) { $0.2 }, wrap(matchable: chain) { $0.3 }, wrap(matchable: selectedAccount) { $0.4 }]
+        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(view: M1, rewardDestination: M2, asset: M3, chain: M4, selectedAccount: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingRewardDestSetupViewProtocol?, RewardDestination<fearless.ChainAccountResponse>, AssetModel, ChainModel, fearless.MetaAccountModel)> where M1.OptionalMatchedType == StakingRewardDestSetupViewProtocol, M2.MatchedType == RewardDestination<fearless.ChainAccountResponse>, M3.MatchedType == AssetModel, M4.MatchedType == ChainModel, M5.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(StakingRewardDestSetupViewProtocol?, RewardDestination<fearless.ChainAccountResponse>, AssetModel, ChainModel, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: rewardDestination) { $0.1 }, wrap(matchable: asset) { $0.2 }, wrap(matchable: chain) { $0.3 }, wrap(matchable: selectedAccount) { $0.4 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardDestSetupWireframeProtocol.self, method:
     """
-    proceed(view: StakingRewardDestSetupViewProtocol?, rewardDestination: RewardDestination<ChainAccountResponse>, asset: AssetModel, chain: ChainModel, selectedAccount: MetaAccountModel)
+    proceed(view: StakingRewardDestSetupViewProtocol?, rewardDestination: RewardDestination<fearless.ChainAccountResponse>, asset: AssetModel, chain: ChainModel, selectedAccount: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
@@ -62512,11 +62512,11 @@ import SoraFoundation
         
         
         
-        func presentAccountSelection<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.OptionalMatchable, M6: Cuckoo.OptionalMatchable>(_ accounts: M1, selectedAccountItem: M2, title: M3, delegate: M4, from view: M5, context: M6) -> Cuckoo.ProtocolStubNoReturnFunction<([ChainAccountResponse], ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)> where M1.MatchedType == [ChainAccountResponse], M2.OptionalMatchedType == ChainAccountResponse, M3.MatchedType == LocalizableResource<String>, M4.MatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == ControllerBackedProtocol, M6.OptionalMatchedType == AnyObject {
-            let matchers: [Cuckoo.ParameterMatcher<([ChainAccountResponse], ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)>] = [wrap(matchable: accounts) { $0.0 }, wrap(matchable: selectedAccountItem) { $0.1 }, wrap(matchable: title) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: view) { $0.4 }, wrap(matchable: context) { $0.5 }]
+        func presentAccountSelection<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.OptionalMatchable, M6: Cuckoo.OptionalMatchable>(_ accounts: M1, selectedAccountItem: M2, title: M3, delegate: M4, from view: M5, context: M6) -> Cuckoo.ProtocolStubNoReturnFunction<([fearless.ChainAccountResponse], fearless.ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)> where M1.MatchedType == [fearless.ChainAccountResponse], M2.OptionalMatchedType == fearless.ChainAccountResponse, M3.MatchedType == LocalizableResource<String>, M4.MatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == ControllerBackedProtocol, M6.OptionalMatchedType == AnyObject {
+            let matchers: [Cuckoo.ParameterMatcher<([fearless.ChainAccountResponse], fearless.ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)>] = [wrap(matchable: accounts) { $0.0 }, wrap(matchable: selectedAccountItem) { $0.1 }, wrap(matchable: title) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: view) { $0.4 }, wrap(matchable: context) { $0.5 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardDestSetupWireframeProtocol.self, method:
     """
-    presentAccountSelection(_: [ChainAccountResponse], selectedAccountItem: ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from: ControllerBackedProtocol?, context: AnyObject?)
+    presentAccountSelection(_: [fearless.ChainAccountResponse], selectedAccountItem: fearless.ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from: ControllerBackedProtocol?, context: AnyObject?)
     """, parameterMatchers: matchers))
         }
         
@@ -62540,11 +62540,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(view: M1, rewardDestination: M2, asset: M3, chain: M4, selectedAccount: M5) -> Cuckoo.__DoNotUse<(StakingRewardDestSetupViewProtocol?, RewardDestination<ChainAccountResponse>, AssetModel, ChainModel, MetaAccountModel), Void> where M1.OptionalMatchedType == StakingRewardDestSetupViewProtocol, M2.MatchedType == RewardDestination<ChainAccountResponse>, M3.MatchedType == AssetModel, M4.MatchedType == ChainModel, M5.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(StakingRewardDestSetupViewProtocol?, RewardDestination<ChainAccountResponse>, AssetModel, ChainModel, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: rewardDestination) { $0.1 }, wrap(matchable: asset) { $0.2 }, wrap(matchable: chain) { $0.3 }, wrap(matchable: selectedAccount) { $0.4 }]
+        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(view: M1, rewardDestination: M2, asset: M3, chain: M4, selectedAccount: M5) -> Cuckoo.__DoNotUse<(StakingRewardDestSetupViewProtocol?, RewardDestination<fearless.ChainAccountResponse>, AssetModel, ChainModel, fearless.MetaAccountModel), Void> where M1.OptionalMatchedType == StakingRewardDestSetupViewProtocol, M2.MatchedType == RewardDestination<fearless.ChainAccountResponse>, M3.MatchedType == AssetModel, M4.MatchedType == ChainModel, M5.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(StakingRewardDestSetupViewProtocol?, RewardDestination<fearless.ChainAccountResponse>, AssetModel, ChainModel, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: rewardDestination) { $0.1 }, wrap(matchable: asset) { $0.2 }, wrap(matchable: chain) { $0.3 }, wrap(matchable: selectedAccount) { $0.4 }]
             return cuckoo_manager.verify(
     """
-    proceed(view: StakingRewardDestSetupViewProtocol?, rewardDestination: RewardDestination<ChainAccountResponse>, asset: AssetModel, chain: ChainModel, selectedAccount: MetaAccountModel)
+    proceed(view: StakingRewardDestSetupViewProtocol?, rewardDestination: RewardDestination<fearless.ChainAccountResponse>, asset: AssetModel, chain: ChainModel, selectedAccount: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -62600,11 +62600,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func presentAccountSelection<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.OptionalMatchable, M6: Cuckoo.OptionalMatchable>(_ accounts: M1, selectedAccountItem: M2, title: M3, delegate: M4, from view: M5, context: M6) -> Cuckoo.__DoNotUse<([ChainAccountResponse], ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?), Void> where M1.MatchedType == [ChainAccountResponse], M2.OptionalMatchedType == ChainAccountResponse, M3.MatchedType == LocalizableResource<String>, M4.MatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == ControllerBackedProtocol, M6.OptionalMatchedType == AnyObject {
-            let matchers: [Cuckoo.ParameterMatcher<([ChainAccountResponse], ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)>] = [wrap(matchable: accounts) { $0.0 }, wrap(matchable: selectedAccountItem) { $0.1 }, wrap(matchable: title) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: view) { $0.4 }, wrap(matchable: context) { $0.5 }]
+        func presentAccountSelection<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.OptionalMatchable, M6: Cuckoo.OptionalMatchable>(_ accounts: M1, selectedAccountItem: M2, title: M3, delegate: M4, from view: M5, context: M6) -> Cuckoo.__DoNotUse<([fearless.ChainAccountResponse], fearless.ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?), Void> where M1.MatchedType == [fearless.ChainAccountResponse], M2.OptionalMatchedType == fearless.ChainAccountResponse, M3.MatchedType == LocalizableResource<String>, M4.MatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == ControllerBackedProtocol, M6.OptionalMatchedType == AnyObject {
+            let matchers: [Cuckoo.ParameterMatcher<([fearless.ChainAccountResponse], fearless.ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)>] = [wrap(matchable: accounts) { $0.0 }, wrap(matchable: selectedAccountItem) { $0.1 }, wrap(matchable: title) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: view) { $0.4 }, wrap(matchable: context) { $0.5 }]
             return cuckoo_manager.verify(
     """
-    presentAccountSelection(_: [ChainAccountResponse], selectedAccountItem: ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from: ControllerBackedProtocol?, context: AnyObject?)
+    presentAccountSelection(_: [fearless.ChainAccountResponse], selectedAccountItem: fearless.ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from: ControllerBackedProtocol?, context: AnyObject?)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -62622,7 +62622,7 @@ import SoraFoundation
     
     
     
-     func proceed(view: StakingRewardDestSetupViewProtocol?, rewardDestination: RewardDestination<ChainAccountResponse>, asset: AssetModel, chain: ChainModel, selectedAccount: MetaAccountModel)   {
+     func proceed(view: StakingRewardDestSetupViewProtocol?, rewardDestination: RewardDestination<fearless.ChainAccountResponse>, asset: AssetModel, chain: ChainModel, selectedAccount: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -62662,7 +62662,7 @@ import SoraFoundation
     
     
     
-     func presentAccountSelection(_ accounts: [ChainAccountResponse], selectedAccountItem: ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from view: ControllerBackedProtocol?, context: AnyObject?)   {
+     func presentAccountSelection(_ accounts: [fearless.ChainAccountResponse], selectedAccountItem: fearless.ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from view: ControllerBackedProtocol?, context: AnyObject?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -63376,11 +63376,11 @@ import SoraFoundation
     
     
     
-     func showPayoutConfirmation(from view: ControllerBackedProtocol?, payoutInfo: PayoutInfo, chainAsset: ChainAsset, wallet: MetaAccountModel)  {
+     func showPayoutConfirmation(from view: ControllerBackedProtocol?, payoutInfo: PayoutInfo, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    showPayoutConfirmation(from: ControllerBackedProtocol?, payoutInfo: PayoutInfo, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showPayoutConfirmation(from: ControllerBackedProtocol?, payoutInfo: PayoutInfo, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """,
             parameters: (view, payoutInfo, chainAsset, wallet),
             escapingParameters: (view, payoutInfo, chainAsset, wallet),
@@ -63404,11 +63404,11 @@ import SoraFoundation
         
         
         
-        func showPayoutConfirmation<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, payoutInfo: M2, chainAsset: M3, wallet: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, PayoutInfo, ChainAsset, MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == PayoutInfo, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, PayoutInfo, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: payoutInfo) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
+        func showPayoutConfirmation<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, payoutInfo: M2, chainAsset: M3, wallet: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, PayoutInfo, ChainAsset, fearless.MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == PayoutInfo, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, PayoutInfo, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: payoutInfo) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardDetailsWireframeProtocol.self, method:
     """
-    showPayoutConfirmation(from: ControllerBackedProtocol?, payoutInfo: PayoutInfo, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showPayoutConfirmation(from: ControllerBackedProtocol?, payoutInfo: PayoutInfo, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
@@ -63432,11 +63432,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func showPayoutConfirmation<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, payoutInfo: M2, chainAsset: M3, wallet: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, PayoutInfo, ChainAsset, MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == PayoutInfo, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, PayoutInfo, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: payoutInfo) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
+        func showPayoutConfirmation<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(from view: M1, payoutInfo: M2, chainAsset: M3, wallet: M4) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, PayoutInfo, ChainAsset, fearless.MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == PayoutInfo, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, PayoutInfo, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: payoutInfo) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    showPayoutConfirmation(from: ControllerBackedProtocol?, payoutInfo: PayoutInfo, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showPayoutConfirmation(from: ControllerBackedProtocol?, payoutInfo: PayoutInfo, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -63454,7 +63454,7 @@ import SoraFoundation
     
     
     
-     func showPayoutConfirmation(from view: ControllerBackedProtocol?, payoutInfo: PayoutInfo, chainAsset: ChainAsset, wallet: MetaAccountModel)   {
+     func showPayoutConfirmation(from view: ControllerBackedProtocol?, payoutInfo: PayoutInfo, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -64659,11 +64659,11 @@ import SoraUI
     
     
     
-     func showRewardDetails(from view: ControllerBackedProtocol?, payoutInfo: PayoutInfo, activeEra: EraIndex, historyDepth: UInt32, chainAsset: ChainAsset, wallet: MetaAccountModel)  {
+     func showRewardDetails(from view: ControllerBackedProtocol?, payoutInfo: PayoutInfo, activeEra: EraIndex, historyDepth: UInt32, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    showRewardDetails(from: ControllerBackedProtocol?, payoutInfo: PayoutInfo, activeEra: EraIndex, historyDepth: UInt32, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showRewardDetails(from: ControllerBackedProtocol?, payoutInfo: PayoutInfo, activeEra: EraIndex, historyDepth: UInt32, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """,
             parameters: (view, payoutInfo, activeEra, historyDepth, chainAsset, wallet),
             escapingParameters: (view, payoutInfo, activeEra, historyDepth, chainAsset, wallet),
@@ -64679,11 +64679,11 @@ import SoraUI
     
     
     
-     func showPayoutConfirmation(for payouts: [PayoutInfo], chainAsset: ChainAsset, wallet: MetaAccountModel, from view: ControllerBackedProtocol?)  {
+     func showPayoutConfirmation(for payouts: [PayoutInfo], chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from view: ControllerBackedProtocol?)  {
         
     return cuckoo_manager.call(
     """
-    showPayoutConfirmation(for: [PayoutInfo], chainAsset: ChainAsset, wallet: MetaAccountModel, from: ControllerBackedProtocol?)
+    showPayoutConfirmation(for: [PayoutInfo], chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from: ControllerBackedProtocol?)
     """,
             parameters: (payouts, chainAsset, wallet, view),
             escapingParameters: (payouts, chainAsset, wallet, view),
@@ -64707,22 +64707,22 @@ import SoraUI
         
         
         
-        func showRewardDetails<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable, M6: Cuckoo.Matchable>(from view: M1, payoutInfo: M2, activeEra: M3, historyDepth: M4, chainAsset: M5, wallet: M6) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, PayoutInfo, EraIndex, UInt32, ChainAsset, MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == PayoutInfo, M3.MatchedType == EraIndex, M4.MatchedType == UInt32, M5.MatchedType == ChainAsset, M6.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, PayoutInfo, EraIndex, UInt32, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: payoutInfo) { $0.1 }, wrap(matchable: activeEra) { $0.2 }, wrap(matchable: historyDepth) { $0.3 }, wrap(matchable: chainAsset) { $0.4 }, wrap(matchable: wallet) { $0.5 }]
+        func showRewardDetails<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable, M6: Cuckoo.Matchable>(from view: M1, payoutInfo: M2, activeEra: M3, historyDepth: M4, chainAsset: M5, wallet: M6) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, PayoutInfo, EraIndex, UInt32, ChainAsset, fearless.MetaAccountModel)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == PayoutInfo, M3.MatchedType == EraIndex, M4.MatchedType == UInt32, M5.MatchedType == ChainAsset, M6.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, PayoutInfo, EraIndex, UInt32, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: payoutInfo) { $0.1 }, wrap(matchable: activeEra) { $0.2 }, wrap(matchable: historyDepth) { $0.3 }, wrap(matchable: chainAsset) { $0.4 }, wrap(matchable: wallet) { $0.5 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsWireframeProtocol.self, method:
     """
-    showRewardDetails(from: ControllerBackedProtocol?, payoutInfo: PayoutInfo, activeEra: EraIndex, historyDepth: UInt32, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showRewardDetails(from: ControllerBackedProtocol?, payoutInfo: PayoutInfo, activeEra: EraIndex, historyDepth: UInt32, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func showPayoutConfirmation<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(for payouts: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<([PayoutInfo], ChainAsset, MetaAccountModel, ControllerBackedProtocol?)> where M1.MatchedType == [PayoutInfo], M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.OptionalMatchedType == ControllerBackedProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<([PayoutInfo], ChainAsset, MetaAccountModel, ControllerBackedProtocol?)>] = [wrap(matchable: payouts) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
+        func showPayoutConfirmation<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(for payouts: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<([PayoutInfo], ChainAsset, fearless.MetaAccountModel, ControllerBackedProtocol?)> where M1.MatchedType == [PayoutInfo], M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<([PayoutInfo], ChainAsset, fearless.MetaAccountModel, ControllerBackedProtocol?)>] = [wrap(matchable: payouts) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsWireframeProtocol.self, method:
     """
-    showPayoutConfirmation(for: [PayoutInfo], chainAsset: ChainAsset, wallet: MetaAccountModel, from: ControllerBackedProtocol?)
+    showPayoutConfirmation(for: [PayoutInfo], chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -64746,11 +64746,11 @@ import SoraUI
         
         
         @discardableResult
-        func showRewardDetails<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable, M6: Cuckoo.Matchable>(from view: M1, payoutInfo: M2, activeEra: M3, historyDepth: M4, chainAsset: M5, wallet: M6) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, PayoutInfo, EraIndex, UInt32, ChainAsset, MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == PayoutInfo, M3.MatchedType == EraIndex, M4.MatchedType == UInt32, M5.MatchedType == ChainAsset, M6.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, PayoutInfo, EraIndex, UInt32, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: payoutInfo) { $0.1 }, wrap(matchable: activeEra) { $0.2 }, wrap(matchable: historyDepth) { $0.3 }, wrap(matchable: chainAsset) { $0.4 }, wrap(matchable: wallet) { $0.5 }]
+        func showRewardDetails<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable, M6: Cuckoo.Matchable>(from view: M1, payoutInfo: M2, activeEra: M3, historyDepth: M4, chainAsset: M5, wallet: M6) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, PayoutInfo, EraIndex, UInt32, ChainAsset, fearless.MetaAccountModel), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == PayoutInfo, M3.MatchedType == EraIndex, M4.MatchedType == UInt32, M5.MatchedType == ChainAsset, M6.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, PayoutInfo, EraIndex, UInt32, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: payoutInfo) { $0.1 }, wrap(matchable: activeEra) { $0.2 }, wrap(matchable: historyDepth) { $0.3 }, wrap(matchable: chainAsset) { $0.4 }, wrap(matchable: wallet) { $0.5 }]
             return cuckoo_manager.verify(
     """
-    showRewardDetails(from: ControllerBackedProtocol?, payoutInfo: PayoutInfo, activeEra: EraIndex, historyDepth: UInt32, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    showRewardDetails(from: ControllerBackedProtocol?, payoutInfo: PayoutInfo, activeEra: EraIndex, historyDepth: UInt32, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -64758,11 +64758,11 @@ import SoraUI
         
         
         @discardableResult
-        func showPayoutConfirmation<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(for payouts: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.__DoNotUse<([PayoutInfo], ChainAsset, MetaAccountModel, ControllerBackedProtocol?), Void> where M1.MatchedType == [PayoutInfo], M2.MatchedType == ChainAsset, M3.MatchedType == MetaAccountModel, M4.OptionalMatchedType == ControllerBackedProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<([PayoutInfo], ChainAsset, MetaAccountModel, ControllerBackedProtocol?)>] = [wrap(matchable: payouts) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
+        func showPayoutConfirmation<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(for payouts: M1, chainAsset: M2, wallet: M3, from view: M4) -> Cuckoo.__DoNotUse<([PayoutInfo], ChainAsset, fearless.MetaAccountModel, ControllerBackedProtocol?), Void> where M1.MatchedType == [PayoutInfo], M2.MatchedType == ChainAsset, M3.MatchedType == fearless.MetaAccountModel, M4.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<([PayoutInfo], ChainAsset, fearless.MetaAccountModel, ControllerBackedProtocol?)>] = [wrap(matchable: payouts) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: wallet) { $0.2 }, wrap(matchable: view) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    showPayoutConfirmation(for: [PayoutInfo], chainAsset: ChainAsset, wallet: MetaAccountModel, from: ControllerBackedProtocol?)
+    showPayoutConfirmation(for: [PayoutInfo], chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from: ControllerBackedProtocol?)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -64780,7 +64780,7 @@ import SoraUI
     
     
     
-     func showRewardDetails(from view: ControllerBackedProtocol?, payoutInfo: PayoutInfo, activeEra: EraIndex, historyDepth: UInt32, chainAsset: ChainAsset, wallet: MetaAccountModel)   {
+     func showRewardDetails(from view: ControllerBackedProtocol?, payoutInfo: PayoutInfo, activeEra: EraIndex, historyDepth: UInt32, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -64788,7 +64788,7 @@ import SoraUI
     
     
     
-     func showPayoutConfirmation(for payouts: [PayoutInfo], chainAsset: ChainAsset, wallet: MetaAccountModel, from view: ControllerBackedProtocol?)   {
+     func showPayoutConfirmation(for payouts: [PayoutInfo], chainAsset: ChainAsset, wallet: fearless.MetaAccountModel, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -67795,11 +67795,11 @@ import SoraFoundation
     
     
     
-     func proceed(view: StakingUnbondSetupViewProtocol?, flow: StakingUnbondConfirmFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)  {
+     func proceed(view: StakingUnbondSetupViewProtocol?, flow: StakingUnbondConfirmFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)  {
         
     return cuckoo_manager.call(
     """
-    proceed(view: StakingUnbondSetupViewProtocol?, flow: StakingUnbondConfirmFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    proceed(view: StakingUnbondSetupViewProtocol?, flow: StakingUnbondConfirmFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """,
             parameters: (view, flow, chainAsset, wallet),
             escapingParameters: (view, flow, chainAsset, wallet),
@@ -67914,11 +67914,11 @@ import SoraFoundation
         
         
         
-        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingUnbondSetupViewProtocol?, StakingUnbondConfirmFlow, ChainAsset, MetaAccountModel)> where M1.OptionalMatchedType == StakingUnbondSetupViewProtocol, M2.MatchedType == StakingUnbondConfirmFlow, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(StakingUnbondSetupViewProtocol?, StakingUnbondConfirmFlow, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
+        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingUnbondSetupViewProtocol?, StakingUnbondConfirmFlow, ChainAsset, fearless.MetaAccountModel)> where M1.OptionalMatchedType == StakingUnbondSetupViewProtocol, M2.MatchedType == StakingUnbondConfirmFlow, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(StakingUnbondSetupViewProtocol?, StakingUnbondConfirmFlow, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingUnbondSetupWireframeProtocol.self, method:
     """
-    proceed(view: StakingUnbondSetupViewProtocol?, flow: StakingUnbondConfirmFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    proceed(view: StakingUnbondSetupViewProtocol?, flow: StakingUnbondConfirmFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, parameterMatchers: matchers))
         }
         
@@ -67998,11 +67998,11 @@ import SoraFoundation
         
         
         @discardableResult
-        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.__DoNotUse<(StakingUnbondSetupViewProtocol?, StakingUnbondConfirmFlow, ChainAsset, MetaAccountModel), Void> where M1.OptionalMatchedType == StakingUnbondSetupViewProtocol, M2.MatchedType == StakingUnbondConfirmFlow, M3.MatchedType == ChainAsset, M4.MatchedType == MetaAccountModel {
-            let matchers: [Cuckoo.ParameterMatcher<(StakingUnbondSetupViewProtocol?, StakingUnbondConfirmFlow, ChainAsset, MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
+        func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(view: M1, flow: M2, chainAsset: M3, wallet: M4) -> Cuckoo.__DoNotUse<(StakingUnbondSetupViewProtocol?, StakingUnbondConfirmFlow, ChainAsset, fearless.MetaAccountModel), Void> where M1.OptionalMatchedType == StakingUnbondSetupViewProtocol, M2.MatchedType == StakingUnbondConfirmFlow, M3.MatchedType == ChainAsset, M4.MatchedType == fearless.MetaAccountModel {
+            let matchers: [Cuckoo.ParameterMatcher<(StakingUnbondSetupViewProtocol?, StakingUnbondConfirmFlow, ChainAsset, fearless.MetaAccountModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: flow) { $0.1 }, wrap(matchable: chainAsset) { $0.2 }, wrap(matchable: wallet) { $0.3 }]
             return cuckoo_manager.verify(
     """
-    proceed(view: StakingUnbondSetupViewProtocol?, flow: StakingUnbondConfirmFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)
+    proceed(view: StakingUnbondSetupViewProtocol?, flow: StakingUnbondConfirmFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)
     """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
         }
         
@@ -68076,7 +68076,7 @@ import SoraFoundation
     
     
     
-     func proceed(view: StakingUnbondSetupViewProtocol?, flow: StakingUnbondConfirmFlow, chainAsset: ChainAsset, wallet: MetaAccountModel)   {
+     func proceed(view: StakingUnbondSetupViewProtocol?, flow: StakingUnbondConfirmFlow, chainAsset: ChainAsset, wallet: fearless.MetaAccountModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -70017,7 +70017,6 @@ import SoraFoundation
     
     
 }
-
 
 
 
