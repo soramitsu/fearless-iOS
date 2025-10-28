@@ -10,7 +10,8 @@
            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
            <ActionContent
               title = "SPM hotfixes (Iroha & SSFModels)"
-              scriptText = "#!/bin/bash\nset -euo pipefail\n# Ensure we run from project root\nPROJ_ROOT=\"${SRCROOT}\"\nif [ ! -d \"$PROJ_ROOT/scripts\" ]; then\n  PROJ_ROOT=\"${SRCROOT}/..\"\nfi\ncd \"$PROJ_ROOT\" || exit 0\n# Apply IrohaCrypto umbrella modulemap hotfix\nif [ -x scripts/spm-iroha-hotfix.sh ]; then\n  scripts/spm-iroha-hotfix.sh fearless fearless.xcworkspace || true\nfi\n# Patch shared-features-spm manifest for explicit module builds (BigInt/RobinHood deps)\nif [ -x scripts/spm-shared-features-fixes.sh ]; then\n  bash scripts/spm-shared-features-fixes.sh \"$PROJ_ROOT\" || true\nfi\n# Re-resolve packages into workspace SourcePackages if available to pick up patches\nif [ -f fearless.xcworkspace/contents.xcworkspacedata ]; then\n  xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath \"$PROJ_ROOT/SourcePackages\" >/dev/null || true\nfi\n">
+              scriptText = "#!/bin/bash\nset -euo pipefail\n# Ensure we run from project root\nPROJ_ROOT=\"${SRCROOT}\"\nif [ ! -d \"$PROJ_ROOT/scripts\" ]; then\n  PROJ_ROOT=\"${SRCROOT}/..\"\nfi\ncd \"$PROJ_ROOT\" || exit 0\n# Apply IrohaCrypto umbrella modulemap hotfix\nif [ -x scripts/spm-iroha-hotfix.sh ]; then\n  scripts/spm-iroha-hotfix.sh fearless fearless.xcworkspace || true\nfi\n# Patch shared-features-spm manifest for explicit module builds (BigInt/RobinHood deps)\nif [ -x scripts/spm-shared-features-fixes.sh ]; then\n  bash scripts/spm-shared-features-fixes.sh \"$PROJ_ROOT\" || true\nfi\n# Do not call nested xcodebuild here to avoid re-entrancy; outer build will resolve packages.
+">
               <EnvironmentBuildable>
                  <BuildableReference
                     BuildableIdentifier = "primary"
