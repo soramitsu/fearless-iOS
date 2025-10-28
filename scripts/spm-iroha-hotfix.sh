@@ -22,8 +22,13 @@ if ! command -v xcodebuild >/dev/null 2>&1; then
 fi
 
 # Resolve Swift Package dependencies to ensure checkout exists in DerivedData
-echo "==> Resolving SwiftPM dependencies"
-xcodebuild -resolvePackageDependencies -workspace "${WORKSPACE}" -scheme "${SCHEME}" || true
+# Optionally skip resolve when running inside Xcode pre-actions to avoid nested xcodebuild re-entrancy
+if [ -z "${HOTFIX_SKIP_RESOLVE:-}" ]; then
+  echo "==> Resolving SwiftPM dependencies"
+  xcodebuild -resolvePackageDependencies -workspace "${WORKSPACE}" -scheme "${SCHEME}" || true
+else
+  echo "==> Skipping SPM resolve (HOTFIX_SKIP_RESOLVE set)"
+fi
 
 _sed_inplace() {
   # Cross-platform sed -i
