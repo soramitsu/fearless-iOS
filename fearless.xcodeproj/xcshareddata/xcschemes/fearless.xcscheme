@@ -2,9 +2,27 @@
 <Scheme
    LastUpgradeVersion = "1400"
    version = "1.7">
-   <BuildAction
-      parallelizeBuildables = "YES"
-      buildImplicitDependencies = "YES">
+  <BuildAction
+     parallelizeBuildables = "YES"
+     buildImplicitDependencies = "YES">
+     <PreActions>
+        <ExecutionAction
+           ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+           <ActionContent
+              title = "SPM hotfixes (Iroha & SSFModels)"
+              scriptText = "#!/bin/bash\nset -euo pipefail\n# Ensure we run from project root\nPROJ_ROOT=\"${SRCROOT}\"\nif [ ! -d \"$PROJ_ROOT/scripts\" ]; then\n  PROJ_ROOT=\"${SRCROOT}/..\"\nfi\ncd \"$PROJ_ROOT\" || exit 0\n# Apply IrohaCrypto umbrella modulemap hotfix\nif [ -x scripts/spm-iroha-hotfix.sh ]; then\n  scripts/spm-iroha-hotfix.sh fearless fearless.xcworkspace || true\nfi\n# Patch shared-features-spm manifest for explicit module builds (BigInt/RobinHood deps)\nif [ -x scripts/spm-shared-features-fixes.sh ]; then\n  bash scripts/spm-shared-features-fixes.sh \"$PROJ_ROOT\" || true\nfi\n# Re-resolve packages into workspace SourcePackages if available to pick up patches\nif [ -f fearless.xcworkspace/contents.xcworkspacedata ]; then\n  xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath \"$PROJ_ROOT/SourcePackages\" >/dev/null || true\nfi\n">
+              <EnvironmentBuildable>
+                 <BuildableReference
+                    BuildableIdentifier = "primary"
+                    BlueprintIdentifier = "849013A724A80984008F705E"
+                    BuildableName = "fearless.app"
+                    BlueprintName = "fearless"
+                    ReferencedContainer = "container:fearless.xcodeproj">
+                 </BuildableReference>
+              </EnvironmentBuildable>
+           </ActionContent>
+        </ExecutionAction>
+     </PreActions>
       <PostActions>
          <ExecutionAction
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
