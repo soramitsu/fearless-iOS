@@ -129,7 +129,56 @@ done
 
 echo "[spm-fixes] Completed EthereumPrivateKey call patches"
 
-# 3) Patch scrypt SSE2 selection to avoid undefined symbol on arm64 simulators
+# 3) Convert SSFCrypto AddressFactory from enum to struct (allow instantiation)
+patch_address_factory_struct() {
+  local base_checkout="$1/SourcePackages/checkouts/shared-features-spm"
+  local file="$base_checkout/Sources/SSFCrypto/Classes/AddressConversion.swift"
+  [[ -f "$file" ]] || return 0
+  # Replace public enum AddressFactory with public struct AddressFactory
+  /usr/bin/sed -i '' -e 's/^public[[:space:]]\+enum[[:space:]]\+AddressFactory/public struct AddressFactory/' "$file" || true
+  # Add instance wrappers if not present (idempotent: only add when no instance func exists)
+  if ! /usr/bin/grep -q "func address(.*chainFormat" "$file"; then
+    /usr/bin/awk '
+      BEGIN{printed=0}
+      { print }
+      /public struct AddressFactory/ && printed==0 {
+        # Wait for first closing brace of struct body to inject methods later
+      }
+    ' "$file" >/dev/null 2>&1 || true
+  fi
+  # Simple append of instance wrappers at end of file if missing
+  if ! /usr/bin/grep -q "extension AddressFactory" "$file"; then
+    cat >> "$file" <<'EOF'
+
+public extension AddressFactory {
+    func address(for accountId: AccountId, chainFormat: SFChainFormat) throws -> AccountAddress {
+        try Self.address(for: accountId, chainFormat: chainFormat)
+    }
+
+    func accountId(from address: AccountAddress, chainFormat: SFChainFormat) throws -> AccountId {
+        try Self.accountId(from: address, chainFormat: chainFormat)
+    }
+
+    func accountId(from address: AccountAddress, chain: ChainModel) throws -> AccountId {
+        try Self.accountId(from: address, chain: chain)
+    }
+
+    func randomAccountId(for chainFormat: SFChainFormat) -> AccountId {
+        Self.randomAccountId(for: chainFormat)
+    }
+}
+EOF
+  fi
+}
+
+patch_address_factory_struct "$BASE_DIR"
+for dd in "$HOME/Library/Developer/Xcode/DerivedData"/*; do
+  patch_address_factory_struct "$dd"
+done
+
+echo "[spm-fixes] Converted SSFCrypto AddressFactory to struct (instance-friendly)"
+
+# 4) Patch scrypt SSE2 selection to avoid undefined symbol on arm64 simulators
 patch_scrypt_sse2_guard() {
   local base="$1/SourcePackages/checkouts/shared-features-spm/Sources/scrypt"
   local file="$base/crypto_scrypt.c"

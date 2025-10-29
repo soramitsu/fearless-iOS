@@ -1,9 +1,6 @@
 import Foundation
 import UIKit
-import SoraFoundation
-import SoraKeystore
 
-// Minimal shims to satisfy build when protocols are not linked from shared modules
 protocol WalletCommandProtocol {
     func execute() throws
 }
@@ -26,7 +23,15 @@ final class WalletPresentationCommand: WalletCommandProtocol {
     var presentationStyle: WalletPresentationStyle = .modal(inNavigation: false)
     var completionBlock: (() throws -> Void)?
 
+    private weak var presentingController: UIViewController?
+
+    init(presentingController: UIViewController? = nil) {
+        self.presentingController = presentingController
+    }
+
     func execute() throws {
+        // No-op placeholder to satisfy invocations in tests/builds.
+        // Real presentation actions are handled by concrete wireframes elsewhere.
         try completionBlock?()
     }
 }
@@ -34,14 +39,4 @@ final class WalletPresentationCommand: WalletCommandProtocol {
 protocol WalletCommandFactoryProtocol: AnyObject {
     func preparePresentationCommand(for controller: UIViewController) -> WalletPresentationCommand
     func prepareHideCommand(with action: WalletDismissAction) -> WalletPresentationCommand
-}
-
-protocol WalletSelectAccountCommandFactoryProtocol {
-    func createCommand(_ walletCommandFactory: WalletCommandFactoryProtocol) -> WalletSelectAccountCommand
-}
-
-final class WalletSelectAccountCommandFactory: WalletSelectAccountCommandFactoryProtocol {
-    func createCommand(_ walletCommandFactory: WalletCommandFactoryProtocol) -> WalletSelectAccountCommand {
-        WalletSelectAccountCommand(commandFactory: walletCommandFactory)
-    }
 }
