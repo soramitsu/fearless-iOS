@@ -45,13 +45,13 @@ patch_manifest() {
   # sed path: only replace the simple single-line list when present
   if /usr/bin/grep -qE 'name:[[:space:]]*"SSFModels"' "$pkg_swift" && \
      /usr/bin/grep -qE 'target\([[:space:]]*name:[[:space:]]*"SSFModels"[\s\S]*dependencies:[[:space:]]*\[[[:space:]]*"IrohaCrypto"[[:space:]]*\]' "$pkg_swift"; then
-    /usr/bin/sed -E 's/(target\([[:space:]]*name:[[:space:]]*"SSFModels"[\s\S]*dependencies:[[:space:]]*)\[[^\]]*\]/\1[ "IrohaCrypto", "RobinHood", "BigInt" ]/' "$pkg_swift" > "$tmp_file" || cp "$pkg_swift" "$tmp_file"
+    /usr/bin/sed -E $'s/(target\([[:space:]]*name:[[:space:]]*"SSFModels"[\s\S]*dependencies:[[:space:]]*)\[[^\]]*\]/\1[ \"IrohaCrypto\", \"RobinHood\", .product(name: \"BigInt\", package: \"BigInt\") ]/' "$pkg_swift" > "$tmp_file" || cp "$pkg_swift" "$tmp_file"
   else
     awk '
       BEGIN{in_models=0; patched=0}
       /name:[[:space:]]*"SSFModels"/ {in_models=1}
       in_models==1 && /dependencies:[[:space:]]*\[/ {
-        print "            dependencies: [ \"IrohaCrypto\", \"RobinHood\", \"BigInt\" ]";
+        print "            dependencies: [ \"IrohaCrypto\", \"RobinHood\", .product(name: \"BigInt\", package: \"BigInt\") ]";
         patched=1; next
       }
       /\)\s*,\s*$/ { if(in_models==1){ in_models=0 } }
