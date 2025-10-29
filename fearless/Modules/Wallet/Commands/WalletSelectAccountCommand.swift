@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 final class WalletSelectAccountCommand: WalletCommandProtocol {
     weak var commandFactory: WalletCommandFactoryProtocol?
@@ -13,7 +14,7 @@ final class WalletSelectAccountCommand: WalletCommandProtocol {
         guard let command = commandFactory?.preparePresentationCommand(for: placeholderController) else {
             return
         }
-        command.presentationStyle = .push(hidesBottomBar: true)
+        command.presentationStyle = WalletPresentationStyle.push(hidesBottomBar: true)
         try? command.execute()
     }
 }
