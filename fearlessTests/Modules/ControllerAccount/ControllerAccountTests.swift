@@ -36,7 +36,7 @@ class ControllerAccountTests: XCTestCase {
         dataValidatingFactory.view = view
 
         stub(view) { stub in
-            when(stub).localizationManager.get.then { LocalizationManager.shared }
+            when(stub.localizationManager.get).then { LocalizationManager.shared }
         }
 
         // given
@@ -44,23 +44,23 @@ class ControllerAccountTests: XCTestCase {
             description: "Show Confirmation screen if user has sufficient balance to pay fee"
         )
         stub(wireframe) { stub in
-            when(stub).showConfirmation(from: any(ControllerBackedProtocol?.self),
-                                        controllerAccountItem: any(ChainAccountResponse.self),
-                                        asset: any(AssetModel.self),
-                                        chain: any(ChainModel.self),
-                                        selectedAccount: any(fearless.MetaAccountModel.self)).then { _ in
+            when(stub.showConfirmation(from: any(ControllerBackedProtocol?.self),
+                                       controllerAccountItem: any(ChainAccountResponse.self),
+                                       asset: any(AssetModel.self),
+                                       chain: any(ChainModel.self),
+                                       selectedAccount: any(fearless.MetaAccountModel.self))).then { _ in
                 showConfirmationExpectation.fulfill()
             }
             
-            when(stub).present(viewModel: any(), from: any()).thenDoNothing()
+            when(stub.present(viewModel: any(), from: any())).thenDoNothing()
         }
         stub(viewModelFactory) { stub in
-            when(stub).createViewModel(
+            when(stub.createViewModel(
                 stashItem: any(StashItem.self),
                 stashAccountItem: Cuckoo.any(Optional<fearless.ChainAccountResponse>.self),
                 chosenAccountItem: Cuckoo.any(Optional<fearless.ChainAccountResponse>.self),
                 chainAsset: any(SSFModels.ChainAsset.self)
-            )
+            ))
             .then { _ in
                 ControllerAccountViewModel(
                     chainAsset: SSFModels.ChainAsset(chain: chain, asset: asset),
@@ -72,7 +72,7 @@ class ControllerAccountTests: XCTestCase {
             }
         }
         stub(view) { stub in
-            when(stub).reload(with: any()).thenDoNothing()
+            when(stub.reload(with: any())).thenDoNothing()
         }
 
         let controllerAddress = "controllerAddress"
@@ -128,7 +128,7 @@ class ControllerAccountTests: XCTestCase {
             description: "Show error alert if user has not sufficient balance to pay fee"
         )
         stub(wireframe) { stub in
-            when(stub).present(message: any(), title: any(), closeAction: any(), from: any(), actions: any()).then { _ in
+            when(stub.present(message: any(), title: any(), closeAction: any(), from: any(), actions: any())).then { _ in
                 showErrorAlertExpectation.fulfill()
             }
         }
