@@ -49,7 +49,7 @@ class AnalyticsRewardDetailsTests: XCTestCase {
             when(stub.bind(viewModel: any())).then { _ in
                 bindViewModelExpectation.fulfill()
             }
-            when(stub).localizationManager.get.thenReturn(LocalizationManager.shared)
+            when(stub.localizationManager.get).thenReturn(LocalizationManager.shared)
         }
         presenter.view = view
 
