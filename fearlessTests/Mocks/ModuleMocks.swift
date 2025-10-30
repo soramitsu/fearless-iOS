@@ -1,3 +1,9 @@
+// Cuckoo compatibility header (injected)
+@testable import fearless
+import SSFModels
+import Cuckoo
+typealias MetaAccountModel = fearless.MetaAccountModel
+typealias ChainAccountResponse = fearless.ChainAccountResponse
 // MARK: - Mocks generated from file: 'Pods/SoraFoundation/SoraFoundation/Classes/Localization/Localizable.swift'
 
 import Cuckoo
@@ -45970,5 +45976,4 @@ class UsernameSetupWireframeProtocolStub:UsernameSetupWireframeProtocol, @unchec
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
-
 

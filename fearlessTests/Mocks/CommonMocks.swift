@@ -1,3 +1,9 @@
+// Cuckoo compatibility header (injected)
+@testable import fearless
+import SSFModels
+import Cuckoo
+typealias MetaAccountModel = fearless.MetaAccountModel
+typealias ChainAccountResponse = fearless.ChainAccountResponse
 // MARK: - Mocks generated from file: 'Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift'
 
 import Cuckoo
@@ -4376,5 +4382,4 @@ class StakingServiceFactoryProtocolStub:StakingServiceFactoryProtocol, @unchecke
         return DefaultValueRegistry.defaultValue(for: (RewardCalculatorServiceProtocol).self)
     }
 }
-
 
