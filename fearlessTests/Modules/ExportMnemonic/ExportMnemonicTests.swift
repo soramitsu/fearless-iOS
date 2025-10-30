@@ -35,7 +35,7 @@ class ExportMnemonicTests: XCTestCase {
         let setupExpectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub).set(viewModel: any()).then { _ in
+            when(stub.set(viewModel: any())).then { _ in
                 setupExpectation.fulfill()
             }
         }
@@ -45,11 +45,11 @@ class ExportMnemonicTests: XCTestCase {
         let sharingExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).present(viewModel: any(), from: any()).then { viewModel in
+            when(stub.present(viewModel: any(), from: any())).then { viewModel in
                 viewModel.0.actions.first?.handler?()
             }
 
-            when(stub).share(source: any(), from: any(), with: any()).then { _ in
+            when(stub.share(source: any(), from: any(), with: any())).then { _ in
                 sharingExpectation.fulfill()
             }
         }

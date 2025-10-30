@@ -84,12 +84,12 @@ class SelectedAccountSettingsTests: XCTestCase {
         let allMetaAccounts = try allMetaAccountsOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
         let expectedAccounts = [initialSelectedAccount.info, nextSelectedAccount].reduce(
-            into: [String: MetaAccountModel]()
+            into: [String: fearless.MetaAccountModel]()
         ) { result, account in
             result[account.metaId] = account
         }
 
-        let actualAccounts = allMetaAccounts.reduce(into: [String: MetaAccountModel]()) { result, account in
+        let actualAccounts = allMetaAccounts.reduce(into: [String: fearless.MetaAccountModel]()) { result, account in
             result[account.identifier] = account.info
         }
 

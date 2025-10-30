@@ -41,24 +41,24 @@ class AccountExportPasswordTests: XCTestCase {
         var confirmationViewModel: InputViewModelProtocol?
 
         stub(view) { stub in
-            when(stub).setPasswordInputViewModel(any()).then { viewModel in
+            when(stub.setPasswordInputViewModel(any())).then { viewModel in
                 inputViewModel = viewModel
             }
 
-            when(stub).setPasswordConfirmationViewModel(any()).then { viewModel in
+            when(stub.setPasswordConfirmationViewModel(any())).then { viewModel in
                 confirmationViewModel = viewModel
             }
 
-            when(stub).set(error: any()).thenDoNothing()
+            when(stub.set(error: any())).thenDoNothing()
         }
 
         let expectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).showJSONExport(any(), flow: any(), from: any()).then { _ in
+            when(stub.showJSONExport(any(), flow: any(), from: any())).then { _ in
                 expectation.fulfill()
             }
-            when(stub).present(message: any(), title: any(), closeAction: any(), from: any(), actions: any()).then { _ in
+            when(stub.present(message: any(), title: any(), closeAction: any(), from: any(), actions: any())).then { _ in
                 XCTFail()
             }
         }
