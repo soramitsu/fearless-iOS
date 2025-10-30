@@ -3,39 +3,6 @@ import UIKit
 import SoraFoundation
 import SoraKeystore
 
-// Minimal shims to satisfy build when protocols are not linked from shared modules
-protocol WalletCommandProtocol {
-    func execute() throws
-}
-
-protocol WalletCommandDecoratorProtocol: WalletCommandProtocol {
-    var undelyingCommand: WalletCommandProtocol? { get set }
-}
-
-enum WalletDismissAction {
-    case dismiss
-    case pop
-}
-
-enum WalletPresentationStyle {
-    case modal(inNavigation: Bool)
-    case push(hidesBottomBar: Bool)
-}
-
-final class WalletPresentationCommand: WalletCommandProtocol {
-    var presentationStyle: WalletPresentationStyle = .modal(inNavigation: false)
-    var completionBlock: (() throws -> Void)?
-
-    func execute() throws {
-        try completionBlock?()
-    }
-}
-
-protocol WalletCommandFactoryProtocol: AnyObject {
-    func preparePresentationCommand(for controller: UIViewController) -> WalletPresentationCommand
-    func prepareHideCommand(with action: WalletDismissAction) -> WalletPresentationCommand
-}
-
 protocol WalletSelectAccountCommandFactoryProtocol {
     func createCommand(_ walletCommandFactory: WalletCommandFactoryProtocol) -> WalletSelectAccountCommand
 }
