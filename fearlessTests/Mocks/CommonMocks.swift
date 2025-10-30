@@ -4,6 +4,8 @@ import SSFModels
 import Cuckoo
 typealias MetaAccountModel = fearless.MetaAccountModel
 typealias ChainAccountResponse = fearless.ChainAccountResponse
+public func when<T>(_ stubbing: T) -> T { stubbing }
+public func when<F>(_ function: F) -> F where F: Cuckoo.BaseStubFunctionTrait { function }
 // MARK: - Mocks generated from file: 'Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift'
 
 import Cuckoo
