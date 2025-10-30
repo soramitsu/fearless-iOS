@@ -57,35 +57,35 @@ class AccountImportTests: XCTestCase {
         var usernameViewModel: InputViewModelProtocol?
 
         stub(view) { stub in
-            when(stub).didCompleteSourceTypeSelection().thenDoNothing()
-            when(stub).didCompleteCryptoTypeSelection().thenDoNothing()
-            when(stub).didValidateSubstrateDerivationPath(any()).thenDoNothing()
-            when(stub).didValidateEthereumDerivationPath(any()).thenDoNothing()
-            when(stub).isSetup.get.thenReturn(false, true)
+            when(stub.didCompleteSourceTypeSelection()).thenDoNothing()
+            when(stub.didCompleteCryptoTypeSelection()).thenDoNothing()
+            when(stub.didValidateSubstrateDerivationPath(any())).thenDoNothing()
+            when(stub.didValidateEthereumDerivationPath(any())).thenDoNothing()
+            when(stub.isSetup.get).thenReturn(false, true)
 
-            when(stub).setSource(viewModel: any()).then { viewModel in
+            when(stub.setSource(viewModel: any())).then { viewModel in
                 sourceInputViewModel = viewModel
 
                 setupExpectation.fulfill()
             }
 
-            when(stub).setName(viewModel: any(), visible: any()).then { result in
+            when(stub.setName(viewModel: any(), visible: any())).then { result in
                 usernameViewModel = result.0
 
                 setupExpectation.fulfill()
             }
 
-            when(stub).setSelectedCrypto(model: any()).thenDoNothing()
-            when(stub).setSource(type: any(), chainType: any(), selectable: any()).thenDoNothing()
-            when(stub).bind(substrateViewModel: any()).thenDoNothing()
-            when(stub).bind(ethereumViewModel: any()).thenDoNothing()
-            when(stub).show(chainType: any()).thenDoNothing()
+            when(stub.setSelectedCrypto(model: any())).thenDoNothing()
+            when(stub.setSource(type: any(), chainType: any(), selectable: any())).thenDoNothing()
+            when(stub.bind(substrateViewModel: any())).thenDoNothing()
+            when(stub.bind(ethereumViewModel: any())).thenDoNothing()
+            when(stub.show(chainType: any())).thenDoNothing()
         }
 
         let expectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).proceed(from: any(), flow: any()).then { _ in
+            when(stub.proceed(from: any(), flow: any())).then { _ in
                 expectation.fulfill()
             }
         }
