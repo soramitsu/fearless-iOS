@@ -1,8 +1,19 @@
 // Cuckoo compatibility header (injected)
 @testable import fearless
 import SSFModels
-typealias MetaAccountModel = fearless.MetaAccountModel
-typealias ChainAccountResponse = fearless.ChainAccountResponse
+import SSFChainRegistry
+import SSFUtils
+// Disambiguation aliases for overlapping types across modules
+typealias SNAddressType = fearless.SNAddressType
+typealias ManagedMetaAccountModel = fearless.ManagedMetaAccountModel
+typealias RuntimeMetadataItem = SSFModels.RuntimeMetadataItem
+typealias RuntimeVersion = SSFModels.RuntimeVersion
+typealias SchedulerProtocol = SSFUtils.SchedulerProtocol
+typealias SchedulerDelegate = SSFUtils.SchedulerDelegate
+typealias ChainRegistryProtocol = SSFChainRegistry.ChainRegistryProtocol
+typealias ConnectionPoolProtocol = SSFChainRegistry.ConnectionPoolProtocol
+typealias RuntimeProviderPoolProtocol = SSFChainRegistry.RuntimeProviderPoolProtocol
+typealias RuntimeSyncServiceProtocol = SSFChainRegistry.RuntimeSyncServiceProtocol
 // MARK: - Mocks generated from file: 'Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift'
 
 import Cuckoo
@@ -4381,5 +4392,4 @@ class StakingServiceFactoryProtocolStub:StakingServiceFactoryProtocol, @unchecke
         return DefaultValueRegistry.defaultValue(for: (RewardCalculatorServiceProtocol).self)
     }
 }
-
 

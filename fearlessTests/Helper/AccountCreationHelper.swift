@@ -6,9 +6,7 @@ import RobinHood
 import SSFUtils
 import SSFModels
 
-// Disambiguate MetaAccountModel locally to the app’s model
-private typealias MetaAccountModel = fearless.MetaAccountModel
-private typealias AppMetaAccountModel = fearless.MetaAccountModel
+// Disambiguation handled inline via module qualification
 
 final class AccountCreationHelper {
     static func createMetaAccountFromMnemonic(
