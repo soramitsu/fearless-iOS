@@ -175,13 +175,21 @@ class SigningWrapperTests: XCTestCase {
 
         let publicKeyData = metaAccount.substratePublicKey
 
+        let response = ChainAccountResponse(
+            chainId: "test",
+            accountId: metaAccount.substrateAccountId,
+            publicKey: publicKeyData,
+            name: metaAccount.name,
+            cryptoType: SSFModels.CryptoType.sr25519,
+            addressPrefix: 42,
+            isEthereumBased: false,
+            isChainAccount: false,
+            walletId: metaAccount.metaId
+        )
         let signer = SigningWrapper(
             keystore: keychain,
             metaId: metaAccount.metaId,
-            accountId: nil,
-            isEthereumBased: false,
-            cryptoType: .sr25519,
-            publicKeyData: publicKeyData
+            accountResponse: response
         )
 
         let signature = try signer.sign(originalData)
@@ -204,13 +212,21 @@ class SigningWrapperTests: XCTestCase {
 
         let publicKeyData = metaAccount.substratePublicKey
 
+        let response = ChainAccountResponse(
+            chainId: "test",
+            accountId: metaAccount.substrateAccountId,
+            publicKey: publicKeyData,
+            name: metaAccount.name,
+            cryptoType: SSFModels.CryptoType.ed25519,
+            addressPrefix: 42,
+            isEthereumBased: false,
+            isChainAccount: false,
+            walletId: metaAccount.metaId
+        )
         let signer = SigningWrapper(
             keystore: keychain,
             metaId: metaAccount.metaId,
-            accountId: nil,
-            isEthereumBased: false,
-            cryptoType: .ed25519,
-            publicKeyData: publicKeyData
+            accountResponse: response
         )
 
         let signature = try signer.sign(originalData)
@@ -232,13 +248,21 @@ class SigningWrapperTests: XCTestCase {
 
         let publicKeyData = metaAccount.substratePublicKey
 
+        let response = ChainAccountResponse(
+            chainId: "test",
+            accountId: metaAccount.substrateAccountId,
+            publicKey: publicKeyData,
+            name: metaAccount.name,
+            cryptoType: SSFModels.CryptoType.ecdsa,
+            addressPrefix: 42,
+            isEthereumBased: false,
+            isChainAccount: false,
+            walletId: metaAccount.metaId
+        )
         let signer = SigningWrapper(
             keystore: keychain,
             metaId: metaAccount.metaId,
-            accountId: nil,
-            isEthereumBased: false,
-            cryptoType: .ecdsa,
-            publicKeyData: publicKeyData
+            accountResponse: response
         )
 
         let signature = try signer.sign(originalData)
@@ -260,13 +284,21 @@ class SigningWrapperTests: XCTestCase {
         guard let metaAccount = settings.value else { return }
         guard let publicKeyData = metaAccount.ethereumPublicKey else { return }
 
+        let response = ChainAccountResponse(
+            chainId: "test",
+            accountId: metaAccount.ethereumAddress!,
+            publicKey: publicKeyData,
+            name: metaAccount.name,
+            cryptoType: SSFModels.CryptoType.ecdsa,
+            addressPrefix: 0,
+            isEthereumBased: true,
+            isChainAccount: false,
+            walletId: metaAccount.metaId
+        )
         let signer = SigningWrapper(
             keystore: keychain,
             metaId: metaAccount.metaId,
-            accountId: nil,
-            isEthereumBased: true,
-            cryptoType: .ecdsa,
-            publicKeyData: publicKeyData
+            accountResponse: response
         )
 
         let signature = try signer.sign(originalData)
