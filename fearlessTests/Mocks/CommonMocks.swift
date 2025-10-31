@@ -3,8 +3,7 @@
 import SSFModels
 import SSFChainRegistry
 import SSFUtils
-// Avoid duplicating aliases already defined in ModuleMocks.swift
-// Disambiguate overlapping types/protocols across app and SSF modules
+// Disambiguation aliases to avoid collisions with SSF modules
 typealias SNAddressType = fearless.SNAddressType
 typealias ManagedMetaAccountModel = fearless.ManagedMetaAccountModel
 typealias RuntimeMetadataItem = SSFModels.RuntimeMetadataItem
