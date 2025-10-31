@@ -32,16 +32,16 @@ extension AnyDataProviderRepository {
         }
     }
 
-    /// Saves items asynchronously using the repository's saveOperation.
+    /// Saves items asynchronously using the repository's saveOperation with model IDs to delete.
     /// - Parameters:
     ///   - insert: Items to insert or update.
-    ///   - delete: Items to delete.
+    ///   - deleteIds: Identifiers of items to delete.
     func saveAsync(
         insert: @escaping @autoclosure () -> [T],
-        delete: @escaping @autoclosure () -> [T]
+        deleteIds: @escaping @autoclosure () -> [String]
     ) async throws {
         try await withCheckedThrowingContinuation { continuation in
-            let op = saveOperation(insert, delete)
+            let op = saveOperation(insert, deleteIds)
             op.completionBlock = {
                 if case let .failure(error) = op.result {
                     continuation.resume(throwing: error)
@@ -52,5 +52,12 @@ extension AnyDataProviderRepository {
             AnyDataProviderRepository.asyncQueue.addOperation(op)
         }
     }
-}
 
+    /// Convenience: delete by models by translating to identifiers.
+    func saveAsync(
+        insert: @escaping @autoclosure () -> [T],
+        delete: @escaping @autoclosure () -> [T]
+    ) async throws {
+        try await saveAsync(insert: insert(), deleteIds: delete().map(\.identifier))
+    }
+}

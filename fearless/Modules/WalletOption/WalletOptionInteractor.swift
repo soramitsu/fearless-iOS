@@ -44,23 +44,17 @@ final class WalletOptionInteractor {
 
 extension WalletOptionInteractor: WalletOptionInteractorInput {
     func deleteWallet() {
-        let operation = metaAccountRepository.saveOperation(
-            { [] },
-            { [weak self] in
-                guard let strongSelf = self else { return [] }
-                return [strongSelf.wallet.identifier]
+        Task { [weak self] in
+            guard let self else { return }
+            // Perform deletion by identifier; ignore errors to match prior behavior.
+            try? await metaAccountRepository.saveAsync(insert: [], deleteIds: [wallet.identifier])
+            // Disconnect WC sessions if any; errors are non-fatal for UX here.
+            try? await walletConnectDisconnectService.disconnect(wallet: wallet.info)
+            await MainActor.run { [weak self] in
+                self?.moduleOutput?.walletWasRemoved()
+                self?.output?.walletRemoved()
             }
-        )
-
-        operation.completionBlock = { [weak self, wallet] in
-            Task { [weak self] in
-                try await self?.walletConnectDisconnectService.disconnect(wallet: wallet.info)
-            }
-            self?.moduleOutput?.walletWasRemoved()
-            self?.output?.walletRemoved()
         }
-
-        operationQueue.addOperation(operation)
     }
 
     func setup(with output: WalletOptionInteractorOutput) {
