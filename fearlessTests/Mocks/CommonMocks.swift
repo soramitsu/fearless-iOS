@@ -3,17 +3,19 @@
 import SSFModels
 import SSFChainRegistry
 import SSFUtils
-// Disambiguation aliases for overlapping types across modules
+typealias MetaAccountModel = fearless.MetaAccountModel
+typealias ChainAccountResponse = fearless.ChainAccountResponse
+// Disambiguation aliases for overlapping types/protocols across modules
 typealias SNAddressType = fearless.SNAddressType
 typealias ManagedMetaAccountModel = fearless.ManagedMetaAccountModel
 typealias RuntimeMetadataItem = SSFModels.RuntimeMetadataItem
 typealias RuntimeVersion = SSFModels.RuntimeVersion
 typealias SchedulerProtocol = SSFUtils.SchedulerProtocol
 typealias SchedulerDelegate = SSFUtils.SchedulerDelegate
-typealias ChainRegistryProtocol = SSFChainRegistry.ChainRegistryProtocol
-typealias ConnectionPoolProtocol = SSFChainRegistry.ConnectionPoolProtocol
-typealias RuntimeProviderPoolProtocol = SSFChainRegistry.RuntimeProviderPoolProtocol
-typealias RuntimeSyncServiceProtocol = SSFChainRegistry.RuntimeSyncServiceProtocol
+typealias ChainRegistryProtocol = fearless.ChainRegistryProtocol
+typealias ConnectionPoolProtocol = fearless.ConnectionPoolProtocol
+typealias RuntimeProviderPoolProtocol = fearless.RuntimeProviderPoolProtocol
+typealias RuntimeSyncServiceProtocol = fearless.RuntimeSyncServiceProtocol
 // MARK: - Mocks generated from file: 'Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift'
 
 import Cuckoo

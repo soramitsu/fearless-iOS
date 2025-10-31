@@ -2,6 +2,7 @@ import XCTest
 @testable import fearless
 import Cuckoo
 import SSFUtils
+import SSFModels
 
 class SpecVersionSubscriptionTests: XCTestCase {
     func testVersionDelivered() {
@@ -17,7 +18,7 @@ class SpecVersionSubscriptionTests: XCTestCase {
             connection: connection
         )
 
-        let version = RuntimeVersion(specVersion: 1, transactionVersion: 2)
+        let version = SSFModels.RuntimeVersion(specVersion: 1, transactionVersion: 2)
 
         // when
 
@@ -48,7 +49,7 @@ class SpecVersionSubscriptionTests: XCTestCase {
         let expectation = XCTestExpectation()
 
         stub(runtimeSyncService) { stub in
-            stub.apply(version: any(), for: any()).then { actualVersion, chainId in
+            stub.apply(version: any(SSFModels.RuntimeVersion.self), for: any(ChainModel.Id.self)).then { actualVersion, chainId in
                 XCTAssertEqual(version, actualVersion)
                 expectation.fulfill()
             }

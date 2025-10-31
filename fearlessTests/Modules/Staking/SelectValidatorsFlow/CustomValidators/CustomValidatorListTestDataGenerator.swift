@@ -13,7 +13,8 @@ struct CustomValidatorListTestDataGenerator {
             stakeReturn: 0.1,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: false
+            blocked: false,
+            elected: true
         )
     }()
 
@@ -28,7 +29,8 @@ struct CustomValidatorListTestDataGenerator {
             stakeReturn: 0.1,
             hasSlashes: true,
             maxNominatorsRewarded: 128,
-            blocked: false
+            blocked: false,
+            elected: true
         )
     }()
 
@@ -46,7 +48,8 @@ struct CustomValidatorListTestDataGenerator {
             stakeReturn: 0.1,
             hasSlashes: false,
             maxNominatorsRewarded: 1,
-            blocked: false
+            blocked: false,
+            elected: true
         )
     }()
 
@@ -61,7 +64,8 @@ struct CustomValidatorListTestDataGenerator {
             stakeReturn: 0.2,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: false
+            blocked: false,
+            elected: true
         )
     }()
 
@@ -81,7 +85,8 @@ struct CustomValidatorListTestDataGenerator {
             stakeReturn: 0.5,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: false
+            blocked: false,
+            elected: true
         )
     }()
 
@@ -101,7 +106,8 @@ struct CustomValidatorListTestDataGenerator {
             stakeReturn: 0.54,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: false
+            blocked: false,
+            elected: true
         )
     }()
 
@@ -116,7 +122,8 @@ struct CustomValidatorListTestDataGenerator {
             stakeReturn: 0.2,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: false
+            blocked: false,
+            elected: true
         )
     }()
 
@@ -131,7 +138,8 @@ struct CustomValidatorListTestDataGenerator {
             stakeReturn: 0.1,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: false
+            blocked: false,
+            elected: true
         )
     }()
 
