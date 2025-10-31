@@ -32,6 +32,25 @@ extension AnyDataProviderRepository {
         }
     }
 
+    /// Fetch a single item by identifier asynchronously.
+    func fetchAsync(
+        by id: @escaping @autoclosure () -> String,
+        options: RepositoryFetchOptions = RepositoryFetchOptions()
+    ) async throws -> T? {
+        try await withCheckedThrowingContinuation { continuation in
+            let op = fetchOperation(by: { id() }, options: options)
+            op.completionBlock = {
+                do {
+                    let result = try op.extractNoCancellableResultData()
+                    continuation.resume(returning: result)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+            AnyDataProviderRepository.asyncQueue.addOperation(op)
+        }
+    }
+
     /// Saves items asynchronously using the repository's saveOperation with model IDs to delete.
     /// - Parameters:
     ///   - insert: Items to insert or update.
