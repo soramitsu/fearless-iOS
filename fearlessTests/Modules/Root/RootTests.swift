@@ -164,7 +164,12 @@ class RootTests: XCTestCase {
                                  migrators: [Migrating] = []
     ) -> RootPresenter {
         // Provide minimal onboarding dependencies
-        struct OnboardingServiceStub: OnboardingServiceProtocol { func fetchConfigs() async throws -> OnboardingConfigPlatform { .init(ios: []) } }
+        struct OnboardingServiceStub: OnboardingServiceProtocol {
+            func fetchConfigs() async throws -> OnboardingConfigPlatform {
+                let data = Data("{\"ios\":[]}".utf8)
+                return try JSONDecoder().decode(OnboardingConfigPlatform.self, from: data)
+            }
+        }
         let resolver = OnboardingConfigVersionResolver(userDefaultsStorage: userDefaultsStorage)
 
         let interactor = RootInteractor(chainRegistry: ChainRegistryFacade.sharedRegistry,

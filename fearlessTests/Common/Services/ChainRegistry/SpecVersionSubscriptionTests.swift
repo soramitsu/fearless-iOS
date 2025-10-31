@@ -18,17 +18,19 @@ class SpecVersionSubscriptionTests: XCTestCase {
             connection: connection
         )
 
-        let version = SSFModels.RuntimeVersion(specVersion: 1, transactionVersion: 2)
+        let version = RuntimeVersion(specVersion: 1, transactionVersion: 2)
 
         // when
 
         stub(connection) { stub in
+            typealias Update = (RuntimeVersionUpdate) -> Void
+            typealias Failure = (Error, Bool) -> Void
             stub.subscribe(
-                any(),
+                any(String.self),
                 params: any([String].self),
-                updateClosure: any(),
-                failureClosure: any()
-            ).then { (_, _, updateClosure: @escaping (RuntimeVersionUpdate) -> Void, _) in
+                updateClosure: any(Update.self),
+                failureClosure: any(Failure.self)
+            ).then { (_, _, updateClosure: @escaping Update, _) in
                 DispatchQueue.global().async {
                     let update = RuntimeVersionUpdate(
                         jsonrpc: "2.0",
@@ -49,7 +51,7 @@ class SpecVersionSubscriptionTests: XCTestCase {
         let expectation = XCTestExpectation()
 
         stub(runtimeSyncService) { stub in
-            stub.apply(version: any(SSFModels.RuntimeVersion.self), for: any(ChainModel.Id.self)).then { actualVersion, chainId in
+            stub.apply(version: any(RuntimeVersion.self), for: any(ChainModel.Id.self)).then { actualVersion, chainId in
                 XCTAssertEqual(version, actualVersion)
                 expectation.fulfill()
             }

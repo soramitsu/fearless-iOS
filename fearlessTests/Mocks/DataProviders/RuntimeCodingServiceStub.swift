@@ -48,29 +48,20 @@ extension RuntimeCodingServiceStub {
         // Build a minimal snapshot using empty versioning types and empty usedRuntimePaths
         let chainTypes = Data("{}".utf8)
 
-        let metadataItem = RuntimeMetadataItem(
-            chain: SSFModels.Chain.westend.genesisHash,
-            version: 1,
-            txVersion: 1,
-            metadata: try metadata.scaleEncoded()
-        )
-
-        let snapshotOp = RuntimeSnapshotFactory().createRuntimeSnapshotWrapper(
-            chainTypes: chainTypes,
-            chainMetadata: metadataItem,
+        // Build a minimal catalog similar to RuntimeSnapshotFactory
+        let json: JSON = .dictionaryValue(["types": .dictionaryValue([:])])
+        let catalog = try TypeRegistryCatalog.createFromTypeDefinition(
+            JSONEncoder().encode(json),
+            versioningData: chainTypes,
+            runtimeMetadata: metadata,
             usedRuntimePaths: [:]
         )
 
-        OperationQueue().addOperations([snapshotOp], waitUntilFinished: true)
-        guard let snapshot = try snapshotOp.extractNoCancellableResultData() else {
-            throw NSError(domain: "RuntimeCodingServiceStub", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to create snapshot"])
-        }
-
         let factory = FakeRuntimeCoderFactory(
-            specVersion: snapshot.specVersion,
-            txVersion: snapshot.txVersion,
-            metadata: snapshot.metadata,
-            catalog: snapshot.typeRegistryCatalog
+            specVersion: 1,
+            txVersion: 1,
+            metadata: metadata,
+            catalog: catalog
         )
 
         return RuntimeCodingServiceStub(factory: factory)

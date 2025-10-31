@@ -154,7 +154,8 @@ struct CustomValidatorListTestDataGenerator {
             stakeReturn: 0.01,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: false
+            blocked: false,
+            elected: true
         )
     }()
 
