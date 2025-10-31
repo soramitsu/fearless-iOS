@@ -17,7 +17,8 @@ final class EraValidatorServiceStub: EraValidatorServiceProtocol {
     // No-op in stub; signature removed to avoid dependency on Chain type
 
     func fetchInfoOperation() -> BaseOperation<EraStakersInfo> {
-        return RobinHood.BaseOperation.createWithResult(info)
+        let op: ClosureOperation<EraStakersInfo> = ClosureOperation { self.info }
+        return op
     }
 }
 
