@@ -46,16 +46,19 @@ final class WalletsManagmentInteractor {
     }
 
     private func fetchWallets() {
-        let operation = metaAccountRepository.fetchAllOperation(with: RepositoryFetchOptions())
-
-        operation.completionBlock = { [weak self] in
-            guard let result = operation.result else {
-                return
+        Task { [weak self] in
+            guard let self else { return }
+            let result: Result<[ManagedMetaAccountModel], Error>
+            do {
+                let items = try await metaAccountRepository.fetchAllAsync()
+                result = .success(items)
+            } catch {
+                result = .failure(error)
             }
-            self?.output?.didReceiveWallets(result)
+            await MainActor.run { [weak self] in
+                self?.output?.didReceiveWallets(result)
+            }
         }
-
-        operationQueue.addOperation(operation)
     }
 
     private func fetchBalances() {
