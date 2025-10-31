@@ -51,6 +51,25 @@ extension AnyDataProviderRepository {
         }
     }
 
+    /// Fetch a slice of items asynchronously.
+    func fetchAsync(
+        slice: RepositorySliceRequest,
+        options: RepositoryFetchOptions = RepositoryFetchOptions()
+    ) async throws -> [T] {
+        try await withCheckedThrowingContinuation { continuation in
+            let op = fetchOperation(by: slice, options: options)
+            op.completionBlock = {
+                do {
+                    let result = try op.extractNoCancellableResultData()
+                    continuation.resume(returning: result)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+            AnyDataProviderRepository.asyncQueue.addOperation(op)
+        }
+    }
+
     /// Saves items asynchronously using the repository's saveOperation with model IDs to delete.
     /// - Parameters:
     ///   - insert: Items to insert or update.
