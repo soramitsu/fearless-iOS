@@ -9,7 +9,20 @@ class WalletSelectAccountCommandTests: XCTestCase {
     func testSelectAccount() throws {
         // given
 
-        let commandFactory = WalletCommandFactoryProtocolMock()
+        final class TestFactory: fearless.WalletCommandFactoryProtocol {
+            var onPrepare: ((UIViewController) -> Void)?
+            func preparePresentationCommand(for controller: UIViewController) -> WalletPresentationCommand {
+                let cmd = WalletPresentationCommand(presentingController: controller)
+                // Invoke callback so test can fulfill expectation
+                onPrepare?(controller)
+                return cmd
+            }
+            func prepareHideCommand(with action: WalletDismissAction) -> WalletPresentationCommand {
+                WalletPresentationCommand()
+            }
+        }
+
+        let commandFactory = TestFactory()
 
         // when
 
@@ -17,10 +30,8 @@ class WalletSelectAccountCommandTests: XCTestCase {
 
         let completionExpectation = XCTestExpectation()
 
-        commandFactory.presentationClosure = { _ in
+        commandFactory.onPrepare = { _ in
             completionExpectation.fulfill()
-
-            return WalletPresentationCommandProtocolMock()
         }
 
         try command.execute()
