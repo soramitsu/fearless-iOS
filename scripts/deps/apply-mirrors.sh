@@ -43,13 +43,28 @@ git_count=$(jq '.git | length' "$MIRRORS_JSON")
 if [ "$git_count" != "null" ] && [ "$git_count" -gt 0 ] 2>/dev/null; then
   for i in $(seq 0 $((git_count - 1))); do
     orig=$(jq -r ".git[$i].original" "$MIRRORS_JSON")
-    mir=$(jq -r ".git[$i].mirror" "$MIRRORS_JSON")
-    if [ -n "$orig" ] && [ -n "$mir" ] && [ "$orig" != "null" ] && [ "$mir" != "null" ]; then
+    raw_mir=$(jq -r ".git[$i].mirror" "$MIRRORS_JSON")
+
+    # Derive mirror value safely: expand GH_PAT_READ placeholder only if token present
+    mir="$raw_mir"
+    case "$raw_mir" in
+      *"\${GH_PAT_READ:+https://\${GH_PAT_READ}@github.com/}"*)
+        if [ -n "${GH_PAT_READ:-}" ]; then
+          mir="https://${GH_PAT_READ}@github.com/"
+        else
+          mir="" # no token – skip this mapping
+        fi
+        ;;
+    esac
+
+    if [ -n "$orig" ] && [ -n "$mir" ] \
+       && [ "$orig" != "null" ] && [ "$mir" != "null" ]; then
       echo "[apply-mirrors] Git mirror: $orig -> $mir"
       git config --global url."$mir".insteadOf "$orig" || true
+    else
+      echo "[apply-mirrors] Skipping Git mirror for $orig (no valid mirror configured)" >&2
     fi
   done
 fi
 
 echo "[apply-mirrors] Done"
-
