@@ -54,7 +54,7 @@ set -euo pipefail
 echo "==> Cleaning broken global Git URL rewrites (if any)"
 
 # Remove rewrite keys that contain unexpanded ${...} patterns
-BROKEN_KEYS=$(/usr/bin/git config --global --get-regexp '^url\..*\.insteadOf$' 2>/dev/null | awk '$1 ~ /\$\{/{print $1}') || true
+BROKEN_KEYS=$(/usr/bin/git config --global --get-regexp '^url[.].*[.]insteadOf$' 2>/dev/null | awk '$1 ~ /\$\{/{print $1}') || true
 if [ -n "${BROKEN_KEYS:-}" ]; then
   echo "Removing broken keys:"; echo "$BROKEN_KEYS"
   echo "$BROKEN_KEYS" | while read -r k; do /usr/bin/git config --global --unset-all "$k" || true; done
@@ -62,14 +62,14 @@ fi
 
 # For PR builds, also remove generic rewrites for https://github.com/
 if [ -n "${CHANGE_ID:-}" ]; then
-  GH_KEYS=$(/usr/bin/git config --global --get-regexp '^url\..*\.insteadOf$' 2>/dev/null | awk '$2=="https://github.com/"{print $1}') || true
+  GH_KEYS=$(/usr/bin/git config --global --get-regexp '^url[.].*[.]insteadOf$' 2>/dev/null | awk '$2=="https://github.com/"{print $1}') || true
   if [ -n "${GH_KEYS:-}" ]; then
     echo "Removing PR-unsafe rewrites to https://github.com/:"; echo "$GH_KEYS"
     echo "$GH_KEYS" | while read -r k; do /usr/bin/git config --global --unset-all "$k" || true; done
   fi
 fi
 
-echo "==> Remaining URL rewrites:"; /usr/bin/git config --global --get-regexp '^url\..*\.insteadOf$' || echo "(none)"
+echo "==> Remaining URL rewrites:"; /usr/bin/git config --global --get-regexp '^url[.].*[.]insteadOf$' || echo "(none)"
 '''
 
     // Ensure repository is checked out so workspace files exist
