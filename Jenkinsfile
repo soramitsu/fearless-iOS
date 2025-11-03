@@ -314,17 +314,24 @@ fi
   if ! xcodebuild \
       -workspace fearless.xcworkspace \
       -scheme fearless.tests \
+      -configuration Debug \
       -destination "$DEST_STR" \
       -clonedSourcePackagesDirPath "$SP_DIR" \
+      -resultBundlePath build/pr.xcresult \
+      -only-testing:fearlessTests \
       CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
-      test | tee build/pr.test.raw.log; then
+      clean test | tee build/pr.test.raw.log; then
     echo "\n[PR] Simulator tests failed. Tail of raw log:" >&2
     tail -n 300 build/pr.test.raw.log || true
+    echo "\n[PR] xcresult summary:" >&2
+    if command -v xcrun >/dev/null 2>&1; then
+      xcrun xcresulttool get --format json --path build/pr.xcresult 2>/dev/null | head -n 200 || true
+    fi
     echo "\n[PR] First matching error lines:" >&2
     if command -v rg >/dev/null 2>&1; then
-      (rg -n "\\berror:|Failed frontend command" build/pr.test.raw.log || true) >&2
+      (rg -n "\\berror:|Failed frontend command|Assertion failed|XCTAssert" build/pr.test.raw.log || true) >&2
     else
-      (grep -nE "(^| )error:|Failed frontend command" build/pr.test.raw.log || true) >&2
+      (grep -nE "(^| )error:|Failed frontend command|Assertion failed|XCTAssert" build/pr.test.raw.log || true) >&2
     fi
     exit 65
   fi
