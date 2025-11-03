@@ -313,7 +313,7 @@ fi
 
   if ! xcodebuild \
       -workspace fearless.xcworkspace \
-      -scheme fearless \
+      -scheme fearless.tests \
       -destination "$DEST_STR" \
       -clonedSourcePackagesDirPath "$SP_DIR" \
       CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
