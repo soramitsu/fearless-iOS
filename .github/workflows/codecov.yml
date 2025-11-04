@@ -23,10 +23,18 @@ jobs:
             echo "GH_READ_TOKEN not set; proceeding without GitHub auth"
           fi
       
-      - name: Install Dependencies & Test
+      - name: Bootstrap Dependencies
         run: |
-          pod install --repo-update
-          set -o pipefail && xcodebuild test -workspace fearless.xcworkspace -scheme fearless -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.2' build test | xcpretty --test
+          bash scripts/ci/bootstrap.sh
+
+      - name: Build & Test (Simulator)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -workspace fearless.xcworkspace \
+            -scheme fearless.tests \
+            -destination 'platform=iOS Simulator,OS=latest,name=iPhone 15' \
+            build test | xcpretty --test
 
       - name: Upload coverage to Codecov
         run: bash <(curl -s https://codecov.io/bash) -J 'fearless'
