@@ -30,11 +30,23 @@ jobs:
       - name: Build & Test (Simulator)
         run: |
           set -o pipefail
-          xcodebuild \
-            -workspace fearless.xcworkspace \
-            -scheme fearless.tests \
-            -destination 'platform=iOS Simulator,OS=latest,name=iPhone 15' \
-            build test | xcpretty --test
+          DEST_MAIN="platform=iOS Simulator,OS=latest,name=iPhone 16"
+          DEST_FALLBACK="generic/platform=iOS Simulator"
+          echo "Attempting tests on: $DEST_MAIN"
+          if xcodebuild \
+              -workspace fearless.xcworkspace \
+              -scheme fearless.tests \
+              -destination "$DEST_MAIN" \
+              build test | xcpretty --test; then
+            echo "Tests succeeded on $DEST_MAIN"
+          else
+            echo "Primary destination unavailable; falling back to: $DEST_FALLBACK"
+            xcodebuild \
+              -workspace fearless.xcworkspace \
+              -scheme fearless.tests \
+              -destination "$DEST_FALLBACK" \
+              build test | xcpretty --test
+          fi
 
       - name: Upload coverage to Codecov
         run: bash <(curl -s https://codecov.io/bash) -J 'fearless'
