@@ -30,23 +30,25 @@ jobs:
       - name: Build & Test (Simulator)
         run: |
           set -o pipefail
-          DEST_MAIN="platform=iOS Simulator,OS=latest,name=iPhone 16"
-          DEST_FALLBACK="generic/platform=iOS Simulator"
-          echo "Attempting tests on: $DEST_MAIN"
-          if xcodebuild \
-              -workspace fearless.xcworkspace \
-              -scheme fearless.tests \
-              -destination "$DEST_MAIN" \
-              build test | xcpretty --test; then
-            echo "Tests succeeded on $DEST_MAIN"
-          else
-            echo "Primary destination unavailable; falling back to: $DEST_FALLBACK"
-            xcodebuild \
-              -workspace fearless.xcworkspace \
-              -scheme fearless.tests \
-              -destination "$DEST_FALLBACK" \
-              build test | xcpretty --test
+          # Prefer iPhone 16; otherwise pick the first available iPhone and use its UDID
+          PREFERRED_NAME="iPhone 16"
+          echo "Available simulators:" && xcrun simctl list devices | sed -n '1,80p'
+          # Try to find an exact match by name with available state
+          UDID=$(xcrun simctl list devices available | awk -v name="$PREFERRED_NAME" -F '[()]' '$0 ~ name {print $2; exit}')
+          if [ -z "$UDID" ]; then
+            # Fallback to any iPhone device
+            UDID=$(xcrun simctl list devices available | awk -F '[()]' '/iPhone/ {print $2; exit}')
           fi
+          if [ -z "$UDID" ]; then
+            echo "No concrete iPhone simulator found; exiting" >&2
+            exit 1
+          fi
+          echo "Using simulator id: $UDID"
+          xcodebuild \
+            -workspace fearless.xcworkspace \
+            -scheme fearless.tests \
+            -destination "id=$UDID" \
+            build test | xcpretty --test
 
       - name: Upload coverage to Codecov
         run: bash <(curl -s https://codecov.io/bash) -J 'fearless'

@@ -151,22 +151,13 @@ echo "[spm-fixes] Completed EthereumPrivateKey call patches (with verification)"
 patch_address_factory_struct() {
   local base_checkout="$1/SourcePackages/checkouts/shared-features-spm"
   local file="$base_checkout/Sources/SSFCrypto/Classes/AddressConversion.swift"
-  [[ -f "$file" ]] || return 0
-  # Replace public enum AddressFactory with public struct AddressFactory
-  /usr/bin/sed -i '' -e 's/^public[[:space:]]\+enum[[:space:]]\+AddressFactory/public struct AddressFactory/' "$file" || true
-  # Add instance wrappers if not present (idempotent: only add when no instance func exists)
-  if ! /usr/bin/grep -q "func address(.*chainFormat" "$file"; then
-    /usr/bin/awk '
-      BEGIN{printed=0}
-      { print }
-      /public struct AddressFactory/ && printed==0 {
-        # Wait for first closing brace of struct body to inject methods later
-      }
-    ' "$file" >/dev/null 2>&1 || true
-  fi
-  # Simple append of instance wrappers at end of file if missing
-  if ! /usr/bin/grep -q "extension AddressFactory" "$file"; then
-    cat >> "$file" <<'EOF'
+  if [[ -f "$file" ]]; then
+    echo "[spm-fixes] Converting AddressFactory enum->struct in $file"
+    # Replace public enum AddressFactory with public struct AddressFactory
+    /usr/bin/sed -i '' -e 's/^public[[:space:]]\+enum[[:space:]]\+AddressFactory/public struct AddressFactory/' "$file" || true
+    # Simple append of instance wrappers at end of file if missing
+    if ! /usr/bin/grep -q "extension AddressFactory" "$file"; then
+      cat >> "$file" <<'EOF'
 
 public extension AddressFactory {
     func address(for accountId: AccountId, chainFormat: SFChainFormat) throws -> AccountAddress {
@@ -186,6 +177,21 @@ public extension AddressFactory {
     }
 }
 EOF
+    fi
+  else
+    echo "[spm-fixes] AddressConversion.swift not found at $file; performing broad search"
+  fi
+
+  # Broad fallback: patch any file in shared-features-spm declaring enum AddressFactory
+  local sources_dir="$base_checkout/Sources"
+  if [[ -d "$sources_dir" ]]; then
+    while IFS= read -r -d '' f; do
+      echo "[spm-fixes] Converting AddressFactory in: $f"
+      /usr/bin/sed -E -i '' \
+        -e 's/^[[:space:]]*public[[:space:]]+enum[[:space:]]+AddressFactory/public struct AddressFactory/' \
+        -e 's/^[[:space:]]*enum[[:space:]]+AddressFactory/struct AddressFactory/' \
+        "$f" || true
+    done < <(/usr/bin/grep -RIl "^[[:space:]]*(public[[:space:]]+)?enum[[:space:]]+AddressFactory" "$sources_dir" 2>/dev/null | tr '\n' '\0')
   fi
 }
 
