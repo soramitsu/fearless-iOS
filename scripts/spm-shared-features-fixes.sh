@@ -191,7 +191,7 @@ EOF
         -e 's/^[[:space:]]*public[[:space:]]+enum[[:space:]]+AddressFactory/public struct AddressFactory/' \
         -e 's/^[[:space:]]*enum[[:space:]]+AddressFactory/struct AddressFactory/' \
         "$f" || true
-    done < <(/usr/bin/grep -RIl "^[[:space:]]*(public[[:space:]]+)?enum[[:space:]]+AddressFactory" "$sources_dir" 2>/dev/null | tr '\n' '\0')
+    done < <(/usr/bin/grep -REl "^[[:space:]]*(public[[:space:]]+)?enum[[:space:]]+AddressFactory" "$sources_dir" 2>/dev/null | tr '\n' '\0')
   fi
 }
 

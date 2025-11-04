@@ -30,6 +30,8 @@ jobs:
       - name: Build & Test (Simulator)
         run: |
           set -o pipefail
+          # Ensure shared-features patches applied right before build (tests scheme lacks PreActions)
+          bash scripts/spm-shared-features-fixes.sh "$(pwd)" || true
           # Prefer iPhone 16; otherwise pick the first available iPhone and use its UDID
           PREFERRED_NAME="iPhone 16"
           echo "Available simulators:" && xcrun simctl list devices | sed -n '1,80p'
