@@ -126,5 +126,11 @@ if [[ -x "scripts/spm-iroha-hotfix.sh" ]]; then
   scripts/spm-iroha-hotfix.sh fearless fearless.xcworkspace || true
 fi
 
+# Apply shared-features-spm compatibility fixes (manifest + Web3 API drift)
+if [[ -f "scripts/spm-shared-features-fixes.sh" ]]; then
+  echo "[bootstrap] Applying shared-features-spm fixes (manifest + Data.bytes)"
+  bash scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR" || true
+fi
+
 popd >/dev/null
 echo "[bootstrap] Completed CI bootstrap"

@@ -98,7 +98,7 @@ patch_manifest() {
 patch_manifest "$BASE_DIR"
 
 # Also try DerivedData paths, in case SPM ignores clonedSourcePackagesDirPath
-for dd in "$HOME/Library/Developer/Xcode/DerivedData"/*; do
+for dd in "$HOME/Library/Developer/Xcode/DerivedData"/* "$BASE_DIR/DerivedData"/*; do
   [[ -d "$dd/SourcePackages/checkouts/shared-features-spm" ]] || continue
   patch_manifest "$dd"
 done
@@ -123,7 +123,7 @@ patch_private_key_calls() {
 
 # Apply in workspace and DerivedData
 patch_private_key_calls "$BASE_DIR"
-for dd in "$HOME/Library/Developer/Xcode/DerivedData"/*; do
+for dd in "$HOME/Library/Developer/Xcode/DerivedData"/* "$BASE_DIR/DerivedData"/*; do
   patch_private_key_calls "$dd"
 done
 
@@ -172,7 +172,7 @@ EOF
 }
 
 patch_address_factory_struct "$BASE_DIR"
-for dd in "$HOME/Library/Developer/Xcode/DerivedData"/*; do
+for dd in "$HOME/Library/Developer/Xcode/DerivedData"/* "$BASE_DIR/DerivedData"/*; do
   patch_address_factory_struct "$dd"
 done
 
@@ -191,7 +191,7 @@ patch_scrypt_sse2_guard() {
 
 # Apply in workspace and DerivedData
 patch_scrypt_sse2_guard "$BASE_DIR"
-for dd in "$HOME/Library/Developer/Xcode/DerivedData"/*; do
+for dd in "$HOME/Library/Developer/Xcode/DerivedData"/* "$BASE_DIR/DerivedData"/*; do
   patch_scrypt_sse2_guard "$dd"
 done
 
