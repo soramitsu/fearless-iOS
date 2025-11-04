@@ -114,10 +114,20 @@ patch_private_key_calls() {
   local f1="$base/Sources/SSFTransferService/WalletConnectTransferServiceAssembly.swift"
   local f2="$base/Sources/SSFTransferService/InternalServices/Ethereum/EthereumTransferServiceAssembly.swift"
   if [[ -f "$f1" ]]; then
+    # Strict replacement
     /usr/bin/sed -i '' -e 's/EthereumPrivateKey(privateKey: privateKey\.bytes)/EthereumPrivateKey(privateKey: Array(privateKey))/' "$f1" || true
+    # Whitespace-tolerant replacement
+    /usr/bin/sed -E -i '' -e 's/EthereumPrivateKey\(\s*privateKey:\s*privateKey\s*\.\s*bytes\s*\)/EthereumPrivateKey(privateKey: Array(privateKey))/' "$f1" || true
+    # Fallback: replace property access broadly within this file only
+    /usr/bin/sed -E -i '' -e 's/privateKey\s*\.\s*bytes/Array(privateKey)/g' "$f1" || true
   fi
   if [[ -f "$f2" ]]; then
+    # Strict replacement
     /usr/bin/sed -i '' -e 's/EthereumPrivateKey(privateKey: secretKeyData\.bytes)/EthereumPrivateKey(privateKey: Array(secretKeyData))/' "$f2" || true
+    # Whitespace-tolerant replacement
+    /usr/bin/sed -E -i '' -e 's/EthereumPrivateKey\(\s*privateKey:\s*secretKeyData\s*\.\s*bytes\s*\)/EthereumPrivateKey(privateKey: Array(secretKeyData))/' "$f2" || true
+    # Fallback: replace property access broadly within this file only
+    /usr/bin/sed -E -i '' -e 's/secretKeyData\s*\.\s*bytes/Array(secretKeyData)/g' "$f2" || true
   fi
 }
 
