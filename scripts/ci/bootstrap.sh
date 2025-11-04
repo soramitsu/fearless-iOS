@@ -14,20 +14,34 @@ pushd "$WORKSPACE_DIR" >/dev/null
 
 # 1) CocoaPods install (with fallbacks)
 if [[ -f Podfile ]]; then
-  IS_PR=0
-  if [[ -n "${CHANGE_ID:-}" ]]; then IS_PR=1; fi
+  IS_JENKINS_PR=0
+  if [[ -n "${CHANGE_ID:-}" ]]; then IS_JENKINS_PR=1; fi
 
-  # Handle private pods (FearlessKeys)
-  if [[ "$IS_PR" == "1" && -z "${INCLUDE_FEARLESS_KEYS:-}" ]]; then
+  # Determine token availability from either Jenkins or GitHub Actions
+  GH_TOKEN_SRC=""
+  if [[ -n "${GH_PAT_READ:-}" ]]; then GH_TOKEN_SRC="$GH_PAT_READ"; fi
+  if [[ -z "$GH_TOKEN_SRC" && -n "${GH_READ_TOKEN:-}" ]]; then GH_TOKEN_SRC="$GH_READ_TOKEN"; fi
+
+  # Handle private pods (FearlessKeys) across CI providers
+  SHOULD_DISABLE_KEYS=0
+  if [[ -z "${INCLUDE_FEARLESS_KEYS:-}" ]]; then
+    # Jenkins PRs without explicit opt-in
+    if [[ "$IS_JENKINS_PR" == "1" && -z "$GH_TOKEN_SRC" ]]; then SHOULD_DISABLE_KEYS=1; fi
+    # GitHub Actions PRs (secrets absent on forks)
+    if [[ -n "${GITHUB_ACTIONS:-}" && -z "$GH_TOKEN_SRC" ]]; then SHOULD_DISABLE_KEYS=1; fi
+  fi
+
+  if [[ "$SHOULD_DISABLE_KEYS" == "1" ]]; then
     if /usr/bin/grep -q "pod 'FearlessKeys'" Podfile; then
       cp Podfile Podfile.ci.bak
-      awk 'BEGIN{done=0} { if(done==0 && $0 ~ /^[[:space:]]*pod '\''FearlessKeys'\''/){ print "# CI PR: disabled "$0; done=1 } else { print } }' Podfile > Podfile.ci.tmp && mv Podfile.ci.tmp Podfile
-      echo "[bootstrap] Disabled FearlessKeys pod for PR build"
+      awk 'BEGIN{done=0} { if(done==0 && $0 ~ /^[[:space:]]*pod '\''FearlessKeys'\''/){ print "# CI: disabled private pod for PR build -> "$0; done=1 } else { print } }' Podfile > Podfile.ci.tmp && mv Podfile.ci.tmp Podfile
+      echo "[bootstrap] Disabled FearlessKeys pod (no token available in CI)"
     fi
   else
-    # Trusted branch: enable tokens for private repos if provided
-    if [[ -n "${GH_PAT_READ:-}" ]]; then
-      git config --global url."https://${GH_PAT_READ}@github.com/".insteadOf "https://github.com/" || true
+    # Trusted branch or token provided: enable tokens for private repos
+    if [[ -n "$GH_TOKEN_SRC" ]]; then
+      git config --global url."https://${GH_TOKEN_SRC}@github.com/".insteadOf "https://github.com/" || true
+      echo "[bootstrap] Configured GitHub token for private pods"
     fi
     export INCLUDE_FEARLESS_KEYS=1
   fi
