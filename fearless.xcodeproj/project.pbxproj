@@ -15385,6 +15385,7 @@ AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = 
 				AE2060202636DA5900357578 /* Inject keys */,
 				F472A8D6261758DE003C58BC /* SwiftFormat */,
 				849013CD24A92260008F705E /* Swiftlint */,
+				FAEEBEEF2DDC0FFE00ABC123 /* SPM Shared Features Fixes */,
 				849013CE24A92280008F705E /* R.swift */,
 				849013A424A80984008F705E /* Sources */,
 				849013A524A80984008F705E /* Frameworks */,
@@ -15574,6 +15575,7 @@ AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = 
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+\t\tFAEEBEEF2DDC0FFE00ABC123 /* SPM Shared Features Fixes */ = {\n\t\t\tisa = PBXShellScriptBuildPhase;\n\t\t\talwaysOutOfDate = 1;\n\t\t\tbuildActionMask = 2147483647;\n\t\t\tfiles = (\n\t\t\t);\n\t\t\tinputFileListPaths = (\n\t\t\t);\n\t\t\tinputPaths = (\n\t\t\t);\n\t\t\tname = "SPM Shared Features Fixes";\n\t\t\toutputFileListPaths = (\n\t\t\t);\n\t\t\toutputPaths = (\n\t\t\t);\n\t\t\trunOnlyForDeploymentPostprocessing = 0;\n\t\t\tshellPath = /bin/sh;\n\t\t\tshellScript = "bash \"${PROJECT_DIR}/scripts/spm-shared-features-fixes.sh\" \"${PROJECT_DIR}\" || true\n";\n\t\t};
 		143B40CCA3BF094926B9773C /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
