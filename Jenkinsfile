@@ -23,5 +23,13 @@ def appPipeline = new org.ios.AppPipeline(
   uploadToNexusFor: ['master','develop','staging']
 )
 
-appPipeline.runPipeline('fearless')
+// Ensure SPM and shared-features patches are applied before the main pipeline.
+// This resolves Web3 API drift (Data.bytes) and IrohaCrypto modulemap issues prior to archive.
+node('mac-fearless') {
+  stage('Bootstrap CI deps') {
+    checkout scm
+    sh label: 'Bootstrap Pods/SPM/LFS + apply shared-features fixes', script: 'bash scripts/ci/bootstrap.sh'
+  }
+}
 
+appPipeline.runPipeline('fearless')

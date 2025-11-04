@@ -107,37 +107,45 @@ echo "[spm-fixes] Completed shared-features-spm fixes"
 
 # 2) Patch Web3 EthereumPrivateKey initializers to accept Data as [UInt8]
 patch_private_key_calls() {
-  local base="$1/SourcePackages/checkouts/shared-features-spm"
-  [[ -d "$base" ]] || return 0
-  echo "[spm-fixes] Patching EthereumPrivateKey initializers under $base"
-  # Known occurrences in sources
-  local f1="$base/Sources/SSFTransferService/WalletConnectTransferServiceAssembly.swift"
-  local f2="$base/Sources/SSFTransferService/InternalServices/Ethereum/EthereumTransferServiceAssembly.swift"
-  if [[ -f "$f1" ]]; then
-    # Strict replacement
-    /usr/bin/sed -i '' -e 's/EthereumPrivateKey(privateKey: privateKey\.bytes)/EthereumPrivateKey(privateKey: Array(privateKey))/' "$f1" || true
-    # Whitespace-tolerant replacement
-    /usr/bin/sed -E -i '' -e 's/EthereumPrivateKey\(\s*privateKey:\s*privateKey\s*\.\s*bytes\s*\)/EthereumPrivateKey(privateKey: Array(privateKey))/' "$f1" || true
-    # Fallback: replace property access broadly within this file only
-    /usr/bin/sed -E -i '' -e 's/privateKey\s*\.\s*bytes/Array(privateKey)/g' "$f1" || true
-  fi
-  if [[ -f "$f2" ]]; then
-    # Strict replacement
-    /usr/bin/sed -i '' -e 's/EthereumPrivateKey(privateKey: secretKeyData\.bytes)/EthereumPrivateKey(privateKey: Array(secretKeyData))/' "$f2" || true
-    # Whitespace-tolerant replacement
-    /usr/bin/sed -E -i '' -e 's/EthereumPrivateKey\(\s*privateKey:\s*secretKeyData\s*\.\s*bytes\s*\)/EthereumPrivateKey(privateKey: Array(secretKeyData))/' "$f2" || true
-    # Fallback: replace property access broadly within this file only
-    /usr/bin/sed -E -i '' -e 's/secretKeyData\s*\.\s*bytes/Array(secretKeyData)/g' "$f2" || true
-  fi
+  local root="$1"
+  local patched=0
+  # Look for both known files under any shared-features-spm checkout below the root
+  while IFS= read -r -d '' file; do
+    echo "[spm-fixes] Patching Data.bytes -> Array(data) in: $file"
+    # Apply several tolerant patterns
+    /usr/bin/sed -E -i '' \
+      -e 's/EthereumPrivateKey\(\s*privateKey:\s*privateKey\s*\.\s*bytes\s*\)/EthereumPrivateKey(privateKey: Array(privateKey))/' \
+      -e 's/EthereumPrivateKey\(\s*privateKey:\s*secretKeyData\s*\.\s*bytes\s*\)/EthereumPrivateKey(privateKey: Array(secretKeyData))/' \
+      -e 's/([[:<:]]privateKey[[:>:]]\s*)\.\s*bytes/Array(\1)/g' \
+      -e 's/([[:<:]]secretKeyData[[:>:]]\s*)\.\s*bytes/Array(\1)/g' \
+      "$file" || true
+
+    # Report remaining occurrences if any
+    if /usr/bin/grep -n "\.bytes" "$file" >/dev/null 2>&1; then
+      echo "[spm-fixes] After patch, '.bytes' still present in $file:" >&2
+      /usr/bin/grep -n "\.bytes" "$file" | sed -n '1,4p' >&2 || true
+    else
+      patched=$((patched+1))
+    fi
+  done < <(/usr/bin/find "$root" -type f \( \
+      -path "*/checkouts/shared-features-spm/Sources/SSFTransferService/WalletConnectTransferServiceAssembly.swift" -o \
+      -path "*/checkouts/shared-features-spm/Sources/SSFTransferService/InternalServices/Ethereum/EthereumTransferServiceAssembly.swift" \
+    \) -print0 2>/dev/null)
+
+  echo "[spm-fixes] Patched $patched file(s) under $root"
 }
 
-# Apply in workspace and DerivedData
+# Apply in workspace and common DerivedData roots
 patch_private_key_calls "$BASE_DIR"
-for dd in "$HOME/Library/Developer/Xcode/DerivedData"/* "$BASE_DIR/DerivedData"/*; do
-  patch_private_key_calls "$dd"
+for dd in "$HOME/Library/Developer/Xcode/DerivedData" "$BASE_DIR/DerivedData"; do
+  [[ -d "$dd" ]] || continue
+  for sub in "$dd"/*; do
+    [[ -d "$sub" ]] || continue
+    patch_private_key_calls "$sub"
+  done
 done
 
-echo "[spm-fixes] Completed EthereumPrivateKey call patches"
+echo "[spm-fixes] Completed EthereumPrivateKey call patches (with verification)"
 
 # 3) Convert SSFCrypto AddressFactory from enum to struct (allow instantiation)
 patch_address_factory_struct() {
