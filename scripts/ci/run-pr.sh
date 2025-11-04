@@ -51,9 +51,9 @@ if xcodebuild -workspace "$WORKSPACE_DIR/fearless.xcworkspace" \
   -clonedSourcePackagesDirPath "$SP_DIR" \
   clean build; then
 
-  echo "[run-pr] Running unit tests on iOS Simulator"
+  echo "[run-pr] Running unit tests on iOS Simulator (scheme: fearless.tests)"
   xcodebuild -workspace "$WORKSPACE_DIR/fearless.xcworkspace" \
-    -scheme fearless \
+    -scheme fearless.tests \
     -destination 'generic/platform=iOS Simulator' \
     -clonedSourcePackagesDirPath "$SP_DIR" \
     test

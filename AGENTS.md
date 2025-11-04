@@ -19,7 +19,7 @@
 - Build (Debug, simulator):
   - `xcodebuild -workspace fearless.xcworkspace -scheme fearless -configuration Debug -destination 'platform=iOS Simulator,OS=latest,name=iPhone 15' build`
 - Run unit tests (on simulator):
-  - `xcodebuild -workspace fearless.xcworkspace -scheme fearless -destination 'platform=iOS Simulator,OS=latest,name=iPhone 15' test`
+  - `xcodebuild -workspace fearless.xcworkspace -scheme fearless.tests -destination 'platform=iOS Simulator,OS=latest,name=iPhone 15' test`
 - Lint/format:
   - `swiftlint` (uses `.swiftlint.yml`)
   - `swiftformat .` (uses `.swiftformat`)
@@ -113,7 +113,7 @@ The project mixes CocoaPods and Swift Package Manager. Follow these steps in ord
 
 4) Build & test on Simulator (no signing)
 - Build: `xcodebuild -workspace fearless.xcworkspace -scheme fearless -configuration Debug -destination 'platform=iOS Simulator,OS=latest,name=iPhone 15' build`
-- Tests: `bash scripts/test-matrix.sh` (runs Debug + Release simulator tests)
+- Tests: `bash scripts/test-matrix.sh` (runs Debug + Release simulator tests using `fearless.tests` by default)
 
 5) Archive (two options)
 - Development archive (local testing without Distribution certs):

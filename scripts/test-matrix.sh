@@ -6,10 +6,10 @@ set -euo pipefail
 # Usage:
 #   scripts/test-matrix.sh [SCHEME] [DESTINATION]
 # Defaults:
-#   SCHEME=fearless
+#   SCHEME=fearless.tests
 #   DESTINATION="platform=iOS Simulator,name=Any iOS Simulator Device"
 
-SCHEME="${1:-fearless}"
+SCHEME="${1:-fearless.tests}"
 DEST="${2:-platform=iOS Simulator,name=Any iOS Simulator Device}"
 WORKSPACE="fearless.xcworkspace"
 
