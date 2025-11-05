@@ -246,7 +246,7 @@ patch_polkaswap_addressfactory_usage() {
   # 5a) Generic metatype flattening: collapse any AddressFactory.Type.Type to AddressFactory.Type
   /usr/bin/find "$base_checkout" -type f -name "*.swift" -print0 2>/dev/null | \
     xargs -0 /usr/bin/sed -E -i '' \
-      -e 's/([A-Za-z_][A-Za-z0-9_]*\.)?AddressFactory\.Type\.Type/\1AddressFactory.Type/g' || true
+      -e 's/([A-Za-z_][A-Za-z0-9_]*\.)?AddressFactory\s*\.\s*Type\s*\.\s*Type/\1AddressFactory.Type/g' || true
 
   /usr/bin/find "$base_checkout" -type f -name "*.swift" -print0 2>/dev/null | \
     xargs -0 /usr/bin/sed -E -i '' \
@@ -260,6 +260,10 @@ patch_polkaswap_addressfactory_usage() {
   for f in "$f1" "$f2"; do
     if [[ -f "$f" ]]; then
       chmod u+w "$f" 2>/dev/null || true
+      # Targeted flattening in file (in case the generic pass missed due to formatting)
+      /usr/bin/sed -E -i '' \
+        -e 's/AddressFactory\s*\.\s*Type\s*\.\s*Type/AddressFactory.Type/g' \
+        "$f" || true
       /usr/bin/sed -E -i '' \
         -e 's/(^|[^A-Za-z0-9_])private\s+let\s+addressFactory\s*:\s*([[:alnum:]_]+\.)?AddressFactory([^A-Za-z0-9_]|$)/\1private let addressFactory: \2AddressFactory.Type\3/g' \
         -e 's/\binit\(([^)]*)addressFactory\s*:\s*([[:alnum:]_]+\.)?AddressFactory([^A-Za-z0-9_]|$)/init(\1addressFactory: \2AddressFactory.Type\3/g' \
