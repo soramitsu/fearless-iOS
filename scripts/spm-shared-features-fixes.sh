@@ -151,6 +151,10 @@ echo "[spm-fixes] Completed EthereumPrivateKey call patches (with verification)"
 patch_address_factory_struct() {
   local base_checkout="$1/SourcePackages/checkouts/shared-features-spm"
   local file="$base_checkout/Sources/SSFCrypto/Classes/AddressConversion.swift"
+  # Ensure sources are writable (avoid permission denied when editing)
+  if [[ -d "$base_checkout/Sources" ]]; then
+    chmod -R u+w "$base_checkout/Sources" 2>/dev/null || true
+  fi
   if [[ -f "$file" ]]; then
     echo "[spm-fixes] Converting AddressFactory enum->struct in $file"
     # Replace public enum AddressFactory with public struct AddressFactory
@@ -225,6 +229,7 @@ patch_polkaswap_addressfactory_usage() {
   local base_checkout="$1/SourcePackages/checkouts/shared-features-spm/Sources/SSFPolkaswap"
   [[ -d "$base_checkout" ]] || return 0
   echo "[spm-fixes] Normalizing SSFPolkaswap addressFactory usage under $base_checkout"
+  chmod -R u+w "$base_checkout" 2>/dev/null || true
   /usr/bin/find "$base_checkout" -type f -name "*.swift" -print0 2>/dev/null | \
     xargs -0 /usr/bin/sed -E -i '' \
       -e 's/\b(let|var)([[:space:]]+addressFactory[[:space:]]*:[[:space:]]*)([[:alnum:]_]+\.)?AddressFactory\b/\1\2\3AddressFactory.Type/g' \
@@ -236,12 +241,11 @@ patch_polkaswap_addressfactory_usage() {
   local f2="$base_checkout/RemotePolkaswapPoolsService.swift"
   for f in "$f1" "$f2"; do
     if [[ -f "$f" ]]; then
+      chmod u+w "$f" 2>/dev/null || true
       /usr/bin/sed -E -i '' \
         -e 's/\bprivate\s+let\s+addressFactory\s*:\s*([[:alnum:]_]+\.)?AddressFactory\b/private let addressFactory: \1AddressFactory.Type/g' \
-        -e 's/\binit\(([^)]*)addressFactory\s*:\s*([[:alnum:]_]+\.)?AddressFactory\b/initializer(\1addressFactory: \2AddressFactory.Type/g' \
+        -e 's/\binit\(([^)]*)addressFactory\s*:\s*([[:alnum:]_]+\.)?AddressFactory\b/init(\1addressFactory: \2AddressFactory.Type/g' \
         "$f" || true
-      # Revert accidental 'initializer(' rename if applied; ensure we only changed the type
-      /usr/bin/sed -E -i '' -e 's/initializer\(/init\(/g' "$f" || true
     fi
   done
 }
