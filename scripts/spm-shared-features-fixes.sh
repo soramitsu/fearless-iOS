@@ -185,13 +185,12 @@ EOF
   # Broad fallback: patch any file in shared-features-spm declaring enum AddressFactory
   local sources_dir="$base_checkout/Sources"
   if [[ -d "$sources_dir" ]]; then
-    while IFS= read -r -d '' f; do
-      echo "[spm-fixes] Converting AddressFactory in: $f"
-      /usr/bin/sed -E -i '' \
-        -e 's/^[[:space:]]*public[[:space:]]+enum[[:space:]]+AddressFactory/public struct AddressFactory/' \
-        -e 's/^[[:space:]]*enum[[:space:]]+AddressFactory/struct AddressFactory/' \
-        "$f" || true
-    done < <(/usr/bin/grep -REl "^[[:space:]]*(public[[:space:]]+)?enum[[:space:]]+AddressFactory" "$sources_dir" 2>/dev/null | tr '\n' '\0')
+    # Global conversion: any occurrence of 'enum AddressFactory' -> 'struct AddressFactory'
+    echo "[spm-fixes] Performing global AddressFactory enum->struct conversion under $sources_dir"
+    /usr/bin/find "$sources_dir" -type f -name "*.swift" -print0 2>/dev/null | \
+      xargs -0 /usr/bin/sed -E -i '' \
+        -e 's/\bpublic\s+enum\s+AddressFactory\b/public struct AddressFactory/g' \
+        -e 's/\benum\s+AddressFactory\b/struct AddressFactory/g' || true
   fi
 }
 
