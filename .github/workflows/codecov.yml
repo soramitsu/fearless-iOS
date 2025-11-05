@@ -40,15 +40,30 @@ jobs:
           # Apply patches on the resolved checkout
           bash scripts/spm-shared-features-fixes.sh "$(pwd)" || true
           echo "Preflight: checking no remaining 'enum AddressFactory' in $SP_DIR checkouts"
-          if rg -n "\\benum\\s+AddressFactory\\b" "$SP_DIR/checkouts/shared-features-spm/Sources" -S >/dev/null 2>&1; then
-            echo "ERROR: enum AddressFactory remains in resolved checkout:" >&2
-            rg -n "\\benum\\s+AddressFactory\\b" "$SP_DIR/checkouts/shared-features-spm/Sources" -S | sed -n '1,60p' >&2
-            exit 1
+          if command -v rg >/dev/null 2>&1; then
+            if rg -n "\\benum\\s+AddressFactory\\b" "$SP_DIR/checkouts/shared-features-spm/Sources" -S >/dev/null 2>&1; then
+              echo "ERROR: enum AddressFactory remains in resolved checkout:" >&2
+              rg -n "\\benum\\s+AddressFactory\\b" "$SP_DIR/checkouts/shared-features-spm/Sources" -S | sed -n '1,120p' >&2
+              exit 1
+            fi
+          else
+            if /usr/bin/grep -RInE "(^|[^A-Za-z0-9_])enum[[:space:]]+AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources" >/dev/null 2>&1; then
+              echo "ERROR: enum AddressFactory remains in resolved checkout (grep):" >&2
+              /usr/bin/grep -RInE "(^|[^A-Za-z0-9_])enum[[:space:]]+AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources" | sed -n '1,120p' >&2
+              exit 1
+            fi
           fi
           echo "Preflight: checking SSFPolkaswap addressFactory type annotations"
-          if rg -n "addressFactory\s*:\s*([A-Za-z_]+\.)?AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources/SSFPolkaswap" -S >/dev/null 2>&1; then
-            echo "WARNING: addressFactory annotations still using AddressFactory (not .Type):" >&2
-            rg -n "addressFactory\s*:\s*([A-Za-z_]+\.)?AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources/SSFPolkaswap" -S | sed -n '1,60p' >&2 || true
+          if command -v rg >/dev/null 2>&1; then
+            if rg -n "addressFactory\s*:\s*([A-Za-z_]+\.)?AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources/SSFPolkaswap" -S >/dev/null 2>&1; then
+              echo "WARNING: addressFactory annotations still using AddressFactory (not .Type):" >&2
+              rg -n "addressFactory\s*:\s*([A-Za-z_]+\.)?AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources/SSFPolkaswap" -S | sed -n '1,120p' >&2 || true
+            fi
+          else
+            if /usr/bin/grep -RInE "addressFactory\s*:\s*([A-Za-z_]+\.)?AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources/SSFPolkaswap" >/dev/null 2>&1; then
+              echo "WARNING: addressFactory annotations still using AddressFactory (not .Type) [grep]:" >&2
+              /usr/bin/grep -RInE "addressFactory\s*:\s*([A-Za-z_]+\.)?AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources/SSFPolkaswap" | sed -n '1,120p' >&2 || true
+            fi
           fi
           # Prefer iPhone 16; otherwise pick the first available iPhone and use its UDID
           PREFERRED_NAME="iPhone 16"

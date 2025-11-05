@@ -230,6 +230,20 @@ patch_polkaswap_addressfactory_usage() {
       -e 's/\b(let|var)([[:space:]]+addressFactory[[:space:]]*:[[:space:]]*)([[:alnum:]_]+\.)?AddressFactory\b/\1\2\3AddressFactory.Type/g' \
       -e 's/([,(][[:space:]]*)addressFactory[[:space:]]*:[[:space:]]*([[:alnum:]_]+\.)?AddressFactory\b/\1addressFactory: \2AddressFactory.Type/g' \
       -e 's/addressFactory:[[:space:]]*AddressFactory[[:space:]]*=([[:space:]]*)AddressFactory\.self/addressFactory: AddressFactory.Type = AddressFactory.self/g' || true
+
+  # Targeted fix for known files (ensure replacement even if patterns differ)
+  local f1="$base_checkout/PolkaswapOperationFactory.swift"
+  local f2="$base_checkout/RemotePolkaswapPoolsService.swift"
+  for f in "$f1" "$f2"; do
+    if [[ -f "$f" ]]; then
+      /usr/bin/sed -E -i '' \
+        -e 's/\bprivate\s+let\s+addressFactory\s*:\s*([[:alnum:]_]+\.)?AddressFactory\b/private let addressFactory: \1AddressFactory.Type/g' \
+        -e 's/\binit\(([^)]*)addressFactory\s*:\s*([[:alnum:]_]+\.)?AddressFactory\b/initializer(\1addressFactory: \2AddressFactory.Type/g' \
+        "$f" || true
+      # Revert accidental 'initializer(' rename if applied; ensure we only changed the type
+      /usr/bin/sed -E -i '' -e 's/initializer\(/init\(/g' "$f" || true
+    fi
+  done
 }
 
 patch_polkaswap_addressfactory_usage "$BASE_DIR"
