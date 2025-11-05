@@ -264,6 +264,7 @@ patch_polkaswap_addressfactory_usage() {
         -e 's/addressFactory\s*:\s*AddressFactory([^A-Za-z0-9_]|$)/addressFactory: AddressFactory.Type\1/g' \
         -e 's/addressFactory\s*:\s*SSFCrypto\.AddressFactory([^A-Za-z0-9_]|$)/addressFactory: SSFCrypto.AddressFactory.Type\1/g' \
         -e 's/self\s*\.\s*addressFactory\s*=\s*addressFactory/self.addressFactory = type(of: addressFactory)/g' \
+        -e 's/self\s*\.\s*addressFactory\s*=\s*type\(of:\s*addressFactory\s*\)/self.addressFactory = addressFactory/g' \
         "$f" || true
     fi
   done
