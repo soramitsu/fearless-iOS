@@ -243,6 +243,11 @@ patch_polkaswap_addressfactory_usage() {
   [[ -d "$base_checkout" ]] || return 0
   echo "[spm-fixes] Normalizing SSFPolkaswap addressFactory usage under $base_checkout"
   chmod -R u+w "$base_checkout" 2>/dev/null || true
+  # 5a) Generic metatype flattening: collapse any AddressFactory.Type.Type to AddressFactory.Type
+  /usr/bin/find "$base_checkout" -type f -name "*.swift" -print0 2>/dev/null | \
+    xargs -0 /usr/bin/sed -E -i '' \
+      -e 's/([A-Za-z_][A-Za-z0-9_]*\.)?AddressFactory\.Type\.Type/\1AddressFactory.Type/g' || true
+
   /usr/bin/find "$base_checkout" -type f -name "*.swift" -print0 2>/dev/null | \
     xargs -0 /usr/bin/sed -E -i '' \
       -e 's/([^A-Za-z0-9_])(let|var)([[:space:]]+addressFactory[[:space:]]*:[[:space:]]*)([[:alnum:]_]+\.)?AddressFactory([^A-Za-z0-9_]|$)/\1\2\3\4AddressFactory.Type\5/g' \
@@ -265,7 +270,7 @@ patch_polkaswap_addressfactory_usage() {
         -e 's/addressFactory\s*:\s*AddressFactory([^A-Za-z0-9_]|$)/addressFactory: AddressFactory.Type\1/g' \
         -e 's/addressFactory\s*:\s*SSFCrypto\.AddressFactory([^A-Za-z0-9_]|$)/addressFactory: SSFCrypto.AddressFactory.Type\1/g' \
         "$f" || true
-      # Force assignment to a concrete metatype to avoid Type/Type ambiguity
+      # 5b) Force assignment to a concrete metatype to avoid Type/Type ambiguity (various spacing/comment variants)
       /usr/bin/sed -E -i '' \
         -e 's/^([[:space:]]*self[[:space:]]*\.[[:space:]]*addressFactory[[:space:]]*=[[:space:]]*)addressFactory([[:space:]]*(\/\/.*)?$)/\1AddressFactory.self\2/g' \
         -e 's/([[:space:]]self[[:space:]]*\.[[:space:]]*addressFactory[[:space:]]*=[[:space:]]*)addressFactory([^A-Za-z0-9_]|$)/\1AddressFactory.self\2/g' \
