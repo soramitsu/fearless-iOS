@@ -39,6 +39,12 @@ jobs:
             -clonedSourcePackagesDirPath "$SP_DIR"
           # Apply patches on the resolved checkout
           bash scripts/spm-shared-features-fixes.sh "$(pwd)" || true
+          echo "Preflight: checking no remaining 'enum AddressFactory' in $SP_DIR checkouts"
+          if rg -n "\\benum\\s+AddressFactory\\b" "$SP_DIR/checkouts/shared-features-spm/Sources" -S >/dev/null 2>&1; then
+            echo "ERROR: enum AddressFactory remains in resolved checkout:" >&2
+            rg -n "\\benum\\s+AddressFactory\\b" "$SP_DIR/checkouts/shared-features-spm/Sources" -S | sed -n '1,60p' >&2
+            exit 1
+          fi
           # Prefer iPhone 16; otherwise pick the first available iPhone and use its UDID
           PREFERRED_NAME="iPhone 16"
           echo "Available simulators:" && xcrun simctl list devices | sed -n '1,80p'

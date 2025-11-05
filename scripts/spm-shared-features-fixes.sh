@@ -219,3 +219,26 @@ for dd in "$HOME/Library/Developer/Xcode/DerivedData"/* "$BASE_DIR/DerivedData"/
 done
 
 echo "[spm-fixes] Applied scrypt SSE2 guard patch (arm64-sim safe)"
+
+# 5) SSFPolkaswap: make addressFactory a type reference when used as a dependency token
+patch_polkaswap_addressfactory_usage() {
+  local base_checkout="$1/SourcePackages/checkouts/shared-features-spm/Sources/SSFPolkaswap"
+  [[ -d "$base_checkout" ]] || return 0
+  echo "[spm-fixes] Normalizing SSFPolkaswap addressFactory usage under $base_checkout"
+  /usr/bin/find "$base_checkout" -type f -name "*.swift" -print0 2>/dev/null | \
+    xargs -0 /usr/bin/sed -E -i '' \
+      -e 's/private[[:space:]]+let[[:space:]]+addressFactory:[[:space:]]*AddressFactory\b/private let addressFactory: AddressFactory.Type/g' \
+      -e 's/([,(][[:space:]]*)addressFactory:[[:space:]]*AddressFactory([[:space:]]*[,)])/\1addressFactory: AddressFactory.Type\2/g' \
+      -e 's/addressFactory:[[:space:]]*AddressFactory[[:space:]]*=([[:space:]]*)AddressFactory\.self/addressFactory: AddressFactory.Type = AddressFactory.self/g' || true
+}
+
+patch_polkaswap_addressfactory_usage "$BASE_DIR"
+for dd in "$HOME/Library/Developer/Xcode/DerivedData" "$BASE_DIR/DerivedData"; do
+  [[ -d "$dd" ]] || continue
+  for sub in "$dd"/*; do
+    [[ -d "$sub" ]] || continue
+    patch_polkaswap_addressfactory_usage "$sub"
+  done
+done
+
+echo "[spm-fixes] Patched SSFPolkaswap addressFactory usage (type tokens)"
