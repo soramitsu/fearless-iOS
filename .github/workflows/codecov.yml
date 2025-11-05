@@ -45,6 +45,11 @@ jobs:
             rg -n "\\benum\\s+AddressFactory\\b" "$SP_DIR/checkouts/shared-features-spm/Sources" -S | sed -n '1,60p' >&2
             exit 1
           fi
+          echo "Preflight: checking SSFPolkaswap addressFactory type annotations"
+          if rg -n "addressFactory\s*:\s*([A-Za-z_]+\.)?AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources/SSFPolkaswap" -S >/dev/null 2>&1; then
+            echo "WARNING: addressFactory annotations still using AddressFactory (not .Type):" >&2
+            rg -n "addressFactory\s*:\s*([A-Za-z_]+\.)?AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources/SSFPolkaswap" -S | sed -n '1,60p' >&2 || true
+          fi
           # Prefer iPhone 16; otherwise pick the first available iPhone and use its UDID
           PREFERRED_NAME="iPhone 16"
           echo "Available simulators:" && xcrun simctl list devices | sed -n '1,80p'

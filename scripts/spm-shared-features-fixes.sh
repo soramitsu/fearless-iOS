@@ -227,8 +227,8 @@ patch_polkaswap_addressfactory_usage() {
   echo "[spm-fixes] Normalizing SSFPolkaswap addressFactory usage under $base_checkout"
   /usr/bin/find "$base_checkout" -type f -name "*.swift" -print0 2>/dev/null | \
     xargs -0 /usr/bin/sed -E -i '' \
-      -e 's/private[[:space:]]+let[[:space:]]+addressFactory:[[:space:]]*AddressFactory\b/private let addressFactory: AddressFactory.Type/g' \
-      -e 's/([,(][[:space:]]*)addressFactory:[[:space:]]*AddressFactory([[:space:]]*[,)])/\1addressFactory: AddressFactory.Type\2/g' \
+      -e 's/\b(let|var)([[:space:]]+addressFactory[[:space:]]*:[[:space:]]*)([[:alnum:]_]+\.)?AddressFactory\b/\1\2\3AddressFactory.Type/g' \
+      -e 's/([,(][[:space:]]*)addressFactory[[:space:]]*:[[:space:]]*([[:alnum:]_]+\.)?AddressFactory\b/\1addressFactory: \2AddressFactory.Type/g' \
       -e 's/addressFactory:[[:space:]]*AddressFactory[[:space:]]*=([[:space:]]*)AddressFactory\.self/addressFactory: AddressFactory.Type = AddressFactory.self/g' || true
 }
 
