@@ -259,13 +259,22 @@ patch_polkaswap_addressfactory_usage() {
         -e 's/(^|[^A-Za-z0-9_])private\s+let\s+addressFactory\s*:\s*([[:alnum:]_]+\.)?AddressFactory([^A-Za-z0-9_]|$)/\1private let addressFactory: \2AddressFactory.Type\3/g' \
         -e 's/\binit\(([^)]*)addressFactory\s*:\s*([[:alnum:]_]+\.)?AddressFactory([^A-Za-z0-9_]|$)/init(\1addressFactory: \2AddressFactory.Type\3/g' \
         "$f" || true
-      # Fallback broad replacements if any occurrence still remains
+      # Fallback broad replacements for stray annotations
       /usr/bin/sed -E -i '' \
         -e 's/addressFactory\s*:\s*AddressFactory([^A-Za-z0-9_]|$)/addressFactory: AddressFactory.Type\1/g' \
         -e 's/addressFactory\s*:\s*SSFCrypto\.AddressFactory([^A-Za-z0-9_]|$)/addressFactory: SSFCrypto.AddressFactory.Type\1/g' \
-        -e 's/self\s*\.\s*addressFactory\s*=\s*addressFactory/self.addressFactory = type(of: addressFactory)/g' \
-        -e 's/self\s*\.\s*addressFactory\s*=\s*type\(of:\s*addressFactory\s*\)/self.addressFactory = addressFactory/g' \
         "$f" || true
+      # Fix assignment depending on parameter metatype
+      if /usr/bin/grep -qE 'addressFactory\s*:\s*([[:alnum:]_]+\.)?AddressFactory\.Type' "$f"; then
+        /usr/bin/sed -E -i '' \
+          -e 's/self\s*\.\s*addressFactory\s*=\s*type\(of:\s*addressFactory\s*\)/self.addressFactory = addressFactory/g' \
+          -e 's/self\s*\.\s*addressFactory\s*=\s*addressFactory/self.addressFactory = addressFactory/g' \
+          "$f" || true
+      else
+        /usr/bin/sed -E -i '' \
+          -e 's/self\s*\.\s*addressFactory\s*=\s*addressFactory/self.addressFactory = type(of: addressFactory)/g' \
+          "$f" || true
+      fi
     fi
   done
 }
