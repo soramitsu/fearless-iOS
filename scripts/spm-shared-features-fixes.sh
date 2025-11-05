@@ -245,8 +245,8 @@ patch_polkaswap_addressfactory_usage() {
   chmod -R u+w "$base_checkout" 2>/dev/null || true
   /usr/bin/find "$base_checkout" -type f -name "*.swift" -print0 2>/dev/null | \
     xargs -0 /usr/bin/sed -E -i '' \
-      -e 's/\b(let|var)([[:space:]]+addressFactory[[:space:]]*:[[:space:]]*)([[:alnum:]_]+\.)?AddressFactory\b/\1\2\3AddressFactory.Type/g' \
-      -e 's/([,(][[:space:]]*)addressFactory[[:space:]]*:[[:space:]]*([[:alnum:]_]+\.)?AddressFactory\b/\1addressFactory: \2AddressFactory.Type/g' \
+      -e 's/([^A-Za-z0-9_])(let|var)([[:space:]]+addressFactory[[:space:]]*:[[:space:]]*)([[:alnum:]_]+\.)?AddressFactory([^A-Za-z0-9_]|$)/\1\2\3\4AddressFactory.Type\5/g' \
+      -e 's/([,(][[:space:]]*)addressFactory[[:space:]]*:[[:space:]]*([[:alnum:]_]+\.)?AddressFactory([^A-Za-z0-9_]|$)/\1addressFactory: \2AddressFactory.Type\3/g' \
       -e 's/addressFactory:[[:space:]]*AddressFactory[[:space:]]*=([[:space:]]*)AddressFactory\.self/addressFactory: AddressFactory.Type = AddressFactory.self/g' || true
 
   # Targeted fix for known files (ensure replacement even if patterns differ)
@@ -256,8 +256,13 @@ patch_polkaswap_addressfactory_usage() {
     if [[ -f "$f" ]]; then
       chmod u+w "$f" 2>/dev/null || true
       /usr/bin/sed -E -i '' \
-        -e 's/\bprivate\s+let\s+addressFactory\s*:\s*([[:alnum:]_]+\.)?AddressFactory\b/private let addressFactory: \1AddressFactory.Type/g' \
-        -e 's/\binit\(([^)]*)addressFactory\s*:\s*([[:alnum:]_]+\.)?AddressFactory\b/init(\1addressFactory: \2AddressFactory.Type/g' \
+        -e 's/(^|[^A-Za-z0-9_])private\s+let\s+addressFactory\s*:\s*([[:alnum:]_]+\.)?AddressFactory([^A-Za-z0-9_]|$)/\1private let addressFactory: \2AddressFactory.Type\3/g' \
+        -e 's/\binit\(([^)]*)addressFactory\s*:\s*([[:alnum:]_]+\.)?AddressFactory([^A-Za-z0-9_]|$)/init(\1addressFactory: \2AddressFactory.Type\3/g' \
+        "$f" || true
+      # Fallback broad replacements if any occurrence still remains
+      /usr/bin/sed -E -i '' \
+        -e 's/addressFactory\s*:\s*AddressFactory([^A-Za-z0-9_]|$)/addressFactory: AddressFactory.Type\1/g' \
+        -e 's/addressFactory\s*:\s*SSFCrypto\.AddressFactory([^A-Za-z0-9_]|$)/addressFactory: SSFCrypto.AddressFactory.Type\1/g' \
         "$f" || true
     fi
   done
