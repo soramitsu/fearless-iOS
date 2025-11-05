@@ -30,7 +30,14 @@ jobs:
       - name: Build & Test (Simulator)
         run: |
           set -o pipefail
-          # Ensure shared-features patches applied right before build (tests scheme lacks PreActions)
+          # Resolve SPM into a stable workspace path and patch after resolve
+          SP_DIR="$PWD/SourcePackages"
+          mkdir -p "$SP_DIR"
+          xcodebuild -resolvePackageDependencies \
+            -workspace fearless.xcworkspace \
+            -scheme fearless \
+            -clonedSourcePackagesDirPath "$SP_DIR"
+          # Apply patches on the resolved checkout
           bash scripts/spm-shared-features-fixes.sh "$(pwd)" || true
           # Prefer iPhone 16; otherwise pick the first available iPhone and use its UDID
           PREFERRED_NAME="iPhone 16"
@@ -49,6 +56,7 @@ jobs:
           xcodebuild \
             -workspace fearless.xcworkspace \
             -scheme fearless.tests \
+            -clonedSourcePackagesDirPath "$SP_DIR" \
             -destination "id=$UDID" \
             build test | xcpretty --test
 
