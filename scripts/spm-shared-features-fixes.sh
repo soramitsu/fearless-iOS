@@ -267,7 +267,8 @@ patch_polkaswap_addressfactory_usage() {
         "$f" || true
       # Force assignment to a concrete metatype to avoid Type/Type ambiguity
       /usr/bin/sed -E -i '' \
-        -e 's/self\s*\.\s*addressFactory\s*=\s*addressFactory/self.addressFactory = AddressFactory.self/g' \
+        -e 's/^([[:space:]]*self[[:space:]]*\.[[:space:]]*addressFactory[[:space:]]*=[[:space:]]*)addressFactory([[:space:]]*(\/\/.*)?$)/\1AddressFactory.self\2/g' \
+        -e 's/([[:space:]]self[[:space:]]*\.[[:space:]]*addressFactory[[:space:]]*=[[:space:]]*)addressFactory([^A-Za-z0-9_]|$)/\1AddressFactory.self\2/g' \
         "$f" || true
     fi
   done
