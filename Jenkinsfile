@@ -30,6 +30,17 @@ node('mac-fearless') {
     checkout scm
     sh label: 'Bootstrap Pods/SPM/LFS + apply shared-features fixes', script: 'bash scripts/ci/bootstrap.sh'
   }
+  stage('Git Network Tuning') {
+    sh label: 'Increase Git HTTP thresholds to avoid slow fetch termination', script: '''
+      git --version
+      git config --global http.lowSpeedLimit 0
+      git config --global http.lowSpeedTime 999999
+      git config --global http.postBuffer 524288000
+      git config --global fetch.prune true || true
+      git config --global gc.auto 0 || true
+      echo "[jenkins] Applied global git configs to tolerate slow networks"
+    '''
+  }
 }
 
 appPipeline.runPipeline('fearless')
