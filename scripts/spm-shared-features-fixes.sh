@@ -157,8 +157,11 @@ patch_address_factory_struct() {
   fi
   if [[ -f "$file" ]]; then
     echo "[spm-fixes] Converting AddressFactory enum->struct in $file"
-    # Replace public enum AddressFactory with public struct AddressFactory
-    /usr/bin/sed -i '' -e 's/^public[[:space:]]\+enum[[:space:]]\+AddressFactory/public struct AddressFactory/' "$file" || true
+    # Replace public enum AddressFactory with public struct AddressFactory (use -E for +)
+    /usr/bin/sed -E -i '' \
+      -e 's/^public[[:space:]]+enum[[:space:]]+AddressFactory\b/public struct AddressFactory/' \
+      -e 's/^enum[[:space:]]+AddressFactory\b/struct AddressFactory/' \
+      "$file" || true
     # Simple append of instance wrappers at end of file if missing
     if ! /usr/bin/grep -q "extension AddressFactory" "$file"; then
       cat >> "$file" <<'EOF'
@@ -186,6 +189,16 @@ EOF
     echo "[spm-fixes] AddressConversion.swift not found at $file; performing broad search"
   fi
 
+  # Also target SSFUtils AddressFactory explicitly if present
+  local utils_file="$base_checkout/Sources/SSFUtils/SSFUtils/Classes/AddressFactory.swift"
+  if [[ -f "$utils_file" ]]; then
+    echo "[spm-fixes] Converting AddressFactory enum->struct in $utils_file"
+    /usr/bin/sed -E -i '' \
+      -e 's/^public[[:space:]]+enum[[:space:]]+AddressFactory\b/public struct AddressFactory/' \
+      -e 's/^enum[[:space:]]+AddressFactory\b/struct AddressFactory/' \
+      "$utils_file" || true
+  fi
+
   # Broad fallback: patch any file in shared-features-spm declaring enum AddressFactory
   local sources_dir="$base_checkout/Sources"
   if [[ -d "$sources_dir" ]]; then
@@ -193,8 +206,8 @@ EOF
     echo "[spm-fixes] Performing global AddressFactory enum->struct conversion under $sources_dir"
     /usr/bin/find "$sources_dir" -type f -name "*.swift" -print0 2>/dev/null | \
       xargs -0 /usr/bin/sed -E -i '' \
-        -e 's/\bpublic\s+enum\s+AddressFactory\b/public struct AddressFactory/g' \
-        -e 's/\benum\s+AddressFactory\b/struct AddressFactory/g' || true
+        -e 's/public[[:space:]]+enum[[:space:]]+AddressFactory\b/public struct AddressFactory/g' \
+        -e 's/([^A-Za-z0-9_])enum[[:space:]]+AddressFactory\b/\1struct AddressFactory/g' || true
   fi
 }
 
