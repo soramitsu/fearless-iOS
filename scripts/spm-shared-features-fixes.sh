@@ -261,20 +261,14 @@ patch_polkaswap_addressfactory_usage() {
         "$f" || true
       # Fallback broad replacements for stray annotations
       /usr/bin/sed -E -i '' \
+        -e 's/private\s+let\s+addressFactory\s*:\s*([[:alnum:]_]+\.)?AddressFactory\.Type\.Type/private let addressFactory: \1AddressFactory.Type/g' \
         -e 's/addressFactory\s*:\s*AddressFactory([^A-Za-z0-9_]|$)/addressFactory: AddressFactory.Type\1/g' \
         -e 's/addressFactory\s*:\s*SSFCrypto\.AddressFactory([^A-Za-z0-9_]|$)/addressFactory: SSFCrypto.AddressFactory.Type\1/g' \
         "$f" || true
-      # Fix assignment depending on parameter metatype
-      if /usr/bin/grep -qE 'addressFactory\s*:\s*([[:alnum:]_]+\.)?AddressFactory\.Type' "$f"; then
-        /usr/bin/sed -E -i '' \
-          -e 's/self\s*\.\s*addressFactory\s*=\s*type\(of:\s*addressFactory\s*\)/self.addressFactory = addressFactory/g' \
-          -e 's/self\s*\.\s*addressFactory\s*=\s*addressFactory/self.addressFactory = addressFactory/g' \
-          "$f" || true
-      else
-        /usr/bin/sed -E -i '' \
-          -e 's/self\s*\.\s*addressFactory\s*=\s*addressFactory/self.addressFactory = type(of: addressFactory)/g' \
-          "$f" || true
-      fi
+      # Force assignment to a concrete metatype to avoid Type/Type ambiguity
+      /usr/bin/sed -E -i '' \
+        -e 's/self\s*\.\s*addressFactory\s*=\s*addressFactory/self.addressFactory = AddressFactory.self/g' \
+        "$f" || true
     fi
   done
 }
