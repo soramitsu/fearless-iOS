@@ -1,13 +1,9 @@
-// Cuckoo compatibility header (injected)
+// Cuckoo compatibility header (adjusted for CI)
 @testable import fearless
-import SSFModels
-typealias MetaAccountModel = fearless.MetaAccountModel
-typealias ChainAccountResponse = fearless.ChainAccountResponse
 // MARK: - Mocks generated from file: 'Pods/SoraFoundation/SoraFoundation/Classes/Localization/Localizable.swift'
 
 import Cuckoo
 import Foundation
-@testable import fearless
 
 public class MockLocalizable: Localizable, Cuckoo.ProtocolMock, @unchecked Sendable {
     public typealias MocksType = Localizable
@@ -45975,5 +45971,4 @@ class UsernameSetupWireframeProtocolStub:UsernameSetupWireframeProtocol, @unchec
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
-
 
