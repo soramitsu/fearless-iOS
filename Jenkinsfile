@@ -41,6 +41,18 @@ node('mac-fearless') {
       echo "[jenkins] Applied global git configs to tolerate slow networks"
     '''
   }
+
+  stage('Unit Tests + Codecov Upload') {
+    sh label: 'Run test matrix with coverage and upload to Codecov', script: '''
+      set -eo pipefail
+      COVERAGE_DIR="${RESULTS_DIR:-build/coverage}"
+      DESTINATION="${TEST_DESTINATION:-platform=iOS Simulator,name=iPhone 15}"
+      rm -rf "$COVERAGE_DIR"
+      CODECOV_EXPORT=1 RESULTS_DIR="$COVERAGE_DIR" scripts/test-matrix.sh fearless.tests "$DESTINATION"
+      scripts/ci/export-codecov.sh "$COVERAGE_DIR"
+      scripts/ci/upload-codecov.sh "$COVERAGE_DIR"
+    '''
+  }
 }
 
 appPipeline.runPipeline('fearless')

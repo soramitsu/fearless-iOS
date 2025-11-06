@@ -12,9 +12,13 @@ set -euo pipefail
 SCHEME="${1:-fearless.tests}"
 DEST="${2:-platform=iOS Simulator,name=Any iOS Simulator Device}"
 WORKSPACE="fearless.xcworkspace"
+RESULTS_DIR="${RESULTS_DIR:-build/coverage}"
 
 echo "==> Using scheme: ${SCHEME}"
 echo "==> Destination: ${DEST}"
+echo "==> Coverage artifacts directory: ${RESULTS_DIR}"
+
+mkdir -p "${RESULTS_DIR}"
 
 pick_latest_iphone() {
   # Try descending generations to prefer the most modern simulator present
@@ -69,6 +73,8 @@ function run_tests() {
     # Ensure testability for Release builds when running unit tests on simulator
     extra+=(ENABLE_TESTABILITY=YES)
   fi
+  local bundle_path="${RESULTS_DIR}/${config}.xcresult"
+  rm -rf "${bundle_path}" || true
   if ((${#extra[@]})); then
     xcodebuild \
       -workspace "${WORKSPACE}" \
@@ -76,6 +82,7 @@ function run_tests() {
       -configuration "${config}" \
       -destination "${DEST}" \
       -enableCodeCoverage YES \
+      -resultBundlePath "${bundle_path}" \
       "${extra[@]}" \
       clean test | xcpretty || {
         echo "xcodebuild ${config} tests failed" >&2
@@ -88,6 +95,7 @@ function run_tests() {
       -configuration "${config}" \
       -destination "${DEST}" \
       -enableCodeCoverage YES \
+      -resultBundlePath "${bundle_path}" \
       clean test | xcpretty || {
         echo "xcodebuild ${config} tests failed" >&2
         exit 1
@@ -110,6 +118,8 @@ if ! command -v xcpretty >/dev/null 2>&1; then
     if [[ "${config}" == "Release" ]]; then
       extra+=(ENABLE_TESTABILITY=YES)
     fi
+    local bundle_path="${RESULTS_DIR}/${config}.xcresult"
+    rm -rf "${bundle_path}" || true
     if ((${#extra[@]})); then
       xcodebuild \
         -workspace "${WORKSPACE}" \
@@ -117,6 +127,7 @@ if ! command -v xcpretty >/dev/null 2>&1; then
         -configuration "${config}" \
         -destination "${DEST}" \
         -enableCodeCoverage YES \
+        -resultBundlePath "${bundle_path}" \
         "${extra[@]}" \
         clean test
     else
@@ -126,6 +137,7 @@ if ! command -v xcpretty >/dev/null 2>&1; then
         -configuration "${config}" \
         -destination "${DEST}" \
         -enableCodeCoverage YES \
+        -resultBundlePath "${bundle_path}" \
         clean test
     fi
   }
@@ -135,3 +147,8 @@ run_tests Debug
 run_tests Release
 
 echo "\n==> All tests passed in Debug and Release"
+
+if [[ "${CODECOV_EXPORT:-0}" == "1" ]]; then
+  echo "\n==> Exporting coverage artifacts for Codecov"
+  scripts/ci/export-codecov.sh "${RESULTS_DIR}"
+fi
