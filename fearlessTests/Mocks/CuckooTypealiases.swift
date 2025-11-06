@@ -22,3 +22,11 @@ typealias SchedulerDelegate = fearless.SchedulerDelegate
 // SSF models
 import SSFModels
 typealias RuntimeMetadataItem = SSFModels.RuntimeMetadataItem
+// Additional SSF model bindings used by generated mocks
+typealias AssetModel = SSFModels.AssetModel
+typealias ChainModel = SSFModels.ChainModel
+typealias ChainAsset = SSFModels.ChainAsset
+typealias ChainFormat = SSFModels.ChainFormat
+typealias AccountId = SSFModels.AccountId
+typealias StakingType = SSFModels.StakingType
+typealias ChainAssetKey = SSFModels.ChainAssetKey

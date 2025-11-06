@@ -1,13 +1,5 @@
 // Cuckoo compatibility header (adjusted for CI)
 @testable import fearless
-import SSFModels
-// Disambiguate model types against SSFModels by binding to app module
-typealias MetaAccountModel = fearless.MetaAccountModel
-typealias ChainAccountResponse = fearless.ChainAccountResponse
-// Bind commonly used SSF model types explicitly to avoid lookup issues
-typealias AssetModel = SSFModels.AssetModel
-typealias ChainModel = SSFModels.ChainModel
-typealias ChainAsset = SSFModels.ChainAsset
 // MARK: - Mocks generated from file: 'Pods/SoraFoundation/SoraFoundation/Classes/Localization/Localizable.swift'
 
 import Cuckoo
