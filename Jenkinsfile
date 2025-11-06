@@ -46,7 +46,8 @@ node('mac-fearless') {
     sh label: 'Run test matrix with coverage and upload to Codecov', script: '''
       set -eo pipefail
       COVERAGE_DIR="${RESULTS_DIR:-build/coverage}"
-      DESTINATION="${TEST_DESTINATION:-platform=iOS Simulator,name=iPhone 15}"
+      # Use a generic destination hint and let scripts/test-matrix.sh auto-pick a concrete simulator
+      DESTINATION="${TEST_DESTINATION:-platform=iOS Simulator,name=Any iOS Simulator Device}"
       rm -rf "$COVERAGE_DIR"
       CODECOV_EXPORT=1 RESULTS_DIR="$COVERAGE_DIR" scripts/test-matrix.sh fearless.tests "$DESTINATION"
       scripts/ci/export-codecov.sh "$COVERAGE_DIR"
