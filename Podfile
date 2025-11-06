@@ -55,6 +55,10 @@ post_install do |installer|
       target.build_configurations.each do |config|
             config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.1'
             config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+            # Force Swift 5 mode for Pods to avoid Swift 6-only diagnostics on CI toolchains
+            config.build_settings['SWIFT_VERSION'] = '5.10'
+            # Keep concurrency diagnostics lenient in dependencies
+            config.build_settings['SWIFT_STRICT_CONCURRENCY'] = 'minimal'
             xcconfig_path = config.base_configuration_reference.real_path
             xcconfig = File.read(xcconfig_path)
             xcconfig_mod = xcconfig.gsub(/DT_TOOLCHAIN_DIR/, "TOOLCHAIN_DIR")
