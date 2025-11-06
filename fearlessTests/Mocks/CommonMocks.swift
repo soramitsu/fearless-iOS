@@ -1,5 +1,8 @@
 // Cuckoo compatibility header (adjusted for CI)
 @testable import fearless
+// Disambiguate model types against SSFModels by binding to app module
+typealias MetaAccountModel = fearless.MetaAccountModel
+typealias ChainAccountResponse = fearless.ChainAccountResponse
 // MARK: - Mocks generated from file: 'Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift'
 
 import Cuckoo
@@ -1578,7 +1581,6 @@ import Cuckoo
 import Foundation
 import RobinHood
 import SSFUtils
-import SSFModels
 import Web3
 import SSFChainRegistry
 import SSFRuntimeCodingService
@@ -2207,7 +2209,6 @@ import Cuckoo
 import Foundation
 import SSFUtils
 import SoraFoundation
-import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -2518,7 +2519,6 @@ class ConnectionPoolDelegateStub:ConnectionPoolDelegate, @unchecked Sendable {
 import Cuckoo
 import Foundation
 import RobinHood
-import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -2778,7 +2778,6 @@ import Cuckoo
 import Foundation
 import RobinHood
 import SSFUtils
-import SSFModels
 import SSFRuntimeCodingService
 @testable import fearless
 @testable import SoraKeystore
@@ -2790,7 +2789,6 @@ import SSFRuntimeCodingService
 import Cuckoo
 import Foundation
 import RobinHood
-import SSFModels
 import SSFRuntimeCodingService
 @testable import fearless
 @testable import SoraKeystore
@@ -2913,7 +2911,6 @@ class RuntimeProviderFactoryProtocolStub:RuntimeProviderFactoryProtocol, @unchec
 
 import Cuckoo
 import Foundation
-import SSFModels
 import SSFRuntimeCodingService
 @testable import fearless
 @testable import SoraKeystore
@@ -3106,7 +3103,6 @@ import Cuckoo
 import Foundation
 import RobinHood
 import SSFUtils
-import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -3330,7 +3326,6 @@ class RuntimeSyncServiceProtocolStub:RuntimeSyncServiceProtocol, @unchecked Send
 
 import Cuckoo
 import Foundation
-import SSFModels
 import SSFUtils
 @testable import fearless
 @testable import SoraKeystore
@@ -3454,7 +3449,6 @@ class SpecVersionSubscriptionProtocolStub:SpecVersionSubscriptionProtocol, @unch
 import Cuckoo
 import Foundation
 import SSFUtils
-import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -3542,7 +3536,6 @@ class SpecVersionSubscriptionFactoryProtocolStub:SpecVersionSubscriptionFactoryP
 
 import Cuckoo
 import Foundation
-import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -3777,7 +3770,6 @@ class CrowdloanRemoteSubscriptionServiceStub:CrowdloanRemoteSubscriptionService,
 import Cuckoo
 import Foundation
 import RobinHood
-import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -3901,7 +3893,6 @@ class StakingAccountUpdatingServiceProtocolStub:StakingAccountUpdatingServicePro
 import Cuckoo
 import Foundation
 import SSFUtils
-import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -4023,7 +4014,6 @@ class StakingRemoteSubscriptionServiceProtocolStub:StakingRemoteSubscriptionServ
 
 import Cuckoo
 import Foundation
-import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -4259,7 +4249,6 @@ import Cuckoo
 import Foundation
 import RobinHood
 import SSFUtils
-import SSFModels
 import SSFStorageQueryKit
 import SSFAssetManagmentStorage
 @testable import fearless
@@ -4377,4 +4366,3 @@ class StakingServiceFactoryProtocolStub:StakingServiceFactoryProtocol, @unchecke
         return DefaultValueRegistry.defaultValue(for: (RewardCalculatorServiceProtocol).self)
     }
 }
-

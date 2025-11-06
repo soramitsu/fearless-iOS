@@ -1,5 +1,8 @@
 // Cuckoo compatibility header (adjusted for CI)
 @testable import fearless
+// Disambiguate model types against SSFModels by binding to app module
+typealias MetaAccountModel = fearless.MetaAccountModel
+typealias ChainAccountResponse = fearless.ChainAccountResponse
 // MARK: - Mocks generated from file: 'Pods/SoraFoundation/SoraFoundation/Classes/Localization/Localizable.swift'
 
 import Cuckoo
@@ -2108,7 +2111,6 @@ class AccountConfirmWireframeProtocolStub:AccountConfirmWireframeProtocol, @unch
 import Cuckoo
 import IrohaCrypto
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockAccountCreateViewProtocol: AccountCreateViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -3294,7 +3296,6 @@ class AccountCreateWireframeProtocolStub:AccountCreateWireframeProtocol, @unchec
 import Cuckoo
 import IrohaCrypto
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockAccountImportViewProtocol: AccountImportViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -4954,7 +4955,6 @@ class AccountImportWireframeProtocolStub:AccountImportWireframeProtocol, @unchec
 // MARK: - Mocks generated from file: 'fearless/Modules/AssetSelection/AssetSelectionProtocols.swift'
 
 import Cuckoo
-import SSFModels
 @testable import fearless
 
 class MockAssetSelectionWireframeProtocol: AssetSelectionWireframeProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -5220,7 +5220,6 @@ class AssetSelectionDelegateStub:AssetSelectionDelegate, @unchecked Sendable {
 // MARK: - Mocks generated from file: 'fearless/Modules/ChainSelection/ChainSelectionProtocols.swift'
 
 import Cuckoo
-import SSFModels
 @testable import fearless
 
 class MockChainSelectionViewProtocol: ChainSelectionViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -6076,7 +6075,6 @@ class ChainSelectionDelegateStub:ChainSelectionDelegate, @unchecked Sendable {
 import Cuckoo
 import Foundation
 import BigInt
-import SSFModels
 @testable import fearless
 
 class MockCrowdloanContributionInteractorInputProtocol: CrowdloanContributionInteractorInputProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -9358,7 +9356,6 @@ class CrowdloanContributionSetupWireframeProtocolStub:CrowdloanContributionSetup
 
 import Cuckoo
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockCrowdloanListViewProtocol: CrowdloanListViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -11522,7 +11519,6 @@ class ReferralCrowdloanWireframeProtocolStub:ReferralCrowdloanWireframeProtocol,
 import Cuckoo
 import Foundation
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockAccountExportPasswordViewProtocol: AccountExportPasswordViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -13022,7 +13018,6 @@ class ExportGenericWireframeProtocolStub:ExportGenericWireframeProtocol, @unchec
 
 import Cuckoo
 import IrohaCrypto
-import SSFModels
 @testable import fearless
 
 class MockExportMnemonicInteractorInputProtocol: ExportMnemonicInteractorInputProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -13929,7 +13924,6 @@ class ExportRestoreJsonWireframeProtocolStub:ExportRestoreJsonWireframeProtocol,
 
 import Cuckoo
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockNetworkInfoViewProtocol: NetworkInfoViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -16943,7 +16937,6 @@ class PinSetupWireframeProtocolStub:PinSetupWireframeProtocol, @unchecked Sendab
 
 import Cuckoo
 import Foundation
-import SSFModels
 @testable import fearless
 
 class MockProfileViewProtocol: ProfileViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -19652,7 +19645,6 @@ class AnalyticsRewardDetailsViewModelFactoryProtocolStub:AnalyticsRewardDetailsV
 
 import Cuckoo
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockControllerAccountViewProtocol: ControllerAccountViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -21249,7 +21241,6 @@ class ValidatorOperationFactoryProtocolStub:ValidatorOperationFactoryProtocol, @
 
 import Cuckoo
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockCustomValidatorListViewProtocol: CustomValidatorListViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -22321,7 +22312,6 @@ class CustomValidatorListWireframeProtocolStub:CustomValidatorListWireframeProto
 
 import Cuckoo
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockRecommendedValidatorListViewProtocol: RecommendedValidatorListViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -22817,7 +22807,6 @@ import Cuckoo
 import Foundation
 import SoraFoundation
 import BigInt
-import SSFModels
 @testable import fearless
 
 class MockSelectValidatorsConfirmViewProtocol: SelectValidatorsConfirmViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -23856,7 +23845,6 @@ class SelectValidatorsConfirmWireframeProtocolStub:SelectValidatorsConfirmWirefr
 import Cuckoo
 import Foundation
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockSelectValidatorsStartViewProtocol: SelectValidatorsStartViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -24724,7 +24712,6 @@ class SelectValidatorsStartWireframeProtocolStub:SelectValidatorsStartWireframeP
 
 import Cuckoo
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockSelectedValidatorListViewProtocol: SelectedValidatorListViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -25535,7 +25522,6 @@ class SelectedValidatorListWireframeProtocolStub:SelectedValidatorListWireframeP
 import Cuckoo
 import Foundation
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockValidatorStakeInfoProtocol: ValidatorStakeInfoProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -26827,7 +26813,6 @@ class ValidatorInfoWireframeProtocolStub:ValidatorInfoWireframeProtocol, @unchec
 
 import Cuckoo
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockValidatorListFilterWireframeProtocol: ValidatorListFilterWireframeProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -27499,7 +27484,6 @@ class ValidatorListFilterDelegateStub:ValidatorListFilterDelegate, @unchecked Se
 
 import Cuckoo
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockValidatorSearchWireframeProtocol: ValidatorSearchWireframeProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -28576,7 +28560,6 @@ class ValidatorSearchPresenterProtocolStub:ValidatorSearchPresenterProtocol, @un
 
 import Cuckoo
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockYourValidatorListViewProtocol: YourValidatorListViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -29478,7 +29461,6 @@ class YourValidatorListWireframeProtocolStub:YourValidatorListWireframeProtocol,
 
 import Cuckoo
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockStakingBalanceViewProtocol: StakingBalanceViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -30483,7 +30465,6 @@ class StakingBalanceWireframeProtocolStub:StakingBalanceWireframeProtocol, @unch
 import Cuckoo
 import SoraFoundation
 import BigInt
-import SSFModels
 @testable import fearless
 
 class MockStakingBondMoreViewProtocol: StakingBondMoreViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -31406,7 +31387,6 @@ class StakingBondMoreWireframeProtocolStub:StakingBondMoreWireframeProtocol, @un
 import Cuckoo
 import SoraFoundation
 import BigInt
-import SSFModels
 @testable import fearless
 
 class MockStakingBondMoreConfirmationViewProtocol: StakingBondMoreConfirmationViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -32421,7 +32401,6 @@ import Cuckoo
 import Foundation
 import SoraFoundation
 import BigInt
-import SSFModels
 @testable import fearless
 
 class MockStakingMainViewProtocol: StakingMainViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -35903,7 +35882,6 @@ class StakingMainModuleOutputStub:StakingMainModuleOutput, @unchecked Sendable {
 
 import Cuckoo
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockStakingPayoutConfirmationViewProtocol: StakingPayoutConfirmationViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -36841,7 +36819,6 @@ import Cuckoo
 import Foundation
 import SoraFoundation
 import BigInt
-import SSFModels
 @testable import fearless
 
 class MockStakingRebondConfirmationViewProtocol: StakingRebondConfirmationViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -37744,7 +37721,6 @@ class StakingRebondConfirmationWireframeProtocolStub:StakingRebondConfirmationWi
 import Cuckoo
 import Foundation
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockStakingRebondSetupViewProtocol: StakingRebondSetupViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -38802,7 +38778,6 @@ class StakingRebondSetupWireframeProtocolStub:StakingRebondSetupWireframeProtoco
 
 import Cuckoo
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockStakingRewardDestConfirmViewProtocol: StakingRewardDestConfirmViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -39875,7 +39850,6 @@ class StakingRewardDestConfirmWireframeProtocolStub:StakingRewardDestConfirmWire
 import Cuckoo
 import Foundation
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockStakingRewardDestSetupViewProtocol: StakingRewardDestSetupViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -41171,7 +41145,6 @@ class StakingRewardDestSetupWireframeProtocolStub:StakingRewardDestSetupWirefram
 
 import Cuckoo
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockStakingRewardDetailsViewProtocol: StakingRewardDetailsViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -41686,7 +41659,6 @@ class StakingRewardDetailsWireframeProtocolStub:StakingRewardDetailsWireframePro
 import Cuckoo
 import SoraFoundation
 import SoraUI
-import SSFModels
 @testable import fearless
 
 class MockStakingRewardPayoutsViewProtocol: StakingRewardPayoutsViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -42668,7 +42640,6 @@ import Cuckoo
 import Foundation
 import SoraFoundation
 import BigInt
-import SSFModels
 @testable import fearless
 
 class MockStakingUnbondConfirmViewProtocol: StakingUnbondConfirmViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -43640,7 +43611,6 @@ import Cuckoo
 import Foundation
 import SoraFoundation
 import BigInt
-import SSFModels
 @testable import fearless
 
 class MockStakingUnbondSetupViewProtocol: StakingUnbondSetupViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -44733,7 +44703,6 @@ class StakingUnbondSetupWireframeProtocolStub:StakingUnbondSetupWireframeProtoco
 import Cuckoo
 import Foundation
 import SoraFoundation
-import SSFModels
 @testable import fearless
 
 class MockStoriesViewProtocol: StoriesViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -45971,4 +45940,3 @@ class UsernameSetupWireframeProtocolStub:UsernameSetupWireframeProtocol, @unchec
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
-
