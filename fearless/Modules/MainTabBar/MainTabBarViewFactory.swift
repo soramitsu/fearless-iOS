@@ -10,8 +10,18 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static let stakingIndex: Int = 3
 
     static func createView() -> MainTabBarViewProtocol? {
+        let presentableWindow: ApplicationStatusPresentable? = {
+            if #available(iOS 13.0, *) {
+                return UIApplication.shared.connectedScenes
+                    .compactMap { $0 as? UIWindowScene }
+                    .flatMap { $0.windows }
+                    .first { $0.isKeyWindow && !$0.isHidden } as? ApplicationStatusPresentable
+            } else {
+                return UIApplication.shared.keyWindow as? ApplicationStatusPresentable
+            }
+        }()
         guard
-            let window = UIApplication.shared.keyWindow as? ApplicationStatusPresentable,
+            let window = presentableWindow,
             let wallet = SelectedWalletSettings.shared.value,
             let keystoreImportService: KeystoreImportServiceProtocol = URLHandlingService.shared
             .findService()
