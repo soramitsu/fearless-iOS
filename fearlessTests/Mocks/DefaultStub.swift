@@ -2,6 +2,8 @@ import Foundation
 @testable import fearless
 import Cuckoo
 import RobinHood
+// Bring SSF model types (ChainModel, ChainAsset, StakingType, etc.) into scope for generated signatures
+import SSFModels
 
 extension MockEventCenterProtocol {
     func applyingDefaultStub() -> MockEventCenterProtocol {

@@ -1,5 +1,7 @@
 // Cuckoo compatibility header (adjusted for CI)
 @testable import fearless
+// Ensure SSF model types (ChainModel, ChainAsset, StakingType, etc.) are visible in mocks
+import SSFModels
 // MARK: - Mocks generated from file: 'Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift'
 
 import Cuckoo
