@@ -15,7 +15,7 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         let localizationManager: LocalizationManagerProtocol
         let onboardingService: OnboardingServiceProtocol
         let onboardingConfigResolver: OnboardingConfigVersionResolver
-        let keychain: KeychainProtocol
+        let keystore: KeystoreProtocol
 
         static var `default`: Dependencies {
             Dependencies(
@@ -31,7 +31,7 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
                     operationQueue: OperationQueue()
                 ),
                 onboardingConfigResolver: OnboardingConfigVersionResolver(userDefaultsStorage: SettingsManager.shared),
-                keychain: Keychain()
+                keystore: Keychain()
             )
         }
     }
@@ -43,7 +43,7 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
     static func createPresenter(with window: UIWindow, dependencies: Dependencies) -> RootPresenterProtocol {
         let wireframe = RootWireframe()
         let startViewHelper = StartViewHelper(
-            keystore: dependencies.keychain,
+            keystore: dependencies.keystore,
             selectedWalletSettings: dependencies.selectedWalletSettings,
             userDefaultsStorage: dependencies.settings
         )
@@ -56,7 +56,7 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             targetVersion: UserStorageParams.modelVersion,
             storeURL: UserStorageParams.storageURL,
             modelDirectory: UserStorageParams.modelDirectory,
-            keystore: dependencies.keychain,
+            keystore: dependencies.keystore,
             settings: dependencies.settings,
             fileManager: FileManager.default
         )
