@@ -1,7 +1,6 @@
 import UIKit
 import SoraFoundation
 
-@MainActor
 final class RootPresenter {
     var view: ControllerBackedProtocol?
     var window: UIWindow!
@@ -50,10 +49,14 @@ extension RootPresenter: RootPresenterProtocol {
             guard let self else { return }
             do {
                 let onboardingConfig = try await interactor.fetchOnboardingConfig()
-                decideModuleSynchroniously(with: onboardingConfig)
+                DispatchQueue.main.async { [weak self] in
+                    self?.decideModuleSynchroniously(with: onboardingConfig)
+                }
             } catch {
                 Logger.shared.error(error.localizedDescription)
-                decideModuleSynchroniously(with: nil)
+                DispatchQueue.main.async { [weak self] in
+                    self?.decideModuleSynchroniously(with: nil)
+                }
             }
         }
     }
@@ -62,7 +65,9 @@ extension RootPresenter: RootPresenterProtocol {
         loadTask?.cancel()
         interactor.setup(runMigrations: false)
 
-        decideModuleSynchroniously(with: nil)
+        DispatchQueue.main.async { [weak self] in
+            self?.decideModuleSynchroniously(with: nil)
+        }
     }
 }
 
