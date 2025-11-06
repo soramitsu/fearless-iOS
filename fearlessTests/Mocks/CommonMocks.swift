@@ -7,8 +7,8 @@ import SSFModels
 // These keep the generated signatures intact without depending on another helper file.
 typealias ChainModel = SSFModels.ChainModel
 typealias ChainAsset = SSFModels.ChainAsset
-typealias ChainFormat = SSFModels.ChainFormat
-typealias AccountId = SSFModels.AccountId
+typealias ChainFormat = fearless.ChainFormat
+typealias AccountId = fearless.AccountId
 typealias StakingType = SSFModels.StakingType
 typealias ChainAssetKey = SSFModels.ChainAssetKey
 // MARK: - Mocks generated from file: 'Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift'
