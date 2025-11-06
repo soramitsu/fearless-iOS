@@ -19,6 +19,10 @@ final class RootPresenter {
         self.localizationManager = localizationManager
     }
 
+    deinit {
+        loadTask?.cancel()
+    }
+
     private func decideModuleSynchroniously(with onboardingConfig: OnboardingConfigWrapper?) {
         let startView = startViewHelper.startView(onboardingConfig: onboardingConfig)
         switch startView {
@@ -59,12 +63,6 @@ extension RootPresenter: RootPresenterProtocol {
         interactor.setup(runMigrations: false)
 
         decideModuleSynchroniously(with: nil)
-    }
-}
-
-extension RootPresenter {
-    deinit {
-        loadTask?.cancel()
     }
 }
 
