@@ -274,11 +274,16 @@ patch_polkaswap_addressfactory_usage() {
         -e 's/addressFactory\s*:\s*AddressFactory([^A-Za-z0-9_]|$)/addressFactory: AddressFactory.Type\1/g' \
         -e 's/addressFactory\s*:\s*SSFCrypto\.AddressFactory([^A-Za-z0-9_]|$)/addressFactory: SSFCrypto.AddressFactory.Type\1/g' \
         "$f" || true
-      # 5b) Force assignment to a concrete metatype to avoid Type/Type ambiguity (various spacing/comment variants)
-      /usr/bin/sed -E -i '' \
-        -e 's/^([[:space:]]*self[[:space:]]*\.[[:space:]]*addressFactory[[:space:]]*=[[:space:]]*)addressFactory([[:space:]]*(\/\/.*)?$)/\1AddressFactory.self\2/g' \
-        -e 's/([[:space:]]self[[:space:]]*\.[[:space:]]*addressFactory[[:space:]]*=[[:space:]]*)addressFactory([^A-Za-z0-9_]|$)/\1AddressFactory.self\2/g' \
-        "$f" || true
+      # 5b) Force assignment: prefer parameter when it is a metatype, otherwise fallback to concrete type literal
+      if /usr/bin/grep -qE 'init\([^\)]*addressFactory\s*:\s*([[:alnum:]_]+\.)?AddressFactory\s*\.\s*Type' "$f"; then
+        /usr/bin/sed -E -i '' \
+          -e 's/^([[:space:]]*self[[:space:]]*\.[[:space:]]*addressFactory[[:space:]]*=[[:space:]]*)(AddressFactory\s*\.\s*self|type\(of:\s*addressFactory\s*\)|addressFactory)([[:space:]]*(\/\/.*)?$)/\1addressFactory\3/g' \
+          "$f" || true
+      else
+        /usr/bin/sed -E -i '' \
+          -e 's/^([[:space:]]*self[[:space:]]*\.[[:space:]]*addressFactory[[:space:]]*=[[:space:]]*)(AddressFactory\s*\.\s*self|addressFactory)([[:space:]]*(\/\/.*)?$)/\1type(of: addressFactory)\3/g' \
+          "$f" || true
+      fi
     fi
   done
 }
