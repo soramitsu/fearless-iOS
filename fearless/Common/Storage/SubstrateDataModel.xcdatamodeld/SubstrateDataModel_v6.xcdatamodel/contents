@@ -14,7 +14,7 @@
         <attribute name="precision" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="price" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="priceId" optional="YES" attributeType="String"/>
-        <attribute name="purchaseProviders" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[String]"/>
+        <attribute name="purchaseProviders" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
         <attribute name="staking" optional="YES" attributeType="String"/>
         <attribute name="symbol" optional="YES" attributeType="String"/>
         <attribute name="type" optional="YES" attributeType="String"/>
@@ -109,8 +109,8 @@
         <attribute name="name" optional="YES" attributeType="String"/>
     </entity>
     <entity name="CDPolkaswapRemoteSettings" representedClassName="CDPolkaswapRemoteSettings" syncable="YES" codeGenerationType="none">
-        <attribute name="availableSources" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[String]"/>
-        <attribute name="forceSmartIds" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[String]"/>
+        <attribute name="availableSources" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
+        <attribute name="forceSmartIds" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
         <attribute name="version" attributeType="String"/>
         <attribute name="xstusdId" optional="YES" attributeType="String"/>
         <relationship name="availableDexIds" toMany="YES" deletionRule="Nullify" destinationEntity="CDPolkaswapDex"/>

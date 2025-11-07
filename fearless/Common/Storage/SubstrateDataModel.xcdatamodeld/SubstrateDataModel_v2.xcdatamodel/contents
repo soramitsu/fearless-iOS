@@ -51,7 +51,7 @@
         <attribute name="assetId" attributeType="String"/>
         <attribute name="isNative" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isUtility" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="purchaseProviders" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[String]"/>
+        <attribute name="purchaseProviders" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
         <attribute name="staking" optional="YES" attributeType="String"/>
         <attribute name="type" optional="YES" attributeType="String"/>
         <relationship name="asset" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDAsset"/>
@@ -102,8 +102,8 @@
         <attribute name="name" optional="YES" attributeType="String"/>
     </entity>
     <entity name="CDPolkaswapRemoteSettings" representedClassName="CDPolkaswapRemoteSettings" syncable="YES" codeGenerationType="none">
-        <attribute name="availableSources" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[String]"/>
-        <attribute name="forceSmartIds" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[String]"/>
+        <attribute name="availableSources" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
+        <attribute name="forceSmartIds" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
         <attribute name="version" attributeType="String"/>
         <attribute name="xstusdId" optional="YES" attributeType="String"/>
         <relationship name="availableDexIds" toMany="YES" deletionRule="Nullify" destinationEntity="CDPolkaswapDex"/>

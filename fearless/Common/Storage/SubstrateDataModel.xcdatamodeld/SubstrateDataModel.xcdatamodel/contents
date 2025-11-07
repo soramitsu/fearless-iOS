@@ -36,7 +36,7 @@
     </entity>
     <entity name="CDChainAsset" representedClassName="CDChainAsset" syncable="YES" codeGenerationType="none">
         <attribute name="assetId" attributeType="String"/>
-        <attribute name="purchaseProviders" optional="YES" attributeType="Transformable" customClassName="[String]"/>
+        <attribute name="purchaseProviders" optional="YES" attributeType="Transformable"/>
         <attribute name="staking" optional="YES" attributeType="String"/>
         <relationship name="asset" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDAsset"/>
         <relationship name="chain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChain" inverseName="assets" inverseEntity="CDChain"/>
