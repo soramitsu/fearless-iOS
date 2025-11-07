@@ -12,6 +12,21 @@ typealias ChainFormat = fearless.ChainFormat
 typealias AccountId = fearless.AccountId
 typealias StakingType = SSFModels.StakingType
 typealias ChainAssetKey = SSFModels.ChainAssetKey
+
+// Additional disambiguation for types/protocols that exist in multiple modules
+// Prefer the app's definitions to avoid “ambiguous for type lookup” in tests
+typealias MetaAccountModel = fearless.MetaAccountModel
+typealias ManagedMetaAccountModel = fearless.ManagedMetaAccountModel
+typealias ChainAccountResponse = fearless.ChainAccountResponse
+typealias SNAddressType = fearless.SNAddressType
+typealias RuntimeVersion = fearless.RuntimeVersion
+typealias ChainRegistryProtocol = fearless.ChainRegistryProtocol
+typealias ConnectionPoolProtocol = fearless.ConnectionPoolProtocol
+typealias RuntimeProviderPoolProtocol = fearless.RuntimeProviderPoolProtocol
+typealias RuntimeSyncServiceProtocol = fearless.RuntimeSyncServiceProtocol
+typealias SchedulerProtocol = fearless.SchedulerProtocol
+typealias SchedulerDelegate = fearless.SchedulerDelegate
+typealias RuntimeMetadataItem = SSFModels.RuntimeMetadataItem
 // MARK: - Mocks generated from file: 'Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift'
 
 import Cuckoo
