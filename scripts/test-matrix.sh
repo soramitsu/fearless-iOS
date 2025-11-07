@@ -121,7 +121,8 @@ if ! command -v xcodebuild >/dev/null 2>&1; then
 fi
 
 # xcpretty is optional; fall back to raw output
-if ! command -v xcpretty >/dev/null 2>&1; then
+# Allow forcing raw output by setting NO_XCPRETTY=1 (useful for CI debugging)
+if [[ "${NO_XCPRETTY:-0}" == "1" ]] || ! command -v xcpretty >/dev/null 2>&1; then
   run_tests() {
     local config=$1
     echo "\n==> Running ${config} tests (no xcpretty)"

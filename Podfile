@@ -9,7 +9,7 @@ abstract_target 'fearlessAll' do
   pod 'SwiftLint'
   pod 'R.swift', '6.1.0', :inhibit_warnings => true
   pod 'SoraKeystore', :git => 'https://github.com/soramitsu/keystore-iOS.git', :tag => '1.0.2'
-  pod 'SoraUI', '~> 1.10.3'
+  pod 'SoraUI', '~> 1.10.3', :inhibit_warnings => true
   pod 'SoraFoundation', '~> 1.0.0'
   # Migrated to SPM via Packages/FearlessDependencies
   # pod 'SwiftyBeaver'
@@ -38,7 +38,7 @@ abstract_target 'fearlessAll' do
     pod 'SoraKeystore', :git => 'https://github.com/soramitsu/keystore-iOS.git', :tag => '1.0.2'
     pod 'Sourcery', '~> 1.4'
     # Ensure UI/framework deps are available to the tests as well
-    pod 'SoraUI', '~> 1.10.3'
+    pod 'SoraUI', '~> 1.10.3', :inhibit_warnings => true
     pod 'SVGKit'
     pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
 
@@ -59,6 +59,8 @@ post_install do |installer|
             config.build_settings['SWIFT_VERSION'] = '5.10'
             # Keep concurrency diagnostics lenient in dependencies
             config.build_settings['SWIFT_STRICT_CONCURRENCY'] = 'minimal'
+            # Do not fail builds for warnings emitted by third-party Pods
+            config.build_settings['SWIFT_TREAT_WARNINGS_AS_ERRORS'] = 'NO'
             xcconfig_path = config.base_configuration_reference.real_path
             xcconfig = File.read(xcconfig_path)
             xcconfig_mod = xcconfig.gsub(/DT_TOOLCHAIN_DIR/, "TOOLCHAIN_DIR")
