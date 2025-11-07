@@ -21,7 +21,8 @@ typealias SchedulerDelegate = fearless.SchedulerDelegate
 
 // SSF models
 import SSFModels
-typealias RuntimeMetadataItem = SSFModels.RuntimeMetadataItem
+// Use app's metadata item to match production APIs
+typealias RuntimeMetadataItem = fearless.RuntimeMetadataItem
 // Additional SSF model bindings used by generated mocks
 typealias AssetModel = SSFModels.AssetModel
 typealias ChainModel = SSFModels.ChainModel

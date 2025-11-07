@@ -26,7 +26,8 @@ typealias RuntimeProviderPoolProtocol = fearless.RuntimeProviderPoolProtocol
 typealias RuntimeSyncServiceProtocol = fearless.RuntimeSyncServiceProtocol
 typealias SchedulerProtocol = fearless.SchedulerProtocol
 typealias SchedulerDelegate = fearless.SchedulerDelegate
-typealias RuntimeMetadataItem = SSFModels.RuntimeMetadataItem
+// Use app's metadata item to match production APIs
+typealias RuntimeMetadataItem = fearless.RuntimeMetadataItem
 // MARK: - Mocks generated from file: 'Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift'
 
 import Cuckoo
