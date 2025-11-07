@@ -37,6 +37,8 @@ class ControllerAccountTests: XCTestCase {
 
         stub(view) { stub in
             when(stub.localizationManager.get).then { LocalizationManager.shared }
+            // Presenter pushes fee view model updates to the view; accept silently
+            when(stub.didReceive(feeViewModel: any())).thenDoNothing()
         }
 
         // given

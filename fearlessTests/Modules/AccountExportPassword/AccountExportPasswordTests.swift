@@ -58,6 +58,8 @@ class AccountExportPasswordTests: XCTestCase {
             when(stub.showJSONExport(any(), flow: any(), from: any())).then { _ in
                 expectation.fulfill()
             }
+            // Some flows present a sheet warning via SheetAlertPresentable; allow it silently
+            when(stub.present(viewModel: any(), from: any())).thenDoNothing()
             when(stub.present(message: any(), title: any(), closeAction: any(), from: any(), actions: any())).then { _ in
                 XCTFail()
             }
