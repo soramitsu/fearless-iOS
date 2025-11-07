@@ -12,6 +12,10 @@ typealias ChainFormat = fearless.ChainFormat
 typealias AccountId = fearless.AccountId
 typealias StakingType = SSFModels.StakingType
 typealias ChainAssetKey = SSFModels.ChainAssetKey
+typealias CryptoType = SSFModels.CryptoType
+typealias ChainNodeModel = SSFModels.ChainNodeModel
+typealias Currency = SSFModels.Currency
+typealias PriceData = SSFModels.PriceData
 
 // Additional disambiguation for types/protocols that exist in multiple modules
 // Prefer the app's definitions to avoid “ambiguous for type lookup” in tests

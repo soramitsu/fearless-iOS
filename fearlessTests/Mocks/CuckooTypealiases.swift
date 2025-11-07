@@ -31,3 +31,7 @@ typealias ChainFormat = SSFModels.ChainFormat
 typealias AccountId = SSFModels.AccountId
 typealias StakingType = SSFModels.StakingType
 typealias ChainAssetKey = SSFModels.ChainAssetKey
+typealias CryptoType = SSFModels.CryptoType
+typealias ChainNodeModel = SSFModels.ChainNodeModel
+typealias Currency = SSFModels.Currency
+typealias PriceData = SSFModels.PriceData
