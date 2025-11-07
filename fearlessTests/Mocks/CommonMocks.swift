@@ -6,6 +6,7 @@ import SSFModels
 // Local typealiases to disambiguate SSF models referenced by generated mocks
 // These keep the generated signatures intact without depending on another helper file.
 typealias ChainModel = SSFModels.ChainModel
+typealias AssetModel = SSFModels.AssetModel
 typealias ChainAsset = SSFModels.ChainAsset
 typealias ChainFormat = fearless.ChainFormat
 typealias AccountId = fearless.AccountId
