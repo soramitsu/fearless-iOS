@@ -23,8 +23,10 @@ class RootTests: XCTestCase {
         )
         
         let userDefaultsStorage = InMemorySettingsManager()
-        // Ensure onboarding config resolver will treat onboarding as needed
-        userDefaultsStorage.set(value: "0.0.0", for: OnboardingKeys.lastShownOnboardingVersion.rawValue)
+        userDefaultsStorage.set(
+            value: false,
+            for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
+        )
 
         let presenter = createPresenter(wireframe: wireframe,
                                         settings: settings,
@@ -34,7 +36,7 @@ class RootTests: XCTestCase {
         let splashExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub.showSplash(splashView: any(), on: any())).then { _ in
+            when(stub).showSplash(splashView: any(), on: any()).then { _ in
                 splashExpectation.fulfill()
             }
         }
@@ -42,7 +44,7 @@ class RootTests: XCTestCase {
         let onboardingExpectation = XCTestExpectation()
         
         stub(wireframe) { stub in
-            when(stub.showOnboarding(on: any(), with: any())).then { _ in
+            when(stub).showOnboarding(on: any()).then { _ in
                 onboardingExpectation.fulfill()
             }
         }
@@ -73,7 +75,10 @@ class RootTests: XCTestCase {
         let keystore = InMemoryKeychain()
         
         let userDefaultsStorage = InMemorySettingsManager()
-        userDefaultsStorage.set(value: "0.0.0", for: OnboardingKeys.lastShownOnboardingVersion.rawValue)
+        userDefaultsStorage.set(
+            value: false,
+            for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
+        )
 
         let presenter = createPresenter(wireframe: wireframe,
                                         settings: settings,
@@ -83,7 +88,7 @@ class RootTests: XCTestCase {
         let splashExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub.showSplash(splashView: any(), on: any())).then { _ in
+            when(stub).showSplash(splashView: any(), on: any()).then { _ in
                 splashExpectation.fulfill()
             }
         }
@@ -91,7 +96,7 @@ class RootTests: XCTestCase {
         let pincodeExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub.showPincodeSetup(on: any())).then { _ in
+            when(stub).showPincodeSetup(on: any()).then { _ in
                 pincodeExpectation.fulfill()
             }
         }
@@ -125,7 +130,10 @@ class RootTests: XCTestCase {
                              with: KeystoreTag.pincode.rawValue)
         
         let userDefaultsStorage = InMemorySettingsManager()
-        userDefaultsStorage.set(value: "0.0.0", for: OnboardingKeys.lastShownOnboardingVersion.rawValue)
+        userDefaultsStorage.set(
+            value: false,
+            for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
+        )
 
         let presenter = createPresenter(wireframe: wireframe,
                                         settings: settings,
@@ -135,7 +143,7 @@ class RootTests: XCTestCase {
         let splashExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub.showSplash(splashView: any(), on: any())).then { _ in
+            when(stub).showSplash(splashView: any(), on: any()).then { _ in
                 splashExpectation.fulfill()
             }
         }
@@ -143,7 +151,7 @@ class RootTests: XCTestCase {
         let mainScreenExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub.showLocalAuthentication(on: any())).then { _ in
+            when(stub).showLocalAuthentication(on: any()).then { _ in
                 mainScreenExpectation.fulfill()
             }
         }
@@ -163,22 +171,11 @@ class RootTests: XCTestCase {
                                  userDefaultsStorage: SettingsManagerProtocol,
                                  migrators: [Migrating] = []
     ) -> RootPresenter {
-        // Provide minimal onboarding dependencies
-        struct OnboardingServiceStub: OnboardingServiceProtocol {
-            func fetchConfigs() async throws -> OnboardingConfigPlatform {
-                let data = Data("{\"ios\":[]}".utf8)
-                return try JSONDecoder().decode(OnboardingConfigPlatform.self, from: data)
-            }
-        }
-        let resolver = OnboardingConfigVersionResolver(userDefaultsStorage: userDefaultsStorage)
-
         let interactor = RootInteractor(chainRegistry: ChainRegistryFacade.sharedRegistry,
                                         settings: settings,
                                         applicationConfig: ApplicationConfig.shared,
                                         eventCenter: MockEventCenterProtocol(),
-                                        migrators: migrators,
-                                        onboardingService: OnboardingServiceStub(),
-                                        onboardingConfigResolver: resolver)
+                                        migrators: migrators)
         
         let startViewHelper = StartViewHelper(keystore: keystore,
                                               selectedWalletSettings: settings,

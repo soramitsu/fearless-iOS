@@ -1,8 +1,6 @@
 import XCTest
 @testable import fearless
 import IrohaCrypto
-import RobinHood
-import SSFModels
 
 class MortalEraFactoryTests: XCTestCase {
     func testMortalEraPolkadot() {
@@ -18,7 +16,7 @@ class MortalEraFactoryTests: XCTestCase {
     }
 
 
-    func performMortalEraCalculation(chainId: SSFModels.ChainModel.Id) {
+    func performMortalEraCalculation(chainId: ChainModel.Id) {
         // given
         let logger = Logger.shared
 
@@ -36,8 +34,7 @@ class MortalEraFactoryTests: XCTestCase {
             let operationQueue = OperationQueue()
             operationQueue.addOperations(wrapper.allOperations, waitUntilFinished: true)
 
-            let era = try wrapper.targetOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            let era = try wrapper.targetOperation.extractNoCancellableResultData()
 
             logger.info("Did receive era: \(era)")
 

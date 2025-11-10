@@ -13,8 +13,7 @@ struct CustomValidatorListTestDataGenerator {
             stakeReturn: 0.1,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: false,
-            elected: true
+            blocked: false
         )
     }()
 
@@ -29,8 +28,7 @@ struct CustomValidatorListTestDataGenerator {
             stakeReturn: 0.1,
             hasSlashes: true,
             maxNominatorsRewarded: 128,
-            blocked: false,
-            elected: true
+            blocked: false
         )
     }()
 
@@ -48,8 +46,7 @@ struct CustomValidatorListTestDataGenerator {
             stakeReturn: 0.1,
             hasSlashes: false,
             maxNominatorsRewarded: 1,
-            blocked: false,
-            elected: true
+            blocked: false
         )
     }()
 
@@ -64,8 +61,7 @@ struct CustomValidatorListTestDataGenerator {
             stakeReturn: 0.2,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: false,
-            elected: true
+            blocked: false
         )
     }()
 
@@ -85,8 +81,7 @@ struct CustomValidatorListTestDataGenerator {
             stakeReturn: 0.5,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: false,
-            elected: true
+            blocked: false
         )
     }()
 
@@ -106,8 +101,7 @@ struct CustomValidatorListTestDataGenerator {
             stakeReturn: 0.54,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: false,
-            elected: true
+            blocked: false
         )
     }()
 
@@ -122,8 +116,7 @@ struct CustomValidatorListTestDataGenerator {
             stakeReturn: 0.2,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: false,
-            elected: true
+            blocked: false
         )
     }()
 
@@ -138,8 +131,7 @@ struct CustomValidatorListTestDataGenerator {
             stakeReturn: 0.1,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: false,
-            elected: true
+            blocked: false
         )
     }()
 
@@ -154,8 +146,7 @@ struct CustomValidatorListTestDataGenerator {
             stakeReturn: 0.01,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: false,
-            elected: true
+            blocked: false
         )
     }()
 

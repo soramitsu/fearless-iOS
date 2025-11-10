@@ -1,5 +1,4 @@
 import Foundation
-import SSFModels
 @testable import fearless
 
 enum ChainModelGenerator {
@@ -36,28 +35,23 @@ enum ChainModelGenerator {
             )
 
             let chain = ChainModel(
-                rank: nil,
-                disabled: false,
-                chainId: chainId,
-                parentId: nil,
-                paraId: nil,
-                name: String(chainId.reversed()),
-                xcm: nil,
-                nodes: [node],
-                addressPrefix: UInt16(index),
-                types: types,
-                icon: URL(string: "https://github.com")!,
-                options: options.isEmpty ? nil : options,
-                externalApi: externalApi,
-                selectedNode: nil,
-                customNodes: nil,
-                iosMinAppVersion: nil,
-                identityChain: nil
-            )
-
-            let asset = generateAssetWithId("asset_\(index)", symbol: "TST\(index)", assetPresicion: 12, chainId: chainId)
-            // Set tokens on the chain to reflect generated assets
-            chain.tokens = ChainRemoteTokens(type: .config, whitelist: nil, utilityId: nil, tokens: Set([asset]))
+                            chainId: chainId,
+                            parentId: nil,
+                            name: String(chainId.reversed()),
+                            assets: [],
+                            nodes: [node],
+                            addressPrefix: UInt16(index),
+                            types: types,
+                            icon: URL(string: "https://github.com")!,
+                            options: options.isEmpty ? nil : options,
+                            externalApi: externalApi,
+                            customNodes: nil,
+                            iosMinAppVersion: nil
+                        )
+            let asset = generateAssetWithId("", symbol: "", assetPresicion: 12, chainId: chainId)
+            let chainAsset = generateChainAsset(asset, chain: chain, staking: staking)
+            let chainAssets = Set(arrayLiteral: chainAsset)
+            chain.assets = chainAssets
             return chain
         }
     }
@@ -92,25 +86,20 @@ enum ChainModelGenerator {
         )
 
         let chain = ChainModel(
-            rank: nil,
-            disabled: false,
             chainId: chainId,
             parentId: nil,
-            paraId: nil,
             name: UUID().uuidString,
-            xcm: nil,
+            assets: [],
             nodes: [node],
             addressPrefix: addressPrefix,
             types: nil,
             icon: Constants.dummyURL,
             options: options.isEmpty ? nil : options,
             externalApi: externalApi,
-            selectedNode: nil,
             customNodes: nil,
-            iosMinAppVersion: nil,
-            identityChain: nil
+            iosMinAppVersion: nil
         )
-        let chainAssetsArray: [ChainAsset] = (0..<count).map { index in
+        let chainAssetsArray: [ChainAssetModel] = (0..<count).map { index in
             let asset = generateAssetWithId(
                 AssetModel.Id(index),
                 symbol: "\(index)",
@@ -118,14 +107,19 @@ enum ChainModelGenerator {
             )
             return generateChainAsset(asset, chain: chain, staking: staking)
         }
-        let assets = Set(chainAssetsArray.map { $0.asset })
-        chain.tokens = ChainRemoteTokens(type: .config, whitelist: nil, utilityId: nil, tokens: assets)
+        let chainAssets = Set(chainAssetsArray)
+        chain.assets = chainAssets
         return chain
     }
     
-    static func generateChainAsset(_ asset: AssetModel, chain: ChainModel, staking: RawStakingType? = nil) -> ChainAsset {
-        // SSFModels uses ChainAsset(chain:asset:)
-        ChainAsset(chain: chain, asset: asset)
+    static func generateChainAsset(_ asset: AssetModel, chain: ChainModel, staking: RawStakingType? = nil, chainAssetType: ChainAssetType = .normal) -> ChainAssetModel {
+        ChainAssetModel(
+            assetId: asset.id,
+            type: chainAssetType,
+            asset: asset,
+            chain: chain,
+            isUtility: asset.chainId == chain.chainId,
+            isNative: true)
     }
 
     static func generateAssetWithId(
@@ -134,22 +128,20 @@ enum ChainModelGenerator {
         assetPresicion: UInt16 = (9...18).randomElement()!,
         chainId: String = ""
     ) -> AssetModel {
-        // Map to current SSFModels initializer; keep values simple for tests
-        let tokenProps = TokenProperties(priceId: nil, currencyId: nil, color: nil, type: nil, isNative: false, stacking: nil)
-        return AssetModel(
+        AssetModel(
             id: identifier,
-            name: symbol.isEmpty ? "Test Asset" : symbol,
             symbol: symbol,
-            isUtility: true,
+            chainId: chainId,
             precision: assetPresicion,
             icon: nil,
-            substrateType: nil,
-            ethereumType: nil,
-            tokenProperties: tokenProps,
-            price: nil,
             priceId: nil,
-            coingeckoPriceId: nil,
-            priceProvider: nil
+            price: nil,
+            fiatDayChange: nil,
+            transfersEnabled: true,
+            currencyId: nil,
+            displayName: nil,
+            existentialDeposit: nil,
+            color: nil
         )
     }
 

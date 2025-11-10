@@ -2,13 +2,13 @@ import Foundation
 @testable import fearless
 import BigInt
 import IrohaCrypto
-import SSFModels
+import CommonWallet
 
 struct WestendStub {
     static let address: String = "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq"
 
     static let price: PriceData = {
-        PriceData(currencyId: "USD", priceId: "wnd", price: "0.3", fiatDayChange: 0.1, coingeckoPriceId: nil)
+        PriceData(priceId: "wnd", price: "0.3", fiatDayChange: 0.1)
     }()
 
     static let totalReward: TotalRewardItem = {
@@ -20,22 +20,20 @@ struct WestendStub {
 
     static let activeEra: DecodedActiveEra = {
         let era = ActiveEraInfo(index: 777)
-        return DecodedActiveEra(identifier: SSFModels.Chain.westend.genesisHash + "_active_era",
+        return DecodedActiveEra(identifier: Chain.westend.genesisHash + "_active_era",
                                 item: era)
     }()
 
     static let currentEra: DecodedEraIndex = {
-        DecodedEraIndex(identifier: SSFModels.Chain.westend.genesisHash + "_current_era", item: StringScaleMapper(value: 777))
+        DecodedEraIndex(identifier: Chain.westend.genesisHash + "_current_era", item: StringScaleMapper(value: 777))
     }()
 
     static let accountInfo: DecodedAccountInfo = {
 
-        let data = AccountData(
-            free: BigUInt(1e+13),
-            reserved: BigUInt(0),
-            frozen: BigUInt(0),
-            flags: BigUInt(0)
-        )
+        let data = AccountData(free: BigUInt(1e+13),
+                                 reserved: BigUInt(0),
+                                 miscFrozen: BigUInt(0),
+                                 feeFrozen: BigUInt(0))
 
         let info = AccountInfo(nonce: 1,
                                  consumers: 0,
@@ -48,30 +46,44 @@ struct WestendStub {
 
     static let minNominatorBond: DecodedBigUInt = {
         DecodedBigUInt(
-            identifier: SSFModels.Chain.westend.genesisHash + "_minbond",
+            identifier: Chain.westend.genesisHash + "_minbond",
             item: StringScaleMapper(value: BigUInt(1e+12))
         )
     }()
 
     static let counterForNominators: DecodedU32 = {
         DecodedU32(
-            identifier: SSFModels.Chain.westend.genesisHash + "_counterForNominators",
+            identifier: Chain.westend.genesisHash + "_counterForNominators",
             item: StringScaleMapper(value: 100)
         )
     }()
 
     static let maxNominatorsCount: DecodedU32 = {
         DecodedU32(
-            identifier: SSFModels.Chain.westend.genesisHash + "_maxNominatorsCount",
+            identifier: Chain.westend.genesisHash + "_maxNominatorsCount",
             item: StringScaleMapper(value: 1000)
         )
     }()
 
-    // Nomination struct init is no longer public; not used in active tests
-    // static let nomination: DecodedNomination = { ... }()
+    static let nomination: DecodedNomination = {
+        let nomination = Nomination(targets: [],
+                                    submittedIn: 0)
 
-    // StakingLedger init is no longer public; not used in active tests
-    // static let ledgerInfo: DecodedLedgerInfo = { ... }()
+        return DecodedNomination(identifier: "5EJQtTE1ZS9cBdqiuUcjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6",
+                                 item: nomination)
+    }()
+
+    static let ledgerInfo: DecodedLedgerInfo = {
+        let address = "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq"
+        let accountId = try! SS58AddressFactory().accountId(from: address)
+        let info = StakingLedger(stash: accountId,
+                                   total: BigUInt(1e+12),
+                                   active: BigUInt(1e+12),
+                                   unlocking: [],
+                                   claimedRewards: [])
+
+        return DecodedLedgerInfo(identifier: address, item: info)
+    }()
 
     static let validator: DecodedValidator = {
         let prefs = ValidatorPrefs(commission: BigUInt(1e+8), blocked: false)
@@ -91,8 +103,7 @@ struct WestendStub {
                                              stakeReturn: 0.1,
                                              hasSlashes: false,
                                              maxNominatorsRewarded: 128,
-                                             blocked: false,
-                                             elected: true)
+                                             blocked: false)
         return [validator]
     }()
 
@@ -107,8 +118,7 @@ struct WestendStub {
                                              stakeReturn: 0.1,
                                              hasSlashes: true,
                                              maxNominatorsRewarded: 1000,
-                                             blocked: false,
-                                             elected: true)
+                                             blocked: false)
         return [validator]
     }()
 
@@ -146,7 +156,7 @@ struct WestendStub {
         let total = eraValidators.reduce(BigUInt(0)) { $0 + $1.exposure.total }
 
         return RewardCalculatorEngine(
-            chainId: SSFModels.Chain.westend.genesisHash,
+            chainId: Chain.westend.genesisHash,
             assetPrecision: 12,
             totalIssuance: total,
             validators: eraValidators,

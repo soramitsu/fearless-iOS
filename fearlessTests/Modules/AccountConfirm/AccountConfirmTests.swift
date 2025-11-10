@@ -28,8 +28,7 @@ class AccountConfirmTests: XCTestCase {
                                                                  username: "myusername",
                                                                  substrateDerivationPath: "",
                                                                  ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
-                                                                 cryptoType: .sr25519,
-                                                                 defaultChainId: nil)
+                                                                 cryptoType: .sr25519)
 
         let accountOperationFactory = MetaAccountOperationFactory(keystore: keychain)
 
@@ -54,7 +53,7 @@ class AccountConfirmTests: XCTestCase {
         let setupExpectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub.didReceive(words: any(), afterConfirmationFail: any())).then { _ in
+            when(stub).didReceive(words: any(), afterConfirmationFail: any()).then { _ in
                 setupExpectation.fulfill()
             }
         }
@@ -62,7 +61,7 @@ class AccountConfirmTests: XCTestCase {
         let expectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub.proceed(from: any(), flow: any())).then { _ in
+            when(stub).proceed(from: any(), flow: any()).then { _ in
                 expectation.fulfill()
             }
         }

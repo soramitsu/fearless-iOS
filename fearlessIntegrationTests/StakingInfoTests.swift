@@ -4,13 +4,12 @@ import SoraKeystore
 import RobinHood
 import IrohaCrypto
 import SSFUtils
-import SSFModels
 
 class StakingInfoTests: XCTestCase {
     func testRewardsPolkadot() throws {
         let asset = ChainModelGenerator.generateAssetWithId("887a17c7-1370-4de0-97dd-5422e294fa75", symbol: "dot")
         let chain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 0)
-        let chainAsset = SSFModels.ChainAsset(chain: chain, asset: asset)
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
         
         try performCalculatorServiceTest(
             address: "13mAjFVjFDpfa42k2dLdSnUyrSzK8vAySsoudnxX2EKVtfaq",
@@ -23,7 +22,7 @@ class StakingInfoTests: XCTestCase {
     func testRewardsKusama() throws {
         let asset = ChainModelGenerator.generateAssetWithId("1e0c2ec6-935f-49bd-a854-5e12ee6c9f1b", symbol: "ksm")
         let chain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 2)
-        let chainAsset = SSFModels.ChainAsset(chain: chain, asset: asset)
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
         
         try performCalculatorServiceTest(
             address: "DayVh23V32nFhvm2WojKx2bYZF1CirRgW2Jti9TXN9zaiH5",
@@ -36,7 +35,7 @@ class StakingInfoTests: XCTestCase {
     func testRewardsWestend() throws {
         let asset = ChainModelGenerator.generateAssetWithId("a3868e1b-922e-42d4-b73e-b41712f0843c", symbol: "wnd")
         let chain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 42)
-        let chainAsset = SSFModels.ChainAsset(chain: chain, asset: asset)
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
         
         try performCalculatorServiceTest(
             address: "5CDayXd3cDCWpBkSXVsVfhE5bWKyTZdD3D1XUinR1ezS1sGn",
@@ -49,7 +48,7 @@ class StakingInfoTests: XCTestCase {
     // MARK: - Private
     private func performCalculatorServiceTest(
         address: String,
-        chainAsset: SSFModels.ChainAsset,
+        chainAsset: ChainAsset,
         chainFormat: ChainFormat,
         assetPrecision: Int16
     ) throws {
@@ -64,7 +63,7 @@ class StakingInfoTests: XCTestCase {
             chainRegisty: chainRegistry,
             storageFacade: storageFacade,
             eventCenter: EventCenter.shared,
-            operationManager: SSFUtils.OperationManagerFacade.sharedManager,
+            operationManager: OperationManagerFacade.sharedManager,
             logger: logger
         )
 
@@ -72,7 +71,7 @@ class StakingInfoTests: XCTestCase {
             for: chainAsset.chain
         )
         
-        let operationManager = SSFUtils.OperationManagerFacade.sharedManager
+        let operationManager = OperationManagerFacade.sharedManager
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager
@@ -90,9 +89,10 @@ class StakingInfoTests: XCTestCase {
             asset: chainAsset.asset,
             chain: chainAsset.chain,
             storageRequestFactory: storageRequestFactory,
+            runtimeService: runtimeService,
+            engine: connection,
             identityOperationFactory: identityOperationFactory,
-            subqueryOperationFactory: rewardOperationFactory,
-            chainRegistry: chainRegistry
+            subqueryOperationFactory: rewardOperationFactory
         )
 
         let rewardCalculatorService = try stakingServiceFactory.createRewardCalculatorService(
@@ -127,8 +127,8 @@ class StakingInfoTests: XCTestCase {
         let calculatorOperation = rewardCalculatorService.fetchCalculatorOperation()
 
         let mapOperation: BaseOperation<[(String, Decimal)]> = ClosureOperation {
-            let info = try validatorsOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            let calculator = try calculatorOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            let info = try validatorsOperation.extractNoCancellableResultData()
+            let calculator = try calculatorOperation.extractNoCancellableResultData()
 
             let rewards: [(String, Decimal)] = try info.validators.map { validator in
                 let reward = try calculator
@@ -152,7 +152,7 @@ class StakingInfoTests: XCTestCase {
         operationQueue.addOperations([validatorsOperation, calculatorOperation, mapOperation],
                                      waitUntilFinished: true)
 
-        let result = try mapOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        let result = try mapOperation.extractNoCancellableResultData()
         logger.info("Reward: \(result)")
 
         remoteStakingSubcriptionService.detachFromGlobalData(

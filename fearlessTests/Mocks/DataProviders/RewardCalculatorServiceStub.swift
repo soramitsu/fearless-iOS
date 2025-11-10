@@ -1,7 +1,6 @@
 import Foundation
 @testable import fearless
 import RobinHood
-import SSFModels
 
 final class RewardCalculatorServiceStub: RewardCalculatorServiceProtocol {
     let engine: RewardCalculatorEngineProtocol
@@ -10,7 +9,7 @@ final class RewardCalculatorServiceStub: RewardCalculatorServiceProtocol {
         self.engine = engine
     }
 
-    func update(to chain: SSFModels.Chain) {}
+    func update(to chain: Chain) {}
 
     func setup() {}
 

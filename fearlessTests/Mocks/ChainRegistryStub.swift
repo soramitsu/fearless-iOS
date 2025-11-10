@@ -2,7 +2,6 @@ import Foundation
 @testable import fearless
 import RobinHood
 import Cuckoo
-import SSFModels
 
 extension MockChainRegistryProtocol {
     func applyDefault(for chains: Set<ChainModel>) -> MockChainRegistryProtocol {

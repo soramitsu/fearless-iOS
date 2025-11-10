@@ -70,9 +70,7 @@ extension ExtrinsicServiceStub {
             lenFee: BigUInt(stringLiteral: "0"),
             adjustedWeightFee: BigUInt(stringLiteral: "10005000")
         )
-        let dispatchInfo = RuntimeDispatchInfo(
-            feeValue: feeDetails.baseFee + feeDetails.lenFee + feeDetails.adjustedWeightFee
-        )
+        let dispatchInfo = RuntimeDispatchInfo(inclusionFee: feeDetails)
 
         let txHash = Data(repeating: 7, count: 32).toHex(includePrefix: true)
         return ExtrinsicServiceStub(dispatchInfo: .success(dispatchInfo), txHash: .success(txHash))

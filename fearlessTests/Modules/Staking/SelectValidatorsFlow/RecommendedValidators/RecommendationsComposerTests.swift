@@ -13,8 +13,7 @@ class RecommendationsComposerTests: XCTestCase {
             stakeReturn: 0.9,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: false,
-            elected: true
+            blocked: false
         ),
 
         ElectedValidatorInfo(
@@ -32,8 +31,7 @@ class RecommendationsComposerTests: XCTestCase {
             stakeReturn: 0.5,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: false,
-            elected: true
+            blocked: false
         ),
         ElectedValidatorInfo(
             address: "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr9",
@@ -45,8 +43,7 @@ class RecommendationsComposerTests: XCTestCase {
             stakeReturn: 0.1,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: false,
-            elected: true
+            blocked: false
         ),
         ElectedValidatorInfo(
             address: "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr7",
@@ -58,8 +55,7 @@ class RecommendationsComposerTests: XCTestCase {
             stakeReturn: 0.6,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: false,
-            elected: true
+            blocked: false
         ),
 
         ElectedValidatorInfo(
@@ -72,8 +68,7 @@ class RecommendationsComposerTests: XCTestCase {
             stakeReturn: 0.9,
             hasSlashes: true,
             maxNominatorsRewarded: 128,
-            blocked: false,
-            elected: true
+            blocked: false
         ),
 
         ElectedValidatorInfo(
@@ -86,8 +81,7 @@ class RecommendationsComposerTests: XCTestCase {
             stakeReturn: 0.9,
             hasSlashes: false,
             maxNominatorsRewarded: 128,
-            blocked: true,
-            elected: true
+            blocked: true
         )
     ]
 
@@ -105,8 +99,7 @@ class RecommendationsComposerTests: XCTestCase {
                 stakeReturn: 0.6,
                 hasSlashes: false,
                 maxNominatorsRewarded: 128,
-                blocked: false,
-                elected: true
+                blocked: false
             ),
             ElectedValidatorInfo(
                 address: "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr9",
@@ -118,8 +111,7 @@ class RecommendationsComposerTests: XCTestCase {
                 stakeReturn: 0.1,
                 hasSlashes: false,
                 maxNominatorsRewarded: 128,
-                blocked: false,
-                elected: true
+                blocked: false
             )
         ]
 
@@ -148,8 +140,7 @@ class RecommendationsComposerTests: XCTestCase {
                 stakeReturn: 0.6,
                 hasSlashes: false,
                 maxNominatorsRewarded: 128,
-                blocked: false,
-                elected: true
+                blocked: false
             )
         ]
 

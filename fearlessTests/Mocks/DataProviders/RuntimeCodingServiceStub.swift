@@ -1,69 +1,59 @@
 import Foundation
 @testable import fearless
 import RobinHood
-import SSFRuntimeCodingService
-import SSFUtils
-import SSFModels
 
-final class RuntimeCodingServiceStub: RuntimeCodingServiceProtocol {
+final class RuntimeCodingServiceStub {
     let factory : RuntimeCoderFactoryProtocol
 
     init(factory: RuntimeCoderFactoryProtocol) {
         self.factory = factory
     }
+}
 
-    // MARK: - RuntimeCodingServiceProtocol
-
-    var snapshot: RuntimeSnapshot? { nil }
-
+extension RuntimeCodingServiceStub: RuntimeCodingServiceProtocol {
+    var snapshot: RuntimeSnapshot? {
+        return nil
+    }
+    
     func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
         ClosureOperation { self.factory }
     }
-
-    func fetchCoderFactory() async throws -> RuntimeCoderFactoryProtocol {
-        factory
+    
+    func fetchCoderFactoryOperation(with timeout: TimeInterval, closure: RuntimeMetadataClosure?) -> BaseOperation<RuntimeCoderFactoryProtocol> {
+        ClosureOperation { self.factory }
     }
 }
 
 extension RuntimeCodingServiceStub {
-    private struct FakeRuntimeCoderFactory: RuntimeCoderFactoryProtocol {
-        let specVersion: UInt32
-        let txVersion: UInt32
-        let metadata: RuntimeMetadata
-        let catalog: TypeRegistryCatalogProtocol
-
-        func createEncoder() -> DynamicScaleEncoding {
-            DynamicScaleEncoder(registry: catalog, version: UInt64(specVersion))
+    static func createWestendCodingFactory(
+        specVersion: UInt32 = 48,
+        txVersion: UInt32 = 4,
+        metadataVersion: UInt32? = nil
+    ) throws -> RuntimeCoderFactoryProtocol {
+        var metadataFilename = "westend-metadata"
+        if let version = metadataVersion {
+            metadataFilename += "-v\(version)"
         }
+        let runtimeMetadata = try RuntimeHelper.createRuntimeMetadata(metadataFilename)
+        let typeCatalog = try RuntimeHelper.createTypeRegistryCatalog(
+            from: "runtime-default",
+            networkName: "runtime-westend",
+            runtimeMetadata: runtimeMetadata
+        )
 
-        func createDecoder(from data: Data) throws -> DynamicScaleDecoding {
-            try DynamicScaleDecoder(data: data, registry: catalog, version: UInt64(specVersion))
-        }
+        return RuntimeCoderFactory(
+            catalog: typeCatalog,
+            specVersion: specVersion,
+            txVersion: txVersion,
+            metadata: runtimeMetadata
+        )
     }
 
-    static func createWestendService() throws -> RuntimeCodingServiceProtocol {
-        // Load compact test metadata bundled with tests
-        let metadata = try RuntimeHelper.createRuntimeMetadata("runtimeTestMetadata")
-
-        // Build a minimal snapshot using empty versioning types and empty usedRuntimePaths
-        let chainTypes = Data("{}".utf8)
-
-        // Build a minimal catalog similar to RuntimeSnapshotFactory
-        let json: JSON = .dictionaryValue(["types": .dictionaryValue([:])])
-        let catalog = try TypeRegistryCatalog.createFromTypeDefinition(
-            JSONEncoder().encode(json),
-            versioningData: chainTypes,
-            runtimeMetadata: metadata,
-            usedRuntimePaths: [:]
-        )
-
-        let factory = FakeRuntimeCoderFactory(
-            specVersion: 1,
-            txVersion: 1,
-            metadata: metadata,
-            catalog: catalog
-        )
-
+    static func createWestendService(
+        specVersion: UInt32 = 48,
+        txVersion: UInt32 = 4
+    ) throws -> RuntimeCodingServiceProtocol {
+        let factory = try createWestendCodingFactory(specVersion: specVersion, txVersion: txVersion)
         return RuntimeCodingServiceStub(factory: factory)
     }
 }

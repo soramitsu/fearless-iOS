@@ -6,7 +6,6 @@ import SoraKeystore
 import SoraFoundation
 @testable import fearless
 import BigInt
-import SSFModels
 
 class ControllerAccountTests: XCTestCase {
 
@@ -18,7 +17,7 @@ class ControllerAccountTests: XCTestCase {
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
         let chain = ChainModelGenerator.generateChain(generatingAssets: 1,
-                                                      addressPrefix: UInt16(SSFModels.SNAddressType.genericSubstrate.rawValue))
+                                                      addressPrefix: UInt16(SNAddressType.genericSubstrate.rawValue))
         let asset = ChainModelGenerator.generateAssetWithId("test", symbol: "test")
         let selectedAccount = AccountGenerator.generateMetaAccount()
         let presenter = ControllerAccountPresenter(wireframe: wireframe,
@@ -29,16 +28,13 @@ class ControllerAccountTests: XCTestCase {
                                                    asset: asset,
                                                    selectedAccount: selectedAccount,
                                                    dataValidatingFactory: dataValidatingFactory,
-                                                   logger: Logger.shared,
-                                                   balanceViewModelFactory: StubBalanceViewModelFactory())
+                                                   logger: Logger.shared)
 
         presenter.view = view
         dataValidatingFactory.view = view
 
         stub(view) { stub in
-            when(stub.localizationManager.get).then { LocalizationManager.shared }
-            // Presenter pushes fee view model updates to the view; accept silently
-            when(stub.didReceive(feeViewModel: any())).thenDoNothing()
+            when(stub).localizationManager.get.then { LocalizationManager.shared }
         }
 
         // given
@@ -46,44 +42,35 @@ class ControllerAccountTests: XCTestCase {
             description: "Show Confirmation screen if user has sufficient balance to pay fee"
         )
         stub(wireframe) { stub in
-            when(stub.showConfirmation(from: any(ControllerBackedProtocol?.self),
-                                       controllerAccountItem: any(ChainAccountResponse.self),
-                                       asset: any(AssetModel.self),
-                                       chain: any(ChainModel.self),
-                                       selectedAccount: any(fearless.MetaAccountModel.self))).then { _ in
+            when(stub).showConfirmation(from: any(),
+                                        controllerAccountItem: any(),
+                                        asset: any(), chain: any(),
+                                        selectedAccount: any()).then { _ in
                 showConfirmationExpectation.fulfill()
             }
             
-            when(stub.present(viewModel: any(), from: any())).thenDoNothing()
+            when(stub).present(viewModel: any(), from: any()).thenDoNothing()
         }
         stub(viewModelFactory) { stub in
-            when(stub.createViewModel(
-                stashItem: any(StashItem.self),
-                stashAccountItem: Cuckoo.any(Optional<fearless.ChainAccountResponse>.self),
-                chosenAccountItem: Cuckoo.any(Optional<fearless.ChainAccountResponse>.self),
-                chainAsset: any(SSFModels.ChainAsset.self)
-            ))
-            .then { _ in
-                ControllerAccountViewModel(
-                    chainAsset: SSFModels.ChainAsset(chain: chain, asset: asset),
+            when(stub).createViewModel(stashItem: any(), stashAccountItem: any(), chosenAccountItem: any())
+                .then { _ in ControllerAccountViewModel(
                     stashViewModel: .init(closure: { _ in AccountInfoViewModel(title: "", address: "", name: "", icon: nil)}),
                     controllerViewModel: .init(closure: { _ in AccountInfoViewModel(title: "", address: "", name: "", icon: nil)}),
                     currentAccountIsController: false,
                     actionButtonIsEnabled: true
-                )
-            }
+                )}
         }
         stub(view) { stub in
-            when(stub.reload(with: any())).thenDoNothing()
+            when(stub).reload(with: any()).thenDoNothing()
         }
 
         let controllerAddress = "controllerAddress"
         let stashAddress = "stashAddress"
 
         let stashItem = StashItem(stash: stashAddress, controller: controllerAddress)
-        presenter.didReceiveStashItem(result: Result<StashItem?, Error>.success(stashItem))
+        presenter.didReceiveStashItem(result: .success(stashItem))
 
-        let chainAccountItem = fearless.ChainAccountResponse(chainId: chain.chainId,
+        let chainAccountItem = ChainAccountResponse(chainId: chain.chainId,
                                                     accountId: selectedAccount.substrateAccountId,
                                                     publicKey: selectedAccount.substratePublicKey,
                                                     name: "test",
@@ -92,31 +79,31 @@ class ControllerAccountTests: XCTestCase {
                                                     isEthereumBased: false,
                                                     isChainAccount: false,
                                                     walletId: selectedAccount.metaId)
-        presenter.didReceiveControllerAccount(result: Result<fearless.ChainAccountResponse?, Error>.success(chainAccountItem))
+        presenter.didReceiveControllerAccount(result: .success(chainAccountItem))
 
         let controllerAccountInfo = AccountInfo(
             nonce: 0,
             consumers: 0,
             providers: 0,
-            data: AccountData(free: 100000000000000, reserved: 0, frozen: 0, flags: 0)
+            data: AccountData(free: 100000000000000, reserved: 0, miscFrozen: 0, feeFrozen: 0)
         )
-        presenter.didReceiveAccountInfo(result: Result<AccountInfo?, Error>.success(controllerAccountInfo), address: controllerAddress)
+        presenter.didReceiveAccountInfo(result: .success(controllerAccountInfo), address: controllerAddress)
 
         let stashAccountInfo = AccountInfo(
             nonce: 0,
             consumers: 0,
             providers: 0,
-            data: AccountData(free: 100000000000000, reserved: 0, frozen: 0, flags: 0)
+            data: AccountData(free: 100000000000000, reserved: 0, miscFrozen: 0, feeFrozen: 0)
         )
-        presenter.didReceiveAccountInfo(result: Result<AccountInfo?, Error>.success(stashAccountInfo), address: stashAddress)
+        presenter.didReceiveAccountInfo(result: .success(stashAccountInfo), address: stashAddress)
 
         let feeDetails = FeeDetails(
             baseFee: BigUInt(stringLiteral: "12600002654"),
             lenFee: BigUInt(stringLiteral: "0"),
             adjustedWeightFee: BigUInt(stringLiteral: "331759000")
         )
-        let fee = RuntimeDispatchInfo(feeValue: feeDetails.baseFee + feeDetails.lenFee + feeDetails.adjustedWeightFee)
-        presenter.didReceiveFee(result: Result<RuntimeDispatchInfo, Error>.success(fee))
+        let fee = RuntimeDispatchInfo(inclusionFee: feeDetails)
+        presenter.didReceiveFee(result: .success(fee))
 
         // when
         presenter.proceed()
@@ -130,7 +117,7 @@ class ControllerAccountTests: XCTestCase {
             description: "Show error alert if user has not sufficient balance to pay fee"
         )
         stub(wireframe) { stub in
-            when(stub.present(message: any(), title: any(), closeAction: any(), from: any(), actions: any())).then { _ in
+            when(stub).present(message: any(), title: any(), closeAction: any(), from: any(), actions: any()).then { _ in
                 showErrorAlertExpectation.fulfill()
             }
         }
@@ -139,11 +126,11 @@ class ControllerAccountTests: XCTestCase {
             nonce: 0,
             consumers: 0,
             providers: 0,
-            data: AccountData(free: 10, reserved: 0, frozen: 0, flags: 0)
+            data: AccountData(free: 10, reserved: 0, miscFrozen: 0, feeFrozen: 0)
         )
-        presenter.didReceiveAccountInfo(result: Result<AccountInfo?, Error>.success(accountInfoSmallBalance), address: stashAddress)
-        let extraFee = RuntimeDispatchInfo(feeValue: feeDetails.baseFee + feeDetails.lenFee + feeDetails.adjustedWeightFee)
-        presenter.didReceiveFee(result: Result<RuntimeDispatchInfo, Error>.success(extraFee))
+        presenter.didReceiveAccountInfo(result: .success(accountInfoSmallBalance), address: stashAddress)
+        let extraFee = RuntimeDispatchInfo(inclusionFee: feeDetails)
+        presenter.didReceiveFee(result: .success(extraFee))
 
         // when
         presenter.proceed()

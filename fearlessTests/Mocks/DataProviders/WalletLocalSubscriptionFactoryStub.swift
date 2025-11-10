@@ -2,9 +2,6 @@ import Foundation
 @testable import fearless
 import RobinHood
 import BigInt
-import SSFModels
-import SSFRuntimeCodingService
-import SSFAccountManagmentStorage
 
 final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryProtocol {
     var operationManager: RobinHood.OperationManagerProtocol
@@ -16,10 +13,9 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
 
     func getAccountProvider(
         for accountId: AccountId,
-        chainAsset: SSFModels.ChainAsset
+        chainAsset: ChainAsset
     ) throws -> StreamableProvider<AccountInfoStorageWrapper> {
-        // Use fearless-specific storage path to avoid SSFModels ambiguity
-        let codingPath = chainAsset.fearlessStoragePath
+        let codingPath = chainAsset.storagePath
 
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
@@ -29,13 +25,13 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
         return getProvider(for: localKey)
     }
 
-    func getRuntimeProvider(for chainId: SSFModels.ChainModel.Id) -> RuntimeProviderProtocol? {
+    func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         return chainRegistry.getRuntimeProvider(for: chainId)
     }
 
     private func getProvider(for key: String) -> StreamableProvider<AccountInfoStorageWrapper> {
-        let facade = SSFAccountManagmentStorage.UserDataStorageFacade.shared!
+        let facade = SubstrateDataStorageFacade.shared
 
         let mapper: CodableCoreDataMapper<AccountInfoStorageWrapper, CDAccountInfo> =
             CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDAccountInfo.identifier))
@@ -47,7 +43,7 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
         let observable = CoreDataContextObservable(
             service: facade.databaseService,
             mapper: AnyCoreDataMapper(mapper),
-            predicate: { ($0.value(forKey: "identifier") as? String) == key },
+            predicate: { $0.identifier == key },
             processingQueue: processingQueue
         )
 

@@ -37,14 +37,13 @@ class MetaAccountMapperTests: XCTestCase {
         let allMetaAccountsOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
         operationQueue.addOperations([allMetaAccountsOperation], waitUntilFinished: true)
 
-        let allMetaAccounts: [ManagedMetaAccountModel] = try allMetaAccountsOperation
-            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        let allMetaAccounts = try allMetaAccountsOperation.extractNoCancellableResultData()
 
-        let expectedAccounts = metaAccounts.reduce(into: [String: fearless.MetaAccountModel]()) { result, account in
+        let expectedAccounts = metaAccounts.reduce(into: [String: MetaAccountModel]()) { result, account in
             result[account.identifier] = account.info
         }
 
-        let actualAccounts = allMetaAccounts.reduce(into: [String: fearless.MetaAccountModel]()) { result, account in
+        let actualAccounts = allMetaAccounts.reduce(into: [String: MetaAccountModel]()) { result, account in
             result[account.identifier] = account.info
         }
 

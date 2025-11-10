@@ -2,7 +2,6 @@ import XCTest
 @testable import fearless
 import Cuckoo
 import SSFUtils
-import SSFModels
 
 class ConnectionPoolTests: XCTestCase {
     func testSetupCreatesNewConnections() {
@@ -30,11 +29,7 @@ class ConnectionPoolTests: XCTestCase {
 
             // then
 
-            let actualChainIds = Set(
-                chainModels.compactMap { model in
-                    connectionPool.getConnection(for: model.chainId) != nil ? model.chainId : nil
-                }
-            )
+            let actualChainIds = Set(connectionPool.connectionsByChainIds.keys)
             let expectedChainIds = Set(chainModels.map { $0.chainId })
 
             XCTAssertEqual(expectedChainIds, actualChainIds)

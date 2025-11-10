@@ -1,28 +1,5 @@
 import Foundation
-import UIKit
-@testable import fearless
-
-// Minimal shims for CommonWallet APIs used in tests
-protocol WalletCommandProtocol { func execute() throws }
-enum WalletPresentationStyle { case push(hidesBottomBar: Bool); case modal(inNavigation: Bool) }
-protocol WalletPresentationCommandProtocol: WalletCommandProtocol { var presentationStyle: WalletPresentationStyle { get set }; var animated: Bool { get set }; var completionBlock: (() -> Void)? { get set } }
-protocol AssetDetailsCommadProtocol: WalletPresentationCommandProtocol { var ignoredWhenSingleAsset: Bool { get set } }
-enum WalletHideActionType { case dismiss, pop }
-protocol WalletHideCommandProtocol: WalletCommandProtocol { var actionType: WalletHideActionType { get set }; var animated: Bool { get set }; var completionBlock: (() -> Void)? { get set } }
-protocol WalletCommandFactoryProtocol {
-    func prepareSendCommand(for assetId: String?) -> WalletPresentationCommandProtocol
-    func prepareReceiveCommand(for assetId: String?) -> WalletPresentationCommandProtocol
-    func prepareAssetDetailsCommand(for assetId: String) -> AssetDetailsCommadProtocol
-    func prepareScanReceiverCommand() -> WalletPresentationCommandProtocol
-    func prepareWithdrawCommand(for assetId: String, optionId: String) -> WalletPresentationCommandProtocol
-    func preparePresentationCommand(for controller: UIViewController) -> WalletPresentationCommandProtocol
-    func prepareHideCommand(with actionType: WalletHideActionType) -> WalletHideCommandProtocol
-    func prepareAccountUpdateCommand() -> WalletCommandProtocol
-    func prepareLanguageSwitchCommand(with newLanguage: WalletLanguage) -> WalletCommandProtocol
-    func prepareTransactionDetailsCommand(with transaction: AssetTransactionData) -> WalletPresentationCommandProtocol
-    func prepareTransfer(with payload: TransferPayload) -> WalletPresentationCommandProtocol
-}
-struct TransferPayload {}
+import CommonWallet
 
 class WalletCommandProtocolMock: WalletCommandProtocol {
     func execute() throws {}

@@ -6,10 +6,10 @@ import SSFUtils
 class EraCountdownOperationFactoryTests: XCTestCase {
 
     func testService() {
-        let operationManager = SSFUtils.OperationManagerFacade.sharedManager
+        let operationManager = OperationManagerFacade.sharedManager
 
+        let chainId = Chain.kusama.genesisHash
         let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: SubstrateStorageTestFacade())
-        let chainId = chainRegistry.availableChainIds?.first ?? ""
         let connection = chainRegistry.getConnection(for: chainId)!
         let runtimeService = chainRegistry.getRuntimeProvider(for: chainId)!
 
@@ -28,9 +28,7 @@ class EraCountdownOperationFactoryTests: XCTestCase {
         )
         operationWrapper.targetOperation.completionBlock = {
             do {
-                let eraCountdown = try operationWrapper
-                    .targetOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                let eraCountdown = try operationWrapper.targetOperation.extractNoCancellableResultData()
                 Logger.shared.info(
                     "Estimating era completion time (in seconds): \(eraCountdown.timeIntervalTillNextActiveEraStart())"
                 )

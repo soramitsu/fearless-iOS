@@ -35,7 +35,7 @@ class ExportMnemonicTests: XCTestCase {
         let setupExpectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub.set(viewModel: any())).then { _ in
+            when(stub).set(viewModel: any()).then { _ in
                 setupExpectation.fulfill()
             }
         }
@@ -45,11 +45,11 @@ class ExportMnemonicTests: XCTestCase {
         let sharingExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub.present(viewModel: any(), from: any())).then { viewModel in
+            when(stub).present(viewModel: any(), from: any()).then { viewModel in
                 viewModel.0.actions.first?.handler?()
             }
 
-            when(stub.share(source: any(), from: any(), with: any())).then { _ in
+            when(stub).share(source: any(), from: any(), with: any()).then { _ in
                 sharingExpectation.fulfill()
             }
         }
@@ -95,16 +95,13 @@ class ExportMnemonicTests: XCTestCase {
                                                              username: "testUsername",
                                                              substrateDerivationPath: substrateDerivationPath,
                                                              ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
-                                                             cryptoType: cryptoType,
-                                                             defaultChainId: nil)
+                                                             cryptoType: cryptoType)
         let operationFactory = MetaAccountOperationFactory(keystore: keychain)
-        let importedAccount = try operationFactory
-            .newMetaAccountOperation(request: importRequest, isBackuped: false)
-            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        let importedAccount = try operationFactory.newMetaAccountOperation(request: importRequest).extractResultData()
 
-        XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount.substrateCryptoType)
-        XCTAssertEqual(givenAccount.substrateAccountId, importedAccount.substrateAccountId)
-        XCTAssertEqual(givenAccount.substratePublicKey, importedAccount.substratePublicKey)
+        XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount?.substrateCryptoType)
+        XCTAssertEqual(givenAccount.substrateAccountId, importedAccount?.substrateAccountId)
+        XCTAssertEqual(givenAccount.substratePublicKey, importedAccount?.substratePublicKey)
     }
     
     func testEthereumExport() throws {
@@ -136,7 +133,7 @@ class ExportMnemonicTests: XCTestCase {
         let setupExpectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub.set(viewModel: any())).then { _ in
+            when(stub).set(viewModel: any()).then { _ in
                 setupExpectation.fulfill()
             }
         }
@@ -146,11 +143,11 @@ class ExportMnemonicTests: XCTestCase {
         let sharingExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub.present(viewModel: any(), from: any())).then { param in
+            when(stub).present(viewModel: any(), from: any()).then { param in
                 param.0.actions.first?.handler?()
             }
 
-            when(stub.share(source: any(), from: any(), with: any())).then { _ in
+            when(stub).share(source: any(), from: any(), with: any()).then { _ in
                 sharingExpectation.fulfill()
             }
         }
@@ -197,15 +194,12 @@ class ExportMnemonicTests: XCTestCase {
                                                              username: "testUsername",
                                                              substrateDerivationPath: substrateDerivationPath,
                                                              ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
-                                                             cryptoType: cryptoType,
-                                                             defaultChainId: nil)
+                                                             cryptoType: cryptoType)
         let operationFactory = MetaAccountOperationFactory(keystore: keychain)
-        let importedAccount = try operationFactory
-            .newMetaAccountOperation(request: importRequest, isBackuped: false)
-            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        let importedAccount = try operationFactory.newMetaAccountOperation(request: importRequest).extractResultData()
 
-        XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount.substrateCryptoType)
-        XCTAssertEqual(givenAccount.substrateAccountId, importedAccount.substrateAccountId)
-        XCTAssertEqual(givenAccount.substratePublicKey, importedAccount.substratePublicKey)
+        XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount?.substrateCryptoType)
+        XCTAssertEqual(givenAccount.substrateAccountId, importedAccount?.substrateAccountId)
+        XCTAssertEqual(givenAccount.substratePublicKey, importedAccount?.substratePublicKey)
     }
 }

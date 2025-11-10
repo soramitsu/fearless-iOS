@@ -36,7 +36,7 @@ class SelectedAccountSettingsTests: XCTestCase {
         let allMetaAccountsOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
         operationQueue.addOperations([allMetaAccountsOperation], waitUntilFinished: true)
 
-        let allMetaAccounts = try allMetaAccountsOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        let allMetaAccounts = try allMetaAccountsOperation.extractNoCancellableResultData()
 
         XCTAssertEqual(selectedAccount.info, allMetaAccounts.first?.info)
         XCTAssertEqual(allMetaAccounts.count, 1)
@@ -81,15 +81,15 @@ class SelectedAccountSettingsTests: XCTestCase {
         let allMetaAccountsOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
         operationQueue.addOperations([allMetaAccountsOperation], waitUntilFinished: true)
 
-        let allMetaAccounts = try allMetaAccountsOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        let allMetaAccounts = try allMetaAccountsOperation.extractNoCancellableResultData()
 
         let expectedAccounts = [initialSelectedAccount.info, nextSelectedAccount].reduce(
-            into: [String: fearless.MetaAccountModel]()
+            into: [String: MetaAccountModel]()
         ) { result, account in
             result[account.metaId] = account
         }
 
-        let actualAccounts = allMetaAccounts.reduce(into: [String: fearless.MetaAccountModel]()) { result, account in
+        let actualAccounts = allMetaAccounts.reduce(into: [String: MetaAccountModel]()) { result, account in
             result[account.identifier] = account.info
         }
 

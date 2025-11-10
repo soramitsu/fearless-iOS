@@ -14,11 +14,10 @@ final class EraValidatorServiceStub: EraValidatorServiceProtocol {
 
     func throttle() {}
 
-    // No-op in stub; signature removed to avoid dependency on Chain type
+    func update(to chain: Chain, engine: JSONRPCEngine) {}
 
     func fetchInfoOperation() -> BaseOperation<EraStakersInfo> {
-        let op: ClosureOperation<EraStakersInfo> = ClosureOperation { self.info }
-        return op
+        return BaseOperation.createWithResult(info)
     }
 }
 

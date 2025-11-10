@@ -1,6 +1,5 @@
 import Foundation
 @testable import fearless
-import SSFModels
 
 class StakingAnalyticsLocalSubscriptionFactoryStub {
     let weaklyAnalytics: [SubqueryRewardItemData]?

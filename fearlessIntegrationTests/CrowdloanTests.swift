@@ -4,12 +4,12 @@ import SSFUtils
 import RobinHood
 import SoraKeystore
 import IrohaCrypto
-import SSFModels
 
 class CrowdloanTests: XCTestCase {
     func testFetchContributions() {
         do {
-            let operationManager = SSFUtils.OperationManagerFacade.sharedManager
+            let operationManager = OperationManagerFacade.sharedManager
+            let chainId = Chain.kusama.genesisHash
             let selectedAccountId = try "FiLhWLARS32oxm4s64gmEMSppAdugsvaAx1pCjweTLGn5Rf".toAccountId()
 
             let chainRegistry = ChainRegistryFactory.createDefaultRegistry(
@@ -27,8 +27,6 @@ class CrowdloanTests: XCTestCase {
 
             wait(for: [syncCompletionExpectation], timeout: 10)
 
-            let chainId = chainRegistry.availableChainIds?.first ?? ""
-
             guard let connection = chainRegistry.getConnection(for: chainId) else {
                 throw ChainRegistryError.connectionUnavailable
             }
@@ -44,8 +42,7 @@ class CrowdloanTests: XCTestCase {
 
             let crowdloanOperationFactory = CrowdloanOperationFactory(
                 requestOperationFactory: storageRequestFactory,
-                operationManager: operationManager,
-                chainRegistry: chainRegistry
+                operationManager: operationManager
             )
 
             let crowdloansWrapper = crowdloanOperationFactory.fetchCrowdloansOperation(
@@ -55,8 +52,7 @@ class CrowdloanTests: XCTestCase {
 
             let contributionsOperation: BaseOperation<[CrowdloanContributionResponse]> =
                 OperationCombiningService(operationManager: operationManager) {
-                    let crowdloans = try crowdloansWrapper.targetOperation
-                        .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                    let crowdloans = try crowdloansWrapper.targetOperation.extractNoCancellableResultData()
                     return crowdloans.map { crowdloan in
                         crowdloanOperationFactory.fetchContributionOperation(
                             connection: connection,
@@ -81,8 +77,7 @@ class CrowdloanTests: XCTestCase {
 
             wait(for: [expectation], timeout: 30)
 
-            let contributions = try contributionsOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            let contributions = try contributionsOperation.extractNoCancellableResultData()
 
             Logger.shared.info("Did receive contributions")
             Logger.shared.info("\(contributions)")

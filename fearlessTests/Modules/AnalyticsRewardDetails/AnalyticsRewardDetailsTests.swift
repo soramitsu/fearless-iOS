@@ -3,7 +3,6 @@ import XCTest
 import RobinHood
 import SoraFoundation
 import Cuckoo
-import SSFModels
 
 class AnalyticsRewardDetailsTests: XCTestCase {
 
@@ -22,7 +21,7 @@ class AnalyticsRewardDetailsTests: XCTestCase {
         
         let asset = ChainModelGenerator.generateAssetWithId("887a17c7-1370-4de0-97dd-5422e294fa75", symbol: "dot")
         let chain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 0)
-        let chainAsset = SSFModels.ChainAsset(chain: chain, asset: asset)
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         let presenter = AnalyticsRewardDetailsPresenter(
             rewardModel: rewardModel,
@@ -34,7 +33,7 @@ class AnalyticsRewardDetailsTests: XCTestCase {
 
         let createViewModelExpectation = XCTestExpectation()
         stub(viewModelFactory) { stub in
-            when(stub.createViweModel(rewardModel: any())).then { _ in
+            when(stub).createViweModel(rewardModel: any()).then { _ in
                 createViewModelExpectation.fulfill()
                 return LocalizableResource { locale in
                     .init(eventId: "", date: "", type: "", amount: "")
@@ -46,10 +45,10 @@ class AnalyticsRewardDetailsTests: XCTestCase {
         let view = MockAnalyticsRewardDetailsViewProtocol()
 
         stub(view) { stub in
-            when(stub.bind(viewModel: any())).then { _ in
+            when(stub).bind(viewModel: any()).then { _ in
                 bindViewModelExpectation.fulfill()
             }
-            when(stub.localizationManager.get).thenReturn(LocalizationManager.shared)
+            when(stub).localizationManager.get.thenReturn(LocalizationManager.shared)
         }
         presenter.view = view
 
@@ -65,7 +64,7 @@ class AnalyticsRewardDetailsTests: XCTestCase {
         // Test 'block number' action
         let presentActionSheetExpectation = XCTestExpectation()
         stub(wireframe) { stub in
-            when(stub.present(viewModel: any(), from: any())).then { _ in
+            when(stub).present(viewModel: any(), from: any()).then { _ in
                 presentActionSheetExpectation.fulfill()
             }
         }
