@@ -25,13 +25,17 @@ final class AccountCreationHelper {
             mnemonic = try IRMnemonicCreator().randomMnemonic(.entropy128)
         }
 
-        let request = MetaAccountImportMnemonicRequest(mnemonic: mnemonic,
-                                                       username: username,
-                                                       substrateDerivationPath: substrateDerivationPath,
-                                                       ethereumDerivationPath: ethereumDerivationPath,
-                                                       cryptoType: cryptoType)
+        let request = MetaAccountImportMnemonicRequest(
+            mnemonic: mnemonic,
+            username: username,
+            substrateDerivationPath: substrateDerivationPath,
+            ethereumDerivationPath: ethereumDerivationPath,
+            cryptoType: cryptoType,
+            defaultChainId: nil
+        )
 
-        let operation = MetaAccountOperationFactory(keystore: keychain).newMetaAccountOperation(request: request)
+        let operation = MetaAccountOperationFactory(keystore: keychain)
+            .newMetaAccountOperation(request: request, isBackuped: true)
 
         OperationQueue().addOperations([operation], waitUntilFinished: true)
 
@@ -59,7 +63,7 @@ final class AccountCreationHelper {
                                                    cryptoType: cryptoType)
 
         let operation = MetaAccountOperationFactory(keystore: keychain)
-            .newMetaAccountOperation(request: request)
+            .newMetaAccountOperation(request: request, isBackuped: true)
 
         OperationQueue().addOperations([operation], waitUntilFinished: true)
 
@@ -95,7 +99,7 @@ final class AccountCreationHelper {
                                                        cryptoType: cryptoType)
 
         let operation = MetaAccountOperationFactory(keystore: keychain)
-            .newMetaAccountOperation(request: request)
+            .newMetaAccountOperation(request: request, isBackuped: true)
 
         OperationQueue().addOperations([operation], waitUntilFinished: true)
 

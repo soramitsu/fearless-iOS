@@ -1,6 +1,7 @@
 import Foundation
 @testable import fearless
 import RobinHood
+import SSFModels
 
 final class CrowdloanLocalSubscriptionFactoryStub: CrowdloanLocalSubscriptionFactoryProtocol {
     let blockNumber: BlockNumber?

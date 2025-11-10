@@ -2,6 +2,7 @@ import Foundation
 @testable import fearless
 import RobinHood
 import BigInt
+import SSFModels
 
 final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryProtocol {
     var operationManager: RobinHood.OperationManagerProtocol

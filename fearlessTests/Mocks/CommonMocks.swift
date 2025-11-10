@@ -3,6 +3,7 @@ import Cuckoo
 @testable import SoraKeystore
 
 import Foundation
+import SSFModels
 
 
 
@@ -7562,7 +7563,6 @@ import RobinHood
     
     
 }
-
 
 
 
