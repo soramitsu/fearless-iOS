@@ -49,10 +49,11 @@ enum ChainModelGenerator {
                             customNodes: nil,
                             iosMinAppVersion: nil
                         )
-            let asset = generateAssetWithId("", symbol: "", assetPresicion: 12, chainId: chainId)
-            let chainAsset = generateChainAsset(asset, chain: chain, staking: staking)
-            let chainAssets = Set(arrayLiteral: chainAsset)
-            chain.assets = chainAssets
+            _ = generateChainAsset(
+                generateAssetWithId("", symbol: "", assetPresicion: 12, chainId: chainId),
+                chain: chain,
+                staking: staking
+            )
             return chain
         }
     }
@@ -100,7 +101,8 @@ enum ChainModelGenerator {
             customNodes: nil,
             iosMinAppVersion: nil
         )
-        let chainAssetsArray: [ChainAssetModel] = (0..<count).map { index in
+        // Create assets for the chain; tests compose ChainAsset(chain:asset) explicitly
+        let _ = (0..<count).map { index in
             let asset = generateAssetWithId(
                 AssetModel.Id(index),
                 symbol: "\(index)",
@@ -108,19 +110,11 @@ enum ChainModelGenerator {
             )
             return generateChainAsset(asset, chain: chain, staking: staking)
         }
-        let chainAssets = Set(chainAssetsArray)
-        chain.assets = chainAssets
         return chain
     }
     
-    static func generateChainAsset(_ asset: AssetModel, chain: ChainModel, staking: RawStakingType? = nil, chainAssetType: ChainAssetType = .normal) -> ChainAssetModel {
-        ChainAssetModel(
-            assetId: asset.id,
-            type: chainAssetType,
-            asset: asset,
-            chain: chain,
-            isUtility: asset.chainId == chain.chainId,
-            isNative: true)
+    static func generateChainAsset(_ asset: AssetModel, chain: ChainModel, staking: RawStakingType? = nil) -> ChainAsset {
+        ChainAsset(chain: chain, asset: asset)
     }
 
     static func generateAssetWithId(

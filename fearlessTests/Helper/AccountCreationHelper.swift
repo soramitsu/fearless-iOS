@@ -109,7 +109,7 @@ final class AccountCreationHelper {
         try selectMetaAccount(accountItem, settings: settings)
     }
 
-    static func selectMetaAccount(_ accountItem: MetaAccountModel, settings: SelectedWalletSettings) throws {
+    static func selectMetaAccount(_ accountItem: fearless.MetaAccountModel, settings: SelectedWalletSettings) throws {
         settings.save(value: accountItem)
         settings.setup(runningCompletionIn: .global()) { _ in}
     }
