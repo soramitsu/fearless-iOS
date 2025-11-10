@@ -2,7 +2,9 @@ import Foundation
 @testable import fearless
 import BigInt
 import IrohaCrypto
+#if canImport(CommonWallet)
 import CommonWallet
+#endif
 import SSFModels
 
 struct WestendStub {

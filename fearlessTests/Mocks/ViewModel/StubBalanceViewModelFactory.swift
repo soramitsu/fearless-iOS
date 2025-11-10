@@ -1,6 +1,5 @@
 import Foundation
 import SoraFoundation
-import CommonWallet
 @testable import fearless
 
 struct StubBalanceViewModelFactory: BalanceViewModelFactoryProtocol {

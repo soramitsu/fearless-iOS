@@ -13720,7 +13720,9 @@ import Cuckoo
 @testable import fearless
 
 import BigInt
+#if canImport(CommonWallet)
 import CommonWallet
+#endif
 import Foundation
 import SoraFoundation
 
@@ -47232,7 +47234,9 @@ import Cuckoo
 @testable import fearless
 
 import BigInt
+#if canImport(CommonWallet)
 import CommonWallet
+#endif
 import SoraFoundation
 
 
@@ -48688,7 +48692,9 @@ import Cuckoo
 @testable import fearless
 
 import BigInt
+#if canImport(CommonWallet)
 import CommonWallet
+#endif
 import SoraFoundation
 
 
@@ -50297,7 +50303,9 @@ import Cuckoo
 @testable import fearless
 
 import BigInt
+#if canImport(CommonWallet)
 import CommonWallet
+#endif
 import Foundation
 import SoraFoundation
 
@@ -58364,7 +58372,9 @@ import SoraFoundation
 import Cuckoo
 @testable import fearless
 
+#if canImport(CommonWallet)
 import CommonWallet
+#endif
 import Foundation
 import SoraFoundation
 
@@ -69203,7 +69213,9 @@ import Cuckoo
 @testable import fearless
 
 import BigInt
+#if canImport(CommonWallet)
 import CommonWallet
+#endif
 import Foundation
 import SoraFoundation
 
@@ -72816,7 +72828,9 @@ import SoraFoundation
 import Cuckoo
 @testable import fearless
 
+#if canImport(CommonWallet)
 import CommonWallet
+#endif
 
 
 
@@ -73459,7 +73473,6 @@ import CommonWallet
     
     
 }
-
 
 
 
