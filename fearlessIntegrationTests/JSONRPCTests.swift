@@ -2,6 +2,7 @@ import XCTest
 @testable import fearless
 import SSFUtils
 import RobinHood
+import SSFModels
 import IrohaCrypto
 import BigInt
 import xxHash_Swift
