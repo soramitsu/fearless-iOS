@@ -1,3 +1,4 @@
+import Foundation
 @testable import fearless
 import RobinHood
 import BigInt

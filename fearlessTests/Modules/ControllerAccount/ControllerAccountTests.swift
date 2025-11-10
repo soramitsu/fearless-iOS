@@ -85,7 +85,7 @@ class ControllerAccountTests: XCTestCase {
             nonce: 0,
             consumers: 0,
             providers: 0,
-            data: AccountData(free: 100000000000000, reserved: 0, miscFrozen: 0, feeFrozen: 0)
+            data: AccountData(free: 100000000000000, reserved: 0, frozen: 0, flags: 0)
         )
         presenter.didReceiveAccountInfo(result: .success(controllerAccountInfo), address: controllerAddress)
 
@@ -93,7 +93,7 @@ class ControllerAccountTests: XCTestCase {
             nonce: 0,
             consumers: 0,
             providers: 0,
-            data: AccountData(free: 100000000000000, reserved: 0, miscFrozen: 0, feeFrozen: 0)
+            data: AccountData(free: 100000000000000, reserved: 0, frozen: 0, flags: 0)
         )
         presenter.didReceiveAccountInfo(result: .success(stashAccountInfo), address: stashAddress)
 
@@ -126,7 +126,7 @@ class ControllerAccountTests: XCTestCase {
             nonce: 0,
             consumers: 0,
             providers: 0,
-            data: AccountData(free: 10, reserved: 0, miscFrozen: 0, feeFrozen: 0)
+            data: AccountData(free: 10, reserved: 0, frozen: 0, flags: 0)
         )
         presenter.didReceiveAccountInfo(result: .success(accountInfoSmallBalance), address: stashAddress)
         let extraFee = RuntimeDispatchInfo(inclusionFee: feeDetails)

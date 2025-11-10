@@ -6,7 +6,7 @@ final class MockConnection {
     let internalConnection = MockJSONRPCEngine()
 }
 
-extension MockConnection: ChainConnection {
+extension MockConnection: JSONRPCEngine {
     func connectIfNeeded() {
         
     }
@@ -24,19 +24,6 @@ extension MockConnection: ChainConnection {
     }
     
     func addSubscription(_ subscription: JSONRPCSubscribing) { }
-    
-    func disconnectIfNeeded() { }
-    
-    var url: URL? {
-        get {
-            internalConnection.url
-        }
-        set(newValue) { }
-    }
-
-    var state: WebSocketEngine.State {
-        .connected
-    }
 
     func callMethod<P, T>(_ method: String, params: P?, options: JSONRPCOptions, completion closure: ((Result<T, Error>) -> Void)?) throws -> UInt16 where P : Encodable, T : Decodable {
         try internalConnection.callMethod(
