@@ -297,7 +297,7 @@ class JSONRPCTests: XCTestCase {
         let chainId = Chain.westend.genesisHash
         let storageFacade = SubstrateStorageTestFacade()
 
-        let operationManager = OperationManagerFacade.sharedManager
+        let operationManager: OperationManagerProtocol = OperationManagerFacade.sharedManager
 
         let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: storageFacade)
         let connection = chainRegistry.getConnection(for: chainId)!
@@ -317,7 +317,7 @@ class JSONRPCTests: XCTestCase {
         let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
         let factoryClosure: () throws -> RuntimeCoderFactoryProtocol = {
-            try coderFactoryOperation.extractNoCancellableResultData()
+            try coderFactoryOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
         }
 
         // when
@@ -336,7 +336,7 @@ class JSONRPCTests: XCTestCase {
             waitUntilFinished: true
         )
 
-        let resultsCount = try wrapper.targetOperation.extractNoCancellableResultData().count
+        let resultsCount = try wrapper.targetOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled).count
 
         // then
 
@@ -386,7 +386,7 @@ class JSONRPCTests: XCTestCase {
         let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
         let factoryClosure: () throws -> RuntimeCoderFactoryProtocol = {
-            try coderFactoryOperation.extractNoCancellableResultData()
+            try coderFactoryOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
         }
 
         // when
@@ -406,7 +406,7 @@ class JSONRPCTests: XCTestCase {
             waitUntilFinished: true
         )
 
-        let resultsCount = try wrapper.targetOperation.extractNoCancellableResultData().count
+        let resultsCount = try wrapper.targetOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled).count
 
         // then
 

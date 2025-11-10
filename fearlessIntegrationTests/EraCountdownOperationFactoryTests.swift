@@ -29,7 +29,7 @@ class EraCountdownOperationFactoryTests: XCTestCase {
         )
         operationWrapper.targetOperation.completionBlock = {
             do {
-                let eraCountdown = try operationWrapper.targetOperation.extractNoCancellableResultData()
+                let eraCountdown = try operationWrapper.targetOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
                 Logger.shared.info(
                     "Estimating era completion time (in seconds): \(eraCountdown.timeIntervalTillNextActiveEraStart())"
                 )
@@ -39,7 +39,7 @@ class EraCountdownOperationFactoryTests: XCTestCase {
             }
         }
 
-        operationManager.enqueue(operations: operationWrapper.allOperations, in: OperationQueueType.transient)
+        operationManager.enqueue(operations: operationWrapper.allOperations, in: .transient)
 
         wait(for: [timeExpectation], timeout: 20)
     }

@@ -35,7 +35,7 @@ class MortalEraFactoryTests: XCTestCase {
             let operationQueue = OperationQueue()
             operationQueue.addOperations(wrapper.allOperations, waitUntilFinished: true)
 
-            let era = try wrapper.targetOperation.extractNoCancellableResultData()
+            let era = try wrapper.targetOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
             logger.info("Did receive era: \(era)")
 

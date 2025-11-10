@@ -128,8 +128,8 @@ class StakingInfoTests: XCTestCase {
         let calculatorOperation = rewardCalculatorService.fetchCalculatorOperation()
 
         let mapOperation: BaseOperation<[(String, Decimal)]> = ClosureOperation {
-            let info = try validatorsOperation.extractNoCancellableResultData()
-            let calculator = try calculatorOperation.extractNoCancellableResultData()
+            let info = try validatorsOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            let calculator = try calculatorOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
             let rewards: [(String, Decimal)] = try info.validators.map { validator in
                 let reward = try calculator
@@ -153,7 +153,7 @@ class StakingInfoTests: XCTestCase {
         operationQueue.addOperations([validatorsOperation, calculatorOperation, mapOperation],
                                      waitUntilFinished: true)
 
-        let result = try mapOperation.extractNoCancellableResultData()
+        let result = try mapOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
         logger.info("Reward: \(result)")
 
         remoteStakingSubcriptionService.detachFromGlobalData(

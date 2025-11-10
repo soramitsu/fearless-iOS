@@ -52,7 +52,7 @@ class CrowdloanTests: XCTestCase {
 
             let contributionsOperation: BaseOperation<[CrowdloanContributionResponse]> =
                 OperationCombiningService(operationManager: operationManager) {
-                    let crowdloans = try crowdloansWrapper.targetOperation.extractNoCancellableResultData()
+                    let crowdloans = try crowdloansWrapper.targetOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
                     return crowdloans.map { crowdloan in
                         crowdloanOperationFactory.fetchContributionOperation(
                             connection: connection,
@@ -77,7 +77,7 @@ class CrowdloanTests: XCTestCase {
 
             wait(for: [expectation], timeout: 30)
 
-            let contributions = try contributionsOperation.extractNoCancellableResultData()
+            let contributions = try contributionsOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
             Logger.shared.info("Did receive contributions")
             Logger.shared.info("\(contributions)")
