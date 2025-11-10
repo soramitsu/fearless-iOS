@@ -16,7 +16,7 @@ WORKSPACE="fearless.xcworkspace"
 echo "==> Using scheme: ${SCHEME}"
 echo "==> Destination: ${DEST}"
 
-pick_latest_iphone() {
+pick_latest_iphone_name() {
   # Try descending generations to prefer the most modern simulator present
   local list
   list=$(xcrun simctl list devices 2>/dev/null || true)
@@ -32,14 +32,24 @@ pick_latest_iphone() {
   printf '%s\n' "$list" | grep -F "iPhone " | head -n1 | cut -d '(' -f1 | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' || true
 }
 
+pick_device_udid_by_name() {
+  local name="$1"
+  # Extract the first UDID for a device line containing the provided name
+  xcrun simctl list devices 2>/dev/null | awk -v n="$name" 'index($0,n)>0 { if (match($0, /\(([A-F0-9-]{36})\)/, m)) { print m[1]; exit } }'
+}
+
 # If destination is a placeholder, pick a concrete available simulator (prefer newest iPhone)
 if [[ "$DEST" == *"Any iOS Simulator Device"* || "$DEST" == "" ]]; then
   echo "==> Autodetecting a concrete simulator device (latest iPhone if available)"
-  DEV_NAME=$(pick_latest_iphone || true)
+  DEV_NAME=$(pick_latest_iphone_name || true)
   if [[ -n "${DEV_NAME:-}" ]]; then
-    DEST="platform=iOS Simulator,name=${DEV_NAME}"
+    DEV_ID=$(pick_device_udid_by_name "${DEV_NAME}" || true)
+    if [[ -n "${DEV_ID:-}" ]]; then
+      DEST="platform=iOS Simulator,id=${DEV_ID}"
+    else
+      DEST="platform=iOS Simulator,name=${DEV_NAME}"
+    fi
   else
-    # Fallback: leave generic platform spec (build-only may work; tests might still need a device)
     DEST="generic/platform=iOS Simulator"
   fi
   echo "==> Using detected destination: ${DEST}"
