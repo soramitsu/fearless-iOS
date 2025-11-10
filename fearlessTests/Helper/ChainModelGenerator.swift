@@ -1,5 +1,6 @@
 import Foundation
 @testable import fearless
+import SSFModels
 
 enum ChainModelGenerator {
     static func generate(

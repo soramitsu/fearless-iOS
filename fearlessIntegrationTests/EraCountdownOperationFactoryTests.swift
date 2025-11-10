@@ -1,12 +1,13 @@
 import XCTest
 import RobinHood
 import SSFUtils
+import SSFModels
 @testable import fearless
 
 class EraCountdownOperationFactoryTests: XCTestCase {
 
     func testService() {
-        let operationManager = OperationManagerFacade.sharedManager
+        let operationManager: OperationManagerProtocol = OperationManagerFacade.sharedManager
 
         let chainId = Chain.kusama.genesisHash
         let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: SubstrateStorageTestFacade())
