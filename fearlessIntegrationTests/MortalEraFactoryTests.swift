@@ -1,7 +1,6 @@
 import XCTest
 @testable import fearless
 import IrohaCrypto
-import SSFModels
 
 class MortalEraFactoryTests: XCTestCase {
     func testMortalEraPolkadot() {

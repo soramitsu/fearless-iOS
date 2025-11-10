@@ -1,6 +1,5 @@
 import XCTest
 @testable import fearless
-import SSFModels
 import SoraKeystore
 import RobinHood
 import IrohaCrypto
