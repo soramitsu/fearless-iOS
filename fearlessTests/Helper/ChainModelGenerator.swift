@@ -36,21 +36,26 @@ enum ChainModelGenerator {
             )
 
             let chain = ChainModel(
-                            chainId: chainId,
-                            parentId: nil,
-                            name: String(chainId.reversed()),
-                            assets: [],
-                            nodes: [node],
-                            addressPrefix: UInt16(index),
-                            types: types,
-                            icon: URL(string: "https://github.com")!,
-                            options: options.isEmpty ? nil : options,
-                            externalApi: externalApi,
-                            customNodes: nil,
-                            iosMinAppVersion: nil
-                        )
+                rank: nil,
+                disabled: false,
+                chainId: chainId,
+                parentId: nil,
+                paraId: nil,
+                name: String(chainId.reversed()),
+                xcm: nil,
+                nodes: Set([node]),
+                addressPrefix: UInt16(index),
+                types: types,
+                icon: URL(string: "https://github.com")!,
+                options: options.isEmpty ? nil : options,
+                externalApi: externalApi,
+                selectedNode: nil,
+                customNodes: nil,
+                iosMinAppVersion: nil,
+                identityChain: nil
+            )
             _ = generateChainAsset(
-                generateAssetWithId("", symbol: "", assetPresicion: 12, chainId: chainId),
+                generateAssetWithId("asset-\(index)", symbol: "AST\(index)", assetPresicion: 12),
                 chain: chain,
                 staking: staking
             )
@@ -88,25 +93,26 @@ enum ChainModelGenerator {
         )
 
         let chain = ChainModel(
+            rank: nil,
+            disabled: false,
             chainId: chainId,
             parentId: nil,
+            paraId: nil,
             name: UUID().uuidString,
-            assets: [],
-            nodes: [node],
+            xcm: nil,
+            nodes: Set([node]),
             addressPrefix: addressPrefix,
             types: nil,
             icon: Constants.dummyURL,
             options: options.isEmpty ? nil : options,
             externalApi: externalApi,
+            selectedNode: nil,
             customNodes: nil,
-            iosMinAppVersion: nil
+            iosMinAppVersion: nil,
+            identityChain: nil
         )
         _ = (0..<count).map { index in
-            let asset = generateAssetWithId(
-                AssetModel.Id(index),
-                symbol: "\(index)",
-                assetPresicion: assetPresicion
-            )
+            let asset = generateAssetWithId("asset-\(index)", symbol: "A\(index)", assetPresicion: assetPresicion)
             return generateChainAsset(asset, chain: chain, staking: staking)
         }
         return chain
@@ -117,25 +123,28 @@ enum ChainModelGenerator {
     }
 
     static func generateAssetWithId(
-        _ identifier: AssetModel.Id,
+        _ identifier: String,
         symbol: String,
-        assetPresicion: UInt16 = (9...18).randomElement()!,
-        chainId: String = ""
+        assetPresicion: UInt16 = (9...18).randomElement()!
     ) -> AssetModel {
         AssetModel(
             id: identifier,
+            name: symbol.uppercased(),
             symbol: symbol,
-            chainId: chainId,
             precision: assetPresicion,
             icon: nil,
-            priceId: nil,
-            price: nil,
-            fiatDayChange: nil,
-            transfersEnabled: true,
             currencyId: nil,
-            displayName: nil,
             existentialDeposit: nil,
-            color: nil
+            color: nil,
+            isUtility: false,
+            isNative: false,
+            staking: nil,
+            purchaseProviders: nil,
+            type: nil,
+            ethereumType: nil,
+            priceProvider: nil,
+            coingeckoPriceId: nil,
+            priceData: []
         )
     }
 
