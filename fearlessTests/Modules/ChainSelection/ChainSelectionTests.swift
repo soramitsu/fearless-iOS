@@ -1,5 +1,6 @@
 import XCTest
 @testable import fearless
+import SSFModels
 import BigInt
 import Cuckoo
 import SoraFoundation

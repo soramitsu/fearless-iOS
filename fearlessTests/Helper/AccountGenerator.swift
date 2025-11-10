@@ -1,5 +1,6 @@
 import Foundation
 @testable import fearless
+import SSFModels
 
 enum AccountGenerator {
     static func generateMetaAccount(generatingChainAccounts count: Int) -> MetaAccountModel {
@@ -8,7 +9,7 @@ enum AccountGenerator {
     }
 
     static func generateMetaAccount(with chainAccounts: Set<ChainAccountModel> = []) -> MetaAccountModel {
-        return MetaAccountModel(
+        MetaAccountModel(
             metaId: UUID().uuidString,
             name: UUID().uuidString,
             substrateAccountId: Data.random(of: 32)!,
@@ -18,17 +19,18 @@ enum AccountGenerator {
             ethereumPublicKey: Data.random(of: 20)!,
             chainAccounts: chainAccounts,
             assetKeysOrder: nil,
-            assetFilterOptions: [],
             canExportEthereumMnemonic: true,
             unusedChainIds: nil,
             selectedCurrency: Currency.defaultCurrency(),
-            chainIdForFilter: nil,
-            assetsVisibility: []
+            networkManagmentFilter: nil,
+            assetsVisibility: [],
+            hasBackup: true,
+            favouriteChainIds: []
         )
     }
 
     static func generateChainAccount() -> ChainAccountModel {
-        ChainAccountModel(
+        SSFModels.ChainAccountModel(
             chainId: Data.random(of: 32)!.toHex(),
             accountId: Data.random(of: 32)!,
             publicKey: Data.random(of: 32)!,

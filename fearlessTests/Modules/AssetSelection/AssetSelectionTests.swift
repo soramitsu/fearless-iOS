@@ -1,50 +1,58 @@
 import XCTest
 @testable import fearless
+import SSFModels
 import BigInt
 import Cuckoo
 import SoraFoundation
 import RobinHood
 
 class MockAccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
-    
-    func subscribe(chainAsset: ChainAsset, accountId: AccountId, handler: AccountInfoSubscriptionAdapterHandler?, deliveryOn queue: DispatchQueue?) {
-        let accountInfo  = AccountInfo(
+    func subscribe(
+        chainAsset: ChainAsset,
+        accountId: AccountId,
+        handler: AccountInfoSubscriptionAdapterHandler?,
+        deliveryOn queue: DispatchQueue?,
+        notifyJustWhenUpdated: Bool
+    ) {
+        let accountInfo = AccountInfo(
             nonce: 0,
             consumers: 1,
             providers: 2,
             data: AccountData(
                 free: BigUInt(100000),
                 reserved: 0,
-                miscFrozen: 0,
-                feeFrozen: 0
+                frozen: 0,
+                flags: 0
             )
         )
-        
-            
         handler?.handleAccountInfo(result: .success(accountInfo), accountId: accountId, chainAsset: chainAsset)
     }
-    
-    func subscribe(chainsAssets: [ChainAsset], handler: AccountInfoSubscriptionAdapterHandler?, deliveryOn queue: DispatchQueue?) {
+
+    func subscribe(
+        chainsAssets: [ChainAsset],
+        handler: AccountInfoSubscriptionAdapterHandler?,
+        deliveryOn queue: DispatchQueue?,
+        notifyJustWhenUpdated: Bool
+    ) {
         chainsAssets.forEach { chainAsset in
-            let accountInfo  = AccountInfo(
+            let accountInfo = AccountInfo(
                 nonce: 0,
                 consumers: 1,
                 providers: 2,
                 data: AccountData(
                     free: BigUInt(100000),
                     reserved: 0,
-                    miscFrozen: 0,
-                    feeFrozen: 0
+                    frozen: 0,
+                    flags: 0
                 )
             )
-            
-                
             handler?.handleAccountInfo(result: .success(accountInfo), accountId: Data.random(of: 32)!, chainAsset: chainAsset)
         }
     }
 
-    func reset() {
-    }
+    func reset() {}
+    func unsubscribe(chainAsset: ChainAsset) {}
+    func update(wallet: MetaAccountModel) {}
 }
 
 class AssetSelectionTests: XCTestCase {
