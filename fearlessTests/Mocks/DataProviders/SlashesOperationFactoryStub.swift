@@ -2,6 +2,7 @@ import Foundation
 @testable import fearless
 import RobinHood
 import SSFUtils
+import SSFRuntimeCodingService
 
 final class SlashesOperationFactoryStub: SlashesOperationFactoryProtocol {
     let slashingSpans: SlashingSpans?
