@@ -1,6 +1,7 @@
 import XCTest
 @testable import fearless
 import SSFUtils
+import SSFModels
 import RobinHood
 import SoraKeystore
 import IrohaCrypto
@@ -42,7 +43,8 @@ class CrowdloanTests: XCTestCase {
 
             let crowdloanOperationFactory = CrowdloanOperationFactory(
                 requestOperationFactory: storageRequestFactory,
-                operationManager: operationManager
+                operationManager: operationManager,
+                chainRegistry: chainRegistry
             )
 
             let crowdloansWrapper = crowdloanOperationFactory.fetchCrowdloansOperation(
