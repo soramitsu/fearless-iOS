@@ -64,7 +64,7 @@ class StakingInfoTests: XCTestCase {
             chainRegisty: chainRegistry,
             storageFacade: storageFacade,
             eventCenter: EventCenter.shared,
-            operationManager: OperationManagerFacade.sharedManager,
+            operationManager: OperationManager(),
             logger: logger
         )
 
@@ -72,7 +72,7 @@ class StakingInfoTests: XCTestCase {
             for: chainAsset.chain
         )
         
-        let operationManager = OperationManagerFacade.sharedManager
+        let operationManager: OperationManagerProtocol = OperationManager()
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager

@@ -297,7 +297,7 @@ class JSONRPCTests: XCTestCase {
         let chainId = Chain.westend.genesisHash
         let storageFacade = SubstrateStorageTestFacade()
 
-        let operationManager: OperationManagerProtocol = OperationManagerFacade.sharedManager
+        let operationManager: OperationManagerProtocol = OperationManager()
 
         let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: storageFacade)
         let connection = chainRegistry.getConnection(for: chainId)!

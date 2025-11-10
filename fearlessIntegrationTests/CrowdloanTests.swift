@@ -8,7 +8,7 @@ import IrohaCrypto
 class CrowdloanTests: XCTestCase {
     func testFetchContributions() {
         do {
-            let operationManager = OperationManagerFacade.sharedManager
+            let operationManager: OperationManagerProtocol = OperationManager()
             let chainId = Chain.kusama.genesisHash
             let selectedAccountId = try "FiLhWLARS32oxm4s64gmEMSppAdugsvaAx1pCjweTLGn5Rf".toAccountId()
 

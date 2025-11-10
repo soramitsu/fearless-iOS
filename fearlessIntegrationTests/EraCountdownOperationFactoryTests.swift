@@ -7,7 +7,7 @@ import SSFModels
 class EraCountdownOperationFactoryTests: XCTestCase {
 
     func testService() {
-        let operationManager: OperationManagerProtocol = OperationManagerFacade.sharedManager
+        let operationManager: OperationManagerProtocol = OperationManager()
 
         let chainId = Chain.kusama.genesisHash
         let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: SubstrateStorageTestFacade())
