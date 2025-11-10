@@ -4,11 +4,13 @@ import IrohaCrypto
 import SoraKeystore
 import RobinHood
 import SSFUtils
+import SSFCrypto
+import SSFModels
 
 final class AccountCreationHelper {
     static func createMetaAccountFromMnemonic(
         _ mnemonicString: String? = nil,
-        cryptoType: fearless.CryptoType,
+        cryptoType: CryptoType,
         username: String = "fearless",
         substrateDerivationPath: String = "",
         ethereumDerivationPath: String = DerivationPathConstants.defaultEthereum,
@@ -42,7 +44,7 @@ final class AccountCreationHelper {
     static func createMetaAccountFromSeed(
         substrateSeed: String,
         ethereumSeed: String?,
-        cryptoType: fearless.CryptoType,
+        cryptoType: CryptoType,
         username: String = "fearless",
         substrateDerivationPath: String = "",
         ethereumDerivationPath: String? = nil,
@@ -74,7 +76,7 @@ final class AccountCreationHelper {
         ethereumPassword: String?,
         keychain: KeystoreProtocol,
         settings: SelectedWalletSettings,
-        cryptoType: fearless.CryptoType,
+        cryptoType: CryptoType,
         username: String = "username"
     ) throws {
         guard let substrateKeystoreString = String(data: substrateData, encoding: .utf8) else { return }
@@ -103,7 +105,7 @@ final class AccountCreationHelper {
         try selectMetaAccount(accountItem, settings: settings)
     }
 
-    static func selectMetaAccount(_ accountItem: MetaAccountModel, settings: SelectedWalletSettings) throws {
+    static func selectMetaAccount(_ accountItem: fearless.MetaAccountModel, settings: SelectedWalletSettings) throws {
         settings.save(value: accountItem)
         settings.setup(runningCompletionIn: .global()) { _ in}
     }
