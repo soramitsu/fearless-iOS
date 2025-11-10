@@ -32,6 +32,20 @@ def ghNotifySafe(Map args = [:]) {
   }
 }
 
+// Fallback to GitHub Statuses API when githubNotify is unavailable or not configured.
+def ghStatusFallback(String context, String state, String description) {
+  if (!env.GITHUB_STATUS_TOKEN) {
+    return
+  }
+  def sha = env.GIT_COMMIT ?: sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+  sh label: "Set GitHub status via API (${context} - ${state})", script: """
+    curl -sS -H 'Authorization: token ${GITHUB_STATUS_TOKEN}' \
+      -H 'Accept: application/vnd.github+json' \
+      -X POST https://api.github.com/repos/soramitsu/fearless-iOS/statuses/${sha} \
+      -d '{"state":"${state}","context":"${context}","description":"${description}"}' || true
+  """
+}
+
 // Ensure SPM and shared-features patches are applied before the main pipeline.
 // This resolves Web3 API drift (Data.bytes) and IrohaCrypto modulemap issues prior to archive.
 node('mac-fearless') {
@@ -55,6 +69,8 @@ node('mac-fearless') {
     // Publish both human-readable and classic Jenkins context for branch protection
     ghNotifySafe context: 'jenkins/ios-tests', status: 'PENDING', description: 'Running iOS unit tests'
     ghNotifySafe context: 'continuous-integration/jenkins/pr-merge', status: 'PENDING', description: 'Jenkins PR merge build running'
+    ghStatusFallback('jenkins/ios-tests', 'pending', 'Running iOS unit tests')
+    ghStatusFallback('continuous-integration/jenkins/pr-merge', 'pending', 'Jenkins PR merge build running')
     try {
       sh label: 'Run test matrix on simulator', script: '''
         set -eo pipefail
@@ -63,9 +79,13 @@ node('mac-fearless') {
       '''
       ghNotifySafe context: 'jenkins/ios-tests', status: 'SUCCESS', description: 'All tests passed'
       ghNotifySafe context: 'continuous-integration/jenkins/pr-merge', status: 'SUCCESS', description: 'Jenkins PR merge build passed'
+      ghStatusFallback('jenkins/ios-tests', 'success', 'All tests passed')
+      ghStatusFallback('continuous-integration/jenkins/pr-merge', 'success', 'Jenkins PR merge build passed')
     } catch (e) {
       ghNotifySafe context: 'jenkins/ios-tests', status: 'FAILURE', description: 'Unit tests failed'
       ghNotifySafe context: 'continuous-integration/jenkins/pr-merge', status: 'FAILURE', description: 'Jenkins PR merge build failed'
+      ghStatusFallback('jenkins/ios-tests', 'failure', 'Unit tests failed')
+      ghStatusFallback('continuous-integration/jenkins/pr-merge', 'failure', 'Jenkins PR merge build failed')
       throw e
     }
   }

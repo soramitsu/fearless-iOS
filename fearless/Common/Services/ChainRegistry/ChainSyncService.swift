@@ -96,21 +96,42 @@ final class ChainSyncService {
         } else {
             Task {
                 do {
-                    let request = RequestConfig(
-                        baseURL: chainsUrl,
-                        method: .get,
-                        endpoint: nil,
-                        headers: nil,
-                        body: nil
-                    )
-                    let worker = NetworkWorkerDefault()
-                    let remoteChains: [ChainModel] = try await worker.performRequest(with: request)
+                    // Fetch raw data to allow a tolerant decode path for legacy/missing fields
+                    let (data, _) = try await URLSession.shared.data(from: chainsUrl)
+                    let remoteChains = try decodeChainsTolerant(from: data)
                     handle(remoteChains: remoteChains)
                 } catch {
                     complete(result: .failure(error))
                 }
             }
         }
+    }
+
+    private func decodeChainsTolerant(from data: Data) throws -> [ChainModel] {
+        do {
+            return try JSONDecoder().decode([ChainModel].self, from: data)
+        } catch {
+            // Attempt a compatibility coercion for missing "tokens" field
+            let coerced = try coerceMissingTokens(in: data)
+            return try JSONDecoder().decode([ChainModel].self, from: coerced)
+        }
+    }
+
+    private func coerceMissingTokens(in data: Data) throws -> Data {
+        let obj = try JSONSerialization.jsonObject(with: data, options: [])
+        guard var array = obj as? [[String: Any]] else { return data }
+
+        for i in 0..<array.count {
+            if array[i]["tokens"] == nil {
+                // Provide a minimal default remote tokens payload compatible with SSFModels
+                array[i]["tokens"] = [
+                    "type": "config",
+                    "tokens": []
+                ]
+            }
+        }
+
+        return try JSONSerialization.data(withJSONObject: array, options: [])
     }
 
     private func handle(remoteChains: [ChainModel]) {
