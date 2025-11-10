@@ -23,6 +23,15 @@ def appPipeline = new org.ios.AppPipeline(
   uploadToNexusFor: ['master','develop','staging']
 )
 
+// Best-effort GitHub status helper; won't fail if plugin isn't installed
+def ghNotifySafe(Map args = [:]) {
+  try {
+    githubNotify args
+  } catch (Throwable t) {
+    echo "githubNotify not available: ${t.message}"
+  }
+}
+
 // Ensure SPM and shared-features patches are applied before the main pipeline.
 // This resolves Web3 API drift (Data.bytes) and IrohaCrypto modulemap issues prior to archive.
 node('mac-fearless') {
@@ -40,6 +49,21 @@ node('mac-fearless') {
       git config --global gc.auto 0 || true
       echo "[jenkins] Applied global git configs to tolerate slow networks"
     '''
+  }
+
+  stage('Unit Tests') {
+    ghNotifySafe context: 'jenkins/ios-tests', status: 'PENDING', description: 'Running iOS unit tests'
+    try {
+      sh label: 'Run test matrix on simulator', script: '''
+        set -eo pipefail
+        DESTINATION="${TEST_DESTINATION:-platform=iOS Simulator,name=Any iOS Simulator Device}"
+        scripts/test-matrix.sh fearless.tests "$DESTINATION"
+      '''
+      ghNotifySafe context: 'jenkins/ios-tests', status: 'SUCCESS', description: 'All tests passed'
+    } catch (e) {
+      ghNotifySafe context: 'jenkins/ios-tests', status: 'FAILURE', description: 'Unit tests failed'
+      throw e
+    }
   }
 }
 
