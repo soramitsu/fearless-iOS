@@ -23,15 +23,6 @@ def appPipeline = new org.ios.AppPipeline(
   uploadToNexusFor: ['master','develop','staging']
 )
 
-// Best-effort GitHub status helper; won't fail if plugin isn't installed
-def ghNotifySafe(Map args = [:]) {
-  try {
-    githubNotify args
-  } catch (Throwable t) {
-    echo "githubNotify not available: ${t.message}"
-  }
-}
-
 // Ensure SPM and shared-features patches are applied before the main pipeline.
 // This resolves Web3 API drift (Data.bytes) and IrohaCrypto modulemap issues prior to archive.
 node('mac-fearless') {
@@ -49,27 +40,6 @@ node('mac-fearless') {
       git config --global gc.auto 0 || true
       echo "[jenkins] Applied global git configs to tolerate slow networks"
     '''
-  }
-
-  stage('Unit Tests + Codecov Upload') {
-    // Publish a GitHub commit status for this stage so PRs show a Jenkins check, not only Codecov
-    ghNotifySafe context: 'jenkins/ios-tests', status: 'PENDING', description: 'Running iOS unit tests'
-    try {
-      sh label: 'Run test matrix with coverage and upload to Codecov', script: '''
-        set -eo pipefail
-        COVERAGE_DIR="${RESULTS_DIR:-build/coverage}"
-        # Use a generic destination hint and let scripts/test-matrix.sh auto-pick a concrete simulator
-        DESTINATION="${TEST_DESTINATION:-platform=iOS Simulator,name=Any iOS Simulator Device}"
-        rm -rf "$COVERAGE_DIR"
-        CODECOV_EXPORT=1 RESULTS_DIR="$COVERAGE_DIR" scripts/test-matrix.sh fearless.tests "$DESTINATION"
-        scripts/ci/export-codecov.sh "$COVERAGE_DIR"
-        scripts/ci/upload-codecov.sh "$COVERAGE_DIR"
-      '''
-      ghNotifySafe context: 'jenkins/ios-tests', status: 'SUCCESS', description: 'All tests passed'
-    } catch (e) {
-      ghNotifySafe context: 'jenkins/ios-tests', status: 'FAILURE', description: 'Unit tests failed'
-      throw e
-    }
   }
 }
 

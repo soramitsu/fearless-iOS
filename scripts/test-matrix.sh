@@ -12,15 +12,11 @@ set -euo pipefail
 SCHEME="${1:-fearless.tests}"
 DEST="${2:-platform=iOS Simulator,name=Any iOS Simulator Device}"
 WORKSPACE="fearless.xcworkspace"
-RESULTS_DIR="${RESULTS_DIR:-build/coverage}"
 
 echo "==> Using scheme: ${SCHEME}"
 echo "==> Destination: ${DEST}"
-echo "==> Coverage artifacts directory: ${RESULTS_DIR}"
 
-mkdir -p "${RESULTS_DIR}"
-
-pick_latest_iphone_name() {
+pick_latest_iphone() {
   # Try descending generations to prefer the most modern simulator present
   local list
   list=$(xcrun simctl list devices 2>/dev/null || true)
@@ -36,23 +32,12 @@ pick_latest_iphone_name() {
   printf '%s\n' "$list" | grep -F "iPhone " | head -n1 | cut -d '(' -f1 | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' || true
 }
 
-pick_device_udid_by_name() {
-  local name="$1"
-  # Extract the first UDID for a device line containing the provided name
-  xcrun simctl list devices 2>/dev/null | awk -v n="$name" 'index($0,n)>0 { if (match($0, /\(([A-F0-9-]{36})\)/, m)) { print m[1]; exit } }'
-}
-
 # If destination is a placeholder, pick a concrete available simulator (prefer newest iPhone)
 if [[ "$DEST" == *"Any iOS Simulator Device"* || "$DEST" == "" ]]; then
   echo "==> Autodetecting a concrete simulator device (latest iPhone if available)"
-  DEV_NAME=$(pick_latest_iphone_name || true)
+  DEV_NAME=$(pick_latest_iphone || true)
   if [[ -n "${DEV_NAME:-}" ]]; then
-    DEV_ID=$(pick_device_udid_by_name "${DEV_NAME}" || true)
-    if [[ -n "${DEV_ID:-}" ]]; then
-      DEST="platform=iOS Simulator,id=${DEV_ID}"
-    else
-      DEST="platform=iOS Simulator,name=${DEV_NAME}"
-    fi
+    DEST="platform=iOS Simulator,name=${DEV_NAME}"
   else
     # Fallback: leave generic platform spec (build-only may work; tests might still need a device)
     DEST="generic/platform=iOS Simulator"
@@ -84,8 +69,6 @@ function run_tests() {
     # Ensure testability for Release builds when running unit tests on simulator
     extra+=(ENABLE_TESTABILITY=YES)
   fi
-  local bundle_path="${RESULTS_DIR}/${config}.xcresult"
-  rm -rf "${bundle_path}" || true
   if ((${#extra[@]})); then
     xcodebuild \
       -workspace "${WORKSPACE}" \
@@ -93,7 +76,6 @@ function run_tests() {
       -configuration "${config}" \
       -destination "${DEST}" \
       -enableCodeCoverage YES \
-      -resultBundlePath "${bundle_path}" \
       "${extra[@]}" \
       clean test | xcpretty || {
         echo "xcodebuild ${config} tests failed" >&2
@@ -106,7 +88,6 @@ function run_tests() {
       -configuration "${config}" \
       -destination "${DEST}" \
       -enableCodeCoverage YES \
-      -resultBundlePath "${bundle_path}" \
       clean test | xcpretty || {
         echo "xcodebuild ${config} tests failed" >&2
         exit 1
@@ -121,8 +102,7 @@ if ! command -v xcodebuild >/dev/null 2>&1; then
 fi
 
 # xcpretty is optional; fall back to raw output
-# Allow forcing raw output by setting NO_XCPRETTY=1 (useful for CI debugging)
-if [[ "${NO_XCPRETTY:-0}" == "1" ]] || ! command -v xcpretty >/dev/null 2>&1; then
+if ! command -v xcpretty >/dev/null 2>&1; then
   run_tests() {
     local config=$1
     echo "\n==> Running ${config} tests (no xcpretty)"
@@ -130,8 +110,6 @@ if [[ "${NO_XCPRETTY:-0}" == "1" ]] || ! command -v xcpretty >/dev/null 2>&1; th
     if [[ "${config}" == "Release" ]]; then
       extra+=(ENABLE_TESTABILITY=YES)
     fi
-    local bundle_path="${RESULTS_DIR}/${config}.xcresult"
-    rm -rf "${bundle_path}" || true
     if ((${#extra[@]})); then
       xcodebuild \
         -workspace "${WORKSPACE}" \
@@ -139,7 +117,6 @@ if [[ "${NO_XCPRETTY:-0}" == "1" ]] || ! command -v xcpretty >/dev/null 2>&1; th
         -configuration "${config}" \
         -destination "${DEST}" \
         -enableCodeCoverage YES \
-        -resultBundlePath "${bundle_path}" \
         "${extra[@]}" \
         clean test
     else
@@ -149,7 +126,6 @@ if [[ "${NO_XCPRETTY:-0}" == "1" ]] || ! command -v xcpretty >/dev/null 2>&1; th
         -configuration "${config}" \
         -destination "${DEST}" \
         -enableCodeCoverage YES \
-        -resultBundlePath "${bundle_path}" \
         clean test
     fi
   }
@@ -159,8 +135,3 @@ run_tests Debug
 run_tests Release
 
 echo "\n==> All tests passed in Debug and Release"
-
-if [[ "${CODECOV_EXPORT:-0}" == "1" ]]; then
-  echo "\n==> Exporting coverage artifacts for Codecov"
-  scripts/ci/export-codecov.sh "${RESULTS_DIR}"
-fi

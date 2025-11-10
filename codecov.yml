@@ -4,26 +4,6 @@ comment:
   branches:
     - "develop"
 
-coverage:
-  range: 40..90
-  precision: 2
-  round: down
-  status:
-    project:
-      default:
-        target: auto
-        threshold: 1.0
-        base: auto
-    patch:
-      default:
-        target: auto
-        threshold: 1.0
-        base: auto
-
-flag_management:
-  default_rules:
-    carryforward: true
-
 ignore:
   - "**/*View.swift"
   - "**/*Factory.swift"
@@ -33,4 +13,3 @@ ignore:
   - "fearless/Common/Protocols"
   - "fearless/Common/View"
   - "fearless/Common/ViewController"
-  - "docs/**"

@@ -1,6 +1,5 @@
 ## Build generate
 build/
-build/coverage/
 DerivedData/
 ## Various settings
 *.pbxuser
