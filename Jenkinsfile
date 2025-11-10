@@ -52,7 +52,9 @@ node('mac-fearless') {
   }
 
   stage('Unit Tests') {
+    // Publish both human-readable and classic Jenkins context for branch protection
     ghNotifySafe context: 'jenkins/ios-tests', status: 'PENDING', description: 'Running iOS unit tests'
+    ghNotifySafe context: 'continuous-integration/jenkins/pr-merge', status: 'PENDING', description: 'Jenkins PR merge build running'
     try {
       sh label: 'Run test matrix on simulator', script: '''
         set -eo pipefail
@@ -60,8 +62,10 @@ node('mac-fearless') {
         scripts/test-matrix.sh fearless.tests "$DESTINATION"
       '''
       ghNotifySafe context: 'jenkins/ios-tests', status: 'SUCCESS', description: 'All tests passed'
+      ghNotifySafe context: 'continuous-integration/jenkins/pr-merge', status: 'SUCCESS', description: 'Jenkins PR merge build passed'
     } catch (e) {
       ghNotifySafe context: 'jenkins/ios-tests', status: 'FAILURE', description: 'Unit tests failed'
+      ghNotifySafe context: 'continuous-integration/jenkins/pr-merge', status: 'FAILURE', description: 'Jenkins PR merge build failed'
       throw e
     }
   }
