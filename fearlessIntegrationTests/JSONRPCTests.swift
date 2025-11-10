@@ -8,6 +8,7 @@ import BigInt
 import xxHash_Swift
 import SoraKeystore
 import SoraFoundation
+import SSFRuntimeCodingService
 
 class JSONRPCTests: XCTestCase {
     struct RpcInterface: Decodable {
@@ -275,7 +276,7 @@ class JSONRPCTests: XCTestCase {
 
         // when
 
-        let operation = JSONRPCListOperation<RuntimeVersion>(engine: engine,
+        let operation = JSONRPCListOperation<fearless.RuntimeVersion>(engine: engine,
                                                              method: "chain_getRuntimeVersion",
                                                              parameters: [])
 
@@ -375,8 +376,8 @@ class JSONRPCTests: XCTestCase {
 
         let accountId = try SS58AddressFactory().accountId(from: address)
 
-        let keyParams1: () throws -> [StringScaleMapper<EraIndex>] = {
-            (0..<EraIndex(keysCount)).map { StringScaleMapper(value: $0) }
+        let keyParams1: () throws -> [SSFUtils.StringScaleMapper<EraIndex>] = {
+            (0..<EraIndex(keysCount)).map { SSFUtils.StringScaleMapper(value: $0) }
         }
 
         let keyParams2: () throws -> [AccountId] = {
