@@ -33,10 +33,12 @@ struct WestendStub {
 
     static let accountInfo: DecodedAccountInfo = {
 
-        let data = AccountData(free: BigUInt(1e+13),
-                                 reserved: BigUInt(0),
-                                 miscFrozen: BigUInt(0),
-                                 feeFrozen: BigUInt(0))
+        let data = AccountData(
+            free: BigUInt(1e+13),
+            reserved: BigUInt(0),
+            frozen: BigUInt(0),
+            flags: BigUInt(0)
+        )
 
         let info = AccountInfo(nonce: 1,
                                  consumers: 0,
@@ -106,7 +108,8 @@ struct WestendStub {
                                              stakeReturn: 0.1,
                                              hasSlashes: false,
                                              maxNominatorsRewarded: 128,
-                                             blocked: false)
+                                             blocked: false,
+                                             elected: true)
         return [validator]
     }()
 
@@ -121,7 +124,8 @@ struct WestendStub {
                                              stakeReturn: 0.1,
                                              hasSlashes: true,
                                              maxNominatorsRewarded: 1000,
-                                             blocked: false)
+                                             blocked: false,
+                                             elected: false)
         return [validator]
     }()
 
