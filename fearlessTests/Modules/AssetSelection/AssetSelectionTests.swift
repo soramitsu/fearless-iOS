@@ -8,7 +8,7 @@ import RobinHood
 
 class MockAccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
     func subscribe(
-        chainAsset: ChainAsset,
+        chainAsset: SSFModels.ChainAsset,
         accountId: AccountId,
         handler: AccountInfoSubscriptionAdapterHandler?,
         deliveryOn queue: DispatchQueue?,
@@ -29,7 +29,7 @@ class MockAccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     }
 
     func subscribe(
-        chainsAssets: [ChainAsset],
+        chainsAssets: [SSFModels.ChainAsset],
         handler: AccountInfoSubscriptionAdapterHandler?,
         deliveryOn queue: DispatchQueue?,
         notifyJustWhenUpdated: Bool
@@ -51,7 +51,7 @@ class MockAccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     }
 
     func reset() {}
-    func unsubscribe(chainAsset: ChainAsset) {}
+    func unsubscribe(chainAsset: SSFModels.ChainAsset) {}
     func update(wallet: MetaAccountModel) {}
 }
 
@@ -93,7 +93,7 @@ class AssetSelectionTests: XCTestCase {
         
         let selectedChain = chains.last!
         let selectedAsset = selectedChain.assets.first!
-        let chainAsset = ChainAsset(chain: selectedChain, asset: selectedAsset.asset)
+        let chainAsset = SSFModels.ChainAsset(chain: selectedChain, asset: selectedAsset.asset)
 
         let presenter = AssetSelectionPresenter(
             interactor: interactor,

@@ -3,6 +3,7 @@ import Foundation
 import RobinHood
 import BigInt
 import SSFModels
+import SSFRuntimeCodingService
 
 final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryProtocol {
     var operationManager: RobinHood.OperationManagerProtocol
@@ -34,17 +35,17 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
     private func getProvider(for key: String) -> StreamableProvider<AccountInfoStorageWrapper> {
         let facade = SubstrateDataStorageFacade.shared
 
-        let mapper: CodableCoreDataMapper<AccountInfoStorageWrapper, CDAccountInfo> =
-            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDAccountInfo.identifier))
+        let mapper: CodableCoreDataMapper<AccountInfoStorageWrapper, fearless.CDAccountInfo> =
+            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(fearless.CDAccountInfo.identifier))
 
         let filter = NSPredicate.filterStorageItemsBy(identifier: key)
-        let storage: CoreDataRepository<AccountInfoStorageWrapper, CDAccountInfo> =
+        let storage: CoreDataRepository<AccountInfoStorageWrapper, fearless.CDAccountInfo> =
             facade.createRepository(filter: filter)
         let source = EmptyStreamableSource<AccountInfoStorageWrapper>()
         let observable = CoreDataContextObservable(
             service: facade.databaseService,
             mapper: AnyCoreDataMapper(mapper),
-            predicate: { $0.identifier == key },
+            predicate: { ($0 as? fearless.CDAccountInfo)?.identifier == key },
             processingQueue: processingQueue
         )
 

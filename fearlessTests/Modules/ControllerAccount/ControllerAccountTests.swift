@@ -67,7 +67,7 @@ class ControllerAccountTests: XCTestCase {
                 stashAccountItem: any(fearless.ChainAccountResponse?.self),
                 chosenAccountItem: any(fearless.ChainAccountResponse?.self)
             ).then { _ in ControllerAccountViewModel(
-                chainAsset: ChainAsset(chain: chain, asset: asset),
+                chainAsset: SSFModels.ChainAsset(chain: chain, asset: asset),
                 stashViewModel: .init(closure: { _ in AccountInfoViewModel(title: "", address: "", name: "", icon: nil)}),
                 controllerViewModel: .init(closure: { _ in AccountInfoViewModel(title: "", address: "", name: "", icon: nil)}),
                 currentAccountIsController: false,

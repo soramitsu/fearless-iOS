@@ -34,7 +34,7 @@
 //            operationQueue: OperationQueue()
 //        )
 //
-//        let selectedChainAsset = ChainAsset(chain: selectedChain, asset: selectedChain.assets.first!)
+//        let selectedChainAsset = SSFModels.ChainAsset(chain: selectedChain, asset: selectedChain.assets.first!)
 //        stakingSettings.save(value: selectedChainAsset)
 //
 //        let operationManager = OperationManager()
@@ -306,7 +306,7 @@
 //            hasStaking: true
 //        )
 //
-//        let selectedChainAsset = ChainAsset(chain: selectedChain, asset: selectedChain.assets.first!)
+//        let selectedChainAsset = SSFModels.ChainAsset(chain: selectedChain, asset: selectedChain.assets.first!)
 //
 //        presenter.didReceive(newChainAsset: selectedChainAsset)
 //        presenter.didReceive(stashItem: StashItem(stash: WestendStub.address, controller: WestendStub.address))

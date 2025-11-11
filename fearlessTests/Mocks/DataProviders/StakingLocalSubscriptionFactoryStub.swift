@@ -195,7 +195,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
         ).createStashItemProvider(for: address)
 
         if let stashItem = stashItem {
-            let repository: CoreDataRepository<StashItem, CDStashItem> = storageFacade.createRepository()
+            let repository: CoreDataRepository<StashItem, fearless.CDStashItem> = storageFacade.createRepository()
             let saveOperation = repository.saveOperation({ [stashItem] }, { [] })
             OperationQueue().addOperations([saveOperation], waitUntilFinished: true)
         }
@@ -203,7 +203,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
         return provider
     }
     
-    func getNominationProvider(for accountId: fearless.AccountId, chainAsset: fearless.ChainAsset) throws -> RobinHood.AnyDataProvider<fearless.DecodedNomination> {
+    func getNominationProvider(for accountId: fearless.AccountId, chainAsset: SSFModels.ChainAsset) throws -> RobinHood.AnyDataProvider<fearless.DecodedNomination> {
         let localIdentifierFactory = LocalStorageKeyFactory()
 
         let nominationModel: DecodedNomination = try {
@@ -223,7 +223,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
         return AnyDataProvider(DataProviderStub(models: [nominationModel]))
     }
     
-    func getValidatorProvider(for accountId: fearless.AccountId, chainAsset: fearless.ChainAsset) throws -> RobinHood.AnyDataProvider<fearless.DecodedValidator> {
+    func getValidatorProvider(for accountId: fearless.AccountId, chainAsset: SSFModels.ChainAsset) throws -> RobinHood.AnyDataProvider<fearless.DecodedValidator> {
         let localIdentifierFactory = LocalStorageKeyFactory()
 
         let validatorModel: DecodedValidator = try {
@@ -243,7 +243,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
         return AnyDataProvider(DataProviderStub(models: [validatorModel]))
     }
     
-    func getLedgerInfoProvider(for accountId: fearless.AccountId, chainAsset: fearless.ChainAsset) throws -> RobinHood.AnyDataProvider<fearless.DecodedLedgerInfo> {
+    func getLedgerInfoProvider(for accountId: fearless.AccountId, chainAsset: SSFModels.ChainAsset) throws -> RobinHood.AnyDataProvider<fearless.DecodedLedgerInfo> {
         let localIdentifierFactory = LocalStorageKeyFactory()
 
         let ledgerInfoModel: DecodedLedgerInfo = try {
@@ -263,7 +263,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
         return AnyDataProvider(DataProviderStub(models: [ledgerInfoModel]))
     }
     
-    func getPayee(for accountId: fearless.AccountId, chainAsset: fearless.ChainAsset) throws -> RobinHood.AnyDataProvider<fearless.DecodedPayee> {
+    func getPayee(for accountId: fearless.AccountId, chainAsset: SSFModels.ChainAsset) throws -> RobinHood.AnyDataProvider<fearless.DecodedPayee> {
         let localIdentifierFactory = LocalStorageKeyFactory()
 
         let payeeModel: DecodedPayee = try {
@@ -283,7 +283,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
         return AnyDataProvider(DataProviderStub(models: [payeeModel]))
     }
     
-    func getPoolMembersProvider(for chainAsset: fearless.ChainAsset, accountId: fearless.AccountId) throws -> RobinHood.AnyDataProvider<fearless.DecodedPoolMember> {
+    func getPoolMembersProvider(for chainAsset: SSFModels.ChainAsset, accountId: fearless.AccountId) throws -> RobinHood.AnyDataProvider<fearless.DecodedPoolMember> {
         let localIdentifierFactory = LocalStorageKeyFactory()
 
         let poolMemberModel: DecodedPoolMember = try {

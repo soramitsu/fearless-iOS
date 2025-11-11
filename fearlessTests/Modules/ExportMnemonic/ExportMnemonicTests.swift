@@ -35,7 +35,7 @@ class ExportMnemonicTests: XCTestCase {
         let setupExpectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub).set(viewModel: any()).then { _ in
+            when(stub).set(viewModel: any(MultipleExportGenericViewModelProtocol.self)).then { _ in
                 setupExpectation.fulfill()
             }
         }
@@ -45,11 +45,11 @@ class ExportMnemonicTests: XCTestCase {
         let sharingExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).present(viewModel: any(), from: any()).then { viewModel in
+            when(stub).present(viewModel: any(SheetAlertPresentableViewModel.self), from: any(ControllerBackedProtocol?.self)).then { viewModel in
                 viewModel.0.actions.first?.handler?()
             }
 
-            when(stub).share(source: any(), from: any(), with: any()).then { _ in
+            when(stub).share(source: any(UIActivityItemSource.self), from: any(ControllerBackedProtocol?.self), with: any(SharingCompletionHandler?.self)).then { _ in
                 sharingExpectation.fulfill()
             }
         }
@@ -138,7 +138,7 @@ class ExportMnemonicTests: XCTestCase {
         let setupExpectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub).set(viewModel: any()).then { _ in
+            when(stub).set(viewModel: any(MultipleExportGenericViewModelProtocol.self)).then { _ in
                 setupExpectation.fulfill()
             }
         }
@@ -148,11 +148,11 @@ class ExportMnemonicTests: XCTestCase {
         let sharingExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).present(viewModel: any(), from: any()).then { param in
+            when(stub).present(viewModel: any(SheetAlertPresentableViewModel.self), from: any(ControllerBackedProtocol?.self)).then { param in
                 param.0.actions.first?.handler?()
             }
 
-            when(stub).share(source: any(), from: any(), with: any()).then { _ in
+            when(stub).share(source: any(UIActivityItemSource.self), from: any(ControllerBackedProtocol?.self), with: any(SharingCompletionHandler?.self)).then { _ in
                 sharingExpectation.fulfill()
             }
         }
