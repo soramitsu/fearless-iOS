@@ -55,6 +55,12 @@ if [[ "$DEST" == *"Any iOS Simulator Device"* || "$DEST" == "" ]]; then
   echo "==> Using detected destination: ${DEST}"
 fi
 
+# Enforce SSF pin, then apply SPM hotfixes so SSF packages are stable under Xcode 16+
+if [ -x "scripts/deps/enforce-ssf-pin.sh" ]; then
+  echo "\n==> Enforcing shared-features-spm pinned revision"
+  scripts/deps/enforce-ssf-pin.sh || true
+fi
+
 # Apply SPM IrohaCrypto hotfix so SSFModels can import IrohaCrypto under Xcode 16+
 if [ -x "scripts/spm-iroha-hotfix.sh" ]; then
   echo "\n==> Applying SPM IrohaCrypto hotfix"

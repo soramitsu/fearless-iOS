@@ -80,7 +80,7 @@ else
   echo "[bootstrap] No Podfile found; skipping pod install"
 fi
 
-# 2) Resolve SPM into a deterministic location (clean + mirrors)
+# 2) Resolve SPM into a deterministic location (clean + mirrors + enforce SSF pin)
 SP_DIR="${SP_DIR:-$WORKSPACE_DIR/SourcePackages}"
 # Clean previous SPM state to avoid sticky duplicates
 rm -rf "$SP_DIR" || true
@@ -89,6 +89,10 @@ rm -f "$WORKSPACE_DIR/fearless.xcworkspace/xcshareddata/swiftpm/Package.resolved
 # Note: SPM mirrors not set here; project pins Web3 to a single source to avoid duplication
 mkdir -p "$SP_DIR"
 if [[ -f fearless.xcworkspace/contents.xcworkspacedata ]]; then
+  # Enforce the known-good shared-features-spm revision before resolving
+  if [[ -x scripts/deps/enforce-ssf-pin.sh ]]; then
+    scripts/deps/enforce-ssf-pin.sh || true
+  fi
   xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath "$SP_DIR"
 else
   echo "[bootstrap] WARNING: Workspace not found; skipping SPM resolve"

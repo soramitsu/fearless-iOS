@@ -41,7 +41,7 @@ else
   echo "==> Podfile not found; skipping CocoaPods"
 fi
 
-# 2) Apply mirrors (if configured) and resolve SPM to workspace-local SourcePackages (for deterministic paths)
+# 2) Apply mirrors (if configured), enforce SSF pin, and resolve SPM to workspace-local SourcePackages (for deterministic paths)
 if [ -f scripts/deps/apply-mirrors.sh ]; then
   echo "==> Applying mirrors configuration (if any)"
   bash scripts/deps/apply-mirrors.sh || true
@@ -51,6 +51,10 @@ mkdir -p "$SP_DIR"
 echo "==> Resolving SwiftPM packages to $SP_DIR"
 # Clear stale resolution file to avoid sticky paths
 rm -f "$(pwd)/$WORKSPACE/xcshareddata/swiftpm/Package.resolved" 2>/dev/null || true
+if [ -x scripts/deps/enforce-ssf-pin.sh ]; then
+  echo "==> Enforcing shared-features-spm pinned revision"
+  scripts/deps/enforce-ssf-pin.sh || true
+fi
 xcodebuild -resolvePackageDependencies -workspace "$WORKSPACE" -scheme "$SCHEME" -clonedSourcePackagesDirPath "$SP_DIR" || true
 
 # 3) Ensure Git LFS assets for shared-features-spm (MPQRCoreSDK, etc.) are present
