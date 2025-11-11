@@ -2,6 +2,7 @@ import XCTest
 import Cuckoo
 import RobinHood
 import SSFUtils
+import SSFModels
 import SoraKeystore
 import SoraFoundation
 @testable import fearless
@@ -52,14 +53,14 @@ class ControllerAccountTests: XCTestCase {
             when(stub).showConfirmation(
                 from: any(ControllerBackedProtocol?.self),
                 controllerAccountItem: any(fearless.ChainAccountResponse.self),
-                asset: any(AssetModel.self),
-                chain: any(ChainModel.self),
+                asset: any(SSFModels.AssetModel.self),
+                chain: any(SSFModels.ChainModel.self),
                 selectedAccount: any(fearless.MetaAccountModel.self)
             ).then { _ in
                 showConfirmationExpectation.fulfill()
             }
             
-            when(stub).present(viewModel: any(), from: any()).thenDoNothing()
+            when(stub).present(viewModel: any(SheetAlertPresentableViewModel.self), from: any(ControllerBackedProtocol?.self)).thenDoNothing()
         }
         stub(viewModelFactory) { stub in
             when(stub).createViewModel(
@@ -128,11 +129,11 @@ class ControllerAccountTests: XCTestCase {
         )
         stub(wireframe) { stub in
             when(stub).present(
-                message: any(String.self),
-                title: any(String?.self),
-                closeAction: any(String.self),
+                message: any(String?.self),
+                title: any(String.self),
+                closeAction: any(String?.self),
                 from: any(ControllerBackedProtocol?.self),
-                actions: any([UIAlertAction].self)
+                actions: any([SheetAlertPresentableAction].self)
             ).then { _ in
                 showErrorAlertExpectation.fulfill()
             }
