@@ -171,9 +171,9 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
             )
 
             if let currentEra = currentEra {
-                return DecodedU32(identifier: localKey, item: StringScaleMapper(value: currentEra))
+                return DecodedEraIndex(identifier: localKey, item: StringScaleMapper(value: currentEra))
             } else {
-                return DecodedU32(identifier: localKey, item: nil)
+                return DecodedEraIndex(identifier: localKey, item: nil)
             }
         }()
 
@@ -195,7 +195,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
         ).createStashItemProvider(for: address)
 
         if let stashItem = stashItem {
-            let repository: CoreDataRepository<StashItem, fearless.CDStashItem> = storageFacade.createRepository()
+            let repository: CoreDataRepository<StashItem, CDStashItem> = storageFacade.createRepository()
             let saveOperation = repository.saveOperation({ [stashItem] }, { [] })
             OperationQueue().addOperations([saveOperation], waitUntilFinished: true)
         }
