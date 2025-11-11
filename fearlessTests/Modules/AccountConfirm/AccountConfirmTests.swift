@@ -24,11 +24,14 @@ class AccountConfirmTests: XCTestCase {
 
         let mnemonic = try IRMnemonicCreator().mnemonic(fromList: mnemonicWords)
         
-        let newAccountRequest = MetaAccountImportMnemonicRequest(mnemonic: mnemonic,
-                                                                 username: "myusername",
-                                                                 substrateDerivationPath: "",
-                                                                 ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
-                                                                 cryptoType: .sr25519)
+        let newAccountRequest = MetaAccountImportMnemonicRequest(
+            mnemonic: mnemonic,
+            username: "myusername",
+            substrateDerivationPath: "",
+            ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
+            cryptoType: .sr25519,
+            defaultChainId: nil
+        )
 
         let accountOperationFactory = MetaAccountOperationFactory(keystore: keychain)
 
