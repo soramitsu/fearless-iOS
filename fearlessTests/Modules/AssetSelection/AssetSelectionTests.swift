@@ -66,7 +66,7 @@ class AssetSelectionTests: XCTestCase {
             ChainModelGenerator.generateChain(
                 generatingAssets: assetsPerChain,
                 addressPrefix: UInt16(index),
-                staking: .relaychain
+                staking: RawStakingType.relaychain
             )
         }
 

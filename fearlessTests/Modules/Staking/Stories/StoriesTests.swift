@@ -10,7 +10,7 @@ class StoriesTests: XCTestCase {
         let wireframe = MockStoriesWireframeProtocol()
 
         let locale = LocalizationManager.shared.selectedLocale
-        let model = StoriesFactory().createModel(for: .relaychain)!.value(for: locale)
+        let model = StoriesFactory().createModel(for: StakingType.relaychain)!.value(for: locale)
         
         let interactor = StoriesInteractor(model: model)
         let selectedIndex = 2
