@@ -13723,6 +13723,7 @@ import BigInt
 #if canImport(CommonWallet)
 import CommonWallet
 #endif
+import SSFModels
 import Foundation
 import SoraFoundation
 
@@ -73473,6 +73474,5 @@ import CommonWallet
     
     
 }
-
 
 
