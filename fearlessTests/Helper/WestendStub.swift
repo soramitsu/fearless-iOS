@@ -9,6 +9,7 @@ import SSFModels
 
 struct WestendStub {
     static let address: String = "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq"
+    static let genesisHash: String = "0x91b171bb158e2d3848fa23a9f1c25182" // dummy stable value for tests
 
     static let price: PriceData = {
         PriceData(
@@ -29,12 +30,12 @@ struct WestendStub {
 
     static let activeEra: DecodedActiveEra = {
         let era = ActiveEraInfo(index: 777)
-        return DecodedActiveEra(identifier: Chain.westend.genesisHash + "_active_era",
+        return DecodedActiveEra(identifier: genesisHash + "_active_era",
                                 item: era)
     }()
 
     static let currentEra: DecodedEraIndex = {
-        DecodedEraIndex(identifier: Chain.westend.genesisHash + "_current_era", item: StringScaleMapper(value: 777))
+        DecodedEraIndex(identifier: genesisHash + "_current_era", item: StringScaleMapper(value: 777))
     }()
 
     static let accountInfo: DecodedAccountInfo = {
@@ -57,21 +58,21 @@ struct WestendStub {
 
     static let minNominatorBond: DecodedBigUInt = {
         DecodedBigUInt(
-            identifier: Chain.westend.genesisHash + "_minbond",
+            identifier: genesisHash + "_minbond",
             item: StringScaleMapper(value: BigUInt(1e+12))
         )
     }()
 
     static let counterForNominators: DecodedU32 = {
         DecodedU32(
-            identifier: Chain.westend.genesisHash + "_counterForNominators",
+            identifier: genesisHash + "_counterForNominators",
             item: StringScaleMapper(value: 100)
         )
     }()
 
     static let maxNominatorsCount: DecodedU32 = {
         DecodedU32(
-            identifier: Chain.westend.genesisHash + "_maxNominatorsCount",
+            identifier: genesisHash + "_maxNominatorsCount",
             item: StringScaleMapper(value: 1000)
         )
     }()
@@ -169,7 +170,7 @@ struct WestendStub {
         let total = eraValidators.reduce(BigUInt(0)) { $0 + $1.exposure.total }
 
         return RewardCalculatorEngine(
-            chainId: Chain.westend.genesisHash,
+            chainId: genesisHash,
             assetPrecision: 12,
             totalIssuance: total,
             validators: eraValidators,

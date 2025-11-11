@@ -2,6 +2,7 @@ import XCTest
 @testable import fearless
 import RobinHood
 import IrohaCrypto
+import SSFModels
 
 class AccountItemMapperTests: XCTestCase {
     func testSaveAndFetchItem() throws {

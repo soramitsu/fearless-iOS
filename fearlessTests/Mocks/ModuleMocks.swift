@@ -2,6 +2,7 @@ import Cuckoo
 @testable import fearless
 
 import Foundation
+import SSFModels
 
 
 
@@ -73474,5 +73475,4 @@ import CommonWallet
     
     
 }
-
 
