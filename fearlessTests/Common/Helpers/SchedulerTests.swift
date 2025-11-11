@@ -10,12 +10,12 @@ class SchedulerTests: XCTestCase {
         let delay: TimeInterval = 0.1
 
         let delegate = MockSchedulerDelegate()
-        let scheduler = Scheduler(with: delegate)
+        let scheduler = Scheduler(with: delegate as fearless.SchedulerDelegate)
 
         let expectation = XCTestExpectation()
 
         stub(delegate) { stub in
-            when(stub).didTrigger(scheduler: any()).then { _ in
+            when(stub).didTrigger(scheduler: any(fearless.SchedulerProtocol.self)).then { _ in
                 expectation.fulfill()
             }
         }

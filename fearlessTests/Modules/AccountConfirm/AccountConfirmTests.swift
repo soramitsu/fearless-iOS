@@ -56,7 +56,7 @@ class AccountConfirmTests: XCTestCase {
         let setupExpectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub).didReceive(words: any(), afterConfirmationFail: any()).then { _ in
+            when(stub).didReceive(words: any([String].self), afterConfirmationFail: any(Bool.self)).then { _ in
                 setupExpectation.fulfill()
             }
         }
@@ -64,7 +64,8 @@ class AccountConfirmTests: XCTestCase {
         let expectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).proceed(from: any(), flow: any()).then { _ in
+            when(stub).proceed(from: any(AccountConfirmViewProtocol?.self),
+                               flow: any(AccountConfirmFlow?.self)).then { _ in
                 expectation.fulfill()
             }
         }

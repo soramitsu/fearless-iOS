@@ -11,7 +11,13 @@ struct WestendStub {
     static let address: String = "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq"
 
     static let price: PriceData = {
-        PriceData(priceId: "wnd", price: "0.3", fiatDayChange: 0.1)
+        PriceData(
+            currencyId: "usd",
+            priceId: "wnd",
+            price: "0.3",
+            fiatDayChange: 0.1,
+            coingeckoPriceId: nil
+        )
     }()
 
     static let totalReward: TotalRewardItem = {

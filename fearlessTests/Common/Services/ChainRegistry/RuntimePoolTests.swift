@@ -1,6 +1,7 @@
 import XCTest
 @testable import fearless
 import Cuckoo
+import SSFRuntimeCodingService
 
 class RuntimePoolTests: XCTestCase {
     func testRuntimeProviderCreatedAndThenReused() {
