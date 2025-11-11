@@ -2,6 +2,7 @@ import Foundation
 @testable import fearless
 import RobinHood
 import SSFRuntimeCodingService
+import SSFUtils
 
 final class RuntimeCodingServiceStub {
     let factory : RuntimeCoderFactoryProtocol

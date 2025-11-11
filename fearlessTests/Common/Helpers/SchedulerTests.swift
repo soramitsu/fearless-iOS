@@ -10,7 +10,7 @@ class SchedulerTests: XCTestCase {
         let delay: TimeInterval = 0.1
 
         let delegate = MockSchedulerDelegate()
-        let scheduler = Scheduler(with: delegate as fearless.SchedulerDelegate)
+        let scheduler = Scheduler(with: delegate)
 
         let expectation = XCTestExpectation()
 
