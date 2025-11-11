@@ -110,7 +110,7 @@ class ControllerAccountTests: XCTestCase {
             providers: 0,
             data: AccountData(free: 100000000000000, reserved: 0, frozen: 0, flags: 0)
         )
-        presenter.didReceiveAccountInfo(result: .success(stashAccountInfo), address: stashAddress)
+        presenter.didReceiveAccountInfo(result: Result<AccountInfo?, Error>.success(stashAccountInfo), address: stashAddress)
 
         let feeValue = BigUInt(stringLiteral: "12600002654")
         let fee = RuntimeDispatchInfo(feeValue: feeValue)

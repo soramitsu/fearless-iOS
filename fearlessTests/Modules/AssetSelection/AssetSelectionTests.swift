@@ -25,7 +25,7 @@ class MockAccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
                 flags: 0
             )
         )
-        handler?.handleAccountInfo(result: .success(accountInfo), accountId: accountId, chainAsset: chainAsset)
+        handler?.handleAccountInfo(result: Result<AccountInfo?, Error>.success(accountInfo), accountId: accountId, chainAsset: chainAsset)
     }
 
     func subscribe(
@@ -46,7 +46,7 @@ class MockAccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
                     flags: 0
                 )
             )
-            handler?.handleAccountInfo(result: .success(accountInfo), accountId: Data.random(of: 32)!, chainAsset: chainAsset)
+            handler?.handleAccountInfo(result: Result<AccountInfo?, Error>.success(accountInfo), accountId: Data.random(of: 32)!, chainAsset: chainAsset)
         }
     }
 

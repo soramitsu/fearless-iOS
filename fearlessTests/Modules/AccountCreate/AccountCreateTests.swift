@@ -49,7 +49,7 @@ class AccountCreateTests: XCTestCase {
         var receivedRequest: MetaAccountImportMnemonicRequest?
 
         stub(wireframe) { stub in
-            when(stub).confirm(from: any(), flow: any()).then { (_, flow) in
+            when(stub).confirm(from: any(AccountCreateViewProtocol?.self), flow: any(AccountConfirmFlow.self)).then { (_, flow) in
                 if case .wallet(let request) = flow {
                     receivedRequest = request
                     expectation.fulfill()
