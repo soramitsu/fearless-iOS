@@ -130,8 +130,8 @@ The project mixes CocoaPods and Swift Package Manager. Follow these steps in ord
   - Alternatively, write a `~/.netrc` with GitHub credentials (read‑only).
 
 7) IrohaCrypto + SPM stability (Xcode 16/18)
-- The SPM package `shared-features-spm` must be pinned to a revision that works with Xcode 16/18 (`6d6cb16…`).
-- A hotfix exists at `scripts/spm-iroha-hotfix.sh` that patches `IrohaCrypto` module map if stale DerivedData causes umbrella header errors; `scripts/test-matrix.sh` will invoke it for tests.
+- The SPM package `shared-features-spm` must be pinned to a revision that works with Xcode 16/18 (`6d6cb16…`). We now enforce this automatically via `scripts/deps/enforce-ssf-pin.sh` in CI (`bootstrap.sh`), local dev (`dev-setup.sh`), and tests (`test-matrix.sh`).
+- A hotfix exists at `scripts/spm-iroha-hotfix.sh` that patches `IrohaCrypto` module map if stale DerivedData causes umbrella header errors; `scripts/test-matrix.sh` will invoke it for tests. Additional SSF manifest/source fixes (BigInt dep, Web3 Data.bytes, AddressFactory type usage, scrypt guard) are applied by `scripts/spm-shared-features-fixes.sh`.
 
 8) Web3 duplication
 - The project uses `soramitsu/web3-swift@7.7.7`. Do not add another Web3 source; duplicate packages will cause resolver failure.
@@ -160,6 +160,8 @@ The project mixes CocoaPods and Swift Package Manager. Follow these steps in ord
 - “umbrella header … IrohaCrypto-umbrella.h not found”: use the pinned `shared-features-spm` revision and/or run the hotfix (`scripts/spm-iroha-hotfix.sh`).
 - “multiple similar targets ‘Web3’ …”: dedupe to `soramitsu/web3-swift@7.7.7` only.
 - “pod install” fails cloning FearlessKeys: supply `GH_PAT_READ` or gate that pod in CI.
+- “Ambiguous type ‘MetaAccountModel’ / ‘ChainAccountResponse’ in tests”: tests include `fearlessTests/Helper/TestTypeAliases.swift` to resolve ambiguity to app models. If you add conflicting SDK types, keep this shim or qualify uses (`fearless.MetaAccountModel`).
+- “JSONRPCEngine conformance missing in tests”: `fearlessTests/Common/Services/ChainRegistry/MockConnection.swift` provides a test engine conforming to the current `JSONRPCEngine` protocol. If the protocol changes upstream, adjust this file accordingly.
 
 ## Troubleshooting Raw Archive Output
 

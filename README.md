@@ -16,6 +16,8 @@ For repository-specific details, see `ROADMAP.md`.
 ## Agents Guide
 Guidelines for automation and agent contributions: see `AGENTS.md`.
 
+SPM/SSF stability notes and scripts: see `docs/SSFStability.md`.
+
 ## Dev Status
 Track features development: [board link](https://soramitsucoltd.aha.io/shared/343e5db57d53398e3f26d0048158c4a2)
 
