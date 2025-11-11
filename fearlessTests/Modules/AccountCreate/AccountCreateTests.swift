@@ -4,6 +4,7 @@ import SoraKeystore
 import IrohaCrypto
 import RobinHood
 import Cuckoo
+import SoraFoundation
 
 class AccountCreateTests: XCTestCase {
 
