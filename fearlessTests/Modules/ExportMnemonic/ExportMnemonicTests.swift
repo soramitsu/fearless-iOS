@@ -91,13 +91,18 @@ class ExportMnemonicTests: XCTestCase {
                   XCTFail()
                   return
               }
-        let importRequest = MetaAccountImportMnemonicRequest(mnemonic: mnemonic,
-                                                             username: "testUsername",
-                                                             substrateDerivationPath: substrateDerivationPath,
-                                                             ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
-                                                             cryptoType: cryptoType)
+        let importRequest = MetaAccountImportMnemonicRequest(
+            mnemonic: mnemonic,
+            username: "testUsername",
+            substrateDerivationPath: substrateDerivationPath,
+            ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
+            cryptoType: cryptoType,
+            defaultChainId: nil
+        )
         let operationFactory = MetaAccountOperationFactory(keystore: keychain)
-        let importedAccount = try operationFactory.newMetaAccountOperation(request: importRequest).extractResultData()
+        let importedAccount = try operationFactory
+            .newMetaAccountOperation(request: importRequest, isBackuped: true)
+            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
         XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount?.substrateCryptoType)
         XCTAssertEqual(givenAccount.substrateAccountId, importedAccount?.substrateAccountId)
@@ -190,13 +195,18 @@ class ExportMnemonicTests: XCTestCase {
                   XCTFail()
                   return
               }
-        let importRequest = MetaAccountImportMnemonicRequest(mnemonic: mnemonic,
-                                                             username: "testUsername",
-                                                             substrateDerivationPath: substrateDerivationPath,
-                                                             ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
-                                                             cryptoType: cryptoType)
+        let importRequest = MetaAccountImportMnemonicRequest(
+            mnemonic: mnemonic,
+            username: "testUsername",
+            substrateDerivationPath: substrateDerivationPath,
+            ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
+            cryptoType: cryptoType,
+            defaultChainId: nil
+        )
         let operationFactory = MetaAccountOperationFactory(keystore: keychain)
-        let importedAccount = try operationFactory.newMetaAccountOperation(request: importRequest).extractResultData()
+        let importedAccount = try operationFactory
+            .newMetaAccountOperation(request: importRequest, isBackuped: true)
+            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
         XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount?.substrateCryptoType)
         XCTAssertEqual(givenAccount.substrateAccountId, importedAccount?.substrateAccountId)
