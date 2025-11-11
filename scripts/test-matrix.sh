@@ -77,6 +77,9 @@ fi
 echo "\n==> Resolving Swift Package dependencies"
 xcodebuild -resolvePackageDependencies -workspace "${WORKSPACE}" -scheme "${SCHEME}" || true
 
+# Ensure Cuckoo mock generation build phases run even on CI
+unset CI || true
+
 function run_tests() {
   local config=$1
   echo "\n==> Running ${config} tests"
