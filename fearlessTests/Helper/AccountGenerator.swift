@@ -3,13 +3,13 @@ import Foundation
 import SSFModels
 
 enum AccountGenerator {
-    static func generateMetaAccount(generatingChainAccounts count: Int) -> MetaAccountModel {
+    static func generateMetaAccount(generatingChainAccounts count: Int) -> fearless.MetaAccountModel {
         let chainAccounts = (0..<count).map { _ in generateChainAccount() }
         return generateMetaAccount(with: Set(chainAccounts))
     }
 
-    static func generateMetaAccount(with chainAccounts: Set<ChainAccountModel> = []) -> MetaAccountModel {
-        MetaAccountModel(
+    static func generateMetaAccount(with chainAccounts: Set<ChainAccountModel> = []) -> fearless.MetaAccountModel {
+        fearless.MetaAccountModel(
             metaId: UUID().uuidString,
             name: UUID().uuidString,
             substrateAccountId: Data.random(of: 32)!,

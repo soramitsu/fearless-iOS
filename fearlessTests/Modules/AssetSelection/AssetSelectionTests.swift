@@ -65,8 +65,7 @@ class AssetSelectionTests: XCTestCase {
         let chains = (0..<10).map { index in
             ChainModelGenerator.generateChain(
                 generatingAssets: assetsPerChain,
-                addressPrefix: UInt16(index),
-                staking: RawStakingType.relaychain
+                addressPrefix: UInt16(index)
             )
         }
 
@@ -99,7 +98,7 @@ class AssetSelectionTests: XCTestCase {
         let presenter = AssetSelectionPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            assetFilter: { asset in asset.staking != nil },
+            assetFilter: { _ in true },
             type: .normal(chainAsset: chainAsset),
             selectedMetaAccount: selectedAccount,
             assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),

@@ -6,7 +6,7 @@
 	objectVersion = 54;
 	objects = {
 
-/* Begin PBXBuildFile section */
+		/* Begin PBXBuildFile section */
         FAFEAA112DCF200100E5C0DE /* ReownWalletKit in Frameworks */ = {isa = PBXBuildFile; productRef = FAFEAA132DCF200100E5C0DE /* ReownWalletKit */; };
 		F1E2D3C4B5A60718293A4B5C /* GraphQLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D60718293A4B5C /* GraphQLResponse.swift */; };
 		BBCCDDEEAABB112233445566 /* XcmMinAmountInspectorShim.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCCDDEEFF112233445566 /* XcmMinAmountInspectorShim.swift */; };
@@ -3038,7 +3038,7 @@ AA1111000011223344556678 /* WalletSelectAccountCommandFactory.swift in Sources *
 		};
 /* End PBXContainerItemProxy section */
 
-/* Begin PBXFileReference section */
+		/* Begin PBXFileReference section */
 		E1F2A3B4C5D60718293A4B5C /* GraphQLResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "fearless/Common/Network/GraphQL/GraphQLResponse.swift"; sourceTree = "<group>"; };
 		AABBCCDDEEFF112233445566 /* XcmMinAmountInspectorShim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "fearless/Modules/Send/Validators/XcmMinAmountInspectorShim.swift"; sourceTree = "<group>"; };
 		A1B2C3D4E5F60718293A4B5C /* Identifiable+Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "fearless/Common/Extensions/Identifiable+Models.swift"; sourceTree = "<group>"; };
@@ -8613,6 +8613,7 @@ AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = 
 				845C7F05263C45EC0024E797 /* AnyProviderAutoCleaner.swift */,
 				845B822426EFE03E00D25C72 /* AccountGenerator.swift */,
 				84F13F0F26F1DC43006725FF /* ChainModelGenerator.swift */,
+				FAFE77772DCF011100E5C0DE /* TestTypeAliases.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -15873,6 +15874,7 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 				84FACB7125F57E4400F32ED4 /* SubstrateStorageTestFacade.swift in Sources */,
 				846CA7842709C2BE0011124C /* ChainRegistry+Setup.swift in Sources */,
 				F49F49A326A5C45600A25931 /* EraCountdownOperationFactoryTests.swift in Sources */,
+				FAFE77792DCF011100E5C0DE /* TestTypeAliases.swift in Sources */,
 				FAD558CC298A17A1008AA5A8 /* Constants.swift in Sources */,
 				84FACB6A25F5759C00F32ED4 /* AccountCreationHelper.swift in Sources */,
 				84FACB6625F56D5000F32ED4 /* CalculatorServiceTests.swift in Sources */,
@@ -18653,6 +18655,7 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 				842D1E9024D20B1500C30A7A /* Constants.swift in Sources */,
 				84F13F1026F1DC43006725FF /* ChainModelGenerator.swift in Sources */,
 				845B822526EFE03E00D25C72 /* AccountGenerator.swift in Sources */,
+				FAFE77782DCF011100E5C0DE /* TestTypeAliases.swift in Sources */,
 				84CE9AE926CAA83100B4EF62 /* RuntimeProviderTests.swift in Sources */,
 				849ECD3526DE70B900F542A3 /* SingleToMultiassetUserMigrationTests.swift in Sources */,
 				8467FD0D24E5E585005D486C /* KeystoreImportTests.swift in Sources */,
@@ -19579,3 +19582,6 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 	};
 	rootObject = 849013A024A80984008F705E /* Project object */;
 }
+		FAFE77772DCF011100E5C0DE /* TestTypeAliases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTypeAliases.swift; sourceTree = "<group>"; };
+		FAFE77782DCF011100E5C0DE /* TestTypeAliases.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFE77772DCF011100E5C0DE /* TestTypeAliases.swift */; };
+		FAFE77792DCF011100E5C0DE /* TestTypeAliases.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFE77772DCF011100E5C0DE /* TestTypeAliases.swift */; };
