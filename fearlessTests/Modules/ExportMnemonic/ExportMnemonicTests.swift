@@ -35,7 +35,7 @@ class ExportMnemonicTests: XCTestCase {
         let setupExpectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub).set(viewModel: any(MultipleExportGenericViewModelProtocol.self)).then { _ in
+            when(stub.set(viewModel: any(MultipleExportGenericViewModelProtocol.self))).then { _ in
                 setupExpectation.fulfill()
             }
         }
@@ -45,11 +45,11 @@ class ExportMnemonicTests: XCTestCase {
         let sharingExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).present(viewModel: any(SheetAlertPresentableViewModel.self), from: any(ControllerBackedProtocol?.self)).then { viewModel in
+            when(stub.present(viewModel: any(SheetAlertPresentableViewModel.self), from: any(ControllerBackedProtocol?.self))).then { viewModel in
                 viewModel.0.actions.first?.handler?()
             }
 
-            when(stub).share(source: any(UIActivityItemSource.self), from: any(ControllerBackedProtocol?.self), with: any(SharingCompletionHandler?.self)).then { _ in
+            when(stub.share(source: any(UIActivityItemSource.self), from: any(ControllerBackedProtocol?.self), with: any(SharingCompletionHandler?.self))).then { _ in
                 sharingExpectation.fulfill()
             }
         }
@@ -100,13 +100,13 @@ class ExportMnemonicTests: XCTestCase {
             defaultChainId: nil
         )
         let operationFactory = MetaAccountOperationFactory(keystore: keychain)
-        let importedAccount = try operationFactory
+        let importedAccount: MetaAccountModel = try operationFactory
             .newMetaAccountOperation(request: importRequest, isBackuped: true)
             .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-        XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount?.substrateCryptoType)
-        XCTAssertEqual(givenAccount.substrateAccountId, importedAccount?.substrateAccountId)
-        XCTAssertEqual(givenAccount.substratePublicKey, importedAccount?.substratePublicKey)
+        XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount.substrateCryptoType)
+        XCTAssertEqual(givenAccount.substrateAccountId, importedAccount.substrateAccountId)
+        XCTAssertEqual(givenAccount.substratePublicKey, importedAccount.substratePublicKey)
     }
     
     func testEthereumExport() throws {
@@ -138,7 +138,7 @@ class ExportMnemonicTests: XCTestCase {
         let setupExpectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub).set(viewModel: any(MultipleExportGenericViewModelProtocol.self)).then { _ in
+            when(stub.set(viewModel: any(MultipleExportGenericViewModelProtocol.self))).then { _ in
                 setupExpectation.fulfill()
             }
         }
@@ -148,11 +148,11 @@ class ExportMnemonicTests: XCTestCase {
         let sharingExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).present(viewModel: any(SheetAlertPresentableViewModel.self), from: any(ControllerBackedProtocol?.self)).then { param in
+            when(stub.present(viewModel: any(SheetAlertPresentableViewModel.self), from: any(ControllerBackedProtocol?.self))).then { param in
                 param.0.actions.first?.handler?()
             }
 
-            when(stub).share(source: any(UIActivityItemSource.self), from: any(ControllerBackedProtocol?.self), with: any(SharingCompletionHandler?.self)).then { _ in
+            when(stub.share(source: any(UIActivityItemSource.self), from: any(ControllerBackedProtocol?.self), with: any(SharingCompletionHandler?.self))).then { _ in
                 sharingExpectation.fulfill()
             }
         }
@@ -204,12 +204,12 @@ class ExportMnemonicTests: XCTestCase {
             defaultChainId: nil
         )
         let operationFactory = MetaAccountOperationFactory(keystore: keychain)
-        let importedAccount = try operationFactory
+        let importedAccount: MetaAccountModel = try operationFactory
             .newMetaAccountOperation(request: importRequest, isBackuped: true)
             .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-        XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount?.substrateCryptoType)
-        XCTAssertEqual(givenAccount.substrateAccountId, importedAccount?.substrateAccountId)
-        XCTAssertEqual(givenAccount.substratePublicKey, importedAccount?.substratePublicKey)
+        XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount.substrateCryptoType)
+        XCTAssertEqual(givenAccount.substrateAccountId, importedAccount.substrateAccountId)
+        XCTAssertEqual(givenAccount.substratePublicKey, importedAccount.substratePublicKey)
     }
 }

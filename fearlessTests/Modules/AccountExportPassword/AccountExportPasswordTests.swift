@@ -41,24 +41,24 @@ class AccountExportPasswordTests: XCTestCase {
         var confirmationViewModel: InputViewModelProtocol?
 
         stub(view) { stub in
-            when(stub).setPasswordInputViewModel(any(InputViewModelProtocol.self)).then { viewModel in
+            when(stub.setPasswordInputViewModel(any(InputViewModelProtocol.self))).then { viewModel in
                 inputViewModel = viewModel
             }
 
-            when(stub).setPasswordConfirmationViewModel(any(InputViewModelProtocol.self)).then { viewModel in
+            when(stub.setPasswordConfirmationViewModel(any(InputViewModelProtocol.self))).then { viewModel in
                 confirmationViewModel = viewModel
             }
 
-            when(stub).set(error: any(AccountExportPasswordError.self)).thenDoNothing()
+            when(stub.set(error: any(AccountExportPasswordError.self))).thenDoNothing()
         }
 
         let expectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).showJSONExport(any([RestoreJson].self), flow: any(ExportFlow.self), from: any(AccountExportPasswordViewProtocol?.self)).then { _ in
+            when(stub.showJSONExport(any([RestoreJson].self), flow: any(ExportFlow.self), from: any(AccountExportPasswordViewProtocol?.self))).then { _ in
                 expectation.fulfill()
             }
-            when(stub).present(message: any(String?.self), title: any(String.self), closeAction: any(String?.self), from: any(ControllerBackedProtocol?.self), actions: any([SheetAlertPresentableAction].self)).then { _ in
+            when(stub.present(message: any(String?.self), title: any(String.self), closeAction: any(String?.self), from: any(ControllerBackedProtocol?.self), actions: any([SheetAlertPresentableAction].self))).then { _ in
                 XCTFail()
             }
         }

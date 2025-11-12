@@ -13,22 +13,26 @@ class RuntimePoolTests: XCTestCase {
 
         let chain = ChainModelGenerator.generate(count: 1).first!
 
-        let expectedRuntimeProvider = MockRuntimeProviderProtocol()
-
-        // when
-
-        stub(expectedRuntimeProvider) { stub in
-            stub.setup().thenDoNothing()
-            stub.cleanup().thenDoNothing()
+        // Use a lightweight test double instead of a generated Cuckoo mock
+        final class TestRuntimeProvider: RuntimeProviderProtocol {
+            var runtimeSpecVersion: RuntimeSpecVersion = .defaultVersion
+            var snapshot: RuntimeSnapshot?
+            var setupCalls = 0
+            var cleanupCalls = 0
+            func setup() { setupCalls += 1 }
+            func cleanup() { cleanupCalls += 1 }
+            func readySnapshot() async throws -> RuntimeSnapshot { throw RuntimeProviderError.providerUnavailable }
+            func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> { BaseOperation() }
+            func fetchCoderFactory() async throws -> RuntimeCoderFactoryProtocol { throw RuntimeProviderError.providerUnavailable }
         }
 
+        let expectedRuntimeProvider = TestRuntimeProvider()
+
+        // when
         stub(factory) { stub in
             stub.createRuntimeProvider(for: any(),
                                        chainTypes: any(),
-                                       usedRuntimePaths: any()).thenReturn(
-                expectedRuntimeProvider,
-                MockRuntimeProviderProtocol()
-            )
+                                       usedRuntimePaths: any()).thenReturn(expectedRuntimeProvider)
         }
 
         let newProvider = runtimePool.setupRuntimeProvider(for: chain, chainTypes: nil)
@@ -47,7 +51,7 @@ class RuntimePoolTests: XCTestCase {
         XCTAssertNil(removedProvider)
 
         verify(factory, times(1)).createRuntimeProvider(for: any(), chainTypes: any(), usedRuntimePaths: any())
-        verify(expectedRuntimeProvider, times(1)).setup()
-        verify(expectedRuntimeProvider, times(1)).cleanup()
+        XCTAssertEqual(expectedRuntimeProvider.setupCalls, 1)
+        XCTAssertEqual(expectedRuntimeProvider.cleanupCalls, 1)
     }
 }

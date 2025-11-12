@@ -9,16 +9,14 @@ class SchedulerTests: XCTestCase {
 
         let delay: TimeInterval = 0.1
 
-        let delegate = MockSchedulerDelegate()
-        let scheduler = Scheduler(with: delegate)
-
-        let expectation = XCTestExpectation()
-
-        stub(delegate) { stub in
-            when(stub).didTrigger(scheduler: any(fearless.SchedulerProtocol.self)).then { _ in
-                expectation.fulfill()
-            }
+        final class TestDelegate: fearless.SchedulerDelegate {
+            let fulfill: () -> Void
+            init(fulfill: @escaping () -> Void) { self.fulfill = fulfill }
+            func didTrigger(scheduler: fearless.SchedulerProtocol) { fulfill() }
         }
+        let expectation = XCTestExpectation()
+        let delegate = TestDelegate { expectation.fulfill() }
+        let scheduler = Scheduler(with: delegate)
 
         // when
 
