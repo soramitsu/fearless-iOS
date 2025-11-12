@@ -36,7 +36,8 @@ final class ExtrinsicOperationFactoryStub: ExtrinsicOperationFactoryProtocol {
             lenFee: BigUInt(stringLiteral: "0"),
             adjustedWeightFee: BigUInt(stringLiteral: "10005000")
         )
-        let dispatchInfo = RuntimeDispatchInfo(inclusionFee: feeDetails)
+        let totalFee = feeDetails.baseFee + feeDetails.lenFee + feeDetails.adjustedWeightFee
+        let dispatchInfo = RuntimeDispatchInfo(feeValue: totalFee)
 
         return CompoundOperationWrapper.createWithResult([.success(dispatchInfo)])
     }
