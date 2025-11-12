@@ -194,11 +194,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
             operationManager: OperationManager()
         ).createStashItemProvider(for: address)
 
-        if let stashItem = stashItem {
-            let repository: CoreDataRepository<StashItem, CDStashItem> = storageFacade.createRepository()
-            let saveOperation = repository.saveOperation({ [stashItem] }, { [] })
-            OperationQueue().addOperations([saveOperation], waitUntilFinished: true)
-        }
+        // No-op persist; test provider is driven by upstream factory and doesn't require CoreData write
 
         return provider
     }

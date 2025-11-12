@@ -33,9 +33,31 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
     }
 
     private func getProvider(for key: String) -> StreamableProvider<AccountInfoStorageWrapper> {
+        // Local minimal in-file stubs to avoid target-membership issues
+        final class TestEmptyRepository<T: Identifiable>: DataProviderRepositoryProtocol {
+            typealias Model = T
+            func fetchOperation(by modelIdsClosure: @escaping () throws -> [String], options: RepositoryFetchOptions) -> BaseOperation<[T]> { ClosureOperation { [] } }
+            func fetchOperation(by modelIdClosure: @escaping () throws -> String, options: RepositoryFetchOptions) -> BaseOperation<T?> { ClosureOperation { nil } }
+            func fetchAllOperation(with options: RepositoryFetchOptions) -> BaseOperation<[T]> { ClosureOperation { [] } }
+            func fetchOperation(by request: RepositorySliceRequest, options: RepositoryFetchOptions) -> BaseOperation<[T]> { ClosureOperation { [] } }
+            func saveOperation(_ updateModelsBlock: @escaping () throws -> [T], _ deleteIdsBlock: @escaping () throws -> [String]) -> BaseOperation<Void> { ClosureOperation { () } }
+            func saveBatchOperation(_ updateModelsBlock: @escaping () throws -> [T], _ deleteIdsBlock: @escaping () throws -> [String]) -> BaseOperation<Void> { ClosureOperation { () } }
+            func replaceOperation(_ newModelsBlock: @escaping () throws -> [T]) -> BaseOperation<Void> { ClosureOperation { () } }
+            func fetchCountOperation() -> BaseOperation<Int> { ClosureOperation { 0 } }
+            func deleteAllOperation() -> BaseOperation<Void> { ClosureOperation { () } }
+        }
+
+        final class TestRepositoryObservable<T>: DataProviderRepositoryObservable {
+            typealias Model = T
+            func start(completionBlock: @escaping (Error?) -> Void) { completionBlock(nil) }
+            func stop(completionBlock: @escaping (Error?) -> Void) { completionBlock(nil) }
+            func addObserver(_ observer: AnyObject, deliverOn queue: DispatchQueue, executing updateBlock: @escaping ([DataProviderChange<T>]) -> Void) {}
+            func removeObserver(_ observer: AnyObject) {}
+        }
+
         let source = EmptyStreamableSource<AccountInfoStorageWrapper>()
-        let repository = EmptyRepository<AccountInfoStorageWrapper>()
-        let observable = DummyRepositoryObservable<AccountInfoStorageWrapper>()
+        let repository = TestEmptyRepository<AccountInfoStorageWrapper>()
+        let observable = TestRepositoryObservable<AccountInfoStorageWrapper>()
 
         return StreamableProvider(
             source: AnyStreamableSource(source),
