@@ -45,6 +45,10 @@ extension RuntimeCodingServiceStub: RuntimeCodingServiceProtocol {
         ClosureOperation { self.factory }
     }
     
+    func fetchCoderFactory() async throws -> RuntimeCoderFactoryProtocol {
+        factory
+    }
+    
     func fetchCoderFactoryOperation(with timeout: TimeInterval, closure: RuntimeMetadataClosure?) -> BaseOperation<RuntimeCoderFactoryProtocol> {
         ClosureOperation { self.factory }
     }
