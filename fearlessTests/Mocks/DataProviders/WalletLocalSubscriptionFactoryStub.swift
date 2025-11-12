@@ -33,25 +33,13 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
     }
 
     private func getProvider(for key: String) -> StreamableProvider<AccountInfoStorageWrapper> {
-        let facade = SubstrateDataStorageFacade.shared
-
-        let mapper: CodableCoreDataMapper<AccountInfoStorageWrapper, CDAccountInfo> =
-            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDAccountInfo.identifier))
-
-        let filter = NSPredicate.filterStorageItemsBy(identifier: key)
-        let storage: CoreDataRepository<AccountInfoStorageWrapper, CDAccountInfo> =
-            facade.createRepository(filter: filter)
         let source = EmptyStreamableSource<AccountInfoStorageWrapper>()
-        let observable = CoreDataContextObservable(
-            service: facade.databaseService,
-            mapper: AnyCoreDataMapper(mapper),
-            predicate: { ($0 as? CDAccountInfo)?.identifier == key },
-            processingQueue: processingQueue
-        )
+        let repository = EmptyRepository<AccountInfoStorageWrapper>()
+        let observable = DummyRepositoryObservable<AccountInfoStorageWrapper>()
 
         return StreamableProvider(
             source: AnyStreamableSource(source),
-            repository: AnyDataProviderRepository(storage),
+            repository: AnyDataProviderRepository(repository),
             observable: AnyDataProviderRepositoryObservable(observable),
             operationManager: operationManager,
             serialQueue: processingQueue
