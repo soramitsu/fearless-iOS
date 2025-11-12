@@ -1,7 +1,7 @@
 // Cuckoo compatibility header (injected)
 @testable import fearless
 import SSFModels
-// Disambiguate types used by generated mocks against SSF modules
+// Disambiguate protocol and model names to app versions to avoid SSF collisions
 typealias ChainRegistryProtocol = fearless.ChainRegistryProtocol
 typealias ConnectionPoolProtocol = fearless.ConnectionPoolProtocol
 typealias RuntimeProviderPoolProtocol = fearless.RuntimeProviderPoolProtocol
@@ -9,6 +9,7 @@ typealias RuntimeSyncServiceProtocol = fearless.RuntimeSyncServiceProtocol
 typealias RuntimeVersion = fearless.RuntimeVersion
 typealias RuntimeMetadataItem = fearless.RuntimeMetadataItem
 typealias SNAddressType = fearless.SNAddressType
+typealias ManagedMetaAccountModel = fearless.ManagedMetaAccountModel
 typealias SchedulerProtocol = fearless.SchedulerProtocol
 typealias SchedulerDelegate = fearless.SchedulerDelegate
 // MARK: - Mocks generated from file: 'Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift'
