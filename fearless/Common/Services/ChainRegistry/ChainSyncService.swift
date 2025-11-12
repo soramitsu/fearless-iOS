@@ -121,7 +121,7 @@ final class ChainSyncService {
         let obj = try JSONSerialization.jsonObject(with: data, options: [])
         guard var array = obj as? [[String: Any]] else { return data }
 
-        for i in 0..<array.count {
+        for i in 0 ..< array.count {
             if array[i]["tokens"] == nil {
                 // Provide a minimal default remote tokens payload compatible with SSFModels
                 array[i]["tokens"] = [

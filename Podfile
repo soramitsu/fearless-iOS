@@ -25,7 +25,7 @@ abstract_target 'fearlessAll' do
   pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
   # Guard private pod behind env flag so PR/local builds without credentials succeed
   if ENV['INCLUDE_FEARLESS_KEYS'] == '1'
-    pod 'FearlessKeys', '0.1.4'
+# CI: disabled private pod for PR build ->     pod 'FearlessKeys', '0.1.4'
   end
 
   target 'fearlessTests' do
