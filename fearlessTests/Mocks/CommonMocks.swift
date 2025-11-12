@@ -1,17 +1,18 @@
 // Cuckoo compatibility header (injected)
 @testable import fearless
 import SSFModels
-// Disambiguate protocol and model names to app versions to avoid SSF collisions
+import SSFUtils
+// Disambiguations for ambiguous symbols across modules used by generated mocks
 typealias ChainRegistryProtocol = fearless.ChainRegistryProtocol
 typealias ConnectionPoolProtocol = fearless.ConnectionPoolProtocol
 typealias RuntimeProviderPoolProtocol = fearless.RuntimeProviderPoolProtocol
 typealias RuntimeSyncServiceProtocol = fearless.RuntimeSyncServiceProtocol
-typealias RuntimeVersion = fearless.RuntimeVersion
-typealias RuntimeMetadataItem = fearless.RuntimeMetadataItem
-typealias SNAddressType = fearless.SNAddressType
-typealias ManagedMetaAccountModel = fearless.ManagedMetaAccountModel
-typealias SchedulerProtocol = fearless.SchedulerProtocol
-typealias SchedulerDelegate = fearless.SchedulerDelegate
+typealias RuntimeVersion = SSFModels.RuntimeVersion
+typealias RuntimeMetadataItem = SSFModels.RuntimeMetadataItem
+typealias SNAddressType = SSFModels.SNAddressType
+typealias ManagedMetaAccountModel = SSFModels.ManagedMetaAccountModel
+typealias SchedulerProtocol = SSFUtils.SchedulerProtocol
+typealias SchedulerDelegate = SSFUtils.SchedulerDelegate
 // MARK: - Mocks generated from file: 'Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift'
 
 import Cuckoo
@@ -1593,9 +1594,6 @@ import RobinHood
 import SSFUtils
 import SSFModels
 import Web3
-import SSFChainRegistry
-import SSFRuntimeCodingService
-import SSFChainConnection
 @testable import fearless
 @testable import SoraKeystore
 
@@ -4390,4 +4388,3 @@ class StakingServiceFactoryProtocolStub:StakingServiceFactoryProtocol, @unchecke
         return DefaultValueRegistry.defaultValue(for: (RewardCalculatorServiceProtocol).self)
     }
 }
-

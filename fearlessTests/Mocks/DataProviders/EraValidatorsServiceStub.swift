@@ -15,7 +15,7 @@ final class EraValidatorServiceStub: EraValidatorServiceProtocol {
     func throttle() {}
 
     func fetchInfoOperation() -> RobinHood.BaseOperation<EraStakersInfo> {
-        return RobinHood.BaseOperation<EraStakersInfo>.createWithResult(info)
+        return ClosureOperation { self.info }
     }
 }
 
