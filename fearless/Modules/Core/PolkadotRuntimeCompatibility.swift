@@ -7,7 +7,7 @@ enum PolkadotRuntimeCompatibility {
         // Heuristic: asset-hub-polkadot or ID range used by system parachains
         // Prefer explicit check on known names/ids while keeping future-proof
         let normalized = chain.name.lowercased()
-        if normalized.contains("asset hub") && normalized.contains("polkadot") {
+        if normalized.contains("asset hub"), normalized.contains("polkadot") {
             return true
         }
         // Parachain 1000 range is common for system chains; adjust if needed
@@ -17,4 +17,3 @@ enum PolkadotRuntimeCompatibility {
         return false
     }
 }
-
