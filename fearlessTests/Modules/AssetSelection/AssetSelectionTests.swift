@@ -93,7 +93,7 @@ class AssetSelectionTests: XCTestCase {
         
         let selectedChain = chains.last!
         let selectedAsset = selectedChain.assets.first!
-        let chainAsset = SSFModels.ChainAsset(chain: selectedChain, asset: selectedAsset.asset)
+        let chainAsset = SSFModels.ChainAsset(chain: selectedChain, asset: selectedAsset)
 
         let presenter = AssetSelectionPresenter(
             interactor: interactor,
