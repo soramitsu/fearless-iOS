@@ -2,6 +2,7 @@ import XCTest
 @testable import fearless
 import Cuckoo
 import SSFRuntimeCodingService
+import RobinHood
 
 class RuntimePoolTests: XCTestCase {
     func testRuntimeProviderCreatedAndThenReused() {
@@ -21,9 +22,9 @@ class RuntimePoolTests: XCTestCase {
             var cleanupCalls = 0
             func setup() { setupCalls += 1 }
             func cleanup() { cleanupCalls += 1 }
-            func readySnapshot() async throws -> RuntimeSnapshot { throw RuntimeProviderError.providerUnavailable }
-            func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> { BaseOperation() }
-            func fetchCoderFactory() async throws -> RuntimeCoderFactoryProtocol { throw RuntimeProviderError.providerUnavailable }
+            func readySnapshot() async throws -> RuntimeSnapshot { throw SSFRuntimeCodingService.RuntimeProviderError.providerUnavailable }
+            func fetchCoderFactoryOperation() -> BaseOperation<SSFRuntimeCodingService.RuntimeCoderFactoryProtocol> { BaseOperation() }
+            func fetchCoderFactory() async throws -> SSFRuntimeCodingService.RuntimeCoderFactoryProtocol { throw SSFRuntimeCodingService.RuntimeProviderError.providerUnavailable }
         }
 
         let expectedRuntimeProvider = TestRuntimeProvider()
