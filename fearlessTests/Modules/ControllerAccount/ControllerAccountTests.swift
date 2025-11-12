@@ -18,7 +18,7 @@ class ControllerAccountTests: XCTestCase {
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
         let chain = ChainModelGenerator.generateChain(generatingAssets: 1,
-                                                      addressPrefix: UInt16(SNAddressType.genericSubstrate.rawValue))
+                                                      addressPrefix: UInt16(fearless.SNAddressType.genericSubstrate.rawValue))
         let asset = ChainModelGenerator.generateAssetWithId("test", symbol: "test")
         let selectedAccount = AccountGenerator.generateMetaAccount()
         let balanceFactory = BalanceViewModelFactory(

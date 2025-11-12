@@ -55,7 +55,7 @@ class ExportMnemonicTests: XCTestCase {
         }
         
         let chain = ChainModelGenerator.generateChain(generatingAssets: 1,
-                                                      addressPrefix: UInt16(SNAddressType.genericSubstrate.rawValue))
+                                                      addressPrefix: UInt16(fearless.SNAddressType.genericSubstrate.rawValue))
 
         let presenter = ExportMnemonicPresenter(flow: .single(chain: chain,
                                                               address: AddressTestConstants.polkadotAddress, wallet: givenAccount),

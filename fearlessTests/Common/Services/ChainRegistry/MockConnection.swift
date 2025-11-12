@@ -1,5 +1,6 @@
 import Foundation
 @testable import fearless
+import MocksBasket
 
-// Use generated Cuckoo mock directly to conform to current JSONRPCEngine
-final class MockConnection: MockJSONRPCEngine {}
+// Use SSF MocksBasket JSONRPCEngineMock which conforms to JSONRPCEngine
+final class MockConnection: JSONRPCEngineMock {}
