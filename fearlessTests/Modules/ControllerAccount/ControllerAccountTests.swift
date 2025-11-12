@@ -42,7 +42,7 @@ class ControllerAccountTests: XCTestCase {
         dataValidatingFactory.view = view
 
         stub(view) { stub in
-            when(stub).localizationManager.get.thenReturn(LocalizationManager.shared)
+            when(stub.localizationManager.get).thenReturn(LocalizationManager.shared)
         }
 
         // given
@@ -50,33 +50,40 @@ class ControllerAccountTests: XCTestCase {
             description: "Show Confirmation screen if user has sufficient balance to pay fee"
         )
         stub(wireframe) { stub in
-            when(stub).showConfirmation(
-                from: any(ControllerBackedProtocol?.self),
-                controllerAccountItem: any(fearless.ChainAccountResponse.self),
-                asset: any(SSFModels.AssetModel.self),
-                chain: any(SSFModels.ChainModel.self),
-                selectedAccount: any(fearless.MetaAccountModel.self)
+            when(
+                stub.showConfirmation(
+                    from: any(ControllerBackedProtocol?.self),
+                    controllerAccountItem: any(fearless.ChainAccountResponse.self),
+                    asset: any(SSFModels.AssetModel.self),
+                    chain: any(SSFModels.ChainModel.self),
+                    selectedAccount: any(fearless.MetaAccountModel.self)
+                )
             ).then { _ in
                 showConfirmationExpectation.fulfill()
             }
-            
-            when(stub).present(viewModel: any(SheetAlertPresentableViewModel.self), from: any(ControllerBackedProtocol?.self)).thenDoNothing()
+
+            when(stub.present(viewModel: any(SheetAlertPresentableViewModel.self), from: any(ControllerBackedProtocol?.self))).thenDoNothing()
         }
         stub(viewModelFactory) { stub in
-            when(stub).createViewModel(
-                stashItem: any(StashItem.self),
-                stashAccountItem: any(fearless.ChainAccountResponse?.self),
-                chosenAccountItem: any(fearless.ChainAccountResponse?.self)
-            ).then { _ in ControllerAccountViewModel(
-                chainAsset: SSFModels.ChainAsset(chain: chain, asset: asset),
-                stashViewModel: .init(closure: { _ in AccountInfoViewModel(title: "", address: "", name: "", icon: nil)}),
-                controllerViewModel: .init(closure: { _ in AccountInfoViewModel(title: "", address: "", name: "", icon: nil)}),
-                currentAccountIsController: false,
-                actionButtonIsEnabled: true
-            )}
+            when(
+                stub.createViewModel(
+                    stashItem: any(StashItem.self),
+                    stashAccountItem: any(fearless.ChainAccountResponse?.self),
+                    chosenAccountItem: any(fearless.ChainAccountResponse?.self),
+                    chainAsset: any(SSFModels.ChainAsset.self)
+                )
+            ).then { _ in
+                ControllerAccountViewModel(
+                    chainAsset: SSFModels.ChainAsset(chain: chain, asset: asset),
+                    stashViewModel: .init(closure: { _ in AccountInfoViewModel(title: "", address: "", name: "", icon: nil)}),
+                    controllerViewModel: .init(closure: { _ in AccountInfoViewModel(title: "", address: "", name: "", icon: nil)}),
+                    currentAccountIsController: false,
+                    actionButtonIsEnabled: true
+                )
+            }
         }
         stub(view) { stub in
-            when(stub).reload(with: any()).thenDoNothing()
+            when(stub.reload(with: any())).thenDoNothing()
         }
 
         let controllerAddress = "controllerAddress"
@@ -128,12 +135,14 @@ class ControllerAccountTests: XCTestCase {
             description: "Show error alert if user has not sufficient balance to pay fee"
         )
         stub(wireframe) { stub in
-            when(stub).present(
-                message: any(String?.self),
-                title: any(String.self),
-                closeAction: any(String?.self),
-                from: any(ControllerBackedProtocol?.self),
-                actions: any([SheetAlertPresentableAction].self)
+            when(
+                stub.present(
+                    message: any(String?.self),
+                    title: any(String.self),
+                    closeAction: any(String?.self),
+                    from: any(ControllerBackedProtocol?.self),
+                    actions: any([SheetAlertPresentableAction].self)
+                )
             ).then { _ in
                 showErrorAlertExpectation.fulfill()
             }
