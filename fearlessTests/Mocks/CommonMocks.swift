@@ -6,6 +6,10 @@ typealias ChainAccountResponse = fearless.ChainAccountResponse
 // MARK: - Mocks generated from file: 'Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift'
 
 import Cuckoo
+
+// Cuckoo DSL compatibility: allow legacy `when(stub).method()` usage with 2.x
+@inlinable
+public func when<P: Cuckoo.StubbingProxy>(_ proxy: P) -> P { proxy }
 import Foundation
 @testable import fearless
 @testable import SoraKeystore
@@ -4381,5 +4385,4 @@ class StakingServiceFactoryProtocolStub:StakingServiceFactoryProtocol, @unchecke
         return DefaultValueRegistry.defaultValue(for: (RewardCalculatorServiceProtocol).self)
     }
 }
-
 
