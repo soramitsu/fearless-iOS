@@ -78,22 +78,31 @@ struct WestendStub {
     }()
 
     static let nomination: DecodedNomination = {
-        let nomination = Nomination(targets: [],
-                                    submittedIn: 0)
-
-        return DecodedNomination(identifier: "5EJQtTE1ZS9cBdqiuUcjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6",
-                                 item: nomination)
+        // Build a decodable payload matching Nomination's Codable contract
+        let payload: [String: Any] = [
+            "targets": [],
+            "submittedIn": "0"
+        ]
+        let data = try! JSONSerialization.data(withJSONObject: payload, options: [])
+        let decoder = JSONDecoder()
+        let nomination = try! decoder.decode(Nomination.self, from: data)
+        return DecodedNomination(identifier: "5EJQtTE1ZS9cBdqiuUcjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6", item: nomination)
     }()
 
     static let ledgerInfo: DecodedLedgerInfo = {
         let address = "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq"
         let accountId = try! SS58AddressFactory().accountId(from: address)
-        let info = StakingLedger(stash: accountId,
-                                   total: BigUInt(1e+12),
-                                   active: BigUInt(1e+12),
-                                   unlocking: [],
-                                   claimedRewards: [])
-
+        // Encode as hex string to match StakingLedger decoding path
+        let payload: [String: Any] = [
+            "stash": accountId.toHex(includePrefix: true),
+            "total": String(BigUInt(1e+12)),
+            "active": String(BigUInt(1e+12)),
+            "unlocking": [],
+            "claimedRewards": []
+        ]
+        let data = try! JSONSerialization.data(withJSONObject: payload, options: [])
+        let decoder = JSONDecoder()
+        let info = try! decoder.decode(StakingLedger.self, from: data)
         return DecodedLedgerInfo(identifier: address, item: info)
     }()
 

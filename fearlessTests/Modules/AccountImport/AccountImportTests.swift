@@ -35,7 +35,8 @@ class AccountImportTests: XCTestCase {
             operationManager: OperationManager(),
             settings: settings,
             keystoreImportService: keystoreImportService,
-            eventCenter: eventCenter
+            eventCenter: eventCenter,
+            defaultSource: .mnemonic
         )
 
         let expectedUsername = "myname"
@@ -54,36 +55,36 @@ class AccountImportTests: XCTestCase {
         var usernameViewModel: InputViewModelProtocol?
 
         stub(view) { stub in
-            when(stub).didCompleteSourceTypeSelection().thenDoNothing()
-            when(stub).didCompleteCryptoTypeSelection().thenDoNothing()
-            when(stub).didValidateSubstrateDerivationPath(any(FieldStatus.self)).thenDoNothing()
-            when(stub).didValidateEthereumDerivationPath(any(FieldStatus.self)).thenDoNothing()
-            when(stub).isSetup.get.thenReturn(false, true)
+            when(stub.didCompleteSourceTypeSelection()).thenDoNothing()
+            when(stub.didCompleteCryptoTypeSelection()).thenDoNothing()
+            when(stub.didValidateSubstrateDerivationPath(any(FieldStatus.self))).thenDoNothing()
+            when(stub.didValidateEthereumDerivationPath(any(FieldStatus.self))).thenDoNothing()
+            when(stub.isSetup.get).thenReturn(false, true)
 
-            when(stub).setSource(viewModel: any(InputViewModelProtocol.self)).then { viewModel in
+            when(stub.setSource(viewModel: any(InputViewModelProtocol.self))).then { viewModel in
                 sourceInputViewModel = viewModel
 
                 setupExpectation.fulfill()
             }
 
-            when(stub).setName(viewModel: any(InputViewModelProtocol.self), visible: any(Bool.self)).then { result in
+            when(stub.setName(viewModel: any(InputViewModelProtocol.self), visible: any(Bool.self))).then { result in
                 usernameViewModel = result.0
 
                 setupExpectation.fulfill()
             }
 
-            when(stub).setSelectedCrypto(model: any(SelectableViewModel<TitleWithSubtitleViewModel>.self)).thenDoNothing()
-            when(stub).setSource(type: any(AccountImportSource.self), chainType: any(AccountCreateChainType.self), selectable: any(Bool.self)).thenDoNothing()
-            when(stub).bind(substrateViewModel: any(InputViewModelProtocol.self)).thenDoNothing()
-            when(stub).bind(ethereumViewModel: any(InputViewModelProtocol.self)).thenDoNothing()
-            when(stub).show(chainType: any(AccountCreateChainType.self)).thenDoNothing()
+            when(stub.setSelectedCrypto(model: any(SelectableViewModel<TitleWithSubtitleViewModel>.self))).thenDoNothing()
+            when(stub.setSource(type: any(AccountImportSource.self), chainType: any(AccountCreateChainType.self), selectable: any(Bool.self))).thenDoNothing()
+            when(stub.bind(substrateViewModel: any(InputViewModelProtocol.self))).thenDoNothing()
+            when(stub.bind(ethereumViewModel: any(InputViewModelProtocol.self))).thenDoNothing()
+            when(stub.show(chainType: any(AccountCreateChainType.self))).thenDoNothing()
         }
 
         let expectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).proceed(from: any(AccountImportViewProtocol?.self),
-                               flow: any(AccountImportFlow.self)).then { _ in
+            when(stub.proceed(from: any(AccountImportViewProtocol?.self),
+                               flow: any(AccountImportFlow.self))).then { _ in
                 expectation.fulfill()
             }
         }
