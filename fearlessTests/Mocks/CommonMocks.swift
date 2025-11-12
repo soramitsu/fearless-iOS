@@ -1,18 +1,5 @@
 // Cuckoo compatibility header (injected)
 @testable import fearless
-import SSFModels
-import SSFUtils
-// Disambiguations for ambiguous symbols across modules used by generated mocks
-typealias ChainRegistryProtocol = fearless.ChainRegistryProtocol
-typealias ConnectionPoolProtocol = fearless.ConnectionPoolProtocol
-typealias RuntimeProviderPoolProtocol = fearless.RuntimeProviderPoolProtocol
-typealias RuntimeSyncServiceProtocol = fearless.RuntimeSyncServiceProtocol
-typealias RuntimeVersion = SSFModels.RuntimeVersion
-typealias RuntimeMetadataItem = SSFModels.RuntimeMetadataItem
-typealias SNAddressType = SSFModels.SNAddressType
-typealias ManagedMetaAccountModel = SSFModels.ManagedMetaAccountModel
-typealias SchedulerProtocol = SSFUtils.SchedulerProtocol
-typealias SchedulerDelegate = SSFUtils.SchedulerDelegate
 // MARK: - Mocks generated from file: 'Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift'
 
 import Cuckoo
@@ -793,9 +780,9 @@ class MockAccountRepositoryFactoryProtocol: AccountRepositoryFactoryProtocol, Cu
 
 
     @available(*, deprecated, message: "Use createMetaAccountRepository(for filter:, sortDescriptors:) instead")
-    func createRepository() -> AnyDataProviderRepository<MetaAccountModel> {
+    func createRepository() -> AnyDataProviderRepository<fearless.MetaAccountModel> {
         return cuckoo_manager.call(
-            "createRepository() -> AnyDataProviderRepository<MetaAccountModel>",
+            "createRepository() -> AnyDataProviderRepository<fearless.MetaAccountModel>",
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -803,9 +790,9 @@ class MockAccountRepositoryFactoryProtocol: AccountRepositoryFactoryProtocol, Cu
         )
     }
 
-    func createAccountRepository(for p0: SNAddressType) -> AnyDataProviderRepository<MetaAccountModel> {
+    func createAccountRepository(for p0: fearless.SNAddressType) -> AnyDataProviderRepository<fearless.MetaAccountModel> {
         return cuckoo_manager.call(
-            "createAccountRepository(for p0: SNAddressType) -> AnyDataProviderRepository<MetaAccountModel>",
+            "createAccountRepository(for p0: fearless.SNAddressType) -> AnyDataProviderRepository<fearless.MetaAccountModel>",
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -813,9 +800,9 @@ class MockAccountRepositoryFactoryProtocol: AccountRepositoryFactoryProtocol, Cu
         )
     }
 
-    func createMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<MetaAccountModel> {
+    func createMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<fearless.MetaAccountModel> {
         return cuckoo_manager.call(
-            "createMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<MetaAccountModel>",
+            "createMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<fearless.MetaAccountModel>",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -823,9 +810,9 @@ class MockAccountRepositoryFactoryProtocol: AccountRepositoryFactoryProtocol, Cu
         )
     }
 
-    func createManagedMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<ManagedMetaAccountModel> {
+    func createManagedMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<fearless.ManagedMetaAccountModel> {
         return cuckoo_manager.call(
-            "createManagedMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<ManagedMetaAccountModel>",
+            "createManagedMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<fearless.ManagedMetaAccountModel>",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -833,9 +820,9 @@ class MockAccountRepositoryFactoryProtocol: AccountRepositoryFactoryProtocol, Cu
         )
     }
 
-    func createAsyncMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AsyncAnyRepository<MetaAccountModel> {
+    func createAsyncMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AsyncAnyRepository<fearless.MetaAccountModel> {
         return cuckoo_manager.call(
-            "createAsyncMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AsyncAnyRepository<MetaAccountModel>",
+            "createAsyncMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AsyncAnyRepository<fearless.MetaAccountModel>",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -851,42 +838,42 @@ class MockAccountRepositoryFactoryProtocol: AccountRepositoryFactoryProtocol, Cu
         }
         
         @available(*, deprecated, message: "Use createMetaAccountRepository(for filter:, sortDescriptors:) instead")
-        func createRepository() -> Cuckoo.ProtocolStubFunction<(), AnyDataProviderRepository<MetaAccountModel>> {
+        func createRepository() -> Cuckoo.ProtocolStubFunction<(), AnyDataProviderRepository<fearless.MetaAccountModel>> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockAccountRepositoryFactoryProtocol.self,
-                method: "createRepository() -> AnyDataProviderRepository<MetaAccountModel>",
+                method: "createRepository() -> AnyDataProviderRepository<fearless.MetaAccountModel>",
                 parameterMatchers: matchers
             ))
         }
         
-        func createAccountRepository<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(SNAddressType), AnyDataProviderRepository<MetaAccountModel>> where M1.MatchedType == SNAddressType {
-            let matchers: [Cuckoo.ParameterMatcher<(SNAddressType)>] = [wrap(matchable: p0) { $0 }]
+        func createAccountRepository<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(fearless.SNAddressType), AnyDataProviderRepository<fearless.MetaAccountModel>> where M1.MatchedType == fearless.SNAddressType {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.SNAddressType)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAccountRepositoryFactoryProtocol.self,
-                method: "createAccountRepository(for p0: SNAddressType) -> AnyDataProviderRepository<MetaAccountModel>",
+                method: "createAccountRepository(for p0: fearless.SNAddressType) -> AnyDataProviderRepository<fearless.MetaAccountModel>",
                 parameterMatchers: matchers
             ))
         }
         
-        func createMetaAccountRepository<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(for p0: M1, sortDescriptors p1: M2) -> Cuckoo.ProtocolStubFunction<(NSPredicate?, [NSSortDescriptor]), AnyDataProviderRepository<MetaAccountModel>> where M1.OptionalMatchedType == NSPredicate, M2.MatchedType == [NSSortDescriptor] {
+        func createMetaAccountRepository<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(for p0: M1, sortDescriptors p1: M2) -> Cuckoo.ProtocolStubFunction<(NSPredicate?, [NSSortDescriptor]), AnyDataProviderRepository<fearless.MetaAccountModel>> where M1.OptionalMatchedType == NSPredicate, M2.MatchedType == [NSSortDescriptor] {
             let matchers: [Cuckoo.ParameterMatcher<(NSPredicate?, [NSSortDescriptor])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAccountRepositoryFactoryProtocol.self,
-                method: "createMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<MetaAccountModel>",
+                method: "createMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<fearless.MetaAccountModel>",
                 parameterMatchers: matchers
             ))
         }
         
-        func createManagedMetaAccountRepository<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(for p0: M1, sortDescriptors p1: M2) -> Cuckoo.ProtocolStubFunction<(NSPredicate?, [NSSortDescriptor]), AnyDataProviderRepository<ManagedMetaAccountModel>> where M1.OptionalMatchedType == NSPredicate, M2.MatchedType == [NSSortDescriptor] {
+        func createManagedMetaAccountRepository<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(for p0: M1, sortDescriptors p1: M2) -> Cuckoo.ProtocolStubFunction<(NSPredicate?, [NSSortDescriptor]), AnyDataProviderRepository<fearless.ManagedMetaAccountModel>> where M1.OptionalMatchedType == NSPredicate, M2.MatchedType == [NSSortDescriptor] {
             let matchers: [Cuckoo.ParameterMatcher<(NSPredicate?, [NSSortDescriptor])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAccountRepositoryFactoryProtocol.self,
-                method: "createManagedMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<ManagedMetaAccountModel>",
+                method: "createManagedMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<fearless.ManagedMetaAccountModel>",
                 parameterMatchers: matchers
             ))
         }
         
-        func createAsyncMetaAccountRepository<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(for p0: M1, sortDescriptors p1: M2) -> Cuckoo.ProtocolStubFunction<(NSPredicate?, [NSSortDescriptor]), AsyncAnyRepository<MetaAccountModel>> where M1.OptionalMatchedType == NSPredicate, M2.MatchedType == [NSSortDescriptor] {
+        func createAsyncMetaAccountRepository<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(for p0: M1, sortDescriptors p1: M2) -> Cuckoo.ProtocolStubFunction<(NSPredicate?, [NSSortDescriptor]), AsyncAnyRepository<fearless.MetaAccountModel>> where M1.OptionalMatchedType == NSPredicate, M2.MatchedType == [NSSortDescriptor] {
             let matchers: [Cuckoo.ParameterMatcher<(NSPredicate?, [NSSortDescriptor])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAccountRepositoryFactoryProtocol.self,
-                method: "createAsyncMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AsyncAnyRepository<MetaAccountModel>",
+                method: "createAsyncMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AsyncAnyRepository<fearless.MetaAccountModel>",
                 parameterMatchers: matchers
             ))
         }
@@ -906,10 +893,10 @@ class MockAccountRepositoryFactoryProtocol: AccountRepositoryFactoryProtocol, Cu
         
         @available(*, deprecated, message: "Use createMetaAccountRepository(for filter:, sortDescriptors:) instead")
         @discardableResult
-        func createRepository() -> Cuckoo.__DoNotUse<(), AnyDataProviderRepository<MetaAccountModel>> {
+        func createRepository() -> Cuckoo.__DoNotUse<(), AnyDataProviderRepository<fearless.MetaAccountModel>> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
-                "createRepository() -> AnyDataProviderRepository<MetaAccountModel>",
+                "createRepository() -> AnyDataProviderRepository<fearless.MetaAccountModel>",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -918,10 +905,10 @@ class MockAccountRepositoryFactoryProtocol: AccountRepositoryFactoryProtocol, Cu
         
         
         @discardableResult
-        func createAccountRepository<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(SNAddressType), AnyDataProviderRepository<MetaAccountModel>> where M1.MatchedType == SNAddressType {
-            let matchers: [Cuckoo.ParameterMatcher<(SNAddressType)>] = [wrap(matchable: p0) { $0 }]
+        func createAccountRepository<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(fearless.SNAddressType), AnyDataProviderRepository<fearless.MetaAccountModel>> where M1.MatchedType == fearless.SNAddressType {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.SNAddressType)>] = [wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
-                "createAccountRepository(for p0: SNAddressType) -> AnyDataProviderRepository<MetaAccountModel>",
+                "createAccountRepository(for p0: fearless.SNAddressType) -> AnyDataProviderRepository<fearless.MetaAccountModel>",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -930,10 +917,10 @@ class MockAccountRepositoryFactoryProtocol: AccountRepositoryFactoryProtocol, Cu
         
         
         @discardableResult
-        func createMetaAccountRepository<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(for p0: M1, sortDescriptors p1: M2) -> Cuckoo.__DoNotUse<(NSPredicate?, [NSSortDescriptor]), AnyDataProviderRepository<MetaAccountModel>> where M1.OptionalMatchedType == NSPredicate, M2.MatchedType == [NSSortDescriptor] {
+        func createMetaAccountRepository<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(for p0: M1, sortDescriptors p1: M2) -> Cuckoo.__DoNotUse<(NSPredicate?, [NSSortDescriptor]), AnyDataProviderRepository<fearless.MetaAccountModel>> where M1.OptionalMatchedType == NSPredicate, M2.MatchedType == [NSSortDescriptor] {
             let matchers: [Cuckoo.ParameterMatcher<(NSPredicate?, [NSSortDescriptor])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return cuckoo_manager.verify(
-                "createMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<MetaAccountModel>",
+                "createMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<fearless.MetaAccountModel>",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -942,10 +929,10 @@ class MockAccountRepositoryFactoryProtocol: AccountRepositoryFactoryProtocol, Cu
         
         
         @discardableResult
-        func createManagedMetaAccountRepository<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(for p0: M1, sortDescriptors p1: M2) -> Cuckoo.__DoNotUse<(NSPredicate?, [NSSortDescriptor]), AnyDataProviderRepository<ManagedMetaAccountModel>> where M1.OptionalMatchedType == NSPredicate, M2.MatchedType == [NSSortDescriptor] {
+        func createManagedMetaAccountRepository<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(for p0: M1, sortDescriptors p1: M2) -> Cuckoo.__DoNotUse<(NSPredicate?, [NSSortDescriptor]), AnyDataProviderRepository<fearless.ManagedMetaAccountModel>> where M1.OptionalMatchedType == NSPredicate, M2.MatchedType == [NSSortDescriptor] {
             let matchers: [Cuckoo.ParameterMatcher<(NSPredicate?, [NSSortDescriptor])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return cuckoo_manager.verify(
-                "createManagedMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<ManagedMetaAccountModel>",
+                "createManagedMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<fearless.ManagedMetaAccountModel>",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -954,10 +941,10 @@ class MockAccountRepositoryFactoryProtocol: AccountRepositoryFactoryProtocol, Cu
         
         
         @discardableResult
-        func createAsyncMetaAccountRepository<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(for p0: M1, sortDescriptors p1: M2) -> Cuckoo.__DoNotUse<(NSPredicate?, [NSSortDescriptor]), AsyncAnyRepository<MetaAccountModel>> where M1.OptionalMatchedType == NSPredicate, M2.MatchedType == [NSSortDescriptor] {
+        func createAsyncMetaAccountRepository<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(for p0: M1, sortDescriptors p1: M2) -> Cuckoo.__DoNotUse<(NSPredicate?, [NSSortDescriptor]), AsyncAnyRepository<fearless.MetaAccountModel>> where M1.OptionalMatchedType == NSPredicate, M2.MatchedType == [NSSortDescriptor] {
             let matchers: [Cuckoo.ParameterMatcher<(NSPredicate?, [NSSortDescriptor])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return cuckoo_manager.verify(
-                "createAsyncMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AsyncAnyRepository<MetaAccountModel>",
+                "createAsyncMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AsyncAnyRepository<fearless.MetaAccountModel>",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -971,24 +958,24 @@ class AccountRepositoryFactoryProtocolStub:AccountRepositoryFactoryProtocol, @un
 
     
     @available(*, deprecated, message: "Use createMetaAccountRepository(for filter:, sortDescriptors:) instead")
-    func createRepository() -> AnyDataProviderRepository<MetaAccountModel> {
-        return DefaultValueRegistry.defaultValue(for: (AnyDataProviderRepository<MetaAccountModel>).self)
+    func createRepository() -> AnyDataProviderRepository<fearless.MetaAccountModel> {
+        return DefaultValueRegistry.defaultValue(for: (AnyDataProviderRepository<fearless.MetaAccountModel>).self)
     }
     
-    func createAccountRepository(for p0: SNAddressType) -> AnyDataProviderRepository<MetaAccountModel> {
-        return DefaultValueRegistry.defaultValue(for: (AnyDataProviderRepository<MetaAccountModel>).self)
+    func createAccountRepository(for p0: fearless.SNAddressType) -> AnyDataProviderRepository<fearless.MetaAccountModel> {
+        return DefaultValueRegistry.defaultValue(for: (AnyDataProviderRepository<fearless.MetaAccountModel>).self)
     }
     
-    func createMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<MetaAccountModel> {
-        return DefaultValueRegistry.defaultValue(for: (AnyDataProviderRepository<MetaAccountModel>).self)
+    func createMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<fearless.MetaAccountModel> {
+        return DefaultValueRegistry.defaultValue(for: (AnyDataProviderRepository<fearless.MetaAccountModel>).self)
     }
     
-    func createManagedMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<ManagedMetaAccountModel> {
-        return DefaultValueRegistry.defaultValue(for: (AnyDataProviderRepository<ManagedMetaAccountModel>).self)
+    func createManagedMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AnyDataProviderRepository<fearless.ManagedMetaAccountModel> {
+        return DefaultValueRegistry.defaultValue(for: (AnyDataProviderRepository<fearless.ManagedMetaAccountModel>).self)
     }
     
-    func createAsyncMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AsyncAnyRepository<MetaAccountModel> {
-        return DefaultValueRegistry.defaultValue(for: (AsyncAnyRepository<MetaAccountModel>).self)
+    func createAsyncMetaAccountRepository(for p0: NSPredicate?, sortDescriptors p1: [NSSortDescriptor]) -> AsyncAnyRepository<fearless.MetaAccountModel> {
+        return DefaultValueRegistry.defaultValue(for: (AsyncAnyRepository<fearless.MetaAccountModel>).self)
     }
 }
 
@@ -1002,8 +989,8 @@ import Foundation
 @testable import fearless
 @testable import SoraKeystore
 
-class MockSchedulerProtocol: SchedulerProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
-    typealias MocksType = SchedulerProtocol
+class MockSchedulerProtocol: fearless.SchedulerProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = fearless.SchedulerProtocol
     typealias Stubbing = __StubbingProxy_SchedulerProtocol
     typealias Verification = __VerificationProxy_SchedulerProtocol
 
@@ -1011,9 +998,9 @@ class MockSchedulerProtocol: SchedulerProtocol, Cuckoo.ProtocolMock, @unchecked 
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any SchedulerProtocol)?
+    private var __defaultImplStub: (any fearless.SchedulerProtocol)?
 
-    func enableDefaultImplementation(_ stub: any SchedulerProtocol) {
+    func enableDefaultImplementation(_ stub: any fearless.SchedulerProtocol) {
         __defaultImplStub = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
@@ -1100,7 +1087,7 @@ class MockSchedulerProtocol: SchedulerProtocol, Cuckoo.ProtocolMock, @unchecked 
     }
 }
 
-class SchedulerProtocolStub:SchedulerProtocol, @unchecked Sendable {
+class SchedulerProtocolStub:fearless.SchedulerProtocol, @unchecked Sendable {
 
 
     
@@ -1114,8 +1101,8 @@ class SchedulerProtocolStub:SchedulerProtocol, @unchecked Sendable {
 }
 
 
-class MockSchedulerDelegate: SchedulerDelegate, Cuckoo.ProtocolMock, @unchecked Sendable {
-    typealias MocksType = SchedulerDelegate
+class MockSchedulerDelegate: fearless.SchedulerDelegate, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = fearless.SchedulerDelegate
     typealias Stubbing = __StubbingProxy_SchedulerDelegate
     typealias Verification = __VerificationProxy_SchedulerDelegate
 
@@ -1123,17 +1110,17 @@ class MockSchedulerDelegate: SchedulerDelegate, Cuckoo.ProtocolMock, @unchecked 
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any SchedulerDelegate)?
+    private var __defaultImplStub: (any fearless.SchedulerDelegate)?
 
-    func enableDefaultImplementation(_ stub: any SchedulerDelegate) {
+    func enableDefaultImplementation(_ stub: any fearless.SchedulerDelegate) {
         __defaultImplStub = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
 
-    func didTrigger(scheduler p0: SchedulerProtocol) {
+    func didTrigger(scheduler p0: fearless.SchedulerProtocol) {
         return cuckoo_manager.call(
-            "didTrigger(scheduler p0: SchedulerProtocol)",
+            "didTrigger(scheduler p0: fearless.SchedulerProtocol)",
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -1148,10 +1135,10 @@ class MockSchedulerDelegate: SchedulerDelegate, Cuckoo.ProtocolMock, @unchecked 
             self.cuckoo_manager = manager
         }
         
-        func didTrigger<M1: Cuckoo.Matchable>(scheduler p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(SchedulerProtocol)> where M1.MatchedType == SchedulerProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(SchedulerProtocol)>] = [wrap(matchable: p0) { $0 }]
+        func didTrigger<M1: Cuckoo.Matchable>(scheduler p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(fearless.SchedulerProtocol)> where M1.MatchedType == fearless.SchedulerProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.SchedulerProtocol)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockSchedulerDelegate.self,
-                method: "didTrigger(scheduler p0: SchedulerProtocol)",
+                method: "didTrigger(scheduler p0: fearless.SchedulerProtocol)",
                 parameterMatchers: matchers
             ))
         }
@@ -1170,10 +1157,10 @@ class MockSchedulerDelegate: SchedulerDelegate, Cuckoo.ProtocolMock, @unchecked 
         
         
         @discardableResult
-        func didTrigger<M1: Cuckoo.Matchable>(scheduler p0: M1) -> Cuckoo.__DoNotUse<(SchedulerProtocol), Void> where M1.MatchedType == SchedulerProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(SchedulerProtocol)>] = [wrap(matchable: p0) { $0 }]
+        func didTrigger<M1: Cuckoo.Matchable>(scheduler p0: M1) -> Cuckoo.__DoNotUse<(fearless.SchedulerProtocol), Void> where M1.MatchedType == fearless.SchedulerProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.SchedulerProtocol)>] = [wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
-                "didTrigger(scheduler p0: SchedulerProtocol)",
+                "didTrigger(scheduler p0: fearless.SchedulerProtocol)",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -1182,11 +1169,11 @@ class MockSchedulerDelegate: SchedulerDelegate, Cuckoo.ProtocolMock, @unchecked 
     }
 }
 
-class SchedulerDelegateStub:SchedulerDelegate, @unchecked Sendable {
+class SchedulerDelegateStub:fearless.SchedulerDelegate, @unchecked Sendable {
 
 
     
-    func didTrigger(scheduler p0: SchedulerProtocol) {
+    func didTrigger(scheduler p0: fearless.SchedulerProtocol) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
@@ -1502,7 +1489,6 @@ class DataOperationFactoryProtocolStub:DataOperationFactoryProtocol, @unchecked 
 import Cuckoo
 import Foundation
 import RobinHood
-import SSFUtils
 @testable import fearless
 @testable import SoraKeystore
 
@@ -1591,14 +1577,12 @@ class SubstrateOperationFactoryProtocolStub:SubstrateOperationFactoryProtocol, @
 import Cuckoo
 import Foundation
 import RobinHood
-import SSFUtils
-import SSFModels
 import Web3
 @testable import fearless
 @testable import SoraKeystore
 
-class MockChainRegistryProtocol: ChainRegistryProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
-    typealias MocksType = ChainRegistryProtocol
+class MockChainRegistryProtocol: fearless.ChainRegistryProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = fearless.ChainRegistryProtocol
     typealias Stubbing = __StubbingProxy_ChainRegistryProtocol
     typealias Verification = __VerificationProxy_ChainRegistryProtocol
 
@@ -1606,9 +1590,9 @@ class MockChainRegistryProtocol: ChainRegistryProtocol, Cuckoo.ProtocolMock, @un
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any ChainRegistryProtocol)?
+    private var __defaultImplStub: (any fearless.ChainRegistryProtocol)?
 
-    func enableDefaultImplementation(_ stub: any ChainRegistryProtocol) {
+    func enableDefaultImplementation(_ stub: any fearless.ChainRegistryProtocol) {
         __defaultImplStub = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
@@ -1664,9 +1648,9 @@ class MockChainRegistryProtocol: ChainRegistryProtocol, Cuckoo.ProtocolMock, @un
         )
     }
 
-    func getConnection(for p0: ChainModel.Id) -> ChainConnection? {
+    func getConnection(for p0: ChainModel.Id) -> fearless.ChainConnection? {
         return cuckoo_manager.call(
-            "getConnection(for p0: ChainModel.Id) -> ChainConnection?",
+            "getConnection(for p0: ChainModel.Id) -> fearless.ChainConnection?",
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -1674,9 +1658,9 @@ class MockChainRegistryProtocol: ChainRegistryProtocol, Cuckoo.ProtocolMock, @un
         )
     }
 
-    func getRuntimeProvider(for p0: ChainModel.Id) -> RuntimeProviderProtocol? {
+    func getRuntimeProvider(for p0: ChainModel.Id) -> fearless.RuntimeProviderProtocol? {
         return cuckoo_manager.call(
-            "getRuntimeProvider(for p0: ChainModel.Id) -> RuntimeProviderProtocol?",
+            "getRuntimeProvider(for p0: ChainModel.Id) -> fearless.RuntimeProviderProtocol?",
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -1799,18 +1783,18 @@ class MockChainRegistryProtocol: ChainRegistryProtocol, Cuckoo.ProtocolMock, @un
             ))
         }
         
-        func getConnection<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), ChainConnection?> where M1.MatchedType == ChainModel.Id {
+        func getConnection<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), fearless.ChainConnection?> where M1.MatchedType == ChainModel.Id {
             let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockChainRegistryProtocol.self,
-                method: "getConnection(for p0: ChainModel.Id) -> ChainConnection?",
+                method: "getConnection(for p0: ChainModel.Id) -> fearless.ChainConnection?",
                 parameterMatchers: matchers
             ))
         }
         
-        func getRuntimeProvider<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), RuntimeProviderProtocol?> where M1.MatchedType == ChainModel.Id {
+        func getRuntimeProvider<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), fearless.RuntimeProviderProtocol?> where M1.MatchedType == ChainModel.Id {
             let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockChainRegistryProtocol.self,
-                method: "getRuntimeProvider(for p0: ChainModel.Id) -> RuntimeProviderProtocol?",
+                method: "getRuntimeProvider(for p0: ChainModel.Id) -> fearless.RuntimeProviderProtocol?",
                 parameterMatchers: matchers
             ))
         }
@@ -1929,10 +1913,10 @@ class MockChainRegistryProtocol: ChainRegistryProtocol, Cuckoo.ProtocolMock, @un
         
         
         @discardableResult
-        func getConnection<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), ChainConnection?> where M1.MatchedType == ChainModel.Id {
+        func getConnection<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), fearless.ChainConnection?> where M1.MatchedType == ChainModel.Id {
             let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
-                "getConnection(for p0: ChainModel.Id) -> ChainConnection?",
+                "getConnection(for p0: ChainModel.Id) -> fearless.ChainConnection?",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -1941,10 +1925,10 @@ class MockChainRegistryProtocol: ChainRegistryProtocol, Cuckoo.ProtocolMock, @un
         
         
         @discardableResult
-        func getRuntimeProvider<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), RuntimeProviderProtocol?> where M1.MatchedType == ChainModel.Id {
+        func getRuntimeProvider<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), fearless.RuntimeProviderProtocol?> where M1.MatchedType == ChainModel.Id {
             let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
-                "getRuntimeProvider(for p0: ChainModel.Id) -> RuntimeProviderProtocol?",
+                "getRuntimeProvider(for p0: ChainModel.Id) -> fearless.RuntimeProviderProtocol?",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -2049,7 +2033,7 @@ class MockChainRegistryProtocol: ChainRegistryProtocol, Cuckoo.ProtocolMock, @un
     }
 }
 
-class ChainRegistryProtocolStub:ChainRegistryProtocol, @unchecked Sendable {
+class ChainRegistryProtocolStub:fearless.ChainRegistryProtocol, @unchecked Sendable {
     
     var availableChainIds: Set<ChainModel.Id>? {
         get {
@@ -2079,12 +2063,12 @@ class ChainRegistryProtocolStub:ChainRegistryProtocol, @unchecked Sendable {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-    func getConnection(for p0: ChainModel.Id) -> ChainConnection? {
-        return DefaultValueRegistry.defaultValue(for: (ChainConnection?).self)
+    func getConnection(for p0: ChainModel.Id) -> fearless.ChainConnection? {
+        return DefaultValueRegistry.defaultValue(for: (fearless.ChainConnection?).self)
     }
     
-    func getRuntimeProvider(for p0: ChainModel.Id) -> RuntimeProviderProtocol? {
-        return DefaultValueRegistry.defaultValue(for: (RuntimeProviderProtocol?).self)
+    func getRuntimeProvider(for p0: ChainModel.Id) -> fearless.RuntimeProviderProtocol? {
+        return DefaultValueRegistry.defaultValue(for: (fearless.RuntimeProviderProtocol?).self)
     }
     
     func getChain(for p0: ChainModel.Id) -> ChainModel? {
@@ -2127,7 +2111,6 @@ class ChainRegistryProtocolStub:ChainRegistryProtocol, @unchecked Sendable {
 
 import Cuckoo
 import Foundation
-import SSFUtils
 @testable import fearless
 @testable import SoraKeystore
 
@@ -2148,9 +2131,9 @@ class MockConnectionFactoryProtocol: ConnectionFactoryProtocol, Cuckoo.ProtocolM
     }
 
 
-    func createConnection(connectionName p0: String?, for p1: [URL], delegate p2: WebSocketEngineDelegate) throws -> ChainConnection {
+    func createConnection(connectionName p0: String?, for p1: [URL], delegate p2: WebSocketEngineDelegate) throws -> fearless.ChainConnection {
         return try cuckoo_manager.callThrows(
-            "createConnection(connectionName p0: String?, for p1: [URL], delegate p2: WebSocketEngineDelegate) throws -> ChainConnection",
+            "createConnection(connectionName p0: String?, for p1: [URL], delegate p2: WebSocketEngineDelegate) throws -> fearless.ChainConnection",
             parameters: (p0, p1, p2),
             escapingParameters: (p0, p1, p2),
             errorType: Swift.Error.self,
@@ -2166,10 +2149,10 @@ class MockConnectionFactoryProtocol: ConnectionFactoryProtocol, Cuckoo.ProtocolM
             self.cuckoo_manager = manager
         }
         
-        func createConnection<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(connectionName p0: M1, for p1: M2, delegate p2: M3) -> Cuckoo.ProtocolStubThrowingFunction<(String?, [URL], WebSocketEngineDelegate), ChainConnection,Swift.Error> where M1.OptionalMatchedType == String, M2.MatchedType == [URL], M3.MatchedType == WebSocketEngineDelegate {
+        func createConnection<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(connectionName p0: M1, for p1: M2, delegate p2: M3) -> Cuckoo.ProtocolStubThrowingFunction<(String?, [URL], WebSocketEngineDelegate), fearless.ChainConnection,Swift.Error> where M1.OptionalMatchedType == String, M2.MatchedType == [URL], M3.MatchedType == WebSocketEngineDelegate {
             let matchers: [Cuckoo.ParameterMatcher<(String?, [URL], WebSocketEngineDelegate)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockConnectionFactoryProtocol.self,
-                method: "createConnection(connectionName p0: String?, for p1: [URL], delegate p2: WebSocketEngineDelegate) throws -> ChainConnection",
+                method: "createConnection(connectionName p0: String?, for p1: [URL], delegate p2: WebSocketEngineDelegate) throws -> fearless.ChainConnection",
                 parameterMatchers: matchers
             ))
         }
@@ -2188,10 +2171,10 @@ class MockConnectionFactoryProtocol: ConnectionFactoryProtocol, Cuckoo.ProtocolM
         
         
         @discardableResult
-        func createConnection<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(connectionName p0: M1, for p1: M2, delegate p2: M3) -> Cuckoo.__DoNotUse<(String?, [URL], WebSocketEngineDelegate), ChainConnection> where M1.OptionalMatchedType == String, M2.MatchedType == [URL], M3.MatchedType == WebSocketEngineDelegate {
+        func createConnection<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(connectionName p0: M1, for p1: M2, delegate p2: M3) -> Cuckoo.__DoNotUse<(String?, [URL], WebSocketEngineDelegate), fearless.ChainConnection> where M1.OptionalMatchedType == String, M2.MatchedType == [URL], M3.MatchedType == WebSocketEngineDelegate {
             let matchers: [Cuckoo.ParameterMatcher<(String?, [URL], WebSocketEngineDelegate)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return cuckoo_manager.verify(
-                "createConnection(connectionName p0: String?, for p1: [URL], delegate p2: WebSocketEngineDelegate) throws -> ChainConnection",
+                "createConnection(connectionName p0: String?, for p1: [URL], delegate p2: WebSocketEngineDelegate) throws -> fearless.ChainConnection",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -2204,8 +2187,8 @@ class ConnectionFactoryProtocolStub:ConnectionFactoryProtocol, @unchecked Sendab
 
 
     
-    func createConnection(connectionName p0: String?, for p1: [URL], delegate p2: WebSocketEngineDelegate) throws -> ChainConnection {
-        return DefaultValueRegistry.defaultValue(for: (ChainConnection).self)
+    func createConnection(connectionName p0: String?, for p1: [URL], delegate p2: WebSocketEngineDelegate) throws -> fearless.ChainConnection {
+        return DefaultValueRegistry.defaultValue(for: (fearless.ChainConnection).self)
     }
 }
 
@@ -2216,13 +2199,11 @@ class ConnectionFactoryProtocolStub:ConnectionFactoryProtocol, @unchecked Sendab
 
 import Cuckoo
 import Foundation
-import SSFUtils
 import SoraFoundation
-import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
-class MockConnectionPoolProtocol<T>: ConnectionPoolProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+class MockConnectionPoolProtocol<T>: fearless.ConnectionPoolProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = DefaultImplCaller
     typealias Stubbing = __StubbingProxy_ConnectionPoolProtocol
     typealias Verification = __VerificationProxy_ConnectionPoolProtocol
@@ -2231,11 +2212,11 @@ class MockConnectionPoolProtocol<T>: ConnectionPoolProtocol, Cuckoo.ProtocolMock
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    class DefaultImplCaller: ConnectionPoolProtocol, @unchecked Sendable {
+    class DefaultImplCaller: fearless.ConnectionPoolProtocol, @unchecked Sendable {
         private let reference: Any
     
         
-        init<_CUCKOO$$GENERIC: ConnectionPoolProtocol>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> Any?) where _CUCKOO$$GENERIC.T == T {
+        init<_CUCKOO$$GENERIC: fearless.ConnectionPoolProtocol>(from defaultImpl: UnsafeMutablePointer<_CUCKOO$$GENERIC>, keeping reference: @escaping @autoclosure () -> Any?) where _CUCKOO$$GENERIC.T == T {
             self.reference = reference
     
             _storage$1$setupConnection = defaultImpl.pointee.setupConnection
@@ -2268,13 +2249,13 @@ class MockConnectionPoolProtocol<T>: ConnectionPoolProtocol, Cuckoo.ProtocolMock
 
     private var __defaultImplStub: DefaultImplCaller?
 
-    func enableDefaultImplementation<_CUCKOO$$GENERIC: ConnectionPoolProtocol>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T {
+    func enableDefaultImplementation<_CUCKOO$$GENERIC: fearless.ConnectionPoolProtocol>(_ stub: _CUCKOO$$GENERIC) where _CUCKOO$$GENERIC.T == T {
         var mutableStub = stub
         __defaultImplStub = DefaultImplCaller(from: &mutableStub, keeping: mutableStub)
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
-    func enableDefaultImplementation<_CUCKOO$$GENERIC: ConnectionPoolProtocol>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.T == T {
+    func enableDefaultImplementation<_CUCKOO$$GENERIC: fearless.ConnectionPoolProtocol>(mutating stub: UnsafeMutablePointer<_CUCKOO$$GENERIC>) where _CUCKOO$$GENERIC.T == T {
         __defaultImplStub = DefaultImplCaller(from: stub, keeping: nil)
         cuckoo_manager.enableDefaultStubImplementation()
     }
@@ -2422,7 +2403,7 @@ class MockConnectionPoolProtocol<T>: ConnectionPoolProtocol, Cuckoo.ProtocolMock
     }
 }
 
-class ConnectionPoolProtocolStub<T>:ConnectionPoolProtocol, @unchecked Sendable {
+class ConnectionPoolProtocolStub<T>:fearless.ConnectionPoolProtocol, @unchecked Sendable {
 
 
     
@@ -2529,7 +2510,6 @@ class ConnectionPoolDelegateStub:ConnectionPoolDelegate, @unchecked Sendable {
 import Cuckoo
 import Foundation
 import RobinHood
-import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -2788,9 +2768,6 @@ class RuntimeFilesOperationFactoryProtocolStub:RuntimeFilesOperationFactoryProto
 import Cuckoo
 import Foundation
 import RobinHood
-import SSFUtils
-import SSFModels
-import SSFRuntimeCodingService
 @testable import fearless
 @testable import SoraKeystore
 
@@ -2801,8 +2778,6 @@ import SSFRuntimeCodingService
 import Cuckoo
 import Foundation
 import RobinHood
-import SSFModels
-import SSFRuntimeCodingService
 @testable import fearless
 @testable import SoraKeystore
 
@@ -2823,9 +2798,9 @@ class MockRuntimeProviderFactoryProtocol: RuntimeProviderFactoryProtocol, Cuckoo
     }
 
 
-    func createRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> RuntimeProviderProtocol {
+    func createRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> fearless.RuntimeProviderProtocol {
         return cuckoo_manager.call(
-            "createRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> RuntimeProviderProtocol",
+            "createRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> fearless.RuntimeProviderProtocol",
             parameters: (p0, p1, p2),
             escapingParameters: (p0, p1, p2),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -2833,9 +2808,9 @@ class MockRuntimeProviderFactoryProtocol: RuntimeProviderFactoryProtocol, Cuckoo
         )
     }
 
-    func createHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> RuntimeProviderProtocol {
+    func createHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> fearless.RuntimeProviderProtocol {
         return cuckoo_manager.call(
-            "createHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> RuntimeProviderProtocol",
+            "createHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> fearless.RuntimeProviderProtocol",
             parameters: (p0, p1, p2, p3),
             escapingParameters: (p0, p1, p2, p3),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -2850,18 +2825,18 @@ class MockRuntimeProviderFactoryProtocol: RuntimeProviderFactoryProtocol, Cuckoo
             self.cuckoo_manager = manager
         }
         
-        func createRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable>(for p0: M1, chainTypes p1: M2, usedRuntimePaths p2: M3) -> Cuckoo.ProtocolStubFunction<(ChainModel, Data?, [String: [String]]), RuntimeProviderProtocol> where M1.MatchedType == ChainModel, M2.OptionalMatchedType == Data, M3.MatchedType == [String: [String]] {
+        func createRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable>(for p0: M1, chainTypes p1: M2, usedRuntimePaths p2: M3) -> Cuckoo.ProtocolStubFunction<(ChainModel, Data?, [String: [String]]), fearless.RuntimeProviderProtocol> where M1.MatchedType == ChainModel, M2.OptionalMatchedType == Data, M3.MatchedType == [String: [String]] {
             let matchers: [Cuckoo.ParameterMatcher<(ChainModel, Data?, [String: [String]])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderFactoryProtocol.self,
-                method: "createRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> RuntimeProviderProtocol",
+                method: "createRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> fearless.RuntimeProviderProtocol",
                 parameterMatchers: matchers
             ))
         }
         
-        func createHotRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(for p0: M1, runtimeItem p1: M2, chainTypes p2: M3, usedRuntimePaths p3: M4) -> Cuckoo.ProtocolStubFunction<(ChainModel, RuntimeMetadataItem, Data, [String: [String]]), RuntimeProviderProtocol> where M1.MatchedType == ChainModel, M2.MatchedType == RuntimeMetadataItem, M3.MatchedType == Data, M4.MatchedType == [String: [String]] {
-            let matchers: [Cuckoo.ParameterMatcher<(ChainModel, RuntimeMetadataItem, Data, [String: [String]])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }, wrap(matchable: p3) { $0.3 }]
+        func createHotRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(for p0: M1, runtimeItem p1: M2, chainTypes p2: M3, usedRuntimePaths p3: M4) -> Cuckoo.ProtocolStubFunction<(ChainModel, SSFModels.RuntimeMetadataItem, Data, [String: [String]]), fearless.RuntimeProviderProtocol> where M1.MatchedType == ChainModel, M2.MatchedType == SSFModels.RuntimeMetadataItem, M3.MatchedType == Data, M4.MatchedType == [String: [String]] {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel, SSFModels.RuntimeMetadataItem, Data, [String: [String]])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }, wrap(matchable: p3) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderFactoryProtocol.self,
-                method: "createHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> RuntimeProviderProtocol",
+                method: "createHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> fearless.RuntimeProviderProtocol",
                 parameterMatchers: matchers
             ))
         }
@@ -2880,10 +2855,10 @@ class MockRuntimeProviderFactoryProtocol: RuntimeProviderFactoryProtocol, Cuckoo
         
         
         @discardableResult
-        func createRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable>(for p0: M1, chainTypes p1: M2, usedRuntimePaths p2: M3) -> Cuckoo.__DoNotUse<(ChainModel, Data?, [String: [String]]), RuntimeProviderProtocol> where M1.MatchedType == ChainModel, M2.OptionalMatchedType == Data, M3.MatchedType == [String: [String]] {
+        func createRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable>(for p0: M1, chainTypes p1: M2, usedRuntimePaths p2: M3) -> Cuckoo.__DoNotUse<(ChainModel, Data?, [String: [String]]), fearless.RuntimeProviderProtocol> where M1.MatchedType == ChainModel, M2.OptionalMatchedType == Data, M3.MatchedType == [String: [String]] {
             let matchers: [Cuckoo.ParameterMatcher<(ChainModel, Data?, [String: [String]])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return cuckoo_manager.verify(
-                "createRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> RuntimeProviderProtocol",
+                "createRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> fearless.RuntimeProviderProtocol",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -2892,10 +2867,10 @@ class MockRuntimeProviderFactoryProtocol: RuntimeProviderFactoryProtocol, Cuckoo
         
         
         @discardableResult
-        func createHotRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(for p0: M1, runtimeItem p1: M2, chainTypes p2: M3, usedRuntimePaths p3: M4) -> Cuckoo.__DoNotUse<(ChainModel, RuntimeMetadataItem, Data, [String: [String]]), RuntimeProviderProtocol> where M1.MatchedType == ChainModel, M2.MatchedType == RuntimeMetadataItem, M3.MatchedType == Data, M4.MatchedType == [String: [String]] {
-            let matchers: [Cuckoo.ParameterMatcher<(ChainModel, RuntimeMetadataItem, Data, [String: [String]])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }, wrap(matchable: p3) { $0.3 }]
+        func createHotRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(for p0: M1, runtimeItem p1: M2, chainTypes p2: M3, usedRuntimePaths p3: M4) -> Cuckoo.__DoNotUse<(ChainModel, SSFModels.RuntimeMetadataItem, Data, [String: [String]]), fearless.RuntimeProviderProtocol> where M1.MatchedType == ChainModel, M2.MatchedType == SSFModels.RuntimeMetadataItem, M3.MatchedType == Data, M4.MatchedType == [String: [String]] {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel, SSFModels.RuntimeMetadataItem, Data, [String: [String]])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }, wrap(matchable: p3) { $0.3 }]
             return cuckoo_manager.verify(
-                "createHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> RuntimeProviderProtocol",
+                "createHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> fearless.RuntimeProviderProtocol",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -2908,12 +2883,12 @@ class RuntimeProviderFactoryProtocolStub:RuntimeProviderFactoryProtocol, @unchec
 
 
     
-    func createRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> RuntimeProviderProtocol {
-        return DefaultValueRegistry.defaultValue(for: (RuntimeProviderProtocol).self)
+    func createRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> fearless.RuntimeProviderProtocol {
+        return DefaultValueRegistry.defaultValue(for: (fearless.RuntimeProviderProtocol).self)
     }
     
-    func createHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> RuntimeProviderProtocol {
-        return DefaultValueRegistry.defaultValue(for: (RuntimeProviderProtocol).self)
+    func createHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> fearless.RuntimeProviderProtocol {
+        return DefaultValueRegistry.defaultValue(for: (fearless.RuntimeProviderProtocol).self)
     }
 }
 
@@ -2924,13 +2899,11 @@ class RuntimeProviderFactoryProtocolStub:RuntimeProviderFactoryProtocol, @unchec
 
 import Cuckoo
 import Foundation
-import SSFModels
-import SSFRuntimeCodingService
 @testable import fearless
 @testable import SoraKeystore
 
-class MockRuntimeProviderPoolProtocol: RuntimeProviderPoolProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
-    typealias MocksType = RuntimeProviderPoolProtocol
+class MockRuntimeProviderPoolProtocol: fearless.RuntimeProviderPoolProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = fearless.RuntimeProviderPoolProtocol
     typealias Stubbing = __StubbingProxy_RuntimeProviderPoolProtocol
     typealias Verification = __VerificationProxy_RuntimeProviderPoolProtocol
 
@@ -2938,17 +2911,17 @@ class MockRuntimeProviderPoolProtocol: RuntimeProviderPoolProtocol, Cuckoo.Proto
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any RuntimeProviderPoolProtocol)?
+    private var __defaultImplStub: (any fearless.RuntimeProviderPoolProtocol)?
 
-    func enableDefaultImplementation(_ stub: any RuntimeProviderPoolProtocol) {
+    func enableDefaultImplementation(_ stub: any fearless.RuntimeProviderPoolProtocol) {
         __defaultImplStub = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
 
-    func setupRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?) -> RuntimeProviderProtocol {
+    func setupRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?) -> fearless.RuntimeProviderProtocol {
         return cuckoo_manager.call(
-            "setupRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?) -> RuntimeProviderProtocol",
+            "setupRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?) -> fearless.RuntimeProviderProtocol",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -2956,9 +2929,9 @@ class MockRuntimeProviderPoolProtocol: RuntimeProviderPoolProtocol, Cuckoo.Proto
         )
     }
 
-    func setupHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: RuntimeMetadataItem, chainTypes p2: Data) -> RuntimeProviderProtocol {
+    func setupHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data) -> fearless.RuntimeProviderProtocol {
         return cuckoo_manager.call(
-            "setupHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: RuntimeMetadataItem, chainTypes p2: Data) -> RuntimeProviderProtocol",
+            "setupHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data) -> fearless.RuntimeProviderProtocol",
             parameters: (p0, p1, p2),
             escapingParameters: (p0, p1, p2),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -2976,9 +2949,9 @@ class MockRuntimeProviderPoolProtocol: RuntimeProviderPoolProtocol, Cuckoo.Proto
         )
     }
 
-    func getRuntimeProvider(for p0: ChainModel.Id) -> RuntimeProviderProtocol? {
+    func getRuntimeProvider(for p0: ChainModel.Id) -> fearless.RuntimeProviderProtocol? {
         return cuckoo_manager.call(
-            "getRuntimeProvider(for p0: ChainModel.Id) -> RuntimeProviderProtocol?",
+            "getRuntimeProvider(for p0: ChainModel.Id) -> fearless.RuntimeProviderProtocol?",
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -2993,18 +2966,18 @@ class MockRuntimeProviderPoolProtocol: RuntimeProviderPoolProtocol, Cuckoo.Proto
             self.cuckoo_manager = manager
         }
         
-        func setupRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(for p0: M1, chainTypes p1: M2) -> Cuckoo.ProtocolStubFunction<(ChainModel, Data?), RuntimeProviderProtocol> where M1.MatchedType == ChainModel, M2.OptionalMatchedType == Data {
+        func setupRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(for p0: M1, chainTypes p1: M2) -> Cuckoo.ProtocolStubFunction<(ChainModel, Data?), fearless.RuntimeProviderProtocol> where M1.MatchedType == ChainModel, M2.OptionalMatchedType == Data {
             let matchers: [Cuckoo.ParameterMatcher<(ChainModel, Data?)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderPoolProtocol.self,
-                method: "setupRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?) -> RuntimeProviderProtocol",
+                method: "setupRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?) -> fearless.RuntimeProviderProtocol",
                 parameterMatchers: matchers
             ))
         }
         
-        func setupHotRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(for p0: M1, runtimeItem p1: M2, chainTypes p2: M3) -> Cuckoo.ProtocolStubFunction<(ChainModel, RuntimeMetadataItem, Data), RuntimeProviderProtocol> where M1.MatchedType == ChainModel, M2.MatchedType == RuntimeMetadataItem, M3.MatchedType == Data {
-            let matchers: [Cuckoo.ParameterMatcher<(ChainModel, RuntimeMetadataItem, Data)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
+        func setupHotRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(for p0: M1, runtimeItem p1: M2, chainTypes p2: M3) -> Cuckoo.ProtocolStubFunction<(ChainModel, SSFModels.RuntimeMetadataItem, Data), fearless.RuntimeProviderProtocol> where M1.MatchedType == ChainModel, M2.MatchedType == SSFModels.RuntimeMetadataItem, M3.MatchedType == Data {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel, SSFModels.RuntimeMetadataItem, Data)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderPoolProtocol.self,
-                method: "setupHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: RuntimeMetadataItem, chainTypes p2: Data) -> RuntimeProviderProtocol",
+                method: "setupHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data) -> fearless.RuntimeProviderProtocol",
                 parameterMatchers: matchers
             ))
         }
@@ -3017,10 +2990,10 @@ class MockRuntimeProviderPoolProtocol: RuntimeProviderPoolProtocol, Cuckoo.Proto
             ))
         }
         
-        func getRuntimeProvider<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), RuntimeProviderProtocol?> where M1.MatchedType == ChainModel.Id {
+        func getRuntimeProvider<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id), fearless.RuntimeProviderProtocol?> where M1.MatchedType == ChainModel.Id {
             let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderPoolProtocol.self,
-                method: "getRuntimeProvider(for p0: ChainModel.Id) -> RuntimeProviderProtocol?",
+                method: "getRuntimeProvider(for p0: ChainModel.Id) -> fearless.RuntimeProviderProtocol?",
                 parameterMatchers: matchers
             ))
         }
@@ -3039,10 +3012,10 @@ class MockRuntimeProviderPoolProtocol: RuntimeProviderPoolProtocol, Cuckoo.Proto
         
         
         @discardableResult
-        func setupRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(for p0: M1, chainTypes p1: M2) -> Cuckoo.__DoNotUse<(ChainModel, Data?), RuntimeProviderProtocol> where M1.MatchedType == ChainModel, M2.OptionalMatchedType == Data {
+        func setupRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(for p0: M1, chainTypes p1: M2) -> Cuckoo.__DoNotUse<(ChainModel, Data?), fearless.RuntimeProviderProtocol> where M1.MatchedType == ChainModel, M2.OptionalMatchedType == Data {
             let matchers: [Cuckoo.ParameterMatcher<(ChainModel, Data?)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return cuckoo_manager.verify(
-                "setupRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?) -> RuntimeProviderProtocol",
+                "setupRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?) -> fearless.RuntimeProviderProtocol",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -3051,10 +3024,10 @@ class MockRuntimeProviderPoolProtocol: RuntimeProviderPoolProtocol, Cuckoo.Proto
         
         
         @discardableResult
-        func setupHotRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(for p0: M1, runtimeItem p1: M2, chainTypes p2: M3) -> Cuckoo.__DoNotUse<(ChainModel, RuntimeMetadataItem, Data), RuntimeProviderProtocol> where M1.MatchedType == ChainModel, M2.MatchedType == RuntimeMetadataItem, M3.MatchedType == Data {
-            let matchers: [Cuckoo.ParameterMatcher<(ChainModel, RuntimeMetadataItem, Data)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
+        func setupHotRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(for p0: M1, runtimeItem p1: M2, chainTypes p2: M3) -> Cuckoo.__DoNotUse<(ChainModel, SSFModels.RuntimeMetadataItem, Data), fearless.RuntimeProviderProtocol> where M1.MatchedType == ChainModel, M2.MatchedType == SSFModels.RuntimeMetadataItem, M3.MatchedType == Data {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel, SSFModels.RuntimeMetadataItem, Data)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return cuckoo_manager.verify(
-                "setupHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: RuntimeMetadataItem, chainTypes p2: Data) -> RuntimeProviderProtocol",
+                "setupHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data) -> fearless.RuntimeProviderProtocol",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -3075,10 +3048,10 @@ class MockRuntimeProviderPoolProtocol: RuntimeProviderPoolProtocol, Cuckoo.Proto
         
         
         @discardableResult
-        func getRuntimeProvider<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), RuntimeProviderProtocol?> where M1.MatchedType == ChainModel.Id {
+        func getRuntimeProvider<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(ChainModel.Id), fearless.RuntimeProviderProtocol?> where M1.MatchedType == ChainModel.Id {
             let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id)>] = [wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
-                "getRuntimeProvider(for p0: ChainModel.Id) -> RuntimeProviderProtocol?",
+                "getRuntimeProvider(for p0: ChainModel.Id) -> fearless.RuntimeProviderProtocol?",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -3087,24 +3060,24 @@ class MockRuntimeProviderPoolProtocol: RuntimeProviderPoolProtocol, Cuckoo.Proto
     }
 }
 
-class RuntimeProviderPoolProtocolStub:RuntimeProviderPoolProtocol, @unchecked Sendable {
+class RuntimeProviderPoolProtocolStub:fearless.RuntimeProviderPoolProtocol, @unchecked Sendable {
 
 
     
-    func setupRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?) -> RuntimeProviderProtocol {
-        return DefaultValueRegistry.defaultValue(for: (RuntimeProviderProtocol).self)
+    func setupRuntimeProvider(for p0: ChainModel, chainTypes p1: Data?) -> fearless.RuntimeProviderProtocol {
+        return DefaultValueRegistry.defaultValue(for: (fearless.RuntimeProviderProtocol).self)
     }
     
-    func setupHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: RuntimeMetadataItem, chainTypes p2: Data) -> RuntimeProviderProtocol {
-        return DefaultValueRegistry.defaultValue(for: (RuntimeProviderProtocol).self)
+    func setupHotRuntimeProvider(for p0: ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data) -> fearless.RuntimeProviderProtocol {
+        return DefaultValueRegistry.defaultValue(for: (fearless.RuntimeProviderProtocol).self)
     }
     
     func destroyRuntimeProvider(for p0: ChainModel.Id) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-    func getRuntimeProvider(for p0: ChainModel.Id) -> RuntimeProviderProtocol? {
-        return DefaultValueRegistry.defaultValue(for: (RuntimeProviderProtocol?).self)
+    func getRuntimeProvider(for p0: ChainModel.Id) -> fearless.RuntimeProviderProtocol? {
+        return DefaultValueRegistry.defaultValue(for: (fearless.RuntimeProviderProtocol?).self)
     }
 }
 
@@ -3116,13 +3089,11 @@ class RuntimeProviderPoolProtocolStub:RuntimeProviderPoolProtocol, @unchecked Se
 import Cuckoo
 import Foundation
 import RobinHood
-import SSFUtils
-import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
-class MockRuntimeSyncServiceProtocol: RuntimeSyncServiceProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
-    typealias MocksType = RuntimeSyncServiceProtocol
+class MockRuntimeSyncServiceProtocol: fearless.RuntimeSyncServiceProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
+    typealias MocksType = fearless.RuntimeSyncServiceProtocol
     typealias Stubbing = __StubbingProxy_RuntimeSyncServiceProtocol
     typealias Verification = __VerificationProxy_RuntimeSyncServiceProtocol
 
@@ -3130,17 +3101,17 @@ class MockRuntimeSyncServiceProtocol: RuntimeSyncServiceProtocol, Cuckoo.Protoco
 
     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
-    private var __defaultImplStub: (any RuntimeSyncServiceProtocol)?
+    private var __defaultImplStub: (any fearless.RuntimeSyncServiceProtocol)?
 
-    func enableDefaultImplementation(_ stub: any RuntimeSyncServiceProtocol) {
+    func enableDefaultImplementation(_ stub: any fearless.RuntimeSyncServiceProtocol) {
         __defaultImplStub = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
 
-    func register(chain p0: ChainModel, with p1: ChainConnection) {
+    func register(chain p0: ChainModel, with p1: fearless.ChainConnection) {
         return cuckoo_manager.call(
-            "register(chain p0: ChainModel, with p1: ChainConnection)",
+            "register(chain p0: ChainModel, with p1: fearless.ChainConnection)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -3158,9 +3129,9 @@ class MockRuntimeSyncServiceProtocol: RuntimeSyncServiceProtocol, Cuckoo.Protoco
         )
     }
 
-    func apply(version p0: RuntimeVersion, for p1: ChainModel.Id) {
+    func apply(version p0: fearless.RuntimeVersion, for p1: ChainModel.Id) {
         return cuckoo_manager.call(
-            "apply(version p0: RuntimeVersion, for p1: ChainModel.Id)",
+            "apply(version p0: fearless.RuntimeVersion, for p1: ChainModel.Id)",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -3195,10 +3166,10 @@ class MockRuntimeSyncServiceProtocol: RuntimeSyncServiceProtocol, Cuckoo.Protoco
             self.cuckoo_manager = manager
         }
         
-        func register<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(chain p0: M1, with p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(ChainModel, ChainConnection)> where M1.MatchedType == ChainModel, M2.MatchedType == ChainConnection {
-            let matchers: [Cuckoo.ParameterMatcher<(ChainModel, ChainConnection)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+        func register<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(chain p0: M1, with p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(ChainModel, fearless.ChainConnection)> where M1.MatchedType == ChainModel, M2.MatchedType == fearless.ChainConnection {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel, fearless.ChainConnection)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRuntimeSyncServiceProtocol.self,
-                method: "register(chain p0: ChainModel, with p1: ChainConnection)",
+                method: "register(chain p0: ChainModel, with p1: fearless.ChainConnection)",
                 parameterMatchers: matchers
             ))
         }
@@ -3211,10 +3182,10 @@ class MockRuntimeSyncServiceProtocol: RuntimeSyncServiceProtocol, Cuckoo.Protoco
             ))
         }
         
-        func apply<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(version p0: M1, for p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(RuntimeVersion, ChainModel.Id)> where M1.MatchedType == RuntimeVersion, M2.MatchedType == ChainModel.Id {
-            let matchers: [Cuckoo.ParameterMatcher<(RuntimeVersion, ChainModel.Id)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+        func apply<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(version p0: M1, for p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(fearless.RuntimeVersion, ChainModel.Id)> where M1.MatchedType == fearless.RuntimeVersion, M2.MatchedType == ChainModel.Id {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.RuntimeVersion, ChainModel.Id)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRuntimeSyncServiceProtocol.self,
-                method: "apply(version p0: RuntimeVersion, for p1: ChainModel.Id)",
+                method: "apply(version p0: fearless.RuntimeVersion, for p1: ChainModel.Id)",
                 parameterMatchers: matchers
             ))
         }
@@ -3249,10 +3220,10 @@ class MockRuntimeSyncServiceProtocol: RuntimeSyncServiceProtocol, Cuckoo.Protoco
         
         
         @discardableResult
-        func register<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(chain p0: M1, with p1: M2) -> Cuckoo.__DoNotUse<(ChainModel, ChainConnection), Void> where M1.MatchedType == ChainModel, M2.MatchedType == ChainConnection {
-            let matchers: [Cuckoo.ParameterMatcher<(ChainModel, ChainConnection)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+        func register<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(chain p0: M1, with p1: M2) -> Cuckoo.__DoNotUse<(ChainModel, fearless.ChainConnection), Void> where M1.MatchedType == ChainModel, M2.MatchedType == fearless.ChainConnection {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel, fearless.ChainConnection)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return cuckoo_manager.verify(
-                "register(chain p0: ChainModel, with p1: ChainConnection)",
+                "register(chain p0: ChainModel, with p1: fearless.ChainConnection)",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -3273,10 +3244,10 @@ class MockRuntimeSyncServiceProtocol: RuntimeSyncServiceProtocol, Cuckoo.Protoco
         
         
         @discardableResult
-        func apply<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(version p0: M1, for p1: M2) -> Cuckoo.__DoNotUse<(RuntimeVersion, ChainModel.Id), Void> where M1.MatchedType == RuntimeVersion, M2.MatchedType == ChainModel.Id {
-            let matchers: [Cuckoo.ParameterMatcher<(RuntimeVersion, ChainModel.Id)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+        func apply<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(version p0: M1, for p1: M2) -> Cuckoo.__DoNotUse<(fearless.RuntimeVersion, ChainModel.Id), Void> where M1.MatchedType == fearless.RuntimeVersion, M2.MatchedType == ChainModel.Id {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.RuntimeVersion, ChainModel.Id)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return cuckoo_manager.verify(
-                "apply(version p0: RuntimeVersion, for p1: ChainModel.Id)",
+                "apply(version p0: fearless.RuntimeVersion, for p1: ChainModel.Id)",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -3309,11 +3280,11 @@ class MockRuntimeSyncServiceProtocol: RuntimeSyncServiceProtocol, Cuckoo.Protoco
     }
 }
 
-class RuntimeSyncServiceProtocolStub:RuntimeSyncServiceProtocol, @unchecked Sendable {
+class RuntimeSyncServiceProtocolStub:fearless.RuntimeSyncServiceProtocol, @unchecked Sendable {
 
 
     
-    func register(chain p0: ChainModel, with p1: ChainConnection) {
+    func register(chain p0: ChainModel, with p1: fearless.ChainConnection) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -3321,7 +3292,7 @@ class RuntimeSyncServiceProtocolStub:RuntimeSyncServiceProtocol, @unchecked Send
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-    func apply(version p0: RuntimeVersion, for p1: ChainModel.Id) {
+    func apply(version p0: fearless.RuntimeVersion, for p1: ChainModel.Id) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -3341,8 +3312,6 @@ class RuntimeSyncServiceProtocolStub:RuntimeSyncServiceProtocol, @unchecked Send
 
 import Cuckoo
 import Foundation
-import SSFModels
-import SSFUtils
 @testable import fearless
 @testable import SoraKeystore
 
@@ -3464,8 +3433,6 @@ class SpecVersionSubscriptionProtocolStub:SpecVersionSubscriptionProtocol, @unch
 
 import Cuckoo
 import Foundation
-import SSFUtils
-import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -3553,7 +3520,6 @@ class SpecVersionSubscriptionFactoryProtocolStub:SpecVersionSubscriptionFactoryP
 
 import Cuckoo
 import Foundation
-import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -3788,7 +3754,6 @@ class CrowdloanRemoteSubscriptionServiceStub:CrowdloanRemoteSubscriptionService,
 import Cuckoo
 import Foundation
 import RobinHood
-import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -3911,8 +3876,6 @@ class StakingAccountUpdatingServiceProtocolStub:StakingAccountUpdatingServicePro
 
 import Cuckoo
 import Foundation
-import SSFUtils
-import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -4034,7 +3997,6 @@ class StakingRemoteSubscriptionServiceProtocolStub:StakingRemoteSubscriptionServ
 
 import Cuckoo
 import Foundation
-import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -4269,10 +4231,6 @@ class WalletRemoteSubscriptionServiceStub:WalletRemoteSubscriptionService, @unch
 import Cuckoo
 import Foundation
 import RobinHood
-import SSFUtils
-import SSFModels
-import SSFStorageQueryKit
-import SSFAssetManagmentStorage
 @testable import fearless
 @testable import SoraKeystore
 
@@ -4388,3 +4346,4 @@ class StakingServiceFactoryProtocolStub:StakingServiceFactoryProtocol, @unchecke
         return DefaultValueRegistry.defaultValue(for: (RewardCalculatorServiceProtocol).self)
     }
 }
+
