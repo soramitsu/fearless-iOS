@@ -17,7 +17,11 @@ for f in "${TARGETS[@]}"; do
   base=$(basename "$f")
   # Only strip SSF imports from the two large generated bundles
   if [[ "$base" == "CommonMocks.swift" || "$base" == "ModuleMocks.swift" ]]; then
-    /usr/bin/sed -i '' -e '/^import SSF[A-Za-z0-9_]*/d' "$f"
+    /usr/bin/sed -E -i '' \
+      -e '/^import SSF[A-Za-z0-9_]*/d' \
+      -e '/^typealias[[:space:]]+MetaAccountModel[[:space:]]*=/d' \
+      -e '/^typealias[[:space:]]+ChainAccountResponse[[:space:]]*=/d' \
+      "$f"
   fi
   # Qualify ambiguous app types and protocols
   perl -0777 -i -pe 's/(?<!\.)\bMetaAccountModel\b/fearless.MetaAccountModel/g;
