@@ -5,7 +5,7 @@ import SSFUtils
 // Lightweight test double conforming to SSFUtils.JSONRPCEngine used by chain registry tests.
 final class MockConnection: JSONRPCEngine {
     var url: URL?
-    var pendingEngineRequests: [JSONRPCRequest] = []
+    var pendingEngineRequests: [JSONRPCRequest] { [] }
 
     private var nextId: UInt16 = 1
 
@@ -39,11 +39,7 @@ final class MockConnection: JSONRPCEngine {
         return nextId
     }
 
-    func addSubscription(_ subscription: JSONRPCSubscribing) {
-        pendingEngineRequests.append(
-            JSONRPCRequest(requestId: subscription.requestId, data: subscription.requestData, options: subscription.requestOptions, responseHandler: nil)
-        )
-    }
+    func addSubscription(_ subscription: JSONRPCSubscribing) {}
 
     func reconnect(url: URL) { self.url = url }
     func connectIfNeeded() {}
