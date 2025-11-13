@@ -43,7 +43,8 @@ for f in "${TARGETS[@]}"; do
                      s/fearless\.RuntimeProviderProtocol/SSFRuntimeCodingService.RuntimeProviderProtocol/g;
                      s/(?<!\.)\bSchedulerProtocol\b/fearless.SchedulerProtocol/g;
                      s/(?<!\.)\bSchedulerDelegate\b/fearless.SchedulerDelegate/g;
-                     s/(?<!\.)\bRuntimeMetadataItem\b/SSFModels.RuntimeMetadataItem/g;' "$f"
+                     s/(?<!\.)\bRuntimeMetadataItem\b/fearless.RuntimeMetadataItem/g;
+                     s/SSFModels\.RuntimeMetadataItem/fearless.RuntimeMetadataItem/g;' "$f"
   # Restore clean alias LHS if our qualifier hit typealias lines
   /usr/bin/sed -E -i '' -e 's/^typealias[[:space:]]+fearless\.MetaAccountModel/typealias MetaAccountModel/' \
                        -e 's/^typealias[[:space:]]+fearless\.ChainAccountResponse/typealias ChainAccountResponse/' "$f"
