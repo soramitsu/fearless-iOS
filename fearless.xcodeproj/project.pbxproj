@@ -15414,6 +15414,7 @@ AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = 
 				21F8A6D4168E40BE9DA1D44D /* [CP] Check Pods Manifest.lock */,
 				842D1E8824D207C700C30A7A /* Modules Mock */,
 				842D1E8924D207D900C30A7A /* Common Mock */,
+				FAE4F6D12D0BA4A5006D4A3B /* Patch Cuckoo Mocks */,
 
 				849013BA24A80986008F705E /* Sources */,
 				849013BB24A80986008F705E /* Frameworks */,
@@ -15656,8 +15657,8 @@ true
 ";
 		};
 		842D1E8924D207D900C30A7A /* Common Mock */ = {
-    isa = PBXShellScriptBuildPhase;
-    alwaysOutOfDate = 1;
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -15675,6 +15676,33 @@ true
 			shellScript = "#! /bin/sh
 # Locate Cuckoo run script\nif [ -n \"${PODS_ROOT:-}\" ] && [ -x \"${PODS_ROOT}/Cuckoo/run\" ]; then\n  CUCKOO=\"${PODS_ROOT}/Cuckoo/run\"\nelif [ -n \"${SRCROOT:-}\" ] && [ -x \"${SRCROOT}/Pods/Cuckoo/run\" ]; then\n  CUCKOO=\"${SRCROOT}/Pods/Cuckoo/run\"\nelif [ -x \"Pods/Cuckoo/run\" ]; then\n  CUCKOO=\"Pods/Cuckoo/run\"\nelse\n  echo \"warning: Cuckoo not installed; skipping mock generation\"\n  exit 0\nfi\n# Define output file. Change \"$PROJECT_DIR/${PROJECT_NAME}Tests\" to your test's root source folder, if it's not the default name.\nOUTPUT_FILE=\"${PROJECT_NAME}Tests/Mocks/CommonMocks.swift\"\necho \"Generated Mocks File = $OUTPUT_FILE\"\n\n# Ensure output directory exists\nmkdir -p \"$(dirname \"$OUTPUT_FILE\")\"\n\n# Ensure output directory exists\nmkdir -p \"$(dirname \"$OUTPUT_FILE\")\"\n\n# Define input directory. Change \"${PROJECT_DIR}/${PROJECT_NAME}\" to your project's root source folder, if it's not the default name.\nINPUT_DIR=\"${PROJECT_NAME}\"\necho \"Mocks Input Directory = $INPUT_DIR\"\n\n# Generate mock files, include as many input files as you'd like to create mocks for.\n\"${CUCKOO}\" generate --testable \"${PROJECT_NAME},SoraKeystore\" \\\n--exclude \"\" \\\n--output \"${OUTPUT_FILE}\" \\\n\"$INPUT_DIR/Common/Helpers/Scheduler.swift\" \\\n\"$INPUT_DIR/Common/LocalAuthentication/BiometryAuth.swift\" \\\n\"$INPUT_DIR/Common/EventCenter/EventProtocols.swift\" \\\n\"$INPUT_DIR/Common/Network/Misc/SubstrateOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Helpers/AccountRepositoryFactory.swift\" \\\n\"$INPUT_DIR/../Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift\"  \\\n\"$INPUT_DIR/../Pods/FearlessUtils/FearlessUtils/Classes/Network/JSONRPCEngine.swift\" \\\n\"$INPUT_DIR/Common/Operation/EraCountdownOperationFactory/EraCountdownOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Network/JSONRPC/ConnectionAutobalancing.swift\" \\\n\"$INPUT_DIR/Common/Network/JSONRPC/ConnectionStateReporting.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/ConnectionPool/ConnectionFactory.swift\" \\\n\"$INPUT_DIR/Common/Network/Misc/DataOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeFilesOperationFactory.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeProviderPool.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeProviderFactory.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeCodingService.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeSyncService.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeProviderPool/CommonTypesSyncService.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeProvider.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/ConnectionPool/ConnectionPool.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/SpecVersionSubscriptionFactory.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/SpecVersionSubscription.swift\" \\\n\"$INPUT_DIR/Common/Services/ChainRegistry/ChainRegistry.swift\" \\\n\"$INPUT_DIR/Common/Services/RemoteSubscription/CrowdloanRemoteSubscriptionService.swift\" \\\n\"$INPUT_DIR/Common/Services/RemoteSubscription/WalletRemoteSubscriptionService.swift\" \\\n\"$INPUT_DIR/Common/Services/RemoteSubscription/StakingRemoteSubscriptionService.swift\" \\\n\"$INPUT_DIR/Common/Services/RemoteSubscription/StakingAccountUpdatingService.swift\" \\\n\"$INPUT_DIR/Modules/Staking/Services/StakingServiceFactory.swift\" \\\n\"$INPUT_DIR/Common/ViewModel/Amount/AmountInputViewModelProtocol.swift\" \\\n\n
 true
+";
+		};
+		FAE4F6D12D0BA4A5006D4A3B /* Patch Cuckoo Mocks */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Patch Cuckoo Mocks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#!/bin/sh
+PATCH_SCRIPT=\"${SRCROOT}/scripts/tests/patch-mocks.sh\"
+if [ -x \"$PATCH_SCRIPT\" ]; then
+  echo \"Patching Cuckoo mocks via $PATCH_SCRIPT\"
+  (cd \"${SRCROOT}\" && \"$PATCH_SCRIPT\" \"${PROJECT_NAME}Tests/Mocks/CommonMocks.swift\" \"${PROJECT_NAME}Tests/Mocks/ModuleMocks.swift\")
+else
+  echo \"warning: $PATCH_SCRIPT not found or not executable; skipping mock patch\"
+fi
 ";
 		};
 /* removed */
