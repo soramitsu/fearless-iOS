@@ -77,7 +77,7 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
 
     override func dismissalTransitionWillBegin() {
         if
-            let window = UIApplication.shared.keyWindow,
+            let window = SceneWindowFinder.activeWindow(),
             let transitionView = window.subviews.first(
                 where: { $0.tag == ModalSheetBlurPresentationAppearanceAnimator.UITransitionViewFearlessTag }
             ),

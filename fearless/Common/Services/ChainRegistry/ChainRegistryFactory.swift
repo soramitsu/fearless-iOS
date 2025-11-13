@@ -16,6 +16,38 @@ import SSFAssetManagmentStorage
  *      to perform operations faster with `userInitiated` quality of service.
  */
 
+struct ChainRegistryFactoryDependencies {
+    var eventCenter: EventCenterProtocol
+    var logger: Logger
+    var networkIssuesCenter: NetworkIssuesCenterProtocol
+    var applicationConfig: ApplicationConfigProtocol
+    var dataOperationFactory: DataOperationFactoryProtocol
+    var networkOperationFactory: NetworkOperationFactoryProtocol
+    var runtimeQueue: OperationQueue
+    var syncQueue: OperationQueue
+    var operationManager: OperationManagerProtocol
+    var applicationHandler: ApplicationHandlerProtocol
+    var connectionFactory: ConnectionFactoryProtocol
+    var ethereumConnectionPool: EthereumConnectionPool
+
+    static var live: ChainRegistryFactoryDependencies {
+        ChainRegistryFactoryDependencies(
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared,
+            networkIssuesCenter: NetworkIssuesCenter.shared,
+            applicationConfig: ApplicationConfig.shared,
+            dataOperationFactory: DataOperationFactory(),
+            networkOperationFactory: NetworkOperationFactory(),
+            runtimeQueue: OperationManagerFacade.runtimeBuildingQueue,
+            syncQueue: OperationManagerFacade.syncQueue,
+            operationManager: OperationManagerFacade.sharedManager,
+            applicationHandler: ApplicationHandler(),
+            connectionFactory: ConnectionFactory(logger: Logger.shared),
+            ethereumConnectionPool: EthereumConnectionPool()
+        )
+    }
+}
+
 final class ChainRegistryFactory {
     /**
      *  Creates chain registry with on-disk database manager. This function must be used by the application
@@ -26,7 +58,7 @@ final class ChainRegistryFactory {
 
     static func createDefaultRegistry() -> ChainRegistryProtocol & SSFChainRegistry.ChainRegistryProtocol {
         let repositoryFacade = SubstrateDataStorageFacade.shared
-        return createDefaultRegistry(from: repositoryFacade)
+        return createDefaultRegistry(from: repositoryFacade, dependencies: .live)
     }
 
     // swiftlint:disable function_body_length
@@ -42,12 +74,13 @@ final class ChainRegistryFactory {
      *  - Returns: new instance conforming to `ChainRegistryProtocol`.
      */
     static func createDefaultRegistry(
-        from repositoryFacade: StorageFacadeProtocol
+        from repositoryFacade: StorageFacadeProtocol,
+        dependencies: ChainRegistryFactoryDependencies = .live
     ) -> ChainRegistryProtocol & SSFChainRegistry.ChainRegistryProtocol {
         let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, SSFAssetManagmentStorage.CDRuntimeMetadataItem> =
             repositoryFacade.createRepository()
 
-        let dataFetchOperationFactory = DataOperationFactory()
+        let dataFetchOperationFactory = dependencies.dataOperationFactory
 
         let filesOperationFactory = createFilesOperationFactory()
 
@@ -55,46 +88,50 @@ final class ChainRegistryFactory {
             repository: AnyDataProviderRepository(runtimeMetadataRepository),
             filesOperationFactory: filesOperationFactory,
             dataOperationFactory: dataFetchOperationFactory,
-            eventCenter: EventCenter.shared,
-            logger: Logger.shared
+            eventCenter: dependencies.eventCenter,
+            logger: dependencies.logger
         )
 
         let runtimeProviderFactory = RuntimeProviderFactory(
             fileOperationFactory: filesOperationFactory,
             repository: AnyDataProviderRepository(runtimeMetadataRepository),
             dataOperationFactory: dataFetchOperationFactory,
-            eventCenter: EventCenter.shared,
-            operationQueue: OperationManagerFacade.runtimeBuildingQueue,
-            logger: Logger.shared
+            eventCenter: dependencies.eventCenter,
+            operationQueue: dependencies.runtimeQueue,
+            logger: dependencies.logger
         )
 
         let runtimeProviderPool = RuntimeProviderPool(runtimeProviderFactory: runtimeProviderFactory)
         let chainRepositoryFactory = ChainRepositoryFactory(storageFacade: repositoryFacade)
         let chainRepository = chainRepositoryFactory.createRepository()
-        let chainProvider = createChainProvider(from: repositoryFacade, chainRepository: chainRepository)
+        let chainProvider = createChainProvider(
+            from: repositoryFacade,
+            chainRepository: chainRepository,
+            operationManager: dependencies.operationManager
+        )
 
         let chainSyncService = ChainSyncService(
-            chainsUrl: ApplicationConfig.shared.chainsSourceUrl,
-            dataFetchFactory: NetworkOperationFactory(),
+            chainsUrl: dependencies.applicationConfig.chainsSourceUrl,
+            dataFetchFactory: dataFetchOperationFactory,
             repository: AnyDataProviderRepository(chainRepository),
-            eventCenter: EventCenter.shared,
-            operationQueue: OperationManagerFacade.syncQueue,
-            logger: Logger.shared,
-            applicationHandler: ApplicationHandler()
+            eventCenter: dependencies.eventCenter,
+            operationQueue: dependencies.syncQueue,
+            logger: dependencies.logger,
+            applicationHandler: dependencies.applicationHandler
         )
 
         let specVersionSubscriptionFactory = SpecVersionSubscriptionFactory(
             runtimeSyncService: runtimeSyncService,
-            logger: Logger.shared
+            logger: dependencies.logger
         )
 
         let chainsTypesSuncService = ChainsTypesSyncService(
-            url: ApplicationConfig.shared.chainTypesSourceUrl,
+            url: dependencies.applicationConfig.chainTypesSourceUrl,
             filesOperationFactory: filesOperationFactory,
             dataOperationFactory: dataFetchOperationFactory,
-            eventCenter: EventCenter.shared,
-            operationQueue: OperationManagerFacade.syncQueue,
-            logger: Logger.shared
+            eventCenter: dependencies.eventCenter,
+            operationQueue: dependencies.syncQueue,
+            logger: dependencies.logger
         )
 
         let snapshotHotBootBuilder = SnapshotHotBootBuilder(
@@ -102,28 +139,27 @@ final class ChainRegistryFactory {
             chainRepository: AnyDataProviderRepository(chainRepository),
             filesOperationFactory: filesOperationFactory,
             runtimeItemRepository: AnyDataProviderRepository(runtimeMetadataRepository),
-            dataOperationFactory: NetworkOperationFactory(),
-            operationQueue: OperationManagerFacade.runtimeBuildingQueue,
-            logger: Logger.shared
+            dataOperationFactory: dependencies.networkOperationFactory,
+            operationQueue: dependencies.runtimeQueue,
+            logger: dependencies.logger
         )
 
         let substrateConnectionPool = ConnectionPool(
-            connectionFactory: ConnectionFactory(logger: Logger.shared)
+            connectionFactory: dependencies.connectionFactory
         )
-        let ethereumConnectionPool = EthereumConnectionPool()
 
         return ChainRegistry(
             snapshotHotBootBuilder: snapshotHotBootBuilder,
             runtimeProviderPool: runtimeProviderPool,
-            connectionPools: [substrateConnectionPool, ethereumConnectionPool],
+            connectionPools: [substrateConnectionPool, dependencies.ethereumConnectionPool],
             chainSyncService: chainSyncService,
             runtimeSyncService: runtimeSyncService,
             chainsTypesSyncService: chainsTypesSuncService,
             chainProvider: chainProvider,
             specVersionSubscriptionFactory: specVersionSubscriptionFactory,
-            networkIssuesCenter: NetworkIssuesCenter.shared,
-            logger: Logger.shared,
-            eventCenter: EventCenter.shared
+            networkIssuesCenter: dependencies.networkIssuesCenter,
+            logger: dependencies.logger,
+            eventCenter: dependencies.eventCenter
         )
     }
 
@@ -139,7 +175,8 @@ final class ChainRegistryFactory {
 
     private static func createChainProvider(
         from repositoryFacade: StorageFacadeProtocol,
-        chainRepository: CoreDataRepository<ChainModel, SSFAssetManagmentStorage.CDChain>
+        chainRepository: CoreDataRepository<ChainModel, SSFAssetManagmentStorage.CDChain>,
+        operationManager: OperationManagerProtocol
     ) -> StreamableProvider<ChainModel> {
         let chainObserver = CoreDataContextObservable(
             service: repositoryFacade.databaseService,
@@ -157,7 +194,7 @@ final class ChainRegistryFactory {
             source: AnyStreamableSource(EmptyStreamableSource<ChainModel>()),
             repository: AnyDataProviderRepository(chainRepository),
             observable: AnyDataProviderRepositoryObservable(chainObserver),
-            operationManager: OperationManagerFacade.sharedManager
+            operationManager: operationManager
         )
     }
 }

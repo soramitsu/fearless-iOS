@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import WalletConnectSign
+import SoraFoundation
 
 final class MainTabBarWireframe: MainTabBarWireframeProtocol {
     func presentPolkaswap(on view: ControllerBackedProtocol?, wallet: MetaAccountModel) {
@@ -19,7 +20,8 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
     func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController? {
         if let view = view {
             return MainTabBarViewFactory.reloadCrowdloanView(
-                on: view
+                on: view,
+                wallet: SelectedWalletSettings.shared.value
             )
         }
 

@@ -44,16 +44,7 @@ class FearlessApplication: UIApplication {
         guard secretManager.checkSecret(for: KeystoreTag.pincode.rawValue) else {
             return
         }
-        let window: UIWindow? = {
-            if #available(iOS 13.0, *) {
-                return UIApplication.shared.connectedScenes
-                    .compactMap { $0 as? UIWindowScene }
-                    .flatMap { $0.windows }
-                    .first { $0.isKeyWindow && !$0.isHidden }
-            } else {
-                return UIApplication.shared.keyWindow
-            }
-        }()
+        let window = SceneWindowFinder.activeWindow()
         if let window = window {
             guard let pincodeViewController = PinViewFactory.createPinCheckView()?.controller else {
                 return

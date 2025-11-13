@@ -7,7 +7,8 @@
 	objects = {
 
 		/* Begin PBXBuildFile section */
-        FAFEAA112DCF200100E5C0DE /* ReownWalletKit in Frameworks */ = {isa = PBXBuildFile; productRef = FAFEAA132DCF200100E5C0DE /* ReownWalletKit */; };
+		FAE41F5B2C8CF4C900123456 /* SceneWindowFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE41F5A2C8CF4C900123456 /* SceneWindowFinder.swift */; };
+		FAFEAA112DCF200100E5C0DE /* ReownWalletKit in Frameworks */ = {isa = PBXBuildFile; productRef = FAFEAA132DCF200100E5C0DE /* ReownWalletKit */; };
 		F1E2D3C4B5A60718293A4B5C /* GraphQLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D60718293A4B5C /* GraphQLResponse.swift */; };
 		BBCCDDEEAABB112233445566 /* XcmMinAmountInspectorShim.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCCDDEEFF112233445566 /* XcmMinAmountInspectorShim.swift */; };
 		012B4273E4109F0B65117BAE /* Identifiable+Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5C /* Identifiable+Models.swift */; };
@@ -5840,6 +5841,7 @@ AA1111000011223344556678 /* WalletSelectAccountCommandFactory.swift in Sources *
 		FAD240DD2C64E97900B389FF /* KaiaHistoryResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaiaHistoryResponse.swift; sourceTree = "<group>"; };
 		FAD240DF2C64EA1D00B389FF /* KaiaHistoryOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaiaHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		FAD240E12C64EA6E00B389FF /* AssetTransactionData+KaiaHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+KaiaHistory.swift"; sourceTree = "<group>"; };
+		FAE41F5A2C8CF4C900123456 /* SceneWindowFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneWindowFinder.swift; sourceTree = "<group>"; };
 		FAD428932A834A8E001D6A16 /* TopViewControllerHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopViewControllerHelper.swift; sourceTree = "<group>"; };
 		FAD428952A834BA8001D6A16 /* UIApplication+TopViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+TopViewController.swift"; sourceTree = "<group>"; };
 		FAD428972A860C9B001D6A16 /* EthereumNodeFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumNodeFetching.swift; sourceTree = "<group>"; };
@@ -9396,6 +9398,7 @@ AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = 
 				C63FE88929000EB500E97E8E /* FearlessKeyboardHandler.swift */,
 				C665E4EF29C35801001946D1 /* TimeFormatter.swift */,
 				FAD428932A834A8E001D6A16 /* TopViewControllerHelper.swift */,
+				FAE41F5A2C8CF4C900123456 /* SceneWindowFinder.swift */,
 				FAD428972A860C9B001D6A16 /* EthereumNodeFetching.swift */,
 				FA584C792AB2BFE300F6F020 /* MediaType.swift */,
 				FAC6CDAE2BA81FA00013A17E /* WalletLoggerProtocol.swift */,
@@ -16677,6 +16680,7 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 				8436EDE225895804004D9E97 /* RampProvider.swift in Sources */,
 				849013AC24A80984008F705E /* AppDelegate.swift in Sources */,
 				FAD428942A834A8E001D6A16 /* TopViewControllerHelper.swift in Sources */,
+				FAE41F5B2C8CF4C900123456 /* SceneWindowFinder.swift in Sources */,
 				84CE69E82566750D00559427 /* ByteLengthProcessor.swift in Sources */,
 				8494D87A2525350000614D8F /* SubscanStatusData.swift in Sources */,
 				FA2FC7FF28B3807C00CC0A42 /* StakingPoolJoinChoosePoolAssembly.swift in Sources */,

@@ -23,7 +23,7 @@ final class ChainSyncService {
     }
 
     private let chainsUrl: URL
-    private let dataFetchFactory: NetworkOperationFactoryProtocol
+    private let dataFetchFactory: DataOperationFactoryProtocol
     private let repository: AnyDataProviderRepository<ChainModel>
     private let eventCenter: EventCenterProtocol
     private let retryStrategy: ReconnectionStrategyProtocol
@@ -40,7 +40,7 @@ final class ChainSyncService {
 
     init(
         chainsUrl: URL,
-        dataFetchFactory: NetworkOperationFactoryProtocol,
+        dataFetchFactory: DataOperationFactoryProtocol,
         repository: AnyDataProviderRepository<ChainModel>,
         eventCenter: EventCenterProtocol,
         operationQueue: OperationQueue,
@@ -94,16 +94,24 @@ final class ChainSyncService {
                 complete(result: .failure(error))
             }
         } else {
-            Task {
+            let fetchOperation = dataFetchFactory.fetchData(from: chainsUrl)
+            fetchOperation.completionBlock = { [weak self, weak fetchOperation] in
+                guard
+                    let self = self,
+                    let operation = fetchOperation,
+                    !operation.isCancelled
+                else {
+                    return
+                }
                 do {
-                    // Fetch raw data to allow a tolerant decode path for legacy/missing fields
-                    let (data, _) = try await URLSession.shared.data(from: chainsUrl)
-                    let remoteChains = try decodeChainsTolerant(from: data)
-                    handle(remoteChains: remoteChains)
+                    let data = try operation.extractNoCancellableResultData()
+                    let remoteChains = try self.decodeChainsTolerant(from: data)
+                    self.handle(remoteChains: remoteChains)
                 } catch {
-                    complete(result: .failure(error))
+                    self.complete(result: .failure(error))
                 }
             }
+            operationQueue.addOperation(fetchOperation)
         }
     }
 

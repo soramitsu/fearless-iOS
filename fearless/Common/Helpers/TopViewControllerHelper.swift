@@ -1,17 +1,15 @@
 import UIKit
 
 final class TopViewControllerHelper {
-    static func getTopViewController() -> UIViewController? {
-        let keyWindow = UIApplication.shared.windows.filter { $0.isKeyWindow }.first
-
-        if var topController = keyWindow?.rootViewController {
-            while let presentedViewController = topController.presentedViewController {
-                topController = presentedViewController
-            }
-
-            return topController
+    static func getTopViewController(from scene: UIWindowScene? = nil) -> UIViewController? {
+        guard var topController = SceneWindowFinder.activeWindow(from: scene)?.rootViewController else {
+            return nil
         }
 
-        return nil
+        while let presentedViewController = topController.presentedViewController {
+            topController = presentedViewController
+        }
+
+        return topController
     }
 }

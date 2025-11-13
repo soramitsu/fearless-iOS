@@ -105,9 +105,13 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showMainStaking() {
-        if let tabBar = UIApplication.shared.keyWindow?.rootViewController as? MainTabBarViewController? {
-            tabBar?.selectedIndex = 2
+    func showMainStaking(from view: WalletMainContainerViewInput?) {
+        guard
+            let tabBar = view?.controller.tabBarController as? MainTabBarViewController
+        else {
+            return
         }
+
+        tabBar.selectedIndex = MainTabBarViewFactory.stakingIndex
     }
 }

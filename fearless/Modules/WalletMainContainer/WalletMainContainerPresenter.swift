@@ -184,7 +184,7 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
                         wallet: issue.wallet
                     )
                 } else {
-                    strongSelf.router.showMainStaking()
+                    strongSelf.router.showMainStaking(from: strongSelf.view)
                 }
             }
         }
