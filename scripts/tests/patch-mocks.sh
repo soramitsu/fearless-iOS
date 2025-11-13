@@ -18,7 +18,6 @@ for f in "${TARGETS[@]}"; do
   # Only strip SSF imports from the two large generated bundles
   if [[ "$base" == "CommonMocks.swift" || "$base" == "ModuleMocks.swift" ]]; then
     /usr/bin/sed -E -i '' \
-      -e '/^import SSF[A-Za-z0-9_]*/d' \
       -e '/^typealias[[:space:]]+MetaAccountModel[[:space:]]*=/d' \
       -e '/^typealias[[:space:]]+ChainAccountResponse[[:space:]]*=/d' \
       "$f"
@@ -47,6 +46,14 @@ for f in "${TARGETS[@]}"; do
   # Restore clean alias LHS if our qualifier hit typealias lines
   /usr/bin/sed -E -i '' -e 's/^typealias[[:space:]]+fearless\.MetaAccountModel/typealias MetaAccountModel/' \
                        -e 's/^typealias[[:space:]]+fearless\.ChainAccountResponse/typealias ChainAccountResponse/' "$f"
+
+  if [[ "$base" == "CommonMocks.swift" || "$base" == "ModuleMocks.swift" ]]; then
+    if ! /usr/bin/grep -q '^import SSFModels' "$f"; then
+      /usr/bin/sed -i '' '2a\
+import SSFModels
+' "$f"
+    fi
+  fi
 done
 
 echo "Patched ${#TARGETS[@]} mock files."

@@ -1,5 +1,6 @@
 // Cuckoo compatibility header (injected)
 @testable import fearless
+import SSFModels
 // MARK: - Mocks generated from file: 'Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift'
 
 import Cuckoo
