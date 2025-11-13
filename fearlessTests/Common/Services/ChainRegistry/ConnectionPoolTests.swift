@@ -29,7 +29,7 @@ class ConnectionPoolTests: XCTestCase {
 
             // then
 
-            let actualChainIds = Set(connectionPool.connectionsByChainIds.keys)
+            let actualChainIds = Set(connectionPool.connections.map { $0.chainId })
             let expectedChainIds = Set(chainModels.map { $0.chainId })
 
             XCTAssertEqual(expectedChainIds, actualChainIds)
