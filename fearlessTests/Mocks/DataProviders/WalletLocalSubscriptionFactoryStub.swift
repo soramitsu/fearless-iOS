@@ -27,7 +27,7 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
         return getProvider(for: localKey)
     }
 
-    func getRuntimeProvider(for chainId: ChainModel.Id) -> fearless.RuntimeProviderProtocol? {
+    func getRuntimeProvider(for chainId: ChainModel.Id) -> SSFRuntimeCodingService.RuntimeProviderProtocol? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         return chainRegistry.getRuntimeProvider(for: chainId)
     }
