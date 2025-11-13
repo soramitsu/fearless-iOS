@@ -37,9 +37,11 @@ for f in "${TARGETS[@]}"; do
                      s/(?<!\.)\bChainModel\b/SSFModels.ChainModel/g;
                      s/(?<!\.)\bChainAsset\b/SSFModels.ChainAsset/g;
                      s/(?<!\.)\bAssetModel\b/SSFModels.AssetModel/g;
+                     s/(?<!\.)\bChainAccountInfo\b/fearless.ChainAccountInfo/g;
                      s/fearless\.ChainModel/SSFModels.ChainModel/g;
                      s/fearless\.ChainAsset/SSFModels.ChainAsset/g;
                      s/fearless\.AssetModel/SSFModels.AssetModel/g;
+                     s/SSFModels\.ChainAccountInfo/fearless.ChainAccountInfo/g;
                      s/fearless\.RuntimeProviderProtocol/SSFRuntimeCodingService.RuntimeProviderProtocol/g;
                      s/(?<!\.)\bSchedulerProtocol\b/fearless.SchedulerProtocol/g;
                      s/(?<!\.)\bSchedulerDelegate\b/fearless.SchedulerDelegate/g;

@@ -11875,9 +11875,9 @@ class MockAccountExportPasswordInteractorInputProtocol: AccountExportPasswordInt
     }
 
 
-    func exportWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [ChainAccountInfo], password p2: String) {
+    func exportWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [fearless.ChainAccountInfo], password p2: String) {
         return cuckoo_manager.call(
-            "exportWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [ChainAccountInfo], password p2: String)",
+            "exportWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [fearless.ChainAccountInfo], password p2: String)",
             parameters: (p0, p1, p2),
             escapingParameters: (p0, p1, p2),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -11902,10 +11902,10 @@ class MockAccountExportPasswordInteractorInputProtocol: AccountExportPasswordInt
             self.cuckoo_manager = manager
         }
         
-        func exportWallet<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(wallet p0: M1, accounts p1: M2, password p2: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(fearless.MetaAccountModel, [ChainAccountInfo], String)> where M1.MatchedType == fearless.MetaAccountModel, M2.MatchedType == [ChainAccountInfo], M3.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(fearless.MetaAccountModel, [ChainAccountInfo], String)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
+        func exportWallet<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(wallet p0: M1, accounts p1: M2, password p2: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(fearless.MetaAccountModel, [fearless.ChainAccountInfo], String)> where M1.MatchedType == fearless.MetaAccountModel, M2.MatchedType == [fearless.ChainAccountInfo], M3.MatchedType == String {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.MetaAccountModel, [fearless.ChainAccountInfo], String)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockAccountExportPasswordInteractorInputProtocol.self,
-                method: "exportWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [ChainAccountInfo], password p2: String)",
+                method: "exportWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [fearless.ChainAccountInfo], password p2: String)",
                 parameterMatchers: matchers
             ))
         }
@@ -11932,10 +11932,10 @@ class MockAccountExportPasswordInteractorInputProtocol: AccountExportPasswordInt
         
         
         @discardableResult
-        func exportWallet<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(wallet p0: M1, accounts p1: M2, password p2: M3) -> Cuckoo.__DoNotUse<(fearless.MetaAccountModel, [ChainAccountInfo], String), Void> where M1.MatchedType == fearless.MetaAccountModel, M2.MatchedType == [ChainAccountInfo], M3.MatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(fearless.MetaAccountModel, [ChainAccountInfo], String)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
+        func exportWallet<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(wallet p0: M1, accounts p1: M2, password p2: M3) -> Cuckoo.__DoNotUse<(fearless.MetaAccountModel, [fearless.ChainAccountInfo], String), Void> where M1.MatchedType == fearless.MetaAccountModel, M2.MatchedType == [fearless.ChainAccountInfo], M3.MatchedType == String {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.MetaAccountModel, [fearless.ChainAccountInfo], String)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return cuckoo_manager.verify(
-                "exportWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [ChainAccountInfo], password p2: String)",
+                "exportWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [fearless.ChainAccountInfo], password p2: String)",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -11960,7 +11960,7 @@ class AccountExportPasswordInteractorInputProtocolStub:AccountExportPasswordInte
 
 
     
-    func exportWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [ChainAccountInfo], password p2: String) {
+    func exportWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [fearless.ChainAccountInfo], password p2: String) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -13045,9 +13045,9 @@ class MockExportMnemonicInteractorInputProtocol: ExportMnemonicInteractorInputPr
     }
 
 
-    func fetchExportDataForWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [ChainAccountInfo]) {
+    func fetchExportDataForWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [fearless.ChainAccountInfo]) {
         return cuckoo_manager.call(
-            "fetchExportDataForWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [ChainAccountInfo])",
+            "fetchExportDataForWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [fearless.ChainAccountInfo])",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -13072,10 +13072,10 @@ class MockExportMnemonicInteractorInputProtocol: ExportMnemonicInteractorInputPr
             self.cuckoo_manager = manager
         }
         
-        func fetchExportDataForWallet<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(wallet p0: M1, accounts p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(fearless.MetaAccountModel, [ChainAccountInfo])> where M1.MatchedType == fearless.MetaAccountModel, M2.MatchedType == [ChainAccountInfo] {
-            let matchers: [Cuckoo.ParameterMatcher<(fearless.MetaAccountModel, [ChainAccountInfo])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+        func fetchExportDataForWallet<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(wallet p0: M1, accounts p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(fearless.MetaAccountModel, [fearless.ChainAccountInfo])> where M1.MatchedType == fearless.MetaAccountModel, M2.MatchedType == [fearless.ChainAccountInfo] {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.MetaAccountModel, [fearless.ChainAccountInfo])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockExportMnemonicInteractorInputProtocol.self,
-                method: "fetchExportDataForWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [ChainAccountInfo])",
+                method: "fetchExportDataForWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [fearless.ChainAccountInfo])",
                 parameterMatchers: matchers
             ))
         }
@@ -13102,10 +13102,10 @@ class MockExportMnemonicInteractorInputProtocol: ExportMnemonicInteractorInputPr
         
         
         @discardableResult
-        func fetchExportDataForWallet<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(wallet p0: M1, accounts p1: M2) -> Cuckoo.__DoNotUse<(fearless.MetaAccountModel, [ChainAccountInfo]), Void> where M1.MatchedType == fearless.MetaAccountModel, M2.MatchedType == [ChainAccountInfo] {
-            let matchers: [Cuckoo.ParameterMatcher<(fearless.MetaAccountModel, [ChainAccountInfo])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+        func fetchExportDataForWallet<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(wallet p0: M1, accounts p1: M2) -> Cuckoo.__DoNotUse<(fearless.MetaAccountModel, [fearless.ChainAccountInfo]), Void> where M1.MatchedType == fearless.MetaAccountModel, M2.MatchedType == [fearless.ChainAccountInfo] {
+            let matchers: [Cuckoo.ParameterMatcher<(fearless.MetaAccountModel, [fearless.ChainAccountInfo])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return cuckoo_manager.verify(
-                "fetchExportDataForWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [ChainAccountInfo])",
+                "fetchExportDataForWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [fearless.ChainAccountInfo])",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -13130,7 +13130,7 @@ class ExportMnemonicInteractorInputProtocolStub:ExportMnemonicInteractorInputPro
 
 
     
-    func fetchExportDataForWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [ChainAccountInfo]) {
+    func fetchExportDataForWallet(wallet p0: fearless.MetaAccountModel, accounts p1: [fearless.ChainAccountInfo]) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
