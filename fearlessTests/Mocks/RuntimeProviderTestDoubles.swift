@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 import SSFRuntimeCodingService
 
-// Minimal test double for SSF RuntimeProviderProtocol used by tests.
+// Minimal test double for SSF SSFRuntimeCodingService.RuntimeProviderProtocol used by tests.
 // Tests only assert identity and call setup/cleanup; coder factory APIs are not exercised.
 final class DummyRuntimeProvider: SSFRuntimeCodingService.RuntimeProviderProtocol {
     var runtimeSpecVersion: RuntimeSpecVersion = .defaultVersion

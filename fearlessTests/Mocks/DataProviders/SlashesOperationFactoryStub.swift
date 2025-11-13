@@ -16,7 +16,7 @@ final class SlashesOperationFactoryStub: SlashesOperationFactoryProtocol {
         _ stashAddress: AccountAddress,
         engine: JSONRPCEngine,
         runtimeService: RuntimeCodingServiceProtocol,
-        chainAsset: ChainAsset) -> CompoundOperationWrapper<SlashingSpans?> {
+        chainAsset: SSFModels.ChainAsset) -> CompoundOperationWrapper<SlashingSpans?> {
         return CompoundOperationWrapper.createWithResult(slashingSpans)
     }
 }

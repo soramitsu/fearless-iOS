@@ -50,7 +50,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
     }
 
     func getMinNominatorBondProvider(
-        for chainId: ChainModel.Id
+        for chainId: SSFModels.ChainModel.Id
     ) throws -> AnyDataProvider<DecodedBigUInt> {
         let localIdentifierFactory = LocalStorageKeyFactory()
 
@@ -74,7 +74,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
     }
 
     func getCounterForNominatorsProvider(
-        for chainId: ChainModel.Id
+        for chainId: SSFModels.ChainModel.Id
     ) throws -> AnyDataProvider<DecodedU32> {
         let localIdentifierFactory = LocalStorageKeyFactory()
 
@@ -97,7 +97,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
         return AnyDataProvider(DataProviderStub(models: [counterForNominatorsModel]))
     }
 
-    func getMaxNominatorsCountProvider(for chainId: ChainModel.Id) throws -> AnyDataProvider<DecodedU32> {
+    func getMaxNominatorsCountProvider(for chainId: SSFModels.ChainModel.Id) throws -> AnyDataProvider<DecodedU32> {
         let localIdentifierFactory = LocalStorageKeyFactory()
 
         let maxNominatorsCountModel: DecodedU32 = try {
@@ -121,7 +121,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
 
     func getValidatorProvider(
         for accountId: AccountId,
-        chainId: ChainModel.Id
+        chainId: SSFModels.ChainModel.Id
     ) throws -> AnyDataProvider<DecodedValidator> {
         let localIdentifierFactory = LocalStorageKeyFactory()
 
@@ -142,7 +142,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
         return AnyDataProvider(DataProviderStub(models: [validatorModel]))
     }
 
-    func getActiveEra(for chainId: ChainModel.Id) throws -> AnyDataProvider<DecodedActiveEra> {
+    func getActiveEra(for chainId: SSFModels.ChainModel.Id) throws -> AnyDataProvider<DecodedActiveEra> {
         let localIdentifierFactory = LocalStorageKeyFactory()
 
         let actveEraModel: DecodedActiveEra = try {
@@ -161,7 +161,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
         return AnyDataProvider(DataProviderStub(models: [actveEraModel]))
     }
 
-    func getCurrentEra(for chainId: ChainModel.Id) throws -> AnyDataProvider<DecodedEraIndex> {
+    func getCurrentEra(for chainId: SSFModels.ChainModel.Id) throws -> AnyDataProvider<DecodedEraIndex> {
         let localIdentifierFactory = LocalStorageKeyFactory()
 
         let currentEraModel: DecodedEraIndex = try {
@@ -182,7 +182,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
 
     func getTotalReward(
         for address: AccountAddress,
-        chain: ChainModel,
+        chain: SSFModels.ChainModel,
         assetPrecision: Int16
     ) throws -> AnySingleValueProvider<TotalRewardItem> {
         AnySingleValueProvider(SingleValueProviderStub(item: totalReward))

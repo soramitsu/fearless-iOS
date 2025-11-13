@@ -5,7 +5,7 @@ import Cuckoo
 import SSFModels
 
 extension MockChainRegistryProtocol {
-    func applyDefault(for chains: Set<ChainModel>) -> MockChainRegistryProtocol {
+    func applyDefault(for chains: Set<SSFModels.ChainModel>) -> MockChainRegistryProtocol {
         stub(self) { stub in
             let availableChainIds = Set(chains.map({ $0.chainId }))
             stub.availableChainIds.get.thenReturn(availableChainIds)

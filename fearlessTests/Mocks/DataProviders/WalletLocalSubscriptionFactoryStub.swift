@@ -15,7 +15,7 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
 
     func getAccountProvider(
         for accountId: AccountId,
-        chainAsset: ChainAsset
+        chainAsset: SSFModels.ChainAsset
     ) throws -> StreamableProvider<AccountInfoStorageWrapper> {
         let codingPath = chainAsset.fearlessStoragePath
 
@@ -27,7 +27,7 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
         return getProvider(for: localKey)
     }
 
-    func getRuntimeProvider(for chainId: ChainModel.Id) -> SSFRuntimeCodingService.RuntimeProviderProtocol? {
+    func getRuntimeProvider(for chainId: SSFModels.ChainModel.Id) -> SSFRuntimeCodingService.RuntimeProviderProtocol? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         return chainRegistry.getRuntimeProvider(for: chainId)
     }
