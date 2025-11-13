@@ -35,6 +35,9 @@ for f in "${TARGETS[@]}"; do
                      s/(?<!\.)\bRuntimeProviderProtocol\b/fearless.RuntimeProviderProtocol/g;
                      s/(?<!\.)\bRuntimeSyncServiceProtocol\b/fearless.RuntimeSyncServiceProtocol/g;
                      s/(?<!\.)\bRuntimeVersion\b/fearless.RuntimeVersion/g;
+                     s/(?<!\.)\bChainModel\b/fearless.ChainModel/g;
+                     s/(?<!\.)\bChainAsset\b/fearless.ChainAsset/g;
+                     s/(?<!\.)\bAssetModel\b/fearless.AssetModel/g;
                      s/(?<!\.)\bSchedulerProtocol\b/fearless.SchedulerProtocol/g;
                      s/(?<!\.)\bSchedulerDelegate\b/fearless.SchedulerDelegate/g;
                      s/(?<!\.)\bRuntimeMetadataItem\b/SSFModels.RuntimeMetadataItem/g;' "$f"

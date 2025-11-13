@@ -92,7 +92,7 @@ class ControllerAccountTests: XCTestCase {
         let stashItem = StashItem(stash: stashAddress, controller: controllerAddress)
         presenter.didReceiveStashItem(result: Result.success(stashItem))
 
-        let chainAccountItem = ChainAccountResponse(chainId: chain.chainId,
+        let chainAccountItem = fearless.ChainAccountResponse(chainId: chain.chainId,
                                                     accountId: selectedAccount.substrateAccountId,
                                                     publicKey: selectedAccount.substratePublicKey,
                                                     name: "test",

@@ -52,7 +52,7 @@ class MockAccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
     func reset() {}
     func unsubscribe(chainAsset: SSFModels.ChainAsset) {}
-    func update(wallet: MetaAccountModel) {}
+    func update(wallet: fearless.MetaAccountModel) {}
 }
 
 class AssetSelectionTests: XCTestCase {
