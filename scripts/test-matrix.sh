@@ -35,7 +35,16 @@ pick_latest_iphone_name() {
 pick_device_udid_by_name() {
   local name="$1"
   # Extract the first UDID for a device line containing the provided name
-  xcrun simctl list devices 2>/dev/null | awk -v n="$name" 'index($0,n)>0 { if (match($0, /\(([A-F0-9-]{36})\)/, m)) { print m[1]; exit } }'
+  xcrun simctl list devices 2>/dev/null | awk -F '[()]' -v n="$name" '
+    index($0, n) > 0 {
+      for (i = 1; i <= NF; i++) {
+        if ($i ~ /^[A-F0-9-]{36}$/) {
+          print $i
+          exit
+        }
+      }
+    }
+  '
 }
 
 # If destination is a placeholder, pick a concrete available simulator (prefer newest iPhone)
