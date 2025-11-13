@@ -1490,6 +1490,7 @@ class DataOperationFactoryProtocolStub:DataOperationFactoryProtocol, @unchecked 
 import Cuckoo
 import Foundation
 import RobinHood
+import SSFUtils
 @testable import fearless
 @testable import SoraKeystore
 
@@ -1578,7 +1579,12 @@ class SubstrateOperationFactoryProtocolStub:SubstrateOperationFactoryProtocol, @
 import Cuckoo
 import Foundation
 import RobinHood
+import SSFUtils
+import SSFModels
 import Web3
+import SSFChainRegistry
+import SSFRuntimeCodingService
+import SSFChainConnection
 @testable import fearless
 @testable import SoraKeystore
 
@@ -1659,9 +1665,9 @@ class MockChainRegistryProtocol: fearless.ChainRegistryProtocol, Cuckoo.Protocol
         )
     }
 
-    func getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> fearless.RuntimeProviderProtocol? {
+    func getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> SSFRuntimeCodingService.RuntimeProviderProtocol? {
         return cuckoo_manager.call(
-            "getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> fearless.RuntimeProviderProtocol?",
+            "getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> SSFRuntimeCodingService.RuntimeProviderProtocol?",
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -1792,10 +1798,10 @@ class MockChainRegistryProtocol: fearless.ChainRegistryProtocol, Cuckoo.Protocol
             ))
         }
         
-        func getRuntimeProvider<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(SSFModels.ChainModel.Id), fearless.RuntimeProviderProtocol?> where M1.MatchedType == SSFModels.ChainModel.Id {
+        func getRuntimeProvider<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(SSFModels.ChainModel.Id), SSFRuntimeCodingService.RuntimeProviderProtocol?> where M1.MatchedType == SSFModels.ChainModel.Id {
             let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainModel.Id)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockChainRegistryProtocol.self,
-                method: "getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> fearless.RuntimeProviderProtocol?",
+                method: "getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> SSFRuntimeCodingService.RuntimeProviderProtocol?",
                 parameterMatchers: matchers
             ))
         }
@@ -1926,10 +1932,10 @@ class MockChainRegistryProtocol: fearless.ChainRegistryProtocol, Cuckoo.Protocol
         
         
         @discardableResult
-        func getRuntimeProvider<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(SSFModels.ChainModel.Id), fearless.RuntimeProviderProtocol?> where M1.MatchedType == SSFModels.ChainModel.Id {
+        func getRuntimeProvider<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(SSFModels.ChainModel.Id), SSFRuntimeCodingService.RuntimeProviderProtocol?> where M1.MatchedType == SSFModels.ChainModel.Id {
             let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainModel.Id)>] = [wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
-                "getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> fearless.RuntimeProviderProtocol?",
+                "getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> SSFRuntimeCodingService.RuntimeProviderProtocol?",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -2068,8 +2074,8 @@ class ChainRegistryProtocolStub:fearless.ChainRegistryProtocol, @unchecked Senda
         return DefaultValueRegistry.defaultValue(for: (fearless.ChainConnection?).self)
     }
     
-    func getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> fearless.RuntimeProviderProtocol? {
-        return DefaultValueRegistry.defaultValue(for: (fearless.RuntimeProviderProtocol?).self)
+    func getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> SSFRuntimeCodingService.RuntimeProviderProtocol? {
+        return DefaultValueRegistry.defaultValue(for: (SSFRuntimeCodingService.RuntimeProviderProtocol?).self)
     }
     
     func getChain(for p0: SSFModels.ChainModel.Id) -> SSFModels.ChainModel? {
@@ -2112,6 +2118,7 @@ class ChainRegistryProtocolStub:fearless.ChainRegistryProtocol, @unchecked Senda
 
 import Cuckoo
 import Foundation
+import SSFUtils
 @testable import fearless
 @testable import SoraKeystore
 
@@ -2200,7 +2207,9 @@ class ConnectionFactoryProtocolStub:ConnectionFactoryProtocol, @unchecked Sendab
 
 import Cuckoo
 import Foundation
+import SSFUtils
 import SoraFoundation
+import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -2511,6 +2520,7 @@ class ConnectionPoolDelegateStub:ConnectionPoolDelegate, @unchecked Sendable {
 import Cuckoo
 import Foundation
 import RobinHood
+import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -2769,6 +2779,9 @@ class RuntimeFilesOperationFactoryProtocolStub:RuntimeFilesOperationFactoryProto
 import Cuckoo
 import Foundation
 import RobinHood
+import SSFUtils
+import SSFModels
+import SSFRuntimeCodingService
 @testable import fearless
 @testable import SoraKeystore
 
@@ -2779,6 +2792,8 @@ import RobinHood
 import Cuckoo
 import Foundation
 import RobinHood
+import SSFModels
+import SSFRuntimeCodingService
 @testable import fearless
 @testable import SoraKeystore
 
@@ -2799,9 +2814,9 @@ class MockRuntimeProviderFactoryProtocol: RuntimeProviderFactoryProtocol, Cuckoo
     }
 
 
-    func createRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> fearless.RuntimeProviderProtocol {
+    func createRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> SSFRuntimeCodingService.RuntimeProviderProtocol {
         return cuckoo_manager.call(
-            "createRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> fearless.RuntimeProviderProtocol",
+            "createRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> SSFRuntimeCodingService.RuntimeProviderProtocol",
             parameters: (p0, p1, p2),
             escapingParameters: (p0, p1, p2),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -2809,9 +2824,9 @@ class MockRuntimeProviderFactoryProtocol: RuntimeProviderFactoryProtocol, Cuckoo
         )
     }
 
-    func createHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> fearless.RuntimeProviderProtocol {
+    func createHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> SSFRuntimeCodingService.RuntimeProviderProtocol {
         return cuckoo_manager.call(
-            "createHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> fearless.RuntimeProviderProtocol",
+            "createHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> SSFRuntimeCodingService.RuntimeProviderProtocol",
             parameters: (p0, p1, p2, p3),
             escapingParameters: (p0, p1, p2, p3),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -2826,18 +2841,18 @@ class MockRuntimeProviderFactoryProtocol: RuntimeProviderFactoryProtocol, Cuckoo
             self.cuckoo_manager = manager
         }
         
-        func createRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable>(for p0: M1, chainTypes p1: M2, usedRuntimePaths p2: M3) -> Cuckoo.ProtocolStubFunction<(SSFModels.ChainModel, Data?, [String: [String]]), fearless.RuntimeProviderProtocol> where M1.MatchedType == SSFModels.ChainModel, M2.OptionalMatchedType == Data, M3.MatchedType == [String: [String]] {
+        func createRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable>(for p0: M1, chainTypes p1: M2, usedRuntimePaths p2: M3) -> Cuckoo.ProtocolStubFunction<(SSFModels.ChainModel, Data?, [String: [String]]), SSFRuntimeCodingService.RuntimeProviderProtocol> where M1.MatchedType == SSFModels.ChainModel, M2.OptionalMatchedType == Data, M3.MatchedType == [String: [String]] {
             let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainModel, Data?, [String: [String]])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderFactoryProtocol.self,
-                method: "createRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> fearless.RuntimeProviderProtocol",
+                method: "createRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> SSFRuntimeCodingService.RuntimeProviderProtocol",
                 parameterMatchers: matchers
             ))
         }
         
-        func createHotRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(for p0: M1, runtimeItem p1: M2, chainTypes p2: M3, usedRuntimePaths p3: M4) -> Cuckoo.ProtocolStubFunction<(SSFModels.ChainModel, SSFModels.RuntimeMetadataItem, Data, [String: [String]]), fearless.RuntimeProviderProtocol> where M1.MatchedType == SSFModels.ChainModel, M2.MatchedType == SSFModels.RuntimeMetadataItem, M3.MatchedType == Data, M4.MatchedType == [String: [String]] {
+        func createHotRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(for p0: M1, runtimeItem p1: M2, chainTypes p2: M3, usedRuntimePaths p3: M4) -> Cuckoo.ProtocolStubFunction<(SSFModels.ChainModel, SSFModels.RuntimeMetadataItem, Data, [String: [String]]), SSFRuntimeCodingService.RuntimeProviderProtocol> where M1.MatchedType == SSFModels.ChainModel, M2.MatchedType == SSFModels.RuntimeMetadataItem, M3.MatchedType == Data, M4.MatchedType == [String: [String]] {
             let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainModel, SSFModels.RuntimeMetadataItem, Data, [String: [String]])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }, wrap(matchable: p3) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderFactoryProtocol.self,
-                method: "createHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> fearless.RuntimeProviderProtocol",
+                method: "createHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> SSFRuntimeCodingService.RuntimeProviderProtocol",
                 parameterMatchers: matchers
             ))
         }
@@ -2856,10 +2871,10 @@ class MockRuntimeProviderFactoryProtocol: RuntimeProviderFactoryProtocol, Cuckoo
         
         
         @discardableResult
-        func createRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable>(for p0: M1, chainTypes p1: M2, usedRuntimePaths p2: M3) -> Cuckoo.__DoNotUse<(SSFModels.ChainModel, Data?, [String: [String]]), fearless.RuntimeProviderProtocol> where M1.MatchedType == SSFModels.ChainModel, M2.OptionalMatchedType == Data, M3.MatchedType == [String: [String]] {
+        func createRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable>(for p0: M1, chainTypes p1: M2, usedRuntimePaths p2: M3) -> Cuckoo.__DoNotUse<(SSFModels.ChainModel, Data?, [String: [String]]), SSFRuntimeCodingService.RuntimeProviderProtocol> where M1.MatchedType == SSFModels.ChainModel, M2.OptionalMatchedType == Data, M3.MatchedType == [String: [String]] {
             let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainModel, Data?, [String: [String]])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return cuckoo_manager.verify(
-                "createRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> fearless.RuntimeProviderProtocol",
+                "createRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> SSFRuntimeCodingService.RuntimeProviderProtocol",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -2868,10 +2883,10 @@ class MockRuntimeProviderFactoryProtocol: RuntimeProviderFactoryProtocol, Cuckoo
         
         
         @discardableResult
-        func createHotRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(for p0: M1, runtimeItem p1: M2, chainTypes p2: M3, usedRuntimePaths p3: M4) -> Cuckoo.__DoNotUse<(SSFModels.ChainModel, SSFModels.RuntimeMetadataItem, Data, [String: [String]]), fearless.RuntimeProviderProtocol> where M1.MatchedType == SSFModels.ChainModel, M2.MatchedType == SSFModels.RuntimeMetadataItem, M3.MatchedType == Data, M4.MatchedType == [String: [String]] {
+        func createHotRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(for p0: M1, runtimeItem p1: M2, chainTypes p2: M3, usedRuntimePaths p3: M4) -> Cuckoo.__DoNotUse<(SSFModels.ChainModel, SSFModels.RuntimeMetadataItem, Data, [String: [String]]), SSFRuntimeCodingService.RuntimeProviderProtocol> where M1.MatchedType == SSFModels.ChainModel, M2.MatchedType == SSFModels.RuntimeMetadataItem, M3.MatchedType == Data, M4.MatchedType == [String: [String]] {
             let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainModel, SSFModels.RuntimeMetadataItem, Data, [String: [String]])>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }, wrap(matchable: p3) { $0.3 }]
             return cuckoo_manager.verify(
-                "createHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> fearless.RuntimeProviderProtocol",
+                "createHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> SSFRuntimeCodingService.RuntimeProviderProtocol",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -2884,12 +2899,12 @@ class RuntimeProviderFactoryProtocolStub:RuntimeProviderFactoryProtocol, @unchec
 
 
     
-    func createRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> fearless.RuntimeProviderProtocol {
-        return DefaultValueRegistry.defaultValue(for: (fearless.RuntimeProviderProtocol).self)
+    func createRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?, usedRuntimePaths p2: [String: [String]]) -> SSFRuntimeCodingService.RuntimeProviderProtocol {
+        return DefaultValueRegistry.defaultValue(for: (SSFRuntimeCodingService.RuntimeProviderProtocol).self)
     }
     
-    func createHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> fearless.RuntimeProviderProtocol {
-        return DefaultValueRegistry.defaultValue(for: (fearless.RuntimeProviderProtocol).self)
+    func createHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data, usedRuntimePaths p3: [String: [String]]) -> SSFRuntimeCodingService.RuntimeProviderProtocol {
+        return DefaultValueRegistry.defaultValue(for: (SSFRuntimeCodingService.RuntimeProviderProtocol).self)
     }
 }
 
@@ -2900,6 +2915,8 @@ class RuntimeProviderFactoryProtocolStub:RuntimeProviderFactoryProtocol, @unchec
 
 import Cuckoo
 import Foundation
+import SSFModels
+import SSFRuntimeCodingService
 @testable import fearless
 @testable import SoraKeystore
 
@@ -2920,9 +2937,9 @@ class MockRuntimeProviderPoolProtocol: fearless.RuntimeProviderPoolProtocol, Cuc
     }
 
 
-    func setupRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?) -> fearless.RuntimeProviderProtocol {
+    func setupRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?) -> SSFRuntimeCodingService.RuntimeProviderProtocol {
         return cuckoo_manager.call(
-            "setupRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?) -> fearless.RuntimeProviderProtocol",
+            "setupRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?) -> SSFRuntimeCodingService.RuntimeProviderProtocol",
             parameters: (p0, p1),
             escapingParameters: (p0, p1),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -2930,9 +2947,9 @@ class MockRuntimeProviderPoolProtocol: fearless.RuntimeProviderPoolProtocol, Cuc
         )
     }
 
-    func setupHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data) -> fearless.RuntimeProviderProtocol {
+    func setupHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data) -> SSFRuntimeCodingService.RuntimeProviderProtocol {
         return cuckoo_manager.call(
-            "setupHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data) -> fearless.RuntimeProviderProtocol",
+            "setupHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data) -> SSFRuntimeCodingService.RuntimeProviderProtocol",
             parameters: (p0, p1, p2),
             escapingParameters: (p0, p1, p2),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -2950,9 +2967,9 @@ class MockRuntimeProviderPoolProtocol: fearless.RuntimeProviderPoolProtocol, Cuc
         )
     }
 
-    func getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> fearless.RuntimeProviderProtocol? {
+    func getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> SSFRuntimeCodingService.RuntimeProviderProtocol? {
         return cuckoo_manager.call(
-            "getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> fearless.RuntimeProviderProtocol?",
+            "getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> SSFRuntimeCodingService.RuntimeProviderProtocol?",
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -2967,18 +2984,18 @@ class MockRuntimeProviderPoolProtocol: fearless.RuntimeProviderPoolProtocol, Cuc
             self.cuckoo_manager = manager
         }
         
-        func setupRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(for p0: M1, chainTypes p1: M2) -> Cuckoo.ProtocolStubFunction<(SSFModels.ChainModel, Data?), fearless.RuntimeProviderProtocol> where M1.MatchedType == SSFModels.ChainModel, M2.OptionalMatchedType == Data {
+        func setupRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(for p0: M1, chainTypes p1: M2) -> Cuckoo.ProtocolStubFunction<(SSFModels.ChainModel, Data?), SSFRuntimeCodingService.RuntimeProviderProtocol> where M1.MatchedType == SSFModels.ChainModel, M2.OptionalMatchedType == Data {
             let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainModel, Data?)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderPoolProtocol.self,
-                method: "setupRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?) -> fearless.RuntimeProviderProtocol",
+                method: "setupRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?) -> SSFRuntimeCodingService.RuntimeProviderProtocol",
                 parameterMatchers: matchers
             ))
         }
         
-        func setupHotRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(for p0: M1, runtimeItem p1: M2, chainTypes p2: M3) -> Cuckoo.ProtocolStubFunction<(SSFModels.ChainModel, SSFModels.RuntimeMetadataItem, Data), fearless.RuntimeProviderProtocol> where M1.MatchedType == SSFModels.ChainModel, M2.MatchedType == SSFModels.RuntimeMetadataItem, M3.MatchedType == Data {
+        func setupHotRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(for p0: M1, runtimeItem p1: M2, chainTypes p2: M3) -> Cuckoo.ProtocolStubFunction<(SSFModels.ChainModel, SSFModels.RuntimeMetadataItem, Data), SSFRuntimeCodingService.RuntimeProviderProtocol> where M1.MatchedType == SSFModels.ChainModel, M2.MatchedType == SSFModels.RuntimeMetadataItem, M3.MatchedType == Data {
             let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainModel, SSFModels.RuntimeMetadataItem, Data)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderPoolProtocol.self,
-                method: "setupHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data) -> fearless.RuntimeProviderProtocol",
+                method: "setupHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data) -> SSFRuntimeCodingService.RuntimeProviderProtocol",
                 parameterMatchers: matchers
             ))
         }
@@ -2991,10 +3008,10 @@ class MockRuntimeProviderPoolProtocol: fearless.RuntimeProviderPoolProtocol, Cuc
             ))
         }
         
-        func getRuntimeProvider<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(SSFModels.ChainModel.Id), fearless.RuntimeProviderProtocol?> where M1.MatchedType == SSFModels.ChainModel.Id {
+        func getRuntimeProvider<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.ProtocolStubFunction<(SSFModels.ChainModel.Id), SSFRuntimeCodingService.RuntimeProviderProtocol?> where M1.MatchedType == SSFModels.ChainModel.Id {
             let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainModel.Id)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRuntimeProviderPoolProtocol.self,
-                method: "getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> fearless.RuntimeProviderProtocol?",
+                method: "getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> SSFRuntimeCodingService.RuntimeProviderProtocol?",
                 parameterMatchers: matchers
             ))
         }
@@ -3013,10 +3030,10 @@ class MockRuntimeProviderPoolProtocol: fearless.RuntimeProviderPoolProtocol, Cuc
         
         
         @discardableResult
-        func setupRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(for p0: M1, chainTypes p1: M2) -> Cuckoo.__DoNotUse<(SSFModels.ChainModel, Data?), fearless.RuntimeProviderProtocol> where M1.MatchedType == SSFModels.ChainModel, M2.OptionalMatchedType == Data {
+        func setupRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(for p0: M1, chainTypes p1: M2) -> Cuckoo.__DoNotUse<(SSFModels.ChainModel, Data?), SSFRuntimeCodingService.RuntimeProviderProtocol> where M1.MatchedType == SSFModels.ChainModel, M2.OptionalMatchedType == Data {
             let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainModel, Data?)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return cuckoo_manager.verify(
-                "setupRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?) -> fearless.RuntimeProviderProtocol",
+                "setupRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?) -> SSFRuntimeCodingService.RuntimeProviderProtocol",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -3025,10 +3042,10 @@ class MockRuntimeProviderPoolProtocol: fearless.RuntimeProviderPoolProtocol, Cuc
         
         
         @discardableResult
-        func setupHotRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(for p0: M1, runtimeItem p1: M2, chainTypes p2: M3) -> Cuckoo.__DoNotUse<(SSFModels.ChainModel, SSFModels.RuntimeMetadataItem, Data), fearless.RuntimeProviderProtocol> where M1.MatchedType == SSFModels.ChainModel, M2.MatchedType == SSFModels.RuntimeMetadataItem, M3.MatchedType == Data {
+        func setupHotRuntimeProvider<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(for p0: M1, runtimeItem p1: M2, chainTypes p2: M3) -> Cuckoo.__DoNotUse<(SSFModels.ChainModel, SSFModels.RuntimeMetadataItem, Data), SSFRuntimeCodingService.RuntimeProviderProtocol> where M1.MatchedType == SSFModels.ChainModel, M2.MatchedType == SSFModels.RuntimeMetadataItem, M3.MatchedType == Data {
             let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainModel, SSFModels.RuntimeMetadataItem, Data)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return cuckoo_manager.verify(
-                "setupHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data) -> fearless.RuntimeProviderProtocol",
+                "setupHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data) -> SSFRuntimeCodingService.RuntimeProviderProtocol",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -3049,10 +3066,10 @@ class MockRuntimeProviderPoolProtocol: fearless.RuntimeProviderPoolProtocol, Cuc
         
         
         @discardableResult
-        func getRuntimeProvider<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(SSFModels.ChainModel.Id), fearless.RuntimeProviderProtocol?> where M1.MatchedType == SSFModels.ChainModel.Id {
+        func getRuntimeProvider<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(SSFModels.ChainModel.Id), SSFRuntimeCodingService.RuntimeProviderProtocol?> where M1.MatchedType == SSFModels.ChainModel.Id {
             let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainModel.Id)>] = [wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
-                "getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> fearless.RuntimeProviderProtocol?",
+                "getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> SSFRuntimeCodingService.RuntimeProviderProtocol?",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -3065,20 +3082,20 @@ class RuntimeProviderPoolProtocolStub:fearless.RuntimeProviderPoolProtocol, @unc
 
 
     
-    func setupRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?) -> fearless.RuntimeProviderProtocol {
-        return DefaultValueRegistry.defaultValue(for: (fearless.RuntimeProviderProtocol).self)
+    func setupRuntimeProvider(for p0: SSFModels.ChainModel, chainTypes p1: Data?) -> SSFRuntimeCodingService.RuntimeProviderProtocol {
+        return DefaultValueRegistry.defaultValue(for: (SSFRuntimeCodingService.RuntimeProviderProtocol).self)
     }
     
-    func setupHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data) -> fearless.RuntimeProviderProtocol {
-        return DefaultValueRegistry.defaultValue(for: (fearless.RuntimeProviderProtocol).self)
+    func setupHotRuntimeProvider(for p0: SSFModels.ChainModel, runtimeItem p1: SSFModels.RuntimeMetadataItem, chainTypes p2: Data) -> SSFRuntimeCodingService.RuntimeProviderProtocol {
+        return DefaultValueRegistry.defaultValue(for: (SSFRuntimeCodingService.RuntimeProviderProtocol).self)
     }
     
     func destroyRuntimeProvider(for p0: SSFModels.ChainModel.Id) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-    func getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> fearless.RuntimeProviderProtocol? {
-        return DefaultValueRegistry.defaultValue(for: (fearless.RuntimeProviderProtocol?).self)
+    func getRuntimeProvider(for p0: SSFModels.ChainModel.Id) -> SSFRuntimeCodingService.RuntimeProviderProtocol? {
+        return DefaultValueRegistry.defaultValue(for: (SSFRuntimeCodingService.RuntimeProviderProtocol?).self)
     }
 }
 
@@ -3090,6 +3107,8 @@ class RuntimeProviderPoolProtocolStub:fearless.RuntimeProviderPoolProtocol, @unc
 import Cuckoo
 import Foundation
 import RobinHood
+import SSFUtils
+import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -3313,6 +3332,8 @@ class RuntimeSyncServiceProtocolStub:fearless.RuntimeSyncServiceProtocol, @unche
 
 import Cuckoo
 import Foundation
+import SSFModels
+import SSFUtils
 @testable import fearless
 @testable import SoraKeystore
 
@@ -3434,6 +3455,8 @@ class SpecVersionSubscriptionProtocolStub:SpecVersionSubscriptionProtocol, @unch
 
 import Cuckoo
 import Foundation
+import SSFUtils
+import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -3521,6 +3544,7 @@ class SpecVersionSubscriptionFactoryProtocolStub:SpecVersionSubscriptionFactoryP
 
 import Cuckoo
 import Foundation
+import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -3755,6 +3779,7 @@ class CrowdloanRemoteSubscriptionServiceStub:CrowdloanRemoteSubscriptionService,
 import Cuckoo
 import Foundation
 import RobinHood
+import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -3877,6 +3902,8 @@ class StakingAccountUpdatingServiceProtocolStub:StakingAccountUpdatingServicePro
 
 import Cuckoo
 import Foundation
+import SSFUtils
+import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -3998,6 +4025,7 @@ class StakingRemoteSubscriptionServiceProtocolStub:StakingRemoteSubscriptionServ
 
 import Cuckoo
 import Foundation
+import SSFModels
 @testable import fearless
 @testable import SoraKeystore
 
@@ -4232,6 +4260,10 @@ class WalletRemoteSubscriptionServiceStub:WalletRemoteSubscriptionService, @unch
 import Cuckoo
 import Foundation
 import RobinHood
+import SSFUtils
+import SSFModels
+import SSFStorageQueryKit
+import SSFAssetManagmentStorage
 @testable import fearless
 @testable import SoraKeystore
 

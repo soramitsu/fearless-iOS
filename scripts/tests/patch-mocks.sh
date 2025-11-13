@@ -31,7 +31,7 @@ for f in "${TARGETS[@]}"; do
                      s/(?<!\.)\bConnectionPoolProtocol\b/fearless.ConnectionPoolProtocol/g;
                      s/(?<!\.)\bChainConnection\b/fearless.ChainConnection/g;
                      s/(?<!\.)\bRuntimeProviderPoolProtocol\b/fearless.RuntimeProviderPoolProtocol/g;
-                     s/(?<!\.)\bRuntimeProviderProtocol\b/fearless.RuntimeProviderProtocol/g;
+                     s/(?<!\.)\bRuntimeProviderProtocol\b/SSFRuntimeCodingService.RuntimeProviderProtocol/g;
                      s/(?<!\.)\bRuntimeSyncServiceProtocol\b/fearless.RuntimeSyncServiceProtocol/g;
                      s/(?<!\.)\bRuntimeVersion\b/fearless.RuntimeVersion/g;
                      s/(?<!\.)\bChainModel\b/SSFModels.ChainModel/g;
@@ -40,6 +40,7 @@ for f in "${TARGETS[@]}"; do
                      s/fearless\.ChainModel/SSFModels.ChainModel/g;
                      s/fearless\.ChainAsset/SSFModels.ChainAsset/g;
                      s/fearless\.AssetModel/SSFModels.AssetModel/g;
+                     s/fearless\.RuntimeProviderProtocol/SSFRuntimeCodingService.RuntimeProviderProtocol/g;
                      s/(?<!\.)\bSchedulerProtocol\b/fearless.SchedulerProtocol/g;
                      s/(?<!\.)\bSchedulerDelegate\b/fearless.SchedulerDelegate/g;
                      s/(?<!\.)\bRuntimeMetadataItem\b/SSFModels.RuntimeMetadataItem/g;' "$f"
@@ -51,6 +52,11 @@ for f in "${TARGETS[@]}"; do
     if ! /usr/bin/grep -q '^import SSFModels' "$f"; then
       /usr/bin/sed -i '' '2a\
 import SSFModels
+' "$f"
+    fi
+    if ! /usr/bin/grep -q '^import SSFRuntimeCodingService' "$f"; then
+      /usr/bin/sed -i '' '2a\
+import SSFRuntimeCodingService
 ' "$f"
     fi
   fi
