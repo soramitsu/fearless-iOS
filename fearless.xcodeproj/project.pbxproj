@@ -597,6 +597,7 @@
 		842D1E8624D1A90400C30A7A /* NSPredicate+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E8524D1A90400C30A7A /* NSPredicate+Validation.swift */; };
 		842D1E8D24D2091A00C30A7A /* ModuleMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E8B24D2091A00C30A7A /* ModuleMocks.swift */; };
 		842D1E8E24D2091A00C30A7A /* CommonMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E8C24D2091A00C30A7A /* CommonMocks.swift */; };
+		F4D2FE492C1C1B3C00B5F96A /* JSONRPCEngineMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D2FE482C1C1B3C00B5F96A /* JSONRPCEngineMock.swift */; };
 		842D1E9024D20B1500C30A7A /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E8F24D20B1500C30A7A /* Constants.swift */; };
 		842D1E9324D20CC800C30A7A /* OnboardingMainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E9224D20CC800C30A7A /* OnboardingMainTests.swift */; };
 		842D1E9624D2DD6700C30A7A /* MnemonicDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E9524D2DD6700C30A7A /* MnemonicDisplayView.swift */; };
@@ -3640,6 +3641,7 @@ AA1111000011223344556678 /* WalletSelectAccountCommandFactory.swift in Sources *
 		842D1E8524D1A90400C30A7A /* NSPredicate+Validation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSPredicate+Validation.swift"; sourceTree = "<group>"; };
 		842D1E8B24D2091A00C30A7A /* ModuleMocks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModuleMocks.swift; sourceTree = "<group>"; };
 		842D1E8C24D2091A00C30A7A /* CommonMocks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonMocks.swift; sourceTree = "<group>"; };
+		F4D2FE482C1C1B3C00B5F96A /* JSONRPCEngineMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONRPCEngineMock.swift; sourceTree = "<group>"; };
 		842D1E8F24D20B1500C30A7A /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		842D1E9224D20CC800C30A7A /* OnboardingMainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingMainTests.swift; sourceTree = "<group>"; };
 		842D1E9524D2DD6700C30A7A /* MnemonicDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MnemonicDisplayView.swift; sourceTree = "<group>"; };
@@ -8004,6 +8006,7 @@ AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = 
 				84F4388325DA4F2A00AEDA56 /* Network */,
 				8400F0B9252BBD2200E6B4CB /* WalletCommandFactoryProtocolMock.swift */,
 				842D1E8C24D2091A00C30A7A /* CommonMocks.swift */,
+				F4D2FE482C1C1B3C00B5F96A /* JSONRPCEngineMock.swift */,
 				842D1E8B24D2091A00C30A7A /* ModuleMocks.swift */,
 				84F43BB825DEFA0A00AEDA56 /* DefaultStub.swift */,
 				84B66A1726FE05B00038B963 /* ChainRegistryStub.swift */,
@@ -18649,6 +18652,7 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 				FAD428A82A865636001D6A16 /* BackupPasswordTests.swift in Sources */,
 				8454C2832632FC2500657DAD /* ExtrinsicProcessingTests.swift in Sources */,
 				842D1E8E24D2091A00C30A7A /* CommonMocks.swift in Sources */,
+				F4D2FE492C1C1B3C00B5F96A /* JSONRPCEngineMock.swift in Sources */,
 				8467FD0824E5E0BD005D486C /* KeystoreDefinition+Test.swift in Sources */,
 				84452F5D25D5CB3B00F47EC5 /* FileManagerTests.swift in Sources */,
 				841B45292603D91800C08693 /* EraValidatorsServiceStub.swift in Sources */,

@@ -172,15 +172,21 @@ class SigningWrapperTests: XCTestCase {
 
         guard let metaAccount = settings.value else { return }
 
-        let publicKeyData = metaAccount.substratePublicKey
+        guard let accountResponse = makeChainAccountResponse(
+            for: metaAccount,
+            cryptoType: .sr25519,
+            isEthereumBased: false
+        ) else {
+            XCTFail("Missing substrate account response")
+            return
+        }
+
+        let publicKeyData = accountResponse.publicKey
 
         let signer = SigningWrapper(
             keystore: keychain,
             metaId: metaAccount.metaId,
-            accountId: nil,
-            isEthereumBased: false,
-            cryptoType: .sr25519,
-            publicKeyData: publicKeyData
+            accountResponse: accountResponse
         )
 
         let signature = try signer.sign(originalData)
@@ -201,15 +207,21 @@ class SigningWrapperTests: XCTestCase {
 
         guard let metaAccount = settings.value else { return }
 
-        let publicKeyData = metaAccount.substratePublicKey
+        guard let accountResponse = makeChainAccountResponse(
+            for: metaAccount,
+            cryptoType: .ed25519,
+            isEthereumBased: false
+        ) else {
+            XCTFail("Missing substrate account response")
+            return
+        }
+
+        let publicKeyData = accountResponse.publicKey
 
         let signer = SigningWrapper(
             keystore: keychain,
             metaId: metaAccount.metaId,
-            accountId: nil,
-            isEthereumBased: false,
-            cryptoType: .ed25519,
-            publicKeyData: publicKeyData
+            accountResponse: accountResponse
         )
 
         let signature = try signer.sign(originalData)
@@ -229,15 +241,21 @@ class SigningWrapperTests: XCTestCase {
 
         guard let metaAccount = settings.value else { return }
 
-        let publicKeyData = metaAccount.substratePublicKey
+        guard let accountResponse = makeChainAccountResponse(
+            for: metaAccount,
+            cryptoType: .ecdsa,
+            isEthereumBased: false
+        ) else {
+            XCTFail("Missing substrate account response")
+            return
+        }
+
+        let publicKeyData = accountResponse.publicKey
 
         let signer = SigningWrapper(
             keystore: keychain,
             metaId: metaAccount.metaId,
-            accountId: nil,
-            isEthereumBased: false,
-            cryptoType: .ecdsa,
-            publicKeyData: publicKeyData
+            accountResponse: accountResponse
         )
 
         let signature = try signer.sign(originalData)
@@ -257,15 +275,21 @@ class SigningWrapperTests: XCTestCase {
         let originalData = Self.message.data(using: .utf8)!
 
         guard let metaAccount = settings.value else { return }
-        guard let publicKeyData = metaAccount.ethereumPublicKey else { return }
+        guard let accountResponse = makeChainAccountResponse(
+            for: metaAccount,
+            cryptoType: .ecdsa,
+            isEthereumBased: true
+        ) else {
+            XCTFail("Missing ethereum account response")
+            return
+        }
+
+        let publicKeyData = accountResponse.publicKey
 
         let signer = SigningWrapper(
             keystore: keychain,
             metaId: metaAccount.metaId,
-            accountId: nil,
-            isEthereumBased: true,
-            cryptoType: .ecdsa,
-            publicKeyData: publicKeyData
+            accountResponse: accountResponse
         )
 
         let signature = try signer.sign(originalData)
@@ -278,5 +302,46 @@ class SigningWrapperTests: XCTestCase {
         XCTAssertTrue(verifier.verify(signature,
                                       forOriginalData: verificationData,
                                       usingPublicKey: publicKey))
+    }
+
+    private func makeChainAccountResponse(
+        for metaAccount: MetaAccountModel,
+        cryptoType: CryptoType,
+        isEthereumBased: Bool,
+        isChainAccount: Bool = false,
+        addressPrefix: UInt16 = 0
+    ) -> ChainAccountResponse? {
+        if isEthereumBased {
+            guard
+                let accountId = metaAccount.ethereumAddress,
+                let publicKey = metaAccount.ethereumPublicKey
+            else {
+                return nil
+            }
+
+            return ChainAccountResponse(
+                chainId: "test-chain",
+                accountId: accountId,
+                publicKey: publicKey,
+                name: metaAccount.name,
+                cryptoType: cryptoType,
+                addressPrefix: addressPrefix,
+                isEthereumBased: true,
+                isChainAccount: isChainAccount,
+                walletId: metaAccount.metaId
+            )
+        } else {
+            return ChainAccountResponse(
+                chainId: "test-chain",
+                accountId: metaAccount.substrateAccountId,
+                publicKey: metaAccount.substratePublicKey,
+                name: metaAccount.name,
+                cryptoType: cryptoType,
+                addressPrefix: addressPrefix,
+                isEthereumBased: false,
+                isChainAccount: isChainAccount,
+                walletId: metaAccount.metaId
+            )
+        }
     }
 }

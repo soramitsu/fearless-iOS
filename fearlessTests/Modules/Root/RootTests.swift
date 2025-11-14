@@ -1,4 +1,5 @@
 import XCTest
+import Foundation
 @testable import fearless
 import Cuckoo
 import SoraKeystore
@@ -208,27 +209,25 @@ private final class StubOnboardingService: OnboardingServiceProtocol {
 
 private extension RootTests {
     static func makeOnboardingPlatform() -> OnboardingConfigPlatform {
-        let page = OnboardingPageInfo(title: nil, description: nil, image: nil)
-        let config = OnboardingConfig(new: [page], regular: [page])
-        let wrapper = OnboardingConfigWrapper(
-            en: config,
-            minVersion: AppVersion.stringValue ?? "0.0.0",
-            background: URL(string: "https://fearlesswallet.io")!
-        )
-        return OnboardingConfigPlatform(iosConfigs: [wrapper])
-    }
-}
+        let page: [String: Any] = [
+            "description": "Test",
+            "image": "https://fearlesswallet.io/onboarding.png"
+        ]
 
-private extension OnboardingConfigPlatform {
-    init(iosConfigs: [OnboardingConfigWrapper]) {
-        self.ios = iosConfigs
-    }
-}
+        let config: [String: Any] = [
+            "new": [page],
+            "regular": [page]
+        ]
 
-private extension OnboardingConfigWrapper {
-    init(en: OnboardingConfig, minVersion: String, background: URL) {
-        self.en = en
-        self.minVersion = minVersion
-        self.background = background
+        let wrapper: [String: Any] = [
+            "en-EN": config,
+            "minVersion": AppVersion.stringValue ?? "0.0.0",
+            "background": "https://fearlesswallet.io/background.png"
+        ]
+
+        let payload: [String: Any] = ["iOS": [wrapper]]
+
+        let data = try! JSONSerialization.data(withJSONObject: payload, options: [])
+        return try! JSONDecoder().decode(OnboardingConfigPlatform.self, from: data)
     }
 }
