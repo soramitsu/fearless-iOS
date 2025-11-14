@@ -10,4 +10,5 @@ typealias ChainAccountInfo = fearless.ChainAccountInfo
 typealias ChainModel = SSFModels.ChainModel
 typealias ChainAsset = SSFModels.ChainAsset
 typealias AssetModel = SSFModels.AssetModel
+typealias CryptoType = fearless.CryptoType
 typealias RuntimeProviderProtocol = SSFRuntimeCodingService.RuntimeProviderProtocol
