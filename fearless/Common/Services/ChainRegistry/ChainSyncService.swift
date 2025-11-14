@@ -137,6 +137,23 @@ final class ChainSyncService {
                     "tokens": []
                 ]
             }
+
+            if array[i]["properties"] == nil {
+                let prefixValue = array[i]["addressPrefix"]
+                let prefixString: String
+
+                if let intValue = prefixValue as? Int {
+                    prefixString = String(intValue)
+                } else if let stringValue = prefixValue as? String {
+                    prefixString = stringValue
+                } else if let number = prefixValue as? NSNumber {
+                    prefixString = number.stringValue
+                } else {
+                    prefixString = "0"
+                }
+
+                array[i]["properties"] = ["addressPrefix": prefixString]
+            }
         }
 
         return try JSONSerialization.data(withJSONObject: array, options: [])
