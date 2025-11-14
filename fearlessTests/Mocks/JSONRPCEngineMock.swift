@@ -47,7 +47,7 @@ class MockJSONRPCEngine: JSONRPCEngine, Cuckoo.ProtocolMock, @unchecked Sendable
         }
     }
 
-    func callMethod<P: Encodable, T: Decodable>(
+    func callMethod<P: Codable, T: Decodable>(
         _ method: String,
         params: P?,
         options: JSONRPCOptions,
@@ -66,7 +66,7 @@ class MockJSONRPCEngine: JSONRPCEngine, Cuckoo.ProtocolMock, @unchecked Sendable
         )
     }
 
-    func subscribe<P: Encodable, T: Decodable>(
+    func subscribe<P: Codable, T: Decodable>(
         _ method: String,
         params: P?,
         updateClosure: @escaping (T) -> Void,
@@ -165,7 +165,7 @@ class MockJSONRPCEngine: JSONRPCEngine, Cuckoo.ProtocolMock, @unchecked Sendable
             params: M2,
             options: M3,
             completion closure: M4
-        ) -> Cuckoo.ProtocolStubThrowingFunction<(String, P?, JSONRPCOptions, ((Result<T, Error>) -> Void)?), UInt16>
+        ) -> Cuckoo.ProtocolStubThrowingFunction<(String, P?, JSONRPCOptions, ((Result<T, Error>) -> Void)?), UInt16,Swift.Error>
         where
             M1.MatchedType == String,
             M2.OptionalMatchedType == P,
@@ -190,7 +190,7 @@ class MockJSONRPCEngine: JSONRPCEngine, Cuckoo.ProtocolMock, @unchecked Sendable
             params: M2,
             updateClosure: M3,
             failureClosure: M4
-        ) -> Cuckoo.ProtocolStubThrowingFunction<(String, P?, (T) -> Void, (Error, Bool) -> Void), UInt16>
+        ) -> Cuckoo.ProtocolStubThrowingFunction<(String, P?, (T) -> Void, (Error, Bool) -> Void), UInt16,Swift.Error>
         where
             M1.MatchedType == String,
             M2.OptionalMatchedType == P,
@@ -404,7 +404,7 @@ class JSONRPCEngineStub: JSONRPCEngine, @unchecked Sendable {
     var url: URL?
     var pendingEngineRequests: [JSONRPCRequest] { return DefaultValueRegistry.defaultValue(for: ([JSONRPCRequest]).self) }
 
-    func callMethod<P: Encodable, T: Decodable>(
+    func callMethod<P: Codable, T: Decodable>(
         _ method: String,
         params: P?,
         options: JSONRPCOptions,
@@ -413,7 +413,7 @@ class JSONRPCEngineStub: JSONRPCEngine, @unchecked Sendable {
         return DefaultValueRegistry.defaultValue(for: (UInt16).self)
     }
 
-    func subscribe<P: Encodable, T: Decodable>(
+    func subscribe<P: Codable, T: Decodable>(
         _ method: String,
         params: P?,
         updateClosure: @escaping (T) -> Void,
