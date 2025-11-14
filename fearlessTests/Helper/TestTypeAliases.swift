@@ -2,6 +2,7 @@ import Foundation
 @testable import fearless
 import SSFModels
 import SSFRuntimeCodingService
+import FearlessUtils
 
 // Disambiguate model types between fearless and SSFModels in tests
 typealias MetaAccountModel = fearless.MetaAccountModel
@@ -10,5 +11,5 @@ typealias ChainAccountInfo = fearless.ChainAccountInfo
 typealias ChainModel = SSFModels.ChainModel
 typealias ChainAsset = SSFModels.ChainAsset
 typealias AssetModel = SSFModels.AssetModel
-typealias CryptoType = fearless.CryptoType
+typealias CryptoType = FearlessUtils.CryptoType
 typealias RuntimeProviderProtocol = SSFRuntimeCodingService.RuntimeProviderProtocol
