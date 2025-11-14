@@ -1213,6 +1213,7 @@
 		84F438B225DA548700AEDA56 /* runtimeTestMetadata in Resources */ = {isa = PBXBuildFile; fileRef = 84F438B125DA548700AEDA56 /* runtimeTestMetadata */; };
 		84F438BA25DA565A00AEDA56 /* RuntimeMetadataCreationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F438B925DA565A00AEDA56 /* RuntimeMetadataCreationHelper.swift */; };
 		84F4393A25DAC48D00AEDA56 /* JSONRPCAliases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4393925DAC48D00AEDA56 /* JSONRPCAliases.swift */; };
+		FAE130072DCB123400123456 /* TestTypeAliases.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE130062DCB123400123456 /* TestTypeAliases.swift */; };
 		84F43BAA25DEB75000AEDA56 /* StakingMainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F43BA925DEB75000AEDA56 /* StakingMainViewModel.swift */; };
 		84F43BB925DEFA0A00AEDA56 /* DefaultStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F43BB825DEFA0A00AEDA56 /* DefaultStub.swift */; };
 		84F43C0F25DF016600AEDA56 /* DispatchQueueHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F43C0E25DF016600AEDA56 /* DispatchQueueHelper.swift */; };
@@ -4269,6 +4270,7 @@ AA1111000011223344556678 /* WalletSelectAccountCommandFactory.swift in Sources *
 		84F438B125DA548700AEDA56 /* runtimeTestMetadata */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = runtimeTestMetadata; sourceTree = "<group>"; };
 		84F438B925DA565A00AEDA56 /* RuntimeMetadataCreationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeMetadataCreationHelper.swift; sourceTree = "<group>"; };
 		84F4393925DAC48D00AEDA56 /* JSONRPCAliases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRPCAliases.swift; sourceTree = "<group>"; };
+		FAE130062DCB123400123456 /* TestTypeAliases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTypeAliases.swift; sourceTree = "<group>"; };
 		84F43BA925DEB75000AEDA56 /* StakingMainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingMainViewModel.swift; sourceTree = "<group>"; };
 		84F43BB825DEFA0A00AEDA56 /* DefaultStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultStub.swift; sourceTree = "<group>"; };
 		84F43C0E25DF016600AEDA56 /* DispatchQueueHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchQueueHelper.swift; sourceTree = "<group>"; };
@@ -8615,6 +8617,7 @@ AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = 
 				845C7F05263C45EC0024E797 /* AnyProviderAutoCleaner.swift */,
 				845B822426EFE03E00D25C72 /* AccountGenerator.swift */,
 				84F13F0F26F1DC43006725FF /* ChainModelGenerator.swift */,
+				FAE130062DCB123400123456 /* TestTypeAliases.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -18658,6 +18661,7 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 				842D1E9324D20CC800C30A7A /* OnboardingMainTests.swift in Sources */,
 				846CA77627090E990011124C /* StakingServiceFactoryStub.swift in Sources */,
 				842D1E8124D0BEF400C30A7A /* RTests.swift in Sources */,
+				FAE130072DCB123400123456 /* TestTypeAliases.swift in Sources */,
 				845532D626847A3400C2645D /* CrowdloanListTests.swift in Sources */,
 				8467F4C326B1DFA500C5B6F4 /* StakingDurationOperationFactoryTests.swift in Sources */,
 				84563D0324EFE6D70055591D /* NetworkItemMapperTests.swift in Sources */,
