@@ -9,7 +9,7 @@ class SpecVersionSubscriptionTests: XCTestCase {
 
         let chain = ChainModelGenerator.generate(count: 1).first!
         let runtimeSyncService = MockRuntimeSyncServiceProtocol()
-        let connection = RuntimeVersionJSONRPCEngineStub()
+        let connection = MockConnection()
 
         let subscription = SpecVersionSubscription(
             chainId: chain.chainId,
@@ -42,58 +42,11 @@ class SpecVersionSubscriptionTests: XCTestCase {
                 )
             )
 
-            connection.emit(update: update)
+            connection.emit(update)
         }
 
         // then
 
         wait(for: [expectation], timeout: 10)
-    }
-}
-
-private final class RuntimeVersionJSONRPCEngineStub: JSONRPCEngine {
-    var url: URL?
-    var pendingEngineRequests: [JSONRPCRequest] { [] }
-
-    private var updateHandler: ((RuntimeVersionUpdate) -> Void)?
-
-    func callMethod<P: Encodable, T: Decodable>(
-        _ method: String,
-        params: P?,
-        options: JSONRPCOptions,
-        completion closure: ((Result<T, Error>) -> Void)?
-    ) throws -> UInt16 {
-        throw JSONRPCEngineError.clientCancelled
-    }
-
-    func subscribe<P: Encodable, T: Decodable>(
-        _ method: String,
-        params: P?,
-        updateClosure: @escaping (T) -> Void,
-        failureClosure: @escaping (Error, Bool) -> Void
-    ) throws -> UInt16 {
-        precondition(T.self == RuntimeVersionUpdate.self, "Unsupported subscription type \(T.self)")
-
-        updateHandler = { update in
-            updateClosure(update as! T) // swiftlint:disable:this force_cast
-        }
-
-        return 0
-    }
-
-    func cancelForIdentifier(_ identifier: UInt16) {}
-
-    func generateRequestId() -> UInt16 { 0 }
-
-    func addSubscription(_ subscription: JSONRPCSubscribing) {}
-
-    func reconnect(url: URL) { self.url = url }
-
-    func connectIfNeeded() {}
-
-    func disconnectIfNeeded() {}
-
-    func emit(update: RuntimeVersionUpdate) {
-        updateHandler?(update)
     }
 }

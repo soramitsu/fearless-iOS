@@ -8,6 +8,12 @@ final class MockConnection: JSONRPCEngine {
     var pendingEngineRequests: [JSONRPCRequest] { [] }
 
     private var nextId: UInt16 = 1
+    private struct AnySubscription {
+        let update: (Any) -> Void
+        let failure: (Error, Bool) -> Void
+    }
+
+    private var subscriptions: [UInt16: AnySubscription] = [:]
 
     func callMethod<P: Codable, T: Decodable>(
         _ method: String,
@@ -16,7 +22,6 @@ final class MockConnection: JSONRPCEngine {
         completion closure: ((Result<T, Error>) -> Void)?
     ) throws -> UInt16 {
         let id = generateRequestId()
-        // Immediately fail calls in tests that don’t expect networking
         closure?(.failure(JSONRPCEngineError.clientCancelled))
         return id
     }
@@ -28,11 +33,22 @@ final class MockConnection: JSONRPCEngine {
         failureClosure: @escaping (Error, Bool) -> Void
     ) throws -> UInt16 {
         let id = generateRequestId()
-        // Do not deliver updates; just track a pending subscription
+        subscriptions[id] = AnySubscription(
+            update: { value in
+                guard let typed = value as? T else {
+                    return
+                }
+
+                updateClosure(typed)
+            },
+            failure: failureClosure
+        )
         return id
     }
 
-    func cancelForIdentifier(_ identifier: UInt16) {}
+    func cancelForIdentifier(_ identifier: UInt16) {
+        subscriptions.removeValue(forKey: identifier)
+    }
 
     func generateRequestId() -> UInt16 {
         defer { nextId &+= 1 }
@@ -45,4 +61,23 @@ final class MockConnection: JSONRPCEngine {
     func connectIfNeeded() {}
     func disconnectIfNeeded() {}
     func unsubsribe(_ identifier: UInt16) throws {}
+
+    // MARK: - Test helpers
+
+    func emit<T>(_ value: T, for identifier: UInt16? = nil) {
+        if let identifier {
+            subscriptions[identifier]?.update(value)
+        } else {
+            subscriptions.values.forEach { $0.update(value) }
+        }
+    }
+
+    func fail(_ error: Error, unsubscribed: Bool = false, identifier: UInt16? = nil) {
+        if let identifier {
+            subscriptions[identifier]?.failure(error, unsubscribed)
+            return
+        }
+
+        subscriptions.values.forEach { $0.failure(error, unsubscribed) }
+    }
 }
