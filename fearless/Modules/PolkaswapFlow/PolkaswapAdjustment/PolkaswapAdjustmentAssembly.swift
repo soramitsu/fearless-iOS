@@ -4,7 +4,9 @@ import SSFUtils
 import RobinHood
 import SoraKeystore
 import SSFModels
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 final class PolkaswapAdjustmentAssembly {
     static func configureModule(

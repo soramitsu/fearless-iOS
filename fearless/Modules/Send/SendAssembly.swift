@@ -12,7 +12,9 @@ import SSFExtrinsicKit
 import SSFNetwork
 import SSFChainRegistry
 import SSFChainConnection
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 final class SendAssembly {
     static func configureModule(

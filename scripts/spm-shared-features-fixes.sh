@@ -197,6 +197,9 @@ public extension AddressFactory {
 }
 EOF
     fi
+
+    /usr/bin/sed -E -i '' '/typealias[[:space:]]+SFChainFormat/d' "$file"
+    printf '\npublic typealias SFChainFormat = ChainFormat\n' >> "$file"
   else
     echo "[spm-fixes] AddressConversion.swift not found at $file; performing broad search"
   fi

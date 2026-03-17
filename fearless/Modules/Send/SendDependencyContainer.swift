@@ -10,7 +10,9 @@ import SSFSigner
 import SSFCrypto
 import Foundation
 import SSFRuntimeCodingService
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 struct SendDependencies {
     let wallet: MetaAccountModel

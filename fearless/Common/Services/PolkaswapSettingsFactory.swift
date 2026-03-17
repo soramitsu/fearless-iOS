@@ -1,7 +1,9 @@
 import Foundation
 import RobinHood
 import SSFUtils
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 final class PolkaswapSettingsFactory {
     static func createService() -> PolkaswapSettingsSyncServiceProtocol {

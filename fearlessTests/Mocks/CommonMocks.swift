@@ -4263,7 +4263,9 @@ import RobinHood
 import SSFUtils
 import SSFModels
 import SSFStorageQueryKit
+#if canImport(SSFAssetManagmentStorage)
 import SSFAssetManagmentStorage
+#endif
 @testable import fearless
 @testable import SoraKeystore
 

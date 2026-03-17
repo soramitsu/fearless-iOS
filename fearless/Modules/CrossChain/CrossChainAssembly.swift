@@ -5,7 +5,9 @@ import RobinHood
 import SSFXCM
 import SSFNetwork
 import SSFModels
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 final class CrossChainAssembly {
     static func configureModule(

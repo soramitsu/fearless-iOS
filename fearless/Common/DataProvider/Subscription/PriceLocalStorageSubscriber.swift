@@ -1,7 +1,9 @@
 import Foundation
 import RobinHood
 import SSFModels
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 protocol PriceLocalStorageSubscriber where Self: AnyObject {
     func subscribeToPrice(for chainAsset: ChainAsset, listener: PriceLocalSubscriptionHandler) -> AnySingleValueProvider<[PriceData]>

@@ -1,6 +1,8 @@
 import Foundation
 import RobinHood
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 protocol SubstrateDataProviderFactoryProtocol {
     func createStashItemProvider(for address: String) -> StreamableProvider<StashItem>

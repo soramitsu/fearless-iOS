@@ -1,7 +1,9 @@
 import Foundation
 import RobinHood
 import CoreData
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 enum PolkaswapSettingMapperError: Error {
     case requiredFieldsMissing

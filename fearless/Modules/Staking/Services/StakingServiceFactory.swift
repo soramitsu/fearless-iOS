@@ -3,7 +3,9 @@ import RobinHood
 import SSFUtils
 import SSFModels
 import SSFStorageQueryKit
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 enum StakingServiceFactoryError: Error {
     case stakingUnavailable

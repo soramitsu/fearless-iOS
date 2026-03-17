@@ -3,7 +3,9 @@ import RobinHood
 import CoreData
 import IrohaCrypto
 import SSFModels
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 enum ChainNodeMapperError: Error {
     case missedRequiredFields

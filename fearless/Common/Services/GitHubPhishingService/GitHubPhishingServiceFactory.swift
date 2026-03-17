@@ -1,6 +1,8 @@
 import Foundation
 import RobinHood
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 class GitHubPhishingServiceFactory {
     static func createService() -> ApplicationServiceProtocol {

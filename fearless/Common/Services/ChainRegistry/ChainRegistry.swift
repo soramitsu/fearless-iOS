@@ -6,7 +6,9 @@ import Web3
 import SSFChainRegistry
 import SSFRuntimeCodingService
 import SSFChainConnection
-import FearlessKeys
+#if canImport(FearlessKeys)
+    import FearlessKeys
+#endif
 import TonAPI
 
 protocol ChainRegistryProtocol: AnyObject {

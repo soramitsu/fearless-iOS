@@ -1,5 +1,7 @@
 import Foundation
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 // Alias Core Data entity classes provided by SSFAssetManagmentStorage so existing
 // code can refer to unqualified names without generating duplicates in the app.

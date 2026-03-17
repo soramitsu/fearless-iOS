@@ -1,7 +1,9 @@
 import Foundation
 import CoreData
 import RobinHood
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 extension SSFAssetManagmentStorage.CDPhishingItem: CoreDataCodable {
     public func populate(from decoder: Decoder, using _: NSManagedObjectContext) throws {

@@ -1,7 +1,16 @@
 import Foundation
 import CryptoKit
 import SSFNetwork
-import FearlessKeys
+#if canImport(FearlessKeys)
+    import FearlessKeys
+#else
+    enum OKXApiKeys {
+        static let okxApiKey = ""
+        static let okxSecretKey = ""
+        static let okxPassphrase = ""
+        static let okxProjectId = ""
+    }
+#endif
 import SoraKeystore
 import SSFModels
 import SSFUtils

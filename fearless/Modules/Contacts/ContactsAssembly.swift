@@ -3,7 +3,9 @@ import SoraFoundation
 import RobinHood
 import SSFModels
 import SSFNetwork
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 import SoraKeystore
 
 enum ContactSource {

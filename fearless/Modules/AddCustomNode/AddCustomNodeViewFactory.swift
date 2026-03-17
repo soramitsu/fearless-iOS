@@ -2,7 +2,9 @@ import Foundation
 import RobinHood
 import SoraFoundation
 import SSFModels
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 struct AddCustomNodeViewFactory {
     static func createView(chain: ChainModel, moduleOutput: AddCustomNodeModuleOutput?) -> AddCustomNodeViewProtocol? {

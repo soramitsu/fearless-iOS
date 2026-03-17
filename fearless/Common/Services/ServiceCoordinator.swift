@@ -6,7 +6,9 @@ import SSFUtils
 import SSFChainRegistry
 import SSFNetwork
 import SSFStorageQueryKit
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 protocol ServiceCoordinatorProtocol: ApplicationServiceProtocol {
     func updateOnAccountChange()

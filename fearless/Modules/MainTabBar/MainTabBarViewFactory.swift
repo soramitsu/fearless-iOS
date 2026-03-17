@@ -160,7 +160,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         wallet: MetaAccountModel
     ) -> UIViewController? {
         guard let viewController = WalletMainContainerAssembly
-              .configureModule(wallet: wallet, walletConnect: walletConnect)?.view.controller
+            .configureModule(wallet: wallet, walletConnect: walletConnect)?.view.controller
         else {
             return nil
         }

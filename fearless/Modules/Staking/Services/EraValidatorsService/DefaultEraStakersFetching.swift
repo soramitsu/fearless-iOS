@@ -1,5 +1,7 @@
 import Foundation
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 import SSFRuntimeCodingService
 import SSFModels
 import SSFUtils

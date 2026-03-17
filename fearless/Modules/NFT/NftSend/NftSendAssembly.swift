@@ -6,7 +6,9 @@ import Web3
 import RobinHood
 import SSFUtils
 import SSFNetwork
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 enum NftSendAssemblyError: Error {
     case substrateNftNotImplemented

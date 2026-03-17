@@ -126,8 +126,8 @@ The project mixes CocoaPods and Swift Package Manager. Follow these steps in ord
 6) Private pods (FearlessKeys)
 - The pod `FearlessKeys` is private. To allow `pod install` on CI/local without prompting:
   - Provide a GitHub Personal Access Token with repo read access (recommended env var: `GH_PAT_READ`).
-  - Preconfigure git on the agent: `git config --global url."https://${GH_PAT_READ}@github.com/".insteadOf "https://github.com/"`
-  - Alternatively, write a `~/.netrc` with GitHub credentials (read‑only).
+  - Preconfigure git on the agent: `git config --global url."https://${GH_PAT_READ}@github.com/".insteadOf "https://github.com/"` (or run `scripts/secrets/setup-private-pods.sh` which does this for you and writes `.env.private` with `INCLUDE_FEARLESS_KEYS=1`).
+  - Alternatively, write a `~/.netrc` with GitHub credentials (read-only).
 
 7) IrohaCrypto + SPM stability (Xcode 16/18)
 - The SPM package `shared-features-spm` must be pinned to a revision that works with Xcode 16/18 (`b820bfd…`). We now enforce this automatically via `scripts/deps/enforce-ssf-pin.sh` in CI (`bootstrap.sh`), local dev (`dev-setup.sh`), and tests (`test-matrix.sh`).

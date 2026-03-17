@@ -2,7 +2,9 @@ import Foundation
 import RobinHood
 import SSFSingleValueCache
 import SSFAccountManagmentStorage
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 protocol SubstrateRepositoryFactoryProtocol {
     func createChainStorageItemRepository() -> AnyDataProviderRepository<ChainStorageItem>

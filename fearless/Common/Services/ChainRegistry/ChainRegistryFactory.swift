@@ -4,7 +4,9 @@ import RobinHood
 import SSFModels
 import SSFNetwork
 import SSFChainRegistry
-import SSFAssetManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 /**
  *  Class is designed to handle creation of `ChainRegistryProtocol` instance for application.
@@ -48,7 +50,7 @@ struct ChainRegistryFactoryDependencies {
     }
 }
 
-final class ChainRegistryFactory {
+enum ChainRegistryFactory {
     /**
      *  Creates chain registry with on-disk database manager. This function must be used by the application
      *  by default.
