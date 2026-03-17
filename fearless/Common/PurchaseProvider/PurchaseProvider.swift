@@ -6,7 +6,14 @@ final class PurchaseAggregator {
     private var providers: [PurchaseProviderProtocol]
 
     init(providers: [PurchaseProviderProtocol]) {
-        self.providers = providers
+        var configuredProviders = providers
+        let hasCoinbaseProvider = configuredProviders.contains { provider in
+            provider is CoinbasePurchaseProvider
+        }
+        if !hasCoinbaseProvider {
+            configuredProviders.append(CoinbasePurchaseProvider())
+        }
+        self.providers = configuredProviders
     }
 }
 

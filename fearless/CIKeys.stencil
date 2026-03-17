@@ -65,3 +65,7 @@ enum ThirdPartyServicesApiKeys {
 enum DwellirNodeApiKey {
     static var dwellirApiKey: String = "{{ argument.dwellirApiKey }}"
 }
+
+enum CoinbaseCIKeys {
+    static var appId: String = "{{ argument.coinbaseAppId }}"
+}

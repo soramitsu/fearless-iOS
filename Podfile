@@ -23,9 +23,10 @@ abstract_target 'fearlessAll' do
   pod 'SVGKit'
   pod 'Charts', '~> 4.1.0'
   pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
-  # Guard private pod behind env flag so PR/local builds without credentials succeed
+  # Guard private pod behind env flag so PR/local builds without credentials succeed.
+  # CI/CD can opt-in by exporting INCLUDE_FEARLESS_KEYS=1 so Release builds pull keys.
   if ENV['INCLUDE_FEARLESS_KEYS'] == '1'
-# CI: disabled private pod for PR build ->     pod 'FearlessKeys', '0.1.4'
+    pod 'FearlessKeys', '0.1.4', :configurations => ['Release']
   end
 
   target 'fearlessTests' do

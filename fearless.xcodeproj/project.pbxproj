@@ -1343,6 +1343,8 @@
 		ACB3420A31CCBA85ECB3B7C3 /* WalletTransactionHistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15E7F3E6BBE50797A9EB9145 /* WalletTransactionHistoryViewController.swift */; };
 		ADF845374BEF73D90D4BF005 /* SwapTransactionDetailRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F329740EC1B8CC94D02A8ABD /* SwapTransactionDetailRouter.swift */; };
 		AE20602C2636EA5800357578 /* MoonPayKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE20602B2636EA5800357578 /* MoonPayKeys.swift */; };
+		AE26E6C32DFA0928001FD062 /* CoinbaseKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE26E6C22DFA0928001FD062 /* CoinbaseKeys.swift */; };
+		AE26E6C52DFA099A001FD062 /* CoinbasePurchaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE26E6C42DFA099A001FD062 /* CoinbasePurchaseProvider.swift */; };
 		AE2060B02637068700357578 /* CIKeys.stencil in Resources */ = {isa = PBXBuildFile; fileRef = AE2060AF2637068700357578 /* CIKeys.stencil */; };
 		AE2C101E267A6271004AA8E9 /* CustomValidatorListComposerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C101D267A6271004AA8E9 /* CustomValidatorListComposerTests.swift */; };
 		AE2C1020267A67DD004AA8E9 /* CustomValidatorListTestDataGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C101F267A67DD004AA8E9 /* CustomValidatorListTestDataGenerator.swift */; };
@@ -4392,6 +4394,8 @@ AA1111000011223344556678 /* WalletSelectAccountCommandFactory.swift in Sources *
 		ADD19595322BF8FEC0F1F746 /* StakingPoolCreatePresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPoolCreatePresenter.swift; sourceTree = "<group>"; };
 		ADD348E749EC6A7E3BB069DE /* StakingUnbondConfirmProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingUnbondConfirmProtocols.swift; sourceTree = "<group>"; };
 		AE20602B2636EA5800357578 /* MoonPayKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPayKeys.swift; sourceTree = "<group>"; };
+		AE26E6C22DFA0928001FD062 /* CoinbaseKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinbaseKeys.swift; sourceTree = "<group>"; };
+		AE26E6C42DFA099A001FD062 /* CoinbasePurchaseProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinbasePurchaseProvider.swift; sourceTree = "<group>"; };
 		AE2060AF2637068700357578 /* CIKeys.stencil */ = {isa = PBXFileReference; lastKnownFileType = text; path = CIKeys.stencil; sourceTree = "<group>"; };
 		AE2C101D267A6271004AA8E9 /* CustomValidatorListComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListComposerTests.swift; sourceTree = "<group>"; };
 		AE2C101F267A67DD004AA8E9 /* CustomValidatorListTestDataGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListTestDataGenerator.swift; sourceTree = "<group>"; };
@@ -8092,6 +8096,8 @@ AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = 
 				AEF5071D262369C00098574D /* PurchaseProviderProtocol.swift */,
 				AEF507B9262486F80098574D /* MoonpayProviderFactory.swift */,
 				AE20602B2636EA5800357578 /* MoonPayKeys.swift */,
+				AE26E6C22DFA0928001FD062 /* CoinbaseKeys.swift */,
+				AE26E6C42DFA099A001FD062 /* CoinbasePurchaseProvider.swift */,
 			);
 			path = PurchaseProvider;
 			sourceTree = "<group>";
@@ -17205,6 +17211,8 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 				FAD0068427EA255900C97E09 /* AboutTableViewCell.swift in Sources */,
 				FAE39AF32A9E1A4F0011A9D6 /* ChainsSetupCompleted.swift in Sources */,
 				AE20602C2636EA5800357578 /* MoonPayKeys.swift in Sources */,
+				AE26E6C32DFA0928001FD062 /* CoinbaseKeys.swift in Sources */,
+				AE26E6C52DFA099A001FD062 /* CoinbasePurchaseProvider.swift in Sources */,
 				FA99C92F283B4AC5007B1F83 /* SelectValidatorsConfirmRelaychainInitiatedViewModelState.swift in Sources */,
 				07F67CA52ACFEADB0044047D /* BigUInt+EthereumQuantity.swift in Sources */,
 				FA851FF127917494004F5979 /* WalletTransactionDetailsViewState.swift in Sources */,
