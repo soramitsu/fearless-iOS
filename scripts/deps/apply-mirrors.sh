@@ -19,6 +19,13 @@ if ! command -v jq >/dev/null 2>&1; then
   exit 0
 fi
 
+SWIFT_PACKAGE_ARGS=()
+if [ -f "$BASE_DIR/Package.swift" ]; then
+  SWIFT_PACKAGE_ARGS=(--package-path "$BASE_DIR")
+elif [ -f "$BASE_DIR/Packages/FearlessDependencies/Package.swift" ]; then
+  SWIFT_PACKAGE_ARGS=(--package-path "$BASE_DIR/Packages/FearlessDependencies")
+fi
+
 echo "[apply-mirrors] Applying mirrors from $MIRRORS_JSON"
 
 # Expected format:
@@ -34,7 +41,7 @@ if [ "$spm_count" != "null" ] && [ "$spm_count" -gt 0 ] 2>/dev/null; then
     mir=$(jq -r ".spm[$i].mirror" "$MIRRORS_JSON")
     if [ -n "$orig" ] && [ -n "$mir" ] && [ "$orig" != "null" ] && [ "$mir" != "null" ]; then
       echo "[apply-mirrors] SPM mirror: $orig -> $mir"
-      swift package config set-mirror --package-url "$orig" --mirror-url "$mir" || true
+      swift package "${SWIFT_PACKAGE_ARGS[@]}" config set-mirror --package-url "$orig" --mirror-url "$mir" || true
     fi
   done
 fi
