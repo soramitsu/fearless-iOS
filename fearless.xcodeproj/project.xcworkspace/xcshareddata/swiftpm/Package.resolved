@@ -159,7 +159,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
-        "revision" : "6d6cb16b7f1f12028fe93d50a4e928a938af141e"
+        "revision" : "b820bfd2e5e67d0341c5a5b135633309baab2057"
       }
     },
     {

@@ -17,6 +17,12 @@ patch_manifest() {
     return 0
   fi
 
+  # Normalize Web3 dependency to the soramitsu fork to avoid duplicate package identities.
+  /usr/bin/sed -E -i '' \
+    -e 's|https://github.com/bnsports/Web3.swift.git|https://github.com/soramitsu/web3-swift|g' \
+    -e 's/package:[[:space:]]*"Web3\.swift"/package: "web3-swift"/g' \
+    "$pkg_swift" || true
+
   # 0) Ensure top-level BigInt package dependency exists
   if ! /usr/bin/grep -q "BigInt.git" "$pkg_swift"; then
     echo "[spm-fixes] Injecting BigInt package dependency"
@@ -38,26 +44,32 @@ patch_manifest() {
     ' "$pkg_swift" > "$pkg_swift.tmp" && mv "$pkg_swift.tmp" "$pkg_swift" || true
   fi
 
-  # Rewrite the SSFModels target dependencies line to include RobinHood and BigInt.
-  # Try sed first for common single-line forms; fall back to awk block rewrite.
+  # Rewrite the SSFModels target dependencies block to include RobinHood, BigInt, and preserve Ton deps.
   local tmp_file
   tmp_file=$(mktemp)
-  # sed path: only replace the simple single-line list when present
-  if /usr/bin/grep -qE 'name:[[:space:]]*"SSFModels"' "$pkg_swift" && \
-     /usr/bin/grep -qE 'target\([[:space:]]*name:[[:space:]]*"SSFModels"[\s\S]*dependencies:[[:space:]]*\[[[:space:]]*"IrohaCrypto"[[:space:]]*\]' "$pkg_swift"; then
-    /usr/bin/sed -E $'s/(target\([[:space:]]*name:[[:space:]]*"SSFModels"[\s\S]*dependencies:[[:space:]]*)\[[^\]]*\]/\1[ \"IrohaCrypto\", \"RobinHood\", .product(name: \"BigInt\", package: \"BigInt\") ]/' "$pkg_swift" > "$tmp_file" || cp "$pkg_swift" "$tmp_file"
-  else
-    awk '
-      BEGIN{in_models=0; patched=0}
-      /name:[[:space:]]*"SSFModels"/ {in_models=1}
-      in_models==1 && /dependencies:[[:space:]]*\[/ {
-        print "            dependencies: [ \"IrohaCrypto\", \"RobinHood\", .product(name: \"BigInt\", package: \"BigInt\") ]";
-        patched=1; next
+  awk '
+    BEGIN{
+      in_models=0;
+      skipping=0;
+      replacement="            dependencies: [\n                \"IrohaCrypto\",\n                \"RobinHood\",\n                .product(name: \"BigInt\", package: \"BigInt\"),\n                .product(name: \"TonSwift\", package: \"ton-swift\"),\n                .product(name: \"TonAPI\", package: \"ton-api-swift\")\n            ]"
+    }
+    /target\(/ && $0 ~ /name:[[:space:]]*"SSFModels"/ { in_models=1 }
+    in_models==1 && /dependencies:[[:space:]]*\[/ {
+      print replacement;
+      skipping=1;
+      next
+    }
+    skipping==1 {
+      if ($0 ~ /^\s*\]/) {
+        skipping=0;
+        next
+      } else {
+        next
       }
-      /\)\s*,\s*$/ { if(in_models==1){ in_models=0 } }
-      { print }
-    ' "$pkg_swift" > "$tmp_file"
-  fi
+    }
+    /\)\s*,\s*$/ { if(in_models==1){ in_models=0 } }
+    { print }
+  ' "$pkg_swift" > "$tmp_file"
 
   if ! diff -q "$pkg_swift" "$tmp_file" >/dev/null 2>&1; then
     echo "[spm-fixes] Updated SSFModels dependencies in $pkg_swift"

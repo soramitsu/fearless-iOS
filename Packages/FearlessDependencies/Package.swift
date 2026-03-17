@@ -30,7 +30,7 @@ let package = Package(
         .package(url: "https://github.com/SnapKit/SnapKit", exact: "5.0.0"),
         // TON SDK + remote API
         .package(url: "https://github.com/DRadmir/ton-api-swift.git", exact: "0.5.0"),
-        .package(url: "https://github.com/DRadmir/ton-swift.git", revision: "73c9894e2be8d6d16b87853342eb2755d2e4be8a")
+        .package(url: "https://github.com/DRadmir/ton-swift.git", branch: "main")
     ],
     targets: [
         .target(

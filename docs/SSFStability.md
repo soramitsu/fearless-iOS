@@ -4,7 +4,7 @@ Overview
 - The wallet depends on Soramitsu’s shared-features-spm (SSF) packages: SSFModels, SSFUtils, IrohaCrypto, Polkaswap, etc. Xcode 16+/18 and SwiftPM cache resets can cause frequent build/test breakage without guardrails.
 
 Key fixes in this repo
-- Pin shared-features-spm revision: 6d6cb16b7f1f12028fe93d50a4e928a938af141e
+- Pin shared-features-spm revision: b820bfd2e5e67d0341c5a5b135633309baab2057
   - Script: scripts/deps/enforce-ssf-pin.sh
   - Wired into dev (scripts/dev-setup.sh), CI (scripts/ci/bootstrap.sh), and tests (scripts/test-matrix.sh) before package resolution.
   - Why: prevents resolver drift when Package.resolved is invalidated by Xcode, keeping a known-good SSF state.
@@ -30,4 +30,3 @@ How to update SSF safely
 - Bump the shared-features-spm revision in enforce-ssf-pin.sh (and consider updating Package.resolved), then run scripts/dev-setup.sh.
 - Verify: scripts/test-matrix.sh (Debug + Release).
 - If IrohaCrypto errors appear, re-run spm-iroha-hotfix.sh or clear DerivedData caches.
-

@@ -130,7 +130,7 @@ The project mixes CocoaPods and Swift Package Manager. Follow these steps in ord
   - Alternatively, write a `~/.netrc` with GitHub credentials (read‑only).
 
 7) IrohaCrypto + SPM stability (Xcode 16/18)
-- The SPM package `shared-features-spm` must be pinned to a revision that works with Xcode 16/18 (`6d6cb16…`). We now enforce this automatically via `scripts/deps/enforce-ssf-pin.sh` in CI (`bootstrap.sh`), local dev (`dev-setup.sh`), and tests (`test-matrix.sh`).
+- The SPM package `shared-features-spm` must be pinned to a revision that works with Xcode 16/18 (`b820bfd…`). We now enforce this automatically via `scripts/deps/enforce-ssf-pin.sh` in CI (`bootstrap.sh`), local dev (`dev-setup.sh`), and tests (`test-matrix.sh`).
 - A hotfix exists at `scripts/spm-iroha-hotfix.sh` that patches `IrohaCrypto` module map if stale DerivedData causes umbrella header errors; `scripts/test-matrix.sh` will invoke it for tests. Additional SSF manifest/source fixes (BigInt dep, Web3 Data.bytes, AddressFactory type usage, scrypt guard) are applied by `scripts/spm-shared-features-fixes.sh`.
 
 8) Web3 duplication

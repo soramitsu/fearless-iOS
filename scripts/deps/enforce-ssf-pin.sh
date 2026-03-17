@@ -7,10 +7,10 @@ set -euo pipefail
 # Usage:
 #   scripts/deps/enforce-ssf-pin.sh [REVISION] [WORKSPACE_DIR]
 # Defaults:
-#   REVISION=6d6cb16b7f1f12028fe93d50a4e928a938af141e
+#   REVISION=b820bfd2e5e67d0341c5a5b135633309baab2057
 #   WORKSPACE_DIR=current working directory
 
-REVISION="${1:-6d6cb16b7f1f12028fe93d50a4e928a938af141e}"
+REVISION="${1:-b820bfd2e5e67d0341c5a5b135633309baab2057}"
 ROOT="${2:-$(pwd)}"
 
 echo "[enforce-ssf-pin] Target revision: ${REVISION}"
@@ -42,4 +42,3 @@ for dd in "$HOME/Library/Developer/Xcode/DerivedData" "$ROOT/DerivedData"; do
 done
 
 echo "[enforce-ssf-pin] Completed enforcing shared-features-spm pin"
-
