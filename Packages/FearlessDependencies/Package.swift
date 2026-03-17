@@ -28,6 +28,9 @@ let package = Package(
         // Image loading and layout (migrated from CocoaPods)
         .package(url: "https://github.com/onevcat/Kingfisher", exact: "7.10.2"),
         .package(url: "https://github.com/SnapKit/SnapKit", exact: "5.0.0"),
+        // TON SDK + remote API
+        .package(url: "https://github.com/DRadmir/ton-api-swift.git", exact: "0.5.0"),
+        .package(url: "https://github.com/DRadmir/ton-swift.git", revision: "73c9894e2be8d6d16b87853342eb2755d2e4be8a")
     ],
     targets: [
         .target(
@@ -53,6 +56,9 @@ let package = Package(
                 // Image loading and layout
                 .product(name: "Kingfisher", package: "Kingfisher"),
                 .product(name: "SnapKit", package: "SnapKit"),
+                // TON SDK
+                .product(name: "TonAPI", package: "ton-api-swift"),
+                .product(name: "TonSwift", package: "ton-swift")
             ],
             path: "Sources/FearlessDependencies"
         )

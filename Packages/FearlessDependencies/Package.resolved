@@ -307,6 +307,24 @@
       }
     },
     {
+      "identity" : "ton-api-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/DRadmir/ton-api-swift.git",
+      "state" : {
+        "revision" : "8ddff19a40d3d00503cab7fb9d9eb77459169488",
+        "version" : "0.5.0"
+      }
+    },
+    {
+      "identity" : "ton-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/DRadmir/ton-swift.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "73c9894e2be8d6d16b87853342eb2755d2e4be8a"
+      }
+    },
+    {
       "identity" : "wallet-mobile-sdk",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/MobileWalletProtocol/wallet-mobile-sdk",

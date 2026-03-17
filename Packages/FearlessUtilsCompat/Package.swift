@@ -10,8 +10,8 @@ let package = Package(
         .library(name: "FearlessUtils", targets: ["FearlessUtils"])
     ],
     dependencies: [
-        // Depend on the same shared-features-spm repo used by the app, pinned to the known-good revision
-        .package(url: "https://github.com/soramitsu/shared-features-spm.git", revision: "6d6cb16b7f1f12028fe93d50a4e928a938af141e")
+        // Depend on the same shared-features-spm repo used by the app, pinned to the Ton-ready revision
+        .package(url: "https://github.com/soramitsu/shared-features-spm.git", revision: "b820bfd2e5e67d0341c5a5b135633309baab2057")
     ],
     targets: [
         .target(

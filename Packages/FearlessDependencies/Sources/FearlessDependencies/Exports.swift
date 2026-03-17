@@ -52,3 +52,11 @@
 #if canImport(ReownWalletKit)
 @_exported import ReownWalletKit
 #endif
+
+#if canImport(TonAPI)
+@_exported import TonAPI
+#endif
+
+#if canImport(TonSwift)
+@_exported import TonSwift
+#endif
