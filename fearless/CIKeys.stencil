@@ -69,3 +69,11 @@ enum DwellirNodeApiKey {
 enum CoinbaseCIKeys {
     static var appId: String = "{{ argument.coinbaseAppId }}"
 }
+
+enum TonNodeApiKey {
+    static var tonApiKey: String = "{{ argument.tonApiKey }}"
+}
+
+enum TonNodeApiKeyDebug {
+    static var tonApiKey: String = "{{ argument.tonApiKeyDebug }}"
+}

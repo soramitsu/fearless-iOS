@@ -47,7 +47,7 @@ enum ChainAccountViewFactory {
 
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
-        let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(
+        let ethereumBalanceRepositoryCacheWrapper = BalanceRepositoryCacheWrapper(
             logger: Logger.shared,
             repository: accountInfoRepository,
             operationManager: OperationManagerFacade.sharedManager

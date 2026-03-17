@@ -3,7 +3,6 @@ import SoraFoundation
 import RobinHood
 import SoraKeystore
 import SSFStorageQueryKit
-import SSFAssetManagmentStorage
 
 final class ChainAssetListAssembly {
     static func configureModule(
@@ -27,7 +26,7 @@ final class ChainAssetListAssembly {
 
         let dependencyContainer = ChainAssetListDependencyContainer()
 
-        let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(
+        let ethereumBalanceRepositoryCacheWrapper = BalanceRepositoryCacheWrapper(
             logger: Logger.shared,
             repository: accountInfoRepository,
             operationManager: OperationManagerFacade.sharedManager
@@ -60,8 +59,6 @@ final class ChainAssetListAssembly {
             missingAccountHelper: missingAccountHelper,
             accountInfoFetcher: accountInfoFetcher
         )
-        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-            SubstrateDataStorageFacade.shared.createAsyncRepository()
         let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let chainSettingsRepostiry = chainSettingsRepositoryFactory.createAsyncRepository()
         let operationQueue = OperationManagerFacade.sharedDefaultQueue
@@ -71,9 +68,27 @@ final class ChainAssetListAssembly {
             chainRegistry: chainRegistry
         )
 
+        let tonBalanceRepositoryWrapper = BalanceRepositoryCacheWrapper(
+            logger: Logger.shared,
+            repository: accountInfoRepository,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let tonJettonInjector = TonJettonInjectorImpl(
+            chainModelRepository: ChainRepositoryFactory().createAsyncRepository(),
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared
+        )
+
+        let tonRemoteBalanceFetching = TonRemoteBalanceFetchingImpl(
+            chainRegistry: chainRegistry,
+            repositoryWrapper: tonBalanceRepositoryWrapper,
+            jettonInjector: tonJettonInjector
+        )
+
         let accountInfoRemoteService = AccountInfoRemoteServiceDefault(
-            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository),
             ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
+            tonRemoteBalanceFetching: tonRemoteBalanceFetching,
             storagePerformer: storagePerformer
         )
 

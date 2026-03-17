@@ -1345,6 +1345,14 @@
 		AE20602C2636EA5800357578 /* MoonPayKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE20602B2636EA5800357578 /* MoonPayKeys.swift */; };
 		AE26E6C32DFA0928001FD062 /* CoinbaseKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE26E6C22DFA0928001FD062 /* CoinbaseKeys.swift */; };
 		AE26E6C52DFA099A001FD062 /* CoinbasePurchaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE26E6C42DFA099A001FD062 /* CoinbasePurchaseProvider.swift */; };
+		AE26E7002DFA1B50001FD062 /* LocalListToggle.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE26E6FF2DFA1B50001FD062 /* LocalListToggle.swift */; };
+		AE26E7022DFA1B85001FD062 /* LocalToggleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE26E7012DFA1B85001FD062 /* LocalToggleService.swift */; };
+		AE26E7042DFA1BB4001FD062 /* TonConstansts.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE26E7032DFA1BB4001FD062 /* TonConstansts.swift */; };
+		AE26E7062DFA1BF1001FD062 /* TonAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE26E7052DFA1BF1001FD062 /* TonAccount.swift */; };
+		AE26E7082DFA1C15001FD062 /* TonAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE26E7072DFA1C15001FD062 /* TonAddress.swift */; };
+		AE26E70A2DFA1C4A001FD062 /* TonJettonInjector.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE26E7092DFA1C4A001FD062 /* TonJettonInjector.swift */; };
+		AE26E70C2DFA1C7E001FD062 /* TonModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE26E70B2DFA1C7E001FD062 /* TonModels.swift */; };
+		AE26E70E2DFA1CA5001FD062 /* TonRemoteBalanceFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE26E70D2DFA1CA5001FD062 /* TonRemoteBalanceFetching.swift */; };
 		AE2060B02637068700357578 /* CIKeys.stencil in Resources */ = {isa = PBXBuildFile; fileRef = AE2060AF2637068700357578 /* CIKeys.stencil */; };
 		AE2C101E267A6271004AA8E9 /* CustomValidatorListComposerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C101D267A6271004AA8E9 /* CustomValidatorListComposerTests.swift */; };
 		AE2C1020267A67DD004AA8E9 /* CustomValidatorListTestDataGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C101F267A67DD004AA8E9 /* CustomValidatorListTestDataGenerator.swift */; };
@@ -2948,7 +2956,7 @@
 		FAF9C2B32AAF3FDF00A61D21 /* GetPreinstalledWalletViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2AC2AAF3FDF00A61D21 /* GetPreinstalledWalletViewController.swift */; };
 		FAF9C2B42AAF3FDF00A61D21 /* GetPreinstalledWalletProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2AD2AAF3FDF00A61D21 /* GetPreinstalledWalletProtocols.swift */; };
 		FAF9C2B72AAF3FF100A61D21 /* GetPreinstalledWalletTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2B62AAF3FF100A61D21 /* GetPreinstalledWalletTests.swift */; };
-		FAFB47D72ABD589C0008F8CA /* EthereumBalanceRepositoryCacheWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFB47D62ABD589C0008F8CA /* EthereumBalanceRepositoryCacheWrapper.swift */; };
+		FAFB47D72ABD589C0008F8CA /* BalanceRepositoryCacheWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFB47D62ABD589C0008F8CA /* BalanceRepositoryCacheWrapper.swift */; };
 		FAFB5EE02C5A11A30015D3DD /* AccountScoreSettingsChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFB5EDF2C5A11A30015D3DD /* AccountScoreSettingsChanged.swift */; };
 		FAFB5EE22C5A2CE80015D3DD /* FWCosmosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFB5EE12C5A2CE80015D3DD /* FWCosmosView.swift */; };
 		FAFBEE81284621800036D08C /* SelectedValidatorListParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFBEE80284621800036D08C /* SelectedValidatorListParachainViewModelState.swift */; };
@@ -4396,6 +4404,14 @@ AA1111000011223344556678 /* WalletSelectAccountCommandFactory.swift in Sources *
 		AE20602B2636EA5800357578 /* MoonPayKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPayKeys.swift; sourceTree = "<group>"; };
 		AE26E6C22DFA0928001FD062 /* CoinbaseKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinbaseKeys.swift; sourceTree = "<group>"; };
 		AE26E6C42DFA099A001FD062 /* CoinbasePurchaseProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinbasePurchaseProvider.swift; sourceTree = "<group>"; };
+		AE26E6FF2DFA1B50001FD062 /* LocalListToggle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalListToggle.swift; sourceTree = "<group>"; };
+		AE26E7012DFA1B85001FD062 /* LocalToggleService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalToggleService.swift; sourceTree = "<group>"; };
+		AE26E7032DFA1BB4001FD062 /* TonConstansts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonConstansts.swift; sourceTree = "<group>"; };
+		AE26E7052DFA1BF1001FD062 /* TonAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonAccount.swift; sourceTree = "<group>"; };
+		AE26E7072DFA1C15001FD062 /* TonAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonAddress.swift; sourceTree = "<group>"; };
+		AE26E7092DFA1C4A001FD062 /* TonJettonInjector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonJettonInjector.swift; sourceTree = "<group>"; };
+		AE26E70B2DFA1C7E001FD062 /* TonModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonModels.swift; sourceTree = "<group>"; };
+		AE26E70D2DFA1CA5001FD062 /* TonRemoteBalanceFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonRemoteBalanceFetching.swift; sourceTree = "<group>"; };
 		AE2060AF2637068700357578 /* CIKeys.stencil */ = {isa = PBXFileReference; lastKnownFileType = text; path = CIKeys.stencil; sourceTree = "<group>"; };
 		AE2C101D267A6271004AA8E9 /* CustomValidatorListComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListComposerTests.swift; sourceTree = "<group>"; };
 		AE2C101F267A67DD004AA8E9 /* CustomValidatorListTestDataGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListTestDataGenerator.swift; sourceTree = "<group>"; };
@@ -6002,7 +6018,7 @@ AA1111000011223344556678 /* WalletSelectAccountCommandFactory.swift in Sources *
 		FAF9C2AC2AAF3FDF00A61D21 /* GetPreinstalledWalletViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletViewController.swift; sourceTree = "<group>"; };
 		FAF9C2AD2AAF3FDF00A61D21 /* GetPreinstalledWalletProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletProtocols.swift; sourceTree = "<group>"; };
 		FAF9C2B62AAF3FF100A61D21 /* GetPreinstalledWalletTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletTests.swift; sourceTree = "<group>"; };
-		FAFB47D62ABD589C0008F8CA /* EthereumBalanceRepositoryCacheWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumBalanceRepositoryCacheWrapper.swift; sourceTree = "<group>"; };
+		FAFB47D62ABD589C0008F8CA /* BalanceRepositoryCacheWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceRepositoryCacheWrapper.swift; sourceTree = "<group>"; };
 		FAFB5EDF2C5A11A30015D3DD /* AccountScoreSettingsChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountScoreSettingsChanged.swift; sourceTree = "<group>"; };
 		FAFB5EE12C5A2CE80015D3DD /* FWCosmosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWCosmosView.swift; sourceTree = "<group>"; };
 		FAFBEE80284621800036D08C /* SelectedValidatorListParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorListParachainViewModelState.swift; sourceTree = "<group>"; };
@@ -9156,6 +9172,7 @@ AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = 
 				84893BFD24DA0000008F6A3F /* FieldStatus.swift */,
 				849013E124A9288B008F705E /* Language.swift */,
 				8490145724A9406D008F705E /* LegalData.swift */,
+				AE26E7032DFA1BB4001FD062 /* TonConstansts.swift */,
 				2A66CFAE25D10EDF0006E4C1 /* PhishingItem.swift */,
 				84754CA32513E6DC00854599 /* PrimitiveContextWrapper.swift */,
 				847C9658255362F7002D288F /* RestoreJson.swift */,
@@ -13047,6 +13064,7 @@ AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = 
 				FA7741D32B6A350200358315 /* StakingRewards */,
 				FA9A8F0A2A72573C008FA99F /* Alchemy */,
 				FA2FC82C28B3816D00CC0A42 /* StorageKeyDataExtractor.swift */,
+				AE26E7092DFA1C4A001FD062 /* TonJettonInjector.swift */,
 				FA17B4D027E9CF21006E0735 /* FearlessApplication.swift */,
 				FA17B4CF27E9CF21006E0735 /* main.swift */,
 				078E34C028058B9D00DF187A /* DocumentType.swift */,
@@ -13229,6 +13247,7 @@ AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = 
 				FA41B6252C64BE6800D0713A /* ViscanHistoryOperationFactory.swift */,
 				FAD240D52C64D3D100B389FF /* ZChainHistoryOperationFactory.swift */,
 				FAD240DF2C64EA1D00B389FF /* KaiaHistoryOperationFactory.swift */,
+				AE26E70B2DFA1C7E001FD062 /* TonModels.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -13590,10 +13609,20 @@ AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = 
 				FA3067482B625DA4006A0BA5 /* StorageRequests */,
 				FA7336BC2A0E3B7F0096A291 /* ComponentFactories */,
 				FAAB998A27A7C76100CD1A3B /* CoreComponents */,
+				AE26E70F2DFA1DD0001FD062 /* TonComponents */,
 				FA8644382767BD0A00956D8E /* ProviderFactory */,
 				FA8644352767ABA300956D8E /* OperationFactory */,
 			);
 			path = CoreLayer;
+			sourceTree = "<group>";
+		};
+		AE26E70F2DFA1DD0001FD062 /* TonComponents */ = {
+			isa = PBXGroup;
+			children = (
+				AE26E7052DFA1BF1001FD062 /* TonAccount.swift */,
+				AE26E7072DFA1C15001FD062 /* TonAddress.swift */,
+			);
+			path = TonComponents;
 			sourceTree = "<group>";
 		};
 		FA8644352767ABA300956D8E /* OperationFactory */ = {
@@ -14024,6 +14053,7 @@ AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = 
 				070CDD6C2ACAACB900F3F20A /* EthereumRemoteBalanceFetching.swift */,
 				C65A6591288E5CF400679D65 /* AccountInfoFetching.swift */,
 				FA9A8F2A2A725B30008FA99F /* SubstrateAccountInfoFetching.swift */,
+				AE26E70D2DFA1CA5001FD062 /* TonRemoteBalanceFetching.swift */,
 			);
 			path = AccountInfo;
 			sourceTree = "<group>";
@@ -15191,6 +15221,8 @@ AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = 
 		FAF9C2A12AAF3FCC00A61D21 /* FeatureToggle */ = {
 			isa = PBXGroup;
 			children = (
+				AE26E7012DFA1B85001FD062 /* LocalToggleService.swift */,
+				AE26E6FF2DFA1B50001FD062 /* LocalListToggle.swift */,
 				FAF9C2A22AAF3FCC00A61D21 /* FeatureToggleService.swift */,
 				FAF9C2A32AAF3FCC00A61D21 /* FeatureToggleConfig.swift */,
 			);
@@ -15221,7 +15253,7 @@ AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = 
 		FAFB47D52ABD588D0008F8CA /* Repository */ = {
 			isa = PBXGroup;
 			children = (
-				FAFB47D62ABD589C0008F8CA /* EthereumBalanceRepositoryCacheWrapper.swift */,
+				FAFB47D62ABD589C0008F8CA /* BalanceRepositoryCacheWrapper.swift */,
 			);
 			path = Repository;
 			sourceTree = "<group>";
@@ -17617,7 +17649,7 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 				FAE9EBA7288ABBFC009390B6 /* AnalyticsRewardsRelaychainViewModelState.swift in Sources */,
 				07F2B76328ACDA7800280C38 /* RuntimeHotBootSnapshotFactory.swift in Sources */,
 				FA38C9C12761E68B005C5577 /* AccountViewModel.swift in Sources */,
-				FAFB47D72ABD589C0008F8CA /* EthereumBalanceRepositoryCacheWrapper.swift in Sources */,
+				FAFB47D72ABD589C0008F8CA /* BalanceRepositoryCacheWrapper.swift in Sources */,
 				8436E94426C853E4003D4EA7 /* RuntimeSnapshotOperationFactory.swift in Sources */,
 				F40966C726B297D6008CD244 /* AnalyticsRewardsViewFactory.swift in Sources */,
 				8489EDBA264DB25500FF997E /* RecommendationsComposing.swift in Sources */,

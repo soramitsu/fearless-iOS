@@ -7,11 +7,11 @@ import RobinHood
 
 final actor EthereumRemoteBalanceFetching {
     private let chainRegistry: ChainRegistryProtocol
-    private let repositoryWrapper: EthereumBalanceRepositoryCacheWrapper
+    private let repositoryWrapper: BalanceRepositoryCacheWrapper
 
     init(
         chainRegistry: ChainRegistryProtocol,
-        repositoryWrapper: EthereumBalanceRepositoryCacheWrapper
+        repositoryWrapper: BalanceRepositoryCacheWrapper
     ) {
         self.chainRegistry = chainRegistry
         self.repositoryWrapper = repositoryWrapper

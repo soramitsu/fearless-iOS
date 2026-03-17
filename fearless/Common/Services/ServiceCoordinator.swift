@@ -94,7 +94,7 @@ extension ServiceCoordinator {
             logger: logger
         )
 
-        let ethereumBalanceRepositoryWrapper = EthereumBalanceRepositoryCacheWrapper(
+        let ethereumBalanceRepositoryWrapper = BalanceRepositoryCacheWrapper(
             logger: logger,
             repository: repository,
             operationManager: OperationManagerFacade.sharedManager
@@ -108,6 +108,24 @@ extension ServiceCoordinator {
             repositoryWrapper: ethereumBalanceRepositoryWrapper
         )
 
+        let tonBalanceRepositoryWrapper = BalanceRepositoryCacheWrapper(
+            logger: logger,
+            repository: repository,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let tonJettonInjector = TonJettonInjectorImpl(
+            chainModelRepository: ChainRepositoryFactory().createAsyncRepository(),
+            eventCenter: EventCenter.shared,
+            logger: logger
+        )
+
+        let tonRemoteBalanceFetching = TonRemoteBalanceFetchingImpl(
+            chainRegistry: chainRegistry,
+            repositoryWrapper: tonBalanceRepositoryWrapper,
+            jettonInjector: tonJettonInjector
+        )
+
         let accountInfoService = AccountInfoUpdatingService(
             selectedAccount: selectedMetaAccount,
             chainRegistry: chainRegistry,
@@ -116,9 +134,6 @@ extension ServiceCoordinator {
             logger: logger,
             eventCenter: EventCenter.shared
         )
-
-        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, SSFAssetManagmentStorage.CDRuntimeMetadataItem> =
-            SubstrateDataStorageFacade.shared.createAsyncRepository()
 
         let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
             chainRegistry: chainRegistry,
@@ -130,8 +145,8 @@ extension ServiceCoordinator {
         )
 
         let accountInfoRemote = AccountInfoRemoteServiceDefault(
-            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository),
             ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
+            tonRemoteBalanceFetching: tonRemoteBalanceFetching,
             storagePerformer: storagePerformer
         )
 

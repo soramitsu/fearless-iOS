@@ -19,17 +19,17 @@ protocol AccountInfoRemoteService {
 }
 
 final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
-    private let runtimeItemRepository: AsyncAnyRepository<RuntimeMetadataItem>
     private let ethereumRemoteBalanceFetching: EthereumRemoteBalanceFetching
+    private let tonRemoteBalanceFetching: AccountInfoRemoteService?
     private let storagePerformer: SSFStorageQueryKit.StorageRequestPerformer
 
     init(
-        runtimeItemRepository: AsyncAnyRepository<RuntimeMetadataItem>,
         ethereumRemoteBalanceFetching: EthereumRemoteBalanceFetching,
+        tonRemoteBalanceFetching: AccountInfoRemoteService?,
         storagePerformer: SSFStorageQueryKit.StorageRequestPerformer
     ) {
-        self.runtimeItemRepository = runtimeItemRepository
         self.ethereumRemoteBalanceFetching = ethereumRemoteBalanceFetching
+        self.tonRemoteBalanceFetching = tonRemoteBalanceFetching
         self.storagePerformer = storagePerformer
     }
 
@@ -43,12 +43,16 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
             throw ConvenienceError(error: "Missing AccountId for chain: \(chain.name)")
         }
 
-        if chain.isEthereum {
-            let accountInfos = try await fetchEthereum(for: chain, wallet: wallet)
-            return accountInfos
-        } else {
-            let accountInfos = try await fetchSubstrate(for: chain, accountId: accountId)
-            return accountInfos
+        switch chain.ecosystem {
+        case .ethereum, .ethereumBased:
+            return try await fetchEthereum(for: chain, wallet: wallet)
+        case .ton:
+            guard let tonRemoteBalanceFetching else {
+                throw ConvenienceError(error: "TON remote fetching unavailable")
+            }
+            return try await tonRemoteBalanceFetching.fetchAccountInfos(for: chain, wallet: wallet)
+        case .substrate:
+            return try await fetchSubstrate(for: chain, accountId: accountId)
         }
     }
 
@@ -59,13 +63,16 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
             throw ConvenienceError(error: "Missing account id for \(chainAsset.debugName)")
         }
-        if chainAsset.chain.isEthereum {
-            let response = try await ethereumRemoteBalanceFetching.fetch(
-                for: chainAsset,
-                accountId: accountId
-            )
+        switch chainAsset.chain.ecosystem {
+        case .ethereum, .ethereumBased:
+            let response = try await ethereumRemoteBalanceFetching.fetch(for: chainAsset, accountId: accountId)
             return response.1
-        } else {
+        case .ton:
+            guard let tonRemoteBalanceFetching else {
+                throw ConvenienceError(error: "TON remote fetching unavailable")
+            }
+            return try await tonRemoteBalanceFetching.fetchAccountInfo(for: chainAsset, wallet: wallet)
+        case .substrate:
             let request = createSubstrateRequest(for: chainAsset, accountId: accountId)
             let response = try await storagePerformer.perform([request], chain: chainAsset.chain)
             let map = try createSubstrateMap(from: response, chain: chainAsset.chain)
