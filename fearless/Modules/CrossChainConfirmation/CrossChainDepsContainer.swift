@@ -100,7 +100,7 @@ final class CrossChainDepsContainer {
             chainMetadata: originalRuntimeMetadataItem,
             accountId: accountId,
             signingWrapperData: signingWrapperData,
-            chainType: originalChainAsset.chain.chainBaseType
+            chainType: originalChainAsset.chain.ecosystem
         )
 
         let sourceConfig = ApplicationConfig.shared
