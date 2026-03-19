@@ -1,6 +1,6 @@
 ## Chain Registry Snapshots (Polkadot stable2503)
 
-Captured via `scripts/tools/chain-registry-check.sh` on `2026-03-17T12:32:59Z`.
+Captured via `scripts/tools/chain-registry-check.sh` on `2026-03-19T14:42:04Z`.
 
 | Artifact | Source | Size (bytes) | SHA256 | ETag |
 | --- | --- | ---: | --- | --- |
