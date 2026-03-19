@@ -1,7 +1,9 @@
 import Foundation
 import RobinHood
 import CoreData
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 final class ManagedMetaAccountMapper {
     var entityIdentifierFieldName: String { #keyPath(CDMetaAccount.metaId) }

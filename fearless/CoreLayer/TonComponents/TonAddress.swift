@@ -4,7 +4,7 @@ import TonSwift
 enum TonAddressFactory {
     static func accountId(from address: AccountAddress) throws -> AccountId {
         let tonAddress = try TonSwift.Address.parse(address)
-        return tonAddress.accountId
+        return tonAddress.hash
     }
 }
 

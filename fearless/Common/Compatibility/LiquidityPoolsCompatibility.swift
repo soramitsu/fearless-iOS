@@ -8,7 +8,7 @@ import BigInt
 // Temporary compatibility layer to unblock build while SSF APIs evolve.
 
 // Align SigningWrapperData name with where it currently lives.
-public typealias SigningWrapperData = XcmAssembly.SigningWrapperData
+public typealias SigningWrapperData = SSFModels.SigningWrapperData
 
 // Minimal APY info container (new SSF returns Decimal/APY lists).
 public struct PoolApyInfo {
@@ -58,10 +58,6 @@ public struct AssetIdPair {
 
 // Backward helpers for frequently used conveniences.
 public extension AssetModel {
-    // Old code accessed currencyId/color directly on AssetModel.
-    var currencyId: String? { tokenProperties?.currencyId ?? id }
-    var color: String { tokenProperties?.color ?? "" }
-
     // Legacy placeholder; project code guards usage with optionals.
     func getPrice(for _: Currency) -> PriceData? { nil }
 }

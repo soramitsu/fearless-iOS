@@ -99,14 +99,14 @@ final class CrossChainDepsContainer {
             cryptoType: cryptoType,
             chainMetadata: originalRuntimeMetadataItem,
             accountId: accountId,
-            signingWrapperData: signingWrapperData,
-            chainType: originalChainAsset.chain.ecosystem
+            signingWrapperData: signingWrapperData
         )
 
         let sourceConfig = ApplicationConfig.shared
         let services = XcmAssembly.createExtrincisServices(
             fromChainData: fromChainData,
-            sourceConfig: sourceConfig
+            sourceConfig: sourceConfig,
+            chainRegistry: chainRegistry
         )
 
         return services

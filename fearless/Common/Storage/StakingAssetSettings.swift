@@ -50,11 +50,11 @@ final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
             }
 
             let maybeChain = chains.first { chain in
-                chain.assets.contains(where: { $0.tokenProperties?.stacking != nil }) &&
+                chain.assets.contains(where: { $0.staking != nil }) &&
                     self?.wallet.fetch(for: chain.accountRequest()) != nil
             }
 
-            let maybeAsset = maybeChain?.assets.first { $0.tokenProperties?.stacking != nil }
+            let maybeAsset = maybeChain?.assets.first { $0.staking != nil }
 
             if let chain = maybeChain, let asset = maybeAsset {
                 self?.settings.stakingAsset = ChainAssetId(chainId: chain.chainId, assetId: asset.id)

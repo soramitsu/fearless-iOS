@@ -41,8 +41,8 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
             return
         }
 
-        switch chainAsset.chainAssetType {
-        case .equilibrium:
+        switch chainAsset.chainAssetType.substrateAssetType {
+        case .equilibrium?:
             fetchConstant(
                 for: .equilibriumExistentialDeposit,
                 runtimeCodingService: runtimeService,

@@ -67,6 +67,7 @@
 		0713097D28C63893002B17D0 /* ScamSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0713097C28C63893002B17D0 /* ScamSyncService.swift */; };
 		0713097F28C6F60D002B17D0 /* ScamSyncServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0713097E28C6F60D002B17D0 /* ScamSyncServiceFactory.swift */; };
 		0713098128C6F7BB002B17D0 /* CDScamInfo+CoreDataCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0713098028C6F7BB002B17D0 /* CDScamInfo+CoreDataCodable.swift */; };
+		2D2FA50F16CD470C878A8336 /* CoreDataAliases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F82B507C2844DA90822C42 /* CoreDataAliases.swift */; };
 		0716C83C28853ACA004C8CB1 /* WalletBalanceSubscriptionAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0716C83B28853ACA004C8CB1 /* WalletBalanceSubscriptionAdapter.swift */; };
 		0716C84C288802EB004C8CB1 /* SwipableTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0716C84B288802EB004C8CB1 /* SwipableTableViewCell.swift */; };
 		0716C84F28880304004C8CB1 /* UITableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0716C84D28880304004C8CB1 /* UITableViewCell.swift */; };
@@ -1353,6 +1354,7 @@
 		AE26E70A2DFA1C4A001FD062 /* TonJettonInjector.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE26E7092DFA1C4A001FD062 /* TonJettonInjector.swift */; };
 		AE26E70C2DFA1C7E001FD062 /* TonModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE26E70B2DFA1C7E001FD062 /* TonModels.swift */; };
 		AE26E70E2DFA1CA5001FD062 /* TonRemoteBalanceFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE26E70D2DFA1CA5001FD062 /* TonRemoteBalanceFetching.swift */; };
+		AE26E7122DFA1D10001FD062 /* TonCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE26E7112DFA1D10001FD062 /* TonCompatibility.swift */; };
 		AE2060B02637068700357578 /* CIKeys.stencil in Resources */ = {isa = PBXBuildFile; fileRef = AE2060AF2637068700357578 /* CIKeys.stencil */; };
 		AE2C101E267A6271004AA8E9 /* CustomValidatorListComposerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C101D267A6271004AA8E9 /* CustomValidatorListComposerTests.swift */; };
 		AE2C1020267A67DD004AA8E9 /* CustomValidatorListTestDataGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C101F267A67DD004AA8E9 /* CustomValidatorListTestDataGenerator.swift */; };
@@ -3057,7 +3059,7 @@ AA1111000011223344556678 /* WalletSelectAccountCommandFactory.swift in Sources *
 		D1E2F3A4B5C60718293A4B5C /* FearlessKeysShim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "fearless/Common/Keys/FearlessKeysShim.swift"; sourceTree = "<group>"; };
 		FAFE10AA2DCAF13000E5C0DE /* LiquidityPoolsCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiquidityPoolsCompatibility.swift; path = "Common/Compatibility/LiquidityPoolsCompatibility.swift"; sourceTree = SOURCE_ROOT; };
 		FAFE10022DCAF11100E5C0DE /* ModelsCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "fearless/Common/Compatibility/ModelsCompatibility.swift"; sourceTree = "<group>"; };
-		FAFE10032DCAF11100E5C0DE /* NetworkWorkerCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NetworkWorkerCompatibility.swift; path = "Common/Compatibility/NetworkWorkerCompatibility.swift"; sourceTree = SOURCE_ROOT; };
+		FAFE10032DCAF11100E5C0DE /* NetworkWorkerCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "fearless/Common/Compatibility/NetworkWorkerCompatibility.swift"; sourceTree = "<group>"; };
 		FAFE10042DCAF11100E5C0DE /* Data+Bytes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Data+Bytes.swift"; path = "Common/Compatibility/Data+Bytes.swift"; sourceTree = SOURCE_ROOT; };
 		FAFE10052DCAF11100E5C0DE /* PriceData+Identifiable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "fearless/Common/Compatibility/PriceData+Identifiable.swift"; sourceTree = "<group>"; };
 		002A29AE58EB53E915330490 /* ControllerAccountViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountViewFactory.swift; sourceTree = "<group>"; };
@@ -3108,6 +3110,7 @@ AA1111000011223344556678 /* WalletSelectAccountCommandFactory.swift in Sources *
 		0713097C28C63893002B17D0 /* ScamSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamSyncService.swift; sourceTree = "<group>"; };
 		0713097E28C6F60D002B17D0 /* ScamSyncServiceFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamSyncServiceFactory.swift; sourceTree = "<group>"; };
 		0713098028C6F7BB002B17D0 /* CDScamInfo+CoreDataCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDScamInfo+CoreDataCodable.swift"; sourceTree = "<group>"; };
+		46F82B507C2844DA90822C42 /* CoreDataAliases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataAliases.swift; sourceTree = "<group>"; };
 		0716C83B28853ACA004C8CB1 /* WalletBalanceSubscriptionAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBalanceSubscriptionAdapter.swift; sourceTree = "<group>"; };
 		0716C84B288802EB004C8CB1 /* SwipableTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwipableTableViewCell.swift; sourceTree = "<group>"; };
 		0716C84D28880304004C8CB1 /* UITableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITableViewCell.swift; sourceTree = "<group>"; };
@@ -4412,6 +4415,7 @@ AA1111000011223344556678 /* WalletSelectAccountCommandFactory.swift in Sources *
 		AE26E7092DFA1C4A001FD062 /* TonJettonInjector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonJettonInjector.swift; sourceTree = "<group>"; };
 		AE26E70B2DFA1C7E001FD062 /* TonModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonModels.swift; sourceTree = "<group>"; };
 		AE26E70D2DFA1CA5001FD062 /* TonRemoteBalanceFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonRemoteBalanceFetching.swift; sourceTree = "<group>"; };
+		AE26E7112DFA1D10001FD062 /* TonCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonCompatibility.swift; sourceTree = "<group>"; };
 		AE2060AF2637068700357578 /* CIKeys.stencil */ = {isa = PBXFileReference; lastKnownFileType = text; path = CIKeys.stencil; sourceTree = "<group>"; };
 		AE2C101D267A6271004AA8E9 /* CustomValidatorListComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListComposerTests.swift; sourceTree = "<group>"; };
 		AE2C101F267A67DD004AA8E9 /* CustomValidatorListTestDataGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListTestDataGenerator.swift; sourceTree = "<group>"; };
@@ -8710,6 +8714,14 @@ AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = 
 			path = TableHeader;
 			sourceTree = "<group>";
 		};
+		EE222D9664CC40278DD8D99F /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				46F82B507C2844DA90822C42 /* CoreDataAliases.swift */,
+			);
+			path = CoreData;
+			sourceTree = "<group>";
+		};
 		8468B86824F63C8400B76BC6 /* AddAccount */ = {
 			isa = PBXGroup;
 			children = (
@@ -8983,6 +8995,7 @@ AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = 
 				84EBC54424F660A700459D15 /* EventCenter */,
 				849013D724A927E2008F705E /* Extension */,
 				8490145424A9403C008F705E /* Helpers */,
+				EE222D9664CC40278DD8D99F /* CoreData */,
 				849014C624AA8A28008F705E /* LocalAuthentication */,
 				849013D324A927E2008F705E /* Logger */,
 				849013E024A9287F008F705E /* Model */,
@@ -13621,6 +13634,7 @@ AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = 
 			children = (
 				AE26E7052DFA1BF1001FD062 /* TonAccount.swift */,
 				AE26E7072DFA1C15001FD062 /* TonAddress.swift */,
+				AE26E7112DFA1D10001FD062 /* TonCompatibility.swift */,
 			);
 			path = TonComponents;
 			sourceTree = "<group>";
@@ -15957,6 +15971,8 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
     files = (
 				FAFE10062DCAF11200E5C0DE /* ModelsCompatibility.swift in Sources */,
 				FAFE10092DCAF11200E5C0DE /* PriceData+Identifiable.swift in Sources */,
+				2D2FA50F16CD470C878A8336 /* CoreDataAliases.swift in Sources */,
+				FAFE10072DCAF11200E5C0DE /* NetworkWorkerCompatibility.swift in Sources */,
 				F1E2D3C4B5A60718293A4B5C /* GraphQLResponse.swift in Sources */,
 				BBCCDDEEAABB112233445566 /* XcmMinAmountInspectorShim.swift in Sources */,
 				012B4273E4109F0B65117BAE /* Identifiable+Models.swift in Sources */,
@@ -15966,12 +15982,20 @@ FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 				FAF92E6627B4275F005467CE /* Bool+ToInt.swift in Sources */,
 				AA1111000011223344556677 /* WalletSelectAccountCommand.swift in Sources */,
 				AA1111000011223344556678 /* WalletSelectAccountCommandFactory.swift in Sources */,
+				AE26E7002DFA1B50001FD062 /* LocalListToggle.swift in Sources */,
+				AE26E7022DFA1B85001FD062 /* LocalToggleService.swift in Sources */,
 				8434C9E625403686009E4191 /* CDTransactionHistoryItem+CoreDataDecodable.swift in Sources */,
 				FA5137B229AC6F2F00560EBA /* PolkaswapDisclaimerPresenter.swift in Sources */,
 				FA6DB7C82757C9B000233FBA /* ChainAccountInteractor.swift in Sources */,
 				FA38C9CF27634A18005C5577 /* WalletSendConfirmViewModelFactory.swift in Sources */,
 				FAFFAE9A29AC84B10074AF1F /* ParachainSubsquidHistoryResponse.swift in Sources */,
 				F462B364260C88050005AB01 /* UITableView+Reuse.swift in Sources */,
+				AE26E7062DFA1BF1001FD062 /* TonAccount.swift in Sources */,
+				AE26E7082DFA1C15001FD062 /* TonAddress.swift in Sources */,
+				AE26E70A2DFA1C4A001FD062 /* TonJettonInjector.swift in Sources */,
+				AE26E70C2DFA1C7E001FD062 /* TonModels.swift in Sources */,
+				AE26E70E2DFA1CA5001FD062 /* TonRemoteBalanceFetching.swift in Sources */,
+				AE26E7122DFA1D10001FD062 /* TonCompatibility.swift in Sources */,
 				FA286AF52A3043C3008BD527 /* ConvenienceError.swift in Sources */,
 				FA1D02062BBE71F9005B7071 /* TokenPairsIconViewModel.swift in Sources */,
 				FA72543F2AC2E48500EC47A6 /* ABI+Collection.swift in Sources */,

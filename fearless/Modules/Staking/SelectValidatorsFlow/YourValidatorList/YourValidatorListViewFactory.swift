@@ -4,7 +4,9 @@ import RobinHood
 import SoraKeystore
 import SSFUtils
 import SSFModels
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 struct YourValidatorListViewFactory {
     static func createView(

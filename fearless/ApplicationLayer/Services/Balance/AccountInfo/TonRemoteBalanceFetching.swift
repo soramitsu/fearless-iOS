@@ -59,7 +59,7 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         )
 
         let cacheValue = [(normal, normalBalance)] + jettonsAccountInfos
-        try? cache(cacheValue, accountId: accountId)
+        try? await cache(cacheValue, accountId: accountId)
 
         let normalMap: [ChainAssetId: AccountInfo?] = [normal.chainAssetId: normalBalance]
         let union = normalMap.merging(jettonsAccountInfoMap, uniquingKeysWith: { current, _ in current })
@@ -89,13 +89,13 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
             }) else {
                 return nil
             }
-            return AccountInfo(balance: jetton.quantity)
+            return AccountInfo(ethBalance: jetton.quantity)
         case .none:
             accountInfo = nil
         }
 
         let cacheValue = [(chainAsset, accountInfo)]
-        try? cache(cacheValue, accountId: accountId)
+        try? await cache(cacheValue, accountId: accountId)
         return accountInfo
     }
 
@@ -132,7 +132,7 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         )
 
         let cacheValue = [(normal, normalBalance)] + jettonsAccountInfos
-        try? cache(cacheValue, accountId: accountId)
+        try? await cache(cacheValue, accountId: accountId)
 
         let normalKey = normal.uniqueKey(accountId: accountId)
         let normalMap: [ChainAssetKey: AccountInfo?] = [normalKey: normalBalance]
@@ -178,7 +178,7 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
                 priceData: jetton.priceData
             )
             let chainAsset = ChainAsset(chain: chain, asset: asset)
-            return (chainAsset, AccountInfo(balance: jetton.quantity))
+            return (chainAsset, AccountInfo(ethBalance: jetton.quantity))
         }
         return jettonsAccountInfo
     }
@@ -215,7 +215,7 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
             await jettonInjector.inject(tonPriceData: tonPriceData)
         }
 
-        let accountInfo = AccountInfo(balance: balance)
+        let accountInfo = AccountInfo(ethBalance: balance)
         return accountInfo
     }
 
@@ -280,7 +280,7 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         base * percent / 100
     }
 
-    nonisolated private func cache(
+    private func cache(
         _ cache: [(ChainAsset, AccountInfo?)],
         accountId: AccountId?
     ) throws {

@@ -3,6 +3,7 @@ import TonSwift
 import TonAPI
 import BigInt
 import SSFModels
+import SSFUtils
 
 struct TonAccountEvents: Codable {
     let address: TonSwift.Address
@@ -67,6 +68,11 @@ public struct AccountEventAction: Codable {
         case smartContractExec(SmartContractExec)
         case domainRenew(DomainRenew)
         case unknown
+    }
+
+    struct Price: Codable {
+        let amount: BigUInt
+        let tokenName: String
     }
 
     struct TonTransfer: Codable {
@@ -189,9 +195,32 @@ public struct AccountEventAction: Codable {
     struct UnknownAction: Codable {}
 }
 
-public struct AccountEventStatus: Codable {
-    public let from: String
-    public let to: String
+extension AccountEventAction.SimplePreview {
+    init(simplePreview: Components.Schemas.ActionSimplePreview) {
+        name = simplePreview.name
+        description = simplePreview.description
+        image = simplePreview.action_image.flatMap { URL(string: $0) }
+        value = simplePreview.value
+        valueImage = simplePreview.value_image.flatMap { URL(string: $0) }
+        accounts = simplePreview.accounts.compactMap { try? WalletAccount(accountAddress: $0) }
+    }
+}
+
+public enum AccountEventStatus: String, Codable {
+    case ok
+    case failed
+    case unknown
+}
+
+extension AccountEventStatus {
+    init(statusPayload: Components.Schemas.Action.statusPayload) {
+        switch statusPayload {
+        case .ok:
+            self = .ok
+        case .failed:
+            self = .failed
+        }
+    }
 }
 
 public struct TonJettonBalance: Codable {
@@ -218,11 +247,11 @@ public struct TonJettonInfo: Codable {
     init(jettonPreview: Components.Schemas.JettonPreview) throws {
         address = try TonSwift.Address.parse(jettonPreview.address)
         name = jettonPreview.name
-        symbol = jettonPreview.symbol
-        imageURL = jettonPreview.image.flatMap { URL(string: $0) }
-        description = jettonPreview.description
-        verification = jettonPreview.verification
-        capabilities = jettonPreview.capabilities
+        symbol = jettonPreview.symbol.isEmpty ? nil : jettonPreview.symbol
+        imageURL = URL(string: jettonPreview.image)
+        description = nil
+        verification = jettonPreview.verification.rawValue
+        capabilities = nil
         fractionDigits = jettonPreview.decimals
     }
 }
@@ -271,7 +300,7 @@ public struct TonPriceResponse: Codable {
 
 extension WalletAccount {
     init(accountAddress: Components.Schemas.AccountAddress) throws {
-        address = try TonSwift.Address.parse(accountAddress.address.toAddress())
+        address = try TonSwift.Address.parse(accountAddress.address)
         name = accountAddress.name
         isScam = accountAddress.is_scam
         isWallet = accountAddress.is_wallet
@@ -280,62 +309,56 @@ extension WalletAccount {
     init(address: AccountAddress) throws {
         let accountAddress = Components.Schemas.AccountAddress(
             address: try addressToTonAddress(address: address),
-            is_wallet: true,
+            name: nil,
             is_scam: false,
-            name: nil
+            icon: nil,
+            is_wallet: true
         )
         self = try WalletAccount(accountAddress: accountAddress)
     }
 }
 
 extension AccountEventAction {
-    init(accountEventAction: Components.Schemas.AccountEventAction) throws {
-        status = accountEventAction.status
+    init(action: Components.Schemas.Action) throws {
+        status = AccountEventStatus(statusPayload: action.status)
 
-        if let tonTransfer = accountEventAction.ton_transfer {
+        if let tonTransfer = action.TonTransfer {
             type = .tonTransfer(try TonTransfer(tonTransfer: tonTransfer))
-        } else if let contractDeploy = accountEventAction.contract_deploy {
+        } else if let contractDeploy = action.ContractDeploy {
             type = .contractDeploy(try ContractDeploy(contractDeploy: contractDeploy))
-        } else if let jettonTransfer = accountEventAction.jetton_transfer {
+        } else if let jettonTransfer = action.JettonTransfer {
             type = .jettonTransfer(try JettonTransfer(jettonTransfer: jettonTransfer))
-        } else if let nftItemTransfer = accountEventAction.nft_item_transfer {
+        } else if let nftItemTransfer = action.NftItemTransfer {
             type = .nftItemTransfer(try NFTItemTransfer(nftItemTransfer: nftItemTransfer))
-        } else if let subscription = accountEventAction.subscribe {
+        } else if let subscription = action.Subscribe {
             type = .subscribe(try Subscription(subscription: subscription))
-        } else if let unsubscribe = accountEventAction.unsubscribe {
+        } else if let unsubscribe = action.UnSubscribe {
             type = .unsubscribe(try Unsubscription(unsubscription: unsubscribe))
-        } else if let auctionBid = accountEventAction.auction_bid {
+        } else if let auctionBid = action.AuctionBid {
             type = .auctionBid(try AuctionBid(auctionBid: auctionBid))
-        } else if let nftPurchase = accountEventAction.nft_purchase {
+        } else if let nftPurchase = action.NftPurchase {
             type = .nftPurchase(try NFTPurchase(nftPurchase: nftPurchase))
-        } else if let depositStake = accountEventAction.deposit_stake {
+        } else if let depositStake = action.DepositStake {
             type = .depositStake(try DepositStake(depositStake: depositStake))
-        } else if let withdrawStake = accountEventAction.withdraw_stake {
+        } else if let withdrawStake = action.WithdrawStake {
             type = .withdrawStake(try WithdrawStake(withdrawStake: withdrawStake))
-        } else if let withdrawStakeRequest = accountEventAction.withdraw_stake_request {
+        } else if let withdrawStakeRequest = action.WithdrawStakeRequest {
             type = .withdrawStakeRequest(try WithdrawStakeRequest(withdrawStakeRequest: withdrawStakeRequest))
-        } else if let jettonSwap = accountEventAction.jetton_swap {
+        } else if let jettonSwap = action.JettonSwap {
             type = .jettonSwap(try JettonSwap(jettonSwap: jettonSwap))
-        } else if let jettonMint = accountEventAction.jetton_mint {
+        } else if let jettonMint = action.JettonMint {
             type = .jettonMint(try JettonMint(jettonMint: jettonMint))
-        } else if let jettonBurn = accountEventAction.jetton_burn {
+        } else if let jettonBurn = action.JettonBurn {
             type = .jettonBurn(try JettonBurn(jettonBurn: jettonBurn))
-        } else if let smartContractExec = accountEventAction.smart_contract_execute {
+        } else if let smartContractExec = action.SmartContractExec {
             type = .smartContractExec(try SmartContractExec(smartContractExec: smartContractExec))
-        } else if let domainRenew = accountEventAction.domain_renew {
+        } else if let domainRenew = action.DomainRenew {
             type = .domainRenew(try DomainRenew(domainRenew: domainRenew))
         } else {
             type = .unknown
         }
 
-        preview = SimplePreview(
-            name: accountEventAction.simple_preview.name,
-            description: accountEventAction.simple_preview.description,
-            image: accountEventAction.simple_preview.image.flatMap { URL(string: $0) },
-            value: accountEventAction.simple_preview.value,
-            valueImage: accountEventAction.simple_preview.value_image.flatMap { URL(string: $0) },
-            accounts: accountEventAction.simple_preview.accounts.compactMap { try? WalletAccount(accountAddress: $0) }
-        )
+        preview = SimplePreview(simplePreview: action.simple_preview)
     }
 }
 
@@ -455,7 +478,7 @@ extension AccountEventAction.WithdrawStake {
 
 extension AccountEventAction.WithdrawStakeRequest {
     init(withdrawStakeRequest: Components.Schemas.WithdrawStakeRequestAction) throws {
-        amount = withdrawStakeRequest.amount
+        amount = withdrawStakeRequest.amount ?? 0
         staker = try WalletAccount(accountAddress: withdrawStakeRequest.staker)
         pool = try WalletAccount(accountAddress: withdrawStakeRequest.pool)
     }
@@ -466,8 +489,8 @@ extension AccountEventAction.JettonSwap {
         dex = jettonSwap.dex
         amountIn = BigUInt(stringLiteral: jettonSwap.amount_in)
         amountOut = BigUInt(stringLiteral: jettonSwap.amount_out)
-        tonIn = jettonSwap.ton_in
-        tonOut = jettonSwap.ton_out
+        tonIn = (jettonSwap.ton_in ?? 0) != 0
+        tonOut = (jettonSwap.ton_out ?? 0) != 0
         user = try WalletAccount(accountAddress: jettonSwap.user_wallet)
         router = try WalletAccount(accountAddress: jettonSwap.router)
         if let jettonMasterIn = jettonSwap.jetton_master_in {
@@ -514,7 +537,7 @@ extension AccountEventAction.SmartContractExec {
 extension AccountEventAction.DomainRenew {
     init(domainRenew: Components.Schemas.DomainRenewAction) throws {
         domain = domainRenew.domain
-        contractAddress = domainRenew.contract_address
+        contractAddress = try TonSwift.Address.parse(domainRenew.contract_address)
         renewer = try WalletAccount(accountAddress: domainRenew.renewer)
     }
 }
@@ -548,28 +571,29 @@ extension TonNFT {
             owner = ownerWalletAccount
         }
 
-        let metadata = nftItem.metadata.additionalProperties.value as [String: AnyObject]
+        let metadata = nftItem.metadata.additionalProperties.value
         name = metadata["name"] as? String
         imageURL = (metadata["image"] as? String).flatMap { URL(string: $0) }
         description = metadata["description"] as? String
         isHidden = (metadata["render_type"] as? String) == "hidden"
 
         var attributes = [Attribute]()
-        if let attributesValue = (metadata["attributes"] as? [AnyObject]) {
+        if let attributesValue = metadata["attributes"] as? [Any?] {
             attributes = attributesValue
-                .compactMap { $0 as? [String: AnyObject] }
+                .compactMap { $0 as? [String: Any] }
                 .compactMap { attributeObject -> Attribute? in
                     guard let key = attributeObject["trait_type"] as? String else { return nil }
                     let attributeValue: String
                     switch attributeObject["value"] {
-                    case .none: return nil
+                    case .none:
+                        return nil
                     case let .some(value):
                         switch value {
                         case let stringValue as String:
                             attributeValue = stringValue
                         case let intValue as Int:
                             attributeValue = String(intValue)
-                        case let doubleValue as Int:
+                        case let doubleValue as Double:
                             attributeValue = String(doubleValue)
                         default:
                             attributeValue = "-"

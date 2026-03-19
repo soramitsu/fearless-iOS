@@ -135,7 +135,9 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
             guard let chainAsset = chain.chainAssets.first(where: { $0.chainAssetId == chainAssetId }) else {
                 return nil
             }
-            let currencyId = chainAsset.asset.currencyId
+            guard let currencyId = chainAsset.asset.currencyId else {
+                return nil
+            }
 
             let balance = map?[currencyId]
             accountInfo = AccountInfo(equilibriumFree: balance)

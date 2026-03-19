@@ -1,8 +1,8 @@
 import Foundation
 import SSFNetwork
 
-// Provide a concrete type expected by assemblies in the app code.
-public typealias NetworkWorkerImpl = NetworkWorkerDefault
+// Provide the legacy entry point expected across the app code.
+public typealias NetworkWorkerDefault = NetworkWorkerImpl
 
 // Lightweight cache control placeholders to satisfy existing interfaces.
 public enum CachedNetworkRequestTrigger {

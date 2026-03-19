@@ -86,34 +86,34 @@ extension WalletLocalStorageSubscriber {
             return
         }
 
-        switch chainAsset.chainAssetType {
-        case .normal:
+        switch chainAsset.chainAssetType.substrateAssetType {
+        case .normal?:
             handleAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
 
         case
-            .ormlChain,
-            .ormlAsset,
-            .foreignAsset,
-            .stableAssetPoolToken,
-            .liquidCrowdloan,
-            .vToken,
-            .vsToken,
-            .stable,
-            .assetId,
-            .token2,
-            .xcm:
+            .ormlChain?,
+            .ormlAsset?,
+            .foreignAsset?,
+            .stableAssetPoolToken?,
+            .liquidCrowdloan?,
+            .vToken?,
+            .vsToken?,
+            .stable?,
+            .assetId?,
+            .token2?,
+            .xcm?:
             handleOrmlAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
-        case .equilibrium:
+        case .equilibrium?:
             handleEquilibrium(for: accountId, chainAsset: chainAsset, item: item)
-        case .assets:
+        case .assets?:
             handleAssetAccount(for: accountId, chainAsset: chainAsset, item: item)
-        case .soraAsset:
+        case .soraAsset?:
             if chainAsset.isUtility {
                 handleAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
             } else {
                 handleOrmlAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
             }
-        case .none:
+        case nil:
             break
         }
     }
@@ -351,14 +351,16 @@ extension WalletLocalStorageSubscriber {
             switch equilibriumAccountInfo?.data {
             case let .v0data(info):
                 let map = info.mapBalances()
-                chainAsset.chain.chainAssets.forEach { chainAsset in
-                    let currencyId = chainAsset.asset.currencyId
+                for innerChainAsset in chainAsset.chain.chainAssets {
+                    guard let currencyId = innerChainAsset.asset.currencyId else {
+                        continue
+                    }
                     let equilibriumFree = map[currencyId]
                     let accountInfo = AccountInfo(equilibriumFree: equilibriumFree)
                     walletLocalSubscriptionHandler?.handleAccountInfo(
                         result: .success(accountInfo),
                         accountId: accountId,
-                        chainAsset: chainAsset
+                        chainAsset: innerChainAsset
                     )
                 }
             case .none:

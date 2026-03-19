@@ -67,7 +67,8 @@ final class EquilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtoc
 
     func totalBalanceAfterTransfer(chainAsset: ChainAsset, amount: Decimal) -> Decimal? {
         guard oraclePricesMap.isNotEmpty,
-              let currencyId = UInt64(chainAsset.asset.currencyId),
+              let currencyIdString = chainAsset.asset.currencyId,
+              let currencyId = UInt64(currencyIdString),
               let equlibriumTotalBalance = equlibriumTotalBalance else {
             return nil
         }

@@ -146,8 +146,8 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         amount: BigUInt,
         chainAsset: ChainAsset
     ) -> any RuntimeCallable {
-        switch chainAsset.chainAssetType {
-        case .normal, .none:
+        switch chainAsset.chainAssetType.substrateAssetType {
+        case .normal?, nil:
             if chainAsset.chain.isSora {
                 return ormlAssetTransfer(
                     to: receiver,
@@ -161,43 +161,43 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
             }
 
             return defaultTransfer(to: receiver, amount: amount)
-        case .ormlChain:
+        case .ormlChain?:
             return ormlChainTransfer(
                 to: receiver,
                 amount: amount,
                 currencyId: chainAsset.currencyId
             )
         case
-            .ormlAsset,
-            .foreignAsset,
-            .stableAssetPoolToken,
-            .liquidCrowdloan,
-            .vToken,
-            .vsToken,
-            .stable,
-            .assetId,
-            .token2,
-            .xcm:
+            .ormlAsset?,
+            .foreignAsset?,
+            .stableAssetPoolToken?,
+            .liquidCrowdloan?,
+            .vToken?,
+            .vsToken?,
+            .stable?,
+            .assetId?,
+            .token2?,
+            .xcm?:
             return ormlAssetTransfer(
                 to: receiver,
                 amount: amount,
                 currencyId: chainAsset.currencyId,
                 path: .ormlAssetTransfer
             )
-        case .equilibrium:
+        case .equilibrium?:
             return equilibriumAssetTransfer(
                 to: receiver,
                 amount: amount,
                 currencyId: chainAsset.currencyId
             )
-        case .soraAsset:
+        case .soraAsset?:
             return ormlAssetTransfer(
                 to: receiver,
                 amount: amount,
                 currencyId: chainAsset.currencyId,
                 path: .assetsTransfer
             )
-        case .assets:
+        case .assets?:
             return assetsTransfer(
                 to: receiver,
                 amount: amount,

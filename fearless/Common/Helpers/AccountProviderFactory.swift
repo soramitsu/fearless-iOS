@@ -1,7 +1,9 @@
 import Foundation
 import IrohaCrypto
 import RobinHood
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 protocol AccountProviderFactoryProtocol {
     var operationManager: OperationManagerProtocol { get }

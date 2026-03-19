@@ -12,57 +12,61 @@ public extension AssetModel {
         precision: UInt16,
         icon: URL?,
         currencyId: String?,
-        existentialDeposit _: String?,
+        existentialDeposit: String?,
         color: String?,
         isUtility: Bool,
         isNative: Bool,
         staking: RawStakingType?,
-        purchaseProviders _: [PurchaseProvider]?,
+        purchaseProviders: [PurchaseProvider]?,
         type: SubstrateAssetType?,
         ethereumType: EthereumAssetType?,
         priceProvider: PriceProvider?,
         coingeckoPriceId: String?,
-        priceData _: [PriceData]
+        priceData: [PriceData]
     ) {
-        let tokenProps = TokenProperties(
-            priceId: coingeckoPriceId,
-            currencyId: currencyId,
-            color: color,
-            type: type,
-            isNative: isNative,
-            stacking: staking?.rawValue
-        )
+        let resolvedAssetType: ChainAssetType
+        if let ethereumType {
+            resolvedAssetType = .ethereum(ethereumType: ethereumType)
+        } else {
+            resolvedAssetType = .substrate(substrateType: type ?? .normal)
+        }
 
         self.init(
             id: id,
             name: name,
             symbol: symbol,
-            isUtility: isUtility,
             precision: precision,
             icon: icon,
-            substrateType: type,
-            ethereumType: ethereumType,
-            tokenProperties: tokenProps,
-            price: nil,
-            priceId: coingeckoPriceId,
+            currencyId: currencyId,
+            existentialDeposit: existentialDeposit,
+            color: color,
+            isUtility: isUtility,
+            isNative: isNative,
+            staking: staking,
+            purchaseProviders: purchaseProviders,
+            assetType: resolvedAssetType,
+            priceProvider: priceProvider,
             coingeckoPriceId: coingeckoPriceId,
-            priceProvider: priceProvider
+            priceData: priceData
         )
     }
 
-    // Legacy fields accessors
-    var existentialDeposit: String? { nil }
-    var staking: RawStakingType? { tokenProperties?.stacking.flatMap { RawStakingType(rawValue: $0) } }
-    var isNative: Bool { tokenProperties?.isNative ?? false }
-    var purchaseProviders: [PurchaseProvider]? { nil }
-    func getPrice(for _: Currency) -> PriceData? { nil }
+    var ethereumType: EthereumAssetType? {
+        // B.E.B.I </3
+        switch assetType {
+        case let .ethereum(ethereumType):
+            return ethereumType
+        default:
+            return nil
+        }
+    }
 }
 
 // MARK: - External API compatibility
 
 public extension ChainModel.BlockExplorer {
-    init?(type: String, url: URL) {
-        self.init(type: type, url: url, apiKey: nil)
+    init?(type: String, url: URL, apiKey _: String?) {
+        self.init(type: type, url: url)
     }
 }
 
@@ -72,24 +76,30 @@ public extension ChainModel.ExternalApiSet {
         history: ChainModel.BlockExplorer? = nil,
         crowdloans: ChainModel.ExternalResource? = nil,
         explorers: [ChainModel.ExternalApiExplorer]? = nil,
-        pricing _: ChainModel.BlockExplorer?
+        pricing: ChainModel.BlockExplorer? = nil
     ) {
-        self.init(staking: staking, history: history, crowdloans: crowdloans, explorers: explorers)
+        self.init(
+            staking: staking,
+            history: history,
+            crowdloans: crowdloans,
+            explorers: explorers,
+            pricing: pricing
+        )
     }
 }
 
 // MARK: - XCM compatibility
 
 public extension XcmAvailableAsset {
-    init(id: String, symbol: String, minAmount _: Decimal?) {
-        self.init(id: id, symbol: symbol)
+    init(id: String, symbol: String, minAmount: Decimal?) {
+        let stringValue = minAmount.map { NSDecimalNumber(decimal: $0).stringValue }
+        self.init(id: id, symbol: symbol, minAmount: stringValue)
     }
 }
 
 // MARK: - ChainModel compatibility
 
 public extension ChainModel {
-    // Legacy initializer without tokens/properties
     convenience init(
         rank: UInt16?,
         disabled: Bool,
@@ -109,18 +119,18 @@ public extension ChainModel {
         iosMinAppVersion: String?,
         identityChain _: String?
     ) {
-        let tokens = ChainRemoteTokens(type: .config, whitelist: nil, utilityId: nil, tokens: [])
-        let properties = ChainProperties(addressPrefix: String(addressPrefix))
         self.init(
+            ecosystem: .substrate,
             rank: rank,
             disabled: disabled,
             chainId: chainId,
             parentId: parentId,
             paraId: paraId,
             name: name,
-            tokens: tokens,
+            assets: [],
             xcm: xcm,
             nodes: nodes,
+            addressPrefix: addressPrefix,
             types: types,
             icon: icon,
             options: options,
@@ -128,11 +138,23 @@ public extension ChainModel {
             selectedNode: selectedNode,
             customNodes: customNodes,
             iosMinAppVersion: iosMinAppVersion,
-            properties: properties
+            identityChain: nil,
+            tonBridgeUrl: nil
         )
     }
 
-    // Legacy fields
-    var addressPrefix: UInt16 { UInt16(properties.addressPrefix) ?? 0 }
-    var identityChain: String? { nil }
+    /// Legacy helper that used to live inside the locally-defined ChainModel.
+    /// Some subsystems (account fetching, subscriptions, transfers) still gate behavior on this flag,
+    /// so keep providing the same surface on top of the SSFModels definition.
+    var isEthereum: Bool {
+        ecosystem == .ethereum || options?.contains(.ethereum) == true
+    }
+}
+
+// MARK: - Meta account compatibility
+
+public extension ChainAccountRequest {
+    var isEthereumBased: Bool {
+        ecosystem == .ethereum || ecosystem == .ethereumBased
+    }
 }

@@ -2,6 +2,10 @@ import Foundation
 import RobinHood
 import SSFUtils
 
+enum SubstrateOperationFactoryError: Error {
+    case connectionUnavailable
+}
+
 protocol SubstrateOperationFactoryProtocol: AnyObject {
     func fetchChainOperation(_ url: URL) -> BaseOperation<String>
 }
@@ -14,11 +18,16 @@ final class SubstrateOperationFactory: SubstrateOperationFactoryProtocol {
     }
 
     func fetchChainOperation(_ url: URL) -> BaseOperation<String> {
-        // SSFUtils WebSocketEngine now takes a single URL and reconnection strategy
+        guard let strategy = ConnectionStrategyImpl(
+            urls: [url],
+            callbackQueue: DispatchQueue(label: "co.jp.SubstrateOperationFactory.connection")
+        ) else {
+            return BaseOperation.createWithError(SubstrateOperationFactoryError.connectionUnavailable)
+        }
+
         let engine = WebSocketEngine(
             connectionName: nil,
-            url: url,
-            autoconnect: false,
+            connectionStrategy: strategy,
             logger: logger
         )
 

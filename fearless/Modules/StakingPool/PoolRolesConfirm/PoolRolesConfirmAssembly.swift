@@ -3,7 +3,9 @@ import SoraFoundation
 import SoraKeystore
 import RobinHood
 import SSFModels
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 final class PoolRolesConfirmAssembly {
     static func configureModule(

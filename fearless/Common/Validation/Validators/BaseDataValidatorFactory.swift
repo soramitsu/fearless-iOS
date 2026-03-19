@@ -135,7 +135,7 @@ extension BaseDataValidatingFactoryProtocol {
                 return true
             }
 
-            if case .ormlChain = chainAsset.chainAssetType {
+            if chainAsset.chainAssetType.substrateAssetType == .ormlChain {
                 return true
             }
 

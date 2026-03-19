@@ -119,7 +119,9 @@ final class PolkaswapServiceImpl: PolkaswapService {
         dexId: UInt32
     ) async throws -> SwapValues {
         guard
-            let marketSourcer = market
+            let marketSourcer = market,
+            let fromAssetId = fromChainAsset.asset.currencyId,
+            let toAssetId = toChainAsset.asset.currencyId
         else {
             throw ConvenienceError(error: "Missing required params Polkaswap Service")
         }
@@ -127,8 +129,8 @@ final class PolkaswapServiceImpl: PolkaswapService {
         let amountString = String(amount)
 
         let quoteParams = PolkaswapQuoteParams(
-            fromAssetId: fromChainAsset.asset.currencyId,
-            toAssetId: toChainAsset.asset.currencyId,
+            fromAssetId: fromAssetId,
+            toAssetId: toAssetId,
             amount: amountString,
             swapVariant: .desiredInput,
             liquiditySources: marketSourcer.getRemoteMarketSources(),

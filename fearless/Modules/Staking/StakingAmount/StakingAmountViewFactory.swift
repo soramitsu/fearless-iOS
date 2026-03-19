@@ -4,7 +4,9 @@ import RobinHood
 import SoraFoundation
 import SSFUtils
 import SSFModels
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
     static func createView(

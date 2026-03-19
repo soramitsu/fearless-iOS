@@ -2,7 +2,9 @@ import Foundation
 import RobinHood
 import CoreData
 import IrohaCrypto
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 final class ChainSettingsMapper: CoreDataMapperProtocol {
     var entityIdentifierFieldName: String { "chainId" }

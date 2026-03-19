@@ -1,7 +1,9 @@
 import Foundation
 import RobinHood
 import SSFSingleValueCache
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 #if canImport(SSFAssetManagmentStorage)
     import SSFAssetManagmentStorage
 #endif

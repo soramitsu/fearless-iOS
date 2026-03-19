@@ -4,7 +4,9 @@ import SoraKeystore
 import RobinHood
 import SSFModels
 import SSFUtils
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol {
     static func createView(

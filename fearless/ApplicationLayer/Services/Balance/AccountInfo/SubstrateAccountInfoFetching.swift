@@ -135,44 +135,44 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
                     )
                     return
                 }
-                switch chainAsset.chainAssetType {
-                case .normal:
+                switch chainAsset.chainAssetType.substrateAssetType {
+                case .normal?:
                     self?.handleAccountInfo(
                         chainAsset: chainAsset,
                         item: item,
                         completionBlock: completionBlock
                     )
                 case
-                    .ormlChain,
-                    .ormlAsset,
-                    .foreignAsset,
-                    .stableAssetPoolToken,
-                    .liquidCrowdloan,
-                    .vToken,
-                    .vsToken,
-                    .stable,
-                    .assetId,
-                    .token2,
-                    .xcm:
+                    .ormlChain?,
+                    .ormlAsset?,
+                    .foreignAsset?,
+                    .stableAssetPoolToken?,
+                    .liquidCrowdloan?,
+                    .vToken?,
+                    .vsToken?,
+                    .stable?,
+                    .assetId?,
+                    .token2?,
+                    .xcm?:
                     self?.handleOrmlAccountInfo(
                         chainAsset: chainAsset,
                         item: item,
                         completionBlock: completionBlock
                     )
-                case .equilibrium:
+                case .equilibrium?:
                     self?.handleEquilibrium(
                         chainAsset: chainAsset,
                         accountId: accountId,
                         item: item,
                         completionBlock: completionBlock
                     )
-                case .assets:
+                case .assets?:
                     self?.handleAssetAccount(
                         chainAsset: chainAsset,
                         item: item,
                         completionBlock: completionBlock
                     )
-                case .soraAsset:
+                case .soraAsset?:
                     if chainAsset.isUtility {
                         self?.handleAccountInfo(
                             chainAsset: chainAsset,
@@ -186,7 +186,7 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
                             completionBlock: completionBlock
                         )
                     }
-                case .none:
+                case nil:
                     break
                 }
             default:
@@ -274,22 +274,20 @@ private extension AccountInfoFetching {
             }
         }
 
-        let chainAssetType = chainAsset.chainAssetType.map { type in
-            guard type == .soraAsset else {
-                return type
+        let resolvedSubstrateType: SubstrateAssetType? = {
+            let currentType = chainAsset.chainAssetType.substrateAssetType
+
+            if currentType == .soraAsset, chainAsset.isUtility {
+                return .normal
             }
 
-            /* Sora assets logic */
-            if chainAsset.isUtility {
-                return .normal
-            } else {
-                return .soraAsset
-            }
-        }
-        switch chainAssetType {
-        case .none:
+            return currentType
+        }()
+
+        switch resolvedSubstrateType {
+        case nil:
             return ClosureOperation { [chainAsset: nil] }
-        case .normal:
+        case .normal?:
             guard let decodingOperation: StorageDecodingOperation<AccountInfo?> = createDecodingOperation(
                 for: accountInfoStorageWrapper.data,
                 chainAsset: chainAsset,
@@ -305,18 +303,18 @@ private extension AccountInfoFetching {
 
             return operation
         case
-            .ormlChain,
-            .ormlAsset,
-            .foreignAsset,
-            .stableAssetPoolToken,
-            .liquidCrowdloan,
-            .vToken,
-            .vsToken,
-            .stable,
-            .soraAsset,
-            .assetId,
-            .token2,
-            .xcm:
+            .ormlChain?,
+            .ormlAsset?,
+            .foreignAsset?,
+            .stableAssetPoolToken?,
+            .liquidCrowdloan?,
+            .vToken?,
+            .vsToken?,
+            .stable?,
+            .soraAsset?,
+            .assetId?,
+            .token2?,
+            .xcm?:
             guard let decodingOperation: StorageDecodingOperation<OrmlAccountInfo?> = createDecodingOperation(
                 for: accountInfoStorageWrapper.data,
                 chainAsset: chainAsset,
@@ -331,7 +329,7 @@ private extension AccountInfoFetching {
             )
 
             return operation
-        case .equilibrium:
+        case .equilibrium?:
             guard let decodingOperation: StorageDecodingOperation<EquilibriumAccountInfo?> = createDecodingOperation(
                 for: accountInfoStorageWrapper.data,
                 chainAsset: chainAsset,
@@ -346,7 +344,7 @@ private extension AccountInfoFetching {
             )
 
             return operation
-        case .assets:
+        case .assets?:
             guard let decodingOperation: StorageDecodingOperation<AssetAccount?> = createDecodingOperation(
                 for: accountInfoStorageWrapper.data,
                 chainAsset: chainAsset,
@@ -488,7 +486,9 @@ private extension AccountInfoFetching {
 
             switch equilibriumAccountInfo?.data {
             case let .v0data(info):
-                let currencyId = chainAsset.asset.currencyId
+                guard let currencyId = chainAsset.asset.currencyId else {
+                    return [chainAsset: nil]
+                }
 
                 let map = info.mapBalances()
                 let equilibriumFree = map[currencyId]
@@ -672,11 +672,14 @@ private extension AccountInfoFetching {
             switch equilibriumAccountInfo?.data {
             case let .v0data(info):
                 let map = info.mapBalances()
-                chainAsset.chain.chainAssets.forEach { chainAsset in
-                    let currencyId = chainAsset.asset.currencyId
+                for innerChainAsset in chainAsset.chain.chainAssets {
+                    guard let currencyId = innerChainAsset.asset.currencyId else {
+                        completionBlock(innerChainAsset, nil)
+                        continue
+                    }
                     let equilibriumFree = map[currencyId]
                     let accountInfo = AccountInfo(equilibriumFree: equilibriumFree)
-                    completionBlock(chainAsset, accountInfo)
+                    completionBlock(innerChainAsset, accountInfo)
                 }
             case .none:
                 completionBlock(chainAsset, nil)

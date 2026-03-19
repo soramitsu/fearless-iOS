@@ -88,7 +88,7 @@ final class LiquidityPoolsModelFactoryDefault: LiquidityPoolsModelFactory {
 
 // MARK: - Lightweight service stubs for compile-time wiring
 
-public typealias SigningWrapperData = XcmAssembly.SigningWrapperData
+public typealias SigningWrapperData = SSFModels.SigningWrapperData
 
 // Compatibility types used across Liquidity Pools code
 public struct PoolApyInfo {
@@ -133,13 +133,17 @@ public struct AssetIdPair {
     public var poolId: String { "\(baseAssetIdCode)-\(targetAssetIdCode)" }
 }
 
+public struct ChainTokensCompatibility {
+    public let tokens: [AssetModel]?
+}
+
 public extension ChainModel {
-    var assets: [AssetModel] { Array(tokens.tokens ?? []) }
+    var tokens: ChainTokensCompatibility {
+        ChainTokensCompatibility(tokens: Array(assets))
+    }
 }
 
 public extension AssetModel {
-    var currencyId: String { tokenProperties?.currencyId ?? id }
-    var color: String { tokenProperties?.color ?? "" }
     // Legacy convenience used broadly in presenters; return nil by default
     func getPrice(for _: Any) -> PriceData? { nil }
 }
@@ -152,6 +156,7 @@ public extension SSFPools.LiquidityPair {
 public extension SSFPools.AccountPool {
     var liquidityPair: SSFPools.LiquidityPair {
         SSFPools.LiquidityPair(
+            dexId: dexId,
             pairId: poolId,
             chainId: chainId,
             baseAssetId: baseAssetId,
