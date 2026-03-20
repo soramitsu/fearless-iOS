@@ -466,13 +466,12 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             try saveSeed(query.seed, metaId: metaId, accountId: accountId, ethereumBased: request.isEthereum)
             try saveEntropy(request.mnemonic.entropy(), metaId: metaId, accountId: accountId)
 
-            let ecosystem: Ecosystem = request.isEthereum ? .ethereum : .substrate
             let chainAccount = ChainAccountModel(
                 chainId: request.chainId,
                 accountId: accountId,
                 publicKey: query.publicKey,
                 cryptoType: request.cryptoType.rawValue,
-                ecosystem: ecosystem
+                ethereumBased: request.isEthereum
             )
 
             return request.meta.insertingChainAccount(chainAccount)
@@ -508,13 +507,12 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
 
             try saveSeed(seed, metaId: metaId, accountId: accountId, ethereumBased: request.isEthereum)
 
-            let ecosystem: Ecosystem = request.isEthereum ? .ethereum : .substrate
             let chainAccount = ChainAccountModel(
                 chainId: request.chainId,
                 accountId: accountId,
                 publicKey: query.publicKey,
                 cryptoType: request.cryptoType.rawValue,
-                ecosystem: ecosystem
+                ethereumBased: request.isEthereum
             )
 
             return request.meta.insertingChainAccount(chainAccount)
@@ -567,13 +565,12 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 ethereumBased: request.isEthereum
             )
 
-            let ecosystem: Ecosystem = request.isEthereum ? .ethereum : .substrate
             let chainAccount = ChainAccountModel(
                 chainId: request.chainId,
                 accountId: accountId,
                 publicKey: publicKey.rawData(),
                 cryptoType: request.cryptoType.rawValue,
-                ecosystem: ecosystem
+                ethereumBased: request.isEthereum
             )
 
             return request.meta.insertingChainAccount(chainAccount)

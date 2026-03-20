@@ -165,7 +165,7 @@ public extension ChainAccountRequest {
         cryptoType: UInt8?,
         ethereumBased: Bool
     ) {
-        let ecosystem: ChainModel.Ecosystem = ethereumBased ? .ethereum : .substrate
+        let ecosystem: Ecosystem = ethereumBased ? .ethereum : .substrate
         self.init(
             chainId: chainId,
             accountId: accountId,

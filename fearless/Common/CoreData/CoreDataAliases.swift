@@ -33,8 +33,8 @@ import Foundation
         public class CDSingleValue: CoreDataStubObject {}
         public class CDChainSettings: CoreDataStubObject {
             @NSManaged public var chainId: String?
-            @NSManaged public var autobalanced: NSNumber?
-            @NSManaged public var issueMuted: NSNumber?
+            @NSManaged public var autobalanced: Bool
+            @NSManaged public var issueMuted: Bool
         }
 
         public class CDMetaAccount: CoreDataStubObject {

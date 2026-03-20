@@ -24,8 +24,8 @@ actor TonJettonInjectorImpl: TonJettonInjector {
 
     func inject(jettonItems: [TonJettonBalance]) async {
         do {
-            let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? TonConstants.testnetChainId : TonConstants.tonChainId
-            guard let tonChain = try await chainModelRepository.fetch(by: "\(network)", options: RepositoryFetchOptions()) else {
+            let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? "-3" : "-239"
+            guard let tonChain = try await chainModelRepository.fetch(by: network, options: RepositoryFetchOptions()) else {
                 throw ConvenienceError(error: "Ton chain is not fetched")
             }
 
@@ -46,8 +46,8 @@ actor TonJettonInjectorImpl: TonJettonInjector {
 
     func inject(tonPriceData: [PriceData]) async {
         do {
-            let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? TonConstants.testnetChainId : TonConstants.tonChainId
-            guard let tonChain = try await chainModelRepository.fetch(by: "\(network)", options: RepositoryFetchOptions()) else {
+            let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? "-3" : "-239"
+            guard let tonChain = try await chainModelRepository.fetch(by: network, options: RepositoryFetchOptions()) else {
                 throw ConvenienceError(error: "Ton chain is not fetched")
             }
             guard let tonAsset = tonChain.utilityChainAssets().first else {

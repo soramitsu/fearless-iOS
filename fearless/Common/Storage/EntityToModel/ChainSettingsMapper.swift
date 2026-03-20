@@ -17,16 +17,19 @@ final class ChainSettingsMapper: CoreDataMapperProtocol {
             throw ChainNodeMapperError.missedRequiredFields
         }
 
+        let autobalanced = (entity.value(forKey: "autobalanced") as? Bool) ?? false
+        let issueMuted = (entity.value(forKey: "issueMuted") as? Bool) ?? false
+
         return ChainSettings(
             chainId: chainId,
-            autobalanced: entity.autobalanced,
-            issueMuted: entity.issueMuted
+            autobalanced: autobalanced,
+            issueMuted: issueMuted
         )
     }
 
     func populate(entity: CDChainSettings, from model: ChainSettings, using _: NSManagedObjectContext) throws {
         entity.chainId = model.chainId
-        entity.autobalanced = model.autobalanced
-        entity.issueMuted = model.issueMuted
+        entity.setValue(model.autobalanced, forKey: "autobalanced")
+        entity.setValue(model.issueMuted, forKey: "issueMuted")
     }
 }
