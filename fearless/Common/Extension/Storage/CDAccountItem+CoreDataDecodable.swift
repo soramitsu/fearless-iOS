@@ -1,9 +1,9 @@
-#if canImport(SSFAccountManagmentStorage)
+#if canImport(SSFAssetManagmentStorage)
     import Foundation
     import CoreData
     import RobinHood
     import IrohaCrypto
-    import SSFAccountManagmentStorage
+    import SSFAssetManagmentStorage
 
     // TODO: Fix logic
     extension CDMetaAccount: CoreDataCodable {

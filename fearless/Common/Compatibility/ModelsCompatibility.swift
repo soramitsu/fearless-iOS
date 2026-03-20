@@ -157,4 +157,61 @@ public extension ChainAccountRequest {
     var isEthereumBased: Bool {
         ecosystem == .ethereum || ecosystem == .ethereumBased
     }
+
+    init(
+        chainId: ChainModel.Id,
+        accountId: AccountId?,
+        publicKey: Data?,
+        cryptoType: UInt8?,
+        ethereumBased: Bool
+    ) {
+        let ecosystem: ChainModel.Ecosystem = ethereumBased ? .ethereum : .substrate
+        self.init(
+            chainId: chainId,
+            accountId: accountId,
+            publicKey: publicKey,
+            cryptoType: cryptoType,
+            ecosystem: ecosystem
+        )
+    }
+}
+
+// MARK: - Polkadot runtime compatibility
+
+enum PolkadotRuntimeCompatibility {
+    enum BlockProviderHint {
+        case relay
+        case local
+    }
+
+    enum Pallet {
+        case vesting
+        case multisig
+        case proxy
+        case nfts
+    }
+
+    /// Known Asset Hub paraIds by ecosystem (dot/kusama/westend use `1000` conventions).
+    private static let assetHubParaIds: Set<String> = ["1000"]
+
+    static func blockProviderHint(for pallet: Pallet, on chain: ChainModel) -> BlockProviderHint? {
+        guard isTrustedAliaser(chain: chain) else {
+            return nil
+        }
+
+        switch pallet {
+        case .vesting: return .relay
+        case .multisig: return .local
+        case .proxy: return .relay
+        case .nfts: return .relay
+        }
+    }
+
+    static func isTrustedAliaser(chain: ChainModel) -> Bool {
+        guard let paraId = chain.paraId else {
+            return false
+        }
+
+        return assetHubParaIds.contains(paraId)
+    }
 }

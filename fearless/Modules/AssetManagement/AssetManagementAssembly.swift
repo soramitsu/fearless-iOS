@@ -57,8 +57,9 @@ final class AssetManagementAssembly {
             operationManager: OperationManagerFacade.sharedManager
         )
 
+        let tonChainRepository = ChainRepositoryFactory().createAsyncRepository()
         let tonJettonInjector = TonJettonInjectorImpl(
-            chainModelRepository: ChainRepositoryFactory().createAsyncRepository(),
+            chainModelRepository: AsyncAnyRepository(tonChainRepository),
             eventCenter: EventCenter.shared,
             logger: Logger.shared
         )

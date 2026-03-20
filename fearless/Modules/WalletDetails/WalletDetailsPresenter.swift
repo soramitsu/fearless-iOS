@@ -218,11 +218,18 @@ private extension WalletDetailsPresenter {
                     }
                 case .reef:
                     if explorer.types.contains(.account), let url = explorer.explorerUrl(for: address, type: .account) {
-                        return .polkascan(url: url)
+                        return .reefscan(url: url)
+                    }
+                case .oklink:
+                    if explorer.types.contains(.address), let url = explorer.explorerUrl(for: address, type: .address) {
+                        return .oklink(url: url)
+                    }
+                case .tonviewer:
+                    if explorer.types.contains(.tonAccount), let url = explorer.explorerUrl(for: address, type: .tonAccount) {
+                        return .etherscan(url: url)
                     }
                 case .unknown:
                     return nil
-                    // .oklink may not be present in current ExternalApiExplorerType
                 }
                 return nil
             }

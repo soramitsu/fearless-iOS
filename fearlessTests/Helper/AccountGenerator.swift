@@ -30,12 +30,13 @@ enum AccountGenerator {
     }
 
     static func generateChainAccount() -> ChainAccountModel {
-        SSFModels.ChainAccountModel(
+        let ecosystem: Ecosystem = Bool.random() ? .ethereum : .substrate
+        return SSFModels.ChainAccountModel(
             chainId: Data.random(of: 32)!.toHex(),
             accountId: Data.random(of: 32)!,
             publicKey: Data.random(of: 32)!,
             cryptoType: 0,
-            ethereumBased: Bool.random()
+            ecosystem: ecosystem
         )
     }
 }

@@ -210,8 +210,12 @@ final class PolkaswapAdjustmentPresenter {
             return
         }
 
-        let swapFromAssetId = swapFromChainAsset.asset.currencyId
-        let swapToAssetId = swapToChainAsset.asset.currencyId
+        guard
+            let swapFromAssetId = swapFromChainAsset.asset.currencyId,
+            let swapToAssetId = swapToChainAsset.asset.currencyId
+        else {
+            return
+        }
 
         let amount: String
         if swapVariant == .desiredInput {

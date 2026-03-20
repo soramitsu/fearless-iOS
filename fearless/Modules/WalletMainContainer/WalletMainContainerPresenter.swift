@@ -270,6 +270,9 @@ extension WalletMainContainerPresenter: ScanQRModuleOutput {
             )
         case let .walletConnect(uri):
             walletConnect(with: uri)
+        case .tonConnect:
+            // TonConnect support pending; ignore for now.
+            break
         case .preinstalledWallet:
             break
         }

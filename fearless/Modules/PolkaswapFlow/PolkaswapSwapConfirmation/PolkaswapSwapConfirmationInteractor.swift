@@ -26,8 +26,12 @@ final class PolkaswapSwapConfirmationInteractor: RuntimeConstantFetching {
     }
 
     private func builderClosure() -> ExtrinsicBuilderClosure? {
-        let fromAssetId = params.swapFromChainAsset.asset.currencyId
-        let toAssetId = params.swapToChainAsset.asset.currencyId
+        guard
+            let fromAssetId = params.swapFromChainAsset.asset.currencyId,
+            let toAssetId = params.swapToChainAsset.asset.currencyId
+        else {
+            return nil
+        }
 
         let desired: BigUInt
         let slip: BigUInt

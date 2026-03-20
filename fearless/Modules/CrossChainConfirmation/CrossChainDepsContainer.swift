@@ -19,12 +19,14 @@ final class CrossChainDepsContainer {
 
     private var cachedDependencies: [String: CrossChainConfirmationDeps] = [:]
     private let wallet: MetaAccountModel
+    private let chainRegistry: ChainRegistryProtocol
     private lazy var operationQueue: OperationQueue = {
         OperationQueue()
     }()
 
-    init(wallet: MetaAccountModel) {
+    init(wallet: MetaAccountModel, chainRegistry: ChainRegistryProtocol = ChainRegistryFacade.sharedRegistry) {
         self.wallet = wallet
+        self.chainRegistry = chainRegistry
     }
 
     // MARK: - Public methods
@@ -34,8 +36,6 @@ final class CrossChainDepsContainer {
         originalRuntimeMetadataItem: RuntimeMetadataItemProtocol?,
         destChainModel: ChainModel?
     ) throws -> CrossChainConfirmationDeps {
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
-
         let xcmServices = try createXcmService(
             wallet: wallet,
             originalChainAsset: originalChainAsset,

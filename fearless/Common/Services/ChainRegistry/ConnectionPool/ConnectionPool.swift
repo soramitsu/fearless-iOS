@@ -93,9 +93,8 @@ extension ConnectionPool: ConnectionPoolProtocol {
 extension ConnectionPool: WebSocketEngineDelegate {
     func webSocketDidChangeState(
         engine: WebSocketEngine,
-        from _: WebSocketEngine.State,
         to newState: WebSocketEngine.State
-    ) async {
+    ) {
         guard let chainId = engine.connectionName else {
             return
         }

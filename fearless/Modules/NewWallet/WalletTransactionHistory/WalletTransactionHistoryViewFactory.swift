@@ -59,18 +59,18 @@ enum WalletTransactionHistoryViewFactory {
     }
 
     static func transactionHistoryFilters(for chain: ChainModel) -> [FilterSet] {
-        if let history = chain.externalApi?.history {
-            guard history.type.hasFilters else {
-                return []
-            }
-        } else {
+        guard
+            let history = chain.externalApi?.history,
+            let explorerType = history.type,
+            explorerType.hasFilters
+        else {
             return []
         }
 
         var filters: [WalletTransactionHistoryFilter] = [
             WalletTransactionHistoryFilter(type: .transfer, selected: true)
         ]
-        if chain.externalApi?.history?.type != .giantsquid {
+        if explorerType != .giantsquid {
             filters.insert(WalletTransactionHistoryFilter(type: .other, selected: true), at: 1)
         }
         if chain.hasStakingRewardHistory || chain.isSora {

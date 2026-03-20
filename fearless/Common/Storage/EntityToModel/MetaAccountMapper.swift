@@ -20,15 +20,15 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
                 return nil
             }
 
-            let ethereumBased = chainAccontEntity.ethereumBased
-
             let accountId = try Data(hexStringSSF: chainAccontEntity.accountId!)
+            let isEthereumBased = chainAccontEntity.ethereumBased?.boolValue ?? false
+            let ecosystem: Ecosystem = isEthereumBased ? .ethereum : .substrate
             return ChainAccountModel(
                 chainId: chainAccontEntity.chainId!,
                 accountId: accountId,
                 publicKey: chainAccontEntity.publicKey!,
                 cryptoType: UInt8(bitPattern: Int8(chainAccontEntity.cryptoType)),
-                ethereumBased: ethereumBased
+                ecosystem: ecosystem
             )
         } ?? []
 

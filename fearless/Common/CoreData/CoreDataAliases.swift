@@ -25,11 +25,38 @@ import Foundation
             @NSManaged public var identifier: String?
         }
 
-        public class CDStashItem: CoreDataStubObject {}
+        public class CDStashItem: CoreDataStubObject {
+            @NSManaged public var stash: String?
+            @NSManaged public var controller: String?
+        }
+
         public class CDSingleValue: CoreDataStubObject {}
-        public class CDChainSettings: CoreDataStubObject {}
-        public class CDMetaAccount: CoreDataStubObject {}
-        public class CDChainAccount: CoreDataStubObject {}
+        public class CDChainSettings: CoreDataStubObject {
+            @NSManaged public var chainId: String?
+            @NSManaged public var autobalanced: NSNumber?
+            @NSManaged public var issueMuted: NSNumber?
+        }
+
+        public class CDMetaAccount: CoreDataStubObject {
+            @NSManaged public var metaId: String?
+            @NSManaged public var substrateAccountId: String?
+            @NSManaged public var substratePublicKey: Data?
+            @NSManaged public var substrateCryptoType: NSNumber?
+            @NSManaged public var ethereumAddress: String?
+            @NSManaged public var ethereumPublicKey: Data?
+            @NSManaged public var ethereumCryptoType: NSNumber?
+            @NSManaged public var chainAccounts: NSSet?
+        }
+
+        public class CDChainAccount: CoreDataStubObject {
+            @NSManaged public var accountId: Data?
+            @NSManaged public var publicKey: Data?
+            @NSManaged public var cryptoType: NSNumber?
+            @NSManaged public var ethereumBased: NSNumber?
+            @NSManaged public var chainId: String?
+            @NSManaged public var metaAccount: CDMetaAccount?
+        }
+
         public class CDAccountItem: CoreDataStubObject {}
         public class CDPolkaswapRemoteSettings: CoreDataStubObject {}
         public class CDPolkaswapDex: CoreDataStubObject {}

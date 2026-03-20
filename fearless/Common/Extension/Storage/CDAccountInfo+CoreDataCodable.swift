@@ -1,9 +1,9 @@
-#if canImport(SSFAccountManagmentStorage)
+#if canImport(SSFAssetManagmentStorage)
     import Foundation
     import CoreData
     import RobinHood
     import IrohaCrypto
-    import SSFAccountManagmentStorage
+    import SSFAssetManagmentStorage
 
     extension CDAccountInfo: CoreDataCodable {
         public func populate(from decoder: Decoder, using _: NSManagedObjectContext) throws {
