@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFXCM
+import SSFChainRegistry
 import SSFModels
 import SSFCrypto
 import SoraKeystore
@@ -19,12 +20,15 @@ final class CrossChainDepsContainer {
 
     private var cachedDependencies: [String: CrossChainConfirmationDeps] = [:]
     private let wallet: MetaAccountModel
-    private let chainRegistry: ChainRegistryProtocol
+    private let chainRegistry: ChainRegistryProtocol & SSFChainRegistry.ChainRegistryProtocol
     private lazy var operationQueue: OperationQueue = {
         OperationQueue()
     }()
 
-    init(wallet: MetaAccountModel, chainRegistry: ChainRegistryProtocol = ChainRegistryFacade.sharedRegistry) {
+    init(
+        wallet: MetaAccountModel,
+        chainRegistry: ChainRegistryProtocol & SSFChainRegistry.ChainRegistryProtocol = ChainRegistryFacade.sharedRegistry
+    ) {
         self.wallet = wallet
         self.chainRegistry = chainRegistry
     }
@@ -103,7 +107,7 @@ final class CrossChainDepsContainer {
         )
 
         let sourceConfig = ApplicationConfig.shared
-        let services = XcmAssembly.createExtrincisServices(
+        let services = try XcmAssembly.createExtrincisServices(
             fromChainData: fromChainData,
             sourceConfig: sourceConfig,
             chainRegistry: chainRegistry

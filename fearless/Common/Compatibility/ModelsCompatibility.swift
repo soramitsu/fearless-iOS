@@ -60,6 +60,15 @@ public extension AssetModel {
             return nil
         }
     }
+
+    var substrateType: SubstrateAssetType? {
+        switch assetType {
+        case let .substrate(substrateType):
+            return substrateType
+        default:
+            return nil
+        }
+    }
 }
 
 // MARK: - External API compatibility
@@ -153,26 +162,9 @@ public extension ChainModel {
 
 // MARK: - Meta account compatibility
 
-public extension ChainAccountRequest {
+extension ChainAccountRequest {
     var isEthereumBased: Bool {
         ecosystem == .ethereum || ecosystem == .ethereumBased
-    }
-
-    init(
-        chainId: ChainModel.Id,
-        accountId: AccountId?,
-        publicKey: Data?,
-        cryptoType: UInt8?,
-        ethereumBased: Bool
-    ) {
-        let ecosystem: Ecosystem = ethereumBased ? .ethereum : .substrate
-        self.init(
-            chainId: chainId,
-            accountId: accountId,
-            publicKey: publicKey,
-            cryptoType: cryptoType,
-            ecosystem: ecosystem
-        )
     }
 }
 

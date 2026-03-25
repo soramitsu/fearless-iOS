@@ -75,7 +75,7 @@ final class ChainAssetListAssembly {
         )
 
         let tonJettonInjector = TonJettonInjectorImpl(
-            chainModelRepository: ChainRepositoryFactory().createAsyncRepository(),
+            chainModelRepository: AsyncAnyRepository(ChainRepositoryFactory().createAsyncRepository()),
             eventCenter: EventCenter.shared,
             logger: Logger.shared
         )

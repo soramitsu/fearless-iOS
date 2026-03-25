@@ -23,24 +23,25 @@ struct MetaAccountModel: Equatable, Codable {
     let favouriteChainIds: [ChainModel.Id]
 
     var utilsModel: SSFModels.MetaAccountModel {
-        let enabledAssetIds: Set<String> = Set(assetsVisibility.filter { !$0.hidden }.map { $0.assetId })
-        return SSFModels.MetaAccountModel(
+        SSFModels.MetaAccountModel(
             metaId: metaId,
             name: name,
-            substrateAccountId: substrateAccountId,
-            substrateCryptoType: substrateCryptoType,
-            substratePublicKey: substratePublicKey,
-            ethereumAddress: ethereumAddress,
-            ethereumPublicKey: ethereumPublicKey,
+            ecosystem: .regular(
+                .init(
+                    substrateAccountId: substrateAccountId,
+                    substrateCryptoType: substrateCryptoType,
+                    substratePublicKey: substratePublicKey,
+                    ethereumAddress: ethereumAddress,
+                    ethereumPublicKey: ethereumPublicKey
+                )
+            ),
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetFilterOptions: [],
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             networkManagmentFilter: networkManagmentFilter,
-            enabledAssetIds: enabledAssetIds,
-            zeroBalanceAssetsHidden: false,
+            assetsVisibility: assetsVisibility,
             hasBackup: hasBackup,
             favouriteChainIds: favouriteChainIds
         )

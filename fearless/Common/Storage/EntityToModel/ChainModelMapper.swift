@@ -344,40 +344,33 @@ final class ChainModelMapper {
         }
 
         let version = XcmCallFactoryVersion(rawValue: versionRaw)
-        let assets: [XcmAvailableAsset] = availableAssets.compactMap { entity in
-            guard
-                let entity = entity as? CDXcmAvailableAsset,
-                let id = entity.id,
-                let symbol = entity.symbol
-            else {
-                return nil
-            }
-            return XcmAvailableAsset(id: id, symbol: symbol)
-        }
-        let destinations: [XcmAvailableDestination] = availableDestinations.compactMap { entity in
-            guard
-                let entity = entity as? CDXcmAvailableDestination,
-                let chainId = entity.chainId,
-                let assetsEntities = entity.assets
-            else {
-                return nil
+        let assetEntities = availableAssets.allObjects as? [CDXcmAvailableAsset] ?? []
+        let assets: [XcmAvailableAsset] = assetEntities.reduce(into: []) { result, entity in
+            guard let id = entity.id, let symbol = entity.symbol else {
+                return
             }
 
-            let assets: [XcmAvailableAsset] = assetsEntities.compactMap { entity in
-                guard
-                    let entity = entity as? CDXcmAvailableAsset,
-                    let id = entity.id,
-                    let symbol = entity.symbol
-                else {
-                    return nil
-                }
-                return XcmAvailableAsset(id: id, symbol: symbol)
+            result.append(XcmAvailableAsset(id: id, symbol: symbol, minAmount: nil as String?))
+        }
+        let destinationEntities = availableDestinations.allObjects as? [CDXcmAvailableDestination] ?? []
+        let destinations: [XcmAvailableDestination] = destinationEntities.reduce(into: []) { result, entity in
+            guard let chainId = entity.chainId, let assetsEntities = entity.assets else {
+                return
             }
-            return XcmAvailableDestination(
+
+            let destinationAssetEntities = assetsEntities.allObjects as? [CDXcmAvailableAsset] ?? []
+            let assets: [XcmAvailableAsset] = destinationAssetEntities.reduce(into: []) { result, entity in
+                guard let id = entity.id, let symbol = entity.symbol else {
+                    return
+                }
+
+                result.append(XcmAvailableAsset(id: id, symbol: symbol, minAmount: nil as String?))
+            }
+            result.append(XcmAvailableDestination(
                 chainId: chainId,
                 bridgeParachainId: entity.bridgeParachainId,
                 assets: assets
-            )
+            ))
         }
 
         return XcmChain(
@@ -393,22 +386,23 @@ final class ChainModelMapper {
             return nil
         }
 
-        let explorers: [ChainModel.ExternalApiExplorer]? = entityExplorers.compactMap {
-            guard let explorer = $0 as? CDExternalApi,
-                  let type = explorer.type,
-                  let types = explorer.types as? [String],
-                  let url = explorer.url
+        let explorerEntities = entityExplorers.allObjects as? [CDExternalApi] ?? []
+        let explorers: [ChainModel.ExternalApiExplorer] = explorerEntities.reduce(into: []) { result, explorer in
+            guard
+                let type = explorer.type,
+                let types = explorer.types as? [String],
+                let url = explorer.url
             else {
-                return nil
+                return
             }
             let externapApiTypes = types.compactMap {
                 ChainModel.SubscanType(rawValue: $0)
             }
-            return ChainModel.ExternalApiExplorer(
+            result.append(ChainModel.ExternalApiExplorer(
                 type: ChainModel.ExternalApiExplorerType(rawValue: type) ?? .unknown,
                 types: externapApiTypes,
-                url: url
-            )
+                url: url.absoluteString
+            ))
         }
         return explorers
     }
@@ -425,17 +419,17 @@ final class ChainModelMapper {
             let explorer = CDExternalApi(context: context)
             explorer.type = api.type.rawValue
             explorer.types = api.types.compactMap { $0.rawValue } as? NSArray
-            explorer.url = api.url
+            explorer.url = URL(string: api.url)
             return explorer
         }
         entity.explorers = Set(explorers) as NSSet
     }
 
     private func updateExternalApis(in entity: CDChain, from apis: ChainModel.ExternalApiSet?) {
-        entity.stakingApiType = apis?.staking?.type.rawValue
+        entity.stakingApiType = apis?.staking?.type?.rawValue
         entity.stakingApiUrl = apis?.staking?.url
 
-        entity.historyApiType = apis?.history?.type.rawValue
+        entity.historyApiType = apis?.history?.type?.rawValue
         entity.historyApiUrl = apis?.history?.url
 
         entity.crowdloansApiType = apis?.crowdloans?.type
@@ -537,7 +531,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
 
         let types: ChainModel.TypesSettings?
 
-        if let url = entity.types, let overridesCommon = entity.typesOverrideCommon {
+        if let url = entity.types.flatMap(URL.init(string:)), let overridesCommon = entity.typesOverrideCommon {
             types = .init(url: url, overridesCommon: overridesCommon.boolValue)
         } else {
             types = nil
@@ -590,7 +584,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         // entity.paraId is not available in current storage
         entity.parentId = model.parentId
         entity.name = model.name
-        entity.types = model.types?.url
+        entity.types = model.types?.url.absoluteString
         entity.typesOverrideCommon = model.types.map { NSNumber(value: $0.overridesCommon) }
 
         entity.addressPrefix = Int16(bitPattern: model.addressPrefix)

@@ -114,7 +114,10 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
             completion(.failure(ChainRegistryError.runtimeMetadaUnavailable))
             return
         }
-        let currencyId = chainAsset.asset.currencyId
+        guard let currencyId = chainAsset.asset.currencyId else {
+            completion(.failure(ChainRegistryError.runtimeMetadaUnavailable))
+            return
+        }
         let assetsDetailsPath = StorageCodingPath.assetsAssetDetail
         let requestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),

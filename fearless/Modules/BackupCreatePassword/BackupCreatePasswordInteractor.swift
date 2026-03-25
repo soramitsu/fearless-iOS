@@ -138,7 +138,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             ethSeed: ethSeed
         )
         let cryptoType = CryptoType(rawValue: wallet.substrateCryptoType)
-        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
+        let address42 = try? wallet.substratePublicKey.toAddress(using: ChainFormat.substrate(42))
 
         let account = OpenBackupAccount(
             name: wallet.name,
@@ -165,7 +165,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             ethJson: ethereumRestoreJson?.data
         )
         let cryptoType = CryptoType(rawValue: wallet.substrateCryptoType)
-        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
+        let address42 = try? wallet.substratePublicKey.toAddress(using: ChainFormat.substrate(42))
 
         let account = OpenBackupAccount(
             name: wallet.name,
@@ -182,7 +182,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         request: MetaAccountImportMnemonicRequest,
         password: String
     ) {
-        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
+        let address42 = try? wallet.substratePublicKey.toAddress(using: ChainFormat.substrate(42))
         let account = OpenBackupAccount(
             name: request.username,
             address: address42 ?? wallet.substratePublicKey.toHex(),

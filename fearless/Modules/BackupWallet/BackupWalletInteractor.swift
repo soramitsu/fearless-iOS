@@ -105,7 +105,7 @@ extension BackupWalletInteractor: BackupWalletInteractorInput {
     }
 
     func removeBackupFromGoogle() {
-        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
+        let address42 = try? wallet.substratePublicKey.toAddress(using: ChainFormat.substrate(42))
         let account = OpenBackupAccount(address: address42 ?? wallet.substratePublicKey.toHex())
 
         Task {

@@ -181,7 +181,7 @@ final class ExtrinsicOperationFactory {
             let era = try eraWrapper.targetOperation.extractNoCancellableResultData().extrinsicEra
             let eraBlockHash = try eraBlockOperation.extractNoCancellableResultData()
 
-            let account: MultiAddress = codingFactory.metadata.multiAddressParameter(
+            let account: MultiAddress = try codingFactory.metadata.multiAddressParameter(
                 accountId: currentAccountId,
                 chainFormat: currentChainFormat.asSfCrypto()
             )

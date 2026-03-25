@@ -15,20 +15,26 @@ final class MetaAccountMapper {
 
 extension MetaAccountMapper: CoreDataMapperProtocol {
     func transform(entity: CoreDataEntity) throws -> DataProviderModel {
-        let chainAccounts: [ChainAccountModel] = try entity.chainAccounts?.compactMap { entity in
-            guard let chainAccontEntity = entity as? CDChainAccount else {
+        let chainAccountEntities = entity.chainAccounts?.allObjects as? [CDChainAccount] ?? []
+        let chainAccounts: [ChainAccountModel] = try chainAccountEntities.compactMap { chainAccountEntity in
+            guard
+                let accountIdHex = chainAccountEntity.accountId,
+                let chainId = chainAccountEntity.chainId,
+                let publicKey = chainAccountEntity.publicKey
+            else {
                 return nil
             }
 
-            let accountId = try Data(hexStringSSF: chainAccontEntity.accountId!)
+            let accountId = try Data(hexStringSSF: accountIdHex)
+
             return ChainAccountModel(
-                chainId: chainAccontEntity.chainId!,
+                chainId: chainId,
                 accountId: accountId,
-                publicKey: chainAccontEntity.publicKey!,
-                cryptoType: UInt8(bitPattern: Int8(chainAccontEntity.cryptoType)),
-                ethereumBased: chainAccontEntity.ethereumBased?.boolValue ?? false
+                publicKey: publicKey,
+                cryptoType: UInt8(truncatingIfNeeded: chainAccountEntity.cryptoType),
+                ecosystem: chainAccountEntity.ethereumBased ? .ethereum : .substrate
             )
-        } ?? []
+        }
 
         var selectedCurrency: Currency?
         if let currency = entity.selectedCurrency,
@@ -66,7 +72,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             metaId: entity.metaId!,
             name: entity.name!,
             substrateAccountId: substrateAccountId,
-            substrateCryptoType: UInt8(bitPattern: Int8(entity.substrateCryptoType)),
+            substrateCryptoType: UInt8(truncatingIfNeeded: entity.substrateCryptoType),
             substratePublicKey: entity.substratePublicKey!,
             ethereumAddress: ethereumAddress,
             ethereumPublicKey: entity.ethereumPublicKey,
@@ -142,7 +148,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             chainAccountEntity?.chainId = chainAccount.chainId
             chainAccountEntity?.cryptoType = Int16(bitPattern: UInt16(chainAccount.cryptoType))
             chainAccountEntity?.publicKey = chainAccount.publicKey
-            chainAccountEntity?.ethereumBased = chainAccount.ethereumBased
+            chainAccountEntity?.ethereumBased = chainAccount.ecosystem == .ethereum
         }
 
         updatedEntityCurrency(for: entity, from: model, context: context)
