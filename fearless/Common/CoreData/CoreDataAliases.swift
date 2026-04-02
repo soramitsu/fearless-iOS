@@ -93,6 +93,12 @@ import Foundation
             @NSManaged public var issueMuted: Bool
         }
 
+        public class CDAssetVisibility: CoreDataStubObject {
+            @NSManaged public var assetId: String?
+            @NSManaged public var hidden: Bool
+            @NSManaged public var wallet: CDMetaAccount?
+        }
+
         public class CDMetaAccount: CoreDataStubObject {
             @NSManaged public var metaId: String?
             @NSManaged public var name: String?
@@ -125,6 +131,12 @@ import Foundation
             @NSManaged public var ethereumBased: Bool
             @NSManaged public var chainId: String?
             @NSManaged public var metaAccount: CDMetaAccount?
+        }
+
+        public class CDCustomChainNode: CoreDataStubObject {
+            @NSManaged public var chainId: String?
+            @NSManaged public var url: URL?
+            @NSManaged public var name: String?
         }
 
         public class CDAccountItem: CoreDataStubObject {}
@@ -212,8 +224,10 @@ public typealias CDStashItem = SSFAssetManagmentStorage.CDStashItem
     public typealias CDSingleValue = SSFAssetManagmentStorage.CDSingleValue
 #endif
 public typealias CDChainSettings = SSFAssetManagmentStorage.CDChainSettings
+public typealias CDAssetVisibility = SSFAssetManagmentStorage.CDAssetVisibility
 public typealias CDMetaAccount = SSFAssetManagmentStorage.CDMetaAccount
 public typealias CDChainAccount = SSFAssetManagmentStorage.CDChainAccount
+public typealias CDCustomChainNode = SSFAssetManagmentStorage.CDCustomChainNode
 public typealias CDPolkaswapRemoteSettings = SSFAssetManagmentStorage.CDPolkaswapRemoteSettings
 public typealias CDPhishingItem = SSFAssetManagmentStorage.CDPhishingItem
 public typealias CDPriceData = SSFAssetManagmentStorage.CDPriceData

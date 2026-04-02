@@ -23,11 +23,21 @@ class SelectedAccountSettingsTests: XCTestCase {
 
         // when
 
-        selectedAccountSettings.setup(runningCompletionIn: .global()) { _ in}
+        let setupExpectation = XCTestExpectation()
+        selectedAccountSettings.setup(runningCompletionIn: .main) { _ in
+            setupExpectation.fulfill()
+        }
+
+        wait(for: [setupExpectation], timeout: Constants.defaultExpectationDuration)
 
         XCTAssertNil(selectedAccountSettings.value)
 
-        selectedAccountSettings.save(value: selectedAccount.info, runningCompletionIn: .global()) { _ in }
+        let saveExpectation = XCTestExpectation()
+        selectedAccountSettings.save(value: selectedAccount.info, runningCompletionIn: .main) { _ in
+            saveExpectation.fulfill()
+        }
+
+        wait(for: [saveExpectation], timeout: Constants.defaultExpectationDuration)
 
         // then
 
@@ -70,11 +80,21 @@ class SelectedAccountSettingsTests: XCTestCase {
 
         // when
 
-        selectedAccountSettings.setup(runningCompletionIn: .global()) { _ in}
+        let setupExpectation = XCTestExpectation()
+        selectedAccountSettings.setup(runningCompletionIn: .main) { _ in
+            setupExpectation.fulfill()
+        }
+
+        wait(for: [setupExpectation], timeout: Constants.defaultExpectationDuration)
 
         XCTAssertEqual(selectedAccountSettings.value, initialSelectedAccount.info)
 
-        selectedAccountSettings.save(value: nextSelectedAccount, runningCompletionIn: .global()) { _ in }
+        let saveExpectation = XCTestExpectation()
+        selectedAccountSettings.save(value: nextSelectedAccount, runningCompletionIn: .main) { _ in
+            saveExpectation.fulfill()
+        }
+
+        wait(for: [saveExpectation], timeout: Constants.defaultExpectationDuration)
 
         // then
 

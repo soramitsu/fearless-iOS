@@ -44,8 +44,6 @@ final class BackupPasswordInteractor: BaseAccountImportInteractor {
             let accountItem = try importOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
             let updatedWallet = accountItem.replacingIsBackuped(true)
-            self?.settings.save(value: updatedWallet)
-
             return updatedWallet
         }
 
@@ -54,11 +52,17 @@ final class BackupPasswordInteractor: BaseAccountImportInteractor {
                 switch saveOperation.result {
                 case .success:
                     do {
-                        let accountItem = try importOperation
+                        let accountItem = try saveOperation
                             .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-                        self?.settings.setup()
-                        self?.output?.didCompleteAccountImport()
-                        self?.eventCenter.notify(with: SelectedAccountChanged(account: accountItem))
+                        self?.settings.save(value: accountItem, runningCompletionIn: .main) { [weak self] result in
+                            switch result {
+                            case let .success(savedAccount):
+                                self?.output?.didCompleteAccountImport()
+                                self?.eventCenter.notify(with: SelectedAccountChanged(account: savedAccount))
+                            case let .failure(error):
+                                self?.output?.didReceiveAccountImport(error: error)
+                            }
+                        }
                     } catch {
                         self?.output?.didReceiveAccountImport(error: error)
                     }

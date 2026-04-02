@@ -8,57 +8,58 @@ import SSFUtils
 
 class StakingInfoTests: XCTestCase {
     func testRewardsPolkadot() throws {
-        let asset = ChainModelGenerator.generateAssetWithId("887a17c7-1370-4de0-97dd-5422e294fa75", symbol: "dot")
-        let chain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 0)
-        let chainAsset = ChainAsset(chain: chain, asset: asset)
-        
         try performCalculatorServiceTest(
+            chainName: "Polkadot",
+            assetSymbol: "dot",
             address: "13mAjFVjFDpfa42k2dLdSnUyrSzK8vAySsoudnxX2EKVtfaq",
-            chainAsset: chainAsset,
-            chainFormat: .substrate(0),
-            assetPrecision: 10
+            expectedPrefix: 0
         )
     }
 
     func testRewardsKusama() throws {
-        let asset = ChainModelGenerator.generateAssetWithId("1e0c2ec6-935f-49bd-a854-5e12ee6c9f1b", symbol: "ksm")
-        let chain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 2)
-        let chainAsset = ChainAsset(chain: chain, asset: asset)
-        
         try performCalculatorServiceTest(
+            chainName: "Kusama",
+            assetSymbol: "ksm",
             address: "DayVh23V32nFhvm2WojKx2bYZF1CirRgW2Jti9TXN9zaiH5",
-            chainAsset: chainAsset,
-            chainFormat: .substrate(2),
-            assetPrecision: 12
+            expectedPrefix: 2
         )
     }
 
     func testRewardsWestend() throws {
-        let asset = ChainModelGenerator.generateAssetWithId("a3868e1b-922e-42d4-b73e-b41712f0843c", symbol: "wnd")
-        let chain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 42)
-        let chainAsset = ChainAsset(chain: chain, asset: asset)
-        
         try performCalculatorServiceTest(
+            chainName: "Westend",
+            assetSymbol: "wnd",
             address: "5CDayXd3cDCWpBkSXVsVfhE5bWKyTZdD3D1XUinR1ezS1sGn",
-            chainAsset: chainAsset,
-            chainFormat: .substrate(42),
-            assetPrecision: 12
+            expectedPrefix: 42
         )
     }
 
     // MARK: - Private
     private func performCalculatorServiceTest(
+        chainName: String,
+        assetSymbol: String,
         address: String,
-        chainAsset: ChainAsset,
-        chainFormat: ChainFormat,
-        assetPrecision: Int16
+        expectedPrefix: UInt16
     ) throws {
-
-        // given
         let logger = Logger.shared
-
         let storageFacade = SubstrateStorageTestFacade()
         let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: storageFacade)
+
+        guard !chainRegistry.availableChains.isEmpty else {
+            throw XCTSkip("Chain registry integration setup is unavailable in the current environment")
+        }
+
+        guard
+            let chain = chainRegistry.availableChains.first(where: { $0.name == chainName }),
+            let asset = chain.assets.first(where: { $0.symbol.lowercased() == assetSymbol.lowercased() })
+                ?? chain.assets.first(where: \.isUtility)
+        else {
+            throw XCTSkip("Missing integration test chain or asset for \(chainName)")
+        }
+
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
+        let chainFormat = SSFModels.ChainFormat.substrate(expectedPrefix)
+        let assetPrecision = Int16(asset.precision)
 
         let stakingServiceFactory = StakingServiceFactory(
             chainRegisty: chainRegistry,

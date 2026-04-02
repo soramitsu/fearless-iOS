@@ -7,10 +7,10 @@ set -euo pipefail
 # Usage:
 #   scripts/deps/enforce-ssf-pin.sh [REVISION] [WORKSPACE_DIR]
 # Defaults:
-#   REVISION=b820bfd2e5e67d0341c5a5b135633309baab2057
+#   REVISION=3ad0fe928333c9ac28972e3669ca733c6972f060
 #   WORKSPACE_DIR=current working directory
 
-REVISION="${1:-b820bfd2e5e67d0341c5a5b135633309baab2057}"
+REVISION="${1:-3ad0fe928333c9ac28972e3669ca733c6972f060}"
 ROOT="${2:-$(pwd)}"
 
 echo "[enforce-ssf-pin] Target revision: ${REVISION}"

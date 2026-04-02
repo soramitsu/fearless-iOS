@@ -3,12 +3,18 @@ set -euo pipefail
 
 # Patches known issues in shared-features-spm after SPM resolution.
 # - Adds missing RobinHood dependency to SSFModels target when absent.
+# - Makes IrohaCrypto explicitly link its bundled crypto xcframeworks.
 #
 # Usage:
 #   scripts/spm-shared-features-fixes.sh [BASE_DIR]
 # Default BASE_DIR: current working directory
 
 BASE_DIR="${1:-$(pwd)}"
+SOURCE_PACKAGES_DIR="${SOURCE_PACKAGES_DIR:-$BASE_DIR/SourcePackages}"
+SOURCE_PACKAGES_BASE="$(dirname "$SOURCE_PACKAGES_DIR")"
+ALLOW_DERIVEDDATA_FALLBACK="${ALLOW_DERIVEDDATA_FALLBACK:-0}"
+STRICT_REQUIRED_PATCHES="${STRICT_REQUIRED_PATCHES:-0}"
+REQUIRED_PATCH_COUNT=0
 
 patch_manifest() {
   local pkg_swift="$1/SourcePackages/checkouts/shared-features-spm/Package.swift"
@@ -16,6 +22,8 @@ patch_manifest() {
     echo "[spm-fixes] Package.swift not found at $pkg_swift (skip)"
     return 0
   fi
+
+  REQUIRED_PATCH_COUNT=$((REQUIRED_PATCH_COUNT + 1))
 
   # Normalize Web3 dependency to the soramitsu fork to avoid duplicate package identities.
   /usr/bin/sed -E -i '' \
@@ -104,16 +112,26 @@ patch_manifest() {
   else
     rm -f "$pkg_tmp"
   fi
+
+  if ! /usr/bin/grep -q 'linkedFramework("blake2lib")' "$pkg_swift"; then
+    /usr/bin/perl -0pi -e 's/cSettings:\s*\[\s*\.headerSearchPath\("\."\)\s*\]/cSettings: [ .headerSearchPath(".") ],\n            linkerSettings: [\n                .linkedFramework("blake2lib"),\n                .linkedFramework("libed25519"),\n                .linkedFramework("sr25519lib"),\n                .linkedFramework("sorawallet")\n            ]/g' "$pkg_swift" || true
+
+    if /usr/bin/grep -q 'linkedFramework("blake2lib")' "$pkg_swift"; then
+      echo "[spm-fixes] Added explicit IrohaCrypto linker settings for bundled crypto xcframeworks"
+    fi
+  fi
 }
 
-# Try workspace-level SourcePackages first
-patch_manifest "$BASE_DIR"
+# Try the explicit SourcePackages root first.
+patch_manifest "$SOURCE_PACKAGES_BASE"
 
-# Also try DerivedData paths, in case SPM ignores clonedSourcePackagesDirPath
-for dd in "$HOME/Library/Developer/Xcode/DerivedData"/* "$BASE_DIR/DerivedData"/*; do
-  [[ -d "$dd/SourcePackages/checkouts/shared-features-spm" ]] || continue
-  patch_manifest "$dd"
-done
+# Fall back to DerivedData only when explicitly enabled.
+if [[ "$ALLOW_DERIVEDDATA_FALLBACK" == "1" ]]; then
+  for dd in "$HOME/Library/Developer/Xcode/DerivedData"/* "$BASE_DIR/DerivedData"/*; do
+    [[ -d "$dd/SourcePackages/checkouts/shared-features-spm" ]] || continue
+    patch_manifest "$dd"
+  done
+fi
 
 echo "[spm-fixes] Completed shared-features-spm fixes"
 
@@ -147,15 +165,17 @@ patch_private_key_calls() {
   echo "[spm-fixes] Patched $patched file(s) under $root"
 }
 
-# Apply in workspace and common DerivedData roots
-patch_private_key_calls "$BASE_DIR"
-for dd in "$HOME/Library/Developer/Xcode/DerivedData" "$BASE_DIR/DerivedData"; do
-  [[ -d "$dd" ]] || continue
-  for sub in "$dd"/*; do
-    [[ -d "$sub" ]] || continue
-    patch_private_key_calls "$sub"
+# Apply in the explicit SourcePackages root first.
+patch_private_key_calls "$SOURCE_PACKAGES_BASE"
+if [[ "$ALLOW_DERIVEDDATA_FALLBACK" == "1" ]]; then
+  for dd in "$HOME/Library/Developer/Xcode/DerivedData" "$BASE_DIR/DerivedData"; do
+    [[ -d "$dd" ]] || continue
+    for sub in "$dd"/*; do
+      [[ -d "$sub" ]] || continue
+      patch_private_key_calls "$sub"
+    done
   done
-done
+fi
 
 echo "[spm-fixes] Completed EthereumPrivateKey call patches (with verification)"
 
@@ -226,31 +246,42 @@ EOF
   fi
 }
 
-patch_address_factory_struct "$BASE_DIR"
-for dd in "$HOME/Library/Developer/Xcode/DerivedData"/* "$BASE_DIR/DerivedData"/*; do
-  patch_address_factory_struct "$dd"
-done
+patch_address_factory_struct "$SOURCE_PACKAGES_BASE"
+if [[ "$ALLOW_DERIVEDDATA_FALLBACK" == "1" ]]; then
+  for dd in "$HOME/Library/Developer/Xcode/DerivedData"/* "$BASE_DIR/DerivedData"/*; do
+    patch_address_factory_struct "$dd"
+  done
+fi
 
 echo "[spm-fixes] Converted SSFCrypto AddressFactory to struct (instance-friendly)"
 
-# 4) Patch scrypt SSE2 selection to avoid undefined symbol on arm64 simulators
+# 4) Patch scrypt SIMD selection/headers to avoid simulator arch issues
 patch_scrypt_sse2_guard() {
   local base="$1/SourcePackages/checkouts/shared-features-spm/Sources/scrypt"
   local file="$base/crypto_scrypt.c"
+  local header="$base/include/scrypt.h"
   [[ -f "$file" ]] || return 0
   # Replace simulator-preferring SSE2 with SSSE3 feature guard, so on arm64 sim we don't reference the SSE2 symbol.
   /usr/bin/sed -i '' \
     -e $'s/#if TARGET_IPHONE_SIMULATOR/#if defined(__SSSE3__)/' \
     "$file" || true
+
+  # Newer shared-features revisions include arm_neon unconditionally in the public
+  # scrypt header, which breaks x86_64 simulator dependency scanning.
+  if [[ -f "$header" ]]; then
+    /usr/bin/perl -0pi -e 's/#include <arm_neon\.h>/#if defined(__ARM_NEON) || defined(__ARM_NEON__) || defined(__aarch64__) || defined(_M_ARM64)\n#include <arm_neon.h>\n#endif/' "$header" || true
+  fi
 }
 
-# Apply in workspace and DerivedData
-patch_scrypt_sse2_guard "$BASE_DIR"
-for dd in "$HOME/Library/Developer/Xcode/DerivedData"/* "$BASE_DIR/DerivedData"/*; do
-  patch_scrypt_sse2_guard "$dd"
-done
+# Apply in the explicit SourcePackages root first.
+patch_scrypt_sse2_guard "$SOURCE_PACKAGES_BASE"
+if [[ "$ALLOW_DERIVEDDATA_FALLBACK" == "1" ]]; then
+  for dd in "$HOME/Library/Developer/Xcode/DerivedData"/* "$BASE_DIR/DerivedData"/*; do
+    patch_scrypt_sse2_guard "$dd"
+  done
+fi
 
-echo "[spm-fixes] Applied scrypt SSE2 guard patch (arm64-sim safe)"
+echo "[spm-fixes] Applied scrypt simulator arch guard patch"
 
 # 5) SSFPolkaswap: make addressFactory a type reference when used as a dependency token
 patch_polkaswap_addressfactory_usage() {
@@ -303,13 +334,22 @@ patch_polkaswap_addressfactory_usage() {
   done
 }
 
-patch_polkaswap_addressfactory_usage "$BASE_DIR"
-for dd in "$HOME/Library/Developer/Xcode/DerivedData" "$BASE_DIR/DerivedData"; do
-  [[ -d "$dd" ]] || continue
-  for sub in "$dd"/*; do
-    [[ -d "$sub" ]] || continue
-    patch_polkaswap_addressfactory_usage "$sub"
+patch_polkaswap_addressfactory_usage "$SOURCE_PACKAGES_BASE"
+if [[ "$ALLOW_DERIVEDDATA_FALLBACK" == "1" ]]; then
+  for dd in "$HOME/Library/Developer/Xcode/DerivedData" "$BASE_DIR/DerivedData"; do
+    [[ -d "$dd" ]] || continue
+    for sub in "$dd"/*; do
+      [[ -d "$sub" ]] || continue
+      patch_polkaswap_addressfactory_usage "$sub"
+    done
   done
-done
+fi
 
 echo "[spm-fixes] Patched SSFPolkaswap addressFactory usage (type tokens)"
+
+if [[ "$STRICT_REQUIRED_PATCHES" == "1" && "$REQUIRED_PATCH_COUNT" -eq 0 ]]; then
+  echo "[spm-fixes] No shared-features-spm checkout was available to patch" >&2
+  exit 1
+fi
+
+echo "[spm-fixes] Required checkout patch count: $REQUIRED_PATCH_COUNT"

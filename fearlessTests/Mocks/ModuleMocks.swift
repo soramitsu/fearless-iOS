@@ -7385,9 +7385,9 @@ class MockCrowdloanContributionConfirmInteractorOutputProtocol: CrowdloanContrib
         )
     }
 
-    func didReceiveDisplayAddress(result p0: Result<DisplayAddress, Error>) {
+    func didReceiveDisplayAddress(result p0: Result<fearless.DisplayAddress, Error>) {
         return cuckoo_manager.call(
-            "didReceiveDisplayAddress(result p0: Result<DisplayAddress, Error>)",
+            "didReceiveDisplayAddress(result p0: Result<fearless.DisplayAddress, Error>)",
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -7510,10 +7510,10 @@ class MockCrowdloanContributionConfirmInteractorOutputProtocol: CrowdloanContrib
             ))
         }
         
-        func didReceiveDisplayAddress<M1: Cuckoo.Matchable>(result p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<DisplayAddress, Error>)> where M1.MatchedType == Result<DisplayAddress, Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<DisplayAddress, Error>)>] = [wrap(matchable: p0) { $0 }]
+        func didReceiveDisplayAddress<M1: Cuckoo.Matchable>(result p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<fearless.DisplayAddress, Error>)> where M1.MatchedType == Result<fearless.DisplayAddress, Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<fearless.DisplayAddress, Error>)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanContributionConfirmInteractorOutputProtocol.self,
-                method: "didReceiveDisplayAddress(result p0: Result<DisplayAddress, Error>)",
+                method: "didReceiveDisplayAddress(result p0: Result<fearless.DisplayAddress, Error>)",
                 parameterMatchers: matchers
             ))
         }
@@ -7624,10 +7624,10 @@ class MockCrowdloanContributionConfirmInteractorOutputProtocol: CrowdloanContrib
         
         
         @discardableResult
-        func didReceiveDisplayAddress<M1: Cuckoo.Matchable>(result p0: M1) -> Cuckoo.__DoNotUse<(Result<DisplayAddress, Error>), Void> where M1.MatchedType == Result<DisplayAddress, Error> {
-            let matchers: [Cuckoo.ParameterMatcher<(Result<DisplayAddress, Error>)>] = [wrap(matchable: p0) { $0 }]
+        func didReceiveDisplayAddress<M1: Cuckoo.Matchable>(result p0: M1) -> Cuckoo.__DoNotUse<(Result<fearless.DisplayAddress, Error>), Void> where M1.MatchedType == Result<fearless.DisplayAddress, Error> {
+            let matchers: [Cuckoo.ParameterMatcher<(Result<fearless.DisplayAddress, Error>)>] = [wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
-                "didReceiveDisplayAddress(result p0: Result<DisplayAddress, Error>)",
+                "didReceiveDisplayAddress(result p0: Result<fearless.DisplayAddress, Error>)",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -7764,7 +7764,7 @@ class CrowdloanContributionConfirmInteractorOutputProtocolStub:CrowdloanContribu
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-    func didReceiveDisplayAddress(result p0: Result<DisplayAddress, Error>) {
+    func didReceiveDisplayAddress(result p0: Result<fearless.DisplayAddress, Error>) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -45974,5 +45974,4 @@ class UsernameSetupWireframeProtocolStub:UsernameSetupWireframeProtocol, @unchec
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
-
 

@@ -9,12 +9,12 @@ class SigningWrapperTests: XCTestCase {
     static let substrateSeed: String = "18691a833f2c7f8c8738519ad04ac8e1ce16fc160c738ce36708defbd841e23c"
     static let ethereumSeed: String = "0xe0fa453f7646c45cbeecac10d4f48eb90868ec15d91cf0a46d9cf974f7862edf"
 
-    private static var testSettings: SelectedWalletSettings = {
+    private static var testSettings: SelectedWalletSettings {
         SelectedWalletSettings(
             storageFacade: UserDataStorageTestFacade(),
             operationQueue: OperationQueue()
         )
-    }()
+    }
 
     func testSr25519CreationFromMnemonicAndSigning() throws {
         let keychain = InMemoryKeychain()

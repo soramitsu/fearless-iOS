@@ -2,6 +2,7 @@ import Foundation
 @testable import fearless
 import Cuckoo
 import RobinHood
+import SSFModels
 
 extension MockEventCenterProtocol {
     func applyingDefaultStub() -> MockEventCenterProtocol {
@@ -122,7 +123,12 @@ extension MockStakingRemoteSubscriptionServiceProtocol {
 extension MockStakingAccountUpdatingServiceProtocol {
     func applyDefault() -> MockStakingAccountUpdatingServiceProtocol {
         stub(self) { stub in
-            stub.setupSubscription(for: any(), chainAsset: any(), chainFormat: any(), stakingType: any()).thenDoNothing()
+            stub.setupSubscription(
+                for: any(),
+                chainAsset: any(),
+                chainFormat: any(fearless.ChainFormat.self),
+                stakingType: any()
+            ).thenDoNothing()
             stub.clearSubscription().thenDoNothing()
         }
 

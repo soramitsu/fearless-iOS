@@ -36,7 +36,7 @@ enum AccountGenerator {
             accountId: Data.random(of: 32)!,
             publicKey: Data.random(of: 32)!,
             cryptoType: 0,
-            ethereumBased: isEthereum
+            ecosystem: isEthereum ? .ethereum : .substrate
         )
     }
 }

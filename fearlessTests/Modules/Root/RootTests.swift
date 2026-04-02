@@ -58,8 +58,8 @@ class RootTests: XCTestCase {
 
         // then
 
-        XCTAssertFalse(try keystore.checkKey(for: KeystoreTag.pincode.rawValue))
         wait(for: [splashExpectation, onboardingExpectation], timeout: Constants.defaultExpectationDuration)
+        XCTAssertTrue(try keystore.checkKey(for: KeystoreTag.pincode.rawValue))
     }
 
     func testPincodeSetupDecision() {
@@ -73,7 +73,14 @@ class RootTests: XCTestCase {
         )
 
         let selectedAccount = AccountGenerator.generateMetaAccount()
-        settings.save(value: selectedAccount)
+        let saveExpectation = XCTestExpectation()
+        settings.save(value: selectedAccount, runningCompletionIn: .main) { result in
+            if case let .failure(error) = result {
+                XCTFail("Unexpected save error: \(error)")
+            }
+            saveExpectation.fulfill()
+        }
+        wait(for: [saveExpectation], timeout: Constants.defaultExpectationDuration)
 
         let keystore = InMemoryKeychain()
         let userDefaultsStorage = InMemorySettingsManager()
@@ -97,6 +104,7 @@ class RootTests: XCTestCase {
             stub.showPincodeSetup(on: any()).then { _ in
                 pincodeExpectation.fulfill()
             }
+            stub.showMain(on: any()).thenDoNothing()
         }
 
         // when
@@ -121,7 +129,14 @@ class RootTests: XCTestCase {
         )
 
         let selectedAccount = AccountGenerator.generateMetaAccount()
-        settings.save(value: selectedAccount)
+        let saveExpectation = XCTestExpectation()
+        settings.save(value: selectedAccount, runningCompletionIn: .main) { result in
+            if case let .failure(error) = result {
+                XCTFail("Unexpected save error: \(error)")
+            }
+            saveExpectation.fulfill()
+        }
+        wait(for: [saveExpectation], timeout: Constants.defaultExpectationDuration)
 
         let expectedPincode = "123456"
         try keystore.saveKey(expectedPincode.data(using: .utf8)!,
@@ -147,6 +162,7 @@ class RootTests: XCTestCase {
             stub.showLocalAuthentication(on: any()).then { _ in
                 mainScreenExpectation.fulfill()
             }
+            stub.showMain(on: any()).thenDoNothing()
         }
 
         // when

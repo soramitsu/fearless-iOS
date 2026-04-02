@@ -1585,6 +1585,7 @@ import Web3
 import SSFChainRegistry
 import SSFRuntimeCodingService
 import SSFChainConnection
+import TonAPI
 @testable import fearless
 @testable import SoraKeystore
 
@@ -1702,6 +1703,17 @@ class MockChainRegistryProtocol: fearless.ChainRegistryProtocol, Cuckoo.Protocol
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub!.getEthereumConnection(for: p0)
+        )
+    }
+
+    func getTonApiAssembly() throws -> TonAPIAssembly {
+        return try cuckoo_manager.callThrows(
+            "getTonApiAssembly() throws -> TonAPIAssembly",
+            parameters: (),
+            escapingParameters: (),
+            errorType: Swift.Error.self,
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: try __defaultImplStub!.getTonApiAssembly()
         )
     }
 
@@ -1826,6 +1838,14 @@ class MockChainRegistryProtocol: fearless.ChainRegistryProtocol, Cuckoo.Protocol
             let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainModel.Id)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockChainRegistryProtocol.self,
                 method: "getEthereumConnection(for p0: SSFModels.ChainModel.Id) -> Web3.Eth?",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func getTonApiAssembly() -> Cuckoo.ProtocolStubThrowingFunction<(), TonAPIAssembly, Swift.Error> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockChainRegistryProtocol.self,
+                method: "getTonApiAssembly() throws -> TonAPIAssembly",
                 parameterMatchers: matchers
             ))
         }
@@ -1977,6 +1997,17 @@ class MockChainRegistryProtocol: fearless.ChainRegistryProtocol, Cuckoo.Protocol
                 sourceLocation: sourceLocation
             )
         }
+
+        @discardableResult
+        func getTonApiAssembly() -> Cuckoo.__DoNotUse<(), TonAPIAssembly> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+                "getTonApiAssembly() throws -> TonAPIAssembly",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
         
         
         @discardableResult
@@ -2088,6 +2119,10 @@ class ChainRegistryProtocolStub:fearless.ChainRegistryProtocol, @unchecked Senda
     
     func getEthereumConnection(for p0: SSFModels.ChainModel.Id) -> Web3.Eth? {
         return DefaultValueRegistry.defaultValue(for: (Web3.Eth?).self)
+    }
+
+    func getTonApiAssembly() throws -> TonAPIAssembly {
+        return DefaultValueRegistry.defaultValue(for: (TonAPIAssembly).self)
     }
     
     func chainsUnsubscribe(_ p0: AnyObject) {
@@ -3800,9 +3835,9 @@ class MockStakingAccountUpdatingServiceProtocol: StakingAccountUpdatingServicePr
     }
 
 
-    func setupSubscription(for p0: AccountId, chainAsset p1: SSFModels.ChainAsset, chainFormat p2: ChainFormat, stakingType p3: StakingType) throws {
+    func setupSubscription(for p0: AccountId, chainAsset p1: SSFModels.ChainAsset, chainFormat p2: fearless.ChainFormat, stakingType p3: StakingType) throws {
         return try cuckoo_manager.callThrows(
-            "setupSubscription(for p0: AccountId, chainAsset p1: SSFModels.ChainAsset, chainFormat p2: ChainFormat, stakingType p3: StakingType) throws",
+            "setupSubscription(for p0: AccountId, chainAsset p1: SSFModels.ChainAsset, chainFormat p2: fearless.ChainFormat, stakingType p3: StakingType) throws",
             parameters: (p0, p1, p2, p3),
             escapingParameters: (p0, p1, p2, p3),
             errorType: Swift.Error.self,
@@ -3828,10 +3863,10 @@ class MockStakingAccountUpdatingServiceProtocol: StakingAccountUpdatingServicePr
             self.cuckoo_manager = manager
         }
         
-        func setupSubscription<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(for p0: M1, chainAsset p1: M2, chainFormat p2: M3, stakingType p3: M4) -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(AccountId, SSFModels.ChainAsset, ChainFormat, StakingType),Swift.Error> where M1.MatchedType == AccountId, M2.MatchedType == SSFModels.ChainAsset, M3.MatchedType == ChainFormat, M4.MatchedType == StakingType {
-            let matchers: [Cuckoo.ParameterMatcher<(AccountId, SSFModels.ChainAsset, ChainFormat, StakingType)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }, wrap(matchable: p3) { $0.3 }]
+        func setupSubscription<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(for p0: M1, chainAsset p1: M2, chainFormat p2: M3, stakingType p3: M4) -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(AccountId, SSFModels.ChainAsset, fearless.ChainFormat, StakingType),Swift.Error> where M1.MatchedType == AccountId, M2.MatchedType == SSFModels.ChainAsset, M3.MatchedType == fearless.ChainFormat, M4.MatchedType == StakingType {
+            let matchers: [Cuckoo.ParameterMatcher<(AccountId, SSFModels.ChainAsset, fearless.ChainFormat, StakingType)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }, wrap(matchable: p3) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingAccountUpdatingServiceProtocol.self,
-                method: "setupSubscription(for p0: AccountId, chainAsset p1: SSFModels.ChainAsset, chainFormat p2: ChainFormat, stakingType p3: StakingType) throws",
+                method: "setupSubscription(for p0: AccountId, chainAsset p1: SSFModels.ChainAsset, chainFormat p2: fearless.ChainFormat, stakingType p3: StakingType) throws",
                 parameterMatchers: matchers
             ))
         }
@@ -3858,10 +3893,10 @@ class MockStakingAccountUpdatingServiceProtocol: StakingAccountUpdatingServicePr
         
         
         @discardableResult
-        func setupSubscription<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(for p0: M1, chainAsset p1: M2, chainFormat p2: M3, stakingType p3: M4) -> Cuckoo.__DoNotUse<(AccountId, SSFModels.ChainAsset, ChainFormat, StakingType), Void> where M1.MatchedType == AccountId, M2.MatchedType == SSFModels.ChainAsset, M3.MatchedType == ChainFormat, M4.MatchedType == StakingType {
-            let matchers: [Cuckoo.ParameterMatcher<(AccountId, SSFModels.ChainAsset, ChainFormat, StakingType)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }, wrap(matchable: p3) { $0.3 }]
+        func setupSubscription<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(for p0: M1, chainAsset p1: M2, chainFormat p2: M3, stakingType p3: M4) -> Cuckoo.__DoNotUse<(AccountId, SSFModels.ChainAsset, fearless.ChainFormat, StakingType), Void> where M1.MatchedType == AccountId, M2.MatchedType == SSFModels.ChainAsset, M3.MatchedType == fearless.ChainFormat, M4.MatchedType == StakingType {
+            let matchers: [Cuckoo.ParameterMatcher<(AccountId, SSFModels.ChainAsset, fearless.ChainFormat, StakingType)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }, wrap(matchable: p3) { $0.3 }]
             return cuckoo_manager.verify(
-                "setupSubscription(for p0: AccountId, chainAsset p1: SSFModels.ChainAsset, chainFormat p2: ChainFormat, stakingType p3: StakingType) throws",
+                "setupSubscription(for p0: AccountId, chainAsset p1: SSFModels.ChainAsset, chainFormat p2: fearless.ChainFormat, stakingType p3: StakingType) throws",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -3886,7 +3921,7 @@ class StakingAccountUpdatingServiceProtocolStub:StakingAccountUpdatingServicePro
 
 
     
-    func setupSubscription(for p0: AccountId, chainAsset p1: SSFModels.ChainAsset, chainFormat p2: ChainFormat, stakingType p3: StakingType) throws {
+    func setupSubscription(for p0: AccountId, chainAsset p1: SSFModels.ChainAsset, chainFormat p2: fearless.ChainFormat, stakingType p3: StakingType) throws {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -4381,5 +4416,3 @@ class StakingServiceFactoryProtocolStub:StakingServiceFactoryProtocol, @unchecke
         return DefaultValueRegistry.defaultValue(for: (RewardCalculatorServiceProtocol).self)
     }
 }
-
-

@@ -159,7 +159,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
-        "revision" : "b820bfd2e5e67d0341c5a5b135633309baab2057"
+        "revision" : "3ad0fe928333c9ac28972e3669ca733c6972f060"
       }
     },
     {
@@ -421,15 +421,6 @@
       "state" : {
         "revision" : "a526779488e5fe2fa993d9614f11f57b00cc1858",
         "version" : "7.7.7"
-      }
-    },
-    {
-      "identity" : "web3.swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/bnsports/Web3.swift.git",
-      "state" : {
-        "revision" : "455588927d55d0798b539f93f6c3880913307dc9",
-        "version" : "7.7.9"
       }
     },
     {

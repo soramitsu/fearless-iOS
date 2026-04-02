@@ -79,24 +79,6 @@ public extension ChainModel.BlockExplorer {
     }
 }
 
-public extension ChainModel.ExternalApiSet {
-    init(
-        staking: ChainModel.BlockExplorer? = nil,
-        history: ChainModel.BlockExplorer? = nil,
-        crowdloans: ChainModel.ExternalResource? = nil,
-        explorers: [ChainModel.ExternalApiExplorer]? = nil,
-        pricing: ChainModel.BlockExplorer? = nil
-    ) {
-        self.init(
-            staking: staking,
-            history: history,
-            crowdloans: crowdloans,
-            explorers: explorers,
-            pricing: pricing
-        )
-    }
-}
-
 // MARK: - XCM compatibility
 
 public extension XcmAvailableAsset {

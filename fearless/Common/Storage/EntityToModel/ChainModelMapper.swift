@@ -328,7 +328,13 @@ final class ChainModelMapper {
         let explorers = createExplorers(from: entity)
 
         if staking != nil || history != nil || crowdloans != nil || explorers != nil {
-            return ChainModel.ExternalApiSet(staking: staking, history: history, crowdloans: crowdloans, explorers: explorers)
+            return ChainModel.ExternalApiSet(
+                staking: staking,
+                history: history,
+                crowdloans: crowdloans,
+                explorers: explorers,
+                pricing: nil
+            )
         } else {
             return nil
         }

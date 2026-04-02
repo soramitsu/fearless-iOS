@@ -33,8 +33,6 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
         let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
             let accountItem = try importOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            self?.settings.save(value: accountItem)
-
             return accountItem
         }
 
@@ -45,10 +43,15 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
                     do {
                         let accountItem = try importOperation
                             .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-                        self?.settings.setup()
-                        self?.eventCenter.notify(with: SelectedAccountChanged(account: accountItem))
-                        self?.presenter?.didCompleteAccountImport()
+                        self?.settings.save(value: accountItem, runningCompletionIn: .main) { [weak self] result in
+                            switch result {
+                            case let .success(savedAccount):
+                                self?.eventCenter.notify(with: SelectedAccountChanged(account: savedAccount))
+                                self?.presenter?.didCompleteAccountImport()
+                            case let .failure(error):
+                                self?.presenter?.didReceiveAccountImport(error: error)
+                            }
+                        }
                     } catch {
                         self?.presenter?.didReceiveAccountImport(error: error)
                     }

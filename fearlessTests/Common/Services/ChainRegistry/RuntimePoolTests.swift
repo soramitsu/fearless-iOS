@@ -14,20 +14,36 @@ class RuntimePoolTests: XCTestCase {
 
         let chain = ChainModelGenerator.generate(count: 1).first!
 
-        // Use a lightweight test double instead of a generated Cuckoo mock
-        final class TestRuntimeProvider: RuntimeProviderProtocol {
-            var runtimeSpecVersion: RuntimeSpecVersion = .defaultVersion
-            var snapshot: RuntimeSnapshot?
+        final class CountingRuntimeProvider: RuntimeProviderProtocol {
             var setupCalls = 0
             var cleanupCalls = 0
-            func setup() { setupCalls += 1 }
-            func cleanup() { cleanupCalls += 1 }
-            func readySnapshot() async throws -> RuntimeSnapshot { throw SSFRuntimeCodingService.RuntimeProviderError.providerUnavailable }
-            func fetchCoderFactoryOperation() -> BaseOperation<SSFRuntimeCodingService.RuntimeCoderFactoryProtocol> { BaseOperation() }
-            func fetchCoderFactory() async throws -> SSFRuntimeCodingService.RuntimeCoderFactoryProtocol { throw SSFRuntimeCodingService.RuntimeProviderError.providerUnavailable }
+            var runtimeSpecVersion: RuntimeSpecVersion = .defaultVersion
+            var snapshot: RuntimeSnapshot?
+
+            func setup() {
+                setupCalls += 1
+            }
+
+            func setupHot() {}
+
+            func cleanup() {
+                cleanupCalls += 1
+            }
+
+            func readySnapshot() async throws -> RuntimeSnapshot {
+                throw SSFRuntimeCodingService.RuntimeProviderError.providerUnavailable
+            }
+
+            func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
+                BaseOperation()
+            }
+
+            func fetchCoderFactory() async throws -> RuntimeCoderFactoryProtocol {
+                throw SSFRuntimeCodingService.RuntimeProviderError.providerUnavailable
+            }
         }
 
-        let expectedRuntimeProvider = TestRuntimeProvider()
+        let expectedRuntimeProvider = CountingRuntimeProvider()
 
         // when
         stub(factory) { stub in

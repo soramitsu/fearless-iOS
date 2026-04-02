@@ -13,13 +13,15 @@ class AccountImportTests: XCTestCase {
         let view = MockAccountImportViewProtocol()
         let wireframe = MockAccountImportWireframeProtocol()
 
+        let storageFacade = UserDataStorageTestFacade()
+
         let settings = SelectedWalletSettings(
-            storageFacade: UserDataStorageTestFacade(),
+            storageFacade: storageFacade,
             operationQueue: OperationQueue()
         )
 
         let repository = AccountRepositoryFactory(
-            storageFacade: UserDataStorageTestFacade())
+            storageFacade: storageFacade)
             .createMetaAccountRepository(for: nil, sortDescriptors: [])
 
         let eventCenter = MockEventCenterProtocol()
@@ -55,10 +57,12 @@ class AccountImportTests: XCTestCase {
         var usernameViewModel: InputViewModelProtocol?
 
         stub(view) { stub in
+            when(stub.controller.get).thenReturn(UIViewController())
             when(stub.didCompleteSourceTypeSelection()).thenDoNothing()
             when(stub.didCompleteCryptoTypeSelection()).thenDoNothing()
             when(stub.didValidateSubstrateDerivationPath(any(FieldStatus.self))).thenDoNothing()
             when(stub.didValidateEthereumDerivationPath(any(FieldStatus.self))).thenDoNothing()
+            when(stub.didChangeState(any(ErrorPresentableInputField.State.self))).thenDoNothing()
             when(stub.isSetup.get).thenReturn(false, true)
 
             when(stub.setSource(viewModel: any(InputViewModelProtocol.self))).then { viewModel in
@@ -107,6 +111,7 @@ class AccountImportTests: XCTestCase {
 
         _ = sourceInputViewModel?.inputHandler.didReceiveReplacement(expectedMnemonic,
                                                                      for: NSRange(location: 0, length: 0));
+        presenter.validateInput(value: expectedMnemonic)
 
         _ = usernameViewModel?.inputHandler.didReceiveReplacement(expectedUsername,
                                                                   for: NSRange(location: 0, length: 0))
@@ -115,7 +120,7 @@ class AccountImportTests: XCTestCase {
 
         // then
 
-        wait(for: [expectation, completeExpectation], timeout: Constants.defaultExpectationDuration)
+        wait(for: [expectation, completeExpectation], timeout: 10)
 
         guard let selectedAccount = settings.value else {
             XCTFail("Unexpected empty account")

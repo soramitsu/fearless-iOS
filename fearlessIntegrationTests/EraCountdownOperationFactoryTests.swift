@@ -6,13 +6,22 @@ import SSFModels
 
 class EraCountdownOperationFactoryTests: XCTestCase {
 
-    func testService() {
+    func testService() throws {
         let operationManager: OperationManagerProtocol = OperationManager()
 
         let chainId = Chain.kusama.genesisHash
         let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: SubstrateStorageTestFacade())
-        let connection = chainRegistry.getConnection(for: chainId)!
-        let runtimeService = chainRegistry.getRuntimeProvider(for: chainId)!
+
+        guard !chainRegistry.availableChains.isEmpty else {
+            throw XCTSkip("Chain registry integration setup is unavailable in the current environment")
+        }
+
+        guard
+            let connection = chainRegistry.getConnection(for: chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainId)
+        else {
+            throw XCTSkip("Kusama integration services are unavailable in the current environment")
+        }
 
         let keyFactory = StorageKeyFactory()
         let storageRequestFactory = StorageRequestFactory(

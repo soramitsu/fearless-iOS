@@ -66,8 +66,6 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
             let accountItem = try importOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            self?.settings.save(value: accountItem)
-
             return accountItem
         }
 
@@ -90,13 +88,19 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
     private func handleCreateAccountOperation(result: Result<MetaAccountModel, Error>?) {
         switch result {
         case let .success(wallet):
-            settings.setup()
-            eventCenter.notify(with: SelectedAccountChanged(account: wallet))
-            switch flow {
-            case let .wallet(request):
-                saveBackupAccount(wallet: wallet, requestType: .mnemonic(request))
-            default:
-                break
+            settings.save(value: wallet, runningCompletionIn: .main) { [weak self] result in
+                switch result {
+                case let .success(savedWallet):
+                    self?.eventCenter.notify(with: SelectedAccountChanged(account: savedWallet))
+                    switch self?.flow {
+                    case let .wallet(request):
+                        self?.saveBackupAccount(wallet: savedWallet, requestType: .mnemonic(request))
+                    default:
+                        break
+                    }
+                case let .failure(error):
+                    self?.output?.didReceive(error: error)
+                }
             }
 
         case let .failure(error):

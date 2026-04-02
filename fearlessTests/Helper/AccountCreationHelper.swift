@@ -55,11 +55,19 @@ final class AccountCreationHelper {
         keychain: KeystoreProtocol,
         settings: SelectedWalletSettings
     ) throws {
+        let resolvedEthereumDerivationPath: String? = {
+            guard ethereumSeed != nil else {
+                return nil
+            }
+
+            return ethereumDerivationPath ?? DerivationPathConstants.defaultEthereum
+        }()
+
         let request = MetaAccountImportSeedRequest(substrateSeed: substrateSeed,
                                                    ethereumSeed: ethereumSeed,
                                                    username: username,
                                                    substrateDerivationPath: substrateDerivationPath,
-                                                   ethereumDerivationPath: ethereumDerivationPath,
+                                                   ethereumDerivationPath: resolvedEthereumDerivationPath,
                                                    cryptoType: cryptoType)
 
         let operation = MetaAccountOperationFactory(keystore: keychain)
@@ -110,7 +118,42 @@ final class AccountCreationHelper {
     }
 
     static func selectMetaAccount(_ accountItem: fearless.MetaAccountModel, settings: SelectedWalletSettings) throws {
-        settings.save(value: accountItem)
-        settings.setup(runningCompletionIn: .global()) { _ in}
+        let saveSemaphore = DispatchSemaphore(value: 0)
+        var saveResult: Result<fearless.MetaAccountModel, Error>?
+
+        settings.save(value: accountItem, runningCompletionIn: nil) { result in
+            saveResult = result
+            saveSemaphore.signal()
+        }
+
+        _ = saveSemaphore.wait(timeout: .now() + 5)
+
+        switch saveResult {
+        case .success:
+            break
+        case let .failure(error):
+            throw error
+        case .none:
+            throw BaseOperationError.parentOperationCancelled
+        }
+
+        let setupSemaphore = DispatchSemaphore(value: 0)
+        var setupResult: Result<fearless.MetaAccountModel?, Error>?
+
+        settings.setup(runningCompletionIn: nil) { result in
+            setupResult = result
+            setupSemaphore.signal()
+        }
+
+        _ = setupSemaphore.wait(timeout: .now() + 5)
+
+        switch setupResult {
+        case .success:
+            break
+        case let .failure(error):
+            throw error
+        case .none:
+            throw BaseOperationError.parentOperationCancelled
+        }
     }
 }

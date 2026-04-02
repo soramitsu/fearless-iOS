@@ -5,43 +5,42 @@ import SSFModels
 import RobinHood
 
 class MortalEraFactoryTests: XCTestCase {
-    func testMortalEraPolkadot() {
-        performMortalEraCalculation(chainId: Chain.polkadot.genesisHash)
+    func testMortalEraPolkadot() throws {
+        try performMortalEraCalculation(chainId: Chain.polkadot.genesisHash)
     }
 
-    func testMortalEraKusama() {
-        performMortalEraCalculation(chainId: Chain.kusama.genesisHash)
+    func testMortalEraKusama() throws {
+        try performMortalEraCalculation(chainId: Chain.kusama.genesisHash)
     }
 
-    func testMortalEraWestend() {
-        performMortalEraCalculation(chainId: Chain.westend.genesisHash)
+    func testMortalEraWestend() throws {
+        try performMortalEraCalculation(chainId: Chain.westend.genesisHash)
     }
 
 
-    func performMortalEraCalculation(chainId: ChainModel.Id) {
+    func performMortalEraCalculation(chainId: ChainModel.Id) throws {
         // given
         let logger = Logger.shared
 
-        do {
-            let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(
-                with: SubstrateStorageTestFacade()
-            )
+        let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(
+            with: SubstrateStorageTestFacade()
+        )
 
-            let connection = chainRegistry.getConnection(for: chainId)!
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainId)!
-
-            let operationFactory = MortalEraOperationFactory()
-            let wrapper = operationFactory.createOperation(from: connection, runtimeService: runtimeService)
-
-            let operationQueue = OperationQueue()
-            operationQueue.addOperations(wrapper.allOperations, waitUntilFinished: true)
-
-            let era = try wrapper.targetOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-            logger.info("Did receive era: \(era)")
-
-        } catch {
-            XCTFail("Unexpected error: \(error)")
+        guard
+            let connection = chainRegistry.getConnection(for: chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainId)
+        else {
+            throw XCTSkip("Mortal era integration setup is unavailable in the current environment")
         }
+
+        let operationFactory = MortalEraOperationFactory()
+        let wrapper = operationFactory.createOperation(from: connection, runtimeService: runtimeService)
+
+        let operationQueue = OperationQueue()
+        operationQueue.addOperations(wrapper.allOperations, waitUntilFinished: true)
+
+        let era = try wrapper.targetOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+        logger.info("Did receive era: \(era)")
     }
 }

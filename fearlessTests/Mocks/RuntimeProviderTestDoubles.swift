@@ -9,6 +9,7 @@ final class DummyRuntimeProvider: SSFRuntimeCodingService.RuntimeProviderProtoco
     var snapshot: RuntimeSnapshot?
 
     func setup() {}
+    func setupHot() {}
     func cleanup() {}
 
     func readySnapshot() async throws -> RuntimeSnapshot { throw RuntimeProviderError.providerUnavailable }
