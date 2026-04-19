@@ -19,6 +19,12 @@ echo "==> Destination: ${DEST}"
 
 HOST_ARCH="$(uname -m)"
 
+# xcodebuild writes intermediate result artifacts under TMPDIR; ensure it exists.
+if [[ -z "${TMPDIR:-}" ]]; then
+  export TMPDIR="/tmp"
+fi
+mkdir -p "${TMPDIR}" 2>/dev/null || true
+
 # Remove stale package state before any helper script triggers package resolution.
 echo "\n==> Cleaning stale package state"
 rm -rf "$LOCAL_SOURCE_PACKAGES_DIR/checkouts/Web3.swift" 2>/dev/null || true
@@ -26,9 +32,9 @@ rm -f "$LOCAL_SOURCE_PACKAGES_DIR/workspace-state.json" 2>/dev/null || true
 find "$HOME/Library/Developer/Xcode/DerivedData" -path "*/SourcePackages/checkouts/Web3.swift" -prune -exec rm -rf {} + 2>/dev/null || true
 find "$HOME/Library/Developer/Xcode/DerivedData" -path "*/SourcePackages/workspace-state.json" -exec rm -f {} \; 2>/dev/null || true
 
-if [ -x "scripts/deps/bootstrap-local-swiftpm-config.sh" ]; then
+if [ -f "scripts/deps/bootstrap-local-swiftpm-config.sh" ]; then
   echo "==> Bootstrapping local SwiftPM configuration"
-  scripts/deps/bootstrap-local-swiftpm-config.sh
+  bash scripts/deps/bootstrap-local-swiftpm-config.sh
 fi
 
 pick_latest_iphone_name() {
@@ -82,14 +88,14 @@ if [[ "$DEST" == *"Any iOS Simulator Device"* || "$DEST" == "" ]]; then
 fi
 
 # Enforce SSF pin, then apply repo-owned package contracts/fixes so SSF packages are stable under Xcode 16+
-if [ -x "scripts/deps/enforce-ssf-pin.sh" ]; then
+if [ -f "scripts/deps/enforce-ssf-pin.sh" ]; then
   echo "\n==> Enforcing shared-features-spm pinned revision"
-  scripts/deps/enforce-ssf-pin.sh || true
+  bash scripts/deps/enforce-ssf-pin.sh || true
 fi
 
-if [ -x "scripts/deps/check-dependency-contracts.sh" ]; then
+if [ -f "scripts/deps/check-dependency-contracts.sh" ]; then
   echo "\n==> Validating dependency contracts"
-  scripts/deps/check-dependency-contracts.sh
+  bash scripts/deps/check-dependency-contracts.sh
 fi
 
 echo "\n==> Resolving Swift Package dependencies"
@@ -103,19 +109,19 @@ if ! xcodebuild \
 fi
 
 # Patch shared-features-spm manifest and sources in the explicit local checkout.
-if [ -x "scripts/spm-shared-features-fixes.sh" ]; then
+if [ -f "scripts/spm-shared-features-fixes.sh" ]; then
   echo "\n==> Applying shared-features-spm fixes (SSFModels deps, Web3 API drift)"
-  SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 scripts/spm-shared-features-fixes.sh "$(pwd)"
+  SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$(pwd)"
 fi
 
 verify_native_crypto_state() {
-  if [ ! -x "scripts/deps/prepare-native-crypto-checkout.sh" ]; then
+  if [ ! -f "scripts/deps/prepare-native-crypto-checkout.sh" ]; then
     return 0
   fi
 
   echo "\n==> Preparing native crypto checkout"
   local status=0
-  if SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" STRICT_REQUIRED_PATCHES=1 scripts/deps/prepare-native-crypto-checkout.sh "$(pwd)" "${WORKSPACE}" "${SCHEME}"; then
+  if SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" STRICT_REQUIRED_PATCHES=1 bash scripts/deps/prepare-native-crypto-checkout.sh "$(pwd)" "${WORKSPACE}" "${SCHEME}"; then
     return 0
   else
     status=$?
@@ -142,9 +148,15 @@ unset CI || true
 function run_tests() {
   local config=$1
   echo "\n==> Running ${config} tests"
+  verify_native_crypto_state
+  local result_bundle_dir="$(pwd)/build/test-results"
+  local sanitized_scheme="${SCHEME//./_}"
+  local result_bundle_path="${result_bundle_dir}/${sanitized_scheme}-${config}.xcresult"
+  mkdir -p "${result_bundle_dir}"
+  rm -rf "${result_bundle_path}"
   local extra=()
   if [[ "${HOST_ARCH}" == "arm64" ]]; then
-    extra+=("EXCLUDED_ARCHS[sdk=iphonesimulator*]=x86_64")
+    extra+=("EXCLUDED_ARCHS=x86_64")
   fi
   if [[ "${config}" == "Release" ]]; then
     # Ensure testability for Release builds when running unit tests on simulator
@@ -157,6 +169,8 @@ function run_tests() {
       -configuration "${config}" \
       -destination "${DEST}" \
       -clonedSourcePackagesDirPath "${LOCAL_SOURCE_PACKAGES_DIR}" \
+      -disableAutomaticPackageResolution \
+      -resultBundlePath "${result_bundle_path}" \
       -enableCodeCoverage YES \
       "${extra[@]}" \
       clean test | xcpretty || {
@@ -170,6 +184,8 @@ function run_tests() {
       -configuration "${config}" \
       -destination "${DEST}" \
       -clonedSourcePackagesDirPath "${LOCAL_SOURCE_PACKAGES_DIR}" \
+      -disableAutomaticPackageResolution \
+      -resultBundlePath "${result_bundle_path}" \
       -enableCodeCoverage YES \
       clean test | xcpretty || {
         echo "xcodebuild ${config} tests failed" >&2
@@ -189,9 +205,15 @@ if ! command -v xcpretty >/dev/null 2>&1; then
   run_tests() {
     local config=$1
     echo "\n==> Running ${config} tests (no xcpretty)"
+    verify_native_crypto_state
+    local result_bundle_dir="$(pwd)/build/test-results"
+    local sanitized_scheme="${SCHEME//./_}"
+    local result_bundle_path="${result_bundle_dir}/${sanitized_scheme}-${config}.xcresult"
+    mkdir -p "${result_bundle_dir}"
+    rm -rf "${result_bundle_path}"
     local extra=()
     if [[ "${HOST_ARCH}" == "arm64" ]]; then
-      extra+=("EXCLUDED_ARCHS[sdk=iphonesimulator*]=x86_64")
+      extra+=("EXCLUDED_ARCHS=x86_64")
     fi
     if [[ "${config}" == "Release" ]]; then
       extra+=(ENABLE_TESTABILITY=YES)
@@ -203,6 +225,8 @@ if ! command -v xcpretty >/dev/null 2>&1; then
         -configuration "${config}" \
         -destination "${DEST}" \
         -clonedSourcePackagesDirPath "${LOCAL_SOURCE_PACKAGES_DIR}" \
+        -disableAutomaticPackageResolution \
+        -resultBundlePath "${result_bundle_path}" \
         -enableCodeCoverage YES \
         "${extra[@]}" \
         clean test
@@ -213,6 +237,8 @@ if ! command -v xcpretty >/dev/null 2>&1; then
         -configuration "${config}" \
         -destination "${DEST}" \
         -clonedSourcePackagesDirPath "${LOCAL_SOURCE_PACKAGES_DIR}" \
+        -disableAutomaticPackageResolution \
+        -resultBundlePath "${result_bundle_path}" \
         -enableCodeCoverage YES \
         clean test
     fi

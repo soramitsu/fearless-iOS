@@ -30,7 +30,7 @@ ensure_absent() {
 
 ensure_contains \
   "$ROOT/scripts/test-matrix.sh" \
-  'STRICT_REQUIRED_PATCHES=1 scripts/spm-shared-features-fixes.sh "$(pwd)"' \
+  'STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$(pwd)"' \
   "test-matrix.sh is not wired to required shared-features-spm fixes"
 
 ensure_contains \

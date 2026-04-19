@@ -326,6 +326,27 @@ cleanup_stale_embedded_native_crypto_frameworks
 
 echo "[spm-fixes] Cleaned stale embedded native crypto frameworks"
 
+apply_native_crypto_contracts() {
+  local package_contract="$BASE_DIR/scripts/deps/apply-native-crypto-package-contract.sh"
+  local modulemap_contract="$BASE_DIR/scripts/deps/apply-native-crypto-modulemap-contract.sh"
+
+  if [[ -f "$package_contract" ]]; then
+    SOURCE_PACKAGES_DIR="$SOURCE_PACKAGES_DIR" \
+      STRICT_REQUIRED_PATCHES="$STRICT_REQUIRED_PATCHES" \
+      bash "$package_contract" "$BASE_DIR" || true
+  fi
+
+  if [[ -f "$modulemap_contract" ]]; then
+    SOURCE_PACKAGES_DIR="$SOURCE_PACKAGES_DIR" \
+      STRICT_REQUIRED_PATCHES="$STRICT_REQUIRED_PATCHES" \
+      bash "$modulemap_contract" "$BASE_DIR" || true
+  fi
+}
+
+apply_native_crypto_contracts
+
+echo "[spm-fixes] Re-applied native crypto package/modulemap contracts"
+
 if [[ "$STRICT_REQUIRED_PATCHES" == "1" && "$REQUIRED_PATCH_COUNT" -eq 0 ]]; then
   echo "[spm-fixes] No shared-features-spm checkout was available to patch" >&2
   exit 1

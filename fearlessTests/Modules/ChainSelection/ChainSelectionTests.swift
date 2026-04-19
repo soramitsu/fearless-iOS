@@ -23,7 +23,7 @@ class ChainSelectionTests: XCTestCase {
                 accountId: Data.random(of: 32)!,
                 publicKey: Data.random(of: 32)!,
                 cryptoType: 0,
-                ecosystem: .substrate
+                ethereumBased: false
             )
         })
         let selectedAccount = AccountGenerator.generateMetaAccount(with: chainAccounts)

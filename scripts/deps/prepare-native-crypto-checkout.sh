@@ -12,7 +12,7 @@ run_step() {
   local script_path="$1"
   local label="$2"
 
-  if [[ ! -x "$script_path" ]]; then
+  if [[ ! -f "$script_path" ]]; then
     echo "[prepare-native-crypto-checkout] Missing helper: $script_path" >&2
     exit 1
   fi
@@ -20,12 +20,12 @@ run_step() {
   echo "[prepare-native-crypto-checkout] ${label}"
   SOURCE_PACKAGES_DIR="${SOURCE_PACKAGES_DIR}" \
     STRICT_REQUIRED_PATCHES="${STRICT_REQUIRED_PATCHES}" \
-    "$script_path" "$ROOT"
+    bash "$script_path" "$ROOT"
 }
 
 verify_current_state() {
   SOURCE_PACKAGES_DIR="${SOURCE_PACKAGES_DIR}" \
-    "$ROOT/scripts/deps/verify-native-crypto-package-state.sh" "$ROOT"
+    bash "$ROOT/scripts/deps/verify-native-crypto-package-state.sh" "$ROOT"
 }
 
 echo "[prepare-native-crypto-checkout] Checking current native crypto package state"

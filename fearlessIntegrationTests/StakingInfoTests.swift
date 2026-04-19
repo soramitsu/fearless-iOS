@@ -58,7 +58,7 @@ class StakingInfoTests: XCTestCase {
         }
 
         let chainAsset = ChainAsset(chain: chain, asset: asset)
-        let chainFormat = SSFModels.ChainFormat.substrate(expectedPrefix)
+        let chainFormat = ChainFormat.substrate(expectedPrefix)
         let assetPrecision = Int16(asset.precision)
 
         let stakingServiceFactory = StakingServiceFactory(

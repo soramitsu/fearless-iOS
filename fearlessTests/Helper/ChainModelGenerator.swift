@@ -143,8 +143,7 @@ enum ChainModelGenerator {
             type: nil,
             ethereumType: nil,
             priceProvider: nil,
-            coingeckoPriceId: nil,
-            priceData: []
+            coingeckoPriceId: nil
         )
     }
 

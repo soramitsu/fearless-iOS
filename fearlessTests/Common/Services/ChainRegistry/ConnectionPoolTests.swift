@@ -101,7 +101,7 @@ class ConnectionPoolTests: XCTestCase {
         requestConfig.signingType = .custom(signer: signer)
 
         URLProtocolStub.requestHandler = { request in
-            XCTAssertEqual(request.httpMethod, HttpMethod.post.rawValue)
+            XCTAssertEqual(request.httpMethod, "POST")
             XCTAssertEqual(request.url?.absoluteString, "https://unit.test/compat?v=1")
             XCTAssertEqual(request.value(forHTTPHeaderField: "X-Test"), "yes")
             XCTAssertEqual(request.value(forHTTPHeaderField: "X-Signature"), "signed")

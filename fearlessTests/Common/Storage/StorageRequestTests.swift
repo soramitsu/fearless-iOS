@@ -120,10 +120,10 @@ final class StorageRequestTests: XCTestCase {
             isNative: false,
             staking: nil,
             purchaseProviders: nil,
-            assetType: .substrate(substrateType: .assetId),
+            type: nil,
+            ethereumType: nil,
             priceProvider: nil,
-            coingeckoPriceId: nil,
-            priceData: []
+            coingeckoPriceId: nil
         )
         let chainAsset = ChainAsset(chain: chain, asset: assetWithCurrencyId)
 

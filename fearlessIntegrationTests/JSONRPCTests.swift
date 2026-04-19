@@ -25,16 +25,10 @@ class JSONRPCTests: XCTestCase {
             label: "jp.co.soramitsu.fearless.tests.ws.\(name.lowercased())",
             qos: .userInitiated
         )
-        guard let connectionStrategy = ConnectionStrategyImpl(
-            urls: [url],
-            callbackQueue: processingQueue
-        ) else {
-            fatalError("Failed to create connection strategy for \(url)")
-        }
-
         return WebSocketEngine(
             connectionName: name,
-            connectionStrategy: connectionStrategy,
+            url: url,
+            reconnectionStrategy: ExponentialReconnection(),
             processingQueue: processingQueue,
             logger: logger
         )
