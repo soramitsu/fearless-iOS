@@ -9,6 +9,10 @@ final class HistoryOperationFactoriesAssembly {
         chain: ChainModel,
         txStorage: AnyDataProviderRepository<TransactionHistoryItem>
     ) -> HistoryOperationFactoryProtocol? {
+        if chain.externalApi?.history?.url.absoluteString.lowercased().contains("blockscout") == true {
+            return BlockscoutHistoryOperationFactory()
+        }
+
         switch chain.externalApi?.history?.type {
         case .subquery:
             return SubqueryHistoryOperationFactory(txStorage: txStorage, chainRegistry: ChainRegistryFacade.sharedRegistry)

@@ -16,6 +16,7 @@ enum ChainSyncServiceError: Error {
 
 final class ChainSyncService {
     static let fetchLocalData = false
+    static let blockscoutCompatibilityType = "subsquid"
 
     struct SyncChanges {
         let newOrUpdatedItems: [ChainModel]
@@ -120,12 +121,12 @@ final class ChainSyncService {
             return try JSONDecoder().decode([ChainModel].self, from: data)
         } catch {
             // Attempt a compatibility coercion for missing "tokens" field
-            let coerced = try coerceMissingTokens(in: data)
+            let coerced = try Self.coerceChainsPayloadForCompatibility(data)
             return try JSONDecoder().decode([ChainModel].self, from: coerced)
         }
     }
 
-    private func coerceMissingTokens(in data: Data) throws -> Data {
+    static func coerceChainsPayloadForCompatibility(_ data: Data) throws -> Data {
         let obj = try JSONSerialization.jsonObject(with: data, options: [])
         guard var array = obj as? [[String: Any]] else { return data }
 
@@ -154,9 +155,46 @@ final class ChainSyncService {
 
                 array[i]["properties"] = ["addressPrefix": prefixString]
             }
+
+            normalizeBlockExplorerTypes(in: &array[i])
         }
 
         return try JSONSerialization.data(withJSONObject: array, options: [])
+    }
+
+    private static func normalizeBlockExplorerTypes(in chainObject: inout [String: Any]) {
+        guard var externalApi = chainObject["externalApi"] as? [String: Any] else {
+            return
+        }
+
+        normalizeBlockExplorerType(in: &externalApi, key: "history")
+        normalizeBlockExplorerType(in: &externalApi, key: "staking")
+
+        if var explorers = externalApi["explorers"] as? [[String: Any]] {
+            for index in explorers.indices {
+                normalizeBlockExplorerType(in: &explorers[index], key: "type")
+            }
+            externalApi["explorers"] = explorers
+        }
+
+        chainObject["externalApi"] = externalApi
+    }
+
+    private static func normalizeBlockExplorerType(in object: inout [String: Any], key: String) {
+        if var nested = object[key] as? [String: Any] {
+            normalizeBlockExplorerType(in: &nested, key: "type")
+            object[key] = nested
+            return
+        }
+
+        guard
+            let type = object[key] as? String,
+            type.lowercased() == "blockscout"
+        else {
+            return
+        }
+
+        object[key] = blockscoutCompatibilityType
     }
 
     private func handle(remoteChains: [ChainModel]) {
