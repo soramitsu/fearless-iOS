@@ -16,7 +16,9 @@ enum ChainSyncServiceError: Error {
 
 final class ChainSyncService {
     static let fetchLocalData = false
-    static let blockscoutCompatibilityType = "subsquid"
+    static let historyExplorerCompatibilityType = "subsquid"
+    static let stakingExplorerCompatibilityType = "subquery"
+    static let genericExplorerCompatibilityType = "etherscan"
 
     struct SyncChanges {
         let newOrUpdatedItems: [ChainModel]
@@ -167,12 +169,24 @@ final class ChainSyncService {
             return
         }
 
-        normalizeBlockExplorerType(in: &externalApi, key: "history")
-        normalizeBlockExplorerType(in: &externalApi, key: "staking")
+        normalizeBlockExplorerType(
+            in: &externalApi,
+            key: "history",
+            fallbackType: historyExplorerCompatibilityType
+        )
+        normalizeBlockExplorerType(
+            in: &externalApi,
+            key: "staking",
+            fallbackType: stakingExplorerCompatibilityType
+        )
 
         if var explorers = externalApi["explorers"] as? [[String: Any]] {
             for index in explorers.indices {
-                normalizeBlockExplorerType(in: &explorers[index], key: "type")
+                normalizeBlockExplorerType(
+                    in: &explorers[index],
+                    key: "type",
+                    fallbackType: genericExplorerCompatibilityType
+                )
             }
             externalApi["explorers"] = explorers
         }
@@ -180,21 +194,36 @@ final class ChainSyncService {
         chainObject["externalApi"] = externalApi
     }
 
-    private static func normalizeBlockExplorerType(in object: inout [String: Any], key: String) {
+    private static func normalizeBlockExplorerType(
+        in object: inout [String: Any],
+        key: String,
+        fallbackType: String
+    ) {
         if var nested = object[key] as? [String: Any] {
-            normalizeBlockExplorerType(in: &nested, key: "type")
+            normalizeBlockExplorerType(in: &nested, key: "type", fallbackType: fallbackType)
             object[key] = nested
             return
         }
 
         guard
-            let type = object[key] as? String,
-            type.lowercased() == "blockscout"
+            let type = object[key] as? String
         else {
             return
         }
 
-        object[key] = blockscoutCompatibilityType
+        let normalizedType = type.lowercased()
+
+        if BlockExplorerType(rawValue: normalizedType) != nil {
+            object[key] = normalizedType
+            return
+        }
+
+        switch normalizedType {
+        case "blockscout", "klaytn", "kaia":
+            object[key] = historyExplorerCompatibilityType
+        default:
+            object[key] = fallbackType
+        }
     }
 
     private func handle(remoteChains: [ChainModel]) {

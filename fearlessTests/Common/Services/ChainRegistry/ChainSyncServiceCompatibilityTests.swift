@@ -6,7 +6,7 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
         let payload: [[String: Any]] = [[
             "externalApi": [
                 "history": [
-                    "type": "blockscout",
+                    "type": "klaytn",
                     "url": "https://blockscout.example/api"
                 ],
                 "staking": [
@@ -35,9 +35,9 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
         let staking = try XCTUnwrap(externalApi["staking"] as? [String: Any])
         let explorers = try XCTUnwrap(externalApi["explorers"] as? [[String: Any]])
 
-        XCTAssertEqual(history["type"] as? String, ChainSyncService.blockscoutCompatibilityType)
-        XCTAssertEqual(staking["type"] as? String, ChainSyncService.blockscoutCompatibilityType)
-        XCTAssertEqual(explorers.first?["type"] as? String, ChainSyncService.blockscoutCompatibilityType)
+        XCTAssertEqual(history["type"] as? String, ChainSyncService.historyExplorerCompatibilityType)
+        XCTAssertEqual(staking["type"] as? String, ChainSyncService.historyExplorerCompatibilityType)
+        XCTAssertEqual(explorers.first?["type"] as? String, ChainSyncService.historyExplorerCompatibilityType)
         XCTAssertEqual(explorers.last?["type"] as? String, "etherscan")
     }
 }

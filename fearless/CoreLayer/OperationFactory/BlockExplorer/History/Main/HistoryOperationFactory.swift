@@ -9,8 +9,14 @@ final class HistoryOperationFactoriesAssembly {
         chain: ChainModel,
         txStorage: AnyDataProviderRepository<TransactionHistoryItem>
     ) -> HistoryOperationFactoryProtocol? {
-        if chain.externalApi?.history?.url.absoluteString.lowercased().contains("blockscout") == true {
+        let historyUrl = chain.externalApi?.history?.url.absoluteString.lowercased() ?? ""
+
+        if historyUrl.contains("blockscout") {
             return BlockscoutHistoryOperationFactory()
+        }
+
+        if historyUrl.contains("scope.klaytn") || historyUrl.contains("scope.kaia") {
+            return KaiaHistoryOperationFactory()
         }
 
         switch chain.externalApi?.history?.type {
