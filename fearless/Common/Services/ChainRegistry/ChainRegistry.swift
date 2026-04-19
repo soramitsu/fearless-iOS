@@ -201,6 +201,7 @@ final class ChainRegistry {
     private(set) var chainsTypesMap: [String: Data] = [:]
     private var runtimeVersionSubscriptions: [ChainModel.Id: SpecVersionSubscriptionProtocol] = [:]
     private(set) var tonApiAssembly: TonAPIAssembly?
+    private var tonApiChainId: ChainModel.Id?
 
     // MARK: - Constructor
 
@@ -418,20 +419,31 @@ final class ChainRegistry {
         let token = TonNodeApiKeyDebug.tonApiKey
         guard let node = chain.nodes.first else {
             logger?.error("Missing TON node URL")
+            if tonApiChainId == chain.chainId {
+                tonApiAssembly = nil
+                tonApiChainId = nil
+            }
             return
         }
-        let tonBridgeURL = node.url
 
-        let isTestnet = LocalToggleService.shared.tonEnvListToggle.storageValue
-        if chain.options.or([]).contains(.testnet), isTestnet {
-            tonApiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: token, tonBridgeURL: tonBridgeURL)
-        } else if !chain.options.or([]).contains(.testnet), !isTestnet {
-            tonApiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: token, tonBridgeURL: tonBridgeURL)
+        guard shouldUseTonChain(chain) else {
+            if tonApiChainId == chain.chainId {
+                tonApiAssembly = nil
+                tonApiChainId = nil
+            }
+            return
         }
+
+        tonApiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: token, tonBridgeURL: node.url)
+        tonApiChainId = chain.chainId
     }
 
     private func handleDeletedChain(chainId: ChainModel.Id) {
         chains = chains.filter { $0.chainId != chainId }
+        if tonApiChainId == chainId {
+            tonApiAssembly = nil
+            tonApiChainId = nil
+        }
     }
 
     // MARK: - Private others methods
@@ -620,6 +632,12 @@ private extension ChainRegistry {
         }
 
         return chain.nodes.contains { $0.url.absoluteString.lowercased().contains("ton") }
+    }
+
+    func shouldUseTonChain(_ chain: ChainModel) -> Bool {
+        let isTestnetEnabled = LocalToggleService.shared.tonEnvListToggle.storageValue
+        let isTestnetChain = chain.options.or([]).contains(.testnet)
+        return isTestnetEnabled == isTestnetChain
     }
 }
 
