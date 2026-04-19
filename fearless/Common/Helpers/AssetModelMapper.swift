@@ -7,6 +7,10 @@ import RobinHood
 import SSFModels
 import SSFUtils
 
+enum AssetModelMapperError: Error {
+    case missedRequiredFields
+}
+
 extension AssetModel: RobinHood.Identifiable {
     public var identifier: String { id }
 }
@@ -37,19 +41,12 @@ extension AssetModelMapper: CoreDataMapperProtocol {
     var entityIdentifierFieldName: String { "id" }
 
     func transform(entity: CDAsset) throws -> AssetModel {
-        var symbol: String?
-        if let entitySymbol = entity.symbol {
-            symbol = entitySymbol
-        } else {
-            symbol = entity.id
+        guard let id = entity.id else {
+            throw AssetModelMapperError.missedRequiredFields
         }
 
-        var name: String?
-        if let entityName = entity.name {
-            name = entityName
-        } else {
-            name = entity.symbol
-        }
+        let symbol = entity.symbol ?? id
+        let name = entity.name ?? symbol
 
         let staking: SSFModels.RawStakingType?
         if let entityStaking = entity.staking {
@@ -96,9 +93,9 @@ extension AssetModelMapper: CoreDataMapperProtocol {
         }()
 
         return AssetModel(
-            id: entity.id!,
-            name: name!,
-            symbol: symbol!,
+            id: id,
+            name: name,
+            symbol: symbol,
             precision: UInt16(bitPattern: entity.precision),
             icon: entity.icon,
             price: price,
