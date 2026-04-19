@@ -120,7 +120,7 @@ final class StorageRequestTests: XCTestCase {
             isNative: false,
             staking: nil,
             purchaseProviders: nil,
-            type: nil,
+            type: .assetId,
             ethereumType: nil,
             priceProvider: nil,
             coingeckoPriceId: nil

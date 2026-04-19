@@ -40,7 +40,11 @@ private final class TestCoreDataService: CoreDataServiceProtocol {
     func drop() throws {}
 
     private func setup() throws -> NSManagedObjectContext {
-        guard let model = NSManagedObjectModel(contentsOf: configuration.modelURL) else {
+        guard let loadedModel = NSManagedObjectModel(contentsOf: configuration.modelURL) else {
+            throw CoreDataServiceError.modelInitializationFailed
+        }
+
+        guard let model = loadedModel.copy() as? NSManagedObjectModel else {
             throw CoreDataServiceError.modelInitializationFailed
         }
 

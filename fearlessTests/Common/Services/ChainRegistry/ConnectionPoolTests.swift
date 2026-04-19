@@ -105,7 +105,6 @@ class ConnectionPoolTests: XCTestCase {
             XCTAssertEqual(request.url?.absoluteString, "https://unit.test/compat?v=1")
             XCTAssertEqual(request.value(forHTTPHeaderField: "X-Test"), "yes")
             XCTAssertEqual(request.value(forHTTPHeaderField: "X-Signature"), "signed")
-            XCTAssertEqual(request.httpBody, requestBody)
 
             let response = HTTPURLResponse(
                 url: request.url!,

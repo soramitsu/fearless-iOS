@@ -19,9 +19,10 @@ echo "==> Destination: ${DEST}"
 
 HOST_ARCH="$(uname -m)"
 
-# xcodebuild writes intermediate result artifacts under TMPDIR; ensure it exists.
-if [[ -z "${TMPDIR:-}" ]]; then
-  export TMPDIR="/tmp"
+# xcodebuild writes intermediate result artifacts under TMPDIR.
+# Ensure it points to an existing, writable directory.
+if [[ -z "${TMPDIR:-}" || ! -d "${TMPDIR}" ]]; then
+  export TMPDIR="${HOME}/Library/Caches/fearless-iOS/tmp"
 fi
 mkdir -p "${TMPDIR}" 2>/dev/null || true
 
