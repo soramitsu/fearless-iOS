@@ -49,4 +49,18 @@ class SpecVersionSubscriptionTests: XCTestCase {
 
         wait(for: [expectation], timeout: 10)
     }
+
+    func testTonApiAssemblyProvidesClientAndBridgeURL() {
+        let tonApiURL = URL(string: "https://tonapi.example")!
+        let tonBridgeURL = URL(string: "https://tonbridge.example")!
+        let assembly = TonAPIAssembly(
+            tonAPIURL: tonApiURL,
+            token: "test-token",
+            tonBridgeURL: tonBridgeURL
+        )
+
+        _ = assembly.tonAPIClient()
+
+        XCTAssertEqual(assembly.tonBridgeURL, tonBridgeURL)
+    }
 }

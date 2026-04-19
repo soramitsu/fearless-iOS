@@ -1,6 +1,7 @@
 import XCTest
 @testable import fearless
 import RobinHood
+import SSFModels
 
 class MetaAccountMapperTests: XCTestCase {
     func testSaveAndFetch() throws {
@@ -53,5 +54,37 @@ class MetaAccountMapperTests: XCTestCase {
 
         XCTAssertEqual(expectedAccounts, actualAccounts)
         XCTAssertEqual(differentOrders.count, accountCount)
+    }
+
+    func testAssetModelMapperPersistsIdentifierContract() throws {
+        // given
+
+        let operationQueue = OperationQueue()
+        let facade = SubstrateStorageTestFacade()
+        let mapper = AssetModelMapper()
+
+        let repository: CoreDataRepository<AssetModel, CDAsset> = facade.createRepository(
+            mapper: AnyCoreDataMapper(mapper)
+        )
+
+        let asset = ChainModelGenerator.generateAssetWithId("asset-contract-id", symbol: "TST")
+
+        // when
+
+        let saveOperation = repository.saveOperation({ [asset] }, { [] })
+        operationQueue.addOperations([saveOperation], waitUntilFinished: true)
+
+        let fetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
+        operationQueue.addOperations([fetchOperation], waitUntilFinished: true)
+
+        // then
+
+        let fetchedAssets = try fetchOperation.extractResultData(
+            throwing: BaseOperationError.parentOperationCancelled
+        )
+
+        XCTAssertEqual(fetchedAssets.count, 1)
+        XCTAssertEqual(fetchedAssets.first?.identifier, asset.id)
+        XCTAssertEqual(fetchedAssets.first?.id, asset.id)
     }
 }
