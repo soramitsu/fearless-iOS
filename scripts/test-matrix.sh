@@ -34,7 +34,8 @@ fi
 pick_latest_iphone_name() {
   # Try descending generations to prefer the most modern simulator present
   local list
-  list=$(xcrun simctl list devices 2>/dev/null || true)
+  list=$(xcrun simctl list devices available 2>/dev/null || xcrun simctl list devices 2>/dev/null || true)
+  list=$(printf '%s\n' "$list" | grep -vi "unavailable" || true)
   for gen in $(seq 25 -1 8); do
     for variant in "iPhone ${gen}" "iPhone ${gen} Pro" "iPhone ${gen} Pro Max"; do
       if printf '%s\n' "$list" | grep -Fq "$variant"; then
@@ -50,8 +51,9 @@ pick_latest_iphone_name() {
 pick_device_udid_by_name() {
   local name="$1"
   # Extract the first UDID for a device line containing the provided name
-  xcrun simctl list devices 2>/dev/null | awk -F '[()]' -v n="$name" '
+  (xcrun simctl list devices available 2>/dev/null || xcrun simctl list devices 2>/dev/null || true) | awk -F '[()]' -v n="$name" '
     index($0, n) > 0 {
+      if (tolower($0) ~ /unavailable/) next
       for (i = 1; i <= NF; i++) {
         if ($i ~ /^[A-F0-9-]{36}$/) {
           print $i
@@ -140,7 +142,10 @@ unset CI || true
 function run_tests() {
   local config=$1
   echo "\n==> Running ${config} tests"
-  local extra=("EXCLUDED_ARCHS[sdk=iphonesimulator*]=x86_64")
+  local extra=()
+  if [[ "${HOST_ARCH}" == "arm64" ]]; then
+    extra+=("EXCLUDED_ARCHS[sdk=iphonesimulator*]=x86_64")
+  fi
   if [[ "${config}" == "Release" ]]; then
     # Ensure testability for Release builds when running unit tests on simulator
     extra+=(ENABLE_TESTABILITY=YES)
@@ -184,7 +189,10 @@ if ! command -v xcpretty >/dev/null 2>&1; then
   run_tests() {
     local config=$1
     echo "\n==> Running ${config} tests (no xcpretty)"
-    local extra=("EXCLUDED_ARCHS[sdk=iphonesimulator*]=x86_64")
+    local extra=()
+    if [[ "${HOST_ARCH}" == "arm64" ]]; then
+      extra+=("EXCLUDED_ARCHS[sdk=iphonesimulator*]=x86_64")
+    fi
     if [[ "${config}" == "Release" ]]; then
       extra+=(ENABLE_TESTABILITY=YES)
     fi
