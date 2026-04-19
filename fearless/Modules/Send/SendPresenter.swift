@@ -242,7 +242,7 @@ final class SendPresenter {
                 return
             }
             interactor.didReceive(xorlessTransfer: transfer)
-        case .address, .chainAsset, .soraMainnet, .desiredCryptocurrency:
+        case .address, .chainAsset, .soraMainnet:
             if selectedChainAsset?.isBokolo == true {
                 guard let transfer = prepareXorlessTransfer() else {
                     return
@@ -757,42 +757,6 @@ final class SendPresenter {
         }
     }
 
-    private func handleDesiredCrypto(qrInfo: DesiredCryptocurrencyQRInfo) {
-        recipientAddress = qrInfo.address
-        Task {
-            let possibleChains = await self.interactor.getPossibleChains(for: qrInfo.address)
-            let chainAsset = possibleChains?
-                .first(where: { $0.name.lowercased() == qrInfo.assetName.lowercased() })?
-                .chainAssets
-                .first(where: { $0.asset.isUtility })
-
-            selectedChainAsset = chainAsset
-
-            if let qrAmount = Decimal(string: qrInfo.amount ?? "") {
-                inputResult = .absolute(qrAmount)
-            }
-            guard let chainAsset, wallet.isVisible(chainAsset: chainAsset) else {
-                await MainActor.run {
-                    showUnsupportedAssetAlert()
-                }
-                return
-            }
-
-            let viewModel = viewModelFactory.buildRecipientViewModel(
-                address: qrInfo.address,
-                isValid: true,
-                canEditing: false
-            )
-
-            interactor.updateSubscriptions(for: chainAsset)
-            await MainActor.run {
-                view?.didReceive(viewModel: viewModel)
-                provideInputViewModel()
-                provideNetworkViewModel(for: chainAsset.chain, canEdit: true)
-            }
-        }
-    }
-
     private func prepareXorlessTransfer() -> XorlessTransfer? {
         do {
             guard let selectedChainAsset = selectedChainAsset else {
@@ -915,8 +879,6 @@ extension SendPresenter: SendViewOutput {
             handleSora(qrInfo: qrInfo)
         case let .bokoloCash(bokoloCashQRInfo):
             handleBokoloCash(qrInfo: bokoloCashQRInfo)
-        case let .desiredCryptocurrency(qrInfo):
-            handleDesiredCrypto(qrInfo: qrInfo)
         }
     }
 
@@ -1187,8 +1149,6 @@ extension SendPresenter: ScanQRModuleOutput {
             handleSora(qrInfo: qrInfo)
         case let .cex(qrInfo):
             searchTextDidChanged(qrInfo.address)
-        case let .desiredCryptocurrency(qrInfo):
-            handleDesiredCrypto(qrInfo: qrInfo)
         }
     }
 }

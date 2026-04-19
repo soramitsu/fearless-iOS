@@ -54,15 +54,25 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
         presenter.didLoad(view: self)
     }
 
+    override func viewSafeAreaInsetsDidChange() {
+        super.viewSafeAreaInsetsDidChange()
+        updateNavigationBarTopInset()
+    }
+
     // MARK: Configure
 
     private func configureNavigationBar() {
-        navigationBarTop.constant = UIApplication.shared.statusBarFrame.size.height
-
         navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         navigationBar.shadowImage = UIImage()
         navigationBar.tintColor = R.color.colorWhite()!
         navigationBar.delegate = self
+
+        updateNavigationBarTopInset()
+    }
+
+    private func updateNavigationBarTopInset() {
+        let statusBarHeight = SceneWindowFinder.statusBarHeight(from: view.window?.windowScene)
+        navigationBarTop.constant = max(statusBarHeight, view.safeAreaInsets.top)
     }
 
     private func configureCancelButton() {

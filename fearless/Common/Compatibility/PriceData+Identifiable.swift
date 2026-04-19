@@ -1,8 +1,7 @@
 import Foundation
 import SSFModels
-import RobinHood
 
-// CoreData mappers require RobinHood.Identifiable. Use priceId as stable identifier.
-extension PriceData: RobinHood.Identifiable {
-    public var identifier: String { priceId }
+extension PriceData: Identifiable {
+    public typealias ID = String
+    public var id: String { "\(currencyId):\(priceId)" }
 }

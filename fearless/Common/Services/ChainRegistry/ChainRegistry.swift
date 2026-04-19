@@ -10,6 +10,143 @@ import SSFChainConnection
     import FearlessKeys
 #endif
 import TonAPI
+import OpenAPIRuntime
+import HTTPTypes
+
+enum TonAPITransportError: Error {
+    case invalidRequestURL(path: String, method: HTTPRequest.Method, baseURL: URL)
+    case notHTTPResponse(URLResponse)
+}
+
+private final class TonAPIURLSessionTransport: ClientTransport, @unchecked Sendable {
+    private let session: URLSession
+
+    init(configuration: URLSessionConfiguration = .default) {
+        session = URLSession(configuration: configuration)
+    }
+
+    func send(
+        _ request: HTTPRequest,
+        body: HTTPBody?,
+        baseURL: URL,
+        operationID _: String
+    ) async throws -> (HTTPResponse, HTTPBody?) {
+        var urlRequest = try await URLRequest(request, body: body, baseURL: baseURL)
+        urlRequest.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+
+        let (data, response) = try await session.data(for: urlRequest)
+        let httpResponse = try HTTPResponse.from(urlResponse: response)
+        let responseBody: HTTPBody? = data.isEmpty ? nil : HTTPBody(data)
+        return (httpResponse, responseBody)
+    }
+}
+
+private struct TonAPIAuthorizationMiddleware: ClientMiddleware {
+    let token: String
+
+    func intercept(
+        _ request: HTTPRequest,
+        body: HTTPBody?,
+        baseURL: URL,
+        operationID _: String,
+        next: @Sendable(HTTPRequest, HTTPBody?, URL) async throws -> (HTTPResponse, HTTPBody?)
+    ) async throws -> (HTTPResponse, HTTPBody?) {
+        guard !token.isEmpty else {
+            return try await next(request, body, baseURL)
+        }
+
+        var authenticated = request
+        authenticated.headerFields[.authorization] = "Bearer \(token)"
+        return try await next(authenticated, body, baseURL)
+    }
+}
+
+final class TonAPIAssembly {
+    private let tonAPIURL: URL
+    private let token: String
+    let tonBridgeURL: URL
+
+    init(tonAPIURL: URL, token: String, tonBridgeURL: URL) {
+        self.tonAPIURL = tonAPIURL
+        self.token = token
+        self.tonBridgeURL = tonBridgeURL
+    }
+
+    func tonAPIClient() -> Client {
+        let transport = TonAPIURLSessionTransport()
+        let middlewares: [any ClientMiddleware] = token.isEmpty ? [] : [TonAPIAuthorizationMiddleware(token: token)]
+
+        return Client(
+            serverURL: tonAPIURL,
+            transport: transport,
+            middlewares: middlewares
+        )
+    }
+}
+
+private extension URLRequest {
+    init(
+        _ request: HTTPRequest,
+        body: HTTPBody?,
+        baseURL: URL
+    ) async throws {
+        guard
+            var baseURLComponents = URLComponents(string: baseURL.absoluteString),
+            let requestURLComponents = URLComponents(string: request.path ?? "")
+        else {
+            throw TonAPITransportError.invalidRequestURL(
+                path: request.path ?? "<nil>",
+                method: request.method,
+                baseURL: baseURL
+            )
+        }
+
+        baseURLComponents.percentEncodedPath += requestURLComponents.percentEncodedPath
+        baseURLComponents.percentEncodedQuery = requestURLComponents.percentEncodedQuery
+
+        guard let resolvedURL = baseURLComponents.url else {
+            throw TonAPITransportError.invalidRequestURL(
+                path: request.path ?? "<nil>",
+                method: request.method,
+                baseURL: baseURL
+            )
+        }
+
+        self.init(url: resolvedURL)
+        httpMethod = request.method.rawValue
+
+        for header in request.headerFields {
+            setValue(header.value, forHTTPHeaderField: header.name.canonicalName)
+        }
+
+        if let body {
+            httpBody = try await Data(collecting: body, upTo: .max)
+        }
+    }
+}
+
+private extension HTTPResponse {
+    static func from(urlResponse: URLResponse) throws -> HTTPResponse {
+        guard let httpResponse = urlResponse as? HTTPURLResponse else {
+            throw TonAPITransportError.notHTTPResponse(urlResponse)
+        }
+
+        var headers = HTTPFields()
+        for (key, value) in httpResponse.allHeaderFields {
+            guard
+                let rawName = key as? String,
+                let name = HTTPField.Name(rawName),
+                let stringValue = value as? String
+            else {
+                continue
+            }
+
+            headers[name] = stringValue
+        }
+
+        return HTTPResponse(status: .init(code: httpResponse.statusCode), headerFields: headers)
+    }
+}
 
 protocol ChainRegistryProtocol: AnyObject {
     var availableChainIds: Set<ChainModel.Id>? { get }
@@ -134,8 +271,8 @@ final class ChainRegistry {
     // MARK: - Private DataProviderChange handle methods
 
     private func handleInsert(_ chain: ChainModel) throws {
-        switch chain.ecosystem {
-        case .substrate, .ethereumBased:
+        switch chainKind(for: chain) {
+        case .substrate:
             try handleNewSubstrateChain(newChain: chain)
         case .ethereum:
             try handleNewEthereumChain(newChain: chain)
@@ -145,8 +282,8 @@ final class ChainRegistry {
     }
 
     private func handleUpdate(_ chain: ChainModel) throws {
-        switch chain.ecosystem {
-        case .substrate, .ethereumBased:
+        switch chainKind(for: chain) {
+        case .substrate:
             try handleUpdatedSubstrateChain(updatedChain: chain)
         case .ethereum:
             try handleUpdatedEthereumChain(updatedChain: chain)
@@ -160,8 +297,8 @@ final class ChainRegistry {
             return
         }
 
-        switch removedChain.ecosystem {
-        case .substrate, .ethereumBased:
+        switch chainKind(for: removedChain) {
+        case .substrate:
             handleDeletedSubstrateChain(chainId: chainId)
         case .ethereum, .ton:
             handleDeletedChain(chainId: chainId)
@@ -279,16 +416,16 @@ final class ChainRegistry {
         chains.append(chain)
 
         let token = TonNodeApiKeyDebug.tonApiKey
-
-        guard let tonBridgeURL = chain.tonBridgeUrl else {
-            logger?.error("Missing tonBridgeURL")
+        guard let node = chain.nodes.first else {
+            logger?.error("Missing TON node URL")
             return
         }
+        let tonBridgeURL = node.url
 
         let isTestnet = LocalToggleService.shared.tonEnvListToggle.storageValue
-        if chain.options.or([]).contains(.testnet), isTestnet, let node = chain.nodes.first {
+        if chain.options.or([]).contains(.testnet), isTestnet {
             tonApiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: token, tonBridgeURL: tonBridgeURL)
-        } else if !chain.options.or([]).contains(.testnet), !isTestnet, let node = chain.nodes.first {
+        } else if !chain.options.or([]).contains(.testnet), !isTestnet {
             tonApiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: token, tonBridgeURL: tonBridgeURL)
         }
     }
@@ -434,8 +571,8 @@ extension ChainRegistry: ChainRegistryProtocol {
             return
         }
 
-        switch chain.ecosystem {
-        case .substrate, .ethereumBased:
+        switch chainKind(for: chain) {
+        case .substrate:
             resetSubstrateConnection(for: chain.chainId)
         case .ethereum:
             resetEthereumConnection(for: chain.chainId)
@@ -449,6 +586,40 @@ extension ChainRegistry: ChainRegistryProtocol {
             return
         }
         currentConnection.connectIfNeeded()
+    }
+}
+
+private extension ChainRegistry {
+    enum ChainKind {
+        case substrate
+        case ethereum
+        case ton
+    }
+
+    func chainKind(for chain: ChainModel) -> ChainKind {
+        if isTonChain(chain) {
+            return .ton
+        }
+
+        if chain.chainBaseType == .ethereum {
+            return .ethereum
+        }
+
+        return .substrate
+    }
+
+    func isTonChain(_ chain: ChainModel) -> Bool {
+        let chainName = chain.name.lowercased()
+        if chainName == "ton" || chainName.contains("ton ") || chainName.contains(" ton") {
+            return true
+        }
+
+        let chainId = chain.chainId.lowercased()
+        if chainId == "ton" || chainId.contains("ton-") {
+            return true
+        }
+
+        return chain.nodes.contains { $0.url.absoluteString.lowercased().contains("ton") }
     }
 }
 

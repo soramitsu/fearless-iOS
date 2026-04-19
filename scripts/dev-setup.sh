@@ -4,7 +4,7 @@ set -euo pipefail
 # Local developer setup script to get a clean build running on simulator.
 # - Installs CocoaPods (if needed), runs pod install
 # - Resolves SPM packages with a stable checkout location
-# - Applies the IrohaCrypto module.modulemap umbrella header hotfix
+# - Prepares the native crypto checkout against the repo-owned contract
 # - Prints next-step build/test commands
 
 SCHEME="${1:-fearless}"
@@ -55,7 +55,14 @@ if [ -x scripts/deps/enforce-ssf-pin.sh ]; then
   echo "==> Enforcing shared-features-spm pinned revision"
   scripts/deps/enforce-ssf-pin.sh || true
 fi
-xcodebuild -resolvePackageDependencies -workspace "$WORKSPACE" -scheme "$SCHEME" -clonedSourcePackagesDirPath "$SP_DIR" || true
+if [ -x scripts/deps/check-dependency-contracts.sh ]; then
+  echo "==> Validating dependency contracts"
+  scripts/deps/check-dependency-contracts.sh
+fi
+if ! xcodebuild -resolvePackageDependencies -workspace "$WORKSPACE" -scheme "$SCHEME" -clonedSourcePackagesDirPath "$SP_DIR"; then
+  echo "ERROR: Swift Package resolution failed during local setup" >&2
+  exit 1
+fi
 
 # 3) Ensure Git LFS assets for shared-features-spm (MPQRCoreSDK, etc.) are present
 if ! command -v git-lfs >/dev/null 2>&1; then
@@ -90,18 +97,22 @@ if command -v git-lfs >/dev/null 2>&1; then
   fi
 fi
 
-# 4) Apply IrohaCrypto hotfix (both in SourcePackages and DerivedData copies)
-if [ -x scripts/spm-iroha-hotfix.sh ]; then
-  echo "==> Applying SPM IrohaCrypto hotfix"
-  scripts/spm-iroha-hotfix.sh "$SCHEME" "$WORKSPACE" || true
-else
-  echo "WARNING: scripts/spm-iroha-hotfix.sh not found; continuing without hotfix"
+# 4) Apply native crypto contracts to the resolved SourcePackages checkout
+if [ -x scripts/deps/prepare-native-crypto-checkout.sh ]; then
+  echo "==> Preparing native crypto checkout"
+  if ! SOURCE_PACKAGES_DIR="$(pwd)/SourcePackages" STRICT_REQUIRED_PATCHES=1 scripts/deps/prepare-native-crypto-checkout.sh "$(pwd)" "$WORKSPACE" "$SCHEME"; then
+    echo "ERROR: Native crypto checkout preparation failed during local setup" >&2
+    exit 1
+  fi
 fi
 
-# 5) Patch shared-features-spm manifest for explicit-module build compatibility
+# 5) Apply required shared-features-spm compatibility fixes
 if [ -f scripts/spm-shared-features-fixes.sh ]; then
-  echo "==> Applying shared-features-spm manifest fixes"
-  bash scripts/spm-shared-features-fixes.sh "$(pwd)" || true
+  echo "==> Applying required shared-features-spm compatibility fixes"
+  if ! SOURCE_PACKAGES_DIR="$(pwd)/SourcePackages" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$(pwd)"; then
+    echo "ERROR: shared-features-spm compatibility fixes failed during local setup" >&2
+    exit 1
+  fi
 fi
 
 cat <<EOF

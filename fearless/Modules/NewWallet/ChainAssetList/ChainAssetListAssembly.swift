@@ -62,7 +62,6 @@ final class ChainAssetListAssembly {
         let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let chainSettingsRepostiry = chainSettingsRepositoryFactory.createAsyncRepository()
         let operationQueue = OperationManagerFacade.sharedDefaultQueue
-        let assetRepository = AssetRepositoryFactory().createRepository()
         let pricesService = PricesService.shared
         let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
             chainRegistry: chainRegistry

@@ -471,7 +471,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 accountId: accountId,
                 publicKey: query.publicKey,
                 cryptoType: request.cryptoType.rawValue,
-                ecosystem: request.isEthereum ? .ethereum : .substrate
+                ethereumBased: request.isEthereum
             )
 
             return request.meta.insertingChainAccount(chainAccount)
@@ -512,7 +512,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 accountId: accountId,
                 publicKey: query.publicKey,
                 cryptoType: request.cryptoType.rawValue,
-                ecosystem: request.isEthereum ? .ethereum : .substrate
+                ethereumBased: request.isEthereum
             )
 
             return request.meta.insertingChainAccount(chainAccount)
@@ -570,7 +570,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 accountId: accountId,
                 publicKey: publicKey.rawData(),
                 cryptoType: request.cryptoType.rawValue,
-                ecosystem: request.isEthereum ? .ethereum : .substrate
+                ethereumBased: request.isEthereum
             )
 
             return request.meta.insertingChainAccount(chainAccount)

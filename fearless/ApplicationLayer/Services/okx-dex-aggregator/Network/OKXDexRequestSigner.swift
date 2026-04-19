@@ -25,7 +25,7 @@ enum OKXDexRequestSignerError: Error {
 }
 
 final class OKXDexRequestSigner: RequestSigner {
-    func sign(request: inout URLRequest, config: SSFNetwork.RequestConfig) throws {
+    func sign(request: inout URLRequest, config: RequestConfig) throws {
         let timestamp = DateFormatter.iso.string(from: Date())
         request.setValue(timestamp, forHTTPHeaderField: "OK-ACCESS-TIMESTAMP")
 

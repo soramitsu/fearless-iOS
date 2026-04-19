@@ -8,6 +8,10 @@ enum PriceDataMapperError: Error {
     case notSupported
 }
 
+extension PriceData: RobinHood.Identifiable {
+    public var identifier: String { "\(currencyId):\(priceId)" }
+}
+
 final class PriceDataModelMapper: CoreDataMapperProtocol {
     typealias DataProviderModel = PriceData
     typealias CoreDataEntity = NSManagedObject

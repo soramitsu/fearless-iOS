@@ -52,7 +52,7 @@ extension StorageModifierHandling {
     }
 }
 
-final class StorageDecodingOperation<T: Decodable>: BaseOperation<T>, StorageDecodable {
+final class StorageDecodingOperation<T: Decodable>: BaseOperation<T>, StorageDecodable, @unchecked Sendable {
     var data: Data?
     var codingFactory: RuntimeCoderFactoryProtocol?
 
@@ -90,7 +90,7 @@ final class StorageDecodingOperation<T: Decodable>: BaseOperation<T>, StorageDec
 }
 
 final class StorageFallbackDecodingOperation<T: Decodable>: BaseOperation<T?>,
-    StorageDecodable, StorageModifierHandling {
+    StorageDecodable, StorageModifierHandling, @unchecked Sendable {
     var data: Data?
     var codingFactory: RuntimeCoderFactoryProtocol?
 
@@ -133,7 +133,7 @@ final class StorageFallbackDecodingOperation<T: Decodable>: BaseOperation<T?>,
     }
 }
 
-final class StorageDecodingListOperation<T: Decodable>: BaseOperation<[T]>, StorageDecodable {
+final class StorageDecodingListOperation<T: Decodable>: BaseOperation<[T]>, StorageDecodable, @unchecked Sendable {
     var dataList: [Data]?
     var codingFactory: RuntimeCoderFactoryProtocol?
 
@@ -174,7 +174,7 @@ final class StorageDecodingListOperation<T: Decodable>: BaseOperation<[T]>, Stor
 }
 
 final class StorageFallbackDecodingListOperation<T: Decodable>: BaseOperation<[T?]>,
-    StorageDecodable, StorageModifierHandling {
+    StorageDecodable, StorageModifierHandling, @unchecked Sendable {
     var dataList: [Data?]?
     var codingFactory: RuntimeCoderFactoryProtocol?
 
@@ -234,7 +234,7 @@ extension ConstantDecodable {
     }
 }
 
-final class StorageConstantOperation<T: Decodable>: BaseOperation<T>, ConstantDecodable {
+final class StorageConstantOperation<T: Decodable>: BaseOperation<T>, ConstantDecodable, @unchecked Sendable {
     var codingFactory: RuntimeCoderFactoryProtocol?
 
     let path: ConstantCodingPath
@@ -269,7 +269,7 @@ final class StorageConstantOperation<T: Decodable>: BaseOperation<T>, ConstantDe
     }
 }
 
-final class PrimitiveConstantOperation<T: LosslessStringConvertible & Equatable & Hashable>: BaseOperation<T>, ConstantDecodable {
+final class PrimitiveConstantOperation<T: LosslessStringConvertible & Equatable & Hashable>: BaseOperation<T>, ConstantDecodable, @unchecked Sendable {
     var codingFactory: RuntimeCoderFactoryProtocol?
 
     let path: ConstantCodingPath

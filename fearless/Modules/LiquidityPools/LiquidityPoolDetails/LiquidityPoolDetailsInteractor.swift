@@ -55,7 +55,7 @@ extension LiquidityPoolDetailsInteractor: LiquidityPoolDetailsInteractorInput {
             do {
                 let poolStream = try await liquidityPoolService.subscribeLiquidityPool(assetIdPair: assetIdPair)
 
-                for try await pool in poolStream {
+                for await pool in poolStream {
                     await MainActor.run {
                         // Flatten double optional coming from CachedStorageResponse<LiquidityPair?>
                         output?.didReceiveLiquidityPair(liquidityPair: pool.value ?? nil)
@@ -82,7 +82,7 @@ extension LiquidityPoolDetailsInteractor: LiquidityPoolDetailsInteractorInput {
         Task {
             do {
                 let accountPoolStream = try await liquidityPoolService.subscribeUserPools(accountId: accountId)
-                for try await accountPools in accountPoolStream {
+                for await accountPools in accountPoolStream {
                     guard let pool = accountPools.value?.first(where: { $0.poolId == assetIdPair.poolId }) else {
                         return
                     }
@@ -104,7 +104,7 @@ extension LiquidityPoolDetailsInteractor: LiquidityPoolDetailsInteractorInput {
             do {
                 let reservesStream = try await liquidityPoolService.subscribePoolReserves(assetIdPair: assetIdPair)
 
-                for try await reserves in reservesStream {
+                for await reserves in reservesStream {
                     await MainActor.run {
                         output?.didReceivePoolReserves(reserves: reserves)
                     }
@@ -119,10 +119,11 @@ extension LiquidityPoolDetailsInteractor: LiquidityPoolDetailsInteractorInput {
 
     func fetchApy(reservesId: String) {
         Task {
-            let address = try AddressFactory.address(for: Data(hex: reservesId), chain: chain)
-            let apyStream = try await liquidityPoolService.subscribePoolsAPY(poolIds: [address])
             do {
-                for try await apy in apyStream {
+                let address = try AddressFactory.address(for: Data(hex: reservesId), chain: chain)
+                let apyStream = try await liquidityPoolService.subscribePoolsAPY(poolIds: [address])
+
+                for await apy in apyStream {
                     await MainActor.run {
                         let match = apy.first { ($0.value ?? nil)?.poolId == address }
                         output?.didReceivePoolAPY(apy: match?.value ?? nil)

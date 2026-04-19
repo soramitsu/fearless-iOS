@@ -26,22 +26,20 @@ struct MetaAccountModel: Equatable, Codable {
         SSFModels.MetaAccountModel(
             metaId: metaId,
             name: name,
-            ecosystem: .regular(
-                .init(
-                    substrateAccountId: substrateAccountId,
-                    substrateCryptoType: substrateCryptoType,
-                    substratePublicKey: substratePublicKey,
-                    ethereumAddress: ethereumAddress,
-                    ethereumPublicKey: ethereumPublicKey
-                )
-            ),
+            substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType,
+            substratePublicKey: substratePublicKey,
+            ethereumAddress: ethereumAddress,
+            ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
+            assetFilterOptions: [],
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
+            zeroBalanceAssetsHidden: false,
             hasBackup: hasBackup,
             favouriteChainIds: favouriteChainIds
         )

@@ -81,7 +81,7 @@ final class WalletConnectSignerImpl: WalletConnectSigner {
         let secretKeyData = try extractPrivateKey(for: chain)
 
         return try TransactionSignerAssembly.signer(
-            for: chain.ecosystem,
+            for: chain.chainBaseType,
             publicKeyData: publicKeyData,
             secretKeyData: secretKeyData,
             cryptoType: cryptoType

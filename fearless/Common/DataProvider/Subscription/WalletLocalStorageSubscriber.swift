@@ -86,7 +86,7 @@ extension WalletLocalStorageSubscriber {
             return
         }
 
-        switch chainAsset.chainAssetType.substrateAssetType {
+        switch chainAsset.chainAssetType {
         case .normal?:
             handleAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
 

@@ -130,8 +130,15 @@ The project mixes CocoaPods and Swift Package Manager. Follow these steps in ord
   - Alternatively, write a `~/.netrc` with GitHub credentials (read-only).
 
 7) IrohaCrypto + SPM stability (Xcode 16/18)
-- The SPM package `shared-features-spm` must be pinned to a revision that works with Xcode 16/18 (`b820bfd…`). We now enforce this automatically via `scripts/deps/enforce-ssf-pin.sh` in CI (`bootstrap.sh`), local dev (`dev-setup.sh`), and tests (`test-matrix.sh`).
-- A hotfix exists at `scripts/spm-iroha-hotfix.sh` that patches `IrohaCrypto` module map if stale DerivedData causes umbrella header errors; `scripts/test-matrix.sh` will invoke it for tests. Additional SSF manifest/source fixes (BigInt dep, Web3 Data.bytes, AddressFactory type usage, scrypt guard) are applied by `scripts/spm-shared-features-fixes.sh`.
+- The SPM package `shared-features-spm` must be pinned to a revision that works with Xcode 16/18 (`3ad0fe9…`). We now enforce this automatically via `scripts/deps/enforce-ssf-pin.sh` in CI (`bootstrap.sh`), local dev (`dev-setup.sh`), and tests (`test-matrix.sh`).
+- Dependency-contract validation is centralized in:
+  - `scripts/deps/check-dependency-contracts.sh`
+- Native crypto stability now uses dedicated contract scripts:
+  - `scripts/deps/prepare-native-crypto-checkout.sh`
+  - `scripts/deps/apply-native-crypto-package-contract.sh`
+  - `scripts/deps/apply-native-crypto-modulemap-contract.sh`
+  - `scripts/deps/verify-native-crypto-package-state.sh`
+- Additional required `shared-features-spm` compatibility fixes (BigInt dep, Web3 Data.bytes, AddressFactory type usage, scrypt guard) are applied by `scripts/spm-shared-features-fixes.sh`.
 
 8) Web3 duplication
 - The project uses `soramitsu/web3-swift@7.7.7`. Do not add another Web3 source; duplicate packages will cause resolver failure.
@@ -148,7 +155,7 @@ The project mixes CocoaPods and Swift Package Manager. Follow these steps in ord
 - Steps performed before archive:
   - Clean SPM caches; resolve packages if the workspace exists.
   - Configure GitHub token (if provided) and run `pod install --repo-update` when `pod` is available.
-  - Patch IrohaCrypto module map if needed (hotfix function inside Jenkinsfile).
+  - Prepare the native crypto checkout against the repo-owned contract when required by the resolved package state.
 - Fastlane lane archives Dev as Ad‑hoc with mapping:
   - `jp.co.soramitsu.fearlesswallet.dev` → `fearlesswallet-dev-adhoc`
   - Ensure the Apple Distribution cert for `YLWWUD25VZ` is installed on the CI keychain.
@@ -157,7 +164,7 @@ The project mixes CocoaPods and Swift Package Manager. Follow these steps in ord
 
 - “No profile … matching ‘fearlesswallet-dev-adhoc’”: install the ad‑hoc profile (and Distribution certificate) on the machine, or switch PR builds to Development signing.
 - “Missing package product ‘MPQRCoreSDK’”: resolve SPM; reset SPM caches; ensure network access for binary targets.
-- “umbrella header … IrohaCrypto-umbrella.h not found”: use the pinned `shared-features-spm` revision and/or run the hotfix (`scripts/spm-iroha-hotfix.sh`).
+- “umbrella header … IrohaCrypto-umbrella.h not found”: use the pinned `shared-features-spm` revision and run the dedicated native crypto contract scripts / verifier.
 - “multiple similar targets ‘Web3’ …”: dedupe to `soramitsu/web3-swift@7.7.7` only.
 - “pod install” fails cloning FearlessKeys: supply `GH_PAT_READ` or gate that pod in CI.
 - “Ambiguous type ‘MetaAccountModel’ / ‘ChainAccountResponse’ in tests”: tests include `fearlessTests/Helper/TestTypeAliases.swift` to resolve ambiguity to app models. If you add conflicting SDK types, keep this shim or qualify uses (`fearless.MetaAccountModel`).

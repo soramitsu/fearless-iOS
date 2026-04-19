@@ -60,35 +60,19 @@ extension UIImage {
     }
 
     class func delayForImageAtIndex(_ index: Int, source: CGImageSource!) -> Double {
-        var delay = 0.0
-
-        // Get dictionaries
-        let cfProperties = CGImageSourceCopyPropertiesAtIndex(source, index, nil)
-        let gifPropertiesPointer = UnsafeMutablePointer<UnsafeRawPointer?>.allocate(capacity: 0)
-        if CFDictionaryGetValueIfPresent(cfProperties, Unmanaged.passUnretained(kCGImagePropertyGIFDictionary).toOpaque(), gifPropertiesPointer) == false {
-            return delay
+        guard
+            let properties = CGImageSourceCopyPropertiesAtIndex(source, index, nil) as? [CFString: Any],
+            let gifProperties = properties[kCGImagePropertyGIFDictionary] as? [CFString: Any]
+        else {
+            return 0.0
         }
 
-        let gifProperties: CFDictionary = unsafeBitCast(gifPropertiesPointer.pointee, to: CFDictionary.self)
-
-        // Get delay time
-        var delayObject: AnyObject = unsafeBitCast(
-            CFDictionaryGetValue(
-                gifProperties,
-                Unmanaged.passUnretained(kCGImagePropertyGIFUnclampedDelayTime).toOpaque()
-            ),
-            to: AnyObject.self
-        )
-        if delayObject.doubleValue == 0 {
-            delayObject = unsafeBitCast(CFDictionaryGetValue(
-                gifProperties,
-                Unmanaged.passUnretained(kCGImagePropertyGIFDelayTime).toOpaque()
-            ), to: AnyObject.self)
+        let unclampedDelay = (gifProperties[kCGImagePropertyGIFUnclampedDelayTime] as? NSNumber)?.doubleValue ?? 0.0
+        if unclampedDelay != 0 {
+            return unclampedDelay
         }
 
-        delay = delayObject as? Double ?? 0
-
-        return delay
+        return (gifProperties[kCGImagePropertyGIFDelayTime] as? NSNumber)?.doubleValue ?? 0.0
     }
 }
 

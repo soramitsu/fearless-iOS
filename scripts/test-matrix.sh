@@ -79,23 +79,26 @@ if [[ "$DEST" == *"Any iOS Simulator Device"* || "$DEST" == "" ]]; then
   echo "==> Using detected destination: ${DEST}"
 fi
 
-# Enforce SSF pin, then apply SPM hotfixes so SSF packages are stable under Xcode 16+
+# Enforce SSF pin, then apply repo-owned package contracts/fixes so SSF packages are stable under Xcode 16+
 if [ -x "scripts/deps/enforce-ssf-pin.sh" ]; then
   echo "\n==> Enforcing shared-features-spm pinned revision"
   scripts/deps/enforce-ssf-pin.sh || true
 fi
 
-if [ -x "scripts/deps/check-swiftpm-consistency.sh" ]; then
-  echo "\n==> Validating committed SwiftPM state"
-  scripts/deps/check-swiftpm-consistency.sh
+if [ -x "scripts/deps/check-dependency-contracts.sh" ]; then
+  echo "\n==> Validating dependency contracts"
+  scripts/deps/check-dependency-contracts.sh
 fi
 
 echo "\n==> Resolving Swift Package dependencies"
-xcodebuild \
+if ! xcodebuild \
   -resolvePackageDependencies \
   -workspace "${WORKSPACE}" \
   -scheme "${SCHEME}" \
-  -clonedSourcePackagesDirPath "${LOCAL_SOURCE_PACKAGES_DIR}" || true
+  -clonedSourcePackagesDirPath "${LOCAL_SOURCE_PACKAGES_DIR}"; then
+  echo "Initial Swift Package resolution failed before shared-features/native-crypto preparation." >&2
+  exit 1
+fi
 
 # Patch shared-features-spm manifest and sources in the explicit local checkout.
 if [ -x "scripts/spm-shared-features-fixes.sh" ]; then
@@ -103,20 +106,33 @@ if [ -x "scripts/spm-shared-features-fixes.sh" ]; then
   SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 scripts/spm-shared-features-fixes.sh "$(pwd)"
 fi
 
-# Re-resolve after patching Package.swift in the same local checkout.
-echo "\n==> Re-resolving Swift Package dependencies"
-xcodebuild \
-  -resolvePackageDependencies \
-  -workspace "${WORKSPACE}" \
-  -scheme "${SCHEME}" \
-  -clonedSourcePackagesDirPath "${LOCAL_SOURCE_PACKAGES_DIR}" || true
+verify_native_crypto_state() {
+  if [ ! -x "scripts/deps/prepare-native-crypto-checkout.sh" ]; then
+    return 0
+  fi
 
-# Apply SPM IrohaCrypto hotfix after the explicit resolve so the freshly
-# materialized checkout is patched before any build starts.
-if [ -x "scripts/spm-iroha-hotfix.sh" ]; then
-  echo "\n==> Applying SPM IrohaCrypto hotfix"
-  SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" HOTFIX_SKIP_RESOLVE=1 HOTFIX_REQUIRE_PATCH=1 scripts/spm-iroha-hotfix.sh "${SCHEME}" "${WORKSPACE}"
-fi
+  echo "\n==> Preparing native crypto checkout"
+  local status=0
+  if SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" STRICT_REQUIRED_PATCHES=1 scripts/deps/prepare-native-crypto-checkout.sh "$(pwd)" "${WORKSPACE}" "${SCHEME}"; then
+    return 0
+  else
+    status=$?
+  fi
+
+  if [[ "$status" == "2" ]]; then
+    echo "Native crypto contract failed because the resolved shared-features-spm checkout is missing." >&2
+    echo "This indicates a package resolution/materialization problem rather than a patched package contract failure." >&2
+  elif [[ "$status" == "3" ]]; then
+    echo "Native crypto preparation failed because Swift Package re-resolution did not succeed." >&2
+    echo "This indicates the checkout could not be materialized consistently before native crypto contract verification." >&2
+  else
+    echo "Native crypto contract failed because the resolved shared-features-spm checkout violates the expected package contract." >&2
+    echo "This indicates the checkout exists, but IrohaCrypto linker/modulemap state is still incorrect." >&2
+  fi
+  exit "$status"
+}
+
+verify_native_crypto_state
 
 # Ensure Cuckoo mock generation build phases run even on CI
 unset CI || true

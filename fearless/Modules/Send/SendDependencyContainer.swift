@@ -111,8 +111,7 @@ final class SendDepencyContainer {
             throw ChainAccountFetchingError.accountNotExists
         }
 
-        switch chainAsset.chain.ecosystem {
-        case .substrate:
+        if chainAsset.chain.chainBaseType == .substrate {
             guard let nativeRuntimeService = (ChainRegistryFacade.sharedRegistry as ChainRegistryProtocol).getRuntimeProvider(for: chainAsset.chain.chainId) else {
                 throw ChainRegistryError.runtimeMetadaUnavailable
             }
@@ -138,7 +137,9 @@ final class SendDepencyContainer {
 
             let callFactory = SubstrateCallFactoryDefault(runtimeService: nativeRuntimeService)
             return SubstrateTransferService(extrinsicService: extrinsicService, callFactory: callFactory, signer: signer)
-        case .ethereum, .ethereumBased:
+        }
+
+        if chainAsset.chain.chainBaseType == .ethereum {
             let secretKey = try fetchSecretKey(for: chainAsset.chain, accountResponse: accountResponse)
 
             guard let address = accountResponse.toAddress() else {
@@ -154,9 +155,9 @@ final class SendDepencyContainer {
                 privateKey: try EthereumPrivateKey(privateKey: Array(secretKey)),
                 senderAddress: address
             )
-        case .ton:
-            throw ConvenienceError(error: "TON transfer not yet supported.")
         }
+
+        throw ConvenienceError(error: "TON transfer not yet supported.")
     }
 
     private func createEqTotalBalanceService(chainAsset: ChainAsset) -> EquilibriumTotalBalanceServiceProtocol? {

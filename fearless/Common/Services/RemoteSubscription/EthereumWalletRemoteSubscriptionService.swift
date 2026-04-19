@@ -107,8 +107,8 @@ extension EthereumWalletRemoteSubscriptionService: WalletRemoteSubscriptionServi
                     try? self?.handleNewBlock(ws: ws, chainAsset: chainAsset, accountId: accountId)
                 }
             } catch {
-                return continuation.resume(with: .failure(error))
                 logger.error("EthereumWalletRemoteSubscriptionService:attachToAccountInfo:error: \(error.localizedDescription)")
+                return continuation.resume(with: .failure(error))
             }
         }
 

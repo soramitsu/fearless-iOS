@@ -8,7 +8,7 @@ final class FireHistoryOperationFactory {
         url: URL
     ) -> BaseOperation<FireHistoryResponse> {
         let requestFactory = BlockNetworkRequestFactory {
-            var url = url
+            let url = url
                 .appendingPathComponent("transactions")
                 .appendingPathComponent("address")
                 .appendingPathComponent(address)

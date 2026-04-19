@@ -65,10 +65,7 @@ final class NftSendConfirmAssembly {
         }
         let keystore = Keychain()
 
-        switch chain.ecosystem {
-        case .substrate:
-            throw NftSendAssemblyError.substrateNftNotImplemented
-        case .ethereum, .ethereumBased:
+        if chain.chainBaseType == .ethereum {
             let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
             let tag: String = KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
 
@@ -88,7 +85,7 @@ final class NftSendConfirmAssembly {
                 senderAddress: address,
                 logger: Logger.shared
             )
-        case .ton:
+        } else {
             throw NftSendAssemblyError.substrateNftNotImplemented
         }
     }

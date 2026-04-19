@@ -4,8 +4,7 @@ import SSFQRService
 
 final class ScanQRAssembly {
     static func configureModule(
-        moduleOutput: ScanQRModuleOutput,
-        matchers: [QRMatcher] = ScanQRAssembly.defaultMatchers
+        moduleOutput: ScanQRModuleOutput
     ) -> ScanQRModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
@@ -14,9 +13,7 @@ final class ScanQRAssembly {
             delegateQueue: nil
         )
 
-        let qrService = QRServiceDefault(
-            matchers: matchers
-        )
+        let qrService = QRServiceDefault()
 
         let interactor = ScanQRInteractor(
             qrService: qrService,
@@ -39,13 +36,4 @@ final class ScanQRAssembly {
 
         return (view, presenter)
     }
-
-    static var defaultMatchers: [QRMatcher] {
-        [
-            QRInfoMatcher(decoder: QRDecoderDefault()),
-            QRUriMatcherImpl(scheme: "wc")
-        ]
-    }
-
-    static let wcSchemeMatcher = QRUriMatcherImpl(scheme: "wc")
 }

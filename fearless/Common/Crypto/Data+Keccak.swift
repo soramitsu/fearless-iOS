@@ -13,8 +13,8 @@ extension Data {
 
         var data = Data(count: outputCount)
 
-        let result = data.withUnsafeMutableBytes { output in
-            withUnsafeBytes { input in
+        let result = data.withUnsafeMutableBytes { (output: UnsafeMutableRawBufferPointer) in
+            withUnsafeBytes { (input: UnsafeRawBufferPointer) in
                 keccak_256(
                     output.baseAddress?.assumingMemoryBound(to: UInt8.self),
                     outputCount,

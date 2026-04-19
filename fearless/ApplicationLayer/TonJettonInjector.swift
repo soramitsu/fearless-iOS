@@ -34,7 +34,8 @@ actor TonJettonInjectorImpl: TonJettonInjector {
                 assetModels.insert(tonAsset)
             }
 
-            let updatedChainModel = tonChain.replacingAssets(Array(assetModels))
+            var updatedChainModel = tonChain
+            updatedChainModel.assets = assetModels
             await chainModelRepository.save(models: [updatedChainModel])
             eventCenter.notify(with: PricesUpdated())
 
@@ -53,10 +54,15 @@ actor TonJettonInjectorImpl: TonJettonInjector {
             guard let tonAsset = tonChain.utilityChainAssets().first else {
                 return
             }
-            let updatedTonAsset = tonAsset.asset.replacingPrice(tonPriceData)
+            guard let tonPrice = tonPriceData.first else {
+                return
+            }
+
+            let updatedTonAsset = tonAsset.asset.replacingPrice(tonPrice)
             var jettons = Array(tonChain.assets.filter { !$0.isUtility })
             jettons.append(updatedTonAsset)
-            let updatedChain = tonChain.replacingAssets(jettons)
+            var updatedChain = tonChain
+            updatedChain.assets = Set(jettons)
             await chainModelRepository.save(models: [updatedChain])
             eventCenter.notify(with: PricesUpdated())
         } catch {
@@ -72,6 +78,8 @@ actor TonJettonInjectorImpl: TonJettonInjector {
                 symbol: balanceInfo.item.jettonInfo.symbol ?? balanceInfo.item.jettonInfo.name,
                 precision: UInt16(balanceInfo.item.jettonInfo.fractionDigits),
                 icon: balanceInfo.item.jettonInfo.imageURL,
+                price: Decimal(string: balanceInfo.priceData.first?.price ?? ""),
+                fiatDayChange: balanceInfo.priceData.first?.fiatDayChange,
                 currencyId: balanceInfo.item.jettonInfo.address.toRaw(),
                 existentialDeposit: nil,
                 color: nil,
@@ -79,10 +87,10 @@ actor TonJettonInjectorImpl: TonJettonInjector {
                 isNative: false,
                 staking: nil,
                 purchaseProviders: nil,
-                assetType: .ton(tonType: .jetton),
+                type: .xcm,
+                ethereumType: nil,
                 priceProvider: nil,
-                coingeckoPriceId: nil,
-                priceData: balanceInfo.priceData
+                coingeckoPriceId: balanceInfo.priceData.first?.coingeckoPriceId
             )
         }
 

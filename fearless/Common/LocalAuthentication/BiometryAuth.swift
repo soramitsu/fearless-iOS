@@ -30,6 +30,8 @@ class BiometryAuth: BiometryAuthProtocol {
                 return .touchId
             case .faceID:
                 return .faceId
+            case .opticID:
+                return .faceId
             case .none:
                 return .none
             @unknown default:

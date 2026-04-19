@@ -66,3 +66,6 @@ public extension AssetModel {
 extension AssetModel: RobinHood.Identifiable {
     public var identifier: String { id }
 }
+
+// Newer storage/repository constraints require Swift.Identifiable.
+extension AssetModel: Swift.Identifiable {}

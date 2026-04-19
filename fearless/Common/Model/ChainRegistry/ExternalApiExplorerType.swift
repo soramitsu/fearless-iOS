@@ -16,8 +16,6 @@ extension ChainModel.ExternalApiExplorerType {
                 return R.string.localizable.transactionDetailsViewReefscan(preferredLanguages: locale.rLanguages)
             case .oklink:
                 return R.string.localizable.transactionDetailsViewOklink(preferredLanguages: locale.rLanguages)
-            case .tonviewer:
-                return "Tonviewer"
             case .unknown:
                 return ""
             }

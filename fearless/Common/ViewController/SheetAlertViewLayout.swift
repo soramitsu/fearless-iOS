@@ -8,7 +8,7 @@ final class SheetAlertViewLayout: UIView {
         static let imageViewSize = CGSize(width: 48, height: 42)
         static let closeButton: CGFloat = 32.0
         static var popupWindowHeightRatio: CGFloat {
-            let window = UIApplication.shared.windows.first
+            let window = SceneWindowFinder.activeWindow()
             let topPadding = window?.safeAreaInsets.top ?? .zero
             let bottomPadding = window?.safeAreaInsets.bottom ?? .zero
             return (window?.frame.height ?? UIScreen.main.bounds.height * 0.7) - topPadding - bottomPadding

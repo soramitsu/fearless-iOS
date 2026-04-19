@@ -59,7 +59,7 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         )
 
         let cacheValue = [(normal, normalBalance)] + jettonsAccountInfos
-        try? await cache(cacheValue, accountId: accountId)
+        try? cache(cacheValue, accountId: accountId)
 
         let normalMap: [ChainAssetId: AccountInfo?] = [normal.chainAssetId: normalBalance]
         let union = normalMap.merging(jettonsAccountInfoMap, uniquingKeysWith: { current, _ in current })
@@ -95,7 +95,7 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         }
 
         let cacheValue = [(chainAsset, accountInfo)]
-        try? await cache(cacheValue, accountId: accountId)
+        try? cache(cacheValue, accountId: accountId)
         return accountInfo
     }
 
@@ -127,12 +127,12 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
             jettonBalances: jettonBalances,
             chain: normal.chain
         )
-        let jettonsAccountInfoMap = Dictionary(
-            uniqueKeysWithValues: jettonsAccountInfos.map { ($0.0.uniqueKey(accountId: accountId), $0.1) }
+        let jettonsAccountInfoMap: [ChainAssetKey: AccountInfo?] = Dictionary(
+            uniqueKeysWithValues: jettonsAccountInfos.map { ($0.0.uniqueKey(accountId: accountId), Optional($0.1)) }
         )
 
         let cacheValue = [(normal, normalBalance)] + jettonsAccountInfos
-        try? await cache(cacheValue, accountId: accountId)
+        try? cache(cacheValue, accountId: accountId)
 
         let normalKey = normal.uniqueKey(accountId: accountId)
         let normalMap: [ChainAssetKey: AccountInfo?] = [normalKey: normalBalance]
@@ -165,6 +165,8 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
                 symbol: jetton.item.jettonInfo.symbol ?? jetton.item.jettonInfo.name,
                 precision: UInt16(jetton.item.jettonInfo.fractionDigits),
                 icon: jetton.item.jettonInfo.imageURL,
+                price: Decimal(string: jetton.priceData.first?.price ?? ""),
+                fiatDayChange: jetton.priceData.first?.fiatDayChange,
                 currencyId: jetton.item.jettonInfo.address.toRaw(),
                 existentialDeposit: nil,
                 color: nil,
@@ -172,10 +174,10 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
                 isNative: false,
                 staking: nil,
                 purchaseProviders: nil,
-                assetType: .ton(tonType: .jetton),
+                type: .xcm,
+                ethereumType: nil,
                 priceProvider: nil,
-                coingeckoPriceId: nil,
-                priceData: jetton.priceData
+                coingeckoPriceId: jetton.priceData.first?.coingeckoPriceId
             )
             let chainAsset = ChainAsset(chain: chain, asset: asset)
             return (chainAsset, AccountInfo(ethBalance: jetton.quantity))
@@ -204,13 +206,15 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         async let response = try tonAPIClient.getAccount(.init(path: .init(account_id: address)))
         async let rates = try getTonRates(currency: currency)
 
-        let account = try await TonAccount(account: try response.ok.body.json)
+        let account = try TonAccount(account: try await response.ok.body.json)
         let stringBalance = String(account.balance)
         guard let balance = BigUInt(string: stringBalance) else {
             throw TonRemoteBalanceFetchingError.balanceError
         }
 
-        if let tonRates = try? await rates["TON"] {
+        let ratesValue = try await rates
+
+        if let tonRates = ratesValue["TON"] {
             let tonPriceData = mapJettonRates(rates: tonRates, currency: currency)
             await jettonInjector.inject(tonPriceData: tonPriceData)
         }

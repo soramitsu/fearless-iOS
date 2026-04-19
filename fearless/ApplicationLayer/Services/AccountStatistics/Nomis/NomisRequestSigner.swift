@@ -10,7 +10,7 @@ import SSFNetwork
 #endif
 
 final class NomisRequestSigner: RequestSigner {
-    func sign(request: inout URLRequest, config _: SSFNetwork.RequestConfig) throws {
+    func sign(request: inout URLRequest, config _: RequestConfig) throws {
         let clientId = NomisApiKeys.nomisClientId
         let apiKey = NomisApiKeys.nomisApiKey
 

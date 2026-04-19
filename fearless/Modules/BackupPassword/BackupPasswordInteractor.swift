@@ -40,7 +40,7 @@ final class BackupPasswordInteractor: BaseAccountImportInteractor {
     }
 
     override func importAccountUsingOperation(_ importOperation: BaseOperation<MetaAccountModel>) {
-        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
+        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation {
             let accountItem = try importOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
             let updatedWallet = accountItem.replacingIsBackuped(true)
@@ -54,7 +54,7 @@ final class BackupPasswordInteractor: BaseAccountImportInteractor {
                     do {
                         let accountItem = try saveOperation
                             .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-                        self?.settings.save(value: accountItem, runningCompletionIn: .main) { [weak self] result in
+                        self?.settings.save(value: accountItem, runningCompletionIn: .main) { result in
                             switch result {
                             case let .success(savedAccount):
                                 self?.output?.didCompleteAccountImport()

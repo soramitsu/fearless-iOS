@@ -146,7 +146,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         amount: BigUInt,
         chainAsset: ChainAsset
     ) -> any RuntimeCallable {
-        switch chainAsset.chainAssetType.substrateAssetType {
+        switch chainAsset.chainAssetType {
         case .normal?, nil:
             if chainAsset.chain.isSora {
                 return ormlAssetTransfer(

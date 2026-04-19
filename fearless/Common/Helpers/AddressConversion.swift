@@ -10,9 +10,9 @@ enum ChainFormat {
     func asSfCrypto() -> SFChainFormat {
         switch self {
         case .ethereum:
-            return .ethereum
+            return .sfEthereum
         case let .substrate(prefix):
-            return .substrate(prefix)
+            return .sfSubstrate(prefix)
         }
     }
 }

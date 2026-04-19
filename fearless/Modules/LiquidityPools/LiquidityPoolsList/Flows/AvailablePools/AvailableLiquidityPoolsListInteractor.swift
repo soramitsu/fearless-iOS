@@ -38,7 +38,7 @@ final class AvailableLiquidityPoolsListInteractor {
             do {
                 let reservesStream = try await liquidityPoolService.subscribePoolsReserves(pools: pools)
 
-                for try await reserves in reservesStream {
+                for await reserves in reservesStream {
                     await MainActor.run {
                         output?.didReceivePoolsReserves(reserves: reserves)
                     }
@@ -69,7 +69,7 @@ extension AvailableLiquidityPoolsListInteractor: AvailableLiquidityPoolsListInte
             do {
                 let availablePoolsStream = try await liquidityPoolService.subscribeAvailablePools()
 
-                for try await availablePools in availablePoolsStream {
+                for await availablePools in availablePoolsStream {
                     await MainActor.run {
                         self.output?.didReceiveLiquidityPairs(pairs: availablePools.value)
                     }
@@ -114,7 +114,7 @@ extension AvailableLiquidityPoolsListInteractor: AvailableLiquidityPoolsListInte
         apyTask = Task {
             do {
                 let apyStream = try await liquidityPoolService.subscribePoolsAPY(poolIds: poolIds)
-                for try await apy in apyStream {
+                for await apy in apyStream {
                     if apy.first?.type == .remote {
                         let ids = apy.compactMap { $0.value ?? nil }.compactMap { $0.poolId }
                         receivedPoolIds.append(contentsOf: ids)

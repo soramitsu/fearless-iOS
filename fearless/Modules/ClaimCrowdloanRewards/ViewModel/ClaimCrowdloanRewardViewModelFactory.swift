@@ -84,9 +84,7 @@ extension ClaimCrowdloanRewardViewModelFactory: ClaimCrowdloanRewardViewModelFac
             var text = R.string.localizable.vestingClaimDisclaimerText(preferredLanguages: locale.rLanguages)
 
             // If on Asset Hub, append block-provider hint per runtime changes
-            if PolkadotRuntimeCompatibility.blockProviderHint(for: .vesting, on: self.chainAsset.chain) == .relay,
-               PolkadotRuntimeCompatibility.isTrustedAliaser(chain: self.chainAsset.chain)
-            {
+            if self.chainAsset.chain.paraId == "1000" {
                 text += "\n\n(Info: Vesting on Asset Hub uses Relay Chain block time)"
             }
 

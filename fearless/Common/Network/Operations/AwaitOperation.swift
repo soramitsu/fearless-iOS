@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-final class AwaitOperation<ResultType>: BaseOperation<ResultType> {
+final class AwaitOperation<ResultType>: BaseOperation<ResultType>, @unchecked Sendable {
     private let lockQueue = DispatchQueue(label: "com.swiftlee.asyncoperation", attributes: .concurrent)
 
     override var isAsynchronous: Bool {

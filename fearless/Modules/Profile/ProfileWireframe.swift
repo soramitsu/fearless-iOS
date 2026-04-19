@@ -62,7 +62,7 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
     }
 
     func logout(from _: ProfileViewProtocol?) {
-        if let window = UIApplication.shared.windows.first {
+        if let window = SceneWindowFinder.activeWindow() {
             window.rootViewController?.dismiss(animated: true, completion: nil)
             window.rootViewController = nil
             let presenter = RootPresenterFactory.createPresenter(with: window)

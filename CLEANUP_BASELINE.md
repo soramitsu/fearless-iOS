@@ -47,6 +47,27 @@ Current status:
 - local SwiftPM mirror bootstrap is being moved out of `test-matrix.sh` into dedicated dependency scripts
 - `test-matrix.sh` is being moved toward an explicit repo-local `SourcePackages` checkout path instead of implicit `DerivedData` resolution
 - package resolution now materializes the repo-local checkout before `shared-features-spm` patching, then re-resolves against that same checkout
+- native crypto patching is being moved toward repo-owned templates plus explicit verification of the resolved package state
+- native crypto linker settings are being separated from generic `shared-features-spm` rewrites into their own contract step
+- native crypto modulemap and umbrella-header handling are being separated into their own contract step as well
+- native crypto verification now distinguishes missing resolved checkout from an actual package-contract violation
+- the matrix flow is being updated to surface those native crypto failure classes explicitly in build output
+- the old `spm-iroha-hotfix.sh` path has been retired from the repo; native crypto now uses dedicated contract scripts only
+- native crypto contract application is being consolidated behind a single repo-owned entrypoint for test/dev/CI flows
+- native crypto checkout preparation now has a dedicated end-to-end step that includes re-resolve plus contract enforcement
+- the intermediate native crypto contract orchestrator has been removed; test/dev/CI now use the checkout-preparation entrypoint directly
+- native crypto checkout preparation now fails explicitly on Swift Package re-resolution errors instead of continuing into partial checkout state
+- native crypto modulemap/umbrella handling now uses repo-owned templates instead of in-place regex mutation
+- native crypto linker settings now validate against a repo-owned block instead of individual framework checks
+- native crypto linker-settings normalization is now scoped to the `IrohaCrypto` target and rejects duplicate contract blocks
+- native crypto checkout preparation now short-circuits when the resolved checkout already satisfies the repo-owned contract
+- the remaining native crypto delta is now documented explicitly for upstreaming instead of being implied only by repair scripts
+- native crypto contract wiring now has a repo-side guardrail to prevent legacy entrypoints from being reintroduced silently
+- required `shared-features-spm` compatibility fixes now have a repo-side wiring guardrail as well
+- dependency-contract validation is now being centralized so local, CI, PR, and matrix flows all check the same repo-side guardrails up front
+- the remaining native crypto delta can now be exported as a concrete handoff artifact for upstreaming or vendoring
+- Milestone 4 warning burn-down has materially reduced app-owned warning volume across deprecated UIKit APIs, unsafe pointer usage, sendability restatements, redundant `await` / async-stream mismatches, and low-risk code-hygiene noise
+- app-owned warning cleanup is now primarily in long-tail or build-log-refresh territory rather than high-volume source buckets
 
 ### Test State
 
@@ -109,6 +130,10 @@ Exit criteria:
 - warning count is materially reduced
 - touched areas are warning-free
 
+Status:
+- complete for the app-owned high-volume warning buckets that were blocking cleanup progress
+- any remaining warning work should be treated as targeted follow-up after a fresh successful build log refresh, especially for package/binary noise or stale navigator entries
+
 ### Milestone 5: Test Reliability
 
 Goal:
@@ -146,7 +171,7 @@ Goal:
 Priority items:
 - CI gates for dependency drift and new warnings
 - documented build/test workflow
-- removal plan for temporary hotfix scripts
+- removal plan for temporary checkout-mutation scripts
 
 Exit criteria:
 - future work does not reintroduce the same classes of breakage

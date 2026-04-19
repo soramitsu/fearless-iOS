@@ -3,7 +3,6 @@ set -euo pipefail
 
 # Patches known issues in shared-features-spm after SPM resolution.
 # - Adds missing RobinHood dependency to SSFModels target when absent.
-# - Makes IrohaCrypto explicitly link its bundled crypto xcframeworks.
 #
 # Usage:
 #   scripts/spm-shared-features-fixes.sh [BASE_DIR]
@@ -15,6 +14,32 @@ SOURCE_PACKAGES_BASE="$(dirname "$SOURCE_PACKAGES_DIR")"
 ALLOW_DERIVEDDATA_FALLBACK="${ALLOW_DERIVEDDATA_FALLBACK:-0}"
 STRICT_REQUIRED_PATCHES="${STRICT_REQUIRED_PATCHES:-0}"
 REQUIRED_PATCH_COUNT=0
+CHECKOUT_HELPER="$BASE_DIR/scripts/deps/native-crypto-checkout-roots.sh"
+
+each_checkout_base() {
+  local package_root
+  local saw_any=0
+
+  if [[ -f "$CHECKOUT_HELPER" ]]; then
+    # shellcheck source=/dev/null
+    source "$CHECKOUT_HELPER"
+    while IFS= read -r package_root; do
+      saw_any=1
+      printf '%s\n' "$(dirname "$(dirname "$(dirname "$package_root")")")"
+    done < <(native_crypto_checkout_candidates "$BASE_DIR" "$SOURCE_PACKAGES_DIR")
+  fi
+
+  if [[ "$saw_any" == "0" ]]; then
+    printf '%s\n' "$SOURCE_PACKAGES_BASE"
+  fi
+
+  if [[ "$saw_any" == "0" && "$ALLOW_DERIVEDDATA_FALLBACK" == "1" ]]; then
+    for dd in "$HOME/Library/Developer/Xcode/DerivedData"/* "$BASE_DIR/DerivedData"/*; do
+      [[ -d "$dd/SourcePackages/checkouts/shared-features-spm" ]] || continue
+      printf '%s\n' "$dd"
+    done
+  fi
+}
 
 patch_manifest() {
   local pkg_swift="$1/SourcePackages/checkouts/shared-features-spm/Package.swift"
@@ -53,44 +78,24 @@ patch_manifest() {
   fi
 
   # Rewrite the SSFModels target dependencies block to include RobinHood, BigInt, and preserve Ton deps.
-  local tmp_file
-  tmp_file=$(mktemp)
-  awk '
-    BEGIN{
-      in_models=0;
-      skipping=0;
-      replacement="            dependencies: [\n                \"IrohaCrypto\",\n                \"RobinHood\",\n                .product(name: \"BigInt\", package: \"BigInt\"),\n                .product(name: \"TonSwift\", package: \"ton-swift\"),\n                .product(name: \"TonAPI\", package: \"ton-api-swift\")\n            ]"
-    }
-    /target\(/ && $0 ~ /name:[[:space:]]*"SSFModels"/ { in_models=1 }
-    in_models==1 && /dependencies:[[:space:]]*\[/ {
-      print replacement;
-      skipping=1;
-      next
-    }
-    skipping==1 {
-      if ($0 ~ /^\s*\]/) {
-        skipping=0;
-        next
-      } else {
-        next
-      }
-    }
-    /\)\s*,\s*$/ { if(in_models==1){ in_models=0 } }
-    { print }
-  ' "$pkg_swift" > "$tmp_file"
+  local models_before
+  models_before="$(mktemp)"
+  cp "$pkg_swift" "$models_before"
+  /usr/bin/perl -0pi -e '
+    s{
+      (\.target\(\s*name:\s*"SSFModels",\s*dependencies:\s*)\[[^\]]*\]
+    }{$1\[
+                "IrohaCrypto",
+                "RobinHood",
+                .product(name: "BigInt", package: "BigInt")
+            \]}sx
+      or die "Unable to locate SSFModels dependencies block\n";
+  ' "$pkg_swift" || true
 
-  if ! diff -q "$pkg_swift" "$tmp_file" >/dev/null 2>&1; then
+  if ! diff -q "$pkg_swift" "$models_before" >/dev/null 2>&1; then
     echo "[spm-fixes] Updated SSFModels dependencies in $pkg_swift"
-    /usr/bin/grep -nE 'target\([[:space:]]*name:[[:space:]]*"SSFModels"|dependencies:[[:space:]]*\[' "$tmp_file" | sed -n '1,6p' || true
-    if mv "$tmp_file" "$pkg_swift" 2>/dev/null; then
-      :
-    else
-      echo "[spm-fixes] Skipping write (no permission) for $pkg_swift in this environment" >&2
-      rm -f "$tmp_file"
-    fi
-  else
-    rm -f "$tmp_file"
   fi
+  rm -f "$models_before"
 
   # Ensure SSFPolkaswap has explicit SPM deps it imports directly (Reachability, SwiftyBeaver, SoraKeystore)
   local pkg_tmp
@@ -113,25 +118,11 @@ patch_manifest() {
     rm -f "$pkg_tmp"
   fi
 
-  if ! /usr/bin/grep -q 'linkedFramework("blake2lib")' "$pkg_swift"; then
-    /usr/bin/perl -0pi -e 's/cSettings:\s*\[\s*\.headerSearchPath\("\."\)\s*\]/cSettings: [ .headerSearchPath(".") ],\n            linkerSettings: [\n                .linkedFramework("blake2lib"),\n                .linkedFramework("libed25519"),\n                .linkedFramework("sr25519lib"),\n                .linkedFramework("sorawallet")\n            ]/g' "$pkg_swift" || true
-
-    if /usr/bin/grep -q 'linkedFramework("blake2lib")' "$pkg_swift"; then
-      echo "[spm-fixes] Added explicit IrohaCrypto linker settings for bundled crypto xcframeworks"
-    fi
-  fi
 }
 
-# Try the explicit SourcePackages root first.
-patch_manifest "$SOURCE_PACKAGES_BASE"
-
-# Fall back to DerivedData only when explicitly enabled.
-if [[ "$ALLOW_DERIVEDDATA_FALLBACK" == "1" ]]; then
-  for dd in "$HOME/Library/Developer/Xcode/DerivedData"/* "$BASE_DIR/DerivedData"/*; do
-    [[ -d "$dd/SourcePackages/checkouts/shared-features-spm" ]] || continue
-    patch_manifest "$dd"
-  done
-fi
+while IFS= read -r checkout_base; do
+  patch_manifest "$checkout_base"
+done < <(each_checkout_base)
 
 echo "[spm-fixes] Completed shared-features-spm fixes"
 
@@ -165,21 +156,13 @@ patch_private_key_calls() {
   echo "[spm-fixes] Patched $patched file(s) under $root"
 }
 
-# Apply in the explicit SourcePackages root first.
-patch_private_key_calls "$SOURCE_PACKAGES_BASE"
-if [[ "$ALLOW_DERIVEDDATA_FALLBACK" == "1" ]]; then
-  for dd in "$HOME/Library/Developer/Xcode/DerivedData" "$BASE_DIR/DerivedData"; do
-    [[ -d "$dd" ]] || continue
-    for sub in "$dd"/*; do
-      [[ -d "$sub" ]] || continue
-      patch_private_key_calls "$sub"
-    done
-  done
-fi
+while IFS= read -r checkout_base; do
+  patch_private_key_calls "$checkout_base"
+done < <(each_checkout_base)
 
 echo "[spm-fixes] Completed EthereumPrivateKey call patches (with verification)"
 
-# 3) Convert SSFCrypto AddressFactory from enum to struct (allow instantiation)
+# 3) Normalize SSFCrypto AddressFactory compatibility without inventing new types
 patch_address_factory_struct() {
   local base_checkout="$1/SourcePackages/checkouts/shared-features-spm"
   local file="$base_checkout/Sources/SSFCrypto/Classes/AddressConversion.swift"
@@ -188,72 +171,23 @@ patch_address_factory_struct() {
     chmod -R u+w "$base_checkout/Sources" 2>/dev/null || true
   fi
   if [[ -f "$file" ]]; then
-    echo "[spm-fixes] Converting AddressFactory enum->struct in $file"
-    # Replace public enum AddressFactory with public struct AddressFactory (use -E for +)
-    /usr/bin/sed -E -i '' \
-      -e 's/^public[[:space:]]+enum[[:space:]]+AddressFactory\b/public struct AddressFactory/' \
-      -e 's/^enum[[:space:]]+AddressFactory\b/struct AddressFactory/' \
-      "$file" || true
-    # Simple append of instance wrappers at end of file if missing
-    if ! /usr/bin/grep -q "extension AddressFactory" "$file"; then
-      cat >> "$file" <<'EOF'
-
-public extension AddressFactory {
-    func address(for accountId: AccountId, chainFormat: SFChainFormat) throws -> AccountAddress {
-        try Self.address(for: accountId, chainFormat: chainFormat)
-    }
-
-    func accountId(from address: AccountAddress, chainFormat: SFChainFormat) throws -> AccountId {
-        try Self.accountId(from: address, chainFormat: chainFormat)
-    }
-
-    func accountId(from address: AccountAddress, chain: ChainModel) throws -> AccountId {
-        try Self.accountId(from: address, chain: chain)
-    }
-
-    func randomAccountId(for chainFormat: SFChainFormat) -> AccountId {
-        Self.randomAccountId(for: chainFormat)
-    }
-}
-EOF
-    fi
-
-    /usr/bin/sed -E -i '' '/typealias[[:space:]]+SFChainFormat/d' "$file"
-    printf '\npublic typealias SFChainFormat = ChainFormat\n' >> "$file"
+    echo "[spm-fixes] Removing invalid AddressFactory compatibility shims in $file"
+    /usr/bin/perl -0pi -e '
+      s/\npublic extension AddressFactory \{\n    func address\(for accountId: AccountId, chainFormat: SFChainFormat\) throws -> AccountAddress \{\n        try Self\.address\(for: accountId, chainFormat: chainFormat\)\n    \}\n\n    func accountId\(from address: AccountAddress, chainFormat: SFChainFormat\) throws -> AccountId \{\n        try Self\.accountId\(from: address, chainFormat: chainFormat\)\n    \}\n\n    func accountId\(from address: AccountAddress, chain: ChainModel\) throws -> AccountId \{\n        try Self\.accountId\(from: address, chain: chain\)\n    \}\n\n    func randomAccountId\(for chainFormat: SFChainFormat\) -> AccountId \{\n        Self\.randomAccountId\(for: chainFormat\)\n    \}\n\}\n//s;
+      s/\npublic typealias SFChainFormat = ChainFormat\n/\n/s;
+    ' "$file" || true
   else
     echo "[spm-fixes] AddressConversion.swift not found at $file; performing broad search"
   fi
 
-  # Also target SSFUtils AddressFactory explicitly if present
-  local utils_file="$base_checkout/Sources/SSFUtils/SSFUtils/Classes/AddressFactory.swift"
-  if [[ -f "$utils_file" ]]; then
-    echo "[spm-fixes] Converting AddressFactory enum->struct in $utils_file"
-    /usr/bin/sed -E -i '' \
-      -e 's/^public[[:space:]]+enum[[:space:]]+AddressFactory\b/public struct AddressFactory/' \
-      -e 's/^enum[[:space:]]+AddressFactory\b/struct AddressFactory/' \
-      "$utils_file" || true
-  fi
-
-  # Broad fallback: patch any file in shared-features-spm declaring enum AddressFactory
-  local sources_dir="$base_checkout/Sources"
-  if [[ -d "$sources_dir" ]]; then
-    # Global conversion: any occurrence of 'enum AddressFactory' -> 'struct AddressFactory'
-    echo "[spm-fixes] Performing global AddressFactory enum->struct conversion under $sources_dir"
-    /usr/bin/find "$sources_dir" -type f -name "*.swift" -print0 2>/dev/null | \
-      xargs -0 /usr/bin/sed -E -i '' \
-        -e 's/public[[:space:]]+enum[[:space:]]+AddressFactory\b/public struct AddressFactory/g' \
-        -e 's/([^A-Za-z0-9_])enum[[:space:]]+AddressFactory\b/\1struct AddressFactory/g' || true
-  fi
+  # Leave enum-based AddressFactory definitions intact. Downstream rewrites handle call sites explicitly.
 }
 
-patch_address_factory_struct "$SOURCE_PACKAGES_BASE"
-if [[ "$ALLOW_DERIVEDDATA_FALLBACK" == "1" ]]; then
-  for dd in "$HOME/Library/Developer/Xcode/DerivedData"/* "$BASE_DIR/DerivedData"/*; do
-    patch_address_factory_struct "$dd"
-  done
-fi
+while IFS= read -r checkout_base; do
+  patch_address_factory_struct "$checkout_base"
+done < <(each_checkout_base)
 
-echo "[spm-fixes] Converted SSFCrypto AddressFactory to struct (instance-friendly)"
+echo "[spm-fixes] Normalized SSFCrypto AddressFactory compatibility shims"
 
 # 4) Patch scrypt SIMD selection/headers to avoid simulator arch issues
 patch_scrypt_sse2_guard() {
@@ -273,17 +207,48 @@ patch_scrypt_sse2_guard() {
   fi
 }
 
-# Apply in the explicit SourcePackages root first.
-patch_scrypt_sse2_guard "$SOURCE_PACKAGES_BASE"
-if [[ "$ALLOW_DERIVEDDATA_FALLBACK" == "1" ]]; then
-  for dd in "$HOME/Library/Developer/Xcode/DerivedData"/* "$BASE_DIR/DerivedData"/*; do
-    patch_scrypt_sse2_guard "$dd"
-  done
-fi
+while IFS= read -r checkout_base; do
+  patch_scrypt_sse2_guard "$checkout_base"
+done < <(each_checkout_base)
 
 echo "[spm-fixes] Applied scrypt simulator arch guard patch"
 
-# 5) SSFPolkaswap: make addressFactory a type reference when used as a dependency token
+# 5) Remove redundant sidecar static archives from wrapped native crypto frameworks.
+# Xcode's embed step bitcode-strips every file in these framework bundles. The extra
+# *.a payloads are not needed for app embedding and currently trip builtin-copy.
+prune_native_crypto_framework_sidecars() {
+  local binaries_root="$1/SourcePackages/checkouts/shared-features-spm/Binaries"
+  local framework_dir
+
+  [[ -d "$binaries_root" ]] || return 0
+
+  for framework_dir in \
+    "$binaries_root/blake2lib.xcframework/ios-arm64/blake2lib.framework" \
+    "$binaries_root/libed25519.xcframework/ios-arm64/libed25519.framework" \
+    "$binaries_root/sr25519lib.xcframework/ios-arm64/sr25519lib.framework"; do
+    [[ -d "$framework_dir" ]] || continue
+    chmod -R u+w "$framework_dir" 2>/dev/null || true
+
+    for extra_archive in \
+      "$framework_dir/blake2lib-arm64.a" \
+      "$framework_dir/libed25519.a" \
+      "$framework_dir/libed25519_sha2.a" \
+      "$framework_dir/libsr25519crust.a"; do
+      if [[ -f "$extra_archive" ]]; then
+        echo "[spm-fixes] Removing redundant native crypto archive: $extra_archive"
+        rm -f "$extra_archive"
+      fi
+    done
+  done
+}
+
+while IFS= read -r checkout_base; do
+  prune_native_crypto_framework_sidecars "$checkout_base"
+done < <(each_checkout_base)
+
+echo "[spm-fixes] Pruned native crypto framework sidecar archives"
+
+# 6) SSFPolkaswap: make addressFactory a type reference when used as a dependency token
 patch_polkaswap_addressfactory_usage() {
   local base_checkout="$1/SourcePackages/checkouts/shared-features-spm/Sources/SSFPolkaswap"
   [[ -d "$base_checkout" ]] || return 0
@@ -334,18 +299,32 @@ patch_polkaswap_addressfactory_usage() {
   done
 }
 
-patch_polkaswap_addressfactory_usage "$SOURCE_PACKAGES_BASE"
-if [[ "$ALLOW_DERIVEDDATA_FALLBACK" == "1" ]]; then
-  for dd in "$HOME/Library/Developer/Xcode/DerivedData" "$BASE_DIR/DerivedData"; do
-    [[ -d "$dd" ]] || continue
-    for sub in "$dd"/*; do
-      [[ -d "$sub" ]] || continue
-      patch_polkaswap_addressfactory_usage "$sub"
-    done
-  done
-fi
+while IFS= read -r checkout_base; do
+  patch_polkaswap_addressfactory_usage "$checkout_base"
+done < <(each_checkout_base)
 
 echo "[spm-fixes] Patched SSFPolkaswap addressFactory usage (type tokens)"
+
+cleanup_stale_embedded_native_crypto_frameworks() {
+  local frameworks_root
+
+  for frameworks_root in \
+    "$BASE_DIR/build/DerivedData/Build/Products"/*/fearless.app/Frameworks \
+    "$BASE_DIR/DerivedData/Build/Products"/*/fearless.app/Frameworks; do
+    [[ -d "$frameworks_root" ]] || continue
+
+    for framework_name in blake2lib.framework libed25519.framework sr25519lib.framework; do
+      if [[ -d "$frameworks_root/$framework_name" ]]; then
+        echo "[spm-fixes] Removing stale embedded framework: $frameworks_root/$framework_name"
+        rm -rf "$frameworks_root/$framework_name"
+      fi
+    done
+  done
+}
+
+cleanup_stale_embedded_native_crypto_frameworks
+
+echo "[spm-fixes] Cleaned stale embedded native crypto frameworks"
 
 if [[ "$STRICT_REQUIRED_PATCHES" == "1" && "$REQUIRED_PATCH_COUNT" -eq 0 ]]; then
   echo "[spm-fixes] No shared-features-spm checkout was available to patch" >&2

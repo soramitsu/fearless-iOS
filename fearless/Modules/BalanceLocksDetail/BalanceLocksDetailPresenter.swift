@@ -108,10 +108,9 @@ final class BalanceLocksDetailPresenter {
         await view?.didReceiveCrowdloanLocksViewModel(viewModel)
 
         // Provide a one-line hint for Asset Hubs per runtime changes
-        let isAssetHub = PolkadotRuntimeCompatibility.isTrustedAliaser(chain: chainAsset.chain)
-        let usesRelay = PolkadotRuntimeCompatibility
-            .blockProviderHint(for: .vesting, on: chainAsset.chain) == .relay
-        let hint = (isAssetHub && usesRelay) ? "Uses Relay Chain block time on Asset Hubs" : nil
+        let hint = chainAsset.chain.paraId == "1000"
+            ? "Uses Relay Chain block time on Asset Hubs"
+            : nil
         await view?.didReceiveVestingHint(hint)
     }
 

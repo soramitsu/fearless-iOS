@@ -15,7 +15,17 @@ enum SceneWindowFinder {
                 .flatMap { $0.windows }
                 .first { $0.isKeyWindow && !$0.isHidden }
         } else {
-            return UIApplication.shared.keyWindow
+            return UIApplication.shared.windows.first { $0.isKeyWindow && !$0.isHidden }
+        }
+    }
+
+    static func statusBarHeight(from scene: UIWindowScene? = nil) -> CGFloat {
+        if #available(iOS 13.0, *) {
+            return scene?.statusBarManager?.statusBarFrame.height
+                ?? activeWindow(from: scene)?.windowScene?.statusBarManager?.statusBarFrame.height
+                ?? 0
+        } else {
+            return activeWindow(from: scene)?.safeAreaInsets.top ?? 20
         }
     }
 

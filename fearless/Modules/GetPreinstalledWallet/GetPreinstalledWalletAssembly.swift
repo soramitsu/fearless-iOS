@@ -36,7 +36,7 @@ final class GetPreinstalledWalletAssembly {
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
 
-        let qrService = QRServiceDefault(matchers: [QRPreinstalledWalletMatcher()])
+        let qrService = QRServiceDefault()
         let interactor = GetPreinstalledWalletInteractor(
             qrService: qrService,
             qrScanService: qrScanService,

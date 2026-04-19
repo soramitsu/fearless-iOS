@@ -16,23 +16,26 @@ final class MetaAccountMapper {
 extension MetaAccountMapper: CoreDataMapperProtocol {
     func transform(entity: CoreDataEntity) throws -> DataProviderModel {
         let chainAccountEntities = entity.chainAccounts?.allObjects as? [CDChainAccount] ?? []
-        let chainAccounts: [ChainAccountModel] = try chainAccountEntities.compactMap { chainAccountEntity in
+        var chainAccounts: [ChainAccountModel] = []
+        for chainAccountEntity in chainAccountEntities {
             guard
                 let accountIdHex = chainAccountEntity.accountId,
                 let chainId = chainAccountEntity.chainId,
                 let publicKey = chainAccountEntity.publicKey
             else {
-                return nil
+                continue
             }
 
             let accountId = try Data(hexStringSSF: accountIdHex)
 
-            return ChainAccountModel(
-                chainId: chainId,
-                accountId: accountId,
-                publicKey: publicKey,
-                cryptoType: UInt8(truncatingIfNeeded: chainAccountEntity.cryptoType),
-                ecosystem: chainAccountEntity.ethereumBased ? .ethereum : .substrate
+            chainAccounts.append(
+                ChainAccountModel(
+                    chainId: chainId,
+                    accountId: accountId,
+                    publicKey: publicKey,
+                    cryptoType: UInt8(truncatingIfNeeded: chainAccountEntity.cryptoType),
+                    ethereumBased: chainAccountEntity.ethereumBased
+                )
             )
         }
 
@@ -148,7 +151,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             chainAccountEntity?.chainId = chainAccount.chainId
             chainAccountEntity?.cryptoType = Int16(bitPattern: UInt16(chainAccount.cryptoType))
             chainAccountEntity?.publicKey = chainAccount.publicKey
-            chainAccountEntity?.ethereumBased = chainAccount.ecosystem == .ethereum
+            chainAccountEntity?.ethereumBased = chainAccount.ethereumBased
         }
 
         updatedEntityCurrency(for: entity, from: model, context: context)

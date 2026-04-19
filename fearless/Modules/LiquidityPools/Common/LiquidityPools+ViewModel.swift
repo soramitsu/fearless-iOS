@@ -88,7 +88,9 @@ final class LiquidityPoolsModelFactoryDefault: LiquidityPoolsModelFactory {
 
 // MARK: - Lightweight service stubs for compile-time wiring
 
-public typealias SigningWrapperData = SSFModels.SigningWrapperData
+public struct SigningWrapperData {
+    public init(publicKeyData _: Data, secretKeyData _: Data) {}
+}
 
 // Compatibility types used across Liquidity Pools code
 public struct PoolApyInfo {
@@ -156,7 +158,6 @@ public extension SSFPools.LiquidityPair {
 public extension SSFPools.AccountPool {
     var liquidityPair: SSFPools.LiquidityPair {
         SSFPools.LiquidityPair(
-            dexId: dexId,
             pairId: poolId,
             chainId: chainId,
             baseAssetId: baseAssetId,

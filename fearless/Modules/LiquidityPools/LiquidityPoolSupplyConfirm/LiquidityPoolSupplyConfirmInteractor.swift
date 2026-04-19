@@ -89,10 +89,11 @@ extension LiquidityPoolSupplyConfirmInteractor: LiquidityPoolSupplyConfirmIntera
         }
 
         Task {
-            let address = try AddressFactory.address(for: Data(hex: reservesId), chain: chain)
-            let apyStream = try await lpDataService.subscribePoolsAPY(poolIds: [address])
             do {
-                for try await apy in apyStream {
+                let address = try AddressFactory.address(for: Data(hex: reservesId), chain: chain)
+                let apyStream = try await lpDataService.subscribePoolsAPY(poolIds: [address])
+
+                for await apy in apyStream {
                     await MainActor.run {
                         let match = apy.first { ($0.value ?? nil)?.poolId == address }
                         output?.didReceivePoolAPY(apyInfo: match?.value ?? nil)

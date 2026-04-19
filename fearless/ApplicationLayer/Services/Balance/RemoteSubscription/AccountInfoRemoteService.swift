@@ -19,6 +19,12 @@ protocol AccountInfoRemoteService {
 }
 
 final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
+    private enum ChainKind {
+        case substrate
+        case ethereum
+        case ton
+    }
+
     private let ethereumRemoteBalanceFetching: EthereumRemoteBalanceFetching
     private let tonRemoteBalanceFetching: AccountInfoRemoteService?
     private let storagePerformer: SSFStorageQueryKit.StorageRequestPerformer
@@ -43,8 +49,8 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
             throw ConvenienceError(error: "Missing AccountId for chain: \(chain.name)")
         }
 
-        switch chain.ecosystem {
-        case .ethereum, .ethereumBased:
+        switch chainKind(for: chain) {
+        case .ethereum:
             return try await fetchEthereum(for: chain, wallet: wallet)
         case .ton:
             guard let tonRemoteBalanceFetching else {
@@ -63,8 +69,8 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
             throw ConvenienceError(error: "Missing account id for \(chainAsset.debugName)")
         }
-        switch chainAsset.chain.ecosystem {
-        case .ethereum, .ethereumBased:
+        switch chainKind(for: chainAsset.chain) {
+        case .ethereum:
             let response = try await ethereumRemoteBalanceFetching.fetch(for: chainAsset, accountId: accountId)
             return response.1
         case .ton:
@@ -79,6 +85,32 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
             let accountInfo = map[chainAsset.chainAssetId] ?? nil
             return accountInfo
         }
+    }
+
+    private func chainKind(for chain: ChainModel) -> ChainKind {
+        if isTonChain(chain) {
+            return .ton
+        }
+
+        if chain.chainBaseType == .ethereum {
+            return .ethereum
+        }
+
+        return .substrate
+    }
+
+    private func isTonChain(_ chain: ChainModel) -> Bool {
+        let chainName = chain.name.lowercased()
+        if chainName == "ton" || chainName.contains("ton ") || chainName.contains(" ton") {
+            return true
+        }
+
+        let chainId = chain.chainId.lowercased()
+        if chainId == "ton" || chainId.contains("ton-") {
+            return true
+        }
+
+        return chain.nodes.contains { $0.url.absoluteString.lowercased().contains("ton") }
     }
 
     // MARK: - Private substrate methods

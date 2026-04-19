@@ -1,5 +1,7 @@
+import Foundation
+import SSFModels
+
 #if canImport(TonSwift)
-    import Foundation
     import TonSwift
 
     extension TonSwift.Address {
@@ -10,6 +12,25 @@
         var accountId: Data { hash }
     }
 #endif
+
+enum TonAssetType {
+    case normal
+    case jetton
+    case none
+}
+
+extension Optional where Wrapped == SubstrateAssetType {
+    var tonAssetType: TonAssetType {
+        switch self {
+        case .some(.normal):
+            return .normal
+        case .some:
+            return .jetton
+        case .none:
+            return .none
+        }
+    }
+}
 
 extension Data {
     func tail(_ length: Int) -> Data {

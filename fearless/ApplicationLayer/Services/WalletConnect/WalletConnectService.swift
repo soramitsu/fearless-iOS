@@ -91,12 +91,17 @@ final class WalletConnectServiceImpl: WalletConnectService {
     }
 
     func connect(uri: String) async throws {
-        guard let walletConnectUri = WalletConnectURI(string: uri) else {
+        let walletConnectUri: WalletConnectURI
+
+        do {
+            walletConnectUri = try WalletConnectURI(uriString: uri)
+        } catch {
             let preferredLanguages = LocalizationManager.shared.selectedLocale.rLanguages
             let title = R.string.localizable.walletConnectInvalidUrlTitle(preferredLanguages: preferredLanguages)
             let message = R.string.localizable.walletConnectInvalidUrlMessage(preferredLanguages: preferredLanguages)
             throw ConvenienceContentError(title: title, message: message)
         }
+
         try await WalletKit.instance.pair(uri: walletConnectUri)
     }
 

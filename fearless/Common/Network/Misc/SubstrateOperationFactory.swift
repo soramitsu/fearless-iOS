@@ -18,16 +18,10 @@ final class SubstrateOperationFactory: SubstrateOperationFactoryProtocol {
     }
 
     func fetchChainOperation(_ url: URL) -> BaseOperation<String> {
-        guard let strategy = ConnectionStrategyImpl(
-            urls: [url],
-            callbackQueue: DispatchQueue(label: "co.jp.SubstrateOperationFactory.connection")
-        ) else {
-            return BaseOperation.createWithError(SubstrateOperationFactoryError.connectionUnavailable)
-        }
-
         let engine = WebSocketEngine(
             connectionName: nil,
-            connectionStrategy: strategy,
+            url: url,
+            reconnectionStrategy: ExponentialReconnection(),
             logger: logger
         )
 

@@ -135,7 +135,7 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
                     )
                     return
                 }
-                switch chainAsset.chainAssetType.substrateAssetType {
+                switch chainAsset.chainAssetType {
                 case .normal?:
                     self?.handleAccountInfo(
                         chainAsset: chainAsset,
@@ -275,7 +275,7 @@ private extension AccountInfoFetching {
         }
 
         let resolvedSubstrateType: SubstrateAssetType? = {
-            let currentType = chainAsset.chainAssetType.substrateAssetType
+            let currentType = chainAsset.chainAssetType
 
             if currentType == .soraAsset, chainAsset.isUtility {
                 return .normal

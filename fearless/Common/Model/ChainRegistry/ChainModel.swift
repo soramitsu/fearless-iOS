@@ -24,7 +24,12 @@ extension ChainModel {
 
 extension ChainModel {
     func match(_ caip2ChainId: Caip2ChainId) -> Bool {
-        switch ecosystem {
+        if isTonCompatibilityChain {
+            // CAIP-2 namespace for TON is still evolving; treat as unmatched for now.
+            return false
+        }
+
+        switch chainBaseType {
         case .substrate:
             let namespace = "polkadot"
             let knownChainCaip2ChainId = Caip2ChainId(
@@ -32,16 +37,33 @@ extension ChainModel {
                 reference: chainId
             )
             return knownChainCaip2ChainId.reference.hasPrefix(caip2ChainId.reference) && namespace == caip2ChainId.namespace
-        case .ethereum, .ethereumBased:
+        case .ethereum:
             let namespace = "eip155"
             let knownChainCaip2ChainId = Caip2ChainId(
                 namespace: namespace,
                 reference: chainId.replacingOccurrences(of: "0x", with: "")
             )
             return caip2ChainId == knownChainCaip2ChainId
-        case .ton:
-            // CAIP-2 namespace for TON is still evolving; treat as unmatched for now.
-            return false
         }
+    }
+}
+
+private extension ChainModel {
+    var isTonCompatibilityChain: Bool {
+        let chainName = name.lowercased()
+        if chainName == "ton" || chainName.contains("ton ") || chainName.contains(" ton") {
+            return true
+        }
+
+        let chainIdLowercased = chainId.lowercased()
+        if chainIdLowercased == "ton" || chainIdLowercased.contains("ton-") {
+            return true
+        }
+
+        if nodes.contains(where: { $0.url.absoluteString.lowercased().contains("ton") }) {
+            return true
+        }
+
+        return externalApi?.explorers?.contains(where: { $0.url.lowercased().contains("tonviewer") }) == true
     }
 }

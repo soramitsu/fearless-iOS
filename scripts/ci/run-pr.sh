@@ -10,33 +10,21 @@ if [[ -f "$WORKSPACE_DIR/fearless.xcworkspace/contents.xcworkspacedata" ]]; then
   # Clean previous SPM state to prevent duplicate Web3 sources
   rm -rf "$SP_DIR" || true
   rm -f "$WORKSPACE_DIR/fearless.xcworkspace/xcshareddata/swiftpm/Package.resolved" || true
+  if [[ -x "$WORKSPACE_DIR/scripts/deps/check-dependency-contracts.sh" ]]; then
+    "$WORKSPACE_DIR/scripts/deps/check-dependency-contracts.sh" "$WORKSPACE_DIR"
+  fi
   xcodebuild -resolvePackageDependencies \
     -workspace "$WORKSPACE_DIR/fearless.xcworkspace" \
     -scheme fearless \
-    -clonedSourcePackagesDirPath "$SP_DIR" || true
+    -clonedSourcePackagesDirPath "$SP_DIR"
 
-  # Re-apply IrohaCrypto module.modulemap hotfix after resolve (resolve may reset files)
-  echo "[run-pr] Applying IrohaCrypto modulemap hotfix in SourcePackages checkout"
-  IROHA_MM="$SP_DIR/checkouts/shared-features-spm/Sources/IrohaCrypto/include/module.modulemap"
-  if [[ -f "$IROHA_MM" ]]; then
-    # Normalize umbrella header path and ensure stub umbrellas exist
-    sed -i '' 's|umbrella header "../IrohaCrypto-umbrella.h"|umbrella header "IrohaCrypto-umbrella.h"|g' "$IROHA_MM" || true
-    inc_dir=$(dirname "$IROHA_MM")
-    par_dir=$(dirname "$inc_dir")
-    [[ -f "$inc_dir/IrohaCrypto-umbrella.h" ]] || printf '%s\n%s\n' "// Temporary umbrella" "#import <Foundation/Foundation.h>" > "$inc_dir/IrohaCrypto-umbrella.h"
-    [[ -f "$par_dir/IrohaCrypto-umbrella.h" ]] || printf '%s\n%s\n' "// Temporary umbrella (parent)" "#import <Foundation/Foundation.h>" > "$par_dir/IrohaCrypto-umbrella.h"
-  else
-    echo "[run-pr] WARNING: module.modulemap not found at $IROHA_MM; skipping SP_DIR hotfix"
-  fi
-
-  # Also patch any module maps under DerivedData for safety
-  if [[ -x "scripts/spm-iroha-hotfix.sh" ]]; then
-    echo "[run-pr] Applying DerivedData IrohaCrypto hotfix"
-    scripts/spm-iroha-hotfix.sh fearless "$WORKSPACE_DIR/fearless.xcworkspace" || true
+  if [[ -x "scripts/deps/prepare-native-crypto-checkout.sh" ]]; then
+    echo "[run-pr] Preparing native crypto checkout"
+    SOURCE_PACKAGES_DIR="$SP_DIR" STRICT_REQUIRED_PATCHES=1 scripts/deps/prepare-native-crypto-checkout.sh "$WORKSPACE_DIR" "$WORKSPACE_DIR/fearless.xcworkspace" fearless
   fi
   if [[ -f "scripts/spm-shared-features-fixes.sh" ]]; then
-    echo "[run-pr] Applying shared-features-spm manifest fixes"
-    bash scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR" || true
+    echo "[run-pr] Applying required shared-features-spm compatibility fixes"
+    SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR"
   fi
 else
   echo "[run-pr] ERROR: Workspace not found at $WORKSPACE_DIR/fearless.xcworkspace" >&2

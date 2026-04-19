@@ -28,16 +28,14 @@ extension ConnectionFactory: ConnectionFactoryProtocol {
         for urls: [URL],
         delegate: WebSocketEngineDelegate
     ) throws -> ChainConnection {
-        guard let connectionStrategy = ConnectionStrategyImpl(
-            urls: urls,
-            callbackQueue: processingQueue
-        ) else {
+        guard let url = urls.first else {
             throw ConnectionPoolError.noConnection
         }
 
         let engine = WebSocketEngine(
             connectionName: connectionName,
-            connectionStrategy: connectionStrategy,
+            url: url,
+            reconnectionStrategy: ExponentialReconnection(),
             processingQueue: processingQueue,
             logger: logger
         )

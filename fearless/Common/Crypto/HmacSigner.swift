@@ -41,11 +41,11 @@ final class HmacSigner {
         let digestLength = hashType.digestLength
         var buffer = [UInt8](repeating: 0, count: digestLength)
 
-        originalData.withUnsafeBytes {
-            let rawOriginalDataPtr = $0.baseAddress!
+        originalData.withUnsafeBytes { (originalBytes: UnsafeRawBufferPointer) in
+            let rawOriginalDataPtr = originalBytes.baseAddress!
 
-            secretKeyData.withUnsafeBytes {
-                let rawSecretKeyPtr = $0.baseAddress!
+            secretKeyData.withUnsafeBytes { (secretKeyBytes: UnsafeRawBufferPointer) in
+                let rawSecretKeyPtr = secretKeyBytes.baseAddress!
 
                 CCHmac(
                     hashType.algorithm,

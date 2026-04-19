@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# CI bootstrap for Fearless iOS: Pods, SPM, LFS, and minor hotfixes
+# CI bootstrap for Fearless iOS: Pods, SPM, LFS, and package-contract preparation
 
 echo "[bootstrap] Starting CI bootstrap"
 
@@ -93,6 +93,9 @@ if [[ -f fearless.xcworkspace/contents.xcworkspacedata ]]; then
   if [[ -x scripts/deps/enforce-ssf-pin.sh ]]; then
     scripts/deps/enforce-ssf-pin.sh || true
   fi
+  if [[ -x scripts/deps/check-dependency-contracts.sh ]]; then
+    scripts/deps/check-dependency-contracts.sh
+  fi
   xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath "$SP_DIR"
 else
   echo "[bootstrap] WARNING: Workspace not found; skipping SPM resolve"
@@ -128,26 +131,16 @@ else
   echo "[bootstrap] WARNING: git-lfs not available; MPQRCoreSDK may be missing"
 fi
 
-# 4) IrohaCrypto module.modulemap umbrella hotfix (stale DD cases)
-IROHA_MM="$SP_DIR/checkouts/shared-features-spm/Sources/IrohaCrypto/include/module.modulemap"
-if [[ -f "$IROHA_MM" ]]; then
-  sed -i '' 's|umbrella header "../IrohaCrypto-umbrella.h"|umbrella header "IrohaCrypto-umbrella.h"|g' "$IROHA_MM" || true
-  inc_dir=$(dirname "$IROHA_MM")
-  par_dir=$(dirname "$inc_dir")
-  [[ -f "$inc_dir/IrohaCrypto-umbrella.h" ]] || printf '%s\n%s\n' "// Temporary umbrella" "#import <Foundation/Foundation.h>" > "$inc_dir/IrohaCrypto-umbrella.h"
-  [[ -f "$par_dir/IrohaCrypto-umbrella.h" ]] || printf '%s\n%s\n' "// Temporary umbrella (parent)" "#import <Foundation/Foundation.h>" > "$par_dir/IrohaCrypto-umbrella.h"
+# 4) Apply repo-owned native crypto contracts
+if [[ -x "scripts/deps/prepare-native-crypto-checkout.sh" ]]; then
+  echo "[bootstrap] Preparing native crypto checkout"
+  SOURCE_PACKAGES_DIR="$SP_DIR" STRICT_REQUIRED_PATCHES=1 scripts/deps/prepare-native-crypto-checkout.sh "$WORKSPACE_DIR" fearless.xcworkspace fearless
 fi
 
-# Also patch any module maps under DerivedData for Xcode 16+/18 stability
-if [[ -x "scripts/spm-iroha-hotfix.sh" ]]; then
-  echo "[bootstrap] Applying DerivedData IrohaCrypto hotfix"
-  scripts/spm-iroha-hotfix.sh fearless fearless.xcworkspace || true
-fi
-
-# Apply shared-features-spm compatibility fixes (manifest + Web3 API drift)
+# Apply required shared-features-spm compatibility fixes (manifest + Web3 API drift)
 if [[ -f "scripts/spm-shared-features-fixes.sh" ]]; then
-  echo "[bootstrap] Applying shared-features-spm fixes (manifest + Data.bytes)"
-  bash scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR" || true
+  echo "[bootstrap] Applying required shared-features-spm compatibility fixes"
+  SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR"
 fi
 
 popd >/dev/null

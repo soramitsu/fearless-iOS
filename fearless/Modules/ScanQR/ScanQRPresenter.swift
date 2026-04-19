@@ -180,15 +180,12 @@ extension ScanQRPresenter: ScanQRInteractorOutput {
             return
         }
 
-        if let _ = error as? QRExtractionError {
-            handleQRExtractionService()
+        if let imageGalleryError = error as? ImageGalleryError {
+            handleImageGallery(error: imageGalleryError)
             return
         }
 
-        if let imageGalleryError = error as? ImageGalleryError {
-            handleImageGallery(error: imageGalleryError)
-        }
-
+        handleQRExtractionService()
         logger.error("Unexpected qr service error \(error)")
     }
 }

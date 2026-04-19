@@ -10,7 +10,7 @@ extension ChainAsset {
     }
 
     var storagePath: StorageCodingPath {
-        guard let substrateType = chainAssetType.substrateAssetType else {
+        guard let substrateType = chainAssetType else {
             return .account
         }
 
@@ -45,7 +45,7 @@ extension ChainAsset {
 // Test and utility helper: avoid ambiguity with SSFModels' similarly named API
 extension SSFModels.ChainAsset {
     var fearlessStoragePath: StorageCodingPath {
-        guard let substrateType = chainAssetType.substrateAssetType else {
+        guard let substrateType = chainAssetType else {
             return .account
         }
 
@@ -75,10 +75,10 @@ extension SSFModels.ChainAsset {
 
 extension ChainAsset {
     var substrateAssetTypeCompatibility: SubstrateAssetType? {
-        chainAssetType.substrateAssetType
+        chainAssetType
     }
 
     var isSoraAssetType: Bool {
-        chainAssetType.substrateAssetType == .soraAsset
+        chainAssetType == .soraAsset
     }
 }

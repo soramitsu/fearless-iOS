@@ -60,7 +60,7 @@ final class LiquidityPoolRemoveLiquidityInteractor {
                 let assetIdPair = AssetIdPair(baseAssetIdCode: liquidityPair.baseAssetId, targetAssetIdCode: liquidityPair.targetAssetId)
                 let reservesStream = try await lpDataService.subscribePoolReserves(assetIdPair: assetIdPair)
 
-                for try await reserves in reservesStream {
+                for await reserves in reservesStream {
                     await MainActor.run {
                         output?.didReceivePoolReserves(reserves: reserves.value)
                     }

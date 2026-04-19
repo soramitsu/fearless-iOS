@@ -46,9 +46,7 @@ final class SelectValidatorsStartParachainStrategy: RuntimeConstantFetching {
                     if let result = try wrapper.targetOperation.extractNoCancellableResultData() {
                         allSelectedCollators = result
                     }
-                } catch {
-                    print("SelectValidatorsStartParachainStrategy.prepareRecommendedValidatorList error: ", error)
-                }
+                } catch {}
             }
         }
 
@@ -98,9 +96,7 @@ final class SelectValidatorsStartParachainStrategy: RuntimeConstantFetching {
                 DispatchQueue.main.async {
                     self?.output?.didReceiveTopDelegations(delegations: delegations)
                 }
-            } catch {
-                print("SelectValidatorsStartParachainStrategy.requestTopDelegationsForEachCollator error: ", error)
-            }
+            } catch {}
         }
 
         operationManager.enqueue(operations: topDelegationsOperation.allOperations, in: .transient)
@@ -125,9 +121,7 @@ final class SelectValidatorsStartParachainStrategy: RuntimeConstantFetching {
                 let delegatorState = response?[address]
 
                 completionBlock(delegatorState)
-            } catch {
-                print("SelectValidatorsStartParachainStrategy.requestDelegatorState error: ", error)
-            }
+            } catch {}
         }
 
         operationManager.enqueue(operations: delegatorStateOperation.allOperations, in: .transient)

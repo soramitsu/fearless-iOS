@@ -63,7 +63,6 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
     }
 
     func checkAccountDeprecations(wallet: MetaAccountModel) async throws -> DeprecatedAccountIssue? {
-        print("start")
         guard let possibleChainAssets = try? await getPossibleChainAssets() else { return nil }
         let chains = Array(Set(possibleChainAssets.compactMap { $0.chain }))
         var chainsRuntimesDict: [ChainModel: RuntimeCoderFactoryProtocol] = [:]
@@ -83,7 +82,6 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
                 argumentName: "controller"
             )) == false
         }
-        print("define deprecated chains finished")
         var caIssues = try await withThrowingTaskGroup(of: ControllerAccountIssue?.self, body: { group in
             for chainAsset in deprecatedChainAssets {
                 group.addTask { [weak self, chainsRuntimesDict] in

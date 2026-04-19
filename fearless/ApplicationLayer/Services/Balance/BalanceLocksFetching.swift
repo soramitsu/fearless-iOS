@@ -56,7 +56,6 @@ final class BalanceLocksFetchingDefault {
 
     private func fetchPoolPendingRewards(for accountId: AccountId) async throws -> BigUInt? {
         let operation = stakingPoolOperationFactory.fetchPendingRewards(accountId: accountId)
-        operationQueue.addOperations(operation.allOperations, waitUntilFinished: false)
 
         return try await withCheckedThrowingContinuation { continuation in
             operation.targetOperation.completionBlock = {
@@ -67,6 +66,8 @@ final class BalanceLocksFetchingDefault {
                     return continuation.resume(with: .failure(error))
                 }
             }
+
+            operationQueue.addOperations(operation.allOperations, waitUntilFinished: false)
         }
     }
 

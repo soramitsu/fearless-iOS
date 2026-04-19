@@ -224,10 +224,6 @@ private extension WalletDetailsPresenter {
                     if explorer.types.contains(.address), let url = explorer.explorerUrl(for: address, type: .address) {
                         return .oklink(url: url)
                     }
-                case .tonviewer:
-                    if explorer.types.contains(.tonAccount), let url = explorer.explorerUrl(for: address, type: .tonAccount) {
-                        return .etherscan(url: url)
-                    }
                 case .unknown:
                     return nil
                 }

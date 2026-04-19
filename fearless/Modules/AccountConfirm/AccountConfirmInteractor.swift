@@ -33,7 +33,7 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
             return
         }
 
-        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
+        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation {
             let accountItem = try importOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
             return accountItem
@@ -48,7 +48,7 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
                     do {
                         let accountItem = try importOperation
                             .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-                        self?.settings.save(value: accountItem, runningCompletionIn: .main) { [weak self] result in
+                        self?.settings.save(value: accountItem, runningCompletionIn: .main) { result in
                             switch result {
                             case let .success(savedAccount):
                                 self?.eventCenter.notify(with: SelectedAccountChanged(account: savedAccount))

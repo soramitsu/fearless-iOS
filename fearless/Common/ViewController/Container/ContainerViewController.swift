@@ -50,10 +50,7 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
             contentInsets.top = view.safeAreaInsets.top
             contentInsets.bottom = view.safeAreaInsets.bottom
         } else {
-            contentInsets.top = min(
-                UIApplication.shared.statusBarFrame.size.width,
-                UIApplication.shared.statusBarFrame.size.height
-            )
+            contentInsets.top = SceneWindowFinder.statusBarHeight(from: view.window?.windowScene)
         }
 
         if let view = viewIfLoaded {
@@ -400,16 +397,14 @@ extension ContainerViewController: ContainableObserver {
     func willChangePreferredContentHeight() {
         CATransaction.begin()
         CATransaction.setAnimationDuration(Constants.contentAnimationDuration)
-
-        UIView.beginAnimations(nil, context: nil)
-        UIView.setAnimationDuration(Constants.contentAnimationDuration)
     }
 
     func didChangePreferredContentHeight(to _: CGFloat) {
-        updateDraggableLayout(forceLayoutUpdate: true)
-        updateContentInsets(animated: true)
+        UIView.animate(withDuration: Constants.contentAnimationDuration) {
+            self.updateDraggableLayout(forceLayoutUpdate: true)
+            self.updateContentInsets(animated: true)
+        }
 
-        UIView.commitAnimations()
         CATransaction.commit()
     }
 }

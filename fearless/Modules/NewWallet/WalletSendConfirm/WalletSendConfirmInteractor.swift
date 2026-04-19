@@ -61,7 +61,7 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
                     }
                 }
             }
-        case let .xorlessTransfer(xorlessTransfer):
+        case .xorlessTransfer:
             break
         }
     }

@@ -33,8 +33,17 @@ private enum EthereumUtil {
         // Parse key
 
         var publicKey = secp256k1_pubkey()
-        let parseResult = key.withUnsafeBytes {
-            secp256k1_ec_pubkey_parse(context, &publicKey, $0, key.count)
+        let parseResult = key.withUnsafeBytes { (keyBytes: UnsafeRawBufferPointer) in
+            guard let keyPointer = keyBytes.baseAddress?.assumingMemoryBound(to: UInt8.self) else {
+                return 0
+            }
+
+            return Int(secp256k1_ec_pubkey_parse(
+                context,
+                &publicKey,
+                keyPointer,
+                key.count
+            ))
         }
 
         guard parseResult != 0 else {
@@ -48,10 +57,20 @@ private enum EthereumUtil {
         var serializedPublicKey = Data(repeating: 0, count: keyLength)
         let flags = UInt32(SECP256K1_EC_UNCOMPRESSED)
 
-        let serializeResult = serializedPublicKey.withUnsafeMutableBytes { serializedPublicKeyPtr in
+        let serializeResult = serializedPublicKey.withUnsafeMutableBytes { (serializedPublicKeyPtr: UnsafeMutableRawBufferPointer) in
             withUnsafeMutablePointer(to: &keyLength) { keyLengthPtr in
                 withUnsafeMutablePointer(to: &publicKey) { publicKeyPtr in
-                    secp256k1_ec_pubkey_serialize(context, serializedPublicKeyPtr, keyLengthPtr, publicKeyPtr, flags)
+                    guard let serializedPointer = serializedPublicKeyPtr.baseAddress?.assumingMemoryBound(to: UInt8.self) else {
+                        return 0
+                    }
+
+                    return Int(secp256k1_ec_pubkey_serialize(
+                        context,
+                        serializedPointer,
+                        keyLengthPtr,
+                        publicKeyPtr,
+                        flags
+                    ))
                 }
             }
         }

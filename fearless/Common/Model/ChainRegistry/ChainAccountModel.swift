@@ -6,8 +6,4 @@ extension ChainAccountModel {
         let format: ChainFormat = ethereumBased ? .ethereum : .substrate(addressPrefix)
         return try? accountId.toAddress(using: format)
     }
-
-    var ethereumBased: Bool {
-        ecosystem == .ethereum || ecosystem == .ethereumBased
-    }
 }

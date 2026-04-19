@@ -63,7 +63,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             return
         }
 
-        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
+        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation {
             let accountItem = try importOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
             return accountItem
@@ -88,18 +88,18 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
     private func handleCreateAccountOperation(result: Result<MetaAccountModel, Error>?) {
         switch result {
         case let .success(wallet):
-            settings.save(value: wallet, runningCompletionIn: .main) { [weak self] result in
+            settings.save(value: wallet, runningCompletionIn: .main) { result in
                 switch result {
                 case let .success(savedWallet):
-                    self?.eventCenter.notify(with: SelectedAccountChanged(account: savedWallet))
-                    switch self?.flow {
+                    self.eventCenter.notify(with: SelectedAccountChanged(account: savedWallet))
+                    switch self.flow {
                     case let .wallet(request):
-                        self?.saveBackupAccount(wallet: savedWallet, requestType: .mnemonic(request))
+                        self.saveBackupAccount(wallet: savedWallet, requestType: .mnemonic(request))
                     default:
                         break
                     }
                 case let .failure(error):
-                    self?.output?.didReceive(error: error)
+                    self.output?.didReceive(error: error)
                 }
             }
 
@@ -132,7 +132,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         seeds: [ExportSeedData],
         password: String
     ) {
-        let substrateRestoreSeed = seeds.first(where: { $0.chain.ecosystem == .substrate })
+        let substrateRestoreSeed = seeds.first(where: { !$0.chain.isEthereumBased })
         let ethereumRestoreSeed = seeds.first(where: { $0.chain.isEthereumBased })
 
         let substrateSeed = substrateRestoreSeed?.seed.toHex(includePrefix: true)
@@ -161,7 +161,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         jsons: [RestoreJson],
         password: String
     ) {
-        let substrateRestoreJson = jsons.first(where: { $0.chain.ecosystem == .substrate })
+        let substrateRestoreJson = jsons.first(where: { !$0.chain.isEthereumBased })
         let ethereumRestoreJson = jsons.first(where: { $0.chain.isEthereumBased })
 
         let json = OpenBackupAccount.Json(
@@ -369,7 +369,7 @@ extension BackupCreatePasswordInteractor: BackupCreatePasswordInteractorInput {
             switch flow {
             case let .multiple(wallet, accounts):
                 let ethereum = accounts.first(where: { $0.chain.isEthereumBased })
-                guard let substrate = accounts.first(where: { $0.chain.ecosystem == .substrate }) else {
+                guard let substrate = accounts.first(where: { !$0.chain.isEthereumBased }) else {
                     return
                 }
                 let accounts = [substrate, ethereum].compactMap { $0 }
