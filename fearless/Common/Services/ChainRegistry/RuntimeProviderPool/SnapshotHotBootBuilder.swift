@@ -133,7 +133,17 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
 
     private func fetchChains(url: URL) -> CompoundOperationWrapper<[ChainModel]> {
         let chainsFetchOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
-        let remoteChainsOperation: BaseOperation<[ChainModel]> = dataOperationFactory.fetchData(from: url)
+        let remoteChainsDataOperation: BaseOperation<Data> = dataOperationFactory.fetchData(from: url)
+        let remoteChainsOperation: BaseOperation<[ChainModel]> = ClosureOperation {
+            let data = try remoteChainsDataOperation.extractNoCancellableResultData()
+
+            do {
+                return try JSONDecoder().decode([ChainModel].self, from: data)
+            } catch {
+                let coerced = try ChainSyncService.coerceChainsPayloadForCompatibility(data)
+                return try JSONDecoder().decode([ChainModel].self, from: coerced)
+            }
+        }
 
         remoteChainsOperation.configurationBlock = { [weak self] in
             do {
@@ -149,10 +159,11 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
         }
 
         remoteChainsOperation.addDependency(chainsFetchOperation)
+        remoteChainsOperation.addDependency(remoteChainsDataOperation)
 
         return CompoundOperationWrapper(
             targetOperation: remoteChainsOperation,
-            dependencies: [chainsFetchOperation]
+            dependencies: [chainsFetchOperation, remoteChainsDataOperation]
         )
     }
 
