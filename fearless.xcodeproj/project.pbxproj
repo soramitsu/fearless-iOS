@@ -3162,7 +3162,6 @@
 		07BF3D9C2B3D8C9B0046ABF4 /* AssetTransactionData+OklinkHistory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+OklinkHistory.swift"; sourceTree = "<group>"; };
 		07BF3D9E2B3D98850046ABF4 /* BlockscoutHistoryOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockscoutHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		07BF3DA02B3D98BD0046ABF4 /* AssetTransactionData+Zeta.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+Zeta.swift"; sourceTree = "<group>"; };
-		07BFF8A52AD6635F005A5C58 /* WalletConnectConfirmationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WalletConnectConfirmationCoordinator.swift; path = "/Users/soramitsu/Documents/soramitsu/fearless-iOS/fearless/Modules/Coordinators/WalletConnectConfirmationCoordinator.swift"; sourceTree = "<absolute>"; };
 		07C3397029178D390057C4A5 /* types.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = types.json; sourceTree = "<group>"; };
 		07C3397129189B720057C4A5 /* ChainsTypesSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainsTypesSyncService.swift; sourceTree = "<group>"; };
 		07D05E4028EC08B800B66C70 /* StakinkPoolRewardCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakinkPoolRewardCalculator.swift; sourceTree = "<group>"; };
@@ -6771,7 +6770,6 @@
 				07F67CA22ACFC4910044047D /* WalletConnectCoordinator.swift */,
 				07F818002AD55D3600B87358 /* WalletConnectSessionCoordinator.swift */,
 				07F817FE2AD5528B00B87358 /* WalletConnectProposalCoordinator.swift */,
-				07BFF8A52AD6635F005A5C58 /* WalletConnectConfirmationCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
