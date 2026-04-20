@@ -203,7 +203,7 @@ final class AssetModelMapperTests: XCTestCase {
             makeAttribute(name: "isNative", type: .booleanAttributeType),
             makeAttribute(name: "staking", type: .stringAttributeType),
             makeAttribute(name: "ethereumType", type: .stringAttributeType),
-            makeAttribute(name: "purchaseProviders", type: .transformableAttributeType),
+            makeSecureTransformableAttribute(name: "purchaseProviders"),
             priceProviderRelationship
         ]
 
@@ -229,6 +229,13 @@ final class AssetModelMapperTests: XCTestCase {
         attribute.name = name
         attribute.attributeType = type
         attribute.isOptional = true
+        return attribute
+    }
+
+    private func makeSecureTransformableAttribute(name: String) -> NSAttributeDescription {
+        let attribute = makeAttribute(name: name, type: .transformableAttributeType)
+        attribute.valueTransformerName = NSValueTransformerName.secureUnarchiveFromDataTransformerName.rawValue
+        attribute.attributeValueClassName = NSStringFromClass(NSArray.self)
         return attribute
     }
 }
