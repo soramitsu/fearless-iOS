@@ -61,7 +61,7 @@ private struct TonAPIAuthorizationMiddleware: ClientMiddleware {
     }
 }
 
-final class TonAPIAssembly {
+final class TonAPIClientFactory {
     private let tonAPIURL: URL
     private let token: String
     let tonBridgeURL: URL
@@ -83,6 +83,10 @@ final class TonAPIAssembly {
         )
     }
 }
+
+// Transitional compatibility alias while call sites migrate off the stale name.
+@available(*, deprecated, renamed: "TonAPIClientFactory")
+typealias TonAPIAssembly = TonAPIClientFactory
 
 private extension URLRequest {
     init(
@@ -157,7 +161,7 @@ protocol ChainRegistryProtocol: AnyObject {
     func retryConnection(for chainId: ChainModel.Id)
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
     func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth?
-    func getTonApiAssembly() throws -> TonAPIAssembly
+    func getTonApiAssembly() throws -> TonAPIClientFactory
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
     func getChain(for chainId: ChainModel.Id) -> ChainModel?
     func chainsSubscribe(
@@ -200,7 +204,7 @@ final class ChainRegistry {
     private var chains: [ChainModel] = []
     private(set) var chainsTypesMap: [String: Data] = [:]
     private var runtimeVersionSubscriptions: [ChainModel.Id: SpecVersionSubscriptionProtocol] = [:]
-    private(set) var tonApiAssembly: TonAPIAssembly?
+    private(set) var tonApiClientFactory: TonAPIClientFactory?
     private var tonApiChainId: ChainModel.Id?
 
     // MARK: - Constructor
@@ -420,7 +424,7 @@ final class ChainRegistry {
         guard let node = chain.nodes.first else {
             logger?.error("Missing TON node URL")
             if tonApiChainId == chain.chainId {
-                tonApiAssembly = nil
+                tonApiClientFactory = nil
                 tonApiChainId = nil
             }
             return
@@ -428,20 +432,20 @@ final class ChainRegistry {
 
         guard shouldUseTonChain(chain) else {
             if tonApiChainId == chain.chainId {
-                tonApiAssembly = nil
+                tonApiClientFactory = nil
                 tonApiChainId = nil
             }
             return
         }
 
-        tonApiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: token, tonBridgeURL: node.url)
+        tonApiClientFactory = TonAPIClientFactory(tonAPIURL: node.url, token: token, tonBridgeURL: node.url)
         tonApiChainId = chain.chainId
     }
 
     private func handleDeletedChain(chainId: ChainModel.Id) {
         chains = chains.filter { $0.chainId != chainId }
         if tonApiChainId == chainId {
-            tonApiAssembly = nil
+            tonApiClientFactory = nil
             tonApiChainId = nil
         }
     }
@@ -530,12 +534,12 @@ extension ChainRegistry: ChainRegistryProtocol {
         runtimeProviderPool.getRuntimeProvider(for: chainId)
     }
 
-    func getTonApiAssembly() throws -> TonAPIAssembly {
-        guard let tonApiAssembly else {
+    func getTonApiAssembly() throws -> TonAPIClientFactory {
+        guard let tonApiClientFactory else {
             throw ChainRegistryError.connectionUnavailable
         }
 
-        return tonApiAssembly
+        return tonApiClientFactory
     }
 
     func chainsSubscribe(
