@@ -172,6 +172,12 @@ protocol ChainRegistryProtocol: AnyObject {
     func subscribeToChians()
 }
 
+extension ChainRegistryProtocol {
+    func subscribeToChains() {
+        subscribeToChians()
+    }
+}
+
 final class ChainRegistry {
     private let snapshotHotBootBuilder: SnapshotHotBootBuilderProtocol
     private let runtimeProviderPool: RuntimeProviderPoolProtocol
@@ -468,7 +474,7 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func performColdBoot() {
-        subscribeToChians()
+        subscribeToChains()
         syncUpServices()
     }
 
@@ -477,7 +483,7 @@ extension ChainRegistry: ChainRegistryProtocol {
         snapshotHotBootBuilder.startHotBoot()
     }
 
-    func subscribeToChians() {
+    func subscribeToChains() {
         let updateClosure: ([DataProviderChange<ChainModel>]) -> Void = { [weak self] changes in
             self?.handleChainModel(changes)
         }
@@ -499,6 +505,11 @@ extension ChainRegistry: ChainRegistryProtocol {
             failing: failureClosure,
             options: options
         )
+    }
+
+    @available(*, deprecated, message: "Use subscribeToChains()")
+    func subscribeToChians() {
+        subscribeToChains()
     }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
