@@ -10,7 +10,6 @@
 		002561414AF1F8F3B4B65538 /* WalletTransactionDetailsWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7416F3AFA5F4D1130B1C410 /* WalletTransactionDetailsWireframe.swift */; };
 		0077B6854FDCA7ECCD557B09 /* StakingPoolCreateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D651E438F86F37CC07D6D3F /* StakingPoolCreateViewController.swift */; };
 		00E9DD69FCE94A4F4929B419 /* AccountStatisticsProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BF646F59913E95891915BDC /* AccountStatisticsProtocols.swift */; };
-		012B4273E4109F0B65117BAE /* fearless/Common/Extensions/Identifiable+Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5C /* fearless/Common/Extensions/Identifiable+Models.swift */; };
 		02EC6059AEE8C92B4EDD09C0 /* LiquidityPoolsOverviewViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC0B2D0A77F4B0F7CC9E7C1D /* LiquidityPoolsOverviewViewLayout.swift */; };
 		02FA6FDF7212F1F8D056BC18 /* SwapTransactionDetailAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = C597BAB74DF23914B68FDC39 /* SwapTransactionDetailAssembly.swift */; };
 		04A17615051F4A1AE0E63BF8 /* PolkaswapSwapConfirmationViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F67BB672040911E4A165446 /* PolkaswapSwapConfirmationViewLayout.swift */; };
@@ -4353,7 +4352,6 @@
 		9C05A688EA7379572BBCE545 /* SelectMarketRouter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SelectMarketRouter.swift; sourceTree = "<group>"; };
 		9FED48DE9B681995E6E4A581 /* LiquidityPoolDetailsProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiquidityPoolDetailsProtocols.swift; sourceTree = "<group>"; };
 		A14CA4551FCC2EBD078E2242 /* AccountConfirmViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmViewFactory.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F60718293A4B5C /* fearless/Common/Extensions/Identifiable+Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "fearless/Common/Extensions/Identifiable+Models.swift"; sourceTree = "<group>"; };
 		A3104ABC4BECF08B0BA836AA /* AccountConfirmViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmViewController.swift; sourceTree = "<group>"; };
 		A31780E84948D7FE632ECB02 /* YourValidatorListProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = YourValidatorListProtocols.swift; sourceTree = "<group>"; };
 		A3BACB7E24BC87F9218DBBC4 /* StakingPayoutConfirmationViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmationViewController.swift; sourceTree = "<group>"; };
@@ -6828,7 +6826,6 @@
 				FAFE10032DCAF11100E5C0DE /* fearless/Common/Compatibility/NetworkWorkerCompatibility.swift */,
 				E1F2A3B4C5D60718293A4B5C /* fearless/Common/Network/GraphQL/GraphQLResponse.swift */,
 				AABBCCDDEEFF112233445566 /* fearless/Modules/Send/Validators/XcmMinAmountInspectorShim.swift */,
-				A1B2C3D4E5F60718293A4B5C /* fearless/Common/Extensions/Identifiable+Models.swift */,
 				D1E2F3A4B5C60718293A4B5C /* fearless/Common/Keys/FearlessKeysShim.swift */,
 				AA1111000011223344556675 /* WalletSelectAccountCommand.swift */,
 				AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */,
@@ -15951,7 +15948,6 @@
 				FAFE10072DCAF11200E5C0DE /* fearless/Common/Compatibility/NetworkWorkerCompatibility.swift in Sources */,
 				F1E2D3C4B5A60718293A4B5C /* fearless/Common/Network/GraphQL/GraphQLResponse.swift in Sources */,
 				BBCCDDEEAABB112233445566 /* fearless/Modules/Send/Validators/XcmMinAmountInspectorShim.swift in Sources */,
-				012B4273E4109F0B65117BAE /* fearless/Common/Extensions/Identifiable+Models.swift in Sources */,
 				2D5B1A6B315FEF23A885A55E /* fearless/Common/Keys/FearlessKeysShim.swift in Sources */,
 				AEF505102616769F0098574D /* InitiatedBonding.swift in Sources */,
 				FA9A8F072A6FADFB008FA99F /* EtherscanHistoryElement.swift in Sources */,
