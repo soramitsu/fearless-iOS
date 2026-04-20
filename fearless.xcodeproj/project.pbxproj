@@ -2949,7 +2949,6 @@
 		FAFDB2C529112A0F003971FB /* UsedRuntimeModules.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFDB2C429112A0F003971FB /* UsedRuntimeModules.swift */; };
 		FAFE00032DCAF00100E5C0DE /* FearlessUtils in Frameworks */ = {isa = PBXBuildFile; productRef = FAFE00022DCAF00100E5C0DE /* FearlessUtils */; };
 		FAFE10022DCF000100E5C0DE /* FearlessDependencies in Frameworks */ = {isa = PBXBuildFile; productRef = FAFE10012DCF000100E5C0DE /* FearlessDependencies */; };
-		FAFE10062DCAF11200E5C0DE /* fearless/Common/Compatibility/ModelsCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFE10022DCAF11100E5C0DE /* fearless/Common/Compatibility/ModelsCompatibility.swift */; };
 		FAFE10072DCAF11200E5C0DE /* fearless/Common/Compatibility/NetworkWorkerCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFE10032DCAF11100E5C0DE /* fearless/Common/Compatibility/NetworkWorkerCompatibility.swift */; };
 		FAFEAA112DCF200100E5C0DE /* ReownWalletKit in Frameworks */ = {isa = PBXBuildFile; productRef = FAFEAA132DCF200100E5C0DE /* ReownWalletKit */; };
 		FAFFAE3629AC84180074AF1F /* ParachainHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAE3329AC84180074AF1F /* ParachainHistoryOperationFactory.swift */; };
@@ -6010,7 +6009,6 @@
 		FAFBEE82284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorListParachainViewModelFactory.swift; sourceTree = "<group>"; };
 		FAFDB2C229112A00003971FB /* SubstrateCallPath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubstrateCallPath.swift; sourceTree = "<group>"; };
 		FAFDB2C429112A0F003971FB /* UsedRuntimeModules.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UsedRuntimeModules.swift; sourceTree = "<group>"; };
-		FAFE10022DCAF11100E5C0DE /* fearless/Common/Compatibility/ModelsCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/Common/Compatibility/ModelsCompatibility.swift; sourceTree = "<group>"; };
 		FAFE10032DCAF11100E5C0DE /* fearless/Common/Compatibility/NetworkWorkerCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/Common/Compatibility/NetworkWorkerCompatibility.swift; sourceTree = "<group>"; };
 		FAFFAE3329AC84180074AF1F /* ParachainHistoryOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParachainHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		FAFFAE3429AC84180074AF1F /* ParachainSubqueryHistoryOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParachainSubqueryHistoryOperationFactory.swift; sourceTree = "<group>"; };
@@ -6827,7 +6825,6 @@
 		0A90ED612F7401B700F741B6 /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
-				FAFE10022DCAF11100E5C0DE /* fearless/Common/Compatibility/ModelsCompatibility.swift */,
 				FAFE10032DCAF11100E5C0DE /* fearless/Common/Compatibility/NetworkWorkerCompatibility.swift */,
 				E1F2A3B4C5D60718293A4B5C /* fearless/Common/Network/GraphQL/GraphQLResponse.swift */,
 				AABBCCDDEEFF112233445566 /* fearless/Modules/Send/Validators/XcmMinAmountInspectorShim.swift */,
@@ -15950,7 +15947,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FAFE10062DCAF11200E5C0DE /* fearless/Common/Compatibility/ModelsCompatibility.swift in Sources */,
 				2D2FA50F16CD470C878A8336 /* CoreDataAliases.swift in Sources */,
 				FAFE10072DCAF11200E5C0DE /* fearless/Common/Compatibility/NetworkWorkerCompatibility.swift in Sources */,
 				F1E2D3C4B5A60718293A4B5C /* fearless/Common/Network/GraphQL/GraphQLResponse.swift in Sources */,
