@@ -2,9 +2,8 @@ import Foundation
 import SSFNetwork
 import RobinHood
 
-// Recreate the legacy entry point expected across the app code on top of the
-// current SSFNetwork request model.
-public typealias NetworkWorker = NetworkWorkerDefault
+// Recreate the legacy request-building surface expected by app code on top of
+// the current SSFNetwork request model.
 
 public struct HTTPHeader {
     public let field: String

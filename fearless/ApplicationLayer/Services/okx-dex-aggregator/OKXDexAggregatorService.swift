@@ -11,10 +11,10 @@ protocol OKXDexAggregatorService {
 }
 
 final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
-    private let networkWorker: NetworkWorker
+    private let networkWorker: NetworkWorkerDefault
     private let signer: RequestSigner
 
-    init(networkWorker: NetworkWorker, signer: RequestSigner) {
+    init(networkWorker: NetworkWorkerDefault, signer: RequestSigner) {
         self.networkWorker = networkWorker
         self.signer = signer
     }

@@ -6,11 +6,11 @@ enum NomisAccountStatisticsFetcherError: Error {
 }
 
 final class NomisAccountStatisticsFetcher {
-    private let networkWorker: NetworkWorker
+    private let networkWorker: NetworkWorkerDefault
     private let signer: RequestSigner
 
     init(
-        networkWorker: NetworkWorker,
+        networkWorker: NetworkWorkerDefault,
         signer: RequestSigner
     ) {
         self.networkWorker = networkWorker
