@@ -161,7 +161,7 @@ protocol ChainRegistryProtocol: AnyObject {
     func retryConnection(for chainId: ChainModel.Id)
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
     func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth?
-    func getTonApiAssembly() throws -> TonAPIClientFactory
+    func getTonApiClientFactory() throws -> TonAPIClientFactory
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
     func getChain(for chainId: ChainModel.Id) -> ChainModel?
     func chainsSubscribe(
@@ -174,6 +174,13 @@ protocol ChainRegistryProtocol: AnyObject {
     func performHotBoot()
     func performColdBoot()
     func subscribeToChians()
+}
+
+extension ChainRegistryProtocol {
+    @available(*, deprecated, renamed: "getTonApiClientFactory()")
+    func getTonApiAssembly() throws -> TonAPIClientFactory {
+        try getTonApiClientFactory()
+    }
 }
 
 final class ChainRegistry {
@@ -534,7 +541,7 @@ extension ChainRegistry: ChainRegistryProtocol {
         runtimeProviderPool.getRuntimeProvider(for: chainId)
     }
 
-    func getTonApiAssembly() throws -> TonAPIClientFactory {
+    func getTonApiClientFactory() throws -> TonAPIClientFactory {
         guard let tonApiClientFactory else {
             throw ChainRegistryError.connectionUnavailable
         }

@@ -1706,14 +1706,14 @@ class MockChainRegistryProtocol: fearless.ChainRegistryProtocol, Cuckoo.Protocol
         )
     }
 
-    func getTonApiAssembly() throws -> TonAPIAssembly {
+    func getTonApiClientFactory() throws -> TonAPIClientFactory {
         return try cuckoo_manager.callThrows(
-            "getTonApiAssembly() throws -> TonAPIAssembly",
+            "getTonApiClientFactory() throws -> TonAPIClientFactory",
             parameters: (),
             escapingParameters: (),
             errorType: Swift.Error.self,
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: try __defaultImplStub!.getTonApiAssembly()
+            defaultCall: try __defaultImplStub!.getTonApiClientFactory()
         )
     }
 
@@ -1842,10 +1842,10 @@ class MockChainRegistryProtocol: fearless.ChainRegistryProtocol, Cuckoo.Protocol
             ))
         }
 
-        func getTonApiAssembly() -> Cuckoo.ProtocolStubThrowingFunction<(), TonAPIAssembly, Swift.Error> {
+        func getTonApiClientFactory() -> Cuckoo.ProtocolStubThrowingFunction<(), TonAPIClientFactory, Swift.Error> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockChainRegistryProtocol.self,
-                method: "getTonApiAssembly() throws -> TonAPIAssembly",
+                method: "getTonApiClientFactory() throws -> TonAPIClientFactory",
                 parameterMatchers: matchers
             ))
         }
@@ -1999,10 +1999,10 @@ class MockChainRegistryProtocol: fearless.ChainRegistryProtocol, Cuckoo.Protocol
         }
 
         @discardableResult
-        func getTonApiAssembly() -> Cuckoo.__DoNotUse<(), TonAPIAssembly> {
+        func getTonApiClientFactory() -> Cuckoo.__DoNotUse<(), TonAPIClientFactory> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
-                "getTonApiAssembly() throws -> TonAPIAssembly",
+                "getTonApiClientFactory() throws -> TonAPIClientFactory",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -2121,8 +2121,8 @@ class ChainRegistryProtocolStub:fearless.ChainRegistryProtocol, @unchecked Senda
         return DefaultValueRegistry.defaultValue(for: (Web3.Eth?).self)
     }
 
-    func getTonApiAssembly() throws -> TonAPIAssembly {
-        return DefaultValueRegistry.defaultValue(for: (TonAPIAssembly).self)
+    func getTonApiClientFactory() throws -> TonAPIClientFactory {
+        return DefaultValueRegistry.defaultValue(for: (TonAPIClientFactory).self)
     }
     
     func chainsUnsubscribe(_ p0: AnyObject) {

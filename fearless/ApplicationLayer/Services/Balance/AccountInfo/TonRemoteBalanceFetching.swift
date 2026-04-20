@@ -143,8 +143,8 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
     private func getTonRates(
         currency: Currency
     ) async throws -> [String: Components.Schemas.TokenRates] {
-        let assembly = try chainRegistry.getTonApiAssembly()
-        let tonAPIClient = assembly.tonAPIClient()
+        let tonApiClientFactory = try chainRegistry.getTonApiClientFactory()
+        let tonAPIClient = tonApiClientFactory.tonAPIClient()
 
         let response = try await tonAPIClient.getRates(
             query: .init(tokens: "TON", currencies: currency.id.uppercased())
@@ -200,8 +200,8 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         address: String,
         currency: Currency
     ) async throws -> AccountInfo {
-        let assembly = try chainRegistry.getTonApiAssembly()
-        let tonAPIClient = assembly.tonAPIClient()
+        let tonApiClientFactory = try chainRegistry.getTonApiClientFactory()
+        let tonAPIClient = tonApiClientFactory.tonAPIClient()
 
         async let response = try tonAPIClient.getAccount(.init(path: .init(account_id: address)))
         async let rates = try getTonRates(currency: currency)
@@ -227,8 +227,8 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         address: String,
         currency: Currency
     ) async throws -> [TonJettonBalance] {
-        let assembly = try chainRegistry.getTonApiAssembly()
-        let tonAPIClient = assembly.tonAPIClient()
+        let tonApiClientFactory = try chainRegistry.getTonApiClientFactory()
+        let tonAPIClient = tonApiClientFactory.tonAPIClient()
 
         let response = try await tonAPIClient.getAccountJettonsBalances(
             path: .init(account_id: address),
