@@ -84,10 +84,6 @@ final class TonAPIClientFactory {
     }
 }
 
-// Transitional compatibility alias while call sites migrate off the stale name.
-@available(*, deprecated, renamed: "TonAPIClientFactory")
-typealias TonAPIAssembly = TonAPIClientFactory
-
 private extension URLRequest {
     init(
         _ request: HTTPRequest,
@@ -174,13 +170,6 @@ protocol ChainRegistryProtocol: AnyObject {
     func performHotBoot()
     func performColdBoot()
     func subscribeToChians()
-}
-
-extension ChainRegistryProtocol {
-    @available(*, deprecated, renamed: "getTonApiClientFactory()")
-    func getTonApiAssembly() throws -> TonAPIClientFactory {
-        try getTonApiClientFactory()
-    }
 }
 
 final class ChainRegistry {
