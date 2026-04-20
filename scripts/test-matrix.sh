@@ -146,15 +146,33 @@ verify_native_crypto_state
 # Ensure Cuckoo mock generation build phases run even on CI
 unset CI || true
 
-function run_tests() {
+# Ensure tooling available
+if ! command -v xcodebuild >/dev/null 2>&1; then
+  echo "xcodebuild not found in PATH" >&2
+  exit 127
+fi
+
+HAS_XCPRETTY=0
+if command -v xcpretty >/dev/null 2>&1; then
+  HAS_XCPRETTY=1
+fi
+
+run_tests() {
   local config=$1
-  echo "\n==> Running ${config} tests"
+  if [[ "$HAS_XCPRETTY" == "1" ]]; then
+    echo "\n==> Running ${config} tests"
+  else
+    echo "\n==> Running ${config} tests (no xcpretty)"
+  fi
+
   verify_native_crypto_state
+
   local result_bundle_dir="$(pwd)/build/test-results"
   local sanitized_scheme="${SCHEME//./_}"
   local result_bundle_path="${result_bundle_dir}/${sanitized_scheme}-${config}.xcresult"
   mkdir -p "${result_bundle_dir}"
   rm -rf "${result_bundle_path}"
+
   local extra=()
   if [[ "${HOST_ARCH}" == "arm64" ]]; then
     extra+=("EXCLUDED_ARCHS=x86_64")
@@ -163,88 +181,32 @@ function run_tests() {
     # Ensure testability for Release builds when running unit tests on simulator
     extra+=(ENABLE_TESTABILITY=YES)
   fi
+
+  local cmd=(
+    xcodebuild
+    -workspace "${WORKSPACE}"
+    -scheme "${SCHEME}"
+    -configuration "${config}"
+    -destination "${DEST}"
+    -clonedSourcePackagesDirPath "${LOCAL_SOURCE_PACKAGES_DIR}"
+    -disableAutomaticPackageResolution
+    -resultBundlePath "${result_bundle_path}"
+    -enableCodeCoverage YES
+  )
   if ((${#extra[@]})); then
-    xcodebuild \
-      -workspace "${WORKSPACE}" \
-      -scheme "${SCHEME}" \
-      -configuration "${config}" \
-      -destination "${DEST}" \
-      -clonedSourcePackagesDirPath "${LOCAL_SOURCE_PACKAGES_DIR}" \
-      -disableAutomaticPackageResolution \
-      -resultBundlePath "${result_bundle_path}" \
-      -enableCodeCoverage YES \
-      "${extra[@]}" \
-      clean test | xcpretty || {
-        echo "xcodebuild ${config} tests failed" >&2
-        exit 1
-      }
+    cmd+=("${extra[@]}")
+  fi
+  cmd+=(clean test)
+
+  if [[ "$HAS_XCPRETTY" == "1" ]]; then
+    "${cmd[@]}" | xcpretty || {
+      echo "xcodebuild ${config} tests failed" >&2
+      exit 1
+    }
   else
-    xcodebuild \
-      -workspace "${WORKSPACE}" \
-      -scheme "${SCHEME}" \
-      -configuration "${config}" \
-      -destination "${DEST}" \
-      -clonedSourcePackagesDirPath "${LOCAL_SOURCE_PACKAGES_DIR}" \
-      -disableAutomaticPackageResolution \
-      -resultBundlePath "${result_bundle_path}" \
-      -enableCodeCoverage YES \
-      clean test | xcpretty || {
-        echo "xcodebuild ${config} tests failed" >&2
-        exit 1
-      }
+    "${cmd[@]}"
   fi
 }
-
-# Ensure tooling available
-if ! command -v xcodebuild >/dev/null 2>&1; then
-  echo "xcodebuild not found in PATH" >&2
-  exit 127
-fi
-
-# xcpretty is optional; fall back to raw output
-if ! command -v xcpretty >/dev/null 2>&1; then
-  run_tests() {
-    local config=$1
-    echo "\n==> Running ${config} tests (no xcpretty)"
-    verify_native_crypto_state
-    local result_bundle_dir="$(pwd)/build/test-results"
-    local sanitized_scheme="${SCHEME//./_}"
-    local result_bundle_path="${result_bundle_dir}/${sanitized_scheme}-${config}.xcresult"
-    mkdir -p "${result_bundle_dir}"
-    rm -rf "${result_bundle_path}"
-    local extra=()
-    if [[ "${HOST_ARCH}" == "arm64" ]]; then
-      extra+=("EXCLUDED_ARCHS=x86_64")
-    fi
-    if [[ "${config}" == "Release" ]]; then
-      extra+=(ENABLE_TESTABILITY=YES)
-    fi
-    if ((${#extra[@]})); then
-      xcodebuild \
-        -workspace "${WORKSPACE}" \
-        -scheme "${SCHEME}" \
-        -configuration "${config}" \
-        -destination "${DEST}" \
-        -clonedSourcePackagesDirPath "${LOCAL_SOURCE_PACKAGES_DIR}" \
-        -disableAutomaticPackageResolution \
-        -resultBundlePath "${result_bundle_path}" \
-        -enableCodeCoverage YES \
-        "${extra[@]}" \
-        clean test
-    else
-      xcodebuild \
-        -workspace "${WORKSPACE}" \
-        -scheme "${SCHEME}" \
-        -configuration "${config}" \
-        -destination "${DEST}" \
-        -clonedSourcePackagesDirPath "${LOCAL_SOURCE_PACKAGES_DIR}" \
-        -disableAutomaticPackageResolution \
-        -resultBundlePath "${result_bundle_path}" \
-        -enableCodeCoverage YES \
-        clean test
-    fi
-  }
-fi
 
 run_tests Debug
 
