@@ -95,7 +95,76 @@ final class AssetModelMapperTests: XCTestCase {
         XCTAssertEqual(model.name, "asset-id")
     }
 
-    private func createAssetContext() throws -> NSManagedObjectContext {
+    func testPopulateThenTransformPreservesExtendedAssetFields() throws {
+        let mapper = AssetModelMapper()
+        let context = try createAssetContext(includePricingFields: true)
+
+        let model = AssetModel(
+            id: "asset-id",
+            name: "Polkadot",
+            symbol: "DOT",
+            precision: 12,
+            icon: URL(string: "https://example.com/icon.png"),
+            price: Decimal(string: "12.34"),
+            fiatDayChange: Decimal(string: "-0.98"),
+            currencyId: "usd",
+            existentialDeposit: "10000000000",
+            color: "#112233",
+            isUtility: true,
+            isNative: true,
+            staking: .relayChain,
+            purchaseProviders: [.moonpay, .ramp],
+            type: .normal,
+            ethereumType: .erc20,
+            priceProvider: PriceProvider(type: .coingecko, id: "polkadot", precision: 4),
+            coingeckoPriceId: "polkadot"
+        )
+
+        let entity = CDAsset(context: context)
+        try mapper.populate(entity: entity, from: model, using: context)
+
+        let mappedModel = try mapper.transform(entity: entity)
+
+        XCTAssertEqual(mappedModel.id, model.id)
+        XCTAssertEqual(mappedModel.name, model.name)
+        XCTAssertEqual(mappedModel.symbol, model.symbol)
+        XCTAssertEqual(mappedModel.precision, model.precision)
+        XCTAssertEqual(mappedModel.price, model.price)
+        XCTAssertEqual(mappedModel.fiatDayChange, model.fiatDayChange)
+        XCTAssertEqual(mappedModel.currencyId, model.currencyId)
+        XCTAssertEqual(mappedModel.existentialDeposit, model.existentialDeposit)
+        XCTAssertEqual(mappedModel.color, model.color)
+        XCTAssertEqual(mappedModel.isUtility, model.isUtility)
+        XCTAssertEqual(mappedModel.isNative, model.isNative)
+        XCTAssertEqual(mappedModel.staking, model.staking)
+        XCTAssertEqual(mappedModel.purchaseProviders, model.purchaseProviders)
+        XCTAssertEqual(mappedModel.type, model.type)
+        XCTAssertEqual(mappedModel.ethereumType, model.ethereumType)
+        XCTAssertEqual(mappedModel.priceProvider, model.priceProvider)
+        XCTAssertEqual(mappedModel.coingeckoPriceId, model.coingeckoPriceId)
+    }
+
+    func testPopulateDoesNotRequireOptionalPricingFieldsInEntitySchema() throws {
+        let mapper = AssetModelMapper()
+        let context = try createAssetContext(includePricingFields: false)
+
+        let model = AssetModel(
+            id: "asset-id",
+            name: "Polkadot",
+            symbol: "DOT",
+            precision: 12,
+            price: Decimal(string: "1.23"),
+            fiatDayChange: Decimal(string: "0.45"),
+            isUtility: false,
+            isNative: true
+        )
+
+        let entity = CDAsset(context: context)
+
+        XCTAssertNoThrow(try mapper.populate(entity: entity, from: model, using: context))
+    }
+
+    private func createAssetContext(includePricingFields: Bool = false) throws -> NSManagedObjectContext {
         let model = NSManagedObjectModel()
 
         let priceProviderEntity = NSEntityDescription()
@@ -119,7 +188,7 @@ final class AssetModelMapperTests: XCTestCase {
         priceProviderRelationship.deleteRule = .nullifyDeleteRule
         priceProviderRelationship.isOptional = true
 
-        assetEntity.properties = [
+        var assetProperties: [NSPropertyDescription] = [
             makeAttribute(name: "id", type: .stringAttributeType),
             makeAttribute(name: "icon", type: .URIAttributeType),
             makeAttribute(name: "precision", type: .integer16AttributeType),
@@ -137,6 +206,13 @@ final class AssetModelMapperTests: XCTestCase {
             makeAttribute(name: "purchaseProviders", type: .transformableAttributeType),
             priceProviderRelationship
         ]
+
+        if includePricingFields {
+            assetProperties.append(makeAttribute(name: "price", type: .decimalAttributeType))
+            assetProperties.append(makeAttribute(name: "fiatDayChange", type: .decimalAttributeType))
+        }
+
+        assetEntity.properties = assetProperties
 
         model.entities = [assetEntity, priceProviderEntity]
 
