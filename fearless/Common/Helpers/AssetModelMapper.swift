@@ -11,7 +11,7 @@ enum AssetModelMapperError: Error {
     case missedRequiredFields
 }
 
-extension AssetModel: RobinHood.Identifiable {
+extension AssetModel: @retroactive RobinHood.Identifiable {
     public var identifier: String { id }
 }
 
