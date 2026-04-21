@@ -2622,7 +2622,7 @@
 		FAABC4772845DECC002CF40E /* ValidatorListFilterRelaychainViewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC4762845DECC002CF40E /* ValidatorListFilterRelaychainViewModels.swift */; };
 		FAABC4792845DEF2002CF40E /* ValidatorListFilterParachainViewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC4782845DEF2002CF40E /* ValidatorListFilterParachainViewModels.swift */; };
 		FAAC292C2ADCF3BB00063962 /* WalletConnectConfirmationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAC29282ADCF3BB00063962 /* WalletConnectConfirmationCoordinator.swift */; };
-		FAAC292E2ADCF3BB00063962 /* WalletConnectProposalCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAC292A2ADCF3BB00063962 /* WalletConnectProposalCoordinator.swift */; };
+		FAAC292E2ADCF3BB00063962 /* WalletConnectProposalCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F817FE2AD5528B00B87358 /* WalletConnectProposalCoordinator.swift */; };
 		FAADC19929261F6400DA9903 /* NominationPoolsUpdateRolesCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAADC19829261F6400DA9903 /* NominationPoolsUpdateRolesCall.swift */; };
 		FAADC1A529261F7000DA9903 /* PoolRolesConfirmProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAADC19B29261F7000DA9903 /* PoolRolesConfirmProtocols.swift */; };
 		FAADC1A629261F7000DA9903 /* PoolRolesConfirmViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAADC19D29261F7000DA9903 /* PoolRolesConfirmViewModelFactory.swift */; };
@@ -5668,9 +5668,6 @@
 		FAABC4762845DECC002CF40E /* ValidatorListFilterRelaychainViewModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorListFilterRelaychainViewModels.swift; sourceTree = "<group>"; };
 		FAABC4782845DEF2002CF40E /* ValidatorListFilterParachainViewModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorListFilterParachainViewModels.swift; sourceTree = "<group>"; };
 		FAAC29282ADCF3BB00063962 /* WalletConnectConfirmationCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletConnectConfirmationCoordinator.swift; sourceTree = "<group>"; };
-		FAAC29292ADCF3BB00063962 /* WalletConnectSessionCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletConnectSessionCoordinator.swift; sourceTree = "<group>"; };
-		FAAC292A2ADCF3BB00063962 /* WalletConnectProposalCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletConnectProposalCoordinator.swift; sourceTree = "<group>"; };
-		FAAC292B2ADCF3BB00063962 /* WalletConnectCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletConnectCoordinator.swift; sourceTree = "<group>"; };
 		FAAC2F6AE479454F663A3BE7 /* FiltersWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FiltersWireframe.swift; sourceTree = "<group>"; };
 		FAADC19829261F6400DA9903 /* NominationPoolsUpdateRolesCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NominationPoolsUpdateRolesCall.swift; sourceTree = "<group>"; };
 		FAADC19B29261F7000DA9903 /* PoolRolesConfirmProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PoolRolesConfirmProtocols.swift; sourceTree = "<group>"; };
@@ -6767,6 +6764,7 @@
 		07F818042AD572EA00B87358 /* Coordinators */ = {
 			isa = PBXGroup;
 			children = (
+				FAAC29282ADCF3BB00063962 /* WalletConnectConfirmationCoordinator.swift */,
 				07F67CA22ACFC4910044047D /* WalletConnectCoordinator.swift */,
 				07F818002AD55D3600B87358 /* WalletConnectSessionCoordinator.swift */,
 				07F817FE2AD5528B00B87358 /* WalletConnectProposalCoordinator.swift */,
@@ -8990,7 +8988,6 @@
 				FA34EEBD2B98723B0042E73E /* Onboarding */,
 				FA34EEB52B98723B0042E73E /* OnboardingStart */,
 				FABA162E2B0C9510001AF2F0 /* NetworkManagment */,
-				FAAC29272ADCF3BB00063962 /* Coordinators */,
 				07F67C9A2ACFC2440044047D /* BackupFlow */,
 				07F67C992ACFC2190044047D /* WalletConnectFlow */,
 				070CDD7A2ACBE59700F3F20A /* ReceiveAndRequestAsset */,
@@ -14366,17 +14363,6 @@
 				FAABC4782845DEF2002CF40E /* ValidatorListFilterParachainViewModels.swift */,
 			);
 			path = Parachain;
-			sourceTree = "<group>";
-		};
-		FAAC29272ADCF3BB00063962 /* Coordinators */ = {
-			isa = PBXGroup;
-			children = (
-				FAAC29282ADCF3BB00063962 /* WalletConnectConfirmationCoordinator.swift */,
-				FAAC29292ADCF3BB00063962 /* WalletConnectSessionCoordinator.swift */,
-				FAAC292A2ADCF3BB00063962 /* WalletConnectProposalCoordinator.swift */,
-				FAAC292B2ADCF3BB00063962 /* WalletConnectCoordinator.swift */,
-			);
-			path = Coordinators;
 			sourceTree = "<group>";
 		};
 		FAADC19A29261F7000DA9903 /* PoolRolesConfirm */ = {
