@@ -8,6 +8,11 @@ protocol TonJettonInjector {
 }
 
 actor TonJettonInjectorImpl: TonJettonInjector {
+    private enum TonNetwork {
+        static let testnetChainId = "-3"
+        static let mainnetChainId = "-239"
+    }
+
     private let chainModelRepository: AsyncAnyRepository<ChainModel>
     private let logger: LoggerProtocol
     private let eventCenter: EventCenterProtocol
@@ -24,17 +29,14 @@ actor TonJettonInjectorImpl: TonJettonInjector {
 
     func inject(jettonItems: [TonJettonBalance]) async {
         do {
-            let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? "-3" : "-239"
-            guard let tonChain = try await chainModelRepository.fetch(by: network, options: RepositoryFetchOptions()) else {
-                throw ConvenienceError(error: "Ton chain is not fetched")
-            }
+            let tonChain = try await fetchTonChain()
 
             var assetModels = map(jettonItems: jettonItems)
             if let tonAsset = tonChain.utilityAssets().first {
                 assetModels.insert(tonAsset)
             }
 
-            var updatedChainModel = tonChain
+            let updatedChainModel = tonChain
             updatedChainModel.assets = assetModels
             await chainModelRepository.save(models: [updatedChainModel])
             eventCenter.notify(with: PricesUpdated())
@@ -47,10 +49,7 @@ actor TonJettonInjectorImpl: TonJettonInjector {
 
     func inject(tonPriceData: [PriceData]) async {
         do {
-            let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? "-3" : "-239"
-            guard let tonChain = try await chainModelRepository.fetch(by: network, options: RepositoryFetchOptions()) else {
-                throw ConvenienceError(error: "Ton chain is not fetched")
-            }
+            let tonChain = try await fetchTonChain()
             guard let tonAsset = tonChain.utilityChainAssets().first else {
                 return
             }
@@ -61,7 +60,7 @@ actor TonJettonInjectorImpl: TonJettonInjector {
             let updatedTonAsset = tonAsset.asset.replacingPrice(tonPrice)
             var jettons = Array(tonChain.assets.filter { !$0.isUtility })
             jettons.append(updatedTonAsset)
-            var updatedChain = tonChain
+            let updatedChain = tonChain
             updatedChain.assets = Set(jettons)
             await chainModelRepository.save(models: [updatedChain])
             eventCenter.notify(with: PricesUpdated())
@@ -95,5 +94,19 @@ actor TonJettonInjectorImpl: TonJettonInjector {
         }
 
         return Set(mapped)
+    }
+
+    private func fetchTonChain() async throws -> ChainModel {
+        let chainId = tonChainId()
+
+        guard let tonChain = try await chainModelRepository.fetch(by: chainId, options: RepositoryFetchOptions()) else {
+            throw ConvenienceError(error: "Ton chain is not fetched for chainId: \(chainId)")
+        }
+
+        return tonChain
+    }
+
+    private func tonChainId() -> ChainModel.Id {
+        LocalToggleService.shared.tonEnvListToggle.storageValue ? TonNetwork.testnetChainId : TonNetwork.mainnetChainId
     }
 }
