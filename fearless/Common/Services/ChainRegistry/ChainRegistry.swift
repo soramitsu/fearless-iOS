@@ -638,8 +638,7 @@ private extension ChainRegistry {
 
     func shouldUseTonChain(_ chain: ChainModel) -> Bool {
         let isTestnetEnabled = LocalToggleService.shared.tonEnvListToggle.storageValue
-        let isTestnetChain = chain.options.or([]).contains(.testnet)
-        return isTestnetEnabled == isTestnetChain
+        return TonChainSelection.matchesSelectedEnvironment(chain: chain, isTestnetEnabled: isTestnetEnabled)
     }
 }
 

@@ -8,11 +8,6 @@ protocol TonJettonInjector {
 }
 
 actor TonJettonInjectorImpl: TonJettonInjector {
-    private enum TonNetwork {
-        static let testnetChainId = "-3"
-        static let mainnetChainId = "-239"
-    }
-
     private let chainModelRepository: AsyncAnyRepository<ChainModel>
     private let logger: LoggerProtocol
     private let eventCenter: EventCenterProtocol
@@ -107,6 +102,6 @@ actor TonJettonInjectorImpl: TonJettonInjector {
     }
 
     private func tonChainId() -> ChainModel.Id {
-        LocalToggleService.shared.tonEnvListToggle.storageValue ? TonNetwork.testnetChainId : TonNetwork.mainnetChainId
+        TonChainSelection.selectedChainId()
     }
 }

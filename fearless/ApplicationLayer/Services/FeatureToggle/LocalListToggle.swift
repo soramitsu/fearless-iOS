@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 struct LocalListToggle: Codable {
     let key: String
@@ -30,4 +31,22 @@ extension LocalListToggle {
         description: "is testnet",
         storageValue: false
     )
+}
+
+enum TonChainSelection {
+    static let testnetChainId = "-3"
+    static let mainnetChainId = "-239"
+
+    static func selectedChainId(isTestnetEnabled: Bool) -> ChainModel.Id {
+        isTestnetEnabled ? testnetChainId : mainnetChainId
+    }
+
+    static func selectedChainId() -> ChainModel.Id {
+        selectedChainId(isTestnetEnabled: LocalToggleService.shared.tonEnvListToggle.storageValue)
+    }
+
+    static func matchesSelectedEnvironment(chain: ChainModel, isTestnetEnabled: Bool) -> Bool {
+        let isTestnetChain = (chain.options ?? []).contains(.testnet)
+        return isTestnetEnabled == isTestnetChain
+    }
 }
