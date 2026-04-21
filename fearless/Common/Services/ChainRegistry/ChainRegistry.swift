@@ -170,14 +170,6 @@ protocol ChainRegistryProtocol: AnyObject {
     func performHotBoot()
     func performColdBoot()
     func subscribeToChains()
-    func subscribeToChians()
-}
-
-extension ChainRegistryProtocol {
-    @available(*, deprecated, message: "Use subscribeToChains()")
-    func subscribeToChians() {
-        subscribeToChains()
-    }
 }
 
 final class ChainRegistry {
@@ -507,11 +499,6 @@ extension ChainRegistry: ChainRegistryProtocol {
             failing: failureClosure,
             options: options
         )
-    }
-
-    @available(*, deprecated, message: "Use subscribeToChains()")
-    func subscribeToChians() {
-        subscribeToChains()
     }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {

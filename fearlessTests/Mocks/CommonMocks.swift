@@ -1757,13 +1757,13 @@ class MockChainRegistryProtocol: fearless.ChainRegistryProtocol, Cuckoo.Protocol
         )
     }
 
-    func subscribeToChians() {
+    func subscribeToChains() {
         return cuckoo_manager.call(
-            "subscribeToChians()",
+            "subscribeToChains()",
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.subscribeToChians()
+            defaultCall: __defaultImplStub!.subscribeToChains()
         )
     }
 
@@ -1882,10 +1882,10 @@ class MockChainRegistryProtocol: fearless.ChainRegistryProtocol, Cuckoo.Protocol
             ))
         }
         
-        func subscribeToChians() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+        func subscribeToChains() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockChainRegistryProtocol.self,
-                method: "subscribeToChians()",
+                method: "subscribeToChains()",
                 parameterMatchers: matchers
             ))
         }
@@ -2059,10 +2059,10 @@ class MockChainRegistryProtocol: fearless.ChainRegistryProtocol, Cuckoo.Protocol
         
         
         @discardableResult
-        func subscribeToChians() -> Cuckoo.__DoNotUse<(), Void> {
+        func subscribeToChains() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
-                "subscribeToChians()",
+                "subscribeToChains()",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -2141,7 +2141,7 @@ class ChainRegistryProtocolStub:fearless.ChainRegistryProtocol, @unchecked Senda
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-    func subscribeToChians() {
+    func subscribeToChains() {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
