@@ -492,6 +492,8 @@ extension ChainRegistry: ChainRegistryProtocol {
             refreshWhenEmpty: false
         )
 
+        chainProvider.removeObserver(self)
+
         chainProvider.addObserver(
             self,
             deliverOn: DispatchQueue.global(qos: .userInitiated),
