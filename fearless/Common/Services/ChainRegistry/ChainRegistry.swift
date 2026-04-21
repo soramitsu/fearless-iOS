@@ -169,12 +169,14 @@ protocol ChainRegistryProtocol: AnyObject {
     func syncUp()
     func performHotBoot()
     func performColdBoot()
+    func subscribeToChains()
     func subscribeToChians()
 }
 
 extension ChainRegistryProtocol {
-    func subscribeToChains() {
-        subscribeToChians()
+    @available(*, deprecated, message: "Use subscribeToChains()")
+    func subscribeToChians() {
+        subscribeToChains()
     }
 }
 
