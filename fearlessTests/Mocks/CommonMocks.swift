@@ -787,7 +787,7 @@ class MockAccountRepositoryFactoryProtocol: AccountRepositoryFactoryProtocol, Cu
             parameters: (),
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.createRepository()
+            defaultCall: DefaultValueRegistry.defaultValue(for: (AnyDataProviderRepository<fearless.MetaAccountModel>).self)
         )
     }
 
@@ -797,7 +797,7 @@ class MockAccountRepositoryFactoryProtocol: AccountRepositoryFactoryProtocol, Cu
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.createAccountRepository(for: p0)
+            defaultCall: DefaultValueRegistry.defaultValue(for: (AnyDataProviderRepository<fearless.MetaAccountModel>).self)
         )
     }
 

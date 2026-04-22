@@ -46,7 +46,9 @@ for f in "${TARGETS[@]}"; do
                      s/(?<!\.)\bSchedulerProtocol\b/fearless.SchedulerProtocol/g;
                      s/(?<!\.)\bSchedulerDelegate\b/fearless.SchedulerDelegate/g;
                      s/(?<!\.)\bRuntimeMetadataItem\b/fearless.RuntimeMetadataItem/g;
-                     s/SSFModels\.RuntimeMetadataItem/fearless.RuntimeMetadataItem/g;' "$f"
+                     s/SSFModels\.RuntimeMetadataItem/fearless.RuntimeMetadataItem/g;
+                     s/__defaultImplStub!\.createRepository\(\)/DefaultValueRegistry.defaultValue(for: (AnyDataProviderRepository<fearless.MetaAccountModel>).self)/g;
+                     s/__defaultImplStub!\.createAccountRepository\(for: p0\)/DefaultValueRegistry.defaultValue(for: (AnyDataProviderRepository<fearless.MetaAccountModel>).self)/g;' "$f"
   # Restore clean alias LHS if our qualifier hit typealias lines
   /usr/bin/sed -E -i '' -e 's/^typealias[[:space:]]+fearless\.MetaAccountModel/typealias MetaAccountModel/' \
                        -e 's/^typealias[[:space:]]+fearless\.ChainAccountResponse/typealias ChainAccountResponse/' "$f"
