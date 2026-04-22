@@ -87,3 +87,23 @@ final class TonCompatibilityTests: XCTestCase {
         XCTAssertEqual(data.tail(8), data)
     }
 }
+
+final class TonRemoteBalanceFetchingParsingTests: XCTestCase {
+    func testParseFiatDayChangePercentStripsPercentSign() {
+        let value = TonRemoteBalanceFetchingImpl.parseFiatDayChangePercent("4.25%")
+
+        XCTAssertEqual(value, Decimal(string: "4.25"))
+    }
+
+    func testParseFiatDayChangePercentNormalizesUnicodeMinusSign() {
+        let value = TonRemoteBalanceFetchingImpl.parseFiatDayChangePercent("−1.75%")
+
+        XCTAssertEqual(value, Decimal(string: "-1.75"))
+    }
+
+    func testParseFiatDayChangePercentDefaultsToZeroForInvalidInput() {
+        let value = TonRemoteBalanceFetchingImpl.parseFiatDayChangePercent("n/a")
+
+        XCTAssertEqual(value, .zero)
+    }
+}
