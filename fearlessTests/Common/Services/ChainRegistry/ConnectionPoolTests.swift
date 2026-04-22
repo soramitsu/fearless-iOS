@@ -154,6 +154,111 @@ class ConnectionPoolTests: XCTestCase {
         XCTAssertEqual(result, expectedData)
     }
 
+    func testNetworkWorkerCompatibilityUsesProvidedDecoder() async throws {
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [URLProtocolStub.self]
+        let session = URLSession(configuration: config)
+
+        let worker = NetworkWorkerDefault(session: session)
+        let requestConfig = RequestConfig(
+            baseURL: URL(string: "https://unit.test")!,
+            method: .get,
+            endpoint: "decoder",
+            headers: nil,
+            body: nil
+        )
+        let snakeCaseDecoder = JSONDecoder()
+        snakeCaseDecoder.keyDecodingStrategy = .convertFromSnakeCase
+        requestConfig.decoderType = .codable(jsonDecoder: snakeCaseDecoder)
+
+        URLProtocolStub.requestHandler = { request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: nil
+            )!
+            let data = Data("{\"value_text\":\"ok\"}".utf8)
+            return (response, data)
+        }
+        defer { URLProtocolStub.requestHandler = nil }
+
+        struct SnakeCasePayload: Decodable, Equatable {
+            let valueText: String
+        }
+
+        let result: SnakeCasePayload = try await worker.performRequest(with: requestConfig)
+
+        XCTAssertEqual(result, SnakeCasePayload(valueText: "ok"))
+    }
+
+    func testNetworkWorkerCompatibilityCacheWrapperYieldsSingleValueAndFinishes() async throws {
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [URLProtocolStub.self]
+        let session = URLSession(configuration: config)
+
+        let worker = NetworkWorkerDefault(session: session)
+        let requestConfig = RequestConfig(
+            baseURL: URL(string: "https://unit.test")!,
+            method: .get,
+            endpoint: "cache",
+            headers: nil,
+            body: nil
+        )
+
+        URLProtocolStub.requestHandler = { request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: nil
+            )!
+            let data = Data("{\"value\":\"stream\"}".utf8)
+            return (response, data)
+        }
+        defer { URLProtocolStub.requestHandler = nil }
+
+        let stream = try await worker.performRequest(with: requestConfig, withCacheOptions: .onAll) as AsyncThrowingStream<CachedNetworkResponse<WorkerPayload>, Error>
+        var collected: [WorkerPayload] = []
+
+        for try await item in stream {
+            collected.append(item.data)
+        }
+
+        XCTAssertEqual(collected, [WorkerPayload(value: "stream")])
+    }
+
+    func testNetworkWorkerCompatibilityBuildsRequestWithoutEndpoint() async throws {
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [URLProtocolStub.self]
+        let session = URLSession(configuration: config)
+
+        let worker = NetworkWorkerDefault(session: session)
+        let requestConfig = RequestConfig(
+            baseURL: URL(string: "https://unit.test/base")!,
+            method: .get,
+            endpoint: nil,
+            queryItems: [URLQueryItem(name: "q", value: "1")],
+            headers: nil,
+            body: nil
+        )
+
+        URLProtocolStub.requestHandler = { request in
+            XCTAssertEqual(request.url?.absoluteString, "https://unit.test/base?q=1")
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: nil
+            )!
+            return (response, Data("{\"value\":\"base\"}".utf8))
+        }
+        defer { URLProtocolStub.requestHandler = nil }
+
+        let result: WorkerPayload = try await worker.performRequest(with: requestConfig)
+        XCTAssertEqual(result, WorkerPayload(value: "base"))
+    }
+
 //    func testSetupUpdatesExistingConnection() {
 //        do {
 //            // given
