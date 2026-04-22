@@ -259,6 +259,48 @@ class ConnectionPoolTests: XCTestCase {
         XCTAssertEqual(result, WorkerPayload(value: "base"))
     }
 
+    func testEthereumConnectionPoolResetRemovesConnectionForChainId() throws {
+        let chainId = "e2e-eth-test-chain"
+        let chain = makeEthereumLikeChain(chainId: chainId)
+        let pool = EthereumConnectionPool()
+
+        _ = try pool.setupConnection(for: chain)
+
+        XCTAssertNotNil(pool.getConnection(for: chainId))
+
+        pool.resetConnection(for: chainId)
+
+        XCTAssertNil(pool.getConnection(for: chainId))
+    }
+
+    private func makeEthereumLikeChain(chainId: String) -> ChainModel {
+        let node = ChainNodeModel(
+            url: URL(string: "https://rpc.unit.test")!,
+            name: "Unit Test ETH Node",
+            apikey: nil
+        )
+
+        return ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: chainId,
+            parentId: nil,
+            paraId: nil,
+            name: "Unit ETH",
+            xcm: nil,
+            nodes: Set([node]),
+            addressPrefix: 0,
+            types: nil,
+            icon: nil,
+            options: nil,
+            externalApi: nil,
+            selectedNode: nil,
+            customNodes: nil,
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+    }
+
 //    func testSetupUpdatesExistingConnection() {
 //        do {
 //            // given

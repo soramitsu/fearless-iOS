@@ -405,11 +405,16 @@ final class ChainRegistry {
     }
 
     private func handleDeletedEthereumChain(chainId: ChainModel.Id) {
+        resetEthereumConnection(for: chainId)
         chains = chains.filter { $0.chainId != chainId }
     }
 
-    private func resetEthereumConnection(for _: ChainModel.Id) {
-        // TODO: Reset eth connection
+    private func resetEthereumConnection(for chainId: ChainModel.Id) {
+        guard let ethereumConnectionPool else {
+            return
+        }
+
+        ethereumConnectionPool.resetConnection(for: chainId)
     }
 
     private func handleTonChain(_ chain: ChainModel) {
