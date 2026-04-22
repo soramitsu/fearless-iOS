@@ -60,11 +60,24 @@ jobs:
           # Prefer iPhone 16; otherwise pick the first available iPhone and use its UDID
           PREFERRED_NAME="iPhone 16"
           echo "Available simulators:" && xcrun simctl list devices | sed -n '1,80p'
-          # Try to find an exact match by name with available state
-          UDID=$(xcrun simctl list devices available | awk -v name="$PREFERRED_NAME" -F '[()]' '$0 ~ name {print $2; exit}')
+          # Extract UUID token explicitly (works for device names containing parentheses).
+          pick_udid() {
+            local matcher="$1"
+            xcrun simctl list devices available | awk -v pattern="$matcher" '
+              $0 ~ pattern {
+                if (match($0, /[A-Fa-f0-9-]{36}/)) {
+                  print substr($0, RSTART, RLENGTH)
+                  exit
+                }
+              }
+            '
+          }
+
+          # Try preferred iPhone first.
+          UDID=$(pick_udid "$PREFERRED_NAME")
           if [ -z "$UDID" ]; then
             # Fallback to any iPhone device
-            UDID=$(xcrun simctl list devices available | awk -F '[()]' '/iPhone/ {print $2; exit}')
+            UDID=$(pick_udid "iPhone")
           fi
           if [ -z "$UDID" ]; then
             echo "No concrete iPhone simulator found; exiting" >&2

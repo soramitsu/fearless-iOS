@@ -274,14 +274,11 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
             currencyId: currency.id,
             priceId: "",
             price: String(price),
-            fiatDayChange: calculatePercentageValue(base: Decimal(price), percent: fiatDayChangeDecimal),
+            // Keep day change in percentage units to match PriceData semantics across the app.
+            fiatDayChange: fiatDayChangeDecimal,
             coingeckoPriceId: nil
         )
         return [priceData]
-    }
-
-    private func calculatePercentageValue(base: Decimal, percent: Decimal) -> Decimal {
-        base * percent / 100
     }
 
     private func cache(
