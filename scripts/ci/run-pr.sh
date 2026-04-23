@@ -9,7 +9,6 @@ SP_DIR="$WORKSPACE_DIR/SourcePackages"
 if [[ -f "$WORKSPACE_DIR/fearless.xcworkspace/contents.xcworkspacedata" ]]; then
   # Clean previous SPM state to prevent duplicate Web3 sources
   rm -rf "$SP_DIR" || true
-  rm -f "$WORKSPACE_DIR/fearless.xcworkspace/xcshareddata/swiftpm/Package.resolved" || true
   if [[ -x "$WORKSPACE_DIR/scripts/deps/check-dependency-contracts.sh" ]]; then
     "$WORKSPACE_DIR/scripts/deps/check-dependency-contracts.sh" "$WORKSPACE_DIR"
   fi
