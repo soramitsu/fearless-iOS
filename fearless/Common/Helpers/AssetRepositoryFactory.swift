@@ -1,26 +1,24 @@
 import Foundation
 import RobinHood
 import SSFModels
-#if canImport(SSFAssetManagmentStorage)
-    import SSFAssetManagmentStorage
-#endif
 
 final class AssetRepositoryFactory {
     let storageFacade: StorageFacadeProtocol
+    private let mapper: AnyCoreDataMapper<AssetModel, CDAsset>
 
     init(storageFacade: StorageFacadeProtocol = SubstrateDataStorageFacade.shared) {
         self.storageFacade = storageFacade
+        mapper = AnyCoreDataMapper(AssetModelMapper())
     }
 
     func createRepository(
         for filter: NSPredicate? = nil,
         sortDescriptors: [NSSortDescriptor] = []
     ) -> CoreDataRepository<AssetModel, CDAsset> {
-        let mapper = AssetModelMapper()
-        return storageFacade.createRepository(
+        storageFacade.createRepository(
             filter: filter,
             sortDescriptors: sortDescriptors,
-            mapper: AnyCoreDataMapper(mapper)
+            mapper: mapper
         )
     }
 
@@ -28,11 +26,10 @@ final class AssetRepositoryFactory {
         for filter: NSPredicate? = nil,
         sortDescriptors: [NSSortDescriptor] = []
     ) -> AsyncCoreDataRepositoryDefault<AssetModel, CDAsset> {
-        let mapper = AssetModelMapper()
-        return storageFacade.createAsyncRepository(
+        storageFacade.createAsyncRepository(
             filter: filter,
             sortDescriptors: sortDescriptors,
-            mapper: AnyCoreDataMapper(mapper)
+            mapper: mapper
         )
     }
 }

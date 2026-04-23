@@ -1,7 +1,4 @@
 import Foundation
-#if canImport(SSFAssetManagmentStorage)
-    import SSFAssetManagmentStorage
-#endif
 import CoreData
 import RobinHood
 import SSFModels
