@@ -39,6 +39,8 @@ jobs:
             -clonedSourcePackagesDirPath "$SP_DIR"
           # Apply patches on the resolved checkout
           bash scripts/spm-shared-features-fixes.sh "$(pwd)" || true
+          # Ensure native crypto checkout/modulemap contract is restored after resolve.
+          SOURCE_PACKAGES_DIR="$SP_DIR" STRICT_REQUIRED_PATCHES=1 bash scripts/deps/prepare-native-crypto-checkout.sh "$(pwd)" fearless.xcworkspace fearless.tests
           echo "Preflight: checking remaining 'enum AddressFactory' in $SP_DIR checkouts (warn-only)"
           if command -v rg >/dev/null 2>&1; then
             rg -n "\\benum\\s+AddressFactory\\b" "$SP_DIR/checkouts/shared-features-spm/Sources" -S | sed -n '1,120p' || true
@@ -88,7 +90,7 @@ jobs:
             -workspace fearless.xcworkspace \
             -scheme fearless.tests \
             -clonedSourcePackagesDirPath "$SP_DIR" \
-            -destination "id=$UDID" \
+            -destination "platform=iOS Simulator,id=$UDID,arch=arm64" \
             build test | xcpretty --test
 
       - name: Upload coverage to Codecov
