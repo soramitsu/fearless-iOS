@@ -626,17 +626,7 @@ private extension ChainRegistry {
     }
 
     func isTonChain(_ chain: ChainModel) -> Bool {
-        let chainName = chain.name.lowercased()
-        if chainName == "ton" || chainName.contains("ton ") || chainName.contains(" ton") {
-            return true
-        }
-
-        let chainId = chain.chainId.lowercased()
-        if chainId == "ton" || chainId.contains("ton-") {
-            return true
-        }
-
-        return chain.nodes.contains { $0.url.absoluteString.lowercased().contains("ton") }
+        chain.isTonCompatibilityChain
     }
 
     func shouldUseTonChain(_ chain: ChainModel) -> Bool {

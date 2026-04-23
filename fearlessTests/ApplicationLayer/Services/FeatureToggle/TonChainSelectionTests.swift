@@ -57,6 +57,39 @@ final class TonChainSelectionTests: XCTestCase {
 }
 
 final class TonCompatibilityTests: XCTestCase {
+    func testTonCompatibilityChainDetectionByExplorerURL() {
+        let chain = makeTonCompatibilityChain(
+            name: "Any Name",
+            chainId: "custom-chain",
+            nodeURL: URL(string: "wss://node.example.com")!,
+            explorerURL: URL(string: "https://tonviewer.com/address/abc")!
+        )
+
+        XCTAssertTrue(chain.isTonCompatibilityChain)
+    }
+
+    func testTonCompatibilityChainDetectionByNodeURL() {
+        let chain = makeTonCompatibilityChain(
+            name: "Any Name",
+            chainId: "custom-chain",
+            nodeURL: URL(string: "wss://rpc.ton.org")!,
+            explorerURL: URL(string: "https://explorer.example.com/address/abc")!
+        )
+
+        XCTAssertTrue(chain.isTonCompatibilityChain)
+    }
+
+    func testTonCompatibilityChainDetectionReturnsFalseForNonTonChain() {
+        let chain = makeTonCompatibilityChain(
+            name: "Polkadot",
+            chainId: "polkadot-mainnet",
+            nodeURL: URL(string: "wss://rpc.polkadot.io")!,
+            explorerURL: URL(string: "https://polkadot.subscan.io")!
+        )
+
+        XCTAssertFalse(chain.isTonCompatibilityChain)
+    }
+
     func testTonAssetTypeMapsNormal() {
         let type: SubstrateAssetType? = .normal
 
@@ -85,6 +118,55 @@ final class TonCompatibilityTests: XCTestCase {
         let data = Data([0xAA, 0xBB])
 
         XCTAssertEqual(data.tail(8), data)
+    }
+
+    private func makeTonCompatibilityChain(
+        name: String,
+        chainId: String,
+        nodeURL: URL,
+        explorerURL: URL
+    ) -> ChainModel {
+        let node = ChainNodeModel(
+            url: nodeURL,
+            name: "Node",
+            apikey: nil
+        )
+
+        let explorers = [
+            ChainModel.ExternalApiExplorer(
+                type: .unknown,
+                types: [],
+                url: explorerURL.absoluteString
+            )
+        ]
+
+        let externalApi = ChainModel.ExternalApiSet(
+            staking: nil,
+            history: nil,
+            crowdloans: nil,
+            explorers: explorers,
+            pricing: nil
+        )
+
+        return ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: chainId,
+            parentId: nil,
+            paraId: nil,
+            name: name,
+            xcm: nil,
+            nodes: Set([node]),
+            addressPrefix: 0,
+            types: nil,
+            icon: nil,
+            options: nil,
+            externalApi: externalApi,
+            selectedNode: nil,
+            customNodes: nil,
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
     }
 }
 

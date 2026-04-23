@@ -48,7 +48,7 @@ extension ChainModel {
     }
 }
 
-private extension ChainModel {
+extension ChainModel {
     var isTonCompatibilityChain: Bool {
         let chainName = name.lowercased()
         if chainName == "ton" || chainName.contains("ton ") || chainName.contains(" ton") {
