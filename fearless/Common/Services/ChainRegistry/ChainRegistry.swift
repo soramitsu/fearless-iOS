@@ -64,12 +64,10 @@ private struct TonAPIAuthorizationMiddleware: ClientMiddleware {
 final class TonAPIClientFactory {
     private let tonAPIURL: URL
     private let token: String
-    let tonBridgeURL: URL
 
-    init(tonAPIURL: URL, token: String, tonBridgeURL: URL) {
+    init(tonAPIURL: URL, token: String) {
         self.tonAPIURL = tonAPIURL
         self.token = token
-        self.tonBridgeURL = tonBridgeURL
     }
 
     func tonAPIClient() -> Client {
@@ -439,7 +437,7 @@ final class ChainRegistry {
             return
         }
 
-        tonApiClientFactory = TonAPIClientFactory(tonAPIURL: node.url, token: token, tonBridgeURL: node.url)
+        tonApiClientFactory = TonAPIClientFactory(tonAPIURL: node.url, token: token)
         tonApiChainId = chain.chainId
     }
 

@@ -50,17 +50,13 @@ class SpecVersionSubscriptionTests: XCTestCase {
         wait(for: [expectation], timeout: 10)
     }
 
-    func testTonApiClientFactoryProvidesClientAndBridgeURL() {
+    func testTonApiClientFactoryProvidesClient() {
         let tonApiURL = URL(string: "https://tonapi.example")!
-        let tonBridgeURL = URL(string: "https://tonbridge.example")!
         let tonApiClientFactory = TonAPIClientFactory(
             tonAPIURL: tonApiURL,
-            token: "test-token",
-            tonBridgeURL: tonBridgeURL
+            token: "test-token"
         )
 
         _ = tonApiClientFactory.tonAPIClient()
-
-        XCTAssertEqual(tonApiClientFactory.tonBridgeURL, tonBridgeURL)
     }
 }
