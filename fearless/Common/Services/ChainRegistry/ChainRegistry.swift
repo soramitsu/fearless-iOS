@@ -614,7 +614,7 @@ private extension ChainRegistry {
     }
 
     func chainKind(for chain: ChainModel) -> ChainKind {
-        if isTonChain(chain) {
+        if chain.isTonCompatibilityChain {
             return .ton
         }
 
@@ -623,10 +623,6 @@ private extension ChainRegistry {
         }
 
         return .substrate
-    }
-
-    func isTonChain(_ chain: ChainModel) -> Bool {
-        chain.isTonCompatibilityChain
     }
 
     func shouldUseTonChain(_ chain: ChainModel) -> Bool {
