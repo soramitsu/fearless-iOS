@@ -5,6 +5,19 @@ import SSFModels
 import CoreData
 
 final class AssetRepositoryFactoryTests: XCTestCase {
+    func testAssetModelCompatibilityIdentifierMatchesModelId() {
+        let model = AssetModel(
+            id: "asset-id",
+            name: "Asset",
+            symbol: "AST",
+            precision: 12,
+            isUtility: false,
+            isNative: true
+        )
+
+        XCTAssertEqual(model.identifier, model.id)
+    }
+
     func testCreateRepositoryForwardsFilterSortAndModelEntityTypes() {
         let storageFacade = StorageFacadeSpy()
         let factory = AssetRepositoryFactory(storageFacade: storageFacade)
