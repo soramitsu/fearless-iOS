@@ -60,6 +60,12 @@ class MetaAccountMapperTests: XCTestCase {
 }
 
 final class AssetModelMapperTests: XCTestCase {
+    func testEntityIdentifierFieldNameUsesCoreDataAssetIdField() {
+        let mapper = AssetModelMapper()
+
+        XCTAssertEqual(mapper.entityIdentifierFieldName, "id")
+    }
+
     func testTransformThrowsWhenIdentifierMissing() throws {
         let mapper = AssetModelMapper()
         let context = try createAssetContext()
@@ -162,6 +168,50 @@ final class AssetModelMapperTests: XCTestCase {
         let entity = CDAsset(context: context)
 
         XCTAssertNoThrow(try mapper.populate(entity: entity, from: model, using: context))
+    }
+
+    func testTransformPriceProviderPrecisionUsesNilForMalformedPrecisionString() throws {
+        let mapper = AssetModelMapper()
+        let context = try createAssetContext()
+
+        let priceProvider = CDPriceProvider(context: context)
+        priceProvider.type = PriceProviderType.coingecko.rawValue
+        priceProvider.id = "dot"
+        priceProvider.precision = "not-a-number"
+
+        let entity = CDAsset(context: context)
+        entity.id = "asset-id"
+        entity.symbol = "DOT"
+        entity.name = "Polkadot"
+        entity.precision = 12
+        entity.priceProvider = priceProvider
+
+        let model = try mapper.transform(entity: entity)
+
+        XCTAssertEqual(model.priceProvider?.type, .coingecko)
+        XCTAssertEqual(model.priceProvider?.id, "dot")
+        XCTAssertNil(model.priceProvider?.precision)
+    }
+
+    func testTransformPriceProviderIsNilWhenTypeIsUnknown() throws {
+        let mapper = AssetModelMapper()
+        let context = try createAssetContext()
+
+        let priceProvider = CDPriceProvider(context: context)
+        priceProvider.type = "unknown-provider"
+        priceProvider.id = "dot"
+        priceProvider.precision = "4"
+
+        let entity = CDAsset(context: context)
+        entity.id = "asset-id"
+        entity.symbol = "DOT"
+        entity.name = "Polkadot"
+        entity.precision = 12
+        entity.priceProvider = priceProvider
+
+        let model = try mapper.transform(entity: entity)
+
+        XCTAssertNil(model.priceProvider)
     }
 
     private func createAssetContext(includePricingFields: Bool = false) throws -> NSManagedObjectContext {
