@@ -672,7 +672,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
     }
 
     func fetchAllValidators() -> CompoundOperationWrapper<[ElectedValidatorInfo]> {
-        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+        guard chainRegistry.getConnection(for: chain.chainId) != nil else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
         }
 
@@ -935,11 +935,11 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
     func activeValidatorsOperation(
         for nominatorAddress: AccountAddress
     ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
-        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+        guard chainRegistry.getConnection(for: chain.chainId) != nil else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
         }
 
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+        guard chainRegistry.getRuntimeProvider(for: chain.chainId) != nil else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
         }
 
@@ -999,11 +999,11 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
     func pendingValidatorsOperation(
         for accountIds: [AccountId]
     ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
-        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+        guard chainRegistry.getConnection(for: chain.chainId) != nil else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
         }
 
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+        guard chainRegistry.getRuntimeProvider(for: chain.chainId) != nil else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
         }
 
@@ -1052,7 +1052,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
     func wannabeValidatorsOperation(
         for accountIdList: [AccountId]
     ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
-        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+        guard chainRegistry.getConnection(for: chain.chainId) != nil else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
         }
 
