@@ -85,7 +85,6 @@ SP_DIR="${SP_DIR:-$WORKSPACE_DIR/SourcePackages}"
 # Clean previous SPM state to avoid sticky duplicates
 rm -rf "$SP_DIR" || true
 rm -rf "$WORKSPACE_DIR/DerivedData"/*/SourcePackages || true
-rm -f "$WORKSPACE_DIR/fearless.xcworkspace/xcshareddata/swiftpm/Package.resolved" || true
 # Note: SPM mirrors not set here; project pins Web3 to a single source to avoid duplication
 mkdir -p "$SP_DIR"
 if [[ -f fearless.xcworkspace/contents.xcworkspacedata ]]; then
