@@ -196,58 +196,6 @@ enum PolkaswapLiquidityPoolServiceAssembly {
     ) throws -> PoolsOperationService { DummyPoolsOperationService() }
 }
 
-// Public initializers for SSFPools value types (memberwise inits are internal)
-public extension PooledAssetInfo {
-    init(id: String, precision: Int16) {
-        self = PooledAssetInfo(id: id, precision: precision)
-    }
-}
-
-public extension SupplyLiquidityInfo {
-    init(
-        dexId: String,
-        baseAsset: PooledAssetInfo,
-        targetAsset: PooledAssetInfo,
-        baseAssetAmount: Decimal,
-        targetAssetAmount: Decimal,
-        slippage: Decimal
-    ) {
-        self = SupplyLiquidityInfo(
-            dexId: dexId,
-            baseAsset: baseAsset,
-            targetAsset: targetAsset,
-            baseAssetAmount: baseAssetAmount,
-            targetAssetAmount: targetAssetAmount,
-            slippage: slippage
-        )
-    }
-}
-
-// Public initializer for RemoveLiquidityInfo used by presenters
-public extension RemoveLiquidityInfo {
-    init(
-        dexId: String,
-        baseAsset: PooledAssetInfo,
-        targetAsset: PooledAssetInfo,
-        baseAssetAmount: Decimal,
-        targetAssetAmount: Decimal,
-        baseAssetReserves: Decimal,
-        totalIssuances: Decimal,
-        slippage: Decimal
-    ) {
-        self = RemoveLiquidityInfo(
-            dexId: dexId,
-            baseAsset: baseAsset,
-            targetAsset: targetAsset,
-            baseAssetAmount: baseAssetAmount,
-            targetAssetAmount: targetAssetAmount,
-            baseAssetReserves: baseAssetReserves,
-            totalIssuances: totalIssuances,
-            slippage: slippage
-        )
-    }
-}
-
 // Extra API surface used by Remove Liquidity interactor
 extension PolkaswapLiquidityPoolService {
     func fetchUserPool(assetIdPair _: AssetIdPair, accountId _: Data) async throws -> AccountPool? { nil }

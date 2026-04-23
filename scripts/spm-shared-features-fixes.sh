@@ -326,6 +326,44 @@ cleanup_stale_embedded_native_crypto_frameworks
 
 echo "[spm-fixes] Cleaned stale embedded native crypto frameworks"
 
+# 7) Expose public initializers for SSFPools value types used by app presenters.
+# Newer shared-features-spm revisions keep memberwise inits internal, which breaks
+# app-side construction and previously led to recursive compatibility shims.
+patch_ssfpools_public_initializers() {
+  local base_checkout="$1/SourcePackages/checkouts/shared-features-spm/Sources/SSFPools"
+  local pooled="$base_checkout/PooledAssetInfo.swift"
+  local supply="$base_checkout/SupplyLiquidityInfo.swift"
+  local remove="$base_checkout/RemoveLiquidityInfo.swift"
+
+  [[ -d "$base_checkout" ]] || return 0
+  chmod -R u+w "$base_checkout" 2>/dev/null || true
+
+  if [[ -f "$pooled" ]] && ! /usr/bin/grep -q "public init(id: String, precision: Int16)" "$pooled"; then
+    /usr/bin/perl -0pi -e '
+      s/public struct PooledAssetInfo \{\n    public let id: String\n    public let precision: Int16\n\}/public struct PooledAssetInfo {\n    public let id: String\n    public let precision: Int16\n\n    public init(id: String, precision: Int16) {\n        self.id = id\n        self.precision = precision\n    }\n}/s
+    ' "$pooled" || true
+    echo "[spm-fixes] Added public init to SSFPools/PooledAssetInfo"
+  fi
+
+  if [[ -f "$supply" ]] && ! /usr/bin/grep -q "public init(" "$supply"; then
+    /usr/bin/perl -0pi -e '
+      s/public let slippage: Decimal\n\n    public var amountMinA/public let slippage: Decimal\n\n    public init(\n        dexId: String,\n        baseAsset: PooledAssetInfo,\n        targetAsset: PooledAssetInfo,\n        baseAssetAmount: Decimal,\n        targetAssetAmount: Decimal,\n        slippage: Decimal\n    ) {\n        self.dexId = dexId\n        self.baseAsset = baseAsset\n        self.targetAsset = targetAsset\n        self.baseAssetAmount = baseAssetAmount\n        self.targetAssetAmount = targetAssetAmount\n        self.slippage = slippage\n    }\n\n    public var amountMinA/s
+    ' "$supply" || true
+    echo "[spm-fixes] Added public init to SSFPools/SupplyLiquidityInfo"
+  fi
+
+  if [[ -f "$remove" ]] && ! /usr/bin/grep -q "public init(" "$remove"; then
+    /usr/bin/perl -0pi -e '
+      s/public let slippage: Decimal\n\n    public var amountMinA/public let slippage: Decimal\n\n    public init(\n        dexId: String,\n        baseAsset: PooledAssetInfo,\n        targetAsset: PooledAssetInfo,\n        baseAssetAmount: Decimal,\n        targetAssetAmount: Decimal,\n        baseAssetReserves: Decimal,\n        totalIssuances: Decimal,\n        slippage: Decimal\n    ) {\n        self.dexId = dexId\n        self.baseAsset = baseAsset\n        self.targetAsset = targetAsset\n        self.baseAssetAmount = baseAssetAmount\n        self.targetAssetAmount = targetAssetAmount\n        self.baseAssetReserves = baseAssetReserves\n        self.totalIssuances = totalIssuances\n        self.slippage = slippage\n    }\n\n    public var amountMinA/s
+    ' "$remove" || true
+    echo "[spm-fixes] Added public init to SSFPools/RemoveLiquidityInfo"
+  fi
+}
+
+while IFS= read -r checkout_base; do
+  patch_ssfpools_public_initializers "$checkout_base"
+done < <(each_checkout_base)
+
 apply_native_crypto_contracts() {
   local package_contract="$BASE_DIR/scripts/deps/apply-native-crypto-package-contract.sh"
   local modulemap_contract="$BASE_DIR/scripts/deps/apply-native-crypto-modulemap-contract.sh"
