@@ -56,7 +56,7 @@ Tests/Mocks/CommonMocks.swift
 Tests/Mocks/ModuleMocks.swift
 #
 # Generamba
-Templates/
+/Templates/
 # Misc
 **/.DS_Store
 
