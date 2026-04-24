@@ -68,7 +68,7 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
         )
     }
 
-    private func substrateStoragePath(for chainAsset: SSFModels.ChainAsset) -> StorageCodingPath {
+    private func substrateStoragePath(for chainAsset: SSFModels.ChainAsset) -> fearless.StorageCodingPath {
         guard let substrateType = chainAsset.chainAssetType else {
             return .account
         }
