@@ -377,17 +377,30 @@ done < <(each_checkout_base)
 apply_native_crypto_contracts() {
   local package_contract="$BASE_DIR/scripts/deps/apply-native-crypto-package-contract.sh"
   local modulemap_contract="$BASE_DIR/scripts/deps/apply-native-crypto-modulemap-contract.sh"
+  local strict="${STRICT_REQUIRED_PATCHES:-0}"
 
   if [[ -f "$package_contract" ]]; then
-    SOURCE_PACKAGES_DIR="$SOURCE_PACKAGES_DIR" \
+    if ! SOURCE_PACKAGES_DIR="$SOURCE_PACKAGES_DIR" \
       STRICT_REQUIRED_PATCHES="$STRICT_REQUIRED_PATCHES" \
-      bash "$package_contract" "$BASE_DIR" || true
+      bash "$package_contract" "$BASE_DIR"; then
+      if [[ "$strict" == "1" ]]; then
+        echo "[spm-fixes] Native crypto package contract failed in strict mode" >&2
+        exit 1
+      fi
+      echo "[spm-fixes] Native crypto package contract failed (non-strict, continuing)" >&2
+    fi
   fi
 
   if [[ -f "$modulemap_contract" ]]; then
-    SOURCE_PACKAGES_DIR="$SOURCE_PACKAGES_DIR" \
+    if ! SOURCE_PACKAGES_DIR="$SOURCE_PACKAGES_DIR" \
       STRICT_REQUIRED_PATCHES="$STRICT_REQUIRED_PATCHES" \
-      bash "$modulemap_contract" "$BASE_DIR" || true
+      bash "$modulemap_contract" "$BASE_DIR"; then
+      if [[ "$strict" == "1" ]]; then
+        echo "[spm-fixes] Native crypto modulemap contract failed in strict mode" >&2
+        exit 1
+      fi
+      echo "[spm-fixes] Native crypto modulemap contract failed (non-strict, continuing)" >&2
+    fi
   fi
 }
 

@@ -37,8 +37,8 @@ jobs:
             -workspace fearless.xcworkspace \
             -scheme fearless \
             -clonedSourcePackagesDirPath "$SP_DIR"
-          # Apply patches on the resolved checkout
-          bash scripts/spm-shared-features-fixes.sh "$(pwd)" || true
+          # Apply patches on the resolved checkout (fail fast if contracts cannot be restored)
+          bash scripts/spm-shared-features-fixes.sh "$(pwd)"
           # Ensure native crypto checkout/modulemap contract is restored after resolve.
           SOURCE_PACKAGES_DIR="$SP_DIR" STRICT_REQUIRED_PATCHES=1 bash scripts/deps/prepare-native-crypto-checkout.sh "$(pwd)" fearless.xcworkspace fearless.tests
           echo "Preflight: checking remaining 'enum AddressFactory' in $SP_DIR checkouts (warn-only)"
