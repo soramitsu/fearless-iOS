@@ -57,15 +57,26 @@ pick_latest_iphone_name() {
 
 pick_device_udid_by_name() {
   local name="$1"
-  # Extract the first UDID for a device line containing the provided name
-  (xcrun simctl list devices available 2>/dev/null || xcrun simctl list devices 2>/dev/null || true) | awk -F '[()]' -v n="$name" '
+  # Extract the first UDID for a device line containing the provided name.
+  # Parse UUID token explicitly so names with parentheses still work.
+  (xcrun simctl list devices available 2>/dev/null || xcrun simctl list devices 2>/dev/null || true) | awk -v n="$name" '
     index($0, n) > 0 {
       if (tolower($0) ~ /unavailable/) next
-      for (i = 1; i <= NF; i++) {
-        if ($i ~ /^[A-F0-9-]{36}$/) {
-          print $i
-          exit
-        }
+      if (match($0, /[A-Fa-f0-9-]{36}/)) {
+        print substr($0, RSTART, RLENGTH)
+        exit
+      }
+    }
+  '
+}
+
+pick_any_iphone_udid() {
+  (xcrun simctl list devices available 2>/dev/null || xcrun simctl list devices 2>/dev/null || true) | awk '
+    /iPhone/ {
+      if (tolower($0) ~ /unavailable/) next
+      if (match($0, /[A-Fa-f0-9-]{36}/)) {
+        print substr($0, RSTART, RLENGTH)
+        exit
       }
     }
   '
@@ -79,11 +90,17 @@ if [[ "$DEST" == *"Any iOS Simulator Device"* || "$DEST" == "" ]]; then
     DEV_ID=$(pick_device_udid_by_name "${DEV_NAME}" || true)
     if [[ -n "${DEV_ID:-}" ]]; then
       DEST="platform=iOS Simulator,id=${DEV_ID}"
-    else
-      DEST="platform=iOS Simulator,name=${DEV_NAME}"
     fi
-  else
-    DEST="generic/platform=iOS Simulator"
+  fi
+  if [[ -z "${DEV_ID:-}" ]]; then
+    DEV_ID=$(pick_any_iphone_udid || true)
+    if [[ -n "${DEV_ID:-}" ]]; then
+      DEST="platform=iOS Simulator,id=${DEV_ID}"
+    fi
+  fi
+  if [[ -z "${DEV_ID:-}" ]]; then
+    echo "No concrete available iPhone simulator found for test execution." >&2
+    exit 1
   fi
   echo "==> Using detected destination: ${DEST}"
 fi

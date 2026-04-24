@@ -15,7 +15,8 @@ WORKSPACE="${2:-fearless.xcworkspace}"
 
 pick_latest_iphone() {
   local list
-  list=$(xcrun simctl list devices 2>/dev/null || true)
+  list=$(xcrun simctl list devices available 2>/dev/null || xcrun simctl list devices 2>/dev/null || true)
+  list=$(printf '%s\n' "$list" | grep -vi "unavailable" || true)
   for gen in $(seq 25 -1 8); do
     for variant in "iPhone ${gen}" "iPhone ${gen} Pro" "iPhone ${gen} Pro Max"; do
       if printf '%s\n' "$list" | grep -Fq "$variant"; then
@@ -27,10 +28,44 @@ pick_latest_iphone() {
   printf '%s\n' "$list" | grep -F "iPhone " | head -n1 | cut -d '(' -f1 | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' || true
 }
 
-DEST="generic/platform=iOS Simulator"
+pick_device_udid_by_name() {
+  local name="$1"
+  (xcrun simctl list devices available 2>/dev/null || xcrun simctl list devices 2>/dev/null || true) | awk -v n="$name" '
+    index($0, n) > 0 {
+      if (tolower($0) ~ /unavailable/) next
+      if (match($0, /[A-Fa-f0-9-]{36}/)) {
+        print substr($0, RSTART, RLENGTH)
+        exit
+      }
+    }
+  '
+}
+
+pick_any_iphone_udid() {
+  (xcrun simctl list devices available 2>/dev/null || xcrun simctl list devices 2>/dev/null || true) | awk '
+    /iPhone/ {
+      if (tolower($0) ~ /unavailable/) next
+      if (match($0, /[A-Fa-f0-9-]{36}/)) {
+        print substr($0, RSTART, RLENGTH)
+        exit
+      }
+    }
+  '
+}
+
+DEST=""
 DEV_NAME=$(pick_latest_iphone || true)
 if [[ -n "${DEV_NAME:-}" ]]; then
-  DEST="platform=iOS Simulator,name=${DEV_NAME}"
+  DEV_ID=$(pick_device_udid_by_name "${DEV_NAME}" || true)
+fi
+if [[ -z "${DEV_ID:-}" ]]; then
+  DEV_ID=$(pick_any_iphone_udid || true)
+fi
+if [[ -n "${DEV_ID:-}" ]]; then
+  DEST="platform=iOS Simulator,id=${DEV_ID}"
+else
+  echo "No concrete available iPhone simulator found for availability check." >&2
+  exit 1
 fi
 
 echo "==> Availability check: scheme=${SCHEME} dest=${DEST}"
@@ -55,4 +90,3 @@ fi
 
 echo "==> Availability check passed"
 exit $rc
-
