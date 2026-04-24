@@ -32,7 +32,7 @@ final class CrossChainConfirmationViewModelFactory: CrossChainConfirmationViewMo
 
         // Build optional origin preservation note for Asset Hub destinations
         var originNote: String?
-        if Self.isTrustedAliaser(chain: data.destChainModel) {
+        if PolkadotRuntimeCompatibility.isTrustedAliaser(chain: data.destChainModel) {
             originNote = "Origin preserved via reserve transfer"
         }
 
@@ -46,11 +46,5 @@ final class CrossChainConfirmationViewModelFactory: CrossChainConfirmationViewMo
             destChainFee: data.destChainFee,
             originPreservationNote: originNote
         )
-    }
-}
-
-private extension CrossChainConfirmationViewModelFactory {
-    static func isTrustedAliaser(chain: ChainModel) -> Bool {
-        chain.paraId == "1000"
     }
 }
