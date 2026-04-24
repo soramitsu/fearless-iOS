@@ -20,7 +20,7 @@ BOOT_SIMULATOR="${BOOT_SIMULATOR:-0}"
 LOG_PREFIX="${LOG_PREFIX:-[select-simulator]}"
 
 log() {
-  echo "${LOG_PREFIX} $*"
+  echo "${LOG_PREFIX} $*" >&2
 }
 
 pick_udid_by_pattern() {
