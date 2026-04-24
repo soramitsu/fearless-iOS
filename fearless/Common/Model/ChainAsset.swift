@@ -41,34 +41,3 @@ extension ChainAsset {
         asset.currencyId == BokoloConstants.bokoloCashAssetCurrencyId
     }
 }
-
-// Test and utility helper: avoid ambiguity with SSFModels' similarly named API
-extension SSFModels.ChainAsset {
-    var fearlessStoragePath: StorageCodingPath {
-        guard let substrateType = chainAssetType else {
-            return .account
-        }
-
-        switch substrateType {
-        case .normal, .equilibrium:
-            return .account
-        case
-            .ormlChain,
-            .ormlAsset,
-            .foreignAsset,
-            .stableAssetPoolToken,
-            .liquidCrowdloan,
-            .vToken,
-            .vsToken,
-            .stable,
-            .assetId,
-            .token2,
-            .xcm:
-            return .tokens
-        case .assets:
-            return .assetsAccount
-        case .soraAsset:
-            return isUtility ? .account : .tokens
-        }
-    }
-}

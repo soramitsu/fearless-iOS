@@ -17,7 +17,7 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
         for accountId: AccountId,
         chainAsset: SSFModels.ChainAsset
     ) throws -> StreamableProvider<AccountInfoStorageWrapper> {
-        let codingPath = chainAsset.fearlessStoragePath
+        let codingPath = substrateStoragePath(for: chainAsset)
 
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
@@ -66,5 +66,33 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
             operationManager: operationManager,
             serialQueue: processingQueue
         )
+    }
+
+    private func substrateStoragePath(for chainAsset: SSFModels.ChainAsset) -> StorageCodingPath {
+        guard let substrateType = chainAsset.chainAssetType else {
+            return .account
+        }
+
+        switch substrateType {
+        case .normal, .equilibrium:
+            return .account
+        case
+            .ormlChain,
+            .ormlAsset,
+            .foreignAsset,
+            .stableAssetPoolToken,
+            .liquidCrowdloan,
+            .vToken,
+            .vsToken,
+            .stable,
+            .assetId,
+            .token2,
+            .xcm:
+            return .tokens
+        case .assets:
+            return .assetsAccount
+        case .soraAsset:
+            return chainAsset.isUtility ? .account : .tokens
+        }
     }
 }
