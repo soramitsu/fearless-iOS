@@ -548,3 +548,122 @@ private final class StorageRequestPerformerStub: SSFStorageQueryKit.StorageReque
         return []
     }
 }
+
+final class NetworkWorkerCompatibilityTests: XCTestCase {
+    override class func tearDown() {
+        super.tearDown()
+        URLProtocolMock.requestHandler = nil
+    }
+
+    func testPerformRequestAppliesSignerAndDecodesResponse() async throws {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [URLProtocolMock.self]
+        let session = URLSession(configuration: configuration)
+        let worker = NetworkWorkerDefault(session: session)
+        let signer = RequestSignerStub()
+
+        URLProtocolMock.requestHandler = { request in
+            XCTAssertEqual(request.value(forHTTPHeaderField: "X-Test-Signed"), "yes")
+            let response = HTTPURLResponse(
+                url: request.url ?? URL(string: "https://example.com")!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/json"]
+            )!
+            let body = try JSONEncoder().encode(NetworkWorkerResponse(value: "ok"))
+            return (response, body)
+        }
+
+        let config = RequestConfig(
+            baseURL: URL(string: "https://example.com")!,
+            method: .get,
+            endpoint: "/v1/test",
+            headers: nil,
+            body: nil
+        )
+        config.signingType = .custom(signer: signer)
+
+        let result: NetworkWorkerResponse = try await worker.performRequest(with: config)
+
+        XCTAssertEqual(result.value, "ok")
+        XCTAssertEqual(signer.signInvocations, 1)
+    }
+
+    func testPerformRequestWithCacheOptionsReturnsSingleStreamValue() async throws {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [URLProtocolMock.self]
+        let session = URLSession(configuration: configuration)
+        let worker = NetworkWorkerDefault(session: session)
+
+        URLProtocolMock.requestHandler = { request in
+            let response = HTTPURLResponse(
+                url: request.url ?? URL(string: "https://example.com")!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/json"]
+            )!
+            let body = try JSONEncoder().encode(NetworkWorkerResponse(value: "cached"))
+            return (response, body)
+        }
+
+        let config = RequestConfig(
+            baseURL: URL(string: "https://example.com")!,
+            method: .get,
+            endpoint: "/v1/cache",
+            headers: nil,
+            body: nil
+        )
+
+        let stream: AsyncThrowingStream<CachedNetworkResponse<NetworkWorkerResponse>, Error> =
+            try await worker.performRequest(with: config, withCacheOptions: .onAll)
+        var values: [String] = []
+        for try await item in stream {
+            values.append(item.data.value)
+        }
+
+        XCTAssertEqual(values, ["cached"])
+    }
+}
+
+private struct NetworkWorkerResponse: Codable, Equatable {
+    let value: String
+}
+
+private final class RequestSignerStub: RequestSigner {
+    var signInvocations = 0
+
+    func sign(request: inout URLRequest, config _: RequestConfig) throws {
+        signInvocations += 1
+        request.setValue("yes", forHTTPHeaderField: "X-Test-Signed")
+    }
+}
+
+private final class URLProtocolMock: URLProtocol {
+    static var requestHandler: ((URLRequest) throws -> (HTTPURLResponse, Data))?
+
+    override class func canInit(with request: URLRequest) -> Bool {
+        request.url != nil
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        request
+    }
+
+    override func startLoading() {
+        guard let handler = Self.requestHandler else {
+            client?.urlProtocol(self, didFailWithError: URLError(.badServerResponse))
+            return
+        }
+
+        do {
+            let (response, data) = try handler(request)
+            client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+            client?.urlProtocol(self, didLoad: data)
+            client?.urlProtocolDidFinishLoading(self)
+        } catch {
+            client?.urlProtocol(self, didFailWithError: error)
+        }
+    }
+
+    override func stopLoading() {}
+}
