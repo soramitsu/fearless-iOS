@@ -97,26 +97,36 @@ patch_manifest() {
   fi
   rm -f "$models_before"
 
-  # Ensure SSFPolkaswap has explicit SPM deps it imports directly (Reachability, SwiftyBeaver, SoraKeystore)
-  local pkg_tmp
-  pkg_tmp=$(mktemp)
-  awk '
-    BEGIN{in_target=0; changed=0}
-    /target\(\s*name:\s*"SSFPolkaswap"/ { in_target=1 }
-    in_target==1 && /dependencies:\s*\[/ {
-      # Normalize dependencies for SSFPolkaswap
-      print "            dependencies: [\n                \"SSFUtils\",\n                \"SSFChainRegistry\",\n                \"RobinHood\",\n                \"SSFModels\",\n                \"SSFStorageQueryKit\",\n                \"SSFPools\",\n                \"sorawallet\",\n                \"SSFPoolsStorage\",\n                \"SSFExtrinsicKit\",\n                \"SoraKeystore\",\n                \"SwiftyBeaver\",\n                .product(name: \"Reachability\", package: \"Reachability.swift\")\n            ]";
-      changed=1; next
-    }
-    /\)\s*,\s*$/ { if(in_target==1){ in_target=0 } }
-    { print }
-  ' "$pkg_swift" > "$pkg_tmp"
-  if ! diff -q "$pkg_swift" "$pkg_tmp" >/dev/null 2>&1; then
-    echo "[spm-fixes] Updated SSFPolkaswap dependencies (added Reachability, SwiftyBeaver, SoraKeystore)"
-    if mv "$pkg_tmp" "$pkg_swift" 2>/dev/null; then :; else rm -f "$pkg_tmp"; fi
-  else
-    rm -f "$pkg_tmp"
+  # Ensure SSFPolkaswap has explicit SPM deps it imports directly.
+  local polkaswap_before
+  polkaswap_before="$(mktemp)"
+  cp "$pkg_swift" "$polkaswap_before"
+  /usr/bin/perl -0pi -e '
+    s{
+      (\.target\(\s*name:\s*"SSFPolkaswap",\s*dependencies:\s*)\[[^\]]*\]
+    }{$1\[
+                "SSFUtils",
+                "SSFChainRegistry",
+                "RobinHood",
+                "SSFModels",
+                "SSFStorageQueryKit",
+                "SSFPools",
+                "sorawallet",
+                "SSFPoolsStorage",
+                "SSFExtrinsicKit",
+                "SSFSigner",
+                "SSFEraKit",
+                "SoraKeystore",
+                "SwiftyBeaver",
+                .product(name: "Reachability", package: "Reachability.swift")
+            \]}sx
+      or die "Unable to locate SSFPolkaswap dependencies block\n";
+  ' "$pkg_swift" || true
+
+  if ! diff -q "$pkg_swift" "$polkaswap_before" >/dev/null 2>&1; then
+    echo "[spm-fixes] Updated SSFPolkaswap dependencies (explicit signer/era/extrinsic + network deps)"
   fi
+  rm -f "$polkaswap_before"
 
 }
 
