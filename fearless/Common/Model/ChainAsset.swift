@@ -72,13 +72,3 @@ extension SSFModels.ChainAsset {
         }
     }
 }
-
-extension ChainAsset {
-    var substrateAssetTypeCompatibility: SubstrateAssetType? {
-        chainAssetType
-    }
-
-    var isSoraAssetType: Bool {
-        chainAssetType == .soraAsset
-    }
-}
