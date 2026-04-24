@@ -111,6 +111,11 @@ if [ -f "scripts/deps/enforce-ssf-pin.sh" ]; then
   bash scripts/deps/enforce-ssf-pin.sh || true
 fi
 
+if [ -x "scripts/deps/restore-swiftpm-contract-files.sh" ]; then
+  echo "\n==> Restoring committed SwiftPM contract files (if needed)"
+  scripts/deps/restore-swiftpm-contract-files.sh "$(pwd)" "[test-matrix]"
+fi
+
 if [ -f "scripts/deps/check-dependency-contracts.sh" ]; then
   echo "\n==> Validating dependency contracts"
   bash scripts/deps/check-dependency-contracts.sh

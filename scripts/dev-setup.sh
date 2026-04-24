@@ -49,8 +49,10 @@ fi
 SP_DIR="${SP_DIR:-$(pwd)/SourcePackages}"
 mkdir -p "$SP_DIR"
 echo "==> Resolving SwiftPM packages to $SP_DIR"
-# Clear stale resolution file to avoid sticky paths
-rm -f "$(pwd)/$WORKSPACE/xcshareddata/swiftpm/Package.resolved" 2>/dev/null || true
+if [ -x scripts/deps/restore-swiftpm-contract-files.sh ]; then
+  echo "==> Restoring committed SwiftPM contract files (if needed)"
+  scripts/deps/restore-swiftpm-contract-files.sh "$(pwd)" "[dev-setup]"
+fi
 if [ -x scripts/deps/enforce-ssf-pin.sh ]; then
   echo "==> Enforcing shared-features-spm pinned revision"
   scripts/deps/enforce-ssf-pin.sh || true
