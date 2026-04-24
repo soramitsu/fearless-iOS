@@ -12,39 +12,6 @@ export LC_ALL=${LC_ALL:-en_US.UTF-8}
 WORKSPACE_DIR=${WORKSPACE:-$(pwd)}
 pushd "$WORKSPACE_DIR" >/dev/null
 
-ensure_swiftpm_contract_files() {
-  local workspace_swiftpm_dir="$WORKSPACE_DIR/fearless.xcworkspace/xcshareddata/swiftpm"
-  local project_swiftpm_dir="$WORKSPACE_DIR/fearless.xcodeproj/project.xcworkspace/xcshareddata/swiftpm"
-  local workspace_resolved="$workspace_swiftpm_dir/Package.resolved"
-  local project_resolved="$project_swiftpm_dir/Package.resolved"
-  local mirrors_reference="$WORKSPACE_DIR/scripts/deps/mirrors.json"
-  local workspace_mirrors_dir="$workspace_swiftpm_dir/configuration"
-  local project_mirrors_dir="$project_swiftpm_dir/configuration"
-  local workspace_mirrors="$workspace_mirrors_dir/mirrors.json"
-  local project_mirrors="$project_mirrors_dir/mirrors.json"
-
-  mkdir -p "$workspace_swiftpm_dir" "$project_swiftpm_dir" "$workspace_mirrors_dir" "$project_mirrors_dir"
-
-  if [[ ! -f "$workspace_resolved" && -f "$project_resolved" ]]; then
-    cp "$project_resolved" "$workspace_resolved"
-    echo "[bootstrap] Restored workspace Package.resolved from project copy"
-  elif [[ ! -f "$project_resolved" && -f "$workspace_resolved" ]]; then
-    cp "$workspace_resolved" "$project_resolved"
-    echo "[bootstrap] Restored project Package.resolved from workspace copy"
-  fi
-
-  if [[ -f "$mirrors_reference" ]]; then
-    if [[ ! -f "$workspace_mirrors" ]]; then
-      cp "$mirrors_reference" "$workspace_mirrors"
-      echo "[bootstrap] Restored workspace SwiftPM mirrors config"
-    fi
-    if [[ ! -f "$project_mirrors" ]]; then
-      cp "$mirrors_reference" "$project_mirrors"
-      echo "[bootstrap] Restored project SwiftPM mirrors config"
-    fi
-  fi
-}
-
 # 1) CocoaPods install (with fallbacks)
 if [[ -f Podfile ]]; then
   IS_JENKINS_PR=0
@@ -114,7 +81,9 @@ else
 fi
 
 # pod install may rewrite the workspace and drop committed SwiftPM metadata.
-ensure_swiftpm_contract_files
+if [[ -x scripts/deps/restore-swiftpm-contract-files.sh ]]; then
+  scripts/deps/restore-swiftpm-contract-files.sh "$WORKSPACE_DIR" "[bootstrap]"
+fi
 
 # 2) Resolve SPM into a deterministic location (clean + mirrors + enforce SSF pin)
 SP_DIR="${SP_DIR:-$WORKSPACE_DIR/SourcePackages}"
