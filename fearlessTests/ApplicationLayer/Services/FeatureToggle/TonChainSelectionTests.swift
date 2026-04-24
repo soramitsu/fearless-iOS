@@ -4,6 +4,7 @@ import SSFModels
 import SSFStorageQueryKit
 import SSFUtils
 import SSFRuntimeCodingService
+import BigInt
 
 final class TonChainSelectionTests: XCTestCase {
     func testSelectedChainIdReturnsTestnetWhenEnabled() {
@@ -319,6 +320,106 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
             types: nil,
             icon: nil,
             options: [.ethereum],
+            externalApi: nil,
+            selectedNode: nil,
+            customNodes: nil,
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+    }
+}
+
+final class CrossChainConfirmationViewModelFactoryTests: XCTestCase {
+    func testCreateViewModelAddsOriginPreservationNoteForAssetHubChain() {
+        let factory = CrossChainConfirmationViewModelFactory()
+        let data = makeConfirmationData(destParaId: "1000")
+
+        let viewModel = factory.createViewModel(with: data)
+
+        XCTAssertEqual(viewModel.originPreservationNote, "Origin preserved via reserve transfer")
+    }
+
+    func testCreateViewModelSkipsOriginPreservationNoteForNonAssetHubChain() {
+        let factory = CrossChainConfirmationViewModelFactory()
+        let data = makeConfirmationData(destParaId: "2000")
+
+        let viewModel = factory.createViewModel(with: data)
+
+        XCTAssertNil(viewModel.originPreservationNote)
+    }
+
+    private func makeConfirmationData(destParaId: String) -> CrossChainConfirmationData {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let originAsset = AssetModel(
+            id: "origin-asset",
+            name: "Origin Token",
+            symbol: "ORG",
+            precision: 12,
+            color: "#3366FF",
+            isUtility: true,
+            isNative: true
+        )
+        let destAsset = AssetModel(
+            id: "dest-asset",
+            name: "Destination Token",
+            symbol: "DST",
+            precision: 12,
+            color: "#33AA66",
+            isUtility: true,
+            isNative: true
+        )
+        let originChain = makeChain(
+            chainId: "origin-chain",
+            paraId: "0",
+            name: "Origin Chain",
+            asset: originAsset
+        )
+        let destChain = makeChain(
+            chainId: "dest-chain",
+            paraId: destParaId,
+            name: "Destination Chain",
+            asset: destAsset
+        )
+
+        return CrossChainConfirmationData(
+            wallet: wallet,
+            originChainAsset: ChainAsset(chain: originChain, asset: originAsset),
+            destChainModel: destChain,
+            amount: BigUInt(1_000_000),
+            displayAmount: "1.00",
+            originChainFee: BalanceViewModel(amount: "0.01", price: nil),
+            destChainFee: BalanceViewModel(amount: "0.02", price: nil),
+            destChainFeeDecimal: Decimal(string: "0.02") ?? .zero,
+            recipientAddress: "recipient-address"
+        )
+    }
+
+    private func makeChain(
+        chainId: String,
+        paraId: String,
+        name: String,
+        asset: AssetModel
+    ) -> ChainModel {
+        let node = ChainNodeModel(
+            url: URL(string: "wss://\(chainId).example.org")!,
+            name: "\(name) Node",
+            apikey: nil
+        )
+
+        return ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: chainId,
+            parentId: nil,
+            paraId: paraId,
+            name: name,
+            assets: Set([asset]),
+            xcm: nil,
+            nodes: Set([node]),
+            addressPrefix: 0,
+            types: nil,
+            icon: URL(string: "https://\(chainId).example.org/icon.png"),
+            options: nil,
             externalApi: nil,
             selectedNode: nil,
             customNodes: nil,
