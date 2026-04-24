@@ -38,70 +38,14 @@ if [ -f "scripts/deps/bootstrap-local-swiftpm-config.sh" ]; then
   bash scripts/deps/bootstrap-local-swiftpm-config.sh
 fi
 
-pick_latest_iphone_name() {
-  # Try descending generations to prefer the most modern simulator present
-  local list
-  list=$(xcrun simctl list devices available 2>/dev/null || xcrun simctl list devices 2>/dev/null || true)
-  list=$(printf '%s\n' "$list" | grep -vi "unavailable" || true)
-  for gen in $(seq 25 -1 8); do
-    for variant in "iPhone ${gen}" "iPhone ${gen} Pro" "iPhone ${gen} Pro Max"; do
-      if printf '%s\n' "$list" | grep -Fq "$variant"; then
-        echo "$variant"
-        return 0
-      fi
-    done
-  done
-  # Fallback: first available iPhone entry, if any
-  printf '%s\n' "$list" | grep -F "iPhone " | head -n1 | cut -d '(' -f1 | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' || true
-}
-
-pick_device_udid_by_name() {
-  local name="$1"
-  # Extract the first UDID for a device line containing the provided name.
-  # Parse UUID token explicitly so names with parentheses still work.
-  (xcrun simctl list devices available 2>/dev/null || xcrun simctl list devices 2>/dev/null || true) | awk -v n="$name" '
-    index($0, n) > 0 {
-      if (tolower($0) ~ /unavailable/) next
-      if (match($0, /[A-Fa-f0-9-]{36}/)) {
-        print substr($0, RSTART, RLENGTH)
-        exit
-      }
-    }
-  '
-}
-
-pick_any_iphone_udid() {
-  (xcrun simctl list devices available 2>/dev/null || xcrun simctl list devices 2>/dev/null || true) | awk '
-    /iPhone/ {
-      if (tolower($0) ~ /unavailable/) next
-      if (match($0, /[A-Fa-f0-9-]{36}/)) {
-        print substr($0, RSTART, RLENGTH)
-        exit
-      }
-    }
-  '
-}
-
 # If destination is a placeholder, pick a concrete available simulator (prefer newest iPhone)
 if [[ "$DEST" == *"Any iOS Simulator Device"* || "$DEST" == "" ]]; then
-  echo "==> Autodetecting a concrete simulator device (latest iPhone if available)"
-  DEV_NAME=$(pick_latest_iphone_name || true)
-  if [[ -n "${DEV_NAME:-}" ]]; then
-    DEV_ID=$(pick_device_udid_by_name "${DEV_NAME}" || true)
-    if [[ -n "${DEV_ID:-}" ]]; then
-      DEST="platform=iOS Simulator,id=${DEV_ID}"
-    fi
-  fi
-  if [[ -z "${DEV_ID:-}" ]]; then
-    DEV_ID=$(pick_any_iphone_udid || true)
-    if [[ -n "${DEV_ID:-}" ]]; then
-      DEST="platform=iOS Simulator,id=${DEV_ID}"
-    fi
-  fi
-  if [[ -z "${DEV_ID:-}" ]]; then
-    echo "No concrete available iPhone simulator found for test execution." >&2
-    exit 1
-  fi
+  echo "==> Autodetecting a concrete simulator device (with create fallback)"
+  DEV_ID="$(
+    LOG_PREFIX="[test-matrix]" PREFERRED_NAME="iPhone 16" ALLOW_CREATE=1 BOOT_SIMULATOR=0 \
+      "$(pwd)/scripts/ci/select-simulator.sh"
+  )"
+  DEST="platform=iOS Simulator,id=${DEV_ID}"
   echo "==> Using detected destination: ${DEST}"
 fi
 

@@ -33,38 +33,10 @@ else
   exit 1
 fi
 
-pick_simulator_udid() {
-  local preferred_name="$1"
-  xcrun simctl list devices available | awk -v name="$preferred_name" '
-    index($0, name) > 0 {
-      if (match($0, /[A-Fa-f0-9-]{36}/)) {
-        print substr($0, RSTART, RLENGTH)
-        exit
-      }
-    }
-  '
-}
-
-pick_any_iphone_udid() {
-  xcrun simctl list devices available | awk '
-    /iPhone/ {
-      if (match($0, /[A-Fa-f0-9-]{36}/)) {
-        print substr($0, RSTART, RLENGTH)
-        exit
-      }
-    }
-  '
-}
-
-SIM_UDID="$(pick_simulator_udid "iPhone 16" || true)"
-if [[ -z "${SIM_UDID}" ]]; then
-  SIM_UDID="$(pick_any_iphone_udid || true)"
-fi
-
-if [[ -z "${SIM_UDID}" ]]; then
-  echo "[run-pr] ERROR: No concrete available iPhone simulator found for test execution" >&2
-  exit 1
-fi
+SIM_UDID="$(
+  LOG_PREFIX="[run-pr]" PREFERRED_NAME="iPhone 16" ALLOW_CREATE=1 BOOT_SIMULATOR=0 \
+    "$WORKSPACE_DIR/scripts/ci/select-simulator.sh"
+)"
 
 SIM_DEST="platform=iOS Simulator,id=${SIM_UDID}"
 echo "[run-pr] Using simulator destination: ${SIM_DEST}"
