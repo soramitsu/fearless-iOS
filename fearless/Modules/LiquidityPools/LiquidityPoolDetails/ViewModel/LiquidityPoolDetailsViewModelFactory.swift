@@ -40,7 +40,7 @@ final class LiquidityPoolDetailsViewModelFactoryDefault: LiquidityPoolDetailsVie
         accountPoolInfo: AccountPool?,
         input: LiquidityPoolDetailsInput
     ) -> LiquidityPoolDetailsViewModel? {
-        let chainAssets = Array(chain.tokens.tokens ?? [])
+        let chainAssets = Array(chain.assets)
         guard
             let baseAsset = chainAssets.first(where: { $0.currencyId == liquidityPair.baseAssetId }),
             let targetAsset = chainAssets.first(where: { $0.currencyId == liquidityPair.targetAssetId }),

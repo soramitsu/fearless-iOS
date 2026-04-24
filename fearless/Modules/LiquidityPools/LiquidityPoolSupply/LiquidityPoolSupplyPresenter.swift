@@ -145,8 +145,7 @@ final class LiquidityPoolSupplyPresenter {
     }
 
     private func refreshFee() {
-        // Disambiguate ChainModel.assets by using tokens-backed list explicitly
-        let chainAssets = Array(chain.tokens.tokens ?? [])
+        let chainAssets = Array(chain.assets)
         guard
             let dexId,
             let baseAsset = chainAssets.first(where: { $0.currencyId == liquidityPair.baseAssetId }),

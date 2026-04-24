@@ -135,16 +135,6 @@ public struct AssetIdPair {
     public var poolId: String { "\(baseAssetIdCode)-\(targetAssetIdCode)" }
 }
 
-public struct ChainTokensCompatibility {
-    public let tokens: [AssetModel]?
-}
-
-public extension ChainModel {
-    var tokens: ChainTokensCompatibility {
-        ChainTokensCompatibility(tokens: Array(assets))
-    }
-}
-
 public extension AssetModel {
     // Legacy convenience used broadly in presenters; return nil by default
     func getPrice(for _: Any) -> PriceData? { nil }

@@ -132,7 +132,7 @@ extension AssetSelectionPresenter: ChainSelectionInteractorOutputProtocol {
             }
 
             assets = chains.reduce(into: []) { result, item in
-                let chainAssets = Array(item.tokens.tokens ?? [])
+                let chainAssets = Array(item.assets)
                 let assets: [(ChainModel.Id, AssetModel)] = chainAssets.compactMap { asset in
                     if assetFilter(asset), selectedMetaAccount.fetch(for: item.accountRequest()) != nil {
                         return (item.chainId, asset)
