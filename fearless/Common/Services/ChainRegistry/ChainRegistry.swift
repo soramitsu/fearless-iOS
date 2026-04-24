@@ -259,7 +259,8 @@ final class ChainRegistry {
                         self.handleDelete(chainId)
                     }
                 } catch {
-                    self.logger?.error("Chain: \(change.item?.name), Unexpected error on handling chains update: \(error)")
+                    let chainName = String(describing: change.item?.name)
+                    self.logger?.error("Chain: \(chainName), Unexpected error on handling chains update: \(error)")
                 }
             }
 
@@ -419,7 +420,7 @@ final class ChainRegistry {
         chains = chains.filter { $0.chainId != chain.chainId }
         chains.append(chain)
 
-        let token = TonNodeApiKeyDebug.tonApiKey
+        let token = currentTonApiKey
         guard let node = chain.nodes.first else {
             logger?.error("Missing TON node URL")
             if tonApiChainId == chain.chainId {
@@ -439,6 +440,14 @@ final class ChainRegistry {
 
         tonApiClientFactory = TonAPIClientFactory(tonAPIURL: node.url, token: token)
         tonApiChainId = chain.chainId
+    }
+
+    private var currentTonApiKey: String {
+        #if DEBUG
+            TonNodeApiKeyDebug.tonApiKey
+        #else
+            TonNodeApiKey.tonApiKey
+        #endif
     }
 
     private func handleDeletedChain(chainId: ChainModel.Id) {

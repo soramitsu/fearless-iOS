@@ -8,8 +8,6 @@ final class LiquidityPoolSupplyConfirmRouter: LiquidityPoolSupplyConfirmRouterIn
         title: String,
         chainAsset: ChainAsset
     ) {
-        let presenter = view?.controller.navigationController?.presentingViewController
-
         let controller = AllDoneAssembly.configureModule(chainAsset: chainAsset, hashString: title)?.view.controller
         controller?.modalPresentationStyle = .custom
 

@@ -43,7 +43,7 @@ extension NodeSelectionInteractor: NodeSelectionInteractorInputProtocol {
             }
 
             let updatedChain = chain.replacingCustomNodes(customNodes.filter { $0 != node })
-            try? await repository.save(models: [updatedChain])
+            await repository.save(models: [updatedChain])
             await applyChanges(for: updatedChain)
         }
     }
@@ -53,7 +53,7 @@ extension NodeSelectionInteractor: NodeSelectionInteractorInputProtocol {
 
         Task {
             let updatedChain = self.chain.replacingSelectedNode(node)
-            try? await repository.save(models: [updatedChain])
+            await repository.save(models: [updatedChain])
             await applyChanges(for: updatedChain)
         }
     }

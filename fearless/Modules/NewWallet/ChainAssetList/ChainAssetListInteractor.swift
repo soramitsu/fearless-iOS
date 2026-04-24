@@ -276,9 +276,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         output?.didReceiveWallet(wallet: event.account)
 
         if wallet.selectedCurrency != event.account.selectedCurrency {
-            guard let chainAssets = chainAssets else {
-                return
-            }
+            output?.updateViewModel(isInitSearchState: false)
         }
 
         if wallet.assetsVisibility != event.account.assetsVisibility {

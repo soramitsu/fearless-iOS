@@ -90,7 +90,7 @@ final actor EthereumRemoteBalanceFetching {
         }
     }
 
-    nonisolated private func cache(accountInfo: AccountInfo?, chainAsset: ChainAsset, accountId: AccountId) throws {
+    private func cache(accountInfo: AccountInfo?, chainAsset: ChainAsset, accountId: AccountId) throws {
         guard let accountInfo else { return }
         let storagePath = chainAsset.storagePath
 
@@ -170,11 +170,13 @@ extension EthereumRemoteBalanceFetching: AccountInfoFetchingProtocol {
                 let chainAsset = accountInfoByChainAsset.0
                 let accountInfo = accountInfoByChainAsset.1
                 if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-                    try self?.cache(
-                        accountInfo: accountInfo,
-                        chainAsset: chainAsset,
-                        accountId: accountId
-                    )
+                    if let self {
+                        try await self.cache(
+                            accountInfo: accountInfo,
+                            chainAsset: chainAsset,
+                            accountId: accountId
+                        )
+                    }
                 }
 
                 result[chainAsset] = accountInfo

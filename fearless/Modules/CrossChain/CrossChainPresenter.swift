@@ -277,18 +277,6 @@ final class CrossChainPresenter {
         let minimumBalance = Decimal.fromSubstrateAmount(existentialDeposit ?? .zero, precision: Int16(utilityChainAsset.asset.precision)) ?? .zero
         let inputAmountDecimal = amountInputResult?
             .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired()) ?? .zero
-        let destChainAsset = selectedDestChainModel.map {
-            ChainAsset(chain: $0, asset: selectedAmountChainAsset.asset)
-        }
-
-        let destBalanceDecimal: Decimal? = (destAccountInfo?.data.sendAvailable).flatMap {
-            guard let destChainAsset else {
-                return nil
-            }
-
-            return Decimal.fromSubstrateAmount($0, precision: Int16(destChainAsset.asset.precision))
-        }
-
         let originFeeValidating = dataValidatingFactory.has(
             fee: originNetworkFee,
             locale: selectedLocale

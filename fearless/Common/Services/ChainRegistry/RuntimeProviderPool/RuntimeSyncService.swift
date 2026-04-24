@@ -309,7 +309,7 @@ extension RuntimeSyncService: RuntimeSyncServiceProtocol {
             mutex.unlock()
         }
 
-        guard let knownConnection = knownChains[chain.chainId] else {
+        guard knownChains[chain.chainId] != nil else {
             knownChains[chain.chainId] = connection
             return
         }
