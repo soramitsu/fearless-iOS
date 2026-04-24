@@ -25,12 +25,12 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         case ton
     }
 
-    private let ethereumRemoteBalanceFetching: EthereumRemoteBalanceFetching
+    private let ethereumRemoteBalanceFetching: AccountInfoFetchingProtocol
     private let tonRemoteBalanceFetching: AccountInfoRemoteService?
     private let storagePerformer: SSFStorageQueryKit.StorageRequestPerformer
 
     init(
-        ethereumRemoteBalanceFetching: EthereumRemoteBalanceFetching,
+        ethereumRemoteBalanceFetching: AccountInfoFetchingProtocol,
         tonRemoteBalanceFetching: AccountInfoRemoteService?,
         storagePerformer: SSFStorageQueryKit.StorageRequestPerformer
     ) {
