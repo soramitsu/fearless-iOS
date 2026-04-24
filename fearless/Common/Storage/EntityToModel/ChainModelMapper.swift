@@ -438,6 +438,18 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         let options = entity.options as? [String]
         let externalApiSet = createExternalApi(from: entity)
         let xcm = createXcmConfig(from: entity)
+        let paraId: String? = {
+            guard entity.entity.propertiesByName["paraId"] != nil else {
+                return nil
+            }
+            return entity.value(forKey: "paraId") as? String
+        }()
+        let identityChain: String? = {
+            guard entity.entity.propertiesByName["identityChain"] != nil else {
+                return nil
+            }
+            return entity.value(forKey: "identityChain") as? String
+        }()
 
         var rank: UInt16?
         if let rankString = entity.rank {
@@ -449,7 +461,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             disabled: entity.disabled,
             chainId: entity.chainId!,
             parentId: entity.parentId,
-            paraId: entity.paraId,
+            paraId: paraId,
             name: entity.name!,
             xcm: xcm,
             nodes: Set(nodes),
@@ -461,7 +473,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             selectedNode: selectedNode,
             customNodes: customNodesSet,
             iosMinAppVersion: entity.minimalAppVersion,
-            identityChain: entity.identityChain
+            identityChain: identityChain
         )
 
         // Assets are represented via tokens in current models; skip direct assignment
@@ -479,7 +491,9 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         }
         entity.disabled = model.disabled
         entity.chainId = model.chainId
-        entity.paraId = model.paraId
+        if entity.entity.propertiesByName["paraId"] != nil {
+            entity.setValue(model.paraId, forKey: "paraId")
+        }
         entity.parentId = model.parentId
         entity.name = model.name
         entity.types = model.types?.url.absoluteString
@@ -493,7 +507,9 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.isTipRequired = model.isTipRequired
         entity.minimalAppVersion = model.iosMinAppVersion
         entity.options = model.options?.map(\.rawValue) as? NSArray
-        entity.identityChain = model.identityChain
+        if entity.entity.propertiesByName["identityChain"] != nil {
+            entity.setValue(model.identityChain, forKey: "identityChain")
+        }
         try updateEntityAsset(for: entity, from: model, context: context)
         updateEntityNodes(for: entity, from: model, context: context)
         updateExternalApis(in: entity, from: model.externalApi)
