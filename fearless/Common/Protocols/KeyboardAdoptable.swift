@@ -29,8 +29,7 @@ protocol KeyboardViewAdoptable: KeyboardAdoptable, KeyboardHandlerDelegate {
 }
 
 private enum KeyboardViewAdoptableConstants {
-    static var keyboardHandlerKey: String = "co.jp.fearless.keyboard.handler"
-    static var keyboardFrameKey: String = "co.jp.fearless.keyboard.frame"
+    static var keyboardHandlerKey: UInt8 = 0
 }
 
 extension KeyboardViewAdoptable where Self: UIViewController {
