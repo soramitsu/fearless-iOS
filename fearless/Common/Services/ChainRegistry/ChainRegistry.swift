@@ -300,7 +300,9 @@ final class ChainRegistry {
         switch chainKind(for: removedChain) {
         case .substrate:
             handleDeletedSubstrateChain(chainId: chainId)
-        case .ethereum, .ton:
+        case .ethereum:
+            handleDeletedEthereumChain(chainId: chainId)
+        case .ton:
             handleDeletedChain(chainId: chainId)
         }
     }

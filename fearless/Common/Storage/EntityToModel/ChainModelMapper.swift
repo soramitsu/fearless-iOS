@@ -449,7 +449,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             disabled: entity.disabled,
             chainId: entity.chainId!,
             parentId: entity.parentId,
-            paraId: nil,
+            paraId: entity.paraId,
             name: entity.name!,
             xcm: xcm,
             nodes: Set(nodes),
@@ -461,7 +461,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             selectedNode: selectedNode,
             customNodes: customNodesSet,
             iosMinAppVersion: entity.minimalAppVersion,
-            identityChain: nil
+            identityChain: entity.identityChain
         )
 
         // Assets are represented via tokens in current models; skip direct assignment
@@ -479,7 +479,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         }
         entity.disabled = model.disabled
         entity.chainId = model.chainId
-        // entity.paraId is not available in current storage
+        entity.paraId = model.paraId
         entity.parentId = model.parentId
         entity.name = model.name
         entity.types = model.types?.url.absoluteString
@@ -493,7 +493,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.isTipRequired = model.isTipRequired
         entity.minimalAppVersion = model.iosMinAppVersion
         entity.options = model.options?.map(\.rawValue) as? NSArray
-        // entity.identityChain is not available in current storage
+        entity.identityChain = model.identityChain
         try updateEntityAsset(for: entity, from: model, context: context)
         updateEntityNodes(for: entity, from: model, context: context)
         updateExternalApis(in: entity, from: model.externalApi)
