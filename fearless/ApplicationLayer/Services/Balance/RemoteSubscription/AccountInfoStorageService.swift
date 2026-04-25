@@ -131,6 +131,15 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
     }
 
     private func createSubstrateRequest(for chainAsset: ChainAsset, accountId: AccountId) -> any MixStorageRequest {
+        if chainAsset.chain.isEquilibrium || chainAsset.chain.knownChainEquivalent == .genshiro {
+            let request = EquilibriumAccountInfotorageRequest(
+                parametersType: .encodable(param: accountId),
+                storagePath: chainAsset.storagePath,
+                requestId: chainAsset.chainAssetId.id
+            )
+            return request
+        }
+
         switch chainAsset.currencyId {
         case .soraAsset:
             if chainAsset.isUtility {
