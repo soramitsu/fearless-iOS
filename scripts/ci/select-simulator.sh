@@ -35,6 +35,28 @@ pick_udid_by_pattern() {
   '
 }
 
+pick_udid_by_exact_name() {
+  local target_name="$1"
+  xcrun simctl list devices available | awk -v target="$target_name" '
+    function trim(s) {
+      sub(/^[[:space:]]+/, "", s)
+      sub(/[[:space:]]+$/, "", s)
+      return s
+    }
+    {
+      if (match($0, /\([A-Fa-f0-9-]{36}\)/)) {
+        udid = substr($0, RSTART + 1, RLENGTH - 2)
+        name = substr($0, 1, RSTART - 1)
+        name = trim(name)
+        if (name == target) {
+          print udid
+          exit
+        }
+      }
+    }
+  '
+}
+
 pick_any_iphone_udid() {
   pick_udid_by_pattern "iPhone"
 }
@@ -101,7 +123,10 @@ main() {
   local udid
 
   log "Searching for available simulator (preferred: ${PREFERRED_NAME})"
-  udid="$(pick_udid_by_pattern "$PREFERRED_NAME" || true)"
+  udid="$(pick_udid_by_exact_name "$PREFERRED_NAME" || true)"
+  if [[ -z "$udid" ]]; then
+    udid="$(pick_udid_by_pattern "$PREFERRED_NAME" || true)"
+  fi
   if [[ -z "$udid" ]]; then
     udid="$(pick_any_iphone_udid || true)"
   fi
