@@ -424,6 +424,14 @@ final class ChainRegistryTonNodeSelectionTests: XCTestCase {
         XCTAssertEqual(resolved?.url, nodeA.url)
     }
 
+    func testResolveTonNodeReturnsNilForEmptyNodesAndNoSelection() {
+        let chain = makeTonChain(nodes: [], selectedNode: nil)
+
+        let resolved = ChainRegistry.resolveTonNode(for: chain)
+
+        XCTAssertNil(resolved)
+    }
+
     private func makeTonChain(nodes: [ChainNodeModel], selectedNode: ChainNodeModel?) -> ChainModel {
         ChainModel(
             rank: nil,
