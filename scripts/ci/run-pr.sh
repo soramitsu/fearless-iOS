@@ -33,10 +33,15 @@ else
   exit 1
 fi
 
-SIM_UDID="$(
+SIM_UDID_RAW="$(
   LOG_PREFIX="[run-pr]" PREFERRED_NAME="iPhone 16" ALLOW_CREATE=1 BOOT_SIMULATOR=0 \
     "$WORKSPACE_DIR/scripts/ci/select-simulator.sh"
 )"
+SIM_UDID="$(printf '%s\n' "$SIM_UDID_RAW" | awk 'match($0, /[A-Fa-f0-9-]{36}/) { print substr($0, RSTART, RLENGTH); exit }')"
+if [[ -z "$SIM_UDID" ]]; then
+  echo "[run-pr] ERROR: Failed to parse simulator UDID from selector output: $SIM_UDID_RAW" >&2
+  exit 1
+fi
 
 SIM_DEST="platform=iOS Simulator,id=${SIM_UDID}"
 echo "[run-pr] Using simulator destination: ${SIM_DEST}"
