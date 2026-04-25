@@ -3,6 +3,12 @@ set -euo pipefail
 
 ROOT="${1:-$(pwd)}"
 
+RESTORE_SCRIPT="$ROOT/scripts/deps/restore-swiftpm-contract-files.sh"
+
+if [[ -x "$RESTORE_SCRIPT" ]]; then
+  "$RESTORE_SCRIPT" "$ROOT" "[check-dependency-contracts]"
+fi
+
 run_check() {
   local script_path="$1"
   local label="$2"
