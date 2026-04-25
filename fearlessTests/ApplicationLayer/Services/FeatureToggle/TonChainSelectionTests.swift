@@ -271,6 +271,26 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         XCTAssertEqual(storagePerformer.performMixInvocations, 0)
     }
 
+    func testFetchAccountInfoUsesEquilibriumRequestForGenshiroChain() async throws {
+        let chain = makeGenshiroLikeChain()
+        let chainAsset = try XCTUnwrap(chain.chainAssets.first)
+        let wallet = AccountGenerator.generateMetaAccount()
+        let ethereumFetching = AccountInfoFetchingStub()
+        let tonService = AccountInfoRemoteServiceStub()
+        let storagePerformer = StorageRequestPerformerStub()
+        let service = AccountInfoRemoteServiceDefault(
+            ethereumRemoteBalanceFetching: ethereumFetching,
+            tonRemoteBalanceFetching: tonService,
+            storagePerformer: storagePerformer
+        )
+
+        _ = try await service.fetchAccountInfo(for: chainAsset, wallet: wallet)
+
+        XCTAssertEqual(storagePerformer.performMixInvocations, 1)
+        let requestTypeName = String(describing: type(of: try XCTUnwrap(storagePerformer.lastMixRequests.first)))
+        XCTAssertEqual(requestTypeName, String(describing: EquilibriumAccountInfotorageRequest.self))
+    }
+
     private func makeTonLikeChain() -> ChainModel {
         let node = ChainNodeModel(
             url: URL(string: "wss://rpc.ton.org")!,
@@ -322,6 +342,104 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
             options: [.ethereum],
             externalApi: nil,
             selectedNode: nil,
+            customNodes: nil,
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+    }
+
+    private func makeGenshiroLikeChain() -> ChainModel {
+        let node = ChainNodeModel(
+            url: URL(string: "wss://node.ksm.genshiro.io")!,
+            name: "Genshiro",
+            apikey: nil
+        )
+        let asset = AssetModel(
+            id: "gens-asset",
+            name: "GENS",
+            symbol: "GENS",
+            precision: 12,
+            isUtility: false,
+            isNative: false,
+            type: .normal
+        )
+
+        return ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: "9de765698374eb576968c8a764168893fb277e65ad3ddafcfe2c49593fc6d663",
+            parentId: nil,
+            paraId: nil,
+            name: "Genshiro",
+            assets: Set([asset]),
+            xcm: nil,
+            nodes: Set([node]),
+            addressPrefix: 0,
+            types: nil,
+            icon: nil,
+            options: nil,
+            externalApi: nil,
+            selectedNode: nil,
+            customNodes: nil,
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+    }
+}
+
+final class ChainRegistryTonNodeSelectionTests: XCTestCase {
+    func testResolveTonNodePrefersSelectedNode() {
+        let primary = ChainNodeModel(
+            url: URL(string: "https://ton-selected.example.com")!,
+            name: "Selected",
+            apikey: nil
+        )
+        let secondary = ChainNodeModel(
+            url: URL(string: "https://ton-fallback.example.com")!,
+            name: "Fallback",
+            apikey: nil
+        )
+        let chain = makeTonChain(nodes: [primary, secondary], selectedNode: primary)
+
+        let resolved = ChainRegistry.resolveTonNode(for: chain)
+
+        XCTAssertEqual(resolved?.url, primary.url)
+    }
+
+    func testResolveTonNodeFallsBackDeterministicallyWhenSelectedNodeMissing() {
+        let nodeB = ChainNodeModel(
+            url: URL(string: "https://b-ton.example.com")!,
+            name: "B",
+            apikey: nil
+        )
+        let nodeA = ChainNodeModel(
+            url: URL(string: "https://a-ton.example.com")!,
+            name: "A",
+            apikey: nil
+        )
+        let chain = makeTonChain(nodes: [nodeB, nodeA], selectedNode: nil)
+
+        let resolved = ChainRegistry.resolveTonNode(for: chain)
+
+        XCTAssertEqual(resolved?.url, nodeA.url)
+    }
+
+    private func makeTonChain(nodes: [ChainNodeModel], selectedNode: ChainNodeModel?) -> ChainModel {
+        ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: "-239",
+            parentId: nil,
+            paraId: nil,
+            name: "TON Mainnet",
+            xcm: nil,
+            nodes: Set(nodes),
+            addressPrefix: 0,
+            types: nil,
+            icon: nil,
+            options: nil,
+            externalApi: nil,
+            selectedNode: selectedNode,
             customNodes: nil,
             iosMinAppVersion: nil,
             identityChain: nil
@@ -494,6 +612,7 @@ private final class AccountInfoRemoteServiceStub: AccountInfoRemoteService {
 
 private final class StorageRequestPerformerStub: SSFStorageQueryKit.StorageRequestPerformer {
     var performMixInvocations = 0
+    var lastMixRequests: [any MixStorageRequest] = []
 
     func performSingle<T: Decodable>(
         _: SSFStorageQueryKit.StorageRequest,
@@ -541,10 +660,11 @@ private final class StorageRequestPerformerStub: SSFStorageQueryKit.StorageReque
     ) async throws -> [K: T]? { nil }
 
     func perform(
-        _: [any MixStorageRequest],
+        _ requests: [any MixStorageRequest],
         chain _: ChainModel
     ) async throws -> [MixStorageResponse] {
         performMixInvocations += 1
+        lastMixRequests = requests
         return []
     }
 }

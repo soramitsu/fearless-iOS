@@ -423,8 +423,7 @@ final class ChainRegistry {
         chains.append(chain)
 
         let token = currentTonApiKey
-        let fallbackNode = chain.nodes.sorted { $0.url.absoluteString < $1.url.absoluteString }.first
-        guard let node = chain.selectedNode ?? fallbackNode else {
+        guard let node = Self.resolveTonNode(for: chain) else {
             logger?.error("Missing TON node URL")
             if tonApiChainId == chain.chainId {
                 tonApiClientFactory = nil
@@ -443,6 +442,10 @@ final class ChainRegistry {
 
         tonApiClientFactory = TonAPIClientFactory(tonAPIURL: node.url, token: token)
         tonApiChainId = chain.chainId
+    }
+
+    static func resolveTonNode(for chain: ChainModel) -> ChainNodeModel? {
+        chain.selectedNode ?? chain.nodes.sorted { $0.url.absoluteString < $1.url.absoluteString }.first
     }
 
     private var currentTonApiKey: String {
