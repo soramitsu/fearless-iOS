@@ -259,7 +259,7 @@ final class ChainRegistry {
                         self.handleDelete(chainId)
                     }
                 } catch {
-                    let chainName = String(describing: change.item?.name)
+                    let chainName = change.item?.name ?? "unknown"
                     self.logger?.error("Chain: \(chainName), Unexpected error on handling chains update: \(error)")
                 }
             }
