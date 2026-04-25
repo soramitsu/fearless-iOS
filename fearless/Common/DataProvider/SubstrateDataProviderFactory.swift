@@ -42,9 +42,11 @@ final class SubstrateDataProviderFactory: SubstrateDataProviderFactoryProtocol {
             predicate: { $0.stash == address || $0.controller == address }
         )
 
-        observable.start { [weak self] error in
+        let logger = logger
+
+        observable.start { error in
             if let error = error {
-                self?.logger?.error("Did receive error: \(error)")
+                logger?.error("Did receive error: \(error)")
             }
         }
 
