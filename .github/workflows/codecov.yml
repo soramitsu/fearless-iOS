@@ -70,12 +70,31 @@ jobs:
             echo "Extracted simulator UDID has invalid format: $UDID" >&2
             exit 1
           fi
-          echo "Using simulator id: $UDID"
+          SIM_INFO="$(xcrun simctl list devices available | awk -v udid="$UDID" '
+            /^-- iOS / { os=$3; next }
+            {
+              if (index($0, udid) > 0) {
+                line = $0
+                sub(/[[:space:]]*\([A-Fa-f0-9-]{36}\).*/, "", line)
+                gsub(/^[[:space:]]+|[[:space:]]+$/, "", line)
+                print line "|" os
+                exit
+              }
+            }
+          ')"
+          if [ -n "$SIM_INFO" ]; then
+            SIM_NAME="${SIM_INFO%%|*}"
+            SIM_OS="${SIM_INFO##*|}"
+            DESTINATION="platform=iOS Simulator,OS=${SIM_OS},name=${SIM_NAME},arch=arm64"
+          else
+            DESTINATION="platform=iOS Simulator,id=$UDID,arch=arm64"
+          fi
+          echo "Using destination: $DESTINATION"
           xcodebuild \
             -workspace fearless.xcworkspace \
             -scheme fearless.tests \
             -clonedSourcePackagesDirPath "$SP_DIR" \
-            -destination "platform=iOS Simulator,arch=arm64,id=$UDID" \
+            -destination "$DESTINATION" \
             build test | xcpretty --test
 
       - name: Upload coverage to Codecov
