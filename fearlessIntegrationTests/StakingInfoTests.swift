@@ -79,8 +79,8 @@ class StakingInfoTests: XCTestCase {
             operationManager: operationManager
         )
         
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
-              let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId)
+        guard chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) != nil,
+              chainRegistry.getConnection(for: chainAsset.chain.chainId) != nil
         else {
             throw ChainRegistryError.connectionUnavailable
         }
