@@ -75,7 +75,7 @@ jobs:
             -workspace fearless.xcworkspace \
             -scheme fearless.tests \
             -clonedSourcePackagesDirPath "$SP_DIR" \
-            -destination "platform=iOS Simulator,id=$UDID" \
+            -destination "platform=iOS Simulator,arch=arm64,id=$UDID" \
             build test | xcpretty --test
 
       - name: Upload coverage to Codecov
