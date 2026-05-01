@@ -19,6 +19,8 @@ CHECKOUT_HELPER="$BASE_DIR/scripts/deps/native-crypto-checkout-roots.sh"
 each_checkout_base() {
   local package_root
   local saw_any=0
+  # Always include the caller-provided SourcePackages base first.
+  printf '%s\n' "$SOURCE_PACKAGES_BASE"
 
   if [[ -f "$CHECKOUT_HELPER" ]]; then
     # shellcheck source=/dev/null
@@ -27,10 +29,6 @@ each_checkout_base() {
       saw_any=1
       printf '%s\n' "$(dirname "$(dirname "$(dirname "$package_root")")")"
     done < <(native_crypto_checkout_candidates "$BASE_DIR" "$SOURCE_PACKAGES_DIR")
-  fi
-
-  if [[ "$saw_any" == "0" ]]; then
-    printf '%s\n' "$SOURCE_PACKAGES_BASE"
   fi
 
   if [[ "$saw_any" == "0" && "$ALLOW_DERIVEDDATA_FALLBACK" == "1" ]]; then
@@ -149,6 +147,8 @@ patch_private_key_calls() {
       -e 's/EthereumPrivateKey\(\s*privateKey:\s*secretKeyData\s*\.\s*bytes\s*\)/EthereumPrivateKey(privateKey: Array(secretKeyData))/' \
       -e 's/([[:<:]]privateKey[[:>:]]\s*)\.\s*bytes/Array(\1)/g' \
       -e 's/([[:<:]]secretKeyData[[:>:]]\s*)\.\s*bytes/Array(\1)/g' \
+      -e 's/secretKeyData\.bytes/Array(secretKeyData)/g' \
+      -e 's/privateKey\.bytes/Array(privateKey)/g' \
       "$file" || true
 
     # Report remaining occurrences if any
