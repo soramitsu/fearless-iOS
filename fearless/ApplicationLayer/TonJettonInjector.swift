@@ -67,7 +67,7 @@ actor TonJettonInjectorImpl: TonJettonInjector {
     private func map(jettonItems: [TonJettonBalance]) -> Set<AssetModel> {
         let mapped = jettonItems.map { balanceInfo in
             AssetModel(
-                id: balanceInfo.item.walletAddress.toRaw(),
+                id: balanceInfo.item.jettonInfo.address.toRaw(),
                 name: balanceInfo.item.jettonInfo.name,
                 symbol: balanceInfo.item.jettonInfo.symbol ?? balanceInfo.item.jettonInfo.name,
                 precision: UInt16(balanceInfo.item.jettonInfo.fractionDigits),

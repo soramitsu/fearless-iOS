@@ -85,7 +85,9 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
                 currency: wallet.selectedCurrency
             )
             guard let jetton = jettons.first(where: { jetton in
-                jetton.item.walletAddress.toRaw() == chainAsset.asset.id
+                let masterAddress = jetton.item.jettonInfo.address.toRaw()
+                let walletAddress = jetton.item.walletAddress.toRaw()
+                return masterAddress == chainAsset.asset.id || walletAddress == chainAsset.asset.id
             }) else {
                 return nil
             }
@@ -160,7 +162,7 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
     ) -> [(ChainAsset, AccountInfo)] {
         let jettonsAccountInfo: [(ChainAsset, AccountInfo)] = jettonBalances.map { jetton in
             let asset = AssetModel(
-                id: jetton.item.walletAddress.toRaw(),
+                id: jetton.item.jettonInfo.address.toRaw(),
                 name: jetton.item.jettonInfo.name,
                 symbol: jetton.item.jettonInfo.symbol ?? jetton.item.jettonInfo.name,
                 precision: UInt16(jetton.item.jettonInfo.fractionDigits),
@@ -237,7 +239,9 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
 
         let jettons = try response.ok.body.json.balances.compactMap { jetton in
             do {
-                let quantity = BigUInt(stringLiteral: jetton.balance)
+                guard let quantity = BigUInt(jetton.balance) else {
+                    return nil
+                }
                 let walletAddress = try TonSwift.Address.parse(jetton.wallet_address.address)
                 let jettonInfo = try TonJettonInfo(jettonPreview: jetton.jetton)
                 let jettonItem = TonJettonItem(jettonInfo: jettonInfo, walletAddress: walletAddress)

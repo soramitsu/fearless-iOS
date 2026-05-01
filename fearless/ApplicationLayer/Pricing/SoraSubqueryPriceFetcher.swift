@@ -11,7 +11,7 @@ final class SoraSubqueryPriceFetcherDefault: SoraSubqueryPriceFetcher {
             guard let self else { return [] }
 
             guard let blockExplorer = chainAssets.first(where: { chainAsset in
-                chainAsset.chain.knownChainEquivalent == .soraMain
+                chainAsset.asset.priceProvider?.type == .sorasubquery
             })?.chain.externalApi?.history else {
                 throw SubqueryPriceFetcherError.missingBlockExplorer
             }

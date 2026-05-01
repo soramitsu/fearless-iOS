@@ -204,7 +204,11 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
             .map { $0.chainAssets }
             .reduce([], +)
         let defaultVisibilities = chainAssets.map {
-            let isHidden = !($0.chain.rank != nil && $0.asset.isUtility)
+            let isSoraNexusXor = $0.asset.isUtility
+                && $0.asset.symbol.caseInsensitiveCompare("XOR") == .orderedSame
+                && $0.chain.name.lowercased().contains("sora")
+                && $0.chain.name.lowercased().contains("nexus")
+            let isHidden = !(($0.chain.rank != nil && $0.asset.isUtility) || isSoraNexusXor)
             let visibility = AssetVisibility(assetId: $0.identifier, hidden: isHidden)
             return visibility
         }

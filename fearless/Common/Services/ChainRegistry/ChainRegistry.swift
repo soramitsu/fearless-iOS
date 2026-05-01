@@ -476,7 +476,16 @@ final class ChainRegistry {
 
 extension ChainRegistry: ChainRegistryProtocol {
     var availableChainIds: Set<ChainModel.Id>? {
-        readLock.concurrentlyRead { Set(chains.map(\.chainId)) }
+        readLock.concurrentlyRead {
+            var availableIds = Set(runtimeVersionSubscriptions.keys)
+            availableIds.formUnion(chains.filter { $0.isEthereum }.map(\.chainId))
+
+            if let tonApiChainId {
+                availableIds.insert(tonApiChainId)
+            }
+
+            return availableIds
+        }
     }
 
     var availableChains: [ChainModel] {

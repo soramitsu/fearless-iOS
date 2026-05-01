@@ -19,6 +19,7 @@ final class ChainSyncService {
     static let historyExplorerCompatibilityType = "subsquid"
     static let stakingExplorerCompatibilityType = "subquery"
     static let genericExplorerCompatibilityType = "etherscan"
+    private static let soraXorCurrencyId = "0x0200000000000000000000000000000000000000000000000000000000000000"
 
     struct SyncChanges {
         let newOrUpdatedItems: [ChainModel]
@@ -227,6 +228,7 @@ final class ChainSyncService {
     }
 
     private func handle(remoteChains: [ChainModel]) {
+        let normalizedRemoteChains = remoteChains.map { normalizeSoraNexusChainAssets($0) }
         let localFetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 
         let processingOperation: BaseOperation<(
@@ -236,7 +238,7 @@ final class ChainSyncService {
             let localChains = try localFetchOperation.extractNoCancellableResultData()
 
             return (
-                remoteChains: remoteChains,
+                remoteChains: normalizedRemoteChains,
                 localChains: localChains
             )
         }
@@ -266,6 +268,46 @@ final class ChainSyncService {
             ],
             waitUntilFinished: false
         )
+    }
+
+    private func normalizeSoraNexusChainAssets(_ chain: ChainModel) -> ChainModel {
+        guard isSoraNexus(chain) else {
+            return chain
+        }
+
+        let hasXor = chain.assets.contains {
+            $0.currencyId == Self.soraXorCurrencyId || $0.symbol.lowercased() == "xor"
+        }
+
+        guard !hasXor else {
+            return chain
+        }
+
+        var updatedChain = chain
+        let xorAsset = AssetModel(
+            id: "b5a44630-920e-43ee-809f-61890d0888b0",
+            name: "sora",
+            symbol: "xor",
+            precision: 18,
+            icon: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XOR.svg",
+            currencyId: Self.soraXorCurrencyId,
+            color: "EE2233",
+            isUtility: true,
+            type: .soraAsset,
+            staking: .relaychain,
+            priceProvider: PriceProvider(type: .sorasubquery, id: Self.soraXorCurrencyId),
+            coingeckoPriceId: "sora"
+        )
+        updatedChain.assets.append(xorAsset)
+        return updatedChain
+    }
+
+    private func isSoraNexus(_ chain: ChainModel) -> Bool {
+        let name = chain.name.lowercased()
+        let chainId = chain.chainId.lowercased()
+        return (name.contains("sora") && name.contains("nexus"))
+            || chainId.contains("sora-nexus")
+            || chainId.contains("soranexus")
     }
 
     private func syncChanges(
