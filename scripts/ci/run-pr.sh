@@ -43,7 +43,7 @@ if [[ -z "$SIM_UDID" ]]; then
   exit 1
 fi
 
-SIM_DEST="platform=iOS Simulator,id=${SIM_UDID}"
+SIM_DEST="platform=iOS Simulator,id=${SIM_UDID},arch=arm64"
 echo "[run-pr] Using simulator destination: ${SIM_DEST}"
 
 echo "[run-pr] Building Debug on iOS Simulator"

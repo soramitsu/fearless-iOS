@@ -41,12 +41,13 @@ fi
 # If destination is a placeholder, pick a concrete available simulator (prefer newest iPhone)
 if [[ "$DEST" == *"Any iOS Simulator Device"* || "$DEST" == "" ]]; then
   echo "==> Autodetecting a concrete simulator device (with create fallback)"
-  DEV_ID="$(LOG_PREFIX="[test-matrix]" PREFERRED_NAME="iPhone 16" ALLOW_CREATE=1 BOOT_SIMULATOR=0 "$(pwd)/scripts/ci/select-simulator.sh")"
+  DEV_ID_RAW="$(LOG_PREFIX="[test-matrix]" PREFERRED_NAME="iPhone 16" ALLOW_CREATE=1 BOOT_SIMULATOR=0 "$(pwd)/scripts/ci/select-simulator.sh")"
+  DEV_ID="$(printf '%s\n' "$DEV_ID_RAW" | awk 'match($0, /[A-Fa-f0-9-]{36}/) { print substr($0, RSTART, RLENGTH); exit }')"
   if [[ -z "$DEV_ID" ]]; then
-    echo "Failed to detect a valid simulator UDID from selector output" >&2
+    echo "Failed to detect a valid simulator UDID from selector output: $DEV_ID_RAW" >&2
     exit 1
   fi
-  DEST="platform=iOS Simulator,id=${DEV_ID}"
+  DEST="platform=iOS Simulator,id=${DEV_ID},arch=arm64"
   echo "==> Using detected destination: ${DEST}"
 fi
 
