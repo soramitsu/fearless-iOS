@@ -60,9 +60,10 @@ jobs:
             fi
           fi
           echo "Available simulators (before selection):" && xcrun simctl list devices | sed -n '1,100p'
-          UDID="$(LOG_PREFIX='[codecov]' PREFERRED_NAME='iPhone 16' ALLOW_CREATE=1 BOOT_SIMULATOR=0 bash scripts/ci/select-simulator.sh)"
+          UDID_RAW="$(LOG_PREFIX='[codecov]' PREFERRED_NAME='iPhone 16' ALLOW_CREATE=1 BOOT_SIMULATOR=0 bash scripts/ci/select-simulator.sh)"
+          UDID="$(printf '%s\n' "$UDID_RAW" | awk 'match($0, /[A-Fa-f0-9-]{36}/) { print substr($0, RSTART, RLENGTH); exit }')"
           if [ -z "$UDID" ]; then
-            echo "Failed to select simulator UDID" >&2
+            echo "Failed to select simulator UDID. Raw selector output: $UDID_RAW" >&2
             exit 1
           fi
           if ! [[ "$UDID" =~ ^[A-Fa-f0-9-]{36}$ ]]; then
@@ -89,13 +90,19 @@ jobs:
             DESTINATION="platform=iOS Simulator,id=$UDID,arch=arm64"
           fi
           echo "Using destination: $DESTINATION"
-          xcodebuild \
+          LOG_FILE="$PWD/build/codecov-xcodebuild.log"
+          mkdir -p "$PWD/build"
+          if ! xcodebuild \
             -workspace fearless.xcworkspace \
             -scheme fearless.tests \
             -clonedSourcePackagesDirPath "$SP_DIR" \
             -disableAutomaticPackageResolution \
             -destination "$DESTINATION" \
-            build test | xcpretty --test
+            build test | tee "$LOG_FILE" | xcpretty --test; then
+            echo "Build/Test failed. Key errors from $LOG_FILE:" >&2
+            rg -n " error: |\\*\\* (BUILD|TEST) FAILED \\*\\*" "$LOG_FILE" -S | tail -n 100 >&2 || true
+            exit 1
+          fi
 
       - name: Upload coverage to Codecov
         run: bash <(curl -s https://codecov.io/bash) -J 'fearless'
