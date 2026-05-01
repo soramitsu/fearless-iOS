@@ -237,7 +237,9 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
             query: .init(currencies: currency.id.uppercased())
         )
 
-        let jettons = try response.ok.body.json.balances.compactMap { jetton in
+        let balances = try response.ok.body.json.balances
+
+        let jettons: [TonJettonBalance] = balances.compactMap { jetton in
             do {
                 guard let quantity = BigUInt(jetton.balance) else {
                     return nil

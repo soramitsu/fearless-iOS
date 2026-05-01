@@ -289,16 +289,21 @@ final class ChainSyncService {
             name: "sora",
             symbol: "xor",
             precision: 18,
-            icon: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XOR.svg",
+            icon: URL(string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XOR.svg"),
             currencyId: Self.soraXorCurrencyId,
             color: "EE2233",
             isUtility: true,
+            isNative: true,
+            staking: .relayChain,
             type: .soraAsset,
-            staking: .relaychain,
-            priceProvider: PriceProvider(type: .sorasubquery, id: Self.soraXorCurrencyId),
+            priceProvider: PriceProvider(
+                type: .sorasubquery,
+                id: Self.soraXorCurrencyId,
+                precision: nil
+            ),
             coingeckoPriceId: "sora"
         )
-        updatedChain.assets.append(xorAsset)
+        updatedChain.assets.insert(xorAsset)
         return updatedChain
     }
 
