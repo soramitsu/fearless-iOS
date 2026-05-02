@@ -3,7 +3,6 @@ import Web3
 import Web3ContractABI
 import Web3PromiseKit
 import SSFModels
-import RobinHood
 
 final actor EthereumRemoteBalanceFetching {
     private let chainRegistry: ChainRegistryProtocol
@@ -15,20 +14,6 @@ final actor EthereumRemoteBalanceFetching {
     ) {
         self.chainRegistry = chainRegistry
         self.repositoryWrapper = repositoryWrapper
-    }
-
-    nonisolated private func fetchEthereumBalanceOperation(for chainAsset: ChainAsset, address: String) -> AwaitOperation<[ChainAsset: AccountInfo?]> {
-        AwaitOperation { [weak self] in
-            let accountInfo = try await self?.fetchETHBalance(for: chainAsset, address: address)
-            return [chainAsset: accountInfo]
-        }
-    }
-
-    nonisolated private func fetchErc20BalanceOperation(for chainAsset: ChainAsset, address: String) -> AwaitOperation<[ChainAsset: AccountInfo?]> {
-        AwaitOperation { [weak self] in
-            let accountInfo = try await self?.fetchERC20Balance(for: chainAsset, address: address)
-            return [chainAsset: accountInfo]
-        }
     }
 
     private func fetchETHBalance(for chainAsset: ChainAsset, address: String) async throws -> AccountInfo? {
@@ -194,8 +179,12 @@ extension EthereumRemoteBalanceFetching: AccountInfoFetchingProtocol {
         completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
     ) {
         Task {
-            let result = try await fetch(for: chainAsset, accountId: accountId)
-            completionBlock(result.0, result.1)
+            do {
+                let result = try await fetch(for: chainAsset, accountId: accountId)
+                completionBlock(result.0, result.1)
+            } catch {
+                completionBlock(chainAsset, nil)
+            }
         }
     }
 
@@ -205,8 +194,12 @@ extension EthereumRemoteBalanceFetching: AccountInfoFetchingProtocol {
         completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
     ) {
         Task {
-            let result = try await fetch(for: chainAssets, wallet: wallet)
-            completionBlock(result)
+            do {
+                let result = try await fetch(for: chainAssets, wallet: wallet)
+                completionBlock(result)
+            } catch {
+                completionBlock([:])
+            }
         }
     }
 
