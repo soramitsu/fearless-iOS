@@ -47,7 +47,12 @@ if [[ "$DEST" == *"Any iOS Simulator Device"* || "$DEST" == "" ]]; then
     echo "Failed to detect a valid simulator UDID from selector output: $DEV_ID_RAW" >&2
     exit 1
   fi
-  DEST="platform=iOS Simulator,id=${DEV_ID},arch=arm64"
+  DEST="platform=iOS Simulator,id=${DEV_ID}"
+  case "${HOST_ARCH}" in
+    arm64|x86_64)
+      DEST+=",arch=${HOST_ARCH}"
+      ;;
+  esac
   echo "==> Using detected destination: ${DEST}"
 fi
 
