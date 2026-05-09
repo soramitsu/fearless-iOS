@@ -34,31 +34,31 @@ enum BlockExplorerApiKey {
     var value: String {
         switch self {
         case .etherscan:
-            #if canImport(FearlessKeys) && DEBUG
+            #if DEBUG
                 return BlockExplorerApiKeysDebug.etherscanApiKey
             #else
                 return BlockExplorerApiKeys.etherscanApiKey
             #endif
         case .polygonscan:
-            #if canImport(FearlessKeys) && DEBUG
+            #if DEBUG
                 return BlockExplorerApiKeysDebug.polygonscanApiKey
             #else
                 return BlockExplorerApiKeys.polygonscanApiKey
             #endif
         case .bscscan:
-            #if canImport(FearlessKeys) && DEBUG
+            #if DEBUG
                 return BlockExplorerApiKeysDebug.bscscanApiKey
             #else
                 return BlockExplorerApiKeys.bscscanApiKey
             #endif
         case .oklink:
-            #if canImport(FearlessKeys) && DEBUG
+            #if DEBUG
                 return BlockExplorerApiKeysDebug.oklinkApiKey
             #else
                 return BlockExplorerApiKeys.oklinkApiKey
             #endif
         case .opMainnet:
-            #if canImport(FearlessKeys) && DEBUG
+            #if DEBUG
                 return BlockExplorerApiKeysDebug.opMainnetApiKey
             #else
                 return BlockExplorerApiKeys.opMainnetApiKey

@@ -37,7 +37,7 @@ final class OklinkHistoryOperationFactory {
             request.httpMethod = HttpMethod.get.rawValue
 
             var apiKey: String
-            #if canImport(FearlessKeys) && DEBUG
+            #if DEBUG
                 apiKey = BlockExplorerApiKeysDebug.oklinkApiKey
             #else
                 apiKey = BlockExplorerApiKeys.oklinkApiKey

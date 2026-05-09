@@ -15,7 +15,7 @@ final class AlchemyNFTOperationFactory {
     // MARK: Collections for owner
 
     private var alchemyApiKey: String {
-        #if canImport(FearlessKeys) && DEBUG
+        #if DEBUG
             return ThirdPartyServicesApiKeysDebug.alchemyApiKey
         #else
             return ThirdPartyServicesApiKeys.alchemyApiKey
