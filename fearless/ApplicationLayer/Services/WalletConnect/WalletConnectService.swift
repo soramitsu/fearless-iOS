@@ -5,15 +5,6 @@ import WalletConnectSign
 import ReownWalletKit
 #if canImport(FearlessKeys)
     import FearlessKeys
-#else
-    // Fallback names avoid clashing with the WalletConnect module name
-    enum WalletConnectKeysDebug {
-        static let projectId = ""
-    }
-
-    enum WalletConnectKeys {
-        static let projectId = ""
-    }
 #endif
 
 protocol WalletConnectService: ApplicationServiceProtocol {
@@ -56,11 +47,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
                 let projectId = WalletConnect.projectId
             #endif
         #else
-            #if F_DEV
-                let projectId = WalletConnectKeysDebug.projectId
-            #else
-                let projectId = WalletConnectKeys.projectId
-            #endif
+            let projectId = WalletConnect.projectId
         #endif
         let groupIdentifier = "group." + (Bundle.main.bundleIdentifier ?? "jp.co.soramitsu.fearlesswallet.dev")
         Networking.configure(
