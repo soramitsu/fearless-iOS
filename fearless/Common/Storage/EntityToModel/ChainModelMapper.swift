@@ -62,33 +62,26 @@ final class ChainModelMapper {
         from model: ChainModel,
         context: NSManagedObjectContext
     ) throws {
+        let oldAssets = entity.assets as? Set<CDAsset>
         let assets = try model.assets.map { assetModel in
             let assetEntity = CDAsset(context: context)
             try assetModelMapper.populate(entity: assetEntity, from: assetModel, using: context)
 
             if
-                let oldAssets = entity.assets as? Set<CDAsset>,
+                let oldAssets,
                 let updatedAsset = oldAssets.first(where: { cdAsset in
                     cdAsset.id == assetModel.id
                 }) {
                 if updatedAsset.entity.relationshipsByName["priceData"] != nil,
                    let oldPrices = updatedAsset.value(forKey: "priceData") as? NSSet {
-                    oldPrices.forEach { any in
-                        if let cdPriceData = any as? NSManagedObject,
-                           let _ = cdPriceData.value(forKey: "currencyId") as? String {
-                            // No-op: leave cleanup to migrations; ensure relationship exists
-                        }
-                    }
+                    assetEntity.setValue(oldPrices, forKey: "priceData")
                 }
-            }
-            if assetEntity.entity.relationshipsByName["priceData"] != nil {
-                assetEntity.setValue(NSSet(), forKey: "priceData")
             }
 
             return assetEntity
         }
 
-        if let oldAssets = entity.assets as? Set<CDAsset> {
+        if let oldAssets {
             oldAssets.forEach { cdAsset in
                 context.delete(cdAsset)
             }
@@ -456,6 +449,32 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             rank = UInt16(rankString)
         }
 
+        let assetsArray: [AssetModel] = try (entity.assets?.compactMap { anyAsset in
+            guard let assetEntity = anyAsset as? CDAsset else {
+                return nil
+            }
+
+            let asset = try assetModelMapper.transform(entity: assetEntity)
+            let priceDataEntities = (assetEntity.value(forKey: "priceData") as? NSSet)?
+                .compactMap { $0 as? NSManagedObject } ?? []
+            let cachedPrices = priceDataEntities.compactMap(createPriceData(from:))
+
+            guard !cachedPrices.isEmpty else {
+                return asset
+            }
+
+            if let priceId = asset.priceId,
+               let matchingPrice = cachedPrices.first(where: { $0.priceId == priceId }) {
+                return asset.replacingPrice(matchingPrice)
+            }
+
+            if let matchingCurrency = cachedPrices.first(where: { $0.currencyId == asset.currencyId }) {
+                return asset.replacingPrice(matchingCurrency)
+            }
+
+            return asset.replacingPrice(cachedPrices[0])
+        }) ?? []
+
         let chainModel = ChainModel(
             rank: rank,
             disabled: entity.disabled,
@@ -476,7 +495,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             identityChain: identityChain
         )
 
-        // Assets are represented via tokens in current models; skip direct assignment
+        chainModel.assets = Set(assetsArray)
 
         return chainModel
     }
