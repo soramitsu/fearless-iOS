@@ -123,7 +123,7 @@ final class ChainSyncService {
         do {
             return try JSONDecoder().decode([ChainModel].self, from: data)
         } catch {
-            // Attempt a compatibility coercion for missing "tokens" field
+            // Attempt a compatibility coercion for legacy non-token payload differences.
             let coerced = try Self.coerceChainsPayloadForCompatibility(data)
             return try JSONDecoder().decode([ChainModel].self, from: coerced)
         }
@@ -134,14 +134,6 @@ final class ChainSyncService {
         guard var array = obj as? [[String: Any]] else { return data }
 
         for i in 0 ..< array.count {
-            if array[i]["tokens"] == nil {
-                // Provide a minimal default remote tokens payload compatible with SSFModels
-                array[i]["tokens"] = [
-                    "type": "config",
-                    "tokens": []
-                ]
-            }
-
             if array[i]["properties"] == nil {
                 let prefixValue = array[i]["addressPrefix"]
                 let prefixString: String

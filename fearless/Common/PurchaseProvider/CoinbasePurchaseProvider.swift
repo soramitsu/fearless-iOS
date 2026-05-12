@@ -43,17 +43,15 @@ final class CoinbasePurchaseProvider: PurchaseProviderProtocol {
 
     private func buildUrl(for configuration: AssetConfiguration, replacingAddressTemplateWith address: String) -> URL? {
         var components = URLComponents(string: Constants.baseUrlString)
-
-        let addressesValue = """
-        {"\(address)":["\(configuration.network)"]}
-        """
-
-        let assetsValue = "[\(configuration.assetCodes.map { "\"\($0)\"" }.joined(separator: ","))]"
+        guard let sessionToken = CoinbaseKeys.sessionToken else {
+            return nil
+        }
 
         var queryItems = [
-            URLQueryItem(name: "addresses", value: addressesValue),
-            URLQueryItem(name: "assets", value: assetsValue),
-            URLQueryItem(name: "appId", value: CoinbaseKeys.appId)
+            URLQueryItem(name: "sessionToken", value: sessionToken),
+            URLQueryItem(name: "defaultNetwork", value: configuration.network),
+            URLQueryItem(name: "defaultAsset", value: configuration.assetCodes.first),
+            URLQueryItem(name: "partnerUserRef", value: address)
         ]
 
         if let existingItems = components?.queryItems {
