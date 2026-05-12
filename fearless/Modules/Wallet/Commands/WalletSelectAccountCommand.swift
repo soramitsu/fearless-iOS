@@ -9,9 +9,10 @@ final class WalletSelectAccountCommand: WalletCommandProtocol {
     }
 
     func execute() throws {
-        // Minimal fallback: present an empty controller when AccountManagementViewFactory is unavailable
-        let placeholderController = UIViewController()
-        guard let command = commandFactory?.preparePresentationCommand(for: placeholderController) else {
+        guard
+            let accountManagementView = AccountManagementViewFactory.createViewForSwitch(),
+            let command = commandFactory?.preparePresentationCommand(for: accountManagementView.controller)
+        else {
             return
         }
         command.presentationStyle = WalletPresentationStyle.push(hidesBottomBar: true)

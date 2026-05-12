@@ -1,10 +1,10 @@
-import UIKit
+import Foundation
 
 enum AccountManagementViewFactory {
     static func createViewForSwitch() -> ControllerBackedProtocol? {
-        // Minimal placeholder controller to satisfy build in test configuration
-        PlaceholderAccountManagementController()
+        WalletsManagmentAssembly.configureModule(
+            shouldSaveSelected: true,
+            moduleOutput: nil
+        )?.view
     }
 }
-
-final class PlaceholderAccountManagementController: UIViewController {}
