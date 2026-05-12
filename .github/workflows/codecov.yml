@@ -70,6 +70,7 @@ jobs:
             echo "Extracted simulator UDID has invalid format: $UDID" >&2
             exit 1
           fi
+          HOST_ARCH="$(uname -m)"
           SIM_INFO="$(xcrun simctl list devices available | awk -v udid="$UDID" '
             /^-- iOS / { os=$3; next }
             {
@@ -85,10 +86,15 @@ jobs:
           if [ -n "$SIM_INFO" ]; then
             SIM_NAME="${SIM_INFO%%|*}"
             SIM_OS="${SIM_INFO##*|}"
-            DESTINATION="platform=iOS Simulator,OS=${SIM_OS},name=${SIM_NAME},arch=arm64"
+            DESTINATION="platform=iOS Simulator,OS=${SIM_OS},name=${SIM_NAME}"
           else
-            DESTINATION="platform=iOS Simulator,id=$UDID,arch=arm64"
+            DESTINATION="platform=iOS Simulator,id=$UDID"
           fi
+          case "$HOST_ARCH" in
+            arm64|x86_64)
+              DESTINATION="${DESTINATION},arch=${HOST_ARCH}"
+              ;;
+          esac
           echo "Using destination: $DESTINATION"
           LOG_FILE="$PWD/build/codecov-xcodebuild.log"
           mkdir -p "$PWD/build"
@@ -100,7 +106,11 @@ jobs:
             -destination "$DESTINATION" \
             build test | tee "$LOG_FILE" | xcpretty --test; then
             echo "Build/Test failed. Key errors from $LOG_FILE:" >&2
-            rg -n " error: |\\*\\* (BUILD|TEST) FAILED \\*\\*" "$LOG_FILE" -S | tail -n 100 >&2 || true
+            if command -v rg >/dev/null 2>&1; then
+              rg -n " error: |\\*\\* (BUILD|TEST) FAILED \\*\\*" "$LOG_FILE" -S | tail -n 100 >&2 || true
+            else
+              grep -nE " error: |\\*\\* (BUILD|TEST) FAILED \\*\\*" "$LOG_FILE" | tail -n 100 >&2 || true
+            fi
             exit 1
           fi
 
