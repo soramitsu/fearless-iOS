@@ -1327,6 +1327,7 @@
 		A871B6ABACAE8A811010F792 /* StakingPayoutConfirmationWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5ACCFD31E14AF4D30955288 /* StakingPayoutConfirmationWireframe.swift */; };
 		A8F69AC9D7294E7DCBA50470 /* SelectValidatorsStartPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B6244A9538B39AFCD3A6F3A /* SelectValidatorsStartPresenter.swift */; };
 		A9597D17F54CFF4F3704D868 /* AssetNetworksPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67B1037AEC97DBEAF9FD50C1 /* AssetNetworksPresenter.swift */; };
+		AA1111000011223344556674 /* AccountManagementViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1111000011223344556673 /* AccountManagementViewFactory.swift */; };
 		AA1111000011223344556677 /* WalletSelectAccountCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1111000011223344556675 /* WalletSelectAccountCommand.swift */; };
 		AA1111000011223344556678 /* WalletSelectAccountCommandFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */; };
 		AA394DEC06AC872CC79C0FDC /* AssetNetworksAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D05025D7DB75DB7A766586 /* AssetNetworksAssembly.swift */; };
@@ -4370,6 +4371,7 @@
 		A84638893DC99974E098719E /* StakingUnbondConfirmWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingUnbondConfirmWireframe.swift; sourceTree = "<group>"; };
 		A865455F8FC60413A6CB8A44 /* ExportSeedInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportSeedInteractor.swift; sourceTree = "<group>"; };
 		A9D05025D7DB75DB7A766586 /* AssetNetworksAssembly.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AssetNetworksAssembly.swift; sourceTree = "<group>"; };
+		AA1111000011223344556673 /* AccountManagementViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AccountManagementViewFactory.swift; path = fearless/Modules/Wallet/Commands/AccountManagementViewFactory.swift; sourceTree = SOURCE_ROOT; };
 		AA1111000011223344556675 /* WalletSelectAccountCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WalletSelectAccountCommand.swift; path = fearless/Modules/Wallet/Commands/WalletSelectAccountCommand.swift; sourceTree = SOURCE_ROOT; };
 		AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WalletSelectAccountCommandFactory.swift; path = fearless/Modules/Wallet/Commands/WalletSelectAccountCommandFactory.swift; sourceTree = SOURCE_ROOT; };
 		AA2580363AC3E4A9CD40256E /* RecommendedValidatorListPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListPresenter.swift; sourceTree = "<group>"; };
@@ -6828,6 +6830,7 @@
 				E1F2A3B4C5D60718293A4B5C /* fearless/Common/Network/GraphQL/GraphQLResponse.swift */,
 				AABBCCDDEEFF112233445566 /* fearless/Modules/Send/Validators/XcmMinAmountInspectorShim.swift */,
 				D1E2F3A4B5C60718293A4B5C /* fearless/Common/Keys/FearlessKeysShim.swift */,
+				AA1111000011223344556673 /* AccountManagementViewFactory.swift */,
 				AA1111000011223344556675 /* WalletSelectAccountCommand.swift */,
 				AA1111000011223344556676 /* WalletSelectAccountCommandFactory.swift */,
 			);
@@ -15944,6 +15947,7 @@
 				AEF505102616769F0098574D /* InitiatedBonding.swift in Sources */,
 				FA9A8F072A6FADFB008FA99F /* EtherscanHistoryElement.swift in Sources */,
 				FAF92E6627B4275F005467CE /* Bool+ToInt.swift in Sources */,
+				AA1111000011223344556674 /* AccountManagementViewFactory.swift in Sources */,
 				AA1111000011223344556677 /* WalletSelectAccountCommand.swift in Sources */,
 				AA1111000011223344556678 /* WalletSelectAccountCommandFactory.swift in Sources */,
 				AE26E7002DFA1B50001FD062 /* LocalListToggle.swift in Sources */,
