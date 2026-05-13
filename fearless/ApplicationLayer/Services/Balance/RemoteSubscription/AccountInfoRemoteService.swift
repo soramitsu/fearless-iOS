@@ -46,7 +46,10 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         wallet: MetaAccountModel
     ) async throws -> [ChainAssetId: AccountInfo?] {
         guard let accountId = wallet.fetch(for: chain.accountRequest())?.accountId else {
-            throw ConvenienceError(error: "Missing AccountId for chain: \(chain.name)")
+            let emptyMap = Dictionary(
+                uniqueKeysWithValues: chain.chainAssets.map { ($0.chainAssetId, Optional<AccountInfo>.none) }
+            )
+            return emptyMap
         }
 
         switch chainKind(for: chain) {
@@ -67,7 +70,7 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         wallet: MetaAccountModel
     ) async throws -> AccountInfo? {
         guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-            throw ConvenienceError(error: "Missing account id for \(chainAsset.debugName)")
+            return nil
         }
         switch chainKind(for: chainAsset.chain) {
         case .ethereum:

@@ -124,17 +124,18 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         )
         let normalBalance = chainAccountInfos.normal
         let jettonBalances = chainAccountInfos.jettons
+        let requestedAssetIds = Set(chainAssets.suffix.map(\.asset.id))
 
         let jettonsAccountInfos = createJettonsAccountInfos(
             jettonBalances: jettonBalances,
             chain: normal.chain
-        )
+        ).filter { requestedAssetIds.contains($0.0.asset.id) }
+        let cacheValue = [(normal, normalBalance)] + jettonsAccountInfos
+        try? cache(cacheValue, accountId: accountId)
+
         let jettonsAccountInfoMap: [ChainAssetKey: AccountInfo?] = Dictionary(
             uniqueKeysWithValues: jettonsAccountInfos.map { ($0.0.uniqueKey(accountId: accountId), Optional($0.1)) }
         )
-
-        let cacheValue = [(normal, normalBalance)] + jettonsAccountInfos
-        try? cache(cacheValue, accountId: accountId)
 
         let normalKey = normal.uniqueKey(accountId: accountId)
         let normalMap: [ChainAssetKey: AccountInfo?] = [normalKey: normalBalance]
