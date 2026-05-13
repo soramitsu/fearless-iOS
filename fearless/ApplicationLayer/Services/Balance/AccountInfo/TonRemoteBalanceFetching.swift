@@ -124,7 +124,7 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         )
         let normalBalance = chainAccountInfos.normal
         let jettonBalances = chainAccountInfos.jettons
-        let requestedAssetIds = Set(chainAssets.suffix.map(\.asset.id))
+        let requestedAssetIds = Set(chainAssets.remainder.map(\.asset.id))
 
         let jettonsAccountInfos = createJettonsAccountInfos(
             jettonBalances: jettonBalances,
