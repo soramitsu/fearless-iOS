@@ -57,6 +57,11 @@ open class RequestConfig {
 }
 
 public final class NetworkWorkerDefault {
+    public enum NetworkWorkerError: Error {
+        case invalidResponse
+        case httpStatusCode(Int, Data)
+    }
+
     private let session: URLSession
     private let decoder: JSONDecoder
 
@@ -77,7 +82,15 @@ public final class NetworkWorkerDefault {
             try signer.sign(request: &request, config: config)
         }
 
-        let (data, _) = try await session.data(for: request)
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NetworkWorkerError.invalidResponse
+        }
+
+        guard (200 ... 299).contains(httpResponse.statusCode) else {
+            throw NetworkWorkerError.httpStatusCode(httpResponse.statusCode, data)
+        }
 
         if T.self == Data.self, let raw = data as? T {
             return raw

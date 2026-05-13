@@ -213,7 +213,7 @@ final class ChainSyncService {
 
         switch normalizedType {
         case "blockscout", "klaytn", "kaia":
-            object[key] = historyExplorerCompatibilityType
+            object[key] = fallbackType
         default:
             object[key] = fallbackType
         }
