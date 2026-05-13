@@ -94,8 +94,8 @@ rm -rf "$WORKSPACE_DIR/DerivedData"/*/SourcePackages || true
 mkdir -p "$SP_DIR"
 if [[ -f fearless.xcworkspace/contents.xcworkspacedata ]]; then
   # Enforce the known-good shared-features-spm revision before resolving
-  if [[ -x scripts/deps/enforce-ssf-pin.sh ]]; then
-    scripts/deps/enforce-ssf-pin.sh || true
+  if [[ -f scripts/deps/enforce-ssf-pin.sh ]]; then
+    bash scripts/deps/enforce-ssf-pin.sh || true
   fi
   if [[ -x scripts/deps/check-dependency-contracts.sh ]]; then
     scripts/deps/check-dependency-contracts.sh
@@ -136,9 +136,9 @@ else
 fi
 
 # 4) Apply repo-owned native crypto contracts
-if [[ -x "scripts/deps/prepare-native-crypto-checkout.sh" ]]; then
+if [[ -f "scripts/deps/prepare-native-crypto-checkout.sh" ]]; then
   echo "[bootstrap] Preparing native crypto checkout"
-  SOURCE_PACKAGES_DIR="$SP_DIR" STRICT_REQUIRED_PATCHES=1 scripts/deps/prepare-native-crypto-checkout.sh "$WORKSPACE_DIR" fearless.xcworkspace fearless
+  SOURCE_PACKAGES_DIR="$SP_DIR" STRICT_REQUIRED_PATCHES=1 bash scripts/deps/prepare-native-crypto-checkout.sh "$WORKSPACE_DIR" fearless.xcworkspace fearless
 fi
 
 # Apply required shared-features-spm compatibility fixes (manifest + Web3 API drift)
