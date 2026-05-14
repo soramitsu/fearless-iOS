@@ -560,13 +560,13 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func getTonApiClientFactory() throws -> TonAPIClientFactory {
-        let tonApiClientFactory = readLock.concurrentlyRead { () -> TonAPIClientFactory? in
+        let resolvedTonApiClientFactory = readLock.concurrentlyRead { () -> TonAPIClientFactory? in
             guard let selectedTonChain = chains.first(where: shouldUseTonChain) else {
                 return nil
             }
 
-            if tonApiChainId == selectedTonChain.chainId, let tonApiClientFactory {
-                return tonApiClientFactory
+            if tonApiChainId == selectedTonChain.chainId, let cachedTonApiClientFactory = self.tonApiClientFactory {
+                return cachedTonApiClientFactory
             }
 
             guard let node = Self.resolveTonNode(for: selectedTonChain) else {
@@ -577,11 +577,11 @@ extension ChainRegistry: ChainRegistryProtocol {
             return TonAPIClientFactory(tonAPIURL: node.url, token: currentTonApiKey)
         }
 
-        guard let tonApiClientFactory else {
+        guard let resolvedTonApiClientFactory else {
             throw ChainRegistryError.connectionUnavailable
         }
 
-        return tonApiClientFactory
+        return resolvedTonApiClientFactory
     }
 
     func chainsSubscribe(
