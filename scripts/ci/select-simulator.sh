@@ -63,10 +63,24 @@ pick_any_iphone_udid() {
 
 find_latest_ios_runtime() {
   xcrun simctl list runtimes available | awk '
+    function version_key(runtime_id,    version, parts, n, i, key) {
+      version = runtime_id
+      sub(/^.*SimRuntime\.iOS-/, "", version)
+      n = split(version, parts, /-/)
+      key = ""
+      for (i = 1; i <= 4; i++) {
+        key = key sprintf("%06d", (i <= n ? parts[i] + 0 : 0))
+      }
+      return key
+    }
     /iOS/ && /com\.apple\.CoreSimulator\.SimRuntime\.iOS-/ {
       if (match($0, /com\.apple\.CoreSimulator\.SimRuntime\.iOS-[A-Za-z0-9-]+/)) {
         id = substr($0, RSTART, RLENGTH)
-        if (id > best) best = id
+        key = version_key(id)
+        if (best == "" || key > best_key) {
+          best = id
+          best_key = key
+        }
       }
     }
     END {

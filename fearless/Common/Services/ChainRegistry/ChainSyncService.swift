@@ -165,7 +165,7 @@ final class ChainSyncService {
         normalizeBlockExplorerType(
             in: &externalApi,
             key: "history",
-            fallbackType: genericExplorerCompatibilityType
+            fallbackType: historyExplorerCompatibilityType
         )
         normalizeBlockExplorerType(
             in: &externalApi,
