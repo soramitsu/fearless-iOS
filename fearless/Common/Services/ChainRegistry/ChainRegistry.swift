@@ -589,9 +589,10 @@ extension ChainRegistry: ChainRegistryProtocol {
         runningInQueue: DispatchQueue,
         updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void
     ) {
+        let observerUpdateClosure = updateClosure
         let updateClosure: ([DataProviderChange<ChainModel>]) -> Void = { changes in
             runningInQueue.async {
-                updateClosure(changes)
+                observerUpdateClosure(changes)
             }
         }
 
