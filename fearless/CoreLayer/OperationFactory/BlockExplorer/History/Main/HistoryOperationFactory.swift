@@ -19,6 +19,10 @@ final class HistoryOperationFactoriesAssembly {
             return KaiaHistoryOperationFactory()
         }
 
+        if historyUrl.contains("oklink.com/api/") {
+            return OklinkHistoryOperationFactory()
+        }
+
         switch chain.externalApi?.history?.type {
         case .subquery:
             return SubqueryHistoryOperationFactory(txStorage: txStorage, chainRegistry: ChainRegistryFacade.sharedRegistry)

@@ -480,8 +480,8 @@ extension ChainRegistry: ChainRegistryProtocol {
             var availableIds = Set(runtimeVersionSubscriptions.keys)
             availableIds.formUnion(chains.filter { $0.isEthereum }.map(\.chainId))
 
-            if let tonApiChainId {
-                availableIds.insert(tonApiChainId)
+            if let tonChainId = chains.first(where: shouldUseTonChain)?.chainId {
+                availableIds.insert(tonChainId)
             }
 
             return availableIds
@@ -560,6 +560,23 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func getTonApiClientFactory() throws -> TonAPIClientFactory {
+        let tonApiClientFactory = readLock.concurrentlyRead { () -> TonAPIClientFactory? in
+            guard let selectedTonChain = chains.first(where: shouldUseTonChain) else {
+                return nil
+            }
+
+            if tonApiChainId == selectedTonChain.chainId, let tonApiClientFactory {
+                return tonApiClientFactory
+            }
+
+            guard let node = Self.resolveTonNode(for: selectedTonChain) else {
+                logger?.error("Missing TON node URL")
+                return nil
+            }
+
+            return TonAPIClientFactory(tonAPIURL: node.url, token: currentTonApiKey)
+        }
+
         guard let tonApiClientFactory else {
             throw ChainRegistryError.connectionUnavailable
         }
