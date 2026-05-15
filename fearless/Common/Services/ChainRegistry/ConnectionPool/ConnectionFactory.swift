@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 import SSFUtils
 
 typealias ChainConnection = JSONRPCEngine
@@ -168,7 +169,9 @@ private extension FailoverChainConnection {
     }
 
     func rotateConnection(ignoring ignoredURL: URL?) {
-        failedUrls.insert(ignoredURL)
+        if let ignoredURL {
+            failedUrls.insert(ignoredURL)
+        }
 
         guard let nextURL = nextAvailableURL(ignoring: ignoredURL) else {
             return
