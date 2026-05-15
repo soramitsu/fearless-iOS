@@ -173,8 +173,9 @@ class SendDataValidatingFactory: NSObject {
                     assetSymbol: asset.symbol
                 )
                 return nil
+            } catch let AppXcmMinAmountError.minAmountError(minAmount) {
+                return minAmount
             } catch {
-                // SSFXCM XcmError API may differ; fall back to static mapping
                 let minText = self.minAssetAmount(originCHainId: originCHain.chainId, destChainId: destChain.chainId)
                 return minText.isEmpty ? nil : minText
             }
@@ -232,6 +233,12 @@ class SendDataValidatingFactory: NSObject {
             return "0.05 KSM"
         case (.polkadot, .soraMain), (.soraMain, .polkadot):
             return "1.1 DOT"
+        case (.liberland, .soraMain), (.soraMain, .liberland):
+            return "1.0 LLD"
+        case (.soraMain, .acala):
+            return "1.0 ACA"
+        case (.acala, .soraMain):
+            return "56.0 ACA"
         default:
             return ""
         }
