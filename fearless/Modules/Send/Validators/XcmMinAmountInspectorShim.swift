@@ -35,8 +35,7 @@ public final class AppXcmMinAmountInspectorImpl: AppXcmMinAmountInspector {
                 fromChainModel: fromChainModel,
                 destChainModel: destChainModel
             ),
-            let minAmount = Decimal(string: rule.minAmount)
-                ?.toSubstrateAmount(precision: precision)
+            let minAmount = Decimal(string: rule.minAmount)?.toSubstrateAmount(precision: precision)
         else {
             return
         }
