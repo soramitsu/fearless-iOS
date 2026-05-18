@@ -91,7 +91,7 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
             }) else {
                 return nil
             }
-            return AccountInfo(ethBalance: jetton.quantity)
+            accountInfo = AccountInfo(ethBalance: jetton.quantity)
         case .none:
             accountInfo = nil
         }
