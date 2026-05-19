@@ -1,24 +1,27 @@
 import Foundation
 import RobinHood
 import CoreData
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
 
-extension CDContact: CoreDataCodable {
-    public func populate(
-        from decoder: Decoder,
-        using _: NSManagedObjectContext
-    ) throws {
-        let container = try decoder.container(keyedBy: Contact.CodingKeys.self)
+    extension SSFAssetManagmentStorage.CDContact: CoreDataCodable {
+        public func populate(
+            from decoder: Decoder,
+            using _: NSManagedObjectContext
+        ) throws {
+            let container = try decoder.container(keyedBy: Contact.CodingKeys.self)
 
-        name = try container.decode(String.self, forKey: .name)
-        address = try container.decode(String.self, forKey: .address)
-        chainId = try container.decode(String.self, forKey: .chainId)
+            name = try container.decode(String.self, forKey: .name)
+            address = try container.decode(String.self, forKey: .address)
+            chainId = try container.decode(String.self, forKey: .chainId)
+        }
+
+        public func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: Contact.CodingKeys.self)
+
+            try container.encode(name, forKey: .name)
+            try container.encode(address, forKey: .address)
+            try container.encode(chainId, forKey: .chainId)
+        }
     }
-
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: Contact.CodingKeys.self)
-
-        try container.encode(name, forKey: .name)
-        try container.encode(address, forKey: .address)
-        try container.encode(chainId, forKey: .chainId)
-    }
-}
+#endif

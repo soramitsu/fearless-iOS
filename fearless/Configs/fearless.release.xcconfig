@@ -6,3 +6,15 @@ APP_NAME = Fearless
 
 FEARLESS_GOOGLE_TOKEN = 
 FEARLESS_GOOGLE_URL_SCHEME = 
+
+// Harden Release builds for performance and safety
+SWIFT_COMPILATION_MODE = wholemodule
+SWIFT_OPTIMIZATION_LEVEL = -O
+ENABLE_TESTABILITY = NO
+ONLY_ACTIVE_ARCH = NO
+DEAD_CODE_STRIPPING = YES
+STRIP_INSTALLED_PRODUCT = YES
+STRIP_DEBUG_SYMBOLS_DURING_COPY = YES
+// Prefer size optimizations for extensions if needed by overriding at target level
+// SWIFT_OPTIMIZATION_LEVEL[sdk=iphoneos*] = -O
+// SWIFT_OPTIMIZATION_LEVEL[sdk=iphonesimulator*] = -O

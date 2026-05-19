@@ -58,10 +58,34 @@ enum BlockExplorerApiKeys {
     static var opMainnetApiKey: String = "{{ argument.opMainnetApiKey }}"
 }
 
+enum BlockExplorerApiKeysDebug {
+    static var etherscanApiKey: String = "{{ argument.etherscanApiKey }}"
+    static var polygonscanApiKey: String = "{{ argument.polygonscanApiKey }}"
+    static var bscscanApiKey: String = "{{ argument.bscscanApiKey }}"
+    static var oklinkApiKey: String = "{{ argument.oklinkApiKey }}"
+    static var opMainnetApiKey: String = "{{ argument.opMainnetApiKey }}"
+}
+
 enum ThirdPartyServicesApiKeys {
+    static var alchemyApiKey: String = "{{ argument.alchemyApiKey }}"
+}
+
+enum ThirdPartyServicesApiKeysDebug {
     static var alchemyApiKey: String = "{{ argument.alchemyApiKey }}"
 }
 
 enum DwellirNodeApiKey {
     static var dwellirApiKey: String = "{{ argument.dwellirApiKey }}"
+}
+
+enum CoinbaseCIKeys {
+    static var appId: String = "{{ argument.coinbaseAppId }}"
+}
+
+enum TonNodeApiKey {
+    static var tonApiKey: String = "{{ argument.tonApiKey }}"
+}
+
+enum TonNodeApiKeyDebug {
+    static var tonApiKey: String = "{{ argument.tonApiKeyDebug }}"
 }

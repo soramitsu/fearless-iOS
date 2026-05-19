@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import UniformTypeIdentifiers
 
 protocol DocumentPickerPresentable {
     func presentSelectFilePicker(
@@ -15,10 +16,8 @@ extension DocumentPickerPresentable {
         documentTypes: [DocumentType],
         delegate: UIDocumentPickerDelegate
     ) {
-        let controller = UIDocumentPickerViewController(
-            documentTypes: documentTypes.map(\.rawValue),
-            in: .import
-        )
+        let contentTypes = documentTypes.map { UTType(importedAs: $0.rawValue) }
+        let controller = UIDocumentPickerViewController(forOpeningContentTypes: contentTypes, asCopy: true)
         controller.delegate = delegate
         controller.allowsMultipleSelection = false
         controller.modalPresentationStyle = .formSheet

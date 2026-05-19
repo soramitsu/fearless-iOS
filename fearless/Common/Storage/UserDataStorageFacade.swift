@@ -119,3 +119,98 @@ class UserDataStorageFacade: StorageFacadeProtocol {
         )
     }
 }
+
+// MARK: - Repository Async Helpers
+
+import RobinHood
+
+private enum RepositoryAsyncContext {
+    static let queue: OperationQueue = {
+        let q = OperationQueue()
+        q.name = "io.fearless.repository.async"
+        q.qualityOfService = .userInitiated
+        q.maxConcurrentOperationCount = 2
+        return q
+    }()
+}
+
+extension AnyDataProviderRepository {
+    func fetchAllAsync(
+        options: RepositoryFetchOptions = RepositoryFetchOptions()
+    ) async throws -> [T] {
+        try await withCheckedThrowingContinuation { continuation in
+            let op = fetchAllOperation(with: options)
+            op.completionBlock = {
+                do {
+                    let result = try op.extractNoCancellableResultData()
+                    continuation.resume(returning: result)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+            RepositoryAsyncContext.queue.addOperation(op)
+        }
+    }
+
+    func fetchAsync(
+        by id: @escaping @autoclosure () -> String,
+        options: RepositoryFetchOptions = RepositoryFetchOptions()
+    ) async throws -> T? {
+        try await withCheckedThrowingContinuation { continuation in
+            let op = fetchOperation(by: { id() }, options: options)
+            op.completionBlock = {
+                do {
+                    let result = try op.extractNoCancellableResultData()
+                    continuation.resume(returning: result)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+            RepositoryAsyncContext.queue.addOperation(op)
+        }
+    }
+
+    func fetchAsync(
+        slice: RepositorySliceRequest,
+        options: RepositoryFetchOptions = RepositoryFetchOptions()
+    ) async throws -> [T] {
+        try await withCheckedThrowingContinuation { continuation in
+            let op = fetchOperation(by: slice, options: options)
+            op.completionBlock = {
+                do {
+                    let result = try op.extractNoCancellableResultData()
+                    continuation.resume(returning: result)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+            RepositoryAsyncContext.queue.addOperation(op)
+        }
+    }
+
+    func saveAsync(
+        insert: @escaping @autoclosure () -> [T],
+        deleteIds: @escaping @autoclosure () -> [String]
+    ) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            let insertBlock: () throws -> [T] = { insert() }
+            let deleteIdsBlock: () throws -> [String] = { deleteIds() }
+            let op = saveOperation(insertBlock, deleteIdsBlock)
+            op.completionBlock = {
+                if case let .failure(error) = op.result {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: ())
+                }
+            }
+            RepositoryAsyncContext.queue.addOperation(op)
+        }
+    }
+
+    func saveAsync(
+        insert: @escaping @autoclosure () -> [T],
+        delete: @escaping @autoclosure () -> [T]
+    ) async throws {
+        try await saveAsync(insert: insert(), deleteIds: delete().map(\.identifier))
+    }
+}

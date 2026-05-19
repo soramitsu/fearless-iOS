@@ -28,9 +28,13 @@ protocol MainTabBarWireframeProtocol: SheetAlertPresentable, AuthorizationAccess
 }
 
 protocol MainTabBarViewFactoryProtocol: AnyObject {
-    static func createView() -> MainTabBarViewProtocol?
+    static func createView(
+        presentingWindow: ApplicationStatusPresentable?,
+        dependencies: MainTabBarViewFactory.Dependencies
+    ) -> MainTabBarViewProtocol?
 
     static func reloadCrowdloanView(
-        on view: MainTabBarViewProtocol
+        on view: MainTabBarViewProtocol,
+        wallet: MetaAccountModel?
     ) -> UIViewController?
 }

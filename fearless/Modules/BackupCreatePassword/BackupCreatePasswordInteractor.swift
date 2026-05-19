@@ -63,11 +63,9 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             return
         }
 
-        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
+        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation {
             let accountItem = try importOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            self?.settings.save(value: accountItem)
-
             return accountItem
         }
 
@@ -90,13 +88,19 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
     private func handleCreateAccountOperation(result: Result<MetaAccountModel, Error>?) {
         switch result {
         case let .success(wallet):
-            settings.setup()
-            eventCenter.notify(with: SelectedAccountChanged(account: wallet))
-            switch flow {
-            case let .wallet(request):
-                saveBackupAccount(wallet: wallet, requestType: .mnemonic(request))
-            default:
-                break
+            settings.save(value: wallet, runningCompletionIn: .main) { result in
+                switch result {
+                case let .success(savedWallet):
+                    self.eventCenter.notify(with: SelectedAccountChanged(account: savedWallet))
+                    switch self.flow {
+                    case let .wallet(request):
+                        self.saveBackupAccount(wallet: savedWallet, requestType: .mnemonic(request))
+                    default:
+                        break
+                    }
+                case let .failure(error):
+                    self.output?.didReceive(error: error)
+                }
             }
 
         case let .failure(error):
@@ -128,7 +132,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         seeds: [ExportSeedData],
         password: String
     ) {
-        let substrateRestoreSeed = seeds.first(where: { $0.chain.chainBaseType == .substrate })
+        let substrateRestoreSeed = seeds.first(where: { !$0.chain.isEthereumBased })
         let ethereumRestoreSeed = seeds.first(where: { $0.chain.isEthereumBased })
 
         let substrateSeed = substrateRestoreSeed?.seed.toHex(includePrefix: true)
@@ -138,7 +142,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             ethSeed: ethSeed
         )
         let cryptoType = CryptoType(rawValue: wallet.substrateCryptoType)
-        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
+        let address42 = try? wallet.substratePublicKey.toAddress(using: ChainFormat.substrate(42))
 
         let account = OpenBackupAccount(
             name: wallet.name,
@@ -157,7 +161,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         jsons: [RestoreJson],
         password: String
     ) {
-        let substrateRestoreJson = jsons.first(where: { $0.chain.chainBaseType == .substrate })
+        let substrateRestoreJson = jsons.first(where: { !$0.chain.isEthereumBased })
         let ethereumRestoreJson = jsons.first(where: { $0.chain.isEthereumBased })
 
         let json = OpenBackupAccount.Json(
@@ -165,7 +169,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             ethJson: ethereumRestoreJson?.data
         )
         let cryptoType = CryptoType(rawValue: wallet.substrateCryptoType)
-        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
+        let address42 = try? wallet.substratePublicKey.toAddress(using: ChainFormat.substrate(42))
 
         let account = OpenBackupAccount(
             name: wallet.name,
@@ -182,7 +186,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         request: MetaAccountImportMnemonicRequest,
         password: String
     ) {
-        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
+        let address42 = try? wallet.substratePublicKey.toAddress(using: ChainFormat.substrate(42))
         let account = OpenBackupAccount(
             name: request.username,
             address: address42 ?? wallet.substratePublicKey.toHex(),
@@ -365,7 +369,7 @@ extension BackupCreatePasswordInteractor: BackupCreatePasswordInteractorInput {
             switch flow {
             case let .multiple(wallet, accounts):
                 let ethereum = accounts.first(where: { $0.chain.isEthereumBased })
-                guard let substrate = accounts.first(where: { $0.chain.chainBaseType == .substrate }) else {
+                guard let substrate = accounts.first(where: { !$0.chain.isEthereumBased }) else {
                     return
                 }
                 let accounts = [substrate, ethereum].compactMap { $0 }

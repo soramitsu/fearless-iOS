@@ -1,7 +1,9 @@
 import Foundation
 import SSFModels
 import Web3
-import FearlessKeys
+#if canImport(FearlessKeys)
+    import FearlessKeys
+#endif
 
 enum EthereumChain: String {
     case ethereumMainnet = "1"
@@ -31,42 +33,42 @@ enum EthereumChain: String {
     func apiKeyInjectedURL(baseURL: URL) -> URL {
         switch self {
         case .ethereumMainnet:
-            #if DEBUG
+            #if canImport(FearlessKeys) && DEBUG
                 let apiKey = EthereumNodesApiKeysDebug.ethereumApiKey
             #else
                 let apiKey = EthereumNodesApiKeys.ethereumApiKey
             #endif
             return baseURL.appendingPathComponent(apiKey)
         case .sepolia:
-            #if DEBUG
+            #if canImport(FearlessKeys) && DEBUG
                 let apiKey = EthereumNodesApiKeysDebug.sepoliaApiKey
             #else
                 let apiKey = EthereumNodesApiKeys.sepoliaApiKey
             #endif
             return baseURL.appendingPathComponent(apiKey)
         case .goerli:
-            #if DEBUG
+            #if canImport(FearlessKeys) && DEBUG
                 let apiKey = EthereumNodesApiKeysDebug.goerliApiKey
             #else
                 let apiKey = EthereumNodesApiKeys.goerliApiKey
             #endif
             return baseURL.appendingPathComponent(apiKey)
         case .bscMainnet:
-            #if DEBUG
+            #if canImport(FearlessKeys) && DEBUG
                 let apiKey = EthereumNodesApiKeysDebug.bscApiKey
             #else
                 let apiKey = EthereumNodesApiKeys.bscApiKey
             #endif
             return baseURL.appendingPathComponent(apiKey)
         case .bscTestnet:
-            #if DEBUG
+            #if canImport(FearlessKeys) && DEBUG
                 let apiKey = EthereumNodesApiKeysDebug.bscApiKey
             #else
                 let apiKey = EthereumNodesApiKeys.bscApiKey
             #endif
             return baseURL.appendingPathComponent(apiKey)
         case .polygon:
-            #if DEBUG
+            #if canImport(FearlessKeys) && DEBUG
                 let apiKey = EthereumNodesApiKeysDebug.polygonApiKey
             #else
                 let apiKey = EthereumNodesApiKeys.polygonApiKey

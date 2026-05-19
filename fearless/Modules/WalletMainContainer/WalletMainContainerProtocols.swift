@@ -64,7 +64,7 @@ protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable
         wallet: MetaAccountModel
     )
 
-    func showMainStaking()
+    func showMainStaking(from view: WalletMainContainerViewInput?)
 }
 
 protocol WalletMainContainerModuleInput: AnyObject {}

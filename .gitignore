@@ -56,6 +56,16 @@ Tests/Mocks/CommonMocks.swift
 Tests/Mocks/ModuleMocks.swift
 #
 # Generamba
-Templates/
+/Templates/
 # Misc
 **/.DS_Store
+
+# Swift Package Manager
+SourcePackages/
+.swiftpm/
+.build/
+
+# Ignore project-level SPM resolved file; use workspace-level only
+fearless.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+# Private pod/env helper
+.env.private

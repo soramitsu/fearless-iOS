@@ -1,44 +1,76 @@
 import UIKit
 import SoraFoundation
 import SoraKeystore
-
+import RobinHood
 import SSFUtils
 
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
+    struct Dependencies {
+        var walletSettings: SelectedWalletSettings
+        var localizationManager: LocalizationManagerProtocol
+        var walletConnectService: WalletConnectService
+        var reachability: ReachabilityManager?
+        var eventCenter: EventCenterProtocol
+        var operationManager: OperationManagerProtocol
+        var serviceCoordinatorBuilder: (MetaAccountModel, WalletConnectService) -> ServiceCoordinatorProtocol
+        var keystoreImportServiceProvider: () -> KeystoreImportServiceProtocol?
+        var applicationHandlerBuilder: () -> ApplicationHandler
+
+        static var live: Dependencies {
+            Dependencies(
+                walletSettings: SelectedWalletSettings.shared,
+                localizationManager: LocalizationManager.shared,
+                walletConnectService: WalletConnectServiceImpl.shared,
+                reachability: ReachabilityManager.shared,
+                eventCenter: EventCenter.shared,
+                operationManager: OperationManagerFacade.sharedManager,
+                serviceCoordinatorBuilder: { metaAccount, walletConnect in
+                    ServiceCoordinator.createDefault(with: metaAccount, walletConnect: walletConnect)
+                },
+                keystoreImportServiceProvider: {
+                    URLHandlingService.shared.findService()
+                },
+                applicationHandlerBuilder: {
+                    ApplicationHandler()
+                }
+            )
+        }
+    }
+
     static let walletIndex: Int = 0
     static let crowdloanIndex: Int = 1
     static let stakingIndex: Int = 3
 
-    static func createView() -> MainTabBarViewProtocol? {
+    static func createView(
+        presentingWindow: ApplicationStatusPresentable? = nil,
+        dependencies: Dependencies = .live
+    ) -> MainTabBarViewProtocol? {
+        let presentableWindow = presentingWindow ?? SceneWindowFinder.statusPresentableWindow()
         guard
-            let window = UIApplication.shared.keyWindow as? ApplicationStatusPresentable,
-            let wallet = SelectedWalletSettings.shared.value,
-            let keystoreImportService: KeystoreImportServiceProtocol = URLHandlingService.shared
-            .findService()
+            let window = presentableWindow,
+            let wallet = dependencies.walletSettings.value,
+            let keystoreImportService: KeystoreImportServiceProtocol = dependencies.keystoreImportServiceProvider()
         else {
             Logger.shared.error("Can't find required keystore import service")
             return nil
         }
 
-        let localizationManager = LocalizationManager.shared
+        let localizationManager = dependencies.localizationManager
 
-        let walletConnect = WalletConnectServiceImpl.shared
-        let serviceCoordinator = ServiceCoordinator.createDefault(
-            with: wallet,
-            walletConnect: walletConnect
-        )
+        let walletConnect = dependencies.walletConnectService
+        let serviceCoordinator = dependencies.serviceCoordinatorBuilder(wallet, walletConnect)
 
         let wireframe = MainTabBarWireframe()
 
         let appVersionObserver = AppVersionObserver(
-            operationManager: OperationManagerFacade.sharedManager,
+            operationManager: dependencies.operationManager,
             currentAppVersion: AppVersion.stringValue,
             wireframe: wireframe,
             locale: localizationManager.selectedLocale
         )
 
         let interactor = MainTabBarInteractor(
-            eventCenter: EventCenter.shared,
+            eventCenter: dependencies.eventCenter,
             serviceCoordinator: serviceCoordinator,
             keystoreImportService: keystoreImportService
         )
@@ -52,9 +84,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             wireframe: wireframe,
             interactor: interactor,
             appVersionObserver: appVersionObserver,
-            applicationHandler: ApplicationHandler(),
+            applicationHandler: dependencies.applicationHandlerBuilder(),
             networkStatusPresenter: networkStatusPresenter,
-            reachability: ReachabilityManager.shared,
+            reachability: dependencies.reachability,
             walletConnectCoordinator: WalletConnectCoordinator(),
             localizationManager: localizationManager
         )
@@ -75,10 +107,10 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         wallet: MetaAccountModel
     ) -> [UIViewController] {
         var viewControllers: [UIViewController?] = []
-        let walletController = createWalletController(walletConnect: walletConnect)
+        let walletController = createWalletController(walletConnect: walletConnect, wallet: wallet)
         viewControllers.append(walletController)
 
-        let crowdloanController = createCrowdloanController()
+        let crowdloanController = createCrowdloanController(wallet: wallet)
         viewControllers.append(crowdloanController)
 
         let polkaswapControoller = createPolkaswapController(wallet: wallet)
@@ -93,8 +125,8 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return viewControllers.compactMap { $0 }
     }
 
-    static func reloadCrowdloanView(on view: MainTabBarViewProtocol) -> UIViewController? {
-        guard let crowdloanController = createCrowdloanController() else {
+    static func reloadCrowdloanView(on view: MainTabBarViewProtocol, wallet: MetaAccountModel? = SelectedWalletSettings.shared.value) -> UIViewController? {
+        guard let crowdloanController = createCrowdloanController(wallet: wallet) else {
             return nil
         }
 
@@ -124,11 +156,11 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     }
 
     static func createWalletController(
-        walletConnect: WalletConnectService
+        walletConnect: WalletConnectService,
+        wallet: MetaAccountModel
     ) -> UIViewController? {
-        guard let wallet = SelectedWalletSettings.shared.value,
-              let viewController = WalletMainContainerAssembly
-              .configureModule(wallet: wallet, walletConnect: walletConnect)?.view.controller
+        guard let viewController = WalletMainContainerAssembly
+            .configureModule(wallet: wallet, walletConnect: walletConnect)?.view.controller
         else {
             return nil
         }
@@ -208,11 +240,11 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return navigationController
     }
 
-    static func createCrowdloanController() -> UIViewController? {
+    static func createCrowdloanController(wallet: MetaAccountModel? = SelectedWalletSettings.shared.value) -> UIViewController? {
         let crowdloanState = CrowdloanSharedState()
         crowdloanState.settings.setup()
 
-        guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
+        guard let selectedMetaAccount = wallet,
               let crowloanView = CrowdloanListViewFactory.createView(
                   with: crowdloanState,
                   selectedMetaAccount: selectedMetaAccount

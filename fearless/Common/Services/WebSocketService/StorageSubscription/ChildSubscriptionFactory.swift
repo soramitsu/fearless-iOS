@@ -1,5 +1,8 @@
 import Foundation
 import RobinHood
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 protocol ChildSubscriptionFactoryProtocol {
     func createEmptyHandlingSubscription(keys: SubscriptionStorageKeys) -> StorageChildSubscribing
@@ -12,7 +15,7 @@ final class ChildSubscriptionFactory {
     let logger: LoggerProtocol
 
     private lazy var repository: AnyDataProviderRepository<ChainStorageItem> = {
-        let coreDataRepository: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
+        let coreDataRepository: CoreDataRepository<ChainStorageItem, SSFAssetManagmentStorage.CDChainStorageItem> =
             storageFacade.createRepository()
 
         return AnyDataProviderRepository(coreDataRepository)

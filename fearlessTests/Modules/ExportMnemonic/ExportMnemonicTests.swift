@@ -4,29 +4,30 @@ import SoraKeystore
 import SoraFoundation
 import RobinHood
 import Cuckoo
+import IrohaCrypto
 
 class ExportMnemonicTests: XCTestCase {
     func testSubstrateExport() throws {
         // given
 
         let keychain = InMemoryKeychain()
-        let settings = SelectedWalletSettings.shared
 
         let storageFacade = UserDataStorageTestFacade()
         let repository = AccountRepositoryFactory.createRepository(for: storageFacade)
 
         let derivationPath = "//some//work"
-
-        try AccountCreationHelper.createMetaAccountFromMnemonic(cryptoType: .sr25519,
-                                                                substrateDerivationPath: derivationPath,
-                                                                keychain: keychain,
-                                                                settings: settings)
-
-        let givenAccount = settings.value!
-
-        let saveOperation = repository.saveOperation({ [givenAccount] }, { [] })
-
-        OperationQueue().addOperation(saveOperation)
+        let request = MetaAccountImportMnemonicRequest(
+            mnemonic: try IRMnemonicCreator().randomMnemonic(.entropy128),
+            username: "fearless",
+            substrateDerivationPath: derivationPath,
+            ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
+            cryptoType: .sr25519,
+            defaultChainId: nil
+        )
+        let createOperation = MetaAccountOperationFactory(keystore: keychain)
+            .newMetaAccountOperation(request: request, isBackuped: true)
+        OperationQueue().addOperations([createOperation], waitUntilFinished: true)
+        let givenAccount = try createOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
         // when
 
@@ -35,30 +36,45 @@ class ExportMnemonicTests: XCTestCase {
         let setupExpectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub).set(viewModel: any()).then { _ in
+            when(stub.controller.get).thenReturn(UIViewController())
+
+            when(stub.set(viewModel: any(MultipleExportGenericViewModelProtocol.self))).then { _ in
                 setupExpectation.fulfill()
             }
         }
 
         let wireframe = MockExportMnemonicWireframeProtocol()
 
-        let sharingExpectation = XCTestExpectation()
+        let confirmationExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).present(viewModel: any(), from: any()).then { viewModel in
+            when(stub.present(viewModel: any(SheetAlertPresentableViewModel.self), from: any(ControllerBackedProtocol?.self))).then { viewModel in
                 viewModel.0.actions.first?.handler?()
             }
 
-            when(stub).share(source: any(), from: any(), with: any()).then { _ in
-                sharingExpectation.fulfill()
+            when(stub.openConfirmationForMnemonic(any(IRMnemonicProtocol.self), wallet: any(fearless.MetaAccountModel.self), from: any(ExportGenericViewProtocol?.self))).then { _ in
+                confirmationExpectation.fulfill()
             }
         }
         
-        let chain = ChainModelGenerator.generateChain(generatingAssets: 1,
-                                                      addressPrefix: UInt16(SNAddressType.genericSubstrate.rawValue))
+        let chain = ChainModelGenerator.generateChain(
+            generatingAssets: 1,
+            addressPrefix: UInt16(fearless.SNAddressType.genericSubstrate.rawValue)
+        )
+        let accountResponse = fearless.ChainAccountResponse(
+            chainId: chain.chainId,
+            accountId: givenAccount.substrateAccountId,
+            publicKey: givenAccount.substratePublicKey,
+            name: givenAccount.name,
+            cryptoType: CryptoType(rawValue: givenAccount.substrateCryptoType) ?? .sr25519,
+            addressPrefix: chain.addressPrefix,
+            isEthereumBased: false,
+            isChainAccount: false,
+            walletId: givenAccount.metaId
+        )
 
-        let presenter = ExportMnemonicPresenter(flow: .single(chain: chain,
-                                                              address: AddressTestConstants.polkadotAddress, wallet: givenAccount),
+        let presenter = ExportMnemonicPresenter(flow: .multiple(wallet: givenAccount,
+                                                                accounts: [ChainAccountInfo(chain: chain, account: accountResponse)]),
                                                 localizationManager: LocalizationManager.shared)
 
         let interactor = ExportMnemonicInteractor(keystore: keychain,
@@ -83,7 +99,7 @@ class ExportMnemonicTests: XCTestCase {
 
         // then
 
-        wait(for: [sharingExpectation], timeout: Constants.defaultExpectationDuration)
+        wait(for: [confirmationExpectation], timeout: Constants.defaultExpectationDuration)
         
         guard let mnemonic = presenter.exportDatas?.first?.mnemonic,
               let substrateDerivationPath = presenter.exportDatas?.first?.derivationPath,
@@ -91,40 +107,46 @@ class ExportMnemonicTests: XCTestCase {
                   XCTFail()
                   return
               }
-        let importRequest = MetaAccountImportMnemonicRequest(mnemonic: mnemonic,
-                                                             username: "testUsername",
-                                                             substrateDerivationPath: substrateDerivationPath,
-                                                             ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
-                                                             cryptoType: cryptoType)
+        let importRequest = MetaAccountImportMnemonicRequest(
+            mnemonic: mnemonic,
+            username: "testUsername",
+            substrateDerivationPath: substrateDerivationPath,
+            ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
+            cryptoType: cryptoType,
+            defaultChainId: nil
+        )
         let operationFactory = MetaAccountOperationFactory(keystore: keychain)
-        let importedAccount = try operationFactory.newMetaAccountOperation(request: importRequest).extractResultData()
+        let importOperation = operationFactory.newMetaAccountOperation(request: importRequest, isBackuped: true)
+        OperationQueue().addOperations([importOperation], waitUntilFinished: true)
+        let importedAccount: MetaAccountModel = try importOperation
+            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-        XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount?.substrateCryptoType)
-        XCTAssertEqual(givenAccount.substrateAccountId, importedAccount?.substrateAccountId)
-        XCTAssertEqual(givenAccount.substratePublicKey, importedAccount?.substratePublicKey)
+        XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount.substrateCryptoType)
+        XCTAssertEqual(givenAccount.substrateAccountId, importedAccount.substrateAccountId)
+        XCTAssertEqual(givenAccount.substratePublicKey, importedAccount.substratePublicKey)
     }
     
     func testEthereumExport() throws {
         // given
 
         let keychain = InMemoryKeychain()
-        let settings = SelectedWalletSettings.shared
 
         let storageFacade = UserDataStorageTestFacade()
         let repository = AccountRepositoryFactory.createRepository(for: storageFacade)
 
         let derivationPath = DerivationPathConstants.testEthereum
-        
-        try AccountCreationHelper.createMetaAccountFromMnemonic(cryptoType: .sr25519,
-                                                                ethereumDerivationPath: derivationPath,
-                                                                keychain: keychain,
-                                                                settings: settings)
-        
-        let givenAccount = settings.value!
-
-        let saveOperation = repository.saveOperation({ [givenAccount] }, { [] })
-
-        OperationQueue().addOperation(saveOperation)
+        let request = MetaAccountImportMnemonicRequest(
+            mnemonic: try IRMnemonicCreator().randomMnemonic(.entropy128),
+            username: "fearless",
+            substrateDerivationPath: "",
+            ethereumDerivationPath: derivationPath,
+            cryptoType: .sr25519,
+            defaultChainId: nil
+        )
+        let createOperation = MetaAccountOperationFactory(keystore: keychain)
+            .newMetaAccountOperation(request: request, isBackuped: true)
+        OperationQueue().addOperations([createOperation], waitUntilFinished: true)
+        let givenAccount = try createOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
         // when
 
@@ -133,31 +155,44 @@ class ExportMnemonicTests: XCTestCase {
         let setupExpectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub).set(viewModel: any()).then { _ in
+            when(stub.controller.get).thenReturn(UIViewController())
+
+            when(stub.set(viewModel: any(MultipleExportGenericViewModelProtocol.self))).then { _ in
                 setupExpectation.fulfill()
             }
         }
 
         let wireframe = MockExportMnemonicWireframeProtocol()
 
-        let sharingExpectation = XCTestExpectation()
+        let confirmationExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).present(viewModel: any(), from: any()).then { param in
+            when(stub.present(viewModel: any(SheetAlertPresentableViewModel.self), from: any(ControllerBackedProtocol?.self))).then { param in
                 param.0.actions.first?.handler?()
             }
 
-            when(stub).share(source: any(), from: any(), with: any()).then { _ in
-                sharingExpectation.fulfill()
+            when(stub.openConfirmationForMnemonic(any(IRMnemonicProtocol.self), wallet: any(fearless.MetaAccountModel.self), from: any(ExportGenericViewProtocol?.self))).then { _ in
+                confirmationExpectation.fulfill()
             }
         }
         
-//  Replace to ethereum chain
-        let chain = ChainModelGenerator.generateChain(generatingAssets: 1,
-                                                      addressPrefix: 0)
+        let chain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 0)
+        let ethereumPublicKey = try XCTUnwrap(givenAccount.ethereumPublicKey)
+        let ethereumAddress = try XCTUnwrap(givenAccount.ethereumAddress)
+        let accountResponse = fearless.ChainAccountResponse(
+            chainId: chain.chainId,
+            accountId: ethereumAddress,
+            publicKey: ethereumPublicKey,
+            name: givenAccount.name,
+            cryptoType: .ecdsa,
+            addressPrefix: chain.addressPrefix,
+            isEthereumBased: true,
+            isChainAccount: false,
+            walletId: givenAccount.metaId
+        )
 
-        let presenter = ExportMnemonicPresenter(flow: .single(chain: chain, address: AddressTestConstants.ethereumAddres,
-                                                              wallet: givenAccount),
+        let presenter = ExportMnemonicPresenter(flow: .multiple(wallet: givenAccount,
+                                                                accounts: [ChainAccountInfo(chain: chain, account: accountResponse)]),
                                                 localizationManager: LocalizationManager.shared)
 
         let interactor = ExportMnemonicInteractor(keystore: keychain,
@@ -182,24 +217,28 @@ class ExportMnemonicTests: XCTestCase {
 
         // then
 
-        wait(for: [sharingExpectation], timeout: Constants.defaultExpectationDuration)
+        wait(for: [confirmationExpectation], timeout: Constants.defaultExpectationDuration)
         
-        guard let mnemonic = presenter.exportDatas?.first?.mnemonic,
-              let substrateDerivationPath = presenter.exportDatas?.first?.derivationPath,
-              let cryptoType = presenter.exportDatas?.first?.cryptoType else {
+        guard let mnemonic = presenter.exportDatas?.first?.mnemonic else {
                   XCTFail()
                   return
               }
-        let importRequest = MetaAccountImportMnemonicRequest(mnemonic: mnemonic,
-                                                             username: "testUsername",
-                                                             substrateDerivationPath: substrateDerivationPath,
-                                                             ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
-                                                             cryptoType: cryptoType)
+        let importRequest = MetaAccountImportMnemonicRequest(
+            mnemonic: mnemonic,
+            username: "testUsername",
+            substrateDerivationPath: "",
+            ethereumDerivationPath: presenter.exportDatas?.first?.derivationPath ?? DerivationPathConstants.defaultEthereum,
+            cryptoType: .sr25519,
+            defaultChainId: nil
+        )
         let operationFactory = MetaAccountOperationFactory(keystore: keychain)
-        let importedAccount = try operationFactory.newMetaAccountOperation(request: importRequest).extractResultData()
+        let importOperation = operationFactory.newMetaAccountOperation(request: importRequest, isBackuped: true)
+        OperationQueue().addOperations([importOperation], waitUntilFinished: true)
+        let importedAccount: MetaAccountModel = try importOperation
+            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-        XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount?.substrateCryptoType)
-        XCTAssertEqual(givenAccount.substrateAccountId, importedAccount?.substrateAccountId)
-        XCTAssertEqual(givenAccount.substratePublicKey, importedAccount?.substratePublicKey)
+        XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount.substrateCryptoType)
+        XCTAssertEqual(givenAccount.substrateAccountId, importedAccount.substrateAccountId)
+        XCTAssertEqual(givenAccount.substratePublicKey, importedAccount.substratePublicKey)
     }
 }

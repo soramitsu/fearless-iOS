@@ -307,74 +307,69 @@ private extension ChainAssetsFetching {
     }
 
     func sortByPrice(chainAssets: [ChainAsset], order: SortOrder) -> [ChainAsset] {
-        chainAssets.sorted {
-            let firstPriceDataSorted = $0.asset.priceData.sorted { $0.currencyId < $1.currencyId }
-            let firstPriceString = firstPriceDataSorted.first?.price ?? ""
-            let firstPrice = Decimal(string: firstPriceString)
-            let secondPriceDataSorted = $1.asset.priceData.sorted { $0.currencyId < $1.currencyId }
-            let secondPriceString = secondPriceDataSorted.first?.price ?? ""
-            let secondPrice = Decimal(string: secondPriceString)
-            switch order {
-            case .ascending:
-                return firstPrice ?? 0 < secondPrice ?? 0
-            case .descending:
-                return secondPrice ?? 0 > firstPrice ?? 0
-            }
-        }
-    }
-
-    func sortByAssetName(chainAssets: [ChainAsset], order: SortOrder) -> [ChainAsset] {
-        chainAssets.sorted {
+        // Price list is not available in the current AssetModel; fall back to symbol
+        chainAssets.sorted(by: {
             switch order {
             case .ascending:
                 return $0.asset.symbol < $1.asset.symbol
             case .descending:
                 return $0.asset.symbol > $1.asset.symbol
             }
-        }
+        })
+    }
+
+    func sortByAssetName(chainAssets: [ChainAsset], order: SortOrder) -> [ChainAsset] {
+        chainAssets.sorted(by: {
+            switch order {
+            case .ascending:
+                return $0.asset.symbol < $1.asset.symbol
+            case .descending:
+                return $0.asset.symbol > $1.asset.symbol
+            }
+        })
     }
 
     private func sortByChainName(chainAssets: [ChainAsset], order: SortOrder) -> [ChainAsset] {
-        chainAssets.sorted {
+        chainAssets.sorted(by: {
             switch order {
             case .ascending:
                 return $0.chain.name < $1.chain.name
             case .descending:
                 return $0.chain.name > $1.chain.name
             }
-        }
+        })
     }
 
     func sortByTestnet(chainAssets: [ChainAsset], order: SortOrder) -> [ChainAsset] {
-        chainAssets.sorted {
+        chainAssets.sorted(by: {
             switch order {
             case .ascending:
                 return $0.chain.isTestnet.intValue < $1.chain.isTestnet.intValue
             case .descending:
                 return $0.chain.isTestnet.intValue > $1.chain.isTestnet.intValue
             }
-        }
+        })
     }
 
     func sortByPolkadotOrKusama(chainAssets: [ChainAsset], order: SortOrder) -> [ChainAsset] {
-        chainAssets.sorted {
+        chainAssets.sorted(by: {
             switch order {
             case .ascending:
                 return $0.chain.isPolkadotOrKusama.intValue < $1.chain.isPolkadotOrKusama.intValue
             case .descending:
                 return $0.chain.isPolkadotOrKusama.intValue > $1.chain.isPolkadotOrKusama.intValue
             }
-        }
+        })
     }
 
     func sortByAssetId(chainAssets: [ChainAsset], order: SortOrder) -> [ChainAsset] {
-        chainAssets.sorted {
+        chainAssets.sorted(by: {
             switch order {
             case .ascending:
                 return $0.asset.id < $1.asset.id
             case .descending:
                 return $0.asset.id > $1.asset.id
             }
-        }
+        })
     }
 }

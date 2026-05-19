@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 final class WalletSelectAccountCommand: WalletCommandProtocol {
     weak var commandFactory: WalletCommandFactoryProtocol?
@@ -8,18 +9,13 @@ final class WalletSelectAccountCommand: WalletCommandProtocol {
     }
 
     func execute() throws {
-        guard let accountManagementView = AccountManagementViewFactory.createViewForSwitch() else {
-            return
-        }
-
-        guard let command = commandFactory?
-            .preparePresentationCommand(for: accountManagementView.controller)
+        guard
+            let accountManagementView = AccountManagementViewFactory.createViewForSwitch(),
+            let command = commandFactory?.preparePresentationCommand(for: accountManagementView.controller)
         else {
             return
         }
-
-        command.presentationStyle = .push(hidesBottomBar: true)
-
+        command.presentationStyle = WalletPresentationStyle.push(hidesBottomBar: true)
         try? command.execute()
     }
 }

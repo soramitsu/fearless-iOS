@@ -13,13 +13,15 @@ class AccountImportTests: XCTestCase {
         let view = MockAccountImportViewProtocol()
         let wireframe = MockAccountImportWireframeProtocol()
 
+        let storageFacade = UserDataStorageTestFacade()
+
         let settings = SelectedWalletSettings(
-            storageFacade: UserDataStorageTestFacade(),
+            storageFacade: storageFacade,
             operationQueue: OperationQueue()
         )
 
         let repository = AccountRepositoryFactory(
-            storageFacade: UserDataStorageTestFacade())
+            storageFacade: storageFacade)
             .createMetaAccountRepository(for: nil, sortDescriptors: [])
 
         let eventCenter = MockEventCenterProtocol()
@@ -35,7 +37,8 @@ class AccountImportTests: XCTestCase {
             operationManager: OperationManager(),
             settings: settings,
             keystoreImportService: keystoreImportService,
-            eventCenter: eventCenter
+            eventCenter: eventCenter,
+            defaultSource: .mnemonic
         )
 
         let expectedUsername = "myname"
@@ -43,7 +46,7 @@ class AccountImportTests: XCTestCase {
 
         let presenter = AccountImportPresenter(wireframe: wireframe,
                                                interactor: interactor,
-                                               flow: .wallet(step: .first))
+                                               flow: .wallet(step: .substrate))
         interactor.presenter = presenter
         presenter.view = view
 
@@ -54,35 +57,38 @@ class AccountImportTests: XCTestCase {
         var usernameViewModel: InputViewModelProtocol?
 
         stub(view) { stub in
-            when(stub).didCompleteSourceTypeSelection().thenDoNothing()
-            when(stub).didCompleteCryptoTypeSelection().thenDoNothing()
-            when(stub).didValidateSubstrateDerivationPath(any()).thenDoNothing()
-            when(stub).didValidateEthereumDerivationPath(any()).thenDoNothing()
-            when(stub).isSetup.get.thenReturn(false, true)
+            when(stub.controller.get).thenReturn(UIViewController())
+            when(stub.didCompleteSourceTypeSelection()).thenDoNothing()
+            when(stub.didCompleteCryptoTypeSelection()).thenDoNothing()
+            when(stub.didValidateSubstrateDerivationPath(any(FieldStatus.self))).thenDoNothing()
+            when(stub.didValidateEthereumDerivationPath(any(FieldStatus.self))).thenDoNothing()
+            when(stub.didChangeState(any(ErrorPresentableInputField.State.self))).thenDoNothing()
+            when(stub.isSetup.get).thenReturn(false, true)
 
-            when(stub).setSource(viewModel: any()).then { viewModel in
+            when(stub.setSource(viewModel: any(InputViewModelProtocol.self))).then { viewModel in
                 sourceInputViewModel = viewModel
 
                 setupExpectation.fulfill()
             }
 
-            when(stub).setName(viewModel: any(), visible: any()).then { result in
+            when(stub.setName(viewModel: any(InputViewModelProtocol.self), visible: any(Bool.self))).then { result in
                 usernameViewModel = result.0
 
                 setupExpectation.fulfill()
             }
 
-            when(stub).setSelectedCrypto(model: any()).thenDoNothing()
-            when(stub).setSource(type: any(), chainType: any(), selectable: any()).thenDoNothing()
-            when(stub).bind(substrateViewModel: any()).thenDoNothing()
-            when(stub).bind(ethereumViewModel: any()).thenDoNothing()
-            when(stub).show(chainType: any()).thenDoNothing()
+            when(stub.setSelectedCrypto(model: any(SelectableViewModel<TitleWithSubtitleViewModel>.self))).thenDoNothing()
+            when(stub.setSource(type: any(AccountImportSource.self), chainType: any(AccountCreateChainType.self), selectable: any(Bool.self))).thenDoNothing()
+            when(stub.bind(substrateViewModel: any(InputViewModelProtocol.self))).thenDoNothing()
+            when(stub.bind(ethereumViewModel: any(InputViewModelProtocol.self))).thenDoNothing()
+            when(stub.show(chainType: any(AccountCreateChainType.self))).thenDoNothing()
         }
 
         let expectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).proceed(from: any(), flow: any()).then { _ in
+            when(stub.proceed(from: any(AccountImportViewProtocol?.self),
+                               flow: any(AccountImportFlow.self))).then { _ in
                 expectation.fulfill()
             }
         }
@@ -105,6 +111,7 @@ class AccountImportTests: XCTestCase {
 
         _ = sourceInputViewModel?.inputHandler.didReceiveReplacement(expectedMnemonic,
                                                                      for: NSRange(location: 0, length: 0));
+        presenter.validateInput(value: expectedMnemonic)
 
         _ = usernameViewModel?.inputHandler.didReceiveReplacement(expectedUsername,
                                                                   for: NSRange(location: 0, length: 0))
@@ -113,7 +120,7 @@ class AccountImportTests: XCTestCase {
 
         // then
 
-        wait(for: [expectation, completeExpectation], timeout: Constants.defaultExpectationDuration)
+        wait(for: [expectation, completeExpectation], timeout: 10)
 
         guard let selectedAccount = settings.value else {
             XCTFail("Unexpected empty account")

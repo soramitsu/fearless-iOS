@@ -1,7 +1,12 @@
 import Foundation
 import RobinHood
 import SSFSingleValueCache
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 protocol SubstrateRepositoryFactoryProtocol {
     func createChainStorageItemRepository() -> AnyDataProviderRepository<ChainStorageItem>
@@ -17,7 +22,7 @@ final class SubstrateRepositoryFactory: SubstrateRepositoryFactoryProtocol {
     }
 
     func createChainStorageItemRepository() -> AnyDataProviderRepository<ChainStorageItem> {
-        let repository: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
+        let repository: CoreDataRepository<ChainStorageItem, SSFAssetManagmentStorage.CDChainStorageItem> =
             storageFacade.createRepository()
 
         return AnyDataProviderRepository(repository)

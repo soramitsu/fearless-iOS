@@ -1,6 +1,9 @@
 import Foundation
 import RobinHood
 import SSFModels
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 protocol PriceLocalStorageSubscriber where Self: AnyObject {
     func subscribeToPrice(for chainAsset: ChainAsset, listener: PriceLocalSubscriptionHandler) -> AnySingleValueProvider<[PriceData]>
@@ -146,7 +149,8 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         }
 
         let options = DataProviderObserverOptions(
-            notifyIfNoDiff: true
+            alwaysNotifyOnRefresh: true,
+            waitsInProgressSyncOnAdd: false
         )
 
         priceProvider.addObserver(

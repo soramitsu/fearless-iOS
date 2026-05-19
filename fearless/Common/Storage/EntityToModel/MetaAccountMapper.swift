@@ -1,8 +1,10 @@
 import Foundation
 import RobinHood
 import CoreData
-import SSFAccountManagmentStorage
 import SSFModels
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 final class MetaAccountMapper {
     var entityIdentifierFieldName: String { #keyPath(CDMetaAccount.metaId) }
@@ -13,22 +15,29 @@ final class MetaAccountMapper {
 
 extension MetaAccountMapper: CoreDataMapperProtocol {
     func transform(entity: CoreDataEntity) throws -> DataProviderModel {
-        let chainAccounts: [ChainAccountModel] = try entity.chainAccounts?.compactMap { entity in
-            guard let chainAccontEntity = entity as? CDChainAccount else {
-                return nil
+        let chainAccountEntities = entity.chainAccounts?.allObjects as? [CDChainAccount] ?? []
+        var chainAccounts: [ChainAccountModel] = []
+        for chainAccountEntity in chainAccountEntities {
+            guard
+                let accountIdHex = chainAccountEntity.accountId,
+                let chainId = chainAccountEntity.chainId,
+                let publicKey = chainAccountEntity.publicKey
+            else {
+                continue
             }
 
-            let ethereumBased = chainAccontEntity.ethereumBased
+            let accountId = try Data(hexStringSSF: accountIdHex)
 
-            let accountId = try Data(hexStringSSF: chainAccontEntity.accountId!)
-            return ChainAccountModel(
-                chainId: chainAccontEntity.chainId!,
-                accountId: accountId,
-                publicKey: chainAccontEntity.publicKey!,
-                cryptoType: UInt8(bitPattern: Int8(chainAccontEntity.cryptoType)),
-                ethereumBased: ethereumBased
+            chainAccounts.append(
+                ChainAccountModel(
+                    chainId: chainId,
+                    accountId: accountId,
+                    publicKey: publicKey,
+                    cryptoType: UInt8(truncatingIfNeeded: chainAccountEntity.cryptoType),
+                    ethereumBased: chainAccountEntity.ethereumBased
+                )
             )
-        } ?? []
+        }
 
         var selectedCurrency: Currency?
         if let currency = entity.selectedCurrency,
@@ -47,12 +56,15 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
 
         let substrateAccountId = try Data(hexStringSSF: entity.substrateAccountId!)
         let ethereumAddress = try entity.ethereumAddress.map { try Data(hexStringSSF: $0) }
-        let assetsVisibility: [AssetVisibility]? = (entity.assetsVisibility?.allObjects as? [CDAssetVisibility])?.compactMap {
-            guard let assetId = $0.assetId else {
-                return nil
+        // Read assetsVisibility relationship via KVC, but only if the property exists in the loaded model
+        var assetsVisibility: [AssetVisibility] = []
+        if entity.entity.propertiesByName["assetsVisibility"] != nil,
+           let rel = (entity.value(forKey: "assetsVisibility") as? NSSet)?.allObjects as? [NSManagedObject] {
+            assetsVisibility = rel.compactMap { obj in
+                guard let assetId = obj.value(forKey: "assetId") as? String else { return nil }
+                let hidden = (obj.value(forKey: "hidden") as? Bool) ?? false
+                return AssetVisibility(assetId: assetId, hidden: hidden)
             }
-
-            return AssetVisibility(assetId: assetId, hidden: $0.hidden)
         }
         var favouriteChainIds: [String] = []
         if let entityFavouriteChainIds = entity.favouriteChainIds {
@@ -63,7 +75,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             metaId: entity.metaId!,
             name: entity.name!,
             substrateAccountId: substrateAccountId,
-            substrateCryptoType: UInt8(bitPattern: Int8(entity.substrateCryptoType)),
+            substrateCryptoType: UInt8(truncatingIfNeeded: entity.substrateCryptoType),
             substratePublicKey: entity.substratePublicKey!,
             ethereumAddress: ethereumAddress,
             ethereumPublicKey: entity.ethereumPublicKey,
@@ -73,7 +85,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             unusedChainIds: entity.unusedChainIds as? [String],
             selectedCurrency: selectedCurrency ?? Currency.defaultCurrency(),
             networkManagmentFilter: entity.networkManagmentFilter,
-            assetsVisibility: assetsVisibility ?? [],
+            assetsVisibility: assetsVisibility,
             hasBackup: entity.hasBackup,
             favouriteChainIds: favouriteChainIds
         )
@@ -98,19 +110,25 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         entity.hasBackup = model.hasBackup
         entity.favouriteChainIds = model.favouriteChainIds as NSArray
 
-        for assetVisibility in model.assetsVisibility {
-            var assetVisibilityEntity = entity.assetsVisibility?.first { entity in
-                (entity as? CDAssetVisibility)?.assetId == assetVisibility.assetId
-            } as? CDAssetVisibility
-
-            if assetVisibilityEntity == nil {
-                let newEntity = CDAssetVisibility(context: context)
-                entity.addToAssetsVisibility(newEntity)
-                assetVisibilityEntity = newEntity
+        // Persist assetsVisibility via KVC/entity name when the relationship is available in the model
+        if entity.entity.propertiesByName["assetsVisibility"] != nil {
+            let relationSet = entity.mutableSetValue(forKey: "assetsVisibility")
+            for assetVisibility in model.assetsVisibility {
+                var match: NSManagedObject?
+                for case let obj as NSManagedObject in relationSet {
+                    if let assetId = obj.value(forKey: "assetId") as? String, assetId == assetVisibility.assetId {
+                        match = obj
+                        break
+                    }
+                }
+                if match == nil {
+                    let newObj = NSEntityDescription.insertNewObject(forEntityName: "CDAssetVisibility", into: context)
+                    relationSet.add(newObj)
+                    match = newObj
+                }
+                match?.setValue(assetVisibility.assetId, forKey: "assetId")
+                match?.setValue(assetVisibility.hidden, forKey: "hidden")
             }
-
-            assetVisibilityEntity?.assetId = assetVisibility.assetId
-            assetVisibilityEntity?.hidden = assetVisibility.hidden
         }
 
         for chainAccount in model.chainAccounts {

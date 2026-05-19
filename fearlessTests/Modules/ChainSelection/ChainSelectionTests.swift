@@ -1,5 +1,6 @@
 import XCTest
 @testable import fearless
+import SSFModels
 import BigInt
 import Cuckoo
 import SoraFoundation
@@ -9,7 +10,6 @@ class ChainSelectionTests: XCTestCase {
     func testSuccessfullSelection() {
         // given
 
-        let selectedAccount = AccountGenerator.generateMetaAccount()
         let chains = (0..<10).map { index in
             ChainModelGenerator.generateChain(
                 generatingAssets: 2,
@@ -17,6 +17,16 @@ class ChainSelectionTests: XCTestCase {
                 hasCrowdloans: true
             )
         }
+        let chainAccounts = Set(chains.map { chain in
+            ChainAccountModel(
+                chainId: chain.chainId,
+                accountId: Data.random(of: 32)!,
+                publicKey: Data.random(of: 32)!,
+                cryptoType: 0,
+                ethereumBased: false
+            )
+        })
+        let selectedAccount = AccountGenerator.generateMetaAccount(with: chainAccounts)
 
         let view = MockChainSelectionViewProtocol()
         let wireframe = MockChainSelectionWireframeProtocol()
@@ -64,7 +74,7 @@ class ChainSelectionTests: XCTestCase {
         stub(view) { stub in
             stub.isSetup.get.thenReturn(false, true)
             stub.didReload().then {
-                if presenter.numberOfItems == chains.count {
+                if presenter.numberOfItems == chains.count + 1 {
                     loadingExpectation.fulfill()
                 }
             }
@@ -87,7 +97,7 @@ class ChainSelectionTests: XCTestCase {
 
         // when
 
-        presenter.selectItem(at: 0)
+        presenter.selectItem(at: 1)
 
         // then
 

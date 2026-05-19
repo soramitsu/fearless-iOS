@@ -1,6 +1,8 @@
 import XCTest
 @testable import fearless
 import RobinHood
+import SSFModels
+import CoreData
 
 class MetaAccountMapperTests: XCTestCase {
     func testSaveAndFetch() throws {
@@ -15,15 +17,15 @@ class MetaAccountMapperTests: XCTestCase {
         let maxChainAccountCount = 3
         let accountCount = 10
 
-        let metaAccounts: [ManagedMetaAccountModel] = (0..<accountCount).map { _ in
+        let metaAccounts: [fearless.ManagedMetaAccountModel] = (0..<accountCount).map { _ in
             let account = AccountGenerator.generateMetaAccount(
                 generatingChainAccounts: (0..<maxChainAccountCount).randomElement()!
             )
 
-            return ManagedMetaAccountModel(
+            return fearless.ManagedMetaAccountModel(
                 info: account,
                 isSelected: false,
-                order: ManagedMetaAccountModel.noOrder
+                order: fearless.ManagedMetaAccountModel.noOrder
             )
         }
 
@@ -37,7 +39,9 @@ class MetaAccountMapperTests: XCTestCase {
         let allMetaAccountsOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
         operationQueue.addOperations([allMetaAccountsOperation], waitUntilFinished: true)
 
-        let allMetaAccounts = try allMetaAccountsOperation.extractNoCancellableResultData()
+        let allMetaAccounts = try allMetaAccountsOperation.extractResultData(
+            throwing: BaseOperationError.parentOperationCancelled
+        )
 
         let expectedAccounts = metaAccounts.reduce(into: [String: MetaAccountModel]()) { result, account in
             result[account.identifier] = account.info
@@ -52,4 +56,5 @@ class MetaAccountMapperTests: XCTestCase {
         XCTAssertEqual(expectedAccounts, actualAccounts)
         XCTAssertEqual(differentOrders.count, accountCount)
     }
+
 }

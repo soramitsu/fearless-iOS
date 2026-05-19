@@ -61,7 +61,8 @@ final class WalletConnectPolkadorParserImpl: WalletConnectPolkadotParser {
         chain: ChainModel,
         transactionPayload: TransactionPayload
     ) async throws -> WalletConnectPolkadotCall {
-        guard let runtimeProvider = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+        // Disambiguate to the app's synchronous ChainRegistryProtocol
+        guard let runtimeProvider = (chainRegistry as ChainRegistryProtocol).getRuntimeProvider(for: chain.chainId) else {
             throw RuntimeProviderError.providerUnavailable
         }
         let codingFactory = try await runtimeProvider.fetchCoderFactory()

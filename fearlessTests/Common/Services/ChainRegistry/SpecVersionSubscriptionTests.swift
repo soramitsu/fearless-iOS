@@ -9,7 +9,7 @@ class SpecVersionSubscriptionTests: XCTestCase {
 
         let chain = ChainModelGenerator.generate(count: 1).first!
         let runtimeSyncService = MockRuntimeSyncServiceProtocol()
-        let connection = MockJSONRPCEngine()
+        let connection = MockConnection()
 
         let subscription = SpecVersionSubscription(
             chainId: chain.chainId,
@@ -20,30 +20,6 @@ class SpecVersionSubscriptionTests: XCTestCase {
         let version = RuntimeVersion(specVersion: 1, transactionVersion: 2)
 
         // when
-
-        stub(connection) { stub in
-            stub.subscribe(
-                any(),
-                params: any([String].self),
-                updateClosure: any(),
-                failureClosure: any()
-            ).then { (_, _, updateClosure: @escaping (RuntimeVersionUpdate) -> Void, _) in
-                DispatchQueue.global().async {
-                    let update = RuntimeVersionUpdate(
-                        jsonrpc: "2.0",
-                        method: RPCMethod.runtimeVersionSubscribe,
-                        params: JSONRPCSubscriptionUpdate.Result(
-                            result: version,
-                            subscription: ""
-                        )
-                    )
-
-                    updateClosure(update)
-                }
-
-                return 0
-            }
-        }
 
         let expectation = XCTestExpectation()
 
@@ -56,8 +32,31 @@ class SpecVersionSubscriptionTests: XCTestCase {
 
         subscription.subscribe()
 
+        DispatchQueue.global().async {
+            let update = RuntimeVersionUpdate(
+                jsonrpc: "2.0",
+                method: RPCMethod.runtimeVersionSubscribe,
+                params: JSONRPCSubscriptionUpdate.Result(
+                    result: version,
+                    subscription: ""
+                )
+            )
+
+            connection.emit(update)
+        }
+
         // then
 
         wait(for: [expectation], timeout: 10)
+    }
+
+    func testTonApiClientFactoryProvidesClient() {
+        let tonApiURL = URL(string: "https://tonapi.example")!
+        let tonApiClientFactory = TonAPIClientFactory(
+            tonAPIURL: tonApiURL,
+            token: "test-token"
+        )
+
+        _ = tonApiClientFactory.tonAPIClient()
     }
 }

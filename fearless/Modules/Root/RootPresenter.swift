@@ -8,6 +8,7 @@ final class RootPresenter {
     var interactor: RootInteractorInputProtocol!
 
     private let startViewHelper: StartViewHelperProtocol
+    private var loadTask: Task<Void, Never>?
 
     init(
         localizationManager: LocalizationManagerProtocol,
@@ -15,6 +16,10 @@ final class RootPresenter {
     ) {
         self.startViewHelper = startViewHelper
         self.localizationManager = localizationManager
+    }
+
+    deinit {
+        loadTask?.cancel()
     }
 
     private func decideModuleSynchroniously(with onboardingConfig: OnboardingConfigWrapper?) {
@@ -39,15 +44,17 @@ extension RootPresenter: RootPresenterProtocol {
         wireframe.showSplash(splashView: view, on: window)
 
         interactor.setup(runMigrations: true)
-        Task {
+        loadTask?.cancel()
+        loadTask = Task { [weak self] in
+            guard let self else { return }
             do {
                 let onboardingConfig = try await interactor.fetchOnboardingConfig()
                 DispatchQueue.main.async { [weak self] in
                     self?.decideModuleSynchroniously(with: onboardingConfig)
                 }
             } catch {
+                Logger.shared.error(error.localizedDescription)
                 DispatchQueue.main.async { [weak self] in
-                    Logger.shared.error(error.localizedDescription)
                     self?.decideModuleSynchroniously(with: nil)
                 }
             }
@@ -55,9 +62,12 @@ extension RootPresenter: RootPresenterProtocol {
     }
 
     func reload() {
+        loadTask?.cancel()
         interactor.setup(runMigrations: false)
 
-        decideModuleSynchroniously(with: nil)
+        DispatchQueue.main.async { [weak self] in
+            self?.decideModuleSynchroniously(with: nil)
+        }
     }
 }
 

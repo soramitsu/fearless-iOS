@@ -15,17 +15,15 @@ protocol AuthorizationAccessible {
     var isAuthorizing: Bool { get }
 }
 
-private let authorization = UUID().uuidString
-
 private enum AuthorizationConstants {
-    static var completionBlockKey: String = "co.jp.fearless.auth.delegate"
-    static var authorizationViewKey: String = "co.jp.fearless.auth.view"
+    static var completionBlockKey: UInt8 = 0
+    static var authorizationViewKey: UInt8 = 0
 }
 
 extension AuthorizationAccessible {
     var isAuthorizing: Bool {
         let view = objc_getAssociatedObject(
-            authorization,
+            self,
             &AuthorizationConstants.authorizationViewKey
         )
             as? PinSetupViewProtocol
@@ -37,13 +35,13 @@ extension AuthorizationAccessible {
 extension AuthorizationPresentable {
     private var completionBlock: AuthorizationCompletionBlock? {
         get {
-            objc_getAssociatedObject(authorization, &AuthorizationConstants.completionBlockKey)
+            objc_getAssociatedObject(self, &AuthorizationConstants.completionBlockKey)
                 as? AuthorizationCompletionBlock
         }
 
         set {
             objc_setAssociatedObject(
-                authorization,
+                self,
                 &AuthorizationConstants.completionBlockKey,
                 newValue,
                 .OBJC_ASSOCIATION_RETAIN
@@ -53,13 +51,13 @@ extension AuthorizationPresentable {
 
     private var authorizationView: PinSetupViewProtocol? {
         get {
-            objc_getAssociatedObject(authorization, &AuthorizationConstants.authorizationViewKey)
+            objc_getAssociatedObject(self, &AuthorizationConstants.authorizationViewKey)
                 as? PinSetupViewProtocol
         }
 
         set {
             objc_setAssociatedObject(
-                authorization,
+                self,
                 &AuthorizationConstants.authorizationViewKey,
                 newValue,
                 .OBJC_ASSOCIATION_RETAIN

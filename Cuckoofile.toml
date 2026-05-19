@@ -1,0 +1,13 @@
+output = "fearlessTests/Mocks/ModuleMocks.swift"
+
+[modules.Legacy]
+output = "fearlessTests/Mocks/ModuleMocks.swift"
+imports = ["Foundation"]
+testableImports = ["fearless"]
+sources = [
+  "fearless/Modules/ChainSelection/ChainSelectionProtocols.swift",
+  "fearless/Modules/AssetSelection/AssetSelectionProtocols.swift",
+  "fearless/Modules/Staking/Analytics/AnalyticsRewardDetails/AnalyticsRewardDetailsProtocols.swift",
+  "fearless/Modules/Staking/ControllerAccount/ControllerAccountProtocols.swift",
+  "fearless/Common/Protocols/ControllerBackedProtocol.swift"
+]

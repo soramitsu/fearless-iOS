@@ -58,7 +58,7 @@ extension ModalSheetBlurPresentationAppearanceAnimator: UIViewControllerAnimated
         animator.animate(block: animationBlock, completionBlock: completionBlock)
         UIView.animate(withDuration: 0.1, delay: 0.15) {
             if
-                let window = UIApplication.shared.keyWindow,
+                let window = SceneWindowFinder.activeWindow(),
                 let transitionView = window.subviews.first(where: { $0.tag == Self.UITransitionViewFearlessTag }),
                 let blurView = transitionView.subviews.first(where: { $0.tag == Self.UIVisualEffectViewFearlessTag }) {
                 blurView.alpha = 0

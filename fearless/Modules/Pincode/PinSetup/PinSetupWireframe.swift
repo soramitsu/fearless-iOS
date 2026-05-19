@@ -3,8 +3,11 @@ import UIKit
 class PinSetupWireframe: PinSetupWireframeProtocol {
     lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
 
-    func showMain(from _: PinSetupViewProtocol?) {
-        guard let mainViewController = MainTabBarViewFactory.createView()?.controller else {
+    func showMain(from view: PinSetupViewProtocol?) {
+        let presentingWindow = view?.controller.view.window as? ApplicationStatusPresentable
+        guard let mainViewController = MainTabBarViewFactory
+            .createView(presentingWindow: presentingWindow)?
+            .controller else {
             return
         }
 

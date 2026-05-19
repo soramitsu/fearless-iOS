@@ -1,5 +1,8 @@
 import Foundation
 import SSFModels
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 import RobinHood
 
 class OKXMultichainChainFetching: MultichainChainFetching {

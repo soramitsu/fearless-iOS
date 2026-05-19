@@ -35,12 +35,12 @@ extension ScanQRInteractor: ScanQRInteractorInput {
     }
 
     func lookingMatcher(for code: String) {
-        do {
-            let matcher = try qrService.lookingMatcher(for: code)
-            output?.didReceive(matcher: matcher)
-        } catch {
-            output?.handleQRService(error: error)
+        if let url = URL(string: code), url.scheme == "ws" {
+            output?.didReceive(matcher: .walletConnect(code))
+            return
         }
+
+        output?.handleQRService(error: QRDecoderError.brokenFormat)
     }
 
     func startScanning() {

@@ -4,11 +4,13 @@ import IrohaCrypto
 import SoraKeystore
 import RobinHood
 import SSFUtils
+import SSFCrypto
+import SSFModels
 
 final class AccountCreationHelper {
     static func createMetaAccountFromMnemonic(
         _ mnemonicString: String? = nil,
-        cryptoType: fearless.CryptoType,
+        cryptoType: CryptoType,
         username: String = "fearless",
         substrateDerivationPath: String = "",
         ethereumDerivationPath: String = DerivationPathConstants.defaultEthereum,
@@ -23,13 +25,17 @@ final class AccountCreationHelper {
             mnemonic = try IRMnemonicCreator().randomMnemonic(.entropy128)
         }
 
-        let request = MetaAccountImportMnemonicRequest(mnemonic: mnemonic,
-                                                       username: username,
-                                                       substrateDerivationPath: substrateDerivationPath,
-                                                       ethereumDerivationPath: ethereumDerivationPath,
-                                                       cryptoType: cryptoType)
+        let request = MetaAccountImportMnemonicRequest(
+            mnemonic: mnemonic,
+            username: username,
+            substrateDerivationPath: substrateDerivationPath,
+            ethereumDerivationPath: ethereumDerivationPath,
+            cryptoType: cryptoType,
+            defaultChainId: nil
+        )
 
-        let operation = MetaAccountOperationFactory(keystore: keychain).newMetaAccountOperation(request: request)
+        let operation = MetaAccountOperationFactory(keystore: keychain)
+            .newMetaAccountOperation(request: request, isBackuped: true)
 
         OperationQueue().addOperations([operation], waitUntilFinished: true)
 
@@ -42,22 +48,30 @@ final class AccountCreationHelper {
     static func createMetaAccountFromSeed(
         substrateSeed: String,
         ethereumSeed: String?,
-        cryptoType: fearless.CryptoType,
+        cryptoType: CryptoType,
         username: String = "fearless",
         substrateDerivationPath: String = "",
         ethereumDerivationPath: String? = nil,
         keychain: KeystoreProtocol,
         settings: SelectedWalletSettings
     ) throws {
+        let resolvedEthereumDerivationPath: String? = {
+            guard ethereumSeed != nil else {
+                return nil
+            }
+
+            return ethereumDerivationPath ?? DerivationPathConstants.defaultEthereum
+        }()
+
         let request = MetaAccountImportSeedRequest(substrateSeed: substrateSeed,
                                                    ethereumSeed: ethereumSeed,
                                                    username: username,
                                                    substrateDerivationPath: substrateDerivationPath,
-                                                   ethereumDerivationPath: ethereumDerivationPath,
+                                                   ethereumDerivationPath: resolvedEthereumDerivationPath,
                                                    cryptoType: cryptoType)
 
         let operation = MetaAccountOperationFactory(keystore: keychain)
-            .newMetaAccountOperation(request: request)
+            .newMetaAccountOperation(request: request, isBackuped: true)
 
         OperationQueue().addOperations([operation], waitUntilFinished: true)
 
@@ -74,7 +88,7 @@ final class AccountCreationHelper {
         ethereumPassword: String?,
         keychain: KeystoreProtocol,
         settings: SelectedWalletSettings,
-        cryptoType: fearless.CryptoType,
+        cryptoType: CryptoType,
         username: String = "username"
     ) throws {
         guard let substrateKeystoreString = String(data: substrateData, encoding: .utf8) else { return }
@@ -93,7 +107,7 @@ final class AccountCreationHelper {
                                                        cryptoType: cryptoType)
 
         let operation = MetaAccountOperationFactory(keystore: keychain)
-            .newMetaAccountOperation(request: request)
+            .newMetaAccountOperation(request: request, isBackuped: true)
 
         OperationQueue().addOperations([operation], waitUntilFinished: true)
 
@@ -103,8 +117,43 @@ final class AccountCreationHelper {
         try selectMetaAccount(accountItem, settings: settings)
     }
 
-    static func selectMetaAccount(_ accountItem: MetaAccountModel, settings: SelectedWalletSettings) throws {
-        settings.save(value: accountItem)
-        settings.setup(runningCompletionIn: .global()) { _ in}
+    static func selectMetaAccount(_ accountItem: fearless.MetaAccountModel, settings: SelectedWalletSettings) throws {
+        let saveSemaphore = DispatchSemaphore(value: 0)
+        var saveResult: Result<fearless.MetaAccountModel, Error>?
+
+        settings.save(value: accountItem, runningCompletionIn: nil) { result in
+            saveResult = result
+            saveSemaphore.signal()
+        }
+
+        _ = saveSemaphore.wait(timeout: .now() + 5)
+
+        switch saveResult {
+        case .success:
+            break
+        case let .failure(error):
+            throw error
+        case .none:
+            throw BaseOperationError.parentOperationCancelled
+        }
+
+        let setupSemaphore = DispatchSemaphore(value: 0)
+        var setupResult: Result<fearless.MetaAccountModel?, Error>?
+
+        settings.setup(runningCompletionIn: nil) { result in
+            setupResult = result
+            setupSemaphore.signal()
+        }
+
+        _ = setupSemaphore.wait(timeout: .now() + 5)
+
+        switch setupResult {
+        case .success:
+            break
+        case let .failure(error):
+            throw error
+        case .none:
+            throw BaseOperationError.parentOperationCancelled
+        }
     }
 }

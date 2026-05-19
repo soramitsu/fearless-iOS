@@ -98,10 +98,11 @@ final class LiquidityPoolSupplyConfirmPresenter {
     // MARK: - Private methods
 
     private func refreshFee() {
+        let chainAssets = Array(chain.assets)
         guard
             let dexId,
-            let baseAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.baseAssetId }),
-            let targetAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.targetAssetId })
+            let baseAsset = chainAssets.first(where: { $0.currencyId == liquidityPair.baseAssetId }),
+            let targetAsset = chainAssets.first(where: { $0.currencyId == liquidityPair.targetAssetId })
         else {
             return
         }
@@ -115,8 +116,7 @@ final class LiquidityPoolSupplyConfirmPresenter {
             targetAsset: targetAssetInfo,
             baseAssetAmount: inputData.baseAssetAmount,
             targetAssetAmount: inputData.targetAssetAmount,
-            slippage: inputData.slippageTolerance,
-            availablePairs: availablePairs
+            slippage: inputData.slippageTolerance
         )
 
         interactor.estimateFee(supplyLiquidityInfo: supplyLiquidityInfo)
@@ -244,10 +244,11 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmViewOut
     }
 
     func didTapConfirmButton() {
+        let chainAssets = Array(chain.assets)
         guard
             let dexId,
-            let baseAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.baseAssetId }),
-            let targetAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.targetAssetId })
+            let baseAsset = chainAssets.first(where: { $0.currencyId == liquidityPair.baseAssetId }),
+            let targetAsset = chainAssets.first(where: { $0.currencyId == liquidityPair.targetAssetId })
         else {
             return
         }
@@ -261,8 +262,7 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmViewOut
             targetAsset: targetAssetInfo,
             baseAssetAmount: inputData.baseAssetAmount,
             targetAssetAmount: inputData.targetAssetAmount,
-            slippage: inputData.slippageTolerance,
-            availablePairs: availablePairs
+            slippage: inputData.slippageTolerance
         )
 
         interactor.submit(supplyLiquidityInfo: supplyLiquidityInfo)
@@ -291,7 +291,7 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmViewOut
 // MARK: - LiquidityPoolSupplyConfirmInteractorOutput
 
 extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmInteractorOutput {
-    func didReceivePoolAPY(apyInfo: SSFPolkaswap.PoolApyInfo?) {
+    func didReceivePoolAPY(apyInfo: PoolApyInfo?) {
         self.apyInfo = apyInfo
         provideViewModel()
     }

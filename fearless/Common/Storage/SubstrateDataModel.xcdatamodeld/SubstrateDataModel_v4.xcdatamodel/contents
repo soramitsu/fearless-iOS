@@ -13,7 +13,7 @@
         <attribute name="precision" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="price" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="priceId" optional="YES" attributeType="String"/>
-        <attribute name="purchaseProviders" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[String]"/>
+        <attribute name="purchaseProviders" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
         <attribute name="staking" optional="YES" attributeType="String"/>
         <attribute name="symbol" optional="YES" attributeType="String"/>
         <attribute name="type" optional="YES" attributeType="String"/>
@@ -69,7 +69,7 @@
         <attribute name="identifier" optional="YES" attributeType="String"/>
     </entity>
     <entity name="CDChainXcmConfig" representedClassName="CDChainXcmConfig" syncable="YES" codeGenerationType="class">
-        <attribute name="availableAssets" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[String]"/>
+        <attribute name="availableAssets" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
         <attribute name="destWeightIsPrimitive" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="xcmVersion" optional="YES" attributeType="String"/>
         <relationship name="availableDestinations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDXcmAvailableDestination" inverseName="config" inverseEntity="CDXcmAvailableDestination"/>
@@ -104,8 +104,8 @@
         <attribute name="name" optional="YES" attributeType="String"/>
     </entity>
     <entity name="CDPolkaswapRemoteSettings" representedClassName="CDPolkaswapRemoteSettings" syncable="YES" codeGenerationType="class">
-        <attribute name="availableSources" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[String]"/>
-        <attribute name="forceSmartIds" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[String]"/>
+        <attribute name="availableSources" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
+        <attribute name="forceSmartIds" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
         <attribute name="version" attributeType="String"/>
         <attribute name="xstusdId" optional="YES" attributeType="String"/>
         <relationship name="availableDexIds" toMany="YES" deletionRule="Nullify" destinationEntity="CDPolkaswapDex"/>
@@ -145,7 +145,7 @@
         <attribute name="txIndex" optional="YES" attributeType="Integer 16" usesScalarValueType="NO"/>
     </entity>
     <entity name="CDXcmAvailableDestination" representedClassName="CDXcmAvailableDestination" syncable="YES" codeGenerationType="class">
-        <attribute name="assets" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[String]"/>
+        <attribute name="assets" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
         <attribute name="chainId" optional="YES" attributeType="String"/>
         <relationship name="config" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChainXcmConfig" inverseName="availableDestinations" inverseEntity="CDChainXcmConfig"/>
     </entity>

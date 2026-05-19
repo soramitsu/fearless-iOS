@@ -9,6 +9,7 @@ protocol BalanceLocksDetailViewInput: ControllerBackedProtocol {
     func didReceiveLiquidityPoolLocksViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async
     func didReceiveGovernanceLocksViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async
     func didReceiveCrowdloanLocksViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async
+    func didReceiveVestingHint(_ hint: String?) async
     func didReceiveTotalLocksViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async
     func didReceiveAssetFrozenViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async
     func didReceiveAssetBlockedViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async

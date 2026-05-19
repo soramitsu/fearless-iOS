@@ -27,7 +27,9 @@ final class WalletConnectProposalDataValidating {
             }
 
             self?.basePresentable.present(
-                message: AutoNamespacesError.requiredMethodsNotSatisfied.localizedDescription,
+                message: R.string.localizable.requiredMethodsNotSatisfied(
+                    preferredLanguages: locale.rLanguages
+                ),
                 title: "",
                 closeAction: nil,
                 from: view,

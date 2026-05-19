@@ -23,11 +23,21 @@ class SelectedAccountSettingsTests: XCTestCase {
 
         // when
 
-        selectedAccountSettings.setup(runningCompletionIn: .global()) { _ in}
+        let setupExpectation = XCTestExpectation()
+        selectedAccountSettings.setup(runningCompletionIn: .main) { _ in
+            setupExpectation.fulfill()
+        }
+
+        wait(for: [setupExpectation], timeout: Constants.defaultExpectationDuration)
 
         XCTAssertNil(selectedAccountSettings.value)
 
-        selectedAccountSettings.save(value: selectedAccount.info, runningCompletionIn: .global()) { _ in }
+        let saveExpectation = XCTestExpectation()
+        selectedAccountSettings.save(value: selectedAccount.info, runningCompletionIn: .main) { _ in
+            saveExpectation.fulfill()
+        }
+
+        wait(for: [saveExpectation], timeout: Constants.defaultExpectationDuration)
 
         // then
 
@@ -36,7 +46,9 @@ class SelectedAccountSettingsTests: XCTestCase {
         let allMetaAccountsOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
         operationQueue.addOperations([allMetaAccountsOperation], waitUntilFinished: true)
 
-        let allMetaAccounts = try allMetaAccountsOperation.extractNoCancellableResultData()
+        let allMetaAccounts = try allMetaAccountsOperation.extractResultData(
+            throwing: BaseOperationError.parentOperationCancelled
+        )
 
         XCTAssertEqual(selectedAccount.info, allMetaAccounts.first?.info)
         XCTAssertEqual(allMetaAccounts.count, 1)
@@ -68,11 +80,21 @@ class SelectedAccountSettingsTests: XCTestCase {
 
         // when
 
-        selectedAccountSettings.setup(runningCompletionIn: .global()) { _ in}
+        let setupExpectation = XCTestExpectation()
+        selectedAccountSettings.setup(runningCompletionIn: .main) { _ in
+            setupExpectation.fulfill()
+        }
+
+        wait(for: [setupExpectation], timeout: Constants.defaultExpectationDuration)
 
         XCTAssertEqual(selectedAccountSettings.value, initialSelectedAccount.info)
 
-        selectedAccountSettings.save(value: nextSelectedAccount, runningCompletionIn: .global()) { _ in }
+        let saveExpectation = XCTestExpectation()
+        selectedAccountSettings.save(value: nextSelectedAccount, runningCompletionIn: .main) { _ in
+            saveExpectation.fulfill()
+        }
+
+        wait(for: [saveExpectation], timeout: Constants.defaultExpectationDuration)
 
         // then
 
@@ -81,15 +103,17 @@ class SelectedAccountSettingsTests: XCTestCase {
         let allMetaAccountsOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
         operationQueue.addOperations([allMetaAccountsOperation], waitUntilFinished: true)
 
-        let allMetaAccounts = try allMetaAccountsOperation.extractNoCancellableResultData()
+        let allMetaAccounts = try allMetaAccountsOperation.extractResultData(
+            throwing: BaseOperationError.parentOperationCancelled
+        )
 
         let expectedAccounts = [initialSelectedAccount.info, nextSelectedAccount].reduce(
-            into: [String: MetaAccountModel]()
+            into: [String: fearless.MetaAccountModel]()
         ) { result, account in
             result[account.metaId] = account
         }
 
-        let actualAccounts = allMetaAccounts.reduce(into: [String: MetaAccountModel]()) { result, account in
+        let actualAccounts = allMetaAccounts.reduce(into: [String: fearless.MetaAccountModel]()) { result, account in
             result[account.identifier] = account.info
         }
 

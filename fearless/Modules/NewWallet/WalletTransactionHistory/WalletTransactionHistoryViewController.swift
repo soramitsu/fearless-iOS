@@ -328,13 +328,9 @@ extension WalletTransactionHistoryViewController: Draggable {
     }
 
     func animate(progress: Double, from _: DraggableState, to newState: DraggableState, finalFrame: CGRect) {
-        UIView.beginAnimations(nil, context: nil)
-
         draggableView.frame = finalFrame
         updateHeaderHeight(for: newState, progress: progress, forcesLayoutUpdate: didSetupLayout)
         updateContent(for: newState, progress: progress, forcesLayoutUpdate: didSetupLayout)
-
-        UIView.commitAnimations()
     }
 
     fileprivate func update(for draggableState: DraggableState, progress: Double, forcesLayoutUpdate: Bool) {

@@ -3,7 +3,9 @@ import RobinHood
 import IrohaCrypto
 import SSFUtils
 import SSFModels
-import FearlessKeys
+#if canImport(FearlessKeys)
+    import FearlessKeys
+#endif
 import BigInt
 
 final class BlockscoutHistoryOperationFactory {

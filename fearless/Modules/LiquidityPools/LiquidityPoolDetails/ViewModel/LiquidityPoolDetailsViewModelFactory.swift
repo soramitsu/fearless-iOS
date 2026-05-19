@@ -40,10 +40,11 @@ final class LiquidityPoolDetailsViewModelFactoryDefault: LiquidityPoolDetailsVie
         accountPoolInfo: AccountPool?,
         input: LiquidityPoolDetailsInput
     ) -> LiquidityPoolDetailsViewModel? {
+        let chainAssets = Array(chain.assets)
         guard
-            let baseAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.baseAssetId }),
-            let targetAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.targetAssetId }),
-            let rewardAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.rewardAssetId })
+            let baseAsset = chainAssets.first(where: { $0.currencyId == liquidityPair.baseAssetId }),
+            let targetAsset = chainAssets.first(where: { $0.currencyId == liquidityPair.targetAssetId }),
+            let rewardAsset = chainAssets.first(where: { $0.currencyId == liquidityPair.rewardAssetId })
         else {
             return nil
         }
@@ -74,11 +75,11 @@ final class LiquidityPoolDetailsViewModelFactoryDefault: LiquidityPoolDetailsVie
         let targetAssetBalanceViewModelFactory = createBalanceViewModelFactory(for: ChainAsset(chain: chain, asset: targetAsset), wallet: wallet)
 
         let baseAssetViewModel = accountPoolInfo?.baseAssetPooled.flatMap {
-            baseAssetBalanceViewModelFactory.balanceFromPrice($0, priceData: baseAssetPrice, usageCase: .detailsCrypto)
+            baseAssetBalanceViewModelFactory.balanceFromPrice($0, priceData: baseAssetPrice, usageCase: NumberFormatterUsageCase.detailsCrypto)
         }
 
         let targetAssetViewModel = accountPoolInfo?.targetAssetPooled.flatMap {
-            targetAssetBalanceViewModelFactory.balanceFromPrice($0, priceData: targetAssetPrice, usageCase: .detailsCrypto)
+            targetAssetBalanceViewModelFactory.balanceFromPrice($0, priceData: targetAssetPrice, usageCase: NumberFormatterUsageCase.detailsCrypto)
         }
         let reservesViewModel = reservesString.flatMap { TitleMultiValueViewModel(title: $0, subtitle: nil) }
         let apyViewModel = apyLabelText.flatMap { TitleMultiValueViewModel(title: $0, subtitle: nil) }

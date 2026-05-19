@@ -19,17 +19,23 @@ protocol AccountInfoRemoteService {
 }
 
 final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
-    private let runtimeItemRepository: AsyncAnyRepository<RuntimeMetadataItem>
-    private let ethereumRemoteBalanceFetching: EthereumRemoteBalanceFetching
+    private enum ChainKind {
+        case substrate
+        case ethereum
+        case ton
+    }
+
+    private let ethereumRemoteBalanceFetching: AccountInfoFetchingProtocol
+    private let tonRemoteBalanceFetching: AccountInfoRemoteService?
     private let storagePerformer: SSFStorageQueryKit.StorageRequestPerformer
 
     init(
-        runtimeItemRepository: AsyncAnyRepository<RuntimeMetadataItem>,
-        ethereumRemoteBalanceFetching: EthereumRemoteBalanceFetching,
+        ethereumRemoteBalanceFetching: AccountInfoFetchingProtocol,
+        tonRemoteBalanceFetching: AccountInfoRemoteService?,
         storagePerformer: SSFStorageQueryKit.StorageRequestPerformer
     ) {
-        self.runtimeItemRepository = runtimeItemRepository
         self.ethereumRemoteBalanceFetching = ethereumRemoteBalanceFetching
+        self.tonRemoteBalanceFetching = tonRemoteBalanceFetching
         self.storagePerformer = storagePerformer
     }
 
@@ -40,15 +46,22 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         wallet: MetaAccountModel
     ) async throws -> [ChainAssetId: AccountInfo?] {
         guard let accountId = wallet.fetch(for: chain.accountRequest())?.accountId else {
-            throw ConvenienceError(error: "Missing AccountId for chain: \(chain.name)")
+            let emptyMap = Dictionary(
+                uniqueKeysWithValues: chain.chainAssets.map { ($0.chainAssetId, Optional<AccountInfo>.none) }
+            )
+            return emptyMap
         }
 
-        if chain.isEthereum {
-            let accountInfos = try await fetchEthereum(for: chain, wallet: wallet)
-            return accountInfos
-        } else {
-            let accountInfos = try await fetchSubstrate(for: chain, accountId: accountId)
-            return accountInfos
+        switch chainKind(for: chain) {
+        case .ethereum:
+            return try await fetchEthereum(for: chain, wallet: wallet)
+        case .ton:
+            guard let tonRemoteBalanceFetching else {
+                throw ConvenienceError(error: "TON remote fetching unavailable")
+            }
+            return try await tonRemoteBalanceFetching.fetchAccountInfos(for: chain, wallet: wallet)
+        case .substrate:
+            return try await fetchSubstrate(for: chain, accountId: accountId)
         }
     }
 
@@ -57,21 +70,36 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         wallet: MetaAccountModel
     ) async throws -> AccountInfo? {
         guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-            throw ConvenienceError(error: "Missing account id for \(chainAsset.debugName)")
+            return nil
         }
-        if chainAsset.chain.isEthereum {
-            let response = try await ethereumRemoteBalanceFetching.fetch(
-                for: chainAsset,
-                accountId: accountId
-            )
+        switch chainKind(for: chainAsset.chain) {
+        case .ethereum:
+            let response = try await ethereumRemoteBalanceFetching.fetch(for: chainAsset, accountId: accountId)
             return response.1
-        } else {
+        case .ton:
+            guard let tonRemoteBalanceFetching else {
+                throw ConvenienceError(error: "TON remote fetching unavailable")
+            }
+            return try await tonRemoteBalanceFetching.fetchAccountInfo(for: chainAsset, wallet: wallet)
+        case .substrate:
             let request = createSubstrateRequest(for: chainAsset, accountId: accountId)
             let response = try await storagePerformer.perform([request], chain: chainAsset.chain)
             let map = try createSubstrateMap(from: response, chain: chainAsset.chain)
             let accountInfo = map[chainAsset.chainAssetId] ?? nil
             return accountInfo
         }
+    }
+
+    private func chainKind(for chain: ChainModel) -> ChainKind {
+        if chain.isTonCompatibilityChain {
+            return .ton
+        }
+
+        if chain.chainBaseType == .ethereum {
+            return .ethereum
+        }
+
+        return .substrate
     }
 
     // MARK: - Private substrate methods
@@ -92,7 +120,9 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
     ) throws -> [ChainAssetId: AccountInfo?] {
         try result.reduce([ChainAssetId: AccountInfo?]()) { part, response in
             var partial = part
-            let id = ChainAssetId(id: response.request.requestId)
+            let components = response.request.requestId.split(separator: ":", maxSplits: 1).map(String.init)
+            guard components.count == 2 else { return partial }
+            let id = ChainAssetId(chainId: components[0], assetId: components[1])
 
             let accountInfo = try mapAccountInfo(response: response, chain: chain)
             partial[id] = accountInfo
@@ -120,11 +150,13 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         case .equilibrium:
             let eqAccountInfo = try json.map(to: EquilibriumAccountInfo.self)
             let map = eqAccountInfo.data.info?.mapBalances()
-            let chainAssetId = ChainAssetId(id: response.request.requestId)
-            guard
-                let chainAsset = chain.chainAssets.first(where: { $0.chainAssetId == chainAssetId }),
-                let currencyId = chainAsset.asset.currencyId
-            else {
+            let comps = response.request.requestId.split(separator: ":", maxSplits: 1).map(String.init)
+            guard comps.count == 2 else { return nil }
+            let chainAssetId = ChainAssetId(chainId: comps[0], assetId: comps[1])
+            guard let chainAsset = chain.chainAssets.first(where: { $0.chainAssetId == chainAssetId }) else {
+                return nil
+            }
+            guard let currencyId = chainAsset.asset.currencyId else {
                 return nil
             }
 
@@ -139,7 +171,7 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
     }
 
     private func createSubstrateRequest(for chainAsset: ChainAsset, accountId: AccountId) -> any MixStorageRequest {
-        if chainAsset.chain.knownChainEquivalent == .genshiro {
+        if chainAsset.chain.isEquilibrium || chainAsset.chain.knownChainEquivalent == .genshiro {
             let request = EquilibriumAccountInfotorageRequest(
                 parametersType: .encodable(param: accountId),
                 storagePath: chainAsset.storagePath,

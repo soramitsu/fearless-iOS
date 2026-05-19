@@ -5,6 +5,9 @@ import RobinHood
 import SSFXCM
 import SSFNetwork
 import SSFModels
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 final class CrossChainAssembly {
     static func configureModule(
@@ -31,7 +34,7 @@ final class CrossChainAssembly {
         )
 
         let depsContainer = CrossChainDepsContainer(wallet: wallet)
-        let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
+        let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, SSFAssetManagmentStorage.CDRuntimeMetadataItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 
         let addressChainDefiner = AddressChainDefiner(

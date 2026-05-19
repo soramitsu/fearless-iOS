@@ -38,17 +38,17 @@ final class AssetManagementMigrator: Migrating {
             )
 
             try await wallets.asyncForEach { wallet in
-                guard shouldMigrate(wallet: wallet) else {
+                guard self.shouldMigrate(wallet: wallet) else {
                     return
                 }
 
-                let accountInfos = try await accountInfoFetchingProvider.fetchByUniqKey(
+                let accountInfos = try await self.accountInfoFetchingProvider.fetchByUniqKey(
                     for: chainAssets,
                     wallet: wallet
                 )
 
                 let assetVisibilities = chainAssets.map {
-                    let isOn = checkAssetIsOn(
+                    let isOn = self.checkAssetIsOn(
                         chainAsset: $0,
                         accountInfos: accountInfos,
                         wallet: wallet
@@ -61,9 +61,9 @@ final class AssetManagementMigrator: Migrating {
                 }
 
                 let updatedWallet = wallet.replacingAssetsVisibility(assetVisibilities)
-                save(wallet: updatedWallet)
+                self.save(wallet: updatedWallet)
 
-                markAsMigrated(wallet)
+                self.markAsMigrated(wallet)
             }
         }
     }

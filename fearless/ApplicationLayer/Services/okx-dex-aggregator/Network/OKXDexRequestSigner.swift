@@ -1,7 +1,16 @@
 import Foundation
 import CryptoKit
 import SSFNetwork
-import FearlessKeys
+#if canImport(FearlessKeys)
+    import FearlessKeys
+#else
+    enum OKXApiKeys {
+        static let okxApiKey = ""
+        static let okxSecretKey = ""
+        static let okxPassphrase = ""
+        static let okxProjectId = ""
+    }
+#endif
 import SoraKeystore
 import SSFModels
 import SSFUtils
@@ -16,7 +25,7 @@ enum OKXDexRequestSignerError: Error {
 }
 
 final class OKXDexRequestSigner: RequestSigner {
-    func sign(request: inout URLRequest, config: SSFNetwork.RequestConfig) throws {
+    func sign(request: inout URLRequest, config: RequestConfig) throws {
         let timestamp = DateFormatter.iso.string(from: Date())
         request.setValue(timestamp, forHTTPHeaderField: "OK-ACCESS-TIMESTAMP")
 

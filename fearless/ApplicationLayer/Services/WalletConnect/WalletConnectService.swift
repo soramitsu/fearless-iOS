@@ -2,8 +2,10 @@ import Foundation
 import SoraFoundation
 import Combine
 import WalletConnectSign
-import Web3Wallet
-import FearlessKeys
+import ReownWalletKit
+#if canImport(FearlessKeys)
+    import FearlessKeys
+#endif
 
 protocol WalletConnectService: ApplicationServiceProtocol {
     func set(listener: WalletConnectServiceDelegate)
@@ -29,6 +31,7 @@ extension WalletConnectServiceDelegate {
 
 final class WalletConnectServiceImpl: WalletConnectService {
     static let shared = WalletConnectServiceImpl()
+    private static let walletConnectGroupIdentifier = "group.com.walletconnect.sdk"
 
     private var listeners: [WeakWrapper] = []
     private var cancellablesBag = Set<AnyCancellable>()
@@ -38,16 +41,21 @@ final class WalletConnectServiceImpl: WalletConnectService {
     // MARK: - ApplicationServiceProtocol
 
     func setup() {
-        #if F_DEV
-            let projectId = WalletConnectDebug.projectId
+        #if canImport(FearlessKeys)
+            #if F_DEV
+                let projectId = WalletConnectDebug.projectId
+            #else
+                let projectId = WalletConnect.projectId
+            #endif
         #else
             let projectId = WalletConnect.projectId
         #endif
         Networking.configure(
+            groupIdentifier: Self.walletConnectGroupIdentifier,
             projectId: projectId,
             socketFactory: WalletConnectSocketFactory()
         )
-        Web3Wallet.configure(
+        WalletKit.configure(
             metadata: AppMetadata.createFearlessMetadata(),
             crypto: DefaultCryptoProvider()
         )
@@ -70,38 +78,43 @@ final class WalletConnectServiceImpl: WalletConnectService {
     }
 
     func connect(uri: String) async throws {
-        guard let walletConnectUri = WalletConnectURI(string: uri) else {
+        let walletConnectUri: WalletConnectURI
+
+        do {
+            walletConnectUri = try WalletConnectURI(uriString: uri)
+        } catch {
             let preferredLanguages = LocalizationManager.shared.selectedLocale.rLanguages
             let title = R.string.localizable.walletConnectInvalidUrlTitle(preferredLanguages: preferredLanguages)
             let message = R.string.localizable.walletConnectInvalidUrlMessage(preferredLanguages: preferredLanguages)
             throw ConvenienceContentError(title: title, message: message)
         }
-        try await Web3Wallet.instance.pair(uri: walletConnectUri)
+
+        try await WalletKit.instance.pair(uri: walletConnectUri)
     }
 
     func getSessions() -> [Session] {
-        Web3Wallet.instance.getSessions()
+        WalletKit.instance.getSessions()
     }
 
     func submit(proposalDecision: WalletConnectProposalDecision) async throws {
         switch proposalDecision {
         case let .approve(proposal, namespaces):
-            try await Web3Wallet.instance.approve(proposalId: proposal.id, namespaces: namespaces)
+            _ = try await WalletKit.instance.approve(proposalId: proposal.id, namespaces: namespaces)
         case let .reject(proposal):
-            try await Web3Wallet.instance.reject(proposalId: proposal.id, reason: .userRejected)
+            try await WalletKit.instance.rejectSession(proposalId: proposal.id, reason: RejectionReason.userRejected)
         }
     }
 
     func submit(signDecision: WalletConnectSignDecision) async throws {
         switch signDecision {
         case let .signed(request, signature):
-            try await Web3Wallet.instance.respond(
+            try await WalletKit.instance.respond(
                 topic: request.topic,
                 requestId: request.id,
                 response: .response(signature)
             )
         case let .rejected(request, error):
-            try await Web3Wallet.instance.respond(
+            try await WalletKit.instance.respond(
                 topic: request.topic,
                 requestId: request.id,
                 response: .error(error)
@@ -110,13 +123,13 @@ final class WalletConnectServiceImpl: WalletConnectService {
     }
 
     func disconnect(topic: String) async throws {
-        try await Web3Wallet.instance.disconnect(topic: topic)
+        try await WalletKit.instance.disconnect(topic: topic)
     }
 
     // MARK: - Private methods
 
     private func setupSubscription() {
-        Web3Wallet.instance.sessionProposalPublisher
+        WalletKit.instance.sessionProposalPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] proposal, _ in
                 guard let self = self else {
@@ -128,7 +141,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
             }
             .store(in: &cancellablesBag)
 
-        Web3Wallet.instance.sessionsPublisher
+        WalletKit.instance.sessionsPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] sessions in
                 guard let self = self else {
@@ -140,13 +153,13 @@ final class WalletConnectServiceImpl: WalletConnectService {
             }
             .store(in: &cancellablesBag)
 
-        Web3Wallet.instance.sessionRequestPublisher
+        WalletKit.instance.sessionRequestPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] request, _ in
                 guard let self = self else {
                     return
                 }
-                let session = Web3Wallet.instance.getSessions().first { $0.topic == request.topic }
+                let session = WalletKit.instance.getSessions().first { $0.topic == request.topic }
                 self.listeners.forEach {
                     ($0.target as? WalletConnectServiceDelegate)?.sign(request: request, session: session)
                 }

@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import RobinHood
 import SSFUtils
+import SSFNetwork
 import SSFModels
 import SSFChainRegistry
 
@@ -15,13 +16,18 @@ enum ChainSyncServiceError: Error {
 
 final class ChainSyncService {
     static let fetchLocalData = false
+    static let historyExplorerCompatibilityType = "subsquid"
+    static let stakingExplorerCompatibilityType = "subquery"
+    static let genericExplorerCompatibilityType = "etherscan"
+    private static let soraXorCurrencyId = "0x0200000000000000000000000000000000000000000000000000000000000000"
 
     struct SyncChanges {
         let newOrUpdatedItems: [ChainModel]
         let removedItems: [ChainModel]
     }
 
-    private let syncService: SSFChainRegistry.ChainSyncServiceProtocol
+    private let chainsUrl: URL
+    private let dataFetchFactory: DataOperationFactoryProtocol
     private let repository: AnyDataProviderRepository<ChainModel>
     private let eventCenter: EventCenterProtocol
     private let retryStrategy: ReconnectionStrategyProtocol
@@ -37,7 +43,8 @@ final class ChainSyncService {
     private lazy var scheduler = Scheduler(with: self, callbackQueue: DispatchQueue.global())
 
     init(
-        syncService: SSFChainRegistry.ChainSyncServiceProtocol,
+        chainsUrl: URL,
+        dataFetchFactory: DataOperationFactoryProtocol,
         repository: AnyDataProviderRepository<ChainModel>,
         eventCenter: EventCenterProtocol,
         operationQueue: OperationQueue,
@@ -45,7 +52,8 @@ final class ChainSyncService {
         logger: LoggerProtocol? = nil,
         applicationHandler: ApplicationHandlerProtocol
     ) {
-        self.syncService = syncService
+        self.chainsUrl = chainsUrl
+        self.dataFetchFactory = dataFetchFactory
         self.repository = repository
         self.eventCenter = eventCenter
         self.operationQueue = operationQueue
@@ -90,18 +98,129 @@ final class ChainSyncService {
                 complete(result: .failure(error))
             }
         } else {
-            Task {
+            let fetchOperation = dataFetchFactory.fetchData(from: chainsUrl)
+            fetchOperation.completionBlock = { [weak self, weak fetchOperation] in
+                guard
+                    let self = self,
+                    let operation = fetchOperation,
+                    !operation.isCancelled
+                else {
+                    return
+                }
                 do {
-                    let remoteChains = try await syncService.getChainModels()
-                    handle(remoteChains: remoteChains)
+                    let data = try operation.extractNoCancellableResultData()
+                    let remoteChains = try self.decodeChainsTolerant(from: data)
+                    self.handle(remoteChains: remoteChains)
                 } catch {
-                    complete(result: .failure(error))
+                    self.complete(result: .failure(error))
                 }
             }
+            operationQueue.addOperation(fetchOperation)
+        }
+    }
+
+    private func decodeChainsTolerant(from data: Data) throws -> [ChainModel] {
+        do {
+            return try JSONDecoder().decode([ChainModel].self, from: data)
+        } catch {
+            // Attempt a compatibility coercion for legacy non-token payload differences.
+            let coerced = try Self.coerceChainsPayloadForCompatibility(data)
+            return try JSONDecoder().decode([ChainModel].self, from: coerced)
+        }
+    }
+
+    static func coerceChainsPayloadForCompatibility(_ data: Data) throws -> Data {
+        let obj = try JSONSerialization.jsonObject(with: data, options: [])
+        guard var array = obj as? [[String: Any]] else { return data }
+
+        for i in 0 ..< array.count {
+            if array[i]["properties"] == nil {
+                let prefixValue = array[i]["addressPrefix"]
+                let prefixString: String
+
+                if let intValue = prefixValue as? Int {
+                    prefixString = String(intValue)
+                } else if let stringValue = prefixValue as? String {
+                    prefixString = stringValue
+                } else if let number = prefixValue as? NSNumber {
+                    prefixString = number.stringValue
+                } else {
+                    prefixString = "0"
+                }
+
+                array[i]["properties"] = ["addressPrefix": prefixString]
+            }
+
+            normalizeBlockExplorerTypes(in: &array[i])
+        }
+
+        return try JSONSerialization.data(withJSONObject: array, options: [])
+    }
+
+    private static func normalizeBlockExplorerTypes(in chainObject: inout [String: Any]) {
+        guard var externalApi = chainObject["externalApi"] as? [String: Any] else {
+            return
+        }
+
+        normalizeBlockExplorerType(
+            in: &externalApi,
+            key: "history",
+            fallbackType: historyExplorerCompatibilityType
+        )
+        normalizeBlockExplorerType(
+            in: &externalApi,
+            key: "staking",
+            fallbackType: stakingExplorerCompatibilityType
+        )
+
+        if var explorers = externalApi["explorers"] as? [[String: Any]] {
+            for index in explorers.indices {
+                normalizeBlockExplorerType(
+                    in: &explorers[index],
+                    key: "type",
+                    fallbackType: genericExplorerCompatibilityType
+                )
+            }
+            externalApi["explorers"] = explorers
+        }
+
+        chainObject["externalApi"] = externalApi
+    }
+
+    private static func normalizeBlockExplorerType(
+        in object: inout [String: Any],
+        key: String,
+        fallbackType: String
+    ) {
+        if var nested = object[key] as? [String: Any] {
+            normalizeBlockExplorerType(in: &nested, key: "type", fallbackType: fallbackType)
+            object[key] = nested
+            return
+        }
+
+        guard
+            let type = object[key] as? String
+        else {
+            return
+        }
+
+        let normalizedType = type.lowercased()
+
+        if BlockExplorerType(rawValue: normalizedType) != nil {
+            object[key] = normalizedType
+            return
+        }
+
+        switch normalizedType {
+        case "blockscout", "klaytn", "kaia":
+            object[key] = fallbackType
+        default:
+            object[key] = fallbackType
         }
     }
 
     private func handle(remoteChains: [ChainModel]) {
+        let normalizedRemoteChains = remoteChains.map { normalizeSoraNexusChainAssets($0) }
         let localFetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 
         let processingOperation: BaseOperation<(
@@ -111,7 +230,7 @@ final class ChainSyncService {
             let localChains = try localFetchOperation.extractNoCancellableResultData()
 
             return (
-                remoteChains: remoteChains,
+                remoteChains: normalizedRemoteChains,
                 localChains: localChains
             )
         }
@@ -141,6 +260,51 @@ final class ChainSyncService {
             ],
             waitUntilFinished: false
         )
+    }
+
+    private func normalizeSoraNexusChainAssets(_ chain: ChainModel) -> ChainModel {
+        guard isSoraNexus(chain) else {
+            return chain
+        }
+
+        let hasXor = chain.assets.contains {
+            $0.currencyId == Self.soraXorCurrencyId || $0.symbol.lowercased() == "xor"
+        }
+
+        guard !hasXor else {
+            return chain
+        }
+
+        var updatedChain = chain
+        let xorAsset = AssetModel(
+            id: "b5a44630-920e-43ee-809f-61890d0888b0",
+            name: "sora",
+            symbol: "xor",
+            precision: 18,
+            icon: URL(string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XOR.svg"),
+            currencyId: Self.soraXorCurrencyId,
+            color: "EE2233",
+            isUtility: true,
+            isNative: true,
+            staking: .relayChain,
+            type: .soraAsset,
+            priceProvider: PriceProvider(
+                type: .sorasubquery,
+                id: Self.soraXorCurrencyId,
+                precision: nil
+            ),
+            coingeckoPriceId: "sora"
+        )
+        updatedChain.assets.insert(xorAsset)
+        return updatedChain
+    }
+
+    private func isSoraNexus(_ chain: ChainModel) -> Bool {
+        let name = chain.name.lowercased()
+        let chainId = chain.chainId.lowercased()
+        return (name.contains("sora") && name.contains("nexus"))
+            || chainId.contains("sora-nexus")
+            || chainId.contains("soranexus")
     }
 
     private func syncChanges(

@@ -1,7 +1,9 @@
 import Foundation
 import IrohaCrypto
 import RobinHood
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 protocol AccountProviderFactoryProtocol {
     var operationManager: OperationManagerProtocol { get }
@@ -43,18 +45,8 @@ final class AccountProviderFactory: AccountProviderFactoryProtocol {
         let observable = CoreDataContextObservable(
             service: storageFacade.databaseService,
             mapper: AnyCoreDataMapper(mapper),
-            predicate: { metaAccount in
-                metaAccount.substrateAccountId == hexAccountId ||
-                    metaAccount.ethereumAddress == hexAccountId ||
-                    metaAccount.chainAccounts?.contains(
-                        where: { chainEntity in
-                            guard let chainAccount = chainEntity as? CDChainAccount else {
-                                return false
-                            }
-
-                            return chainAccount.accountId == hexAccountId
-                        }
-                    ) ?? false
+            predicate: { [hexAccountId] metaAccount in
+                self.matches(metaAccount: metaAccount, accountId: hexAccountId)
             }
         )
 
@@ -70,5 +62,23 @@ final class AccountProviderFactory: AccountProviderFactoryProtocol {
             observable: AnyDataProviderRepositoryObservable(observable),
             operationManager: operationManager
         )
+    }
+
+    private func matches(metaAccount: CDMetaAccount, accountId: String) -> Bool {
+        if metaAccount.substrateAccountId == accountId || metaAccount.ethereumAddress == accountId {
+            return true
+        }
+
+        guard let chainAccounts = metaAccount.chainAccounts else {
+            return false
+        }
+
+        return chainAccounts.contains { chainEntity in
+            guard let chainAccount = chainEntity as? CDChainAccount else {
+                return false
+            }
+
+            return chainAccount.accountId == accountId
+        }
     }
 }

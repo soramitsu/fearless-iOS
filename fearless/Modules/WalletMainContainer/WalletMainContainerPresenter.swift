@@ -184,7 +184,7 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
                         wallet: issue.wallet
                     )
                 } else {
-                    strongSelf.router.showMainStaking()
+                    strongSelf.router.showMainStaking(from: strongSelf.view)
                 }
             }
         }
@@ -270,8 +270,6 @@ extension WalletMainContainerPresenter: ScanQRModuleOutput {
             )
         case let .walletConnect(uri):
             walletConnect(with: uri)
-        case .preinstalledWallet:
-            break
         }
     }
 }

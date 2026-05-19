@@ -6,6 +6,145 @@ import Web3
 import SSFChainRegistry
 import SSFRuntimeCodingService
 import SSFChainConnection
+#if canImport(FearlessKeys)
+    import FearlessKeys
+#endif
+import TonAPI
+import OpenAPIRuntime
+import HTTPTypes
+
+enum TonAPITransportError: Error {
+    case invalidRequestURL(path: String, method: HTTPRequest.Method, baseURL: URL)
+    case notHTTPResponse(URLResponse)
+}
+
+private final class TonAPIURLSessionTransport: ClientTransport, @unchecked Sendable {
+    private let session: URLSession
+
+    init(configuration: URLSessionConfiguration = .default) {
+        session = URLSession(configuration: configuration)
+    }
+
+    func send(
+        _ request: HTTPRequest,
+        body: HTTPBody?,
+        baseURL: URL,
+        operationID _: String
+    ) async throws -> (HTTPResponse, HTTPBody?) {
+        var urlRequest = try await URLRequest(request, body: body, baseURL: baseURL)
+        urlRequest.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+
+        let (data, response) = try await session.data(for: urlRequest)
+        let httpResponse = try HTTPResponse.from(urlResponse: response)
+        let responseBody: HTTPBody? = data.isEmpty ? nil : HTTPBody(data)
+        return (httpResponse, responseBody)
+    }
+}
+
+private struct TonAPIAuthorizationMiddleware: ClientMiddleware {
+    let token: String
+
+    func intercept(
+        _ request: HTTPRequest,
+        body: HTTPBody?,
+        baseURL: URL,
+        operationID _: String,
+        next: @Sendable(HTTPRequest, HTTPBody?, URL) async throws -> (HTTPResponse, HTTPBody?)
+    ) async throws -> (HTTPResponse, HTTPBody?) {
+        guard !token.isEmpty else {
+            return try await next(request, body, baseURL)
+        }
+
+        var authenticated = request
+        authenticated.headerFields[.authorization] = "Bearer \(token)"
+        return try await next(authenticated, body, baseURL)
+    }
+}
+
+final class TonAPIClientFactory {
+    private let tonAPIURL: URL
+    private let token: String
+
+    init(tonAPIURL: URL, token: String) {
+        self.tonAPIURL = tonAPIURL
+        self.token = token
+    }
+
+    func tonAPIClient() -> Client {
+        let transport = TonAPIURLSessionTransport()
+        let middlewares: [any ClientMiddleware] = token.isEmpty ? [] : [TonAPIAuthorizationMiddleware(token: token)]
+
+        return Client(
+            serverURL: tonAPIURL,
+            transport: transport,
+            middlewares: middlewares
+        )
+    }
+}
+
+private extension URLRequest {
+    init(
+        _ request: HTTPRequest,
+        body: HTTPBody?,
+        baseURL: URL
+    ) async throws {
+        guard
+            var baseURLComponents = URLComponents(string: baseURL.absoluteString),
+            let requestURLComponents = URLComponents(string: request.path ?? "")
+        else {
+            throw TonAPITransportError.invalidRequestURL(
+                path: request.path ?? "<nil>",
+                method: request.method,
+                baseURL: baseURL
+            )
+        }
+
+        baseURLComponents.percentEncodedPath += requestURLComponents.percentEncodedPath
+        baseURLComponents.percentEncodedQuery = requestURLComponents.percentEncodedQuery
+
+        guard let resolvedURL = baseURLComponents.url else {
+            throw TonAPITransportError.invalidRequestURL(
+                path: request.path ?? "<nil>",
+                method: request.method,
+                baseURL: baseURL
+            )
+        }
+
+        self.init(url: resolvedURL)
+        httpMethod = request.method.rawValue
+
+        for header in request.headerFields {
+            setValue(header.value, forHTTPHeaderField: header.name.canonicalName)
+        }
+
+        if let body {
+            httpBody = try await Data(collecting: body, upTo: .max)
+        }
+    }
+}
+
+private extension HTTPResponse {
+    static func from(urlResponse: URLResponse) throws -> HTTPResponse {
+        guard let httpResponse = urlResponse as? HTTPURLResponse else {
+            throw TonAPITransportError.notHTTPResponse(urlResponse)
+        }
+
+        var headers = HTTPFields()
+        for (key, value) in httpResponse.allHeaderFields {
+            guard
+                let rawName = key as? String,
+                let name = HTTPField.Name(rawName),
+                let stringValue = value as? String
+            else {
+                continue
+            }
+
+            headers[name] = stringValue
+        }
+
+        return HTTPResponse(status: .init(code: httpResponse.statusCode), headerFields: headers)
+    }
+}
 
 protocol ChainRegistryProtocol: AnyObject {
     var availableChainIds: Set<ChainModel.Id>? { get }
@@ -15,6 +154,8 @@ protocol ChainRegistryProtocol: AnyObject {
     func resetConnection(for chainId: ChainModel.Id)
     func retryConnection(for chainId: ChainModel.Id)
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
+    func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth?
+    func getTonApiClientFactory() throws -> TonAPIClientFactory
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
     func getChain(for chainId: ChainModel.Id) -> ChainModel?
     func chainsSubscribe(
@@ -22,12 +163,11 @@ protocol ChainRegistryProtocol: AnyObject {
         runningInQueue: DispatchQueue,
         updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void
     )
-    func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth?
     func chainsUnsubscribe(_ target: AnyObject)
     func syncUp()
     func performHotBoot()
     func performColdBoot()
-    func subscribeToChians()
+    func subscribeToChains()
 }
 
 final class ChainRegistry {
@@ -58,6 +198,8 @@ final class ChainRegistry {
     private var chains: [ChainModel] = []
     private(set) var chainsTypesMap: [String: Data] = [:]
     private var runtimeVersionSubscriptions: [ChainModel.Id: SpecVersionSubscriptionProtocol] = [:]
+    private(set) var tonApiClientFactory: TonAPIClientFactory?
+    private var tonApiChainId: ChainModel.Id?
 
     // MARK: - Constructor
 
@@ -117,7 +259,8 @@ final class ChainRegistry {
                         self.handleDelete(chainId)
                     }
                 } catch {
-                    self.logger?.error("Chain: \(change.item?.name), Unexpected error on handling chains update: \(error)")
+                    let chainName = change.item?.name ?? "unknown"
+                    self.logger?.error("Chain: \(chainName), Unexpected error on handling chains update: \(error)")
                 }
             }
 
@@ -128,18 +271,24 @@ final class ChainRegistry {
     // MARK: - Private DataProviderChange handle methods
 
     private func handleInsert(_ chain: ChainModel) throws {
-        if chain.isEthereum {
-            try handleNewEthereumChain(newChain: chain)
-        } else {
+        switch chainKind(for: chain) {
+        case .substrate:
             try handleNewSubstrateChain(newChain: chain)
+        case .ethereum:
+            try handleNewEthereumChain(newChain: chain)
+        case .ton:
+            handleTonChain(chain)
         }
     }
 
     private func handleUpdate(_ chain: ChainModel) throws {
-        if chain.isEthereum {
-            try handleUpdatedEthereumChain(updatedChain: chain)
-        } else {
+        switch chainKind(for: chain) {
+        case .substrate:
             try handleUpdatedSubstrateChain(updatedChain: chain)
+        case .ethereum:
+            try handleUpdatedEthereumChain(updatedChain: chain)
+        case .ton:
+            handleTonChain(chain)
         }
     }
 
@@ -148,10 +297,13 @@ final class ChainRegistry {
             return
         }
 
-        if removedChain.isEthereum {
-            handleDeletedEthereumChain(chainId: chainId)
-        } else {
+        switch chainKind(for: removedChain) {
+        case .substrate:
             handleDeletedSubstrateChain(chainId: chainId)
+        case .ethereum:
+            handleDeletedEthereumChain(chainId: chainId)
+        case .ton:
+            handleDeletedChain(chainId: chainId)
         }
     }
 
@@ -254,11 +406,62 @@ final class ChainRegistry {
     }
 
     private func handleDeletedEthereumChain(chainId: ChainModel.Id) {
+        resetEthereumConnection(for: chainId)
         chains = chains.filter { $0.chainId != chainId }
     }
 
-    private func resetEthereumConnection(for _: ChainModel.Id) {
-        // TODO: Reset eth connection
+    private func resetEthereumConnection(for chainId: ChainModel.Id) {
+        guard let ethereumConnectionPool else {
+            return
+        }
+
+        ethereumConnectionPool.resetConnection(for: chainId)
+    }
+
+    private func handleTonChain(_ chain: ChainModel) {
+        chains = chains.filter { $0.chainId != chain.chainId }
+        chains.append(chain)
+
+        let token = currentTonApiKey
+        guard let node = Self.resolveTonNode(for: chain) else {
+            logger?.error("Missing TON node URL")
+            if tonApiChainId == chain.chainId {
+                tonApiClientFactory = nil
+                tonApiChainId = nil
+            }
+            return
+        }
+
+        guard shouldUseTonChain(chain) else {
+            if tonApiChainId == chain.chainId {
+                tonApiClientFactory = nil
+                tonApiChainId = nil
+            }
+            return
+        }
+
+        tonApiClientFactory = TonAPIClientFactory(tonAPIURL: node.url, token: token)
+        tonApiChainId = chain.chainId
+    }
+
+    static func resolveTonNode(for chain: ChainModel) -> ChainNodeModel? {
+        chain.selectedNode ?? chain.nodes.sorted { $0.url.absoluteString < $1.url.absoluteString }.first
+    }
+
+    private var currentTonApiKey: String {
+        #if DEBUG
+            TonNodeApiKeyDebug.tonApiKey
+        #else
+            TonNodeApiKey.tonApiKey
+        #endif
+    }
+
+    private func handleDeletedChain(chainId: ChainModel.Id) {
+        chains = chains.filter { $0.chainId != chainId }
+        if tonApiChainId == chainId {
+            tonApiClientFactory = nil
+            tonApiChainId = nil
+        }
     }
 
     // MARK: - Private others methods
@@ -273,7 +476,16 @@ final class ChainRegistry {
 
 extension ChainRegistry: ChainRegistryProtocol {
     var availableChainIds: Set<ChainModel.Id>? {
-        readLock.concurrentlyRead { Set(runtimeVersionSubscriptions.keys + chains.filter { $0.isEthereum }.map { $0.chainId }) }
+        readLock.concurrentlyRead {
+            var availableIds = Set(runtimeVersionSubscriptions.keys)
+            availableIds.formUnion(chains.filter { $0.isEthereum }.map(\.chainId))
+
+            if let tonChainId = chains.first(where: shouldUseTonChain)?.chainId {
+                availableIds.insert(tonChainId)
+            }
+
+            return availableIds
+        }
     }
 
     var availableChains: [ChainModel] {
@@ -283,7 +495,7 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func performColdBoot() {
-        subscribeToChians()
+        subscribeToChains()
         syncUpServices()
     }
 
@@ -292,7 +504,7 @@ extension ChainRegistry: ChainRegistryProtocol {
         snapshotHotBootBuilder.startHotBoot()
     }
 
-    func subscribeToChians() {
+    func subscribeToChains() {
         let updateClosure: ([DataProviderChange<ChainModel>]) -> Void = { [weak self] changes in
             self?.handleChainModel(changes)
         }
@@ -306,6 +518,8 @@ extension ChainRegistry: ChainRegistryProtocol {
             waitsInProgressSyncOnAdd: false,
             refreshWhenEmpty: false
         )
+
+        chainProvider.removeObserver(self)
 
         chainProvider.addObserver(
             self,
@@ -345,14 +559,40 @@ extension ChainRegistry: ChainRegistryProtocol {
         runtimeProviderPool.getRuntimeProvider(for: chainId)
     }
 
+    func getTonApiClientFactory() throws -> TonAPIClientFactory {
+        let resolvedTonApiClientFactory = readLock.concurrentlyRead { () -> TonAPIClientFactory? in
+            guard let selectedTonChain = chains.first(where: shouldUseTonChain) else {
+                return nil
+            }
+
+            if tonApiChainId == selectedTonChain.chainId, let cachedTonApiClientFactory = self.tonApiClientFactory {
+                return cachedTonApiClientFactory
+            }
+
+            guard let node = Self.resolveTonNode(for: selectedTonChain) else {
+                logger?.error("Missing TON node URL")
+                return nil
+            }
+
+            return TonAPIClientFactory(tonAPIURL: node.url, token: currentTonApiKey)
+        }
+
+        guard let resolvedTonApiClientFactory else {
+            throw ChainRegistryError.connectionUnavailable
+        }
+
+        return resolvedTonApiClientFactory
+    }
+
     func chainsSubscribe(
         _ target: AnyObject,
         runningInQueue: DispatchQueue,
         updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void
     ) {
+        let observerUpdateClosure = updateClosure
         let updateClosure: ([DataProviderChange<ChainModel>]) -> Void = { changes in
             runningInQueue.async {
-                updateClosure(changes)
+                observerUpdateClosure(changes)
             }
         }
 
@@ -390,21 +630,46 @@ extension ChainRegistry: ChainRegistryProtocol {
             return
         }
 
-        if chain.isEthereum {
-            resetEthereumConnection(for: chain.chainId)
-        } else {
+        switch chainKind(for: chain) {
+        case .substrate:
             resetSubstrateConnection(for: chain.chainId)
+        case .ethereum:
+            resetEthereumConnection(for: chain.chainId)
+        case .ton:
+            break
         }
     }
 
     func retryConnection(for chainId: ChainModel.Id) {
-        guard
-            let chain = chains.first(where: { $0.chainId == chainId }),
-            let currentConnection = getConnection(for: chainId)
-        else {
+        guard let currentConnection = getConnection(for: chainId) else {
             return
         }
         currentConnection.connectIfNeeded()
+    }
+}
+
+private extension ChainRegistry {
+    enum ChainKind {
+        case substrate
+        case ethereum
+        case ton
+    }
+
+    func chainKind(for chain: ChainModel) -> ChainKind {
+        if chain.isTonCompatibilityChain {
+            return .ton
+        }
+
+        if chain.chainBaseType == .ethereum {
+            return .ethereum
+        }
+
+        return .substrate
+    }
+
+    func shouldUseTonChain(_ chain: ChainModel) -> Bool {
+        let isTestnetEnabled = LocalToggleService.shared.tonEnvListToggle.storageValue
+        return TonChainSelection.matchesSelectedEnvironment(chain: chain, isTestnetEnabled: isTestnetEnabled)
     }
 }
 

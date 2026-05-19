@@ -39,14 +39,11 @@ final class AssetManagementAssembly {
         let repository = SubstrateRepositoryFactory(
             storageFacade: UserDataStorageFacade.shared
         ).createAccountInfoStorageItemRepository()
-        let ethereumBalanceRepositoryWrapper = EthereumBalanceRepositoryCacheWrapper(
+        let ethereumBalanceRepositoryWrapper = BalanceRepositoryCacheWrapper(
             logger: Logger.shared,
             repository: repository,
             operationManager: OperationManagerFacade.sharedManager
         )
-
-        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-            SubstrateDataStorageFacade.shared.createAsyncRepository()
 
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
@@ -54,13 +51,32 @@ final class AssetManagementAssembly {
             repositoryWrapper: ethereumBalanceRepositoryWrapper
         )
 
+        let tonBalanceRepositoryWrapper = BalanceRepositoryCacheWrapper(
+            logger: Logger.shared,
+            repository: repository,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let tonChainRepository = ChainRepositoryFactory().createAsyncRepository()
+        let tonJettonInjector = TonJettonInjectorImpl(
+            chainModelRepository: AsyncAnyRepository(tonChainRepository),
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared
+        )
+
+        let tonRemoteBalanceFetching = TonRemoteBalanceFetchingImpl(
+            chainRegistry: chainRegistry,
+            repositoryWrapper: tonBalanceRepositoryWrapper,
+            jettonInjector: tonJettonInjector
+        )
+
         let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
             chainRegistry: chainRegistry
         )
 
         let accountInfoRemote = AccountInfoRemoteServiceDefault(
-            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository),
             ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
+            tonRemoteBalanceFetching: tonRemoteBalanceFetching,
             storagePerformer: storagePerformer
         )
 

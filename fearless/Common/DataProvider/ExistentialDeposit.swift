@@ -42,7 +42,7 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
         }
 
         switch chainAsset.chainAssetType {
-        case .equilibrium:
+        case .equilibrium?:
             fetchConstant(
                 for: .equilibriumExistentialDeposit,
                 runtimeCodingService: runtimeService,
@@ -115,7 +115,7 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
             return
         }
         guard let currencyId = chainAsset.asset.currencyId else {
-            completion(.failure(ConvenienceError(error: "missing currency id \(chainAsset.debugName)")))
+            completion(.failure(ChainRegistryError.runtimeMetadaUnavailable))
             return
         }
         let assetsDetailsPath = StorageCodingPath.assetsAssetDetail

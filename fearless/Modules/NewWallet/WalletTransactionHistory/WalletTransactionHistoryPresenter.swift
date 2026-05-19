@@ -136,11 +136,12 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
         if chain.isReef {
             return .single
         }
-        guard chainAsset.chain.externalApi?.history?.type?.hasFilters == true else {
+        guard let explorerType = chain.externalApi?.history?.type, explorerType.hasFilters else {
             return .disabled
         }
 
-        return (chainAsset.chain.externalApi?.history?.type != .etherscan && chainAsset.chain.externalApi?.history != nil) ? .multiple : .disabled
+        let supportsMultiple = explorerType != .etherscan && chain.externalApi?.history != nil
+        return supportsMultiple ? .multiple : .disabled
     }
 }
 

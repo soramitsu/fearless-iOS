@@ -138,10 +138,11 @@ final class LiquidityPoolRemoveLiquidityPresenter {
     // MARK: - Private methods
 
     private func buildCallParameters() -> RemoveLiquidityInfo? {
+        let chainAssets = Array(chain.assets)
         guard
             let dexId,
-            let baseAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.baseAssetId }),
-            let targetAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.targetAssetId }),
+            let baseAsset = chainAssets.first(where: { $0.currencyId == liquidityPair.baseAssetId }),
+            let targetAsset = chainAssets.first(where: { $0.currencyId == liquidityPair.targetAssetId }),
             let totalIssuance = totalIssuance,
             let reserves = reservesValue,
             let baseAssetReserves = Decimal.fromSubstrateAmount(reserves, precision: Int16(baseAsset.precision)),

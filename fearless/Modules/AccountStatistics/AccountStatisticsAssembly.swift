@@ -6,7 +6,7 @@ final class AccountStatisticsAssembly {
     static func configureModule(address: String?) -> AccountStatisticsModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let accountScoreFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerImpl(), signer: NomisRequestSigner())
+        let accountScoreFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerDefault(), signer: NomisRequestSigner())
         let interactor = AccountStatisticsInteractor(accountScoreFetcher: accountScoreFetcher, address: address)
         let router = AccountStatisticsRouter()
 

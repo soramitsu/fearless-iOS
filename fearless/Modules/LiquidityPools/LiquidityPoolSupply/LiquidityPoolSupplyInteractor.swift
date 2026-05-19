@@ -77,7 +77,7 @@ extension LiquidityPoolSupplyInteractor: LiquidityPoolSupplyInteractorInput {
             do {
                 let availablePoolsStream = try await lpDataService.subscribeAvailablePools()
 
-                for try await availablePools in availablePoolsStream {
+                for await availablePools in availablePoolsStream {
                     await MainActor.run {
                         output?.didReceiveLiquidityPairs(pairs: availablePools.value)
                     }
@@ -96,12 +96,14 @@ extension LiquidityPoolSupplyInteractor: LiquidityPoolSupplyInteractorInput {
         }
 
         Task {
-            let address = try AddressFactory.address(for: Data(hex: reservesId), chain: chain)
-            let apyStream = try await lpDataService.subscribePoolsAPY(poolIds: [address])
             do {
-                for try await apy in apyStream {
+                let address = try AddressFactory.address(for: Data(hex: reservesId), chain: chain)
+                let apyStream = try await lpDataService.subscribePoolsAPY(poolIds: [address])
+
+                for await apy in apyStream {
                     await MainActor.run {
-                        output?.didReceivePoolAPY(apyInfo: apy.first(where: { $0.value?.poolId == address })?.value)
+                        let match = apy.first { ($0.value ?? nil)?.poolId == address }
+                        output?.didReceivePoolAPY(apyInfo: match?.value ?? nil)
                     }
                 }
             } catch {
@@ -119,7 +121,7 @@ extension LiquidityPoolSupplyInteractor: LiquidityPoolSupplyInteractorInput {
             do {
                 let reservesStream = try await lpDataService.subscribePoolReserves(assetIdPair: assetIdPair)
 
-                for try await reserves in reservesStream {
+                for await reserves in reservesStream {
                     await MainActor.run {
                         output?.didReceivePoolReserves(reserves: reserves.value)
                     }

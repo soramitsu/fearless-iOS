@@ -86,9 +86,9 @@ final class SoraRewardCalculatorService {
 
     private func fetchQuotes() {
         guard let swapToChainAsset = rewardChainAsset,
+              let marketSourcer = marketSource,
               let swapFromAssetId = chainAsset.asset.currencyId,
-              let swapToAssetId = swapToChainAsset.asset.currencyId,
-              let marketSourcer = marketSource
+              let swapToAssetId = swapToChainAsset.asset.currencyId
         else {
             return
         }

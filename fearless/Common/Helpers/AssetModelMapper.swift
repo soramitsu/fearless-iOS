@@ -4,6 +4,14 @@ import RobinHood
 import SSFModels
 import SSFUtils
 
+enum AssetModelMapperError: Error {
+    case missedRequiredFields
+}
+
+extension AssetModel: @retroactive RobinHood.Identifiable {
+    public var identifier: String { id }
+}
+
 final class AssetModelMapper {
     private func createChainAssetModelType(from rawValue: String?) -> SubstrateAssetType? {
         guard let rawValue = rawValue else {
@@ -20,40 +28,22 @@ final class AssetModelMapper {
 
         return EthereumAssetType(rawValue: rawValue)
     }
-
-    private func createPriceData(from entity: CDPriceData) -> PriceData? {
-        guard let currencyId = entity.currencyId,
-              let priceId = entity.priceId,
-              let price = entity.price else {
-            return nil
-        }
-        return PriceData(
-            currencyId: currencyId,
-            priceId: priceId,
-            price: price,
-            fiatDayChange: Decimal(string: entity.fiatDayByChange ?? ""),
-            coingeckoPriceId: entity.coingeckoPriceId
-        )
-    }
 }
 
 extension AssetModelMapper: CoreDataMapperProtocol {
-    var entityIdentifierFieldName: String { #keyPath(CDAsset.priceId) }
+    typealias DataProviderModel = AssetModel
+    typealias CoreDataEntity = CDAsset
+
+    // Avoid #keyPath ambiguity with Identifiable.id in Swift 6
+    var entityIdentifierFieldName: String { "id" }
 
     func transform(entity: CDAsset) throws -> AssetModel {
-        var symbol: String?
-        if let entitySymbol = entity.symbol {
-            symbol = entitySymbol
-        } else {
-            symbol = entity.id
+        guard let id = entity.id else {
+            throw AssetModelMapperError.missedRequiredFields
         }
 
-        var name: String?
-        if let entityName = entity.name {
-            name = entityName
-        } else {
-            name = entity.symbol
-        }
+        let symbol = entity.symbol ?? id
+        let name = entity.name ?? symbol
 
         let staking: SSFModels.RawStakingType?
         if let entityStaking = entity.staking {
@@ -73,19 +63,40 @@ extension AssetModelMapper: CoreDataMapperProtocol {
             priceProvider = PriceProvider(type: type, id: id, precision: Int16(precision))
         }
 
-        let priceDatas: [PriceData] = entity.priceData.or([]).compactMap { data in
-            guard let priceData = data as? CDPriceData else {
+        let price: Decimal? = {
+            guard entity.entity.propertiesByName["price"] != nil else {
                 return nil
             }
-            return createPriceData(from: priceData)
-        }
+            if let value = entity.value(forKey: "price") as? NSDecimalNumber {
+                return value.decimalValue
+            }
+            if let value = entity.value(forKey: "price") as? Decimal {
+                return value
+            }
+            return nil
+        }()
+
+        let fiatDayChange: Decimal? = {
+            guard entity.entity.propertiesByName["fiatDayChange"] != nil else {
+                return nil
+            }
+            if let value = entity.value(forKey: "fiatDayChange") as? NSDecimalNumber {
+                return value.decimalValue
+            }
+            if let value = entity.value(forKey: "fiatDayChange") as? Decimal {
+                return value
+            }
+            return nil
+        }()
 
         return AssetModel(
-            id: entity.id!,
-            name: name!,
-            symbol: symbol!,
+            id: id,
+            name: name,
+            symbol: symbol,
             precision: UInt16(bitPattern: entity.precision),
             icon: entity.icon,
+            price: price,
+            fiatDayChange: fiatDayChange,
             currencyId: entity.currencyId,
             existentialDeposit: entity.existentialDeposit,
             color: entity.color,
@@ -96,8 +107,7 @@ extension AssetModelMapper: CoreDataMapperProtocol {
             type: createChainAssetModelType(from: entity.type),
             ethereumType: createEthereumAssetType(from: entity.ethereumType),
             priceProvider: priceProvider,
-            coingeckoPriceId: entity.priceId,
-            priceData: priceDatas
+            coingeckoPriceId: entity.priceId
         )
     }
 
@@ -120,6 +130,12 @@ extension AssetModelMapper: CoreDataMapperProtocol {
         entity.isNative = model.isNative
         entity.staking = model.staking?.rawValue
         entity.ethereumType = model.ethereumType?.rawValue
+        if entity.entity.propertiesByName["price"] != nil {
+            entity.setValue(model.price as NSDecimalNumber?, forKey: "price")
+        }
+        if entity.entity.propertiesByName["fiatDayChange"] != nil {
+            entity.setValue(model.fiatDayChange as NSDecimalNumber?, forKey: "fiatDayChange")
+        }
 
         let priceProviderContext = CDPriceProvider(context: context)
         priceProviderContext.type = model.priceProvider?.type.rawValue
@@ -131,25 +147,5 @@ extension AssetModelMapper: CoreDataMapperProtocol {
 
         let purchaseProviders: [String]? = model.purchaseProviders?.map(\.rawValue)
         entity.purchaseProviders = purchaseProviders
-
-        let priceData: [CDPriceData] = model.priceData.map { priceData in
-            let entity = CDPriceData(context: context)
-            entity.currencyId = priceData.currencyId
-            entity.priceId = priceData.priceId
-            entity.price = priceData.price
-            entity.fiatDayByChange = String("\(priceData.fiatDayChange)")
-            entity.coingeckoPriceId = priceData.coingeckoPriceId
-            return entity
-        }
-
-        if let oldPrices = entity.priceData as? Set<CDPriceData> {
-            oldPrices.forEach { cdPriceData in
-                if !priceData.contains(where: { $0.currencyId == cdPriceData.currencyId }) {
-                    context.delete(cdPriceData)
-                }
-            }
-        }
-
-        entity.priceData = Set(priceData) as NSSet
     }
 }

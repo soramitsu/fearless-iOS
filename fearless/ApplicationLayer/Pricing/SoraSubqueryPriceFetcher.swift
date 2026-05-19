@@ -11,8 +11,8 @@ final class SoraSubqueryPriceFetcherDefault: SoraSubqueryPriceFetcher {
             guard let self else { return [] }
 
             guard let blockExplorer = chainAssets.first(where: { chainAsset in
-                chainAsset.chain.knownChainEquivalent == .soraMain
-            })?.chain.externalApi?.pricing else {
+                chainAsset.asset.priceProvider?.type == .sorasubquery
+            })?.chain.externalApi?.history else {
                 throw SubqueryPriceFetcherError.missingBlockExplorer
             }
             let priceIds = chainAssets.map { $0.asset.priceProvider?.id }.compactMap { $0 }
@@ -67,7 +67,7 @@ final class SoraSubqueryPriceFetcherDefault: SoraSubqueryPriceFetcher {
             baseURL: url,
             query: queryString(priceIds: priceIds, cursor: cursor)
         )
-        let worker = NetworkWorkerImpl()
+        let worker = NetworkWorkerDefault()
         let response: GraphQLResponse<SoraSubqueryPriceResponse> = try await worker.performRequest(with: request)
 
         switch response {

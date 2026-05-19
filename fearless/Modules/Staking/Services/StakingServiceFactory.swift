@@ -3,6 +3,9 @@ import RobinHood
 import SSFUtils
 import SSFModels
 import SSFStorageQueryKit
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 enum StakingServiceFactoryError: Error {
     case stakingUnavailable
@@ -178,7 +181,7 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
 
         let repositoryFacade = SubstrateDataStorageFacade.shared
         let mapper = PolkaswapSettingMapper()
-        let settingsRepository: CoreDataRepository<PolkaswapRemoteSettings, CDPolkaswapRemoteSettings> =
+        let settingsRepository: CoreDataRepository<PolkaswapRemoteSettings, SSFAssetManagmentStorage.CDPolkaswapRemoteSettings> =
             repositoryFacade.createRepository(
                 filter: nil,
                 sortDescriptors: [],

@@ -23,7 +23,26 @@ struct MetaAccountModel: Equatable, Codable {
     let favouriteChainIds: [ChainModel.Id]
 
     var utilsModel: SSFModels.MetaAccountModel {
-        SSFModels.MetaAccountModel(metaId: metaId, name: name, substrateAccountId: substrateAccountId, substrateCryptoType: substrateCryptoType, substratePublicKey: substratePublicKey, ethereumAddress: ethereumAddress, ethereumPublicKey: ethereumPublicKey, chainAccounts: chainAccounts, assetKeysOrder: assetKeysOrder, assetFilterOptions: [], canExportEthereumMnemonic: canExportEthereumMnemonic, unusedChainIds: unusedChainIds, selectedCurrency: selectedCurrency, networkManagmentFilter: networkManagmentFilter, assetsVisibility: assetsVisibility, zeroBalanceAssetsHidden: false, hasBackup: hasBackup, favouriteChainIds: favouriteChainIds)
+        SSFModels.MetaAccountModel(
+            metaId: metaId,
+            name: name,
+            substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType,
+            substratePublicKey: substratePublicKey,
+            ethereumAddress: ethereumAddress,
+            ethereumPublicKey: ethereumPublicKey,
+            chainAccounts: chainAccounts,
+            assetKeysOrder: assetKeysOrder,
+            assetFilterOptions: [],
+            canExportEthereumMnemonic: canExportEthereumMnemonic,
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency,
+            networkManagmentFilter: networkManagmentFilter,
+            assetsVisibility: assetsVisibility,
+            zeroBalanceAssetsHidden: false,
+            hasBackup: hasBackup,
+            favouriteChainIds: favouriteChainIds
+        )
     }
 }
 

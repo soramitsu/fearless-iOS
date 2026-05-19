@@ -10,8 +10,8 @@ enum BalanceType {
 }
 
 class SendDataValidatingFactory: NSObject {
-    private lazy var xcmAmountInspector: XcmMinAmountInspector = {
-        XcmMinAmountInspectorImpl()
+    private lazy var xcmAmountInspector: AppXcmMinAmountInspector = {
+        AppXcmMinAmountInspectorImpl()
     }()
 
     weak var view: (Localizable & ControllerBackedProtocol)?
@@ -173,11 +173,11 @@ class SendDataValidatingFactory: NSObject {
                     assetSymbol: asset.symbol
                 )
                 return nil
-            } catch {
-                guard let xcmError = error as? XcmError, case let .minAmountError(minAmount) = xcmError else {
-                    return nil
-                }
+            } catch let AppXcmMinAmountError.minAmountError(minAmount) {
                 return minAmount
+            } catch {
+                let minText = self.minAssetAmount(originCHainId: originCHain.chainId, destChainId: destChain.chainId)
+                return minText.isEmpty ? nil : minText
             }
         })
     }
@@ -233,9 +233,7 @@ class SendDataValidatingFactory: NSObject {
             return "0.05 KSM"
         case (.polkadot, .soraMain), (.soraMain, .polkadot):
             return "1.1 DOT"
-        case (.liberland, .soraMain):
-            return "1.0 LLD"
-        case (.soraMain, .liberland):
+        case (.liberland, .soraMain), (.soraMain, .liberland):
             return "1.0 LLD"
         case (.soraMain, .acala):
             return "1.0 ACA"

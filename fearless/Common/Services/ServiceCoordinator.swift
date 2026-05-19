@@ -6,6 +6,9 @@ import SSFUtils
 import SSFChainRegistry
 import SSFNetwork
 import SSFStorageQueryKit
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 protocol ServiceCoordinatorProtocol: ApplicationServiceProtocol {
     func updateOnAccountChange()
@@ -53,7 +56,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
     func setup() {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         chainRegistry.syncUp()
-        chainRegistry.subscribeToChians()
+        chainRegistry.subscribeToChains()
 
         githubPhishingService.setup()
         accountInfoService.setup()
@@ -93,7 +96,7 @@ extension ServiceCoordinator {
             logger: logger
         )
 
-        let ethereumBalanceRepositoryWrapper = EthereumBalanceRepositoryCacheWrapper(
+        let ethereumBalanceRepositoryWrapper = BalanceRepositoryCacheWrapper(
             logger: logger,
             repository: repository,
             operationManager: OperationManagerFacade.sharedManager
@@ -107,6 +110,25 @@ extension ServiceCoordinator {
             repositoryWrapper: ethereumBalanceRepositoryWrapper
         )
 
+        let tonBalanceRepositoryWrapper = BalanceRepositoryCacheWrapper(
+            logger: logger,
+            repository: repository,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let tonChainRepository = ChainRepositoryFactory().createAsyncRepository()
+        let tonJettonInjector = TonJettonInjectorImpl(
+            chainModelRepository: AsyncAnyRepository(tonChainRepository),
+            eventCenter: EventCenter.shared,
+            logger: logger
+        )
+
+        let tonRemoteBalanceFetching = TonRemoteBalanceFetchingImpl(
+            chainRegistry: chainRegistry,
+            repositoryWrapper: tonBalanceRepositoryWrapper,
+            jettonInjector: tonJettonInjector
+        )
+
         let accountInfoService = AccountInfoUpdatingService(
             selectedAccount: selectedMetaAccount,
             chainRegistry: chainRegistry,
@@ -115,9 +137,6 @@ extension ServiceCoordinator {
             logger: logger,
             eventCenter: EventCenter.shared
         )
-
-        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-            SubstrateDataStorageFacade.shared.createAsyncRepository()
 
         let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
             chainRegistry: chainRegistry,
@@ -129,8 +148,8 @@ extension ServiceCoordinator {
         )
 
         let accountInfoRemote = AccountInfoRemoteServiceDefault(
-            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository),
             ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
+            tonRemoteBalanceFetching: tonRemoteBalanceFetching,
             storagePerformer: storagePerformer
         )
 
@@ -156,27 +175,7 @@ extension ServiceCoordinator {
     }
 
     private static func createPackageChainRegistry() -> SSFChainRegistry.ChainRegistryProtocol {
-        let chainSyncService = SSFChainRegistry.ChainSyncService(
-            chainsUrl: ApplicationConfig.shared.chainsSourceUrl,
-            operationQueue: OperationQueue(),
-            dataFetchFactory: SSFNetwork.NetworkOperationFactory()
-        )
-
-        let chainsTypesSyncService = SSFChainRegistry.ChainsTypesSyncService(
-            url: ApplicationConfig.shared.chainTypesSourceUrl,
-            dataOperationFactory: SSFNetwork.NetworkOperationFactory(),
-            operationQueue: OperationQueue()
-        )
-
-        let runtimeSyncService = SSFChainRegistry.RuntimeSyncService(dataOperationFactory: NetworkOperationFactory())
-
-        let chainRegistry = SSFChainRegistry.ChainRegistry(
-            runtimeProviderPool: SSFChainRegistry.RuntimeProviderPool(),
-            connectionPool: SSFChainRegistry.ConnectionPool(),
-            chainSyncService: chainSyncService,
-            chainsTypesSyncService: chainsTypesSyncService,
-            runtimeSyncService: runtimeSyncService
-        )
-        return chainRegistry
+        // Use app's default registry which conforms to SSFChainRegistry.ChainRegistryProtocol
+        ChainRegistryFactory.createDefaultRegistry()
     }
 }

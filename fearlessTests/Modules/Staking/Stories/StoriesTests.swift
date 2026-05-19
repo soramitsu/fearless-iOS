@@ -1,6 +1,7 @@
 import XCTest
 @testable import fearless
 import Cuckoo
+import SSFModels
 import SoraFoundation
 
 class StoriesTests: XCTestCase {
@@ -10,7 +11,7 @@ class StoriesTests: XCTestCase {
         let wireframe = MockStoriesWireframeProtocol()
 
         let locale = LocalizationManager.shared.selectedLocale
-        let model = StoriesFactory().createModel(for: .relaychain)!.value(for: locale)
+        let model = StoriesFactory().createModel(for: StakingType.relaychain)!.value(for: locale)
         
         let interactor = StoriesInteractor(model: model)
         let selectedIndex = 2
@@ -30,7 +31,7 @@ class StoriesTests: XCTestCase {
         let viewModelExpectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub).didRecieve(viewModel: any(), startingFrom: any()).then { (viewModel: [SlideViewModel], starting) in
+            when(stub.didRecieve(viewModel: any([SlideViewModel].self), startingFrom: any(StaringIndex.self))).then { (viewModel: [SlideViewModel], starting) in
                 XCTAssertEqual(viewModel[starting.index].content, model.stories[selectedIndex].slides[starting.index].description)
                 viewModelExpectation.fulfill()
             }

@@ -1,7 +1,9 @@
 import Foundation
 import SSFModels
 import RobinHood
-import FearlessKeys
+#if canImport(FearlessKeys)
+    import FearlessKeys
+#endif
 
 enum AlchemyNFTOperationFactoryError: Error {
     case chainUnsupported(name: String)

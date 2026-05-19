@@ -1,20 +1,24 @@
 import Foundation
 import RobinHood
 import CoreData
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 enum PolkaswapSettingMapperError: Error {
     case requiredFieldsMissing
 }
 
 final class PolkaswapSettingMapper {
-    var entityIdentifierFieldName: String { #keyPath(CDPolkaswapRemoteSettings.version) }
+    // Use a literal to avoid #keyPath module-qualification issues
+    var entityIdentifierFieldName: String { "version" }
 
     typealias DataProviderModel = PolkaswapRemoteSettings
-    typealias CoreDataEntity = CDPolkaswapRemoteSettings
+    typealias CoreDataEntity = SSFAssetManagmentStorage.CDPolkaswapRemoteSettings
 }
 
 extension PolkaswapSettingMapper: CoreDataMapperProtocol {
-    func transform(entity: CDPolkaswapRemoteSettings) throws -> PolkaswapRemoteSettings {
+    func transform(entity: SSFAssetManagmentStorage.CDPolkaswapRemoteSettings) throws -> PolkaswapRemoteSettings {
         guard let version = entity.version,
               let availableSources = entity.availableSources?.compactMap({
                   LiquiditySourceType(rawValue: $0)
@@ -28,7 +32,7 @@ extension PolkaswapSettingMapper: CoreDataMapperProtocol {
 
         let availableDexIds: [PolkaswapDex] = availableDexIdsSet.compactMap { dex -> PolkaswapDex? in
             guard
-                let dex = dex as? CDPolkaswapDex,
+                let dex = dex as? SSFAssetManagmentStorage.CDPolkaswapDex,
                 let name = dex.name,
                 let assetId = dex.assetId
             else {
@@ -52,7 +56,7 @@ extension PolkaswapSettingMapper: CoreDataMapperProtocol {
     }
 
     func populate(
-        entity: CDPolkaswapRemoteSettings,
+        entity: SSFAssetManagmentStorage.CDPolkaswapRemoteSettings,
         from model: PolkaswapRemoteSettings,
         using context: NSManagedObjectContext
     ) throws {
@@ -62,7 +66,7 @@ extension PolkaswapSettingMapper: CoreDataMapperProtocol {
         entity.xstusdId = model.xstusdId
 
         let availableDexIds = model.availableDexIds.map {
-            let entity = CDPolkaswapDex(context: context)
+            let entity = SSFAssetManagmentStorage.CDPolkaswapDex(context: context)
             entity.name = $0.name
             entity.code = Int32($0.code)
             entity.assetId = $0.assetId

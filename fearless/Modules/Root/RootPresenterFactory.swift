@@ -5,26 +5,59 @@ import RobinHood
 import SSFNetwork
 
 final class RootPresenterFactory: RootPresenterFactoryProtocol {
+    struct Dependencies {
+        let settings: SettingsManager
+        let selectedWalletSettings: SelectedWalletSettings
+        let chainRegistry: ChainRegistryProtocol
+        let applicationConfig: ApplicationConfigProtocol
+        let eventCenter: EventCenterProtocol
+        let logger: LoggerProtocol?
+        let localizationManager: LocalizationManagerProtocol
+        let onboardingService: OnboardingServiceProtocol
+        let onboardingConfigResolver: OnboardingConfigVersionResolver
+        let keystore: KeystoreProtocol
+
+        static var `default`: Dependencies {
+            Dependencies(
+                settings: SettingsManager.shared,
+                selectedWalletSettings: SelectedWalletSettings.shared,
+                chainRegistry: ChainRegistryFacade.sharedRegistry,
+                applicationConfig: ApplicationConfig.shared,
+                eventCenter: EventCenter.shared,
+                logger: Logger.shared,
+                localizationManager: LocalizationManager.shared,
+                onboardingService: OnboardingService(
+                    networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
+                    operationQueue: OperationQueue()
+                ),
+                onboardingConfigResolver: OnboardingConfigVersionResolver(userDefaultsStorage: SettingsManager.shared),
+                keystore: Keychain()
+            )
+        }
+    }
+
     static func createPresenter(with window: UIWindow) -> RootPresenterProtocol {
+        createPresenter(with: window, dependencies: .default)
+    }
+
+    static func createPresenter(with window: UIWindow, dependencies: Dependencies) -> RootPresenterProtocol {
         let wireframe = RootWireframe()
-        let settings = SettingsManager.shared
-        let keychain = Keychain()
         let startViewHelper = StartViewHelper(
-            keystore: keychain,
-            selectedWalletSettings: SelectedWalletSettings.shared,
-            userDefaultsStorage: SettingsManager.shared
+            keystore: dependencies.keystore,
+            selectedWalletSettings: dependencies.selectedWalletSettings,
+            userDefaultsStorage: dependencies.settings
         )
 
         let languageMigrator = SelectedLanguageMigrator(
-            localizationManager: LocalizationManager.shared
+            localizationManager: dependencies.localizationManager
         )
 
         let dbMigrator = UserStorageMigrator(
             targetVersion: UserStorageParams.modelVersion,
             storeURL: UserStorageParams.storageURL,
             modelDirectory: UserStorageParams.modelDirectory,
-            keystore: keychain,
-            settings: settings,
+            keystore: dependencies.keystore,
+            settings: dependencies.settings,
             fileManager: FileManager.default
         )
 
@@ -36,11 +69,11 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         )
 
         let presenter = RootPresenter(
-            localizationManager: LocalizationManager.shared,
+            localizationManager: dependencies.localizationManager,
             startViewHelper: startViewHelper
         )
 
-        let assetManagementMigrator = AssetManagementMigratorAssembly.createDefaultMigrator()
+        _ = AssetManagementMigratorAssembly.createDefaultMigrator()
 
         let migrators: [Migrating] = [
             languageMigrator,
@@ -48,27 +81,20 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             substrateDbMigrator
         ]
 
-        let service = OnboardingService(
-            networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
-            operationQueue: OperationQueue()
-        )
-
-        let resolver = OnboardingConfigVersionResolver(userDefaultsStorage: SettingsManager.shared)
-
         let interactor = RootInteractor(
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            settings: SelectedWalletSettings.shared,
-            applicationConfig: ApplicationConfig.shared,
-            eventCenter: EventCenter.shared,
+            chainRegistry: dependencies.chainRegistry,
+            settings: dependencies.selectedWalletSettings,
+            applicationConfig: dependencies.applicationConfig,
+            eventCenter: dependencies.eventCenter,
             migrators: migrators,
-            logger: Logger.shared,
-            onboardingService: service,
-            onboardingConfigResolver: resolver
+            logger: dependencies.logger,
+            onboardingService: dependencies.onboardingService,
+            onboardingConfigResolver: dependencies.onboardingConfigResolver
         )
 
         let view = RootViewController(
             presenter: presenter,
-            localizationManager: LocalizationManager.shared
+            localizationManager: dependencies.localizationManager
         )
 
         presenter.window = window

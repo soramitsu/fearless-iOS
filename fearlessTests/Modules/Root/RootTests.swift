@@ -1,4 +1,5 @@
 import XCTest
+import Foundation
 @testable import fearless
 import Cuckoo
 import SoraKeystore
@@ -21,22 +22,24 @@ class RootTests: XCTestCase {
             storageFacade: UserDataStorageTestFacade(),
             operationQueue: OperationQueue()
         )
-        
         let userDefaultsStorage = InMemorySettingsManager()
-        userDefaultsStorage.set(
-            value: false,
-            for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
+
+        let onboardingService = StubOnboardingService(
+            result: .success(Self.makeOnboardingPlatform())
         )
 
-        let presenter = createPresenter(wireframe: wireframe,
-                                        settings: settings,
-                                        keystore: keystore,
-                                        userDefaultsStorage: userDefaultsStorage)
+        let presenter = createPresenter(
+            wireframe: wireframe,
+            settings: settings,
+            keystore: keystore,
+            userDefaultsStorage: userDefaultsStorage,
+            onboardingService: onboardingService
+        )
 
         let splashExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).showSplash(splashView: any(), on: any()).then { _ in
+            stub.showSplash(splashView: any(), on: any()).then { _ in
                 splashExpectation.fulfill()
             }
         }
@@ -44,7 +47,7 @@ class RootTests: XCTestCase {
         let onboardingExpectation = XCTestExpectation()
         
         stub(wireframe) { stub in
-            when(stub).showOnboarding(on: any()).then { _ in
+            stub.showOnboarding(on: any(), with: any()).then { _ in
                 onboardingExpectation.fulfill()
             }
         }
@@ -55,8 +58,8 @@ class RootTests: XCTestCase {
 
         // then
 
-        XCTAssertFalse(try keystore.checkKey(for: KeystoreTag.pincode.rawValue))
         wait(for: [splashExpectation, onboardingExpectation], timeout: Constants.defaultExpectationDuration)
+        XCTAssertTrue(try keystore.checkKey(for: KeystoreTag.pincode.rawValue))
     }
 
     func testPincodeSetupDecision() {
@@ -70,15 +73,17 @@ class RootTests: XCTestCase {
         )
 
         let selectedAccount = AccountGenerator.generateMetaAccount()
-        settings.save(value: selectedAccount)
+        let saveExpectation = XCTestExpectation()
+        settings.save(value: selectedAccount, runningCompletionIn: .main) { result in
+            if case let .failure(error) = result {
+                XCTFail("Unexpected save error: \(error)")
+            }
+            saveExpectation.fulfill()
+        }
+        wait(for: [saveExpectation], timeout: Constants.defaultExpectationDuration)
 
         let keystore = InMemoryKeychain()
-        
         let userDefaultsStorage = InMemorySettingsManager()
-        userDefaultsStorage.set(
-            value: false,
-            for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
-        )
 
         let presenter = createPresenter(wireframe: wireframe,
                                         settings: settings,
@@ -88,7 +93,7 @@ class RootTests: XCTestCase {
         let splashExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).showSplash(splashView: any(), on: any()).then { _ in
+            stub.showSplash(splashView: any(), on: any()).then { _ in
                 splashExpectation.fulfill()
             }
         }
@@ -96,9 +101,10 @@ class RootTests: XCTestCase {
         let pincodeExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).showPincodeSetup(on: any()).then { _ in
+            stub.showPincodeSetup(on: any()).then { _ in
                 pincodeExpectation.fulfill()
             }
+            stub.showMain(on: any()).thenDoNothing()
         }
 
         // when
@@ -123,17 +129,19 @@ class RootTests: XCTestCase {
         )
 
         let selectedAccount = AccountGenerator.generateMetaAccount()
-        settings.save(value: selectedAccount)
+        let saveExpectation = XCTestExpectation()
+        settings.save(value: selectedAccount, runningCompletionIn: .main) { result in
+            if case let .failure(error) = result {
+                XCTFail("Unexpected save error: \(error)")
+            }
+            saveExpectation.fulfill()
+        }
+        wait(for: [saveExpectation], timeout: Constants.defaultExpectationDuration)
 
         let expectedPincode = "123456"
         try keystore.saveKey(expectedPincode.data(using: .utf8)!,
                              with: KeystoreTag.pincode.rawValue)
-        
         let userDefaultsStorage = InMemorySettingsManager()
-        userDefaultsStorage.set(
-            value: false,
-            for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
-        )
 
         let presenter = createPresenter(wireframe: wireframe,
                                         settings: settings,
@@ -143,7 +151,7 @@ class RootTests: XCTestCase {
         let splashExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).showSplash(splashView: any(), on: any()).then { _ in
+            stub.showSplash(splashView: any(), on: any()).then { _ in
                 splashExpectation.fulfill()
             }
         }
@@ -151,9 +159,10 @@ class RootTests: XCTestCase {
         let mainScreenExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).showLocalAuthentication(on: any()).then { _ in
+            stub.showLocalAuthentication(on: any()).then { _ in
                 mainScreenExpectation.fulfill()
             }
+            stub.showMain(on: any()).thenDoNothing()
         }
 
         // when
@@ -165,18 +174,26 @@ class RootTests: XCTestCase {
         wait(for: [splashExpectation, mainScreenExpectation], timeout: Constants.defaultExpectationDuration)
     }
 
-    private func createPresenter(wireframe: MockRootWireframeProtocol,
-                                 settings: SelectedWalletSettings,
-                                 keystore: KeystoreProtocol,
-                                 userDefaultsStorage: SettingsManagerProtocol,
-                                 migrators: [Migrating] = []
+    private func createPresenter(
+        wireframe: MockRootWireframeProtocol,
+        settings: SelectedWalletSettings,
+        keystore: KeystoreProtocol,
+        userDefaultsStorage: SettingsManagerProtocol,
+        migrators: [Migrating] = [],
+        onboardingService: OnboardingServiceProtocol = StubOnboardingService(result: .failure(OnboardingServiceError.empty))
     ) -> RootPresenter {
-        let interactor = RootInteractor(chainRegistry: ChainRegistryFacade.sharedRegistry,
-                                        settings: settings,
-                                        applicationConfig: ApplicationConfig.shared,
-                                        eventCenter: MockEventCenterProtocol(),
-                                        migrators: migrators)
-        
+        let resolver = OnboardingConfigVersionResolver(userDefaultsStorage: userDefaultsStorage)
+
+        let interactor = RootInteractor(
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            settings: settings,
+            applicationConfig: ApplicationConfig.shared,
+            eventCenter: MockEventCenterProtocol(),
+            migrators: migrators,
+            onboardingService: onboardingService,
+            onboardingConfigResolver: resolver
+        )
+
         let startViewHelper = StartViewHelper(keystore: keystore,
                                               selectedWalletSettings: settings,
                                               userDefaultsStorage: userDefaultsStorage)
@@ -191,5 +208,42 @@ class RootTests: XCTestCase {
         interactor.presenter = presenter
 
         return presenter
+    }
+}
+
+private final class StubOnboardingService: OnboardingServiceProtocol {
+    var result: Result<OnboardingConfigPlatform, Error>
+
+    init(result: Result<OnboardingConfigPlatform, Error>) {
+        self.result = result
+    }
+
+    func fetchConfigs() async throws -> OnboardingConfigPlatform {
+        try result.get()
+    }
+}
+
+private extension RootTests {
+    static func makeOnboardingPlatform() -> OnboardingConfigPlatform {
+        let page: [String: Any] = [
+            "description": "Test",
+            "image": "https://fearlesswallet.io/onboarding.png"
+        ]
+
+        let config: [String: Any] = [
+            "new": [page],
+            "regular": [page]
+        ]
+
+        let wrapper: [String: Any] = [
+            "en-EN": config,
+            "minVersion": AppVersion.stringValue ?? "0.0.0",
+            "background": "https://fearlesswallet.io/background.png"
+        ]
+
+        let payload: [String: Any] = ["iOS": [wrapper]]
+
+        let data = try! JSONSerialization.data(withJSONObject: payload, options: [])
+        return try! JSONDecoder().decode(OnboardingConfigPlatform.self, from: data)
     }
 }

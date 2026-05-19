@@ -1,6 +1,8 @@
 import XCTest
 @testable import fearless
 import Cuckoo
+import SSFRuntimeCodingService
+import RobinHood
 
 class RuntimePoolTests: XCTestCase {
     func testRuntimeProviderCreatedAndThenReused() {
@@ -12,22 +14,42 @@ class RuntimePoolTests: XCTestCase {
 
         let chain = ChainModelGenerator.generate(count: 1).first!
 
-        let expectedRuntimeProvider = MockRuntimeProviderProtocol()
+        final class CountingRuntimeProvider: RuntimeProviderProtocol {
+            var setupCalls = 0
+            var cleanupCalls = 0
+            var runtimeSpecVersion: RuntimeSpecVersion = .defaultVersion
+            var snapshot: RuntimeSnapshot?
 
-        // when
+            func setup() {
+                setupCalls += 1
+            }
 
-        stub(expectedRuntimeProvider) { stub in
-            stub.setup().thenDoNothing()
-            stub.cleanup().thenDoNothing()
+            func setupHot() {}
+
+            func cleanup() {
+                cleanupCalls += 1
+            }
+
+            func readySnapshot() async throws -> RuntimeSnapshot {
+                throw SSFRuntimeCodingService.RuntimeProviderError.providerUnavailable
+            }
+
+            func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
+                BaseOperation()
+            }
+
+            func fetchCoderFactory() async throws -> RuntimeCoderFactoryProtocol {
+                throw SSFRuntimeCodingService.RuntimeProviderError.providerUnavailable
+            }
         }
 
+        let expectedRuntimeProvider = CountingRuntimeProvider()
+
+        // when
         stub(factory) { stub in
             stub.createRuntimeProvider(for: any(),
                                        chainTypes: any(),
-                                       usedRuntimePaths: any()).thenReturn(
-                expectedRuntimeProvider,
-                MockRuntimeProviderProtocol()
-            )
+                                       usedRuntimePaths: any()).thenReturn(expectedRuntimeProvider)
         }
 
         let newProvider = runtimePool.setupRuntimeProvider(for: chain, chainTypes: nil)
@@ -46,7 +68,7 @@ class RuntimePoolTests: XCTestCase {
         XCTAssertNil(removedProvider)
 
         verify(factory, times(1)).createRuntimeProvider(for: any(), chainTypes: any(), usedRuntimePaths: any())
-        verify(expectedRuntimeProvider, times(1)).setup()
-        verify(expectedRuntimeProvider, times(1)).cleanup()
+        XCTAssertEqual(expectedRuntimeProvider.setupCalls, 1)
+        XCTAssertEqual(expectedRuntimeProvider.cleanupCalls, 1)
     }
 }

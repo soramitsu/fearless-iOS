@@ -1,23 +1,23 @@
 import Foundation
 @testable import fearless
+import XCTest
 
 extension ChainRegistryFacade {
     static func setupForIntegrationTest(
         with storageFacade: StorageFacadeProtocol
     ) -> ChainRegistryProtocol {
-        let chainRegistry = ChainRegistryFactory.createDefaultRegistry(from: storageFacade)
-        chainRegistry.syncUp()
+        _ = storageFacade
+        let chainRegistry = sharedRegistry
 
-        let semaphore = DispatchSemaphore(value: 0)
-        chainRegistry.chainsSubscribe(
-            self, runningInQueue: .global()
-        ) { changes in
-            if !changes.isEmpty {
-                semaphore.signal()
-            }
+        let timeout = Date().addingTimeInterval(30)
+
+        if chainRegistry.availableChains.isEmpty {
+            chainRegistry.performColdBoot()
         }
 
-        semaphore.wait()
+        while chainRegistry.availableChains.isEmpty, Date() < timeout {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
 
         return chainRegistry
     }

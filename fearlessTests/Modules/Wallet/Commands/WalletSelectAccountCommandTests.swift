@@ -20,7 +20,7 @@ class WalletSelectAccountCommandTests: XCTestCase {
         commandFactory.presentationClosure = { _ in
             completionExpectation.fulfill()
 
-            return WalletPresentationCommandProtocolMock()
+            return WalletPresentationCommand()
         }
 
         try command.execute()

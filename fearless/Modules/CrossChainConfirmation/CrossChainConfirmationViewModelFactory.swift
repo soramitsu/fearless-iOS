@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol CrossChainConfirmationViewModelFactoryProtocol {
     func createViewModel(with data: CrossChainConfirmationData) -> CrossChainConfirmationViewModel
@@ -29,6 +30,12 @@ final class CrossChainConfirmationViewModelFactory: CrossChainConfirmationViewMo
             rightShadowColor: destShadowColor
         )
 
+        // Build optional origin preservation note for Asset Hub destinations
+        var originNote: String?
+        if Self.isTrustedAliaser(chain: data.destChainModel) {
+            originNote = "Origin preserved via reserve transfer"
+        }
+
         return CrossChainConfirmationViewModel(
             sendTo: data.recipientAddress,
             doubleImageViewViewModel: doubleImageViewViewModel,
@@ -36,7 +43,14 @@ final class CrossChainConfirmationViewModelFactory: CrossChainConfirmationViewMo
             destNetworkName: data.destChainModel.name,
             amount: [data.displayAmount, data.originChainAsset.asset.symbolUppercased].joined(separator: " "),
             originalChainFee: data.originChainFee,
-            destChainFee: data.destChainFee
+            destChainFee: data.destChainFee,
+            originPreservationNote: originNote
         )
+    }
+}
+
+private extension CrossChainConfirmationViewModelFactory {
+    static func isTrustedAliaser(chain: ChainModel) -> Bool {
+        chain.paraId == "1000"
     }
 }

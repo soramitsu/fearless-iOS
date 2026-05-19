@@ -77,7 +77,8 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
         type: LiquidityPoolListType,
         searchText: String?
     ) -> LiquidityPoolListViewModel {
-        let poolViewModels: [LiquidityPoolListCellModel]? = pairs?.sorted().compactMap { pair in
+        // Sort deterministically by pairId without requiring Comparable conformance
+        let poolViewModels: [LiquidityPoolListCellModel]? = pairs?.sorted(by: { $0.pairId < $1.pairId }).compactMap { pair in
             let baseAsset = chain.assets.first(where: { $0.currencyId == pair.baseAssetId })
             let targetAsset = chain.assets.first(where: { $0.currencyId == pair.targetAssetId })
             let rewardAsset = chain.assets.first(where: { $0.currencyId == pair.rewardAssetId })

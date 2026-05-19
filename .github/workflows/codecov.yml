@@ -10,12 +10,109 @@ jobs:
     runs-on: macOS-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
-      
-      - name: Install Dependencies & Test
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub auth for private pods (optional)
+        env:
+          GH_READ_TOKEN: ${{ secrets.GH_READ_TOKEN }}
         run: |
-          pod install --repo-update
-          set -o pipefail && xcodebuild test -workspace fearless.xcworkspace -scheme fearless -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.2' build test | xcpretty --test
+          if [ -n "$GH_READ_TOKEN" ]; then
+            echo "Using GH_READ_TOKEN for authenticated access to soramitsu/*"
+            git config --global url."https://${GH_READ_TOKEN}:x-oauth-basic@github.com/soramitsu/".insteadOf "https://github.com/soramitsu/"
+          else
+            echo "GH_READ_TOKEN not set; proceeding without GitHub auth"
+          fi
+      
+      - name: Bootstrap Dependencies
+        run: |
+          bash scripts/ci/bootstrap.sh
+
+      - name: Build & Test (Simulator)
+        run: |
+          set -o pipefail
+          # Resolve SPM into a stable workspace path and patch after resolve
+          SP_DIR="$PWD/SourcePackages"
+          mkdir -p "$SP_DIR"
+          xcodebuild -resolvePackageDependencies \
+            -workspace fearless.xcworkspace \
+            -scheme fearless \
+            -clonedSourcePackagesDirPath "$SP_DIR"
+          # Apply patches on the resolved checkout (fail fast if contracts cannot be restored)
+          SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$(pwd)"
+          # Ensure native crypto checkout/modulemap contract is restored after resolve.
+          SOURCE_PACKAGES_DIR="$SP_DIR" STRICT_REQUIRED_PATCHES=1 bash scripts/deps/prepare-native-crypto-checkout.sh "$(pwd)" fearless.xcworkspace fearless.tests
+          echo "Preflight: checking remaining 'enum AddressFactory' in $SP_DIR checkouts (warn-only)"
+          if command -v rg >/dev/null 2>&1; then
+            rg -n "\\benum\\s+AddressFactory\\b" "$SP_DIR/checkouts/shared-features-spm/Sources" -S | sed -n '1,120p' || true
+          else
+            /usr/bin/grep -RInE "(^|[^A-Za-z0-9_])enum[[:space:]]+AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources" | sed -n '1,120p' || true
+          fi
+          echo "Preflight: checking SSFPolkaswap addressFactory type annotations"
+          if command -v rg >/dev/null 2>&1; then
+            if rg -n "addressFactory\s*:\s*([A-Za-z_]+\.)?AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources/SSFPolkaswap" -S >/dev/null 2>&1; then
+              echo "WARNING: addressFactory annotations still using AddressFactory (not .Type):" >&2
+              rg -n "addressFactory\s*:\s*([A-Za-z_]+\.)?AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources/SSFPolkaswap" -S | sed -n '1,120p' >&2 || true
+            fi
+          else
+            if /usr/bin/grep -RInE "addressFactory\s*:\s*([A-Za-z_]+\.)?AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources/SSFPolkaswap" >/dev/null 2>&1; then
+              echo "WARNING: addressFactory annotations still using AddressFactory (not .Type) [grep]:" >&2
+              /usr/bin/grep -RInE "addressFactory\s*:\s*([A-Za-z_]+\.)?AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources/SSFPolkaswap" | sed -n '1,120p' >&2 || true
+            fi
+          fi
+          echo "Available simulators (before selection):" && xcrun simctl list devices | sed -n '1,100p'
+          UDID_RAW="$(LOG_PREFIX='[codecov]' PREFERRED_NAME='iPhone 16' ALLOW_CREATE=1 BOOT_SIMULATOR=0 bash scripts/ci/select-simulator.sh)"
+          UDID="$(printf '%s\n' "$UDID_RAW" | awk 'match($0, /[A-Fa-f0-9-]{36}/) { print substr($0, RSTART, RLENGTH); exit }')"
+          if [ -z "$UDID" ]; then
+            echo "Failed to select simulator UDID. Raw selector output: $UDID_RAW" >&2
+            exit 1
+          fi
+          if ! [[ "$UDID" =~ ^[A-Fa-f0-9-]{36}$ ]]; then
+            echo "Extracted simulator UDID has invalid format: $UDID" >&2
+            exit 1
+          fi
+          HOST_ARCH="$(uname -m)"
+          SIM_INFO="$(xcrun simctl list devices available | awk -v udid="$UDID" '
+            /^-- iOS / { os=$3; next }
+            {
+              if (index($0, udid) > 0) {
+                line = $0
+                sub(/[[:space:]]*\([A-Fa-f0-9-]{36}\).*/, "", line)
+                gsub(/^[[:space:]]+|[[:space:]]+$/, "", line)
+                print line "|" os
+                exit
+              }
+            }
+          ')"
+          if [ -n "$SIM_INFO" ]; then
+            SIM_NAME="${SIM_INFO%%|*}"
+            SIM_OS="${SIM_INFO##*|}"
+            DESTINATION="platform=iOS Simulator,OS=${SIM_OS},name=${SIM_NAME}"
+          else
+            DESTINATION="platform=iOS Simulator,id=$UDID"
+          fi
+          case "$HOST_ARCH" in
+            arm64|x86_64)
+              DESTINATION="${DESTINATION},arch=${HOST_ARCH}"
+              ;;
+          esac
+          echo "Using destination: $DESTINATION"
+          LOG_FILE="$PWD/build/codecov-xcodebuild.log"
+          mkdir -p "$PWD/build"
+          if ! xcodebuild \
+            -workspace fearless.xcworkspace \
+            -scheme fearless.tests \
+            -clonedSourcePackagesDirPath "$SP_DIR" \
+            -disableAutomaticPackageResolution \
+            -destination "$DESTINATION" \
+            build test | tee "$LOG_FILE" | xcpretty --test; then
+            echo "Build/Test failed. Key errors from $LOG_FILE:" >&2
+            if command -v rg >/dev/null 2>&1; then
+              rg -n " error: |\\*\\* (BUILD|TEST) FAILED \\*\\*" "$LOG_FILE" -S | tail -n 100 >&2 || true
+            else
+              grep -nE " error: |\\*\\* (BUILD|TEST) FAILED \\*\\*" "$LOG_FILE" | tail -n 100 >&2 || true
+            fi
+            exit 1
+          fi
 
       - name: Upload coverage to Codecov
         run: bash <(curl -s https://codecov.io/bash) -J 'fearless'

@@ -1,5 +1,4 @@
 import Foundation
-import os
 import SSFXCM
 
 protocol ApplicationConfigProtocol {
@@ -37,6 +36,22 @@ protocol ApplicationConfigProtocol {
 
 final class ApplicationConfig {
     static let shared = ApplicationConfig()
+    private static let resolvedVersion: String = {
+        let bundle = Bundle(for: ApplicationConfig.self)
+        let infoDictionary = bundle.infoDictionary ?? [:]
+
+        guard
+            let mainVersion = infoDictionary["CFBundleShortVersionString"] as? String,
+            !mainVersion.isEmpty,
+            let buildNumber = infoDictionary["CFBundleVersion"] as? String,
+            !buildNumber.isEmpty
+        else {
+            NSLog("ApplicationConfig: missing bundle version metadata, falling back to unknown version")
+            return "unknown"
+        }
+
+        return "\(mainVersion).\(buildNumber)"
+    }()
 }
 
 extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
@@ -56,23 +71,14 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
         URL(string: "https://fearlesswallet.io")!
     }
 
-    // swiftlint:disable force_cast
     var version: String {
-        let bundle = Bundle(for: ApplicationConfig.self)
-
-        let mainVersion = bundle.infoDictionary?["CFBundleShortVersionString"] as! String
-        let buildNumber = bundle.infoDictionary?["CFBundleVersion"] as! String
-
-        return "\(mainVersion).\(buildNumber)"
+        ApplicationConfig.resolvedVersion
     }
-
-    // swiftlint:enable force_cast
 
     var opensourceURL: URL {
         URL(string: "https://github.com/soramitsu/fearless-iOS")!
     }
 
-    // swiftlint:enable force_cast
     var logoURL: URL {
         // swiftlint:disable:next line_length
         let logoString = "https://raw.githubusercontent.com/sora-xor/sora-branding/master/Fearless-Wallet-brand/fearless-wallet-logo-ramp.png"
@@ -144,9 +150,9 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
 
     var chainsSourceUrl: URL {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/v11/chains_dev.json", branch: .developFree)
+            GitHubUrl.url(suffix: "chains/v13/chains_dev.json", branch: .developFree)
         #else
-            GitHubUrl.url(suffix: "chains/v11/chains.json")
+            GitHubUrl.url(suffix: "chains/v13/chains.json")
         #endif
     }
 

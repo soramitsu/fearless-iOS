@@ -29,8 +29,7 @@ protocol KeyboardViewAdoptable: KeyboardAdoptable, KeyboardHandlerDelegate {
 }
 
 private enum KeyboardViewAdoptableConstants {
-    static var keyboardHandlerKey: String = "co.jp.fearless.keyboard.handler"
-    static var keyboardFrameKey: String = "co.jp.fearless.keyboard.frame"
+    static var keyboardHandlerKey: UInt8 = 0
 }
 
 extension KeyboardViewAdoptable where Self: UIViewController {
@@ -99,15 +98,11 @@ extension KeyboardViewAdoptable where Self: UIViewController {
 
         let duration: TimeInterval = (info[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval) ?? 0.0
         let curveRawValue: Int = (info[UIResponder.keyboardAnimationCurveUserInfoKey] as? Int) ?? 0
-        let curve = UIView.AnimationCurve(rawValue: curveRawValue) ?? UIView.AnimationCurve.linear
+        let options = UIView.AnimationOptions(rawValue: UInt(curveRawValue << 16))
 
-        UIView.beginAnimations(nil, context: nil)
-        UIView.setAnimationDuration(duration)
-        UIView.setAnimationCurve(curve)
-
-        apply(keyboardFrame: newBounds.cgRectValue, keyboardHidden: keyboardHidden)
-
-        UIView.commitAnimations()
+        UIView.animate(withDuration: duration, delay: 0.0, options: options) {
+            self.apply(keyboardFrame: newBounds.cgRectValue, keyboardHidden: keyboardHidden)
+        }
     }
 }
 

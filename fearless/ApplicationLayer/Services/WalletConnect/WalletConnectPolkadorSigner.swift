@@ -55,11 +55,21 @@ final class WalletConnectPolkadorSigner: WalletConnectPayloadSigner {
         let transaction = try params.get(TransactionPayload.self)
         let builder = try await createBuilder(for: transaction)
         let coderFactory = try await fetchCoderFactory()
-        let signaturePayload = try builder.buildSignaturePayload(
-            encodingBy: coderFactory.createEncoder(),
+        // New ExtrinsicBuilder API: capture payload via signing closure instead of building explicitly
+        var payloadToSign: Data?
+        _ = try builder.signing(
+            by: { data in
+                payloadToSign = data
+                return data // placeholder; we only need to capture the payload
+            },
+            of: fetchCryptoType(),
+            using: coderFactory.createEncoder(),
             metadata: coderFactory.metadata
         )
-        let signedRawData = try transactionSigner.sign(signaturePayload).rawData()
+        guard let payloadToSign else {
+            throw ConvenienceError(error: "Failed to prepare signature payload")
+        }
+        let signedRawData = try transactionSigner.sign(payloadToSign).rawData()
         let encoded = try encode(rawData: signedRawData, encoder: coderFactory.createEncoder())
         let result = WalletConnectPolkadotSignature(
             id: UInt.random(in: 0 ..< UInt.max),
@@ -101,7 +111,6 @@ final class WalletConnectPolkadorSigner: WalletConnectPayloadSigner {
         .with(address: transaction.address)
         .with(nonce: UInt32(transaction.nonce))
         .with(era: transaction.era, blockHash: transaction.blockHash)
-        .with(payloadType: transaction.method.payloadType)
 
         switch transaction.method {
         case let .callable(value):

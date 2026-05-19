@@ -3,6 +3,9 @@ import SoraFoundation
 import RobinHood
 import SSFModels
 import SSFNetwork
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 import SoraKeystore
 
 enum ContactSource {
@@ -40,10 +43,11 @@ enum ContactsAssembly {
         let localizationManager = LocalizationManager.shared
 
         let repositoryFacade = SubstrateDataStorageFacade.shared
-        let mapper: CodableCoreDataMapper<Contact, CDContact> =
-            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDContact.address))
+        let mapper: CodableCoreDataMapper<Contact, SSFAssetManagmentStorage.CDContact> =
+            // Use literal to avoid module-qualified #keyPath limitation
+            CodableCoreDataMapper(entityIdentifierFieldName: "address")
 
-        let repository: CoreDataRepository<Contact, CDContact> =
+        let repository: CoreDataRepository<Contact, SSFAssetManagmentStorage.CDContact> =
             repositoryFacade.createRepository(
                 filter: nil,
                 sortDescriptors: [],
@@ -59,7 +63,7 @@ enum ContactsAssembly {
         )
         let router = ContactsRouter()
 
-        let accountScoreFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerImpl(), signer: NomisRequestSigner())
+        let accountScoreFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerDefault(), signer: NomisRequestSigner())
         let presenter = ContactsPresenter(
             interactor: interactor,
             router: router,

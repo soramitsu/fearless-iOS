@@ -9,6 +9,20 @@ final class HistoryOperationFactoriesAssembly {
         chain: ChainModel,
         txStorage: AnyDataProviderRepository<TransactionHistoryItem>
     ) -> HistoryOperationFactoryProtocol? {
+        let historyUrl = chain.externalApi?.history?.url.absoluteString.lowercased() ?? ""
+
+        if historyUrl.contains("blockscout") {
+            return BlockscoutHistoryOperationFactory()
+        }
+
+        if historyUrl.contains("scope.klaytn") || historyUrl.contains("scope.kaia") {
+            return KaiaHistoryOperationFactory()
+        }
+
+        if historyUrl.contains("oklink.com/api/") {
+            return OklinkHistoryOperationFactory()
+        }
+
         switch chain.externalApi?.history?.type {
         case .subquery:
             return SubqueryHistoryOperationFactory(txStorage: txStorage, chainRegistry: ChainRegistryFacade.sharedRegistry)
@@ -22,25 +36,17 @@ final class HistoryOperationFactoriesAssembly {
             return GiantsquidHistoryOperationFactory(txStorage: txStorage)
         case .sora:
             return SoraSubsquidHistoryOperationFactory(txStorage: AnyDataProviderRepository(txStorage), chainRegistry: ChainRegistryFacade.sharedRegistry)
-        case .alchemy:
-            return AlchemyHistoryOperationFactory(txStorage: txStorage, alchemyService: AlchemyService())
+        // Alchemy history type removed in SSFModels; use Etherscan when present via explorer
+        // or handle via giantsquid/subsquid based on chain configuration.
         case .etherscan:
             return EtherscanHistoryOperationFactory()
-        case .oklink:
-            return OklinkHistoryOperationFactory()
+        // .oklink case was removed in newer SSFModels; fallback to giantsquid/subsquid routing elsewhere
         case .reef:
             return ReefSubsquidHistoryOperationFactory(txStorage: txStorage)
-        case .blockscout:
-            return BlockscoutHistoryOperationFactory()
-        case .fire:
-            return FireHistoryOperationFactory()
-        case .vicscan:
-            return ViscanHistoryOperationFactory()
-        case .zchain:
-            return ZChainHistoryOperationFactory()
-        case .klaytn:
-            return KaiaHistoryOperationFactory()
+        // Removed explorers in new enum; fall back to giantsquid/subsquid routing elsewhere
         case .none:
+            return nil
+        default:
             return nil
         }
     }

@@ -1,8 +1,11 @@
 import Foundation
-import SSFAccountManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 extension NSSortDescriptor {
     static var chainsByAddressPrefix: NSSortDescriptor {
-        NSSortDescriptor(key: #keyPath(CDChain.addressPrefix), ascending: true)
+        // Use literal to avoid module-qualified #keyPath limitation
+        NSSortDescriptor(key: "addressPrefix", ascending: true)
     }
 }

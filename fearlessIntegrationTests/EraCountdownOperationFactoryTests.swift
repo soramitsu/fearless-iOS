@@ -1,17 +1,27 @@
 import XCTest
 import RobinHood
 import SSFUtils
+import SSFModels
 @testable import fearless
 
 class EraCountdownOperationFactoryTests: XCTestCase {
 
-    func testService() {
-        let operationManager = OperationManagerFacade.sharedManager
+    func testService() throws {
+        let operationManager: OperationManagerProtocol = OperationManager()
 
         let chainId = Chain.kusama.genesisHash
         let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: SubstrateStorageTestFacade())
-        let connection = chainRegistry.getConnection(for: chainId)!
-        let runtimeService = chainRegistry.getRuntimeProvider(for: chainId)!
+
+        guard !chainRegistry.availableChains.isEmpty else {
+            throw XCTSkip("Chain registry integration setup is unavailable in the current environment")
+        }
+
+        guard
+            let connection = chainRegistry.getConnection(for: chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainId)
+        else {
+            throw XCTSkip("Kusama integration services are unavailable in the current environment")
+        }
 
         let keyFactory = StorageKeyFactory()
         let storageRequestFactory = StorageRequestFactory(
@@ -28,7 +38,7 @@ class EraCountdownOperationFactoryTests: XCTestCase {
         )
         operationWrapper.targetOperation.completionBlock = {
             do {
-                let eraCountdown = try operationWrapper.targetOperation.extractNoCancellableResultData()
+                let eraCountdown = try operationWrapper.targetOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
                 Logger.shared.info(
                     "Estimating era completion time (in seconds): \(eraCountdown.timeIntervalTillNextActiveEraStart())"
                 )

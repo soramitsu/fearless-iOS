@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-final class ManualOperation<ResultType>: BaseOperation<ResultType> {
+final class ManualOperation<ResultType>: BaseOperation<ResultType>, @unchecked Sendable {
     private let lockQueue = DispatchQueue(label: "jp.co.soramitsu.asyncoperation", attributes: .concurrent)
 
     override var isAsynchronous: Bool {

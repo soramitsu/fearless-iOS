@@ -3,32 +3,17 @@ import Web3
 import Web3ContractABI
 import Web3PromiseKit
 import SSFModels
-import RobinHood
 
 final actor EthereumRemoteBalanceFetching {
     private let chainRegistry: ChainRegistryProtocol
-    private let repositoryWrapper: EthereumBalanceRepositoryCacheWrapper
+    private let repositoryWrapper: BalanceRepositoryCacheWrapper
 
     init(
         chainRegistry: ChainRegistryProtocol,
-        repositoryWrapper: EthereumBalanceRepositoryCacheWrapper
+        repositoryWrapper: BalanceRepositoryCacheWrapper
     ) {
         self.chainRegistry = chainRegistry
         self.repositoryWrapper = repositoryWrapper
-    }
-
-    nonisolated private func fetchEthereumBalanceOperation(for chainAsset: ChainAsset, address: String) -> AwaitOperation<[ChainAsset: AccountInfo?]> {
-        AwaitOperation { [weak self] in
-            let accountInfo = try await self?.fetchETHBalance(for: chainAsset, address: address)
-            return [chainAsset: accountInfo]
-        }
-    }
-
-    nonisolated private func fetchErc20BalanceOperation(for chainAsset: ChainAsset, address: String) -> AwaitOperation<[ChainAsset: AccountInfo?]> {
-        AwaitOperation { [weak self] in
-            let accountInfo = try await self?.fetchERC20Balance(for: chainAsset, address: address)
-            return [chainAsset: accountInfo]
-        }
     }
 
     private func fetchETHBalance(for chainAsset: ChainAsset, address: String) async throws -> AccountInfo? {
@@ -90,7 +75,7 @@ final actor EthereumRemoteBalanceFetching {
         }
     }
 
-    nonisolated private func cache(accountInfo: AccountInfo?, chainAsset: ChainAsset, accountId: AccountId) throws {
+    private func cache(accountInfo: AccountInfo?, chainAsset: ChainAsset, accountId: AccountId) throws {
         guard let accountInfo else { return }
         let storagePath = chainAsset.storagePath
 
@@ -170,11 +155,13 @@ extension EthereumRemoteBalanceFetching: AccountInfoFetchingProtocol {
                 let chainAsset = accountInfoByChainAsset.0
                 let accountInfo = accountInfoByChainAsset.1
                 if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-                    try self?.cache(
-                        accountInfo: accountInfo,
-                        chainAsset: chainAsset,
-                        accountId: accountId
-                    )
+                    if let self {
+                        try await self.cache(
+                            accountInfo: accountInfo,
+                            chainAsset: chainAsset,
+                            accountId: accountId
+                        )
+                    }
                 }
 
                 result[chainAsset] = accountInfo
@@ -192,8 +179,12 @@ extension EthereumRemoteBalanceFetching: AccountInfoFetchingProtocol {
         completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
     ) {
         Task {
-            let result = try await fetch(for: chainAsset, accountId: accountId)
-            completionBlock(result.0, result.1)
+            do {
+                let result = try await fetch(for: chainAsset, accountId: accountId)
+                completionBlock(result.0, result.1)
+            } catch {
+                completionBlock(chainAsset, nil)
+            }
         }
     }
 
@@ -203,8 +194,12 @@ extension EthereumRemoteBalanceFetching: AccountInfoFetchingProtocol {
         completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
     ) {
         Task {
-            let result = try await fetch(for: chainAssets, wallet: wallet)
-            completionBlock(result)
+            do {
+                let result = try await fetch(for: chainAssets, wallet: wallet)
+                completionBlock(result)
+            } catch {
+                completionBlock([:])
+            }
         }
     }
 

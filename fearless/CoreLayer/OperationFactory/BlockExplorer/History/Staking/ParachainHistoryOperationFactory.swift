@@ -16,13 +16,9 @@ enum ParachainHistoryOperationFactoryAssembly {
         switch type {
         case .subquery:
             return ParachainSubqueryHistoryOperationFactory(url: blockExplorer?.url)
-        case .subsquid:
+        case .subsquid, .giantsquid, .sora:
             return ParachainSubsquidHistoryOperationFactory(url: blockExplorer?.url)
-        case .giantsquid:
-            return ParachainSubsquidHistoryOperationFactory(url: blockExplorer?.url)
-        case .sora:
-            return ParachainSubsquidHistoryOperationFactory(url: blockExplorer?.url)
-        case .alchemy, .etherscan, .oklink, .reef, .blockscout, .fire, .vicscan, .zchain, .klaytn:
+        default:
             return nil
         }
     }

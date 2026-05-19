@@ -45,52 +45,41 @@ final class SelectedWalletSettings: PersistentValueSettings<MetaAccountModel> {
         completionClosure: @escaping (Result<MetaAccountModel, Error>) -> Void
     ) {
         let options = RepositoryFetchOptions(includesProperties: true, includesSubentities: true)
-        let maybeCurrentAccountOperation = internalValue.map {
-            repository.fetchOperation(by: $0.identifier, options: options)
-        }
-
-        let newAccountOperation = repository.fetchOperation(by: value.identifier, options: options)
+        let allAccountsOperation = repository.fetchAllOperation(with: options)
 
         let saveOperation = repository.saveOperation({
-            var accountsToSave: [ManagedMetaAccountModel] = []
+            let existingAccounts = try allAccountsOperation.extractNoCancellableResultData()
 
-            if let currentAccount = try maybeCurrentAccountOperation?.extractNoCancellableResultData() {
-                let newAccount = try? newAccountOperation.extractNoCancellableResultData()
-                if currentAccount.identifier != newAccount?.identifier {
-                    accountsToSave.append(
-                        ManagedMetaAccountModel(
-                            info: currentAccount.info,
-                            isSelected: false,
-                            order: currentAccount.order
-                        )
-                    )
-                }
+            var accountsById = existingAccounts.reduce(into: [String: ManagedMetaAccountModel]()) { result, account in
+                result[account.identifier] = account
             }
 
-            if let newAccount = try newAccountOperation.extractNoCancellableResultData() {
-                accountsToSave.append(
-                    ManagedMetaAccountModel(
-                        info: value,
-                        isSelected: true,
-                        order: newAccount.order
-                    )
+            if let currentAccount = existingAccounts.first(where: \.isSelected),
+               currentAccount.identifier != value.identifier {
+                accountsById[currentAccount.identifier] = ManagedMetaAccountModel(
+                    info: currentAccount.info,
+                    isSelected: false,
+                    order: currentAccount.order
+                )
+            }
+
+            if let existingAccount = accountsById[value.identifier] {
+                accountsById[value.identifier] = ManagedMetaAccountModel(
+                    info: value,
+                    isSelected: true,
+                    order: existingAccount.order
                 )
             } else {
-                accountsToSave.append(
-                    ManagedMetaAccountModel(info: value, isSelected: true)
+                accountsById[value.identifier] = ManagedMetaAccountModel(
+                    info: value,
+                    isSelected: true
                 )
             }
 
-            return accountsToSave
+            return Array(accountsById.values)
         }, { [] })
 
-        var dependencies: [Operation] = [newAccountOperation]
-
-        if let currentAccountOperation = maybeCurrentAccountOperation {
-            dependencies.append(currentAccountOperation)
-        }
-
-        dependencies.forEach { saveOperation.addDependency($0) }
+        saveOperation.addDependency(allAccountsOperation)
 
         saveOperation.completionBlock = { [weak self] in
             do {
@@ -102,6 +91,6 @@ final class SelectedWalletSettings: PersistentValueSettings<MetaAccountModel> {
             }
         }
 
-        operationQueue.addOperations(dependencies + [saveOperation], waitUntilFinished: false)
+        operationQueue.addOperations([allAccountsOperation, saveOperation], waitUntilFinished: false)
     }
 }

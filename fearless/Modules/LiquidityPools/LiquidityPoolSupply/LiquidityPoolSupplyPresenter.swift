@@ -145,10 +145,11 @@ final class LiquidityPoolSupplyPresenter {
     }
 
     private func refreshFee() {
+        let chainAssets = Array(chain.assets)
         guard
             let dexId,
-            let baseAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.baseAssetId }),
-            let targetAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.targetAssetId })
+            let baseAsset = chainAssets.first(where: { $0.currencyId == liquidityPair.baseAssetId }),
+            let targetAsset = chainAssets.first(where: { $0.currencyId == liquidityPair.targetAssetId })
         else {
             return
         }
@@ -164,8 +165,7 @@ final class LiquidityPoolSupplyPresenter {
             targetAsset: targetAssetInfo,
             baseAssetAmount: baseAssetAmount,
             targetAssetAmount: targetAssetAmount,
-            slippage: slippadgeTolerance,
-            availablePairs: pairs
+            slippage: slippadgeTolerance
         )
 
         interactor.estimateFee(supplyLiquidityInfo: supplyLiquidityInfo)
@@ -513,7 +513,7 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyInteractorOutput {
         logger.customError(error)
     }
 
-    func didReceivePoolAPY(apyInfo: SSFPolkaswap.PoolApyInfo?) {
+    func didReceivePoolAPY(apyInfo: PoolApyInfo?) {
         self.apyInfo = apyInfo
         provideViewModel()
     }

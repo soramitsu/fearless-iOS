@@ -4,7 +4,9 @@ import RobinHood
 import SoraFoundation
 import SSFModels
 import SSFUtils
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 struct StakingRewardDestConfirmViewFactory {
     static func createView(

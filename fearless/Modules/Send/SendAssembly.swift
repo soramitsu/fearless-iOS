@@ -12,7 +12,9 @@ import SSFExtrinsicKit
 import SSFNetwork
 import SSFChainRegistry
 import SSFChainConnection
-import SoraKeystore
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 final class SendAssembly {
     static func configureModule(
@@ -27,9 +29,10 @@ final class SendAssembly {
             operationManager: operationManager
         )
         let repositoryFacade = SubstrateDataStorageFacade.shared
-        let mapper: CodableCoreDataMapper<ScamInfo, CDScamInfo> =
-            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDScamInfo.address))
-        let scamRepository: CoreDataRepository<ScamInfo, CDScamInfo> =
+        let mapper: CodableCoreDataMapper<ScamInfo, SSFAssetManagmentStorage.CDScamInfo> =
+            // Use literal to avoid module-qualified #keyPath limitation
+            CodableCoreDataMapper(entityIdentifierFieldName: "address")
+        let scamRepository: CoreDataRepository<ScamInfo, SSFAssetManagmentStorage.CDScamInfo> =
             repositoryFacade.createRepository(
                 filter: nil,
                 sortDescriptors: [],
@@ -53,9 +56,9 @@ final class SendAssembly {
             chainModelRepository: AnyDataProviderRepository(chainRepository),
             wallet: wallet
         )
-        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
+        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, SSFAssetManagmentStorage.CDRuntimeMetadataItem> =
             SubstrateDataStorageFacade.shared.createAsyncRepository()
-        let accountStatisticsFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerImpl(), signer: NomisRequestSigner())
+        let accountStatisticsFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerDefault(), signer: NomisRequestSigner())
         let scamInfoFetcher = ScamInfoFetcher(
             scamServiceOperationFactory: scamServiceOperationFactory,
             accountScoreFetching: accountStatisticsFetcher,

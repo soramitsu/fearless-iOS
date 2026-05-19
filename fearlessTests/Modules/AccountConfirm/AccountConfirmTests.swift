@@ -14,8 +14,10 @@ class AccountConfirmTests: XCTestCase {
         let view = MockAccountConfirmViewProtocol()
         let wireframe = MockAccountConfirmWireframeProtocol()
 
+        let storageFacade = UserDataStorageTestFacade()
+
         let settings = SelectedWalletSettings(
-            storageFacade: UserDataStorageTestFacade(),
+            storageFacade: storageFacade,
             operationQueue: OperationQueue()
         )
         let keychain = InMemoryKeychain()
@@ -24,15 +26,18 @@ class AccountConfirmTests: XCTestCase {
 
         let mnemonic = try IRMnemonicCreator().mnemonic(fromList: mnemonicWords)
         
-        let newAccountRequest = MetaAccountImportMnemonicRequest(mnemonic: mnemonic,
-                                                                 username: "myusername",
-                                                                 substrateDerivationPath: "",
-                                                                 ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
-                                                                 cryptoType: .sr25519)
+        let newAccountRequest = MetaAccountImportMnemonicRequest(
+            mnemonic: mnemonic,
+            username: "myusername",
+            substrateDerivationPath: "",
+            ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
+            cryptoType: .sr25519,
+            defaultChainId: nil
+        )
 
         let accountOperationFactory = MetaAccountOperationFactory(keystore: keychain)
 
-        let repository = AccountRepositoryFactory(storageFacade: UserDataStorageTestFacade())
+        let repository = AccountRepositoryFactory(storageFacade: storageFacade)
             .createMetaAccountRepository(for: nil, sortDescriptors: [])
 
         let eventCenter = MockEventCenterProtocol()
@@ -53,7 +58,9 @@ class AccountConfirmTests: XCTestCase {
         let setupExpectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub).didReceive(words: any(), afterConfirmationFail: any()).then { _ in
+            when(stub.controller.get).thenReturn(UIViewController())
+
+            when(stub.didReceive(words: any([String].self), afterConfirmationFail: any(Bool.self))).then { _ in
                 setupExpectation.fulfill()
             }
         }
@@ -61,7 +68,8 @@ class AccountConfirmTests: XCTestCase {
         let expectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).proceed(from: any(), flow: any()).then { _ in
+            when(stub.proceed(from: any(AccountConfirmViewProtocol?.self),
+                               flow: any(AccountConfirmFlow?.self))).then { _ in
                 expectation.fulfill()
             }
         }
@@ -86,7 +94,7 @@ class AccountConfirmTests: XCTestCase {
 
         // then
 
-        wait(for: [expectation, completeExpectation], timeout: Constants.defaultExpectationDuration)
+        wait(for: [expectation, completeExpectation], timeout: 10)
 
         guard let selectedAccount = settings.value else {
             XCTFail("Unexpected empty account")

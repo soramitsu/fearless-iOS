@@ -1,6 +1,6 @@
 import Foundation
 
-final class NomisJSONDecoder: JSONDecoder {
+final class NomisJSONDecoder: JSONDecoder, @unchecked Sendable {
     override init() {
         super.init()
         let df = DateFormatter()

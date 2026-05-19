@@ -244,7 +244,7 @@ public func encodeData(
                 ).sha3(.keccak256)
             return (
                 type: "bytes32",
-                value: encodedValue.bytes as AnyObject
+                value: encodedValue as AnyObject
             )
         }
 
@@ -253,7 +253,7 @@ public func encodeData(
                 throw TypedMessageSignError.unknown("failed to convert value \(value) to data")
             }
 
-            return (type: "bytes32", value: data.sha3(.keccak256).bytes as AnyObject)
+            return (type: "bytes32", value: data.sha3(.keccak256) as AnyObject)
         }
 
         if type == "string" {
@@ -263,7 +263,7 @@ public func encodeData(
 
             let data = string.data(using: .utf8)!
 
-            return (type: "bytes32", value: data.sha3(.keccak256).bytes as AnyObject)
+            return (type: "bytes32", value: data.sha3(.keccak256) as AnyObject)
         }
 
         // TODO: check with metamask test cases v4
@@ -300,7 +300,7 @@ public func encodeData(
 
             return (
                 type: "bytes32",
-                value: data.sha3(.keccak256).bytes as AnyObject
+                value: data.sha3(.keccak256) as AnyObject
             )
         }
 
@@ -333,7 +333,7 @@ public func hashType(primaryType: String, types: MessageTypes) throws -> AnyObje
         throw TypedMessageSignError.unknown("Invalid encoded data: \(encoded)")
     }
 
-    return data.bytes as AnyObject
+    return data as AnyObject
 }
 
 public func encodedType(primaryType: String, types: MessageTypes) throws -> String {

@@ -46,8 +46,11 @@ class HistoryService: HistoryServiceProtocol {
         )
 
         operationWrapper.targetOperation.completionBlock = {
+            let target = operationWrapper.targetOperation
             queue.async {
-                completionBlock(operationWrapper.targetOperation.result)
+                // Do not emit completion if cancelled during teardown
+                guard !target.isCancelled else { return }
+                completionBlock(target.result)
             }
         }
 

@@ -9,8 +9,8 @@ extension RootControllerAnimationCoordinatorProtocol {
     private func findWindow(from controller: UIViewController) -> UIWindow? {
         var window = controller.view.window
 
-        if window == nil, let appWindow = UIApplication.shared.delegate?.window {
-            window = appWindow
+        if window == nil {
+            window = SceneWindowFinder.activeWindow(from: controller.view.window?.windowScene)
         }
 
         return window

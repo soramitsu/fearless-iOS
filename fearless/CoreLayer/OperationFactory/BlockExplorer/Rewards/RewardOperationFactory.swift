@@ -40,7 +40,10 @@ enum RewardOperationFactory {
             return SoraRewardOperationFactory(url: blockExplorer?.url, chain: chain)
         case .reef:
             return ReefRewardOperationFactory(url: blockExplorer?.url, chain: chain)
-        case .alchemy, .etherscan, .oklink, .blockscout, .fire, .vicscan, .zchain, .klaytn:
+        // .oklink was removed in newer SSFModels; treat like generic explorers
+        case .etherscan:
+            return GiantsquidRewardOperationFactory(url: blockExplorer?.url, chain: chain)
+        default:
             return GiantsquidRewardOperationFactory(url: blockExplorer?.url, chain: chain)
         }
     }

@@ -24,6 +24,11 @@ extension ChainModel {
 
 extension ChainModel {
     func match(_ caip2ChainId: Caip2ChainId) -> Bool {
+        if isTonCompatibilityChain {
+            // CAIP-2 namespace for TON is still evolving; treat as unmatched for now.
+            return false
+        }
+
         switch chainBaseType {
         case .substrate:
             let namespace = "polkadot"
@@ -40,5 +45,25 @@ extension ChainModel {
             )
             return caip2ChainId == knownChainCaip2ChainId
         }
+    }
+}
+
+extension ChainModel {
+    var isTonCompatibilityChain: Bool {
+        let chainName = name.lowercased()
+        if chainName == "ton" || chainName.contains("ton ") || chainName.contains(" ton") {
+            return true
+        }
+
+        let chainIdLowercased = chainId.lowercased()
+        if chainIdLowercased == "ton" || chainIdLowercased.contains("ton-") {
+            return true
+        }
+
+        if nodes.contains(where: { $0.url.absoluteString.lowercased().contains("ton") }) {
+            return true
+        }
+
+        return externalApi?.explorers?.contains(where: { $0.url.lowercased().contains("tonviewer") }) == true
     }
 }

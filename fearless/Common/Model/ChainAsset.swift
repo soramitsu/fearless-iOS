@@ -10,10 +10,13 @@ extension ChainAsset {
     }
 
     var storagePath: StorageCodingPath {
-        var storagePath: StorageCodingPath
-        switch chainAssetType {
-        case .normal, .equilibrium, .none:
-            storagePath = StorageCodingPath.account
+        guard let substrateType = chainAssetType else {
+            return .account
+        }
+
+        switch substrateType {
+        case .normal, .equilibrium:
+            return .account
         case
             .ormlChain,
             .ormlAsset,
@@ -26,18 +29,12 @@ extension ChainAsset {
             .assetId,
             .token2,
             .xcm:
-            storagePath = StorageCodingPath.tokens
+            return .tokens
         case .assets:
-            storagePath = StorageCodingPath.assetsAccount
+            return .assetsAccount
         case .soraAsset:
-            if isUtility {
-                storagePath = StorageCodingPath.account
-            } else {
-                storagePath = StorageCodingPath.tokens
-            }
+            return isUtility ? .account : .tokens
         }
-
-        return storagePath
     }
 
     var isBokolo: Bool {

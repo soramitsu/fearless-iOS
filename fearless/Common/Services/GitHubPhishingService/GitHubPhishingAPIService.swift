@@ -1,18 +1,21 @@
 import Foundation
 import RobinHood
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 class GitHubPhishingAPIService: ApplicationServiceProtocol {
     private var networkOperation: BaseOperation<[PhishingItem]>!
     private let operationFactory: GitHubOperationFactoryProtocol
     private let operationManager: OperationManagerProtocol
     private let url: URL
-    private let storage: CoreDataRepository<PhishingItem, CDPhishingItem>
+    private let storage: CoreDataRepository<PhishingItem, SSFAssetManagmentStorage.CDPhishingItem>
 
     init(
         url: URL,
         operationFactory: GitHubOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
-        storage: CoreDataRepository<PhishingItem, CDPhishingItem>
+        storage: CoreDataRepository<PhishingItem, SSFAssetManagmentStorage.CDPhishingItem>
     ) {
         self.url = url
         self.operationFactory = operationFactory

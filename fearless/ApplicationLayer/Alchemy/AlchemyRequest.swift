@@ -1,5 +1,7 @@
 import Foundation
-import FearlessKeys
+#if canImport(FearlessKeys)
+    import FearlessKeys
+#endif
 import SSFNetwork
 
 final class AlchemyRequest: RequestConfig {

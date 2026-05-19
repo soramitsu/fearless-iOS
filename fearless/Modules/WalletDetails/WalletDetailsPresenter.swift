@@ -202,30 +202,30 @@ private extension WalletDetailsPresenter {
     func createActions(for chain: ChainModel, address: String) -> [ChainAction] {
         var actions: [ChainAction] = [.copyAddress, .switchNode, .export, .replace]
         if let explorers = chain.externalApi?.explorers {
-            let explorerActions: [ChainAction] = explorers.compactMap {
-                switch $0.type {
+            let explorerActions: [ChainAction] = explorers.compactMap { explorer -> ChainAction? in
+                switch explorer.type {
                 case .subscan:
-                    if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
+                    if explorer.types.contains(.account), let url = explorer.explorerUrl(for: address, type: .account) {
                         return .subscan(url: url)
                     }
                 case .polkascan:
-                    if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
+                    if explorer.types.contains(.account), let url = explorer.explorerUrl(for: address, type: .account) {
                         return .polkascan(url: url)
                     }
                 case .etherscan:
-                    if $0.types.contains(.address), let url = $0.explorerUrl(for: address, type: .address) {
+                    if explorer.types.contains(.address), let url = explorer.explorerUrl(for: address, type: .address) {
                         return .etherscan(url: url)
                     }
                 case .reef:
-                    if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
-                        return .polkascan(url: url)
+                    if explorer.types.contains(.account), let url = explorer.explorerUrl(for: address, type: .account) {
+                        return .reefscan(url: url)
+                    }
+                case .oklink:
+                    if explorer.types.contains(.address), let url = explorer.explorerUrl(for: address, type: .address) {
+                        return .oklink(url: url)
                     }
                 case .unknown:
                     return nil
-                case .oklink:
-                    if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
-                        return .oklink(url: url)
-                    }
                 }
                 return nil
             }

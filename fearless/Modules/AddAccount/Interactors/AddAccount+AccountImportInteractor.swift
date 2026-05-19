@@ -36,13 +36,11 @@ extension AddAccount {
                 options: RepositoryFetchOptions()
             )
 
-            let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
+            let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation {
                 if try checkOperation
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled) != nil {
                     throw AccountCreateError.duplicated
                 }
-
-                self?.settings.save(value: item)
 
                 return item
             }
@@ -51,9 +49,15 @@ extension AddAccount {
                 DispatchQueue.main.async {
                     switch saveOperation.result {
                     case .success:
-                        self?.settings.setup()
-                        self?.eventCenter.notify(with: SelectedAccountChanged(account: item))
-                        self?.presenter?.didCompleteAccountImport()
+                        self?.settings.save(value: item, runningCompletionIn: .main) { result in
+                            switch result {
+                            case let .success(savedAccount):
+                                self?.eventCenter.notify(with: SelectedAccountChanged(account: savedAccount))
+                                self?.presenter?.didCompleteAccountImport()
+                            case let .failure(error):
+                                self?.presenter?.didReceiveAccountImport(error: error)
+                            }
+                        }
 
                     case let .failure(error):
                         self?.presenter?.didReceiveAccountImport(error: error)

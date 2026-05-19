@@ -38,13 +38,11 @@ class PersistentValueSettings<T> {
         runningCompletionIn queue: DispatchQueue?,
         completionClosure: ((Result<T?, Error>) -> Void)?
     ) {
-        mutex.lock()
-
         performSetup { result in
+            self.mutex.lock()
             if case let .success(newValue) = result {
                 self.internalValue = newValue
             }
-
             self.mutex.unlock()
 
             if let closure = completionClosure {
@@ -65,12 +63,18 @@ class PersistentValueSettings<T> {
         completionClosure: ((Result<T, Error>) -> Void)?
     ) {
         mutex.lock()
+        let previousValue = internalValue
+        internalValue = value
+        mutex.unlock()
 
         performSave(value: value) { result in
-            if case let .success(newValue) = result {
+            self.mutex.lock()
+            switch result {
+            case let .success(newValue):
                 self.internalValue = newValue
+            case .failure:
+                self.internalValue = previousValue
             }
-
             self.mutex.unlock()
 
             if let closure = completionClosure {

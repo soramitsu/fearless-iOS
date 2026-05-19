@@ -4,6 +4,9 @@ import SSFUtils
 import RobinHood
 import SoraKeystore
 import SSFModels
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 final class PolkaswapAdjustmentAssembly {
     static func configureModule(
@@ -58,7 +61,7 @@ final class PolkaswapAdjustmentAssembly {
         )
 
         let mapper = PolkaswapSettingMapper()
-        let settingsRepository: CoreDataRepository<PolkaswapRemoteSettings, CDPolkaswapRemoteSettings> =
+        let settingsRepository: CoreDataRepository<PolkaswapRemoteSettings, SSFAssetManagmentStorage.CDPolkaswapRemoteSettings> =
             repositoryFacade.createRepository(
                 filter: nil,
                 sortDescriptors: [],

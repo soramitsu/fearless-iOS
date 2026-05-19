@@ -112,7 +112,7 @@ extension StakingRebondSetupInteractor: RelaychainStakingLocalStorageSubscriber,
             let addressFactory = SS58AddressFactory()
 
             if let stashItem = maybeStashItem,
-               let accountId = try? addressFactory.accountId(fromAddress: stashItem.controller, type: chainAsset.chain.addressPrefix) {
+               let accountId = try? addressFactory.accountId(fromAddress: stashItem.controller, addressPrefix: chainAsset.chain.addressPrefix) {
                 ledgerProvider = subscribeLedgerInfo(for: accountId, chainAsset: chainAsset)
 
                 accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)

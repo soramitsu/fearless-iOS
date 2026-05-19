@@ -65,10 +65,7 @@ final class NftSendConfirmAssembly {
         }
         let keystore = Keychain()
 
-        switch chain.chainBaseType {
-        case .substrate:
-            throw NftSendAssemblyError.substrateNftNotImplemented
-        case .ethereum:
+        if chain.chainBaseType == .ethereum {
             let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
             let tag: String = KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
 
@@ -84,10 +81,12 @@ final class NftSendConfirmAssembly {
 
             return EthereumNftTransferService(
                 ws: ws,
-                privateKey: try EthereumPrivateKey(privateKey: secretKey.bytes),
+                privateKey: try EthereumPrivateKey(privateKey: Array(secretKey)),
                 senderAddress: address,
                 logger: Logger.shared
             )
+        } else {
+            throw NftSendAssemblyError.substrateNftNotImplemented
         }
     }
 }

@@ -49,7 +49,11 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
             self?.runtimeProviders[chain.chainId] = runtimeProvider
         }
 
-        runtimeProvider.setupHot()
+        if let concrete = runtimeProvider as? RuntimeProvider {
+            concrete.setupHot()
+        } else {
+            runtimeProvider.setup()
+        }
 
         return runtimeProvider
     }

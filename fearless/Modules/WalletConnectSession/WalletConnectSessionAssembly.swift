@@ -24,7 +24,7 @@ enum WalletConnectSessionAssembly {
 
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
-        let accountScoreFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerImpl(), signer: NomisRequestSigner())
+        let accountScoreFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerDefault(), signer: NomisRequestSigner())
         let interactor = WalletConnectSessionInteractor(
             walletConnect: WalletConnectServiceImpl.shared,
             walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,

@@ -13,7 +13,7 @@ final class WalletNameRouter: WalletNameRouterInput {
     }
 
     func complete() {
-        if let window = UIApplication.shared.windows.first {
+        if let window = SceneWindowFinder.activeWindow() {
             window.rootViewController?.dismiss(animated: true)
         }
     }

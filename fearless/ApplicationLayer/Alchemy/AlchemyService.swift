@@ -8,7 +8,7 @@ final class AlchemyService {
         let body = JSONRPCInfo(identifier: 1, jsonrpc: "2.0", method: AlchemyEndpoint.getAssetTransfers.rawValue, params: [request])
         let paramsEncoded = try JSONEncoder().encode(body)
         let request = AlchemyRequest(body: paramsEncoded)
-        let worker = NetworkWorkerImpl()
+        let worker = NetworkWorkerDefault()
         let response: AlchemyResponse<AlchemyHistory> = try await worker.performRequest(with: request)
         return response
     }

@@ -10,6 +10,9 @@ import SSFSigner
 import SSFCrypto
 import Foundation
 import SSFRuntimeCodingService
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 struct SendDependencies {
     let wallet: MetaAccountModel
@@ -44,7 +47,7 @@ final class SendDepencyContainer {
         }
         currentDependecies?.transferService.unsubscribe()
 
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainRegistry: ChainRegistryProtocol = ChainRegistryFacade.sharedRegistry
         let runtimeService = chainRegistry.getRuntimeProvider(
             for: chainAsset.chain.chainId
         )
@@ -108,14 +111,13 @@ final class SendDepencyContainer {
             throw ChainAccountFetchingError.accountNotExists
         }
 
-        switch chainAsset.chain.chainBaseType {
-        case .substrate:
-            guard let nativeRuntimeService = ChainRegistryFacade.sharedRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+        if chainAsset.chain.chainBaseType == .substrate {
+            guard let nativeRuntimeService = (ChainRegistryFacade.sharedRegistry as ChainRegistryProtocol).getRuntimeProvider(for: chainAsset.chain.chainId) else {
                 throw ChainRegistryError.runtimeMetadaUnavailable
             }
 
-            let chainRegistry = ChainRegistryFacade.sharedRegistry
-            let connection = try chainRegistry.getSubstrateConnection(for: chainAsset.chain)
+            let chainRegistryConcrete = ChainRegistryFacade.sharedRegistry as! ChainRegistry
+            let connection = try chainRegistryConcrete.getSubstrateConnection(for: chainAsset.chain)
             let operationManager = OperationManagerFacade.sharedManager
 
             let extrinsicService = SSFExtrinsicKit.ExtrinsicService(
@@ -135,7 +137,9 @@ final class SendDepencyContainer {
 
             let callFactory = SubstrateCallFactoryDefault(runtimeService: nativeRuntimeService)
             return SubstrateTransferService(extrinsicService: extrinsicService, callFactory: callFactory, signer: signer)
-        case .ethereum:
+        }
+
+        if chainAsset.chain.chainBaseType == .ethereum {
             let secretKey = try fetchSecretKey(for: chainAsset.chain, accountResponse: accountResponse)
 
             guard let address = accountResponse.toAddress() else {
@@ -148,10 +152,12 @@ final class SendDepencyContainer {
 
             return EthereumTransferService(
                 ws: ws,
-                privateKey: try EthereumPrivateKey(privateKey: secretKey.bytes),
+                privateKey: try EthereumPrivateKey(privateKey: Array(secretKey)),
                 senderAddress: address
             )
         }
+
+        throw ConvenienceError(error: "TON transfer not yet supported.")
     }
 
     private func createEqTotalBalanceService(chainAsset: ChainAsset) -> EquilibriumTotalBalanceServiceProtocol? {
@@ -191,7 +197,7 @@ final class SendDepencyContainer {
             operationManager: operationManager
         )
         let repositoryFacade = SubstrateDataStorageFacade.shared
-        let settingsRepository: CoreDataRepository<PolkaswapRemoteSettings, CDPolkaswapRemoteSettings> =
+        let settingsRepository: CoreDataRepository<PolkaswapRemoteSettings, SSFAssetManagmentStorage.CDPolkaswapRemoteSettings> =
             repositoryFacade.createRepository(
                 filter: nil,
                 sortDescriptors: [],

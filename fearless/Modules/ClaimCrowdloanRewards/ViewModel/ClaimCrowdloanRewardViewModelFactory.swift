@@ -81,7 +81,12 @@ extension ClaimCrowdloanRewardViewModelFactory: ClaimCrowdloanRewardViewModelFac
     func buildHintViewModel() -> LocalizableResource<DetailsTriangularedAttributedViewModel?> {
         LocalizableResource { locale in
             let title = R.string.localizable.vestingClaimDisclaimerTitle(preferredLanguages: locale.rLanguages)
-            let text = R.string.localizable.vestingClaimDisclaimerText(preferredLanguages: locale.rLanguages)
+            var text = R.string.localizable.vestingClaimDisclaimerText(preferredLanguages: locale.rLanguages)
+
+            // If on Asset Hub, append block-provider hint per runtime changes
+            if self.chainAsset.chain.paraId == "1000" {
+                text += "\n\n(Info: Vesting on Asset Hub uses Relay Chain block time)"
+            }
 
             let titleAttributedString = NSAttributedString(string: title, attributes: [.font: UIFont.h5Title])
             let textAttributedString = NSAttributedString(string: text)

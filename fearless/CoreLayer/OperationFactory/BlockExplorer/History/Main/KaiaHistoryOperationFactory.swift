@@ -8,7 +8,7 @@ final class KaiaHistoryOperationFactory {
         url: URL
     ) -> BaseOperation<KaiaHistoryResponse> {
         let requestFactory = BlockNetworkRequestFactory {
-            var url = url
+            let url = url
                 .appendingPathComponent("accounts")
                 .appendingPathComponent(address)
                 .appendingPathComponent("txs")

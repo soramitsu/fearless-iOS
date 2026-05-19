@@ -84,7 +84,7 @@ final class DefaultFlowLayout: UICollectionViewFlowLayout {
     }
 
     private func getContentOffset(for itemIndex: Int) -> CGPoint {
-        var offsetX = (itemSize.width + Constants.spacing) * CGFloat(itemIndex)
+        let offsetX = (itemSize.width + Constants.spacing) * CGFloat(itemIndex)
 
         return CGPoint(x: offsetX, y: 0)
     }

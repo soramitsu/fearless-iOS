@@ -149,7 +149,8 @@ extension SendInteractor: SendInteractorInput {
         }
 
         let address = address ?? senderAddress
-        let appId: BigUInt? = chainAsset.chain.options?.contains(.checkAppId) == true ? .zero : nil
+        // New SSF ChainOptions no longer exposes .checkAppId; default to nil appId
+        let appId: BigUInt? = nil
         let transfer = Transfer(
             chainAsset: chainAsset,
             amount: amount,

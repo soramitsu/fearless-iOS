@@ -4,6 +4,7 @@ import SoraKeystore
 import IrohaCrypto
 import RobinHood
 import Cuckoo
+import SoraFoundation
 
 class AccountCreateTests: XCTestCase {
 
@@ -27,20 +28,20 @@ class AccountCreateTests: XCTestCase {
         let setupExpectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub).didCompleteCryptoTypeSelection().thenDoNothing()
-            when(stub).didValidateSubstrateDerivationPath(any()).thenDoNothing()
-            when(stub).didValidateEthereumDerivationPath(any()).thenDoNothing()
-            when(stub).isSetup.get.thenReturn(false, true)
-            when(stub).set(chainType: any()).thenDoNothing()
-            when(stub).bind(substrateViewModel: any()).thenDoNothing()
-            when(stub).setEthereumCrypto(model: any()).thenDoNothing()
-            when(stub).bind(ethereumViewModel: any()).thenDoNothing()
+            when(stub.didCompleteCryptoTypeSelection()).thenDoNothing()
+            when(stub.didValidateSubstrateDerivationPath(any(FieldStatus.self))).thenDoNothing()
+            when(stub.didValidateEthereumDerivationPath(any(FieldStatus.self))).thenDoNothing()
+            when(stub.isSetup.get).thenReturn(false, true)
+            when(stub.set(chainType: any(AccountCreateChainType.self))).thenDoNothing()
+            when(stub.bind(substrateViewModel: any(InputViewModelProtocol.self))).thenDoNothing()
+            when(stub.setEthereumCrypto(model: any(TitleWithSubtitleViewModel.self))).thenDoNothing()
+            when(stub.bind(ethereumViewModel: any(InputViewModelProtocol.self))).thenDoNothing()
 
-            when(stub).set(mnemonic: any()).then { _ in
+            when(stub.set(mnemonic: any([String].self))).then { _ in
                 setupExpectation.fulfill()
             }
 
-            when(stub).setSelectedSubstrateCrypto(model: any()).thenDoNothing()
+            when(stub.setSelectedSubstrateCrypto(model: any(SelectableViewModel<TitleWithSubtitleViewModel>.self))).thenDoNothing()
         }
 
         let expectation = XCTestExpectation()
@@ -48,7 +49,7 @@ class AccountCreateTests: XCTestCase {
         var receivedRequest: MetaAccountImportMnemonicRequest?
 
         stub(wireframe) { stub in
-            when(stub).confirm(from: any(), flow: any()).then { (_, flow) in
+            when(stub.confirm(from: any(AccountCreateViewProtocol?.self), flow: any(AccountConfirmFlow.self))).then { (_, flow) in
                 if case .wallet(let request) = flow {
                     receivedRequest = request
                     expectation.fulfill()
@@ -62,7 +63,7 @@ class AccountCreateTests: XCTestCase {
 
         wait(for: [setupExpectation], timeout: Constants.defaultExpectationDuration)
 
-        presenter.proceed()
+        presenter.proceed(withReplaced: nil)
 
         // then
 

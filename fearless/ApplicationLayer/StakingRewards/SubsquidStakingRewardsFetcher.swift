@@ -75,7 +75,7 @@ extension SubsquidStakingRewardsFetcher: StakingRewardsFetcher {
             baseURL: blockExplorer.url,
             query: queryString
         )
-        let worker = NetworkWorkerImpl()
+        let worker = NetworkWorkerDefault()
         let response: GraphQLResponse<ArrowsquidHistoryResponse> = try await worker.performRequest(with: request)
 
         switch response {
