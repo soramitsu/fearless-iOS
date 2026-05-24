@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 import SSFUtils
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 enum ArrosquidRewardOperationFactoryError: Error {
@@ -10,9 +10,14 @@ enum ArrosquidRewardOperationFactoryError: Error {
 
 final class ArrowsquidRewardOperationFactory {
     private let url: URL?
+    private let localizationManager: LocalizationManagerProtocol
 
-    init(url: URL?) {
+    init(
+        url: URL?,
+        localizationManager: LocalizationManagerProtocol = LocalizationManager.shared
+    ) {
         self.url = url
+        self.localizationManager = localizationManager
     }
 
     private func prepareLastRoundsQuery() -> String {
@@ -42,7 +47,7 @@ final class ArrowsquidRewardOperationFactory {
         endTimestamp: Int64?
     ) -> String {
         let timestampFilter: String = {
-            let locale = LocalizationManager.shared.selectedLocale
+            let locale = localizationManager.selectedLocale
             guard startTimestamp != nil || endTimestamp != nil else { return "" }
 
             var result = "AND: {"
@@ -83,7 +88,7 @@ final class ArrowsquidRewardOperationFactory {
         endTimestamp: Int64?
     ) -> String {
         let timestampFilter: String = {
-            let locale = LocalizationManager.shared.selectedLocale
+            let locale = localizationManager.selectedLocale
             guard startTimestamp != nil || endTimestamp != nil else { return "" }
 
             var result = "AND: {"

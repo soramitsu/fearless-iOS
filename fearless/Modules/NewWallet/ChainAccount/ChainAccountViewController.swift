@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class ChainAccountViewController: UIViewController, ViewHolder {
     enum Constants {

@@ -35,6 +35,17 @@ extension ABI {
 
         // MARK: - Static
 
+        static let erc20Transfer = Method(
+            name: .transfer,
+            in: [
+                .init(name: ABI.ContractCollection.InParameters.to.rawValue, type: .address),
+                .init(name: ABI.ContractCollection.InParameters.value.rawValue, type: .uint(bits: 256))
+            ],
+            out: [
+                .init(name: ABI.ContractCollection.OutParameters.success.rawValue, type: .bool)
+            ]
+        )
+
         static var erc20: Contract { ERC20() }
     }
 
@@ -45,16 +56,7 @@ extension ABI {
     private struct ERC20: Contract {
         var methods: [ABI.ContractCollection.MethodName: Method] {
             [
-                .transfer: .init(
-                    name: .transfer,
-                    in: [
-                        .init(name: ABI.ContractCollection.InParameters.to.rawValue, type: .address),
-                        .init(name: ABI.ContractCollection.InParameters.value.rawValue, type: .uint(bits: 256))
-                    ],
-                    out: [
-                        .init(name: ABI.ContractCollection.OutParameters.success.rawValue, type: .bool)
-                    ]
-                )
+                .transfer: ABI.ContractCollection.erc20Transfer
             ]
         }
     }
@@ -62,9 +64,7 @@ extension ABI {
 
 extension ABI.Element.Function {
     static var erc20transfer: ABI.Element.Function {
-        guard let erc20transfer = ABI.ContractCollection.erc20.methods[.transfer] else {
-            fatalError("Missed method")
-        }
+        let erc20transfer = ABI.ContractCollection.erc20Transfer
         return .init(
             name: erc20transfer.name.rawValue,
             inputs: erc20transfer.in,

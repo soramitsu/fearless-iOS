@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 enum WalletsManagmentType {
     case wallets

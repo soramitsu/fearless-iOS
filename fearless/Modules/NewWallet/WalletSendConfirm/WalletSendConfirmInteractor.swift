@@ -4,7 +4,7 @@ import Web3
 import IrohaCrypto
 import SSFModels
 import SSFCrypto
-import SoraKeystore
+import FearlessSecureStorage
 import Web3PromiseKit
 
 final class WalletSendConfirmInteractor: RuntimeConstantFetching {

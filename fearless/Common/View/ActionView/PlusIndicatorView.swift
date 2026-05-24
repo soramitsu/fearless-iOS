@@ -1,4 +1,4 @@
-import SoraUI
+import FearlessUI
 
 final class PlusIndicatorView: ActionControlIndicatorView {
     private let verticalView = UIView()

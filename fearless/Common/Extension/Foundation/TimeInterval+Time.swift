@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 extension TimeInterval {
     static let secondsInHour: TimeInterval = 3600

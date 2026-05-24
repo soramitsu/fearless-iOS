@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 protocol BackupCreatePasswordViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func setPasswordInputViewModel(_ viewModel: InputViewModelProtocol)

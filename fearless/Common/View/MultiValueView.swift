@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 class MultiValueView: UIView {
     let valueTop: UILabel = {

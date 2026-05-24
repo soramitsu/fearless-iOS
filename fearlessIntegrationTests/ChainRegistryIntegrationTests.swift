@@ -1,125 +1,243 @@
-//import XCTest
-//@testable import fearless
-//import SSFUtils
-//import RobinHood
-//import IrohaCrypto
-//
-//class ChainRegistryIntegrationTests: XCTestCase {
-//    func testNetworkConnection() {
-//        let address = "12hAtDZJGt4of3m2GqZcUCVAjZPALfvPwvtUTFZPQUbdX1Ud"
-//
-//        let chainRegistry = ChainRegistryFactory.createDefaultRegistry(
-//            from: SubstrateStorageTestFacade()
-//        )
-//
-//        chainRegistry.syncUp()
-//
-//        var availableChains: [ChainModel.Id: ChainModel] = [:]
-//
-//        let syncExpectation = XCTestExpectation()
-//
-//        chainRegistry.chainsSubscribe(self, runningInQueue: .main) { changes in
-//            for change in changes {
-//                switch change {
-//                case let .insert(chain):
-//                    availableChains[chain.chainId] = chain
-//                case let .update(chain):
-//                    availableChains[chain.chainId] = chain
-//                case let .delete(deletedIdentifier):
-//                    availableChains[deletedIdentifier] = nil
-//                }
-//            }
-//
-//            if !changes.isEmpty {
-//                syncExpectation.fulfill()
-//            }
-//        }
-//
-//        wait(for: [syncExpectation], timeout: 10)
-//
-//        guard !availableChains.isEmpty else {
-//            XCTFail("Unexpected empty chains")
-//            return
-//        }
-//
-//        Logger.shared.info("Did receive chains: \(availableChains)")
-//
-//        let storageOperationFactory = StorageRequestFactory(
-//            remoteFactory: StorageKeyFactory(),
-//            operationManager: OperationManagerFacade.sharedManager
-//        )
-//
-//        let addressFactory = SS58AddressFactory()
-//        let accountId = try! addressFactory.accountId(from: address)
-//
-//        let operationQueue = OperationQueue()
-//
-//        for chain in availableChains.values {
-//            guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
-//                XCTFail("Unexpected missing connection for chain: \(chain.chainId)")
-//                return
-//            }
-//
-//            guard let runtimeProvider = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
-//                XCTFail("Unexpected missing runtime provider: \(chain.chainId)")
-//                return
-//            }
-//
-//            guard let utilityAsset = chain.assets.first(where: { $0.isUtility }) else {
-//                XCTFail("Can't find utility asset: \(chain.chainId)")
-//                return
-//            }
-//
-//            let factoryOperation = runtimeProvider.fetchCoderFactoryOperation()
-//
-//            let queryWrapper: CompoundOperationWrapper<[StorageResponse<AccountInfo>]> = storageOperationFactory.queryItems(
-//                engine: connection,
-//                keyParams: {
-//                    [accountId]
-//                }, factory: {
-//                    try factoryOperation.extractNoCancellableResultData()
-//                }, storagePath: .account
-//            )
-//
-//            queryWrapper.addDependency(operations: [factoryOperation])
-//
-//            let mapOperation: BaseOperation<AccountInfo?> = ClosureOperation {
-//                guard let response = try queryWrapper.targetOperation.extractNoCancellableResultData()
-//                        .first else {
-//                    throw BaseOperationError.unexpectedDependentResult
-//                }
-//
-//                return response.value
-//            }
-//
-//            mapOperation.addDependency(queryWrapper.targetOperation)
-//
-//            let wrapper = CompoundOperationWrapper(
-//                targetOperation: mapOperation,
-//                dependencies: [factoryOperation] + queryWrapper.allOperations)
-//
-//            let queryExpectation = XCTestExpectation()
-//
-//            wrapper.targetOperation.completionBlock = {
-//                queryExpectation.fulfill()
-//            }
-//
-//            operationQueue.addOperations(wrapper.allOperations, waitUntilFinished: true)
-//
-//            do {
-//                let accountInfo = try wrapper.targetOperation.extractNoCancellableResultData()
-//                let available = accountInfo.map {
-//                    Decimal.fromSubstrateAmount(
-//                        $0.data.available,
-//                        precision: Int16(utilityAsset.asset.precision)
-//                    ) ?? 0.0
-//                } ?? 0.0
-//
-//                let balanceString = available.stringWithPointSeparator + " \(utilityAsset.assetId)"
-//                Logger.shared.info("Balance: \(balanceString)")
-//            } catch {
-//                Logger.shared.error("Couldn't fetch from chain \(chain.chainId): \(error)")
-//            }
-//        }
-//    }
-//}
+import XCTest
+import FearlessFoundation
+import RobinHood
+import SSFModels
+import SSFUtils
+@testable import fearless
+
+final class ChainRegistryIntegrationTests: XCTestCase {
+    func testColdBoot_whenChainsAvailable_thenRegistersRuntimeProvidersAndConnections() throws {
+        let chains = ChainModelGenerator.generate(count: 3)
+        let expectedChainIds = Set(chains.map(\.chainId))
+        let storageFacade = SubstrateStorageTestFacade()
+        try seed(chains: chains, in: storageFacade)
+
+        let dataOperationFactory = StaticDataOperationFactory(
+            data: try JSONEncoder().encode(chains)
+        )
+        let connectionFactory = RegistryConnectionFactorySpy()
+        let registry = ChainRegistryFactory.createDefaultRegistry(
+            from: storageFacade,
+            dependencies: makeDependencies(
+                dataOperationFactory: dataOperationFactory,
+                connectionFactory: connectionFactory
+            )
+        )
+
+        registry.performColdBoot()
+
+        XCTAssertTrue(waitUntil(timeout: 10) {
+            Set(registry.availableChains.map(\.chainId)) == expectedChainIds
+        }, "Available chains: \(registry.availableChains.map(\.chainId)); requested URLs: \(dataOperationFactory.requestedURLs)")
+
+        XCTAssertTrue(waitUntil(timeout: 10) {
+            chains.allSatisfy { registry.getConnection(for: $0.chainId) != nil }
+        }, "Created connections: \(connectionFactory.createdConnectionNames)")
+
+        XCTAssertTrue(waitUntil(timeout: 10) {
+            dataOperationFactory.requestedURLs.isNotEmpty
+        })
+
+        XCTAssertEqual(Set(registry.availableChains.map(\.chainId)), expectedChainIds)
+        XCTAssertEqual(registry.availableChainIds, expectedChainIds)
+        XCTAssertEqual(Set(connectionFactory.createdConnectionNames.compactMap { $0 }), expectedChainIds)
+        XCTAssertGreaterThanOrEqual(dataOperationFactory.requestedURLs.count, 1)
+
+        chains.forEach { chain in
+            XCTAssertNotNil(registry.getConnection(for: chain.chainId))
+            XCTAssertNotNil(registry.getRuntimeProvider(for: chain.chainId))
+        }
+    }
+
+    func testResetConnection_whenChainIsAvailable_thenRemovesCachedConnection() throws {
+        let chains = ChainModelGenerator.generate(count: 3)
+        let chain = try XCTUnwrap(chains.first)
+        let storageFacade = SubstrateStorageTestFacade()
+        try seed(chains: chains, in: storageFacade)
+
+        let dataOperationFactory = StaticDataOperationFactory(
+            data: try JSONEncoder().encode(chains)
+        )
+        let connectionFactory = RegistryConnectionFactorySpy()
+        let registry = ChainRegistryFactory.createDefaultRegistry(
+            from: storageFacade,
+            dependencies: makeDependencies(
+                dataOperationFactory: dataOperationFactory,
+                connectionFactory: connectionFactory
+            )
+        )
+
+        registry.subscribeToChains()
+
+        XCTAssertTrue(waitUntil(timeout: 10) {
+            registry.availableChains.contains { $0.chainId == chain.chainId }
+        }, "Available chains: \(registry.availableChains.map(\.chainId)); requested URLs: \(dataOperationFactory.requestedURLs)")
+        XCTAssertTrue(waitUntil { registry.getConnection(for: chain.chainId) != nil }, "Created connections: \(connectionFactory.createdConnectionNames)")
+
+        registry.resetConnection(for: chain.chainId)
+
+        XCTAssertNil(registry.getConnection(for: chain.chainId))
+    }
+
+    private func waitUntil(
+        timeout: TimeInterval = 5,
+        condition: @escaping () -> Bool
+    ) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+
+        while Date() < deadline {
+            if condition() {
+                return true
+            }
+
+            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        }
+
+        return condition()
+    }
+
+    private func seed(
+        chains: [ChainModel],
+        in storageFacade: fearless.StorageFacadeProtocol
+    ) throws {
+        let repository = ChainRepositoryFactory(storageFacade: storageFacade).createRepository()
+        let saveOperation = repository.saveOperation({ chains }, { [] })
+        let queue = OperationQueue()
+
+        queue.addOperations([saveOperation], waitUntilFinished: true)
+
+        _ = try saveOperation.extractResultData(
+            throwing: BaseOperationError.parentOperationCancelled
+        )
+    }
+
+    private func makeDependencies(
+        dataOperationFactory: DataOperationFactoryProtocol,
+        connectionFactory: ConnectionFactoryProtocol
+    ) -> ChainRegistryFactoryDependencies {
+        var dependencies = ChainRegistryFactoryDependencies.live
+        dependencies.eventCenter = EventCenter()
+        dependencies.dataOperationFactory = dataOperationFactory
+        dependencies.runtimeQueue = OperationQueue()
+        dependencies.syncQueue = OperationQueue()
+        dependencies.operationManager = OperationManager()
+        dependencies.connectionFactory = connectionFactory
+        dependencies.ethereumConnectionPool = EthereumConnectionPool()
+        dependencies.applicationHandler = ApplicationHandler()
+        return dependencies
+    }
+}
+
+private final class StaticDataOperationFactory: DataOperationFactoryProtocol {
+    private let data: Data
+    private let lock = NSLock()
+    private var urls: [URL] = []
+    var requestedURLs: [URL] {
+        lock.lock()
+        defer { lock.unlock() }
+
+        return urls
+    }
+
+    init(data: Data) {
+        self.data = data
+    }
+
+    func fetchData(from url: URL) -> BaseOperation<Data> {
+        lock.lock()
+        urls.append(url)
+        lock.unlock()
+
+        return ClosureOperation { [data] in data }
+    }
+}
+
+private final class RegistryConnectionFactorySpy: ConnectionFactoryProtocol {
+    private let lock = NSLock()
+    private var connectionNames: [String?] = []
+    private var urls: [[URL]] = []
+    private var retainedConnections: [ChainConnection] = []
+    var createdConnectionNames: [String?] {
+        lock.lock()
+        defer { lock.unlock() }
+
+        return connectionNames
+    }
+
+    var createdURLs: [[URL]] {
+        lock.lock()
+        defer { lock.unlock() }
+
+        return urls
+    }
+
+    func createConnection(
+        connectionName: String?,
+        for urls: [URL],
+        delegate _: WebSocketEngineDelegate
+    ) throws -> ChainConnection {
+        let connection = RegistryConnectionSpy()
+        connection.connectionName = connectionName
+        connection.url = urls.first
+
+        lock.lock()
+        connectionNames.append(connectionName)
+        self.urls.append(urls)
+        retainedConnections.append(connection)
+        lock.unlock()
+
+        return connection
+    }
+}
+
+private final class RegistryConnectionSpy: JSONRPCEngine {
+    var connectionName: String?
+    var url: URL?
+    var pendingEngineRequests: [JSONRPCRequest] { [] }
+
+    private var nextId: UInt16 = 1
+    private var subscriptions: [UInt16: (Any) -> Void] = [:]
+
+    func callMethod<P: Codable, T: Decodable>(
+        _: String,
+        params _: P?,
+        options _: JSONRPCOptions,
+        completion closure: ((Result<T, Error>) -> Void)?
+    ) throws -> UInt16 {
+        let id = generateRequestId()
+        closure?(.failure(JSONRPCEngineError.clientCancelled))
+        return id
+    }
+
+    func subscribe<P: Codable, T: Decodable>(
+        _: String,
+        params _: P?,
+        updateClosure: @escaping (T) -> Void,
+        failureClosure _: @escaping (Error, Bool) -> Void
+    ) throws -> UInt16 {
+        let id = generateRequestId()
+        subscriptions[id] = { value in
+            guard let typedValue = value as? T else {
+                return
+            }
+
+            updateClosure(typedValue)
+        }
+        return id
+    }
+
+    func cancelForIdentifier(_ identifier: UInt16) {
+        subscriptions.removeValue(forKey: identifier)
+    }
+
+    func generateRequestId() -> UInt16 {
+        defer { nextId &+= 1 }
+        return nextId
+    }
+
+    func addSubscription(_: JSONRPCSubscribing) {}
+    func reconnect(url: URL) { self.url = url }
+    func connectIfNeeded() {}
+    func disconnectIfNeeded() {}
+    func unsubsribe(_ identifier: UInt16) throws { cancelForIdentifier(identifier) }
+}

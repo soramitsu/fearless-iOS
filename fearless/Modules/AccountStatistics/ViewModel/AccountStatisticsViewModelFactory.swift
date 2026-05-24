@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 protocol AccountStatisticsViewModelFactory {
     func buildViewModel(accountScore: AccountStatistics?, locale: Locale) -> AccountStatisticsViewModel?

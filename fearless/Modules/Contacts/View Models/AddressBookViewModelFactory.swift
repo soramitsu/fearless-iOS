@@ -1,6 +1,6 @@
 import Foundation
 import SSFModels
-import SoraKeystore
+import FearlessSecureStorage
 
 protocol AddressBookViewModelFactoryProtocol {
     func buildCellViewModels(
@@ -20,15 +20,21 @@ final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
     private let accountScoreFetcher: AccountStatisticsFetching
     private let chain: ChainModel
     private let settings: SettingsManagerProtocol
+    private let eventCenter: EventCenterProtocol
+    private let logger: LoggerProtocol?
 
     init(
         accountScoreFetcher: AccountStatisticsFetching,
         chain: ChainModel,
-        settings: SettingsManagerProtocol
+        settings: SettingsManagerProtocol,
+        eventCenter: EventCenterProtocol = EventCenter.shared,
+        logger: LoggerProtocol? = Logger.shared
     ) {
         self.accountScoreFetcher = accountScoreFetcher
         self.chain = chain
         self.settings = settings
+        self.eventCenter = eventCenter
+        self.logger = logger
     }
 
     func buildCellViewModels(
@@ -44,8 +50,8 @@ final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
                 address: contactType.address,
                 chain: chain,
                 settings: settings,
-                eventCenter: EventCenter.shared,
-                logger: Logger.shared
+                eventCenter: eventCenter,
+                logger: logger
             )
 
             return ContactTableCellModel(
@@ -75,8 +81,8 @@ final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
                     address: contact.address,
                     chain: chain,
                     settings: settings,
-                    eventCenter: EventCenter.shared,
-                    logger: Logger.shared
+                    eventCenter: eventCenter,
+                    logger: logger
                 )
 
                 return ContactTableCellModel(contactType: .saved(contact), delegate: cellsDelegate, accountScoreViewModel: accountScoreViewModel)

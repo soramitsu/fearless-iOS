@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 protocol BackupRiskWarningsViewOutput: AnyObject {
     func didLoad(view: BackupRiskWarningsViewInput)

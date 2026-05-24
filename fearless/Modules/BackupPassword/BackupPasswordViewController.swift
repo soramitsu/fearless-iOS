@@ -1,6 +1,6 @@
 import UIKit
-import SoraFoundation
-import SoraUI
+import FearlessFoundation
+import FearlessUI
 import SnapKit
 
 protocol BackupPasswordViewOutput: AnyObject {
@@ -123,7 +123,7 @@ final class BackupPasswordViewController: UIViewController, ViewHolder {
 // MARK: - BackupPasswordViewInput
 
 extension BackupPasswordViewController: BackupPasswordViewInput {
-    func setPasswordInputViewModel(_ viewModel: SoraFoundation.InputViewModelProtocol) {
+    func setPasswordInputViewModel(_ viewModel: FearlessFoundation.InputViewModelProtocol) {
         passwordInputViewModel = viewModel
     }
 
@@ -143,14 +143,14 @@ extension BackupPasswordViewController: Localizable {
 // MARK: - AnimatedTextFieldDelegate
 
 extension BackupPasswordViewController: AnimatedTextFieldDelegate {
-    func animatedTextFieldShouldReturn(_ textField: SoraUI.AnimatedTextField) -> Bool {
+    func animatedTextFieldShouldReturn(_ textField: FearlessUI.AnimatedTextField) -> Bool {
         textField.resignFirstResponder()
         rootView.passwordTextField.backgroundView.set(highlighted: false, animated: false)
         return false
     }
 
     func animatedTextField(
-        _ textField: SoraUI.AnimatedTextField,
+        _ textField: FearlessUI.AnimatedTextField,
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {

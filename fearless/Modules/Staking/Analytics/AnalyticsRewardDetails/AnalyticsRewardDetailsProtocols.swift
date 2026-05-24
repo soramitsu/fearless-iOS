@@ -1,4 +1,4 @@
-import SoraFoundation
+import FearlessFoundation
 
 protocol AnalyticsRewardDetailsViewProtocol: ControllerBackedProtocol, Localizable {
     func bind(viewModel: LocalizableResource<AnalyticsRewardDetailsViewModel>)

@@ -1,4 +1,4 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class GetPreinstalledWalletViewController: ScanQRViewController {}

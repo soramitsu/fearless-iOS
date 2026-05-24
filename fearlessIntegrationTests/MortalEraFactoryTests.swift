@@ -19,6 +19,10 @@ class MortalEraFactoryTests: XCTestCase {
 
 
     func performMortalEraCalculation(chainId: ChainModel.Id) throws {
+        guard Self.remoteEndpointTestsEnabled else {
+            throw XCTSkip("Mortal era integration depends on remote chain endpoints; set FEARLESS_RUN_REMOTE_INTEGRATION_TESTS=1 to run it")
+        }
+
         // given
         let logger = Logger.shared
 
@@ -42,5 +46,9 @@ class MortalEraFactoryTests: XCTestCase {
         let era = try wrapper.targetOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
         logger.info("Did receive era: \(era)")
+    }
+
+    private static var remoteEndpointTestsEnabled: Bool {
+        ProcessInfo.processInfo.environment["FEARLESS_RUN_REMOTE_INTEGRATION_TESTS"] == "1"
     }
 }

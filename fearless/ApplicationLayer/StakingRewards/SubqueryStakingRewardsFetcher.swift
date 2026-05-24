@@ -4,9 +4,14 @@ import SSFNetwork
 
 final class SubqueryStakingRewardsFetcher {
     private let chain: ChainModel
+    private let worker: NetworkWorkerDefault
 
-    init(chain: ChainModel) {
+    init(
+        chain: ChainModel,
+        worker: NetworkWorkerDefault = NetworkWorkerDefault()
+    ) {
         self.chain = chain
+        self.worker = worker
     }
 
     func queryString(
@@ -70,7 +75,6 @@ extension SubqueryStakingRewardsFetcher: StakingRewardsFetcher {
             baseURL: blockExplorer.url,
             query: queryString
         )
-        let worker = NetworkWorkerDefault()
         let response: GraphQLResponse<SubqueryRewardOrSlashData> = try await worker.performRequest(with: request)
 
         switch response {

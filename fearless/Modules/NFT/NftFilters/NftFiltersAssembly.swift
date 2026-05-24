@@ -1,6 +1,6 @@
 import Foundation
-import SoraFoundation
-import SoraUI
+import FearlessFoundation
+import FearlessUI
 
 struct NftFiltersAssembly {
     static func configureModule(

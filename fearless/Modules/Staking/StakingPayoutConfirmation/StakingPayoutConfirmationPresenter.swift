@@ -78,7 +78,8 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
                 from: view,
                 address: viewModel.address,
                 chain: chainAsset.chain,
-                locale: locale
+                locale: locale,
+                exportClosure: nil
             )
         }
     }

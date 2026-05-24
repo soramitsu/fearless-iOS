@@ -1,4 +1,4 @@
-import SoraUI
+import FearlessUI
 import SnapKit
 
 final class SubtitleContentView: UIView {

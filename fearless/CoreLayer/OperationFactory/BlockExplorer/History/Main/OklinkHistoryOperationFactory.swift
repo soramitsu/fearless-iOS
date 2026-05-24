@@ -4,24 +4,27 @@ import RobinHood
 import IrohaCrypto
 import SSFUtils
 import SSFModels
-#if canImport(FearlessKeys)
-    import FearlessKeys
-#endif
 
 final class OklinkHistoryOperationFactory {
-    private func createOperation(
+    private let apiKeySource: BlockExplorerAPIKeySource
+
+    init(apiKeySource: BlockExplorerAPIKeySource = BlockExplorerEnvironmentAPIKeySource()) {
+        self.apiKeySource = apiKeySource
+    }
+
+    func buildRequest(
         address: String,
         url: URL,
         chainAsset: ChainAsset
-    ) -> BaseOperation<OklinkHistoryResponse> {
-        var urlComponents = URLComponents(string: url.absoluteString)
-        var queryItems = urlComponents?.queryItems
-        queryItems?.append(URLQueryItem(name: "address", value: address))
-        queryItems?.append(URLQueryItem(name: "symbol", value: chainAsset.asset.symbol))
+    ) -> URLRequest? {
+        var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        var queryItems = urlComponents?.queryItems ?? []
+        queryItems.append(URLQueryItem(name: "address", value: address))
+        queryItems.append(URLQueryItem(name: "symbol", value: chainAsset.asset.symbol))
 
         switch chainAsset.asset.ethereumType {
         case .erc20:
-            queryItems?.append(URLQueryItem(name: "protocolType", value: "token_20"))
+            queryItems.append(URLQueryItem(name: "protocolType", value: "token_20"))
         case .bep20, .normal, .none:
             break
         }
@@ -29,22 +32,31 @@ final class OklinkHistoryOperationFactory {
         urlComponents?.queryItems = queryItems
 
         guard let urlWithParameters = urlComponents?.url else {
+            return nil
+        }
+
+        var request = URLRequest(url: urlWithParameters)
+        request.httpMethod = HttpMethod.get.rawValue
+        request.setValue(apiKeySource.apiKey(for: .oklink), forHTTPHeaderField: "Ok-Access-Key")
+
+        return request
+    }
+
+    private func createOperation(
+        address: String,
+        url: URL,
+        chainAsset: ChainAsset
+    ) -> BaseOperation<OklinkHistoryResponse> {
+        guard let request = buildRequest(
+            address: address,
+            url: url,
+            chainAsset: chainAsset
+        ) else {
             return BaseOperation.createWithError(SubqueryHistoryOperationFactoryError.urlMissing)
         }
 
         let requestFactory = BlockNetworkRequestFactory {
-            var request = URLRequest(url: urlWithParameters)
-            request.httpMethod = HttpMethod.get.rawValue
-
-            var apiKey: String
-            #if DEBUG
-                apiKey = BlockExplorerApiKeysDebug.oklinkApiKey
-            #else
-                apiKey = BlockExplorerApiKeys.oklinkApiKey
-            #endif
-            request.setValue(apiKey, forHTTPHeaderField: "Ok-Access-Key")
-
-            return request
+            request
         }
 
         let resultFactory = AnyNetworkResultFactory<OklinkHistoryResponse> { data, response, error in

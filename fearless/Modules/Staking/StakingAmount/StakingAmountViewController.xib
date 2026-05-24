@@ -415,7 +415,7 @@
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gTY-yd-Qyk">
                                     <rect key="frame" x="0.0" y="96" width="375" height="60"/>
                                     <subviews>
-                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QkV-Em-96X" customClass="BorderedContainerView" customModule="SoraUI">
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QkV-Em-96X" customClass="BorderedContainerView" customModule="FearlessUI">
                                             <rect key="frame" x="16" y="0.0" width="343" height="60"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <userDefinedRuntimeAttributes>

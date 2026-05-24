@@ -1,6 +1,6 @@
 import Foundation
-import SoraKeystore
-import SoraFoundation
+import FearlessSecureStorage
+import FearlessFoundation
 import SSFUtils
 
 struct ReferralCrowdloanViewFactory {

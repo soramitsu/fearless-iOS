@@ -2,6 +2,7 @@ import UIKit
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
+    var urlHandler: URLHandlingServiceProtocol = URLHandlingService.shared
 
     var isUnitTesting: Bool {
         ProcessInfo.processInfo.arguments.contains("-UNITTEST")
@@ -28,6 +29,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         open url: URL,
         options _: [UIApplication.OpenURLOptionsKey: Any] = [:]
     ) -> Bool {
-        URLHandlingService.shared.handle(url: url)
+        urlHandler.handle(url: url)
     }
 }

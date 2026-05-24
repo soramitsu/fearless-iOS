@@ -53,6 +53,19 @@ class ConnectionPoolTests: XCTestCase {
         XCTAssertNil(pool.getConnection(for: chainId))
     }
 
+    func testSetupConnection_whenChainAlreadyHasConnection_thenReusesCachedConnection() throws {
+        let connectionFactory = RetainingConnectionFactorySpy()
+        let connectionPool = ConnectionPool(connectionFactory: connectionFactory)
+        let chain = try XCTUnwrap(ChainModelGenerator.generate(count: 1).first)
+
+        let firstConnection = try connectionPool.setupConnection(for: chain)
+        let secondConnection = try connectionPool.setupConnection(for: chain)
+
+        XCTAssertTrue((firstConnection as AnyObject) === (secondConnection as AnyObject))
+        XCTAssertEqual(connectionFactory.createConnectionCallCount, 1)
+        XCTAssertEqual(connectionPool.connections.count, 1)
+    }
+
     private func makeEthereumLikeChain(chainId: String) -> ChainModel {
         let node = ChainNodeModel(
             url: URL(string: "https://rpc.unit.test")!,
@@ -81,68 +94,23 @@ class ConnectionPoolTests: XCTestCase {
         )
     }
 
-//    func testSetupUpdatesExistingConnection() {
-//        do {
-//            // given
-//
-//            let connectionFactory = MockConnectionFactoryProtocol()
-//
-//            let setupConnection: () -> MockConnection = {
-//                let mockConnection = MockConnection()
-//                stub(mockConnection.autobalancing) { stub in
-//                    stub.set(ranking: any()).thenDoNothing()
-//                    stub.url.get.then { URL(string: "https://github.com") }
-//                }
-//
-//                return mockConnection
-//            }
-//
-//            stub(connectionFactory) { stub in
-//                stub.createConnection(connectionName: any(), for: any(), delegate: any()).then { _ in
-//                    setupConnection()
-//                }
-//            }
-//
-//            let connectionPool = ConnectionPool(connectionFactory: connectionFactory)
-//
-//            // when
-//
-//            let chainModels: [ChainModel] = ChainModelGenerator.generate(count: 10)
-//
-//            let newConnections: [MockConnection] = try chainModels.reduce(
-//                []
-//            ) { (allConnections, chain) in
-//                if let connection = try connectionPool.setupConnection(for: chain) as? MockConnection {
-//                    return allConnections + [connection]
-//                } else {
-//                    return allConnections
-//                }
-//            }
-//            
-//            let updatedConnections: [MockConnection] = try chainModels.reduce(
-//                []
-//            ) { (allConnections, chain) in
-//                if let connection = try connectionPool.setupConnection(for: chain) as? MockConnection {
-//                    return allConnections + [connection]
-//                } else {
-//                    return allConnections
-//                }
-//            }
-//
-//            // then
-//
-//            let actualChainIds = Set(connectionPool.connectionsByChainIds.keys)
-//            let expectedChainIds = Set(chainModels.map { $0.chainId })
-//
-//            XCTAssertEqual(expectedChainIds, actualChainIds)
-//            XCTAssertEqual(newConnections.count, updatedConnections.count)
-//
-//            for index in 0..<newConnections.count {
-//                XCTAssertTrue(newConnections[index] === updatedConnections[index])
-//                verify(newConnections[index].autobalancing, times(1)).set(ranking: any())
-//            }
-//        } catch {
-//            XCTFail("Did receive error \(error)")
-//        }
-//    }
+}
+
+private final class RetainingConnectionFactorySpy: ConnectionFactoryProtocol {
+    private var retainedConnections: [ChainConnection] = []
+    private(set) var createConnectionCallCount = 0
+
+    func createConnection(
+        connectionName: String?,
+        for urls: [URL],
+        delegate _: WebSocketEngineDelegate
+    ) throws -> ChainConnection {
+        createConnectionCallCount += 1
+
+        let connection = MockConnection()
+        connection.connectionName = connectionName
+        connection.url = urls.first
+        retainedConnections.append(connection)
+        return connection
+    }
 }

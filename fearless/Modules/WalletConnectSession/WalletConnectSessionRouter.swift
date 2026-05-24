@@ -1,5 +1,5 @@
 import Foundation
-import SoraUI
+import FearlessUI
 
 final class WalletConnectSessionRouter: WalletConnectSessionRouterInput {
     var onGoToConfirmation: ((WalletConnectConfirmationInputData) -> Void)?

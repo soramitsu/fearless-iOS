@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 enum ValidatorListRelaychainFilterRow: Int, CaseIterable {
     case withoutIdentity

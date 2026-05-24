@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 final class AssetManagementTableCell: UITableViewCell {
     let iconImageView = UIImageView()

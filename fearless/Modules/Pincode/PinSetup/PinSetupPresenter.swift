@@ -1,5 +1,5 @@
 import Foundation
-import SoraKeystore
+import FearlessSecureStorage
 
 class PinSetupPresenter: PinSetupPresenterProtocol {
     private weak var view: PinSetupViewProtocol?

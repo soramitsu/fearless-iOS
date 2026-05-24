@@ -1,251 +1,197 @@
 import XCTest
-@testable import fearless
-import SSFModels
-import SoraFoundation
-import SoraKeystore
-import SSFUtils
-import Cuckoo
 import BigInt
+import SSFModels
+import SSFUtils
+@testable import fearless
 
-class CrowdloanListTests: XCTestCase {
-//    static let currentBlockNumber: BlockNumber = 1337
-//
-//    let activeCrowdloans: [Crowdloan] = [
-//        Crowdloan(
-//            paraId: 2000,
-//            fundInfo: CrowdloanFunds(
-//                depositor: Data(repeating: 0, count: 32),
-//                verifier: nil,
-//                deposit: 100,
-//                raised: 100,
-//                end: currentBlockNumber + 100,
-//                cap: 1000,
-//                lastContribution: .never,
-//                firstPeriod: 100,
-//                lastPeriod: 101,
-//                trieOrFundIndex: .trieIndex(1))
-//        )
-//    ]
-//
-//    let endedCrowdloans: [Crowdloan] = [
-//        Crowdloan(
-//            paraId: 2001,
-//            fundInfo: CrowdloanFunds(
-//                depositor: Data(repeating: 1, count: 32),
-//                verifier: nil,
-//                deposit: 100,
-//                raised: 1000,
-//                end: currentBlockNumber,
-//                cap: 1у нас000,
-//                lastContribution: .never,
-//                firstPeriod: 100,
-//                lastPeriod: 101,
-//                trieOrFundIndex: .trieIndex(2))
-//        )
-//    ]
-//
-//    let wonCrowdloans: [Crowdloan] = [
-//        Crowdloan(
-//            paraId: 2002,
-//            fundInfo: CrowdloanFunds(
-//                depositor: Data(repeating: 2, count: 32),
-//                verifier: nil,
-//                deposit: 100,
-//                raised: 100,
-//                end: currentBlockNumber + 100,
-//                cap: 1000,
-//                lastContribution: .never,
-//                firstPeriod: 100,
-//                lastPeriod: 101,
-//                trieOrFundIndex: .trieIndex(3))
-//        )
-//    ]
-//
-//    let leaseInfo: ParachainLeaseInfoList = [
-//        ParachainLeaseInfo(paraId: 2000,
-//                           fundAccountId: Data(repeating: 10, count: 32),
-//                           leasedAmount: nil
-//        ),
-//        ParachainLeaseInfo(paraId: 2001,
-//                           fundAccountId: Data(repeating: 11, count: 32),
-//                           leasedAmount: nil
-//        ),
-//        ParachainLeaseInfo(paraId: 2002,
-//                           fundAccountId: Data(repeating: 12, count: 32),
-//                           leasedAmount: 1000
-//        )
-//    ]
+final class CrowdloanListTests: XCTestCase {
+    func testCrowdloanLastContribution_whenEncodedDecoded_thenRoundTripsSupportedCases() throws {
+        let values: [CrowdloanLastContribution] = [
+            .never,
+            .preEnding(value: 42),
+            .ending(blockNumber: 123_456)
+        ]
 
-    func testCrowdloansSuccessRetrieving() throws {
-//        // given
-//
-//        let view = MockCrowdloanListViewProtocol()
-//        let wireframe = MockCrowdloanListWireframeProtocol()
-//
-//        let expectedActiveParaIds: Set<ParaId> = activeCrowdloans
-//            .reduce(into: Set<ParaId>()) { (result, crowdloan) in
-//            result.insert(crowdloan.paraId)
-//        }
-//
-//        let expectedCompletedParaIds: Set<ParaId> = (endedCrowdloans + wonCrowdloans)
-//            .reduce(into: Set<ParaId>()) { (result, crowdloan) in
-//            result.insert(crowdloan.paraId)
-//        }
-//
-//        var actualViewModel: CrowdloansViewModel?
-//
-//        let chainCompletionExpectation = XCTestExpectation()
-//        let listCompletionExpectation = XCTestExpectation()
-//        let tabBarNotificationsExpectation = XCTestExpectation()
-//
-//        stub(view) { stub in
-//            stub.isSetup.get.thenReturn(false, true)
-//
-//            stub.didReceive(listState: any()).then { state in
-//                if case let .loaded(viewModel) = state {
-//                    actualViewModel = viewModel
-//
-//                    listCompletionExpectation.fulfill()
-//                }
-//            }
-//
-//            stub.didReceive(chainInfo: any()).then { state in
-//                chainCompletionExpectation.fulfill()
-//
-//            stub.didReceive(tabBarNotifications: any()).then { _ in
-//                tabBarNotificationsExpectation.fulfill()
-//            }
-//        }
-//
-//        guard let presenter = try createPresenter(for: view, wireframe: wireframe) else {
-//            XCTFail("Initialization failed")
-//            return
-//        }
-//
-//        // when
-//
-//        presenter.setup()
-//        presenter.becomeOnline()
-//
-//        // then
-//
-//        wait(for: [listCompletionExpectation, chainCompletionExpectation, tabBarNotificationsExpectation], timeout: 10)
-//
-//        let actualActiveParaIds = actualViewModel?.active?.crowdloans
-//            .reduce(into: Set<ParaId>()) { (result, crowdloan) in
-//                result.insert(crowdloan.paraId)
-//            } ?? Set<ParaId>()
-//
-//        let actualCompletedParaIds = actualViewModel?.completed?.crowdloans
-//            .reduce(into: Set<ParaId>()) { (result, crowdloan) in
-//                result.insert(crowdloan.paraId)
-//            } ?? Set<ParaId>()
-//
-//        XCTAssertEqual(expectedActiveParaIds, actualActiveParaIds)
-//        XCTAssertEqual(expectedCompletedParaIds, actualCompletedParaIds)
+        let encoder = JSONEncoder()
+        let decoder = JSONDecoder()
+
+        try values.forEach { value in
+            let encoded = try encoder.encode(value)
+            let decoded = try decoder.decode(CrowdloanLastContribution.self, from: encoded)
+
+            XCTAssertEqual(decoded, value)
+        }
     }
 
-//    private func createPresenter(
-//        for view: MockCrowdloanListViewProtocol,
-//        wireframe: MockCrowdloanListWireframeProtocol
-//    ) throws -> CrowdloanListPresenter? {
-//        let localizationManager = LocalizationManager.shared
-//        let selectedAccount = AccountGenerator.generateMetaAccount()
-//        let selectedChain = ChainModelGenerator.generateChain(
-//            generatingAssets: 2,
-//            addressPrefix: 42,
-//            hasCrowdloans: true
-//        )
-//
-//        let chainRegistry = MockChainRegistryProtocol().applyDefault(for: [selectedChain])
-//
-//        let maybeInteractor = createInteractor(
-//            selectedAccount: selectedAccount,
-//            selectedChain: selectedChain,
-//            chainRegistry: chainRegistry
-//        )
-//
-//        guard let interactor = maybeInteractor else {
-//            return nil
-//        }
-//
-//        let wireframe = MockCrowdloanListWireframeProtocol()
-//
-//        let viewModelFactory = CrowdloansViewModelFactory(
-//            amountFormatterFactory: AssetBalanceFormatterFactory()
-//        )
-//
-//        let presenter = CrowdloanListPresenter(
-//            interactor: interactor,
-//            wireframe: wireframe,
-//            viewModelFactory: viewModelFactory,
-//            localizationManager: localizationManager,
-//            moduleOutput: nil,
-//            settings: SettingsManager.shared
-//        )
-//
-//        presenter.view = view
-//        interactor.presenter = presenter
-//
-//        return presenter
-//    }
-//
-//    private func createInteractor(
-//        selectedAccount: MetaAccountModel,
-//        selectedChain: ChainModel,
-//        chainRegistry: ChainRegistryProtocol
-//    ) -> CrowdloanListInteractor? {
-//        let settings = CrowdloanChainSettings(
-//            storageFacade: SubstrateStorageTestFacade(),
-//            settings: InMemorySettingsManager(),
-//            operationQueue: OperationQueue()
-//        )
-//
-//        settings.save(value: selectedChain)
-//
-//        let crowdloans = activeCrowdloans + endedCrowdloans + wonCrowdloans
-//        let crowdloanOperationFactory = CrowdloansOperationFactoryStub(
-//            crowdloans: crowdloans,
-//            parachainLeaseInfo: leaseInfo
-//        )
-//
-//        let crowdloanRemoteSubscriptionService = MockCrowdloanRemoteSubscriptionServiceProtocol()
-//            .applyDefaultStub()
-//
-//        let crowdloanLocalSubscriptionService = CrowdloanLocalSubscriptionFactoryStub(
-//            blockNumber: Self.currentBlockNumber
-//        )
-//
-//        let walletLocalSubscriptionService = WalletLocalSubscriptionFactoryStub(
-//            balance: BigUInt(1e+18)
-//        )
-//
-//        guard let crowdloanInfoURL = selectedChain.externalApi?.crowdloans?.url else {
-//            return nil
-//        }
-//
-//        let jsonProviderFactory = JsonDataProviderFactoryStub(
-//            sources: [
-//                crowdloanInfoURL: CrowdloanDisplayInfoList()
-//            ]
-//        )
-//
-//        return CrowdloanListInteractor(
-//            selectedMetaAccount: selectedAccount,
-//            settings: settings,
-//            chainRegistry: chainRegistry,
-//            crowdloanOperationFactory: crowdloanOperationFactory,
-//            crowdloanRemoteSubscriptionService: crowdloanRemoteSubscriptionService,
-//            crowdloanLocalSubscriptionFactory: crowdloanLocalSubscriptionService,
-//            walletLocalSubscriptionFactory: walletLocalSubscriptionService,
-//            jsonDataProviderFactory: jsonProviderFactory,
-//            operationManager: OperationManagerFacade.sharedManager
-//            connection: connection,
-//            singleValueProviderFactory: providerFactory,
-//            chain: chain,
-//            logger: Logger.shared,
-//            subscanOperationFactory: SubscanOperationFactory(),
-//            walletAssetId: nil
-//        )
-//    }
+    func testCrowdloanLastContribution_whenDecodedFromInvalidPayload_thenThrows() throws {
+        let decoder = JSONDecoder()
+        let payloads = [
+            #"["PreEnding","not-int"]"#,
+            #"["Ending","not-int"]"#,
+            #"["Unknown",null]"#
+        ]
+
+        try payloads.forEach { payload in
+            let data = try XCTUnwrap(payload.data(using: .utf8))
+
+            XCTAssertThrowsError(try decoder.decode(CrowdloanLastContribution.self, from: data))
+        }
+    }
+
+    func testMoonbeamFlow_whenDataOmitsOptionalFields_thenKeepsProvidedUrlsAndUsesDefaults() throws {
+        let payload = """
+        {
+          "paraid": "2002",
+          "name": "Moonbeam",
+          "token": "GLMR",
+          "description": "Ethereum-compatible smart contract parachain on Polkadot",
+          "website": "https://moonbeam.network",
+          "icon": "https://raw.githubusercontent.com/polkadot-js/apps/master/packages/apps-config/src/ui/logos/nodes/moonbeam.png",
+          "flow": {
+            "name": "moonbeam",
+            "data": {
+              "devApiUrl": "https://wallet-test.api.purestake.xyz",
+              "prodApiUrl": "https://wallet-test.api.purestake.xyz"
+            }
+          }
+        }
+        """
+
+        let data = try XCTUnwrap(payload.data(using: .utf8))
+        let displayInfo = try JSONDecoder().decode(CrowdloanDisplayInfo.self, from: data)
+
+        guard case let .moonbeam(flowData)? = displayInfo.flowIfSupported else {
+            return XCTFail("Expected Moonbeam custom flow")
+        }
+
+        XCTAssertEqual(flowData.devApiUrl, "https://wallet-test.api.purestake.xyz")
+        XCTAssertEqual(flowData.prodApiUrl, "https://wallet-test.api.purestake.xyz")
+        XCTAssertEqual(flowData.termsUrl, MoonbeamFlowData.default.termsUrl)
+        XCTAssertEqual(flowData.devApiKey, MoonbeamFlowData.default.devApiKey)
+        XCTAssertEqual(flowData.prodApiKey, MoonbeamFlowData.default.prodApiKey)
+    }
+
+    func testCreateViewModel_whenCrowdloansHaveDifferentStates_thenSplitsActiveAndCompletedSections() throws {
+        let currentBlock: BlockNumber = 1337
+        let active = try makeCrowdloan(
+            paraId: 2000,
+            raised: 100,
+            cap: 1000,
+            end: currentBlock + 100,
+            trieIndex: 1
+        )
+        let ended = try makeCrowdloan(
+            paraId: 2001,
+            raised: 100,
+            cap: 1000,
+            end: currentBlock,
+            trieIndex: 2
+        )
+        let won = try makeCrowdloan(
+            paraId: 2002,
+            raised: 100,
+            cap: 1000,
+            end: currentBlock + 100,
+            trieIndex: 3
+        )
+        let viewInfo = CrowdloansViewInfo(
+            contributions: [:],
+            leaseInfo: [
+                2002: ParachainLeaseInfo(
+                    paraId: 2002,
+                    fundAccountId: Data(repeating: 12, count: 32),
+                    leasedAmount: 1000
+                )
+            ],
+            displayInfo: [
+                2000: makeDisplayInfo(paraId: 2000, name: "Active parachain"),
+                2001: makeDisplayInfo(paraId: 2001, name: "Ended parachain"),
+                2002: makeDisplayInfo(paraId: 2002, name: "Won parachain")
+            ],
+            metadata: CrowdloanMetadata(
+                blockNumber: currentBlock,
+                blockDuration: 6,
+                leasingPeriod: 1000,
+                leasingOffset: 0
+            )
+        )
+        let chainAsset = ChainAssetDisplayInfo(
+            asset: makeAsset().displayInfo,
+            chain: .substrate(42)
+        )
+        let factory = CrowdloansViewModelFactory(
+            amountFormatterFactory: AssetBalanceFormatterFactory(),
+            iconGenerator: nil
+        )
+
+        let viewModel = factory.createViewModel(
+            from: [ended, active, won],
+            viewInfo: viewInfo,
+            chainAsset: chainAsset,
+            locale: Locale(identifier: "en_US")
+        )
+
+        XCTAssertEqual(viewModel.tokenSymbol, "UNIT")
+        XCTAssertEqual(viewModel.active?.crowdloans.map(\.paraId), [2000])
+        XCTAssertEqual(Set(viewModel.completed?.crowdloans.map(\.paraId) ?? []), [2001, 2002])
+        XCTAssertEqual(viewModel.active?.crowdloans.first?.content.title, "Active parachain")
+        XCTAssertEqual(
+            Set(viewModel.completed?.crowdloans.map(\.content.title) ?? []),
+            ["Ended parachain", "Won parachain"]
+        )
+    }
+
+    private func makeCrowdloan(
+        paraId: ParaId,
+        raised: BigUInt,
+        cap: BigUInt,
+        end: BlockNumber,
+        trieIndex: TrieIndex
+    ) throws -> Crowdloan {
+        let depositor = Data(repeating: UInt8(paraId % 255), count: 32)
+        let payload = """
+        {
+          "depositor": "\(depositor.base64EncodedString())",
+          "deposit": "100",
+          "raised": "\(raised)",
+          "end": "\(end)",
+          "cap": "\(cap)",
+          "lastContribution": ["Never", null],
+          "firstPeriod": "2",
+          "lastPeriod": "3",
+          "trieIndex": "\(trieIndex)"
+        }
+        """
+        let data = try XCTUnwrap(payload.data(using: .utf8))
+        let fundInfo = try JSONDecoder().decode(CrowdloanFunds.self, from: data)
+
+        return Crowdloan(paraId: paraId, fundInfo: fundInfo)
+    }
+
+    private func makeDisplayInfo(paraId: ParaId, name: String) -> CrowdloanDisplayInfo {
+        CrowdloanDisplayInfo(
+            paraid: "\(paraId)",
+            name: name,
+            token: "UNIT",
+            description: "\(name) description",
+            website: "https://example.com/\(paraId)",
+            icon: "https://example.com/\(paraId).png",
+            rewardRate: nil,
+            endingBlock: nil,
+            disabled: nil,
+            flow: nil
+        )
+    }
+
+    private func makeAsset() -> AssetModel {
+        AssetModel(
+            id: "unit",
+            name: "Unit",
+            symbol: "UNIT",
+            precision: 12,
+            isUtility: true,
+            isNative: true,
+            type: .normal
+        )
+    }
 }

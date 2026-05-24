@@ -4,7 +4,7 @@ import RobinHood
 import SSFUtils
 import SSFCrypto
 import IrohaCrypto
-import SoraKeystore
+import FearlessSecureStorage
 @testable import fearless
 
 class SingleToMultiassetUserMigrationTests: XCTestCase {
@@ -56,27 +56,27 @@ class SingleToMultiassetUserMigrationTests: XCTestCase {
     }
 
     func testMigrationForCreatedAccountWithoutDerivPath() throws {
-        throw XCTSkip("Legacy migration test is unavailable in the current environment")
+        try performTestUserMigration(hasEntropy: true, hasSeed: false, hasDerivationPath: false)
     }
 
     func testMigrationForCreatedAccountWithDerivPath() throws {
-        throw XCTSkip("Legacy migration test is unavailable in the current environment")
+        try performTestUserMigration(hasEntropy: true, hasSeed: false, hasDerivationPath: true)
     }
 
     func testMigrationForImportedWithSeedAccountWithoutDerivPath() throws {
-        throw XCTSkip("Legacy migration test is unavailable in the current environment")
+        try performTestUserMigration(hasEntropy: false, hasSeed: true, hasDerivationPath: false)
     }
 
     func testMigrationForImportedWithSeedAccountWithDerivPath() throws {
-        throw XCTSkip("Legacy migration test is unavailable in the current environment")
+        try performTestUserMigration(hasEntropy: false, hasSeed: true, hasDerivationPath: true)
     }
 
     func testMigrationForImportedWithJSONAccountWithoutDerivPath() throws {
-        throw XCTSkip("Legacy migration test is unavailable in the current environment")
+        try performTestUserMigration(hasEntropy: false, hasSeed: false, hasDerivationPath: false)
     }
 
     func testMigrationForImportedWithJSONAccountWithDerivPath() throws {
-        throw XCTSkip("Legacy migration test is unavailable in the current environment")
+        try performTestUserMigration(hasEntropy: false, hasSeed: false, hasDerivationPath: true)
     }
 
     private func performTestUserMigration(hasEntropy: Bool, hasSeed: Bool, hasDerivationPath: Bool) throws {

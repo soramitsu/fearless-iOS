@@ -2,7 +2,7 @@ import UIKit
 import RobinHood
 import BigInt
 import SSFUtils
-import SoraKeystore
+import FearlessSecureStorage
 import SSFModels
 
 final class ChainAccountInteractor {

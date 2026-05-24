@@ -1,6 +1,6 @@
 import UIKit
-import SoraFoundation
-import SoraUI
+import FearlessFoundation
+import FearlessUI
 import SnapKit
 
 final class UsernameSetupViewController: UIViewController, ViewHolder {

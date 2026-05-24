@@ -1,9 +1,9 @@
 import XCTest
 @testable import fearless
-import SoraKeystore
+import FearlessSecureStorage
 import RobinHood
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 
 class WalletSelectAccountCommandTests: XCTestCase {
     func testSelectAccount() throws {

@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 struct ModalAlertFactory {
     static func createSuccessAlert(_ title: String) -> UIViewController {

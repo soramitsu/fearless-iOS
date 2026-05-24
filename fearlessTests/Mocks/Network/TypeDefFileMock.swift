@@ -1,5 +1,5 @@
 import Foundation
-import FireMock
+import FearlessTestSupport
 @testable import fearless
 
 enum TypeDefFileMock: FireMockProtocol {

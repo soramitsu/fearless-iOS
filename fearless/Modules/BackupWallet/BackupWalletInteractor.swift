@@ -3,7 +3,7 @@ import RobinHood
 import SSFModels
 import SSFCloudStorage
 import IrohaCrypto
-import SoraKeystore
+import FearlessSecureStorage
 
 protocol BackupWalletInteractorOutput: AnyObject {
     func didReceiveBalances(result: WalletBalancesResult)

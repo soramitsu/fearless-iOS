@@ -1,6 +1,6 @@
 import Foundation
 import SSFUtils
-import SoraFoundation
+import FearlessFoundation
 
 final class SelectedValidatorListRelaychainViewModelFactory {
     private var iconGenerator: IconGenerating

@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFUtils
 import BigInt
 import SSFModels
@@ -145,7 +145,8 @@ extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationP
             from: view,
             address: address,
             chain: chain,
-            locale: view.localizationManager?.selectedLocale ?? .current
+            locale: view.localizationManager?.selectedLocale ?? .current,
+            exportClosure: nil
         )
     }
 }

@@ -1,6 +1,6 @@
 import UIKit
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 final class NetworkFeeFooterView: UIView {
     private let contentStackView = UIFactory.default.createVerticalStackView(spacing: 8)

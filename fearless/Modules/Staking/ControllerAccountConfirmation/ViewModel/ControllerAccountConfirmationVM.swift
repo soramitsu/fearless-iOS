@@ -1,4 +1,4 @@
-import SoraFoundation
+import FearlessFoundation
 
 struct ControllerAccountConfirmationVM {
     let stashViewModel: AccountInfoViewModel

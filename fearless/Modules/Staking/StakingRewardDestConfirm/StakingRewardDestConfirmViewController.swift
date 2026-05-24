@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class StakingRewardDestConfirmViewController: UIViewController, ViewHolder, ImportantViewProtocol {
     typealias RootViewType = StakingRewardDestConfirmViewLayout

@@ -1,7 +1,7 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import SSFNetwork
-import SoraKeystore
+import FearlessSecureStorage
 
 final class OnboardingAssembly {
     static func configureModule(config: OnboardingConfigWrapper) -> OnboardingModuleCreationResult? {

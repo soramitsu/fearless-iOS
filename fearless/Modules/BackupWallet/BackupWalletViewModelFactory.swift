@@ -1,8 +1,8 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFCloudStorage
 import SSFModels
-import SoraKeystore
+import FearlessSecureStorage
 
 protocol BackupWalletViewModelFactoryProtocol {
     func createViewModel(
@@ -37,10 +37,19 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
     private lazy var assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
     private let accountScoreFetcher: AccountStatisticsFetching
     private let settings: SettingsManagerProtocol
+    private let eventCenter: EventCenterProtocol
+    private let logger: LoggerProtocol?
 
-    init(accountScoreFetcher: AccountStatisticsFetching, settings: SettingsManagerProtocol) {
+    init(
+        accountScoreFetcher: AccountStatisticsFetching,
+        settings: SettingsManagerProtocol,
+        eventCenter: EventCenterProtocol = EventCenter.shared,
+        logger: LoggerProtocol? = Logger.shared
+    ) {
         self.accountScoreFetcher = accountScoreFetcher
         self.settings = settings
+        self.eventCenter = eventCenter
+        self.logger = logger
     }
 
     func createViewModel(
@@ -156,7 +165,14 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
         locale: Locale
     ) -> WalletsManagmentCellViewModel {
         let address = wallet.ethereumAddress?.toHex(includePrefix: true)
-        let accountScoreViewModel = AccountScoreViewModel(fetcher: accountScoreFetcher, address: address, chain: nil, settings: settings, eventCenter: EventCenter.shared, logger: Logger.shared)
+        let accountScoreViewModel = AccountScoreViewModel(
+            fetcher: accountScoreFetcher,
+            address: address,
+            chain: nil,
+            settings: settings,
+            eventCenter: eventCenter,
+            logger: logger
+        )
 
         var fiatBalance: String = ""
         var dayChange: NSAttributedString?

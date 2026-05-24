@@ -1,6 +1,6 @@
 import Foundation
 import BigInt
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 final class CrowdloanContributionConfirmPresenter {
@@ -249,7 +249,8 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
             from: view,
             address: address,
             chain: chainAsset.chain,
-            locale: selectedLocale
+            locale: selectedLocale,
+            exportClosure: nil
         )
     }
 }

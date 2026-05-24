@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 protocol ChainAccountViewDelegate: AnyObject {
     func selectNetworkDidTap()

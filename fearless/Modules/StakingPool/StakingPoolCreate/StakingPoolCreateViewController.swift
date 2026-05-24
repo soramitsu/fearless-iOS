@@ -1,7 +1,7 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
-import SoraUI
+import FearlessUI
 import SnapKit
 
 final class StakingPoolCreateViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {

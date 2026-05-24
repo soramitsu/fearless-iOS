@@ -1,5 +1,5 @@
 import Foundation
-import SoraKeystore
+import FearlessSecureStorage
 
 class LocalAuthInteractor {
     enum LocalAuthState {
@@ -131,7 +131,8 @@ extension LocalAuthInteractor: LocalAuthInteractorInputProtocol {
             for: KeystoreTag.pincode.rawValue,
             completionQueue: .global(qos: .userInteractive)
         ) { [weak self] (secret: SecretDataRepresentable?) -> Void in
-            self?.processStored(pin: secret?.toUTF8String())
+            let pin = secret?.asSecretData().flatMap { String(data: $0, encoding: .utf8) }
+            self?.processStored(pin: pin)
         }
     }
 }

@@ -1,6 +1,6 @@
 import UIKit
-import SoraFoundation
-import SoraKeystore
+import FearlessFoundation
+import FearlessSecureStorage
 
 final class PolkaswapDisclaimerAssembly {
     static func configureModule(

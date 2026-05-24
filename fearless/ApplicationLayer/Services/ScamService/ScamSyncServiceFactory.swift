@@ -5,26 +5,55 @@ import SSFUtils
     import SSFAssetManagmentStorage
 #endif
 
-final class ScamSyncServiceFactory {
-    static func createService() -> ScamSyncServiceProtocol {
-        let repositoryFacade = SubstrateDataStorageFacade.shared
+protocol ScamListConfigSource {
+    var scamListCsvURL: URL? { get }
+}
+
+extension ApplicationConfig: ScamListConfigSource {}
+
+struct ScamSyncServiceFactoryDependencies {
+    let configSource: ScamListConfigSource
+    let storageFacade: StorageFacadeProtocol
+    let dataFetchFactory: DataOperationFactoryProtocol
+    let retryStrategy: ReconnectionStrategyProtocol
+    let operationQueue: OperationQueue
+
+    init(
+        configSource: ScamListConfigSource = ApplicationConfig.shared,
+        storageFacade: StorageFacadeProtocol = SubstrateDataStorageFacade.shared,
+        dataFetchFactory: DataOperationFactoryProtocol = DataOperationFactory(),
+        retryStrategy: ReconnectionStrategyProtocol = ExponentialReconnection(),
+        operationQueue: OperationQueue = OperationManagerFacade.sharedDefaultQueue
+    ) {
+        self.configSource = configSource
+        self.storageFacade = storageFacade
+        self.dataFetchFactory = dataFetchFactory
+        self.retryStrategy = retryStrategy
+        self.operationQueue = operationQueue
+    }
+}
+
+enum ScamSyncServiceFactory {
+    static func createService(
+        dependencies: ScamSyncServiceFactoryDependencies = ScamSyncServiceFactoryDependencies()
+    ) -> ScamSyncServiceProtocol {
         let mapper: CodableCoreDataMapper<ScamInfo, SSFAssetManagmentStorage.CDScamInfo> =
             // Use a literal to avoid module-qualified #keyPath limitation
             CodableCoreDataMapper(entityIdentifierFieldName: "address")
 
         let repository: CoreDataRepository<ScamInfo, SSFAssetManagmentStorage.CDScamInfo> =
-            repositoryFacade.createRepository(
+            dependencies.storageFacade.createRepository(
                 filter: nil,
                 sortDescriptors: [],
                 mapper: AnyCoreDataMapper(mapper)
             )
 
         let service = ScamSyncService(
-            scamListCsvURL: ApplicationConfig.shared.scamListCsvURL,
+            scamListCsvURL: dependencies.configSource.scamListCsvURL,
             repository: AnyDataProviderRepository(repository),
-            dataFetchFactory: DataOperationFactory(),
-            retryStrategy: ExponentialReconnection(),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            dataFetchFactory: dependencies.dataFetchFactory,
+            retryStrategy: dependencies.retryStrategy,
+            operationQueue: dependencies.operationQueue
         )
 
         return service

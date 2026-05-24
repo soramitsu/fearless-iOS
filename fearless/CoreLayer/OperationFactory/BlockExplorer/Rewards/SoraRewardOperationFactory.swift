@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 import SSFUtils
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 enum SoraRewardOperationFactoryError: Error {
@@ -13,10 +13,16 @@ enum SoraRewardOperationFactoryError: Error {
 final class SoraRewardOperationFactory {
     private let url: URL?
     private let chain: ChainModel
+    private let localizationManager: LocalizationManagerProtocol
 
-    init(url: URL?, chain: ChainModel) {
+    init(
+        url: URL?,
+        chain: ChainModel,
+        localizationManager: LocalizationManagerProtocol = LocalizationManager.shared
+    ) {
         self.url = url
         self.chain = chain
+        self.localizationManager = localizationManager
     }
 
     private func prepareHistoryRequestForAddress(
@@ -25,7 +31,7 @@ final class SoraRewardOperationFactory {
         endTimestamp: Int64?
     ) -> String {
         let timestampFilter: String = {
-            let locale = LocalizationManager.shared.selectedLocale
+            let locale = localizationManager.selectedLocale
             guard startTimestamp != nil || endTimestamp != nil else { return "" }
 
             var result = "AND: {"

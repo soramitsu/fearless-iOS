@@ -1,7 +1,7 @@
 import Foundation
 
 import BigInt
-import SoraFoundation
+import FearlessFoundation
 
 protocol CrowdloanContributionSetupViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveAsset(viewModel: AssetBalanceViewModelProtocol)

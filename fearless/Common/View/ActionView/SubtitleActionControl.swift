@@ -1,4 +1,4 @@
-import SoraUI
+import FearlessUI
 
 final class SubtitleActionControl: BaseActionControl {
     var imageIndicator: ImageActionIndicator! {

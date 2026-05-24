@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class WalletMainContainerViewController: UIViewController, ViewHolder, AllDonePresentable {
     typealias RootViewType = WalletMainContainerViewLayout

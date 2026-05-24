@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class WalletOptionViewController: UIViewController, ViewHolder {
     typealias RootViewType = WalletOptionViewLayout

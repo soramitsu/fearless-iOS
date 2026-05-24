@@ -1,5 +1,5 @@
 import Foundation
-import SoraUI
+import FearlessUI
 
 class AmountInputView: BackgroundedContentControl {
     private(set) var titleLabel: UILabel!

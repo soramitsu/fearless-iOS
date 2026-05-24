@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class StakingPoolMainViewLayout: UIView {
     private enum Constants {

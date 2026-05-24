@@ -3,15 +3,15 @@ import XCTest
 import SSFUtils
 import SSFModels
 import RobinHood
-import SoraKeystore
+import FearlessSecureStorage
 import IrohaCrypto
 
 class CrowdloanTests: XCTestCase {
-    override func setUpWithError() throws {
-        throw XCTSkip("Crowdloan integration tests depend on unstable remote endpoints in the current environment")
-    }
+    func testFetchContributions() throws {
+        guard Self.remoteEndpointTestsEnabled else {
+            throw XCTSkip("Crowdloan contribution fetch depends on remote endpoints; set FEARLESS_RUN_REMOTE_INTEGRATION_TESTS=1 to run it")
+        }
 
-    func testFetchContributions() {
         do {
             let operationManager: OperationManagerProtocol = OperationManager()
             let chainId = Chain.kusama.genesisHash
@@ -166,5 +166,9 @@ class CrowdloanTests: XCTestCase {
         } catch {
             XCTFail("Karura decode error: \(error)")
         }
+    }
+
+    private static var remoteEndpointTestsEnabled: Bool {
+        ProcessInfo.processInfo.environment["FEARLESS_RUN_REMOTE_INTEGRATION_TESTS"] == "1"
     }
 }

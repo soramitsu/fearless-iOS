@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 struct StakingStateSkeletonOptions: OptionSet {
     typealias RawValue = UInt8

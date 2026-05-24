@@ -1,7 +1,7 @@
 import UIKit
 import SSFCloudStorage
 import RobinHood
-import SoraKeystore
+import FearlessSecureStorage
 import IrohaCrypto
 import SSFModels
 

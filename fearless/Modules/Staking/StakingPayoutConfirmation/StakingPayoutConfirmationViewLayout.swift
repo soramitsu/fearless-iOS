@@ -1,6 +1,6 @@
 import UIKit
 import SnapKit
-import SoraFoundation
+import FearlessFoundation
 
 final class StakingPayoutConfirmationViewLayout: UIView {
     private var mainColor: UIColor? {

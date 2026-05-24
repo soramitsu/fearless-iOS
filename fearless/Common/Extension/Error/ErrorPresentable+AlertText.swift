@@ -40,7 +40,13 @@ extension ErrorPresentable where Self: SheetAlertPresentable {
 
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
 
-        present(message: content.message, title: content.title, closeAction: closeAction, from: view)
+        present(
+            message: content.message,
+            title: content.title,
+            closeAction: closeAction,
+            from: view,
+            actions: []
+        )
 
         return true
     }

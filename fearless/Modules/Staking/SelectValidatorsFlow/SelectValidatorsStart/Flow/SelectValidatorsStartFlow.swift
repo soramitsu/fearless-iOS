@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import SoraFoundation
+import FearlessFoundation
 
 enum SelectValidatorsStartError: Error {
     case dataNotLoaded

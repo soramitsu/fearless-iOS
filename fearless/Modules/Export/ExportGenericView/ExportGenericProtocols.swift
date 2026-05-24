@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 protocol ExportGenericViewProtocol: ControllerBackedProtocol {
     func set(viewModel: MultipleExportGenericViewModelProtocol)

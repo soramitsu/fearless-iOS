@@ -1,5 +1,5 @@
 import RobinHood
-import SoraKeystore
+import FearlessSecureStorage
 import SSFUtils
 import IrohaCrypto
 import SSFModels

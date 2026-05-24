@@ -1,6 +1,6 @@
 import Foundation
 import SSFQRService
-import SoraFoundation
+import FearlessFoundation
 import AVFoundation
 
 import SSFUtils
@@ -41,7 +41,7 @@ final class GetPreinstalledWalletPresenter: NSObject {
 
         guard
             let mnemonicData = try? Data(hexStringSSF: qrString),
-            let mnemonicString = mnemonicData.toUTF8String(),
+            let mnemonicString = String(data: mnemonicData, encoding: .utf8),
             let mnemonic = interactor.createMnemonicFromString(mnemonicString)
         else {
             DispatchQueue.main.async { [weak self] in

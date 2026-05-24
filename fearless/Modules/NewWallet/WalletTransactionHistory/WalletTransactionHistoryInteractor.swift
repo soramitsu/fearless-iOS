@@ -1,7 +1,7 @@
 import UIKit
 
 import RobinHood
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 final class WalletTransactionHistoryInteractor {

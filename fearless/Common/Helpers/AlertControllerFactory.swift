@@ -1,6 +1,6 @@
 import Foundation
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 extension UIAlertController {
     static func phishingWarningAlert(

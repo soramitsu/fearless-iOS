@@ -394,7 +394,7 @@
 "crowdloan.reward" = "推定報酬";
 "crowdloan.terms.format" = "私は%@を読み、同意します";
 "crowdloan.terms.value" = "規約と条件";
-"crowdloan.too.small.contribution.message" = "寄付できる最少額は%sです";
+"crowdloan.too.small.contribution.message" = "寄付できる最少額は%@です";
 "crowdloan.too.small.contribution.title" = "寄付額が少なすぎます";
 "crowdloan.unlock.hint" = "%@トークンは、リース期間後に返されます";
 "crowdloan.you.contributions.title" = "あなたの貢献";

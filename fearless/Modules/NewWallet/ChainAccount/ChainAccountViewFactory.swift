@@ -1,8 +1,8 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFUtils
 import RobinHood
-import SoraKeystore
+import FearlessSecureStorage
 import SSFModels
 
 struct ChainAccountModule {

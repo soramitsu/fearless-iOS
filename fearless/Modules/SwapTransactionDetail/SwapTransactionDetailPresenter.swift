@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 import SSFModels
 
@@ -14,7 +14,7 @@ final class SwapTransactionDetailPresenter {
     private let wallet: MetaAccountModel
     private let chainAsset: ChainAsset
     private let transaction: AssetTransactionData
-    private var subscanExplorer: ChainModel.ExternalApiExplorer?
+    private var blockExplorer: ChainModel.ExternalApiExplorer?
 
     // MARK: - Constructors
 
@@ -52,11 +52,11 @@ final class SwapTransactionDetailPresenter {
     }
 
     private func prepareBlockExplorer() {
-        let subscanExplorer = chainAsset.chain.externalApi?.explorers?.first(where: {
-            $0.type == .subscan
+        let blockExplorer = chainAsset.chain.externalApi?.explorers?.first(where: {
+            $0.supportsTransactionLookup
         })
-        view?.didReceive(explorer: subscanExplorer)
-        self.subscanExplorer = subscanExplorer
+        view?.didReceive(explorer: blockExplorer)
+        self.blockExplorer = blockExplorer
     }
 }
 
@@ -82,22 +82,28 @@ extension SwapTransactionDetailPresenter: SwapTransactionDetailViewOutput {
 
     func didTapSubscan() {
         guard let view = view,
-              let subscanExplorer = self.subscanExplorer,
-              let subscanUrl = subscanExplorer.explorerUrl(for: transaction.transactionId, type: .extrinsic)
+              let blockExplorer = self.blockExplorer,
+              let blockExplorerUrl = blockExplorer.explorerUrl(
+                  for: transaction.transactionId,
+                  type: blockExplorer.transactionType
+              )
         else {
             return
         }
 
-        router.showWeb(url: subscanUrl, from: view, style: .automatic)
+        router.showWeb(url: blockExplorerUrl, from: view, style: .automatic)
     }
 
     func didTapShare() {
-        guard let subscanExplorer = self.subscanExplorer,
-              let subscanUrl = subscanExplorer.explorerUrl(for: transaction.transactionId, type: .extrinsic)
+        guard let blockExplorer = self.blockExplorer,
+              let blockExplorerUrl = blockExplorer.explorerUrl(
+                  for: transaction.transactionId,
+                  type: blockExplorer.transactionType
+              )
         else {
             return
         }
-        router.share(sources: [subscanUrl], from: view, with: nil)
+        router.share(sources: [blockExplorerUrl], from: view, with: nil)
     }
 }
 

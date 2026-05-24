@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 final class ValidatorInfoPresenter {
@@ -98,7 +98,8 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
                 from: view,
                 address: address,
                 chain: chainAsset.chain,
-                locale: selectedLocale
+                locale: selectedLocale,
+                exportClosure: nil
             )
         }
     }

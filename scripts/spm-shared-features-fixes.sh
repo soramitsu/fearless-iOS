@@ -13,6 +13,7 @@ SOURCE_PACKAGES_DIR="${SOURCE_PACKAGES_DIR:-$BASE_DIR/SourcePackages}"
 SOURCE_PACKAGES_BASE="$(dirname "$SOURCE_PACKAGES_DIR")"
 ALLOW_DERIVEDDATA_FALLBACK="${ALLOW_DERIVEDDATA_FALLBACK:-0}"
 STRICT_REQUIRED_PATCHES="${STRICT_REQUIRED_PATCHES:-0}"
+SSF_SINGLE_VALUE_CACHE_MANUAL_CLASS="${SSF_SINGLE_VALUE_CACHE_MANUAL_CLASS:-0}"
 REQUIRED_PATCH_COUNT=0
 CHECKOUT_HELPER="$BASE_DIR/scripts/deps/native-crypto-checkout-roots.sh"
 
@@ -126,6 +127,28 @@ patch_manifest() {
   fi
   rm -f "$polkaswap_before"
 
+  # Ensure SSFSingleValueCache treats its Core Data model as a package resource.
+  local single_value_before
+  single_value_before="$(mktemp)"
+  cp "$pkg_swift" "$single_value_before"
+  /usr/bin/perl -0pi -e '
+    s{
+      \.target\(\s*
+        name:\s*"SSFSingleValueCache",\s*
+        dependencies:\s*\["RobinHood"\]\s*
+      \)
+    }{.target(
+            name: "SSFSingleValueCache",
+            dependencies: ["RobinHood"],
+            resources: [.process("CacheDataModel.xcdatamodeld")]
+        )}sx
+  ' "$pkg_swift" || true
+
+  if ! diff -q "$pkg_swift" "$single_value_before" >/dev/null 2>&1; then
+    echo "[spm-fixes] Added SSFSingleValueCache Core Data model resource"
+  fi
+  rm -f "$single_value_before"
+
 }
 
 while IFS= read -r checkout_base; do
@@ -205,10 +228,12 @@ patch_scrypt_sse2_guard() {
   local file="$base/crypto_scrypt.c"
   local header="$base/include/scrypt.h"
   [[ -f "$file" ]] || return 0
-  # Replace simulator-preferring SSE2 with SSSE3 feature guard, so on arm64 sim we don't reference the SSE2 symbol.
-  /usr/bin/sed -i '' \
-    -e $'s/#if TARGET_IPHONE_SIMULATOR/#if defined(__SSSE3__)/' \
-    "$file" || true
+  # Replace simulator-preferring SSE2 with an x86 SSSE3 guard, so arm64 sim never
+  # references the SSE2 symbol when the implementation is compiled out.
+  /usr/bin/perl -0pi -e '
+    s/#if TARGET_IPHONE_SIMULATOR/#if defined(__SSSE3__) \&\& (defined(__i386__) || defined(__x86_64__))/g;
+    s/#if defined\(__SSSE3__\)(?:\s*\&\&\s*\(defined\(__i386__\)\s*\|\|\s*defined\(__x86_64__\)\))*/#if defined(__SSSE3__) \&\& (defined(__i386__) || defined(__x86_64__))/g;
+  ' "$file" || true
 
   # Newer shared-features revisions include arm_neon unconditionally in the public
   # scrypt header, which breaks x86_64 simulator dependency scanning.
@@ -336,7 +361,58 @@ cleanup_stale_embedded_native_crypto_frameworks
 
 echo "[spm-fixes] Cleaned stale embedded native crypto frameworks"
 
-# 7) Expose public initializers for SSFPools value types used by app presenters.
+# 7) SSFSingleValueCache: make the Core Data model a package resource and keep
+# the generated class module-qualified. Simulator builds currently do not emit
+# the generated class for this Swift package target, while device archives do.
+patch_single_value_cache_coredata_class() {
+  local base_checkout="$1/SourcePackages/checkouts/shared-features-spm/Sources/SSFSingleValueCache"
+  local entity_file="$base_checkout/CDSingleValue.swift"
+  local model_file="$base_checkout/CacheDataModel.xcdatamodeld/CacheDataModel.xcdatamodel/contents"
+
+  [[ -d "$base_checkout" ]] || return 0
+  chmod -R u+w "$base_checkout" 2>/dev/null || true
+
+  if [[ "$SSF_SINGLE_VALUE_CACHE_MANUAL_CLASS" == "1" ]]; then
+    if [[ ! -f "$entity_file" ]]; then
+      cat > "$entity_file" <<'SWIFT'
+import CoreData
+import Foundation
+
+@objc(CDSingleValue)
+public final class CDSingleValue: NSManagedObject {
+    @NSManaged public var identifier: String?
+    @NSManaged public var payload: Data?
+}
+SWIFT
+      echo "[spm-fixes] Added simulator SSFSingleValueCache/CDSingleValue manual Core Data class"
+    fi
+  elif [[ -f "$entity_file" ]] && /usr/bin/grep -q "public final class CDSingleValue: NSManagedObject" "$entity_file"; then
+    rm -f "$entity_file"
+    echo "[spm-fixes] Removed redundant SSFSingleValueCache/CDSingleValue manual Core Data class"
+  fi
+
+  if [[ -f "$model_file" ]]; then
+    local codegen_type="class"
+    if [[ "$SSF_SINGLE_VALUE_CACHE_MANUAL_CLASS" == "1" ]]; then
+      codegen_type="none"
+    fi
+
+    /usr/bin/sed -i '' \
+      -e 's/representedClassName="CDSingleValue"/representedClassName="SSFSingleValueCache.CDSingleValue"/' \
+      -e "s|codeGenerationType=\"class\"|codeGenerationType=\"$codegen_type\"|" \
+      -e "s|codeGenerationType=\"manual/none\"|codeGenerationType=\"$codegen_type\"|" \
+      -e "s|codeGenerationType=\"none\"|codeGenerationType=\"$codegen_type\"|" \
+      "$model_file" || true
+  fi
+}
+
+while IFS= read -r checkout_base; do
+  patch_single_value_cache_coredata_class "$checkout_base"
+done < <(each_checkout_base)
+
+echo "[spm-fixes] Patched SSFSingleValueCache Core Data model"
+
+# 8) Expose public initializers for SSFPools value types used by app presenters.
 # Newer shared-features-spm revisions keep memberwise inits internal, which breaks
 # app-side construction and previously led to recursive compatibility shims.
 patch_ssfpools_public_initializers() {

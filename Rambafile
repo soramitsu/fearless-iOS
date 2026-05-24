@@ -25,9 +25,6 @@ test_file_path: fearlessTests/Modules/
 # The Xcode group path to new tests
 test_group_path: fearlessTests/Modules/
 
-### Dependencies settings section
-podfile_path: Podfile
-
 ### Templates
 templates:
 - {name: viper-code-layout, local: 'GenerambaTemplates/viper-code-layout/'}

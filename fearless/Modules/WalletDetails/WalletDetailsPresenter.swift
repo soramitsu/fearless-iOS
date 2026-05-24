@@ -1,4 +1,4 @@
-import SoraFoundation
+import FearlessFoundation
 import SSFUtils
 import UIKit
 import SSFModels
@@ -205,23 +205,23 @@ private extension WalletDetailsPresenter {
             let explorerActions: [ChainAction] = explorers.compactMap { explorer -> ChainAction? in
                 switch explorer.type {
                 case .subscan:
-                    if explorer.types.contains(.account), let url = explorer.explorerUrl(for: address, type: .account) {
+                    if explorer.supportsAccountLookup, let url = explorer.accountUrl(for: address) {
                         return .subscan(url: url)
                     }
                 case .polkascan:
-                    if explorer.types.contains(.account), let url = explorer.explorerUrl(for: address, type: .account) {
+                    if explorer.supportsAccountLookup, let url = explorer.accountUrl(for: address) {
                         return .polkascan(url: url)
                     }
                 case .etherscan:
-                    if explorer.types.contains(.address), let url = explorer.explorerUrl(for: address, type: .address) {
+                    if explorer.supportsAccountLookup, let url = explorer.accountUrl(for: address) {
                         return .etherscan(url: url)
                     }
                 case .reef:
-                    if explorer.types.contains(.account), let url = explorer.explorerUrl(for: address, type: .account) {
+                    if explorer.supportsAccountLookup, let url = explorer.accountUrl(for: address) {
                         return .reefscan(url: url)
                     }
                 case .oklink:
-                    if explorer.types.contains(.address), let url = explorer.explorerUrl(for: address, type: .address) {
+                    if explorer.supportsAccountLookup, let url = explorer.accountUrl(for: address) {
                         return .oklink(url: url)
                     }
                 case .unknown:

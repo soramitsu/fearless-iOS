@@ -1,4 +1,4 @@
-import SoraFoundation
+import FearlessFoundation
 class DelegationStateView: StakingStateView, LocalizableViewProtocol {
     private lazy var timer = CountdownTimer()
     private lazy var timeFormatter = TotalTimeFormatter()

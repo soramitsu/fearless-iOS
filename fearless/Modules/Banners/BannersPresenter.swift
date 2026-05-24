@@ -1,6 +1,6 @@
 import Foundation
 import SSFModels
-import SoraFoundation
+import FearlessFoundation
 
 enum BannersModuleType {
     case independent

@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 final class AccountExportPasswordPresenter {
     weak var view: AccountExportPasswordViewProtocol?

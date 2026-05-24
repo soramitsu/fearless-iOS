@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import RobinHood
 import SSFModels
 import SSFNetwork
@@ -31,6 +31,7 @@ struct ChainRegistryFactoryDependencies {
     var applicationHandler: ApplicationHandlerProtocol
     var connectionFactory: ConnectionFactoryProtocol
     var ethereumConnectionPool: EthereumConnectionPool
+    var tonChainSelectionToggleSource: TonChainSelection.ToggleSource
 
     static var live: ChainRegistryFactoryDependencies {
         ChainRegistryFactoryDependencies(
@@ -45,7 +46,8 @@ struct ChainRegistryFactoryDependencies {
             operationManager: OperationManagerFacade.sharedManager,
             applicationHandler: ApplicationHandler(),
             connectionFactory: ConnectionFactory(logger: Logger.shared),
-            ethereumConnectionPool: EthereumConnectionPool()
+            ethereumConnectionPool: EthereumConnectionPool(),
+            tonChainSelectionToggleSource: LocalToggleService.shared
         )
     }
 }
@@ -161,7 +163,8 @@ enum ChainRegistryFactory {
             specVersionSubscriptionFactory: specVersionSubscriptionFactory,
             networkIssuesCenter: dependencies.networkIssuesCenter,
             logger: dependencies.logger,
-            eventCenter: dependencies.eventCenter
+            eventCenter: dependencies.eventCenter,
+            tonChainSelectionToggleSource: dependencies.tonChainSelectionToggleSource
         )
     }
 

@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import Kingfisher
 
 final class NftDetailsPresenter {

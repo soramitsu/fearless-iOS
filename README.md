@@ -23,7 +23,11 @@ Track features development: [board link](https://soramitsucoltd.aha.io/shared/34
 
 ## Testing
 - Run tests locally for both configurations:
-  - `bash scripts/test-matrix.sh` (uses iPhone 15 simulator by default)
+  - `bash scripts/test-matrix.sh`
+- Verify first-party Swift packages:
+  - `bash scripts/test-local-packages.sh`
+- Summarize Xcode line coverage from local result bundles:
+  - `scripts/ci/coverage-summary.sh build/test-results/fearless_tests-Debug.xcresult`
 
 ## License
 

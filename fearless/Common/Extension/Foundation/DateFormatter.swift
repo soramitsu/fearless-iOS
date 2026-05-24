@@ -1,5 +1,10 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
+
+private enum NetworkDateParsingConstants {
+    static var locale: Locale { Locale(identifier: "en_US_POSIX") }
+    static var timeZone: TimeZone { TimeZone(secondsFromGMT: 0)! }
+}
 
 extension DateFormatter {
     static var iso: DateFormatter {
@@ -50,25 +55,31 @@ extension DateFormatter {
     }
 
     static var giantsquidDate: LocalizableResource<DateFormatter> {
-        LocalizableResource { _ in
+        LocalizableResource { locale in
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = DateStringFormat.subsquid.rawValue
+            dateFormatter.locale = locale
+            dateFormatter.timeZone = NetworkDateParsingConstants.timeZone
             return dateFormatter
         }
     }
 
     static var suibsquidInputDate: LocalizableResource<DateFormatter> {
-        LocalizableResource { _ in
+        LocalizableResource { locale in
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = DateStringFormat.subsquidInput.rawValue
+            dateFormatter.locale = locale
+            dateFormatter.timeZone = NetworkDateParsingConstants.timeZone
             return dateFormatter
         }
     }
 
     static var alchemyDate: LocalizableResource<DateFormatter> {
-        LocalizableResource { _ in
+        LocalizableResource { locale in
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = DateStringFormat.alchemy.rawValue
+            dateFormatter.locale = locale
+            dateFormatter.timeZone = NetworkDateParsingConstants.timeZone
             return dateFormatter
         }
     }
@@ -81,5 +92,21 @@ extension DateFormatter {
             dateFormatter.locale = locale
             return dateFormatter
         }
+    }
+
+    static func networkTimestampInSeconds(
+        from timestamp: String,
+        using formatter: LocalizableResource<DateFormatter>
+    ) -> Int64 {
+        let date = formatter.value(for: NetworkDateParsingConstants.locale).date(from: timestamp)
+        return Int64(date?.timeIntervalSince1970 ?? 0)
+    }
+
+    static func networkTimestampString(
+        from timeIntervalSince1970: Int64,
+        using formatter: LocalizableResource<DateFormatter>
+    ) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timeIntervalSince1970))
+        return formatter.value(for: NetworkDateParsingConstants.locale).string(from: date)
     }
 }

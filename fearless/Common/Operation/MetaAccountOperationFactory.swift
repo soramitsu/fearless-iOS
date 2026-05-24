@@ -2,7 +2,7 @@ import Foundation
 import SSFUtils
 import IrohaCrypto
 import RobinHood
-import SoraKeystore
+import FearlessSecureStorage
 import SSFModels
 import SSFCrypto
 

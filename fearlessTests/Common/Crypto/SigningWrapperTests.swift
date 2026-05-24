@@ -1,7 +1,7 @@
 import XCTest
 @testable import fearless
 import IrohaCrypto
-import SoraKeystore
+import FearlessSecureStorage
 
 class SigningWrapperTests: XCTestCase {
     static let name: String = "myname"

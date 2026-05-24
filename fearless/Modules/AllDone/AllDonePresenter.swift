@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 final class AllDonePresenter {
@@ -65,7 +65,9 @@ final class AllDonePresenter {
             view?.didReceive(explorer: nil)
             return
         }
-        let explorer = chainAsset?.chain.externalApi?.explorers?.first
+        let explorer = chainAsset?.chain.externalApi?.explorers?.first(where: {
+            $0.supportsTransactionLookup
+        })
         view?.didReceive(explorer: explorer)
         self.explorer = explorer
     }

@@ -1,6 +1,6 @@
 import Foundation
-import SoraKeystore
-import SoraFoundation
+import FearlessSecureStorage
+import FearlessFoundation
 
 class PinViewFactory: PinViewFactoryProtocol {
     static func createPinSetupView() -> PinSetupViewProtocol? {

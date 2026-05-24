@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 final class ValidatorInfoViewLayout: UIView {
     let contentView: ScrollableContainerView = {

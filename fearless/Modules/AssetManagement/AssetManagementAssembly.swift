@@ -1,8 +1,8 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 import RobinHood
-import SoraKeystore
+import FearlessSecureStorage
 import SSFStorageQueryKit
 
 final class AssetManagementAssembly {

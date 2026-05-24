@@ -4,18 +4,21 @@ import RobinHood
 import IrohaCrypto
 import SSFUtils
 import SSFModels
-#if canImport(FearlessKeys)
-    import FearlessKeys
-#endif
 
 final class EtherscanHistoryOperationFactory {
-    private func createOperation(
+    private let apiKeySource: BlockExplorerAPIKeySource
+
+    init(apiKeySource: BlockExplorerAPIKeySource = BlockExplorerEnvironmentAPIKeySource()) {
+        self.apiKeySource = apiKeySource
+    }
+
+    func buildRequest(
         address: String,
         url: URL,
         chainAsset: ChainAsset
-    ) -> BaseOperation<EtherscanHistoryResponse> {
+    ) -> URLRequest? {
         let action: String = chainAsset.asset.ethereumType == .normal ? "txlist" : "tokentx"
-        var urlComponents = URLComponents(string: url.absoluteString)
+        var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
         var queryItems = [
             URLQueryItem(name: "module", value: "account"),
             URLQueryItem(name: "action", value: action),
@@ -23,20 +26,36 @@ final class EtherscanHistoryOperationFactory {
         ]
 
         if let apiKey = BlockExplorerApiKey(chainId: chainAsset.chain.chainId) {
-            queryItems.append(URLQueryItem(name: "apikey", value: apiKey.value))
+            queryItems.append(URLQueryItem(name: "apikey", value: apiKeySource.apiKey(for: apiKey)))
         }
 
         urlComponents?.queryItems = queryItems
 
         guard let urlWithParameters = urlComponents?.url else {
+            return nil
+        }
+
+        var request = URLRequest(url: urlWithParameters)
+        request.httpMethod = HttpMethod.get.rawValue
+
+        return request
+    }
+
+    private func createOperation(
+        address: String,
+        url: URL,
+        chainAsset: ChainAsset
+    ) -> BaseOperation<EtherscanHistoryResponse> {
+        guard let request = buildRequest(
+            address: address,
+            url: url,
+            chainAsset: chainAsset
+        ) else {
             return BaseOperation.createWithError(SubqueryHistoryOperationFactoryError.urlMissing)
         }
 
         let requestFactory = BlockNetworkRequestFactory {
-            var request = URLRequest(url: urlWithParameters)
-            request.httpMethod = HttpMethod.get.rawValue
-
-            return request
+            request
         }
 
         let resultFactory = AnyNetworkResultFactory<EtherscanHistoryResponse> { data, response, error in

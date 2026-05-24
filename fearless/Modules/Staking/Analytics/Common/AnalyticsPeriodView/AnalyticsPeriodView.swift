@@ -1,6 +1,6 @@
 import UIKit
-import SoraUI
-import SoraFoundation
+import FearlessUI
+import FearlessFoundation
 
 protocol AnalyticsPeriodViewDelegate: AnyObject {
     func didSelect(period: AnalyticsPeriod)

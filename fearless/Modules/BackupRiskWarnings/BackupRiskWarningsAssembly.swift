@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class BackupRiskWarningsAssembly {
     static func configureModule(walletName: String) -> BackupRiskWarningsModuleCreationResult? {

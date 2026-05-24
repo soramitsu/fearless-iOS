@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 enum StakingUnbondSetupFlow {
     case relaychain

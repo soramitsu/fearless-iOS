@@ -3,12 +3,76 @@ import Cuckoo
 import RobinHood
 import SSFUtils
 import SSFModels
-import SoraKeystore
-import SoraFoundation
+import FearlessSecureStorage
+import FearlessFoundation
 @testable import fearless
 import BigInt
 
 class ControllerAccountTests: XCTestCase {
+
+    func testBalanceViewModelFactory_whenInjectedEventCenterPublishesMetaAccountChange_thenUpdatesCurrency() {
+        let asset = ChainModelGenerator.generateAssetWithId("xor", symbol: "XOR")
+        let selectedAccount = AccountGenerator.generateMetaAccount().replacingCurrency(.defaultCurrency())
+        let eventCenter = StakingFormatterEventCenterSpy()
+        let factory = BalanceViewModelFactory(
+            targetAssetInfo: asset.displayInfo,
+            selectedMetaAccount: selectedAccount,
+            eventCenter: eventCenter
+        )
+
+        let priceData = PriceData(
+            currencyId: Currency.defaultCurrency().id,
+            priceId: "xor",
+            price: "2",
+            fiatDayChange: nil,
+            coingeckoPriceId: nil
+        )
+        let locale = Locale(identifier: "en_US")
+
+        let usdPrice = factory.priceFromAmount(3, priceData: priceData).value(for: locale)
+        eventCenter.notify(with: MetaAccountModelChangedEvent(account: selectedAccount.replacingCurrency(.euro())))
+        let euroPrice = factory.priceFromAmount(3, priceData: priceData).value(for: locale)
+
+        XCTAssertEqual(eventCenter.addedObservers.count, 1)
+        XCTAssertTrue(usdPrice.contains(Currency.defaultCurrency().symbol))
+        XCTAssertTrue(euroPrice.contains(Currency.euro().symbol))
+    }
+
+    func testRewardViewModelFactory_whenInjectedEventCenterPublishesMetaAccountChange_thenUpdatesCurrency() {
+        let asset = ChainModelGenerator.generateAssetWithId("xor", symbol: "XOR")
+        let selectedAccount = AccountGenerator.generateMetaAccount().replacingCurrency(.defaultCurrency())
+        let eventCenter = StakingFormatterEventCenterSpy()
+        let factory = RewardViewModelFactory(
+            targetAssetInfo: asset.displayInfo,
+            selectedMetaAccount: selectedAccount,
+            eventCenter: eventCenter
+        )
+
+        let priceData = PriceData(
+            currencyId: Currency.defaultCurrency().id,
+            priceId: "xor",
+            price: "2",
+            fiatDayChange: nil,
+            coingeckoPriceId: nil
+        )
+        let locale = Locale(identifier: "en_US")
+
+        let usdReward = factory.createRewardViewModel(
+            reward: 3,
+            targetReturn: 0.1,
+            priceData: priceData
+        ).value(for: locale)
+        eventCenter.notify(with: MetaAccountModelChangedEvent(account: selectedAccount.replacingCurrency(.euro())))
+        let euroReward = factory.createRewardViewModel(
+            reward: 3,
+            targetReturn: 0.1,
+            priceData: priceData
+        ).value(for: locale)
+
+        XCTAssertEqual(eventCenter.addedObservers.count, 1)
+        XCTAssertTrue(usdReward.price?.contains(Currency.defaultCurrency().symbol) == true)
+        XCTAssertTrue(euroReward.price?.contains(Currency.euro().symbol) == true)
+    }
 
     func testContinueAction() throws {
         let wireframe = MockControllerAccountWireframeProtocol()
@@ -140,5 +204,21 @@ class ControllerAccountTests: XCTestCase {
         // then
         wait(for: [showConfirmationExpectation], timeout: Constants.defaultExpectationDuration)
 
+    }
+}
+
+private final class StakingFormatterEventCenterSpy: EventCenterProtocol {
+    private(set) var addedObservers: [EventVisitorProtocol] = []
+
+    func notify(with event: EventProtocol) {
+        addedObservers.forEach { event.accept(visitor: $0) }
+    }
+
+    func add(observer: EventVisitorProtocol, dispatchIn _: DispatchQueue?) {
+        addedObservers.append(observer)
+    }
+
+    func remove(observer: EventVisitorProtocol) {
+        addedObservers.removeAll { $0 === observer }
     }
 }

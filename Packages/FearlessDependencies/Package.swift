@@ -22,12 +22,16 @@ let package = Package(
         // UI helpers
         .package(url: "https://github.com/evgenyneu/Cosmos.git", exact: "25.0.1"),
         .package(url: "https://github.com/sendyhalim/Swime", from: "3.1.0"),
-        // Logging + reachability (migrated from CocoaPods)
+        // Logging + reachability
         .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", exact: "2.1.1"),
         .package(url: "https://github.com/ashleymills/Reachability.swift", exact: "5.2.4"),
-        // Image loading and layout (migrated from CocoaPods)
+        // Image loading and layout
         .package(url: "https://github.com/onevcat/Kingfisher", exact: "7.10.2"),
         .package(url: "https://github.com/SnapKit/SnapKit", exact: "5.0.0"),
+        // UI/resource dependencies
+        .package(url: "https://github.com/danielgindi/Charts.git", exact: "4.1.0"),
+        .package(url: "https://github.com/SVGKit/SVGKit.git", from: "3.0.0"),
+        .package(url: "https://github.com/mac-cain13/R.swift.Library.git", exact: "5.3.0"),
         // TON SDK + remote API
         .package(url: "https://github.com/DRadmir/ton-api-swift.git", exact: "0.5.0"),
         .package(url: "https://github.com/DRadmir/ton-swift.git", branch: "main")
@@ -56,6 +60,10 @@ let package = Package(
                 // Image loading and layout
                 .product(name: "Kingfisher", package: "Kingfisher"),
                 .product(name: "SnapKit", package: "SnapKit"),
+                // UI/resource dependencies
+                .product(name: "Charts", package: "Charts"),
+                .product(name: "SVGKit", package: "SVGKit"),
+                .product(name: "Rswift", package: "R.swift.Library"),
                 // TON SDK
                 .product(name: "TonAPI", package: "ton-api-swift"),
                 .product(name: "TonSwift", package: "ton-swift")

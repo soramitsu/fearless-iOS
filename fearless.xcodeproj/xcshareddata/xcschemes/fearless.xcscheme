@@ -11,7 +11,18 @@
             <ActionContent
                title = "SPM Shared Features Fixes"
                scriptText = "#!/bin/sh
-bash \&quot;${PROJECT_DIR}/scripts/spm-shared-features-fixes.sh\&quot; \&quot;${PROJECT_DIR}\&quot; || true">
+ROOT=&quot;${PROJECT_DIR:-$(pwd)}&quot;
+SOURCE_PACKAGES_DIR=&quot;${SOURCE_PACKAGES_DIR:-$ROOT/SourcePackages}&quot; ALLOW_DERIVEDDATA_FALLBACK=1 bash \&quot;$ROOT/scripts/deps/prepare-native-crypto-checkout.sh\&quot; \&quot;$ROOT\&quot; \&quot;${WORKSPACE_PATH:-fearless.xcworkspace}\&quot; \&quot;${SCHEME_NAME:-fearless}\&quot; || true
+SSF_SINGLE_VALUE_CACHE_MANUAL_CLASS=0
+if [ \&quot;${RUN_DESTINATION_DEVICE_PLATFORM_NAME:-}\&quot; = \&quot;iphonesimulator\&quot; ]; then
+  SSF_SINGLE_VALUE_CACHE_MANUAL_CLASS=1
+fi
+SOURCE_PACKAGES_DIR=&quot;${SOURCE_PACKAGES_DIR:-$ROOT/SourcePackages}&quot; ALLOW_DERIVEDDATA_FALLBACK=1 SSF_SINGLE_VALUE_CACHE_MANUAL_CLASS=&quot;$SSF_SINGLE_VALUE_CACHE_MANUAL_CLASS&quot; bash \&quot;$ROOT/scripts/spm-shared-features-fixes.sh\&quot; \&quot;$ROOT\&quot; || true
+SOURCE_PACKAGES_DIR=&quot;${SOURCE_PACKAGES_DIR:-$ROOT/SourcePackages}&quot; ALLOW_DERIVEDDATA_FALLBACK=1 bash \&quot;$ROOT/scripts/deps/apply-tonapi-http-types-contract.sh\&quot; \&quot;$ROOT\&quot; || true
+SOURCE_PACKAGES_DIR=&quot;${SOURCE_PACKAGES_DIR:-$ROOT/SourcePackages}&quot; ALLOW_DERIVEDDATA_FALLBACK=1 bash \&quot;$ROOT/scripts/deps/apply-reown-signer-contract.sh\&quot; \&quot;$ROOT\&quot; || true
+SOURCE_PACKAGES_DIR=&quot;${SOURCE_PACKAGES_DIR:-$ROOT/SourcePackages}&quot; ALLOW_DERIVEDDATA_FALLBACK=1 bash \&quot;$ROOT/scripts/deps/apply-web3-nio-ssl-contract.sh\&quot; \&quot;$ROOT\&quot; || true
+SOURCE_PACKAGES_DIR=&quot;${SOURCE_PACKAGES_DIR:-$ROOT/SourcePackages}&quot; ALLOW_DERIVEDDATA_FALLBACK=1 bash \&quot;$ROOT/scripts/deps/apply-charts-swift6-compat.sh\&quot; \&quot;$ROOT\&quot; || true
+SOURCE_PACKAGES_DIR=&quot;${SOURCE_PACKAGES_DIR:-$ROOT/SourcePackages}&quot; ALLOW_DERIVEDDATA_FALLBACK=1 bash \&quot;$ROOT/scripts/deps/apply-svgkit-umbrella-contract.sh\&quot; \&quot;$ROOT\&quot; || true">
             </ActionContent>
          </ExecutionAction>
       </PreActions>
@@ -86,4 +97,3 @@ bash \&quot;${PROJECT_DIR}/scripts/spm-shared-features-fixes.sh\&quot; \&quot;${
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>
-

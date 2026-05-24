@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class SelectMarketViewController: SelectableListViewController<ExpandableSubtitleCell> {
     private enum Constants {

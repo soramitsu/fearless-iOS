@@ -1,4 +1,3 @@
-import RobinHood
 import SSFNetwork
 import Foundation
 
@@ -11,32 +10,55 @@ protocol OnboardingServiceProtocol {
     func fetchConfigs() async throws -> OnboardingConfigPlatform
 }
 
-actor OnboardingService {
-    private let networkOperationFactory: NetworkOperationFactoryProtocol
-    private let operationQueue: OperationQueue
-
-    init(
-        networkOperationFactory: NetworkOperationFactoryProtocol,
-        operationQueue: OperationQueue
-    ) {
-        self.networkOperationFactory = networkOperationFactory
-        self.operationQueue = operationQueue
-    }
+protocol OnboardingConfigSource {
+    var onboardingConfig: URL? { get }
 }
 
-extension OnboardingService: OnboardingServiceProtocol {
-    func fetchConfigs() async throws -> OnboardingConfigPlatform {
-        guard let onboardingConfigUrl = ApplicationConfig.shared.onboardingConfig else {
-            throw OnboardingServiceError.urlBroken
-        }
+extension ApplicationConfig: OnboardingConfigSource {}
+
+protocol OnboardingConfigFetching {
+    func fetchConfig(from url: URL) async throws -> OnboardingConfigPlatform
+}
+
+final class OnboardingNetworkConfigFetcher: OnboardingConfigFetching {
+    private let worker: NetworkWorkerDefault
+
+    init(worker: NetworkWorkerDefault = NetworkWorkerDefault()) {
+        self.worker = worker
+    }
+
+    func fetchConfig(from url: URL) async throws -> OnboardingConfigPlatform {
         let request = RequestConfig(
-            baseURL: onboardingConfigUrl,
+            baseURL: url,
             method: .get,
             endpoint: nil,
             headers: nil,
             body: nil
         )
-        let worker = NetworkWorkerDefault()
+
         return try await worker.performRequest(with: request)
+    }
+}
+
+actor OnboardingService {
+    private let configSource: OnboardingConfigSource
+    private let configFetcher: OnboardingConfigFetching
+
+    init(
+        configSource: OnboardingConfigSource = ApplicationConfig.shared,
+        configFetcher: OnboardingConfigFetching = OnboardingNetworkConfigFetcher()
+    ) {
+        self.configSource = configSource
+        self.configFetcher = configFetcher
+    }
+}
+
+extension OnboardingService: OnboardingServiceProtocol {
+    func fetchConfigs() async throws -> OnboardingConfigPlatform {
+        guard let onboardingConfigUrl = configSource.onboardingConfig else {
+            throw OnboardingServiceError.urlBroken
+        }
+
+        return try await configFetcher.fetchConfig(from: onboardingConfigUrl)
     }
 }

@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class DelegationInfoCell: UITableViewCell {
     private lazy var stateView = DelegationStateView()

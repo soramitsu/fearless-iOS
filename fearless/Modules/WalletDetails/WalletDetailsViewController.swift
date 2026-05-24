@@ -1,6 +1,6 @@
 import UIKit
-import SoraUI
-import SoraFoundation
+import FearlessUI
+import FearlessFoundation
 import SnapKit
 
 final class WalletDetailsViewController: UIViewController, ViewHolder {

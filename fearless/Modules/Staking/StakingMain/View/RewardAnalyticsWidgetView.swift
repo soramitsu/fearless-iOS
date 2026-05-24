@@ -1,6 +1,6 @@
 import UIKit
-import SoraUI
-import SoraFoundation
+import FearlessUI
+import FearlessFoundation
 
 final class RewardAnalyticsWidgetView: UIView {
     private let backgroundView: UIView = TriangularedBlurView()

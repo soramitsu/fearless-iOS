@@ -1,4 +1,5 @@
 import Foundation
+import FearlessFoundation
 import RobinHood
 import BigInt
 import SSFModels
@@ -25,7 +26,10 @@ protocol CollatorAprResponse {
 }
 
 enum RewardOperationFactory {
-    static func factory(chain: ChainModel) -> RewardOperationFactoryProtocol {
+    static func factory(
+        chain: ChainModel,
+        localizationManager: LocalizationManagerProtocol = LocalizationManager.shared
+    ) -> RewardOperationFactoryProtocol {
         let blockExplorer = chain.externalApi?.staking
         let type = blockExplorer?.type ?? .subsquid
 
@@ -33,18 +37,37 @@ enum RewardOperationFactory {
         case .subquery:
             return SubqueryRewardOperationFactory(url: blockExplorer?.url)
         case .subsquid:
-            return ArrowsquidRewardOperationFactory(url: blockExplorer?.url)
+            return ArrowsquidRewardOperationFactory(
+                url: blockExplorer?.url,
+                localizationManager: localizationManager
+            )
         case .giantsquid:
-            return GiantsquidRewardOperationFactory(url: blockExplorer?.url, chain: chain)
+            return GiantsquidRewardOperationFactory(
+                url: blockExplorer?.url,
+                chain: chain,
+                localizationManager: localizationManager
+            )
         case .sora:
-            return SoraRewardOperationFactory(url: blockExplorer?.url, chain: chain)
+            return SoraRewardOperationFactory(
+                url: blockExplorer?.url,
+                chain: chain,
+                localizationManager: localizationManager
+            )
         case .reef:
             return ReefRewardOperationFactory(url: blockExplorer?.url, chain: chain)
         // .oklink was removed in newer SSFModels; treat like generic explorers
         case .etherscan:
-            return GiantsquidRewardOperationFactory(url: blockExplorer?.url, chain: chain)
+            return GiantsquidRewardOperationFactory(
+                url: blockExplorer?.url,
+                chain: chain,
+                localizationManager: localizationManager
+            )
         default:
-            return GiantsquidRewardOperationFactory(url: blockExplorer?.url, chain: chain)
+            return GiantsquidRewardOperationFactory(
+                url: blockExplorer?.url,
+                chain: chain,
+                localizationManager: localizationManager
+            )
         }
     }
 }

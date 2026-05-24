@@ -1,6 +1,6 @@
 import Foundation
 import CoreData
-import SoraKeystore
+import FearlessSecureStorage
 
 final class SubstrateStorageMigrator {
     let storeURL: URL

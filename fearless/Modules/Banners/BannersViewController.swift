@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 protocol BannersViewOutput: AnyObject {
     func didLoad(view: BannersViewInput)

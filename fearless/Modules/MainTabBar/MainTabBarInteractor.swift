@@ -1,9 +1,9 @@
 import Foundation
 import WalletConnectSign
-import SoraKeystore
+import FearlessSecureStorage
 
 import SSFUtils
-import SoraFoundation
+import FearlessFoundation
 
 final class MainTabBarInteractor {
     private weak var presenter: MainTabBarInteractorOutputProtocol?

@@ -1,6 +1,6 @@
 import Foundation
 import LocalAuthentication
-import SoraKeystore
+import FearlessSecureStorage
 
 class PinSetupInteractor {
     enum PinSetupState {

@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 final class UsernameSetupPresenter {
     private weak var view: UsernameSetupViewProtocol?

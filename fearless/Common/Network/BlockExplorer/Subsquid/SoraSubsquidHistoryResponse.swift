@@ -88,7 +88,8 @@ extension SoraSubsquidHistoryElement: WalletRemoteHistoryItemProtocol {
             return 0
         }
 
-        return Int64(timestamp)
+        let timestampValue = Int64(timestamp)
+        return timestampValue > 10_000_000_000 ? timestampValue / 1000 : timestampValue
     }
 
     var label: WalletRemoteHistorySourceLabel {

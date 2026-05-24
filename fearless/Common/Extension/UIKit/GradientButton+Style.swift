@@ -1,5 +1,5 @@
 import Foundation
-import SoraUI
+import FearlessUI
 
 extension GradientButton {
     func setEnabled(_ enabled: Bool) {

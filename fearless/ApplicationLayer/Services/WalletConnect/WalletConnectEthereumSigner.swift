@@ -3,7 +3,7 @@ import Commons
 import SSFUtils
 import Web3
 import SSFModels
-import SoraKeystore
+import FearlessSecureStorage
 import SSFSigner
 
 final class WalletConnectEthereumSignerImpl: WalletConnectPayloadSigner {

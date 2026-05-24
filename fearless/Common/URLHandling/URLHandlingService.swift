@@ -4,7 +4,22 @@ protocol URLHandlingServiceProtocol: AnyObject {
     func handle(url: URL) -> Bool
 }
 
-final class URLHandlingService {
+protocol URLHandlingRegistryProtocol: URLHandlingServiceProtocol {
+    func setup(children: [URLHandlingServiceProtocol])
+    func findService<T>() -> T?
+}
+
+enum URLHandlingDependencies {
+    static var registry: URLHandlingRegistryProtocol {
+        URLHandlingService.shared
+    }
+
+    static func keystoreImportService() -> KeystoreImportServiceProtocol? {
+        registry.findService()
+    }
+}
+
+final class URLHandlingService: URLHandlingRegistryProtocol {
     static let shared = URLHandlingService()
 
     private let queue = DispatchQueue(label: "io.fearless.urlhandling", attributes: .concurrent)
@@ -25,9 +40,7 @@ final class URLHandlingService {
     private func snapshotHandlers() -> [URLHandlingServiceProtocol] {
         queue.sync { handlers }
     }
-}
 
-extension URLHandlingService: URLHandlingServiceProtocol {
     func handle(url: URL) -> Bool {
         // Work on a stable snapshot to avoid races during iteration
         for child in snapshotHandlers() {

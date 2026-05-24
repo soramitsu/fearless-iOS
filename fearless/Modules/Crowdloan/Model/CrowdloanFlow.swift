@@ -111,11 +111,44 @@ extension CustomCrowdloanFlow: Equatable {
 // MARK: - Moonbeam
 
 struct MoonbeamFlowData: FlowData {
+    private enum CodingKeys: String, CodingKey {
+        case prodApiUrl
+        case devApiUrl
+        case termsUrl
+        case devApiKey
+        case prodApiKey
+    }
+
     let prodApiUrl: String
     let devApiUrl: String
     let termsUrl: String
     let devApiKey: String
     let prodApiKey: String
+
+    init(
+        prodApiUrl: String,
+        devApiUrl: String,
+        termsUrl: String,
+        devApiKey: String,
+        prodApiKey: String
+    ) {
+        self.prodApiUrl = prodApiUrl
+        self.devApiUrl = devApiUrl
+        self.termsUrl = termsUrl
+        self.devApiKey = devApiKey
+        self.prodApiKey = prodApiKey
+    }
+
+    init(from decoder: Decoder) throws {
+        let fallback = Self.default
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        prodApiUrl = try container.decodeIfPresent(String.self, forKey: .prodApiUrl) ?? fallback.prodApiUrl
+        devApiUrl = try container.decodeIfPresent(String.self, forKey: .devApiUrl) ?? fallback.devApiUrl
+        termsUrl = try container.decodeIfPresent(String.self, forKey: .termsUrl) ?? fallback.termsUrl
+        devApiKey = try container.decodeIfPresent(String.self, forKey: .devApiKey) ?? fallback.devApiKey
+        prodApiKey = try container.decodeIfPresent(String.self, forKey: .prodApiKey) ?? fallback.prodApiKey
+    }
 
     static var `default`: Self {
         .init(

@@ -2,7 +2,7 @@ import UIKit
 import IrohaCrypto
 import SSFUtils
 import RobinHood
-import SoraKeystore
+import FearlessSecureStorage
 import SSFModels
 
 class BaseAccountImportInteractor {

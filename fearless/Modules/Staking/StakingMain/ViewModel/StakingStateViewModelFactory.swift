@@ -1,9 +1,9 @@
 import Foundation
 
-import SoraFoundation
+import FearlessFoundation
 import BigInt
 import IrohaCrypto
-import SoraKeystore
+import FearlessSecureStorage
 import SSFModels
 
 protocol StakingStateViewModelFactoryProtocol {
@@ -19,7 +19,7 @@ final class StakingStateViewModelFactory {
     private let analyticsRewardsViewModelFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder
     private let logger: LoggerProtocol?
     private var selectedMetaAccount: MetaAccountModel
-    private let eventCenter: EventCenter
+    private let eventCenter: EventCenterProtocol
 
     private var lastViewModel: StakingViewState = .undefined
     private var rewardViewModelFactory: RewardViewModelFactoryProtocol?
@@ -29,7 +29,7 @@ final class StakingStateViewModelFactory {
         analyticsRewardsViewModelFactoryBuilder: @escaping AnalyticsRewardsViewModelFactoryBuilder,
         logger: LoggerProtocol? = nil,
         selectedMetaAccount: MetaAccountModel,
-        eventCenter: EventCenter
+        eventCenter: EventCenterProtocol = EventCenter.shared
     ) {
         self.analyticsRewardsViewModelFactoryBuilder = analyticsRewardsViewModelFactoryBuilder
         self.logger = logger
@@ -63,7 +63,8 @@ final class StakingStateViewModelFactory {
     func getBalanceViewModelFactory(for chainAsset: ChainAsset) -> BalanceViewModelFactoryProtocol {
         let factory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
-            selectedMetaAccount: selectedMetaAccount
+            selectedMetaAccount: selectedMetaAccount,
+            eventCenter: eventCenter
         )
 
         return factory
@@ -76,7 +77,8 @@ final class StakingStateViewModelFactory {
 
         let factory = RewardViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
-            selectedMetaAccount: selectedMetaAccount
+            selectedMetaAccount: selectedMetaAccount,
+            eventCenter: eventCenter
         )
 
         rewardViewModelFactory = factory

@@ -1,5 +1,5 @@
 import UIKit
-import SoraKeystore
+import FearlessSecureStorage
 import SSFCloudStorage
 
 protocol BackupWalletImportedInteractorOutput: AnyObject {}

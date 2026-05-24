@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 protocol LiquidityPoolRemoveLiquidityConfirmViewOutput: AnyObject {
     func didLoad(view: LiquidityPoolRemoveLiquidityConfirmViewInput)

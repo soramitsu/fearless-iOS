@@ -1,257 +1,501 @@
+import BigInt
+import FearlessFoundation
+import SSFModels
+import SSFUtils
+import UIKit
 import XCTest
 @testable import fearless
-import SoraKeystore
-#if canImport(CommonWallet)
-import CommonWallet
-#endif
-import RobinHood
-import SoraFoundation
-import SSFUtils
-import Cuckoo
-import BigInt
 
-class CrowdloanContributionConfirmTests: XCTestCase {
-//    static let currentBlockNumber: BlockNumber = 1337
-//
-//    let crowdloan = Crowdloan(
-//        paraId: 2000,
-//        fundInfo: CrowdloanFunds(
-//            depositor: Data(repeating: 0, count: 32),
-//            verifier: nil,
-//            deposit: 100,
-//            raised: 100,
-//            end: currentBlockNumber + 100,
-//            cap: 1000000000000000,
-//            lastContribution: .never,
-//            firstPeriod: 100,
-//            lastPeriod: 101,
-//            trieOrFundIndex: .trieIndex(1))
-//    )
-//
-//    func testContributionConfirmation() throws {
-//        // given
-//
-//        let selectedAccount = AccountGenerator.generateMetaAccount()
-//        let chain = ChainModelGenerator.generateChain(
-//            generatingAssets: 1,
-//            addressPrefix: 42,
-//            assetPresicion: 12,
-//            hasCrowdloans: true
-//        )
-//
-//        let asset = chain.assets.first!
-//
-//        let chainRegistry = MockChainRegistryProtocol().applyDefault(for: [chain])
-//
-//        let view = MockCrowdloanContributionConfirmViewProtocol()
-//        let wireframe = MockCrowdloanContributionConfirmWireframeProtocol()
-//
-//        let expectedAmount: Decimal = 1.0
-//
-//        guard let presenter = try createPresenter(
-//            for: view,
-//            wireframe: wireframe,
-//            chainRegistry: chainRegistry,
-//            inputAmount: expectedAmount,
-//            selectedMetaAccount: selectedAccount,
-//            chain: chain,
-//            asset: asset
-//        ) else {
-//            XCTFail("Unexpected empty presenter")
-//            return
-//        }
-//
-//        // when
-//
-//        let assetReceived = XCTestExpectation()
-//        let feeReceived = XCTestExpectation()
-//        let estimatedRewardReceived = XCTestExpectation()
-//        let crowdloanReceived = XCTestExpectation()
-//        let bonusReceived = XCTestExpectation()
-//
-//        stub(view) { stub in
-//            when(stub).didReceiveAsset(viewModel: any()).then { viewModel in
-//                if viewModel.balance != nil {
-//                    assetReceived.fulfill()
-//                }
-//            }
-//
-//            when(stub).didReceiveFee(viewModel: any()).then { viewModel in
-//                if viewModel != nil {
-//                    feeReceived.fulfill()
-//                }
-//            }
-//
-//            when(stub).didReceiveEstimatedReward(viewModel: any()).then { viewModel in
-//                estimatedRewardReceived.fulfill()
-//            }
-//
-//            when(stub).didReceiveCrowdloan(viewModel: any()).then { _ in
-//                crowdloanReceived.fulfill()
-//            }
-//
-//            when(stub).didReceiveBonus(viewModel: any()).then { _ in
-//                bonusReceived.fulfill()
-//            }
-//
-////            when(stub).didReceiveCustomFlow(viewModel: any()).thenDoNothing()
-//            when(stub).didStartLoading().thenDoNothing()
-//            when(stub).didStopLoading().thenDoNothing()
-//
-//            when(stub).isSetup.get.thenReturn(false, true)
-//        }
-//
-//        presenter.setup()
-//
-//        wait(
-//            for: [
-//                assetReceived,
-//                feeReceived,
-//                estimatedRewardReceived,
-//                crowdloanReceived,
-//                bonusReceived
-//            ],
-//            timeout: 10
-//        )
-//
-//        let completionExpectation = XCTestExpectation()
-//
-//        stub(wireframe) { stub in
-//            when(stub).complete(on: any()).then { _ in
-//                completionExpectation.fulfill()
-//            }
-//        }
-//
-//        presenter.confirm()
-//
-//        // then
-//
-//        wait(for: [completionExpectation], timeout: 10)
-//    }
-//
-//    private func createPresenter(
-//        for view: MockCrowdloanContributionConfirmViewProtocol,
-//        wireframe: MockCrowdloanContributionConfirmWireframeProtocol,
-//        chainRegistry: ChainRegistryProtocol,
-//        inputAmount: Decimal,
-//        selectedMetaAccount: MetaAccountModel,
-//        chain: ChainModel,
-//        asset: AssetModel
-//    ) throws -> CrowdloanContributionConfirmPresenter? {
-//
-//        guard let interactor = createInteractor(
-//            chainRegistry: chainRegistry,
-//            selectedMetaAccount: selectedMetaAccount,
-//            chain: chain,
-//            asset: asset
-//        ) else {
-//            return nil
-//        }
-//
-//        let assetInfo = asset.displayInfo(with: chain.icon)
-//        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: assetInfo)
-//
-//        let crowdloanViewModelFactory = CrowdloanContributionViewModelFactory(
-//            assetInfo: assetInfo,
-//            chainDateCalculator: ChainDateCalculator()
-//        )
-//
-//        let dataValidatingFactory = CrowdloanDataValidatingFactory(
-//            presentable: wireframe,
-//            assetInfo: assetInfo
-//        )
-//
-//        let presenter = CrowdloanContributionConfirmPresenter(
-//            interactor: interactor,
-//            wireframe: wireframe,
-//            balanceViewModelFactory: balanceViewModelFactory,
-//            contributionViewModelFactory: crowdloanViewModelFactory,
-//            dataValidatingFactory: dataValidatingFactory,
-//            inputAmount: inputAmount,
-//            bonusRate: nil,
-//            assetInfo: assetInfo,
-//            chain: addressType.chain,
-//            localizationManager: LocalizationManager.shared,
-//            customFlow: nil
-//        )
-//
-//        interactor.presenter = presenter
-//        dataValidatingFactory.view = view
-//        presenter.view = view
-//
-//        return presenter
-//    }
-//
-//    private func createInteractor(
-//        chainRegistry: ChainRegistryProtocol,
-//        selectedMetaAccount: MetaAccountModel,
-//        chain: ChainModel,
-//        asset: AssetModel
-//    ) -> CrowdloanContributionConfirmInteractor? {
-//        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
-//            return nil
-//        }
-//
-//        guard let crowdloanInfoUrl = chain.externalApi?.crowdloans?.url else {
-//            return nil
-//        }
-//
-//        let extrinsicService = ExtrinsicServiceStub.dummy()
-//
-//        let crowdloanSubscriptionFactory = CrowdloanLocalSubscriptionFactoryStub(
-//            blockNumber: Self.currentBlockNumber,
-//            crowdloanFunds: crowdloan.fundInfo
-//        )
-//
-//        let walletSubscriptionFactory = WalletLocalSubscriptionFactoryStub(
-//            balance: BigUInt(1e+18)
-//        )
-//
-//        let priceProviderFactory = PriceProviderFactoryStub(
-//            priceData: PriceData(price: "100", usdDayChange: 0.01)
-//        )
-//
-//        let jsonProviderFactory = JsonDataProviderFactoryStub(
-//            sources: [crowdloanInfoUrl: CrowdloanDisplayInfoList()]
-//        )
-//
-//        guard let signingWrapper = try? DummySigner(cryptoType: CryptoType.sr25519) else {
-//            return nil
-//        }
-//        
-//        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-//            UserDataStorageTestFacade().createRepository()
-//        
-//        let operationManager = OperationManagerFacade.sharedManager
-//        let storageRequestFactory = StorageRequestFactory(
-//            remoteFactory: StorageKeyFactory(),
-//            operationManager: operationManager
-//        )
-//
-//        let crowdloanOperationFactory = CrowdloanOperationFactory(
-//            requestOperationFactory: storageRequestFactory,
-//            operationManager: operationManager
-//        )
-//
-//        return CrowdloanContributionConfirmInteractor(
-//            paraId: crowdloan.paraId,
-//            selectedMetaAccount: selectedMetaAccount,
-//            chain: chain,
-//            asset: asset,
-//            runtimeService: runtimeService,
-//            feeProxy: ExtrinsicFeeProxy(),
-//            extrinsicService: extrinsicService,
-//            crowdloanLocalSubscriptionFactory: crowdloanSubscriptionFactory,
-//            walletLocalSubscriptionFactory: walletSubscriptionFactory,
-//            jsonLocalSubscriptionFactory: jsonProviderFactory,
-//            signingWrapper: signingWrapper,
-//            bonusService: nil,
-//            operationManager: operationManager,
-//            logger: Logger.shared,
-//            crowdloanOperationFactory: crowdloanOperationFactory,
-//            connection: nil,
-//            settings: settings,
-//            memo: nil
-//        )
-//    }
+final class CrowdloanContributionConfirmTests: XCTestCase {
+    func testSetup_whenInteractorDataArrives_thenProvidesViewModelsAndEstimatesFee() throws {
+        let fixture = try makeFixture(inputAmount: 1.25, bonusRate: 0.1)
+
+        fixture.presenter.setup()
+        fixture.emitReadyState()
+
+        XCTAssertTrue(fixture.interactor.didSetup)
+        XCTAssertEqual(fixture.interactor.estimatedFeeAmounts, [1_250_000_000_000])
+        XCTAssertNotNil(fixture.view.assetViewModel)
+        XCTAssertNotNil(fixture.view.feeViewModel)
+        XCTAssertEqual(fixture.view.estimatedRewardViewModel, "estimated reward")
+        XCTAssertEqual(fixture.view.bonusViewModel, "bonus")
+        XCTAssertEqual(fixture.view.crowdloanViewModel?.senderName, "Alice")
+        XCTAssertEqual(fixture.viewModelFactory.confirmViewModelInputs.first?.paraId, fixture.crowdloan.paraId)
+    }
+
+    func testConfirm_whenValidationPasses_thenStartsLoadingAndSubmitsContribution() throws {
+        let fixture = try makeFixture(inputAmount: 2)
+        fixture.emitReadyState()
+
+        fixture.presenter.confirm()
+
+        XCTAssertTrue(fixture.view.didStartLoadingCalled)
+        XCTAssertEqual(fixture.interactor.submittedContributions, [2_000_000_000_000])
+    }
+
+    func testConfirm_whenFeeMissing_thenRefreshesFeeAndDoesNotSubmit() throws {
+        let fixture = try makeFixture(inputAmount: 3)
+        fixture.emitReadyState(includeFee: false)
+
+        fixture.presenter.confirm()
+
+        XCTAssertTrue(fixture.interactor.submittedContributions.isEmpty)
+        XCTAssertEqual(fixture.interactor.estimatedFeeAmounts, [3_000_000_000_000])
+        XCTAssertTrue(fixture.wireframe.didPresentFeeNotReceived)
+    }
+
+    func testSubmissionResult_whenSuccess_thenStopsLoadingAndCompletes() throws {
+        let fixture = try makeFixture()
+
+        fixture.presenter.didSubmitContribution(result: .success("0xhash"))
+
+        XCTAssertTrue(fixture.view.didStopLoadingCalled)
+        XCTAssertTrue(fixture.wireframe.completedView === fixture.view)
+    }
+
+    func testSubmissionResult_whenUnhandledFailure_thenPresentsFallbackError() throws {
+        let fixture = try makeFixture()
+        fixture.wireframe.shouldHandlePresentedError = false
+
+        fixture.presenter.didSubmitContribution(result: .failure(TestError.expected))
+
+        XCTAssertTrue(fixture.view.didStopLoadingCalled)
+        XCTAssertTrue(fixture.wireframe.presentedError is TestError)
+        XCTAssertTrue(fixture.wireframe.didPresentExtrinsicFailed)
+    }
+
+    func testPresentAccountOptions_whenAddressKnown_thenRoutesToWireframe() throws {
+        let fixture = try makeFixture()
+
+        fixture.presenter.presentAccountOptions()
+        XCTAssertNil(fixture.wireframe.accountOptionsAddress)
+
+        fixture.presenter.didReceiveDisplayAddress(
+            result: .success(DisplayAddress(address: "5Alice", username: "Alice"))
+        )
+        fixture.presenter.presentAccountOptions()
+
+        XCTAssertEqual(fixture.wireframe.accountOptionsAddress, "5Alice")
+        XCTAssertEqual(fixture.wireframe.accountOptionsChainId, fixture.chainAsset.chain.chainId)
+    }
+
+    private func makeFixture(
+        inputAmount: Decimal = 1,
+        bonusRate: Decimal? = nil
+    ) throws -> CrowdloanContributionConfirmFixture {
+        let chain = ChainModelGenerator.generateChain(
+            generatingAssets: 0,
+            addressPrefix: 42,
+            assetPresicion: 12,
+            hasCrowdloans: true
+        )
+        let asset = ChainModelGenerator.generateAssetWithId(
+            "unit",
+            symbol: "UNIT",
+            assetPresicion: 12
+        )
+        chain.assets = [asset]
+
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
+        let interactor = CrowdloanContributionConfirmInteractorInputSpy()
+        let wireframe = CrowdloanContributionConfirmWireframeSpy()
+        let validatorFactory = CrowdloanDataValidatorFactorySpy(basePresentable: wireframe)
+        let viewModelFactory = CrowdloanContributionViewModelFactorySpy()
+        let presenter = CrowdloanContributionConfirmPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            balanceViewModelFactory: StubBalanceViewModelFactory(),
+            contributionViewModelFactory: viewModelFactory,
+            dataValidatingFactory: validatorFactory,
+            inputAmount: inputAmount,
+            bonusRate: bonusRate,
+            assetInfo: asset.displayInfo(with: chain.icon),
+            localizationManager: LocalizationManager.shared,
+            logger: LoggerSpy(),
+            chainAsset: chainAsset,
+            selectedCurrency: Currency.defaultCurrency()
+        )
+        let view = CrowdloanContributionConfirmViewSpy()
+        presenter.view = view
+        validatorFactory.view = view
+
+        return CrowdloanContributionConfirmFixture(
+            presenter: presenter,
+            interactor: interactor,
+            wireframe: wireframe,
+            view: view,
+            viewModelFactory: viewModelFactory,
+            chainAsset: chainAsset,
+            crowdloan: try makeCrowdloan()
+        )
+    }
+
+    private func makeCrowdloan() throws -> Crowdloan {
+        let depositor = Data(repeating: 1, count: 32)
+        let payload = """
+        {
+          "depositor": "\(depositor.base64EncodedString())",
+          "deposit": "100",
+          "raised": "1000000000000",
+          "end": "1000",
+          "cap": "9000000000000000",
+          "lastContribution": ["Never", null],
+          "firstPeriod": "2",
+          "lastPeriod": "4",
+          "trieIndex": "1"
+        }
+        """
+        let data = try XCTUnwrap(payload.data(using: .utf8))
+        let fundInfo = try JSONDecoder().decode(CrowdloanFunds.self, from: data)
+
+        return Crowdloan(paraId: 2_000, fundInfo: fundInfo)
+    }
+}
+
+private struct CrowdloanContributionConfirmFixture {
+    let presenter: CrowdloanContributionConfirmPresenter
+    let interactor: CrowdloanContributionConfirmInteractorInputSpy
+    let wireframe: CrowdloanContributionConfirmWireframeSpy
+    let view: CrowdloanContributionConfirmViewSpy
+    let viewModelFactory: CrowdloanContributionViewModelFactorySpy
+    let chainAsset: ChainAsset
+    let crowdloan: Crowdloan
+
+    func emitReadyState(includeFee: Bool = true) {
+        presenter.didReceiveDisplayAddress(
+            result: .success(DisplayAddress(address: "5Alice", username: "Alice"))
+        )
+        presenter.didReceiveCrowdloan(result: .success(crowdloan))
+        presenter.didReceiveDisplayInfo(
+            result: .success(
+                CrowdloanDisplayInfo(
+                    paraid: "\(crowdloan.paraId)",
+                    name: "Moonbase",
+                    token: "UNIT",
+                    description: "Test crowdloan",
+                    website: "https://example.com",
+                    icon: "https://example.com/icon.png",
+                    rewardRate: 5,
+                    endingBlock: nil,
+                    disabled: nil,
+                    flow: nil
+                )
+            )
+        )
+        presenter.didReceiveAccountInfo(
+            result: .success(
+                AccountInfo(
+                    nonce: 0,
+                    consumers: 0,
+                    providers: 1,
+                    data: AccountData(
+                        free: 20_000_000_000_000,
+                        reserved: 0,
+                        frozen: 0
+                    )
+                )
+            )
+        )
+        presenter.didReceiveBlockNumber(result: .success(10))
+        presenter.didReceiveBlockDuration(result: .success(6))
+        presenter.didReceiveLeasingPeriod(result: .success(100))
+        presenter.didReceiveLeasingOffset(result: .success(0))
+        presenter.didReceiveMinimumBalance(result: .success(1_000_000_000))
+        presenter.didReceiveMinimumContribution(result: .success(1_000_000_000))
+
+        if includeFee {
+            presenter.didReceiveFee(result: .success(RuntimeDispatchInfo(feeValue: 500_000_000)))
+        }
+    }
+}
+
+private final class CrowdloanContributionConfirmInteractorInputSpy: CrowdloanContributionConfirmInteractorInputProtocol {
+    private(set) var didSetup = false
+    private(set) var estimatedFeeAmounts: [BigUInt] = []
+    private(set) var submittedContributions: [BigUInt] = []
+
+    func setup() {
+        didSetup = true
+    }
+
+    func estimateFee(for amount: BigUInt, bonusService _: CrowdloanBonusServiceProtocol?) {
+        estimatedFeeAmounts.append(amount)
+    }
+
+    func estimateFee(for contribution: BigUInt) {
+        estimatedFeeAmounts.append(contribution)
+    }
+
+    func submit(contribution: BigUInt) {
+        submittedContributions.append(contribution)
+    }
+}
+
+private final class CrowdloanContributionConfirmViewSpy: CrowdloanContributionConfirmViewProtocol {
+    let controller = UIViewController()
+    let isSetup = true
+    let loadableContentView = UIView()
+    let shouldDisableInteractionWhenLoading = false
+
+    private(set) var assetViewModel: AssetBalanceViewModelProtocol?
+    private(set) var feeViewModel: BalanceViewModelProtocol?
+    private(set) var crowdloanViewModel: CrowdloanContributeConfirmViewModel?
+    private(set) var estimatedRewardViewModel: String?
+    private(set) var bonusViewModel: String?
+    private(set) var didStartLoadingCalled = false
+    private(set) var didStopLoadingCalled = false
+
+    func didReceiveAsset(viewModel: AssetBalanceViewModelProtocol) {
+        assetViewModel = viewModel
+    }
+
+    func didReceiveFee(viewModel: BalanceViewModelProtocol?) {
+        feeViewModel = viewModel
+    }
+
+    func didReceiveCrowdloan(viewModel: CrowdloanContributeConfirmViewModel) {
+        crowdloanViewModel = viewModel
+    }
+
+    func didReceiveEstimatedReward(viewModel: String?) {
+        estimatedRewardViewModel = viewModel
+    }
+
+    func didReceiveBonus(viewModel: String?) {
+        bonusViewModel = viewModel
+    }
+
+    func didStartLoading() {
+        didStartLoadingCalled = true
+    }
+
+    func didStopLoading() {
+        didStopLoadingCalled = true
+    }
+
+    func applyLocalization() {}
+}
+
+private final class CrowdloanContributionConfirmWireframeSpy: CrowdloanContributionConfirmWireframeProtocol {
+    weak var completedView: CrowdloanContributionConfirmViewProtocol?
+    private(set) var presentedError: Error?
+    private(set) var didPresentExtrinsicFailed = false
+    private(set) var didPresentFeeNotReceived = false
+    private(set) var accountOptionsAddress: String?
+    private(set) var accountOptionsChainId: ChainModel.Id?
+    var shouldHandlePresentedError = true
+
+    func complete(on view: CrowdloanContributionConfirmViewProtocol?) {
+        completedView = view
+    }
+
+    @discardableResult
+    func present(error: Error, from _: ControllerBackedProtocol?, locale _: Locale?) -> Bool {
+        presentedError = error
+        return shouldHandlePresentedError
+    }
+
+    func presentAccountOptions(
+        from _: ControllerBackedProtocol,
+        address: String,
+        chain: ChainModel,
+        locale _: Locale,
+        exportClosure _: (() -> Void)?
+    ) {
+        accountOptionsAddress = address
+        accountOptionsChainId = chain.chainId
+    }
+
+    func presentFeeNotReceived(from _: ControllerBackedProtocol, locale _: Locale?) {
+        didPresentFeeNotReceived = true
+    }
+
+    func presentExtrinsicFailed(from _: ControllerBackedProtocol, locale _: Locale?) {
+        didPresentExtrinsicFailed = true
+    }
+
+    func presentAmountTooHigh(from _: ControllerBackedProtocol, locale _: Locale?) {}
+    func presentExsitentialDepositNotReceived(from _: ControllerBackedProtocol, locale _: Locale?) {}
+    func presentFeeTooHigh(from _: ControllerBackedProtocol, locale _: Locale?) {}
+    func presentExistentialDepositError(
+        existentianDepositValue _: String,
+        from _: ControllerBackedProtocol,
+        locale _: Locale?
+    ) {}
+
+    func presentExistentialDepositWarning(
+        existentianDepositValue _: String,
+        from _: ControllerBackedProtocol,
+        action: @escaping () -> Void,
+        locale _: Locale?
+    ) {
+        action()
+    }
+
+    func presentExistentialDepositWarning(
+        existentianDepositValue _: String,
+        from _: ControllerBackedProtocol,
+        proceedHandler: @escaping () -> Void,
+        setMaxHandler _: @escaping () -> Void,
+        cancelHandler _: @escaping () -> Void,
+        locale _: Locale?
+    ) {
+        proceedHandler()
+    }
+
+    func presentSoraBridgeLowAmountError(
+        from _: ControllerBackedProtocol,
+        locale _: Locale,
+        assetAmount _: String
+    ) {}
+
+    func presentWarning(
+        for _: String,
+        message _: String,
+        action: @escaping () -> Void,
+        view _: ControllerBackedProtocol,
+        locale _: Locale?
+    ) {
+        action()
+    }
+
+    func presentDestinationExistentialDepositError(from _: ControllerBackedProtocol, locale _: Locale?) {}
+    func presentMinimalBalanceContributionError(_: String, from _: ControllerBackedProtocol, locale _: Locale?) {}
+    func presentCapReachedError(from _: ControllerBackedProtocol, locale _: Locale?) {}
+    func presentAmountExceedsCapError(_: String, from _: ControllerBackedProtocol, locale _: Locale?) {}
+    func presentCrowdloanEnded(from _: ControllerBackedProtocol, locale _: Locale?) {}
+    func presentCrowdloanPrivateNotSupported(from _: ControllerBackedProtocol, locale _: Locale?) {}
+
+    func present(viewModel _: SheetAlertPresentableViewModel, from _: ControllerBackedProtocol?) {}
+
+    func present(
+        message _: String?,
+        title _: String,
+        closeAction _: String?,
+        from _: ControllerBackedProtocol?,
+        actions _: [SheetAlertPresentableAction]
+    ) {}
+
+    func presentInfo(message _: String?, title _: String, from _: ControllerBackedProtocol?) {}
+}
+
+private final class CrowdloanDataValidatorFactorySpy: CrowdloanDataValidatorFactoryProtocol {
+    weak var view: (ControllerBackedProtocol & Localizable)?
+    let basePresentable: BaseErrorPresentable
+
+    init(basePresentable: BaseErrorPresentable) {
+        self.basePresentable = basePresentable
+    }
+
+    func contributesAtLeastMinContribution(
+        contribution _: BigUInt?,
+        minimumBalance _: BigUInt?,
+        locale _: Locale
+    ) -> DataValidating {
+        SucceedDataValidating()
+    }
+
+    func capNotExceeding(
+        contribution _: BigUInt?,
+        raised _: BigUInt?,
+        cap _: BigUInt?,
+        locale _: Locale
+    ) -> DataValidating {
+        SucceedDataValidating()
+    }
+
+    func crowdloanIsNotCompleted(
+        crowdloan _: Crowdloan?,
+        metadata _: CrowdloanMetadata?,
+        displayInfo _: CrowdloanDisplayInfo?,
+        locale _: Locale
+    ) -> DataValidating {
+        SucceedDataValidating()
+    }
+
+    func crowdloanIsNotPrivate(
+        crowdloan _: Crowdloan?,
+        locale _: Locale
+    ) -> DataValidating {
+        SucceedDataValidating()
+    }
+}
+
+private final class CrowdloanContributionViewModelFactorySpy: CrowdloanContributionViewModelFactoryProtocol {
+    private(set) var confirmViewModelInputs: [(paraId: ParaId, contribution: Decimal)] = []
+
+    func createContributionSetupViewModel(
+        from _: Crowdloan,
+        displayInfo _: CrowdloanDisplayInfo?,
+        metadata _: CrowdloanMetadata,
+        locale _: Locale
+    ) -> CrowdloanContributionSetupViewModel {
+        CrowdloanContributionSetupViewModel(
+            title: "",
+            leasingPeriod: "",
+            leasingCompletionDate: "",
+            raisedProgress: "",
+            raisedPercentage: "",
+            remainedTime: "",
+            learnMore: nil
+        )
+    }
+
+    func createContributionConfirmViewModel(
+        from crowdloan: Crowdloan,
+        metadata _: CrowdloanMetadata,
+        confirmationData: CrowdloanContributionConfirmData,
+        locale _: Locale
+    ) throws -> CrowdloanContributeConfirmViewModel {
+        confirmViewModelInputs.append((crowdloan.paraId, confirmationData.contribution))
+
+        return CrowdloanContributeConfirmViewModel(
+            senderIcon: DrawableIconStub(),
+            senderName: confirmationData.displayAddress.username,
+            inputAmount: "\(confirmationData.contribution)",
+            leasingPeriod: "90 days",
+            leasingCompletionDate: "Till May 30, 2026"
+        )
+    }
+
+    func createEstimatedRewardViewModel(
+        inputAmount _: Decimal,
+        displayInfo _: CrowdloanDisplayInfo,
+        locale _: Locale
+    ) -> String? {
+        "estimated reward"
+    }
+
+    func createAdditionalBonusViewModel(
+        inputAmount _: Decimal,
+        displayInfo _: CrowdloanDisplayInfo,
+        bonusRate _: Decimal?,
+        locale _: Locale
+    ) -> String? {
+        "bonus"
+    }
+
+    func createLearnMoreViewModel(
+        from _: CrowdloanDisplayInfo,
+        locale _: Locale
+    ) -> LearnMoreViewModel {
+        LearnMoreViewModel(iconViewModel: nil, title: "")
+    }
+}
+
+private struct DrawableIconStub: DrawableIcon {
+    func drawInContext(_: CGContext, fillColor _: UIColor, size _: CGSize) {}
+}
+
+private final class LoggerSpy: LoggerProtocol {
+    func verbose(message _: String, file _: String, function _: String, line _: Int) {}
+    func debug(message _: String, file _: String, function _: String, line _: Int) {}
+    func info(message _: String, file _: String, function _: String, line _: Int) {}
+    func warning(message _: String, file _: String, function _: String, line _: Int) {}
+    func error(message _: String, file _: String, function _: String, line _: Int) {}
+    func customError(error _: Error, file _: String, function _: String, line _: Int) {}
+}
+
+private enum TestError: Error {
+    case expected
 }

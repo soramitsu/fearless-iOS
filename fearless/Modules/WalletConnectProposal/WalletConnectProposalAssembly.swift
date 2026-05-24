@@ -1,6 +1,6 @@
 import UIKit
 import WalletConnectSign
-import SoraFoundation
+import FearlessFoundation
 import RobinHood
 
 final class WalletConnectProposalAssembly {

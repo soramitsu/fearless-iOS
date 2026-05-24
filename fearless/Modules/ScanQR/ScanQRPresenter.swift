@@ -1,6 +1,6 @@
 import Foundation
 import SSFQRService
-import SoraFoundation
+import FearlessFoundation
 
 import RobinHood
 import AVFoundation

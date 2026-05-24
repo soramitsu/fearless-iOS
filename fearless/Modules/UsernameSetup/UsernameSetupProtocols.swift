@@ -1,4 +1,4 @@
-import SoraFoundation
+import FearlessFoundation
 
 protocol UsernameSetupViewProtocol: ControllerBackedProtocol {
     func bindUsername(viewModel: SelectableViewModel<InputViewModelProtocol>)

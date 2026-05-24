@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 import SSFModels
-import SoraKeystore
+import FearlessSecureStorage
 
 protocol WalletAssetsObserver: ApplicationServiceProtocol {
     func update(wallet: MetaAccountModel)

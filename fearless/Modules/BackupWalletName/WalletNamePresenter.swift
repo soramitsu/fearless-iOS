@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 protocol WalletNameViewInput: ControllerBackedProtocol, HiddableBarWhenPushed, LoadableViewProtocol {
     func setInputViewModel(_ viewModel: InputViewModelProtocol)

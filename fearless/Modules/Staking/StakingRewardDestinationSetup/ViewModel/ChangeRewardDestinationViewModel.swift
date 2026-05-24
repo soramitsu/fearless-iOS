@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 struct ChangeRewardDestinationViewModel {
     let selectionViewModel: LocalizableResource<RewardDestinationViewModelProtocol>

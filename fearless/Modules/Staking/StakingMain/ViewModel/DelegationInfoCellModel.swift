@@ -1,4 +1,4 @@
-import SoraFoundation
+import FearlessFoundation
 
 protocol DelegationInfoCellModelDelegate: AnyObject {
     func didReceiveMoreAction(delegationInfo: ParachainStakingDelegationInfo)

@@ -1,6 +1,6 @@
 import Foundation
 import IrohaCrypto
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 final class StakingRewardPayoutsPresenter {

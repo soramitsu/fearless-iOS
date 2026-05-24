@@ -2,7 +2,7 @@ import Foundation
 import BigInt
 
 import IrohaCrypto
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 import SSFUtils
 
@@ -30,10 +30,7 @@ struct GiantsquidTransfer: Decodable {
     let blockHash: String?
 
     var timestampInSeconds: Int64 {
-        let locale = LocalizationManager.shared.selectedLocale
-        let dateFormatter = DateFormatter.giantsquidDate
-        let date = dateFormatter.value(for: locale).date(from: timestamp)
-        return Int64(date?.timeIntervalSince1970 ?? 0)
+        DateFormatter.networkTimestampInSeconds(from: timestamp, using: DateFormatter.giantsquidDate)
     }
 }
 

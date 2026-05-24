@@ -1,4 +1,4 @@
-import SoraFoundation
+import FearlessFoundation
 
 struct ValidatorListFilterViewModel {
     let filterModel: ValidatorListFilterViewModelSection?

@@ -1,8 +1,8 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import IrohaCrypto
 import BigInt
-import SoraKeystore
+import FearlessSecureStorage
 import SSFModels
 
 protocol RewardViewModelFactoryProtocol {
@@ -17,16 +17,18 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
     private let targetAssetInfo: AssetBalanceDisplayInfo
     private let formatterFactory: AssetBalanceFormatterFactoryProtocol
     private var selectedMetaAccount: MetaAccountModel
-    private let eventCenter = EventCenter.shared
+    private let eventCenter: EventCenterProtocol
 
     init(
         targetAssetInfo: AssetBalanceDisplayInfo,
         formatterFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory(),
-        selectedMetaAccount: MetaAccountModel
+        selectedMetaAccount: MetaAccountModel,
+        eventCenter: EventCenterProtocol = EventCenter.shared
     ) {
         self.targetAssetInfo = targetAssetInfo
         self.formatterFactory = formatterFactory
         self.selectedMetaAccount = selectedMetaAccount
+        self.eventCenter = eventCenter
 
         eventCenter.add(observer: self, dispatchIn: .main)
     }

@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 protocol RewardCalculatorViewDelegate: AnyObject {
     func rewardCalculatorView(_ view: StakingRewardCalculatorView, didChange amount: Decimal?)

@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 final class StakingUnbondSetupParachainViewModelFactory: StakingUnbondSetupViewModelFactoryProtocol {
     let accountViewModelFactory: AccountViewModelFactoryProtocol

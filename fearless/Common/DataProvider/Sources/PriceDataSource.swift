@@ -1,12 +1,34 @@
 import Foundation
 import sorawallet
 import RobinHood
-import SoraKeystore
+import FearlessSecureStorage
 import SSFModels
 
 enum PriceDataSourceError: Swift.Error {
     case memoryError
     case inputDataMissed
+}
+
+struct PriceDataSourceDependencies {
+    let eventCenter: EventCenterProtocol
+    let coingeckoOperationFactory: CoingeckoOperationFactoryProtocol
+    let chainlinkOperationFactory: ChainlinkOperationFactory
+    let soraOperationFactory: SoraSubqueryPriceFetcher
+    let chainRegistry: ChainRegistryProtocol
+
+    init(
+        eventCenter: EventCenterProtocol = EventCenter.shared,
+        coingeckoOperationFactory: CoingeckoOperationFactoryProtocol = CoingeckoOperationFactory(),
+        chainlinkOperationFactory: ChainlinkOperationFactory = ChainlinkOperationFactoryImpl(),
+        soraOperationFactory: SoraSubqueryPriceFetcher = SoraSubqueryPriceFetcherDefault(),
+        chainRegistry: ChainRegistryProtocol = ChainRegistryFacade.sharedRegistry
+    ) {
+        self.eventCenter = eventCenter
+        self.coingeckoOperationFactory = coingeckoOperationFactory
+        self.chainlinkOperationFactory = chainlinkOperationFactory
+        self.soraOperationFactory = soraOperationFactory
+        self.chainRegistry = chainRegistry
+    }
 }
 
 final class PriceDataSource: SingleValueProviderSourceProtocol {
@@ -19,28 +41,25 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
 
     private var currencies: [Currency]?
 
-    private let eventCenter: EventCenterProtocol = {
-        EventCenter.shared
-    }()
+    private let eventCenter: EventCenterProtocol
+    private let coingeckoOperationFactory: CoingeckoOperationFactoryProtocol
+    private let chainlinkOperationFactory: ChainlinkOperationFactory
+    private let soraOperationFactory: SoraSubqueryPriceFetcher
+    private let chainRegistry: ChainRegistryProtocol
 
-    private lazy var coingeckoOperationFactory: CoingeckoOperationFactoryProtocol = {
-        CoingeckoOperationFactory()
-    }()
+    private var chainAssets: [ChainAsset]
 
-    private lazy var chainlinkOperationFactory: ChainlinkOperationFactory = {
-        ChainlinkOperationFactoryImpl()
-    }()
-
-    private lazy var soraOperationFactory: SoraSubqueryPriceFetcher = {
-        SoraSubqueryPriceFetcherDefault()
-    }()
-
-    private let chainRegistry = ChainRegistryFacade.sharedRegistry
-
-    private lazy var chainAssets: [ChainAsset] = []
-
-    init(currencies: [Currency]?, chainAssets: [ChainAsset]) {
+    init(
+        currencies: [Currency]?,
+        chainAssets: [ChainAsset],
+        dependencies: PriceDataSourceDependencies = PriceDataSourceDependencies()
+    ) {
         self.currencies = currencies
+        eventCenter = dependencies.eventCenter
+        coingeckoOperationFactory = dependencies.coingeckoOperationFactory
+        chainlinkOperationFactory = dependencies.chainlinkOperationFactory
+        soraOperationFactory = dependencies.soraOperationFactory
+        chainRegistry = dependencies.chainRegistry
         self.chainAssets = chainAssets
 
         setup()

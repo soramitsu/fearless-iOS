@@ -1,6 +1,8 @@
 import XCTest
 @testable import fearless
+import RobinHood
 import SSFModels
+import SSFNetwork
 import SSFStorageQueryKit
 import SSFUtils
 import SSFRuntimeCodingService
@@ -17,6 +19,24 @@ final class TonChainSelectionTests: XCTestCase {
         let chainId = TonChainSelection.selectedChainId(isTestnetEnabled: false)
 
         XCTAssertEqual(chainId, "-239")
+    }
+
+    func testSelectedChainIdUsesInjectedToggleSource() {
+        let testnetSource = TonChainSelectionToggleSourceStub(
+            tonEnvListToggle: LocalListToggle.tonEnv.toggle()
+        )
+        let mainnetSource = TonChainSelectionToggleSourceStub(
+            tonEnvListToggle: LocalListToggle.tonEnv
+        )
+
+        XCTAssertEqual(
+            TonChainSelection.selectedChainId(toggleSource: testnetSource),
+            TonChainSelection.testnetChainId
+        )
+        XCTAssertEqual(
+            TonChainSelection.selectedChainId(toggleSource: mainnetSource),
+            TonChainSelection.mainnetChainId
+        )
     }
 
     func testMatchesSelectedEnvironmentReturnsTrueForTestnetChainWhenEnabled() {
@@ -57,6 +77,330 @@ final class TonChainSelectionTests: XCTestCase {
             iosMinAppVersion: nil,
             identityChain: nil
         )
+    }
+}
+
+private struct TonChainSelectionToggleSourceStub: TonChainSelection.ToggleSource {
+    let tonEnvListToggle: LocalListToggle
+}
+
+final class LocalListToggleTests: XCTestCase {
+    func testToggle_whenCalled_thenKeepsMetadataAndInvertsStorageValue() {
+        let toggle = LocalListToggle(
+            key: "feature-key",
+            title: "Feature",
+            description: "Feature description",
+            storageValue: false
+        )
+
+        let toggled = toggle.toggle()
+
+        XCTAssertEqual(toggled.key, toggle.key)
+        XCTAssertEqual(toggled.title, toggle.title)
+        XCTAssertEqual(toggled.description, toggle.description)
+        XCTAssertTrue(toggled.storageValue)
+        XCTAssertFalse(toggled.toggle().storageValue)
+    }
+}
+
+final class TonJettonInjectorTests: XCTestCase {
+    func testInjectPriceDataUsesInjectedTonToggleSource() async {
+        let repository = AsyncChainRepositoryStub(
+            models: [
+                makeTonChain(chainId: TonChainSelection.mainnetChainId, name: "TON", options: nil),
+                makeTonChain(chainId: TonChainSelection.testnetChainId, name: "TON Test", options: [.testnet])
+            ]
+        )
+        let eventCenter = TonJettonEventCenterSpy()
+        let logger = TonJettonLoggerSpy()
+        let injector = TonJettonInjectorImpl(
+            chainModelRepository: AsyncAnyRepository(repository),
+            eventCenter: eventCenter,
+            logger: logger,
+            tonChainSelectionToggleSource: TonChainSelectionToggleSourceStub(
+                tonEnvListToggle: LocalListToggle.tonEnv.toggle()
+            )
+        )
+
+        await injector.inject(tonPriceData: [
+            PriceData(
+                currencyId: "ton",
+                priceId: "ton",
+                price: "2.50",
+                fiatDayChange: Decimal(string: "1.25"),
+                coingeckoPriceId: "the-open-network"
+            )
+        ])
+
+        XCTAssertEqual(repository.fetchedIds, [TonChainSelection.testnetChainId])
+        XCTAssertEqual(repository.savedModels.map(\.chainId), [TonChainSelection.testnetChainId])
+        XCTAssertEqual(repository.savedModels.last?.utilityAssets().first?.price, Decimal(string: "2.50"))
+        XCTAssertEqual(repository.savedModels.last?.utilityAssets().first?.fiatDayChange, Decimal(string: "1.25"))
+        XCTAssertEqual(repository.savedModels.last?.utilityAssets().first?.coingeckoPriceId, "old-ton")
+        XCTAssertEqual(eventCenter.notifiedEventTypes, ["PricesUpdated"])
+        XCTAssertTrue(logger.errors.isEmpty)
+    }
+
+    private func makeTonChain(
+        chainId: ChainModel.Id,
+        name: String,
+        options: [ChainOptions]?
+    ) -> ChainModel {
+        let node = ChainNodeModel(
+            url: URL(string: "https://\(chainId.replacingOccurrences(of: "-", with: "minus")).ton.example")!,
+            name: "\(name) Node",
+            apikey: nil
+        )
+        let utilityAsset = AssetModel(
+            id: "ton",
+            name: "Toncoin",
+            symbol: "TON",
+            precision: 9,
+            currencyId: "ton",
+            isUtility: true,
+            isNative: true,
+            coingeckoPriceId: "old-ton"
+        )
+
+        return ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: chainId,
+            paraId: nil,
+            name: name,
+            assets: [utilityAsset],
+            xcm: nil,
+            nodes: Set([node]),
+            addressPrefix: 0,
+            icon: nil,
+            options: options,
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+    }
+}
+
+private final class AsyncChainRepositoryStub: AsyncCoreDataRepository {
+    typealias Model = ChainModel
+
+    private var models: [ChainModel.Id: ChainModel]
+    private(set) var fetchedIds: [ChainModel.Id] = []
+    private(set) var savedModels: [ChainModel] = []
+
+    init(models: [ChainModel]) {
+        self.models = Dictionary(uniqueKeysWithValues: models.map { ($0.chainId, $0) })
+    }
+
+    func fetch(
+        by modelIds: [String],
+        options _: RepositoryFetchOptions
+    ) async throws -> [ChainModel] {
+        fetchedIds.append(contentsOf: modelIds)
+        return modelIds.compactMap { models[$0] }
+    }
+
+    func fetch(
+        by modelId: String,
+        options _: RepositoryFetchOptions
+    ) async throws -> ChainModel? {
+        fetchedIds.append(modelId)
+        return models[modelId]
+    }
+
+    func fetchAll(with _: RepositoryFetchOptions) async throws -> [ChainModel] {
+        Array(models.values)
+    }
+
+    func save(
+        models: [ChainModel],
+        deleteIds: [String]
+    ) async {
+        savedModels.append(contentsOf: models)
+
+        deleteIds.forEach { self.models[$0] = nil }
+        models.forEach { self.models[$0.chainId] = $0 }
+    }
+}
+
+private final class TonJettonEventCenterSpy: EventCenterProtocol {
+    private(set) var notifiedEventTypes: [String] = []
+
+    func notify(with event: EventProtocol) {
+        notifiedEventTypes.append(String(describing: type(of: event)))
+    }
+
+    func add(observer _: EventVisitorProtocol, dispatchIn _: DispatchQueue?) {}
+    func remove(observer _: EventVisitorProtocol) {}
+}
+
+private final class TonJettonLoggerSpy: LoggerProtocol {
+    private(set) var errors: [Error] = []
+
+    func verbose(message _: String, file _: String, function _: String, line _: Int) {}
+    func debug(message _: String, file _: String, function _: String, line _: Int) {}
+    func info(message _: String, file _: String, function _: String, line _: Int) {}
+    func warning(message _: String, file _: String, function _: String, line _: Int) {}
+    func error(message _: String, file _: String, function _: String, line _: Int) {}
+
+    func customError(error: Error, file _: String, function _: String, line _: Int) {
+        errors.append(error)
+    }
+}
+
+final class LocalToggleServiceTests: XCTestCase {
+    private let suiteName = "Feature.Toggle.List"
+
+    override func setUp() {
+        super.setUp()
+
+        resetToggleStorage()
+    }
+
+    override func tearDown() {
+        resetToggleStorage()
+        LocalToggleService.shared.setup()
+
+        super.tearDown()
+    }
+
+    func testSetup_whenStorageIsEmpty_thenPersistsDefaultToggles() {
+        LocalToggleService.shared.setup()
+
+        XCTAssertEqual(LocalToggleService.shared.chainsListToggle?.key, LocalListToggle.chains.key)
+        XCTAssertEqual(LocalToggleService.shared.chainsListToggle?.storageValue, LocalListToggle.chains.storageValue)
+        XCTAssertEqual(LocalToggleService.shared.tonEnvListToggle.key, LocalListToggle.tonEnv.key)
+        XCTAssertEqual(LocalToggleService.shared.tonEnvListToggle.storageValue, LocalListToggle.tonEnv.storageValue)
+    }
+
+    func testToggleProperties_whenUpdated_thenPersistValuesAndDriveTonSelection() {
+        LocalToggleService.shared.setup()
+
+        LocalToggleService.shared.chainsListToggle = LocalListToggle.chains.toggle()
+        LocalToggleService.shared.tonEnvListToggle = LocalListToggle.tonEnv.toggle()
+
+        XCTAssertEqual(LocalToggleService.shared.chainsListToggle?.storageValue, false)
+        XCTAssertEqual(LocalToggleService.shared.tonEnvListToggle.storageValue, true)
+        XCTAssertEqual(TonChainSelection.selectedChainId(), TonChainSelection.testnetChainId)
+    }
+
+    private func resetToggleStorage() {
+        guard let defaults = UserDefaults(suiteName: suiteName) else {
+            XCTFail("Expected feature-toggle UserDefaults suite")
+            return
+        }
+
+        defaults.removePersistentDomain(forName: suiteName)
+        defaults.synchronize()
+    }
+}
+
+final class FeatureToggleProviderTests: XCTestCase {
+    private let configURL = URL(string: "https://example.com/feature-toggle.json")!
+
+    func testFetchConfigOperation_whenConfigURLMissing_thenReturnsDefaultAndSkipsNetwork() throws {
+        let networkFactory = FeatureToggleNetworkFactorySpy(result: FeatureToggleConfig(pendulumCaseEnabled: true, nftEnabled: false))
+        let provider = FeatureToggleProvider(
+            networkOperationFactory: networkFactory,
+            operationQueue: OperationQueue(),
+            configSource: FeatureToggleConfigSourceStub(featureToggleURL: nil)
+        )
+
+        let config = try fetchConfig(from: provider)
+
+        XCTAssertEqual(config.pendulumCaseEnabled, FeatureToggleConfig.defaultConfig.pendulumCaseEnabled)
+        XCTAssertEqual(config.nftEnabled, FeatureToggleConfig.defaultConfig.nftEnabled)
+        XCTAssertTrue(networkFactory.receivedURLs.isEmpty)
+    }
+
+    func testFetchConfigOperation_whenRemoteReturnsConfig_thenReturnsRemoteConfigAndUsesConfiguredURL() throws {
+        let remoteConfig = FeatureToggleConfig(pendulumCaseEnabled: true, nftEnabled: false)
+        let networkFactory = FeatureToggleNetworkFactorySpy(result: remoteConfig)
+        let provider = FeatureToggleProvider(
+            networkOperationFactory: networkFactory,
+            operationQueue: OperationQueue(),
+            configSource: FeatureToggleConfigSourceStub(featureToggleURL: configURL)
+        )
+
+        let config = try fetchConfig(from: provider)
+
+        XCTAssertEqual(config.pendulumCaseEnabled, remoteConfig.pendulumCaseEnabled)
+        XCTAssertEqual(config.nftEnabled, remoteConfig.nftEnabled)
+        XCTAssertEqual(networkFactory.receivedURLs, [configURL])
+    }
+
+    func testFetchConfigOperation_whenRemoteReturnsNil_thenReturnsDefaultConfig() throws {
+        let networkFactory = FeatureToggleNetworkFactorySpy(result: nil)
+        let provider = FeatureToggleProvider(
+            networkOperationFactory: networkFactory,
+            operationQueue: OperationQueue(),
+            configSource: FeatureToggleConfigSourceStub(featureToggleURL: configURL)
+        )
+
+        let config = try fetchConfig(from: provider)
+
+        XCTAssertEqual(config.pendulumCaseEnabled, FeatureToggleConfig.defaultConfig.pendulumCaseEnabled)
+        XCTAssertEqual(config.nftEnabled, FeatureToggleConfig.defaultConfig.nftEnabled)
+        XCTAssertEqual(networkFactory.receivedURLs, [configURL])
+    }
+
+    func testFetchConfigOperation_whenProviderIsReleased_thenReturnsDefaultConfig() throws {
+        var provider: FeatureToggleProvider? = FeatureToggleProvider(
+            networkOperationFactory: FeatureToggleNetworkFactorySpy(result: nil),
+            operationQueue: OperationQueue(),
+            configSource: FeatureToggleConfigSourceStub(featureToggleURL: nil)
+        )
+        let fetchOperation = provider?.fetchConfigOperation()
+
+        provider = nil
+
+        guard let fetchOperation else {
+            return XCTFail("Expected fetch operation")
+        }
+
+        OperationQueue().addOperations([fetchOperation], waitUntilFinished: true)
+        let config = try extractConfig(from: fetchOperation)
+
+        XCTAssertEqual(config.pendulumCaseEnabled, FeatureToggleConfig.defaultConfig.pendulumCaseEnabled)
+        XCTAssertEqual(config.nftEnabled, FeatureToggleConfig.defaultConfig.nftEnabled)
+    }
+
+    private func fetchConfig(from provider: FeatureToggleProvider) throws -> FeatureToggleConfig {
+        let fetchOperation = provider.fetchConfigOperation()
+
+        OperationQueue().addOperations([fetchOperation], waitUntilFinished: true)
+
+        return try extractConfig(from: fetchOperation)
+    }
+
+    private func extractConfig(from operation: BaseOperation<FeatureToggleConfig>) throws -> FeatureToggleConfig {
+        guard let result = operation.result else {
+            throw BaseOperationError.parentOperationCancelled
+        }
+
+        switch result {
+        case let .success(config):
+            return config
+        case let .failure(error):
+            throw error
+        }
+    }
+}
+
+private struct FeatureToggleConfigSourceStub: FeatureToggleConfigSource {
+    let featureToggleURL: URL?
+}
+
+private final class FeatureToggleNetworkFactorySpy: NetworkOperationFactoryProtocol {
+    private let operation: BaseOperation<FeatureToggleConfig?>
+    private(set) var receivedURLs: [URL] = []
+
+    init(result: FeatureToggleConfig?) {
+        operation = ClosureOperation<FeatureToggleConfig?> { result }
+    }
+
+    func fetchData<T: Decodable>(from url: URL) -> BaseOperation<T> {
+        receivedURLs.append(url)
+        return operation as! BaseOperation<T>
     }
 }
 
@@ -562,7 +906,7 @@ private final class AccountInfoFetchingStub: AccountInfoFetchingProtocol {
     func fetch(
         for _: ChainAsset,
         accountId _: AccountId,
-        completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
+        completionBlock _: @escaping (ChainAsset, AccountInfo?) -> Void
     ) {
         fatalError("Not used in this test")
     }

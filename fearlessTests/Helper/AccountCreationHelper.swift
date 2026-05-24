@@ -1,7 +1,7 @@
 import Foundation
 @testable import fearless
 import IrohaCrypto
-import SoraKeystore
+import FearlessSecureStorage
 import RobinHood
 import SSFUtils
 import SSFCrypto

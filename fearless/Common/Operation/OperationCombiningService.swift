@@ -38,10 +38,11 @@ final class OperationCombiningService<T>: Longrunable {
             return
         }
 
-        state = .waiting
+        state = .running
 
         do {
             let wrappers = try operationsClosure()
+            self.wrappers = wrappers
 
             if operationsPerBatch > 0, wrappers.count > operationsPerBatch {
                 for index in operationsPerBatch ..< wrappers.count {
@@ -78,6 +79,7 @@ final class OperationCombiningService<T>: Longrunable {
             operationManager.enqueue(operations: dependencies + [mapOperation], in: .transient)
 
         } catch {
+            state = .finished
             completionClosure(.failure(error))
         }
     }

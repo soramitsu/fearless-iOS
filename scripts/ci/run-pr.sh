@@ -12,6 +12,9 @@ if [[ -f "$WORKSPACE_DIR/fearless.xcworkspace/contents.xcworkspacedata" ]]; then
   fi
   # Clean previous SPM state to prevent duplicate Web3 sources
   rm -rf "$SP_DIR" || true
+  if [[ -f "$WORKSPACE_DIR/scripts/deps/enforce-ssf-pin.sh" ]]; then
+    (cd "$WORKSPACE_DIR" && bash scripts/deps/enforce-ssf-pin.sh)
+  fi
   if [[ -x "$WORKSPACE_DIR/scripts/deps/check-dependency-contracts.sh" ]]; then
     "$WORKSPACE_DIR/scripts/deps/check-dependency-contracts.sh" "$WORKSPACE_DIR"
   fi
@@ -26,7 +29,38 @@ if [[ -f "$WORKSPACE_DIR/fearless.xcworkspace/contents.xcworkspacedata" ]]; then
   fi
   if [[ -f "scripts/spm-shared-features-fixes.sh" ]]; then
     echo "[run-pr] Applying required shared-features-spm compatibility fixes"
-    SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR"
+    SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 SSF_SINGLE_VALUE_CACHE_MANUAL_CLASS=1 bash scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR"
+  fi
+  if [[ -x "scripts/deps/apply-tonapi-http-types-contract.sh" ]]; then
+    echo "[run-pr] Applying TonAPI HTTPTypes dependency contract"
+    SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 scripts/deps/apply-tonapi-http-types-contract.sh "$WORKSPACE_DIR"
+  fi
+  if [[ -x "scripts/deps/apply-reown-signer-contract.sh" ]]; then
+    echo "[run-pr] Applying Reown signer dependency contract"
+    SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 scripts/deps/apply-reown-signer-contract.sh "$WORKSPACE_DIR"
+  fi
+  if [[ -x "scripts/deps/apply-web3-nio-ssl-contract.sh" ]]; then
+    echo "[run-pr] Applying Web3 NIOSSL dependency contract"
+    SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 scripts/deps/apply-web3-nio-ssl-contract.sh "$WORKSPACE_DIR"
+  fi
+  if [[ -x "scripts/deps/apply-charts-swift6-compat.sh" ]]; then
+    echo "[run-pr] Applying Charts Swift compatibility fixes"
+    SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 scripts/deps/apply-charts-swift6-compat.sh "$WORKSPACE_DIR"
+  fi
+  if [[ -x "scripts/deps/apply-svgkit-umbrella-contract.sh" ]]; then
+    echo "[run-pr] Applying SVGKit umbrella header contract"
+    SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 scripts/deps/apply-svgkit-umbrella-contract.sh "$WORKSPACE_DIR"
+  fi
+  xcodebuild -resolvePackageDependencies \
+    -workspace "$WORKSPACE_DIR/fearless.xcworkspace" \
+    -scheme fearless \
+    -clonedSourcePackagesDirPath "$SP_DIR"
+  if [[ -f "$WORKSPACE_DIR/scripts/deps/enforce-ssf-pin.sh" ]]; then
+    echo "[run-pr] Normalizing SwiftPM resolved contracts after package patches"
+    (cd "$WORKSPACE_DIR" && bash scripts/deps/enforce-ssf-pin.sh)
+  fi
+  if [[ -x "$WORKSPACE_DIR/scripts/deps/check-swiftpm-consistency.sh" ]]; then
+    "$WORKSPACE_DIR/scripts/deps/check-swiftpm-consistency.sh" "$WORKSPACE_DIR"
   fi
 else
   echo "[run-pr] ERROR: Workspace not found at $WORKSPACE_DIR/fearless.xcworkspace" >&2
@@ -51,6 +85,9 @@ case "$(uname -m)" in
 esac
 echo "[run-pr] Using simulator destination: ${SIM_DEST}"
 
+echo "[run-pr] Verifying local Swift packages"
+LOCAL_PACKAGE_DESTINATION="$SIM_DEST" "$WORKSPACE_DIR/scripts/test-local-packages.sh" "$WORKSPACE_DIR"
+
 echo "[run-pr] Building Debug on iOS Simulator"
 if xcodebuild -workspace "$WORKSPACE_DIR/fearless.xcworkspace" \
   -scheme fearless \
@@ -67,6 +104,10 @@ if xcodebuild -workspace "$WORKSPACE_DIR/fearless.xcworkspace" \
     test
 else
   echo "[run-pr] Simulator build failed; falling back to device build (signing disabled)"
+  if [[ -f "$WORKSPACE_DIR/scripts/spm-shared-features-fixes.sh" ]]; then
+    echo "[run-pr] Removing simulator-only shared-features shims before device fallback"
+    SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash "$WORKSPACE_DIR/scripts/spm-shared-features-fixes.sh" "$WORKSPACE_DIR"
+  fi
   xcodebuild -workspace "$WORKSPACE_DIR/fearless.xcworkspace" \
     -scheme fearless \
     -configuration Debug \

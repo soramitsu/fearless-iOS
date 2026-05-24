@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 typealias Batch = [PayoutInfo]

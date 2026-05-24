@@ -1,5 +1,5 @@
 import BigInt
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<SubqueryRewardItemData>,

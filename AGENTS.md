@@ -3,23 +3,25 @@
 <!-- wallet-context:start -->
 > About this codebase  
 > This repository contains the codebase for a cryptocurrency wallet compatible with the Polkadot ecosystem (and related networks).  
-> It uses dependencies available in the iOS ecosystem (e.g., SoraFoundation, SoraKeystore, FearlessKeys) and has an Android counterpart in soramitsu/fearless-Android.
+> It uses Swift Package Manager dependencies and local support packages (e.g., FearlessFoundation, FearlessSecureStorage, FearlessDependencies) and has an Android counterpart in soramitsu/fearless-Android.
 <!-- wallet-context:end -->
 
 ## Project Structure & Modules
 - `fearless/`: App sources, split by features/modules.
+- `Packages/`: Local Swift packages and package-level dependency aggregation.
 - `fearlessTests/`, `fearlessIntegrationTests/`: Unit/integration tests.
 - `fearless.xcworkspace`, `fearless.xcodeproj`: Xcode workspace/project files.
-- `Pods/`, `Podfile`, `Podfile.lock`: CocoaPods dependencies.
-- `Jenkinsfile`: CI pipeline configuration.
 - Config files: `.swiftlint.yml`, `.swiftformat`, `.periphery.yml`.
 
 ## Build, Test, and Dev Commands
-- Install dependencies: `pod install`
+- Install/validate dependencies: `bash scripts/ci/bootstrap.sh`
+- Resolve packages: `xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless`
 - Build (Debug, simulator):
   - `xcodebuild -workspace fearless.xcworkspace -scheme fearless -configuration Debug -destination 'platform=iOS Simulator,OS=latest,name=iPhone 15' build`
 - Run unit tests (on simulator):
   - `xcodebuild -workspace fearless.xcworkspace -scheme fearless.tests -destination 'platform=iOS Simulator,OS=latest,name=iPhone 15' test`
+- Verify first-party Swift packages:
+  - `bash scripts/test-local-packages.sh`
 - Lint/format:
   - `swiftlint` (uses `.swiftlint.yml`)
   - `swiftformat .` (uses `.swiftformat`)
@@ -33,7 +35,7 @@ Example destinations
 Tip: list available destinations with `xcodebuild -showsdks` and `xcrun simctl list devices`.
 
 CI note
-- Jenkins is configured to run tests on each build. For deterministic local parity, use `scripts/test-matrix.sh` before opening a PR.
+- GitHub Actions/Codecov run package bootstrap and simulator tests. For deterministic local parity, use `scripts/test-matrix.sh` before opening a PR.
 
 ## Coding Style & Naming
 - Language: Swift; follow Swift API design guidelines.
@@ -52,7 +54,7 @@ CI note
 - Commits: concise, imperative subjects; reference issues (`#123`). Conventional Commit prefixes (`feat:`, `fix:`, `refactor:`) encouraged.
 - Before PR: ensure build + tests pass locally; `swiftlint`/`swiftformat` are clean.
 - PR checklist: clear description, linked issue, screenshots/video for UI, steps to test, risk/rollback notes.
-- CI must be green (Jenkins or equivalent).
+- CI must be green.
 
 ## Security & Configuration
 - Never commit secrets or private keys. Use Keychain/secure storage at runtime; use CI secrets for pipelines.
@@ -96,20 +98,18 @@ By following these guidelines, agents help keep Fearless Wallet iOS healthy, pre
 
 ## Build & Archive — End‑to‑End Checklist
 
-The project mixes CocoaPods and Swift Package Manager. Follow these steps in order.
+The project is Swift Package Manager based. Follow these steps in order.
 
 1) Prerequisites (local dev)
 - Xcode 15.4+ (Xcode 18 SDK supported; CI pins 15.x when available for SPM/IrohaCrypto stability)
-- CocoaPods: `brew install cocoapods` (or `gem install cocoapods`)
 - SwiftFormat, SwiftLint (optional for local): `brew install swiftformat swiftlint`
 
-2) Install Pods (always open the workspace)
-- From repo root: `pod install`
-- Open: `open fearless.xcworkspace`
-
-3) Resolve SPM packages
+2) Resolve SPM packages
 - CLI: `xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless`
 - Xcode GUI: File → Packages → Reset Package Caches → Resolve Package Versions (if needed)
+
+3) Bootstrap dependency contracts
+- From repo root: `bash scripts/ci/bootstrap.sh`
 
 4) Build & test on Simulator (no signing)
 - Build: `xcodebuild -workspace fearless.xcworkspace -scheme fearless -configuration Debug -destination 'platform=iOS Simulator,OS=latest,name=iPhone 15' build`
@@ -123,11 +123,8 @@ The project mixes CocoaPods and Swift Package Manager. Follow these steps in ord
   - Requirements on the machine: Apple Distribution certificate for team `YLWWUD25VZ` + ad‑hoc profile `fearlesswallet-dev-adhoc` installed.
   - Project Dev config must be Manual + Apple Distribution + `jp.co.soramitsu.fearlesswallet.dev` + `PROVISIONING_PROFILE_SPECIFIER=fearlesswallet-dev-adhoc`.
 
-6) Private pods (FearlessKeys)
-- The pod `FearlessKeys` is private. To allow `pod install` on CI/local without prompting:
-  - Provide a GitHub Personal Access Token with repo read access (recommended env var: `GH_PAT_READ`).
-  - Preconfigure git on the agent: `git config --global url."https://${GH_PAT_READ}@github.com/".insteadOf "https://github.com/"` (or run `scripts/secrets/setup-private-pods.sh` which does this for you and writes `.env.private` with `INCLUDE_FEARLESS_KEYS=1`).
-  - Alternatively, write a `~/.netrc` with GitHub credentials (read-only).
+6) Runtime keys
+- CI/app keys are read from environment-backed build settings and local `*.xcconfig` values. Do not hardcode secrets in source or `Info.plist`.
 
 7) IrohaCrypto + SPM stability (Xcode 16/18)
 - The SPM package `shared-features-spm` must be pinned to a revision that works with Xcode 16/18 (`3ad0fe9…`). We now enforce this automatically via `scripts/deps/enforce-ssf-pin.sh` in CI (`bootstrap.sh`), local dev (`dev-setup.sh`), and tests (`test-matrix.sh`).
@@ -139,22 +136,19 @@ The project mixes CocoaPods and Swift Package Manager. Follow these steps in ord
   - `scripts/deps/apply-native-crypto-modulemap-contract.sh`
   - `scripts/deps/verify-native-crypto-package-state.sh`
 - Additional required `shared-features-spm` compatibility fixes (BigInt dep, Web3 Data.bytes, AddressFactory type usage, scrypt guard) are applied by `scripts/spm-shared-features-fixes.sh`.
+- The bundled simulator x86_64 slices for native crypto are incomplete; simulator builds exclude x86_64 and use arm64.
 
 8) Web3 duplication
 - The project uses `soramitsu/web3-swift@7.7.7`. Do not add another Web3 source; duplicate packages will cause resolver failure.
 
-## CI Build Requirements (Jenkins)
+## CI Build Requirements
 
-- CocoaPods available on agents (or handled in a shared pipeline step). If Pods are installed elsewhere, our Jenkinsfile guards will skip `pod install` gracefully.
 - Environment variables:
-  - `GH_PAT_READ` (optional): GitHub PAT for private pods (`FearlessKeys`).
-  - `DEVELOPER_DIR` (optional): Jenkinsfile auto‑pins to Xcode 15.x if present for SPM stability; otherwise default Xcode is used.
-- Private keys in PRs:
-  - PR builds do NOT require private keys. The Jenkinsfile detects PR context (`CHANGE_ID`) and temporarily comments out the `pod 'FearlessKeys'` line before `pod install`, then restores the file. This prevents private repo access and allows PRs to build without secrets.
-  - Trusted branches (develop/master/release): Jenkins sets `INCLUDE_FEARLESS_KEYS=1` and, if `GH_PAT_READ` is present, rewrites GitHub URLs to use the token so `pod install` can fetch `FearlessKeys`.
+  - `GH_READ_TOKEN` (optional): GitHub token for authenticated SwiftPM fetches from Soramitsu-owned repositories.
+  - `DEVELOPER_DIR` (optional): pin Xcode when the agent has multiple installations.
 - Steps performed before archive:
   - Clean SPM caches; resolve packages if the workspace exists.
-  - Configure GitHub token (if provided) and run `pod install --repo-update` when `pod` is available.
+  - Configure GitHub token if provided.
   - Prepare the native crypto checkout against the repo-owned contract when required by the resolved package state.
 - Fastlane lane archives Dev as Ad‑hoc with mapping:
   - `jp.co.soramitsu.fearlesswallet.dev` → `fearlesswallet-dev-adhoc`
@@ -166,7 +160,7 @@ The project mixes CocoaPods and Swift Package Manager. Follow these steps in ord
 - “Missing package product ‘MPQRCoreSDK’”: resolve SPM; reset SPM caches; ensure network access for binary targets.
 - “umbrella header … IrohaCrypto-umbrella.h not found”: use the pinned `shared-features-spm` revision and run the dedicated native crypto contract scripts / verifier.
 - “multiple similar targets ‘Web3’ …”: dedupe to `soramitsu/web3-swift@7.7.7` only.
-- “pod install” fails cloning FearlessKeys: supply `GH_PAT_READ` or gate that pod in CI.
+- Native crypto undefined symbols on x86_64 simulator: build arm64 simulator; the app xcconfigs exclude x86_64 for simulator SDKs.
 - “Ambiguous type ‘MetaAccountModel’ / ‘ChainAccountResponse’ in tests”: tests include `fearlessTests/Helper/TestTypeAliases.swift` to resolve ambiguity to app models. If you add conflicting SDK types, keep this shim or qualify uses (`fearless.MetaAccountModel`).
 - “JSONRPCEngine conformance missing in tests”: `fearlessTests/Common/Services/ChainRegistry/MockConnection.swift` provides a test engine conforming to the current `JSONRPCEngine` protocol. If the protocol changes upstream, adjust this file accordingly.
 

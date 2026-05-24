@@ -1,5 +1,5 @@
 import UIKit
-import SoraKeystore
+import FearlessSecureStorage
 import SSFModels
 
 enum AccountScoreRate {

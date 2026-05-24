@@ -1,6 +1,6 @@
 import Foundation
 import IrohaCrypto
-import SoraFoundation
+import FearlessFoundation
 
 final class ExportMnemonicConfirmViewFactory: ExportMnemonicConfirmViewFactoryProtocol {
     static func createViewForMnemonic(

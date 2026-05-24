@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import SSFUtils
 
 final class ProfileViewController: UIViewController, ViewHolder {

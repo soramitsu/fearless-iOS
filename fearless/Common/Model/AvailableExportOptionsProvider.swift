@@ -1,4 +1,4 @@
-import SoraKeystore
+import FearlessSecureStorage
 protocol AvailableExportOptionsProviderProtocol {
     func getAvailableExportOptions(
         for account: MetaAccountModel,

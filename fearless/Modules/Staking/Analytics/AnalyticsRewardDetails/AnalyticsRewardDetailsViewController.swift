@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class AnalyticsRewardDetailsViewController: UIViewController, ViewHolder {
     typealias RootViewType = AnalyticsRewardDetailsViewLayout

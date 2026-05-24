@@ -1,7 +1,7 @@
 import UIKit
 import RobinHood
 import IrohaCrypto
-import SoraKeystore
+import FearlessSecureStorage
 import SSFUtils
 import SSFModels
 import SSFRuntimeCodingService

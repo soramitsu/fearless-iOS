@@ -76,7 +76,13 @@ extension StakingRebondConfirmationPresenter: StakingRebondConfirmationPresenter
         guard let view = view, let address = viewModelState.selectableAccountAddress else { return }
 
         let locale = view.localizationManager?.selectedLocale ?? Locale.current
-        wireframe.presentAccountOptions(from: view, address: address, chain: chainAsset.chain, locale: locale)
+        wireframe.presentAccountOptions(
+            from: view,
+            address: address,
+            chain: chainAsset.chain,
+            locale: locale,
+            exportClosure: nil
+        )
     }
 }
 

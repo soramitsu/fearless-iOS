@@ -34,10 +34,13 @@ extension UIAlertController {
         alertController.addAction(copy)
 
         chain.externalApi?.explorers?.forEach { explorer in
-            guard let url = explorer.explorerUrl(for: address, type: .address) else {
+            guard
+                explorer.supportsAccountLookup,
+                let url = explorer.accountUrl(for: address)
+            else {
                 return
             }
-            let title = explorer.type.actionTitle().value(for: locale)
+            let title = explorer.actionTitle().value(for: locale)
             let action = UIAlertAction(title: title, style: .default) { _ in
                 urlClosure(url)
             }

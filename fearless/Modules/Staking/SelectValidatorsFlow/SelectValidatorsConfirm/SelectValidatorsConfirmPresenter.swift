@@ -88,7 +88,8 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmPresenterProt
                 from: view,
                 address: walletAddress,
                 chain: chainAsset.chain,
-                locale: locale
+                locale: locale,
+                exportClosure: nil
             )
         }
     }
@@ -105,7 +106,8 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmPresenterProt
                 from: view,
                 address: address,
                 chain: chainAsset.chain,
-                locale: locale
+                locale: locale,
+                exportClosure: nil
             )
         }
     }
@@ -122,7 +124,8 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmPresenterProt
                 from: view,
                 address: address,
                 chain: chainAsset.chain,
-                locale: locale
+                locale: locale,
+                exportClosure: nil
             )
         }
     }

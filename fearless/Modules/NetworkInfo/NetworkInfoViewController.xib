@@ -28,7 +28,7 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SZx-HO-Kbp" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
                     <rect key="frame" x="16" y="152" width="343" height="52"/>
                     <subviews>
-                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SAz-7m-UGT" customClass="AnimatedTextField" customModule="SoraUI">
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SAz-7m-UGT" customClass="AnimatedTextField" customModule="FearlessUI">
                             <rect key="frame" x="0.0" y="0.0" width="287" height="52"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <userDefinedRuntimeAttributes>
@@ -135,7 +135,7 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tqM-kh-6Wz" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
                     <rect key="frame" x="16" y="84" width="343" height="52"/>
                     <subviews>
-                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="U75-aQ-sz9" customClass="AnimatedTextField" customModule="SoraUI">
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="U75-aQ-sz9" customClass="AnimatedTextField" customModule="FearlessUI">
                             <rect key="frame" x="0.0" y="0.0" width="343" height="52"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <userDefinedRuntimeAttributes>

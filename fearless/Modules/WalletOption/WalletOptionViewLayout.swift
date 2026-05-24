@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 final class WalletOptionViewLayout: UIView {
     private enum Constants {

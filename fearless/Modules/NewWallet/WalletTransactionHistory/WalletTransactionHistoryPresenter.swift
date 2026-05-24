@@ -1,6 +1,6 @@
 import Foundation
 
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 final class WalletTransactionHistoryPresenter {
@@ -48,7 +48,11 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
             return
         }
 
-        let filter = WalletTransactionHistoryFilter(type: type, selected: true)
+        let filter = WalletTransactionHistoryFilter(
+            type: type,
+            selected: true,
+            preferredLanguages: selectedLocale.rLanguages
+        )
         let filters = [FilterSet(title: nil, items: [filter])]
         interactor.applyFilters(filters)
     }

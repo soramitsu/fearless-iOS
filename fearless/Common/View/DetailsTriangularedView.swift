@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 // swiftlint:disable type_body_length
 class DetailsTriangularedView: BackgroundedContentControl, ShimmeredProtocol {

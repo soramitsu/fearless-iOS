@@ -1,6 +1,6 @@
 import UIKit
-import SoraFoundation
-import SoraKeystore
+import FearlessFoundation
+import FearlessSecureStorage
 
 // swiftlint:disable function_body_length
 final class StakingPoolCreateConfirmAssembly {

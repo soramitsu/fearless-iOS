@@ -8,16 +8,18 @@ protocol WalletConnectDisconnectService {
 }
 
 final class WalletConnectDisconnectServiceImpl: WalletConnectDisconnectService {
-    private let walletConnectService = WalletConnectServiceImpl.shared
+    private let walletConnectService: WalletConnectService
     private let walletConnectModelFactory: WalletConnectModelFactory
     private let chainAssetFetcher: ChainAssetFetchingProtocol
 
     init(
         walletConnectModelFactory: WalletConnectModelFactory,
-        chainAssetFetcher: ChainAssetFetchingProtocol
+        chainAssetFetcher: ChainAssetFetchingProtocol,
+        walletConnectService: WalletConnectService = WalletConnectServiceImpl.shared
     ) {
         self.walletConnectModelFactory = walletConnectModelFactory
         self.chainAssetFetcher = chainAssetFetcher
+        self.walletConnectService = walletConnectService
     }
 
     // MARK: - WalletConnectDisconnectService

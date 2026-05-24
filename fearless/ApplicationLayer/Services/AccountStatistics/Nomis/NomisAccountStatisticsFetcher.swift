@@ -5,16 +5,25 @@ enum NomisAccountStatisticsFetcherError: Error {
     case badBaseURL
 }
 
+protocol NomisAccountStatisticsConfigSource {
+    var nomisAccountScoreURL: URL { get }
+}
+
+extension ApplicationConfig: NomisAccountStatisticsConfigSource {}
+
 final class NomisAccountStatisticsFetcher {
     private let networkWorker: NetworkWorkerDefault
     private let signer: RequestSigner
+    private let configSource: NomisAccountStatisticsConfigSource
 
     init(
         networkWorker: NetworkWorkerDefault,
-        signer: RequestSigner
+        signer: RequestSigner,
+        configSource: NomisAccountStatisticsConfigSource = ApplicationConfig.shared
     ) {
         self.networkWorker = networkWorker
         self.signer = signer
+        self.configSource = configSource
     }
 }
 
@@ -23,7 +32,7 @@ extension NomisAccountStatisticsFetcher: AccountStatisticsFetching {
         address: String
     ) async throws -> AsyncThrowingStream<AccountStatisticsResponse, Error> {
         let request = try NomisAccountStatisticsRequest(
-            baseURL: ApplicationConfig.shared.nomisAccountScoreURL,
+            baseURL: configSource.nomisAccountScoreURL,
             address: address,
             endpoint: "score"
         )
@@ -44,7 +53,7 @@ extension NomisAccountStatisticsFetcher: AccountStatisticsFetching {
 
     func fetchStatistics(address: String) async throws -> AccountStatisticsResponse? {
         let request = try NomisAccountStatisticsRequest(
-            baseURL: ApplicationConfig.shared.nomisAccountScoreURL,
+            baseURL: configSource.nomisAccountScoreURL,
             address: address,
             endpoint: "score"
         )

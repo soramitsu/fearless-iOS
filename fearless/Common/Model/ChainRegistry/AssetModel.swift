@@ -1,9 +1,31 @@
 import Foundation
 import RobinHood
 import SSFModels
-import SoraFoundation
+import FearlessFoundation
 
 public extension AssetModel {
+    func getPrice(for currency: Currency) -> PriceData? {
+        guard let price, let priceId else {
+            return nil
+        }
+
+        return PriceData(
+            currencyId: currency.id,
+            priceId: priceId,
+            price: price.stringWithPointSeparator,
+            fiatDayChange: fiatDayChange,
+            coingeckoPriceId: coingeckoPriceId
+        )
+    }
+
+    func getPrice(for currency: Any) -> PriceData? {
+        guard let currency = currency as? Currency else {
+            return nil
+        }
+
+        return getPrice(for: currency)
+    }
+
     var displayInfo: AssetBalanceDisplayInfo {
         AssetBalanceDisplayInfo(
             displayPrecision: 5,

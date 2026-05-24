@@ -1,5 +1,5 @@
 import Foundation
-import SoraUI
+import FearlessUI
 
 public protocol AccessoryViewProtocol: AnyObject {
     var contentView: UIView { get }

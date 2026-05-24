@@ -1,10 +1,10 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFXCM
 import SSFChainRegistry
 import SSFModels
 import SSFCrypto
-import SoraKeystore
+import FearlessSecureStorage
 import SSFUtils
 
 final class CrossChainDepsContainer {

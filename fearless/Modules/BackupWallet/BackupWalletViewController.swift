@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 protocol BackupWalletViewOutput: AnyObject {
     func didLoad(view: BackupWalletViewInput)

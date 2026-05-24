@@ -1,6 +1,6 @@
 import Foundation
 import SSFModels
-import SoraFoundation
+import FearlessFoundation
 
 final class BalanceLocksDetailPresenter {
     // MARK: Private properties

@@ -3,7 +3,7 @@ import XCTest
 import SSFModels
 import BigInt
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 import RobinHood
 
 class ChainSelectionTests: XCTestCase {
@@ -40,8 +40,6 @@ class ChainSelectionTests: XCTestCase {
 
         let saveChainsOperation = repository.saveOperation( { chains }, { [] })
         operationQueue.addOperations([saveChainsOperation], waitUntilFinished: true)
-
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactoryStub()
 
         let adapter = MockAccountInfoSubscriptionAdapter()
         let interactor = ChainSelectionInteractor(

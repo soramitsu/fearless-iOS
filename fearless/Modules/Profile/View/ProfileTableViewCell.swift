@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 final class ProfileTableViewCell: UITableViewCell {
     @IBOutlet private var iconImageView: UIImageView!

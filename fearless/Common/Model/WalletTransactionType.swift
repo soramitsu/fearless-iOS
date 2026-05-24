@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 public struct WalletTransactionType: Equatable {
     public let backendName: String

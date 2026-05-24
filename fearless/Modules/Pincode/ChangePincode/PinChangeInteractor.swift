@@ -1,5 +1,5 @@
 import Foundation
-import SoraKeystore
+import FearlessSecureStorage
 
 final class PinChangeInteractor {
     weak var presenter: PinSetupInteractorOutputProtocol?

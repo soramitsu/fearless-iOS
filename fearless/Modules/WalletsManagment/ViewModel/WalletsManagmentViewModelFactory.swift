@@ -1,7 +1,7 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
-import SoraKeystore
+import FearlessSecureStorage
 
 protocol WalletsManagmentViewModelFactoryProtocol {
     func buildViewModel(

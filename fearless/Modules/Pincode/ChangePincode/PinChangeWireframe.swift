@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 final class PinChangeWireframe: PinSetupWireframeProtocol, ModalAlertPresenting {
     let localizationManager: LocalizationManagerProtocol

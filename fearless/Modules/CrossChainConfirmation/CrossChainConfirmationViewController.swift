@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 protocol CrossChainConfirmationViewOutput: AnyObject {
     func didLoad(view: CrossChainConfirmationViewInput)

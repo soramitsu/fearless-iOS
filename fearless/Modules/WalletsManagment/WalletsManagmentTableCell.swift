@@ -1,6 +1,6 @@
 import Foundation
 import UIKit
-import SoraUI
+import FearlessUI
 
 protocol WalletsManagmentTableCellDelegate: AnyObject {
     func didTapOptionsCell(with indexPath: IndexPath?)

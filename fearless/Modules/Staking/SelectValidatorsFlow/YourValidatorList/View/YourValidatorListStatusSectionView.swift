@@ -1,6 +1,6 @@
 import UIKit
-import SoraUI
-import SoraFoundation
+import FearlessUI
+import FearlessFoundation
 
 class YourValidatorListStatusSectionView: YourValidatorListDescSectionView {
     let statusView: IconTitleValueView = {

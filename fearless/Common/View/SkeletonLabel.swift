@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 class SkeletonLabel: UILabel, SkeletonLoadableView {
     var container: UIView {

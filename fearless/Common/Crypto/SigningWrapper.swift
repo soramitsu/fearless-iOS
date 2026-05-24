@@ -1,6 +1,6 @@
 import Foundation
 import IrohaCrypto
-import SoraKeystore
+import FearlessSecureStorage
 import SSFUtils
 import SSFModels
 

@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class NftDetailsViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = NftDetailsViewLayout

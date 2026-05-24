@@ -1,6 +1,6 @@
 import UIKit
 import Rswift
-import SoraFoundation
+import FearlessFoundation
 
 final class ChainSelectionViewController: SelectionListViewController<SelectionIconDetailsTableViewCell> {
     override var selectableCellIdentifier: ReuseIdentifier<SelectionIconDetailsTableViewCell>! {

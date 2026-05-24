@@ -13,9 +13,7 @@ extension ArrowsquidHistoryResponse: RewardOrSlashResponse {
 
 struct ArrowsquidHistoryElement: Decodable, RewardOrSlashData {
     var timestamp: String {
-        let df = DateFormatter.giantsquidDate
-        let date = Date(timeIntervalSince1970: TimeInterval(timestampValue))
-        return df.value(for: Locale.current).string(from: date)
+        DateFormatter.networkTimestampString(from: timestampValue, using: DateFormatter.giantsquidDate)
     }
 
     enum CodingKeys: String, CodingKey {

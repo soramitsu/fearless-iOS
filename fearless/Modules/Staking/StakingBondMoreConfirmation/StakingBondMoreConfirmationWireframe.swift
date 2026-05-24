@@ -1,4 +1,4 @@
-import SoraUI
+import FearlessUI
 import SSFModels
 
 final class StakingBondMoreConfirmationWireframe: StakingBondMoreConfirmationWireframeProtocol,

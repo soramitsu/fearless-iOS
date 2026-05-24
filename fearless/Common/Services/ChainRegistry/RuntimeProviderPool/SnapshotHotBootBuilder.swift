@@ -8,6 +8,13 @@ protocol SnapshotHotBootBuilderProtocol {
     func startHotBoot()
 }
 
+protocol SnapshotHotBootConfigSource {
+    var chainsSourceUrl: URL { get }
+    var chainTypesSourceUrl: URL { get }
+}
+
+extension ApplicationConfig: SnapshotHotBootConfigSource {}
+
 final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
     private let runtimeProviderPool: RuntimeProviderPoolProtocol
     private let chainRepository: AnyDataProviderRepository<ChainModel>
@@ -16,6 +23,7 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
     private let dataOperationFactory: NetworkOperationFactoryProtocol
     private let operationQueue: OperationQueue
     private let logger: Logger
+    private let configSource: SnapshotHotBootConfigSource
 
     init(
         runtimeProviderPool: RuntimeProviderPoolProtocol,
@@ -24,7 +32,8 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
         runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>,
         dataOperationFactory: NetworkOperationFactoryProtocol,
         operationQueue: OperationQueue,
-        logger: Logger
+        logger: Logger,
+        configSource: SnapshotHotBootConfigSource = ApplicationConfig.shared
     ) {
         self.runtimeProviderPool = runtimeProviderPool
         self.chainRepository = chainRepository
@@ -33,13 +42,14 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
         self.dataOperationFactory = dataOperationFactory
         self.operationQueue = operationQueue
         self.logger = logger
+        self.configSource = configSource
     }
 
     // MARK: - Public
 
     func startHotBoot() {
-        let chainsTypesUrl = ApplicationConfig.shared.chainTypesSourceUrl
-        let chainsUrl = ApplicationConfig.shared.chainsSourceUrl
+        let chainsTypesUrl = configSource.chainTypesSourceUrl
+        let chainsUrl = configSource.chainsSourceUrl
         let chainsTypesFetchOperation = fetchChainsTypes(url: chainsTypesUrl)
         let runtimeItemsOperation = runtimeItemRepository.fetchAllOperation(with: RepositoryFetchOptions())
         let chainModelOperation = fetchChains(url: chainsUrl)
@@ -136,13 +146,8 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
         let remoteChainsDataOperation: BaseOperation<Data> = dataOperationFactory.fetchData(from: url)
         let remoteChainsOperation: BaseOperation<[ChainModel]> = ClosureOperation {
             let data = try remoteChainsDataOperation.extractNoCancellableResultData()
-
-            do {
-                return try JSONDecoder().decode([ChainModel].self, from: data)
-            } catch {
-                let coerced = try ChainSyncService.coerceChainsPayloadForCompatibility(data)
-                return try JSONDecoder().decode([ChainModel].self, from: coerced)
-            }
+            let coerced = try ChainSyncService.coerceChainsPayloadForCompatibility(data)
+            return try JSONDecoder().decode([ChainModel].self, from: coerced)
         }
 
         remoteChainsOperation.configurationBlock = { [weak self] in

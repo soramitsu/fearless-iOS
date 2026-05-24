@@ -4,21 +4,44 @@ import RobinHood
     import SSFAssetManagmentStorage
 #endif
 
-class GitHubPhishingServiceFactory {
-    static func createService() -> ApplicationServiceProtocol {
-        let storage: CoreDataRepository<PhishingItem, SSFAssetManagmentStorage.CDPhishingItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
-        let config: ApplicationConfigProtocol = ApplicationConfig.shared
-        let url = config.phishingListURL
+protocol PhishingListConfigSource {
+    var phishingListURL: URL { get }
+}
 
-        let networkOoperationFactory = GitHubOperationFactory()
-        let operationManager = OperationManagerFacade.sharedManager
+extension ApplicationConfig: PhishingListConfigSource {}
+
+struct GitHubPhishingServiceFactoryDependencies {
+    let configSource: PhishingListConfigSource
+    let storageFacade: StorageFacadeProtocol
+    let operationFactory: GitHubOperationFactoryProtocol
+    let operationManager: OperationManagerProtocol
+
+    init(
+        configSource: PhishingListConfigSource = ApplicationConfig.shared,
+        storageFacade: StorageFacadeProtocol = SubstrateDataStorageFacade.shared,
+        operationFactory: GitHubOperationFactoryProtocol = GitHubOperationFactory(),
+        operationManager: OperationManagerProtocol = OperationManagerFacade.sharedManager
+    ) {
+        self.configSource = configSource
+        self.storageFacade = storageFacade
+        self.operationFactory = operationFactory
+        self.operationManager = operationManager
+    }
+}
+
+enum GitHubPhishingServiceFactory {
+    static func createService(
+        dependencies: GitHubPhishingServiceFactoryDependencies = GitHubPhishingServiceFactoryDependencies()
+    ) -> ApplicationServiceProtocol {
+        let storage: CoreDataRepository<PhishingItem, SSFAssetManagmentStorage.CDPhishingItem> =
+            dependencies.storageFacade.createRepository()
+        let url = dependencies.configSource.phishingListURL
 
         let gitHubPhishingService: ApplicationServiceProtocol =
             GitHubPhishingAPIService(
                 url: url,
-                operationFactory: networkOoperationFactory,
-                operationManager: operationManager,
+                operationFactory: dependencies.operationFactory,
+                operationManager: dependencies.operationManager,
                 storage: storage
             )
 

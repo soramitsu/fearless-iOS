@@ -159,7 +159,7 @@ final class AllDoneViewLayout: UIView {
         shareButton.isHidden = explorer == nil
 
         if let explorer = explorer {
-            subscanButton.imageWithTitleView?.title = explorer.type.rawValue.capitalized
+            subscanButton.imageWithTitleView?.title = explorer.displayName
         }
     }
 

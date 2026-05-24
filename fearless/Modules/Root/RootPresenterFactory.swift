@@ -1,6 +1,6 @@
 import UIKit
-import SoraKeystore
-import SoraFoundation
+import FearlessSecureStorage
+import FearlessFoundation
 import RobinHood
 import SSFNetwork
 
@@ -16,22 +16,27 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         let onboardingService: OnboardingServiceProtocol
         let onboardingConfigResolver: OnboardingConfigVersionResolver
         let keystore: KeystoreProtocol
+        let urlHandlingRegistry: URLHandlingRegistryProtocol
+        let keystoreImportServiceFactory: () -> KeystoreImportServiceProtocol
 
         static var `default`: Dependencies {
-            Dependencies(
+            let logger = Logger.shared
+
+            return Dependencies(
                 settings: SettingsManager.shared,
                 selectedWalletSettings: SelectedWalletSettings.shared,
                 chainRegistry: ChainRegistryFacade.sharedRegistry,
                 applicationConfig: ApplicationConfig.shared,
                 eventCenter: EventCenter.shared,
-                logger: Logger.shared,
+                logger: logger,
                 localizationManager: LocalizationManager.shared,
-                onboardingService: OnboardingService(
-                    networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
-                    operationQueue: OperationQueue()
-                ),
+                onboardingService: OnboardingService(),
                 onboardingConfigResolver: OnboardingConfigVersionResolver(userDefaultsStorage: SettingsManager.shared),
-                keystore: Keychain()
+                keystore: Keychain(),
+                urlHandlingRegistry: URLHandlingDependencies.registry,
+                keystoreImportServiceFactory: {
+                    KeystoreImportService(logger: logger)
+                }
             )
         }
     }
@@ -89,7 +94,9 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             migrators: migrators,
             logger: dependencies.logger,
             onboardingService: dependencies.onboardingService,
-            onboardingConfigResolver: dependencies.onboardingConfigResolver
+            onboardingConfigResolver: dependencies.onboardingConfigResolver,
+            urlHandlingRegistry: dependencies.urlHandlingRegistry,
+            keystoreImportServiceFactory: dependencies.keystoreImportServiceFactory
         )
 
         let view = RootViewController(

@@ -1,4 +1,4 @@
-import SoraFoundation
+import FearlessFoundation
 
 struct AnalyticsRewardsViewModel: AnalyticsBaseViewModel, Equatable {
     let chartData: ChartData

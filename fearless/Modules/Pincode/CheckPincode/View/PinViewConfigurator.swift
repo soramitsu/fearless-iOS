@@ -1,5 +1,5 @@
 import Foundation
-import SoraUI
+import FearlessUI
 
 enum PinViewConfigurator {
     static func defaultPinView() -> PinView {

@@ -1,6 +1,6 @@
 import UIKit
-import SoraFoundation
-import SoraKeystore
+import FearlessFoundation
+import FearlessSecureStorage
 import RobinHood
 import SSFUtils
 
@@ -27,9 +27,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
                 serviceCoordinatorBuilder: { metaAccount, walletConnect in
                     ServiceCoordinator.createDefault(with: metaAccount, walletConnect: walletConnect)
                 },
-                keystoreImportServiceProvider: {
-                    URLHandlingService.shared.findService()
-                },
+                keystoreImportServiceProvider: URLHandlingDependencies.keystoreImportService,
                 applicationHandlerBuilder: {
                     ApplicationHandler()
                 }

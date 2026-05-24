@@ -1,9 +1,6 @@
 import Foundation
 import SSFModels
 import RobinHood
-#if canImport(FearlessKeys)
-    import FearlessKeys
-#endif
 
 enum AlchemyNFTOperationFactoryError: Error {
     case chainUnsupported(name: String)
@@ -12,34 +9,46 @@ enum AlchemyNFTOperationFactoryError: Error {
 }
 
 final class AlchemyNFTOperationFactory {
-    // MARK: Collections for owner
+    private let apiKeySource: AlchemyAPIKeySource
 
-    private var alchemyApiKey: String {
-        #if DEBUG
-            return ThirdPartyServicesApiKeysDebug.alchemyApiKey
-        #else
-            return ThirdPartyServicesApiKeys.alchemyApiKey
-        #endif
+    init(apiKeySource: AlchemyAPIKeySource = AlchemyEnvironmentAPIKeySource()) {
+        self.apiKeySource = apiKeySource
     }
+
+    func buildEndpointURL(
+        baseURL: URL,
+        endpoint: String,
+        queryItems: [URLQueryItem]
+    ) -> URL? {
+        let authorizedUrl = baseURL.appendingPathComponent(apiKeySource.alchemyApiKey)
+        let endpointUrl = authorizedUrl.appendingPathComponent(endpoint)
+        var urlComponents = URLComponents(url: endpointUrl, resolvingAgainstBaseURL: false)
+        urlComponents?.queryItems = queryItems
+
+        return urlComponents?.url
+    }
+
+    // MARK: Collections for owner
 
     private func createFetchCollectionsOperation(
         address: String,
         url: URL,
         excludeFilters: [NftCollectionFilter]
     ) -> BaseOperation<AlchemyNftCollectionsResponse> {
-        let authorizedUrl = url.appendingPathComponent(alchemyApiKey)
-        let endpointUrl = authorizedUrl.appendingPathComponent("getContractsForOwner")
-        var urlComponents = URLComponents(string: endpointUrl.absoluteString)
-        urlComponents?.queryItems = [
+        var queryItems = [
             URLQueryItem(name: "owner", value: address),
             URLQueryItem(name: "withMetadata", value: "true")
         ]
         excludeFilters.forEach { filter in
             let queryItem = URLQueryItem(name: "excludeFilters[]", value: filter.id)
-            urlComponents?.queryItems?.append(queryItem)
+            queryItems.append(queryItem)
         }
 
-        guard let urlWithParameters = urlComponents?.url else {
+        guard let urlWithParameters = buildEndpointURL(
+            baseURL: url,
+            endpoint: "getContractsForOwner",
+            queryItems: queryItems
+        ) else {
             return BaseOperation.createWithError(SubqueryHistoryOperationFactoryError.urlMissing)
         }
 
@@ -118,18 +127,19 @@ final class AlchemyNFTOperationFactory {
         url: URL,
         excludeFilters: [NftCollectionFilter]
     ) -> BaseOperation<AlchemyOwnedNftsResponse> {
-        let authorizedUrl = url.appendingPathComponent(alchemyApiKey)
-        let endpointUrl = authorizedUrl.appendingPathComponent("getNFTs")
-        var urlComponents = URLComponents(string: endpointUrl.absoluteString)
-        urlComponents?.queryItems = [
+        var queryItems = [
             URLQueryItem(name: "owner", value: address)
         ]
         excludeFilters.forEach { filter in
             let queryItem = URLQueryItem(name: "excludeFilters[]", value: filter.id)
-            urlComponents?.queryItems?.append(queryItem)
+            queryItems.append(queryItem)
         }
 
-        guard let urlWithParameters = urlComponents?.url else {
+        guard let urlWithParameters = buildEndpointURL(
+            baseURL: url,
+            endpoint: "getNFTs",
+            queryItems: queryItems
+        ) else {
             return BaseOperation.createWithError(SubqueryHistoryOperationFactoryError.urlMissing)
         }
 
@@ -284,20 +294,21 @@ final class AlchemyNFTOperationFactory {
         url: URL,
         nextId: String?
     ) -> BaseOperation<AlchemyNftsResponse> {
-        let authorizedUrl = url.appendingPathComponent(alchemyApiKey)
-        let endpointUrl = authorizedUrl.appendingPathComponent("getNFTsForCollection")
-        var urlComponents = URLComponents(string: endpointUrl.absoluteString)
-        urlComponents?.queryItems = [
+        var queryItems = [
             URLQueryItem(name: "contractAddress", value: address),
             URLQueryItem(name: "withMetadata", value: "true"),
             URLQueryItem(name: "limit", value: "100"),
         ]
 
         if let nextId = nextId {
-            urlComponents?.queryItems?.append(URLQueryItem(name: "startToken", value: nextId))
+            queryItems.append(URLQueryItem(name: "startToken", value: nextId))
         }
 
-        guard let urlWithParameters = urlComponents?.url else {
+        guard let urlWithParameters = buildEndpointURL(
+            baseURL: url,
+            endpoint: "getNFTsForCollection",
+            queryItems: queryItems
+        ) else {
             return BaseOperation.createWithError(AlchemyNFTOperationFactoryError.wrongUrl)
         }
 
@@ -340,15 +351,16 @@ final class AlchemyNFTOperationFactory {
         tokenId: String,
         url: URL
     ) -> BaseOperation<AlchemyOwnersResponse?> {
-        let authorizedUrl = url.appendingPathComponent(alchemyApiKey)
-        let endpointUrl = authorizedUrl.appendingPathComponent("getOwnersForToken")
-        var urlComponents = URLComponents(string: endpointUrl.absoluteString)
-        urlComponents?.queryItems = [
+        let queryItems = [
             URLQueryItem(name: "contractAddress", value: address),
             URLQueryItem(name: "tokenId", value: tokenId),
         ]
 
-        guard let urlWithParameters = urlComponents?.url else {
+        guard let urlWithParameters = buildEndpointURL(
+            baseURL: url,
+            endpoint: "getOwnersForToken",
+            queryItems: queryItems
+        ) else {
             return BaseOperation.createWithError(AlchemyNFTOperationFactoryError.wrongUrl)
         }
 

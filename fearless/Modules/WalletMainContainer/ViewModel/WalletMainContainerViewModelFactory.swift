@@ -1,6 +1,6 @@
 import Foundation
 import SSFModels
-import SoraKeystore
+import FearlessSecureStorage
 
 protocol WalletMainContainerViewModelFactoryProtocol {
     func buildViewModel(
@@ -14,10 +14,19 @@ protocol WalletMainContainerViewModelFactoryProtocol {
 final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFactoryProtocol {
     private let accountScoreFetcher: AccountStatisticsFetching
     private let settings: SettingsManagerProtocol
+    private let eventCenter: EventCenterProtocol
+    private let logger: LoggerProtocol?
 
-    init(accountScoreFetcher: AccountStatisticsFetching, settings: SettingsManagerProtocol) {
+    init(
+        accountScoreFetcher: AccountStatisticsFetching,
+        settings: SettingsManagerProtocol,
+        eventCenter: EventCenterProtocol = EventCenter.shared,
+        logger: LoggerProtocol? = Logger.shared
+    ) {
         self.accountScoreFetcher = accountScoreFetcher
         self.settings = settings
+        self.eventCenter = eventCenter
+        self.logger = logger
     }
 
     func buildViewModel(
@@ -61,8 +70,8 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
             address: ethAddress,
             chain: nil,
             settings: settings,
-            eventCenter: EventCenter.shared,
-            logger: Logger.shared
+            eventCenter: eventCenter,
+            logger: logger
         )
 
         return WalletMainContainerViewModel(

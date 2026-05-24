@@ -1,6 +1,6 @@
 import Foundation
 import UIKit
-import SoraUI
+import FearlessUI
 
 class SearchTextField: BackgroundedContentControl {
     private enum Constants {

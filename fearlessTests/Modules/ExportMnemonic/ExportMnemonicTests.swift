@@ -1,7 +1,7 @@
 import XCTest
 @testable import fearless
-import SoraKeystore
-import SoraFoundation
+import FearlessSecureStorage
+import FearlessFoundation
 import RobinHood
 import Cuckoo
 import IrohaCrypto

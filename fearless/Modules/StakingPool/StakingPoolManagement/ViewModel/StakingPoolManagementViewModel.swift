@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 struct StakingPoolManagementViewModel {
     let stakeMoreButtonVisible: Bool

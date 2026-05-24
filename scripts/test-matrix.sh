@@ -72,6 +72,56 @@ if [ -f "scripts/deps/check-dependency-contracts.sh" ]; then
   bash scripts/deps/check-dependency-contracts.sh
 fi
 
+apply_checkout_fixes() {
+  # prepare-native-crypto-checkout may trigger SwiftPM materialization, so run
+  # source compatibility fixes after native crypto preparation.
+  if [ -f "scripts/spm-shared-features-fixes.sh" ]; then
+    echo "\n==> Applying shared-features-spm fixes"
+    SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 SSF_SINGLE_VALUE_CACHE_MANUAL_CLASS=1 bash scripts/spm-shared-features-fixes.sh "$(pwd)"
+  fi
+
+  if [ -x "scripts/deps/apply-charts-swift6-compat.sh" ]; then
+    echo "\n==> Applying Charts Swift compatibility fixes"
+    SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/deps/apply-charts-swift6-compat.sh "$(pwd)"
+  fi
+
+  if [ -x "scripts/deps/apply-svgkit-umbrella-contract.sh" ]; then
+    echo "\n==> Applying SVGKit umbrella header contract"
+    SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/deps/apply-svgkit-umbrella-contract.sh "$(pwd)"
+  fi
+
+  if [ -x "scripts/deps/apply-tonapi-http-types-contract.sh" ]; then
+    echo "\n==> Applying TonAPI HTTPTypes dependency contract"
+    SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/deps/apply-tonapi-http-types-contract.sh "$(pwd)"
+  fi
+
+  if [ -x "scripts/deps/apply-reown-signer-contract.sh" ]; then
+    echo "\n==> Applying Reown signer dependency contract"
+    SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/deps/apply-reown-signer-contract.sh "$(pwd)"
+  fi
+
+  if [ -x "scripts/deps/apply-web3-nio-ssl-contract.sh" ]; then
+    echo "\n==> Applying Web3 NIOSSL dependency contract"
+    SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/deps/apply-web3-nio-ssl-contract.sh "$(pwd)"
+  fi
+
+  echo "\n==> Refreshing Swift Package resolved state after checkout patches"
+  xcodebuild \
+    -resolvePackageDependencies \
+    -workspace "${WORKSPACE}" \
+    -scheme "${SCHEME}" \
+    -clonedSourcePackagesDirPath "${LOCAL_SOURCE_PACKAGES_DIR}"
+
+  if [ -f "scripts/deps/enforce-ssf-pin.sh" ]; then
+    echo "\n==> Normalizing SwiftPM resolved contracts after checkout patches"
+    bash scripts/deps/enforce-ssf-pin.sh
+  fi
+
+  if [ -x "scripts/deps/check-swiftpm-consistency.sh" ]; then
+    scripts/deps/check-swiftpm-consistency.sh
+  fi
+}
+
 echo "\n==> Resolving Swift Package dependencies"
 if ! xcodebuild \
   -resolvePackageDependencies \
@@ -82,20 +132,16 @@ if ! xcodebuild \
   exit 1
 fi
 
-# Patch shared-features-spm manifest and sources in the explicit local checkout.
-if [ -f "scripts/spm-shared-features-fixes.sh" ]; then
-  echo "\n==> Applying shared-features-spm fixes (SSFModels deps, Web3 API drift)"
-  SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$(pwd)"
-fi
-
 verify_native_crypto_state() {
   if [ ! -f "scripts/deps/prepare-native-crypto-checkout.sh" ]; then
+    apply_checkout_fixes
     return 0
   fi
 
   echo "\n==> Preparing native crypto checkout"
   local status=0
   if SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" STRICT_REQUIRED_PATCHES=1 bash scripts/deps/prepare-native-crypto-checkout.sh "$(pwd)" "${WORKSPACE}" "${SCHEME}"; then
+    apply_checkout_fixes
     return 0
   else
     status=$?
@@ -178,6 +224,11 @@ run_tests() {
     }
   else
     "${cmd[@]}"
+  fi
+
+  if [[ -x "scripts/ci/coverage-summary.sh" ]]; then
+    COVERAGE_TARGET_REGEX="${COVERAGE_TARGET_REGEX:-^fearless\\.app$}" \
+      scripts/ci/coverage-summary.sh "${result_bundle_path}"
   fi
 }
 

@@ -1,4 +1,4 @@
-import SoraUI
+import FearlessUI
 
 class EmptyStateViewCell: UITableViewCell {
     let emptyView = EmptyStateView()

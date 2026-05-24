@@ -1,6 +1,6 @@
 import Foundation
 import SwiftUI
-import SoraFoundation
+import FearlessFoundation
 import RobinHood
 
 final class CrowdloanAgreementPresenter {

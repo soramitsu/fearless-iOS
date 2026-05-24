@@ -334,21 +334,19 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
             let pools = try mapBondedPoolsOperation.extractNoCancellableResultData()
             let extractor = StorageKeyDataExtractor(runtimeService: runtimeService)
 
-            let result = try await metadataOperation.targetOperation.extractNoCancellableResultData()
-                .asyncMap { storageResponse -> StakingPool? in
-                    let name = storageResponse.value?.toUTF8String() ?? ""
-                    let id: String = try await extractor.extractKey(
-                        storageKey: storageResponse.key,
-                        storagePath: .stakingPoolMetadata,
-                        type: .u32
-                    )
+            var result: [StakingPool] = []
+            for storageResponse in try metadataOperation.targetOperation.extractNoCancellableResultData() {
+                let name = storageResponse.value.flatMap { String(data: $0, encoding: .utf8) } ?? ""
+                let id: String = try await extractor.extractKey(
+                    storageKey: storageResponse.key,
+                    storagePath: .stakingPoolMetadata,
+                    type: .u32
+                )
 
-                    guard let pool = pools.first(where: { $0.id.lowercased() == id.lowercased() }) else {
-                        return nil
-                    }
-
-                    return pool.byReplacingName(name)
+                if let pool = pools.first(where: { $0.id.lowercased() == id.lowercased() }) {
+                    result.append(pool.byReplacingName(name))
                 }
+            }
 
             return result
         }
@@ -397,7 +395,7 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
         let mapOperation = ClosureOperation<StakingPool?> {
             let pool = try mapBondedPoolOperation.extractNoCancellableResultData()
             let storageResponse = try metadataOperation.targetOperation.extractNoCancellableResultData()
-            let name = storageResponse.first?.value?.toUTF8String() ?? ""
+            let name = storageResponse.first?.value.flatMap { String(data: $0, encoding: .utf8) } ?? ""
 
             return pool?.byReplacingName(name)
         }
@@ -424,7 +422,9 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
         }
 
         let mapOperation = ClosureOperation<String?> {
-            try poolMetadataOperation.targetOperation.extractNoCancellableResultData().compactMap { $0.value?.toUTF8String() }.first
+            try poolMetadataOperation.targetOperation.extractNoCancellableResultData()
+                .compactMap { $0.value.flatMap { String(data: $0, encoding: .utf8) } }
+                .first
         }
 
         mapOperation.addDependency(poolMetadataOperation.targetOperation)

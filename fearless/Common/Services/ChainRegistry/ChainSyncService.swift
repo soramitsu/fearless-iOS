@@ -1,5 +1,6 @@
+// swiftlint:disable file_length
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import RobinHood
 import SSFUtils
 import SSFNetwork
@@ -14,11 +15,16 @@ enum ChainSyncServiceError: Error {
     case missingLocalFile
 }
 
+// swiftlint:disable:next type_body_length
 final class ChainSyncService {
     static let fetchLocalData = false
     static let historyExplorerCompatibilityType = "subsquid"
     static let stakingExplorerCompatibilityType = "subquery"
     static let genericExplorerCompatibilityType = "etherscan"
+    static let soraMainnetChainId = "7e4e32d0feafd4f9c9414b0be86373f9a1efa904809b683453a9af6856d38ad5"
+    static let soraPiIndexerUrl = "https://pi.soramitsu.io/graphql"
+    static let soraMetricsExtrinsicUrl = "https://sorametrics.org/sorav2?tab=extrinsics&q={value}"
+    static let soraMetricsAccountUrl = "https://sorametrics.org/sorav2?tab=balance&address={value}"
     private static let soraXorCurrencyId = "0x0200000000000000000000000000000000000000000000000000000000000000"
 
     struct SyncChanges {
@@ -120,13 +126,8 @@ final class ChainSyncService {
     }
 
     private func decodeChainsTolerant(from data: Data) throws -> [ChainModel] {
-        do {
-            return try JSONDecoder().decode([ChainModel].self, from: data)
-        } catch {
-            // Attempt a compatibility coercion for legacy non-token payload differences.
-            let coerced = try Self.coerceChainsPayloadForCompatibility(data)
-            return try JSONDecoder().decode([ChainModel].self, from: coerced)
-        }
+        let coerced = try Self.coerceChainsPayloadForCompatibility(data)
+        return try JSONDecoder().decode([ChainModel].self, from: coerced)
     }
 
     static func coerceChainsPayloadForCompatibility(_ data: Data) throws -> Data {
@@ -152,6 +153,7 @@ final class ChainSyncService {
             }
 
             normalizeBlockExplorerTypes(in: &array[i])
+            SoraMainnetChainCompatibility.normalizeIndexer(in: &array[i])
         }
 
         return try JSONSerialization.data(withJSONObject: array, options: [])
@@ -275,7 +277,7 @@ final class ChainSyncService {
             return chain
         }
 
-        var updatedChain = chain
+        let updatedChain = chain
         let xorAsset = AssetModel(
             id: "b5a44630-920e-43ee-809f-61890d0888b0",
             name: "sora",
@@ -362,7 +364,7 @@ final class ChainSyncService {
         }
 
         let data = try Data(contentsOf: chainsUrl)
-        return try JSONDecoder().decode([ChainModel].self, from: data)
+        return try decodeChainsTolerant(from: data)
     }
 
     private func complete(result: Result<SyncChanges, Error>) {
@@ -459,5 +461,38 @@ extension ChainSyncService: CountdownTimerDelegate {
 extension ChainSyncService: ApplicationHandlerDelegate {
     func didReceiveDidBecomeActive(notification _: Notification) {
         performSyncUpIfNeeded()
+    }
+}
+
+private enum SoraMainnetChainCompatibility {
+    static func normalizeIndexer(in chainObject: inout [String: Any]) {
+        guard
+            let chainId = chainObject["chainId"] as? String,
+            chainId.lowercased() == ChainSyncService.soraMainnetChainId
+        else {
+            return
+        }
+
+        var externalApi = chainObject["externalApi"] as? [String: Any] ?? [:]
+        let piApi = [
+            "type": "sora",
+            "url": ChainSyncService.soraPiIndexerUrl
+        ]
+
+        externalApi["history"] = piApi
+        externalApi["pricing"] = piApi
+        externalApi["explorers"] = [
+            [
+                "type": "subscan",
+                "types": ["extrinsic"],
+                "url": ChainSyncService.soraMetricsExtrinsicUrl
+            ],
+            [
+                "type": "subscan",
+                "types": ["account", "address"],
+                "url": ChainSyncService.soraMetricsAccountUrl
+            ]
+        ]
+        chainObject["externalApi"] = externalApi
     }
 }

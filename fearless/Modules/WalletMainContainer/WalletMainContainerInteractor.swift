@@ -1,7 +1,7 @@
 import UIKit
 import RobinHood
 import SSFModels
-import SoraFoundation
+import FearlessFoundation
 
 final class WalletMainContainerInteractor {
     // MARK: - Private properties

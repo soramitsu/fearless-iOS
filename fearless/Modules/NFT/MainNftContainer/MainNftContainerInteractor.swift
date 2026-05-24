@@ -4,7 +4,7 @@ import Web3ContractABI
 import RobinHood
 import SSFModels
 import SSFNetwork
-import SoraKeystore
+import FearlessSecureStorage
 
 final class MainNftContainerInteractor {
     // MARK: - Private properties

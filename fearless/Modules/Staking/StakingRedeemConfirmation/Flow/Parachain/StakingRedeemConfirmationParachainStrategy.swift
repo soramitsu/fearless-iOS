@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import SoraKeystore
+import FearlessSecureStorage
 import SSFUtils
 import BigInt
 import SSFModels

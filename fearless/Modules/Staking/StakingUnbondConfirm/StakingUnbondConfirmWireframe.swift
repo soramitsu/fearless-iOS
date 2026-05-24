@@ -1,5 +1,5 @@
 import Foundation
-import SoraUI
+import FearlessUI
 import SSFModels
 
 final class StakingUnbondConfirmWireframe: StakingUnbondConfirmWireframeProtocol, ModalAlertPresenting {

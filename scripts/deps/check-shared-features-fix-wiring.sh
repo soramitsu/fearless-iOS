@@ -30,23 +30,33 @@ ensure_absent() {
 
 ensure_contains \
   "$ROOT/scripts/test-matrix.sh" \
-  'STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$(pwd)"' \
+  'STRICT_REQUIRED_PATCHES=1 SSF_SINGLE_VALUE_CACHE_MANUAL_CLASS=1 bash scripts/spm-shared-features-fixes.sh "$(pwd)"' \
   "test-matrix.sh is not wired to required shared-features-spm fixes"
 
 ensure_contains \
   "$ROOT/scripts/dev-setup.sh" \
-  'STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$(pwd)"' \
+  'STRICT_REQUIRED_PATCHES=1 SSF_SINGLE_VALUE_CACHE_MANUAL_CLASS="$SINGLE_VALUE_CACHE_MANUAL_CLASS" bash scripts/spm-shared-features-fixes.sh "$(pwd)"' \
   "dev-setup.sh is not wired to required shared-features-spm fixes"
 
 ensure_contains \
   "$ROOT/scripts/ci/bootstrap.sh" \
-  'STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR"' \
+  'STRICT_REQUIRED_PATCHES=1 SSF_SINGLE_VALUE_CACHE_MANUAL_CLASS=1 bash scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR"' \
   "ci/bootstrap.sh is not wired to required shared-features-spm fixes"
 
 ensure_contains \
   "$ROOT/scripts/ci/run-pr.sh" \
-  'STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR"' \
+  'STRICT_REQUIRED_PATCHES=1 SSF_SINGLE_VALUE_CACHE_MANUAL_CLASS=1 bash scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR"' \
   "ci/run-pr.sh is not wired to required shared-features-spm fixes"
+
+ensure_contains \
+  "$ROOT/fearless.xcodeproj/xcshareddata/xcschemes/fearless.tests.xcscheme" \
+  'SSF_SINGLE_VALUE_CACHE_MANUAL_CLASS=1' \
+  "fearless.tests.xcscheme is not wired to simulator shared-features-spm fixes"
+
+ensure_contains \
+  "$ROOT/fearless.xcodeproj/project.pbxproj" \
+  'if [ \"${PLATFORM_NAME:-}\" = \"iphonesimulator\" ]; then' \
+  "project SPM shared-features build phase does not preserve simulator Core Data shims"
 
 ensure_absent \
   "$ROOT/scripts/dev-setup.sh" \

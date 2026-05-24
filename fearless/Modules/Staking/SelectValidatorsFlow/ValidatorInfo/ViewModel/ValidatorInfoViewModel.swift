@@ -1,6 +1,6 @@
 import UIKit
 import SSFUtils
-import SoraFoundation
+import FearlessFoundation
 
 enum ValidatorInfoState {
     case empty

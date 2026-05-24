@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 class RootViewController: UIViewController, ViewHolder {
     typealias RootViewType = RootViewLayout

@@ -1,7 +1,7 @@
 import RobinHood
 import IrohaCrypto
 import BigInt
-import SoraKeystore
+import FearlessSecureStorage
 import SSFUtils
 import SSFModels
 

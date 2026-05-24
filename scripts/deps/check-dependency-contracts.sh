@@ -23,7 +23,10 @@ run_check() {
 }
 
 run_check "$ROOT/scripts/deps/check-swiftpm-consistency.sh" "Validating committed SwiftPM state"
+run_check "$ROOT/scripts/deps/check-modern-tooling-contracts.sh" "Validating modern tooling cleanup"
 run_check "$ROOT/scripts/deps/check-native-crypto-contract-wiring.sh" "Validating native crypto contract wiring"
 run_check "$ROOT/scripts/deps/check-shared-features-fix-wiring.sh" "Validating shared-features fix wiring"
+run_check "$ROOT/scripts/deps/check-third-party-package-contract-wiring.sh" "Validating third-party package contract wiring"
+run_check "$ROOT/scripts/deps/check-sora-pi-indexer.sh" "Validating SORA2 PI indexer wiring"
 
 echo "[check-dependency-contracts] OK"

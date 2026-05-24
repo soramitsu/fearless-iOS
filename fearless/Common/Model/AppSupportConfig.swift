@@ -9,6 +9,14 @@ struct AppSupportConfig: Codable, Equatable {
     let minSupportedVersion: String?
     let excludedVersions: [String]?
 
+    init(
+        minSupportedVersion: String?,
+        excludedVersions: [String]?
+    ) {
+        self.minSupportedVersion = minSupportedVersion
+        self.excludedVersions = excludedVersions
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 

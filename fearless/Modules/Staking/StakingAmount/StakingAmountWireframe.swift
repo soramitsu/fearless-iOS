@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 final class StakingAmountWireframe: StakingAmountWireframeProtocol {

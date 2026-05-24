@@ -48,7 +48,7 @@
                                             <color key="textColor" name="colorWhite"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FbN-Vm-EC2" customClass="RoundedButton" customModule="SoraUI">
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FbN-Vm-EC2" customClass="RoundedButton" customModule="FearlessUI">
                                             <rect key="frame" x="342" y="0.0" width="72" height="66"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <constraints>

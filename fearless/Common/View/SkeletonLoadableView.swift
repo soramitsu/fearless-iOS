@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 protocol SkeletonLoadableView: UIView {
     var container: UIView { get }

@@ -1,12 +1,12 @@
 // Cuckoo compatibility header (injected)
 @testable import fearless
 import SSFModels
-// MARK: - Mocks generated from file: 'Pods/SoraKeystore/SoraKeystore/Classes/Keychain/KeystoreProtocols.swift'
+// MARK: - Mocks generated from file: 'Packages/FearlessSecureStorage/Sources/FearlessSecureStorage/Keychain/KeystoreProtocols.swift'
 
 import Cuckoo
 import Foundation
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 public class MockKeystoreProtocol: KeystoreProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     public typealias MocksType = KeystoreProtocol
@@ -526,7 +526,7 @@ public class SecretStoreManagerProtocolStub:SecretStoreManagerProtocol, @uncheck
 import Cuckoo
 import Foundation
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockEventProtocol: EventProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = EventProtocol
@@ -761,7 +761,7 @@ import Foundation
 import IrohaCrypto
 import RobinHood
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockAccountRepositoryFactoryProtocol: AccountRepositoryFactoryProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = AccountRepositoryFactoryProtocol
@@ -988,7 +988,7 @@ class AccountRepositoryFactoryProtocolStub:AccountRepositoryFactoryProtocol, @un
 import Cuckoo
 import Foundation
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockSchedulerProtocol: fearless.SchedulerProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = fearless.SchedulerProtocol
@@ -1189,7 +1189,7 @@ import Foundation
 import LocalAuthentication
 import UIKit.UIImage
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockBiometryAuthProtocol: BiometryAuthProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = BiometryAuthProtocol
@@ -1403,7 +1403,7 @@ import Cuckoo
 import Foundation
 import RobinHood
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockDataOperationFactoryProtocol: DataOperationFactoryProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = DataOperationFactoryProtocol
@@ -1492,7 +1492,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockSubstrateOperationFactoryProtocol: SubstrateOperationFactoryProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = SubstrateOperationFactoryProtocol
@@ -1587,7 +1587,7 @@ import SSFRuntimeCodingService
 import SSFChainConnection
 import TonAPI
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockChainRegistryProtocol: fearless.ChainRegistryProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = fearless.ChainRegistryProtocol
@@ -2155,7 +2155,7 @@ import Cuckoo
 import Foundation
 import SSFUtils
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockConnectionFactoryProtocol: ConnectionFactoryProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = ConnectionFactoryProtocol
@@ -2243,10 +2243,10 @@ class ConnectionFactoryProtocolStub:ConnectionFactoryProtocol, @unchecked Sendab
 import Cuckoo
 import Foundation
 import SSFUtils
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockConnectionPoolProtocol<T>: fearless.ConnectionPoolProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = DefaultImplCaller
@@ -2557,7 +2557,7 @@ import Foundation
 import RobinHood
 import SSFModels
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockRuntimeFilesOperationFactoryProtocol: RuntimeFilesOperationFactoryProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = RuntimeFilesOperationFactoryProtocol
@@ -2818,7 +2818,7 @@ import SSFUtils
 import SSFModels
 import SSFRuntimeCodingService
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 
 
@@ -2830,7 +2830,7 @@ import RobinHood
 import SSFModels
 import SSFRuntimeCodingService
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockRuntimeProviderFactoryProtocol: RuntimeProviderFactoryProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = RuntimeProviderFactoryProtocol
@@ -2953,7 +2953,7 @@ import Foundation
 import SSFModels
 import SSFRuntimeCodingService
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockRuntimeProviderPoolProtocol: fearless.RuntimeProviderPoolProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = fearless.RuntimeProviderPoolProtocol
@@ -3145,7 +3145,7 @@ import RobinHood
 import SSFUtils
 import SSFModels
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockRuntimeSyncServiceProtocol: fearless.RuntimeSyncServiceProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = fearless.RuntimeSyncServiceProtocol
@@ -3370,7 +3370,7 @@ import Foundation
 import SSFModels
 import SSFUtils
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockSpecVersionSubscriptionProtocol: SpecVersionSubscriptionProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = SpecVersionSubscriptionProtocol
@@ -3493,7 +3493,7 @@ import Foundation
 import SSFUtils
 import SSFModels
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockSpecVersionSubscriptionFactoryProtocol: SpecVersionSubscriptionFactoryProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = SpecVersionSubscriptionFactoryProtocol
@@ -3581,7 +3581,7 @@ import Cuckoo
 import Foundation
 import SSFModels
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockCrowdloanRemoteSubscriptionServiceProtocol: CrowdloanRemoteSubscriptionServiceProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = CrowdloanRemoteSubscriptionServiceProtocol
@@ -3816,7 +3816,7 @@ import Foundation
 import RobinHood
 import SSFModels
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockStakingAccountUpdatingServiceProtocol: StakingAccountUpdatingServiceProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = StakingAccountUpdatingServiceProtocol
@@ -3940,7 +3940,7 @@ import Foundation
 import SSFUtils
 import SSFModels
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockStakingRemoteSubscriptionServiceProtocol: StakingRemoteSubscriptionServiceProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = StakingRemoteSubscriptionServiceProtocol
@@ -4062,7 +4062,7 @@ import Cuckoo
 import Foundation
 import SSFModels
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockWalletRemoteSubscriptionServiceProtocol: WalletRemoteSubscriptionServiceProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = WalletRemoteSubscriptionServiceProtocol
@@ -4302,7 +4302,7 @@ import SSFStorageQueryKit
 import SSFAssetManagmentStorage
 #endif
 @testable import fearless
-@testable import SoraKeystore
+@testable import FearlessSecureStorage
 
 class MockStakingServiceFactoryProtocol: StakingServiceFactoryProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = StakingServiceFactoryProtocol

@@ -1,6 +1,6 @@
 import Foundation
 import UIKit
-import SoraUI
+import FearlessUI
 
 final class SelectedNetworkButton: UIControl {
     private enum Constants {

@@ -1,6 +1,6 @@
 import UIKit
-import SoraUI
-import SoraFoundation
+import FearlessUI
+import FearlessFoundation
 
 class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDependable {
     private enum Constants {

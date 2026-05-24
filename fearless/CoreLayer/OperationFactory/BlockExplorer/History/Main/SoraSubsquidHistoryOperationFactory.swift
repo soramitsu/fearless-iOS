@@ -1,3 +1,5 @@
+// swiftlint:disable file_length
+
 import Foundation
 import RobinHood
 
@@ -6,127 +8,26 @@ import SSFUtils
 import SSFModels
 import SSFRuntimeCodingService
 
-class SoraSubsquidHistoryOperationFactory {
-    private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
-    private let chainRegistry: ChainRegistryProtocol
-
-    init(
-        txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
-        chainRegistry: ChainRegistryProtocol
-    ) {
-        self.txStorage = txStorage
-        self.chainRegistry = chainRegistry
-    }
-
-    private func createOperation(
-        address: String,
+enum SoraSubsquidHistoryQueryFactory {
+    // swiftlint:disable:next function_body_length
+    static func queryForAddress(
+        _ address: String,
         count: Int,
         cursor: String?,
         url: URL,
         filters: [WalletTransactionHistoryFilter]
-    ) -> BaseOperation<SoraSubsquidHistoryConnectionResponse> {
-        let queryString = prepareQueryForAddress(
-            address,
-            count: count,
-            cursor: cursor,
-            filters: filters
-        )
-
-        let requestFactory = BlockNetworkRequestFactory {
-            var request = URLRequest(url: url)
-
-            let info = JSON.dictionaryValue(["query": JSON.stringValue(queryString)])
-            request.httpBody = try JSONEncoder().encode(info)
-            request.setValue(
-                HttpContentType.json.rawValue,
-                forHTTPHeaderField: HttpHeaderKey.contentType.rawValue
-            )
-
-            request.httpMethod = HttpMethod.post.rawValue
-            return request
-        }
-
-        let resultFactory = AnyNetworkResultFactory<SoraSubsquidHistoryConnectionResponse> { data in
-            let response = try JSONDecoder().decode(
-                GraphQLResponse<SoraSubsquidHistoryConnectionResponse>.self,
-                from: data
-            )
-
-            switch response {
-            case let .errors(error):
-                throw error
-            case let .data(response):
-                return response
-            }
-        }
-
-        let operation = NetworkOperation(
-            requestFactory: requestFactory,
-            resultFactory: resultFactory
-        )
-
-        return operation
-    }
-
-    private func prepareExtrinsicInclusionFilter() -> String {
-        """
-        {
-          or: [
-            {
-                  extrinsic: {isNull: true}
-            },
-            {
-              not: {
-                and: [
-                    {
-                      extrinsic: { contains: {module: "balances"} } ,
-                        or: [
-                         { extrinsic: {contains: {call: "transfer"} } },
-                         { extrinsic: {contains: {call: "transferKeepAlive"} } },
-                         { extrinsic: {contains: {call: "forceTransfer"} } },
-                      ]
-                    }
-                ]
-               }
-            }
-          ]
-        }
-        """
-    }
-
-    private func prepareFilter(
-        filters: [WalletTransactionHistoryFilter]
     ) -> String {
-        var filterStrings: [String] = []
-
-        if !filters.contains(where: { $0.type == .swap && $0.selected }) {
-            filterStrings.append("\"swap\"")
+        if url.host?.lowercased() == "pi.soramitsu.io" {
+            return piQueryForAddress(
+                address,
+                count: count,
+                cursor: cursor,
+                filters: filters
+            )
         }
 
-        if !filters.contains(where: { $0.type == .reward && $0.selected }) {
-            filterStrings.append("\"rewarded\"")
-        }
-
-        if !filters.contains(where: { $0.type == .transfer && $0.selected }) {
-            filterStrings.append("\"transfer\"")
-        }
-
-        guard filterStrings.isNotEmpty else {
-            return ""
-        }
-
-        let resultFilters = filterStrings.joined(separator: ",")
-        return ", method_not_in: [\(resultFilters)]"
-    }
-
-    private func prepareQueryForAddress(
-        _ address: String,
-        count: Int,
-        cursor: String?,
-        filters: [WalletTransactionHistoryFilter]
-    ) -> String {
         let after: String = cursor.map { "\($0)" } ?? "1"
-        let filter = prepareFilter(filters: filters)
+        let filter = filterString(filters: filters)
 
         return """
         query MyQuery {
@@ -173,6 +74,164 @@ class SoraSubsquidHistoryOperationFactory {
                   }
                 }
         """
+    }
+
+    private static func filterString(
+        filters: [WalletTransactionHistoryFilter]
+    ) -> String {
+        let filteredMethods = filteredMethods(filters: filters)
+
+        guard filteredMethods.isNotEmpty else {
+            return ""
+        }
+
+        return ", method_not_in: [\(filteredMethods.joined(separator: ","))]"
+    }
+
+    private static func piFilterString(
+        filters: [WalletTransactionHistoryFilter]
+    ) -> String {
+        let filteredMethods = filteredMethods(filters: filters)
+
+        guard filteredMethods.isNotEmpty else {
+            return ""
+        }
+
+        return ", method: {notIn: [\(filteredMethods.joined(separator: ","))]}"
+    }
+
+    private static func filteredMethods(filters: [WalletTransactionHistoryFilter]) -> [String] {
+        var filterStrings: [String] = []
+
+        if !filters.contains(where: { $0.type == .swap && $0.selected }) {
+            filterStrings.append("\"swap\"")
+        }
+
+        if !filters.contains(where: { $0.type == .reward && $0.selected }) {
+            filterStrings.append("\"rewarded\"")
+        }
+
+        if !filters.contains(where: { $0.type == .transfer && $0.selected }) {
+            filterStrings.append("\"transfer\"")
+        }
+
+        return filterStrings
+    }
+
+    private static func piQueryForAddress(
+        _ address: String,
+        count: Int,
+        cursor: String?,
+        filters: [WalletTransactionHistoryFilter]
+    ) -> String {
+        let after = cursor.map { "after: \"\($0)\"," } ?? ""
+        let filter = piFilterString(filters: filters)
+
+        return """
+        query MyQuery {
+                  historyElementsConnection: historyElements(
+                    filter: {
+                      or: [
+                        { address: "\(address)"\(filter) },
+                        { dataTo: "\(address)"\(filter) }
+                      ]
+                    },
+                    \(after)
+                    first: \(count),
+                    orderBy: TIMESTAMP_DESC
+                  ) {
+                    pageInfo {
+                      endCursor
+                      hasNextPage
+                      hasPreviousPage
+                      startCursor
+                    }
+                    totalCount
+                    edges {
+                      node {
+                        address
+                        blockHash
+                        blockHeight
+                        callNames
+                        data
+                        dataFrom
+                        dataTo
+                        id
+                        method
+                        module
+                        networkFee
+                        timestamp
+                        type
+                        execution
+                      }
+                    }
+                  }
+                }
+        """
+    }
+}
+
+class SoraSubsquidHistoryOperationFactory {
+    private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
+    private let chainRegistry: ChainRegistryProtocol
+
+    init(
+        txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
+        chainRegistry: ChainRegistryProtocol
+    ) {
+        self.txStorage = txStorage
+        self.chainRegistry = chainRegistry
+    }
+
+    private func createOperation(
+        address: String,
+        count: Int,
+        cursor: String?,
+        url: URL,
+        filters: [WalletTransactionHistoryFilter]
+    ) -> BaseOperation<SoraSubsquidHistoryConnectionResponse> {
+        let queryString = SoraSubsquidHistoryQueryFactory.queryForAddress(
+            address,
+            count: count,
+            cursor: cursor,
+            url: url,
+            filters: filters
+        )
+
+        let requestFactory = BlockNetworkRequestFactory {
+            var request = URLRequest(url: url)
+
+            let info = JSON.dictionaryValue(["query": JSON.stringValue(queryString)])
+            request.httpBody = try JSONEncoder().encode(info)
+            request.setValue(
+                HttpContentType.json.rawValue,
+                forHTTPHeaderField: HttpHeaderKey.contentType.rawValue
+            )
+
+            request.httpMethod = HttpMethod.post.rawValue
+            return request
+        }
+
+        let resultFactory = AnyNetworkResultFactory<SoraSubsquidHistoryConnectionResponse> { data in
+            let response = try JSONDecoder().decode(
+                GraphQLResponse<SoraSubsquidHistoryConnectionResponse>.self,
+                from: data
+            )
+
+            switch response {
+            case let .errors(error):
+                throw error
+            case let .data(response):
+                return response
+            }
+        }
+
+        let operation = NetworkOperation(
+            requestFactory: requestFactory,
+            resultFactory: resultFactory
+        )
+
+        return operation
     }
 
     private func createHistoryMergeOperation(

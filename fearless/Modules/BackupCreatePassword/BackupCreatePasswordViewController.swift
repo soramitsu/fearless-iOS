@@ -1,7 +1,7 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import SnapKit
-import SoraUI
+import FearlessUI
 
 protocol BackupCreatePasswordViewOutput: AnyObject {
     func didLoad(view: BackupCreatePasswordViewInput)

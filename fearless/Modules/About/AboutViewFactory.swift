@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 final class AboutViewFactory: AboutViewFactoryProtocol {
     static func createView() -> AboutViewProtocol? {

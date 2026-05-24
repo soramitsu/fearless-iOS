@@ -1,7 +1,7 @@
 import UIKit
 
 import SSFUtils
-import SoraFoundation
+import FearlessFoundation
 
 final class StakingRewardDestSetupViewController: UIViewController, ViewHolder, LoadableViewProtocol {
     typealias RootViewType = StakingRewardDestSetupLayout

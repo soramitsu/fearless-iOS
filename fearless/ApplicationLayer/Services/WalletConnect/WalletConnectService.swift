@@ -1,11 +1,8 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import Combine
 import WalletConnectSign
 import ReownWalletKit
-#if canImport(FearlessKeys)
-    import FearlessKeys
-#endif
 
 protocol WalletConnectService: ApplicationServiceProtocol {
     func set(listener: WalletConnectServiceDelegate)
@@ -35,18 +32,17 @@ final class WalletConnectServiceImpl: WalletConnectService {
 
     private var listeners: [WeakWrapper] = []
     private var cancellablesBag = Set<AnyCancellable>()
+    private let localizationManager: LocalizationManagerProtocol
 
-    private init() {}
+    init(localizationManager: LocalizationManagerProtocol = LocalizationManager.shared) {
+        self.localizationManager = localizationManager
+    }
 
     // MARK: - ApplicationServiceProtocol
 
     func setup() {
-        #if canImport(FearlessKeys)
-            #if F_DEV
-                let projectId = WalletConnectDebug.projectId
-            #else
-                let projectId = WalletConnect.projectId
-            #endif
+        #if F_DEV
+            let projectId = WalletConnectDebug.projectId
         #else
             let projectId = WalletConnect.projectId
         #endif
@@ -83,7 +79,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
         do {
             walletConnectUri = try WalletConnectURI(uriString: uri)
         } catch {
-            let preferredLanguages = LocalizationManager.shared.selectedLocale.rLanguages
+            let preferredLanguages = localizationManager.selectedLocale.rLanguages
             let title = R.string.localizable.walletConnectInvalidUrlTitle(preferredLanguages: preferredLanguages)
             let message = R.string.localizable.walletConnectInvalidUrlMessage(preferredLanguages: preferredLanguages)
             throw ConvenienceContentError(title: title, message: message)

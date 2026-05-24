@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 struct NftCollectionFilter: SwitchFilterItem {
     enum NftFilterType: String {
@@ -15,15 +15,15 @@ struct NftCollectionFilter: SwitchFilterItem {
             }
         }
 
-        var title: String {
+        func title(preferredLanguages: [String]?) -> String {
             switch self {
             case .spam:
                 return R.string.localizable.nftsFiltersSpam(
-                    preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages
+                    preferredLanguages: preferredLanguages
                 )
             case .airdrop:
                 return R.string.localizable.nftsFiltersAirdrop(
-                    preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages
+                    preferredLanguages: preferredLanguages
                 )
             }
         }
@@ -34,20 +34,24 @@ struct NftCollectionFilter: SwitchFilterItem {
     var title: String
     var selected: Bool
 
-    init(type: NftFilterType, selected: Bool = false) {
+    init(
+        type: NftFilterType,
+        selected: Bool = false,
+        preferredLanguages: [String]? = nil
+    ) {
         self.type = type
         self.selected = selected
         id = type.id
-        title = type.title
+        title = type.title(preferredLanguages: preferredLanguages)
     }
 
     mutating func reset() {
         selected = true
     }
 
-    static func defaultFilters() -> [NftCollectionFilter] {
-        [NftCollectionFilter(type: .spam, selected: true),
-         NftCollectionFilter(type: .airdrop, selected: false)]
+    static func defaultFilters(preferredLanguages: [String]? = nil) -> [NftCollectionFilter] {
+        [NftCollectionFilter(type: .spam, selected: true, preferredLanguages: preferredLanguages),
+         NftCollectionFilter(type: .airdrop, selected: false, preferredLanguages: preferredLanguages)]
     }
 }
 

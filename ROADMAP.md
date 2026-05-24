@@ -25,7 +25,7 @@ Suggested steps:
    - Pin or update iOS runtime/utils dependencies (e.g., SSFChainRegistry/SSFRuntimeCodingService or equivalents) to versions compatible with stable2503.
    - Verify that SCALE encoding/decoding and metadata parsing succeed on target chains in debug logs.
 3) Build + checks:
-   - `pod install`
+   - `bash scripts/ci/bootstrap.sh`
    - `swiftformat . && swiftlint`
    - `xcodebuild -workspace fearless.xcworkspace -scheme fearless -configuration Debug -destination 'platform=iOS Simulator,OS=latest,name=iPhone 15' build`
    - `xcodebuild -workspace fearless.xcworkspace -scheme fearless -destination 'platform=iOS Simulator,OS=latest,name=iPhone 15' test`
@@ -54,8 +54,8 @@ Verification matrix (execute manually):
 - [ ] Localization: audit new/changed strings across all `.lproj`; fill gaps.
 - [ ] Performance: reduce cold start time; trim excessive logging in Release.
 - [ ] Fearless Utils (upstream hygiene):
-  - Align podspec with modern toolchains (iOS 13+, drop armv7). No functional changes.
-  - Add optional SwiftPM manifest to enable SPM consumption (side‑by‑side with CocoaPods).
+  - Align package manifests with modern toolchains (iOS 13+, drop armv7). No functional changes.
+  - Keep SwiftPM manifests as the primary integration path.
   - Verify IrohaCrypto consumption consistency across app and utils (prefer single source to avoid duplicate modules).
   - Ensure CI builds on Xcode 16/18 with iPhoneOS SDK 18.x (no armv7, correct module visibility).
   - Target: open PR to soramitsu/fearless-utils-iOS with minimal, non‑breaking changes; coordinate release tagging.
@@ -67,7 +67,7 @@ Verification matrix (execute manually):
  - CI hygiene for iOS 18 SDK:
    - Deduplicate SwiftPM packages (e.g., Web3) to a single source to avoid resolver conflicts.
    - Patch or bump modules with brittle module.modulemap (e.g., IrohaCrypto via shared‑features‑spm) and upstream fixes.
-   - Make private keys/pods optional in PR builds (e.g., gate FearlessKeys by env and limit to Release).
+   - Keep runtime keys environment-backed and unavailable to untrusted PRs.
 
 ## Sources of Truth
 - Product roadmap (Aha!): https://soramitsucoltd.aha.io/shared/97bc3006ee3c1baa0598863615cf8d14

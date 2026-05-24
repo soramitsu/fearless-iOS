@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 final class AboutViewController: UIViewController, AdaptiveDesignable, ViewHolder {
     typealias RootViewType = AboutViewLayout

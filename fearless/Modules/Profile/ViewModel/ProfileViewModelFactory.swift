@@ -1,8 +1,8 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFUtils
 import IrohaCrypto
-import SoraKeystore
+import FearlessSecureStorage
 import SSFModels
 
 protocol ProfileViewModelFactoryProtocol: AnyObject {
@@ -36,6 +36,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private let settings: SettingsManagerProtocol
     private lazy var assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
     private let accountScoreFetcher: AccountStatisticsFetching
+    private let eventCenter: EventCenterProtocol
+    private let logger: LoggerProtocol?
 
     // MARK: - Constructors
 
@@ -43,12 +45,16 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         iconGenerator: IconGenerating,
         biometry: BiometryAuthProtocol,
         settings: SettingsManagerProtocol,
-        accountScoreFetcher: AccountStatisticsFetching
+        accountScoreFetcher: AccountStatisticsFetching,
+        eventCenter: EventCenterProtocol = EventCenter.shared,
+        logger: LoggerProtocol? = Logger.shared
     ) {
         self.iconGenerator = iconGenerator
         self.biometry = biometry
         self.settings = settings
         self.accountScoreFetcher = accountScoreFetcher
+        self.eventCenter = eventCenter
+        self.logger = logger
     }
 
     // MARK: - Public methods
@@ -109,7 +115,14 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         }
 
         let address = wallet.ethereumAddress?.toHex(includePrefix: true)
-        let accountScoreViewModel = AccountScoreViewModel(fetcher: accountScoreFetcher, address: address, chain: nil, settings: settings, eventCenter: EventCenter.shared, logger: Logger.shared)
+        let accountScoreViewModel = AccountScoreViewModel(
+            fetcher: accountScoreFetcher,
+            address: address,
+            chain: nil,
+            settings: settings,
+            eventCenter: eventCenter,
+            logger: logger
+        )
 
         return WalletsManagmentCellViewModel(
             isSelected: false,

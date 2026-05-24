@@ -1,4 +1,4 @@
-import SoraFoundation
+import FearlessFoundation
 
 protocol AnalyticsEmbeddedViewProtocol: ControllerBackedProtocol {
     var localizedTitle: LocalizableResource<String> { get }

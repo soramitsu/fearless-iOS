@@ -6,8 +6,8 @@ import SSFModels
 import IrohaCrypto
 import BigInt
 import xxHash_Swift
-import SoraKeystore
-import SoraFoundation
+import FearlessSecureStorage
+import FearlessFoundation
 import SSFRuntimeCodingService
 
 class JSONRPCTests: XCTestCase {

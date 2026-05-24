@@ -2,7 +2,7 @@ import Foundation
 import BigInt
 
 import IrohaCrypto
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 struct ReefDestination: Decodable {

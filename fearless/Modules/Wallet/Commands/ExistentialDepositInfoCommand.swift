@@ -1,6 +1,6 @@
 import Foundation
 
-import SoraFoundation
+import FearlessFoundation
 
 struct TransferExistentialState {
     let totalAmount: Decimal

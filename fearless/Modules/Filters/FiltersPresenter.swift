@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 final class FiltersPresenter {
     weak var view: FiltersViewProtocol?

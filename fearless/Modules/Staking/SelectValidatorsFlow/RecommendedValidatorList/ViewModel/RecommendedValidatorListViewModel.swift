@@ -1,6 +1,6 @@
 import Foundation
 import SSFUtils
-import SoraFoundation
+import FearlessFoundation
 
 protocol RecommendedValidatorListViewModelProtocol {
     var itemsCountString: LocalizableResource<String> { get }

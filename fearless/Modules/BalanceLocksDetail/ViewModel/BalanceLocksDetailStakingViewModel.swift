@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 struct BalanceLocksDetailStakingViewModel {
     let stakedViewModel: LocalizableResource<BalanceViewModelProtocol>?

@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 protocol WalletConnectSessionViewOutput: AnyObject {
     func didLoad(view: WalletConnectSessionViewInput)

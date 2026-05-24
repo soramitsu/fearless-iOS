@@ -3,36 +3,14 @@ import RobinHood
 import IrohaCrypto
 import SSFUtils
 import SSFModels
-#if canImport(FearlessKeys)
-    import FearlessKeys
-#endif
 
-enum BlockExplorerApiKey {
-    case etherscan
-    case polygonscan
-    case bscscan
-    case oklink
-    case opMainnet
+protocol BlockExplorerAPIKeySource {
+    func apiKey(for key: BlockExplorerApiKey) -> String
+}
 
-    init?(chainId: String) {
-        switch chainId {
-        case "1", "5":
-            self = .etherscan
-        case "137":
-            self = .polygonscan
-        case "56", "97":
-            self = .bscscan
-        case "195":
-            self = .oklink
-        case "10":
-            self = .opMainnet
-        default:
-            return nil
-        }
-    }
-
-    var value: String {
-        switch self {
+struct BlockExplorerEnvironmentAPIKeySource: BlockExplorerAPIKeySource {
+    func apiKey(for key: BlockExplorerApiKey) -> String {
+        switch key {
         case .etherscan:
             #if DEBUG
                 return BlockExplorerApiKeysDebug.etherscanApiKey
@@ -63,6 +41,31 @@ enum BlockExplorerApiKey {
             #else
                 return BlockExplorerApiKeys.opMainnetApiKey
             #endif
+        }
+    }
+}
+
+enum BlockExplorerApiKey: Hashable {
+    case etherscan
+    case polygonscan
+    case bscscan
+    case oklink
+    case opMainnet
+
+    init?(chainId: String) {
+        switch chainId {
+        case "1", "5":
+            self = .etherscan
+        case "137":
+            self = .polygonscan
+        case "56", "97":
+            self = .bscscan
+        case "195":
+            self = .oklink
+        case "10":
+            self = .opMainnet
+        default:
+            return nil
         }
     }
 }

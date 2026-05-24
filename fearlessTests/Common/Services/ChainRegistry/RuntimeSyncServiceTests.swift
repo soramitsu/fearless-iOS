@@ -1,552 +1,316 @@
-//import XCTest
-//@testable import fearless
-//import Cuckoo
-//import RobinHood
-//
-//class RuntimeSyncServiceTests: XCTestCase {
-//    func testChainRegisterationAndUnregistration() {
-//        // given
-//
-//        let storageFacade = SubstrateStorageTestFacade()
-//        let metadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-//            storageFacade.createRepository()
-//        let filesOperationFactory = MockRuntimeFilesOperationFactoryProtocol()
-//        let dataOperationFactory = MockDataOperationFactoryProtocol()
-//        let eventCenter = MockEventCenterProtocol()
-//        let connection = MockConnection()
-//
-//        let syncService = RuntimeSyncService(repository: AnyDataProviderRepository(metadataRepository),
-//                                             filesOperationFactory: filesOperationFactory,
-//                                             dataOperationFactory: dataOperationFactory,
-//                                             eventCenter: eventCenter
-//        )
-//
-//        let chainCount = 10
-//        let chains = ChainModelGenerator.generate(count: chainCount)
-//
-//        let unregisterChains = Set(chains.prefix(chainCount / 2))
-//        let remainingChains = Set(chains.suffix(chains.count - unregisterChains.count))
-//
-//        // when
-//
-//        chains.forEach { syncService.register(chain: $0, with: connection) }
-//
-//        // then
-//
-//        XCTAssertTrue(chains.allSatisfy { syncService.hasChain(with: $0.chainId) })
-//        XCTAssertTrue(chains.allSatisfy { !syncService.isChainSyncing($0.chainId) })
-//
-//        // when
-//
-//        unregisterChains.forEach { syncService.unregister(chainId: $0.chainId) }
-//
-//        // then
-//
-//        XCTAssertTrue(remainingChains.allSatisfy { syncService.hasChain(with: $0.chainId) })
-//        XCTAssertTrue(unregisterChains.allSatisfy { !syncService.hasChain(with: $0.chainId) })
-//    }
-//
-//    func testTypesAndMetadataSyncSuccess() throws {
-//        // given
-//
-//        let storageFacade = SubstrateStorageTestFacade()
-//        let metadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-//            storageFacade.createRepository()
-//        let filesOperationFactory = MockRuntimeFilesOperationFactoryProtocol()
-//        let dataOperationFactory = MockDataOperationFactoryProtocol()
-//        let eventCenter = MockEventCenterProtocol()
-//
-//        let syncService = RuntimeSyncService(repository: AnyDataProviderRepository(metadataRepository),
-//                                             filesOperationFactory: filesOperationFactory,
-//                                             dataOperationFactory: dataOperationFactory,
-//                                             eventCenter: eventCenter
-//        )
-//
-//        // when
-//
-//        let chainCount = 10
-//        let chains = ChainModelGenerator.generate(count: chainCount)
-//
-//        let connections = chains.reduce(into: [ChainModel.Id: MockConnection]()) { (storage, chain) in
-//            storage[chain.chainId] = MockConnection()
-//        }
-//
-//        let runtimeMetadataItems = chains.reduce(into: [ChainModel.Id: Data]()) { (storage, chain) in
-//            storage[chain.chainId] = Data.random(of: 128)!
-//        }
-//
-//        // stub chain types file fetch from remote source
-//
-//        stub(dataOperationFactory) { stub in
-//            stub.fetchData(from: any()).then { _ in
-//                let responseData = Data.random(of: 1024)!
-//                return BaseOperation.createWithResult(responseData)
-//            }
-//        }
-//
-//        // stub chain types file save to disk
-//
-//        stub(filesOperationFactory) { stub in
-//            stub.saveChainTypesOperation(for: any(), data: any()).then { (chainId, data) in
-//                CompoundOperationWrapper.createWithResult(())
-//            }
-//        }
-//
-//        // stub runtime metadata fetch
-//
-//        connections.forEach { (chainId, connection) in
-//            stub(connection.internalConnection) { stub in
-//                stub.callMethod(any(), params: any([String].self), options: any(), completion: any())
-//                    .then { (_, _, _, completion: ((Result<String, Error>) -> Void)?) in
-//                        DispatchQueue.global().async {
-//                            let responseData = runtimeMetadataItems[chainId]!.toHex(includePrefix: true)
-//                            completion?(.success(responseData))
-//                        }
-//
-//                        return (0...UInt16.max).randomElement()!
-//                }
-//            }
-//        }
-//
-//        let completionExpectation = XCTestExpectation()
-//        completionExpectation.expectedFulfillmentCount = 2 * chainCount
-//        completionExpectation.assertForOverFulfill = true
-//
-//        var syncedTypesChainIds: Set<ChainModel.Id> = Set()
-//        var syncedMetadataChainIds: Set<ChainModel.Id> = Set()
-//
-//        // catch all sync completion events
-//
-//        stub(eventCenter) { stub in
-//            stub.notify(with: any()).then { event in
-//                if let syncEvent = event as? RuntimeChainTypesSyncCompleted {
-//                    syncedTypesChainIds.insert(syncEvent.chainId)
-//                }
-//
-//                if let syncEvent = event as? RuntimeMetadataSyncCompleted {
-//                    syncedMetadataChainIds.insert(syncEvent.chainId)
-//                }
-//
-//                completionExpectation.fulfill()
-//            }
-//        }
-//
-//        chains.forEach { chain in
-//            syncService.register(chain: chain, with: connections[chain.chainId]!)
-//            syncService.apply(
-//                version: RuntimeVersion(specVersion: 1, transactionVersion: 1),
-//                for: chain.chainId
-//            )
-//
-//            XCTAssertTrue(syncService.isChainSyncing(chain.chainId))
-//        }
-//
-//        // then
-//
-//        wait(for: [completionExpectation], timeout: 10)
-//
-//        let expectedChainIds = Set(chains.map { $0.chainId })
-//
-//        XCTAssertEqual(expectedChainIds, syncedTypesChainIds)
-//        XCTAssertEqual(expectedChainIds, syncedMetadataChainIds)
-//
-//        // make sure files are saved
-//
-//        verify(filesOperationFactory, times(chainCount)).saveChainTypesOperation(for: any(), data: any())
-//
-//        // make sure metadata is saved for each chain
-//
-//        let allMetadataOperation = metadataRepository.fetchAllOperation(with: RepositoryFetchOptions())
-//        OperationQueue().addOperations([allMetadataOperation], waitUntilFinished: true)
-//
-//        let actualMetadataItems = try allMetadataOperation.extractNoCancellableResultData()
-//        XCTAssertEqual(actualMetadataItems.count, chainCount)
-//
-//        for actualMetadataItem in actualMetadataItems {
-//            XCTAssertEqual(actualMetadataItem.metadata, runtimeMetadataItems[actualMetadataItem.chain]!)
-//        }
-//    }
-//
-//    func testOnlyMetadataSyncSuccess() throws {
-//        // given
-//
-//        let storageFacade = SubstrateStorageTestFacade()
-//        let metadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-//            storageFacade.createRepository()
-//        let filesOperationFactory = MockRuntimeFilesOperationFactoryProtocol()
-//        let dataOperationFactory = MockDataOperationFactoryProtocol()
-//        let eventCenter = MockEventCenterProtocol()
-//
-//        let syncService = RuntimeSyncService(repository: AnyDataProviderRepository(metadataRepository),
-//                                             filesOperationFactory: filesOperationFactory,
-//                                             dataOperationFactory: dataOperationFactory,
-//                                             eventCenter: eventCenter
-//        )
-//
-//        // when
-//
-//        let chainCount = 10
-//        let chains = ChainModelGenerator.generate(count: chainCount, withTypes: false)
-//
-//        let connections = chains.reduce(into: [ChainModel.Id: MockConnection]()) { (storage, chain) in
-//            storage[chain.chainId] = MockConnection()
-//        }
-//
-//        let runtimeMetadataItems = chains.reduce(into: [ChainModel.Id: Data]()) { (storage, chain) in
-//            storage[chain.chainId] = Data.random(of: 128)!
-//        }
-//
-//        // stub runtime metadata fetch
-//
-//        connections.forEach { (chainId, connection) in
-//            stub(connection.internalConnection) { stub in
-//                stub.callMethod(any(), params: any([String].self), options: any(), completion: any())
-//                    .then { (_, _, _, completion: ((Result<String, Error>) -> Void)?) in
-//                        DispatchQueue.global().async {
-//                            let responseData = runtimeMetadataItems[chainId]!.toHex(includePrefix: true)
-//                            completion?(.success(responseData))
-//                        }
-//
-//                        return (0...UInt16.max).randomElement()!
-//                }
-//            }
-//        }
-//
-//        let completionExpectation = XCTestExpectation()
-//        completionExpectation.expectedFulfillmentCount = chainCount
-//        completionExpectation.assertForOverFulfill = true
-//
-//        var syncedMetadataChainIds: Set<ChainModel.Id> = Set()
-//
-//        // catch all sync completion events
-//
-//        stub(eventCenter) { stub in
-//            stub.notify(with: any()).then { event in
-//                if let syncEvent = event as? RuntimeMetadataSyncCompleted {
-//                    syncedMetadataChainIds.insert(syncEvent.chainId)
-//                }
-//
-//                completionExpectation.fulfill()
-//            }
-//        }
-//
-//        chains.forEach { chain in
-//            syncService.register(chain: chain, with: connections[chain.chainId]!)
-//            syncService.apply(
-//                version: RuntimeVersion(specVersion: 1, transactionVersion: 1),
-//                for: chain.chainId
-//            )
-//
-//            XCTAssertTrue(syncService.isChainSyncing(chain.chainId))
-//        }
-//
-//        // then
-//
-//        wait(for: [completionExpectation], timeout: 10)
-//
-//        let expectedChainIds = Set(chains.map { $0.chainId })
-//
-//        XCTAssertEqual(expectedChainIds, syncedMetadataChainIds)
-//
-//        // make sure metadata is saved for each chain
-//
-//        let allMetadataOperation = metadataRepository.fetchAllOperation(with: RepositoryFetchOptions())
-//        OperationQueue().addOperations([allMetadataOperation], waitUntilFinished: true)
-//
-//        let actualMetadataItems = try allMetadataOperation.extractNoCancellableResultData()
-//        XCTAssertEqual(actualMetadataItems.count, chainCount)
-//
-//        for actualMetadataItem in actualMetadataItems {
-//            XCTAssertEqual(actualMetadataItem.metadata, runtimeMetadataItems[actualMetadataItem.chain]!)
-//        }
-//    }
-//
-//    func testTypesAndMetadataFailureRetry() throws {
-//        // given
-//
-//        let storageFacade = SubstrateStorageTestFacade()
-//        let metadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-//            storageFacade.createRepository()
-//        let filesOperationFactory = MockRuntimeFilesOperationFactoryProtocol()
-//        let dataOperationFactory = MockDataOperationFactoryProtocol()
-//        let eventCenter = MockEventCenterProtocol()
-//
-//        let syncService = RuntimeSyncService(repository: AnyDataProviderRepository(metadataRepository),
-//                                             filesOperationFactory: filesOperationFactory,
-//                                             dataOperationFactory: dataOperationFactory,
-//                                             eventCenter: eventCenter
-//        )
-//
-//        // when
-//
-//        let chainCount = 10
-//        let chains = ChainModelGenerator.generate(count: chainCount)
-//
-//        let connections = chains.reduce(into: [ChainModel.Id: MockConnection]()) { (storage, chain) in
-//            storage[chain.chainId] = MockConnection()
-//        }
-//
-//        let runtimeMetadataItems = chains.reduce(into: [ChainModel.Id: Data]()) { (storage, chain) in
-//            storage[chain.chainId] = Data.random(of: 128)!
-//        }
-//
-//        // stub chain types file fetch from remote source
-//
-//        var failureCounterForTypes: Int = 0
-//
-//        stub(dataOperationFactory) { stub in
-//            stub.fetchData(from: any()).then { _ in
-//                if failureCounterForTypes < chainCount {
-//                    failureCounterForTypes += 1
-//
-//                    return BaseOperation.createWithError(BaseOperationError.unexpectedDependentResult)
-//                } else {
-//                    let responseData = Data.random(of: 1024)!
-//                    return BaseOperation.createWithResult(responseData)
-//                }
-//            }
-//        }
-//
-//        // stub chain types file save to disk
-//
-//        stub(filesOperationFactory) { stub in
-//            stub.saveChainTypesOperation(for: any(), data: any()).then { (chainId, data) in
-//                CompoundOperationWrapper.createWithResult(())
-//            }
-//        }
-//
-//        // stub runtime metadata fetch
-//
-//        var failureCounterForMetadata: Int = 0
-//
-//        connections.forEach { (chainId, connection) in
-//            stub(connection.internalConnection) { stub in
-//                stub.callMethod(any(), params: any([String].self), options: any(), completion: any())
-//                    .then { (_, _, _, completion: ((Result<String, Error>) -> Void)?) in
-//                        if failureCounterForMetadata < chainCount {
-//                            failureCounterForMetadata += 1
-//
-//                            DispatchQueue.global().async {
-//                                completion?(.failure(BaseOperationError.unexpectedDependentResult))
-//                            }
-//
-//                            return (0...UInt16.max).randomElement()!
-//                        } else {
-//                            DispatchQueue.global().async {
-//                                let responseData = runtimeMetadataItems[chainId]!.toHex(includePrefix: true)
-//                                completion?(.success(responseData))
-//                            }
-//
-//                            return (0...UInt16.max).randomElement()!
-//                        }
-//                }
-//            }
-//        }
-//
-//        let completionExpectation = XCTestExpectation()
-//        completionExpectation.expectedFulfillmentCount = 2 * chainCount
-//        completionExpectation.assertForOverFulfill = true
-//
-//        var syncedTypesChainIds: Set<ChainModel.Id> = Set()
-//        var syncedMetadataChainIds: Set<ChainModel.Id> = Set()
-//
-//        // catch all sync completion events
-//
-//        stub(eventCenter) { stub in
-//            stub.notify(with: any()).then { event in
-//                if let syncEvent = event as? RuntimeChainTypesSyncCompleted {
-//                    syncedTypesChainIds.insert(syncEvent.chainId)
-//                }
-//
-//                if let syncEvent = event as? RuntimeMetadataSyncCompleted {
-//                    syncedMetadataChainIds.insert(syncEvent.chainId)
-//                }
-//
-//                completionExpectation.fulfill()
-//            }
-//        }
-//
-//        chains.forEach { chain in
-//            syncService.register(chain: chain, with: connections[chain.chainId]!)
-//            syncService.apply(
-//                version: RuntimeVersion(specVersion: 1, transactionVersion: 1),
-//                for: chain.chainId
-//            )
-//
-//            XCTAssertTrue(syncService.isChainSyncing(chain.chainId))
-//        }
-//
-//        // then
-//
-//        wait(for: [completionExpectation], timeout: 10)
-//
-//        let expectedChainIds = Set(chains.map { $0.chainId })
-//
-//        XCTAssertEqual(expectedChainIds, syncedTypesChainIds)
-//        XCTAssertEqual(expectedChainIds, syncedMetadataChainIds)
-//
-//        // make sure files are tried to be save twice (first time and after retry)
-//
-//        verify(filesOperationFactory, times(2 * chainCount)).saveChainTypesOperation(
-//            for: any(),
-//            data: any()
-//        )
-//
-//        // make sure metadata is saved for each chain
-//
-//        let allMetadataOperation = metadataRepository.fetchAllOperation(with: RepositoryFetchOptions())
-//        OperationQueue().addOperations([allMetadataOperation], waitUntilFinished: true)
-//
-//        let actualMetadataItems = try allMetadataOperation.extractNoCancellableResultData()
-//        XCTAssertEqual(actualMetadataItems.count, chainCount)
-//
-//        for actualMetadataItem in actualMetadataItems {
-//            XCTAssertEqual(actualMetadataItem.metadata, runtimeMetadataItems[actualMetadataItem.chain]!)
-//        }
-//    }
-//
-//    func testOnlyTypesFailureRetry() throws {
-//        // given
-//
-//        let storageFacade = SubstrateStorageTestFacade()
-//        let metadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-//            storageFacade.createRepository()
-//        let filesOperationFactory = MockRuntimeFilesOperationFactoryProtocol()
-//        let dataOperationFactory = MockDataOperationFactoryProtocol()
-//        let eventCenter = MockEventCenterProtocol()
-//
-//        let syncService = RuntimeSyncService(repository: AnyDataProviderRepository(metadataRepository),
-//                                             filesOperationFactory: filesOperationFactory,
-//                                             dataOperationFactory: dataOperationFactory,
-//                                             eventCenter: eventCenter
-//        )
-//
-//        // when
-//
-//        let chainCount = 10
-//        let chains = ChainModelGenerator.generate(count: chainCount)
-//
-//        let connections = chains.reduce(into: [ChainModel.Id: MockConnection]()) { (storage, chain) in
-//            storage[chain.chainId] = MockConnection()
-//        }
-//
-//        let runtimeMetadataItems = chains.reduce(into: [ChainModel.Id: Data]()) { (storage, chain) in
-//            storage[chain.chainId] = Data.random(of: 128)!
-//        }
-//
-//        // stub chain types file fetch from remote source
-//
-//        var failureCounterForTypes: Int = 0
-//
-//        stub(dataOperationFactory) { stub in
-//            stub.fetchData(from: any()).then { _ in
-//                if failureCounterForTypes < chainCount {
-//                    failureCounterForTypes += 1
-//
-//                    return BaseOperation.createWithError(BaseOperationError.unexpectedDependentResult)
-//                } else {
-//                    let responseData = Data.random(of: 1024)!
-//                    return BaseOperation.createWithResult(responseData)
-//                }
-//            }
-//        }
-//
-//        // stub chain types file save to disk
-//
-//        stub(filesOperationFactory) { stub in
-//            stub.saveChainTypesOperation(for: any(), data: any()).then { (chainId, data) in
-//                CompoundOperationWrapper.createWithResult(())
-//            }
-//        }
-//
-//        // stub runtime metadata fetch
-//
-//        connections.forEach { (chainId, connection) in
-//            stub(connection.internalConnection) { stub in
-//                stub.callMethod(any(), params: any([String].self), options: any(), completion: any())
-//                    .then { (_, _, _, completion: ((Result<String, Error>) -> Void)?) in
-//                        DispatchQueue.global().async {
-//                            let responseData = runtimeMetadataItems[chainId]!.toHex(includePrefix: true)
-//                            completion?(.success(responseData))
-//                        }
-//
-//                        return (0...UInt16.max).randomElement()!
-//                }
-//            }
-//        }
-//
-//        let completionExpectation = XCTestExpectation()
-//        completionExpectation.expectedFulfillmentCount = 2 * chainCount
-//        completionExpectation.assertForOverFulfill = true
-//
-//        var syncedTypesChainIds: Set<ChainModel.Id> = Set()
-//        var syncedMetadataChainIds: Set<ChainModel.Id> = Set()
-//
-//        // catch all sync completion events
-//
-//        stub(eventCenter) { stub in
-//            stub.notify(with: any()).then { event in
-//                if let syncEvent = event as? RuntimeChainTypesSyncCompleted {
-//                    syncedTypesChainIds.insert(syncEvent.chainId)
-//                }
-//
-//                if let syncEvent = event as? RuntimeMetadataSyncCompleted {
-//                    syncedMetadataChainIds.insert(syncEvent.chainId)
-//                }
-//
-//                completionExpectation.fulfill()
-//            }
-//        }
-//
-//        chains.forEach { chain in
-//            syncService.register(chain: chain, with: connections[chain.chainId]!)
-//            syncService.apply(
-//                version: RuntimeVersion(specVersion: 1, transactionVersion: 1),
-//                for: chain.chainId
-//            )
-//
-//            XCTAssertTrue(syncService.isChainSyncing(chain.chainId))
-//        }
-//
-//        // then
-//
-//        wait(for: [completionExpectation], timeout: 10)
-//
-//        let expectedChainIds = Set(chains.map { $0.chainId })
-//
-//        XCTAssertEqual(expectedChainIds, syncedTypesChainIds)
-//        XCTAssertEqual(expectedChainIds, syncedMetadataChainIds)
-//
-//        // make sure files are tried to be save twice (first time and after retry)
-//
-//        verify(filesOperationFactory, times(2 * chainCount)).saveChainTypesOperation(
-//            for: any(),
-//            data: any()
-//        )
-//
-//        // make sure metadata requested once
-//
-//        let completionMatcher: ParameterMatcher<((Result<String, Error>) -> Void)?> = anyClosure()
-//
-//        for (_, connection) in connections {
-//            verify(connection.internalConnection, times(1)).callMethod(
-//                any(),
-//                params: any([String].self),
-//                options: any(),
-//                completion: completionMatcher
-//            )
-//        }
-//
-//        // make sure metadata is saved for each chain
-//
-//        let allMetadataOperation = metadataRepository.fetchAllOperation(with: RepositoryFetchOptions())
-//        OperationQueue().addOperations([allMetadataOperation], waitUntilFinished: true)
-//
-//        let actualMetadataItems = try allMetadataOperation.extractNoCancellableResultData()
-//        XCTAssertEqual(actualMetadataItems.count, chainCount)
-//
-//        for actualMetadataItem in actualMetadataItems {
-//            XCTAssertEqual(actualMetadataItem.metadata, runtimeMetadataItems[actualMetadataItem.chain]!)
-//        }
-//    }
-//}
+import XCTest
+@testable import fearless
+import RobinHood
+import SSFModels
+import SSFNetwork
+import SSFRuntimeCodingService
+import SSFUtils
+
+final class RuntimeSyncServiceTests: XCTestCase {
+    func testRegisterAndUnregisterMaintainKnownChains() {
+        let service = makeService().service
+        let chains = ChainModelGenerator.generate(count: 6)
+
+        chains.forEach { service.register(chain: $0, with: RuntimeMetadataConnection()) }
+
+        XCTAssertTrue(chains.allSatisfy { service.hasChain(with: $0.chainId) })
+        XCTAssertTrue(chains.allSatisfy { !service.isChainSyncing($0.chainId) })
+
+        let removedChains = Array(chains.prefix(3))
+        let remainingChains = Array(chains.suffix(3))
+
+        removedChains.forEach { service.unregister(chainId: $0.chainId) }
+
+        XCTAssertTrue(removedChains.allSatisfy { !service.hasChain(with: $0.chainId) })
+        XCTAssertTrue(remainingChains.allSatisfy { service.hasChain(with: $0.chainId) })
+        XCTAssertTrue(chains.allSatisfy { !service.isChainSyncing($0.chainId) })
+    }
+
+    func testApplyVersionFetchesStoresAndNotifiesRuntimeMetadata() throws {
+        let fixture = makeService()
+        let chain = ChainModelGenerator.generate(count: 1).first!
+        let metadata = Data([0x01, 0x02, 0x03, 0x04])
+        let version = RuntimeVersion(specVersion: 42, transactionVersion: 7)
+
+        let eventExpectation = expectation(description: "Runtime metadata sync event")
+        fixture.eventCenter.onNotify = { (event: EventProtocol) in
+            guard let event = event as? RuntimeMetadataSyncCompleted else {
+                return
+            }
+
+            XCTAssertEqual(event.chainId, chain.chainId)
+            XCTAssertEqual(event.version.specVersion, version.specVersion)
+            XCTAssertEqual(event.version.transactionVersion, version.transactionVersion)
+            XCTAssertEqual(event.metadata.metadata, metadata)
+            eventExpectation.fulfill()
+        }
+
+        fixture.service.register(
+            chain: chain,
+            with: RuntimeMetadataConnection(metadataHex: metadata.prefixedHexString)
+        )
+
+        fixture.service.apply(version: version, for: chain.chainId)
+
+        wait(for: [eventExpectation], timeout: Constants.defaultExpectationDuration)
+
+        let fetchOperation = fixture.repository.fetchAllOperation(with: RepositoryFetchOptions())
+        OperationQueue().addOperations([fetchOperation], waitUntilFinished: true)
+
+        let storedItem: fearless.RuntimeMetadataItem
+        switch fetchOperation.result {
+        case let .success(items):
+            storedItem = try XCTUnwrap(items.first { $0.chain == chain.chainId })
+        case let .failure(error):
+            throw error
+        case .none:
+            XCTFail("Expected stored runtime metadata")
+            return
+        }
+
+        XCTAssertEqual(storedItem.version, version.specVersion)
+        XCTAssertEqual(storedItem.txVersion, version.transactionVersion)
+        XCTAssertEqual(storedItem.metadata, metadata)
+        XCTAssertFalse(fixture.service.isChainSyncing(chain.chainId))
+    }
+
+    func testSnapshotHotBootBuilderUsesInjectedConfigSource() {
+        let storageFacade = SubstrateStorageTestFacade()
+        let chainRepository: CoreDataRepository<ChainModel, CDChain> = storageFacade.createRepository()
+        let runtimeRepository: CoreDataRepository<fearless.RuntimeMetadataItem, CDRuntimeMetadataItem> =
+            storageFacade.createRepository()
+        let dataOperationFactory = CapturingNetworkOperationFactory()
+        let operationQueue = OperationQueue()
+        operationQueue.isSuspended = true
+        defer {
+            operationQueue.cancelAllOperations()
+            operationQueue.isSuspended = false
+        }
+        let configSource = SnapshotHotBootConfigSourceStub(
+            chainsSourceUrl: URL(string: "https://chains.example/chains.json")!,
+            chainTypesSourceUrl: URL(string: "https://chains.example/types.json")!
+        )
+
+        let builder = SnapshotHotBootBuilder(
+            runtimeProviderPool: RuntimeProviderPoolNoop(),
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            filesOperationFactory: RuntimeFilesOperationFactoryStub(),
+            runtimeItemRepository: AnyDataProviderRepository(runtimeRepository),
+            dataOperationFactory: dataOperationFactory,
+            operationQueue: operationQueue,
+            logger: Logger.shared,
+            configSource: configSource
+        )
+
+        builder.startHotBoot()
+
+        XCTAssertEqual(dataOperationFactory.requestedURLs, [
+            configSource.chainTypesSourceUrl,
+            configSource.chainsSourceUrl
+        ])
+    }
+}
+
+private extension RuntimeSyncServiceTests {
+    typealias Fixture = (
+        service: RuntimeSyncService,
+        repository: CoreDataRepository<fearless.RuntimeMetadataItem, CDRuntimeMetadataItem>,
+        eventCenter: RecordingEventCenter
+    )
+
+    func makeService() -> Fixture {
+        let storageFacade = SubstrateStorageTestFacade()
+        let repository: CoreDataRepository<fearless.RuntimeMetadataItem, CDRuntimeMetadataItem> =
+            storageFacade.createRepository()
+        let eventCenter = RecordingEventCenter()
+        let service = RuntimeSyncService(
+            repository: AnyDataProviderRepository(repository),
+            filesOperationFactory: RuntimeFilesOperationFactoryStub(),
+            dataOperationFactory: DataOperationFactoryStub(),
+            eventCenter: eventCenter,
+            maxConcurrentSyncRequests: 1
+        )
+
+        return (service, repository, eventCenter)
+    }
+}
+
+private final class RuntimeMetadataConnection: JSONRPCEngine {
+    var connectionName: String?
+    var url: URL?
+    var pendingEngineRequests: [JSONRPCRequest] { [] }
+
+    private var nextId: UInt16 = 1
+    private let metadataHex: String
+
+    init(metadataHex: String = "0x") {
+        self.metadataHex = metadataHex
+    }
+
+    func callMethod<P: Codable, T: Decodable>(
+        _ method: String,
+        params _: P?,
+        options _: JSONRPCOptions,
+        completion closure: ((Result<T, Error>) -> Void)?
+    ) throws -> UInt16 {
+        let id = generateRequestId()
+
+        guard method == RPCMethod.getRuntimeMetadata else {
+            closure?(.failure(JSONRPCEngineError.clientCancelled))
+            return id
+        }
+
+        if let metadata = metadataHex as? T {
+            DispatchQueue.global().async {
+                closure?(.success(metadata))
+            }
+        } else {
+            DispatchQueue.global().async {
+                closure?(.failure(JSONRPCEngineError.clientCancelled))
+            }
+        }
+
+        return id
+    }
+
+    func subscribe<P: Codable, T: Decodable>(
+        _: String,
+        params _: P?,
+        updateClosure _: @escaping (T) -> Void,
+        failureClosure _: @escaping (Error, Bool) -> Void
+    ) throws -> UInt16 {
+        generateRequestId()
+    }
+
+    func cancelForIdentifier(_: UInt16) {}
+    func addSubscription(_: JSONRPCSubscribing) {}
+    func reconnect(url: URL) { self.url = url }
+    func connectIfNeeded() {}
+    func disconnectIfNeeded() {}
+    func unsubsribe(_: UInt16) throws {}
+
+    func generateRequestId() -> UInt16 {
+        defer { nextId &+= 1 }
+        return nextId
+    }
+}
+
+private final class RuntimeFilesOperationFactoryStub: RuntimeFilesOperationFactoryProtocol {
+    func fetchCommonTypesOperation() -> CompoundOperationWrapper<Data?> {
+        CompoundOperationWrapper.createWithResult(nil)
+    }
+
+    func fetchChainsTypesOperation() -> CompoundOperationWrapper<Data?> {
+        CompoundOperationWrapper.createWithResult(nil)
+    }
+
+    func fetchChainTypesOperation(for _: ChainModel.Id) -> CompoundOperationWrapper<Data?> {
+        CompoundOperationWrapper.createWithResult(nil)
+    }
+
+    func saveCommonTypesOperation(data _: @escaping () throws -> Data) -> CompoundOperationWrapper<Void> {
+        CompoundOperationWrapper.createWithResult(())
+    }
+
+    func saveChainsTypesOperation(data _: @escaping () throws -> Data) -> CompoundOperationWrapper<Void> {
+        CompoundOperationWrapper.createWithResult(())
+    }
+
+    func saveChainTypesOperation(
+        for _: ChainModel.Id,
+        data _: @escaping () throws -> Data
+    ) -> CompoundOperationWrapper<Void> {
+        CompoundOperationWrapper.createWithResult(())
+    }
+}
+
+private final class DataOperationFactoryStub: DataOperationFactoryProtocol {
+    func fetchData(from _: URL) -> BaseOperation<Data> {
+        ClosureOperation<Data> {
+            throw BaseOperationError.unexpectedDependentResult
+        }
+    }
+}
+
+private final class CapturingNetworkOperationFactory: NetworkOperationFactoryProtocol {
+    private(set) var requestedURLs: [URL] = []
+
+    func fetchData<T: Decodable>(from url: URL) -> BaseOperation<T> {
+        requestedURLs.append(url)
+        return ClosureOperation<T> {
+            throw BaseOperationError.unexpectedDependentResult
+        }
+    }
+}
+
+private struct SnapshotHotBootConfigSourceStub: SnapshotHotBootConfigSource {
+    let chainsSourceUrl: URL
+    let chainTypesSourceUrl: URL
+}
+
+private final class RuntimeProviderPoolNoop: RuntimeProviderPoolProtocol {
+    private let runtimeProvider = RuntimeProviderNoop()
+
+    func setupRuntimeProvider(
+        for _: ChainModel,
+        chainTypes _: Data?
+    ) -> RuntimeProviderProtocol {
+        runtimeProvider
+    }
+
+    func setupHotRuntimeProvider(
+        for _: ChainModel,
+        runtimeItem _: fearless.RuntimeMetadataItem,
+        chainTypes _: Data
+    ) -> RuntimeProviderProtocol {
+        runtimeProvider
+    }
+
+    func destroyRuntimeProvider(for _: ChainModel.Id) {}
+
+    func getRuntimeProvider(for _: ChainModel.Id) -> RuntimeProviderProtocol? {
+        nil
+    }
+}
+
+private final class RuntimeProviderNoop: RuntimeProviderProtocol {
+    var runtimeSpecVersion: RuntimeSpecVersion { .defaultVersion }
+    var snapshot: RuntimeSnapshot?
+
+    func setup() {}
+
+    func readySnapshot() async throws -> RuntimeSnapshot {
+        throw NSError(domain: "RuntimeProviderNoop", code: 0)
+    }
+
+    func cleanup() {}
+
+    func setupHot() {}
+
+    func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
+        ClosureOperation<RuntimeCoderFactoryProtocol> {
+            throw NSError(domain: "RuntimeProviderNoop", code: 0)
+        }
+    }
+
+    func fetchCoderFactory() async throws -> RuntimeCoderFactoryProtocol {
+        throw NSError(domain: "RuntimeProviderNoop", code: 0)
+    }
+}
+
+private final class RecordingEventCenter: EventCenterProtocol {
+    var onNotify: ((EventProtocol) -> Void)?
+
+    func notify(with event: EventProtocol) {
+        onNotify?(event)
+    }
+
+    func add(observer _: EventVisitorProtocol, dispatchIn _: DispatchQueue?) {}
+    func remove(observer _: EventVisitorProtocol) {}
+}
+
+private extension Data {
+    var prefixedHexString: String {
+        "0x" + map { String(format: "%02x", $0) }.joined()
+    }
+}

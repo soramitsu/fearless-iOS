@@ -1,32 +1,62 @@
 import Foundation
-import SoraKeystore
-import SoraFoundation
+import FearlessSecureStorage
+import FearlessFoundation
 import SSFCloudStorage
 import SSFNetwork
 
 final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
+    struct Dependencies {
+        var keystoreImportServiceProvider: () -> KeystoreImportServiceProtocol?
+        var logger: LoggerProtocol
+
+        static var live: Dependencies {
+            Dependencies(
+                keystoreImportServiceProvider: URLHandlingDependencies.keystoreImportService,
+                logger: Logger.shared
+            )
+        }
+    }
+
     static func createViewForOnboarding() -> OnboardingMainViewProtocol? {
+        createViewForOnboarding(dependencies: .live)
+    }
+
+    static func createViewForOnboarding(
+        dependencies: Dependencies
+    ) -> OnboardingMainViewProtocol? {
         let wireframe = OnboardingMainWireframe()
-        return createView(for: wireframe)
+        return createView(for: wireframe, dependencies: dependencies)
     }
 
     static func createViewForAdding() -> OnboardingMainViewProtocol? {
+        createViewForAdding(dependencies: .live)
+    }
+
+    static func createViewForAdding(
+        dependencies: Dependencies
+    ) -> OnboardingMainViewProtocol? {
         let wireframe = AddAccount.OnboardingMainWireframe()
-        return createView(for: wireframe)
+        return createView(for: wireframe, dependencies: dependencies)
     }
 
     static func createViewForAccountSwitch() -> OnboardingMainViewProtocol? {
+        createViewForAccountSwitch(dependencies: .live)
+    }
+
+    static func createViewForAccountSwitch(
+        dependencies: Dependencies
+    ) -> OnboardingMainViewProtocol? {
         let wireframe = SwitchAccount.OnboardingMainWireframe()
-        return createView(for: wireframe)
+        return createView(for: wireframe, dependencies: dependencies)
     }
 
     private static func createView(
-        for wireframe: OnboardingMainWireframeProtocol
+        for wireframe: OnboardingMainWireframeProtocol,
+        dependencies: Dependencies
     ) -> OnboardingMainViewProtocol? {
-        guard let kestoreImportService: KeystoreImportServiceProtocol =
-            URLHandlingService.shared.findService()
+        guard let keystoreImportService = dependencies.keystoreImportServiceProvider()
         else {
-            Logger.shared.error("Can't find required keystore import service")
+            dependencies.logger.error("Can't find required keystore import service")
             return nil
         }
 
@@ -62,7 +92,7 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
         )
 
         let interactor = OnboardingMainInteractor(
-            keystoreImportService: kestoreImportService,
+            keystoreImportService: keystoreImportService,
             cloudStorage: cloudStorage,
             featureToggleService: featureToggleProvider,
             operationQueue: OperationQueue()

@@ -1,19 +1,33 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import SSFCloudStorage
-import SoraKeystore
+import FearlessSecureStorage
 
 final class BackupPasswordAssembly {
+    struct Dependencies {
+        var keystoreImportServiceProvider: () -> KeystoreImportServiceProtocol?
+        var localizationManager: LocalizationManagerProtocol
+        var logger: LoggerProtocol
+
+        static var live: Dependencies {
+            Dependencies(
+                keystoreImportServiceProvider: URLHandlingDependencies.keystoreImportService,
+                localizationManager: LocalizationManager.shared,
+                logger: Logger.shared
+            )
+        }
+    }
+
     static func configureModule(
-        backupAccounts: [BackupAccount]
+        backupAccounts: [BackupAccount],
+        dependencies: Dependencies = .live
     ) -> BackupPasswordModuleCreationResult? {
-        guard let keystoreImportService: KeystoreImportServiceProtocol =
-            URLHandlingService.shared.findService()
+        guard let keystoreImportService = dependencies.keystoreImportServiceProvider()
         else {
-            Logger.shared.error("Missing required keystore import service")
+            dependencies.logger.error("Missing required keystore import service")
             return nil
         }
-        let localizationManager = LocalizationManager.shared
+        let localizationManager = dependencies.localizationManager
 
         let keystore = Keychain()
         let settings = SelectedWalletSettings.shared
@@ -38,7 +52,7 @@ final class BackupPasswordAssembly {
             interactor: interactor,
             router: router,
             localizationManager: localizationManager,
-            logger: Logger.shared
+            logger: dependencies.logger
         )
 
         let view = BackupPasswordViewController(

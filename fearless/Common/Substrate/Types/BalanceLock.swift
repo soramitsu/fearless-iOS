@@ -1,7 +1,7 @@
 import Foundation
 import BigInt
 import SSFUtils
-import SoraFoundation
+import FearlessFoundation
 
 struct BalanceLock: Codable, Equatable {
     enum CodingKeys: String, CodingKey {

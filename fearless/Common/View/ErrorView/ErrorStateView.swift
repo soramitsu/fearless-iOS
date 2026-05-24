@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 protocol ErrorStateViewDelegate: AnyObject {
     func didRetry(errorView: ErrorStateView)
