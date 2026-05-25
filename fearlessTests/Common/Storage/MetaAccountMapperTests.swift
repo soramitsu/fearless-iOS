@@ -57,4 +57,30 @@ class MetaAccountMapperTests: XCTestCase {
         XCTAssertEqual(differentOrders.count, accountCount)
     }
 
+    func testCodableCoreDataMapper_whenSavingMetaAccount_thenRoundTrips() throws {
+        let operationQueue = OperationQueue()
+        let facade = UserDataStorageTestFacade()
+        let mapper = CodableCoreDataMapper<MetaAccountModel, CDMetaAccount>(
+            entityIdentifierFieldName: #keyPath(CDMetaAccount.metaId)
+        )
+        let repository = facade.createRepository(mapper: AnyCoreDataMapper(mapper))
+        let metaAccount = AccountGenerator.generateMetaAccount(generatingChainAccounts: 2)
+
+        let saveOperation = repository.saveOperation({ [metaAccount] }, { [] })
+        operationQueue.addOperations([saveOperation], waitUntilFinished: true)
+        XCTAssertNoThrow(
+            try saveOperation.extractResultData(
+                throwing: BaseOperationError.parentOperationCancelled
+            )
+        )
+
+        let fetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
+        operationQueue.addOperations([fetchOperation], waitUntilFinished: true)
+        let fetchedAccounts = try fetchOperation.extractResultData(
+            throwing: BaseOperationError.parentOperationCancelled
+        )
+
+        XCTAssertEqual(fetchedAccounts, [metaAccount])
+    }
+
 }

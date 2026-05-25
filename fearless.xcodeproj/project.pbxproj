@@ -1399,7 +1399,7 @@
 		AE8B883226733BAD00AB0AA9 /* CustomValidatorListHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B883126733BAC00AB0AA9 /* CustomValidatorListHeaderView.swift */; };
 		AE8B8835267349C200AB0AA9 /* CustomVlidatorRelaychainListFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B8834267349C200AB0AA9 /* CustomVlidatorRelaychainListFilter.swift */; };
 		AE8B8837267351E300AB0AA9 /* CustomValidatorRelaychainListComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B8836267351E300AB0AA9 /* CustomValidatorRelaychainListComposer.swift */; };
-		AE8D028E2638074D00780D18 /* CIKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8D028D2638074D00780D18 /* CIKeys.swift */; };
+		AE8D028E2638074D00780D18 /* CIKeys.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8D028D2638074D00780D18 /* CIKeys.generated.swift */; };
 		AE9EF255260A82830026910A /* StoriesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF254260A82830026910A /* StoriesViewController.swift */; };
 		AE9EF25A260A82970026910A /* StoriesInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF259260A82970026910A /* StoriesInteractor.swift */; };
 		AE9EF25F260A82A50026910A /* StoriesPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF25E260A82A50026910A /* StoriesPresenter.swift */; };
@@ -4533,7 +4533,7 @@
 		AE8B883126733BAC00AB0AA9 /* CustomValidatorListHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListHeaderView.swift; sourceTree = "<group>"; };
 		AE8B8834267349C200AB0AA9 /* CustomVlidatorRelaychainListFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomVlidatorRelaychainListFilter.swift; sourceTree = "<group>"; };
 		AE8B8836267351E300AB0AA9 /* CustomValidatorRelaychainListComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorRelaychainListComposer.swift; sourceTree = "<group>"; };
-		AE8D028D2638074D00780D18 /* CIKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CIKeys.swift; path = CIKeys.swift; sourceTree = SOURCE_ROOT; };
+		AE8D028D2638074D00780D18 /* CIKeys.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIKeys.generated.swift; sourceTree = SOURCE_ROOT; };
 		AE9EF254260A82830026910A /* StoriesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewController.swift; sourceTree = "<group>"; };
 		AE9EF259260A82970026910A /* StoriesInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesInteractor.swift; sourceTree = "<group>"; };
 		AE9EF25E260A82A50026910A /* StoriesPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesPresenter.swift; sourceTree = "<group>"; };
@@ -9121,7 +9121,7 @@
 				849013D124A92686008F705E /* Common */,
 				849013D224A9268D008F705E /* Modules */,
 				AE2060AF2637068700357578 /* CIKeys.stencil */,
-				AE8D028D2638074D00780D18 /* CIKeys.swift */,
+				AE8D028D2638074D00780D18 /* CIKeys.generated.swift */,
 				849013AB24A80984008F705E /* AppDelegate.swift */,
 				849013CF24A9267F008F705E /* R.generated.swift */,
 				841937862544772F00CFA50C /* animatedBg.gif */,
@@ -15627,9 +15627,10 @@
 			buildPhases = (
 				F472A8D6261758DE003C58BC /* SwiftFormat */,
 				849013CD24A92260008F705E /* Swiftlint */,
-				FAEEBEEF2DDC0FFE00ABC123 /* SPM Shared Features Fixes */,
-				849013CE24A92280008F705E /* R.swift */,
-				849013A424A80984008F705E /* Sources */,
+					FAEEBEEF2DDC0FFE00ABC123 /* SPM Shared Features Fixes */,
+					849013CE24A92280008F705E /* R.swift */,
+					AE2060202636DA5900357578 /* Inject keys */,
+					849013A424A80984008F705E /* Sources */,
 				849013A524A80984008F705E /* Frameworks */,
 				849013A624A80984008F705E /* Resources */,
 				FAD429442A8A1A74001D6A16 /* Inject Google Keys */,
@@ -15904,9 +15905,9 @@
 			shellPath = /bin/sh;
 			shellScript = "set -euo pipefail\nif command -v swiftlint >/dev/null 2>&1; then\n  swiftlint lint --config \"$SRCROOT/.swiftlint.yml\" --baseline \"$SRCROOT/.swiftlint-baseline.json\" \"$SRCROOT/fearless\"\nelse\n  xcrun --sdk macosx swift run --package-path \"$SRCROOT/Packages/FearlessBuildTools\" swiftlint lint --config \"$SRCROOT/.swiftlint.yml\" --baseline \"$SRCROOT/.swiftlint-baseline.json\" \"$SRCROOT/fearless\"\nfi\n";
 		};
-		849013CE24A92280008F705E /* R.swift */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
+			849013CE24A92280008F705E /* R.swift */ = {
+				isa = PBXShellScriptBuildPhase;
+				buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
@@ -15921,12 +15922,33 @@
 				$PROJECT_DIR/R.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -euo pipefail\nOUT_FILE=\"$PROJECT_DIR/R.generated.swift\"\nif command -v rswift >/dev/null 2>&1; then\n  rswift generate \"$OUT_FILE\"\nelse\n  xcrun --sdk macosx swift run --package-path \"$SRCROOT/Packages/FearlessBuildTools\" rswift generate \"$OUT_FILE\"\nfi\n";
-		};
-		F472A8D6261758DE003C58BC /* SwiftFormat */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
+				shellPath = /bin/sh;
+				shellScript = "set -euo pipefail\nOUT_FILE=\"$PROJECT_DIR/R.generated.swift\"\nif command -v rswift >/dev/null 2>&1; then\n  rswift generate \"$OUT_FILE\"\nelse\n  xcrun --sdk macosx swift run --package-path \"$SRCROOT/Packages/FearlessBuildTools\" rswift generate \"$OUT_FILE\"\nfi\n";
+			};
+			AE2060202636DA5900357578 /* Inject keys */ = {
+				isa = PBXShellScriptBuildPhase;
+				alwaysOutOfDate = 1;
+				buildActionMask = 2147483647;
+				files = (
+				);
+				inputFileListPaths = (
+				);
+				inputPaths = (
+					"$PROJECT_DIR/$PROJECT_NAME/CIKeys.stencil",
+				);
+				name = "Inject keys";
+				outputFileListPaths = (
+				);
+				outputPaths = (
+					$PROJECT_DIR/CIKeys.generated.swift,
+				);
+				runOnlyForDeploymentPostprocessing = 0;
+				shellPath = /bin/sh;
+				shellScript = "set -euo pipefail\nif [ -f \"$PROJECT_DIR/$PROJECT_NAME/env-vars.sh\" ]; then\n  # shellcheck disable=SC1090\n  . \"$PROJECT_DIR/$PROJECT_NAME/env-vars.sh\"\nfi\nTEMPLATE=\"$PROJECT_DIR/$PROJECT_NAME/CIKeys.stencil\"\nOUT_FILE=\"$PROJECT_DIR/CIKeys.generated.swift\"\necho \"CI keys output file = $OUT_FILE\"\nif command -v ci-keys-generator >/dev/null 2>&1; then\n  ci-keys-generator \"$TEMPLATE\" \"$OUT_FILE\"\nelse\n  xcrun --sdk macosx swift run --package-path \"$SRCROOT/Packages/FearlessBuildTools\" ci-keys-generator \"$TEMPLATE\" \"$OUT_FILE\"\nfi\n";
+			};
+			F472A8D6261758DE003C58BC /* SwiftFormat */ = {
+				isa = PBXShellScriptBuildPhase;
+				alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -15957,12 +15979,12 @@
 			name = "Inject Google Keys";
 			outputFileListPaths = (
 			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e\nINFO_PLIST=\"$BUILT_PRODUCTS_DIR/$INFOPLIST_PATH\"\nGOOGLE_CLIENT_ID=\"${GOOGLE_CLIENT_ID:-${WEB_CLIENT_ID_DEBUG:-${WEB_CLIENT_ID_RELEASE:-}}}\"\nGOOGLE_URL_SCHEME=\"${GOOGLE_URL_SCHEME:-${FEARLESS_GOOGLE_URL_SCHEME_DEBUG:-${FEARLESS_GOOGLE_URL_SCHEME_RELEASE:-}}}\"\nif [ -n \"$GOOGLE_CLIENT_ID\" ] && [ -n \"$GOOGLE_URL_SCHEME\" ]; then\n  /usr/libexec/PlistBuddy -c \"Set :GIDClientID $GOOGLE_CLIENT_ID\" \"$INFO_PLIST\" || /usr/libexec/PlistBuddy -c \"Add :GIDClientID string $GOOGLE_CLIENT_ID\" \"$INFO_PLIST\" || true\n  /usr/libexec/PlistBuddy -c \"Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 $GOOGLE_URL_SCHEME\" \"$INFO_PLIST\" || true\n  echo \"Injected Google keys into built Info.plist\"\nelse\n  echo \"Google keys not provided; skipping injection (non-fatal).\"\nfi\n";
-		};
+				outputPaths = (
+				);
+				runOnlyForDeploymentPostprocessing = 0;
+				shellPath = /bin/sh;
+				shellScript = "set -euo pipefail\nbash \"$SRCROOT/scripts/secrets/inject-google-keys.sh\" \"$BUILT_PRODUCTS_DIR/$INFOPLIST_PATH\"\n";
+			};
 		FAEEBEEF2DDC0FFE00ABC123 /* SPM Shared Features Fixes */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -16085,7 +16107,7 @@
 				FAE39AFA2AA063450011A9D6 /* NFTTransferService.swift in Sources */,
 				F458D3C12642B7D80055CB75 /* LearnMoreView.swift in Sources */,
 				8460E11F25420A2C00826F55 /* DetailsTriangularedView+Inspectable.swift in Sources */,
-				AE8D028E2638074D00780D18 /* CIKeys.swift in Sources */,
+					AE8D028E2638074D00780D18 /* CIKeys.generated.swift in Sources */,
 				076D9D43294051B3002762E3 /* ExpandableSubtitleCell.swift in Sources */,
 				F40966B726B297D6008CD244 /* AnalyticsContainerViewController.swift in Sources */,
 				FA2FC81928B3807D00CC0A42 /* StakingPoolStartViewController.swift in Sources */,

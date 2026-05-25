@@ -12,7 +12,13 @@ import SSFRuntimeCodingService
 
 class JSONRPCTests: XCTestCase {
     override func setUpWithError() throws {
-        throw XCTSkip("JSON RPC integration tests depend on unstable remote endpoints and schemas in the current environment")
+        guard Self.remoteEndpointTestsEnabled else {
+            throw XCTSkip("JSON RPC integration tests depend on unstable remote endpoints and schemas; set FEARLESS_RUN_REMOTE_INTEGRATION_TESTS=1 to run it")
+        }
+    }
+
+    private static var remoteEndpointTestsEnabled: Bool {
+        ProcessInfo.processInfo.environment["FEARLESS_RUN_REMOTE_INTEGRATION_TESTS"] == "1"
     }
 
     struct RpcInterface: Decodable {

@@ -4,6 +4,13 @@ on:
   pull_request:
     branches:
       - develop
+  workflow_dispatch:
+    inputs:
+      run_remote_integration_tests:
+        description: "Run endpoint-dependent integration tests"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -48,6 +55,15 @@ jobs:
               ;;
           esac
           bash scripts/test-matrix.sh fearless.tests "platform=iOS Simulator,name=Any iOS Simulator Device"
+
+      - name: Archive Smoke (Unsigned)
+        run: |
+          SKIP_BOOTSTRAP=1 bash scripts/ci/archive-smoke.sh "$PWD"
+
+      - name: Remote Integration Tests (Manual)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_remote_integration_tests }}
+        run: |
+          FEARLESS_RUN_REMOTE_INTEGRATION_TESTS=1 SKIP_BOOTSTRAP=1 bash scripts/ci/remote-integration.sh "$PWD"
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6

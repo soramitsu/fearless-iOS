@@ -166,6 +166,21 @@ import Foundation
                 let mutable = mutableSetValue(forKey: "chainAccounts")
                 mutable.add(value)
             }
+
+            override public func populate(
+                from decoder: Decoder,
+                using context: NSManagedObjectContext
+            ) throws {
+                let model = try MetaAccountModel(from: decoder)
+                try MetaAccountMapper().populate(entity: self, from: model, using: context)
+                isSelected = false
+                order = 0
+            }
+
+            override public func encode(to encoder: Encoder) throws {
+                let model = try MetaAccountMapper().transform(entity: self)
+                try model.encode(to: encoder)
+            }
         }
 
         public class CDChainAccount: CoreDataStubObject {

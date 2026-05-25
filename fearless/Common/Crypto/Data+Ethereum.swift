@@ -3,7 +3,7 @@ import keccak
 import secp256k1
 import BigInt
 
-// TODO: Move to library
+// Local Ethereum public-key utilities built on the pinned secp256k1 package.
 extension Data {
     func ethereumAddressFromPublicKey() throws -> Data {
         var data = self

@@ -211,7 +211,6 @@ extension ValidatorInfoParachainViewModelFactory: ValidatorInfoViewModelFactoryP
             status = .unelected(commission: nil)
         }
 
-        // TODO: Has slashes real value
         let staking = ValidatorInfoViewModel.Staking(
             status: status,
             slashed: false

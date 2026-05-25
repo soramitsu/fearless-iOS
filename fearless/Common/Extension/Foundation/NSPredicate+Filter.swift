@@ -3,12 +3,6 @@ import IrohaCrypto
 import SSFModels
 
 extension NSPredicate {
-    // TODO: Remove
-    static func filterAccountBy(networkType: SNAddressType) -> NSPredicate {
-        let rawValue = Int16(networkType.rawValue)
-        return NSPredicate(format: "%K == %d", "order", rawValue)
-    }
-
     static func filterTransactionsBy(address: String) -> NSPredicate {
         let senderPredicate = filterTransactionsBySender(address: address)
         let receiverPredicate = filterTransactionsByReceiver(address: address)

@@ -3,7 +3,6 @@ import FearlessSecureStorage
 import IrohaCrypto
 import RobinHood
 
-// TODO: Check how to convert this to chain account import
 extension AddAccount {
     final class AccountConfirmInteractor: BaseAccountConfirmInteractor {
         private(set) var settings: SelectedWalletSettings

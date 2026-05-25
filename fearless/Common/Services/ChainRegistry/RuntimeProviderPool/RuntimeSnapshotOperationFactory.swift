@@ -12,6 +12,13 @@ protocol RuntimeSnapshotFactoryProtocol {
     ) -> ClosureOperation<RuntimeSnapshot?>
 }
 
+enum RuntimeSnapshotTypeDefinition {
+    static func baseTypesData() throws -> Data {
+        let json: JSON = .dictionaryValue(["types": .dictionaryValue([:])])
+        return try JSONEncoder().encode(json)
+    }
+}
+
 final class RuntimeSnapshotFactory {
     private let chainId: ChainModel.Id
     private let filesOperationFactory: RuntimeFilesOperationFactoryProtocol
@@ -36,10 +43,8 @@ final class RuntimeSnapshotFactory {
             let decoder = try ScaleDecoder(data: runtimeMetadataItem.metadata)
             let runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
 
-            // TODO: think about it
-            let json: JSON = .dictionaryValue(["types": .dictionaryValue([:])])
             let catalog = try TypeRegistryCatalog.createFromTypeDefinition(
-                try JSONEncoder().encode(json),
+                try RuntimeSnapshotTypeDefinition.baseTypesData(),
                 versioningData: ownTypes,
                 runtimeMetadata: runtimeMetadata,
                 usedRuntimePaths: usedRuntimePaths

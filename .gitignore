@@ -65,3 +65,6 @@ fearless.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 .env
 .env.local
 .env.private
+
+# Xcode may create these when HOME is redirected during local script runs
+**/.home/

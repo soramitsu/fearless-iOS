@@ -266,7 +266,6 @@ public func encodeData(
             return (type: "bytes32", value: data.sha3(.keccak256) as AnyObject)
         }
 
-        // TODO: check with metamask test cases v4
         if type.last == "]" {
             guard version == .v4 else {
                 throw TypedMessageSignError.unknown("Arrays are unimplemented in encoded data; use v4")

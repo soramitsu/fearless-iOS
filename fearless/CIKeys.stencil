@@ -36,6 +36,14 @@ enum EthereumNodesApiKeys {
     static var polygonApiKey: String = "{{ argument.polygonApiKey }}"
 }
 
+enum EthereumNodesApiKeysDebug {
+    static var ethereumApiKey: String = "{{ argument.ethereumApiKeyDebug }}"
+    static var bscApiKey: String = "{{ argument.bscApiKeyDebug }}"
+    static var sepoliaApiKey: String = "{{ argument.sepoliaApiKeyDebug }}"
+    static var goerliApiKey: String = "{{ argument.goerliApiKeyDebug }}"
+    static var polygonApiKey: String = "{{ argument.polygonApiKeyDebug }}"
+}
+
 enum GoogleBackup {
     static var googleToken: String = "{{ argument.webClientIdRelease }}"
     static var googleUrlScheme: String = "{{ argument.fearlessGoogleUrlSchemeRelease }}"
@@ -48,6 +56,10 @@ enum GoogleBackupDebug {
 
 enum WalletConnect {
     static var projectId: String = "{{ argument.walletConnectProjectId }}"
+}
+
+enum WalletConnectDebug {
+    static var projectId: String = "{{ argument.walletConnectProjectIdDebug }}"
 }
 
 enum BlockExplorerApiKeys {
@@ -88,4 +100,16 @@ enum TonNodeApiKey {
 
 enum TonNodeApiKeyDebug {
     static var tonApiKey: String = "{{ argument.tonApiKeyDebug }}"
+}
+
+enum OKXApiKeys {
+    static var okxApiKey: String = "{{ argument.okxApiKey }}"
+    static var okxSecretKey: String = "{{ argument.okxSecretKey }}"
+    static var okxPassphrase: String = "{{ argument.okxPassphrase }}"
+    static var okxProjectId: String = "{{ argument.okxProjectId }}"
+}
+
+enum NomisApiKeys {
+    static var nomisClientId: String = "{{ argument.nomisClientId }}"
+    static var nomisApiKey: String = "{{ argument.nomisApiKey }}"
 }

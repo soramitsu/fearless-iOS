@@ -40,6 +40,18 @@ class PredicateTests: XCTestCase {
         XCTAssertFalse(NSPredicate.deriviationPathHardSoft.evaluate(with: "/soft//hard///"))
     }
 
+    func testDerivationPathNumericAliases() {
+        XCTAssertTrue(NSPredicate.deriviationPathHardSoftNumeric.evaluate(with: DerivationPathConstants.defaultEthereum))
+        XCTAssertTrue(
+            NSPredicate.deriviationPathHardSoftNumericPassword.evaluate(
+                with: "\(DerivationPathConstants.defaultEthereum)///password"
+            )
+        )
+
+        XCTAssertFalse(NSPredicate.deriviationPathHardSoftNumeric.evaluate(with: "44//60"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardSoftNumericPassword.evaluate(with: "//44///"))
+    }
+
     func testDerivationPathHardPredicate() {
         XCTAssertTrue(NSPredicate.deriviationPathHard.evaluate(with: "//2"))
         XCTAssertTrue(NSPredicate.deriviationPathHard.evaluate(with: "//мир"))

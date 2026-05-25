@@ -17,14 +17,6 @@ import Web3
 import WalletConnectPairing
 import WalletConnectUtils
 
-class FilterTests: XCTestCase {
-    func testAccountFilterTest() {
-        XCTAssertNoThrow(NSPredicate.filterAccountBy(networkType: fearless.SNAddressType.kusamaMain))
-        XCTAssertNoThrow(NSPredicate.filterAccountBy(networkType: fearless.SNAddressType.polkadotMain))
-        XCTAssertNoThrow(NSPredicate.filterAccountBy(networkType: fearless.SNAddressType.genericSubstrate))
-    }
-}
-
 final class CommonExtensionUtilityTests: XCTestCase {
     func testDummySigner_whenSigningWithSupportedCryptoTypes_thenProducesSignatures() throws {
         let seed = Data(repeating: 2, count: 32)

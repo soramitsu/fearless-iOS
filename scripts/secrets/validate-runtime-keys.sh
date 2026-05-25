@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Validates environment-backed runtime keys used by CIKeys.swift.
+# Validates environment-backed keys used to generate CIKeys.generated.swift.
 #
 # Usage:
 #   scripts/secrets/validate-runtime-keys.sh
