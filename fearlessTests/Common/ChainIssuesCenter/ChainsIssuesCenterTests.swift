@@ -90,14 +90,56 @@ final class ChainsIssuesCenterTests: XCTestCase {
         XCTAssertEqual(listener.missingAccountChainIdsByNotification(), [[initialChain.chainId]])
     }
 
+    func testHandleChainsWithIssues_whenCachedPositiveBalanceExists_thenNotifiesNetworkIssue() throws {
+        guard ChainsIssuesCenter.filtersNetworkIssuesByPositiveBalances else {
+            throw XCTSkip("Positive-balance filtering is disabled in F_DEV builds")
+        }
+
+        let chainAsset = makeEthereumChainAsset()
+        let accountInfoFetcher = ChainsIssuesAccountInfoFetchingStub()
+        accountInfoFetcher.fetchManyResult = [chainAsset: AccountInfo(ethBalance: 1)]
+        let fixture = makeFixture(
+            missingAccountResults: [[]],
+            accountInfoFetcher: accountInfoFetcher
+        )
+        let listener = ChainsIssuesCenterListenerSpy()
+
+        fixture.center.addIssuesListener(listener, getExisting: true)
+        fixture.networkIssuesCenter.notify(chains: [chainAsset.chain])
+
+        XCTAssertEqual(accountInfoFetcher.requestedBatchChainAssetIds, [[chainAsset.chain.chainId]])
+        XCTAssertEqual(listener.networkIssueChainIdsByNotification(), [[], [chainAsset.chain.chainId]])
+    }
+
+    func testHandleChainsWithIssues_whenCachedBalanceIsZero_thenSuppressesNetworkIssue() throws {
+        guard ChainsIssuesCenter.filtersNetworkIssuesByPositiveBalances else {
+            throw XCTSkip("Positive-balance filtering is disabled in F_DEV builds")
+        }
+
+        let chainAsset = makeEthereumChainAsset()
+        let accountInfoFetcher = ChainsIssuesAccountInfoFetchingStub()
+        accountInfoFetcher.fetchManyResult = [chainAsset: AccountInfo(ethBalance: 0)]
+        let fixture = makeFixture(
+            missingAccountResults: [[]],
+            accountInfoFetcher: accountInfoFetcher
+        )
+        let listener = ChainsIssuesCenterListenerSpy()
+
+        fixture.center.addIssuesListener(listener, getExisting: true)
+        fixture.networkIssuesCenter.notify(chains: [chainAsset.chain])
+
+        XCTAssertEqual(accountInfoFetcher.requestedBatchChainAssetIds, [[chainAsset.chain.chainId]])
+        XCTAssertEqual(listener.networkIssueChainIdsByNotification(), [[], []])
+    }
+
     private func makeFixture(
         wallet: fearless.MetaAccountModel = AccountGenerator.generateMetaAccount(),
-        missingAccountResults: [[ChainModel]]
+        missingAccountResults: [[ChainModel]],
+        accountInfoFetcher: ChainsIssuesAccountInfoFetchingStub = ChainsIssuesAccountInfoFetchingStub()
     ) -> Fixture {
         let eventCenter = ChainsIssuesEventCenterSpy()
         let networkIssuesCenter = ChainsIssuesNetworkIssuesCenterSpy()
         let missingAccountFetcher = ChainsIssuesMissingAccountFetcherStub(results: missingAccountResults)
-        let accountInfoFetcher = ChainsIssuesAccountInfoFetchingStub()
         let center = ChainsIssuesCenter(
             wallet: wallet,
             networkIssuesCenter: networkIssuesCenter,
@@ -108,6 +150,7 @@ final class ChainsIssuesCenterTests: XCTestCase {
 
         return Fixture(
             center: center,
+            networkIssuesCenter: networkIssuesCenter,
             eventCenter: eventCenter,
             missingAccountFetcher: missingAccountFetcher
         )
@@ -162,6 +205,7 @@ private func resultWithNilValue(for chainAsset: ChainAsset) -> [ChainAsset: Acco
 
 private struct Fixture {
     let center: ChainsIssuesCenter
+    let networkIssuesCenter: ChainsIssuesNetworkIssuesCenterSpy
     let eventCenter: ChainsIssuesEventCenterSpy
     let missingAccountFetcher: ChainsIssuesMissingAccountFetcherStub
 }
@@ -222,6 +266,7 @@ private final class ChainsIssuesMissingAccountFetcherStub: MissingAccountFetcher
 
 private final class ChainsIssuesAccountInfoFetchingStub: AccountInfoFetchingProtocol {
     var fetchManyResult: [ChainAsset: AccountInfo?] = [:]
+    private(set) var requestedBatchChainAssetIds: [[ChainModel.Id]] = []
 
     func fetch(
         for chainAsset: ChainAsset,
@@ -232,10 +277,11 @@ private final class ChainsIssuesAccountInfoFetchingStub: AccountInfoFetchingProt
     }
 
     func fetch(
-        for _: [ChainAsset],
+        for chainAssets: [ChainAsset],
         wallet _: fearless.MetaAccountModel,
         completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
     ) {
+        requestedBatchChainAssetIds.append(chainAssets.map(\.chain.chainId))
         completionBlock(fetchManyResult)
     }
 
@@ -247,10 +293,11 @@ private final class ChainsIssuesAccountInfoFetchingStub: AccountInfoFetchingProt
     }
 
     func fetch(
-        for _: [ChainAsset],
+        for chainAssets: [ChainAsset],
         wallet _: fearless.MetaAccountModel
     ) async throws -> [ChainAsset: AccountInfo?] {
-        fetchManyResult
+        requestedBatchChainAssetIds.append(chainAssets.map(\.chain.chainId))
+        return fetchManyResult
     }
 
     func fetchByUniqKey(
@@ -323,6 +370,18 @@ private final class ChainsIssuesCenterListenerSpy: ChainsIssuesCenterListener {
         receivedIssues.map { issues in
             issues.flatMap { issue -> [ChainModel.Id] in
                 guard case let .missingAccount(chains) = issue else {
+                    return []
+                }
+
+                return chains.map(\.chainId).sorted()
+            }
+        }
+    }
+
+    func networkIssueChainIdsByNotification() -> [[ChainModel.Id]] {
+        receivedIssues.map { issues in
+            issues.flatMap { issue -> [ChainModel.Id] in
+                guard case let .network(chains) = issue else {
                     return []
                 }
 

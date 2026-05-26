@@ -103,25 +103,10 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
 
-        let substrateAccountInfoFetching = AccountInfoFetching(
+        return AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,
             chainRegistry: chainRegistry,
             operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
-        let ethereumBalanceRepositoryCacheWrapper = BalanceRepositoryCacheWrapper(
-            logger: Logger.shared,
-            repository: accountInfoRepository,
-            operationManager: OperationManagerFacade.sharedManager
-        )
-        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
-            chainRegistry: chainRegistry,
-            repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
-        )
-
-        return CompositeAccountInfoFetching(
-            substrateFetching: substrateAccountInfoFetching,
-            ethereumFetching: ethereumRemoteBalanceFetching
         )
     }
 }

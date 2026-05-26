@@ -20,6 +20,12 @@ protocol ChainsIssuesCenterProtocol {
 }
 
 final class ChainsIssuesCenter: ChainsIssuesCenterProtocol {
+    #if F_DEV
+        static let filtersNetworkIssuesByPositiveBalances = false
+    #else
+        static let filtersNetworkIssuesByPositiveBalances = true
+    #endif
+
     private var issuesListeners: [WeakWrapper] = []
     private let networkIssuesCenter: NetworkIssuesCenterProtocol
     private let eventCenter: EventCenterProtocol
@@ -110,12 +116,12 @@ final class ChainsIssuesCenter: ChainsIssuesCenterProtocol {
 
 extension ChainsIssuesCenter: NetworkIssuesCenterListener {
     func handleChainsWithIssues(_ chains: [ChainModel]) {
-        #if F_DEV
+        if Self.filtersNetworkIssuesByPositiveBalances {
+            filterPositiveBalances(chains: chains)
+        } else {
             networkIssuesChains = chains
             notify()
-        #else
-            filterPositiveBalances(chains: chains)
-        #endif
+        }
     }
 }
 

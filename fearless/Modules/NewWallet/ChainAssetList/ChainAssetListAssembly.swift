@@ -102,8 +102,7 @@ final class ChainAssetListAssembly {
             ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
             chainsIssuesCenter: createChainsIssuesCenter(
                 wallet: wallet,
-                accountInfoRepository: accountInfoRepository,
-                ethereumFetching: ethereumRemoteBalanceFetching
+                accountInfoFetching: accountInfoFetching
             ),
             accountInfoRemoteService: accountInfoRemoteService
         )
@@ -123,8 +122,7 @@ final class ChainAssetListAssembly {
 
     private static func createChainsIssuesCenter(
         wallet: MetaAccountModel,
-        accountInfoRepository: AnyDataProviderRepository<AccountInfoStorageWrapper>,
-        ethereumFetching: AccountInfoFetchingProtocol
+        accountInfoFetching: AccountInfoFetchingProtocol
     ) -> ChainsIssuesCenter {
         let chainRepository = ChainRepositoryFactory().createRepository(
             for: NSPredicate.enabledCHain(),
@@ -134,21 +132,13 @@ final class ChainAssetListAssembly {
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
-        let accountInfoFetcher = CompositeAccountInfoFetching(
-            substrateFetching: AccountInfoFetching(
-                accountInfoRepository: AnyDataProviderRepository(accountInfoRepository),
-                chainRegistry: ChainRegistryFacade.sharedRegistry,
-                operationQueue: OperationManagerFacade.sharedDefaultQueue
-            ),
-            ethereumFetching: ethereumFetching
-        )
 
         return ChainsIssuesCenter(
             wallet: wallet,
             networkIssuesCenter: NetworkIssuesCenter.shared,
             eventCenter: EventCenter.shared,
             missingAccountHelper: missingAccountHelper,
-            accountInfoFetcher: accountInfoFetcher
+            accountInfoFetcher: accountInfoFetching
         )
     }
 
