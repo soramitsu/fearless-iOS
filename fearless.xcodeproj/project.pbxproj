@@ -15944,7 +15944,7 @@
 				);
 				runOnlyForDeploymentPostprocessing = 0;
 				shellPath = /bin/sh;
-				shellScript = "set -euo pipefail\nif [ -f \"$PROJECT_DIR/$PROJECT_NAME/env-vars.sh\" ]; then\n  # shellcheck disable=SC1090\n  . \"$PROJECT_DIR/$PROJECT_NAME/env-vars.sh\"\nfi\nTEMPLATE=\"$PROJECT_DIR/$PROJECT_NAME/CIKeys.stencil\"\nOUT_FILE=\"$PROJECT_DIR/CIKeys.generated.swift\"\necho \"CI keys output file = $OUT_FILE\"\nif command -v ci-keys-generator >/dev/null 2>&1; then\n  ci-keys-generator \"$TEMPLATE\" \"$OUT_FILE\"\nelse\n  xcrun --sdk macosx swift run --package-path \"$SRCROOT/Packages/FearlessBuildTools\" ci-keys-generator \"$TEMPLATE\" \"$OUT_FILE\"\nfi\n";
+				shellScript = "set -euo pipefail\nif [ -f \"$PROJECT_DIR/$PROJECT_NAME/env-vars.sh\" ]; then\n  set -a\n  # shellcheck disable=SC1090\n  . \"$PROJECT_DIR/$PROJECT_NAME/env-vars.sh\"\n  set +a\nfi\nTEMPLATE=\"$PROJECT_DIR/$PROJECT_NAME/CIKeys.stencil\"\nOUT_FILE=\"$PROJECT_DIR/CIKeys.generated.swift\"\necho \"CI keys output file = $OUT_FILE\"\nif command -v ci-keys-generator >/dev/null 2>&1; then\n  ci-keys-generator \"$TEMPLATE\" \"$OUT_FILE\"\nelse\n  xcrun --sdk macosx swift run --package-path \"$SRCROOT/Packages/FearlessBuildTools\" ci-keys-generator \"$TEMPLATE\" \"$OUT_FILE\"\nfi\n";
 			};
 			F472A8D6261758DE003C58BC /* SwiftFormat */ = {
 				isa = PBXShellScriptBuildPhase;

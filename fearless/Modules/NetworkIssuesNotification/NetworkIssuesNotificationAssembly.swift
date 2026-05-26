@@ -33,10 +33,22 @@ final class NetworkIssuesNotificationAssembly {
         )
 
         let accountInfoRepository = userRepositoryFactory.createAccountInfoStorageItemRepository()
-        let accountInfoFetcher = AccountInfoFetching(
-            accountInfoRepository: AnyDataProviderRepository(accountInfoRepository),
+        let ethereumBalanceRepositoryCacheWrapper = BalanceRepositoryCacheWrapper(
+            logger: Logger.shared,
+            repository: accountInfoRepository,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
             chainRegistry: chainRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
+        )
+        let accountInfoFetcher = CompositeAccountInfoFetching(
+            substrateFetching: AccountInfoFetching(
+                accountInfoRepository: AnyDataProviderRepository(accountInfoRepository),
+                chainRegistry: chainRegistry,
+                operationQueue: OperationManagerFacade.sharedDefaultQueue
+            ),
+            ethereumFetching: ethereumRemoteBalanceFetching
         )
 
         let chainsIssuesCenter = ChainsIssuesCenter(

@@ -3,6 +3,49 @@ import SSFModels
 @testable import fearless
 
 final class ChainsIssuesCenterTests: XCTestCase {
+    func testCompositeAccountInfoFetching_whenFetchingMixedBatch_thenRoutesByEcosystem() async throws {
+        let substrateChainAsset = makeSubstrateChainAsset()
+        let ethereumChainAsset = makeEthereumChainAsset()
+        let substrateFetcher = RoutingAccountInfoFetchingSpy()
+        let ethereumFetcher = RoutingAccountInfoFetchingSpy()
+
+        substrateFetcher.fetchManyResult = resultWithNilValue(for: substrateChainAsset)
+        ethereumFetcher.fetchManyResult = resultWithNilValue(for: ethereumChainAsset)
+
+        let compositeFetcher = CompositeAccountInfoFetching(
+            substrateFetching: substrateFetcher,
+            ethereumFetching: ethereumFetcher
+        )
+
+        let result = try await compositeFetcher.fetch(
+            for: [substrateChainAsset, ethereumChainAsset],
+            wallet: AccountGenerator.generateMetaAccount()
+        )
+
+        XCTAssertEqual(substrateFetcher.requestedBatchChainAssetIds, [[substrateChainAsset.chain.chainId]])
+        XCTAssertEqual(ethereumFetcher.requestedBatchChainAssetIds, [[ethereumChainAsset.chain.chainId]])
+        XCTAssertTrue(result.keys.contains(substrateChainAsset))
+        XCTAssertTrue(result.keys.contains(ethereumChainAsset))
+    }
+
+    func testCompositeAccountInfoFetching_whenFetchingEthereumAsset_thenUsesEthereumFetcher() async throws {
+        let ethereumChainAsset = makeEthereumChainAsset()
+        let substrateFetcher = RoutingAccountInfoFetchingSpy()
+        let ethereumFetcher = RoutingAccountInfoFetchingSpy()
+        let compositeFetcher = CompositeAccountInfoFetching(
+            substrateFetching: substrateFetcher,
+            ethereumFetching: ethereumFetcher
+        )
+
+        _ = try await compositeFetcher.fetch(
+            for: ethereumChainAsset,
+            accountId: Data(repeating: 1, count: 20)
+        )
+
+        XCTAssertTrue(substrateFetcher.requestedSingleChainAssetIds.isEmpty)
+        XCTAssertEqual(ethereumFetcher.requestedSingleChainAssetIds, [ethereumChainAsset.chain.chainId])
+    }
+
     func testAddIssuesListener_whenGetExistingTrue_thenReturnsFetchedMissingAccounts() {
         let missingChain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 0)
         let fixture = makeFixture(missingAccountResults: [[missingChain]])
@@ -69,6 +112,52 @@ final class ChainsIssuesCenterTests: XCTestCase {
             missingAccountFetcher: missingAccountFetcher
         )
     }
+}
+
+private func makeSubstrateChainAsset() -> ChainAsset {
+    let chain = ChainModelGenerator.generateChain(generatingAssets: 0, addressPrefix: 0)
+    let asset = ChainModelGenerator.generateAssetWithId("substrate-asset", symbol: "SUB")
+    return ChainModelGenerator.generateChainAsset(asset, chain: chain)
+}
+
+private func makeEthereumChainAsset() -> ChainAsset {
+    let node = ChainNodeModel(
+        url: URL(string: "https://node.example")!,
+        name: "Node",
+        apikey: nil
+    )
+    let asset = AssetModel(
+        id: "native",
+        name: "ETH",
+        symbol: "ETH",
+        precision: 18,
+        isUtility: true,
+        isNative: true,
+        ethereumType: .normal
+    )
+    let chain = ChainModel(
+        rank: nil,
+        disabled: false,
+        chainId: "ethereum-\(UUID().uuidString)",
+        paraId: nil,
+        name: "Ethereum",
+        assets: [asset],
+        xcm: nil,
+        nodes: Set([node]),
+        addressPrefix: 0,
+        icon: nil,
+        options: [.ethereum],
+        iosMinAppVersion: nil,
+        identityChain: nil
+    )
+
+    return ChainAsset(chain: chain, asset: asset)
+}
+
+private func resultWithNilValue(for chainAsset: ChainAsset) -> [ChainAsset: AccountInfo?] {
+    var result: [ChainAsset: AccountInfo?] = [:]
+    result.updateValue(nil, forKey: chainAsset)
+    return result
 }
 
 private struct Fixture {
@@ -169,6 +258,57 @@ private final class ChainsIssuesAccountInfoFetchingStub: AccountInfoFetchingProt
         wallet _: fearless.MetaAccountModel
     ) async throws -> [ChainAssetKey: AccountInfo?] {
         [:]
+    }
+}
+
+private final class RoutingAccountInfoFetchingSpy: AccountInfoFetchingProtocol {
+    var fetchManyResult: [ChainAsset: AccountInfo?] = [:]
+    var fetchByUniqKeyResult: [ChainAssetKey: AccountInfo?] = [:]
+
+    private(set) var requestedSingleChainAssetIds: [ChainModel.Id] = []
+    private(set) var requestedBatchChainAssetIds: [[ChainModel.Id]] = []
+    private(set) var requestedUniqKeyChainAssetIds: [[ChainModel.Id]] = []
+
+    func fetch(
+        for chainAsset: ChainAsset,
+        accountId _: AccountId,
+        completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
+    ) {
+        requestedSingleChainAssetIds.append(chainAsset.chain.chainId)
+        completionBlock(chainAsset, nil)
+    }
+
+    func fetch(
+        for chainAssets: [ChainAsset],
+        wallet _: fearless.MetaAccountModel,
+        completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
+    ) {
+        requestedBatchChainAssetIds.append(chainAssets.map(\.chain.chainId))
+        completionBlock(fetchManyResult)
+    }
+
+    func fetch(
+        for chainAsset: ChainAsset,
+        accountId _: AccountId
+    ) async throws -> (ChainAsset, AccountInfo?) {
+        requestedSingleChainAssetIds.append(chainAsset.chain.chainId)
+        return (chainAsset, nil)
+    }
+
+    func fetch(
+        for chainAssets: [ChainAsset],
+        wallet _: fearless.MetaAccountModel
+    ) async throws -> [ChainAsset: AccountInfo?] {
+        requestedBatchChainAssetIds.append(chainAssets.map(\.chain.chainId))
+        return fetchManyResult
+    }
+
+    func fetchByUniqKey(
+        for chainAssets: [ChainAsset],
+        wallet _: fearless.MetaAccountModel
+    ) async throws -> [ChainAssetKey: AccountInfo?] {
+        requestedUniqKeyChainAssetIds.append(chainAssets.map(\.chain.chainId))
+        return fetchByUniqKeyResult
     }
 }
 

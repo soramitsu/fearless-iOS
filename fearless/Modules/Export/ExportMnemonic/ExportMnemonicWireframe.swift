@@ -2,12 +2,15 @@ import Foundation
 import IrohaCrypto
 
 final class ExportMnemonicWireframe: ExportMnemonicWireframeProtocol {
-    func openConfirmationForMnemonic(
-        _ mnemonic: IRMnemonicProtocol,
+    func openConfirmationForMnemonics(
+        _ mnemonics: [IRMnemonicProtocol],
         wallet: MetaAccountModel,
         from view: ExportGenericViewProtocol?
     ) {
-        guard let confirmationView = ExportMnemonicConfirmViewFactory.createViewForMnemonic(mnemonic, wallet: wallet) else {
+        guard let confirmationView = ExportMnemonicConfirmViewFactory.createViewForMnemonics(
+            mnemonics,
+            wallet: wallet
+        ) else {
             return
         }
 

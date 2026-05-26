@@ -36,17 +36,7 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
-        let substrateRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared
-        )
-
-        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-
-        let substrateAccountInfoFetching = AccountInfoFetching(
-            accountInfoRepository: accountInfoRepository,
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
+        let accountInfoFetcher = createAccountInfoFetcher()
 
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
@@ -60,13 +50,12 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
-        // TODO: Eth account info fetching
         let chainsIssuesCenter = ChainsIssuesCenter(
             wallet: selectedMetaAccount,
             networkIssuesCenter: NetworkIssuesCenter.shared,
             eventCenter: EventCenter.shared,
             missingAccountHelper: missingAccountHelper,
-            accountInfoFetcher: substrateAccountInfoFetching
+            accountInfoFetcher: accountInfoFetcher
         )
 
         let walletConnectModelFactory = WalletConnectModelFactoryImpl()
@@ -104,5 +93,35 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
         )
 
         return view
+    }
+
+    private static func createAccountInfoFetcher() -> AccountInfoFetchingProtocol {
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
+        )
+
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+
+        let substrateAccountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: chainRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        let ethereumBalanceRepositoryCacheWrapper = BalanceRepositoryCacheWrapper(
+            logger: Logger.shared,
+            repository: accountInfoRepository,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
+            chainRegistry: chainRegistry,
+            repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
+        )
+
+        return CompositeAccountInfoFetching(
+            substrateFetching: substrateAccountInfoFetching,
+            ethereumFetching: ethereumRemoteBalanceFetching
+        )
     }
 }

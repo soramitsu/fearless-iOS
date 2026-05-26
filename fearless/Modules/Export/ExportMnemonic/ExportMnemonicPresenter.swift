@@ -1,5 +1,6 @@
 import Foundation
 import FearlessFoundation
+import IrohaCrypto
 import SSFUtils
 import SSFModels
 
@@ -16,40 +17,6 @@ final class ExportMnemonicPresenter {
     init(flow: ExportFlow, localizationManager: LocalizationManager) {
         self.flow = flow
         self.localizationManager = localizationManager
-    }
-
-    private func share() {
-        // TODO: Support custom accounts
-        guard let exportData = exportDatas?.first else {
-            return
-        }
-
-        let text: String
-
-        let locale = localizationManager.selectedLocale
-
-        if let derivationPath = exportData.derivationPath {
-            text = R.string.localizable
-                .exportMnemonicWithDpTemplate(
-                    exportData.chain.name,
-                    exportData.mnemonic.toString(),
-                    derivationPath,
-                    preferredLanguages: locale.rLanguages
-                )
-        } else {
-            text = R.string.localizable
-                .exportMnemonicWithoutDpTemplate(
-                    exportData.chain.name,
-                    exportData.mnemonic.toString(),
-                    preferredLanguages: locale.rLanguages
-                )
-        }
-
-        wireframe.share(source: TextSharingSource(message: text), from: view) { [weak self] completed in
-            if completed {
-                self?.wireframe.close(view: self?.view)
-            }
-        }
     }
 }
 
@@ -88,11 +55,13 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
     }
 
     func activateExport() {
-        guard let exportData = exportDatas?.first else {
+        let mnemonics = uniqueMnemonics()
+
+        guard !mnemonics.isEmpty else {
             return
         }
 
-        wireframe.openConfirmationForMnemonic(exportData.mnemonic, wallet: flow.wallet, from: view)
+        wireframe.openConfirmationForMnemonics(mnemonics, wallet: flow.wallet, from: view)
     }
 
     func activateAccessoryOption() {}
@@ -128,6 +97,22 @@ extension ExportMnemonicPresenter: ExportMnemonicInteractorOutputProtocol {
                 from: view,
                 locale: localizationManager.selectedLocale
             )
+        }
+    }
+}
+
+private extension ExportMnemonicPresenter {
+    func uniqueMnemonics() -> [IRMnemonicProtocol] {
+        var seenKeys = Set<String>()
+
+        return (exportDatas ?? []).compactMap { exportData in
+            let key = exportData.mnemonic.allWords().joined(separator: "\n")
+
+            guard seenKeys.insert(key).inserted else {
+                return nil
+            }
+
+            return exportData.mnemonic
         }
     }
 }

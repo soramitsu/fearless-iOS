@@ -13279,13 +13279,13 @@ class MockExportMnemonicWireframeProtocol: ExportMnemonicWireframeProtocol, Cuck
         )
     }
 
-    func openConfirmationForMnemonic(_ p0: IRMnemonicProtocol, wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?) {
+    func openConfirmationForMnemonics(_ p0: [IRMnemonicProtocol], wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?) {
         return cuckoo_manager.call(
-            "openConfirmationForMnemonic(_ p0: IRMnemonicProtocol, wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?)",
+            "openConfirmationForMnemonics(_ p0: [IRMnemonicProtocol], wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?)",
             parameters: (p0, p1, p2),
             escapingParameters: (p0, p1, p2),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.openConfirmationForMnemonic(p0, wallet: p1, from: p2)
+            defaultCall: __defaultImplStub!.openConfirmationForMnemonics(p0, wallet: p1, from: p2)
         )
     }
 
@@ -13364,10 +13364,10 @@ class MockExportMnemonicWireframeProtocol: ExportMnemonicWireframeProtocol, Cuck
             ))
         }
         
-        func openConfirmationForMnemonic<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(_ p0: M1, wallet p1: M2, from p2: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(IRMnemonicProtocol, fearless.MetaAccountModel, ExportGenericViewProtocol?)> where M1.MatchedType == IRMnemonicProtocol, M2.MatchedType == fearless.MetaAccountModel, M3.OptionalMatchedType == ExportGenericViewProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(IRMnemonicProtocol, fearless.MetaAccountModel, ExportGenericViewProtocol?)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
+        func openConfirmationForMnemonics<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(_ p0: M1, wallet p1: M2, from p2: M3) -> Cuckoo.ProtocolStubNoReturnFunction<([IRMnemonicProtocol], fearless.MetaAccountModel, ExportGenericViewProtocol?)> where M1.MatchedType == [IRMnemonicProtocol], M2.MatchedType == fearless.MetaAccountModel, M3.OptionalMatchedType == ExportGenericViewProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<([IRMnemonicProtocol], fearless.MetaAccountModel, ExportGenericViewProtocol?)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockExportMnemonicWireframeProtocol.self,
-                method: "openConfirmationForMnemonic(_ p0: IRMnemonicProtocol, wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?)",
+                method: "openConfirmationForMnemonics(_ p0: [IRMnemonicProtocol], wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?)",
                 parameterMatchers: matchers
             ))
         }
@@ -13446,10 +13446,10 @@ class MockExportMnemonicWireframeProtocol: ExportMnemonicWireframeProtocol, Cuck
         
         
         @discardableResult
-        func openConfirmationForMnemonic<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(_ p0: M1, wallet p1: M2, from p2: M3) -> Cuckoo.__DoNotUse<(IRMnemonicProtocol, fearless.MetaAccountModel, ExportGenericViewProtocol?), Void> where M1.MatchedType == IRMnemonicProtocol, M2.MatchedType == fearless.MetaAccountModel, M3.OptionalMatchedType == ExportGenericViewProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(IRMnemonicProtocol, fearless.MetaAccountModel, ExportGenericViewProtocol?)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
+        func openConfirmationForMnemonics<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(_ p0: M1, wallet p1: M2, from p2: M3) -> Cuckoo.__DoNotUse<([IRMnemonicProtocol], fearless.MetaAccountModel, ExportGenericViewProtocol?), Void> where M1.MatchedType == [IRMnemonicProtocol], M2.MatchedType == fearless.MetaAccountModel, M3.OptionalMatchedType == ExportGenericViewProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<([IRMnemonicProtocol], fearless.MetaAccountModel, ExportGenericViewProtocol?)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return cuckoo_manager.verify(
-                "openConfirmationForMnemonic(_ p0: IRMnemonicProtocol, wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?)",
+                "openConfirmationForMnemonics(_ p0: [IRMnemonicProtocol], wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?)",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -13538,7 +13538,7 @@ class ExportMnemonicWireframeProtocolStub:ExportMnemonicWireframeProtocol, @unch
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-    func openConfirmationForMnemonic(_ p0: IRMnemonicProtocol, wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?) {
+    func openConfirmationForMnemonics(_ p0: [IRMnemonicProtocol], wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -45974,4 +45974,3 @@ class UsernameSetupWireframeProtocolStub:UsernameSetupWireframeProtocol, @unchec
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
-

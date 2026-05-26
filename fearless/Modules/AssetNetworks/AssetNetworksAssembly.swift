@@ -26,11 +26,24 @@ final class AssetNetworksAssembly {
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
             storageFacade: UserDataStorageFacade.shared
         )
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
         let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-        let accountInfoFetcher = AccountInfoFetching(
-            accountInfoRepository: AnyDataProviderRepository(accountInfoRepository),
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        let ethereumBalanceRepositoryCacheWrapper = BalanceRepositoryCacheWrapper(
+            logger: Logger.shared,
+            repository: accountInfoRepository,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
+            chainRegistry: chainRegistry,
+            repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
+        )
+        let accountInfoFetcher = CompositeAccountInfoFetching(
+            substrateFetching: AccountInfoFetching(
+                accountInfoRepository: AnyDataProviderRepository(accountInfoRepository),
+                chainRegistry: chainRegistry,
+                operationQueue: OperationManagerFacade.sharedDefaultQueue
+            ),
+            ethereumFetching: ethereumRemoteBalanceFetching
         )
         let chainsIssuesCenter = ChainsIssuesCenter(
             wallet: wallet,

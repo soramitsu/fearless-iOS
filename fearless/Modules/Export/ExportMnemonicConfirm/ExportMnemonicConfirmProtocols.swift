@@ -2,8 +2,8 @@ import Foundation
 import IrohaCrypto
 
 protocol ExportMnemonicConfirmViewFactoryProtocol {
-    static func createViewForMnemonic(
-        _ mnemonic: IRMnemonicProtocol,
+    static func createViewForMnemonics(
+        _ mnemonics: [IRMnemonicProtocol],
         wallet: MetaAccountModel
     ) -> AccountConfirmViewProtocol?
 }
