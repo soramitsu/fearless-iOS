@@ -7,10 +7,16 @@ EXPECTED_SSF_REVISION="${2:-3ad0fe928333c9ac28972e3669ca733c6972f060}"
 WORKSPACE_RESOLVED="$ROOT/fearless.xcworkspace/xcshareddata/swiftpm/Package.resolved"
 PROJECT_RESOLVED="$ROOT/fearless.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
 FEARLESS_UTILS_PACKAGE="$ROOT/Packages/FearlessUtilsCompat/Package.swift"
+FEARLESS_DEPS_PACKAGE="$ROOT/Packages/FearlessDependencies/Package.swift"
 ENFORCE_SCRIPT="$ROOT/scripts/deps/enforce-ssf-pin.sh"
 REFERENCE_MIRRORS="$ROOT/scripts/deps/mirrors.json"
 WORKSPACE_MIRRORS="$ROOT/fearless.xcworkspace/xcshareddata/swiftpm/configuration/mirrors.json"
 PROJECT_MIRRORS="$ROOT/fearless.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/configuration/mirrors.json"
+PROJECT_FILE="$ROOT/fearless.xcodeproj/project.pbxproj"
+WEB3_SOURCE_URL="https://github.com/soramitsu/web3-swift"
+STALE_WEB3_SOURCE_URL="https://github.com/bnsports/Web3.swift.git"
+TON_SWIFT_SOURCE_URL="https://github.com/DRadmir/ton-swift.git"
+EXPECTED_TON_SWIFT_REVISION="73c9894e2be8d6d16b87853342eb2755d2e4be8a"
 
 fail() {
   echo "[check-swiftpm-consistency] $1" >&2
@@ -42,10 +48,12 @@ extract_shared_features_revision() {
 require_file "$WORKSPACE_RESOLVED"
 require_file "$PROJECT_RESOLVED"
 require_file "$FEARLESS_UTILS_PACKAGE"
+require_file "$FEARLESS_DEPS_PACKAGE"
 require_file "$ENFORCE_SCRIPT"
 require_file "$REFERENCE_MIRRORS"
 require_file "$WORKSPACE_MIRRORS"
 require_file "$PROJECT_MIRRORS"
+require_file "$PROJECT_FILE"
 
 if ! cmp -s "$WORKSPACE_RESOLVED" "$PROJECT_RESOLVED"; then
   fail "Committed Package.resolved files differ:\n  $WORKSPACE_RESOLVED\n  $PROJECT_RESOLVED"
@@ -78,8 +86,50 @@ if ! grep -Fq "REVISION=\"\${1:-$EXPECTED_SSF_REVISION}\"" "$ENFORCE_SCRIPT"; th
   fail "enforce-ssf-pin.sh default revision is not $EXPECTED_SSF_REVISION"
 fi
 
-if grep -Fq '"identity" : "web3.swift"' "$WORKSPACE_RESOLVED" || grep -Fq '"identity" : "web3.swift"' "$PROJECT_RESOLVED"; then
-  fail "Stale web3.swift identity still exists in committed Package.resolved"
+for resolved in "$WORKSPACE_RESOLVED" "$PROJECT_RESOLVED"; do
+  if grep -Fq '"identity" : "web3.swift"' "$resolved"; then
+    fail "Stale web3.swift identity still exists in committed Package.resolved: $resolved"
+  fi
+
+  if grep -Fq "$STALE_WEB3_SOURCE_URL" "$resolved"; then
+    fail "Stale Web3 source URL still exists in committed Package.resolved: $resolved"
+  fi
+
+  if ! grep -Fq "$WEB3_SOURCE_URL" "$resolved"; then
+    fail "Committed Package.resolved does not contain expected Web3 source URL $WEB3_SOURCE_URL: $resolved"
+  fi
+
+  if ! grep -Fq "$TON_SWIFT_SOURCE_URL" "$resolved"; then
+    fail "Committed Package.resolved does not contain expected TON source URL $TON_SWIFT_SOURCE_URL: $resolved"
+  fi
+
+  if ! grep -Fq "$EXPECTED_TON_SWIFT_REVISION" "$resolved"; then
+    fail "Committed Package.resolved does not pin ton-swift to $EXPECTED_TON_SWIFT_REVISION: $resolved"
+  fi
+done
+
+if grep -Fq "$STALE_WEB3_SOURCE_URL" "$PROJECT_FILE"; then
+  fail "Xcode project still references stale Web3 source URL $STALE_WEB3_SOURCE_URL"
+fi
+
+if ! grep -Fq "$WEB3_SOURCE_URL" "$PROJECT_FILE"; then
+  fail "Xcode project does not reference expected Web3 source URL $WEB3_SOURCE_URL"
+fi
+
+if ! grep -Fq "$TON_SWIFT_SOURCE_URL" "$PROJECT_FILE"; then
+  fail "Xcode project does not reference expected TON source URL $TON_SWIFT_SOURCE_URL"
+fi
+
+if ! grep -Fq "revision = $EXPECTED_TON_SWIFT_REVISION;" "$PROJECT_FILE"; then
+  fail "Xcode project does not pin ton-swift to revision $EXPECTED_TON_SWIFT_REVISION"
+fi
+
+if ! grep -Fq "revision: \"$EXPECTED_TON_SWIFT_REVISION\"" "$FEARLESS_DEPS_PACKAGE"; then
+  fail "FearlessDependencies does not pin ton-swift to revision $EXPECTED_TON_SWIFT_REVISION"
+fi
+
+if ! grep -Fq "$WEB3_SOURCE_URL" "$ENFORCE_SCRIPT"; then
+  fail "enforce-ssf-pin.sh does not normalize Package.resolved Web3 sources to $WEB3_SOURCE_URL"
 fi
 
 if ! grep -Fq 'https://github.com/bnsports/Web3.swift.git' "$REFERENCE_MIRRORS" || ! grep -Fq 'https://github.com/soramitsu/web3-swift' "$REFERENCE_MIRRORS"; then

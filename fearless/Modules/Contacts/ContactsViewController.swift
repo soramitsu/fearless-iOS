@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class ContactsViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     private enum LayoutConstants {

@@ -1,7 +1,7 @@
 import UIKit
 
-import SoraFoundation
-import SoraUI
+import FearlessFoundation
+import FearlessUI
 
 protocol RewardEstimationViewDelegate: AnyObject {
     func rewardEstimationView(_ view: RewardEstimationView, didChange amount: Decimal?)

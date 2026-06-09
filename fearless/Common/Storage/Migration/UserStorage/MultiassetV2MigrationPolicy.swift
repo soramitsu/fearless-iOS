@@ -8,6 +8,6 @@ class MultiassetV2MigrationPolicy: NSEntityMigrationPolicy {
         in _: NSEntityMapping,
         manager _: NSMigrationManager
     ) throws {
-        // TODO: tech debt
+        // No-op policy: this migration stage only removes obsolete entities.
     }
 }

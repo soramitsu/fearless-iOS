@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 import WalletConnectSign
-import SoraFoundation
+import FearlessFoundation
 
 final class MainTabBarWireframe: MainTabBarWireframeProtocol {
     func presentPolkaswap(on view: ControllerBackedProtocol?, wallet: MetaAccountModel) {

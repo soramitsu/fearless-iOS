@@ -1,9 +1,9 @@
 import Foundation
 import WalletConnectSign
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 import SSFUtils
-import SoraKeystore
+import FearlessSecureStorage
 
 protocol WalletConnectSessionViewModelFactory {
     func buildViewModel(

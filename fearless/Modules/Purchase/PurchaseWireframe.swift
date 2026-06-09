@@ -1,6 +1,6 @@
 import Foundation
 
-import SoraFoundation
+import FearlessFoundation
 
 final class PurchaseWireframe: PurchaseWireframeProtocol {
     let localizationManager: LocalizationManagerProtocol

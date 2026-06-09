@@ -27,7 +27,7 @@ fi
 mkdir -p "${TMPDIR}" 2>/dev/null || true
 
 # Remove stale package state before any helper script triggers package resolution.
-echo "\n==> Cleaning stale package state"
+printf '\n==> Cleaning stale package state\n'
 rm -rf "$LOCAL_SOURCE_PACKAGES_DIR/checkouts/Web3.swift" 2>/dev/null || true
 rm -f "$LOCAL_SOURCE_PACKAGES_DIR/workspace-state.json" 2>/dev/null || true
 find "$HOME/Library/Developer/Xcode/DerivedData" -path "*/SourcePackages/checkouts/Web3.swift" -prune -exec rm -rf {} + 2>/dev/null || true
@@ -36,6 +36,12 @@ find "$HOME/Library/Developer/Xcode/DerivedData" -path "*/SourcePackages/workspa
 if [ -f "scripts/deps/bootstrap-local-swiftpm-config.sh" ]; then
   echo "==> Bootstrapping local SwiftPM configuration"
   bash scripts/deps/bootstrap-local-swiftpm-config.sh
+
+  LOCAL_SWIFTPM_GIT_CONFIG="$LOCAL_SOURCE_PACKAGES_DIR/configuration/gitconfig"
+  if [[ -f "$LOCAL_SWIFTPM_GIT_CONFIG" ]]; then
+    export GIT_CONFIG_GLOBAL="$LOCAL_SWIFTPM_GIT_CONFIG"
+    echo "==> Using local SwiftPM Git config: ${GIT_CONFIG_GLOBAL}"
+  fi
 fi
 
 # If destination is a placeholder, pick a concrete available simulator (prefer newest iPhone)
@@ -56,23 +62,79 @@ if [[ "$DEST" == *"Any iOS Simulator Device"* || "$DEST" == "" ]]; then
   echo "==> Using detected destination: ${DEST}"
 fi
 
+restore_swiftpm_contract_files() {
+  if [ -x "scripts/deps/restore-swiftpm-contract-files.sh" ]; then
+    scripts/deps/restore-swiftpm-contract-files.sh "$(pwd)" "[test-matrix]"
+  fi
+}
+
 # Enforce SSF pin, then apply repo-owned package contracts/fixes so SSF packages are stable under Xcode 16+
 if [ -f "scripts/deps/enforce-ssf-pin.sh" ]; then
-  echo "\n==> Enforcing shared-features-spm pinned revision"
+  printf '\n==> Enforcing shared-features-spm pinned revision\n'
   bash scripts/deps/enforce-ssf-pin.sh || true
 fi
 
-if [ -x "scripts/deps/restore-swiftpm-contract-files.sh" ]; then
-  echo "\n==> Restoring committed SwiftPM contract files (if needed)"
-  scripts/deps/restore-swiftpm-contract-files.sh "$(pwd)" "[test-matrix]"
-fi
+printf '\n==> Restoring committed SwiftPM contract files (if needed)\n'
+restore_swiftpm_contract_files
 
 if [ -f "scripts/deps/check-dependency-contracts.sh" ]; then
-  echo "\n==> Validating dependency contracts"
+  printf '\n==> Validating dependency contracts\n'
   bash scripts/deps/check-dependency-contracts.sh
 fi
 
-echo "\n==> Resolving Swift Package dependencies"
+apply_checkout_fixes() {
+  # prepare-native-crypto-checkout may trigger SwiftPM materialization, so run
+  # source compatibility fixes after native crypto preparation.
+  if [ -f "scripts/spm-shared-features-fixes.sh" ]; then
+    printf '\n==> Applying shared-features-spm fixes\n'
+    SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 SSF_SINGLE_VALUE_CACHE_MANUAL_CLASS=1 bash scripts/spm-shared-features-fixes.sh "$(pwd)"
+  fi
+
+  if [ -x "scripts/deps/apply-charts-swift6-compat.sh" ]; then
+    printf '\n==> Applying Charts Swift compatibility fixes\n'
+    SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/deps/apply-charts-swift6-compat.sh "$(pwd)"
+  fi
+
+  if [ -x "scripts/deps/apply-svgkit-umbrella-contract.sh" ]; then
+    printf '\n==> Applying SVGKit umbrella header contract\n'
+    SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/deps/apply-svgkit-umbrella-contract.sh "$(pwd)"
+  fi
+
+  if [ -x "scripts/deps/apply-tonapi-http-types-contract.sh" ]; then
+    printf '\n==> Applying TonAPI HTTPTypes dependency contract\n'
+    SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/deps/apply-tonapi-http-types-contract.sh "$(pwd)"
+  fi
+
+  if [ -x "scripts/deps/apply-reown-signer-contract.sh" ]; then
+    printf '\n==> Applying Reown signer dependency contract\n'
+    SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/deps/apply-reown-signer-contract.sh "$(pwd)"
+  fi
+
+  if [ -x "scripts/deps/apply-web3-nio-ssl-contract.sh" ]; then
+    printf '\n==> Applying Web3 NIOSSL dependency contract\n'
+    SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/deps/apply-web3-nio-ssl-contract.sh "$(pwd)"
+  fi
+
+  printf '\n==> Refreshing Swift Package resolved state after checkout patches\n'
+  xcodebuild \
+    -resolvePackageDependencies \
+    -workspace "${WORKSPACE}" \
+    -scheme "${SCHEME}" \
+    -clonedSourcePackagesDirPath "${LOCAL_SOURCE_PACKAGES_DIR}"
+
+  if [ -f "scripts/deps/enforce-ssf-pin.sh" ]; then
+    printf '\n==> Normalizing SwiftPM resolved contracts after checkout patches\n'
+    bash scripts/deps/enforce-ssf-pin.sh
+  fi
+
+  restore_swiftpm_contract_files
+
+  if [ -x "scripts/deps/check-swiftpm-consistency.sh" ]; then
+    scripts/deps/check-swiftpm-consistency.sh
+  fi
+}
+
+printf '\n==> Resolving Swift Package dependencies\n'
 if ! xcodebuild \
   -resolvePackageDependencies \
   -workspace "${WORKSPACE}" \
@@ -82,20 +144,16 @@ if ! xcodebuild \
   exit 1
 fi
 
-# Patch shared-features-spm manifest and sources in the explicit local checkout.
-if [ -f "scripts/spm-shared-features-fixes.sh" ]; then
-  echo "\n==> Applying shared-features-spm fixes (SSFModels deps, Web3 API drift)"
-  SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$(pwd)"
-fi
-
 verify_native_crypto_state() {
   if [ ! -f "scripts/deps/prepare-native-crypto-checkout.sh" ]; then
+    apply_checkout_fixes
     return 0
   fi
 
-  echo "\n==> Preparing native crypto checkout"
+  printf '\n==> Preparing native crypto checkout\n'
   local status=0
   if SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" STRICT_REQUIRED_PATCHES=1 bash scripts/deps/prepare-native-crypto-checkout.sh "$(pwd)" "${WORKSPACE}" "${SCHEME}"; then
+    apply_checkout_fixes
     return 0
   else
     status=$?
@@ -133,14 +191,15 @@ fi
 run_tests() {
   local config=$1
   if [[ "$HAS_XCPRETTY" == "1" ]]; then
-    echo "\n==> Running ${config} tests"
+    printf '\n==> Running %s tests\n' "${config}"
   else
-    echo "\n==> Running ${config} tests (no xcpretty)"
+    printf '\n==> Running %s tests (no xcpretty)\n' "${config}"
   fi
 
   verify_native_crypto_state
 
-  local result_bundle_dir="$(pwd)/build/test-results"
+  local result_bundle_dir
+  result_bundle_dir="$(pwd)/build/test-results"
   local sanitized_scheme="${SCHEME//./_}"
   local result_bundle_path="${result_bundle_dir}/${sanitized_scheme}-${config}.xcresult"
   mkdir -p "${result_bundle_dir}"
@@ -171,6 +230,8 @@ run_tests() {
   fi
   cmd+=(clean test)
 
+  restore_swiftpm_contract_files
+
   if [[ "$HAS_XCPRETTY" == "1" ]]; then
     "${cmd[@]}" | xcpretty || {
       echo "xcodebuild ${config} tests failed" >&2
@@ -179,18 +240,23 @@ run_tests() {
   else
     "${cmd[@]}"
   fi
+
+  if [[ -x "scripts/ci/coverage-summary.sh" ]]; then
+    COVERAGE_TARGET_REGEX="${COVERAGE_TARGET_REGEX:-^fearless\\.app$}" \
+      scripts/ci/coverage-summary.sh "${result_bundle_path}"
+  fi
 }
 
 run_tests Debug
 
 if [[ "${HOST_ARCH}" == "x86_64" ]]; then
-  echo "\n==> Skipping Release simulator tests on x86_64 host due to missing native package symbols for simulator linking"
+  printf '\n==> Skipping Release simulator tests on x86_64 host due to missing native package symbols for simulator linking\n'
 else
   run_tests Release
 fi
 
 if [[ "${HOST_ARCH}" == "x86_64" ]]; then
-  echo "\n==> Debug tests passed; Release simulator tests were skipped on x86_64 host"
+  printf '\n==> Debug tests passed; Release simulator tests were skipped on x86_64 host\n'
 else
-  echo "\n==> All tests passed in Debug and Release"
+  printf '\n==> All tests passed in Debug and Release\n'
 fi

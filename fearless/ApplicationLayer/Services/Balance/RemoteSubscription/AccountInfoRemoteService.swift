@@ -47,7 +47,7 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
     ) async throws -> [ChainAssetId: AccountInfo?] {
         guard let accountId = wallet.fetch(for: chain.accountRequest())?.accountId else {
             let emptyMap = Dictionary(
-                uniqueKeysWithValues: chain.chainAssets.map { ($0.chainAssetId, Optional<AccountInfo>.none) }
+                uniqueKeysWithValues: chain.chainAssets.map { ($0.chainAssetId, AccountInfo?.none) }
             )
             return emptyMap
         }

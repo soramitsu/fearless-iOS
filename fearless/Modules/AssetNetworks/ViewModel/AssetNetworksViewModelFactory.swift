@@ -1,7 +1,7 @@
 import Foundation
 import SSFModels
 import BigInt
-import SoraFoundation
+import FearlessFoundation
 
 protocol AssetNetworksViewModelFactoryProtocol {
     func buildViewModels(

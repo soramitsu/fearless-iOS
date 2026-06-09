@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 import SnapKit
 
 final class ChainAssetListViewLayout: UIView {

@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 final class ExportMnemonicConfirmWireframe: AccountConfirmWireframeProtocol, ModalAlertPresenting {
     let localizationManager: LocalizationManagerProtocol

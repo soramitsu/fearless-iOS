@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 final class ReferralCrowdloanViewLayout: UIView {
     private enum Constants {

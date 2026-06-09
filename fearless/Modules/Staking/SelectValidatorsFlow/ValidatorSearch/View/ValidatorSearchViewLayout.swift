@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 final class ValidatorSearchViewLayout: UIView {
     private let searchContainer: UIView = {

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Enforce a specific shared-features-spm revision across committed SwiftPM files and
+# Enforce repo-owned SwiftPM resolved-state contracts across committed files and
 # materialized DerivedData copies that are writable.
 #
 # Usage:
@@ -12,6 +12,7 @@ set -euo pipefail
 
 REVISION="${1:-3ad0fe928333c9ac28972e3669ca733c6972f060}"
 ROOT="${2:-$(pwd)}"
+WEB3_SOURCE_URL="https://github.com/soramitsu/web3-swift"
 
 echo "[enforce-ssf-pin] Target revision: ${REVISION}"
 
@@ -27,19 +28,34 @@ patch_resolved() {
     return 0
   }
 
-  if /usr/bin/grep -q '"identity"\s*:\s*"shared-features-spm"' "$resolved"; then
+  local tmp="${resolved}.tmp"
+
+  /usr/bin/awk -v rev="$REVISION" '
+    BEGIN{in_pkg=0}
+    /"identity"[[:space:]]*:[[:space:]]*"shared-features-spm"/ { in_pkg=1 }
+    in_pkg==1 && /"state"[[:space:]]*:/ { print; next }
+    in_pkg==1 && /"revision"[[:space:]]*:/ { sub(/"revision"[[:space:]]*:[[:space:]]*"[^"]+"/, "\"revision\" : \"" rev "\""); print; in_pkg=0; next }
+    { print }
+  ' "$resolved" > "$tmp" || {
+    rm -f "$tmp"
+    echo "[enforce-ssf-pin] Warning: failed to prepare patch for $resolved"
+    return 0
+  }
+
+  /usr/bin/perl -0pi -e '
+    s/"identity"\s*:\s*"web3\.swift"/"identity" : "web3-swift"/g;
+    s|https://github\.com/bnsports/Web3\.swift\.git|'"$WEB3_SOURCE_URL"'|g;
+  ' "$tmp" || {
+    rm -f "$tmp"
+    echo "[enforce-ssf-pin] Warning: failed to normalize Web3 source in $resolved"
+    return 0
+  }
+
+  if cmp -s "$resolved" "$tmp"; then
+    rm -f "$tmp"
+  else
     echo "[enforce-ssf-pin] Patching $resolved"
-    local tmp="${resolved}.tmp"
-    /usr/bin/awk -v rev="$REVISION" '
-      BEGIN{in_pkg=0}
-      /"identity"[[:space:]]*:[[:space:]]*"shared-features-spm"/ { in_pkg=1 }
-      in_pkg==1 && /"state"[[:space:]]*:/ { print; next }
-      in_pkg==1 && /"revision"[[:space:]]*:/ { sub(/"revision"[[:space:]]*:[[:space:]]*"[^"]+"/, "\"revision\" : \"" rev "\""); print; in_pkg=0; next }
-      { print }
-    ' "$resolved" > "$tmp" && mv "$tmp" "$resolved" || {
-      rm -f "$tmp"
-      echo "[enforce-ssf-pin] Warning: failed to patch $resolved"
-    }
+    mv "$tmp" "$resolved"
   fi
 }
 

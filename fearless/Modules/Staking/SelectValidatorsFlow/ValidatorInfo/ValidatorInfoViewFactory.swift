@@ -1,7 +1,7 @@
 import Foundation
 import SSFUtils
-import SoraKeystore
-import SoraFoundation
+import FearlessSecureStorage
+import FearlessFoundation
 import SSFModels
 
 final class ValidatorInfoViewFactory {

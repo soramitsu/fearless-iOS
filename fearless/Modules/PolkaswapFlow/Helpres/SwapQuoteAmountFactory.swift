@@ -1,6 +1,6 @@
 import Foundation
 import BigInt
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 struct PolkaswapAdjustmentDetailsViewModel {

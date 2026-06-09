@@ -1,10 +1,10 @@
 import UIKit
 import WalletConnectSign
-import SoraFoundation
-import SoraUI
+import FearlessFoundation
+import FearlessUI
 import RobinHood
 import SSFNetwork
-import SoraKeystore
+import FearlessSecureStorage
 
 enum WalletConnectSessionAssembly {
     static func configureModule(

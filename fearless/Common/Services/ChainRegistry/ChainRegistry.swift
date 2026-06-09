@@ -1,3 +1,5 @@
+// swiftlint:disable file_length
+
 import Foundation
 import RobinHood
 import SSFUtils
@@ -6,9 +8,6 @@ import Web3
 import SSFChainRegistry
 import SSFRuntimeCodingService
 import SSFChainConnection
-#if canImport(FearlessKeys)
-    import FearlessKeys
-#endif
 import TonAPI
 import OpenAPIRuntime
 import HTTPTypes
@@ -183,6 +182,7 @@ final class ChainRegistry {
     private let logger: LoggerProtocol?
     private let eventCenter: EventCenterProtocol
     private let networkIssuesCenter: NetworkIssuesCenterProtocol
+    private let tonChainSelectionToggleSource: TonChainSelection.ToggleSource
     private lazy var readLock = ReaderWriterLock()
 
     private var substrateConnectionPool: ConnectionPool? {
@@ -214,7 +214,8 @@ final class ChainRegistry {
         specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol,
         networkIssuesCenter: NetworkIssuesCenterProtocol,
         logger: LoggerProtocol? = nil,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        tonChainSelectionToggleSource: TonChainSelection.ToggleSource = LocalToggleService.shared
     ) {
         self.snapshotHotBootBuilder = snapshotHotBootBuilder
         self.runtimeProviderPool = runtimeProviderPool
@@ -227,6 +228,7 @@ final class ChainRegistry {
         self.networkIssuesCenter = networkIssuesCenter
         self.logger = logger
         self.eventCenter = eventCenter
+        self.tonChainSelectionToggleSource = tonChainSelectionToggleSource
         self.eventCenter.add(observer: self, dispatchIn: .global())
 
         connectionPools.forEach { $0.setDelegate(self) }
@@ -668,7 +670,7 @@ private extension ChainRegistry {
     }
 
     func shouldUseTonChain(_ chain: ChainModel) -> Bool {
-        let isTestnetEnabled = LocalToggleService.shared.tonEnvListToggle.storageValue
+        let isTestnetEnabled = tonChainSelectionToggleSource.tonEnvListToggle.storageValue
         return TonChainSelection.matchesSelectedEnvironment(chain: chain, isTestnetEnabled: isTestnetEnabled)
     }
 }

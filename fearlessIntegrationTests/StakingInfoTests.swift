@@ -1,7 +1,7 @@
 import XCTest
 @testable import fearless
 import SSFModels
-import SoraKeystore
+import FearlessSecureStorage
 import RobinHood
 import IrohaCrypto
 import SSFUtils
@@ -41,6 +41,10 @@ class StakingInfoTests: XCTestCase {
         address: String,
         expectedPrefix: UInt16
     ) throws {
+        guard Self.remoteEndpointTestsEnabled else {
+            throw XCTSkip("Staking info integration depends on remote chain endpoints; set FEARLESS_RUN_REMOTE_INTEGRATION_TESTS=1 to run it")
+        }
+
         let logger = Logger.shared
         let storageFacade = SubstrateStorageTestFacade()
         let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: storageFacade)
@@ -163,5 +167,9 @@ class StakingInfoTests: XCTestCase {
             closure: nil,
             stakingType: chainAsset.stakingType
         )
+    }
+
+    private static var remoteEndpointTestsEnabled: Bool {
+        ProcessInfo.processInfo.environment["FEARLESS_RUN_REMOTE_INTEGRATION_TESTS"] == "1"
     }
 }

@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import BigInt
 import SSFModels
 
@@ -806,7 +806,6 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
         }
     }
 
-    // TODO: - need think about this
     func didReceiveDex(infos: [PolkaswapDexInfo], fromAssetId: String, toAssetId: String) {
         let availableDexsInfos = infos
             .filter { $0.pathIsAvailable }

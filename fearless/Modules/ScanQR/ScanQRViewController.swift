@@ -1,6 +1,6 @@
 import UIKit
-import SoraUI
-import SoraFoundation
+import FearlessUI
+import FearlessFoundation
 import AVFoundation
 
 class ScanQRViewController: UIViewController, ViewHolder, AdaptiveDesignable, HiddableBarWhenPushed {

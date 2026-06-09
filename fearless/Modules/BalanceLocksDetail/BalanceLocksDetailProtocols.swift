@@ -1,4 +1,4 @@
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 typealias BalanceLocksDetailModuleCreationResult = (view: BalanceLocksDetailViewInput, input: BalanceLocksDetailModuleInput)

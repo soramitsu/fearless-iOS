@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 import SSFUtils
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 enum ReefRewardOperationFactoryError: Error {

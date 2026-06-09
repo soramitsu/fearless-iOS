@@ -1,186 +1,174 @@
-//import XCTest
-//import SoraKeystore
-//import BigInt
-//import IrohaCrypto
-//@testable import fearless
-//
-//class ExtrinsicServiceTests: XCTestCase {
-//
-//    private func createExtrinsicBuilderClosure(amount: BigUInt) -> ExtrinsicBuilderClosure {
-//        let callFactory = SubstrateCallFactoryDefault)
-//
-//        let closure: ExtrinsicBuilderClosure = { builder in
-//            let call = callFactory.bondExtra(amount: amount)
-//            _ = try builder.adding(call: call)
-//            return builder
-//        }
-//
-//        return closure
-//    }
-//
-//    private func createExtrinsicBuilderClosure(for batch: [PayoutInfo]) -> ExtrinsicBuilderClosure {
-//        let callFactory = SubstrateCallFactoryDefault)
-//
-//        let closure: ExtrinsicBuilderClosure = { builder in
-//            try batch.forEach { payout in
-//                let payoutCall = try callFactory.payout(
-//                    validatorId: payout.validator,
-//                    era: payout.era
-//                )
-//
-//                _ = try builder.adding(call: payoutCall)
-//            }
-//
-//            return builder
-//        }
-//
-//        return closure
-//    }
-//
-//    func testEstimateFeeForBondExtraCall() throws {
-//        let chainId = Chain.kusama.genesisHash
-//        let chainFormat = ChainFormat.substrate(2)
-//        let selectedAddress = "FiLhWLARS32oxm4s64gmEMSppAdugsvaAx1pCjweTLGn5Rf"
-//        let selectedAccountId = try selectedAddress.toAccountId()
-//        let assetPrecision: Int16 = 12
-//
-//        let storageFacade = SubstrateStorageTestFacade()
-//
-//        let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: storageFacade)
-//
-//        let connection = chainRegistry.getConnection(for: chainId)!
-//        let runtimeService = chainRegistry.getRuntimeProvider(for: chainId)!
-//
-//        let extrinsicService = ExtrinsicService(
-//            accountId: selectedAccountId,
-//            chainFormat: chainFormat,
-//            cryptoType: .sr25519,
-//            runtimeRegistry: runtimeService,
-//            engine: connection,
-//            operationManager: OperationManagerFacade.sharedManager
-//        )
-//
-//        let feeExpectation = XCTestExpectation()
-//        let closure = createExtrinsicBuilderClosure(amount: 10)
-//        extrinsicService.estimateFee(closure, runningIn: .main) { result in
-//            switch result {
-//            case let .success(paymentInfo):
-//                if
-//                    let feeValue = BigUInt(string: paymentInfo.fee),
-//                    let fee = Decimal.fromSubstrateAmount(feeValue, precision: assetPrecision),
-//                    fee > 0 {
-//                    feeExpectation.fulfill()
-//                } else {
-//                    XCTFail("Cant parse fee")
-//                }
-//            case let .failure(error):
-//                XCTFail(error.localizedDescription)
-//            }
-//        }
-//
-//        wait(for: [feeExpectation], timeout: 10)
-//    }
-//
-//    func testEstimateFeeForPayoutRewardsCall() throws {
-//        let chainId = Chain.kusama.genesisHash
-//        let chainFormat = ChainFormat.substrate(2)
-//        let selectedAddress = "FiLhWLARS32oxm4s64gmEMSppAdugsvaAx1pCjweTLGn5Rf"
-//        let selectedAccountId = try selectedAddress.toAccountId()
-//        let assetPrecision: Int16 = 12
-//
-//        let storageFacade = SubstrateStorageTestFacade()
-//
-//        let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: storageFacade)
-//
-//        let connection = chainRegistry.getConnection(for: chainId)!
-//        let runtimeService = chainRegistry.getRuntimeProvider(for: chainId)!
-//
-//        let extrinsicService = ExtrinsicService(
-//            accountId: selectedAccountId,
-//            chainFormat: chainFormat,
-//            cryptoType: .sr25519,
-//            runtimeRegistry: runtimeService,
-//            engine: connection,
-//            operationManager: OperationManagerFacade.sharedManager
-//        )
-//
-//        let feeExpectation = XCTestExpectation()
-//        let payouts = [
-//            PayoutInfo(era: 1000, validator: selectedAccountId, reward: 100.0, identity: nil),
-//            PayoutInfo(era: 1001, validator: selectedAccountId, reward: 100.0, identity: nil),
-//            PayoutInfo(era: 1002, validator: selectedAccountId, reward: 100.0, identity: nil)
-//        ]
-//        let closure = createExtrinsicBuilderClosure(for: payouts)
-//        extrinsicService.estimateFee(closure, runningIn: .main) { result in
-//            switch result {
-//            case let .success(paymentInfo):
-//                if
-//                    let feeValue = BigUInt(string: paymentInfo.fee),
-//                    let fee = Decimal.fromSubstrateAmount(feeValue, precision: assetPrecision),
-//                    fee > 0 {
-//                    feeExpectation.fulfill()
-//                } else {
-//                    XCTFail("Cant parse fee")
-//                }
-//            case let .failure(error):
-//                XCTFail(error.localizedDescription)
-//            }
-//        }
-//
-//        wait(for: [feeExpectation], timeout: 20)
-//    }
-//
-//    func testEstimateFeeForAddRemark() throws {
-//        let cryptoType = CryptoType.sr25519
-//        let selectedAccount = "FiLhWLARS32oxm4s64gmEMSppAdugsvaAx1pCjweTLGn5Rf"
-//        let chain = Chain.westend
-//
-//        let settings = InMemorySettingsManager()
-//        let walletFactory = WalletPrimitiveFactory(settings: settings)
-//        let asset = walletFactory.createAssetForAddressType(chain.addressType)
-//
-//        WebSocketService.shared.setup()
-//        let connection = WebSocketService.shared.connection!
-//        let runtimeService = RuntimeRegistryFacade.sharedService
-//        runtimeService.setup()
-//
-//        let extrinsicService = ExtrinsicService(
-//            address: selectedAccount,
-//            cryptoType: cryptoType,
-//            runtimeRegistry: runtimeService,
-//            engine: connection,
-//            operationManager: OperationManagerFacade.sharedManager
-//        )
-//
-//        let feeExpectation = XCTestExpectation()
-//        let callFactory = SubstrateCallFactoryDefault)
-//        
-//        let randomBytes = (0...1000).map { _ in UInt8.random(in: 0...UInt8.max) }
-//        let data = Data(randomBytes)
-//        
-//        let closure: ExtrinsicBuilderClosure = { builder in
-//            let call = callFactory.addRemark(data)
-//            _ = try builder.adding(call: call)
-//            return builder
-//        }
-//        
-//        extrinsicService.estimateFee(closure, runningIn: .main) { result in
-//            switch result {
-//            case let .success(paymentInfo):
-//                if
-//                    let feeValue = BigUInt(string: paymentInfo.fee),
-//                    let fee = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision),
-//                    fee > 0 {
-//                    feeExpectation.fulfill()
-//                } else {
-//                    XCTFail("Cant parse fee")
-//                }
-//            case let .failure(error):
-//                XCTFail(error.localizedDescription)
-//                feeExpectation.fulfill()
-//            }
-//        }
-//
-//        wait(for: [feeExpectation], timeout: 20)
-//    }
-//}
+import XCTest
+import BigInt
+@testable import fearless
+
+final class ExtrinsicServiceTests: XCTestCase {
+    func testEstimateFee_whenResultIsSuccessful_thenCachesResultForReuseIdentifier() {
+        let service = ExtrinsicServiceSpy(results: [
+            .success(RuntimeDispatchInfo(feeValue: 123))
+        ])
+        let proxy = ExtrinsicFeeProxy()
+        let delegate = ExtrinsicFeeProxyDelegateSpy()
+        proxy.delegate = delegate
+
+        proxy.estimateFee(
+            using: service,
+            reuseIdentifier: "staking.bondExtra",
+            setupBy: passthroughBuilder
+        )
+        proxy.estimateFee(
+            using: service,
+            reuseIdentifier: "staking.bondExtra",
+            setupBy: passthroughBuilder
+        )
+
+        XCTAssertEqual(service.estimateFeeCallCount, 1)
+        XCTAssertEqual(delegate.successFees, ["123", "123"])
+        XCTAssertTrue(delegate.failures.isEmpty)
+    }
+
+    func testEstimateFee_whenRequestAlreadyLoading_thenDoesNotStartDuplicateRequest() {
+        let service = ExtrinsicServiceSpy(completionMode: .manual)
+        let proxy = ExtrinsicFeeProxy()
+        let delegate = ExtrinsicFeeProxyDelegateSpy()
+        proxy.delegate = delegate
+
+        proxy.estimateFee(
+            using: service,
+            reuseIdentifier: "staking.payout",
+            setupBy: passthroughBuilder
+        )
+        proxy.estimateFee(
+            using: service,
+            reuseIdentifier: "staking.payout",
+            setupBy: passthroughBuilder
+        )
+
+        XCTAssertEqual(service.estimateFeeCallCount, 1)
+        XCTAssertTrue(delegate.receivedIdentifiers.isEmpty)
+
+        service.completeNext(with: .success(RuntimeDispatchInfo(feeValue: 456)))
+
+        XCTAssertEqual(delegate.receivedIdentifiers, ["staking.payout"])
+        XCTAssertEqual(delegate.successFees, ["456"])
+    }
+
+    func testEstimateFee_whenRequestFails_thenDoesNotCacheFailure() {
+        let service = ExtrinsicServiceSpy(results: [
+            .failure(ExtrinsicServiceTestError.failure),
+            .success(RuntimeDispatchInfo(feeValue: 789))
+        ])
+        let proxy = ExtrinsicFeeProxy()
+        let delegate = ExtrinsicFeeProxyDelegateSpy()
+        proxy.delegate = delegate
+
+        proxy.estimateFee(
+            using: service,
+            reuseIdentifier: "system.remark",
+            setupBy: passthroughBuilder
+        )
+        proxy.estimateFee(
+            using: service,
+            reuseIdentifier: "system.remark",
+            setupBy: passthroughBuilder
+        )
+
+        XCTAssertEqual(service.estimateFeeCallCount, 2)
+        XCTAssertEqual(delegate.receivedIdentifiers, ["system.remark", "system.remark"])
+        XCTAssertEqual(delegate.failures.count, 1)
+        XCTAssertEqual(delegate.successFees, ["789"])
+    }
+
+    private var passthroughBuilder: ExtrinsicBuilderClosure {
+        { builder in builder }
+    }
+}
+
+private final class ExtrinsicServiceSpy: ExtrinsicServiceProtocol {
+    enum CompletionMode {
+        case immediate
+        case manual
+    }
+
+    private(set) var estimateFeeCallCount = 0
+    private var results: [FeeExtrinsicResult]
+    private var pendingFeeCompletions: [EstimateFeeClosure] = []
+    private let completionMode: CompletionMode
+
+    init(
+        results: [FeeExtrinsicResult] = [],
+        completionMode: CompletionMode = .immediate
+    ) {
+        self.results = results
+        self.completionMode = completionMode
+    }
+
+    func completeNext(with result: FeeExtrinsicResult) {
+        pendingFeeCompletions.removeFirst()(result)
+    }
+
+    func estimateFee(
+        _: @escaping ExtrinsicBuilderClosure,
+        runningIn _: DispatchQueue,
+        completion completionClosure: @escaping EstimateFeeClosure
+    ) {
+        estimateFeeCallCount += 1
+
+        switch completionMode {
+        case .immediate:
+            completionClosure(results.removeFirst())
+        case .manual:
+            pendingFeeCompletions.append(completionClosure)
+        }
+    }
+
+    func estimateFee(
+        _: @escaping ExtrinsicBuilderIndexedClosure,
+        runningIn _: DispatchQueue,
+        numberOfExtrinsics _: Int,
+        completion _: @escaping EstimateFeeIndexedClosure
+    ) {}
+
+    func submit(
+        _: @escaping ExtrinsicBuilderClosure,
+        signer _: SigningWrapperProtocol,
+        runningIn _: DispatchQueue,
+        completion _: @escaping ExtrinsicSubmitClosure
+    ) {}
+
+    func submit(
+        _: @escaping ExtrinsicBuilderIndexedClosure,
+        signer _: SigningWrapperProtocol,
+        runningIn _: DispatchQueue,
+        numberOfExtrinsics _: Int,
+        completion _: @escaping ExtrinsicSubmitIndexedClosure
+    ) {}
+
+    func submitAndWatch(
+        _: @escaping ExtrinsicBuilderClosure,
+        signer _: SigningWrapperProtocol,
+        runningIn _: DispatchQueue,
+        completion _: @escaping ExtrinsicSubmitAndWatchClosure
+    ) {}
+}
+
+private final class ExtrinsicFeeProxyDelegateSpy: ExtrinsicFeeProxyDelegate {
+    private(set) var receivedIdentifiers: [ExtrinsicFeeId] = []
+    private(set) var successFees: [String] = []
+    private(set) var failures: [Error] = []
+
+    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>, for identifier: ExtrinsicFeeId) {
+        receivedIdentifiers.append(identifier)
+
+        switch result {
+        case let .success(info):
+            successFees.append(info.fee)
+        case let .failure(error):
+            failures.append(error)
+        }
+    }
+}
+
+private enum ExtrinsicServiceTestError: Error {
+    case failure
+}

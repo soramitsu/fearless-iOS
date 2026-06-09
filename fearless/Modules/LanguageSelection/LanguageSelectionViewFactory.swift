@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 final class LanguageSelectionViewFactory: LanguageSelectionViewFactoryProtocol {
     static func createView() -> LanguageSelectionViewProtocol? {

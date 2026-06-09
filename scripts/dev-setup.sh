@@ -2,7 +2,6 @@
 set -euo pipefail
 
 # Local developer setup script to get a clean build running on simulator.
-# - Installs CocoaPods (if needed), runs pod install
 # - Resolves SPM packages with a stable checkout location
 # - Prepares the native crypto checkout against the repo-owned contract
 # - Prints next-step build/test commands
@@ -14,34 +13,12 @@ WORKSPACE="fearless.xcworkspace"
 echo "==> Using scheme: ${SCHEME}"
 echo "==> Destination: ${DEST}"
 
-# 1) CocoaPods
-if [ -f Podfile ]; then
-  if command -v pod >/dev/null 2>&1; then
-    echo "==> Running pod install"
-    pod install --repo-update
-  else
-    echo "==> CocoaPods not found. Installing to user gems..."
-    if command -v gem >/dev/null 2>&1; then
-      gem install --user-install cocoapods -N
-      GEM_BIN_DIR="$(ruby -e 'require "rubygems"; print Gem.user_dir + "/bin"')"
-      export PATH="$GEM_BIN_DIR:$PATH"
-      hash -r || true
-      if command -v pod >/dev/null 2>&1; then
-        pod install --repo-update
-      else
-        echo "ERROR: pod still not available in PATH after install" >&2
-        exit 1
-      fi
-    else
-      echo "ERROR: RubyGems not available; install CocoaPods manually (brew install cocoapods)" >&2
-      exit 1
-    fi
-  fi
-else
-  echo "==> Podfile not found; skipping CocoaPods"
+SINGLE_VALUE_CACHE_MANUAL_CLASS=0
+if [[ "$DEST" == *"Simulator"* ]]; then
+  SINGLE_VALUE_CACHE_MANUAL_CLASS=1
 fi
 
-# 2) Apply mirrors (if configured), enforce SSF pin, and resolve SPM to workspace-local SourcePackages (for deterministic paths)
+# Apply mirrors (if configured), enforce SSF pin, and resolve SPM to workspace-local SourcePackages (for deterministic paths)
 if [ -f scripts/deps/apply-mirrors.sh ]; then
   echo "==> Applying mirrors configuration (if any)"
   bash scripts/deps/apply-mirrors.sh || true
@@ -53,9 +30,9 @@ if [ -x scripts/deps/restore-swiftpm-contract-files.sh ]; then
   echo "==> Restoring committed SwiftPM contract files (if needed)"
   scripts/deps/restore-swiftpm-contract-files.sh "$(pwd)" "[dev-setup]"
 fi
-if [ -x scripts/deps/enforce-ssf-pin.sh ]; then
+if [ -f scripts/deps/enforce-ssf-pin.sh ]; then
   echo "==> Enforcing shared-features-spm pinned revision"
-  scripts/deps/enforce-ssf-pin.sh || true
+  bash scripts/deps/enforce-ssf-pin.sh || true
 fi
 if [ -x scripts/deps/check-dependency-contracts.sh ]; then
   echo "==> Validating dependency contracts"
@@ -111,10 +88,64 @@ fi
 # 5) Apply required shared-features-spm compatibility fixes
 if [ -f scripts/spm-shared-features-fixes.sh ]; then
   echo "==> Applying required shared-features-spm compatibility fixes"
-  if ! SOURCE_PACKAGES_DIR="$(pwd)/SourcePackages" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$(pwd)"; then
+  if ! SOURCE_PACKAGES_DIR="$(pwd)/SourcePackages" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 SSF_SINGLE_VALUE_CACHE_MANUAL_CLASS="$SINGLE_VALUE_CACHE_MANUAL_CLASS" bash scripts/spm-shared-features-fixes.sh "$(pwd)"; then
     echo "ERROR: shared-features-spm compatibility fixes failed during local setup" >&2
     exit 1
   fi
+fi
+
+# 6) Apply third-party source compatibility patches
+if [ -x scripts/deps/apply-charts-swift6-compat.sh ]; then
+  echo "==> Applying Charts Swift compatibility fixes"
+  if ! SOURCE_PACKAGES_DIR="$(pwd)/SourcePackages" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 scripts/deps/apply-charts-swift6-compat.sh "$(pwd)"; then
+    echo "ERROR: Charts Swift compatibility fixes failed during local setup" >&2
+    exit 1
+  fi
+fi
+
+if [ -x scripts/deps/apply-svgkit-umbrella-contract.sh ]; then
+  echo "==> Applying SVGKit umbrella header contract"
+  if ! SOURCE_PACKAGES_DIR="$(pwd)/SourcePackages" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 scripts/deps/apply-svgkit-umbrella-contract.sh "$(pwd)"; then
+    echo "ERROR: SVGKit umbrella header contract failed during local setup" >&2
+    exit 1
+  fi
+fi
+
+if [ -x scripts/deps/apply-tonapi-http-types-contract.sh ]; then
+  echo "==> Applying TonAPI HTTPTypes dependency contract"
+  if ! SOURCE_PACKAGES_DIR="$(pwd)/SourcePackages" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 scripts/deps/apply-tonapi-http-types-contract.sh "$(pwd)"; then
+    echo "ERROR: TonAPI HTTPTypes dependency contract failed during local setup" >&2
+    exit 1
+  fi
+fi
+
+if [ -x scripts/deps/apply-reown-signer-contract.sh ]; then
+  echo "==> Applying Reown signer dependency contract"
+  if ! SOURCE_PACKAGES_DIR="$(pwd)/SourcePackages" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 scripts/deps/apply-reown-signer-contract.sh "$(pwd)"; then
+    echo "ERROR: Reown signer dependency contract failed during local setup" >&2
+    exit 1
+  fi
+fi
+
+if [ -x scripts/deps/apply-web3-nio-ssl-contract.sh ]; then
+  echo "==> Applying Web3 NIOSSL dependency contract"
+  if ! SOURCE_PACKAGES_DIR="$(pwd)/SourcePackages" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 scripts/deps/apply-web3-nio-ssl-contract.sh "$(pwd)"; then
+    echo "ERROR: Web3 NIOSSL dependency contract failed during local setup" >&2
+    exit 1
+  fi
+fi
+
+echo "==> Refreshing SwiftPM resolved state after package patches"
+if ! xcodebuild -resolvePackageDependencies -workspace "$WORKSPACE" -scheme "$SCHEME" -clonedSourcePackagesDirPath "$SP_DIR"; then
+  echo "ERROR: Swift Package resolution failed after local package patches" >&2
+  exit 1
+fi
+if [ -f scripts/deps/enforce-ssf-pin.sh ]; then
+  echo "==> Normalizing SwiftPM resolved contracts after package patches"
+  bash scripts/deps/enforce-ssf-pin.sh
+fi
+if [ -x scripts/deps/check-swiftpm-consistency.sh ]; then
+  scripts/deps/check-swiftpm-consistency.sh
 fi
 
 cat <<EOF

@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 final class ByteLengthProcessor: TextProcessing {
     let maxLength: Int

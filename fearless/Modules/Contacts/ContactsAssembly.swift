@@ -1,12 +1,12 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import RobinHood
 import SSFModels
 import SSFNetwork
 #if canImport(SSFAssetManagmentStorage)
     import SSFAssetManagmentStorage
 #endif
-import SoraKeystore
+import FearlessSecureStorage
 
 enum ContactSource {
     case token(chainAsset: ChainAsset)

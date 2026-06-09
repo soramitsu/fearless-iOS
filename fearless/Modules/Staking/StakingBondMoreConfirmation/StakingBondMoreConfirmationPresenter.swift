@@ -76,7 +76,13 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationPrese
         guard let view = view, let address = viewModelState.accountAddress else { return }
 
         let locale = view.localizationManager?.selectedLocale ?? Locale.current
-        wireframe.presentAccountOptions(from: view, address: address, chain: chainAsset.chain, locale: locale)
+        wireframe.presentAccountOptions(
+            from: view,
+            address: address,
+            chain: chainAsset.chain,
+            locale: locale,
+            exportClosure: nil
+        )
     }
 }
 

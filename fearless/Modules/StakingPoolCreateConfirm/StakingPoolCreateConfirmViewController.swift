@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class StakingPoolCreateConfirmViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = StakingPoolCreateConfirmViewLayout

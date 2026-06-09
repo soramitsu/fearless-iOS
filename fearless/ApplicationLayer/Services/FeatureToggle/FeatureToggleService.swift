@@ -11,6 +11,12 @@ protocol FeatureToggleProviderProtocol {
     func fetchConfigOperation() -> BaseOperation<FeatureToggleConfig>
 }
 
+protocol FeatureToggleConfigSource {
+    var featureToggleURL: URL? { get }
+}
+
+extension ApplicationConfig: FeatureToggleConfigSource {}
+
 final class FeatureToggleProvider {
     struct PendingRequest {
         let resultClosure: (FeatureToggleConfig) -> Void
@@ -19,16 +25,19 @@ final class FeatureToggleProvider {
 
     private let networkOperationFactory: NetworkOperationFactoryProtocol
     private let operationQueue: OperationQueue
+    private let configSource: FeatureToggleConfigSource
 
     private(set) var snapshot: FeatureToggleConfig?
     private(set) var pendingRequests: [PendingRequest] = []
 
     init(
         networkOperationFactory: NetworkOperationFactoryProtocol,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        configSource: FeatureToggleConfigSource = ApplicationConfig.shared
     ) {
         self.networkOperationFactory = networkOperationFactory
         self.operationQueue = operationQueue
+        self.configSource = configSource
 
         do {
             try setup()
@@ -38,7 +47,7 @@ final class FeatureToggleProvider {
     }
 
     private func setup() throws {
-        guard let featureToggleURL = ApplicationConfig.shared.featureToggleURL else {
+        guard let featureToggleURL = configSource.featureToggleURL else {
             throw FeatureToggleServiceError.urlBroken
         }
 
@@ -70,6 +79,8 @@ final class FeatureToggleProvider {
             if let snapshot = snapshot {
                 self.snapshot = snapshot
                 resolveRequests()
+            } else {
+                handleDefault()
             }
         case .failure:
             handleDefault()
@@ -104,9 +115,13 @@ final class FeatureToggleProvider {
 extension FeatureToggleProvider: FeatureToggleProviderProtocol {
     func fetchConfigOperation() -> BaseOperation<FeatureToggleConfig> {
         AwaitOperation { [weak self] in
-            try await withCheckedThrowingContinuation { continuation in
-                self?.fetchConfig(runCompletionIn: nil) { factory in
-                    continuation.resume(with: .success(factory))
+            guard let self = self else {
+                return FeatureToggleConfig.defaultConfig
+            }
+
+            return await withCheckedContinuation { continuation in
+                self.fetchConfig(runCompletionIn: nil) { config in
+                    continuation.resume(returning: config)
                 }
             }
         }

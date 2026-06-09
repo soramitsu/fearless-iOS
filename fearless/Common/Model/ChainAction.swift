@@ -41,8 +41,8 @@ enum ChainAction {
         case .polkascan:
             return R.string.localizable
                 .transactionDetailsViewPolkascan(preferredLanguages: locale.rLanguages)
-        case .subscan:
-            return R.string.localizable
+        case let .subscan(url):
+            return url.soraMetricsExplorerTitle ?? R.string.localizable
                 .transactionDetailsViewSubscan(preferredLanguages: locale.rLanguages)
         case .replace:
             return R.string.localizable.replaceAccount(preferredLanguages: locale.rLanguages)

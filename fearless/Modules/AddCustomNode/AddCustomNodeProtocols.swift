@@ -1,4 +1,4 @@
-import SoraFoundation
+import FearlessFoundation
 
 protocol AddCustomNodeViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(nameViewModel: InputViewModelProtocol)

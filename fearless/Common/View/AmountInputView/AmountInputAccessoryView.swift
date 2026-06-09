@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 protocol AmountInputAccessoryViewDelegate: AnyObject {
     func didSelect(on view: AmountInputAccessoryView, percentage: Float)

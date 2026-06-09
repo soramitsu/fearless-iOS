@@ -1,7 +1,7 @@
 import UIKit
 import Kingfisher
 import simd
-import SoraUI
+import FearlessUI
 
 final class ChainAccountBalanceTableCell: SwipableTableViewCell {
     enum LayoutConstants {

@@ -58,7 +58,8 @@ extension StakingRewardDetailsPresenter: StakingRewardDetailsPresenterProtocol {
             from: view,
             address: address,
             chain: chainAsset.chain,
-            locale: locale
+            locale: locale,
+            exportClosure: nil
         )
     }
 }

@@ -1,4 +1,4 @@
-import SoraFoundation
+import FearlessFoundation
 import IrohaCrypto
 import SSFModels
 

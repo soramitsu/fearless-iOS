@@ -1,7 +1,7 @@
 import Foundation
 import SSFUtils
 import RobinHood
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 struct WalletTransactionHistoryModule {
@@ -15,7 +15,11 @@ enum WalletTransactionHistoryViewFactory {
         chain: ChainModel,
         selectedAccount: MetaAccountModel
     ) -> WalletTransactionHistoryModule? {
-        let dependencyContainer = WalletTransactionHistoryDependencyContainer(selectedAccount: selectedAccount)
+        let localizationManager = LocalizationManager.shared
+        let dependencyContainer = WalletTransactionHistoryDependencyContainer(
+            selectedAccount: selectedAccount,
+            localizationManager: localizationManager
+        )
 
         let interactor = WalletTransactionHistoryInteractor(
             chain: chain,
@@ -25,7 +29,10 @@ enum WalletTransactionHistoryViewFactory {
             logger: Logger.shared,
             defaultFilter: WalletHistoryRequest(assets: [asset.id]),
             selectedFilter: WalletHistoryRequest(assets: [asset.id]),
-            filters: transactionHistoryFilters(for: chain),
+            filters: transactionHistoryFilters(
+                for: chain,
+                preferredLanguages: localizationManager.selectedLocale.rLanguages
+            ),
             eventCenter: EventCenter.shared,
             applicationHandler: ApplicationHandler()
         )
@@ -45,12 +52,12 @@ enum WalletTransactionHistoryViewFactory {
             viewModelFactory: viewModelFactory,
             chainAsset: ChainAsset(chain: chain, asset: asset),
             logger: Logger.shared,
-            localizationManager: LocalizationManager.shared
+            localizationManager: localizationManager
         )
 
         let view = WalletTransactionHistoryViewController(
             presenter: presenter,
-            localizationManager: LocalizationManager.shared
+            localizationManager: localizationManager
         )
 
         presenter.view = view
@@ -58,7 +65,11 @@ enum WalletTransactionHistoryViewFactory {
         return WalletTransactionHistoryModule(view: view, moduleInput: presenter)
     }
 
-    static func transactionHistoryFilters(for chain: ChainModel) -> [FilterSet] {
+    // swiftlint:disable:next function_body_length
+    static func transactionHistoryFilters(
+        for chain: ChainModel,
+        preferredLanguages: [String]? = nil
+    ) -> [FilterSet] {
         guard let history = chain.externalApi?.history else {
             return []
         }
@@ -68,22 +79,47 @@ enum WalletTransactionHistoryViewFactory {
         }
 
         var filters: [WalletTransactionHistoryFilter] = [
-            WalletTransactionHistoryFilter(type: .transfer, selected: true)
+            WalletTransactionHistoryFilter(
+                type: .transfer,
+                selected: true,
+                preferredLanguages: preferredLanguages
+            )
         ]
         if explorerType != .giantsquid {
-            filters.insert(WalletTransactionHistoryFilter(type: .other, selected: true), at: 1)
+            filters.insert(
+                WalletTransactionHistoryFilter(
+                    type: .other,
+                    selected: true,
+                    preferredLanguages: preferredLanguages
+                ),
+                at: 1
+            )
         }
         if chain.hasStakingRewardHistory || chain.isSora {
-            filters.insert(WalletTransactionHistoryFilter(type: .reward, selected: true), at: 1)
+            filters.insert(
+                WalletTransactionHistoryFilter(
+                    type: .reward,
+                    selected: true,
+                    preferredLanguages: preferredLanguages
+                ),
+                at: 1
+            )
         }
         if chain.hasPolkaswap {
-            filters.insert(WalletTransactionHistoryFilter(type: .swap, selected: true), at: 0)
+            filters.insert(
+                WalletTransactionHistoryFilter(
+                    type: .swap,
+                    selected: true,
+                    preferredLanguages: preferredLanguages
+                ),
+                at: 0
+            )
             filters.removeAll(where: { $0.type == .other })
         }
 
         return [FilterSet(
             title: R.string.localizable.commonShow(
-                preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages
+                preferredLanguages: preferredLanguages
             ),
             items: filters
         )]

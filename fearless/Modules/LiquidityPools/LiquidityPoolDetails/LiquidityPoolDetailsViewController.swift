@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 protocol LiquidityPoolDetailsViewOutput: AnyObject {
     func didLoad(view: LiquidityPoolDetailsViewInput)

@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class PolkaswapTransaktionSettingsViewController: UIViewController, ViewHolder {
     typealias RootViewType = PolkaswapTransaktionSettingsViewLayout

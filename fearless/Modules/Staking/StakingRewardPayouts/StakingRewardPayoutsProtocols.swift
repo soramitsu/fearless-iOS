@@ -1,5 +1,5 @@
-import SoraFoundation
-import SoraUI
+import FearlessFoundation
+import FearlessUI
 import SSFModels
 
 protocol StakingRewardPayoutsViewProtocol: ControllerBackedProtocol,

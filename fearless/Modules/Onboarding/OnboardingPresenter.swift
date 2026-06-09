@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 protocol OnboardingViewInput: ControllerBackedProtocol {
     func didReceive(viewModel: OnboardingDataSource)

@@ -1,5 +1,5 @@
 import Foundation
-import SoraUI
+import FearlessUI
 
 extension RoundedButton {
     func applyEnabledStyle() {

@@ -4,19 +4,26 @@ import RobinHood
 import SSFNetwork
 
 final class SoraSubqueryPriceFetcherDefault: SoraSubqueryPriceFetcher {
+    private let worker: NetworkWorkerDefault
+
+    init(worker: NetworkWorkerDefault = NetworkWorkerDefault()) {
+        self.worker = worker
+    }
+
     func fetchPriceOperation(
         for chainAssets: [ChainAsset]
     ) -> BaseOperation<[PriceData]> {
         AwaitOperation { [weak self] in
             guard let self else { return [] }
 
-            guard let blockExplorer = chainAssets.first(where: { chainAsset in
+            guard let externalApi = chainAssets.first(where: { chainAsset in
                 chainAsset.asset.priceProvider?.type == .sorasubquery
-            })?.chain.externalApi?.history else {
+            })?.chain.externalApi,
+                let priceApi = externalApi.pricing ?? externalApi.history else {
                 throw SubqueryPriceFetcherError.missingBlockExplorer
             }
             let priceIds = chainAssets.map { $0.asset.priceProvider?.id }.compactMap { $0 }
-            let prices = try await self.fetch(priceIds: priceIds, url: blockExplorer.url)
+            let prices = try await self.fetch(priceIds: priceIds, url: priceApi.url)
 
             return prices.compactMap { price in
                 let chainAsset = chainAssets.first(where: { $0.asset.currencyId == price.id })
@@ -65,9 +72,12 @@ final class SoraSubqueryPriceFetcherDefault: SoraSubqueryPriceFetcher {
     ) async throws -> SoraSubqueryPricePage {
         let request = try StakingRewardsRequest(
             baseURL: url,
-            query: queryString(priceIds: priceIds, cursor: cursor)
+            query: SoraSubqueryPriceQueryFactory.queryString(
+                priceIds: priceIds,
+                cursor: cursor,
+                url: url
+            )
         )
-        let worker = NetworkWorkerDefault()
         let response: GraphQLResponse<SoraSubqueryPriceResponse> = try await worker.performRequest(with: request)
 
         switch response {
@@ -77,9 +87,15 @@ final class SoraSubqueryPriceFetcherDefault: SoraSubqueryPriceFetcher {
             throw error
         }
     }
+}
 
-    private func queryString(priceIds: [String], cursor: String) -> String {
-        """
+enum SoraSubqueryPriceQueryFactory {
+    static func queryString(priceIds: [String], cursor: String, url: URL) -> String {
+        if url.host?.lowercased() == "pi.soramitsu.io" {
+            return piQueryString(priceIds: priceIds, cursor: cursor)
+        }
+
+        return """
         query FiatPriceQuery {
                   entities: assets(
                     first: 100
@@ -89,6 +105,31 @@ final class SoraSubqueryPriceFetcherDefault: SoraSubqueryPriceFetcher {
                         id
                         priceUSD
                         priceChangeDay
+                      }
+                      pageInfo {
+                        hasNextPage
+                        endCursor
+                      }
+                    }
+            }
+        """
+    }
+
+    private static func piQueryString(priceIds: [String], cursor: String) -> String {
+        let after = cursor.isEmpty ? "" : "after: \"\(cursor)\","
+
+        return """
+        query FiatPriceQuery {
+                  entities: assets(
+                    first: 100,
+                    \(after)
+                    filter: {id: {in: \(priceIds)}}) {
+                      edges {
+                        node {
+                          id
+                          priceUSD
+                          priceChangeDay
+                        }
                       }
                       pageInfo {
                         hasNextPage

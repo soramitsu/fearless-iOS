@@ -1,5 +1,5 @@
 import Foundation
-import SoraKeystore
+import FearlessSecureStorage
 import FearlessUtils
 import RobinHood
 

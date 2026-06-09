@@ -1,6 +1,6 @@
 import Foundation
 import UIKit.UIImage
-import SoraFoundation
+import FearlessFoundation
 
 enum StakingAlert {
     case bondedSetValidators

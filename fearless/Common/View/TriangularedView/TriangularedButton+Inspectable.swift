@@ -1,5 +1,5 @@
 import Foundation
-import SoraUI
+import FearlessUI
 
 /// Extension of the TriangularedButton to support design through Interface Builder
 extension TriangularedButton {

@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 final class LanguageSelectionPresenter {
     weak var view: LanguageSelectionViewProtocol?

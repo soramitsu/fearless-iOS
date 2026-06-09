@@ -15,7 +15,11 @@ protocol NetworkIssuesCenterProtocol {
 }
 
 final class NetworkIssuesCenter: NetworkIssuesCenterProtocol {
-    static let shared = NetworkIssuesCenter(eventCenter: EventCenter.shared)
+    private static var sharedEventCenter: EventCenterProtocol {
+        EventCenter.shared
+    }
+
+    static let shared = NetworkIssuesCenter(eventCenter: sharedEventCenter)
 
     private var issuesListeners: [WeakWrapper] = []
 
@@ -32,9 +36,9 @@ final class NetworkIssuesCenter: NetworkIssuesCenterProtocol {
         }
     }
 
-    private let eventCenter: EventCenter
+    private let eventCenter: EventCenterProtocol
 
-    private init(eventCenter: EventCenter) {
+    init(eventCenter: EventCenterProtocol) {
         self.eventCenter = eventCenter
         self.eventCenter.add(observer: self, dispatchIn: nil)
     }
@@ -54,7 +58,13 @@ final class NetworkIssuesCenter: NetworkIssuesCenterProtocol {
     }
 
     func removeIssuesListener(_ listener: NetworkIssuesCenterListener) {
-        issuesListeners = issuesListeners.filter { $0 !== listener }
+        issuesListeners = issuesListeners.filter { wrapper in
+            guard let target = wrapper.target else {
+                return false
+            }
+
+            return target !== listener
+        }
     }
 
     func forceNotify() {

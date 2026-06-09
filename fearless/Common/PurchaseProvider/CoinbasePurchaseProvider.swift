@@ -1,4 +1,5 @@
 import Foundation
+import UIKit.UIImage
 import SSFModels
 
 final class CoinbasePurchaseProvider: PurchaseProviderProtocol {
@@ -18,6 +19,17 @@ final class CoinbasePurchaseProvider: PurchaseProviderProtocol {
         "DOT": AssetConfiguration(network: "polkadot", assetCodes: ["DOT"])
     ]
 
+    private let sessionTokenProvider: () -> String?
+    private let iconProvider: () -> UIImage?
+
+    init(
+        sessionTokenProvider: @escaping () -> String? = { CoinbaseKeys.sessionToken },
+        iconProvider: @escaping () -> UIImage? = { Constants.icon }
+    ) {
+        self.sessionTokenProvider = sessionTokenProvider
+        self.iconProvider = iconProvider
+    }
+
     func buildPurchaseActions(asset: AssetModel, address: String) -> [PurchaseAction] {
         guard let endpointConfiguration = Self.configuration(for: asset) else {
             return []
@@ -30,7 +42,7 @@ final class CoinbasePurchaseProvider: PurchaseProviderProtocol {
             return []
         }
 
-        guard let icon = Constants.icon else {
+        guard let icon = iconProvider() else {
             return []
         }
 
@@ -43,7 +55,7 @@ final class CoinbasePurchaseProvider: PurchaseProviderProtocol {
 
     private func buildUrl(for configuration: AssetConfiguration, replacingAddressTemplateWith address: String) -> URL? {
         var components = URLComponents(string: Constants.baseUrlString)
-        guard let sessionToken = CoinbaseKeys.sessionToken else {
+        guard let sessionToken = sessionTokenProvider() else {
             return nil
         }
 

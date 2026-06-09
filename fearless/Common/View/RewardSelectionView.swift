@@ -1,5 +1,5 @@
 import Foundation
-import SoraUI
+import FearlessUI
 
 class RewardSelectionView: BackgroundedContentControl {
     private(set) var titleLabel: UILabel!

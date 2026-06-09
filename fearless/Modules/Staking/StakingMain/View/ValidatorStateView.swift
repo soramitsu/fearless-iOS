@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 class ValidatorStateView: StakingStateView, LocalizableViewProtocol {
     var locale = Locale.current {

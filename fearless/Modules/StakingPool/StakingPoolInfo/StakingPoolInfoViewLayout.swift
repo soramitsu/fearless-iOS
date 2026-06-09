@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 // swiftlint:disable type_body_length function_body_length
 final class StakingPoolInfoViewLayout: UIView {

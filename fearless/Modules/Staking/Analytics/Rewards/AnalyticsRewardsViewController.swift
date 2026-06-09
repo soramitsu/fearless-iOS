@@ -1,6 +1,6 @@
 import UIKit
-import SoraFoundation
-import SoraUI
+import FearlessFoundation
+import FearlessUI
 
 // swiftlint:disable colon
 final class AnalyticsRewardsViewController:

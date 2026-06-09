@@ -1,5 +1,5 @@
 import Foundation
-import SoraUI
+import FearlessUI
 import UIKit
 
 extension TriangularedButton {

@@ -1,5 +1,5 @@
 import UIKit
-import SoraKeystore
+import FearlessSecureStorage
 
 enum PolkaswapDisclaimerKeys: String {
     case polkaswapDisclaimerIsRead2

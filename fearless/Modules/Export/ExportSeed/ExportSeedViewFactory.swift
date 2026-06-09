@@ -1,7 +1,7 @@
 import Foundation
-import SoraKeystore
+import FearlessSecureStorage
 import RobinHood
-import SoraFoundation
+import FearlessFoundation
 
 final class ExportSeedViewFactory: ExportSeedViewFactoryProtocol {
     static func createViewForAddress(flow: ExportFlow) -> ExportGenericViewProtocol? {

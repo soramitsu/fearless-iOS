@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class NftCollectionViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     private enum Constants {

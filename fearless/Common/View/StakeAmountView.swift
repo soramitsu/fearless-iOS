@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 class StakeAmountView: UIView {
     private enum LayoutConstants {

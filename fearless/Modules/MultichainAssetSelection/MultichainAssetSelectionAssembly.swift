@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class MultichainAssetSelectionAssembly {
     static func configureModule(flow: MultichainChainFetchingFlow, wallet: MetaAccountModel, selectAssetModuleOutput: SelectAssetModuleOutput?) -> MultichainAssetSelectionModuleCreationResult? {

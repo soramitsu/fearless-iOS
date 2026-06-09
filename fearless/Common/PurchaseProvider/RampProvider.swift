@@ -7,12 +7,16 @@ final class RampProvider: PurchaseProviderProtocol {
         static let icon = R.image.iconRamp()
     }
 
-    static let pubToken = "3quzr4e6wdyccndec8jzjebzar5kxxzfy2f3us5k"
     static let baseUrlString = "https://app.ramp.network/"
 
+    private let hostApiKey: String
     private var appName: String?
     private var logoUrl: URL?
     private var callbackUrl: URL?
+
+    init(hostApiKey: String = RampCIKeys.hostApiKey) {
+        self.hostApiKey = hostApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 
     func with(appName: String) -> Self {
         self.appName = appName
@@ -30,6 +34,10 @@ final class RampProvider: PurchaseProviderProtocol {
     }
 
     func buildPurchaseActions(asset: AssetModel, address: String) -> [PurchaseAction] {
+        guard !hostApiKey.isEmpty else {
+            return []
+        }
+
         if let url = buildURLForToken(asset.symbolUppercased, address: address) {
             return [PurchaseAction(title: Constants.title, url: url, icon: Constants.icon!)]
         }
@@ -42,7 +50,7 @@ final class RampProvider: PurchaseProviderProtocol {
         var queryItems = [
             URLQueryItem(name: "swapAsset", value: token.uppercased()),
             URLQueryItem(name: "userAddress", value: address),
-            URLQueryItem(name: "hostApiKey", value: Self.pubToken),
+            URLQueryItem(name: "hostApiKey", value: hostApiKey),
             URLQueryItem(name: "variant", value: "hosted-mobile")
         ]
 

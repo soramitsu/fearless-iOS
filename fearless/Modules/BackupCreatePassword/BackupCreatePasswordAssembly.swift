@@ -1,7 +1,7 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import SSFCloudStorage
-import SoraKeystore
+import FearlessSecureStorage
 
 enum BackupCreatePasswordFlow {
     case createWallet(MetaAccountImportMnemonicRequest)

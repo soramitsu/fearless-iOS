@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFUtils
 import BigInt
 import SSFModels
@@ -211,7 +211,6 @@ extension ValidatorInfoParachainViewModelFactory: ValidatorInfoViewModelFactoryP
             status = .unelected(commission: nil)
         }
 
-        // TODO: Has slashes real value
         let staking = ValidatorInfoViewModel.Staking(
             status: status,
             slashed: false

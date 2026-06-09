@@ -1,6 +1,6 @@
 import SSFUtils
 import SSFModels
-import SoraKeystore
+import FearlessSecureStorage
 
 protocol SendViewModelFactoryProtocol {
     func buildRecipientViewModel(
@@ -16,15 +16,21 @@ final class SendViewModelFactory: SendViewModelFactoryProtocol {
     private let iconGenerator: IconGenerating
     private let accountScoreFetcher: AccountStatisticsFetching
     private let settings: SettingsManagerProtocol
+    private let eventCenter: EventCenterProtocol
+    private let logger: LoggerProtocol?
 
     init(
         iconGenerator: IconGenerating,
         accountScoreFetcher: AccountStatisticsFetching,
-        settings: SettingsManagerProtocol
+        settings: SettingsManagerProtocol,
+        eventCenter: EventCenterProtocol = EventCenter.shared,
+        logger: LoggerProtocol? = Logger.shared
     ) {
         self.iconGenerator = iconGenerator
         self.accountScoreFetcher = accountScoreFetcher
         self.settings = settings
+        self.eventCenter = eventCenter
+        self.logger = logger
     }
 
     func buildRecipientViewModel(
@@ -55,8 +61,8 @@ final class SendViewModelFactory: SendViewModelFactoryProtocol {
             address: address,
             chain: chain,
             settings: settings,
-            eventCenter: EventCenter.shared,
-            logger: Logger.shared
+            eventCenter: eventCenter,
+            logger: logger
         )
     }
 }

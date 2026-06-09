@@ -1,6 +1,6 @@
 import Foundation
 import UIKit
-import SoraUI
+import FearlessUI
 
 final class ScamWarningExpandableView: UIView {
     private enum Constants {

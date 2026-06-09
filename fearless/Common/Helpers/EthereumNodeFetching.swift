@@ -1,9 +1,6 @@
 import Foundation
 import SSFModels
 import Web3
-#if canImport(FearlessKeys)
-    import FearlessKeys
-#endif
 
 enum EthereumChain: String {
     case ethereumMainnet = "1"
@@ -33,42 +30,42 @@ enum EthereumChain: String {
     func apiKeyInjectedURL(baseURL: URL) -> URL {
         switch self {
         case .ethereumMainnet:
-            #if canImport(FearlessKeys) && DEBUG
+            #if DEBUG
                 let apiKey = EthereumNodesApiKeysDebug.ethereumApiKey
             #else
                 let apiKey = EthereumNodesApiKeys.ethereumApiKey
             #endif
             return baseURL.appendingPathComponent(apiKey)
         case .sepolia:
-            #if canImport(FearlessKeys) && DEBUG
+            #if DEBUG
                 let apiKey = EthereumNodesApiKeysDebug.sepoliaApiKey
             #else
                 let apiKey = EthereumNodesApiKeys.sepoliaApiKey
             #endif
             return baseURL.appendingPathComponent(apiKey)
         case .goerli:
-            #if canImport(FearlessKeys) && DEBUG
+            #if DEBUG
                 let apiKey = EthereumNodesApiKeysDebug.goerliApiKey
             #else
                 let apiKey = EthereumNodesApiKeys.goerliApiKey
             #endif
             return baseURL.appendingPathComponent(apiKey)
         case .bscMainnet:
-            #if canImport(FearlessKeys) && DEBUG
+            #if DEBUG
                 let apiKey = EthereumNodesApiKeysDebug.bscApiKey
             #else
                 let apiKey = EthereumNodesApiKeys.bscApiKey
             #endif
             return baseURL.appendingPathComponent(apiKey)
         case .bscTestnet:
-            #if canImport(FearlessKeys) && DEBUG
+            #if DEBUG
                 let apiKey = EthereumNodesApiKeysDebug.bscApiKey
             #else
                 let apiKey = EthereumNodesApiKeys.bscApiKey
             #endif
             return baseURL.appendingPathComponent(apiKey)
         case .polygon:
-            #if canImport(FearlessKeys) && DEBUG
+            #if DEBUG
                 let apiKey = EthereumNodesApiKeysDebug.polygonApiKey
             #else
                 let apiKey = EthereumNodesApiKeys.polygonApiKey

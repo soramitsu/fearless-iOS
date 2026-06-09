@@ -1,6 +1,6 @@
 import Foundation
 import WalletConnectSign
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 protocol WalletConnectProposalViewInput: ControllerBackedProtocol, LoadableViewProtocol {

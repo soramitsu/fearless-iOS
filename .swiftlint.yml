@@ -1,6 +1,14 @@
+included:
+  - fearless
+
 excluded:
   - Pods
   - PrivatePods
+  - SourcePackages
+  - .build
+  - Packages/FearlessBuildTools/.build
   - R.generated.swift
   - fearlessTests
   - fearlessIntegrationTests
+
+baseline: .swiftlint-baseline.json

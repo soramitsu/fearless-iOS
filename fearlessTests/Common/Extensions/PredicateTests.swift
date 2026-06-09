@@ -2,6 +2,13 @@ import XCTest
 @testable import fearless
 
 class PredicateTests: XCTestCase {
+    func testEmptyPredicates() {
+        XCTAssertTrue(NSPredicate.notEmpty.evaluate(with: "xor"))
+        XCTAssertFalse(NSPredicate.notEmpty.evaluate(with: ""))
+
+        XCTAssertTrue(NSPredicate.empty.evaluate(with: ""))
+        XCTAssertFalse(NSPredicate.empty.evaluate(with: "xor"))
+    }
 
     func testDerivationPathPredicate() {
         XCTAssertTrue(NSPredicate.deriviationPathHardSoftPassword.evaluate(with: "/1//2///3"))
@@ -31,6 +38,18 @@ class PredicateTests: XCTestCase {
         XCTAssertFalse(NSPredicate.deriviationPathHardSoft.evaluate(with: "/soft///password"))
         XCTAssertFalse(NSPredicate.deriviationPathHardSoft.evaluate(with: "////hard"))
         XCTAssertFalse(NSPredicate.deriviationPathHardSoft.evaluate(with: "/soft//hard///"))
+    }
+
+    func testDerivationPathNumericAliases() {
+        XCTAssertTrue(NSPredicate.deriviationPathHardSoftNumeric.evaluate(with: DerivationPathConstants.defaultEthereum))
+        XCTAssertTrue(
+            NSPredicate.deriviationPathHardSoftNumericPassword.evaluate(
+                with: "\(DerivationPathConstants.defaultEthereum)///password"
+            )
+        )
+
+        XCTAssertFalse(NSPredicate.deriviationPathHardSoftNumeric.evaluate(with: "44//60"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardSoftNumericPassword.evaluate(with: "//44///"))
     }
 
     func testDerivationPathHardPredicate() {
@@ -84,5 +103,14 @@ class PredicateTests: XCTestCase {
         XCTAssertFalse(NSPredicate.websocket.evaluate(with: "wss://??"))
         XCTAssertFalse(NSPredicate.websocket.evaluate(with: "wss://foo.bar?q=Spaces should be encoded"))
         XCTAssertFalse(NSPredicate.websocket.evaluate(with: "wss://10.1.1.255"))
+    }
+
+    func testEthereumAddressPredicate() {
+        XCTAssertTrue(NSPredicate.ethereumAddress.evaluate(with: "0x000000000000000000000000000000000000dEaD"))
+        XCTAssertTrue(NSPredicate.ethereumAddress.evaluate(with: "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"))
+
+        XCTAssertFalse(NSPredicate.ethereumAddress.evaluate(with: "000000000000000000000000000000000000dEaD"))
+        XCTAssertFalse(NSPredicate.ethereumAddress.evaluate(with: "0x000000000000000000000000000000000000dEa"))
+        XCTAssertFalse(NSPredicate.ethereumAddress.evaluate(with: "0x000000000000000000000000000000000000zzzz"))
     }
 }

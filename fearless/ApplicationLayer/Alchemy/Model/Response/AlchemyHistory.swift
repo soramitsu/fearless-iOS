@@ -19,9 +19,7 @@ struct AlchemyHistoryElement: Decodable {
         guard let dateString = metadata?.blockTimestamp else {
             return 0
         }
-        let dateFormatter = DateFormatter.alchemyDate
-        let date = dateFormatter.value(for: Locale.current).date(from: dateString)
-        return Int64(date?.timeIntervalSince1970 ?? 0)
+        return DateFormatter.networkTimestampInSeconds(from: dateString, using: DateFormatter.alchemyDate)
     }
 }
 

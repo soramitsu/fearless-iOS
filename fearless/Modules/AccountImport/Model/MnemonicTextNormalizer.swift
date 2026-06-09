@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import IrohaCrypto
 
 struct MnemonicTextNormalizer: TextProcessing {

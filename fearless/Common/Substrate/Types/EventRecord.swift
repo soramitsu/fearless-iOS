@@ -101,7 +101,19 @@ enum ExtrinsicStatus: Decodable {
             debugDescription: "Unexpected extrinsic state"
         )
 
-        let type = try (decoded.dictValue?.keys.first ?? decoded.stringValue).unwrap(throwing: decodingError)
+        guard let type = decoded.dictValue?.keys.first ?? decoded.stringValue else {
+            throw decodingError
+        }
+
+        if decoded.stringValue != nil {
+            guard type == ExtrinsicStatus.readyField else {
+                throw decodingError
+            }
+
+            self = .ready
+            return
+        }
+
         let value = try decoded[type].unwrap(throwing: decodingError)
 
         switch type {

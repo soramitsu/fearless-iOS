@@ -1,6 +1,6 @@
 import UIKit
-import SoraFoundation
-import SoraUI
+import FearlessFoundation
+import FearlessUI
 
 final class CustomValidatorListViewController: UIViewController, ViewHolder, ImportantViewProtocol {
     private enum Constants {

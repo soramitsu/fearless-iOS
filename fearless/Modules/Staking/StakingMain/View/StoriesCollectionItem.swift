@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 class StoriesCollectionItem: UICollectionViewCell {
     @IBOutlet private var iconLabel: UILabel!

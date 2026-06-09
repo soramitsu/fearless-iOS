@@ -2,7 +2,7 @@ import Foundation
 import SSFPolkaswap
 import SSFPools
 import SSFModels
-import SoraFoundation
+import FearlessFoundation
 import SSFStorageQueryKit
 
 protocol AvailableLiquidityPoolsListInteractorInput {

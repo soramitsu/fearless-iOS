@@ -1,7 +1,7 @@
 import Foundation
 import WalletConnectSign
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import SSFUtils
 
 final class MainTabBarPresenter {

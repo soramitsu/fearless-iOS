@@ -1,5 +1,5 @@
 import Foundation
-import FireMock
+import FearlessTestSupport
 
 protocol NetworkMockManagerProtocol {
     var isEnabled: Bool { get }

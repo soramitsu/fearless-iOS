@@ -2,7 +2,7 @@ import XCTest
 @testable import fearless
 import Cuckoo
 import SSFModels
-import SoraFoundation
+import FearlessFoundation
 
 class StoriesTests: XCTestCase {
     func testSetup() {

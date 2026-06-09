@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class SelectCurrencyViewController: UIViewController, ViewHolder, LoadableViewProtocol {
     typealias RootViewType = SelectCurrencyViewLayout

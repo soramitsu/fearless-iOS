@@ -42,7 +42,7 @@ final class OnboardingPageCell: UICollectionViewCell {
         }
         titleLabel.text = viewModel.title
         descriptionLabel.text = viewModel.description
-        let imageWidth = UIScreen.superviewWidth
+        let imageWidth = UIScreen.main.bounds.width
         let imageHeight = imageWidth / 327 * 336
         viewModel.imageViewModel?.loadImage(
             on: imageView,

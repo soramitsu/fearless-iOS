@@ -7,6 +7,10 @@ import SSFModels
 class EraCountdownOperationFactoryTests: XCTestCase {
 
     func testService() throws {
+        guard Self.remoteEndpointTestsEnabled else {
+            throw XCTSkip("Era countdown integration depends on remote chain endpoints; set FEARLESS_RUN_REMOTE_INTEGRATION_TESTS=1 to run it")
+        }
+
         let operationManager: OperationManagerProtocol = OperationManager()
 
         let chainId = Chain.kusama.genesisHash
@@ -51,5 +55,9 @@ class EraCountdownOperationFactoryTests: XCTestCase {
         operationManager.enqueue(operations: operationWrapper.allOperations, in: .transient)
 
         wait(for: [timeExpectation], timeout: 20)
+    }
+
+    private static var remoteEndpointTestsEnabled: Bool {
+        ProcessInfo.processInfo.environment["FEARLESS_RUN_REMOTE_INTEGRATION_TESTS"] == "1"
     }
 }

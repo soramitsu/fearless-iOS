@@ -1,9 +1,10 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 import RobinHood
 
 final class AssetNetworksAssembly {
+    // swiftlint:disable:next function_body_length
     static func configureModule(chainAsset: ChainAsset, wallet: MetaAccountModel) -> AssetNetworksModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
@@ -26,10 +27,11 @@ final class AssetNetworksAssembly {
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
             storageFacade: UserDataStorageFacade.shared
         )
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
         let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
         let accountInfoFetcher = AccountInfoFetching(
             accountInfoRepository: AnyDataProviderRepository(accountInfoRepository),
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            chainRegistry: chainRegistry,
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
         let chainsIssuesCenter = ChainsIssuesCenter(

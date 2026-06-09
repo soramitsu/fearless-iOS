@@ -1,5 +1,5 @@
 import Foundation
-import SoraUI
+import FearlessUI
 
 /**
  *  Subclass of `BackgroundedContentControl` designed to provide button that contains

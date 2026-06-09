@@ -1,7 +1,7 @@
 import Foundation
 import Web3
 import BigInt
-import SoraFoundation
+import FearlessFoundation
 import IrohaCrypto
 import SwiftUI
 import SSFModels

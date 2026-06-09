@@ -29,6 +29,18 @@
 @_exported import SnapKit
 #endif
 
+#if canImport(Charts)
+@_exported import Charts
+#endif
+
+#if canImport(SVGKit)
+@_exported import SVGKit
+#endif
+
+#if canImport(Rswift)
+@_exported import Rswift
+#endif
+
 #if canImport(Reachability)
 @_exported import Reachability
 #endif

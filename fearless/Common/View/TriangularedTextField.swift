@@ -1,4 +1,4 @@
-import SoraUI
+import FearlessUI
 import UIKit
 
 final class TriangularedTextField: TriangularedView {

@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFCloudStorage
 import SSFModels
 
@@ -122,16 +122,13 @@ final class BackupPasswordPresenter {
         from backup: OpenBackupAccount
     ) throws -> MetaAccountImportRequestSource.KeystoreImportRequestData {
         guard
-            let substrateKeystoreData = backup.json?.substrateJson,
-            let substrateKeystore = substrateKeystoreData.toUTF8String()
+            let substrateKeystore = backup.json?.substrateJson
         else {
             throw ConvenienceError(error: "Can't create KeystoreImportRequestData")
         }
 
         var ethereumKeystore: String?
-        if let ethereumKeystoreData = backup.json?.ethJson {
-            ethereumKeystore = ethereumKeystoreData.toUTF8String()
-        }
+        ethereumKeystore = backup.json?.ethJson
 
         let password = passwordInputViewModel.inputHandler.normalizedValue
 

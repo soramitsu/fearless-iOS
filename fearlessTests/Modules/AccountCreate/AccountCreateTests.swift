@@ -1,10 +1,10 @@
 import XCTest
 @testable import fearless
-import SoraKeystore
+import FearlessSecureStorage
 import IrohaCrypto
 import RobinHood
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 
 class AccountCreateTests: XCTestCase {
 

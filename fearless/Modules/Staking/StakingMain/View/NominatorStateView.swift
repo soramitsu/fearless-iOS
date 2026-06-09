@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 class NominatorStateView: StakingStateView, LocalizableViewProtocol {
     private lazy var timer = CountdownTimer()

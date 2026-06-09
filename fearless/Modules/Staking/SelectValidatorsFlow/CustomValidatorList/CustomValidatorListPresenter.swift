@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 final class CustomValidatorListPresenter {
@@ -65,7 +65,8 @@ final class CustomValidatorListPresenter {
                 .commonWarning(preferredLanguages: selectedLocale.rLanguages),
             closeAction: R.string.localizable
                 .commonClose(preferredLanguages: selectedLocale.rLanguages),
-            from: view
+            from: view,
+            actions: []
         )
     }
 }

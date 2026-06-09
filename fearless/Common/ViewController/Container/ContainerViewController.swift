@@ -1,7 +1,7 @@
 import Foundation
 
 import UIKit
-import SoraUI
+import FearlessUI
 
 class ContainerViewController: UIViewController, AdaptiveDesignable {
     private enum Constants {

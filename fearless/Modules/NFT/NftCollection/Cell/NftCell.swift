@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 protocol NftCellDelegate: AnyObject {
     func handle(cellModel: NftCellViewModel)

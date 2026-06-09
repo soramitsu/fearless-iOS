@@ -3,7 +3,7 @@ import Foundation
 
 import BigInt
 import SwiftUI
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 final class StakingMainPresenter {

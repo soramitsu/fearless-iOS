@@ -1,160 +1,122 @@
-//import XCTest
-//@testable import fearless
-//import RobinHood
-//
-//class RewardDataSourceTests: NetworkBaseTests {
-//
-//    func testCorrectSync() {
-//        do {
-//            // given
-//
-//            let storageFacade = SubstrateStorageTestFacade()
-//            let chain = ChainModelGenerator.generateChain(
-//                generatingAssets: 1,
-//                addressPrefix: 42,
-//                assetPresicion: 12,
-//                hasStaking: true,
-//                hasCrowdloans: true
-//            )
-//
-//            guard
-//                let url = chain.externalApi?.staking?.url,
-//                let assetPrecision = chain.assets.first?.displayInfo.assetPrecision else {
-//                XCTFail("Unexpected chain")
-//                return
-//            }
-//
-//            TotalRewardMock.register(mock: .westend, url: url)
-//
-//            let expectedReward: Decimal = 5.0
-//
-//            // when
-//
-//            let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
-//                storageFacade.createRepository()
-//
-//            let actualRewardItem = try performRewardRequest(
-//                for: AnyDataProviderRepository(repository),
-//                address: WestendStub.address,
-//                url: url,
-//                assetPrecision: assetPrecision
-//            ).get()
-//
-//            // then
-//
-//            XCTAssertEqual(expectedReward, actualRewardItem?.amount.decimalValue)
-//        } catch {
-//            XCTFail("Unexpected error: \(error)")
-//        }
-//    }
-//
-//    func testFailureCorrectlyHandled() {
-//        do {
-//            // given
-//
-//            let storageFacade = SubstrateStorageTestFacade()
-//
-//            let chain = ChainModelGenerator.generateChain(
-//                generatingAssets: 1,
-//                addressPrefix: 42,
-//                assetPresicion: 12,
-//                hasStaking: true,
-//                hasCrowdloans: true
-//            )
-//
-//            guard
-//                let url = chain.externalApi?.staking?.url,
-//                let assetPrecision = chain.assets.first?.displayInfo.assetPrecision else {
-//                XCTFail("Unexpected chain")
-//                return
-//            }
-//
-//            TotalRewardMock.register(mock: .error, url: url)
-//
-//            // when
-//
-//            let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
-//                storageFacade.createRepository()
-//
-//            let result = try performRewardRequest(
-//                for: AnyDataProviderRepository(repository),
-//                address: WestendStub.address,
-//                url: url,
-//                assetPrecision: assetPrecision
-//            )
-//
-//            // then
-//
-//            switch result {
-//            case .success:
-//                XCTFail("Error expected")
-//            case let .failure(error):
-//                XCTAssertTrue(error is SubqueryErrors, "Unexpected result error: \(error)")
-//            }
-//        } catch {
-//            XCTFail("Unexpected error: \(error)")
-//        }
-//    }
-//
-//    func performRewardRequest(for repository: AnyDataProviderRepository<SingleValueProviderObject>,
-//                              address: String,
-//                              url: URL,
-//                              assetPrecision: Int16
-//    ) throws -> Result<TotalRewardItem?, Error> {
-//        let operationManager = OperationManager()
-//
-//        let trigger = DataProviderProxyTrigger()
-//
-//        let operationFactory = SubqueryRewardOperationFactory(
-//            url: url
-//        )
-//
-//        let source = SubqueryRewardSource(address: address,
-//                                          assetPrecision: assetPrecision,
-//                                          targetIdentifier: address,
-//                                          repository: AnyDataProviderRepository(repository),
-//                                          operationFactory: operationFactory,
-//                                          trigger: trigger,
-//                                          operationManager: operationManager)
-//
-//        let provider = SingleValueProvider(targetIdentifier: address,
-//                                           source: AnySingleValueProviderSource(source),
-//                                           repository: AnyDataProviderRepository(repository),
-//                                           updateTrigger: trigger)
-//
-//        let expectation = XCTestExpectation()
-//        expectation.expectedFulfillmentCount = 2
-//
-//        var totalReward: TotalRewardItem? = nil
-//        var totalRewardError: Error? = nil
-//
-//        let changesClosure = { (changes: [DataProviderChange<TotalRewardItem>]) -> Void in
-//            totalReward = changes.reduceToLastChange()
-//            expectation.fulfill()
-//        }
-//
-//        let failureClosure = { (error: Error) -> Void in
-//            totalRewardError = error
-//            expectation.fulfill()
-//        }
-//
-//        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: true,
-//                                                  waitsInProgressSyncOnAdd: false)
-//
-//        provider.addObserver(self,
-//                             deliverOn: .main,
-//                             executing: changesClosure,
-//                             failing: failureClosure,
-//                             options: options)
-//
-//        wait(for: [expectation], timeout: 10.0)
-//
-//        provider.removeObserver(self)
-//
-//        if let error = totalRewardError {
-//            return .failure(error)
-//        } else {
-//            return .success(totalReward)
-//        }
-//    }
-//}
+import XCTest
+@testable import fearless
+import RobinHood
+
+final class RewardDataSourceTests: XCTestCase {
+    func testFetchOperation_whenRemoteRewardsReceived_thenReturnsNetTotalReward() throws {
+        let address = "test-address"
+        let source = try createSource(
+            address: address,
+            remoteResult: .success([
+                RewardData(id: "reward", address: address, amount: "1000000000000", isReward: true),
+                RewardData(id: "slash", address: address, amount: "250000000000", isReward: false),
+                RewardData(id: "decimalReward", address: address, amount: "0.5", isReward: true)
+            ])
+        )
+
+        let reward = try executeFetchOperation(source)
+
+        XCTAssertEqual(reward?.address, address)
+        XCTAssertEqual(reward?.amount.decimalValue, Decimal(string: "1.25"))
+    }
+
+    func testFetchOperation_whenRemoteFetchFails_thenReturnsError() throws {
+        let source = try createSource(
+            address: "test-address",
+            remoteResult: .failure(RewardDataSourceTestError.remoteFailure)
+        )
+
+        XCTAssertThrowsError(try executeFetchOperation(source)) { error in
+            XCTAssertEqual(error as? RewardDataSourceTestError, .remoteFailure)
+        }
+    }
+
+    private func createSource(
+        address: String,
+        remoteResult: Result<[RewardOrSlashData], Error>
+    ) throws -> SubqueryRewardSource {
+        let trigger = DataProviderProxyTrigger()
+        let triggerObserver = TriggerObserver(expectation: expectation(description: "Reward source triggered"))
+        trigger.delegate = triggerObserver
+
+        let repository = InMemoryDataProviderRepository<SingleValueProviderObject>()
+        let source = SubqueryRewardSource(
+            address: address,
+            assetPrecision: 12,
+            targetIdentifier: address,
+            repository: AnyDataProviderRepository(repository),
+            rewardsFetcher: StubRewardsFetcher(result: remoteResult),
+            trigger: trigger,
+            operationManager: OperationManager()
+        )
+
+        wait(for: [triggerObserver.expectation], timeout: Constants.defaultExpectationDuration)
+
+        return source
+    }
+
+    private func executeFetchOperation(_ source: SubqueryRewardSource) throws -> TotalRewardItem? {
+        let wrapper = source.fetchOperation()
+        OperationQueue().addOperations(wrapper.allOperations, waitUntilFinished: true)
+
+        return try wrapper.targetOperation.extractResultData(
+            throwing: BaseOperationError.parentOperationCancelled
+        )
+    }
+}
+
+private enum RewardDataSourceTestError: Error {
+    case remoteFailure
+}
+
+private final class StubRewardsFetcher: StakingRewardsFetcher {
+    let result: Result<[RewardOrSlashData], Error>
+
+    init(result: Result<[RewardOrSlashData], Error>) {
+        self.result = result
+    }
+
+    func fetchAllRewards(
+        address _: String,
+        startTimestamp _: Int64?,
+        endTimestamp _: Int64?
+    ) async throws -> [RewardOrSlashData] {
+        try result.get()
+    }
+}
+
+private final class TriggerObserver: DataProviderTriggerDelegate {
+    let expectation: XCTestExpectation
+
+    init(expectation: XCTestExpectation) {
+        self.expectation = expectation
+    }
+
+    func didTrigger() {
+        expectation.fulfill()
+    }
+}
+
+private struct RewardData: RewardOrSlashData {
+    let identifier: String
+    let timestamp: String
+    let address: String
+    let rewardInfo: RewardOrSlash?
+
+    init(id: String, address: String, amount: String, isReward: Bool) {
+        identifier = id
+        timestamp = "0"
+        self.address = address
+        rewardInfo = RewardInfo(amount: amount, isReward: isReward)
+    }
+}
+
+private struct RewardInfo: RewardOrSlash {
+    let amount: String
+    let isReward: Bool
+    let era: Int? = nil
+    let validator: String? = nil
+    let stash: String? = nil
+    let eventIdx: String? = nil
+    let assetId: String? = nil
+}

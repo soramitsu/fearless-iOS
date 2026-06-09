@@ -3,11 +3,11 @@ import RobinHood
 import IrohaCrypto
 
 protocol GitHubOperationFactoryProtocol {
-    func fetchPhishingListOperation(_ url: URL) -> NetworkOperation<[PhishingItem]>
+    func fetchPhishingListOperation(_ url: URL) -> BaseOperation<[PhishingItem]>
 }
 
 class GitHubOperationFactory: GitHubOperationFactoryProtocol {
-    func fetchPhishingListOperation(_ url: URL) -> NetworkOperation<[PhishingItem]> {
+    func fetchPhishingListOperation(_ url: URL) -> BaseOperation<[PhishingItem]> {
         let requestFactory = BlockNetworkRequestFactory {
             var request = URLRequest(url: url)
             request.setValue(

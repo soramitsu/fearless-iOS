@@ -11,15 +11,18 @@ actor TonJettonInjectorImpl: TonJettonInjector {
     private let chainModelRepository: AsyncAnyRepository<ChainModel>
     private let logger: LoggerProtocol
     private let eventCenter: EventCenterProtocol
+    private let tonChainSelectionToggleSource: TonChainSelection.ToggleSource
 
     init(
         chainModelRepository: AsyncAnyRepository<ChainModel>,
         eventCenter: EventCenterProtocol,
-        logger: LoggerProtocol
+        logger: LoggerProtocol,
+        tonChainSelectionToggleSource: TonChainSelection.ToggleSource = LocalToggleService.shared
     ) {
         self.chainModelRepository = chainModelRepository
         self.eventCenter = eventCenter
         self.logger = logger
+        self.tonChainSelectionToggleSource = tonChainSelectionToggleSource
     }
 
     func inject(jettonItems: [TonJettonBalance]) async {
@@ -102,6 +105,6 @@ actor TonJettonInjectorImpl: TonJettonInjector {
     }
 
     private func tonChainId() -> ChainModel.Id {
-        TonChainSelection.selectedChainId()
+        TonChainSelection.selectedChainId(toggleSource: tonChainSelectionToggleSource)
     }
 }

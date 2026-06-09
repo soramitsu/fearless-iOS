@@ -1,4 +1,4 @@
-import SoraKeystore
+import FearlessSecureStorage
 
 enum OnboardingKeys: String {
     case lastShownOnboardingVersion

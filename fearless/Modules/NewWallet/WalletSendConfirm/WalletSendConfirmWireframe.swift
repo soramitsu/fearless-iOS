@@ -1,6 +1,6 @@
 import Foundation
 import UIKit
-import SoraUI
+import FearlessUI
 import SSFModels
 
 final class WalletSendConfirmWireframe: WalletSendConfirmWireframeProtocol {

@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class WalletNameAssembly {
     static func configureModule(with wallet: MetaAccountModel?) -> WalletNameModuleCreationResult? {

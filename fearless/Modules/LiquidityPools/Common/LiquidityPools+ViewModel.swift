@@ -140,11 +140,6 @@ public struct AssetIdPair {
     public var poolId: String { "\(baseAssetIdCode)-\(targetAssetIdCode)" }
 }
 
-public extension AssetModel {
-    // Legacy convenience used broadly in presenters; return nil by default
-    func getPrice(for _: Any) -> PriceData? { nil }
-}
-
 public extension SSFPools.LiquidityPair {
     var dexId: String { "0" }
 }

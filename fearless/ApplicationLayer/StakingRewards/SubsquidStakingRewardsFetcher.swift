@@ -1,13 +1,21 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 import SSFNetwork
 
 final class SubsquidStakingRewardsFetcher {
     private let chain: ChainModel
+    private let worker: NetworkWorkerDefault
+    private let localizationManager: LocalizationManagerProtocol
 
-    init(chain: ChainModel) {
+    init(
+        chain: ChainModel,
+        worker: NetworkWorkerDefault = NetworkWorkerDefault(),
+        localizationManager: LocalizationManagerProtocol = LocalizationManager.shared
+    ) {
         self.chain = chain
+        self.worker = worker
+        self.localizationManager = localizationManager
     }
 
     func queryString(
@@ -16,7 +24,7 @@ final class SubsquidStakingRewardsFetcher {
         endTimestamp: Int64?
     ) -> String {
         let timestampFilter: String = {
-            let locale = LocalizationManager.shared.selectedLocale
+            let locale = localizationManager.selectedLocale
             guard startTimestamp != nil || endTimestamp != nil else { return "" }
 
             var result = "AND: {"
@@ -75,7 +83,6 @@ extension SubsquidStakingRewardsFetcher: StakingRewardsFetcher {
             baseURL: blockExplorer.url,
             query: queryString
         )
-        let worker = NetworkWorkerDefault()
         let response: GraphQLResponse<ArrowsquidHistoryResponse> = try await worker.performRequest(with: request)
 
         switch response {

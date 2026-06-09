@@ -4,7 +4,7 @@ import RobinHood
 import IrohaCrypto
 import SSFUtils
 import SSFModels
-import SoraFoundation
+import FearlessFoundation
 
 final class ReefSubsquidHistoryOperationFactory {
     private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>

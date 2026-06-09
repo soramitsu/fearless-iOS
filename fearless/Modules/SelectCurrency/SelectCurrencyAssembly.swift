@@ -1,8 +1,8 @@
 import UIKit
-import SoraFoundation
-import SoraKeystore
+import FearlessFoundation
+import FearlessSecureStorage
 import RobinHood
-import SoraUI
+import FearlessUI
 
 final class SelectCurrencyAssembly {
     static func configureModule(

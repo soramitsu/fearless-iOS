@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 public struct TriangularedCorners: OptionSet {
     public typealias RawValue = UInt8

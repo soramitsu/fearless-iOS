@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 class NftCollectionCell: UICollectionViewCell {
     private enum LayoutConstants {

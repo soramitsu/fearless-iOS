@@ -1,7 +1,13 @@
 import UIKit
-import SoraKeystore
+import FearlessSecureStorage
 import RobinHood
 import SSFModels
+
+protocol SelectCurrencyConfigSource {
+    var fiatsURL: URL? { get }
+}
+
+extension ApplicationConfig: SelectCurrencyConfigSource {}
 
 final class SelectCurrencyInteractor {
     // MARK: - Private properties
@@ -10,6 +16,7 @@ final class SelectCurrencyInteractor {
     private let repository: AnyDataProviderRepository<MetaAccountModel>
     private let jsonDataProviderFactory: JsonDataProviderFactoryProtocol
     private let eventCenter: EventCenterProtocol
+    private let configSource: SelectCurrencyConfigSource
 
     private var fiatInfoProvider: AnySingleValueProvider<[Currency]>?
     private let operationQueue: OperationQueue
@@ -21,19 +28,21 @@ final class SelectCurrencyInteractor {
         repository: AnyDataProviderRepository<MetaAccountModel>,
         jsonDataProviderFactory: JsonDataProviderFactoryProtocol,
         eventCenter: EventCenterProtocol,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        configSource: SelectCurrencyConfigSource = ApplicationConfig.shared
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.repository = repository
         self.jsonDataProviderFactory = jsonDataProviderFactory
         self.eventCenter = eventCenter
         self.operationQueue = operationQueue
+        self.configSource = configSource
     }
 
     private func subscribeToFiats() {
         fiatInfoProvider = nil
 
-        guard let fiatUrl = ApplicationConfig.shared.fiatsURL else { return }
+        guard let fiatUrl = configSource.fiatsURL else { return }
         fiatInfoProvider = try? jsonDataProviderFactory.getJson(for: fiatUrl)
 
         let updateClosure: ([DataProviderChange<[Currency]>]) -> Void = { [weak self] changes in

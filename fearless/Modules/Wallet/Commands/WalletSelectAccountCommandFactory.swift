@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
-import SoraFoundation
-import SoraKeystore
+import FearlessFoundation
+import FearlessSecureStorage
 
 // Wallet command protocols/types — single source for the app target.
 protocol WalletCommandProtocol {

@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class StakingBalanceViewController: UIViewController, ViewHolder {
     typealias RootViewType = StakingBalanceViewLayout

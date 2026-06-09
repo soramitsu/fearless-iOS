@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 class TitleValueView: UIView {
     private enum Constants {

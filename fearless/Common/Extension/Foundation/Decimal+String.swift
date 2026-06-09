@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 extension Decimal {
     var stringWithPointSeparator: String {

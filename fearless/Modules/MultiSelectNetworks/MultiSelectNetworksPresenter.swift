@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 protocol MultiSelectNetworksViewInput: ControllerBackedProtocol {

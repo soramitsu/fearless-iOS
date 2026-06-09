@@ -4,6 +4,22 @@ import RobinHood
 typealias AppVersionObserverResult = ((Bool?, Error?) -> Void)
 typealias AppVersionWireframe = (WarningPresentable & AppUpdatePresentable & PresentDismissable)
 
+protocol AppVersionConfigSource {
+    var appVersionURL: URL? { get }
+}
+
+extension ApplicationConfig: AppVersionConfigSource {}
+
+protocol AppSupportConfigFetching {
+    func fetchAppSupportConfig(from url: URL) -> CompoundOperationWrapper<AppSupportConfig?>
+}
+
+struct AppSupportConfigFetcher: AppSupportConfigFetching {
+    func fetchAppSupportConfig(from url: URL) -> CompoundOperationWrapper<AppSupportConfig?> {
+        JsonSingleProviderSource<AppSupportConfig>(url: url).fetchOperation()
+    }
+}
+
 protocol AppVersionObserverProtocol {
     func checkVersion(from view: ControllerBackedProtocol?, callback: AppVersionObserverResult?)
 }
@@ -13,18 +29,27 @@ final class AppVersionObserver {
     private let wireframe: AppVersionWireframe
     private let currentAppVersion: String?
     private let operationManager: OperationManagerProtocol
+    private let configSource: AppVersionConfigSource
+    private let configFetcher: AppSupportConfigFetching
+    private let callbackQueue: DispatchQueue
     private var displayInfoProvider: AnySingleValueProvider<AppSupportConfig>?
 
     init(
         operationManager: OperationManagerProtocol,
         currentAppVersion: String?,
         wireframe: AppVersionWireframe,
-        locale: Locale
+        locale: Locale,
+        configSource: AppVersionConfigSource = ApplicationConfig.shared,
+        configFetcher: AppSupportConfigFetching = AppSupportConfigFetcher(),
+        callbackQueue: DispatchQueue = .main
     ) {
         self.operationManager = operationManager
         self.currentAppVersion = currentAppVersion
         self.wireframe = wireframe
         self.locale = locale
+        self.configSource = configSource
+        self.configFetcher = configFetcher
+        self.callbackQueue = callbackQueue
     }
 
     private func validateVersion(config: AppSupportConfig?) -> Bool {
@@ -58,14 +83,13 @@ extension AppVersionObserver: AppVersionObserverProtocol {
     ) {
         clear(singleValueProvider: &displayInfoProvider)
 
-        guard let url = ApplicationConfig.shared.appVersionURL,
+        guard let url = configSource.appVersionURL,
               currentAppVersion != nil else {
             return
         }
 
-        let source = JsonSingleProviderSource<AppSupportConfig>(url: url)
-
-        let operation = source.fetchOperation().targetOperation
+        let wrapper = configFetcher.fetchAppSupportConfig(from: url)
+        let operation = wrapper.targetOperation
         operation.completionBlock = { [weak self] in
             guard let strongSelf = self, let result = operation.result else {
                 return
@@ -73,7 +97,7 @@ extension AppVersionObserver: AppVersionObserverProtocol {
 
             switch result {
             case let .success(config):
-                DispatchQueue.main.async {
+                strongSelf.callbackQueue.async {
                     let supported = strongSelf.validateVersion(config: config)
                     if !supported {
                         strongSelf.wireframe.presentWarningAlert(
@@ -87,13 +111,13 @@ extension AppVersionObserver: AppVersionObserverProtocol {
                     callback?(supported, nil)
                 }
             case let .failure(error):
-                DispatchQueue.main.async {
+                strongSelf.callbackQueue.async {
                     callback?(nil, error)
                 }
             }
         }
 
-        operationManager.enqueue(operations: [operation] + operation.dependencies, in: .transient)
+        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
     }
 
     private func showVersionUnsupportedAlert(from view: ControllerBackedProtocol?) {

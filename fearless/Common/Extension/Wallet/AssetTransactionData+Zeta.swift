@@ -1,6 +1,6 @@
 import Foundation
 
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 extension AssetTransactionData {
@@ -14,11 +14,7 @@ extension AssetTransactionData {
         let type = item.from.hash.lowercased() == address.lowercased() ? TransactionType.outgoing : TransactionType.incoming
 
         let timestamp: Int64 = {
-            let locale = LocalizationManager.shared.selectedLocale
-            let dateFormatter = DateFormatter.giantsquidDate
-            let date = dateFormatter.value(for: locale).date(from: item.timestamp)
-            let timestamp = Int64(date?.timeIntervalSince1970 ?? 0)
-            return timestamp
+            DateFormatter.networkTimestampInSeconds(from: item.timestamp, using: DateFormatter.giantsquidDate)
         }()
 
         let feeValue = item.fee?.value ?? .zero

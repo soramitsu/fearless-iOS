@@ -1,5 +1,5 @@
 import Foundation
-import SoraKeystore
+import FearlessSecureStorage
 
 protocol KeystoreMigrating: AnyObject {
     func switchVersion() throws

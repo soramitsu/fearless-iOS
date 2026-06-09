@@ -41,7 +41,7 @@
                     <color key="textColor" name="colorWhite"/>
                     <nil key="highlightedColor"/>
                 </label>
-                <view hidden="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="AQU-Wt-VCi" customClass="RoundedButton" customModule="SoraUI">
+                <view hidden="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="AQU-Wt-VCi" customClass="RoundedButton" customModule="FearlessUI">
                     <rect key="frame" x="327" y="0.0" width="48" height="48"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <userDefinedRuntimeAttributes>

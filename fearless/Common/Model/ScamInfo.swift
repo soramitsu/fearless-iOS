@@ -18,7 +18,7 @@ struct ScamInfo: Identifiable, Codable, Equatable, Hashable {
         case subtype
     }
 
-    enum ScamType: String, Codable {
+    enum ScamType: String, Codable, CaseIterable {
         case unknown
         case scam
         case donation
@@ -27,7 +27,12 @@ struct ScamInfo: Identifiable, Codable, Equatable, Hashable {
         case lowScore = "Low network activity"
 
         init?(from string: String) {
-            self.init(rawValue: string.lowercased())
+            let normalizedString = string.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            guard let type = Self.allCases.first(where: { $0.rawValue.lowercased() == normalizedString }) else {
+                return nil
+            }
+
+            self = type
         }
 
         var isScam: Bool {

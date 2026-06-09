@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22757" systemVersion="23E224" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <entity name="CDAsset" representedClassName="CDAsset" syncable="YES" codeGenerationType="none">
+    <entity name="CDAsset" representedClassName="FearlessCDAsset" syncable="YES" codeGenerationType="none">
         <attribute name="color" optional="YES" attributeType="String"/>
         <attribute name="currencyId" optional="YES" attributeType="String"/>
         <attribute name="ethereumType" optional="YES" attributeType="String"/>
@@ -20,7 +20,7 @@
         <relationship name="priceData" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDPriceData" inverseName="asset" inverseEntity="CDPriceData"/>
         <relationship name="priceProvider" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDPriceProvider" inverseName="asset" inverseEntity="CDPriceProvider"/>
     </entity>
-    <entity name="CDChain" representedClassName="CDChain" syncable="YES" codeGenerationType="none">
+    <entity name="CDChain" representedClassName="FearlessCDChain" syncable="YES" codeGenerationType="none">
         <attribute name="addressPrefix" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="chainId" attributeType="String"/>
         <attribute name="crowdloansApiType" optional="YES" attributeType="String"/>
@@ -59,7 +59,7 @@
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
-    <entity name="CDChainNode" representedClassName="CDChainNode" syncable="YES" codeGenerationType="none">
+    <entity name="CDChainNode" representedClassName="FearlessCDChainNode" syncable="YES" codeGenerationType="none">
         <attribute name="apiKeyName" optional="YES" attributeType="String"/>
         <attribute name="apiQueryName" optional="YES" attributeType="String"/>
         <attribute name="name" attributeType="String" defaultValueString=""/>
@@ -71,53 +71,53 @@
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
-    <entity name="CDChainStorageItem" representedClassName="CDChainStorageItem" syncable="YES" codeGenerationType="none">
+    <entity name="CDChainStorageItem" representedClassName="FearlessCDChainStorageItem" syncable="YES" codeGenerationType="none">
         <attribute name="data" optional="YES" attributeType="Binary"/>
         <attribute name="identifier" optional="YES" attributeType="String"/>
     </entity>
-    <entity name="CDChainXcmConfig" representedClassName="CDChainXcmConfig" syncable="YES" codeGenerationType="none">
+    <entity name="CDChainXcmConfig" representedClassName="FearlessCDChainXcmConfig" syncable="YES" codeGenerationType="none">
         <attribute name="destWeightIsPrimitive" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="xcmVersion" optional="YES" attributeType="String"/>
         <relationship name="availableAssets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDXcmAvailableAsset"/>
         <relationship name="availableDestinations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDXcmAvailableDestination" inverseName="config" inverseEntity="CDXcmAvailableDestination"/>
         <relationship name="chain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChain" inverseName="xcmConfig" inverseEntity="CDChain"/>
     </entity>
-    <entity name="CDContact" representedClassName="CDContact" syncable="YES" codeGenerationType="none">
+    <entity name="CDContact" representedClassName="FearlessCDContact" syncable="YES" codeGenerationType="none">
         <attribute name="address" optional="YES" attributeType="String"/>
         <attribute name="chainId" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
     </entity>
-    <entity name="CDContactItem" representedClassName="CDContactItem" syncable="YES" codeGenerationType="none">
+    <entity name="CDContactItem" representedClassName="FearlessCDContactItem" syncable="YES" codeGenerationType="none">
         <attribute name="identifier" optional="YES" attributeType="String"/>
         <attribute name="peerAddress" optional="YES" attributeType="String"/>
         <attribute name="peerName" optional="YES" attributeType="String"/>
         <attribute name="targetAddress" optional="YES" attributeType="String"/>
         <attribute name="updatedAt" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
-    <entity name="CDExternalApi" representedClassName="CDExternalApi" syncable="YES" codeGenerationType="none">
+    <entity name="CDExternalApi" representedClassName="FearlessCDExternalApi" syncable="YES" codeGenerationType="none">
         <attribute name="type" optional="YES" attributeType="String"/>
         <attribute name="types" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
         <attribute name="url" optional="YES" attributeType="String"/>
         <relationship name="chain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChain" inverseName="explorers" inverseEntity="CDChain"/>
     </entity>
-    <entity name="CDPhishingItem" representedClassName="CDPhishingItem" syncable="YES" codeGenerationType="none">
+    <entity name="CDPhishingItem" representedClassName="FearlessCDPhishingItem" syncable="YES" codeGenerationType="none">
         <attribute name="identifier" optional="YES" attributeType="String"/>
         <attribute name="publicKey" optional="YES" attributeType="String"/>
         <attribute name="source" optional="YES" attributeType="String"/>
     </entity>
-    <entity name="CDPolkaswapDex" representedClassName="CDPolkaswapDex" syncable="YES" codeGenerationType="none">
+    <entity name="CDPolkaswapDex" representedClassName="FearlessCDPolkaswapDex" syncable="YES" codeGenerationType="none">
         <attribute name="assetId" optional="YES" attributeType="String"/>
         <attribute name="code" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
     </entity>
-    <entity name="CDPolkaswapRemoteSettings" representedClassName="CDPolkaswapRemoteSettings" syncable="YES" codeGenerationType="none">
+    <entity name="CDPolkaswapRemoteSettings" representedClassName="FearlessCDPolkaswapRemoteSettings" syncable="YES" codeGenerationType="none">
         <attribute name="availableSources" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
         <attribute name="forceSmartIds" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
         <attribute name="version" attributeType="String"/>
         <attribute name="xstusdId" optional="YES" attributeType="String"/>
         <relationship name="availableDexIds" toMany="YES" deletionRule="Nullify" destinationEntity="CDPolkaswapDex"/>
     </entity>
-    <entity name="CDPriceData" representedClassName="CDPriceData" syncable="YES" codeGenerationType="none">
+    <entity name="CDPriceData" representedClassName="FearlessCDPriceData" syncable="YES" codeGenerationType="none">
         <attribute name="coingeckoPriceId" optional="YES" attributeType="String"/>
         <attribute name="currencyId" attributeType="String"/>
         <attribute name="fiatDayByChange" optional="YES" attributeType="String"/>
@@ -125,26 +125,26 @@
         <attribute name="priceId" attributeType="String"/>
         <relationship name="asset" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDAsset" inverseName="priceData" inverseEntity="CDAsset"/>
     </entity>
-    <entity name="CDPriceProvider" representedClassName="CDPriceProvider" syncable="YES" codeGenerationType="none">
+    <entity name="CDPriceProvider" representedClassName="FearlessCDPriceProvider" syncable="YES" codeGenerationType="none">
         <attribute name="id" optional="YES" attributeType="String"/>
         <attribute name="precision" optional="YES" attributeType="String"/>
         <attribute name="type" optional="YES" attributeType="String"/>
         <relationship name="asset" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDAsset" inverseName="priceProvider" inverseEntity="CDAsset"/>
     </entity>
-    <entity name="CDRuntimeMetadataItem" representedClassName="CDRuntimeMetadataItem" syncable="YES" codeGenerationType="none">
+    <entity name="CDRuntimeMetadataItem" representedClassName="FearlessCDRuntimeMetadataItem" syncable="YES" codeGenerationType="none">
         <attribute name="identifier" optional="YES" attributeType="String"/>
         <attribute name="metadata" optional="YES" attributeType="Binary"/>
         <attribute name="resolver" optional="YES" attributeType="Binary"/>
         <attribute name="txVersion" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="version" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
-    <entity name="CDScamInfo" representedClassName="CDScamInfo" syncable="YES" codeGenerationType="none">
+    <entity name="CDScamInfo" representedClassName="FearlessCDScamInfo" syncable="YES" codeGenerationType="none">
         <attribute name="address" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="subtype" optional="YES" attributeType="String"/>
         <attribute name="type" optional="YES" attributeType="String"/>
     </entity>
-    <entity name="CDStashItem" representedClassName="CDStashItem" syncable="YES" codeGenerationType="none">
+    <entity name="CDStashItem" representedClassName="FearlessCDStashItem" syncable="YES" codeGenerationType="none">
         <attribute name="controller" optional="YES" attributeType="String"/>
         <attribute name="stash" optional="YES" attributeType="String"/>
     </entity>
@@ -161,12 +161,12 @@
         <attribute name="timestamp" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="txIndex" optional="YES" attributeType="Integer 16" usesScalarValueType="NO"/>
     </entity>
-    <entity name="CDXcmAvailableAsset" representedClassName="CDXcmAvailableAsset" syncable="YES" codeGenerationType="none">
+    <entity name="CDXcmAvailableAsset" representedClassName="FearlessCDXcmAvailableAsset" syncable="YES" codeGenerationType="none">
         <attribute name="id" optional="YES" attributeType="String"/>
         <attribute name="minAmount" optional="YES" attributeType="String"/>
         <attribute name="symbol" optional="YES" attributeType="String"/>
     </entity>
-    <entity name="CDXcmAvailableDestination" representedClassName="CDXcmAvailableDestination" syncable="YES" codeGenerationType="none">
+    <entity name="CDXcmAvailableDestination" representedClassName="FearlessCDXcmAvailableDestination" syncable="YES" codeGenerationType="none">
         <attribute name="bridgeParachainId" optional="YES" attributeType="String"/>
         <attribute name="chainId" optional="YES" attributeType="String"/>
         <relationship name="assets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDXcmAvailableAsset"/>

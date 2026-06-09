@@ -1,6 +1,6 @@
 import UIKit
 import SSFUtils
-import SoraUI
+import FearlessUI
 import SnapKit
 
 protocol AnalyticsValidatorsCellDelegate: AnyObject {

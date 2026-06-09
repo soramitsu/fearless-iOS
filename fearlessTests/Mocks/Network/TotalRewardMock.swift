@@ -1,5 +1,5 @@
 import Foundation
-import FireMock
+import FearlessTestSupport
 
 enum TotalRewardMock: FireMockProtocol {
     case westend

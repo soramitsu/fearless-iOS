@@ -128,6 +128,10 @@ final class SwapTransactionDetailViewLayout: UIView {
     func updateState(for explorer: ChainModel.ExternalApiExplorer?) {
         subscanButton.isHidden = explorer == nil
         shareButton.isHidden = explorer == nil
+
+        if let explorer = explorer {
+            subscanButton.imageWithTitleView?.title = explorer.displayName
+        }
     }
 
     func bind(viewModel: SwapTransactionViewModel) {

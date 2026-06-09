@@ -1,5 +1,5 @@
 import UIKit
-import SoraKeystore
+import FearlessSecureStorage
 import RobinHood
 import IrohaCrypto
 import SSFModels

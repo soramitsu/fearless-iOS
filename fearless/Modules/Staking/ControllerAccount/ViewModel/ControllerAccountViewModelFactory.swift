@@ -1,5 +1,5 @@
 import IrohaCrypto
-import SoraFoundation
+import FearlessFoundation
 import SSFUtils
 import SSFModels
 

@@ -2,9 +2,9 @@ import Foundation
 #if canImport(SSFAssetManagmentStorage)
     import SSFAssetManagmentStorage
 #endif
-import SoraFoundation
+import FearlessFoundation
 import RobinHood
-import SoraKeystore
+import FearlessSecureStorage
 import SSFModels
 
 final class NetworkInfoViewFactory: NetworkInfoViewFactoryProtocol {

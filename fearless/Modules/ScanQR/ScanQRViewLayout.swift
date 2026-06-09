@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 final class ScanQRViewLayout: UIView {
     private enum Constants {

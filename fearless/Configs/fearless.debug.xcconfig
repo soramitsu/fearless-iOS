@@ -1,6 +1,5 @@
-#include "../../Pods/Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.debug.xcconfig"
-
 OTHER_SWIFT_FLAGS = $(inherited) "-DENABLE_UITUNNEL" "-DF_DEV"
+EXCLUDED_ARCHS[sdk=iphonesimulator*] = x86_64
 
 APP_NAME = Fearless Dev
 ICON_SUFFIX = Dev

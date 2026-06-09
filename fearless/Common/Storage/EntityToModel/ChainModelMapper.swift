@@ -308,7 +308,7 @@ final class ChainModelMapper {
             result.append(ChainModel.ExternalApiExplorer(
                 type: ChainModel.ExternalApiExplorerType(rawValue: type) ?? .unknown,
                 types: externapApiTypes,
-                url: url.absoluteString
+                url: url
             ))
         }
         return explorers
@@ -326,7 +326,7 @@ final class ChainModelMapper {
             let explorer = CDExternalApi(context: context)
             explorer.type = api.type.rawValue
             explorer.types = api.types.compactMap { $0.rawValue } as? NSArray
-            explorer.url = URL(string: api.url)
+            explorer.url = api.url
             return explorer
         }
         entity.explorers = Set(explorers) as NSSet
@@ -422,7 +422,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
 
         let types: ChainModel.TypesSettings?
 
-        if let url = entity.types.flatMap(URL.init(string:)), let overridesCommon = entity.typesOverrideCommon {
+        if let url = entity.types, let overridesCommon = entity.typesOverrideCommon {
             types = .init(url: url, overridesCommon: overridesCommon.boolValue)
         } else {
             types = nil
@@ -515,7 +515,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         }
         entity.parentId = model.parentId
         entity.name = model.name
-        entity.types = model.types?.url.absoluteString
+        entity.types = model.types?.url
         entity.typesOverrideCommon = model.types.map { NSNumber(value: $0.overridesCommon) }
 
         entity.addressPrefix = Int16(bitPattern: model.addressPrefix)

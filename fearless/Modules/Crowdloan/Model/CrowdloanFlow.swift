@@ -111,19 +111,52 @@ extension CustomCrowdloanFlow: Equatable {
 // MARK: - Moonbeam
 
 struct MoonbeamFlowData: FlowData {
+    private enum CodingKeys: String, CodingKey {
+        case prodApiUrl
+        case devApiUrl
+        case termsUrl
+        case devApiKey
+        case prodApiKey
+    }
+
     let prodApiUrl: String
     let devApiUrl: String
     let termsUrl: String
     let devApiKey: String
     let prodApiKey: String
 
+    init(
+        prodApiUrl: String,
+        devApiUrl: String,
+        termsUrl: String,
+        devApiKey: String,
+        prodApiKey: String
+    ) {
+        self.prodApiUrl = prodApiUrl
+        self.devApiUrl = devApiUrl
+        self.termsUrl = termsUrl
+        self.devApiKey = devApiKey
+        self.prodApiKey = prodApiKey
+    }
+
+    init(from decoder: Decoder) throws {
+        let fallback = Self.default
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        prodApiUrl = try container.decodeIfPresent(String.self, forKey: .prodApiUrl) ?? fallback.prodApiUrl
+        devApiUrl = try container.decodeIfPresent(String.self, forKey: .devApiUrl) ?? fallback.devApiUrl
+        termsUrl = try container.decodeIfPresent(String.self, forKey: .termsUrl) ?? fallback.termsUrl
+        devApiKey = try container.decodeIfPresent(String.self, forKey: .devApiKey) ?? fallback.devApiKey
+        prodApiKey = try container.decodeIfPresent(String.self, forKey: .prodApiKey) ?? fallback.prodApiKey
+    }
+
     static var `default`: Self {
         .init(
             prodApiUrl: "https://yy9252r9jh.api.purestake.io",
             devApiUrl: "https://wallet-test.api.purestake.xyz",
             termsUrl: "https://raw.githubusercontent.com/moonbeam-foundation/crowdloan-self-attestation/main/moonbeam/README.md",
-            devApiKey: "JbykAAZTUa8MTggXlb4k03yAW9Ur2DFU1T0rm2Th",
-            prodApiKey: "oueZPaKtwAEAooqpdafr33i6yqPgU804E06CqeGb"
+            devApiKey: MoonbeamCrowdloanCIKeys.devApiKey,
+            prodApiKey: MoonbeamCrowdloanCIKeys.prodApiKey
         )
     }
 }

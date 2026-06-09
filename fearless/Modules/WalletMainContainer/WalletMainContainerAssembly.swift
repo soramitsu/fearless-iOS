@@ -1,9 +1,9 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import RobinHood
 import SSFUtils
 import SSFNetwork
-import SoraKeystore
+import FearlessSecureStorage
 
 final class WalletMainContainerAssembly {
     static func configureModule(

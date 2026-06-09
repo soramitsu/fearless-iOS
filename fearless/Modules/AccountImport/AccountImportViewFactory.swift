@@ -1,15 +1,38 @@
 import Foundation
-import SoraFoundation
-import SoraKeystore
+import FearlessFoundation
+import FearlessSecureStorage
 import RobinHood
 import IrohaCrypto
 
 final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
+    struct Dependencies {
+        var keystoreImportServiceProvider: () -> KeystoreImportServiceProtocol?
+        var logger: LoggerProtocol
+
+        static var live: Dependencies {
+            Dependencies(
+                keystoreImportServiceProvider: URLHandlingDependencies.keystoreImportService,
+                logger: Logger.shared
+            )
+        }
+    }
+
     static func createViewForOnboarding(
         defaultSource: AccountImportSource = .mnemonic,
         flow: AccountImportFlow = .wallet(step: .substrate)
     ) -> AccountImportViewProtocol? {
-        guard let interactor = createAccountImportInteractor(defaultSource: defaultSource) else {
+        createViewForOnboarding(defaultSource: defaultSource, flow: flow, dependencies: .live)
+    }
+
+    static func createViewForOnboarding(
+        defaultSource: AccountImportSource = .mnemonic,
+        flow: AccountImportFlow = .wallet(step: .substrate),
+        dependencies: Dependencies
+    ) -> AccountImportViewProtocol? {
+        guard let interactor = createAccountImportInteractor(
+            defaultSource: defaultSource,
+            dependencies: dependencies
+        ) else {
             return nil
         }
 
@@ -21,7 +44,18 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         defaultSource: AccountImportSource,
         _ flow: AccountImportFlow = .wallet(step: .substrate)
     ) -> AccountImportViewProtocol? {
-        guard let interactor = createAddAccountImportInteractor(defaultSource: defaultSource) else {
+        createViewForAdding(defaultSource: defaultSource, flow, dependencies: .live)
+    }
+
+    static func createViewForAdding(
+        defaultSource: AccountImportSource,
+        _ flow: AccountImportFlow = .wallet(step: .substrate),
+        dependencies: Dependencies
+    ) -> AccountImportViewProtocol? {
+        guard let interactor = createAddAccountImportInteractor(
+            defaultSource: defaultSource,
+            dependencies: dependencies
+        ) else {
             return nil
         }
 
@@ -31,7 +65,14 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
     }
 
     static func createViewForSwitch() -> AccountImportViewProtocol? {
-        guard let interactor = createAddAccountImportInteractor(defaultSource: .mnemonic) else {
+        createViewForSwitch(dependencies: .live)
+    }
+
+    static func createViewForSwitch(dependencies: Dependencies) -> AccountImportViewProtocol? {
+        guard let interactor = createAddAccountImportInteractor(
+            defaultSource: .mnemonic,
+            dependencies: dependencies
+        ) else {
             return nil
         }
 
@@ -62,12 +103,12 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
     }
 
     private static func createAccountImportInteractor(
-        defaultSource: AccountImportSource
+        defaultSource: AccountImportSource,
+        dependencies: Dependencies
     ) -> BaseAccountImportInteractor? {
-        guard let keystoreImportService: KeystoreImportServiceProtocol =
-            URLHandlingService.shared.findService()
+        guard let keystoreImportService = dependencies.keystoreImportServiceProvider()
         else {
-            Logger.shared.error("Missing required keystore import service")
+            dependencies.logger.error("Missing required keystore import service")
             return nil
         }
 
@@ -94,12 +135,12 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
     }
 
     private static func createAddAccountImportInteractor(
-        defaultSource: AccountImportSource
+        defaultSource: AccountImportSource,
+        dependencies: Dependencies
     ) -> BaseAccountImportInteractor? {
-        guard let keystoreImportService: KeystoreImportServiceProtocol =
-            URLHandlingService.shared.findService()
+        guard let keystoreImportService = dependencies.keystoreImportServiceProvider()
         else {
-            Logger.shared.error("Missing required keystore import service")
+            dependencies.logger.error("Missing required keystore import service")
             return nil
         }
 

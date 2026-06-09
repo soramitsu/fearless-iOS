@@ -1,9 +1,9 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import SSFPolkaswap
 import SSFPools
 import SSFModels
-import SoraKeystore
+import FearlessSecureStorage
 
 struct LiquidityPoolSupplyConfirmInputData {
     let baseAssetAmount: Decimal

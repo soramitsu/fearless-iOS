@@ -5069,7 +5069,7 @@
         "externalApi": {
             "history": {
                 "type": "sora",
-                "url": "https://squid.subsquid.io/sora/v/v5/graphql"
+                "url": "https://pi.soramitsu.io/graphql"
             },
             "staking": {
                 "type" : "sora",
@@ -5077,15 +5077,21 @@
             },
             "pricing": {
                 "type": "sora",
-                "url": "https://api.subquery.network/sq/sora-xor/sora-prod"
+                "url": "https://pi.soramitsu.io/graphql"
             },
             "explorers": [{
                 "type": "subscan",
                 "types": [
-                    "extrinsic",
-                    "account"
+                    "extrinsic"
                 ],
-                "url": "https://sora.subscan.io/{type}/{value}"
+                "url": "https://sorametrics.org/sorav2?tab=extrinsics&q={value}"
+            }, {
+                "type": "subscan",
+                "types": [
+                    "account",
+                    "address"
+                ],
+                "url": "https://sorametrics.org/sorav2?tab=balance&address={value}"
             }]
         },
         "assets": [{

@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class AssetListSearchAssembly {
     static func configureModule(wallet: MetaAccountModel) -> AssetListSearchModuleCreationResult? {

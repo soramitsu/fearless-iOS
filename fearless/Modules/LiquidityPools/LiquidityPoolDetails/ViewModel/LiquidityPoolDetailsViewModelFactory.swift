@@ -3,7 +3,7 @@ import SSFPolkaswap
 import SSFPools
 import SSFModels
 import SSFStorageQueryKit
-import SoraFoundation
+import FearlessFoundation
 
 protocol LiquidityPoolDetailsViewModelFactory {
     func buildViewModel(

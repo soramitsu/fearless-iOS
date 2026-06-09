@@ -1,6 +1,6 @@
 import Foundation
 
-import SoraUI
+import FearlessUI
 
 extension NetworkFeeView: FeeViewProtocol {
     var borderType: BorderType {

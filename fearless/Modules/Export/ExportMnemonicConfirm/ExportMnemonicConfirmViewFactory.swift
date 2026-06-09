@@ -1,12 +1,16 @@
 import Foundation
 import IrohaCrypto
-import SoraFoundation
+import FearlessFoundation
 
 final class ExportMnemonicConfirmViewFactory: ExportMnemonicConfirmViewFactoryProtocol {
-    static func createViewForMnemonic(
-        _ mnemonic: IRMnemonicProtocol,
+    static func createViewForMnemonics(
+        _ mnemonics: [IRMnemonicProtocol],
         wallet: MetaAccountModel
     ) -> AccountConfirmViewProtocol? {
+        guard mnemonics.isNotEmpty else {
+            return nil
+        }
+
         let view = AccountConfirmViewController(nib: R.nib.accountConfirmViewController)
         view.nextButtonTitle = LocalizableResource { locale in
             R.string.localizable.commonConfirm(preferredLanguages: locale.rLanguages)
@@ -14,7 +18,7 @@ final class ExportMnemonicConfirmViewFactory: ExportMnemonicConfirmViewFactoryPr
 
         let localizationManager = LocalizationManager.shared
         let interactor = ExportMnemonicConfirmInteractor(
-            mnemonic: mnemonic,
+            mnemonics: mnemonics,
             settings: SelectedWalletSettings.shared,
             wallet: wallet,
             eventCenter: EventCenter.shared

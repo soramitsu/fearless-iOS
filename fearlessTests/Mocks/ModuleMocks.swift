@@ -2,7 +2,7 @@
 @testable import fearless
 import SSFRuntimeCodingService
 import SSFModels
-// MARK: - Mocks generated from file: 'Pods/SoraFoundation/SoraFoundation/Classes/Localization/Localizable.swift'
+// MARK: - Mocks generated from file: 'Packages/FearlessFoundation/Sources/FearlessFoundation/Localization/Localizable.swift'
 
 import Cuckoo
 import Foundation
@@ -124,7 +124,7 @@ public class LocalizableStub:Localizable, @unchecked Sendable {
 // MARK: - Mocks generated from file: 'fearless/Common/Protocols/AccountSelectionPresentable.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 @testable import fearless
 
 class MockAccountSelectionPresentable: AccountSelectionPresentable, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -311,7 +311,7 @@ class ControllerBackedProtocolStub:ControllerBackedProtocol, @unchecked Sendable
 
 import Cuckoo
 import UIKit
-import SoraUI
+import FearlessUI
 @testable import fearless
 
 class MockLoadableViewProtocol: LoadableViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -2110,7 +2110,7 @@ class AccountConfirmWireframeProtocolStub:AccountConfirmWireframeProtocol, @unch
 
 import Cuckoo
 import IrohaCrypto
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -3296,7 +3296,7 @@ class AccountCreateWireframeProtocolStub:AccountCreateWireframeProtocol, @unchec
 
 import Cuckoo
 import IrohaCrypto
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -6583,7 +6583,7 @@ class CrowdloanContributionInteractorOutputProtocolStub:CrowdloanContributionInt
 // MARK: - Mocks generated from file: 'fearless/Modules/Crowdloan/CrowdloanContributionConfirm/CrowdloanContributionConfirmProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 import BigInt
 @testable import fearless
 
@@ -7997,7 +7997,7 @@ class CrowdloanContributionConfirmWireframeProtocolStub:CrowdloanContributionCon
 import Cuckoo
 import Foundation
 import BigInt
-import SoraFoundation
+import FearlessFoundation
 @testable import fearless
 
 class MockCrowdloanContributionSetupViewProtocol: CrowdloanContributionSetupViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -9360,7 +9360,7 @@ class CrowdloanContributionSetupWireframeProtocolStub:CrowdloanContributionSetup
 // MARK: - Mocks generated from file: 'fearless/Modules/Crowdloan/CrowdloanList/CrowdloanListProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -10641,7 +10641,7 @@ class CustomCrowdloanDelegateStub:CustomCrowdloanDelegate, @unchecked Sendable {
 // MARK: - Mocks generated from file: 'fearless/Modules/Crowdloan/ReferralCrowdloan/ReferralCrowdloanProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 @testable import fearless
 
 class MockReferralCrowdloanViewProtocol: ReferralCrowdloanViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -11524,7 +11524,7 @@ class ReferralCrowdloanWireframeProtocolStub:ReferralCrowdloanWireframeProtocol,
 
 import Cuckoo
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -12302,7 +12302,7 @@ class AccountExportPasswordWireframeProtocolStub:AccountExportPasswordWireframeP
 
 import Cuckoo
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 @testable import fearless
 
 class MockExportGenericViewProtocol: ExportGenericViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -13279,13 +13279,13 @@ class MockExportMnemonicWireframeProtocol: ExportMnemonicWireframeProtocol, Cuck
         )
     }
 
-    func openConfirmationForMnemonic(_ p0: IRMnemonicProtocol, wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?) {
+    func openConfirmationForMnemonics(_ p0: [IRMnemonicProtocol], wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?) {
         return cuckoo_manager.call(
-            "openConfirmationForMnemonic(_ p0: IRMnemonicProtocol, wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?)",
+            "openConfirmationForMnemonics(_ p0: [IRMnemonicProtocol], wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?)",
             parameters: (p0, p1, p2),
             escapingParameters: (p0, p1, p2),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.openConfirmationForMnemonic(p0, wallet: p1, from: p2)
+            defaultCall: __defaultImplStub!.openConfirmationForMnemonics(p0, wallet: p1, from: p2)
         )
     }
 
@@ -13364,10 +13364,10 @@ class MockExportMnemonicWireframeProtocol: ExportMnemonicWireframeProtocol, Cuck
             ))
         }
         
-        func openConfirmationForMnemonic<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(_ p0: M1, wallet p1: M2, from p2: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(IRMnemonicProtocol, fearless.MetaAccountModel, ExportGenericViewProtocol?)> where M1.MatchedType == IRMnemonicProtocol, M2.MatchedType == fearless.MetaAccountModel, M3.OptionalMatchedType == ExportGenericViewProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(IRMnemonicProtocol, fearless.MetaAccountModel, ExportGenericViewProtocol?)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
+        func openConfirmationForMnemonics<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(_ p0: M1, wallet p1: M2, from p2: M3) -> Cuckoo.ProtocolStubNoReturnFunction<([IRMnemonicProtocol], fearless.MetaAccountModel, ExportGenericViewProtocol?)> where M1.MatchedType == [IRMnemonicProtocol], M2.MatchedType == fearless.MetaAccountModel, M3.OptionalMatchedType == ExportGenericViewProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<([IRMnemonicProtocol], fearless.MetaAccountModel, ExportGenericViewProtocol?)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockExportMnemonicWireframeProtocol.self,
-                method: "openConfirmationForMnemonic(_ p0: IRMnemonicProtocol, wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?)",
+                method: "openConfirmationForMnemonics(_ p0: [IRMnemonicProtocol], wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?)",
                 parameterMatchers: matchers
             ))
         }
@@ -13446,10 +13446,10 @@ class MockExportMnemonicWireframeProtocol: ExportMnemonicWireframeProtocol, Cuck
         
         
         @discardableResult
-        func openConfirmationForMnemonic<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(_ p0: M1, wallet p1: M2, from p2: M3) -> Cuckoo.__DoNotUse<(IRMnemonicProtocol, fearless.MetaAccountModel, ExportGenericViewProtocol?), Void> where M1.MatchedType == IRMnemonicProtocol, M2.MatchedType == fearless.MetaAccountModel, M3.OptionalMatchedType == ExportGenericViewProtocol {
-            let matchers: [Cuckoo.ParameterMatcher<(IRMnemonicProtocol, fearless.MetaAccountModel, ExportGenericViewProtocol?)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
+        func openConfirmationForMnemonics<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(_ p0: M1, wallet p1: M2, from p2: M3) -> Cuckoo.__DoNotUse<([IRMnemonicProtocol], fearless.MetaAccountModel, ExportGenericViewProtocol?), Void> where M1.MatchedType == [IRMnemonicProtocol], M2.MatchedType == fearless.MetaAccountModel, M3.OptionalMatchedType == ExportGenericViewProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<([IRMnemonicProtocol], fearless.MetaAccountModel, ExportGenericViewProtocol?)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return cuckoo_manager.verify(
-                "openConfirmationForMnemonic(_ p0: IRMnemonicProtocol, wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?)",
+                "openConfirmationForMnemonics(_ p0: [IRMnemonicProtocol], wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?)",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -13538,7 +13538,7 @@ class ExportMnemonicWireframeProtocolStub:ExportMnemonicWireframeProtocol, @unch
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-    func openConfirmationForMnemonic(_ p0: IRMnemonicProtocol, wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?) {
+    func openConfirmationForMnemonics(_ p0: [IRMnemonicProtocol], wallet p1: fearless.MetaAccountModel, from p2: ExportGenericViewProtocol?) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -13931,7 +13931,7 @@ class ExportRestoreJsonWireframeProtocolStub:ExportRestoreJsonWireframeProtocol,
 // MARK: - Mocks generated from file: 'fearless/Modules/NetworkInfo/NetworkInfoProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -18961,7 +18961,7 @@ class RootInteractorOutputProtocolStub:RootInteractorOutputProtocol, @unchecked 
 // MARK: - Mocks generated from file: 'fearless/Modules/Staking/Analytics/AnalyticsRewardDetails/AnalyticsRewardDetailsProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 @testable import fearless
 
 class MockAnalyticsRewardDetailsViewProtocol: AnalyticsRewardDetailsViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -19654,7 +19654,7 @@ class AnalyticsRewardDetailsViewModelFactoryProtocolStub:AnalyticsRewardDetailsV
 // MARK: - Mocks generated from file: 'fearless/Modules/Staking/ControllerAccount/ControllerAccountProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -21251,7 +21251,7 @@ class ValidatorOperationFactoryProtocolStub:ValidatorOperationFactoryProtocol, @
 // MARK: - Mocks generated from file: 'fearless/Modules/Staking/SelectValidatorsFlow/CustomValidatorList/CustomValidatorListProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -22323,7 +22323,7 @@ class CustomValidatorListWireframeProtocolStub:CustomValidatorListWireframeProto
 // MARK: - Mocks generated from file: 'fearless/Modules/Staking/SelectValidatorsFlow/RecommendedValidatorList/RecommendedValidatorListProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -22818,7 +22818,7 @@ class RecommendedValidatorListWireframeProtocolStub:RecommendedValidatorListWire
 
 import Cuckoo
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import BigInt
 import SSFModels
 @testable import fearless
@@ -23858,7 +23858,7 @@ class SelectValidatorsConfirmWireframeProtocolStub:SelectValidatorsConfirmWirefr
 
 import Cuckoo
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -24726,7 +24726,7 @@ class SelectValidatorsStartWireframeProtocolStub:SelectValidatorsStartWireframeP
 // MARK: - Mocks generated from file: 'fearless/Modules/Staking/SelectValidatorsFlow/SelectedValidatorList/SelectedValidatorListProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -25537,7 +25537,7 @@ class SelectedValidatorListWireframeProtocolStub:SelectedValidatorListWireframeP
 
 import Cuckoo
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -26829,7 +26829,7 @@ class ValidatorInfoWireframeProtocolStub:ValidatorInfoWireframeProtocol, @unchec
 // MARK: - Mocks generated from file: 'fearless/Modules/Staking/SelectValidatorsFlow/ValidatorListFilter/ValidatorListFilterProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -27501,7 +27501,7 @@ class ValidatorListFilterDelegateStub:ValidatorListFilterDelegate, @unchecked Se
 // MARK: - Mocks generated from file: 'fearless/Modules/Staking/SelectValidatorsFlow/ValidatorSearch/ValidatorSearchProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -28578,7 +28578,7 @@ class ValidatorSearchPresenterProtocolStub:ValidatorSearchPresenterProtocol, @un
 // MARK: - Mocks generated from file: 'fearless/Modules/Staking/SelectValidatorsFlow/YourValidatorList/YourValidatorListProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -29480,7 +29480,7 @@ class YourValidatorListWireframeProtocolStub:YourValidatorListWireframeProtocol,
 // MARK: - Mocks generated from file: 'fearless/Modules/Staking/StakingBalance/StakingBalanceProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -30484,7 +30484,7 @@ class StakingBalanceWireframeProtocolStub:StakingBalanceWireframeProtocol, @unch
 // MARK: - Mocks generated from file: 'fearless/Modules/Staking/StakingBondMore/StakingBondMoreProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 import BigInt
 import SSFModels
 @testable import fearless
@@ -31407,7 +31407,7 @@ class StakingBondMoreWireframeProtocolStub:StakingBondMoreWireframeProtocol, @un
 // MARK: - Mocks generated from file: 'fearless/Modules/Staking/StakingBondMoreConfirmation/StakingBondMoreConfirmationProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 import BigInt
 import SSFModels
 @testable import fearless
@@ -32422,7 +32422,7 @@ class StakingBondMoreConfirmationViewLayoutProtocolStub:StakingBondMoreConfirmat
 
 import Cuckoo
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import BigInt
 import SSFModels
 @testable import fearless
@@ -35905,7 +35905,7 @@ class StakingMainModuleOutputStub:StakingMainModuleOutput, @unchecked Sendable {
 // MARK: - Mocks generated from file: 'fearless/Modules/Staking/StakingPayoutConfirmation/StakingPayoutConfirmationProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -36842,7 +36842,7 @@ class StakingPayoutConfirmationWireframeProtocolStub:StakingPayoutConfirmationWi
 
 import Cuckoo
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import BigInt
 import SSFModels
 @testable import fearless
@@ -37746,7 +37746,7 @@ class StakingRebondConfirmationWireframeProtocolStub:StakingRebondConfirmationWi
 
 import Cuckoo
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -38804,7 +38804,7 @@ class StakingRebondSetupWireframeProtocolStub:StakingRebondSetupWireframeProtoco
 // MARK: - Mocks generated from file: 'fearless/Modules/Staking/StakingRewardDestConfirm/StakingRewardDestConfirmProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -39877,7 +39877,7 @@ class StakingRewardDestConfirmWireframeProtocolStub:StakingRewardDestConfirmWire
 
 import Cuckoo
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -41173,7 +41173,7 @@ class StakingRewardDestSetupWireframeProtocolStub:StakingRewardDestSetupWirefram
 // MARK: - Mocks generated from file: 'fearless/Modules/Staking/StakingRewardDetails/StakingRewardDetailsProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -41687,8 +41687,8 @@ class StakingRewardDetailsWireframeProtocolStub:StakingRewardDetailsWireframePro
 // MARK: - Mocks generated from file: 'fearless/Modules/Staking/StakingRewardPayouts/StakingRewardPayoutsProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
-import SoraUI
+import FearlessFoundation
+import FearlessUI
 import SSFModels
 @testable import fearless
 
@@ -42669,7 +42669,7 @@ class StakingPayoutViewModelFactoryProtocolStub:StakingPayoutViewModelFactoryPro
 
 import Cuckoo
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import BigInt
 import SSFModels
 @testable import fearless
@@ -43641,7 +43641,7 @@ class StakingUnbondConfirmWireframeProtocolStub:StakingUnbondConfirmWireframePro
 
 import Cuckoo
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import BigInt
 import SSFModels
 @testable import fearless
@@ -44735,7 +44735,7 @@ class StakingUnbondSetupWireframeProtocolStub:StakingUnbondSetupWireframeProtoco
 
 import Cuckoo
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 @testable import fearless
 
@@ -45521,7 +45521,7 @@ class StoriesWireframeProtocolStub:StoriesWireframeProtocol, @unchecked Sendable
 // MARK: - Mocks generated from file: 'fearless/Modules/UsernameSetup/UsernameSetupProtocols.swift'
 
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 @testable import fearless
 
 class MockUsernameSetupViewProtocol: UsernameSetupViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
@@ -45974,4 +45974,3 @@ class UsernameSetupWireframeProtocolStub:UsernameSetupWireframeProtocol, @unchec
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }
-

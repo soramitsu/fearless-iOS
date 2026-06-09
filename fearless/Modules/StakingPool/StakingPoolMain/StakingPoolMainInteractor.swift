@@ -1,7 +1,7 @@
 import UIKit
 import SSFUtils
 import RobinHood
-import SoraKeystore
+import FearlessSecureStorage
 import SSFModels
 
 final class StakingPoolMainInteractor: RuntimeConstantFetching {

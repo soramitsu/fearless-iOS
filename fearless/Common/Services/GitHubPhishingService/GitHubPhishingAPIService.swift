@@ -57,7 +57,7 @@ class GitHubPhishingAPIService: ApplicationServiceProtocol {
     }
 
     private func setupConnection() {
-        networkOperation = GitHubOperationFactory().fetchPhishingListOperation(url)
+        networkOperation = operationFactory.fetchPhishingListOperation(url)
 
         let replaceOperation = storage.replaceOperation {
             let phishingItem = try self.networkOperation

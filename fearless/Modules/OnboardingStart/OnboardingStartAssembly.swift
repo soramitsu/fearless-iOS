@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class OnboardingStartAssembly {
     static func configureModule(_ config: OnboardingConfigWrapper) -> OnboardingStartModuleCreationResult? {

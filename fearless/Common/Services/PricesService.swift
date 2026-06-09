@@ -7,31 +7,44 @@ protocol PricesServiceProtocol {
     func updatePrices()
 }
 
+protocol PricesServiceDateProvider {
+    var now: Date { get }
+}
+
+struct SystemPricesServiceDateProvider: PricesServiceDateProvider {
+    var now: Date { Date() }
+}
+
 final class PricesService: PricesServiceProtocol {
     static let shared: PricesServiceProtocol = PricesService.create()
-    private let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let chainRepository: AnyDataProviderRepository<ChainModel>
     private let walletRepository: AnyDataProviderRepository<MetaAccountModel>
     private let operationQueue: OperationQueue
-    private let logger: Logger
+    private let logger: LoggerProtocol
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
-    private let eventCenter: EventCenter
+    private let eventCenter: EventCenterProtocol
+    private let dateProvider: PricesServiceDateProvider
     private var chainAssets: [ChainAsset] = []
     private var currencies: [SSFModels.Currency] = []
     private var lastRequestDate: Date?
 
-    private init(
+    init(
         chainRepository: AnyDataProviderRepository<ChainModel>,
         walletRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationQueue: OperationQueue,
-        logger: Logger,
-        eventCenter: EventCenter
+        logger: LoggerProtocol,
+        eventCenter: EventCenterProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber = PriceLocalStorageSubscriberImpl.shared,
+        dateProvider: PricesServiceDateProvider = SystemPricesServiceDateProvider()
     ) {
         self.chainRepository = chainRepository
         self.walletRepository = walletRepository
         self.operationQueue = operationQueue
         self.logger = logger
         self.eventCenter = eventCenter
+        self.priceLocalSubscriber = priceLocalSubscriber
+        self.dateProvider = dateProvider
     }
 
     func setup() {
@@ -90,8 +103,8 @@ extension PricesService: EventVisitorProtocol {
     }
 }
 
-private extension PricesService {
-    static func create() -> PricesServiceProtocol {
+extension PricesService {
+    private static func create() -> PricesServiceProtocol {
         let chainRepository = ChainRepositoryFactory().createRepository()
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let walletRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
@@ -100,7 +113,9 @@ private extension PricesService {
             walletRepository: AnyDataProviderRepository(walletRepository),
             operationQueue: OperationQueue(),
             logger: Logger.shared,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
+            dateProvider: SystemPricesServiceDateProvider()
         )
     }
 
@@ -110,13 +125,14 @@ private extension PricesService {
             !oldAssets.contains(newAsset)
         }
         let oldCurrencies = self.currencies
-        let uniqueCurencies = currencies.filter { newCurrency in
+        let uniqueCurrencies = currencies.filter { newCurrency in
             !oldCurrencies.contains(newCurrency)
         }
-        let timeFromLastRequst = Date().timeIntervalSince(lastRequestDate ?? Date.distantPast)
-        if uniqueAssets.isNotEmpty || uniqueCurencies.isNotEmpty || timeFromLastRequst > 30 {
+        let now = dateProvider.now
+        let timeFromLastRequest = now.timeIntervalSince(lastRequestDate ?? Date.distantPast)
+        if uniqueAssets.isNotEmpty || uniqueCurrencies.isNotEmpty || timeFromLastRequest > 30 {
             let updatedAssets = oldAssets + uniqueAssets
-            let updatedCurrencies = currencies + uniqueCurencies
+            let updatedCurrencies = oldCurrencies + uniqueCurrencies
 
             pricesProvider = priceLocalSubscriber.subscribeToPrices(
                 for: updatedAssets,
@@ -124,18 +140,18 @@ private extension PricesService {
                 listener: self
             )
             self.chainAssets = updatedAssets
-            self.currencies = currencies
-            lastRequestDate = Date()
+            self.currencies = updatedCurrencies
+            lastRequestDate = now
         }
     }
 
-    func handle(prices _: [PriceData], for _: [ChainAsset]) {
+    private func handle(prices _: [PriceData], for _: [ChainAsset]) {
         // Prices are consumed directly by UI formatters via wallet-selected currency.
         // Persisting into ChainModel assets is no longer supported here.
         eventCenter.notify(with: PricesUpdated())
     }
 
-    func handle(error: Error) {
+    private func handle(error: Error) {
         logger.error("Prices service failed to get prices: \(error.localizedDescription)")
     }
 }

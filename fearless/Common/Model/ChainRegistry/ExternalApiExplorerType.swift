@@ -1,6 +1,6 @@
 import Foundation
 import SSFModels
-import SoraFoundation
+import FearlessFoundation
 
 extension ChainModel.ExternalApiExplorerType {
     func actionTitle() -> LocalizableResource<String?> {
@@ -20,5 +20,50 @@ extension ChainModel.ExternalApiExplorerType {
                 return ""
             }
         }
+    }
+}
+
+extension URL {
+    var isSoraMetricsExplorer: Bool {
+        host?.lowercased() == "sorametrics.org"
+    }
+
+    var soraMetricsExplorerTitle: String? {
+        isSoraMetricsExplorer ? "SoraMetrics" : nil
+    }
+}
+
+extension ChainModel.ExternalApiExplorer {
+    var isSoraMetricsExplorer: Bool {
+        URL(string: url)?.isSoraMetricsExplorer == true
+    }
+
+    var displayName: String {
+        if isSoraMetricsExplorer {
+            return "SoraMetrics"
+        }
+
+        return type.rawValue.capitalized
+    }
+
+    var supportsTransactionLookup: Bool {
+        types.contains(transactionType) || types.contains(.extrinsic) || types.contains(.tx)
+    }
+
+    var supportsAccountLookup: Bool {
+        types.contains(.account) || types.contains(.address)
+    }
+
+    func accountUrl(for address: String) -> URL? {
+        let lookupType: ChainModel.SubscanType = types.contains(.account) ? .account : .address
+        return explorerUrl(for: address, type: lookupType)
+    }
+
+    func actionTitle() -> LocalizableResource<String?> {
+        if isSoraMetricsExplorer {
+            return LocalizableResource { _ in "SoraMetrics" }
+        }
+
+        return type.actionTitle()
     }
 }

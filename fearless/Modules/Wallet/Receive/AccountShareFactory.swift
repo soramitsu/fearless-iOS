@@ -1,6 +1,6 @@
 import Foundation
-import SoraFoundation
-import SoraKeystore
+import FearlessFoundation
+import FearlessSecureStorage
 
 protocol AccountShareFactoryProtocol {
     func createSources(

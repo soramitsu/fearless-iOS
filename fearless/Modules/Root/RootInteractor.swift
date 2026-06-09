@@ -1,8 +1,8 @@
 import Foundation
-import SoraKeystore
+import FearlessSecureStorage
 import IrohaCrypto
 import RobinHood
-import SoraFoundation
+import FearlessFoundation
 
 final class RootInteractor {
     weak var presenter: RootInteractorOutputProtocol?
@@ -15,6 +15,8 @@ final class RootInteractor {
     private let logger: LoggerProtocol?
     private let onboardingService: OnboardingServiceProtocol
     private let onboardingConfigResolver: OnboardingConfigVersionResolver
+    private let urlHandlingRegistry: URLHandlingRegistryProtocol
+    private let keystoreImportServiceFactory: () -> KeystoreImportServiceProtocol
 
     init(
         chainRegistry: ChainRegistryProtocol,
@@ -24,7 +26,9 @@ final class RootInteractor {
         migrators: [Migrating],
         logger: LoggerProtocol? = nil,
         onboardingService: OnboardingServiceProtocol,
-        onboardingConfigResolver: OnboardingConfigVersionResolver
+        onboardingConfigResolver: OnboardingConfigVersionResolver,
+        urlHandlingRegistry: URLHandlingRegistryProtocol,
+        keystoreImportServiceFactory: @escaping () -> KeystoreImportServiceProtocol
     ) {
         self.chainRegistry = chainRegistry
         self.settings = settings
@@ -34,10 +38,12 @@ final class RootInteractor {
         self.logger = logger
         self.onboardingService = onboardingService
         self.onboardingConfigResolver = onboardingConfigResolver
+        self.urlHandlingRegistry = urlHandlingRegistry
+        self.keystoreImportServiceFactory = keystoreImportServiceFactory
     }
 
     private func setupURLHandlingService() {
-        let keystoreImportService = KeystoreImportService(logger: Logger.shared)
+        let keystoreImportService = keystoreImportServiceFactory()
 
         let callbackUrl = applicationConfig.purchaseRedirect
         let purchaseHandler = PurchaseCompletionHandler(
@@ -45,7 +51,7 @@ final class RootInteractor {
             eventCenter: eventCenter
         )
 
-        URLHandlingService.shared.setup(children: [purchaseHandler, keystoreImportService])
+        urlHandlingRegistry.setup(children: [purchaseHandler, keystoreImportService])
     }
 
     private func runMigrators() {

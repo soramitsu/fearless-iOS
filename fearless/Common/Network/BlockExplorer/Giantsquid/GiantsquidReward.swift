@@ -26,9 +26,7 @@ struct GiantsquidReward: Decodable {
     let id: String?
 
     var timestampInSeconds: Int64 {
-        let dateFormatter = DateFormatter.giantsquidDate
-        let date = dateFormatter.value(for: Locale.current).date(from: timestamp)
-        return Int64(date?.timeIntervalSince1970 ?? 0)
+        DateFormatter.networkTimestampInSeconds(from: timestamp, using: DateFormatter.giantsquidDate)
     }
 
     init(from decoder: Decoder) throws {

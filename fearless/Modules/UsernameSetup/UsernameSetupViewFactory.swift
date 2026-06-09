@@ -1,6 +1,6 @@
 import Foundation
-import SoraFoundation
-import SoraKeystore
+import FearlessFoundation
+import FearlessSecureStorage
 
 final class UsernameSetupViewFactory: UsernameSetupViewFactoryProtocol {
     static func createViewForOnboarding(flow: AccountCreateFlow = .wallet) -> UsernameSetupViewProtocol? {

@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 protocol OnboardingViewOutput: AnyObject {
     func didLoad(view: OnboardingViewInput)

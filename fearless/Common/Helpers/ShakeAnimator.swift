@@ -1,5 +1,5 @@
 import Foundation
-import SoraUI
+import FearlessUI
 
 final class ShakeAnimator: ViewAnimatorProtocol {
     let duration: TimeInterval

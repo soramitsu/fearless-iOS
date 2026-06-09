@@ -1,5 +1,5 @@
-import SoraFoundation
-import SoraKeystore
+import FearlessFoundation
+import FearlessSecureStorage
 import SSFModels
 
 struct ValidatorListFilterViewFactory: ValidatorListFilterViewFactoryProtocol {

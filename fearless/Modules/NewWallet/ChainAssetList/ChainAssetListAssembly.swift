@@ -1,109 +1,45 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import RobinHood
-import SoraKeystore
+import FearlessSecureStorage
 import SSFStorageQueryKit
 
 final class ChainAssetListAssembly {
+    private struct AccountInfoServices {
+        let accountInfoFetching: AccountInfoFetching
+        let ethereumRemoteBalanceFetching: EthereumRemoteBalanceFetching
+        let chainsIssuesCenter: ChainsIssuesCenter
+        let accountInfoRemoteService: AccountInfoRemoteService
+    }
+
     static func configureModule(
         wallet: MetaAccountModel,
         keyboardAdoptable: Bool
     ) -> ChainAssetListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
-        let substrateRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared
-        )
-
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
-        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
-        let accountInfoFetching = AccountInfoFetching(
-            accountInfoRepository: accountInfoRepository,
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationQueue()
-        )
-
         let dependencyContainer = ChainAssetListDependencyContainer()
-
-        let ethereumBalanceRepositoryCacheWrapper = BalanceRepositoryCacheWrapper(
-            logger: Logger.shared,
-            repository: accountInfoRepository,
-            operationManager: OperationManagerFacade.sharedManager
-        )
-        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
-            chainRegistry: chainRegistry,
-            repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
-        )
-        let chainRepository = ChainRepositoryFactory().createRepository(
-            for: NSPredicate.enabledCHain(),
-            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
-        )
-        let chainAssetFetching = ChainAssetsFetching(
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-        let missingAccountHelper = MissingAccountFetcher(
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-        let accountInfoFetcher = AccountInfoFetching(
-            accountInfoRepository: AnyDataProviderRepository(accountInfoRepository),
-            chainRegistry: chainRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-        let chainsIssuesCenter = ChainsIssuesCenter(
-            wallet: wallet,
-            networkIssuesCenter: NetworkIssuesCenter.shared,
-            eventCenter: EventCenter.shared,
-            missingAccountHelper: missingAccountHelper,
-            accountInfoFetcher: accountInfoFetcher
-        )
+        let accountInfoServices = createAccountInfoServices(wallet: wallet)
+        let chainAssetFetching = createChainAssetFetching()
         let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let chainSettingsRepostiry = chainSettingsRepositoryFactory.createAsyncRepository()
         let operationQueue = OperationManagerFacade.sharedDefaultQueue
         let pricesService = PricesService.shared
-        let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
-            chainRegistry: chainRegistry
-        )
-
-        let tonBalanceRepositoryWrapper = BalanceRepositoryCacheWrapper(
-            logger: Logger.shared,
-            repository: accountInfoRepository,
-            operationManager: OperationManagerFacade.sharedManager
-        )
-
-        let tonJettonInjector = TonJettonInjectorImpl(
-            chainModelRepository: AsyncAnyRepository(ChainRepositoryFactory().createAsyncRepository()),
-            eventCenter: EventCenter.shared,
-            logger: Logger.shared
-        )
-
-        let tonRemoteBalanceFetching = TonRemoteBalanceFetchingImpl(
-            chainRegistry: chainRegistry,
-            repositoryWrapper: tonBalanceRepositoryWrapper,
-            jettonInjector: tonJettonInjector
-        )
-
-        let accountInfoRemoteService = AccountInfoRemoteServiceDefault(
-            ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
-            tonRemoteBalanceFetching: tonRemoteBalanceFetching,
-            storagePerformer: storagePerformer
-        )
 
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
             eventCenter: EventCenter.shared,
             accountRepository: AnyDataProviderRepository(accountRepository),
-            accountInfoFetchingProvider: accountInfoFetching,
+            accountInfoFetchingProvider: accountInfoServices.accountInfoFetching,
             dependencyContainer: dependencyContainer,
-            ethRemoteBalanceFetching: ethereumRemoteBalanceFetching,
+            ethRemoteBalanceFetching: accountInfoServices.ethereumRemoteBalanceFetching,
             chainAssetFetching: chainAssetFetching,
             userDefaultsStorage: SettingsManager.shared,
-            chainsIssuesCenter: chainsIssuesCenter,
+            chainsIssuesCenter: accountInfoServices.chainsIssuesCenter,
             chainSettingsRepository: AsyncAnyRepository(chainSettingsRepostiry),
             chainRegistry: ChainRegistryFacade.sharedRegistry,
-            accountInfoRemoteService: accountInfoRemoteService,
+            accountInfoRemoteService: accountInfoServices.accountInfoRemoteService,
             pricesService: pricesService,
             operationQueue: operationQueue
         )
@@ -134,5 +70,104 @@ final class ChainAssetListAssembly {
 
     private static func configureBannersModule(moduleOutput: BannersModuleOutput?) -> BannersModuleCreationResult? {
         BannersAssembly.configureModule(output: moduleOutput, type: .independent, wallet: nil)
+    }
+
+    private static func createAccountInfoServices(wallet: MetaAccountModel) -> AccountInfoServices {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let accountInfoRepository = SubstrateRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+            .createAccountInfoStorageItemRepository()
+
+        let accountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: chainRegistry,
+            operationQueue: OperationQueue()
+        )
+
+        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
+            chainRegistry: chainRegistry,
+            repositoryWrapper: BalanceRepositoryCacheWrapper(
+                logger: Logger.shared,
+                repository: accountInfoRepository,
+                operationManager: OperationManagerFacade.sharedManager
+            )
+        )
+
+        let accountInfoRemoteService = createAccountInfoRemoteService(
+            ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
+            accountInfoRepository: accountInfoRepository
+        )
+
+        return AccountInfoServices(
+            accountInfoFetching: accountInfoFetching,
+            ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
+            chainsIssuesCenter: createChainsIssuesCenter(
+                wallet: wallet,
+                accountInfoFetching: accountInfoFetching
+            ),
+            accountInfoRemoteService: accountInfoRemoteService
+        )
+    }
+
+    private static func createChainAssetFetching() -> ChainAssetsFetching {
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+
+        return ChainAssetsFetching(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+    }
+
+    private static func createChainsIssuesCenter(
+        wallet: MetaAccountModel,
+        accountInfoFetching: AccountInfoFetchingProtocol
+    ) -> ChainsIssuesCenter {
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+        let missingAccountHelper = MissingAccountFetcher(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        return ChainsIssuesCenter(
+            wallet: wallet,
+            networkIssuesCenter: NetworkIssuesCenter.shared,
+            eventCenter: EventCenter.shared,
+            missingAccountHelper: missingAccountHelper,
+            accountInfoFetcher: accountInfoFetching
+        )
+    }
+
+    private static func createAccountInfoRemoteService(
+        ethereumRemoteBalanceFetching: AccountInfoFetchingProtocol,
+        accountInfoRepository: AnyDataProviderRepository<AccountInfoStorageWrapper>
+    ) -> AccountInfoRemoteService {
+        let tonBalanceRepositoryWrapper = BalanceRepositoryCacheWrapper(
+            logger: Logger.shared,
+            repository: accountInfoRepository,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+        let tonJettonInjector = TonJettonInjectorImpl(
+            chainModelRepository: AsyncAnyRepository(ChainRepositoryFactory().createAsyncRepository()),
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared
+        )
+        let tonRemoteBalanceFetching = TonRemoteBalanceFetchingImpl(
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            repositoryWrapper: tonBalanceRepositoryWrapper,
+            jettonInjector: tonJettonInjector
+        )
+
+        return AccountInfoRemoteServiceDefault(
+            ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
+            tonRemoteBalanceFetching: tonRemoteBalanceFetching,
+            storagePerformer: SSFStorageQueryKit.StorageRequestPerformerDefault(
+                chainRegistry: ChainRegistryFacade.sharedRegistry
+            )
+        )
     }
 }

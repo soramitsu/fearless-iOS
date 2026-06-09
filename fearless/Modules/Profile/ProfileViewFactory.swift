@@ -1,12 +1,13 @@
 import UIKit
-import SoraFoundation
-import SoraKeystore
+import FearlessFoundation
+import FearlessSecureStorage
 import IrohaCrypto
 import SSFUtils
 import RobinHood
 import SSFNetwork
 
 final class ProfileViewFactory: ProfileViewFactoryProtocol {
+    // swiftlint:disable:next function_body_length
     static func createView() -> ProfileViewProtocol? {
         guard let selectedMetaAccount = SelectedWalletSettings.shared.value else { return nil }
         let localizationManager = LocalizationManager.shared
@@ -36,17 +37,7 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
-        let substrateRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared
-        )
-
-        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-
-        let substrateAccountInfoFetching = AccountInfoFetching(
-            accountInfoRepository: accountInfoRepository,
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
+        let accountInfoFetcher = createAccountInfoFetcher()
 
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
@@ -60,13 +51,12 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
-        // TODO: Eth account info fetching
         let chainsIssuesCenter = ChainsIssuesCenter(
             wallet: selectedMetaAccount,
             networkIssuesCenter: NetworkIssuesCenter.shared,
             eventCenter: EventCenter.shared,
             missingAccountHelper: missingAccountHelper,
-            accountInfoFetcher: substrateAccountInfoFetching
+            accountInfoFetcher: accountInfoFetcher
         )
 
         let walletConnectModelFactory = WalletConnectModelFactoryImpl()
@@ -104,5 +94,20 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
         )
 
         return view
+    }
+
+    private static func createAccountInfoFetcher() -> AccountInfoFetchingProtocol {
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
+        )
+
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+
+        return AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: chainRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
     }
 }

@@ -1,6 +1,6 @@
 import Foundation
-import SoraFoundation
-import SoraKeystore
+import FearlessFoundation
+import FearlessSecureStorage
 import SSFModels
 
 final class ProfilePresenter {
@@ -10,7 +10,7 @@ final class ProfilePresenter {
     private let logger: LoggerProtocol
     private let settings: SettingsManagerProtocol
     private let viewModelFactory: ProfileViewModelFactoryProtocol
-    private let eventCenter: EventCenter
+    private let eventCenter: EventCenterProtocol
 
     private var selectedWallet: MetaAccountModel?
     private var selectedCurrency: Currency?
@@ -23,7 +23,7 @@ final class ProfilePresenter {
         wireframe: ProfileWireframeProtocol,
         logger: LoggerProtocol,
         settings: SettingsManagerProtocol,
-        eventCenter: EventCenter,
+        eventCenter: EventCenterProtocol,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.viewModelFactory = viewModelFactory

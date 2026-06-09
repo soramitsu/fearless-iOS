@@ -1,22 +1,33 @@
 import Foundation
 
+protocol PurchaseAggregatorConfigSource {
+    var moonPayApiKey: String { get }
+    var purchaseAppName: String { get }
+    var logoURL: URL { get }
+    var purchaseRedirect: URL { get }
+}
+
+extension ApplicationConfig: PurchaseAggregatorConfigSource {}
+
 extension PurchaseAggregator {
-    static func defaultAggregator(with purchaseProviders: [PurchaseProviderProtocol]?) -> PurchaseAggregator {
-        let config: ApplicationConfigProtocol = ApplicationConfig.shared
-
-        let moonpaySecretKeyData = Data(MoonPayKeys.secretKey.utf8)
-
-        let defaultProviders: [PurchaseProviderProtocol] = [
+    static func defaultAggregator(
+        with purchaseProviders: [PurchaseProviderProtocol]?,
+        configSource: PurchaseAggregatorConfigSource = ApplicationConfig.shared,
+        moonpaySecretKey: String = MoonPayKeys.secretKey,
+        moonpayProviderFactory: MoonpayProviderFactoryProtocol = MoonpayProviderFactory()
+    ) -> PurchaseAggregator {
+        let providers = purchaseProviders ?? [
             RampProvider(),
-            MoonpayProviderFactory().createProvider(
-                with: moonpaySecretKeyData,
-                apiKey: config.moonPayApiKey
+            moonpayProviderFactory.createProvider(
+                with: Data(moonpaySecretKey.utf8),
+                apiKey: configSource.moonPayApiKey
             )
         ]
-        return PurchaseAggregator(providers: purchaseProviders ?? defaultProviders)
-            .with(appName: config.purchaseAppName)
-            .with(logoUrl: config.logoURL)
+
+        return PurchaseAggregator(providers: providers)
+            .with(appName: configSource.purchaseAppName)
+            .with(logoUrl: configSource.logoURL)
             .with(colorCode: R.color.colorPink()!.hexRGB)
-            .with(callbackUrl: config.purchaseRedirect)
+            .with(callbackUrl: configSource.purchaseRedirect)
     }
 }

@@ -1,7 +1,7 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import SnapKit
-import SoraUI
+import FearlessUI
 
 final class LiquidityPoolsListViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = LiquidityPoolsListViewLayout

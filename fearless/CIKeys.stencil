@@ -3,10 +3,6 @@ enum MoonPayCIKeys {
     static var testSecretKey: String = "{{ argument.moonPayTestSecretKey }}"
 }
 
-enum SubscanCIKeys {
-    static var apiKey: String = "{{ argument.subscanAPIKey }}"
-}
-
 enum SoraCardCIKeys {
     static var apiKey: String = "{{ argument.soraCardAPIKey }}"
     static var domain: String = "{{ argument.soraCardDomain }}"
@@ -15,17 +11,13 @@ enum SoraCardCIKeys {
     static var password: String = "{{ argument.soraCardKycPassword }}"
 }
 
-enum PayWingsCIKeys {
-    static var paywingsRepositoryUrl: String = "{{ argument.paywingsRepositoryUrl }}"
-    static var paywingsUsername: String = "{{ argument.paywingsUsername }}"
-    static var paywingsPassword: String = "{{ argument.paywingsPassword }}"
+enum RampCIKeys {
+    static var hostApiKey: String = "{{ argument.rampHostApiKey }}"
 }
 
-enum XOneCIKeys {
-    static var x1EndpointUrlRelease: String = "{{ argument.x1EndpointUrlRelease }}"
-    static var x1WidgetIdRelease: String = "{{ argument.x1WidgetIdRelease }}"
-    static var x1EndpointUrlDebug: String = "{{ argument.x1EndpointUrlDebug }}"
-    static var x1WidgetIdDebug: String = "{{ argument.x1WidgetIdDebug }}"
+enum MoonbeamCrowdloanCIKeys {
+    static var devApiKey: String = "{{ argument.moonbeamCrowdloanDevApiKey }}"
+    static var prodApiKey: String = "{{ argument.moonbeamCrowdloanProdApiKey }}"
 }
 
 enum EthereumNodesApiKeys {
@@ -34,6 +26,14 @@ enum EthereumNodesApiKeys {
     static var sepoliaApiKey: String = "{{ argument.sepoliaApiKey }}"
     static var goerliApiKey: String = "{{ argument.goerliApiKey }}"
     static var polygonApiKey: String = "{{ argument.polygonApiKey }}"
+}
+
+enum EthereumNodesApiKeysDebug {
+    static var ethereumApiKey: String = "{{ argument.ethereumApiKeyDebug }}"
+    static var bscApiKey: String = "{{ argument.bscApiKeyDebug }}"
+    static var sepoliaApiKey: String = "{{ argument.sepoliaApiKeyDebug }}"
+    static var goerliApiKey: String = "{{ argument.goerliApiKeyDebug }}"
+    static var polygonApiKey: String = "{{ argument.polygonApiKeyDebug }}"
 }
 
 enum GoogleBackup {
@@ -48,6 +48,10 @@ enum GoogleBackupDebug {
 
 enum WalletConnect {
     static var projectId: String = "{{ argument.walletConnectProjectId }}"
+}
+
+enum WalletConnectDebug {
+    static var projectId: String = "{{ argument.walletConnectProjectIdDebug }}"
 }
 
 enum BlockExplorerApiKeys {
@@ -79,7 +83,7 @@ enum DwellirNodeApiKey {
 }
 
 enum CoinbaseCIKeys {
-    static var appId: String = "{{ argument.coinbaseAppId }}"
+    static var sessionToken: String = "{{ argument.coinbaseSessionToken }}"
 }
 
 enum TonNodeApiKey {
@@ -88,4 +92,16 @@ enum TonNodeApiKey {
 
 enum TonNodeApiKeyDebug {
     static var tonApiKey: String = "{{ argument.tonApiKeyDebug }}"
+}
+
+enum OKXApiKeys {
+    static var okxApiKey: String = "{{ argument.okxApiKey }}"
+    static var okxSecretKey: String = "{{ argument.okxSecretKey }}"
+    static var okxPassphrase: String = "{{ argument.okxPassphrase }}"
+    static var okxProjectId: String = "{{ argument.okxProjectId }}"
+}
+
+enum NomisApiKeys {
+    static var nomisClientId: String = "{{ argument.nomisClientId }}"
+    static var nomisApiKey: String = "{{ argument.nomisApiKey }}"
 }

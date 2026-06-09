@@ -1,6 +1,6 @@
 import Foundation
 import SSFModels
-import SoraUI
+import FearlessUI
 
 final class LiquidityPoolSupplyConfirmRouter: LiquidityPoolSupplyConfirmRouterInput {
     func complete(

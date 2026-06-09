@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 enum AssetNetworksSortType: String {
     case fiat
@@ -17,7 +17,7 @@ enum AssetNetworksSortType: String {
         }
     }
 
-    var title: String {
+    func title(preferredLanguages: [String]?) -> String {
         switch self {
         case .fiat:
             return "Fiat Balance"
@@ -25,7 +25,7 @@ enum AssetNetworksSortType: String {
             return "Popularity"
         case .name:
             return R.string.localizable.commonName(
-                preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages
+                preferredLanguages: preferredLanguages
             )
         }
     }
@@ -37,11 +37,15 @@ struct AssetNetworksSort: BaseFilterItem {
     var title: String
     var selected: Bool
 
-    init(type: AssetNetworksSortType, selected: Bool = false) {
+    init(
+        type: AssetNetworksSortType,
+        selected: Bool = false,
+        preferredLanguages: [String]? = nil
+    ) {
         self.type = type
         self.selected = selected
         id = type.id
-        title = type.title
+        title = type.title(preferredLanguages: preferredLanguages)
     }
 
     mutating func reset() {
@@ -52,9 +56,26 @@ struct AssetNetworksSort: BaseFilterItem {
         selected = isSelected
     }
 
-    static func defaultFilters(selected: AssetNetworksSortType) -> [AssetNetworksSort] {
-        [AssetNetworksSort(type: .fiat, selected: selected == .fiat),
-         AssetNetworksSort(type: .popularity, selected: selected == .popularity),
-         AssetNetworksSort(type: .name, selected: selected == .name)]
+    static func defaultFilters(
+        selected: AssetNetworksSortType,
+        preferredLanguages: [String]? = nil
+    ) -> [AssetNetworksSort] {
+        [
+            AssetNetworksSort(
+                type: .fiat,
+                selected: selected == .fiat,
+                preferredLanguages: preferredLanguages
+            ),
+            AssetNetworksSort(
+                type: .popularity,
+                selected: selected == .popularity,
+                preferredLanguages: preferredLanguages
+            ),
+            AssetNetworksSort(
+                type: .name,
+                selected: selected == .name,
+                preferredLanguages: preferredLanguages
+            )
+        ]
     }
 }

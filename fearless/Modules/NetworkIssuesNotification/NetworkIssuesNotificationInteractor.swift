@@ -10,7 +10,7 @@ final class NetworkIssuesNotificationInteractor {
     private var wallet: MetaAccountModel
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let operationQueue: OperationQueue
-    private let eventCenter: EventCenter
+    private let eventCenter: EventCenterProtocol
     private let chainsIssuesCenter: ChainsIssuesCenterProtocol
     private let chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
 
@@ -18,7 +18,7 @@ final class NetworkIssuesNotificationInteractor {
         wallet: MetaAccountModel,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationQueue: OperationQueue,
-        eventCenter: EventCenter,
+        eventCenter: EventCenterProtocol,
         chainsIssuesCenter: ChainsIssuesCenterProtocol,
         chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
     ) {
@@ -94,7 +94,8 @@ extension NetworkIssuesNotificationInteractor: NetworkIssuesNotificationInteract
     func mute(chain: ChainModel) {
         Task { [weak self] in
             guard let self else { return }
-            var chainSettings = (try? await chainSettingsRepository.fetchAsync(by: chain.chainId)) ?? ChainSettings.defaultSettings(for: chain.chainId)
+            let savedSettings = try? await chainSettingsRepository.fetchAsync(by: chain.chainId)
+            var chainSettings = savedSettings ?? ChainSettings.defaultSettings(for: chain.chainId)
             chainSettings.setIssueMuted(true)
             self.save(chainSettings: chainSettings)
         }

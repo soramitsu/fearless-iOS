@@ -4,23 +4,25 @@ import IrohaCrypto
 final class ExportMnemonicConfirmInteractor {
     weak var presenter: AccountConfirmInteractorOutputProtocol!
 
-    private let mnemonic: IRMnemonicProtocol
-    private let shuffledWords: [String]
+    private let mnemonics: [IRMnemonicProtocol]
+    private let shuffledWords: [[String]]
     private let settings: SelectedWalletSettings
     private let wallet: MetaAccountModel
     private let eventCenter: EventCenterProtocol
 
+    private var currentMnemonicIndex = 0
+
     init(
-        mnemonic: IRMnemonicProtocol,
+        mnemonics: [IRMnemonicProtocol],
         settings: SelectedWalletSettings,
         wallet: MetaAccountModel,
         eventCenter: EventCenterProtocol
     ) {
-        self.mnemonic = mnemonic
+        self.mnemonics = mnemonics
         self.settings = settings
         self.wallet = wallet
         self.eventCenter = eventCenter
-        shuffledWords = mnemonic.allWords().shuffled()
+        shuffledWords = mnemonics.map { $0.allWords().shuffled() }
     }
 }
 
@@ -30,15 +32,26 @@ extension ExportMnemonicConfirmInteractor: AccountConfirmInteractorInputProtocol
     }
 
     func requestWords() {
-        presenter.didReceive(words: shuffledWords, afterConfirmationFail: false)
+        presenter.didReceive(words: currentShuffledWords, afterConfirmationFail: false)
     }
 
     func confirm(words: [String]) {
+        guard let mnemonic = currentMnemonic else {
+            presenter.didReceive(error: CommonError.undefined)
+            return
+        }
+
         guard words == mnemonic.allWords() else {
             presenter.didReceive(
-                words: shuffledWords,
+                words: currentShuffledWords,
                 afterConfirmationFail: true
             )
+            return
+        }
+
+        guard currentMnemonicIndex == mnemonics.count - 1 else {
+            currentMnemonicIndex += 1
+            presenter.didReceive(words: currentShuffledWords, afterConfirmationFail: false)
             return
         }
 
@@ -52,5 +65,23 @@ extension ExportMnemonicConfirmInteractor: AccountConfirmInteractorInputProtocol
 
     func skipConfirmation() {
         presenter.didCompleteConfirmation()
+    }
+}
+
+private extension ExportMnemonicConfirmInteractor {
+    var currentMnemonic: IRMnemonicProtocol? {
+        guard mnemonics.indices.contains(currentMnemonicIndex) else {
+            return nil
+        }
+
+        return mnemonics[currentMnemonicIndex]
+    }
+
+    var currentShuffledWords: [String] {
+        guard shuffledWords.indices.contains(currentMnemonicIndex) else {
+            return []
+        }
+
+        return shuffledWords[currentMnemonicIndex]
     }
 }

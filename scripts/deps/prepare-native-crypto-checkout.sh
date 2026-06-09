@@ -50,6 +50,7 @@ if ! xcodebuild \
   fi
 fi
 
+run_step "$ROOT/scripts/deps/apply-native-crypto-package-contract.sh" "Re-applying package contract after resolve"
 run_step "$ROOT/scripts/deps/apply-native-crypto-modulemap-contract.sh" "Applying modulemap contract"
 
 echo "[prepare-native-crypto-checkout] Verifying native crypto package state"

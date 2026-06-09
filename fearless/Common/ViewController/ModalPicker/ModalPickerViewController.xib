@@ -24,10 +24,10 @@
             <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ruq-rw-p1b" customClass="BorderedContainerView" customModule="SoraUI">
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ruq-rw-p1b" customClass="BorderedContainerView" customModule="FearlessUI">
                     <rect key="frame" x="0.0" y="1" width="414" height="40"/>
                     <subviews>
-                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XwS-f7-PDQ" customClass="ImageWithTitleView" customModule="SoraUI">
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XwS-f7-PDQ" customClass="ImageWithTitleView" customModule="FearlessUI">
                             <rect key="frame" x="16" y="1" width="154" height="23"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <userDefinedRuntimeAttributes>

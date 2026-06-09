@@ -37,12 +37,16 @@ enum TonChainSelection {
     static let testnetChainId = "-3"
     static let mainnetChainId = "-239"
 
+    protocol ToggleSource {
+        var tonEnvListToggle: LocalListToggle { get }
+    }
+
     static func selectedChainId(isTestnetEnabled: Bool) -> ChainModel.Id {
         isTestnetEnabled ? testnetChainId : mainnetChainId
     }
 
-    static func selectedChainId() -> ChainModel.Id {
-        selectedChainId(isTestnetEnabled: LocalToggleService.shared.tonEnvListToggle.storageValue)
+    static func selectedChainId(toggleSource: ToggleSource = LocalToggleService.shared) -> ChainModel.Id {
+        selectedChainId(isTestnetEnabled: toggleSource.tonEnvListToggle.storageValue)
     }
 
     static func matchesSelectedEnvironment(chain: ChainModel, isTestnetEnabled: Bool) -> Bool {
@@ -50,3 +54,5 @@ enum TonChainSelection {
         return isTestnetEnabled == isTestnetChain
     }
 }
+
+extension LocalToggleService: TonChainSelection.ToggleSource {}

@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 enum NumberFormatterUsageCase {
     case listCrypto
@@ -63,6 +63,8 @@ extension NumberFormatter {
         formatter.maximumFractionDigits = maximumFractionDigits
         formatter.roundingMode = rounding
         formatter.usesGroupingSeparator = usesIntGrouping
+        formatter.groupingSize = 3
+        formatter.secondaryGroupingSize = 3
         return formatter
     }
 
@@ -77,6 +79,8 @@ extension NumberFormatter {
         formatter.maximumFractionDigits = 8
         formatter.roundingMode = rounding
         formatter.usesGroupingSeparator = usesIntGrouping
+        formatter.groupingSize = 3
+        formatter.secondaryGroupingSize = 3
         return formatter
     }
 
@@ -87,6 +91,8 @@ extension NumberFormatter {
         numberFormatter.minimumFractionDigits = 0
         numberFormatter.maximumFractionDigits = Int.max
         numberFormatter.usesGroupingSeparator = true
+        numberFormatter.groupingSize = 3
+        numberFormatter.secondaryGroupingSize = 3
         numberFormatter.alwaysShowsDecimalSeparator = false
         numberFormatter.usesSignificantDigits = true
         numberFormatter.locale = locale
@@ -103,6 +109,8 @@ extension NumberFormatter {
         formatter.minimumIntegerDigits = 1
         formatter.roundingMode = .down
         formatter.usesGroupingSeparator = true
+        formatter.groupingSize = 3
+        formatter.secondaryGroupingSize = 3
         formatter.alwaysShowsDecimalSeparator = false
         return formatter
     }
@@ -117,6 +125,8 @@ extension NumberFormatter {
         formatter.numberStyle = .decimal
         formatter.minimumIntegerDigits = 1
         formatter.usesGroupingSeparator = usesIntGrouping
+        formatter.groupingSize = 3
+        formatter.secondaryGroupingSize = 3
         formatter.roundingMode = rounding
         formatter.alwaysShowsDecimalSeparator = false
         formatter.maximumFractionDigits = 8
@@ -129,6 +139,8 @@ extension NumberFormatter {
         formatter.numberStyle = .decimal
         formatter.minimumIntegerDigits = 1
         formatter.usesGroupingSeparator = true
+        formatter.groupingSize = 3
+        formatter.secondaryGroupingSize = 3
         formatter.roundingMode = .down
         formatter.alwaysShowsDecimalSeparator = false
         formatter.maximumFractionDigits = 2
@@ -149,6 +161,8 @@ extension NumberFormatter {
         formatter.minimumIntegerDigits = 1
         formatter.roundingMode = rounding
         formatter.usesGroupingSeparator = usesIntGrouping
+        formatter.groupingSize = 3
+        formatter.secondaryGroupingSize = 3
         formatter.alwaysShowsDecimalSeparator = false
 
         return formatter

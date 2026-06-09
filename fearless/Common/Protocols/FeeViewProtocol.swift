@@ -1,5 +1,5 @@
 import Foundation
-import SoraUI
+import FearlessUI
 
 public protocol FeeViewProtocol: AnyObject {
     var borderType: BorderType { get set }

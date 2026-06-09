@@ -1,6 +1,6 @@
 import Foundation
 
-import SoraFoundation
+import FearlessFoundation
 
 protocol WalletCommandDecoratorDelegateProtocol {
     var payload: ConfirmationPayload { get }

@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 enum AssetNetworksFilter: Int {
@@ -83,7 +83,10 @@ extension AssetNetworksPresenter: AssetNetworksViewOutput {
     func didTapSortButton() {
         let sorts = FilterSet(
             title: nil,
-            items: AssetNetworksSort.defaultFilters(selected: sort)
+            items: AssetNetworksSort.defaultFilters(
+                selected: sort,
+                preferredLanguages: selectedLocale.rLanguages
+            )
         )
         let title = R.string.localizable.commonFilterSortHeader(preferredLanguages: selectedLocale.rLanguages)
         router.showFilters(title: title, filters: [sorts], moduleOutput: self, from: view)

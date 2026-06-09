@@ -1,6 +1,6 @@
 import Foundation
 import CoreData
-import SoraKeystore
+import FearlessSecureStorage
 
 protocol StorageMigrating {
     func requiresMigration() -> Bool

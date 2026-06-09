@@ -1,6 +1,6 @@
 import UIKit.UIImage
 import SSFUtils
-import SoraFoundation
+import FearlessFoundation
 
 struct StakingPayoutConfirmationViewModel {
     let senderAddress: AccountAddress

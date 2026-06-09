@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 final class AboutViewLayout: UIView {
     // MARK: - UI

@@ -1,6 +1,6 @@
 import Foundation
 
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 extension AssetTransactionData {
@@ -17,11 +17,10 @@ extension AssetTransactionData {
                 return 0
             }
 
-            let locale = LocalizationManager.shared.selectedLocale
-            let dateFormatter = DateFormatter.alchemyDate
-            let date = dateFormatter.value(for: locale).date(from: metadata.blockTimestamp)
-            let timestamp = Int64(date?.timeIntervalSince1970 ?? 0)
-            return timestamp
+            return DateFormatter.networkTimestampInSeconds(
+                from: metadata.blockTimestamp,
+                using: DateFormatter.alchemyDate
+            )
         }()
 
         return AssetTransactionData(

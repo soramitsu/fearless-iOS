@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 protocol WalletConnectConfirmationViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(viewModel: WalletConnectConfirmationViewModel)

@@ -10,7 +10,7 @@ final class WalletsManagmentInteractor {
     private let metaAccountRepository: AnyDataProviderRepository<ManagedMetaAccountModel>
     private let operationQueue: OperationQueue
     private let settings: SelectedWalletSettings
-    private let eventCenter: EventCenter
+    private let eventCenter: EventCenterProtocol
     private let shouldSaveSelected: Bool
     private let featureToggleService: FeatureToggleProviderProtocol
     init(
@@ -19,7 +19,7 @@ final class WalletsManagmentInteractor {
         metaAccountRepository: AnyDataProviderRepository<ManagedMetaAccountModel>,
         operationQueue: OperationQueue,
         settings: SelectedWalletSettings,
-        eventCenter: EventCenter,
+        eventCenter: EventCenterProtocol,
         featureToggleService: FeatureToggleProviderProtocol
     ) {
         self.shouldSaveSelected = shouldSaveSelected

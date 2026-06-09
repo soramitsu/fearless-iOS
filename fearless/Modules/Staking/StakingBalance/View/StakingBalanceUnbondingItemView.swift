@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class StakingBalanceUnbondingItemView: UIView {
     private enum Constants {

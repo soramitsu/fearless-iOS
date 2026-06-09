@@ -1,12 +1,16 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 final class FearlessLoadingViewFactory: LoadingViewFactoryProtocol {
     static func createLoadingView() -> LoadingView {
         let icon = R.image.iconLoadingIndicator()?.tinted(with: R.color.colorWhite()!)
+        return createLoadingView(indicatorImage: icon)
+    }
+
+    static func createLoadingView(indicatorImage: UIImage?) -> LoadingView {
         let loadingView = LoadingView(
             frame: UIScreen.main.bounds,
-            indicatorImage: icon ?? UIImage()
+            indicatorImage: indicatorImage ?? UIImage()
         )
         loadingView.backgroundColor = UIColor.black.withAlphaComponent(0.19)
         loadingView.contentBackgroundColor = UIColor.black.withAlphaComponent(0.04)

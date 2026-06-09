@@ -4,15 +4,31 @@ on:
   pull_request:
     branches:
       - develop
+  workflow_dispatch:
+    inputs:
+      run_remote_integration_tests:
+        description: "Run endpoint-dependent integration tests"
+        required: false
+        default: false
+        type: boolean
+      require_signed_archive:
+        description: "Build a signed archive with release signing assets and runtime keys"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  id-token: write
 
 jobs:
   build:
-    runs-on: macOS-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure GitHub auth for private pods (optional)
+      - name: Configure GitHub auth for private SwiftPM dependencies (optional)
         env:
           GH_READ_TOKEN: ${{ secrets.GH_READ_TOKEN }}
         run: |
@@ -27,92 +43,300 @@ jobs:
         run: |
           bash scripts/ci/bootstrap.sh
 
+      - name: Verify Local Packages
+        run: |
+          bash scripts/test-local-packages.sh
+
       - name: Build & Test (Simulator)
         run: |
           set -o pipefail
-          # Resolve SPM into a stable workspace path and patch after resolve
-          SP_DIR="$PWD/SourcePackages"
-          mkdir -p "$SP_DIR"
-          xcodebuild -resolvePackageDependencies \
-            -workspace fearless.xcworkspace \
-            -scheme fearless \
-            -clonedSourcePackagesDirPath "$SP_DIR"
-          # Apply patches on the resolved checkout (fail fast if contracts cannot be restored)
-          SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$(pwd)"
-          # Ensure native crypto checkout/modulemap contract is restored after resolve.
-          SOURCE_PACKAGES_DIR="$SP_DIR" STRICT_REQUIRED_PATCHES=1 bash scripts/deps/prepare-native-crypto-checkout.sh "$(pwd)" fearless.xcworkspace fearless.tests
-          echo "Preflight: checking remaining 'enum AddressFactory' in $SP_DIR checkouts (warn-only)"
-          if command -v rg >/dev/null 2>&1; then
-            rg -n "\\benum\\s+AddressFactory\\b" "$SP_DIR/checkouts/shared-features-spm/Sources" -S | sed -n '1,120p' || true
-          else
-            /usr/bin/grep -RInE "(^|[^A-Za-z0-9_])enum[[:space:]]+AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources" | sed -n '1,120p' || true
-          fi
-          echo "Preflight: checking SSFPolkaswap addressFactory type annotations"
-          if command -v rg >/dev/null 2>&1; then
-            if rg -n "addressFactory\s*:\s*([A-Za-z_]+\.)?AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources/SSFPolkaswap" -S >/dev/null 2>&1; then
-              echo "WARNING: addressFactory annotations still using AddressFactory (not .Type):" >&2
-              rg -n "addressFactory\s*:\s*([A-Za-z_]+\.)?AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources/SSFPolkaswap" -S | sed -n '1,120p' >&2 || true
-            fi
-          else
-            if /usr/bin/grep -RInE "addressFactory\s*:\s*([A-Za-z_]+\.)?AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources/SSFPolkaswap" >/dev/null 2>&1; then
-              echo "WARNING: addressFactory annotations still using AddressFactory (not .Type) [grep]:" >&2
-              /usr/bin/grep -RInE "addressFactory\s*:\s*([A-Za-z_]+\.)?AddressFactory(\b|[^.])" "$SP_DIR/checkouts/shared-features-spm/Sources/SSFPolkaswap" | sed -n '1,120p' >&2 || true
-            fi
-          fi
-          echo "Available simulators (before selection):" && xcrun simctl list devices | sed -n '1,100p'
-          UDID_RAW="$(LOG_PREFIX='[codecov]' PREFERRED_NAME='iPhone 16' ALLOW_CREATE=1 BOOT_SIMULATOR=0 bash scripts/ci/select-simulator.sh)"
-          UDID="$(printf '%s\n' "$UDID_RAW" | awk 'match($0, /[A-Fa-f0-9-]{36}/) { print substr($0, RSTART, RLENGTH); exit }')"
-          if [ -z "$UDID" ]; then
-            echo "Failed to select simulator UDID. Raw selector output: $UDID_RAW" >&2
-            exit 1
-          fi
-          if ! [[ "$UDID" =~ ^[A-Fa-f0-9-]{36}$ ]]; then
-            echo "Extracted simulator UDID has invalid format: $UDID" >&2
-            exit 1
-          fi
           HOST_ARCH="$(uname -m)"
-          SIM_INFO="$(xcrun simctl list devices available | awk -v udid="$UDID" '
-            /^-- iOS / { os=$3; next }
-            {
-              if (index($0, udid) > 0) {
-                line = $0
-                sub(/[[:space:]]*\([A-Fa-f0-9-]{36}\).*/, "", line)
-                gsub(/^[[:space:]]+|[[:space:]]+$/, "", line)
-                print line "|" os
-                exit
-              }
-            }
-          ')"
-          if [ -n "$SIM_INFO" ]; then
-            SIM_NAME="${SIM_INFO%%|*}"
-            SIM_OS="${SIM_INFO##*|}"
-            DESTINATION="platform=iOS Simulator,OS=${SIM_OS},name=${SIM_NAME}"
-          else
-            DESTINATION="platform=iOS Simulator,id=$UDID"
-          fi
           case "$HOST_ARCH" in
-            arm64|x86_64)
-              DESTINATION="${DESTINATION},arch=${HOST_ARCH}"
+            arm64)
+              ;;
+            *)
+              echo "Unsupported Codecov runner architecture: $HOST_ARCH. Native crypto simulator builds require arm64." >&2
+              exit 1
               ;;
           esac
-          echo "Using destination: $DESTINATION"
-          LOG_FILE="$PWD/build/codecov-xcodebuild.log"
-          mkdir -p "$PWD/build"
-          if ! xcodebuild \
-            -workspace fearless.xcworkspace \
-            -scheme fearless.tests \
-            -clonedSourcePackagesDirPath "$SP_DIR" \
-            -disableAutomaticPackageResolution \
-            -destination "$DESTINATION" \
-            build test | tee "$LOG_FILE" | xcpretty --test; then
-            echo "Build/Test failed. Key errors from $LOG_FILE:" >&2
-            if command -v rg >/dev/null 2>&1; then
-              rg -n " error: |\\*\\* (BUILD|TEST) FAILED \\*\\*" "$LOG_FILE" -S | tail -n 100 >&2 || true
-            else
-              grep -nE " error: |\\*\\* (BUILD|TEST) FAILED \\*\\*" "$LOG_FILE" | tail -n 100 >&2 || true
+          bash scripts/test-matrix.sh fearless.tests "platform=iOS Simulator,name=Any iOS Simulator Device"
+
+      - name: Install Signing Assets (Manual)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.require_signed_archive }}
+        env:
+          IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
+          IOS_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          FEARLESSWALLET_DEV_ADHOC_PROFILE_BASE64: ${{ secrets.FEARLESSWALLET_DEV_ADHOC_PROFILE_BASE64 }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+
+          api_key_secret_count=0
+          for key in \
+            APP_STORE_CONNECT_API_KEY_CONTENT \
+            APP_STORE_CONNECT_API_KEY_ID \
+            APP_STORE_CONNECT_API_KEY_ISSUER_ID; do
+            if [[ -n "${!key:-}" ]]; then
+              api_key_secret_count=$((api_key_secret_count + 1))
             fi
+          done
+
+          if [[ "$api_key_secret_count" != "0" && "$api_key_secret_count" != "3" ]]; then
+            echo "App Store Connect API key signing requires all three secrets:" >&2
+            echo "APP_STORE_CONNECT_API_KEY_CONTENT, APP_STORE_CONNECT_API_KEY_ID, APP_STORE_CONNECT_API_KEY_ISSUER_ID" >&2
             exit 1
           fi
 
+          if [[ "$api_key_secret_count" == "3" ]]; then
+            echo "Using App Store Connect API key automatic signing; skipping manual signing asset install."
+            echo "FEARLESS_SIGNING_MODE=automatic" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
+          missing=0
+          for key in \
+            IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64 \
+            IOS_DISTRIBUTION_CERTIFICATE_PASSWORD \
+            FEARLESSWALLET_DEV_ADHOC_PROFILE_BASE64; do
+            if [[ -z "${!key:-}" ]]; then
+              echo "Missing required GitHub secret: $key" >&2
+              missing=1
+            fi
+          done
+          if [[ "$missing" == "1" ]]; then
+            exit 1
+          fi
+
+          CERT_PATH="$RUNNER_TEMP/fearless-distribution.p12"
+          PROFILE_PATH="$RUNNER_TEMP/fearlesswallet-dev-adhoc.mobileprovision"
+          PROFILE_PLIST="$RUNNER_TEMP/fearlesswallet-dev-adhoc.plist"
+          KEYCHAIN_PATH="$RUNNER_TEMP/fearless-release-signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(uuidgen)"
+          ORIGINAL_KEYCHAINS="$RUNNER_TEMP/fearless-original-keychains.txt"
+          EXPECTED_TEAM_ID="YLWWUD25VZ"
+          EXPECTED_PROFILE_NAME="fearlesswallet-dev-adhoc"
+          EXPECTED_BUNDLE_ID="jp.co.soramitsu.fearlesswallet.dev"
+          EXPECTED_APP_IDENTIFIER="$EXPECTED_TEAM_ID.$EXPECTED_BUNDLE_ID"
+          EXPECTED_APP_GROUP="group.jp.co.soramitsu.fearlesswallet.walletconnect"
+
+          {
+            echo "FEARLESS_SIGNING_KEYCHAIN_PATH=$KEYCHAIN_PATH"
+            echo "FEARLESS_SIGNING_CERT_PATH=$CERT_PATH"
+            echo "FEARLESS_SIGNING_PROFILE_PATH=$PROFILE_PATH"
+            echo "FEARLESS_SIGNING_PROFILE_PLIST=$PROFILE_PLIST"
+            echo "FEARLESS_SIGNING_ORIGINAL_KEYCHAINS=$ORIGINAL_KEYCHAINS"
+          } >> "$GITHUB_ENV"
+
+          decode_base64() {
+            local value="$1"
+            local output_path="$2"
+
+            if ! printf '%s' "$value" | base64 --decode > "$output_path" 2>/dev/null; then
+              printf '%s' "$value" | base64 -D > "$output_path"
+            fi
+          }
+
+          require_profile_value() {
+            local key_path="$1"
+            local expected="$2"
+            local description="$3"
+            local actual
+
+            actual="$(/usr/libexec/PlistBuddy -c "Print :$key_path" "$PROFILE_PLIST" 2>/dev/null || true)"
+            if [[ "$actual" != "$expected" ]]; then
+              echo "Decoded provisioning profile has ${description} '${actual:-missing}', expected '$expected'" >&2
+              exit 1
+            fi
+          }
+
+          require_profile_array_contains() {
+            local key_path="$1"
+            local expected="$2"
+            local description="$3"
+
+            if ! /usr/libexec/PlistBuddy -c "Print :$key_path" "$PROFILE_PLIST" 2>/dev/null | grep -Fq "$expected"; then
+              echo "Decoded provisioning profile is missing ${description} '$expected'" >&2
+              exit 1
+            fi
+          }
+
+          decode_base64 "$IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64" "$CERT_PATH"
+          decode_base64 "$FEARLESSWALLET_DEV_ADHOC_PROFILE_BASE64" "$PROFILE_PATH"
+
+          security cms -D -i "$PROFILE_PATH" > "$PROFILE_PLIST"
+          require_profile_value "Name" "$EXPECTED_PROFILE_NAME" "name"
+          require_profile_value "TeamIdentifier:0" "$EXPECTED_TEAM_ID" "team identifier"
+          require_profile_value "Entitlements:application-identifier" "$EXPECTED_APP_IDENTIFIER" "application identifier"
+          require_profile_array_contains "Entitlements:com.apple.security.application-groups" "$EXPECTED_APP_GROUP" "App Group"
+
+          PROFILE_EXPIRATION="$(plutil -extract ExpirationDate raw -o - "$PROFILE_PLIST" 2>/dev/null || true)"
+          PROFILE_EXPIRATION_SECONDS="$(date -j -f '%Y-%m-%dT%H:%M:%SZ' "$PROFILE_EXPIRATION" +%s 2>/dev/null || echo 0)"
+          if [[ "$PROFILE_EXPIRATION_SECONDS" == "0" || "$PROFILE_EXPIRATION_SECONDS" -le "$(date -u +%s)" ]]; then
+            echo "Decoded provisioning profile is expired (${PROFILE_EXPIRATION:-unknown})" >&2
+            exit 1
+          fi
+
+          PROFILE_GET_TASK_ALLOW="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:get-task-allow' "$PROFILE_PLIST" 2>/dev/null || true)"
+          if [[ "$PROFILE_GET_TASK_ALLOW" != "false" ]]; then
+            echo "Decoded provisioning profile has get-task-allow '${PROFILE_GET_TASK_ALLOW:-missing}', expected 'false'" >&2
+            exit 1
+          fi
+
+          if ! /usr/libexec/PlistBuddy -c 'Print :ProvisionedDevices:0' "$PROFILE_PLIST" >/dev/null 2>&1; then
+            echo "Decoded provisioning profile is missing ProvisionedDevices for release-testing export" >&2
+            exit 1
+          fi
+
+          security list-keychains -d user > "$ORIGINAL_KEYCHAINS"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERT_PATH" -P "$IOS_DISTRIBUTION_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          CERT_IDENTITY_COUNT="$(security find-identity -v -p codesigning "$KEYCHAIN_PATH" 2>/dev/null |
+            awk -v team="$EXPECTED_TEAM_ID" -v pattern="Apple Distribution" '
+              /^[[:space:]]*[0-9]+\)/ {
+                if (index($0, "(" team ")") > 0 && index($0, pattern) > 0) {
+                  count++
+                }
+              }
+              END { print count + 0 }
+            ')"
+          if [[ "$CERT_IDENTITY_COUNT" == "0" ]]; then
+            echo "Decoded p12 did not install an Apple Distribution identity for team '$EXPECTED_TEAM_ID'" >&2
+            security find-identity -v -p codesigning "$KEYCHAIN_PATH" || true
+            exit 1
+          fi
+
+          original_keychains=()
+          while IFS= read -r keychain; do
+            [[ -n "$keychain" ]] && original_keychains+=("$keychain")
+          done < <(sed 's/^[[:space:]]*//; s/^"//; s/"$//' "$ORIGINAL_KEYCHAINS")
+          security list-keychains -d user -s "$KEYCHAIN_PATH" "${original_keychains[@]}"
+
+          PROFILE_UUID="$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$PROFILE_PLIST")"
+          INSTALLED_PROFILE_PATH="$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
+          echo "FEARLESS_SIGNING_INSTALLED_PROFILE_PATH=$INSTALLED_PROFILE_PATH" >> "$GITHUB_ENV"
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$PROFILE_PATH" "$INSTALLED_PROFILE_PATH"
+
+      - name: Archive Smoke (Unsigned)
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.require_signed_archive }}
+        run: |
+          SKIP_BOOTSTRAP=1 bash scripts/ci/archive-smoke.sh "$PWD"
+
+      - name: Archive Smoke (Signed)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.require_signed_archive }}
+        env:
+          MOONPAY_PRODUCTION_SECRET: ${{ secrets.MOONPAY_PRODUCTION_SECRET }}
+          MOONPAY_TEST_SECRET: ${{ secrets.MOONPAY_TEST_SECRET }}
+          SORA_CARD_API_KEY: ${{ secrets.SORA_CARD_API_KEY }}
+          SORA_CARD_DOMAIN: ${{ secrets.SORA_CARD_DOMAIN }}
+          SORA_CARD_KYC_ENDPOINT_URL: ${{ secrets.SORA_CARD_KYC_ENDPOINT_URL }}
+          SORA_CARD_KYC_USERNAME: ${{ secrets.SORA_CARD_KYC_USERNAME }}
+          SORA_CARD_KYC_PASSWORD: ${{ secrets.SORA_CARD_KYC_PASSWORD }}
+          RAMP_HOST_API_KEY: ${{ secrets.RAMP_HOST_API_KEY }}
+          MOONBEAM_CROWDLOAN_DEV_API_KEY: ${{ secrets.MOONBEAM_CROWDLOAN_DEV_API_KEY }}
+          MOONBEAM_CROWDLOAN_PROD_API_KEY: ${{ secrets.MOONBEAM_CROWDLOAN_PROD_API_KEY }}
+          FL_BLAST_API_ETHEREUM_KEY: ${{ secrets.FL_BLAST_API_ETHEREUM_KEY }}
+          FL_BLAST_API_BSC_KEY: ${{ secrets.FL_BLAST_API_BSC_KEY }}
+          FL_BLAST_API_SEPOLIA_KEY: ${{ secrets.FL_BLAST_API_SEPOLIA_KEY }}
+          FL_BLAST_API_GOERLI_KEY: ${{ secrets.FL_BLAST_API_GOERLI_KEY }}
+          FL_BLAST_API_POLYGON_KEY: ${{ secrets.FL_BLAST_API_POLYGON_KEY }}
+          FL_BLAST_API_ETHEREUM_KEY_DEBUG: ${{ secrets.FL_BLAST_API_ETHEREUM_KEY_DEBUG }}
+          FL_BLAST_API_BSC_KEY_DEBUG: ${{ secrets.FL_BLAST_API_BSC_KEY_DEBUG }}
+          FL_BLAST_API_SEPOLIA_KEY_DEBUG: ${{ secrets.FL_BLAST_API_SEPOLIA_KEY_DEBUG }}
+          FL_BLAST_API_GOERLI_KEY_DEBUG: ${{ secrets.FL_BLAST_API_GOERLI_KEY_DEBUG }}
+          FL_BLAST_API_POLYGON_KEY_DEBUG: ${{ secrets.FL_BLAST_API_POLYGON_KEY_DEBUG }}
+          WEB_CLIENT_ID_RELEASE: ${{ secrets.WEB_CLIENT_ID_RELEASE }}
+          FEARLESS_GOOGLE_URL_SCHEME_RELEASE: ${{ secrets.FEARLESS_GOOGLE_URL_SCHEME_RELEASE }}
+          WEB_CLIENT_ID_DEBUG: ${{ secrets.WEB_CLIENT_ID_DEBUG }}
+          FEARLESS_GOOGLE_URL_SCHEME_DEBUG: ${{ secrets.FEARLESS_GOOGLE_URL_SCHEME_DEBUG }}
+          FL_WALLET_CONNECT_PROJECT_ID: ${{ secrets.FL_WALLET_CONNECT_PROJECT_ID }}
+          FL_WALLET_CONNECT_PROJECT_ID_DEBUG: ${{ secrets.FL_WALLET_CONNECT_PROJECT_ID_DEBUG }}
+          FL_IOS_ETHERSCAN_API_KEY: ${{ secrets.FL_IOS_ETHERSCAN_API_KEY }}
+          FL_IOS_POLYGONSCAN_API_KEY: ${{ secrets.FL_IOS_POLYGONSCAN_API_KEY }}
+          FL_IOS_BSCSCAN_API_KEY: ${{ secrets.FL_IOS_BSCSCAN_API_KEY }}
+          FL_OKLINK_API_KEY: ${{ secrets.FL_OKLINK_API_KEY }}
+          FL_IOS_OPTIMISTIC_ETHERSCAN_API_KEY: ${{ secrets.FL_IOS_OPTIMISTIC_ETHERSCAN_API_KEY }}
+          FL_IOS_ALCHEMY_API_ETHEREUM_KEY: ${{ secrets.FL_IOS_ALCHEMY_API_ETHEREUM_KEY }}
+          FL_DWELLIR_API_KEY: ${{ secrets.FL_DWELLIR_API_KEY }}
+          COINBASE_SESSION_TOKEN: ${{ secrets.COINBASE_SESSION_TOKEN }}
+          FL_TON_API_KEY: ${{ secrets.FL_TON_API_KEY }}
+          FL_TON_API_KEY_DEBUG: ${{ secrets.FL_TON_API_KEY_DEBUG }}
+          FL_OKX_API_KEY: ${{ secrets.FL_OKX_API_KEY }}
+          FL_OKX_SECRET_KEY: ${{ secrets.FL_OKX_SECRET_KEY }}
+          FL_OKX_PASSPHRASE: ${{ secrets.FL_OKX_PASSPHRASE }}
+          FL_OKX_PROJECT_ID: ${{ secrets.FL_OKX_PROJECT_ID }}
+          FL_NOMIS_CLIENT_ID: ${{ secrets.FL_NOMIS_CLIENT_ID }}
+          FL_NOMIS_API_KEY: ${{ secrets.FL_NOMIS_API_KEY }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+        run: |
+          if [[ "${FEARLESS_SIGNING_MODE:-}" == "automatic" ]]; then
+            SIGNING_MODE=automatic \
+              ALLOW_PROVISIONING_UPDATES=1 \
+              EXPORT_METHOD=release-testing \
+              RELEASE_READINESS_MODE=archive \
+              RUN_DEPENDENCY_CONTRACTS=0 \
+              SKIP_BOOTSTRAP=1 \
+              scripts/ci/release-readiness.sh "$PWD"
+          else
+            EXPORT_METHOD=release-testing RELEASE_READINESS_MODE=archive RUN_DEPENDENCY_CONTRACTS=0 SKIP_BOOTSTRAP=1 scripts/ci/release-readiness.sh "$PWD"
+          fi
+
+      - name: Cleanup Signing Assets (Manual)
+        if: ${{ always() && github.event_name == 'workflow_dispatch' && inputs.require_signed_archive }}
+        run: |
+          set -euo pipefail
+
+          keychain_path="${FEARLESS_SIGNING_KEYCHAIN_PATH:-$RUNNER_TEMP/fearless-release-signing.keychain-db}"
+          cert_path="${FEARLESS_SIGNING_CERT_PATH:-$RUNNER_TEMP/fearless-distribution.p12}"
+          profile_path="${FEARLESS_SIGNING_PROFILE_PATH:-$RUNNER_TEMP/fearlesswallet-dev-adhoc.mobileprovision}"
+          profile_plist="${FEARLESS_SIGNING_PROFILE_PLIST:-$RUNNER_TEMP/fearlesswallet-dev-adhoc.plist}"
+          original_keychains_path="${FEARLESS_SIGNING_ORIGINAL_KEYCHAINS:-$RUNNER_TEMP/fearless-original-keychains.txt}"
+
+          for path in \
+            "${FEARLESS_SIGNING_INSTALLED_PROFILE_PATH:-}" \
+            "$cert_path" \
+            "$profile_path" \
+            "$profile_plist"; do
+            if [[ -n "$path" ]]; then
+              rm -f "$path"
+            fi
+          done
+
+          if [[ -f "$original_keychains_path" ]]; then
+            original_keychains=()
+            while IFS= read -r keychain; do
+              [[ -n "$keychain" ]] && original_keychains+=("$keychain")
+            done < <(sed 's/^[[:space:]]*//; s/^"//; s/"$//' "$original_keychains_path")
+            if ((${#original_keychains[@]})); then
+              security list-keychains -d user -s "${original_keychains[@]}"
+            fi
+            rm -f "$original_keychains_path"
+          fi
+
+          if [[ -n "$keychain_path" ]]; then
+            security delete-keychain "$keychain_path" 2>/dev/null || rm -f "$keychain_path"
+          fi
+
+      - name: Remote Integration Tests (Manual)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_remote_integration_tests }}
+        run: |
+          FEARLESS_RUN_REMOTE_INTEGRATION_TESTS=1 SKIP_BOOTSTRAP=1 bash scripts/ci/remote-integration.sh "$PWD"
+
       - name: Upload coverage to Codecov
-        run: bash <(curl -s https://codecov.io/bash) -J 'fearless'
+        uses: codecov/codecov-action@v6
+        with:
+          fail_ci_if_error: true
+          flags: fearless
+          name: fearless-ios
+          plugins: xcode
+          swift_project: fearless
+          use_oidc: true

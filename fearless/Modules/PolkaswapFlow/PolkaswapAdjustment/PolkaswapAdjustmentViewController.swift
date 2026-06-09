@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import SnapKit
 
 final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {

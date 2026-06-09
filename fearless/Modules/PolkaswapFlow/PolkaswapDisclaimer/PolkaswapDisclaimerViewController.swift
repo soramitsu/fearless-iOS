@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 protocol PolkaswapDisclaimerViewOutput: AnyObject {
     func didLoad(view: PolkaswapDisclaimerViewInput)

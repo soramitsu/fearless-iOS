@@ -8,15 +8,25 @@ protocol PriceProviderFactoryProtocol {
 }
 
 final class PriceProviderFactory: PriceProviderFactoryProtocol {
+    private let priceDataSourceDependencies: PriceDataSourceDependencies
+
     private lazy var executionQueue: OperationQueue = {
         let queue = OperationQueue()
         queue.qualityOfService = .userInitiated
         return queue
     }()
 
+    init(priceDataSourceDependencies: PriceDataSourceDependencies = PriceDataSourceDependencies()) {
+        self.priceDataSourceDependencies = priceDataSourceDependencies
+    }
+
     func getPricesProvider(currencies: [Currency]?, chainAssets: [ChainAsset]) -> AnySingleValueProvider<[SSFModels.PriceData]> {
         let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = SingleValueCacheRepositoryFactoryDefault().createSingleValueCacheRepository()
-        let source = PriceDataSource(currencies: currencies, chainAssets: chainAssets)
+        let source = PriceDataSource(
+            currencies: currencies,
+            chainAssets: chainAssets,
+            dependencies: priceDataSourceDependencies
+        )
         let trigger: DataProviderEventTrigger = [.onFetchPage, .onAddObserver]
         let provider = SingleValueProvider(
             targetIdentifier: PriceDataSource.defaultIdentifier,

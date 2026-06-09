@@ -1,6 +1,6 @@
 import UIKit
 import RobinHood
-import SoraKeystore
+import FearlessSecureStorage
 import IrohaCrypto
 import BigInt
 import SSFUtils

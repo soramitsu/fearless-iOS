@@ -36,10 +36,8 @@ final class RuntimeHotBootSnapshotFactory: RuntimeHotBootSnapshotFactoryProtocol
             let decoder = try ScaleDecoder(data: strongSelf.runtimeItem.metadata)
             let runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
 
-            // TODO: think about it
-            let json: JSON = .dictionaryValue(["types": .dictionaryValue([:])])
             let catalog = try TypeRegistryCatalog.createFromTypeDefinition(
-                try JSONEncoder().encode(json),
+                try RuntimeSnapshotTypeDefinition.baseTypesData(),
                 versioningData: chainTypes,
                 runtimeMetadata: runtimeMetadata,
                 usedRuntimePaths: usedRuntimePaths

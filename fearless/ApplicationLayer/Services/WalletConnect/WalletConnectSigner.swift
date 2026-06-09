@@ -2,7 +2,7 @@ import Foundation
 import WalletConnectSign
 import JSONRPC
 import Commons
-import SoraKeystore
+import FearlessSecureStorage
 import SSFModels
 import SSFSigner
 import SSFCrypto

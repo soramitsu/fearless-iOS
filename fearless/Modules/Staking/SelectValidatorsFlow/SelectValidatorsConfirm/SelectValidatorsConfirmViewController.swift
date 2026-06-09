@@ -1,6 +1,6 @@
 import UIKit
-import SoraUI
-import SoraFoundation
+import FearlessUI
+import FearlessFoundation
 
 final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder, ImportantViewProtocol {
     typealias RootViewType = SelectValidatorsConfirmViewLayout

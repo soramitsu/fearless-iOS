@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class NftSendConfirmViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = NftSendConfirmViewLayout

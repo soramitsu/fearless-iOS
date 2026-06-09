@@ -1,91 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# CI bootstrap for Fearless iOS: Pods, SPM, LFS, and package-contract preparation
+# CI bootstrap for Fearless iOS: SPM, LFS, and package-contract preparation
 
 echo "[bootstrap] Starting CI bootstrap"
 
-# Ensure UTF-8 locale for Ruby/CocoaPods
+# Ensure UTF-8 locale for tooling
 export LANG=${LANG:-en_US.UTF-8}
 export LC_ALL=${LC_ALL:-en_US.UTF-8}
 
 WORKSPACE_DIR=${WORKSPACE:-$(pwd)}
 pushd "$WORKSPACE_DIR" >/dev/null
 
-# 1) CocoaPods install (with fallbacks)
-if [[ -f Podfile ]]; then
-  IS_JENKINS_PR=0
-  if [[ -n "${CHANGE_ID:-}" ]]; then IS_JENKINS_PR=1; fi
-
-  # Determine token availability from either Jenkins or GitHub Actions
-  GH_TOKEN_SRC=""
-  if [[ -n "${GH_PAT_READ:-}" ]]; then GH_TOKEN_SRC="$GH_PAT_READ"; fi
-  if [[ -z "$GH_TOKEN_SRC" && -n "${GH_READ_TOKEN:-}" ]]; then GH_TOKEN_SRC="$GH_READ_TOKEN"; fi
-
-  # Handle private pods (FearlessKeys) across CI providers
-  SHOULD_DISABLE_KEYS=0
-  if [[ -z "${INCLUDE_FEARLESS_KEYS:-}" ]]; then
-    # Jenkins PRs without explicit opt-in
-    if [[ "$IS_JENKINS_PR" == "1" && -z "$GH_TOKEN_SRC" ]]; then SHOULD_DISABLE_KEYS=1; fi
-    # GitHub Actions PRs (secrets absent on forks)
-    if [[ -n "${GITHUB_ACTIONS:-}" && -z "$GH_TOKEN_SRC" ]]; then SHOULD_DISABLE_KEYS=1; fi
-  fi
-
-  if [[ "$SHOULD_DISABLE_KEYS" == "1" ]]; then
-    if /usr/bin/grep -q "pod 'FearlessKeys'" Podfile; then
-      cp Podfile Podfile.ci.bak
-      awk 'BEGIN{done=0} { if(done==0 && $0 ~ /^[[:space:]]*pod '\''FearlessKeys'\''/){ print "# CI: disabled private pod for PR build -> "$0; done=1 } else { print } }' Podfile > Podfile.ci.tmp && mv Podfile.ci.tmp Podfile
-      echo "[bootstrap] Disabled FearlessKeys pod (no token available in CI)"
-    fi
-  else
-    # Trusted branch or token provided: enable tokens for private repos
-    if [[ -n "$GH_TOKEN_SRC" ]]; then
-      git config --global url."https://${GH_TOKEN_SRC}@github.com/".insteadOf "https://github.com/" || true
-      echo "[bootstrap] Configured GitHub token for private pods"
-    fi
-    export INCLUDE_FEARLESS_KEYS=1
-  fi
-
-  if command -v pod >/dev/null 2>&1; then
-    pod install --repo-update
-  elif command -v bundle >/dev/null 2>&1 && [[ -f Gemfile ]]; then
-    bundle install --path vendor/bundle
-    bundle exec pod install --repo-update
-  elif command -v gem >/dev/null 2>&1; then
-    echo "[bootstrap] CocoaPods missing; installing user-local via RubyGems"
-    gem install --user-install cocoapods -N
-    GEM_BIN_DIR=$(ruby -e 'require "rubygems"; print Gem.user_dir + "/bin"')
-    export PATH="$GEM_BIN_DIR:$PATH"
-    hash -r || true
-    if [[ -x "$GEM_BIN_DIR/pod" ]]; then
-      "$GEM_BIN_DIR/pod" install --repo-update
-    else
-      echo "[bootstrap] ERROR: CocoaPods still unavailable after gem install" >&2
-      exit 1
-    fi
-  else
-    echo "[bootstrap] ERROR: CocoaPods not available on this agent" >&2
-    exit 1
-  fi
-
-  # Restore original Podfile if modified
-  if [[ -f Podfile.ci.bak ]]; then mv -f Podfile.ci.bak Podfile; fi
-
-  # Verify Pods installed
-  if [[ ! -f "Pods/Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.debug.xcconfig" ]]; then
-    echo "[bootstrap] ERROR: Missing Pods Target Support Files after pod install" >&2
-    exit 1
-  fi
-else
-  echo "[bootstrap] No Podfile found; skipping pod install"
-fi
-
-# pod install may rewrite the workspace and drop committed SwiftPM metadata.
+# Restore committed SwiftPM metadata if local tooling changed it.
 if [[ -x scripts/deps/restore-swiftpm-contract-files.sh ]]; then
   scripts/deps/restore-swiftpm-contract-files.sh "$WORKSPACE_DIR" "[bootstrap]"
 fi
 
-# 2) Resolve SPM into a deterministic location (clean + mirrors + enforce SSF pin)
+# Resolve SPM into a deterministic location (clean + mirrors + enforce SSF pin)
 SP_DIR="${SP_DIR:-$WORKSPACE_DIR/SourcePackages}"
 # Clean previous SPM state to avoid sticky duplicates
 rm -rf "$SP_DIR" || true
@@ -144,7 +76,44 @@ fi
 # Apply required shared-features-spm compatibility fixes (manifest + Web3 API drift)
 if [[ -f "scripts/spm-shared-features-fixes.sh" ]]; then
   echo "[bootstrap] Applying required shared-features-spm compatibility fixes"
-  SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR"
+  SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 SSF_SINGLE_VALUE_CACHE_MANUAL_CLASS=1 bash scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR"
+fi
+
+if [[ -x "scripts/deps/apply-tonapi-http-types-contract.sh" ]]; then
+  echo "[bootstrap] Applying TonAPI HTTPTypes dependency contract"
+  SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 scripts/deps/apply-tonapi-http-types-contract.sh "$WORKSPACE_DIR"
+fi
+
+if [[ -x "scripts/deps/apply-reown-signer-contract.sh" ]]; then
+  echo "[bootstrap] Applying Reown signer dependency contract"
+  SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 scripts/deps/apply-reown-signer-contract.sh "$WORKSPACE_DIR"
+fi
+
+if [[ -x "scripts/deps/apply-web3-nio-ssl-contract.sh" ]]; then
+  echo "[bootstrap] Applying Web3 NIOSSL dependency contract"
+  SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 scripts/deps/apply-web3-nio-ssl-contract.sh "$WORKSPACE_DIR"
+fi
+
+if [[ -x "scripts/deps/apply-charts-swift6-compat.sh" ]]; then
+  echo "[bootstrap] Applying Charts Swift compatibility fixes"
+  SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 scripts/deps/apply-charts-swift6-compat.sh "$WORKSPACE_DIR"
+fi
+
+if [[ -x "scripts/deps/apply-svgkit-umbrella-contract.sh" ]]; then
+  echo "[bootstrap] Applying SVGKit umbrella header contract"
+  SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 scripts/deps/apply-svgkit-umbrella-contract.sh "$WORKSPACE_DIR"
+fi
+
+if [[ -f fearless.xcworkspace/contents.xcworkspacedata ]]; then
+  echo "[bootstrap] Refreshing SwiftPM resolved state after package patches"
+  xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath "$SP_DIR"
+  if [[ -f scripts/deps/enforce-ssf-pin.sh ]]; then
+    echo "[bootstrap] Normalizing SwiftPM resolved contracts after package patches"
+    bash scripts/deps/enforce-ssf-pin.sh
+  fi
+  if [[ -x scripts/deps/check-swiftpm-consistency.sh ]]; then
+    scripts/deps/check-swiftpm-consistency.sh
+  fi
 fi
 
 popd >/dev/null

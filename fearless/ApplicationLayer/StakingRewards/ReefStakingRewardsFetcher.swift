@@ -10,9 +10,14 @@ struct ReefStakingPageReponse {
 final class ReefStakingRewardsFetcher {
     static let pageSize: Int = 50
     private let chain: ChainModel
+    private let worker: NetworkWorkerDefault
 
-    init(chain: ChainModel) {
+    init(
+        chain: ChainModel,
+        worker: NetworkWorkerDefault = NetworkWorkerDefault()
+    ) {
         self.chain = chain
+        self.worker = worker
     }
 
     func queryString(address: String, offset: Int) -> String {
@@ -48,7 +53,6 @@ final class ReefStakingRewardsFetcher {
             baseURL: blockExplorer.url,
             query: queryString(address: address, offset: max(1, rewards.count))
         )
-        let worker = NetworkWorkerDefault()
         let response: GraphQLResponse<ReefResponseData> = try await worker.performRequest(with: request)
 
         switch response {

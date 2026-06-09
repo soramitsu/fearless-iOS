@@ -40,10 +40,13 @@ extension ExtrinsicOptionsPresentable {
         alertController.addAction(copy)
 
         chain.externalApi?.explorers?.forEach { explorer in
-            guard let url = explorer.explorerUrl(for: extrinsicHash, type: explorer.transactionType) else {
+            guard
+                explorer.supportsTransactionLookup,
+                let url = explorer.explorerUrl(for: extrinsicHash, type: explorer.transactionType)
+            else {
                 return
             }
-            let title = explorer.type.actionTitle().value(for: locale)
+            let title = explorer.actionTitle().value(for: locale)
             let action = UIAlertAction(title: title, style: .default) { _ in
                 let webController = WebViewFactory.createWebViewController(for: url, style: .automatic)
                 view?.controller.present(webController, animated: true, completion: nil)

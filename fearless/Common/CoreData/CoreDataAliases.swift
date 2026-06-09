@@ -15,13 +15,14 @@ import Foundation
             open func encode(to _: Encoder) throws {}
         }
 
+        @objc(FearlessCDChain)
         public class CDChain: CoreDataStubObject {
             @NSManaged public var rank: String?
             @NSManaged public var disabled: Bool
             @NSManaged public var chainId: String?
             @NSManaged public var parentId: String?
             @NSManaged public var name: String?
-            @NSManaged public var types: String?
+            @NSManaged public var types: URL?
             @NSManaged public var typesOverrideCommon: NSNumber?
             @NSManaged public var addressPrefix: Int16
             @NSManaged public var icon: URL?
@@ -45,6 +46,7 @@ import Foundation
             @NSManaged public var explorers: NSSet?
         }
 
+        @objc(FearlessCDAsset)
         public class CDAsset: CoreDataStubObject {
             @NSManaged public var id: String?
             @NSManaged public var icon: URL?
@@ -65,6 +67,8 @@ import Foundation
         }
 
         public class CDChainAsset: CoreDataStubObject {}
+
+        @objc(FearlessCDChainNode)
         public class CDChainNode: CoreDataStubObject {
             @NSManaged public var url: URL?
             @NSManaged public var name: String?
@@ -72,21 +76,61 @@ import Foundation
             @NSManaged public var apiQueryName: String?
         }
 
+        @objc(FearlessCDChainStorageItem)
         public class CDChainStorageItem: CoreDataStubObject {
             @NSManaged public var identifier: String?
         }
 
-        public class CDRuntimeMetadataItem: CoreDataStubObject {}
+        @objc(FearlessCDRuntimeMetadataItem)
+        public class CDRuntimeMetadataItem: CoreDataStubObject {
+            private enum CodingKeys: String, CodingKey {
+                case chain
+                case version
+                case txVersion
+                case metadata
+            }
+
+            @NSManaged public var identifier: String?
+            @NSManaged public var metadata: Data?
+            @NSManaged public var resolver: Data?
+            @NSManaged public var txVersion: Int32
+            @NSManaged public var version: Int32
+
+            override public func populate(from decoder: Decoder, using _: NSManagedObjectContext) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+
+                identifier = try container.decode(String.self, forKey: .chain)
+                metadata = try container.decode(Data.self, forKey: .metadata)
+                version = Int32(try container.decode(UInt32.self, forKey: .version))
+                txVersion = Int32(try container.decode(UInt32.self, forKey: .txVersion))
+            }
+
+            override public func encode(to encoder: Encoder) throws {
+                guard let identifier, let metadata else {
+                    return
+                }
+
+                var container = encoder.container(keyedBy: CodingKeys.self)
+
+                try container.encode(identifier, forKey: .chain)
+                try container.encode(UInt32(version), forKey: .version)
+                try container.encode(UInt32(txVersion), forKey: .txVersion)
+                try container.encode(metadata, forKey: .metadata)
+            }
+        }
+
         public class CDAccountInfo: CoreDataStubObject {
             @NSManaged public var identifier: String?
         }
 
+        @objc(FearlessCDStashItem)
         public class CDStashItem: CoreDataStubObject {
             @NSManaged public var stash: String?
             @NSManaged public var controller: String?
         }
 
         public class CDSingleValue: CoreDataStubObject {}
+
         public class CDChainSettings: CoreDataStubObject {
             @NSManaged public var chainId: String?
             @NSManaged public var autobalanced: Bool
@@ -122,6 +166,21 @@ import Foundation
                 let mutable = mutableSetValue(forKey: "chainAccounts")
                 mutable.add(value)
             }
+
+            override public func populate(
+                from decoder: Decoder,
+                using context: NSManagedObjectContext
+            ) throws {
+                let model = try MetaAccountModel(from: decoder)
+                try MetaAccountMapper().populate(entity: self, from: model, using: context)
+                isSelected = false
+                order = 0
+            }
+
+            override public func encode(to encoder: Encoder) throws {
+                let model = try MetaAccountMapper().transform(entity: self)
+                try model.encode(to: encoder)
+            }
         }
 
         public class CDChainAccount: CoreDataStubObject {
@@ -140,6 +199,8 @@ import Foundation
         }
 
         public class CDAccountItem: CoreDataStubObject {}
+
+        @objc(FearlessCDPolkaswapRemoteSettings)
         public class CDPolkaswapRemoteSettings: CoreDataStubObject {
             @NSManaged public var version: String?
             @NSManaged public var availableSources: [String]?
@@ -148,23 +209,35 @@ import Foundation
             @NSManaged public var xstusdId: String?
         }
 
+        @objc(FearlessCDPolkaswapDex)
         public class CDPolkaswapDex: CoreDataStubObject {
             @NSManaged public var name: String?
             @NSManaged public var code: Int32
             @NSManaged public var assetId: String?
         }
 
+        @objc(FearlessCDPhishingItem)
         public class CDPhishingItem: CoreDataStubObject {}
+
+        @objc(FearlessCDScamInfo)
         public class CDScamInfo: CoreDataStubObject {}
+
+        @objc(FearlessCDPriceData)
         public class CDPriceData: CoreDataStubObject {}
+
+        @objc(FearlessCDPriceProvider)
         public class CDPriceProvider: CoreDataStubObject {
             @NSManaged public var type: String?
             @NSManaged public var id: String?
             @NSManaged public var precision: String?
         }
 
+        @objc(FearlessCDContactItem)
         public class CDContactItem: CoreDataStubObject {}
+
+        @objc(FearlessCDContact)
         public class CDContact: CoreDataStubObject {}
+
         public class CDCurrency: CoreDataStubObject {
             @NSManaged public var id: String?
             @NSManaged public var symbol: String?
@@ -173,23 +246,27 @@ import Foundation
             @NSManaged public var isSelected: Bool
         }
 
+        @objc(FearlessCDExternalApi)
         public class CDExternalApi: CoreDataStubObject {
             @NSManaged public var type: String?
             @NSManaged public var types: NSArray?
-            @NSManaged public var url: URL?
+            @NSManaged public var url: String?
         }
 
+        @objc(FearlessCDXcmAvailableDestination)
         public class CDXcmAvailableDestination: CoreDataStubObject {
             @NSManaged public var chainId: String?
             @NSManaged public var bridgeParachainId: String?
             @NSManaged public var assets: NSSet?
         }
 
+        @objc(FearlessCDXcmAvailableAsset)
         public class CDXcmAvailableAsset: CoreDataStubObject {
             @NSManaged public var id: String?
             @NSManaged public var symbol: String?
         }
 
+        @objc(FearlessCDChainXcmConfig)
         public class CDChainXcmConfig: CoreDataStubObject {
             @NSManaged public var xcmVersion: String?
             @NSManaged public var destWeightIsPrimitive: Bool

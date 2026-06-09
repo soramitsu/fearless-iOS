@@ -1,6 +1,6 @@
 import Foundation
 import FearlessUtils
-import SoraFoundation
+import FearlessFoundation
 import BigInt
 import SwiftUI
 

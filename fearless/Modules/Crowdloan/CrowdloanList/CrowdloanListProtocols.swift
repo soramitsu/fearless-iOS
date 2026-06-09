@@ -1,4 +1,4 @@
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 
 protocol CrowdloanListViewProtocol: ControllerBackedProtocol {

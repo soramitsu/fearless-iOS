@@ -1,7 +1,7 @@
 import Foundation
 import IrohaCrypto
-import SoraFoundation
-import SoraKeystore
+import FearlessFoundation
+import FearlessSecureStorage
 
 final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
     static func createViewForOnboarding(

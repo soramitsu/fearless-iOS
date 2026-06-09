@@ -1,5 +1,5 @@
 import Foundation
-import SoraUI
+import FearlessUI
 
 class AlignableContentControl: BackgroundedContentControl {
     enum Alignment {

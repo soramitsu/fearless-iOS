@@ -1,6 +1,6 @@
 import UIKit
 
-import SoraFoundation
+import FearlessFoundation
 
 final class CrowdloanContributionSetupViewController: UIViewController, ViewHolder {
     typealias RootViewType = CrowdloanContributionSetupViewLayout

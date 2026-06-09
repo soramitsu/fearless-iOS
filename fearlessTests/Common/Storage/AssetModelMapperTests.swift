@@ -3,6 +3,9 @@ import XCTest
 import RobinHood
 import SSFModels
 import CoreData
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 final class AssetModelMapperTests: XCTestCase {
     func testEntityIdentifierFieldNameUsesCoreDataAssetIdField() {
@@ -232,5 +235,245 @@ final class AssetModelMapperTests: XCTestCase {
         attribute.valueTransformerName = NSValueTransformerName.secureUnarchiveFromDataTransformerName.rawValue
         attribute.attributeValueClassName = NSStringFromClass(NSArray.self)
         return attribute
+    }
+}
+
+final class PolkaswapSettingMapperTests: XCTestCase {
+    func testEntityIdentifierFieldNameUsesVersion() {
+        let mapper = PolkaswapSettingMapper()
+
+        XCTAssertEqual(mapper.entityIdentifierFieldName, "version")
+    }
+
+    func testPopulateThenTransformPreservesRemoteSettings() throws {
+        let mapper = PolkaswapSettingMapper()
+        let context = try createPolkaswapSettingsContext()
+        let model = PolkaswapRemoteSettings(
+            version: "v2",
+            availableDexIds: [
+                PolkaswapDex(name: "Polkaswap", code: 0, assetId: "xor"),
+                PolkaswapDex(name: "Kensetsu", code: 1, assetId: "ksm")
+            ],
+            availableSources: [.smart, .xyk, .tbc],
+            forceSmartIds: ["xor", "xstusd"],
+            xstusdId: "xstusd"
+        )
+
+        let entity = SSFAssetManagmentStorage.CDPolkaswapRemoteSettings(context: context)
+        try mapper.populate(entity: entity, from: model, using: context)
+
+        let mappedModel = try mapper.transform(entity: entity)
+
+        XCTAssertEqual(entity.version, model.version)
+        XCTAssertEqual(entity.availableSources, model.availableSources.map(\.rawValue))
+        XCTAssertEqual(entity.forceSmartIds, model.forceSmartIds)
+        XCTAssertEqual(entity.xstusdId, model.xstusdId)
+        XCTAssertEqual(mappedModel.version, model.version)
+        XCTAssertEqual(mappedModel.availableSources, model.availableSources)
+        XCTAssertEqual(mappedModel.forceSmartIds, model.forceSmartIds)
+        XCTAssertEqual(mappedModel.xstusdId, model.xstusdId)
+        XCTAssertEqual(
+            mappedModel.availableDexIds.sortedByCode().map(\.name),
+            model.availableDexIds.map(\.name)
+        )
+        XCTAssertEqual(
+            mappedModel.availableDexIds.sortedByCode().map(\.code),
+            model.availableDexIds.map(\.code)
+        )
+        XCTAssertEqual(
+            mappedModel.availableDexIds.sortedByCode().map(\.assetId),
+            model.availableDexIds.map(\.assetId)
+        )
+    }
+
+    func testTransformThrowsWhenRequiredFieldsAreMissing() throws {
+        let mapper = PolkaswapSettingMapper()
+        let context = try createPolkaswapSettingsContext()
+        let entity = SSFAssetManagmentStorage.CDPolkaswapRemoteSettings(context: context)
+        entity.availableSources = [LiquiditySourceType.smart.rawValue]
+        entity.forceSmartIds = ["xor"]
+        entity.availableDexIds = []
+        entity.xstusdId = "xstusd"
+
+        XCTAssertThrowsError(try mapper.transform(entity: entity)) { error in
+            guard case PolkaswapSettingMapperError.requiredFieldsMissing = error else {
+                XCTFail("Unexpected error: \(error)")
+                return
+            }
+        }
+    }
+
+    func testTransformSkipsUnknownSourcesAndMalformedDexes() throws {
+        let mapper = PolkaswapSettingMapper()
+        let context = try createPolkaswapSettingsContext()
+
+        let validDex = SSFAssetManagmentStorage.CDPolkaswapDex(context: context)
+        validDex.name = "Polkaswap"
+        validDex.code = 0
+        validDex.assetId = "xor"
+
+        let malformedDex = SSFAssetManagmentStorage.CDPolkaswapDex(context: context)
+        malformedDex.name = "MissingAsset"
+        malformedDex.code = 1
+        malformedDex.assetId = nil
+
+        let entity = SSFAssetManagmentStorage.CDPolkaswapRemoteSettings(context: context)
+        entity.version = "v3"
+        entity.availableSources = [
+            LiquiditySourceType.smart.rawValue,
+            "unknown-source",
+            LiquiditySourceType.xyk.rawValue
+        ]
+        entity.forceSmartIds = ["xor"]
+        entity.availableDexIds = [validDex, malformedDex]
+        entity.xstusdId = "xstusd"
+
+        let model = try mapper.transform(entity: entity)
+
+        XCTAssertEqual(model.availableSources, [.smart, .xyk])
+        XCTAssertEqual(model.availableDexIds.map(\.name), ["Polkaswap"])
+        XCTAssertEqual(model.availableDexIds.map(\.code), [0])
+        XCTAssertEqual(model.availableDexIds.map(\.assetId), ["xor"])
+    }
+
+    private func createPolkaswapSettingsContext() throws -> NSManagedObjectContext {
+        let model = NSManagedObjectModel()
+
+        let settingsEntity = NSEntityDescription()
+        settingsEntity.name = "CDPolkaswapRemoteSettings"
+        settingsEntity.managedObjectClassName = NSStringFromClass(SSFAssetManagmentStorage.CDPolkaswapRemoteSettings.self)
+
+        let dexEntity = NSEntityDescription()
+        dexEntity.name = "CDPolkaswapDex"
+        dexEntity.managedObjectClassName = NSStringFromClass(SSFAssetManagmentStorage.CDPolkaswapDex.self)
+        dexEntity.properties = [
+            makeAttribute(name: "name", type: .stringAttributeType),
+            makeAttribute(name: "code", type: .integer32AttributeType),
+            makeAttribute(name: "assetId", type: .stringAttributeType)
+        ]
+
+        let availableDexIdsRelationship = NSRelationshipDescription()
+        availableDexIdsRelationship.name = "availableDexIds"
+        availableDexIdsRelationship.destinationEntity = dexEntity
+        availableDexIdsRelationship.minCount = 0
+        availableDexIdsRelationship.maxCount = 0
+        availableDexIdsRelationship.deleteRule = .cascadeDeleteRule
+        availableDexIdsRelationship.isOptional = true
+
+        settingsEntity.properties = [
+            makeAttribute(name: "version", type: .stringAttributeType),
+            makeSecureStringArrayAttribute(name: "availableSources"),
+            makeSecureStringArrayAttribute(name: "forceSmartIds"),
+            makeAttribute(name: "xstusdId", type: .stringAttributeType),
+            availableDexIdsRelationship
+        ]
+
+        model.entities = [settingsEntity, dexEntity]
+
+        let coordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
+        try coordinator.addPersistentStore(ofType: NSInMemoryStoreType, configurationName: nil, at: nil, options: nil)
+
+        let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        context.persistentStoreCoordinator = coordinator
+        return context
+    }
+
+    private func makeAttribute(name: String, type: NSAttributeType) -> NSAttributeDescription {
+        let attribute = NSAttributeDescription()
+        attribute.name = name
+        attribute.attributeType = type
+        attribute.isOptional = true
+        return attribute
+    }
+
+    private func makeSecureStringArrayAttribute(name: String) -> NSAttributeDescription {
+        let attribute = makeAttribute(name: name, type: .transformableAttributeType)
+        attribute.valueTransformerName = NSValueTransformerName.secureUnarchiveFromDataTransformerName.rawValue
+        attribute.attributeValueClassName = NSStringFromClass(NSArray.self)
+        return attribute
+    }
+}
+
+final class ChainSettingsMapperTests: XCTestCase {
+    func testEntityIdentifierFieldNameUsesChainId() {
+        let mapper = ChainSettingsMapper()
+
+        XCTAssertEqual(mapper.entityIdentifierFieldName, "chainId")
+    }
+
+    func testPopulateThenTransformPreservesSettings() throws {
+        let mapper = ChainSettingsMapper()
+        let context = try createChainSettingsContext()
+        let model = ChainSettings(chainId: "sora-mainnet", autobalanced: false, issueMuted: true)
+
+        let entity = CDChainSettings(context: context)
+        try mapper.populate(entity: entity, from: model, using: context)
+
+        let mappedModel = try mapper.transform(entity: entity)
+
+        XCTAssertEqual(mappedModel, model)
+        XCTAssertEqual(entity.chainId, model.chainId)
+        XCTAssertFalse(entity.autobalanced)
+        XCTAssertTrue(entity.issueMuted)
+    }
+
+    func testTransformUsesFalseDefaultsWhenBooleanFieldsAreUnset() throws {
+        let mapper = ChainSettingsMapper()
+        let context = try createChainSettingsContext()
+        let entity = CDChainSettings(context: context)
+        entity.chainId = "polkadot"
+
+        let model = try mapper.transform(entity: entity)
+
+        XCTAssertEqual(model, ChainSettings(chainId: "polkadot", autobalanced: false, issueMuted: false))
+    }
+
+    func testTransformThrowsWhenChainIdIsMissing() throws {
+        let mapper = ChainSettingsMapper()
+        let context = try createChainSettingsContext()
+        let entity = CDChainSettings(context: context)
+
+        XCTAssertThrowsError(try mapper.transform(entity: entity)) { error in
+            guard case ChainNodeMapperError.missedRequiredFields = error else {
+                XCTFail("Unexpected error: \(error)")
+                return
+            }
+        }
+    }
+
+    private func createChainSettingsContext() throws -> NSManagedObjectContext {
+        let model = NSManagedObjectModel()
+
+        let entity = NSEntityDescription()
+        entity.name = "CDChainSettings"
+        entity.managedObjectClassName = NSStringFromClass(CDChainSettings.self)
+        entity.properties = [
+            makeAttribute(name: "chainId", type: .stringAttributeType),
+            makeAttribute(name: "autobalanced", type: .booleanAttributeType),
+            makeAttribute(name: "issueMuted", type: .booleanAttributeType)
+        ]
+
+        model.entities = [entity]
+
+        let coordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
+        try coordinator.addPersistentStore(ofType: NSInMemoryStoreType, configurationName: nil, at: nil, options: nil)
+
+        let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        context.persistentStoreCoordinator = coordinator
+        return context
+    }
+
+    private func makeAttribute(name: String, type: NSAttributeType) -> NSAttributeDescription {
+        let attribute = NSAttributeDescription()
+        attribute.name = name
+        attribute.attributeType = type
+        attribute.isOptional = true
+        return attribute
+    }
+}
+
+private extension Array where Element == PolkaswapDex {
+    func sortedByCode() -> [PolkaswapDex] {
+        sorted { $0.code < $1.code }
     }
 }

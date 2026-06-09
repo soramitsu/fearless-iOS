@@ -1,7 +1,7 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 import BigInt
-import SoraKeystore
+import FearlessSecureStorage
 import SSFModels
 
 protocol NetworkInfoViewModelFactoryProtocol {

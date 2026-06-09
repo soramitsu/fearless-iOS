@@ -1,6 +1,6 @@
 import UIKit
-import SoraUI
-import SoraFoundation
+import FearlessUI
+import FearlessFoundation
 
 class YourValidatorListDescSectionView: UITableViewHeaderFooterView {
     let borderView = UIFactory.default.createBorderedContainerView()

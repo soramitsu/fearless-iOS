@@ -5,7 +5,7 @@ enum KeccakError: Error {
     case internalFailure
 }
 
-// TODO: move to library
+// Local bridge for the C keccak package used by Ethereum address derivation.
 extension Data {
     func keccak256() throws -> Data {
         let inputCount = count

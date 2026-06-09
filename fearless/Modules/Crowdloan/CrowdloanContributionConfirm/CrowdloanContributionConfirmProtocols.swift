@@ -1,4 +1,4 @@
-import SoraFoundation
+import FearlessFoundation
 import BigInt
 
 protocol CrowdloanContributionConfirmViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {

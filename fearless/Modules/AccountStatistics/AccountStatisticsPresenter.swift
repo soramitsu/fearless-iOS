@@ -1,5 +1,5 @@
 import Foundation
-import SoraFoundation
+import FearlessFoundation
 
 protocol AccountStatisticsViewInput: ControllerBackedProtocol {
     func didReceive(viewModel: AccountStatisticsViewModel?)

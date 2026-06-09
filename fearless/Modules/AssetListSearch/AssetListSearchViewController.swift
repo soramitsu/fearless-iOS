@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class AssetListSearchViewController: UIViewController, ViewHolder {
     typealias RootViewType = AssetListSearchViewLayout

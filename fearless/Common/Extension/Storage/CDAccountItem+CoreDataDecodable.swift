@@ -5,10 +5,17 @@
     import IrohaCrypto
     import SSFAssetManagmentStorage
 
-    // TODO: Fix logic
     extension CDMetaAccount: CoreDataCodable {
-        public func populate(from _: Decoder, using _: NSManagedObjectContext) throws {}
+        public func populate(from decoder: Decoder, using context: NSManagedObjectContext) throws {
+            let model = try MetaAccountModel(from: decoder)
+            try MetaAccountMapper().populate(entity: self, from: model, using: context)
+            isSelected = false
+            order = 0
+        }
 
-        public func encode(to _: Encoder) throws {}
+        public func encode(to encoder: Encoder) throws {
+            let model = try MetaAccountMapper().transform(entity: self)
+            try model.encode(to: encoder)
+        }
     }
 #endif

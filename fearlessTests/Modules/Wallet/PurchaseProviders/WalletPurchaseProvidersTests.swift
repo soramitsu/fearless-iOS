@@ -1,85 +1,296 @@
-//import XCTest
-//@testable import fearless
-//import UIKit.UIColor
-//
-//class WalletPurchaseProvidersTests: XCTestCase {
-//    let address = "15cfSaBcTxNr8rV59cbhdMNCRagFr3GE6B3zZRsCp4QHHKPu"
-//    let assetId: WalletAssetId = .dot
-//    let chain = Chain.polkadot
-//
-//
-//    func testPurchaseProviders() throws {
-//        do {
-//            try performRampTest()
-//            try performMoonPayTest()
-//        }
-//        catch {
-//            XCTFail("Unexpected error: \(error)")
-//        }
-//    }
-//
-//    func performRampTest() throws {
-//        // given
-//        let config: ApplicationConfigProtocol = ApplicationConfig.shared
-//
-//        let apiKey = "3quzr4e6wdyccndec8jzjebzar5kxxzfy2f3us5k"
-//        let redirectUrl = config.purchaseRedirect
-//        let appName = config.purchaseAppName
-//        let logoUrl = config.logoURL
-//
-//        // swiftlint:disable next long_string
-//        let expectedUrl = "https://buy.ramp.network/?swapAsset=DOT&userAddress=\(address)&hostApiKey=\(apiKey)&variant=hosted-mobile&finalUrl=\(redirectUrl)&hostAppName=\(appName)&hostLogoUrl=\(logoUrl)"
-//            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
-//
-//        let provider = RampProvider()
-//            .with(appName: config.purchaseAppName)
-//            .with(logoUrl: config.logoURL)
-//            .with(callbackUrl: config.purchaseRedirect)
-//
-//        // when
-//        let expectation = XCTestExpectation()
-//
-//        let actions = provider.buildPurchaseActions(for: chain,
-//                                               assetId: assetId,
-//                                               address: address)
-//        XCTAssertEqual(actions[0].url.absoluteString, expectedUrl)
-//        expectation.fulfill()
-//
-//        // then
-//        wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
-//    }
-//
-//    func performMoonPayTest() throws {
-//        // given
-//        let config: ApplicationConfigProtocol = ApplicationConfig.shared
-//
-//        let apiKey = "pk_test_DMRuyL6Nf1qc9OzjPBmCFBeCGkFwiZs0"
-//        let secretKey = "1"
-//        let redirectUrl = config.purchaseRedirect
-//        let colorCode = R.color.colorPink()!.hexRGB
-//
-//        // swiftlint:disable next long_string
-//        let query = "apiKey=\(apiKey)&currencyCode=DOT&walletAddress=\(address)&showWalletAddressForm=true&colorCode=\(colorCode)&redirectURL=\(redirectUrl)"
-//            .addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
-//
-//        let expectedUrl = "https://buy.moonpay.com/?\(query)&signature=WLIKNxVBMrM0bE5ZExPLlYan%2BkI86iQqdlaQZm55qYs%3D"
-//
-//        let secretKeyData = Data(secretKey.utf8)
-//
-//        let provider = MoonpayProviderFactory().createProvider(with: secretKeyData, apiKey: apiKey)
-//            .with(colorCode: R.color.colorPink()!.hexRGB)
-//            .with(callbackUrl: config.purchaseRedirect)
-//
-//        // when
-//        let expectation = XCTestExpectation()
-//
-//        let actions = provider.buildPurchaseActions(for: chain,
-//                                               assetId: assetId,
-//                                               address: address)
-//        XCTAssertEqual(actions[0].url.absoluteString, expectedUrl)
-//        expectation.fulfill()
-//
-//        // then
-//        wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
-//    }
-//}
+import XCTest
+@testable import fearless
+import SSFModels
+import UIKit
+
+final class WalletPurchaseProvidersTests: XCTestCase {
+    private let address = "15cfSaBcTxNr8rV59cbhdMNCRagFr3GE6B3zZRsCp4QHHKPu"
+
+    func testRampProvider_whenConfigured_thenBuildsHostedMobileUrl() throws {
+        let callbackUrl = URL(string: "fearless://fearless.io/redirect")!
+        let logoUrl = URL(string: "https://example.com/logo.png")!
+        let asset = makeAsset(symbol: "dot")
+        let hostApiKey = "ramp-host-key"
+
+        let provider = RampProvider(hostApiKey: hostApiKey)
+            .with(appName: "Fearless Wallet")
+            .with(logoUrl: logoUrl)
+            .with(callbackUrl: callbackUrl)
+
+        let action = try XCTUnwrap(provider.buildPurchaseActions(asset: asset, address: address).first)
+        let components = try XCTUnwrap(URLComponents(url: action.url, resolvingAgainstBaseURL: false))
+        let query = queryItems(from: components)
+
+        XCTAssertEqual(action.title, "Ramp")
+        XCTAssertEqual(components.scheme, "https")
+        XCTAssertEqual(components.host, "app.ramp.network")
+        XCTAssertEqual(query["swapAsset"], "DOT")
+        XCTAssertEqual(query["userAddress"], address)
+        XCTAssertEqual(query["hostApiKey"], hostApiKey)
+        XCTAssertEqual(query["variant"], "hosted-mobile")
+        XCTAssertEqual(query["finalUrl"], callbackUrl.absoluteString)
+        XCTAssertEqual(query["hostAppName"], "Fearless Wallet")
+        XCTAssertNotNil(query["hostLogoUrl"])
+    }
+
+    func testRampProvider_whenHostApiKeyMissing_thenReturnsNoActions() {
+        let asset = makeAsset(symbol: "dot")
+
+        let actions = RampProvider(hostApiKey: "   ")
+            .buildPurchaseActions(asset: asset, address: address)
+
+        XCTAssertTrue(actions.isEmpty)
+    }
+
+    func testMoonpayProvider_whenConfigured_thenBuildsSignedUrl() throws {
+        let callbackUrl = URL(string: "fearless://fearless.io/redirect")!
+        let provider = MoonpayProviderFactory()
+            .createProvider(with: Data("secret".utf8), apiKey: "test-api-key")
+            .with(colorCode: "#FF3366")
+            .with(callbackUrl: callbackUrl)
+
+        let action = try XCTUnwrap(
+            provider.buildPurchaseActions(asset: makeAsset(symbol: "DOT"), address: address).first
+        )
+        let components = try XCTUnwrap(URLComponents(url: action.url, resolvingAgainstBaseURL: false))
+        let query = queryItems(from: components)
+
+        XCTAssertEqual(action.title, "Moonpay")
+        XCTAssertEqual(components.scheme, "https")
+        XCTAssertEqual(components.host, "buy.moonpay.com")
+        XCTAssertEqual(query["apiKey"], "test-api-key")
+        XCTAssertEqual(query["currencyCode"], "DOT")
+        XCTAssertEqual(query["walletAddress"], address)
+        XCTAssertEqual(query["showWalletAddressForm"], "true")
+        XCTAssertEqual(query["colorCode"], "#FF3366")
+        XCTAssertEqual(query["redirectURL"], callbackUrl.absoluteString)
+        XCTAssertFalse(query["signature"]?.isEmpty ?? true)
+    }
+
+    func testPurchaseAggregator_whenConfigured_thenForwardsConfigurationAndAggregatesActions() throws {
+        let firstProvider = MockPurchaseProvider(title: "First")
+        let secondProvider = MockPurchaseProvider(title: "Second")
+        let logoUrl = URL(string: "https://example.com/logo.png")!
+        let callbackUrl = URL(string: "fearless://fearless.io/redirect")!
+        let asset = makeAsset(symbol: "KSM")
+
+        let actions = PurchaseAggregator(providers: [firstProvider, secondProvider])
+            .with(appName: "Fearless Wallet")
+            .with(logoUrl: logoUrl)
+            .with(colorCode: "#FF3366")
+            .with(callbackUrl: callbackUrl)
+            .buildPurchaseActions(asset: asset, address: address)
+
+        XCTAssertEqual(actions.map(\.title), ["First", "Second"])
+        XCTAssertEqual(firstProvider.appName, "Fearless Wallet")
+        XCTAssertEqual(secondProvider.logoUrl, logoUrl)
+        XCTAssertEqual(firstProvider.colorCode, "#FF3366")
+        XCTAssertEqual(secondProvider.callbackUrl, callbackUrl)
+        XCTAssertEqual(firstProvider.assetSymbol, "KSM")
+        XCTAssertEqual(secondProvider.address, address)
+    }
+
+    func testDefaultPurchaseAggregator_whenCustomProvidersInjected_thenUsesInjectedConfig() throws {
+        let provider = MockPurchaseProvider(title: "Injected")
+        let logoUrl = URL(string: "https://example.com/injected-logo.png")!
+        let callbackUrl = URL(string: "fearless://injected/redirect")!
+        let configSource = PurchaseAggregatorConfigSourceStub(
+            moonPayApiKey: "unused-api-key",
+            purchaseAppName: "Injected Wallet",
+            logoURL: logoUrl,
+            purchaseRedirect: callbackUrl
+        )
+        let moonpayProviderFactory = MoonpayProviderFactorySpy()
+
+        let actions = PurchaseAggregator.defaultAggregator(
+            with: [provider],
+            configSource: configSource,
+            moonpaySecretKey: "unused-secret",
+            moonpayProviderFactory: moonpayProviderFactory
+        ).buildPurchaseActions(asset: makeAsset(symbol: "KSM"), address: address)
+
+        XCTAssertEqual(actions.map(\.title), ["Injected"])
+        XCTAssertEqual(provider.appName, "Injected Wallet")
+        XCTAssertEqual(provider.logoUrl, logoUrl)
+        XCTAssertEqual(provider.colorCode, R.color.colorPink()!.hexRGB)
+        XCTAssertEqual(provider.callbackUrl, callbackUrl)
+        XCTAssertEqual(provider.assetSymbol, "KSM")
+        XCTAssertEqual(provider.address, address)
+        XCTAssertFalse(moonpayProviderFactory.didCreateProvider)
+    }
+
+    func testPurchaseAggregator_whenCoinbaseAlreadyConfigured_thenStillAggregatesCustomProviders() throws {
+        let provider = MockPurchaseProvider(title: "Custom")
+        let asset = makeAsset(symbol: "KSM")
+
+        let actions = PurchaseAggregator(providers: [CoinbasePurchaseProvider(), provider])
+            .buildPurchaseActions(asset: asset, address: address)
+
+        XCTAssertEqual(actions.map(\.title), ["Custom"])
+        XCTAssertEqual(provider.assetSymbol, "KSM")
+        XCTAssertEqual(provider.address, address)
+    }
+
+    func testCoinbaseProvider_whenAssetSupported_thenBuildsPayUrl() throws {
+        let provider = CoinbasePurchaseProvider(
+            sessionTokenProvider: { "coinbase-token" },
+            iconProvider: { UIImage() }
+        )
+
+        let action = try XCTUnwrap(
+            provider.buildPurchaseActions(asset: makeAsset(symbol: "dot"), address: address).first
+        )
+        let components = try XCTUnwrap(URLComponents(url: action.url, resolvingAgainstBaseURL: false))
+        let query = queryItems(from: components)
+
+        XCTAssertEqual(action.title, "Coinbase")
+        XCTAssertEqual(components.scheme, "https")
+        XCTAssertEqual(components.host, "pay.coinbase.com")
+        XCTAssertEqual(components.path, "/buy/select-asset")
+        XCTAssertEqual(query["sessionToken"], "coinbase-token")
+        XCTAssertEqual(query["defaultNetwork"], "polkadot")
+        XCTAssertEqual(query["defaultAsset"], "DOT")
+        XCTAssertEqual(query["partnerUserRef"], address)
+    }
+
+    func testCoinbaseProvider_whenAssetUnsupportedOrConfigurationMissing_thenReturnsNoActions() {
+        let unsupportedActions = CoinbasePurchaseProvider(
+            sessionTokenProvider: { "coinbase-token" },
+            iconProvider: { UIImage() }
+        ).buildPurchaseActions(asset: makeAsset(symbol: "KSM"), address: address)
+        let missingTokenActions = CoinbasePurchaseProvider(
+            sessionTokenProvider: { nil },
+            iconProvider: { UIImage() }
+        ).buildPurchaseActions(asset: makeAsset(symbol: "DOT"), address: address)
+        let missingIconActions = CoinbasePurchaseProvider(
+            sessionTokenProvider: { "coinbase-token" },
+            iconProvider: { nil }
+        ).buildPurchaseActions(asset: makeAsset(symbol: "DOT"), address: address)
+
+        XCTAssertTrue(unsupportedActions.isEmpty)
+        XCTAssertTrue(missingTokenActions.isEmpty)
+        XCTAssertTrue(missingIconActions.isEmpty)
+    }
+
+    func testCoinbaseKeys_whenRead_thenUseEnvironmentBackedValues() {
+        let environment = ProcessInfo.processInfo.environment
+        let expectedSessionToken = CoinbaseKeys.sessionToken(
+            environment: environment,
+            generatedValue: CoinbaseCIKeys.sessionToken
+        )
+
+        XCTAssertEqual(CoinbaseKeys.sessionToken, expectedSessionToken)
+    }
+
+    func testCoinbaseSessionToken_whenEnvironmentMissing_thenUsesGeneratedFallback() {
+        XCTAssertEqual(
+            CoinbaseKeys.sessionToken(environment: [:], generatedValue: " generated-token "),
+            "generated-token"
+        )
+    }
+
+    func testCoinbaseSessionToken_whenEnvironmentExists_thenPrefersEnvironment() {
+        XCTAssertEqual(
+            CoinbaseKeys.sessionToken(
+                environment: ["COINBASE_SESSION_TOKEN": " environment-token "],
+                generatedValue: "generated-token"
+            ),
+            "environment-token"
+        )
+    }
+
+    func testCoinbaseSessionToken_whenEnvironmentBlank_thenUsesGeneratedFallback() {
+        XCTAssertEqual(
+            CoinbaseKeys.sessionToken(
+                environment: ["COINBASE_SESSION_TOKEN": "   "],
+                generatedValue: "generated-token"
+            ),
+            "generated-token"
+        )
+    }
+
+    func testCoinbaseSessionToken_whenValuesAreBlank_thenReturnsNil() {
+        XCTAssertNil(
+            CoinbaseKeys.sessionToken(
+                environment: ["COINBASE_SESSION_TOKEN": "   "],
+                generatedValue: "   "
+            )
+        )
+        XCTAssertNil(CoinbaseKeys.sessionToken(environment: [:], generatedValue: "   "))
+    }
+
+    private func queryItems(from components: URLComponents) -> [String: String] {
+        Dictionary(uniqueKeysWithValues: (components.queryItems ?? []).compactMap { item in
+            item.value.map { (item.name, $0) }
+        })
+    }
+
+    private func makeAsset(symbol: String) -> AssetModel {
+        ChainModelGenerator.generateAssetWithId("asset-\(symbol)", symbol: symbol)
+    }
+}
+
+private struct PurchaseAggregatorConfigSourceStub: PurchaseAggregatorConfigSource {
+    let moonPayApiKey: String
+    let purchaseAppName: String
+    let logoURL: URL
+    let purchaseRedirect: URL
+}
+
+private final class MoonpayProviderFactorySpy: MoonpayProviderFactoryProtocol {
+    private(set) var didCreateProvider = false
+
+    func createProvider(with secretKeyData: Data, apiKey: String) -> PurchaseProviderProtocol {
+        _ = secretKeyData
+        _ = apiKey
+        didCreateProvider = true
+        return MockPurchaseProvider(title: "Moonpay")
+    }
+}
+
+private final class MockPurchaseProvider: PurchaseProviderProtocol {
+    let title: String
+    var appName: String?
+    var logoUrl: URL?
+    var colorCode: String?
+    var callbackUrl: URL?
+    var assetSymbol: String?
+    var address: String?
+
+    init(title: String) {
+        self.title = title
+    }
+
+    func with(appName: String) -> Self {
+        self.appName = appName
+        return self
+    }
+
+    func with(logoUrl: URL) -> Self {
+        self.logoUrl = logoUrl
+        return self
+    }
+
+    func with(colorCode: String) -> Self {
+        self.colorCode = colorCode
+        return self
+    }
+
+    func with(callbackUrl: URL) -> Self {
+        self.callbackUrl = callbackUrl
+        return self
+    }
+
+    func buildPurchaseActions(asset: AssetModel, address: String) -> [PurchaseAction] {
+        assetSymbol = asset.symbol
+        self.address = address
+
+        return [
+            PurchaseAction(
+                title: title,
+                url: URL(string: "https://example.com/\(title.lowercased())")!,
+                icon: UIImage()
+            )
+        ]
+    }
+}

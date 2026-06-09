@@ -1,5 +1,5 @@
 import SSFModels
-import SoraFoundation
+import FearlessFoundation
 
 typealias ClaimCrowdloanRewardsModuleCreationResult = (view: ClaimCrowdloanRewardsViewInput, input: ClaimCrowdloanRewardsModuleInput)
 

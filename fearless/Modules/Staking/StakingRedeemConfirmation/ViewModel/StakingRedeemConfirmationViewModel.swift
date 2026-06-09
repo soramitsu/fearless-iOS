@@ -1,6 +1,6 @@
 import Foundation
 import SSFUtils
-import SoraFoundation
+import FearlessFoundation
 
 struct StakingRedeemConfirmationViewModel {
     let senderAddress: AccountAddress

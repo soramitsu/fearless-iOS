@@ -1,7 +1,7 @@
 import RobinHood
 
 import SSFModels
-import SoraFoundation
+import FearlessFoundation
 
 enum WalletTransactionHistoryDependencyContainerError: Error {
     case unsupported
@@ -14,10 +14,15 @@ final class WalletTransactionHistoryDependencyContainer {
     }
 
     private let selectedAccount: MetaAccountModel
+    private let localizationManager: LocalizationManagerProtocol
     var dependencies: WalletTransactionHistoryDependencies?
 
-    init(selectedAccount: MetaAccountModel) {
+    init(
+        selectedAccount: MetaAccountModel,
+        localizationManager: LocalizationManagerProtocol = LocalizationManager.shared
+    ) {
         self.selectedAccount = selectedAccount
+        self.localizationManager = localizationManager
     }
 
     func createDependencies(for chainAsset: ChainAsset, selectedAccount: MetaAccountModel) throws {
@@ -65,23 +70,49 @@ final class WalletTransactionHistoryDependencyContainer {
     }
 
     func transactionHistoryFilters(for chain: ChainModel) -> [FilterSet] {
+        let preferredLanguages = localizationManager.selectedLocale.rLanguages
         var filters: [WalletTransactionHistoryFilter] = [
-            WalletTransactionHistoryFilter(type: .transfer, selected: true)
+            WalletTransactionHistoryFilter(
+                type: .transfer,
+                selected: true,
+                preferredLanguages: preferredLanguages
+            )
         ]
         if chain.externalApi?.history?.type != .giantsquid && !chain.isReef {
-            filters.insert(WalletTransactionHistoryFilter(type: .other, selected: true), at: 1)
+            filters.insert(
+                WalletTransactionHistoryFilter(
+                    type: .other,
+                    selected: true,
+                    preferredLanguages: preferredLanguages
+                ),
+                at: 1
+            )
         }
         if chain.hasStakingRewardHistory || chain.isSora {
-            filters.insert(WalletTransactionHistoryFilter(type: .reward, selected: true), at: 1)
+            filters.insert(
+                WalletTransactionHistoryFilter(
+                    type: .reward,
+                    selected: true,
+                    preferredLanguages: preferredLanguages
+                ),
+                at: 1
+            )
         }
         if chain.hasPolkaswap {
-            filters.insert(WalletTransactionHistoryFilter(type: .swap, selected: true), at: 0)
+            filters.insert(
+                WalletTransactionHistoryFilter(
+                    type: .swap,
+                    selected: true,
+                    preferredLanguages: preferredLanguages
+                ),
+                at: 0
+            )
             filters.removeAll(where: { $0.type == .other })
         }
 
         return [FilterSet(
             title: R.string.localizable.commonShow(
-                preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages
+                preferredLanguages: preferredLanguages
             ),
             items: filters
         )]

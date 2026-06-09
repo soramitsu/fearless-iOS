@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 protocol LoadableViewProtocol: AnyObject {
     var loadableContentView: UIView { get }

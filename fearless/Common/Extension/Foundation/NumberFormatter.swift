@@ -6,6 +6,8 @@ extension NumberFormatter {
         numberFormatter.numberStyle = .decimal
         numberFormatter.minimumIntegerDigits = 1
         numberFormatter.usesGroupingSeparator = true
+        numberFormatter.groupingSize = 3
+        numberFormatter.secondaryGroupingSize = 3
         numberFormatter.roundingMode = .down
         numberFormatter.alwaysShowsDecimalSeparator = false
         return numberFormatter
@@ -19,6 +21,8 @@ extension NumberFormatter {
         numberFormatter.minimumFractionDigits = 2
         numberFormatter.roundingMode = .down
         numberFormatter.usesGroupingSeparator = true
+        numberFormatter.groupingSize = 3
+        numberFormatter.secondaryGroupingSize = 3
         numberFormatter.alwaysShowsDecimalSeparator = false
         return numberFormatter
     }
@@ -39,6 +43,8 @@ extension NumberFormatter {
         numberFormatter.minimumIntegerDigits = 1
         numberFormatter.maximumFractionDigits = 2
         numberFormatter.usesGroupingSeparator = true
+        numberFormatter.groupingSize = 3
+        numberFormatter.secondaryGroupingSize = 3
         numberFormatter.alwaysShowsDecimalSeparator = false
         numberFormatter.positivePrefix = numberFormatter.plusSign
         return numberFormatter
@@ -91,6 +97,8 @@ extension NumberFormatter {
         numberFormatter.maximumFractionDigits = 0
         numberFormatter.alwaysShowsDecimalSeparator = false
         numberFormatter.usesGroupingSeparator = true
+        numberFormatter.groupingSize = 3
+        numberFormatter.secondaryGroupingSize = 3
         return numberFormatter
     }
 
@@ -121,6 +129,8 @@ extension NumberFormatter {
         formatter.maximumFractionDigits = 8
         formatter.roundingMode = rounding
         formatter.usesGroupingSeparator = usesIntGrouping
+        formatter.groupingSize = 3
+        formatter.secondaryGroupingSize = 3
         return formatter
     }
 }

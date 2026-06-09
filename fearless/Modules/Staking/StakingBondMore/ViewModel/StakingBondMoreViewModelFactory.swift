@@ -1,4 +1,4 @@
-import SoraFoundation
+import FearlessFoundation
 
 protocol NetworkFeeFooterViewModelProtocol {
     var actionTitle: LocalizableResource<String> { get }

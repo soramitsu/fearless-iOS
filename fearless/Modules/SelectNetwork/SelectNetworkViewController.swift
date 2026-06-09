@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class SelectNetworkViewController: SelectableListViewController<SelectionIconDetailsTableViewCell> {
     private enum Constants {

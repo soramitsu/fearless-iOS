@@ -1,6 +1,6 @@
 import UIKit
 import Rswift
-import SoraFoundation
+import FearlessFoundation
 
 final class StakingChainSelectionViewController: SelectionListViewController<AssetSelectionTableViewCell> {
     override var selectableCellIdentifier: ReuseIdentifier<AssetSelectionTableViewCell>! {

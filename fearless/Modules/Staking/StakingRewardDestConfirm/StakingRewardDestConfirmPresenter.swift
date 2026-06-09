@@ -117,7 +117,13 @@ extension StakingRewardDestConfirmPresenter: StakingRewardDestConfirmPresenterPr
             return
         }
 
-        wireframe.presentAccountOptions(from: view, address: address, chain: chain, locale: locale)
+        wireframe.presentAccountOptions(
+            from: view,
+            address: address,
+            chain: chain,
+            locale: locale,
+            exportClosure: nil
+        )
     }
 
     func presentPayoutAccountOptions() {
@@ -127,7 +133,13 @@ extension StakingRewardDestConfirmPresenter: StakingRewardDestConfirmPresenterPr
             return
         }
 
-        wireframe.presentAccountOptions(from: view, address: address, chain: chain, locale: locale)
+        wireframe.presentAccountOptions(
+            from: view,
+            address: address,
+            chain: chain,
+            locale: locale,
+            exportClosure: nil
+        )
     }
 }
 

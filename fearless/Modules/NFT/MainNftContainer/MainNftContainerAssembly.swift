@@ -1,8 +1,8 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import RobinHood
 import SSFNetwork
-import SoraKeystore
+import FearlessSecureStorage
 
 final class MainNftContainerAssembly {
     static func configureModule(wallet: MetaAccountModel) -> MainNftContainerModuleCreationResult? {
@@ -23,7 +23,9 @@ final class MainNftContainerAssembly {
 
         let filters = [FilterSet(
             title: String(),
-            items: NftCollectionFilter.defaultFilters()
+            items: NftCollectionFilter.defaultFilters(
+                preferredLanguages: localizationManager.selectedLocale.rLanguages
+            )
         )]
 
         let stateHolder = MainNftContainerStateHolder(filters: filters)

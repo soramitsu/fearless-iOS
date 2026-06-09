@@ -20,9 +20,15 @@ protocol ChainsIssuesCenterProtocol {
 }
 
 final class ChainsIssuesCenter: ChainsIssuesCenterProtocol {
+    #if F_DEV
+        static let filtersNetworkIssuesByPositiveBalances = false
+    #else
+        static let filtersNetworkIssuesByPositiveBalances = true
+    #endif
+
     private var issuesListeners: [WeakWrapper] = []
     private let networkIssuesCenter: NetworkIssuesCenterProtocol
-    private let eventCenter: EventCenter
+    private let eventCenter: EventCenterProtocol
     private let missingAccountFetcher: MissingAccountFetcherProtocol
     private let accountInfoFetcher: AccountInfoFetchingProtocol
 
@@ -33,7 +39,7 @@ final class ChainsIssuesCenter: ChainsIssuesCenterProtocol {
     init(
         wallet: MetaAccountModel,
         networkIssuesCenter: NetworkIssuesCenterProtocol,
-        eventCenter: EventCenter,
+        eventCenter: EventCenterProtocol,
         missingAccountHelper: MissingAccountFetcherProtocol,
         accountInfoFetcher: AccountInfoFetchingProtocol
     ) {
@@ -64,7 +70,13 @@ final class ChainsIssuesCenter: ChainsIssuesCenterProtocol {
     }
 
     func removeIssuesListener(_ listener: ChainsIssuesCenterListener) {
-        issuesListeners = issuesListeners.filter { $0 !== listener }
+        issuesListeners = issuesListeners.filter { wrapper in
+            guard let target = wrapper.target else {
+                return false
+            }
+
+            return target !== listener
+        }
     }
 
     func forceNotify() {
@@ -94,7 +106,9 @@ final class ChainsIssuesCenter: ChainsIssuesCenterProtocol {
     private func filterPositiveBalances(chains: [ChainModel]) {
         let chainAssets = chains.compactMap { $0.chainAssets }.reduce([], +)
         accountInfoFetcher.fetch(for: chainAssets, wallet: wallet) { [weak self] accountInfosByChainAssets in
-            self?.networkIssuesChains = accountInfosByChainAssets.filter { $0.value?.nonZero() == true }.compactMap { $0.key.chain }
+            self?.networkIssuesChains = accountInfosByChainAssets
+                .filter { $0.value?.nonZero() == true }
+                .compactMap { $0.key.chain }
             self?.notify()
         }
     }
@@ -102,12 +116,12 @@ final class ChainsIssuesCenter: ChainsIssuesCenterProtocol {
 
 extension ChainsIssuesCenter: NetworkIssuesCenterListener {
     func handleChainsWithIssues(_ chains: [ChainModel]) {
-        #if F_DEV
+        if Self.filtersNetworkIssuesByPositiveBalances {
+            filterPositiveBalances(chains: chains)
+        } else {
             networkIssuesChains = chains
             notify()
-        #else
-            filterPositiveBalances(chains: chains)
-        #endif
+        }
     }
 }
 

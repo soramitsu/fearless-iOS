@@ -1,8 +1,8 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 import SSFUtils
-import SoraKeystore
+import FearlessSecureStorage
 
 final class ClaimCrowdloanRewardsAssembly {
     static func configureModule(wallet: MetaAccountModel, chainAsset: ChainAsset) -> ClaimCrowdloanRewardsModuleCreationResult? {

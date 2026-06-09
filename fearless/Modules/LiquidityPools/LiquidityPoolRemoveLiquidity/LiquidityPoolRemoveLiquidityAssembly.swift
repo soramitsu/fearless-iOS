@@ -1,9 +1,9 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import SSFModels
 import SSFPools
 import SSFPolkaswap
-import SoraKeystore
+import FearlessSecureStorage
 
 final class LiquidityPoolRemoveLiquidityAssembly {
     static func configureModule(

@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 final class AnalyticsContainerViewLayout: UIView {
     let segmentedControl: PlainSegmentedControl = {

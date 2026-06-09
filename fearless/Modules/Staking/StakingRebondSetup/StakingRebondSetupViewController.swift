@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class StakingRebondSetupViewController: UIViewController, ViewHolder {
     typealias RootViewType = StakingRebondSetupLayout

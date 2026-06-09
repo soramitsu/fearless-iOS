@@ -1,6 +1,6 @@
 import Foundation
-import SoraUI
-import SoraFoundation
+import FearlessUI
+import FearlessFoundation
 
 enum FiltersMode {
     case singleSelection

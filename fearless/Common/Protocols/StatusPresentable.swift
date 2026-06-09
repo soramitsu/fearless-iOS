@@ -1,5 +1,5 @@
 import UIKit
-import SoraUI
+import FearlessUI
 
 protocol ApplicationStatusPresentable: AnyObject {
     func presentStatus(with viewModel: ApplicationStatusAlertEvent, animated: Bool)

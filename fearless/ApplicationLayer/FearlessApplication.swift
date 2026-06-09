@@ -1,6 +1,6 @@
 import UIKit
-import SoraFoundation
-import SoraKeystore
+import FearlessFoundation
+import FearlessSecureStorage
 
 class FearlessApplication: UIApplication {
     private lazy var goneBackgroundTimestamp = Date().timeIntervalSince1970

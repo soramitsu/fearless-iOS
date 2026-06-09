@@ -1,5 +1,5 @@
 import Foundation
-import SoraUI
+import FearlessUI
 
 /// Extension of the TriangularedView to support design through Interface Builder
 extension TriangularedView {

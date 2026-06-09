@@ -1,8 +1,8 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 import SSFUtils
 import SSFModels
-import SoraKeystore
+import FearlessSecureStorage
 import Web3
 
 final class NftSendConfirmAssembly {

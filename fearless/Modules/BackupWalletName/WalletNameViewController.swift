@@ -1,6 +1,6 @@
 import UIKit
-import SoraFoundation
-import SoraUI
+import FearlessFoundation
+import FearlessUI
 import SnapKit
 
 protocol WalletNameViewOutput: AnyObject {
@@ -122,14 +122,14 @@ extension WalletNameViewController: Localizable {
 // MARK: - AnimatedTextFieldDelegate
 
 extension WalletNameViewController: AnimatedTextFieldDelegate {
-    func animatedTextFieldShouldReturn(_ textField: SoraUI.AnimatedTextField) -> Bool {
+    func animatedTextFieldShouldReturn(_ textField: FearlessUI.AnimatedTextField) -> Bool {
         textField.resignFirstResponder()
         rootView.nameTextField.backgroundView.set(highlighted: false, animated: true)
         return false
     }
 
     func animatedTextField(
-        _ textField: SoraUI.AnimatedTextField,
+        _ textField: FearlessUI.AnimatedTextField,
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {

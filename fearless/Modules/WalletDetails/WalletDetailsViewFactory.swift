@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import SoraFoundation
+import FearlessFoundation
 
 final class WalletDetailsViewFactory {
     static func createView(

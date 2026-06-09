@@ -1,7 +1,7 @@
 import UIKit
 import FearlessUtils
 import RobinHood
-import SoraKeystore
+import FearlessSecureStorage
 
 final class StakingPoolMainInteractor {
     // MARK: - Private properties

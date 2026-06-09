@@ -1,11 +1,42 @@
 import XCTest
 @testable import fearless
-import SoraKeystore
+import FearlessSecureStorage
 import RobinHood
 import Cuckoo
-import SoraFoundation
+import FearlessFoundation
 
 class AccountImportTests: XCTestCase {
+    func testCreateViews_whenKeystoreImportServiceMissing_thenReturnNilAndLog() {
+        let logger = LoggerSpy()
+        let dependencies = AccountImportViewFactory.Dependencies(
+            keystoreImportServiceProvider: { nil },
+            logger: logger
+        )
+
+        XCTAssertNil(
+            AccountImportViewFactory.createViewForOnboarding(
+                defaultSource: .mnemonic,
+                flow: .wallet(step: .substrate),
+                dependencies: dependencies
+            )
+        )
+        XCTAssertNil(
+            AccountImportViewFactory.createViewForAdding(
+                defaultSource: .mnemonic,
+                .wallet(step: .substrate),
+                dependencies: dependencies
+            )
+        )
+        XCTAssertNil(AccountImportViewFactory.createViewForSwitch(dependencies: dependencies))
+        XCTAssertEqual(
+            logger.errorMessages,
+            [
+                "Missing required keystore import service",
+                "Missing required keystore import service",
+                "Missing required keystore import service"
+            ]
+        )
+    }
 
     func testMnemonicRestore() {
         // given
@@ -44,9 +75,11 @@ class AccountImportTests: XCTestCase {
         let expectedUsername = "myname"
         let expectedMnemonic = "great fog follow obtain oyster raw patient extend use mirror fix balance blame sudden vessel"
 
-        let presenter = AccountImportPresenter(wireframe: wireframe,
-                                               interactor: interactor,
-                                               flow: .wallet(step: .substrate))
+        let presenter = AccountImportPresenter(
+            wireframe: wireframe,
+            interactor: interactor,
+            flow: .wallet(step: .substrate)
+        )
         interactor.presenter = presenter
         presenter.view = view
 
@@ -87,8 +120,10 @@ class AccountImportTests: XCTestCase {
         let expectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub.proceed(from: any(AccountImportViewProtocol?.self),
-                               flow: any(AccountImportFlow.self))).then { _ in
+            when(stub.proceed(
+                from: any(AccountImportViewProtocol?.self),
+                flow: any(AccountImportFlow.self)
+            )).then { _ in
                 expectation.fulfill()
             }
         }
@@ -109,12 +144,16 @@ class AccountImportTests: XCTestCase {
 
         wait(for: [setupExpectation], timeout: Constants.defaultExpectationDuration)
 
-        _ = sourceInputViewModel?.inputHandler.didReceiveReplacement(expectedMnemonic,
-                                                                     for: NSRange(location: 0, length: 0));
+        _ = sourceInputViewModel?.inputHandler.didReceiveReplacement(
+            expectedMnemonic,
+            for: NSRange(location: 0, length: 0)
+        )
         presenter.validateInput(value: expectedMnemonic)
 
-        _ = usernameViewModel?.inputHandler.didReceiveReplacement(expectedUsername,
-                                                                  for: NSRange(location: 0, length: 0))
+        _ = usernameViewModel?.inputHandler.didReceiveReplacement(
+            expectedUsername,
+            for: NSRange(location: 0, length: 0)
+        )
 
         presenter.proceed()
 
@@ -142,4 +181,19 @@ class AccountImportTests: XCTestCase {
         XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.substrateSeedTagForMetaId(metaId)))
         XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.ethereumSeedTagForMetaId(metaId)))
     }
+}
+
+private final class LoggerSpy: LoggerProtocol {
+    private(set) var errorMessages: [String] = []
+
+    func verbose(message _: String, file _: String, function _: String, line _: Int) {}
+    func debug(message _: String, file _: String, function _: String, line _: Int) {}
+    func info(message _: String, file _: String, function _: String, line _: Int) {}
+    func warning(message _: String, file _: String, function _: String, line _: Int) {}
+
+    func error(message: String, file _: String, function _: String, line _: Int) {
+        errorMessages.append(message)
+    }
+
+    func customError(error _: Error, file _: String, function _: String, line _: Int) {}
 }

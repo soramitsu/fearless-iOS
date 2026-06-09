@@ -1,8 +1,8 @@
 import XCTest
 @testable import fearless
-import SoraKeystore
+import FearlessSecureStorage
 import RobinHood
-import SoraFoundation
+import FearlessFoundation
 import Cuckoo
 
 class AccountExportPasswordTests: XCTestCase {

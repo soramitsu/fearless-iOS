@@ -1,25 +1,35 @@
 import Foundation
-#if canImport(FearlessKeys)
-    import FearlessKeys
-#endif
 import SSFNetwork
+
+protocol AlchemyAPIKeySource {
+    var alchemyApiKey: String { get }
+}
+
+struct AlchemyEnvironmentAPIKeySource: AlchemyAPIKeySource {
+    var alchemyApiKey: String {
+        #if DEBUG
+            return ThirdPartyServicesApiKeysDebug.alchemyApiKey
+        #else
+            return ThirdPartyServicesApiKeys.alchemyApiKey
+        #endif
+    }
+}
 
 final class AlchemyRequest: RequestConfig {
     private enum Constants {
-        #if DEBUG
-            static let baseURL = URL(string: "https://eth-mainnet.g.alchemy.com/v2/\(ThirdPartyServicesApiKeysDebug.alchemyApiKey)")!
-        #else
-            static let baseURL = URL(string: "https://eth-mainnet.g.alchemy.com/v2/\(ThirdPartyServicesApiKeys.alchemyApiKey)")!
-        #endif
+        static let baseURL = URL(string: "https://eth-mainnet.g.alchemy.com/v2")!
         static let httpHeaders = [
             HTTPHeader(field: "accept", value: "application/json"),
             HTTPHeader(field: "content-type", value: "application/json")
         ]
     }
 
-    init(body: Data?) {
+    init(
+        body: Data?,
+        apiKeySource: AlchemyAPIKeySource = AlchemyEnvironmentAPIKeySource()
+    ) {
         super.init(
-            baseURL: Constants.baseURL,
+            baseURL: Constants.baseURL.appendingPathComponent(apiKeySource.alchemyApiKey),
             method: .post,
             endpoint: nil,
             headers: Constants.httpHeaders,

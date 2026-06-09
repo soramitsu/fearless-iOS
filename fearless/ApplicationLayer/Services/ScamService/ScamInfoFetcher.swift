@@ -1,6 +1,6 @@
 import Foundation
 import SSFModels
-import SoraFoundation
+import FearlessFoundation
 
 protocol ScamInfoFetching {
     func fetch(address: String, chain: ChainModel) async throws -> ScamInfo?

@@ -1,7 +1,7 @@
 import XCTest
 @testable import fearless
-import SoraKeystore
-import SoraFoundation
+import FearlessSecureStorage
+import FearlessFoundation
 import RobinHood
 import Cuckoo
 import IrohaCrypto
@@ -52,7 +52,7 @@ class ExportMnemonicTests: XCTestCase {
                 viewModel.0.actions.first?.handler?()
             }
 
-            when(stub.openConfirmationForMnemonic(any(IRMnemonicProtocol.self), wallet: any(fearless.MetaAccountModel.self), from: any(ExportGenericViewProtocol?.self))).then { _ in
+            when(stub.openConfirmationForMnemonics(any([IRMnemonicProtocol].self), wallet: any(fearless.MetaAccountModel.self), from: any(ExportGenericViewProtocol?.self))).then { _ in
                 confirmationExpectation.fulfill()
             }
         }
@@ -171,7 +171,7 @@ class ExportMnemonicTests: XCTestCase {
                 param.0.actions.first?.handler?()
             }
 
-            when(stub.openConfirmationForMnemonic(any(IRMnemonicProtocol.self), wallet: any(fearless.MetaAccountModel.self), from: any(ExportGenericViewProtocol?.self))).then { _ in
+            when(stub.openConfirmationForMnemonics(any([IRMnemonicProtocol].self), wallet: any(fearless.MetaAccountModel.self), from: any(ExportGenericViewProtocol?.self))).then { _ in
                 confirmationExpectation.fulfill()
             }
         }
@@ -241,4 +241,102 @@ class ExportMnemonicTests: XCTestCase {
         XCTAssertEqual(givenAccount.substrateAccountId, importedAccount.substrateAccountId)
         XCTAssertEqual(givenAccount.substratePublicKey, importedAccount.substratePublicKey)
     }
+
+    func testActivateExport_whenDuplicateExportMnemonics_thenConfirmsUniqueMnemonics() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let firstMnemonic = try IRMnemonicCreator().randomMnemonic(.entropy128)
+        let secondMnemonic = try IRMnemonicCreator().randomMnemonic(.entropy128)
+        let chain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 0)
+
+        let presenter = ExportMnemonicPresenter(
+            flow: .multiple(wallet: wallet, accounts: []),
+            localizationManager: LocalizationManager.shared
+        )
+
+        let wireframe = MockExportMnemonicWireframeProtocol()
+        let confirmationExpectation = XCTestExpectation()
+
+        stub(wireframe) { stub in
+            when(stub.openConfirmationForMnemonics(any([IRMnemonicProtocol].self), wallet: any(fearless.MetaAccountModel.self), from: any(ExportGenericViewProtocol?.self))).then { params in
+                XCTAssertEqual(params.0.map { $0.allWords() }, [firstMnemonic.allWords(), secondMnemonic.allWords()])
+                confirmationExpectation.fulfill()
+            }
+        }
+
+        presenter.wireframe = wireframe
+        presenter.didReceive(exportDatas: [
+            ExportMnemonicData(mnemonic: firstMnemonic, derivationPath: nil, cryptoType: .sr25519, chain: chain),
+            ExportMnemonicData(mnemonic: firstMnemonic, derivationPath: "//custom", cryptoType: .sr25519, chain: chain),
+            ExportMnemonicData(mnemonic: secondMnemonic, derivationPath: nil, cryptoType: .sr25519, chain: chain)
+        ])
+
+        presenter.activateExport()
+
+        wait(for: [confirmationExpectation], timeout: Constants.defaultExpectationDuration)
+    }
+
+    func testConfirm_whenMultipleMnemonics_thenCompletesAfterLastMnemonic() throws {
+        let firstMnemonic = try IRMnemonicCreator().randomMnemonic(.entropy128)
+        let secondMnemonic = try IRMnemonicCreator().randomMnemonic(.entropy128)
+        let wallet = AccountGenerator.generateMetaAccount()
+        let eventCenter = ExportMnemonicEventCenterSpy()
+        let output = AccountConfirmInteractorOutputSpy()
+        let settings = SelectedWalletSettings(
+            storageFacade: UserDataStorageTestFacade(),
+            operationQueue: OperationQueue()
+        )
+        let interactor = ExportMnemonicConfirmInteractor(
+            mnemonics: [firstMnemonic, secondMnemonic],
+            settings: settings,
+            wallet: wallet,
+            eventCenter: eventCenter
+        )
+        interactor.presenter = output
+
+        interactor.requestWords()
+        interactor.confirm(words: firstMnemonic.allWords())
+
+        XCTAssertEqual(output.completionCount, 0)
+        XCTAssertEqual(eventCenter.changedWallets.count, 0)
+        XCTAssertEqual(output.receivedWords.count, 2)
+
+        interactor.confirm(words: secondMnemonic.allWords())
+
+        XCTAssertEqual(output.completionCount, 1)
+        XCTAssertEqual(eventCenter.changedWallets.map(\.hasBackup), [true])
+    }
+}
+
+private final class AccountConfirmInteractorOutputSpy: AccountConfirmInteractorOutputProtocol {
+    private(set) var receivedWords: [([String], Bool)] = []
+    private(set) var completionCount = 0
+    private(set) var errors: [Error] = []
+
+    func didReceive(words: [String], afterConfirmationFail: Bool) {
+        receivedWords.append((words, afterConfirmationFail))
+    }
+
+    func didCompleteConfirmation() {
+        completionCount += 1
+    }
+
+    func didReceive(error: Error) {
+        errors.append(error)
+    }
+}
+
+private final class ExportMnemonicEventCenterSpy: EventCenterProtocol {
+    private(set) var changedWallets: [fearless.MetaAccountModel] = []
+
+    func notify(with event: EventProtocol) {
+        guard let changedEvent = event as? MetaAccountModelChangedEvent else {
+            return
+        }
+
+        changedWallets.append(changedEvent.account)
+    }
+
+    func add(observer _: EventVisitorProtocol, dispatchIn _: DispatchQueue?) {}
+
+    func remove(observer _: EventVisitorProtocol) {}
 }

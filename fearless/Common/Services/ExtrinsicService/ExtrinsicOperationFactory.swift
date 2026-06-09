@@ -305,7 +305,7 @@ extension ExtrinsicOperationFactory: ExtrinsicOperationFactoryProtocol {
 
         let submitOperation = JSONRPCListOperation<String>(
             engine: engine,
-            method: "author_submitAndWatchExtrinsic", // TODO: add to fearless utils
+            method: RPCMethod.submitAndWatchExtrinsic,
             parameters: nil,
             timeout: 60
         )

@@ -1,5 +1,5 @@
 import UIKit
-import SoraKeystore
+import FearlessSecureStorage
 
 protocol OnboardingInteractorOutput: AnyObject {
     func didReceiveOnboardingConfig(_ config: OnboardingConfigWrapper)

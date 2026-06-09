@@ -12,6 +12,12 @@ protocol PriceLocalStorageSubscriber where Self: AnyObject {
     func subscribeToPrices(for chainAssets: [ChainAsset], currencies: [Currency]?, listener: PriceLocalSubscriptionHandler) -> AnySingleValueProvider<[PriceData]>
 }
 
+protocol ChainModelRepositoryFetching {
+    func fetchAll() async throws -> [ChainModel]
+}
+
+extension AsyncCoreDataRepositoryDefault: ChainModelRepositoryFetching where T == ChainModel, U == CDChain {}
+
 struct PriceLocalStorageSubscriberListener {
     enum Handler {
         case price
@@ -26,15 +32,12 @@ struct PriceLocalStorageSubscriberListener {
 
 final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
     static let shared = PriceLocalStorageSubscriberImpl()
-    private let eventCenter = EventCenter.shared
+    private let eventCenter: EventCenterProtocol
+    private let priceLocalSubscriber: PriceProviderFactoryProtocol
+    private let chainsRepository: ChainModelRepositoryFetching
 
-    private let chainRegistry = ChainRegistryFacade.sharedRegistry
     private lazy var provider: AnySingleValueProvider<[PriceData]> = {
         setupProvider()
-    }()
-
-    private lazy var priceLocalSubscriber: PriceProviderFactoryProtocol = {
-        PriceProviderFactory()
     }()
 
     private var remoteFetchTimer: Timer?
@@ -44,16 +47,26 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
     private var listeners: [PriceLocalStorageSubscriberListener] = []
     private var sourcedCurrencies: Set<Currency> = []
     private var chainAssets: [ChainAsset] = []
-    private let chainsRepository: AsyncCoreDataRepositoryDefault<ChainModel, CDChain>
 
-    init() {
-        chainsRepository = ChainRepositoryFactory().createAsyncRepository()
-        setup()
+    init(
+        eventCenter: EventCenterProtocol = EventCenter.shared,
+        priceLocalSubscriber: PriceProviderFactoryProtocol = PriceProviderFactory(),
+        chainsRepository: ChainModelRepositoryFetching = ChainRepositoryFactory().createAsyncRepository(),
+        refreshChainsOnSetup: Bool = true
+    ) {
+        self.eventCenter = eventCenter
+        self.priceLocalSubscriber = priceLocalSubscriber
+        self.chainsRepository = chainsRepository
+
+        setup(refreshChainsOnSetup: refreshChainsOnSetup)
     }
 
-    private func setup() {
+    private func setup(refreshChainsOnSetup: Bool) {
         eventCenter.add(observer: self)
-        refreshChainsAndSubscribe()
+
+        if refreshChainsOnSetup {
+            refreshChainsAndSubscribe()
+        }
     }
 
     // MARK: - PriceLocalStorageSubscriber

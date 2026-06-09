@@ -1,5 +1,5 @@
 import UIKit
-import SoraFoundation
+import FearlessFoundation
 
 final class ValidatorListFilterViewController: UIViewController, ViewHolder {
     typealias RootViewType = ValidatorListFilterViewLayout
