@@ -224,10 +224,18 @@ public extension ABIDecoder {
         }
     }
 
-    static func decodeLog(event: ABI.Element.Event, eventLogTopics: [Data], eventLogData: Data) -> [String: Any]? {
-        if event.topic != eventLogTopics[0], !event.anonymous {
-            return nil
+    // swiftlint:disable:next function_body_length cyclomatic_complexity
+    static func decodeLog(
+        event: ABI.Element.Event,
+        eventLogTopics: [Data],
+        eventLogData: Data
+    ) -> [String: Any]? {
+        if !event.anonymous {
+            guard event.topic == eventLogTopics.first else {
+                return nil
+            }
         }
+
         var eventContent = [String: Any]()
         eventContent["name"] = event.name
         let logs = eventLogTopics

@@ -1,3 +1,5 @@
+// swiftlint:disable file_length
+
 import Foundation
 import RobinHood
 import SSFUtils

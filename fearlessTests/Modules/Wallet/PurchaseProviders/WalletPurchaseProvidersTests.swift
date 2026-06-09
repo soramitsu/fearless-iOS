@@ -10,8 +10,9 @@ final class WalletPurchaseProvidersTests: XCTestCase {
         let callbackUrl = URL(string: "fearless://fearless.io/redirect")!
         let logoUrl = URL(string: "https://example.com/logo.png")!
         let asset = makeAsset(symbol: "dot")
+        let hostApiKey = "ramp-host-key"
 
-        let provider = RampProvider()
+        let provider = RampProvider(hostApiKey: hostApiKey)
             .with(appName: "Fearless Wallet")
             .with(logoUrl: logoUrl)
             .with(callbackUrl: callbackUrl)
@@ -25,11 +26,20 @@ final class WalletPurchaseProvidersTests: XCTestCase {
         XCTAssertEqual(components.host, "app.ramp.network")
         XCTAssertEqual(query["swapAsset"], "DOT")
         XCTAssertEqual(query["userAddress"], address)
-        XCTAssertEqual(query["hostApiKey"], RampProvider.pubToken)
+        XCTAssertEqual(query["hostApiKey"], hostApiKey)
         XCTAssertEqual(query["variant"], "hosted-mobile")
         XCTAssertEqual(query["finalUrl"], callbackUrl.absoluteString)
         XCTAssertEqual(query["hostAppName"], "Fearless Wallet")
         XCTAssertNotNil(query["hostLogoUrl"])
+    }
+
+    func testRampProvider_whenHostApiKeyMissing_thenReturnsNoActions() {
+        let asset = makeAsset(symbol: "dot")
+
+        let actions = RampProvider(hostApiKey: "   ")
+            .buildPurchaseActions(asset: asset, address: address)
+
+        XCTAssertTrue(actions.isEmpty)
     }
 
     func testMoonpayProvider_whenConfigured_thenBuildsSignedUrl() throws {
@@ -164,17 +174,49 @@ final class WalletPurchaseProvidersTests: XCTestCase {
 
     func testCoinbaseKeys_whenRead_thenUseEnvironmentBackedValues() {
         let environment = ProcessInfo.processInfo.environment
-        let sessionToken = environment["COINBASE_SESSION_TOKEN"]?
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        let expectedSessionToken = sessionToken?.isEmpty == false ? sessionToken : nil
+        let expectedSessionToken = CoinbaseKeys.sessionToken(
+            environment: environment,
+            generatedValue: CoinbaseCIKeys.sessionToken
+        )
 
         XCTAssertEqual(CoinbaseKeys.sessionToken, expectedSessionToken)
+    }
 
-        if let environmentAppId = environment["COINBASE_APP_ID"] {
-            XCTAssertEqual(CoinbaseKeys.appId, environmentAppId)
-        } else {
-            _ = CoinbaseKeys.appId
-        }
+    func testCoinbaseSessionToken_whenEnvironmentMissing_thenUsesGeneratedFallback() {
+        XCTAssertEqual(
+            CoinbaseKeys.sessionToken(environment: [:], generatedValue: " generated-token "),
+            "generated-token"
+        )
+    }
+
+    func testCoinbaseSessionToken_whenEnvironmentExists_thenPrefersEnvironment() {
+        XCTAssertEqual(
+            CoinbaseKeys.sessionToken(
+                environment: ["COINBASE_SESSION_TOKEN": " environment-token "],
+                generatedValue: "generated-token"
+            ),
+            "environment-token"
+        )
+    }
+
+    func testCoinbaseSessionToken_whenEnvironmentBlank_thenUsesGeneratedFallback() {
+        XCTAssertEqual(
+            CoinbaseKeys.sessionToken(
+                environment: ["COINBASE_SESSION_TOKEN": "   "],
+                generatedValue: "generated-token"
+            ),
+            "generated-token"
+        )
+    }
+
+    func testCoinbaseSessionToken_whenValuesAreBlank_thenReturnsNil() {
+        XCTAssertNil(
+            CoinbaseKeys.sessionToken(
+                environment: ["COINBASE_SESSION_TOKEN": "   "],
+                generatedValue: "   "
+            )
+        )
+        XCTAssertNil(CoinbaseKeys.sessionToken(environment: [:], generatedValue: "   "))
     }
 
     private func queryItems(from components: URLComponents) -> [String: String] {

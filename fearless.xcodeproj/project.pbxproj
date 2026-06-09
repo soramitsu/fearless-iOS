@@ -15668,6 +15668,34 @@
 				6E4D11BDB828F907EB8E44D6 /* FearlessFoundation */,
 				85CBAB11990FF74B9B09AE88 /* FearlessUI */,
 				E8CAC85320AB3770FF0DAD8A /* FearlessSecureStorage */,
+				C6182B202C631AAC0089558D /* SSFCrypto */,
+				C6182B262C631AAC0089558D /* SSFHelpers */,
+				C6182B162C631AAC0089558D /* SSFAccountManagmentStorage */,
+				C6182B3A2C631AAC0089558D /* SSFSigner */,
+				C6182B2A2C631AAC0089558D /* SSFLogger */,
+				C6182B2E2C631AAC0089558D /* SSFNetwork */,
+				C6182B282C631AAC0089558D /* SSFKeyPair */,
+				C6182B2C2C631AAC0089558D /* SSFModels */,
+				C6182B3E2C631AAC0089558D /* SSFStorageQueryKit */,
+				C6182B302C631AAC0089558D /* SSFPolkaswap */,
+				C6182B3C2C631AAC0089558D /* SSFSingleValueCache */,
+				C6182B1E2C631AAC0089558D /* SSFCloudStorage */,
+				C6182B222C631AAC0089558D /* SSFEraKit */,
+				C6182B362C631AAC0089558D /* SSFQRService */,
+				C6182B342C631AAC0089558D /* SSFPoolsStorage */,
+				C6182B1C2C631AAC0089558D /* SSFChainRegistry */,
+				C6182B422C631AAC0089558D /* SSFUtils */,
+				C6182B402C631AAC0089558D /* SSFTransferService */,
+				C6182B0E2C631AAC0089558D /* IrohaCrypto */,
+				C6182B482C631AAC0089558D /* keccak */,
+				C6182B442C631AAC0089558D /* SSFXCM */,
+				C6182B1A2C631AAC0089558D /* SSFChainConnection */,
+				C6182B382C631AAC0089558D /* SSFRuntimeCodingService */,
+				C6182B322C631AAC0089558D /* SSFPools */,
+				C6182B182C631AAC0089558D /* SSFAssetManagment */,
+				C6182B142C631AAC0089558D /* SSFAccountManagment */,
+				C6182B242C631AAC0089558D /* SSFExtrinsicKit */,
+				C6182B122C631AAC0089558D /* RobinHood */,
 			);
 			productName = fearless;
 			productReference = 849013A824A80984008F705E /* fearless.app */;
@@ -15903,7 +15931,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -euo pipefail\nif command -v swiftlint >/dev/null 2>&1; then\n  swiftlint lint --config \"$SRCROOT/.swiftlint.yml\" --baseline \"$SRCROOT/.swiftlint-baseline.json\" \"$SRCROOT/fearless\"\nelse\n  xcrun --sdk macosx swift run --package-path \"$SRCROOT/Packages/FearlessBuildTools\" swiftlint lint --config \"$SRCROOT/.swiftlint.yml\" --baseline \"$SRCROOT/.swiftlint-baseline.json\" \"$SRCROOT/fearless\"\nfi\n";
+			shellScript = "set -euo pipefail\nxcrun --sdk macosx swift run --package-path \"$SRCROOT/Packages/FearlessBuildTools\" swiftlint lint --config \"$SRCROOT/.swiftlint.yml\" --baseline \"$SRCROOT/.swiftlint-baseline.json\" \"$SRCROOT/fearless\"\n";
 		};
 			849013CE24A92280008F705E /* R.swift */ = {
 				isa = PBXShellScriptBuildPhase;
@@ -15963,7 +15991,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -euo pipefail\nif command -v swiftformat >/dev/null 2>&1; then\n  swiftformat \"$SRCROOT/fearless\" --lint --config \"$SRCROOT/.swiftformat\"\nelse\n  xcrun --sdk macosx swift run --package-path \"$SRCROOT/Packages/FearlessBuildTools\" swiftformat \"$SRCROOT/fearless\" --lint --config \"$SRCROOT/.swiftformat\"\nfi\n";
+			shellScript = "set -euo pipefail\nxcrun --sdk macosx swift run --package-path \"$SRCROOT/Packages/FearlessBuildTools\" swiftformat \"$SRCROOT/fearless\" --lint --config \"$SRCROOT/.swiftformat\"\n";
 		};
 		FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -19650,8 +19678,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/DRadmir/ton-swift.git";
 			requirement = {
-				branch = main;
-				kind = branch;
+				kind = revision;
+				revision = 73c9894e2be8d6d16b87853342eb2755d2e4be8a;
 			};
 		};
 		FAFE200A2DCF000100E5C0DE /* XCRemoteSwiftPackageReference "swift-http-types" */ = {

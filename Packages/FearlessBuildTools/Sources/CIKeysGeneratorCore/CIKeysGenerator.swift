@@ -19,7 +19,7 @@ public enum CIKeysGenerator {
         func resolve(from environment: [String: String]) -> String {
             let value = environment[key] ?? ""
 
-            if !value.isEmpty {
+            if !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 return value
             }
 
@@ -30,19 +30,14 @@ public enum CIKeysGenerator {
     private static let argumentMap: [String: EnvironmentValue] = [
         "moonPaySecretKey": .init(key: "MOONPAY_PRODUCTION_SECRET", fallbackKey: nil),
         "moonPayTestSecretKey": .init(key: "MOONPAY_TEST_SECRET", fallbackKey: nil),
-        "subscanAPIKey": .init(key: "SUBSCAN_API_KEY", fallbackKey: nil),
         "soraCardAPIKey": .init(key: "SORA_CARD_API_KEY", fallbackKey: nil),
         "soraCardDomain": .init(key: "SORA_CARD_DOMAIN", fallbackKey: nil),
         "soraCardKycEndpoint": .init(key: "SORA_CARD_KYC_ENDPOINT_URL", fallbackKey: nil),
         "soraCardKycUsername": .init(key: "SORA_CARD_KYC_USERNAME", fallbackKey: nil),
         "soraCardKycPassword": .init(key: "SORA_CARD_KYC_PASSWORD", fallbackKey: nil),
-        "paywingsRepositoryUrl": .init(key: "PAY_WINGS_REPOSITORY_URL", fallbackKey: nil),
-        "paywingsUsername": .init(key: "PAY_WINGS_USERNAME", fallbackKey: nil),
-        "paywingsPassword": .init(key: "PAY_WINGS_PASSWORD", fallbackKey: nil),
-        "x1EndpointUrlRelease": .init(key: "X1_ENDPOINT_URL_RELEASE", fallbackKey: nil),
-        "x1WidgetIdRelease": .init(key: "X1_WIDGET_ID_RELEASE", fallbackKey: nil),
-        "x1EndpointUrlDebug": .init(key: "X1_ENDPOINT_URL_DEBUG", fallbackKey: nil),
-        "x1WidgetIdDebug": .init(key: "X1_WIDGET_ID_DEBUG", fallbackKey: nil),
+        "rampHostApiKey": .init(key: "RAMP_HOST_API_KEY", fallbackKey: nil),
+        "moonbeamCrowdloanDevApiKey": .init(key: "MOONBEAM_CROWDLOAN_DEV_API_KEY", fallbackKey: nil),
+        "moonbeamCrowdloanProdApiKey": .init(key: "MOONBEAM_CROWDLOAN_PROD_API_KEY", fallbackKey: nil),
         "ethereumApiKey": .init(key: "FL_BLAST_API_ETHEREUM_KEY", fallbackKey: nil),
         "bscApiKey": .init(key: "FL_BLAST_API_BSC_KEY", fallbackKey: nil),
         "sepoliaApiKey": .init(key: "FL_BLAST_API_SEPOLIA_KEY", fallbackKey: nil),
@@ -64,8 +59,11 @@ public enum CIKeysGenerator {
         ),
         "webClientIdRelease": .init(key: "WEB_CLIENT_ID_RELEASE", fallbackKey: nil),
         "fearlessGoogleUrlSchemeRelease": .init(key: "FEARLESS_GOOGLE_URL_SCHEME_RELEASE", fallbackKey: nil),
-        "webClientIdDebug": .init(key: "WEB_CLIENT_ID_DEBUG", fallbackKey: nil),
-        "fearlessGoogleUrlSchemeDebug": .init(key: "FEARLESS_GOOGLE_URL_SCHEME_DEBUG", fallbackKey: nil),
+        "webClientIdDebug": .init(key: "WEB_CLIENT_ID_DEBUG", fallbackKey: "WEB_CLIENT_ID_RELEASE"),
+        "fearlessGoogleUrlSchemeDebug": .init(
+            key: "FEARLESS_GOOGLE_URL_SCHEME_DEBUG",
+            fallbackKey: "FEARLESS_GOOGLE_URL_SCHEME_RELEASE"
+        ),
         "walletConnectProjectId": .init(key: "FL_WALLET_CONNECT_PROJECT_ID", fallbackKey: nil),
         "walletConnectProjectIdDebug": .init(
             key: "FL_WALLET_CONNECT_PROJECT_ID_DEBUG",
@@ -78,9 +76,9 @@ public enum CIKeysGenerator {
         "opMainnetApiKey": .init(key: "FL_IOS_OPTIMISTIC_ETHERSCAN_API_KEY", fallbackKey: nil),
         "alchemyApiKey": .init(key: "FL_IOS_ALCHEMY_API_ETHEREUM_KEY", fallbackKey: nil),
         "dwellirApiKey": .init(key: "FL_DWELLIR_API_KEY", fallbackKey: nil),
-        "coinbaseAppId": .init(key: "COINBASE_APP_ID", fallbackKey: nil),
+        "coinbaseSessionToken": .init(key: "COINBASE_SESSION_TOKEN", fallbackKey: nil),
         "tonApiKey": .init(key: "FL_TON_API_KEY", fallbackKey: nil),
-        "tonApiKeyDebug": .init(key: "FL_TON_API_KEY_DEBUG", fallbackKey: nil),
+        "tonApiKeyDebug": .init(key: "FL_TON_API_KEY_DEBUG", fallbackKey: "FL_TON_API_KEY"),
         "okxApiKey": .init(key: "FL_OKX_API_KEY", fallbackKey: nil),
         "okxSecretKey": .init(key: "FL_OKX_SECRET_KEY", fallbackKey: nil),
         "okxPassphrase": .init(key: "FL_OKX_PASSPHRASE", fallbackKey: nil),

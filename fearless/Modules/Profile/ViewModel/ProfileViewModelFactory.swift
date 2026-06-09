@@ -28,6 +28,7 @@ enum ProfileOption: UInt, CaseIterable {
     case accountScore
 }
 
+// swiftlint:disable:next type_body_length
 final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     // MARK: - Private properties
 

@@ -34,7 +34,7 @@ let package = Package(
         .package(url: "https://github.com/mac-cain13/R.swift.Library.git", exact: "5.3.0"),
         // TON SDK + remote API
         .package(url: "https://github.com/DRadmir/ton-api-swift.git", exact: "0.5.0"),
-        .package(url: "https://github.com/DRadmir/ton-swift.git", branch: "main")
+        .package(url: "https://github.com/DRadmir/ton-swift.git", revision: "73c9894e2be8d6d16b87853342eb2755d2e4be8a")
     ],
     targets: [
         .target(

@@ -65,6 +65,7 @@ enum WalletTransactionHistoryViewFactory {
         return WalletTransactionHistoryModule(view: view, moduleInput: presenter)
     }
 
+    // swiftlint:disable:next function_body_length
     static func transactionHistoryFilters(
         for chain: ChainModel,
         preferredLanguages: [String]? = nil

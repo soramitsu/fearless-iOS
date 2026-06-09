@@ -1,3 +1,5 @@
+// swiftlint:disable file_length
+
 import Foundation
 
 import FearlessFoundation
@@ -15,6 +17,7 @@ typealias AnalyticsRewardsViewModelFactoryBuilder = (
     BalanceViewModelFactoryProtocol
 ) -> AnalyticsRewardsViewModelFactoryProtocol
 
+// swiftlint:disable:next type_body_length
 final class StakingStateViewModelFactory {
     private let analyticsRewardsViewModelFactoryBuilder: AnalyticsRewardsViewModelFactoryBuilder
     private let logger: LoggerProtocol?

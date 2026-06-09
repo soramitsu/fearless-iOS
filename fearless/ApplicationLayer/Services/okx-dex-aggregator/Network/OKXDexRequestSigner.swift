@@ -51,9 +51,15 @@ final class OKXDexRequestSigner: RequestSigner {
         let projectId = credentialsSource.okxProjectId
         request.setValue(projectId, forHTTPHeaderField: "OK-ACCESS-PROJECT")
 
-        let endpoint = request.url?.absoluteString.replacingOccurrences(of: config.baseURL.absoluteString, with: "", options: .caseInsensitive, range: nil)
+        let endpoint = request.url?.absoluteString.replacingOccurrences(
+            of: config.baseURL.absoluteString,
+            with: "",
+            options: .caseInsensitive,
+            range: nil
+        )
         let body = config.body.flatMap { String(data: $0, encoding: .utf8) } ?? ""
-        guard let sign = [timestamp, config.method.rawValue.uppercased(), endpoint ?? "", body].joined().data(using: .utf8) else {
+        let signingPayload = [timestamp, config.method.rawValue.uppercased(), endpoint ?? "", body].joined()
+        guard let sign = signingPayload.data(using: .utf8) else {
             throw OKXDexRequestSignerError.invalidData
         }
         let key = SymmetricKey(data: Data(secretKey.utf8))

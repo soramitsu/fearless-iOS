@@ -28,7 +28,7 @@ extension WalletConnectServiceDelegate {
 
 final class WalletConnectServiceImpl: WalletConnectService {
     static let shared = WalletConnectServiceImpl()
-    private static let walletConnectGroupIdentifier = "group.com.walletconnect.sdk"
+    private static let walletConnectGroupIdentifier = "group.jp.co.soramitsu.fearlesswallet.walletconnect"
 
     private var listeners: [WeakWrapper] = []
     private var cancellablesBag = Set<AnyCancellable>()

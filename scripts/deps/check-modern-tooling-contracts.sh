@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2016
 set -euo pipefail
 
 ROOT="${1:-$(pwd)}"
@@ -27,7 +28,7 @@ ensure_pattern_absent() {
 
   ensure_file "$file"
   if /usr/bin/grep -Fq -- "$pattern" "$file"; then
-    fail "$label in ${file#$ROOT/}: $pattern"
+    fail "$label in ${file#"$ROOT"/}: $pattern"
   fi
 }
 
@@ -38,7 +39,7 @@ ensure_pattern_present() {
 
   ensure_file "$file"
   if ! /usr/bin/grep -Fq -- "$pattern" "$file"; then
-    fail "$label missing from ${file#$ROOT/}: $pattern"
+    fail "$label missing from ${file#"$ROOT"/}: $pattern"
   fi
 }
 
@@ -51,10 +52,10 @@ ensure_extended_pattern_absent() {
 
   if [[ -d "$path" ]]; then
     if /usr/bin/grep -R -E -n "$pattern" "$path" >/dev/null; then
-      fail "$label under ${path#$ROOT/}: $pattern"
+      fail "$label under ${path#"$ROOT"/}: $pattern"
     fi
   elif /usr/bin/grep -E -n "$pattern" "$path" >/dev/null; then
-    fail "$label in ${path#$ROOT/}: $pattern"
+    fail "$label in ${path#"$ROOT"/}: $pattern"
   fi
 }
 
@@ -103,21 +104,23 @@ done
 
 for pattern in \
   "swiftlint not installed; skipping SwiftLint" \
-  "swiftformat not installed; skipping SwiftFormat lint"; do
+  "swiftformat not installed; skipping SwiftFormat lint" \
+  "command -v swiftlint" \
+  "command -v swiftformat"; do
   ensure_pattern_absent \
     "$project_file" \
     "$pattern" \
-    "Build phase fallback must run pinned tool instead of skipping"
+    "Build phase must run pinned tools instead of host-installed versions"
 done
 
 ensure_pattern_present \
   "$project_file" \
   'xcrun --sdk macosx swift run --package-path \"$SRCROOT/Packages/FearlessBuildTools\" swiftlint lint' \
-  "SwiftLint build phase fallback"
+  "SwiftLint pinned build phase"
 ensure_pattern_present \
   "$project_file" \
   'xcrun --sdk macosx swift run --package-path \"$SRCROOT/Packages/FearlessBuildTools\" swiftformat \"$SRCROOT/fearless\" --lint --config \"$SRCROOT/.swiftformat\"' \
-  "SwiftFormat build phase fallback"
+  "SwiftFormat pinned build phase"
 ensure_pattern_present \
   "$project_file" \
   '--baseline \"$SRCROOT/.swiftlint-baseline.json\"' \
@@ -177,7 +180,7 @@ ensure_pattern_present \
   "- fearless" \
   "Codecov fearless coverage flag"
 ensure_file "$coverage_summary"
-[[ -x "$coverage_summary" ]] || fail "Coverage summary helper is not executable: ${coverage_summary#$ROOT/}"
+[[ -x "$coverage_summary" ]] || fail "Coverage summary helper is not executable: ${coverage_summary#"$ROOT"/}"
 ensure_pattern_present \
   "$coverage_summary" \
   "xcrun xccov view --report --json" \

@@ -60,8 +60,22 @@ struct AssetNetworksSort: BaseFilterItem {
         selected: AssetNetworksSortType,
         preferredLanguages: [String]? = nil
     ) -> [AssetNetworksSort] {
-        [AssetNetworksSort(type: .fiat, selected: selected == .fiat, preferredLanguages: preferredLanguages),
-         AssetNetworksSort(type: .popularity, selected: selected == .popularity, preferredLanguages: preferredLanguages),
-         AssetNetworksSort(type: .name, selected: selected == .name, preferredLanguages: preferredLanguages)]
+        [
+            AssetNetworksSort(
+                type: .fiat,
+                selected: selected == .fiat,
+                preferredLanguages: preferredLanguages
+            ),
+            AssetNetworksSort(
+                type: .popularity,
+                selected: selected == .popularity,
+                preferredLanguages: preferredLanguages
+            ),
+            AssetNetworksSort(
+                type: .name,
+                selected: selected == .name,
+                preferredLanguages: preferredLanguages
+            )
+        ]
     }
 }

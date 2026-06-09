@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2016
 set -euo pipefail
 
 ROOT="${1:-$(pwd)}"
@@ -57,6 +58,11 @@ ensure_contains \
   "$ROOT/fearless.xcodeproj/project.pbxproj" \
   'if [ \"${PLATFORM_NAME:-}\" = \"iphonesimulator\" ]; then' \
   "project SPM shared-features build phase does not preserve simulator Core Data shims"
+
+ensure_contains \
+  "$ROOT/scripts/spm-shared-features-fixes.sh" \
+  '[spm-fixes] Updated SSFCrypto dependencies (direct imports)' \
+  "shared-features fixes do not patch direct SSFCrypto dependencies"
 
 ensure_absent \
   "$ROOT/scripts/dev-setup.sh" \

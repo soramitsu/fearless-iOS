@@ -1,3 +1,5 @@
+// swiftlint:disable file_length
+
 import Foundation
 import TonSwift
 import TonAPI
@@ -557,6 +559,7 @@ extension TonNFT {
         case size1500 = "1500x1500"
     }
 
+    // swiftlint:disable:next function_body_length
     init(nftItem: Components.Schemas.NftItem) throws {
         let address = try TonSwift.Address.parse(nftItem.address)
         var owner: WalletAccount?
@@ -608,10 +611,8 @@ extension TonNFT {
             collection = TonNFTCollection(address: address, name: nftCollection.name, description: nftCollection.description)
         }
 
-        if imageURL == nil,
-           let previewURLString = nftItem.previews?[2].url,
-           let previewURL = URL(string: previewURLString) {
-            imageURL = previewURL
+        if imageURL == nil {
+            imageURL = Self.mapFallbackImageURL(from: nftItem.previews)
         }
 
         var sale: Sale?
@@ -658,6 +659,23 @@ extension TonNFT {
             }
         }
         return Preview(size5: size5, size100: size100, size500: size500, size1500: size1500)
+    }
+
+    private static func mapFallbackImageURL(from previews: [Components.Schemas.ImagePreview]?) -> URL? {
+        guard let previews else {
+            return nil
+        }
+
+        let preferredSizes: [PreviewSize] = [.size500, .size1500, .size100, .size5]
+
+        for size in preferredSizes {
+            if let preview = previews.first(where: { PreviewSize(rawValue: $0.resolution) == size }),
+               let url = URL(string: preview.url) {
+                return url
+            }
+        }
+
+        return previews.compactMap { URL(string: $0.url) }.first
     }
 }
 

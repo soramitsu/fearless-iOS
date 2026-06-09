@@ -75,6 +75,16 @@ ensure_contains \
   "test-matrix.sh does not refresh SwiftPM after package patches"
 
 ensure_contains \
+  "$ROOT/scripts/test-matrix.sh" \
+  "restore_swiftpm_contract_files" \
+  "test-matrix.sh does not restore SwiftPM contract files after package patches"
+
+ensure_contains \
+  "$ROOT/scripts/test-matrix.sh" \
+  "scripts/deps/restore-swiftpm-contract-files.sh" \
+  "test-matrix.sh is not wired to restore-swiftpm-contract-files.sh"
+
+ensure_contains \
   "$ROOT/scripts/ci/bootstrap.sh" \
   "Refreshing SwiftPM resolved state after package patches" \
   "ci/bootstrap.sh does not refresh SwiftPM after package patches"
@@ -90,5 +100,20 @@ for product in NIOCore NIOHTTP1 NIOPosix NIOSSL; do
     "name: \"$product\"" \
     "Web3 contract does not declare $product as a direct target dependency"
 done
+
+ensure_contains \
+  "$ROOT/scripts/deps/apply-charts-swift6-compat.sh" \
+  "import Darwin" \
+  "Charts Swift 6 contract does not import Darwin"
+
+ensure_contains \
+  "$ROOT/scripts/deps/apply-charts-swift6-compat.sh" \
+  "Darwin.log10" \
+  "Charts Swift 6 contract does not qualify log10"
+
+ensure_contains \
+  "$ROOT/scripts/deps/apply-charts-swift6-compat.sh" \
+  "Darwin.pow" \
+  "Charts Swift 6 contract does not qualify pow"
 
 echo "[check-third-party-package-contract-wiring] OK"

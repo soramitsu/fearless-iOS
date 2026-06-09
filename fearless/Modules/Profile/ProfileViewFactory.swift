@@ -7,6 +7,7 @@ import RobinHood
 import SSFNetwork
 
 final class ProfileViewFactory: ProfileViewFactoryProtocol {
+    // swiftlint:disable:next function_body_length
     static func createView() -> ProfileViewProtocol? {
         guard let selectedMetaAccount = SelectedWalletSettings.shared.value else { return nil }
         let localizationManager = LocalizationManager.shared

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Patches known issues in shared-features-spm after SPM resolution.
-# - Adds missing RobinHood dependency to SSFModels target when absent.
+# - Adds missing explicit dependencies to shared-features targets when absent.
 #
 # Usage:
 #   scripts/spm-shared-features-fixes.sh [BASE_DIR]
@@ -95,6 +95,29 @@ patch_manifest() {
     echo "[spm-fixes] Updated SSFModels dependencies in $pkg_swift"
   fi
   rm -f "$models_before"
+
+  # Ensure SSFCrypto declares modules imported directly.
+  local crypto_before
+  crypto_before="$(mktemp)"
+  cp "$pkg_swift" "$crypto_before"
+  /usr/bin/perl -0pi -e '
+    s{
+      (\.target\(\s*name:\s*"SSFCrypto",\s*dependencies:\s*)\[[^\]]*\]
+    }{$1\[
+                "IrohaCrypto",
+                "SSFUtils",
+                "SSFModels",
+                "keccak",
+                .product(name: "BigInt", package: "BigInt"),
+                .product(name: "secp256k1", package: "secp256k1.swift")
+            \]}sx
+      or die "Unable to locate SSFCrypto dependencies block\n";
+  ' "$pkg_swift" || true
+
+  if ! diff -q "$pkg_swift" "$crypto_before" >/dev/null 2>&1; then
+    echo "[spm-fixes] Updated SSFCrypto dependencies (direct imports)"
+  fi
+  rm -f "$crypto_before"
 
   # Ensure SSFPolkaswap has explicit SPM deps it imports directly.
   local polkaswap_before
@@ -351,7 +374,7 @@ cleanup_stale_embedded_native_crypto_frameworks() {
     for framework_name in blake2lib.framework libed25519.framework sr25519lib.framework; do
       if [[ -d "$frameworks_root/$framework_name" ]]; then
         echo "[spm-fixes] Removing stale embedded framework: $frameworks_root/$framework_name"
-        rm -rf "$frameworks_root/$framework_name"
+        rm -rf "${frameworks_root:?}/$framework_name"
       fi
     done
   done

@@ -4,6 +4,7 @@ import SSFModels
 import RobinHood
 
 final class AssetNetworksAssembly {
+    // swiftlint:disable:next function_body_length
     static func configureModule(chainAsset: ChainAsset, wallet: MetaAccountModel) -> AssetNetworksModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 

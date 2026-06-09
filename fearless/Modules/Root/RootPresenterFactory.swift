@@ -45,6 +45,7 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         createPresenter(with: window, dependencies: .default)
     }
 
+    // swiftlint:disable:next function_body_length
     static func createPresenter(with window: UIWindow, dependencies: Dependencies) -> RootPresenterProtocol {
         let wireframe = RootWireframe()
         let startViewHelper = StartViewHelper(

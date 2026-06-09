@@ -194,7 +194,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             let totalRewardsText = balanceViewModelFactory.amountFromValue(Decimal(totalRewards), usageCase: .listCrypto)
                 .value(for: locale)
             return createChartCenterText(
-                firstLine: "TODO in next release",
+                firstLine: R.string.localizable.stakingRewardsTitle(preferredLanguages: locale.rLanguages).uppercased(),
                 secondLine: totalRewardsText,
                 thirdLine: "100%"
             )

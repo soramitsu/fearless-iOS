@@ -71,6 +71,40 @@ final class CrowdloanListTests: XCTestCase {
         XCTAssertEqual(flowData.prodApiKey, MoonbeamFlowData.default.prodApiKey)
     }
 
+    func testMoonbeamFlow_whenDataProvidesApiKeys_thenUsesProvidedValues() throws {
+        let payload = """
+        {
+          "paraid": "2002",
+          "name": "Moonbeam",
+          "token": "GLMR",
+          "description": "Ethereum-compatible smart contract parachain on Polkadot",
+          "website": "https://moonbeam.network",
+          "icon": "https://raw.githubusercontent.com/polkadot-js/apps/master/packages/apps-config/src/ui/logos/nodes/moonbeam.png",
+          "flow": {
+            "name": "moonbeam",
+            "data": {
+              "devApiUrl": "https://dev.example.com",
+              "prodApiUrl": "https://prod.example.com",
+              "devApiKey": "remote-dev-key",
+              "prodApiKey": "remote-prod-key"
+            }
+          }
+        }
+        """
+
+        let data = try XCTUnwrap(payload.data(using: .utf8))
+        let displayInfo = try JSONDecoder().decode(CrowdloanDisplayInfo.self, from: data)
+
+        guard case let .moonbeam(flowData)? = displayInfo.flowIfSupported else {
+            return XCTFail("Expected Moonbeam custom flow")
+        }
+
+        XCTAssertEqual(flowData.devApiUrl, "https://dev.example.com")
+        XCTAssertEqual(flowData.prodApiUrl, "https://prod.example.com")
+        XCTAssertEqual(flowData.devApiKey, "remote-dev-key")
+        XCTAssertEqual(flowData.prodApiKey, "remote-prod-key")
+    }
+
     func testCreateViewModel_whenCrowdloansHaveDifferentStates_thenSplitsActiveAndCompletedSections() throws {
         let currentBlock: BlockNumber = 1337
         let active = try makeCrowdloan(

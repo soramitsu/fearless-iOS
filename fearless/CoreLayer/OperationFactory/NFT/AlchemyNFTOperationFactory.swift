@@ -1,3 +1,5 @@
+// swiftlint:disable file_length
+
 import Foundation
 import SSFModels
 import RobinHood
@@ -8,6 +10,7 @@ enum AlchemyNFTOperationFactoryError: Error {
     case incorrectInputData
 }
 
+// swiftlint:disable:next type_body_length
 final class AlchemyNFTOperationFactory {
     private let apiKeySource: AlchemyAPIKeySource
 

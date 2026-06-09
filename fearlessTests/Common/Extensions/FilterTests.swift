@@ -12,6 +12,7 @@ import enum SSFUtils.JSON
 import enum SSFUtils.MultiAddress
 import enum SSFUtils.MultiSignature
 import struct SSFUtils.RuntimeCall
+import TonAPI
 import UIKit
 import Web3
 import WalletConnectPairing
@@ -1807,6 +1808,33 @@ final class CommonExtensionUtilityTests: XCTestCase {
             ["polkadot:91b171bb", "eip155:1"]
         )
         XCTAssertEqual(resolution.optionalChains.forbidden, Set([ethereumBlockchain]))
+    }
+
+    func testTonNFT_whenMetadataImageMissingAndPreviewListShort_thenUsesAvailablePreview() throws {
+        let previewURL = "https://example.com/nft-100.png"
+        let nftItem = makeTonNFTItem(
+            previews: [
+                .init(resolution: "100x100", url: previewURL)
+            ]
+        )
+
+        let nft = try TonNFT(nftItem: nftItem)
+
+        XCTAssertEqual(nft.imageURL, URL(string: previewURL))
+        XCTAssertEqual(nft.preview.size100, URL(string: previewURL))
+    }
+
+    private func makeTonNFTItem(
+        previews: [Components.Schemas.ImagePreview]?
+    ) -> Components.Schemas.NftItem {
+        Components.Schemas.NftItem(
+            address: "0:2cf55953e92efbeadab7ba725c3f93a0b23f842cbba72d7b8e6f510a70e422e3",
+            index: 0,
+            verified: true,
+            metadata: .init(),
+            previews: previews,
+            approved_by: []
+        )
     }
 
     func testWalletDetailsModels_whenBuilt_thenExposeFlowWalletAndInactiveState() {
@@ -6112,6 +6140,8 @@ final class CommonExtensionUtilityTests: XCTestCase {
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.numberStyle = .decimal
         formatter.usesGroupingSeparator = true
+        formatter.groupingSize = 3
+        formatter.secondaryGroupingSize = 3
         formatter.minimumFractionDigits = 0
         formatter.maximumFractionDigits = 2
         return formatter
@@ -6943,6 +6973,7 @@ final class ABIElementEncodingDecodingTests: XCTestCase {
         let wrongTopic = Data(repeating: 1, count: 32)
         XCTAssertNil(event.decodeReturnedLogs(eventLogTopics: [wrongTopic, indexedAddress], eventLogData: amountData))
         XCTAssertNil(event.decodeReturnedLogs(eventLogTopics: [event.topic], eventLogData: amountData))
+        XCTAssertNil(event.decodeReturnedLogs(eventLogTopics: [], eventLogData: amountData))
     }
 
     private func transferFunction() -> ABI.Element.Function {
