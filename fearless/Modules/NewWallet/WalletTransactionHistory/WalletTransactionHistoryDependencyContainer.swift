@@ -43,7 +43,7 @@ final class WalletTransactionHistoryDependencyContainer {
             $0.items as? [WalletTransactionHistoryFilter]
         }.reduce([], +)
 
-        if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
+        if let address = UniversalWalletAccountAddressResolver.address(for: chainAsset.chain, wallet: selectedAccount) {
             dataProvider = try? dataProviderFactory.createDataProvider(
                 for: address,
                 asset: chainAsset.asset,

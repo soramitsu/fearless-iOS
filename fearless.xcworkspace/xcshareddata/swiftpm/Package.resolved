@@ -1,5 +1,5 @@
 {
-  "originHash" : "f16c3748b2521abc9e665465554020f3ad60527690e2cbe485ae7eb48d5b1d9e",
+  "originHash" : "66437b32f2895202438a2119c897760cc8a6a2d4d3f57440805ccb430238d958",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -381,19 +381,19 @@
     {
       "identity" : "ton-api-swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/DRadmir/ton-api-swift.git",
+      "location" : "https://github.com/tonkeeper/ton-api-swift.git",
       "state" : {
-        "revision" : "8ddff19a40d3d00503cab7fb9d9eb77459169488",
-        "version" : "0.5.0"
+        "revision" : "d57d457cbaea081467ae65648e92fc6094ea342b",
+        "version" : "0.1.7"
       }
     },
     {
       "identity" : "ton-swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/DRadmir/ton-swift.git",
+      "location" : "https://github.com/tonkeeper/ton-swift.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "73c9894e2be8d6d16b87853342eb2755d2e4be8a"
+        "revision" : "03dbe1f4cef7471b012993ec54e0783882acb3ab",
+        "version" : "1.0.4"
       }
     },
     {

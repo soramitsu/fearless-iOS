@@ -41,6 +41,8 @@ class StakingInfoTests: XCTestCase {
         address: String,
         expectedPrefix: UInt16
     ) throws {
+        try ChainRegistryFacade.skipUnlessLiveIntegrationEnabled()
+
         let logger = Logger.shared
         let storageFacade = SubstrateStorageTestFacade()
         let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: storageFacade)
@@ -72,19 +74,19 @@ class StakingInfoTests: XCTestCase {
         let validatorService = try stakingServiceFactory.createEraValidatorService(
             for: chainAsset.chain
         )
-        
+
         let operationManager: OperationManagerProtocol = OperationManager()
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager
         )
-        
+
         guard chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) != nil,
               chainRegistry.getConnection(for: chainAsset.chain.chainId) != nil
         else {
             throw ChainRegistryError.connectionUnavailable
         }
-        
+
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageRequestFactory)
         let rewardOperationFactory = SubqueryRewardOperationFactory(url: chainAsset.chain.externalApi?.staking?.url)
         let collatorOperationFactory = ParachainCollatorOperationFactory(

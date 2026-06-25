@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/attaswift/BigInt.git",
       "state" : {
-        "revision" : "e07e00fa1fd435143a2dcf8b7eec9a7710b2fdfe",
-        "version" : "5.7.0"
+        "revision" : "0ed110f7555c34ff468e72e1686e59721f2b0da6",
+        "version" : "5.3.0"
       }
     },
     {
@@ -253,6 +253,15 @@
       }
     },
     {
+      "identity" : "swift-openapi-runtime",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-openapi-runtime",
+      "state" : {
+        "revision" : "a51b3bd6f2151e9a6f792ca6937a7242c4758768",
+        "version" : "0.3.6"
+      }
+    },
+    {
       "identity" : "swift-qrcode-generator",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dagronf/swift-qrcode-generator",
@@ -309,19 +318,28 @@
     {
       "identity" : "ton-api-swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/DRadmir/ton-api-swift.git",
+      "location" : "https://github.com/tonkeeper/ton-api-swift.git",
       "state" : {
-        "revision" : "8ddff19a40d3d00503cab7fb9d9eb77459169488",
-        "version" : "0.5.0"
+        "revision" : "d57d457cbaea081467ae65648e92fc6094ea342b",
+        "version" : "0.1.7"
       }
     },
     {
       "identity" : "ton-swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/DRadmir/ton-swift.git",
+      "location" : "https://github.com/tonkeeper/ton-swift.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "73c9894e2be8d6d16b87853342eb2755d2e4be8a"
+        "revision" : "03dbe1f4cef7471b012993ec54e0783882acb3ab",
+        "version" : "1.0.4"
+      }
+    },
+    {
+      "identity" : "tweetnacl-swiftwrap",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bitmark-inc/tweetnacl-swiftwrap",
+      "state" : {
+        "revision" : "f8fd111642bf2336b11ef9ea828510693106e954",
+        "version" : "1.1.0"
       }
     },
     {

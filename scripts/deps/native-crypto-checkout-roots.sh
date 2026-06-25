@@ -7,7 +7,7 @@ native_crypto_checkout_candidates() {
   local seen="|"
   local candidate
 
-  explicit_root="$(dirname "$source_packages_dir")/SourcePackages/checkouts/shared-features-spm"
+  explicit_root="$source_packages_dir/checkouts/shared-features-spm"
 
   emit_unique_existing() {
     local path="$1"

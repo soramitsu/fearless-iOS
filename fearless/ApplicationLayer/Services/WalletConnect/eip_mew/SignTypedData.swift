@@ -8,6 +8,7 @@
 
 import Foundation
 import CryptoSwift
+import SSFModels
 
 public enum TypedMessageSignError: Error {
     case invalidVersion
@@ -180,7 +181,7 @@ public func hash(message: TypedMessage, version: SignTypedDataVersion) throws ->
         return hash
 
     case .v3 where message.message.count == 1, .v4 where message.message.count == 1:
-        var data = Data(hex: "1901")
+        var data = try Data(hexStringSSF: "1901")
 
         data.append(
             try hashStruct(

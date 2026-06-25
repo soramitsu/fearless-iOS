@@ -5,6 +5,8 @@ enum MoonPayKeys {
         MoonPayKeys.variable(named: "MOONPAY_PRODUCTION_SECRET") ?? MoonPayCIKeys.secretKey
     static var testSecretKey: String =
         MoonPayKeys.variable(named: "MOONPAY_TEST_SECRET") ?? MoonPayCIKeys.testSecretKey
+    static var publicKey: String =
+        MoonPayKeys.variable(named: "MOONPAY_PUBLIC_KEY") ?? MoonPayCIKeys.publicKey
 
     static func variable(named name: String) -> String? {
         let processInfo = ProcessInfo.processInfo

@@ -99,7 +99,8 @@ extension AvailableLiquidityPoolsListInteractor: AvailableLiquidityPoolsListInte
 
             guard
                 let reservesId = pool.reservesId,
-                let address = try? AddressFactory.address(for: Data(hex: reservesId), chain: chain)
+                let reservesData = try? Data(hexStringSSF: reservesId),
+                let address = try? AddressFactory.address(for: reservesData, chain: chain)
             else {
                 return nil
             }

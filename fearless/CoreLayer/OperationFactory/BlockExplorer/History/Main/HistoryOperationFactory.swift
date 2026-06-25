@@ -11,6 +11,18 @@ final class HistoryOperationFactoriesAssembly {
     ) -> HistoryOperationFactoryProtocol? {
         let historyUrl = chain.externalApi?.history?.url.absoluteString.lowercased() ?? ""
 
+        if BitcoinHistoryOperationFactory.supports(chain: chain) {
+            return BitcoinHistoryOperationFactory()
+        }
+
+        if SolanaHistoryOperationFactory.supports(chain: chain) {
+            return SolanaHistoryOperationFactory()
+        }
+
+        if IrohaHistoryOperationFactory.supports(chain: chain) {
+            return IrohaHistoryOperationFactory()
+        }
+
         if historyUrl.contains("blockscout") {
             return BlockscoutHistoryOperationFactory()
         }

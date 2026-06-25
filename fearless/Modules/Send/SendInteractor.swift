@@ -144,7 +144,14 @@ extension SendInteractor: SendInteractorInput {
     }
 
     func estimateFee(for amount: BigUInt, tip: BigUInt?, for address: String?, chainAsset: ChainAsset) {
-        guard let dependencies = dependencies, let senderAddress = dependencies.wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
+        guard let dependencies = dependencies else {
+            return
+        }
+
+        let senderAddress = UniversalWalletAccountAddressResolver.address(for: chainAsset.chain, wallet: dependencies.wallet) ??
+            dependencies.wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
+
+        guard let senderAddress else {
             return
         }
 

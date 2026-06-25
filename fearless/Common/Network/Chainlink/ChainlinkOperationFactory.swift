@@ -48,7 +48,8 @@ final class ChainlinkOperationFactoryImpl: ChainlinkOperationFactory {
             ws.call(call: priceCall, block: .latest) { resp in
                 switch resp.status {
                 case let .success(result):
-                    let decoded = ABIDecoder.decode(types: outputs, data: Data(hex: result.hex()))
+                    let resultData = (try? Data(hexStringSSF: result.hex())) ?? Data()
+                    let decoded = ABIDecoder.decode(types: outputs, data: resultData)
                     guard
                         let price = decoded?[safe: 1] as? BigInt,
                         let precision = chainAsset.asset.priceProvider?.precision,

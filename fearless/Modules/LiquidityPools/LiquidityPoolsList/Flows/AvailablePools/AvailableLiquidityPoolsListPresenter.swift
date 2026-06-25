@@ -84,7 +84,9 @@ extension AvailableLiquidityPoolsListPresenter: LiquidityPoolsListViewOutput {
         }
 
         let reserves = reserves?.value?.first(where: { $0.poolId == liquidityPair.pairId })
-        let reservesAddress = liquidityPair.reservesId.map { try? AddressFactory.address(for: Data(hex: $0), chain: chain) }
+        let reservesAddress = liquidityPair.reservesId
+            .flatMap { try? Data(hexStringSSF: $0) }
+            .flatMap { try? AddressFactory.address(for: $0, chain: chain) }
         let apyInfo = apy?.first(where: { $0.poolId == reservesAddress })
 
         let assetIdPair = AssetIdPair(baseAssetIdCode: liquidityPair.baseAssetId, targetAssetIdCode: liquidityPair.targetAssetId)

@@ -5,6 +5,9 @@ import SSFNetwork
 import SSFModels
 import SSFUtils
 import RobinHood
+import BigInt
+import IrohaCrypto
+import SoraKeystore
 
 protocol AccountInfoRemoteService {
     func fetchAccountInfos(
@@ -18,24 +21,101 @@ protocol AccountInfoRemoteService {
     ) async throws -> AccountInfo?
 }
 
+protocol SolanaBalanceSyncing {
+    func balances(
+        wallet: String,
+        network: UniversalWalletRegistry.SolanaNetwork,
+        baseURL: String?,
+        includeTokenMetadata: Bool
+    ) async throws -> SolanaBalanceSyncResult
+}
+
+extension SolanaBalanceSync: SolanaBalanceSyncing {}
+
+protocol BitcoinBalanceSyncing {
+    func balance(
+        mnemonic: String,
+        passphrase: String,
+        network: BitcoinKeyDerivation.Network,
+        baseURL: String?,
+        gapLimit: Int?,
+        maxLookahead: Int
+    ) async throws -> BitcoinBalanceSyncResult
+}
+
+extension BitcoinBalanceSync: BitcoinBalanceSyncing {}
+
+protocol UniversalWalletMnemonicProviding {
+    func mnemonic(for wallet: MetaAccountModel, chain: ChainModel) throws -> String?
+}
+
+protocol BitcoinMnemonicProviding: UniversalWalletMnemonicProviding {}
+
+final class KeychainUniversalWalletMnemonicProvider: BitcoinMnemonicProviding {
+    private let keystore: KeystoreProtocol
+
+    init(keystore: KeystoreProtocol = Keychain()) {
+        self.keystore = keystore
+    }
+
+    func mnemonic(for wallet: MetaAccountModel, chain: ChainModel) throws -> String? {
+        let accountResponse = wallet.fetch(for: chain.accountRequest())
+        var accountIds: [AccountId?] = []
+
+        if accountResponse?.isChainAccount == true {
+            accountIds.append(accountResponse?.accountId)
+        }
+
+        accountIds.append(nil)
+
+        for accountId in accountIds {
+            let entropyTag = KeystoreTagV2.entropyTagForMetaId(wallet.metaId, accountId: accountId)
+            guard let entropy = try? keystore.fetchKey(for: entropyTag) else {
+                continue
+            }
+
+            return try IRMnemonicCreator().mnemonic(fromEntropy: entropy).toString()
+        }
+
+        return nil
+    }
+}
+
+typealias KeychainBitcoinMnemonicProvider = KeychainUniversalWalletMnemonicProvider
+
 final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
     private enum ChainKind {
         case substrate
         case ethereum
         case ton
+        case bitcoin(UniversalWalletRegistry.BitcoinNetwork)
+        case solana(UniversalWalletRegistry.SolanaNetwork)
+        case iroha(UniversalWalletRegistry.IrohaNetwork)
     }
 
     private let ethereumRemoteBalanceFetching: AccountInfoFetchingProtocol
     private let tonRemoteBalanceFetching: AccountInfoRemoteService?
+    private let bitcoinBalanceSync: BitcoinBalanceSyncing?
+    private let bitcoinMnemonicProvider: BitcoinMnemonicProviding
+    private let solanaBalanceSync: SolanaBalanceSyncing?
+    private let irohaToriiClient: IrohaToriiClientProtocol?
     private let storagePerformer: SSFStorageQueryKit.StorageRequestPerformer
 
     init(
         ethereumRemoteBalanceFetching: AccountInfoFetchingProtocol,
         tonRemoteBalanceFetching: AccountInfoRemoteService?,
+        bitcoinBalanceSync: BitcoinBalanceSyncing? = nil,
+        bitcoinMnemonicProvider: BitcoinMnemonicProviding = KeychainBitcoinMnemonicProvider(),
+        solanaBalanceSync: SolanaBalanceSyncing? = nil,
+        irohaToriiClient: IrohaToriiClientProtocol? = IrohaToriiClient(),
         storagePerformer: SSFStorageQueryKit.StorageRequestPerformer
     ) {
         self.ethereumRemoteBalanceFetching = ethereumRemoteBalanceFetching
         self.tonRemoteBalanceFetching = tonRemoteBalanceFetching
+        self.bitcoinBalanceSync = bitcoinBalanceSync
+        self.bitcoinMnemonicProvider = bitcoinMnemonicProvider
+        self.solanaBalanceSync = solanaBalanceSync
+        self.irohaToriiClient = irohaToriiClient
         self.storagePerformer = storagePerformer
     }
 
@@ -45,22 +125,27 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         for chain: ChainModel,
         wallet: MetaAccountModel
     ) async throws -> [ChainAssetId: AccountInfo?] {
-        guard let accountId = wallet.fetch(for: chain.accountRequest())?.accountId else {
-            let emptyMap = Dictionary(
-                uniqueKeysWithValues: chain.chainAssets.map { ($0.chainAssetId, Optional<AccountInfo>.none) }
-            )
-            return emptyMap
-        }
-
         switch chainKind(for: chain) {
         case .ethereum:
+            guard wallet.fetch(for: chain.accountRequest())?.accountId != nil else {
+                return emptyAccountInfos(for: chain)
+            }
             return try await fetchEthereum(for: chain, wallet: wallet)
         case .ton:
             guard let tonRemoteBalanceFetching else {
                 throw ConvenienceError(error: "TON remote fetching unavailable")
             }
             return try await tonRemoteBalanceFetching.fetchAccountInfos(for: chain, wallet: wallet)
+        case let .bitcoin(network):
+            return try await fetchBitcoin(for: chain, wallet: wallet, network: network)
+        case let .solana(network):
+            return try await fetchSolana(for: chain, wallet: wallet, network: network)
+        case let .iroha(network):
+            return try await fetchIroha(for: chain, wallet: wallet, network: network)
         case .substrate:
+            guard let accountId = wallet.fetch(for: chain.accountRequest())?.accountId else {
+                return emptyAccountInfos(for: chain)
+            }
             return try await fetchSubstrate(for: chain, accountId: accountId)
         }
     }
@@ -69,11 +154,11 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         for chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) async throws -> AccountInfo? {
-        guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-            return nil
-        }
         switch chainKind(for: chainAsset.chain) {
         case .ethereum:
+            guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                return nil
+            }
             let response = try await ethereumRemoteBalanceFetching.fetch(for: chainAsset, accountId: accountId)
             return response.1
         case .ton:
@@ -81,7 +166,19 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                 throw ConvenienceError(error: "TON remote fetching unavailable")
             }
             return try await tonRemoteBalanceFetching.fetchAccountInfo(for: chainAsset, wallet: wallet)
+        case let .bitcoin(network):
+            let map = try await fetchBitcoin(for: chainAsset.chain, wallet: wallet, network: network)
+            return map[chainAsset.chainAssetId] ?? nil
+        case let .solana(network):
+            let map = try await fetchSolana(for: chainAsset.chain, wallet: wallet, network: network)
+            return map[chainAsset.chainAssetId] ?? nil
+        case let .iroha(network):
+            let map = try await fetchIroha(for: chainAsset.chain, wallet: wallet, network: network)
+            return map[chainAsset.chainAssetId] ?? nil
         case .substrate:
+            guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                return nil
+            }
             let request = createSubstrateRequest(for: chainAsset, accountId: accountId)
             let response = try await storagePerformer.perform([request], chain: chainAsset.chain)
             let map = try createSubstrateMap(from: response, chain: chainAsset.chain)
@@ -95,11 +192,60 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
             return .ton
         }
 
+        if let network = bitcoinNetwork(for: chain) {
+            return .bitcoin(network)
+        }
+
+        if let network = solanaNetwork(for: chain) {
+            return .solana(network)
+        }
+
+        if let network = irohaNetwork(for: chain) {
+            return .iroha(network)
+        }
+
         if chain.chainBaseType == .ethereum {
             return .ethereum
         }
 
         return .substrate
+    }
+
+    private func bitcoinNetwork(for chain: ChainModel) -> UniversalWalletRegistry.BitcoinNetwork? {
+        switch chain.chainId.lowercased() {
+        case UniversalWalletRegistry.bitcoinMainnet.chainId, UniversalWalletRegistry.bitcoinMainnet.id:
+            return UniversalWalletRegistry.bitcoinMainnet
+        case UniversalWalletRegistry.bitcoinTestnet.chainId, UniversalWalletRegistry.bitcoinTestnet.id:
+            return UniversalWalletRegistry.bitcoinTestnet
+        default:
+            return nil
+        }
+    }
+
+    private func solanaNetwork(for chain: ChainModel) -> UniversalWalletRegistry.SolanaNetwork? {
+        switch chain.chainId.lowercased() {
+        case UniversalWalletRegistry.solanaMainnet.chainId, UniversalWalletRegistry.solanaMainnet.id:
+            return UniversalWalletRegistry.solanaMainnet
+        case UniversalWalletRegistry.solanaDevnet.chainId, UniversalWalletRegistry.solanaDevnet.id:
+            return UniversalWalletRegistry.solanaDevnet
+        default:
+            return nil
+        }
+    }
+
+    private func irohaNetwork(for chain: ChainModel) -> UniversalWalletRegistry.IrohaNetwork? {
+        switch chain.chainId.lowercased() {
+        case UniversalWalletRegistry.taira.chainId, UniversalWalletRegistry.taira.id:
+            return UniversalWalletRegistry.taira
+        case UniversalWalletRegistry.nexus.chainId, UniversalWalletRegistry.nexus.id:
+            return UniversalWalletRegistry.nexus
+        default:
+            return nil
+        }
+    }
+
+    private func emptyAccountInfos(for chain: ChainModel) -> [ChainAssetId: AccountInfo?] {
+        Dictionary(uniqueKeysWithValues: chain.chainAssets.map { ($0.chainAssetId, AccountInfo?.none) })
     }
 
     // MARK: - Private substrate methods
@@ -258,5 +404,285 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         }
         let map = Dictionary(uniqueKeysWithValues: mapped)
         return map
+    }
+
+    // MARK: - Private bitcoin methods
+
+    private func fetchBitcoin(
+        for chain: ChainModel,
+        wallet: MetaAccountModel,
+        network: UniversalWalletRegistry.BitcoinNetwork
+    ) async throws -> [ChainAssetId: AccountInfo?] {
+        var accountInfos = emptyAccountInfos(for: chain)
+
+        guard
+            let bitcoinBalanceSync,
+            let mnemonic = try bitcoinMnemonicProvider.mnemonic(for: wallet, chain: chain)
+        else {
+            return accountInfos
+        }
+
+        do {
+            let result = try await bitcoinBalanceSync.balance(
+                mnemonic: mnemonic,
+                passphrase: "",
+                network: bitcoinKeyDerivationNetwork(for: network),
+                baseURL: bitcoinBalanceBaseURL(for: chain),
+                gapLimit: network.defaultGapLimit,
+                maxLookahead: BitcoinReceiveDiscovery.defaultMaxLookahead
+            )
+
+            chain.chainAssets.forEach { chainAsset in
+                accountInfos[chainAsset.chainAssetId] = bitcoinAccountInfo(
+                    for: chainAsset,
+                    network: network,
+                    balanceResult: result
+                )
+            }
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            return accountInfos
+        }
+
+        return accountInfos
+    }
+
+    private func bitcoinKeyDerivationNetwork(
+        for network: UniversalWalletRegistry.BitcoinNetwork
+    ) -> BitcoinKeyDerivation.Network {
+        network == UniversalWalletRegistry.bitcoinTestnet ? .testnet : .mainnet
+    }
+
+    private func bitcoinBalanceBaseURL(for chain: ChainModel) -> String? {
+        chain.externalApi?.history?.url.absoluteString
+    }
+
+    private func bitcoinAccountInfo(
+        for chainAsset: ChainAsset,
+        network: UniversalWalletRegistry.BitcoinNetwork,
+        balanceResult: BitcoinBalanceSyncResult
+    ) -> AccountInfo? {
+        guard
+            isSupportedNativeBitcoinAsset(chainAsset.asset, network: network),
+            balanceResult.totalSats >= 0
+        else {
+            return nil
+        }
+
+        return AccountInfo(ethBalance: BigUInt(UInt64(balanceResult.totalSats)))
+    }
+
+    private func isSupportedNativeBitcoinAsset(
+        _ asset: AssetModel,
+        network: UniversalWalletRegistry.BitcoinNetwork
+    ) -> Bool {
+        asset.id.uppercased() == network.nativeAsset.id &&
+            asset.symbol.uppercased() == network.nativeAsset.symbol &&
+            asset.precision == UInt16(network.nativeAsset.decimals) &&
+            asset.isNative
+    }
+
+    // MARK: - Private solana methods
+
+    private func fetchSolana(
+        for chain: ChainModel,
+        wallet: MetaAccountModel,
+        network: UniversalWalletRegistry.SolanaNetwork
+    ) async throws -> [ChainAssetId: AccountInfo?] {
+        var accountInfos = emptyAccountInfos(for: chain)
+
+        guard
+            network == UniversalWalletRegistry.solanaMainnet,
+            let solanaBalanceSync,
+            let address = UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet)
+        else {
+            return accountInfos
+        }
+
+        do {
+            let result = try await solanaBalanceSync.balances(
+                wallet: address,
+                network: network,
+                baseURL: solanaBalanceBaseURL(for: chain),
+                includeTokenMetadata: false
+            )
+
+            chain.chainAssets.forEach { chainAsset in
+                accountInfos[chainAsset.chainAssetId] = solanaAccountInfo(
+                    for: chainAsset,
+                    network: network,
+                    balanceResult: result
+                )
+            }
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            return accountInfos
+        }
+
+        return accountInfos
+    }
+
+    private func solanaBalanceBaseURL(for chain: ChainModel) -> String? {
+        chain.externalApi?.history?.url.absoluteString
+    }
+
+    private func solanaAccountInfo(
+        for chainAsset: ChainAsset,
+        network: UniversalWalletRegistry.SolanaNetwork,
+        balanceResult: SolanaBalanceSyncResult
+    ) -> AccountInfo? {
+        let indexedBalance: UniversalWalletIndexedAssetBalance?
+        if isSupportedNativeSolanaAsset(chainAsset.asset, network: network) {
+            indexedBalance = balanceResult.nativeBalance
+        } else {
+            indexedBalance = balanceResult.tokenBalances.first {
+                $0.assetId == chainAsset.asset.id || $0.contractAddress == chainAsset.asset.id
+            }
+        }
+
+        guard
+            let indexedBalance,
+            indexedBalance.decimals == Int(chainAsset.asset.precision),
+            let amount = BigUInt(indexedBalance.amount)
+        else {
+            return nil
+        }
+
+        return AccountInfo(ethBalance: amount)
+    }
+
+    private func isSupportedNativeSolanaAsset(
+        _ asset: AssetModel,
+        network: UniversalWalletRegistry.SolanaNetwork
+    ) -> Bool {
+        asset.id.uppercased() == network.nativeAsset.id &&
+            asset.symbol.uppercased() == network.nativeAsset.symbol &&
+            asset.precision == UInt16(network.nativeAsset.decimals) &&
+            asset.isNative
+    }
+
+    // MARK: - Private Iroha methods
+
+    private func fetchIroha(
+        for chain: ChainModel,
+        wallet: MetaAccountModel,
+        network: UniversalWalletRegistry.IrohaNetwork
+    ) async throws -> [ChainAssetId: AccountInfo?] {
+        var accountInfos = emptyAccountInfos(for: chain)
+
+        guard
+            let irohaToriiClient,
+            let address = UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet)
+        else {
+            return accountInfos
+        }
+
+        do {
+            let response = try await irohaToriiClient.accountAssets(
+                accountID: address,
+                baseURL: irohaBalanceBaseURL(for: chain),
+                limit: IrohaToriiRoutes.maxLimit,
+                offset: nil,
+                countMode: .bounded,
+                asset: nil,
+                scope: nil,
+                network: network
+            )
+
+            chain.chainAssets.forEach { chainAsset in
+                accountInfos[chainAsset.chainAssetId] = irohaAccountInfo(
+                    for: chainAsset,
+                    address: address,
+                    response: response
+                )
+            }
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            return accountInfos
+        }
+
+        return accountInfos
+    }
+
+    private func irohaBalanceBaseURL(for chain: ChainModel) -> String? {
+        chain.externalApi?.history?.url.absoluteString
+    }
+
+    private func irohaAccountInfo(
+        for chainAsset: ChainAsset,
+        address: String,
+        response: IrohaAccountAssetListResponse
+    ) -> AccountInfo? {
+        let amounts = response.items
+            .filter { irohaAccountAsset($0, matchesAddress: address) && irohaAccountAsset($0, matchesAsset: chainAsset.asset) }
+            .compactMap { irohaPlanks(from: $0.quantity, precision: chainAsset.asset.precision) }
+
+        guard !amounts.isEmpty else {
+            return nil
+        }
+
+        let amount = amounts.reduce(BigUInt.zero, +)
+        return AccountInfo(ethBalance: amount)
+    }
+
+    private func irohaAccountAsset(
+        _ item: IrohaAccountAssetListItem,
+        matchesAddress address: String
+    ) -> Bool {
+        guard let accountId = item.accountID, !accountId.isEmpty else {
+            return true
+        }
+
+        return accountId == address
+    }
+
+    private func irohaAccountAsset(
+        _ item: IrohaAccountAssetListItem,
+        matchesAsset asset: AssetModel
+    ) -> Bool {
+        let chainAssetIds = [
+            asset.id,
+            asset.currencyId
+        ].compactMap { $0 }
+
+        let itemAssetIds = [
+            item.asset,
+            item.assetID,
+            item.assetName,
+            item.assetAlias
+        ].compactMap { $0 }
+
+        return itemAssetIds.contains { itemId in
+            chainAssetIds.contains(itemId)
+        }
+    }
+
+    private func irohaPlanks(from quantity: String, precision: UInt16) -> BigUInt? {
+        let normalized = quantity.trimmingCharacters(in: .whitespacesAndNewlines)
+        let pattern = #"^(0|[1-9][0-9]*)(\.[0-9]+)?$"#
+        guard normalized.range(of: pattern, options: .regularExpression) != nil else {
+            return nil
+        }
+
+        let parts = normalized.split(separator: ".", omittingEmptySubsequences: false)
+        guard parts.count <= 2 else {
+            return nil
+        }
+
+        let integerPart = String(parts[0])
+        let fractionPart = parts.count == 2 ? String(parts[1]) : ""
+        guard fractionPart.count <= Int(precision) else {
+            return nil
+        }
+
+        let paddedFraction = fractionPart.padding(
+            toLength: Int(precision),
+            withPad: "0",
+            startingAt: 0
+        )
+        return BigUInt(integerPart + paddedFraction)
     }
 }

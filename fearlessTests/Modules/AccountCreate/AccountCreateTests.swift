@@ -71,4 +71,24 @@ class AccountCreateTests: XCTestCase {
 
         XCTAssertEqual(receivedRequest?.username, usernameSetup.username)
     }
+
+    func testSetupGeneratesTwentyFourWordMnemonic() {
+        let presenter = MockAccountCreateInteractorOutputProtocol()
+        let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator())
+        interactor.presenter = presenter
+
+        let expectation = XCTestExpectation()
+
+        stub(presenter) { stub in
+            when(stub.didReceive(mnemonic: any([String].self))).then { mnemonic in
+                XCTAssertEqual(mnemonic.count, 24)
+                expectation.fulfill()
+            }
+            when(stub.didReceiveMnemonicGeneration(error: any(Error.self))).thenDoNothing()
+        }
+
+        interactor.setup()
+
+        wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
+    }
 }

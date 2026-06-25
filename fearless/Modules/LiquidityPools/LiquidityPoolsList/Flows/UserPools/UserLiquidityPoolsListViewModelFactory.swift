@@ -55,7 +55,9 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
             let iconsViewModel = TokenPairsIconViewModel(firstTokenIconViewModel: baseAssetIconViewModel, secondTokenIconViewModel: targetAssetIconViewModel)
             let tokenPairName = "\(baseAsset.symbol.uppercased())-\(targetAsset.symbol.uppercased())"
 
-            let reservesAddress = pair.reservesId.map { try? AddressFactory.address(for: Data(hex: $0), chain: chain) }
+            let reservesAddress = pair.reservesId
+                .flatMap { try? Data(hexStringSSF: $0) }
+                .flatMap { try? AddressFactory.address(for: $0, chain: chain) }
             let rewardTokenNameLabelText = R.string.localizable.lpRewardTokenText(rewardAsset.symbol.uppercased(), preferredLanguages: locale.rLanguages)
             let apyInfo = apyInfos?.first(where: { $0.poolId == reservesAddress })
             let apyValue = apyInfo?.apy

@@ -1,9 +1,14 @@
 name: Codecov Fearless
 
 on:
+  push:
+    branches:
+      - develop
+      - master
   pull_request:
     branches:
       - develop
+      - master
 
 jobs:
   build:
@@ -11,6 +16,49 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Branch flow audit
+        run: |
+          bash ./scripts/audit-branch-flow.sh
+          bash ./scripts/test-branch-flow-audit.sh
+
+      - name: Audit public artifacts
+        run: ./scripts/audit-public-artifacts.sh
+
+      - name: TODO debt audit
+        run: |
+          bash ./scripts/test-todo-debt-audit.sh
+          bash ./scripts/audit-todo-debt.sh
+
+      - name: Iroha mobile SDK release asset contract
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IROHA_MOBILE_SDK_RELEASE_TAG: ${{ vars.IROHA_MOBILE_SDK_RELEASE_TAG }}
+          IROHA_MOBILE_SDK_RELEASE_REPO: ${{ vars.IROHA_MOBILE_SDK_RELEASE_REPO }}
+        run: |
+          bash ./scripts/check-iroha-mobile-sdk-release-assets.sh --self-test
+          if [[ -n "${IROHA_MOBILE_SDK_RELEASE_TAG:-}" ]]; then
+            bash ./scripts/check-iroha-mobile-sdk-release-assets.sh --download --tag "$IROHA_MOBILE_SDK_RELEASE_TAG"
+          else
+            echo "IROHA_MOBILE_SDK_RELEASE_TAG is not configured; real release asset validation skipped."
+          fi
+
+      - name: Private overlay audit self-test
+        run: bash ./scripts/test-private-overlay-boundary.sh
+
+      - name: Shared-features delta report
+        run: |
+          bash ./scripts/deps/test-shared-features-delta-report.sh
+          bash ./scripts/deps/audit-shared-features-delta-report.sh "$(pwd)" --write-report build/reports/shared-features-delta-report.json
+
+      - name: Upload shared-features delta report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared-features-delta-report
+          path: build/reports/shared-features-delta-report.json
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Configure GitHub auth for private pods (optional)
         env:
@@ -22,7 +70,7 @@ jobs:
           else
             echo "GH_READ_TOKEN not set; proceeding without GitHub auth"
           fi
-      
+
       - name: Bootstrap Dependencies
         run: |
           bash scripts/ci/bootstrap.sh

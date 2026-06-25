@@ -10,37 +10,46 @@ set -euo pipefail
 
 BASE_DIR="${1:-$(pwd)}"
 SOURCE_PACKAGES_DIR="${SOURCE_PACKAGES_DIR:-$BASE_DIR/SourcePackages}"
-SOURCE_PACKAGES_BASE="$(dirname "$SOURCE_PACKAGES_DIR")"
 ALLOW_DERIVEDDATA_FALLBACK="${ALLOW_DERIVEDDATA_FALLBACK:-0}"
 STRICT_REQUIRED_PATCHES="${STRICT_REQUIRED_PATCHES:-0}"
 REQUIRED_PATCH_COUNT=0
 CHECKOUT_HELPER="$BASE_DIR/scripts/deps/native-crypto-checkout-roots.sh"
 
-each_checkout_base() {
+each_checkout_root() {
   local package_root
+  local seen="|"
   local saw_any=0
-  # Always include the caller-provided SourcePackages base first.
-  printf '%s\n' "$SOURCE_PACKAGES_BASE"
+
+  emit_unique_checkout_root() {
+    local path="$1"
+
+    [[ -d "$path" ]] || return 0
+    [[ "$seen" != *"|$path|"* ]] || return 0
+
+    printf '%s\n' "$path"
+    seen="${seen}${path}|"
+    saw_any=1
+  }
+
+  emit_unique_checkout_root "$SOURCE_PACKAGES_DIR/checkouts/shared-features-spm"
 
   if [[ -f "$CHECKOUT_HELPER" ]]; then
     # shellcheck source=/dev/null
     source "$CHECKOUT_HELPER"
     while IFS= read -r package_root; do
-      saw_any=1
-      printf '%s\n' "$(dirname "$(dirname "$(dirname "$package_root")")")"
+      emit_unique_checkout_root "$package_root"
     done < <(native_crypto_checkout_candidates "$BASE_DIR" "$SOURCE_PACKAGES_DIR")
   fi
 
   if [[ "$saw_any" == "0" && "$ALLOW_DERIVEDDATA_FALLBACK" == "1" ]]; then
     for dd in "$HOME/Library/Developer/Xcode/DerivedData"/* "$BASE_DIR/DerivedData"/*; do
-      [[ -d "$dd/SourcePackages/checkouts/shared-features-spm" ]] || continue
-      printf '%s\n' "$dd"
+      emit_unique_checkout_root "$dd/SourcePackages/checkouts/shared-features-spm"
     done
   fi
 }
 
 patch_manifest() {
-  local pkg_swift="$1/SourcePackages/checkouts/shared-features-spm/Package.swift"
+  local pkg_swift="$1/Package.swift"
   if [[ ! -f "$pkg_swift" ]]; then
     echo "[spm-fixes] Package.swift not found at $pkg_swift (skip)"
     return 0
@@ -128,11 +137,87 @@ patch_manifest() {
 
 }
 
-while IFS= read -r checkout_base; do
-  patch_manifest "$checkout_base"
-done < <(each_checkout_base)
+while IFS= read -r checkout_root; do
+  patch_manifest "$checkout_root"
+done < <(each_checkout_root)
 
-echo "[spm-fixes] Completed shared-features-spm fixes"
+# shared-features-spm vendors a SoraKeystore target while CocoaPods brings the
+# real SoraKeystore framework through SoraFoundation. The Swift module names are
+# intentionally left unchanged for source compatibility, but the vendored SPM
+# classes need unique Objective-C runtime names to avoid duplicate-class loading
+# in the app/test host.
+patch_sora_keystore_runtime_names() {
+  local base="$1/Sources/SoraKeystore"
+  [[ -d "$base" ]] || return 0
+
+  echo "[spm-fixes] Namespacing bundled SoraKeystore Objective-C runtime classes under $base"
+  chmod -R u+w "$base" 2>/dev/null || true
+
+  local keychain="$base/Classes/Keychain/Keychain.swift"
+  if [[ -f "$keychain" ]]; then
+    /usr/bin/perl -0pi -e '
+      s/^\(SSFSoraKeystoreKeychain\)$/\@objc(SSFSoraKeystoreKeychain)/m;
+      s/public class Keychain: KeystoreProtocol/\@objc(SSFSoraKeystoreKeychain)\npublic class Keychain: NSObject, KeystoreProtocol/s;
+      s/public init\(\) \{\}/public override init() {}/s;
+    ' "$keychain" || true
+    if /usr/bin/grep -q "@objc(SSFSoraKeystoreKeychain)" "$keychain"; then
+      echo "[spm-fixes] Namespaced SoraKeystore Keychain runtime class"
+    fi
+  fi
+
+  local keychain_manager="$base/Classes/Keychain/KeychainManager.swift"
+  if [[ -f "$keychain_manager" ]]; then
+    /usr/bin/perl -0pi -e '
+      s/^\(SSFSoraKeystoreKeychainManager\)$/\@objc(SSFSoraKeystoreKeychainManager)/m;
+      s/public class KeychainManager \{/\@objc(SSFSoraKeystoreKeychainManager)\npublic class KeychainManager: NSObject {/s;
+    ' "$keychain_manager" || true
+    if /usr/bin/grep -q "@objc(SSFSoraKeystoreKeychainManager)" "$keychain_manager"; then
+      echo "[spm-fixes] Namespaced SoraKeystore KeychainManager runtime class"
+    fi
+  fi
+
+  local in_memory_keychain="$base/Classes/Keychain/InMemoryKeychain.swift"
+  if [[ -f "$in_memory_keychain" ]]; then
+    /usr/bin/perl -0pi -e '
+      s/^\(SSFSoraKeystoreInMemoryKeychain\)$/\@objc(SSFSoraKeystoreInMemoryKeychain)/m;
+      s/public final class InMemoryKeychain: KeystoreProtocol/\@objc(SSFSoraKeystoreInMemoryKeychain)\npublic final class InMemoryKeychain: NSObject, KeystoreProtocol/s;
+      s/public init\(\) \{\}/public override init() {}/s;
+    ' "$in_memory_keychain" || true
+    if /usr/bin/grep -q "@objc(SSFSoraKeystoreInMemoryKeychain)" "$in_memory_keychain"; then
+      echo "[spm-fixes] Namespaced SoraKeystore InMemoryKeychain runtime class"
+    fi
+  fi
+
+  local settings_manager="$base/Classes/UserDefaults/SettingsManager.swift"
+  if [[ -f "$settings_manager" ]]; then
+    /usr/bin/perl -0pi -e '
+      s/^\(SSFSoraKeystoreSettingsManager\)$/\@objc(SSFSoraKeystoreSettingsManager)/m;
+      s/public class SettingsManager: SettingsManagerProtocol/\@objc(SSFSoraKeystoreSettingsManager)\npublic class SettingsManager: NSObject, SettingsManagerProtocol/s;
+      s/private init\(\) \{\}/private override init() {}/s;
+    ' "$settings_manager" || true
+    if /usr/bin/grep -q "@objc(SSFSoraKeystoreSettingsManager)" "$settings_manager"; then
+      echo "[spm-fixes] Namespaced SoraKeystore SettingsManager runtime class"
+    fi
+  fi
+
+  local in_memory_settings="$base/Classes/UserDefaults/InMemorySettingsManager.swift"
+  if [[ -f "$in_memory_settings" ]]; then
+    /usr/bin/perl -0pi -e '
+      s/^\(SSFSoraKeystoreInMemorySettingsManager\)$/\@objc(SSFSoraKeystoreInMemorySettingsManager)/m;
+      s/public final class InMemorySettingsManager: SettingsManagerProtocol/\@objc(SSFSoraKeystoreInMemorySettingsManager)\npublic final class InMemorySettingsManager: NSObject, SettingsManagerProtocol/s;
+      s/public init\(\) \{\}/public override init() {}/s;
+    ' "$in_memory_settings" || true
+    if /usr/bin/grep -q "@objc(SSFSoraKeystoreInMemorySettingsManager)" "$in_memory_settings"; then
+      echo "[spm-fixes] Namespaced SoraKeystore InMemorySettingsManager runtime class"
+    fi
+  fi
+}
+
+while IFS= read -r checkout_root; do
+  patch_sora_keystore_runtime_names "$checkout_root"
+done < <(each_checkout_root)
+
+echo "[spm-fixes] Namespaced bundled SoraKeystore runtime classes"
 
 # 2) Patch Web3 EthereumPrivateKey initializers to accept Data as [UInt8]
 patch_private_key_calls() {
@@ -166,15 +251,15 @@ patch_private_key_calls() {
   echo "[spm-fixes] Patched $patched file(s) under $root"
 }
 
-while IFS= read -r checkout_base; do
-  patch_private_key_calls "$checkout_base"
-done < <(each_checkout_base)
+while IFS= read -r checkout_root; do
+  patch_private_key_calls "$checkout_root"
+done < <(each_checkout_root)
 
 echo "[spm-fixes] Completed EthereumPrivateKey call patches (with verification)"
 
 # 3) Normalize SSFCrypto AddressFactory compatibility without inventing new types
 patch_address_factory_struct() {
-  local base_checkout="$1/SourcePackages/checkouts/shared-features-spm"
+  local base_checkout="$1"
   local file="$base_checkout/Sources/SSFCrypto/Classes/AddressConversion.swift"
   # Ensure sources are writable (avoid permission denied when editing)
   if [[ -d "$base_checkout/Sources" ]]; then
@@ -193,15 +278,15 @@ patch_address_factory_struct() {
   # Leave enum-based AddressFactory definitions intact. Downstream rewrites handle call sites explicitly.
 }
 
-while IFS= read -r checkout_base; do
-  patch_address_factory_struct "$checkout_base"
-done < <(each_checkout_base)
+while IFS= read -r checkout_root; do
+  patch_address_factory_struct "$checkout_root"
+done < <(each_checkout_root)
 
 echo "[spm-fixes] Normalized SSFCrypto AddressFactory compatibility shims"
 
 # 4) Patch scrypt SIMD selection/headers to avoid simulator arch issues
 patch_scrypt_sse2_guard() {
-  local base="$1/SourcePackages/checkouts/shared-features-spm/Sources/scrypt"
+  local base="$1/Sources/scrypt"
   local file="$base/crypto_scrypt.c"
   local header="$base/include/scrypt.h"
   [[ -f "$file" ]] || return 0
@@ -217,9 +302,9 @@ patch_scrypt_sse2_guard() {
   fi
 }
 
-while IFS= read -r checkout_base; do
-  patch_scrypt_sse2_guard "$checkout_base"
-done < <(each_checkout_base)
+while IFS= read -r checkout_root; do
+  patch_scrypt_sse2_guard "$checkout_root"
+done < <(each_checkout_root)
 
 echo "[spm-fixes] Applied scrypt simulator arch guard patch"
 
@@ -227,7 +312,7 @@ echo "[spm-fixes] Applied scrypt simulator arch guard patch"
 # Xcode's embed step bitcode-strips every file in these framework bundles. The extra
 # *.a payloads are not needed for app embedding and currently trip builtin-copy.
 prune_native_crypto_framework_sidecars() {
-  local binaries_root="$1/SourcePackages/checkouts/shared-features-spm/Binaries"
+  local binaries_root="$1/Binaries"
   local framework_dir
 
   [[ -d "$binaries_root" ]] || return 0
@@ -252,15 +337,15 @@ prune_native_crypto_framework_sidecars() {
   done
 }
 
-while IFS= read -r checkout_base; do
-  prune_native_crypto_framework_sidecars "$checkout_base"
-done < <(each_checkout_base)
+while IFS= read -r checkout_root; do
+  prune_native_crypto_framework_sidecars "$checkout_root"
+done < <(each_checkout_root)
 
 echo "[spm-fixes] Pruned native crypto framework sidecar archives"
 
 # 6) SSFPolkaswap: make addressFactory a type reference when used as a dependency token
 patch_polkaswap_addressfactory_usage() {
-  local base_checkout="$1/SourcePackages/checkouts/shared-features-spm/Sources/SSFPolkaswap"
+  local base_checkout="$1/Sources/SSFPolkaswap"
   [[ -d "$base_checkout" ]] || return 0
   echo "[spm-fixes] Normalizing SSFPolkaswap addressFactory usage under $base_checkout"
   chmod -R u+w "$base_checkout" 2>/dev/null || true
@@ -309,9 +394,9 @@ patch_polkaswap_addressfactory_usage() {
   done
 }
 
-while IFS= read -r checkout_base; do
-  patch_polkaswap_addressfactory_usage "$checkout_base"
-done < <(each_checkout_base)
+while IFS= read -r checkout_root; do
+  patch_polkaswap_addressfactory_usage "$checkout_root"
+done < <(each_checkout_root)
 
 echo "[spm-fixes] Patched SSFPolkaswap addressFactory usage (type tokens)"
 
@@ -340,7 +425,7 @@ echo "[spm-fixes] Cleaned stale embedded native crypto frameworks"
 # Newer shared-features-spm revisions keep memberwise inits internal, which breaks
 # app-side construction and previously led to recursive compatibility shims.
 patch_ssfpools_public_initializers() {
-  local base_checkout="$1/SourcePackages/checkouts/shared-features-spm/Sources/SSFPools"
+  local base_checkout="$1/Sources/SSFPools"
   local pooled="$base_checkout/PooledAssetInfo.swift"
   local supply="$base_checkout/SupplyLiquidityInfo.swift"
   local remove="$base_checkout/RemoveLiquidityInfo.swift"
@@ -370,9 +455,9 @@ patch_ssfpools_public_initializers() {
   fi
 }
 
-while IFS= read -r checkout_base; do
-  patch_ssfpools_public_initializers "$checkout_base"
-done < <(each_checkout_base)
+while IFS= read -r checkout_root; do
+  patch_ssfpools_public_initializers "$checkout_root"
+done < <(each_checkout_root)
 
 apply_native_crypto_contracts() {
   local package_contract="$BASE_DIR/scripts/deps/apply-native-crypto-package-contract.sh"
@@ -414,3 +499,4 @@ if [[ "$STRICT_REQUIRED_PATCHES" == "1" && "$REQUIRED_PATCH_COUNT" -eq 0 ]]; the
 fi
 
 echo "[spm-fixes] Required checkout patch count: $REQUIRED_PATCH_COUNT"
+echo "[spm-fixes] Completed shared-features-spm fixes"

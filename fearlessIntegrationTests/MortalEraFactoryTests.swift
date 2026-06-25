@@ -19,6 +19,8 @@ class MortalEraFactoryTests: XCTestCase {
 
 
     func performMortalEraCalculation(chainId: ChainModel.Id) throws {
+        try ChainRegistryFacade.skipUnlessLiveIntegrationEnabled()
+
         // given
         let logger = Logger.shared
 

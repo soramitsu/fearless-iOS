@@ -37,7 +37,9 @@ Key fixes in this repo
 
 - Native crypto upstream delta
   - Doc: docs/SSFNativeCryptoUpstreamDelta.md
-  - What: records the exact `shared-features-spm` source changes still being carried locally for `IrohaCrypto` and provides an export script for upstream handoff.
+  - Audit/report: scripts/deps/audit-shared-features-delta-report.sh
+  - CI artifact: build/reports/shared-features-delta-report.json
+  - What: records the exact `shared-features-spm` source changes still being carried locally for `IrohaCrypto`, reports `removalReadiness.status`, lists the blockers and mutation markers that must disappear before checkout mutation can be removed, and provides an export script for upstream handoff.
   - Why: makes the remaining Milestone 3 work explicit and upstreamable instead of leaving it distributed across repair scripts.
 
 - Git LFS for binary targets
