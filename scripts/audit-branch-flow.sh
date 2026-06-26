@@ -50,6 +50,45 @@ else
   if [[ "$WORKFLOW_COUNT" -eq 0 ]]; then
     record_failure "no GitHub workflow files found"
   fi
+
+  CODECOV_WORKFLOW="$WORKFLOW_DIR/codecov.yml"
+  if [[ ! -f "$CODECOV_WORKFLOW" ]]; then
+    record_failure "Codecov workflow is missing"
+  elif ! awk '
+    /^  [A-Za-z0-9_-]+:$/ {
+      if (in_job && has_name && has_needs && has_result_guard) {
+        found = 1
+      }
+      in_job = 1
+      has_name = 0
+      has_needs = 0
+      has_result_guard = 0
+      next
+    }
+    in_job && /^[^[:space:]]/ {
+      if (has_name && has_needs && has_result_guard) {
+        found = 1
+      }
+      in_job = 0
+    }
+    in_job && /^[[:space:]]+name:[[:space:]]*continuous-integration\/jenkins\/pr-merge[[:space:]]*$/ {
+      has_name = 1
+    }
+    in_job && /^[[:space:]]+needs:[[:space:]]*build[[:space:]]*$/ {
+      has_needs = 1
+    }
+    in_job && index($0, "needs.build.result") > 0 {
+      has_result_guard = 1
+    }
+    END {
+      if (in_job && has_name && has_needs && has_result_guard) {
+        found = 1
+      }
+      exit(found ? 0 : 1)
+    }
+  ' "$CODECOV_WORKFLOW"; then
+    record_failure "Codecov workflow must publish continuous-integration/jenkins/pr-merge backed by the build job result"
+  fi
 fi
 
 if [[ "$FAILURES" -ne 0 ]]; then

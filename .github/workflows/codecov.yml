@@ -164,3 +164,17 @@ jobs:
 
       - name: Upload coverage to Codecov
         run: bash <(curl -s https://codecov.io/bash) -J 'fearless'
+
+  jenkins-pr-merge:
+    name: continuous-integration/jenkins/pr-merge
+    runs-on: ubuntu-latest
+    needs: build
+    if: always()
+    steps:
+      - name: Require iOS build job success
+        run: |
+          if [[ "${{ needs.build.result }}" != "success" ]]; then
+            echo "Required iOS build job did not pass: ${{ needs.build.result }}" >&2
+            exit 1
+          fi
+          echo "Jenkins compatibility context is backed by the GitHub Actions build job."

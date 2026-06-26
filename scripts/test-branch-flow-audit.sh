@@ -25,6 +25,21 @@ on:
     branches:
       - develop
       - master
+jobs:
+  build:
+    runs-on: macOS-latest
+    steps:
+      - run: echo build
+  jenkins-pr-merge:
+    name: continuous-integration/jenkins/pr-merge
+    runs-on: ubuntu-latest
+    needs: build
+    if: always()
+    steps:
+      - run: |
+          if [[ "${{ needs.build.result }}" != "success" ]]; then
+            exit 1
+          fi
 EOF
 }
 
@@ -82,5 +97,20 @@ def appPipeline = new org.ios.AppPipeline(
 )
 EOF
 expect_fail "$MISSING_UPLOAD_REPO" "missing-upload"
+
+MISSING_JENKINS_CONTEXT_REPO="$TMP_DIR/missing-jenkins-context"
+write_valid_repo "$MISSING_JENKINS_CONTEXT_REPO"
+perl -0pi -e 's/\n  jenkins-pr-merge:.*//s' "$MISSING_JENKINS_CONTEXT_REPO/.github/workflows/codecov.yml"
+expect_fail "$MISSING_JENKINS_CONTEXT_REPO" "missing-jenkins-context"
+
+DETACHED_JENKINS_CONTEXT_REPO="$TMP_DIR/detached-jenkins-context"
+write_valid_repo "$DETACHED_JENKINS_CONTEXT_REPO"
+perl -0pi -e 's/\n    needs: build//' "$DETACHED_JENKINS_CONTEXT_REPO/.github/workflows/codecov.yml"
+expect_fail "$DETACHED_JENKINS_CONTEXT_REPO" "detached-jenkins-context"
+
+UNGUARDED_JENKINS_CONTEXT_REPO="$TMP_DIR/unguarded-jenkins-context"
+write_valid_repo "$UNGUARDED_JENKINS_CONTEXT_REPO"
+perl -0pi -e 's/needs\.build\.result/build.result.removed/' "$UNGUARDED_JENKINS_CONTEXT_REPO/.github/workflows/codecov.yml"
+expect_fail "$UNGUARDED_JENKINS_CONTEXT_REPO" "unguarded-jenkins-context"
 
 echo "[branch-flow-audit-test] Branch flow audit self-test passed."
