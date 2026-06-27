@@ -107,6 +107,29 @@ expect_failure() {
   fi
 }
 
+expect_script_failure() {
+  local name="$1"
+  local expected="$2"
+  local script="$3"
+  shift 3
+
+  local output
+  set +e
+  output="$("$script" "$@" 2>&1)"
+  local status=$?
+  set -e
+
+  if [[ "$status" -eq 0 ]]; then
+    echo "$output" >&2
+    fail "$name unexpectedly passed"
+  fi
+
+  if [[ "$output" != *"$expected"* ]]; then
+    echo "$output" >&2
+    fail "$name did not report expected text: $expected"
+  fi
+}
+
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT
 
@@ -132,6 +155,7 @@ assert(report.mutatesResolvedCheckout === true, 'checkout mutation status must b
 assert(report.nativeCryptoTemplates.length === 3, 'native crypto template hashes must be reported');
 assert(report.nativeCryptoTemplates.every((item) => /^[0-9a-f]{64}$/.test(item.sha256)), 'template hashes must be SHA-256 values');
 assert(report.carriedDeltas.length === 11, 'all carried deltas must be reported');
+assert(new Set(report.carriedDeltas.map((item) => item.id)).size === report.carriedDeltas.length, 'carried delta ids must be unique');
 assert(report.carriedDeltas.some((item) => item.id === 'sorakeystore-runtime-namespace'), 'SoraKeystore delta must be reported');
 assert(report.exitCondition.includes('CI no longer runs checkout mutation scripts'), 'exit condition must describe mutation removal');
 assert(report.removalReadiness.status === 'blocked', 'removalReadiness status must remain blocked while checkout mutation is still required');
@@ -156,6 +180,26 @@ expect_failure \
   "missing strict patch accounting" \
   "strict-required-patch-accounting" \
   "$missing_strict"
+
+duplicate_delta_id_script="$tmp_dir/audit-duplicate-delta-id.sh"
+cp "$AUDIT_SCRIPT" "$duplicate_delta_id_script"
+chmod +x "$duplicate_delta_id_script"
+perl -0pi -e 's/"strict-required-patch-accounting"/"native-crypto-contract-reapply"/' "$duplicate_delta_id_script"
+expect_script_failure \
+  "duplicate carried delta id" \
+  "duplicate shared-features carried delta id: native-crypto-contract-reapply" \
+  "$duplicate_delta_id_script" \
+  "$fixture"
+
+metadata_length_mismatch_script="$tmp_dir/audit-delta-metadata-length-mismatch.sh"
+cp "$AUDIT_SCRIPT" "$metadata_length_mismatch_script"
+chmod +x "$metadata_length_mismatch_script"
+perl -0pi -e 's/"strict-required-patch-accounting"/"strict-required-patch-accounting"\n  "unexpected-extra-delta-id"/' "$metadata_length_mismatch_script"
+expect_script_failure \
+  "carried delta metadata length mismatch" \
+  "carried delta metadata array length mismatch" \
+  "$metadata_length_mismatch_script" \
+  "$fixture"
 
 missing_template="$tmp_dir/missing-template"
 cp -R "$fixture" "$missing_template"

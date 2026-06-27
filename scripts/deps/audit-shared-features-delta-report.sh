@@ -154,6 +154,33 @@ DELTA_PATTERNS=(
   "No shared-features-spm checkout was available to patch"
 )
 
+validate_delta_metadata_contract() {
+  local expected_count="${#DELTA_IDS[@]}"
+  if [[ "${#DELTA_LABELS[@]}" -ne "$expected_count" || "${#DELTA_PATTERNS[@]}" -ne "$expected_count" ]]; then
+    record_failure "carried delta metadata array length mismatch"
+    return 1
+  fi
+
+  local i
+  local j
+  for ((i = 0; i < expected_count; i++)); do
+    if [[ -z "${DELTA_IDS[$i]}" ]]; then
+      record_failure "carried delta id must not be blank"
+    fi
+    if [[ -z "${DELTA_LABELS[$i]}" ]]; then
+      record_failure "carried delta label must not be blank for ${DELTA_IDS[$i]}"
+    fi
+    if [[ -z "${DELTA_PATTERNS[$i]}" ]]; then
+      record_failure "carried delta evidence pattern must not be blank for ${DELTA_IDS[$i]}"
+    fi
+    for ((j = i + 1; j < expected_count; j++)); do
+      if [[ "${DELTA_IDS[$i]}" == "${DELTA_IDS[$j]}" ]]; then
+        record_failure "duplicate shared-features carried delta id: ${DELTA_IDS[$i]}"
+      fi
+    done
+  done
+}
+
 REMOVAL_READINESS_STATUS="blocked"
 REMOVAL_REQUIRED_ACTION="Upstream or vendor every carriedDeltas entry into the pinned shared-features-spm source, then remove post-resolution checkout mutation from CI and release scripts."
 REMOVAL_VERIFICATION_COMMAND='bash scripts/deps/test-shared-features-delta-report.sh && bash scripts/deps/audit-shared-features-delta-report.sh "$PWD" --write-report build/reports/shared-features-delta-report.json'
@@ -169,9 +196,11 @@ REMOVAL_REQUIRED_ABSENT_MARKERS=(
   "scripts/deps/apply-native-crypto-modulemap-contract.sh against a resolved checkout"
 )
 
-for index in "${!DELTA_IDS[@]}"; do
-  require_pattern "$SPM_FIXES" "${DELTA_PATTERNS[$index]}" "shared-features carried delta ${DELTA_IDS[$index]} (${DELTA_LABELS[$index]})"
-done
+if validate_delta_metadata_contract; then
+  for index in "${!DELTA_IDS[@]}"; do
+    require_pattern "$SPM_FIXES" "${DELTA_PATTERNS[$index]}" "shared-features carried delta ${DELTA_IDS[$index]} (${DELTA_LABELS[$index]})"
+  done
+fi
 
 require_pattern "$SPM_FIXES" "STRICT_REQUIRED_PATCHES" "shared-features strict patch mode"
 require_pattern "$SPM_FIXES" "REQUIRED_PATCH_COUNT" "shared-features required patch accounting"
