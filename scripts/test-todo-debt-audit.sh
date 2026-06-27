@@ -64,6 +64,15 @@ printf '%s\n' 'final class CleanSource {}' > "$stale_root/fearless/CleanSource.s
 printf '%s\t%s\n' 'fearless/OldDebt.swift' 'final class OldDebt { // TODO deleted marker' > "$stale_root/config/todo-debt-baseline.tsv"
 expect_failure "stale baseline fixture" "$stale_root" "Baseline entries no longer exist"
 
+duplicate_root="$tmp_dir/duplicate-baseline"
+make_fixture_root "$duplicate_root"
+printf '%s\n' 'final class DuplicateDebt { // TODO duplicate baseline marker' 'final class DuplicateDebt { // TODO duplicate baseline marker' > "$duplicate_root/fearless/DuplicateDebt.swift"
+printf '%s\t%s\n%s\t%s\n' \
+  'fearless/DuplicateDebt.swift' 'final class DuplicateDebt { // TODO duplicate baseline marker' \
+  'fearless/DuplicateDebt.swift' 'final class DuplicateDebt { // TODO duplicate baseline marker' \
+  > "$duplicate_root/config/todo-debt-baseline.tsv"
+expect_failure "duplicate baseline fixture" "$duplicate_root" "Duplicate TODO debt baseline entries are forbidden"
+
 crash_root="$tmp_dir/crashing-placeholder"
 make_fixture_root "$crash_root"
 printf '%s\n' 'final class Crashy {' '    func crash() { fatalError("TODO wire implementation") }' '}' > "$crash_root/fearless/Crashy.swift"
