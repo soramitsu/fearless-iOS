@@ -27,7 +27,7 @@ final class BitcoinBalanceSync {
         var mempoolSats: Int64 = 0
 
         for address in discoveryResult.addresses {
-            guard address.confirmedSats >= 0, address.mempoolSats >= 0, address.totalSats >= 0 else {
+            guard address.confirmedSats >= 0, address.totalSats >= 0 else {
                 throw BitcoinBalanceSyncError.invalidAddressBalance
             }
 

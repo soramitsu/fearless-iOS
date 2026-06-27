@@ -290,6 +290,7 @@ final class SolanaHistoryOperationFactoryTests: XCTestCase {
         private let error: Error?
 
         private(set) var verifiedBaseURLs: [String] = []
+        private(set) var verifiedExpectedChainIds: [String] = []
         private(set) var transactionCalls = 0
         private(set) var lastWallet: String?
         private(set) var lastBaseURL: String?
@@ -308,8 +309,9 @@ final class SolanaHistoryOperationFactoryTests: XCTestCase {
             throw TestError.unexpectedEndpoint
         }
 
-        func verifyServiceInfo(baseURL: String?) async throws -> SolanaIndexerServiceInfo {
+        func verifyServiceInfo(baseURL: String?, expectedChainId: String) async throws -> SolanaIndexerServiceInfo {
             verifiedBaseURLs.append(baseURL ?? "")
+            verifiedExpectedChainIds.append(expectedChainId)
             if let error {
                 throw error
             }
@@ -319,8 +321,8 @@ final class SolanaHistoryOperationFactoryTests: XCTestCase {
                 serviceId: "si.soramitsu.io",
                 serviceName: "Solswap Indexer",
                 ecosystem: "solana",
-                chainId: "solana:mainnet",
-                network: "mainnet",
+                chainId: expectedChainId,
+                network: expectedChainId.replacingOccurrences(of: "solana:", with: ""),
                 publicBaseUrl: "https://si.soramitsu.io",
                 readOnly: true,
                 capabilities: [],

@@ -149,11 +149,11 @@ struct SolanaIndexerServiceInfo: Codable, Equatable {
     let capabilities: [String]
     let endpoints: [String: String]
 
-    var isExpectedSIServiceInfo: Bool {
+    func isExpectedSIServiceInfo(expectedChainId: String = UniversalWalletRegistry.solanaMainnet.chainId) -> Bool {
         schemaVersion == 1 &&
             serviceId == "si.soramitsu.io" &&
             ecosystem == "solana" &&
-            chainId == "solana:mainnet" &&
+            chainId == expectedChainId &&
             publicBaseUrl == "https://si.soramitsu.io" &&
             readOnly
     }

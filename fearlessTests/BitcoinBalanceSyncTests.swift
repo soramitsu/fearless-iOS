@@ -43,6 +43,44 @@ final class BitcoinBalanceSyncTests: XCTestCase {
         }
     }
 
+    func testAllowsNegativeMempoolDeltaForPendingOutgoingTransactions() async throws {
+        let balances = try Self.balancesByAddress([
+            0: AddressBalance(confirmedSats: 100_000, mempoolSats: -25_000)
+        ])
+        let client = FakeBitcoinIndexerClient(balances: balances)
+        let balanceSync = BitcoinBalanceSync(discovery: BitcoinReceiveDiscovery(client: client))
+
+        let result = try await balanceSync.balance(
+            mnemonic: Self.mnemonic,
+            gapLimit: 1,
+            maxLookahead: 4
+        )
+
+        XCTAssertEqual(result.confirmedSats, 100_000)
+        XCTAssertEqual(result.mempoolSats, -25_000)
+        XCTAssertEqual(result.totalSats, 75_000)
+        XCTAssertEqual(result.usedAddresses.map(\.index), [0])
+    }
+
+    func testRejectsNegativeTotalAddressBalance() async throws {
+        let balances = try Self.balancesByAddress([
+            0: AddressBalance(confirmedSats: 10_000, mempoolSats: -25_000)
+        ])
+        let client = FakeBitcoinIndexerClient(balances: balances)
+        let balanceSync = BitcoinBalanceSync(discovery: BitcoinReceiveDiscovery(client: client))
+
+        do {
+            _ = try await balanceSync.balance(
+                mnemonic: Self.mnemonic,
+                gapLimit: 1,
+                maxLookahead: 4
+            )
+            XCTFail("Expected negative total address balance to be rejected")
+        } catch {
+            XCTAssertEqual(error as? BitcoinBalanceSyncError, .invalidAddressBalance)
+        }
+    }
+
     private final class FakeBitcoinIndexerClient: BitcoinIndexerClientProtocol {
         private let balances: [String: AddressBalance]
         private(set) var addressCalls: [String] = []
@@ -143,10 +181,10 @@ final class BitcoinBalanceSyncTests: XCTestCase {
             ),
             mempoolStats: BitcoinEsploraStats(
                 fundedTxoCount: mempoolSats > 0 ? 1 : 0,
-                fundedTxoSum: mempoolSats,
-                spentTxoCount: 0,
-                spentTxoSum: 0,
-                txCount: mempoolSats > 0 ? 1 : 0
+                fundedTxoSum: max(mempoolSats, 0),
+                spentTxoCount: mempoolSats < 0 ? 1 : 0,
+                spentTxoSum: max(-mempoolSats, 0),
+                txCount: mempoolSats == 0 ? 0 : 1
             )
         )
     }

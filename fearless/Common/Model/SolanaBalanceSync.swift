@@ -16,7 +16,10 @@ final class SolanaBalanceSync {
         let resolvedBaseURL = baseURL ?? network.indexerBaseURL.absoluteString
         _ = try SolanaIndexerRoutes.balancesURL(wallet: wallet, baseURL: resolvedBaseURL)
 
-        _ = try await client.verifyServiceInfo(baseURL: resolvedBaseURL)
+        _ = try await client.verifyServiceInfo(
+            baseURL: resolvedBaseURL,
+            expectedChainId: network.chainId
+        )
         let response = try await client.balances(wallet: wallet, baseURL: resolvedBaseURL)
         guard response.wallet == wallet else {
             throw SolanaBalanceSyncError.walletMismatch

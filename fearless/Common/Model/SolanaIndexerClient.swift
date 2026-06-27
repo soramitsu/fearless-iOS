@@ -2,13 +2,22 @@ import Foundation
 
 protocol SolanaIndexerClientProtocol {
     func serviceInfo(baseURL: String?) async throws -> SolanaIndexerServiceInfo
-    func verifyServiceInfo(baseURL: String?) async throws -> SolanaIndexerServiceInfo
+    func verifyServiceInfo(baseURL: String?, expectedChainId: String) async throws -> SolanaIndexerServiceInfo
     func balances(wallet: String, baseURL: String?) async throws -> SolanaWalletBalancesResponse
     func assets(wallet: String, baseURL: String?) async throws -> SolanaWalletAssetsResponse
     func state(wallet: String, baseURL: String?) async throws -> SolanaWalletStateResponse
     func transactions(wallet: String, baseURL: String?, before: String?, limit: Int) async throws -> SolanaWalletTransactionsResponse
     func tokenMetadata(mint: String, baseURL: String?) async throws -> SolanaTokenMetadata
     func tokenMetadataBatch(mints: [String], baseURL: String?) async throws -> SolanaTokenMetadataBatchResponse
+}
+
+extension SolanaIndexerClientProtocol {
+    func verifyServiceInfo(baseURL: String?) async throws -> SolanaIndexerServiceInfo {
+        try await verifyServiceInfo(
+            baseURL: baseURL,
+            expectedChainId: UniversalWalletRegistry.solanaMainnet.chainId
+        )
+    }
 }
 
 enum SolanaIndexerClientError: Error, Equatable {
@@ -37,9 +46,12 @@ final class SolanaIndexerClient: SolanaIndexerClientProtocol {
         try await get(try SolanaIndexerRoutes.serviceInfoURL(baseURL: resolvedBaseURL(baseURL)))
     }
 
-    func verifyServiceInfo(baseURL: String? = nil) async throws -> SolanaIndexerServiceInfo {
+    func verifyServiceInfo(
+        baseURL: String? = nil,
+        expectedChainId: String = UniversalWalletRegistry.solanaMainnet.chainId
+    ) async throws -> SolanaIndexerServiceInfo {
         let info = try await serviceInfo(baseURL: baseURL)
-        guard info.isExpectedSIServiceInfo else {
+        guard info.isExpectedSIServiceInfo(expectedChainId: expectedChainId) else {
             throw SolanaIndexerClientError.unexpectedServiceInfo(info)
         }
         return info

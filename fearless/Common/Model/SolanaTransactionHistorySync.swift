@@ -32,7 +32,10 @@ final class SolanaTransactionHistorySync {
             limit: limit
         )
 
-        _ = try await client.verifyServiceInfo(baseURL: resolvedBaseURL)
+        _ = try await client.verifyServiceInfo(
+            baseURL: resolvedBaseURL,
+            expectedChainId: network.chainId
+        )
         let response = try await client.transactions(
             wallet: wallet,
             baseURL: resolvedBaseURL,

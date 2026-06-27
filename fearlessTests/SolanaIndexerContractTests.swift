@@ -136,7 +136,8 @@ final class SolanaIndexerContractTests: XCTestCase {
         """.data(using: .utf8)!
         let response = try JSONDecoder().decode(SolanaIndexerServiceInfo.self, from: data)
 
-        XCTAssertTrue(response.isExpectedSIServiceInfo)
+        XCTAssertTrue(response.isExpectedSIServiceInfo())
+        XCTAssertFalse(response.isExpectedSIServiceInfo(expectedChainId: "solana:devnet"))
         XCTAssertFalse(
             SolanaIndexerServiceInfo(
                 schemaVersion: response.schemaVersion,
@@ -149,8 +150,26 @@ final class SolanaIndexerContractTests: XCTestCase {
                 readOnly: response.readOnly,
                 capabilities: response.capabilities,
                 endpoints: response.endpoints
-            ).isExpectedSIServiceInfo
+            ).isExpectedSIServiceInfo()
         )
+    }
+
+    func testServiceIdentityValidationIsNetworkAware() throws {
+        let devnetInfo = SolanaIndexerServiceInfo(
+            schemaVersion: 1,
+            serviceId: "si.soramitsu.io",
+            serviceName: "Solswap Indexer",
+            ecosystem: "solana",
+            chainId: "solana:devnet",
+            network: "devnet",
+            publicBaseUrl: "https://si.soramitsu.io",
+            readOnly: true,
+            capabilities: ["wallet-transactions"],
+            endpoints: [:]
+        )
+
+        XCTAssertTrue(devnetInfo.isExpectedSIServiceInfo(expectedChainId: "solana:devnet"))
+        XCTAssertFalse(devnetInfo.isExpectedSIServiceInfo(expectedChainId: "solana:mainnet"))
     }
 
     private func assertRouteError(

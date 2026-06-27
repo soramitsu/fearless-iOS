@@ -35,6 +35,7 @@ final class SolanaBalanceSyncTests: XCTestCase {
         let result = try await SolanaBalanceSync(client: client).balances(wallet: Self.wallet)
 
         XCTAssertEqual(client.verifiedBaseURLs, ["https://si.soramitsu.io"])
+        XCTAssertEqual(client.verifiedExpectedChainIds, ["solana:mainnet"])
         XCTAssertEqual(result.networkId, "solana-mainnet")
         XCTAssertEqual(result.chainId, "solana:mainnet")
         XCTAssertEqual(result.balances.count, 3)
@@ -154,11 +155,29 @@ final class SolanaBalanceSyncTests: XCTestCase {
         XCTAssertTrue(client.verifiedBaseURLs.isEmpty)
     }
 
+    func testVerifiesDevnetBalancesAgainstDevnetServiceIdentity() async throws {
+        let client = FakeSolanaIndexerClient(
+            response: Self.balancesResponse(lamports: "1", uiAmountString: "0.000000001")
+        )
+
+        let result = try await SolanaBalanceSync(client: client).balances(
+            wallet: Self.wallet,
+            network: UniversalWalletRegistry.solanaDevnet,
+            includeTokenMetadata: false
+        )
+
+        XCTAssertEqual(client.verifiedBaseURLs, ["https://si.soramitsu.io"])
+        XCTAssertEqual(client.verifiedExpectedChainIds, ["solana:devnet"])
+        XCTAssertEqual(result.networkId, "solana-devnet")
+        XCTAssertEqual(result.chainId, "solana:devnet")
+    }
+
     private final class FakeSolanaIndexerClient: SolanaIndexerClientProtocol {
         private let response: SolanaWalletBalancesResponse
         private let metadata: [SolanaTokenMetadata]
         private let metadataError: Error?
         private(set) var verifiedBaseURLs: [String] = []
+        private(set) var verifiedExpectedChainIds: [String] = []
         private(set) var metadataBatchCalls: [[String]] = []
 
         init(
@@ -175,15 +194,16 @@ final class SolanaBalanceSyncTests: XCTestCase {
             throw TestError.unexpectedEndpoint
         }
 
-        func verifyServiceInfo(baseURL: String?) async throws -> SolanaIndexerServiceInfo {
+        func verifyServiceInfo(baseURL: String?, expectedChainId: String) async throws -> SolanaIndexerServiceInfo {
             verifiedBaseURLs.append(baseURL ?? "")
+            verifiedExpectedChainIds.append(expectedChainId)
             return SolanaIndexerServiceInfo(
                 schemaVersion: 1,
                 serviceId: "si.soramitsu.io",
                 serviceName: "Solswap Indexer",
                 ecosystem: "solana",
-                chainId: "solana:mainnet",
-                network: "mainnet",
+                chainId: expectedChainId,
+                network: expectedChainId.replacingOccurrences(of: "solana:", with: ""),
                 publicBaseUrl: "https://si.soramitsu.io",
                 readOnly: true,
                 capabilities: [],

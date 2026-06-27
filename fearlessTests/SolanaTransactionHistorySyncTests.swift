@@ -21,6 +21,7 @@ final class SolanaTransactionHistorySyncTests: XCTestCase {
         )
 
         XCTAssertEqual(client.verifiedBaseURLs, ["https://si.soramitsu.io"])
+        XCTAssertEqual(client.verifiedExpectedChainIds, ["solana:mainnet"])
         XCTAssertEqual(client.lastWallet, Self.wallet)
         XCTAssertEqual(client.lastBaseURL, "https://si.soramitsu.io")
         XCTAssertEqual(client.lastBefore, Self.signature0)
@@ -119,9 +120,24 @@ final class SolanaTransactionHistorySyncTests: XCTestCase {
         XCTAssertEqual(client.transactionCalls, 0)
     }
 
+    func testVerifiesDevnetHistoryAgainstDevnetServiceIdentity() async throws {
+        let client = FakeSolanaIndexerClient(response: Self.transactionsResponse([]))
+
+        let page = try await SolanaTransactionHistorySync(client: client).history(
+            wallet: Self.wallet,
+            network: UniversalWalletRegistry.solanaDevnet
+        )
+
+        XCTAssertEqual(client.verifiedBaseURLs, ["https://si.soramitsu.io"])
+        XCTAssertEqual(client.verifiedExpectedChainIds, ["solana:devnet"])
+        XCTAssertEqual(page.networkId, "solana-devnet")
+        XCTAssertEqual(page.chainId, "solana:devnet")
+    }
+
     private final class FakeSolanaIndexerClient: SolanaIndexerClientProtocol {
         private let response: SolanaWalletTransactionsResponse
         private(set) var verifiedBaseURLs: [String] = []
+        private(set) var verifiedExpectedChainIds: [String] = []
         private(set) var transactionCalls = 0
         private(set) var lastWallet: String?
         private(set) var lastBaseURL: String?
@@ -136,15 +152,16 @@ final class SolanaTransactionHistorySyncTests: XCTestCase {
             throw TestError.unexpectedEndpoint
         }
 
-        func verifyServiceInfo(baseURL: String?) async throws -> SolanaIndexerServiceInfo {
+        func verifyServiceInfo(baseURL: String?, expectedChainId: String) async throws -> SolanaIndexerServiceInfo {
             verifiedBaseURLs.append(baseURL ?? "")
+            verifiedExpectedChainIds.append(expectedChainId)
             return SolanaIndexerServiceInfo(
                 schemaVersion: 1,
                 serviceId: "si.soramitsu.io",
                 serviceName: "Solswap Indexer",
                 ecosystem: "solana",
-                chainId: "solana:mainnet",
-                network: "mainnet",
+                chainId: expectedChainId,
+                network: expectedChainId.replacingOccurrences(of: "solana:", with: ""),
                 publicBaseUrl: "https://si.soramitsu.io",
                 readOnly: true,
                 capabilities: [],
