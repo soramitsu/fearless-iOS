@@ -102,6 +102,7 @@ MODULEMAP_TEMPLATE="$ROOT/scripts/deps/templates/IrohaCrypto.module.modulemap"
 UMBRELLA_TEMPLATE="$ROOT/scripts/deps/templates/IrohaCrypto-umbrella.h"
 LINKER_TEMPLATE="$ROOT/scripts/deps/templates/IrohaCrypto.linker-settings.swiftfrag"
 EXPORT_SCRIPT="$ROOT/scripts/deps/export-native-crypto-upstream-delta.sh"
+HANDOFF_EXPORT_SCRIPT="$ROOT/scripts/deps/export-shared-features-upstream-delta.sh"
 
 require_file "$SPM_FIXES" "shared-features compatibility patch script"
 require_file "$STABILITY_DOC" "SSF stability documentation"
@@ -111,6 +112,7 @@ require_file "$MODULEMAP_TEMPLATE" "IrohaCrypto modulemap template"
 require_file "$UMBRELLA_TEMPLATE" "IrohaCrypto umbrella template"
 require_file "$LINKER_TEMPLATE" "IrohaCrypto linker-settings template"
 require_file "$EXPORT_SCRIPT" "native crypto delta export script"
+require_file "$HANDOFF_EXPORT_SCRIPT" "shared-features upstream handoff export script"
 
 DELTA_IDS=(
   "web3-mirror-normalization"
@@ -207,8 +209,10 @@ require_pattern "$SPM_FIXES" "REQUIRED_PATCH_COUNT" "shared-features required pa
 require_pattern "$UPSTREAM_DELTA_DOC" "Exit condition for Milestone 3" "native crypto upstream delta exit condition"
 require_pattern "$UPSTREAM_DELTA_DOC" "source already contains this delta" "native crypto upstream completion rule"
 require_pattern "$UPSTREAM_DELTA_DOC" "export-native-crypto-upstream-delta.sh" "native crypto export handoff docs"
+require_pattern "$UPSTREAM_DELTA_DOC" "export-shared-features-upstream-delta.sh" "shared-features upstream handoff docs"
 require_pattern "$STABILITY_DOC" "scripts/deps/audit-shared-features-delta-report.sh" "SSF stability delta-report audit docs"
 require_pattern "$STABILITY_DOC" "build/reports/shared-features-delta-report.json" "SSF stability delta-report artifact docs"
+require_pattern "$STABILITY_DOC" "scripts/deps/export-shared-features-upstream-delta.sh" "SSF stability upstream handoff export docs"
 
 REVISION=""
 if [[ -f "$WORKSPACE_RESOLVED" ]]; then

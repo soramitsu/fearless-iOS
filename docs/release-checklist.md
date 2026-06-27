@@ -24,6 +24,10 @@ Use this checklist for every release PR from `develop` to `master`.
   intentionally carried for the release. Confirm
   `removalReadiness.status` is still `blocked` unless the same report proves all
   required absent markers have been removed from CI and release scripts.
+- Run
+  `bash ./scripts/deps/export-shared-features-upstream-delta.sh "$PWD" build/shared-features-upstream-delta`
+  before upstream handoff or release review of the shared-features patch debt,
+  then attach/review `build/shared-features-upstream-delta/handoff-manifest.json`.
 - Run `bash ./scripts/test-transaction-builder-tests-audit.sh && bash ./scripts/audit-transaction-builder-tests.sh`
   and confirm Bitcoin, Solana, Iroha, and TON fail-closed transfer coverage
   remains in place.

@@ -84,6 +84,17 @@ This writes:
 
 That output is intended to be the handoff artifact for upstreaming or vendoring the remaining `shared-features-spm` native crypto delta.
 
+For release review and upstream handoff, generate the full shared-features bundle:
+
+```bash
+bash scripts/deps/export-shared-features-upstream-delta.sh
+```
+
+This writes `build/shared-features-upstream-delta` with the machine-readable
+`shared-features-delta-report.json`, the native crypto export, a deterministic
+`handoff-manifest.json`, and a README that lists every carried delta and removal
+blocker.
+
 ## Exit condition for Milestone 3
 
 Milestone 3 is complete when the pinned `shared-features-spm` source already contains this delta and the repo no longer needs to mutate the resolved checkout after package resolution.
