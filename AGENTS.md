@@ -59,6 +59,7 @@ CI note
 - Do not alter seed handling, signing, or cryptography without maintainer approval.
 - Runtime registries and chain/type sources must be aligned with the current Polkadot SDK release; coordinate updates with maintainers.
 - Use `*.xcconfig` and environment variables for private values; avoid hardcoding secrets in `Info.plist`.
+- Keep partner identifiers and buy-provider keys in environment variables or generated CI keys, not committed Swift source.
 
 ## Dependencies & Versioning
 - Prefer conservative upgrades (patch/minor). Pin major bumps to separate PRs with clear testing notes.
@@ -149,6 +150,7 @@ The project mixes CocoaPods and Swift Package Manager. Follow these steps in ord
 - Environment variables:
   - `GH_PAT_READ` (optional): GitHub PAT for private pods (`FearlessKeys`).
   - `DEVELOPER_DIR` (optional): Jenkinsfile auto‑pins to Xcode 15.x if present for SPM stability; otherwise default Xcode is used.
+  - `MOONPAY_PUBLIC_KEY`: Moonpay partner public key generated into CI keys for trusted builds.
 - Private keys in PRs:
   - PR builds do NOT require private keys. The Jenkinsfile detects PR context (`CHANGE_ID`) and temporarily comments out the `pod 'FearlessKeys'` line before `pod install`, then restores the file. This prevents private repo access and allows PRs to build without secrets.
   - Trusted branches (develop/master/release): Jenkins sets `INCLUDE_FEARLESS_KEYS=1` and, if `GH_PAT_READ` is present, rewrites GitHub URLs to use the token so `pod install` can fetch `FearlessKeys`.

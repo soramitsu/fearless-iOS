@@ -77,6 +77,8 @@ final class AssetManagementAssembly {
         let accountInfoRemote = AccountInfoRemoteServiceDefault(
             ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
             tonRemoteBalanceFetching: tonRemoteBalanceFetching,
+            bitcoinBalanceSync: BitcoinBalanceSync(discovery: BitcoinReceiveDiscovery(client: BitcoinIndexerClient())),
+            solanaBalanceSync: SolanaBalanceSync(client: SolanaIndexerClient()),
             storagePerformer: storagePerformer
         )
 

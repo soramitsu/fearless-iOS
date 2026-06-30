@@ -90,7 +90,7 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
     }
 
     var moonPayApiKey: String {
-        "pk_live_Boi6Rl107p7XuJWBL8GJRzGWlmUSoxbz"
+        MoonPayKeys.publicKey
     }
 
     var purchaseRedirect: URL {

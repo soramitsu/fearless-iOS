@@ -8,6 +8,7 @@
 
 import Foundation
 import CryptoSwift
+import SSFModels
 
 public struct Address: CustomDebugStringConvertible {
     public enum Ethereum {
@@ -20,7 +21,7 @@ public struct Address: CustomDebugStringConvertible {
     }
 
     public var data: Data {
-        Data(hex: address)
+        (try? Data(hexStringSSF: address)) ?? Data()
     }
 
     public init?(data: Data, prefix: String? = nil) {

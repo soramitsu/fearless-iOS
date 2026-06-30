@@ -6,6 +6,38 @@ echo "[run-pr] Running PR build (simulator build + tests, with device fallback)"
 WORKSPACE_DIR=${WORKSPACE:-$(pwd)}
 SP_DIR="$WORKSPACE_DIR/SourcePackages"
 
+if [[ -f "$WORKSPACE_DIR/scripts/audit-branch-flow.sh" ]]; then
+  echo "[run-pr] Running branch flow audit"
+  bash "$WORKSPACE_DIR/scripts/audit-branch-flow.sh"
+  bash "$WORKSPACE_DIR/scripts/test-branch-flow-audit.sh"
+fi
+
+if [[ -f "$WORKSPACE_DIR/scripts/audit-public-artifacts.sh" ]]; then
+  echo "[run-pr] Running public artifact audit"
+  bash "$WORKSPACE_DIR/scripts/audit-public-artifacts.sh"
+fi
+
+if [[ -f "$WORKSPACE_DIR/scripts/audit-todo-debt.sh" ]]; then
+  echo "[run-pr] Running TODO debt audit"
+  bash "$WORKSPACE_DIR/scripts/test-todo-debt-audit.sh"
+  bash "$WORKSPACE_DIR/scripts/audit-todo-debt.sh"
+fi
+
+if [[ -f "$WORKSPACE_DIR/scripts/check-iroha-mobile-sdk-release-assets.sh" ]]; then
+  echo "[run-pr] Checking Iroha mobile SDK release asset contract"
+  bash "$WORKSPACE_DIR/scripts/check-iroha-mobile-sdk-release-assets.sh" --self-test
+  if [[ -n "${IROHA_MOBILE_SDK_RELEASE_TAG:-}" ]]; then
+    bash "$WORKSPACE_DIR/scripts/check-iroha-mobile-sdk-release-assets.sh" --download --tag "$IROHA_MOBILE_SDK_RELEASE_TAG"
+  else
+    echo "[run-pr] IROHA_MOBILE_SDK_RELEASE_TAG is not set; skipping real release asset validation"
+  fi
+fi
+
+if [[ -f "$WORKSPACE_DIR/scripts/test-private-overlay-boundary.sh" ]]; then
+  echo "[run-pr] Testing private overlay boundary guard"
+  bash "$WORKSPACE_DIR/scripts/test-private-overlay-boundary.sh"
+fi
+
 if [[ -f "$WORKSPACE_DIR/fearless.xcworkspace/contents.xcworkspacedata" ]]; then
   if [[ -x "$WORKSPACE_DIR/scripts/deps/restore-swiftpm-contract-files.sh" ]]; then
     "$WORKSPACE_DIR/scripts/deps/restore-swiftpm-contract-files.sh" "$WORKSPACE_DIR" "[run-pr]"
@@ -57,6 +89,7 @@ if xcodebuild -workspace "$WORKSPACE_DIR/fearless.xcworkspace" \
   -configuration Debug \
   -destination "$SIM_DEST" \
   -clonedSourcePackagesDirPath "$SP_DIR" \
+  -disableAutomaticPackageResolution \
   clean build; then
 
   echo "[run-pr] Running unit tests on iOS Simulator (scheme: fearless.tests)"
@@ -64,6 +97,7 @@ if xcodebuild -workspace "$WORKSPACE_DIR/fearless.xcworkspace" \
     -scheme fearless.tests \
     -destination "$SIM_DEST" \
     -clonedSourcePackagesDirPath "$SP_DIR" \
+    -disableAutomaticPackageResolution \
     test
 else
   echo "[run-pr] Simulator build failed; falling back to device build (signing disabled)"
@@ -72,6 +106,7 @@ else
     -configuration Debug \
     -destination 'generic/platform=iOS' \
     -clonedSourcePackagesDirPath "$SP_DIR" \
+    -disableAutomaticPackageResolution \
     CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
     clean build
 fi

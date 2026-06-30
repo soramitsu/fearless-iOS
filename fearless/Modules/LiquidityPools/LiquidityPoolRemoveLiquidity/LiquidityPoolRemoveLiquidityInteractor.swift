@@ -99,7 +99,10 @@ final class LiquidityPoolRemoveLiquidityInteractor {
             return
         }
 
-        let reservesId = Data(hex: reservesIdString)
+        guard let reservesId = try? Data(hexStringSSF: reservesIdString) else {
+            output?.didReceiveTotalIssuanceError(error: CommonError.internal)
+            return
+        }
 
         Task {
             do {

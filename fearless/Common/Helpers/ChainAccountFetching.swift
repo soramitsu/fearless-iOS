@@ -19,25 +19,38 @@ enum ChainAccountFetchingError: Error {
 
 extension ChainAccountResponse {
     func toDisplayAddress() throws -> DisplayAddress {
-        let chainFormat: ChainFormat = isEthereumBased ? .ethereum : .substrate(addressPrefix)
-        let address = try accountId.toAddress(using: chainFormat)
+        let address = try displayAddress()
 
         return DisplayAddress(address: address, username: name)
     }
 
     func toAddress() -> AccountAddress? {
-        let chainFormat: ChainFormat = isEthereumBased ? .ethereum : .substrate(addressPrefix)
-        return try? accountId.toAddress(using: chainFormat)
+        try? displayAddress()
     }
 
     func chainFormat() -> ChainFormat {
         isEthereumBased ? .ethereum : .substrate(addressPrefix)
     }
+
+    private func displayAddress() throws -> AccountAddress {
+        if UniversalWalletChainAccountSupport.isUniversalWalletChain(chainId) {
+            guard let address = UniversalWalletChainAccountSupport.address(for: chainId, publicKey: publicKey) else {
+                throw ChainAccountFetchingError.accountNotExists
+            }
+
+            return address
+        }
+
+        let chainFormat: ChainFormat = isEthereumBased ? .ethereum : .substrate(addressPrefix)
+        return try accountId.toAddress(using: chainFormat)
+    }
 }
 
 extension MetaAccountModel {
     func fetch(for request: ChainAccountRequest) -> ChainAccountResponse? {
-        if let chainAccount = chainAccounts.first(where: { $0.chainId == request.chainId }) {
+        if let chainAccount = chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId($0.chainId, matches: request.chainId)
+        }) {
             guard let cryptoType = CryptoType(rawValue: chainAccount.cryptoType) else {
                 return nil
             }
@@ -53,6 +66,10 @@ extension MetaAccountModel {
                 isChainAccount: true,
                 walletId: metaId
             )
+        }
+
+        guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(request.chainId) else {
+            return nil
         }
 
         if request.isEthereumBased {

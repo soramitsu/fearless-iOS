@@ -6,7 +6,7 @@ def jobParams = [
   string(defaultValue: '', description: 'Additional Jira tasks (comma-separated)', name: 'additionalJiraTasks'),
   booleanParam(defaultValue: false, description: 'Get all Jira tasks specified in the PR', name: 'getAllJiraTasks'),
   booleanParam(defaultValue: false, description: 'run sonarqube scan', name: 'sonar'),
-  booleanParam(defaultValue: false, description: 'Upload builds to nexus(master,develop and staging branches upload always)', name: 'upload_to_nexus'),
+  booleanParam(defaultValue: false, description: 'Upload builds to nexus(master and develop branches upload always)', name: 'upload_to_nexus'),
 ]
 
 def appPipeline = new org.ios.AppPipeline(
@@ -20,7 +20,7 @@ def appPipeline = new org.ios.AppPipeline(
   sonarProjectKey: 'fearless:fearless-ios',
   dojoProductType: 'fearless',
   effectJiraTasks: true,
-  uploadToNexusFor: ['master','develop','staging']
+  uploadToNexusFor: ['master','develop']
 )
 
 // Best-effort GitHub status helper; won't fail if plugin isn't installed

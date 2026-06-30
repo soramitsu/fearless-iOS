@@ -29,8 +29,10 @@ let package = Package(
         .package(url: "https://github.com/onevcat/Kingfisher", exact: "7.10.2"),
         .package(url: "https://github.com/SnapKit/SnapKit", exact: "5.0.0"),
         // TON SDK + remote API
-        .package(url: "https://github.com/DRadmir/ton-api-swift.git", exact: "0.5.0"),
-        .package(url: "https://github.com/DRadmir/ton-swift.git", branch: "main")
+        .package(url: "https://github.com/tonkeeper/ton-api-swift.git", exact: "0.1.7"),
+        .package(url: "https://github.com/tonkeeper/ton-swift.git", exact: "1.0.4"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime", exact: "0.3.6"),
+        .package(url: "https://github.com/apple/swift-http-types", exact: "1.5.1")
     ],
     targets: [
         .target(
@@ -58,7 +60,9 @@ let package = Package(
                 .product(name: "SnapKit", package: "SnapKit"),
                 // TON SDK
                 .product(name: "TonAPI", package: "ton-api-swift"),
-                .product(name: "TonSwift", package: "ton-swift")
+                .product(name: "TonSwift", package: "ton-swift"),
+                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
+                .product(name: "HTTPTypes", package: "swift-http-types")
             ],
             path: "Sources/FearlessDependencies"
         )

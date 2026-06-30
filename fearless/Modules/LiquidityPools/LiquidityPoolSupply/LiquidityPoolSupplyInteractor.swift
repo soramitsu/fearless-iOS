@@ -97,7 +97,7 @@ extension LiquidityPoolSupplyInteractor: LiquidityPoolSupplyInteractorInput {
 
         Task {
             do {
-                let address = try AddressFactory.address(for: Data(hex: reservesId), chain: chain)
+                let address = try AddressFactory.address(for: Data(hexStringSSF: reservesId), chain: chain)
                 let apyStream = try await lpDataService.subscribePoolsAPY(poolIds: [address])
 
                 for await apy in apyStream {

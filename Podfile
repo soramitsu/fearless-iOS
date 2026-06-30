@@ -36,7 +36,6 @@ abstract_target 'fearlessAll' do
     pod 'SoraFoundation', '~> 1.0.0'
     pod 'R.swift', '6.1.0', :inhibit_warnings => true
     pod 'FireMock', :inhibit_warnings => true
-    pod 'SoraKeystore', :git => 'https://github.com/soramitsu/keystore-iOS.git', :tag => '1.0.2'
     pod 'Sourcery', '~> 1.4'
     # Ensure UI/framework deps are available to the tests as well
     pod 'SoraUI', '~> 1.10.3', :inhibit_warnings => true

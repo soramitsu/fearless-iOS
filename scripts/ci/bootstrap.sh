@@ -8,9 +8,36 @@ echo "[bootstrap] Starting CI bootstrap"
 # Ensure UTF-8 locale for Ruby/CocoaPods
 export LANG=${LANG:-en_US.UTF-8}
 export LC_ALL=${LC_ALL:-en_US.UTF-8}
+if [[ " ${RUBYOPT:-} " != *" -rlogger "* ]]; then
+  export RUBYOPT="${RUBYOPT:+$RUBYOPT }-rlogger"
+fi
 
 WORKSPACE_DIR=${WORKSPACE:-$(pwd)}
 pushd "$WORKSPACE_DIR" >/dev/null
+RESTORE_CI_PODFILE_ON_EXIT_WAS_SET="${RESTORE_CI_PODFILE_ON_EXIT+x}"
+RESTORE_CI_PODFILE_ON_EXIT="${RESTORE_CI_PODFILE_ON_EXIT:-1}"
+
+restore_ci_podfile() {
+  if [[ "$RESTORE_CI_PODFILE_ON_EXIT" == "1" ]]; then
+    if [[ -f "$WORKSPACE_DIR/Podfile.ci.bak" ]]; then
+      mv -f "$WORKSPACE_DIR/Podfile.ci.bak" "$WORKSPACE_DIR/Podfile"
+    fi
+    if [[ -f "$WORKSPACE_DIR/Podfile.lock.ci.bak" ]]; then
+      mv -f "$WORKSPACE_DIR/Podfile.lock.ci.bak" "$WORKSPACE_DIR/Podfile.lock"
+    fi
+    if [[ -f "$WORKSPACE_DIR/Pods/Manifest.lock.ci.bak" ]]; then
+      mv -f "$WORKSPACE_DIR/Pods/Manifest.lock.ci.bak" "$WORKSPACE_DIR/Pods/Manifest.lock"
+    fi
+  else
+    rm -f "$WORKSPACE_DIR/Podfile.ci.bak"
+    rm -f "$WORKSPACE_DIR/Podfile.lock.ci.bak"
+    rm -f "$WORKSPACE_DIR/Pods/Manifest.lock.ci.bak"
+  fi
+  rm -f "$WORKSPACE_DIR/Podfile.ci.tmp"
+  rm -f "$WORKSPACE_DIR/Podfile.lock.ci.tmp"
+  rm -f "$WORKSPACE_DIR/Pods/Manifest.lock.ci.tmp"
+}
+trap restore_ci_podfile EXIT
 
 # 1) CocoaPods install (with fallbacks)
 if [[ -f Podfile ]]; then
@@ -32,10 +59,16 @@ if [[ -f Podfile ]]; then
   fi
 
   if [[ "$SHOULD_DISABLE_KEYS" == "1" ]]; then
-    if /usr/bin/grep -q "pod 'FearlessKeys'" Podfile; then
+    if /usr/bin/grep -q "^[[:space:]]*pod 'FearlessKeys'" Podfile; then
       cp Podfile Podfile.ci.bak
+      if [[ -f Podfile.lock ]]; then cp Podfile.lock Podfile.lock.ci.bak; fi
+      if [[ -f Pods/Manifest.lock ]]; then cp Pods/Manifest.lock Pods/Manifest.lock.ci.bak; fi
       awk 'BEGIN{done=0} { if(done==0 && $0 ~ /^[[:space:]]*pod '\''FearlessKeys'\''/){ print "# CI: disabled private pod for PR build -> "$0; done=1 } else { print } }' Podfile > Podfile.ci.tmp && mv Podfile.ci.tmp Podfile
       echo "[bootstrap] Disabled FearlessKeys pod (no token available in CI)"
+      if [[ -z "$RESTORE_CI_PODFILE_ON_EXIT_WAS_SET" && ( -n "${GITHUB_ACTIONS:-}" || "$IS_JENKINS_PR" == "1" ) ]]; then
+        RESTORE_CI_PODFILE_ON_EXIT=0
+        echo "[bootstrap] Keeping generated CI Podfile.lock/Pods Manifest.lock for this CI job"
+      fi
     fi
   else
     # Trusted branch or token provided: enable tokens for private repos
@@ -69,7 +102,7 @@ if [[ -f Podfile ]]; then
   fi
 
   # Restore original Podfile if modified
-  if [[ -f Podfile.ci.bak ]]; then mv -f Podfile.ci.bak Podfile; fi
+  restore_ci_podfile
 
   # Verify Pods installed
   if [[ ! -f "Pods/Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.debug.xcconfig" ]]; then

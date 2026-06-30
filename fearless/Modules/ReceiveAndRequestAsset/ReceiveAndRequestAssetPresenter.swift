@@ -36,7 +36,7 @@ final class ReceiveAndRequestAssetPresenter {
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
 
     private var address: String? {
-        wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
+        UniversalWalletAccountAddressResolver.address(for: chainAsset.chain, wallet: wallet)
     }
 
     // MARK: - Constructors
@@ -135,11 +135,14 @@ final class ReceiveAndRequestAssetPresenter {
 
         qrOperation = Task {
             do {
-                guard let account = wallet.fetch(for: chainAsset.chain.accountRequest()), let address = account.toAddress() else {
+                guard let address = address else {
                     throw ChainAccountFetchingError.accountNotExists
                 }
                 var qrType: QRType = .address(address)
                 if chainAsset.chain.isSora {
+                    guard let account = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
+                        throw ChainAccountFetchingError.accountNotExists
+                    }
                     let balance = getBalance()
                     var inputAmount = inputResult?.absoluteValue(from: balance).stringWithPointSeparator
                     if
@@ -238,7 +241,7 @@ extension ReceiveAndRequestAssetPresenter: ReceiveAndRequestAssetViewOutput {
     }
 
     func presentAccountOptions() {
-        guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress(), let view = view else {
+        guard let address = address, let view = view else {
             return
         }
 

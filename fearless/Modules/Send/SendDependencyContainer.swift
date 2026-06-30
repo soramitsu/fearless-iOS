@@ -26,6 +26,10 @@ struct SendDependencies {
     let storageRequestPerformer: StorageRequestPerformer?
 }
 
+enum UniversalWalletSendRoutingError: Error, Equatable {
+    case unsupported(chainId: String)
+}
+
 final class SendDepencyContainer {
     private let wallet: MetaAccountModel
     private let operationManager: OperationManagerProtocol
@@ -111,6 +115,22 @@ final class SendDepencyContainer {
             throw ChainAccountFetchingError.accountNotExists
         }
 
+        if isUniversalWalletBitcoin(chainAsset.chain) {
+            return BitcoinTransferService(wallet: wallet, chain: chainAsset.chain)
+        }
+
+        if isUniversalWalletSolana(chainAsset.chain) {
+            return try SolanaTransferService(wallet: wallet, chain: chainAsset.chain)
+        }
+
+        if isUniversalWalletIroha(chainAsset.chain) {
+            return IrohaTransferService(wallet: wallet, chain: chainAsset.chain)
+        }
+
+        if chainAsset.chain.isTonCompatibilityChain {
+            throw ConvenienceError(error: "TON transfer not yet supported.")
+        }
+
         if chainAsset.chain.chainBaseType == .substrate {
             guard let nativeRuntimeService = (ChainRegistryFacade.sharedRegistry as ChainRegistryProtocol).getRuntimeProvider(for: chainAsset.chain.chainId) else {
                 throw ChainRegistryError.runtimeMetadaUnavailable
@@ -158,6 +178,42 @@ final class SendDepencyContainer {
         }
 
         throw ConvenienceError(error: "TON transfer not yet supported.")
+    }
+
+    private func isUniversalWalletBitcoin(_ chain: ChainModel) -> Bool {
+        switch chain.chainId.lowercased() {
+        case UniversalWalletRegistry.bitcoinMainnet.chainId,
+             UniversalWalletRegistry.bitcoinMainnet.id,
+             UniversalWalletRegistry.bitcoinTestnet.chainId,
+             UniversalWalletRegistry.bitcoinTestnet.id:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private func isUniversalWalletIroha(_ chain: ChainModel) -> Bool {
+        switch chain.chainId.lowercased() {
+        case UniversalWalletRegistry.taira.chainId,
+             UniversalWalletRegistry.taira.id,
+             UniversalWalletRegistry.nexus.chainId,
+             UniversalWalletRegistry.nexus.id:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private func isUniversalWalletSolana(_ chain: ChainModel) -> Bool {
+        switch chain.chainId.lowercased() {
+        case UniversalWalletRegistry.solanaMainnet.chainId,
+             UniversalWalletRegistry.solanaMainnet.id,
+             UniversalWalletRegistry.solanaDevnet.chainId,
+             UniversalWalletRegistry.solanaDevnet.id:
+            return true
+        default:
+            return false
+        }
     }
 
     private func createEqTotalBalanceService(chainAsset: ChainAsset) -> EquilibriumTotalBalanceServiceProtocol? {

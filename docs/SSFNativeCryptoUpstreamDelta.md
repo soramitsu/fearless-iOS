@@ -62,10 +62,10 @@ Reason:
 
 These repo files are the canonical local source of truth:
 
-- [IrohaCrypto.module.modulemap](/Users/williamrichter/Git/fearless-iOS/scripts/deps/templates/IrohaCrypto.module.modulemap)
-- [IrohaCrypto-umbrella.h](/Users/williamrichter/Git/fearless-iOS/scripts/deps/templates/IrohaCrypto-umbrella.h)
-- [IrohaCrypto.linker-settings.swiftfrag](/Users/williamrichter/Git/fearless-iOS/scripts/deps/templates/IrohaCrypto.linker-settings.swiftfrag)
-- [export-native-crypto-upstream-delta.sh](/Users/williamrichter/Git/fearless-iOS/scripts/deps/export-native-crypto-upstream-delta.sh)
+- `scripts/deps/templates/IrohaCrypto.module.modulemap`
+- `scripts/deps/templates/IrohaCrypto-umbrella.h`
+- `scripts/deps/templates/IrohaCrypto.linker-settings.swiftfrag`
+- `scripts/deps/export-native-crypto-upstream-delta.sh`
 
 ## Exporting the delta
 
@@ -83,6 +83,17 @@ This writes:
 - `build/native-crypto-upstream-delta/IrohaCrypto.linker-settings.swiftfrag`
 
 That output is intended to be the handoff artifact for upstreaming or vendoring the remaining `shared-features-spm` native crypto delta.
+
+For release review and upstream handoff, generate the full shared-features bundle:
+
+```bash
+bash scripts/deps/export-shared-features-upstream-delta.sh
+```
+
+This writes `build/shared-features-upstream-delta` with the machine-readable
+`shared-features-delta-report.json`, the native crypto export, a deterministic
+`handoff-manifest.json`, and a README that lists every carried delta and removal
+blocker.
 
 ## Exit condition for Milestone 3
 

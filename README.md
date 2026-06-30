@@ -25,6 +25,16 @@ Track features development: [board link](https://soramitsucoltd.aha.io/shared/34
 - Run tests locally for both configurations:
   - `bash scripts/test-matrix.sh` (uses iPhone 15 simulator by default)
 
+## Configuration
+Partner and release identifiers are supplied by environment variables or CI key
+generation, not committed source. For public local builds, unset values resolve
+to empty strings and the affected buy-provider flows are unavailable.
+
+Moonpay:
+- `MOONPAY_PRODUCTION_SECRET`
+- `MOONPAY_TEST_SECRET`
+- `MOONPAY_PUBLIC_KEY`
+
 ## License
 
 Fearless Wallet iOS is available under the Apache 2.0 license. See the LICENSE file for more info.

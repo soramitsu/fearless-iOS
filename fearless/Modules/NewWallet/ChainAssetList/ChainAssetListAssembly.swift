@@ -88,6 +88,8 @@ final class ChainAssetListAssembly {
         let accountInfoRemoteService = AccountInfoRemoteServiceDefault(
             ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
             tonRemoteBalanceFetching: tonRemoteBalanceFetching,
+            bitcoinBalanceSync: BitcoinBalanceSync(discovery: BitcoinReceiveDiscovery(client: BitcoinIndexerClient())),
+            solanaBalanceSync: SolanaBalanceSync(client: SolanaIndexerClient()),
             storagePerformer: storagePerformer
         )
 

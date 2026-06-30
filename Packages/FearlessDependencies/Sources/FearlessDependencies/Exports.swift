@@ -60,3 +60,11 @@
 #if canImport(TonSwift)
 @_exported import TonSwift
 #endif
+
+#if canImport(OpenAPIRuntime)
+@_exported import OpenAPIRuntime
+#endif
+
+#if canImport(HTTPTypes)
+@_exported import HTTPTypes
+#endif

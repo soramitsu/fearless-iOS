@@ -51,7 +51,7 @@ private final class FailoverChainConnection: JSONRPCEngine, WebSocketEngineDeleg
         }
 
         self.urls = urls
-        self.externalDelegate = delegate
+        externalDelegate = delegate
         self.processingQueue = processingQueue
         self.logger = logger
         self.reconnectionStrategy = reconnectionStrategy
