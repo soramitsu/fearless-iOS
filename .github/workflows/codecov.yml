@@ -45,6 +45,11 @@ jobs:
           bash ./scripts/test-codecov-coverage-contract.sh
           bash ./scripts/audit-codecov-coverage-contract.sh
 
+      - name: Transaction builder coverage audit
+        run: |
+          bash ./scripts/test-transaction-builder-tests-audit.sh
+          bash ./scripts/audit-transaction-builder-tests.sh
+
       - name: Iroha mobile SDK release asset contract
         env:
           GH_TOKEN: ${{ github.token }}
