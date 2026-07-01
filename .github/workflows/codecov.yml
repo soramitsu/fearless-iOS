@@ -30,6 +30,11 @@ jobs:
           bash ./scripts/test-todo-debt-audit.sh
           bash ./scripts/audit-todo-debt.sh
 
+      - name: Transaction builder coverage audit
+        run: |
+          bash ./scripts/test-transaction-builder-tests-audit.sh
+          bash ./scripts/audit-transaction-builder-tests.sh
+
       - name: Iroha mobile SDK release asset contract
         env:
           GH_TOKEN: ${{ github.token }}
