@@ -1,4 +1,4 @@
-@Library('jenkins-library') _
+@Library('jenkins-library@duty-27.03.2024/update_ios_pipeline') _
 
 // Job properties
 def jobParams = [
