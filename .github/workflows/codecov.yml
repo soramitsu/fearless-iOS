@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
 
       - name: Branch flow audit
         run: |
@@ -37,6 +39,11 @@ jobs:
         run: |
           bash ./scripts/test-testflight-publication-readiness-audit.sh
           bash ./scripts/audit-testflight-publication-readiness.sh
+
+      - name: Codecov executable coverage contract
+        run: |
+          bash ./scripts/test-codecov-coverage-contract.sh
+          bash ./scripts/audit-codecov-coverage-contract.sh
 
       - name: Iroha mobile SDK release asset contract
         env:
@@ -153,6 +160,7 @@ jobs:
           esac
           echo "Using destination: $DESTINATION"
           LOG_FILE="$PWD/build/codecov-xcodebuild.log"
+          RESULT_BUNDLE="$PWD/build/CodecovTests.xcresult"
           mkdir -p "$PWD/build"
           if ! xcodebuild \
             -workspace fearless.xcworkspace \
@@ -160,6 +168,8 @@ jobs:
             -clonedSourcePackagesDirPath "$SP_DIR" \
             -disableAutomaticPackageResolution \
             -destination "$DESTINATION" \
+            -enableCodeCoverage YES \
+            -resultBundlePath "$RESULT_BUNDLE" \
             build test | tee "$LOG_FILE" | xcpretty --test; then
             echo "Build/Test failed. Key errors from $LOG_FILE:" >&2
             if command -v rg >/dev/null 2>&1; then
@@ -169,6 +179,22 @@ jobs:
             fi
             exit 1
           fi
+          COVERAGE_PROFILE="$(
+            find "$HOME/Library/Developer/Xcode/DerivedData" \
+              -type f -name '*.profdata' -print -quit
+          )"
+          if [[ -z "$COVERAGE_PROFILE" ]]; then
+            echo "Tests passed but Xcode produced no coverage profile." >&2
+            exit 1
+          fi
+          xcrun llvm-profdata show "$COVERAGE_PROFILE" >/dev/null || {
+            echo "Xcode produced an unreadable coverage profile: $COVERAGE_PROFILE" >&2
+            exit 1
+          }
+          test -d "$RESULT_BUNDLE" || {
+            echo "Xcode did not produce the required result bundle." >&2
+            exit 1
+          }
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
