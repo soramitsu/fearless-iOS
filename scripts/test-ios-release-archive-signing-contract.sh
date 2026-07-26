@@ -14,7 +14,7 @@ fail() {
 
 contains_workspace_signing_override() {
   grep -Eq \
-    '^[[:space:]]*"?(CODE_SIGN_STYLE|PROVISIONING_PROFILE(_SPECIFIER)?)=' \
+    '^[[:space:]]*"?(CODE_SIGN_IDENTITY|CODE_SIGN_STYLE|DEVELOPMENT_TEAM|PROVISIONING_PROFILE(_SPECIFIER)?)=' \
     "$1"
 }
 
@@ -44,14 +44,16 @@ while IFS= read -r override; do
 done <<'OVERRIDES'
 CODE_SIGN_STYLE=Manual
   "CODE_SIGN_STYLE=Automatic"
+CODE_SIGN_IDENTITY=Apple Distribution
+  "CODE_SIGN_IDENTITY=Apple Distribution"
+DEVELOPMENT_TEAM=YLWWUD25VZ
+  "DEVELOPMENT_TEAM=YLWWUD25VZ"
 PROVISIONING_PROFILE=01234567-89AB-CDEF-0123-456789ABCDEF
   "PROVISIONING_PROFILE=01234567-89AB-CDEF-0123-456789ABCDEF"
 PROVISIONING_PROFILE_SPECIFIER=Fearless App Store
   "PROVISIONING_PROFILE_SPECIFIER=Fearless App Store"
 OVERRIDES
 
-grep -Fq '"CODE_SIGN_IDENTITY=$EXPECTED_SIGNING_IDENTITY"' "$BUILD_SCRIPT" ||
-  fail "archive script does not bind the reviewed distribution identity"
 grep -Fq \
   'bash "$SCRIPT_DIR/audit-ios-signed-release-artifact.sh"' \
   "$BUILD_SCRIPT" ||
@@ -68,8 +70,16 @@ grep -Fq -- \
   '--expected-profile-name "$EXPECTED_PROFILE_NAME"' \
   "$BUILD_SCRIPT" ||
   fail "signed-artifact audit is not bound to the reviewed profile name"
-grep -Fq 'require_setting CODE_SIGN_STYLE "Automatic"' "$IDENTITY_AUDIT" ||
-  fail "release identity no longer requires target-scoped Automatic signing"
+grep -Fq 'require_setting CODE_SIGN_STYLE "Manual"' "$IDENTITY_AUDIT" ||
+  fail "release identity no longer requires target-scoped Manual signing"
+grep -Fq \
+  'require_setting CODE_SIGN_IDENTITY "$EXPECTED_SIGNING_IDENTITY"' \
+  "$IDENTITY_AUDIT" ||
+  fail "release identity no longer requires the target-scoped distribution identity"
+grep -Fq \
+  'require_setting PROVISIONING_PROFILE_SPECIFIER "$EXPECTED_PROFILE_NAME"' \
+  "$IDENTITY_AUDIT" ||
+  fail "release identity no longer requires the target-scoped App Store profile"
 
 printf '%s\n' \
   "[ios-release-archive-signing-test] PASS: canonical contract and $override_number workspace-wide override mutations"

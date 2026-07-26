@@ -7,7 +7,6 @@ set -euo pipefail
 umask 077
 
 readonly LOG_PREFIX="[ios-release-archive]"
-readonly EXPECTED_TEAM="YLWWUD25VZ"
 readonly EXPECTED_BUNDLE="jp.co.soramitsu.fearlesswallet"
 readonly EXPECTED_VERSION="4.2.0"
 readonly EXPECTED_SIGNING_IDENTITY="Apple Distribution: Soramitsu Co., Ltd. (YLWWUD25VZ)"
@@ -129,14 +128,11 @@ xcodebuild_arguments+=(
   "CURRENT_PROJECT_VERSION=$EXPECTED_BUILD"
   "MARKETING_VERSION=$EXPECTED_VERSION"
   "FEARLESS_GIT_COMMIT=$source_commit"
-  "DEVELOPMENT_TEAM=$EXPECTED_TEAM"
-  # Keep the application target's reviewed Automatic signing style. A
-  # PROVISIONING_PROFILE_SPECIFIER passed on the xcodebuild command line is a
-  # workspace-wide override: Xcode applies it to Pods and Swift-package
-  # resource bundles too, and those targets correctly reject provisioning
-  # profiles. The post-build audit below still fails closed unless Xcode chose
-  # the exact reviewed App Store profile and distribution certificate.
-  "CODE_SIGN_IDENTITY=$EXPECTED_SIGNING_IDENTITY"
+  # Signing is intentionally target-scoped in the application's Release build
+  # configuration. Any signing setting passed here would apply to every Pod,
+  # Swift package, and resource bundle in the workspace. The source identity
+  # audit above and signed-artifact audit below fail closed on the exact team,
+  # distribution identity, App Store profile, and production entitlements.
   clean
   archive
 )

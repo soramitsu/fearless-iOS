@@ -5,6 +5,8 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 readonly EXPECTED_DEVELOPMENT_TEAM="YLWWUD25VZ"
+readonly EXPECTED_SIGNING_IDENTITY="Apple Distribution: Soramitsu Co., Ltd. (YLWWUD25VZ)"
+readonly EXPECTED_PROFILE_NAME="Fearless App Store 2026.7.26"
 readonly AUDIT_TEST_HARNESS="${IOS_RELEASE_AUDIT_TEST_HARNESS:-0}"
 
 fail() {
@@ -205,8 +207,10 @@ require_setting PRODUCT_BUNDLE_IDENTIFIER "$EXPECTED_BUNDLE_ID"
 require_setting MARKETING_VERSION "$EXPECTED_VERSION"
 require_setting CURRENT_PROJECT_VERSION "$EXPECTED_BUILD"
 require_setting CODE_SIGN_ENTITLEMENTS "fearless/WalletConnect.entitlements"
-require_setting CODE_SIGN_STYLE "Automatic"
+require_setting CODE_SIGN_STYLE "Manual"
+require_setting CODE_SIGN_IDENTITY "$EXPECTED_SIGNING_IDENTITY"
 require_setting DEVELOPMENT_TEAM "$EXPECTED_DEVELOPMENT_TEAM"
+require_setting PROVISIONING_PROFILE_SPECIFIER "$EXPECTED_PROFILE_NAME"
 require_setting SWIFT_OPTIMIZATION_LEVEL "-O"
 require_setting ENABLE_TESTABILITY "NO"
 

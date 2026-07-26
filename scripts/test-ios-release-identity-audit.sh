@@ -43,8 +43,10 @@ jq -n '[
       MARKETING_VERSION: "4.2.0",
       CURRENT_PROJECT_VERSION: "2026.7.26",
       CODE_SIGN_ENTITLEMENTS: "fearless/WalletConnect.entitlements",
-      CODE_SIGN_STYLE: "Automatic",
+      CODE_SIGN_IDENTITY: "Apple Distribution: Soramitsu Co., Ltd. (YLWWUD25VZ)",
+      CODE_SIGN_STYLE: "Manual",
       DEVELOPMENT_TEAM: "YLWWUD25VZ",
+      PROVISIONING_PROFILE_SPECIFIER: "Fearless App Store 2026.7.26",
       SWIFT_OPTIMIZATION_LEVEL: "-O",
       ENABLE_TESTABILITY: "NO"
     }
@@ -149,10 +151,26 @@ mutate_setting ENABLE_TESTABILITY YES "$testable_release"
 run_reject testable-release \
   run_audit "$testable_release" "$scheme" "$entitlements"
 
-manual_signing="$FIXTURES/manual-signing.json"
-mutate_setting CODE_SIGN_STYLE Manual "$manual_signing"
-run_reject manual-signing \
-  run_audit "$manual_signing" "$scheme" "$entitlements"
+automatic_signing="$FIXTURES/automatic-signing.json"
+mutate_setting CODE_SIGN_STYLE Automatic "$automatic_signing"
+run_reject automatic-signing \
+  run_audit "$automatic_signing" "$scheme" "$entitlements"
+
+wrong_signing_identity="$FIXTURES/wrong-signing-identity.json"
+mutate_setting CODE_SIGN_IDENTITY "Apple Development" "$wrong_signing_identity"
+run_reject wrong-signing-identity \
+  run_audit "$wrong_signing_identity" "$scheme" "$entitlements"
+
+wrong_profile="$FIXTURES/wrong-profile.json"
+mutate_setting PROVISIONING_PROFILE_SPECIFIER \
+  "Another App Store Profile" "$wrong_profile"
+run_reject wrong-profile \
+  run_audit "$wrong_profile" "$scheme" "$entitlements"
+
+empty_profile="$FIXTURES/empty-profile.json"
+mutate_setting PROVISIONING_PROFILE_SPECIFIER "" "$empty_profile"
+run_reject empty-profile \
+  run_audit "$empty_profile" "$scheme" "$entitlements"
 
 wrong_team="$FIXTURES/wrong-team.json"
 mutate_setting DEVELOPMENT_TEAM AAAAAAAAAA "$wrong_team"
