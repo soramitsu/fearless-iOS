@@ -41,7 +41,7 @@ jq -n '[
     buildSettings: {
       PRODUCT_BUNDLE_IDENTIFIER: "jp.co.soramitsu.fearlesswallet",
       MARKETING_VERSION: "4.2.0",
-      CURRENT_PROJECT_VERSION: "2026.7.26",
+      CURRENT_PROJECT_VERSION: "2026.7.27",
       CODE_SIGN_ENTITLEMENTS: "fearless/WalletConnect.entitlements",
       CODE_SIGN_IDENTITY: "Apple Distribution: Soramitsu Co., Ltd. (YLWWUD25VZ)",
       CODE_SIGN_STYLE: "Manual",
@@ -75,7 +75,7 @@ run_audit() {
   local debug_entitlements_file="${7:-$dev_entitlements}"
 
   IOS_RELEASE_AUDIT_TEST_HARNESS=1 \
-  IOS_EXPECTED_BUILD_NUMBER=2026.7.26 \
+  IOS_EXPECTED_BUILD_NUMBER=2026.7.27 \
   IOS_RELEASE_SETTINGS_JSON="$1" \
   IOS_DEBUG_SETTINGS_JSON="$debug_settings_file" \
   IOS_RELEASE_SCHEME_FILE="$2" \

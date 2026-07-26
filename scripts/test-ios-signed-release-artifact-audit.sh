@@ -116,7 +116,7 @@ app = {
     "CFBundleExecutable": "fearless",
     "CFBundleIdentifier": bundle,
     "CFBundleShortVersionString": "4.2.0",
-    "CFBundleVersion": "2026.7.26",
+    "CFBundleVersion": "2026.7.27",
     "FearlessBuildConfiguration": "Release",
     "FearlessEnableTestability": "NO",
     "FearlessGitCommit": git_sha,
@@ -172,7 +172,7 @@ run_audit() {
     bash "$AUDIT" \
       --archive "$ARCHIVE" \
       --expected-git-sha "${EXPECTED_GIT_OVERRIDE:-$EXPECTED_GIT_SHA}" \
-      --expected-build 2026.7.26 \
+      --expected-build 2026.7.27 \
       --expected-executable-sha256 "${EXPECTED_EXECUTABLE_SHA_OVERRIDE:-$executable_sha}" \
       --expected-archive-sha256 "${EXPECTED_ARCHIVE_SHA_OVERRIDE:-$archive_sha}" \
       --expected-signing-certificate-sha1 "${EXPECTED_SIGNING_CERTIFICATE_SHA_OVERRIDE:-$signing_certificate_sha1}" \

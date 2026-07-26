@@ -13,9 +13,9 @@ readonly EXPECTED_SIGNING_IDENTITY="Apple Distribution: Soramitsu Co., Ltd. (YLW
 readonly EXPECTED_SIGNING_CERTIFICATE_SHA1="84AB95335BE14CAE9B050A353910F86FF2F9539B"
 readonly EXPECTED_PROFILE_NAME="Fearless App Store 2026.7.26"
 readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
-# Read-only App Store Connect inspection on 2026-07-26 found only 2026.7.14
-# and 2026.7.15 for 4.2.0. This candidate number was unused at inspection time.
-readonly EXPECTED_BUILD="2026.7.26"
+# Read-only App Store Connect inspection on 2026-07-26 found 2026.7.26 as the
+# newest 4.2.0 build. This candidate number was unused at inspection time.
+readonly EXPECTED_BUILD="2026.7.27"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -33,7 +33,7 @@ Usage:
 
 Preconditions:
   - exact clean git HEAD, including no untracked files;
-  - App Store Connect read-only uniqueness check for 4.2.0 (2026.7.26);
+  - App Store Connect read-only uniqueness check for 4.2.0 (2026.7.27);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 
