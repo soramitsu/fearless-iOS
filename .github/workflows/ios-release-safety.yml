@@ -37,6 +37,7 @@ jobs:
         run: |
           set -euo pipefail
           bash scripts/test-ios-release-identity-audit.sh
+          bash scripts/test-ios-release-archive-signing-contract.sh
           bash scripts/test-ios-signed-release-artifact-audit.sh
           bash scripts/test-coredata-release-gate.sh
           bash scripts/test-coredata-simulator-rehearsal.sh

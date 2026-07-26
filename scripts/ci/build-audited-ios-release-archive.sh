@@ -130,9 +130,13 @@ xcodebuild_arguments+=(
   "MARKETING_VERSION=$EXPECTED_VERSION"
   "FEARLESS_GIT_COMMIT=$source_commit"
   "DEVELOPMENT_TEAM=$EXPECTED_TEAM"
-  "CODE_SIGN_STYLE=Manual"
+  # Keep the application target's reviewed Automatic signing style. A
+  # PROVISIONING_PROFILE_SPECIFIER passed on the xcodebuild command line is a
+  # workspace-wide override: Xcode applies it to Pods and Swift-package
+  # resource bundles too, and those targets correctly reject provisioning
+  # profiles. The post-build audit below still fails closed unless Xcode chose
+  # the exact reviewed App Store profile and distribution certificate.
   "CODE_SIGN_IDENTITY=$EXPECTED_SIGNING_IDENTITY"
-  "PROVISIONING_PROFILE_SPECIFIER=$EXPECTED_PROFILE_NAME"
   clean
   archive
 )
