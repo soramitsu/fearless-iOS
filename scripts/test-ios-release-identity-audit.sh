@@ -50,16 +50,48 @@ jq -n '[
   }
 ]' > "$settings"
 
+debug_settings="$FIXTURES/debug-settings.json"
+jq -n '[
+  {
+    target: "fearless",
+    buildSettings: {
+      PRODUCT_BUNDLE_IDENTIFIER: "jp.co.soramitsu.fearlesswallet.dev",
+      CODE_SIGN_ENTITLEMENTS: "fearless/WalletConnect.dev.entitlements",
+      CODE_SIGN_STYLE: "Automatic"
+    }
+  }
+]' > "$debug_settings"
+
+dev_entitlements="$REPO_ROOT/fearless/WalletConnect.dev.entitlements"
+
 run_audit() {
   local info_plist="${4:-$REPO_ROOT/fearless/Info.plist}"
   local wallet_connect_service="${5:-$REPO_ROOT/fearless/ApplicationLayer/Services/WalletConnect/WalletConnectService.swift}"
+  local debug_settings_file="${6:-$debug_settings}"
+  local debug_entitlements_file="${7:-$dev_entitlements}"
 
   IOS_RELEASE_SETTINGS_JSON="$1" \
+  IOS_DEBUG_SETTINGS_JSON="$debug_settings_file" \
   IOS_RELEASE_SCHEME_FILE="$2" \
   IOS_RELEASE_ENTITLEMENTS_FILE="$3" \
+  IOS_DEBUG_ENTITLEMENTS_FILE="$debug_entitlements_file" \
   IOS_RELEASE_INFO_PLIST_FILE="$info_plist" \
   IOS_RELEASE_WALLET_CONNECT_SERVICE_FILE="$wallet_connect_service" \
     bash "$AUDIT"
+}
+
+run_debug_fixture() {
+  local debug_settings_file="$1"
+  local debug_entitlements_file="${2:-$dev_entitlements}"
+
+  run_audit \
+    "$settings" \
+    "$scheme" \
+    "$entitlements" \
+    "$REPO_ROOT/fearless/Info.plist" \
+    "$REPO_ROOT/fearless/ApplicationLayer/Services/WalletConnect/WalletConnectService.swift" \
+    "$debug_settings_file" \
+    "$debug_entitlements_file"
 }
 
 scheme="$REPO_ROOT/fearless.xcodeproj/xcshareddata/xcschemes/fearless.xcscheme"
@@ -134,6 +166,47 @@ printf '%s\n' '{"not":"an array"}' > "$malformed_settings"
 run_reject malformed-settings \
   run_audit "$malformed_settings" "$scheme" "$entitlements"
 
+mutate_debug_setting() {
+  local key="$1"
+  local value="$2"
+  local destination="$3"
+
+  jq --arg key "$key" --arg value "$value" \
+    '.[0].buildSettings[$key] = $value' \
+    "$debug_settings" > "$destination"
+}
+
+debug_production_bundle="$FIXTURES/debug-production-bundle.json"
+mutate_debug_setting \
+  PRODUCT_BUNDLE_IDENTIFIER \
+  jp.co.soramitsu.fearlesswallet \
+  "$debug_production_bundle"
+run_reject debug-production-bundle \
+  run_debug_fixture "$debug_production_bundle"
+
+debug_production_entitlements="$FIXTURES/debug-production-entitlements.json"
+mutate_debug_setting \
+  CODE_SIGN_ENTITLEMENTS \
+  fearless/WalletConnect.entitlements \
+  "$debug_production_entitlements"
+run_reject debug-production-entitlements \
+  run_debug_fixture "$debug_production_entitlements"
+
+debug_manual_signing="$FIXTURES/debug-manual-signing.json"
+mutate_debug_setting CODE_SIGN_STYLE Manual "$debug_manual_signing"
+run_reject debug-manual-signing \
+  run_debug_fixture "$debug_manual_signing"
+
+duplicate_debug_target="$FIXTURES/duplicate-debug-target.json"
+jq '. + [.[0]]' "$debug_settings" > "$duplicate_debug_target"
+run_reject duplicate-debug-target \
+  run_debug_fixture "$duplicate_debug_target"
+
+malformed_debug_settings="$FIXTURES/malformed-debug-settings.json"
+printf '%s\n' '{"not":"an array"}' > "$malformed_debug_settings"
+run_reject malformed-debug-settings \
+  run_debug_fixture "$malformed_debug_settings"
+
 mutate_entitlements() {
   local filter="$1"
   local destination="$2"
@@ -180,6 +253,25 @@ entitlements_symlink="$FIXTURES/entitlements-link"
 ln -s "$entitlements" "$entitlements_symlink"
 run_reject entitlements-symlink \
   run_audit "$settings" "$scheme" "$entitlements_symlink"
+
+debug_entitlements_production_group="$FIXTURES/debug-production-group.entitlements"
+plutil -convert json -o - "$dev_entitlements" |
+  jq '.["com.apple.security.application-groups"] = ["group.jp.co.soramitsu.fearlesswallet"]' |
+  plutil -convert xml1 -o "$debug_entitlements_production_group" -
+run_reject debug-production-group \
+  run_debug_fixture "$debug_settings" "$debug_entitlements_production_group"
+
+debug_entitlements_production_cloud="$FIXTURES/debug-production-cloud.entitlements"
+plutil -convert json -o - "$dev_entitlements" |
+  jq '.["com.apple.developer.icloud-container-identifiers"] = ["iCloud.jp.co.soramitsu.fearlesswallet"]' |
+  plutil -convert xml1 -o "$debug_entitlements_production_cloud" -
+run_reject debug-production-cloud \
+  run_debug_fixture "$debug_settings" "$debug_entitlements_production_cloud"
+
+debug_entitlements_symlink="$FIXTURES/debug-entitlements-link"
+ln -s "$dev_entitlements" "$debug_entitlements_symlink"
+run_reject debug-entitlements-symlink \
+  run_debug_fixture "$debug_settings" "$debug_entitlements_symlink"
 
 hardcoded_build_plist="$FIXTURES/hardcoded-build.plist"
 cp "$REPO_ROOT/fearless/Info.plist" "$hardcoded_build_plist"
