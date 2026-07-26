@@ -240,6 +240,46 @@ final class ChainModelMapperTests: XCTestCase {
         }
     }
 
+    func testTransformKeepsCompatibleCustomNodeAsOnlyRuntimeEndpoint()
+        throws {
+        let context = try createContext()
+        let entity = makeValidChainEntity(in: context)
+        let customNode = CDChainNode(context: context)
+        customNode.url = try XCTUnwrap(
+            URL(string: "wss://custom-only.example")
+        )
+        customNode.name = "Custom only"
+        entity.customNodes = NSSet(object: customNode)
+
+        let chain = try ChainModelMapper().transform(entity: entity)
+
+        XCTAssertTrue(chain.nodes.isEmpty)
+        XCTAssertNil(chain.selectedNode)
+        XCTAssertEqual(
+            chain.customNodes,
+            Set([try makeNode(from: customNode)])
+        )
+        XCTAssertFalse(chain.disabled)
+    }
+
+    func testTransformDisablesChainWithOnlyIncompatibleCustomNode() throws {
+        let context = try createContext()
+        let entity = makeValidChainEntity(in: context)
+        let customNode = CDChainNode(context: context)
+        customNode.url = try XCTUnwrap(
+            URL(string: "https://not-a-substrate-websocket.example")
+        )
+        customNode.name = "Wrong runtime protocol"
+        entity.customNodes = NSSet(object: customNode)
+
+        let chain = try ChainModelMapper().transform(entity: entity)
+
+        XCTAssertTrue(chain.nodes.isEmpty)
+        XCTAssertNil(chain.selectedNode)
+        XCTAssertEqual(chain.customNodes, Set<ChainNodeModel>())
+        XCTAssertTrue(chain.disabled)
+    }
+
     func testTransformRejectsHTTPNodesForSubstrateRuntime() throws {
         let context = try createContext()
         let incompatibleURLs = [

@@ -787,7 +787,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         }
         let hasRuntimeEndpoint =
             compatibleNodes.isNotEmpty ||
-            compatibleSelectedNode != nil
+            compatibleSelectedNode != nil ||
+            compatibleCustomNodes?.isNotEmpty == true
 
         return chainModel
             .replacingNodeConfiguration(
