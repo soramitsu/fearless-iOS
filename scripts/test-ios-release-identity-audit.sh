@@ -52,11 +52,13 @@ jq -n '[
 
 run_audit() {
   local info_plist="${4:-$REPO_ROOT/fearless/Info.plist}"
+  local wallet_connect_service="${5:-$REPO_ROOT/fearless/ApplicationLayer/Services/WalletConnect/WalletConnectService.swift}"
 
   IOS_RELEASE_SETTINGS_JSON="$1" \
   IOS_RELEASE_SCHEME_FILE="$2" \
   IOS_RELEASE_ENTITLEMENTS_FILE="$3" \
   IOS_RELEASE_INFO_PLIST_FILE="$info_plist" \
+  IOS_RELEASE_WALLET_CONNECT_SERVICE_FILE="$wallet_connect_service" \
     bash "$AUDIT"
 }
 
@@ -191,6 +193,24 @@ plutil -replace CFBundleShortVersionString -string 4.2.0 \
   "$hardcoded_version_plist"
 run_reject hardcoded-marketing-version \
   run_audit "$settings" "$scheme" "$entitlements" "$hardcoded_version_plist"
+
+missing_production_group_service="$FIXTURES/missing-production-group.swift"
+sed \
+  's/group\.jp\.co\.soramitsu\.fearlesswallet/group.com.walletconnect.sdk/' \
+  "$REPO_ROOT/fearless/ApplicationLayer/Services/WalletConnect/WalletConnectService.swift" \
+  > "$missing_production_group_service"
+run_reject wallet-connect-production-group-mismatch \
+  run_audit "$settings" "$scheme" "$entitlements" \
+    "$REPO_ROOT/fearless/Info.plist" "$missing_production_group_service"
+
+hardcoded_group_service="$FIXTURES/hardcoded-wallet-connect-group.swift"
+sed \
+  's/groupIdentifier: groupIdentifier/groupIdentifier: Self.walletConnectGroupIdentifier/' \
+  "$REPO_ROOT/fearless/ApplicationLayer/Services/WalletConnect/WalletConnectService.swift" \
+  > "$hardcoded_group_service"
+run_reject wallet-connect-hardcoded-group \
+  run_audit "$settings" "$scheme" "$entitlements" \
+    "$REPO_ROOT/fearless/Info.plist" "$hardcoded_group_service"
 
 printf '%s\n' \
   "[ios-release-identity-test] PASS: $pass_count positive and $fail_count negative/adversarial cases"

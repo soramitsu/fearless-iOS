@@ -10,6 +10,44 @@ import simd
 import SQLite3
 
 class RootTests: XCTestCase {
+    func testWalletConnectGroupResolverUsesProductionEntitlementForReleaseBundle() {
+        XCTAssertEqual(
+            WalletConnectGroupIdentifierResolver.resolve(
+                bundleIdentifier: "jp.co.soramitsu.fearlesswallet"
+            ),
+            "group.jp.co.soramitsu.fearlesswallet"
+        )
+    }
+
+    func testWalletConnectGroupResolverUsesDevelopmentEntitlementForDevBundle() {
+        XCTAssertEqual(
+            WalletConnectGroupIdentifierResolver.resolve(
+                bundleIdentifier: "jp.co.soramitsu.fearlesswallet.dev"
+            ),
+            "group.com.walletconnect.sdk"
+        )
+    }
+
+    func testWalletConnectGroupResolverRejectsUnsupportedApplicationIdentities() {
+        let unsupportedIdentifiers: [String?] = [
+            nil,
+            "",
+            "jp.co.soramitsu.fearless",
+            "jp.co.soramitsu.fearlesswallet.debug",
+            "jp.co.soramitsu.fearlesswallet.dev.attacker",
+            "evil.jp.co.soramitsu.fearlesswallet"
+        ]
+
+        for identifier in unsupportedIdentifiers {
+            XCTAssertNil(
+                WalletConnectGroupIdentifierResolver.resolve(
+                    bundleIdentifier: identifier
+                ),
+                "Unexpected WalletConnect group for \(identifier ?? "nil")"
+            )
+        }
+    }
+
     func testHostedUnitTestsUseIsolatedApplicationLaunch() {
         XCTAssertTrue(
             ProcessInfo.processInfo.arguments.contains("-UNITTEST"),
