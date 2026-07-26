@@ -3,6 +3,7 @@ set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly GATE="$SCRIPT_DIR/ci/run-coredata-release-gate.sh"
+readonly CDMETAACCOUNT_CODABLE_TEST="$SCRIPT_DIR/storage/test-cdmetaaccount-codable-contract.sh"
 readonly TEMPORARY_DIR="$(mktemp -d "${TMPDIR:-/private/tmp}/fearless-coredata-gate-tests.XXXXXX")"
 trap 'rm -rf "$TEMPORARY_DIR"' EXIT
 
@@ -75,11 +76,14 @@ expect_failure() {
 }
 
 mkdir -p \
+  "$FIXTURE_ROOT/fearless/Common/Storage" \
   "$FIXTURE_ROOT/fearless.xcworkspace" \
   "$FIXTURE_ROOT/SourcePackages/checkouts" \
   "$BIN_DIR"
 printf '%s\n' '<Workspace version="1.0"></Workspace>' \
   >"$FIXTURE_ROOT/fearless.xcworkspace/contents.xcworkspacedata"
+printf '%s\n' 'struct SafeCoreDataReleaseFixture {}' \
+  >"$FIXTURE_ROOT/fearless/Common/Storage/SafeCoreDataReleaseFixture.swift"
 printf '%s\n' 'opaque copied-store fixture; never interpreted by this shell test' >"$PHONE_FIXTURE"
 printf '%s\n' 'opaque write-ahead log' >"${PHONE_FIXTURE}-wal"
 printf '%s\n' 'opaque shared-memory sidecar' >"${PHONE_FIXTURE}-shm"
@@ -264,6 +268,8 @@ exit 64
 STUB
 
 chmod +x "$BIN_DIR/xcodebuild" "$BIN_DIR/xcrun"
+
+bash "$CDMETAACCOUNT_CODABLE_TEST"
 
 CANONICAL_WORKSPACE="$(cd "$FIXTURE_ROOT/fearless.xcworkspace" && pwd -P)"
 CANONICAL_SOURCE_PACKAGES="$(cd "$FIXTURE_ROOT/SourcePackages" && pwd -P)"

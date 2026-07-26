@@ -19,6 +19,7 @@ readonly LOG_PREFIX="[coredata-release-gate]"
 readonly SCHEME="fearless.tests"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly MANIFEST_DIR="$SCRIPT_DIR/manifests"
+readonly CDMETAACCOUNT_CODABLE_AUDIT="$SCRIPT_DIR/../storage/audit-cdmetaaccount-codable-contract.sh"
 readonly UUID_PATTERN='^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$'
 readonly SIMULATOR_DESTINATION_PATTERN='^platform=iOS Simulator,id=([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})(,arch=(arm64|x86_64))?$'
 SIMULATOR_INVENTORY_FILE=""
@@ -685,6 +686,11 @@ main() {
   if [[ "$stage" == "copied-phone" || "$stage" == "all" ]]; then
     require_executable "$SHASUM_BIN" "shasum"
   fi
+  [[ -f "$CDMETAACCOUNT_CODABLE_AUDIT" && ! -L "$CDMETAACCOUNT_CODABLE_AUDIT" ]] ||
+    fail "CDMetaAccount Codable contract audit is missing or unsafe"
+  FEARLESS_CDMETAACCOUNT_CODABLE_ROOT="$ROOT_DIR" \
+    FEARLESS_CDMETAACCOUNT_CODABLE_PYTHON_BIN="$PYTHON_BIN" \
+    bash "$CDMETAACCOUNT_CODABLE_AUDIT"
 
   SIMULATOR_INVENTORY_FILE="$(
     mktemp "${TMPDIR:-/private/tmp}/fearless-coredata-simulators.XXXXXX"
