@@ -2019,6 +2019,10 @@ class SelectedAccountSettingsTests: XCTestCase {
     }
 
     func testTolerantFactoriesAndStreamsIgnoreCorruptSelectedSiblingAndKeepObservingValidWallet() throws {
+        try assertTolerantObservableReconcilesEveryObserverGap()
+        try assertTolerantObservableReconcilesTransientIdentifier()
+        try assertTolerantObservableAggregatesSameIdentifierHandoffs()
+
         let facade = UserDataStorageTestFacade()
         let repositoryQueue = OperationQueue()
         let validWallet = copyWallet(
@@ -2371,6 +2375,431 @@ class SelectedAccountSettingsTests: XCTestCase {
         XCTAssertEqual(corruptProjections.count, corruptIdentifiers.count)
         XCTAssertTrue(corruptProjections.allSatisfy { $0.recordState == .corrupt })
         XCTAssertTrue(corruptProjections.allSatisfy { $0.wallet == nil })
+    }
+
+    private func assertTolerantObservableReconcilesEveryObserverGap() throws {
+        let facade = UserDataStorageTestFacade()
+        let repositoryQueue = OperationQueue()
+        let processingQueue = DispatchQueue(
+            label: "jp.co.fearless.wallet-observable.observer-gap-test"
+        )
+        let wallet = copyWallet(
+            AccountGenerator.generateMetaAccount(generatingChainAccounts: 1),
+            identifier: "observer-gap-wallet",
+            name: "Observer Gap Wallet"
+        )
+        try seed(
+            [ManagedMetaAccountModel(info: wallet, isSelected: true)],
+            in: facade,
+            using: repositoryQueue
+        )
+
+        let observable = TolerantMetaAccountContextObservable(
+            service: facade.databaseService,
+            mapper: AnyCoreDataMapper(ManagedMetaAccountMapper()),
+            predicate: { _ in true },
+            processingQueue: processingQueue
+        )
+        let startExpectation = expectation(description: "gap observable starts")
+        observable.start { error in
+            XCTAssertNil(error)
+            startExpectation.fulfill()
+        }
+        wait(for: [startExpectation], timeout: Constants.defaultExpectationDuration)
+
+        func updateWalletName(_ name: String) throws {
+            try performCoreData(in: facade) { context in
+                let request = NSFetchRequest<CDMetaAccount>(entityName: "CDMetaAccount")
+                request.predicate = NSPredicate(
+                    format: "%K == %@",
+                    #keyPath(CDMetaAccount.metaId),
+                    wallet.identifier
+                )
+                let entity = try XCTUnwrap(context.fetch(request).first)
+                entity.name = name
+                try context.save()
+            }
+            processingQueue.sync {}
+        }
+
+        // Reconcile the exact activation race: valid -> corrupt -> valid completes
+        // after start but before RobinHood asynchronously registers its observer.
+        try updateWalletName(" \n\t ")
+        let restoredName = "Observer Gap Wallet Restored"
+        try updateWalletName(restoredName)
+
+        let firstObserver = NSObject()
+        let firstReconciliationExpectation = expectation(
+            description: "pre-registration final state is reconciled"
+        )
+        var firstBatch: [DataProviderChange<ManagedMetaAccountModel>] = []
+        observable.addObserver(
+            firstObserver,
+            deliverOn: .main,
+            executing: { changes in
+                firstBatch = changes
+                firstReconciliationExpectation.fulfill()
+            }
+        )
+        wait(
+            for: [firstReconciliationExpectation],
+            timeout: Constants.defaultExpectationDuration
+        )
+        XCTAssertEqual(firstBatch.count, 2)
+        if case let .delete(identifier)? = firstBatch.first {
+            XCTAssertEqual(identifier, wallet.identifier)
+        } else {
+            XCTFail("Reconciliation must invalidate the provider's stale snapshot")
+        }
+        if case let .insert(model)? = firstBatch.last {
+            XCTAssertEqual(model.identifier, wallet.identifier)
+            XCTAssertEqual(model.info.name, restoredName)
+        } else {
+            XCTFail("Reconciliation must finish with the current healthy wallet")
+        }
+
+        observable.removeObserver(firstObserver)
+        processingQueue.sync {}
+
+        let oldDeliveryQueue = DispatchQueue(
+            label: "jp.co.fearless.wallet-observable.old-delivery-test"
+        )
+        let newDeliveryQueue = DispatchQueue(
+            label: "jp.co.fearless.wallet-observable.new-delivery-test"
+        )
+        let oldDeliveryBlockStarted = DispatchSemaphore(value: 0)
+        let newDeliveryBlockStarted = DispatchSemaphore(value: 0)
+        let releaseOldDelivery = DispatchSemaphore(value: 0)
+        let releaseNewDelivery = DispatchSemaphore(value: 0)
+        defer {
+            releaseOldDelivery.signal()
+            releaseNewDelivery.signal()
+        }
+        oldDeliveryQueue.async {
+            oldDeliveryBlockStarted.signal()
+            releaseOldDelivery.wait()
+        }
+        newDeliveryQueue.async {
+            newDeliveryBlockStarted.signal()
+            releaseNewDelivery.wait()
+        }
+        XCTAssertEqual(
+            oldDeliveryBlockStarted.wait(
+                timeout: .now() + Constants.defaultExpectationDuration
+            ),
+            .success
+        )
+        XCTAssertEqual(
+            newDeliveryBlockStarted.wait(
+                timeout: .now() + Constants.defaultExpectationDuration
+            ),
+            .success
+        )
+
+        let teardownObserver = NSObject()
+        observable.addObserver(
+            teardownObserver,
+            deliverOn: oldDeliveryQueue,
+            executing: { _ in }
+        )
+        processingQueue.sync {}
+
+        // Model StreamableProvider's teardown race deterministically. The source
+        // callback is already in flight when the provider loses its last user.
+        // Removal remains asynchronous, and the repair mutation happens without
+        // draining that removal first.
+        try updateWalletName("")
+        observable.removeObserver(teardownObserver)
+        let resubscribedName = "Observer Gap Wallet Resubscribed"
+        try updateWalletName(resubscribedName)
+
+        // Re-add the identical observer while its old-generation callback is
+        // blocked, then independently block the new-generation reconciliation.
+        // Finishing the old callback must only acknowledge its unique delivery.
+        var blockedNewGenerationBatch: [
+            DataProviderChange<ManagedMetaAccountModel>
+        ] = []
+        observable.addObserver(
+            teardownObserver,
+            deliverOn: newDeliveryQueue,
+            executing: { changes in
+                blockedNewGenerationBatch = changes
+            }
+        )
+        processingQueue.sync {}
+        releaseOldDelivery.signal()
+        oldDeliveryQueue.sync {}
+        processingQueue.sync {}
+
+        // A second removal must still repend the independently in-flight new
+        // generation, proving an old completion cannot ABA-clear its state.
+        observable.removeObserver(teardownObserver)
+        processingQueue.sync {}
+
+        let abaReconciliationExpectation = expectation(
+            description: "same observer generation is reconciled independently"
+        )
+        var abaBatch: [DataProviderChange<ManagedMetaAccountModel>] = []
+        observable.addObserver(
+            teardownObserver,
+            deliverOn: .main,
+            executing: { changes in
+                abaBatch = changes
+                abaReconciliationExpectation.fulfill()
+            }
+        )
+        wait(
+            for: [abaReconciliationExpectation],
+            timeout: Constants.defaultExpectationDuration
+        )
+        XCTAssertEqual(abaBatch.count, 2)
+        if case let .delete(identifier)? = abaBatch.first {
+            XCTAssertEqual(identifier, wallet.identifier)
+        } else {
+            XCTFail("Resubscription reconciliation must begin with a delete")
+        }
+        if case let .insert(model)? = abaBatch.last {
+            XCTAssertEqual(model.identifier, wallet.identifier)
+            XCTAssertEqual(model.info.name, resubscribedName)
+        } else {
+            XCTFail("Resubscription must finish with the current healthy wallet")
+        }
+
+        releaseNewDelivery.signal()
+        newDeliveryQueue.sync {}
+        processingQueue.sync {}
+        XCTAssertEqual(blockedNewGenerationBatch.count, 2)
+        observable.removeObserver(teardownObserver)
+        processingQueue.sync {}
+        let stopExpectation = expectation(description: "gap observable stops")
+        observable.stop { error in
+            XCTAssertNil(error)
+            stopExpectation.fulfill()
+        }
+        wait(for: [stopExpectation], timeout: Constants.defaultExpectationDuration)
+    }
+
+    private func assertTolerantObservableReconcilesTransientIdentifier() throws {
+        let facade = UserDataStorageTestFacade()
+        let processingQueue = DispatchQueue(
+            label: "jp.co.fearless.wallet-observable.transient-test"
+        )
+        let wallet = copyWallet(
+            AccountGenerator.generateMetaAccount(generatingChainAccounts: 1),
+            identifier: "transient-observer-gap-wallet",
+            name: "Transient Observer Gap Wallet"
+        )
+        let observable = TolerantMetaAccountContextObservable(
+            service: facade.databaseService,
+            mapper: AnyCoreDataMapper(ManagedMetaAccountMapper()),
+            predicate: { _ in true },
+            processingQueue: processingQueue
+        )
+        let startExpectation = expectation(description: "transient observable starts")
+        observable.start { error in
+            XCTAssertNil(error)
+            startExpectation.fulfill()
+        }
+        wait(for: [startExpectation], timeout: Constants.defaultExpectationDuration)
+
+        // Coalescing is identifier based, so a row created and removed entirely
+        // within the gap must reconcile as a delete-only terminal state.
+        try performCoreData(in: facade) { context in
+            let entity = CDMetaAccount(context: context)
+            try MetaAccountMapper().populate(
+                entity: entity,
+                from: wallet,
+                using: context
+            )
+            entity.isSelected = true
+            try context.save()
+            context.delete(entity)
+            try context.save()
+        }
+        processingQueue.sync {}
+
+        let observer = NSObject()
+        let reconciliationExpectation = expectation(
+            description: "transient identifier is reconciled"
+        )
+        var batch: [DataProviderChange<ManagedMetaAccountModel>] = []
+        observable.addObserver(
+            observer,
+            deliverOn: .main,
+            executing: { changes in
+                batch = changes
+                reconciliationExpectation.fulfill()
+            }
+        )
+        wait(
+            for: [reconciliationExpectation],
+            timeout: Constants.defaultExpectationDuration
+        )
+        XCTAssertEqual(batch.count, 1)
+        if case let .delete(identifier)? = batch.first {
+            XCTAssertEqual(identifier, wallet.identifier)
+        } else {
+            XCTFail("A transient identifier must reconcile as delete-only")
+        }
+
+        observable.removeObserver(observer)
+        processingQueue.sync {}
+        let stopExpectation = expectation(description: "transient observable stops")
+        observable.stop { error in
+            XCTAssertNil(error)
+            stopExpectation.fulfill()
+        }
+        wait(
+            for: [stopExpectation],
+            timeout: Constants.defaultExpectationDuration
+        )
+    }
+
+    private func assertTolerantObservableAggregatesSameIdentifierHandoffs() throws {
+        let facade = UserDataStorageTestFacade()
+        let repositoryQueue = OperationQueue()
+        let processingQueue = DispatchQueue(
+            label: "jp.co.fearless.wallet-observable.identifier-handoff-test"
+        )
+        let identifier = "same-identifier-handoff-wallet"
+        let firstWallet = copyWallet(
+            AccountGenerator.generateMetaAccount(generatingChainAccounts: 1),
+            identifier: identifier,
+            name: "Handoff Wallet A"
+        )
+        let secondWallet = copyWallet(
+            AccountGenerator.generateMetaAccount(generatingChainAccounts: 1),
+            identifier: identifier,
+            name: "Handoff Wallet B"
+        )
+        try seed(
+            [ManagedMetaAccountModel(info: firstWallet, isSelected: true)],
+            in: facade,
+            using: repositoryQueue
+        )
+        try performCoreData(in: facade) { context in
+            let entity = CDMetaAccount(context: context)
+            try MetaAccountMapper().populate(
+                entity: entity,
+                from: secondWallet,
+                using: context
+            )
+            entity.isSelected = true
+            entity.order = 900
+            entity.name = ""
+            try context.save()
+        }
+
+        let observable = TolerantMetaAccountContextObservable(
+            service: facade.databaseService,
+            mapper: AnyCoreDataMapper(ManagedMetaAccountMapper()),
+            predicate: { _ in true },
+            processingQueue: processingQueue
+        )
+        let startExpectation = expectation(description: "handoff observable starts")
+        observable.start { error in
+            XCTAssertNil(error)
+            startExpectation.fulfill()
+        }
+        wait(for: [startExpectation], timeout: Constants.defaultExpectationDuration)
+
+        let observer = NSObject()
+        let firstHandoffExpectation = expectation(
+            description: "healthy role moves from A to B"
+        )
+        let secondHandoffExpectation = expectation(
+            description: "healthy role moves from B to A"
+        )
+        var receivedBatches: [[DataProviderChange<ManagedMetaAccountModel>]] = []
+        observable.addObserver(
+            observer,
+            deliverOn: .main,
+            executing: { changes in
+                receivedBatches.append(changes)
+                if receivedBatches.count == 1 {
+                    firstHandoffExpectation.fulfill()
+                } else if receivedBatches.count == 2 {
+                    secondHandoffExpectation.fulfill()
+                } else {
+                    XCTFail("Each same-identifier handoff must emit one terminal batch")
+                }
+            }
+        )
+        processingQueue.sync {}
+
+        func moveHealthyRole(from oldName: String, to newName: String) throws {
+            try performCoreData(in: facade) { context in
+                let request = NSFetchRequest<CDMetaAccount>(
+                    entityName: "CDMetaAccount"
+                )
+                request.predicate = NSPredicate(
+                    format: "%K == %@",
+                    #keyPath(CDMetaAccount.metaId),
+                    identifier
+                )
+                let entities = try context.fetch(request)
+                XCTAssertEqual(entities.count, 2)
+                let healthyEntity = try XCTUnwrap(
+                    entities.first { $0.name == oldName }
+                )
+                let corruptEntity = try XCTUnwrap(
+                    entities.first {
+                        ($0.name ?? "").trimmingCharacters(
+                            in: .whitespacesAndNewlines
+                        ).isEmpty
+                    }
+                )
+                healthyEntity.name = ""
+                corruptEntity.name = newName
+                try context.save()
+            }
+        }
+
+        // Both objects are updated in one save. Core Data exposes notification
+        // objects as an unordered set, so processing them one-by-one could emit a
+        // terminal delete even though the identifier remains healthy.
+        try moveHealthyRole(
+            from: firstWallet.name,
+            to: secondWallet.name
+        )
+        wait(
+            for: [firstHandoffExpectation],
+            timeout: Constants.defaultExpectationDuration
+        )
+        XCTAssertEqual(receivedBatches.count, 1)
+        XCTAssertEqual(receivedBatches[0].count, 1)
+        if case let .update(model)? = receivedBatches[0].first {
+            XCTAssertEqual(model.identifier, identifier)
+            XCTAssertEqual(model.info.name, secondWallet.name)
+        } else {
+            XCTFail("A-to-B handoff must emit one terminal update, never a delete")
+        }
+
+        try moveHealthyRole(
+            from: secondWallet.name,
+            to: firstWallet.name
+        )
+        wait(
+            for: [secondHandoffExpectation],
+            timeout: Constants.defaultExpectationDuration
+        )
+        XCTAssertEqual(receivedBatches.count, 2)
+        XCTAssertEqual(receivedBatches[1].count, 1)
+        if case let .update(model)? = receivedBatches[1].first {
+            XCTAssertEqual(model.identifier, identifier)
+            XCTAssertEqual(model.info.name, firstWallet.name)
+        } else {
+            XCTFail("B-to-A handoff must emit one terminal update, never a delete")
+        }
+
+        observable.removeObserver(observer)
+        processingQueue.sync {}
+        let stopExpectation = expectation(description: "handoff observable stops")
+        observable.stop { error in
+            XCTAssertNil(error)
+            stopExpectation.fulfill()
+        }
+        wait(for: [stopExpectation], timeout: Constants.defaultExpectationDuration)
     }
 
     func testRepositorySaveRejectsEquivalentChainAccountAliasesBeforeMutatingStoredWallet() throws {

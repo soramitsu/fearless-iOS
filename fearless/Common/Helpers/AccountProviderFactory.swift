@@ -120,13 +120,24 @@ final class AccountProviderFactory: AccountProviderFactoryProtocol {
 /// RobinHood's generic observable drops mapper failures for inserts and updates, but emits deletes
 /// directly from the raw identifier. A corrupt row that duplicates a healthy wallet identifier can
 /// therefore remove the healthy item from a stream when that corrupt row is deleted. Tracking
-/// successfully mapped rows by object ID makes deletes unambiguous and also turns a valid-to-corrupt
-/// update into removal of that one previously valid object.
-private final class TolerantMetaAccountContextObservable<Model: Identifiable>:
+/// successfully mapped rows by object ID makes deletes unambiguous. Aggregating every notification
+/// by persistent identifier also makes same-identifier object handoffs independent of Core Data's
+/// unordered notification sets.
+final class TolerantMetaAccountContextObservable<Model: Identifiable>:
     DataProviderRepositoryObservable {
     private struct MappedObject {
         let objectId: NSManagedObjectID
         let model: Model?
+    }
+
+    private enum ObjectMutation {
+        case replace(Model?)
+        case delete
+    }
+
+    private struct InFlightDelivery {
+        let observerIdentifier: ObjectIdentifier
+        let identifiers: Set<String>
     }
 
     private let service: CoreDataServiceProtocol
@@ -136,6 +147,10 @@ private final class TolerantMetaAccountContextObservable<Model: Identifiable>:
 
     private var observers: [RepositoryObserver<Model>] = []
     private var trackedModels: [NSManagedObjectID: Model] = [:]
+    private var pendingReconciliationIdentifiers = Set<String>()
+    // StreamableProvider can queue source callbacks behind its user-observer teardown.
+    // Reconcile identifiers whose serial source deliveries were not acknowledged first.
+    private var inFlightDeliveries: [UUID: InFlightDelivery] = [:]
     private var notificationToken: NSObjectProtocol?
 
     init(
@@ -192,6 +207,8 @@ private final class TolerantMetaAccountContextObservable<Model: Identifiable>:
                             return ($0.objectId, model)
                         }
                     )
+                    self.pendingReconciliationIdentifiers.removeAll()
+                    self.inFlightDeliveries.removeAll()
                     completionBlock(nil)
                 }
             } catch {
@@ -216,6 +233,8 @@ private final class TolerantMetaAccountContextObservable<Model: Identifiable>:
 
             self.processingQueue.async {
                 self.trackedModels.removeAll()
+                self.pendingReconciliationIdentifiers.removeAll()
+                self.inFlightDeliveries.removeAll()
                 completionBlock(optionalError)
             }
         }
@@ -240,13 +259,43 @@ private final class TolerantMetaAccountContextObservable<Model: Identifiable>:
                     updateBlock: updateBlock
                 )
             )
+
+            let reconciliationChanges = self.reconciliationChanges(
+                for: self.pendingReconciliationIdentifiers
+            )
+            self.pendingReconciliationIdentifiers.removeAll()
+            self.deliver(reconciliationChanges)
         }
     }
 
     func removeObserver(_ observer: AnyObject) {
         processingQueue.async {
+            let observerIdentifier = ObjectIdentifier(observer)
+            let wasRegistered = self.observers.contains {
+                $0.observer === observer
+            }
             self.observers = self.observers.filter {
                 $0.observer != nil && $0.observer !== observer
+            }
+
+            if wasRegistered, self.observers.isEmpty {
+                let deliveryTokens = self.inFlightDeliveries.compactMap {
+                    token, delivery in
+                    delivery.observerIdentifier == observerIdentifier
+                        ? token
+                        : nil
+                }
+                for token in deliveryTokens {
+                    guard let delivery = self.inFlightDeliveries.removeValue(
+                        forKey: token
+                    ) else {
+                        continue
+                    }
+
+                    self.pendingReconciliationIdentifiers.formUnion(
+                        delivery.identifiers
+                    )
+                }
             }
         }
     }
@@ -274,72 +323,12 @@ private final class TolerantMetaAccountContextObservable<Model: Identifiable>:
         }
 
         processingQueue.async {
-            var changes: [DataProviderChange<Model>] = []
-
-            for object in updatedObjects {
-                self.applyMappedObject(
-                    object,
-                    preferredChange: .update,
-                    to: &changes
-                )
-            }
-            for objectId in deletedObjectIds {
-                if let previousModel = self.trackedModels.removeValue(forKey: objectId) {
-                    changes.append(
-                        .delete(deletedIdentifier: previousModel.identifier)
-                    )
-                }
-            }
-            for object in insertedObjects {
-                self.applyMappedObject(
-                    object,
-                    preferredChange: .insert,
-                    to: &changes
-                )
-            }
-
-            self.deliver(changes)
+            self.apply(
+                updatedObjects: updatedObjects,
+                deletedObjectIds: deletedObjectIds,
+                insertedObjects: insertedObjects
+            )
         }
-    }
-
-    private enum PreferredChange {
-        case insert
-        case update
-    }
-
-    private func applyMappedObject(
-        _ object: MappedObject,
-        preferredChange: PreferredChange,
-        to changes: inout [DataProviderChange<Model>]
-    ) {
-        guard let model = object.model else {
-            if let previousModel = trackedModels.removeValue(forKey: object.objectId) {
-                changes.append(
-                    .delete(deletedIdentifier: previousModel.identifier)
-                )
-            }
-            return
-        }
-
-        if let previousModel = trackedModels[object.objectId] {
-            if previousModel.identifier == model.identifier {
-                changes.append(.update(newItem: model))
-            } else {
-                changes.append(
-                    .delete(deletedIdentifier: previousModel.identifier)
-                )
-                changes.append(.insert(newItem: model))
-            }
-        } else {
-            switch preferredChange {
-            case .insert, .update:
-                // A previously corrupt/nonmatching object becoming valid is new to the stream,
-                // even though Core Data reports it as an update.
-                changes.append(.insert(newItem: model))
-            }
-        }
-
-        trackedModels[object.objectId] = model
     }
 
     private func mappedObject(for entity: CDMetaAccount) -> MappedObject {
@@ -367,20 +356,180 @@ private final class TolerantMetaAccountContextObservable<Model: Identifiable>:
         return objects.allObjects.compactMap { $0 as? CDMetaAccount }
     }
 
+    private func apply(
+        updatedObjects: [MappedObject],
+        deletedObjectIds: [NSManagedObjectID],
+        insertedObjects: [MappedObject]
+    ) {
+        var mutations: [NSManagedObjectID: ObjectMutation] = [:]
+        for object in updatedObjects {
+            mutations[object.objectId] = .replace(object.model)
+        }
+        for object in insertedObjects {
+            mutations[object.objectId] = .replace(object.model)
+        }
+        for objectId in deletedObjectIds {
+            mutations[objectId] = .delete
+        }
+
+        var affectedIdentifiers = Set<String>()
+        for (objectId, mutation) in mutations {
+            if let previousModel = trackedModels[objectId] {
+                affectedIdentifiers.insert(previousModel.identifier)
+            }
+
+            if case let .replace(model) = mutation, let model {
+                affectedIdentifiers.insert(model.identifier)
+            }
+        }
+
+        let modelsBefore = aggregateModels(for: affectedIdentifiers)
+
+        for (objectId, mutation) in mutations {
+            switch mutation {
+            case let .replace(model):
+                trackedModels[objectId] = model
+            case .delete:
+                trackedModels.removeValue(forKey: objectId)
+            }
+        }
+
+        let modelsAfter = aggregateModels(for: affectedIdentifiers)
+        let changes = affectedIdentifiers.sorted().compactMap { identifier in
+            aggregateChange(
+                identifier: identifier,
+                before: modelsBefore[identifier],
+                after: modelsAfter[identifier]
+            )
+        }
+        deliver(changes)
+    }
+
+    private func aggregateModels(
+        for identifiers: Set<String>
+    ) -> [String: Model] {
+        guard !identifiers.isEmpty else {
+            return [:]
+        }
+
+        var models: [String: Model] = [:]
+        for (_, model) in trackedModels.sorted(by: objectIdOrder) {
+            guard
+                identifiers.contains(model.identifier),
+                models[model.identifier] == nil
+            else {
+                continue
+            }
+
+            models[model.identifier] = model
+        }
+
+        return models
+    }
+
+    private func aggregateChange(
+        identifier: String,
+        before: Model?,
+        after: Model?
+    ) -> DataProviderChange<Model>? {
+        switch (before, after) {
+        case (nil, nil):
+            return nil
+        case (nil, let model?):
+            return .insert(newItem: model)
+        case (.some, nil):
+            return .delete(deletedIdentifier: identifier)
+        case let (.some, model?):
+            return .update(newItem: model)
+        }
+    }
+
+    private func reconciliationChanges(
+        for identifiers: Set<String>
+    ) -> [DataProviderChange<Model>] {
+        let currentModels = aggregateModels(for: identifiers)
+
+        return identifiers.sorted().flatMap { identifier in
+            var changes: [DataProviderChange<Model>] = [
+                .delete(deletedIdentifier: identifier)
+            ]
+            if let model = currentModels[identifier] {
+                changes.append(.insert(newItem: model))
+            }
+
+            return changes
+        }
+    }
+
     private func deliver(_ changes: [DataProviderChange<Model>]) {
         guard !changes.isEmpty else {
             return
         }
 
         observers = observers.filter { $0.observer != nil }
+        guard !observers.isEmpty else {
+            pendingReconciliationIdentifiers.formUnion(
+                changes.map(changeIdentifier)
+            )
+            return
+        }
+
         for observer in observers {
             if processingQueue == observer.queue {
                 observer.updateBlock(changes)
             } else {
-                observer.queue.async {
+                guard let observerObject = observer.observer else {
+                    continue
+                }
+
+                let observerIdentifier = ObjectIdentifier(observerObject)
+                let identifiers = Set(changes.map(changeIdentifier))
+                let deliveryToken = beginDelivery(
+                    identifiers: identifiers,
+                    to: observerIdentifier
+                )
+                observer.queue.async { [weak self] in
                     observer.updateBlock(changes)
+                    self?.finishDelivery(deliveryToken)
                 }
             }
         }
+    }
+
+    private func beginDelivery(
+        identifiers: Set<String>,
+        to observerIdentifier: ObjectIdentifier
+    ) -> UUID {
+        let token = UUID()
+        inFlightDeliveries[token] = InFlightDelivery(
+            observerIdentifier: observerIdentifier,
+            identifiers: identifiers
+        )
+        return token
+    }
+
+    private func finishDelivery(_ token: UUID) {
+        processingQueue.async {
+            self.inFlightDeliveries.removeValue(forKey: token)
+        }
+    }
+
+    private func changeIdentifier(
+        _ change: DataProviderChange<Model>
+    ) -> String {
+        switch change {
+        case let .insert(model), let .update(model):
+            return model.identifier
+        case let .delete(identifier):
+            return identifier
+        }
+    }
+
+    private func objectIdOrder(
+        _ lhs: (key: NSManagedObjectID, value: Model),
+        _ rhs: (key: NSManagedObjectID, value: Model)
+    ) -> Bool {
+        lhs.key.uriRepresentation().absoluteString <
+            rhs.key.uriRepresentation().absoluteString
     }
 }
