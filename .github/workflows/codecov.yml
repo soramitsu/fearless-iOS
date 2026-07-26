@@ -30,6 +30,11 @@ jobs:
           bash ./scripts/test-todo-debt-audit.sh
           bash ./scripts/audit-todo-debt.sh
 
+      - name: TestFlight publication evidence
+        run: |
+          bash ./scripts/test-testflight-publication-readiness-audit.sh
+          bash ./scripts/audit-testflight-publication-readiness.sh
+
       - name: Iroha mobile SDK release asset contract
         env:
           GH_TOKEN: ${{ github.token }}

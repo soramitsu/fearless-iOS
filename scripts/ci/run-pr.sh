@@ -23,6 +23,10 @@ if [[ -f "$WORKSPACE_DIR/scripts/audit-todo-debt.sh" ]]; then
   bash "$WORKSPACE_DIR/scripts/audit-todo-debt.sh"
 fi
 
+echo "[run-pr] Verifying tracked TestFlight publication evidence"
+bash "$WORKSPACE_DIR/scripts/test-testflight-publication-readiness-audit.sh"
+bash "$WORKSPACE_DIR/scripts/audit-testflight-publication-readiness.sh"
+
 if [[ -f "$WORKSPACE_DIR/scripts/check-iroha-mobile-sdk-release-assets.sh" ]]; then
   echo "[run-pr] Checking Iroha mobile SDK release asset contract"
   bash "$WORKSPACE_DIR/scripts/check-iroha-mobile-sdk-release-assets.sh" --self-test
