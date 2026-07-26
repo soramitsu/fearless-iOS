@@ -103,7 +103,6 @@ if [[ -z "$settings_json" ]]; then
     -destination "generic/platform=iOS"
     -showBuildSettings
     -json
-    "CURRENT_PROJECT_VERSION=$EXPECTED_BUILD"
   )
 
   if [[ -n "${IOS_RELEASE_SOURCE_PACKAGES_DIR:-}" ]]; then

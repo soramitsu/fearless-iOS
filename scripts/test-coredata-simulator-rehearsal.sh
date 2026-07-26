@@ -230,7 +230,7 @@ prepare_case() {
   <key>CFBundleShortVersionString</key>
   <string>4.2.0</string>
   <key>CFBundleVersion</key>
-  <string>2026.7.27</string>
+  <string>2026.7.28</string>
   <key>FearlessBuildConfiguration</key>
   <string>Release</string>
   <key>FearlessSwiftOptimizationLevel</key>
@@ -294,7 +294,7 @@ APP
     --app "$APP_DIR"
     --bundle-id "$BUNDLE_ID"
     --expected-git-sha 7a819cb01e92920e5444151392df54245acdd4c8
-    --expected-build 2026.7.27
+    --expected-build 2026.7.28
     --expected-executable-sha256 "$executable_sha"
     --fixture-dir "$FIXTURE_DIR"
     --artifacts-dir "$ARTIFACTS_DIR"
@@ -604,7 +604,7 @@ CASE_ARGS=(
   --app "$APP_DIR"
   --bundle-id "$BUNDLE_ID"
   --expected-git-sha 7a819cb01e92920e5444151392df54245acdd4c8
-  --expected-build 2026.7.27
+  --expected-build 2026.7.28
   --expected-executable-sha256 "$(shasum -a 256 "$APP_DIR/fearless" | awk '{print $1}')"
   --fixture-dir "$FIXTURE_DIR"
   --artifacts-dir "$ARTIFACTS_DIR"
@@ -722,7 +722,7 @@ CASE_ARGS=(
   --app "$APP_DIR"
   --bundle-id "$BUNDLE_ID"
   --expected-git-sha 7a819cb01e92920e5444151392df54245acdd4c8
-  --expected-build 2026.7.27
+  --expected-build 2026.7.28
   --expected-executable-sha256 "$(shasum -a 256 "$APP_DIR/fearless" | awk '{print $1}')"
   --fixture-dir "$FIXTURE_DIR"
   --artifacts-dir "$ARTIFACTS_DIR"

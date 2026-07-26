@@ -116,7 +116,7 @@ app = {
     "CFBundleExecutable": "fearless",
     "CFBundleIdentifier": bundle,
     "CFBundleShortVersionString": "4.2.0",
-    "CFBundleVersion": "2026.7.27",
+    "CFBundleVersion": "2026.7.28",
     "FearlessBuildConfiguration": "Release",
     "FearlessEnableTestability": "NO",
     "FearlessGitCommit": git_sha,
@@ -172,7 +172,7 @@ run_audit() {
     bash "$AUDIT" \
       --archive "$ARCHIVE" \
       --expected-git-sha "${EXPECTED_GIT_OVERRIDE:-$EXPECTED_GIT_SHA}" \
-      --expected-build 2026.7.27 \
+      --expected-build 2026.7.28 \
       --expected-executable-sha256 "${EXPECTED_EXECUTABLE_SHA_OVERRIDE:-$executable_sha}" \
       --expected-archive-sha256 "${EXPECTED_ARCHIVE_SHA_OVERRIDE:-$archive_sha}" \
       --expected-signing-certificate-sha1 "${EXPECTED_SIGNING_CERTIFICATE_SHA_OVERRIDE:-$signing_certificate_sha1}" \
@@ -238,6 +238,11 @@ fi
 assert_contains '"archiveTreeSHA256"' "$CASE_DIR/output/receipt.json"
 assert_contains '"distributionProfile": "valid-app-store"' "$CASE_DIR/output/receipt.json"
 printf '%s\n' "[ios-signed-release-audit-test] PASS: canonical signed archive"
+
+prepare_case wrong-build
+mutate_plist "$APP/Info.plist" \
+  'value["CFBundleVersion"] = "2026.7.27"'
+expect_failure wrong-build "archived build number is not the expected fresh build"
 
 prepare_case wrong-commit
 EXPECTED_GIT_OVERRIDE="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -402,4 +407,4 @@ assert_contains "only in the explicit test harness" "$CASE_DIR/stderr"
 printf '%s\n' "[ios-signed-release-audit-test] PASS (rejected): override without harness"
 
 printf '%s\n' \
-  "[ios-signed-release-audit-test] PASS: 1 positive + 32 negative/adversarial contracts"
+  "[ios-signed-release-audit-test] PASS: 1 positive + 33 negative/adversarial contracts"
