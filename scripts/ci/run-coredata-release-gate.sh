@@ -17,6 +17,8 @@ umask 077
 
 readonly LOG_PREFIX="[coredata-release-gate]"
 readonly SCHEME="fearless.tests"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+readonly MANIFEST_DIR="$SCRIPT_DIR/manifests"
 readonly UUID_PATTERN='^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$'
 readonly SIMULATOR_DESTINATION_PATTERN='^platform=iOS Simulator,id=([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})(,arch=(arm64|x86_64))?$'
 SIMULATOR_INVENTORY_FILE=""
@@ -29,6 +31,20 @@ fail() {
   printf '%s ERROR: %s\n' "$LOG_PREFIX" "$*" >&2
   exit 1
 }
+
+readonly CORE_DATA_TEST_HARNESS="${FEARLESS_CORE_DATA_TEST_HARNESS:-0}"
+if [[ "$CORE_DATA_TEST_HARNESS" != "1" ]]; then
+  for override_name in \
+    FEARLESS_CORE_DATA_ROOT_DIR \
+    FEARLESS_CORE_DATA_WORKSPACE \
+    FEARLESS_CORE_DATA_XCODEBUILD_BIN \
+    FEARLESS_CORE_DATA_XCRUN_BIN \
+    FEARLESS_CORE_DATA_PYTHON_BIN \
+    FEARLESS_CORE_DATA_SHASUM_BIN; do
+    [[ -z "${!override_name:-}" ]] ||
+      fail "$override_name is accepted only with FEARLESS_CORE_DATA_TEST_HARNESS=1"
+  done
+fi
 
 cleanup() {
   if [[ -n "${SIMULATOR_INVENTORY_FILE:-}" && -e "$SIMULATOR_INVENTORY_FILE" ]]; then
@@ -288,10 +304,183 @@ PY
   fi
 }
 
+validate_test_inventory() {
+  local result_bundle="$1"
+  local manifest="$2"
+  local tests_json="$3"
+  local executed_manifest="$4"
+
+  [[ -f "$manifest" && ! -L "$manifest" ]] ||
+    fail "expected test identity manifest is missing or unsafe"
+
+  if ! "$XCRUN_BIN" xcresulttool get test-results tests \
+    --path "$result_bundle" --compact >"$tests_json" 2>/dev/null; then
+    fail "xcresulttool could not read the executed test identities"
+  fi
+
+  if ! "$PYTHON_BIN" - "$manifest" "$tests_json" "$executed_manifest" <<'PY'
+import json
+import re
+import sys
+
+manifest_path, tests_path, output_path = sys.argv[1:]
+identity_pattern = re.compile(
+    r"^fearlessTests/([A-Za-z_][A-Za-z0-9_]*)/(test[A-Za-z0-9_]+)$"
+)
+
+def reject(message):
+    print(f"invalid xcresult test inventory: {message}", file=sys.stderr)
+    raise SystemExit(1)
+
+try:
+    with open(manifest_path, "r", encoding="utf-8") as source:
+        expected = [
+            line.strip()
+            for line in source
+            if line.strip() and not line.lstrip().startswith("#")
+        ]
+except OSError:
+    reject("expected manifest is unreadable")
+
+if not expected:
+    reject("expected manifest is empty")
+if len(expected) != len(set(expected)):
+    reject("expected manifest contains duplicate identities")
+for identity in expected:
+    if not identity_pattern.fullmatch(identity):
+        reject("expected manifest contains a noncanonical identity")
+
+try:
+    with open(tests_path, "r", encoding="utf-8") as source:
+        payload = json.load(source)
+except (OSError, json.JSONDecodeError):
+    reject("test tree is malformed or missing")
+if not isinstance(payload, (dict, list)):
+    reject("test tree root has an unexpected type")
+
+executed = []
+statuses = []
+
+def canonical_direct(value):
+    if not isinstance(value, str):
+        return None
+    value = value.strip()
+    value = re.sub(r"\(\)$", "", value)
+    match = re.search(
+        r"(?:^|/)(fearlessTests/[A-Za-z_][A-Za-z0-9_]*/"
+        r"test[A-Za-z0-9_]+)$",
+        value,
+    )
+    return match.group(1) if match else None
+
+def class_name(value):
+    if not isinstance(value, str):
+        return None
+    value = value.strip().rstrip("/")
+    value = value.split("/")[-1]
+    return value if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*Tests", value) else None
+
+def method_name(value):
+    if not isinstance(value, str):
+        return None
+    value = re.sub(r"\(\)$", "", value.strip().split("/")[-1])
+    return value if re.fullmatch(r"test[A-Za-z0-9_]+", value) else None
+
+def visit(node, ancestors):
+    if isinstance(node, list):
+        for child in node:
+            visit(child, ancestors)
+        return
+    if not isinstance(node, dict):
+        return
+
+    identifiers = [
+        node.get("nodeIdentifier"),
+        node.get("identifier"),
+        node.get("name"),
+        node.get("testName"),
+    ]
+    node_type = str(node.get("nodeType", node.get("type", ""))).lower()
+    direct = next(
+        (value for value in (canonical_direct(item) for item in identifiers) if value),
+        None,
+    )
+    method = next(
+        (value for value in (method_name(item) for item in identifiers) if value),
+        None,
+    )
+    is_test_case = (
+        "test case" in node_type
+        or node_type in {"test", "testcase"}
+        or direct is not None
+        or method is not None
+    )
+    if is_test_case:
+        identity = direct
+        if identity is None and method is not None:
+            test_class = next(
+                (
+                    value
+                    for value in (
+                        class_name(item)
+                        for ancestor in reversed(ancestors)
+                        for item in ancestor
+                    )
+                    if value
+                ),
+                None,
+            )
+            if test_class is not None:
+                identity = f"fearlessTests/{test_class}/{method}"
+        if identity is None:
+            reject("a test case has no canonical XCTest identity")
+        status = node.get("result", node.get("testStatus", node.get("status")))
+        if status != "Passed":
+            reject(f"{identity} did not have Passed status")
+        executed.append(identity)
+        statuses.append(status)
+
+    next_ancestors = ancestors + [identifiers]
+    for value in node.values():
+        if isinstance(value, (dict, list)):
+            visit(value, next_ancestors)
+
+visit(payload, [])
+
+if not executed:
+    reject("no test case identities were found")
+if len(executed) != len(set(executed)):
+    reject("executed test tree contains duplicate identities")
+if len(statuses) != len(executed):
+    reject("executed test status inventory is incomplete")
+
+expected_set = set(expected)
+executed_set = set(executed)
+if executed_set != expected_set:
+    missing = len(expected_set - executed_set)
+    unexpected = len(executed_set - expected_set)
+    reject(
+        f"exact identity set differs (missing={missing}, unexpected={unexpected})"
+    )
+if len(executed) != len(expected):
+    reject("executed identity cardinality differs from the expected manifest")
+
+with open(output_path + ".pending", "x", encoding="utf-8") as destination:
+    for identity in sorted(executed):
+        destination.write(identity + "\n")
+import os
+os.replace(output_path + ".pending", output_path)
+PY
+  then
+    fail "executed tests did not match the exact reviewed identity manifest"
+  fi
+}
+
 run_stage() {
   local stage="$1"
   local result_name
   local expected_total
+  local expected_manifest
   local fixture_before=""
   local fixture_after=""
   local xcodebuild_status
@@ -302,6 +491,7 @@ run_stage() {
     # The simulator core cohort must execute exactly 412 tests. Copied-phone
     # fixtures are intentionally verified by the separate device/store stage.
     expected_total="412"
+    expected_manifest="$MANIFEST_DIR/coredata-release-core-tests.txt"
     selectors=(
       "-only-testing:fearlessTests/SingleToMultiassetUserMigrationTests"
       "-only-testing:fearlessTests/UserStorageCompatibilityMigrationTests"
@@ -322,6 +512,7 @@ run_stage() {
   else
     result_name="copied-phone"
     expected_total="2"
+    expected_manifest="$MANIFEST_DIR/coredata-release-copied-phone-tests.txt"
     selectors=(
       "-only-testing:fearlessTests/SubstrateStorageClassResolutionTests/testCopiedPhoneV8Store_whenAvailable_thenAllRowsHaveExpectedClassesAndStoreIsUnchanged"
       "-only-testing:fearlessTests/SubstrateStorageClassResolutionTests/testCopiedPhoneV8Store_whenFetchedThroughProductionRepositories_thenMapsEveryRuntimeAndChain"
@@ -332,8 +523,16 @@ run_stage() {
   local result_bundle="$OUTPUT_DIR/${result_name}.xcresult"
   local xcodebuild_log="$OUTPUT_DIR/${result_name}.xcodebuild.log"
   local summary_file="$OUTPUT_DIR/${result_name}.summary.json"
+  local tests_json="$OUTPUT_DIR/${result_name}.tests.json"
+  local executed_manifest="$OUTPUT_DIR/${result_name}.executed-tests.txt"
   [[ ! -e "$result_bundle" ]] ||
     fail "refusing to overwrite an existing xcresult bundle"
+  actual_manifest_total="$(
+    awk 'NF && $1 !~ /^#/ { count += 1 } END { print count + 0 }' \
+      "$expected_manifest"
+  )"
+  [[ "$actual_manifest_total" == "$expected_total" ]] ||
+    fail "reviewed test manifest cardinality does not match the stage contract"
 
   local -a xcodebuild_arguments=(
     -workspace "$WORKSPACE"
@@ -377,6 +576,11 @@ run_stage() {
     fail "xcodebuild failed for the ${stage} stage; inspect the private gate log"
 
   validate_result_summary "$result_bundle" "$expected_total" "$summary_file"
+  validate_test_inventory \
+    "$result_bundle" \
+    "$expected_manifest" \
+    "$tests_json" \
+    "$executed_manifest"
   if [[ "$stage" == "copied-phone" ]]; then
     log "PASSED copied-phone fixture stage: exactly 2 tests, source fixture unchanged"
   else

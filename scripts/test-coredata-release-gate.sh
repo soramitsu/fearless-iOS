@@ -44,6 +44,7 @@ run_gate() {
   mkdir -p "$RUN_DIRECTORY"
 
   env \
+    FEARLESS_CORE_DATA_TEST_HARNESS=1 \
     FEARLESS_CORE_DATA_ROOT_DIR="$FIXTURE_ROOT" \
     FEARLESS_CORE_DATA_XCODEBUILD_BIN="$BIN_DIR/xcodebuild" \
     FEARLESS_CORE_DATA_XCRUN_BIN="$BIN_DIR/xcrun" \
@@ -52,6 +53,8 @@ run_gate() {
     FAKE_ENVIRONMENT_LOG="$RUN_DIRECTORY/environment" \
     FAKE_SIMULATOR_UDID="$SIMULATOR_UDID" \
     FAKE_OTHER_SIMULATOR_UDID="$OTHER_SIMULATOR_UDID" \
+    FAKE_CORE_MANIFEST="$SCRIPT_DIR/ci/manifests/coredata-release-core-tests.txt" \
+    FAKE_PHONE_MANIFEST="$SCRIPT_DIR/ci/manifests/coredata-release-copied-phone-tests.txt" \
     ${CASE_ENV[@]+"${CASE_ENV[@]}"} \
     bash "$GATE" \
       --output-dir "$RUN_DIRECTORY/output" \
@@ -159,6 +162,62 @@ JSON
 fi
 
 if [[ "${1:-}" == "xcresulttool" ]]; then
+  if printf '%s\n' "$@" | grep -Fqx "tests"; then
+    case "${FAKE_TESTS_MODE:-valid}" in
+      tool-failure)
+        exit 1
+        ;;
+      malformed)
+        printf '%s\n' '{not-json'
+        exit 0
+        ;;
+    esac
+    result_path=""
+    previous=""
+    for argument in "$@"; do
+      if [[ "$previous" == "--path" ]]; then
+        result_path="$argument"
+      fi
+      previous="$argument"
+    done
+    if [[ "$result_path" == *"/copied-phone.xcresult" ]]; then
+      manifest="$FAKE_PHONE_MANIFEST"
+    else
+      manifest="$FAKE_CORE_MANIFEST"
+    fi
+    python3 - "$manifest" "${FAKE_TESTS_MODE:-valid}" <<'PY'
+import json
+import sys
+
+manifest, mode = sys.argv[1:]
+with open(manifest, "r", encoding="utf-8") as source:
+    identities = [
+        line.strip()
+        for line in source
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+if mode == "missing":
+    identities = identities[:-1]
+elif mode == "unexpected":
+    identities[-1] = "fearlessTests/UnexpectedTests/testInjectedIdentity"
+elif mode == "duplicate":
+    identities[-1] = identities[0]
+
+nodes = [
+    {
+        "nodeIdentifier": identity + "()",
+        "nodeType": "Test Case",
+        "result": "Passed",
+    }
+    for identity in identities
+]
+if mode == "canceled":
+    nodes[0]["result"] = "Cancelled"
+print(json.dumps({"testNodes": nodes}, separators=(",", ":")))
+PY
+    exit 0
+  fi
+
   if [[ "${FAKE_SUMMARY_MODE:-valid}" == "tool-failure" ]]; then
     exit 1
   fi
@@ -374,6 +433,30 @@ CASE_ENV=("FAKE_SUMMARY_MODE=tool-failure")
 GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
 expect_failure "unreadable-summary" "xcresulttool could not read"
 
+CASE_ENV=("FAKE_TESTS_MODE=missing")
+GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
+expect_failure "missing-test-identity" "exact reviewed identity manifest"
+
+CASE_ENV=("FAKE_TESTS_MODE=unexpected")
+GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
+expect_failure "unexpected-test-identity" "exact reviewed identity manifest"
+
+CASE_ENV=("FAKE_TESTS_MODE=duplicate")
+GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
+expect_failure "duplicate-test-identity" "exact reviewed identity manifest"
+
+CASE_ENV=("FAKE_TESTS_MODE=canceled")
+GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
+expect_failure "canceled-test-identity" "exact reviewed identity manifest"
+
+CASE_ENV=("FAKE_TESTS_MODE=malformed")
+GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
+expect_failure "malformed-test-inventory" "exact reviewed identity manifest"
+
+CASE_ENV=("FAKE_TESTS_MODE=tool-failure")
+GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
+expect_failure "unreadable-test-inventory" "could not read the executed test identities"
+
 CASE_ENV=(
   "FAKE_TOTAL_TESTS=412"
   "FAKE_PASSED_TESTS=242"
@@ -419,5 +502,19 @@ CASE_ENV=()
 GATE_ARGS=(--stage impossible --simulator-udid "$SIMULATOR_UDID")
 expect_failure "unknown-stage" "core, copied-phone, or all"
 
+RUN_NUMBER=$((RUN_NUMBER + 1))
+RUN_DIRECTORY="$TEMPORARY_DIR/run-${RUN_NUMBER}-override-without-harness"
+mkdir -p "$RUN_DIRECTORY"
+if env \
+  FEARLESS_CORE_DATA_XCODEBUILD_BIN="$BIN_DIR/xcodebuild" \
+  bash "$GATE" >"$RUN_DIRECTORY/stdout" 2>"$RUN_DIRECTORY/stderr"; then
+  fail "tool override without explicit harness unexpectedly passed"
+fi
+assert_output_contains \
+  "accepted only with FEARLESS_CORE_DATA_TEST_HARNESS=1" \
+  "$RUN_DIRECTORY/stderr"
 printf '%s\n' \
-  "[coredata-release-gate-test] PASS: 3 positive contracts + 23 negative/adversarial cases"
+  "[coredata-release-gate-test] PASS (rejected): override without harness"
+
+printf '%s\n' \
+  "[coredata-release-gate-test] PASS: 3 positive contracts + 30 negative/adversarial cases"

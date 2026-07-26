@@ -1,0 +1,175 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Builds and audits the only archive eligible for the 4.2.0 hotfix handoff.
+# It derives provenance from an exact clean HEAD and never uploads anything.
+
+umask 077
+
+readonly LOG_PREFIX="[ios-release-archive]"
+readonly EXPECTED_TEAM="YLWWUD25VZ"
+readonly EXPECTED_BUNDLE="jp.co.soramitsu.fearlesswallet"
+readonly EXPECTED_VERSION="4.2.0"
+readonly EXPECTED_SIGNING_IDENTITY="Apple Distribution: Soramitsu Co., Ltd. (YLWWUD25VZ)"
+readonly EXPECTED_SIGNING_CERTIFICATE_SHA1="84AB95335BE14CAE9B050A353910F86FF2F9539B"
+readonly EXPECTED_PROFILE_NAME="Fearless App Store 2026.7.26"
+readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
+# Read-only App Store Connect inspection on 2026-07-26 found only 2026.7.14
+# and 2026.7.15 for 4.2.0. This candidate number was unused at inspection time.
+readonly EXPECTED_BUILD="2026.7.26"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
+
+fail() {
+  printf '%s ERROR: %s\n' "$LOG_PREFIX" "$*" >&2
+  exit 1
+}
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  bash scripts/ci/build-audited-ios-release-archive.sh \
+    --archive /absolute/new/path/fearless.xcarchive \
+    --receipt /absolute/new/path/signed-archive-audit.json
+
+Preconditions:
+  - exact clean git HEAD, including no untracked files;
+  - App Store Connect read-only uniqueness check for 4.2.0 (2026.7.26);
+  - App Store distribution profile for the production App ID, with
+    group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
+
+This command creates a local archive and receipt. It does not export, upload,
+publish, tag, commit, or push.
+USAGE
+}
+
+require_option_value() {
+  local option="$1"
+  local remaining="$2"
+  [[ "$remaining" -ge 2 ]] || fail "$option requires a value"
+}
+
+archive=""
+receipt=""
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    --archive)
+      require_option_value "$1" "$#"
+      archive="$2"
+      shift 2
+      ;;
+    --receipt)
+      require_option_value "$1" "$#"
+      receipt="$2"
+      shift 2
+      ;;
+    --help|-h)
+      usage
+      exit 0
+      ;;
+    *)
+      fail "unknown argument: $1"
+      ;;
+  esac
+done
+
+[[ "$archive" == /* && "$archive" == *.xcarchive ]] ||
+  fail "--archive must be an absolute .xcarchive path"
+[[ ! -e "$archive" && ! -L "$archive" ]] ||
+  fail "--archive must not already exist"
+[[ -d "$(dirname "$archive")" && ! -L "$(dirname "$archive")" ]] ||
+  fail "--archive parent must be a real existing directory"
+[[ "$receipt" == /* ]] || fail "--receipt must be an absolute path"
+[[ ! -e "$receipt" && ! -L "$receipt" ]] ||
+  fail "--receipt must not already exist"
+[[ -d "$(dirname "$receipt")" && ! -L "$(dirname "$receipt")" ]] ||
+  fail "--receipt parent must be a real existing directory"
+
+command -v git >/dev/null 2>&1 || fail "git is unavailable"
+command -v xcodebuild >/dev/null 2>&1 || fail "xcodebuild is unavailable"
+command -v shasum >/dev/null 2>&1 || fail "shasum is unavailable"
+command -v security >/dev/null 2>&1 || fail "security is unavailable"
+security find-identity -v -p codesigning 2>/dev/null |
+  grep -Fq "$EXPECTED_SIGNING_CERTIFICATE_SHA1 \"$EXPECTED_SIGNING_IDENTITY\"" ||
+  fail "the exact reviewed Apple Distribution signing identity is not installed"
+
+cd "$REPO_ROOT"
+[[ -z "$(git status --porcelain=v1 --untracked-files=all)" ]] ||
+  fail "release archive requires an exact clean worktree, including no untracked files"
+git diff --quiet --ignore-submodules -- ||
+  fail "release archive source differs from HEAD"
+git diff --cached --quiet --ignore-submodules -- ||
+  fail "release archive index differs from HEAD"
+
+source_commit="$(git rev-parse --verify HEAD)"
+[[ "$source_commit" =~ ^[0-9A-Fa-f]{40}$ ]] ||
+  fail "could not derive an exact source commit"
+git cat-file -e "${source_commit}^{commit}" ||
+  fail "derived source provenance is not a commit"
+
+IOS_EXPECTED_BUILD_NUMBER="$EXPECTED_BUILD" \
+IOS_RELEASE_SOURCE_PACKAGES_DIR="${IOS_RELEASE_SOURCE_PACKAGES_DIR:-}" \
+  bash "$SCRIPT_DIR/audit-ios-release-identity.sh"
+
+xcodebuild_arguments=(
+  -workspace "$REPO_ROOT/fearless.xcworkspace"
+  -scheme fearless
+  -configuration Release
+  -destination "generic/platform=iOS"
+  -archivePath "$archive"
+)
+if [[ -n "${IOS_RELEASE_SOURCE_PACKAGES_DIR:-}" ]]; then
+  xcodebuild_arguments+=(
+    -clonedSourcePackagesDirPath "$IOS_RELEASE_SOURCE_PACKAGES_DIR"
+    -disableAutomaticPackageResolution
+    -skipPackageUpdates
+  )
+fi
+xcodebuild_arguments+=(
+  "CURRENT_PROJECT_VERSION=$EXPECTED_BUILD"
+  "MARKETING_VERSION=$EXPECTED_VERSION"
+  "FEARLESS_GIT_COMMIT=$source_commit"
+  "DEVELOPMENT_TEAM=$EXPECTED_TEAM"
+  "CODE_SIGN_STYLE=Manual"
+  "CODE_SIGN_IDENTITY=$EXPECTED_SIGNING_IDENTITY"
+  "PROVISIONING_PROFILE_SPECIFIER=$EXPECTED_PROFILE_NAME"
+  clean
+  archive
+)
+
+printf '%s\n' \
+  "$LOG_PREFIX building local Release archive from clean commit $source_commit"
+xcodebuild "${xcodebuild_arguments[@]}"
+
+[[ "$(git rev-parse --verify HEAD)" == "$source_commit" ]] ||
+  fail "HEAD changed while the release archive was built"
+[[ -z "$(git status --porcelain=v1 --untracked-files=all)" ]] ||
+  fail "tracked or untracked source state changed while the archive was built"
+
+app_path="$archive/Products/Applications/fearless.app"
+[[ -d "$app_path" && ! -L "$app_path" ]] ||
+  fail "archive did not produce exactly the expected application path"
+executable_name="$(
+  /usr/libexec/PlistBuddy -c "Print :CFBundleExecutable" \
+    "$app_path/Info.plist" 2>/dev/null
+)" || fail "archive app has no executable identity"
+[[ "$executable_name" =~ ^[A-Za-z0-9._-]+$ ]] ||
+  fail "archive executable identity is unsafe"
+executable_sha="$(
+  shasum -a 256 "$app_path/$executable_name" | awk '{print $1}'
+)"
+archive_sha="$(bash "$SCRIPT_DIR/hash-ios-archive.sh" "$archive")"
+
+bash "$SCRIPT_DIR/audit-ios-signed-release-artifact.sh" \
+  --archive "$archive" \
+  --expected-git-sha "$source_commit" \
+  --expected-build "$EXPECTED_BUILD" \
+  --expected-executable-sha256 "$executable_sha" \
+  --expected-archive-sha256 "$archive_sha" \
+  --expected-signing-certificate-sha1 "$EXPECTED_SIGNING_CERTIFICATE_SHA1" \
+  --expected-profile-uuid "$EXPECTED_PROFILE_UUID" \
+  --expected-profile-name "$EXPECTED_PROFILE_NAME" \
+  --receipt "$receipt"
+
+printf '%s\n' \
+  "$LOG_PREFIX PASS: local 4.2.0 ($EXPECTED_BUILD) archive is bound to clean HEAD $source_commit"

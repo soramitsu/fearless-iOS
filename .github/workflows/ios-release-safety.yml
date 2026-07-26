@@ -1,0 +1,67 @@
+name: iOS Release Safety
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - "release/**"
+      - "hotfix/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-release-safety-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-contracts:
+    name: release-contracts
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact commit
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 1
+
+      - name: Require clean exact checkout
+        run: |
+          set -euo pipefail
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+          git rev-parse --verify HEAD
+
+      - name: Run release gate contract suites
+        run: |
+          set -euo pipefail
+          bash scripts/test-ios-release-identity-audit.sh
+          bash scripts/test-ios-signed-release-artifact-audit.sh
+          bash scripts/test-coredata-release-gate.sh
+          bash scripts/test-coredata-simulator-rehearsal.sh
+          bash scripts/storage/test-user-storage-compatibility-model-audit.sh
+
+      - name: Reject silent x86 Release omissions
+        run: |
+          set -euo pipefail
+          if rg -n 'Skipping Release simulator tests|Release simulator tests were skipped' scripts/test-matrix.sh; then
+            echo "Release matrix still contains a green skip path." >&2
+            exit 1
+          fi
+
+  required-context:
+    name: ios-release-safety
+    runs-on: ubuntu-latest
+    needs: release-contracts
+    if: always()
+    steps:
+      - name: Require release contract success
+        env:
+          RESULT: ${{ needs.release-contracts.result }}
+        run: |
+          set -euo pipefail
+          [[ "$RESULT" == "success" ]] || {
+            echo "iOS release safety contracts did not pass: $RESULT" >&2
+            exit 1
+          }

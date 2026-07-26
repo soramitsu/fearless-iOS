@@ -7,7 +7,7 @@ set -euo pipefail
 # Safety properties:
 # - requires an explicit, booted iPhone Simulator UDID;
 # - verifies the .app contains an iOS Simulator binary;
-# - rejects unsigned, linker-only, or Keychain-incompatible app bundles;
+# - rejects unsigned or linker-only Simulator app bundles;
 # - requires artifact-embedded Release, Swift -O, and disabled-testability attestations;
 # - refuses a simulator where this bundle is already installed;
 # - never opens, deletes, renames, chmods, or otherwise writes the source fixture;
@@ -21,6 +21,8 @@ readonly LOG_PREFIX="[coredata-simulator-rehearsal]"
 readonly UUID_PATTERN='^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$'
 readonly BUNDLE_ID_PATTERN='^[A-Za-z0-9][A-Za-z0-9.-]*[A-Za-z0-9]$'
 readonly DEFAULT_ALIVE_SECONDS=8
+readonly EXPECTED_BUNDLE_ID="jp.co.soramitsu.fearlesswallet"
+readonly EXPECTED_VERSION="4.2.0"
 
 readonly STORE_FILES=(
   "CacheDataModel.sqlite"
@@ -104,6 +106,28 @@ CRASH_REPORT_DIR="${HOME}/Library/Logs/DiagnosticReports"
 ALIVE_SECONDS="$DEFAULT_ALIVE_SECONDS"
 DISPOSABLE_FIXTURE_CONFIRMED=0
 DRY_RUN=0
+EXPECTED_GIT_SHA=""
+EXPECTED_EXECUTABLE_SHA256=""
+EXPECTED_BUILD=""
+
+readonly REHEARSAL_TEST_HARNESS="${FEARLESS_REHEARSAL_TEST_HARNESS:-0}"
+if [[ "$REHEARSAL_TEST_HARNESS" != "1" ]]; then
+  for override_name in \
+    FEARLESS_REHEARSAL_XCRUN_BIN \
+    FEARLESS_REHEARSAL_CODESIGN_BIN \
+    FEARLESS_REHEARSAL_PYTHON_BIN \
+    FEARLESS_REHEARSAL_SHASUM_BIN \
+    FEARLESS_REHEARSAL_PS_BIN \
+    FEARLESS_REHEARSAL_SLEEP_BIN \
+    FEARLESS_REHEARSAL_PROCESS_CHECK_BIN; do
+    if [[ -n "${!override_name:-}" ]]; then
+      printf '%s ERROR: %s\n' \
+        "[coredata-simulator-rehearsal]" \
+        "$override_name is accepted only with FEARLESS_REHEARSAL_TEST_HARNESS=1" >&2
+      exit 1
+    fi
+  done
+fi
 
 XCRUN_BIN="${FEARLESS_REHEARSAL_XCRUN_BIN:-xcrun}"
 CODESIGN_BIN="${FEARLESS_REHEARSAL_CODESIGN_BIN:-codesign}"
@@ -144,6 +168,9 @@ Usage:
     --simulator-udid UUID \
     --app /absolute/path/to/fearless.app \
     --bundle-id jp.co.soramitsu.fearlesswallet \
+    --expected-git-sha 40_HEX_SHA \
+    --expected-build CANONICAL_CF_BUNDLE_VERSION \
+    --expected-executable-sha256 64_HEX_SHA256 \
     --fixture-dir /absolute/path/to/disposable/offline/CoreData \
     --artifacts-dir /absolute/path/to/new/artifacts \
     --confirm-disposable-fixture
@@ -163,6 +190,12 @@ Options:
   --dry-run
       Perform fail-closed input, Simulator, binary, checksum, and copied-SQLite
       validation without installing or launching the app.
+  --expected-git-sha SHA
+      Exact 40-hex source commit embedded in the Simulator artifact.
+  --expected-build BUILD
+      Exact fresh CFBundleVersion selected after the App Store Connect check.
+  --expected-executable-sha256 SHA
+      Exact 64-hex executable digest recorded by the build step.
   --help
 
 Controlled test-harness overrides:
@@ -201,6 +234,10 @@ validate_release_app_contract() {
   local build_configuration
   local optimization_level
   local enable_testability
+  local embedded_git_sha
+  local marketing_version
+  local build_number
+  local executable_digest
 
   build_configuration="$(
     plist_string "$APP_PATH/Info.plist" "FearlessBuildConfiguration"
@@ -211,6 +248,15 @@ validate_release_app_contract() {
   enable_testability="$(
     plist_string "$APP_PATH/Info.plist" "FearlessEnableTestability"
   )" || fail "Release app lacks its testability attestation"
+  embedded_git_sha="$(
+    plist_string "$APP_PATH/Info.plist" "FearlessGitCommit"
+  )" || fail "Release app lacks its git-commit attestation"
+  marketing_version="$(
+    plist_string "$APP_PATH/Info.plist" "CFBundleShortVersionString"
+  )" || fail "Release app lacks its marketing version"
+  build_number="$(
+    plist_string "$APP_PATH/Info.plist" "CFBundleVersion"
+  )" || fail "Release app lacks its build number"
 
   [[ "$build_configuration" == "Release" ]] ||
     fail "app was not built with the Release configuration"
@@ -218,6 +264,17 @@ validate_release_app_contract() {
     fail "app was not built with Swift -O optimization"
   [[ "$enable_testability" == "NO" ]] ||
     fail "app was built with testability enabled"
+  [[ "$embedded_git_sha" == "$EXPECTED_GIT_SHA" ]] ||
+    fail "app git commit does not match --expected-git-sha"
+  [[ "$marketing_version" == "$EXPECTED_VERSION" ]] ||
+    fail "app marketing version is not $EXPECTED_VERSION"
+  [[ "$build_number" == "$EXPECTED_BUILD" ]] ||
+    fail "app build number is not --expected-build"
+  executable_digest="$("$SHASUM_BIN" -a 256 "$APP_EXECUTABLE_PATH" | awk '{print $1}')"
+  [[ "$executable_digest" =~ ^[0-9A-Fa-f]{64}$ ]] ||
+    fail "unable to compute the Simulator executable SHA-256"
+  [[ "$executable_digest" == "$EXPECTED_EXECUTABLE_SHA256" ]] ||
+    fail "Simulator executable SHA-256 does not match the build record"
 
   if ! "$XCRUN_BIN" nm -gj "$APP_EXECUTABLE_PATH" >"$symbols_file" 2>/dev/null; then
     : >"$symbols_file"
@@ -238,7 +295,7 @@ validate_release_app_contract() {
   done
 
   printf '%s\n' \
-    "Release, Swift -O, testability disabled; 26 managed-object runtime classes and 29 Core Data resources verified" \
+    "Release, Swift -O, testability disabled; exact commit/version/build/executable SHA-256; 26 managed-object runtime classes and 29 Core Data resources verified" \
     >"$ARTIFACTS_DIR/coredata-app-contract.txt"
 }
 
@@ -591,6 +648,168 @@ def protected_user_fingerprints(connection, table_names):
     )
     return fingerprints
 
+def protected_substrate_topology(connection, table_names):
+    chain_table = "ZCDCHAIN"
+    node_table = "ZCDCHAINNODE"
+    primary_key_table = "Z_PRIMARYKEY"
+    required_tables = {chain_table, node_table, primary_key_table}
+    if not required_tables.issubset(table_names):
+        raise RuntimeError("Substrate store lacks chain/node topology tables")
+
+    chain_columns = table_columns(connection, chain_table)
+    node_columns = table_columns(connection, node_table)
+    required_chain_columns = {"Z_PK", "ZCHAINID", "ZSELECTEDNODE"}
+    required_node_columns = {"Z_PK", "ZCHAIN", "ZNAME", "ZURL"}
+    if not required_chain_columns.issubset(chain_columns):
+        raise RuntimeError("Substrate store lacks protected chain topology columns")
+    if not required_node_columns.issubset(node_columns):
+        raise RuntimeError("Substrate store lacks protected node topology columns")
+
+    entity_numbers = {
+        str(name).upper(): number
+        for number, name in connection.execute(
+            f"SELECT Z_ENT, Z_NAME FROM {quote_identifier(primary_key_table)}"
+        ).fetchall()
+    }
+    chain_entity = entity_numbers.get("CDCHAIN")
+    node_entity = entity_numbers.get("CDCHAINNODE")
+    if not isinstance(chain_entity, int) or not isinstance(node_entity, int):
+        raise RuntimeError("Substrate store lacks Core Data entity-number metadata")
+
+    inline_custom_column = f"Z{chain_entity}CUSTOMNODES"
+    if inline_custom_column not in node_columns:
+        raise RuntimeError("Substrate store lacks the canonical customNodes relationship column")
+    custom_tables = []
+    for table_name in sorted(table_names):
+        if table_name in {chain_table, node_table, primary_key_table}:
+            continue
+        columns = table_columns(connection, table_name)
+        if "CUSTOMNODES" in table_name or any(
+            "CUSTOMNODES" in column for column in columns
+        ):
+            custom_tables.append((table_name, columns))
+    if custom_tables:
+        raise RuntimeError("Substrate store has an unexpected customNodes join table")
+
+    chains = {}
+    for primary_key, chain_id, selected_node in connection.execute(
+        f"""
+        SELECT Z_PK, ZCHAINID, ZSELECTEDNODE
+        FROM {quote_identifier(chain_table)}
+        """
+    ).fetchall():
+        if (
+            not isinstance(primary_key, int)
+            or not isinstance(chain_id, str)
+            or not chain_id.strip()
+        ):
+            raise RuntimeError("Substrate chain topology contains an invalid identity")
+        chains[primary_key] = (chain_id, selected_node)
+    if not chains:
+        raise RuntimeError("Substrate chain topology is vacuous")
+
+    optional_node_columns = tuple(
+        column
+        for column in ("ZAPIKEYNAME", "ZAPIQUERYNAME")
+        if column in node_columns
+    )
+    selected_node_columns = (
+        "Z_PK",
+        "ZCHAIN",
+        inline_custom_column,
+        "ZNAME",
+        "ZURL",
+    ) + optional_node_columns
+    node_query_columns = ", ".join(
+        quote_identifier(column) for column in selected_node_columns
+    )
+    nodes = {}
+    for row in connection.execute(
+        f"SELECT {node_query_columns} FROM {quote_identifier(node_table)}"
+    ).fetchall():
+        primary_key, default_chain, custom_chain, name, url, *credentials = row
+        if not isinstance(primary_key, int):
+            raise RuntimeError("Substrate node topology contains an invalid primary key")
+        nodes[primary_key] = (
+            default_chain,
+            custom_chain,
+            name,
+            url,
+            *credentials,
+        )
+    if not nodes:
+        raise RuntimeError("Substrate node topology is vacuous")
+
+    custom_edges = set()
+    for node_key, node in nodes.items():
+        custom_chain = node[1]
+        if custom_chain is not None:
+            if custom_chain not in chains:
+                raise RuntimeError("Substrate customNodes relationship is dangling")
+            custom_edges.add((custom_chain, node_key))
+    if not custom_edges:
+        raise RuntimeError("Substrate fixture has no custom-node relationships")
+
+    selected_edges = set()
+    for chain_key, (_, selected_node) in chains.items():
+        if selected_node is not None:
+            if selected_node not in nodes:
+                raise RuntimeError("Substrate selected-node relationship is dangling")
+            selected_edges.add((chain_key, selected_node))
+
+    default_edges = set()
+    for node_key, node in nodes.items():
+        default_chain = node[0]
+        if default_chain is not None:
+            if default_chain not in chains:
+                raise RuntimeError("Substrate default-node relationship is dangling")
+            default_edges.add((default_chain, node_key))
+
+    has_custom_selected = bool(custom_edges & selected_edges)
+    has_custom_only = any(
+        any(source == chain_key for source, _ in custom_edges)
+        and not any(source == chain_key for source, _ in default_edges)
+        for chain_key in chains
+    )
+    if not has_custom_selected:
+        raise RuntimeError("Substrate fixture lacks a selected custom-node topology")
+    if not has_custom_only:
+        raise RuntimeError("Substrate fixture lacks a custom-only chain topology")
+
+    topology_rows = []
+    for chain_key, (chain_id, selected_node) in chains.items():
+        topology_rows.append(("chain", chain_id, selected_node))
+        for relationship, edges in (
+            ("default", default_edges),
+            ("custom", custom_edges),
+            ("selected", selected_edges),
+        ):
+            for source, node_key in sorted(edges):
+                if source == chain_key:
+                    topology_rows.append(
+                        (relationship, chain_id, node_key, *nodes[node_key][2:])
+                    )
+
+    referenced_nodes = {
+        node_key
+        for _, node_key in default_edges | custom_edges | selected_edges
+    }
+    orphan_rows = [
+        ("orphan", node_key, *node[2:])
+        for node_key, node in nodes.items()
+        if node_key not in referenced_nodes
+    ]
+    return {
+        "fingerprints": {
+            "chain-default-custom-selected-topology": rows_digest(topology_rows),
+            "orphan-node-topology": rows_digest(orphan_rows),
+        },
+        "coverage": {
+            "customOnlyChain": has_custom_only,
+            "selectedCustomNode": has_custom_selected,
+        },
+    }
+
 try:
     for store_name in stores:
         store_path = os.path.join(directory, store_name)
@@ -636,6 +855,14 @@ try:
                 store_result["protectedFingerprints"] = (
                     protected_user_fingerprints(connection, set(table_names))
                 )
+            if store_name == "SubstrateDataModel.sqlite":
+                topology = protected_substrate_topology(
+                    connection, set(table_names)
+                )
+                store_result["protectedTopologyFingerprints"] = (
+                    topology["fingerprints"]
+                )
+                store_result["topologyCoverage"] = topology["coverage"]
             result[store_name] = store_result
         finally:
             connection.close()
@@ -740,6 +967,49 @@ for table_name in substrate_critical_tables:
         if actual_count != expected_count:
             print(f"{phase_name} changed the protected {table_name} row count", file=sys.stderr)
             sys.exit(9)
+
+before_topology_store = before["SubstrateDataModel.sqlite"]
+before_coverage = before_topology_store.get("topologyCoverage")
+if before_coverage != {
+    "customOnlyChain": True,
+    "selectedCustomNode": True,
+}:
+    print(
+        "prelaunch Substrate fixture lacks required custom-node topology coverage",
+        file=sys.stderr,
+    )
+    sys.exit(10)
+before_topology = before_topology_store.get("protectedTopologyFingerprints")
+if not isinstance(before_topology, dict) or not before_topology:
+    print("prelaunch Substrate store lacks topology fingerprints", file=sys.stderr)
+    sys.exit(11)
+for fingerprint_name, expected_fingerprint in before_topology.items():
+    if (
+        not isinstance(fingerprint_name, str)
+        or not isinstance(expected_fingerprint, str)
+        or len(expected_fingerprint) != 64
+    ):
+        print("prelaunch Substrate topology fingerprint is malformed", file=sys.stderr)
+        sys.exit(12)
+    for phase_name, payload in (("first launch", first), ("relaunch", second)):
+        topology_store = payload["SubstrateDataModel.sqlite"]
+        if topology_store.get("topologyCoverage") != before_coverage:
+            print(
+                f"{phase_name} changed required custom-node topology coverage",
+                file=sys.stderr,
+            )
+            sys.exit(13)
+        actual_fingerprint = (
+            topology_store
+            .get("protectedTopologyFingerprints", {})
+            .get(fingerprint_name)
+        )
+        if actual_fingerprint != expected_fingerprint:
+            print(
+                f"{phase_name} changed protected default/custom/selected/orphan node topology",
+                file=sys.stderr,
+            )
+            sys.exit(14)
 PY
 }
 
@@ -1054,6 +1324,21 @@ while [[ "$#" -gt 0 ]]; do
       BUNDLE_ID="$2"
       shift 2
       ;;
+    --expected-git-sha)
+      require_option_value "$1" "$#"
+      EXPECTED_GIT_SHA="$2"
+      shift 2
+      ;;
+    --expected-build)
+      require_option_value "$1" "$#"
+      EXPECTED_BUILD="$2"
+      shift 2
+      ;;
+    --expected-executable-sha256)
+      require_option_value "$1" "$#"
+      EXPECTED_EXECUTABLE_SHA256="$2"
+      shift 2
+      ;;
     --fixture-dir)
       require_option_value "$1" "$#"
       FIXTURE_DIR="$2"
@@ -1100,6 +1385,14 @@ done
 [[ -n "$BUNDLE_ID" ]] || fail "--bundle-id is required"
 [[ "$BUNDLE_ID" =~ $BUNDLE_ID_PATTERN ]] ||
   fail "--bundle-id is malformed"
+[[ "$BUNDLE_ID" == "$EXPECTED_BUNDLE_ID" ]] ||
+  fail "--bundle-id must be the production Fearless identity"
+[[ "$EXPECTED_GIT_SHA" =~ ^[0-9A-Fa-f]{40}$ ]] ||
+  fail "--expected-git-sha must be an exact 40-hex commit"
+[[ "$EXPECTED_BUILD" =~ ^[1-9][0-9]{0,3}(\.[0-9]{1,2}){0,2}$ ]] ||
+  fail "--expected-build must be an explicit canonical CFBundleVersion"
+[[ "$EXPECTED_EXECUTABLE_SHA256" =~ ^[0-9A-Fa-f]{64}$ ]] ||
+  fail "--expected-executable-sha256 must be 64 hex"
 [[ -n "$FIXTURE_DIR" ]] || fail "--fixture-dir is required"
 [[ "$FIXTURE_DIR" == /* ]] || fail "--fixture-dir must be an absolute path"
 [[ -n "$ARTIFACTS_DIR" ]] || fail "--artifacts-dir is required"
@@ -1348,5 +1641,6 @@ cmp -s \
   fail "source fixture changed during the rehearsal"
 
 log "PASSED: first launch and relaunch each reached a usable startup route with no crash or fatal migration/Core Data marker"
-log "PASSED: copied stores remain intact; protected counts, wallet identities, keys, and relationships are preserved"
-log "PASSED: signed Keychain-capable Release/-O/non-testable artifact, 26 managed-object classes, and 29 migration resources verified; source fixture is unchanged"
+log "PASSED: copied stores remain intact; protected wallet and custom-node topology fingerprints are preserved"
+log "PASSED: signed Simulator Release/-O/non-testable artifact, exact commit/version/build/executable hash, 26 managed-object classes, and 29 migration resources verified; source fixture is unchanged"
+log "NOTE: device distribution profile, production entitlements, and TestFlight Keychain capability require audit-ios-signed-release-artifact.sh against the exact .xcarchive"

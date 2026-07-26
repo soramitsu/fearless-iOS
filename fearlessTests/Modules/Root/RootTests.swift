@@ -24,7 +24,7 @@ class RootTests: XCTestCase {
             WalletConnectGroupIdentifierResolver.resolve(
                 bundleIdentifier: "jp.co.soramitsu.fearlesswallet.dev"
             ),
-            "group.com.walletconnect.sdk"
+            "group.jp.co.soramitsu.fearlesswallet.walletconnect"
         )
     }
 

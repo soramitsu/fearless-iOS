@@ -1099,6 +1099,8 @@ final class ChainModelMapperTests: XCTestCase {
             }
         }
 
+        // Exercise the same repository fetch/map frame sequence as the
+        // TestFlight _ArrayBuffer._getElementSlowPath crash after cleanup.
         let repository = factory.createRepository()
         let fetchOperation = repository.fetchAllOperation(
             with: RepositoryFetchOptions()

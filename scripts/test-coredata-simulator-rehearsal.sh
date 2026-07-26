@@ -77,10 +77,55 @@ definitions = {
         "INSERT INTO ZCACHE (ZVALUE) VALUES ('opaque')",
     ),
     "SubstrateDataModel.sqlite": (
-        "CREATE TABLE ZCDCHAIN (Z_PK INTEGER PRIMARY KEY)",
+        """
+        CREATE TABLE Z_PRIMARYKEY (
+          Z_ENT INTEGER PRIMARY KEY,
+          Z_NAME TEXT
+        )
+        """,
+        """
+        CREATE TABLE ZCDCHAIN (
+          Z_PK INTEGER PRIMARY KEY,
+          ZCHAINID TEXT,
+          ZSELECTEDNODE INTEGER
+        )
+        """,
+        """
+        CREATE TABLE ZCDCHAINNODE (
+          Z_PK INTEGER PRIMARY KEY,
+          ZCHAIN INTEGER,
+          Z2CUSTOMNODES INTEGER,
+          ZNAME TEXT,
+          ZURL TEXT,
+          ZAPIKEYNAME TEXT,
+          ZAPIQUERYNAME TEXT
+        )
+        """,
         "CREATE TABLE ZCDRUNTIMEMETADATAITEM (Z_PK INTEGER PRIMARY KEY)",
-        "INSERT INTO ZCDCHAIN DEFAULT VALUES",
-        "INSERT INTO ZCDCHAIN DEFAULT VALUES",
+        "INSERT INTO Z_PRIMARYKEY (Z_ENT, Z_NAME) VALUES (2, 'CDChain')",
+        "INSERT INTO Z_PRIMARYKEY (Z_ENT, Z_NAME) VALUES (3, 'CDChainNode')",
+        "INSERT INTO ZCDCHAIN (Z_PK, ZCHAINID, ZSELECTEDNODE) VALUES (1, 'chain-a', 102)",
+        "INSERT INTO ZCDCHAIN (Z_PK, ZCHAINID, ZSELECTEDNODE) VALUES (2, 'chain-custom-only', 103)",
+        """
+        INSERT INTO ZCDCHAINNODE
+          (Z_PK, ZCHAIN, Z2CUSTOMNODES, ZNAME, ZURL, ZAPIKEYNAME, ZAPIQUERYNAME)
+        VALUES (101, 1, NULL, 'default-a', 'wss://default.example', NULL, NULL)
+        """,
+        """
+        INSERT INTO ZCDCHAINNODE
+          (Z_PK, ZCHAIN, Z2CUSTOMNODES, ZNAME, ZURL, ZAPIKEYNAME, ZAPIQUERYNAME)
+        VALUES (102, NULL, 1, 'custom-selected-a', 'wss://custom-a.example', 'key', 'apiKey')
+        """,
+        """
+        INSERT INTO ZCDCHAINNODE
+          (Z_PK, ZCHAIN, Z2CUSTOMNODES, ZNAME, ZURL, ZAPIKEYNAME, ZAPIQUERYNAME)
+        VALUES (103, NULL, 2, 'custom-only-selected', 'wss://custom-only.example', NULL, NULL)
+        """,
+        """
+        INSERT INTO ZCDCHAINNODE
+          (Z_PK, ZCHAIN, Z2CUSTOMNODES, ZNAME, ZURL, ZAPIKEYNAME, ZAPIQUERYNAME)
+        VALUES (104, NULL, NULL, 'orphan', 'wss://orphan.example', NULL, NULL)
+        """,
         "INSERT INTO ZCDRUNTIMEMETADATAITEM DEFAULT VALUES",
         "INSERT INTO ZCDRUNTIMEMETADATAITEM DEFAULT VALUES",
     ),
@@ -182,12 +227,18 @@ prepare_case() {
   <string>$BUNDLE_ID</string>
   <key>CFBundleExecutable</key>
   <string>fearless</string>
+  <key>CFBundleShortVersionString</key>
+  <string>4.2.0</string>
+  <key>CFBundleVersion</key>
+  <string>2026.7.26</string>
   <key>FearlessBuildConfiguration</key>
   <string>Release</string>
   <key>FearlessSwiftOptimizationLevel</key>
   <string>-O</string>
   <key>FearlessEnableTestability</key>
   <string>NO</string>
+  <key>FearlessGitCommit</key>
+  <string>7a819cb01e92920e5444151392df54245acdd4c8</string>
 </dict>
 </plist>
 PLIST
@@ -196,6 +247,8 @@ PLIST
 exit 0
 APP
   chmod +x "$APP_DIR/fearless"
+  local executable_sha
+  executable_sha="$(shasum -a 256 "$APP_DIR/fearless" | awk '{print $1}')"
   mkdir -p \
     "$APP_DIR/Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd" \
     "$APP_DIR/SubstrateDataModel.momd"
@@ -240,6 +293,9 @@ APP
     --simulator-udid "$SIMULATOR_UDID"
     --app "$APP_DIR"
     --bundle-id "$BUNDLE_ID"
+    --expected-git-sha 7a819cb01e92920e5444151392df54245acdd4c8
+    --expected-build 2026.7.26
+    --expected-executable-sha256 "$executable_sha"
     --fixture-dir "$FIXTURE_DIR"
     --artifacts-dir "$ARTIFACTS_DIR"
     --crash-report-dir "$CRASH_DIR"
@@ -252,6 +308,7 @@ run_case() {
   local label="$1"
 
   env \
+    FEARLESS_REHEARSAL_TEST_HARNESS=1 \
     FEARLESS_REHEARSAL_XCRUN_BIN="$TEMPORARY_DIR/bin/xcrun" \
     FEARLESS_REHEARSAL_CODESIGN_BIN="$TEMPORARY_DIR/bin/codesign" \
     FEARLESS_REHEARSAL_PROCESS_CHECK_BIN="$TEMPORARY_DIR/bin/process-check" \
@@ -454,7 +511,39 @@ PY
 import sqlite3
 import sys
 connection = sqlite3.connect(sys.argv[1])
-connection.execute("DELETE FROM ZCDCHAIN WHERE Z_PK = (SELECT MAX(Z_PK) FROM ZCDCHAIN)")
+connection.execute("DELETE FROM ZCDCHAINNODE WHERE Z_PK IN (101, 102)")
+connection.execute("DELETE FROM ZCDCHAIN WHERE Z_PK = 1")
+connection.commit()
+connection.close()
+PY
+    fi
+    if [[ "${FAKE_MUTATE_CUSTOM_NODE:-0}" == "1" ]]; then
+      python3 - "$core_data/SubstrateDataModel.sqlite" <<'PY'
+import sqlite3
+import sys
+connection = sqlite3.connect(sys.argv[1])
+connection.execute("UPDATE ZCDCHAINNODE SET ZURL = 'wss://mutated.example' WHERE Z_PK = 102")
+connection.commit()
+connection.close()
+PY
+    fi
+    if [[ "${FAKE_MUTATE_CUSTOM_MEMBERSHIP:-0}" == "1" ]]; then
+      python3 - "$core_data/SubstrateDataModel.sqlite" <<'PY'
+import sqlite3
+import sys
+connection = sqlite3.connect(sys.argv[1])
+connection.execute("UPDATE ZCDCHAINNODE SET Z2CUSTOMNODES = 1 WHERE Z_PK = 104")
+connection.execute("UPDATE ZCDCHAINNODE SET Z2CUSTOMNODES = NULL WHERE Z_PK = 102")
+connection.commit()
+connection.close()
+PY
+    fi
+    if [[ "${FAKE_MUTATE_SELECTED_NODE:-0}" == "1" ]]; then
+      python3 - "$core_data/SubstrateDataModel.sqlite" <<'PY'
+import sqlite3
+import sys
+connection = sqlite3.connect(sys.argv[1])
+connection.execute("UPDATE ZCDCHAIN SET ZSELECTEDNODE = 101 WHERE Z_PK = 1")
 connection.commit()
 connection.close()
 PY
@@ -514,6 +603,9 @@ CASE_ARGS=(
   --simulator-udid "$SIMULATOR_UDID"
   --app "$APP_DIR"
   --bundle-id "$BUNDLE_ID"
+  --expected-git-sha 7a819cb01e92920e5444151392df54245acdd4c8
+  --expected-build 2026.7.26
+  --expected-executable-sha256 "$(shasum -a 256 "$APP_DIR/fearless" | awk '{print $1}')"
   --fixture-dir "$FIXTURE_DIR"
   --artifacts-dir "$ARTIFACTS_DIR"
   --crash-report-dir "$CRASH_DIR"
@@ -566,6 +658,27 @@ plutil -replace FearlessEnableTestability -string YES "$APP_DIR/Info.plist"
 CASE_ARGS+=(--dry-run)
 expect_failure "testability enabled" "built with testability enabled"
 
+prepare_case "wrong-git-commit"
+plutil -replace FearlessGitCommit \
+  -string aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa "$APP_DIR/Info.plist"
+CASE_ARGS+=(--dry-run)
+expect_failure "wrong git commit" "git commit does not match"
+
+prepare_case "wrong-marketing-version"
+plutil -replace CFBundleShortVersionString -string 4.1.0 "$APP_DIR/Info.plist"
+CASE_ARGS+=(--dry-run)
+expect_failure "wrong marketing version" "marketing version is not"
+
+prepare_case "wrong-build-number"
+plutil -replace CFBundleVersion -string 1 "$APP_DIR/Info.plist"
+CASE_ARGS+=(--dry-run)
+expect_failure "wrong build number" "build number is not"
+
+prepare_case "wrong-executable-digest"
+printf '%s\n' "# post-build mutation" >>"$APP_DIR/fearless"
+CASE_ARGS+=(--dry-run)
+expect_failure "wrong executable digest" "executable SHA-256 does not match"
+
 prepare_case "missing-managed-class"
 CASE_ENV=("FAKE_MISSING_MANAGED_CLASS=CDChain")
 CASE_ARGS+=(--dry-run)
@@ -608,6 +721,9 @@ CASE_ARGS=(
   --simulator-udid "$SIMULATOR_UDID"
   --app "$APP_DIR"
   --bundle-id "$BUNDLE_ID"
+  --expected-git-sha 7a819cb01e92920e5444151392df54245acdd4c8
+  --expected-build 2026.7.26
+  --expected-executable-sha256 "$(shasum -a 256 "$APP_DIR/fearless" | awk '{print $1}')"
   --fixture-dir "$FIXTURE_DIR"
   --artifacts-dir "$ARTIFACTS_DIR"
   --crash-report-dir "$CRASH_DIR"
@@ -659,6 +775,37 @@ prepare_case "substrate-nonzero-row-loss"
 CASE_ENV=("FAKE_DROP_ONE_SUBSTRATE_ROW=1")
 expect_failure "nonzero Substrate row loss" "changed the protected ZCDCHAIN row count"
 
+prepare_case "custom-node-payload-mutated"
+CASE_ENV=("FAKE_MUTATE_CUSTOM_NODE=1")
+expect_failure \
+  "custom node payload mutation" \
+  "changed protected default/custom/selected/orphan node topology"
+
+prepare_case "custom-node-membership-mutated"
+CASE_ENV=("FAKE_MUTATE_CUSTOM_MEMBERSHIP=1")
+expect_failure \
+  "custom node membership mutation" \
+  "changed protected default/custom/selected/orphan node topology"
+
+prepare_case "selected-node-mutated"
+CASE_ENV=("FAKE_MUTATE_SELECTED_NODE=1")
+expect_failure \
+  "selected node mutation" \
+  "changed protected default/custom/selected/orphan node topology"
+
+prepare_case "vacuous-custom-topology"
+python3 - "$FIXTURE_DIR/SubstrateDataModel.sqlite" <<'PY'
+import sqlite3
+import sys
+connection = sqlite3.connect(sys.argv[1])
+connection.execute("UPDATE ZCDCHAINNODE SET Z2CUSTOMNODES = NULL")
+connection.execute("UPDATE ZCDCHAIN SET ZSELECTEDNODE = NULL")
+connection.commit()
+connection.close()
+PY
+CASE_ARGS+=(--dry-run)
+expect_failure "vacuous custom topology" "has no custom-node relationships"
+
 prepare_case "matching-crash-report"
 CASE_ENV=("FAKE_CREATE_CRASH=1")
 expect_failure "matching crash report" "new crash report matched"
@@ -667,5 +814,15 @@ prepare_case "matching-crash-without-device-id"
 CASE_ENV=("FAKE_CREATE_CRASH_WITHOUT_DEVICE=1")
 expect_failure "matching crash report without device ID" "new crash report matched"
 
+prepare_case "override-without-harness"
+if env \
+  FEARLESS_REHEARSAL_XCRUN_BIN="$TEMPORARY_DIR/bin/xcrun" \
+  bash "$REHEARSAL" >"$CASE_DIR/stdout" 2>"$CASE_DIR/stderr"; then
+  fail "tool override without explicit harness unexpectedly passed"
+fi
+assert_contains "accepted only with FEARLESS_REHEARSAL_TEST_HARNESS=1" "$CASE_DIR/stderr"
 printf '%s\n' \
-  "[coredata-simulator-rehearsal-test] PASS: 2 positive + 30 negative/adversarial contracts"
+  "[coredata-simulator-rehearsal-test] PASS (rejected): override without harness"
+
+printf '%s\n' \
+  "[coredata-simulator-rehearsal-test] PASS: 2 positive + 39 negative/adversarial contracts"

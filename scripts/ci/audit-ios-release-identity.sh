@@ -4,6 +4,33 @@ set -euo pipefail
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
+readonly EXPECTED_DEVELOPMENT_TEAM="YLWWUD25VZ"
+readonly AUDIT_TEST_HARNESS="${IOS_RELEASE_AUDIT_TEST_HARNESS:-0}"
+
+fail() {
+  printf '[ios-release-identity] FAIL: %s\n' "$*" >&2
+  exit 1
+}
+
+readonly TEST_HARNESS_OVERRIDE_NAMES=(
+  IOS_RELEASE_SCHEME_FILE
+  IOS_RELEASE_ENTITLEMENTS_FILE
+  IOS_DEBUG_ENTITLEMENTS_FILE
+  IOS_RELEASE_INFO_PLIST_FILE
+  IOS_RELEASE_WALLET_CONNECT_SERVICE_FILE
+  IOS_RELEASE_SETTINGS_JSON
+  IOS_DEBUG_SETTINGS_JSON
+  IOS_EXPECTED_BUNDLE_ID
+  IOS_EXPECTED_DEBUG_BUNDLE_ID
+  IOS_EXPECTED_MARKETING_VERSION
+)
+if [[ "$AUDIT_TEST_HARNESS" != "1" ]]; then
+  for override_name in "${TEST_HARNESS_OVERRIDE_NAMES[@]}"; do
+    [[ -z "${!override_name:-}" ]] ||
+      fail "$override_name is accepted only with IOS_RELEASE_AUDIT_TEST_HARNESS=1"
+  done
+fi
+
 readonly SCHEME_FILE="${IOS_RELEASE_SCHEME_FILE:-$REPO_ROOT/fearless.xcodeproj/xcshareddata/xcschemes/fearless.xcscheme}"
 readonly ENTITLEMENTS_FILE="${IOS_RELEASE_ENTITLEMENTS_FILE:-$REPO_ROOT/fearless/WalletConnect.entitlements}"
 readonly DEBUG_ENTITLEMENTS_FILE="${IOS_DEBUG_ENTITLEMENTS_FILE:-$REPO_ROOT/fearless/WalletConnect.dev.entitlements}"
@@ -12,12 +39,9 @@ readonly WALLET_CONNECT_SERVICE_FILE="${IOS_RELEASE_WALLET_CONNECT_SERVICE_FILE:
 readonly EXPECTED_BUNDLE_ID="${IOS_EXPECTED_BUNDLE_ID:-jp.co.soramitsu.fearlesswallet}"
 readonly EXPECTED_DEBUG_BUNDLE_ID="${IOS_EXPECTED_DEBUG_BUNDLE_ID:-jp.co.soramitsu.fearlesswallet.dev}"
 readonly EXPECTED_VERSION="${IOS_EXPECTED_MARKETING_VERSION:-4.2.0}"
-readonly EXPECTED_BUILD="${IOS_EXPECTED_BUILD_NUMBER:-2026.7.26}"
-
-fail() {
-  printf '[ios-release-identity] FAIL: %s\n' "$*" >&2
-  exit 1
-}
+readonly EXPECTED_BUILD="${IOS_EXPECTED_BUILD_NUMBER:-}"
+[[ "$EXPECTED_BUILD" =~ ^[1-9][0-9]{0,3}(\.[0-9]{1,2}){0,2}$ ]] ||
+  fail "IOS_EXPECTED_BUILD_NUMBER must be an explicit canonical CFBundleVersion"
 
 require_regular_file() {
   local path="$1"
@@ -45,6 +69,12 @@ short_version="$(
 [[ "$short_version" == '$(MARKETING_VERSION)' ]] ||
   fail "CFBundleShortVersionString must expand MARKETING_VERSION"
 
+git_commit="$(
+  plutil -extract FearlessGitCommit raw "$INFO_PLIST_FILE" 2>/dev/null
+)" || fail "application Info.plist has no FearlessGitCommit"
+[[ "$git_commit" == '$(FEARLESS_GIT_COMMIT)' ]] ||
+  fail "FearlessGitCommit must expand FEARLESS_GIT_COMMIT"
+
 archive_action_count="$(
   xmllint --xpath 'count(/Scheme/ArchiveAction)' "$SCHEME_FILE" 2>/dev/null
 )" || fail "shared scheme is not valid XML"
@@ -71,6 +101,7 @@ if [[ -z "$settings_json" ]]; then
     -destination "generic/platform=iOS"
     -showBuildSettings
     -json
+    "CURRENT_PROJECT_VERSION=$EXPECTED_BUILD"
   )
 
   if [[ -n "${IOS_RELEASE_SOURCE_PACKAGES_DIR:-}" ]]; then
@@ -175,6 +206,7 @@ require_setting MARKETING_VERSION "$EXPECTED_VERSION"
 require_setting CURRENT_PROJECT_VERSION "$EXPECTED_BUILD"
 require_setting CODE_SIGN_ENTITLEMENTS "fearless/WalletConnect.entitlements"
 require_setting CODE_SIGN_STYLE "Automatic"
+require_setting DEVELOPMENT_TEAM "$EXPECTED_DEVELOPMENT_TEAM"
 require_setting SWIFT_OPTIMIZATION_LEVEL "-O"
 require_setting ENABLE_TESTABILITY "NO"
 
@@ -183,6 +215,7 @@ require_debug_setting \
   CODE_SIGN_ENTITLEMENTS \
   "fearless/WalletConnect.dev.entitlements"
 require_debug_setting CODE_SIGN_STYLE "Automatic"
+require_debug_setting DEVELOPMENT_TEAM "$EXPECTED_DEVELOPMENT_TEAM"
 
 entitlements_json="$(
   plutil -convert json -o - "$ENTITLEMENTS_FILE" 2>/dev/null
@@ -224,8 +257,7 @@ jq -e '
       "com.apple.developer.associated-domains",
       "com.apple.developer.icloud-container-identifiers",
       "com.apple.developer.icloud-services",
-      "com.apple.security.application-groups",
-      "keychain-access-groups"
+      "com.apple.security.application-groups"
     ] | sort
   ) and
   .["com.apple.developer.associated-domains"] == [
@@ -237,11 +269,9 @@ jq -e '
   ] and
   .["com.apple.developer.icloud-services"] == ["CloudKit"] and
   .["com.apple.security.application-groups"] == [
-    "group.com.walletconnect.sdk"
+    "group.jp.co.soramitsu.fearlesswallet.walletconnect"
   ] and
-  .["keychain-access-groups"] == [
-    "group.com.walletconnect.sdk"
-  ]
+  (has("keychain-access-groups") | not)
 ' <<<"$debug_entitlements_json" >/dev/null ||
   fail "Debug entitlements do not match the isolated development identity"
 
@@ -250,9 +280,9 @@ grep -Fq \
   "$WALLET_CONNECT_SERVICE_FILE" ||
   fail "WalletConnect production consumer does not use the entitled app group"
 grep -Fq \
-  'static let developmentGroupIdentifier = "group.com.walletconnect.sdk"' \
+  'static let developmentGroupIdentifier = "group.jp.co.soramitsu.fearlesswallet.walletconnect"' \
   "$WALLET_CONNECT_SERVICE_FILE" ||
-  fail "WalletConnect development group is not isolated explicitly"
+  fail "WalletConnect development consumer does not use the registered Debug app group"
 grep -Fq \
   'WalletConnectGroupIdentifierResolver.resolve(' \
   "$WALLET_CONNECT_SERVICE_FILE" ||

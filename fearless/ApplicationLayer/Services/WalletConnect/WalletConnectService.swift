@@ -33,7 +33,7 @@ enum WalletConnectGroupIdentifierResolver {
     static let productionBundleIdentifier = "jp.co.soramitsu.fearlesswallet"
     static let developmentBundleIdentifier = "jp.co.soramitsu.fearlesswallet.dev"
     static let productionGroupIdentifier = "group.jp.co.soramitsu.fearlesswallet"
-    static let developmentGroupIdentifier = "group.com.walletconnect.sdk"
+    static let developmentGroupIdentifier = "group.jp.co.soramitsu.fearlesswallet.walletconnect"
 
     static func resolve(bundleIdentifier: String?) -> String? {
         if bundleIdentifier == productionBundleIdentifier {

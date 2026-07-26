@@ -44,6 +44,7 @@ jq -n '[
       CURRENT_PROJECT_VERSION: "2026.7.26",
       CODE_SIGN_ENTITLEMENTS: "fearless/WalletConnect.entitlements",
       CODE_SIGN_STYLE: "Automatic",
+      DEVELOPMENT_TEAM: "YLWWUD25VZ",
       SWIFT_OPTIMIZATION_LEVEL: "-O",
       ENABLE_TESTABILITY: "NO"
     }
@@ -57,7 +58,8 @@ jq -n '[
     buildSettings: {
       PRODUCT_BUNDLE_IDENTIFIER: "jp.co.soramitsu.fearlesswallet.dev",
       CODE_SIGN_ENTITLEMENTS: "fearless/WalletConnect.dev.entitlements",
-      CODE_SIGN_STYLE: "Automatic"
+      CODE_SIGN_STYLE: "Automatic",
+      DEVELOPMENT_TEAM: "YLWWUD25VZ"
     }
   }
 ]' > "$debug_settings"
@@ -70,6 +72,8 @@ run_audit() {
   local debug_settings_file="${6:-$debug_settings}"
   local debug_entitlements_file="${7:-$dev_entitlements}"
 
+  IOS_RELEASE_AUDIT_TEST_HARNESS=1 \
+  IOS_EXPECTED_BUILD_NUMBER=2026.7.26 \
   IOS_RELEASE_SETTINGS_JSON="$1" \
   IOS_DEBUG_SETTINGS_JSON="$debug_settings_file" \
   IOS_RELEASE_SCHEME_FILE="$2" \
@@ -150,6 +154,11 @@ mutate_setting CODE_SIGN_STYLE Manual "$manual_signing"
 run_reject manual-signing \
   run_audit "$manual_signing" "$scheme" "$entitlements"
 
+wrong_team="$FIXTURES/wrong-team.json"
+mutate_setting DEVELOPMENT_TEAM AAAAAAAAAA "$wrong_team"
+run_reject wrong-development-team \
+  run_audit "$wrong_team" "$scheme" "$entitlements"
+
 dev_entitlement_setting="$FIXTURES/dev-entitlement-setting.json"
 mutate_setting CODE_SIGN_ENTITLEMENTS \
   fearless/WalletConnect.dev.entitlements "$dev_entitlement_setting"
@@ -197,6 +206,11 @@ mutate_debug_setting CODE_SIGN_STYLE Manual "$debug_manual_signing"
 run_reject debug-manual-signing \
   run_debug_fixture "$debug_manual_signing"
 
+debug_wrong_team="$FIXTURES/debug-wrong-team.json"
+mutate_debug_setting DEVELOPMENT_TEAM AAAAAAAAAA "$debug_wrong_team"
+run_reject debug-wrong-development-team \
+  run_debug_fixture "$debug_wrong_team"
+
 duplicate_debug_target="$FIXTURES/duplicate-debug-target.json"
 jq '. + [.[0]]' "$debug_settings" > "$duplicate_debug_target"
 run_reject duplicate-debug-target \
@@ -237,7 +251,7 @@ run_reject wrong-group run_audit "$settings" "$scheme" "$wrong_group"
 
 keychain_group="$FIXTURES/keychain-group.entitlements"
 mutate_entitlements \
-  '.["keychain-access-groups"] = ["group.com.walletconnect.sdk"]' \
+  '.["keychain-access-groups"] = ["group.jp.co.soramitsu.fearlesswallet"]' \
   "$keychain_group"
 run_reject unexpected-keychain-group \
   run_audit "$settings" "$scheme" "$keychain_group"
@@ -260,6 +274,34 @@ plutil -convert json -o - "$dev_entitlements" |
   plutil -convert xml1 -o "$debug_entitlements_production_group" -
 run_reject debug-production-group \
   run_debug_fixture "$debug_settings" "$debug_entitlements_production_group"
+
+debug_entitlements_missing_group="$FIXTURES/debug-missing-group.entitlements"
+plutil -convert json -o - "$dev_entitlements" |
+  jq 'del(.["com.apple.security.application-groups"])' |
+  plutil -convert xml1 -o "$debug_entitlements_missing_group" -
+run_reject debug-missing-group \
+  run_debug_fixture "$debug_settings" "$debug_entitlements_missing_group"
+
+debug_entitlements_legacy_group="$FIXTURES/debug-legacy-group.entitlements"
+plutil -convert json -o - "$dev_entitlements" |
+  jq '.["com.apple.security.application-groups"] = ["group.com.walletconnect.sdk"]' |
+  plutil -convert xml1 -o "$debug_entitlements_legacy_group" -
+run_reject debug-legacy-group \
+  run_debug_fixture "$debug_settings" "$debug_entitlements_legacy_group"
+
+debug_entitlements_extra_group="$FIXTURES/debug-extra-group.entitlements"
+plutil -convert json -o - "$dev_entitlements" |
+  jq '.["com.apple.security.application-groups"] += ["group.evil"]' |
+  plutil -convert xml1 -o "$debug_entitlements_extra_group" -
+run_reject debug-extra-group \
+  run_debug_fixture "$debug_settings" "$debug_entitlements_extra_group"
+
+debug_entitlements_keychain_group="$FIXTURES/debug-keychain-group.entitlements"
+plutil -convert json -o - "$dev_entitlements" |
+  jq '.["keychain-access-groups"] = ["group.jp.co.soramitsu.fearlesswallet.walletconnect"]' |
+  plutil -convert xml1 -o "$debug_entitlements_keychain_group" -
+run_reject debug-explicit-keychain-group \
+  run_debug_fixture "$debug_settings" "$debug_entitlements_keychain_group"
 
 debug_entitlements_production_cloud="$FIXTURES/debug-production-cloud.entitlements"
 plutil -convert json -o - "$dev_entitlements" |
@@ -288,12 +330,21 @@ run_reject hardcoded-marketing-version \
 
 missing_production_group_service="$FIXTURES/missing-production-group.swift"
 sed \
-  's/group\.jp\.co\.soramitsu\.fearlesswallet/group.com.walletconnect.sdk/' \
+  's/static let productionGroupIdentifier = "group.jp.co.soramitsu.fearlesswallet"/static let productionGroupIdentifier = "group.com.walletconnect.sdk"/' \
   "$REPO_ROOT/fearless/ApplicationLayer/Services/WalletConnect/WalletConnectService.swift" \
   > "$missing_production_group_service"
 run_reject wallet-connect-production-group-mismatch \
   run_audit "$settings" "$scheme" "$entitlements" \
     "$REPO_ROOT/fearless/Info.plist" "$missing_production_group_service"
+
+missing_development_group_service="$FIXTURES/missing-development-group.swift"
+sed \
+  's/group\.jp\.co\.soramitsu\.fearlesswallet\.walletconnect/group.com.walletconnect.sdk/' \
+  "$REPO_ROOT/fearless/ApplicationLayer/Services/WalletConnect/WalletConnectService.swift" \
+  > "$missing_development_group_service"
+run_reject wallet-connect-development-group-mismatch \
+  run_audit "$settings" "$scheme" "$entitlements" \
+    "$REPO_ROOT/fearless/Info.plist" "$missing_development_group_service"
 
 hardcoded_group_service="$FIXTURES/hardcoded-wallet-connect-group.swift"
 sed \

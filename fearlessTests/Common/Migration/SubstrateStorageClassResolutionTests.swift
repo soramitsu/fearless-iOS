@@ -638,6 +638,10 @@ final class SubstrateStorageClassResolutionTests: XCTestCase {
     }
 
     func testCopiedPhoneV8Store_whenFetchedThroughProductionRepositories_thenMapsEveryRuntimeAndChain() throws {
+        // TestFlight regression path:
+        // CoreDataRepository.fetchAll -> Collection.map -> ChainModelMapper.
+        // The 2026-07-23 crashes trapped in Swift Array access on this path, so
+        // the copied store must traverse the production repository unchanged.
         let fixtureURL = copiedPhoneStoreFixtureURL()
         guard FileManager.default.fileExists(atPath: fixtureURL.path) else {
             throw XCTSkip("Optional copied-phone Substrate store fixture is unavailable")
