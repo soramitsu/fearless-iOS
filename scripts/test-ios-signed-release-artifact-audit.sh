@@ -106,7 +106,7 @@ profile_entitlements = {
 }
 archive = {
     "ApplicationProperties": {
-        "ApplicationPath": "Products/Applications/fearless.app",
+        "ApplicationPath": "Applications/fearless.app",
         "CFBundleIdentifier": bundle,
         "SigningIdentity": "Apple Distribution: Fearless Test ($team)",
         "Team": team,
@@ -264,6 +264,31 @@ mutate_plist "$ARCHIVE/Info.plist" \
   'value["ApplicationProperties"]["Team"] = "AAAAAAAAAA"'
 expect_failure wrong-archive-team "xcarchive metadata"
 
+prepare_case archive-path-includes-products
+mutate_plist "$ARCHIVE/Info.plist" \
+  'value["ApplicationProperties"]["ApplicationPath"] = "Products/Applications/fearless.app"'
+expect_failure archive-path-includes-products "xcarchive metadata"
+
+prepare_case archive-path-traversal
+mutate_plist "$ARCHIVE/Info.plist" \
+  'value["ApplicationProperties"]["ApplicationPath"] = "../Applications/fearless.app"'
+expect_failure archive-path-traversal "xcarchive metadata"
+
+prepare_case archive-path-absolute
+mutate_plist "$ARCHIVE/Info.plist" \
+  'value["ApplicationProperties"]["ApplicationPath"] = "/Applications/fearless.app"'
+expect_failure archive-path-absolute "xcarchive metadata"
+
+prepare_case archive-path-wrong-app
+mutate_plist "$ARCHIVE/Info.plist" \
+  'value["ApplicationProperties"]["ApplicationPath"] = "Applications/attacker.app"'
+expect_failure archive-path-wrong-app "xcarchive metadata"
+
+prepare_case archive-path-missing
+mutate_plist "$ARCHIVE/Info.plist" \
+  'del value["ApplicationProperties"]["ApplicationPath"]'
+expect_failure archive-path-missing "xcarchive metadata"
+
 prepare_case development-identity
 mutate_plist "$ARCHIVE/Info.plist" \
   'value["ApplicationProperties"]["SigningIdentity"] = "Apple Development: Unsafe"'
@@ -377,4 +402,4 @@ assert_contains "only in the explicit test harness" "$CASE_DIR/stderr"
 printf '%s\n' "[ios-signed-release-audit-test] PASS (rejected): override without harness"
 
 printf '%s\n' \
-  "[ios-signed-release-audit-test] PASS: 1 positive + 27 negative/adversarial contracts"
+  "[ios-signed-release-audit-test] PASS: 1 positive + 32 negative/adversarial contracts"

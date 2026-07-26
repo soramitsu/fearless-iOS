@@ -295,7 +295,8 @@ except (OSError, plistlib.InvalidFileException):
 properties = payload.get("ApplicationProperties")
 if not isinstance(properties, dict):
     raise SystemExit(3)
-expected_relative = os.path.relpath(app_path, os.path.dirname(path))
+products_root = os.path.join(os.path.dirname(path), "Products")
+expected_relative = os.path.relpath(app_path, products_root)
 if properties.get("ApplicationPath") != expected_relative:
     raise SystemExit(4)
 if properties.get("CFBundleIdentifier") != expected_bundle:
