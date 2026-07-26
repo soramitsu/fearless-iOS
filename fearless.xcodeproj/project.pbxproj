@@ -19529,7 +19529,7 @@
 				);
 				MARKETING_VERSION = 2.2.3;
 				OTHER_SWIFT_FLAGS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlesswallet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "fearless/fearless-Bridging-Header.h";
@@ -19545,9 +19545,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon$(ICON_SUFFIX)";
 				CLONED_SOURCE_PACKAGES_DIR_PATH = "$(SRCROOT)/SourcePackages";
 				CODE_SIGN_ENTITLEMENTS = fearless/WalletConnect.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 2026.7.26;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = fearless/Info.plist;
@@ -19558,8 +19557,8 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.2.3;
-				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
+				MARKETING_VERSION = 4.2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlesswallet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
@@ -19686,7 +19685,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon$(ICON_SUFFIX)";
 				CLONED_SOURCE_PACKAGES_DIR_PATH = "$(SRCROOT)/SourcePackages";
-				CODE_SIGN_ENTITLEMENTS = fearless/WalletConnect.entitlements;
+				CODE_SIGN_ENTITLEMENTS = fearless/WalletConnect.dev.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 7;
