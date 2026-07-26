@@ -171,7 +171,7 @@ if [[ "${1:-}" == "xcresulttool" ]]; then
     exit 0
   fi
 
-  total="${FAKE_TOTAL_TESTS:-407}"
+  total="${FAKE_TOTAL_TESTS:-410}"
   passed="${FAKE_PASSED_TESTS:-$total}"
   failed="${FAKE_FAILED_TESTS:-0}"
   skipped="${FAKE_SKIPPED_TESTS:-0}"
@@ -218,7 +218,7 @@ if ! run_gate "valid-core"; then
   fail "valid core gate was rejected"
 fi
 assert_output_contains "PASSED requested Core Data Release gate" "$RUN_DIRECTORY/stdout"
-assert_output_contains "exactly 407 Release -O tests" "$RUN_DIRECTORY/stdout"
+assert_output_contains "exactly 410 Release -O tests" "$RUN_DIRECTORY/stdout"
 assert_argument_once "-workspace"
 assert_argument_once "$CANONICAL_WORKSPACE"
 assert_argument_once "-scheme"
@@ -375,7 +375,7 @@ GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
 expect_failure "unreadable-summary" "xcresulttool could not read"
 
 CASE_ENV=(
-  "FAKE_TOTAL_TESTS=407"
+  "FAKE_TOTAL_TESTS=410"
   "FAKE_PASSED_TESTS=242"
   "FAKE_FAILED_TESTS=1"
   "FAKE_RESULT=Failed"
@@ -385,7 +385,7 @@ GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
 expect_failure "failed-summary" "zero-failure/zero-skip"
 
 CASE_ENV=(
-  "FAKE_TOTAL_TESTS=407"
+  "FAKE_TOTAL_TESTS=410"
   "FAKE_PASSED_TESTS=242"
   "FAKE_EXPECTED_FAILURES=1"
 )

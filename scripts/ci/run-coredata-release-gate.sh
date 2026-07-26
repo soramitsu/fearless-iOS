@@ -301,8 +301,8 @@ run_stage() {
     result_name="core"
     # The selected source cohort contains 409 test methods. Two copied-phone
     # fixtures are intentionally handled by the separate device/store stage,
-    # so the simulator core stage must execute exactly 407 tests.
-    expected_total="407"
+    # so the simulator core stage must execute exactly 410 tests.
+    expected_total="410"
     selectors=(
       "-only-testing:fearlessTests/SingleToMultiassetUserMigrationTests"
       "-only-testing:fearlessTests/UserStorageCompatibilityMigrationTests"
@@ -381,7 +381,7 @@ run_stage() {
   if [[ "$stage" == "copied-phone" ]]; then
     log "PASSED copied-phone fixture stage: exactly 2 tests, source fixture unchanged"
   else
-    log "PASSED core stage: exactly 407 Release -O tests, zero failures, skips, or expected failures"
+    log "PASSED core stage: exactly 410 Release -O tests, zero failures, skips, or expected failures"
   fi
 }
 
