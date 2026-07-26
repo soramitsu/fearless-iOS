@@ -51,9 +51,12 @@ jq -n '[
 ]' > "$settings"
 
 run_audit() {
+  local info_plist="${4:-$REPO_ROOT/fearless/Info.plist}"
+
   IOS_RELEASE_SETTINGS_JSON="$1" \
   IOS_RELEASE_SCHEME_FILE="$2" \
   IOS_RELEASE_ENTITLEMENTS_FILE="$3" \
+  IOS_RELEASE_INFO_PLIST_FILE="$info_plist" \
     bash "$AUDIT"
 }
 
@@ -175,6 +178,19 @@ entitlements_symlink="$FIXTURES/entitlements-link"
 ln -s "$entitlements" "$entitlements_symlink"
 run_reject entitlements-symlink \
   run_audit "$settings" "$scheme" "$entitlements_symlink"
+
+hardcoded_build_plist="$FIXTURES/hardcoded-build.plist"
+cp "$REPO_ROOT/fearless/Info.plist" "$hardcoded_build_plist"
+plutil -replace CFBundleVersion -string 1 "$hardcoded_build_plist"
+run_reject hardcoded-bundle-version \
+  run_audit "$settings" "$scheme" "$entitlements" "$hardcoded_build_plist"
+
+hardcoded_version_plist="$FIXTURES/hardcoded-version.plist"
+cp "$REPO_ROOT/fearless/Info.plist" "$hardcoded_version_plist"
+plutil -replace CFBundleShortVersionString -string 4.2.0 \
+  "$hardcoded_version_plist"
+run_reject hardcoded-marketing-version \
+  run_audit "$settings" "$scheme" "$entitlements" "$hardcoded_version_plist"
 
 printf '%s\n' \
   "[ios-release-identity-test] PASS: $pass_count positive and $fail_count negative/adversarial cases"

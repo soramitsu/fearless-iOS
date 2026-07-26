@@ -6,6 +6,7 @@ readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 readonly SCHEME_FILE="${IOS_RELEASE_SCHEME_FILE:-$REPO_ROOT/fearless.xcodeproj/xcshareddata/xcschemes/fearless.xcscheme}"
 readonly ENTITLEMENTS_FILE="${IOS_RELEASE_ENTITLEMENTS_FILE:-$REPO_ROOT/fearless/WalletConnect.entitlements}"
+readonly INFO_PLIST_FILE="${IOS_RELEASE_INFO_PLIST_FILE:-$REPO_ROOT/fearless/Info.plist}"
 readonly EXPECTED_BUNDLE_ID="${IOS_EXPECTED_BUNDLE_ID:-jp.co.soramitsu.fearlesswallet}"
 readonly EXPECTED_VERSION="${IOS_EXPECTED_MARKETING_VERSION:-4.2.0}"
 readonly EXPECTED_BUILD="${IOS_EXPECTED_BUILD_NUMBER:-2026.7.26}"
@@ -25,6 +26,19 @@ require_regular_file() {
 
 require_regular_file "$SCHEME_FILE" "shared scheme"
 require_regular_file "$ENTITLEMENTS_FILE" "production entitlements"
+require_regular_file "$INFO_PLIST_FILE" "application Info.plist"
+
+bundle_version="$(
+  plutil -extract CFBundleVersion raw "$INFO_PLIST_FILE" 2>/dev/null
+)" || fail "application Info.plist has no CFBundleVersion"
+[[ "$bundle_version" == '$(CURRENT_PROJECT_VERSION)' ]] ||
+  fail "CFBundleVersion must expand CURRENT_PROJECT_VERSION"
+
+short_version="$(
+  plutil -extract CFBundleShortVersionString raw "$INFO_PLIST_FILE" 2>/dev/null
+)" || fail "application Info.plist has no CFBundleShortVersionString"
+[[ "$short_version" == '$(MARKETING_VERSION)' ]] ||
+  fail "CFBundleShortVersionString must expand MARKETING_VERSION"
 
 archive_action_count="$(
   xmllint --xpath 'count(/Scheme/ArchiveAction)' "$SCHEME_FILE" 2>/dev/null
