@@ -48,9 +48,12 @@
       </TestableReference>
     </Testables>
   </TestAction>
-  <LaunchAction buildConfiguration="Debug" selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB"/> 
+  <LaunchAction buildConfiguration="Debug" selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB">
+    <CommandLineArguments>
+      <CommandLineArgument argument="-UNITTEST" isEnabled="YES"/>
+    </CommandLineArguments>
+  </LaunchAction>
   <ProfileAction buildConfiguration="Release"/>
   <AnalyzeAction buildConfiguration="Debug"/>
   <ArchiveAction buildConfiguration="Release"/>
 </Scheme>
-

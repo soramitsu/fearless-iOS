@@ -23,7 +23,10 @@ protocol RootInteractorInputProtocol: AnyObject {
     func fetchOnboardingConfig() async throws -> OnboardingConfigWrapper?
 }
 
-protocol RootInteractorOutputProtocol: AnyObject {}
+protocol RootInteractorOutputProtocol: AnyObject {
+    func didCompleteSetup()
+    func didFailSetup()
+}
 
 protocol RootPresenterFactoryProtocol: AnyObject {
     static func createPresenter(with window: UIWindow) -> RootPresenterProtocol

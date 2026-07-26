@@ -7,6 +7,14 @@ final class MockConnection: JSONRPCEngine {
     var connectionName: String?
     var url: URL?
     var pendingEngineRequests: [JSONRPCRequest] { [] }
+    private let disconnectLock = NSLock()
+    private var disconnectCalls = 0
+
+    var disconnectCallCount: Int {
+        disconnectLock.lock()
+        defer { disconnectLock.unlock() }
+        return disconnectCalls
+    }
 
     private var nextId: UInt16 = 1
     private struct AnySubscription {
@@ -60,7 +68,11 @@ final class MockConnection: JSONRPCEngine {
     func reconnect(url: URL) { self.url = url }
 
     func connectIfNeeded() {}
-    func disconnectIfNeeded() {}
+    func disconnectIfNeeded() {
+        disconnectLock.lock()
+        disconnectCalls += 1
+        disconnectLock.unlock()
+    }
     func unsubsribe(_ identifier: UInt16) throws {}
 
     // MARK: - Test helpers

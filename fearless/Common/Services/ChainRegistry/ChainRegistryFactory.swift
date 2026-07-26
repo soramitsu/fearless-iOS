@@ -80,7 +80,11 @@ enum ChainRegistryFactory {
         dependencies: ChainRegistryFactoryDependencies = .live
     ) -> ChainRegistryProtocol & SSFChainRegistry.ChainRegistryProtocol {
         let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, SSFAssetManagmentStorage.CDRuntimeMetadataItem> =
-            repositoryFacade.createRepository()
+            repositoryFacade.createRepository(
+                mapper: AnyCoreDataMapper(
+                    RuntimeMetadataMapper()
+                )
+            )
 
         let dataFetchOperationFactory = dependencies.dataOperationFactory
 
@@ -119,7 +123,10 @@ enum ChainRegistryFactory {
             eventCenter: dependencies.eventCenter,
             operationQueue: dependencies.syncQueue,
             logger: dependencies.logger,
-            applicationHandler: dependencies.applicationHandler
+            applicationHandler: dependencies.applicationHandler,
+            malformedChainCleanupOperationFactory: {
+                chainRepositoryFactory.createMalformedChainCleanupOperation()
+            }
         )
 
         let specVersionSubscriptionFactory = SpecVersionSubscriptionFactory(

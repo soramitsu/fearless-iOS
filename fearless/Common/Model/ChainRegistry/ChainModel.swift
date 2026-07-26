@@ -3,6 +3,79 @@ import SSFModels
 import RobinHood
 
 extension ChainModel {
+    func replacingNodeConfiguration(
+        nodes: Set<ChainNodeModel>,
+        selectedNode: ChainNodeModel?,
+        customNodes: Set<ChainNodeModel>?
+    ) -> ChainModel {
+        ChainModel(
+            rank: rank,
+            disabled: disabled,
+            chainId: chainId,
+            parentId: parentId,
+            paraId: paraId,
+            name: name,
+            assets: assets,
+            xcm: xcm,
+            nodes: nodes,
+            addressPrefix: addressPrefix,
+            types: types,
+            icon: icon,
+            options: options,
+            externalApi: externalApi,
+            selectedNode: selectedNode,
+            customNodes: customNodes,
+            iosMinAppVersion: iosMinAppVersion,
+            identityChain: identityChain
+        )
+    }
+
+    func replacingNodes(_ nodes: Set<ChainNodeModel>) -> ChainModel {
+        ChainModel(
+            rank: rank,
+            disabled: disabled,
+            chainId: chainId,
+            parentId: parentId,
+            paraId: paraId,
+            name: name,
+            assets: assets,
+            xcm: xcm,
+            nodes: nodes,
+            addressPrefix: addressPrefix,
+            types: types,
+            icon: icon,
+            options: options,
+            externalApi: externalApi,
+            selectedNode: selectedNode,
+            customNodes: customNodes,
+            iosMinAppVersion: iosMinAppVersion,
+            identityChain: identityChain
+        )
+    }
+
+    func replacingDisabled(_ disabled: Bool) -> ChainModel {
+        ChainModel(
+            rank: rank,
+            disabled: disabled,
+            chainId: chainId,
+            parentId: parentId,
+            paraId: paraId,
+            name: name,
+            assets: assets,
+            xcm: xcm,
+            nodes: nodes,
+            addressPrefix: addressPrefix,
+            types: types,
+            icon: icon,
+            options: options,
+            externalApi: externalApi,
+            selectedNode: selectedNode,
+            customNodes: customNodes,
+            iosMinAppVersion: iosMinAppVersion,
+            identityChain: identityChain
+        )
+    }
+
     var isSupported: Bool {
         AppVersion.stringValue?.versionLowerThan(iosMinAppVersion) == false
     }

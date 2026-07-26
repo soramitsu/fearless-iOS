@@ -86,35 +86,21 @@ class UserDataStorageTestFacade: StorageFacadeProtocol {
     let databaseService: CoreDataServiceProtocol
 
     init() {
-        let modelName = UserStorageParams.modelVersion.rawValue
-        let subdirectory = UserStorageParams.modelDirectory
-        let bundle = Bundle(for: UserDataStorageFacade.self)
+        let modelURL = [
+            Bundle(for: UserDataStorageFacade.self),
+            Bundle.main
+        ].lazy.compactMap {
+            UserStorageParams.modelVersion.modelURL(
+                in: $0,
+                legacyModelDirectory: UserStorageParams.modelDirectory
+            )
+        }.first
 
-        let omoURL = bundle.url(
-            forResource: modelName,
-            withExtension: "omo",
-            subdirectory: subdirectory
-        )
-
-        let momURL = bundle.url(
-            forResource: modelName,
-            withExtension: "mom",
-            subdirectory: subdirectory
-        )
-
-        let mainOmoURL = Bundle.main.url(
-            forResource: modelName,
-            withExtension: "omo",
-            subdirectory: subdirectory
-        )
-
-        let mainMomURL = Bundle.main.url(
-            forResource: modelName,
-            withExtension: "mom",
-            subdirectory: subdirectory
-        )
-
-        let modelURL = omoURL ?? momURL ?? mainOmoURL ?? mainMomURL
+        guard let modelURL else {
+            preconditionFailure(
+                "Missing \(UserStorageParams.modelVersion.rawValue) in the unit-test host"
+            )
+        }
 
         let managedObjectClassNames: [String: String] = [
             "CDAccountInfo": NSStringFromClass(CDAccountInfo.self),
@@ -127,7 +113,7 @@ class UserDataStorageTestFacade: StorageFacadeProtocol {
         ]
 
         databaseService = TestCoreDataService(
-            modelURL: modelURL!,
+            modelURL: modelURL,
             managedObjectClassNames: managedObjectClassNames
         )
     }

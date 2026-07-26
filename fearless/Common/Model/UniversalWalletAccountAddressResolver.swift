@@ -25,6 +25,40 @@ enum UniversalWalletChainAccountSupport {
         equivalentChainIds(for: chainId) != nil
     }
 
+    /// Returns the stable storage identity for a universal-wallet chain alias.
+    ///
+    /// Non-universal chain identifiers are intentionally returned unchanged:
+    /// their alias semantics belong to the remote registry and must not be
+    /// guessed during migration or stored-wallet validation.
+    static func canonicalChainId(for chainId: String) -> String {
+        switch chainId.lowercased() {
+        case UniversalWalletRegistry.bitcoinMainnet.chainId,
+             UniversalWalletRegistry.bitcoinMainnet.id:
+            return UniversalWalletRegistry.bitcoinMainnet.chainId
+        case UniversalWalletRegistry.bitcoinTestnet.chainId,
+             UniversalWalletRegistry.bitcoinTestnet.id:
+            return UniversalWalletRegistry.bitcoinTestnet.chainId
+        case UniversalWalletRegistry.solanaMainnet.chainId,
+             UniversalWalletRegistry.solanaMainnet.id:
+            return UniversalWalletRegistry.solanaMainnet.chainId
+        case UniversalWalletRegistry.solanaDevnet.chainId,
+             UniversalWalletRegistry.solanaDevnet.id:
+            return UniversalWalletRegistry.solanaDevnet.chainId
+        case TonChainSelection.mainnetChainId,
+             UniversalWalletRegistry.tonMainnetRegistryEntry.chainId,
+             UniversalWalletRegistry.tonMainnetRegistryEntry.id:
+            return UniversalWalletRegistry.tonMainnetRegistryEntry.chainId
+        case UniversalWalletRegistry.taira.chainId,
+             UniversalWalletRegistry.taira.id:
+            return UniversalWalletRegistry.taira.chainId
+        case UniversalWalletRegistry.nexus.chainId,
+             UniversalWalletRegistry.nexus.id:
+            return UniversalWalletRegistry.nexus.chainId
+        default:
+            return chainId
+        }
+    }
+
     static func chainId(_ storedChainId: String, matches requestedChainId: String) -> Bool {
         guard let equivalentIds = equivalentChainIds(for: requestedChainId) else {
             return storedChainId == requestedChainId

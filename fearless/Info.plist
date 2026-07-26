@@ -54,6 +54,12 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>FearlessBuildConfiguration</key>
+	<string>$(CONFIGURATION)</string>
+	<key>FearlessEnableTestability</key>
+	<string>$(ENABLE_TESTABILITY)</string>
+	<key>FearlessSwiftOptimizationLevel</key>
+	<string>$(SWIFT_OPTIMIZATION_LEVEL)</string>
 	<key>GIDClientID</key>
 	<string></string>
 	<key>ITSAppUsesNonExemptEncryption</key>
