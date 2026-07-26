@@ -299,9 +299,8 @@ run_stage() {
 
   if [[ "$stage" == "core" ]]; then
     result_name="core"
-    # The selected source cohort contains 409 test methods. Two copied-phone
-    # fixtures are intentionally handled by the separate device/store stage,
-    # so the simulator core stage must execute exactly 410 tests.
+    # The simulator core cohort must execute exactly 410 tests. Copied-phone
+    # fixtures are intentionally verified by the separate device/store stage.
     expected_total="410"
     selectors=(
       "-only-testing:fearlessTests/SingleToMultiassetUserMigrationTests"
