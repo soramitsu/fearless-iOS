@@ -8,7 +8,6 @@ fearless/Common/Extension/Storage/CDAccountItem+CoreDataDecodable.swift	// TODO:
 fearless/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeHotBootSnapshotFactory.swift	// TODO: think about it
 fearless/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeSnapshotOperationFactory.swift	// TODO: think about it
 fearless/Common/Services/ExtrinsicService/ExtrinsicOperationFactory.swift	method: "author_submitAndWatchExtrinsic", // TODO: add to fearless utils
-fearless/Common/Storage/Migration/UserStorage/MultiassetV2MigrationPolicy.swift	// TODO: tech debt
 fearless/Common/Storage/Migration/UserStorage/StorageMigrator+Sync.swift	// TODO: Move this logic to app loading state
 fearless/Modules/AddAccount/Interactors/AddAccount+AccountConfirmInteractor.swift	// TODO: Check how to convert this to chain account import
 fearless/Modules/Export/ExportMnemonic/ExportMnemonicPresenter.swift	// TODO: Support custom accounts
