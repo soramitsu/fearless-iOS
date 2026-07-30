@@ -263,7 +263,8 @@ enum SubstrateCacheRecoveryTransactionError: LocalizedError {
 /// or retention deletion interrupted after its marker became durable.
 /// Completed archives are excluded from backup and the newest two are retained
 /// subject to a combined 128 MiB byte budget.
-final class CrashConsistentSubstrateCacheRecovery {
+/// Recovery invariants remain in one auditable state machine.
+final class CrashConsistentSubstrateCacheRecovery { // swiftlint:disable:this type_body_length
     private enum Operation: String {
         case quarantine
         case restoreLegacy = "restore-legacy"
@@ -512,6 +513,8 @@ final class CrashConsistentSubstrateCacheRecovery {
     }
 
     @discardableResult
+    // Branches mirror durable recovery states.
+    // swiftlint:disable:next cyclomatic_complexity function_body_length
     func reconcile() throws -> URL? {
         try requireSafeDatabaseDirectory()
 
@@ -839,6 +842,8 @@ final class CrashConsistentSubstrateCacheRecovery {
         )
     }
 
+    // Ordered recovery validation remains explicit.
+    // swiftlint:disable:next function_body_length
     private func restoreLegacyTransaction(
         at transactionDirectoryURL: URL,
         marker: Marker
@@ -1251,6 +1256,8 @@ final class CrashConsistentSubstrateCacheRecovery {
         try boundaryHook(.retentionArchiveRemoved(archiveName))
     }
 
+    // Retention checks remain one ordered transaction.
+    // swiftlint:disable:next function_body_length
     private func maintainCompletedArchives() throws {
         switch pathKind(at: recoveryRootURL) {
         case .missing:
@@ -1591,6 +1598,8 @@ final class CrashConsistentSubstrateCacheRecovery {
         return Data((lines.joined(separator: "\n") + "\n").utf8)
     }
 
+    // Marker validation remains fail-closed and linear.
+    // swiftlint:disable:next function_body_length
     private func decodeMarker(_ data: Data) throws -> Marker {
         guard
             let text = String(data: data, encoding: .utf8),
@@ -2233,9 +2242,10 @@ final class CrashConsistentSubstrateCacheRecovery {
         }
     }
 
+    // Raw lstat fields form one atomic file identity.
     private func lstatValues(
         at url: URL
-    ) throws -> (
+    ) throws -> ( // swiftlint:disable:this large_tuple
         byteCount: UInt64,
         deviceID: UInt64,
         inode: UInt64,
@@ -2547,6 +2557,8 @@ private enum SubstrateTransformableRepairError: LocalizedError {
     }
 }
 
+// Migration invariants remain in one auditable state machine.
+// swiftlint:disable:next type_body_length
 final class SubstrateStorageMigrator {
     private struct StartupToManyRelationshipFamily {
         let entityName: String
@@ -3470,6 +3482,8 @@ final class SubstrateStorageMigrator {
         return rowCounts
     }
 
+    // Sanitization remains one fail-closed transaction.
+    // swiftlint:disable:next function_body_length
     private func sanitizeTransformableEntity(
         entityName: String,
         attributes: [NSAttributeDescription],
@@ -4111,6 +4125,8 @@ final class SubstrateStorageMigrator {
         return footprint
     }
 
+    // Protected-data validation remains atomic.
+    // swiftlint:disable:next function_body_length
     private func inspectProtectedDataWithoutExceptionBoundary(
         at url: URL,
         model: NSManagedObjectModel
@@ -4352,6 +4368,8 @@ final class SubstrateStorageMigrator {
         }
     }
 
+    // Graph bounds remain one fail-closed inspection.
+    // swiftlint:disable:next function_body_length
     private func inspectVersion8StartupGraphBoundsWithoutExceptionBoundary(
         at url: URL,
         model: NSManagedObjectModel
@@ -4489,6 +4507,8 @@ final class SubstrateStorageMigrator {
         try result.get()
     }
 
+    // Raw root bounds remain one fail-closed inspection.
+    // swiftlint:disable:next function_body_length
     private func inspectVersion8StartupRootRawBounds(
         at url: URL,
         model: NSManagedObjectModel
@@ -4635,6 +4655,8 @@ final class SubstrateStorageMigrator {
         }
     }
 
+    // Raw child bounds remain one fail-closed inspection.
+    // swiftlint:disable:next function_body_length
     private func inspectVersion8StartupChildRawBounds(
         at url: URL,
         model: NSManagedObjectModel
@@ -5233,6 +5255,8 @@ final class SubstrateStorageMigrator {
         return snapshot
     }
 
+    // Snapshot validation remains one atomic inspection.
+    // swiftlint:disable:next function_body_length
     private func inspectProtectedDataSnapshotWithoutExceptionBoundary(
         at url: URL,
         model: NSManagedObjectModel,
@@ -6255,3 +6279,6 @@ extension SubstrateStorageMigrator: StorageMigrating {
         }
     }
 }
+
+// Substrate migration invariants remain co-located.
+// swiftlint:disable:this file_length

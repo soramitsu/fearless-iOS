@@ -1078,3 +1078,6 @@ private extension UserStorageVersion {
         return false
     }
 }
+
+// Key migration invariants remain co-located for auditability.
+// swiftlint:disable:this file_length

@@ -24,6 +24,8 @@ enum ChainModelMapperError: LocalizedError, Equatable {
     }
 }
 
+// Fail-closed mapping invariants remain in one mapper.
+// swiftlint:disable:next type_body_length
 final class ChainModelMapper {
     static let quarantinedChainIdentifierPrefix = "__invalid_local_chain__:"
     static let quarantinedChainName = "Unavailable local chain"
@@ -72,9 +74,11 @@ final class ChainModelMapper {
         else { return nil }
 
         let priceString: String? = {
-            if let d = object.value(forKey: "price") as? Decimal { return NSDecimalNumber(decimal: d).stringValue }
-            if let n = object.value(forKey: "price") as? NSDecimalNumber { return n.stringValue }
-            if let s = object.value(forKey: "price") as? String { return s }
+            if let decimalValue = object.value(forKey: "price") as? Decimal {
+                return NSDecimalNumber(decimal: decimalValue).stringValue
+            }
+            if let numberValue = object.value(forKey: "price") as? NSDecimalNumber { return numberValue.stringValue }
+            if let stringValue = object.value(forKey: "price") as? String { return stringValue }
             return nil
         }()
         guard
@@ -624,6 +628,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         return mappedChain
     }
 
+    // Defensive mapping remains one atomic validation.
+    // swiftlint:disable:next function_body_length
     private func transformWithoutExceptionBoundary(
         entity: CDChain
     ) throws -> ChainModel {

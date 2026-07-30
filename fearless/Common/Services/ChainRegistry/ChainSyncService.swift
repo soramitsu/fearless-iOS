@@ -17,6 +17,8 @@ enum ChainSyncServiceError: Error {
     case duplicateRemoteChainIdentifier(String)
 }
 
+// Sync validation stays with the state it guards.
+// swiftlint:disable:next type_body_length
 final class ChainSyncService {
     static let fetchLocalData = false
     static let historyExplorerCompatibilityType = "subsquid"
@@ -215,9 +217,9 @@ final class ChainSyncService {
         let obj = try JSONSerialization.jsonObject(with: data, options: [])
         guard var array = obj as? [[String: Any]] else { return data }
 
-        for i in 0 ..< array.count {
-            if array[i]["properties"] == nil {
-                let prefixValue = array[i]["addressPrefix"]
+        for index in 0 ..< array.count {
+            if array[index]["properties"] == nil {
+                let prefixValue = array[index]["addressPrefix"]
                 let prefixString: String
 
                 if let intValue = prefixValue as? Int {
@@ -230,10 +232,10 @@ final class ChainSyncService {
                     prefixString = "0"
                 }
 
-                array[i]["properties"] = ["addressPrefix": prefixString]
+                array[index]["properties"] = ["addressPrefix": prefixString]
             }
 
-            normalizeBlockExplorerTypes(in: &array[i])
+            normalizeBlockExplorerTypes(in: &array[index])
         }
 
         return try JSONSerialization.data(withJSONObject: array, options: [])

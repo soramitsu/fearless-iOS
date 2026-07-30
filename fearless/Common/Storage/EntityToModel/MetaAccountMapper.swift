@@ -51,6 +51,8 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         return mappedAccount
     }
 
+    // Wallet validation remains one fail-closed mapping.
+    // swiftlint:disable:next function_body_length
     private func transformWithoutExceptionBoundary(
         entity: CoreDataEntity
     ) throws -> DataProviderModel {

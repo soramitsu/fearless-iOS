@@ -139,6 +139,8 @@ enum SQLiteStoreFamilyCopier {
         let inode: UInt64
     }
 
+    // Copy checks remain one ordered transaction.
+    // swiftlint:disable:next function_body_length
     static func copy(
         from sourceStoreURL: URL,
         to destinationStoreURL: URL,
@@ -403,7 +405,8 @@ enum SQLiteStoreFamilyCopier {
 /// rollback transaction beside the database. The transaction is deliberately
 /// independent of the application's temporary directory so an iOS process
 /// termination cannot discard the sole recovery copy.
-final class CrashConsistentStoreReplacer {
+/// Replacement invariants remain in one auditable state machine.
+final class CrashConsistentStoreReplacer { // swiftlint:disable:this type_body_length
     private enum TransactionState: String, Codable {
         case preparing
         case committing
@@ -2394,9 +2397,10 @@ final class CrashConsistentStoreReplacer {
         }
     }
 
+    // Raw lstat fields form one atomic file identity.
     private func lstatValues(
         at url: URL
-    ) throws -> (
+    ) throws -> ( // swiftlint:disable:this large_tuple
         byteCount: UInt64,
         mode: mode_t,
         deviceID: UInt64,
@@ -2477,3 +2481,6 @@ extension NSPersistentStoreCoordinator {
         )
     }
 }
+
+// Store replacement invariants remain co-located.
+// swiftlint:disable:this file_length

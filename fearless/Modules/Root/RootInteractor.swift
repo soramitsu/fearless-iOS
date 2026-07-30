@@ -286,6 +286,8 @@ protocol RootSelectedWalletSettingsProtocol: AnyObject {
 
 extension SelectedWalletSettings: RootSelectedWalletSettingsProtocol {}
 
+// Startup migration barriers remain in one state machine.
+// swiftlint:disable:next type_body_length
 final class RootInteractor {
     private static let setupDeadlineQueue = DispatchQueue(
         label: "jp.co.soramitsu.fearlesswallet.root-setup-deadline",

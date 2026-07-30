@@ -138,11 +138,11 @@ import RobinHood
 
 private enum RepositoryAsyncContext {
     static let queue: OperationQueue = {
-        let q = OperationQueue()
-        q.name = "io.fearless.repository.async"
-        q.qualityOfService = .userInitiated
-        q.maxConcurrentOperationCount = 2
-        return q
+        let operationQueue = OperationQueue()
+        operationQueue.name = "io.fearless.repository.async"
+        operationQueue.qualityOfService = .userInitiated
+        operationQueue.maxConcurrentOperationCount = 2
+        return operationQueue
     }()
 }
 

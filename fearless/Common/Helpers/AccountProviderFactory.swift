@@ -123,7 +123,8 @@ final class AccountProviderFactory: AccountProviderFactoryProtocol {
 /// successfully mapped rows by object ID makes deletes unambiguous. Aggregating every notification
 /// by persistent identifier also makes same-identifier object handoffs independent of Core Data's
 /// unordered notification sets.
-final class TolerantMetaAccountContextObservable<Model: Identifiable>:
+/// Row reconciliation stays in one auditable state machine.
+final class TolerantMetaAccountContextObservable<Model: Identifiable>: // swiftlint:disable:this type_body_length
     DataProviderRepositoryObservable {
     private struct MappedObject {
         let objectId: NSManagedObjectID

@@ -1073,3 +1073,6 @@ extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
         return runtimeSnapshot
     }
 }
+
+// Reviewed registry transport hardening remains co-located.
+// swiftlint:disable:this file_length

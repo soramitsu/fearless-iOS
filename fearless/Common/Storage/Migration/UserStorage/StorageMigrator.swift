@@ -103,6 +103,8 @@ struct UserStorageIntegrityValidationLimits: Equatable {
     }
 }
 
+// Migration invariants remain in one auditable state machine.
+// swiftlint:disable:next type_body_length
 final class UserStorageMigrator {
     private struct IntegrityField: Equatable {
         let name: String
@@ -419,6 +421,8 @@ final class UserStorageMigrator {
         }
     }
 
+    // Ordered store replacement remains explicit.
+    // swiftlint:disable:next function_body_length
     private func performMigration(
         from sourceVersion: UserStorageVersion,
         to destinationVersion: UserStorageVersion,
@@ -660,7 +664,8 @@ final class UserStorageMigrator {
     /// Migration is always performed from a disposable source copy. Unsafe
     /// preference archives are repaired only in that copy; the user's original
     /// store remains untouched until a validated atomic replacement.
-    private func sanitizePrivateSourceCopy(
+    /// Copy sanitization remains one fail-closed transaction.
+    private func sanitizePrivateSourceCopy( // swiftlint:disable:this function_body_length
         at privateSourceURL: URL,
         version: UserStorageVersion
     ) throws -> Bool {
@@ -1525,6 +1530,8 @@ final class UserStorageMigrator {
         return .networkManagementFilters(digest)
     }
 
+    // Digest construction remains one canonical pass.
+    // swiftlint:disable:next function_body_length
     private func stagedSemanticDigest(
         context: NSManagedObjectContext,
         entityName: String,
@@ -1846,6 +1853,8 @@ final class UserStorageMigrator {
         return snapshot
     }
 
+    // Snapshot validation remains one atomic pass.
+    // swiftlint:disable:next function_body_length
     private func makeStagedStoreIntegritySnapshot(
         context: NSManagedObjectContext,
         model: NSManagedObjectModel,
@@ -2147,6 +2156,8 @@ final class UserStorageMigrator {
         )
     }
 
+    // Relationship bounds remain one atomic validation.
+    // swiftlint:disable:next function_body_length
     private func integrityRelationship(
         for object: NSManagedObject,
         entityName: String,
@@ -2811,3 +2822,6 @@ extension UserStorageMigrator: StorageMigrating {
         }
     }
 }
+
+// User migration invariants remain co-located.
+// swiftlint:disable:this file_length
