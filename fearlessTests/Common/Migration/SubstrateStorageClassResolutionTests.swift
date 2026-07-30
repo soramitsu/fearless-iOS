@@ -585,10 +585,7 @@ final class SubstrateStorageClassResolutionTests: XCTestCase {
     }
 
     func testCopiedPhoneV8Store_whenAvailable_thenAllRowsHaveExpectedClassesAndStoreIsUnchanged() throws {
-        let fixtureURL = copiedPhoneStoreFixtureURL()
-        guard FileManager.default.fileExists(atPath: fixtureURL.path) else {
-            throw XCTSkip("Optional copied-phone Substrate store fixture is unavailable")
-        }
+        let fixtureURL = try copiedPhoneStoreFixtureURL()
 
         let sourceFingerprintsBefore = try storeFingerprints(at: fixtureURL)
         let testStoreURL = try copyStoreFixtureToTemporaryDirectory(fixtureURL)
@@ -642,10 +639,7 @@ final class SubstrateStorageClassResolutionTests: XCTestCase {
         // CoreDataRepository.fetchAll -> Collection.map -> ChainModelMapper.
         // The 2026-07-23 crashes trapped in Swift Array access on this path, so
         // the copied store must traverse the production repository unchanged.
-        let fixtureURL = copiedPhoneStoreFixtureURL()
-        guard FileManager.default.fileExists(atPath: fixtureURL.path) else {
-            throw XCTSkip("Optional copied-phone Substrate store fixture is unavailable")
-        }
+        let fixtureURL = try copiedPhoneStoreFixtureURL()
 
         let sourceFingerprintsBefore = try storeFingerprints(at: fixtureURL)
         let testStoreURL = try copyStoreFixtureToTemporaryDirectory(fixtureURL)
@@ -1117,8 +1111,7 @@ final class SubstrateStorageClassResolutionTests: XCTestCase {
         in context: NSManagedObjectContext
     ) throws -> Model where
         Model: Codable & Identifiable,
-        Entity: NSManagedObject & CoreDataCodable
-    {
+        Entity: NSManagedObject & CoreDataCodable {
         let mapper = CodableCoreDataMapper<Model, Entity>()
         var transformedModel: Model?
 
@@ -1212,34 +1205,57 @@ final class SubstrateStorageClassResolutionTests: XCTestCase {
         model.entityVersionHashesByName.mapValues { $0.base64EncodedString() }
     }
 
-    private func copiedPhoneStoreFixtureURL() -> URL {
-        if let configuredPath = ProcessInfo.processInfo.environment[
-            "FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE"
-        ], !configuredPath.isEmpty {
-            return URL(fileURLWithPath: configuredPath)
+    private func copiedPhoneStoreFixtureURL() throws -> URL {
+        let infoKey = "FearlessSubstratePhoneStoreFixturePath"
+        let testBundle = Bundle(for: SubstrateStorageClassResolutionTests.self)
+        guard let configuredPath = testBundle.object(
+            forInfoDictionaryKey: infoKey
+        ) as? String,
+              !configuredPath.isEmpty else {
+            throw XCTSkip(
+                "Copied-phone fixture must be injected by the Core Data release gate"
+            )
+        }
+        guard !configuredPath.contains("$(") else {
+            throw fixtureError("Copied-phone fixture build setting was not expanded")
+        }
+        guard (configuredPath as NSString).isAbsolutePath else {
+            throw fixtureError("Copied-phone fixture path must be absolute")
         }
 
-        return URL(
-            fileURLWithPath:
-            "/private/tmp/fearless-device-coredata-20260723/SubstrateDataModel.sqlite"
-        )
+        let fixtureURL = URL(fileURLWithPath: configuredPath).standardizedFileURL
+        guard fixtureURL.path == configuredPath else {
+            throw fixtureError("Copied-phone fixture path must be canonical")
+        }
+
+        try validateRequiredStoreComponents(at: fixtureURL)
+        return fixtureURL
     }
 
     private func copyStoreFixtureToTemporaryDirectory(_ fixtureURL: URL) throws -> URL {
+        let sourceFingerprints = try storeFingerprints(at: fixtureURL)
         let directoryURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("SubstrateStoragePhoneFixture")
             .appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
 
         let destinationURL = directoryURL.appendingPathComponent(fixtureURL.lastPathComponent)
-        for suffix in ["", "-wal", "-shm"] {
-            let sourceURL = URL(fileURLWithPath: fixtureURL.path + suffix)
-            guard FileManager.default.fileExists(atPath: sourceURL.path) else {
-                continue
+        do {
+            for suffix in ["", "-wal", "-shm"] {
+                let sourceURL = URL(fileURLWithPath: fixtureURL.path + suffix)
+                let copiedURL = URL(fileURLWithPath: destinationURL.path + suffix)
+                try FileManager.default.copyItem(at: sourceURL, to: copiedURL)
             }
 
-            let copiedURL = URL(fileURLWithPath: destinationURL.path + suffix)
-            try FileManager.default.copyItem(at: sourceURL, to: copiedURL)
+            guard try storeFingerprints(at: destinationURL) == sourceFingerprints else {
+                throw fixtureError("Disposable copied-phone store differs from its source")
+            }
+            guard try storeFingerprints(at: fixtureURL) == sourceFingerprints else {
+                throw fixtureError("Copied-phone source changed while creating the snapshot")
+            }
+        } catch {
+            try? FileManager.default.removeItem(at: directoryURL)
+            throw error
         }
 
         return destinationURL
@@ -1304,18 +1320,55 @@ final class SubstrateStorageClassResolutionTests: XCTestCase {
     }
 
     private func storeFingerprints(at storeURL: URL) throws -> [String: Data] {
+        try validateRequiredStoreComponents(at: storeURL)
         var fingerprints: [String: Data] = [:]
 
         for suffix in ["", "-wal", "-shm"] {
             let fileURL = URL(fileURLWithPath: storeURL.path + suffix)
-            guard FileManager.default.fileExists(atPath: fileURL.path) else {
-                continue
-            }
-
             fingerprints[suffix] = try digest(of: fileURL)
         }
 
         return fingerprints
+    }
+
+    private func validateRequiredStoreComponents(at storeURL: URL) throws {
+        for suffix in ["", "-wal", "-shm"] {
+            let fileURL = URL(fileURLWithPath: storeURL.path + suffix)
+            var isDirectory: ObjCBool = false
+            guard FileManager.default.fileExists(
+                atPath: fileURL.path,
+                isDirectory: &isDirectory
+            ) else {
+                throw fixtureError(
+                    "Copied-phone fixture is incomplete: missing \(fileURL.lastPathComponent)"
+                )
+            }
+
+            let values = try fileURL.resourceValues(
+                forKeys: [.fileSizeKey, .isRegularFileKey, .isSymbolicLinkKey]
+            )
+            guard !isDirectory.boolValue,
+                  values.isRegularFile == true,
+                  values.isSymbolicLink != true,
+                  FileManager.default.isReadableFile(atPath: fileURL.path) else {
+                throw fixtureError(
+                    "Copied-phone fixture components must be readable, regular, non-symlink files"
+                )
+            }
+            guard (values.fileSize ?? 0) > 0 else {
+                throw fixtureError(
+                    "Copied-phone fixture components must be nonempty"
+                )
+            }
+        }
+    }
+
+    private func fixtureError(_ description: String) -> NSError {
+        NSError(
+            domain: "SubstrateStorageClassResolutionTests.CopiedPhoneFixture",
+            code: 1,
+            userInfo: [NSLocalizedDescriptionKey: description]
+        )
     }
 
     private func digest(of fileURL: URL) throws -> Data {

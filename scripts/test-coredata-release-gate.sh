@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+readonly SCRIPT_DIR
 readonly GATE="$SCRIPT_DIR/ci/run-coredata-release-gate.sh"
 readonly CDMETAACCOUNT_CODABLE_TEST="$SCRIPT_DIR/storage/test-cdmetaaccount-codable-contract.sh"
-readonly TEMPORARY_DIR="$(mktemp -d "${TMPDIR:-/private/tmp}/fearless-coredata-gate-tests.XXXXXX")"
+TEMPORARY_DIR="$(mktemp -d "${TMPDIR:-/private/tmp}/fearless-coredata-gate-tests.XXXXXX")"
+readonly TEMPORARY_DIR
 trap 'rm -rf "$TEMPORARY_DIR"' EXIT
 
 readonly FIXTURE_ROOT="$TEMPORARY_DIR/repository"
 readonly BIN_DIR="$TEMPORARY_DIR/bin"
 readonly PHONE_FIXTURE="$TEMPORARY_DIR/SubstrateDataModel.sqlite"
+readonly FIXTURE_INFO_PLIST="$FIXTURE_ROOT/fearlessTests/Info.plist"
 readonly SIMULATOR_UDID="11111111-2222-3333-4444-555555555555"
 readonly OTHER_SIMULATOR_UDID="AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE"
 
@@ -38,6 +41,14 @@ assert_argument_once() {
     fail "expected exactly one xcodebuild argument '$expected', found $count"
 }
 
+assert_invocation_once() {
+  local expected="$1"
+  local count
+  count="$(grep -Fxc -- "$expected" "$RUN_DIRECTORY/invocations" || true)"
+  [[ "$count" == "1" ]] ||
+    fail "expected exactly one xcodebuild invocation '$expected', found $count"
+}
+
 run_gate() {
   local label="$1"
   RUN_NUMBER=$((RUN_NUMBER + 1))
@@ -47,11 +58,13 @@ run_gate() {
   env \
     FEARLESS_CORE_DATA_TEST_HARNESS=1 \
     FEARLESS_CORE_DATA_ROOT_DIR="$FIXTURE_ROOT" \
+    FEARLESS_CORE_DATA_SOURCE_PACKAGES_DIR="$FIXTURE_ROOT/SourcePackages" \
     FEARLESS_CORE_DATA_XCODEBUILD_BIN="$BIN_DIR/xcodebuild" \
     FEARLESS_CORE_DATA_XCRUN_BIN="$BIN_DIR/xcrun" \
     FEARLESS_CORE_DATA_PYTHON_BIN="${PYTHON_BIN:-python3}" \
     FAKE_ARGUMENT_LOG="$RUN_DIRECTORY/arguments" \
     FAKE_ENVIRONMENT_LOG="$RUN_DIRECTORY/environment" \
+    FAKE_INVOCATION_LOG="$RUN_DIRECTORY/invocations" \
     FAKE_SIMULATOR_UDID="$SIMULATOR_UDID" \
     FAKE_OTHER_SIMULATOR_UDID="$OTHER_SIMULATOR_UDID" \
     FAKE_CORE_MANIFEST="$SCRIPT_DIR/ci/manifests/coredata-release-core-tests.txt" \
@@ -77,6 +90,7 @@ expect_failure() {
 
 mkdir -p \
   "$FIXTURE_ROOT/fearless/Common/Storage" \
+  "$FIXTURE_ROOT/fearlessTests" \
   "$FIXTURE_ROOT/fearless.xcworkspace" \
   "$FIXTURE_ROOT/SourcePackages/checkouts" \
   "$BIN_DIR"
@@ -84,23 +98,44 @@ printf '%s\n' '<Workspace version="1.0"></Workspace>' \
   >"$FIXTURE_ROOT/fearless.xcworkspace/contents.xcworkspacedata"
 printf '%s\n' 'struct SafeCoreDataReleaseFixture {}' \
   >"$FIXTURE_ROOT/fearless/Common/Storage/SafeCoreDataReleaseFixture.swift"
+cat >"$FIXTURE_INFO_PLIST" <<'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>FearlessSubstratePhoneStoreFixturePath</key>
+  <string>$(FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE_PATH)</string>
+</dict>
+</plist>
+PLIST
 printf '%s\n' 'opaque copied-store fixture; never interpreted by this shell test' >"$PHONE_FIXTURE"
 printf '%s\n' 'opaque write-ahead log' >"${PHONE_FIXTURE}-wal"
 printf '%s\n' 'opaque shared-memory sidecar' >"${PHONE_FIXTURE}-shm"
+CANONICAL_PHONE_FIXTURE="$(
+  cd "$(dirname "$PHONE_FIXTURE")" && pwd -P
+)/$(basename "$PHONE_FIXTURE")"
+readonly CANONICAL_PHONE_FIXTURE
 
 cat >"$BIN_DIR/xcodebuild" <<'STUB'
 #!/usr/bin/env bash
 set -euo pipefail
 
 result_bundle=""
+fixture_build_setting=""
+fixture_build_setting_count=0
 printf '%s\n' "$@" >"$FAKE_ARGUMENT_LOG"
-if [[ "${FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE+x}" == "x" ]]; then
-  printf '%s\n' "set" >"$FAKE_ENVIRONMENT_LOG"
+if [[ "${FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE+x}" == "x" ||
+      "${FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE_PATH+x}" == "x" ]]; then
+  inherited_fixture_environment="set"
 else
-  printf '%s\n' "unset" >"$FAKE_ENVIRONMENT_LOG"
+  inherited_fixture_environment="unset"
 fi
 
 while [[ "$#" -gt 0 ]]; do
+  if [[ "$1" == FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE_PATH=* ]]; then
+    fixture_build_setting="${1#FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE_PATH=}"
+    fixture_build_setting_count=$((fixture_build_setting_count + 1))
+  fi
   if [[ "$1" == "-resultBundlePath" ]]; then
     shift
     result_bundle="${1:-}"
@@ -108,8 +143,28 @@ while [[ "$#" -gt 0 ]]; do
   shift || true
 done
 
+{
+  printf 'inherited=%s\n' "$inherited_fixture_environment"
+  printf 'build-setting-count=%s\n' "$fixture_build_setting_count"
+  printf 'build-setting-value=%s\n' "$fixture_build_setting"
+} >"$FAKE_ENVIRONMENT_LOG"
+
+result_name="$(basename "$result_bundle" .xcresult)"
+printf 'stage=%s inherited=%s build-setting-count=%s build-setting-value=%s\n' \
+  "$result_name" \
+  "$inherited_fixture_environment" \
+  "$fixture_build_setting_count" \
+  "$fixture_build_setting" >>"$FAKE_INVOCATION_LOG"
+
 if [[ "${FAKE_MUTATE_FIXTURE:-0}" == "1" ]]; then
-  printf '%s\n' "mutation" >>"$FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE"
+  [[ -n "$fixture_build_setting" ]]
+  printf '%s\n' "mutation" >>"$fixture_build_setting"
+fi
+
+if [[ "${FAKE_MUTATE_FIXTURE_DURING_CORE:-0}" == "1" &&
+      "$result_name" == "core" ]]; then
+  [[ -n "${FAKE_CORE_MUTATION_PATH:-}" ]]
+  printf '%s\n' "core-stage mutation" >>"$FAKE_CORE_MUTATION_PATH"
 fi
 
 if [[ "${FAKE_XCODEBUILD_FAIL:-0}" == "1" ]]; then
@@ -133,7 +188,14 @@ if [[ "${1:-}" == "simctl" ]]; then
     one)
       cat <<JSON
 {"devices":{"com.apple.CoreSimulator.SimRuntime.iOS-26-5":[
-  {"udid":"$FAKE_SIMULATOR_UDID","isAvailable":true,"name":"iPhone Release Gate","state":"Booted"}
+  {"udid":"$FAKE_SIMULATOR_UDID","isAvailable":true,"name":"iPhone Release Gate","deviceTypeIdentifier":"com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro","state":"Booted"}
+]}}
+JSON
+      ;;
+    renamed)
+      cat <<JSON
+{"devices":{"com.apple.CoreSimulator.SimRuntime.iOS-26-5":[
+  {"udid":"$FAKE_SIMULATOR_UDID","isAvailable":true,"name":"Fearless CoreData Release Gate","deviceTypeIdentifier":"com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro","state":"Booted"}
 ]}}
 JSON
       ;;
@@ -143,15 +205,36 @@ JSON
     multiple)
       cat <<JSON
 {"devices":{"com.apple.CoreSimulator.SimRuntime.iOS-26-5":[
-  {"udid":"$FAKE_SIMULATOR_UDID","isAvailable":true,"name":"iPhone One","state":"Booted"},
-  {"udid":"$FAKE_OTHER_SIMULATOR_UDID","isAvailable":true,"name":"iPhone Two","state":"Booted"}
+  {"udid":"$FAKE_SIMULATOR_UDID","isAvailable":true,"name":"iPhone One","deviceTypeIdentifier":"com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro","state":"Booted"},
+  {"udid":"$FAKE_OTHER_SIMULATOR_UDID","isAvailable":true,"name":"iPhone Two","deviceTypeIdentifier":"com.apple.CoreSimulator.SimDeviceType.iPhone-16-Pro","state":"Booted"}
 ]}}
 JSON
       ;;
     unavailable)
       cat <<JSON
 {"devices":{"com.apple.CoreSimulator.SimRuntime.iOS-26-5":[
-  {"udid":"$FAKE_SIMULATOR_UDID","isAvailable":false,"name":"iPhone Unavailable","state":"Booted"}
+  {"udid":"$FAKE_SIMULATOR_UDID","isAvailable":false,"name":"iPhone Unavailable","deviceTypeIdentifier":"com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro","state":"Booted"}
+]}}
+JSON
+      ;;
+    forged-iphone-name)
+      cat <<JSON
+{"devices":{"com.apple.CoreSimulator.SimRuntime.iOS-26-5":[
+  {"udid":"$FAKE_SIMULATOR_UDID","isAvailable":true,"name":"iPhone Attack","deviceTypeIdentifier":"com.apple.CoreSimulator.SimDeviceType.iPad-Pro-13-inch-M4","state":"Booted"}
+]}}
+JSON
+      ;;
+    missing-device-type)
+      cat <<JSON
+{"devices":{"com.apple.CoreSimulator.SimRuntime.iOS-26-5":[
+  {"udid":"$FAKE_SIMULATOR_UDID","isAvailable":true,"name":"iPhone Missing Type","state":"Booted"}
+]}}
+JSON
+      ;;
+    malformed-device-type)
+      cat <<JSON
+{"devices":{"com.apple.CoreSimulator.SimRuntime.iOS-26-5":[
+  {"udid":"$FAKE_SIMULATOR_UDID","isAvailable":true,"name":"iPhone Malformed Type","deviceTypeIdentifier":"com.apple.CoreSimulator.SimDeviceType.iPhone/../../iPad","state":"Booted"}
 ]}}
 JSON
       ;;
@@ -234,7 +317,19 @@ PY
     exit 0
   fi
 
-  total="${FAKE_TOTAL_TESTS:-412}"
+  result_path=""
+  previous=""
+  for argument in "$@"; do
+    if [[ "$previous" == "--path" ]]; then
+      result_path="$argument"
+    fi
+    previous="$argument"
+  done
+  default_total=412
+  if [[ "$result_path" == *"/copied-phone.xcresult" ]]; then
+    default_total=2
+  fi
+  total="${FAKE_TOTAL_TESTS:-$default_total}"
   passed="${FAKE_PASSED_TESTS:-$total}"
   failed="${FAKE_FAILED_TESTS:-0}"
   skipped="${FAKE_SKIPPED_TESTS:-0}"
@@ -315,7 +410,8 @@ assert_argument_once "-only-testing:fearlessTests/ChainSyncServiceCompatibilityT
 assert_argument_once "-only-testing:fearlessTests/ChainRegistryTests"
 assert_argument_once "-only-testing:fearlessTests/ConnectionPoolTests"
 assert_argument_once "-only-testing:fearlessTests/CrashConsistentStoreReplacerResourceLimitTests"
-assert_output_contains "unset" "$RUN_DIRECTORY/environment"
+assert_output_contains "inherited=unset" "$RUN_DIRECTORY/environment"
+assert_output_contains "build-setting-count=0" "$RUN_DIRECTORY/environment"
 printf '%s\n' "[coredata-release-gate-test] PASS: canonical core contract"
 
 # Explicit canonical simulator destinations remain supported.
@@ -326,6 +422,17 @@ if ! run_gate "valid-explicit-destination"; then
   fail "valid explicit simulator destination was rejected"
 fi
 printf '%s\n' "[coredata-release-gate-test] PASS: explicit simulator destination"
+
+# A developer may rename an iPhone simulator. Eligibility is bound to the
+# immutable CoreSimulator device type, not the mutable display name.
+CASE_ENV=("FAKE_SIMULATOR_MODE=renamed")
+GATE_ARGS=(--stage core)
+if ! run_gate "valid-renamed-iphone-simulator"; then
+  sed -n '1,80p' "$RUN_DIRECTORY/stderr" >&2
+  fail "renamed iPhone simulator was rejected"
+fi
+assert_argument_once "platform=iOS Simulator,id=$SIMULATOR_UDID"
+printf '%s\n' "[coredata-release-gate-test] PASS: renamed iPhone device-type contract"
 
 # Copied-phone tests are their own exact-two stage and receive an absolute,
 # read-only source fixture contract.
@@ -346,9 +453,63 @@ assert_argument_once \
   "-only-testing:fearlessTests/SubstrateStorageClassResolutionTests/testCopiedPhoneV8Store_whenAvailable_thenAllRowsHaveExpectedClassesAndStoreIsUnchanged"
 assert_argument_once \
   "-only-testing:fearlessTests/SubstrateStorageClassResolutionTests/testCopiedPhoneV8Store_whenFetchedThroughProductionRepositories_thenMapsEveryRuntimeAndChain"
-assert_output_contains "set" "$RUN_DIRECTORY/environment"
+assert_argument_once "FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE_PATH=$CANONICAL_PHONE_FIXTURE"
+assert_output_contains "inherited=unset" "$RUN_DIRECTORY/environment"
+assert_output_contains "build-setting-count=1" "$RUN_DIRECTORY/environment"
+assert_output_contains "build-setting-value=$CANONICAL_PHONE_FIXTURE" "$RUN_DIRECTORY/environment"
 assert_output_contains "exactly 2 tests, source fixture unchanged" "$RUN_DIRECTORY/stdout"
 printf '%s\n' "[coredata-release-gate-test] PASS: copied-phone exact-two contract"
+
+# The documented environment input is converted into the same explicit build
+# setting and is removed from xcodebuild's inherited shell environment.
+CASE_ENV=(
+  "FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE=$PHONE_FIXTURE"
+  "FAKE_TOTAL_TESTS=2"
+  "FAKE_PASSED_TESTS=2"
+)
+GATE_ARGS=(--stage copied-phone --simulator-udid "$SIMULATOR_UDID")
+if ! run_gate "valid-copied-phone-environment-input"; then
+  sed -n '1,80p' "$RUN_DIRECTORY/stderr" >&2
+  fail "valid copied-phone environment input was rejected"
+fi
+assert_argument_once "FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE_PATH=$CANONICAL_PHONE_FIXTURE"
+assert_output_contains "inherited=unset" "$RUN_DIRECTORY/environment"
+assert_output_contains "build-setting-count=1" "$RUN_DIRECTORY/environment"
+printf '%s\n' "[coredata-release-gate-test] PASS: copied-phone environment-to-build-setting bridge"
+
+# Under --stage all, only copied-phone receives the fixture build setting. The
+# core stage is additionally covered by the same immutable-fixture window.
+CASE_ENV=()
+GATE_ARGS=(--stage all --simulator-udid "$SIMULATOR_UDID" --fixture "$PHONE_FIXTURE")
+if ! run_gate "valid-all"; then
+  sed -n '1,80p' "$RUN_DIRECTORY/stderr" >&2
+  fail "valid all-stage gate was rejected"
+fi
+assert_invocation_once \
+  "stage=core inherited=unset build-setting-count=0 build-setting-value="
+assert_invocation_once \
+  "stage=copied-phone inherited=unset build-setting-count=1 build-setting-value=$CANONICAL_PHONE_FIXTURE"
+assert_output_contains "PASSED core stage" "$RUN_DIRECTORY/stdout"
+assert_output_contains "PASSED copied-phone fixture stage" "$RUN_DIRECTORY/stdout"
+printf '%s\n' "[coredata-release-gate-test] PASS: all-stage fixture isolation contract"
+
+# Simulate an external core-stage mutation without exposing the fixture path to
+# xcodebuild. The gate must reject it before the copied-phone stage can start.
+cp "$PHONE_FIXTURE" "$TEMPORARY_DIR/phone-before-core-stage-mutation.sqlite"
+CASE_ENV=(
+  "FAKE_MUTATE_FIXTURE_DURING_CORE=1"
+  "FAKE_CORE_MUTATION_PATH=$PHONE_FIXTURE"
+)
+GATE_ARGS=(--stage all --simulator-udid "$SIMULATOR_UDID" --fixture "$PHONE_FIXTURE")
+expect_failure \
+  "all-stage-core-fixture-mutation" \
+  "copied-phone source fixture changed during the core stage"
+assert_invocation_once \
+  "stage=core inherited=unset build-setting-count=0 build-setting-value="
+if grep -Fq "stage=copied-phone " "$RUN_DIRECTORY/invocations"; then
+  fail "copied-phone stage ran after the core stage mutated its source fixture"
+fi
+mv "$TEMPORARY_DIR/phone-before-core-stage-mutation.sqlite" "$PHONE_FIXTURE"
 
 # Missing/ambiguous simulator selection and hostile destinations.
 CASE_ENV=("FAKE_SIMULATOR_MODE=none")
@@ -362,6 +523,18 @@ expect_failure "ambiguous-booted-simulators" "unique booted simulator is require
 CASE_ENV=("FAKE_SIMULATOR_MODE=unavailable")
 GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
 expect_failure "unavailable-explicit-simulator" "requested simulator could not be verified"
+
+CASE_ENV=("FAKE_SIMULATOR_MODE=forged-iphone-name")
+GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
+expect_failure "forged-iphone-display-name" "requested simulator could not be verified"
+
+CASE_ENV=("FAKE_SIMULATOR_MODE=missing-device-type")
+GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
+expect_failure "missing-simulator-device-type" "requested simulator could not be verified"
+
+CASE_ENV=("FAKE_SIMULATOR_MODE=malformed-device-type")
+GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
+expect_failure "malformed-simulator-device-type" "requested simulator could not be verified"
 
 CASE_ENV=()
 GATE_ARGS=(--stage core --simulator-udid "not-a-uuid")
@@ -395,7 +568,7 @@ GATE_ARGS=(
   --simulator-udid "$SIMULATOR_UDID"
   --fixture "$TEMPORARY_DIR/absent.sqlite"
 )
-expect_failure "absent-copied-phone-fixture" "readable, regular, non-symlink"
+expect_failure "absent-copied-phone-fixture" "missing required component absent.sqlite"
 
 ln -s "$PHONE_FIXTURE" "$TEMPORARY_DIR/symlink.sqlite"
 CASE_ENV=()
@@ -404,7 +577,65 @@ GATE_ARGS=(
   --simulator-udid "$SIMULATOR_UDID"
   --fixture "$TEMPORARY_DIR/symlink.sqlite"
 )
-expect_failure "symlink-copied-phone-fixture" "readable, regular, non-symlink"
+expect_failure "symlink-copied-phone-fixture" "readable, nonempty, regular, non-symlink"
+
+CASE_ENV=()
+GATE_ARGS=(
+  --stage copied-phone
+  --simulator-udid "$SIMULATOR_UDID"
+  --fixture "$TEMPORARY_DIR/hostile"$'\n'"fixture.sqlite"
+)
+expect_failure "control-character-copied-phone-path" "must not contain control characters"
+
+mv "${PHONE_FIXTURE}-wal" "${PHONE_FIXTURE}-wal.saved"
+CASE_ENV=()
+GATE_ARGS=(--stage copied-phone --simulator-udid "$SIMULATOR_UDID" --fixture "$PHONE_FIXTURE")
+expect_failure "missing-copied-phone-wal" "missing required component SubstrateDataModel.sqlite-wal"
+mv "${PHONE_FIXTURE}-wal.saved" "${PHONE_FIXTURE}-wal"
+
+mv "${PHONE_FIXTURE}-shm" "${PHONE_FIXTURE}-shm.saved"
+CASE_ENV=()
+GATE_ARGS=(--stage copied-phone --simulator-udid "$SIMULATOR_UDID" --fixture "$PHONE_FIXTURE")
+expect_failure "missing-copied-phone-shm" "missing required component SubstrateDataModel.sqlite-shm"
+mv "${PHONE_FIXTURE}-shm.saved" "${PHONE_FIXTURE}-shm"
+
+mv "${PHONE_FIXTURE}-wal" "${PHONE_FIXTURE}-wal.saved"
+ln -s "$PHONE_FIXTURE" "${PHONE_FIXTURE}-wal"
+CASE_ENV=()
+GATE_ARGS=(--stage copied-phone --simulator-udid "$SIMULATOR_UDID" --fixture "$PHONE_FIXTURE")
+expect_failure "symlink-copied-phone-wal" "readable, nonempty, regular, non-symlink"
+rm "${PHONE_FIXTURE}-wal"
+mv "${PHONE_FIXTURE}-wal.saved" "${PHONE_FIXTURE}-wal"
+
+mv "${PHONE_FIXTURE}-shm" "${PHONE_FIXTURE}-shm.saved"
+mkdir "${PHONE_FIXTURE}-shm"
+CASE_ENV=()
+GATE_ARGS=(--stage copied-phone --simulator-udid "$SIMULATOR_UDID" --fixture "$PHONE_FIXTURE")
+expect_failure "directory-copied-phone-shm" "readable, nonempty, regular, non-symlink"
+rmdir "${PHONE_FIXTURE}-shm"
+mv "${PHONE_FIXTURE}-shm.saved" "${PHONE_FIXTURE}-shm"
+
+mv "${PHONE_FIXTURE}-wal" "${PHONE_FIXTURE}-wal.saved"
+: >"${PHONE_FIXTURE}-wal"
+CASE_ENV=()
+GATE_ARGS=(--stage copied-phone --simulator-udid "$SIMULATOR_UDID" --fixture "$PHONE_FIXTURE")
+expect_failure "empty-copied-phone-wal" "readable, nonempty, regular, non-symlink"
+rm "${PHONE_FIXTURE}-wal"
+mv "${PHONE_FIXTURE}-wal.saved" "${PHONE_FIXTURE}-wal"
+
+mv "${PHONE_FIXTURE}-wal" "${PHONE_FIXTURE}-wal.saved"
+ln "$PHONE_FIXTURE" "${PHONE_FIXTURE}-wal"
+CASE_ENV=()
+GATE_ARGS=(--stage copied-phone --simulator-udid "$SIMULATOR_UDID" --fixture "$PHONE_FIXTURE")
+expect_failure "hardlinked-copied-phone-component" "single-link files"
+rm "${PHONE_FIXTURE}-wal"
+mv "${PHONE_FIXTURE}-wal.saved" "${PHONE_FIXTURE}-wal"
+
+chmod 000 "${PHONE_FIXTURE}-shm"
+CASE_ENV=()
+GATE_ARGS=(--stage copied-phone --simulator-udid "$SIMULATOR_UDID" --fixture "$PHONE_FIXTURE")
+expect_failure "unreadable-copied-phone-shm" "readable, nonempty, regular, non-symlink"
+chmod 600 "${PHONE_FIXTURE}-shm"
 
 CASE_ENV=("FAKE_TOTAL_TESTS=1" "FAKE_PASSED_TESTS=1")
 GATE_ARGS=(--stage copied-phone --simulator-udid "$SIMULATOR_UDID" --fixture "$PHONE_FIXTURE")
@@ -508,6 +739,50 @@ CASE_ENV=()
 GATE_ARGS=(--stage impossible --simulator-udid "$SIMULATOR_UDID")
 expect_failure "unknown-stage" "core, copied-phone, or all"
 
+# The test-bundle Info.plist is part of the security boundary: the reviewed
+# build setting must reach XCTest through exactly one typed string key.
+mv "$FIXTURE_INFO_PLIST" "$TEMPORARY_DIR/valid-fearlessTests-Info.plist"
+CASE_ENV=()
+GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
+expect_failure "missing-fixture-info-plist" "Info.plist is missing or unsafe"
+mv "$TEMPORARY_DIR/valid-fearlessTests-Info.plist" "$FIXTURE_INFO_PLIST"
+
+cp "$FIXTURE_INFO_PLIST" "$TEMPORARY_DIR/valid-fearlessTests-Info.plist"
+printf '%s\n' '<plist><dict>' >"$FIXTURE_INFO_PLIST"
+CASE_ENV=()
+GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
+expect_failure "malformed-fixture-info-plist" "Info.plist fixture bridge is missing or unsafe"
+mv "$TEMPORARY_DIR/valid-fearlessTests-Info.plist" "$FIXTURE_INFO_PLIST"
+
+cp "$FIXTURE_INFO_PLIST" "$TEMPORARY_DIR/valid-fearlessTests-Info.plist"
+sed 's/[$](FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE_PATH)/[$](UNREVIEWED_FIXTURE_PATH)/' \
+  "$TEMPORARY_DIR/valid-fearlessTests-Info.plist" >"$FIXTURE_INFO_PLIST"
+CASE_ENV=()
+GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
+expect_failure "wrong-fixture-info-plist-setting" "Info.plist fixture bridge is missing or unsafe"
+mv "$TEMPORARY_DIR/valid-fearlessTests-Info.plist" "$FIXTURE_INFO_PLIST"
+
+cp "$FIXTURE_INFO_PLIST" "$TEMPORARY_DIR/valid-fearlessTests-Info.plist"
+python3 - \
+  "$TEMPORARY_DIR/valid-fearlessTests-Info.plist" \
+  "$FIXTURE_INFO_PLIST" <<'PY'
+import sys
+
+source_path, output_path = sys.argv[1:]
+with open(source_path, "r", encoding="utf-8") as source:
+    contents = source.read()
+duplicate = """  <key>FearlessSubstratePhoneStoreFixturePath</key>
+  <string>$(FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE_PATH)</string>
+"""
+with open(output_path, "w", encoding="utf-8") as output:
+    output.write(contents.replace("</dict>", duplicate + "</dict>"))
+PY
+CASE_ENV=()
+GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
+expect_failure "duplicate-fixture-info-plist-key" "Info.plist fixture bridge is missing or unsafe"
+rm "$FIXTURE_INFO_PLIST"
+mv "$TEMPORARY_DIR/valid-fearlessTests-Info.plist" "$FIXTURE_INFO_PLIST"
+
 RUN_NUMBER=$((RUN_NUMBER + 1))
 RUN_DIRECTORY="$TEMPORARY_DIR/run-${RUN_NUMBER}-override-without-harness"
 mkdir -p "$RUN_DIRECTORY"
@@ -522,5 +797,19 @@ assert_output_contains \
 printf '%s\n' \
   "[coredata-release-gate-test] PASS (rejected): override without harness"
 
+RUN_NUMBER=$((RUN_NUMBER + 1))
+RUN_DIRECTORY="$TEMPORARY_DIR/run-${RUN_NUMBER}-source-packages-override-without-harness"
+mkdir -p "$RUN_DIRECTORY"
+if env \
+  FEARLESS_CORE_DATA_SOURCE_PACKAGES_DIR="$FIXTURE_ROOT/SourcePackages" \
+  bash "$GATE" >"$RUN_DIRECTORY/stdout" 2>"$RUN_DIRECTORY/stderr"; then
+  fail "SourcePackages override without explicit harness unexpectedly passed"
+fi
+assert_output_contains \
+  "FEARLESS_CORE_DATA_SOURCE_PACKAGES_DIR is accepted only with FEARLESS_CORE_DATA_TEST_HARNESS=1" \
+  "$RUN_DIRECTORY/stderr"
 printf '%s\n' \
-  "[coredata-release-gate-test] PASS: 3 positive contracts + 30 negative/adversarial cases"
+  "[coredata-release-gate-test] PASS (rejected): SourcePackages override without harness"
+
+printf '%s\n' \
+  "[coredata-release-gate-test] PASS: 6 positive contracts + 47 negative/adversarial cases"

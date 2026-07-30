@@ -6,8 +6,8 @@ set -euo pipefail
 # The normal stage deliberately excludes the two copied-phone fixture tests. Run
 # those separately with:
 #
-#   FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE=/absolute/path/to/SubstrateDataModel.sqlite \
-#     bash scripts/ci/run-coredata-release-gate.sh --stage copied-phone \
+#   bash scripts/ci/run-coredata-release-gate.sh --stage copied-phone \
+#       --fixture /absolute/path/to/SubstrateDataModel.sqlite \
 #       --simulator-udid <SIMULATOR_UDID>
 #
 # This script never accepts a physical-device destination, never opens the source
@@ -17,7 +17,8 @@ umask 077
 
 readonly LOG_PREFIX="[coredata-release-gate]"
 readonly SCHEME="fearless.tests"
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+readonly SCRIPT_DIR
 readonly MANIFEST_DIR="$SCRIPT_DIR/manifests"
 readonly CDMETAACCOUNT_CODABLE_AUDIT="$SCRIPT_DIR/../storage/audit-cdmetaaccount-codable-contract.sh"
 readonly UUID_PATTERN='^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$'
@@ -38,6 +39,7 @@ if [[ "$CORE_DATA_TEST_HARNESS" != "1" ]]; then
   for override_name in \
     FEARLESS_CORE_DATA_ROOT_DIR \
     FEARLESS_CORE_DATA_WORKSPACE \
+    FEARLESS_CORE_DATA_SOURCE_PACKAGES_DIR \
     FEARLESS_CORE_DATA_XCODEBUILD_BIN \
     FEARLESS_CORE_DATA_XCRUN_BIN \
     FEARLESS_CORE_DATA_PYTHON_BIN \
@@ -124,6 +126,9 @@ uuid_pattern = re.compile(
     r"^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-"
     r"[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$"
 )
+iphone_device_type_pattern = re.compile(
+    r"^com\.apple\.CoreSimulator\.SimDeviceType\.iPhone-[A-Za-z0-9-]+$"
+)
 
 try:
     with open(json_path, "r", encoding="utf-8") as source:
@@ -145,13 +150,13 @@ for devices in runtime_devices.values():
         if not isinstance(device, dict):
             continue
         udid = device.get("udid")
-        name = device.get("name")
+        device_type = device.get("deviceTypeIdentifier")
         is_available = device.get("isAvailable", True)
         if (
             isinstance(udid, str)
             and uuid_pattern.fullmatch(udid)
-            and isinstance(name, str)
-            and name.startswith("iPhone")
+            and isinstance(device_type, str)
+            and iphone_device_type_pattern.fullmatch(device_type)
             and is_available is True
         ):
             eligible.append(device)
@@ -181,20 +186,69 @@ fixture_fingerprint() {
   local suffix
   local candidate
   local digest
+  local link_count
 
   for suffix in "" "-wal" "-shm"; do
     candidate="${fixture}${suffix}"
-    if [[ -e "$candidate" ]]; then
-      [[ -f "$candidate" && ! -L "$candidate" ]] ||
-        fail "copied-phone fixture components must be regular, non-symlink files"
-      digest="$("$SHASUM_BIN" -a 256 "$candidate" | awk '{print $1}')"
-      [[ "$digest" =~ ^[0-9A-Fa-f]{64}$ ]] ||
-        fail "unable to fingerprint copied-phone fixture safely"
-      printf '%s=%s\n' "$suffix" "$digest"
-    else
-      printf '%s=%s\n' "$suffix" "absent"
-    fi
+    [[ -e "$candidate" ]] ||
+      fail "copied-phone fixture is incomplete: missing required component $(basename "$candidate")"
+    [[ -r "$candidate" && -s "$candidate" && -f "$candidate" && ! -L "$candidate" ]] ||
+      fail "copied-phone fixture components must be readable, nonempty, regular, non-symlink files"
+    link_count="$(stat -f '%l' "$candidate" 2>/dev/null)" ||
+      fail "unable to inspect copied-phone fixture link count"
+    [[ "$link_count" == "1" ]] ||
+      fail "copied-phone fixture components must be single-link files"
+    digest="$("$SHASUM_BIN" -a 256 "$candidate" | awk '{print $1}')"
+    [[ "$digest" =~ ^[0-9A-Fa-f]{64}$ ]] ||
+      fail "unable to fingerprint copied-phone fixture safely"
+    printf '%s=%s\n' "$suffix" "$digest"
   done
+}
+
+validate_test_bundle_fixture_bridge() {
+  local info_plist_path="$1"
+
+  if ! "$PYTHON_BIN" - "$info_plist_path" <<'PY'
+import plistlib
+import sys
+import xml.etree.ElementTree as ET
+
+info_plist_path = sys.argv[1]
+try:
+    with open(info_plist_path, "rb") as source:
+        payload = plistlib.load(source)
+    root = ET.parse(info_plist_path).getroot()
+except (OSError, ValueError, plistlib.InvalidFileException, ET.ParseError):
+    raise SystemExit("test Info.plist is missing or malformed")
+
+if not isinstance(payload, dict):
+    raise SystemExit("test Info.plist root must be a dictionary")
+key = "FearlessSubstratePhoneStoreFixturePath"
+value = "$(FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE_PATH)"
+if payload.get(key) != value:
+    raise SystemExit("fixture path key must use the reviewed build setting")
+
+dictionary = root.find("./dict")
+if dictionary is None:
+    raise SystemExit("test Info.plist XML dictionary is missing")
+children = list(dictionary)
+indexes = [
+    index
+    for index, child in enumerate(children)
+    if child.tag == "key" and child.text == key
+]
+if len(indexes) != 1:
+    raise SystemExit("fixture path key must occur exactly once")
+index = indexes[0]
+if index + 1 >= len(children):
+    raise SystemExit("fixture path key has no value")
+value_node = children[index + 1]
+if value_node.tag != "string" or value_node.text != value:
+    raise SystemExit("fixture path key has an unsafe value")
+PY
+  then
+    fail "fearlessTests Info.plist fixture bridge is missing or unsafe"
+  fi
 }
 
 validate_result_summary() {
@@ -550,21 +604,21 @@ run_stage() {
     "SWIFT_OPTIMIZATION_LEVEL=-O"
     "ENABLE_TESTABILITY=YES"
     "ONLY_ACTIVE_ARCH=YES"
-    "${selectors[@]}"
-    test
   )
+  if [[ "$stage" == "copied-phone" ]]; then
+    xcodebuild_arguments+=(
+      "FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE_PATH=$PHONE_FIXTURE"
+    )
+  fi
+  xcodebuild_arguments+=("${selectors[@]}" test)
 
   log "Running ${stage} Release test stage; detailed output is private in the gate log"
   set +e
-  if [[ "$stage" == "core" ]]; then
-    env -u FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE \
-      "$XCODEBUILD_BIN" "${xcodebuild_arguments[@]}" >"$xcodebuild_log" 2>&1
-    xcodebuild_status=$?
-  else
-    FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE="$PHONE_FIXTURE" \
-      "$XCODEBUILD_BIN" "${xcodebuild_arguments[@]}" >"$xcodebuild_log" 2>&1
-    xcodebuild_status=$?
-  fi
+  env \
+    -u FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE \
+    -u FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE_PATH \
+    "$XCODEBUILD_BIN" "${xcodebuild_arguments[@]}" >"$xcodebuild_log" 2>&1
+  xcodebuild_status=$?
   set -e
 
   if [[ "$stage" == "copied-phone" ]]; then
@@ -596,6 +650,7 @@ main() {
   local fixture_argument=""
   local output_argument=""
   local derived_data_argument=""
+  local all_stage_fixture_fingerprint=""
 
   while [[ "$#" -gt 0 ]]; do
     case "$1" in
@@ -660,21 +715,30 @@ main() {
     fail "simulator UDID must be a canonical UUID"
   fi
 
-  readonly ROOT_DIR="$(
+  local root_dir
+  root_dir="$(
     cd "${FEARLESS_CORE_DATA_ROOT_DIR:-$(dirname "${BASH_SOURCE[0]}")/../..}" &&
       pwd -P
   )"
+  readonly ROOT_DIR="$root_dir"
   readonly WORKSPACE_INPUT="${FEARLESS_CORE_DATA_WORKSPACE:-$ROOT_DIR/fearless.xcworkspace}"
   [[ -d "$WORKSPACE_INPUT" && -f "$WORKSPACE_INPUT/contents.xcworkspacedata" ]] ||
     fail "fearless.xcworkspace is missing or incomplete"
   [[ "$(basename "$WORKSPACE_INPUT")" == "fearless.xcworkspace" ]] ||
     fail "the Core Data gate requires fearless.xcworkspace"
-  readonly WORKSPACE="$(canonical_directory "$WORKSPACE_INPUT")"
+  local workspace
+  workspace="$(canonical_directory "$WORKSPACE_INPUT")"
+  readonly WORKSPACE="$workspace"
+  readonly TEST_INFO_PLIST_PATH="$ROOT_DIR/fearlessTests/Info.plist"
+  [[ -f "$TEST_INFO_PLIST_PATH" && ! -L "$TEST_INFO_PLIST_PATH" ]] ||
+    fail "fearlessTests Info.plist is missing or unsafe"
 
   readonly SOURCE_PACKAGES_INPUT="${FEARLESS_CORE_DATA_SOURCE_PACKAGES_DIR:-$ROOT_DIR/SourcePackages}"
   [[ -d "$SOURCE_PACKAGES_INPUT" && -d "$SOURCE_PACKAGES_INPUT/checkouts" ]] ||
     fail "prepared canonical SourcePackages/checkouts is required"
-  readonly SOURCE_PACKAGES_DIR="$(canonical_directory "$SOURCE_PACKAGES_INPUT")"
+  local source_packages_dir
+  source_packages_dir="$(canonical_directory "$SOURCE_PACKAGES_INPUT")"
+  readonly SOURCE_PACKAGES_DIR="$source_packages_dir"
 
   readonly XCODEBUILD_BIN="${FEARLESS_CORE_DATA_XCODEBUILD_BIN:-xcodebuild}"
   readonly XCRUN_BIN="${FEARLESS_CORE_DATA_XCRUN_BIN:-xcrun}"
@@ -686,6 +750,7 @@ main() {
   if [[ "$stage" == "copied-phone" || "$stage" == "all" ]]; then
     require_executable "$SHASUM_BIN" "shasum"
   fi
+  validate_test_bundle_fixture_bridge "$TEST_INFO_PLIST_PATH"
   [[ -f "$CDMETAACCOUNT_CODABLE_AUDIT" && ! -L "$CDMETAACCOUNT_CODABLE_AUDIT" ]] ||
     fail "CDMetaAccount Codable contract audit is missing or unsafe"
   FEARLESS_CDMETAACCOUNT_CODABLE_ROOT="$ROOT_DIR" \
@@ -727,23 +792,45 @@ main() {
   [[ ! -e "$OUTPUT_DIR_INPUT" ]] ||
     fail "output directory must not already exist"
   mkdir -p "$OUTPUT_DIR_INPUT"
-  readonly OUTPUT_DIR="$(canonical_directory "$OUTPUT_DIR_INPUT")"
+  local output_dir
+  output_dir="$(canonical_directory "$OUTPUT_DIR_INPUT")"
+  readonly OUTPUT_DIR="$output_dir"
 
   readonly DERIVED_DATA_DIR="${derived_data_argument:-$ROOT_DIR/build/DerivedData-CoreDataReleaseGate}"
 
-  readonly PHONE_FIXTURE="${fixture_argument:-${FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE:-}}"
+  local phone_fixture_input="${fixture_argument:-${FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE:-}}"
   if [[ "$stage" == "copied-phone" || "$stage" == "all" ]]; then
-    [[ -n "$PHONE_FIXTURE" ]] ||
+    [[ -n "$phone_fixture_input" ]] ||
       fail "copied-phone stage requires --fixture or FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE"
-    [[ "$PHONE_FIXTURE" == /* ]] ||
+    [[ "$phone_fixture_input" == /* ]] ||
       fail "copied-phone fixture path must be absolute"
-    [[ -r "$PHONE_FIXTURE" && -f "$PHONE_FIXTURE" && ! -L "$PHONE_FIXTURE" ]] ||
-      fail "copied-phone fixture must be a readable, regular, non-symlink file"
+    if [[ "$phone_fixture_input" == *$'\n'* ||
+          "$phone_fixture_input" == *$'\r'* ||
+          "$phone_fixture_input" == *$'\t'* ]] ||
+      printf '%s' "$phone_fixture_input" | LC_ALL=C grep -q '[[:cntrl:]]'; then
+      fail "copied-phone fixture path must not contain control characters"
+    fi
+    local canonical_phone_fixture
+    canonical_phone_fixture="$(
+      canonical_directory "$(dirname "$phone_fixture_input")"
+    )/$(basename "$phone_fixture_input")"
+    readonly PHONE_FIXTURE="$canonical_phone_fixture"
+    if [[ "$stage" == "all" ]]; then
+      all_stage_fixture_fingerprint="$(fixture_fingerprint "$PHONE_FIXTURE")"
+    else
+      fixture_fingerprint "$PHONE_FIXTURE" >/dev/null
+    fi
+  else
+    readonly PHONE_FIXTURE=""
   fi
 
   log "Using fearless.xcworkspace, scheme fearless.tests, Release optimization -O"
   if [[ "$stage" == "core" || "$stage" == "all" ]]; then
     run_stage "core"
+    if [[ "$stage" == "all" ]]; then
+      [[ "$(fixture_fingerprint "$PHONE_FIXTURE")" == "$all_stage_fixture_fingerprint" ]] ||
+        fail "copied-phone source fixture changed during the core stage"
+    fi
   fi
   if [[ "$stage" == "copied-phone" || "$stage" == "all" ]]; then
     run_stage "copied-phone"
