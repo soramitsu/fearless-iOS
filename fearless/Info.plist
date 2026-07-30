@@ -53,7 +53,15 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>FearlessBuildConfiguration</key>
+	<string>$(CONFIGURATION)</string>
+	<key>FearlessEnableTestability</key>
+	<string>$(ENABLE_TESTABILITY)</string>
+	<key>FearlessGitCommit</key>
+	<string>$(FEARLESS_GIT_COMMIT)</string>
+	<key>FearlessSwiftOptimizationLevel</key>
+	<string>$(SWIFT_OPTIMIZATION_LEVEL)</string>
 	<key>GIDClientID</key>
 	<string></string>
 	<key>ITSAppUsesNonExemptEncryption</key>

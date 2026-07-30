@@ -32,17 +32,23 @@ class AccountExportPasswordTests: XCTestCase {
 
         let presenter = AccountExportPasswordPresenter(
             flow: .single(chain: chain, address: walletAddress, wallet: wallet),
-            localizationManager: LocalizationManager.shared)
+            localizationManager: LocalizationManager.shared
+        )
 
         presenter.view = view
         presenter.wireframe = wireframe
 
         let exportWrapper = KeystoreExportWrapper(keystore: keychain)
-        let interactor = AccountExportPasswordInteractor(exportJsonWrapper: exportWrapper,
-                                                         accountRepository: AnyDataProviderRepository(accountsRepository),
-                                                         operationManager: OperationManagerFacade.sharedManager,
-                                                         extrinsicOperationFactory: nil,
-                                                         chainRepository: AnyDataProviderRepository(chainRepository))
+        let exportOperationQueue = OperationQueue()
+        exportOperationQueue.qualityOfService = .userInitiated
+        let exportOperationManager = OperationManager(operationQueue: exportOperationQueue)
+        let interactor = AccountExportPasswordInteractor(
+            exportJsonWrapper: exportWrapper,
+            accountRepository: AnyDataProviderRepository(accountsRepository),
+            operationManager: exportOperationManager,
+            extrinsicOperationFactory: nil,
+            chainRepository: AnyDataProviderRepository(chainRepository)
+        )
         presenter.interactor = interactor
         interactor.presenter = presenter
 
@@ -63,7 +69,7 @@ class AccountExportPasswordTests: XCTestCase {
             when(stub.set(error: any(AccountExportPasswordError.self))).thenDoNothing()
         }
 
-        let expectation = XCTestExpectation()
+        let expectation = expectation(description: "JSON export is presented")
 
         stub(wireframe) { stub in
             when(stub.present(viewModel: any(SheetAlertPresentableViewModel.self), from: any(ControllerBackedProtocol?.self))).thenDoNothing()
@@ -90,6 +96,6 @@ class AccountExportPasswordTests: XCTestCase {
 
         // then
 
-        wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
+        wait(for: [expectation], timeout: 15)
     }
 }

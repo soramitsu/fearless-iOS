@@ -31,6 +31,13 @@ Use this checklist for every release PR from `develop` to `master`.
 - Run `bash ./scripts/test-transaction-builder-tests-audit.sh && bash ./scripts/audit-transaction-builder-tests.sh`
   and confirm Bitcoin, Solana, Iroha, and TON fail-closed transfer coverage
   remains in place.
+- Run
+  `bash ./scripts/test-testflight-publication-readiness-audit.sh && bash ./scripts/audit-testflight-publication-readiness.sh`
+  and review the exact tracked publication snapshot. Do not mark the TestFlight
+  build release-enabled until an in-place TestFlight update preserves the
+  existing app container, five cold launches pass, store integrity is unchanged,
+  and the remaining third-party symbolication follow-up is closed or explicitly
+  accepted by release review.
 - Run `bash ./scripts/check-iroha-mobile-sdk-release-assets.sh --self-test`.
   If `IROHA_MOBILE_SDK_RELEASE_TAG` is configured for the release, also run
   `bash ./scripts/check-iroha-mobile-sdk-release-assets.sh --download --tag "$IROHA_MOBILE_SDK_RELEASE_TAG"`.

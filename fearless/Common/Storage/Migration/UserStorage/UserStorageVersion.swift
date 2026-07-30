@@ -13,6 +13,12 @@ enum UserStorageVersion: String, CaseIterable {
     case version10 = "MultiassetUserDataModel_v9"
     case version11 = "MultiassetUserDataModel_v10"
     case version12 = "MultiassetUserDataModel_v11"
+    /// Schema shipped by the ecosystem/TON app line. It is a migration source,
+    /// not an active destination for this app.
+    case version13 = "LegacyEcosystemUserDataModel_v12"
+    /// Superset schema that accepts both the public v11 and ecosystem v12
+    /// layouts without dropping ecosystem or TON fields.
+    case version14 = "CompatibleUserDataModel_v13"
 
     static var current: UserStorageVersion {
         guard let currentVersion = allCases.last else {
@@ -47,7 +53,37 @@ enum UserStorageVersion: String, CaseIterable {
         case .version11:
             return .version12
         case .version12:
+            return .version14
+        case .version13:
+            return .version14
+        case .version14:
             return nil
         }
+    }
+
+    var isCompatibilityResource: Bool {
+        switch self {
+        case .version13, .version14:
+            return true
+        default:
+            return false
+        }
+    }
+
+    func modelURL(
+        in bundle: Bundle,
+        legacyModelDirectory: String
+    ) -> URL? {
+        let subdirectory = isCompatibilityResource ? nil : legacyModelDirectory
+
+        return bundle.url(
+            forResource: rawValue,
+            withExtension: "omo",
+            subdirectory: subdirectory
+        ) ?? bundle.url(
+            forResource: rawValue,
+            withExtension: "mom",
+            subdirectory: subdirectory
+        )
     }
 }

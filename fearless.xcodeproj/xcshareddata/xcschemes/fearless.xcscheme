@@ -82,8 +82,7 @@ bash \&quot;${PROJECT_DIR}/scripts/spm-shared-features-fixes.sh\&quot; \&quot;${
       buildConfiguration = "Debug">
    </AnalyzeAction>
    <ArchiveAction
-      buildConfiguration = "Dev"
+      buildConfiguration = "Release"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>
-

@@ -19,11 +19,26 @@ final class PolkaswapSettingMapper {
 
 extension PolkaswapSettingMapper: CoreDataMapperProtocol {
     func transform(entity: SSFAssetManagmentStorage.CDPolkaswapRemoteSettings) throws -> PolkaswapRemoteSettings {
+        let storedAvailableSources: [String]?
+        let forceSmartIds: [String]?
+        do {
+            storedAvailableSources = try SafeTransformableValueReader.read(
+                from: entity,
+                key: "availableSources"
+            )
+            forceSmartIds = try SafeTransformableValueReader.read(
+                from: entity,
+                key: "forceSmartIds"
+            )
+        } catch {
+            throw PolkaswapSettingMapperError.requiredFieldsMissing
+        }
+
         guard let version = entity.version,
-              let availableSources = entity.availableSources?.compactMap({
+              let availableSources = storedAvailableSources?.compactMap({
                   LiquiditySourceType(rawValue: $0)
               }),
-              let forceSmartIds = entity.forceSmartIds,
+              let forceSmartIds,
               let availableDexIdsSet = entity.availableDexIds,
               let xstusdId = entity.xstusdId
         else {

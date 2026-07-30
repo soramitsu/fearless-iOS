@@ -13,9 +13,14 @@ on:
 jobs:
   build:
     runs-on: macOS-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
 
       - name: Branch flow audit
         run: |
@@ -29,6 +34,16 @@ jobs:
         run: |
           bash ./scripts/test-todo-debt-audit.sh
           bash ./scripts/audit-todo-debt.sh
+
+      - name: TestFlight publication evidence
+        run: |
+          bash ./scripts/test-testflight-publication-readiness-audit.sh
+          bash ./scripts/audit-testflight-publication-readiness.sh
+
+      - name: Codecov executable coverage contract
+        run: |
+          bash ./scripts/test-codecov-coverage-contract.sh
+          bash ./scripts/audit-codecov-coverage-contract.sh
 
       - name: Iroha mobile SDK release asset contract
         env:
@@ -53,7 +68,7 @@ jobs:
 
       - name: Upload shared-features delta report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: shared-features-delta-report
           path: build/reports/shared-features-delta-report.json
@@ -145,6 +160,7 @@ jobs:
           esac
           echo "Using destination: $DESTINATION"
           LOG_FILE="$PWD/build/codecov-xcodebuild.log"
+          RESULT_BUNDLE="$PWD/build/CodecovTests.xcresult"
           mkdir -p "$PWD/build"
           if ! xcodebuild \
             -workspace fearless.xcworkspace \
@@ -152,6 +168,8 @@ jobs:
             -clonedSourcePackagesDirPath "$SP_DIR" \
             -disableAutomaticPackageResolution \
             -destination "$DESTINATION" \
+            -enableCodeCoverage YES \
+            -resultBundlePath "$RESULT_BUNDLE" \
             build test | tee "$LOG_FILE" | xcpretty --test; then
             echo "Build/Test failed. Key errors from $LOG_FILE:" >&2
             if command -v rg >/dev/null 2>&1; then
@@ -161,9 +179,31 @@ jobs:
             fi
             exit 1
           fi
+          COVERAGE_PROFILE="$(
+            find "$HOME/Library/Developer/Xcode/DerivedData" \
+              -type f -name '*.profdata' -print -quit
+          )"
+          if [[ -z "$COVERAGE_PROFILE" ]]; then
+            echo "Tests passed but Xcode produced no coverage profile." >&2
+            exit 1
+          fi
+          xcrun llvm-profdata show "$COVERAGE_PROFILE" >/dev/null || {
+            echo "Xcode produced an unreadable coverage profile: $COVERAGE_PROFILE" >&2
+            exit 1
+          }
+          test -d "$RESULT_BUNDLE" || {
+            echo "Xcode did not produce the required result bundle." >&2
+            exit 1
+          }
 
       - name: Upload coverage to Codecov
-        run: bash <(curl -s https://codecov.io/bash) -J 'fearless'
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          fail_ci_if_error: true
+          plugins: xcode
+          swift_project: fearless
+          use_oidc: true
+          version: v11.3.1
 
   jenkins-pr-merge:
     name: continuous-integration/jenkins/pr-merge

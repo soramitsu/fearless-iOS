@@ -184,13 +184,11 @@ run_tests() {
 run_tests Debug
 
 if [[ "${HOST_ARCH}" == "x86_64" ]]; then
-  echo "\n==> Skipping Release simulator tests on x86_64 host due to missing native package symbols for simulator linking"
+  echo "\n==> ERROR: Release simulator tests are mandatory and cannot run on this x86_64 host" >&2
+  echo "Dispatch this job to an arm64 macOS runner; a Debug-only result is not release evidence." >&2
+  exit 78
 else
   run_tests Release
 fi
 
-if [[ "${HOST_ARCH}" == "x86_64" ]]; then
-  echo "\n==> Debug tests passed; Release simulator tests were skipped on x86_64 host"
-else
-  echo "\n==> All tests passed in Debug and Release"
-fi
+echo "\n==> All tests passed in Debug and Release"

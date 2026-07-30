@@ -51,7 +51,7 @@ final class OnboardingPresenter {
             router.showPincodeSetup()
         case .login:
             router.showLogin()
-        case .onboarding, .broken:
+        case .onboarding, .broken, .unsupportedWallet:
             break
         }
     }
