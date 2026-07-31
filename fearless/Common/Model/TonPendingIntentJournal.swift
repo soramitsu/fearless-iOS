@@ -177,6 +177,17 @@ enum TonPendingIntentJournalCodec {
         let signedEmulationFeeNanotons: UInt64?
     }
 
+    private enum RecordEncodingOrder {
+        case utf8Lexicographic
+        case legacyFoundation17
+    }
+
+    private enum JSONScalar {
+        case boolean(Bool)
+        case string(String)
+        case unsigned(UInt64)
+    }
+
     static func encode(_ pending: TonPendingSignedIntent) throws -> Data {
         guard let quote = pending.feeQuote else {
             throw TonPendingIntentJournalError.corrupted
@@ -238,7 +249,7 @@ enum TonPendingIntentJournalCodec {
             signedEmulationAccepted: accepted,
             signedEmulationFeeNanotons: fee
         )
-        let data = try canonicalEncoder().encode(record)
+        let data = encodeRecord(record, order: .utf8Lexicographic)
         guard !data.isEmpty, data.count <= maximumRecordBytes else {
             throw TonPendingIntentJournalError.corrupted
         }
@@ -256,7 +267,9 @@ enum TonPendingIntentJournalCodec {
                 throw TonPendingIntentJournalError.corrupted
             }
             let record = try JSONDecoder().decode(Record.self, from: data)
-            guard try canonicalEncoder().encode(record) == data,
+            let canonicalData = encodeRecord(record, order: .utf8Lexicographic)
+            let legacyData = encodeRecord(record, order: .legacyFoundation17)
+            guard data == canonicalData || data == legacyData,
                   record.schemaVersion == schemaVersion,
                   record.asset == "native-ton",
                   record.network == "mainnet",
@@ -434,10 +447,107 @@ enum TonPendingIntentJournalCodec {
         try TonTransferTransactionBuilder.inspectSignedMessage(boc).validUntil
     }
 
-    private static func canonicalEncoder() -> JSONEncoder {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
-        return encoder
+    /// `JSONEncoder.OutputFormatting.sortedKeys` changed its ordering between
+    /// iOS 17 and iOS 18 for keys that differ by case at the comparison point
+    /// (`quotedFeeNanotons` versus `quoteEndpointOrigin`). Persisted bearer
+    /// journals must survive an OS upgrade, so new records use an explicit
+    /// UTF-8 byte ordering while the one legacy Foundation ordering remains a
+    /// read-only migration format.
+    private static func encodeRecord(
+        _ record: Record,
+        order: RecordEncodingOrder
+    ) -> Data {
+        var fields: [(String, JSONScalar)] = [
+            ("schemaVersion", .unsigned(UInt64(record.schemaVersion))),
+            ("phase", .string(record.phase)),
+            ("asset", .string(record.asset)),
+            ("network", .string(record.network)),
+            ("senderRaw", .string(record.senderRaw)),
+            ("recipientRaw", .string(record.recipientRaw)),
+            ("amountNanotons", .string(record.amountNanotons)),
+            ("bounce", .boolean(record.bounce)),
+            ("publicKeyBase64", .string(record.publicKeyBase64)),
+            ("walletSequenceNumber", .unsigned(record.walletSequenceNumber)),
+            ("walletIsInitialized", .boolean(record.walletIsInitialized)),
+            ("templateCreatedAt", .unsigned(record.templateCreatedAt)),
+            ("quoteIssuedAt", .unsigned(record.quoteIssuedAt)),
+            ("quoteExpiresAt", .unsigned(record.quoteExpiresAt)),
+            ("quoteEndpointOrigin", .string(record.quoteEndpointOrigin)),
+            ("quoteIDHex", .string(record.quoteIDHex)),
+            ("quotedFeeNanotons", .unsigned(record.quotedFeeNanotons)),
+            ("unsignedBocBase64", .string(record.unsignedBocBase64)),
+            ("signedBocBase64", .string(record.signedBocBase64)),
+            ("signedMessageHashHex", .string(record.signedMessageHashHex))
+        ]
+        if let comment = record.comment {
+            fields.append(("comment", .string(comment)))
+        }
+        if let accepted = record.signedEmulationAccepted {
+            fields.append(("signedEmulationAccepted", .boolean(accepted)))
+        }
+        if let fee = record.signedEmulationFeeNanotons {
+            fields.append(("signedEmulationFeeNanotons", .unsigned(fee)))
+        }
+
+        fields.sort { lhs, rhs in
+            lhs.0.utf8.lexicographicallyPrecedes(rhs.0.utf8)
+        }
+        if order == .legacyFoundation17,
+           let quotedFeeIndex = fields.firstIndex(where: { $0.0 == "quotedFeeNanotons" }),
+           let endpointIndex = fields.firstIndex(where: { $0.0 == "quoteEndpointOrigin" }) {
+            let quotedFee = fields.remove(at: quotedFeeIndex)
+            fields.insert(quotedFee, at: endpointIndex)
+        }
+
+        var data = Data()
+        data.append(0x7B)
+        for (index, field) in fields.enumerated() {
+            if index > 0 {
+                data.append(0x2C)
+            }
+            appendJSONString(field.0, to: &data)
+            data.append(0x3A)
+            switch field.1 {
+            case let .boolean(value):
+                data.append(contentsOf: (value ? "true" : "false").utf8)
+            case let .string(value):
+                appendJSONString(value, to: &data)
+            case let .unsigned(value):
+                data.append(contentsOf: String(value).utf8)
+            }
+        }
+        data.append(0x7D)
+        return data
+    }
+
+    private static func appendJSONString(_ value: String, to data: inout Data) {
+        let hexadecimal = Array("0123456789abcdef".utf8)
+        data.append(0x22)
+        for byte in value.utf8 {
+            switch byte {
+            case 0x08:
+                data.append(contentsOf: "\\b".utf8)
+            case 0x09:
+                data.append(contentsOf: "\\t".utf8)
+            case 0x0A:
+                data.append(contentsOf: "\\n".utf8)
+            case 0x0C:
+                data.append(contentsOf: "\\f".utf8)
+            case 0x0D:
+                data.append(contentsOf: "\\r".utf8)
+            case 0x22:
+                data.append(contentsOf: "\\\"".utf8)
+            case 0x5C:
+                data.append(contentsOf: "\\\\".utf8)
+            case 0x00 ... 0x1F:
+                data.append(contentsOf: "\\u00".utf8)
+                data.append(hexadecimal[Int(byte >> 4)])
+                data.append(hexadecimal[Int(byte & 0x0F)])
+            default:
+                data.append(byte)
+            }
+        }
+        data.append(0x22)
     }
 
     private static func decodeCanonicalBase64(_ value: String) throws -> Data {

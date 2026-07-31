@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 AUDIT_SCRIPT="$SCRIPT_DIR/audit-transaction-builder-tests.sh"
-EXPECTED_DESTRUCTIVE_FIXTURES=120
+EXPECTED_DESTRUCTIVE_FIXTURES=128
 executed_destructive_fixtures=0
 
 fail() {
@@ -73,7 +73,18 @@ write_valid_fixture() {
     "final class TonKeychainPendingIntentJournal {}" \
     'let identifierPrefix = "jp.co.soramitsu.fearless.ton.pending.v1."' \
     "let maximumRecordBytes = 48 * 1024" \
-    "encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]" \
+    "enum RecordEncodingOrder { case utf8Lexicographic; case legacyFoundation17 }" \
+    "fields.sort { lhs, rhs in lhs.0.utf8.lexicographicallyPrecedes(rhs.0.utf8) }" \
+    "let canonicalData = encodeRecord(record, order: .utf8Lexicographic)" \
+    "let legacyData = encodeRecord(record, order: .legacyFoundation17)" \
+    "guard data == canonicalData || data == legacyData else { return }" \
+    "func appendJSONString(_ value: String) {" \
+    "  switch byte {" \
+    "  case 0x22: return" \
+    "  case 0x5C: return" \
+    "  default: return" \
+    "  }" \
+    "}" \
     "let valid = publicKey.isValidSignature(inspection.signature, for: signingHash)" \
     "let rebuiltSigned = TonTransferTransactionBuilder.rebuildSignedMessage()" \
     "guard rebuiltSigned.boc == signedBoc else { return }" \
@@ -225,8 +236,11 @@ write_valid_fixture() {
     "  _ = TonPendingIntentJournalCodec.maximumRecordBytes + 1" \
     "}" \
     "func testJournalConflictAndKeychainFailuresFailClosed() {}" \
+    "func testCanonicalEncodingEscapesUnicodeMemoAndOmitsNilMemo() {}" \
     'let quoteIDGolden = "0eb547b83019bdb5d66d62e35bc31053c00cbd68ba80599e9af1ccddd17e6958"' \
     'let journalSHAGolden = "3238980e4f69c2fdd20fa2666a713771b4bec2ee4154255f154f827679a05067"' \
+    'let legacyJournalSHAGolden = "b3d3d3d094dd14e4990e20f2ae569af11c02c50d6d9269d773ff591d1cda4500"' \
+    "func legacyFoundation17Encoding() {}" \
     "func replacingWithStructurallyValidInvalidSignature() {}" \
     "final class AlwaysFailingKeystore {}"
 
@@ -790,6 +804,31 @@ write_valid_fixture "$weakened_ton_journal_bound"
 perl -0pi -e 's/maximumRecordBytes = 48 \* 1024/maximumRecordBytes = Int.max/' "$weakened_ton_journal_bound/fearless/Common/Model/TonPendingIntentJournal.swift"
 expect_failure "weakened TON journal bound" "$weakened_ton_journal_bound" "TON bounded journal record"
 
+weakened_ton_journal_utf8_order="$tmp_dir/weakened-ton-journal-utf8-order"
+write_valid_fixture "$weakened_ton_journal_utf8_order"
+perl -0pi -e 's/lhs\.0\.utf8\.lexicographicallyPrecedes\(rhs\.0\.utf8\)/lhs.0.localizedStandardCompare(rhs.0) == .orderedAscending/' "$weakened_ton_journal_utf8_order/fearless/Common/Model/TonPendingIntentJournal.swift"
+expect_failure "weakened TON journal UTF-8 order" "$weakened_ton_journal_utf8_order" "TON canonical journal UTF-8 comparator"
+
+missing_ton_journal_legacy_order="$tmp_dir/missing-ton-journal-legacy-order"
+write_valid_fixture "$missing_ton_journal_legacy_order"
+perl -0pi -e 's/case legacyFoundation17/case acceptAnyLegacyOrder/' "$missing_ton_journal_legacy_order/fearless/Common/Model/TonPendingIntentJournal.swift"
+expect_failure "missing TON journal legacy order" "$missing_ton_journal_legacy_order" "TON iOS 17 legacy journal migration order"
+
+bypassed_ton_journal_envelope_gate="$tmp_dir/bypassed-ton-journal-envelope-gate"
+write_valid_fixture "$bypassed_ton_journal_envelope_gate"
+perl -0pi -e 's/data == canonicalData \|\| data == legacyData/true/' "$bypassed_ton_journal_envelope_gate/fearless/Common/Model/TonPendingIntentJournal.swift"
+expect_failure "bypassed TON journal envelope gate" "$bypassed_ton_journal_envelope_gate" "TON strict canonical-or-legacy journal envelope gate"
+
+missing_ton_journal_quote_escape="$tmp_dir/missing-ton-journal-quote-escape"
+write_valid_fixture "$missing_ton_journal_quote_escape"
+perl -0pi -e 's/case 0x22:/case 0x23:/' "$missing_ton_journal_quote_escape/fearless/Common/Model/TonPendingIntentJournal.swift"
+expect_failure "missing TON journal quote escape" "$missing_ton_journal_quote_escape" "TON canonical journal quote escaping"
+
+missing_ton_journal_backslash_escape="$tmp_dir/missing-ton-journal-backslash-escape"
+write_valid_fixture "$missing_ton_journal_backslash_escape"
+perl -0pi -e 's/case 0x5C:/case 0x5D:/' "$missing_ton_journal_backslash_escape/fearless/Common/Model/TonPendingIntentJournal.swift"
+expect_failure "missing TON journal backslash escape" "$missing_ton_journal_backslash_escape" "TON canonical journal backslash escaping"
+
 missing_ton_journal_signature_verification="$tmp_dir/missing-ton-journal-signature-verification"
 write_valid_fixture "$missing_ton_journal_signature_verification"
 perl -0pi -e 's/isValidSignature\(inspection\.signature, for: signingHash\)/isValidSignature(Data(), for: Data())/' "$missing_ton_journal_signature_verification/fearless/Common/Model/TonPendingIntentJournal.swift"
@@ -904,6 +943,21 @@ changed_ton_journal_sha_golden="$tmp_dir/changed-ton-journal-sha-golden"
 write_valid_fixture "$changed_ton_journal_sha_golden"
 perl -0pi -e 's/3238980e4f69c2fdd20fa2666a713771b4bec2ee4154255f154f827679a05067/4238980e4f69c2fdd20fa2666a713771b4bec2ee4154255f154f827679a05067/' "$changed_ton_journal_sha_golden/fearlessTests/TonPendingIntentJournalTests.swift"
 expect_failure "changed TON journal SHA golden" "$changed_ton_journal_sha_golden" "TON journal canonical SHA-256 vector"
+
+changed_ton_legacy_journal_sha_golden="$tmp_dir/changed-ton-legacy-journal-sha-golden"
+write_valid_fixture "$changed_ton_legacy_journal_sha_golden"
+perl -0pi -e 's/b3d3d3d094dd14e4990e20f2ae569af11c02c50d6d9269d773ff591d1cda4500/a3d3d3d094dd14e4990e20f2ae569af11c02c50d6d9269d773ff591d1cda4500/' "$changed_ton_legacy_journal_sha_golden/fearlessTests/TonPendingIntentJournalTests.swift"
+expect_failure "changed TON legacy journal SHA golden" "$changed_ton_legacy_journal_sha_golden" "TON iOS 17 legacy journal SHA-256 vector"
+
+missing_ton_legacy_journal_fixture="$tmp_dir/missing-ton-legacy-journal-fixture"
+write_valid_fixture "$missing_ton_legacy_journal_fixture"
+perl -0pi -e 's/legacyFoundation17Encoding/legacyFoundationEncoding/' "$missing_ton_legacy_journal_fixture/fearlessTests/TonPendingIntentJournalTests.swift"
+expect_failure "missing TON legacy journal fixture" "$missing_ton_legacy_journal_fixture" "TON exact legacy journal migration fixture"
+
+missing_ton_journal_escape_regression="$tmp_dir/missing-ton-journal-escape-regression"
+write_valid_fixture "$missing_ton_journal_escape_regression"
+perl -0pi -e 's/testCanonicalEncodingEscapesUnicodeMemoAndOmitsNilMemo/testCanonicalEncodingUsesFoundationDefaults/' "$missing_ton_journal_escape_regression/fearlessTests/TonPendingIntentJournalTests.swift"
+expect_failure "missing TON journal escape regression" "$missing_ton_journal_escape_regression" "TON canonical journal escaping/optional-field regression"
 
 missing_ton_structural_invalid_signature_attack="$tmp_dir/missing-ton-structural-invalid-signature-attack"
 write_valid_fixture "$missing_ton_structural_invalid_signature_attack"

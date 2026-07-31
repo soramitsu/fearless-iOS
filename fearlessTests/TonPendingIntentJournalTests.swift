@@ -39,6 +39,19 @@ final class TonPendingIntentJournalTests: XCTestCase {
             Data(SHA256.hash(data: encoded)).map { String(format: "%02x", $0) }.joined(),
             "3238980e4f69c2fdd20fa2666a713771b4bec2ee4154255f154f827679a05067"
         )
+
+        let legacyData = try legacyFoundation17Encoding(of: encoded)
+        XCTAssertEqual(
+            Data(SHA256.hash(data: legacyData)).map { String(format: "%02x", $0) }.joined(),
+            "b3d3d3d094dd14e4990e20f2ae569af11c02c50d6d9269d773ff591d1cda4500"
+        )
+        XCTAssertEqual(
+            try TonPendingIntentJournalCodec.decode(
+                legacyData,
+                expectedSenderRaw: Self.senderRaw
+            ),
+            pending
+        )
         XCTAssertLessThanOrEqual(encoded.count, TonPendingIntentJournalCodec.maximumRecordBytes)
         let text = try XCTUnwrap(String(data: encoded, encoding: .utf8))
         XCTAssertFalse(text.contains(Self.mnemonic))
@@ -74,6 +87,11 @@ final class TonPendingIntentJournalTests: XCTestCase {
             Data(repeating: 0x41, count: TonPendingIntentJournalCodec.maximumRecordBytes + 1),
             Data("not-json".utf8),
             Data((" " + text).utf8),
+            replacing(
+                text,
+                "\"amountNanotons\":\"100000000\",\"asset\":\"native-ton\",\"bounce\":true",
+                with: "\"amountNanotons\":\"100000000\",\"bounce\":true,\"asset\":\"native-ton\""
+            ),
             replacing(text, "\"schemaVersion\":1", with: "\"schemaVersion\":2"),
             replacing(text, "\"possiblyExposed\"", with: "\"unknownPhase123\""),
             replacing(text, "\"native-ton\"", with: "\"jettonxxxx\""),
@@ -110,6 +128,34 @@ final class TonPendingIntentJournalTests: XCTestCase {
         ) { error in
             XCTAssertEqual(error as? TonPendingIntentJournalError, .corrupted)
         }
+    }
+
+    func testCanonicalEncodingEscapesUnicodeMemoAndOmitsNilMemo() throws {
+        let comment = "quoted \"memo\" / path \\ café 😀"
+        let pending = try makePending(emulated: true, comment: comment)
+        let encoded = try TonPendingIntentJournalCodec.encode(pending)
+        let text = try XCTUnwrap(String(data: encoded, encoding: .utf8))
+        XCTAssertTrue(
+            text.contains("\"comment\":\"quoted \\\"memo\\\" / path \\\\ café 😀\"")
+        )
+        XCTAssertFalse(text.contains("\\/"))
+        let decoded = try TonPendingIntentJournalCodec.decode(
+            encoded,
+            expectedSenderRaw: Self.senderRaw
+        )
+        XCTAssertEqual(decoded, pending)
+        XCTAssertEqual(try TonPendingIntentJournalCodec.encode(decoded), encoded)
+
+        let noComment = try makePending(emulated: false, comment: nil)
+        let noCommentData = try TonPendingIntentJournalCodec.encode(noComment)
+        XCTAssertFalse(String(decoding: noCommentData, as: UTF8.self).contains("\"comment\""))
+        XCTAssertEqual(
+            try TonPendingIntentJournalCodec.decode(
+                noCommentData,
+                expectedSenderRaw: Self.senderRaw
+            ),
+            noComment
+        )
     }
 
     func testJournalConflictAndKeychainFailuresFailClosed() throws {
@@ -172,14 +218,17 @@ final class TonPendingIntentJournalTests: XCTestCase {
         }
     }
 
-    private func makePending(emulated: Bool) throws -> TonPendingSignedIntent {
+    private func makePending(
+        emulated: Bool,
+        comment: String? = "journal"
+    ) throws -> TonPendingSignedIntent {
         let details = TonNativeSendRequest(
             mnemonic: Self.mnemonic,
             senderAddress: Self.senderRaw,
             recipientAddress: Self.recipientRaw,
             amountNanotons: "100000000",
             bounce: true,
-            comment: "journal"
+            comment: comment
         )
         let identity = try TonTransferIntentIdentity(request: details)
         let intent = try TonEmulationIntent(request: details)
@@ -210,7 +259,7 @@ final class TonPendingIntentJournalTests: XCTestCase {
             transactionRequest: transaction,
             walletState: walletState,
             unsignedMessage: unsigned,
-            feeNanotons: 12_345
+            feeNanotons: 12345
         )
         let signed = try TonTransferTransactionBuilder.buildAndSign(
             request: transaction,
@@ -224,7 +273,7 @@ final class TonPendingIntentJournalTests: XCTestCase {
             walletState: walletState,
             feeQuote: quote,
             emulation: emulated
-                ? TonEmulationResult(accepted: true, totalFeeNanotons: 12_345)
+                ? TonEmulationResult(accepted: true, totalFeeNanotons: 12345)
                 : nil
         )
     }
@@ -233,6 +282,16 @@ final class TonPendingIntentJournalTests: XCTestCase {
         let mutated = source.replacingOccurrences(of: target, with: replacement)
         XCTAssertNotEqual(mutated, source, "mutation target missing: \(target)")
         return Data(mutated.utf8)
+    }
+
+    private func legacyFoundation17Encoding(of canonicalData: Data) throws -> Data {
+        var text = try XCTUnwrap(String(data: canonicalData, encoding: .utf8))
+        let quotedFee = "\"quotedFeeNanotons\":12345,"
+        let quotedFeeRange = try XCTUnwrap(text.range(of: quotedFee))
+        text.removeSubrange(quotedFeeRange)
+        let endpointRange = try XCTUnwrap(text.range(of: "\"quoteEndpointOrigin\":"))
+        text.insert(contentsOf: quotedFee, at: endpointRange.lowerBound)
+        return Data(text.utf8)
     }
 
     private func replacingFirstBase64Byte(_ source: String, key: String) -> Data {
