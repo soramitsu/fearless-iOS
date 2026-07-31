@@ -76,6 +76,10 @@ enum UniversalWalletChainAccountSupport {
         case UniversalWalletRegistry.solanaMainnet.chainId, UniversalWalletRegistry.solanaMainnet.id,
              UniversalWalletRegistry.solanaDevnet.chainId, UniversalWalletRegistry.solanaDevnet.id:
             return solanaAddress(fromPublicKey: publicKey)
+        case TonChainSelection.mainnetChainId,
+             UniversalWalletRegistry.tonMainnetRegistryEntry.chainId,
+             UniversalWalletRegistry.tonMainnetRegistryEntry.id:
+            return tonAddress(fromPublicKey: publicKey)
         case UniversalWalletRegistry.taira.chainId, UniversalWalletRegistry.taira.id:
             return irohaAddress(
                 fromPublicKey: publicKey,
@@ -112,6 +116,14 @@ enum UniversalWalletChainAccountSupport {
             return [
                 UniversalWalletRegistry.solanaDevnet.chainId,
                 UniversalWalletRegistry.solanaDevnet.id
+            ]
+        case TonChainSelection.mainnetChainId,
+             UniversalWalletRegistry.tonMainnetRegistryEntry.chainId,
+             UniversalWalletRegistry.tonMainnetRegistryEntry.id:
+            return [
+                TonChainSelection.mainnetChainId,
+                UniversalWalletRegistry.tonMainnetRegistryEntry.chainId,
+                UniversalWalletRegistry.tonMainnetRegistryEntry.id
             ]
         case UniversalWalletRegistry.taira.chainId, UniversalWalletRegistry.taira.id:
             return [
@@ -153,6 +165,10 @@ enum UniversalWalletChainAccountSupport {
         }
 
         return address
+    }
+
+    private static func tonAddress(fromPublicKey publicKey: Data) -> AccountAddress? {
+        try? TonAddressCodec.v4R2Addresses(publicKey: publicKey).nonBounceable
     }
 
     private static func irohaAddress(

@@ -1,6 +1,12 @@
 "NSCameraUsageDescription" = "Камера используется для сканирования QR кода.";
 "NSFaceIDUsageDescription" = "Fearless использует Face ID, чтобы ограничить несанкционированных пользователей доступа к приложению.Face ID используется для авторизации в приложении";
 "NSPhotoLibraryAddUsageDescription" = "Вы можете сохранить запрос на перевод в виде QR кода";
+"ton.transfer.unknown.title" = "Статус перевода неизвестен";
+"ton.transfer.unknown.message" = "Сеть могла принять этот перевод. Не отправляйте его повторно. Сохраните хеш сообщения и проверьте статус перед дальнейшими действиями:\n%@";
+"ton.transfer.unknown.copy_hash" = "Скопировать хеш сообщения";
+"ton.transfer.prior_confirmed.title" = "Предыдущий перевод подтверждён";
+"ton.transfer.prior_confirmed.message" = "Предыдущий перевод подтверждён. Новый перевод не был отправлен. Проверьте и подтвердите предыдущий хеш перед повторным подтверждением:\n%@";
+"ton.transfer.prior_confirmed.acknowledge" = "Подтвердить и пересчитать комиссию";
 "NSPhotoLibraryUsageDescription" = "Для выбора существующих изображений QR-кодов необходим доступ к библиотеке";
 "about.announcement" = "Следить за новостями в Telegram";
 "about.ask.for.support" = "Обратитесь за поддержкой";
@@ -796,6 +802,7 @@ Euro cash";
 "staking.analytics.period.all" = "все";
 "staking.analytics.rewards.empty.message" = "Нет полученных вознаграждений\
 в выбранный период";
+"staking.analytics.received.rewards" = "Полученные вознаграждения";
 "staking.analytics.stake.allocation" = "Распределение с текущими валидаторами";
 "staking.analytics.stake.empty.message" = "Здесь появятся ваши\
 изменения по стейку";

@@ -10,6 +10,9 @@ on:
       - develop
       - master
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: macOS-latest
@@ -22,10 +25,22 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Codecov uploader supply-chain audit
+        run: |
+          bash ./scripts/test-codecov-workflow-audit.sh
+          bash ./scripts/audit-codecov-workflow.sh
+
       - name: Branch flow audit
         run: |
           bash ./scripts/audit-branch-flow.sh
           bash ./scripts/test-branch-flow-audit.sh
+
+      - name: Release signing gate audit
+        run: |
+          bash ./scripts/test-release-signing-gate-audit.sh
+          bash ./scripts/test-release-signing-gate.sh
+          bash ./scripts/test-release-signing-bootstrap.sh
+          bash ./scripts/audit-release-signing-gate.sh
 
       - name: Audit public artifacts
         run: ./scripts/audit-public-artifacts.sh
@@ -50,12 +65,19 @@ jobs:
           bash ./scripts/test-transaction-builder-tests-audit.sh
           bash ./scripts/audit-transaction-builder-tests.sh
 
+      - name: TON production send readiness
+        run: |
+          bash ./scripts/test-ton-production-send-readiness-audit.sh
+          bash ./scripts/audit-ton-production-send-readiness.sh
+
       - name: Iroha mobile SDK release asset contract
         env:
           GH_TOKEN: ${{ github.token }}
           IROHA_MOBILE_SDK_RELEASE_TAG: ${{ vars.IROHA_MOBILE_SDK_RELEASE_TAG }}
           IROHA_MOBILE_SDK_RELEASE_REPO: ${{ vars.IROHA_MOBILE_SDK_RELEASE_REPO }}
         run: |
+          bash ./scripts/test-iroha-production-send-readiness-audit.sh
+          bash ./scripts/audit-iroha-production-send-readiness.sh
           bash ./scripts/check-iroha-mobile-sdk-release-assets.sh --self-test
           if [[ -n "${IROHA_MOBILE_SDK_RELEASE_TAG:-}" ]]; then
             bash ./scripts/check-iroha-mobile-sdk-release-assets.sh --download --tag "$IROHA_MOBILE_SDK_RELEASE_TAG"
@@ -201,14 +223,22 @@ jobs:
             exit 1
           }
 
+      - name: Signed Release archive gate
+        if: github.event_name == 'push'
+        env:
+          IOS_RELEASE_SIGNING_REQUIRED: '1'
+          IOS_RELEASE_CERTIFICATE_P12_BASE64: ${{ secrets.IOS_RELEASE_CERTIFICATE_P12_BASE64 }}
+          IOS_RELEASE_CERTIFICATE_PASSWORD: ${{ secrets.IOS_RELEASE_CERTIFICATE_PASSWORD }}
+          IOS_RELEASE_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_RELEASE_PROVISIONING_PROFILE_BASE64 }}
+        run: bash ./scripts/ci/run-release-signing-ci.sh
+
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           fail_ci_if_error: true
           plugins: xcode
           swift_project: fearless
-          use_oidc: true
-          version: v11.3.1
+          use_oidc: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
 
   jenkins-pr-merge:
     name: continuous-integration/jenkins/pr-merge

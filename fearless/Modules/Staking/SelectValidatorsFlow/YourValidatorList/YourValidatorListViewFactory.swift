@@ -139,15 +139,7 @@ struct YourValidatorListViewFactory {
             logger: Logger.shared
         )
 
-        let facade = UserDataStorageFacade.shared
-
-        let mapper = MetaAccountMapper()
-
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
@@ -167,7 +159,7 @@ struct YourValidatorListViewFactory {
                 validatorOperationFactory: validatorOperationFactory,
                 operationManager: OperationManagerFacade.sharedManager,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-                accountRepository: AnyDataProviderRepository(accountRepository),
+                accountRepository: accountRepository,
                 output: viewModelState
             )
             let viewModelFactory = YourValidatorListRelaychainViewModelFactory(

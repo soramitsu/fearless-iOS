@@ -11,7 +11,6 @@ fearless/Modules/AddAccount/Interactors/AddAccount+AccountConfirmInteractor.swif
 fearless/Modules/Export/ExportMnemonic/ExportMnemonicPresenter.swift	// TODO: Support custom accounts
 fearless/Modules/PolkaswapFlow/PolkaswapAdjustment/PolkaswapAdjustmentPresenter.swift	// TODO: - need think about this
 fearless/Modules/Profile/ProfileViewFactory.swift	// TODO: Eth account info fetching
-fearless/Modules/Staking/Analytics/Validators/ViewModel/AnalyticsValidatorsViewModelFactory.swift	firstLine: "TODO in next release",
 fearless/Modules/Staking/SelectValidatorsFlow/ValidatorInfo/Flow/Parachain/ValidatorInfoParachainViewModelFactory.swift	// TODO: Has slashes real value
 fearlessTests/Common/Crypto/KeystoreExportWrapperTests.swift	//                                                                    cryptoType: .sr25519) // FIXME: cryptoType: info.cryptoType ?? .sr25519)
 fearlessTests/Modules/ControllerAccountConfirmation/ControllerAccountConfirmationTests.swift	// TODO

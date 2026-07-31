@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 2,
+  "platform": "ios",
+  "assessedAt": "2026-07-11",
+  "status": "blocked",
+  "releaseEnabled": false,
+  "nexusEnabledByDefault": false,
+  "upstream": {
+    "repository": "hyperledger/iroha",
+    "tag": "v2.0.0-rc.2.1-fearless-mobile-sdk.3",
+    "commit": "4f8cfbdd17aa6a3b049e619f23ec02501e5297b6",
+    "releaseUrl": "https://github.com/hyperledger/iroha/releases/tag/v2.0.0-rc.2.1-fearless-mobile-sdk.3"
+  },
+  "artifact": {
+    "name": "NoritoBridge-v2.0.0-rc.2.1-fearless-mobile-sdk.3.xcframework.zip",
+    "sha256": "dc944af3dc98d37d349b9f95fe25b9e4a920f095db58adbcccc6354fc28ada4b",
+    "bytes": 392660196,
+    "reviewThresholdBytes": 350000000,
+    "entryCount": 20,
+    "expandedBytes": 1396110349,
+    "maxEntryBytes": 704780504,
+    "compressionRatio": "3.556",
+    "archiveSafety": "passed-path-type-encryption-crc-and-bomb-bounds",
+    "delivery": "release-xcframework-requiring-out-of-tree-materialization",
+    "publishedSliceSha256": {
+      "ios-arm64": "508b36e1ddc08d3c7488dfbb932d0e37f883908747296b6edab8465efbc3b77c",
+      "ios-arm64_x86_64-simulator": "b4ec44590205d173259f97a424702ace5d1fa70b469df578fc54a68fd2263b56",
+      "macos-arm64": "3f13ce287c168b7103b368a67fbf22d1e1d8de0b1b345c8187fae1c206faa60a"
+    }
+  },
+  "integrationAssessment": {
+    "appMinimumIOS": "14.1",
+    "sdkMinimumIOS": "15.0",
+    "minimumOSCompatible": false,
+    "productMinimumOSChangeApproved": false,
+    "sdkLinkageApproved": false,
+    "taggedPackageDelivery": "path-binary-target-with-symlink-placeholder",
+    "taggedPackageResolution": "fails-without-separate-dist-materialization",
+    "taggedCompileToolchain": "Xcode 26.5 / Swift 6.3.2",
+    "taggedCompileStatus": "failed",
+    "taggedCompileFailure": "public-default-arguments-call-private-currentEpochSeconds",
+    "taggedSwiftLoaderExpectedSliceSha256": {
+      "ios-arm64": "26bb800e9dce021ef38306caef70dbba7928dd99c6612801fb1bbc520b52b7a9",
+      "ios-arm64_x86_64-simulator": "d0f651e6dc837bff7e92b05c9bf1e3a2988fc6995cabee6e3aaa269a01ecd1b5",
+      "macos-arm64": "d1dc2069532ff760e03ebf66fdd17811d8d7fa520dcd9f9048b61bbcbcffc3e2"
+    },
+    "publishedSlicesMatchTaggedLoader": false,
+    "staticLinkDigestVerification": "not-enforced",
+    "binaryScope": "broad-general-purpose-native-bridge",
+    "licenseOrNoticeBundled": false,
+    "sbomBundled": false,
+    "buildProvenanceBundled": false,
+    "artifactAttestationBundled": false,
+    "cryptographicTagSignaturePresent": false,
+    "reproducibleSourceToBinaryIdentity": "not-proven"
+  },
+  "transactionParity": {
+    "assessedFixture": "swift_transfer_asset_basic",
+    "signedFixtureBytes": 576,
+    "currentMainCompactEntrypointHash": "9756355bec7ca04a9e95025a0f24296a02118a5bf5989cc9c2cec0612bf76201",
+    "fixedU64EntrypointHash": "c072426bffe62e12fc6b94a0c37ecf4eb2a805965964ce999e5183bddc9a1ce7",
+    "taggedSwiftRawFixtureHash": "6cc8aa66faa4b067c44831deaf225d8637ffd6daba05b11857b69a06a6b4279b",
+    "officialTagParityStatus": "stale-noncanonical",
+    "localCompactCorrectionStatus": "unpublished-unreviewed-diagnostic-only",
+    "liveReceiptParity": "not-recorded"
+  },
+  "networkReadiness": {
+    "routeLabel": "iroha3-taira",
+    "routeLabelCurrentlyPassedAsSigningChainId": true,
+    "protocolChainIdMapping": "not-authoritatively-confirmed",
+    "fixtureAssetDefinitionId": "61CtjvNd9T3THAR65GsMVHr82Bjc",
+    "liveTairaNativeXorDefinitionId": "6TEAJqbb8oEPmLncoNiMRbLEK6tw",
+    "liveTairaNativeXorScale": 9,
+    "liveTairaNativeXorAliasPresent": false,
+    "canonicalAssetMapping": "drifted-authoritative-live-registry-required",
+    "authoritativeFeePolicy": "absent",
+    "currentFeeEstimate": "hardcoded-zero",
+    "liveTairaNodeVersion": "2.0.0-rc.2.0",
+    "liveTairaNodeCommit": "039af2d65e10b773be5031ab8fc07cf27b40e30d",
+    "sdkToDeployedNodeCompatibility": "not-proven"
+  },
+  "securityBoundary": {
+    "defaultSigner": "UnavailableIrohaTransferSigner",
+    "secretRequestRepresentation": "immutable-swift-string",
+    "secretCopiesReliablyZeroizable": false,
+    "secretLifecycleReview": "required-before-sdk-adapter",
+    "submissionHashPolicy": "local-hash-preferred-without-receipt-equality-check",
+    "receiptHashEqualityRequired": true,
+    "acceptedAndFinalizedStatusEvidenceRequired": true
+  },
+  "liveEvidence": {
+    "fundedTairaBroadcast": "missing",
+    "fundedNexusBroadcast": "missing",
+    "localToReceiptHashEquality": "missing",
+    "acceptedStatus": "missing",
+    "finalizedStatus": "missing",
+    "nexusProductionEndpoint": "unconfirmed"
+  },
+  "blocker": {
+    "code": "apple_xcframework_review_and_materialization_required",
+    "defaultSigner": "UnavailableIrohaTransferSigner",
+    "reason": "Archive structure passed, but the official tag is not directly resolvable or compilable, requires iOS 15 while the app supports iOS 14.1, published slice hashes disagree with tagged Swift expectations, canonical transaction parity is stale, binary provenance is incomplete, and authoritative protocol chain, asset, fee, secret-lifecycle, receipt-integrity, deployed-version compatibility, and funded live evidence gates remain open."
+  },
+  "exitCriteria": [
+    "publish-a-directly-resolvable-and-compiling-checksum-pinned-swift-package",
+    "resolve-the-ios-14.1-versus-ios-15-support-decision-without-silent-product-scope-change",
+    "publish-source-matched-slice-digests-sbom-license-provenance-and-attestation",
+    "publish-and-review-canonical-compact-swift-transaction-parity",
+    "authoritatively-map-route-label-to-protocol-chain-id",
+    "resolve-live-canonical-asset-scale-and-fee-policy-without-hardcoded-fixture-ids",
+    "replace-string-secret-passing-with-a-reviewed-minimal-lifetime-secret-boundary",
+    "compare-local-and-torii-transaction-hashes-and-prove-accepted-and-finalized-status",
+    "prove-sdk-to-deployed-node-wire-and-hash-compatibility",
+    "replace-the-default-unavailable-signer-only-after-all-gates-pass",
+    "record-funded-taira-and-nexus-live-broadcast-evidence-before-enablement"
+  ]
+}

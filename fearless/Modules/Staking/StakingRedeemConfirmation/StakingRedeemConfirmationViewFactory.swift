@@ -138,15 +138,7 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
             storageRequestFactory: storageOperationFactory
         )
 
-        let facade = UserDataStorageFacade.shared
-
-        let mapper = MetaAccountMapper()
-
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -182,7 +174,7 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
                 engine: connection,
                 operationManager: operationManager,
                 keystore: Keychain(),
-                accountRepository: AnyDataProviderRepository(accountRepository)
+                accountRepository: accountRepository
             )
             let viewModelFactory = StakingRedeemConfirmationRelaychainViewModelFactory(
                 asset: chainAsset.asset,

@@ -62,11 +62,13 @@ expect_rejected \
   replace_text "fail_ci_if_error: true" "fail_ci_if_error: false"
 expect_rejected \
   "Codecov OIDC removed" \
-  replace_text "use_oidc: true" "use_oidc: false"
+  replace_text \
+    "use_oidc: \${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}" \
+    "use_oidc: false"
 expect_rejected \
   "mutable Codecov action reference" \
   replace_text \
-    "codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f" \
+    "codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de" \
     "codecov/codecov-action@v7"
 
 [[ "$positive_count" == "1" && "$negative_count" == "7" ]] ||

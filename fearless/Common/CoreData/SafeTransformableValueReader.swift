@@ -2,6 +2,82 @@ import CoreData
 import Foundation
 import SQLite3
 
+/// Replaces Foundation's eager Core Data unarchiver with an equivalent
+/// secure-coding transformer that fails closed. Foundation can otherwise
+/// surface a corrupt transformable BLOB as an error from `context.fetch(_:)`,
+/// before a mapper has an object on which to apply its exception boundary.
+final class FailClosedSecureUnarchiveFromDataTransformer:
+    NSSecureUnarchiveFromDataTransformer
+{
+    private static let maximumArchiveByteCount = 1 * 1024 * 1024
+    // A payload-free wrong-type value keeps a corrupt optional archive
+    // distinguishable from a legitimately absent value. Typed production
+    // mappers reject it, while migration sanitizers can durably replace the
+    // damaged archive with their model-specific safe default.
+    private static let invalidArchiveMarker = NSString(
+        string: "fearless.invalid-transformable-archive"
+    )
+
+    override class var allowedTopLevelClasses: [AnyClass] {
+        [
+            NSArray.self,
+            NSDictionary.self,
+            NSSet.self,
+            NSString.self,
+            NSNumber.self,
+            NSData.self,
+            NSDate.self,
+            NSURL.self,
+            NSNull.self
+        ]
+    }
+
+    override func transformedValue(_ value: Any?) -> Any? {
+        guard
+            let archive = value as? Data,
+            archive.count <= Self.maximumArchiveByteCount
+        else {
+            return Self.invalidArchiveMarker
+        }
+
+        do {
+            let decoded = try FearlessObjectiveCExceptionCatcher
+                .performObjectRead {
+                    try? NSKeyedUnarchiver.unarchivedObject(
+                        ofClasses: Self.allowedTopLevelClasses,
+                        from: archive
+                    )
+                }
+
+            guard !(decoded is NSNull) else {
+                return Self.invalidArchiveMarker
+            }
+
+            return decoded ?? Self.invalidArchiveMarker
+        } catch {
+            return Self.invalidArchiveMarker
+        }
+    }
+
+    static func register() {
+        _ = registration
+    }
+
+    private static let registration: Void = {
+        let names = [
+            NSValueTransformerName.secureUnarchiveFromDataTransformerName,
+            NSValueTransformerName("NSSecureUnarchiveFromDataTransformer")
+        ]
+
+        for name in names {
+            ValueTransformer.setValueTransformer(
+                FailClosedSecureUnarchiveFromDataTransformer(),
+                forName: name
+            )
+        }
+    }()
+}
+
 enum SafeTransformableValueReaderError: LocalizedError, Equatable {
     case objectiveCException
     case unexpectedStoredType

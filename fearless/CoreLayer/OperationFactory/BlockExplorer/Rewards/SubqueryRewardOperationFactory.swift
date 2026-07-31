@@ -54,15 +54,14 @@ final class SubqueryRewardOperationFactory {
     ) -> String {
         let timestampFilter: String = {
             guard startTimestamp != nil || endTimestamp != nil else { return "" }
-            var result = "timestamp:{"
+            var bounds = [String]()
             if let timestamp = startTimestamp {
-                result.append("greaterThanOrEqualTo:\"\(timestamp)\",")
+                bounds.append("greaterThanOrEqualTo: \"\(timestamp)\"")
             }
             if let timestamp = endTimestamp {
-                result.append("lessThanOrEqualTo:\"\(timestamp)\",")
+                bounds.append("lessThanOrEqualTo: \"\(timestamp)\"")
             }
-            result.append("}")
-            return result
+            return "timestamp: { \(bounds.joined(separator: ", ")) },"
         }()
 
         return """
@@ -74,16 +73,23 @@ final class SubqueryRewardOperationFactory {
                      ) {
                         nodes {
                             id
-                          delegatorHistoryElements(orderBy: TIMESTAMP_DESC, filter: { amount: {isNull: false}, \(timestampFilter), type: { equalTo: 0 }}) {
+                          delegatorHistoryElements(
+                            orderBy: TIMESTAMP_DESC,
+                            filter: {
+                              amount: { isNull: false },
+                              \(timestampFilter)
+                              type: { equalTo: \(SubqueryDelegationAction.reward.rawValue) }
+                            }
+                          ) {
                               nodes {
                                 id
                                 blockNumber
                                 amount
                                 type
                                 timestamp
-                                delegator {
-                                    id
-                                }
+                                delegatorId
+                                collatorId
+                                roundId
                               }
                           }
                         }
@@ -244,6 +250,14 @@ extension SubqueryRewardOperationFactory: RewardOperationFactoryProtocol {
         startTimestamp: Int64?,
         endTimestamp: Int64?
     ) -> BaseOperation<RewardHistoryResponseProtocol> {
+        guard RewardHistoryRequestValidator.isValid(
+            address: address,
+            startTimestamp: startTimestamp,
+            endTimestamp: endTimestamp
+        ) else {
+            return BaseOperation.createWithError(RewardHistoryRequestError.invalidParameters)
+        }
+
         let queryString = prepareDelegatorHistoryRequest(
             address: address,
             startTimestamp: startTimestamp,
@@ -296,6 +310,14 @@ extension SubqueryRewardOperationFactory: RewardOperationFactoryProtocol {
         startTimestamp: Int64?,
         endTimestamp: Int64?
     ) -> BaseOperation<RewardOrSlashResponse> {
+        guard RewardHistoryRequestValidator.isValid(
+            address: address,
+            startTimestamp: startTimestamp,
+            endTimestamp: endTimestamp
+        ) else {
+            return BaseOperation.createWithError(RewardHistoryRequestError.invalidParameters)
+        }
+
         let queryString = prepareHistoryRequestForAddress(
             address,
             startTimestamp: startTimestamp,

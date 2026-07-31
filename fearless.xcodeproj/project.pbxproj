@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FA714002ABCDEF0123456789 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FA714001ABCDEF0123456789 /* PrivacyInfo.xcprivacy */; };
 		002561414AF1F8F3B4B65538 /* WalletTransactionDetailsWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7416F3AFA5F4D1130B1C410 /* WalletTransactionDetailsWireframe.swift */; };
 		0077B6854FDCA7ECCD557B09 /* StakingPoolCreateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D651E438F86F37CC07D6D3F /* StakingPoolCreateViewController.swift */; };
 		00E9DD69FCE94A4F4929B419 /* AccountStatisticsProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BF646F59913E95891915BDC /* AccountStatisticsProtocols.swift */; };
@@ -2977,6 +2978,15 @@
 		FAE601882ECA700100000001 /* BitcoinTransactionHistorySyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601892ECA700100000001 /* BitcoinTransactionHistorySyncTests.swift */; };
 		FAE6018A2ECA700100000001 /* BitcoinSendService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE6018B2ECA700100000001 /* BitcoinSendService.swift */; };
 		FAE6018C2ECA700100000001 /* BitcoinSendServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE6018D2ECA700100000001 /* BitcoinSendServiceTests.swift */; };
+		FAE602002ECA700100000001 /* PasskeyBackupCredentialResponseSerializerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE602012ECA700100000001 /* PasskeyBackupCredentialResponseSerializerTests.swift */; };
+		FAE602022ECA700100000001 /* FeatureToggleProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE602032ECA700100000001 /* FeatureToggleProviderTests.swift */; };
+		FAE602042ECA710100000001 /* TonTransferTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE602052ECA710100000001 /* TonTransferTransactionBuilder.swift */; };
+		FAE602062ECA710100000001 /* TonTransferTransactionBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE602072ECA710100000001 /* TonTransferTransactionBuilderTests.swift */; };
+		FAE602082ECA710100000001 /* TonSendService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE602092ECA710100000001 /* TonSendService.swift */; };
+		FAE6020A2ECA710100000001 /* TonTransferFeeQuote.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE6020B2ECA710100000001 /* TonTransferFeeQuote.swift */; };
+		FAE6020C2ECA710100000001 /* TonPendingIntentJournal.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE6020D2ECA710100000001 /* TonPendingIntentJournal.swift */; };
+		FAE6020E2ECA710100000001 /* TonPendingIntentJournalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE6020F2ECA710100000001 /* TonPendingIntentJournalTests.swift */; };
+		FAE602102ECA710100000001 /* TonConstansts.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE26E7032DFA1BB4001FD062 /* TonConstansts.swift */; };
 		FAE6018E2ECA700100000001 /* SolanaBalanceSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE6018F2ECA700100000001 /* SolanaBalanceSync.swift */; };
 		FAE601902ECA700100000001 /* SolanaBalanceSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601912ECA700100000001 /* SolanaBalanceSyncTests.swift */; };
 		FAE601922ECA700100000001 /* SolanaTransactionHistorySync.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601932ECA700100000001 /* SolanaTransactionHistorySync.swift */; };
@@ -4042,6 +4052,7 @@
 		849013AB24A80984008F705E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		849013B424A80986008F705E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		849013B924A80986008F705E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FA714001ABCDEF0123456789 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		849013BE24A80986008F705E /* fearlessTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = fearlessTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		849013C424A80986008F705E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		849013CF24A9267F008F705E /* R.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = R.generated.swift; sourceTree = SOURCE_ROOT; };
@@ -4456,7 +4467,7 @@
 		9FDEB6F26DCFB53EA1547948 /* SafeTransformableValueReader.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SafeTransformableValueReader.swift; sourceTree = "<group>"; };
 		9FED48DE9B681995E6E4A581 /* LiquidityPoolDetailsProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiquidityPoolDetailsProtocols.swift; sourceTree = "<group>"; };
 		A14CA4551FCC2EBD078E2242 /* AccountConfirmViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmViewFactory.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F60718293A4B5D /* TonChainSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearlessTests/ApplicationLayer/Services/FeatureToggle/TonChainSelectionTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5D /* TonChainSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearlessTests/ApplicationLayer/Services/FeatureToggle/TonChainSelectionTests.swift; sourceTree = SOURCE_ROOT; };
 		A3104ABC4BECF08B0BA836AA /* AccountConfirmViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmViewController.swift; sourceTree = "<group>"; };
 		A31780E84948D7FE632ECB02 /* YourValidatorListProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = YourValidatorListProtocols.swift; sourceTree = "<group>"; };
 		A3BACB7E24BC87F9218DBBC4 /* StakingPayoutConfirmationViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmationViewController.swift; sourceTree = "<group>"; };
@@ -6127,6 +6138,14 @@
 		FAE601892ECA700100000001 /* BitcoinTransactionHistorySyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinTransactionHistorySyncTests.swift; sourceTree = "<group>"; };
 		FAE6018B2ECA700100000001 /* BitcoinSendService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinSendService.swift; sourceTree = "<group>"; };
 		FAE6018D2ECA700100000001 /* BitcoinSendServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinSendServiceTests.swift; sourceTree = "<group>"; };
+		FAE602012ECA700100000001 /* PasskeyBackupCredentialResponseSerializerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupCredentialResponseSerializerTests.swift; sourceTree = "<group>"; };
+		FAE602032ECA700100000001 /* FeatureToggleProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureToggleProviderTests.swift; sourceTree = "<group>"; };
+		FAE602052ECA710100000001 /* TonTransferTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonTransferTransactionBuilder.swift; sourceTree = "<group>"; };
+		FAE602072ECA710100000001 /* TonTransferTransactionBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonTransferTransactionBuilderTests.swift; sourceTree = "<group>"; };
+		FAE602092ECA710100000001 /* TonSendService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonSendService.swift; sourceTree = "<group>"; };
+		FAE6020B2ECA710100000001 /* TonTransferFeeQuote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonTransferFeeQuote.swift; sourceTree = "<group>"; };
+		FAE6020D2ECA710100000001 /* TonPendingIntentJournal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonPendingIntentJournal.swift; sourceTree = "<group>"; };
+		FAE6020F2ECA710100000001 /* TonPendingIntentJournalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonPendingIntentJournalTests.swift; sourceTree = "<group>"; };
 		FAE6018F2ECA700100000001 /* SolanaBalanceSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaBalanceSync.swift; sourceTree = "<group>"; };
 		FAE601912ECA700100000001 /* SolanaBalanceSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaBalanceSyncTests.swift; sourceTree = "<group>"; };
 		FAE601932ECA700100000001 /* SolanaTransactionHistorySync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaTransactionHistorySync.swift; sourceTree = "<group>"; };
@@ -9137,6 +9156,7 @@
 				849013B424A80986008F705E /* Assets.xcassets */,
 				849013B624A80986008F705E /* LaunchScreen.storyboard */,
 				849013B924A80986008F705E /* Info.plist */,
+				FA714001ABCDEF0123456789 /* PrivacyInfo.xcprivacy */,
 				84C07EDA24AF1924008FC35B /* InfoPlist.strings */,
 				8490146024A94373008F705E /* Localizable.strings */,
 				AE74EC1725FCF09000C494E7 /* Localizable.stringsdict */,
@@ -9191,6 +9211,10 @@
 				FAE601552ECA700100000001 /* UniversalWalletSigningContractTests.swift */,
 				FAE601592ECA700100000001 /* UniversalWalletMigrationContractTests.swift */,
 				FAE6015D2ECA700100000001 /* UniversalWalletRegistryContractTests.swift */,
+				FAE602012ECA700100000001 /* PasskeyBackupCredentialResponseSerializerTests.swift */,
+				FAE602032ECA700100000001 /* FeatureToggleProviderTests.swift */,
+				FAE602072ECA710100000001 /* TonTransferTransactionBuilderTests.swift */,
+				FAE6020F2ECA710100000001 /* TonPendingIntentJournalTests.swift */,
 			);
 			path = fearlessTests;
 			sourceTree = "<group>";
@@ -9452,6 +9476,10 @@
 				FAE601272ECA700100000001 /* IrohaKeyDerivation.swift */,
 				FAE601292ECA700100000001 /* TonAddressCodec.swift */,
 				FAE6012B2ECA700100000001 /* TonKeyDerivation.swift */,
+				FAE602052ECA710100000001 /* TonTransferTransactionBuilder.swift */,
+				FAE602092ECA710100000001 /* TonSendService.swift */,
+				FAE6020B2ECA710100000001 /* TonTransferFeeQuote.swift */,
+				FAE6020D2ECA710100000001 /* TonPendingIntentJournal.swift */,
 				FAE6012D2ECA700100000001 /* TonIndexerContract.swift */,
 				FAE601312ECA700100000001 /* IrohaToriiContract.swift */,
 				FAE601352ECA700100000001 /* IrohaToriiClient.swift */,
@@ -15832,6 +15860,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA714002ABCDEF0123456789 /* PrivacyInfo.xcprivacy in Resources */,
 				8490142324A93027008F705E /* sora-Bold.otf in Resources */,
 				841937872544772F00CFA50C /* animatedBg.gif in Resources */,
 				8490145E24A94373008F705E /* Localizable.strings in Resources */,
@@ -17263,6 +17292,11 @@
 				FAE601262ECA700100000001 /* IrohaKeyDerivation.swift in Sources */,
 				FAE601282ECA700100000001 /* TonAddressCodec.swift in Sources */,
 				FAE6012A2ECA700100000001 /* TonKeyDerivation.swift in Sources */,
+				FAE602042ECA710100000001 /* TonTransferTransactionBuilder.swift in Sources */,
+				FAE602082ECA710100000001 /* TonSendService.swift in Sources */,
+				FAE6020A2ECA710100000001 /* TonTransferFeeQuote.swift in Sources */,
+				FAE6020C2ECA710100000001 /* TonPendingIntentJournal.swift in Sources */,
+				FAE602102ECA710100000001 /* TonConstansts.swift in Sources */,
 				FAE6012C2ECA700100000001 /* TonIndexerContract.swift in Sources */,
 				FAE601302ECA700100000001 /* IrohaToriiContract.swift in Sources */,
 				FAE601342ECA700100000001 /* IrohaToriiClient.swift in Sources */,
@@ -19048,6 +19082,10 @@
 				FAE601542ECA700100000001 /* UniversalWalletSigningContractTests.swift in Sources */,
 				FAE601582ECA700100000001 /* UniversalWalletMigrationContractTests.swift in Sources */,
 				FAE6015C2ECA700100000001 /* UniversalWalletRegistryContractTests.swift in Sources */,
+				FAE602002ECA700100000001 /* PasskeyBackupCredentialResponseSerializerTests.swift in Sources */,
+				FAE602022ECA700100000001 /* FeatureToggleProviderTests.swift in Sources */,
+				FAE602062ECA710100000001 /* TonTransferTransactionBuilderTests.swift in Sources */,
+				FAE6020E2ECA710100000001 /* TonPendingIntentJournalTests.swift in Sources */,
 				8467FD3924EACE08005D486C /* AccountCreationHelper.swift in Sources */,
 				8476CA0625EFB072003EEAE1 /* SingleValueProviderFactoryStub.swift in Sources */,
 				FAD428A82A865636001D6A16 /* BackupPasswordTests.swift in Sources */,

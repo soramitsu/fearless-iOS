@@ -111,6 +111,56 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         XCTAssertNil(address)
     }
 
+    func testResolvesRealTonMainnetAddressFromMatchingChainAccountPublicKey() throws {
+        let account = try TonKeyDerivation.deriveAccount(mnemonic: Self.mnemonic)
+        let wallet = walletWithChainAccount(
+            chainId: TonChainSelection.mainnetChainId,
+            publicKey: account.publicKey,
+            cryptoType: CryptoType.ed25519.rawValue
+        )
+
+        let address = UniversalWalletAccountAddressResolver.address(
+            for: Self.chain(TonChainSelection.mainnetChainId),
+            wallet: wallet
+        )
+
+        XCTAssertEqual(address, account.addressNonBounceable)
+    }
+
+    func testTonAddressResolutionRejectsMissingMalformedAndTestnetAccounts() throws {
+        XCTAssertNil(
+            UniversalWalletAccountAddressResolver.address(
+                for: Self.chain(TonChainSelection.mainnetChainId),
+                wallet: AccountGenerator.generateMetaAccount()
+            )
+        )
+
+        let malformed = walletWithChainAccount(
+            chainId: TonChainSelection.mainnetChainId,
+            publicKey: Data(repeating: 1, count: 31),
+            cryptoType: CryptoType.ed25519.rawValue
+        )
+        XCTAssertNil(
+            UniversalWalletAccountAddressResolver.address(
+                for: Self.chain(TonChainSelection.mainnetChainId),
+                wallet: malformed
+            )
+        )
+
+        let account = try TonKeyDerivation.deriveAccount(mnemonic: Self.mnemonic)
+        let testnetOnly = walletWithChainAccount(
+            chainId: TonChainSelection.testnetChainId,
+            publicKey: account.publicKey,
+            cryptoType: CryptoType.ed25519.rawValue
+        )
+        XCTAssertNil(
+            UniversalWalletAccountAddressResolver.address(
+                for: Self.chain(TonChainSelection.mainnetChainId),
+                wallet: testnetOnly
+            )
+        )
+    }
+
     func testSolanaAddressResolutionRejectsMalformedPublicKey() {
         let wallet = walletWithChainAccount(
             chainId: UniversalWalletRegistry.solanaMainnet.chainId,
@@ -230,6 +280,7 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         XCTAssertNil(wallet.fetch(for: Self.chain(UniversalWalletRegistry.bitcoinMainnet.chainId).accountRequest()))
         XCTAssertNil(wallet.fetch(for: Self.chain(UniversalWalletRegistry.solanaMainnet.chainId).accountRequest()))
         XCTAssertNil(wallet.fetch(for: Self.chain(UniversalWalletRegistry.taira.chainId).accountRequest()))
+        XCTAssertNil(wallet.fetch(for: Self.chain(TonChainSelection.mainnetChainId).accountRequest()))
     }
 
     func testFetchMatchesRegistryIdToCanonicalUniversalWalletChainAccount() throws {

@@ -7,12 +7,100 @@ protocol RewardHistoryResponseProtocol {
     func rewardHistory(for address: String) -> [RewardHistoryItemProtocol]
 }
 
+enum RewardHistoryRequestError: Error {
+    case invalidParameters
+}
+
+enum RewardHistoryRequestValidator {
+    private static let maximumAddressLength = 128
+
+    static func isValid(
+        address: AccountAddress,
+        startTimestamp: Int64?,
+        endTimestamp: Int64?,
+        maximumTimestamp: Int64 = .max
+    ) -> Bool {
+        let addressScalars = address.unicodeScalars
+        guard
+            (1 ... maximumAddressLength).contains(addressScalars.count),
+            addressScalars.allSatisfy({ scalar in
+                switch scalar.value {
+                case 48 ... 57, 65 ... 90, 97 ... 122:
+                    return true
+                default:
+                    return false
+                }
+            })
+        else {
+            return false
+        }
+
+        if let startTimestamp,
+           startTimestamp < 0 || startTimestamp > maximumTimestamp {
+            return false
+        }
+        if let endTimestamp,
+           endTimestamp < 0 || endTimestamp > maximumTimestamp {
+            return false
+        }
+        if let startTimestamp, let endTimestamp, startTimestamp > endTimestamp {
+            return false
+        }
+
+        return true
+    }
+}
+
+enum RewardAmountParser {
+    static let maximumDecimalDigits = 78
+
+    static func parse(_ value: String) -> BigUInt? {
+        let bytes = value.utf8
+
+        guard
+            !bytes.isEmpty,
+            bytes.count <= maximumDecimalDigits,
+            bytes.allSatisfy({ (48 ... 57).contains($0) }),
+            bytes.count == 1 || bytes.first != 48
+        else {
+            return nil
+        }
+
+        return BigUInt(value, radix: 10)
+    }
+}
+
+struct RewardHistoryAttribution: Equatable {
+    let validatorAddress: AccountAddress
+    let era: EraIndex
+
+    init?(validatorAddress: AccountAddress?, era: UInt64?) {
+        guard
+            let validatorAddress,
+            validatorAddress == validatorAddress.trimmingCharacters(in: .whitespacesAndNewlines),
+            !validatorAddress.isEmpty,
+            let era,
+            let exactEra = EraIndex(exactly: era)
+        else {
+            return nil
+        }
+
+        self.validatorAddress = validatorAddress
+        self.era = exactEra
+    }
+}
+
 protocol RewardHistoryItemProtocol {
     var id: String { get }
     var type: SubqueryDelegationAction { get }
     var timestampInSeconds: String { get }
     var blockNumber: Int { get }
     var amount: BigUInt { get }
+    var attribution: RewardHistoryAttribution? { get }
+}
+
+extension RewardHistoryItemProtocol {
+    var attribution: RewardHistoryAttribution? { nil }
 }
 
 protocol CollatorAprInfoProtocol {

@@ -1,4 +1,5 @@
 import Foundation
+import IrohaCrypto
 
 struct TonDerivedAccount: Equatable {
     let derivationPath: String
@@ -18,8 +19,14 @@ enum TonKeyDerivation {
         passphrase: String = "",
         derivationPath: String = UniversalWalletDerivationPaths.tonDefault
     ) throws -> TonDerivedAccount {
+        let normalizedMnemonic = mnemonic
+            .components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+        _ = try IRMnemonicCreator().mnemonic(fromList: normalizedMnemonic)
+
         let ed25519 = try SolanaKeyDerivation.deriveAccount(
-            mnemonic: mnemonic,
+            mnemonic: normalizedMnemonic,
             passphrase: passphrase,
             derivationPath: derivationPath
         )

@@ -4,6 +4,7 @@ enum UniversalWalletRegistry {
     static let bitcoinMainnetIndexerBaseURL = URL(string: "https://blockstream.info/api")!
     static let bitcoinTestnetIndexerBaseURL = URL(string: "https://blockstream.info/testnet/api")!
     static let tonIndexerBaseURL = URL(string: "https://ti.soramitsu.io")!
+    static let tonNativeAssetId = TonConstants.tonAssetId
     static let solanaIndexerBaseURL = URL(string: "https://si.soramitsu.io")!
     static let solanaMainnetRPCURL = URL(string: "https://api.mainnet-beta.solana.com")!
     static let solanaDevnetRPCURL = URL(string: "https://api.devnet.solana.com")!

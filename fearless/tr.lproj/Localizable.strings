@@ -1,6 +1,12 @@
 "NSCameraUsageDescription" = "Kamera, QR kodunu yakalamak için kullanılır";
 "NSFaceIDUsageDescription" = "Face ID uygulamada yetkilendirme için kullanılır";
 "NSPhotoLibraryAddUsageDescription" = "Transfer isteğini QR Kodu olarak kaydet";
+"ton.transfer.unknown.title" = "Transfer durumu bilinmiyor";
+"ton.transfer.unknown.message" = "Ağ bu transferi kabul etmiş olabilir. Tekrar göndermeyin. Bu mesaj karmasını kaydedin ve başka bir işlem yapmadan önce durumunu kontrol edin:\n%@";
+"ton.transfer.unknown.copy_hash" = "Mesaj karmasını kopyala";
+"ton.transfer.prior_confirmed.title" = "Önceki transfer onaylandı";
+"ton.transfer.prior_confirmed.message" = "Önceki bir transfer onaylandı. Bu yeni transfer gönderilmedi. Yeniden onaylamadan önce önceki karmayı inceleyip kabul edin:\n%@";
+"ton.transfer.prior_confirmed.acknowledge" = "Kabul et ve ücreti yeniden hesapla";
 "NSPhotoLibraryUsageDescription" = "Kitaplıktan fotoğraf yükle";
 "about.announcement" = "Duyuruları Alın";
 "about.ask.for.support" = "Destek İsteyin";
@@ -797,6 +803,7 @@ burada görmek için NFT'leri satın alın veya bastırın";
 "staking.analytics.period.all" = "Tüm";
 "staking.analytics.rewards.empty.message" = "Seçilen zaman aralığında\
 hiç ödül alınmadı";
+"staking.analytics.received.rewards" = "Alınan ödüller";
 "staking.analytics.stake.allocation" = "Mevcut validatörlerle stake tahsisi";
 "staking.analytics.stake.empty.message" = "Bahis değişiklikleriniz burada görünecek";
 "staking.analytics.staking.was.active" = "Staking aktifti";

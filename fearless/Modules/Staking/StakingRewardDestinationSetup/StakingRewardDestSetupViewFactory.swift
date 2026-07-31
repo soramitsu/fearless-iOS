@@ -105,14 +105,7 @@ struct StakingRewardDestSetupViewFactory {
             logger: Logger.shared
         )
 
-        let facade = UserDataStorageFacade.shared
-        let mapper = MetaAccountMapper()
-
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let stakingSettings = StakingAssetSettings(
             storageFacade: substrateStorageFacade,
@@ -162,7 +155,7 @@ struct StakingRewardDestSetupViewFactory {
         let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         return StakingRewardDestSetupInteractor(
-            accountRepository: AnyDataProviderRepository(accountRepository),
+            accountRepository: accountRepository,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
