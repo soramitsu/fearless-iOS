@@ -23,8 +23,8 @@ if grep -Eq 'codecov\.io/bash|bash[[:space:]]+<\([[:space:]]*curl|curl[^|]*\|[[:
 fi
 
 require_active_text \
-  'codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de' \
-  'Codecov action must be pinned to the reviewed v5.5.2 commit.'
+  'codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f' \
+  'Codecov action must be pinned to the reviewed v7.0.0 commit with the live codecovsecops verification-key endpoint.'
 require_active_text \
   'actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5' \
   'Codecov workflow checkout action must be pinned.'

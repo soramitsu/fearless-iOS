@@ -68,10 +68,15 @@ expect_rejected \
 expect_rejected \
   "mutable Codecov action reference" \
   replace_text \
-    "codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de" \
+    "codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f" \
     "codecov/codecov-action@v7"
+expect_rejected \
+  "retired Codecov verification-key endpoint action" \
+  replace_text \
+    "codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f" \
+    "codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de"
 
-[[ "$positive_count" == "1" && "$negative_count" == "7" ]] ||
+[[ "$positive_count" == "1" && "$negative_count" == "8" ]] ||
   fail "unexpected test counts: $positive_count positive, $negative_count negative"
 
 echo \

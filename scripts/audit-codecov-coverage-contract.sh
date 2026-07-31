@@ -28,6 +28,7 @@ require_text "plugins: xcode"
 require_text "swift_project: fearless"
 require_text "fail_ci_if_error: true"
 require_text "use_oidc: \${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}"
+require_text "codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f"
 
 if grep -Eq 'codecov/codecov-action@(main|master|v[0-9]+)[[:space:]#]' "$WORKFLOW"; then
   fail "Codecov action must use an immutable full commit SHA."
