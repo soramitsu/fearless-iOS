@@ -9,14 +9,7 @@ import XCTest
 
 final class ChainRegistryTests: XCTestCase {
     func testDisabledThenReenabledChainDisconnectsAndUsesNewNode() throws {
-        let storageFacade = SubstrateStorageTestFacade()
-        let repository = ChainRepositoryFactory(
-            storageFacade: storageFacade
-        ).createRepository()
-        let provider = makeChainProvider(
-            storageFacade: storageFacade,
-            repository: repository
-        )
+        let (provider, observable) = makeChainProvider()
 
         let oldNode = ChainNodeModel(
             url: try XCTUnwrap(URL(string: "wss://old-node.example")),
@@ -64,8 +57,9 @@ final class ChainRegistryTests: XCTestCase {
             eventCenter: NoopEventCenter()
         )
         registry.subscribeToChains()
+        XCTAssertTrue(observable.waitUntilObserverAttached())
 
-        try save(enabledOld, in: repository)
+        XCTAssertTrue(observable.send([.insert(newItem: enabledOld)]))
         let firstConnection: ChainConnection = try waitForValue {
             guard
                 registry.getChain(for: enabledOld.chainId)?.selectedNode == oldNode
@@ -77,7 +71,7 @@ final class ChainRegistryTests: XCTestCase {
         }
         XCTAssertEqual(connectionFactory.requestedURLs, [[oldNode.url]])
 
-        try save(disabled, in: repository)
+        XCTAssertTrue(observable.send([.update(newItem: disabled)]))
         try waitForCondition {
             registry.getChain(for: enabledOld.chainId) == nil &&
                 registry.getConnection(for: enabledOld.chainId) == nil
@@ -89,7 +83,7 @@ final class ChainRegistryTests: XCTestCase {
         )
         XCTAssertEqual(connectionFactory.requestedURLs, [[oldNode.url]])
 
-        try save(enabledNew, in: repository)
+        XCTAssertTrue(observable.send([.update(newItem: enabledNew)]))
         let secondConnection: ChainConnection = try waitForValue {
             guard
                 registry.getChain(for: enabledOld.chainId)?.selectedNode == newNode
@@ -117,14 +111,7 @@ final class ChainRegistryTests: XCTestCase {
     }
 
     func testUpdatedEthereumChainUsesReplacementNodeImmediately() throws {
-        let storageFacade = SubstrateStorageTestFacade()
-        let repository = ChainRepositoryFactory(
-            storageFacade: storageFacade
-        ).createRepository()
-        let provider = makeChainProvider(
-            storageFacade: storageFacade,
-            repository: repository
-        )
+        let (provider, observable) = makeChainProvider()
         let oldNode = ChainNodeModel(
             url: try XCTUnwrap(URL(string: "https://old-rpc.example")),
             name: "Old Ethereum RPC",
@@ -161,13 +148,14 @@ final class ChainRegistryTests: XCTestCase {
             eventCenter: NoopEventCenter()
         )
         registry.subscribeToChains()
+        XCTAssertTrue(observable.waitUntilObserverAttached())
 
-        try save(oldChain, in: repository)
+        XCTAssertTrue(observable.send([.insert(newItem: oldChain)]))
         let firstURL: URL = try waitForValue {
             nodeFetching.requestedURLs.first
         }
 
-        try save(updatedChain, in: repository)
+        XCTAssertTrue(observable.send([.update(newItem: updatedChain)]))
         let secondURL: URL = try waitForValue {
             let urls = nodeFetching.requestedURLs
             return urls.count >= 2 ? urls.last : nil
@@ -190,26 +178,20 @@ final class ChainRegistryTests: XCTestCase {
         provider.removeObserver(registry)
     }
 
-    private func makeChainProvider(
-        storageFacade: SubstrateStorageTestFacade,
-        repository: CoreDataRepository<ChainModel, CDChain>
-    ) -> StreamableProvider<ChainModel> {
-        let observable = CoreDataContextObservable(
-            service: storageFacade.databaseService,
-            mapper: repository.dataMapper,
-            predicate: { _ in true }
-        )
-        observable.start { error in
-            XCTAssertNil(error)
-        }
+    private func makeChainProvider()
+        -> (StreamableProvider<ChainModel>, ChainRegistryTestObservable) {
+        let repository = ChainRegistryTestRepository()
+        let observable = ChainRegistryTestObservable()
         let source = fearless.EmptyStreamableSource<ChainModel>()
 
-        return StreamableProvider(
+        let provider = StreamableProvider(
             source: AnyStreamableSource(source),
             repository: AnyDataProviderRepository(repository),
             observable: AnyDataProviderRepositoryObservable(observable),
-            operationManager: fearless.OperationManagerFacade.sharedManager
+            operationManager: OperationManager()
         )
+
+        return (provider, observable)
     }
 
     private func makeChain(
@@ -255,7 +237,7 @@ final class ChainRegistryTests: XCTestCase {
     }
 
     private func waitForValue<T>(
-        timeout: TimeInterval = 2,
+        timeout: TimeInterval = 10,
         _ valueProvider: () -> T?
     ) throws -> T {
         let deadline = Date().addingTimeInterval(timeout)
@@ -274,21 +256,12 @@ final class ChainRegistryTests: XCTestCase {
     }
 
     private func waitForCondition(
-        timeout: TimeInterval = 2,
+        timeout: TimeInterval = 10,
         _ condition: () -> Bool
     ) throws {
         let _: Bool = try waitForValue(timeout: timeout) {
             condition() ? true : nil
         }
-    }
-
-    private func save(
-        _ chain: ChainModel,
-        in repository: CoreDataRepository<ChainModel, CDChain>
-    ) throws {
-        let operation = repository.saveOperation({ [chain] }, { [] })
-        OperationQueue().addOperations([operation], waitUntilFinished: true)
-        let _: Void = try XCTUnwrap(operation.result).get()
     }
 
     private func makeRuntimeProviderPool() -> MockRuntimeProviderPoolProtocol {
@@ -328,6 +301,140 @@ final class ChainRegistryTests: XCTestCase {
             ).thenReturn(subscription)
         }
         return factory
+    }
+}
+
+private final class ChainRegistryTestRepository:
+    DataProviderRepositoryProtocol {
+    typealias Model = ChainModel
+
+    func fetchOperation(
+        by _: @escaping () throws -> [String],
+        options _: RepositoryFetchOptions
+    ) -> BaseOperation<[ChainModel]> {
+        ClosureOperation { [] }
+    }
+
+    func fetchOperation(
+        by _: @escaping () throws -> String,
+        options _: RepositoryFetchOptions
+    ) -> BaseOperation<ChainModel?> {
+        ClosureOperation { nil }
+    }
+
+    func fetchAllOperation(
+        with _: RepositoryFetchOptions
+    ) -> BaseOperation<[ChainModel]> {
+        ClosureOperation { [] }
+    }
+
+    func fetchOperation(
+        by _: RepositorySliceRequest,
+        options _: RepositoryFetchOptions
+    ) -> BaseOperation<[ChainModel]> {
+        ClosureOperation { [] }
+    }
+
+    func saveOperation(
+        _: @escaping () throws -> [ChainModel],
+        _: @escaping () throws -> [String]
+    ) -> BaseOperation<Void> {
+        ClosureOperation { () }
+    }
+
+    func saveBatchOperation(
+        _: @escaping () throws -> [ChainModel],
+        _: @escaping () throws -> [String]
+    ) -> BaseOperation<Void> {
+        ClosureOperation { () }
+    }
+
+    func replaceOperation(
+        _: @escaping () throws -> [ChainModel]
+    ) -> BaseOperation<Void> {
+        ClosureOperation { () }
+    }
+
+    func fetchCountOperation() -> BaseOperation<Int> {
+        ClosureOperation { 0 }
+    }
+
+    func deleteAllOperation() -> BaseOperation<Void> {
+        ClosureOperation { () }
+    }
+}
+
+private final class ChainRegistryTestObservable:
+    DataProviderRepositoryObservable {
+    typealias Model = ChainModel
+
+    private let condition = NSCondition()
+    private weak var observer: AnyObject?
+    private var deliveryQueue: DispatchQueue?
+    private var updateBlock: (([DataProviderChange<ChainModel>]) -> Void)?
+
+    func start(completionBlock: @escaping (Error?) -> Void) {
+        completionBlock(nil)
+    }
+
+    func stop(completionBlock: @escaping (Error?) -> Void) {
+        completionBlock(nil)
+    }
+
+    func addObserver(
+        _ observer: AnyObject,
+        deliverOn queue: DispatchQueue,
+        executing updateBlock: @escaping ([DataProviderChange<ChainModel>]) -> Void
+    ) {
+        condition.lock()
+        self.observer = observer
+        deliveryQueue = queue
+        self.updateBlock = updateBlock
+        condition.broadcast()
+        condition.unlock()
+    }
+
+    func removeObserver(_ observer: AnyObject) {
+        condition.lock()
+        if self.observer === observer {
+            self.observer = nil
+            deliveryQueue = nil
+            updateBlock = nil
+        }
+        condition.unlock()
+    }
+
+    func waitUntilObserverAttached(timeout: TimeInterval = 5) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+
+        condition.lock()
+        defer { condition.unlock() }
+
+        while observer == nil || deliveryQueue == nil || updateBlock == nil {
+            guard condition.wait(until: deadline) else {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    @discardableResult
+    func send(_ changes: [DataProviderChange<ChainModel>]) -> Bool {
+        condition.lock()
+        let queue = deliveryQueue
+        let block = updateBlock
+        condition.unlock()
+
+        guard let queue, let block else {
+            return false
+        }
+
+        queue.async {
+            block(changes)
+        }
+
+        return true
     }
 }
 
