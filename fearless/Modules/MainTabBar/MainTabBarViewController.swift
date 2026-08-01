@@ -13,6 +13,9 @@ final class MainTabBarViewController: UITabBarController {
 
     private var viewAppeared: Bool = false
 
+    private let tabBarBackgroundView = TabBarBackgroundView()
+    private let middleButton = TabBarMiddleButton(frame: .zero)
+
     init(
         viewControllers: [UIViewController],
         presenter: MainTabBarPresenterProtocol,
@@ -34,6 +37,14 @@ final class MainTabBarViewController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         delegate = self
+        configureTabBar()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        tabBar.sendSubviewToBack(tabBarBackgroundView)
+        tabBar.bringSubviewToFront(middleButton)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -44,13 +55,51 @@ final class MainTabBarViewController: UITabBarController {
             presenter.didLoad(view: self)
         }
 
-        let tabBar = TabBar(frame: tabBar.frame)
-        tabBar.middleButton.addAction { [weak self] in
+        applyLocalization()
+    }
+
+    private func configureTabBar() {
+        // UITabBarController owns the tab bar and installs its item views. Keep
+        // that instance intact and layer the Fearless styling onto it.
+        tabBar.backgroundColor = .clear
+        tabBar.clipsToBounds = false
+        tabBar.isTranslucent = true
+
+        if #available(iOS 26.0, *) {
+            tabBarMinimizeBehavior = .never
+        }
+
+        if #available(iOS 13.0, *) {
+            let appearance = UITabBarAppearance()
+            appearance.configureWithTransparentBackground()
+            appearance.backgroundColor = .clear
+            appearance.backgroundEffect = nil
+            appearance.shadowColor = .clear
+            tabBar.standardAppearance = appearance
+
+            if #available(iOS 15.0, *) {
+                tabBar.scrollEdgeAppearance = appearance
+            }
+        } else {
+            tabBar.backgroundImage = UIImage()
+            tabBar.shadowImage = UIImage()
+            tabBar.barTintColor = .clear
+        }
+
+        tabBar.insertSubview(tabBarBackgroundView, at: 0)
+        tabBarBackgroundView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
+        tabBar.addSubview(middleButton)
+        middleButton.snp.makeConstraints { make in
+            make.size.equalTo(56)
+            make.centerX.equalToSuperview()
+            make.centerY.equalTo(tabBar.snp.top).offset(14)
+        }
+        middleButton.addAction { [weak self] in
             self?.presenter.presentPolkaswap()
         }
-        setValue(tabBar, forKey: "tabBar")
-
-        applyLocalization()
     }
 
     @objc private func didTapFailedMemoView(_: UIGestureRecognizer) {
