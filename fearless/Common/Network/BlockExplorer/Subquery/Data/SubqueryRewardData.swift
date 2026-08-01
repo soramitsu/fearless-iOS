@@ -14,6 +14,24 @@ struct SubqueryRewardItemData: Equatable, Codable {
 }
 
 extension SubqueryRewardItemData {
+    init?(rewardHistoryItem: RewardHistoryItemProtocol, stashAddress: AccountAddress) {
+        guard let timestamp = Int64(rewardHistoryItem.timestampInSeconds) else {
+            return nil
+        }
+
+        let attribution = rewardHistoryItem.attribution
+
+        self.init(
+            eventId: rewardHistoryItem.id,
+            timestamp: timestamp,
+            validatorAddress: attribution?.validatorAddress ?? "",
+            era: attribution?.era ?? 0,
+            stashAddress: stashAddress,
+            amount: rewardHistoryItem.amount,
+            isReward: rewardHistoryItem.type == .reward
+        )
+    }
+
     init?(from json: JSON) {
         guard
             let eventId = json.id?.stringValue,

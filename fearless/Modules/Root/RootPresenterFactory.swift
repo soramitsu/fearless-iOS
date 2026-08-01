@@ -7,8 +7,9 @@ import SSFNetwork
 final class RootPresenterFactory: RootPresenterFactoryProtocol {
     struct Dependencies {
         let settings: SettingsManager
-        let selectedWalletSettings: SelectedWalletSettings
-        let chainRegistry: ChainRegistryProtocol
+        let selectedWalletSettingsProvider: () -> SelectedWalletSettings
+        let chainRegistryProvider: () -> ChainRegistryProtocol
+        let storagePreflightProvider: RootStoragePreflightProvider
         let applicationConfig: ApplicationConfigProtocol
         let eventCenter: EventCenterProtocol
         let logger: LoggerProtocol?
@@ -20,8 +21,17 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         static var `default`: Dependencies {
             Dependencies(
                 settings: SettingsManager.shared,
-                selectedWalletSettings: SelectedWalletSettings.shared,
-                chainRegistry: ChainRegistryFacade.sharedRegistry,
+                selectedWalletSettingsProvider: {
+                    SelectedWalletSettings.shared
+                },
+                chainRegistryProvider: {
+                    ChainRegistryFacade.sharedRegistry
+                },
+                storagePreflightProvider: {
+                    RootCoreDataStoragePreflight(
+                        databaseService: SubstrateDataStorageFacade.shared.databaseService
+                    )
+                },
                 applicationConfig: ApplicationConfig.shared,
                 eventCenter: EventCenter.shared,
                 logger: Logger.shared,
@@ -44,7 +54,8 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         let wireframe = RootWireframe()
         let startViewHelper = StartViewHelper(
             keystore: dependencies.keystore,
-            selectedWalletSettings: dependencies.selectedWalletSettings,
+            selectedWalletSettingsProvider:
+            dependencies.selectedWalletSettingsProvider,
             userDefaultsStorage: dependencies.settings
         )
 
@@ -73,8 +84,6 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             startViewHelper: startViewHelper
         )
 
-        _ = AssetManagementMigratorAssembly.createDefaultMigrator()
-
         let migrators: [Migrating] = [
             languageMigrator,
             dbMigrator,
@@ -82,8 +91,9 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         ]
 
         let interactor = RootInteractor(
-            chainRegistry: dependencies.chainRegistry,
-            settings: dependencies.selectedWalletSettings,
+            chainRegistryProvider: dependencies.chainRegistryProvider,
+            storagePreflightProvider: dependencies.storagePreflightProvider,
+            settingsProvider: dependencies.selectedWalletSettingsProvider,
             applicationConfig: dependencies.applicationConfig,
             eventCenter: dependencies.eventCenter,
             migrators: migrators,

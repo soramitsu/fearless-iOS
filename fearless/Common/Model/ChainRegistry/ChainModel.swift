@@ -3,6 +3,79 @@ import SSFModels
 import RobinHood
 
 extension ChainModel {
+    func replacingNodeConfiguration(
+        nodes: Set<ChainNodeModel>,
+        selectedNode: ChainNodeModel?,
+        customNodes: Set<ChainNodeModel>?
+    ) -> ChainModel {
+        ChainModel(
+            rank: rank,
+            disabled: disabled,
+            chainId: chainId,
+            parentId: parentId,
+            paraId: paraId,
+            name: name,
+            assets: assets,
+            xcm: xcm,
+            nodes: nodes,
+            addressPrefix: addressPrefix,
+            types: types,
+            icon: icon,
+            options: options,
+            externalApi: externalApi,
+            selectedNode: selectedNode,
+            customNodes: customNodes,
+            iosMinAppVersion: iosMinAppVersion,
+            identityChain: identityChain
+        )
+    }
+
+    func replacingNodes(_ nodes: Set<ChainNodeModel>) -> ChainModel {
+        ChainModel(
+            rank: rank,
+            disabled: disabled,
+            chainId: chainId,
+            parentId: parentId,
+            paraId: paraId,
+            name: name,
+            assets: assets,
+            xcm: xcm,
+            nodes: nodes,
+            addressPrefix: addressPrefix,
+            types: types,
+            icon: icon,
+            options: options,
+            externalApi: externalApi,
+            selectedNode: selectedNode,
+            customNodes: customNodes,
+            iosMinAppVersion: iosMinAppVersion,
+            identityChain: identityChain
+        )
+    }
+
+    func replacingDisabled(_ disabled: Bool) -> ChainModel {
+        ChainModel(
+            rank: rank,
+            disabled: disabled,
+            chainId: chainId,
+            parentId: parentId,
+            paraId: paraId,
+            name: name,
+            assets: assets,
+            xcm: xcm,
+            nodes: nodes,
+            addressPrefix: addressPrefix,
+            types: types,
+            icon: icon,
+            options: options,
+            externalApi: externalApi,
+            selectedNode: selectedNode,
+            customNodes: customNodes,
+            iosMinAppVersion: iosMinAppVersion,
+            identityChain: identityChain
+        )
+    }
+
     var isSupported: Bool {
         AppVersion.stringValue?.versionLowerThan(iosMinAppVersion) == false
     }
@@ -51,19 +124,50 @@ extension ChainModel {
 extension ChainModel {
     var isTonCompatibilityChain: Bool {
         let chainName = name.lowercased()
-        if chainName == "ton" || chainName.contains("ton ") || chainName.contains(" ton") {
+        let chainNameTokens = chainName.components(
+            separatedBy: CharacterSet.alphanumerics.inverted
+        )
+        if chainNameTokens.contains("ton") {
             return true
         }
 
         let chainIdLowercased = chainId.lowercased()
-        if chainIdLowercased == "ton" || chainIdLowercased.contains("ton-") {
+        switch chainIdLowercased {
+        case "ton",
+             "-239",
+             "-3",
+             "ton-mainnet",
+             "ton:mainnet",
+             "ton-testnet",
+             "ton:testnet":
+            return true
+        default:
+            break
+        }
+        if chainIdLowercased.hasPrefix("ton-") || chainIdLowercased.hasPrefix("ton:") {
             return true
         }
 
-        if nodes.contains(where: { $0.url.absoluteString.lowercased().contains("ton") }) {
+        let nodeDomains = ["ton.org", "tonapi.io", "toncenter.com", "tonhubapi.com"]
+        if nodes.contains(where: { node in
+            guard let host = node.url.host?.lowercased() else {
+                return false
+            }
+            return nodeDomains.contains { domain in
+                host == domain || host.hasSuffix(".\(domain)")
+            }
+        }) {
             return true
         }
 
-        return externalApi?.explorers?.contains(where: { $0.url.lowercased().contains("tonviewer") }) == true
+        let explorerDomains = ["tonviewer.com", "tonscan.org"]
+        return externalApi?.explorers?.contains(where: { explorer in
+            guard let host = URL(string: explorer.url)?.host?.lowercased() else {
+                return false
+            }
+            return explorerDomains.contains { domain in
+                host == domain || host.hasSuffix(".\(domain)")
+            }
+        }) == true
     }
 }

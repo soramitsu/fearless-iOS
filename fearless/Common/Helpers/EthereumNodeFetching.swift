@@ -95,14 +95,21 @@ enum EthereumChain: String {
     }
 }
 
-final class EthereumNodeFetching {
+protocol EthereumNodeFetchingProtocol {
+    func getNode(for chain: ChainModel) throws -> Web3.Eth
+}
+
+final class EthereumNodeFetching: EthereumNodeFetchingProtocol {
     func getNode(for chain: ChainModel) throws -> Web3.Eth {
         if let https = try? getHttps(for: chain) {
             return https
         }
 
-        let randomWssNode = chain.nodes.filter { $0.url.absoluteString.contains("wss") }.randomElement()
-        let hasSelectedWssNode = chain.selectedNode?.url.absoluteString.contains("wss") == true
+        let randomWssNode = chain.nodes.filter {
+            $0.url.scheme?.lowercased() == "wss"
+        }.randomElement()
+        let hasSelectedWssNode =
+            chain.selectedNode?.url.scheme?.lowercased() == "wss"
         let node = hasSelectedWssNode ? chain.selectedNode : randomWssNode
 
         guard var wssURL = node?.url else {
@@ -119,9 +126,14 @@ final class EthereumNodeFetching {
     }
 
     func getHttps(for chain: ChainModel) throws -> Web3.Eth {
-        let randomWssNode = chain.nodes.filter { $0.url.absoluteString.contains("https") }.randomElement()
-        let hasSelectedWssNode = chain.selectedNode?.url.absoluteString.contains("https") == true
-        let node = hasSelectedWssNode ? chain.selectedNode : randomWssNode
+        let randomHttpsNode = chain.nodes.filter {
+            $0.url.scheme?.lowercased() == "https"
+        }.randomElement()
+        let hasSelectedHttpsNode =
+            chain.selectedNode?.url.scheme?.lowercased() == "https"
+        let node = hasSelectedHttpsNode
+            ? chain.selectedNode
+            : randomHttpsNode
 
         guard let httpsURL = node?.url else {
             throw ConvenienceError(error: "cannot obtain eth https url for chain: \(chain.name)")

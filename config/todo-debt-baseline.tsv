@@ -4,17 +4,13 @@ fearless/Common/Crypto/Data+Keccak.swift	// TODO: move to library
 fearless/Common/Extension/Foundation/NSPredicate+Filter.swift	// TODO: Remove
 fearless/Common/Extension/Foundation/NSPredicate+Validation.swift	// TODO: Add deriviationPathHardSoftNumeric?
 fearless/Common/Extension/Foundation/NSPredicate+Validation.swift	// TODO: Add deriviationPathHardSoftNumericPassword?
-fearless/Common/Extension/Storage/CDAccountItem+CoreDataDecodable.swift	// TODO: Fix logic
 fearless/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeHotBootSnapshotFactory.swift	// TODO: think about it
 fearless/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeSnapshotOperationFactory.swift	// TODO: think about it
 fearless/Common/Services/ExtrinsicService/ExtrinsicOperationFactory.swift	method: "author_submitAndWatchExtrinsic", // TODO: add to fearless utils
-fearless/Common/Storage/Migration/UserStorage/MultiassetV2MigrationPolicy.swift	// TODO: tech debt
-fearless/Common/Storage/Migration/UserStorage/StorageMigrator+Sync.swift	// TODO: Move this logic to app loading state
 fearless/Modules/AddAccount/Interactors/AddAccount+AccountConfirmInteractor.swift	// TODO: Check how to convert this to chain account import
 fearless/Modules/Export/ExportMnemonic/ExportMnemonicPresenter.swift	// TODO: Support custom accounts
 fearless/Modules/PolkaswapFlow/PolkaswapAdjustment/PolkaswapAdjustmentPresenter.swift	// TODO: - need think about this
 fearless/Modules/Profile/ProfileViewFactory.swift	// TODO: Eth account info fetching
-fearless/Modules/Staking/Analytics/Validators/ViewModel/AnalyticsValidatorsViewModelFactory.swift	firstLine: "TODO in next release",
 fearless/Modules/Staking/SelectValidatorsFlow/ValidatorInfo/Flow/Parachain/ValidatorInfoParachainViewModelFactory.swift	// TODO: Has slashes real value
 fearlessTests/Common/Crypto/KeystoreExportWrapperTests.swift	//                                                                    cryptoType: .sr25519) // FIXME: cryptoType: info.cryptoType ?? .sr25519)
 fearlessTests/Modules/ControllerAccountConfirmation/ControllerAccountConfirmationTests.swift	// TODO

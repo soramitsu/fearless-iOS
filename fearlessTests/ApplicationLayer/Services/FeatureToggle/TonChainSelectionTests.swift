@@ -1,3 +1,7 @@
+import Foundation
+import HTTPTypes
+import OpenAPIRuntime
+import TonAPI
 import XCTest
 @testable import fearless
 import SSFModels
@@ -5,6 +9,16 @@ import SSFStorageQueryKit
 import SSFUtils
 import SSFRuntimeCodingService
 import BigInt
+
+private func makeIrohaTestHistoryEndpoint(_ baseURL: String) -> ChainModel.BlockExplorer {
+    guard let url = URL(string: baseURL),
+          let endpoint = ChainModel.BlockExplorer(type: "sora", url: url)
+    else {
+        preconditionFailure("Iroha test history endpoint failed to materialize")
+    }
+
+    return endpoint
+}
 
 final class TonChainSelectionTests: XCTestCase {
     func testSelectedChainIdReturnsTestnetWhenEnabled() {
@@ -83,15 +97,53 @@ final class TonCompatibilityTests: XCTestCase {
         XCTAssertTrue(chain.isTonCompatibilityChain)
     }
 
-    func testTonCompatibilityChainDetectionReturnsFalseForNonTonChain() {
-        let chain = makeTonCompatibilityChain(
-            name: "Polkadot",
-            chainId: "polkadot-mainnet",
-            nodeURL: URL(string: "wss://rpc.polkadot.io")!,
-            explorerURL: URL(string: "https://polkadot.subscan.io")!
-        )
+    func testTonCompatibilityChainDetectionByCanonicalIdWithoutMetadataHints() {
+        let canonicalIds = [
+            TonChainSelection.mainnetChainId,
+            TonChainSelection.testnetChainId,
+            UniversalWalletRegistry.tonMainnetRegistryEntry.id,
+            UniversalWalletRegistry.tonMainnetRegistryEntry.chainId,
+            "ton-testnet",
+            "ton:testnet"
+        ]
 
-        XCTAssertFalse(chain.isTonCompatibilityChain)
+        for chainId in canonicalIds {
+            let chain = makeTonCompatibilityChain(
+                name: "Neutral Chain",
+                chainId: chainId,
+                nodeURL: URL(string: "wss://rpc.example.com")!,
+                explorerURL: URL(string: "https://explorer.example.com/address/abc")!
+            )
+
+            XCTAssertTrue(chain.isTonCompatibilityChain, chainId)
+        }
+    }
+
+    func testTonCompatibilityChainDetectionReturnsFalseForNonTonChain() {
+        let nonTonChains = [
+            makeTonCompatibilityChain(
+                name: "Polkadot",
+                chainId: "polkadot-mainnet",
+                nodeURL: URL(string: "wss://rpc.polkadot.io")!,
+                explorerURL: URL(string: "https://polkadot.subscan.io")!
+            ),
+            makeTonCompatibilityChain(
+                name: "Proton Network",
+                chainId: "proton-mainnet",
+                nodeURL: URL(string: "wss://button.example.com")!,
+                explorerURL: URL(string: "https://tonviewer.com.attacker.invalid/address/abc")!
+            ),
+            makeTonCompatibilityChain(
+                name: "Button Chain",
+                chainId: "custom-ton-like",
+                nodeURL: URL(string: "wss://nottonapi.io.attacker.invalid")!,
+                explorerURL: URL(string: "https://nottonviewer.example.com/address/abc")!
+            )
+        ]
+
+        for chain in nonTonChains {
+            XCTAssertFalse(chain.isTonCompatibilityChain, chain.chainId)
+        }
     }
 
     func testTonAssetTypeMapsNormal() {
@@ -560,7 +612,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
 
         XCTAssertEqual(client.accountAssetsInvocations.count, 1)
         XCTAssertEqual(client.accountAssetsInvocations.first?.accountID, address)
-        XCTAssertNil(client.accountAssetsInvocations.first?.baseURL)
+        XCTAssertEqual(client.accountAssetsInvocations.first?.baseURL, "https://taira.sora.org/")
         XCTAssertEqual(client.accountAssetsInvocations.first?.limit, IrohaToriiRoutes.maxLimit)
         XCTAssertEqual(client.accountAssetsInvocations.first?.countMode, .bounded)
         XCTAssertEqual(client.accountAssetsInvocations.first?.network, UniversalWalletRegistry.taira)
@@ -758,10 +810,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         let externalApi = historyBaseURL.map {
             ChainModel.ExternalApiSet(
                 staking: nil,
-                history: ChainModel.BlockExplorer(
-                    type: "iroha",
-                    url: URL(string: $0)!
-                ),
+                history: makeIrohaTestHistoryEndpoint($0),
                 crowdloans: nil,
                 explorers: nil
             )
@@ -1119,23 +1168,696 @@ final class SendDependencyContainerUniversalWalletRoutingTests: XCTestCase {
         }
     }
 
-    func testPrepareDependenciesFailsClosedForTonCompatibilityTransferBeforeSubstrateRouting() async throws {
+    #if DEBUG
+    func testPrepareDependenciesRoutesNativeTonMainnetToTonTransferService() async throws {
         let chain = makeTonTransferChain()
-        let wallet = walletWithChainAccount(chainId: chain.chainId)
+        let wallet = try walletWithTonAccount(chainId: chain.chainId)
+        let remote = TonTransferRemoteStub()
         let container = SendDepencyContainer(
             wallet: wallet,
-            operationManager: fearless.OperationManagerFacade.sharedManager
+            operationManager: fearless.OperationManagerFacade.sharedManager,
+            tonRemote: remote,
+            tonMnemonicProvider: UniversalWalletMnemonicProviderStub(mnemonic: Self.mnemonic),
+            tonSendReleasePolicy: .enabledForTests
+        )
+
+        let dependencies = try await container.prepareDepencies(
+            chainAsset: ChainAsset(chain: chain, asset: Self.tonAsset)
+        )
+
+        XCTAssertTrue(dependencies.transferService is TonTransferService)
+        XCTAssertEqual(remote.walletStateCallCount, 0)
+        XCTAssertEqual(remote.emulateCallCount, 0)
+        XCTAssertEqual(remote.broadcastCallCount, 0)
+    }
+
+    func testPrepareDependenciesCachesOneTonServiceAcrossConcurrentEstimateAndSubmit() async throws {
+        let chain = makeTonTransferChain()
+        let wallet = try walletWithTonAccount(chainId: chain.chainId)
+        let remote = TonTransferRemoteStub()
+        let container = SendDepencyContainer(
+            wallet: wallet,
+            operationManager: fearless.OperationManagerFacade.sharedManager,
+            tonRemote: remote,
+            tonMnemonicProvider: UniversalWalletMnemonicProviderStub(mnemonic: Self.mnemonic),
+            tonSendReleasePolicy: .enabledForTests
+        )
+        let chainAsset = ChainAsset(chain: chain, asset: Self.tonAsset)
+        async let first = container.prepareDepencies(chainAsset: chainAsset)
+        async let second = container.prepareDepencies(chainAsset: chainAsset)
+        let (firstDependencies, secondDependencies) = try await (first, second)
+
+        XCTAssertTrue(
+            (firstDependencies.transferService as AnyObject) ===
+                (secondDependencies.transferService as AnyObject)
+        )
+
+        let recipient = try TonKeyDerivation.deriveAccount(
+            mnemonic: Self.otherMnemonic
+        ).addressBounceable
+        let transfer = Transfer(
+            chainAsset: chainAsset,
+            amount: BigUInt(100_000_000),
+            receiver: recipient,
+            tip: nil,
+            appId: nil
+        )
+        _ = try await prepareDisplayedTonFee(
+            service: firstDependencies.transferService,
+            transfer: transfer
+        )
+        let hash = try await secondDependencies.transferService.submit(transfer: transfer)
+        let acknowledged = await secondDependencies.transferService.acknowledgeSubmittedTransfer(
+            hash: hash,
+            transfer: transfer
+        )
+
+        XCTAssertTrue(acknowledged)
+        XCTAssertEqual(hash.count, 64)
+        XCTAssertEqual(remote.unsignedEmulateCallCount, 1)
+        XCTAssertEqual(remote.signedEmulateCallCount, 1)
+        XCTAssertEqual(remote.broadcastCallCount, 1)
+    }
+    #endif
+
+    func testProductionTonSendPolicyIsImmutableDisabledAndCannotBeBypassedByInjection() async throws {
+        XCTAssertFalse(TonProductionSendReleasePolicy.production.isEnabled)
+        let chain = makeTonTransferChain()
+        let wallet = try walletWithTonAccount(chainId: chain.chainId)
+        let remote = TonTransferRemoteStub()
+        let container = SendDepencyContainer(
+            wallet: wallet,
+            operationManager: fearless.OperationManagerFacade.sharedManager,
+            tonRemote: remote,
+            tonMnemonicProvider: UniversalWalletMnemonicProviderStub(mnemonic: Self.mnemonic)
+        )
+
+        do {
+            _ = try await container.prepareDepencies(
+                chainAsset: ChainAsset(chain: chain, asset: Self.tonAsset)
+            )
+            XCTFail("Expected production TON send routing to remain disabled")
+        } catch let error as UniversalWalletSendRoutingError {
+            XCTAssertEqual(error, .tonProductionSendDisabled)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+        XCTAssertEqual(remote.walletStateCallCount, 0)
+        XCTAssertEqual(remote.emulateCallCount, 0)
+        XCTAssertEqual(remote.broadcastCallCount, 0)
+    }
+
+    func testProductionTonSendPolicyRejectsCanonicalIdWithoutTonMetadataHints() async throws {
+        let chain = makeChain(chainId: TonChainSelection.mainnetChainId)
+        XCTAssertTrue(chain.isTonCompatibilityChain)
+        let wallet = try walletWithTonAccount(chainId: chain.chainId)
+        let remote = TonTransferRemoteStub()
+        let container = SendDepencyContainer(
+            wallet: wallet,
+            operationManager: fearless.OperationManagerFacade.sharedManager,
+            tonRemote: remote,
+            tonMnemonicProvider: UniversalWalletMnemonicProviderStub(mnemonic: Self.mnemonic)
         )
 
         do {
             _ = try await container.prepareDepencies(
                 chainAsset: ChainAsset(chain: chain, asset: Self.asset)
             )
-            XCTFail("Expected TON transfer routing to fail closed")
+            XCTFail("Expected canonical TON identity to remain disabled without metadata hints")
+        } catch let error as UniversalWalletSendRoutingError {
+            XCTAssertEqual(error, .tonProductionSendDisabled)
         } catch {
-            XCTAssertEqual((error as NSError).localizedDescription, "TON transfer not yet supported.")
+            XCTFail("Unexpected error: \(error)")
+        }
+        XCTAssertEqual(remote.walletStateCallCount, 0)
+        XCTAssertEqual(remote.emulateCallCount, 0)
+        XCTAssertEqual(remote.broadcastCallCount, 0)
+    }
+
+    #if DEBUG
+    func testPrepareDependenciesRejectsJettonBeforeAnyTonRemoteCall() async throws {
+        let chain = makeTonTransferChain()
+        let wallet = try walletWithTonAccount(chainId: chain.chainId)
+        let remote = TonTransferRemoteStub()
+        let jetton = AssetModel(
+            id: "jetton-master",
+            name: "Jetton",
+            symbol: "JET",
+            precision: 9,
+            isUtility: false,
+            isNative: false,
+            type: .ormlAsset
+        )
+        let container = SendDepencyContainer(
+            wallet: wallet,
+            operationManager: fearless.OperationManagerFacade.sharedManager,
+            tonRemote: remote,
+            tonMnemonicProvider: UniversalWalletMnemonicProviderStub(mnemonic: Self.mnemonic),
+            tonSendReleasePolicy: .enabledForTests
+        )
+
+        do {
+            _ = try await container.prepareDepencies(
+                chainAsset: ChainAsset(chain: chain, asset: jetton)
+            )
+            XCTFail("Expected unsupported Jetton routing to fail closed")
+        } catch let error as UniversalWalletSendRoutingError {
+            XCTAssertEqual(error, .unsupported(chainId: "-239/jetton-master"))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+        XCTAssertEqual(remote.walletStateCallCount, 0)
+        XCTAssertEqual(remote.emulateCallCount, 0)
+        XCTAssertEqual(remote.broadcastCallCount, 0)
+    }
+
+    func testPrepareDependenciesRejectsTonTestnetBeforeAnyRemoteCall() async throws {
+        let chain = makeTonTransferChain(chainId: TonChainSelection.testnetChainId)
+        let wallet = try walletWithTonAccount(chainId: chain.chainId)
+        let remote = TonTransferRemoteStub()
+        let container = SendDepencyContainer(
+            wallet: wallet,
+            operationManager: fearless.OperationManagerFacade.sharedManager,
+            tonRemote: remote,
+            tonMnemonicProvider: UniversalWalletMnemonicProviderStub(mnemonic: Self.mnemonic),
+            tonSendReleasePolicy: .enabledForTests
+        )
+
+        do {
+            _ = try await container.prepareDepencies(
+                chainAsset: ChainAsset(chain: chain, asset: Self.tonAsset)
+            )
+            XCTFail("Expected TON testnet routing to fail closed")
+        } catch let error as UniversalWalletSendRoutingError {
+            XCTAssertEqual(error, .unsupported(chainId: TonChainSelection.testnetChainId))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+        XCTAssertEqual(remote.walletStateCallCount, 0)
+        XCTAssertEqual(remote.emulateCallCount, 0)
+        XCTAssertEqual(remote.broadcastCallCount, 0)
+    }
+
+    func testTonTransferServiceBindsMnemonicSenderAndBroadcastsEmulatedBoc() async throws {
+        let chain = makeTonTransferChain()
+        let wallet = try walletWithTonAccount(chainId: chain.chainId)
+        let recipient = try TonKeyDerivation.deriveAccount(
+            mnemonic: Self.otherMnemonic
+        ).addressBounceable
+        let remote = TonTransferRemoteStub()
+        let service = TonTransferService(
+            wallet: wallet,
+            chain: chain,
+            remote: remote,
+            mnemonicProvider: UniversalWalletMnemonicProviderStub(mnemonic: Self.mnemonic),
+            pendingCoordinator: TonPendingIntentCoordinator(),
+            clock: { 1_700_000_000 }
+        )
+        let transfer = Transfer(
+            chainAsset: ChainAsset(chain: chain, asset: Self.tonAsset),
+            amount: BigUInt(100_000_000),
+            receiver: recipient,
+            tip: nil,
+            appId: nil
+        )
+
+        let fee = try await prepareDisplayedTonFee(service: service, transfer: transfer)
+        let hash = try await service.submit(transfer: transfer)
+
+        XCTAssertEqual(fee, BigUInt(1))
+        XCTAssertEqual(hash.count, 64)
+        XCTAssertEqual(remote.walletStateCallCount, 2)
+        XCTAssertEqual(remote.emulateCallCount, 2)
+        XCTAssertEqual(remote.broadcastCallCount, 1)
+        XCTAssertEqual(remote.broadcastBocs, [try XCTUnwrap(remote.emulatedBocs.last)])
+    }
+
+    func testTonQuoteCannotSubmitUntilExactPresentationIsAcknowledged() async throws {
+        let chain = makeTonTransferChain()
+        let wallet = try walletWithTonAccount(chainId: chain.chainId)
+        let recipient = try TonKeyDerivation.deriveAccount(
+            mnemonic: Self.otherMnemonic
+        ).addressBounceable
+        let remote = TonTransferRemoteStub()
+        let mnemonicProvider = CountingUniversalWalletMnemonicProvider(mnemonic: Self.mnemonic)
+        let service = TonTransferService(
+            wallet: wallet,
+            chain: chain,
+            remote: remote,
+            mnemonicProvider: mnemonicProvider,
+            pendingCoordinator: TonPendingIntentCoordinator(),
+            clock: { 1_700_000_000 }
+        )
+        let transfer = Transfer(
+            chainAsset: ChainAsset(chain: chain, asset: Self.tonAsset),
+            amount: BigUInt(100_000_000),
+            receiver: recipient,
+            tip: nil,
+            appId: nil
+        )
+        let received = expectation(description: "staged TON quote")
+        let listener = TonFeePresentationListenerStub(expectation: received)
+        service.subscribeForFee(transfer: transfer, listener: listener)
+        await fulfillment(of: [received], timeout: 2)
+        let walletCallsAfterQuote = remote.walletStateCallCount
+        let emulationCallsAfterQuote = remote.emulateCallCount
+
+        do {
+            _ = try await service.submit(transfer: transfer)
+            XCTFail("A staged but undisplayed TON quote was submitted")
+        } catch TransferServiceError.transferFailed {}
+        XCTAssertEqual(mnemonicProvider.callCount, 0)
+        XCTAssertEqual(remote.walletStateCallCount, walletCallsAfterQuote)
+        XCTAssertEqual(remote.emulateCallCount, emulationCallsAfterQuote)
+        XCTAssertEqual(remote.broadcastCallCount, 0)
+
+        let presentationAccepted = await service.confirmFeePresentation(
+            id: try XCTUnwrap(listener.presentationID),
+            fee: try XCTUnwrap(listener.fee)
+        )
+        XCTAssertTrue(presentationAccepted)
+        _ = try await service.submit(transfer: transfer)
+        XCTAssertEqual(mnemonicProvider.callCount, 1)
+        XCTAssertEqual(remote.signedEmulateCallCount, 1)
+        XCTAssertEqual(remote.broadcastCallCount, 1)
+    }
+
+    func testTonDirectEstimateNeverAuthorizesSubmission() async throws {
+        let chain = makeTonTransferChain()
+        let wallet = try walletWithTonAccount(chainId: chain.chainId)
+        let recipient = try TonKeyDerivation.deriveAccount(
+            mnemonic: Self.otherMnemonic
+        ).addressBounceable
+        let remote = TonTransferRemoteStub()
+        let mnemonicProvider = CountingUniversalWalletMnemonicProvider(mnemonic: Self.mnemonic)
+        let service = TonTransferService(
+            wallet: wallet,
+            chain: chain,
+            remote: remote,
+            mnemonicProvider: mnemonicProvider,
+            pendingCoordinator: TonPendingIntentCoordinator(),
+            clock: { 1_700_000_000 }
+        )
+        let transfer = Transfer(
+            chainAsset: ChainAsset(chain: chain, asset: Self.tonAsset),
+            amount: BigUInt(100_000_000),
+            receiver: recipient,
+            tip: nil,
+            appId: nil
+        )
+
+        _ = try await service.estimateFee(for: transfer)
+        do {
+            _ = try await service.submit(transfer: transfer)
+            XCTFail("A fee calculated without an opaque presentation ID authorized submission")
+        } catch TransferServiceError.transferFailed {}
+
+        XCTAssertEqual(mnemonicProvider.callCount, 0)
+        XCTAssertEqual(remote.signedEmulateCallCount, 0)
+        XCTAssertEqual(remote.broadcastCallCount, 0)
+    }
+
+    func testTonUnsubscribeSynchronouslyRevokesQuoteBeforeImmediateSubmit() async throws {
+        let chain = makeTonTransferChain()
+        let wallet = try walletWithTonAccount(chainId: chain.chainId)
+        let recipient = try TonKeyDerivation.deriveAccount(
+            mnemonic: Self.otherMnemonic
+        ).addressBounceable
+        let remote = TonTransferRemoteStub()
+        let mnemonicProvider = CountingUniversalWalletMnemonicProvider(mnemonic: Self.mnemonic)
+        let service = TonTransferService(
+            wallet: wallet,
+            chain: chain,
+            remote: remote,
+            mnemonicProvider: mnemonicProvider,
+            pendingCoordinator: TonPendingIntentCoordinator(),
+            clock: { 1_700_000_000 }
+        )
+        let transfer = Transfer(
+            chainAsset: ChainAsset(chain: chain, asset: Self.tonAsset),
+            amount: BigUInt(100_000_000),
+            receiver: recipient,
+            tip: nil,
+            appId: nil
+        )
+        _ = try await prepareDisplayedTonFee(service: service, transfer: transfer)
+        let walletCallsAfterQuote = remote.walletStateCallCount
+        let emulationCallsAfterQuote = remote.emulateCallCount
+
+        service.unsubscribe()
+        do {
+            _ = try await service.submit(transfer: transfer)
+            XCTFail("An unsubscribed TON quote was submitted")
+        } catch TransferServiceError.transferFailed {}
+
+        XCTAssertEqual(mnemonicProvider.callCount, 0)
+        XCTAssertEqual(remote.walletStateCallCount, walletCallsAfterQuote)
+        XCTAssertEqual(remote.emulateCallCount, emulationCallsAfterQuote)
+        XCTAssertEqual(remote.broadcastCallCount, 0)
+    }
+
+    func testTonRestartRecoverySucceedsWithoutMnemonicAndWithoutNewBearer() async throws {
+        let chain = makeTonTransferChain()
+        let wallet = try walletWithTonAccount(chainId: chain.chainId)
+        let recipient = try TonKeyDerivation.deriveAccount(
+            mnemonic: Self.otherMnemonic
+        ).addressBounceable
+        let transfer = Transfer(
+            chainAsset: ChainAsset(chain: chain, asset: Self.tonAsset),
+            amount: BigUInt(100_000_000),
+            receiver: recipient,
+            tip: nil,
+            appId: nil
+        )
+        let journal = TonInMemoryPendingIntentJournal()
+        let firstRemote = TonTransferRemoteStub()
+        firstRemote.reconciliationResult = .notFound
+        let firstService = TonTransferService(
+            wallet: wallet,
+            chain: chain,
+            remote: firstRemote,
+            mnemonicProvider: UniversalWalletMnemonicProviderStub(mnemonic: Self.mnemonic),
+            pendingCoordinator: TonPendingIntentCoordinator(journal: journal),
+            clock: { 1_700_000_000 }
+        )
+        _ = try await prepareDisplayedTonFee(service: firstService, transfer: transfer)
+        let oldHash: String
+        do {
+            _ = try await firstService.submit(transfer: transfer)
+            return XCTFail("Expected first outcome to remain unknown")
+        } catch let TransferServiceError.tonBroadcastOutcomeUnknown(messageHashHex) {
+            oldHash = messageHashHex
+        }
+
+        let missingMnemonic = CountingUniversalWalletMnemonicProvider(mnemonic: nil)
+        let recoveryRemote = TonTransferRemoteStub()
+        recoveryRemote.reconciliationResult = .confirmed
+        let recoveryService = TonTransferService(
+            wallet: wallet,
+            chain: chain,
+            remote: recoveryRemote,
+            mnemonicProvider: missingMnemonic,
+            pendingCoordinator: TonPendingIntentCoordinator(journal: journal),
+            clock: { 1_700_000_000 }
+        )
+        let recoveredHash = try await recoveryService.submit(transfer: transfer)
+
+        XCTAssertEqual(recoveredHash, oldHash)
+        XCTAssertEqual(missingMnemonic.callCount, 0)
+        XCTAssertEqual(recoveryRemote.reconcileCallCount, 1)
+        XCTAssertEqual(recoveryRemote.walletStateCallCount, 0)
+        XCTAssertEqual(recoveryRemote.emulateCallCount, 0)
+        XCTAssertEqual(recoveryRemote.broadcastCallCount, 0)
+    }
+
+    func testTonDifferentIntentRecoveryNeverReturnsThePriorHashAsNewSuccess() async throws {
+        let chain = makeTonTransferChain()
+        let wallet = try walletWithTonAccount(chainId: chain.chainId)
+        let recipient = try TonKeyDerivation.deriveAccount(
+            mnemonic: Self.otherMnemonic
+        ).addressBounceable
+        let chainAsset = ChainAsset(chain: chain, asset: Self.tonAsset)
+        let priorTransfer = Transfer(
+            chainAsset: chainAsset,
+            amount: BigUInt(100_000_000),
+            receiver: recipient,
+            tip: nil,
+            appId: nil
+        )
+        let newTransfer = Transfer(
+            chainAsset: chainAsset,
+            amount: BigUInt(100_000_001),
+            receiver: recipient,
+            tip: nil,
+            appId: nil
+        )
+        let journal = TonInMemoryPendingIntentJournal()
+        let firstRemote = TonTransferRemoteStub()
+        firstRemote.reconciliationResult = .notFound
+        let firstService = TonTransferService(
+            wallet: wallet,
+            chain: chain,
+            remote: firstRemote,
+            mnemonicProvider: UniversalWalletMnemonicProviderStub(mnemonic: Self.mnemonic),
+            pendingCoordinator: TonPendingIntentCoordinator(journal: journal),
+            clock: { 1_700_000_000 }
+        )
+        _ = try await prepareDisplayedTonFee(service: firstService, transfer: priorTransfer)
+        let priorHash: String
+        do {
+            _ = try await firstService.submit(transfer: priorTransfer)
+            return XCTFail("Expected the prior transfer outcome to remain unknown")
+        } catch let TransferServiceError.tonBroadcastOutcomeUnknown(messageHashHex) {
+            priorHash = messageHashHex
+        }
+
+        let mnemonicProvider = CountingUniversalWalletMnemonicProvider(mnemonic: nil)
+        let recoveryRemote = TonTransferRemoteStub()
+        recoveryRemote.reconciliationResult = .confirmed
+        let recoveryService = TonTransferService(
+            wallet: wallet,
+            chain: chain,
+            remote: recoveryRemote,
+            mnemonicProvider: mnemonicProvider,
+            pendingCoordinator: TonPendingIntentCoordinator(journal: journal),
+            clock: { 1_700_000_000 }
+        )
+        let recoveredIdentity: TonTransferIntentIdentity
+        do {
+            _ = try await recoveryService.submit(transfer: newTransfer)
+            return XCTFail("The prior transfer hash was reported as the new transfer's success")
+        } catch let TransferServiceError.tonPriorTransferConfirmed(identity, messageHashHex) {
+            recoveredIdentity = identity
+            XCTAssertEqual(messageHashHex, priorHash)
+            XCTAssertEqual(identity.amountNanotons, priorTransfer.amount.description)
+        }
+
+        XCTAssertEqual(mnemonicProvider.callCount, 0)
+        XCTAssertEqual(recoveryRemote.reconcileCallCount, 1)
+        XCTAssertEqual(recoveryRemote.walletStateCallCount, 0)
+        XCTAssertEqual(recoveryRemote.emulateCallCount, 0)
+        XCTAssertEqual(recoveryRemote.broadcastCallCount, 0)
+        let acknowledged = await recoveryService.acknowledgeRecoveredTransfer(
+            hash: priorHash,
+            identity: recoveredIdentity
+        )
+        XCTAssertTrue(acknowledged)
+    }
+    #endif
+
+    func testTonFeeEstimateNeverRequestsMnemonicOrProducesSignedEmulation() async throws {
+        let chain = makeTonTransferChain()
+        let wallet = try walletWithTonAccount(chainId: chain.chainId)
+        let recipient = try TonKeyDerivation.deriveAccount(
+            mnemonic: Self.otherMnemonic
+        ).addressBounceable
+        let remote = TonTransferRemoteStub()
+        let mnemonicProvider = CountingUniversalWalletMnemonicProvider(
+            mnemonic: Self.mnemonic
+        )
+        let service = TonTransferService(
+            wallet: wallet,
+            chain: chain,
+            remote: remote,
+            mnemonicProvider: mnemonicProvider,
+            clock: { 1_700_000_000 }
+        )
+        let transfer = Transfer(
+            chainAsset: ChainAsset(chain: chain, asset: Self.tonAsset),
+            amount: BigUInt(100_000_000),
+            receiver: recipient,
+            tip: nil,
+            appId: nil
+        )
+
+        let estimatedFee = try await service.estimateFee(for: transfer)
+
+        XCTAssertEqual(estimatedFee, BigUInt(1))
+        XCTAssertEqual(mnemonicProvider.callCount, 0)
+        XCTAssertEqual(remote.unsignedEmulateCallCount, 1)
+        XCTAssertEqual(remote.signedEmulateCallCount, 0)
+        XCTAssertEqual(remote.broadcastCallCount, 0)
+    }
+
+    func testTonFeePaymentAssetIgnoresAdditionalUnorderedUtilityAssets() {
+        let hostileUtility = AssetModel(
+            id: "hostile-utility",
+            name: "Hostile Utility",
+            symbol: "HST",
+            precision: 2,
+            isUtility: true,
+            isNative: false,
+            type: .ormlAsset
+        )
+        let chain = makeTonTransferChain(assets: [hostileUtility, Self.tonAsset])
+        let selectedTon = ChainAsset(chain: chain, asset: Self.tonAsset)
+
+        let feeAsset = WalletSendConfirmInteractor.resolveFeePaymentChainAsset(
+            for: selectedTon
+        )
+
+        XCTAssertEqual(feeAsset?.asset.id, Self.tonAsset.id)
+        XCTAssertEqual(feeAsset?.asset.symbol, "TON")
+        XCTAssertEqual(feeAsset?.asset.precision, 9)
+    }
+
+    #if !DEBUG
+    func testReleaseTonTransferSubmitFailsBeforeMnemonicOrRemoteWork() async {
+        let chain = makeChain(chainId: TonChainSelection.mainnetChainId)
+        let mnemonicProvider = CountingUniversalWalletMnemonicProvider(
+            mnemonic: Self.mnemonic
+        )
+        let remote = TonTransferRemoteStub()
+        let service = TonTransferService(
+            wallet: AccountGenerator.generateMetaAccount(),
+            chain: chain,
+            remote: remote,
+            mnemonicProvider: mnemonicProvider,
+            clock: { 1_700_000_000 }
+        )
+        let invalidTransfer = Transfer(
+            chainAsset: ChainAsset(chain: chain, asset: Self.asset),
+            amount: 0,
+            receiver: "intentionally invalid",
+            tip: nil,
+            appId: nil
+        )
+
+        do {
+            _ = try await service.submit(transfer: invalidTransfer)
+            XCTFail("Expected Release TON submit to remain disabled")
+        } catch TransferServiceError.tonProductionSendDisabled {
+            // Expected before transfer resolution, mnemonic lookup, or remote work.
+        } catch {
+            XCTFail("Unexpected Release TON submit error: \(error)")
+        }
+
+        XCTAssertEqual(mnemonicProvider.callCount, 0)
+        XCTAssertEqual(remote.walletStateCallCount, 0)
+        XCTAssertEqual(remote.emulateCallCount, 0)
+        XCTAssertEqual(remote.broadcastCallCount, 0)
+    }
+    #endif
+
+    #if DEBUG
+    func testTonTransferServicePreservesExactUnknownOutcomeHash() async throws {
+        let chain = makeTonTransferChain()
+        let wallet = try walletWithTonAccount(chainId: chain.chainId)
+        let recipient = try TonKeyDerivation.deriveAccount(
+            mnemonic: Self.otherMnemonic
+        ).addressBounceable
+        let remote = TonTransferRemoteStub()
+        remote.reconciliationResult = .notFound
+        let service = TonTransferService(
+            wallet: wallet,
+            chain: chain,
+            remote: remote,
+            mnemonicProvider: UniversalWalletMnemonicProviderStub(mnemonic: Self.mnemonic),
+            pendingCoordinator: TonPendingIntentCoordinator(),
+            clock: { 1_700_000_000 }
+        )
+        let transfer = Transfer(
+            chainAsset: ChainAsset(chain: chain, asset: Self.tonAsset),
+            amount: BigUInt(100_000_000),
+            receiver: recipient,
+            tip: nil,
+            appId: nil
+        )
+
+        _ = try await prepareDisplayedTonFee(service: service, transfer: transfer)
+        do {
+            _ = try await service.submit(transfer: transfer)
+            XCTFail("Expected an explicitly unknown broadcast outcome")
+        } catch let TransferServiceError.tonBroadcastOutcomeUnknown(messageHashHex) {
+            XCTAssertEqual(messageHashHex, remote.broadcastMessageHashes.first)
+            XCTAssertEqual(messageHashHex.count, 64)
+        } catch {
+            XCTFail("Unexpected TON submit error: \(error)")
+        }
+        XCTAssertEqual(remote.broadcastCallCount, 1)
+    }
+
+    func testTonTransferServiceRejectsMnemonicMismatchBeforeRemoteCalls() async throws {
+        let chain = makeTonTransferChain()
+        let wallet = try walletWithTonAccount(chainId: chain.chainId)
+        let recipient = try TonKeyDerivation.deriveAccount(
+            mnemonic: Self.otherMnemonic
+        ).addressBounceable
+        let remote = TonTransferRemoteStub()
+        let service = TonTransferService(
+            wallet: wallet,
+            chain: chain,
+            remote: remote,
+            mnemonicProvider: UniversalWalletMnemonicProviderStub(mnemonic: Self.otherMnemonic),
+            pendingCoordinator: TonPendingIntentCoordinator(),
+            clock: { 1_700_000_000 }
+        )
+        let transfer = Transfer(
+            chainAsset: ChainAsset(chain: chain, asset: Self.tonAsset),
+            amount: BigUInt(100_000_000),
+            receiver: recipient,
+            tip: nil,
+            appId: nil
+        )
+
+        _ = try await prepareDisplayedTonFee(service: service, transfer: transfer)
+        let walletCallsBeforeSubmit = remote.walletStateCallCount
+        let emulationCallsBeforeSubmit = remote.emulateCallCount
+        do {
+            _ = try await service.submit(transfer: transfer)
+            XCTFail("Expected mismatched TON mnemonic to fail closed")
+        } catch TransferServiceError.transferFailed {}
+
+        XCTAssertEqual(remote.walletStateCallCount, walletCallsBeforeSubmit)
+        XCTAssertEqual(remote.emulateCallCount, emulationCallsBeforeSubmit)
+        XCTAssertEqual(remote.unsignedEmulateCallCount, 1)
+        XCTAssertEqual(remote.signedEmulateCallCount, 0)
+        XCTAssertEqual(remote.broadcastCallCount, 0)
+    }
+    #endif
+
+    #if DEBUG
+    func testTonTransferServiceRejectsUnsupportedTipAndAppIdBeforeRemoteCalls() async throws {
+        let chain = makeTonTransferChain()
+        let wallet = try walletWithTonAccount(chainId: chain.chainId)
+        let recipient = try TonKeyDerivation.deriveAccount(
+            mnemonic: Self.otherMnemonic
+        ).addressBounceable
+
+        let unsupportedFields: [(tip: BigUInt?, appId: BigUInt?)] = [
+            (BigUInt(1), nil),
+            (nil, BigUInt(1)),
+            (BigUInt(1), BigUInt(1))
+        ]
+        for (tip, appId) in unsupportedFields {
+            let remote = TonTransferRemoteStub()
+            let service = TonTransferService(
+                wallet: wallet,
+                chain: chain,
+                remote: remote,
+                mnemonicProvider: UniversalWalletMnemonicProviderStub(mnemonic: Self.mnemonic),
+                pendingCoordinator: TonPendingIntentCoordinator(),
+                clock: { 1_700_000_000 }
+            )
+            let transfer = Transfer(
+                chainAsset: ChainAsset(chain: chain, asset: Self.tonAsset),
+                amount: BigUInt(100_000_000),
+                receiver: recipient,
+                tip: tip,
+                appId: appId
+            )
+
+            do {
+                _ = try await service.submit(transfer: transfer)
+                XCTFail("Expected unsupported TON fields to fail closed")
+            } catch TransferServiceError.transferFailed {}
+
+            XCTAssertEqual(remote.walletStateCallCount, 0)
+            XCTAssertEqual(remote.emulateCallCount, 0)
+            XCTAssertEqual(remote.broadcastCallCount, 0)
         }
     }
+    #endif
 
     func testPrepareDependenciesCreatesIrohaTransferServiceForTairaAccount() async throws {
         let chain = makeIrohaChain(chainId: UniversalWalletRegistry.taira.chainId)
@@ -1211,6 +1933,8 @@ final class SendDependencyContainerUniversalWalletRoutingTests: XCTestCase {
         XCTAssertEqual(signer.lastRequest?.chainId, UniversalWalletRegistry.taira.chainId)
         XCTAssertEqual(signer.lastRequest?.derivationPath, UniversalWalletDerivationPaths.irohaDefault)
         XCTAssertEqual(signer.lastRequest?.destinationAccountId, recipientAddress)
+        XCTAssertEqual(signer.lastRequest?.metadata, IrohaTransactionMetadata.none)
+        XCTAssertEqual(signer.lastRequest?.metadata.values, [:])
         XCTAssertEqual(signer.lastRequest?.mnemonicOrSeed, Self.mnemonic)
         XCTAssertEqual(signer.lastRequest?.network, "taira")
         XCTAssertEqual(
@@ -1268,6 +1992,8 @@ final class SendDependencyContainerUniversalWalletRoutingTests: XCTestCase {
         XCTAssertEqual(signer.lastRequest?.chainId, UniversalWalletRegistry.nexus.chainId)
         XCTAssertEqual(signer.lastRequest?.derivationPath, UniversalWalletDerivationPaths.irohaDefault)
         XCTAssertEqual(signer.lastRequest?.destinationAccountId, recipientAddress)
+        XCTAssertEqual(signer.lastRequest?.metadata, IrohaTransactionMetadata.none)
+        XCTAssertEqual(signer.lastRequest?.metadata.values, [:])
         XCTAssertEqual(signer.lastRequest?.mnemonicOrSeed, Self.mnemonic)
         XCTAssertEqual(signer.lastRequest?.network, "nexus")
         XCTAssertEqual(
@@ -1351,6 +2077,341 @@ final class SendDependencyContainerUniversalWalletRoutingTests: XCTestCase {
         XCTAssertNil(toriiClient.lastSubmittedNorito)
     }
 
+    func testIrohaNexusWalletSmokeEvidenceThreadsExactImmutableMetadataToSigner() async throws {
+        let chain = makeIrohaChain(
+            chainId: UniversalWalletRegistry.nexus.chainId,
+            historyBaseURL: "https://minamoto.sora.org"
+        )
+        let wallet = try walletWithIrohaAccount(chainId: chain.chainId)
+        let recipientAddress = try IrohaAddressCodec.encode(
+            publicKeyHex: String(repeating: "22", count: 32),
+            chainDiscriminant: UniversalWalletRegistry.nexus.chainDiscriminant
+        )
+        let toriiClient = IrohaSubmitClientStub()
+        let signer = IrohaTransferSignerStub()
+        let service = IrohaTransferService(
+            wallet: wallet,
+            chain: chain,
+            toriiClient: toriiClient,
+            signer: signer,
+            mnemonicProvider: UniversalWalletMnemonicProviderStub(mnemonic: Self.mnemonic)
+        )
+        let transfer = Transfer(
+            chainAsset: ChainAsset(chain: chain, asset: Self.irohaAsset),
+            amount: BigUInt("1000000000000000000"),
+            receiver: recipientAddress,
+            tip: nil,
+            appId: nil
+        )
+        var operatorInput = Self.validIrohaWalletSmokeMetadata
+        let expectedSnapshot = operatorInput
+
+        let hash = try await service.submitNexusWalletSmokeEvidence(
+            transfer: transfer,
+            untrustedMetadata: operatorInput
+        )
+        operatorInput[IrohaWalletSmokeTransactionMetadata.walletCommitKey] = String(repeating: "b", count: 40)
+
+        XCTAssertEqual(hash, Self.signedTransactionHash)
+        XCTAssertEqual(signer.lastRequest?.network, "nexus")
+        XCTAssertEqual(signer.lastRequest?.metadata.values, expectedSnapshot)
+        XCTAssertEqual(signer.lastRequest?.metadata.values.count, 4)
+        XCTAssertEqual(toriiClient.lastSubmittedNorito, Self.signedTransaction)
+        XCTAssertEqual(toriiClient.lastSubmitBaseURL, "https://minamoto.sora.org")
+    }
+
+    func testIrohaWalletSmokeMetadataSnapshotDoesNotAliasInputOrReturnedValues() throws {
+        var operatorInput = Self.validIrohaWalletSmokeMetadata
+        let expectedSnapshot = operatorInput
+        let metadata = try IrohaWalletSmokeTransactionMetadata.validatedSnapshot(of: operatorInput)
+
+        operatorInput[IrohaWalletSmokeTransactionMetadata.walletCommitKey] = String(repeating: "b", count: 40)
+        var returnedValues = metadata.values
+        returnedValues[IrohaWalletSmokeTransactionMetadata.evidenceRoleKey] = "route-canary"
+
+        XCTAssertEqual(metadata.values, expectedSnapshot)
+        XCTAssertNotEqual(metadata.values, operatorInput)
+        XCTAssertNotEqual(metadata.values, returnedValues)
+    }
+
+    func testIrohaNexusWalletSmokeEvidenceRejectsMalformedMetadataBeforeSignerOrTorii() async throws {
+        let chain = makeIrohaChain(
+            chainId: UniversalWalletRegistry.nexus.chainId,
+            historyBaseURL: "https://minamoto.sora.org"
+        )
+        let wallet = try walletWithIrohaAccount(chainId: chain.chainId)
+        let recipientAddress = try IrohaAddressCodec.encode(
+            publicKeyHex: String(repeating: "22", count: 32),
+            chainDiscriminant: UniversalWalletRegistry.nexus.chainDiscriminant
+        )
+        let transfer = Transfer(
+            chainAsset: ChainAsset(chain: chain, asset: Self.irohaAsset),
+            amount: BigUInt("1000000000000000000"),
+            receiver: recipientAddress,
+            tip: nil,
+            appId: nil
+        )
+        let roleKey = IrohaWalletSmokeTransactionMetadata.evidenceRoleKey
+        let routeHashKey = IrohaWalletSmokeTransactionMetadata.routeGovernanceActionHashKey
+        let platformKey = IrohaWalletSmokeTransactionMetadata.walletPlatformKey
+        let commitKey = IrohaWalletSmokeTransactionMetadata.walletCommitKey
+        var cases: [(String, [String: String], IrohaWalletSmokeMetadataError)] = []
+
+        func mutated(
+            _ label: String,
+            key: String,
+            value: String?,
+            expected: IrohaWalletSmokeMetadataError
+        ) {
+            var metadata = Self.validIrohaWalletSmokeMetadata
+            metadata[key] = value
+            cases.append((label, metadata, expected))
+        }
+
+        mutated("missing field", key: roleKey, value: nil, expected: .invalidFieldSet)
+        mutated("wrong role", key: roleKey, value: "route-canary", expected: .invalidEvidenceRole)
+        mutated("wrong role case", key: roleKey, value: "Wallet-Smoke", expected: .invalidEvidenceRole)
+        mutated("wrong platform", key: platformKey, value: "android", expected: .invalidWalletPlatform)
+        mutated("wrong platform case", key: platformKey, value: "IOS", expected: .invalidWalletPlatform)
+        mutated("hash prefix", key: routeHashKey, value: String(repeating: "1", count: 64), expected: .invalidRouteGovernanceActionHash)
+        mutated("short hash", key: routeHashKey, value: "sha256:" + String(repeating: "1", count: 63), expected: .invalidRouteGovernanceActionHash)
+        mutated("uppercase hash", key: routeHashKey, value: "sha256:" + String(repeating: "A", count: 64), expected: .invalidRouteGovernanceActionHash)
+        mutated("zero hash", key: routeHashKey, value: "sha256:" + String(repeating: "0", count: 64), expected: .invalidRouteGovernanceActionHash)
+        mutated("hash control", key: routeHashKey, value: Self.irohaRouteActionHash + "\n", expected: .invalidRouteGovernanceActionHash)
+        mutated("hash unicode", key: routeHashKey, value: "sha256:" + String(repeating: "１", count: 64), expected: .invalidRouteGovernanceActionHash)
+        mutated("short commit", key: commitKey, value: String(repeating: "a", count: 39), expected: .invalidWalletCommit)
+        mutated("uppercase commit", key: commitKey, value: String(repeating: "A", count: 40), expected: .invalidWalletCommit)
+        mutated("zero commit", key: commitKey, value: String(repeating: "0", count: 40), expected: .invalidWalletCommit)
+        mutated("commit control", key: commitKey, value: Self.irohaWalletCommit + "\u{0000}", expected: .invalidWalletCommit)
+        mutated("commit unicode", key: commitKey, value: String(repeating: "ａ", count: 40), expected: .invalidWalletCommit)
+
+        var extra = Self.validIrohaWalletSmokeMetadata
+        extra["unexpected"] = "field"
+        cases.append(("extra field", extra, .invalidFieldSet))
+
+        var wrongKeyCase = Self.validIrohaWalletSmokeMetadata
+        wrongKeyCase[platformKey] = nil
+        wrongKeyCase["wallet_Platform"] = "ios"
+        cases.append(("wrong key case", wrongKeyCase, .invalidFieldSet))
+
+        var controlKey = Self.validIrohaWalletSmokeMetadata
+        controlKey[commitKey] = nil
+        controlKey[commitKey + "\n"] = Self.irohaWalletCommit
+        cases.append(("control in key", controlKey, .invalidFieldSet))
+
+        var unicodeKey = Self.validIrohaWalletSmokeMetadata
+        unicodeKey[commitKey] = nil
+        unicodeKey["wallet_commіt"] = Self.irohaWalletCommit
+        cases.append(("unicode confusable key", unicodeKey, .invalidFieldSet))
+
+        for (label, metadata, expectedError) in cases {
+            let toriiClient = IrohaSubmitClientStub()
+            let signer = IrohaTransferSignerStub()
+            let mnemonicProvider = CountingUniversalWalletMnemonicProvider(mnemonic: Self.mnemonic)
+            let service = IrohaTransferService(
+                wallet: wallet,
+                chain: chain,
+                toriiClient: toriiClient,
+                signer: signer,
+                mnemonicProvider: mnemonicProvider
+            )
+
+            do {
+                _ = try await service.submitNexusWalletSmokeEvidence(
+                    transfer: transfer,
+                    untrustedMetadata: metadata
+                )
+                XCTFail("Malformed metadata unexpectedly reached the signer: \(label)")
+            } catch let error as IrohaWalletSmokeMetadataError {
+                XCTAssertEqual(error, expectedError, label)
+            } catch {
+                XCTFail("Unexpected metadata error for \(label): \(error)")
+            }
+            XCTAssertEqual(mnemonicProvider.callCount, 0, label)
+            XCTAssertNil(signer.lastRequest, label)
+            XCTAssertNil(toriiClient.lastSubmittedNorito, label)
+        }
+        XCTAssertEqual(cases.count, 20)
+    }
+
+    func testIrohaWalletSmokeEvidenceRejectsTairaAndNoncanonicalNexusBeforeSignerOrTorii() async throws {
+        let configurations: [(
+            label: String,
+            chainId: String,
+            historyBaseURL: String,
+            expectedReason: String
+        )] = [
+            (
+                "Taira route",
+                UniversalWalletRegistry.taira.chainId,
+                "https://taira.sora.org",
+                "exact canonical Nexus chain identity"
+            ),
+            (
+                "uppercase Nexus chain-id drift",
+                UniversalWalletRegistry.nexus.chainId.uppercased(),
+                "https://minamoto.sora.org",
+                "exact canonical Nexus chain identity"
+            ),
+            (
+                "Nexus registry-id alias",
+                UniversalWalletRegistry.nexus.id,
+                "https://minamoto.sora.org",
+                "exact canonical Nexus chain identity"
+            ),
+            (
+                "unrelated HTTPS host",
+                UniversalWalletRegistry.nexus.chainId,
+                "https://nexus-proxy.example",
+                "canonical Nexus Torii"
+            ),
+            (
+                "HTTP downgrade",
+                UniversalWalletRegistry.nexus.chainId,
+                "http://minamoto.sora.org",
+                "canonical Nexus Torii"
+            ),
+            (
+                "suffix-confusion host",
+                UniversalWalletRegistry.nexus.chainId,
+                "https://minamoto.sora.org.attacker.invalid",
+                "canonical Nexus Torii"
+            ),
+            (
+                "userinfo host confusion",
+                UniversalWalletRegistry.nexus.chainId,
+                "https://minamoto.sora.org@attacker.invalid",
+                "canonical Nexus Torii"
+            ),
+            (
+                "noncanonical port",
+                UniversalWalletRegistry.nexus.chainId,
+                "https://minamoto.sora.org:444",
+                "canonical Nexus Torii"
+            ),
+            (
+                "path-bearing endpoint",
+                UniversalWalletRegistry.nexus.chainId,
+                "https://minamoto.sora.org/v1/mcp",
+                "canonical Nexus Torii"
+            ),
+            (
+                "query-bearing endpoint",
+                UniversalWalletRegistry.nexus.chainId,
+                "https://minamoto.sora.org?redirect=https://attacker.invalid",
+                "canonical Nexus Torii"
+            ),
+            (
+                "fragment-bearing endpoint",
+                UniversalWalletRegistry.nexus.chainId,
+                "https://minamoto.sora.org#@attacker.invalid",
+                "canonical Nexus Torii"
+            ),
+            (
+                "trailing-slash drift",
+                UniversalWalletRegistry.nexus.chainId,
+                "https://minamoto.sora.org/",
+                "canonical Nexus Torii"
+            )
+        ]
+
+        XCTAssertEqual(configurations.count, 12)
+
+        for configuration in configurations {
+            let chain = makeIrohaChain(
+                chainId: configuration.chainId,
+                historyBaseURL: configuration.historyBaseURL
+            )
+            XCTAssertEqual(
+                chain.externalApi?.history?.url.absoluteString,
+                configuration.historyBaseURL,
+                configuration.label
+            )
+            let wallet = try walletWithIrohaAccount(chainId: chain.chainId)
+            let network = configuration.chainId == UniversalWalletRegistry.taira.chainId
+                ? UniversalWalletRegistry.taira
+                : UniversalWalletRegistry.nexus
+            let recipientAddress = try IrohaAddressCodec.encode(
+                publicKeyHex: String(repeating: "22", count: 32),
+                chainDiscriminant: network.chainDiscriminant
+            )
+            let toriiClient = IrohaSubmitClientStub()
+            let signer = IrohaTransferSignerStub()
+            let mnemonicProvider = CountingUniversalWalletMnemonicProvider(mnemonic: Self.mnemonic)
+            let service = IrohaTransferService(
+                wallet: wallet,
+                chain: chain,
+                toriiClient: toriiClient,
+                signer: signer,
+                mnemonicProvider: mnemonicProvider
+            )
+            let transfer = Transfer(
+                chainAsset: ChainAsset(chain: chain, asset: Self.irohaAsset),
+                amount: BigUInt("1000000000000000000"),
+                receiver: recipientAddress,
+                tip: nil,
+                appId: nil
+            )
+
+            do {
+                _ = try await service.submitNexusWalletSmokeEvidence(
+                    transfer: transfer,
+                    untrustedMetadata: Self.validIrohaWalletSmokeMetadata
+                )
+                XCTFail("Untrusted evidence route unexpectedly reached signing: \(configuration.label)")
+            } catch TransferServiceError.transferFailed(let reason) {
+                XCTAssertTrue(
+                    reason.contains(configuration.expectedReason),
+                    "\(configuration.label): \(reason)"
+                )
+            } catch {
+                XCTFail("Unexpected evidence route error for \(configuration.label): \(error)")
+            }
+            XCTAssertEqual(mnemonicProvider.callCount, 0, configuration.label)
+            XCTAssertNil(signer.lastRequest, configuration.label)
+            XCTAssertNil(toriiClient.lastSubmittedNorito, configuration.label)
+        }
+    }
+
+    func testIrohaWalletSmokeEvidenceRemainsFailClosedWithUnavailableSigner() async throws {
+        let chain = makeIrohaChain(
+            chainId: UniversalWalletRegistry.nexus.chainId,
+            historyBaseURL: "https://minamoto.sora.org"
+        )
+        let wallet = try walletWithIrohaAccount(chainId: chain.chainId)
+        let recipientAddress = try IrohaAddressCodec.encode(
+            publicKeyHex: String(repeating: "22", count: 32),
+            chainDiscriminant: UniversalWalletRegistry.nexus.chainDiscriminant
+        )
+        let toriiClient = IrohaSubmitClientStub()
+        let service = IrohaTransferService(
+            wallet: wallet,
+            chain: chain,
+            toriiClient: toriiClient,
+            mnemonicProvider: UniversalWalletMnemonicProviderStub(mnemonic: Self.mnemonic)
+        )
+        let transfer = Transfer(
+            chainAsset: ChainAsset(chain: chain, asset: Self.irohaAsset),
+            amount: BigUInt("1000000000000000000"),
+            receiver: recipientAddress,
+            tip: nil,
+            appId: nil
+        )
+
+        do {
+            _ = try await service.submitNexusWalletSmokeEvidence(
+                transfer: transfer,
+                untrustedMetadata: Self.validIrohaWalletSmokeMetadata
+            )
+            XCTFail("Wallet-smoke metadata unexpectedly enabled production signing")
+        } catch TransferServiceError.transferFailed(let reason) {
+            XCTAssertTrue(reason.contains("signing codec"), reason)
+        } catch {
+            XCTFail("Unexpected unavailable-signer error: \(error)")
+        }
+        XCTAssertNil(toriiClient.lastSubmittedNorito)
+    }
+
     private func makeChain(chainId: String) -> ChainModel {
         ChainModel(
             rank: nil,
@@ -1380,19 +2441,22 @@ final class SendDependencyContainerUniversalWalletRoutingTests: XCTestCase {
         )
     }
 
-    private func makeTonTransferChain() -> ChainModel {
+    private func makeTonTransferChain(
+        chainId: String = TonChainSelection.mainnetChainId,
+        assets: Set<AssetModel>? = nil
+    ) -> ChainModel {
         ChainModel(
             rank: nil,
             disabled: false,
-            chainId: "ton-mainnet-unit",
+            chainId: chainId,
             parentId: nil,
             paraId: nil,
             name: "TON Mainnet",
-            assets: [Self.asset],
+            assets: assets ?? [Self.tonAsset],
             xcm: nil,
             nodes: [
                 ChainNodeModel(
-                    url: URL(string: "wss://rpc.ton.org")!,
+                    url: URL(string: "https://tonapi.io")!,
                     name: "TON",
                     apikey: nil
                 )
@@ -1400,7 +2464,7 @@ final class SendDependencyContainerUniversalWalletRoutingTests: XCTestCase {
             addressPrefix: 0,
             types: nil,
             icon: nil,
-            options: nil,
+            options: chainId == TonChainSelection.testnetChainId ? [.testnet] : nil,
             externalApi: nil,
             selectedNode: nil,
             customNodes: nil,
@@ -1416,10 +2480,7 @@ final class SendDependencyContainerUniversalWalletRoutingTests: XCTestCase {
         let externalApi = historyBaseURL.map {
             ChainModel.ExternalApiSet(
                 staking: nil,
-                history: ChainModel.BlockExplorer(
-                    type: "iroha",
-                    url: URL(string: $0)!
-                ),
+                history: makeIrohaTestHistoryEndpoint($0),
                 crowdloans: nil,
                 explorers: nil
             )
@@ -1466,6 +2527,37 @@ final class SendDependencyContainerUniversalWalletRoutingTests: XCTestCase {
         return AccountGenerator.generateMetaAccount(with: [chainAccount])
     }
 
+    private func prepareDisplayedTonFee(
+        service: TransferServiceProtocol,
+        transfer: Transfer
+    ) async throws -> BigUInt {
+        let received = expectation(description: "displayed TON fee")
+        let listener = TonFeePresentationListenerStub(expectation: received)
+        service.subscribeForFee(transfer: transfer, listener: listener)
+        await fulfillment(of: [received], timeout: 2)
+        let fee = try XCTUnwrap(listener.fee)
+        let presentationID = try XCTUnwrap(listener.presentationID)
+        let accepted = await service.confirmFeePresentation(
+            id: presentationID,
+            fee: fee
+        )
+        XCTAssertTrue(accepted)
+        return fee
+    }
+
+    private func walletWithTonAccount(chainId: String) throws -> MetaAccountModel {
+        let account = try TonKeyDerivation.deriveAccount(mnemonic: Self.mnemonic)
+        let chainAccount = ChainAccountModel(
+            chainId: chainId,
+            accountId: account.accountHash,
+            publicKey: account.publicKey,
+            cryptoType: CryptoType.ed25519.rawValue,
+            ethereumBased: false
+        )
+
+        return AccountGenerator.generateMetaAccount(with: [chainAccount])
+    }
+
     private func walletWithChainAccount(chainId: String) -> MetaAccountModel {
         let chainAccount = ChainAccountModel(
             chainId: chainId,
@@ -1495,10 +2587,29 @@ final class SendDependencyContainerUniversalWalletRoutingTests: XCTestCase {
         isUtility: true,
         isNative: true
     )
+    private static let tonAsset = AssetModel(
+        id: UniversalWalletRegistry.tonNativeAssetId,
+        name: "Toncoin",
+        symbol: "TON",
+        precision: 9,
+        isUtility: true,
+        isNative: true,
+        type: .normal
+    )
     private static let mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     private static let otherMnemonic = "legal winner thank year wave sausage worth useful legal winner thank yellow"
     private static let signedTransaction = Data([1, 2, 3, 4])
     private static let signedTransactionHash = "signed-transaction-hash"
+    private static let irohaRouteActionHash = "sha256:" + String(repeating: "1", count: 64)
+    private static let irohaWalletCommit = String(repeating: "a", count: 40)
+    private static var validIrohaWalletSmokeMetadata: [String: String] {
+        [
+            IrohaWalletSmokeTransactionMetadata.evidenceRoleKey: "wallet-smoke",
+            IrohaWalletSmokeTransactionMetadata.routeGovernanceActionHashKey: irohaRouteActionHash,
+            IrohaWalletSmokeTransactionMetadata.walletPlatformKey: "ios",
+            IrohaWalletSmokeTransactionMetadata.walletCommitKey: irohaWalletCommit
+        ]
+    }
     private static let receiptTxHash = "receipt-tx-hash"
     private static let receiptEntrypointHash = "receipt-entrypoint-hash"
     private static let receiptSignedTransactionHash = "receipt-signed-transaction-hash"
@@ -1513,6 +2624,90 @@ final class SendDependencyContainerUniversalWalletRoutingTests: XCTestCase {
                 signedTransaction: SendDependencyContainerUniversalWalletRoutingTests.signedTransaction,
                 transactionHashHex: SendDependencyContainerUniversalWalletRoutingTests.signedTransactionHash
             )
+        }
+    }
+
+    private final class TonFeePresentationListenerStub: TonTransferFeePresentationListener {
+        private let expectation: XCTestExpectation
+        private(set) var fee: BigUInt?
+        private(set) var presentationID: String?
+
+        init(expectation: XCTestExpectation) {
+            self.expectation = expectation
+        }
+
+        func didReceiveTonFee(fee: BigUInt, presentationID: String) {
+            self.fee = fee
+            self.presentationID = presentationID
+            expectation.fulfill()
+        }
+
+        func didReceiveFee(fee _: BigUInt) {
+            XCTFail("TON quote lost its presentation identifier")
+            expectation.fulfill()
+        }
+
+        func didReceiveFeeError(feeError: Error) {
+            XCTFail("Unexpected TON quote error: \(feeError)")
+            expectation.fulfill()
+        }
+    }
+
+    private final class TonTransferRemoteStub: TonTransferRemoteProtocol, @unchecked Sendable {
+        let reviewedSignedOperationOrigin: String? = TonAPIClientFactory.canonicalAuthenticatedOrigin.absoluteString
+
+        private(set) var walletStateCallCount = 0
+        private(set) var emulateCallCount = 0
+        private(set) var unsignedEmulateCallCount = 0
+        private(set) var signedEmulateCallCount = 0
+        private(set) var broadcastCallCount = 0
+        private(set) var reconcileCallCount = 0
+        private(set) var emulatedBocs: [String] = []
+        private(set) var broadcastBocs: [String] = []
+        private(set) var broadcastMessageHashes: [String] = []
+        var reconciliationResult: TonReconciliationResult = .confirmed
+
+        func walletState(address _: String) async throws -> TonWalletRemoteState {
+            walletStateCallCount += 1
+            return TonWalletRemoteState(sequenceNumber: 1, isInitialized: true)
+        }
+
+        func recipientRequiresMemo(address _: String) async throws -> Bool {
+            false
+        }
+
+        func emulateUnsigned(
+            message: TonUnsignedEmulationMessage,
+            intent _: TonEmulationIntent
+        ) async throws -> TonEmulationResult {
+            emulateCallCount += 1
+            unsignedEmulateCallCount += 1
+            emulatedBocs.append(message.bocBase64)
+            return TonEmulationResult(accepted: true, totalFeeNanotons: 1)
+        }
+
+        func emulateSigned(
+            message: TonSignedExternalMessage,
+            intent _: TonEmulationIntent
+        ) async throws -> TonEmulationResult {
+            emulateCallCount += 1
+            signedEmulateCallCount += 1
+            emulatedBocs.append(message.bocBase64)
+            return TonEmulationResult(accepted: true, totalFeeNanotons: 1)
+        }
+
+        func broadcast(message: TonSignedExternalMessage) async throws {
+            broadcastCallCount += 1
+            broadcastBocs.append(message.bocBase64)
+            broadcastMessageHashes.append(message.messageHashHex)
+        }
+
+        func reconcile(
+            message _: TonSignedExternalMessage,
+            intent _: TonEmulationIntent
+        ) async throws -> TonReconciliationResult {
+            reconcileCallCount += 1
+            return reconciliationResult
         }
     }
 
@@ -1606,10 +2801,24 @@ final class SendDependencyContainerUniversalWalletRoutingTests: XCTestCase {
             mnemonic
         }
     }
+
+    private final class CountingUniversalWalletMnemonicProvider: UniversalWalletMnemonicProviding {
+        let mnemonic: String?
+        private(set) var callCount = 0
+
+        init(mnemonic: String?) {
+            self.mnemonic = mnemonic
+        }
+
+        func mnemonic(for _: MetaAccountModel, chain _: ChainModel) throws -> String? {
+            callCount += 1
+            return mnemonic
+        }
+    }
 }
 
 final class ChainRegistryTonNodeSelectionTests: XCTestCase {
-    func testResolveTonNodePrefersSelectedNode() {
+    func testResolveTonNodePrefersSelectedNode() throws {
         let primary = ChainNodeModel(
             url: URL(string: "https://ton-selected.example.com")!,
             name: "Selected",
@@ -1625,9 +2834,10 @@ final class ChainRegistryTonNodeSelectionTests: XCTestCase {
         let resolved = ChainRegistry.resolveTonNode(for: chain)
 
         XCTAssertEqual(resolved?.url, primary.url)
+        XCTAssertEqual(try ChainRegistry.tonAPIBaseURL(for: chain), primary.url)
     }
 
-    func testResolveTonNodeFallsBackDeterministicallyWhenSelectedNodeMissing() {
+    func testResolveTonNodeFallsBackDeterministicallyWhenSelectedNodeMissing() throws {
         let nodeB = ChainNodeModel(
             url: URL(string: "https://b-ton.example.com")!,
             name: "B",
@@ -1643,6 +2853,7 @@ final class ChainRegistryTonNodeSelectionTests: XCTestCase {
         let resolved = ChainRegistry.resolveTonNode(for: chain)
 
         XCTAssertEqual(resolved?.url, nodeA.url)
+        XCTAssertEqual(try ChainRegistry.tonAPIBaseURL(for: chain), nodeA.url)
     }
 
     func testResolveTonNodeReturnsNilForEmptyNodesAndNoSelection() {
@@ -1651,6 +2862,508 @@ final class ChainRegistryTonNodeSelectionTests: XCTestCase {
         let resolved = ChainRegistry.resolveTonNode(for: chain)
 
         XCTAssertNil(resolved)
+        XCTAssertThrowsError(try ChainRegistry.tonAPIBaseURL(for: chain))
+    }
+
+    func testTonApiBaseURLRejectsInsecureCrossNetworkEndpoint() {
+        let node = ChainNodeModel(
+            url: URL(string: "http://testnet.ton.example.com")!,
+            name: "Insecure testnet",
+            apikey: nil
+        )
+        let chain = makeTonChain(nodes: [node], selectedNode: node)
+
+        XCTAssertThrowsError(try ChainRegistry.tonAPIBaseURL(for: chain))
+    }
+
+    func testTonApiBaseURLRejectsAuthorityAndURLComponentConfusion() {
+        let invalidURLs = [
+            "https://user:secret@tonapi.io",
+            "https://tonapi.io/v2",
+            "https://tonapi.io?redirect=https://attacker.example",
+            "https://tonapi.io#attacker"
+        ]
+
+        for rawURL in invalidURLs {
+            let node = ChainNodeModel(
+                url: URL(string: rawURL)!,
+                name: "Untrusted",
+                apikey: nil
+            )
+            let chain = makeTonChain(nodes: [node], selectedNode: node)
+
+            XCTAssertThrowsError(try ChainRegistry.tonAPIBaseURL(for: chain), rawURL)
+        }
+    }
+
+    func testTonApiAuthorizationIsRestrictedToExactCanonicalOrigin() {
+        let canonical = TonAPIClientFactory(
+            tonAPIURL: URL(string: "https://tonapi.io")!,
+            token: "top-secret"
+        )
+        XCTAssertTrue(canonical.usesAuthorization)
+
+        let untrustedURLs = [
+            "https://evil.example",
+            "https://tonapi.io.evil.example",
+            "https://tonapi.io:444",
+            "https://user@tonapi.io",
+            "https://tonapi.io/v2",
+            "https://tonapi.io?next=evil",
+            "https://tonapi.io#evil"
+        ]
+        for rawURL in untrustedURLs {
+            let factory = TonAPIClientFactory(
+                tonAPIURL: URL(string: rawURL)!,
+                token: "top-secret"
+            )
+            XCTAssertFalse(factory.usesAuthorization, rawURL)
+            XCTAssertFalse(
+                TonAPIClientFactory.canAttachAuthorization(to: factory.serverURL),
+                rawURL
+            )
+        }
+    }
+
+    func testCanonicalTonApiOriginStillRejectsMissingOrMalformedCredentialsForSignedOperations() async {
+        let configuration = mockConfiguration()
+        TonAPIMockURLProtocol.install { protocolInstance, request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: nil
+            )!
+            protocolInstance.client?.urlProtocol(
+                protocolInstance,
+                didReceive: response,
+                cacheStoragePolicy: .notAllowed
+            )
+            protocolInstance.client?.urlProtocolDidFinishLoading(protocolInstance)
+        }
+        defer { TonAPIMockURLProtocol.reset() }
+        let signedMessage = TonSignedExternalMessage(
+            boc: Data([0]),
+            bocBase64: "AA==",
+            messageHashHex: String(repeating: "00", count: 32),
+            signingPayloadHashHex: String(repeating: "00", count: 32),
+            publicKey: Data(repeating: 1, count: 32),
+            walletAddress: "0:" + String(repeating: "0", count: 64),
+            sequenceNumber: 0,
+            validUntil: UInt64.max,
+            includesStateInit: false
+        )
+        let rejectedTokens = [
+            "",
+            " ",
+            " leading-space",
+            "trailing-space ",
+            "line\nbreak",
+            "tab\tseparated",
+            "non-ascii-é",
+            String(repeating: "a", count: 4097)
+        ]
+
+        for token in rejectedTokens {
+            let factory = TonAPIClientFactory(
+                tonAPIURL: URL(string: "https://tonapi.io")!,
+                token: token
+            )
+            XCTAssertFalse(factory.usesAuthorization, token.debugDescription)
+            XCTAssertFalse(factory.hasReviewedProductionSendCredential, token.debugDescription)
+            let remote = TonAPIRemoteClient(factory: factory, configuration: configuration)
+            XCTAssertNil(remote.reviewedSignedOperationOrigin, token.debugDescription)
+            do {
+                try await remote.broadcast(message: signedMessage)
+                XCTFail("Malformed credential enabled signed operation: \(token.debugDescription)")
+            } catch let error as TonTransferRemoteError {
+                XCTAssertEqual(error, .untrustedSignedOperationEndpoint)
+            } catch {
+                XCTFail("Unexpected malformed-credential error: \(error)")
+            }
+        }
+        XCTAssertEqual(TonAPIMockURLProtocol.requestCount, 0)
+    }
+
+    func testTonProductionSendEndpointAllowlistPinsExactBinaryOwnedOrigin() throws {
+        XCTAssertEqual(
+            TonAPIClientFactory.reviewedProductionSendOrigins,
+            [URL(string: "https://tonapi.io")!]
+        )
+        XCTAssertTrue(
+            TonAPIClientFactory.isReviewedProductionSendServerURL(
+                URL(string: "https://tonapi.io")!
+            )
+        )
+        XCTAssertTrue(
+            TonAPIClientFactory.isReviewedProductionSendServerURL(
+                URL(string: "https://tonapi.io/")!
+            )
+        )
+
+        let rejectedURLs = [
+            "https://evil.example",
+            "https://tonapi.io.evil.example",
+            "https://tonapi.io:443",
+            "https://tonapi.io:444",
+            "https://user@tonapi.io",
+            "https://tonapi.io/v2",
+            "https://tonapi.io?next=evil",
+            "https://tonapi.io#evil",
+            "http://tonapi.io"
+        ]
+        for rawURL in rejectedURLs {
+            XCTAssertFalse(
+                TonAPIClientFactory.isReviewedProductionSendServerURL(
+                    try XCTUnwrap(URL(string: rawURL))
+                ),
+                rawURL
+            )
+        }
+    }
+
+    func testTonReadOnlyNodeResolutionDoesNotExpandProductionSendAllowlist() throws {
+        let unreviewed = ChainNodeModel(
+            url: URL(string: "https://read-only-ton.example.com")!,
+            name: "Read only",
+            apikey: nil
+        )
+        let chain = makeTonChain(nodes: [unreviewed], selectedNode: unreviewed)
+
+        XCTAssertEqual(try ChainRegistry.tonAPIBaseURL(for: chain), unreviewed.url)
+        XCTAssertFalse(
+            TonAPIClientFactory.isReviewedProductionSendServerURL(
+                try ChainRegistry.tonAPIBaseURL(for: chain)
+            )
+        )
+    }
+
+    func testTonApiTransportNeverFollowsRedirectAndUsesFiniteBounds() {
+        let redirected = URLRequest(url: URL(string: "https://attacker.example/capture")!)
+
+        XCTAssertNil(TonAPINoRedirectDelegate.redirectedRequest(redirected))
+        XCTAssertFalse(TonAPITransportPolicy.followsRedirects)
+        XCTAssertGreaterThan(TonAPITransportPolicy.requestTimeout, 0)
+        XCTAssertGreaterThan(TonAPITransportPolicy.resourceTimeout, 0)
+        XCTAssertLessThanOrEqual(TonAPITransportPolicy.requestTimeout, 30)
+        XCTAssertLessThanOrEqual(TonAPITransportPolicy.resourceTimeout, 60)
+        XCTAssertEqual(TonAPITransportPolicy.maximumResponseBytes, 2 * 1_024 * 1_024)
+        XCTAssertEqual(TonAPITransportPolicy.maximumRequestBodyBytes, 1 * 1_024 * 1_024)
+    }
+
+    func testTonApiTransportCancelsOversizedStreamingResponse() async throws {
+        let configuration = mockConfiguration()
+        TonAPIMockURLProtocol.install { protocolInstance, request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: nil
+            )!
+            protocolInstance.client?.urlProtocol(
+                protocolInstance,
+                didReceive: response,
+                cacheStoragePolicy: .notAllowed
+            )
+            let chunk = Data(repeating: 0x41, count: 512 * 1_024)
+            for _ in 0 ..< 5 {
+                protocolInstance.client?.urlProtocol(protocolInstance, didLoad: chunk)
+            }
+            protocolInstance.client?.urlProtocolDidFinishLoading(protocolInstance)
+        }
+        defer { TonAPIMockURLProtocol.reset() }
+
+        let transport = TonAPIURLSessionTransport(configuration: configuration)
+        do {
+            _ = try await transport.send(
+                HTTPRequest(
+                    method: .get,
+                    scheme: nil,
+                    authority: nil,
+                    path: "/v2/test"
+                ),
+                body: nil,
+                baseURL: URL(string: "https://tonapi.io")!,
+                operationID: "oversized-response"
+            )
+            XCTFail("Expected bounded transport to reject oversized response")
+        } catch let error as TonAPITransportError {
+            guard case let .responseTooLarge(actualBytes, maximumBytes) = error else {
+                return XCTFail("Unexpected transport error: \(error)")
+            }
+            XCTAssertGreaterThan(actualBytes, maximumBytes)
+            XCTAssertEqual(maximumBytes, TonAPITransportPolicy.maximumResponseBytes)
+        }
+        XCTAssertEqual(TonAPIMockURLProtocol.requestCount, 1)
+    }
+
+    func testTonApiTransportRejectsOversizedRequestBeforeNetwork() async throws {
+        let configuration = mockConfiguration()
+        TonAPIMockURLProtocol.install { protocolInstance, request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: nil
+            )!
+            protocolInstance.client?.urlProtocol(
+                protocolInstance,
+                didReceive: response,
+                cacheStoragePolicy: .notAllowed
+            )
+            protocolInstance.client?.urlProtocolDidFinishLoading(protocolInstance)
+        }
+        defer { TonAPIMockURLProtocol.reset() }
+
+        let transport = TonAPIURLSessionTransport(configuration: configuration)
+        let body = HTTPBody(
+            Data(repeating: 0x42, count: TonAPITransportPolicy.maximumRequestBodyBytes + 1)
+        )
+        do {
+            _ = try await transport.send(
+                HTTPRequest(
+                    method: .post,
+                    scheme: nil,
+                    authority: nil,
+                    path: "/v2/test"
+                ),
+                body: body,
+                baseURL: URL(string: "https://tonapi.io")!,
+                operationID: "oversized-request"
+            )
+            XCTFail("Expected oversized request body to fail")
+        } catch {
+            XCTAssertEqual(TonAPIMockURLProtocol.requestCount, 0)
+        }
+    }
+
+    func testCancellingTonApiTransportCancelsSessionTaskAndClearsState() async {
+        let configuration = mockConfiguration()
+        let started = expectation(description: "request started")
+        let stopped = expectation(description: "URL loading stopped")
+        TonAPIMockURLProtocol.install(
+            { protocolInstance, request in
+                let response = HTTPURLResponse(
+                    url: request.url!,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: nil
+                )!
+                protocolInstance.client?.urlProtocol(
+                    protocolInstance,
+                    didReceive: response,
+                    cacheStoragePolicy: .notAllowed
+                )
+                started.fulfill()
+                // Intentionally never finish: caller cancellation must stop this request.
+            },
+            onStop: { stopped.fulfill() }
+        )
+        defer { TonAPIMockURLProtocol.reset() }
+
+        let transport = TonAPIURLSessionTransport(configuration: configuration)
+        let requestTask = Task {
+            try await transport.send(
+                HTTPRequest(
+                    method: .get,
+                    scheme: nil,
+                    authority: nil,
+                    path: "/v2/never-finishes"
+                ),
+                body: nil,
+                baseURL: URL(string: "https://tonapi.io")!,
+                operationID: "cancelled-request"
+            )
+        }
+
+        await fulfillment(of: [started], timeout: 1)
+        XCTAssertEqual(transport.inFlightRequestCount, 1)
+        requestTask.cancel()
+        do {
+            _ = try await requestTask.value
+            XCTFail("Expected caller cancellation to propagate")
+        } catch is CancellationError {
+            // Expected exact cancellation rather than a transport timeout.
+        } catch {
+            XCTFail("Unexpected cancellation error: \(error)")
+        }
+        await fulfillment(of: [stopped], timeout: 1)
+        XCTAssertEqual(transport.inFlightRequestCount, 0)
+        XCTAssertEqual(TonAPIMockURLProtocol.requestCount, 1)
+    }
+
+    func testTonApiRedirectNeverIssuesHostileRequestOrForwardsAuthorization() async throws {
+        let configuration = mockConfiguration()
+        TonAPIMockURLProtocol.install { protocolInstance, request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 302,
+                httpVersion: nil,
+                headerFields: ["Location": "https://attacker.example/capture"]
+            )!
+            protocolInstance.client?.urlProtocol(
+                protocolInstance,
+                didReceive: response,
+                cacheStoragePolicy: .notAllowed
+            )
+            protocolInstance.client?.urlProtocolDidFinishLoading(protocolInstance)
+        }
+        defer { TonAPIMockURLProtocol.reset() }
+
+        let factory = TonAPIClientFactory(
+            tonAPIURL: URL(string: "https://tonapi.io")!,
+            token: "top-secret"
+        )
+        do {
+            _ = try await factory.tonAPIClient(configuration: configuration).sendBlockchainMessage(
+                .init(body: .json(.init(boc: "te6ccgEBAQEAAgAAAA==")))
+            )
+            XCTFail("Expected the generated client to reject a bodyless redirect response")
+        } catch {}
+
+        XCTAssertEqual(TonAPIMockURLProtocol.requestCount, 1)
+        XCTAssertEqual(TonAPIMockURLProtocol.requests.first?.url?.host, "tonapi.io")
+        XCTAssertEqual(
+            TonAPIMockURLProtocol.requests.first?.value(forHTTPHeaderField: "Authorization"),
+            "Bearer top-secret"
+        )
+        XCTAssertFalse(TonAPIMockURLProtocol.requests.contains { $0.url?.host == "attacker.example" })
+
+        let trailingSlashFactory = TonAPIClientFactory(
+            tonAPIURL: URL(string: "https://tonapi.io/")!,
+            token: "top-secret"
+        )
+        do {
+            _ = try await trailingSlashFactory
+                .tonAPIClient(configuration: configuration)
+                .sendBlockchainMessage(
+                    .init(body: .json(.init(boc: "te6ccgEBAQEAAgAAAA==")))
+                )
+            XCTFail("Expected the generated client to reject a bodyless redirect response")
+        } catch {}
+
+        XCTAssertEqual(TonAPIMockURLProtocol.requestCount, 2)
+        let trailingSlashRequest = try XCTUnwrap(TonAPIMockURLProtocol.requests.last)
+        XCTAssertEqual(
+            trailingSlashRequest.url?.absoluteString,
+            "https://tonapi.io/v2/blockchain/message"
+        )
+        XCTAssertEqual(
+            trailingSlashRequest.value(forHTTPHeaderField: "Authorization"),
+            "Bearer top-secret"
+        )
+    }
+
+    func testHostileTonApiOriginCannotReceiveSignedOperations() async throws {
+        let configuration = mockConfiguration()
+        TonAPIMockURLProtocol.install { protocolInstance, request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: nil
+            )!
+            protocolInstance.client?.urlProtocol(
+                protocolInstance,
+                didReceive: response,
+                cacheStoragePolicy: .notAllowed
+            )
+            protocolInstance.client?.urlProtocolDidFinishLoading(protocolInstance)
+        }
+        defer { TonAPIMockURLProtocol.reset() }
+
+        let factory = TonAPIClientFactory(
+            tonAPIURL: URL(string: "https://attacker.example")!,
+            token: "top-secret"
+        )
+        let remote = TonAPIRemoteClient(factory: factory, configuration: configuration)
+        let signedMessage = TonSignedExternalMessage(
+            boc: Data([0]),
+            bocBase64: "AA==",
+            messageHashHex: String(repeating: "00", count: 32),
+            signingPayloadHashHex: String(repeating: "00", count: 32),
+            publicKey: Data(repeating: 1, count: 32),
+            walletAddress: "0:" + String(repeating: "0", count: 64),
+            sequenceNumber: 0,
+            validUntil: UInt64.max,
+            includesStateInit: false
+        )
+
+        do {
+            try await remote.broadcast(message: signedMessage)
+            XCTFail("Expected an unreviewed origin to reject signed operations")
+        } catch let error as TonTransferRemoteError {
+            XCTAssertEqual(error, .untrustedSignedOperationEndpoint)
+        }
+
+        XCTAssertEqual(TonAPIMockURLProtocol.requestCount, 0)
+    }
+
+    func testCanonicalTonApiFactoryIsRequiredForSignedOperations() async throws {
+        let configuration = mockConfiguration()
+        TonAPIMockURLProtocol.install { protocolInstance, request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: nil
+            )!
+            protocolInstance.client?.urlProtocol(
+                protocolInstance,
+                didReceive: response,
+                cacheStoragePolicy: .notAllowed
+            )
+            protocolInstance.client?.urlProtocolDidFinishLoading(protocolInstance)
+        }
+        defer { TonAPIMockURLProtocol.reset() }
+
+        let factory = TonAPIClientFactory(
+            tonAPIURL: URL(string: "https://tonapi.io")!,
+            token: "top-secret"
+        )
+        let signedMessage = TonSignedExternalMessage(
+            boc: Data([0]),
+            bocBase64: "AA==",
+            messageHashHex: String(repeating: "00", count: 32),
+            signingPayloadHashHex: String(repeating: "00", count: 32),
+            publicKey: Data(repeating: 1, count: 32),
+            walletAddress: "0:" + String(repeating: "0", count: 64),
+            sequenceNumber: 0,
+            validUntil: UInt64.max,
+            includesStateInit: false
+        )
+
+        let factoryRemote = TonAPIRemoteClient(
+            factory: factory,
+            configuration: configuration
+        )
+        try await factoryRemote.broadcast(message: signedMessage)
+        XCTAssertEqual(TonAPIMockURLProtocol.requestCount, 1)
+        XCTAssertEqual(
+            TonAPIMockURLProtocol.requests.first?.url?.absoluteString,
+            "https://tonapi.io/v2/blockchain/message"
+        )
+        XCTAssertEqual(
+            TonAPIMockURLProtocol.requests.first?.value(forHTTPHeaderField: "Authorization"),
+            "Bearer top-secret"
+        )
+
+        let directRemote = TonAPIRemoteClient(
+            client: factory.tonAPIClient(configuration: configuration)
+        )
+        do {
+            try await directRemote.broadcast(message: signedMessage)
+            XCTFail("Expected direct generated-client injection to fail closed")
+        } catch let error as TonTransferRemoteError {
+            XCTAssertEqual(error, .untrustedSignedOperationEndpoint)
+        }
+        XCTAssertEqual(TonAPIMockURLProtocol.requestCount, 1)
+    }
+
+    private func mockConfiguration() -> URLSessionConfiguration {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [TonAPIMockURLProtocol.self]
+        return configuration
     }
 
     private func makeTonChain(nodes: [ChainNodeModel], selectedNode: ChainNodeModel?) -> ChainModel {
@@ -1673,6 +3386,65 @@ final class ChainRegistryTonNodeSelectionTests: XCTestCase {
             iosMinAppVersion: nil,
             identityChain: nil
         )
+    }
+}
+
+private final class TonAPIMockURLProtocol: URLProtocol {
+    typealias Handler = (TonAPIMockURLProtocol, URLRequest) -> Void
+
+    private static let lock = NSLock()
+    private static var handler: Handler?
+    private static var onStop: (() -> Void)?
+    private static var capturedRequests: [URLRequest] = []
+
+    static var requests: [URLRequest] {
+        lock.lock()
+        defer { lock.unlock() }
+        return capturedRequests
+    }
+
+    static var requestCount: Int { requests.count }
+
+    static func install(
+        _ handler: @escaping Handler,
+        onStop: (() -> Void)? = nil
+    ) {
+        lock.lock()
+        self.handler = handler
+        self.onStop = onStop
+        capturedRequests = []
+        lock.unlock()
+    }
+
+    static func reset() {
+        lock.lock()
+        handler = nil
+        onStop = nil
+        capturedRequests = []
+        lock.unlock()
+    }
+
+    override class func canInit(with _: URLRequest) -> Bool { true }
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+
+    override func startLoading() {
+        Self.lock.lock()
+        Self.capturedRequests.append(request)
+        let handler = Self.handler
+        Self.lock.unlock()
+
+        guard let handler else {
+            client?.urlProtocol(self, didFailWithError: URLError(.badServerResponse))
+            return
+        }
+        handler(self, request)
+    }
+
+    override func stopLoading() {
+        Self.lock.lock()
+        let onStop = Self.onStop
+        Self.lock.unlock()
+        onStop?()
     }
 }
 

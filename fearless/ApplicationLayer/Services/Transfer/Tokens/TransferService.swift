@@ -3,15 +3,23 @@ import SSFModels
 import SSFExtrinsicKit
 import SSFUtils
 import BigInt
+import TonSwift
 
 protocol TransferFeeEstimationListener: AnyObject {
     func didReceiveFee(fee: BigUInt)
     func didReceiveFeeError(feeError: Error)
 }
 
+protocol TonTransferFeePresentationListener: TransferFeeEstimationListener {
+    func didReceiveTonFee(fee: BigUInt, presentationID: String)
+}
+
 enum TransferServiceError: Error {
     case cannotEstimateFee(reason: String)
     case transferFailed(reason: String)
+    case tonProductionSendDisabled
+    case tonPriorTransferConfirmed(identity: TonTransferIntentIdentity, messageHashHex: String)
+    case tonBroadcastOutcomeUnknown(messageHashHex: String)
     case unexpected
 }
 
@@ -28,6 +36,12 @@ protocol TransferServiceProtocol {
     func submit(transfer: Transfer) async throws -> String
     func subscribeForFee(transfer: Transfer, listener: TransferFeeEstimationListener)
     func unsubscribe()
+    func confirmFeePresentation(id: String, fee: BigUInt) async -> Bool
+    func acknowledgeSubmittedTransfer(hash: String, transfer: Transfer) async -> Bool
+    func acknowledgeRecoveredTransfer(
+        hash: String,
+        identity: TonTransferIntentIdentity
+    ) async -> Bool
 
     func estimateFee(for transfer: XorlessTransfer) async throws -> BigUInt
     func submit(transfer: XorlessTransfer) async throws -> String
@@ -36,6 +50,12 @@ protocol TransferServiceProtocol {
 extension TransferServiceProtocol {
     func estimateFee(for _: XorlessTransfer) async throws -> BigUInt { .zero }
     func submit(transfer _: XorlessTransfer) async throws -> String { "" }
+    func confirmFeePresentation(id _: String, fee _: BigUInt) async -> Bool { true }
+    func acknowledgeSubmittedTransfer(hash _: String, transfer _: Transfer) async -> Bool { true }
+    func acknowledgeRecoveredTransfer(
+        hash _: String,
+        identity _: TonTransferIntentIdentity
+    ) async -> Bool { true }
 }
 
 final class BitcoinTransferService: TransferServiceProtocol {
@@ -219,6 +239,433 @@ final class BitcoinTransferService: TransferServiceProtocol {
         case .testnet:
             return .testnet
         }
+    }
+}
+
+private final class TonTransferFeeQuoteStore: @unchecked Sendable {
+    private let lock = NSLock()
+    private var generation: UInt64 = 0
+    private var pendingIdentity: TonTransferIntentIdentity?
+    private var quote: TonTransferFeeQuote?
+    private var readyForSubmission = false
+
+    func begin(identity: TonTransferIntentIdentity) -> UInt64 {
+        lock.lock()
+        defer { lock.unlock() }
+        generation = generation == UInt64.max ? 1 : generation + 1
+        pendingIdentity = identity
+        quote = nil
+        readyForSubmission = false
+        return generation
+    }
+
+    func commit(
+        _ quote: TonTransferFeeQuote,
+        identity: TonTransferIntentIdentity,
+        generation expectedGeneration: UInt64,
+        readyForSubmission: Bool
+    ) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        guard generation == expectedGeneration,
+              pendingIdentity == identity,
+              quote.identity == identity
+        else {
+            return false
+        }
+        self.quote = quote
+        self.readyForSubmission = readyForSubmission
+        return true
+    }
+
+    func fail(generation expectedGeneration: UInt64) {
+        lock.lock()
+        defer { lock.unlock() }
+        guard generation == expectedGeneration else { return }
+        pendingIdentity = nil
+        quote = nil
+        readyForSubmission = false
+    }
+
+    func activate(presentationID: String, fee: BigUInt) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        guard let quote,
+              quote.quoteIDHex == presentationID,
+              fee == BigUInt(quote.feeNanotons),
+              pendingIdentity == quote.identity
+        else {
+            return false
+        }
+        readyForSubmission = true
+        return true
+    }
+
+    func consume(identity: TonTransferIntentIdentity) -> TonTransferFeeQuote? {
+        lock.lock()
+        defer { lock.unlock() }
+        guard pendingIdentity == identity,
+              quote?.identity == identity,
+              readyForSubmission
+        else {
+            return nil
+        }
+        let result = quote
+        pendingIdentity = nil
+        quote = nil
+        readyForSubmission = false
+        return result
+    }
+
+    func invalidate() {
+        lock.lock()
+        defer { lock.unlock() }
+        generation = generation == UInt64.max ? 1 : generation + 1
+        pendingIdentity = nil
+        quote = nil
+        readyForSubmission = false
+    }
+}
+
+final class TonTransferService: TransferServiceProtocol {
+    private struct PreparedFeePresentation {
+        let fee: BigUInt
+        let presentationID: String
+    }
+
+    private struct ResolvedTransfer {
+        let publicKey: Data
+        let senderAddress: String
+        let recipientAddress: String
+        let amountNanotons: String
+        let bounce: Bool
+    }
+
+    private let wallet: MetaAccountModel
+    private let chain: ChainModel
+    private let sendService: TonSendService
+    private let mnemonicProvider: UniversalWalletMnemonicProviding
+    private let feeQuoteStore = TonTransferFeeQuoteStore()
+    private var feeTask: Task<Void, Never>?
+
+    init(
+        wallet: MetaAccountModel,
+        chain: ChainModel,
+        remote: TonTransferRemoteProtocol,
+        mnemonicProvider: UniversalWalletMnemonicProviding = KeychainUniversalWalletMnemonicProvider(),
+        clock: @escaping @Sendable() -> UInt64 = { UInt64(Date().timeIntervalSince1970) }
+    ) {
+        self.wallet = wallet
+        self.chain = chain
+        self.mnemonicProvider = mnemonicProvider
+        sendService = TonSendService(
+            remote: remote,
+            clock: clock
+        )
+    }
+
+    #if DEBUG
+        init(
+            wallet: MetaAccountModel,
+            chain: ChainModel,
+            remote: TonTransferRemoteProtocol,
+            mnemonicProvider: UniversalWalletMnemonicProviding = KeychainUniversalWalletMnemonicProvider(),
+            pendingCoordinator: TonPendingIntentCoordinator,
+            clock: @escaping @Sendable() -> UInt64 = { UInt64(Date().timeIntervalSince1970) }
+        ) {
+            self.wallet = wallet
+            self.chain = chain
+            self.mnemonicProvider = mnemonicProvider
+            sendService = TonSendService(
+                remote: remote,
+                pendingCoordinator: pendingCoordinator,
+                clock: clock
+            )
+        }
+    #endif
+
+    func estimateFee(for transfer: Transfer) async throws -> BigUInt {
+        // This compatibility API may calculate a fee, but it must never authorize a send.
+        // Only the typed listener path exposes the opaque quote ID that the rendered UI can
+        // acknowledge before submission.
+        try await prepareFee(for: transfer, readyForSubmission: false).fee
+    }
+
+    private func prepareFee(
+        for transfer: Transfer,
+        readyForSubmission: Bool
+    ) async throws -> PreparedFeePresentation {
+        let resolved = try resolveTransfer(
+            for: transfer,
+            failure: TransferServiceError.cannotEstimateFee(reason:)
+        )
+
+        do {
+            let estimateRequest = TonNativeEstimateRequest(
+                publicKey: resolved.publicKey,
+                senderAddress: resolved.senderAddress,
+                recipientAddress: resolved.recipientAddress,
+                amountNanotons: resolved.amountNanotons,
+                bounce: resolved.bounce
+            )
+            let identity = try TonTransferIntentIdentity(request: estimateRequest)
+            let generation = feeQuoteStore.begin(identity: identity)
+            do {
+                let quote = try await sendService.quote(estimateRequest)
+                try Task.checkCancellation()
+                guard feeQuoteStore.commit(
+                    quote,
+                    identity: identity,
+                    generation: generation,
+                    readyForSubmission: readyForSubmission
+                ) else {
+                    throw CancellationError()
+                }
+                // Close cancellation between the remote result and local publication. `fail`
+                // below synchronously revokes this exact generation if cancellation won.
+                try Task.checkCancellation()
+                return PreparedFeePresentation(
+                    fee: BigUInt(quote.feeNanotons),
+                    presentationID: quote.quoteIDHex
+                )
+            } catch {
+                feeQuoteStore.fail(generation: generation)
+                throw error
+            }
+        } catch let error as TransferServiceError {
+            throw error
+        } catch {
+            throw TransferServiceError.cannotEstimateFee(reason: "TON transfer validation or emulation failed")
+        }
+    }
+
+    func submit(transfer: Transfer) async throws -> String {
+        #if !DEBUG
+            // Keep the integration boundary fail-closed before transfer resolution or
+            // mnemonic/keychain access, even if same-module code bypasses normal DI.
+            throw TransferServiceError.tonProductionSendDisabled
+        #else
+            let resolved = try resolveTransfer(
+                for: transfer,
+                failure: TransferServiceError.transferFailed(reason:)
+            )
+
+            let identity = try TonTransferIntentIdentity(
+                request: TonNativeEstimateRequest(
+                    publicKey: resolved.publicKey,
+                    senderAddress: resolved.senderAddress,
+                    recipientAddress: resolved.recipientAddress,
+                    amountNanotons: resolved.amountNanotons,
+                    bounce: resolved.bounce
+                )
+            )
+            // Atomically consume the exact quote. A nil quote is still passed through so
+            // TonSendService can recover an already-persisted same-intent BOC after restart;
+            // a genuinely fresh unquoted send fails before signing or remote work.
+            let feeQuote = feeQuoteStore.consume(identity: identity)
+
+            do {
+                return try await sendService.send(
+                    TonNativeEstimateRequest(
+                        publicKey: resolved.publicKey,
+                        senderAddress: resolved.senderAddress,
+                        recipientAddress: resolved.recipientAddress,
+                        amountNanotons: resolved.amountNanotons,
+                        bounce: resolved.bounce
+                    ),
+                    feeQuote: feeQuote,
+                    signingCredentials: {
+                        guard let mnemonic = try self.mnemonicProvider.mnemonic(
+                            for: self.wallet,
+                            chain: self.chain
+                        ) else {
+                            throw TonSendServiceError.invalidAccount
+                        }
+                        return TonSigningCredentials(mnemonic: mnemonic)
+                    }
+                ).messageHashHex
+            } catch let error as TonSendServiceError {
+                if case let .priorIntentConfirmed(identity, messageHashHex) = error {
+                    throw TransferServiceError.tonPriorTransferConfirmed(
+                        identity: identity,
+                        messageHashHex: messageHashHex
+                    )
+                }
+                if case let .broadcastOutcomeUnknown(messageHashHex) = error {
+                    throw TransferServiceError.tonBroadcastOutcomeUnknown(
+                        messageHashHex: messageHashHex
+                    )
+                }
+                throw TransferServiceError.transferFailed(reason: "TON transfer validation, emulation, or broadcast failed")
+            } catch {
+                throw TransferServiceError.transferFailed(reason: "TON transfer validation, emulation, or broadcast failed")
+            }
+        #endif
+    }
+
+    func subscribeForFee(transfer: Transfer, listener: TransferFeeEstimationListener) {
+        feeTask?.cancel()
+        feeTask = Task { [weak self, weak listener] in
+            guard let self else {
+                return
+            }
+
+            do {
+                let presentation = try await self.prepareFee(
+                    for: transfer,
+                    readyForSubmission: false
+                )
+                guard !Task.isCancelled else {
+                    return
+                }
+                if let listener = listener as? TonTransferFeePresentationListener {
+                    listener.didReceiveTonFee(
+                        fee: presentation.fee,
+                        presentationID: presentation.presentationID
+                    )
+                } else {
+                    listener?.didReceiveFee(fee: presentation.fee)
+                }
+            } catch {
+                guard !Task.isCancelled else {
+                    return
+                }
+                listener?.didReceiveFeeError(feeError: error)
+            }
+        }
+    }
+
+    func unsubscribe() {
+        feeQuoteStore.invalidate()
+        feeTask?.cancel()
+        feeTask = nil
+    }
+
+    func confirmFeePresentation(id: String, fee: BigUInt) async -> Bool {
+        feeQuoteStore.activate(presentationID: id, fee: fee)
+    }
+
+    func acknowledgeSubmittedTransfer(hash: String, transfer: Transfer) async -> Bool {
+        guard let resolved = try? resolveTransfer(
+            for: transfer,
+            failure: TransferServiceError.transferFailed(reason:)
+        ) else {
+            return false
+        }
+        guard let identity = try? TonTransferIntentIdentity(
+            request: TonNativeEstimateRequest(
+                publicKey: resolved.publicKey,
+                senderAddress: resolved.senderAddress,
+                recipientAddress: resolved.recipientAddress,
+                amountNanotons: resolved.amountNanotons,
+                bounce: resolved.bounce
+            )
+        ) else {
+            return false
+        }
+        return await acknowledgeConfirmedTransfer(
+            hash: hash,
+            senderAddress: resolved.senderAddress,
+            identity: identity
+        )
+    }
+
+    func acknowledgeRecoveredTransfer(
+        hash: String,
+        identity: TonTransferIntentIdentity
+    ) async -> Bool {
+        guard let senderAddress = UniversalWalletAccountAddressResolver.address(
+            for: chain,
+            wallet: wallet
+        ),
+            let sender = try? TonSwift.Address.parse(senderAddress),
+            sender.toRaw() == identity.sender
+        else {
+            return false
+        }
+        return await acknowledgeConfirmedTransfer(
+            hash: hash,
+            senderAddress: senderAddress,
+            identity: identity
+        )
+    }
+
+    private func acknowledgeConfirmedTransfer(
+        hash: String,
+        senderAddress: String,
+        identity: TonTransferIntentIdentity
+    ) async -> Bool {
+        do {
+            try await sendService.acknowledgeConfirmedTransfer(
+                senderAddress: senderAddress,
+                identity: identity,
+                messageHashHex: hash
+            )
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    private func resolveTransfer(
+        for transfer: Transfer,
+        failure: (String) -> TransferServiceError
+    ) throws -> ResolvedTransfer {
+        guard transfer.tip == nil, transfer.appId == nil else {
+            throw failure("TON tips and app identifiers are not supported")
+        }
+
+        guard transfer.chainAsset.chain.chainId == chain.chainId else {
+            throw failure("TON transfer chain does not match the selected service")
+        }
+
+        let chainId = chain.chainId.lowercased()
+        guard !(chain.options ?? []).contains(.testnet),
+              chainId == TonChainSelection.mainnetChainId ||
+              chainId == UniversalWalletRegistry.tonMainnetRegistryEntry.chainId ||
+              chainId == UniversalWalletRegistry.tonMainnetRegistryEntry.id
+        else {
+            throw failure("Unsupported TON network: \(chain.chainId)")
+        }
+
+        let asset = transfer.chainAsset.asset
+        guard transfer.chainAsset.isNative,
+              asset.isNative,
+              asset.isUtility,
+              asset.id == UniversalWalletRegistry.tonNativeAssetId ||
+              asset.id.uppercased() == "TON",
+              asset.symbol.uppercased() == "TON",
+              asset.precision == 9,
+              asset.type == nil || asset.type == .normal
+        else {
+            throw failure("Only native TON transfers are supported")
+        }
+
+        guard let sourceAddress = UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet) else {
+            throw failure("TON account address is unavailable for \(chain.chainId)")
+        }
+        guard let account = wallet.fetch(for: chain.accountRequest()),
+              account.publicKey.count == 32
+        else {
+            throw failure("TON public key is unavailable for \(chain.chainId)")
+        }
+
+        let bounce: Bool
+        do {
+            bounce = try TonTransferTransactionBuilder.requiredBounceFlag(
+                forRecipientAddress: transfer.receiver
+            )
+        } catch {
+            throw failure("TON recipient address or bounce policy is invalid")
+        }
+
+        return ResolvedTransfer(
+            publicKey: account.publicKey,
+            senderAddress: sourceAddress,
+            recipientAddress: transfer.receiver,
+            amountNanotons: transfer.amount.description,
+            bounce: bounce
+        )
     }
 }
 
@@ -613,6 +1060,100 @@ struct UnavailableIrohaTransferSigner: IrohaTransferSigning {
     }
 }
 
+enum IrohaWalletSmokeMetadataError: Error, Equatable {
+    case invalidFieldSet
+    case invalidEvidenceRole
+    case invalidRouteGovernanceActionHash
+    case invalidWalletPlatform
+    case invalidWalletCommit
+}
+
+struct IrohaWalletSmokeTransactionMetadata: Equatable {
+    static let evidenceRoleKey = "evidence_role"
+    static let routeGovernanceActionHashKey = "route_governance_action_hash"
+    static let walletPlatformKey = "wallet_platform"
+    static let walletCommitKey = "wallet_commit"
+
+    private static let expectedKeys: Set<String> = [
+        evidenceRoleKey,
+        routeGovernanceActionHashKey,
+        walletPlatformKey,
+        walletCommitKey
+    ]
+    private static let routeHashPrefix = "sha256:"
+
+    private let snapshot: [String: String]
+
+    static func validatedSnapshot(
+        of untrustedMetadata: [String: String]
+    ) throws -> IrohaWalletSmokeTransactionMetadata {
+        guard untrustedMetadata.count == expectedKeys.count,
+              Set(untrustedMetadata.keys) == expectedKeys
+        else {
+            throw IrohaWalletSmokeMetadataError.invalidFieldSet
+        }
+
+        guard untrustedMetadata[evidenceRoleKey] == "wallet-smoke" else {
+            throw IrohaWalletSmokeMetadataError.invalidEvidenceRole
+        }
+        guard untrustedMetadata[walletPlatformKey] == "ios" else {
+            throw IrohaWalletSmokeMetadataError.invalidWalletPlatform
+        }
+
+        guard let routeHash = untrustedMetadata[routeGovernanceActionHashKey],
+              routeHash.hasPrefix(routeHashPrefix),
+              routeHash.utf8.count == routeHashPrefix.utf8.count + 64,
+              isLowercaseHex(routeHash.utf8.dropFirst(routeHashPrefix.utf8.count)),
+              routeHash != routeHashPrefix + String(repeating: "0", count: 64)
+        else {
+            throw IrohaWalletSmokeMetadataError.invalidRouteGovernanceActionHash
+        }
+
+        guard let walletCommit = untrustedMetadata[walletCommitKey],
+              walletCommit.utf8.count == 40,
+              isLowercaseHex(walletCommit.utf8),
+              walletCommit != String(repeating: "0", count: 40)
+        else {
+            throw IrohaWalletSmokeMetadataError.invalidWalletCommit
+        }
+
+        // Copy every String into a fresh dictionary before crossing the async signer
+        // boundary. Later copy-on-write mutation of the operator input cannot alter it.
+        return IrohaWalletSmokeTransactionMetadata(
+            snapshot: Dictionary(uniqueKeysWithValues: untrustedMetadata.map { ($0.key, $0.value) })
+        )
+    }
+
+    var values: [String: String] {
+        snapshot
+    }
+
+    private init(snapshot: [String: String]) {
+        self.snapshot = snapshot
+    }
+
+    private static func isLowercaseHex<C: Collection>(_ bytes: C) -> Bool where C.Element == UInt8 {
+        !bytes.isEmpty && bytes.allSatisfy { byte in
+            (UInt8(ascii: "0") ... UInt8(ascii: "9")).contains(byte)
+                || (UInt8(ascii: "a") ... UInt8(ascii: "f")).contains(byte)
+        }
+    }
+}
+
+enum IrohaTransactionMetadata: Equatable {
+    case none
+    case walletSmoke(IrohaWalletSmokeTransactionMetadata)
+
+    var values: [String: String] {
+        switch self {
+        case .none:
+            return [:]
+        case let .walletSmoke(metadata):
+            return metadata.values
+        }
+    }
+}
+
 struct IrohaTransferSigningRequest: Equatable {
     let amount: String
     let assetDefinitionId: String
@@ -620,6 +1161,7 @@ struct IrohaTransferSigningRequest: Equatable {
     let chainId: String
     let derivationPath: String
     let destinationAccountId: String
+    let metadata: IrohaTransactionMetadata
     let mnemonicOrSeed: String
     let network: String
     let signingPublicKeyHex: String
@@ -664,10 +1206,63 @@ final class IrohaTransferService: TransferServiceProtocol {
     }
 
     func submit(transfer: Transfer) async throws -> String {
-        let context = try resolveContext(
-            for: transfer,
+        try await submitValidated(transfer: transfer, metadata: .none)
+    }
+
+    /// Operator evidence hook only. This does not install a signer, enable Nexus,
+    /// or make the standard `TransferServiceProtocol` route metadata-capable.
+    func submitNexusWalletSmokeEvidence(
+        transfer: Transfer,
+        untrustedMetadata: [String: String]
+    ) async throws -> String {
+        let metadata = try IrohaWalletSmokeTransactionMetadata.validatedSnapshot(
+            of: untrustedMetadata
+        )
+        guard chain.chainId == UniversalWalletRegistry.nexus.chainId else {
+            throw TransferServiceError.transferFailed(
+                reason: "Iroha wallet-smoke evidence requires the exact canonical Nexus chain identity"
+            )
+        }
+        let evidenceToriiBaseURL = try Self.toriiBaseURL(
+            for: chain,
+            network: UniversalWalletRegistry.nexus,
             failure: TransferServiceError.transferFailed(reason:)
         )
+        guard evidenceToriiBaseURL == UniversalWalletRegistry.nexus.toriiBaseURL?.absoluteString else {
+            throw TransferServiceError.transferFailed(
+                reason: "Iroha wallet-smoke evidence requires the canonical Nexus Torii endpoint"
+            )
+        }
+
+        return try await submitValidated(
+            transfer: transfer,
+            metadata: .walletSmoke(metadata)
+        )
+    }
+
+    private func submitValidated(
+        transfer: Transfer,
+        metadata: IrohaTransactionMetadata
+    ) async throws -> String {
+        let context = try resolveContext(
+            for: transfer,
+            metadata: metadata,
+            failure: TransferServiceError.transferFailed(reason:)
+        )
+
+        if case .walletSmoke = metadata {
+            guard context.signingRequest.network == "nexus" else {
+                throw TransferServiceError.transferFailed(
+                    reason: "Iroha wallet-smoke evidence is restricted to Nexus"
+                )
+            }
+            guard context.toriiBaseURL == UniversalWalletRegistry.nexus.toriiBaseURL?.absoluteString else {
+                throw TransferServiceError.transferFailed(
+                    reason: "Iroha wallet-smoke evidence requires the canonical Nexus Torii endpoint"
+                )
+            }
+        }
+
         let signedTransfer = try await signer.buildAndSignTransfer(context.signingRequest)
 
         guard !signedTransfer.signedTransaction.isEmpty else {
@@ -715,6 +1310,7 @@ final class IrohaTransferService: TransferServiceProtocol {
 
     private func resolveContext(
         for transfer: Transfer,
+        metadata: IrohaTransactionMetadata = .none,
         failure: (String) -> TransferServiceError
     ) throws -> IrohaTransferContext {
         let network = try Self.irohaNetwork(
@@ -788,6 +1384,7 @@ final class IrohaTransferService: TransferServiceProtocol {
                 chainId: network.chainId,
                 derivationPath: UniversalWalletDerivationPaths.irohaDefault,
                 destinationAccountId: destinationAddress,
+                metadata: metadata,
                 mnemonicOrSeed: mnemonic,
                 network: Self.networkKey(for: network),
                 signingPublicKeyHex: sourceDetails.publicKeyHex,

@@ -12,6 +12,14 @@ if [[ -f "$WORKSPACE_DIR/scripts/audit-branch-flow.sh" ]]; then
   bash "$WORKSPACE_DIR/scripts/test-branch-flow-audit.sh"
 fi
 
+if [[ -f "$WORKSPACE_DIR/scripts/audit-release-signing-gate.sh" ]]; then
+  echo "[run-pr] Running release signing gate audit"
+  bash "$WORKSPACE_DIR/scripts/test-release-signing-gate-audit.sh"
+  bash "$WORKSPACE_DIR/scripts/test-release-signing-gate.sh"
+  bash "$WORKSPACE_DIR/scripts/test-release-signing-bootstrap.sh"
+  bash "$WORKSPACE_DIR/scripts/audit-release-signing-gate.sh"
+fi
+
 if [[ -f "$WORKSPACE_DIR/scripts/audit-public-artifacts.sh" ]]; then
   echo "[run-pr] Running public artifact audit"
   bash "$WORKSPACE_DIR/scripts/audit-public-artifacts.sh"
@@ -23,8 +31,31 @@ if [[ -f "$WORKSPACE_DIR/scripts/audit-todo-debt.sh" ]]; then
   bash "$WORKSPACE_DIR/scripts/audit-todo-debt.sh"
 fi
 
+echo "[run-pr] Verifying tracked TestFlight publication evidence"
+bash "$WORKSPACE_DIR/scripts/test-testflight-publication-readiness-audit.sh"
+bash "$WORKSPACE_DIR/scripts/audit-testflight-publication-readiness.sh"
+
+if [[ -f "$WORKSPACE_DIR/scripts/audit-transaction-builder-tests.sh" ]]; then
+  echo "[run-pr] Running transaction builder coverage audit"
+  bash "$WORKSPACE_DIR/scripts/test-transaction-builder-tests-audit.sh"
+  bash "$WORKSPACE_DIR/scripts/audit-transaction-builder-tests.sh"
+fi
+
+if [[ -f "$WORKSPACE_DIR/scripts/test-coredata-release-gate.sh" ]]; then
+  echo "[run-pr] Testing Core Data Release gate contract"
+  bash "$WORKSPACE_DIR/scripts/test-coredata-release-gate.sh"
+fi
+
+if [[ -f "$WORKSPACE_DIR/scripts/audit-ton-production-send-readiness.sh" ]]; then
+  echo "[run-pr] Checking blocked TON production-send evidence contract"
+  bash "$WORKSPACE_DIR/scripts/test-ton-production-send-readiness-audit.sh"
+  bash "$WORKSPACE_DIR/scripts/audit-ton-production-send-readiness.sh"
+fi
+
 if [[ -f "$WORKSPACE_DIR/scripts/check-iroha-mobile-sdk-release-assets.sh" ]]; then
   echo "[run-pr] Checking Iroha mobile SDK release asset contract"
+  bash "$WORKSPACE_DIR/scripts/test-iroha-production-send-readiness-audit.sh"
+  bash "$WORKSPACE_DIR/scripts/audit-iroha-production-send-readiness.sh"
   bash "$WORKSPACE_DIR/scripts/check-iroha-mobile-sdk-release-assets.sh" --self-test
   if [[ -n "${IROHA_MOBILE_SDK_RELEASE_TAG:-}" ]]; then
     bash "$WORKSPACE_DIR/scripts/check-iroha-mobile-sdk-release-assets.sh" --download --tag "$IROHA_MOBILE_SDK_RELEASE_TAG"
@@ -99,6 +130,12 @@ if xcodebuild -workspace "$WORKSPACE_DIR/fearless.xcworkspace" \
     -clonedSourcePackagesDirPath "$SP_DIR" \
     -disableAutomaticPackageResolution \
     test
+
+  echo "[run-pr] Running optimized Core Data migration/startup gate"
+  FEARLESS_CORE_DATA_SOURCE_PACKAGES_DIR="$SP_DIR" \
+    bash "$WORKSPACE_DIR/scripts/ci/run-coredata-release-gate.sh" \
+      --stage core \
+      --simulator-udid "$SIM_UDID"
 else
   echo "[run-pr] Simulator build failed; falling back to device build (signing disabled)"
   xcodebuild -workspace "$WORKSPACE_DIR/fearless.xcworkspace" \

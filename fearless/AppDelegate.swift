@@ -11,6 +11,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _: UIApplication,
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        FailClosedSecureUnarchiveFromDataTransformer.register()
+
         guard !isUnitTesting else { return true }
 
         let rootWindow = FearlessWindow()

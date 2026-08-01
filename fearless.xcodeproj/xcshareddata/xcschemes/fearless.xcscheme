@@ -11,7 +11,15 @@
             <ActionContent
                title = "SPM Shared Features Fixes"
                scriptText = "#!/bin/sh
-bash \&quot;${PROJECT_DIR}/scripts/spm-shared-features-fixes.sh\&quot; \&quot;${PROJECT_DIR}\&quot; || true">
+set -eu
+export SOURCE_PACKAGES_DIR=\&quot;${PROJECT_DIR}/SourcePackages\&quot;
+export ALLOW_DERIVEDDATA_FALLBACK=0
+export STRICT_REQUIRED_PATCHES=1
+
+if ! bash \&quot;${PROJECT_DIR}/scripts/spm-shared-features-fixes.sh\&quot; \&quot;${PROJECT_DIR}\&quot;; then
+  echo \&quot;error: Required shared-features compatibility fixes failed. Resolve packages into ${SOURCE_PACKAGES_DIR}, review the diagnostics above, and retry the archive.\&quot; \&gt;\&amp;2
+  exit 1
+fi">
             </ActionContent>
          </ExecutionAction>
       </PreActions>
@@ -82,8 +90,7 @@ bash \&quot;${PROJECT_DIR}/scripts/spm-shared-features-fixes.sh\&quot; \&quot;${
       buildConfiguration = "Debug">
    </AnalyzeAction>
    <ArchiveAction
-      buildConfiguration = "Dev"
+      buildConfiguration = "Release"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>
-

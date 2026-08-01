@@ -48,7 +48,8 @@ def ghStatusFallback(String context, String state, String description) {
 
 // Ensure SPM and shared-features patches are applied before the main pipeline.
 // This resolves Web3 API drift (Data.bytes) and IrohaCrypto modulemap issues prior to archive.
-node('mac-fearless') {
+try {
+  node('mac-fearless') {
   stage('Bootstrap CI deps') {
     checkout scm
     sh label: 'Bootstrap Pods/SPM/LFS + apply shared-features fixes', script: 'bash scripts/ci/bootstrap.sh'
@@ -78,17 +79,113 @@ node('mac-fearless') {
         scripts/test-matrix.sh fearless.tests "$DESTINATION"
       '''
       ghNotifySafe context: 'jenkins/ios-tests', status: 'SUCCESS', description: 'All tests passed'
-      ghNotifySafe context: 'continuous-integration/jenkins/pr-merge', status: 'SUCCESS', description: 'Jenkins PR merge build passed'
       ghStatusFallback('jenkins/ios-tests', 'success', 'All tests passed')
-      ghStatusFallback('continuous-integration/jenkins/pr-merge', 'success', 'Jenkins PR merge build passed')
     } catch (e) {
       ghNotifySafe context: 'jenkins/ios-tests', status: 'FAILURE', description: 'Unit tests failed'
-      ghNotifySafe context: 'continuous-integration/jenkins/pr-merge', status: 'FAILURE', description: 'Jenkins PR merge build failed'
       ghStatusFallback('jenkins/ios-tests', 'failure', 'Unit tests failed')
-      ghStatusFallback('continuous-integration/jenkins/pr-merge', 'failure', 'Jenkins PR merge build failed')
       throw e
     }
   }
-}
 
-appPipeline.runPipeline('fearless')
+  ghNotifySafe context: 'jenkins/ios-release-safety', status: 'PENDING', description: 'Running release safety gates'
+  ghStatusFallback('jenkins/ios-release-safety', 'pending', 'Running release safety gates')
+  stage('iOS Release Safety Contracts') {
+    sh label: 'Run fail-closed release gate contract tests', script: '''
+      set -euo pipefail
+      bash scripts/test-ios-release-identity-audit.sh
+      bash scripts/test-ios-signed-release-artifact-audit.sh
+      bash scripts/test-coredata-release-gate.sh
+      bash scripts/test-coredata-simulator-rehearsal.sh
+      bash scripts/storage/test-user-storage-compatibility-model-audit.sh
+    '''
+  }
+
+  // Jenkins multibranch PR jobs expose BRANCH_NAME as PR-<number>. Bind the
+  // gate to both direct release branches and the repository's allowed hotfix /
+  // release promotion paths so a PR cannot bypass the exact Release evidence.
+  def directReleaseBranch = (
+    env.BRANCH_NAME == 'master' ||
+    env.BRANCH_NAME?.startsWith('release/') ||
+    env.BRANCH_NAME?.startsWith('hotfix/')
+  )
+  def releasePullRequest = (
+    env.CHANGE_ID &&
+    (
+      (
+        env.CHANGE_TARGET == 'develop' &&
+        env.CHANGE_BRANCH?.startsWith('hotfix/')
+      ) ||
+      (
+        env.CHANGE_TARGET == 'master' &&
+        (
+          env.CHANGE_BRANCH == 'develop' ||
+          env.CHANGE_BRANCH?.startsWith('release/') ||
+          env.CHANGE_BRANCH?.startsWith('hotfix/')
+        )
+      )
+    )
+  )
+  def releaseBranch = directReleaseBranch || releasePullRequest
+  if (releaseBranch) {
+    stage('Exact Core Data Release Gate') {
+      sh label: 'Require arm64 and exact 412-test Release inventory', script: '''
+        set -euo pipefail
+        [[ "$(uname -m)" == "arm64" ]] || {
+          echo "Exact Release gate requires dispatch to an arm64 macOS agent." >&2
+          exit 78
+        }
+        IOS_EXPECTED_BUILD_NUMBER=2026.7.28 \
+          IOS_RELEASE_SOURCE_PACKAGES_DIR="$PWD/SourcePackages" \
+          bash scripts/ci/audit-ios-release-identity.sh
+        bash scripts/storage/audit-user-storage-compatibility-models.sh
+        bash scripts/ci/run-coredata-release-gate.sh --stage core
+      '''
+    }
+  }
+
+  if (env.IOS_RELEASE_CANDIDATE == '1') {
+    stage('Copied-phone Release Evidence') {
+      sh label: 'Require immutable copied-phone fixture stage', script: '''
+        set -euo pipefail
+        : "${FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE:?release candidate requires the copied-phone fixture}"
+        : "${FEARLESS_CORE_DATA_SIMULATOR_UDID:?release candidate requires an explicit Simulator UDID}"
+        bash scripts/ci/run-coredata-release-gate.sh \
+          --stage copied-phone \
+          --simulator-udid "$FEARLESS_CORE_DATA_SIMULATOR_UDID" \
+          --fixture "$FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE"
+      '''
+    }
+  }
+  }
+
+  appPipeline.runPipeline('fearless')
+
+  // A required context must not turn green until every custom gate and the
+  // shared application pipeline have completed. The fallback needs a node
+  // because it uses curl through the shell.
+  ghNotifySafe context: 'jenkins/ios-release-safety', status: 'SUCCESS', description: 'All iOS release safety gates passed'
+  ghNotifySafe context: 'continuous-integration/jenkins/pr-merge', status: 'SUCCESS', description: 'Jenkins PR merge build passed'
+  node('mac-fearless') {
+    stage('Finalize Required GitHub Statuses') {
+      ghStatusFallback('jenkins/ios-release-safety', 'success', 'All iOS release safety gates passed')
+      ghStatusFallback('continuous-integration/jenkins/pr-merge', 'success', 'Jenkins PR merge build passed')
+    }
+  }
+} catch (e) {
+  // Post plugin failures first. If a macOS executor cannot be reacquired for
+  // the API fallback, the required contexts remain failed or pending, never
+  // stale green.
+  ghNotifySafe context: 'jenkins/ios-release-safety', status: 'FAILURE', description: 'iOS release safety or pipeline failed'
+  ghNotifySafe context: 'continuous-integration/jenkins/pr-merge', status: 'FAILURE', description: 'Jenkins PR merge build failed'
+  try {
+    node('mac-fearless') {
+      stage('Report Required GitHub Status Failure') {
+        ghStatusFallback('jenkins/ios-release-safety', 'failure', 'iOS release safety or pipeline failed')
+        ghStatusFallback('continuous-integration/jenkins/pr-merge', 'failure', 'Jenkins PR merge build failed')
+      }
+    }
+  } catch (statusError) {
+    echo "Could not run GitHub status API fallback: ${statusError.message}"
+  }
+  throw e
+}

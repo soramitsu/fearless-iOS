@@ -158,6 +158,11 @@ transaction simulation, and other write operations must use RPC or Torii
 endpoints, never a public indexer endpoint.
 
 - TON indexer base URL: `https://ti.soramitsu.io`.
+- Native TON Wallet V4R2 building, unsigned fee emulation, signed emulation,
+  bounded TonAPI transport, broadcast, and exact-message reconciliation are
+  implemented on iOS, but the production send route remains hard-disabled.
+  Enabling it requires the durable pending-intent, confirmation/unknown-outcome
+  UX, current-schema, and funded-mainnet evidence in `docs/release-checklist.md`.
 - Solana indexer base URL: `https://si.soramitsu.io`.
 - `si.soramitsu.io` is read-only. Transaction simulation and broadcast use the
   configured Solana RPC endpoint directly.
@@ -166,6 +171,14 @@ endpoints, never a public indexer endpoint.
 - Nexus mainnet uses I105 chain discriminant `753` and chain id
   `sora:nexus:global`, but remains registry-gated until the
   production Torii/TLS endpoint is confirmed.
+- Iroha `features: ["transfer"]` is capability metadata, not a production-send
+  enablement claim. iOS send remains fail closed under
+  `config/iroha-production-send-readiness.json`; see
+  `docs/iroha-production-send-readiness.md` for the pinned upstream blocker.
+- The iOS Nexus operator evidence seam snapshots an exact four-string
+  `wallet-smoke` metadata object and rejects malformed or placeholder hashes
+  before signing. Ordinary wallet transfers omit metadata, and the seam does
+  not alter the unavailable production signer or disabled Nexus default.
 
 ## Normalized Indexer Contract
 

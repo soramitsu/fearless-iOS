@@ -10,17 +10,37 @@ on:
       - develop
       - master
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: macOS-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+
+      - name: Codecov uploader supply-chain audit
+        run: |
+          bash ./scripts/test-codecov-workflow-audit.sh
+          bash ./scripts/audit-codecov-workflow.sh
 
       - name: Branch flow audit
         run: |
           bash ./scripts/audit-branch-flow.sh
           bash ./scripts/test-branch-flow-audit.sh
+
+      - name: Release signing gate audit
+        run: |
+          bash ./scripts/test-release-signing-gate-audit.sh
+          bash ./scripts/test-release-signing-gate.sh
+          bash ./scripts/test-release-signing-bootstrap.sh
+          bash ./scripts/audit-release-signing-gate.sh
 
       - name: Audit public artifacts
         run: ./scripts/audit-public-artifacts.sh
@@ -30,12 +50,34 @@ jobs:
           bash ./scripts/test-todo-debt-audit.sh
           bash ./scripts/audit-todo-debt.sh
 
+      - name: TestFlight publication evidence
+        run: |
+          bash ./scripts/test-testflight-publication-readiness-audit.sh
+          bash ./scripts/audit-testflight-publication-readiness.sh
+
+      - name: Codecov executable coverage contract
+        run: |
+          bash ./scripts/test-codecov-coverage-contract.sh
+          bash ./scripts/audit-codecov-coverage-contract.sh
+
+      - name: Transaction builder coverage audit
+        run: |
+          bash ./scripts/test-transaction-builder-tests-audit.sh
+          bash ./scripts/audit-transaction-builder-tests.sh
+
+      - name: TON production send readiness
+        run: |
+          bash ./scripts/test-ton-production-send-readiness-audit.sh
+          bash ./scripts/audit-ton-production-send-readiness.sh
+
       - name: Iroha mobile SDK release asset contract
         env:
           GH_TOKEN: ${{ github.token }}
           IROHA_MOBILE_SDK_RELEASE_TAG: ${{ vars.IROHA_MOBILE_SDK_RELEASE_TAG }}
           IROHA_MOBILE_SDK_RELEASE_REPO: ${{ vars.IROHA_MOBILE_SDK_RELEASE_REPO }}
         run: |
+          bash ./scripts/test-iroha-production-send-readiness-audit.sh
+          bash ./scripts/audit-iroha-production-send-readiness.sh
           bash ./scripts/check-iroha-mobile-sdk-release-assets.sh --self-test
           if [[ -n "${IROHA_MOBILE_SDK_RELEASE_TAG:-}" ]]; then
             bash ./scripts/check-iroha-mobile-sdk-release-assets.sh --download --tag "$IROHA_MOBILE_SDK_RELEASE_TAG"
@@ -53,7 +95,7 @@ jobs:
 
       - name: Upload shared-features delta report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: shared-features-delta-report
           path: build/reports/shared-features-delta-report.json
@@ -145,6 +187,7 @@ jobs:
           esac
           echo "Using destination: $DESTINATION"
           LOG_FILE="$PWD/build/codecov-xcodebuild.log"
+          RESULT_BUNDLE="$PWD/build/CodecovTests.xcresult"
           mkdir -p "$PWD/build"
           if ! xcodebuild \
             -workspace fearless.xcworkspace \
@@ -152,6 +195,8 @@ jobs:
             -clonedSourcePackagesDirPath "$SP_DIR" \
             -disableAutomaticPackageResolution \
             -destination "$DESTINATION" \
+            -enableCodeCoverage YES \
+            -resultBundlePath "$RESULT_BUNDLE" \
             build test | tee "$LOG_FILE" | xcpretty --test; then
             echo "Build/Test failed. Key errors from $LOG_FILE:" >&2
             if command -v rg >/dev/null 2>&1; then
@@ -161,9 +206,39 @@ jobs:
             fi
             exit 1
           fi
+          COVERAGE_PROFILE="$(
+            find "$HOME/Library/Developer/Xcode/DerivedData" \
+              -type f -name '*.profdata' -print -quit
+          )"
+          if [[ -z "$COVERAGE_PROFILE" ]]; then
+            echo "Tests passed but Xcode produced no coverage profile." >&2
+            exit 1
+          fi
+          xcrun llvm-profdata show "$COVERAGE_PROFILE" >/dev/null || {
+            echo "Xcode produced an unreadable coverage profile: $COVERAGE_PROFILE" >&2
+            exit 1
+          }
+          test -d "$RESULT_BUNDLE" || {
+            echo "Xcode did not produce the required result bundle." >&2
+            exit 1
+          }
+
+      - name: Signed Release archive gate
+        if: github.event_name == 'push'
+        env:
+          IOS_RELEASE_SIGNING_REQUIRED: '1'
+          IOS_RELEASE_CERTIFICATE_P12_BASE64: ${{ secrets.IOS_RELEASE_CERTIFICATE_P12_BASE64 }}
+          IOS_RELEASE_CERTIFICATE_PASSWORD: ${{ secrets.IOS_RELEASE_CERTIFICATE_PASSWORD }}
+          IOS_RELEASE_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_RELEASE_PROVISIONING_PROFILE_BASE64 }}
+        run: bash ./scripts/ci/run-release-signing-ci.sh
 
       - name: Upload coverage to Codecov
-        run: bash <(curl -s https://codecov.io/bash) -J 'fearless'
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          fail_ci_if_error: true
+          plugins: xcode
+          swift_project: fearless
+          use_oidc: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
 
   jenkins-pr-merge:
     name: continuous-integration/jenkins/pr-merge

@@ -115,15 +115,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             accountResponse: accountResponse
         )
 
-        let facade = UserDataStorageFacade.shared
-
-        let mapper = MetaAccountMapper()
-
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -168,7 +160,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
                 wallet: wallet,
                 payouts: payouts,
                 chainAsset: chainAsset,
-                accountRepository: AnyDataProviderRepository(accountRepository),
+                accountRepository: accountRepository,
                 output: viewModelState,
                 callFactory: callFactory
             )

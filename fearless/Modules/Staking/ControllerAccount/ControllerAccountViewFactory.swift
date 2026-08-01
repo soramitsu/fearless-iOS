@@ -100,15 +100,7 @@ struct ControllerAccountViewFactory {
             operationManager: operationManager
         )
 
-        let facade = UserDataStorageFacade.shared
-
-        let mapper = MetaAccountMapper()
-
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
@@ -119,7 +111,7 @@ struct ControllerAccountViewFactory {
             ),
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             runtimeService: runtimeService,
-            accountRepository: AnyDataProviderRepository(accountRepository),
+            accountRepository: accountRepository,
             operationManager: operationManager,
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,
