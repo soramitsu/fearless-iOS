@@ -44,15 +44,19 @@ final class OnboardingPresenter {
     private func close() {
         interactor.didClose()
 
-        switch startViewHelper.startView(onboardingConfig: nil) {
-        case .pin:
-            router.showLocalAuthentication()
-        case .pinSetup:
-            router.showPincodeSetup()
-        case .login:
-            router.showLogin()
-        case .onboarding, .broken, .unsupportedWallet:
-            break
+        do {
+            switch try startViewHelper.startView(onboardingConfig: nil) {
+            case .pin:
+                router.showLocalAuthentication()
+            case .pinSetup:
+                router.showPincodeSetup()
+            case .login:
+                router.showLogin()
+            case .onboarding:
+                break
+            }
+        } catch {
+            Logger.shared.error(error.localizedDescription)
         }
     }
 }

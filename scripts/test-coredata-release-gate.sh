@@ -327,7 +327,7 @@ PY
     fi
     previous="$argument"
   done
-  default_total=418
+  default_total=419
   if [[ "$result_path" == *"/copied-phone.xcresult" ]]; then
     default_total=2
   fi
@@ -380,7 +380,7 @@ if ! run_gate "valid-core"; then
   fail "valid core gate was rejected"
 fi
 assert_output_contains "PASSED requested Core Data Release gate" "$RUN_DIRECTORY/stdout"
-assert_output_contains "exactly 418 Release -O tests" "$RUN_DIRECTORY/stdout"
+assert_output_contains "exactly 419 Release -O tests" "$RUN_DIRECTORY/stdout"
 assert_argument_once "-workspace"
 assert_argument_once "$CANONICAL_WORKSPACE"
 assert_argument_once "-scheme"
@@ -698,7 +698,7 @@ GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
 expect_failure "unreadable-test-inventory" "could not read the executed test identities"
 
 CASE_ENV=(
-  "FAKE_TOTAL_TESTS=418"
+  "FAKE_TOTAL_TESTS=419"
   "FAKE_PASSED_TESTS=242"
   "FAKE_FAILED_TESTS=1"
   "FAKE_RESULT=Failed"
@@ -708,7 +708,7 @@ GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
 expect_failure "failed-summary" "zero-failure/zero-skip"
 
 CASE_ENV=(
-  "FAKE_TOTAL_TESTS=418"
+  "FAKE_TOTAL_TESTS=419"
   "FAKE_PASSED_TESTS=242"
   "FAKE_EXPECTED_FAILURES=1"
 )

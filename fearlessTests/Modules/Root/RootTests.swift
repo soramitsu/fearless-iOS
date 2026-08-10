@@ -279,7 +279,7 @@ class RootTests: XCTestCase {
 
         XCTAssertEqual(providerInvocationCount, 0)
 
-        _ = helper.startView(onboardingConfig: nil)
+        XCTAssertThrowsError(try helper.startView(onboardingConfig: nil))
 
         XCTAssertEqual(providerInvocationCount, 1)
     }
@@ -451,9 +451,9 @@ class RootTests: XCTestCase {
                 .migration,
                 .storagePreflightProvider,
                 .storagePreflight,
-                .chainRegistry,
                 .walletSettingsProvider,
                 .walletSetup,
+                .chainRegistry,
                 .coldBoot
             ]
         )
@@ -581,9 +581,9 @@ class RootTests: XCTestCase {
                 .migration,
                 .storagePreflightProvider,
                 .storagePreflight,
-                .chainRegistry,
                 .walletSettingsProvider,
                 .walletSetup,
+                .chainRegistry,
                 .coldBoot
             ]
         )
@@ -736,7 +736,6 @@ class RootTests: XCTestCase {
             [
                 .storagePreflightProvider,
                 .storagePreflight,
-                .chainRegistry,
                 .walletSettingsProvider,
                 .walletSetup
             ]
@@ -753,12 +752,12 @@ class RootTests: XCTestCase {
             [
                 .storagePreflightProvider,
                 .storagePreflight,
-                .chainRegistry,
                 .walletSettingsProvider,
                 .walletSetup,
                 .storagePreflightProvider,
                 .storagePreflight,
                 .walletSetup,
+                .chainRegistry,
                 .coldBoot
             ]
         )
@@ -969,6 +968,72 @@ class RootTests: XCTestCase {
         verify(wireframe, times(0)).showOnboarding(on: any(), with: any())
     }
 
+    func testUnavailableWalletStateFailsTypedBeforeBootOrReady() {
+        let recorder = RootSetupEventRecorder()
+        let settings = RecordingImmediateRootSelectedWalletSettings(
+            recorder: recorder,
+            result: .success(nil),
+            storeState: .unavailable
+        )
+        let chainRegistry = MockChainRegistryProtocol()
+        let output = MockRootInteractorOutputProtocol()
+        let failureExpectation = expectation(
+            description: "unavailable wallet store reports a typed failure"
+        )
+        var failedState: RootSetupFailure?
+
+        stub(output) { stub in
+            stub.didUpdateSetup(any()).then { state in
+                if case let .failed(failure) = state {
+                    failedState = failure
+                }
+            }
+            stub.didFailSetup(any()).then { failure in
+                XCTAssertEqual(failedState, failure)
+                XCTAssertEqual(failure.phase, .selectedWalletOpening)
+                XCTAssertEqual(failure.incidentCode, .walletRecordRejected)
+                XCTAssertEqual(failure.recoveryAction, .installLatestBuild)
+                failureExpectation.fulfill()
+            }
+        }
+
+        let interactor = RootInteractor(
+            chainRegistryProvider: {
+                XCTFail("Rejected wallet storage must not resolve the registry")
+                return chainRegistry
+            },
+            storagePreflightProvider: {
+                RecordingRootStoragePreflight(
+                    recorder: recorder,
+                    result: .success(())
+                )
+            },
+            settings: settings,
+            applicationConfig: ApplicationConfig.shared,
+            eventCenter: MockEventCenterProtocol(),
+            migrationSteps: [],
+            onboardingService: StubOnboardingService(
+                result: .failure(OnboardingServiceError.empty)
+            ),
+            onboardingConfigResolver: OnboardingConfigVersionResolver(
+                userDefaultsStorage: InMemorySettingsManager()
+            )
+        )
+        interactor.presenter = output
+
+        interactor.setup(runMigrations: false)
+        wait(
+            for: [failureExpectation],
+            timeout: Constants.defaultExpectationDuration
+        )
+
+        XCTAssertEqual(recorder.snapshot, [.storagePreflight, .walletSetup])
+        verify(chainRegistry, times(0)).performHotBoot()
+        verify(chainRegistry, times(0)).performColdBoot()
+        verify(output, times(0)).didUpdateSetup(equal(to: .ready))
+        verify(output, times(1)).didFailSetup(any())
+    }
+
     func testRepeatedSetupCallsCoalesceAndStaleWalletCallbacksCannotMutateReadyState() {
         let firstRequestStarted = expectation(description: "wallet request starts")
         let setupCompleted = expectation(description: "setup completes")
@@ -977,6 +1042,7 @@ class RootTests: XCTestCase {
         let settings = ControllableRootSelectedWalletSettings(
             requestStartedExpectations: [firstRequestStarted]
         )
+        let startupRouteValidationStore = RootStartupRouteValidationStore()
         let recorder = RootGenerationEventRecorder()
         let chainRegistry = MockChainRegistryProtocol()
         let output = MockRootInteractorOutputProtocol()
@@ -1014,7 +1080,8 @@ class RootTests: XCTestCase {
             ),
             onboardingConfigResolver: OnboardingConfigVersionResolver(
                 userDefaultsStorage: InMemorySettingsManager()
-            )
+            ),
+            startupRouteValidationStore: startupRouteValidationStore
         )
         interactor.presenter = output
 
@@ -1064,6 +1131,8 @@ class RootTests: XCTestCase {
 
         XCTAssertEqual(recorder.snapshot, [.coldBoot, .completed])
         XCTAssertEqual(recorder.routeState, .completed)
+        XCTAssertEqual(startupRouteValidationStore.take(), .empty)
+        XCTAssertNil(startupRouteValidationStore.take())
         verify(chainRegistry, times(0)).performHotBoot()
         verify(chainRegistry, times(1)).performColdBoot()
         verify(output, times(1)).didUpdateSetup(equal(to: .ready))
@@ -1345,9 +1414,9 @@ class RootTests: XCTestCase {
                 .migration,
                 .storagePreflightProvider,
                 .storagePreflight,
-                .chainRegistry,
                 .walletSettingsProvider,
                 .walletSetup,
+                .chainRegistry,
                 .coldBoot
             ]
         )
@@ -1795,8 +1864,8 @@ class RootTests: XCTestCase {
                 .migration,
                 .storagePreflight,
                 .storagePreflight,
-                .chainRegistry,
                 .walletRepository,
+                .chainRegistry,
                 .hotBoot
             ]
         )
@@ -1861,7 +1930,7 @@ class RootTests: XCTestCase {
 
         XCTAssertEqual(
             recorder.snapshot,
-            [.storagePreflight, .chainRegistry, .walletSetup, .coldBoot]
+            [.storagePreflight, .walletSetup, .chainRegistry, .coldBoot]
         )
         verify(chainRegistry, times(0)).performHotBoot()
         verify(chainRegistry, times(1)).performColdBoot()
@@ -1894,7 +1963,7 @@ class RootTests: XCTestCase {
             selectedWalletSettings: settings,
             userDefaultsStorage: InMemorySettingsManager()
         )
-        guard case .login = loginHelper.startView(onboardingConfig: nil) else {
+        guard case .login = try loginHelper.startView(onboardingConfig: nil) else {
             return XCTFail("A user without a PIN must be allowed to add a supported wallet")
         }
 
@@ -1906,17 +1975,14 @@ class RootTests: XCTestCase {
         let chainRegistry = MockChainRegistryProtocol()
         let wireframe = MockRootWireframeProtocol()
         let view = AlertCapturingViewController()
-        let brokenExpectation = expectation(description: "unsupported wallet routes to broken")
         let alertExpectation = expectation(description: "unsupported wallet explanation is visible")
+        let readinessReporter = RecordingRootStartupReadinessReporter()
 
         stub(chainRegistry) { stub in
             stub.performColdBoot().thenDoNothing()
         }
         stub(wireframe) { stub in
             stub.showSplash(splashView: any(), on: any()).thenDoNothing()
-            stub.showBroken(on: any()).then { _ in
-                brokenExpectation.fulfill()
-            }
         }
         view.onPresent = { presentedController in
             guard let alert = presentedController as? UIAlertController else {
@@ -1938,24 +2004,25 @@ class RootTests: XCTestCase {
                 result: .failure(OnboardingServiceError.empty)
             ),
             view: view,
-            chainRegistryProvider: { chainRegistry }
+            chainRegistryProvider: { chainRegistry },
+            startupReadinessReporter: readinessReporter
         )
 
         presenter.loadOnLaunch()
 
-        wait(
-            for: [brokenExpectation, alertExpectation],
-            timeout: Constants.defaultExpectationDuration
-        )
+        wait(for: [alertExpectation], timeout: Constants.defaultExpectationDuration)
 
         XCTAssertEqual(settings.storeState, .unsupportedOnly)
         XCTAssertTrue(try keystore.checkKey(for: KeystoreTag.pincode.rawValue))
         XCTAssertEqual(try tonOnlyWalletSnapshot(in: storageFacade), before)
-        verify(chainRegistry).performColdBoot()
+        XCTAssertEqual(readinessReporter.readyCount, 0)
+        XCTAssertEqual(readinessReporter.failureCount, 1)
+        verify(chainRegistry, times(0)).performColdBoot()
         verify(chainRegistry, times(0)).performHotBoot()
         verify(wireframe, times(0)).showLocalAuthentication(on: any())
         verify(wireframe, times(0)).showPincodeSetup(on: any())
         verify(wireframe, times(0)).showMain(on: any())
+        verify(wireframe, times(0)).showBroken(on: any())
         verify(wireframe, times(0)).showOnboarding(on: any(), with: any())
     }
 
@@ -2059,8 +2126,8 @@ class RootTests: XCTestCase {
             [
                 .migration,
                 .storagePreflight,
-                .chainRegistry,
                 .walletRepository,
+                .chainRegistry,
                 .hotBoot
             ]
         )
@@ -2251,8 +2318,8 @@ class RootTests: XCTestCase {
         let chainRegistry = MockChainRegistryProtocol()
         let wireframe = MockRootWireframeProtocol()
         let alertController = AlertCapturingViewController()
-        let brokenExpectation = XCTestExpectation(description: "broken route is selected")
         let alertExpectation = XCTestExpectation(description: "protected data error is visible")
+        let readinessReporter = RecordingRootStartupReadinessReporter()
         let onboardingService = StubOnboardingService(
             result: .failure(OnboardingServiceError.empty)
         )
@@ -2262,12 +2329,10 @@ class RootTests: XCTestCase {
         }
         stub(chainRegistry) { stub in
             stub.performHotBoot().thenDoNothing()
+            stub.performColdBoot().thenDoNothing()
         }
         stub(wireframe) { stub in
             stub.showSplash(splashView: any(), on: any()).thenDoNothing()
-            stub.showBroken(on: any()).then { _ in
-                brokenExpectation.fulfill()
-            }
         }
         alertController.onPresent = { presentedController in
             guard let alert = presentedController as? UIAlertController else {
@@ -2276,7 +2341,9 @@ class RootTests: XCTestCase {
             }
 
             XCTAssertEqual(alert.actions.count, 1)
-            XCTAssertFalse(alert.message?.isEmpty ?? true)
+            XCTAssertTrue(
+                alert.message?.contains("SELECTED_WALLET_OPENING_FAILED") == true
+            )
             alertExpectation.fulfill()
         }
 
@@ -2287,7 +2354,8 @@ class RootTests: XCTestCase {
             userDefaultsStorage: InMemorySettingsManager(),
             onboardingService: onboardingService,
             view: alertController,
-            chainRegistryProvider: { chainRegistry }
+            chainRegistryProvider: { chainRegistry },
+            startupReadinessReporter: readinessReporter
         )
 
         // when
@@ -2296,14 +2364,23 @@ class RootTests: XCTestCase {
 
         // then
 
-        wait(
-            for: [brokenExpectation, alertExpectation],
-            timeout: Constants.defaultExpectationDuration
+        wait(for: [alertExpectation], timeout: Constants.defaultExpectationDuration)
+        XCTAssertEqual(onboardingService.fetchCallCount, 0)
+        XCTAssertEqual(readinessReporter.readyCount, 0)
+        XCTAssertEqual(readinessReporter.failureCount, 1)
+        XCTAssertEqual(readinessReporter.failures.first?.phase, .selectedWalletOpening)
+        XCTAssertEqual(
+            readinessReporter.failures.first?.incidentCode,
+            .selectedWalletOpeningFailed
         )
-        XCTAssertEqual(onboardingService.fetchCallCount, 1)
+        XCTAssertEqual(readinessReporter.failures.first?.recoveryAction, .retry)
+        verify(keystore, times(1)).checkKey(for: KeystoreTag.pincode.rawValue)
+        verify(chainRegistry, times(0)).performHotBoot()
+        verify(chainRegistry, times(0)).performColdBoot()
         verify(wireframe, times(0)).showLocalAuthentication(on: any())
         verify(wireframe, times(0)).showPincodeSetup(on: any())
         verify(wireframe, times(0)).showMain(on: any())
+        verify(wireframe, times(0)).showBroken(on: any())
         verify(wireframe, times(0)).showOnboarding(on: any(), with: any())
     }
 
@@ -2332,17 +2409,16 @@ class RootTests: XCTestCase {
         operationQueue.addOperations([seedOperation], waitUntilFinished: true)
         _ = try XCTUnwrap(seedOperation.result).get()
 
-        let keystore = InMemoryKeychain()
-        try keystore.saveKey(
-            Data("123456".utf8),
-            with: KeystoreTag.pincode.rawValue
-        )
+        let keystore = MockKeystoreProtocol()
         let chainRegistry = MockChainRegistryProtocol()
         let wireframe = MockRootWireframeProtocol()
         let authenticationExpectation = expectation(
             description: "recovered wallet still requires authentication"
         )
 
+        stub(keystore) { stub in
+            stub.checkKey(for: any()).thenReturn(true)
+        }
         stub(chainRegistry) { stub in
             stub.performHotBoot().thenDoNothing()
         }
@@ -2371,8 +2447,9 @@ class RootTests: XCTestCase {
             timeout: Constants.defaultExpectationDuration
         )
 
-        XCTAssertTrue(try keystore.checkKey(for: KeystoreTag.pincode.rawValue))
         XCTAssertEqual(settings.value, wallet)
+        verify(keystore, times(1)).checkKey(for: KeystoreTag.pincode.rawValue)
+        verify(keystore, times(0)).deleteKey(for: any())
         verify(chainRegistry).performHotBoot()
         verify(chainRegistry, times(0)).performColdBoot()
         verify(wireframe, times(0)).showMain(on: any())
@@ -2410,7 +2487,7 @@ class RootTests: XCTestCase {
 
         // when
 
-        let startView = helper.startView(onboardingConfig: nil)
+        let startView = try helper.startView(onboardingConfig: nil)
 
         // then
 
@@ -2441,43 +2518,87 @@ class RootTests: XCTestCase {
         wait(for: [setupExpectation], timeout: Constants.defaultExpectationDuration)
 
         let keystore = MockKeystoreProtocol()
-        let helper = StartViewHelper(
-            keystore: keystore,
-            selectedWalletSettings: settings,
-            userDefaultsStorage: InMemorySettingsManager()
+        let chainRegistry = MockChainRegistryProtocol()
+        let wireframe = MockRootWireframeProtocol()
+        let alertController = AlertCapturingViewController()
+        let alertExpectation = expectation(
+            description: "stale PIN deletion failure is visible"
+        )
+        let readinessReporter = RecordingRootStartupReadinessReporter()
+        let onboardingService = StubOnboardingService(
+            result: .failure(OnboardingServiceError.empty)
         )
 
         stub(keystore) { stub in
             stub.checkKey(for: any()).thenReturn(true)
             stub.deleteKey(for: any()).thenThrow(RootSetupTestError.protectedDataUnavailable)
         }
+        stub(chainRegistry) { stub in
+            stub.performHotBoot().thenDoNothing()
+            stub.performColdBoot().thenDoNothing()
+        }
+        stub(wireframe) { stub in
+            stub.showSplash(splashView: any(), on: any()).thenDoNothing()
+        }
+        alertController.onPresent = { presentedController in
+            guard let alert = presentedController as? UIAlertController else {
+                return XCTFail("Expected a retryable protected-data alert")
+            }
+
+            XCTAssertEqual(alert.actions.count, 1)
+            XCTAssertTrue(
+                alert.message?.contains("SELECTED_WALLET_OPENING_FAILED") == true
+            )
+            alertExpectation.fulfill()
+        }
+
+        let presenter = createPresenter(
+            wireframe: wireframe,
+            settings: settings,
+            keystore: keystore,
+            userDefaultsStorage: InMemorySettingsManager(),
+            onboardingService: onboardingService,
+            view: alertController,
+            chainRegistryProvider: { chainRegistry },
+            startupReadinessReporter: readinessReporter
+        )
 
         // when
 
-        let startView = helper.startView(onboardingConfig: nil)
+        presenter.loadOnLaunch()
 
         // then
 
-        guard case .broken = startView else {
-            XCTFail("Expected protected-data failure when the stale PIN cannot be removed")
-            return
-        }
-
-        verify(keystore).deleteKey(for: KeystoreTag.pincode.rawValue)
+        wait(for: [alertExpectation], timeout: Constants.defaultExpectationDuration)
+        XCTAssertEqual(settings.storeState, .empty)
+        XCTAssertEqual(onboardingService.fetchCallCount, 0)
+        XCTAssertEqual(readinessReporter.readyCount, 0)
+        XCTAssertEqual(readinessReporter.failureCount, 1)
+        XCTAssertEqual(readinessReporter.failures.first?.phase, .selectedWalletOpening)
+        XCTAssertEqual(
+            readinessReporter.failures.first?.incidentCode,
+            .selectedWalletOpeningFailed
+        )
+        XCTAssertEqual(readinessReporter.failures.first?.recoveryAction, .retry)
+        verify(keystore, times(1)).checkKey(for: KeystoreTag.pincode.rawValue)
+        verify(keystore, times(1)).deleteKey(for: KeystoreTag.pincode.rawValue)
+        verify(chainRegistry, times(0)).performHotBoot()
+        verify(chainRegistry, times(0)).performColdBoot()
+        verify(wireframe, times(0)).showLocalAuthentication(on: any())
+        verify(wireframe, times(0)).showPincodeSetup(on: any())
+        verify(wireframe, times(0)).showMain(on: any())
+        verify(wireframe, times(0)).showBroken(on: any())
+        verify(wireframe, times(0)).showOnboarding(on: any(), with: any())
     }
 
     func testOnboardingDecision() throws {
         // given
 
         let wireframe = MockRootWireframeProtocol()
-
-        let keystore = InMemoryKeychain()
-
-        let expectedPincode = "123456"
-        try keystore.saveKey(
-            expectedPincode.data(using: .utf8)!,
-            with: KeystoreTag.pincode.rawValue
-        )
+        let keystore = MockKeystoreProtocol()
+        let chainRegistry = MockChainRegistryProtocol()
+        let recorder = RootSetupEventRecorder()
+        let readinessReporter = RecordingRootStartupReadinessReporter()
 
         let settings = SelectedWalletSettings(
             storageFacade: UserDataStorageTestFacade(),
@@ -2494,7 +2615,12 @@ class RootTests: XCTestCase {
             settings: settings,
             keystore: keystore,
             userDefaultsStorage: userDefaultsStorage,
-            onboardingService: onboardingService
+            onboardingService: onboardingService,
+            chainRegistryProvider: {
+                recorder.record(.chainRegistry)
+                return chainRegistry
+            },
+            startupReadinessReporter: readinessReporter
         )
 
         let splashExpectation = XCTestExpectation()
@@ -2505,10 +2631,26 @@ class RootTests: XCTestCase {
             }
         }
 
+        stub(keystore) { stub in
+            stub.checkKey(for: any()).then { _ in
+                recorder.record(.pincodeCheck)
+                return true
+            }
+            stub.deleteKey(for: any()).then { _ in
+                recorder.record(.pincodeDelete)
+            }
+        }
+        stub(chainRegistry) { stub in
+            stub.performColdBoot().then {
+                recorder.record(.coldBoot)
+            }
+        }
+
         let onboardingExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
             stub.showOnboarding(on: any(), with: any()).then { _ in
+                recorder.record(.onboardingRoute)
                 onboardingExpectation.fulfill()
             }
         }
@@ -2520,7 +2662,22 @@ class RootTests: XCTestCase {
         // then
 
         wait(for: [splashExpectation, onboardingExpectation], timeout: Constants.defaultExpectationDuration)
-        XCTAssertTrue(try keystore.checkKey(for: KeystoreTag.pincode.rawValue))
+        XCTAssertEqual(
+            recorder.snapshot,
+            [
+                .pincodeCheck,
+                .pincodeDelete,
+                .chainRegistry,
+                .coldBoot,
+                .onboardingRoute
+            ]
+        )
+        XCTAssertEqual(readinessReporter.readyCount, 1)
+        XCTAssertEqual(readinessReporter.failureCount, 0)
+        verify(keystore, times(1)).checkKey(for: KeystoreTag.pincode.rawValue)
+        verify(keystore, times(1)).deleteKey(for: KeystoreTag.pincode.rawValue)
+        verify(chainRegistry, times(1)).performColdBoot()
+        verify(chainRegistry, times(0)).performHotBoot()
     }
 
     func testPincodeSetupDecision() {
@@ -2660,6 +2817,7 @@ class RootTests: XCTestCase {
             RootStartupReadinessReporter.shared
     ) -> RootPresenter {
         let resolver = OnboardingConfigVersionResolver(userDefaultsStorage: userDefaultsStorage)
+        let startupRouteValidationStore = RootStartupRouteValidationStore()
 
         let interactor = RootInteractor(
             chainRegistryProvider: chainRegistryProvider,
@@ -2669,13 +2827,23 @@ class RootTests: XCTestCase {
             eventCenter: MockEventCenterProtocol(),
             migrationSteps: migrationSteps,
             onboardingService: onboardingService,
-            onboardingConfigResolver: resolver
+            onboardingConfigResolver: resolver,
+            pincodeAvailabilityProvider: {
+                try keystore.checkKey(for: KeystoreTag.pincode.rawValue)
+            },
+            pincodeRemoval: {
+                try keystore.deleteKeyIfExists(
+                    for: KeystoreTag.pincode.rawValue
+                )
+            },
+            startupRouteValidationStore: startupRouteValidationStore
         )
 
         let startViewHelper = StartViewHelper(
             keystore: keystore,
             selectedWalletSettings: settings,
-            userDefaultsStorage: userDefaultsStorage
+            userDefaultsStorage: userDefaultsStorage,
+            startupRouteValidationStore: startupRouteValidationStore
         )
         let presenter = RootPresenter(
             localizationManager: LocalizationManager.shared,
@@ -2979,8 +3147,11 @@ private enum RootSetupEvent: Equatable {
     case walletSettingsProvider
     case walletSetup
     case walletRepository
+    case pincodeCheck
+    case pincodeDelete
     case hotBoot
     case coldBoot
+    case onboardingRoute
 }
 
 private func rootMigrationStep(
@@ -3217,6 +3388,7 @@ private final class ControllableRootSelectedWalletSettings: RootSelectedWalletSe
     private let lock = NSLock()
     private let requestStartedExpectations: [XCTestExpectation]
     private var requests: [Request] = []
+    private var internalStoreState = SelectedWalletStoreState.unresolved
 
     init(requestStartedExpectations: [XCTestExpectation]) {
         self.requestStartedExpectations = requestStartedExpectations
@@ -3227,6 +3399,13 @@ private final class ControllableRootSelectedWalletSettings: RootSelectedWalletSe
         defer { lock.unlock() }
 
         return requests.count
+    }
+
+    var storeState: SelectedWalletStoreState {
+        lock.lock()
+        defer { lock.unlock() }
+
+        return internalStoreState
     }
 
     func setup(
@@ -3255,10 +3434,12 @@ private final class ControllableRootSelectedWalletSettings: RootSelectedWalletSe
     func resolveRequest(
         at index: Int,
         with result: Result<MetaAccountModel?, Error>,
+        storeState: SelectedWalletStoreState? = nil,
         deliveryExpectation: XCTestExpectation? = nil
     ) {
         lock.lock()
         let request = requests[index]
+        internalStoreState = storeState ?? rootStoreState(for: result)
         lock.unlock()
 
         let deliver = {
@@ -3278,13 +3459,16 @@ private final class RecordingImmediateRootSelectedWalletSettings:
     RootSelectedWalletSettingsProtocol {
     private let recorder: RootSetupEventRecorder
     private let result: Result<MetaAccountModel?, Error>
+    let storeState: SelectedWalletStoreState
 
     init(
         recorder: RootSetupEventRecorder,
-        result: Result<MetaAccountModel?, Error>
+        result: Result<MetaAccountModel?, Error>,
+        storeState: SelectedWalletStoreState? = nil
     ) {
         self.recorder = recorder
         self.result = result
+        self.storeState = storeState ?? rootStoreState(for: result)
     }
 
     func setup(
@@ -3312,6 +3496,7 @@ private final class SequencedRootSelectedWalletSettings:
     private let lock = NSLock()
     private let recorder: RootSetupEventRecorder
     private var results: [Result<MetaAccountModel?, Error>]
+    private var internalStoreState = SelectedWalletStoreState.unresolved
 
     init(
         recorder: RootSetupEventRecorder,
@@ -3319,6 +3504,13 @@ private final class SequencedRootSelectedWalletSettings:
     ) {
         self.recorder = recorder
         self.results = results
+    }
+
+    var storeState: SelectedWalletStoreState {
+        lock.lock()
+        defer { lock.unlock() }
+
+        return internalStoreState
     }
 
     func setup(
@@ -3337,6 +3529,7 @@ private final class SequencedRootSelectedWalletSettings:
                 RootSetupTestError.walletRepositoryFailed
             )
             : results.removeFirst()
+        internalStoreState = rootStoreState(for: result)
         lock.unlock()
 
         if let queue {
@@ -3346,6 +3539,17 @@ private final class SequencedRootSelectedWalletSettings:
         } else {
             completionClosure(result)
         }
+    }
+}
+
+private func rootStoreState(
+    for result: Result<MetaAccountModel?, Error>
+) -> SelectedWalletStoreState {
+    switch result {
+    case let .success(wallet):
+        return wallet == nil ? .empty : .ready
+    case .failure:
+        return .unavailable
     }
 }
 

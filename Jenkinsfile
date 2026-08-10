@@ -128,7 +128,7 @@ try {
   def releaseBranch = directReleaseBranch || releasePullRequest
   if (releaseBranch) {
     stage('Exact Core Data Release Gate') {
-      sh label: 'Require arm64 and exact 418-test Release inventory', script: '''
+      sh label: 'Require arm64 and exact 419-test Release inventory', script: '''
         set -euo pipefail
         [[ "$(uname -m)" == "arm64" ]] || {
           echo "Exact Release gate requires dispatch to an arm64 macOS agent." >&2

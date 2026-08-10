@@ -56,11 +56,13 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
 
     static func createPresenter(with window: UIWindow, dependencies: Dependencies) -> RootPresenterProtocol {
         let wireframe = RootWireframe()
+        let startupRouteValidationStore = RootStartupRouteValidationStore()
         let startViewHelper = StartViewHelper(
             keystore: dependencies.keystore,
             selectedWalletSettingsProvider:
             dependencies.selectedWalletSettingsProvider,
-            userDefaultsStorage: dependencies.settings
+            userDefaultsStorage: dependencies.settings,
+            startupRouteValidationStore: startupRouteValidationStore
         )
 
         let languageMigrator = SelectedLanguageMigrator(
@@ -114,7 +116,18 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             onboardingService: dependencies.onboardingService,
             onboardingConfigResolver: dependencies.onboardingConfigResolver,
             protectedDataAvailabilityMonitor:
-            dependencies.protectedDataAvailabilityMonitor
+            dependencies.protectedDataAvailabilityMonitor,
+            pincodeAvailabilityProvider: {
+                try dependencies.keystore.checkKey(
+                    for: KeystoreTag.pincode.rawValue
+                )
+            },
+            pincodeRemoval: {
+                try dependencies.keystore.deleteKeyIfExists(
+                    for: KeystoreTag.pincode.rawValue
+                )
+            },
+            startupRouteValidationStore: startupRouteValidationStore
         )
 
         let view = RootViewController(

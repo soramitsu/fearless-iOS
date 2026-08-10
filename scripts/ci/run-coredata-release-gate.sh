@@ -549,9 +549,9 @@ run_stage() {
 
   if [[ "$stage" == "core" ]]; then
     result_name="core"
-    # The simulator core cohort must execute exactly 418 tests. Copied-phone
+    # The simulator core cohort must execute exactly 419 tests. Copied-phone
     # fixtures are intentionally verified by the separate device/store stage.
-    expected_total="418"
+    expected_total="419"
     expected_manifest="$MANIFEST_DIR/coredata-release-core-tests.txt"
     selectors=(
       "-only-testing:fearlessTests/SingleToMultiassetUserMigrationTests"
@@ -649,7 +649,7 @@ run_stage() {
   if [[ "$stage" == "copied-phone" ]]; then
     log "PASSED copied-phone fixture stage: exactly 2 tests, source fixture unchanged"
   else
-    log "PASSED core stage: exactly 418 Release -O tests, zero failures, skips, or expected failures"
+    log "PASSED core stage: exactly 419 Release -O tests, zero failures, skips, or expected failures"
   fi
 }
 

@@ -125,44 +125,44 @@ final class RootPresenter {
     }
 
     private func decideModuleSynchroniously(with onboardingConfig: OnboardingConfigWrapper?) {
-        let startView = startViewHelper.startView(onboardingConfig: onboardingConfig)
-        switch startView {
-        case .pin:
-            wireframe.showLocalAuthentication(on: window)
-            startupReadinessReporter.reportReady()
-        case .pinSetup:
-            wireframe.showPincodeSetup(on: window)
-            startupReadinessReporter.reportReady()
-        case .login:
-            wireframe.showMain(on: window)
-            startupReadinessReporter.reportReady()
-        case .broken:
-            wireframe.showBroken(on: window)
-            let failure = makePostSetupFailure(
-                incidentCode: .selectedWalletOpeningFailed,
-                recoveryAction: .retry
+        do {
+            let startView = try startViewHelper.startView(
+                onboardingConfig: onboardingConfig
             )
+            switch startView {
+            case .pin:
+                wireframe.showLocalAuthentication(on: window)
+                startupReadinessReporter.reportReady()
+            case .pinSetup:
+                wireframe.showPincodeSetup(on: window)
+                startupReadinessReporter.reportReady()
+            case .login:
+                wireframe.showMain(on: window)
+                startupReadinessReporter.reportReady()
+            case let .onboarding(config):
+                wireframe.showOnboarding(on: window, with: config)
+                startupReadinessReporter.reportReady()
+            }
+        } catch {
+            wireframe.showBroken(on: window)
+            let failure = makePostSetupFailure(error: error)
             startupReadinessReporter.reportFailure(failure)
             showSetupFailure(failure)
-        case .unsupportedWallet:
-            wireframe.showBroken(on: window)
-            let failure = makePostSetupFailure(
-                incidentCode: .walletRecordRejected,
-                recoveryAction: .installLatestBuild
-            )
-            startupReadinessReporter.reportFailure(failure)
-            showSetupFailure(failure)
-        case let .onboarding(config):
-            wireframe.showOnboarding(on: window, with: config)
-            startupReadinessReporter.reportReady()
         }
     }
 
-    private func makePostSetupFailure(
-        incidentCode: RootSetupIncidentCode,
-        recoveryAction: RootSetupRecoveryAction
-    ) -> RootSetupFailure {
-        RootSetupFailure(
+    private func makePostSetupFailure(error: Error) -> RootSetupFailure {
+        let incidentCode: RootSetupIncidentCode
+        let recoveryAction: RootSetupRecoveryAction
+        if error is StartViewError {
+            incidentCode = .walletRecordRejected
+            recoveryAction = .installLatestBuild
+        } else {
+            incidentCode = .selectedWalletOpeningFailed
+            recoveryAction = .retry
+        }
+
+        return RootSetupFailure(
             phase: .selectedWalletOpening,
             incidentCode: incidentCode,
             elapsedTime: setupStartedAt.map {

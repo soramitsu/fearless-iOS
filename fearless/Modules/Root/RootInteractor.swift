@@ -43,6 +43,23 @@ enum RootStoragePreflightError: LocalizedError {
     }
 }
 
+enum RootSelectedWalletOpeningError: LocalizedError {
+    case walletStoreUnavailable
+    case unsupportedWalletRequiresCompatibility
+    case inconsistentStoreState
+
+    var errorDescription: String? {
+        switch self {
+        case .walletStoreUnavailable:
+            return "The stored wallet records could not be opened safely"
+        case .unsupportedWalletRequiresCompatibility:
+            return "The stored wallet requires a compatibility mapping"
+        case .inconsistentStoreState:
+            return "The selected wallet result did not match the validated store state"
+        }
+    }
+}
+
 struct RootSetupMigrationStep {
     let phase: RootSetupPhase
     let migrator: Migrating
@@ -345,6 +362,8 @@ final class RootCoreDataStoragePreflight: RootStoragePreflighting {
 }
 
 protocol RootSelectedWalletSettingsProtocol: AnyObject {
+    var storeState: SelectedWalletStoreState { get }
+
     func setup(
         runningCompletionIn queue: DispatchQueue?,
         completionClosure: ((Result<MetaAccountModel?, Error>) -> Void)?
@@ -352,6 +371,41 @@ protocol RootSelectedWalletSettingsProtocol: AnyObject {
 }
 
 extension SelectedWalletSettings: RootSelectedWalletSettingsProtocol {}
+
+typealias RootPincodeAvailabilityProvider = () throws -> Bool
+typealias RootPincodeRemoval = () throws -> Void
+
+enum RootStartupRouteValidation: Equatable {
+    case ready(pincodeAvailable: Bool)
+    case empty
+    case unsupportedOnlyWithoutPincode
+}
+
+final class RootStartupRouteValidationStore {
+    private let lock = NSLock()
+    private var validation: RootStartupRouteValidation?
+
+    func replace(with validation: RootStartupRouteValidation) {
+        lock.lock()
+        self.validation = validation
+        lock.unlock()
+    }
+
+    func take() -> RootStartupRouteValidation? {
+        lock.lock()
+        defer { lock.unlock() }
+
+        let validation = validation
+        self.validation = nil
+        return validation
+    }
+
+    func clear() {
+        lock.lock()
+        validation = nil
+        lock.unlock()
+    }
+}
 
 // Startup migration barriers remain in one state machine.
 // swiftlint:disable:next type_body_length
@@ -395,6 +449,10 @@ final class RootInteractor {
     private let onboardingConfigResolver: OnboardingConfigVersionResolver
     private let protectedDataAvailabilityMonitor:
         RootProtectedDataAvailabilityMonitoring
+    private let pincodeAvailabilityProvider: RootPincodeAvailabilityProvider
+    private let pincodeRemoval: RootPincodeRemoval
+    private let startupRouteValidationStore:
+        RootStartupRouteValidationStore
     private let migrationDeadline: TimeInterval
     private let setupDeadline: TimeInterval
     private let setupDeadlineScheduler: RootSetupDeadlineScheduler?
@@ -441,6 +499,11 @@ final class RootInteractor {
         protectedDataAvailabilityMonitor:
         RootProtectedDataAvailabilityMonitoring =
             RootUIApplicationProtectedDataAvailabilityMonitor(),
+        pincodeAvailabilityProvider: @escaping RootPincodeAvailabilityProvider = {
+            false
+        },
+        pincodeRemoval: @escaping RootPincodeRemoval = {},
+        startupRouteValidationStore: RootStartupRouteValidationStore = .init(),
         migrationDeadline: TimeInterval = 60,
         setupDeadline: TimeInterval = 15,
         setupDeadlineScheduler: RootSetupDeadlineScheduler? = nil,
@@ -459,6 +522,9 @@ final class RootInteractor {
         self.onboardingConfigResolver = onboardingConfigResolver
         self.protectedDataAvailabilityMonitor =
             protectedDataAvailabilityMonitor
+        self.pincodeAvailabilityProvider = pincodeAvailabilityProvider
+        self.pincodeRemoval = pincodeRemoval
+        self.startupRouteValidationStore = startupRouteValidationStore
         self.migrationDeadline = max(0.001, migrationDeadline)
         self.setupDeadline = max(0.001, setupDeadline)
         self.setupDeadlineScheduler = setupDeadlineScheduler
@@ -483,6 +549,11 @@ final class RootInteractor {
         protectedDataAvailabilityMonitor:
         RootProtectedDataAvailabilityMonitoring =
             RootUIApplicationProtectedDataAvailabilityMonitor(),
+        pincodeAvailabilityProvider: @escaping RootPincodeAvailabilityProvider = {
+            false
+        },
+        pincodeRemoval: @escaping RootPincodeRemoval = {},
+        startupRouteValidationStore: RootStartupRouteValidationStore = .init(),
         migrationDeadline: TimeInterval = 60,
         setupDeadline: TimeInterval = 15,
         setupDeadlineScheduler: RootSetupDeadlineScheduler? = nil,
@@ -501,6 +572,9 @@ final class RootInteractor {
             onboardingService: onboardingService,
             onboardingConfigResolver: onboardingConfigResolver,
             protectedDataAvailabilityMonitor: protectedDataAvailabilityMonitor,
+            pincodeAvailabilityProvider: pincodeAvailabilityProvider,
+            pincodeRemoval: pincodeRemoval,
+            startupRouteValidationStore: startupRouteValidationStore,
             migrationDeadline: migrationDeadline,
             setupDeadline: setupDeadline,
             setupDeadlineScheduler: setupDeadlineScheduler,
@@ -521,6 +595,11 @@ final class RootInteractor {
         protectedDataAvailabilityMonitor:
         RootProtectedDataAvailabilityMonitoring =
             RootUIApplicationProtectedDataAvailabilityMonitor(),
+        pincodeAvailabilityProvider: @escaping RootPincodeAvailabilityProvider = {
+            false
+        },
+        pincodeRemoval: @escaping RootPincodeRemoval = {},
+        startupRouteValidationStore: RootStartupRouteValidationStore = .init(),
         migrationDeadline: TimeInterval = 60,
         setupDeadline: TimeInterval = 15,
         setupDeadlineScheduler: RootSetupDeadlineScheduler? = nil,
@@ -539,6 +618,9 @@ final class RootInteractor {
             onboardingService: onboardingService,
             onboardingConfigResolver: onboardingConfigResolver,
             protectedDataAvailabilityMonitor: protectedDataAvailabilityMonitor,
+            pincodeAvailabilityProvider: pincodeAvailabilityProvider,
+            pincodeRemoval: pincodeRemoval,
+            startupRouteValidationStore: startupRouteValidationStore,
             migrationDeadline: migrationDeadline,
             setupDeadline: setupDeadline,
             setupDeadlineScheduler: setupDeadlineScheduler,
@@ -580,9 +662,10 @@ final class RootInteractor {
             return
         }
 
+        let generation = replaceSetupGeneration()
+        startupRouteValidationStore.clear()
         setupURLHandlingService()
 
-        let generation = replaceSetupGeneration()
         isSetupActive = true
         setupStartedAt = monotonicTimeProvider()
         currentPhase = nil
@@ -779,7 +862,6 @@ final class RootInteractor {
         updateSetupPhase(.selectedWalletOpening, generation: generation)
         scheduleSlowThreshold(after: setupDeadline, generation: generation)
 
-        let registry = chainRegistry
         let selectedWalletSettings = settings
         let completionGate = RootSetupCompletionGate()
 
@@ -797,14 +879,10 @@ final class RootInteractor {
 
                 switch result {
                 case let .success(wallet):
-                    if wallet != nil {
-                        registry.performHotBoot()
-                    } else {
-                        registry.performColdBoot()
-                    }
-
-                    logger?.debug("Selected wallet setup completed")
-                    completeSetup(generation: generation)
+                    finishSelectedWalletOpening(
+                        wallet: wallet,
+                        generation: generation
+                    )
                 case let .failure(error):
                     failSetup(
                         with: error,
@@ -814,6 +892,93 @@ final class RootInteractor {
                 }
             }
         }
+    }
+
+    private func finishSelectedWalletOpening(
+        wallet: MetaAccountModel?,
+        generation: UUID
+    ) {
+        let storeState = settings.storeState
+        let routeValidation: RootStartupRouteValidation
+
+        switch (storeState, wallet) {
+        case (.ready, .some):
+            do {
+                routeValidation = .ready(
+                    pincodeAvailable: try pincodeAvailabilityProvider()
+                )
+            } catch {
+                failSetup(
+                    with: error,
+                    phase: .selectedWalletOpening,
+                    generation: generation
+                )
+                return
+            }
+
+            startupRouteValidationStore.replace(with: routeValidation)
+            chainRegistry.performHotBoot()
+        case (.empty, .none):
+            do {
+                try pincodeRemoval()
+            } catch {
+                failSetup(
+                    with: error,
+                    phase: .selectedWalletOpening,
+                    generation: generation
+                )
+                return
+            }
+
+            routeValidation = .empty
+            startupRouteValidationStore.replace(with: routeValidation)
+            chainRegistry.performColdBoot()
+        case (.unsupportedOnly, .none):
+            do {
+                if try pincodeAvailabilityProvider() {
+                    failSetup(
+                        with: RootSelectedWalletOpeningError
+                            .unsupportedWalletRequiresCompatibility,
+                        phase: .selectedWalletOpening,
+                        generation: generation
+                    )
+                    return
+                }
+            } catch {
+                failSetup(
+                    with: error,
+                    phase: .selectedWalletOpening,
+                    generation: generation
+                )
+                return
+            }
+
+            // A structurally valid unsupported-only store without a PIN can
+            // safely reach login so the user can add a supported wallet. No
+            // stored row is rewritten or discarded.
+            routeValidation = .unsupportedOnlyWithoutPincode
+            startupRouteValidationStore.replace(with: routeValidation)
+            chainRegistry.performColdBoot()
+        case (.unavailable, _), (.unresolved, _):
+            failSetup(
+                with: RootSelectedWalletOpeningError.walletStoreUnavailable,
+                phase: .selectedWalletOpening,
+                generation: generation
+            )
+            return
+        case (.ready, .none),
+             (.empty, .some),
+             (.unsupportedOnly, .some):
+            failSetup(
+                with: RootSelectedWalletOpeningError.inconsistentStoreState,
+                phase: .selectedWalletOpening,
+                generation: generation
+            )
+            return
+        }
+
+        logger?.debug("Selected wallet setup completed")
+        completeSetup(generation: generation)
     }
 
     private func performWhenProtectedDataIsAvailable(
@@ -960,6 +1125,7 @@ final class RootInteractor {
             "Root setup failed with incident \(failure.incidentCode.rawValue)"
         )
 
+        startupRouteValidationStore.clear()
         finishActiveSetup()
 
         DispatchQueue.main.async { [weak self] in
@@ -1099,6 +1265,10 @@ final class RootInteractor {
 
             return .substratePreflightFailed
         case .selectedWalletOpening:
+            if error is RootSelectedWalletOpeningError {
+                return .walletRecordRejected
+            }
+
             if error is SelectedWalletSettingsError {
                 return .walletMappingConflict
             }
