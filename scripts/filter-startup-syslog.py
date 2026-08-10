@@ -203,6 +203,7 @@ STRUCTURED_MARKER = re.compile(
     rf"recovery=(?:{'|'.join(RECOVERY_ACTIONS)}) "
     rf"required_free_bytes=[0-9]{{1,20}})"
 )
+LEGACY_UNTYPED_FAILURE_MARKER = "FEARLESS_STARTUP_FAILED"
 
 
 def sanitize_message(message: str) -> str:
@@ -279,9 +280,11 @@ def safe_level(value: Any) -> str | None:
 
 
 def privacy_safe_structured_message(message: str) -> str:
-    """Keep only the exact marker schema emitted by the hotfix."""
+    """Keep only exact markers emitted by the hotfix or distributed .28 build."""
 
     candidate = sanitize_message(message)
+    if candidate == LEGACY_UNTYPED_FAILURE_MARKER:
+        return candidate
     if STRUCTURED_MARKER.fullmatch(candidate) is not None:
         return candidate
     return "invalid_startup_marker"

@@ -115,6 +115,49 @@ class StartupSyslogFilterTests(unittest.TestCase):
             ),
         )
 
+    def test_keeps_distributed_build_untyped_failure_marker(self) -> None:
+        source = io.StringIO(
+            "\n".join(
+                [
+                    json.dumps(
+                        {
+                            "timestamp": "2026-08-10T12:00:15.000000",
+                            "level": "ERROR",
+                            "message": "Substrate storage preflight timed out",
+                            "label": {
+                                "subsystem": "jp.co.soramitsu.fearlesswallet",
+                                "category": "root",
+                            },
+                        }
+                    ),
+                    json.dumps(
+                        {
+                            "timestamp": "2026-08-10T12:00:15.001000",
+                            "level": "ERROR",
+                            "message": "FEARLESS_STARTUP_FAILED",
+                            "label": {
+                                "subsystem": "jp.co.soramitsu.fearlesswallet",
+                                "category": "startup-readiness",
+                            },
+                        }
+                    ),
+                ]
+            )
+            + "\n"
+        )
+        output = io.StringIO()
+
+        FILTER.filter_stream(source, [output])
+
+        records = [json.loads(line) for line in output.getvalue().splitlines()]
+        self.assertEqual(
+            records[1]["message"],
+            "legacy_incident_code=SUBSTRATE_PREFLIGHT_TIMEOUT "
+            "legacy_resolution=soft_threshold",
+        )
+        self.assertEqual(records[2]["message"], "FEARLESS_STARTUP_FAILED")
+        self.assertEqual(records[2]["timestamp"], "2026-08-10T12:00:15.001000")
+
     def test_replaces_malformed_marker_and_untrusted_envelope_fields(self) -> None:
         source = io.StringIO(
             json.dumps(
