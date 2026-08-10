@@ -3937,6 +3937,13 @@ final class SubstrateStorageMigrator {
         expectedRowCounts: [String: Int],
         expectedProtectedData: ProtectedDataSnapshot
     ) throws {
+        do {
+            try SQLiteStoreQuickChecker.validate(storeURL: stagedStoreURL)
+        } catch {
+            throw SubstrateStorageMigrationError
+                .stagedStoreInspectionFailed(stagedStoreURL, error)
+        }
+
         let metadata: [String: Any]
         do {
             var inspectedMetadata: [String: Any]?

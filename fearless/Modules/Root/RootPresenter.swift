@@ -3,26 +3,74 @@ import SoraFoundation
 import os.log
 
 protocol RootStartupReadinessReporting: AnyObject {
+    func reportSlow(phase: RootSetupPhase, elapsedTime: TimeInterval)
     func reportReady()
-    func reportFailure()
+    func reportFailure(_ failure: RootSetupFailure)
 }
 
 final class RootStartupReadinessReporter: RootStartupReadinessReporting {
     static let shared = RootStartupReadinessReporter()
 
-    private let log = OSLog(
-        subsystem: Bundle.main.bundleIdentifier ?? "jp.co.soramitsu.fearlesswallet",
-        category: "startup-readiness"
-    )
+    private let log: OSLog
+    private let readyMarkerEmitter: (OSLog) -> Void
+    private let lock = NSLock()
+    private var hasReportedReady = false
 
-    private init() {}
-
-    func reportReady() {
-        os_log("FEARLESS_STARTUP_READY", log: log, type: .default)
+    init(
+        log: OSLog = OSLog(
+            subsystem: Bundle.main.bundleIdentifier ?? "jp.co.soramitsu.fearlesswallet",
+            category: "startup-readiness"
+        ),
+        readyMarkerEmitter: @escaping (OSLog) -> Void = {
+            os_log("FEARLESS_STARTUP_READY", log: $0, type: .default)
+        }
+    ) {
+        self.log = log
+        self.readyMarkerEmitter = readyMarkerEmitter
     }
 
-    func reportFailure() {
-        os_log("FEARLESS_STARTUP_FAILED", log: log, type: .error)
+    func reportSlow(phase: RootSetupPhase, elapsedTime: TimeInterval) {
+        os_log(
+            "FEARLESS_STARTUP_SLOW phase=%{public}@ elapsed_ms=%{public}llu",
+            log: log,
+            type: .default,
+            phase.rawValue as NSString,
+            Self.elapsedMilliseconds(elapsedTime)
+        )
+    }
+
+    func reportReady() {
+        lock.lock()
+        guard !hasReportedReady else {
+            lock.unlock()
+            return
+        }
+        hasReportedReady = true
+        lock.unlock()
+
+        readyMarkerEmitter(log)
+    }
+
+    func reportFailure(_ failure: RootSetupFailure) {
+        let recovery = failure.recoveryAction.startupLogFields
+        os_log(
+            """
+            FEARLESS_STARTUP_FAILED phase=%{public}@ code=%{public}@ \
+            elapsed_ms=%{public}llu recovery=%{public}@ required_free_bytes=%{public}llu
+            """,
+            log: log,
+            type: .error,
+            failure.phase.rawValue as NSString,
+            failure.incidentCode.rawValue as NSString,
+            Self.elapsedMilliseconds(failure.elapsedTime),
+            recovery.name as NSString,
+            recovery.requiredFreeByteCount
+        )
+    }
+
+    private static func elapsedMilliseconds(_ elapsedTime: TimeInterval) -> UInt64 {
+        let milliseconds = max(0, elapsedTime) * 1000
+        return UInt64(min(milliseconds, Double(UInt64.max)))
     }
 }
 
@@ -56,6 +104,8 @@ final class RootPresenter {
     private let startupReadinessReporter: RootStartupReadinessReporting
     private var loadTask: Task<Void, Never>?
     private var setupPurpose: SetupPurpose?
+    private var setupStartedAt: TimeInterval?
+    private var isShowingSlowMessage = false
 
     init(
         localizationManager: LocalizationManagerProtocol,
@@ -88,16 +138,38 @@ final class RootPresenter {
             startupReadinessReporter.reportReady()
         case .broken:
             wireframe.showBroken(on: window)
-            startupReadinessReporter.reportFailure()
-            showProtectedDataFailure()
+            let failure = makePostSetupFailure(
+                incidentCode: .selectedWalletOpeningFailed,
+                recoveryAction: .retry
+            )
+            startupReadinessReporter.reportFailure(failure)
+            showSetupFailure(failure)
         case .unsupportedWallet:
             wireframe.showBroken(on: window)
-            startupReadinessReporter.reportFailure()
-            showUnsupportedWalletFailure()
+            let failure = makePostSetupFailure(
+                incidentCode: .walletRecordRejected,
+                recoveryAction: .installLatestBuild
+            )
+            startupReadinessReporter.reportFailure(failure)
+            showSetupFailure(failure)
         case let .onboarding(config):
             wireframe.showOnboarding(on: window, with: config)
             startupReadinessReporter.reportReady()
         }
+    }
+
+    private func makePostSetupFailure(
+        incidentCode: RootSetupIncidentCode,
+        recoveryAction: RootSetupRecoveryAction
+    ) -> RootSetupFailure {
+        RootSetupFailure(
+            phase: .selectedWalletOpening,
+            incidentCode: incidentCode,
+            elapsedTime: setupStartedAt.map {
+                max(0, ProcessInfo.processInfo.systemUptime - $0)
+            } ?? 0,
+            recoveryAction: recoveryAction
+        )
     }
 
     private func fetchOnboardingConfigWithTimeout() async throws -> OnboardingConfigWrapper? {
@@ -192,29 +264,49 @@ final class RootPresenter {
         view?.controller.present(alert, animated: true)
     }
 
-    private func showSetupFailure() {
-        showRetryableFailure(
-            message: """
-            Your wallet data is safe, but Fearless Wallet couldn't update it. \
-            Please retry or install the latest build.
+    private func showSetupFailure(_ failure: RootSetupFailure) {
+        let guidance: String
+        switch failure.phase {
+        case .languageMigration:
+            guidance = "Fearless couldn't finish preparing your language settings."
+        case .userStorageMigration:
+            guidance = """
+            Fearless couldn't update your wallet storage safely. Your existing wallet data was not replaced.
             """
-        )
-    }
-
-    private func showProtectedDataFailure() {
-        showRetryableFailure(
-            message: """
-            Your wallet data is safe, but Fearless Wallet couldn't access its protected security data. \
-            Unlock your device and retry. If this continues, restart your device.
+        case .substrateMigration:
+            guidance = """
+            Fearless couldn't update network storage safely. Your existing wallet data was not replaced.
             """
-        )
-    }
+        case .substratePreflight:
+            guidance = """
+            Fearless couldn't verify network storage. Your existing wallet data was not changed.
+            """
+        case .selectedWalletOpening:
+            guidance = """
+            Fearless couldn't open your selected wallet. Your existing wallet data was not changed.
+            """
+        }
 
-    private func showUnsupportedWalletFailure() {
+        let recovery: String
+        switch failure.recoveryAction {
+        case .retry:
+            recovery = "Keep the device unlocked, then retry once."
+        case .installLatestBuild:
+            recovery = "Install the latest Fearless build, then retry once."
+        case let .freeStorage(requiredByteCount):
+            let requiredSpace = ByteCountFormatter.string(
+                fromByteCount: Int64(clamping: requiredByteCount),
+                countStyle: .file
+            )
+            recovery = "Free at least \(requiredSpace) of storage, then retry once."
+        }
+
         showRetryableFailure(
             message: """
-            Your wallet data is safe, but this build can't open any of the wallets stored on this device. \
-            Please install the latest build and retry.
+            \(guidance)
+
+            \(recovery)
+            Incident code: \(failure.incidentCode.rawValue)
             """
         )
     }
@@ -225,43 +317,90 @@ extension RootPresenter: RootPresenterProtocol {
         wireframe.showSplash(splashView: view, on: window)
 
         loadTask?.cancel()
-        setupPurpose = .launch
+        if setupPurpose == nil {
+            setupPurpose = .launch
+            setupStartedAt = ProcessInfo.processInfo.systemUptime
+            isShowingSlowMessage = false
+            (view as? RootViewProtocol)?.didReceive(state: .plain)
+        }
         interactor.setup(runMigrations: true)
     }
 
     func reload() {
         loadTask?.cancel()
-        setupPurpose = .reload
+        if setupPurpose == nil {
+            setupPurpose = .reload
+            setupStartedAt = ProcessInfo.processInfo.systemUptime
+            isShowingSlowMessage = false
+            (view as? RootViewProtocol)?.didReceive(state: .plain)
+        }
         interactor.setup(runMigrations: false)
     }
 }
 
 extension RootPresenter: RootInteractorOutputProtocol {
-    func didCompleteSetup() {
-        guard let setupPurpose else {
-            return
-        }
+    func didUpdateSetup(_ state: RootSetupState) {
+        switch state {
+        case .running:
+            if !isShowingSlowMessage {
+                (view as? RootViewProtocol)?.didReceive(state: .plain)
+            }
+        case let .slow(phase, elapsedTime):
+            isShowingSlowMessage = true
+            startupReadinessReporter.reportSlow(
+                phase: phase,
+                elapsedTime: elapsedTime
+            )
+            (view as? RootViewProtocol)?.didReceive(
+                state: .updating(
+                    message: "Updating/opening your wallet—keep Fearless open."
+                )
+            )
+        case .ready:
+            guard let setupPurpose else {
+                return
+            }
 
-        self.setupPurpose = nil
+            self.setupPurpose = nil
+            isShowingSlowMessage = false
+            (view as? RootViewProtocol)?.didReceive(state: .plain)
 
-        switch setupPurpose {
-        case .launch:
-            loadOnboardingConfig()
-        case .reload:
-            decideModuleSynchroniously(with: nil)
+            switch setupPurpose {
+            case .launch:
+                loadOnboardingConfig()
+            case .reload:
+                decideModuleSynchroniously(with: nil)
+            }
+        case .failed:
+            break
         }
     }
 
-    func didFailSetup() {
+    func didFailSetup(_ failure: RootSetupFailure) {
         setupPurpose = nil
         loadTask?.cancel()
-        startupReadinessReporter.reportFailure()
-        showSetupFailure()
+        isShowingSlowMessage = false
+        (view as? RootViewProtocol)?.didReceive(state: .plain)
+        startupReadinessReporter.reportFailure(failure)
+        showSetupFailure(failure)
     }
 }
 
 extension RootPresenter: Localizable {
     func applyLocalization() {}
+}
+
+private extension RootSetupRecoveryAction {
+    var startupLogFields: (name: String, requiredFreeByteCount: UInt64) {
+        switch self {
+        case .retry:
+            return ("retry", 0)
+        case .installLatestBuild:
+            return ("install_latest_build", 0)
+        case let .freeStorage(requiredByteCount):
+            return ("free_storage", requiredByteCount)
+        }
+    }
 }
 
 /// An unstructured first-result race is intentional. Structured task groups wait for cancelled

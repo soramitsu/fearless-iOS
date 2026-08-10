@@ -1358,6 +1358,58 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
         )
     }
 
+    func testPerformMigration_whenSanitized113989RowSubstrateScaleProfile_thenPreservesEveryRow() throws {
+        guard
+            Bundle(for: type(of: self)).object(
+                forInfoDictionaryKey: "FearlessRunSubstratePhoneScaleProfile"
+            ) as? String == "1"
+        else {
+            throw XCTSkip(
+                "Run through the Core Data Release gate to enable the phone-scale profile"
+            )
+        }
+
+        let expectedRowCount = 113_989
+        let sourceModel = try model(for: .version7)
+        try createStore(at: storeURL, model: sourceModel) {
+            context in
+
+            for index in 0 ..< expectedRowCount {
+                try self.insertChainStorageItem(
+                    identifier: "sanitized-scale-\(index)",
+                    in: context,
+                    model: sourceModel
+                )
+
+                if (index + 1).isMultiple(of: 2048) {
+                    try context.save()
+                    context.reset()
+                }
+            }
+        }
+
+        XCTAssertEqual(
+            try count(
+                entityName: "CDChainStorageItem",
+                at: storeURL,
+                model: sourceModel
+            ),
+            expectedRowCount
+        )
+
+        try makeMigrator().performMigration()
+
+        let targetModel = try model(for: .version8)
+        XCTAssertEqual(
+            try count(
+                entityName: "CDChainStorageItem",
+                at: storeURL,
+                model: targetModel
+            ),
+            expectedRowCount
+        )
+    }
+
     func testPerformMigration_whenEverySupportedLegacyVersion_thenReachesV8AndPreservesRows() throws {
         for sourceVersion in SubstrateStorageVersion.allCases where sourceVersion != .version8 {
             let caseDirectory = testDirectory.appendingPathComponent(

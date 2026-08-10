@@ -29,7 +29,11 @@ class RootViewController: UIViewController, ViewHolder {
     private func applyState() {
         switch state {
         case .plain:
-            break
+            rootView.statusLabel.isHidden = true
+            rootView.statusLabel.text = nil
+        case let .updating(message):
+            rootView.statusLabel.text = message
+            rootView.statusLabel.isHidden = false
         }
     }
 }

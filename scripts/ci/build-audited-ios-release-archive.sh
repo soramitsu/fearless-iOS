@@ -9,13 +9,14 @@ umask 077
 readonly LOG_PREFIX="[ios-release-archive]"
 readonly EXPECTED_BUNDLE="jp.co.soramitsu.fearlesswallet"
 readonly EXPECTED_VERSION="4.2.0"
+readonly EXPECTED_BASE_SOURCE_COMMIT="2e45e55dc03ad904598e730cfb5994fb5c1072dc"
 readonly EXPECTED_SIGNING_IDENTITY="Apple Distribution: Soramitsu Co., Ltd. (YLWWUD25VZ)"
 readonly EXPECTED_SIGNING_CERTIFICATE_SHA1="84AB95335BE14CAE9B050A353910F86FF2F9539B"
 readonly EXPECTED_PROFILE_NAME="Fearless App Store 2026.7.26"
 readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
-# Read-only App Store Connect inspection on 2026-07-26 found 2026.7.27 as the
-# newest 4.2.0 build. This candidate number was unused at inspection time.
-readonly EXPECTED_BUILD="2026.7.28"
+# Build 2026.8.10 is reserved for the preserved-data upgrade-recovery hotfix.
+# Reconfirm its uniqueness read-only in App Store Connect immediately before archive.
+readonly EXPECTED_BUILD="2026.8.10"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -32,8 +33,9 @@ Usage:
     --receipt /absolute/new/path/signed-archive-audit.json
 
 Preconditions:
-  - exact clean git HEAD, including no untracked files;
-  - App Store Connect read-only uniqueness check for 4.2.0 (2026.7.28);
+  - exact clean git HEAD, including no untracked files, descended from the
+    distributed 4.2.0 (2026.7.28) source commit;
+  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.10);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 
@@ -105,6 +107,10 @@ source_commit="$(git rev-parse --verify HEAD)"
   fail "could not derive an exact source commit"
 git cat-file -e "${source_commit}^{commit}" ||
   fail "derived source provenance is not a commit"
+git cat-file -e "${EXPECTED_BASE_SOURCE_COMMIT}^{commit}" ||
+  fail "the exact distributed 4.2.0 (2026.7.28) source commit is unavailable"
+git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$source_commit" ||
+  fail "release source is not descended from the exact distributed 4.2.0 (2026.7.28) source"
 
 IOS_EXPECTED_BUILD_NUMBER="$EXPECTED_BUILD" \
 IOS_RELEASE_SOURCE_PACKAGES_DIR="${IOS_RELEASE_SOURCE_PACKAGES_DIR:-}" \

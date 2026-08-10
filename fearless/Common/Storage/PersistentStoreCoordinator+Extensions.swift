@@ -2,6 +2,98 @@ import Foundation
 import CoreData
 import CryptoKit
 import Darwin
+import SQLite3
+
+enum SQLiteStoreQuickCheckError: LocalizedError {
+    case openFailed(Int32)
+    case statementPreparationFailed(Int32)
+    case executionFailed(Int32)
+    case integrityCheckFailed
+    case missingResult
+
+    var errorDescription: String? {
+        switch self {
+        case .openFailed:
+            return "The staged SQLite store could not be opened for integrity validation"
+        case .statementPreparationFailed:
+            return "The staged SQLite integrity validation could not be prepared"
+        case .executionFailed:
+            return "The staged SQLite integrity validation could not be completed"
+        case .integrityCheckFailed:
+            return "The staged SQLite store failed quick integrity validation"
+        case .missingResult:
+            return "The staged SQLite integrity validation returned no result"
+        }
+    }
+}
+
+enum SQLiteStoreQuickChecker {
+    static func validate(storeURL: URL) throws {
+        var database: OpaquePointer?
+        let openResult = sqlite3_open_v2(
+            storeURL.path,
+            &database,
+            SQLITE_OPEN_READONLY | SQLITE_OPEN_FULLMUTEX,
+            nil
+        )
+
+        guard openResult == SQLITE_OK, let database else {
+            if let database {
+                sqlite3_close_v2(database)
+            }
+            throw SQLiteStoreQuickCheckError.openFailed(openResult)
+        }
+
+        defer {
+            sqlite3_close_v2(database)
+        }
+
+        sqlite3_extended_result_codes(database, 1)
+
+        var statement: OpaquePointer?
+        let prepareResult = sqlite3_prepare_v2(
+            database,
+            "PRAGMA quick_check",
+            -1,
+            &statement,
+            nil
+        )
+
+        guard prepareResult == SQLITE_OK, let statement else {
+            throw SQLiteStoreQuickCheckError
+                .statementPreparationFailed(prepareResult)
+        }
+
+        defer {
+            sqlite3_finalize(statement)
+        }
+
+        var foundResult = false
+
+        while true {
+            let stepResult = sqlite3_step(statement)
+
+            switch stepResult {
+            case SQLITE_ROW:
+                foundResult = true
+                guard
+                    let resultBytes = sqlite3_column_text(statement, 0),
+                    String(cString: resultBytes) == "ok"
+                else {
+                    throw SQLiteStoreQuickCheckError.integrityCheckFailed
+                }
+            case SQLITE_DONE:
+                guard foundResult else {
+                    throw SQLiteStoreQuickCheckError.missingResult
+                }
+                return
+            default:
+                throw SQLiteStoreQuickCheckError
+                    .executionFailed(stepResult)
+            }
+        }
+    }
+}
 
 enum CrashConsistentStoreReplacementBoundary: Equatable {
     case preparingMarkerPersisted

@@ -105,6 +105,8 @@ cat >"$FIXTURE_INFO_PLIST" <<'PLIST'
 <dict>
   <key>FearlessSubstratePhoneStoreFixturePath</key>
   <string>$(FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE_PATH)</string>
+  <key>FearlessRunSubstratePhoneScaleProfile</key>
+  <string>$(FEARLESS_RUN_SUBSTRATE_PHONE_SCALE_PROFILE)</string>
 </dict>
 </plist>
 PLIST
@@ -325,7 +327,7 @@ PY
     fi
     previous="$argument"
   done
-  default_total=412
+  default_total=418
   if [[ "$result_path" == *"/copied-phone.xcresult" ]]; then
     default_total=2
   fi
@@ -378,7 +380,7 @@ if ! run_gate "valid-core"; then
   fail "valid core gate was rejected"
 fi
 assert_output_contains "PASSED requested Core Data Release gate" "$RUN_DIRECTORY/stdout"
-assert_output_contains "exactly 412 Release -O tests" "$RUN_DIRECTORY/stdout"
+assert_output_contains "exactly 418 Release -O tests" "$RUN_DIRECTORY/stdout"
 assert_argument_once "-workspace"
 assert_argument_once "$CANONICAL_WORKSPACE"
 assert_argument_once "-scheme"
@@ -388,6 +390,7 @@ assert_argument_once "Release"
 assert_argument_once "SWIFT_OPTIMIZATION_LEVEL=-O"
 assert_argument_once "ENABLE_TESTABILITY=YES"
 assert_argument_once "ONLY_ACTIVE_ARCH=YES"
+assert_argument_once "FEARLESS_RUN_SUBSTRATE_PHONE_SCALE_PROFILE=1"
 assert_argument_once "-disableAutomaticPackageResolution"
 assert_argument_once "-skipPackageUpdates"
 assert_argument_once "-clonedSourcePackagesDirPath"
@@ -695,7 +698,7 @@ GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
 expect_failure "unreadable-test-inventory" "could not read the executed test identities"
 
 CASE_ENV=(
-  "FAKE_TOTAL_TESTS=412"
+  "FAKE_TOTAL_TESTS=418"
   "FAKE_PASSED_TESTS=242"
   "FAKE_FAILED_TESTS=1"
   "FAKE_RESULT=Failed"
@@ -705,7 +708,7 @@ GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
 expect_failure "failed-summary" "zero-failure/zero-skip"
 
 CASE_ENV=(
-  "FAKE_TOTAL_TESTS=412"
+  "FAKE_TOTAL_TESTS=418"
   "FAKE_PASSED_TESTS=242"
   "FAKE_EXPECTED_FAILURES=1"
 )
@@ -783,6 +786,43 @@ expect_failure "duplicate-fixture-info-plist-key" "Info.plist fixture bridge is 
 rm "$FIXTURE_INFO_PLIST"
 mv "$TEMPORARY_DIR/valid-fearlessTests-Info.plist" "$FIXTURE_INFO_PLIST"
 
+cp "$FIXTURE_INFO_PLIST" "$TEMPORARY_DIR/valid-fearlessTests-Info.plist"
+sed '/FearlessRunSubstratePhoneScaleProfile/,+1d' \
+  "$TEMPORARY_DIR/valid-fearlessTests-Info.plist" >"$FIXTURE_INFO_PLIST"
+CASE_ENV=()
+GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
+expect_failure "missing-scale-profile-info-plist-key" "Info.plist fixture bridge is missing or unsafe"
+mv "$TEMPORARY_DIR/valid-fearlessTests-Info.plist" "$FIXTURE_INFO_PLIST"
+
+cp "$FIXTURE_INFO_PLIST" "$TEMPORARY_DIR/valid-fearlessTests-Info.plist"
+sed 's/[$](FEARLESS_RUN_SUBSTRATE_PHONE_SCALE_PROFILE)/[$](UNREVIEWED_SCALE_PROFILE)/' \
+  "$TEMPORARY_DIR/valid-fearlessTests-Info.plist" >"$FIXTURE_INFO_PLIST"
+CASE_ENV=()
+GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
+expect_failure "wrong-scale-profile-info-plist-setting" "Info.plist fixture bridge is missing or unsafe"
+mv "$TEMPORARY_DIR/valid-fearlessTests-Info.plist" "$FIXTURE_INFO_PLIST"
+
+cp "$FIXTURE_INFO_PLIST" "$TEMPORARY_DIR/valid-fearlessTests-Info.plist"
+python3 - \
+  "$TEMPORARY_DIR/valid-fearlessTests-Info.plist" \
+  "$FIXTURE_INFO_PLIST" <<'PY'
+import sys
+
+source_path, output_path = sys.argv[1:]
+with open(source_path, "r", encoding="utf-8") as source:
+    contents = source.read()
+duplicate = """  <key>FearlessRunSubstratePhoneScaleProfile</key>
+  <string>$(FEARLESS_RUN_SUBSTRATE_PHONE_SCALE_PROFILE)</string>
+"""
+with open(output_path, "w", encoding="utf-8") as output:
+    output.write(contents.replace("</dict>", duplicate + "</dict>"))
+PY
+CASE_ENV=()
+GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
+expect_failure "duplicate-scale-profile-info-plist-key" "Info.plist fixture bridge is missing or unsafe"
+rm "$FIXTURE_INFO_PLIST"
+mv "$TEMPORARY_DIR/valid-fearlessTests-Info.plist" "$FIXTURE_INFO_PLIST"
+
 RUN_NUMBER=$((RUN_NUMBER + 1))
 RUN_DIRECTORY="$TEMPORARY_DIR/run-${RUN_NUMBER}-override-without-harness"
 mkdir -p "$RUN_DIRECTORY"
@@ -812,4 +852,4 @@ printf '%s\n' \
   "[coredata-release-gate-test] PASS (rejected): SourcePackages override without harness"
 
 printf '%s\n' \
-  "[coredata-release-gate-test] PASS: 6 positive contracts + 47 negative/adversarial cases"
+  "[coredata-release-gate-test] PASS: 6 positive contracts + 50 negative/adversarial cases"

@@ -223,28 +223,34 @@ except (OSError, ValueError, plistlib.InvalidFileException, ET.ParseError):
 
 if not isinstance(payload, dict):
     raise SystemExit("test Info.plist root must be a dictionary")
-key = "FearlessSubstratePhoneStoreFixturePath"
-value = "$(FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE_PATH)"
-if payload.get(key) != value:
-    raise SystemExit("fixture path key must use the reviewed build setting")
+mappings = {
+    "FearlessSubstratePhoneStoreFixturePath":
+        "$(FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE_PATH)",
+    "FearlessRunSubstratePhoneScaleProfile":
+        "$(FEARLESS_RUN_SUBSTRATE_PHONE_SCALE_PROFILE)",
+}
+for key, value in mappings.items():
+    if payload.get(key) != value:
+        raise SystemExit(f"{key} must use the reviewed build setting")
 
 dictionary = root.find("./dict")
 if dictionary is None:
     raise SystemExit("test Info.plist XML dictionary is missing")
 children = list(dictionary)
-indexes = [
-    index
-    for index, child in enumerate(children)
-    if child.tag == "key" and child.text == key
-]
-if len(indexes) != 1:
-    raise SystemExit("fixture path key must occur exactly once")
-index = indexes[0]
-if index + 1 >= len(children):
-    raise SystemExit("fixture path key has no value")
-value_node = children[index + 1]
-if value_node.tag != "string" or value_node.text != value:
-    raise SystemExit("fixture path key has an unsafe value")
+for key, value in mappings.items():
+    indexes = [
+        index
+        for index, child in enumerate(children)
+        if child.tag == "key" and child.text == key
+    ]
+    if len(indexes) != 1:
+        raise SystemExit(f"{key} must occur exactly once")
+    index = indexes[0]
+    if index + 1 >= len(children):
+        raise SystemExit(f"{key} has no value")
+    value_node = children[index + 1]
+    if value_node.tag != "string" or value_node.text != value:
+        raise SystemExit(f"{key} has an unsafe value")
 PY
   then
     fail "fearlessTests Info.plist fixture bridge is missing or unsafe"
@@ -543,9 +549,9 @@ run_stage() {
 
   if [[ "$stage" == "core" ]]; then
     result_name="core"
-    # The simulator core cohort must execute exactly 412 tests. Copied-phone
+    # The simulator core cohort must execute exactly 418 tests. Copied-phone
     # fixtures are intentionally verified by the separate device/store stage.
-    expected_total="412"
+    expected_total="418"
     expected_manifest="$MANIFEST_DIR/coredata-release-core-tests.txt"
     selectors=(
       "-only-testing:fearlessTests/SingleToMultiassetUserMigrationTests"
@@ -609,6 +615,10 @@ run_stage() {
     xcodebuild_arguments+=(
       "FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE_PATH=$PHONE_FIXTURE"
     )
+  else
+    xcodebuild_arguments+=(
+      "FEARLESS_RUN_SUBSTRATE_PHONE_SCALE_PROFILE=1"
+    )
   fi
   xcodebuild_arguments+=("${selectors[@]}" test)
 
@@ -639,7 +649,7 @@ run_stage() {
   if [[ "$stage" == "copied-phone" ]]; then
     log "PASSED copied-phone fixture stage: exactly 2 tests, source fixture unchanged"
   else
-    log "PASSED core stage: exactly 412 Release -O tests, zero failures, skips, or expected failures"
+    log "PASSED core stage: exactly 418 Release -O tests, zero failures, skips, or expected failures"
   fi
 }
 

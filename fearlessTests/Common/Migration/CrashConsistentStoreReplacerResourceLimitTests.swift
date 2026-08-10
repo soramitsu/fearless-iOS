@@ -1,4 +1,5 @@
 import Foundation
+import SQLite3
 import XCTest
 @testable import fearless
 
@@ -31,6 +32,37 @@ final class CrashConsistentStoreReplacerResourceLimitTests:
         }
 
         try super.tearDownWithError()
+    }
+
+    func testSQLiteQuickCheckAcceptsValidStoreAndRejectsCorruption() throws {
+        let validStoreURL = rootURL.appendingPathComponent("Valid.sqlite")
+        var database: OpaquePointer?
+        XCTAssertEqual(sqlite3_open(validStoreURL.path, &database), SQLITE_OK)
+        guard let database else {
+            return XCTFail("Unable to create SQLite test store")
+        }
+        XCTAssertEqual(
+            sqlite3_exec(
+                database,
+                "CREATE TABLE example (value INTEGER); INSERT INTO example VALUES (1);",
+                nil,
+                nil,
+                nil
+            ),
+            SQLITE_OK
+        )
+        XCTAssertEqual(sqlite3_close(database), SQLITE_OK)
+
+        XCTAssertNoThrow(
+            try SQLiteStoreQuickChecker.validate(storeURL: validStoreURL)
+        )
+
+        let corruptStoreURL = rootURL.appendingPathComponent("Corrupt.sqlite")
+        try Data("not a sqlite store".utf8).write(to: corruptStoreURL)
+
+        XCTAssertThrowsError(
+            try SQLiteStoreQuickChecker.validate(storeURL: corruptStoreURL)
+        )
     }
 
     func testReplaceStore_whenMainFileExceedsLimit_rejectsBeforeCapacityOrMutation() throws {

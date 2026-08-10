@@ -1,0 +1,74 @@
+# TestFlight 4.2.0 Upgrade Recovery Gate
+
+Build `4.2.0 (2026.8.10)` is the upgrade-recovery hotfix based on source commit
+`2e45e55dc03ad904598e730cfb5994fb5c1072dc`. It must remain blocked from the
+public beta group until the affected phone passes this gate using the
+Apple-delivered internal TestFlight build.
+
+## Data boundary
+
+- Do not uninstall, offload, downgrade, clear app data, reset Keychain, or
+  repeatedly press Retry.
+- Do not copy the User/Substrate databases, app container, wallet identifiers,
+  Keychain values, or raw device logs without separate explicit approval.
+- Capture only installed bundle/version metadata and process-filtered,
+  privacy-sanitized Fearless startup messages.
+- Keep the original `4.2.0 (2026.7.28)` app container intact until the safe log
+  capture is complete and the internal TestFlight update is ready.
+
+The host-side `scripts/filter-startup-syslog.py` filter accepts NDJSON from a
+Fearless-process-only syslog stream. It writes timestamps, severity, safe
+subsystem/category labels, and redacted startup messages; it never writes the
+unfiltered input.
+
+For distributed build `2026.7.28`, known source-derived error descriptions are
+reduced to stable `legacy_incident_code`, `legacy_resolution`, and—only for a
+low-space failure—the required free-byte count. Dynamic model/entity names,
+paths, current free-space values, and unmatched error text are never retained.
+
+## Internal TestFlight gate
+
+1. Confirm the installed identity is `jp.co.soramitsu.fearlesswallet`, version
+   `4.2.0`, build `2026.7.28` before the update.
+2. Assign build `2026.8.10` to an internal TestFlight group only.
+3. Install it in place through Apple's TestFlight app. Do not remove the existing
+   installation or clear any data.
+4. Start a sanitized Fearless-only log window, force-quit once, and cold-launch
+   once. Do not tap Retry.
+5. Keep Fearless open and usable for at least five continuous minutes. A living
+   process is not evidence of usability. Require:
+   - no failure alert and no `FEARLESS_STARTUP_FAILED` marker;
+   - exactly one `FEARLESS_STARTUP_READY` marker in this launch window;
+   - successful PIN entry and a working wallet route;
+   - unchanged wallet counts, logical store integrity, Keychain access, and
+     settings access, recorded only as pass/fail attestations without values.
+6. Force-quit once more and perform a second cold launch. Require exactly one
+   ready marker, no failed marker/alert, successful PIN entry, and a working
+   wallet route in the second launch window.
+7. Store only sanitized evidence under ignored `build/` output and audit it:
+
+   ```bash
+   PYTHONDONTWRITEBYTECODE=1 python3 \
+     scripts/audit-testflight-upgrade-usability-gate.py \
+     build/testflight-2026.8.10-upgrade-usability.json \
+     --expected-artifact-source-commit "$(git rev-parse HEAD)"
+   ```
+
+The evidence schema is enforced by the audit's tests. It binds both the exact
+`.28` base commit and the clean hotfix commit embedded in the artifact, plus
+build identity, timestamps, marker counts, and boolean attestations. It must not
+contain database counts, wallet names/addresses, keys, paths, or device IDs.
+Run the privacy boundary self-tests before producing evidence:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-filter-startup-syslog.py
+PYTHONDONTWRITEBYTECODE=1 python3 \
+  scripts/test-audit-testflight-upgrade-usability-gate.py
+```
+
+## Release decision
+
+Only after the audit passes may release review replace build `2026.7.28` in the
+public beta group with `2026.8.10`. Uploading, assigning the internal group, and
+changing the public beta group are external release operations and require the
+normal App Store Connect authorization and review trail.

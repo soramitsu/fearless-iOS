@@ -38,19 +38,20 @@ Use this checklist for every release PR from `develop` to `master`.
 - Run
   `bash ./scripts/test-testflight-publication-readiness-audit.sh && bash ./scripts/audit-testflight-publication-readiness.sh`
   and review the exact tracked publication snapshot. Do not mark the TestFlight
-  build release-enabled until an in-place TestFlight update preserves the
-  existing app container, five cold launches pass, store integrity is unchanged,
-  and the remaining third-party symbolication follow-up is closed or explicitly
-  accepted by release review.
+  upgrade-recovery build release-enabled until the Apple-delivered in-place
+  update passes the five-minute usability and second-cold-launch gate in
+  `docs/testflight-4.2.0-2026.8.10-upgrade-recovery.md`. Process liveness alone
+  is not release evidence.
 - Run `bash ./scripts/test-coredata-release-gate.sh`, then run
   `bash ./scripts/ci/run-coredata-release-gate.sh --stage core --simulator-udid <DISPOSABLE_SIMULATOR_UDID>`.
   Require an optimized Release (`-O`) result with zero failures, skips, or
   expected failures. The test scheme must keep `-UNITTEST` enabled so the
   hosted app cannot open an unrelated simulator store.
-- On a raw, read-only copy of the latest pre-upgrade phone Substrate store, run
-  `bash ./scripts/ci/run-coredata-release-gate.sh --stage copied-phone --simulator-udid <DISPOSABLE_SIMULATOR_UDID> --fixture <ABSOLUTE_COPIED_STORE_PATH>`.
-  Require exactly two tests and unchanged source-store fingerprints. Never run
-  this gate against the live phone container.
+- On an explicitly approved, sanitized regression fixture (never the live phone
+  container), run
+  `bash ./scripts/ci/run-coredata-release-gate.sh --stage copied-phone --simulator-udid <DISPOSABLE_SIMULATOR_UDID> --fixture <ABSOLUTE_APPROVED_FIXTURE_PATH>`.
+  Require exactly two tests and unchanged source-store fingerprints. Capturing a
+  new raw phone fixture requires separate explicit approval.
 - Build the normal Release app without `ENABLE_TESTABILITY=YES`. Verify its
   executable retains every managed-object runtime class required by the bundled
   Substrate and User models and that both User compatibility `.mom` resources
@@ -62,11 +63,12 @@ Use this checklist for every release PR from `develop` to `master`.
   fatal Core Data/migration marker. Require exact protected row-count
   preservation plus unchanged wallet identity, key, and relationship
   fingerprints; the source fixture must remain byte-for-byte unchanged.
-- Before archive/upload, install the same Release build in place on the
-  designated physical upgrade device only after taking and verifying a fresh
-  backup. Do not uninstall or clear app data. Require first launch, background/
-  foreground, forced relaunch, wallet unlock, and basic read-only navigation to
-  pass while the backup remains independently restorable.
+- Validate build `4.2.0 (2026.8.10)` through the internal TestFlight group on the
+  designated preserved-data phone before changing the public beta group. Run
+  `scripts/audit-testflight-upgrade-usability-gate.py` against sanitized evidence
+  and require a five-minute usable first launch, working PIN and wallet route,
+  preservation checks, and a successful second cold launch. Do not uninstall or
+  clear app data.
 - Run
   `bash ./scripts/test-ton-production-send-readiness-audit.sh && bash ./scripts/audit-ton-production-send-readiness.sh`
   and confirm `config/ton-production-send-readiness.json` remains `blocked`

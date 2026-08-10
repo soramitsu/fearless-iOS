@@ -70,6 +70,14 @@ grep -Fq -- \
   '--expected-profile-name "$EXPECTED_PROFILE_NAME"' \
   "$BUILD_SCRIPT" ||
   fail "signed-artifact audit is not bound to the reviewed profile name"
+grep -Fq \
+  'readonly EXPECTED_BASE_SOURCE_COMMIT="2e45e55dc03ad904598e730cfb5994fb5c1072dc"' \
+  "$BUILD_SCRIPT" ||
+  fail "archive source is not bound to the exact distributed 4.2.0 (2026.7.28) commit"
+grep -Fq \
+  'git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$source_commit"' \
+  "$BUILD_SCRIPT" ||
+  fail "archive source ancestry is not enforced before the build"
 grep -Fq 'require_setting CODE_SIGN_STYLE "Manual"' "$IDENTITY_AUDIT" ||
   fail "release identity no longer requires target-scoped Manual signing"
 grep -Fq \
