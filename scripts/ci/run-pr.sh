@@ -40,6 +40,8 @@ if [[ -f "$WORKSPACE_DIR/scripts/test-audit-testflight-upgrade-usability-gate.py
   PYTHONDONTWRITEBYTECODE=1 python3 \
     "$WORKSPACE_DIR/scripts/test-filter-startup-syslog.py"
   PYTHONDONTWRITEBYTECODE=1 python3 \
+    "$WORKSPACE_DIR/scripts/test-capture-testflight-startup.py"
+  PYTHONDONTWRITEBYTECODE=1 python3 \
     "$WORKSPACE_DIR/scripts/test-audit-testflight-upgrade-usability-gate.py"
 fi
 

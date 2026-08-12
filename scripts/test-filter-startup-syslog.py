@@ -17,6 +17,151 @@ SPEC.loader.exec_module(FILTER)
 
 
 class StartupSyslogFilterTests(unittest.TestCase):
+    def test_strict_process_mode_accepts_only_exact_fearless_envelope(self) -> None:
+        source = io.StringIO(
+            json.dumps(
+                {
+                    "filename": "/private/var/containers/Bundle/fearless",
+                    "timestamp": "2026-08-10T12:00:15.000000",
+                    "level": "ERROR",
+                    "message": "Substrate storage preflight timed out",
+                    "label": {
+                        "subsystem": "jp.co.soramitsu.fearlesswallet",
+                        "category": "root",
+                    },
+                }
+            )
+            + "\n"
+        )
+        output = io.StringIO()
+
+        FILTER.filter_stream(source, [output], expected_process="fearless")
+
+        self.assertIn("SUBSTRATE_PREFLIGHT_TIMEOUT", output.getvalue())
+        self.assertNotIn("/private/var", output.getvalue())
+        self.assertNotIn("filename", output.getvalue())
+
+    def test_strict_process_mode_rejects_wrong_or_missing_process(self) -> None:
+        for filename in ("FearlessHelper", None):
+            with self.subTest(filename=filename):
+                entry = {
+                    "timestamp": "2026-08-10T12:00:15.000000",
+                    "level": "ERROR",
+                    "message": "Storage migration failed",
+                    "label": None,
+                }
+                if filename is not None:
+                    entry["filename"] = filename
+                with self.assertRaises(FILTER.FilterProtocolError):
+                    FILTER.filter_stream(
+                        io.StringIO(json.dumps(entry) + "\n"),
+                        [io.StringIO()],
+                        expected_process="fearless",
+                    )
+
+    def test_strict_process_mode_rejects_malformed_ndjson(self) -> None:
+        with self.assertRaises(FILTER.FilterProtocolError):
+            FILTER.filter_stream(
+                io.StringIO("not-json\n"),
+                [io.StringIO()],
+                expected_process="fearless",
+            )
+
+    def test_strict_process_mode_validates_pid_without_emitting_it(self) -> None:
+        entry = {
+            "pid": 1234,
+            "filename": "fearless",
+            "timestamp": "2026-08-10T12:00:15.000000",
+            "level": "ERROR",
+            "message": "Substrate storage preflight timed out",
+            "label": None,
+        }
+        output = io.StringIO()
+        FILTER.filter_stream(
+            io.StringIO(json.dumps(entry) + "\n"),
+            [output],
+            expected_process="fearless",
+            expected_pid=1234,
+        )
+        self.assertNotIn("1234", output.getvalue())
+
+        with self.assertRaises(FILTER.FilterProtocolError):
+            FILTER.filter_stream(
+                io.StringIO(json.dumps(entry) + "\n"),
+                [io.StringIO()],
+                expected_process="fearless",
+                expected_pid=5678,
+            )
+
+    def test_strict_watcher_binds_first_pid_and_emits_only_safe_controls(self) -> None:
+        records = [
+            {"capture_control": "pid_watcher_armed", "filename": "fearless"},
+            {
+                "capture_control": "target_process_observed",
+                "filename": "fearless",
+                "pid": 2468,
+            },
+            {
+                "pid": 2468,
+                "filename": "fearless",
+                "timestamp": "2026-08-10T12:00:15.000000",
+                "level": "ERROR",
+                "message": "Substrate storage preflight timed out",
+                "label": None,
+            },
+        ]
+        output = io.StringIO()
+        FILTER.filter_stream(
+            io.StringIO("".join(json.dumps(record) + "\n" for record in records)),
+            [output],
+            expected_process="fearless",
+            bind_first_pid=True,
+        )
+        value = output.getvalue()
+        self.assertIn("FEARLESS_PID_WATCHER_ARMED", value)
+        self.assertIn("FEARLESS_TARGET_PROCESS_OBSERVED", value)
+        self.assertIn("SUBSTRATE_PREFLIGHT_TIMEOUT", value)
+        self.assertNotIn("2468", value)
+
+    def test_strict_watcher_rejects_record_before_binding_or_pid_change(self) -> None:
+        raw = {
+            "pid": 3579,
+            "filename": "fearless",
+            "timestamp": "2026-08-10T12:00:15.000000",
+            "level": "ERROR",
+            "message": "Storage migration failed",
+            "label": None,
+        }
+        with self.assertRaises(FILTER.FilterProtocolError):
+            FILTER.filter_stream(
+                io.StringIO(json.dumps(raw) + "\n"),
+                [io.StringIO()],
+                expected_process="fearless",
+                bind_first_pid=True,
+            )
+
+        controls_and_wrong_pid = [
+            {"capture_control": "pid_watcher_armed", "filename": "fearless"},
+            {
+                "capture_control": "target_process_observed",
+                "filename": "fearless",
+                "pid": 3579,
+            },
+            {**raw, "pid": 3580},
+        ]
+        with self.assertRaises(FILTER.FilterProtocolError):
+            FILTER.filter_stream(
+                io.StringIO(
+                    "".join(
+                        json.dumps(record) + "\n"
+                        for record in controls_and_wrong_pid
+                    )
+                ),
+                [io.StringIO()],
+                expected_process="fearless",
+                bind_first_pid=True,
+            )
+
     def test_classifies_legacy_description_without_retaining_identifiers_or_paths(self) -> None:
         source = io.StringIO(
             json.dumps(

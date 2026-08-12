@@ -26,6 +26,46 @@ reduced to stable `legacy_incident_code`, `legacy_resolution`, and—only for a
 low-space failure—the required free-byte count. Dynamic model/entity names,
 paths, current free-space values, and unmatched error text are never retained.
 
+## One `.28` diagnostic capture
+
+Use `scripts/capture-testflight-startup.py`; do not pipe a broad device log to a
+file. The supervisor requires the reviewed `pymobiledevice3` version `10.7.2`,
+allows exactly one connected USB device, confirms the installed bundle/version,
+and, after observing the new Fearless PID, requests only that PID from the
+device's log service. The request uses `PROCESS_ONLY` and `NO_SENSITIVE` and
+does not request historical logs, broad device logs, or call stacks. Its raw
+stdout connects directly to the sanitizer through an OS pipe. Device identifiers
+and process IDs remain in memory and are never published.
+
+Choose a new absolute output directory and run:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 \
+  scripts/capture-testflight-startup.py \
+  --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
+  --output-directory /ABSOLUTE/NEW/PRIVATE/CAPTURE-DIRECTORY
+```
+
+The safe operator sequence is:
+
+1. Connect, unlock, and Trust/Pair the affected phone. The tool waits without
+   reading the app container. Do not open TestFlight or permit an automatic app
+   update before the `.28` capture; the tool rechecks the installed identity at
+   arm, launch, and finalization and aborts if it changes.
+2. If `FEARLESS_CAPTURE_WAITING_FOR_FORCE_QUIT` appears, force-quit Fearless
+   once and leave it closed.
+3. Only after `FEARLESS_CAPTURE_ARMED` appears, cold-launch Fearless exactly
+   once. Do not press Retry.
+4. Wait for `FEARLESS_CAPTURE_COMPLETE`. A disconnect after the stopped
+   boundary, a second launch, duplicate ready marker, wrong process envelope,
+   wrong installed build, or sanitizer failure aborts the window.
+
+Only `installed-app-metadata.json`, privacy-safe NDJSON, and a capture receipt
+are produced on success. `captureStatus=complete` proves capture integrity;
+`diagnosticSufficient=true` additionally means a deterministic privacy-safe
+incident mapping was observed. A bare startup marker or process termination is
+recorded but does not claim a cause. It does not qualify the hotfix for release.
+
 ## Internal TestFlight gate
 
 1. Confirm the installed identity is `jp.co.soramitsu.fearlesswallet`, version
@@ -62,6 +102,7 @@ Run the privacy boundary self-tests before producing evidence:
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-filter-startup-syslog.py
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-capture-testflight-startup.py
 PYTHONDONTWRITEBYTECODE=1 python3 \
   scripts/test-audit-testflight-upgrade-usability-gate.py
 ```

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import posixpath
 import re
 import sys
 from pathlib import Path
@@ -330,17 +331,72 @@ def emit(record: dict[str, Any], streams: list[TextIO]) -> None:
         print(line, file=stream, flush=True)
 
 
-def filter_stream(source: TextIO, streams: list[TextIO]) -> None:
+class FilterProtocolError(ValueError):
+    pass
+
+
+def filter_stream(
+    source: TextIO,
+    streams: list[TextIO],
+    expected_process: str | None = None,
+    expected_pid: int | None = None,
+    bind_first_pid: bool = False,
+) -> None:
     baseline_emitted = False
+    bound_pid = expected_pid
 
     for line in source:
         try:
             entry = json.loads(line)
         except (json.JSONDecodeError, TypeError):
+            if expected_process is not None:
+                raise FilterProtocolError("malformed process-filtered NDJSON")
             continue
 
         if not isinstance(entry, dict):
+            if expected_process is not None:
+                raise FilterProtocolError("invalid process-filtered record")
             continue
+
+        control = entry.get("capture_control")
+        if control is not None:
+            if expected_process is None or not bind_first_pid:
+                raise FilterProtocolError("unexpected capture control")
+            filename = entry.get("filename")
+            if not isinstance(filename, str) or posixpath.basename(filename) != expected_process:
+                raise FilterProtocolError("unexpected process envelope")
+            if control == "pid_watcher_armed":
+                if set(entry) != {"capture_control", "filename"}:
+                    raise FilterProtocolError("invalid watcher control")
+                emit(
+                    {"event": "FEARLESS_PID_WATCHER_ARMED", "timestamp": None},
+                    streams,
+                )
+                continue
+            if control == "target_process_observed":
+                if set(entry) != {"capture_control", "filename", "pid"}:
+                    raise FilterProtocolError("invalid process control")
+                pid = entry.get("pid")
+                if type(pid) is not int or pid <= 0:
+                    raise FilterProtocolError("invalid process control")
+                if bound_pid is not None and bound_pid != pid:
+                    raise FilterProtocolError("multiple process instances")
+                bound_pid = pid
+                emit(
+                    {"event": "FEARLESS_TARGET_PROCESS_OBSERVED", "timestamp": None},
+                    streams,
+                )
+                continue
+            raise FilterProtocolError("unknown capture control")
+
+        if expected_process is not None:
+            filename = entry.get("filename")
+            if not isinstance(filename, str) or posixpath.basename(filename) != expected_process:
+                raise FilterProtocolError("unexpected process envelope")
+        if bind_first_pid and bound_pid is None:
+            raise FilterProtocolError("process record arrived before binding")
+        if bound_pid is not None and entry.get("pid") != bound_pid:
+            raise FilterProtocolError("unexpected pid envelope")
 
         if not baseline_emitted:
             emit(
@@ -364,6 +420,23 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         help="Optional path for the sanitized NDJSON (stdout is always retained).",
     )
+    parser.add_argument(
+        "--expected-process",
+        help=(
+            "Fail closed unless every upstream JSON envelope belongs to this exact "
+            "process basename; the process value is never emitted"
+        ),
+    )
+    parser.add_argument(
+        "--expected-pid",
+        type=int,
+        help="Fail closed unless every envelope has this PID; the PID is never emitted",
+    )
+    parser.add_argument(
+        "--bind-first-pid",
+        action="store_true",
+        help="Bind a private PID from the reviewed watcher control; never emit it",
+    )
     return parser.parse_args()
 
 
@@ -372,13 +445,23 @@ def main() -> int:
     output: TextIO | None = None
 
     try:
+        if args.expected_pid is not None and args.bind_first_pid:
+            raise FilterProtocolError("conflicting pid modes")
         streams = [sys.stdout]
         if args.output is not None:
             output = args.output.open("w", encoding="utf-8")
             streams.append(output)
-        filter_stream(sys.stdin, streams)
+        filter_stream(
+            sys.stdin,
+            streams,
+            expected_process=args.expected_process,
+            expected_pid=args.expected_pid,
+            bind_first_pid=args.bind_first_pid,
+        )
     except BrokenPipeError:
         return 0
+    except FilterProtocolError:
+        return 2
     finally:
         if output is not None:
             output.close()
