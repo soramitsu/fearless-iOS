@@ -463,6 +463,96 @@ class CaptureControllerTests(unittest.TestCase):
                         (output / ".fearless-startup-sanitized.ndjson.pending").exists()
                     )
 
+    def test_interrupt_during_pipeline_start_closes_the_owned_pipeline(self) -> None:
+        for interrupt_signal in CAPTURE.CAPTURE_INTERRUPT_SIGNALS:
+            with self.subTest(signal=interrupt_signal):
+                pipeline = FakePipeline()
+
+                class InterruptingBackend(FakeBackend):
+                    def start_pipeline(self, device_token: str) -> FakePipeline:
+                        self.pipeline_started = True
+                        os.kill(os.getpid(), interrupt_signal)
+                        return self.pipeline
+
+                backend = InterruptingBackend(
+                    snapshots=[CAPTURE.ProcessSnapshot(False, None)],
+                    pipeline=pipeline,
+                )
+
+                with tempfile.TemporaryDirectory() as directory:
+                    output = self.output_path(directory)
+                    with self.assertRaises(KeyboardInterrupt):
+                        CAPTURE.CaptureController(
+                            backend,
+                            output,
+                            self.settings(),
+                        ).run()
+
+                    self.assertTrue(pipeline.closed)
+                    abort = json.loads(
+                        (output / "capture-aborted.json").read_text()
+                    )
+                    self.assertEqual(abort["reason"], "interrupted")
+                    self.assertFalse((output / "capture-receipt.json").exists())
+                    self.assertFalse(
+                        (output / "fearless-startup-sanitized.ndjson").exists()
+                    )
+
+    def test_controller_owned_real_pipeline_finalizes_with_sigterm(self) -> None:
+        raw_record = {
+            "pid": 949,
+            "timestamp": "2026-08-12T12:00:15.000000Z",
+            "level": "ERROR",
+            "filename": "fearless",
+            "message": "FEARLESS_STARTUP_FAILED",
+            "label": None,
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            helper = root / "fake-stream.py"
+            helper.write_text(
+                "#!/usr/bin/env python3\n"
+                "import json,time\n"
+                "print(json.dumps({'capture_control':'pid_watcher_armed','filename':'fearless'}), flush=True)\n"
+                "time.sleep(0.05)\n"
+                "print(json.dumps({'capture_control':'target_process_observed','filename':'fearless','pid':949}), flush=True)\n"
+                f"print(json.dumps({raw_record!r}), flush=True)\n"
+                "time.sleep(30)\n"
+            )
+            helper.chmod(0o700)
+
+            class RealPipelineBackend(FakeBackend):
+                def __init__(self) -> None:
+                    super().__init__()
+                    self.snapshot_count = 0
+
+                def process_snapshot(self, device_token: str) -> Any:
+                    self.snapshot_count += 1
+                    if self.snapshot_count < 4:
+                        return CAPTURE.ProcessSnapshot(False, None)
+                    return CAPTURE.ProcessSnapshot(True, 949)
+
+                def start_pipeline(self, device_token: str) -> Any:
+                    self.pipeline_started = True
+                    return CAPTURE.FilterPipeline(
+                        Path(sys.executable),
+                        helper,
+                        Path(__file__).with_name("filter-startup-syslog.py"),
+                        device_token,
+                    )
+
+            output = self.output_path(directory)
+            receipt = CAPTURE.CaptureController(
+                RealPipelineBackend(),
+                output,
+                self.settings(observation=1, grace=0, wait_timeout=2),
+            ).run()
+
+            self.assertEqual(receipt["captureStatus"], "complete")
+            self.assertEqual(receipt["filterBeginCount"], 1)
+            self.assertEqual(receipt["failedMarkerCount"], 1)
+            self.assertTrue((output / "capture-receipt.json").exists())
+
     def test_duplicate_ready_marker_fails_capture_integrity(self) -> None:
         backend = FakeBackend(
             snapshots=[
@@ -711,6 +801,43 @@ class FilterPipelineTests(unittest.TestCase):
             with self.assertRaisesRegex(CAPTURE.CaptureError, "device_pid_stream_ended"):
                 pipeline.finalize()
             pipeline.close()
+
+    def test_constructor_failure_terminates_both_started_children(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fake = Path(directory) / "fake-stream.py"
+            fake.write_text(
+                "#!/usr/bin/env python3\n"
+                "import time\n"
+                "time.sleep(30)\n"
+            )
+            fake.chmod(0o700)
+            children: list[subprocess.Popen[str]] = []
+            real_popen = subprocess.Popen
+
+            def tracking_popen(*args: Any, **kwargs: Any) -> Any:
+                process = real_popen(*args, **kwargs)
+                children.append(process)
+                return process
+
+            with patch.object(
+                CAPTURE.subprocess,
+                "Popen",
+                side_effect=tracking_popen,
+            ), patch.object(
+                CAPTURE.threading.Thread,
+                "start",
+                side_effect=KeyboardInterrupt,
+            ):
+                with self.assertRaises(KeyboardInterrupt):
+                    CAPTURE.FilterPipeline(
+                        Path(sys.executable),
+                        fake,
+                        Path(__file__).with_name("filter-startup-syslog.py"),
+                        "private-device-token",
+                    )
+
+            self.assertEqual(len(children), 2)
+            self.assertTrue(all(process.poll() is not None for process in children))
 
 
 class DevicePidStreamHelperTests(unittest.TestCase):

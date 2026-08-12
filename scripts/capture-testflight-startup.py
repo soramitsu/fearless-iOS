@@ -32,6 +32,7 @@ EXPECTED_BUILD_NUMBER = "2026.7.28"
 PROCESS_NAME = "fearless"
 SUPPORTED_PYMOBILEDEVICE3_VERSION = "10.7.2"
 MAX_PROCESS_TOKEN = (1 << 32) - 1
+CAPTURE_INTERRUPT_SIGNALS = (signal.SIGINT, signal.SIGTERM, signal.SIGHUP)
 
 EXIT_OUTPUT_EXISTS = 20
 EXIT_DEPENDENCY = 21
@@ -289,26 +290,30 @@ class FilterPipeline:
         self._begin_count = 0
         self._watcher_armed_count = 0
         self._launch_count = 0
-        self._filter = subprocess.Popen(
-            [
-                sys.executable,
-                str(filter_path),
-                "--expected-process",
-                PROCESS_NAME,
-                "--bind-first-pid",
-            ],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-            text=True,
-            bufsize=1,
-        )
-        if self._filter.stdin is None or self._filter.stdout is None:
-            self._filter.kill()
-            raise CaptureError("filter_pipe_unavailable", EXIT_CAPTURE_PIPELINE)
-
+        filter_process: subprocess.Popen[str] | None = None
+        syslog_process: subprocess.Popen[str] | None = None
+        reader: threading.Thread | None = None
         try:
-            self._syslog = subprocess.Popen(
+            filter_process = subprocess.Popen(
+                [
+                    sys.executable,
+                    str(filter_path),
+                    "--expected-process",
+                    PROCESS_NAME,
+                    "--bind-first-pid",
+                ],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                text=True,
+                bufsize=1,
+            )
+            if filter_process.stdin is None or filter_process.stdout is None:
+                raise CaptureError(
+                    "filter_pipe_unavailable", EXIT_CAPTURE_PIPELINE
+                )
+
+            syslog_process = subprocess.Popen(
                 [
                     str(device_python),
                     str(stream_helper_path),
@@ -319,21 +324,44 @@ class FilterPipeline:
                     "--process-poll-interval",
                     "0.02",
                 ],
-                stdout=self._filter.stdin,
+                stdout=filter_process.stdin,
                 stderr=subprocess.DEVNULL,
                 text=True,
             )
+            # Only the syslog child retains the raw-pipe writer. This process
+            # never reads, buffers, logs, or persists the unfiltered stream.
+            filter_process.stdin.close()
+
+            self._filter = filter_process
+            self._syslog = syslog_process
+            reader = threading.Thread(
+                target=self._read_safe_output,
+                daemon=True,
+            )
+            self._reader = reader
+            reader.start()
         except BaseException:
-            self._filter.stdin.close()
-            self._filter.terminate()
-            self._filter.wait(timeout=5)
+            if syslog_process is not None:
+                self._terminate_process(syslog_process)
+            if filter_process is not None:
+                if filter_process.stdin is not None:
+                    filter_process.stdin.close()
+                self._terminate_process(filter_process)
+                if filter_process.stdout is not None:
+                    filter_process.stdout.close()
+            if reader is not None and reader.is_alive():
+                reader.join(timeout=5)
             raise
 
-        # Only the syslog child retains the raw-pipe writer. This process never
-        # reads, buffers, logs, or persists the unfiltered stream.
-        self._filter.stdin.close()
-        self._reader = threading.Thread(target=self._read_safe_output, daemon=True)
-        self._reader.start()
+    @staticmethod
+    def _terminate_process(process: subprocess.Popen[str]) -> None:
+        if process.poll() is None:
+            process.terminate()
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait(timeout=5)
 
     def _read_safe_output(self) -> None:
         assert self._filter.stdout is not None
@@ -765,6 +793,53 @@ class CaptureController:
         self.pending_stream.write("\n")
         self.pending_stream.flush()
 
+    def _start_owned_pipeline(self, device_token: str) -> SanitizedPipeline:
+        """Defer parent interrupts until every child is controller-owned.
+
+        Caught signal dispositions reset when the children exec, so this does
+        not alter their signal behavior. The parent restores its handlers
+        before delivering a deferred interruption through the normal cleanup
+        path.
+        """
+
+        previous_handlers = {
+            signum: signal.getsignal(signum)
+            for signum in CAPTURE_INTERRUPT_SIGNALS
+        }
+        deferred_signals: list[int] = []
+
+        def defer_interrupt(signum: int, _frame: Any) -> None:
+            deferred_signals.append(signum)
+
+        captured_error: BaseException | None = None
+        pipeline: SanitizedPipeline | None = None
+        try:
+            for signum in CAPTURE_INTERRUPT_SIGNALS:
+                signal.signal(signum, defer_interrupt)
+            pipeline = self.backend.start_pipeline(device_token)
+            self.pipeline = pipeline
+        except BaseException as error:
+            captured_error = error
+        finally:
+            # Block only in the already-spawned parent while restoring all
+            # handlers. Children never inherit this temporary mask.
+            previous_mask = signal.pthread_sigmask(
+                signal.SIG_BLOCK,
+                CAPTURE_INTERRUPT_SIGNALS,
+            )
+            try:
+                for signum, handler in previous_handlers.items():
+                    signal.signal(signum, handler)
+            finally:
+                signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
+
+        if deferred_signals:
+            raise KeyboardInterrupt
+        if captured_error is not None:
+            raise captured_error
+        assert pipeline is not None
+        return pipeline
+
     def _publish_success(self, receipt: dict[str, Any]) -> None:
         assert self.pending_stream is not None
         self.pending_stream.flush()
@@ -851,7 +926,7 @@ class CaptureController:
             stopped, reconnect_count = self._wait_for_stopped_boundary(
                 device_token, initial
             )
-            self.pipeline = self.backend.start_pipeline(device_token)
+            self._start_owned_pipeline(device_token)
             watcher_deadline = time.monotonic() + self.settings.watcher_arm_timeout
             while self.pipeline.watcher_armed_count() == 0:
                 pipeline_failure = self.pipeline.failure_reason()
