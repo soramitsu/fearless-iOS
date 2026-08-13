@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import queue
 import re
@@ -29,6 +30,11 @@ from typing import Any, Protocol
 EXPECTED_BUNDLE_IDENTIFIER = "jp.co.soramitsu.fearlesswallet"
 EXPECTED_MARKETING_VERSION = "4.2.0"
 EXPECTED_BUILD_NUMBER = "2026.7.28"
+HOTFIX_BUILD_NUMBER = "2026.8.10"
+SUPPORTED_CAPTURE_BUILD_NUMBERS = (
+    EXPECTED_BUILD_NUMBER,
+    HOTFIX_BUILD_NUMBER,
+)
 PROCESS_NAME = "fearless"
 SUPPORTED_PYMOBILEDEVICE3_VERSION = "10.7.2"
 MAX_PROCESS_TOKEN = (1 << 32) - 1
@@ -623,6 +629,8 @@ class CaptureSettings:
     start_wait_timeout: float
     observation_seconds: float
     terminal_grace_seconds: float
+    ready_observation_seconds: float = 0
+    expected_build_number: str = EXPECTED_BUILD_NUMBER
 
 
 @dataclass(frozen=True)
@@ -633,6 +641,32 @@ class CaptureProvenance:
     stream_helper_sha256: str
 
 
+def validate_capture_settings(settings: CaptureSettings) -> None:
+    duration_contract = (
+        ("poll_interval", settings.poll_interval, False),
+        ("device_poll_interval", settings.device_poll_interval, False),
+        ("device_wait_timeout", settings.device_wait_timeout, True),
+        ("stop_wait_timeout", settings.stop_wait_timeout, True),
+        ("watcher_arm_timeout", settings.watcher_arm_timeout, False),
+        ("start_wait_timeout", settings.start_wait_timeout, True),
+        ("observation_seconds", settings.observation_seconds, False),
+        ("terminal_grace_seconds", settings.terminal_grace_seconds, True),
+        (
+            "ready_observation_seconds",
+            settings.ready_observation_seconds,
+            True,
+        ),
+    )
+    for name, value, zero_allowed in duration_contract:
+        if type(value) not in (int, float) or not math.isfinite(value):
+            raise CaptureError(f"{name}_must_be_finite", EXIT_DEPENDENCY)
+        if value < 0 or (not zero_allowed and value == 0):
+            suffix = "must_not_be_negative" if zero_allowed else "must_be_positive"
+            raise CaptureError(f"{name}_{suffix}", EXIT_DEPENDENCY)
+    if settings.expected_build_number not in SUPPORTED_CAPTURE_BUILD_NUMBERS:
+        raise CaptureError("unsupported_expected_build", EXIT_DEPENDENCY)
+
+
 class CaptureController:
     def __init__(
         self,
@@ -641,6 +675,7 @@ class CaptureController:
         settings: CaptureSettings,
         provenance: CaptureProvenance | None = None,
     ) -> None:
+        validate_capture_settings(settings)
         self.backend = backend
         self.output_directory = output_directory
         self.settings = settings
@@ -701,21 +736,16 @@ class CaptureController:
                 time.sleep(self.settings.device_poll_interval)
                 continue
             atomic_json(self.metadata_path, self._safe_metadata(identity))
-            expected = AppIdentity(
-                EXPECTED_BUNDLE_IDENTIFIER,
-                EXPECTED_MARKETING_VERSION,
-                EXPECTED_BUILD_NUMBER,
-            )
+            expected = self._expected_identity()
             if identity != expected:
                 raise CaptureError("installed_identity_mismatch", EXIT_INSTALLED_IDENTITY)
             return tokens[0], identity
 
-    @staticmethod
-    def _expected_identity() -> AppIdentity:
+    def _expected_identity(self) -> AppIdentity:
         return AppIdentity(
             EXPECTED_BUNDLE_IDENTIFIER,
             EXPECTED_MARKETING_VERSION,
-            EXPECTED_BUILD_NUMBER,
+            self.settings.expected_build_number,
         )
 
     def _reconnect_before_stop(
@@ -980,6 +1010,9 @@ class CaptureController:
             incident_codes: list[str] = []
             first_diagnostic_elapsed_ms: int | None = None
             process_termination_elapsed_ms: int | None = None
+            ready_marker_elapsed_ms: int | None = None
+            ready_observed_monotonic: float | None = None
+            launch_process_termination_observed = False
             launch_wait_started = time.monotonic()
 
             def consume_launch_records(records: list[dict[str, Any]]) -> None:
@@ -989,6 +1022,8 @@ class CaptureController:
                 nonlocal first_diagnostic_elapsed_ms
                 nonlocal terminal_observation
                 nonlocal terminal_deadline
+                nonlocal ready_marker_elapsed_ms
+                nonlocal ready_observed_monotonic
 
                 for record in records:
                     validated_record = validate_sanitized_record(record)
@@ -1029,9 +1064,19 @@ class CaptureController:
                             time.monotonic() + self.settings.terminal_grace_seconds
                         )
                     elif ready and terminal_observation is None:
+                        ready_observed_monotonic = time.monotonic()
+                        if launch_started_monotonic is not None:
+                            ready_marker_elapsed_ms = self._elapsed_milliseconds(
+                                launch_started_monotonic,
+                                ready_observed_monotonic,
+                            )
                         terminal_observation = "ready_marker"
                         terminal_deadline = (
-                            time.monotonic() + self.settings.terminal_grace_seconds
+                            ready_observed_monotonic
+                            + max(
+                                self.settings.terminal_grace_seconds,
+                                self.settings.ready_observation_seconds,
+                            )
                         )
 
             while True:
@@ -1068,6 +1113,7 @@ class CaptureController:
                         consume_launch_records(self.pipeline.drain())
                         if not snapshot.running:
                             process_stop_count += 1
+                            launch_process_termination_observed = True
                             process_termination_elapsed_ms = (
                                 self._elapsed_milliseconds(
                                     launch_started_monotonic,
@@ -1100,6 +1146,7 @@ class CaptureController:
                         raise CaptureError("second_launch_observed", EXIT_LIFECYCLE)
                     if previous.running and not snapshot.running:
                         process_stop_count += 1
+                        launch_process_termination_observed = True
                         if process_termination_elapsed_ms is None:
                             process_termination_elapsed_ms = (
                                 self._elapsed_milliseconds(
@@ -1107,10 +1154,12 @@ class CaptureController:
                                     time.monotonic(),
                                 )
                             )
-                        terminal_observation = terminal_observation or "process_terminated"
-                        terminal_deadline = terminal_deadline or (
-                            time.monotonic() + self.settings.terminal_grace_seconds
-                        )
+                        if terminal_observation != "failed_marker":
+                            terminal_observation = "process_terminated"
+                            terminal_deadline = (
+                                time.monotonic()
+                                + self.settings.terminal_grace_seconds
+                            )
                     if not previous.running and snapshot.running:
                         raise CaptureError("second_launch_observed", EXIT_LIFECYCLE)
 
@@ -1120,7 +1169,11 @@ class CaptureController:
                     assert launch_started_monotonic is not None
                     if terminal_deadline is not None and now >= terminal_deadline:
                         break
-                    if now - launch_started_monotonic >= self.settings.observation_seconds:
+                    if (
+                        ready_observed_monotonic is None
+                        and now - launch_started_monotonic
+                        >= self.settings.observation_seconds
+                    ):
                         terminal_observation = (
                             terminal_observation or "observation_window_elapsed"
                         )
@@ -1146,6 +1199,16 @@ class CaptureController:
                 and final_snapshot.token != launch_token
             ):
                 raise CaptureError("second_launch_observed", EXIT_LIFECYCLE)
+            if not final_snapshot.running and not launch_process_termination_observed:
+                process_stop_count += 1
+                launch_process_termination_observed = True
+                assert launch_started_monotonic is not None
+                process_termination_elapsed_ms = self._elapsed_milliseconds(
+                    launch_started_monotonic,
+                    time.monotonic(),
+                )
+                if terminal_observation != "failed_marker":
+                    terminal_observation = "process_terminated"
 
             self._require_distributed_identity(
                 device_token,
@@ -1157,6 +1220,56 @@ class CaptureController:
             if self.pipeline.begin_count() != 1:
                 raise CaptureError("pid_stream_unconfirmed", EXIT_SANITIZED_PROTOCOL)
 
+            try:
+                completion_snapshot = self.backend.process_snapshot(device_token)
+            except DeviceUnavailable as error:
+                raise CaptureError(
+                    "device_disconnected_after_capture_finalization", EXIT_LIFECYCLE
+                ) from error
+            if launch_token == 0 and completion_snapshot.running:
+                raise CaptureError("second_launch_observed", EXIT_LIFECYCLE)
+            if (
+                launch_token > 0
+                and completion_snapshot.running
+                and completion_snapshot.token != launch_token
+            ):
+                raise CaptureError("second_launch_observed", EXIT_LIFECYCLE)
+            if (
+                not completion_snapshot.running
+                and not launch_process_termination_observed
+            ):
+                process_stop_count += 1
+                launch_process_termination_observed = True
+                assert launch_started_monotonic is not None
+                process_termination_elapsed_ms = self._elapsed_milliseconds(
+                    launch_started_monotonic,
+                    time.monotonic(),
+                )
+                if terminal_observation != "failed_marker":
+                    terminal_observation = "process_terminated"
+            final_snapshot = completion_snapshot
+            self._require_distributed_identity(
+                device_token,
+                "device_disconnected_after_capture_identity_check",
+            )
+
+            completed_monotonic = time.monotonic()
+            ready_observation_elapsed_ms = (
+                self._elapsed_milliseconds(
+                    ready_observed_monotonic,
+                    completed_monotonic,
+                )
+                if ready_observed_monotonic is not None
+                else None
+            )
+            ready_observation_satisfied = bool(
+                ready_observed_monotonic is not None
+                and completed_monotonic - ready_observed_monotonic
+                >= self.settings.ready_observation_seconds
+                and failed_marker_count == 0
+                and terminal_observation == "ready_marker"
+                and final_snapshot.running
+            )
             completed_at = utc_now()
             self._write_record(
                 {
@@ -1188,6 +1301,9 @@ class CaptureController:
                 "coldLaunchObserved": True,
                 "processStartCount": process_start_count,
                 "processStopCount": process_stop_count,
+                "finalProcessState": (
+                    "running" if final_snapshot.running else "stopped"
+                ),
                 "terminalObservation": terminal_observation,
                 "sanitizedRecordCount": sanitized_record_count,
                 "filterBeginCount": self.pipeline.begin_count(),
@@ -1199,6 +1315,14 @@ class CaptureController:
                 "processTerminationElapsedMilliseconds": (
                     process_termination_elapsed_ms
                 ),
+                "readyMarkerElapsedMilliseconds": ready_marker_elapsed_ms,
+                "readyObservationSecondsRequested": (
+                    self.settings.ready_observation_seconds
+                ),
+                "readyObservationElapsedMilliseconds": (
+                    ready_observation_elapsed_ms
+                ),
+                "readyObservationSatisfied": ready_observation_satisfied,
                 "failureObserved": bool(
                     failed_marker_count
                     or terminal_observation == "process_terminated"
@@ -1285,6 +1409,21 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--observation-seconds", type=float, default=60)
     parser.add_argument("--terminal-grace-seconds", type=float, default=2)
+    parser.add_argument(
+        "--ready-observation-seconds",
+        type=float,
+        default=0,
+        help=(
+            "Seconds to keep the exact launch under observation after READY; "
+            "FAILED still uses terminal grace"
+        ),
+    )
+    parser.add_argument(
+        "--expected-build",
+        choices=SUPPORTED_CAPTURE_BUILD_NUMBERS,
+        default=EXPECTED_BUILD_NUMBER,
+        help="Exact allowlisted TestFlight build expected on the phone",
+    )
     return parser.parse_args()
 
 
@@ -1305,22 +1444,20 @@ def validate_args(args: argparse.Namespace) -> None:
             raise CaptureError(reason, EXIT_DEPENDENCY)
     if not os.access(args.pymobiledevice3, os.X_OK):
         raise CaptureError("pymobiledevice3_not_executable", EXIT_DEPENDENCY)
-    if args.poll_interval <= 0:
-        raise CaptureError("poll_interval_must_be_positive", EXIT_DEPENDENCY)
-    if args.device_poll_interval <= 0:
-        raise CaptureError("device_poll_interval_must_be_positive", EXIT_DEPENDENCY)
-    if args.device_wait_timeout < 0:
-        raise CaptureError("device_wait_timeout_must_not_be_negative", EXIT_DEPENDENCY)
-    if args.stop_wait_timeout < 0:
-        raise CaptureError("stop_wait_timeout_must_not_be_negative", EXIT_DEPENDENCY)
-    if args.watcher_arm_timeout <= 0:
-        raise CaptureError("watcher_arm_timeout_must_be_positive", EXIT_DEPENDENCY)
-    if args.start_wait_timeout < 0:
-        raise CaptureError("start_wait_timeout_must_not_be_negative", EXIT_DEPENDENCY)
-    if args.observation_seconds <= 0:
-        raise CaptureError("observation_seconds_must_be_positive", EXIT_DEPENDENCY)
-    if args.terminal_grace_seconds < 0:
-        raise CaptureError("terminal_grace_seconds_must_not_be_negative", EXIT_DEPENDENCY)
+    validate_capture_settings(
+        CaptureSettings(
+            poll_interval=args.poll_interval,
+            device_poll_interval=args.device_poll_interval,
+            device_wait_timeout=args.device_wait_timeout,
+            stop_wait_timeout=args.stop_wait_timeout,
+            watcher_arm_timeout=args.watcher_arm_timeout,
+            start_wait_timeout=args.start_wait_timeout,
+            observation_seconds=args.observation_seconds,
+            terminal_grace_seconds=args.terminal_grace_seconds,
+            ready_observation_seconds=args.ready_observation_seconds,
+            expected_build_number=args.expected_build,
+        )
+    )
 
 
 def main() -> int:
@@ -1350,6 +1487,8 @@ def main() -> int:
                 start_wait_timeout=args.start_wait_timeout,
                 observation_seconds=args.observation_seconds,
                 terminal_grace_seconds=args.terminal_grace_seconds,
+                ready_observation_seconds=args.ready_observation_seconds,
+                expected_build_number=args.expected_build,
             ),
             CaptureProvenance(
                 backend_version=backend_version,

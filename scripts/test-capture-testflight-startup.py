@@ -147,7 +147,9 @@ class CaptureControllerTests(unittest.TestCase):
         self,
         observation: float = 0.05,
         grace: float = 0,
+        ready_observation: float = 0,
         wait_timeout: float = 0.2,
+        expected_build: str = CAPTURE.EXPECTED_BUILD_NUMBER,
     ) -> Any:
         return CAPTURE.CaptureSettings(
             poll_interval=0.001,
@@ -158,6 +160,8 @@ class CaptureControllerTests(unittest.TestCase):
             start_wait_timeout=wait_timeout,
             observation_seconds=observation,
             terminal_grace_seconds=grace,
+            ready_observation_seconds=ready_observation,
+            expected_build_number=expected_build,
         )
 
     def output_path(self, root: str) -> Path:
@@ -637,6 +641,177 @@ class CaptureControllerTests(unittest.TestCase):
                         ).run()
                     self.assertFalse((output / "capture-receipt.json").exists())
 
+    def test_hotfix_build_is_explicitly_allowlisted_for_qualification_capture(self) -> None:
+        hotfix = CAPTURE.AppIdentity(
+            CAPTURE.EXPECTED_BUNDLE_IDENTIFIER,
+            CAPTURE.EXPECTED_MARKETING_VERSION,
+            CAPTURE.HOTFIX_BUILD_NUMBER,
+        )
+        backend = FakeBackend(
+            identity=hotfix,
+            snapshots=[
+                CAPTURE.ProcessSnapshot(False, None),
+                CAPTURE.ProcessSnapshot(False, None),
+                CAPTURE.ProcessSnapshot(True, 821),
+                CAPTURE.ProcessSnapshot(True, 821),
+            ],
+            pipeline=FakePipeline(
+                batches=[[safe_record("FEARLESS_STARTUP_READY")]],
+            ),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            receipt = CAPTURE.CaptureController(
+                backend,
+                self.output_path(directory),
+                self.settings(expected_build=CAPTURE.HOTFIX_BUILD_NUMBER),
+            ).run()
+
+        self.assertEqual(receipt["buildNumber"], CAPTURE.HOTFIX_BUILD_NUMBER)
+        self.assertEqual(receipt["readyMarkerCount"], 1)
+        self.assertEqual(receipt["failedMarkerCount"], 0)
+
+    def test_ready_marker_holds_observation_without_delaying_failure(self) -> None:
+        ready_backend = FakeBackend(
+            snapshots=[
+                CAPTURE.ProcessSnapshot(False, None),
+                CAPTURE.ProcessSnapshot(False, None),
+                CAPTURE.ProcessSnapshot(True, 822),
+                CAPTURE.ProcessSnapshot(True, 822),
+            ],
+            pipeline=FakePipeline(
+                batches=[[safe_record("FEARLESS_STARTUP_READY")]],
+            ),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            started = time.monotonic()
+            ready_receipt = CAPTURE.CaptureController(
+                ready_backend,
+                self.output_path(directory),
+                self.settings(
+                    observation=0.005,
+                    grace=0,
+                    ready_observation=0.02,
+                ),
+            ).run()
+            ready_elapsed = time.monotonic() - started
+
+        self.assertGreaterEqual(ready_elapsed, 0.02)
+        self.assertEqual(ready_receipt["readyObservationSecondsRequested"], 0.02)
+        self.assertGreaterEqual(
+            ready_receipt["readyObservationElapsedMilliseconds"], 20
+        )
+        self.assertTrue(ready_receipt["readyObservationSatisfied"])
+
+        failed_backend = FakeBackend(
+            snapshots=[
+                CAPTURE.ProcessSnapshot(False, None),
+                CAPTURE.ProcessSnapshot(False, None),
+                CAPTURE.ProcessSnapshot(True, 823),
+                CAPTURE.ProcessSnapshot(True, 823),
+            ],
+            pipeline=FakePipeline(
+                batches=[[safe_record("FEARLESS_STARTUP_FAILED")]],
+            ),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            started = time.monotonic()
+            failed_receipt = CAPTURE.CaptureController(
+                failed_backend,
+                self.output_path(directory),
+                self.settings(
+                    observation=0.1,
+                    grace=0,
+                    ready_observation=0.05,
+                ),
+            ).run()
+            failed_elapsed = time.monotonic() - started
+
+        self.assertLess(failed_elapsed, 0.05)
+        self.assertEqual(failed_receipt["failedMarkerCount"], 1)
+        self.assertIsNone(failed_receipt["readyObservationElapsedMilliseconds"])
+        self.assertFalse(failed_receipt["readyObservationSatisfied"])
+
+    def test_process_termination_after_ready_fails_ready_observation(self) -> None:
+        backend = FakeBackend(
+            snapshots=[
+                CAPTURE.ProcessSnapshot(False, None),
+                CAPTURE.ProcessSnapshot(False, None),
+                CAPTURE.ProcessSnapshot(True, 824),
+                CAPTURE.ProcessSnapshot(False, None),
+                CAPTURE.ProcessSnapshot(False, None),
+            ],
+            pipeline=FakePipeline(
+                batches=[[safe_record("FEARLESS_STARTUP_READY")]],
+            ),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            receipt = CAPTURE.CaptureController(
+                backend,
+                self.output_path(directory),
+                self.settings(
+                    observation=0.1,
+                    grace=0,
+                    ready_observation=0.02,
+                ),
+            ).run()
+
+        self.assertEqual(receipt["readyMarkerCount"], 1)
+        self.assertEqual(receipt["terminalObservation"], "process_terminated")
+        self.assertEqual(receipt["finalProcessState"], "stopped")
+        self.assertTrue(receipt["failureObserved"])
+        self.assertFalse(receipt["readyObservationSatisfied"])
+
+    def test_finalization_race_cannot_publish_running_ready_state(self) -> None:
+        backend = FakeBackend(
+            snapshots=[
+                CAPTURE.ProcessSnapshot(False, None),
+                CAPTURE.ProcessSnapshot(False, None),
+                CAPTURE.ProcessSnapshot(True, 825),
+                CAPTURE.ProcessSnapshot(True, 825),
+                CAPTURE.ProcessSnapshot(True, 825),
+                CAPTURE.ProcessSnapshot(False, None),
+            ],
+            pipeline=FakePipeline(
+                batches=[[safe_record("FEARLESS_STARTUP_READY")]],
+            ),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            receipt = CAPTURE.CaptureController(
+                backend,
+                self.output_path(directory),
+                self.settings(),
+            ).run()
+
+        self.assertEqual(receipt["terminalObservation"], "process_terminated")
+        self.assertEqual(receipt["finalProcessState"], "stopped")
+        self.assertTrue(receipt["failureObserved"])
+        self.assertFalse(receipt["readyObservationSatisfied"])
+
+    def test_controller_rejects_unbounded_duration_and_unallowlisted_build(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = self.output_path(directory)
+            with self.assertRaisesRegex(
+                CAPTURE.CaptureError,
+                "ready_observation_seconds_must_be_finite",
+            ):
+                CAPTURE.CaptureController(
+                    FakeBackend(),
+                    output,
+                    self.settings(ready_observation=float("inf")),
+                )
+            self.assertFalse(output.exists())
+
+            with self.assertRaisesRegex(
+                CAPTURE.CaptureError,
+                "unsupported_expected_build",
+            ):
+                CAPTURE.CaptureController(
+                    FakeBackend(),
+                    output,
+                    self.settings(expected_build="2026.9.99"),
+                )
+            self.assertFalse(output.exists())
+
     def test_existing_output_directory_is_refused(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             output = self.output_path(directory)
@@ -1075,6 +1250,44 @@ class DevicePidStreamHelperTests(unittest.TestCase):
 
 
 class CaptureCliContractTests(unittest.TestCase):
+    def test_expected_build_cli_accepts_only_distributed_and_hotfix_builds(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            executable = root / "pymobiledevice3"
+            executable.write_text("#!/usr/bin/env python3\n")
+            executable.chmod(0o700)
+            for build_number in CAPTURE.SUPPORTED_CAPTURE_BUILD_NUMBERS:
+                with self.subTest(build_number=build_number), patch.object(
+                    sys,
+                    "argv",
+                    [
+                        str(SCRIPT_PATH),
+                        "--pymobiledevice3",
+                        str(executable),
+                        "--output-directory",
+                        str(root / f"capture-{build_number}"),
+                        "--expected-build",
+                        build_number,
+                    ],
+                ):
+                    args = CAPTURE.parse_args()
+                    self.assertEqual(args.expected_build, build_number)
+
+            with patch.object(
+                sys,
+                "argv",
+                [
+                    str(SCRIPT_PATH),
+                    "--pymobiledevice3",
+                    str(executable),
+                    "--output-directory",
+                    str(root / "capture-unexpected"),
+                    "--expected-build",
+                    "2026.9.99",
+                ],
+            ), self.assertRaises(SystemExit):
+                CAPTURE.parse_args()
+
     def test_documented_relative_invocation_resolves_private_helpers_absolutely(self) -> None:
         result = subprocess.run(
             [sys.executable, str(SCRIPT_PATH), "--help"],

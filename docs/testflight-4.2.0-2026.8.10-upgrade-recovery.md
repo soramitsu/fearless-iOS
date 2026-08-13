@@ -43,6 +43,7 @@ Choose a new absolute output directory and run:
 PYTHONDONTWRITEBYTECODE=1 python3 \
   scripts/capture-testflight-startup.py \
   --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
+  --expected-build 2026.7.28 \
   --output-directory /ABSOLUTE/NEW/PRIVATE/CAPTURE-DIRECTORY
 ```
 
@@ -68,6 +69,19 @@ PID-only stream even if Fearless emitted no qualifying log record;
 incident mapping was observed. A bare startup marker or process termination is
 recorded but does not claim a cause. It does not qualify the hotfix for release.
 
+The affected-phone capture is stored at
+`build/diagnostics/startup-capture-2026.7.28-20260813T023458Z/`. Its receipt
+SHA-256 is
+`018e39b2b75191d9322f49535c17bffddbba3c4d65a927f6f3f3fbedd167f5d1`.
+It contains one failed marker, no ready marker, and no observed process
+termination. The failed marker followed the first retained startup/migration
+record by about 205 milliseconds, which contradicts the 15/60-second timeout
+paths for this launch. No stable incident code was present, so the `.28`
+parameterless callback makes migration, preflight, wallet opening, and the
+post-setup broken/unsupported route indistinguishable. Do not repeat the `.28`
+capture or request raw logs/container data; use `.8.10` structured markers for
+the next deterministic observation.
+
 ## Internal TestFlight gate
 
 1. Confirm the installed identity is `jp.co.soramitsu.fearlesswallet`, version
@@ -75,8 +89,21 @@ recorded but does not claim a cause. It does not qualify the hotfix for release.
 2. Assign build `2026.8.10` to an internal TestFlight group only.
 3. Install it in place through Apple's TestFlight app. Do not remove the existing
    installation or clear any data.
-4. Start a sanitized Fearless-only log window, force-quit once, and cold-launch
-   once. Do not tap Retry.
+4. Start the first sanitized Fearless-only window with the exact command below.
+   If requested, force-quit once; cold-launch only after the armed marker. Do
+   not tap Retry. A failure still finalizes after the short terminal grace, but
+   a ready launch remains under exact-PID observation for five full minutes:
+
+   ```bash
+   PYTHONDONTWRITEBYTECODE=1 python3 \
+     scripts/capture-testflight-startup.py \
+     --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
+     --expected-build 2026.8.10 \
+     --observation-seconds 900 \
+     --terminal-grace-seconds 2 \
+     --ready-observation-seconds 300 \
+     --output-directory /ABSOLUTE/NEW/PRIVATE/FIRST-HOTFIX-CAPTURE
+   ```
 5. Keep Fearless open and usable for at least five continuous minutes. A living
    process is not evidence of usability. Require:
    - no failure alert and no `FEARLESS_STARTUP_FAILED` marker;
@@ -84,16 +111,42 @@ recorded but does not claim a cause. It does not qualify the hotfix for release.
    - successful PIN entry and a working wallet route;
    - unchanged wallet counts, logical store integrity, Keychain access, and
      settings access, recorded only as pass/fail attestations without values.
-6. Force-quit once more and perform a second cold launch. Require exactly one
-   ready marker, no failed marker/alert, successful PIN entry, and a working
-   wallet route in the second launch window.
-7. Store only sanitized evidence under ignored `build/` output and audit it:
+6. After the first capture completes, force-quit once more and use a new output
+   directory for the second cold launch. Require exactly one ready marker, no
+   failed marker/alert, successful PIN entry, and a working wallet route:
 
    ```bash
    PYTHONDONTWRITEBYTECODE=1 python3 \
+     scripts/capture-testflight-startup.py \
+     --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
+     --expected-build 2026.8.10 \
+     --observation-seconds 180 \
+     --terminal-grace-seconds 2 \
+     --ready-observation-seconds 5 \
+     --output-directory /ABSOLUTE/NEW/PRIVATE/SECOND-HOTFIX-CAPTURE
+   ```
+7. Store only sanitized evidence under ignored `build/` output and audit it:
+
+   The evidence's first- and second-launch timestamps, marker counts, and
+   `captureReceiptSHA256` values must match these two capture bundles. The
+   auditor reads the private receipts, metadata, and sanitized logs directly;
+   it rejects an unbound receipt, a short READY window, a stopped process,
+   duplicate/missing markers, raw-data fields, or artifact provenance drift.
+   Bind the audit to the source commit embedded in the uploaded IPA, not to a
+   later host-only diagnostics commit:
+
+   ```bash
+   chmod 600 build/testflight-2026.8.10-upgrade-usability.json
+   upload_receipt=build/upload/4.2.0-2026.8.10-b723df5e6/testflight-internal-upload.json
+   artifact_source_commit="$(jq -er '.artifactSourceCommit' "$upload_receipt")"
+   PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/audit-testflight-upgrade-usability-gate.py \
      build/testflight-2026.8.10-upgrade-usability.json \
-     --expected-artifact-source-commit "$(git rev-parse HEAD)"
+     --first-launch-capture-receipt \
+       /ABSOLUTE/PRIVATE/FIRST-HOTFIX-CAPTURE/capture-receipt.json \
+     --second-launch-capture-receipt \
+       /ABSOLUTE/PRIVATE/SECOND-HOTFIX-CAPTURE/capture-receipt.json \
+     --expected-artifact-source-commit "$artifact_source_commit"
    ```
 
 The evidence schema is enforced by the audit's tests. It binds both the exact
