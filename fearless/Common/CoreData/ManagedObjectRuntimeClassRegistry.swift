@@ -14,11 +14,17 @@ import Foundation
         SSFAssetManagmentStorageStub.CDScamInfo
 #endif
 
+@objc(CDTonConnectedApp)
+final class SubstrateCompatibilityCDTonConnectedApp: NSManagedObject {}
+
+@objc(CDTonDapp)
+final class SubstrateCompatibilityCDTonDapp: NSManagedObject {}
+
 /// Strong, production-used references to every managed-object class named by
 /// the current bundled stores. This prevents normal Release dead stripping
 /// from making a model class disappear only outside ENABLE_TESTABILITY builds.
 enum ManagedObjectRuntimeClassRegistry {
-    static let substrateV8Classes: [NSManagedObject.Type] = [
+    static let substrateClasses: [NSManagedObject.Type] = [
         CDAsset.self,
         CDChain.self,
         CDChainNode.self,
@@ -35,6 +41,8 @@ enum ManagedObjectRuntimeClassRegistry {
         CDRuntimeMetadataItem.self,
         RuntimeCDScamInfo.self,
         CDStashItem.self,
+        SubstrateCompatibilityCDTonConnectedApp.self,
+        SubstrateCompatibilityCDTonDapp.self,
         CDTransactionHistoryItem.self,
         CDXcmAvailableAsset.self,
         CDXcmAvailableDestination.self
@@ -52,7 +60,7 @@ enum ManagedObjectRuntimeClassRegistry {
 
     static let classesByRuntimeName: [String: NSManagedObject.Type] = {
         Dictionary(
-            uniqueKeysWithValues: (substrateV8Classes + userV11Classes).map {
+            uniqueKeysWithValues: (substrateClasses + userV11Classes).map {
                 (NSStringFromClass($0), $0)
             }
         )

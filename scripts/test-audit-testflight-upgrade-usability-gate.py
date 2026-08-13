@@ -29,7 +29,7 @@ def passing_capture_receipt(*, first: bool) -> dict:
         "captureStatus": "complete",
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildNumber": "2026.8.10",
+        "buildNumber": "2026.8.13",
         "observationMethod": "paired-device-fearless-process-only-sanitized-syslog",
         "deviceSidePIDFilter": True,
         "historicalLogsRequested": False,
@@ -102,7 +102,7 @@ def write_capture_bundle(root: Path, *, first: bool) -> tuple[Path, str]:
         "observedAtUTC": "2026-08-10T11:59:59+09:00",
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildNumber": "2026.8.10",
+        "buildNumber": "2026.8.13",
     }
     records = [
         {
@@ -150,13 +150,14 @@ def passing_evidence() -> dict:
         "schemaVersion": 1,
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildVersion": "2026.8.10",
+        "buildVersion": "2026.8.13",
         "baseSourceCommit": "2e45e55dc03ad904598e730cfb5994fb5c1072dc",
         "artifactSourceCommit": EXPECTED_ARTIFACT_SOURCE_COMMIT,
         "distribution": "apple-testflight-internal",
         "installation": {
             "installedInPlace": True,
-            "previousBuildVersion": "2026.7.28",
+            "previousBuildVersion": "2026.8.10",
+            "originalAppStoreContainerPreserved": True,
             "uninstalled": False,
             "offloaded": False,
             "downgraded": False,
@@ -235,6 +236,19 @@ class UpgradeUsabilityGateTests(unittest.TestCase):
         destructive["installation"]["dataCleared"] = True
         with self.assertRaisesRegex(GATE.EvidenceError, "dataCleared must be false"):
             validate(destructive)
+
+        replaced_container = passing_evidence()
+        replaced_container["installation"]["originalAppStoreContainerPreserved"] = False
+        with self.assertRaisesRegex(
+            GATE.EvidenceError,
+            "originalAppStoreContainerPreserved must be true",
+        ):
+            validate(replaced_container)
+
+        stale_predecessor = passing_evidence()
+        stale_predecessor["installation"]["previousBuildVersion"] = "2026.7.28"
+        with self.assertRaisesRegex(GATE.EvidenceError, "failed build 2026.8.10"):
+            validate(stale_predecessor)
 
         no_wallet_route = copy.deepcopy(passing_evidence())
         no_wallet_route["firstLaunch"]["walletRouteWorked"] = False

@@ -179,6 +179,21 @@ final class SubstrateStorageClassResolutionTests: XCTestCase {
         ]
     }
 
+    private var expectedV10EntityClasses: [EntityClassExpectation] {
+        expectedEntityClasses + [
+            EntityClassExpectation(
+                entityName: "CDTonConnectedApp",
+                managedObjectClass:
+                fearless.SubstrateCompatibilityCDTonConnectedApp.self
+            ),
+            EntityClassExpectation(
+                entityName: "CDTonDapp",
+                managedObjectClass:
+                fearless.SubstrateCompatibilityCDTonDapp.self
+            )
+        ]
+    }
+
     private var polkaswapDexClass: NSManagedObject.Type {
         #if canImport(SSFAssetManagmentStorage)
             SSFAssetManagmentStorage.CDPolkaswapDex.self
@@ -264,6 +279,72 @@ final class SubstrateStorageClassResolutionTests: XCTestCase {
                 )
             }
 
+            context.rollback()
+        }
+    }
+
+    func testBundledV10Model_whenObjectsInsertedAndFetched_thenEveryEntityUsesExactRuntimeClass() throws {
+        let model = try loadBundledModel(for: .version10)
+        XCTAssertEqual(
+            Set(model.entitiesByName.keys),
+            Set(expectedV10EntityClasses.map(\.entityName))
+        )
+
+        let coordinator = NSPersistentStoreCoordinator(
+            managedObjectModel: model
+        )
+        try coordinator.addPersistentStore(
+            ofType: NSInMemoryStoreType,
+            configurationName: nil,
+            at: nil
+        )
+        let context = NSManagedObjectContext(
+            concurrencyType: .privateQueueConcurrencyType
+        )
+        context.persistentStoreCoordinator = coordinator
+
+        try performAndWait(in: context) {
+            for expectation in self.expectedV10EntityClasses {
+                let entity = try XCTUnwrap(
+                    model.entitiesByName[expectation.entityName]
+                )
+                let className = try XCTUnwrap(
+                    entity.managedObjectClassName
+                )
+                let resolvedClass = try XCTUnwrap(
+                    NSClassFromString(className)
+                        as? NSManagedObject.Type
+                )
+                XCTAssertEqual(
+                    ObjectIdentifier(resolvedClass),
+                    ObjectIdentifier(expectation.managedObjectClass)
+                )
+
+                let insertedObject = NSEntityDescription
+                    .insertNewObject(
+                        forEntityName: expectation.entityName,
+                        into: context
+                    )
+                self.assertExactClass(
+                    of: insertedObject,
+                    is: expectation.managedObjectClass,
+                    entityName: expectation.entityName
+                )
+
+                let request = NSFetchRequest<NSManagedObject>(
+                    entityName: expectation.entityName
+                )
+                let fetchedObject = try XCTUnwrap(
+                    context.fetch(request).first {
+                        $0 === insertedObject
+                    }
+                )
+                self.assertExactClass(
+                    of: fetchedObject,
+                    is: expectation.managedObjectClass,
+                    entityName: expectation.entityName
+                )
+            }
             context.rollback()
         }
     }
@@ -1076,18 +1157,21 @@ final class SubstrateStorageClassResolutionTests: XCTestCase {
     }
 
     private func loadBundledV8Model() throws -> NSManagedObjectModel {
+        try loadBundledModel(for: .version8)
+    }
+
+    private func loadBundledModel(
+        for version: SubstrateStorageVersion
+    ) throws -> NSManagedObjectModel {
         let appBundle = Bundle(for: SubstrateDataStorageFacade.self)
-        let modelURL = ["omo", "mom"].lazy.compactMap {
-            appBundle.url(
-                forResource: SubstrateStorageVersion.version8.rawValue,
-                withExtension: $0,
-                subdirectory: SubstrateStorageParams.modelDirectory
-            )
-        }.first
+        let modelURL = version.modelURL(
+            in: appBundle,
+            modelDirectory: SubstrateStorageParams.modelDirectory
+        )
 
         return try XCTUnwrap(
             modelURL.flatMap(NSManagedObjectModel.init(contentsOf:)),
-            "Unable to load bundled SubstrateDataModel_v8"
+            "Unable to load bundled \(version.rawValue)"
         )
     }
 

@@ -14,9 +14,10 @@ readonly EXPECTED_SIGNING_IDENTITY="Apple Distribution: Soramitsu Co., Ltd. (YLW
 readonly EXPECTED_SIGNING_CERTIFICATE_SHA1="84AB95335BE14CAE9B050A353910F86FF2F9539B"
 readonly EXPECTED_PROFILE_NAME="Fearless App Store 2026.7.26"
 readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
-# Build 2026.8.10 is reserved for the preserved-data upgrade-recovery hotfix.
-# Reconfirm its uniqueness read-only in App Store Connect immediately before archive.
-readonly EXPECTED_BUILD="2026.8.10"
+# Build 2026.8.10 was delivered internally and exposed the missing public
+# Substrate compatibility model. Its corrected successor is 2026.8.13.
+# Reconfirm successor uniqueness read-only immediately before archive.
+readonly EXPECTED_BUILD="2026.8.13"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -35,7 +36,7 @@ Usage:
 Preconditions:
   - exact clean git HEAD, including no untracked files, descended from the
     distributed 4.2.0 (2026.7.28) source commit;
-  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.10);
+  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.13);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 
@@ -115,6 +116,8 @@ git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$source_commit" ||
 IOS_EXPECTED_BUILD_NUMBER="$EXPECTED_BUILD" \
 IOS_RELEASE_SOURCE_PACKAGES_DIR="${IOS_RELEASE_SOURCE_PACKAGES_DIR:-}" \
   bash "$SCRIPT_DIR/audit-ios-release-identity.sh"
+bash "$REPO_ROOT/scripts/storage/audit-user-storage-compatibility-models.sh"
+bash "$REPO_ROOT/scripts/storage/audit-substrate-storage-compatibility-models.sh"
 
 xcodebuild_arguments=(
   -workspace "$REPO_ROOT/fearless.xcworkspace"

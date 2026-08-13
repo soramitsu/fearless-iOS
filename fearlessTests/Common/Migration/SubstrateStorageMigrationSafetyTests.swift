@@ -45,12 +45,12 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
     }
 
     func testPerformMigration_whenStoreIsCurrent_thenRepeatedCallsAreByteForByteIdempotent() throws {
-        let currentModel = try model(for: .version8)
+        let currentModel = try model(for: .version10)
         try createStore(at: storeURL, model: currentModel) { context in
             try self.insertRuntimeItem(identifier: "current-runtime", in: context, model: currentModel)
         }
         let before = try durableStoreFamilySnapshot(at: storeURL)
-        let migrator = makeMigrator()
+        let migrator = makeMigrator(targetVersion: .version10)
 
         XCTAssertFalse(migrator.requiresMigration())
         try migrator.performMigration()
@@ -1410,8 +1410,8 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
         )
     }
 
-    func testPerformMigration_whenEverySupportedLegacyVersion_thenReachesV8AndPreservesRows() throws {
-        for sourceVersion in SubstrateStorageVersion.allCases where sourceVersion != .version8 {
+    func testPerformMigration_whenEverySupportedLegacyVersion_thenReachesV10AndPreservesRows() throws {
+        for sourceVersion in SubstrateStorageVersion.allCases where sourceVersion != .version10 {
             let caseDirectory = testDirectory.appendingPathComponent(
                 sourceVersion.rawValue,
                 isDirectory: true
@@ -1442,7 +1442,10 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
                 )
             }
 
-            let migrator = makeMigrator(storeURL: caseStoreURL)
+            let migrator = makeMigrator(
+                targetVersion: .version10,
+                storeURL: caseStoreURL
+            )
             XCTAssertTrue(
                 migrator.requiresMigration(),
                 "\(sourceVersion.rawValue) should require migration"
@@ -1450,16 +1453,16 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
 
             try migrator.performMigration()
 
-            let targetModel = try model(for: .version8)
+            let targetModel = try model(for: .version10)
             XCTAssertFalse(
                 migrator.requiresMigration(),
-                "\(sourceVersion.rawValue) should reach v8"
+                "\(sourceVersion.rawValue) should reach v10"
             )
             XCTAssertTrue(
                 try isStore(
                     at: caseStoreURL,
                     compatibleWith: targetModel,
-                    version: .version8
+                    version: .version10
                 )
             )
             XCTAssertEqual(
@@ -1492,6 +1495,118 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
         }
     }
 
+    func testPerformMigration_whenPublicAppStoreV8OrV9Store_thenPreservesEveryTonValueInV10() throws {
+        let sourceCases: [
+            (version: SubstrateStorageVersion, coinbaseURL: String?)
+        ] = [
+            (.legacyPublicVersion8, nil),
+            (.legacyPublicVersion9, "https://coinbase.example.invalid")
+        ]
+
+        for sourceCase in sourceCases {
+            let caseDirectory = testDirectory.appendingPathComponent(
+                sourceCase.version.rawValue,
+                isDirectory: true
+            )
+            try FileManager.default.createDirectory(
+                at: caseDirectory,
+                withIntermediateDirectories: true
+            )
+            let caseStoreURL = caseDirectory.appendingPathComponent(
+                SubstrateStorageParams.databaseName
+            )
+            let sourceModel = try model(for: sourceCase.version)
+            try createStore(at: caseStoreURL, model: sourceModel) {
+                context in
+                try self.insertPublicSubstrateCompatibilityGraph(
+                    coinbaseURL: sourceCase.coinbaseURL,
+                    in: context,
+                    model: sourceModel
+                )
+            }
+
+            let migrator = makeMigrator(
+                targetVersion: .version10,
+                storeURL: caseStoreURL
+            )
+            XCTAssertTrue(migrator.requiresMigration())
+            try migrator.performMigration()
+
+            let targetModel = try model(for: .version10)
+            XCTAssertFalse(migrator.requiresMigration())
+            XCTAssertTrue(
+                try isStore(
+                    at: caseStoreURL,
+                    compatibleWith: targetModel,
+                    version: .version10
+                )
+            )
+            try assertPublicSubstrateCompatibilityGraph(
+                at: caseStoreURL,
+                model: targetModel,
+                expectedCoinbaseURL: sourceCase.coinbaseURL
+            )
+
+            let migrated = try durableStoreFamilySnapshot(
+                at: caseStoreURL
+            )
+            try migrator.performMigration()
+            XCTAssertEqual(
+                try durableStoreFamilySnapshot(at: caseStoreURL),
+                migrated,
+                "\(sourceCase.version.rawValue) was not idempotent"
+            )
+        }
+    }
+
+    func testPerformMigration_whenStagedTonPrivateKeyChangesWithoutRowLoss_thenRejectsStageAndPreservesPublicStore() throws {
+        let sourceModel = try model(for: .legacyPublicVersion9)
+        try createStore(at: storeURL, model: sourceModel) { context in
+            try self.insertPublicSubstrateCompatibilityGraph(
+                coinbaseURL: "https://coinbase.example.invalid",
+                in: context,
+                model: sourceModel
+            )
+        }
+        let before = try durableStoreFamilySnapshot(at: storeURL)
+        let migrator = makeMigrator(
+            targetVersion: .version10,
+            stagedStoreMutationHook: { stagedURL, _ in
+                try self.executeSQLite(
+                    """
+                    UPDATE ZCDTONCONNECTEDAPP
+                    SET ZPRIVATEKEY = X'DEADBEEF'
+                    """,
+                    at: stagedURL
+                )
+            }
+        )
+
+        XCTAssertThrowsError(try migrator.performMigration()) { error in
+            guard
+                let migrationError =
+                error as? SubstrateStorageMigrationError,
+                case .stagedStoreProtectedDataMismatch = migrationError
+            else {
+                return XCTFail(
+                    "Expected stagedStoreProtectedDataMismatch, got \(error)"
+                )
+            }
+        }
+
+        XCTAssertEqual(try durableStoreFamilySnapshot(at: storeURL), before)
+        try inspectStore(at: storeURL, model: sourceModel) { context in
+            let connectedApp = try self.fetchSingleObject(
+                entityName: "CDTonConnectedApp",
+                context: context
+            )
+            XCTAssertEqual(
+                connectedApp.value(forKey: "privateKey") as? Data,
+                Data([0x01, 0x23, 0x45, 0x67])
+            )
+        }
+    }
+
     func testPerformMigration_whenOldestLegacyStore_thenNeverRetainsCompletedIntermediates() throws {
         let sourceModel = try model(for: .version1)
         try createStore(at: storeURL, model: sourceModel) { context in
@@ -1507,11 +1622,14 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
             )
         }
         let fileManager = TemporaryStoreFootprintFileManager()
-        let migrator = makeMigrator(fileManager: fileManager)
+        let migrator = makeMigrator(
+            targetVersion: .version10,
+            fileManager: fileManager
+        )
 
         try migrator.performMigration()
 
-        let expectedStepCount = SubstrateStorageVersion.allCases.count - 1
+        let expectedStepCount = 8
         XCTAssertEqual(fileManager.maximumTemporaryMainStoreCount, 2)
         XCTAssertEqual(
             fileManager.temporaryMainStoreCountsBeforeRemoval,
@@ -1525,8 +1643,8 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
         XCTAssertTrue(
             try isStore(
                 at: storeURL,
-                compatibleWith: model(for: .version8),
-                version: .version8
+                compatibleWith: model(for: .version10),
+                version: .version10
             )
         )
     }
@@ -5208,6 +5326,214 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
         return NSManagedObject(entity: entity, insertInto: context)
     }
 
+    private func insertPublicSubstrateCompatibilityGraph(
+        coinbaseURL: String?,
+        in context: NSManagedObjectContext,
+        model: NSManagedObjectModel
+    ) throws {
+        let chainGraph = try insertChainWithDefaultNode(
+            in: context,
+            model: model
+        )
+        chainGraph.chain.setValue("ton", forKey: "ecosystem")
+        chainGraph.chain.setValue(
+            try XCTUnwrap(
+                URL(string: "https://bridge.example.invalid")
+            ),
+            forKey: "tonBridgeUrl"
+        )
+
+        let asset = try insert(
+            entityName: "CDAsset",
+            in: context,
+            model: model
+        )
+        asset.setValue("public-ton-asset", forKey: "id")
+        asset.setValue(Int16(9), forKey: "precision")
+        asset.setValue("TON", forKey: "symbol")
+        if model.entitiesByName["CDAsset"]?
+            .attributesByName["coinbaseUrl"] != nil {
+            asset.setValue(coinbaseURL, forKey: "coinbaseUrl")
+        }
+        asset.setValue(chainGraph.chain, forKey: "chain")
+
+        let connectedApp = try insert(
+            entityName: "CDTonConnectedApp",
+            in: context,
+            model: model
+        )
+        connectedApp.setValue(
+            try XCTUnwrap(URL(string: "https://app.example.invalid")),
+            forKey: "appUrl"
+        )
+        connectedApp.setValue("sanitized-client", forKey: "clientId")
+        connectedApp.setValue("universal", forKey: "connectionType")
+        connectedApp.setValue(
+            try XCTUnwrap(URL(string: "https://app.example.invalid/icon")),
+            forKey: "iconUrl"
+        )
+        connectedApp.setValue("sanitized-app", forKey: "identifier")
+        connectedApp.setValue("Sanitized App", forKey: "name")
+        connectedApp.setValue(
+            Data([0x01, 0x23, 0x45, 0x67]),
+            forKey: "privateKey"
+        )
+        connectedApp.setValue(
+            Data([0x89, 0xAB, 0xCD, 0xEF]),
+            forKey: "publicKey"
+        )
+        connectedApp.setValue("sanitized-wallet", forKey: "walletId")
+
+        let dapp = try insert(
+            entityName: "CDTonDapp",
+            in: context,
+            model: model
+        )
+        dapp.setValue("Sanitized description", forKey: "appDescription")
+        dapp.setValue(NSArray(array: ["-239", "-3"]), forKey: "chains")
+        dapp.setValue(
+            try XCTUnwrap(URL(string: "https://dapp.example.invalid/icon")),
+            forKey: "icon"
+        )
+        dapp.setValue("sanitized-dapp", forKey: "identifier")
+        dapp.setValue(true, forKey: "isConnected")
+        dapp.setValue("Sanitized Dapp", forKey: "name")
+        dapp.setValue(
+            try XCTUnwrap(URL(string: "https://dapp.example.invalid/poster")),
+            forKey: "poster"
+        )
+        dapp.setValue(
+            try XCTUnwrap(URL(string: "https://dapp.example.invalid")),
+            forKey: "url"
+        )
+    }
+
+    private func assertPublicSubstrateCompatibilityGraph(
+        at url: URL,
+        model: NSManagedObjectModel,
+        expectedCoinbaseURL: String?
+    ) throws {
+        XCTAssertEqual(
+            try count(entityName: "CDAsset", at: url, model: model),
+            1
+        )
+        XCTAssertEqual(
+            try count(
+                entityName: "CDTonConnectedApp",
+                at: url,
+                model: model
+            ),
+            1
+        )
+        XCTAssertEqual(
+            try count(entityName: "CDTonDapp", at: url, model: model),
+            1
+        )
+
+        try inspectStore(at: url, model: model) { context in
+            let asset = try self.fetchSingleObject(
+                entityName: "CDAsset",
+                context: context
+            )
+            XCTAssertEqual(
+                asset.value(forKey: "coinbaseUrl") as? String,
+                expectedCoinbaseURL
+            )
+            XCTAssertNil(asset.value(forKey: "ethereumType"))
+
+            let chain = try self.fetchSingleObject(
+                entityName: "CDChain",
+                context: context
+            )
+            XCTAssertEqual(
+                chain.value(forKey: "ecosystem") as? String,
+                "ton"
+            )
+            XCTAssertEqual(
+                chain.value(forKey: "tonBridgeUrl") as? URL,
+                URL(string: "https://bridge.example.invalid")
+            )
+
+            let connectedApp = try self.fetchSingleObject(
+                entityName: "CDTonConnectedApp",
+                context: context
+            )
+            XCTAssertEqual(
+                connectedApp.value(forKey: "appUrl") as? URL,
+                URL(string: "https://app.example.invalid")
+            )
+            XCTAssertEqual(
+                connectedApp.value(forKey: "clientId") as? String,
+                "sanitized-client"
+            )
+            XCTAssertEqual(
+                connectedApp.value(forKey: "connectionType") as? String,
+                "universal"
+            )
+            XCTAssertEqual(
+                connectedApp.value(forKey: "iconUrl") as? URL,
+                URL(string: "https://app.example.invalid/icon")
+            )
+            XCTAssertEqual(
+                connectedApp.value(forKey: "identifier") as? String,
+                "sanitized-app"
+            )
+            XCTAssertEqual(
+                connectedApp.value(forKey: "name") as? String,
+                "Sanitized App"
+            )
+            XCTAssertEqual(
+                connectedApp.value(forKey: "privateKey") as? Data,
+                Data([0x01, 0x23, 0x45, 0x67])
+            )
+            XCTAssertEqual(
+                connectedApp.value(forKey: "publicKey") as? Data,
+                Data([0x89, 0xAB, 0xCD, 0xEF])
+            )
+            XCTAssertEqual(
+                connectedApp.value(forKey: "walletId") as? String,
+                "sanitized-wallet"
+            )
+
+            let dapp = try self.fetchSingleObject(
+                entityName: "CDTonDapp",
+                context: context
+            )
+            XCTAssertEqual(
+                dapp.value(forKey: "appDescription") as? String,
+                "Sanitized description"
+            )
+            XCTAssertEqual(
+                try self.stringArray(in: dapp, key: "chains"),
+                ["-239", "-3"]
+            )
+            XCTAssertEqual(
+                dapp.value(forKey: "icon") as? URL,
+                URL(string: "https://dapp.example.invalid/icon")
+            )
+            XCTAssertEqual(
+                dapp.value(forKey: "identifier") as? String,
+                "sanitized-dapp"
+            )
+            XCTAssertEqual(
+                dapp.value(forKey: "isConnected") as? Bool,
+                true
+            )
+            XCTAssertEqual(
+                dapp.value(forKey: "name") as? String,
+                "Sanitized Dapp"
+            )
+            XCTAssertEqual(
+                dapp.value(forKey: "poster") as? URL,
+                URL(string: "https://dapp.example.invalid/poster")
+            )
+            XCTAssertEqual(
+                dapp.value(forKey: "url") as? URL,
+                URL(string: "https://dapp.example.invalid")
+            )
+        }
+    }
+
     private func insertStartupPayloadEntity(
         entityName: String,
         attributeName: String,
@@ -5530,14 +5856,9 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
         in bundle: Bundle? = nil
     ) throws -> NSManagedObjectModel {
         let bundle = bundle ?? appBundle
-        let modelURL = bundle.url(
-            forResource: version.rawValue,
-            withExtension: "omo",
-            subdirectory: SubstrateStorageParams.modelDirectory
-        ) ?? bundle.url(
-            forResource: version.rawValue,
-            withExtension: "mom",
-            subdirectory: SubstrateStorageParams.modelDirectory
+        let modelURL = version.modelURL(
+            in: bundle,
+            modelDirectory: SubstrateStorageParams.modelDirectory
         )
 
         return try XCTUnwrap(
@@ -5640,7 +5961,10 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
         try createStore(at: storeURL, model: sourceModel) {
             context in
             let asset = try self.insertMigrationAsset(
-                identifier: "bounded-transformable-asset",
+                // Keep unrelated protected attributes within the deliberately
+                // tiny four-byte limit used by the transformable boundary
+                // tests below.
+                identifier: "a",
                 in: context,
                 model: sourceModel
             )
@@ -6767,13 +7091,38 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
             to: destinationModelDirectory
         )
 
-        if let omittedVersion {
-            for fileExtension in ["omo", "mom"] {
-                let omittedModelURL = destinationModelDirectory.appendingPathComponent(
-                    "\(omittedVersion.rawValue).\(fileExtension)"
+        for compatibilityVersion in [
+            SubstrateStorageVersion.legacyPublicVersion8,
+            .legacyPublicVersion9
+        ] where compatibilityVersion != omittedVersion {
+            let sourceURL = try XCTUnwrap(
+                compatibilityVersion.modelURL(
+                    in: appBundle,
+                    modelDirectory: SubstrateStorageParams.modelDirectory
                 )
-                if FileManager.default.fileExists(atPath: omittedModelURL.path) {
-                    try FileManager.default.removeItem(at: omittedModelURL)
+            )
+            try FileManager.default.copyItem(
+                at: sourceURL,
+                to: bundleURL.appendingPathComponent(
+                    "\(compatibilityVersion.rawValue).mom"
+                )
+            )
+        }
+
+        if let omittedVersion {
+            if !omittedVersion.isCompatibilityResource {
+                for fileExtension in ["omo", "mom"] {
+                    let omittedModelURL = destinationModelDirectory
+                        .appendingPathComponent(
+                            "\(omittedVersion.rawValue).\(fileExtension)"
+                        )
+                    if FileManager.default.fileExists(
+                        atPath: omittedModelURL.path
+                    ) {
+                        try FileManager.default.removeItem(
+                            at: omittedModelURL
+                        )
+                    }
                 }
             }
         }

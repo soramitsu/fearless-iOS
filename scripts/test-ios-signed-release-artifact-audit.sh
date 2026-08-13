@@ -147,6 +147,61 @@ PY
   printf '%s\n' '#!/usr/bin/env bash' 'exit 0' >"$APP/fearless"
   chmod +x "$APP/fearless"
   printf '%s\n' "opaque production profile" >"$APP/embedded.mobileprovision"
+  mkdir -p \
+    "$APP/Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd" \
+    "$APP/SubstrateDataModel.momd"
+  local resource
+  local -a resources=(
+    "CompatibleUserDataModel_v13.mom"
+    "LegacyEcosystemUserDataModel_v12.mom"
+    "LegacyPublicSubstrateDataModel_v8.mom"
+    "LegacyPublicSubstrateDataModel_v9.mom"
+    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/UserDataModel.mom"
+    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel.mom"
+    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v2.mom"
+    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v3.mom"
+    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v4.mom"
+    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v5.mom"
+    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v6.mom"
+    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v7.mom"
+    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v8.mom"
+    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v9.mom"
+    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v10.mom"
+    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v11.mom"
+    "SubstrateDataModel.momd/SubstrateDataModel.mom"
+    "SubstrateDataModel.momd/SubstrateDataModel_v2.mom"
+    "SubstrateDataModel.momd/SubstrateDataModel_v3.mom"
+    "SubstrateDataModel.momd/SubstrateDataModel_v4.mom"
+    "SubstrateDataModel.momd/SubstrateDataModel_v5.mom"
+    "SubstrateDataModel.momd/SubstrateDataModel_v6.mom"
+    "SubstrateDataModel.momd/SubstrateDataModel_v7.mom"
+    "SubstrateDataModel.momd/SubstrateDataModel_v8.mom"
+    "SubstrateDataModel.momd/SubstrateDataModel_v10.mom"
+    "SubstrateDataModel.momd/SubstrateDataModel_v10.omo"
+    "SubstrateDataModel.momd/VersionInfo.plist"
+    "SingleToMultiasset.cdm" "MultiassetV2.cdm" "MultiassetV9.cdm"
+    "UserDataModelV10toV11.cdm" "SubstrateV2Mapping.cdm"
+    "SubstrateV2toV4.cdm" "SubstrateV3toV4.cdm"
+  )
+  for resource in "${resources[@]}"; do
+    : >"$APP/$resource"
+  done
+  python3 - "$APP/SubstrateDataModel.momd/VersionInfo.plist" <<'PY'
+import plistlib
+import sys
+
+with open(sys.argv[1], "wb") as destination:
+    plistlib.dump(
+        {
+            "NSManagedObjectModel_CurrentVersionName": "SubstrateDataModel_v10",
+            "NSManagedObjectModel_VersionChecksums": {
+                "SubstrateDataModel_v10":
+                    "Qyb9lyHRxl1FB0CHQeMaajp812iiqKqtSLJ0U/U120A="
+            },
+        },
+        destination,
+    )
+PY
   CASE_ENV=()
 }
 
@@ -165,6 +220,8 @@ run_audit() {
     FEARLESS_SIGNED_AUDIT_TEST_HARNESS=1 \
     FEARLESS_SIGNED_AUDIT_CODESIGN_BIN="$TEMPORARY_DIR/bin/codesign" \
     FEARLESS_SIGNED_AUDIT_SECURITY_BIN="$TEMPORARY_DIR/bin/security" \
+    FEARLESS_SIGNED_AUDIT_DYLD_INFO_BIN="$TEMPORARY_DIR/bin/dyld-info" \
+    FEARLESS_SIGNED_AUDIT_MODEL_CHECKSUM_BIN="$TEMPORARY_DIR/bin/model-checksum" \
     FAKE_SIGNED_ENTITLEMENTS="$SIGNED_ENTITLEMENTS" \
     FAKE_SIGNING_CERTIFICATE="$SIGNING_CERTIFICATE" \
     FAKE_PROFILE_PLIST="$PROFILE" \
@@ -228,7 +285,38 @@ printf '%s\n' \
   '[[ "${FAKE_SECURITY_FAIL:-0}" != "1" ]] || exit 1' \
   'cp "$FAKE_PROFILE_PLIST" /dev/stdout' \
   >"$TEMPORARY_DIR/bin/security"
-chmod +x "$TEMPORARY_DIR/bin/codesign" "$TEMPORARY_DIR/bin/security"
+printf '%s\n' \
+  '#!/usr/bin/env bash' \
+  'set -euo pipefail' \
+  'classes=(' \
+  '  CDAsset CDChain CDChainNode CDChainStorageItem CDChainXcmConfig' \
+  '  CDContact CDContactItem CDExternalApi CDPhishingItem CDPolkaswapDex' \
+  '  CDPolkaswapRemoteSettings CDPriceData CDPriceProvider CDRuntimeMetadataItem' \
+  '  CDScamInfo CDStashItem CDTonConnectedApp CDTonDapp CDTransactionHistoryItem' \
+  '  CDXcmAvailableAsset CDXcmAvailableDestination CDAccountInfo CDAssetVisibility' \
+  '  CDChainAccount CDChainSettings CDCurrency CDCustomChainNode CDMetaAccount' \
+  ')' \
+  'for class_name in "${classes[@]}"; do' \
+  '  [[ "$class_name" == "${FAKE_MISSING_MANAGED_CLASS:-}" ]] || printf "        @interface %s : NSManagedObject\n" "$class_name"' \
+  'done' \
+  >"$TEMPORARY_DIR/bin/dyld-info"
+printf '%s\n' \
+  '#!/usr/bin/env bash' \
+  'set -euo pipefail' \
+  'case "$(basename "$1")" in' \
+  '  LegacyPublicSubstrateDataModel_v8.mom) printf "%s\n" "imSZzqXP9cY45NCRhNsckcRIZCdVU6Zdy+00j3YlBYo=" ;;' \
+  '  LegacyPublicSubstrateDataModel_v9.mom) printf "%s\n" "Yl1+IwzSLG/79DUIwG/5NUjkMG2fk5+Ke9z8rpb6gQA=" ;;' \
+  '  SubstrateDataModel_v10.mom) printf "%s\n" "${FAKE_V10_CHECKSUM:-Qyb9lyHRxl1FB0CHQeMaajp812iiqKqtSLJ0U/U120A=}" ;;' \
+  '  SubstrateDataModel_v10.omo) printf "%s\n" "${FAKE_V10_OPTIMIZED_CHECKSUM:-Qyb9lyHRxl1FB0CHQeMaajp812iiqKqtSLJ0U/U120A=}" ;;' \
+  '  SubstrateDataModel.momd) printf "%s\n" "${FAKE_ACTIVE_SUBSTRATE_CHECKSUM:-Qyb9lyHRxl1FB0CHQeMaajp812iiqKqtSLJ0U/U120A=}" ;;' \
+  '  *) exit 2 ;;' \
+  'esac' \
+  >"$TEMPORARY_DIR/bin/model-checksum"
+chmod +x \
+  "$TEMPORARY_DIR/bin/codesign" \
+  "$TEMPORARY_DIR/bin/security" \
+  "$TEMPORARY_DIR/bin/dyld-info" \
+  "$TEMPORARY_DIR/bin/model-checksum"
 
 prepare_case canonical
 if ! run_audit canonical; then
@@ -237,6 +325,9 @@ if ! run_audit canonical; then
 fi
 assert_contains '"archiveTreeSHA256"' "$CASE_DIR/output/receipt.json"
 assert_contains '"distributionProfile": "valid-app-store"' "$CASE_DIR/output/receipt.json"
+assert_contains '"requiredManagedObjectClassCount": 28' "$CASE_DIR/output/receipt.json"
+assert_contains '"requiredResourceCount": 34' "$CASE_DIR/output/receipt.json"
+assert_contains '"activeSubstrateModelName": "SubstrateDataModel_v10"' "$CASE_DIR/output/receipt.json"
 printf '%s\n' "[ios-signed-release-audit-test] PASS: canonical signed archive"
 
 prepare_case wrong-build
@@ -397,6 +488,44 @@ prepare_case profile-decode-failure
 CASE_ENV=("FAKE_SECURITY_FAIL=1")
 expect_failure profile-decode-failure "could not be decoded"
 
+prepare_case missing-coredata-resource
+rm "$APP/LegacyPublicSubstrateDataModel_v9.mom"
+expect_failure missing-coredata-resource "required Core Data resource"
+
+prepare_case missing-managed-object-class
+CASE_ENV=("FAKE_MISSING_MANAGED_CLASS=CDTonDapp")
+expect_failure missing-managed-object-class "managed-object runtime class"
+
+prepare_case wrong-v10-model-checksum
+CASE_ENV=("FAKE_V10_CHECKSUM=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
+expect_failure wrong-v10-model-checksum "active Substrate v10 model checksum changed"
+
+prepare_case missing-v10-optimized-model
+rm "$APP/SubstrateDataModel.momd/SubstrateDataModel_v10.omo"
+expect_failure missing-v10-optimized-model "required Core Data resource"
+
+prepare_case wrong-v10-optimized-model-checksum
+CASE_ENV=("FAKE_V10_OPTIMIZED_CHECKSUM=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
+expect_failure wrong-v10-optimized-model-checksum "preferred Substrate v10 optimized model checksum changed"
+
+prepare_case wrong-active-substrate-model-checksum
+CASE_ENV=("FAKE_ACTIVE_SUBSTRATE_CHECKSUM=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
+expect_failure wrong-active-substrate-model-checksum "active Substrate model bundle does not resolve to v10"
+
+prepare_case missing-substrate-version-info
+rm "$APP/SubstrateDataModel.momd/VersionInfo.plist"
+expect_failure missing-substrate-version-info "required Core Data resource"
+
+prepare_case stale-substrate-current-version
+mutate_plist "$APP/SubstrateDataModel.momd/VersionInfo.plist" \
+  'value["NSManagedObjectModel_CurrentVersionName"] = "SubstrateDataModel_v8"'
+expect_failure stale-substrate-current-version "VersionInfo does not select v10"
+
+prepare_case wrong-substrate-version-info-v10-checksum
+mutate_plist "$APP/SubstrateDataModel.momd/VersionInfo.plist" \
+  'value["NSManagedObjectModel_VersionChecksums"]["SubstrateDataModel_v10"] = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="'
+expect_failure wrong-substrate-version-info-v10-checksum "VersionInfo v10 checksum changed"
+
 prepare_case override-without-harness
 if env \
   FEARLESS_SIGNED_AUDIT_CODESIGN_BIN="$TEMPORARY_DIR/bin/codesign" \
@@ -407,4 +536,4 @@ assert_contains "only in the explicit test harness" "$CASE_DIR/stderr"
 printf '%s\n' "[ios-signed-release-audit-test] PASS (rejected): override without harness"
 
 printf '%s\n' \
-  "[ios-signed-release-audit-test] PASS: 1 positive + 33 negative/adversarial contracts"
+  "[ios-signed-release-audit-test] PASS: 1 positive + 42 negative/adversarial contracts"

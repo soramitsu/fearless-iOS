@@ -1326,6 +1326,8 @@
 		A5AB7027E1E73E39E4026C5C /* Pods_fearlessTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 59FDAE57EE0A97872E76E6CE /* Pods_fearlessTests.framework */; };
 		A5C7F51539B8D93D9186DA2C /* LiquidityPoolRemoveLiquidityViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6419D75A346CE10236161522 /* LiquidityPoolRemoveLiquidityViewLayout.swift */; };
 		A5EF098C5D53D306A7E84844 /* LegacyEcosystemUserDataModel_v12.mom in Resources */ = {isa = PBXBuildFile; fileRef = CDB0BA173951B82DCA58B603 /* LegacyEcosystemUserDataModel_v12.mom */; };
+		D42026080100000000000001 /* LegacyPublicSubstrateDataModel_v8.mom in Resources */ = {isa = PBXBuildFile; fileRef = D42026080100000000000003 /* LegacyPublicSubstrateDataModel_v8.mom */; };
+		D42026080100000000000002 /* LegacyPublicSubstrateDataModel_v9.mom in Resources */ = {isa = PBXBuildFile; fileRef = D42026080100000000000004 /* LegacyPublicSubstrateDataModel_v9.mom */; };
 		A64E3CA61C6CEE74F2FD9825 /* PolkaswapTransaktionSettingsAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7931155840DACB340284ABBB /* PolkaswapTransaktionSettingsAssembly.swift */; };
 		A6855830B76B0782A696583A /* AssetNetworksInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C554924081754A981EB4243E /* AssetNetworksInteractor.swift */; };
 		A69D3B3F6BF76FA9C3070BBD /* AssetNetworksViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFBFF377F35B254AB3141100 /* AssetNetworksViewLayout.swift */; };
@@ -4668,6 +4670,9 @@
 		C61166682B3BFA9000F483C4 /* NftHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftHeaderCell.swift; sourceTree = "<group>"; };
 		C611666B2B3C03B800F483C4 /* NftHeaderCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftHeaderCellViewModel.swift; sourceTree = "<group>"; };
 		C6182B4A2C6327D00089558D /* SubstrateDataModel_v8.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v8.xcdatamodel; sourceTree = "<group>"; };
+		D42026080100000000000003 /* LegacyPublicSubstrateDataModel_v8.mom */ = {isa = PBXFileReference; includeInIndex = 1; path = LegacyPublicSubstrateDataModel_v8.mom; sourceTree = "<group>"; };
+		D42026080100000000000004 /* LegacyPublicSubstrateDataModel_v9.mom */ = {isa = PBXFileReference; includeInIndex = 1; path = LegacyPublicSubstrateDataModel_v9.mom; sourceTree = "<group>"; };
+		D42026080100000000000007 /* SubstrateDataModel_v10.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v10.xcdatamodel; sourceTree = "<group>"; };
 		C6182B4B2C6474F30089558D /* PricesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricesService.swift; sourceTree = "<group>"; };
 		C61BE0DFC48282DFDBB820C9 /* LiquidityPoolRemoveLiquidityAssembly.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiquidityPoolRemoveLiquidityAssembly.swift; sourceTree = "<group>"; };
 		C62522E202A1C5EE60D25122 /* NftSendPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NftSendPresenter.swift; sourceTree = "<group>"; };
@@ -7447,6 +7452,23 @@
 			path = Compiled;
 			sourceTree = "<group>";
 		};
+		D42026080100000000000005 /* SubstrateCompatibilityModels */ = {
+			isa = PBXGroup;
+			children = (
+				D42026080100000000000006 /* Compiled */,
+			);
+			path = SubstrateCompatibilityModels;
+			sourceTree = "<group>";
+		};
+		D42026080100000000000006 /* Compiled */ = {
+			isa = PBXGroup;
+			children = (
+				D42026080100000000000003 /* LegacyPublicSubstrateDataModel_v8.mom */,
+				D42026080100000000000004 /* LegacyPublicSubstrateDataModel_v9.mom */,
+			);
+			path = Compiled;
+			sourceTree = "<group>";
+		};
 		41E829DF2B0F955B28BB6367 /* ExportMnemonic */ = {
 			isa = PBXGroup;
 			children = (
@@ -8864,6 +8886,7 @@
 			isa = PBXGroup;
 			children = (
 				FAD0679F2C2044490050291F /* SubstrateDataModel.xcdatamodeld */,
+				D42026080100000000000005 /* SubstrateCompatibilityModels */,
 				FACD42852A5BE811009975AA /* Migration */,
 				FA74359C29C0736F0085A47E /* StorageWrapper.swift */,
 				8457F91126EB9088006803E1 /* EntityToModel */,
@@ -15914,6 +15937,8 @@
 				EA8ECCD37FE5D6478018D3FC /* RecommendedValidatorListViewController.xib in Resources */,
 				A5EF098C5D53D306A7E84844 /* LegacyEcosystemUserDataModel_v12.mom in Resources */,
 				C3E367BDACDDDB4358823EE9 /* CompatibleUserDataModel_v13.mom in Resources */,
+				D42026080100000000000001 /* LegacyPublicSubstrateDataModel_v8.mom in Resources */,
+				D42026080100000000000002 /* LegacyPublicSubstrateDataModel_v9.mom in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -19581,7 +19606,7 @@
 				CODE_SIGN_ENTITLEMENTS = fearless/WalletConnect.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution: Soramitsu Co., Ltd. (YLWWUD25VZ)";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2026.8.10;
+				CURRENT_PROJECT_VERSION = 2026.8.13;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = fearless/Info.plist;
@@ -20004,6 +20029,7 @@
 		FAD0679F2C2044490050291F /* SubstrateDataModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				D42026080100000000000007 /* SubstrateDataModel_v10.xcdatamodel */,
 				C6182B4A2C6327D00089558D /* SubstrateDataModel_v8.xcdatamodel */,
 				FAD067A02C2044490050291F /* SubstrateDataModel.xcdatamodel */,
 				FAD067A12C2044490050291F /* SubstrateDataModel_v4.xcdatamodel */,
@@ -20013,7 +20039,7 @@
 				FAD067A52C2044490050291F /* SubstrateDataModel_v6.xcdatamodel */,
 				FAD067A62C2044490050291F /* SubstrateDataModel_v3.xcdatamodel */,
 			);
-			currentVersion = C6182B4A2C6327D00089558D /* SubstrateDataModel_v8.xcdatamodel */;
+			currentVersion = D42026080100000000000007 /* SubstrateDataModel_v10.xcdatamodel */;
 			path = SubstrateDataModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

@@ -18,7 +18,8 @@ from typing import Any
 
 EXPECTED_BUNDLE_ID = "jp.co.soramitsu.fearlesswallet"
 EXPECTED_VERSION = "4.2.0"
-EXPECTED_BUILD = "2026.8.10"
+EXPECTED_BUILD = "2026.8.13"
+EXPECTED_PREVIOUS_BUILD = "2026.8.10"
 EXPECTED_BASE_SOURCE_COMMIT = "2e45e55dc03ad904598e730cfb5994fb5c1072dc"
 MINIMUM_USABILITY_SECONDS = 300
 WALL_CLOCK_ROUNDING_TOLERANCE_MILLISECONDS = 1000
@@ -467,6 +468,7 @@ def validate(
         {
             "installedInPlace",
             "previousBuildVersion",
+            "originalAppStoreContainerPreserved",
             "uninstalled",
             "offloaded",
             "downgraded",
@@ -476,10 +478,11 @@ def validate(
         "installation",
     )
     require(
-        installation.get("previousBuildVersion") == "2026.7.28",
-        "installation must originate from build 2026.7.28",
+        installation.get("previousBuildVersion") == EXPECTED_PREVIOUS_BUILD,
+        "installation must update in place from failed build 2026.8.10",
     )
     require_true(installation, "installedInPlace")
+    require_true(installation, "originalAppStoreContainerPreserved")
     for key in ("uninstalled", "offloaded", "downgraded", "dataCleared", "keychainReset"):
         require_false(installation, key)
 

@@ -63,7 +63,7 @@ Use this checklist for every release PR from `develop` to `master`.
   fatal Core Data/migration marker. Require exact protected row-count
   preservation plus unchanged wallet identity, key, and relationship
   fingerprints; the source fixture must remain byte-for-byte unchanged.
-- Validate build `4.2.0 (2026.8.10)` through the internal TestFlight group on the
+- Validate build `4.2.0 (2026.8.13)` through the affected-phone TestFlight group on the
   designated preserved-data phone before changing the public beta group. Run
   `scripts/audit-testflight-upgrade-usability-gate.py` against sanitized evidence
   and require a five-minute usable first launch, working PIN and wallet route,

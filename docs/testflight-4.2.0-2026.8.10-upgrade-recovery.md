@@ -1,9 +1,12 @@
 # TestFlight 4.2.0 Upgrade Recovery Gate
 
-Build `4.2.0 (2026.8.10)` is the upgrade-recovery hotfix based on source commit
-`2e45e55dc03ad904598e730cfb5994fb5c1072dc`. It must remain blocked from the
-public beta group until the affected phone passes this gate using the
-Apple-delivered internal TestFlight build.
+Build `4.2.0 (2026.8.10)` failed upgrade qualification after the affected
+phone deterministically reported `SUBSTRATE_COMPATIBILITY_MISSING`. Corrected
+successor build `4.2.0 (2026.8.13)` retains ancestry from distributed source
+commit `2e45e55dc03ad904598e730cfb5994fb5c1072dc` and adds the exact public App
+Store Substrate v8/v9 compatibility models plus a lossless v10 migration. The
+successor must remain blocked from the public beta group until the affected
+phone passes this gate using the Apple-delivered restricted TestFlight build.
 
 ## Data boundary
 
@@ -79,14 +82,16 @@ record by about 205 milliseconds, which contradicts the 15/60-second timeout
 paths for this launch. No stable incident code was present, so the `.28`
 parameterless callback makes migration, preflight, wallet opening, and the
 post-setup broken/unsupported route indistinguishable. Do not repeat the `.28`
-capture or request raw logs/container data; use `.8.10` structured markers for
-the next deterministic observation.
+capture or request raw logs/container data. The first `.8.10` structured
+observation identified `SUBSTRATE_COMPATIBILITY_MISSING`; do not Retry it.
+Use corrected `.8.13` for the preserved-data qualification below.
 
 ## Internal TestFlight gate
 
 1. Confirm the installed identity is `jp.co.soramitsu.fearlesswallet`, version
-   `4.2.0`, build `2026.7.28` before the update.
-2. Assign build `2026.8.10` to an internal TestFlight group only.
+   `4.2.0`, build `2026.8.10` before the successor update.
+2. Assign build `2026.8.13` only to the dedicated one-person affected-phone
+   TestFlight group. Do not change the public beta group.
 3. Install it in place through Apple's TestFlight app. Do not remove the existing
    installation or clear any data.
 4. Start the first sanitized Fearless-only window with the exact command below.
@@ -98,7 +103,7 @@ the next deterministic observation.
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.10 \
+     --expected-build 2026.8.13 \
      --observation-seconds 900 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 300 \
@@ -111,6 +116,9 @@ the next deterministic observation.
    - successful PIN entry and a working wallet route;
    - unchanged wallet counts, logical store integrity, Keychain access, and
      settings access, recorded only as pass/fail attestations without values.
+   Record `previousBuildVersion=2026.8.10` and
+   `originalAppStoreContainerPreserved=true`; this binds the successor update
+   to the still-preserved container originally installed from the App Store.
 6. After the first capture completes, force-quit once more and use a new output
    directory for the second cold launch. Require exactly one ready marker, no
    failed marker/alert, successful PIN entry, and a working wallet route:
@@ -119,7 +127,7 @@ the next deterministic observation.
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.10 \
+     --expected-build 2026.8.13 \
      --observation-seconds 180 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 5 \
@@ -136,12 +144,12 @@ the next deterministic observation.
    later host-only diagnostics commit:
 
    ```bash
-   chmod 600 build/testflight-2026.8.10-upgrade-usability.json
-   upload_receipt=build/upload/4.2.0-2026.8.10-b723df5e6/testflight-internal-upload.json
+   chmod 600 build/testflight-2026.8.13-upgrade-usability.json
+   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.13/testflight-internal-upload.json
    artifact_source_commit="$(jq -er '.artifactSourceCommit' "$upload_receipt")"
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/audit-testflight-upgrade-usability-gate.py \
-     build/testflight-2026.8.10-upgrade-usability.json \
+     build/testflight-2026.8.13-upgrade-usability.json \
      --first-launch-capture-receipt \
        /ABSOLUTE/PRIVATE/FIRST-HOTFIX-CAPTURE/capture-receipt.json \
      --second-launch-capture-receipt \
@@ -165,6 +173,6 @@ PYTHONDONTWRITEBYTECODE=1 python3 \
 ## Release decision
 
 Only after the audit passes may release review replace build `2026.7.28` in the
-public beta group with `2026.8.10`. Uploading, assigning the internal group, and
-changing the public beta group are external release operations and require the
+public beta group with `2026.8.13`. Uploading and assigning the restricted group
+do not authorize changing the public beta group; that change still requires the
 normal App Store Connect authorization and review trail.
