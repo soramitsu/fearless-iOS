@@ -2,15 +2,21 @@
 
 from __future__ import annotations
 
+import asyncio
+import contextlib
 import importlib.util
+import io
 import json
 import os
+import plistlib
 import signal
 import stat
+import struct
 import subprocess
 import sys
 import tempfile
 import time
+import types
 import unittest
 from unittest.mock import patch
 from pathlib import Path
@@ -516,6 +522,7 @@ class CaptureControllerTests(unittest.TestCase):
                 "print(json.dumps({'capture_control':'pid_watcher_armed','filename':'fearless'}), flush=True)\n"
                 "time.sleep(0.05)\n"
                 "print(json.dumps({'capture_control':'target_process_observed','filename':'fearless','pid':949}), flush=True)\n"
+                "print(json.dumps({'capture_control':'pid_stream_started','filename':'fearless','pid':949}), flush=True)\n"
                 f"print(json.dumps({raw_record!r}), flush=True)\n"
                 "time.sleep(30)\n"
             )
@@ -665,6 +672,29 @@ class CaptureControllerTests(unittest.TestCase):
         self.assertFalse(receipt["diagnosticSufficient"])
         self.assertEqual(receipt["incidentCodes"], [])
 
+    def test_acknowledged_empty_pid_stream_completes_without_claiming_diagnosis(self) -> None:
+        backend = FakeBackend(
+            snapshots=[
+                CAPTURE.ProcessSnapshot(False, None),
+                CAPTURE.ProcessSnapshot(False, None),
+                CAPTURE.ProcessSnapshot(True, 818),
+                CAPTURE.ProcessSnapshot(True, 818),
+            ],
+            pipeline=FakePipeline(begin_count=1),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            receipt = CAPTURE.CaptureController(
+                backend,
+                self.output_path(directory),
+                self.settings(observation=0.003),
+            ).run()
+
+        self.assertEqual(receipt["terminalObservation"], "observation_window_elapsed")
+        self.assertEqual(receipt["sanitizedRecordCount"], 0)
+        self.assertEqual(receipt["filterBeginCount"], 1)
+        self.assertTrue(receipt["devicePIDStreamStartAcknowledged"])
+        self.assertFalse(receipt["diagnosticSufficient"])
+
     def test_pid_watcher_rejects_a_fast_crash_without_stream_evidence(self) -> None:
         pipeline = FakePipeline(
             begin_count=0,
@@ -727,6 +757,34 @@ class CaptureControllerTests(unittest.TestCase):
 
 
 class FilterPipelineTests(unittest.TestCase):
+    def test_confirmed_pid_stream_can_finalize_without_app_log_records(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fake = Path(directory) / "fake-stream.py"
+            fake.write_text(
+                "#!/usr/bin/env python3\n"
+                "import json,time\n"
+                "print(json.dumps({'capture_control':'pid_watcher_armed','filename':'fearless'}), flush=True)\n"
+                "print(json.dumps({'capture_control':'target_process_observed','filename':'fearless','pid':909}), flush=True)\n"
+                "print(json.dumps({'capture_control':'pid_stream_started','filename':'fearless','pid':909}), flush=True)\n"
+                "time.sleep(30)\n"
+            )
+            fake.chmod(0o700)
+            pipeline = CAPTURE.FilterPipeline(
+                Path(sys.executable),
+                fake,
+                Path(__file__).with_name("filter-startup-syslog.py"),
+                "private-device-token",
+            )
+            deadline = time.monotonic() + 2
+            while pipeline.begin_count() == 0 and time.monotonic() < deadline:
+                pipeline.drain()
+                time.sleep(0.01)
+
+            self.assertEqual(pipeline.watcher_armed_count(), 1)
+            self.assertEqual(pipeline.launch_count(), 1)
+            self.assertEqual(pipeline.begin_count(), 1)
+            self.assertEqual(pipeline.finalize(), [])
+
     def test_raw_syslog_flows_only_to_sanitizer(self) -> None:
         raw_sentinel = "AliceFamilyVault-private-wallet"
         raw_record = {
@@ -747,6 +805,7 @@ class FilterPipelineTests(unittest.TestCase):
                 "import json,time\n"
                 "print(json.dumps({'capture_control':'pid_watcher_armed','filename':'fearless'}), flush=True)\n"
                 "print(json.dumps({'capture_control':'target_process_observed','filename':'fearless','pid':919}), flush=True)\n"
+                "print(json.dumps({'capture_control':'pid_stream_started','filename':'fearless','pid':919}), flush=True)\n"
                 f"print(json.dumps({raw_record!r}), flush=True)\n"
                 "time.sleep(10)\n"
             )
@@ -786,6 +845,7 @@ class FilterPipelineTests(unittest.TestCase):
                 "import json\n"
                 "print(json.dumps({'capture_control':'pid_watcher_armed','filename':'fearless'}), flush=True)\n"
                 "print(json.dumps({'capture_control':'target_process_observed','filename':'fearless','pid':929}), flush=True)\n"
+                "print(json.dumps({'capture_control':'pid_stream_started','filename':'fearless','pid':929}), flush=True)\n"
                 f"print(json.dumps({raw_record!r}), flush=True)\n"
             )
             fake.chmod(0o700)
@@ -877,6 +937,55 @@ class DevicePidStreamHelperTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             HELPER.safe_envelope(Entry(), 939, "FearlessHelper")
 
+    def test_rejected_or_malformed_stream_ack_emits_no_started_control(self) -> None:
+        os_trace_module = types.ModuleType("pymobiledevice3.services.os_trace")
+        os_trace_module.OS_TRACE_RELAY_MESSAGE_FILTER_ALL = 65535
+
+        class FakeService:
+            def __init__(self, response: bytes):
+                self.service = self
+                self.chunks = [
+                    struct.pack("<I", 2),
+                    len(response).to_bytes(2, "little"),
+                    response,
+                ]
+
+            async def connect(self) -> None:
+                pass
+
+            async def send_plist(self, request: dict[str, Any]) -> None:
+                self.request = request
+
+            async def recvall(self, count: int) -> bytes:
+                value = self.chunks.pop(0)
+                self.assert_length = len(value)
+                if len(value) != count:
+                    raise AssertionError((len(value), count))
+                return value
+
+        responses = (
+            plistlib.dumps({"Status": "RequestRejected"}),
+            b"not-a-plist",
+        )
+        with patch.dict(
+            sys.modules,
+            {"pymobiledevice3.services.os_trace": os_trace_module},
+        ):
+            for response in responses:
+                with self.subTest(response=response):
+                    safe_output = io.StringIO()
+                    with contextlib.redirect_stdout(safe_output):
+                        with self.assertRaises(Exception):
+                            asyncio.run(
+                                HELPER.start_confirmed_pid_stream(
+                                    FakeService(response),
+                                    939,
+                                    421,
+                                    "fearless",
+                                )
+                            )
+                    self.assertEqual(safe_output.getvalue(), "")
+
     def test_helper_binds_first_target_and_requests_only_device_side_pid(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -893,33 +1002,47 @@ class DevicePidStreamHelperTests(unittest.TestCase):
                 "    return Lockdown()\n"
             )
             (services / "os_trace.py").write_text(
+                "import asyncio,plistlib,struct\n"
                 "from datetime import datetime\n"
                 "from enum import IntFlag\n"
+                "OS_TRACE_RELAY_MESSAGE_FILTER_ALL=65535\n"
                 "class OsActivityStreamFlag(IntFlag):\n"
                 "    PROCESS_ONLY=1; PAYLOAD=4; HISTORICAL=8; CALLSTACK=16; DEBUG=32; NO_SENSITIVE=128; INFO=256; PROMISCUOUS=512\n"
                 "class Level: name='ERROR'\n"
                 "class Label: subsystem='jp.co.soramitsu.fearlesswallet'; category='root'\n"
                 "class Entry:\n"
                 "    pid=444; timestamp=datetime(2026,8,12,12,0,15); level=Level(); filename='fearless'; message='Substrate storage preflight timed out'; label=Label()\n"
+                "def parse_syslog_entry(value):\n"
+                "    assert value == b'one-record'\n"
+                "    return Entry()\n"
+                "class Wire:\n"
+                "    def __init__(self): self.chunks=[]\n"
+                "    async def send_plist(self, request):\n"
+                "        required=1|4|32|128|256\n"
+                "        assert request == {'Request':'StartActivity','MessageFilter':65535,'Pid':444,'StreamFlags':required}\n"
+                "        assert request['StreamFlags'] & (8|16|512) == 0\n"
+                "        response=plistlib.dumps({'Status':'RequestSuccessful'})\n"
+                "        self.chunks=[struct.pack('<I',2),len(response).to_bytes(2,'little'),response,b'\\x02',struct.pack('<I',10),b'one-record']\n"
+                "    async def recvall(self, count):\n"
+                "        if not self.chunks:\n"
+                "            await asyncio.sleep(60)\n"
+                "        value=self.chunks.pop(0)\n"
+                "        assert len(value) == count\n"
+                "        return value\n"
                 "class OsTraceService:\n"
                 "    polls=0\n"
-                "    def __init__(self, lockdown): pass\n"
+                "    def __init__(self, lockdown): self.service=Wire()\n"
+                "    async def connect(self): pass\n"
                 "    async def close(self): pass\n"
                 "    async def get_pid_list(self):\n"
                 "        type(self).polls += 1\n"
                 "        if type(self).polls == 1: return {'Payload': {'12': {'ProcessName':'OtherApp'}}}\n"
                 "        return {'Payload': {'444': {'ProcessName':'fearless'}, '12': {'ProcessName':'OtherApp'}}}\n"
-                "    async def syslog(self, pid, stream_flags):\n"
-                "        assert pid == 444\n"
-                "        required = 1|4|32|128|256\n"
-                "        assert stream_flags == required\n"
-                "        assert stream_flags & (8|16|512) == 0\n"
-                "        yield Entry()\n"
             )
             environment = os.environ.copy()
             environment["PYTHONPATH"] = str(root)
             environment["PYTHONDONTWRITEBYTECODE"] = "1"
-            result = subprocess.run(
+            process = subprocess.Popen(
                 [
                     sys.executable,
                     str(HELPER_PATH),
@@ -931,19 +1054,24 @@ class DevicePidStreamHelperTests(unittest.TestCase):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                check=False,
-                timeout=5,
                 env=environment,
             )
+            assert process.stdout is not None
+            lines = [process.stdout.readline() for _ in range(4)]
+            process.terminate()
+            _, stderr = process.communicate(timeout=5)
 
-        self.assertEqual(result.returncode, 0, result.stderr)
-        records = [json.loads(line) for line in result.stdout.splitlines()]
+        self.assertEqual(process.returncode, -signal.SIGTERM, stderr)
+        records = [json.loads(line) for line in lines]
         self.assertEqual(records[0]["capture_control"], "pid_watcher_armed")
         self.assertEqual(records[1]["capture_control"], "target_process_observed")
         self.assertEqual(records[1]["pid"], 444)
+        self.assertEqual(records[2]["capture_control"], "pid_stream_started")
         self.assertEqual(records[2]["pid"], 444)
-        self.assertNotIn("OtherApp", result.stdout)
-        self.assertNotIn("private-device-token", result.stdout)
+        self.assertEqual(records[3]["pid"], 444)
+        serialized = "".join(lines)
+        self.assertNotIn("OtherApp", serialized)
+        self.assertNotIn("private-device-token", serialized)
 
 
 class CaptureCliContractTests(unittest.TestCase):

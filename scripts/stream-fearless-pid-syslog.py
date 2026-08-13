@@ -12,8 +12,11 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import plistlib
 import posixpath
+import struct
 import sys
+from collections.abc import AsyncIterator
 from typing import Any
 
 
@@ -56,6 +59,83 @@ def safe_envelope(entry: Any, expected_pid: int, expected_process: str) -> dict[
         "message": entry.message,
         "label": label,
     }
+
+
+async def start_confirmed_pid_stream(
+    service: Any,
+    target_pid: int,
+    stream_flags: int,
+    expected_process: str,
+) -> None:
+    """Start the pinned PID-only stream and acknowledge it before any log arrives.
+
+    pymobiledevice3 10.7.2 exposes the StartActivity acknowledgement only
+    inside its async generator, immediately before waiting for the first log
+    entry. Mirroring that reviewed protocol here lets an empty stream be proven
+    active without requesting historical or non-target-process records.
+    """
+
+    from pymobiledevice3.services.os_trace import OS_TRACE_RELAY_MESSAGE_FILTER_ALL
+
+    await service.connect()
+    await service.service.send_plist(
+        {
+            "Request": "StartActivity",
+            "MessageFilter": OS_TRACE_RELAY_MESSAGE_FILTER_ALL,
+            "Pid": target_pid,
+            "StreamFlags": stream_flags,
+        }
+    )
+
+    (length_length,) = struct.unpack("<I", await service.service.recvall(4))
+    if length_length <= 0 or length_length > 8:
+        raise RuntimeError("invalid stream response length")
+    encoded_length = await service.service.recvall(length_length)
+    response_length = int(encoded_length[::-1].hex(), 16)
+    if response_length <= 0 or response_length > 1024 * 1024:
+        raise RuntimeError("invalid stream response size")
+    response = plistlib.loads(await service.service.recvall(response_length))
+    if not isinstance(response, dict) or response.get("Status") != "RequestSuccessful":
+        raise RuntimeError("pid stream rejected")
+
+    print(
+        json.dumps(
+            {
+                "capture_control": "pid_stream_started",
+                "filename": expected_process,
+                "pid": target_pid,
+            },
+            sort_keys=True,
+        ),
+        flush=True,
+    )
+
+
+async def confirmed_pid_stream(
+    service: Any,
+    target_pid: int,
+    stream_flags: int,
+    expected_process: str,
+) -> AsyncIterator[Any]:
+    from pymobiledevice3.services.os_trace import parse_syslog_entry
+
+    await start_confirmed_pid_stream(
+        service,
+        target_pid,
+        stream_flags,
+        expected_process,
+    )
+
+    while True:
+        magic = await service.service.recvall(1)
+        if magic != b"\x02":
+            raise RuntimeError("invalid stream record marker")
+        (record_length,) = struct.unpack(
+            "<I", await service.service.recvall(4)
+        )
+        if record_length <= 0 or record_length > 64 * 1024 * 1024:
+            raise RuntimeError("invalid stream record size")
+        yield parse_syslog_entry(await service.service.recvall(record_length))
 
 
 async def stream(args: argparse.Namespace) -> None:
@@ -136,7 +216,12 @@ async def stream(args: argparse.Namespace) -> None:
             ),
             flush=True,
         )
-        async for entry in service.syslog(pid=target_pid, stream_flags=stream_flags):
+        async for entry in confirmed_pid_stream(
+            service,
+            target_pid,
+            stream_flags,
+            args.expected_process,
+        ):
             print(
                 json.dumps(
                     safe_envelope(entry, target_pid, args.expected_process),

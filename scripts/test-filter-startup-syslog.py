@@ -102,6 +102,11 @@ class StartupSyslogFilterTests(unittest.TestCase):
                 "pid": 2468,
             },
             {
+                "capture_control": "pid_stream_started",
+                "filename": "fearless",
+                "pid": 2468,
+            },
+            {
                 "pid": 2468,
                 "filename": "fearless",
                 "timestamp": "2026-08-10T12:00:15.000000",
@@ -120,6 +125,7 @@ class StartupSyslogFilterTests(unittest.TestCase):
         value = output.getvalue()
         self.assertIn("FEARLESS_PID_WATCHER_ARMED", value)
         self.assertIn("FEARLESS_TARGET_PROCESS_OBSERVED", value)
+        self.assertIn("FEARLESS_STARTUP_CAPTURE_BEGIN", value)
         self.assertIn("SUBSTRATE_PREFLIGHT_TIMEOUT", value)
         self.assertNotIn("2468", value)
 
@@ -147,6 +153,11 @@ class StartupSyslogFilterTests(unittest.TestCase):
                 "filename": "fearless",
                 "pid": 3579,
             },
+            {
+                "capture_control": "pid_stream_started",
+                "filename": "fearless",
+                "pid": 3579,
+            },
             {**raw, "pid": 3580},
         ]
         with self.assertRaises(FILTER.FilterProtocolError):
@@ -161,6 +172,48 @@ class StartupSyslogFilterTests(unittest.TestCase):
                 expected_process="fearless",
                 bind_first_pid=True,
             )
+
+    def test_strict_watcher_rejects_unconfirmed_or_reordered_stream_start(self) -> None:
+        watcher = {
+            "capture_control": "pid_watcher_armed",
+            "filename": "fearless",
+        }
+        observed = {
+            "capture_control": "target_process_observed",
+            "filename": "fearless",
+            "pid": 4680,
+        }
+        started = {
+            "capture_control": "pid_stream_started",
+            "filename": "fearless",
+            "pid": 4680,
+        }
+        raw = {
+            "pid": 4680,
+            "filename": "fearless",
+            "timestamp": "2026-08-10T12:00:15.000000",
+            "level": "ERROR",
+            "message": "Storage migration failed",
+            "label": None,
+        }
+        for records in (
+            [watcher, observed, raw],
+            [watcher, started],
+            [watcher, observed, {**started, "pid": 4681}],
+            [watcher, observed, started, started],
+        ):
+            with self.subTest(records=records):
+                with self.assertRaises(FILTER.FilterProtocolError):
+                    FILTER.filter_stream(
+                        io.StringIO(
+                            "".join(
+                                json.dumps(record) + "\n" for record in records
+                            )
+                        ),
+                        [io.StringIO()],
+                        expected_process="fearless",
+                        bind_first_pid=True,
+                    )
 
     def test_classifies_legacy_description_without_retaining_identifiers_or_paths(self) -> None:
         source = io.StringIO(

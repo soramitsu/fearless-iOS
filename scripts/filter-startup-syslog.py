@@ -344,6 +344,9 @@ def filter_stream(
 ) -> None:
     baseline_emitted = False
     bound_pid = expected_pid
+    watcher_armed = False
+    target_observed = expected_pid is not None
+    pid_stream_started = expected_pid is not None
 
     for line in source:
         try:
@@ -368,6 +371,9 @@ def filter_stream(
             if control == "pid_watcher_armed":
                 if set(entry) != {"capture_control", "filename"}:
                     raise FilterProtocolError("invalid watcher control")
+                if watcher_armed or target_observed or pid_stream_started:
+                    raise FilterProtocolError("duplicate or reordered watcher control")
+                watcher_armed = True
                 emit(
                     {"event": "FEARLESS_PID_WATCHER_ARMED", "timestamp": None},
                     streams,
@@ -376,14 +382,42 @@ def filter_stream(
             if control == "target_process_observed":
                 if set(entry) != {"capture_control", "filename", "pid"}:
                     raise FilterProtocolError("invalid process control")
+                if not watcher_armed or target_observed or pid_stream_started:
+                    raise FilterProtocolError("duplicate or reordered process control")
                 pid = entry.get("pid")
                 if type(pid) is not int or pid <= 0:
                     raise FilterProtocolError("invalid process control")
                 if bound_pid is not None and bound_pid != pid:
                     raise FilterProtocolError("multiple process instances")
                 bound_pid = pid
+                target_observed = True
                 emit(
                     {"event": "FEARLESS_TARGET_PROCESS_OBSERVED", "timestamp": None},
+                    streams,
+                )
+                continue
+            if control == "pid_stream_started":
+                if set(entry) != {"capture_control", "filename", "pid"}:
+                    raise FilterProtocolError("invalid stream-start control")
+                pid = entry.get("pid")
+                if (
+                    not watcher_armed
+                    or not target_observed
+                    or pid_stream_started
+                    or type(pid) is not int
+                    or pid <= 0
+                    or bound_pid != pid
+                ):
+                    raise FilterProtocolError(
+                        "duplicate or reordered stream-start control"
+                    )
+                pid_stream_started = True
+                baseline_emitted = True
+                emit(
+                    {
+                        "event": "FEARLESS_STARTUP_CAPTURE_BEGIN",
+                        "timestamp": None,
+                    },
                     streams,
                 )
                 continue
@@ -395,6 +429,8 @@ def filter_stream(
                 raise FilterProtocolError("unexpected process envelope")
         if bind_first_pid and bound_pid is None:
             raise FilterProtocolError("process record arrived before binding")
+        if bind_first_pid and not pid_stream_started:
+            raise FilterProtocolError("process record arrived before stream start")
         if bound_pid is not None and entry.get("pid") != bound_pid:
             raise FilterProtocolError("unexpected pid envelope")
 

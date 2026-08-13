@@ -1191,6 +1191,7 @@ class CaptureController:
                 "terminalObservation": terminal_observation,
                 "sanitizedRecordCount": sanitized_record_count,
                 "filterBeginCount": self.pipeline.begin_count(),
+                "devicePIDStreamStartAcknowledged": True,
                 "readyMarkerCount": ready_marker_count,
                 "failedMarkerCount": failed_marker_count,
                 "incidentCodes": incident_codes,

@@ -62,6 +62,8 @@ The safe operator sequence is:
 
 Only `installed-app-metadata.json`, privacy-safe NDJSON, and a capture receipt
 are produced on success. `captureStatus=complete` proves capture integrity;
+`devicePIDStreamStartAcknowledged=true` proves the device accepted the exact
+PID-only stream even if Fearless emitted no qualifying log record;
 `diagnosticSufficient=true` additionally means a deterministic privacy-safe
 incident mapping was observed. A bare startup marker or process termination is
 recorded but does not claim a cause. It does not qualify the hotfix for release.
