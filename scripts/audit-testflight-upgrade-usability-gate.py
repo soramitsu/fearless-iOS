@@ -34,6 +34,7 @@ TAB_BAR_ROUTE_ATTESTATIONS = (
     "stakingTabRouteWorked",
     "settingsTabRouteWorked",
 )
+PI_PRICE_ATTESTATION = "piBackedTokenPricesVisible"
 CAPTURE_RECEIPT_KEYS = {
     "schemaVersion",
     "audit",
@@ -508,6 +509,7 @@ def validate(
             "walletRouteWorked",
             "bottomNavigationControlCount",
             *TAB_BAR_ROUTE_ATTESTATIONS,
+            PI_PRICE_ATTESTATION,
             "captureReceiptSHA256",
         },
         "firstLaunch",
@@ -555,6 +557,7 @@ def validate(
     )
     for key in TAB_BAR_ROUTE_ATTESTATIONS:
         require_true(first_launch, key)
+    require_true(first_launch, PI_PRICE_ATTESTATION)
     require(
         first_launch.get("readyMarkerCount")
         == first_capture_receipt.get("readyMarkerCount"),
@@ -601,6 +604,7 @@ def validate(
             "walletRouteWorked",
             "bottomNavigationControlCount",
             *TAB_BAR_ROUTE_ATTESTATIONS,
+            PI_PRICE_ATTESTATION,
             "captureReceiptSHA256",
         },
         "secondColdLaunch",
@@ -642,6 +646,7 @@ def validate(
     )
     for key in TAB_BAR_ROUTE_ATTESTATIONS:
         require_true(second_launch, key)
+    require_true(second_launch, PI_PRICE_ATTESTATION)
     require(
         second_launch.get("readyMarkerCount")
         == second_capture_receipt.get("readyMarkerCount"),

@@ -13,7 +13,7 @@ protocol PriceLocalStorageSubscriber where Self: AnyObject {
 }
 
 struct PriceLocalStorageSubscriberListener {
-    enum Handler {
+    enum Handler: Equatable {
         case price
         case prices
     }
@@ -26,29 +26,31 @@ struct PriceLocalStorageSubscriberListener {
 
 final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
     static let shared = PriceLocalStorageSubscriberImpl()
-    private let eventCenter = EventCenter.shared
 
-    private let chainRegistry = ChainRegistryFacade.sharedRegistry
+    private let eventCenter = EventCenter.shared
+    private let priceLocalSubscriber: PriceProviderFactoryProtocol
+    private let chainsRepository: AsyncCoreDataRepositoryDefault<ChainModel, CDChain>
+
     private lazy var provider: AnySingleValueProvider<[PriceData]> = {
         setupProvider()
     }()
 
-    private lazy var priceLocalSubscriber: PriceProviderFactoryProtocol = {
-        PriceProviderFactory()
-    }()
-
     private var remoteFetchTimer: Timer?
-    private var fetchOperation: CompoundOperationWrapper<[PriceData]?>?
-    private var isAlreadyRefrishing: Bool = false
-
     private var listeners: [PriceLocalStorageSubscriberListener] = []
-    private var sourcedCurrencies: Set<Currency> = []
+    private var sourcedCurrencyIds: Set<String> = []
+    private var sourcedChainAssetIds: Set<ChainAssetId> = []
     private var chainAssets: [ChainAsset] = []
-    private let chainsRepository: AsyncCoreDataRepositoryDefault<ChainModel, CDChain>
 
-    init() {
+    init(
+        priceLocalSubscriber: PriceProviderFactoryProtocol = PriceProviderFactory(),
+        startAutomatically: Bool = true
+    ) {
+        self.priceLocalSubscriber = priceLocalSubscriber
         chainsRepository = ChainRepositoryFactory().createAsyncRepository()
-        setup()
+
+        if startAutomatically {
+            setup()
+        }
     }
 
     private func setup() {
@@ -77,17 +79,18 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         currencies: [Currency]?,
         listener: PriceLocalSubscriptionHandler
     ) -> AnySingleValueProvider<[PriceData]> {
-        appendLisnenerIfNeeded(
-            listener,
-            chainAssets: [chainAsset],
-            currencies: currencies,
-            handler: .price
-        )
-        guard !didUpdateProvider(for: currencies) else {
-            return provider
+        performOnMainThread {
+            self.appendListenerIfNeeded(
+                listener,
+                chainAssets: [chainAsset],
+                currencies: currencies,
+                handler: .price
+            )
+            let currentProvider = self.provider
+            _ = self.updateProviderContextIfNeeded()
+            self.refreshProviderIfPossible(currentProvider)
+            return currentProvider
         }
-        refreshProviderIfPossible()
-        return provider
     }
 
     func subscribeToPrices(
@@ -95,57 +98,56 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         currencies: [Currency]?,
         listener: PriceLocalSubscriptionHandler
     ) -> AnySingleValueProvider<[PriceData]> {
-        appendLisnenerIfNeeded(
-            listener,
-            chainAssets: chainAssets,
-            currencies: currencies,
-            handler: .prices
-        )
-        guard !didUpdateProvider(for: currencies) else {
-            return provider
+        performOnMainThread {
+            self.appendListenerIfNeeded(
+                listener,
+                chainAssets: chainAssets,
+                currencies: currencies,
+                handler: .prices
+            )
+            let currentProvider = self.provider
+            _ = self.updateProviderContextIfNeeded()
+            self.refreshProviderIfPossible(currentProvider)
+            return currentProvider
         }
-        refreshProviderIfPossible()
-        return provider
     }
 
     // MARK: - Private methods
 
-    private func refreshProviderIfPossible() {
-        if remoteFetchTimer == nil {
-            DispatchQueue.main.async {
-                self.remoteFetchTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: false, block: { [weak self] timer in
-                    timer.invalidate()
-                    self?.remoteFetchTimer = nil
-                })
-            }
-            isAlreadyRefrishing = true
-            provider.refresh()
-        } else if fetchOperation == nil, !isAlreadyRefrishing {
-            fetchOperation = provider.fetch { [weak self] result in
-                guard let result else { return }
-                DispatchQueue.main.async {
-                    self?.handleResult(for: result)
-                }
-                self?.fetchOperation = nil
-            }
-        }
-    }
-
     private func setupProvider() -> AnySingleValueProvider<[PriceData]> {
-        let providerCurrencies = listeners.map { $0.currencies }.compactMap { $0 }.reduce([], +).uniq(predicate: { $0.id })
-        let priceProvider = priceLocalSubscriber.getPricesProvider(currencies: providerCurrencies, chainAssets: chainAssets)
+        dispatchPrecondition(condition: .onQueue(.main))
 
-        let updateClosure = { [weak self] (changes: [DataProviderChange<[PriceData]>]) in
-            guard let prices: [PriceData] = changes.reduceToLastChange() else {
+        let currencies = providerCurrencies()
+        let chainAssets = providerChainAssets()
+        sourcedCurrencyIds = Set(currencies.map(\.id))
+        sourcedChainAssetIds = Set(chainAssets.map(\.chainAssetId))
+
+        let priceProvider = priceLocalSubscriber.getPricesProvider(
+            currencies: currencies,
+            chainAssets: chainAssets
+        )
+
+        let updateClosure = { [weak self, weak priceProvider] (changes: [DataProviderChange<[PriceData]>]) in
+            guard let self, let priceProvider else {
                 return
             }
-            self?.handleResult(for: .success(prices))
-            self?.clearListenersIfNeeded()
+
+            if let prices: [PriceData] = changes.reduceToLastChange() {
+                self.handleResult(for: .success(prices))
+                self.clearListenersIfNeeded()
+            }
+
+            self.refreshPendingContextIfNeeded(using: priceProvider)
         }
 
-        let failureClosure = { [weak self] (error: Error) in
-            self?.handleResult(for: .failure(error))
-            self?.clearListenersIfNeeded()
+        let failureClosure = { [weak self, weak priceProvider] (error: Error) in
+            guard let self, let priceProvider else {
+                return
+            }
+
+            self.handleResult(for: .failure(error))
+            self.clearListenersIfNeeded()
+            self.refreshPendingContextIfNeeded(using: priceProvider)
         }
 
         let options = DataProviderObserverOptions(
@@ -164,38 +166,98 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         return priceProvider
     }
 
-    private func didUpdateProvider(for currencies: [Currency]?) -> Bool {
-        let set = Set(currencies ?? [])
-        let symmetricDifference = sourcedCurrencies.symmetricDifference(set)
-        if symmetricDifference.isNotEmpty {
-            remoteFetchTimer?.invalidate()
-            remoteFetchTimer = nil
-            provider = setupProvider()
+    @discardableResult
+    private func updateProviderContextIfNeeded() -> Bool {
+        dispatchPrecondition(condition: .onQueue(.main))
+
+        let currencies = providerCurrencies()
+        let chainAssets = providerChainAssets()
+        let currencyIds = Set(currencies.map(\.id))
+        let chainAssetIds = Set(chainAssets.map(\.chainAssetId))
+        let needsUpdate = sourcedCurrencyIds != currencyIds
+            || sourcedChainAssetIds != chainAssetIds
+
+        guard needsUpdate else {
+            return false
         }
-        return symmetricDifference.isNotEmpty
+
+        remoteFetchTimer?.invalidate()
+        remoteFetchTimer = nil
+        sourcedCurrencyIds = currencyIds
+        sourcedChainAssetIds = chainAssetIds
+        priceLocalSubscriber.updatePricesProvider(
+            currencies: currencies,
+            chainAssets: chainAssets
+        )
+        return true
+    }
+
+    private func refreshProviderIfPossible(
+        _ currentProvider: AnySingleValueProvider<[PriceData]>
+    ) {
+        dispatchPrecondition(condition: .onQueue(.main))
+
+        guard remoteFetchTimer == nil else {
+            return
+        }
+
+        remoteFetchTimer = Timer.scheduledTimer(
+            withTimeInterval: 30,
+            repeats: false
+        ) { [weak self] timer in
+            timer.invalidate()
+            self?.remoteFetchTimer = nil
+        }
+        currentProvider.refresh()
+    }
+
+    private func refreshPendingContextIfNeeded(
+        using currentProvider: AnySingleValueProvider<[PriceData]>
+    ) {
+        dispatchPrecondition(condition: .onQueue(.main))
+
+        guard priceLocalSubscriber.pricesProviderNeedsFollowUpFetch() else {
+            return
+        }
+
+        remoteFetchTimer?.invalidate()
+        remoteFetchTimer = nil
+        refreshProviderIfPossible(currentProvider)
     }
 
     private func handleResult(for pricesResult: Result<[PriceData]?, Error>) {
+        dispatchPrecondition(condition: .onQueue(.main))
+
         switch pricesResult {
         case let .success(prices):
             handleSuccess(prices: prices)
         case let .failure(error):
             handleFailure(error: error)
         }
-        isAlreadyRefrishing = false
     }
 
     private func handleSuccess(prices: [PriceData]?) {
+        guard let prices else {
+            return
+        }
+
+        let validPrices = prices.filter {
+            PriceValueValidator.isStrictlyPositiveDecimal(
+                $0.price,
+                maximumBytes: 256
+            )
+        }
+        AssetPriceCache.shared.merge(validPrices)
+
         listeners.forEach { wrapper in
             guard
-                let listener = wrapper.listener.target as? PriceLocalSubscriptionHandler,
-                let prices
+                let listener = wrapper.listener.target as? PriceLocalSubscriptionHandler
             else {
                 return
             }
-            let finalValue = prices.filter { price in
-                wrapper.chainAssets.contains(where: { $0.asset.priceId == price.priceId }) == true
-                    && wrapper.currencies.contains(where: { $0.id == price.currencyId }) == true
+            let finalValue = validPrices.filter { price in
+                wrapper.chainAssets.contains { $0.asset.priceId == price.priceId }
+                    && wrapper.currencies.contains { $0.id == price.currencyId }
             }
 
             listener.handlePrices(result: .success(finalValue), for: wrapper.chainAssets)
@@ -215,38 +277,87 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         listeners = listeners.filter { $0.listener.target != nil }
     }
 
-    private func appendLisnenerIfNeeded(
+    private func appendListenerIfNeeded(
         _ listener: PriceLocalSubscriptionHandler,
         chainAssets: [ChainAsset],
         currencies: [Currency]?,
         handler: PriceLocalStorageSubscriberListener.Handler
     ) {
-        let existListener = listeners.first { wrapper in
-            wrapper.listener.target === listener
-        }
-        guard existListener == nil || existListener?.currencies != currencies, let wallet = SelectedWalletSettings.shared.value else {
+        let resolvedCurrencies: [Currency]
+        if let currencies {
+            resolvedCurrencies = currencies
+        } else if let selectedCurrency = SelectedWalletSettings.shared.value?.selectedCurrency {
+            resolvedCurrencies = [selectedCurrency]
+        } else {
             return
         }
-        listeners.removeAll(where: { $0.listener.target === existListener?.listener.target })
-        let listener = PriceLocalStorageSubscriberListener(
-            listener: WeakWrapper(target: listener),
-            chainAssets: chainAssets,
-            currencies: currencies ?? [wallet.selectedCurrency],
-            handler: handler
+
+        let existingListener = listeners.first {
+            $0.listener.target === listener
+        }
+        let requestedChainAssetIds = Set(chainAssets.map(\.chainAssetId))
+        let existingChainAssetIds = Set(existingListener?.chainAssets.map(\.chainAssetId) ?? [])
+
+        guard
+            existingListener?.currencies != resolvedCurrencies
+            || existingChainAssetIds != requestedChainAssetIds
+            || existingListener?.handler != handler
+        else {
+            return
+        }
+
+        listeners.removeAll { $0.listener.target === listener }
+        listeners.append(
+            PriceLocalStorageSubscriberListener(
+                listener: WeakWrapper(target: listener),
+                chainAssets: chainAssets,
+                currencies: resolvedCurrencies,
+                handler: handler
+            )
         )
-        listeners.append(listener)
+    }
+
+    private func providerCurrencies() -> [Currency] {
+        listeners
+            .flatMap(\.currencies)
+            .uniq(predicate: { $0.id })
+    }
+
+    private func providerChainAssets() -> [ChainAsset] {
+        (chainAssets + listeners.flatMap(\.chainAssets))
+            .uniq(predicate: { $0.chainAssetId })
     }
 
     private func refreshChainsAndSubscribe() {
-        Task {
-            let chains = try await chainsRepository.fetchAll()
-            chainAssets = chains.map { $0.chainAssets }.reduce([], +)
+        Task { [weak self] in
+            guard let self else {
+                return
+            }
 
-            remoteFetchTimer?.invalidate()
-            remoteFetchTimer = nil
-            provider = setupProvider()
-            refreshProviderIfPossible()
+            do {
+                let chains = try await chainsRepository.fetchAll()
+                let chainAssets = chains
+                    .flatMap(\.chainAssets)
+                    .uniq(predicate: { $0.chainAssetId })
+
+                await MainActor.run {
+                    self.chainAssets = chainAssets
+                    let currentProvider = self.provider
+                    _ = self.updateProviderContextIfNeeded()
+                    self.refreshProviderIfPossible(currentProvider)
+                }
+            } catch {
+                Logger.shared.error("PRICE_CHAIN_CONTEXT_FETCH_FAILED")
+            }
         }
+    }
+
+    private func performOnMainThread<T>(_ block: () -> T) -> T {
+        if Thread.isMainThread {
+            return block()
+        }
+
+        return DispatchQueue.main.sync(execute: block)
     }
 }
 

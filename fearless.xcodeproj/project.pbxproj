@@ -805,6 +805,7 @@
 		846CA43324E3C6C3004F1B14 /* PincodeSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA43224E3C6C3004F1B14 /* PincodeSetupTests.swift */; };
 		846CA43724E3DB9C004F1B14 /* RootTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA43624E3DB9C004F1B14 /* RootTests.swift */; };
 		FB2608140000000000000001 /* MainTabBarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2608140000000000000002 /* MainTabBarTests.swift */; };
+		FB2608140000000000000010 /* SoraSubqueryPriceFetcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2608140000000000000011 /* SoraSubqueryPriceFetcherTests.swift */; };
 		846CA7722707A3060011124C /* SingleToMultiasset.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 846CA7712707A3060011124C /* SingleToMultiasset.xcmappingmodel */; };
 		846CA77627090E990011124C /* StakingServiceFactoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA77527090E990011124C /* StakingServiceFactoryStub.swift */; };
 		846CA778270911920011124C /* StakingLocalSubscriptionFactoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA777270911920011124C /* StakingLocalSubscriptionFactoryStub.swift */; };
@@ -3955,6 +3956,7 @@
 		846CA43224E3C6C3004F1B14 /* PincodeSetupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PincodeSetupTests.swift; sourceTree = "<group>"; };
 		846CA43624E3DB9C004F1B14 /* RootTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTests.swift; sourceTree = "<group>"; };
 		FB2608140000000000000002 /* MainTabBarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarTests.swift; sourceTree = "<group>"; };
+		FB2608140000000000000011 /* SoraSubqueryPriceFetcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraSubqueryPriceFetcherTests.swift; sourceTree = "<group>"; };
 		846CA7712707A3060011124C /* SingleToMultiasset.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = SingleToMultiasset.xcmappingmodel; sourceTree = "<group>"; };
 		846CA77527090E990011124C /* StakingServiceFactoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingServiceFactoryStub.swift; sourceTree = "<group>"; };
 		846CA777270911920011124C /* StakingLocalSubscriptionFactoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingLocalSubscriptionFactoryStub.swift; sourceTree = "<group>"; };
@@ -9202,6 +9204,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				FB2608140000000000000011 /* SoraSubqueryPriceFetcherTests.swift */,
 				84FACB2B25F562CB00F32ED4 /* Resources */,
 				8467FD3724EACDF8005D486C /* Helper */,
 				8467FD0324E5E07D005D486C /* KeystoreDefinition */,
@@ -19155,6 +19158,7 @@
 				F0A1B2C3D4E5F60718293A4C /* AssetRepositoryFactoryTests.swift in Sources */,
 				846CA43724E3DB9C004F1B14 /* RootTests.swift in Sources */,
 				FB2608140000000000000001 /* MainTabBarTests.swift in Sources */,
+				FB2608140000000000000010 /* SoraSubqueryPriceFetcherTests.swift in Sources */,
 				093C10C88C0A209158EA75D1 /* UsernameSetupTests.swift in Sources */,
 				AE2C1020267A67DD004AA8E9 /* CustomValidatorListTestDataGenerator.swift in Sources */,
 				84D9C41126CD361C004AB2AB /* SpecVersionSubscriptionTests.swift in Sources */,

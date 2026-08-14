@@ -180,6 +180,7 @@ def passing_evidence() -> dict:
             "polkaswapActionWorked": True,
             "stakingTabRouteWorked": True,
             "settingsTabRouteWorked": True,
+            "piBackedTokenPricesVisible": True,
             "captureReceiptSHA256": FIRST_RECEIPT_SHA256,
         },
         "preservation": {
@@ -205,6 +206,7 @@ def passing_evidence() -> dict:
             "polkaswapActionWorked": True,
             "stakingTabRouteWorked": True,
             "settingsTabRouteWorked": True,
+            "piBackedTokenPricesVisible": True,
             "captureReceiptSHA256": SECOND_RECEIPT_SHA256,
         },
         "release": {
@@ -289,6 +291,22 @@ class UpgradeUsabilityGateTests(unittest.TestCase):
                     f"{key} must be true",
                 ):
                     validate(failed_route)
+
+    def test_rejects_missing_or_failed_pi_price_attestation(self) -> None:
+        missing = passing_evidence()
+        missing["firstLaunch"].pop("piBackedTokenPricesVisible")
+        with self.assertRaisesRegex(GATE.EvidenceError, "privacy-safe schema"):
+            validate(missing)
+
+        for launch in ("firstLaunch", "secondColdLaunch"):
+            with self.subTest(launch=launch):
+                failed = passing_evidence()
+                failed[launch]["piBackedTokenPricesVisible"] = False
+                with self.assertRaisesRegex(
+                    GATE.EvidenceError,
+                    "piBackedTokenPricesVisible must be true",
+                ):
+                    validate(failed)
 
     def test_rejects_extra_raw_or_identifier_fields(self) -> None:
         raw_path = passing_evidence()

@@ -32,6 +32,7 @@ protocol ApplicationConfigProtocol {
     var appVersionURL: URL? { get }
     var scamListCsvURL: URL? { get }
     var polkaswapSettingsURL: URL? { get }
+    var polkaswapIndexerURL: URL { get }
 }
 
 final class ApplicationConfig {
@@ -180,6 +181,10 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
 
     var polkaswapSettingsURL: URL? {
         GitHubUrl.url(suffix: "polkaswapSettings.json", url: .fearlessUtils, branch: .v4)
+    }
+
+    var polkaswapIndexerURL: URL {
+        URL(string: "https://pi.soramitsu.io/graphql")!
     }
 
     var fiatsURL: URL? {

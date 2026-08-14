@@ -130,8 +130,6 @@ private extension PricesService {
     }
 
     func handle(prices _: [PriceData], for _: [ChainAsset]) {
-        // Prices are consumed directly by UI formatters via wallet-selected currency.
-        // Persisting into ChainModel assets is no longer supported here.
         eventCenter.notify(with: PricesUpdated())
     }
 

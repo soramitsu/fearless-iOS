@@ -122,6 +122,8 @@ for the preserved-data qualification below.
    - successful PIN entry and a working wallet route;
    - all five bottom navigation controls visible, with wallet, crowdloan,
      Polkaswap, staking, and settings routes/actions each opening successfully;
+   - a nonzero PI-backed Polkaswap token price visible, recorded only as a
+     pass/fail attestation without the token identifier or price value;
    - unchanged wallet counts, logical store integrity, Keychain access, and
      settings access, recorded only as pass/fail attestations without values.
    Record `previousBuildVersion=2026.8.13` and
@@ -130,7 +132,9 @@ for the preserved-data qualification below.
 6. After the first capture completes, force-quit once more and use a new output
    directory for the second cold launch. Require exactly one ready marker, no
    failed marker/alert, successful PIN entry, a working wallet route, and all
-   five bottom navigation controls/routes working again:
+   five bottom navigation controls/routes working again. Require a nonzero
+   PI-backed Polkaswap token price again without recording its identifier or
+   value:
 
    ```bash
    PYTHONDONTWRITEBYTECODE=1 python3 \

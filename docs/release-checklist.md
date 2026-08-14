@@ -69,8 +69,9 @@ Use this checklist for every release PR from `develop` to `master`.
   Review. Run
   `scripts/audit-testflight-upgrade-usability-gate.py` against sanitized evidence
   and require a five-minute usable first launch, working PIN and wallet route,
-  preservation checks, and a successful second cold launch. Do not uninstall or
-  clear app data.
+  all five bottom controls/routes, a nonzero PI-backed Polkaswap token price,
+  preservation checks, and a successful second cold launch. Do not uninstall
+  or clear app data.
 - Run
   `bash ./scripts/test-ton-production-send-readiness-audit.sh && bash ./scripts/audit-ton-production-send-readiness.sh`
   and confirm `config/ton-production-send-readiness.json` remains `blocked`
