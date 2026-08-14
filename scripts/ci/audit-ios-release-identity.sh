@@ -205,6 +205,7 @@ require_debug_setting() {
 require_setting PRODUCT_BUNDLE_IDENTIFIER "$EXPECTED_BUNDLE_ID"
 require_setting MARKETING_VERSION "$EXPECTED_VERSION"
 require_setting CURRENT_PROJECT_VERSION "$EXPECTED_BUILD"
+require_setting IPHONEOS_DEPLOYMENT_TARGET "15.0"
 require_setting CODE_SIGN_ENTITLEMENTS "fearless/WalletConnect.entitlements"
 require_setting CODE_SIGN_STYLE "Manual"
 require_setting CODE_SIGN_IDENTITY "$EXPECTED_SIGNING_IDENTITY"
@@ -214,6 +215,7 @@ require_setting SWIFT_OPTIMIZATION_LEVEL "-O"
 require_setting ENABLE_TESTABILITY "NO"
 
 require_debug_setting PRODUCT_BUNDLE_IDENTIFIER "$EXPECTED_DEBUG_BUNDLE_ID"
+require_debug_setting IPHONEOS_DEPLOYMENT_TARGET "15.0"
 require_debug_setting \
   CODE_SIGN_ENTITLEMENTS \
   "fearless/WalletConnect.dev.entitlements"

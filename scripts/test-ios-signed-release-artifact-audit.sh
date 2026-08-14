@@ -121,6 +121,7 @@ app = {
     "FearlessEnableTestability": "NO",
     "FearlessGitCommit": git_sha,
     "FearlessSwiftOptimizationLevel": "-O",
+    "MinimumOSVersion": "15.0",
     "UIDesignRequiresCompatibility": True,
 }
 profile = {
@@ -147,6 +148,30 @@ PY
 
   printf '%s\n' '#!/usr/bin/env bash' 'exit 0' >"$APP/fearless"
   chmod +x "$APP/fearless"
+  mkdir -p \
+    "$APP/Frameworks" \
+    "$ARCHIVE/dSYMs/fearless.app.dSYM/Contents/Resources/DWARF"
+  printf '%s\n' 'synthetic app symbols' \
+    >"$ARCHIVE/dSYMs/fearless.app.dSYM/Contents/Resources/DWARF/fearless"
+  local framework_name
+  for framework_name in MPQRCoreSDK blake2lib libed25519 sr25519lib; do
+    mkdir -p \
+      "$APP/Frameworks/$framework_name.framework" \
+      "$ARCHIVE/dSYMs/$framework_name.framework.dSYM/Contents/Resources/DWARF"
+    printf '%s\n' '#!/usr/bin/env bash' 'exit 0' \
+      >"$APP/Frameworks/$framework_name.framework/$framework_name"
+    chmod +x "$APP/Frameworks/$framework_name.framework/$framework_name"
+    printf '%s\n' 'synthetic framework symbols' \
+      >"$ARCHIVE/dSYMs/$framework_name.framework.dSYM/Contents/Resources/DWARF/$framework_name"
+    python3 - "$APP/Frameworks/$framework_name.framework/Info.plist" \
+      "$framework_name" <<'PY'
+import plistlib
+import sys
+
+with open(sys.argv[1], "wb") as destination:
+    plistlib.dump({"CFBundleExecutable": sys.argv[2]}, destination)
+PY
+  done
   printf '%s\n' "opaque production profile" >"$APP/embedded.mobileprovision"
   mkdir -p \
     "$APP/Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd" \
@@ -222,6 +247,7 @@ run_audit() {
     FEARLESS_SIGNED_AUDIT_CODESIGN_BIN="$TEMPORARY_DIR/bin/codesign" \
     FEARLESS_SIGNED_AUDIT_SECURITY_BIN="$TEMPORARY_DIR/bin/security" \
     FEARLESS_SIGNED_AUDIT_DYLD_INFO_BIN="$TEMPORARY_DIR/bin/dyld-info" \
+    FEARLESS_SIGNED_AUDIT_DWARFDUMP_BIN="$TEMPORARY_DIR/bin/dwarfdump" \
     FEARLESS_SIGNED_AUDIT_MODEL_CHECKSUM_BIN="$TEMPORARY_DIR/bin/model-checksum" \
     FAKE_SIGNED_ENTITLEMENTS="$SIGNED_ENTITLEMENTS" \
     FAKE_SIGNING_CERTIFICATE="$SIGNING_CERTIFICATE" \
@@ -313,10 +339,26 @@ printf '%s\n' \
   '  *) exit 2 ;;' \
   'esac' \
   >"$TEMPORARY_DIR/bin/model-checksum"
+printf '%s\n' \
+  '#!/usr/bin/env bash' \
+  'set -euo pipefail' \
+  'artifact="${2:-}"' \
+  '[[ "${1:-}" == "--uuid" && -n "$artifact" ]] || exit 2' \
+  'logical="$(basename "$artifact")"' \
+  'if [[ "$logical" == *.dSYM ]]; then logical="${logical%.dSYM}"; fi' \
+  'if [[ "$logical" == *.framework ]]; then logical="${logical%.framework}"; fi' \
+  'if [[ "$logical" == "fearless.app" ]]; then logical="fearless"; fi' \
+  'uuid="11111111-2222-3333-4444-555555555555"' \
+  'if [[ -n "${FAKE_DSYM_MISMATCH:-}" && "$logical" == "$FAKE_DSYM_MISMATCH" && "$artifact" == *.dSYM ]]; then' \
+  '  uuid="AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE"' \
+  'fi' \
+  'printf "UUID: %s (arm64) %s\n" "$uuid" "$artifact"' \
+  >"$TEMPORARY_DIR/bin/dwarfdump"
 chmod +x \
   "$TEMPORARY_DIR/bin/codesign" \
   "$TEMPORARY_DIR/bin/security" \
   "$TEMPORARY_DIR/bin/dyld-info" \
+  "$TEMPORARY_DIR/bin/dwarfdump" \
   "$TEMPORARY_DIR/bin/model-checksum"
 
 prepare_case canonical
@@ -327,6 +369,9 @@ fi
 assert_contains '"archiveTreeSHA256"' "$CASE_DIR/output/receipt.json"
 assert_contains '"distributionProfile": "valid-app-store"' "$CASE_DIR/output/receipt.json"
 assert_contains '"uiDesignCompatibility": "pre-ios-26"' "$CASE_DIR/output/receipt.json"
+assert_contains '"minimumOSVersion": "15.0"' "$CASE_DIR/output/receipt.json"
+assert_contains '"dSYMContract": "exact-uuid-upload-coverage"' "$CASE_DIR/output/receipt.json"
+assert_contains '"sourceLineCoverage": "not-asserted"' "$CASE_DIR/output/receipt.json"
 assert_contains '"requiredManagedObjectClassCount": 28' "$CASE_DIR/output/receipt.json"
 assert_contains '"requiredResourceCount": 34' "$CASE_DIR/output/receipt.json"
 assert_contains '"activeSubstrateModelName": "SubstrateDataModel_v10"' "$CASE_DIR/output/receipt.json"
@@ -346,6 +391,23 @@ prepare_case disabled-ui-design-compatibility
 mutate_plist "$APP/Info.plist" \
   'value["UIDesignRequiresCompatibility"] = False'
 expect_failure disabled-ui-design-compatibility "pre-iOS 26 design compatibility"
+
+prepare_case minimum-os-too-low
+mutate_plist "$APP/Info.plist" \
+  'value["MinimumOSVersion"] = "14.1"'
+expect_failure minimum-os-too-low "MinimumOSVersion is not exactly iOS 15.0"
+
+prepare_case missing-framework-dsym
+rm -r "$ARCHIVE/dSYMs/MPQRCoreSDK.framework.dSYM"
+expect_failure missing-framework-dsym "MPQRCoreSDK.framework dSYM is missing"
+
+prepare_case mismatched-framework-dsym
+CASE_ENV=("FAKE_DSYM_MISMATCH=sr25519lib")
+expect_failure mismatched-framework-dsym "sr25519lib.framework dSYM UUID inventory does not exactly match"
+
+prepare_case extra-dsym
+mkdir -p "$ARCHIVE/dSYMs/Unexpected.framework.dSYM"
+expect_failure extra-dsym "dSYM inventory is not exactly one bundle per embedded code object"
 
 prepare_case wrong-commit
 EXPECTED_GIT_OVERRIDE="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -548,4 +610,4 @@ assert_contains "only in the explicit test harness" "$CASE_DIR/stderr"
 printf '%s\n' "[ios-signed-release-audit-test] PASS (rejected): override without harness"
 
 printf '%s\n' \
-  "[ios-signed-release-audit-test] PASS: 1 positive + 44 negative/adversarial contracts"
+  "[ios-signed-release-audit-test] PASS: 1 positive + 48 negative/adversarial contracts"

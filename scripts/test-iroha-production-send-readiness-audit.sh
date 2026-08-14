@@ -144,10 +144,10 @@ expect_manifest_failure "artifact-size" "artifact.bytes" '1' "unexpected Apple a
 expect_manifest_failure "entry-count" "artifact.entryCount" '19' "archive entry count drifted"
 expect_manifest_failure "expanded-size" "artifact.expandedBytes" '1396110348' "archive expanded size drifted"
 expect_manifest_failure "max-entry" "artifact.maxEntryBytes" '704780503' "archive maximum entry size drifted"
-expect_manifest_failure "app-minimum" "integrationAssessment.appMinimumIOS" '"15.0"' "app minimum iOS evidence drifted"
+expect_manifest_failure "app-minimum" "integrationAssessment.appMinimumIOS" '"14.1"' "app minimum iOS evidence drifted"
 expect_manifest_failure "sdk-minimum" "integrationAssessment.sdkMinimumIOS" '"14.1"' "SDK minimum iOS evidence drifted"
-expect_manifest_failure "os-compatible" "integrationAssessment.minimumOSCompatible" 'true' "minimum OS mismatch must remain explicit"
-expect_manifest_failure "os-change-approved" "integrationAssessment.productMinimumOSChangeApproved" 'true' "product minimum OS change must remain unapproved"
+expect_manifest_failure "os-compatible" "integrationAssessment.minimumOSCompatible" 'false' "minimum OS compatibility evidence drifted"
+expect_manifest_failure "os-change-approved" "integrationAssessment.productMinimumOSChangeApproved" 'false' "approved product minimum OS change evidence drifted"
 expect_manifest_failure "linkage-approved" "integrationAssessment.sdkLinkageApproved" 'true' "SDK linkage must remain unapproved"
 expect_manifest_failure "package-delivery" "integrationAssessment.taggedPackageDelivery" '"remote-binary-target"' "tagged package delivery evidence drifted"
 expect_manifest_failure "compile-status" "integrationAssessment.taggedCompileStatus" '"passed"' "tagged compile failure must remain explicit"
@@ -172,7 +172,7 @@ expect_manifest_failure "submission-policy" "securityBoundary.submissionHashPoli
 expect_manifest_failure "receipt-equality" "securityBoundary.receiptHashEqualityRequired" 'false' "receipt hash equality must be required"
 expect_manifest_failure "live-funded" "liveEvidence.fundedTairaBroadcast" '"passed"' "live evidence fundedTairaBroadcast must remain unavailable"
 expect_manifest_failure "blocker" "blocker.code" '"ready"' "unexpected blocker code"
-expect_manifest_failure "exit-criteria" "exitCriteria" '[]' "exactly eleven exit criteria are required"
+expect_manifest_failure "exit-criteria" "exitCriteria" '[]' "exactly ten exit criteria are required"
 
 fixture="$(new_fixture invalid-json)"
 printf '{invalid\n' > "$fixture/config/iroha-production-send-readiness.json"
@@ -249,16 +249,16 @@ sed -i.bak 's/chainId: "iroha3-taira"/chainId: "taira"/' "$fixture/fearless/Comm
 rm -f "$fixture/fearless/Common/Model/UniversalWalletRegistry.swift.bak"
 expect_failure "Taira route drift" "$fixture" "Taira route label drifted"
 
-fixture="$(new_fixture app-minimum-raised)"
+fixture="$(new_fixture app-minimum-lowered)"
 perl -0pi -e \
-  's/(INFOPLIST_FILE = fearless\/Info[.]plist;\n[[:space:]]*IPHONEOS_DEPLOYMENT_TARGET = )14[.]1;/${1}15.0;/' \
+  's/(INFOPLIST_FILE = fearless\/Info[.]plist;\n[[:space:]]*IPHONEOS_DEPLOYMENT_TARGET = )15[.]0;/${1}14.1;/' \
   "$fixture/fearless.xcodeproj/project.pbxproj"
-expect_failure "app minimum raised" "$fixture" "deployment target must remain iOS 14.1"
+expect_failure "app minimum lowered" "$fixture" "deployment target must remain exactly iOS 15.0"
 
-fixture="$(new_fixture pod-minimum-raised)"
-sed -i.bak "s/IPHONEOS_DEPLOYMENT_TARGET'] = '14.1'/IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'/" "$fixture/Podfile"
+fixture="$(new_fixture pod-minimum-lowered)"
+sed -i.bak "s/IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'/IPHONEOS_DEPLOYMENT_TARGET'] = '14.1'/" "$fixture/Podfile"
 rm -f "$fixture/Podfile.bak"
-expect_failure "Pod minimum raised" "$fixture" "CocoaPods iOS 14.1 deployment target"
+expect_failure "Pod minimum lowered" "$fixture" "CocoaPods iOS 15.0 deployment target"
 
 fixture="$(new_fixture package-added)"
 printf '\nrepositoryURL = "https://github.com/hyperledger/iroha";\nproductName = IrohaSwift;\n' >> "$fixture/fearless.xcodeproj/project.pbxproj"

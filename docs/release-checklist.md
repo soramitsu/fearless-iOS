@@ -63,6 +63,13 @@ Use this checklist for every release PR from `develop` to `master`.
   fatal Core Data/migration marker. Require exact protected row-count
   preservation plus unchanged wallet identity, key, and relationship
   fingerprints; the source fixture must remain byte-for-byte unchanged.
+- Require the processed app to declare `MinimumOSVersion` exactly `15.0`. Run
+  `scripts/ci/materialize-embedded-framework-dsyms.sh` on the signed archive,
+  then require the signed-archive audit to prove exact UUID parity between every
+  embedded code object and its dSYM. The materializer supplies UUID-exact upload
+  bundles for Xcode's three generated crypto stubs and the stripped
+  MPQRCoreSDK vendor binary; this removes App Store Connect's missing-dSYM
+  warnings but does not claim unavailable MPQR source-line DWARF.
 - Validate build `4.2.0 (2026.8.14)` through a true internal TestFlight group
   containing the affected phone's App Store Connect user before changing the
   public beta group. Do not substitute an external group that requires Beta App
@@ -137,7 +144,7 @@ Use this checklist for every release PR from `develop` to `master`.
   `config/iroha-production-send-readiness.json` is `blocked`.
   For any future iOS Iroha enablement review, require all of the following in
   the same immutable release evidence set:
-  - an explicit iOS 14.1 versus SDK iOS 15 support decision;
+  - the enforced iOS 15 product minimum and SDK platform alignment;
   - a directly resolvable, compiling Swift package whose source expectations
     match every published XCFramework slice digest;
   - canonical compact transaction-hash parity and source/binary provenance;

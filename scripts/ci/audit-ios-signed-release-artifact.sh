@@ -11,6 +11,7 @@ readonly LOG_PREFIX="[ios-signed-release-audit]"
 readonly EXPECTED_TEAM="YLWWUD25VZ"
 readonly EXPECTED_BUNDLE="jp.co.soramitsu.fearlesswallet"
 readonly EXPECTED_VERSION="4.2.0"
+readonly EXPECTED_MINIMUM_OS="15.0"
 readonly EXPECTED_APPLICATION_ID="${EXPECTED_TEAM}.${EXPECTED_BUNDLE}"
 readonly EXPECTED_ASSOCIATED_DOMAINS_JSON='["applinks:fearlesswallet.io","webcredentials:fearlesswallet.io"]'
 readonly EXPECTED_ICLOUD_CONTAINERS_JSON='["iCloud.jp.co.soramitsu.fearlesswallet"]'
@@ -95,6 +96,7 @@ FEARLESS_SIGNED_AUDIT_TEST_HARNESS=1:
   FEARLESS_SIGNED_AUDIT_PYTHON_BIN
   FEARLESS_SIGNED_AUDIT_SHASUM_BIN
   FEARLESS_SIGNED_AUDIT_DYLD_INFO_BIN
+  FEARLESS_SIGNED_AUDIT_DWARFDUMP_BIN
   FEARLESS_SIGNED_AUDIT_MODEL_CHECKSUM_BIN
 USAGE
 }
@@ -128,6 +130,7 @@ if [[ "$TEST_HARNESS" != "1" ]]; then
     FEARLESS_SIGNED_AUDIT_PYTHON_BIN \
     FEARLESS_SIGNED_AUDIT_SHASUM_BIN \
     FEARLESS_SIGNED_AUDIT_DYLD_INFO_BIN \
+    FEARLESS_SIGNED_AUDIT_DWARFDUMP_BIN \
     FEARLESS_SIGNED_AUDIT_MODEL_CHECKSUM_BIN; do
     [[ -z "${!override_name:-}" ]] ||
       fail "$override_name is accepted only in the explicit test harness"
@@ -139,6 +142,7 @@ readonly SECURITY_BIN="${FEARLESS_SIGNED_AUDIT_SECURITY_BIN:-security}"
 readonly PYTHON_BIN="${FEARLESS_SIGNED_AUDIT_PYTHON_BIN:-python3}"
 readonly SHASUM_BIN="${FEARLESS_SIGNED_AUDIT_SHASUM_BIN:-shasum}"
 readonly DYLD_INFO_BIN="${FEARLESS_SIGNED_AUDIT_DYLD_INFO_BIN:-}"
+readonly DWARFDUMP_BIN="${FEARLESS_SIGNED_AUDIT_DWARFDUMP_BIN:-$(xcrun --find dwarfdump 2>/dev/null || true)}"
 readonly MODEL_CHECKSUM_BIN="${FEARLESS_SIGNED_AUDIT_MODEL_CHECKSUM_BIN:-}"
 
 archive=""
@@ -236,6 +240,7 @@ require_executable "$CODESIGN_BIN" "codesign"
 require_executable "$SECURITY_BIN" "security"
 require_executable "$PYTHON_BIN" "Python"
 require_executable "$SHASUM_BIN" "shasum"
+require_executable "$DWARFDUMP_BIN" "dwarfdump"
 if [[ -n "$DYLD_INFO_BIN" ]]; then
   require_executable "$DYLD_INFO_BIN" "dyld Objective-C metadata inspector"
 else
@@ -320,6 +325,8 @@ version="$(read_plist_string "$APP_INFO" CFBundleShortVersionString)" ||
   fail "archived app lacks CFBundleShortVersionString"
 build="$(read_plist_string "$APP_INFO" CFBundleVersion)" ||
   fail "archived app lacks CFBundleVersion"
+minimum_os="$(read_plist_string "$APP_INFO" MinimumOSVersion)" ||
+  fail "archived app lacks MinimumOSVersion"
 embedded_git_sha="$(read_plist_string "$APP_INFO" FearlessGitCommit)" ||
   fail "archived app lacks FearlessGitCommit provenance"
 configuration="$(read_plist_string "$APP_INFO" FearlessBuildConfiguration)" ||
@@ -339,6 +346,8 @@ read_plist_true "$APP_INFO" UIDesignRequiresCompatibility ||
   fail "archived marketing version is not $EXPECTED_VERSION"
 [[ "$build" == "$expected_build" ]] ||
   fail "archived build number is not the expected fresh build"
+[[ "$minimum_os" == "$EXPECTED_MINIMUM_OS" ]] ||
+  fail "archived app MinimumOSVersion is not exactly iOS $EXPECTED_MINIMUM_OS"
 [[ "$(lowercase "$embedded_git_sha")" == "$(lowercase "$expected_git_sha")" ]] ||
   fail "embedded git commit does not match the expected build commit"
 [[ "$configuration" == "Release" ]] ||
@@ -402,6 +411,80 @@ cleanup() {
   rm -rf "$temporary_dir"
 }
 trap cleanup EXIT
+
+uuid_inventory() {
+  local artifact="$1"
+  local output inventory count
+
+  output="$($DWARFDUMP_BIN --uuid "$artifact" 2>/dev/null)" || return 1
+  inventory="$(printf '%s\n' "$output" | awk '
+    $1 == "UUID:" && $2 ~ /^[0-9A-Fa-f-]{36}$/ && $3 ~ /^\([A-Za-z0-9_]+\)$/ {
+      uuid = toupper($2)
+      arch = $3
+      gsub(/[()]/, "", arch)
+      print uuid " " arch
+    }
+  ' | LC_ALL=C sort -u)"
+  count="$(printf '%s\n' "$inventory" | awk 'NF { count += 1 } END { print count + 0 }')"
+  [[ "$count" -gt 0 ]] || return 1
+  printf '%s\n' "$inventory"
+}
+
+verify_dsym_pair() {
+  local binary="$1"
+  local dsym="$2"
+  local label="$3"
+  local binary_uuids dsym_uuids
+
+  [[ -f "$binary" && ! -L "$binary" ]] ||
+    fail "$label executable is missing or unsafe"
+  [[ -d "$dsym" && ! -L "$dsym" ]] ||
+    fail "$label dSYM is missing or unsafe"
+  binary_uuids="$(uuid_inventory "$binary")" ||
+    fail "$label executable UUID inventory is unavailable"
+  dsym_uuids="$(uuid_inventory "$dsym")" ||
+    fail "$label dSYM UUID inventory is unavailable"
+  [[ "$binary_uuids" == "$dsym_uuids" ]] ||
+    fail "$label dSYM UUID inventory does not exactly match its executable"
+}
+
+readonly ARCHIVE_DSYMS="$archive/dSYMs"
+[[ -d "$ARCHIVE_DSYMS" && ! -L "$ARCHIVE_DSYMS" ]] ||
+  fail "archive dSYMs directory is missing or unsafe"
+verify_dsym_pair \
+  "$EXECUTABLE" \
+  "$ARCHIVE_DSYMS/$(basename "$APP_PATH").dSYM" \
+  "application"
+
+embedded_framework_count=0
+readonly APP_FRAMEWORKS="$APP_PATH/Frameworks"
+[[ -d "$APP_FRAMEWORKS" && ! -L "$APP_FRAMEWORKS" ]] ||
+  fail "archived app Frameworks directory is missing or unsafe"
+while IFS= read -r framework_path; do
+  [[ -n "$framework_path" ]] || continue
+  framework_bundle="$(basename "$framework_path")"
+  framework_info="$framework_path/Info.plist"
+  [[ -f "$framework_info" && ! -L "$framework_info" ]] ||
+    fail "embedded framework Info.plist is missing or unsafe"
+  framework_executable="$(read_plist_string "$framework_info" CFBundleExecutable)" ||
+    fail "embedded framework has no executable identity"
+  [[ "$framework_executable" =~ ^[A-Za-z0-9._-]+$ ]] ||
+    fail "embedded framework executable identity is unsafe"
+  verify_dsym_pair \
+    "$framework_path/$framework_executable" \
+    "$ARCHIVE_DSYMS/$framework_bundle.dSYM" \
+    "$framework_bundle"
+  embedded_framework_count=$((embedded_framework_count + 1))
+done < <(find "$APP_FRAMEWORKS" -mindepth 1 -maxdepth 1 \
+  -type d -name '*.framework' -print | LC_ALL=C sort)
+[[ "$embedded_framework_count" -gt 0 ]] ||
+  fail "archived app contains no embedded frameworks"
+
+actual_dsym_count="$(find "$ARCHIVE_DSYMS" -mindepth 1 -maxdepth 1 \
+  -type d -name '*.dSYM' -print | awk 'NF { count += 1 } END { print count + 0 }')"
+embedded_code_count=$((embedded_framework_count + 1))
+[[ "$actual_dsym_count" == "$embedded_code_count" ]] ||
+  fail "archive dSYM inventory is not exactly one bundle per embedded code object"
 
 [[ "${#REQUIRED_MANAGED_OBJECT_CLASSES[@]}" == "28" ]] ||
   fail "internal managed-object class contract is not exactly 28 entries"
@@ -783,6 +866,7 @@ receipt_pending="${receipt}.pending.$$"
   "$bundle_id" \
   "$version" \
   "$build" \
+  "$minimum_os" \
   "$actual_executable_sha" \
   "$actual_archive_sha" \
   "$EXPECTED_TEAM" \
@@ -795,7 +879,8 @@ receipt_pending="${receipt}.pending.$$"
   "$substrate_v10_optimized_checksum" \
   "$substrate_active_bundle_checksum" \
   "$substrate_version_info_v10_checksum" \
-  "$substrate_current_version" <<'PY'
+  "$substrate_current_version" \
+  "$embedded_code_count" <<'PY'
 import datetime
 import json
 import os
@@ -807,6 +892,7 @@ import sys
     bundle_id,
     version,
     build,
+    minimum_os,
     executable_sha,
     archive_sha,
     team,
@@ -820,6 +906,7 @@ import sys
     substrate_active_bundle_checksum,
     substrate_version_info_v10_checksum,
     substrate_current_version,
+    embedded_code_count,
 ) = sys.argv[1:]
 payload = {
     "schemaVersion": 1,
@@ -829,6 +916,7 @@ payload = {
     "bundleIdentifier": bundle_id,
     "marketingVersion": version,
     "buildNumber": build,
+    "minimumOSVersion": minimum_os,
     "developmentTeam": team,
     "executableSHA256": executable_sha.lower(),
     "archiveTreeSHA256": archive_sha.lower(),
@@ -838,6 +926,11 @@ payload = {
     "distributionProfile": "valid-app-store",
     "signedEntitlements": "exact-production-contract",
     "uiDesignCompatibility": "pre-ios-26",
+    "symbolication": {
+        "embeddedCodeObjectCount": int(embedded_code_count),
+        "dSYMContract": "exact-uuid-upload-coverage",
+        "sourceLineCoverage": "not-asserted",
+    },
     "coreDataContract": {
         "requiredManagedObjectClassCount": 28,
         "requiredResourceCount": 34,
@@ -861,4 +954,4 @@ PY
 mv "$receipt_pending" "$receipt"
 
 printf '%s\n' \
-  "$LOG_PREFIX PASS: exact commit, bundle/version/build, executable/archive hashes, distribution profile, signed production entitlements, 28 managed-object classes, 34 Core Data resources, preferred v10, and public-v8/public-v9/v10 checksums verified"
+  "$LOG_PREFIX PASS: exact commit, bundle/version/build/minimum OS, executable/archive hashes, exact-UUID upload dSYMs, distribution profile, signed production entitlements, 28 managed-object classes, 34 Core Data resources, preferred v10, and public-v8/public-v9/v10 checksums verified"

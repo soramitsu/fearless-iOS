@@ -42,6 +42,7 @@ jq -n '[
       PRODUCT_BUNDLE_IDENTIFIER: "jp.co.soramitsu.fearlesswallet",
       MARKETING_VERSION: "4.2.0",
       CURRENT_PROJECT_VERSION: "2026.7.28",
+      IPHONEOS_DEPLOYMENT_TARGET: "15.0",
       CODE_SIGN_ENTITLEMENTS: "fearless/WalletConnect.entitlements",
       CODE_SIGN_IDENTITY: "Apple Distribution: Soramitsu Co., Ltd. (YLWWUD25VZ)",
       CODE_SIGN_STYLE: "Manual",
@@ -59,6 +60,7 @@ jq -n '[
     target: "fearless",
     buildSettings: {
       PRODUCT_BUNDLE_IDENTIFIER: "jp.co.soramitsu.fearlesswallet.dev",
+      IPHONEOS_DEPLOYMENT_TARGET: "15.0",
       CODE_SIGN_ENTITLEMENTS: "fearless/WalletConnect.dev.entitlements",
       CODE_SIGN_STYLE: "Automatic",
       DEVELOPMENT_TEAM: "YLWWUD25VZ"
@@ -140,6 +142,11 @@ run_reject wrong-version run_audit "$wrong_version" "$scheme" "$entitlements"
 wrong_build="$FIXTURES/wrong-build.json"
 mutate_setting CURRENT_PROJECT_VERSION 7 "$wrong_build"
 run_reject wrong-build run_audit "$wrong_build" "$scheme" "$entitlements"
+
+minimum_os_too_low="$FIXTURES/minimum-os-too-low.json"
+mutate_setting IPHONEOS_DEPLOYMENT_TARGET 14.1 "$minimum_os_too_low"
+run_reject minimum-os-too-low \
+  run_audit "$minimum_os_too_low" "$scheme" "$entitlements"
 
 debug_optimization="$FIXTURES/debug-optimization.json"
 mutate_setting SWIFT_OPTIMIZATION_LEVEL -Onone "$debug_optimization"
@@ -228,6 +235,12 @@ debug_wrong_team="$FIXTURES/debug-wrong-team.json"
 mutate_debug_setting DEVELOPMENT_TEAM AAAAAAAAAA "$debug_wrong_team"
 run_reject debug-wrong-development-team \
   run_debug_fixture "$debug_wrong_team"
+
+debug_minimum_os_too_low="$FIXTURES/debug-minimum-os-too-low.json"
+mutate_debug_setting IPHONEOS_DEPLOYMENT_TARGET 14.1 \
+  "$debug_minimum_os_too_low"
+run_reject debug-minimum-os-too-low \
+  run_debug_fixture "$debug_minimum_os_too_low"
 
 duplicate_debug_target="$FIXTURES/duplicate-debug-target.json"
 jq '. + [.[0]]' "$debug_settings" > "$duplicate_debug_target"

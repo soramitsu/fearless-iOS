@@ -151,6 +151,8 @@ printf '%s\n' \
   "$LOG_PREFIX building local Release archive from clean commit $source_commit"
 xcodebuild "${xcodebuild_arguments[@]}"
 
+bash "$SCRIPT_DIR/materialize-embedded-framework-dsyms.sh" "$archive"
+
 [[ "$(git rev-parse --verify HEAD)" == "$source_commit" ]] ||
   fail "HEAD changed while the release archive was built"
 [[ -z "$(git status --porcelain=v1 --untracked-files=all)" ]] ||

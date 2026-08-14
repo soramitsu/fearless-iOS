@@ -34,6 +34,8 @@ fi
 echo "[run-pr] Verifying tracked TestFlight publication evidence"
 bash "$WORKSPACE_DIR/scripts/test-testflight-publication-readiness-audit.sh"
 bash "$WORKSPACE_DIR/scripts/audit-testflight-publication-readiness.sh"
+bash "$WORKSPACE_DIR/scripts/test-materialize-embedded-framework-dsyms.sh"
+bash "$WORKSPACE_DIR/scripts/test-ios-signed-release-artifact-audit.sh"
 
 if [[ -f "$WORKSPACE_DIR/scripts/test-audit-testflight-upgrade-usability-gate.py" ]]; then
   echo "[run-pr] Testing privacy-safe TestFlight upgrade recovery contracts"
