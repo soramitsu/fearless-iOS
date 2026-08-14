@@ -16,9 +16,10 @@ readonly EXPECTED_PROFILE_NAME="Fearless App Store 2026.7.26"
 readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
 # Build 2026.8.10 exposed the missing public Substrate compatibility model.
 # Build 2026.8.13 corrected storage migration but exposed the iOS 26 tab-bar
-# replacement regression. Its corrected successor is 2026.8.14.
+# replacement regression. Build 2026.8.14 was consumed by an App Store Connect
+# upload with warnings; its corrected successor is 2026.8.15.
 # Reconfirm successor uniqueness read-only immediately before archive.
-readonly EXPECTED_BUILD="2026.8.14"
+readonly EXPECTED_BUILD="2026.8.15"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -37,7 +38,7 @@ Usage:
 Preconditions:
   - exact clean git HEAD, including no untracked files, descended from the
     distributed 4.2.0 (2026.7.28) source commit;
-  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.14);
+  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.15);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 
