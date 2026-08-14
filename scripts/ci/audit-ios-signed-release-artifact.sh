@@ -293,6 +293,27 @@ print(value)
 PY
 }
 
+read_plist_true() {
+  local plist="$1"
+  local key_path="$2"
+
+  "$PYTHON_BIN" - "$plist" "$key_path" <<'PY'
+import plistlib
+import sys
+
+path, key_path = sys.argv[1:]
+try:
+    with open(path, "rb") as source:
+        value = plistlib.load(source)
+    for component in key_path.split("."):
+        value = value[component]
+except (OSError, KeyError, TypeError, plistlib.InvalidFileException):
+    raise SystemExit(2)
+if value is not True:
+    raise SystemExit(3)
+PY
+}
+
 bundle_id="$(read_plist_string "$APP_INFO" CFBundleIdentifier)" ||
   fail "archived app lacks CFBundleIdentifier"
 version="$(read_plist_string "$APP_INFO" CFBundleShortVersionString)" ||
@@ -309,6 +330,8 @@ testability="$(read_plist_string "$APP_INFO" FearlessEnableTestability)" ||
   fail "archived app lacks testability attestation"
 executable_name="$(read_plist_string "$APP_INFO" CFBundleExecutable)" ||
   fail "archived app lacks CFBundleExecutable"
+read_plist_true "$APP_INFO" UIDesignRequiresCompatibility ||
+  fail "archived app does not require pre-iOS 26 design compatibility"
 
 [[ "$bundle_id" == "$EXPECTED_BUNDLE" ]] ||
   fail "archived bundle identifier is not the production identity"
@@ -814,6 +837,7 @@ payload = {
     "provisioningProfileName": profile_name,
     "distributionProfile": "valid-app-store",
     "signedEntitlements": "exact-production-contract",
+    "uiDesignCompatibility": "pre-ios-26",
     "coreDataContract": {
         "requiredManagedObjectClassCount": 28,
         "requiredResourceCount": 34,

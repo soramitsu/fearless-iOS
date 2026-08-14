@@ -63,8 +63,10 @@ Use this checklist for every release PR from `develop` to `master`.
   fatal Core Data/migration marker. Require exact protected row-count
   preservation plus unchanged wallet identity, key, and relationship
   fingerprints; the source fixture must remain byte-for-byte unchanged.
-- Validate build `4.2.0 (2026.8.13)` through the affected-phone TestFlight group on the
-  designated preserved-data phone before changing the public beta group. Run
+- Validate build `4.2.0 (2026.8.14)` through a true internal TestFlight group
+  containing the affected phone's App Store Connect user before changing the
+  public beta group. Do not substitute an external group that requires Beta App
+  Review. Run
   `scripts/audit-testflight-upgrade-usability-gate.py` against sanitized evidence
   and require a five-minute usable first launch, working PIN and wallet route,
   preservation checks, and a successful second cold launch. Do not uninstall or

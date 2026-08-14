@@ -121,6 +121,7 @@ app = {
     "FearlessEnableTestability": "NO",
     "FearlessGitCommit": git_sha,
     "FearlessSwiftOptimizationLevel": "-O",
+    "UIDesignRequiresCompatibility": True,
 }
 profile = {
     "CreationDate": datetime.datetime(2026, 1, 1),
@@ -325,6 +326,7 @@ if ! run_audit canonical; then
 fi
 assert_contains '"archiveTreeSHA256"' "$CASE_DIR/output/receipt.json"
 assert_contains '"distributionProfile": "valid-app-store"' "$CASE_DIR/output/receipt.json"
+assert_contains '"uiDesignCompatibility": "pre-ios-26"' "$CASE_DIR/output/receipt.json"
 assert_contains '"requiredManagedObjectClassCount": 28' "$CASE_DIR/output/receipt.json"
 assert_contains '"requiredResourceCount": 34' "$CASE_DIR/output/receipt.json"
 assert_contains '"activeSubstrateModelName": "SubstrateDataModel_v10"' "$CASE_DIR/output/receipt.json"
@@ -334,6 +336,16 @@ prepare_case wrong-build
 mutate_plist "$APP/Info.plist" \
   'value["CFBundleVersion"] = "2026.7.27"'
 expect_failure wrong-build "archived build number is not the expected fresh build"
+
+prepare_case missing-ui-design-compatibility
+mutate_plist "$APP/Info.plist" \
+  'value.pop("UIDesignRequiresCompatibility", None)'
+expect_failure missing-ui-design-compatibility "pre-iOS 26 design compatibility"
+
+prepare_case disabled-ui-design-compatibility
+mutate_plist "$APP/Info.plist" \
+  'value["UIDesignRequiresCompatibility"] = False'
+expect_failure disabled-ui-design-compatibility "pre-iOS 26 design compatibility"
 
 prepare_case wrong-commit
 EXPECTED_GIT_OVERRIDE="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -536,4 +548,4 @@ assert_contains "only in the explicit test harness" "$CASE_DIR/stderr"
 printf '%s\n' "[ios-signed-release-audit-test] PASS (rejected): override without harness"
 
 printf '%s\n' \
-  "[ios-signed-release-audit-test] PASS: 1 positive + 42 negative/adversarial contracts"
+  "[ios-signed-release-audit-test] PASS: 1 positive + 44 negative/adversarial contracts"

@@ -36,6 +36,9 @@ final class TabBar: UITabBar {
         super.layoutSubviews()
         bluredView.frame = bounds
         bluredView.layer.mask = createMaskLayer()
+        // UIKit may rebuild or reorder its private tab-item views during layout.
+        sendSubviewToBack(bluredView)
+        bringSubviewToFront(middleButton)
         middleButton.rounded()
     }
 
@@ -45,7 +48,7 @@ final class TabBar: UITabBar {
 
     private func setupLayout() {
         backgroundColor = .clear
-        addSubview(bluredView)
+        insertSubview(bluredView, at: 0)
         addSubview(middleButton)
 
         middleButton.snp.makeConstraints { make in

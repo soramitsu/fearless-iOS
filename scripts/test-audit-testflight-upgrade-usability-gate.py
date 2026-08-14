@@ -29,7 +29,7 @@ def passing_capture_receipt(*, first: bool) -> dict:
         "captureStatus": "complete",
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildNumber": "2026.8.13",
+        "buildNumber": "2026.8.14",
         "observationMethod": "paired-device-fearless-process-only-sanitized-syslog",
         "deviceSidePIDFilter": True,
         "historicalLogsRequested": False,
@@ -102,7 +102,7 @@ def write_capture_bundle(root: Path, *, first: bool) -> tuple[Path, str]:
         "observedAtUTC": "2026-08-10T11:59:59+09:00",
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildNumber": "2026.8.13",
+        "buildNumber": "2026.8.14",
     }
     records = [
         {
@@ -150,13 +150,13 @@ def passing_evidence() -> dict:
         "schemaVersion": 1,
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildVersion": "2026.8.13",
+        "buildVersion": "2026.8.14",
         "baseSourceCommit": "2e45e55dc03ad904598e730cfb5994fb5c1072dc",
         "artifactSourceCommit": EXPECTED_ARTIFACT_SOURCE_COMMIT,
         "distribution": "apple-testflight-internal",
         "installation": {
             "installedInPlace": True,
-            "previousBuildVersion": "2026.8.10",
+            "previousBuildVersion": "2026.8.13",
             "originalAppStoreContainerPreserved": True,
             "uninstalled": False,
             "offloaded": False,
@@ -173,6 +173,13 @@ def passing_evidence() -> dict:
             "failureAlertShown": False,
             "pinAccepted": True,
             "walletRouteWorked": True,
+            "bottomNavigationControlCount": 5,
+            "bottomTabBarVisible": True,
+            "walletTabRouteWorked": True,
+            "crowdloanTabRouteWorked": True,
+            "polkaswapActionWorked": True,
+            "stakingTabRouteWorked": True,
+            "settingsTabRouteWorked": True,
             "captureReceiptSHA256": FIRST_RECEIPT_SHA256,
         },
         "preservation": {
@@ -191,6 +198,13 @@ def passing_evidence() -> dict:
             "failureAlertShown": False,
             "pinAccepted": True,
             "walletRouteWorked": True,
+            "bottomNavigationControlCount": 5,
+            "bottomTabBarVisible": True,
+            "walletTabRouteWorked": True,
+            "crowdloanTabRouteWorked": True,
+            "polkaswapActionWorked": True,
+            "stakingTabRouteWorked": True,
+            "settingsTabRouteWorked": True,
             "captureReceiptSHA256": SECOND_RECEIPT_SHA256,
         },
         "release": {
@@ -247,13 +261,34 @@ class UpgradeUsabilityGateTests(unittest.TestCase):
 
         stale_predecessor = passing_evidence()
         stale_predecessor["installation"]["previousBuildVersion"] = "2026.7.28"
-        with self.assertRaisesRegex(GATE.EvidenceError, "failed build 2026.8.10"):
+        with self.assertRaisesRegex(GATE.EvidenceError, "failed build 2026.8.13"):
             validate(stale_predecessor)
 
         no_wallet_route = copy.deepcopy(passing_evidence())
         no_wallet_route["firstLaunch"]["walletRouteWorked"] = False
         with self.assertRaisesRegex(GATE.EvidenceError, "walletRouteWorked must be true"):
             validate(no_wallet_route)
+
+    def test_rejects_missing_or_failed_bottom_navigation_attestation(self) -> None:
+        missing_count = passing_evidence()
+        missing_count["firstLaunch"].pop("bottomNavigationControlCount")
+        with self.assertRaisesRegex(GATE.EvidenceError, "privacy-safe schema"):
+            validate(missing_count)
+
+        wrong_count = passing_evidence()
+        wrong_count["firstLaunch"]["bottomNavigationControlCount"] = 1
+        with self.assertRaisesRegex(GATE.EvidenceError, "all five"):
+            validate(wrong_count)
+
+        for key in GATE.TAB_BAR_ROUTE_ATTESTATIONS:
+            with self.subTest(key=key):
+                failed_route = passing_evidence()
+                failed_route["firstLaunch"][key] = False
+                with self.assertRaisesRegex(
+                    GATE.EvidenceError,
+                    f"{key} must be true",
+                ):
+                    validate(failed_route)
 
     def test_rejects_extra_raw_or_identifier_fields(self) -> None:
         raw_path = passing_evidence()

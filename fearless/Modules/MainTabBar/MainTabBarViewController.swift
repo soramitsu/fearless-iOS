@@ -22,8 +22,9 @@ final class MainTabBarViewController: UITabBarController {
 
         super.init(nibName: nil, bundle: nil)
 
-        self.viewControllers = viewControllers
         self.localizationManager = localizationManager
+        installTabBar()
+        self.viewControllers = viewControllers
     }
 
     @available(*, unavailable)
@@ -44,13 +45,17 @@ final class MainTabBarViewController: UITabBarController {
             presenter.didLoad(view: self)
         }
 
-        let tabBar = TabBar(frame: tabBar.frame)
-        tabBar.middleButton.addAction { [weak self] in
+        applyLocalization()
+    }
+
+    private func installTabBar() {
+        // UIKit binds its managed tab items when viewControllers is assigned.
+        // Replacing the bar afterward drops those item views on iOS 26.
+        let customTabBar = TabBar(frame: tabBar.frame)
+        customTabBar.middleButton.addAction { [weak self] in
             self?.presenter.presentPolkaswap()
         }
-        setValue(tabBar, forKey: "tabBar")
-
-        applyLocalization()
+        setValue(customTabBar, forKey: "tabBar")
     }
 
     @objc private func didTapFailedMemoView(_: UIGestureRecognizer) {

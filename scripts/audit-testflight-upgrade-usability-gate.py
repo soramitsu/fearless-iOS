@@ -18,14 +18,22 @@ from typing import Any
 
 EXPECTED_BUNDLE_ID = "jp.co.soramitsu.fearlesswallet"
 EXPECTED_VERSION = "4.2.0"
-EXPECTED_BUILD = "2026.8.13"
-EXPECTED_PREVIOUS_BUILD = "2026.8.10"
+EXPECTED_BUILD = "2026.8.14"
+EXPECTED_PREVIOUS_BUILD = "2026.8.13"
 EXPECTED_BASE_SOURCE_COMMIT = "2e45e55dc03ad904598e730cfb5994fb5c1072dc"
 MINIMUM_USABILITY_SECONDS = 300
 WALL_CLOCK_ROUNDING_TOLERANCE_MILLISECONDS = 1000
 EXPECTED_CAPTURE_AUDIT = "fearless-testflight-startup-capture"
 EXPECTED_CAPTURE_METHOD = "paired-device-fearless-process-only-sanitized-syslog"
 EXPECTED_PYMOBILEDEVICE3_VERSION = "10.7.2"
+TAB_BAR_ROUTE_ATTESTATIONS = (
+    "bottomTabBarVisible",
+    "walletTabRouteWorked",
+    "crowdloanTabRouteWorked",
+    "polkaswapActionWorked",
+    "stakingTabRouteWorked",
+    "settingsTabRouteWorked",
+)
 CAPTURE_RECEIPT_KEYS = {
     "schemaVersion",
     "audit",
@@ -479,7 +487,7 @@ def validate(
     )
     require(
         installation.get("previousBuildVersion") == EXPECTED_PREVIOUS_BUILD,
-        "installation must update in place from failed build 2026.8.10",
+        "installation must update in place from failed build 2026.8.13",
     )
     require_true(installation, "installedInPlace")
     require_true(installation, "originalAppStoreContainerPreserved")
@@ -498,6 +506,8 @@ def validate(
             "failureAlertShown",
             "pinAccepted",
             "walletRouteWorked",
+            "bottomNavigationControlCount",
+            *TAB_BAR_ROUTE_ATTESTATIONS,
             "captureReceiptSHA256",
         },
         "firstLaunch",
@@ -537,6 +547,14 @@ def validate(
     require_false(first_launch, "failureAlertShown")
     require_true(first_launch, "pinAccepted")
     require_true(first_launch, "walletRouteWorked")
+    require_integer(
+        first_launch,
+        "bottomNavigationControlCount",
+        5,
+        "first launch must expose all five bottom navigation controls",
+    )
+    for key in TAB_BAR_ROUTE_ATTESTATIONS:
+        require_true(first_launch, key)
     require(
         first_launch.get("readyMarkerCount")
         == first_capture_receipt.get("readyMarkerCount"),
@@ -581,6 +599,8 @@ def validate(
             "failureAlertShown",
             "pinAccepted",
             "walletRouteWorked",
+            "bottomNavigationControlCount",
+            *TAB_BAR_ROUTE_ATTESTATIONS,
             "captureReceiptSHA256",
         },
         "secondColdLaunch",
@@ -614,6 +634,14 @@ def validate(
     require_false(second_launch, "failureAlertShown")
     require_true(second_launch, "pinAccepted")
     require_true(second_launch, "walletRouteWorked")
+    require_integer(
+        second_launch,
+        "bottomNavigationControlCount",
+        5,
+        "second launch must expose all five bottom navigation controls",
+    )
+    for key in TAB_BAR_ROUTE_ATTESTATIONS:
+        require_true(second_launch, key)
     require(
         second_launch.get("readyMarkerCount")
         == second_capture_receipt.get("readyMarkerCount"),
