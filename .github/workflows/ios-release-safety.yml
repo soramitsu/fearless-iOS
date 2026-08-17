@@ -38,10 +38,14 @@ jobs:
           set -euo pipefail
           bash scripts/test-ios-release-identity-audit.sh
           bash scripts/test-ios-release-archive-signing-contract.sh
+          bash scripts/test-materialize-embedded-framework-dsyms.sh
           bash scripts/test-ios-signed-release-artifact-audit.sh
           bash scripts/test-coredata-release-gate.sh
           bash scripts/test-coredata-simulator-rehearsal.sh
           bash scripts/storage/test-user-storage-compatibility-model-audit.sh
+          bash scripts/storage/test-substrate-storage-compatibility-model-audit.sh
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-filter-startup-syslog.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-audit-testflight-upgrade-usability-gate.py
 
       - name: Reject silent x86 Release omissions
         run: |

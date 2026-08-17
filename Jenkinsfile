@@ -97,6 +97,7 @@ try {
       bash scripts/test-coredata-release-gate.sh
       bash scripts/test-coredata-simulator-rehearsal.sh
       bash scripts/storage/test-user-storage-compatibility-model-audit.sh
+      bash scripts/storage/test-substrate-storage-compatibility-model-audit.sh
     '''
   }
 
@@ -128,16 +129,17 @@ try {
   def releaseBranch = directReleaseBranch || releasePullRequest
   if (releaseBranch) {
     stage('Exact Core Data Release Gate') {
-      sh label: 'Require arm64 and exact 412-test Release inventory', script: '''
+      sh label: 'Require arm64 and exact 422-test Release inventory', script: '''
         set -euo pipefail
         [[ "$(uname -m)" == "arm64" ]] || {
           echo "Exact Release gate requires dispatch to an arm64 macOS agent." >&2
           exit 78
         }
-        IOS_EXPECTED_BUILD_NUMBER=2026.7.28 \
+        IOS_EXPECTED_BUILD_NUMBER=2026.8.17 \
           IOS_RELEASE_SOURCE_PACKAGES_DIR="$PWD/SourcePackages" \
           bash scripts/ci/audit-ios-release-identity.sh
         bash scripts/storage/audit-user-storage-compatibility-models.sh
+        bash scripts/storage/audit-substrate-storage-compatibility-models.sh
         bash scripts/ci/run-coredata-release-gate.sh --stage core
       '''
     }

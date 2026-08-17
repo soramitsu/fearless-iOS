@@ -17,6 +17,8 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         let onboardingService: OnboardingServiceProtocol
         let onboardingConfigResolver: OnboardingConfigVersionResolver
         let keystore: KeystoreProtocol
+        let protectedDataAvailabilityMonitor:
+            RootProtectedDataAvailabilityMonitoring
 
         static var `default`: Dependencies {
             Dependencies(
@@ -41,7 +43,9 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
                     operationQueue: OperationQueue()
                 ),
                 onboardingConfigResolver: OnboardingConfigVersionResolver(userDefaultsStorage: SettingsManager.shared),
-                keystore: Keychain()
+                keystore: Keychain(),
+                protectedDataAvailabilityMonitor:
+                RootUIApplicationProtectedDataAvailabilityMonitor()
             )
         }
     }
@@ -52,11 +56,13 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
 
     static func createPresenter(with window: UIWindow, dependencies: Dependencies) -> RootPresenterProtocol {
         let wireframe = RootWireframe()
+        let startupRouteValidationStore = RootStartupRouteValidationStore()
         let startViewHelper = StartViewHelper(
             keystore: dependencies.keystore,
             selectedWalletSettingsProvider:
             dependencies.selectedWalletSettingsProvider,
-            userDefaultsStorage: dependencies.settings
+            userDefaultsStorage: dependencies.settings,
+            startupRouteValidationStore: startupRouteValidationStore
         )
 
         let languageMigrator = SelectedLanguageMigrator(
@@ -84,10 +90,19 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             startViewHelper: startViewHelper
         )
 
-        let migrators: [Migrating] = [
-            languageMigrator,
-            dbMigrator,
-            substrateDbMigrator
+        let migrationSteps = [
+            RootSetupMigrationStep(
+                phase: .languageMigration,
+                migrator: languageMigrator
+            ),
+            RootSetupMigrationStep(
+                phase: .userStorageMigration,
+                migrator: dbMigrator
+            ),
+            RootSetupMigrationStep(
+                phase: .substrateMigration,
+                migrator: substrateDbMigrator
+            )
         ]
 
         let interactor = RootInteractor(
@@ -96,10 +111,23 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             settingsProvider: dependencies.selectedWalletSettingsProvider,
             applicationConfig: dependencies.applicationConfig,
             eventCenter: dependencies.eventCenter,
-            migrators: migrators,
+            migrationSteps: migrationSteps,
             logger: dependencies.logger,
             onboardingService: dependencies.onboardingService,
-            onboardingConfigResolver: dependencies.onboardingConfigResolver
+            onboardingConfigResolver: dependencies.onboardingConfigResolver,
+            protectedDataAvailabilityMonitor:
+            dependencies.protectedDataAvailabilityMonitor,
+            pincodeAvailabilityProvider: {
+                try dependencies.keystore.checkKey(
+                    for: KeystoreTag.pincode.rawValue
+                )
+            },
+            pincodeRemoval: {
+                try dependencies.keystore.deleteKeyIfExists(
+                    for: KeystoreTag.pincode.rawValue
+                )
+            },
+            startupRouteValidationStore: startupRouteValidationStore
         )
 
         let view = RootViewController(

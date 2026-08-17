@@ -18928,23 +18928,23 @@ class MockRootInteractorOutputProtocol: RootInteractorOutputProtocol, Cuckoo.Pro
         cuckoo_manager.enableDefaultStubImplementation()
     }
 
-    func didCompleteSetup() {
+    func didUpdateSetup(_ p0: RootSetupState) {
         return cuckoo_manager.call(
-            "didCompleteSetup()",
-            parameters: (),
-            escapingParameters: (),
+            "didUpdateSetup(_ p0: RootSetupState)",
+            parameters: (p0),
+            escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.didCompleteSetup()
+            defaultCall: __defaultImplStub!.didUpdateSetup(p0)
         )
     }
 
-    func didFailSetup() {
+    func didFailSetup(_ p0: RootSetupFailure) {
         return cuckoo_manager.call(
-            "didFailSetup()",
-            parameters: (),
-            escapingParameters: (),
+            "didFailSetup(_ p0: RootSetupFailure)",
+            parameters: (p0),
+            escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.didFailSetup()
+            defaultCall: __defaultImplStub!.didFailSetup(p0)
         )
     }
 
@@ -18956,18 +18956,18 @@ class MockRootInteractorOutputProtocol: RootInteractorOutputProtocol, Cuckoo.Pro
             self.cuckoo_manager = manager
         }
 
-        func didCompleteSetup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+        func didUpdateSetup<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(RootSetupState)> where M1.MatchedType == RootSetupState {
+            let matchers: [Cuckoo.ParameterMatcher<(RootSetupState)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRootInteractorOutputProtocol.self,
-                method: "didCompleteSetup()",
+                method: "didUpdateSetup(_ p0: RootSetupState)",
                 parameterMatchers: matchers
             ))
         }
 
-        func didFailSetup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+        func didFailSetup<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(RootSetupFailure)> where M1.MatchedType == RootSetupFailure {
+            let matchers: [Cuckoo.ParameterMatcher<(RootSetupFailure)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockRootInteractorOutputProtocol.self,
-                method: "didFailSetup()",
+                method: "didFailSetup(_ p0: RootSetupFailure)",
                 parameterMatchers: matchers
             ))
         }
@@ -18985,10 +18985,10 @@ class MockRootInteractorOutputProtocol: RootInteractorOutputProtocol, Cuckoo.Pro
         }
 
         @discardableResult
-        func didCompleteSetup() -> Cuckoo.__DoNotUse<(), Void> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+        func didUpdateSetup<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(RootSetupState), Void> where M1.MatchedType == RootSetupState {
+            let matchers: [Cuckoo.ParameterMatcher<(RootSetupState)>] = [wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
-                "didCompleteSetup()",
+                "didUpdateSetup(_ p0: RootSetupState)",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -18996,10 +18996,10 @@ class MockRootInteractorOutputProtocol: RootInteractorOutputProtocol, Cuckoo.Pro
         }
 
         @discardableResult
-        func didFailSetup() -> Cuckoo.__DoNotUse<(), Void> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+        func didFailSetup<M1: Cuckoo.Matchable>(_ p0: M1) -> Cuckoo.__DoNotUse<(RootSetupFailure), Void> where M1.MatchedType == RootSetupFailure {
+            let matchers: [Cuckoo.ParameterMatcher<(RootSetupFailure)>] = [wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
-                "didFailSetup()",
+                "didFailSetup(_ p0: RootSetupFailure)",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -19010,11 +19010,11 @@ class MockRootInteractorOutputProtocol: RootInteractorOutputProtocol, Cuckoo.Pro
 
 class RootInteractorOutputProtocolStub:RootInteractorOutputProtocol, @unchecked Sendable {
 
-    func didCompleteSetup() {
+    func didUpdateSetup(_ p0: RootSetupState) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 
-    func didFailSetup() {
+    func didFailSetup(_ p0: RootSetupFailure) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }

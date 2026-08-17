@@ -38,6 +38,11 @@ final class ExactAssetPriceCache: @unchecked Sendable {
         lock.unlock()
     }
 
+    /// Compatibility spelling used by price subscription and migration paths.
+    func merge(_ prices: [PriceData]) {
+        upsert(prices)
+    }
+
     /// Replaces the complete cache snapshot. Kept explicit so tests and future
     /// lifecycle owners cannot accidentally use a partial refresh as a reset.
     func replaceAll(with prices: [PriceData]) {
@@ -62,6 +67,14 @@ final class ExactAssetPriceCache: @unchecked Sendable {
         lock.unlock()
     }
 
+    func removeAll() {
+        clear()
+    }
+
+    func price(currencyId: String, priceId: String) -> PriceData? {
+        price(priceId: priceId, currencyId: currencyId)
+    }
+
     private static func validatedKey(for price: PriceData) -> AssetPriceKey? {
         guard !price.priceId.isEmpty,
               !price.currencyId.isEmpty else {
@@ -76,11 +89,29 @@ final class ExactAssetPriceCache: @unchecked Sendable {
               let decimalPrice = scanner.scanDecimal(),
               scanner.isAtEnd,
               !decimalPrice.isNaN,
-              decimalPrice >= .zero else {
+              decimalPrice > .zero else {
             return nil
         }
 
         return AssetPriceKey(priceId: price.priceId, currencyId: price.currencyId)
+    }
+}
+
+typealias AssetPriceCache = ExactAssetPriceCache
+
+public extension AssetModel {
+    /// Resolves only a price whose provider and fiat currency identities were
+    /// preserved by the live or migrated price cache. The legacy scalar
+    /// `price` has no currency provenance and must never be relabelled here.
+    func getPrice(for currency: Currency) -> PriceData? {
+        guard let priceId else {
+            return nil
+        }
+
+        return ExactAssetPriceCache.shared.price(
+            priceId: priceId,
+            currencyId: currency.id
+        )
     }
 }
 

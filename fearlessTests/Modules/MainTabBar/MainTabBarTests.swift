@@ -412,6 +412,12 @@ final class MainTabBarTests: XCTestCase {
         performAppearanceTransition(on: viewController, appearing: false)
     }
 
+    func testApplicationDoesNotForcePreIOS26DesignCompatibility() {
+        XCTAssertNil(
+            Bundle.main.object(forInfoDictionaryKey: "UIDesignRequiresCompatibility")
+        )
+    }
+
     private func makePositionChain() -> ChainModel {
         let asset = AssetModel(
             id: "UNIT",

@@ -12,7 +12,7 @@ TRANSFER_TEST="$ROOT_DIR/fearlessTests/ApplicationLayer/Services/FeatureToggle/T
 REGISTRY="$ROOT_DIR/fearless/Common/Model/UniversalWalletRegistry.swift"
 PROJECT="$ROOT_DIR/fearless.xcodeproj/project.pbxproj"
 PODFILE="$ROOT_DIR/Podfile"
-EXPECTED_MANIFEST_SHA256="3e35a7667af81feff4d6a3dbb88babb6d56e8697672bd7d244215ae4e5855920"
+EXPECTED_MANIFEST_SHA256="d027088dfafe4b4595573c92db880830ccef49eee3320678fbdbdeb529d0869b"
 
 fail() {
   echo "[iroha-send-readiness][ios][error] $*" >&2
@@ -117,10 +117,10 @@ const taggedSlices = {
 assert(JSON.stringify(artifact.publishedSliceSha256) === JSON.stringify(publishedSlices), 'published slice hashes drifted');
 
 const integration = manifest.integrationAssessment;
-assert(integration?.appMinimumIOS === '14.1', 'app minimum iOS evidence drifted');
+assert(integration?.appMinimumIOS === '15.0', 'app minimum iOS evidence drifted');
 assert(integration?.sdkMinimumIOS === '15.0', 'SDK minimum iOS evidence drifted');
-assert(integration?.minimumOSCompatible === false, 'minimum OS mismatch must remain explicit');
-assert(integration?.productMinimumOSChangeApproved === false, 'product minimum OS change must remain unapproved');
+assert(integration?.minimumOSCompatible === true, 'minimum OS compatibility evidence drifted');
+assert(integration?.productMinimumOSChangeApproved === true, 'approved product minimum OS change evidence drifted');
 assert(integration?.sdkLinkageApproved === false, 'SDK linkage must remain unapproved');
 assert(integration?.taggedPackageDelivery === 'path-binary-target-with-symlink-placeholder', 'tagged package delivery evidence drifted');
 assert(integration?.taggedPackageResolution === 'fails-without-separate-dist-materialization', 'tagged package resolution blocker drifted');
@@ -186,7 +186,7 @@ for (const [key, value] of Object.entries(manifest.liveEvidence ?? {})) {
 assert(Object.keys(manifest.liveEvidence ?? {}).length === 6, 'live evidence key set drifted');
 assert(manifest.blocker?.code === 'apple_xcframework_review_and_materialization_required', 'unexpected blocker code');
 assert(manifest.blocker?.defaultSigner === 'UnavailableIrohaTransferSigner', 'unexpected blocker signer');
-assert(Array.isArray(manifest.exitCriteria) && manifest.exitCriteria.length === 11, 'exactly eleven exit criteria are required');
+assert(Array.isArray(manifest.exitCriteria) && manifest.exitCriteria.length === 10, 'exactly ten exit criteria are required');
 assert(new Set(manifest.exitCriteria).size === manifest.exitCriteria.length, 'exit criteria must be unique');
 NODE
 
@@ -392,14 +392,14 @@ const appBlocks = appMarkers.map((marker) => {
   if (start < 0 || end < 0) fail('Fearless app build-settings boundary is malformed');
   return project.slice(start, end);
 });
-if (appBlocks.length !== 3 || appBlocks.some((block) => !block.includes('IPHONEOS_DEPLOYMENT_TARGET = 14.1;'))) {
-  fail('Fearless app deployment target must remain iOS 14.1 while the SDK is blocked');
+if (appBlocks.length !== 3 || appBlocks.some((block) => !block.includes('IPHONEOS_DEPLOYMENT_TARGET = 15.0;'))) {
+  fail('Fearless app deployment target must remain exactly iOS 15.0');
 }
 NODE
 
 require_fixed "$PODFILE" \
-  "config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.1'" \
-  "CocoaPods iOS 14.1 deployment target"
+  "config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'" \
+  "CocoaPods iOS 15.0 deployment target"
 
 if grep -Eq 'repositoryURL = ".*(hyperledger/iroha|IrohaSwift)|productName = (IrohaSwift|NoritoBridge)' "$PROJECT"; then
   fail "IrohaSwift/NoritoBridge was added to the Xcode dependency graph before review"
@@ -447,7 +447,6 @@ for marker in \
   'dc944af3dc98d37d349b9f95fe25b9e4a920f095db58adbcccc6354fc28ada4b' \
   '1396110349' \
   '704780504' \
-  'iOS `14.1`' \
   'iOS `15.0`' \
   'public default arguments' \
   'None matches the corresponding published release slice' \
@@ -483,7 +482,7 @@ require_fixed "$UNIVERSAL_DOC" \
   "Universal Wallet exact wallet-smoke metadata statement"
 
 for marker in \
-  'iOS 14.1 versus SDK iOS 15 support decision' \
+  'enforced iOS 15 product minimum' \
   'canonical compact transaction-hash parity' \
   'authoritative protocol chain ID' \
   'zeroizable secret-lifecycle boundary' \
@@ -493,4 +492,4 @@ for marker in \
   require_fixed "$RELEASE_CHECKLIST" "$marker" "release checklist Iroha gate '$marker'"
 done
 
-echo "[iroha-send-readiness][ios] 14.1/15, source/binary, parity, protocol, key-lifecycle, receipt, live-evidence, and fail-closed invariants passed."
+echo "[iroha-send-readiness][ios] 15/15 platform alignment, source/binary, parity, protocol, key-lifecycle, receipt, live-evidence, and fail-closed invariants passed."

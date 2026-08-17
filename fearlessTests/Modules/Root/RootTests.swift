@@ -99,7 +99,7 @@ class RootTests: XCTestCase {
             guard
                 let preflightError = error as? RootStoragePreflightError,
                 case let .managedObjectClassUnavailable(entityName, className) =
-                    preflightError
+                preflightError
             else {
                 return XCTFail("Expected a class-resolution failure, got \(error)")
             }
@@ -279,7 +279,7 @@ class RootTests: XCTestCase {
 
         XCTAssertEqual(providerInvocationCount, 0)
 
-        _ = helper.startView(onboardingConfig: nil)
+        XCTAssertThrowsError(try helper.startView(onboardingConfig: nil))
 
         XCTAssertEqual(providerInvocationCount, 1)
     }
@@ -297,7 +297,8 @@ class RootTests: XCTestCase {
         )
 
         stub(output) { stub in
-            stub.didFailSetup().then {
+            stub.didUpdateSetup(any()).thenDoNothing()
+            stub.didFailSetup(any()).then { _ in
                 failureExpectation.fulfill()
             }
         }
@@ -317,11 +318,11 @@ class RootTests: XCTestCase {
             },
             applicationConfig: ApplicationConfig.shared,
             eventCenter: MockEventCenterProtocol(),
-            migrators: [
-                RecordingRootMigrator(
+            migrationSteps: [
+                rootMigrationStep(RecordingRootMigrator(
                     recorder: recorder,
                     error: RootSetupTestError.migrationFailed
-                )
+                ))
             ],
             onboardingService: StubOnboardingService(
                 result: .failure(OnboardingServiceError.empty)
@@ -342,8 +343,8 @@ class RootTests: XCTestCase {
         XCTAssertEqual(recorder.snapshot, [.migration])
         verify(chainRegistry, times(0)).performHotBoot()
         verify(chainRegistry, times(0)).performColdBoot()
-        verify(output, times(0)).didCompleteSetup()
-        verify(output, times(1)).didFailSetup()
+        verify(output, times(0)).didUpdateSetup(equal(to: .ready))
+        verify(output, times(1)).didFailSetup(any())
     }
 
     func testMigrationFailureBlocksNoMigrationBypassAndRequiredRetryRerunsMigration() {
@@ -378,7 +379,8 @@ class RootTests: XCTestCase {
             }
         }
         stub(output) { stub in
-            stub.didFailSetup().then {
+            stub.didUpdateSetup(any()).thenDoNothing()
+            stub.didFailSetup(any()).then { _ in
                 failureCallbackCount += 1
 
                 if failureCallbackCount == 1 {
@@ -387,7 +389,7 @@ class RootTests: XCTestCase {
                     blockedBypassExpectation.fulfill()
                 }
             }
-            stub.didCompleteSetup().then {
+            stub.didUpdateSetup(equal(to: .ready)).then { _ in
                 retryCompletionExpectation.fulfill()
             }
         }
@@ -410,7 +412,7 @@ class RootTests: XCTestCase {
             },
             applicationConfig: ApplicationConfig.shared,
             eventCenter: MockEventCenterProtocol(),
-            migrators: [migrator],
+            migrationSteps: [rootMigrationStep(migrator)],
             onboardingService: StubOnboardingService(
                 result: .failure(OnboardingServiceError.empty)
             ),
@@ -449,19 +451,19 @@ class RootTests: XCTestCase {
                 .migration,
                 .storagePreflightProvider,
                 .storagePreflight,
-                .chainRegistry,
                 .walletSettingsProvider,
                 .walletSetup,
+                .chainRegistry,
                 .coldBoot
             ]
         )
         verify(chainRegistry, times(0)).performHotBoot()
         verify(chainRegistry, times(1)).performColdBoot()
-        verify(output, times(1)).didCompleteSetup()
-        verify(output, times(2)).didFailSetup()
+        verify(output, times(1)).didUpdateSetup(equal(to: .ready))
+        verify(output, times(2)).didFailSetup(any())
     }
 
-    func testMigrationDeadlineFailsClosedAndRetriesReuseSingleRunningAttempt() {
+    func testMigrationCompletingAfterSixtySecondsAutoContinuesWithoutRetry() {
         let recorder = RootSetupEventRecorder()
         let settings = RecordingImmediateRootSelectedWalletSettings(
             recorder: recorder,
@@ -472,32 +474,23 @@ class RootTests: XCTestCase {
         let migrationStartedExpectation = expectation(
             description: "migration attempt starts"
         )
-        let firstDeadlineScheduledExpectation = expectation(
-            description: "first migration deadline is scheduled"
+        let migrationThresholdScheduledExpectation = expectation(
+            description: "migration slow threshold is scheduled"
         )
-        let retryDeadlineScheduledExpectation = expectation(
-            description: "retry waits on the same migration attempt"
-        )
-        let timeoutFailureExpectation = expectation(
-            description: "migration timeout fails setup"
-        )
-        let bypassFailureExpectation = expectation(
-            description: "no-migration request cannot bypass running migration"
+        let slowExpectation = expectation(
+            description: "migration reports a nonterminal slow state"
         )
         let completionExpectation = expectation(
-            description: "required retry completes after original migration"
+            description: "original migration completes setup"
         )
         let deadlineScheduler = ManualRootSetupDeadlineScheduler(
-            scheduledExpectations: [
-                firstDeadlineScheduledExpectation,
-                retryDeadlineScheduledExpectation
-            ]
+            scheduledExpectations: [migrationThresholdScheduledExpectation]
         )
         let migrator = BlockingRootMigrator(
             recorder: recorder,
             startedExpectation: migrationStartedExpectation
         )
-        var failureCount = 0
+        let clock = ControllableRootMonotonicClock(now: 1000)
 
         stub(chainRegistry) { stub in
             stub.performColdBoot().then {
@@ -505,15 +498,13 @@ class RootTests: XCTestCase {
             }
         }
         stub(output) { stub in
-            stub.didFailSetup().then {
-                failureCount += 1
-                if failureCount == 1 {
-                    timeoutFailureExpectation.fulfill()
-                } else if failureCount == 2 {
-                    bypassFailureExpectation.fulfill()
-                }
+            stub.didUpdateSetup(any()).thenDoNothing()
+            stub.didUpdateSetup(
+                equal(to: .slow(.userStorageMigration, elapsedTime: 60))
+            ).then { _ in
+                slowExpectation.fulfill()
             }
-            stub.didCompleteSetup().then {
+            stub.didUpdateSetup(equal(to: .ready)).then { _ in
                 completionExpectation.fulfill()
             }
         }
@@ -536,16 +527,17 @@ class RootTests: XCTestCase {
             },
             applicationConfig: ApplicationConfig.shared,
             eventCenter: MockEventCenterProtocol(),
-            migrators: [migrator],
+            migrationSteps: [rootMigrationStep(migrator)],
             onboardingService: StubOnboardingService(
                 result: .failure(OnboardingServiceError.empty)
             ),
             onboardingConfigResolver: OnboardingConfigVersionResolver(
                 userDefaultsStorage: InMemorySettingsManager()
             ),
-            migrationDeadline: 7,
-            setupDeadline: 42,
-            setupDeadlineScheduler: deadlineScheduler.schedule
+            migrationDeadline: 60,
+            setupDeadline: 15,
+            setupDeadlineScheduler: deadlineScheduler.schedule,
+            monotonicTimeProvider: clock.currentTime
         )
         interactor.presenter = output
         defer {
@@ -556,33 +548,24 @@ class RootTests: XCTestCase {
         wait(
             for: [
                 migrationStartedExpectation,
-                firstDeadlineScheduledExpectation
+                migrationThresholdScheduledExpectation
             ],
             timeout: Constants.defaultExpectationDuration
         )
 
-        XCTAssertEqual(deadlineScheduler.delays, [7])
+        XCTAssertEqual(deadlineScheduler.delays, [60])
+        clock.advance(by: 60)
         deadlineScheduler.fire(at: 0)
-        wait(
-            for: [timeoutFailureExpectation],
-            timeout: Constants.defaultExpectationDuration
-        )
+        wait(for: [slowExpectation], timeout: Constants.defaultExpectationDuration)
 
+        // Reloads and repeated Retry taps while the original operation is
+        // active must coalesce behind the same writer.
         interactor.setup(runMigrations: false)
-        wait(
-            for: [bypassFailureExpectation],
-            timeout: Constants.defaultExpectationDuration
-        )
-
         interactor.setup(runMigrations: true)
-        wait(
-            for: [retryDeadlineScheduledExpectation],
-            timeout: Constants.defaultExpectationDuration
-        )
 
         XCTAssertEqual(migrator.invocationCount, 1)
         XCTAssertEqual(migrator.maximumConcurrentInvocationCount, 1)
-        XCTAssertEqual(deadlineScheduler.delays, [7, 7])
+        XCTAssertEqual(deadlineScheduler.delays, [60])
         verify(chainRegistry, times(0)).performHotBoot()
         verify(chainRegistry, times(0)).performColdBoot()
 
@@ -598,17 +581,17 @@ class RootTests: XCTestCase {
                 .migration,
                 .storagePreflightProvider,
                 .storagePreflight,
-                .chainRegistry,
                 .walletSettingsProvider,
                 .walletSetup,
+                .chainRegistry,
                 .coldBoot
             ]
         )
         XCTAssertEqual(migrator.invocationCount, 1)
         XCTAssertEqual(migrator.maximumConcurrentInvocationCount, 1)
-        XCTAssertEqual(deadlineScheduler.delays, [7, 7, 42, 42])
-        verify(output, times(2)).didFailSetup()
-        verify(output, times(1)).didCompleteSetup()
+        XCTAssertEqual(deadlineScheduler.delays, [60, 15, 15])
+        verify(output, times(0)).didFailSetup(any())
+        verify(output, times(1)).didUpdateSetup(equal(to: .ready))
         verify(chainRegistry, times(0)).performHotBoot()
         verify(chainRegistry, times(1)).performColdBoot()
     }
@@ -626,7 +609,8 @@ class RootTests: XCTestCase {
         )
 
         stub(output) { stub in
-            stub.didFailSetup().then {
+            stub.didUpdateSetup(any()).thenDoNothing()
+            stub.didFailSetup(any()).then { _ in
                 failureExpectation.fulfill()
             }
         }
@@ -649,7 +633,9 @@ class RootTests: XCTestCase {
             },
             applicationConfig: ApplicationConfig.shared,
             eventCenter: MockEventCenterProtocol(),
-            migrators: [RecordingRootMigrator(recorder: recorder)],
+            migrationSteps: [
+                rootMigrationStep(RecordingRootMigrator(recorder: recorder))
+            ],
             onboardingService: StubOnboardingService(
                 result: .failure(OnboardingServiceError.empty)
             ),
@@ -672,8 +658,8 @@ class RootTests: XCTestCase {
         )
         verify(chainRegistry, times(0)).performHotBoot()
         verify(chainRegistry, times(0)).performColdBoot()
-        verify(output, times(0)).didCompleteSetup()
-        verify(output, times(1)).didFailSetup()
+        verify(output, times(0)).didUpdateSetup(equal(to: .ready))
+        verify(output, times(1)).didFailSetup(any())
     }
 
     func testWalletFailureRetryDoesNotRerunMigrationsAgainstResolvedStores() {
@@ -700,10 +686,11 @@ class RootTests: XCTestCase {
             }
         }
         stub(output) { stub in
-            stub.didFailSetup().then {
+            stub.didUpdateSetup(any()).thenDoNothing()
+            stub.didFailSetup(any()).then { _ in
                 firstFailureExpectation.fulfill()
             }
-            stub.didCompleteSetup().then {
+            stub.didUpdateSetup(equal(to: .ready)).then { _ in
                 retryCompletionExpectation.fulfill()
             }
         }
@@ -726,7 +713,9 @@ class RootTests: XCTestCase {
             },
             applicationConfig: ApplicationConfig.shared,
             eventCenter: MockEventCenterProtocol(),
-            migrators: [RecordingRootMigrator(recorder: recorder)],
+            migrationSteps: [
+                rootMigrationStep(RecordingRootMigrator(recorder: recorder))
+            ],
             onboardingService: StubOnboardingService(
                 result: .failure(OnboardingServiceError.empty)
             ),
@@ -747,7 +736,6 @@ class RootTests: XCTestCase {
             [
                 .storagePreflightProvider,
                 .storagePreflight,
-                .chainRegistry,
                 .walletSettingsProvider,
                 .walletSetup
             ]
@@ -764,19 +752,19 @@ class RootTests: XCTestCase {
             [
                 .storagePreflightProvider,
                 .storagePreflight,
-                .chainRegistry,
                 .walletSettingsProvider,
                 .walletSetup,
                 .storagePreflightProvider,
                 .storagePreflight,
                 .walletSetup,
+                .chainRegistry,
                 .coldBoot
             ]
         )
         verify(chainRegistry, times(0)).performHotBoot()
         verify(chainRegistry, times(1)).performColdBoot()
-        verify(output, times(1)).didCompleteSetup()
-        verify(output, times(1)).didFailSetup()
+        verify(output, times(1)).didUpdateSetup(equal(to: .ready))
+        verify(output, times(1)).didFailSetup(any())
     }
 
     func testMigrationFailureDoesNotLoadWalletOrRouteAndPreservesPincode() throws {
@@ -815,7 +803,7 @@ class RootTests: XCTestCase {
             settings: settings,
             keystore: keystore,
             userDefaultsStorage: InMemorySettingsManager(),
-            migrators: [migrator],
+            migrationSteps: [rootMigrationStep(migrator)],
             view: alertController,
             chainRegistryProvider: {
                 recorder.record(.chainRegistry)
@@ -886,7 +874,9 @@ class RootTests: XCTestCase {
             settings: settings,
             keystore: keystore,
             userDefaultsStorage: InMemorySettingsManager(),
-            migrators: [RecordingRootMigrator(recorder: recorder)],
+            migrationSteps: [
+                rootMigrationStep(RecordingRootMigrator(recorder: recorder))
+            ],
             view: alertController,
             chainRegistryProvider: {
                 recorder.record(.chainRegistry)
@@ -978,18 +968,81 @@ class RootTests: XCTestCase {
         verify(wireframe, times(0)).showOnboarding(on: any(), with: any())
     }
 
-    func testOutOfOrderDualSetupRejectsStaleCallbackBeforeBootOrPresenterMutation() {
-        let firstRequestStarted = expectation(description: "first wallet request starts")
-        let secondRequestStarted = expectation(description: "retry wallet request starts")
-        let newestSetupCompleted = expectation(description: "newest setup completes")
+    func testUnavailableWalletStateFailsTypedBeforeBootOrReady() {
+        let recorder = RootSetupEventRecorder()
+        let settings = RecordingImmediateRootSelectedWalletSettings(
+            recorder: recorder,
+            result: .success(nil),
+            storeState: .unavailable
+        )
+        let chainRegistry = MockChainRegistryProtocol()
+        let output = MockRootInteractorOutputProtocol()
+        let failureExpectation = expectation(
+            description: "unavailable wallet store reports a typed failure"
+        )
+        var failedState: RootSetupFailure?
+
+        stub(output) { stub in
+            stub.didUpdateSetup(any()).then { state in
+                if case let .failed(failure) = state {
+                    failedState = failure
+                }
+            }
+            stub.didFailSetup(any()).then { failure in
+                XCTAssertEqual(failedState, failure)
+                XCTAssertEqual(failure.phase, .selectedWalletOpening)
+                XCTAssertEqual(failure.incidentCode, .walletRecordRejected)
+                XCTAssertEqual(failure.recoveryAction, .installLatestBuild)
+                failureExpectation.fulfill()
+            }
+        }
+
+        let interactor = RootInteractor(
+            chainRegistryProvider: {
+                XCTFail("Rejected wallet storage must not resolve the registry")
+                return chainRegistry
+            },
+            storagePreflightProvider: {
+                RecordingRootStoragePreflight(
+                    recorder: recorder,
+                    result: .success(())
+                )
+            },
+            settings: settings,
+            applicationConfig: ApplicationConfig.shared,
+            eventCenter: MockEventCenterProtocol(),
+            migrationSteps: [],
+            onboardingService: StubOnboardingService(
+                result: .failure(OnboardingServiceError.empty)
+            ),
+            onboardingConfigResolver: OnboardingConfigVersionResolver(
+                userDefaultsStorage: InMemorySettingsManager()
+            )
+        )
+        interactor.presenter = output
+
+        interactor.setup(runMigrations: false)
+        wait(
+            for: [failureExpectation],
+            timeout: Constants.defaultExpectationDuration
+        )
+
+        XCTAssertEqual(recorder.snapshot, [.storagePreflight, .walletSetup])
+        verify(chainRegistry, times(0)).performHotBoot()
+        verify(chainRegistry, times(0)).performColdBoot()
+        verify(output, times(0)).didUpdateSetup(equal(to: .ready))
+        verify(output, times(1)).didFailSetup(any())
+    }
+
+    func testRepeatedSetupCallsCoalesceAndStaleWalletCallbacksCannotMutateReadyState() {
+        let firstRequestStarted = expectation(description: "wallet request starts")
+        let setupCompleted = expectation(description: "setup completes")
         let staleSuccessDelivered = expectation(description: "stale success callback returns")
         let staleFailureDelivered = expectation(description: "stale failure callback returns")
         let settings = ControllableRootSelectedWalletSettings(
-            requestStartedExpectations: [
-                firstRequestStarted,
-                secondRequestStarted
-            ]
+            requestStartedExpectations: [firstRequestStarted]
         )
+        let startupRouteValidationStore = RootStartupRouteValidationStore()
         let recorder = RootGenerationEventRecorder()
         let chainRegistry = MockChainRegistryProtocol()
         let output = MockRootInteractorOutputProtocol()
@@ -1003,11 +1056,12 @@ class RootTests: XCTestCase {
             }
         }
         stub(output) { stub in
-            stub.didCompleteSetup().then {
+            stub.didUpdateSetup(any()).thenDoNothing()
+            stub.didUpdateSetup(equal(to: .ready)).then { _ in
                 recorder.record(.completed)
-                newestSetupCompleted.fulfill()
+                setupCompleted.fulfill()
             }
-            stub.didFailSetup().then {
+            stub.didFailSetup(any()).then { _ in
                 recorder.record(.failed)
             }
         }
@@ -1020,27 +1074,42 @@ class RootTests: XCTestCase {
             settings: settings,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: MockEventCenterProtocol(),
-            migrators: [],
+            migrationSteps: [],
             onboardingService: StubOnboardingService(
                 result: .failure(OnboardingServiceError.empty)
             ),
             onboardingConfigResolver: OnboardingConfigVersionResolver(
                 userDefaultsStorage: InMemorySettingsManager()
-            )
+            ),
+            startupRouteValidationStore: startupRouteValidationStore
         )
         interactor.presenter = output
 
         interactor.setup(runMigrations: false)
         wait(for: [firstRequestStarted], timeout: Constants.defaultExpectationDuration)
 
-        interactor.setup(runMigrations: false)
-        wait(for: [secondRequestStarted], timeout: Constants.defaultExpectationDuration)
+        for index in 0 ..< 20 {
+            interactor.setup(runMigrations: index.isMultiple(of: 2))
+        }
+
+        let coalescedCallsDrained = expectation(
+            description: "repeated calls reach the setup queue"
+        )
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) {
+            coalescedCallsDrained.fulfill()
+        }
+        wait(
+            for: [coalescedCallsDrained],
+            timeout: Constants.defaultExpectationDuration
+        )
+
+        XCTAssertEqual(settings.requestCount, 1)
 
         settings.resolveRequest(
-            at: 1,
+            at: 0,
             with: .success(nil)
         )
-        wait(for: [newestSetupCompleted], timeout: Constants.defaultExpectationDuration)
+        wait(for: [setupCompleted], timeout: Constants.defaultExpectationDuration)
 
         XCTAssertEqual(recorder.snapshot, [.coldBoot, .completed])
         XCTAssertEqual(recorder.routeState, .completed)
@@ -1062,25 +1131,23 @@ class RootTests: XCTestCase {
 
         XCTAssertEqual(recorder.snapshot, [.coldBoot, .completed])
         XCTAssertEqual(recorder.routeState, .completed)
+        XCTAssertEqual(startupRouteValidationStore.take(), .empty)
+        XCTAssertNil(startupRouteValidationStore.take())
         verify(chainRegistry, times(0)).performHotBoot()
         verify(chainRegistry, times(1)).performColdBoot()
-        verify(output, times(1)).didCompleteSetup()
-        verify(output, times(0)).didFailSetup()
+        verify(output, times(1)).didUpdateSetup(equal(to: .ready))
+        verify(output, times(0)).didFailSetup(any())
     }
 
-    func testPreflightTimeoutIgnoresLateResultAndRetryUsesFreshAttempt() {
-        let firstRequestStarted = expectation(description: "first preflight starts")
-        let secondRequestStarted = expectation(description: "retry preflight starts")
-        let firstTimedOut = expectation(description: "first preflight times out")
-        let retryCompleted = expectation(description: "retry completes")
-        let staleResultDelivered = expectation(description: "late preflight returns")
+    func testPreflightCompletingAfterFifteenSecondsAutoContinuesWithoutRetry() {
+        let requestStarted = expectation(description: "preflight starts")
+        let slowExpectation = expectation(description: "preflight reports slow")
+        let setupCompleted = expectation(description: "late preflight completes setup")
         let preflight = ControllableRootStoragePreflight(
-            requestStartedExpectations: [
-                firstRequestStarted,
-                secondRequestStarted
-            ]
+            requestStartedExpectations: [requestStarted]
         )
         let deadlineScheduler = ManualRootSetupDeadlineScheduler()
+        let clock = ControllableRootMonotonicClock(now: 500)
         let settings = RecordingImmediateRootSelectedWalletSettings(
             recorder: RootSetupEventRecorder(),
             result: .success(nil)
@@ -1092,11 +1159,14 @@ class RootTests: XCTestCase {
             stub.performColdBoot().thenDoNothing()
         }
         stub(output) { stub in
-            stub.didFailSetup().then {
-                firstTimedOut.fulfill()
+            stub.didUpdateSetup(any()).thenDoNothing()
+            stub.didUpdateSetup(
+                equal(to: .slow(.substratePreflight, elapsedTime: 15))
+            ).then { _ in
+                slowExpectation.fulfill()
             }
-            stub.didCompleteSetup().then {
-                retryCompleted.fulfill()
+            stub.didUpdateSetup(equal(to: .ready)).then { _ in
+                setupCompleted.fulfill()
             }
         }
 
@@ -1106,69 +1176,61 @@ class RootTests: XCTestCase {
             settings: settings,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: MockEventCenterProtocol(),
-            migrators: [],
+            migrationSteps: [],
             onboardingService: StubOnboardingService(
                 result: .failure(OnboardingServiceError.empty)
             ),
             onboardingConfigResolver: OnboardingConfigVersionResolver(
                 userDefaultsStorage: InMemorySettingsManager()
             ),
-            setupDeadline: 42,
-            setupDeadlineScheduler: deadlineScheduler.schedule
+            setupDeadline: 15,
+            setupDeadlineScheduler: deadlineScheduler.schedule,
+            monotonicTimeProvider: clock.currentTime
         )
         interactor.presenter = output
 
         interactor.setup(runMigrations: false)
         wait(
-            for: [firstRequestStarted],
+            for: [requestStarted],
             timeout: Constants.defaultExpectationDuration
         )
-        XCTAssertEqual(deadlineScheduler.delays, [42])
+        XCTAssertEqual(deadlineScheduler.delays, [15])
+        clock.advance(by: 15)
         deadlineScheduler.fire(at: 0)
-        wait(
-            for: [firstTimedOut],
-            timeout: Constants.defaultExpectationDuration
-        )
+        wait(for: [slowExpectation], timeout: Constants.defaultExpectationDuration)
 
+        // A user tap after the slow threshold must not create a second open.
         interactor.setup(runMigrations: false)
-        wait(
-            for: [secondRequestStarted],
-            timeout: Constants.defaultExpectationDuration
-        )
-        XCTAssertEqual(deadlineScheduler.delays, [42, 42])
         preflight.resolveRequest(
             at: 0,
-            with: .success(()),
-            deliveryExpectation: staleResultDelivered
+            with: .success(())
         )
-        preflight.resolveRequest(at: 1, with: .success(()))
 
         wait(
-            for: [staleResultDelivered, retryCompleted],
+            for: [setupCompleted],
             timeout: Constants.defaultExpectationDuration
         )
-        XCTAssertEqual(deadlineScheduler.delays, [42, 42, 42])
-        deadlineScheduler.fire(at: 1)
-        deadlineScheduler.fire(at: 2)
+        XCTAssertEqual(preflight.requestCount, 1)
+        XCTAssertEqual(deadlineScheduler.delays, [15, 15])
 
         verify(chainRegistry, times(0)).performHotBoot()
         verify(chainRegistry, times(1)).performColdBoot()
-        verify(output, times(1)).didFailSetup()
-        verify(output, times(1)).didCompleteSetup()
+        verify(output, times(0)).didFailSetup(any())
+        verify(output, times(1)).didUpdateSetup(equal(to: .ready))
     }
 
-    func testSynchronouslyBlockedPreflightTimesOutAndDoesNotBlockRetry() {
+    func testSynchronouslyBlockedPreflightSlowStateDoesNotFailAndLateSuccessWinsOnce() {
         let blockedRequestStarted = expectation(
             description: "blocking preflight starts"
         )
-        let firstRequestTimedOut = expectation(
-            description: "blocking preflight times out"
+        let slowExpectation = expectation(
+            description: "blocking preflight reports slow"
         )
-        firstRequestTimedOut.assertForOverFulfill = true
-        let retryCompleted = expectation(
-            description: "retry completes while first preflight remains blocked"
+        slowExpectation.assertForOverFulfill = true
+        let setupCompleted = expectation(
+            description: "original preflight completes after release"
         )
-        retryCompleted.assertForOverFulfill = true
+        setupCompleted.assertForOverFulfill = true
         let lateCallbacksDelivered = expectation(
             description: "blocked preflight delivers late success and failure"
         )
@@ -1197,13 +1259,16 @@ class RootTests: XCTestCase {
             stub.performColdBoot().thenDoNothing()
         }
         stub(output) { stub in
-            stub.didFailSetup().then {
+            stub.didUpdateSetup(any()).then { state in
                 XCTAssertTrue(Thread.isMainThread)
-                firstRequestTimedOut.fulfill()
-            }
-            stub.didCompleteSetup().then {
-                XCTAssertTrue(Thread.isMainThread)
-                retryCompleted.fulfill()
+                switch state {
+                case .slow(.substratePreflight, _):
+                    slowExpectation.fulfill()
+                case .ready:
+                    setupCompleted.fulfill()
+                case .running, .slow, .failed:
+                    break
+                }
             }
         }
 
@@ -1214,7 +1279,7 @@ class RootTests: XCTestCase {
             settings: settings,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: MockEventCenterProtocol(),
-            migrators: [],
+            migrationSteps: [],
             onboardingService: StubOnboardingService(
                 result: .failure(OnboardingServiceError.empty)
             ),
@@ -1231,29 +1296,22 @@ class RootTests: XCTestCase {
             timeout: Constants.defaultExpectationDuration
         )
 
-        // The preflight invocation is still synchronously blocked. The default
-        // deadline must run independently and report failure before release.
         wait(
-            for: [firstRequestTimedOut],
+            for: [slowExpectation],
             timeout: Constants.defaultExpectationDuration
         )
 
+        // Repeated setup calls remain coalesced while the original call is
+        // synchronously blocked.
         interactor.setup(runMigrations: false)
-        wait(
-            for: [retryCompleted],
-            timeout: Constants.defaultExpectationDuration
-        )
-
-        // Both late outcomes from the timed-out generation must lose the same
-        // completion gate and must not mutate the successful retry's route.
         blockedPreflight.release()
         wait(
-            for: [lateCallbacksDelivered],
+            for: [lateCallbacksDelivered, setupCompleted],
             timeout: Constants.defaultExpectationDuration
         )
 
         let pendingDeadlinesDrained = expectation(
-            description: "retry deadlines have had time to lose their gates"
+            description: "stale slow callbacks have had time to drain"
         )
         DispatchQueue.global().asyncAfter(
             deadline: .now() + setupDeadline * 2
@@ -1267,162 +1325,103 @@ class RootTests: XCTestCase {
 
         verify(chainRegistry, times(0)).performHotBoot()
         verify(chainRegistry, times(1)).performColdBoot()
-        verify(output, times(1)).didFailSetup()
-        verify(output, times(1)).didCompleteSetup()
+        verify(output, times(0)).didFailSetup(any())
+        verify(output, times(1)).didUpdateSetup(equal(to: .ready))
     }
 
-    func testTwoBlockedPreflightsFailFurtherRetriesFastWithoutUnboundedInvocation() {
-        let firstRequestStarted = expectation(
-            description: "first blocking preflight starts"
+    func testProtectedDataUnavailableWaitsWithoutStorageAndResumesAutomatically() {
+        let recorder = RootSetupEventRecorder()
+        let protectedDataObserverRegistered = expectation(
+            description: "protected-data observer is registered"
         )
-        let secondRequestStarted = expectation(
-            description: "second blocking preflight starts"
+        let monitor = ControllableRootProtectedDataAvailabilityMonitor(
+            isAvailable: false,
+            firstObservationExpectation: protectedDataObserverRegistered
         )
-        let firstLateCallbacksDelivered = expectation(
-            description: "first blocked preflight delivers conflicting callbacks"
-        )
-        let secondLateCallbacksDelivered = expectation(
-            description: "second blocked preflight delivers conflicting callbacks"
-        )
-        let firstBlockedPreflight = SynchronouslyBlockingRootStoragePreflight(
-            requestStartedExpectation: firstRequestStarted,
-            lateCallbacksDeliveredExpectation: firstLateCallbacksDelivered
-        )
-        let secondBlockedPreflight = SynchronouslyBlockingRootStoragePreflight(
-            requestStartedExpectation: secondRequestStarted,
-            lateCallbacksDeliveredExpectation: secondLateCallbacksDelivered
-        )
-        defer {
-            firstBlockedPreflight.release()
-            secondBlockedPreflight.release()
-        }
-
-        let preflightSequence = RootStoragePreflightSequence(
-            preflights: [
-                firstBlockedPreflight,
-                secondBlockedPreflight,
-                ImmediateRootStoragePreflight(result: .success(()))
-            ]
-        )
-        let deadlineScheduler = ManualRootSetupDeadlineScheduler()
-        let settingsRecorder = RootSetupEventRecorder()
         let settings = RecordingImmediateRootSelectedWalletSettings(
-            recorder: settingsRecorder,
+            recorder: recorder,
             result: .success(nil)
         )
         let chainRegistry = MockChainRegistryProtocol()
         let output = MockRootInteractorOutputProtocol()
-        let saturatedRetryCount = 16
-        let failureExpectations = (0..<(saturatedRetryCount + 2)).map {
-            expectation(description: "setup failure \($0)")
-        }
-        let failureLock = NSLock()
-        var failureCount = 0
+        let completionExpectation = expectation(
+            description: "unlock resumes and completes setup"
+        )
 
         stub(chainRegistry) { stub in
-            stub.performHotBoot().thenDoNothing()
-            stub.performColdBoot().thenDoNothing()
+            stub.performColdBoot().then {
+                recorder.record(.coldBoot)
+            }
         }
         stub(output) { stub in
-            stub.didFailSetup().then {
-                XCTAssertTrue(Thread.isMainThread)
-
-                failureLock.lock()
-                let failureIndex = failureCount
-                failureCount += 1
-                failureLock.unlock()
-
-                guard failureExpectations.indices.contains(failureIndex) else {
-                    return XCTFail("Received an unexpected setup failure")
-                }
-
-                failureExpectations[failureIndex].fulfill()
-            }
-            stub.didCompleteSetup().then {
-                XCTFail("A saturated preflight must not complete setup")
+            stub.didUpdateSetup(any()).thenDoNothing()
+            stub.didUpdateSetup(equal(to: .ready)).then { _ in
+                completionExpectation.fulfill()
             }
         }
 
         let interactor = RootInteractor(
-            chainRegistryProvider: { chainRegistry },
-            storagePreflightProvider: preflightSequence.next,
-            settings: settings,
+            chainRegistryProvider: {
+                recorder.record(.chainRegistry)
+                return chainRegistry
+            },
+            storagePreflightProvider: {
+                recorder.record(.storagePreflightProvider)
+                return RecordingRootStoragePreflight(
+                    recorder: recorder,
+                    result: .success(())
+                )
+            },
+            settingsProvider: {
+                recorder.record(.walletSettingsProvider)
+                return settings
+            },
             applicationConfig: ApplicationConfig.shared,
             eventCenter: MockEventCenterProtocol(),
-            migrators: [],
+            migrationSteps: [
+                rootMigrationStep(RecordingRootMigrator(recorder: recorder))
+            ],
             onboardingService: StubOnboardingService(
                 result: .failure(OnboardingServiceError.empty)
             ),
             onboardingConfigResolver: OnboardingConfigVersionResolver(
                 userDefaultsStorage: InMemorySettingsManager()
             ),
-            setupDeadline: 42,
-            setupDeadlineScheduler: deadlineScheduler.schedule
+            protectedDataAvailabilityMonitor: monitor
         )
         interactor.presenter = output
 
+        interactor.setup(runMigrations: true)
+        wait(
+            for: [protectedDataObserverRegistered],
+            timeout: Constants.defaultExpectationDuration
+        )
+
+        // Repeated taps while locked remain attached to this same attempt.
+        interactor.setup(runMigrations: true)
         interactor.setup(runMigrations: false)
+        XCTAssertTrue(recorder.snapshot.isEmpty)
+
+        monitor.makeAvailable()
         wait(
-            for: [firstRequestStarted],
-            timeout: Constants.defaultExpectationDuration
-        )
-        XCTAssertEqual(deadlineScheduler.delays, [42])
-        deadlineScheduler.fire(at: 0)
-        wait(
-            for: [failureExpectations[0]],
+            for: [completionExpectation],
             timeout: Constants.defaultExpectationDuration
         )
 
-        interactor.setup(runMigrations: false)
-        wait(
-            for: [secondRequestStarted],
-            timeout: Constants.defaultExpectationDuration
+        XCTAssertEqual(
+            recorder.snapshot,
+            [
+                .migration,
+                .storagePreflightProvider,
+                .storagePreflight,
+                .walletSettingsProvider,
+                .walletSetup,
+                .chainRegistry,
+                .coldBoot
+            ]
         )
-        XCTAssertEqual(deadlineScheduler.delays, [42, 42])
-        deadlineScheduler.fire(at: 1)
-        wait(
-            for: [failureExpectations[1]],
-            timeout: Constants.defaultExpectationDuration
-        )
-
-        for retryIndex in 0..<saturatedRetryCount {
-            interactor.setup(runMigrations: false)
-            wait(
-                for: [failureExpectations[retryIndex + 2]],
-                timeout: Constants.defaultExpectationDuration
-            )
-        }
-
-        XCTAssertEqual(preflightSequence.invocationCount, 2)
-        XCTAssertEqual(deadlineScheduler.delays, [42, 42])
-        XCTAssertTrue(settingsRecorder.snapshot.isEmpty)
-
-        firstBlockedPreflight.release()
-        secondBlockedPreflight.release()
-        wait(
-            for: [
-                firstLateCallbacksDelivered,
-                secondLateCallbacksDelivered
-            ],
-            timeout: Constants.defaultExpectationDuration
-        )
-
-        let mainQueueDrained = expectation(
-            description: "late conflicting callbacks cannot mutate UI"
-        )
-        DispatchQueue.main.async {
-            mainQueueDrained.fulfill()
-        }
-        wait(
-            for: [mainQueueDrained],
-            timeout: Constants.defaultExpectationDuration
-        )
-
-        XCTAssertEqual(preflightSequence.invocationCount, 2)
-        verify(chainRegistry, times(0)).performHotBoot()
-        verify(chainRegistry, times(0)).performColdBoot()
-        verify(output, times(saturatedRetryCount + 2)).didFailSetup()
-        verify(output, times(0)).didCompleteSetup()
+        verify(output, times(0)).didFailSetup(any())
+        verify(output, times(1)).didUpdateSetup(equal(to: .ready))
     }
 
     func testSynchronouslyBlockedPreflightDoesNotRetainInteractorAfterDeinit() {
@@ -1452,10 +1451,11 @@ class RootTests: XCTestCase {
             stub.performColdBoot().thenDoNothing()
         }
         stub(output) { stub in
-            stub.didFailSetup().then {
+            stub.didUpdateSetup(any()).thenDoNothing()
+            stub.didFailSetup(any()).then { _ in
                 XCTFail("A deallocated interactor must not report failure")
             }
-            stub.didCompleteSetup().then {
+            stub.didUpdateSetup(equal(to: .ready)).then { _ in
                 XCTFail("A deallocated interactor must not report success")
             }
         }
@@ -1466,7 +1466,7 @@ class RootTests: XCTestCase {
             settings: settings,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: MockEventCenterProtocol(),
-            migrators: [],
+            migrationSteps: [],
             onboardingService: StubOnboardingService(
                 result: .failure(OnboardingServiceError.empty)
             ),
@@ -1515,146 +1515,204 @@ class RootTests: XCTestCase {
 
         verify(chainRegistry, times(0)).performHotBoot()
         verify(chainRegistry, times(0)).performColdBoot()
-        verify(output, times(0)).didFailSetup()
-        verify(output, times(0)).didCompleteSetup()
+        verify(output, times(0)).didFailSetup(any())
+        verify(output, times(0)).didUpdateSetup(equal(to: .ready))
     }
 
-    func testTwoSynchronouslyBlockedPreflightsDoNotRetainInteractorAfterDeinit() {
-        let firstRequestStarted = expectation(
-            description: "first blocking preflight starts"
-        )
-        let secondRequestStarted = expectation(
-            description: "second blocking preflight starts"
-        )
-        let firstLateCallbacksDelivered = expectation(
-            description: "first blocking preflight returns after owner deinit"
-        )
-        let secondLateCallbacksDelivered = expectation(
-            description: "second blocking preflight returns after owner deinit"
-        )
-        let firstBlockedPreflight = SynchronouslyBlockingRootStoragePreflight(
-            requestStartedExpectation: firstRequestStarted,
-            lateCallbacksDeliveredExpectation: firstLateCallbacksDelivered
-        )
-        let secondBlockedPreflight = SynchronouslyBlockingRootStoragePreflight(
-            requestStartedExpectation: secondRequestStarted,
-            lateCallbacksDeliveredExpectation: secondLateCallbacksDelivered
-        )
-        defer {
-            firstBlockedPreflight.release()
-            secondBlockedPreflight.release()
-        }
-
-        let preflightSequence = RootStoragePreflightSequence(
-            preflights: [
-                firstBlockedPreflight,
-                secondBlockedPreflight
-            ]
+    func testLowStorageFailureReportsRequiredBytesBeforeOpeningAnyStore() {
+        let recorder = RootSetupEventRecorder()
+        let requiredByteCount: UInt64 = 5_242_880
+        let migrator = RecordingRootMigrator(
+            recorder: recorder,
+            error: CrashConsistentStoreReplacementError
+                .insufficientStorageCapacity(
+                    requiredByteCount: requiredByteCount,
+                    availableByteCount: 1024
+                )
         )
         let settings = RecordingImmediateRootSelectedWalletSettings(
-            recorder: RootSetupEventRecorder(),
+            recorder: recorder,
             result: .success(nil)
         )
         let chainRegistry = MockChainRegistryProtocol()
         let output = MockRootInteractorOutputProtocol()
+        let failureExpectation = expectation(
+            description: "typed low-storage failure is reported"
+        )
+        var failedState: RootSetupFailure?
 
-        stub(chainRegistry) { stub in
-            stub.performHotBoot().thenDoNothing()
-            stub.performColdBoot().thenDoNothing()
-        }
         stub(output) { stub in
-            stub.didFailSetup().then {
-                XCTFail("A deallocated interactor must not report failure")
+            stub.didUpdateSetup(any()).then { state in
+                if case let .failed(failure) = state {
+                    failedState = failure
+                }
             }
-            stub.didCompleteSetup().then {
-                XCTFail("A deallocated interactor must not report success")
+            stub.didFailSetup(any()).then { failure in
+                XCTAssertEqual(failedState, failure)
+                XCTAssertEqual(failure.phase, .userStorageMigration)
+                XCTAssertEqual(failure.incidentCode, .insufficientStorage)
+                XCTAssertEqual(
+                    failure.incidentCode.rawValue,
+                    "INSUFFICIENT_STORAGE"
+                )
+                XCTAssertEqual(
+                    failure.recoveryAction,
+                    .freeStorage(requiredByteCount: requiredByteCount)
+                )
+                failureExpectation.fulfill()
             }
         }
 
-        var interactor: RootInteractor? = RootInteractor(
-            chainRegistryProvider: { chainRegistry },
-            storagePreflightProvider: preflightSequence.next,
-            settings: settings,
+        let interactor = RootInteractor(
+            chainRegistryProvider: {
+                XCTFail("Low-space migration failure must not resolve registry")
+                return chainRegistry
+            },
+            storagePreflightProvider: {
+                XCTFail("Low-space migration failure must not open storage")
+                return ImmediateRootStoragePreflight(result: .success(()))
+            },
+            settingsProvider: {
+                XCTFail("Low-space migration failure must not resolve settings")
+                return settings
+            },
             applicationConfig: ApplicationConfig.shared,
             eventCenter: MockEventCenterProtocol(),
-            migrators: [],
+            migrationSteps: [rootMigrationStep(migrator)],
             onboardingService: StubOnboardingService(
                 result: .failure(OnboardingServiceError.empty)
             ),
             onboardingConfigResolver: OnboardingConfigVersionResolver(
                 userDefaultsStorage: InMemorySettingsManager()
+            ),
+            protectedDataAvailabilityMonitor:
+            ControllableRootProtectedDataAvailabilityMonitor(
+                isAvailable: true
             )
         )
-        weak var weakInteractor = interactor
-        interactor?.presenter = output
+        interactor.presenter = output
 
-        interactor?.setup(runMigrations: false)
+        interactor.setup(runMigrations: true)
         wait(
-            for: [firstRequestStarted],
-            timeout: Constants.defaultExpectationDuration
-        )
-        interactor?.setup(runMigrations: false)
-        wait(
-            for: [secondRequestStarted],
+            for: [failureExpectation],
             timeout: Constants.defaultExpectationDuration
         )
 
-        XCTAssertEqual(preflightSequence.invocationCount, 2)
-        interactor = nil
-
-        let interactorReleased = expectation(
-            description: "two blocked invocations do not own RootInteractor"
-        )
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            XCTAssertNil(weakInteractor)
-            interactorReleased.fulfill()
-        }
-        wait(
-            for: [interactorReleased],
-            timeout: Constants.defaultExpectationDuration
-        )
-
-        firstBlockedPreflight.release()
-        secondBlockedPreflight.release()
-        wait(
-            for: [
-                firstLateCallbacksDelivered,
-                secondLateCallbacksDelivered
-            ],
-            timeout: Constants.defaultExpectationDuration
-        )
-
-        let mainQueueDrained = expectation(
-            description: "late callbacks cannot enqueue UI work after deinit"
-        )
-        DispatchQueue.main.async {
-            mainQueueDrained.fulfill()
-        }
-        wait(
-            for: [mainQueueDrained],
-            timeout: Constants.defaultExpectationDuration
-        )
-
-        XCTAssertEqual(preflightSequence.invocationCount, 2)
-        verify(chainRegistry, times(0)).performHotBoot()
-        verify(chainRegistry, times(0)).performColdBoot()
-        verify(output, times(0)).didFailSetup()
-        verify(output, times(0)).didCompleteSetup()
+        XCTAssertEqual(recorder.snapshot, [.migration])
+        verify(output, times(1)).didFailSetup(any())
+        verify(output, times(0)).didUpdateSetup(equal(to: .ready))
     }
 
-    func testWalletSetupTimeoutIgnoresLateResultAndRetryUsesFreshAttempt() {
-        let firstRequestStarted = expectation(description: "first wallet setup starts")
-        let secondRequestStarted = expectation(description: "retry wallet setup starts")
-        let firstTimedOut = expectation(description: "first wallet setup times out")
-        let retryCompleted = expectation(description: "wallet retry completes")
-        let staleResultDelivered = expectation(description: "late wallet result returns")
+    func testTypedSetupErrorsMapDeterministicallyToStableIncidentCodes() {
+        let scenarios = [
+            RootFailureMappingScenario(
+                phase: .languageMigration,
+                error: RootSetupTestError.migrationFailed,
+                incidentCode: .languageMigrationFailed,
+                stableCode: "LANGUAGE_MIGRATION_FAILED",
+                recoveryAction: .retry
+            ),
+            RootFailureMappingScenario(
+                phase: .userStorageMigration,
+                error: UserStorageMigrationError.modelUnavailable(.version13),
+                incidentCode: .userStorageCompatibilityMissing,
+                stableCode: "USER_STORAGE_COMPATIBILITY_MISSING",
+                recoveryAction: .installLatestBuild
+            ),
+            RootFailureMappingScenario(
+                phase: .userStorageMigration,
+                error: UserStorageMigrationError.stagedStoreValidationFailed,
+                incidentCode: .userStorageIntegrityRejected,
+                stableCode: "USER_STORAGE_INTEGRITY_REJECTED",
+                recoveryAction: .installLatestBuild
+            ),
+            RootFailureMappingScenario(
+                phase: .userStorageMigration,
+                error: RootSetupTestError.migrationFailed,
+                incidentCode: .userStorageMigrationFailed,
+                stableCode: "USER_STORAGE_MIGRATION_FAILED",
+                recoveryAction: .retry
+            ),
+            RootFailureMappingScenario(
+                phase: .substrateMigration,
+                error: SubstrateStorageMigrationError.mappingUnavailable(
+                    .version7,
+                    .version8,
+                    RootSetupTestError.migrationFailed
+                ),
+                incidentCode: .substrateCompatibilityMissing,
+                stableCode: "SUBSTRATE_COMPATIBILITY_MISSING",
+                recoveryAction: .installLatestBuild
+            ),
+            RootFailureMappingScenario(
+                phase: .substrateMigration,
+                error: SubstrateStorageMigrationError
+                    .stagedStoreRowCountMismatch("sanitized", 1, 0),
+                incidentCode: .substrateIntegrityRejected,
+                stableCode: "SUBSTRATE_INTEGRITY_REJECTED",
+                recoveryAction: .installLatestBuild
+            ),
+            RootFailureMappingScenario(
+                phase: .substrateMigration,
+                error: RootSetupTestError.migrationFailed,
+                incidentCode: .substrateMigrationFailed,
+                stableCode: "SUBSTRATE_MIGRATION_FAILED",
+                recoveryAction: .retry
+            ),
+            RootFailureMappingScenario(
+                phase: .substratePreflight,
+                error: RootStoragePreflightError.managedObjectClassUnavailable(
+                    entityName: "SanitizedEntity",
+                    className: "SanitizedClass"
+                ),
+                incidentCode: .substratePreflightCompatibilityMissing,
+                stableCode: "SUBSTRATE_PREFLIGHT_COMPATIBILITY_MISSING",
+                recoveryAction: .installLatestBuild
+            ),
+            RootFailureMappingScenario(
+                phase: .substratePreflight,
+                error: RootSetupTestError.substrateStorageOpenFailed,
+                incidentCode: .substratePreflightFailed,
+                stableCode: "SUBSTRATE_PREFLIGHT_FAILED",
+                recoveryAction: .retry
+            ),
+            RootFailureMappingScenario(
+                phase: .selectedWalletOpening,
+                error: SelectedWalletSettingsError.duplicateWalletIdentifier,
+                incidentCode: .walletMappingConflict,
+                stableCode: "WALLET_MAPPING_CONFLICT",
+                recoveryAction: .installLatestBuild
+            ),
+            RootFailureMappingScenario(
+                phase: .selectedWalletOpening,
+                error: MetaAccountMapperError.invalidWalletRecord,
+                incidentCode: .walletRecordRejected,
+                stableCode: "WALLET_RECORD_REJECTED",
+                recoveryAction: .installLatestBuild
+            ),
+            RootFailureMappingScenario(
+                phase: .selectedWalletOpening,
+                error: RootSetupTestError.walletRepositoryFailed,
+                incidentCode: .selectedWalletOpeningFailed,
+                stableCode: "SELECTED_WALLET_OPENING_FAILED",
+                recoveryAction: .retry
+            )
+        ]
+
+        for scenario in scenarios {
+            assertRootFailureMapping(scenario)
+        }
+    }
+
+    func testWalletOpeningCompletingAfterFifteenSecondsAutoContinuesWithoutRetry() {
+        let requestStarted = expectation(description: "wallet opening starts")
+        let slowExpectation = expectation(description: "wallet opening reports slow")
+        let setupCompleted = expectation(description: "late wallet result completes setup")
         let settings = ControllableRootSelectedWalletSettings(
-            requestStartedExpectations: [
-                firstRequestStarted,
-                secondRequestStarted
-            ]
+            requestStartedExpectations: [requestStarted]
         )
         let deadlineScheduler = ManualRootSetupDeadlineScheduler()
+        let clock = ControllableRootMonotonicClock(now: 200)
         let chainRegistry = MockChainRegistryProtocol()
         let output = MockRootInteractorOutputProtocol()
 
@@ -1662,11 +1720,14 @@ class RootTests: XCTestCase {
             stub.performColdBoot().thenDoNothing()
         }
         stub(output) { stub in
-            stub.didFailSetup().then {
-                firstTimedOut.fulfill()
+            stub.didUpdateSetup(any()).thenDoNothing()
+            stub.didUpdateSetup(
+                equal(to: .slow(.selectedWalletOpening, elapsedTime: 15))
+            ).then { _ in
+                slowExpectation.fulfill()
             }
-            stub.didCompleteSetup().then {
-                retryCompleted.fulfill()
+            stub.didUpdateSetup(equal(to: .ready)).then { _ in
+                setupCompleted.fulfill()
             }
         }
 
@@ -1678,55 +1739,45 @@ class RootTests: XCTestCase {
             settings: settings,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: MockEventCenterProtocol(),
-            migrators: [],
+            migrationSteps: [],
             onboardingService: StubOnboardingService(
                 result: .failure(OnboardingServiceError.empty)
             ),
             onboardingConfigResolver: OnboardingConfigVersionResolver(
                 userDefaultsStorage: InMemorySettingsManager()
             ),
-            setupDeadline: 42,
-            setupDeadlineScheduler: deadlineScheduler.schedule
+            setupDeadline: 15,
+            setupDeadlineScheduler: deadlineScheduler.schedule,
+            monotonicTimeProvider: clock.currentTime
         )
         interactor.presenter = output
 
         interactor.setup(runMigrations: false)
         wait(
-            for: [firstRequestStarted],
+            for: [requestStarted],
             timeout: Constants.defaultExpectationDuration
         )
-        XCTAssertEqual(deadlineScheduler.delays, [42, 42])
+        XCTAssertEqual(deadlineScheduler.delays, [15, 15])
+
+        clock.advance(by: 15)
         deadlineScheduler.fire(at: 1)
-        deadlineScheduler.fire(at: 0)
-        wait(
-            for: [firstTimedOut],
-            timeout: Constants.defaultExpectationDuration
-        )
+        wait(for: [slowExpectation], timeout: Constants.defaultExpectationDuration)
 
         interactor.setup(runMigrations: false)
+        interactor.setup(runMigrations: true)
+        XCTAssertEqual(settings.requestCount, 1)
+
+        settings.resolveRequest(at: 0, with: .success(nil))
         wait(
-            for: [secondRequestStarted],
+            for: [setupCompleted],
             timeout: Constants.defaultExpectationDuration
         )
-        XCTAssertEqual(deadlineScheduler.delays, [42, 42, 42, 42])
-        settings.resolveRequest(
-            at: 0,
-            with: .success(AccountGenerator.generateMetaAccount()),
-            deliveryExpectation: staleResultDelivered
-        )
-        settings.resolveRequest(at: 1, with: .success(nil))
 
-        wait(
-            for: [staleResultDelivered, retryCompleted],
-            timeout: Constants.defaultExpectationDuration
-        )
-        deadlineScheduler.fire(at: 2)
-        deadlineScheduler.fire(at: 3)
-
+        XCTAssertEqual(settings.requestCount, 1)
         verify(chainRegistry, times(0)).performHotBoot()
         verify(chainRegistry, times(1)).performColdBoot()
-        verify(output, times(1)).didFailSetup()
-        verify(output, times(1)).didCompleteSetup()
+        verify(output, times(0)).didFailSetup(any())
+        verify(output, times(1)).didUpdateSetup(equal(to: .ready))
     }
 
     func testSubstratePreflightFailureCanRetryWithoutRemigrationOrPrematureBoot() {
@@ -1767,10 +1818,11 @@ class RootTests: XCTestCase {
             }
         }
         stub(output) { stub in
-            stub.didFailSetup().then {
+            stub.didUpdateSetup(any()).thenDoNothing()
+            stub.didFailSetup(any()).then { _ in
                 failureExpectation.fulfill()
             }
-            stub.didCompleteSetup().then {
+            stub.didUpdateSetup(equal(to: .ready)).then { _ in
                 completionExpectation.fulfill()
             }
         }
@@ -1784,7 +1836,9 @@ class RootTests: XCTestCase {
             settings: settings,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: MockEventCenterProtocol(),
-            migrators: [RecordingRootMigrator(recorder: recorder)],
+            migrationSteps: [
+                rootMigrationStep(RecordingRootMigrator(recorder: recorder))
+            ],
             onboardingService: StubOnboardingService(
                 result: .failure(OnboardingServiceError.empty)
             ),
@@ -1810,15 +1864,15 @@ class RootTests: XCTestCase {
                 .migration,
                 .storagePreflight,
                 .storagePreflight,
-                .chainRegistry,
                 .walletRepository,
+                .chainRegistry,
                 .hotBoot
             ]
         )
         verify(chainRegistry, times(1)).performHotBoot()
         verify(chainRegistry, times(0)).performColdBoot()
-        verify(output, times(1)).didFailSetup()
-        verify(output, times(1)).didCompleteSetup()
+        verify(output, times(1)).didFailSetup(any())
+        verify(output, times(1)).didUpdateSetup(equal(to: .ready))
     }
 
     func testAdversarialPreflightMultipleCallbacksCanOnlyOpenWalletAndBootOnce() {
@@ -1841,10 +1895,11 @@ class RootTests: XCTestCase {
             }
         }
         stub(output) { stub in
-            stub.didCompleteSetup().then {
+            stub.didUpdateSetup(any()).thenDoNothing()
+            stub.didUpdateSetup(equal(to: .ready)).then { _ in
                 completionExpectation.fulfill()
             }
-            stub.didFailSetup().then {
+            stub.didFailSetup(any()).then { _ in
                 failureExpectation.fulfill()
             }
         }
@@ -1858,7 +1913,7 @@ class RootTests: XCTestCase {
             settings: settings,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: MockEventCenterProtocol(),
-            migrators: [],
+            migrationSteps: [],
             onboardingService: StubOnboardingService(
                 result: .failure(OnboardingServiceError.empty)
             ),
@@ -1875,12 +1930,12 @@ class RootTests: XCTestCase {
 
         XCTAssertEqual(
             recorder.snapshot,
-            [.storagePreflight, .chainRegistry, .walletSetup, .coldBoot]
+            [.storagePreflight, .walletSetup, .chainRegistry, .coldBoot]
         )
         verify(chainRegistry, times(0)).performHotBoot()
         verify(chainRegistry, times(1)).performColdBoot()
-        verify(output, times(1)).didCompleteSetup()
-        verify(output, times(0)).didFailSetup()
+        verify(output, times(1)).didUpdateSetup(equal(to: .ready))
+        verify(output, times(0)).didFailSetup(any())
     }
 
     func testOnlyTonWalletAllowsLoginWithoutPincodeButFailsClosedAndPreservesRowWithPincode() throws {
@@ -1908,7 +1963,7 @@ class RootTests: XCTestCase {
             selectedWalletSettings: settings,
             userDefaultsStorage: InMemorySettingsManager()
         )
-        guard case .login = loginHelper.startView(onboardingConfig: nil) else {
+        guard case .login = try loginHelper.startView(onboardingConfig: nil) else {
             return XCTFail("A user without a PIN must be allowed to add a supported wallet")
         }
 
@@ -1920,25 +1975,23 @@ class RootTests: XCTestCase {
         let chainRegistry = MockChainRegistryProtocol()
         let wireframe = MockRootWireframeProtocol()
         let view = AlertCapturingViewController()
-        let brokenExpectation = expectation(description: "unsupported wallet routes to broken")
         let alertExpectation = expectation(description: "unsupported wallet explanation is visible")
+        let readinessReporter = RecordingRootStartupReadinessReporter()
 
         stub(chainRegistry) { stub in
             stub.performColdBoot().thenDoNothing()
         }
         stub(wireframe) { stub in
             stub.showSplash(splashView: any(), on: any()).thenDoNothing()
-            stub.showBroken(on: any()).then { _ in
-                brokenExpectation.fulfill()
-            }
         }
         view.onPresent = { presentedController in
             guard let alert = presentedController as? UIAlertController else {
                 return XCTFail("Expected a retryable unsupported-wallet alert")
             }
 
-            XCTAssertTrue(alert.message?.contains("wallet data is safe") == true)
-            XCTAssertTrue(alert.message?.contains("can't open") == true)
+            XCTAssertTrue(alert.message?.contains("selected wallet") == true)
+            XCTAssertTrue(alert.message?.contains("wallet data was not changed") == true)
+            XCTAssertTrue(alert.message?.contains("WALLET_RECORD_REJECTED") == true)
             alertExpectation.fulfill()
         }
 
@@ -1951,24 +2004,25 @@ class RootTests: XCTestCase {
                 result: .failure(OnboardingServiceError.empty)
             ),
             view: view,
-            chainRegistryProvider: { chainRegistry }
+            chainRegistryProvider: { chainRegistry },
+            startupReadinessReporter: readinessReporter
         )
 
         presenter.loadOnLaunch()
 
-        wait(
-            for: [brokenExpectation, alertExpectation],
-            timeout: Constants.defaultExpectationDuration
-        )
+        wait(for: [alertExpectation], timeout: Constants.defaultExpectationDuration)
 
         XCTAssertEqual(settings.storeState, .unsupportedOnly)
         XCTAssertTrue(try keystore.checkKey(for: KeystoreTag.pincode.rawValue))
         XCTAssertEqual(try tonOnlyWalletSnapshot(in: storageFacade), before)
-        verify(chainRegistry).performColdBoot()
+        XCTAssertEqual(readinessReporter.readyCount, 0)
+        XCTAssertEqual(readinessReporter.failureCount, 1)
+        verify(chainRegistry, times(0)).performColdBoot()
         verify(chainRegistry, times(0)).performHotBoot()
         verify(wireframe, times(0)).showLocalAuthentication(on: any())
         verify(wireframe, times(0)).showPincodeSetup(on: any())
         verify(wireframe, times(0)).showMain(on: any())
+        verify(wireframe, times(0)).showBroken(on: any())
         verify(wireframe, times(0)).showOnboarding(on: any(), with: any())
     }
 
@@ -2048,7 +2102,7 @@ class RootTests: XCTestCase {
             settings: settings,
             keystore: keystore,
             userDefaultsStorage: InMemorySettingsManager(),
-            migrators: [migrator],
+            migrationSteps: [rootMigrationStep(migrator)],
             onboardingService: onboardingService,
             chainRegistryProvider: {
                 recorder.record(.chainRegistry)
@@ -2072,8 +2126,8 @@ class RootTests: XCTestCase {
             [
                 .migration,
                 .storagePreflight,
-                .chainRegistry,
                 .walletRepository,
+                .chainRegistry,
                 .hotBoot
             ]
         )
@@ -2082,6 +2136,94 @@ class RootTests: XCTestCase {
         XCTAssertEqual(readinessReporter.failureCount, 0)
         verify(chainRegistry, times(1)).performHotBoot()
         verify(chainRegistry, times(0)).performColdBoot()
+    }
+
+    func testPresenterSlowStateShowsNonterminalGuidanceAndStructuredPhase() {
+        let wireframe = MockRootWireframeProtocol()
+        let view = AlertCapturingViewController()
+        let readinessReporter = RecordingRootStartupReadinessReporter()
+        let presenter = createPresenter(
+            wireframe: wireframe,
+            settings: SelectedWalletSettings(
+                storageFacade: UserDataStorageTestFacade(),
+                operationQueue: OperationQueue()
+            ),
+            keystore: InMemoryKeychain(),
+            userDefaultsStorage: InMemorySettingsManager(),
+            view: view,
+            startupReadinessReporter: readinessReporter
+        )
+
+        presenter.didUpdateSetup(.slow(.substratePreflight, elapsedTime: 15))
+
+        guard case let .updating(message)? = view.receivedStates.last else {
+            return XCTFail("Expected nonterminal startup guidance")
+        }
+        XCTAssertEqual(message, "Updating/opening your wallet—keep Fearless open.")
+        XCTAssertEqual(
+            readinessReporter.slowEvents,
+            [RootSetupSlowEvent(phase: .substratePreflight, elapsedTime: 15)]
+        )
+        XCTAssertEqual(readinessReporter.failureCount, 0)
+    }
+
+    func testPresenterTypedFailureShowsPhaseGuidanceAndIncidentCode() {
+        let wireframe = MockRootWireframeProtocol()
+        let view = AlertCapturingViewController()
+        let readinessReporter = RecordingRootStartupReadinessReporter()
+        let failure = RootSetupFailure(
+            phase: .userStorageMigration,
+            incidentCode: .insufficientStorage,
+            elapsedTime: 4,
+            recoveryAction: .freeStorage(requiredByteCount: 1_048_576)
+        )
+        let alertExpectation = expectation(description: "typed setup alert")
+
+        view.onPresent = { presentedController in
+            guard let alert = presentedController as? UIAlertController else {
+                return XCTFail("Expected a setup failure alert")
+            }
+
+            XCTAssertTrue(alert.message?.contains("wallet storage safely") == true)
+            XCTAssertTrue(alert.message?.contains("INSUFFICIENT_STORAGE") == true)
+            XCTAssertTrue(alert.message?.contains("1 MB") == true)
+            alertExpectation.fulfill()
+        }
+
+        let presenter = createPresenter(
+            wireframe: wireframe,
+            settings: SelectedWalletSettings(
+                storageFacade: UserDataStorageTestFacade(),
+                operationQueue: OperationQueue()
+            ),
+            keystore: InMemoryKeychain(),
+            userDefaultsStorage: InMemorySettingsManager(),
+            view: view,
+            startupReadinessReporter: readinessReporter
+        )
+
+        presenter.didFailSetup(failure)
+
+        wait(for: [alertExpectation], timeout: Constants.defaultExpectationDuration)
+        XCTAssertEqual(readinessReporter.failures, [failure])
+    }
+
+    func testReadinessReporterEmitsReadyMarkerExactlyOnce() {
+        let lock = NSLock()
+        var markerCount = 0
+        let reporter = RootStartupReadinessReporter { _ in
+            lock.lock()
+            markerCount += 1
+            lock.unlock()
+        }
+
+        reporter.reportReady()
+        reporter.reportReady()
+
+        lock.lock()
+        let result = markerCount
+        lock.unlock()
+        XCTAssertEqual(result, 1)
     }
 
     func testLateOnboardingResultAfterTimeoutCannotReplaceLogin() {
@@ -2176,8 +2318,8 @@ class RootTests: XCTestCase {
         let chainRegistry = MockChainRegistryProtocol()
         let wireframe = MockRootWireframeProtocol()
         let alertController = AlertCapturingViewController()
-        let brokenExpectation = XCTestExpectation(description: "broken route is selected")
         let alertExpectation = XCTestExpectation(description: "protected data error is visible")
+        let readinessReporter = RecordingRootStartupReadinessReporter()
         let onboardingService = StubOnboardingService(
             result: .failure(OnboardingServiceError.empty)
         )
@@ -2187,12 +2329,10 @@ class RootTests: XCTestCase {
         }
         stub(chainRegistry) { stub in
             stub.performHotBoot().thenDoNothing()
+            stub.performColdBoot().thenDoNothing()
         }
         stub(wireframe) { stub in
             stub.showSplash(splashView: any(), on: any()).thenDoNothing()
-            stub.showBroken(on: any()).then { _ in
-                brokenExpectation.fulfill()
-            }
         }
         alertController.onPresent = { presentedController in
             guard let alert = presentedController as? UIAlertController else {
@@ -2201,7 +2341,9 @@ class RootTests: XCTestCase {
             }
 
             XCTAssertEqual(alert.actions.count, 1)
-            XCTAssertFalse(alert.message?.isEmpty ?? true)
+            XCTAssertTrue(
+                alert.message?.contains("SELECTED_WALLET_OPENING_FAILED") == true
+            )
             alertExpectation.fulfill()
         }
 
@@ -2212,7 +2354,8 @@ class RootTests: XCTestCase {
             userDefaultsStorage: InMemorySettingsManager(),
             onboardingService: onboardingService,
             view: alertController,
-            chainRegistryProvider: { chainRegistry }
+            chainRegistryProvider: { chainRegistry },
+            startupReadinessReporter: readinessReporter
         )
 
         // when
@@ -2221,14 +2364,23 @@ class RootTests: XCTestCase {
 
         // then
 
-        wait(
-            for: [brokenExpectation, alertExpectation],
-            timeout: Constants.defaultExpectationDuration
+        wait(for: [alertExpectation], timeout: Constants.defaultExpectationDuration)
+        XCTAssertEqual(onboardingService.fetchCallCount, 0)
+        XCTAssertEqual(readinessReporter.readyCount, 0)
+        XCTAssertEqual(readinessReporter.failureCount, 1)
+        XCTAssertEqual(readinessReporter.failures.first?.phase, .selectedWalletOpening)
+        XCTAssertEqual(
+            readinessReporter.failures.first?.incidentCode,
+            .selectedWalletOpeningFailed
         )
-        XCTAssertEqual(onboardingService.fetchCallCount, 1)
+        XCTAssertEqual(readinessReporter.failures.first?.recoveryAction, .retry)
+        verify(keystore, times(1)).checkKey(for: KeystoreTag.pincode.rawValue)
+        verify(chainRegistry, times(0)).performHotBoot()
+        verify(chainRegistry, times(0)).performColdBoot()
         verify(wireframe, times(0)).showLocalAuthentication(on: any())
         verify(wireframe, times(0)).showPincodeSetup(on: any())
         verify(wireframe, times(0)).showMain(on: any())
+        verify(wireframe, times(0)).showBroken(on: any())
         verify(wireframe, times(0)).showOnboarding(on: any(), with: any())
     }
 
@@ -2257,17 +2409,16 @@ class RootTests: XCTestCase {
         operationQueue.addOperations([seedOperation], waitUntilFinished: true)
         _ = try XCTUnwrap(seedOperation.result).get()
 
-        let keystore = InMemoryKeychain()
-        try keystore.saveKey(
-            Data("123456".utf8),
-            with: KeystoreTag.pincode.rawValue
-        )
+        let keystore = MockKeystoreProtocol()
         let chainRegistry = MockChainRegistryProtocol()
         let wireframe = MockRootWireframeProtocol()
         let authenticationExpectation = expectation(
             description: "recovered wallet still requires authentication"
         )
 
+        stub(keystore) { stub in
+            stub.checkKey(for: any()).thenReturn(true)
+        }
         stub(chainRegistry) { stub in
             stub.performHotBoot().thenDoNothing()
         }
@@ -2296,8 +2447,9 @@ class RootTests: XCTestCase {
             timeout: Constants.defaultExpectationDuration
         )
 
-        XCTAssertTrue(try keystore.checkKey(for: KeystoreTag.pincode.rawValue))
         XCTAssertEqual(settings.value, wallet)
+        verify(keystore, times(1)).checkKey(for: KeystoreTag.pincode.rawValue)
+        verify(keystore, times(0)).deleteKey(for: any())
         verify(chainRegistry).performHotBoot()
         verify(chainRegistry, times(0)).performColdBoot()
         verify(wireframe, times(0)).showMain(on: any())
@@ -2335,7 +2487,7 @@ class RootTests: XCTestCase {
 
         // when
 
-        let startView = helper.startView(onboardingConfig: nil)
+        let startView = try helper.startView(onboardingConfig: nil)
 
         // then
 
@@ -2366,41 +2518,87 @@ class RootTests: XCTestCase {
         wait(for: [setupExpectation], timeout: Constants.defaultExpectationDuration)
 
         let keystore = MockKeystoreProtocol()
-        let helper = StartViewHelper(
-            keystore: keystore,
-            selectedWalletSettings: settings,
-            userDefaultsStorage: InMemorySettingsManager()
+        let chainRegistry = MockChainRegistryProtocol()
+        let wireframe = MockRootWireframeProtocol()
+        let alertController = AlertCapturingViewController()
+        let alertExpectation = expectation(
+            description: "stale PIN deletion failure is visible"
+        )
+        let readinessReporter = RecordingRootStartupReadinessReporter()
+        let onboardingService = StubOnboardingService(
+            result: .failure(OnboardingServiceError.empty)
         )
 
         stub(keystore) { stub in
             stub.checkKey(for: any()).thenReturn(true)
             stub.deleteKey(for: any()).thenThrow(RootSetupTestError.protectedDataUnavailable)
         }
+        stub(chainRegistry) { stub in
+            stub.performHotBoot().thenDoNothing()
+            stub.performColdBoot().thenDoNothing()
+        }
+        stub(wireframe) { stub in
+            stub.showSplash(splashView: any(), on: any()).thenDoNothing()
+        }
+        alertController.onPresent = { presentedController in
+            guard let alert = presentedController as? UIAlertController else {
+                return XCTFail("Expected a retryable protected-data alert")
+            }
+
+            XCTAssertEqual(alert.actions.count, 1)
+            XCTAssertTrue(
+                alert.message?.contains("SELECTED_WALLET_OPENING_FAILED") == true
+            )
+            alertExpectation.fulfill()
+        }
+
+        let presenter = createPresenter(
+            wireframe: wireframe,
+            settings: settings,
+            keystore: keystore,
+            userDefaultsStorage: InMemorySettingsManager(),
+            onboardingService: onboardingService,
+            view: alertController,
+            chainRegistryProvider: { chainRegistry },
+            startupReadinessReporter: readinessReporter
+        )
 
         // when
 
-        let startView = helper.startView(onboardingConfig: nil)
+        presenter.loadOnLaunch()
 
         // then
 
-        guard case .broken = startView else {
-            XCTFail("Expected protected-data failure when the stale PIN cannot be removed")
-            return
-        }
-
-        verify(keystore).deleteKey(for: KeystoreTag.pincode.rawValue)
+        wait(for: [alertExpectation], timeout: Constants.defaultExpectationDuration)
+        XCTAssertEqual(settings.storeState, .empty)
+        XCTAssertEqual(onboardingService.fetchCallCount, 0)
+        XCTAssertEqual(readinessReporter.readyCount, 0)
+        XCTAssertEqual(readinessReporter.failureCount, 1)
+        XCTAssertEqual(readinessReporter.failures.first?.phase, .selectedWalletOpening)
+        XCTAssertEqual(
+            readinessReporter.failures.first?.incidentCode,
+            .selectedWalletOpeningFailed
+        )
+        XCTAssertEqual(readinessReporter.failures.first?.recoveryAction, .retry)
+        verify(keystore, times(1)).checkKey(for: KeystoreTag.pincode.rawValue)
+        verify(keystore, times(1)).deleteKey(for: KeystoreTag.pincode.rawValue)
+        verify(chainRegistry, times(0)).performHotBoot()
+        verify(chainRegistry, times(0)).performColdBoot()
+        verify(wireframe, times(0)).showLocalAuthentication(on: any())
+        verify(wireframe, times(0)).showPincodeSetup(on: any())
+        verify(wireframe, times(0)).showMain(on: any())
+        verify(wireframe, times(0)).showBroken(on: any())
+        verify(wireframe, times(0)).showOnboarding(on: any(), with: any())
     }
 
     func testOnboardingDecision() throws {
         // given
 
         let wireframe = MockRootWireframeProtocol()
-
-        let keystore = InMemoryKeychain()
-
-        let expectedPincode = "123456"
-        try keystore.saveKey(expectedPincode.data(using: .utf8)!,
-                             with: KeystoreTag.pincode.rawValue)
+        let keystore = MockKeystoreProtocol()
+        let chainRegistry = MockChainRegistryProtocol()
+        let recorder = RootSetupEventRecorder()
+        let readinessReporter = RecordingRootStartupReadinessReporter()
 
         let settings = SelectedWalletSettings(
             storageFacade: UserDataStorageTestFacade(),
@@ -2417,7 +2615,12 @@ class RootTests: XCTestCase {
             settings: settings,
             keystore: keystore,
             userDefaultsStorage: userDefaultsStorage,
-            onboardingService: onboardingService
+            onboardingService: onboardingService,
+            chainRegistryProvider: {
+                recorder.record(.chainRegistry)
+                return chainRegistry
+            },
+            startupReadinessReporter: readinessReporter
         )
 
         let splashExpectation = XCTestExpectation()
@@ -2428,10 +2631,26 @@ class RootTests: XCTestCase {
             }
         }
 
+        stub(keystore) { stub in
+            stub.checkKey(for: any()).then { _ in
+                recorder.record(.pincodeCheck)
+                return true
+            }
+            stub.deleteKey(for: any()).then { _ in
+                recorder.record(.pincodeDelete)
+            }
+        }
+        stub(chainRegistry) { stub in
+            stub.performColdBoot().then {
+                recorder.record(.coldBoot)
+            }
+        }
+
         let onboardingExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
             stub.showOnboarding(on: any(), with: any()).then { _ in
+                recorder.record(.onboardingRoute)
                 onboardingExpectation.fulfill()
             }
         }
@@ -2443,7 +2662,22 @@ class RootTests: XCTestCase {
         // then
 
         wait(for: [splashExpectation, onboardingExpectation], timeout: Constants.defaultExpectationDuration)
-        XCTAssertTrue(try keystore.checkKey(for: KeystoreTag.pincode.rawValue))
+        XCTAssertEqual(
+            recorder.snapshot,
+            [
+                .pincodeCheck,
+                .pincodeDelete,
+                .chainRegistry,
+                .coldBoot,
+                .onboardingRoute
+            ]
+        )
+        XCTAssertEqual(readinessReporter.readyCount, 1)
+        XCTAssertEqual(readinessReporter.failureCount, 0)
+        verify(keystore, times(1)).checkKey(for: KeystoreTag.pincode.rawValue)
+        verify(keystore, times(1)).deleteKey(for: KeystoreTag.pincode.rawValue)
+        verify(chainRegistry, times(1)).performColdBoot()
+        verify(chainRegistry, times(0)).performHotBoot()
     }
 
     func testPincodeSetupDecision() {
@@ -2469,10 +2703,12 @@ class RootTests: XCTestCase {
         let keystore = InMemoryKeychain()
         let userDefaultsStorage = InMemorySettingsManager()
 
-        let presenter = createPresenter(wireframe: wireframe,
-                                        settings: settings,
-                                        keystore: keystore,
-                                        userDefaultsStorage: userDefaultsStorage)
+        let presenter = createPresenter(
+            wireframe: wireframe,
+            settings: settings,
+            keystore: keystore,
+            userDefaultsStorage: userDefaultsStorage
+        )
 
         let splashExpectation = XCTestExpectation()
 
@@ -2523,14 +2759,18 @@ class RootTests: XCTestCase {
         wait(for: [saveExpectation], timeout: Constants.defaultExpectationDuration)
 
         let expectedPincode = "123456"
-        try keystore.saveKey(expectedPincode.data(using: .utf8)!,
-                             with: KeystoreTag.pincode.rawValue)
+        try keystore.saveKey(
+            expectedPincode.data(using: .utf8)!,
+            with: KeystoreTag.pincode.rawValue
+        )
         let userDefaultsStorage = InMemorySettingsManager()
 
-        let presenter = createPresenter(wireframe: wireframe,
-                                        settings: settings,
-                                        keystore: keystore,
-                                        userDefaultsStorage: userDefaultsStorage)
+        let presenter = createPresenter(
+            wireframe: wireframe,
+            settings: settings,
+            keystore: keystore,
+            userDefaultsStorage: userDefaultsStorage
+        )
 
         let splashExpectation = XCTestExpectation()
 
@@ -2563,7 +2803,7 @@ class RootTests: XCTestCase {
         settings: SelectedWalletSettings,
         keystore: KeystoreProtocol,
         userDefaultsStorage: SettingsManagerProtocol,
-        migrators: [Migrating] = [],
+        migrationSteps: [RootSetupMigrationStep] = [],
         onboardingService: OnboardingServiceProtocol = StubOnboardingService(result: .failure(OnboardingServiceError.empty)),
         onboardingConfigTimeoutNanoseconds: UInt64 = 5_000_000_000,
         view: ControllerBackedProtocol? = nil,
@@ -2577,6 +2817,7 @@ class RootTests: XCTestCase {
             RootStartupReadinessReporter.shared
     ) -> RootPresenter {
         let resolver = OnboardingConfigVersionResolver(userDefaultsStorage: userDefaultsStorage)
+        let startupRouteValidationStore = RootStartupRouteValidationStore()
 
         let interactor = RootInteractor(
             chainRegistryProvider: chainRegistryProvider,
@@ -2584,14 +2825,26 @@ class RootTests: XCTestCase {
             settings: settings,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: MockEventCenterProtocol(),
-            migrators: migrators,
+            migrationSteps: migrationSteps,
             onboardingService: onboardingService,
-            onboardingConfigResolver: resolver
+            onboardingConfigResolver: resolver,
+            pincodeAvailabilityProvider: {
+                try keystore.checkKey(for: KeystoreTag.pincode.rawValue)
+            },
+            pincodeRemoval: {
+                try keystore.deleteKeyIfExists(
+                    for: KeystoreTag.pincode.rawValue
+                )
+            },
+            startupRouteValidationStore: startupRouteValidationStore
         )
 
-        let startViewHelper = StartViewHelper(keystore: keystore,
-                                              selectedWalletSettings: settings,
-                                              userDefaultsStorage: userDefaultsStorage)
+        let startViewHelper = StartViewHelper(
+            keystore: keystore,
+            selectedWalletSettings: settings,
+            userDefaultsStorage: userDefaultsStorage,
+            startupRouteValidationStore: startupRouteValidationStore
+        )
         let presenter = RootPresenter(
             localizationManager: LocalizationManager.shared,
             startViewHelper: startViewHelper,
@@ -2608,6 +2861,100 @@ class RootTests: XCTestCase {
         interactor.presenter = presenter
 
         return presenter
+    }
+
+    private func assertRootFailureMapping(
+        _ scenario: RootFailureMappingScenario
+    ) {
+        let output = MockRootInteractorOutputProtocol()
+        let chainRegistry = MockChainRegistryProtocol()
+        let recorder = RootSetupEventRecorder()
+        let failureExpectation = expectation(
+            description: "maps \(scenario.stableCode)"
+        )
+        var failedState: RootSetupFailure?
+
+        stub(output) { stub in
+            stub.didUpdateSetup(any()).then { state in
+                if case let .failed(failure) = state {
+                    failedState = failure
+                }
+            }
+            stub.didFailSetup(any()).then { failure in
+                XCTAssertEqual(failedState, failure)
+                XCTAssertEqual(failure.phase, scenario.phase)
+                XCTAssertEqual(failure.incidentCode, scenario.incidentCode)
+                XCTAssertEqual(
+                    failure.incidentCode.rawValue,
+                    scenario.stableCode
+                )
+                XCTAssertEqual(
+                    failure.recoveryAction,
+                    scenario.recoveryAction
+                )
+                failureExpectation.fulfill()
+            }
+        }
+
+        let migrationSteps: [RootSetupMigrationStep]
+        let preflightResult: Result<Void, Error>
+        let walletResult: Result<MetaAccountModel?, Error>
+
+        switch scenario.phase {
+        case .languageMigration,
+             .userStorageMigration,
+             .substrateMigration:
+            migrationSteps = [
+                rootMigrationStep(
+                    RecordingRootMigrator(
+                        recorder: recorder,
+                        error: scenario.error
+                    ),
+                    phase: scenario.phase
+                )
+            ]
+            preflightResult = .success(())
+            walletResult = .success(nil)
+        case .substratePreflight:
+            migrationSteps = []
+            preflightResult = .failure(scenario.error)
+            walletResult = .success(nil)
+        case .selectedWalletOpening:
+            migrationSteps = []
+            preflightResult = .success(())
+            walletResult = .failure(scenario.error)
+        }
+
+        let settings = RecordingImmediateRootSelectedWalletSettings(
+            recorder: recorder,
+            result: walletResult
+        )
+        let interactor = RootInteractor(
+            chainRegistryProvider: { chainRegistry },
+            storagePreflightProvider: {
+                ImmediateRootStoragePreflight(result: preflightResult)
+            },
+            settings: settings,
+            applicationConfig: ApplicationConfig.shared,
+            eventCenter: MockEventCenterProtocol(),
+            migrationSteps: migrationSteps,
+            onboardingService: StubOnboardingService(
+                result: .failure(OnboardingServiceError.empty)
+            ),
+            onboardingConfigResolver: OnboardingConfigVersionResolver(
+                userDefaultsStorage: InMemorySettingsManager()
+            )
+        )
+        interactor.presenter = output
+
+        interactor.setup(runMigrations: true)
+
+        wait(
+            for: [failureExpectation],
+            timeout: Constants.defaultExpectationDuration
+        )
+        verify(output, times(1)).didFailSetup(any())
+        verify(output, times(0)).didUpdateSetup(equal(to: .ready))
     }
 
     private func makeSubstrateInMemoryConfiguration() throws
@@ -2784,6 +3131,14 @@ private enum RootSetupTestError: Error {
     case walletRepositoryFailed
 }
 
+private struct RootFailureMappingScenario {
+    let phase: RootSetupPhase
+    let error: Error
+    let incidentCode: RootSetupIncidentCode
+    let stableCode: String
+    let recoveryAction: RootSetupRecoveryAction
+}
+
 private enum RootSetupEvent: Equatable {
     case migration
     case storagePreflightProvider
@@ -2792,8 +3147,18 @@ private enum RootSetupEvent: Equatable {
     case walletSettingsProvider
     case walletSetup
     case walletRepository
+    case pincodeCheck
+    case pincodeDelete
     case hotBoot
     case coldBoot
+    case onboardingRoute
+}
+
+private func rootMigrationStep(
+    _ migrator: Migrating,
+    phase: RootSetupPhase = .userStorageMigration
+) -> RootSetupMigrationStep {
+    RootSetupMigrationStep(phase: phase, migrator: migrator)
 }
 
 private final class RootSetupEventRecorder {
@@ -2910,6 +3275,110 @@ private final class ManualRootSetupDeadlineScheduler {
     }
 }
 
+private final class ControllableRootMonotonicClock {
+    private let lock = NSLock()
+    private var now: TimeInterval
+
+    init(now: TimeInterval) {
+        self.now = now
+    }
+
+    func currentTime() -> TimeInterval {
+        lock.lock()
+        defer { lock.unlock() }
+
+        return now
+    }
+
+    func advance(by interval: TimeInterval) {
+        lock.lock()
+        now += interval
+        lock.unlock()
+    }
+}
+
+private final class ControllableRootProtectedDataAvailabilityMonitor:
+    RootProtectedDataAvailabilityMonitoring {
+    private let lock = NSLock()
+    private let firstObservationExpectation: XCTestExpectation?
+    private var isAvailable: Bool
+    private var didReportFirstObservation = false
+    private var actions: [UUID: () -> Void] = [:]
+
+    init(
+        isAvailable: Bool,
+        firstObservationExpectation: XCTestExpectation? = nil
+    ) {
+        self.isAvailable = isAvailable
+        self.firstObservationExpectation = firstObservationExpectation
+    }
+
+    var isProtectedDataAvailable: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+
+        return isAvailable
+    }
+
+    func observeDidBecomeAvailable(
+        _ action: @escaping () -> Void
+    ) -> RootProtectedDataAvailabilityObservation {
+        let identifier = UUID()
+
+        lock.lock()
+        actions[identifier] = action
+        let shouldReportFirstObservation = !didReportFirstObservation
+        didReportFirstObservation = true
+        lock.unlock()
+
+        if shouldReportFirstObservation {
+            firstObservationExpectation?.fulfill()
+        }
+
+        return RootTestProtectedDataAvailabilityObservation { [weak self] in
+            self?.removeAction(identifier: identifier)
+        }
+    }
+
+    func makeAvailable() {
+        lock.lock()
+        isAvailable = true
+        let pendingActions = Array(actions.values)
+        lock.unlock()
+
+        pendingActions.forEach { $0() }
+    }
+
+    private func removeAction(identifier: UUID) {
+        lock.lock()
+        actions[identifier] = nil
+        lock.unlock()
+    }
+}
+
+private final class RootTestProtectedDataAvailabilityObservation:
+    RootProtectedDataAvailabilityObservation {
+    private let lock = NSLock()
+    private var invalidationAction: (() -> Void)?
+
+    init(invalidationAction: @escaping () -> Void) {
+        self.invalidationAction = invalidationAction
+    }
+
+    deinit {
+        invalidate()
+    }
+
+    func invalidate() {
+        lock.lock()
+        let action = invalidationAction
+        invalidationAction = nil
+        lock.unlock()
+
+        action?()
+    }
+}
+
 private final class ControllableRootSelectedWalletSettings: RootSelectedWalletSettingsProtocol {
     private struct Request {
         let queue: DispatchQueue?
@@ -2919,9 +3388,24 @@ private final class ControllableRootSelectedWalletSettings: RootSelectedWalletSe
     private let lock = NSLock()
     private let requestStartedExpectations: [XCTestExpectation]
     private var requests: [Request] = []
+    private var internalStoreState = SelectedWalletStoreState.unresolved
 
     init(requestStartedExpectations: [XCTestExpectation]) {
         self.requestStartedExpectations = requestStartedExpectations
+    }
+
+    var requestCount: Int {
+        lock.lock()
+        defer { lock.unlock() }
+
+        return requests.count
+    }
+
+    var storeState: SelectedWalletStoreState {
+        lock.lock()
+        defer { lock.unlock() }
+
+        return internalStoreState
     }
 
     func setup(
@@ -2950,10 +3434,12 @@ private final class ControllableRootSelectedWalletSettings: RootSelectedWalletSe
     func resolveRequest(
         at index: Int,
         with result: Result<MetaAccountModel?, Error>,
+        storeState: SelectedWalletStoreState? = nil,
         deliveryExpectation: XCTestExpectation? = nil
     ) {
         lock.lock()
         let request = requests[index]
+        internalStoreState = storeState ?? rootStoreState(for: result)
         lock.unlock()
 
         let deliver = {
@@ -2973,13 +3459,16 @@ private final class RecordingImmediateRootSelectedWalletSettings:
     RootSelectedWalletSettingsProtocol {
     private let recorder: RootSetupEventRecorder
     private let result: Result<MetaAccountModel?, Error>
+    let storeState: SelectedWalletStoreState
 
     init(
         recorder: RootSetupEventRecorder,
-        result: Result<MetaAccountModel?, Error>
+        result: Result<MetaAccountModel?, Error>,
+        storeState: SelectedWalletStoreState? = nil
     ) {
         self.recorder = recorder
         self.result = result
+        self.storeState = storeState ?? rootStoreState(for: result)
     }
 
     func setup(
@@ -3007,6 +3496,7 @@ private final class SequencedRootSelectedWalletSettings:
     private let lock = NSLock()
     private let recorder: RootSetupEventRecorder
     private var results: [Result<MetaAccountModel?, Error>]
+    private var internalStoreState = SelectedWalletStoreState.unresolved
 
     init(
         recorder: RootSetupEventRecorder,
@@ -3014,6 +3504,13 @@ private final class SequencedRootSelectedWalletSettings:
     ) {
         self.recorder = recorder
         self.results = results
+    }
+
+    var storeState: SelectedWalletStoreState {
+        lock.lock()
+        defer { lock.unlock() }
+
+        return internalStoreState
     }
 
     func setup(
@@ -3032,6 +3529,7 @@ private final class SequencedRootSelectedWalletSettings:
                 RootSetupTestError.walletRepositoryFailed
             )
             : results.removeFirst()
+        internalStoreState = rootStoreState(for: result)
         lock.unlock()
 
         if let queue {
@@ -3041,6 +3539,17 @@ private final class SequencedRootSelectedWalletSettings:
         } else {
             completionClosure(result)
         }
+    }
+}
+
+private func rootStoreState(
+    for result: Result<MetaAccountModel?, Error>
+) -> SelectedWalletStoreState {
+    switch result {
+    case let .success(wallet):
+        return wallet == nil ? .empty : .ready
+    case .failure:
+        return .unavailable
     }
 }
 
@@ -3155,6 +3664,13 @@ private final class ControllableRootStoragePreflight: RootStoragePreflighting {
 
     init(requestStartedExpectations: [XCTestExpectation]) {
         self.requestStartedExpectations = requestStartedExpectations
+    }
+
+    var requestCount: Int {
+        lock.lock()
+        defer { lock.unlock() }
+
+        return completions.count
     }
 
     func preflight(
@@ -3462,12 +3978,17 @@ private final class ContextProvidingCoreDataService: CoreDataServiceProtocol {
     func drop() throws {}
 }
 
-private final class AlertCapturingViewController: UIViewController, ControllerBackedProtocol {
+private final class AlertCapturingViewController: UIViewController, RootViewProtocol {
     var onPresent: ((UIViewController) -> Void)?
+    private(set) var receivedStates: [RootViewState] = []
+
+    func didReceive(state: RootViewState) {
+        receivedStates.append(state)
+    }
 
     override func present(
         _ viewControllerToPresent: UIViewController,
-        animated flag: Bool,
+        animated _: Bool,
         completion: (() -> Void)? = nil
     ) {
         onPresent?(viewControllerToPresent)
@@ -3479,7 +4000,22 @@ private final class RecordingRootStartupReadinessReporter:
     RootStartupReadinessReporting {
     private let lock = NSLock()
     private var readyEvents = 0
-    private var failureEvents = 0
+    private var recordedSlowEvents: [RootSetupSlowEvent] = []
+    private var recordedFailures: [RootSetupFailure] = []
+
+    var slowEvents: [RootSetupSlowEvent] {
+        lock.lock()
+        defer { lock.unlock() }
+
+        return recordedSlowEvents
+    }
+
+    var failures: [RootSetupFailure] {
+        lock.lock()
+        defer { lock.unlock() }
+
+        return recordedFailures
+    }
 
     var readyCount: Int {
         lock.lock()
@@ -3492,7 +4028,15 @@ private final class RecordingRootStartupReadinessReporter:
         lock.lock()
         defer { lock.unlock() }
 
-        return failureEvents
+        return recordedFailures.count
+    }
+
+    func reportSlow(phase: RootSetupPhase, elapsedTime: TimeInterval) {
+        lock.lock()
+        recordedSlowEvents.append(
+            RootSetupSlowEvent(phase: phase, elapsedTime: elapsedTime)
+        )
+        lock.unlock()
     }
 
     func reportReady() {
@@ -3501,11 +4045,16 @@ private final class RecordingRootStartupReadinessReporter:
         lock.unlock()
     }
 
-    func reportFailure() {
+    func reportFailure(_ failure: RootSetupFailure) {
         lock.lock()
-        failureEvents += 1
+        recordedFailures.append(failure)
         lock.unlock()
     }
+}
+
+private struct RootSetupSlowEvent: Equatable {
+    let phase: RootSetupPhase
+    let elapsedTime: TimeInterval
 }
 
 private final class StubOnboardingService: OnboardingServiceProtocol {

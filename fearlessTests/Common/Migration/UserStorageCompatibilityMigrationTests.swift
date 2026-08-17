@@ -1678,7 +1678,7 @@ final class UserStorageCompatibilityMigrationTests: XCTestCase {
             selectedWalletSettings: selectedWalletSettings,
             userDefaultsStorage: InMemorySettingsManager()
         )
-        guard case .pin = helper.startView(onboardingConfig: nil) else {
+        guard case .pin = try helper.startView(onboardingConfig: nil) else {
             return XCTFail(
                 "A nonempty migrated v2 store with a PIN must route to authentication"
             )

@@ -812,6 +812,7 @@
 		846CA43724E3DB9C004F1B14 /* RootTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA43624E3DB9C004F1B14 /* RootTests.swift */; };
 		FBCC45042F21000100A11CE5 /* MainTabBarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBCC45032F21000100A11CE5 /* MainTabBarTests.swift */; };
 		FBCC45142F21000100A11CE5 /* ChainAssetListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBCC45132F21000100A11CE5 /* ChainAssetListTests.swift */; };
+		FB2608140000000000000010 /* SoraSubqueryPriceFetcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2608140000000000000011 /* SoraSubqueryPriceFetcherTests.swift */; };
 		846CA7722707A3060011124C /* SingleToMultiasset.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 846CA7712707A3060011124C /* SingleToMultiasset.xcmappingmodel */; };
 		846CA77627090E990011124C /* StakingServiceFactoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA77527090E990011124C /* StakingServiceFactoryStub.swift */; };
 		846CA778270911920011124C /* StakingLocalSubscriptionFactoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA777270911920011124C /* StakingLocalSubscriptionFactoryStub.swift */; };
@@ -1334,6 +1335,8 @@
 		A5AB7027E1E73E39E4026C5C /* Pods_fearlessTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 59FDAE57EE0A97872E76E6CE /* Pods_fearlessTests.framework */; };
 		A5C7F51539B8D93D9186DA2C /* LiquidityPoolRemoveLiquidityViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6419D75A346CE10236161522 /* LiquidityPoolRemoveLiquidityViewLayout.swift */; };
 		A5EF098C5D53D306A7E84844 /* LegacyEcosystemUserDataModel_v12.mom in Resources */ = {isa = PBXBuildFile; fileRef = CDB0BA173951B82DCA58B603 /* LegacyEcosystemUserDataModel_v12.mom */; };
+		D42026080100000000000001 /* LegacyPublicSubstrateDataModel_v8.mom in Resources */ = {isa = PBXBuildFile; fileRef = D42026080100000000000003 /* LegacyPublicSubstrateDataModel_v8.mom */; };
+		D42026080100000000000002 /* LegacyPublicSubstrateDataModel_v9.mom in Resources */ = {isa = PBXBuildFile; fileRef = D42026080100000000000004 /* LegacyPublicSubstrateDataModel_v9.mom */; };
 		A64E3CA61C6CEE74F2FD9825 /* PolkaswapTransaktionSettingsAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7931155840DACB340284ABBB /* PolkaswapTransaktionSettingsAssembly.swift */; };
 		A6855830B76B0782A696583A /* AssetNetworksInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C554924081754A981EB4243E /* AssetNetworksInteractor.swift */; };
 		A69D3B3F6BF76FA9C3070BBD /* AssetNetworksViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFBFF377F35B254AB3141100 /* AssetNetworksViewLayout.swift */; };
@@ -3961,6 +3964,7 @@
 		846CA43624E3DB9C004F1B14 /* RootTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTests.swift; sourceTree = "<group>"; };
 		FBCC45032F21000100A11CE5 /* MainTabBarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarTests.swift; sourceTree = "<group>"; };
 		FBCC45132F21000100A11CE5 /* ChainAssetListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetListTests.swift; sourceTree = "<group>"; };
+		FB2608140000000000000011 /* SoraSubqueryPriceFetcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraSubqueryPriceFetcherTests.swift; sourceTree = "<group>"; };
 		846CA7712707A3060011124C /* SingleToMultiasset.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = SingleToMultiasset.xcmappingmodel; sourceTree = "<group>"; };
 		846CA77527090E990011124C /* StakingServiceFactoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingServiceFactoryStub.swift; sourceTree = "<group>"; };
 		846CA777270911920011124C /* StakingLocalSubscriptionFactoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingLocalSubscriptionFactoryStub.swift; sourceTree = "<group>"; };
@@ -4684,6 +4688,9 @@
 		C61166682B3BFA9000F483C4 /* NftHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftHeaderCell.swift; sourceTree = "<group>"; };
 		C611666B2B3C03B800F483C4 /* NftHeaderCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftHeaderCellViewModel.swift; sourceTree = "<group>"; };
 		C6182B4A2C6327D00089558D /* SubstrateDataModel_v8.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v8.xcdatamodel; sourceTree = "<group>"; };
+		D42026080100000000000003 /* LegacyPublicSubstrateDataModel_v8.mom */ = {isa = PBXFileReference; includeInIndex = 1; path = LegacyPublicSubstrateDataModel_v8.mom; sourceTree = "<group>"; };
+		D42026080100000000000004 /* LegacyPublicSubstrateDataModel_v9.mom */ = {isa = PBXFileReference; includeInIndex = 1; path = LegacyPublicSubstrateDataModel_v9.mom; sourceTree = "<group>"; };
+		D42026080100000000000007 /* SubstrateDataModel_v10.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v10.xcdatamodel; sourceTree = "<group>"; };
 		C6182B4B2C6474F30089558D /* PricesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricesService.swift; sourceTree = "<group>"; };
 		C61BE0DFC48282DFDBB820C9 /* LiquidityPoolRemoveLiquidityAssembly.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiquidityPoolRemoveLiquidityAssembly.swift; sourceTree = "<group>"; };
 		C62522E202A1C5EE60D25122 /* NftSendPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NftSendPresenter.swift; sourceTree = "<group>"; };
@@ -7463,6 +7470,23 @@
 			path = Compiled;
 			sourceTree = "<group>";
 		};
+		D42026080100000000000005 /* SubstrateCompatibilityModels */ = {
+			isa = PBXGroup;
+			children = (
+				D42026080100000000000006 /* Compiled */,
+			);
+			path = SubstrateCompatibilityModels;
+			sourceTree = "<group>";
+		};
+		D42026080100000000000006 /* Compiled */ = {
+			isa = PBXGroup;
+			children = (
+				D42026080100000000000003 /* LegacyPublicSubstrateDataModel_v8.mom */,
+				D42026080100000000000004 /* LegacyPublicSubstrateDataModel_v9.mom */,
+			);
+			path = Compiled;
+			sourceTree = "<group>";
+		};
 		41E829DF2B0F955B28BB6367 /* ExportMnemonic */ = {
 			isa = PBXGroup;
 			children = (
@@ -8882,6 +8906,7 @@
 			isa = PBXGroup;
 			children = (
 				FAD0679F2C2044490050291F /* SubstrateDataModel.xcdatamodeld */,
+				D42026080100000000000005 /* SubstrateCompatibilityModels */,
 				FACD42852A5BE811009975AA /* Migration */,
 				FA74359C29C0736F0085A47E /* StorageWrapper.swift */,
 				8457F91126EB9088006803E1 /* EntityToModel */,
@@ -9202,6 +9227,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				FB2608140000000000000011 /* SoraSubqueryPriceFetcherTests.swift */,
 				84FACB2B25F562CB00F32ED4 /* Resources */,
 				8467FD3724EACDF8005D486C /* Helper */,
 				8467FD0324E5E07D005D486C /* KeystoreDefinition */,
@@ -15954,6 +15980,8 @@
 				EA8ECCD37FE5D6478018D3FC /* RecommendedValidatorListViewController.xib in Resources */,
 				A5EF098C5D53D306A7E84844 /* LegacyEcosystemUserDataModel_v12.mom in Resources */,
 				C3E367BDACDDDB4358823EE9 /* CompatibleUserDataModel_v13.mom in Resources */,
+				D42026080100000000000001 /* LegacyPublicSubstrateDataModel_v8.mom in Resources */,
+				D42026080100000000000002 /* LegacyPublicSubstrateDataModel_v9.mom in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -19166,6 +19194,7 @@
 				846CA43724E3DB9C004F1B14 /* RootTests.swift in Sources */,
 				FBCC45042F21000100A11CE5 /* MainTabBarTests.swift in Sources */,
 				FBCC45142F21000100A11CE5 /* ChainAssetListTests.swift in Sources */,
+				FB2608140000000000000010 /* SoraSubqueryPriceFetcherTests.swift in Sources */,
 				093C10C88C0A209158EA75D1 /* UsernameSetupTests.swift in Sources */,
 				AE2C1020267A67DD004AA8E9 /* CustomValidatorListTestDataGenerator.swift in Sources */,
 				84D9C41126CD361C004AB2AB /* SpecVersionSubscriptionTests.swift in Sources */,
@@ -19412,7 +19441,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				INFOPLIST_FILE = fearlessIntegrationTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -19434,7 +19463,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				INFOPLIST_FILE = fearlessIntegrationTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -19456,7 +19485,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				INFOPLIST_FILE = fearlessIntegrationTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -19523,7 +19552,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -19580,7 +19609,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -19602,7 +19631,7 @@
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = fearless/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -19629,11 +19658,11 @@
 				CODE_SIGN_ENTITLEMENTS = fearless/WalletConnect.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution: Soramitsu Co., Ltd. (YLWWUD25VZ)";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2026.8.2;
+				CURRENT_PROJECT_VERSION = 2026.8.17;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = fearless/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -19661,7 +19690,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				INFOPLIST_FILE = fearlessTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -19686,7 +19715,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				INFOPLIST_FILE = fearlessTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -19752,7 +19781,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -19775,7 +19804,7 @@
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = fearless/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -19804,7 +19833,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				INFOPLIST_FILE = fearlessTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -20052,6 +20081,7 @@
 		FAD0679F2C2044490050291F /* SubstrateDataModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				D42026080100000000000007 /* SubstrateDataModel_v10.xcdatamodel */,
 				C6182B4A2C6327D00089558D /* SubstrateDataModel_v8.xcdatamodel */,
 				FAD067A02C2044490050291F /* SubstrateDataModel.xcdatamodel */,
 				FAD067A12C2044490050291F /* SubstrateDataModel_v4.xcdatamodel */,
@@ -20061,7 +20091,7 @@
 				FAD067A52C2044490050291F /* SubstrateDataModel_v6.xcdatamodel */,
 				FAD067A62C2044490050291F /* SubstrateDataModel_v3.xcdatamodel */,
 			);
-			currentVersion = C6182B4A2C6327D00089558D /* SubstrateDataModel_v8.xcdatamodel */;
+			currentVersion = D42026080100000000000007 /* SubstrateDataModel_v10.xcdatamodel */;
 			path = SubstrateDataModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

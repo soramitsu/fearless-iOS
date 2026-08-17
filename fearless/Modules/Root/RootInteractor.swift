@@ -4,6 +4,7 @@ import SoraKeystore
 import IrohaCrypto
 import RobinHood
 import SoraFoundation
+import UIKit
 
 enum RootStoragePreflightError: LocalizedError {
     case contextUnavailable
@@ -42,22 +43,104 @@ enum RootStoragePreflightError: LocalizedError {
     }
 }
 
-enum RootSetupDeadlineError: LocalizedError {
-    case migrationTimedOut
-    case migrationStillRunning
-    case storagePreflightTimedOut
-    case selectedWalletSetupTimedOut
+enum RootSelectedWalletOpeningError: LocalizedError {
+    case walletStoreUnavailable
+    case unsupportedWalletRequiresCompatibility
+    case inconsistentStoreState
 
     var errorDescription: String? {
         switch self {
-        case .migrationTimedOut:
-            return "Wallet storage migration timed out"
-        case .migrationStillRunning:
-            return "Wallet storage migration is still running"
-        case .storagePreflightTimedOut:
-            return "Substrate storage preflight timed out"
-        case .selectedWalletSetupTimedOut:
-            return "Selected wallet storage setup timed out"
+        case .walletStoreUnavailable:
+            return "The stored wallet records could not be opened safely"
+        case .unsupportedWalletRequiresCompatibility:
+            return "The stored wallet requires a compatibility mapping"
+        case .inconsistentStoreState:
+            return "The selected wallet result did not match the validated store state"
+        }
+    }
+}
+
+struct RootSetupMigrationStep {
+    let phase: RootSetupPhase
+    let migrator: Migrating
+
+    init(phase: RootSetupPhase, migrator: Migrating) {
+        self.phase = phase
+        self.migrator = migrator
+    }
+}
+
+protocol RootProtectedDataAvailabilityObservation: AnyObject {
+    func invalidate()
+}
+
+protocol RootProtectedDataAvailabilityMonitoring: AnyObject {
+    var isProtectedDataAvailable: Bool { get }
+
+    func observeDidBecomeAvailable(
+        _ action: @escaping () -> Void
+    ) -> RootProtectedDataAvailabilityObservation
+}
+
+final class RootUIApplicationProtectedDataAvailabilityMonitor:
+    RootProtectedDataAvailabilityMonitoring {
+    private let application: UIApplication
+    private let notificationCenter: NotificationCenter
+
+    init(
+        application: UIApplication = .shared,
+        notificationCenter: NotificationCenter = .default
+    ) {
+        self.application = application
+        self.notificationCenter = notificationCenter
+    }
+
+    var isProtectedDataAvailable: Bool {
+        application.isProtectedDataAvailable
+    }
+
+    func observeDidBecomeAvailable(
+        _ action: @escaping () -> Void
+    ) -> RootProtectedDataAvailabilityObservation {
+        RootNotificationProtectedDataAvailabilityObservation(
+            notificationCenter: notificationCenter,
+            action: action
+        )
+    }
+}
+
+private final class RootNotificationProtectedDataAvailabilityObservation:
+    RootProtectedDataAvailabilityObservation {
+    private let lock = NSLock()
+    private let notificationCenter: NotificationCenter
+    private var observer: NSObjectProtocol?
+
+    init(
+        notificationCenter: NotificationCenter,
+        action: @escaping () -> Void
+    ) {
+        self.notificationCenter = notificationCenter
+        observer = notificationCenter.addObserver(
+            forName: UIApplication.protectedDataDidBecomeAvailableNotification,
+            object: nil,
+            queue: nil
+        ) { _ in
+            action()
+        }
+    }
+
+    deinit {
+        invalidate()
+    }
+
+    func invalidate() {
+        lock.lock()
+        let observer = observer
+        self.observer = nil
+        lock.unlock()
+
+        if let observer {
+            notificationCenter.removeObserver(observer)
         }
     }
 }
@@ -73,6 +156,7 @@ typealias RootSetupDeadlineScheduler = (
     TimeInterval,
     @escaping () -> Void
 ) -> Void
+typealias RootMonotonicTimeProvider = () -> TimeInterval
 
 private final class RootSetupCompletionGate {
     private let lock = NSLock()
@@ -278,6 +362,8 @@ final class RootCoreDataStoragePreflight: RootStoragePreflighting {
 }
 
 protocol RootSelectedWalletSettingsProtocol: AnyObject {
+    var storeState: SelectedWalletStoreState { get }
+
     func setup(
         runningCompletionIn queue: DispatchQueue?,
         completionClosure: ((Result<MetaAccountModel?, Error>) -> Void)?
@@ -285,6 +371,41 @@ protocol RootSelectedWalletSettingsProtocol: AnyObject {
 }
 
 extension SelectedWalletSettings: RootSelectedWalletSettingsProtocol {}
+
+typealias RootPincodeAvailabilityProvider = () throws -> Bool
+typealias RootPincodeRemoval = () throws -> Void
+
+enum RootStartupRouteValidation: Equatable {
+    case ready(pincodeAvailable: Bool)
+    case empty
+    case unsupportedOnlyWithoutPincode
+}
+
+final class RootStartupRouteValidationStore {
+    private let lock = NSLock()
+    private var validation: RootStartupRouteValidation?
+
+    func replace(with validation: RootStartupRouteValidation) {
+        lock.lock()
+        self.validation = validation
+        lock.unlock()
+    }
+
+    func take() -> RootStartupRouteValidation? {
+        lock.lock()
+        defer { lock.unlock() }
+
+        let validation = validation
+        self.validation = nil
+        return validation
+    }
+
+    func clear() {
+        lock.lock()
+        validation = nil
+        lock.unlock()
+    }
+}
 
 // Startup migration barriers remain in one state machine.
 // swiftlint:disable:next type_body_length
@@ -294,16 +415,23 @@ final class RootInteractor {
         qos: .userInitiated
     )
 
+    private struct MigrationStepFailure: Error {
+        let phase: RootSetupPhase
+        let underlyingError: Error
+    }
+
     private enum MigrationBarrierState {
         case notRequested
         case inProgress
         case completed
-        case failed(Error)
+        case failed(MigrationStepFailure)
     }
 
-    private struct MigrationWaiter {
+    private struct ProtectedDataWait {
+        let identifier: UUID
         let generation: UUID
-        let completionGate: RootSetupCompletionGate
+        let observation: RootProtectedDataAvailabilityObservation
+        let action: () -> Void
     }
 
     weak var presenter: RootInteractorOutputProtocol?
@@ -315,20 +443,24 @@ final class RootInteractor {
     private lazy var settings = settingsProvider()
     private let applicationConfig: ApplicationConfigProtocol
     private let eventCenter: EventCenterProtocol
-    private let migrators: [Migrating]
+    private let migrationSteps: [RootSetupMigrationStep]
     private let logger: LoggerProtocol?
     private let onboardingService: OnboardingServiceProtocol
     private let onboardingConfigResolver: OnboardingConfigVersionResolver
+    private let protectedDataAvailabilityMonitor:
+        RootProtectedDataAvailabilityMonitoring
+    private let pincodeAvailabilityProvider: RootPincodeAvailabilityProvider
+    private let pincodeRemoval: RootPincodeRemoval
+    private let startupRouteValidationStore:
+        RootStartupRouteValidationStore
     private let migrationDeadline: TimeInterval
     private let setupDeadline: TimeInterval
     private let setupDeadlineScheduler: RootSetupDeadlineScheduler?
+    private let monotonicTimeProvider: RootMonotonicTimeProvider
     private let setupQueue = DispatchQueue(
         label: "jp.co.soramitsu.fearlesswallet.root-setup",
         qos: .userInitiated
     )
-    // Core Data migration APIs are synchronous and cannot be cancelled safely.
-    // Keep exactly one migration worker alive after a presentation deadline so
-    // a retry can wait for that same attempt instead of racing a second writer.
     private let migrationInvocationQueue: OperationQueue = {
         let queue = OperationQueue()
         queue.name = "jp.co.soramitsu.fearlesswallet.root-migration"
@@ -337,30 +469,22 @@ final class RootInteractor {
         return queue
     }()
 
-    // A Core Data store open cannot be cancelled and may block before
-    // `performAsync` returns. Keep one recovery lane, but account for an
-    // invocation until both the call returns and its terminal callback arrives.
-    // If both lanes stall, retries fail immediately instead of accumulating
-    // queued work or opening an unbounded number of concurrent stores. These
-    // lanes only perform the read-only preflight; migration writers stay behind
-    // the single-worker migration barrier above.
     private let storagePreflightInvocationQueue = DispatchQueue(
         label: "jp.co.soramitsu.fearlesswallet.root-storage-preflight",
         qos: .userInitiated,
         attributes: .concurrent
     )
-    private let storagePreflightInvocationLimiter =
-        RootStoragePreflightInvocationLimiter(maximumInvocationCount: 2)
 
     private let setupGenerationLock = NSLock()
     private var setupGeneration = UUID()
-    // Accessed only on setupQueue. A no-migration reload is an assertion that
-    // migrations already completed earlier in this process. Once either path
-    // seals the barrier, shared Core Data services may open and migrations must
-    // not run again. A required migration failure remains fail-closed until a
-    // required retry succeeds.
+
+    // The properties below are confined to setupQueue.
+    private var isSetupActive = false
+    private var setupStartedAt: TimeInterval = 0
+    private var currentPhase: RootSetupPhase?
+    private var slowThresholdIdentifier: UUID?
+    private var protectedDataWait: ProtectedDataWait?
     private var migrationBarrierState = MigrationBarrierState.notRequested
-    private var migrationWaiter: MigrationWaiter?
 
     init(
         chainRegistryProvider: @escaping () -> ChainRegistryProtocol,
@@ -368,30 +492,48 @@ final class RootInteractor {
         settingsProvider: @escaping () -> RootSelectedWalletSettingsProtocol,
         applicationConfig: ApplicationConfigProtocol,
         eventCenter: EventCenterProtocol,
-        migrators: [Migrating],
+        migrationSteps: [RootSetupMigrationStep],
         logger: LoggerProtocol? = nil,
         onboardingService: OnboardingServiceProtocol,
         onboardingConfigResolver: OnboardingConfigVersionResolver,
+        protectedDataAvailabilityMonitor:
+        RootProtectedDataAvailabilityMonitoring =
+            RootUIApplicationProtectedDataAvailabilityMonitor(),
+        pincodeAvailabilityProvider: @escaping RootPincodeAvailabilityProvider = {
+            false
+        },
+        pincodeRemoval: @escaping RootPincodeRemoval = {},
+        startupRouteValidationStore: RootStartupRouteValidationStore = .init(),
         migrationDeadline: TimeInterval = 60,
         setupDeadline: TimeInterval = 15,
-        setupDeadlineScheduler: RootSetupDeadlineScheduler? = nil
+        setupDeadlineScheduler: RootSetupDeadlineScheduler? = nil,
+        monotonicTimeProvider: @escaping RootMonotonicTimeProvider = {
+            ProcessInfo.processInfo.systemUptime
+        }
     ) {
         self.chainRegistryProvider = chainRegistryProvider
         self.storagePreflightProvider = storagePreflightProvider
         self.settingsProvider = settingsProvider
         self.applicationConfig = applicationConfig
         self.eventCenter = eventCenter
-        self.migrators = migrators
+        self.migrationSteps = migrationSteps
         self.logger = logger
         self.onboardingService = onboardingService
         self.onboardingConfigResolver = onboardingConfigResolver
+        self.protectedDataAvailabilityMonitor =
+            protectedDataAvailabilityMonitor
+        self.pincodeAvailabilityProvider = pincodeAvailabilityProvider
+        self.pincodeRemoval = pincodeRemoval
+        self.startupRouteValidationStore = startupRouteValidationStore
         self.migrationDeadline = max(0.001, migrationDeadline)
         self.setupDeadline = max(0.001, setupDeadline)
         self.setupDeadlineScheduler = setupDeadlineScheduler
+        self.monotonicTimeProvider = monotonicTimeProvider
     }
 
     deinit {
         migrationInvocationQueue.cancelAllOperations()
+        protectedDataWait?.observation.invalidate()
     }
 
     convenience init(
@@ -400,13 +542,24 @@ final class RootInteractor {
         settings: RootSelectedWalletSettingsProtocol,
         applicationConfig: ApplicationConfigProtocol,
         eventCenter: EventCenterProtocol,
-        migrators: [Migrating],
+        migrationSteps: [RootSetupMigrationStep],
         logger: LoggerProtocol? = nil,
         onboardingService: OnboardingServiceProtocol,
         onboardingConfigResolver: OnboardingConfigVersionResolver,
+        protectedDataAvailabilityMonitor:
+        RootProtectedDataAvailabilityMonitoring =
+            RootUIApplicationProtectedDataAvailabilityMonitor(),
+        pincodeAvailabilityProvider: @escaping RootPincodeAvailabilityProvider = {
+            false
+        },
+        pincodeRemoval: @escaping RootPincodeRemoval = {},
+        startupRouteValidationStore: RootStartupRouteValidationStore = .init(),
         migrationDeadline: TimeInterval = 60,
         setupDeadline: TimeInterval = 15,
-        setupDeadlineScheduler: RootSetupDeadlineScheduler? = nil
+        setupDeadlineScheduler: RootSetupDeadlineScheduler? = nil,
+        monotonicTimeProvider: @escaping RootMonotonicTimeProvider = {
+            ProcessInfo.processInfo.systemUptime
+        }
     ) {
         self.init(
             chainRegistryProvider: chainRegistryProvider,
@@ -414,13 +567,18 @@ final class RootInteractor {
             settingsProvider: { settings },
             applicationConfig: applicationConfig,
             eventCenter: eventCenter,
-            migrators: migrators,
+            migrationSteps: migrationSteps,
             logger: logger,
             onboardingService: onboardingService,
             onboardingConfigResolver: onboardingConfigResolver,
+            protectedDataAvailabilityMonitor: protectedDataAvailabilityMonitor,
+            pincodeAvailabilityProvider: pincodeAvailabilityProvider,
+            pincodeRemoval: pincodeRemoval,
+            startupRouteValidationStore: startupRouteValidationStore,
             migrationDeadline: migrationDeadline,
             setupDeadline: setupDeadline,
-            setupDeadlineScheduler: setupDeadlineScheduler
+            setupDeadlineScheduler: setupDeadlineScheduler,
+            monotonicTimeProvider: monotonicTimeProvider
         )
     }
 
@@ -430,13 +588,24 @@ final class RootInteractor {
         settings: RootSelectedWalletSettingsProtocol,
         applicationConfig: ApplicationConfigProtocol,
         eventCenter: EventCenterProtocol,
-        migrators: [Migrating],
+        migrationSteps: [RootSetupMigrationStep],
         logger: LoggerProtocol? = nil,
         onboardingService: OnboardingServiceProtocol,
         onboardingConfigResolver: OnboardingConfigVersionResolver,
+        protectedDataAvailabilityMonitor:
+        RootProtectedDataAvailabilityMonitoring =
+            RootUIApplicationProtectedDataAvailabilityMonitor(),
+        pincodeAvailabilityProvider: @escaping RootPincodeAvailabilityProvider = {
+            false
+        },
+        pincodeRemoval: @escaping RootPincodeRemoval = {},
+        startupRouteValidationStore: RootStartupRouteValidationStore = .init(),
         migrationDeadline: TimeInterval = 60,
         setupDeadline: TimeInterval = 15,
-        setupDeadlineScheduler: RootSetupDeadlineScheduler? = nil
+        setupDeadlineScheduler: RootSetupDeadlineScheduler? = nil,
+        monotonicTimeProvider: @escaping RootMonotonicTimeProvider = {
+            ProcessInfo.processInfo.systemUptime
+        }
     ) {
         self.init(
             chainRegistryProvider: { chainRegistry },
@@ -444,13 +613,18 @@ final class RootInteractor {
             settings: settings,
             applicationConfig: applicationConfig,
             eventCenter: eventCenter,
-            migrators: migrators,
+            migrationSteps: migrationSteps,
             logger: logger,
             onboardingService: onboardingService,
             onboardingConfigResolver: onboardingConfigResolver,
+            protectedDataAvailabilityMonitor: protectedDataAvailabilityMonitor,
+            pincodeAvailabilityProvider: pincodeAvailabilityProvider,
+            pincodeRemoval: pincodeRemoval,
+            startupRouteValidationStore: startupRouteValidationStore,
             migrationDeadline: migrationDeadline,
             setupDeadline: setupDeadline,
-            setupDeadlineScheduler: setupDeadlineScheduler
+            setupDeadlineScheduler: setupDeadlineScheduler,
+            monotonicTimeProvider: monotonicTimeProvider
         )
     }
 
@@ -471,103 +645,6 @@ final class RootInteractor {
         ])
     }
 
-    private func runMigrators() throws {
-        for migrator in migrators {
-            try migrator.migrate()
-        }
-    }
-
-    private func enforceMigrationBarrier(
-        runMigrations: Bool,
-        generation: UUID
-    ) {
-        if runMigrations {
-            switch migrationBarrierState {
-            case .completed:
-                preflightStorage(generation: generation)
-            case .notRequested, .failed:
-                startMigration(generation: generation)
-            case .inProgress:
-                waitForRunningMigration(generation: generation)
-            }
-        } else {
-            switch migrationBarrierState {
-            case .notRequested:
-                migrationBarrierState = .completed
-                preflightStorage(generation: generation)
-            case .completed:
-                preflightStorage(generation: generation)
-            case .inProgress:
-                failSetup(
-                    with: RootSetupDeadlineError.migrationStillRunning,
-                    generation: generation
-                )
-            case let .failed(error):
-                failSetup(with: error, generation: generation)
-            }
-        }
-    }
-
-    private func startMigration(generation: UUID) {
-        migrationBarrierState = .inProgress
-        waitForRunningMigration(generation: generation)
-
-        migrationInvocationQueue.addOperation { [weak self] in
-            guard let self else {
-                return
-            }
-
-            let result = Result {
-                try self.runMigrators()
-            }
-
-            setupQueue.async { [weak self] in
-                self?.finishMigration(with: result)
-            }
-        }
-    }
-
-    private func waitForRunningMigration(generation: UUID) {
-        let completionGate = RootSetupCompletionGate()
-        migrationWaiter = MigrationWaiter(
-            generation: generation,
-            completionGate: completionGate
-        )
-        scheduleSetupDeadline(
-            after: migrationDeadline,
-            generation: generation,
-            completionGate: completionGate,
-            error: .migrationTimedOut
-        )
-    }
-
-    private func finishMigration(with result: Result<Void, Error>) {
-        let waiter = migrationWaiter
-        migrationWaiter = nil
-
-        switch result {
-        case .success:
-            migrationBarrierState = .completed
-        case let .failure(error):
-            migrationBarrierState = .failed(error)
-        }
-
-        guard
-            let waiter,
-            waiter.completionGate.claimCompletion(),
-            isCurrentSetupGeneration(waiter.generation)
-        else {
-            return
-        }
-
-        switch result {
-        case .success:
-            preflightStorage(generation: waiter.generation)
-        case let .failure(error):
-            failSetup(with: error, generation: waiter.generation)
-        }
-    }
-
     private func replaceSetupGeneration() -> UUID {
         let generation = UUID()
 
@@ -585,226 +662,785 @@ final class RootInteractor {
         return setupGeneration == generation
     }
 
-    private func completeSetup(generation: UUID) {
-        guard isCurrentSetupGeneration(generation) else {
+    private func beginSetup(runMigrations: Bool) {
+        guard !isSetupActive else {
             return
         }
 
-        DispatchQueue.main.async { [weak self] in
-            guard self?.isCurrentSetupGeneration(generation) == true else {
-                return
-            }
+        let generation = replaceSetupGeneration()
+        startupRouteValidationStore.clear()
+        setupURLHandlingService()
 
-            self?.presenter?.didCompleteSetup()
-        }
+        isSetupActive = true
+        setupStartedAt = monotonicTimeProvider()
+        currentPhase = nil
+
+        enforceMigrationBarrier(
+            runMigrations: runMigrations,
+            generation: generation
+        )
     }
 
-    private func failSetup(with error: Error, generation: UUID) {
-        logger?.error(error.localizedDescription)
-
-        guard isCurrentSetupGeneration(generation) else {
-            return
-        }
-
-        DispatchQueue.main.async { [weak self] in
-            guard self?.isCurrentSetupGeneration(generation) == true else {
-                return
-            }
-
-            self?.presenter?.didFailSetup()
-        }
-    }
-
-    private func scheduleSetupDeadline(
-        after delay: TimeInterval,
-        generation: UUID,
-        completionGate: RootSetupCompletionGate,
-        error: RootSetupDeadlineError
+    private func enforceMigrationBarrier(
+        runMigrations: Bool,
+        generation: UUID
     ) {
-        let deadlineAction = { [weak self] in
-            guard
-                completionGate.claimCompletion(),
-                let self,
-                isCurrentSetupGeneration(generation)
-            else {
-                return
+        if runMigrations {
+            switch migrationBarrierState {
+            case .completed:
+                beginStoragePreflight(generation: generation)
+            case .notRequested, .failed:
+                startMigration(generation: generation)
+            case .inProgress:
+                // An active setup owns the only migration writer. New setup
+                // requests are coalesced before reaching this branch.
+                break
             }
+        } else {
+            switch migrationBarrierState {
+            case .notRequested:
+                migrationBarrierState = .completed
+                beginStoragePreflight(generation: generation)
+            case .completed:
+                beginStoragePreflight(generation: generation)
+            case .inProgress:
+                // An active setup owns the only migration writer. New setup
+                // requests are coalesced before reaching this branch.
+                break
+            case let .failed(failure):
+                failSetup(
+                    with: failure.underlyingError,
+                    phase: failure.phase,
+                    generation: generation
+                )
+            }
+        }
+    }
 
-            failSetup(with: error, generation: generation)
+    private func startMigration(generation: UUID) {
+        migrationBarrierState = .inProgress
+
+        guard !migrationSteps.isEmpty else {
+            migrationBarrierState = .completed
+            beginStoragePreflight(generation: generation)
+            return
         }
 
-        if let setupDeadlineScheduler {
-            setupDeadlineScheduler(delay, deadlineAction)
-        } else {
-            Self.setupDeadlineQueue.asyncAfter(
-                deadline: .now() + delay,
-                execute: deadlineAction
+        startMigrationStep(at: 0, generation: generation)
+    }
+
+    private func startMigrationStep(at index: Int, generation: UUID) {
+        guard migrationSteps.indices.contains(index) else {
+            migrationBarrierState = .completed
+            beginStoragePreflight(generation: generation)
+            return
+        }
+
+        let step = migrationSteps[index]
+        performWhenProtectedDataIsAvailable(
+            generation: generation
+        ) { [weak self] in
+            self?.invokeMigrationStep(
+                step,
+                at: index,
+                generation: generation
             )
         }
     }
 
-    private func setupSelectedWallet(
-        generation: UUID,
-        chainRegistry: ChainRegistryProtocol
+    private func invokeMigrationStep(
+        _ step: RootSetupMigrationStep,
+        at index: Int,
+        generation: UUID
     ) {
-        guard isCurrentSetupGeneration(generation) else {
+        guard isActiveSetup(generation: generation) else {
             return
         }
 
+        updateSetupPhase(step.phase, generation: generation)
+        if index == migrationSteps.startIndex {
+            scheduleSlowThreshold(
+                after: migrationDeadline,
+                generation: generation
+            )
+        }
+
+        migrationInvocationQueue.addOperation { [weak self] in
+            let result = Result {
+                try step.migrator.migrate()
+            }
+
+            self?.setupQueue.async { [weak self] in
+                guard let self, isActiveSetup(generation: generation) else {
+                    return
+                }
+
+                switch result {
+                case .success:
+                    startMigrationStep(
+                        at: index + 1,
+                        generation: generation
+                    )
+                case let .failure(error):
+                    let failure = MigrationStepFailure(
+                        phase: step.phase,
+                        underlyingError: error
+                    )
+                    migrationBarrierState = .failed(failure)
+                    failSetup(
+                        with: error,
+                        phase: step.phase,
+                        generation: generation
+                    )
+                }
+            }
+        }
+    }
+
+    private func beginStoragePreflight(generation: UUID) {
+        invalidateSlowThreshold()
+        performWhenProtectedDataIsAvailable(
+            generation: generation
+        ) { [weak self] in
+            self?.invokeStoragePreflight(generation: generation)
+        }
+    }
+
+    private func invokeStoragePreflight(generation: UUID) {
+        guard isActiveSetup(generation: generation) else {
+            return
+        }
+
+        updateSetupPhase(.substratePreflight, generation: generation)
+        scheduleSlowThreshold(after: setupDeadline, generation: generation)
+
+        let preflight = storagePreflightProvider()
         let completionGate = RootSetupCompletionGate()
-        scheduleSetupDeadline(
-            after: setupDeadline,
-            generation: generation,
-            completionGate: completionGate,
-            error: .selectedWalletSetupTimedOut
-        )
-        settings.setup(runningCompletionIn: .global()) { [weak self] result in
-            guard completionGate.claimCompletion() else {
+
+        storagePreflightInvocationQueue.async { [weak self] in
+            guard
+                self?.isCurrentSetupGeneration(generation) == true,
+                !completionGate.hasClaimedCompletion()
+            else {
                 return
             }
 
-            guard
-                let self,
-                isCurrentSetupGeneration(generation)
-            else {
+            preflight.preflight { [weak self] result in
+                guard completionGate.claimCompletion(), let self else {
+                    return
+                }
+
+                setupQueue.async { [weak self] in
+                    guard let self, isActiveSetup(generation: generation) else {
+                        return
+                    }
+
+                    switch result {
+                    case .success:
+                        beginSelectedWalletOpening(generation: generation)
+                    case let .failure(error):
+                        failSetup(
+                            with: error,
+                            phase: .substratePreflight,
+                            generation: generation
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private func beginSelectedWalletOpening(generation: UUID) {
+        invalidateSlowThreshold()
+        performWhenProtectedDataIsAvailable(
+            generation: generation
+        ) { [weak self] in
+            self?.invokeSelectedWalletOpening(generation: generation)
+        }
+    }
+
+    private func invokeSelectedWalletOpening(generation: UUID) {
+        guard isActiveSetup(generation: generation) else {
+            return
+        }
+
+        updateSetupPhase(.selectedWalletOpening, generation: generation)
+        scheduleSlowThreshold(after: setupDeadline, generation: generation)
+
+        let selectedWalletSettings = settings
+        let completionGate = RootSetupCompletionGate()
+
+        selectedWalletSettings.setup(
+            runningCompletionIn: .global()
+        ) { [weak self] result in
+            guard completionGate.claimCompletion(), let self else {
+                return
+            }
+
+            setupQueue.async { [weak self] in
+                guard let self, isActiveSetup(generation: generation) else {
+                    return
+                }
+
+                switch result {
+                case let .success(wallet):
+                    finishSelectedWalletOpening(
+                        wallet: wallet,
+                        generation: generation
+                    )
+                case let .failure(error):
+                    failSetup(
+                        with: error,
+                        phase: .selectedWalletOpening,
+                        generation: generation
+                    )
+                }
+            }
+        }
+    }
+
+    private func finishSelectedWalletOpening(
+        wallet: MetaAccountModel?,
+        generation: UUID
+    ) {
+        let storeState = settings.storeState
+        let routeValidation: RootStartupRouteValidation
+
+        switch (storeState, wallet) {
+        case (.ready, .some):
+            do {
+                routeValidation = .ready(
+                    pincodeAvailable: try pincodeAvailabilityProvider()
+                )
+            } catch {
+                failSetup(
+                    with: error,
+                    phase: .selectedWalletOpening,
+                    generation: generation
+                )
+                return
+            }
+
+            startupRouteValidationStore.replace(with: routeValidation)
+            chainRegistry.performHotBoot()
+        case (.empty, .none):
+            do {
+                try pincodeRemoval()
+            } catch {
+                failSetup(
+                    with: error,
+                    phase: .selectedWalletOpening,
+                    generation: generation
+                )
+                return
+            }
+
+            routeValidation = .empty
+            startupRouteValidationStore.replace(with: routeValidation)
+            chainRegistry.performColdBoot()
+        case (.unsupportedOnly, .none):
+            do {
+                if try pincodeAvailabilityProvider() {
+                    failSetup(
+                        with: RootSelectedWalletOpeningError
+                            .unsupportedWalletRequiresCompatibility,
+                        phase: .selectedWalletOpening,
+                        generation: generation
+                    )
+                    return
+                }
+            } catch {
+                failSetup(
+                    with: error,
+                    phase: .selectedWalletOpening,
+                    generation: generation
+                )
+                return
+            }
+
+            // A structurally valid unsupported-only store without a PIN can
+            // safely reach login so the user can add a supported wallet. No
+            // stored row is rewritten or discarded.
+            routeValidation = .unsupportedOnlyWithoutPincode
+            startupRouteValidationStore.replace(with: routeValidation)
+            chainRegistry.performColdBoot()
+        case (.unavailable, _), (.unresolved, _):
+            failSetup(
+                with: RootSelectedWalletOpeningError.walletStoreUnavailable,
+                phase: .selectedWalletOpening,
+                generation: generation
+            )
+            return
+        case (.ready, .none),
+             (.empty, .some),
+             (.unsupportedOnly, .some):
+            failSetup(
+                with: RootSelectedWalletOpeningError.inconsistentStoreState,
+                phase: .selectedWalletOpening,
+                generation: generation
+            )
+            return
+        }
+
+        logger?.debug("Selected wallet setup completed")
+        completeSetup(generation: generation)
+    }
+
+    private func performWhenProtectedDataIsAvailable(
+        generation: UUID,
+        action: @escaping () -> Void
+    ) {
+        guard isActiveSetup(generation: generation) else {
+            return
+        }
+
+        protectedDataWait?.observation.invalidate()
+
+        let identifier = UUID()
+        let observation = protectedDataAvailabilityMonitor
+            .observeDidBecomeAvailable { [weak self] in
+                self?.setupQueue.async { [weak self] in
+                    self?.resumeProtectedDataWait(identifier: identifier)
+                }
+            }
+
+        protectedDataWait = ProtectedDataWait(
+            identifier: identifier,
+            generation: generation,
+            observation: observation,
+            action: action
+        )
+
+        // Register first, then inspect availability so an unlock racing this
+        // check cannot be missed.
+        if protectedDataAvailabilityMonitor.isProtectedDataAvailable {
+            setupQueue.async { [weak self] in
+                self?.resumeProtectedDataWait(identifier: identifier)
+            }
+        }
+    }
+
+    private func resumeProtectedDataWait(identifier: UUID) {
+        guard
+            let wait = protectedDataWait,
+            wait.identifier == identifier,
+            protectedDataAvailabilityMonitor.isProtectedDataAvailable
+        else {
+            return
+        }
+
+        protectedDataWait = nil
+        wait.observation.invalidate()
+
+        guard isActiveSetup(generation: wait.generation) else {
+            return
+        }
+
+        wait.action()
+    }
+
+    private func scheduleSlowThreshold(
+        after delay: TimeInterval,
+        generation: UUID
+    ) {
+        let identifier = UUID()
+        slowThresholdIdentifier = identifier
+
+        let thresholdAction: () -> Void = { [weak self] in
+            guard let self else {
                 return
             }
 
             setupQueue.async { [weak self] in
                 guard
                     let self,
-                    isCurrentSetupGeneration(generation)
+                    slowThresholdIdentifier == identifier,
+                    isActiveSetup(generation: generation),
+                    let phase = currentPhase
                 else {
                     return
                 }
 
-                switch result {
-                case let .success(wallet):
-                    if let wallet {
-                        chainRegistry.performHotBoot()
-                        logger?.debug("Selected account: \(wallet.metaId)")
-                    } else {
-                        chainRegistry.performColdBoot()
-                        logger?.debug("No selected account")
-                    }
-
-                    completeSetup(generation: generation)
-                case let .failure(error):
-                    failSetup(with: error, generation: generation)
-                }
+                slowThresholdIdentifier = nil
+                deliverSetupState(
+                    .slow(phase, elapsedTime: elapsedTime()),
+                    generation: generation
+                )
             }
+        }
+
+        if let setupDeadlineScheduler {
+            setupDeadlineScheduler(delay, thresholdAction)
+        } else {
+            Self.setupDeadlineQueue.asyncAfter(
+                deadline: .now() + delay,
+                execute: thresholdAction
+            )
         }
     }
 
-    private func preflightStorage(generation: UUID) {
-        guard isCurrentSetupGeneration(generation) else {
+    private func invalidateSlowThreshold() {
+        slowThresholdIdentifier = nil
+    }
+
+    private func updateSetupPhase(
+        _ phase: RootSetupPhase,
+        generation: UUID
+    ) {
+        guard isActiveSetup(generation: generation) else {
             return
         }
 
-        guard
-            let invocation = storagePreflightInvocationLimiter.acquire()
-        else {
-            failSetup(
-                with: RootStoragePreflightError.invocationCapacityExhausted,
-                generation: generation
-            )
+        currentPhase = phase
+        deliverSetupState(.running(phase), generation: generation)
+    }
+
+    private func elapsedTime() -> TimeInterval {
+        max(0, monotonicTimeProvider() - setupStartedAt)
+    }
+
+    private func isActiveSetup(generation: UUID) -> Bool {
+        isSetupActive && isCurrentSetupGeneration(generation)
+    }
+
+    private func completeSetup(generation: UUID) {
+        guard isActiveSetup(generation: generation) else {
             return
         }
 
-        let completionGate = RootSetupCompletionGate()
-        scheduleSetupDeadline(
-            after: setupDeadline,
-            generation: generation,
-            completionGate: completionGate,
-            error: .storagePreflightTimedOut
+        finishActiveSetup()
+        deliverSetupState(.ready, generation: generation)
+    }
+
+    private func failSetup(
+        with error: Error,
+        phase: RootSetupPhase,
+        generation: UUID
+    ) {
+        guard isActiveSetup(generation: generation) else {
+            return
+        }
+
+        let failure = makeSetupFailure(
+            error: error,
+            phase: phase,
+            elapsedTime: elapsedTime()
         )
-        let preflightProvider = storagePreflightProvider
-        storagePreflightInvocationQueue.async { [weak self, invocation] in
-            guard
-                self?.isCurrentSetupGeneration(generation) == true,
-                !completionGate.hasClaimedCompletion()
-            else {
-                invocation.markSkipped()
+        logger?.error(
+            "Root setup failed with incident \(failure.incidentCode.rawValue)"
+        )
+
+        startupRouteValidationStore.clear()
+        finishActiveSetup()
+
+        DispatchQueue.main.async { [weak self] in
+            guard self?.isCurrentSetupGeneration(generation) == true else {
                 return
             }
 
-            let preflight = preflightProvider()
-
-            guard
-                self?.isCurrentSetupGeneration(generation) == true,
-                !completionGate.hasClaimedCompletion()
-            else {
-                invocation.markSkipped()
-                return
-            }
-
-            preflight.preflight { [weak self] result in
-                invocation.markCompletionDelivered()
-
-                guard completionGate.claimCompletion() else {
-                    return
-                }
-
-                guard let self else {
-                    return
-                }
-
-                setupQueue.async { [weak self] in
-                    guard
-                        let self,
-                        isCurrentSetupGeneration(generation)
-                    else {
-                        return
-                    }
-
-                    switch result {
-                    case .success:
-                        let registry = chainRegistry
-
-                        setupSelectedWallet(
-                            generation: generation,
-                            chainRegistry: registry
-                        )
-                    case let .failure(error):
-                        failSetup(with: error, generation: generation)
-                    }
-                }
-            }
-
-            invocation.markReturned()
+            self?.presenter?.didUpdateSetup(.failed(failure))
+            self?.presenter?.didFailSetup(failure)
         }
+    }
+
+    private func finishActiveSetup() {
+        invalidateSlowThreshold()
+        protectedDataWait?.observation.invalidate()
+        protectedDataWait = nil
+        currentPhase = nil
+        isSetupActive = false
+    }
+
+    private func deliverSetupState(
+        _ state: RootSetupState,
+        generation: UUID
+    ) {
+        DispatchQueue.main.async { [weak self] in
+            guard self?.isCurrentSetupGeneration(generation) == true else {
+                return
+            }
+
+            self?.presenter?.didUpdateSetup(state)
+        }
+    }
+
+    private func makeSetupFailure(
+        error: Error,
+        phase: RootSetupPhase,
+        elapsedTime: TimeInterval
+    ) -> RootSetupFailure {
+        if let requiredByteCount = requiredFreeStorageByteCount(in: error) {
+            return RootSetupFailure(
+                phase: phase,
+                incidentCode: .insufficientStorage,
+                elapsedTime: elapsedTime,
+                recoveryAction: .freeStorage(
+                    requiredByteCount: requiredByteCount
+                )
+            )
+        }
+
+        let incidentCode = incidentCode(for: error, phase: phase)
+        let recoveryAction: RootSetupRecoveryAction
+        switch incidentCode {
+        case .userStorageCompatibilityMissing,
+             .userStorageIntegrityRejected,
+             .substrateCompatibilityMissing,
+             .substrateIntegrityRejected,
+             .substratePreflightCompatibilityMissing,
+             .walletMappingConflict,
+             .walletRecordRejected:
+            recoveryAction = .installLatestBuild
+        case .languageMigrationFailed,
+             .userStorageMigrationFailed,
+             .substrateMigrationFailed,
+             .substratePreflightFailed,
+             .selectedWalletOpeningFailed,
+             .insufficientStorage:
+            recoveryAction = .retry
+        }
+
+        return RootSetupFailure(
+            phase: phase,
+            incidentCode: incidentCode,
+            elapsedTime: elapsedTime,
+            recoveryAction: recoveryAction
+        )
+    }
+
+    private func incidentCode(
+        for error: Error,
+        phase: RootSetupPhase
+    ) -> RootSetupIncidentCode {
+        switch phase {
+        case .languageMigration:
+            return .languageMigrationFailed
+        case .userStorageMigration:
+            if containsError(error, matching: isIntegrityError) {
+                return .userStorageIntegrityRejected
+            }
+
+            if let migrationError = error as? UserStorageMigrationError {
+                switch migrationError {
+                case .unknownStoreVersion,
+                     .modelUnavailable,
+                     .migrationPathUnavailable:
+                    return .userStorageCompatibilityMissing
+                case .metadataUnreadable,
+                     .objectiveCException,
+                     .privateSourceRepairFailed,
+                     .stagedStoreValidationFailed:
+                    break
+                }
+            }
+
+            return .userStorageMigrationFailed
+        case .substrateMigration:
+            if containsError(error, matching: isIntegrityError) {
+                return .substrateIntegrityRejected
+            }
+
+            if let migrationError = error as? SubstrateStorageMigrationError {
+                switch migrationError {
+                case .unknownStoreVersion,
+                     .modelUnavailable,
+                     .migrationPathUnavailable,
+                     .mappingUnavailable:
+                    return .substrateCompatibilityMissing
+                default:
+                    break
+                }
+            }
+
+            return .substrateMigrationFailed
+        case .substratePreflight:
+            if let preflightError = error as? RootStoragePreflightError {
+                switch preflightError {
+                case .managedObjectClassNameUnavailable,
+                     .managedObjectClassUnavailable,
+                     .unexpectedManagedObjectClassIdentity:
+                    return .substratePreflightCompatibilityMissing
+                case .contextUnavailable,
+                     .persistentStoreCoordinatorUnavailable,
+                     .entityNameUnavailable,
+                     .invocationCapacityExhausted:
+                    break
+                }
+            }
+
+            return .substratePreflightFailed
+        case .selectedWalletOpening:
+            if error is RootSelectedWalletOpeningError {
+                return .walletRecordRejected
+            }
+
+            if error is SelectedWalletSettingsError {
+                return .walletMappingConflict
+            }
+
+            if error is MetaAccountMapperError {
+                return .walletRecordRejected
+            }
+
+            return .selectedWalletOpeningFailed
+        }
+    }
+
+    private func isIntegrityError(_ error: Error) -> Bool {
+        if error is SQLiteStoreQuickCheckError {
+            return true
+        }
+
+        if let migrationError = error as? UserStorageMigrationError {
+            switch migrationError {
+            case .objectiveCException,
+                 .privateSourceRepairFailed,
+                 .stagedStoreValidationFailed:
+                return true
+            case .metadataUnreadable,
+                 .unknownStoreVersion,
+                 .modelUnavailable,
+                 .migrationPathUnavailable:
+                return false
+            }
+        }
+
+        if let migrationError = error as? SubstrateStorageMigrationError {
+            switch migrationError {
+            case .transformableSanitizationFailed,
+                 .unsupportedTransformableAttribute,
+                 .objectiveCException,
+                 .sourceStoreInspectionFailed,
+                 .protectedDataInspectionRejected,
+                 .stagedStoreInvalid,
+                 .stagedStoreInspectionFailed,
+                 .stagedStoreRowCountMismatch,
+                 .stagedStoreProtectedDataMismatch,
+                 .cacheRecoveryBlockedByProtectedData:
+                return true
+            default:
+                return false
+            }
+        }
+
+        return false
+    }
+
+    private func requiredFreeStorageByteCount(in error: Error) -> UInt64? {
+        if let replacementError = error as? CrashConsistentStoreReplacementError {
+            if case let .insufficientStorageCapacity(
+                requiredByteCount,
+                _
+            ) = replacementError {
+                return requiredByteCount
+            }
+        }
+
+        for nestedError in nestedErrors(in: error) {
+            if let requiredByteCount = requiredFreeStorageByteCount(
+                in: nestedError
+            ) {
+                return requiredByteCount
+            }
+        }
+
+        return nil
+    }
+
+    private func containsError(
+        _ error: Error,
+        matching predicate: (Error) -> Bool,
+        remainingDepth: Int = 8
+    ) -> Bool {
+        guard remainingDepth > 0 else {
+            return false
+        }
+
+        if predicate(error) {
+            return true
+        }
+
+        return nestedErrors(in: error).contains { nestedError in
+            containsError(
+                nestedError,
+                matching: predicate,
+                remainingDepth: remainingDepth - 1
+            )
+        }
+    }
+
+    private func nestedErrors(in error: Error) -> [Error] {
+        if let replacementError = error as? CrashConsistentStoreReplacementError {
+            switch replacementError {
+            case let .destinationValidationFailed(error):
+                return [error]
+            case let .rollbackFailed(replacementError, rollbackError):
+                return [replacementError, rollbackError]
+            case let .fileSynchronizationFailed(_, error),
+                 let .directorySynchronizationFailed(_, error):
+                return [error]
+            default:
+                return []
+            }
+        }
+
+        if let migrationError = error as? UserStorageMigrationError {
+            if case let .metadataUnreadable(_, error) = migrationError {
+                return [error]
+            }
+
+            return []
+        }
+
+        if let migrationError = error as? SubstrateStorageMigrationError {
+            switch migrationError {
+            case let .metadataUnreadable(_, error),
+                 let .sourceSnapshotFailed(_, error),
+                 let .walCheckpointFailed(_, error),
+                 let .transformableSanitizationFailed(_, error),
+                 let .temporaryDirectoryCreationFailed(_, error),
+                 let .temporaryStoreCleanupFailed(_, error),
+                 let .sourceStoreInspectionFailed(_, error),
+                 let .protectedDataInspectionRejected(_, error),
+                 let .stagedStoreMetadataUnreadable(_, error),
+                 let .stagedStoreInspectionFailed(_, error),
+                 let .storeReplacementFailed(_, error),
+                 let .pendingCacheRecoveryFailed(_, error):
+                return [error]
+            case let .mappingUnavailable(_, _, error),
+                 let .migrationStepFailed(_, _, error):
+                return [error]
+            case let .cacheRecoveryBlockedByProtectedData(
+                _,
+                migrationError,
+                _
+            ):
+                return [migrationError]
+            case let .cacheRecoveryFailed(
+                _,
+                migrationError,
+                recoveryError
+            ):
+                return [migrationError, recoveryError]
+            default:
+                return []
+            }
+        }
+
+        return []
     }
 }
 
 extension RootInteractor: RootInteractorInputProtocol {
     func setup(runMigrations: Bool) {
-        setupURLHandlingService()
-
-        let generation = replaceSetupGeneration()
-
         setupQueue.async { [weak self] in
-            guard let self else {
-                return
-            }
-
-            guard isCurrentSetupGeneration(generation) else {
-                return
-            }
-
-            enforceMigrationBarrier(
-                runMigrations: runMigrations,
-                generation: generation
-            )
+            self?.beginSetup(runMigrations: runMigrations)
         }
     }
 
     func fetchOnboardingConfig() async throws -> OnboardingConfigWrapper? {
-        do {
-            let onboardingConfigPlatform = try await onboardingService.fetchConfigs()
-            let onboardingWrappers = onboardingConfigPlatform.ios
-            return onboardingConfigResolver.resolve(configWrappers: onboardingWrappers)
-        } catch {
-            throw error
-        }
+        let onboardingConfigPlatform = try await onboardingService.fetchConfigs()
+        let onboardingWrappers = onboardingConfigPlatform.ios
+        return onboardingConfigResolver.resolve(configWrappers: onboardingWrappers)
     }
 }

@@ -62,9 +62,9 @@ proven.
 
 ## Package, platform, and binary-identity blockers
 
-The app still supports iOS `14.1`; the tagged `IrohaSwift` package and assessed
-binary require iOS `15.0`. Raising the product target is a separate product and
-release decision, not an SDK integration detail.
+The app and the assessed `IrohaSwift` binary now both require iOS `15.0`. This
+approved product-minimum alignment removes only the platform mismatch; it does
+not approve SDK linkage or relax any remaining production-send blocker.
 
 At the official tag, `IrohaSwift/Package.swift` uses a path binary target at
 `../dist/NoritoBridge.xcframework`, calls `fatalError` when it is absent, and
@@ -154,8 +154,9 @@ gates directly:
 ```
 
 The audit fails if the manifest changes without review, Nexus becomes enabled
-by default, the unavailable signer is replaced or bypassed, iOS 14.1 support is
-silently raised, an IrohaSwift or NoritoBridge dependency/binary is added, the
+by default, the unavailable signer is replaced or bypassed, the enforced iOS
+15 product minimum drifts, an IrohaSwift or NoritoBridge dependency/binary is
+added, the
 known route-label, secret, zero-fee, or receipt-integrity risks are obscured,
 negative signer tests disappear, the exact four-field wallet-smoke metadata
 boundary weakens, or exact evidence markers drift.

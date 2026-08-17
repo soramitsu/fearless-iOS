@@ -23,6 +23,7 @@ readonly BUNDLE_ID_PATTERN='^[A-Za-z0-9][A-Za-z0-9.-]*[A-Za-z0-9]$'
 readonly DEFAULT_ALIVE_SECONDS=8
 readonly EXPECTED_BUNDLE_ID="jp.co.soramitsu.fearlesswallet"
 readonly EXPECTED_VERSION="4.2.0"
+readonly EXPECTED_SUBSTRATE_V10_CHECKSUM="Qyb9lyHRxl1FB0CHQeMaajp812iiqKqtSLJ0U/U120A="
 
 readonly STORE_FILES=(
   "CacheDataModel.sqlite"
@@ -53,6 +54,8 @@ readonly REQUIRED_MANAGED_OBJECT_CLASSES=(
   "CDRuntimeMetadataItem"
   "CDScamInfo"
   "CDStashItem"
+  "CDTonConnectedApp"
+  "CDTonDapp"
   "CDTransactionHistoryItem"
   "CDXcmAvailableAsset"
   "CDXcmAvailableDestination"
@@ -68,6 +71,8 @@ readonly REQUIRED_MANAGED_OBJECT_CLASSES=(
 readonly REQUIRED_CORE_DATA_RESOURCES=(
   "CompatibleUserDataModel_v13.mom"
   "LegacyEcosystemUserDataModel_v12.mom"
+  "LegacyPublicSubstrateDataModel_v8.mom"
+  "LegacyPublicSubstrateDataModel_v9.mom"
   "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/UserDataModel.mom"
   "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel.mom"
   "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v2.mom"
@@ -88,6 +93,9 @@ readonly REQUIRED_CORE_DATA_RESOURCES=(
   "SubstrateDataModel.momd/SubstrateDataModel_v6.mom"
   "SubstrateDataModel.momd/SubstrateDataModel_v7.mom"
   "SubstrateDataModel.momd/SubstrateDataModel_v8.mom"
+  "SubstrateDataModel.momd/SubstrateDataModel_v10.mom"
+  "SubstrateDataModel.momd/SubstrateDataModel_v10.omo"
+  "SubstrateDataModel.momd/VersionInfo.plist"
   "SingleToMultiasset.cdm"
   "MultiassetV2.cdm"
   "MultiassetV9.cdm"
@@ -238,6 +246,13 @@ validate_release_app_contract() {
   local marketing_version
   local build_number
   local executable_digest
+  local substrate_current_version
+  local substrate_v10_version_info_checksum
+
+  [[ "${#REQUIRED_MANAGED_OBJECT_CLASSES[@]}" == "28" ]] ||
+    fail "internal managed-object class contract is not exactly 28 entries"
+  [[ "${#REQUIRED_CORE_DATA_RESOURCES[@]}" == "34" ]] ||
+    fail "internal Core Data resource contract is not exactly 34 entries"
 
   build_configuration="$(
     plist_string "$APP_PATH/Info.plist" "FearlessBuildConfiguration"
@@ -294,8 +309,23 @@ validate_release_app_contract() {
       fail "Release app is missing or symlinking a required Core Data migration resource"
   done
 
+  substrate_current_version="$(
+    plist_string \
+      "$APP_PATH/SubstrateDataModel.momd/VersionInfo.plist" \
+      "NSManagedObjectModel_CurrentVersionName"
+  )" || fail "Release app Substrate VersionInfo has no current model"
+  substrate_v10_version_info_checksum="$(
+    plist_string \
+      "$APP_PATH/SubstrateDataModel.momd/VersionInfo.plist" \
+      "NSManagedObjectModel_VersionChecksums.SubstrateDataModel_v10"
+  )" || fail "Release app Substrate VersionInfo has no v10 checksum"
+  [[ "$substrate_current_version" == "SubstrateDataModel_v10" ]] ||
+    fail "Release app Substrate VersionInfo does not select v10"
+  [[ "$substrate_v10_version_info_checksum" == "$EXPECTED_SUBSTRATE_V10_CHECKSUM" ]] ||
+    fail "Release app Substrate VersionInfo v10 checksum changed"
+
   printf '%s\n' \
-    "Release, Swift -O, testability disabled; exact commit/version/build/executable SHA-256; 26 managed-object runtime classes and 29 Core Data resources verified" \
+    "Release, Swift -O, testability disabled; exact commit/version/build/executable SHA-256; 28 managed-object runtime classes, 34 Core Data resources, and active Substrate v10 VersionInfo verified" \
     >"$ARTIFACTS_DIR/coredata-app-contract.txt"
 }
 
@@ -367,11 +397,13 @@ plist_string() {
 import plistlib
 import sys
 
-path, key = sys.argv[1:]
+path, key_path = sys.argv[1:]
 try:
     with open(path, "rb") as source:
-        value = plistlib.load(source).get(key)
-except (OSError, plistlib.InvalidFileException):
+        value = plistlib.load(source)
+    for component in key_path.split("."):
+        value = value[component]
+except (OSError, KeyError, TypeError, plistlib.InvalidFileException):
     sys.exit(2)
 
 if not isinstance(value, str) or not value:
@@ -1642,5 +1674,5 @@ cmp -s \
 
 log "PASSED: first launch and relaunch each reached a usable startup route with no crash or fatal migration/Core Data marker"
 log "PASSED: copied stores remain intact; protected wallet and custom-node topology fingerprints are preserved"
-log "PASSED: signed Simulator Release/-O/non-testable artifact, exact commit/version/build/executable hash, 26 managed-object classes, and 29 migration resources verified; source fixture is unchanged"
+log "PASSED: signed Simulator Release/-O/non-testable artifact, exact commit/version/build/executable hash, 28 managed-object classes, 34 migration resources, and active Substrate v10 VersionInfo verified; source fixture is unchanged"
 log "NOTE: device distribution profile, production entitlements, and TestFlight Keychain capability require audit-ios-signed-release-artifact.sh against the exact .xcarchive"

@@ -34,6 +34,18 @@ fi
 echo "[run-pr] Verifying tracked TestFlight publication evidence"
 bash "$WORKSPACE_DIR/scripts/test-testflight-publication-readiness-audit.sh"
 bash "$WORKSPACE_DIR/scripts/audit-testflight-publication-readiness.sh"
+bash "$WORKSPACE_DIR/scripts/test-materialize-embedded-framework-dsyms.sh"
+bash "$WORKSPACE_DIR/scripts/test-ios-signed-release-artifact-audit.sh"
+
+if [[ -f "$WORKSPACE_DIR/scripts/test-audit-testflight-upgrade-usability-gate.py" ]]; then
+  echo "[run-pr] Testing privacy-safe TestFlight upgrade recovery contracts"
+  PYTHONDONTWRITEBYTECODE=1 python3 \
+    "$WORKSPACE_DIR/scripts/test-filter-startup-syslog.py"
+  PYTHONDONTWRITEBYTECODE=1 python3 \
+    "$WORKSPACE_DIR/scripts/test-capture-testflight-startup.py"
+  PYTHONDONTWRITEBYTECODE=1 python3 \
+    "$WORKSPACE_DIR/scripts/test-audit-testflight-upgrade-usability-gate.py"
+fi
 
 if [[ -f "$WORKSPACE_DIR/scripts/audit-transaction-builder-tests.sh" ]]; then
   echo "[run-pr] Running transaction builder coverage audit"

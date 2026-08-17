@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Builds and audits the only archive eligible for the 4.2.0 hotfix handoff.
+# Builds and audits the only archive eligible for the 4.2.0 redesign handoff.
 # It derives provenance from an exact clean HEAD and never uploads anything.
 
 umask 077
@@ -9,13 +9,19 @@ umask 077
 readonly LOG_PREFIX="[ios-release-archive]"
 readonly EXPECTED_BUNDLE="jp.co.soramitsu.fearlesswallet"
 readonly EXPECTED_VERSION="4.2.0"
+readonly EXPECTED_BASE_SOURCE_COMMIT="2e45e55dc03ad904598e730cfb5994fb5c1072dc"
 readonly EXPECTED_SIGNING_IDENTITY="Apple Distribution: Soramitsu Co., Ltd. (YLWWUD25VZ)"
 readonly EXPECTED_SIGNING_CERTIFICATE_SHA1="84AB95335BE14CAE9B050A353910F86FF2F9539B"
 readonly EXPECTED_PROFILE_NAME="Fearless App Store 2026.7.26"
 readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
-# Read-only App Store Connect inspection on 2026-07-26 found 2026.7.27 as the
-# newest 4.2.0 build. This candidate number was unused at inspection time.
-readonly EXPECTED_BUILD="2026.7.28"
+# Build 2026.8.10 exposed the missing public Substrate compatibility model.
+# Build 2026.8.13 corrected storage migration but exposed the iOS 26 tab-bar
+# replacement regression. Build 2026.8.14 was consumed by an App Store Connect
+# upload with warnings; build 2026.8.15 corrected the legacy bar's visibility
+# but still omitted the completed redesign. Build 2026.8.17 is the first
+# successor that integrates both the redesign and the proven recovery fixes.
+# Reconfirm successor uniqueness read-only immediately before archive.
+readonly EXPECTED_BUILD="2026.8.17"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -32,8 +38,9 @@ Usage:
     --receipt /absolute/new/path/signed-archive-audit.json
 
 Preconditions:
-  - exact clean git HEAD, including no untracked files;
-  - App Store Connect read-only uniqueness check for 4.2.0 (2026.7.28);
+  - exact clean git HEAD, including no untracked files, descended from the
+    distributed 4.2.0 (2026.7.28) source commit;
+  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.17);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 
@@ -105,10 +112,16 @@ source_commit="$(git rev-parse --verify HEAD)"
   fail "could not derive an exact source commit"
 git cat-file -e "${source_commit}^{commit}" ||
   fail "derived source provenance is not a commit"
+git cat-file -e "${EXPECTED_BASE_SOURCE_COMMIT}^{commit}" ||
+  fail "the exact distributed 4.2.0 (2026.7.28) source commit is unavailable"
+git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$source_commit" ||
+  fail "release source is not descended from the exact distributed 4.2.0 (2026.7.28) source"
 
 IOS_EXPECTED_BUILD_NUMBER="$EXPECTED_BUILD" \
 IOS_RELEASE_SOURCE_PACKAGES_DIR="${IOS_RELEASE_SOURCE_PACKAGES_DIR:-}" \
   bash "$SCRIPT_DIR/audit-ios-release-identity.sh"
+bash "$REPO_ROOT/scripts/storage/audit-user-storage-compatibility-models.sh"
+bash "$REPO_ROOT/scripts/storage/audit-substrate-storage-compatibility-models.sh"
 
 xcodebuild_arguments=(
   -workspace "$REPO_ROOT/fearless.xcworkspace"
@@ -140,6 +153,8 @@ xcodebuild_arguments+=(
 printf '%s\n' \
   "$LOG_PREFIX building local Release archive from clean commit $source_commit"
 xcodebuild "${xcodebuild_arguments[@]}"
+
+bash "$SCRIPT_DIR/materialize-embedded-framework-dsyms.sh" "$archive"
 
 [[ "$(git rev-parse --verify HEAD)" == "$source_commit" ]] ||
   fail "HEAD changed while the release archive was built"

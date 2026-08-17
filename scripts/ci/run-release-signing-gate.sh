@@ -246,6 +246,9 @@ if ! SOURCE_PACKAGES_DIR="$SOURCE_PACKAGES_DIR" \
   exit 1
 fi
 
+bash "$ROOT_DIR/scripts/ci/materialize-embedded-framework-dsyms.sh" \
+  "$archive_path"
+
 applications_dir="$archive_path/Products/Applications"
 [[ -d "$applications_dir" ]] || fail "The Release archive contains no Applications directory."
 app_path=""

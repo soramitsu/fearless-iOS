@@ -462,7 +462,7 @@ require_fixed "$RELEASE_CHECKLIST" \
   'bash ./scripts/test-testflight-publication-readiness-audit.sh && bash ./scripts/audit-testflight-publication-readiness.sh' \
   "release-checklist TestFlight publication gate"
 require_fixed "$RELEASE_CHECKLIST" \
-  'build release-enabled until an in-place TestFlight update preserves the' \
+  'upgrade-recovery build release-enabled until the Apple-delivered in-place' \
   "release-checklist exact Apple-delivered install gate"
 require_active_line "$RUN_PR" \
   'bash "$WORKSPACE_DIR/scripts/test-testflight-publication-readiness-audit.sh"' \

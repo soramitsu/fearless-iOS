@@ -2627,13 +2627,56 @@ final class SubstrateStorageMigrator {
         "CDExternalApi.types",
         "CDPolkaswapRemoteSettings.availableSources",
         "CDPolkaswapRemoteSettings.forceSmartIds",
+        "CDTonDapp.chains",
         "CDXcmAvailableDestination.assets"
+    ]
+
+    private static let compatibilitySemanticAttributes: [
+        (entityName: String, attributeNames: [String])
+    ] = [
+        (
+            entityName: "CDAsset",
+            attributeNames: ["id", "coinbaseUrl", "ethereumType"]
+        ),
+        (
+            entityName: "CDChain",
+            attributeNames: ["chainId", "ecosystem", "tonBridgeUrl"]
+        ),
+        (
+            entityName: "CDTonConnectedApp",
+            attributeNames: [
+                "appUrl",
+                "clientId",
+                "connectionType",
+                "iconUrl",
+                "identifier",
+                "name",
+                "privateKey",
+                "publicKey",
+                "walletId"
+            ]
+        ),
+        (
+            entityName: "CDTonDapp",
+            attributeNames: [
+                "appDescription",
+                "chains",
+                "icon",
+                "identifier",
+                "isConnected",
+                "name",
+                "poster",
+                "url"
+            ]
+        )
     ]
 
     private enum ProtectedDataCategory {
         static let contacts = "CDContact"
         static let contactItems = "CDContactItem"
         static let transactionHistory = "CDTransactionHistoryItem"
+        static let tonConnectedApps = "CDTonConnectedApp"
+        static let tonDapps = "CDTonDapp"
         static let customNodeRelationships = "CDChain.customNodes"
         static let selectedNodeRelationships = "CDChain.selectedNode"
         static let orphanNodes = "CDChainNode.orphan"
@@ -2718,6 +2761,7 @@ final class SubstrateStorageMigrator {
         let transactionHistory: ProtectedDataDigest
         let chainNodeTopologies: ProtectedDataDigest
         let orphanNodes: ProtectedDataDigest
+        let compatibilityData: ProtectedDataDigest
     }
 
     private struct CompatibleStore {
@@ -2957,7 +3001,7 @@ final class SubstrateStorageMigrator {
         let expectedProtectedData: ProtectedDataSnapshot
 
         do {
-            if source.compatibleStore.version == .version8 {
+            if source.compatibleStore.version.requiresStartupGraphBounds {
                 try inspectVersion8StartupGraphBounds(
                     at: source.snapshot.workingStoreURL,
                     model: model
@@ -3201,6 +3245,18 @@ final class SubstrateStorageMigrator {
                 at: snapshot.workingStoreURL,
                 compatibleStore: compatibleStore
             )
+
+        // Current stores are inspected by repairCurrentStoreIfNeeded(), which
+        // preserves the established sourceStoreInspectionFailed error
+        // boundary. Inspect here only when this snapshot will be migrated so
+        // public v8/v9 and modern v8 sources are bounded before a writer runs.
+        if compatibleStore.version != targetVersion,
+           compatibleStore.version.requiresStartupGraphBounds {
+            try inspectVersion8StartupGraphBounds(
+                at: snapshot.workingStoreURL,
+                model: compatibleStore.model
+            )
+        }
         let preparedSource = PreparedSource(
             snapshot: snapshot,
             compatibleStore: compatibleStore,
@@ -3937,6 +3993,13 @@ final class SubstrateStorageMigrator {
         expectedRowCounts: [String: Int],
         expectedProtectedData: ProtectedDataSnapshot
     ) throws {
+        do {
+            try SQLiteStoreQuickChecker.validate(storeURL: stagedStoreURL)
+        } catch {
+            throw SubstrateStorageMigrationError
+                .stagedStoreInspectionFailed(stagedStoreURL, error)
+        }
+
         let metadata: [String: Any]
         do {
             var inspectedMetadata: [String: Any]?
@@ -3970,7 +4033,7 @@ final class SubstrateStorageMigrator {
             )
         }
 
-        if targetVersion == .version8 {
+        if targetVersion.requiresStartupGraphBounds {
             do {
                 try inspectVersion8StartupGraphBounds(
                     at: stagedStoreURL,
@@ -4180,7 +4243,13 @@ final class SubstrateStorageMigrator {
                     ProtectedDataCategory.transactionHistory:
                         rowCounts[
                             ProtectedDataCategory.transactionHistory
-                        ] ?? 0
+                        ] ?? 0,
+                    ProtectedDataCategory.tonConnectedApps:
+                        rowCounts[
+                            ProtectedDataCategory.tonConnectedApps
+                        ] ?? 0,
+                    ProtectedDataCategory.tonDapps:
+                        rowCounts[ProtectedDataCategory.tonDapps] ?? 0
                 ]
 
                 var referencedNodeIDs = Set<NSManagedObjectID>()
@@ -4286,8 +4355,11 @@ final class SubstrateStorageMigrator {
             ProtectedDataCategory.contacts,
             ProtectedDataCategory.contactItems,
             ProtectedDataCategory.transactionHistory,
+            "CDAsset",
             "CDChain",
-            "CDChainNode"
+            "CDChainNode",
+            ProtectedDataCategory.tonConnectedApps,
+            ProtectedDataCategory.tonDapps
         ]
         var counts: [String: Int] = [:]
         var totalCount = 0
@@ -5516,13 +5588,21 @@ final class SubstrateStorageMigrator {
                     }
                 }
 
+                let compatibilityData = try self
+                    .compatibilitySemanticDigest(
+                        model: model,
+                        context: context,
+                        rowCounts: rowCounts
+                    )
+
                 return ProtectedDataSnapshot(
                     contacts: contacts,
                     contactItems: contactItems,
                     transactionHistory: transactionHistory,
                     chainNodeTopologies:
                     topologyAccumulator.finalize(),
-                    orphanNodes: orphanNodeAccumulator.finalize()
+                    orphanNodes: orphanNodeAccumulator.finalize(),
+                    compatibilityData: compatibilityData
                 )
             }
         }
@@ -5608,6 +5688,42 @@ final class SubstrateStorageMigrator {
         return accumulator.finalize()
     }
 
+    private func compatibilitySemanticDigest(
+        model: NSManagedObjectModel,
+        context: NSManagedObjectContext,
+        rowCounts: [String: Int]
+    ) throws -> ProtectedDataDigest {
+        var accumulator = ProtectedDataDigestAccumulator()
+
+        for specification in Self.compatibilitySemanticAttributes {
+            guard model.entitiesByName[specification.entityName] != nil else {
+                continue
+            }
+
+            try forEachManagedObjectPage(
+                entityName: specification.entityName,
+                rowCount: rowCounts[specification.entityName] ?? 0,
+                context: context
+            ) { objects in
+                for object in objects {
+                    let record = try self.canonicalCompatibilityRecord(
+                        for: object,
+                        attributeNames: specification.attributeNames
+                    )
+                    try accumulator.append(
+                        record,
+                        category: specification.entityName,
+                        maximumByteCount:
+                        self.protectedDataInspectionLimits
+                            .maximumRecordByteCount
+                    )
+                }
+            }
+        }
+
+        return accumulator.finalize()
+    }
+
     private func semanticDigest(
         objects: [NSManagedObject],
         attributeNames: [String],
@@ -5637,6 +5753,22 @@ final class SubstrateStorageMigrator {
         try attributeNames.compactMap { key in
             guard object.entity.attributesByName[key] != nil else {
                 return nil
+            }
+
+            return """
+            \(key)=\(try canonicalAttributeValue(in: object, key: key))
+            """
+        }
+        .joined(separator: "|")
+    }
+
+    private func canonicalCompatibilityRecord(
+        for object: NSManagedObject,
+        attributeNames: [String]
+    ) throws -> String {
+        try attributeNames.map { key in
+            guard object.entity.attributesByName[key] != nil else {
+                return "\(key)=nil"
             }
 
             return """
@@ -5681,6 +5813,17 @@ final class SubstrateStorageMigrator {
                 key: key
             )
             return "data:\(data.base64EncodedString())"
+        case let array as NSArray:
+            guard isAcceptableStringArray(array) else {
+                throw SubstrateProtectedDataInspectionError
+                    .unsupportedAttributeValue(
+                        object.entity.name ?? "unknown",
+                        key,
+                        NSStringFromClass(type(of: array))
+                    )
+            }
+            let strings = array.compactMap { $0 as? String }
+            return "array:[\(strings.map(canonicalString).joined(separator: ","))]"
         case let date as Date:
             return "date:\(date.timeIntervalSinceReferenceDate.bitPattern)"
         case let decimal as NSDecimalNumber:
@@ -5851,7 +5994,7 @@ final class SubstrateStorageMigrator {
                     compatibleStore: compatibleStore
                 )
 
-            if compatibleStore.version == .version8 {
+            if compatibleStore.version.requiresStartupGraphBounds {
                 try inspectVersion8StartupGraphBounds(
                     at: snapshot.workingStoreURL,
                     model: compatibleStore.model
@@ -5916,20 +6059,11 @@ final class SubstrateStorageMigrator {
     private func createManagedObjectModel(
         for version: SubstrateStorageVersion
     ) throws -> NSManagedObjectModel {
-        let omoURL = modelBundle.url(
-            forResource: version.rawValue,
-            withExtension: "omo",
-            subdirectory: modelDirectory
-        )
-
-        let momURL = modelBundle.url(
-            forResource: version.rawValue,
-            withExtension: "mom",
-            subdirectory: modelDirectory
-        )
-
         guard
-            let modelURL = omoURL ?? momURL,
+            let modelURL = version.modelURL(
+                in: modelBundle,
+                modelDirectory: modelDirectory
+            ),
             let model = NSManagedObjectModel(contentsOf: modelURL)
         else {
             throw SubstrateStorageMigrationError.modelUnavailable(version)

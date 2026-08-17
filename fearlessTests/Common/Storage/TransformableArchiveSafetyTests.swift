@@ -246,8 +246,8 @@ final class TransformableArchiveSafetyTests: XCTestCase {
 
     func testProductionRuntimeRegistryRetainsEveryCurrentStoreClass() throws {
         XCTAssertEqual(
-            ManagedObjectRuntimeClassRegistry.substrateV8Classes.count,
-            19
+            ManagedObjectRuntimeClassRegistry.substrateClasses.count,
+            21
         )
         XCTAssertEqual(
             ManagedObjectRuntimeClassRegistry.userV11Classes.count,
@@ -255,7 +255,7 @@ final class TransformableArchiveSafetyTests: XCTestCase {
         )
         XCTAssertEqual(
             ManagedObjectRuntimeClassRegistry.classesByRuntimeName.count,
-            26
+            28
         )
 
         for model in [

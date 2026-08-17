@@ -96,22 +96,6 @@ final class LiquidityPoolsModelFactoryDefault: LiquidityPoolsModelFactory {
     }
 }
 
-public extension AssetModel {
-    /// Resolves only a price whose provider and fiat currency identities were
-    /// preserved by the live or migrated price cache. The legacy scalar
-    /// `price` has no currency provenance and must never be relabelled here.
-    func getPrice(for currency: Currency) -> PriceData? {
-        guard let priceId else {
-            return nil
-        }
-
-        return ExactAssetPriceCache.shared.price(
-            priceId: priceId,
-            currencyId: currency.id
-        )
-    }
-}
-
 public extension SSFPools.LiquidityPair {
     var dexId: String { "0" }
 }

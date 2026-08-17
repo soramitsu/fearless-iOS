@@ -511,6 +511,7 @@ final class UserStorageMigrator {
                 )
             }
 
+            try SQLiteStoreQuickChecker.validate(storeURL: nextStepURL)
             try stagedStoreWillValidate(nextStepURL, nextVersion)
 
             if let expectedMetaAccountCount {
@@ -630,6 +631,7 @@ final class UserStorageMigrator {
             model: model,
             comparedWith: model
         )
+        try SQLiteStoreQuickChecker.validate(storeURL: sanitizedStoreURL)
         try stagedStoreWillValidate(
             sanitizedStoreURL,
             version

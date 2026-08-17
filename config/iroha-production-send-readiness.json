@@ -29,10 +29,10 @@
     }
   },
   "integrationAssessment": {
-    "appMinimumIOS": "14.1",
+    "appMinimumIOS": "15.0",
     "sdkMinimumIOS": "15.0",
-    "minimumOSCompatible": false,
-    "productMinimumOSChangeApproved": false,
+    "minimumOSCompatible": true,
+    "productMinimumOSChangeApproved": true,
     "sdkLinkageApproved": false,
     "taggedPackageDelivery": "path-binary-target-with-symlink-placeholder",
     "taggedPackageResolution": "fails-without-separate-dist-materialization",
@@ -99,11 +99,10 @@
   "blocker": {
     "code": "apple_xcframework_review_and_materialization_required",
     "defaultSigner": "UnavailableIrohaTransferSigner",
-    "reason": "Archive structure passed, but the official tag is not directly resolvable or compilable, requires iOS 15 while the app supports iOS 14.1, published slice hashes disagree with tagged Swift expectations, canonical transaction parity is stale, binary provenance is incomplete, and authoritative protocol chain, asset, fee, secret-lifecycle, receipt-integrity, deployed-version compatibility, and funded live evidence gates remain open."
+    "reason": "Archive structure and the aligned iOS 15 minimum passed, but the official tag is not directly resolvable or compilable, published slice hashes disagree with tagged Swift expectations, canonical transaction parity is stale, binary provenance is incomplete, and authoritative protocol chain, asset, fee, secret-lifecycle, receipt-integrity, deployed-version compatibility, and funded live evidence gates remain open."
   },
   "exitCriteria": [
     "publish-a-directly-resolvable-and-compiling-checksum-pinned-swift-package",
-    "resolve-the-ios-14.1-versus-ios-15-support-decision-without-silent-product-scope-change",
     "publish-source-matched-slice-digests-sbom-license-provenance-and-attestation",
     "publish-and-review-canonical-compact-swift-transaction-parity",
     "authoritatively-map-route-label-to-protocol-chain-id",

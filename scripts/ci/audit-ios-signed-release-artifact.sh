@@ -11,6 +11,7 @@ readonly LOG_PREFIX="[ios-signed-release-audit]"
 readonly EXPECTED_TEAM="YLWWUD25VZ"
 readonly EXPECTED_BUNDLE="jp.co.soramitsu.fearlesswallet"
 readonly EXPECTED_VERSION="4.2.0"
+readonly EXPECTED_MINIMUM_OS="15.0"
 readonly EXPECTED_APPLICATION_ID="${EXPECTED_TEAM}.${EXPECTED_BUNDLE}"
 readonly EXPECTED_ASSOCIATED_DOMAINS_JSON='["applinks:fearlesswallet.io","webcredentials:fearlesswallet.io"]'
 readonly EXPECTED_ICLOUD_CONTAINERS_JSON='["iCloud.jp.co.soramitsu.fearlesswallet"]'
@@ -19,6 +20,52 @@ readonly EXPECTED_APP_GROUPS_JSON='["group.jp.co.soramitsu.fearlesswallet"]'
 readonly EXPECTED_PROFILE_KEYCHAIN_GROUPS_JSON='["YLWWUD25VZ.*","com.apple.token"]'
 readonly MINIMUM_PROFILE_VALIDITY_DAYS=14
 readonly TEST_HARNESS="${FEARLESS_SIGNED_AUDIT_TEST_HARNESS:-0}"
+readonly EXPECTED_PUBLIC_SUBSTRATE_V8_CHECKSUM="imSZzqXP9cY45NCRhNsckcRIZCdVU6Zdy+00j3YlBYo="
+readonly EXPECTED_PUBLIC_SUBSTRATE_V9_CHECKSUM="Yl1+IwzSLG/79DUIwG/5NUjkMG2fk5+Ke9z8rpb6gQA="
+readonly EXPECTED_SUBSTRATE_V10_CHECKSUM="Qyb9lyHRxl1FB0CHQeMaajp812iiqKqtSLJ0U/U120A="
+
+readonly REQUIRED_MANAGED_OBJECT_CLASSES=(
+  CDAsset CDChain CDChainNode CDChainStorageItem CDChainXcmConfig
+  CDContact CDContactItem CDExternalApi CDPhishingItem CDPolkaswapDex
+  CDPolkaswapRemoteSettings CDPriceData CDPriceProvider
+  CDRuntimeMetadataItem CDScamInfo CDStashItem CDTonConnectedApp CDTonDapp
+  CDTransactionHistoryItem CDXcmAvailableAsset CDXcmAvailableDestination
+  CDAccountInfo CDAssetVisibility CDChainAccount CDChainSettings CDCurrency
+  CDCustomChainNode CDMetaAccount
+)
+
+readonly REQUIRED_CORE_DATA_RESOURCES=(
+  "CompatibleUserDataModel_v13.mom"
+  "LegacyEcosystemUserDataModel_v12.mom"
+  "LegacyPublicSubstrateDataModel_v8.mom"
+  "LegacyPublicSubstrateDataModel_v9.mom"
+  "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/UserDataModel.mom"
+  "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel.mom"
+  "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v2.mom"
+  "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v3.mom"
+  "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v4.mom"
+  "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v5.mom"
+  "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v6.mom"
+  "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v7.mom"
+  "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v8.mom"
+  "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v9.mom"
+  "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v10.mom"
+  "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v11.mom"
+  "SubstrateDataModel.momd/SubstrateDataModel.mom"
+  "SubstrateDataModel.momd/SubstrateDataModel_v2.mom"
+  "SubstrateDataModel.momd/SubstrateDataModel_v3.mom"
+  "SubstrateDataModel.momd/SubstrateDataModel_v4.mom"
+  "SubstrateDataModel.momd/SubstrateDataModel_v5.mom"
+  "SubstrateDataModel.momd/SubstrateDataModel_v6.mom"
+  "SubstrateDataModel.momd/SubstrateDataModel_v7.mom"
+  "SubstrateDataModel.momd/SubstrateDataModel_v8.mom"
+  "SubstrateDataModel.momd/SubstrateDataModel_v10.mom"
+  "SubstrateDataModel.momd/SubstrateDataModel_v10.omo"
+  "SubstrateDataModel.momd/VersionInfo.plist"
+  "SingleToMultiasset.cdm" "MultiassetV2.cdm" "MultiassetV9.cdm"
+  "UserDataModelV10toV11.cdm" "SubstrateV2Mapping.cdm"
+  "SubstrateV2toV4.cdm" "SubstrateV3toV4.cdm"
+)
 
 fail() {
   printf '%s ERROR: %s\n' "$LOG_PREFIX" "$*" >&2
@@ -48,6 +95,9 @@ FEARLESS_SIGNED_AUDIT_TEST_HARNESS=1:
   FEARLESS_SIGNED_AUDIT_SECURITY_BIN
   FEARLESS_SIGNED_AUDIT_PYTHON_BIN
   FEARLESS_SIGNED_AUDIT_SHASUM_BIN
+  FEARLESS_SIGNED_AUDIT_DYLD_INFO_BIN
+  FEARLESS_SIGNED_AUDIT_DWARFDUMP_BIN
+  FEARLESS_SIGNED_AUDIT_MODEL_CHECKSUM_BIN
 USAGE
 }
 
@@ -78,7 +128,10 @@ if [[ "$TEST_HARNESS" != "1" ]]; then
     FEARLESS_SIGNED_AUDIT_CODESIGN_BIN \
     FEARLESS_SIGNED_AUDIT_SECURITY_BIN \
     FEARLESS_SIGNED_AUDIT_PYTHON_BIN \
-    FEARLESS_SIGNED_AUDIT_SHASUM_BIN; do
+    FEARLESS_SIGNED_AUDIT_SHASUM_BIN \
+    FEARLESS_SIGNED_AUDIT_DYLD_INFO_BIN \
+    FEARLESS_SIGNED_AUDIT_DWARFDUMP_BIN \
+    FEARLESS_SIGNED_AUDIT_MODEL_CHECKSUM_BIN; do
     [[ -z "${!override_name:-}" ]] ||
       fail "$override_name is accepted only in the explicit test harness"
   done
@@ -88,6 +141,9 @@ readonly CODESIGN_BIN="${FEARLESS_SIGNED_AUDIT_CODESIGN_BIN:-codesign}"
 readonly SECURITY_BIN="${FEARLESS_SIGNED_AUDIT_SECURITY_BIN:-security}"
 readonly PYTHON_BIN="${FEARLESS_SIGNED_AUDIT_PYTHON_BIN:-python3}"
 readonly SHASUM_BIN="${FEARLESS_SIGNED_AUDIT_SHASUM_BIN:-shasum}"
+readonly DYLD_INFO_BIN="${FEARLESS_SIGNED_AUDIT_DYLD_INFO_BIN:-}"
+readonly DWARFDUMP_BIN="${FEARLESS_SIGNED_AUDIT_DWARFDUMP_BIN:-$(xcrun --find dwarfdump 2>/dev/null || true)}"
+readonly MODEL_CHECKSUM_BIN="${FEARLESS_SIGNED_AUDIT_MODEL_CHECKSUM_BIN:-}"
 
 archive=""
 expected_git_sha=""
@@ -184,6 +240,17 @@ require_executable "$CODESIGN_BIN" "codesign"
 require_executable "$SECURITY_BIN" "security"
 require_executable "$PYTHON_BIN" "Python"
 require_executable "$SHASUM_BIN" "shasum"
+require_executable "$DWARFDUMP_BIN" "dwarfdump"
+if [[ -n "$DYLD_INFO_BIN" ]]; then
+  require_executable "$DYLD_INFO_BIN" "dyld Objective-C metadata inspector"
+else
+  require_executable xcrun "xcrun"
+fi
+if [[ -n "$MODEL_CHECKSUM_BIN" ]]; then
+  require_executable "$MODEL_CHECKSUM_BIN" "Core Data checksum inspector"
+else
+  require_executable xcrun "xcrun"
+fi
 
 archive="$(cd "$archive" && pwd -P)"
 readonly archive
@@ -231,12 +298,38 @@ print(value)
 PY
 }
 
+require_plist_key_absent() {
+  local plist="$1"
+  local key_path="$2"
+
+  "$PYTHON_BIN" - "$plist" "$key_path" <<'PY'
+import plistlib
+import sys
+
+path, key_path = sys.argv[1:]
+try:
+    with open(path, "rb") as source:
+        value = plistlib.load(source)
+    for component in key_path.split("."):
+        if not isinstance(value, dict):
+            raise SystemExit(2)
+        if component not in value:
+            raise SystemExit(0)
+        value = value[component]
+except (OSError, TypeError, plistlib.InvalidFileException):
+    raise SystemExit(2)
+raise SystemExit(3)
+PY
+}
+
 bundle_id="$(read_plist_string "$APP_INFO" CFBundleIdentifier)" ||
   fail "archived app lacks CFBundleIdentifier"
 version="$(read_plist_string "$APP_INFO" CFBundleShortVersionString)" ||
   fail "archived app lacks CFBundleShortVersionString"
 build="$(read_plist_string "$APP_INFO" CFBundleVersion)" ||
   fail "archived app lacks CFBundleVersion"
+minimum_os="$(read_plist_string "$APP_INFO" MinimumOSVersion)" ||
+  fail "archived app lacks MinimumOSVersion"
 embedded_git_sha="$(read_plist_string "$APP_INFO" FearlessGitCommit)" ||
   fail "archived app lacks FearlessGitCommit provenance"
 configuration="$(read_plist_string "$APP_INFO" FearlessBuildConfiguration)" ||
@@ -247,6 +340,8 @@ testability="$(read_plist_string "$APP_INFO" FearlessEnableTestability)" ||
   fail "archived app lacks testability attestation"
 executable_name="$(read_plist_string "$APP_INFO" CFBundleExecutable)" ||
   fail "archived app lacks CFBundleExecutable"
+require_plist_key_absent "$APP_INFO" UIDesignRequiresCompatibility ||
+  fail "archived app must omit pre-iOS 26 design compatibility for the redesigned tab bar"
 
 [[ "$bundle_id" == "$EXPECTED_BUNDLE" ]] ||
   fail "archived bundle identifier is not the production identity"
@@ -254,6 +349,8 @@ executable_name="$(read_plist_string "$APP_INFO" CFBundleExecutable)" ||
   fail "archived marketing version is not $EXPECTED_VERSION"
 [[ "$build" == "$expected_build" ]] ||
   fail "archived build number is not the expected fresh build"
+[[ "$minimum_os" == "$EXPECTED_MINIMUM_OS" ]] ||
+  fail "archived app MinimumOSVersion is not exactly iOS $EXPECTED_MINIMUM_OS"
 [[ "$(lowercase "$embedded_git_sha")" == "$(lowercase "$expected_git_sha")" ]] ||
   fail "embedded git commit does not match the expected build commit"
 [[ "$configuration" == "Release" ]] ||
@@ -317,6 +414,169 @@ cleanup() {
   rm -rf "$temporary_dir"
 }
 trap cleanup EXIT
+
+uuid_inventory() {
+  local artifact="$1"
+  local output inventory count
+
+  output="$($DWARFDUMP_BIN --uuid "$artifact" 2>/dev/null)" || return 1
+  inventory="$(printf '%s\n' "$output" | awk '
+    $1 == "UUID:" && $2 ~ /^[0-9A-Fa-f-]{36}$/ && $3 ~ /^\([A-Za-z0-9_]+\)$/ {
+      uuid = toupper($2)
+      arch = $3
+      gsub(/[()]/, "", arch)
+      print uuid " " arch
+    }
+  ' | LC_ALL=C sort -u)"
+  count="$(printf '%s\n' "$inventory" | awk 'NF { count += 1 } END { print count + 0 }')"
+  [[ "$count" -gt 0 ]] || return 1
+  printf '%s\n' "$inventory"
+}
+
+verify_dsym_pair() {
+  local binary="$1"
+  local dsym="$2"
+  local label="$3"
+  local binary_uuids dsym_uuids
+
+  [[ -f "$binary" && ! -L "$binary" ]] ||
+    fail "$label executable is missing or unsafe"
+  [[ -d "$dsym" && ! -L "$dsym" ]] ||
+    fail "$label dSYM is missing or unsafe"
+  binary_uuids="$(uuid_inventory "$binary")" ||
+    fail "$label executable UUID inventory is unavailable"
+  dsym_uuids="$(uuid_inventory "$dsym")" ||
+    fail "$label dSYM UUID inventory is unavailable"
+  [[ "$binary_uuids" == "$dsym_uuids" ]] ||
+    fail "$label dSYM UUID inventory does not exactly match its executable"
+}
+
+readonly ARCHIVE_DSYMS="$archive/dSYMs"
+[[ -d "$ARCHIVE_DSYMS" && ! -L "$ARCHIVE_DSYMS" ]] ||
+  fail "archive dSYMs directory is missing or unsafe"
+verify_dsym_pair \
+  "$EXECUTABLE" \
+  "$ARCHIVE_DSYMS/$(basename "$APP_PATH").dSYM" \
+  "application"
+
+embedded_framework_count=0
+readonly APP_FRAMEWORKS="$APP_PATH/Frameworks"
+[[ -d "$APP_FRAMEWORKS" && ! -L "$APP_FRAMEWORKS" ]] ||
+  fail "archived app Frameworks directory is missing or unsafe"
+while IFS= read -r framework_path; do
+  [[ -n "$framework_path" ]] || continue
+  framework_bundle="$(basename "$framework_path")"
+  framework_info="$framework_path/Info.plist"
+  [[ -f "$framework_info" && ! -L "$framework_info" ]] ||
+    fail "embedded framework Info.plist is missing or unsafe"
+  framework_executable="$(read_plist_string "$framework_info" CFBundleExecutable)" ||
+    fail "embedded framework has no executable identity"
+  [[ "$framework_executable" =~ ^[A-Za-z0-9._-]+$ ]] ||
+    fail "embedded framework executable identity is unsafe"
+  verify_dsym_pair \
+    "$framework_path/$framework_executable" \
+    "$ARCHIVE_DSYMS/$framework_bundle.dSYM" \
+    "$framework_bundle"
+  embedded_framework_count=$((embedded_framework_count + 1))
+done < <(find "$APP_FRAMEWORKS" -mindepth 1 -maxdepth 1 \
+  -type d -name '*.framework' -print | LC_ALL=C sort)
+[[ "$embedded_framework_count" -gt 0 ]] ||
+  fail "archived app contains no embedded frameworks"
+
+actual_dsym_count="$(find "$ARCHIVE_DSYMS" -mindepth 1 -maxdepth 1 \
+  -type d -name '*.dSYM' -print | awk 'NF { count += 1 } END { print count + 0 }')"
+embedded_code_count=$((embedded_framework_count + 1))
+[[ "$actual_dsym_count" == "$embedded_code_count" ]] ||
+  fail "archive dSYM inventory is not exactly one bundle per embedded code object"
+
+[[ "${#REQUIRED_MANAGED_OBJECT_CLASSES[@]}" == "28" ]] ||
+  fail "internal managed-object class contract is not exactly 28 entries"
+[[ "${#REQUIRED_CORE_DATA_RESOURCES[@]}" == "34" ]] ||
+  fail "internal Core Data resource contract is not exactly 34 entries"
+
+classes_file="$temporary_dir/managed-object-classes"
+if [[ -n "$DYLD_INFO_BIN" ]]; then
+  "$DYLD_INFO_BIN" -objc "$EXECUTABLE" >"$classes_file" 2>/dev/null ||
+    fail "unable to inspect Objective-C metadata in the archived executable"
+else
+  xcrun dyld_info -objc "$EXECUTABLE" >"$classes_file" 2>/dev/null ||
+    fail "unable to inspect Objective-C metadata in the archived executable"
+fi
+for class_name in "${REQUIRED_MANAGED_OBJECT_CLASSES[@]}"; do
+  grep -Eq -- "^[[:space:]]*@interface ${class_name}[[:space:]]*:" "$classes_file" ||
+    fail "archived executable is missing a required managed-object runtime class"
+done
+: >"$classes_file"
+
+for resource in "${REQUIRED_CORE_DATA_RESOURCES[@]}"; do
+  [[ -f "$APP_PATH/$resource" && ! -L "$APP_PATH/$resource" ]] ||
+    fail "archived app is missing or symlinking a required Core Data resource"
+done
+
+readonly MODEL_CHECKSUM_SOURCE="$(cd "$(dirname "${BASH_SOURCE[0]}")/../storage" && pwd -P)/core-data-model-checksum.swift"
+[[ -s "$MODEL_CHECKSUM_SOURCE" && ! -L "$MODEL_CHECKSUM_SOURCE" ]] ||
+  fail "Core Data model checksum source is unavailable"
+
+model_checksum_for_path() {
+  local path="$1"
+  local checksum
+  if [[ -n "$MODEL_CHECKSUM_BIN" ]]; then
+    checksum="$("$MODEL_CHECKSUM_BIN" "$path" 2>/dev/null)" ||
+      fail "Core Data model checksum inspection failed"
+  else
+    checksum="$(xcrun swift "$MODEL_CHECKSUM_SOURCE" "$path" 2>/dev/null)" ||
+      fail "Core Data model checksum inspection failed"
+  fi
+  [[ "$checksum" != *$'\n'* && -n "$checksum" ]] ||
+    fail "Core Data model checksum output is invalid"
+  printf '%s\n' "$checksum"
+}
+
+public_v8_checksum="$(
+  model_checksum_for_path \
+    "$APP_PATH/LegacyPublicSubstrateDataModel_v8.mom"
+)"
+public_v9_checksum="$(
+  model_checksum_for_path \
+    "$APP_PATH/LegacyPublicSubstrateDataModel_v9.mom"
+)"
+substrate_v10_checksum="$(
+  model_checksum_for_path \
+    "$APP_PATH/SubstrateDataModel.momd/SubstrateDataModel_v10.mom"
+)"
+substrate_v10_optimized_checksum="$(
+  model_checksum_for_path \
+    "$APP_PATH/SubstrateDataModel.momd/SubstrateDataModel_v10.omo"
+)"
+substrate_active_bundle_checksum="$(
+  model_checksum_for_path "$APP_PATH/SubstrateDataModel.momd"
+)"
+readonly SUBSTRATE_VERSION_INFO="$APP_PATH/SubstrateDataModel.momd/VersionInfo.plist"
+substrate_current_version="$(
+  read_plist_string \
+    "$SUBSTRATE_VERSION_INFO" \
+    NSManagedObjectModel_CurrentVersionName
+)" || fail "archived Substrate VersionInfo has no current model"
+substrate_version_info_v10_checksum="$(
+  read_plist_string \
+    "$SUBSTRATE_VERSION_INFO" \
+    NSManagedObjectModel_VersionChecksums.SubstrateDataModel_v10
+)" || fail "archived Substrate VersionInfo has no v10 checksum"
+
+[[ "$public_v8_checksum" == "$EXPECTED_PUBLIC_SUBSTRATE_V8_CHECKSUM" ]] ||
+  fail "archived public Substrate v8 compatibility model checksum changed"
+[[ "$public_v9_checksum" == "$EXPECTED_PUBLIC_SUBSTRATE_V9_CHECKSUM" ]] ||
+  fail "archived public Substrate v9 compatibility model checksum changed"
+[[ "$substrate_v10_checksum" == "$EXPECTED_SUBSTRATE_V10_CHECKSUM" ]] ||
+  fail "archived active Substrate v10 model checksum changed"
+[[ "$substrate_v10_optimized_checksum" == "$EXPECTED_SUBSTRATE_V10_CHECKSUM" ]] ||
+  fail "archived preferred Substrate v10 optimized model checksum changed"
+[[ "$substrate_active_bundle_checksum" == "$EXPECTED_SUBSTRATE_V10_CHECKSUM" ]] ||
+  fail "archived active Substrate model bundle does not resolve to v10"
+[[ "$substrate_current_version" == "SubstrateDataModel_v10" ]] ||
+  fail "archived Substrate VersionInfo does not select v10"
+[[ "$substrate_version_info_v10_checksum" == "$EXPECTED_SUBSTRATE_V10_CHECKSUM" ]] ||
+  fail "archived Substrate VersionInfo v10 checksum changed"
 
 if ! "$CODESIGN_BIN" --verify --deep --strict "$APP_PATH" \
   >"$temporary_dir/codesign-verify" 2>&1; then
@@ -609,12 +869,21 @@ receipt_pending="${receipt}.pending.$$"
   "$bundle_id" \
   "$version" \
   "$build" \
+  "$minimum_os" \
   "$actual_executable_sha" \
   "$actual_archive_sha" \
   "$EXPECTED_TEAM" \
   "$signing_certificate_sha1" \
   "$expected_profile_uuid" \
-  "$expected_profile_name" <<'PY'
+  "$expected_profile_name" \
+  "$public_v8_checksum" \
+  "$public_v9_checksum" \
+  "$substrate_v10_checksum" \
+  "$substrate_v10_optimized_checksum" \
+  "$substrate_active_bundle_checksum" \
+  "$substrate_version_info_v10_checksum" \
+  "$substrate_current_version" \
+  "$embedded_code_count" <<'PY'
 import datetime
 import json
 import os
@@ -626,12 +895,21 @@ import sys
     bundle_id,
     version,
     build,
+    minimum_os,
     executable_sha,
     archive_sha,
     team,
     signing_certificate_sha1,
     profile_uuid,
     profile_name,
+    public_v8_checksum,
+    public_v9_checksum,
+    substrate_v10_checksum,
+    substrate_v10_optimized_checksum,
+    substrate_active_bundle_checksum,
+    substrate_version_info_v10_checksum,
+    substrate_current_version,
+    embedded_code_count,
 ) = sys.argv[1:]
 payload = {
     "schemaVersion": 1,
@@ -641,6 +919,7 @@ payload = {
     "bundleIdentifier": bundle_id,
     "marketingVersion": version,
     "buildNumber": build,
+    "minimumOSVersion": minimum_os,
     "developmentTeam": team,
     "executableSHA256": executable_sha.lower(),
     "archiveTreeSHA256": archive_sha.lower(),
@@ -649,6 +928,25 @@ payload = {
     "provisioningProfileName": profile_name,
     "distributionProfile": "valid-app-store",
     "signedEntitlements": "exact-production-contract",
+    "uiDesignCompatibility": "native-redesigned-tab-bar",
+    "symbolication": {
+        "embeddedCodeObjectCount": int(embedded_code_count),
+        "dSYMContract": "exact-uuid-upload-coverage",
+        "sourceLineCoverage": "not-asserted",
+    },
+    "coreDataContract": {
+        "requiredManagedObjectClassCount": 28,
+        "requiredResourceCount": 34,
+        "activeSubstrateModelName": substrate_current_version,
+        "substrateModelVersionChecksums": {
+            "LegacyPublicSubstrateDataModel_v8": public_v8_checksum,
+            "LegacyPublicSubstrateDataModel_v9": public_v9_checksum,
+            "SubstrateDataModel_v10": substrate_v10_checksum,
+            "SubstrateDataModel_v10_optimized": substrate_v10_optimized_checksum,
+            "SubstrateDataModel_active_bundle": substrate_active_bundle_checksum,
+            "VersionInfo.SubstrateDataModel_v10": substrate_version_info_v10_checksum,
+        },
+    },
 }
 with open(path, "x", encoding="utf-8") as destination:
     json.dump(payload, destination, indent=2, sort_keys=True)
@@ -659,4 +957,4 @@ PY
 mv "$receipt_pending" "$receipt"
 
 printf '%s\n' \
-  "$LOG_PREFIX PASS: exact commit, bundle/version/build, executable/archive hashes, distribution profile, and signed production entitlements verified"
+  "$LOG_PREFIX PASS: exact commit, bundle/version/build/minimum OS, executable/archive hashes, exact-UUID upload dSYMs, distribution profile, signed production entitlements, 28 managed-object classes, 34 Core Data resources, preferred v10, and public-v8/public-v9/v10 checksums verified"

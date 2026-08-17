@@ -256,6 +256,8 @@ APP
   local -a resources=(
     "CompatibleUserDataModel_v13.mom"
     "LegacyEcosystemUserDataModel_v12.mom"
+    "LegacyPublicSubstrateDataModel_v8.mom"
+    "LegacyPublicSubstrateDataModel_v9.mom"
     "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/UserDataModel.mom"
     "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel.mom"
     "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v2.mom"
@@ -276,6 +278,9 @@ APP
     "SubstrateDataModel.momd/SubstrateDataModel_v6.mom"
     "SubstrateDataModel.momd/SubstrateDataModel_v7.mom"
     "SubstrateDataModel.momd/SubstrateDataModel_v8.mom"
+    "SubstrateDataModel.momd/SubstrateDataModel_v10.mom"
+    "SubstrateDataModel.momd/SubstrateDataModel_v10.omo"
+    "SubstrateDataModel.momd/VersionInfo.plist"
     "SingleToMultiasset.cdm"
     "MultiassetV2.cdm"
     "MultiassetV9.cdm"
@@ -287,6 +292,22 @@ APP
   for resource in "${resources[@]}"; do
     : >"$APP_DIR/$resource"
   done
+  python3 - "$APP_DIR/SubstrateDataModel.momd/VersionInfo.plist" <<'PY'
+import plistlib
+import sys
+
+with open(sys.argv[1], "wb") as destination:
+    plistlib.dump(
+        {
+            "NSManagedObjectModel_CurrentVersionName": "SubstrateDataModel_v10",
+            "NSManagedObjectModel_VersionChecksums": {
+                "SubstrateDataModel_v10":
+                    "Qyb9lyHRxl1FB0CHQeMaajp812iiqKqtSLJ0U/U120A="
+            },
+        },
+        destination,
+    )
+PY
 
   CASE_ENV=()
   CASE_ARGS=(
@@ -399,7 +420,8 @@ if [[ "${1:-}" == "nm" ]]; then
     CDAsset CDChain CDChainNode CDChainStorageItem CDChainXcmConfig
     CDContact CDContactItem CDExternalApi CDPhishingItem CDPolkaswapDex
     CDPolkaswapRemoteSettings CDPriceData CDPriceProvider
-    CDRuntimeMetadataItem CDScamInfo CDStashItem CDTransactionHistoryItem
+    CDRuntimeMetadataItem CDScamInfo CDStashItem CDTonConnectedApp CDTonDapp
+    CDTransactionHistoryItem
     CDXcmAvailableAsset CDXcmAvailableDestination CDAccountInfo
     CDAssetVisibility CDChainAccount CDChainSettings CDCurrency
     CDCustomChainNode CDMetaAccount
@@ -689,6 +711,30 @@ rm "$APP_DIR/SubstrateV3toV4.cdm"
 CASE_ARGS+=(--dry-run)
 expect_failure "missing migration resource" "missing or symlinking a required Core Data migration resource"
 
+prepare_case "missing-v10-optimized-model"
+rm "$APP_DIR/SubstrateDataModel.momd/SubstrateDataModel_v10.omo"
+CASE_ARGS+=(--dry-run)
+expect_failure "missing v10 optimized model" "missing or symlinking a required Core Data migration resource"
+
+prepare_case "missing-substrate-version-info"
+rm "$APP_DIR/SubstrateDataModel.momd/VersionInfo.plist"
+CASE_ARGS+=(--dry-run)
+expect_failure "missing Substrate VersionInfo" "missing or symlinking a required Core Data migration resource"
+
+prepare_case "stale-substrate-current-version"
+plutil -replace NSManagedObjectModel_CurrentVersionName \
+  -string SubstrateDataModel_v8 \
+  "$APP_DIR/SubstrateDataModel.momd/VersionInfo.plist"
+CASE_ARGS+=(--dry-run)
+expect_failure "stale Substrate current version" "VersionInfo does not select v10"
+
+prepare_case "wrong-substrate-version-info-v10-checksum"
+plutil -replace NSManagedObjectModel_VersionChecksums.SubstrateDataModel_v10 \
+  -string AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= \
+  "$APP_DIR/SubstrateDataModel.momd/VersionInfo.plist"
+CASE_ARGS+=(--dry-run)
+expect_failure "wrong Substrate VersionInfo v10 checksum" "VersionInfo v10 checksum changed"
+
 prepare_case "shutdown-simulator"
 CASE_ENV=("FAKE_SIMULATOR_STATE=Shutdown")
 CASE_ARGS+=(--dry-run)
@@ -825,4 +871,4 @@ printf '%s\n' \
   "[coredata-simulator-rehearsal-test] PASS (rejected): override without harness"
 
 printf '%s\n' \
-  "[coredata-simulator-rehearsal-test] PASS: 2 positive + 39 negative/adversarial contracts"
+  "[coredata-simulator-rehearsal-test] PASS: 2 positive + 43 negative/adversarial contracts"

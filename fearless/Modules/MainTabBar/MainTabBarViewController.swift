@@ -120,7 +120,11 @@ final class MainTabBarViewController: UITabBarController {
     private func returnToRoot(of viewController: UIViewController) {
         if let navigationController = viewController as? UINavigationController,
            navigationController.viewControllers.count > 1 {
-            navigationController.popToRootViewController(animated: true)
+            // UIKit defers the stack mutation when an animated pop is requested
+            // before this tab is attached to a window. Keep the state change
+            // deterministic while preserving animation for the visible app.
+            let shouldAnimate = navigationController.viewIfLoaded?.window != nil
+            navigationController.popToRootViewController(animated: shouldAnimate)
         } else if let scrollableController = viewController.navigationRootViewController() as? ScrollsToTop {
             scrollableController.scrollToTop()
         }
