@@ -31,7 +31,12 @@ protocol ChainAssetListInteractorInput: AnyObject {
     func reload()
     func getAvailableChainAssets(chainAsset: ChainAsset, completion: @escaping (([ChainAsset]) -> Void))
     func hideChainAsset(_ chainAsset: ChainAsset)
+    func showChainAsset(_ chainAsset: ChainAsset)
     func retryConnection(for chainId: ChainModel.Id)
+}
+
+extension ChainAssetListInteractorInput {
+    func showChainAsset(_: ChainAsset) {}
 }
 
 protocol ChainAssetListInteractorOutput: AnyObject {

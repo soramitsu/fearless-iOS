@@ -3,6 +3,43 @@ import SoraKeystore
 
 enum PolkaswapDisclaimerKeys: String {
     case polkaswapDisclaimerIsRead2
+    case polkaswapDisclaimerAcceptedVersion
+}
+
+/// The transaction boundary must use the same persisted acceptance as the
+/// disclaimer screen. Keeping an integer version lets a future wording change
+/// invalidate an older acceptance without relying on controller state.
+enum PolkaswapDisclaimerPolicy {
+    static let currentVersion = 2
+
+    static func isAccepted(in storage: SettingsManagerProtocol = SettingsManager.shared) -> Bool {
+        if storage.integer(for: PolkaswapDisclaimerKeys.polkaswapDisclaimerAcceptedVersion.rawValue) == currentVersion {
+            return true
+        }
+
+        // `polkaswapDisclaimerIsRead2` is the released persistence for version
+        // 2. Migrate it once; it must not automatically accept a future version.
+        guard currentVersion == 2,
+              storage.bool(for: PolkaswapDisclaimerKeys.polkaswapDisclaimerIsRead2.rawValue) == true else {
+            return false
+        }
+
+        storage.set(
+            value: currentVersion,
+            for: PolkaswapDisclaimerKeys.polkaswapDisclaimerAcceptedVersion.rawValue
+        )
+        return true
+    }
+
+    static func acceptCurrentVersion(
+        in storage: SettingsManagerProtocol = SettingsManager.shared
+    ) {
+        storage.set(
+            value: currentVersion,
+            for: PolkaswapDisclaimerKeys.polkaswapDisclaimerAcceptedVersion.rawValue
+        )
+        storage.set(value: true, for: PolkaswapDisclaimerKeys.polkaswapDisclaimerIsRead2.rawValue)
+    }
 }
 
 protocol PolkaswapDisclaimerInteractorOutput: AnyObject {
@@ -22,8 +59,9 @@ final class PolkaswapDisclaimerInteractor {
     // MARK: - Private func
 
     private func fetchDisclaimerIsRead() {
-        let isRead = userDefaultsStorage.bool(for: PolkaswapDisclaimerKeys.polkaswapDisclaimerIsRead2.rawValue)
-        output?.didReceiveDisclaimer(isRead: isRead.or(false))
+        output?.didReceiveDisclaimer(
+            isRead: PolkaswapDisclaimerPolicy.isAccepted(in: userDefaultsStorage)
+        )
     }
 }
 
@@ -36,6 +74,6 @@ extension PolkaswapDisclaimerInteractor: PolkaswapDisclaimerInteractorInput {
     }
 
     func setDisclaimerIsRead() {
-        userDefaultsStorage.set(value: true, for: PolkaswapDisclaimerKeys.polkaswapDisclaimerIsRead2.rawValue)
+        PolkaswapDisclaimerPolicy.acceptCurrentVersion(in: userDefaultsStorage)
     }
 }

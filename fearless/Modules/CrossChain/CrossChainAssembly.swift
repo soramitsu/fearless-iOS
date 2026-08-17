@@ -12,8 +12,13 @@ import SSFModels
 final class CrossChainAssembly {
     static func configureModule(
         with chainAsset: ChainAsset,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        reviewedRoute: ReviewedCrossChainRouteContext
     ) -> CrossChainModuleCreationResult? {
+        guard ReviewedXcmExecutionAuthority.isAvailable,
+              reviewedRoute.validates(origin: chainAsset) else {
+            return nil
+        }
         let localizationManager = LocalizationManager.shared
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
@@ -75,6 +80,7 @@ final class CrossChainAssembly {
         let viewModelFactory = CrossChainViewModelFactory(iconGenerator: iconGenerator)
         let presenter = CrossChainPresenter(
             originChainAsset: chainAsset,
+            reviewedRoute: reviewedRoute,
             wallet: wallet,
             viewModelFactory: viewModelFactory,
             dataValidatingFactory: dataValidatingFactory,

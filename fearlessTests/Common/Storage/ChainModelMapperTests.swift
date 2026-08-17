@@ -603,6 +603,8 @@ final class ChainModelMapperTests: XCTestCase {
 
     func testTransformDeterministicallyChoosesCanonicalUnmatchedCachedPrice()
         throws {
+        ExactAssetPriceCache.shared.clear()
+        defer { ExactAssetPriceCache.shared.clear() }
         let priceFixtures = [
             (
                 currencyId: "z-currency",
@@ -661,6 +663,20 @@ final class ChainModelMapperTests: XCTestCase {
             XCTAssertEqual(
                 transformedAsset.fiatDayChange,
                 Decimal(string: "-1.5")
+            )
+            XCTAssertEqual(
+                ExactAssetPriceCache.shared.price(
+                    priceId: "a-price",
+                    currencyId: "a-currency"
+                )?.price,
+                "1.25"
+            )
+            XCTAssertEqual(
+                ExactAssetPriceCache.shared.price(
+                    priceId: "z-price",
+                    currencyId: "z-currency"
+                )?.price,
+                "99.5"
             )
         }
     }

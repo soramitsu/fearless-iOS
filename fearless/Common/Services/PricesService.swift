@@ -88,6 +88,10 @@ extension PricesService: EventVisitorProtocol {
         let currency = event.account.selectedCurrency
         observePrices(for: chainAssets, currencies: [currency])
     }
+
+    func processLogout() {
+        ExactAssetPriceCache.shared.clear()
+    }
 }
 
 private extension PricesService {
@@ -129,9 +133,10 @@ private extension PricesService {
         }
     }
 
-    func handle(prices _: [PriceData], for _: [ChainAsset]) {
-        // Prices are consumed directly by UI formatters via wallet-selected currency.
-        // Persisting into ChainModel assets is no longer supported here.
+    func handle(prices: [PriceData], for _: [ChainAsset]) {
+        // Publish the exact keyed values before notifying consumers. ChainModel's
+        // legacy scalar price cannot preserve fiat currency identity.
+        ExactAssetPriceCache.shared.upsert(prices)
         eventCenter.notify(with: PricesUpdated())
     }
 

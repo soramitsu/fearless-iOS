@@ -55,8 +55,15 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     func close(view: ControllerBackedProtocol?)
     func showPolkaswapDisclaimer(from view: ControllerBackedProtocol?)
     func showWalletConnect(from view: ControllerBackedProtocol?)
+    func showNetworkAssets(from view: ControllerBackedProtocol?, wallet: MetaAccountModel)
+    func showTonConnectCapability(from view: ControllerBackedProtocol?, hasTonAccount: Bool)
 }
 
 protocol ProfileViewFactoryProtocol: AnyObject {
     static func createView() -> ProfileViewProtocol?
+}
+
+extension ProfileWireframeProtocol {
+    func showNetworkAssets(from _: ControllerBackedProtocol?, wallet _: MetaAccountModel) {}
+    func showTonConnectCapability(from _: ControllerBackedProtocol?, hasTonAccount _: Bool) {}
 }

@@ -122,6 +122,11 @@ extension ServiceCoordinator {
             eventCenter: EventCenter.shared,
             logger: logger
         )
+        let dynamicAssetCatalogInjector = DynamicAssetCatalogInjectorImpl(
+            chainModelRepository: AsyncAnyRepository(tonChainRepository),
+            eventCenter: EventCenter.shared,
+            logger: logger
+        )
 
         let tonRemoteBalanceFetching = TonRemoteBalanceFetchingImpl(
             chainRegistry: chainRegistry,
@@ -152,13 +157,14 @@ extension ServiceCoordinator {
             tonRemoteBalanceFetching: tonRemoteBalanceFetching,
             bitcoinBalanceSync: BitcoinBalanceSync(discovery: BitcoinReceiveDiscovery(client: BitcoinIndexerClient())),
             solanaBalanceSync: SolanaBalanceSync(client: SolanaIndexerClient()),
+            dynamicAssetCatalogInjector: dynamicAssetCatalogInjector,
             storagePerformer: storagePerformer
         )
 
         let walletAssetsObserver = WalletAssetsObserverImpl(
             wallet: selectedMetaAccount,
             chainRegistry: chainRegistry,
-            accountInfoRemote: accountInfoRemote,
+            assetDiscoveryService: AssetDiscoveryServiceAdapter(accountInfoRemote: accountInfoRemote),
             eventCenter: EventCenter.shared,
             logger: logger,
             userDefaultsStorage: SettingsManager.shared

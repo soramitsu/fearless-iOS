@@ -15,7 +15,7 @@ final class BitcoinBalanceSync {
         gapLimit: Int? = nil,
         maxLookahead: Int = BitcoinReceiveDiscovery.defaultMaxLookahead
     ) async throws -> BitcoinBalanceSyncResult {
-        let discoveryResult = try await discovery.discover(
+        let discoveryResult = try await discovery.discoverWallet(
             mnemonic: mnemonic,
             passphrase: passphrase,
             network: network,
@@ -44,6 +44,14 @@ final class BitcoinBalanceSync {
         )
     }
 
+    func balance(
+        address: String,
+        network: BitcoinKeyDerivation.Network,
+        baseURL: String? = nil
+    ) async throws -> BitcoinAddressBalanceResult {
+        try await discovery.balance(address: address, network: network, baseURL: baseURL)
+    }
+
     private func safeAdd(_ left: Int64, _ right: Int64) throws -> Int64 {
         let sum = left.addingReportingOverflow(right)
         guard !sum.overflow else {
@@ -65,4 +73,10 @@ struct BitcoinBalanceSyncResult: Equatable {
 enum BitcoinBalanceSyncError: Error, Equatable {
     case invalidAddressBalance
     case balanceOverflow
+}
+
+struct BitcoinAddressBalanceResult: Equatable {
+    let confirmedSats: Int64
+    let mempoolSats: Int64
+    let totalSats: Int64
 }

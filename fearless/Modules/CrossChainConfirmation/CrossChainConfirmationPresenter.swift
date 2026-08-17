@@ -58,6 +58,25 @@ extension CrossChainConfirmationPresenter: CrossChainConfirmationViewOutput {
     }
 
     func confirmButtonTapped() {
+        do {
+            try ReviewedCrossChainSubmissionValidator.validate(
+                origin: teleportData.originChainAsset,
+                destination: teleportData.destChainModel,
+                reviewedRoute: teleportData.reviewedRoute
+            )
+        } catch {
+            guard let view else { return }
+            if !router.present(error: error, from: view, locale: selectedLocale) {
+                router.present(
+                    message: error.localizedDescription,
+                    title: "Route unavailable",
+                    closeAction: nil,
+                    from: view,
+                    actions: []
+                )
+            }
+            return
+        }
         view?.didStartLoading()
         interactor.submit()
     }

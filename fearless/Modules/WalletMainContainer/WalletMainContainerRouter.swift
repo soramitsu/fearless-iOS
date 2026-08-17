@@ -112,6 +112,15 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
             return
         }
 
-        tabBar.selectedIndex = MainTabBarViewFactory.stakingIndex
+        tabBar.select(destination: .defi)
+
+        guard
+            let navigationController = tabBar.selectedViewController as? UINavigationController,
+            let defiHub = navigationController.viewControllers.first as? DeFiHubViewController
+        else {
+            return
+        }
+
+        defiHub.showStaking()
     }
 }

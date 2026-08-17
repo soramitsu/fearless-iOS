@@ -128,6 +128,61 @@ final class ChainAssetListInteractor {
             self?.output?.didReceiveChainAssets(result: result)
         }
     }
+
+    private func refreshRemoteBalances(for chainAssets: [ChainAsset]) {
+        let chains = chainAssets.map(\.chain).uniq(predicate: { $0.chainId })
+        let currentWallet = wallet
+
+        Task {
+            let results = await withTaskGroup(
+                of: (ChainModel, [ChainAssetId: AccountInfo?])?.self,
+                returning: [(ChainModel, [ChainAssetId: AccountInfo?])].self
+            ) { group in
+                chains.forEach { chain in
+                    group.addTask {
+                        NetworkScanStateStore.markAttempt(for: chain, walletId: currentWallet.metaId)
+                        do {
+                            let infos = try await self.accountInfoRemoteService.fetchAccountInfos(
+                                for: chain,
+                                wallet: currentWallet
+                            )
+                            NetworkScanStateStore.markSuccess(for: chain, walletId: currentWallet.metaId)
+                            return (chain, infos)
+                        } catch {
+                            NetworkScanStateStore.markFailure(for: chain, walletId: currentWallet.metaId)
+                            if let lastKnownProvider = self.accountInfoRemoteService as? AccountInfoLastKnownBalanceProviding {
+                                let retained = lastKnownProvider.lastKnownAccountInfos(
+                                    for: chain,
+                                    wallet: currentWallet
+                                )
+                                if retained.isNotEmpty {
+                                    return (chain, retained)
+                                }
+                            }
+                            return nil
+                        }
+                    }
+                }
+
+                var values: [(ChainModel, [ChainAssetId: AccountInfo?])] = []
+                for await result in group {
+                    if let result {
+                        values.append(result)
+                    }
+                }
+                return values
+            }
+
+            await MainActor.run {
+                results.forEach { chain, infos in
+                    chain.chainAssets.forEach { chainAsset in
+                        let accountInfo = infos[chainAsset.chainAssetId] ?? nil
+                        self.output?.didReceiveAccountInfo(result: .success(accountInfo), for: chainAsset)
+                    }
+                }
+            }
+        }
+    }
 }
 
 // MARK: - ChainAssetListInteractorInput
@@ -223,6 +278,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         })
 
         ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: wallet) { _ in }
+        refreshRemoteBalances(for: chainAssets)
         pricesService.updatePrices()
     }
 
@@ -230,17 +286,18 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         chainAssetFetching.fetch(
             shouldUseCache: true,
             filters: [
-                .assetNames([
-                    chainAsset.asset.symbol,
-                    "xc\(chainAsset.asset.symbol)"
-                ]),
                 .enabled(wallet: wallet)
             ],
             sortDescriptors: []
         ) { result in
             switch result {
             case let .success(availableChainAssets):
-                completion(availableChainAssets)
+                completion(
+                    CuratedAssetRelationshipResolver.relatedChainAssets(
+                        to: chainAsset,
+                        among: availableChainAssets
+                    )
+                )
             default:
                 completion([])
             }
@@ -248,12 +305,21 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
     }
 
     func hideChainAsset(_ chainAsset: ChainAsset) {
-        var assetsVisibility = wallet.assetsVisibility.filter { $0.assetId != chainAsset.identifier }
-        let assetVisibility = AssetVisibility(assetId: chainAsset.identifier, hidden: true)
-        assetsVisibility.append(assetVisibility)
+        AssetVisibilityPreferenceStore.setExplicitlyHidden(
+            true,
+            walletId: wallet.metaId,
+            chainAsset: chainAsset
+        )
+        output?.updateViewModel(isInitSearchState: false)
+    }
 
-        let updatedWallet = wallet.replacingAssetsVisibility(assetsVisibility)
-        save(updatedWallet, shouldNotify: true)
+    func showChainAsset(_ chainAsset: ChainAsset) {
+        AssetVisibilityPreferenceStore.setExplicitlyHidden(
+            false,
+            walletId: wallet.metaId,
+            chainAsset: chainAsset
+        )
+        output?.updateViewModel(isInitSearchState: false)
     }
 
     func retryConnection(for chainId: ChainModel.Id) {
@@ -272,14 +338,22 @@ extension ChainAssetListInteractor: AccountInfoSubscriptionAdapterHandler {
 }
 
 extension ChainAssetListInteractor: EventVisitorProtocol {
+    static func invalidateViewModel(
+        for event: AssetVisibilityPreferenceChangedEvent,
+        walletId: MetaAccountId,
+        output: ChainAssetListInteractorOutput?
+    ) {
+        guard event.walletId == walletId else {
+            return
+        }
+
+        output?.updateViewModel(isInitSearchState: false)
+    }
+
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
         output?.didReceiveWallet(wallet: event.account)
 
         if wallet.selectedCurrency != event.account.selectedCurrency {
-            output?.updateViewModel(isInitSearchState: false)
-        }
-
-        if wallet.assetsVisibility != event.account.assetsVisibility {
             output?.updateViewModel(isInitSearchState: false)
         }
 
@@ -316,6 +390,14 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
 
     func processPricesUpdated() {
         getUpdatedChainAssets()
+    }
+
+    func processAssetVisibilityPreferenceChanged(event: AssetVisibilityPreferenceChangedEvent) {
+        Self.invalidateViewModel(
+            for: event,
+            walletId: wallet.metaId,
+            output: output
+        )
     }
 }
 

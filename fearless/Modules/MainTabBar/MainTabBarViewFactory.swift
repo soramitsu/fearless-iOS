@@ -37,10 +37,6 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
     }
 
-    static let walletIndex: Int = 0
-    static let crowdloanIndex: Int = 1
-    static let stakingIndex: Int = 3
-
     static func createView(
         presentingWindow: ApplicationStatusPresentable? = nil,
         dependencies: Dependencies = .live
@@ -91,7 +87,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             localizationManager: localizationManager
         )
 
-        let viewControllers = createViewControllers(stakingModuleOutput: presenter, walletConnect: walletConnect, wallet: wallet)
+        let viewControllers = createViewControllers(walletConnect: walletConnect, wallet: wallet)
         let view = MainTabBarViewController(
             viewControllers: viewControllers,
             presenter: presenter,
@@ -102,190 +98,125 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     }
 
     static func createViewControllers(
-        stakingModuleOutput: StakingMainModuleOutput?,
         walletConnect: WalletConnectService,
         wallet: MetaAccountModel
     ) -> [UIViewController] {
-        var viewControllers: [UIViewController?] = []
-        let walletController = createWalletController(walletConnect: walletConnect, wallet: wallet)
-        viewControllers.append(walletController)
-
-        let crowdloanController = createCrowdloanController(wallet: wallet)
-        viewControllers.append(crowdloanController)
-
-        let polkaswapControoller = createPolkaswapController(wallet: wallet)
-        viewControllers.append(polkaswapControoller)
-
-        let stakingController = createStakingController(moduleOutput: stakingModuleOutput)
-        viewControllers.append(stakingController)
-
-        let settingsController = createProfileController()
-        viewControllers.append(settingsController)
-
-        return viewControllers.compactMap { $0 }
+        [
+            createPortfolioController(walletConnect: walletConnect, wallet: wallet),
+            createDeFiController(wallet: wallet),
+            createPolkaswapController(wallet: wallet),
+            createCrossChainController(wallet: wallet),
+            createSettingsController()
+        ]
     }
 
-    static func reloadCrowdloanView(on view: MainTabBarViewProtocol, wallet: MetaAccountModel? = SelectedWalletSettings.shared.value) -> UIViewController? {
-        guard let crowdloanController = createCrowdloanController(wallet: wallet) else {
-            return nil
-        }
-
-        view.didReplaceView(for: crowdloanController, for: Self.crowdloanIndex)
-
-        return crowdloanController
-    }
-
-    @discardableResult
-    static func reloadStakingView(
+    static func reloadWalletDependentViews(
         on view: MainTabBarViewProtocol,
-        stakingType: AssetSelectionStakingType,
-        moduleOutput: StakingMainModuleOutput?
-    ) -> UIViewController? {
-        switch stakingType {
-        case .normal:
-            let stakingViewController = createStakingController(moduleOutput: moduleOutput)
-            view.didReplaceView(for: stakingViewController, for: Self.stakingIndex)
+        wallet: MetaAccountModel,
+        walletConnect: WalletConnectService = WalletConnectServiceImpl.shared
+    ) {
+        let replacements: [(MainTabBarDestination, UIViewController)] = [
+            (.portfolio, createPortfolioController(walletConnect: walletConnect, wallet: wallet)),
+            (.defi, createDeFiController(wallet: wallet)),
+            (.polkaswap, createPolkaswapController(wallet: wallet)),
+            (.crossChain, createCrossChainController(wallet: wallet))
+        ]
 
-            return stakingViewController
-        case .pool:
-            let stakingViewController = createPoolStakingController(moduleOutput: moduleOutput)
-            view.didReplaceView(for: stakingViewController, for: Self.stakingIndex)
-
-            return stakingViewController
+        replacements.forEach { destination, controller in
+            view.didReplaceView(for: controller, for: destination.rawValue)
         }
     }
 
-    static func createWalletController(
+    static func createPortfolioController(
         walletConnect: WalletConnectService,
         wallet: MetaAccountModel
-    ) -> UIViewController? {
-        guard let viewController = WalletMainContainerAssembly
-            .configureModule(wallet: wallet, walletConnect: walletConnect)?.view.controller
-        else {
-            return nil
-        }
-
-        let icon = R.image.iconTabWallet()
-        let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
-            .withRenderingMode(.alwaysOriginal)
-        let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
-            .withRenderingMode(.alwaysOriginal)
-        viewController.tabBarItem = createTabBarItem(
-            normalImage: normalIcon,
-            selectedImage: selectedIcon
-        )
-
-        let navigationController = FearlessNavigationController(rootViewController: viewController)
-
-        return navigationController
-    }
-
-    static func createStakingController(
-        moduleOutput: StakingMainModuleOutput?
     ) -> UIViewController {
-        let viewController = StakingMainViewFactory.createView(moduleOutput: moduleOutput)?.controller ?? UIViewController()
+        let viewController = WalletMainContainerAssembly
+            .configureModule(wallet: wallet, walletConnect: walletConnect)?.view.controller ??
+            FeatureUnavailableViewController(
+                title: MainTabBarDestination.portfolio.title,
+                message: "Portfolio data is unavailable while wallet services are starting.",
+                icon: MainTabBarDestination.portfolio.image
+            )
 
-        let icon = R.image.iconTabStaking()
-        let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
-            .withRenderingMode(.alwaysOriginal)
-        let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
-            .withRenderingMode(.alwaysOriginal)
-        viewController.tabBarItem = createTabBarItem(
-            normalImage: normalIcon,
-            selectedImage: selectedIcon
+        return navigationController(
+            root: viewController,
+            destination: .portfolio
         )
-
-        let navigationController = FearlessNavigationController(rootViewController: viewController)
-
-        return navigationController
     }
 
-    static func createPoolStakingController(
-        moduleOutput: StakingMainModuleOutput?
+    static func createDeFiController(
+        wallet: MetaAccountModel
     ) -> UIViewController {
-        let module = StakingPoolMainAssembly.configureModule(moduleOutput: moduleOutput)
-        guard let viewController = module?.view.controller else {
-            return UIViewController()
+        navigationController(
+            root: DeFiHubViewController(wallet: wallet),
+            destination: .defi
+        )
+    }
+
+    static func createPolkaswapController(
+        wallet: MetaAccountModel
+    ) -> UIViewController {
+        let viewController = PolkaswapAdjustmentAssembly
+            .configureModule(chainAsset: nil, wallet: wallet)?.view.controller ??
+            FeatureUnavailableViewController(
+                title: MainTabBarDestination.polkaswap.title,
+                message: "Add a SORA account and connect to the SORA network to use Polkaswap.",
+                icon: R.image.polkaswapPinkButton()
+            )
+
+        return navigationController(
+            root: viewController,
+            destination: .polkaswap
+        )
+    }
+
+    static func createCrossChainController(
+        wallet: MetaAccountModel
+    ) -> UIViewController {
+        navigationController(
+            root: CrossChainRootViewController(wallet: wallet),
+            destination: .crossChain
+        )
+    }
+
+    static func createSettingsController() -> UIViewController {
+        let viewController = ProfileViewFactory.createView()?.controller ??
+            FeatureUnavailableViewController(
+                title: MainTabBarDestination.settings.title,
+                message: "Settings are temporarily unavailable.",
+                icon: MainTabBarDestination.settings.image
+            )
+
+        return navigationController(
+            root: viewController,
+            destination: .settings
+        )
+    }
+
+    private static func navigationController(
+        root: UIViewController,
+        destination: MainTabBarDestination
+    ) -> UIViewController {
+        let navigationController = FearlessNavigationController(rootViewController: root)
+        navigationController.tabBarItem = createTabBarItem(for: destination)
+        return navigationController
+    }
+
+    static func createTabBarItem(for destination: MainTabBarDestination) -> UITabBarItem {
+        let icon = destination.image
+        let normalIcon = R.color.colorGray().flatMap { color in
+            icon?.tinted(with: color)?.withRenderingMode(.alwaysOriginal)
         }
-
-        let icon = R.image.iconTabStaking()
-        let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
-            .withRenderingMode(.alwaysOriginal)
-        let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
-            .withRenderingMode(.alwaysOriginal)
-        viewController.tabBarItem = createTabBarItem(
-            normalImage: normalIcon,
-            selectedImage: selectedIcon
-        )
-
-        let navigationController = FearlessNavigationController(rootViewController: viewController)
-
-        return navigationController
-    }
-
-    static func createProfileController() -> UIViewController? {
-        let viewController = ProfileViewFactory.createView()?.controller ?? UIViewController()
-        let navigationController = FearlessNavigationController(rootViewController: viewController)
-
-        let icon = R.image.iconTabSettings()
-        let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
-            .withRenderingMode(.alwaysOriginal)
-        let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
-            .withRenderingMode(.alwaysOriginal)
-        navigationController.tabBarItem = createTabBarItem(
-            normalImage: normalIcon,
-            selectedImage: selectedIcon
-        )
-
-        return navigationController
-    }
-
-    static func createCrowdloanController(wallet: MetaAccountModel? = SelectedWalletSettings.shared.value) -> UIViewController? {
-        let crowdloanState = CrowdloanSharedState()
-        crowdloanState.settings.setup()
-
-        guard let selectedMetaAccount = wallet,
-              let crowloanView = CrowdloanListViewFactory.createView(
-                  with: crowdloanState,
-                  selectedMetaAccount: selectedMetaAccount
-              )
-        else {
-            return nil
+        let selectedIcon = R.color.colorWhite().flatMap { color in
+            icon?.tinted(with: color)?.withRenderingMode(.alwaysOriginal)
         }
-
-        let navigationController = FearlessNavigationController(rootViewController: crowloanView.controller)
-
-        let icon = R.image.iconTabCrowloan()
-        let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
-            .withRenderingMode(.alwaysOriginal)
-        let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
-            .withRenderingMode(.alwaysOriginal)
-        navigationController.tabBarItem = createTabBarItem(
-            normalImage: normalIcon,
-            selectedImage: selectedIcon
-        )
-
-        return navigationController
-    }
-
-    static func createPolkaswapController(wallet _: MetaAccountModel) -> UIViewController? {
-        let fakeSwapViewController = UIViewController()
-        fakeSwapViewController.tabBarItem.isEnabled = false
-        return fakeSwapViewController
-    }
-
-    static func createTabBarItem(
-        normalImage: UIImage?,
-        selectedImage: UIImage?
-    ) -> UITabBarItem {
         let tabBarItem = UITabBarItem(
-            title: nil,
-            image: normalImage,
-            selectedImage: selectedImage
+            title: destination.title,
+            image: normalIcon,
+            selectedImage: selectedIcon
         )
-
-        tabBarItem.imageInsets = UIEdgeInsets(top: 10, left: 0, bottom: -10, right: 0)
-        tabBarItem.title = nil
+        tabBarItem.accessibilityLabel = destination.title
 
         return tabBarItem
     }

@@ -53,6 +53,8 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
+        rootView.backButton.isHidden = navigationController?.viewControllers.first === self
+
         if keyboardHandler == nil {
             setupKeyboardHandler()
         }

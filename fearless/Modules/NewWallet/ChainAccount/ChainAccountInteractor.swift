@@ -28,6 +28,7 @@ final class ChainAccountInteractor {
     private let chainRegistry: ChainRegistryProtocol
 
     private var remoteFetchTimer: Timer?
+    private var hasLegacyCrowdloan = false
 
     init(
         wallet: MetaAccountModel,
@@ -59,7 +60,6 @@ final class ChainAccountInteractor {
         chainAssetFetching.fetch(
             shouldUseCache: true,
             filters: [
-                .assetNames([chainAsset.asset.symbol, "xc\(chainAsset.asset.symbol)"]),
                 .enabledChains,
                 .enabled(wallet: wallet)
             ],
@@ -71,7 +71,10 @@ final class ChainAccountInteractor {
 
             switch result {
             case let .success(availableChainAssets):
-                strongSelf.availableChainAssets = availableChainAssets
+                strongSelf.availableChainAssets = CuratedAssetRelationshipResolver.relatedChainAssets(
+                    to: strongSelf.chainAsset,
+                    among: availableChainAssets
+                )
             default:
                 strongSelf.availableChainAssets = []
             }
@@ -139,6 +142,17 @@ final class ChainAccountInteractor {
                 await MainActor.run(body: {
                     self.presenter?.didReceiveAssetFrozenError(error)
                 })
+            }
+
+            if self.chainAsset.chain.isRelaychain, self.chainAsset.isUtility {
+                let legacyLock = (try? await balanceLocksFetcher.fetchCrowdloanLocks(for: accountId)) ?? .zero
+                await MainActor.run {
+                    self.hasLegacyCrowdloan = legacyLock > .zero
+                }
+            } else {
+                await MainActor.run {
+                    self.hasLegacyCrowdloan = false
+                }
             }
         }
     }
@@ -214,8 +228,8 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     }
 
     func checkIsClaimAvailable() -> Bool {
-        guard
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
+        guard hasLegacyCrowdloan,
+              let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
         else {
             return false
         }

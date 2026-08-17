@@ -46,15 +46,76 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {
+        guard ReviewedXcmExecutionAuthority.isAvailable else {
+            presentCrossChainCapability(
+                title: "Cross-chain route unavailable",
+                message: ReviewedXcmExecutionAuthority.unavailableReason,
+                from: view
+            )
+            return
+        }
+
+        let chains = ChainRegistryFacade.sharedRegistry.availableChains
+        let routes = [
+            WalletXcmRouteProvider().origins(wallet: wallet, chains: chains),
+            LiberlandXcmRouteProvider().origins(wallet: wallet, chains: chains)
+        ]
+        .flatMap { $0 }
+        .filter {
+            $0.chainAsset.chain.chainId == chainAsset.chain.chainId &&
+                $0.chainAsset.asset.id == chainAsset.asset.id &&
+                $0.chainAsset.asset.precision == chainAsset.asset.precision
+        }
+
+        guard routes.count == 1, let route = routes.first else {
+            presentCrossChainCapability(
+                title: "No supported route",
+                message: "This exact network and canonical asset are not available through a reviewed Cross-chain provider.",
+                from: view
+            )
+            return
+        }
+        guard MultiChainFeaturePolicy.current.crossChainMutationsEnabled else {
+            presentCrossChainCapability(
+                title: "Cross-chain actions paused",
+                message: "Reviewed routes remain visible in the Cross-chain tab, but transfers are temporarily disabled by the remote safety switch.",
+                from: view
+            )
+            return
+        }
+        guard route.canSign else {
+            presentCrossChainCapability(
+                title: "Route unavailable",
+                message: route.unavailableReason ?? "This wallet cannot sign the selected route.",
+                from: view
+            )
+            return
+        }
         guard let controller = CrossChainAssembly.configureModule(
             with: chainAsset,
-            wallet: wallet
+            wallet: wallet,
+            reviewedRoute: route.reviewedContext
         )?.view.controller else {
+            presentCrossChainCapability(
+                title: "No supported route",
+                message: "The reviewed route no longer matches the current network registry.",
+                from: view
+            )
             return
         }
         let navigationController = FearlessNavigationController(rootViewController: controller)
 
         view?.controller.present(navigationController, animated: true)
+    }
+
+    private func presentCrossChainCapability(
+        title: String,
+        message: String,
+        from view: ControllerBackedProtocol?
+    ) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        view?.controller.present(alert, animated: true)
     }
 
     func presentReceiveFlow(

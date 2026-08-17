@@ -73,8 +73,14 @@ final class ChainAssetListAssembly {
             operationManager: OperationManagerFacade.sharedManager
         )
 
+        let dynamicChainRepository = ChainRepositoryFactory().createAsyncRepository()
         let tonJettonInjector = TonJettonInjectorImpl(
-            chainModelRepository: AsyncAnyRepository(ChainRepositoryFactory().createAsyncRepository()),
+            chainModelRepository: AsyncAnyRepository(dynamicChainRepository),
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared
+        )
+        let dynamicAssetCatalogInjector = DynamicAssetCatalogInjectorImpl(
+            chainModelRepository: AsyncAnyRepository(dynamicChainRepository),
             eventCenter: EventCenter.shared,
             logger: Logger.shared
         )
@@ -90,6 +96,7 @@ final class ChainAssetListAssembly {
             tonRemoteBalanceFetching: tonRemoteBalanceFetching,
             bitcoinBalanceSync: BitcoinBalanceSync(discovery: BitcoinReceiveDiscovery(client: BitcoinIndexerClient())),
             solanaBalanceSync: SolanaBalanceSync(client: SolanaIndexerClient()),
+            dynamicAssetCatalogInjector: dynamicAssetCatalogInjector,
             storagePerformer: storagePerformer
         )
 

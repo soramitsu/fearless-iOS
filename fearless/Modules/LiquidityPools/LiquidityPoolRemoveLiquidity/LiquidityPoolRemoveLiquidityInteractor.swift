@@ -138,6 +138,30 @@ extension LiquidityPoolRemoveLiquidityInteractor: LiquidityPoolRemoveLiquidityIn
     }
 
     func submit(removeLiquidityInfo: RemoveLiquidityInfo) {
+        guard MultiChainFeaturePolicy.current.polkaswapMutationsEnabled else {
+            output?.didReceiveSubmitError(
+                error: NSError(
+                    domain: "jp.co.soramitsu.fearless.liquidity",
+                    code: 1,
+                    userInfo: [
+                        NSLocalizedDescriptionKey: "Liquidity actions are temporarily disabled by the remote safety switch."
+                    ]
+                )
+            )
+            return
+        }
+        guard ReviewedLiquidityPoolExecutionAuthority.allowsSubmission(remoteEnabled: true) else {
+            output?.didReceiveSubmitError(
+                error: NSError(
+                    domain: "jp.co.soramitsu.fearless.liquidity",
+                    code: 2,
+                    userInfo: [
+                        NSLocalizedDescriptionKey: ReviewedLiquidityPoolExecutionAuthority.unavailableReason
+                    ]
+                )
+            )
+            return
+        }
         Task {
             do {
                 let hash = try await lpOperationService.submit(liquidityOperation: .substrateRemoveLiquidity(removeLiquidityInfo))

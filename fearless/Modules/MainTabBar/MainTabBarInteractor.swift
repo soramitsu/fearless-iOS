@@ -47,14 +47,24 @@ extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
         if keystoreImportService.definition != nil {
             presenter?.didRequestImportAccount()
         }
+        if let marketId = PolkamarktDeepLinkHandler.consumePending() {
+            presenter?.didRequestPolkamarkt(marketId: marketId)
+        }
     }
 }
 
 extension MainTabBarInteractor: EventVisitorProtocol {
-    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
         serviceCoordinator.updateOnAccountChange()
         DispatchQueue.main.async {
-            self.presenter?.didReloadSelectedAccount()
+            self.presenter?.didChangeSelectedAccount(event.account)
+        }
+    }
+
+    func processPolkamarktDeepLinkRequested(event: PolkamarktDeepLinkRequested) {
+        _ = PolkamarktDeepLinkHandler.consumePending()
+        DispatchQueue.main.async {
+            self.presenter?.didRequestPolkamarkt(marketId: event.marketId)
         }
     }
 }

@@ -733,6 +733,11 @@ extension ChainModelMapper: CoreDataMapperProtocol {
                 .compactMap(createPriceData(from:))
                 .sorted(by: Self.cachedPricePrecedes)
 
+            // Preserve every valid legacy row with its original fiat currency.
+            // The scalar copied onto AssetModel below is compatibility data only;
+            // typed lookups resolve through this exact-key cache.
+            ExactAssetPriceCache.shared.upsert(cachedPrices)
+
             guard let firstCachedPrice = cachedPrices.first else {
                 return asset
             }

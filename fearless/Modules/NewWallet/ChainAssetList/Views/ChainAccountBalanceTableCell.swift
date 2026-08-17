@@ -132,7 +132,11 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         setDeactivated(!viewModel.chainAsset.chain.isSupported)
         controlSkeleton(for: viewModel)
         chainIconsView.bind(viewModel: viewModel.chainIconViewViewModel)
-        rightMenuButtons = viewModel.hideButtonIsVisible ? [hideButton] : []
+        if viewModel.metadataTrust.trust != .verified {
+            rightMenuButtons = [hideButton, showButton]
+        } else {
+            rightMenuButtons = viewModel.hideButtonIsVisible ? [hideButton] : []
+        }
 
         locale = viewModel.locale
     }
@@ -238,7 +242,18 @@ extension ChainAccountBalanceTableCell: DeactivatableView {
 
 extension ChainAccountBalanceTableCell {
     private func controlSkeleton(for viewModel: ChainAccountBalanceCellViewModel) {
-        let chainName = viewModel.assetName?.uppercased()
+        let trustSuffix: String
+        switch viewModel.metadataTrust.trust {
+        case .verified:
+            trustSuffix = NSLocalizedString("portfolio.asset.verified", value: "Verified", comment: "")
+        case .unverified:
+            trustSuffix = NSLocalizedString("portfolio.asset.detected", value: "Detected", comment: "")
+        case .missing:
+            trustSuffix = NSLocalizedString("portfolio.asset.metadata_missing", value: "Metadata missing", comment: "")
+        }
+        let chainName = [viewModel.assetName?.uppercased(), trustSuffix.uppercased()]
+            .compactMap { $0 }
+            .joined(separator: " · ")
         let chainSymbol = viewModel.chainAsset.asset.symbolUppercased
         chainNameLabel.apply(state: .updating(chainName))
         balanceView.keyLabel.apply(state: .updating(chainSymbol))

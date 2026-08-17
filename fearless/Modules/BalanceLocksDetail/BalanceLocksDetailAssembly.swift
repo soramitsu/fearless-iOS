@@ -39,6 +39,7 @@ final class BalanceLocksDetailAssembly {
 
         let view = BalanceLocksDetailViewController(
             output: presenter,
+            isLegacyCrowdloanContext: chainAsset.chain.isRelaychain,
             localizationManager: localizationManager
         )
 

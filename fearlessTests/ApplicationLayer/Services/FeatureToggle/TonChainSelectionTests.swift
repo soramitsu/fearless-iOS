@@ -244,6 +244,79 @@ final class TonRemoteBalanceFetchingParsingTests: XCTestCase {
 
         XCTAssertEqual(value, .zero)
     }
+
+    func testSuccessfulJettonResponseZerosKnownOmissionsWithoutTouchingReturnedMaster() {
+        let chain = makeChain()
+        let returned = makeJetton(id: "master-returned", chain: chain)
+        let omitted = makeJetton(id: "master-omitted", chain: chain)
+
+        let reconciled = TonRemoteBalanceFetchingImpl.reconcileKnownJettons(
+            known: [returned, omitted],
+            fetched: [(returned, AccountInfo(ethBalance: BigUInt(42)))]
+        )
+        let values = Dictionary(uniqueKeysWithValues: reconciled.map {
+            ($0.0.assetKey, $0.1.data.sendAvailable)
+        })
+
+        XCTAssertEqual(values[returned.assetKey], BigUInt(42))
+        XCTAssertEqual(values[omitted.assetKey], .zero)
+    }
+
+    func testJettonReconciliationDoesNotMergeSameSymbolMasters() {
+        let chain = makeChain()
+        let first = makeJetton(id: "master-a", chain: chain)
+        let second = makeJetton(id: "master-b", chain: chain)
+
+        let reconciled = TonRemoteBalanceFetchingImpl.reconcileKnownJettons(
+            known: [first, second],
+            fetched: [(first, AccountInfo(ethBalance: BigUInt(7)))]
+        )
+
+        XCTAssertEqual(Set(reconciled.map { $0.0.assetKey }), Set([first.assetKey, second.assetKey]))
+        XCTAssertEqual(
+            reconciled.first { $0.0.assetKey == second.assetKey }?.1.data.sendAvailable,
+            .zero
+        )
+    }
+
+    private func makeChain() -> ChainModel {
+        ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: "ton:mainnet",
+            parentId: nil,
+            paraId: nil,
+            name: "TON",
+            assets: [],
+            xcm: nil,
+            nodes: [],
+            addressPrefix: 0,
+            types: nil,
+            icon: nil,
+            options: nil,
+            externalApi: nil,
+            selectedNode: nil,
+            customNodes: nil,
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+    }
+
+    private func makeJetton(id: String, chain: ChainModel) -> ChainAsset {
+        ChainAsset(
+            chain: chain,
+            asset: AssetModel(
+                id: id,
+                name: "Same symbol Jetton",
+                symbol: "SAME",
+                precision: 9,
+                currencyId: id,
+                isUtility: false,
+                isNative: false,
+                type: .xcm
+            )
+        )
+    }
 }
 
 final class AccountInfoRemoteServiceTests: XCTestCase {
@@ -399,7 +472,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         XCTAssertEqual(bitcoinSync.invocations.first?.gapLimit, UniversalWalletRegistry.bitcoinTestnet.defaultGapLimit)
     }
 
-    func testFetchAccountInfosFailsClosedForBitcoinWithoutMnemonicOrSubstrateStorage() async throws {
+    func testFetchAccountInfosUsesLimitedDirectAddressCoverageWithoutMnemonic() async throws {
         let chain = makeBitcoinChain()
         let wallet = try walletWithBitcoinAccount(chainId: chain.chainId)
         let bitcoinSync = BitcoinBalanceSyncStub(result: bitcoinBalanceResult(totalSats: 1))
@@ -412,8 +485,11 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
 
         let result = try await service.fetchAccountInfos(for: chain, wallet: wallet)
 
-        XCTAssertTrue(result.values.allSatisfy { $0 == nil })
+        let nativeInfo = try XCTUnwrap(result[Self.btcAsset.chainAssetId(chainId: chain.chainId)] ?? nil)
+        XCTAssertEqual(nativeInfo.data.free, BigUInt(1))
         XCTAssertEqual(bitcoinSync.invocations.count, 0)
+        XCTAssertEqual(bitcoinSync.addressInvocations.count, 1)
+        XCTAssertEqual(bitcoinSync.addressInvocations.first?.network, .mainnet)
         XCTAssertEqual(storagePerformer.performMixInvocations, 0)
     }
 
@@ -659,6 +735,61 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         XCTAssertEqual(client.accountAssetsInvocations.count, 1)
         let expectedBalance = try XCTUnwrap(BigUInt("2000000000000000000"))
         XCTAssertEqual(result?.data.free, expectedBalance)
+    }
+
+    func testFetchAccountInfosPaginatesIrohaHoldingsBeyondFiveHundredItems() async throws {
+        let chain = makeIrohaChain(
+            chainId: UniversalWalletRegistry.taira.chainId,
+            assets: [Self.irohaToriiAsset]
+        )
+        let wallet = try walletWithIrohaAccount(chainId: chain.chainId)
+        let address = try IrohaKeyDerivation.deriveAddress(
+            mnemonic: Self.mnemonic,
+            chainDiscriminant: UniversalWalletRegistry.taira.chainDiscriminant
+        ).i105
+        let firstPageItems = (0 ..< IrohaToriiRoutes.maxLimit).map { _ in
+            IrohaAccountAssetListItem(
+                accountID: address,
+                asset: Self.irohaToriiAsset.id,
+                assetID: nil,
+                assetName: nil,
+                assetAlias: nil,
+                quantity: "0.001",
+                scope: "global"
+            )
+        }
+        let finalItem = IrohaAccountAssetListItem(
+            accountID: address,
+            asset: Self.irohaToriiAsset.id,
+            assetID: nil,
+            assetName: nil,
+            assetAlias: nil,
+            quantity: "1",
+            scope: "bonus"
+        )
+        let client = IrohaToriiClientStub(
+            accountAssetsResponses: [
+                IrohaAccountAssetListResponse(
+                    items: firstPageItems,
+                    hasMore: true,
+                    countMode: IrohaToriiCountMode.bounded.rawValue,
+                    total: 501
+                ),
+                IrohaAccountAssetListResponse(
+                    items: [finalItem],
+                    hasMore: false,
+                    countMode: IrohaToriiCountMode.bounded.rawValue,
+                    total: 501
+                )
+            ]
+        )
+        let service = makeAccountInfoRemoteService(irohaToriiClient: client)
+
+        let result = try await service.fetchAccountInfos(for: chain, wallet: wallet)
+
+        XCTAssertEqual(client.accountAssetsInvocations.map(\.offset), [0, 500])
+        let balance = try XCTUnwrap(result[Self.irohaToriiAsset.chainAssetId(chainId: chain.chainId)] ?? nil)
+        XCTAssertEqual(balance.data.free, BigUInt("1500000000000000000"))
     }
 
     func testFetchAccountInfosFailsClosedForIrohaChainsWithoutSubstrateStorage() async throws {
@@ -3509,7 +3640,11 @@ final class CrossChainConfirmationViewModelFactoryTests: XCTestCase {
             originChainFee: BalanceViewModel(amount: "0.01", price: nil),
             destChainFee: BalanceViewModel(amount: "0.02", price: nil),
             destChainFeeDecimal: Decimal(string: "0.02") ?? .zero,
-            recipientAddress: "recipient-address"
+            recipientAddress: "recipient-address",
+            reviewedRoute: ReviewedCrossChainRouteContext(
+                definition: ReviewedXcmRouteRegistry.routes[0],
+                providerId: "polkaswap-sora-substrate"
+            )
         )
     }
 
@@ -3621,9 +3756,17 @@ private final class BitcoinBalanceSyncStub: BitcoinBalanceSyncing {
         let maxLookahead: Int
     }
 
+    struct AddressInvocation: Equatable {
+        let address: String
+        let network: BitcoinKeyDerivation.Network
+        let baseURL: String?
+    }
+
     private let result: BitcoinBalanceSyncResult
+    private let addressResult: BitcoinAddressBalanceResult
     private let error: Error?
     private(set) var invocations: [Invocation] = []
+    private(set) var addressInvocations: [AddressInvocation] = []
 
     init(
         result: BitcoinBalanceSyncResult = BitcoinBalanceSyncResult(
@@ -3640,9 +3783,15 @@ private final class BitcoinBalanceSyncStub: BitcoinBalanceSyncing {
                 usedAddresses: []
             )
         ),
+        addressResult: BitcoinAddressBalanceResult? = nil,
         error: Error? = nil
     ) {
         self.result = result
+        self.addressResult = addressResult ?? BitcoinAddressBalanceResult(
+            confirmedSats: result.confirmedSats,
+            mempoolSats: result.mempoolSats,
+            totalSats: result.totalSats
+        )
         self.error = error
     }
 
@@ -3670,6 +3819,18 @@ private final class BitcoinBalanceSyncStub: BitcoinBalanceSyncing {
         }
 
         return result
+    }
+
+    func balance(
+        address: String,
+        network: BitcoinKeyDerivation.Network,
+        baseURL: String?
+    ) async throws -> BitcoinAddressBalanceResult {
+        addressInvocations.append(
+            AddressInvocation(address: address, network: network, baseURL: baseURL)
+        )
+        if let error { throw error }
+        return addressResult
     }
 }
 
@@ -3753,7 +3914,7 @@ private final class IrohaToriiClientStub: IrohaToriiClientProtocol {
         let network: UniversalWalletRegistry.IrohaNetwork
     }
 
-    private let accountAssetsResponse: IrohaAccountAssetListResponse
+    private var accountAssetsResponses: [IrohaAccountAssetListResponse]
     private let accountAssetsError: Error?
     private(set) var accountAssetsInvocations: [AccountAssetsInvocation] = []
 
@@ -3764,9 +3925,10 @@ private final class IrohaToriiClientStub: IrohaToriiClientProtocol {
             countMode: IrohaToriiCountMode.bounded.rawValue,
             total: 0
         ),
+        accountAssetsResponses: [IrohaAccountAssetListResponse]? = nil,
         accountAssetsError: Error? = nil
     ) {
-        self.accountAssetsResponse = accountAssetsResponse
+        self.accountAssetsResponses = accountAssetsResponses ?? [accountAssetsResponse]
         self.accountAssetsError = accountAssetsError
     }
 
@@ -3818,7 +3980,10 @@ private final class IrohaToriiClientStub: IrohaToriiClientProtocol {
             throw accountAssetsError
         }
 
-        return accountAssetsResponse
+        guard accountAssetsResponses.isNotEmpty else {
+            throw AccountInfoRemoteServiceStubError.notImplemented
+        }
+        return accountAssetsResponses.removeFirst()
     }
 
     func assetDefinitions(baseURL _: String?) async throws -> IrohaAssetDefinitionListResponse {

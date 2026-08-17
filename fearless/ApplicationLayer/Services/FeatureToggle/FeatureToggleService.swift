@@ -35,6 +35,7 @@ final class FeatureToggleProvider {
             try setup()
         } catch {
             snapshot = FeatureToggleConfig.defaultConfig
+            MultiChainFeaturePolicy.update(FeatureToggleConfig.defaultConfig)
         }
     }
 
@@ -89,6 +90,8 @@ final class FeatureToggleProvider {
     }
 
     private func complete(with snapshot: FeatureToggleConfig) {
+        MultiChainFeaturePolicy.update(snapshot)
+
         stateLock.lock()
         self.snapshot = snapshot
         let requests = pendingRequests

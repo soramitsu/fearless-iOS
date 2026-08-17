@@ -115,6 +115,48 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         view?.controller.present(navigation, animated: true)
     }
 
+    func showNetworkAssets(from view: ControllerBackedProtocol?, wallet: MetaAccountModel) {
+        guard let module = NetworkManagmentAssembly.configureModule(
+            wallet: wallet,
+            chains: nil,
+            contextTag: nil,
+            moduleOutput: nil
+        ) else {
+            return
+        }
+
+        view?.controller.present(module.view.controller, animated: true)
+    }
+
+    func showTonConnectCapability(from view: ControllerBackedProtocol?, hasTonAccount: Bool) {
+        let message: String
+        if hasTonAccount {
+            message = NSLocalizedString(
+                "settings.tonconnect.unavailable",
+                value: "This wallet has a TON account. TonConnect sessions are not supported in this build yet; WalletConnect remains available separately.",
+                comment: ""
+            )
+        } else {
+            message = NSLocalizedString(
+                "settings.tonconnect.account_required",
+                value: "This wallet does not have a TON account. Add one in Wallets & Accounts. TonConnect sessions are not supported in this build yet.",
+                comment: ""
+            )
+        }
+        let alert = UIAlertController(
+            title: "TonConnect",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(
+            UIAlertAction(
+                title: NSLocalizedString("common.ok", value: "OK", comment: ""),
+                style: .default
+            )
+        )
+        view?.controller.present(alert, animated: true)
+    }
+
     // MARK: Private
 
     private func showPinSetup(from view: ProfileViewProtocol?) {

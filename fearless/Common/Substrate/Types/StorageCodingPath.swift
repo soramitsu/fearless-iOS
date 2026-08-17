@@ -154,6 +154,18 @@ enum StorageCodingPath: Equatable, CaseIterable, StorageCodingPathProtocol {
             return (moduleName: "Staking", itemName: "ErasStakersPaged")
         case .erasStakersOverview:
             return (moduleName: "Staking", itemName: "ErasStakersOverview")
+        case .polkamarktMarkets:
+            return (moduleName: "Polkamarkt", itemName: "Markets")
+        case .polkamarktConditions:
+            return (moduleName: "Polkamarkt", itemName: "Conditions")
+        case .polkamarktConditionDetails:
+            return (moduleName: "Polkamarkt", itemName: "ConditionDetails")
+        case .demeterPools:
+            return (moduleName: "DemeterFarmingPlatform", itemName: "Pools")
+        case .demeterTokenInfos:
+            return (moduleName: "DemeterFarmingPlatform", itemName: "TokenInfos")
+        case .demeterUserInfos:
+            return (moduleName: "DemeterFarmingPlatform", itemName: "UserInfos")
         }
     }
 
@@ -228,4 +240,10 @@ enum StorageCodingPath: Equatable, CaseIterable, StorageCodingPathProtocol {
     case erasValidatorReward
     case erasStakersPaged
     case erasStakersOverview
+    case polkamarktMarkets
+    case polkamarktConditions
+    case polkamarktConditionDetails
+    case demeterPools
+    case demeterTokenInfos
+    case demeterUserInfos
 }

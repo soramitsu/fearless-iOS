@@ -19,11 +19,8 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
             [MetaAccountId: WalletBalanceInfo]()
         ) { (result, wallet) -> [MetaAccountId: WalletBalanceInfo]? in
 
-            let splitedChainAssets = split(chainAssets, for: wallet)
-            let enabledChainAssets = splitedChainAssets.enabled
-
             let enabledAssetFiatBalanceInfo = countBalance(
-                for: enabledChainAssets,
+                for: chainAssets,
                 wallet,
                 accountInfos
             )
@@ -99,25 +96,6 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         )
     }
 
-    private func split(
-        _ chainAssets: [ChainAsset],
-        for metaAccount: MetaAccountModel
-    ) -> (enabled: [ChainAsset], disabled: [ChainAsset]) {
-        var enabledChainAssets: [ChainAsset] = []
-        var disabledChainAssets: [ChainAsset] = []
-
-        chainAssets.forEach { chainAsset in
-            let assetsVisibility = metaAccount.assetsVisibility
-            if assetsVisibility.first(where: { $0.assetId == chainAsset.identifier })?.hidden == true {
-                disabledChainAssets.append(chainAsset)
-            } else {
-                enabledChainAssets.append(chainAsset)
-            }
-        }
-
-        return (enabled: enabledChainAssets, disabled: disabledChainAssets)
-    }
-
     private func getFiatBalance(
         for chainAsset: ChainAsset,
         _ accountInfo: AccountInfo?,
@@ -128,8 +106,12 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
             accountInfo
         )
 
-        guard let priceData = chainAsset.asset.getPrice(for: currency),
-              let priceDecimal = Decimal(string: priceData.price)
+        guard AssetTrustResolver.priceTrust(
+            for: chainAsset,
+            currency: currency
+        ).contributesToPortfolioTotal,
+            let priceData = chainAsset.asset.getPrice(for: currency),
+            let priceDecimal = Decimal(string: priceData.price)
         else {
             return AssetFiatBalanceInfo(total: .zero, dayChange: .zero)
         }

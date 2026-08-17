@@ -679,6 +679,15 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
     }
 
     func didTapPreviewButton() {
+        guard MultiChainFeaturePolicy.current.polkaswapMutationsEnabled else {
+            router.presentInfo(
+                message: "Swaps are temporarily disabled by the remote safety switch. Your balances and market data remain available.",
+                title: "Polkaswap actions paused",
+                from: view
+            )
+            return
+        }
+
         guard let networkFee = networkFee,
               let params = preparePreviewParams(),
               let amounts = calcalatedAmounts

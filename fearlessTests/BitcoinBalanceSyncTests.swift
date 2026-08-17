@@ -20,7 +20,30 @@ final class BitcoinBalanceSyncTests: XCTestCase {
         XCTAssertEqual(result.mempoolSats, 7)
         XCTAssertEqual(result.totalSats, 20)
         XCTAssertEqual(result.usedAddresses.map(\.index), [0, 1])
-        XCTAssertEqual(client.addressCalls.count, 4)
+        XCTAssertEqual(client.addressCalls.count, 6)
+    }
+
+    func testIncludesFundsDiscoveredOnBip84ChangeBranch() async throws {
+        let receiveAddress = try Self.address(index: 0, change: 0)
+        let changeAddress = try Self.address(index: 0, change: 1)
+        let client = FakeBitcoinIndexerClient(balances: [
+            receiveAddress: AddressBalance(confirmedSats: 10, mempoolSats: 0),
+            changeAddress: AddressBalance(confirmedSats: 25, mempoolSats: 2)
+        ])
+        let balanceSync = BitcoinBalanceSync(discovery: BitcoinReceiveDiscovery(client: client))
+
+        let result = try await balanceSync.balance(
+            mnemonic: Self.mnemonic,
+            gapLimit: 1,
+            maxLookahead: 4
+        )
+
+        XCTAssertEqual(result.confirmedSats, 35)
+        XCTAssertEqual(result.mempoolSats, 2)
+        XCTAssertEqual(Set(result.usedAddresses.map(\.path)), Set([
+            try BitcoinKeyDerivation.getReceivePath(index: 0, change: 0),
+            try BitcoinKeyDerivation.getReceivePath(index: 0, change: 1)
+        ]))
     }
 
     func testRejectsBalanceOverflowAcrossDiscoveredAddresses() async throws {
@@ -162,6 +185,13 @@ final class BitcoinBalanceSyncTests: XCTestCase {
 
             return (address, entry.value)
         })
+    }
+
+    private static func address(index: UInt32, change: UInt32) throws -> String {
+        try BitcoinKeyDerivation.deriveKey(
+            mnemonic: mnemonic,
+            derivationPath: BitcoinKeyDerivation.getReceivePath(index: index, change: change)
+        ).address
     }
 
     private static func addressStats(

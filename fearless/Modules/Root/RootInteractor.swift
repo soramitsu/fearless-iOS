@@ -462,8 +462,13 @@ final class RootInteractor {
             callbackUrl: callbackUrl,
             eventCenter: eventCenter
         )
+        let polkamarktDeepLinkHandler = PolkamarktDeepLinkHandler(eventCenter: eventCenter)
 
-        URLHandlingService.shared.setup(children: [purchaseHandler, keystoreImportService])
+        URLHandlingService.shared.setup(children: [
+            purchaseHandler,
+            polkamarktDeepLinkHandler,
+            keystoreImportService
+        ])
     }
 
     private func runMigrators() throws {

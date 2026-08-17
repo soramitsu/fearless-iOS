@@ -13,7 +13,9 @@ protocol ChainAssetListViewModelFactoryProtocol {
         chainsWithIssue: [ChainIssue],
         shouldRunManageAssetAnimate: Bool,
         displayType: AssetListDisplayType,
-        chainSettings: [ChainSettings]
+        chainSettings: [ChainSettings],
+        networkFilter: NetworkManagmentFilter?,
+        search: String?
     ) -> ChainAssetListViewModel
 }
 
@@ -34,27 +36,38 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         chainsWithIssue: [ChainIssue],
         shouldRunManageAssetAnimate: Bool,
         displayType: AssetListDisplayType,
-        chainSettings: [ChainSettings]
+        chainSettings: [ChainSettings],
+        networkFilter: NetworkManagmentFilter?,
+        search: String?
     ) -> ChainAssetListViewModel {
-        let enabledChainAssets = enabledOrDefault(chainAssets: chainAssets, for: wallet)
-
-        let assetChainAssetsArray = createAssetChainAssets(
-            from: enabledChainAssets,
+        let displayedChainAssets = filterChainAssets(
+            with: networkFilter,
+            chainAssets: chainAssets,
+            wallet: wallet,
+            search: search
+        )
+        let sectionChainAssets = filterChainAssets(
+            with: networkFilter,
+            chainAssets: chainAssets,
+            wallet: wallet,
+            search: nil
+        )
+        let enabledChainAssets = portfolioAssets(
+            from: displayedChainAssets,
             accountInfos: accountInfos,
             wallet: wallet
         )
 
-        let sortedAssetChainAssets = sortAssetList(
-            wallet: wallet,
-            assetChainAssetsArray: assetChainAssetsArray
-        )
-
-        let chainAssetCellModels: [ChainAccountBalanceCellViewModel] = sortedAssetChainAssets.compactMap { assetChainAssets in
-            let priceData = assetChainAssets.mainChainAsset.asset.getPrice(for: wallet.selectedCurrency)
+        let chainAssetCellModels: [ChainAccountBalanceCellViewModel] = enabledChainAssets.compactMap { chainAsset in
+            let metadataTrust = AssetTrustResolver.metadataTrust(for: chainAsset)
+            let priceData = metadataTrust.trust == .verified
+                ? chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+                : nil
 
             return buildChainAccountBalanceCellViewModel(
-                chainAssets: assetChainAssets.chainAssets,
-                chainAsset: assetChainAssets.mainChainAsset,
+                chainAssets: [chainAsset],
+                chainAsset: chainAsset,
+                metadataTrust: metadataTrust,
                 priceData: priceData,
                 accountInfos: accountInfos,
                 locale: locale,
@@ -63,26 +76,212 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 displayType: displayType
             )
         }
+        let networkSections = buildNetworkSections(
+            cells: chainAssetCellModels,
+            sectionChainAssets: sectionChainAssets,
+            catalogChainAssets: chainAssets,
+            accountInfos: accountInfos,
+            wallet: wallet,
+            locale: locale
+        )
 
-        let isColdBoot = wallet.assetsVisibility.isEmpty
+        let isColdBoot = chainAssets.allSatisfy {
+            AssetVisibilityPreferenceStore.preference(
+                walletId: wallet.metaId,
+                assetKey: $0.assetKey
+            ) == .auto
+        }
         let shouldRunManageAssetAnimate = shouldRunManageAssetAnimate && !isColdBoot
 
         let displayState: AssetListState = createDisplayState(
             wallet: wallet,
             displayType: displayType,
-            chainAssets: chainAssets,
+            chainAssets: displayedChainAssets,
             chainsWithIssue: chainsWithIssue,
             chainSettings: chainSettings,
             shouldRunManageAssetAnimate: shouldRunManageAssetAnimate,
             cells: chainAssetCellModels
         )
         let viewModel = ChainAssetListViewModel(
-            displayState: displayState
+            displayState: displayState,
+            networkSections: networkSections
         )
         return viewModel
     }
 
     // MARK: - Private methods
+
+    private func portfolioAssets(
+        from chainAssets: [ChainAsset],
+        accountInfos: [ChainAssetKey: AccountInfo?],
+        wallet: MetaAccountModel
+    ) -> [ChainAsset] {
+        chainAssets.filter { chainAsset in
+            let preference = AssetVisibilityPreferenceStore.preference(
+                walletId: wallet.metaId,
+                assetKey: chainAsset.assetKey
+            )
+            guard let account = wallet.fetch(for: chainAsset.chain.accountRequest()),
+                  preference != .hidden else {
+                return false
+            }
+
+            let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: account.accountId)] ?? nil
+            let balance = getBalance(for: chainAsset, accountInfo: accountInfo)
+            let isPinnedDefault = chainAsset.asset.isUtility && (
+                chainAsset.chain.rank != nil ||
+                    wallet.favouriteChainIds.contains(chainAsset.chain.chainId)
+            )
+            let isShadowedDetection = MultiChainFeaturePolicy.current.assetDiscoveryShadowMode &&
+                preference == .auto &&
+                AssetTrustResolver.metadataTrust(for: chainAsset).trust != .verified
+
+            guard !isShadowedDetection else {
+                return false
+            }
+
+            return balance > .zero || isPinnedDefault
+        }
+        .sorted {
+            ($0.chain.name, $0.asset.symbolUppercased, $0.identifier) <
+                ($1.chain.name, $1.asset.symbolUppercased, $1.identifier)
+        }
+    }
+
+    private func buildNetworkSections(
+        cells: [ChainAccountBalanceCellViewModel],
+        sectionChainAssets: [ChainAsset],
+        catalogChainAssets: [ChainAsset],
+        accountInfos: [ChainAssetKey: AccountInfo?],
+        wallet: MetaAccountModel,
+        locale: Locale
+    ) -> [AssetNetworkSectionViewModel] {
+        let groupedCells = Dictionary(grouping: cells) { $0.chainAsset.chain.chainId }
+        let catalogByChain = Dictionary(grouping: catalogChainAssets) { $0.chain.chainId }
+        let sectionAssetsByChain = Dictionary(grouping: sectionChainAssets) { $0.chain.chainId }
+
+        return sectionAssetsByChain.compactMap { chainId, sectionAssets -> (Bool, Decimal, String, [AssetNetworkSectionViewModel])? in
+            guard let chain = sectionAssets.first?.chain else {
+                return nil
+            }
+
+            let cells = groupedCells[chainId] ?? []
+            let detectedCells = cells.filter { cell in
+                guard cell.metadataTrust.trust != .verified else {
+                    return false
+                }
+
+                return AssetVisibilityPreferenceStore.preference(
+                    walletId: wallet.metaId,
+                    assetKey: cell.chainAsset.assetKey
+                ) == .auto
+            }
+            let detectedAssetKeys = Set(detectedCells.map { $0.chainAsset.assetKey })
+            let visibleCells = cells.filter { !detectedAssetKeys.contains($0.chainAsset.assetKey) }
+            let hasPositiveHolding = (catalogByChain[chainId] ?? []).contains { chainAsset in
+                let accountInfo = wallet.fetch(for: chain.accountRequest()).flatMap { account in
+                    accountInfos[chainAsset.uniqueKey(accountId: account.accountId)] ?? nil
+                }
+                return getBalance(for: chainAsset, accountInfo: accountInfo) > .zero
+            }
+            let hasPinnedDefault = sectionAssets.contains {
+                $0.asset.isUtility && (
+                    $0.chain.rank != nil ||
+                        wallet.favouriteChainIds.contains($0.chain.chainId)
+                )
+            }
+
+            guard cells.isNotEmpty || hasPositiveHolding || hasPinnedDefault else {
+                return nil
+            }
+            let subtotal = (catalogByChain[chainId] ?? []).reduce(Decimal.zero) { result, chainAsset in
+                guard AssetTrustResolver.metadataTrust(for: chainAsset).trust == .verified else {
+                    return result
+                }
+                let accountInfo = wallet.fetch(for: chain.accountRequest()).flatMap { account in
+                    accountInfos[chainAsset.uniqueKey(accountId: account.accountId)] ?? nil
+                }
+                guard getBalance(for: chainAsset, accountInfo: accountInfo) > .zero else {
+                    return result
+                }
+                guard AssetTrustResolver.priceTrust(
+                    for: chainAsset,
+                    currency: wallet.selectedCurrency
+                ).contributesToPortfolioTotal else {
+                    return result
+                }
+                return result + getFiatBalance(
+                    for: chainAsset,
+                    accountInfo: accountInfo,
+                    priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+                )
+            }
+            let formattedSubtotal = subtotal > .zero
+                ? fiatFormatter(for: wallet.selectedCurrency, locale: locale).stringFromDecimal(subtotal)
+                : nil
+            let scanState = NetworkScanStateStore.state(for: chain, walletId: wallet.metaId)
+            let mainSection = AssetNetworkSectionViewModel(
+                id: chain.chainId,
+                chainId: chain.chainId,
+                kind: .assets,
+                networkName: chain.name,
+                ecosystemName: ecosystemName(for: chain),
+                address: wallet.fetch(for: chain.accountRequest())?.toAddress(),
+                fiatSubtotal: formattedSubtotal,
+                syncStatus: scanState.displayText,
+                detectedCount: detectedCells.count,
+                rows: visibleCells.sorted {
+                    ($0.chainAsset.asset.symbolUppercased, $0.chainAsset.identifier) <
+                        ($1.chainAsset.asset.symbolUppercased, $1.chainAsset.identifier)
+                }
+            )
+            let detectedSection = detectedCells.isEmpty ? nil : AssetNetworkSectionViewModel(
+                id: [chain.chainId, "detected"].joined(separator: ":"),
+                chainId: chain.chainId,
+                kind: .detected,
+                networkName: chain.name,
+                ecosystemName: ecosystemName(for: chain),
+                address: nil,
+                fiatSubtotal: nil,
+                syncStatus: scanState.displayText,
+                detectedCount: detectedCells.count,
+                rows: detectedCells.sorted {
+                    ($0.chainAsset.asset.symbolUppercased, $0.chainAsset.identifier) <
+                        ($1.chainAsset.asset.symbolUppercased, $1.chainAsset.identifier)
+                }
+            )
+            return (subtotal > .zero, subtotal, chain.name, [mainSection, detectedSection].compactMap { $0 })
+        }
+        .sorted { lhs, rhs in
+            if lhs.0 != rhs.0 {
+                return lhs.0 && !rhs.0
+            }
+            if lhs.0, lhs.1 != rhs.1 {
+                return lhs.1 > rhs.1
+            }
+
+            return lhs.2.localizedCaseInsensitiveCompare(rhs.2) == .orderedAscending
+        }
+        .flatMap { $0.3 }
+    }
+
+    private func ecosystemName(for chain: ChainModel) -> String {
+        let chainId = chain.chainId.lowercased()
+
+        if chain.isTonCompatibilityChain || chainId.hasPrefix("ton:") {
+            return "TON"
+        } else if chainId.hasPrefix("bitcoin:") {
+            return "Bitcoin"
+        } else if chainId.hasPrefix("solana:") {
+            return "Solana"
+        } else if chainId.hasPrefix("iroha") || chainId.hasPrefix("sora:nexus") {
+            return "Iroha"
+        } else if chain.isEthereumBased {
+            return "EVM"
+        } else {
+            return "Substrate"
+        }
+    }
 
     private func createDisplayState(
         wallet: MetaAccountModel,
@@ -125,6 +324,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
     private func buildChainAccountBalanceCellViewModel(
         chainAssets: [ChainAsset],
         chainAsset: ChainAsset,
+        metadataTrust: AssetMetadataTrustInfo,
         priceData: PriceData?,
         accountInfos: [ChainAssetKey: AccountInfo?],
         locale: Locale,
@@ -157,7 +357,6 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         let totalFiatBalance = getFiatBalanceString(
             for: chainAssets,
             accountInfos: accountInfos,
-            priceData: priceData,
             locale: locale,
             wallet: wallet,
             shouldShowZero: false
@@ -183,7 +382,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             chainImages: chainImages.sorted(by: { $0.url.absoluteString > $1.url.absoluteString }) + [mainChainImageUrl]
         )
 
-        var isColdBoot = wallet.assetsVisibility.isEmpty || !haveBalance
+        var isColdBoot = !haveBalance
         chainsWithIssue.forEach { issue in
             switch issue {
             case .network:
@@ -199,6 +398,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             assetContainsChainAssets: chainAssets,
             chainIconViewViewModel: chainIconsViewModel,
             chainAsset: chainAsset,
+            metadataTrust: metadataTrust,
             assetName: chainAsset.asset.name,
             assetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon),
             imageViewModel: (chainAsset.asset.icon ?? chainAsset.chain.icon).map { buildRemoteImageViewModel(url: $0) },
@@ -217,7 +417,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             options: options,
             isColdBoot: isColdBoot,
             locale: locale,
-            hideButtonIsVisible: displayType == AssetListDisplayType.chain
+            hideButtonIsVisible: displayType == AssetListDisplayType.chain || metadataTrust.trust != .verified
         )
 
         return viewModel

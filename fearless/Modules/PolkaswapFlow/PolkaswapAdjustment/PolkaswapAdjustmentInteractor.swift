@@ -251,10 +251,9 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
     }
 
     func fetchDisclaimerVisible() {
-        let isRead = userDefaultsStorage.bool(
-            for: PolkaswapDisclaimerKeys.polkaswapDisclaimerIsRead2.rawValue
-        ) ?? false
-        output?.didReceiveDisclaimer(isRead: isRead)
+        output?.didReceiveDisclaimer(
+            isRead: PolkaswapDisclaimerPolicy.isAccepted(in: userDefaultsStorage)
+        )
     }
 }
 

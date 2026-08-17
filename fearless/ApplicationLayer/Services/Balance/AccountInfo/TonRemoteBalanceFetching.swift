@@ -50,9 +50,13 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         let normalBalance = chainAccountInfos.normal
         let jettonBalances = chainAccountInfos.jettons
 
-        let jettonsAccountInfos = createJettonsAccountInfos(
+        let fetchedJettonsAccountInfos = createJettonsAccountInfos(
             jettonBalances: jettonBalances,
             chain: chain
+        )
+        let jettonsAccountInfos = Self.reconcileKnownJettons(
+            known: chainAssets.remainder,
+            fetched: fetchedJettonsAccountInfos
         )
         let jettonsAccountInfoMap = Dictionary(
             uniqueKeysWithValues: jettonsAccountInfos.map { ($0.0.chainAssetId, $0.1) }
@@ -89,7 +93,11 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
                 let walletAddress = jetton.item.walletAddress.toRaw()
                 return masterAddress == chainAsset.asset.id || walletAddress == chainAsset.asset.id
             }) else {
-                return nil
+                // A successful all-Jettons response is authoritative. An
+                // omitted known master has a zero balance; transport and decode
+                // failures throw above and therefore retain the cached value.
+                accountInfo = AccountInfo(ethBalance: .zero)
+                break
             }
             accountInfo = AccountInfo(ethBalance: jetton.quantity)
         case .none:
@@ -124,12 +132,16 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         )
         let normalBalance = chainAccountInfos.normal
         let jettonBalances = chainAccountInfos.jettons
-        let requestedAssetIds = Set(chainAssets.remainder.map(\.asset.id))
+        let requestedAssetKeys = Set(chainAssets.remainder.map(\.assetKey))
 
-        let jettonsAccountInfos = createJettonsAccountInfos(
+        let fetchedJettonsAccountInfos = createJettonsAccountInfos(
             jettonBalances: jettonBalances,
             chain: normal.chain
-        ).filter { requestedAssetIds.contains($0.0.asset.id) }
+        ).filter { requestedAssetKeys.contains($0.0.assetKey) }
+        let jettonsAccountInfos = Self.reconcileKnownJettons(
+            known: chainAssets.remainder,
+            fetched: fetchedJettonsAccountInfos
+        )
         let cacheValue = [(normal, normalBalance)] + jettonsAccountInfos
         try? cache(cacheValue, accountId: accountId)
 
@@ -182,7 +194,19 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
                 priceProvider: nil,
                 coingeckoPriceId: jetton.priceData.first?.coingeckoPriceId
             )
-            let chainAsset = ChainAsset(chain: chain, asset: asset)
+            let discoveredChainAsset = ChainAsset(chain: chain, asset: asset)
+            let existingChainAsset = chain.chainAssets.first { existing in
+                existing.assetKey == discoveredChainAsset.assetKey
+            }
+            let chainAsset = existingChainAsset ?? discoveredChainAsset
+
+            if existingChainAsset == nil ||
+                AssetTrustResolver.metadataTrust(for: chainAsset).provenance != .registry {
+                TonJettonMetadataTrust.apply(
+                    to: discoveredChainAsset,
+                    verification: jetton.item.jettonInfo.verification
+                )
+            }
             return (chainAsset, AccountInfo(ethBalance: jetton.quantity))
         }
         return jettonsAccountInfo
@@ -240,24 +264,19 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
 
         let balances = try response.ok.body.json.balances
 
-        let jettons: [TonJettonBalance] = balances.compactMap { jetton in
-            do {
-                guard let quantity = BigUInt(jetton.balance) else {
-                    return nil
-                }
-                let walletAddress = try TonSwift.Address.parse(jetton.wallet_address.address)
-                let jettonInfo = try TonJettonInfo(jettonPreview: jetton.jetton)
-                let jettonItem = TonJettonItem(jettonInfo: jettonInfo, walletAddress: walletAddress)
-                let rates = mapJettonRates(rates: jetton.price, currency: currency)
-                let jettonBalance = TonJettonBalance(
-                    item: jettonItem,
-                    quantity: quantity,
-                    priceData: rates
-                )
-                return jettonBalance
-            } catch {
-                return nil
+        let jettons: [TonJettonBalance] = try balances.map { jetton in
+            guard let quantity = BigUInt(jetton.balance) else {
+                throw TonRemoteBalanceFetchingError.balanceError
             }
+            let walletAddress = try TonSwift.Address.parse(jetton.wallet_address.address)
+            let jettonInfo = try TonJettonInfo(jettonPreview: jetton.jetton)
+            let jettonItem = TonJettonItem(jettonInfo: jettonInfo, walletAddress: walletAddress)
+            let rates = mapJettonRates(rates: jetton.price, currency: currency)
+            return TonJettonBalance(
+                item: jettonItem,
+                quantity: quantity,
+                priceData: rates
+            )
         }
 
         Task {
@@ -265,6 +284,23 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         }
 
         return jettons
+    }
+
+    /// Reconciles an authoritative successful response with the catalog known
+    /// at request time. Only success may synthesize zero; callers never invoke
+    /// this helper on endpoint/decode failure, preserving last-known balances.
+    static func reconcileKnownJettons(
+        known: [ChainAsset],
+        fetched: [(ChainAsset, AccountInfo)]
+    ) -> [(ChainAsset, AccountInfo)] {
+        let fetchedKeys = Set(fetched.map { $0.0.assetKey })
+        let omittedZeros = Dictionary(grouping: known, by: \.assetKey)
+            .compactMapValues(\.first)
+            .values
+            .filter { !fetchedKeys.contains($0.assetKey) }
+            .map { ($0, AccountInfo(ethBalance: .zero)) }
+
+        return fetched + omittedZeros
     }
 
     private func mapJettonRates(

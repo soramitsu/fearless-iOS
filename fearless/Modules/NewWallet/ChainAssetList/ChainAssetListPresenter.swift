@@ -21,6 +21,7 @@ final class ChainAssetListPresenter {
     private var chainSettings: [ChainSettings] = []
 
     private var networkFilter: NetworkManagmentFilter?
+    private var searchText: String?
 
     // MARK: - Constructors
 
@@ -59,7 +60,9 @@ final class ChainAssetListPresenter {
                 chainsWithIssue: chainsWithIssue,
                 shouldRunManageAssetAnimate: shouldRunManageAssetAnimate,
                 displayType: self.displayType,
-                chainSettings: chainSettings
+                chainSettings: chainSettings,
+                networkFilter: self.networkFilter,
+                search: self.searchText
             )
 
             DispatchQueue.main.async {
@@ -161,7 +164,9 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
             )
         case .hide:
             interactor.hideChainAsset(viewModel.chainAsset)
-        case .teleport, .show:
+        case .show:
+            interactor.showChainAsset(viewModel.chainAsset)
+        case .teleport:
             break
         }
     }
@@ -306,14 +311,20 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
         networkFilter: NetworkManagmentFilter?
     ) {
         self.networkFilter = networkFilter
-
-        let filteredByChain = filters.contains(where: { filter in
-            if case ChainAssetsFetching.Filter.chainId = filter {
-                return true
+        searchText = filters.compactMap { filter -> String? in
+            if case let .search(text) = filter {
+                return text
             }
 
-            return false
-        })
+            return nil
+        }.first
+
+        let filteredByChain: Bool
+        if let networkFilter, case .chain = networkFilter {
+            filteredByChain = true
+        } else {
+            filteredByChain = false
+        }
 
         let searchIsActive = filters.contains(where: { filter in
             if case ChainAssetsFetching.Filter.search = filter {
@@ -323,8 +334,6 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
             return false
         })
 
-        accountInfos = [:]
-
         if searchIsActive {
             displayType = .search
         } else if filteredByChain {
@@ -333,7 +342,9 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
             displayType = .assetChains
         }
 
-        interactor.updateChainAssets(using: filters, sorts: sorts, useCashe: true)
+        // Network and search filters are presentation-only. Always keep every
+        // enabled network subscribed so discovery cannot be disabled by UI state.
+        interactor.updateChainAssets(using: [], sorts: sorts, useCashe: true)
     }
 }
 

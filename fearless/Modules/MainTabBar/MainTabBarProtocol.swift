@@ -3,12 +3,11 @@ import WalletConnectSign
 
 protocol MainTabBarViewProtocol: ControllerBackedProtocol {
     func didReplaceView(for newView: UIViewController, for index: Int)
-    func presentFailedMemoView()
+    func openPolkamarkt(marketId: String)
 }
 
 protocol MainTabBarPresenterProtocol: AnyObject {
     func didLoad(view: MainTabBarViewProtocol)
-    func presentPolkaswap()
 }
 
 protocol MainTabBarInteractorInputProtocol: AnyObject {
@@ -16,15 +15,14 @@ protocol MainTabBarInteractorInputProtocol: AnyObject {
 }
 
 protocol MainTabBarInteractorOutputProtocol: AnyObject {
-    func didReloadSelectedAccount()
+    func didChangeSelectedAccount(_ account: MetaAccountModel)
     func didRequestImportAccount()
+    func didRequestPolkamarkt(marketId: String)
 }
 
 protocol MainTabBarWireframeProtocol: SheetAlertPresentable, AuthorizationAccessible, WarningPresentable, AppUpdatePresentable, PresentDismissable {
-    func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController?
+    func reloadWalletDependentViews(on view: MainTabBarViewProtocol?, wallet: MetaAccountModel)
     func presentAccountImport(on view: MainTabBarViewProtocol?)
-    func replaceStaking(on view: MainTabBarViewProtocol?, type: AssetSelectionStakingType, moduleOutput: StakingMainModuleOutput?)
-    func presentPolkaswap(on view: ControllerBackedProtocol?, wallet: MetaAccountModel)
 }
 
 protocol MainTabBarViewFactoryProtocol: AnyObject {
@@ -32,9 +30,4 @@ protocol MainTabBarViewFactoryProtocol: AnyObject {
         presentingWindow: ApplicationStatusPresentable?,
         dependencies: MainTabBarViewFactory.Dependencies
     ) -> MainTabBarViewProtocol?
-
-    static func reloadCrowdloanView(
-        on view: MainTabBarViewProtocol,
-        wallet: MetaAccountModel?
-    ) -> UIViewController?
 }

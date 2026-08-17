@@ -8,6 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		FA714002ABCDEF0123456789 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FA714001ABCDEF0123456789 /* PrivacyInfo.xcprivacy */; };
+		FF1000000000000000000001 /* MainTabBarDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000000000000000000001 /* MainTabBarDestination.swift */; };
+		FF1000000000000000000002 /* FeatureUnavailableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000000000000000000002 /* FeatureUnavailableViewController.swift */; };
+		FF1000000000000000000003 /* DeFiHubViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000000000000000000003 /* DeFiHubViewController.swift */; };
+		FF1000000000000000000004 /* CrossChainRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000000000000000000004 /* CrossChainRootViewController.swift */; };
+		FF1000000000000000000005 /* PolkamarktModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000000000000000000005 /* PolkamarktModule.swift */; };
+		FF1000000000000000000006 /* DemeterFarmingModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000000000000000000006 /* DemeterFarmingModule.swift */; };
 		002561414AF1F8F3B4B65538 /* WalletTransactionDetailsWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7416F3AFA5F4D1130B1C410 /* WalletTransactionDetailsWireframe.swift */; };
 		0077B6854FDCA7ECCD557B09 /* StakingPoolCreateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D651E438F86F37CC07D6D3F /* StakingPoolCreateViewController.swift */; };
 		00E9DD69FCE94A4F4929B419 /* AccountStatisticsProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BF646F59913E95891915BDC /* AccountStatisticsProtocols.swift */; };
@@ -805,6 +811,7 @@
 		846CA43324E3C6C3004F1B14 /* PincodeSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA43224E3C6C3004F1B14 /* PincodeSetupTests.swift */; };
 		846CA43724E3DB9C004F1B14 /* RootTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA43624E3DB9C004F1B14 /* RootTests.swift */; };
 		FBCC45042F21000100A11CE5 /* MainTabBarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBCC45032F21000100A11CE5 /* MainTabBarTests.swift */; };
+		FBCC45142F21000100A11CE5 /* ChainAssetListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBCC45132F21000100A11CE5 /* ChainAssetListTests.swift */; };
 		846CA7722707A3060011124C /* SingleToMultiasset.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 846CA7712707A3060011124C /* SingleToMultiasset.xcmappingmodel */; };
 		846CA77627090E990011124C /* StakingServiceFactoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA77527090E990011124C /* StakingServiceFactoryStub.swift */; };
 		846CA778270911920011124C /* StakingLocalSubscriptionFactoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA777270911920011124C /* StakingLocalSubscriptionFactoryStub.swift */; };
@@ -3953,6 +3960,7 @@
 		846CA43224E3C6C3004F1B14 /* PincodeSetupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PincodeSetupTests.swift; sourceTree = "<group>"; };
 		846CA43624E3DB9C004F1B14 /* RootTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTests.swift; sourceTree = "<group>"; };
 		FBCC45032F21000100A11CE5 /* MainTabBarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarTests.swift; sourceTree = "<group>"; };
+		FBCC45132F21000100A11CE5 /* ChainAssetListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetListTests.swift; sourceTree = "<group>"; };
 		846CA7712707A3060011124C /* SingleToMultiasset.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = SingleToMultiasset.xcmappingmodel; sourceTree = "<group>"; };
 		846CA77527090E990011124C /* StakingServiceFactoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingServiceFactoryStub.swift; sourceTree = "<group>"; };
 		846CA777270911920011124C /* StakingLocalSubscriptionFactoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingLocalSubscriptionFactoryStub.swift; sourceTree = "<group>"; };
@@ -4119,6 +4127,12 @@
 		849014CD24AA8F60008F705E /* MainTabBarProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabBarProtocol.swift; sourceTree = "<group>"; };
 		849014CE24AA8F60008F705E /* MainTabBarPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabBarPresenter.swift; sourceTree = "<group>"; };
 		849014CF24AA8F60008F705E /* MainTabBarViewFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabBarViewFactory.swift; sourceTree = "<group>"; };
+		FF2000000000000000000001 /* MainTabBarDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarDestination.swift; sourceTree = "<group>"; };
+		FF2000000000000000000002 /* FeatureUnavailableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureUnavailableViewController.swift; sourceTree = "<group>"; };
+		FF2000000000000000000003 /* DeFiHubViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeFiHubViewController.swift; sourceTree = "<group>"; };
+		FF2000000000000000000004 /* CrossChainRootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossChainRootViewController.swift; sourceTree = "<group>"; };
+		FF2000000000000000000005 /* PolkamarktModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkamarktModule.swift; sourceTree = "<group>"; };
+		FF2000000000000000000006 /* DemeterFarmingModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemeterFarmingModule.swift; sourceTree = "<group>"; };
 		849014D024AA8F60008F705E /* MainTabBarInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabBarInteractor.swift; sourceTree = "<group>"; };
 		849014D124AA8F60008F705E /* MainTabBarViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabBarViewController.swift; sourceTree = "<group>"; };
 		849014D224AA8F60008F705E /* MainTabBarWireframe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabBarWireframe.swift; sourceTree = "<group>"; };
@@ -7717,6 +7731,7 @@
 			isa = PBXGroup;
 			children = (
 				FBCC45052F21000100A11CE5 /* MainTabBar */,
+				FBCC45152F21000100A11CE5 /* ChainAssetList */,
 				FAF9C2B52AAF3FF100A61D21 /* GetPreinstalledWallet */,
 				FAD428A12A865635001D6A16 /* BackupPassword */,
 				FAD4289B2A865635001D6A16 /* BackupRiskWarnings */,
@@ -8975,6 +8990,14 @@
 			path = MainTabBar;
 			sourceTree = "<group>";
 		};
+		FBCC45152F21000100A11CE5 /* ChainAssetList */ = {
+			isa = PBXGroup;
+			children = (
+				FBCC45132F21000100A11CE5 /* ChainAssetListTests.swift */,
+			);
+			path = ChainAssetList;
+			sourceTree = "<group>";
+		};
 		846CD24B2656FE9D00A2E4B6 /* StorageQueryService */ = {
 			isa = PBXGroup;
 			children = (
@@ -9988,6 +10011,12 @@
 		849014CC24AA8F60008F705E /* MainTabBar */ = {
 			isa = PBXGroup;
 			children = (
+				FF2000000000000000000001 /* MainTabBarDestination.swift */,
+				FF2000000000000000000002 /* FeatureUnavailableViewController.swift */,
+				FF2000000000000000000003 /* DeFiHubViewController.swift */,
+				FF2000000000000000000004 /* CrossChainRootViewController.swift */,
+				FF2000000000000000000005 /* PolkamarktModule.swift */,
+				FF2000000000000000000006 /* DemeterFarmingModule.swift */,
 				FABA162C2B0C9504001AF2F0 /* TabBar.swift */,
 				849014CD24AA8F60008F705E /* MainTabBarProtocol.swift */,
 				849014CE24AA8F60008F705E /* MainTabBarPresenter.swift */,
@@ -17052,6 +17081,12 @@
 				FACD42B92A5BE90C009975AA /* InflationRewardCalculatorService.swift in Sources */,
 				07ED2EB92C341A0100FF7500 /* NodeApiKeyInjector.swift in Sources */,
 				849014DD24AA8F60008F705E /* MainTabBarViewFactory.swift in Sources */,
+				FF1000000000000000000001 /* MainTabBarDestination.swift in Sources */,
+				FF1000000000000000000002 /* FeatureUnavailableViewController.swift in Sources */,
+				FF1000000000000000000003 /* DeFiHubViewController.swift in Sources */,
+				FF1000000000000000000004 /* CrossChainRootViewController.swift in Sources */,
+				FF1000000000000000000005 /* PolkamarktModule.swift in Sources */,
+				FF1000000000000000000006 /* DemeterFarmingModule.swift in Sources */,
 				FA1D51D72BCFD445001353E7 /* LiquidityPools+ViewModel.swift in Sources */,
 				AE7129C12608CAE7000AA3F5 /* NetworkStakingInfo.swift in Sources */,
 				C6267B8D28BDF6A5001E31BF /* ChainAssetListAssembly.swift in Sources */,
@@ -19130,6 +19165,7 @@
 				F0A1B2C3D4E5F60718293A4C /* AssetRepositoryFactoryTests.swift in Sources */,
 				846CA43724E3DB9C004F1B14 /* RootTests.swift in Sources */,
 				FBCC45042F21000100A11CE5 /* MainTabBarTests.swift in Sources */,
+				FBCC45142F21000100A11CE5 /* ChainAssetListTests.swift in Sources */,
 				093C10C88C0A209158EA75D1 /* UsernameSetupTests.swift in Sources */,
 				AE2C1020267A67DD004AA8E9 /* CustomValidatorListTestDataGenerator.swift in Sources */,
 				84D9C41126CD361C004AB2AB /* SpecVersionSubscriptionTests.swift in Sources */,
@@ -19593,7 +19629,7 @@
 				CODE_SIGN_ENTITLEMENTS = fearless/WalletConnect.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution: Soramitsu Co., Ltd. (YLWWUD25VZ)";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2026.7.28;
+				CURRENT_PROJECT_VERSION = 2026.8.2;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = fearless/Info.plist;

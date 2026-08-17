@@ -22,14 +22,101 @@ final class BitcoinReceiveDiscovery {
         let resolvedGapLimit = gapLimit ?? Self.defaultGapLimit(for: network)
         try validateParams(mnemonic: mnemonic, gapLimit: resolvedGapLimit, maxLookahead: maxLookahead)
 
+        return try await discoverBranch(
+            mnemonic: mnemonic,
+            passphrase: passphrase,
+            network: network,
+            baseURL: baseURL,
+            gapLimit: resolvedGapLimit,
+            maxLookahead: maxLookahead,
+            change: 0
+        )
+    }
+
+    func discoverWallet(
+        mnemonic: String,
+        passphrase: String = "",
+        network: BitcoinKeyDerivation.Network = .mainnet,
+        baseURL: String? = nil,
+        gapLimit: Int? = nil,
+        maxLookahead: Int = BitcoinReceiveDiscovery.defaultMaxLookahead
+    ) async throws -> BitcoinReceiveDiscoveryResult {
+        let resolvedGapLimit = gapLimit ?? Self.defaultGapLimit(for: network)
+        try validateParams(mnemonic: mnemonic, gapLimit: resolvedGapLimit, maxLookahead: maxLookahead)
+
+        let receive = try await discoverBranch(
+            mnemonic: mnemonic,
+            passphrase: passphrase,
+            network: network,
+            baseURL: baseURL,
+            gapLimit: resolvedGapLimit,
+            maxLookahead: maxLookahead,
+            change: 0
+        )
+        let change = try await discoverBranch(
+            mnemonic: mnemonic,
+            passphrase: passphrase,
+            network: network,
+            baseURL: baseURL,
+            gapLimit: resolvedGapLimit,
+            maxLookahead: maxLookahead,
+            change: 1
+        )
+
+        return BitcoinReceiveDiscoveryResult(
+            addresses: receive.addresses + change.addresses,
+            gapLimit: resolvedGapLimit,
+            lastUsedIndex: receive.lastUsedIndex,
+            nextReceiveAddress: receive.nextReceiveAddress,
+            nextReceiveIndex: receive.nextReceiveIndex,
+            usedAddresses: receive.usedAddresses + change.usedAddresses
+        )
+    }
+
+    func balance(
+        address: String,
+        network: BitcoinKeyDerivation.Network,
+        baseURL: String? = nil
+    ) async throws -> BitcoinAddressBalanceResult {
+        let stats = try await client.address(
+            address: address,
+            network: network.indexerNetwork,
+            baseURL: baseURL
+        )
+        _ = try transactionCount(stats)
+
+        guard stats.confirmedSats >= 0, stats.totalSats >= 0 else {
+            throw BitcoinBalanceSyncError.invalidAddressBalance
+        }
+
+        return BitcoinAddressBalanceResult(
+            confirmedSats: stats.confirmedSats,
+            mempoolSats: stats.mempoolSats,
+            totalSats: stats.totalSats
+        )
+    }
+
+    private func discoverBranch(
+        mnemonic: String,
+        passphrase: String,
+        network: BitcoinKeyDerivation.Network,
+        baseURL: String?,
+        gapLimit: Int,
+        maxLookahead: Int,
+        change: UInt32
+    ) async throws -> BitcoinReceiveDiscoveryResult {
         let indexerNetwork = network.indexerNetwork
         var addresses: [BitcoinReceiveDiscoveredAddress] = []
         var consecutiveUnused = 0
         var index = 0
         var lastUsedIndex: Int?
 
-        while consecutiveUnused < resolvedGapLimit, index < maxLookahead {
-            let path = try BitcoinKeyDerivation.getReceivePath(network: network, index: UInt32(index))
+        while consecutiveUnused < gapLimit, index < maxLookahead {
+            let path = try BitcoinKeyDerivation.getReceivePath(
+                network: network,
+                index: UInt32(index),
+                change: change
+            )
             let address = try BitcoinKeyDerivation.deriveKey(
                 mnemonic: mnemonic,
                 passphrase: passphrase,
@@ -62,12 +149,16 @@ final class BitcoinReceiveDiscovery {
             index += 1
         }
 
-        guard consecutiveUnused >= resolvedGapLimit else {
+        guard consecutiveUnused >= gapLimit else {
             throw BitcoinReceiveDiscoveryError.lookaheadExhausted
         }
 
         let nextReceiveIndex = (lastUsedIndex ?? -1) + 1
-        let nextReceivePath = try BitcoinKeyDerivation.getReceivePath(network: network, index: UInt32(nextReceiveIndex))
+        let nextReceivePath = try BitcoinKeyDerivation.getReceivePath(
+            network: network,
+            index: UInt32(nextReceiveIndex),
+            change: change
+        )
         let nextReceiveAddress = try BitcoinKeyDerivation.deriveKey(
             mnemonic: mnemonic,
             passphrase: passphrase,
@@ -77,7 +168,7 @@ final class BitcoinReceiveDiscovery {
 
         return BitcoinReceiveDiscoveryResult(
             addresses: addresses,
-            gapLimit: resolvedGapLimit,
+            gapLimit: gapLimit,
             lastUsedIndex: lastUsedIndex,
             nextReceiveAddress: nextReceiveAddress,
             nextReceiveIndex: nextReceiveIndex,

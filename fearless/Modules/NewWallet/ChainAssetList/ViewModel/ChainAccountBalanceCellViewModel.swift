@@ -6,6 +6,7 @@ struct ChainAccountBalanceCellViewModel: Hashable {
     let assetContainsChainAssets: [ChainAsset]
     let chainIconViewViewModel: ChainCollectionViewModel
     let chainAsset: ChainAsset
+    let metadataTrust: AssetMetadataTrustInfo
     let assetName: String?
     let assetInfo: AssetBalanceDisplayInfo?
     let imageViewModel: RemoteImageViewModel?
@@ -29,6 +30,7 @@ extension ChainAccountBalanceCellViewModel: Equatable {
         lhs.assetContainsChainAssets == rhs.assetContainsChainAssets &&
             lhs.chainIconViewViewModel == rhs.chainIconViewViewModel &&
             lhs.chainAsset == rhs.chainAsset &&
+            lhs.metadataTrust == rhs.metadataTrust &&
             lhs.assetName == rhs.assetName &&
             lhs.assetInfo == rhs.assetInfo &&
             lhs.balanceString == rhs.balanceString &&

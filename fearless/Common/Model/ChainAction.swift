@@ -51,7 +51,11 @@ enum ChainAction {
         case .reefscan:
             return R.string.localizable.transactionDetailsViewReefscan(preferredLanguages: locale.rLanguages)
         case .claimCrowdloanRewards:
-            return R.string.localizable.poolStakingManagementClaimTitle(preferredLanguages: locale.rLanguages)
+            return NSLocalizedString(
+                "asset.legacy_crowdloan",
+                value: "Legacy crowdloan",
+                comment: "Contextual recovery action for a historical crowdloan lock"
+            )
         case .oklink:
             return R.string.localizable.transactionDetailsViewOklink(preferredLanguages: locale.rLanguages)
         }

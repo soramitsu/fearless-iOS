@@ -240,10 +240,12 @@ private extension ChainAssetsFetching {
         case let .assetNames(names):
             return chainAssets.filter { names.map { $0.lowercased() }.contains($0.asset.symbol.lowercased()) }
         case let .enabled(wallet):
-            let enabled: [String] = wallet.assetsVisibility
-                .filter { !$0.hidden }
-                .map { $0.assetId }
-            return chainAssets.filter { enabled.contains($0.identifier) }
+            return chainAssets.filter {
+                AssetVisibilityPreferenceStore.isSelectable(
+                    walletId: wallet.metaId,
+                    chainAsset: $0
+                )
+            }
         case .enabledChains:
             return chainAssets.filter { !$0.chain.disabled }
         }

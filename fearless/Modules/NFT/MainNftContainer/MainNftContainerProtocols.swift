@@ -3,7 +3,7 @@ import SSFModels
 typealias MainNftContainerModuleCreationResult = (view: MainNftContainerViewInput, input: MainNftContainerModuleInput)
 
 protocol MainNftContainerViewInput: ControllerBackedProtocol {
-    func didReceive(viewModels: [NftListCellModel]?)
+    func didReceive(viewModels: [NftNetworkSectionModel]?)
     func didReceive(appearance: NftCollectionAppearance)
 }
 

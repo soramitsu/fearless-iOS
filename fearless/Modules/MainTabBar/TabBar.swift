@@ -10,9 +10,19 @@ final class TabBarMiddleButton: UIButton {
             .tinted(with: R.color.colorPolkaswapPink()!)
         setImage(image, for: .normal)
         backgroundColor = R.color.colorWhite()
+        accessibilityLabel = MainTabBarDestination.polkaswap.title
+        accessibilityTraits = .button
         layer.shadowOpacity = 1
         layer.shadowColor = R.color.colorPolkaswapPink()?.cgColor
         layer.shadowRadius = 12
+    }
+
+    override var isSelected: Bool {
+        didSet {
+            layer.shadowOpacity = isSelected ? 1 : 0.45
+            transform = isSelected ? CGAffineTransform(scaleX: 1.05, y: 1.05) : .identity
+            accessibilityTraits = isSelected ? [.button, .selected] : .button
+        }
     }
 
     @available(*, unavailable)

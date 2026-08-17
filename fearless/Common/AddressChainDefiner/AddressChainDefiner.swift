@@ -76,11 +76,11 @@ final class AddressChainDefiner {
 
     private func chainIsEnabled(chain: ChainModel) -> Bool {
         let chainAssets = chain.chainAssets
-        let enabledAssetIds: [String] = wallet.assetsVisibility
-            .filter { !$0.hidden }
-            .map { $0.assetId }
-        let enabled = chainAssets.filter {
-            enabledAssetIds.contains($0.identifier)
+        let enabled = chainAssets.filter { chainAsset in
+            AssetVisibilityPreferenceStore.isSelectable(
+                walletId: wallet.metaId,
+                chainAsset: chainAsset
+            )
         }
         return enabled.isNotEmpty
     }

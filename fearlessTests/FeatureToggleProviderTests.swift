@@ -31,6 +31,28 @@ final class FeatureToggleProviderTests: XCTestCase {
 
         XCTAssertEqual(config.pendulumCaseEnabled, true)
         XCTAssertEqual(config.nftEnabled, false)
+        XCTAssertFalse(config.polkaswapMutationsEnabled)
+        XCTAssertFalse(config.demeterMutationsEnabled)
+        XCTAssertFalse(config.polkamarktMutationsEnabled)
+        XCTAssertFalse(config.crossChainMutationsEnabled)
+        XCTAssertTrue(config.assetDiscoveryShadowMode)
+    }
+
+    func testMultiChainFlagsDecodeWithoutChangingLegacyFields() throws {
+        let context = makeProvider(
+            networkPayload: Data(
+                #"{"pendulumCaseEnabled":true,"nftEnabled":true,"polkaswapMutationsEnabled":false,"demeterMutationsEnabled":true,"polkamarktMutationsEnabled":true,"crossChainMutationsEnabled":true,"assetDiscoveryShadowMode":false}"#.utf8
+            )
+        )
+        let config = try execute(context.provider.fetchConfigOperation(), on: context.fetchQueue)
+
+        XCTAssertEqual(config.pendulumCaseEnabled, true)
+        XCTAssertEqual(config.nftEnabled, true)
+        XCTAssertFalse(config.polkaswapMutationsEnabled)
+        XCTAssertTrue(config.demeterMutationsEnabled)
+        XCTAssertTrue(config.polkamarktMutationsEnabled)
+        XCTAssertTrue(config.crossChainMutationsEnabled)
+        XCTAssertFalse(config.assetDiscoveryShadowMode)
     }
 
     func testConcurrentPendingFetchesAllResolveExactlyOnce() throws {
@@ -133,6 +155,11 @@ final class FeatureToggleProviderTests: XCTestCase {
     ) {
         XCTAssertEqual(config.pendulumCaseEnabled, false, file: file, line: line)
         XCTAssertEqual(config.nftEnabled, true, file: file, line: line)
+        XCTAssertFalse(config.polkaswapMutationsEnabled, file: file, line: line)
+        XCTAssertFalse(config.demeterMutationsEnabled, file: file, line: line)
+        XCTAssertFalse(config.polkamarktMutationsEnabled, file: file, line: line)
+        XCTAssertFalse(config.crossChainMutationsEnabled, file: file, line: line)
+        XCTAssertTrue(config.assetDiscoveryShadowMode, file: file, line: line)
     }
 }
 

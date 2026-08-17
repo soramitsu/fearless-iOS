@@ -79,8 +79,11 @@ final class BalanceLocksDetailPresenter {
     private func provideCrowdloanViewModel() async {
         guard
             chainAsset.chain.isRelaychain,
-            let crowdloanLocks = crowdloanLocks.value
+            let receivedCrowdloanLocks = crowdloanLocks.value,
+            let crowdloanLocks = receivedCrowdloanLocks,
+            crowdloanLocks > .zero
         else {
+            await view?.didReceiveCrowdloanLocksViewModel(nil)
             return
         }
 

@@ -23,6 +23,11 @@ protocol AssetManagementInteractorInput: AnyObject {
         assetId: String,
         wallet: MetaAccountModel
     ) async -> MetaAccountModel
+    func change(
+        hidden: Bool,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) async -> MetaAccountModel
     func fetchAccountInfo(
         for chainAsset: ChainAsset,
         wallet: MetaAccountModel
@@ -31,6 +36,16 @@ protocol AssetManagementInteractorInput: AnyObject {
         for chainAssets: [ChainAsset],
         wallet: MetaAccountModel
     ) async -> MetaAccountModel
+}
+
+extension AssetManagementInteractorInput {
+    func change(
+        hidden: Bool,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) async -> MetaAccountModel {
+        await change(hidden: hidden, assetId: chainAsset.identifier, wallet: wallet)
+    }
 }
 
 final class AssetManagementPresenter {
@@ -160,7 +175,7 @@ extension AssetManagementPresenter: AssetManagementViewOutput {
                let cellViewModel = section.cells[safe: indexPath.row] {
                 let updatedWallet = await interactor.change(
                     hidden: cellViewModel.hidden.inverted(),
-                    assetId: cellViewModel.chainAsset.identifier,
+                    chainAsset: cellViewModel.chainAsset,
                     wallet: wallet
                 )
                 wallet = updatedWallet

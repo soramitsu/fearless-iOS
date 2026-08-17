@@ -426,6 +426,22 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityCon
     }
 
     func didTapConfirmButton() {
+        guard MultiChainFeaturePolicy.current.polkaswapMutationsEnabled else {
+            router.presentInfo(
+                message: "Liquidity actions are temporarily disabled by the remote safety switch.",
+                title: "Liquidity actions paused",
+                from: confirmView
+            )
+            return
+        }
+        guard ReviewedLiquidityPoolExecutionAuthority.allowsSubmission(remoteEnabled: true) else {
+            router.presentInfo(
+                message: ReviewedLiquidityPoolExecutionAuthority.unavailableReason,
+                title: "Liquidity actions unavailable",
+                from: confirmView
+            )
+            return
+        }
         guard let removeInfo else {
             return
         }

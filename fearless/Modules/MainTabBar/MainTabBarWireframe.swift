@@ -4,28 +4,12 @@ import WalletConnectSign
 import SoraFoundation
 
 final class MainTabBarWireframe: MainTabBarWireframeProtocol {
-    func presentPolkaswap(on view: ControllerBackedProtocol?, wallet: MetaAccountModel) {
-        guard
-            let tabBarController = view?.controller,
-            let viewController = PolkaswapAdjustmentAssembly.configureModule(chainAsset: nil, wallet: wallet)?.view.controller
-        else {
+    func reloadWalletDependentViews(on view: MainTabBarViewProtocol?, wallet: MetaAccountModel) {
+        guard let view else {
             return
         }
 
-        let navigationController = FearlessNavigationController(rootViewController: viewController)
-        let presentingController = tabBarController.topModalViewController
-        presentingController.present(navigationController, animated: true, completion: nil)
-    }
-
-    func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController? {
-        if let view = view {
-            return MainTabBarViewFactory.reloadCrowdloanView(
-                on: view,
-                wallet: SelectedWalletSettings.shared.value
-            )
-        }
-
-        return nil
+        MainTabBarViewFactory.reloadWalletDependentViews(on: view, wallet: wallet)
     }
 
     func presentAccountImport(on view: MainTabBarViewProtocol?) {
@@ -78,21 +62,5 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
                 return false
             }
         } ?? false
-    }
-
-    func replaceStaking(
-        on view: MainTabBarViewProtocol?,
-        type: AssetSelectionStakingType,
-        moduleOutput: StakingMainModuleOutput?
-    ) {
-        guard let view = view else {
-            return
-        }
-
-        MainTabBarViewFactory.reloadStakingView(
-            on: view,
-            stakingType: type,
-            moduleOutput: moduleOutput
-        )
     }
 }

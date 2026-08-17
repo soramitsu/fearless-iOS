@@ -15,6 +15,12 @@ protocol IrohaToriiClientProtocol {
         network: UniversalWalletRegistry.IrohaNetwork
     ) async throws -> IrohaAccountAssetListResponse
     func assetDefinitions(baseURL: String?) async throws -> IrohaAssetDefinitionListResponse
+    func assetDefinitions(
+        baseURL: String?,
+        limit: Int?,
+        offset: Int64?,
+        countMode: IrohaToriiCountMode?
+    ) async throws -> IrohaAssetDefinitionListResponse
     func submitTransaction(noritoBytes: Data, baseURL: String?) async throws -> IrohaTransactionSubmissionReceipt
     func transactionStatus(hash: String, baseURL: String?, scope: IrohaTransactionStatusScope) async throws -> IrohaPipelineTransactionStatusResponse
     func mcpCapabilities(network: UniversalWalletRegistry.IrohaNetwork, baseURL: String?) async throws -> Data
@@ -23,6 +29,21 @@ protocol IrohaToriiClientProtocol {
         network: UniversalWalletRegistry.IrohaNetwork,
         baseURL: String?
     ) async throws -> IrohaMcpJsonRPCResponse
+}
+
+extension IrohaToriiClientProtocol {
+    func assetDefinitions(
+        baseURL: String?,
+        limit _: Int?,
+        offset: Int64?,
+        countMode _: IrohaToriiCountMode?
+    ) async throws -> IrohaAssetDefinitionListResponse {
+        guard offset == nil || offset == 0 else {
+            throw ConvenienceError(error: "Iroha asset-definition pagination is unavailable")
+        }
+
+        return try await assetDefinitions(baseURL: baseURL)
+    }
 }
 
 final class IrohaToriiClient: IrohaToriiClientProtocol {
@@ -100,7 +121,23 @@ final class IrohaToriiClient: IrohaToriiClientProtocol {
     }
 
     func assetDefinitions(baseURL: String? = nil) async throws -> IrohaAssetDefinitionListResponse {
-        try await get(try IrohaToriiRoutes.assetDefinitionsURL(baseURL: resolvedBaseURL(baseURL)))
+        try await assetDefinitions(baseURL: baseURL, limit: nil, offset: nil, countMode: nil)
+    }
+
+    func assetDefinitions(
+        baseURL: String? = nil,
+        limit: Int? = nil,
+        offset: Int64? = nil,
+        countMode: IrohaToriiCountMode? = nil
+    ) async throws -> IrohaAssetDefinitionListResponse {
+        try await get(
+            try IrohaToriiRoutes.assetDefinitionsURL(
+                baseURL: resolvedBaseURL(baseURL),
+                limit: limit,
+                offset: offset,
+                countMode: countMode
+            )
+        )
     }
 
     func submitTransaction(

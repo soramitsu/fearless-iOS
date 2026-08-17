@@ -15,8 +15,6 @@ final class MainTabBarPresenter {
     private let networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol
     private let walletConnectCoordinator: WalletConnectCoordinator
 
-    private var crowdloanListView: UINavigationController?
-
     init(
         wireframe: MainTabBarWireframeProtocol,
         interactor: MainTabBarInteractorInputProtocol,
@@ -41,13 +39,6 @@ final class MainTabBarPresenter {
 }
 
 extension MainTabBarPresenter: MainTabBarPresenterProtocol {
-    func presentPolkaswap() {
-        guard let wallet = SelectedWalletSettings.shared.value else {
-            return
-        }
-        wireframe.presentPolkaswap(on: view, wallet: wallet)
-    }
-
     func didLoad(view: MainTabBarViewProtocol) {
         self.view = view
 
@@ -59,12 +50,16 @@ extension MainTabBarPresenter: MainTabBarPresenterProtocol {
 }
 
 extension MainTabBarPresenter: MainTabBarInteractorOutputProtocol {
-    func didReloadSelectedAccount() {
-        crowdloanListView = wireframe.showNewCrowdloan(on: view) as? UINavigationController
+    func didChangeSelectedAccount(_ account: MetaAccountModel) {
+        wireframe.reloadWalletDependentViews(on: view, wallet: account)
     }
 
     func didRequestImportAccount() {
         wireframe.presentAccountImport(on: view)
+    }
+
+    func didRequestPolkamarkt(marketId: String) {
+        view?.openPolkamarkt(marketId: marketId)
     }
 }
 
@@ -83,11 +78,5 @@ extension MainTabBarPresenter: ReachabilityListenerDelegate {
         manager.isReachable
             ? networkStatusPresenter.didDecideReachableStatusPresentation()
             : networkStatusPresenter.didDecideUnreachableStatusPresentation()
-    }
-}
-
-extension MainTabBarPresenter: StakingMainModuleOutput {
-    func didSwitchStakingType(_ type: AssetSelectionStakingType) {
-        wireframe.replaceStaking(on: view, type: type, moduleOutput: self)
     }
 }

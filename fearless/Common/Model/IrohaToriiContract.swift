@@ -82,8 +82,16 @@ enum IrohaToriiRoutes {
         )
     }
 
-    static func assetDefinitionsURL(baseURL: String? = nil) throws -> URL {
-        try makeURL("\(normalizeBaseURL(try resolvedBaseURL(baseURL)))/v1/assets/definitions")
+    static func assetDefinitionsURL(
+        baseURL: String? = nil,
+        limit: Int? = nil,
+        offset: Int64? = nil,
+        countMode: IrohaToriiCountMode? = nil
+    ) throws -> URL {
+        try makeURL(
+            base: "\(normalizeBaseURL(try resolvedBaseURL(baseURL)))/v1/assets/definitions",
+            queryItems: pageQuery(limit: limit, offset: offset, countMode: countMode)
+        )
     }
 
     static func submitTransactionURL(baseURL: String? = nil) throws -> URL {

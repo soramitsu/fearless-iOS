@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import SnapKit
 import SoraUI
+import SSFModels
 
 final class ChainAssetListViewController:
     UIViewController,
@@ -19,6 +20,7 @@ final class ChainAssetListViewController:
     private let keyboardAdoptable: Bool
 
     private var viewModel: ChainAssetListViewModel?
+    private var collapsedNetworkSectionIds: Set<String> = []
     private lazy var locale: Locale = {
         localizationManager?.selectedLocale ?? Locale.current
     }()
@@ -83,6 +85,10 @@ final class ChainAssetListViewController:
 private extension ChainAssetListViewController {
     func configureTableView() {
         rootView.tableView.registerClassForCell(ChainAccountBalanceTableCell.self)
+        rootView.tableView.register(
+            AssetNetworkHeaderView.self,
+            forHeaderFooterViewReuseIdentifier: AssetNetworkHeaderView.reuseId
+        )
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
         rootView.tableView.estimatedRowHeight = 93
@@ -101,10 +107,11 @@ private extension ChainAssetListViewController {
     }
 
     func cellViewModel(for indexPath: IndexPath) -> ChainAccountBalanceCellViewModel? {
-        guard let cellModel = viewModel?.displayState.rows[safe: indexPath.row] else {
-            return nil
+        if let section = viewModel?.networkSections[safe: indexPath.section] {
+            return section.rows[safe: indexPath.row]
         }
-        return cellModel
+
+        return viewModel?.displayState.rows[safe: indexPath.row]
     }
 
     func setupEmbededViews() {
@@ -221,7 +228,7 @@ extension ChainAssetListViewController: UITableViewDelegate {
     func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if
             let assetCell = cell as? ChainAccountBalanceTableCell,
-            let viewModel = viewModel?.displayState.rows[safe: indexPath.row] {
+            let viewModel = cellViewModel(for: indexPath) {
             assetCell.bind(to: viewModel)
         }
     }
@@ -238,8 +245,16 @@ extension ChainAssetListViewController: UITableViewDelegate {
 // MARK: - UITableViewDataSource
 
 extension ChainAssetListViewController: UITableViewDataSource {
-    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        viewModel?.displayState.rows.count ?? .zero
+    func numberOfSections(in _: UITableView) -> Int {
+        max(viewModel?.networkSections.count ?? 0, 1)
+    }
+
+    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+        guard let networkSection = viewModel?.networkSections[safe: section] else {
+            return viewModel?.displayState.rows.count ?? .zero
+        }
+
+        return collapsedNetworkSectionIds.contains(networkSection.id) ? 0 : networkSection.rows.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
@@ -248,6 +263,155 @@ extension ChainAssetListViewController: UITableViewDataSource {
         }
         cell.delegate = self
         return cell
+    }
+}
+
+private extension ChainAssetListViewController {
+    func networkSection(at index: Int) -> AssetNetworkSectionViewModel? {
+        viewModel?.networkSections[safe: index]
+    }
+}
+
+extension ChainAssetListViewController {
+    func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        networkSection(at: section) == nil ? .leastNormalMagnitude : 72
+    }
+
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard
+            let sectionModel = networkSection(at: section),
+            let header = tableView.dequeueReusableHeaderFooterView(
+                withIdentifier: AssetNetworkHeaderView.reuseId
+            ) as? AssetNetworkHeaderView
+        else {
+            return nil
+        }
+
+        header.bind(
+            sectionModel,
+            collapsed: collapsedNetworkSectionIds.contains(sectionModel.id)
+        )
+        header.onTap = { [weak self] in
+            guard let self else {
+                return
+            }
+
+            if self.collapsedNetworkSectionIds.contains(sectionModel.id) {
+                self.collapsedNetworkSectionIds.remove(sectionModel.id)
+            } else {
+                self.collapsedNetworkSectionIds.insert(sectionModel.id)
+            }
+            tableView.reloadSections(IndexSet(integer: section), with: .automatic)
+        }
+        return header
+    }
+}
+
+private final class AssetNetworkHeaderView: UITableViewHeaderFooterView {
+    static let reuseId = "AssetNetworkHeaderView"
+
+    var onTap: (() -> Void)?
+
+    private let titleLabel = UILabel()
+    private let detailLabel = UILabel()
+    private let subtotalLabel = UILabel()
+    private let chevronView = UIImageView()
+
+    override init(reuseIdentifier: String?) {
+        super.init(reuseIdentifier: reuseIdentifier)
+
+        contentView.backgroundColor = R.color.colorBlack19()
+        titleLabel.font = .h5Title
+        titleLabel.textColor = R.color.colorWhite()
+        detailLabel.font = .p2Paragraph
+        detailLabel.textColor = R.color.colorLightGray()
+        subtotalLabel.font = .h6Title
+        subtotalLabel.textColor = R.color.colorWhite()
+        subtotalLabel.textAlignment = .right
+        chevronView.tintColor = R.color.colorLightGray()
+
+        let labels = UIStackView(arrangedSubviews: [titleLabel, detailLabel])
+        labels.axis = .vertical
+        labels.spacing = 3
+
+        contentView.addSubview(labels)
+        contentView.addSubview(subtotalLabel)
+        contentView.addSubview(chevronView)
+
+        labels.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.centerY.equalToSuperview()
+            make.trailing.lessThanOrEqualTo(subtotalLabel.snp.leading).offset(-8)
+        }
+        chevronView.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(14)
+        }
+        subtotalLabel.snp.makeConstraints { make in
+            make.trailing.equalTo(chevronView.snp.leading).offset(-8)
+            make.centerY.equalToSuperview()
+        }
+
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTap))
+        contentView.addGestureRecognizer(tapGesture)
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        onTap = nil
+    }
+
+    func bind(_ viewModel: AssetNetworkSectionViewModel, collapsed: Bool) {
+        switch viewModel.kind {
+        case .assets:
+            titleLabel.text = "\(viewModel.networkName) · \(viewModel.ecosystemName)"
+            let address = viewModel.address.map { String($0.prefix(8)) + "…" }
+            var details = [address, viewModel.syncStatus].compactMap { $0 }
+            if viewModel.detectedCount > 0 {
+                details.append(
+                    String(
+                        format: NSLocalizedString(
+                            "portfolio.asset.detected_count",
+                            value: "Detected assets (%d)",
+                            comment: ""
+                        ),
+                        viewModel.detectedCount
+                    )
+                )
+            }
+            detailLabel.text = details.joined(separator: " · ")
+            subtotalLabel.text = viewModel.fiatSubtotal ?? NSLocalizedString(
+                "portfolio.price.unavailable",
+                value: "Price unavailable",
+                comment: ""
+            )
+        case .detected:
+            titleLabel.text = String(
+                format: NSLocalizedString(
+                    "portfolio.asset.detected_count",
+                    value: "Detected assets (%d)",
+                    comment: ""
+                ),
+                viewModel.detectedCount
+            )
+            detailLabel.text = "\(viewModel.networkName) · " + NSLocalizedString(
+                "portfolio.asset.detected_review",
+                value: "Review before trusting",
+                comment: ""
+            )
+            subtotalLabel.text = NSLocalizedString("portfolio.asset.review", value: "Review", comment: "")
+        }
+        chevronView.image = UIImage(systemName: collapsed ? "chevron.down" : "chevron.up")
+    }
+
+    @objc private func didTap() {
+        onTap?()
     }
 }
 
