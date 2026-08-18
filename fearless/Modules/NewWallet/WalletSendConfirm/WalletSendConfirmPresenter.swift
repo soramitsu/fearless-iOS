@@ -175,9 +175,10 @@ final class WalletSendConfirmPresenter {
     }
 
     private func provideSenderAccountViewModel() -> AccountViewModel? {
-        guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-              let senderAddress = try? AddressFactory.address(for: accountId, chain: chainAsset.chain)
-        else {
+        guard let senderAddress = Self.senderAddress(
+            for: chainAsset.chain,
+            wallet: wallet
+        ) else {
             return nil
         }
 
@@ -189,6 +190,24 @@ final class WalletSendConfirmPresenter {
             address: senderAddress,
             locale: selectedLocale
         )
+    }
+
+    static func senderAddress(
+        for chain: ChainModel,
+        wallet: MetaAccountModel
+    ) -> String? {
+        if let universalAddress = UniversalWalletAccountAddressResolver.address(
+            for: chain,
+            wallet: wallet
+        ) {
+            return universalAddress
+        }
+
+        guard let accountId = wallet.fetch(for: chain.accountRequest())?.accountId else {
+            return nil
+        }
+
+        return try? AddressFactory.address(for: accountId, chain: chain)
     }
 
     private func provideAssetVewModel() async throws -> AssetBalanceViewModelProtocol? {

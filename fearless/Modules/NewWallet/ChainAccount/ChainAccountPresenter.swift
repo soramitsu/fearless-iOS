@@ -76,9 +76,22 @@ final class ChainAccountPresenter {
         guard
             case var .value(accountInfoValue) = accountInfo,
             case let .value(frozenValue) = frozen,
-            case let .value(balanceValue) = balance,
             case let .value(balanceLocksValue) = balanceLocks
         else {
+            DispatchQueue.main.async { [weak self] in
+                self?.view?.didReceive(balanceViewModel: nil)
+            }
+            return
+        }
+
+        let balanceValue: WalletBalanceInfo?
+        if case let .value(value) = balance {
+            balanceValue = value
+        } else if UniversalWalletChainAccountSupport.isUniversalWalletChain(
+            chainAsset.chain.chainId
+        ) {
+            balanceValue = nil
+        } else {
             DispatchQueue.main.async { [weak self] in
                 self?.view?.didReceive(balanceViewModel: nil)
             }
@@ -94,6 +107,7 @@ final class ChainAccountPresenter {
 
         let free = accountInfoValue?.data.sendAvailable ?? BigUInt.zero
         let priceData = balanceValue?.prices.first(where: { $0.priceId == chainAsset.asset.priceId })
+            ?? chainAsset.asset.getPrice(for: wallet.selectedCurrency)
         let freeBalance = Decimal.fromSubstrateAmount(
             free,
             precision: Int16(chainAsset.asset.precision)
@@ -283,10 +297,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
     }
 
     func didReceiveExportOptions(options: [ExportOption]) {
-        var items: [ChainAction] = []
-        items.append(.export)
-        if !chainAsset.chain.isEthereum { items.append(.switchNode) }
-        items.append(.replace)
+        var items = Self.baseActions(for: chainAsset.chain)
         if interactor.checkIsClaimAvailable() { items.append(.claimCrowdloanRewards) }
 
         let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
@@ -383,12 +394,34 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
 
     func didReceive(accountInfo: AccountInfo?, for _: ChainAsset, accountId _: AccountId) {
         self.accountInfo = .value(accountInfo)
+        if UniversalWalletChainAccountSupport.isUniversalWalletChain(
+            chainAsset.chain.chainId
+        ) {
+            balanceInfoModule.replace(
+                infoType: .chainAsset(wallet: wallet, chainAsset: chainAsset)
+            )
+        }
         provideBalanceViewModel()
     }
 
     func didReceiveWallet(wallet: MetaAccountModel) {
         self.wallet = wallet
         provideViewModel()
+    }
+}
+
+extension ChainAccountPresenter {
+    static func baseActions(for chain: ChainModel) -> [ChainAction] {
+        if UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) {
+            return [.switchNode]
+        }
+
+        var actions: [ChainAction] = [.export]
+        if !chain.isEthereum {
+            actions.append(.switchNode)
+        }
+        actions.append(.replace)
+        return actions
     }
 }
 

@@ -18,10 +18,12 @@ readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
 # Build 2026.8.13 corrected storage migration but exposed the iOS 26 tab-bar
 # replacement regression. Build 2026.8.14 was consumed by an App Store Connect
 # upload with warnings; build 2026.8.15 corrected the legacy bar's visibility
-# but still omitted the completed redesign. Build 2026.8.17 is the first
-# successor that integrates both the redesign and the proven recovery fixes.
+# but still omitted the completed redesign. Build 2026.8.17 integrated the
+# redesign but omitted production Bitcoin catalog/account wiring. Build
+# 2026.8.18 is the first successor that includes both the redesign and usable
+# native Bitcoin support alongside the proven recovery fixes.
 # Reconfirm successor uniqueness read-only immediately before archive.
-readonly EXPECTED_BUILD="2026.8.17"
+readonly EXPECTED_BUILD="2026.8.18"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -40,7 +42,7 @@ Usage:
 Preconditions:
   - exact clean git HEAD, including no untracked files, descended from the
     distributed 4.2.0 (2026.7.28) source commit;
-  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.17);
+  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.18);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 

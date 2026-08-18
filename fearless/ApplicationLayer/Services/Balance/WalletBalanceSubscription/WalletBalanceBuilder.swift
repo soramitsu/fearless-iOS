@@ -15,6 +15,11 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         _ metaAccounts: [MetaAccountModel],
         _ chainAssets: [ChainAsset]
     ) -> [MetaAccountId: WalletBalanceInfo]? {
+        let resolvedAccountInfos = mergingRemoteLastKnownBalances(
+            into: accountInfos,
+            wallets: metaAccounts,
+            chainAssets: chainAssets
+        )
         let walletBalanceMap = metaAccounts.reduce(
             [MetaAccountId: WalletBalanceInfo]()
         ) { (result, wallet) -> [MetaAccountId: WalletBalanceInfo]? in
@@ -22,7 +27,7 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
             let enabledAssetFiatBalanceInfo = countBalance(
                 for: chainAssets,
                 wallet,
-                accountInfos
+                resolvedAccountInfos
             )
 
             let enabledAssetFiatBalance = enabledAssetFiatBalanceInfo.totalBalance
@@ -43,7 +48,7 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
                 dayChangeValue: totalDayChange,
                 currency: wallet.selectedCurrency,
                 prices: PriceDataHelper.prices(for: wallet.selectedCurrency, from: chainAssets),
-                accountInfos: accountInfos
+                accountInfos: resolvedAccountInfos
             )
 
             var result = result
@@ -52,6 +57,38 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         }
 
         return walletBalanceMap
+    }
+
+    private func mergingRemoteLastKnownBalances(
+        into accountInfos: [ChainAssetKey: AccountInfo?],
+        wallets: [MetaAccountModel],
+        chainAssets: [ChainAsset]
+    ) -> [ChainAssetKey: AccountInfo?] {
+        var result = accountInfos
+
+        wallets.forEach { wallet in
+            chainAssets.forEach { chainAsset in
+                guard
+                    UniversalWalletChainAccountSupport.isUniversalWalletChain(
+                        chainAsset.chain.chainId
+                    ),
+                    let accountId = wallet.fetch(
+                        for: chainAsset.chain.accountRequest()
+                    )?.accountId,
+                    let wrapped = RemoteLastKnownBalanceStore.load(
+                        chain: chainAsset.chain,
+                        walletId: wallet.metaId
+                    )[chainAsset.chainAssetId],
+                    let accountInfo = wrapped
+                else {
+                    return
+                }
+
+                result[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
+            }
+        }
+
+        return result
     }
 
     private func countBalance(

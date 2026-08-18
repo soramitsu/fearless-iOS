@@ -196,11 +196,70 @@ final class ChainSyncService {
                     let remoteChains = try self.decodeChainsTolerant(from: data)
                     self.handle(remoteChains: remoteChains)
                 } catch {
-                    self.complete(result: .failure(error))
+                    self.ensureAppOwnedChainsBeforeRemoteFailure(error)
                 }
             }
             operationQueue.addOperation(fetchOperation)
         }
+    }
+
+    private func ensureAppOwnedChainsBeforeRemoteFailure(_ remoteError: Error) {
+        let fetchOperation = repository.fetchAllOperation(
+            with: RepositoryFetchOptions()
+        )
+        let bootstrapOperation: BaseOperation<(
+            models: [ChainModel],
+            deleteIds: [String]
+        )> = ClosureOperation {
+            let localChains = try fetchOperation.extractNoCancellableResultData()
+            let canonicalChains = Self.preservingLocalNodePreferences(
+                remoteChains: UniversalWalletRegistry.appOwnedProductionChains,
+                localChains: localChains
+            )
+            let canonicalIds = Set(canonicalChains.map(\.chainId))
+            let aliasIds = localChains.compactMap { localChain -> String? in
+                let matchesAppOwned = canonicalChains.contains { appOwnedChain in
+                    UniversalWalletChainAccountSupport.chainId(
+                        localChain.chainId,
+                        matches: appOwnedChain.chainId
+                    )
+                }
+                guard matchesAppOwned, !canonicalIds.contains(localChain.chainId) else {
+                    return nil
+                }
+                return localChain.chainId
+            }
+
+            return (canonicalChains, aliasIds)
+        }
+        let saveOperation = repository.saveOperation({
+            try bootstrapOperation.extractNoCancellableResultData().models
+        }, {
+            try bootstrapOperation.extractNoCancellableResultData().deleteIds
+        })
+        bootstrapOperation.addDependency(fetchOperation)
+        saveOperation.addDependency(bootstrapOperation)
+        saveOperation.completionBlock = { [weak self, weak saveOperation] in
+            do {
+                guard let saveOperation else {
+                    throw BaseOperationError.parentOperationCancelled
+                }
+                _ = try saveOperation.extractNoCancellableResultData()
+                let updatedChains = try bootstrapOperation
+                    .extractNoCancellableResultData().models
+                self?.eventCenter.notify(
+                    with: ChainsUpdatedEvent(updatedChains: updatedChains)
+                )
+                self?.complete(result: .failure(remoteError))
+            } catch {
+                self?.complete(result: .failure(error))
+            }
+        }
+
+        operationQueue.addOperations(
+            [fetchOperation, bootstrapOperation, saveOperation],
+            waitUntilFinished: false
+        )
     }
 
     private func decodeChainsTolerant(from data: Data) throws -> [ChainModel] {
@@ -304,18 +363,34 @@ final class ChainSyncService {
     }
 
     private func handle(remoteChains: [ChainModel]) {
-        let normalizedRemoteChains: [ChainModel]
-        do {
-            normalizedRemoteChains = try Self.sanitizingRemoteChains(
-                remoteChains.map { normalizeSoraNexusChainAssets($0) }
+        guard remoteChains.isNotEmpty else {
+            ensureAppOwnedChainsBeforeRemoteFailure(
+                ChainSyncServiceError.emptyRemotePayload
             )
-        } catch {
-            complete(result: .failure(error))
             return
         }
 
-        guard normalizedRemoteChains.isNotEmpty else {
-            complete(result: .failure(ChainSyncServiceError.emptyRemotePayload))
+        let normalizedRemoteChains: [ChainModel]
+        do {
+            let remoteOnlyChains = Self.removingAppOwnedChainAliases(
+                from: remoteChains.map { normalizeSoraNexusChainAssets($0) }
+            )
+            guard remoteOnlyChains.isNotEmpty else {
+                ensureAppOwnedChainsBeforeRemoteFailure(
+                    ChainSyncServiceError.emptyRemotePayload
+                )
+                return
+            }
+
+            let downloadedChains = try Self.sanitizingRemoteChains(
+                remoteOnlyChains
+            )
+
+            normalizedRemoteChains = try Self.sanitizingRemoteChains(
+                Self.mergingAppOwnedProductionChains(into: downloadedChains)
+            )
+        } catch {
+            ensureAppOwnedChainsBeforeRemoteFailure(error)
             return
         }
 
@@ -438,6 +513,29 @@ final class ChainSyncService {
         }
     }
 
+    static func mergingAppOwnedProductionChains(
+        into remoteChains: [ChainModel]
+    ) -> [ChainModel] {
+        let appOwnedChains = UniversalWalletRegistry.appOwnedProductionChains
+
+        return removingAppOwnedChainAliases(from: remoteChains) + appOwnedChains
+    }
+
+    static func removingAppOwnedChainAliases(
+        from remoteChains: [ChainModel]
+    ) -> [ChainModel] {
+        let appOwnedChainIds = UniversalWalletRegistry.appOwnedProductionChains.map(\.chainId)
+
+        return remoteChains.filter { remoteChain in
+            !appOwnedChainIds.contains { appOwnedChainId in
+                UniversalWalletChainAccountSupport.chainId(
+                    remoteChain.chainId,
+                    matches: appOwnedChainId
+                )
+            }
+        }
+    }
+
     private func normalizeSoraNexusChainAssets(_ chain: ChainModel) -> ChainModel {
         guard isSoraNexus(chain) else {
             return chain
@@ -500,6 +598,21 @@ final class ChainSyncService {
             mapping[item.chainId] = item
         }
 
+        let appOwnedChainIds = UniversalWalletRegistry.appOwnedProductionChains
+            .map(\.chainId)
+        let obsoleteAppOwnedAliases = localChains.filter { localItem in
+            remoteMapping[localItem.chainId] == nil &&
+                appOwnedChainIds.contains { appOwnedChainId in
+                    UniversalWalletChainAccountSupport.chainId(
+                        localItem.chainId,
+                        matches: appOwnedChainId
+                    )
+                }
+        }
+        let obsoleteAppOwnedAliasIds = Set(
+            obsoleteAppOwnedAliases.map(\.chainId)
+        )
+
         var newOrUpdated: [ChainModel] = mergedRemoteChains.compactMap { remoteItem in
             if let localItem = localMapping[remoteItem.chainId] {
                 return localItem != remoteItem ? remoteItem : nil
@@ -515,6 +628,7 @@ final class ChainSyncService {
                     ChainModelMapper.quarantinedChainIdentifierPrefix
                 ),
                 remoteMapping[localItem.chainId] == nil,
+                !obsoleteAppOwnedAliasIds.contains(localItem.chainId),
                 !localItem.disabled
             else {
                 return nil
@@ -527,7 +641,7 @@ final class ChainSyncService {
 
         let syncChanges = SyncChanges(
             newOrUpdatedItems: newOrUpdated,
-            removedItems: []
+            removedItems: obsoleteAppOwnedAliases
         )
         handle(syncChanges: syncChanges)
     }

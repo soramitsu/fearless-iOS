@@ -29,7 +29,7 @@ def passing_capture_receipt(*, first: bool) -> dict:
         "captureStatus": "complete",
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildNumber": "2026.8.17",
+        "buildNumber": "2026.8.18",
         "observationMethod": "paired-device-fearless-process-only-sanitized-syslog",
         "deviceSidePIDFilter": True,
         "historicalLogsRequested": False,
@@ -102,7 +102,7 @@ def write_capture_bundle(root: Path, *, first: bool) -> tuple[Path, str]:
         "observedAtUTC": "2026-08-10T11:59:59+09:00",
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildNumber": "2026.8.17",
+        "buildNumber": "2026.8.18",
     }
     records = [
         {
@@ -150,7 +150,7 @@ def passing_evidence() -> dict:
         "schemaVersion": 1,
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildVersion": "2026.8.17",
+        "buildVersion": "2026.8.18",
         "baseSourceCommit": "2e45e55dc03ad904598e730cfb5994fb5c1072dc",
         "artifactSourceCommit": EXPECTED_ARTIFACT_SOURCE_COMMIT,
         "distribution": "apple-testflight-internal",
@@ -181,6 +181,11 @@ def passing_evidence() -> dict:
             "crossChainTabRouteWorked": True,
             "settingsTabRouteWorked": True,
             "piBackedTokenPricesVisible": True,
+            "bitcoinAssetVisible": True,
+            "bitcoinBalanceRefreshWorked": True,
+            "bitcoinReceiveAddressWorked": True,
+            "bitcoinSendFeeQuoteWorked": True,
+            "bitcoinSigningReady": True,
             "captureReceiptSHA256": FIRST_RECEIPT_SHA256,
         },
         "preservation": {
@@ -207,6 +212,11 @@ def passing_evidence() -> dict:
             "crossChainTabRouteWorked": True,
             "settingsTabRouteWorked": True,
             "piBackedTokenPricesVisible": True,
+            "bitcoinAssetVisible": True,
+            "bitcoinBalanceRefreshWorked": True,
+            "bitcoinReceiveAddressWorked": True,
+            "bitcoinSendFeeQuoteWorked": True,
+            "bitcoinSigningReady": True,
             "captureReceiptSHA256": SECOND_RECEIPT_SHA256,
         },
         "release": {
@@ -263,8 +273,12 @@ class UpgradeUsabilityGateTests(unittest.TestCase):
 
         stale_predecessor = passing_evidence()
         stale_predecessor["installation"]["previousBuildVersion"] = "2026.7.28"
-        with self.assertRaisesRegex(GATE.EvidenceError, "legacy build 2026.8.15"):
+        with self.assertRaisesRegex(GATE.EvidenceError, "supported predecessor build"):
             validate(stale_predecessor)
+
+        redesigned_predecessor = passing_evidence()
+        redesigned_predecessor["installation"]["previousBuildVersion"] = "2026.8.17"
+        validate(redesigned_predecessor)
 
         no_wallet_route = copy.deepcopy(passing_evidence())
         no_wallet_route["firstLaunch"]["walletRouteWorked"] = False
@@ -307,6 +321,23 @@ class UpgradeUsabilityGateTests(unittest.TestCase):
                     "piBackedTokenPricesVisible must be true",
                 ):
                     validate(failed)
+
+    def test_rejects_missing_or_failed_bitcoin_attestation(self) -> None:
+        missing = passing_evidence()
+        missing["firstLaunch"].pop("bitcoinAssetVisible")
+        with self.assertRaisesRegex(GATE.EvidenceError, "privacy-safe schema"):
+            validate(missing)
+
+        for launch in ("firstLaunch", "secondColdLaunch"):
+            for key in GATE.BITCOIN_ATTESTATIONS:
+                with self.subTest(launch=launch, key=key):
+                    failed = passing_evidence()
+                    failed[launch][key] = False
+                    with self.assertRaisesRegex(
+                        GATE.EvidenceError,
+                        f"{key} must be true",
+                    ):
+                        validate(failed)
 
     def test_rejects_extra_raw_or_identifier_fields(self) -> None:
         raw_path = passing_evidence()

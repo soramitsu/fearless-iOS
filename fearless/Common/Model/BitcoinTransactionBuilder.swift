@@ -115,6 +115,34 @@ enum BitcoinTransactionBuilder {
         try BitcoinUtxoSelector().estimateP2wpkhTransactionVSize(inputCount: inputCount, outputCount: outputCount)
     }
 
+    static func normalizeP2wpkhAddress(
+        _ address: String,
+        network: BitcoinKeyDerivation.Network
+    ) throws -> String {
+        let trimmedAddress = address.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+        let decoded = try bech32Decode(trimmedAddress)
+        let program = try Data(
+            convertBits(
+                Array(decoded.words.dropFirst()),
+                fromBits: 5,
+                toBits: 8,
+                pad: false
+            ).map(UInt8.init)
+        )
+
+        guard
+            decoded.hrp == network.hrp,
+            decoded.words.first == 0,
+            program.count == 20
+        else {
+            throw BitcoinTransactionError.invalidOutputAddress
+        }
+
+        return trimmedAddress.lowercased()
+    }
+
     private static func normalizeInputs(_ inputs: [BitcoinSpendableUtxo]) throws -> [BitcoinSpendableUtxo] {
         guard !inputs.isEmpty else {
             throw BitcoinTransactionError.inputsRequired
@@ -170,7 +198,10 @@ enum BitcoinTransactionBuilder {
     private static func normalizeOutput(_ output: BitcoinPaymentOutput, network: BitcoinKeyDerivation.Network) throws -> BitcoinPaymentOutput {
         let normalizedAddress: String
         do {
-            normalizedAddress = try BitcoinIndexerRoutes.normalizeAddress(output.address, network: network.indexerNetwork)
+            normalizedAddress = try normalizeP2wpkhAddress(
+                output.address,
+                network: network
+            )
         } catch {
             throw BitcoinTransactionError.invalidOutputAddress
         }
@@ -392,7 +423,10 @@ enum BitcoinTransactionBuilder {
             throw BitcoinTransactionError.invalidOutputAddress
         }
 
-        return Bech32Decoded(words: Array(values.dropLast(6)))
+        return Bech32Decoded(
+            hrp: hrp,
+            words: Array(values.dropLast(6))
+        )
     }
 
     private static func bech32Polymod(_ values: [Int]) -> Int {
@@ -563,6 +597,7 @@ private struct BitcoinSerializedOutput {
 }
 
 private struct Bech32Decoded {
+    let hrp: String
     let words: [Int]
 }
 

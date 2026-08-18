@@ -1,7 +1,7 @@
 import RobinHood
 import SSFModels
 
-enum AddressValidationResult {
+enum AddressValidationResult: Equatable {
     case valid(String)
     case sameAddress(String)
     case invalid(String?)
@@ -65,13 +65,60 @@ final class AddressChainDefiner {
     }
 
     func validate(address: String?, for chain: ChainModel) -> AddressValidationResult {
-        guard let address = address, address.isNotEmpty, let accoundId = (try? AddressFactory.accountId(from: address, chain: chain)) else {
+        guard let address = address, address.isNotEmpty else {
+            return .invalid(address)
+        }
+
+        if let universalResult = Self.validateUniversalAddress(
+            address,
+            for: chain,
+            wallet: wallet
+        ) {
+            return universalResult
+        }
+
+        guard let accoundId = try? AddressFactory.accountId(from: address, chain: chain) else {
             return .invalid(address)
         }
         if accoundId == wallet.substrateAccountId || accoundId == wallet.ethereumAddress {
             return .sameAddress(address)
         }
         return .valid(address)
+    }
+
+    static func validateUniversalAddress(
+        _ address: String,
+        for chain: ChainModel,
+        wallet: MetaAccountModel
+    ) -> AddressValidationResult? {
+        let network: BitcoinKeyDerivation.Network
+        switch chain.chainId.lowercased() {
+        case UniversalWalletRegistry.bitcoinMainnet.chainId,
+             UniversalWalletRegistry.bitcoinMainnet.id:
+            network = .mainnet
+        case UniversalWalletRegistry.bitcoinTestnet.chainId,
+             UniversalWalletRegistry.bitcoinTestnet.id:
+            network = .testnet
+        default:
+            return nil
+        }
+
+        guard let normalizedAddress = try? BitcoinTransactionBuilder.normalizeP2wpkhAddress(
+            address,
+            network: network
+        ) else {
+            return .invalid(address)
+        }
+
+        let ownAddress = UniversalWalletAccountAddressResolver.address(
+            for: chain,
+            wallet: wallet
+        )
+        if ownAddress?.caseInsensitiveCompare(normalizedAddress) == .orderedSame {
+            return .sameAddress(normalizedAddress)
+        }
+
+        return .valid(normalizedAddress)
     }
 
     private func chainIsEnabled(chain: ChainModel) -> Bool {

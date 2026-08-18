@@ -205,6 +205,10 @@ final class ChainModelMapper {
         }
 
         let scheme = node.url.scheme?.lowercased()
+        if UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) {
+            return scheme == "http" || scheme == "https"
+        }
+
         if chain.chainBaseType == .ethereum {
             return scheme == "https" || scheme == "wss"
         }

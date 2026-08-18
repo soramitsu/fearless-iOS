@@ -23,6 +23,8 @@ final class ServiceCoordinator {
     private let walletConnect: WalletConnectService
     private let walletAssetsObserver: WalletAssetsObserver
     private let pricesService: PricesServiceProtocol
+    private let bitcoinProvisioningLock = NSLock()
+    private var bitcoinProvisioningWalletIds = Set<MetaAccountId>()
 
     init(
         walletSettings: SelectedWalletSettings,
@@ -50,6 +52,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         if let seletedMetaAccount = walletSettings.value {
             accountInfoService.update(selectedMetaAccount: seletedMetaAccount)
             walletAssetsObserver.update(wallet: seletedMetaAccount)
+            provisionBitcoinAccountIfNeeded(for: seletedMetaAccount)
         }
     }
 
@@ -65,6 +68,10 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         walletConnect.setup()
         walletAssetsObserver.setup()
         pricesService.setup()
+
+        if let selectedMetaAccount = walletSettings.value {
+            provisionBitcoinAccountIfNeeded(for: selectedMetaAccount)
+        }
     }
 
     func throttle() {
@@ -72,6 +79,67 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         accountInfoService.throttle()
         walletConnect.throttle()
         walletAssetsObserver.throttle()
+    }
+}
+
+private extension ServiceCoordinator {
+    func provisionBitcoinAccountIfNeeded(for wallet: MetaAccountModel) {
+        bitcoinProvisioningLock.lock()
+        let shouldProvision = bitcoinProvisioningWalletIds.insert(wallet.metaId).inserted
+        bitcoinProvisioningLock.unlock()
+        guard shouldProvision else {
+            return
+        }
+
+        do {
+            let mnemonicProvider = KeychainUniversalWalletMnemonicProvider()
+            guard let mnemonic = try mnemonicProvider.rootMnemonic(for: wallet) else {
+                finishBitcoinProvisioning(for: wallet.metaId)
+                return
+            }
+
+            let updatedWallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+                to: wallet,
+                mnemonic: mnemonic
+            )
+            guard updatedWallet != wallet else {
+                finishBitcoinProvisioning(for: wallet.metaId)
+                return
+            }
+            walletSettings.save(
+                value: updatedWallet,
+                runningCompletionIn: nil
+            ) { [weak self] result in
+                guard let self else {
+                    return
+                }
+
+                self.finishBitcoinProvisioning(for: wallet.metaId)
+                switch result {
+                case let .success(savedWallet):
+                    self.accountInfoService.update(selectedMetaAccount: savedWallet)
+                    self.walletAssetsObserver.update(wallet: savedWallet)
+                    EventCenter.shared.notify(
+                        with: MetaAccountModelChangedEvent(account: savedWallet)
+                    )
+                case let .failure(error):
+                    Logger.shared.error(
+                        "Bitcoin account provisioning failed: \(error.localizedDescription)"
+                    )
+                }
+            }
+        } catch {
+            finishBitcoinProvisioning(for: wallet.metaId)
+            Logger.shared.error(
+                "Bitcoin account provisioning failed: \(error.localizedDescription)"
+            )
+        }
+    }
+
+    func finishBitcoinProvisioning(for walletId: MetaAccountId) {
+        bitcoinProvisioningLock.lock()
+        bitcoinProvisioningWalletIds.remove(walletId)
+        bitcoinProvisioningLock.unlock()
     }
 }
 

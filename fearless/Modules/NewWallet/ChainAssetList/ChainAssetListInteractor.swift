@@ -183,6 +183,17 @@ final class ChainAssetListInteractor {
             }
         }
     }
+
+    private func refreshUniversalBalances(for chainAssets: [ChainAsset]) {
+        let universalChainAssets = chainAssets.filter {
+            UniversalWalletChainAccountSupport.isUniversalWalletChain($0.chain.chainId)
+        }
+        guard universalChainAssets.isNotEmpty else {
+            return
+        }
+
+        refreshRemoteBalances(for: universalChainAssets)
+    }
 }
 
 // MARK: - ChainAssetListInteractorInput
@@ -241,6 +252,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
                     self?.ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: strongSelf.wallet) { _ in }
                     self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
                     self?.subscribeToAccountInfo(for: chainAssets)
+                    self?.refreshUniversalBalances(for: chainAssets)
                 }
             case let .failure(error):
                 self?.output?.didReceiveChainAssets(result: .failure(error))
@@ -351,6 +363,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
     }
 
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        let chainAccountsChanged = wallet.chainAccounts != event.account.chainAccounts
         output?.didReceiveWallet(wallet: event.account)
 
         if wallet.selectedCurrency != event.account.selectedCurrency {
@@ -362,6 +375,11 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         }
 
         wallet = event.account
+
+        if chainAccountsChanged {
+            resetAccountInfoSubscription()
+            updateChainAssets(using: filters, sorts: sorts, useCashe: false)
+        }
     }
 
     func processChainsUpdated(event _: ChainsUpdatedEvent) {
@@ -379,9 +397,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
 
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
         output?.handleWalletChanged(wallet: event.account)
-        resetAccountInfoSubscription()
         wallet = event.account
+        resetAccountInfoSubscription()
         output?.didReceive(accountInfosByChainAssets: [:])
+        updateChainAssets(using: filters, sorts: sorts, useCashe: false)
     }
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {

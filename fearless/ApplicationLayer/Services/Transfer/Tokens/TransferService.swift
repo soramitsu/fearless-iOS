@@ -58,12 +58,82 @@ extension TransferServiceProtocol {
     ) async -> Bool { true }
 }
 
+private struct BitcoinTransferFeeQuoteIdentity: Equatable {
+    let amountSats: Int64
+    let recipientAddress: String
+    let sourceAddress: String
+    let network: BitcoinIndexerNetwork
+    let baseURL: String?
+}
+
+private struct BitcoinTransferFeeQuote {
+    let identity: BitcoinTransferFeeQuoteIdentity
+    let feeRateSatPerVbyte: Double
+    let feeSats: Int64
+}
+
+private final class BitcoinTransferFeeQuoteStore {
+    private let lock = NSLock()
+    private var generation: UInt64 = 0
+    private var pendingIdentity: BitcoinTransferFeeQuoteIdentity?
+    private var quote: BitcoinTransferFeeQuote?
+
+    func begin(identity: BitcoinTransferFeeQuoteIdentity) -> UInt64 {
+        lock.lock()
+        defer { lock.unlock() }
+        generation = generation == UInt64.max ? 1 : generation + 1
+        pendingIdentity = identity
+        quote = nil
+        return generation
+    }
+
+    func commit(
+        _ quote: BitcoinTransferFeeQuote,
+        generation expectedGeneration: UInt64
+    ) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        guard
+            generation == expectedGeneration,
+            pendingIdentity == quote.identity
+        else {
+            return false
+        }
+        self.quote = quote
+        return true
+    }
+
+    func fail(generation expectedGeneration: UInt64) {
+        lock.lock()
+        defer { lock.unlock() }
+        guard generation == expectedGeneration else {
+            return
+        }
+        pendingIdentity = nil
+        quote = nil
+    }
+
+    func consume(identity: BitcoinTransferFeeQuoteIdentity) -> BitcoinTransferFeeQuote? {
+        lock.lock()
+        defer { lock.unlock() }
+        guard pendingIdentity == identity, quote?.identity == identity else {
+            return nil
+        }
+        let result = quote
+        pendingIdentity = nil
+        quote = nil
+        return result
+    }
+}
+
 final class BitcoinTransferService: TransferServiceProtocol {
     private let wallet: MetaAccountModel
     private let chain: ChainModel
     private let planner: BitcoinSendPlanner
     private let sendService: BitcoinSendService
+    private let balanceSync: BitcoinBalanceSync
     private let mnemonicProvider: BitcoinMnemonicProviding
+    private let feeQuoteStore = BitcoinTransferFeeQuoteStore()
     private var feeTask: Task<Void, Never>?
 
     init(
@@ -76,6 +146,9 @@ final class BitcoinTransferService: TransferServiceProtocol {
         self.chain = chain
         planner = BitcoinSendPlanner(client: client)
         sendService = BitcoinSendService(client: client)
+        balanceSync = BitcoinBalanceSync(
+            discovery: BitcoinReceiveDiscovery(client: client)
+        )
         self.mnemonicProvider = mnemonicProvider
     }
 
@@ -85,16 +158,54 @@ final class BitcoinTransferService: TransferServiceProtocol {
             transfer.amount,
             failure: TransferServiceError.cannotEstimateFee(reason:)
         )
-        let plan = try await planner.plan(
+        let quoteIdentity = try resolveFeeQuoteIdentity(
+            transfer: transfer,
             amountSats: amountSats,
-            sources: [BitcoinUtxoSource(address: context.sourceAddress)],
-            recipientAddress: transfer.receiver,
-            changeAddress: context.sourceAddress,
-            network: context.network,
-            baseURL: context.baseURL
+            context: context,
+            failure: TransferServiceError.cannotEstimateFee(reason:)
         )
+        let generation = feeQuoteStore.begin(identity: quoteIdentity)
 
-        return BigUInt(UInt64(plan.feeSats))
+        do {
+            guard let mnemonic = try resolveMnemonic(
+                context: context,
+                required: true,
+                failure: TransferServiceError.cannotEstimateFee(reason:)
+            ) else {
+                throw TransferServiceError.cannotEstimateFee(
+                    reason: "Bitcoin mnemonic root material is unavailable"
+                )
+            }
+            let sources = try await resolveSpendSources(
+                context: context,
+                mnemonic: mnemonic,
+                failure: TransferServiceError.cannotEstimateFee(reason:)
+            )
+            let plan = try await planner.plan(
+                amountSats: amountSats,
+                sources: sources,
+                recipientAddress: quoteIdentity.recipientAddress,
+                changeAddress: context.sourceAddress,
+                network: context.network,
+                baseURL: context.baseURL
+            )
+            try Task.checkCancellation()
+            let quote = BitcoinTransferFeeQuote(
+                identity: quoteIdentity,
+                feeRateSatPerVbyte: plan.feeRateSatPerVbyte,
+                feeSats: plan.feeSats
+            )
+            guard feeQuoteStore.commit(quote, generation: generation) else {
+                throw TransferServiceError.cannotEstimateFee(
+                    reason: "Bitcoin fee quote was superseded"
+                )
+            }
+
+            return BigUInt(UInt64(plan.feeSats))
+        } catch {
+            feeQuoteStore.fail(generation: generation)
+            throw error
+        }
     }
 
     func submit(transfer: Transfer) async throws -> String {
@@ -103,35 +214,49 @@ final class BitcoinTransferService: TransferServiceProtocol {
             transfer.amount,
             failure: TransferServiceError.transferFailed(reason:)
         )
-
-        guard let mnemonic = try mnemonicProvider.mnemonic(for: wallet, chain: chain) else {
-            throw TransferServiceError.transferFailed(reason: "Bitcoin mnemonic root material is unavailable")
+        let quoteIdentity = try resolveFeeQuoteIdentity(
+            transfer: transfer,
+            amountSats: amountSats,
+            context: context,
+            failure: TransferServiceError.transferFailed(reason:)
+        )
+        guard let quote = feeQuoteStore.consume(identity: quoteIdentity) else {
+            throw TransferServiceError.transferFailed(
+                reason: "Bitcoin fee quote is missing or expired; review the fee again"
+            )
         }
 
-        let derivedAddress: String
-        do {
-            derivedAddress = try BitcoinKeyDerivation.deriveAccount(
-                mnemonic: mnemonic,
-                network: bitcoinKeyDerivationNetwork(for: context.network)
-            ).firstReceiveAddress
-        } catch {
-            throw TransferServiceError.transferFailed(reason: "Bitcoin mnemonic root material is invalid")
+        guard let mnemonic = try resolveMnemonic(
+            context: context,
+            required: true,
+            failure: TransferServiceError.transferFailed(reason:)
+        ) else {
+            throw TransferServiceError.transferFailed(
+                reason: "Bitcoin mnemonic root material is unavailable"
+            )
         }
-
-        guard derivedAddress.lowercased() == context.sourceAddress.lowercased() else {
-            throw TransferServiceError.transferFailed(reason: "Bitcoin mnemonic does not match selected wallet")
-        }
+        let sources = try await resolveSpendSources(
+            context: context,
+            mnemonic: mnemonic,
+            failure: TransferServiceError.transferFailed(reason:)
+        )
 
         let result = try await sendService.send(
             BitcoinSendRequest(
                 mnemonic: mnemonic,
                 amountSats: amountSats,
-                sources: [BitcoinUtxoSource(address: context.sourceAddress)],
-                recipientAddress: transfer.receiver,
+                sources: sources,
+                recipientAddress: quoteIdentity.recipientAddress,
                 changeAddress: context.sourceAddress,
+                feeRateSatPerVbyte: quote.feeRateSatPerVbyte,
+                expectedFeeSats: quote.feeSats,
                 network: context.network,
                 baseURL: context.baseURL
             )
+        )
+
+        await BitcoinWalletBalanceCache.shared.invalidate(
+            balanceCacheKey(for: context)
         )
 
         return result.broadcastTxid
@@ -213,15 +338,132 @@ final class BitcoinTransferService: TransferServiceProtocol {
         return amountSats
     }
 
-    private func bitcoinNetwork(for chain: ChainModel) -> UniversalWalletRegistry.BitcoinNetwork? {
-        switch chain.chainId.lowercased() {
-        case UniversalWalletRegistry.bitcoinMainnet.chainId, UniversalWalletRegistry.bitcoinMainnet.id:
-            return UniversalWalletRegistry.bitcoinMainnet
-        case UniversalWalletRegistry.bitcoinTestnet.chainId, UniversalWalletRegistry.bitcoinTestnet.id:
-            return UniversalWalletRegistry.bitcoinTestnet
-        default:
+    private func resolveFeeQuoteIdentity(
+        transfer: Transfer,
+        amountSats: Int64,
+        context: BitcoinTransferContext,
+        failure: (String) -> TransferServiceError
+    ) throws -> BitcoinTransferFeeQuoteIdentity {
+        let keyNetwork = bitcoinKeyDerivationNetwork(for: context.network)
+        let recipientAddress: String
+        do {
+            recipientAddress = try BitcoinTransactionBuilder
+                .normalizeP2wpkhAddress(
+                    transfer.receiver,
+                    network: keyNetwork
+                )
+        } catch {
+            throw failure("Bitcoin recipient address is invalid")
+        }
+
+        return BitcoinTransferFeeQuoteIdentity(
+            amountSats: amountSats,
+            recipientAddress: recipientAddress,
+            sourceAddress: context.sourceAddress,
+            network: context.network,
+            baseURL: context.baseURL
+        )
+    }
+
+    private func resolveMnemonic(
+        context: BitcoinTransferContext,
+        required: Bool,
+        failure: (String) -> TransferServiceError
+    ) throws -> String? {
+        let mnemonic: String?
+        do {
+            mnemonic = try mnemonicProvider.mnemonic(for: wallet, chain: chain)
+        } catch {
+            throw failure("Bitcoin mnemonic root material is unavailable")
+        }
+
+        guard let mnemonic else {
+            if required {
+                throw failure("Bitcoin mnemonic root material is unavailable")
+            }
             return nil
         }
+
+        let derivedAddress: String
+        do {
+            derivedAddress = try BitcoinKeyDerivation.deriveAccount(
+                mnemonic: mnemonic,
+                network: bitcoinKeyDerivationNetwork(for: context.network)
+            ).firstReceiveAddress
+        } catch {
+            throw failure("Bitcoin mnemonic root material is invalid")
+        }
+
+        guard derivedAddress.caseInsensitiveCompare(context.sourceAddress) == .orderedSame else {
+            throw failure("Bitcoin mnemonic does not match selected wallet")
+        }
+
+        return mnemonic
+    }
+
+    private func resolveSpendSources(
+        context: BitcoinTransferContext,
+        mnemonic: String?,
+        failure: (String) -> TransferServiceError
+    ) async throws -> [BitcoinUtxoSource] {
+        let firstSource = BitcoinUtxoSource(
+            address: context.sourceAddress,
+            derivationPath: bitcoinKeyDerivationNetwork(for: context.network).firstReceivePath
+        )
+        guard let mnemonic else {
+            return [firstSource]
+        }
+
+        do {
+            let keyNetwork = bitcoinKeyDerivationNetwork(for: context.network)
+            let result = try await BitcoinWalletBalanceCache.shared.value(
+                for: balanceCacheKey(for: context)
+            ) {
+                try await self.balanceSync.balance(
+                    mnemonic: mnemonic,
+                    network: keyNetwork,
+                    baseURL: context.baseURL,
+                    gapLimit: nil,
+                    maxLookahead: BitcoinReceiveDiscovery.defaultMaxLookahead
+                )
+            }
+            let fundedSources = result.discovery.addresses
+                .filter { $0.totalSats > 0 }
+                .sorted { lhs, rhs in
+                    if lhs.totalSats != rhs.totalSats {
+                        return lhs.totalSats > rhs.totalSats
+                    }
+                    return lhs.path < rhs.path
+                }
+                .prefix(BitcoinSendPlanner.maxSources)
+                .map {
+                    BitcoinUtxoSource(address: $0.address, derivationPath: $0.path)
+                }
+
+            return fundedSources.isEmpty ? [firstSource] : fundedSources
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            throw failure("Bitcoin spendable-address discovery failed")
+        }
+    }
+
+    private func balanceCacheKey(
+        for context: BitcoinTransferContext
+    ) -> BitcoinWalletBalanceCache.Key {
+        let network = bitcoinNetwork(for: chain)
+        return BitcoinWalletBalanceCache.Key(
+            walletId: wallet.metaId,
+            network: context.network,
+            baseURL: context.baseURL,
+            gapLimit: network?.defaultGapLimit
+                ?? UniversalWalletRegistry.bitcoinMainnet.defaultGapLimit,
+            maxLookahead: BitcoinReceiveDiscovery.defaultMaxLookahead
+        )
+    }
+
+    private func bitcoinNetwork(for chain: ChainModel) -> UniversalWalletRegistry.BitcoinNetwork? {
+        UniversalWalletRegistry.bitcoinNetwork(for: chain.chainId)
     }
 
     private func bitcoinIndexerNetwork(

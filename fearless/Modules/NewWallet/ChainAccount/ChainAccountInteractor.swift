@@ -26,6 +26,7 @@ final class ChainAccountInteractor {
     private var currentDependencies: BalanceInfoDependencies?
     private let ethRemoteBalanceFetching: EthereumRemoteBalanceFetching
     private let chainRegistry: ChainRegistryProtocol
+    private let accountInfoRemoteService: AccountInfoRemoteService
 
     private var remoteFetchTimer: Timer?
     private var hasLegacyCrowdloan = false
@@ -41,7 +42,8 @@ final class ChainAccountInteractor {
         storageRequestFactory: StorageRequestFactoryProtocol,
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
         ethRemoteBalanceFetching: EthereumRemoteBalanceFetching,
-        chainRegistry: ChainRegistryProtocol
+        chainRegistry: ChainRegistryProtocol,
+        accountInfoRemoteService: AccountInfoRemoteService
     ) {
         self.wallet = wallet
         self.chainAsset = chainAsset
@@ -54,6 +56,7 @@ final class ChainAccountInteractor {
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
         self.ethRemoteBalanceFetching = ethRemoteBalanceFetching
         self.chainRegistry = chainRegistry
+        self.accountInfoRemoteService = accountInfoRemoteService
     }
 
     private func getAvailableChainAssets() {
@@ -84,6 +87,11 @@ final class ChainAccountInteractor {
     }
 
     private func fetchChainAssetBasedData() {
+        if UniversalWalletRegistry.bitcoinNetwork(for: chainAsset.chain.chainId) != nil {
+            fetchUniversalChainAssetData()
+            return
+        }
+
         guard let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else {
             return
         }
@@ -106,6 +114,60 @@ final class ChainAccountInteractor {
                     chainAsset: chainAsset,
                     listener: strongSelf
                 )
+            }
+        }
+    }
+
+    private func fetchUniversalChainAssetData() {
+        guard let accountId = wallet.fetch(
+            for: chainAsset.chain.accountRequest()
+        )?.accountId else {
+            return
+        }
+
+        presenter?.didReceiveBalanceLocks(.zero)
+        presenter?.didReceiveAssetFrozen(.zero)
+        presenter?.didReceiveMinimumBalance(result: .success(.zero))
+
+        let requestedChainAsset = chainAsset
+        let requestedWallet = wallet
+        Task { [weak self] in
+            guard let self else {
+                return
+            }
+
+            do {
+                let accountInfo = try await accountInfoRemoteService.fetchAccountInfo(
+                    for: requestedChainAsset,
+                    wallet: requestedWallet
+                )
+                await MainActor.run {
+                    guard
+                        self.wallet.metaId == requestedWallet.metaId,
+                        self.chainAsset.chainAssetId == requestedChainAsset.chainAssetId
+                    else {
+                        return
+                    }
+                    self.presenter?.didReceive(
+                        accountInfo: accountInfo,
+                        for: requestedChainAsset,
+                        accountId: accountId
+                    )
+                }
+            } catch {
+                await MainActor.run {
+                    guard
+                        self.wallet.metaId == requestedWallet.metaId,
+                        self.chainAsset.chainAssetId == requestedChainAsset.chainAssetId
+                    else {
+                        return
+                    }
+                    self.presenter?.didReceive(
+                        accountInfo: nil,
+                        for: requestedChainAsset,
+                        accountId: accountId
+                    )
+                }
             }
         }
     }
@@ -175,6 +237,13 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     }
 
     func getAvailableExportOptions(for address: String) {
+        if UniversalWalletChainAccountSupport.isUniversalWalletChain(
+            chainAsset.chain.chainId
+        ) {
+            presenter?.didReceiveExportOptions(options: [])
+            return
+        }
+
         fetchChainAccountFor(
             meta: wallet,
             chain: chainAsset.chain,

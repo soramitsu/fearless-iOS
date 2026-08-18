@@ -29,7 +29,8 @@ final class MissingAccountFetcher: MissingAccountFetcherProtocol {
             switch result {
             case let .success(chains):
                 let missingAccounts = chains.filter { chain in
-                    wallet.fetch(for: chain.accountRequest()) == nil
+                    Self.supportsGenericChainAccountCreation(for: chain) &&
+                        wallet.fetch(for: chain.accountRequest()) == nil
                 }.filter { !wallet.unusedChainIds.or([]).contains($0.chainId) }
                 complection(missingAccounts)
             case .failure:
@@ -38,5 +39,9 @@ final class MissingAccountFetcher: MissingAccountFetcherProtocol {
         }
 
         operationQueue.addOperation(operation)
+    }
+
+    static func supportsGenericChainAccountCreation(for chain: ChainModel) -> Bool {
+        !UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId)
     }
 }

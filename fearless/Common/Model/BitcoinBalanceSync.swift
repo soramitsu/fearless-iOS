@@ -70,6 +70,61 @@ struct BitcoinBalanceSyncResult: Equatable {
     let discovery: BitcoinReceiveDiscoveryResult
 }
 
+actor BitcoinWalletBalanceCache {
+    struct Key: Hashable {
+        let walletId: MetaAccountId
+        let network: BitcoinIndexerNetwork
+        let baseURL: String?
+        let gapLimit: Int
+        let maxLookahead: Int
+    }
+
+    static let shared = BitcoinWalletBalanceCache()
+    static let defaultMaxAge: TimeInterval = 120
+
+    private struct Entry {
+        let value: BitcoinBalanceSyncResult
+        let createdAt: Date
+    }
+
+    private var entries: [Key: Entry] = [:]
+    private var inFlight: [Key: Task<BitcoinBalanceSyncResult, Error>] = [:]
+
+    func value(
+        for key: Key,
+        maxAge: TimeInterval = BitcoinWalletBalanceCache.defaultMaxAge,
+        loader: @escaping () async throws -> BitcoinBalanceSyncResult
+    ) async throws -> BitcoinBalanceSyncResult {
+        if let entry = entries[key],
+           Date().timeIntervalSince(entry.createdAt) <= maxAge {
+            return entry.value
+        }
+
+        if let task = inFlight[key] {
+            return try await task.value
+        }
+
+        let task = Task {
+            try await loader()
+        }
+        inFlight[key] = task
+
+        do {
+            let result = try await task.value
+            entries[key] = Entry(value: result, createdAt: Date())
+            inFlight[key] = nil
+            return result
+        } catch {
+            inFlight[key] = nil
+            throw error
+        }
+    }
+
+    func invalidate(_ key: Key) {
+        entries[key] = nil
+    }
+}
+
 enum BitcoinBalanceSyncError: Error, Equatable {
     case invalidAddressBalance
     case balanceOverflow

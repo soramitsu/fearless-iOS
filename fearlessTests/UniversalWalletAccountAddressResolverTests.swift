@@ -68,6 +68,264 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         XCTAssertNil(address)
     }
 
+    func testBitcoinProvisioningAddsCanonicalMainnetAccountAndIsIdempotent() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+
+        let provisioned = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+            to: wallet,
+            mnemonic: Self.mnemonic
+        )
+        let reprovisioned = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+            to: provisioned,
+            mnemonic: Self.mnemonic
+        )
+
+        let account = try XCTUnwrap(provisioned.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+        XCTAssertEqual(account.chainId, UniversalWalletRegistry.bitcoinMainnet.chainId)
+        XCTAssertEqual(account.cryptoType, CryptoType.ecdsa.rawValue)
+        XCTAssertEqual(account.accountId, account.publicKey)
+        XCTAssertEqual(provisioned, reprovisioned)
+        XCTAssertTrue(
+            UniversalWalletAccountAddressResolver.address(
+                for: UniversalWalletRegistry.bitcoinMainnetChainModel,
+                wallet: provisioned
+            )?.hasPrefix("bc1") == true
+        )
+    }
+
+    func testBitcoinProvisioningRepairsLegacyGenericAliasAndMismatchedAccounts() throws {
+        let malformedAccount = ChainAccountModel(
+            chainId: UniversalWalletRegistry.bitcoinMainnet.id,
+            accountId: Data(repeating: 0x01, count: 32),
+            publicKey: Data(repeating: 0x01, count: 32),
+            cryptoType: CryptoType.sr25519.rawValue,
+            ethereumBased: false
+        )
+        let mismatchedKey = try BitcoinKeyDerivation.deriveKey(
+            mnemonic: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+            derivationPath: UniversalWalletDerivationPaths.bitcoinMainnetFirstReceive,
+            network: .mainnet
+        ).publicKey
+        let mismatchedAccount = ChainAccountModel(
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
+            accountId: mismatchedKey,
+            publicKey: mismatchedKey,
+            cryptoType: CryptoType.ecdsa.rawValue,
+            ethereumBased: false
+        )
+        let wallet = AccountGenerator.generateMetaAccount(
+            with: [malformedAccount, mismatchedAccount]
+        )
+
+        let repaired = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+            to: wallet,
+            mnemonic: Self.mnemonic
+        )
+        let expected = try BitcoinKeyDerivation.deriveAccount(
+            mnemonic: Self.mnemonic,
+            network: .mainnet
+        )
+        let bitcoinAccounts = repaired.chainAccounts.filter {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }
+
+        XCTAssertEqual(bitcoinAccounts.count, 1)
+        XCTAssertEqual(bitcoinAccounts.first?.chainId, UniversalWalletRegistry.bitcoinMainnet.chainId)
+        XCTAssertEqual(bitcoinAccounts.first?.publicKey, expected.publicKey)
+        XCTAssertEqual(bitcoinAccounts.first?.accountId, expected.publicKey)
+        XCTAssertEqual(bitcoinAccounts.first?.cryptoType, CryptoType.ecdsa.rawValue)
+    }
+
+    func testMalformedLegacyBitcoinAccountNeverFallsBackToSubstrateAddress() throws {
+        let malformedAccount = ChainAccountModel(
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
+            accountId: Data(repeating: 0x01, count: 32),
+            publicKey: Data(repeating: 0x01, count: 32),
+            cryptoType: CryptoType.sr25519.rawValue,
+            ethereumBased: false
+        )
+        let wallet = AccountGenerator.generateMetaAccount(
+            with: [malformedAccount]
+        )
+        let viewModel = ChainAccountViewModelFactory(
+            assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
+        ).buildChainAccountViewModel(
+            chainAsset: ChainAsset(
+                chain: UniversalWalletRegistry.bitcoinMainnetChainModel,
+                asset: try XCTUnwrap(
+                    UniversalWalletRegistry.bitcoinMainnetChainModel.assets.first
+                )
+            ),
+            wallet: wallet,
+            mode: .simple
+        )
+
+        XCTAssertNil(viewModel.address)
+    }
+
+    func testBitcoinProductionChainIsEnabledRankedAndUsesHTTPSIndexer() throws {
+        let chain = UniversalWalletRegistry.bitcoinMainnetChainModel
+        let asset = try XCTUnwrap(chain.assets.first)
+        let node = try XCTUnwrap(chain.nodes.first)
+
+        XCTAssertEqual(chain.chainId, UniversalWalletRegistry.bitcoinMainnet.chainId)
+        XCTAssertFalse(chain.disabled)
+        XCTAssertNotNil(chain.rank)
+        XCTAssertEqual(asset.id, "BTC")
+        XCTAssertEqual(asset.symbol, "BTC")
+        XCTAssertEqual(asset.precision, 8)
+        XCTAssertTrue(asset.isUtility)
+        XCTAssertTrue(asset.isNative)
+        XCTAssertEqual(node.url, UniversalWalletRegistry.bitcoinMainnetIndexerBaseURL)
+        XCTAssertTrue(ChainModelMapper.isNodeCompatibleWithRuntime(node, for: chain))
+    }
+
+    func testBitcoinNeverUsesGenericSubstrateMissingAccountCreation() {
+        XCTAssertFalse(
+            MissingAccountFetcher.supportsGenericChainAccountCreation(
+                for: UniversalWalletRegistry.bitcoinMainnetChainModel
+            )
+        )
+        let walletActions = WalletDetailsPresenter.baseActions(
+            for: UniversalWalletRegistry.bitcoinMainnetChainModel
+        )
+        XCTAssertEqual(walletActions.count, 2)
+        if case .copyAddress = walletActions[0] {} else {
+            XCTFail("Bitcoin wallet details must offer copy address first")
+        }
+        if case .switchNode = walletActions[1] {} else {
+            XCTFail("Bitcoin wallet details must offer switch node second")
+        }
+
+        let accountActions = ChainAccountPresenter.baseActions(
+            for: UniversalWalletRegistry.bitcoinMainnetChainModel
+        )
+        XCTAssertEqual(accountActions.count, 1)
+        if case .switchNode = accountActions[0] {} else {
+            XCTFail("Bitcoin chain account must only offer switch node")
+        }
+    }
+
+    func testBitcoinRecipientValidationUsesNativeNetworkAndDetectsOwnAddress() throws {
+        let mainnetChain = UniversalWalletRegistry.bitcoinMainnetChainModel
+        let ownKey = try BitcoinKeyDerivation.deriveKey(
+            mnemonic: Self.mnemonic,
+            derivationPath: UniversalWalletDerivationPaths.bitcoinMainnetFirstReceive,
+            network: .mainnet
+        )
+        let wallet = walletWithBitcoinAccount(
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
+            publicKey: ownKey.publicKey
+        )
+        let recipient = "bc1qslk39wvggqa0vl8nd6jckaz54dw3vk45c5w60m"
+        let testnetAddress = try BitcoinKeyDerivation.deriveKey(
+            mnemonic: Self.mnemonic,
+            derivationPath: UniversalWalletDerivationPaths.bitcoinTestnetFirstReceive,
+            network: .testnet
+        ).address
+        let testnetChain = Self.chain(
+            UniversalWalletRegistry.bitcoinTestnet.chainId
+        )
+
+        XCTAssertEqual(
+            AddressChainDefiner.validateUniversalAddress(
+                recipient,
+                for: mainnetChain,
+                wallet: wallet
+            ),
+            .valid(recipient)
+        )
+        XCTAssertEqual(
+            AddressChainDefiner.validateUniversalAddress(
+                ownKey.address,
+                for: mainnetChain,
+                wallet: wallet
+            ),
+            .sameAddress(ownKey.address)
+        )
+        XCTAssertEqual(
+            AddressChainDefiner.validateUniversalAddress(
+                testnetAddress,
+                for: mainnetChain,
+                wallet: wallet
+            ),
+            .invalid(testnetAddress)
+        )
+        XCTAssertEqual(
+            AddressChainDefiner.validateUniversalAddress(
+                testnetAddress,
+                for: testnetChain,
+                wallet: wallet
+            ),
+            .valid(testnetAddress)
+        )
+        let badChecksum = String(recipient.dropLast()) + (recipient.last == "q" ? "p" : "q")
+        XCTAssertEqual(
+            AddressChainDefiner.validateUniversalAddress(
+                badChecksum,
+                for: mainnetChain,
+                wallet: wallet
+            ),
+            .invalid(badChecksum)
+        )
+        let mixedCase = "B" + recipient.dropFirst()
+        XCTAssertEqual(
+            AddressChainDefiner.validateUniversalAddress(
+                mixedCase,
+                for: mainnetChain,
+                wallet: wallet
+            ),
+            .invalid(mixedCase)
+        )
+        XCTAssertEqual(
+            try BitcoinTransactionBuilder.normalizeP2wpkhAddress(
+                recipient.uppercased(),
+                network: .mainnet
+            ),
+            recipient
+        )
+        XCTAssertEqual(
+            try BitcoinTransactionBuilder.normalizeP2wpkhAddress(
+                " \n\(recipient)\t ",
+                network: .mainnet
+            ),
+            recipient
+        )
+        XCTAssertEqual(
+            WalletSendConfirmPresenter.senderAddress(
+                for: mainnetChain,
+                wallet: wallet
+            ),
+            ownKey.address
+        )
+    }
+
+    func testBitcoinBIP39UsesNFKDForNonASCIIWordsAndPassphrase() throws {
+        let composedMnemonic = "éclair éclair éclair éclair éclair éclair éclair éclair éclair éclair éclair éclair"
+        let decomposedMnemonic = composedMnemonic.decomposedStringWithCompatibilityMapping
+        let compatibilityPassphrase = "㍍ガバヴァぱばぐゞちぢ十人十色"
+        let normalizedPassphrase = compatibilityPassphrase.decomposedStringWithCompatibilityMapping
+
+        XCTAssertEqual(
+            try BitcoinKeyDerivation.deriveAccount(
+                mnemonic: composedMnemonic,
+                passphrase: compatibilityPassphrase
+            ),
+            try BitcoinKeyDerivation.deriveAccount(
+                mnemonic: decomposedMnemonic,
+                passphrase: normalizedPassphrase
+            )
+        )
+    }
+
     func testResolvesSolanaMainnetAddressFromMatchingChainAccountPublicKey() throws {
         let account = try SolanaKeyDerivation.deriveAccount(mnemonic: Self.mnemonic)
         let wallet = walletWithChainAccount(

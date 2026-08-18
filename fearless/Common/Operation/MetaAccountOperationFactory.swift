@@ -229,7 +229,8 @@ private extension MetaAccountOperationFactory {
         substrateCryptoType: CryptoType,
         ethereumPublicKey: Data?,
         isBackuped: Bool,
-        defaultChainId: ChainModel.Id? = nil
+        defaultChainId: ChainModel.Id? = nil,
+        chainAccounts: Set<ChainAccountModel> = []
     ) throws -> MetaAccountModel {
         let substrateAccountId = try substratePublicKey.publicKeyToAccountId()
         let ethereumAddress = try ethereumPublicKey?.ethereumAddressFromPublicKey()
@@ -242,7 +243,7 @@ private extension MetaAccountOperationFactory {
             substratePublicKey: substratePublicKey,
             ethereumAddress: ethereumAddress,
             ethereumPublicKey: ethereumPublicKey,
-            chainAccounts: [],
+            chainAccounts: chainAccounts,
             assetKeysOrder: nil,
             canExportEthereumMnemonic: true,
             unusedChainIds: nil,
@@ -277,13 +278,26 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 ethereumBased: true
             )
 
+            let bitcoinAccount = try BitcoinKeyDerivation.deriveAccount(
+                mnemonic: request.mnemonic.toString(),
+                network: .mainnet
+            )
+            let bitcoinChainAccount = ChainAccountModel(
+                chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
+                accountId: bitcoinAccount.publicKey,
+                publicKey: bitcoinAccount.publicKey,
+                cryptoType: CryptoType.ecdsa.rawValue,
+                ethereumBased: false
+            )
+
             let metaAccount = try createMetaAccount(
                 name: request.username,
                 substratePublicKey: substrateQuery.publicKey,
                 substrateCryptoType: request.cryptoType,
                 ethereumPublicKey: ethereumQuery.publicKey,
                 isBackuped: isBackuped,
-                defaultChainId: request.defaultChainId
+                defaultChainId: request.defaultChainId,
+                chainAccounts: [bitcoinChainAccount]
             )
 
             let metaId = metaAccount.metaId

@@ -7,6 +7,35 @@ import Cuckoo
 import IrohaCrypto
 
 class ExportMnemonicTests: XCTestCase {
+    func testMnemonicCreationProvisionsBitcoinMainnetAccount() throws {
+        let mnemonic = try IRMnemonicCreator().mnemonic(
+            fromList: "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        )
+        let request = MetaAccountImportMnemonicRequest(
+            mnemonic: mnemonic,
+            username: "Bitcoin wallet",
+            substrateDerivationPath: "",
+            ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
+            cryptoType: .sr25519,
+            defaultChainId: nil
+        )
+        let operation = MetaAccountOperationFactory(keystore: InMemoryKeychain())
+            .newMetaAccountOperation(request: request, isBackuped: true)
+
+        OperationQueue().addOperations([operation], waitUntilFinished: true)
+        let wallet = try operation.extractResultData(
+            throwing: BaseOperationError.parentOperationCancelled
+        )
+        let account = try XCTUnwrap(wallet.fetch(
+            for: UniversalWalletRegistry.bitcoinMainnetChainModel.accountRequest()
+        ))
+
+        XCTAssertTrue(account.isChainAccount)
+        XCTAssertEqual(account.chainId, UniversalWalletRegistry.bitcoinMainnet.chainId)
+        XCTAssertEqual(account.cryptoType, .ecdsa)
+        XCTAssertTrue(account.toAddress()?.hasPrefix("bc1") == true)
+    }
+
     func testSubstrateExport() throws {
         // given
 

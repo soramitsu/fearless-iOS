@@ -112,6 +112,7 @@ final class BitcoinReceiveDiscovery {
         var lastUsedIndex: Int?
 
         while consecutiveUnused < gapLimit, index < maxLookahead {
+            try Task.checkCancellation()
             let path = try BitcoinKeyDerivation.getReceivePath(
                 network: network,
                 index: UInt32(index),

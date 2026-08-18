@@ -77,6 +77,9 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
         let options: [MissingAccountOption?] = [.create, .import, unused ? nil : .skip]
 
         guard let account = account else {
+            guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) else {
+                return
+            }
             wireframe.presentAccountOptions(
                 from: view,
                 locale: selectedLocale,
@@ -88,6 +91,14 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
             ) { [weak self] chain in
                 self?.interactor.markUnused(chain: chain)
             }
+            return
+        }
+
+        if UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) {
+            didReceiveExportOptions(
+                options: [],
+                for: ChainAccountInfo(chain: chain, account: account)
+            )
             return
         }
 
@@ -200,7 +211,7 @@ private extension WalletDetailsPresenter {
     }
 
     func createActions(for chain: ChainModel, address: String) -> [ChainAction] {
-        var actions: [ChainAction] = [.copyAddress, .switchNode, .export, .replace]
+        var actions = Self.baseActions(for: chain)
         if let explorers = chain.externalApi?.explorers {
             let explorerActions: [ChainAction] = explorers.compactMap { explorer -> ChainAction? in
                 switch explorer.type {
@@ -232,5 +243,15 @@ private extension WalletDetailsPresenter {
             actions.append(contentsOf: explorerActions)
         }
         return actions
+    }
+}
+
+extension WalletDetailsPresenter {
+    static func baseActions(for chain: ChainModel) -> [ChainAction] {
+        if UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) {
+            return [.copyAddress, .switchNode]
+        }
+
+        return [.copyAddress, .switchNode, .export, .replace]
     }
 }

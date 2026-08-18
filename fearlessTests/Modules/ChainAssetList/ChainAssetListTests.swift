@@ -24,6 +24,32 @@ final class ChainAssetListTests: XCTestCase {
         super.tearDown()
     }
 
+    func testProvisionedBitcoinAppearsInPortfolioAtZeroBalance() throws {
+        let wallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+            to: AccountGenerator.generateMetaAccount(),
+            mnemonic: "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        )
+        let bitcoin = try XCTUnwrap(
+            UniversalWalletRegistry.bitcoinMainnetChainModel.chainAssets.first
+        )
+
+        let viewModel = makeFactory().buildViewModel(
+            wallet: wallet,
+            chainAssets: [bitcoin],
+            locale: Locale(identifier: "en_US"),
+            accountInfos: [:],
+            chainsWithIssue: [],
+            shouldRunManageAssetAnimate: false,
+            displayType: .assetChains,
+            chainSettings: [],
+            networkFilter: nil,
+            search: nil
+        )
+
+        XCTAssertEqual(viewModel.displayState.rows.map(\.chainAsset.assetKey), [bitcoin.assetKey])
+        XCTAssertEqual(viewModel.displayState.rows.first?.chainAsset.asset.symbol, "BTC")
+    }
+
     func testSameSymbolAssetsRemainSeparateByCanonicalIdentity() {
         let firstChain = makeChain(name: "Alpha")
         let secondChain = makeChain(name: "Beta")

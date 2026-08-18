@@ -32,6 +32,10 @@ final class BitcoinSendService {
             network: request.network,
             baseURL: request.baseURL
         )
+        if let expectedFeeSats = request.expectedFeeSats,
+           plan.feeSats != expectedFeeSats {
+            throw BitcoinSendServiceError.feeQuoteMismatch
+        }
         let transaction = try BitcoinTransactionBuilder.buildP2wpkhTransaction(
             mnemonic: request.mnemonic,
             passphrase: request.passphrase,
@@ -79,6 +83,7 @@ struct BitcoinSendRequest: Equatable {
     let passphrase: String
     let changeAddress: String?
     let feeRateSatPerVbyte: Double?
+    let expectedFeeSats: Int64?
     let feeTargetBlocks: Int
     let includeUnconfirmed: Bool
     let maxInputs: Int
@@ -93,6 +98,7 @@ struct BitcoinSendRequest: Equatable {
         passphrase: String = "",
         changeAddress: String? = nil,
         feeRateSatPerVbyte: Double? = nil,
+        expectedFeeSats: Int64? = nil,
         feeTargetBlocks: Int = BitcoinFeeEstimator.defaultTargetBlocks,
         includeUnconfirmed: Bool = false,
         maxInputs: Int = BitcoinUtxoSelector.defaultMaxInputs,
@@ -106,6 +112,7 @@ struct BitcoinSendRequest: Equatable {
         self.passphrase = passphrase
         self.changeAddress = changeAddress
         self.feeRateSatPerVbyte = feeRateSatPerVbyte
+        self.expectedFeeSats = expectedFeeSats
         self.feeTargetBlocks = feeTargetBlocks
         self.includeUnconfirmed = includeUnconfirmed
         self.maxInputs = maxInputs
@@ -126,6 +133,7 @@ struct BitcoinSentTransaction: Equatable {
 
 enum BitcoinSendServiceError: Error, Equatable {
     case broadcastTxidMismatch
+    case feeQuoteMismatch
     case plannedTransactionMismatch
 }
 

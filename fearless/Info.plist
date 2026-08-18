@@ -54,6 +54,8 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>FearlessBitcoinSupportContract</key>
+	<string>bip84-mainnet-v1</string>
 	<key>FearlessBuildConfiguration</key>
 	<string>$(CONFIGURATION)</string>
 	<key>FearlessEnableTestability</key>

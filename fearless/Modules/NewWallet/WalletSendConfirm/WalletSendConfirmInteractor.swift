@@ -17,6 +17,7 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     private let wallet: MetaAccountModel
     private var equilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
     private var tonFeePresentation: (fee: BigUInt, id: String)?
+    private let accountInfoRemoteService: AccountInfoRemoteService
     let dependencyContainer: SendDepencyContainer
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
 
@@ -26,7 +27,8 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
         call: SendConfirmTransferCall,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         dependencyContainer: SendDepencyContainer,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        accountInfoRemoteService: AccountInfoRemoteService
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chainAsset = chainAsset
@@ -34,9 +36,39 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
         self.call = call
         self.dependencyContainer = dependencyContainer
         self.wallet = wallet
+        self.accountInfoRemoteService = accountInfoRemoteService
     }
 
     private func subscribeToAccountInfo() {
+        if UniversalWalletRegistry.bitcoinNetwork(for: chainAsset.chain.chainId) != nil {
+            Task { [weak self] in
+                guard let self else {
+                    return
+                }
+
+                do {
+                    let accountInfo = try await self.accountInfoRemoteService.fetchAccountInfo(
+                        for: self.chainAsset,
+                        wallet: self.wallet
+                    )
+                    await MainActor.run {
+                        self.presenter?.didReceiveAccountInfo(
+                            result: .success(accountInfo),
+                            for: self.chainAsset
+                        )
+                    }
+                } catch {
+                    await MainActor.run {
+                        self.presenter?.didReceiveAccountInfo(
+                            result: .failure(error),
+                            for: self.chainAsset
+                        )
+                    }
+                }
+            }
+            return
+        }
+
         var chainsAssets = [chainAsset]
         if !chainAsset.isUtility,
            let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
@@ -134,6 +166,11 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
     }
 
     func provideConstants() {
+        if UniversalWalletRegistry.bitcoinNetwork(for: chainAsset.chain.chainId) != nil {
+            presenter?.didReceiveMinimumBalance(result: .success(.zero))
+            return
+        }
+
         Task {
             let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
 

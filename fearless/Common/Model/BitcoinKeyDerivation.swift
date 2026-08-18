@@ -340,7 +340,8 @@ enum BitcoinKeyDerivation {
     }
 
     private static func normalizeMnemonic(_ mnemonic: String) throws -> String {
-        let words = mnemonic
+        let normalized = mnemonic.decomposedStringWithCompatibilityMapping
+        let words = normalized
             .split(whereSeparator: { $0.isWhitespace })
             .map(String.init)
 
@@ -349,11 +350,13 @@ enum BitcoinKeyDerivation {
         }
 
         return words.joined(separator: " ")
+            .decomposedStringWithCompatibilityMapping
     }
 
     private static func bip39Seed(mnemonic: String, passphrase: String) throws -> Data {
         let password = Array(mnemonic.utf8)
-        let salt = Array("mnemonic\(passphrase)".utf8)
+        let normalizedPassphrase = passphrase.decomposedStringWithCompatibilityMapping
+        let salt = Array("mnemonic\(normalizedPassphrase)".utf8)
         var output = [UInt8](repeating: 0, count: bip39SeedLength)
 
         let status = password.withUnsafeBufferPointer { passwordBuffer in

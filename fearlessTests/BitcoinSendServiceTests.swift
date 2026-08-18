@@ -16,7 +16,10 @@ final class BitcoinSendServiceTests: XCTestCase {
     }
 
     func testSendsSignedTransactionAndRequiresMatchingBroadcastTxid() async throws {
-        let client = FakeBitcoinIndexerClient(broadcastResponse: Self.expectedTxid.uppercased())
+        let client = FakeBitcoinIndexerClient(
+            broadcastResponse: Self.expectedTxid.uppercased(),
+            feeRates: [2, BitcoinFeeEstimator.maxFeeRateSatPerVbyte]
+        )
         let result = try await BitcoinSendService(client: client).send(Self.request(baseURL: "https://bitcoin.example/api"))
 
         XCTAssertEqual(result.broadcastTxid, Self.expectedTxid)
@@ -59,6 +62,7 @@ final class BitcoinSendServiceTests: XCTestCase {
         XCTAssertEqual(txid, Self.expectedTxid)
         XCTAssertEqual(client.lastFeeNetwork, .mainnet)
         XCTAssertEqual(client.lastFeeBaseURL, "https://bitcoin.example/api")
+        XCTAssertEqual(client.feeEstimateCallCount, 1)
         XCTAssertEqual(client.lastUtxosAddress, Self.mainnetAddress)
         XCTAssertEqual(client.lastUtxosNetwork, .mainnet)
         XCTAssertEqual(client.lastUtxosBaseURL, "https://bitcoin.example/api")
@@ -79,10 +83,19 @@ final class BitcoinSendServiceTests: XCTestCase {
         )
 
         do {
+            _ = try await service.estimateFee(for: Self.transfer(chain: chain))
+            XCTFail("Expected Bitcoin fee estimation to reject missing signing material")
+        } catch TransferServiceError.cannotEstimateFee(let reason) {
+            XCTAssertTrue(reason.contains("mnemonic"))
+        } catch {
+            XCTFail("Unexpected fee error: \(error)")
+        }
+
+        do {
             _ = try await service.submit(transfer: Self.transfer(chain: chain))
             XCTFail("Expected Bitcoin transfer service to reject missing mnemonic material")
         } catch TransferServiceError.transferFailed(let reason) {
-            XCTAssertTrue(reason.contains("mnemonic"))
+            XCTAssertTrue(reason.contains("fee quote"))
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
@@ -103,9 +116,9 @@ final class BitcoinSendServiceTests: XCTestCase {
         )
 
         do {
-            _ = try await service.submit(transfer: Self.transfer(chain: chain))
-            XCTFail("Expected Bitcoin transfer service to reject mismatched mnemonic material")
-        } catch TransferServiceError.transferFailed(let reason) {
+            _ = try await service.estimateFee(for: Self.transfer(chain: chain))
+            XCTFail("Expected Bitcoin fee estimation to reject mismatched mnemonic material")
+        } catch TransferServiceError.cannotEstimateFee(let reason) {
             XCTAssertTrue(reason.contains("does not match selected wallet"))
         } catch {
             XCTFail("Unexpected error: \(error)")
@@ -113,6 +126,29 @@ final class BitcoinSendServiceTests: XCTestCase {
         XCTAssertNil(client.lastFeeNetwork)
         XCTAssertNil(client.lastUtxosAddress)
         XCTAssertNil(client.lastBroadcastTxHex)
+    }
+
+    func testBitcoinTransferServiceDiscoversFundedBIP84AddressBeyondIndexZero() async throws {
+        let chain = Self.bitcoinChain(historyBaseURL: "https://bitcoin.example/api")
+        let wallet = try Self.walletWithBitcoinAccount(
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId
+        )
+        let indexOneAddress = try BitcoinKeyDerivation.deriveKey(
+            mnemonic: Self.mnemonic,
+            derivationPath: BitcoinKeyDerivation.getReceivePath(index: 1),
+            network: .mainnet
+        ).address
+        let client = FakeBitcoinIndexerClient(fundedAddresses: [indexOneAddress])
+        let service = BitcoinTransferService(
+            wallet: wallet,
+            chain: chain,
+            client: client,
+            mnemonicProvider: FakeBitcoinMnemonicProvider(mnemonic: Self.mnemonic)
+        )
+
+        _ = try await service.estimateFee(for: Self.transfer(chain: chain))
+
+        XCTAssertEqual(client.lastUtxosAddress, indexOneAddress)
     }
 
     private final class FakeBitcoinIndexerClient: BitcoinIndexerClientProtocol {
@@ -125,9 +161,18 @@ final class BitcoinSendServiceTests: XCTestCase {
         private(set) var lastUtxosAddress: String?
         private(set) var lastUtxosNetwork: BitcoinIndexerNetwork?
         private(set) var lastUtxosBaseURL: String?
+        private(set) var feeEstimateCallCount = 0
+        private let fundedAddresses: Set<String>
+        private var feeRates: [Double]
 
-        init(broadcastResponse: String = BitcoinSendServiceTests.expectedTxid) {
+        init(
+            broadcastResponse: String = BitcoinSendServiceTests.expectedTxid,
+            fundedAddresses: Set<String> = [BitcoinSendServiceTests.mainnetAddress],
+            feeRates: [Double] = [2]
+        ) {
             self.broadcastResponse = broadcastResponse
+            self.fundedAddresses = Set(fundedAddresses.map { $0.lowercased() })
+            self.feeRates = feeRates
         }
 
         func address(
@@ -135,7 +180,27 @@ final class BitcoinSendServiceTests: XCTestCase {
             network: BitcoinIndexerNetwork,
             baseURL: String?
         ) async throws -> BitcoinEsploraAddress {
-            fatalError("Not used")
+            let isFundedSource = fundedAddresses.contains(address.lowercased())
+            let balance: Int64 = isFundedSource ? 100_000 : 0
+            let transactionCount = isFundedSource ? 1 : 0
+
+            return BitcoinEsploraAddress(
+                address: address,
+                chainStats: BitcoinEsploraStats(
+                    fundedTxoCount: transactionCount,
+                    fundedTxoSum: balance,
+                    spentTxoCount: 0,
+                    spentTxoSum: 0,
+                    txCount: transactionCount
+                ),
+                mempoolStats: BitcoinEsploraStats(
+                    fundedTxoCount: 0,
+                    fundedTxoSum: 0,
+                    spentTxoCount: 0,
+                    spentTxoSum: 0,
+                    txCount: 0
+                )
+            )
         }
 
         func utxos(
@@ -146,6 +211,10 @@ final class BitcoinSendServiceTests: XCTestCase {
             lastUtxosAddress = address
             lastUtxosNetwork = network
             lastUtxosBaseURL = baseURL
+
+            guard fundedAddresses.contains(address.lowercased()) else {
+                return []
+            }
 
             return [
                 BitcoinEsploraUtxo(
@@ -173,8 +242,10 @@ final class BitcoinSendServiceTests: XCTestCase {
         ) async throws -> [String: Double] {
             lastFeeNetwork = network
             lastFeeBaseURL = baseURL
+            feeEstimateCallCount += 1
 
-            return ["2": 2]
+            let feeRate = feeRates.isEmpty ? 2 : feeRates.removeFirst()
+            return ["2": feeRate]
         }
 
         func broadcastTransaction(

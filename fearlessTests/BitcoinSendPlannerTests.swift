@@ -247,7 +247,7 @@ final class BitcoinSendPlannerTests: XCTestCase {
     private struct UnexpectedEndpointError: Error {}
 
     private static let mainnetAddress = "bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu"
-    private static let recipientAddress = "bc1q6rz28mcfaxtmd6v789l9rrlrusdprr9pqcpvkl"
+    private static let recipientAddress = "bc1qslk39wvggqa0vl8nd6jckaz54dw3vk45c5w60m"
     private static let testnetAddress = "tb1q6rz28mcfaxtmd6v789l9rrlrusdprr9pqcpvkl"
 
     private static func utxo(

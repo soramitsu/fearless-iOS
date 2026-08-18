@@ -5,6 +5,7 @@ import SoraFoundation
 import SoraKeystore
 import SSFModels
 import RobinHood
+import SSFStorageQueryKit
 
 enum SendConfirmTransferCall {
     case transfer(Transfer)
@@ -107,6 +108,15 @@ enum WalletSendConfirmViewFactory {
             wallet: wallet,
             operationManager: operationManager
         )
+        let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
+            chainRegistry: ChainRegistryFacade.sharedRegistry
+        )
+        let accountInfoRemoteService = AccountInfoRemoteServiceDefault(
+            bitcoinBalanceSync: BitcoinBalanceSync(
+                discovery: BitcoinReceiveDiscovery(client: BitcoinIndexerClient())
+            ),
+            storagePerformer: storagePerformer
+        )
         return WalletSendConfirmInteractor(
             selectedMetaAccount: wallet,
             chainAsset: chainAsset,
@@ -116,7 +126,8 @@ enum WalletSendConfirmViewFactory {
                 selectedMetaAccount: wallet
             ),
             dependencyContainer: dependencyContainer,
-            wallet: wallet
+            wallet: wallet,
+            accountInfoRemoteService: accountInfoRemoteService
         )
     }
 }

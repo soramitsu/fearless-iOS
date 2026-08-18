@@ -565,6 +565,8 @@ final class ChainRegistry {
             try handleNewEthereumChain(newChain: chain)
         case .ton:
             handleTonChain(chain)
+        case .universal:
+            handleUniversalChain(chain)
         }
     }
 
@@ -576,6 +578,8 @@ final class ChainRegistry {
             try handleUpdatedEthereumChain(updatedChain: chain)
         case .ton:
             handleTonChain(chain)
+        case .universal:
+            handleUniversalChain(chain)
         }
     }
 
@@ -590,6 +594,8 @@ final class ChainRegistry {
         case .ethereum:
             handleDeletedEthereumChain(chainId: chainId)
         case .ton:
+            handleDeletedChain(chainId: chainId)
+        case .universal:
             handleDeletedChain(chainId: chainId)
         }
     }
@@ -756,6 +762,11 @@ final class ChainRegistry {
             tonApiClientFactory = nil
             tonApiChainId = nil
         }
+    }
+
+    private func handleUniversalChain(_ chain: ChainModel) {
+        chains = chains.filter { $0.chainId != chain.chainId }
+        chains.append(chain)
     }
 
     // MARK: - Private others methods
@@ -952,6 +963,8 @@ extension ChainRegistry: ChainRegistryProtocol {
             resetEthereumConnection(for: chain.chainId)
         case .ton:
             break
+        case .universal:
+            break
         }
     }
 
@@ -968,11 +981,16 @@ private extension ChainRegistry {
         case substrate
         case ethereum
         case ton
+        case universal
     }
 
     func chainKind(for chain: ChainModel) -> ChainKind {
         if chain.isTonCompatibilityChain {
             return .ton
+        }
+
+        if UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) {
+            return .universal
         }
 
         if chain.chainBaseType == .ethereum {

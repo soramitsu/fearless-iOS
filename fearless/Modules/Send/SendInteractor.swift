@@ -16,6 +16,7 @@ final class SendInteractor: RuntimeConstantFetching {
     private let addressChainDefiner: AddressChainDefiner
     private var equilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
     private let runtimeItemRepository: AsyncAnyRepository<RuntimeMetadataItem>
+    private let accountInfoRemoteService: AccountInfoRemoteService
 
     let dependencyContainer: SendDepencyContainer
 
@@ -29,7 +30,8 @@ final class SendInteractor: RuntimeConstantFetching {
         chainAssetFetching: ChainAssetFetchingProtocol,
         dependencyContainer: SendDepencyContainer,
         addressChainDefiner: AddressChainDefiner,
-        runtimeItemRepository: AsyncAnyRepository<RuntimeMetadataItem>
+        runtimeItemRepository: AsyncAnyRepository<RuntimeMetadataItem>,
+        accountInfoRemoteService: AccountInfoRemoteService
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.operationManager = operationManager
@@ -38,12 +40,42 @@ final class SendInteractor: RuntimeConstantFetching {
         self.dependencyContainer = dependencyContainer
         self.addressChainDefiner = addressChainDefiner
         self.runtimeItemRepository = runtimeItemRepository
+        self.accountInfoRemoteService = accountInfoRemoteService
     }
 
     // MARK: - Private methods
 
     private func subscribeToAccountInfo(for chainAsset: ChainAsset, utilityAsset: ChainAsset? = nil) {
         guard let dependencies = dependencies else {
+            return
+        }
+
+        if UniversalWalletRegistry.bitcoinNetwork(for: chainAsset.chain.chainId) != nil {
+            Task { [weak self] in
+                guard let self else {
+                    return
+                }
+
+                do {
+                    let accountInfo = try await accountInfoRemoteService.fetchAccountInfo(
+                        for: chainAsset,
+                        wallet: dependencies.wallet
+                    )
+                    await MainActor.run {
+                        self.output?.didReceiveAccountInfo(
+                            result: .success(accountInfo),
+                            for: chainAsset
+                        )
+                    }
+                } catch {
+                    await MainActor.run {
+                        self.output?.didReceiveAccountInfo(
+                            result: .failure(error),
+                            for: chainAsset
+                        )
+                    }
+                }
+            }
             return
         }
 
@@ -67,6 +99,14 @@ final class SendInteractor: RuntimeConstantFetching {
         Task {
             let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
             self.dependencies = dependencies
+
+            if UniversalWalletRegistry.bitcoinNetwork(for: chainAsset.chain.chainId) != nil {
+                output?.didReceiveAssetAccountInfo(assetAccountInfo: nil)
+                subscribeToAccountInfo(for: chainAsset)
+                output?.didReceiveMinimumBalance(result: .success(.zero))
+                output?.didReceiveDependencies(for: chainAsset)
+                return
+            }
 
             getTokensStatus(for: chainAsset)
 

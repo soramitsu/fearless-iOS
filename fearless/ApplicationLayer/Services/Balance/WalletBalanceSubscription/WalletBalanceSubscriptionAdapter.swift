@@ -374,6 +374,8 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
         if let index = wallets.firstIndex(where: { $0.metaId == event.account.metaId }),
            let wallet = wallets[safe: index] {
+            let shouldRebuild = wallet.chainAccounts != event.account.chainAccounts
+                || wallet.selectedCurrency != event.account.selectedCurrency
             if wallet.selectedCurrency != event.account.selectedCurrency {
                 wallets[index] = event.account
             }
@@ -382,7 +384,27 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
                 buildAndNotifyIfNeeded(with: [wallet.metaId], updatedChainAssets: chainAssets)
             }
             wallets[index] = event.account
+            if shouldRebuild {
+                buildAndNotifyIfNeeded(
+                    with: [event.account.metaId],
+                    updatedChainAssets: chainAssets
+                )
+            }
         }
+    }
+
+    func processRemoteAccountInfoUpdated(event: RemoteAccountInfoUpdatedEvent) {
+        let updatedChainAssets = chainAssets.filter {
+            $0.chain.chainId == event.chainId
+        }
+        guard updatedChainAssets.isNotEmpty else {
+            return
+        }
+
+        buildAndNotifyIfNeeded(
+            with: [event.walletId],
+            updatedChainAssets: updatedChainAssets
+        )
     }
 
     func processSelectedAccountChanged(event: SelectedAccountChanged) {

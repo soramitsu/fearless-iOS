@@ -28,6 +28,15 @@ protocol AccountInfoLastKnownBalanceProviding {
     ) -> [ChainAssetId: AccountInfo?]
 }
 
+struct RemoteAccountInfoUpdatedEvent: EventProtocol {
+    let walletId: MetaAccountId
+    let chainId: ChainModel.Id
+
+    func accept(visitor: EventVisitorProtocol) {
+        visitor.processRemoteAccountInfoUpdated(event: self)
+    }
+}
+
 /// Durable last-known balances for remote ecosystems that do not use the
 /// Substrate account-info repository. Values are keyed by wallet + AssetKey;
 /// display symbols never participate. A failed scan only reads this store and
@@ -43,7 +52,6 @@ enum RemoteLastKnownBalanceStore {
         userDefaults: UserDefaults = .standard
     ) {
         lock.lock()
-        defer { lock.unlock() }
 
         chain.chainAssets.forEach { chainAsset in
             guard let wrapped = accountInfos[chainAsset.chainAssetId],
@@ -57,6 +65,14 @@ enum RemoteLastKnownBalanceStore {
                 forKey: key(walletId: walletId, assetKey: chainAsset.assetKey)
             )
         }
+        lock.unlock()
+
+        EventCenter.shared.notify(
+            with: RemoteAccountInfoUpdatedEvent(
+                walletId: walletId,
+                chainId: chain.chainId
+            )
+        )
     }
 
     static func load(
@@ -129,7 +145,13 @@ protocol UniversalWalletMnemonicProviding {
 
 protocol BitcoinMnemonicProviding: UniversalWalletMnemonicProviding {}
 
-final class KeychainUniversalWalletMnemonicProvider: BitcoinMnemonicProviding {
+protocol UniversalWalletRootMnemonicProviding {
+    func rootMnemonic(for wallet: MetaAccountModel) throws -> String?
+}
+
+final class KeychainUniversalWalletMnemonicProvider:
+    BitcoinMnemonicProviding,
+    UniversalWalletRootMnemonicProviding {
     private let keystore: KeystoreProtocol
 
     init(keystore: KeystoreProtocol = Keychain()) {
@@ -156,6 +178,18 @@ final class KeychainUniversalWalletMnemonicProvider: BitcoinMnemonicProviding {
         }
 
         return nil
+    }
+
+    func rootMnemonic(for wallet: MetaAccountModel) throws -> String? {
+        let entropyTag = KeystoreTagV2.entropyTagForMetaId(
+            wallet.metaId,
+            accountId: nil
+        )
+        guard let entropy = try? keystore.fetchKey(for: entropyTag) else {
+            return nil
+        }
+
+        return try IRMnemonicCreator().mnemonic(fromEntropy: entropy).toString()
     }
 }
 
@@ -536,14 +570,30 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         }
 
         do {
-            let result = try await bitcoinBalanceSync.balance(
-                mnemonic: mnemonic,
-                passphrase: "",
-                network: bitcoinKeyDerivationNetwork(for: network),
-                baseURL: bitcoinBalanceBaseURL(for: chain),
+            let keyNetwork = bitcoinKeyDerivationNetwork(for: network)
+            let indexerNetwork: BitcoinIndexerNetwork = keyNetwork == .mainnet
+                ? .mainnet
+                : .testnet
+            let baseURL = bitcoinBalanceBaseURL(for: chain)
+            let cacheKey = BitcoinWalletBalanceCache.Key(
+                walletId: wallet.metaId,
+                network: indexerNetwork,
+                baseURL: baseURL,
                 gapLimit: network.defaultGapLimit,
                 maxLookahead: BitcoinReceiveDiscovery.defaultMaxLookahead
             )
+            let result = try await BitcoinWalletBalanceCache.shared.value(
+                for: cacheKey
+            ) {
+                try await bitcoinBalanceSync.balance(
+                    mnemonic: mnemonic,
+                    passphrase: "",
+                    network: keyNetwork,
+                    baseURL: baseURL,
+                    gapLimit: network.defaultGapLimit,
+                    maxLookahead: BitcoinReceiveDiscovery.defaultMaxLookahead
+                )
+            }
             NetworkScanStateStore.markSuccess(
                 for: chain,
                 coverage: .complete,

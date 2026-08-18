@@ -7,7 +7,7 @@ enum BitcoinIndexerRouteError: Error, Equatable {
     case invalidTxHex
 }
 
-enum BitcoinIndexerNetwork: Equatable {
+enum BitcoinIndexerNetwork: Equatable, Hashable {
     case mainnet
     case testnet
 

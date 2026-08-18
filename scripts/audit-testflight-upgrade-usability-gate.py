@@ -18,8 +18,8 @@ from typing import Any
 
 EXPECTED_BUNDLE_ID = "jp.co.soramitsu.fearlesswallet"
 EXPECTED_VERSION = "4.2.0"
-EXPECTED_BUILD = "2026.8.17"
-EXPECTED_PREVIOUS_BUILD = "2026.8.15"
+EXPECTED_BUILD = "2026.8.18"
+EXPECTED_PREVIOUS_BUILDS = ("2026.8.15", "2026.8.17")
 EXPECTED_BASE_SOURCE_COMMIT = "2e45e55dc03ad904598e730cfb5994fb5c1072dc"
 MINIMUM_USABILITY_SECONDS = 300
 WALL_CLOCK_ROUNDING_TOLERANCE_MILLISECONDS = 1000
@@ -35,6 +35,13 @@ TAB_BAR_ROUTE_ATTESTATIONS = (
     "settingsTabRouteWorked",
 )
 PI_PRICE_ATTESTATION = "piBackedTokenPricesVisible"
+BITCOIN_ATTESTATIONS = (
+    "bitcoinAssetVisible",
+    "bitcoinBalanceRefreshWorked",
+    "bitcoinReceiveAddressWorked",
+    "bitcoinSendFeeQuoteWorked",
+    "bitcoinSigningReady",
+)
 CAPTURE_RECEIPT_KEYS = {
     "schemaVersion",
     "audit",
@@ -487,8 +494,8 @@ def validate(
         "installation",
     )
     require(
-        installation.get("previousBuildVersion") == EXPECTED_PREVIOUS_BUILD,
-        "installation must update in place from legacy build 2026.8.15",
+        installation.get("previousBuildVersion") in EXPECTED_PREVIOUS_BUILDS,
+        "installation must update in place from supported predecessor build 2026.8.15 or 2026.8.17",
     )
     require_true(installation, "installedInPlace")
     require_true(installation, "originalAppStoreContainerPreserved")
@@ -510,6 +517,7 @@ def validate(
             "bottomNavigationControlCount",
             *TAB_BAR_ROUTE_ATTESTATIONS,
             PI_PRICE_ATTESTATION,
+            *BITCOIN_ATTESTATIONS,
             "captureReceiptSHA256",
         },
         "firstLaunch",
@@ -558,6 +566,8 @@ def validate(
     for key in TAB_BAR_ROUTE_ATTESTATIONS:
         require_true(first_launch, key)
     require_true(first_launch, PI_PRICE_ATTESTATION)
+    for key in BITCOIN_ATTESTATIONS:
+        require_true(first_launch, key)
     require(
         first_launch.get("readyMarkerCount")
         == first_capture_receipt.get("readyMarkerCount"),
@@ -605,6 +615,7 @@ def validate(
             "bottomNavigationControlCount",
             *TAB_BAR_ROUTE_ATTESTATIONS,
             PI_PRICE_ATTESTATION,
+            *BITCOIN_ATTESTATIONS,
             "captureReceiptSHA256",
         },
         "secondColdLaunch",
@@ -647,6 +658,8 @@ def validate(
     for key in TAB_BAR_ROUTE_ATTESTATIONS:
         require_true(second_launch, key)
     require_true(second_launch, PI_PRICE_ATTESTATION)
+    for key in BITCOIN_ATTESTATIONS:
+        require_true(second_launch, key)
     require(
         second_launch.get("readyMarkerCount")
         == second_capture_receipt.get("readyMarkerCount"),

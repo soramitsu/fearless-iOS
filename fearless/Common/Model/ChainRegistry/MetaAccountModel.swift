@@ -88,6 +88,27 @@ extension MetaAccountModel {
         )
     }
 
+    func replacingChainAccounts(_ newChainAccounts: Set<ChainAccountModel>) -> MetaAccountModel {
+        MetaAccountModel(
+            metaId: metaId,
+            name: name,
+            substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType,
+            substratePublicKey: substratePublicKey,
+            ethereumAddress: ethereumAddress,
+            ethereumPublicKey: ethereumPublicKey,
+            chainAccounts: newChainAccounts,
+            assetKeysOrder: assetKeysOrder,
+            canExportEthereumMnemonic: canExportEthereumMnemonic,
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency,
+            networkManagmentFilter: networkManagmentFilter,
+            assetsVisibility: assetsVisibility,
+            hasBackup: hasBackup,
+            favouriteChainIds: favouriteChainIds
+        )
+    }
+
     func replacingEthereumAddress(_ newEthereumAddress: Data?) -> MetaAccountModel {
         MetaAccountModel(
             metaId: metaId,

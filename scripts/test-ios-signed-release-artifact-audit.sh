@@ -118,6 +118,7 @@ app = {
     "CFBundleShortVersionString": "4.2.0",
     "CFBundleVersion": "2026.7.28",
     "FearlessBuildConfiguration": "Release",
+    "FearlessBitcoinSupportContract": "bip84-mainnet-v1",
     "FearlessEnableTestability": "NO",
     "FearlessGitCommit": git_sha,
     "FearlessSwiftOptimizationLevel": "-O",
@@ -368,6 +369,7 @@ fi
 assert_contains '"archiveTreeSHA256"' "$CASE_DIR/output/receipt.json"
 assert_contains '"distributionProfile": "valid-app-store"' "$CASE_DIR/output/receipt.json"
 assert_contains '"uiDesignCompatibility": "native-redesigned-tab-bar"' "$CASE_DIR/output/receipt.json"
+assert_contains '"bitcoinSupportContract": "bip84-mainnet-v1"' "$CASE_DIR/output/receipt.json"
 assert_contains '"minimumOSVersion": "15.0"' "$CASE_DIR/output/receipt.json"
 assert_contains '"dSYMContract": "exact-uuid-upload-coverage"' "$CASE_DIR/output/receipt.json"
 assert_contains '"sourceLineCoverage": "not-asserted"' "$CASE_DIR/output/receipt.json"
@@ -380,6 +382,16 @@ prepare_case wrong-build
 mutate_plist "$APP/Info.plist" \
   'value["CFBundleVersion"] = "2026.7.27"'
 expect_failure wrong-build "archived build number is not the expected fresh build"
+
+prepare_case missing-bitcoin-support-contract
+mutate_plist "$APP/Info.plist" \
+  'del value["FearlessBitcoinSupportContract"]'
+expect_failure missing-bitcoin-support-contract "lacks the native Bitcoin support contract"
+
+prepare_case wrong-bitcoin-support-contract
+mutate_plist "$APP/Info.plist" \
+  'value["FearlessBitcoinSupportContract"] = "engine-only"'
+expect_failure wrong-bitcoin-support-contract "does not attest the reviewed native Bitcoin support contract"
 
 prepare_case enabled-ui-design-compatibility
 mutate_plist "$APP/Info.plist" \

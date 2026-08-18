@@ -6,6 +6,70 @@ import SSFUtils
 @testable import fearless
 
 final class ChainSyncServiceCompatibilityTests: XCTestCase {
+    func testAppOwnedBitcoinChainIsAlwaysPresentAndOverridesRemoteCollision() throws {
+        let remote = makeValidChain(generatingAssets: 1, addressPrefix: 42)
+        let collidingBitcoin = copy(
+            remote,
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
+            name: "Untrusted Bitcoin replacement"
+        )
+
+        let merged = ChainSyncService.mergingAppOwnedProductionChains(
+            into: [remote, collidingBitcoin]
+        )
+        let bitcoinRows = merged.filter {
+            $0.chainId == UniversalWalletRegistry.bitcoinMainnet.chainId
+        }
+        let sanitized = try ChainSyncService.sanitizingRemoteChains(merged)
+
+        XCTAssertEqual(bitcoinRows, [UniversalWalletRegistry.bitcoinMainnetChainModel])
+        XCTAssertEqual(
+            sanitized.first(where: {
+                $0.chainId == UniversalWalletRegistry.bitcoinMainnet.chainId
+            }),
+            UniversalWalletRegistry.bitcoinMainnetChainModel
+        )
+        XCTAssertTrue(merged.contains(where: { $0.chainId == remote.chainId }))
+    }
+
+    func testSuccessfulSyncDeletesObsoleteBitcoinAliasAndPersistsCanonicalChain() throws {
+        let remote = makeValidChain(generatingAssets: 1, addressPrefix: 42)
+        let alias = copy(
+            UniversalWalletRegistry.bitcoinMainnetChainModel,
+            chainId: UniversalWalletRegistry.bitcoinMainnet.id
+        )
+        let repository = ScriptedChainRepository(localChains: [alias])
+        let eventCenter = RecordingChainSyncEventCenter()
+        let completionExpectation = expectation(
+            description: "canonical Bitcoin catalog persisted"
+        )
+        eventCenter.onEvent = { event in
+            if event is ChainSyncDidComplete {
+                completionExpectation.fulfill()
+            }
+        }
+        let service = makeService(
+            data: try JSONEncoder().encode([remote]),
+            repository: AnyDataProviderRepository(repository),
+            eventCenter: eventCenter
+        )
+
+        service.syncUp()
+
+        wait(for: [completionExpectation], timeout: 1)
+        XCTAssertEqual(
+            repository.deletedIdentifiers,
+            [UniversalWalletRegistry.bitcoinMainnet.id]
+        )
+        XCTAssertTrue(
+            repository.savedModels.contains(
+                UniversalWalletRegistry.bitcoinMainnetChainModel
+            )
+        )
+        XCTAssertEqual(eventCenter.failureCount, 0)
+        XCTAssertEqual(eventCenter.completionCount, 1)
+    }
+
     func testCoerceChainsPayloadForCompatibilityNormalizesBlockscoutTypes() throws {
         let payload: [[String: Any]] = [[
             "externalApi": [
@@ -307,9 +371,16 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
         service.syncUp()
 
         wait(for: [failureExpectation], timeout: 1)
-        XCTAssertEqual(repository.saveCallCount, 0)
+        XCTAssertEqual(repository.saveCallCount, 1)
         XCTAssertEqual(repository.replaceCallCount, 0)
-        XCTAssertTrue(repository.savedModels.isEmpty)
+        XCTAssertEqual(
+            repository.savedModels,
+            [UniversalWalletRegistry.bitcoinMainnetChainModel]
+        )
+        XCTAssertEqual(
+            eventCenter.lastUpdatedChains,
+            [UniversalWalletRegistry.bitcoinMainnetChainModel]
+        )
         XCTAssertTrue(repository.deletedIdentifiers.isEmpty)
         XCTAssertEqual(eventCenter.failureCount, 1)
         XCTAssertEqual(eventCenter.completionCount, 0)
@@ -485,7 +556,10 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
         wait(for: [completionExpectation], timeout: 1)
         XCTAssertEqual(repository.replaceCallCount, 0)
         XCTAssertEqual(repository.saveCallCount, 1)
-        XCTAssertTrue(repository.savedModels.isEmpty)
+        XCTAssertEqual(
+            repository.savedModels,
+            UniversalWalletRegistry.appOwnedProductionChains
+        )
         XCTAssertTrue(repository.deletedIdentifiers.isEmpty)
         XCTAssertEqual(eventCenter.failureCount, 0)
         XCTAssertEqual(eventCenter.completionCount, 1)
@@ -532,8 +606,8 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
             generatingAssets: 1,
             addressPrefix: 42
         )
-        let expectedChain = try XCTUnwrap(
-            ChainSyncService.sanitizingRemoteChains([remoteChain]).first
+        let expectedChains = try ChainSyncService.sanitizingRemoteChains(
+            ChainSyncService.mergingAppOwnedProductionChains(into: [remoteChain])
         )
         let dataFactory = CountingDataOperationFactory(
             data: try JSONEncoder().encode([remoteChain])
@@ -605,7 +679,7 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
         XCTAssertEqual(eventCenter.startCount, 1)
         XCTAssertEqual(eventCenter.failureCount, 0)
         XCTAssertEqual(eventCenter.completionCount, 1)
-        XCTAssertEqual(repository.savedModels, [expectedChain])
+        XCTAssertEqual(repository.savedModels, expectedChains)
     }
 
     func testCooldownExpiryDoesNotReleaseBlockedPipeline() throws {
@@ -613,8 +687,8 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
             generatingAssets: 1,
             addressPrefix: 42
         )
-        let expectedChain = try XCTUnwrap(
-            ChainSyncService.sanitizingRemoteChains([remoteChain]).first
+        let expectedChains = try ChainSyncService.sanitizingRemoteChains(
+            ChainSyncService.mergingAppOwnedProductionChains(into: [remoteChain])
         )
         let firstFetchRelease = DispatchSemaphore(value: 0)
         let firstFetchStarted = expectation(
@@ -705,7 +779,7 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
         XCTAssertEqual(repository.fetchAllCallCount, 1)
         XCTAssertEqual(repository.saveCallCount, 1)
         XCTAssertEqual(eventCenter.startCount, 1)
-        XCTAssertEqual(repository.savedModels, [expectedChain])
+        XCTAssertEqual(repository.savedModels, expectedChains)
 
         service.syncUp()
         wait(for: [secondCompletion], timeout: 1)
@@ -717,7 +791,7 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
         XCTAssertEqual(eventCenter.startCount, 2)
         XCTAssertEqual(eventCenter.failureCount, 0)
         XCTAssertEqual(eventCenter.completionCount, 2)
-        XCTAssertEqual(repository.savedModels, [expectedChain])
+        XCTAssertEqual(repository.savedModels, expectedChains)
     }
 
     func testSuccessBeforeTimerStartRetainsCooldownUntilExpiry() throws {
@@ -1725,6 +1799,7 @@ private final class RecordingChainSyncEventCenter: EventCenterProtocol {
     private var failures: [Error] = []
     private var completions = 0
     private var starts = 0
+    private var updatedChains: [[ChainModel]] = []
 
     var onEvent: ((EventProtocol) -> Void)?
 
@@ -1744,6 +1819,10 @@ private final class RecordingChainSyncEventCenter: EventCenterProtocol {
         lock.with { failures.last }
     }
 
+    var lastUpdatedChains: [ChainModel]? {
+        lock.with { updatedChains.last }
+    }
+
     func notify(with event: EventProtocol) {
         lock.with {
             if event is ChainSyncDidStart {
@@ -1752,6 +1831,8 @@ private final class RecordingChainSyncEventCenter: EventCenterProtocol {
                 failures.append(failure.error)
             } else if event is ChainSyncDidComplete {
                 completions += 1
+            } else if let update = event as? ChainsUpdatedEvent {
+                updatedChains.append(update.updatedChains)
             }
         }
 

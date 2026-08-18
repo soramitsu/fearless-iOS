@@ -21,10 +21,16 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
         wallet: MetaAccountModel,
         mode: ChainAccountViewMode
     ) -> ChainAccountViewModel {
-        var address: String?
-        if
-            let chainAccountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()),
-            let address1 = try? AddressFactory.address(for: chainAccountResponse.accountId, chain: chainAsset.chain) {
+        var address = UniversalWalletAccountAddressResolver.address(
+            for: chainAsset.chain,
+            wallet: wallet
+        )
+        if address == nil,
+           !UniversalWalletChainAccountSupport.isUniversalWalletChain(
+               chainAsset.chain.chainId
+           ),
+           let chainAccountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()),
+           let address1 = try? AddressFactory.address(for: chainAccountResponse.accountId, chain: chainAsset.chain) {
             address = address1
         }
         let allAssets = Array(chainAsset.chain.assets)

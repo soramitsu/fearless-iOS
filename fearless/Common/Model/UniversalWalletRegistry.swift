@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 enum UniversalWalletRegistry {
     static let bitcoinMainnetIndexerBaseURL = URL(string: "https://blockstream.info/api")!
@@ -27,6 +28,70 @@ enum UniversalWalletRegistry {
         )
     )
 
+    /// Bitcoin is an app-owned network. It is intentionally merged into the
+    /// downloaded registry at runtime because the shared Substrate/EVM
+    /// registry does not publish a Bitcoin row.
+    static let bitcoinMainnetChainModel: ChainModel = {
+        let asset = AssetModel(
+            id: bitcoinMainnet.nativeAsset.id,
+            name: bitcoinMainnet.name,
+            symbol: bitcoinMainnet.nativeAsset.symbol,
+            precision: UInt16(bitcoinMainnet.nativeAsset.decimals),
+            icon: nil,
+            currencyId: bitcoinMainnet.nativeAsset.id,
+            color: "F7931A",
+            isUtility: true,
+            isNative: true,
+            staking: nil,
+            purchaseProviders: nil,
+            type: nil,
+            ethereumType: nil,
+            priceProvider: PriceProvider(
+                type: .coingecko,
+                id: "bitcoin",
+                precision: nil
+            ),
+            coingeckoPriceId: "bitcoin"
+        )
+        let indexerNode = ChainNodeModel(
+            url: bitcoinMainnet.indexerBaseURL,
+            name: "Blockstream Esplora",
+            apikey: nil
+        )
+        let history = ChainModel.BlockExplorer(
+            type: "subsquid",
+            url: bitcoinMainnet.indexerBaseURL
+        )
+
+        return ChainModel(
+            rank: 1,
+            disabled: false,
+            chainId: bitcoinMainnet.chainId,
+            parentId: nil,
+            paraId: nil,
+            name: bitcoinMainnet.name,
+            assets: [asset],
+            xcm: nil,
+            nodes: [indexerNode],
+            addressPrefix: 0,
+            types: nil,
+            icon: nil,
+            options: nil,
+            externalApi: ChainModel.ExternalApiSet(
+                staking: nil,
+                history: history,
+                crowdloans: nil,
+                explorers: nil
+            ),
+            selectedNode: nil,
+            customNodes: nil,
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+    }()
+
+    static let appOwnedProductionChains = [bitcoinMainnetChainModel]
+
     static let bitcoinTestnet = BitcoinNetwork(
         id: "bitcoin-testnet",
         chainId: "bitcoin:testnet",
@@ -44,6 +109,17 @@ enum UniversalWalletRegistry {
             decimals: 8
         )
     )
+
+    static func bitcoinNetwork(for chainId: String) -> BitcoinNetwork? {
+        switch chainId.lowercased() {
+        case bitcoinMainnet.chainId, bitcoinMainnet.id:
+            return bitcoinMainnet
+        case bitcoinTestnet.chainId, bitcoinTestnet.id:
+            return bitcoinTestnet
+        default:
+            return nil
+        }
+    }
 
     static let solanaMainnet = SolanaNetwork(
         id: "solana-mainnet",
@@ -289,5 +365,36 @@ enum UniversalWalletRegistry {
             features: network.features,
             endpoints: endpoints
         )
+    }
+}
+
+enum UniversalWalletAccountProvisioning {
+    static func addingBitcoinMainnetAccount(
+        to wallet: MetaAccountModel,
+        mnemonic: String
+    ) throws -> MetaAccountModel {
+        let chainId = UniversalWalletRegistry.bitcoinMainnet.chainId
+        let account = try BitcoinKeyDerivation.deriveAccount(
+            mnemonic: mnemonic,
+            network: .mainnet
+        )
+        let chainAccount = ChainAccountModel(
+            chainId: chainId,
+            accountId: account.publicKey,
+            publicKey: account.publicKey,
+            cryptoType: CryptoType.ecdsa.rawValue,
+            ethereumBased: false
+        )
+
+        var chainAccounts = wallet.chainAccounts.filter {
+            !UniversalWalletChainAccountSupport.chainId($0.chainId, matches: chainId)
+        }
+        chainAccounts.insert(chainAccount)
+
+        guard chainAccounts != wallet.chainAccounts else {
+            return wallet
+        }
+
+        return wallet.replacingChainAccounts(chainAccounts)
     }
 }
