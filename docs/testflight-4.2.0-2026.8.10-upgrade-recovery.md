@@ -9,7 +9,10 @@ it must not be reused. Build `4.2.0 (2026.8.15)` restored the legacy tab bar's
 visibility but did not contain the completed navigation redesign. Build
 `4.2.0 (2026.8.17)` added the redesign but omitted Bitcoin from the production
 chain catalog and wallet lifecycle. Corrected successor build
-`4.2.0 (2026.8.18)` retains ancestry from distributed source commit
+`4.2.0 (2026.8.18)` added Bitcoin but default-disabled Polkaswap mutations and
+could permanently install a startup placeholder before SORA services were
+ready. Corrected successor build `4.2.0 (2026.8.19)` retains ancestry from
+distributed source commit
 `2e45e55dc03ad904598e730cfb5994fb5c1072dc`, the exact public App Store
 Substrate v8/v9 compatibility models and lossless v10 migration, the redesign,
 and native BIP84 Bitcoin catalog/account/balance/receive/send integration. The
@@ -95,14 +98,15 @@ observation identified `SUBSTRATE_COMPATIBILITY_MISSING`; do not Retry it.
 The in-place `.8.13` update preserved and opened the wallet but hid UIKit's
 managed tab items behind the custom tab bar on iOS 26. The `.8.15` compatibility
 build restored those legacy items. `.8.17` restored the redesign but omitted
-usable BTC support. Use corrected `.8.18` for the preserved-data qualification
+usable BTC support. `.8.18` added BTC but regressed Polkaswap availability and
+clean-start settings. Use corrected `.8.19` for the preserved-data qualification
 below.
 
 ## Internal TestFlight gate
 
 1. Confirm the installed identity is `jp.co.soramitsu.fearlesswallet`, version
-   `4.2.0`, build `2026.8.15` before the redesigned successor update.
-2. Assign build `2026.8.18` only to a true internal TestFlight group containing
+   `4.2.0`, build `2026.8.18` before the corrected successor update.
+2. Assign build `2026.8.19` only to a true internal TestFlight group containing
    the affected phone's App Store Connect user. Do not use the similarly named
    external affected-phone group, which requires Beta App Review, and do not
    change the public beta group.
@@ -117,7 +121,7 @@ below.
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.18 \
+     --expected-build 2026.8.19 \
      --observation-seconds 900 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 300 \
@@ -130,6 +134,9 @@ below.
    - successful PIN entry and a working wallet route;
    - all five bottom navigation controls visible, with Portfolio, DeFi,
      Polkaswap, Cross-chain, and Settings each opening successfully;
+   - Polkaswap settings loaded, a live swap quote and separate fee quote, a
+     working preview, and signing readiness, all recorded only as pass/fail
+     attestations; do not submit or broadcast a swap;
    - a nonzero PI-backed Polkaswap token price visible, recorded only as a
      pass/fail attestation without the token identifier or price value;
    - native BTC visible in Portfolio, a successful BTC balance refresh, a
@@ -137,21 +144,23 @@ below.
      recorded only as pass/fail attestations; do not broadcast funds;
    - unchanged wallet counts, logical store integrity, Keychain access, and
      settings access, recorded only as pass/fail attestations without values.
-   Record `previousBuildVersion=2026.8.15` and
+   Record `previousBuildVersion=2026.8.18` and
    `originalAppStoreContainerPreserved=true`; this binds the successor update
    to the still-preserved container originally installed from the App Store.
 6. After the first capture completes, force-quit once more and use a new output
    directory for the second cold launch. Require exactly one ready marker, no
    failed marker/alert, successful PIN entry, a working wallet route, and all
    five bottom navigation controls/routes working again. Require a nonzero
-   PI-backed Polkaswap token price and the five BTC attestations again without
-   recording addresses, balances, transaction data, identifiers, or values:
+   PI-backed Polkaswap token price, loaded Polkaswap settings, swap and fee
+   quotes, preview and signing readiness, plus the five BTC attestations again
+   without recording addresses, balances, transaction data, identifiers, or
+   values:
 
    ```bash
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.18 \
+     --expected-build 2026.8.19 \
      --observation-seconds 180 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 5 \
@@ -168,12 +177,12 @@ below.
    later host-only diagnostics commit:
 
    ```bash
-   chmod 600 build/testflight-2026.8.18-upgrade-usability.json
-   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.18/testflight-internal-upload.json
+   chmod 600 build/testflight-2026.8.19-upgrade-usability.json
+   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.19/testflight-internal-upload.json
    artifact_source_commit="$(jq -er '.artifactSourceCommit' "$upload_receipt")"
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/audit-testflight-upgrade-usability-gate.py \
-     build/testflight-2026.8.18-upgrade-usability.json \
+     build/testflight-2026.8.19-upgrade-usability.json \
      --first-launch-capture-receipt \
        /ABSOLUTE/PRIVATE/FIRST-HOTFIX-CAPTURE/capture-receipt.json \
      --second-launch-capture-receipt \
@@ -197,6 +206,6 @@ PYTHONDONTWRITEBYTECODE=1 python3 \
 ## Release decision
 
 Only after the audit passes may release review replace build `2026.7.28` in the
-public beta group with `2026.8.18`. Uploading and assigning the restricted group
+public beta group with `2026.8.19`. Uploading and assigning the restricted group
 do not authorize changing the public beta group; that change still requires the
 normal App Store Connect authorization and review trail.

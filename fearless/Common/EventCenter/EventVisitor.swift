@@ -32,6 +32,7 @@ protocol EventVisitorProtocol: AnyObject {
     func processPricesUpdated()
     func processAssetVisibilityPreferenceChanged(event: AssetVisibilityPreferenceChangedEvent)
     func processPolkamarktDeepLinkRequested(event: PolkamarktDeepLinkRequested)
+    func processPolkaswapSettingsDidUpdate(event: PolkaswapSettingsDidUpdate)
 }
 
 extension EventVisitorProtocol {
@@ -66,4 +67,5 @@ extension EventVisitorProtocol {
     func processPricesUpdated() {}
     func processAssetVisibilityPreferenceChanged(event _: AssetVisibilityPreferenceChangedEvent) {}
     func processPolkamarktDeepLinkRequested(event _: PolkamarktDeepLinkRequested) {}
+    func processPolkaswapSettingsDidUpdate(event _: PolkaswapSettingsDidUpdate) {}
 }

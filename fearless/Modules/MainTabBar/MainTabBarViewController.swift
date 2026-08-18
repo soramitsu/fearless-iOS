@@ -153,6 +153,15 @@ extension MainTabBarViewController: UITabBarControllerDelegate {
 }
 
 extension MainTabBarViewController: MainTabBarViewProtocol {
+    var isPolkaswapUnavailable: Bool {
+        guard let navigationController = viewControllers?[safe: MainTabBarDestination.polkaswap.rawValue]
+            as? UINavigationController else {
+            return false
+        }
+
+        return navigationController.viewControllers.first is FeatureUnavailableViewController
+    }
+
     func didReplaceView(for newView: UIViewController, for index: Int) {
         guard var newViewControllers = viewControllers else {
             return

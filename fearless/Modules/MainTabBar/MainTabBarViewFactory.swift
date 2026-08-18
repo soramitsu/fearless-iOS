@@ -84,6 +84,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             networkStatusPresenter: networkStatusPresenter,
             reachability: dependencies.reachability,
             walletConnectCoordinator: WalletConnectCoordinator(),
+            wallet: wallet,
             localizationManager: localizationManager
         )
 
@@ -157,13 +158,23 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static func createPolkaswapController(
         wallet: MetaAccountModel
     ) -> UIViewController {
-        let viewController = PolkaswapAdjustmentAssembly
-            .configureModule(chainAsset: nil, wallet: wallet)?.view.controller ??
-            FeatureUnavailableViewController(
+        createAvailablePolkaswapController(wallet: wallet) ?? navigationController(
+            root: FeatureUnavailableViewController(
                 title: MainTabBarDestination.polkaswap.title,
                 message: "Add a SORA account and connect to the SORA network to use Polkaswap.",
                 icon: R.image.polkaswapPinkButton()
-            )
+            ),
+            destination: .polkaswap
+        )
+    }
+
+    static func createAvailablePolkaswapController(
+        wallet: MetaAccountModel
+    ) -> UIViewController? {
+        guard let viewController = PolkaswapAdjustmentAssembly
+            .configureModule(chainAsset: nil, wallet: wallet)?.view.controller else {
+            return nil
+        }
 
         return navigationController(
             root: viewController,

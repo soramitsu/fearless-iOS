@@ -35,6 +35,12 @@ final class MainTabBarInteractor {
     private func stopServices() {
         serviceCoordinator.throttle()
     }
+
+    private func requestPolkaswapRecovery() {
+        DispatchQueue.main.async { [weak self] in
+            self?.presenter?.didPrepareChains()
+        }
+    }
 }
 
 extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
@@ -50,6 +56,8 @@ extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
         if let marketId = PolkamarktDeepLinkHandler.consumePending() {
             presenter?.didRequestPolkamarkt(marketId: marketId)
         }
+
+        presenter?.didPrepareChains()
     }
 }
 
@@ -66,6 +74,18 @@ extension MainTabBarInteractor: EventVisitorProtocol {
         DispatchQueue.main.async {
             self.presenter?.didRequestPolkamarkt(marketId: event.marketId)
         }
+    }
+
+    func processChainsSetupCompleted() {
+        requestPolkaswapRecovery()
+    }
+
+    func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
+        requestPolkaswapRecovery()
+    }
+
+    func processChainsUpdated(event _: ChainsUpdatedEvent) {
+        requestPolkaswapRecovery()
     }
 }
 

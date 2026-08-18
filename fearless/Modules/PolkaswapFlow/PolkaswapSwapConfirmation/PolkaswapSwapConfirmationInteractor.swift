@@ -91,6 +91,35 @@ struct PolkaswapSwapResolvedAmounts: Equatable {
     }
 }
 
+enum PolkaswapFeeCoverage {
+    static func isSufficient(
+        inputIsXor: Bool,
+        outputIsXor: Bool,
+        swapVariant: SwapVariant,
+        amounts: PolkaswapSwapResolvedAmounts,
+        xorBalance: BigUInt,
+        fee: BigUInt
+    ) -> Bool {
+        if inputIsXor {
+            return xorBalance >= amounts.requiredInput + fee
+        }
+
+        if outputIsXor {
+            let boundedOutput: BigUInt
+            switch swapVariant {
+            case .desiredInput:
+                boundedOutput = amounts.slip
+            case .desiredOutput:
+                boundedOutput = amounts.desired
+            }
+
+            return xorBalance + boundedOutput >= fee
+        }
+
+        return xorBalance >= fee
+    }
+}
+
 enum PolkaswapRegisteredAssetResolver {
     static let xorCurrencyId = "0x0200000000000000000000000000000000000000000000000000000000000000"
 
@@ -338,7 +367,7 @@ final class PolkaswapSubmissionAuthorizer: PolkaswapSubmissionAuthorizing {
             params.swapFromChainAsset,
             in: context.chain
         )
-        _ = try PolkaswapRegisteredAssetResolver.exactAsset(
+        let toAsset = try PolkaswapRegisteredAssetResolver.exactAsset(
             params.swapToChainAsset,
             in: context.chain
         )
@@ -376,8 +405,14 @@ final class PolkaswapSubmissionAuthorizer: PolkaswapSubmissionAuthorizing {
             throw PolkaswapSubmissionError.insufficientInputBalance
         }
 
-        let requiredXor = fee + (fromAsset.assetKey == xorAsset.assetKey ? amounts.requiredInput : .zero)
-        guard xorBalance >= requiredXor else {
+        guard PolkaswapFeeCoverage.isSufficient(
+            inputIsXor: fromAsset.assetKey == xorAsset.assetKey,
+            outputIsXor: toAsset.assetKey == xorAsset.assetKey,
+            swapVariant: params.swapVariant,
+            amounts: amounts,
+            xorBalance: xorBalance,
+            fee: fee
+        ) else {
             throw PolkaswapSubmissionError.insufficientFeeBalance
         }
         try validateCurrentContext(
@@ -458,7 +493,11 @@ final class PolkaswapSubmissionAuthorizer: PolkaswapSubmissionAuthorizing {
         for asset: ChainAsset,
         in accountInfos: [ChainAsset: AccountInfo?]
     ) -> BigUInt? {
-        accountInfos.first { $0.key.assetKey == asset.assetKey }?.value?.data.sendAvailable
+        guard let entry = accountInfos.first(where: { $0.key.assetKey == asset.assetKey }) else {
+            return nil
+        }
+
+        return entry.value?.data.sendAvailable ?? .zero
     }
 }
 

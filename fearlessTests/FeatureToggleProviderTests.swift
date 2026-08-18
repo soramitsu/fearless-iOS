@@ -31,7 +31,7 @@ final class FeatureToggleProviderTests: XCTestCase {
 
         XCTAssertEqual(config.pendulumCaseEnabled, true)
         XCTAssertEqual(config.nftEnabled, false)
-        XCTAssertFalse(config.polkaswapMutationsEnabled)
+        XCTAssertTrue(config.polkaswapMutationsEnabled)
         XCTAssertFalse(config.demeterMutationsEnabled)
         XCTAssertFalse(config.polkamarktMutationsEnabled)
         XCTAssertFalse(config.crossChainMutationsEnabled)
@@ -53,6 +53,31 @@ final class FeatureToggleProviderTests: XCTestCase {
         XCTAssertTrue(config.polkamarktMutationsEnabled)
         XCTAssertTrue(config.crossChainMutationsEnabled)
         XCTAssertFalse(config.assetDiscoveryShadowMode)
+    }
+
+    func testProductionLegacyPayloadKeepsExistingPolkaswapAvailable() throws {
+        let context = makeProvider(
+            networkPayload: Data(
+                #"{"pendulum_case_enabled":false,"nft_enabled":false,"dapp_enabled":false}"#.utf8
+            )
+        )
+        let config = try execute(context.provider.fetchConfigOperation(), on: context.fetchQueue)
+
+        XCTAssertTrue(config.polkaswapMutationsEnabled)
+        XCTAssertFalse(config.demeterMutationsEnabled)
+        XCTAssertFalse(config.polkamarktMutationsEnabled)
+        XCTAssertFalse(config.crossChainMutationsEnabled)
+    }
+
+    func testProductionLegacyPayloadCanExplicitlyPausePolkaswap() throws {
+        let context = makeProvider(
+            networkPayload: Data(
+                #"{"polkaswap_mutations_enabled":false}"#.utf8
+            )
+        )
+        let config = try execute(context.provider.fetchConfigOperation(), on: context.fetchQueue)
+
+        XCTAssertFalse(config.polkaswapMutationsEnabled)
     }
 
     func testConcurrentPendingFetchesAllResolveExactlyOnce() throws {
@@ -155,7 +180,7 @@ final class FeatureToggleProviderTests: XCTestCase {
     ) {
         XCTAssertEqual(config.pendulumCaseEnabled, false, file: file, line: line)
         XCTAssertEqual(config.nftEnabled, true, file: file, line: line)
-        XCTAssertFalse(config.polkaswapMutationsEnabled, file: file, line: line)
+        XCTAssertTrue(config.polkaswapMutationsEnabled, file: file, line: line)
         XCTAssertFalse(config.demeterMutationsEnabled, file: file, line: line)
         XCTAssertFalse(config.polkamarktMutationsEnabled, file: file, line: line)
         XCTAssertFalse(config.crossChainMutationsEnabled, file: file, line: line)

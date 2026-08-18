@@ -12,6 +12,21 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
         MainTabBarViewFactory.reloadWalletDependentViews(on: view, wallet: wallet)
     }
 
+    func reloadPolkaswapViewIfUnavailable(
+        on view: MainTabBarViewProtocol?,
+        wallet: MetaAccountModel
+    ) {
+        guard
+            let view,
+            view.isPolkaswapUnavailable,
+            let controller = MainTabBarViewFactory.createAvailablePolkaswapController(wallet: wallet)
+        else {
+            return
+        }
+
+        view.didReplaceView(for: controller, for: MainTabBarDestination.polkaswap.rawValue)
+    }
+
     func presentAccountImport(on view: MainTabBarViewProtocol?) {
         guard let tabBarController = view?.controller else {
             return

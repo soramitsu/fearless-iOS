@@ -4,6 +4,47 @@ import RobinHood
 import SoraKeystore
 import SSFModels
 
+final class PolkaswapOperationBatch<Value> {
+    private let group = DispatchGroup()
+    private let lock = NSLock()
+    private var values: [Value] = []
+    private var errors: [Error] = []
+
+    init(expectedCount: Int) {
+        precondition(expectedCount >= 0)
+        (0 ..< expectedCount).forEach { _ in group.enter() }
+    }
+
+    func complete(_ result: Result<Value, Error>?) {
+        defer { group.leave() }
+        let resolvedResult = result ?? .failure(BaseOperationError.parentOperationCancelled)
+
+        lock.lock()
+        defer { lock.unlock() }
+
+        switch resolvedResult {
+        case let .success(value):
+            values.append(value)
+        case let .failure(error):
+            errors.append(error)
+        }
+    }
+
+    func notify(
+        on queue: DispatchQueue,
+        completion: @escaping ([Value], [Error]) -> Void
+    ) {
+        group.notify(queue: queue) { [self] in
+            lock.lock()
+            let valuesSnapshot = values
+            let errorsSnapshot = errors
+            lock.unlock()
+
+            completion(valuesSnapshot, errorsSnapshot)
+        }
+    }
+}
+
 final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
     // MARK: - Private properties
 
@@ -18,12 +59,11 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
     private let extrinsicService: ExtrinsicServiceProtocol
     private let userDefaultsStorage: SettingsManagerProtocol
     private let callFactory: SubstrateCallFactoryProtocol
+    private let eventCenter: EventCenterProtocol
+    private let fallbackSettings: PolkaswapRemoteSettings?
 
     private var dexIds: [UInt32] = []
-    private var swapValues: [SwapValues] = []
-    private var swapValueErrors: [Error] = []
     private var listeningSubscription: [String] = []
-    private var dexInfos: [PolkaswapDexInfo] = []
 
     init(
         xorChainAsset: ChainAsset,
@@ -35,7 +75,9 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
         operationFactory: PolkaswapOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         userDefaultsStorage: SettingsManagerProtocol,
-        callFactory: SubstrateCallFactoryProtocol
+        callFactory: SubstrateCallFactoryProtocol,
+        eventCenter: EventCenterProtocol = EventCenter.shared,
+        fallbackSettings: PolkaswapRemoteSettings? = PolkaswapSettingsFactory.bundledSettings()
     ) {
         self.xorChainAsset = xorChainAsset
         self.subscriptionService = subscriptionService
@@ -47,6 +89,12 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
         self.operationManager = operationManager
         self.userDefaultsStorage = userDefaultsStorage
         self.callFactory = callFactory
+        self.eventCenter = eventCenter
+        self.fallbackSettings = fallbackSettings
+    }
+
+    deinit {
+        eventCenter.remove(observer: self)
     }
 
     // MARK: - Private methods
@@ -64,11 +112,10 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
         _ fromAssetId: String,
         _ toAssetId: String
     ) {
-        let group = DispatchGroup()
+        let batch = PolkaswapOperationBatch<PolkaswapDexInfo>(expectedCount: dexIds.count)
         var allOperations: [Operation] = []
 
         dexIds.forEach { dexId in
-            group.enter()
             let operation = operationFactory
                 .createIsPathAvalableAndMarketCompoundOperation(
                     dexId: dexId,
@@ -76,8 +123,9 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
                     to: toAssetId
                 )
 
-            operation.targetOperation.completionBlock = { [weak self, dexId, group] in
+            operation.targetOperation.completionBlock = { [dexId] in
                 guard let result = operation.targetOperation.result else {
+                    batch.complete(nil)
                     return
                 }
 
@@ -88,11 +136,10 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
                         pathIsAvailable: isAvalable,
                         markets: markets
                     )
-                    self?.dexInfos.append(info)
+                    batch.complete(.success(info))
                 case let .failure(error):
-                    self?.output?.didReceive(error: error)
+                    batch.complete(.failure(error))
                 }
-                group.leave()
             }
 
             allOperations += operation.allOperations
@@ -103,10 +150,14 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
             in: .transient
         )
 
-        let workItem = DispatchWorkItem {
-            self.output?.didReceiveDex(infos: self.dexInfos, fromAssetId: fromAssetId, toAssetId: toAssetId)
+        batch.notify(on: .main) { [weak self] infos, errors in
+            errors.forEach { self?.output?.didReceive(error: $0) }
+            self?.output?.didReceiveDex(
+                infos: infos,
+                fromAssetId: fromAssetId,
+                toAssetId: toAssetId
+            )
         }
-        group.notify(queue: .global(), work: workItem)
     }
 
     private func unsubscribePool() {
@@ -121,14 +172,25 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
                 guard let settings = try operation.extractNoCancellableResultData().first else {
                     return
                 }
-                self?.output?.didReceiveSettings(settings: settings)
-                self?.dexIds = settings.availableDexIds.map { $0.code }
+                DispatchQueue.main.async {
+                    self?.apply(settings: settings)
+                }
             } catch {
-                self?.output?.didReceive(error: error)
+                DispatchQueue.main.async {
+                    guard let self, self.fallbackSettings == nil else {
+                        return
+                    }
+                    self.output?.didReceive(error: error)
+                }
             }
         }
 
         operationManager.enqueue(operations: [operation], in: .transient)
+    }
+
+    private func apply(settings: PolkaswapRemoteSettings) {
+        dexIds = settings.availableDexIds.map(\.code)
+        output?.didReceiveSettings(settings: settings)
     }
 }
 
@@ -138,6 +200,10 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
     func setup(with output: PolkaswapAdjustmentInteractorOutput) {
         self.output = output
         feeProxy.delegate = self
+        if let fallbackSettings {
+            apply(settings: fallbackSettings)
+        }
+        eventCenter.add(observer: self, dispatchIn: .main)
         fetchPolkaswapSettings()
         fetchDisclaimerVisible()
     }
@@ -159,40 +225,33 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
     }
 
     func fetchQuotes(with params: PolkaswapQuoteParams) {
-        swapValues.removeAll()
-        swapValueErrors.removeAll()
-        dexInfos.removeAll()
         var allOperations: [Operation] = []
-        let group = DispatchGroup()
+        let batch = PolkaswapOperationBatch<SwapValues>(expectedCount: dexIds.count)
 
         dexIds.forEach { dexId in
-            group.enter()
             let quotesOperation = operationFactory
                 .createPolkaswapQuoteOperation(dexId: dexId, params: params)
 
-            quotesOperation.completionBlock = { [weak self, dexId, group] in
-                guard let strongSelf = self else { return }
+            quotesOperation.completionBlock = { [dexId] in
                 do {
                     var result = try quotesOperation.extractNoCancellableResultData()
                     result.dexId = dexId
-                    strongSelf.swapValues.append(result)
+                    batch.complete(.success(result))
                 } catch {
-                    strongSelf.swapValueErrors.append(error)
+                    batch.complete(.failure(error))
                 }
-                group.leave()
             }
             allOperations.append(quotesOperation)
         }
         operationManager.enqueue(operations: allOperations, in: .transient)
 
-        let workItem = DispatchWorkItem {
-            self.output?.didReceiveSwapValues(
-                self.swapValues,
+        batch.notify(on: .main) { [weak self] values, errors in
+            self?.output?.didReceiveSwapValues(
+                values,
                 params: params,
-                errors: self.swapValueErrors
+                errors: errors
             )
         }
-        group.notify(queue: .main, work: workItem)
     }
 
     func subscribeOnBlocks() {
@@ -200,14 +259,16 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
         unsubscribePool()
 
         subscriptionService.subscribeToBlocks { [weak self] update in
-            guard let strongSelf = self else {
-                return
-            }
             let subscription = update.params.subscription
-            if strongSelf.listeningSubscription.contains(subscription) {
-                strongSelf.output?.updateQuotes()
+            DispatchQueue.main.async { [weak self] in
+                guard let self else {
+                    return
+                }
+                if self.listeningSubscription.contains(subscription) {
+                    self.output?.updateQuotes()
+                }
+                self.listeningSubscription.append(subscription)
             }
-            strongSelf.listeningSubscription.append(subscription)
         }
     }
 
@@ -254,6 +315,12 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
         output?.didReceiveDisclaimer(
             isRead: PolkaswapDisclaimerPolicy.isAccepted(in: userDefaultsStorage)
         )
+    }
+}
+
+extension PolkaswapAdjustmentInteractor: EventVisitorProtocol {
+    func processPolkaswapSettingsDidUpdate(event: PolkaswapSettingsDidUpdate) {
+        apply(settings: event.settings)
     }
 }
 

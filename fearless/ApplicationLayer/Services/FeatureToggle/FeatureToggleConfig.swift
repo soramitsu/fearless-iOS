@@ -12,7 +12,7 @@ struct FeatureToggleConfig: Decodable, Equatable {
     init(
         pendulumCaseEnabled: Bool?,
         nftEnabled: Bool?,
-        polkaswapMutationsEnabled: Bool = false,
+        polkaswapMutationsEnabled: Bool = true,
         demeterMutationsEnabled: Bool = false,
         polkamarktMutationsEnabled: Bool = false,
         crossChainMutationsEnabled: Bool = false,
@@ -31,6 +31,7 @@ struct FeatureToggleConfig: Decodable, Equatable {
         case pendulumCaseEnabled
         case nftEnabled
         case polkaswapMutationsEnabled
+        case polkaswapMutationsEnabledLegacy = "polkaswap_mutations_enabled"
         case demeterMutationsEnabled
         case polkamarktMutationsEnabled
         case crossChainMutationsEnabled
@@ -44,7 +45,10 @@ struct FeatureToggleConfig: Decodable, Equatable {
         polkaswapMutationsEnabled = try container.decodeIfPresent(
             Bool.self,
             forKey: .polkaswapMutationsEnabled
-        ) ?? false
+        ) ?? container.decodeIfPresent(
+            Bool.self,
+            forKey: .polkaswapMutationsEnabledLegacy
+        ) ?? true
         demeterMutationsEnabled = try container.decodeIfPresent(
             Bool.self,
             forKey: .demeterMutationsEnabled
@@ -69,8 +73,9 @@ struct FeatureToggleConfig: Decodable, Equatable {
 }
 
 /// Process-wide, read-only-at-call-site policy for remote action kill switches.
-/// Destinations remain mounted; controllers use this snapshot only to block a
-/// mutation or to suppress auto-detected presentation during shadow rollout.
+/// Polkaswap is an existing production feature, so it remains available when
+/// its newer key is absent from the legacy remote payload; an explicit false
+/// still pauses mutations. New destinations continue to default fail-closed.
 enum MultiChainFeaturePolicy {
     private static let lock = NSLock()
     private static var config = FeatureToggleConfig.defaultConfig

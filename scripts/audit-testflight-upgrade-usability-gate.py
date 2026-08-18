@@ -18,8 +18,8 @@ from typing import Any
 
 EXPECTED_BUNDLE_ID = "jp.co.soramitsu.fearlesswallet"
 EXPECTED_VERSION = "4.2.0"
-EXPECTED_BUILD = "2026.8.18"
-EXPECTED_PREVIOUS_BUILDS = ("2026.8.15", "2026.8.17")
+EXPECTED_BUILD = "2026.8.19"
+EXPECTED_PREVIOUS_BUILDS = ("2026.8.15", "2026.8.17", "2026.8.18")
 EXPECTED_BASE_SOURCE_COMMIT = "2e45e55dc03ad904598e730cfb5994fb5c1072dc"
 MINIMUM_USABILITY_SECONDS = 300
 WALL_CLOCK_ROUNDING_TOLERANCE_MILLISECONDS = 1000
@@ -35,6 +35,13 @@ TAB_BAR_ROUTE_ATTESTATIONS = (
     "settingsTabRouteWorked",
 )
 PI_PRICE_ATTESTATION = "piBackedTokenPricesVisible"
+POLKASWAP_ATTESTATIONS = (
+    "polkaswapSettingsLoaded",
+    "polkaswapQuoteWorked",
+    "polkaswapSwapFeeQuoteWorked",
+    "polkaswapPreviewWorked",
+    "polkaswapSigningReady",
+)
 BITCOIN_ATTESTATIONS = (
     "bitcoinAssetVisible",
     "bitcoinBalanceRefreshWorked",
@@ -495,7 +502,7 @@ def validate(
     )
     require(
         installation.get("previousBuildVersion") in EXPECTED_PREVIOUS_BUILDS,
-        "installation must update in place from supported predecessor build 2026.8.15 or 2026.8.17",
+        "installation must update in place from supported predecessor build 2026.8.15, 2026.8.17, or 2026.8.18",
     )
     require_true(installation, "installedInPlace")
     require_true(installation, "originalAppStoreContainerPreserved")
@@ -517,6 +524,7 @@ def validate(
             "bottomNavigationControlCount",
             *TAB_BAR_ROUTE_ATTESTATIONS,
             PI_PRICE_ATTESTATION,
+            *POLKASWAP_ATTESTATIONS,
             *BITCOIN_ATTESTATIONS,
             "captureReceiptSHA256",
         },
@@ -566,6 +574,8 @@ def validate(
     for key in TAB_BAR_ROUTE_ATTESTATIONS:
         require_true(first_launch, key)
     require_true(first_launch, PI_PRICE_ATTESTATION)
+    for key in POLKASWAP_ATTESTATIONS:
+        require_true(first_launch, key)
     for key in BITCOIN_ATTESTATIONS:
         require_true(first_launch, key)
     require(
@@ -615,6 +625,7 @@ def validate(
             "bottomNavigationControlCount",
             *TAB_BAR_ROUTE_ATTESTATIONS,
             PI_PRICE_ATTESTATION,
+            *POLKASWAP_ATTESTATIONS,
             *BITCOIN_ATTESTATIONS,
             "captureReceiptSHA256",
         },
@@ -658,6 +669,8 @@ def validate(
     for key in TAB_BAR_ROUTE_ATTESTATIONS:
         require_true(second_launch, key)
     require_true(second_launch, PI_PRICE_ATTESTATION)
+    for key in POLKASWAP_ATTESTATIONS:
+        require_true(second_launch, key)
     for key in BITCOIN_ATTESTATIONS:
         require_true(second_launch, key)
     require(

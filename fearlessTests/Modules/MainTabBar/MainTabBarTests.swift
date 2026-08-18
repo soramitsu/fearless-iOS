@@ -501,6 +501,320 @@ final class MainTabBarTests: XCTestCase {
         XCTAssertEqual(viewController.selectedIndex, MainTabBarDestination.polkaswap.rawValue)
     }
 
+    func testUnavailablePolkaswapRootCanBeRecoveredAfterServicesStart() {
+        let presenter = MainTabBarPresenterStub()
+        var viewControllers = MainTabBarDestination.allCases.map { _ -> UIViewController in
+            UINavigationController(rootViewController: UIViewController())
+        }
+        viewControllers[MainTabBarDestination.polkaswap.rawValue] = UINavigationController(
+            rootViewController: FeatureUnavailableViewController(
+                title: "Polkaswap",
+                message: "Services are starting",
+                icon: nil
+            )
+        )
+        let viewController = MainTabBarViewController(
+            viewControllers: viewControllers,
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
+
+        XCTAssertTrue(viewController.isPolkaswapUnavailable)
+
+        let availableController = UINavigationController(rootViewController: UIViewController())
+        viewController.didReplaceView(
+            for: availableController,
+            for: MainTabBarDestination.polkaswap.rawValue
+        )
+
+        XCTAssertFalse(viewController.isPolkaswapUnavailable)
+        XCTAssertTrue(
+            viewController.viewControllers?[MainTabBarDestination.polkaswap.rawValue] === availableController
+        )
+    }
+
+    func testChainSetupEventRetriesPolkaswapAfterInitialAssemblyAttempt() {
+        let serviceCoordinator = MainTabBarServiceCoordinatorSpy()
+        let output = MainTabBarInteractorOutputSpy()
+        let interactor = MainTabBarInteractor(
+            eventCenter: EventCenterProtocolStub(),
+            serviceCoordinator: serviceCoordinator,
+            keystoreImportService: MainTabBarKeystoreImportServiceStub()
+        )
+
+        interactor.setup(with: output)
+
+        XCTAssertEqual(serviceCoordinator.setupCallCount, 1)
+        XCTAssertEqual(output.didPrepareChainsCallCount, 1)
+
+        let retried = expectation(description: "Polkaswap assembly retried after chain setup")
+        output.onDidPrepareChains = {
+            retried.fulfill()
+        }
+        interactor.processChainsSetupCompleted()
+
+        wait(for: [retried], timeout: 1)
+        XCTAssertEqual(output.didPrepareChainsCallCount, 2)
+    }
+
+    func testBundledPolkaswapSettingsSupportOfflineCleanStartup() throws {
+        let settings = try XCTUnwrap(PolkaswapSettingsFactory.bundledSettings())
+        let dexIds = settings.availableDexIds.map(\.code)
+
+        XCTAssertFalse(dexIds.isEmpty)
+        XCTAssertEqual(Set(dexIds).count, dexIds.count)
+        XCTAssertTrue(dexIds.contains(0))
+        XCTAssertFalse(settings.xstusdId.isEmpty)
+        XCTAssertTrue(
+            settings.availableDexIds.contains { $0.assetId == settings.xstusdId }
+        )
+    }
+
+    func testPolkaswapSettingsSyncPublishesOnlyAfterCleanInstallPersistence() throws {
+        let settings = try XCTUnwrap(PolkaswapSettingsFactory.bundledSettings())
+        let repository = PolkaswapSettingsRepositoryProbe(localSettings: [])
+        let published = expectation(description: "persisted Polkaswap settings published")
+        let eventCenter = PolkaswapSettingsEventCenterProbe(
+            repository: repository,
+            expectation: published
+        )
+        let service = PolkaswapSettingsSyncService(
+            settingsUrl: URL(string: "https://example.invalid/polkaswapSettings.json"),
+            dataFetchFactory: StaticPolkaswapSettingsDataFactory(
+                data: try JSONEncoder().encode(settings)
+            ),
+            repository: AnyDataProviderRepository(repository),
+            operationQueue: OperationQueue(),
+            eventCenter: eventCenter
+        )
+
+        service.syncUp()
+
+        wait(for: [published], timeout: 1)
+        XCTAssertEqual(repository.savedSettings, [settings])
+        XCTAssertTrue(eventCenter.observedPersistedSettings)
+        XCTAssertFalse(service.isSyncing)
+    }
+
+    func testPolkaswapSettingsSyncCompletesWhenRemoteVersionIsUnchanged() throws {
+        let settings = try XCTUnwrap(PolkaswapSettingsFactory.bundledSettings())
+        let repository = PolkaswapSettingsRepositoryProbe(localSettings: [settings])
+        let published = expectation(description: "unchanged Polkaswap settings published")
+        let eventCenter = PolkaswapSettingsEventCenterProbe(
+            repository: repository,
+            expectation: published
+        )
+        let service = PolkaswapSettingsSyncService(
+            settingsUrl: URL(string: "https://example.invalid/polkaswapSettings.json"),
+            dataFetchFactory: StaticPolkaswapSettingsDataFactory(
+                data: try JSONEncoder().encode(settings)
+            ),
+            repository: AnyDataProviderRepository(repository),
+            operationQueue: OperationQueue(),
+            eventCenter: eventCenter
+        )
+
+        service.syncUp()
+
+        wait(for: [published], timeout: 1)
+        XCTAssertEqual(repository.saveCallCount, 0)
+        XCTAssertFalse(service.isSyncing)
+    }
+
+    func testPolkaswapFeeCoverageRequiresInputAndFeeWhenSpendingXor() {
+        let amounts = PolkaswapSwapResolvedAmounts(
+            desired: 100,
+            slip: 120,
+            requiredInput: 120
+        )
+
+        for variant in [SwapVariant.desiredInput, .desiredOutput] {
+            XCTAssertTrue(
+                PolkaswapFeeCoverage.isSufficient(
+                    inputIsXor: true,
+                    outputIsXor: false,
+                    swapVariant: variant,
+                    amounts: amounts,
+                    xorBalance: 125,
+                    fee: 5
+                )
+            )
+            XCTAssertFalse(
+                PolkaswapFeeCoverage.isSufficient(
+                    inputIsXor: true,
+                    outputIsXor: false,
+                    swapVariant: variant,
+                    amounts: amounts,
+                    xorBalance: 124,
+                    fee: 5
+                )
+            )
+        }
+    }
+
+    func testPolkaswapFeeCoverageUsesBoundedXorOutputForPostponedFee() {
+        let amounts = PolkaswapSwapResolvedAmounts(
+            desired: 7,
+            slip: 5,
+            requiredInput: 100
+        )
+        let cases: [(SwapVariant, BigUInt)] = [
+            (.desiredInput, amounts.slip),
+            (.desiredOutput, amounts.desired)
+        ]
+
+        for (variant, boundedOutput) in cases {
+            XCTAssertTrue(
+                PolkaswapFeeCoverage.isSufficient(
+                    inputIsXor: false,
+                    outputIsXor: true,
+                    swapVariant: variant,
+                    amounts: amounts,
+                    xorBalance: 2,
+                    fee: boundedOutput + 2
+                )
+            )
+            XCTAssertFalse(
+                PolkaswapFeeCoverage.isSufficient(
+                    inputIsXor: false,
+                    outputIsXor: true,
+                    swapVariant: variant,
+                    amounts: amounts,
+                    xorBalance: 1,
+                    fee: boundedOutput + 2
+                )
+            )
+        }
+    }
+
+    func testPolkaswapFeeCoverageRequiresExistingXorForNonXorOutput() {
+        let amounts = PolkaswapSwapResolvedAmounts(
+            desired: 100,
+            slip: 120,
+            requiredInput: 120
+        )
+
+        for variant in [SwapVariant.desiredInput, .desiredOutput] {
+            XCTAssertTrue(
+                PolkaswapFeeCoverage.isSufficient(
+                    inputIsXor: false,
+                    outputIsXor: false,
+                    swapVariant: variant,
+                    amounts: amounts,
+                    xorBalance: 5,
+                    fee: 5
+                )
+            )
+            XCTAssertFalse(
+                PolkaswapFeeCoverage.isSufficient(
+                    inputIsXor: false,
+                    outputIsXor: false,
+                    swapVariant: variant,
+                    amounts: amounts,
+                    xorBalance: 4,
+                    fee: 5
+                )
+            )
+        }
+    }
+
+    func testPolkaswapOperationBatchCompletesWhenAnOperationIsCancelled() {
+        let batch = PolkaswapOperationBatch<Int>(expectedCount: 2)
+        let notified = expectation(description: "cancelled operation still completes batch")
+
+        batch.notify(on: .main) { values, errors in
+            XCTAssertEqual(values, [7])
+            XCTAssertEqual(errors.count, 1)
+            XCTAssertTrue(errors.first is BaseOperationError)
+            notified.fulfill()
+        }
+
+        DispatchQueue.global().async {
+            batch.complete(.success(7))
+        }
+        DispatchQueue.global().async {
+            batch.complete(nil)
+        }
+
+        wait(for: [notified], timeout: 1)
+    }
+
+    func testConcurrentPolkaswapOperationBatchesNeverMixResults() {
+        let resultCount = 500
+        let firstBatch = PolkaswapOperationBatch<Int>(expectedCount: resultCount)
+        let secondBatch = PolkaswapOperationBatch<Int>(expectedCount: resultCount)
+        let firstNotified = expectation(description: "first quote batch")
+        let secondNotified = expectation(description: "second quote batch")
+
+        firstBatch.notify(on: .main) { values, errors in
+            XCTAssertEqual(values.count, resultCount)
+            XCTAssertTrue(values.allSatisfy { (0 ..< resultCount).contains($0) })
+            XCTAssertTrue(errors.isEmpty)
+            firstNotified.fulfill()
+        }
+        secondBatch.notify(on: .main) { values, errors in
+            XCTAssertEqual(values.count, resultCount)
+            XCTAssertTrue(values.allSatisfy { (resultCount ..< 2 * resultCount).contains($0) })
+            XCTAssertTrue(errors.isEmpty)
+            secondNotified.fulfill()
+        }
+
+        DispatchQueue.global().async {
+            DispatchQueue.concurrentPerform(iterations: resultCount) { index in
+                firstBatch.complete(.success(index))
+                secondBatch.complete(.success(index + resultCount))
+            }
+        }
+
+        wait(for: [firstNotified, secondNotified], timeout: 2)
+    }
+
+    func testPolkaswapQuoteResponsePolicyRejectsOlderEquivalentRequest() {
+        let older = PolkaswapQuoteParams(
+            requestId: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
+            fromAssetId: "xor",
+            toAssetId: "val",
+            amount: "1",
+            swapVariant: .desiredInput,
+            liquiditySources: ["XYKPool"],
+            filterMode: .allowSelected
+        )
+        let latest = PolkaswapQuoteParams(
+            requestId: UUID(uuidString: "00000000-0000-0000-0000-000000000002")!,
+            fromAssetId: older.fromAssetId,
+            toAssetId: older.toAssetId,
+            amount: older.amount,
+            swapVariant: older.swapVariant,
+            liquiditySources: older.liquiditySources,
+            filterMode: older.filterMode
+        )
+
+        XCTAssertFalse(
+            PolkaswapQuoteResponsePolicy.shouldAccept(
+                response: older,
+                latest: latest,
+                currentFromAssetId: latest.fromAssetId,
+                currentToAssetId: latest.toAssetId
+            )
+        )
+        XCTAssertTrue(
+            PolkaswapQuoteResponsePolicy.shouldAccept(
+                response: latest,
+                latest: latest,
+                currentFromAssetId: latest.fromAssetId,
+                currentToAssetId: latest.toAssetId
+            )
+        )
+        XCTAssertFalse(
+            PolkaswapQuoteResponsePolicy.shouldAccept(
+                response: latest,
+                latest: latest,
+                currentFromAssetId: latest.fromAssetId,
+                currentToAssetId: "different"
+            )
+        )
+    }
+
     func testReviewedXcmRegistryAcceptsExactRuntimeRouteAndRejectsDestinationDrift() throws {
         let definition = try XCTUnwrap(
             ReviewedXcmRouteRegistry.routes.first { $0.originSymbol == "DOT" }
@@ -2494,6 +2808,41 @@ private final class MainTabBarPresenterStub: MainTabBarPresenterProtocol {
     }
 }
 
+private final class MainTabBarInteractorOutputSpy: MainTabBarInteractorOutputProtocol {
+    private(set) var didPrepareChainsCallCount = 0
+    var onDidPrepareChains: (() -> Void)?
+
+    func didChangeSelectedAccount(_: MetaAccountModel) {}
+
+    func didPrepareChains() {
+        didPrepareChainsCallCount += 1
+        onDidPrepareChains?()
+    }
+
+    func didRequestImportAccount() {}
+    func didRequestPolkamarkt(marketId _: String) {}
+}
+
+private final class MainTabBarServiceCoordinatorSpy: ServiceCoordinatorProtocol {
+    private(set) var setupCallCount = 0
+
+    func setup() {
+        setupCallCount += 1
+    }
+
+    func throttle() {}
+    func updateOnAccountChange() {}
+}
+
+private final class MainTabBarKeystoreImportServiceStub: KeystoreImportServiceProtocol {
+    var definition: KeystoreDefinition? = nil
+
+    func handle(url _: URL) -> Bool { false }
+    func add(observer _: KeystoreImportObserver) {}
+    func remove(observer _: KeystoreImportObserver) {}
+    func clear() {}
+}
+
 private struct PolkamarktFixtureMarketResponse: Decodable {
     let data: Payload
 
@@ -2945,6 +3294,157 @@ private func reviewedOriginAssetKey(_ definition: ReviewedXcmRouteDefinition) ->
             originCatalogId: definition.originAssetId
         )
     )
+}
+
+private final class StaticPolkaswapSettingsDataFactory: DataOperationFactoryProtocol {
+    private let data: Data
+
+    init(data: Data) {
+        self.data = data
+    }
+
+    func fetchData(from _: URL) -> BaseOperation<Data> {
+        ClosureOperation { self.data }
+    }
+}
+
+private final class PolkaswapSettingsRepositoryProbe: DataProviderRepositoryProtocol {
+    typealias Model = PolkaswapRemoteSettings
+
+    private let lock = NSLock()
+    private var settings: [PolkaswapRemoteSettings]
+    private var saves = 0
+
+    var savedSettings: [PolkaswapRemoteSettings] {
+        lock.lock()
+        defer { lock.unlock() }
+        return settings
+    }
+
+    var saveCallCount: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return saves
+    }
+
+    init(localSettings: [PolkaswapRemoteSettings]) {
+        settings = localSettings
+    }
+
+    func fetchOperation(
+        by modelIdsClosure: @escaping () throws -> [String],
+        options _: RepositoryFetchOptions
+    ) -> BaseOperation<[PolkaswapRemoteSettings]> {
+        ClosureOperation {
+            let identifiers = try modelIdsClosure()
+            return self.savedSettings.filter { identifiers.contains($0.identifier) }
+        }
+    }
+
+    func fetchOperation(
+        by modelIdClosure: @escaping () throws -> String,
+        options _: RepositoryFetchOptions
+    ) -> BaseOperation<PolkaswapRemoteSettings?> {
+        ClosureOperation {
+            let identifier = try modelIdClosure()
+            return self.savedSettings.first { $0.identifier == identifier }
+        }
+    }
+
+    func fetchAllOperation(
+        with _: RepositoryFetchOptions
+    ) -> BaseOperation<[PolkaswapRemoteSettings]> {
+        ClosureOperation { self.savedSettings }
+    }
+
+    func fetchOperation(
+        by _: RepositorySliceRequest,
+        options _: RepositoryFetchOptions
+    ) -> BaseOperation<[PolkaswapRemoteSettings]> {
+        ClosureOperation { self.savedSettings }
+    }
+
+    func saveOperation(
+        _ updateModelsBlock: @escaping () throws -> [PolkaswapRemoteSettings],
+        _ deleteIdsBlock: @escaping () throws -> [String]
+    ) -> BaseOperation<Void> {
+        ClosureOperation {
+            let updates = try updateModelsBlock()
+            let deletedIds = try deleteIdsBlock()
+            self.lock.lock()
+            defer { self.lock.unlock() }
+            self.saves += 1
+            self.settings.removeAll { deletedIds.contains($0.identifier) }
+            updates.forEach { update in
+                self.settings.removeAll { $0.identifier == update.identifier }
+                self.settings.append(update)
+            }
+        }
+    }
+
+    func saveBatchOperation(
+        _ updateModelsBlock: @escaping () throws -> [PolkaswapRemoteSettings],
+        _ deleteIdsBlock: @escaping () throws -> [String]
+    ) -> BaseOperation<Void> {
+        saveOperation(updateModelsBlock, deleteIdsBlock)
+    }
+
+    func replaceOperation(
+        _ newModelsBlock: @escaping () throws -> [PolkaswapRemoteSettings]
+    ) -> BaseOperation<Void> {
+        ClosureOperation {
+            let replacements = try newModelsBlock()
+            self.lock.lock()
+            defer { self.lock.unlock() }
+            self.settings = replacements
+        }
+    }
+
+    func fetchCountOperation() -> BaseOperation<Int> {
+        ClosureOperation { self.savedSettings.count }
+    }
+
+    func deleteAllOperation() -> BaseOperation<Void> {
+        ClosureOperation {
+            self.lock.lock()
+            defer { self.lock.unlock() }
+            self.settings.removeAll()
+        }
+    }
+}
+
+private final class PolkaswapSettingsEventCenterProbe: EventCenterProtocol {
+    private let repository: PolkaswapSettingsRepositoryProbe
+    private let expectation: XCTestExpectation
+    private let lock = NSLock()
+    private(set) var observedPersistedSettings = false
+    private var fulfilled = false
+
+    init(
+        repository: PolkaswapSettingsRepositoryProbe,
+        expectation: XCTestExpectation
+    ) {
+        self.repository = repository
+        self.expectation = expectation
+    }
+
+    func notify(with event: EventProtocol) {
+        guard let update = event as? PolkaswapSettingsDidUpdate else {
+            return
+        }
+
+        lock.lock()
+        defer { lock.unlock() }
+        observedPersistedSettings = repository.savedSettings.contains(update.settings)
+        guard !fulfilled else {
+            return
+        }
+        fulfilled = true
+        expectation.fulfill()
+    }
+
+    func add(observer _: EventVisitorProtocol, dispatchIn _: DispatchQueue?) {}
+    func remove(observer _: EventVisitorProtocol) {}
 }
 
 private actor InMemoryChainModelRepository: AsyncCoreDataRepository {

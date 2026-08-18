@@ -29,7 +29,7 @@ def passing_capture_receipt(*, first: bool) -> dict:
         "captureStatus": "complete",
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildNumber": "2026.8.18",
+        "buildNumber": "2026.8.19",
         "observationMethod": "paired-device-fearless-process-only-sanitized-syslog",
         "deviceSidePIDFilter": True,
         "historicalLogsRequested": False,
@@ -102,7 +102,7 @@ def write_capture_bundle(root: Path, *, first: bool) -> tuple[Path, str]:
         "observedAtUTC": "2026-08-10T11:59:59+09:00",
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildNumber": "2026.8.18",
+        "buildNumber": "2026.8.19",
     }
     records = [
         {
@@ -150,13 +150,13 @@ def passing_evidence() -> dict:
         "schemaVersion": 1,
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildVersion": "2026.8.18",
+        "buildVersion": "2026.8.19",
         "baseSourceCommit": "2e45e55dc03ad904598e730cfb5994fb5c1072dc",
         "artifactSourceCommit": EXPECTED_ARTIFACT_SOURCE_COMMIT,
         "distribution": "apple-testflight-internal",
         "installation": {
             "installedInPlace": True,
-            "previousBuildVersion": "2026.8.15",
+            "previousBuildVersion": "2026.8.18",
             "originalAppStoreContainerPreserved": True,
             "uninstalled": False,
             "offloaded": False,
@@ -181,6 +181,11 @@ def passing_evidence() -> dict:
             "crossChainTabRouteWorked": True,
             "settingsTabRouteWorked": True,
             "piBackedTokenPricesVisible": True,
+            "polkaswapSettingsLoaded": True,
+            "polkaswapQuoteWorked": True,
+            "polkaswapSwapFeeQuoteWorked": True,
+            "polkaswapPreviewWorked": True,
+            "polkaswapSigningReady": True,
             "bitcoinAssetVisible": True,
             "bitcoinBalanceRefreshWorked": True,
             "bitcoinReceiveAddressWorked": True,
@@ -212,6 +217,11 @@ def passing_evidence() -> dict:
             "crossChainTabRouteWorked": True,
             "settingsTabRouteWorked": True,
             "piBackedTokenPricesVisible": True,
+            "polkaswapSettingsLoaded": True,
+            "polkaswapQuoteWorked": True,
+            "polkaswapSwapFeeQuoteWorked": True,
+            "polkaswapPreviewWorked": True,
+            "polkaswapSigningReady": True,
             "bitcoinAssetVisible": True,
             "bitcoinBalanceRefreshWorked": True,
             "bitcoinReceiveAddressWorked": True,
@@ -321,6 +331,23 @@ class UpgradeUsabilityGateTests(unittest.TestCase):
                     "piBackedTokenPricesVisible must be true",
                 ):
                     validate(failed)
+
+    def test_rejects_missing_or_failed_polkaswap_functionality_attestation(self) -> None:
+        missing = passing_evidence()
+        missing["firstLaunch"].pop("polkaswapSettingsLoaded")
+        with self.assertRaisesRegex(GATE.EvidenceError, "privacy-safe schema"):
+            validate(missing)
+
+        for launch in ("firstLaunch", "secondColdLaunch"):
+            for key in GATE.POLKASWAP_ATTESTATIONS:
+                with self.subTest(launch=launch, key=key):
+                    failed = passing_evidence()
+                    failed[launch][key] = False
+                    with self.assertRaisesRegex(
+                        GATE.EvidenceError,
+                        f"{key} must be true",
+                    ):
+                        validate(failed)
 
     def test_rejects_missing_or_failed_bitcoin_attestation(self) -> None:
         missing = passing_evidence()

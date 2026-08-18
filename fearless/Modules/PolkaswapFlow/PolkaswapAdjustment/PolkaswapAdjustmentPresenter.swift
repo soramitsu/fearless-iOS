@@ -3,6 +3,19 @@ import SoraFoundation
 import BigInt
 import SSFModels
 
+enum PolkaswapQuoteResponsePolicy {
+    static func shouldAccept(
+        response: PolkaswapQuoteParams,
+        latest: PolkaswapQuoteParams?,
+        currentFromAssetId: String?,
+        currentToAssetId: String?
+    ) -> Bool {
+        response == latest &&
+            response.fromAssetId == currentFromAssetId &&
+            response.toAssetId == currentToAssetId
+    }
+}
+
 // swiftlint:disable file_length type_body_length
 final class PolkaswapAdjustmentPresenter {
     private enum InputTag: Int {
@@ -38,6 +51,7 @@ final class PolkaswapAdjustmentPresenter {
     private var calcalatedAmounts: SwapQuoteAmounts?
     private var detailsViewModel: PolkaswapAdjustmentDetailsViewModel?
     private var quotesWorkItem: DispatchWorkItem?
+    private var latestQuoteParams: PolkaswapQuoteParams?
 
     private var slippadgeTolerance: Float = Constants.slippadgeTolerance
     private var selectedLiquiditySourceType: LiquiditySourceType {
@@ -203,6 +217,10 @@ final class PolkaswapAdjustmentPresenter {
 
     private func fetchQuotes() {
         quotesWorkItem?.cancel()
+        quotesWorkItem = nil
+        latestQuoteParams = nil
+        invalidateCalculatedQuote()
+
         guard let swapFromChainAsset = swapFromChainAsset,
               let swapToChainAsset = swapToChainAsset,
               let marketSourcer = marketSource
@@ -250,16 +268,46 @@ final class PolkaswapAdjustmentPresenter {
             liquiditySources: liquiditySources,
             filterMode: selectedLiquiditySourceType.filterMode
         )
+        latestQuoteParams = quoteParams
 
         let task = DispatchWorkItem { [weak self] in
             self?.interactor.fetchQuotes(with: quoteParams)
         }
         quotesWorkItem = task
-        DispatchQueue.global().asyncAfter(deadline: .now() + Constants.quotesRequestDelay, execute: task)
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.quotesRequestDelay, execute: task)
     }
 
     private func subscribeToPoolUpdates() {
         interactor.subscribeOnBlocks()
+    }
+
+    private func activateCurrentPair() {
+        guard let polkaswapRemoteSettings,
+              let swapFromChainAsset,
+              let swapToChainAsset
+        else {
+            return
+        }
+
+        marketSource = SwapMarketSource(
+            fromAssetId: swapFromChainAsset.asset.currencyId,
+            toAssetId: swapToChainAsset.asset.currencyId,
+            remoteSettings: polkaswapRemoteSettings
+        )
+        interactor.didReceive(swapFromChainAsset, swapToChainAsset)
+        subscribeToPoolUpdates()
+        fetchQuotes()
+
+        let slip = BigUInt(integerLiteral: UInt64(slippadgeTolerance))
+        interactor.estimateFee(
+            dexId: "0",
+            fromAssetId: swapFromChainAsset.asset.currencyId ?? "",
+            toAssetId: swapToChainAsset.asset.currencyId ?? "",
+            swapVariant: swapVariant,
+            swapAmount: SwapAmount(type: swapVariant, desired: .zero, slip: slip),
+            filter: selectedLiquiditySourceType.filterMode,
+            liquiditySourceType: selectedLiquiditySourceType
+        )
     }
 
     private func provideAmount(
@@ -386,11 +434,25 @@ final class PolkaswapAdjustmentPresenter {
     }
 
     private func invalidateParams() {
+        quotesWorkItem?.cancel()
+        quotesWorkItem = nil
+        latestQuoteParams = nil
+        invalidateCalculatedQuote()
         calcalatedAmounts = nil
         swapFromInputResult = nil
         swapToInputResult = nil
         provideFromAssetVewModel()
         provideToAssetVewModel()
+
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveDetails(viewModel: nil)
+        }
+    }
+
+    private func invalidateCalculatedQuote() {
+        calcalatedAmounts = nil
+        polkaswapDexForRoute = nil
+        detailsViewModel = nil
 
         DispatchQueue.main.async { [weak self] in
             self?.view?.didReceiveDetails(viewModel: nil)
@@ -854,9 +916,12 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
     }
 
     func didReceiveSwapValues(_ valuesMap: [SwapValues], params: PolkaswapQuoteParams, errors: [Error]) {
-        guard params.fromAssetId == swapFromChainAsset?.asset.currencyId,
-              params.toAssetId == swapToChainAsset?.asset.currencyId
-        else {
+        guard PolkaswapQuoteResponsePolicy.shouldAccept(
+            response: params,
+            latest: latestQuoteParams,
+            currentFromAssetId: swapFromChainAsset?.asset.currencyId,
+            currentToAssetId: swapToChainAsset?.asset.currencyId
+        ) else {
             return
         }
 
@@ -871,7 +936,15 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
     }
 
     func didReceiveSettings(settings: PolkaswapRemoteSettings?) {
+        let previousSettings = polkaswapRemoteSettings
         polkaswapRemoteSettings = settings
+
+        guard let settings, settings != previousSettings else {
+            return
+        }
+
+        fetchSwapFee(amounts: .mockQuoteAmount)
+        activateCurrentPair()
     }
 
     func updateQuotes() {
@@ -905,8 +978,7 @@ extension PolkaswapAdjustmentPresenter: SelectAssetModuleOutput {
         view?.didUpdating()
         guard let rawValue = contextTag,
               let input = InputTag(rawValue: rawValue),
-              let chainAsset = chainAsset,
-              let polkaswapRemoteSettings = polkaswapRemoteSettings
+              let chainAsset = chainAsset
         else {
             return
         }
@@ -921,26 +993,7 @@ extension PolkaswapAdjustmentPresenter: SelectAssetModuleOutput {
         }
 
         runLoadingState()
-
-        marketSource = SwapMarketSource(
-            fromAssetId: swapFromChainAsset?.asset.currencyId,
-            toAssetId: swapToChainAsset?.asset.currencyId,
-            remoteSettings: polkaswapRemoteSettings
-        )
-        interactor.didReceive(swapFromChainAsset, swapToChainAsset)
-        subscribeToPoolUpdates()
-        fetchQuotes()
-
-        let slip = BigUInt(integerLiteral: UInt64(slippadgeTolerance))
-        interactor.estimateFee(
-            dexId: "0",
-            fromAssetId: swapFromChainAsset?.asset.currencyId ?? "",
-            toAssetId: swapToChainAsset?.asset.currencyId ?? "",
-            swapVariant: swapVariant,
-            swapAmount: SwapAmount(type: swapVariant, desired: .zero, slip: slip),
-            filter: selectedLiquiditySourceType.filterMode,
-            liquiditySourceType: selectedLiquiditySourceType
-        )
+        activateCurrentPair()
     }
 }
 

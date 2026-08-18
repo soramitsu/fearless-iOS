@@ -14,6 +14,7 @@ final class MainTabBarPresenter {
     private let reachability: ReachabilityManager?
     private let networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol
     private let walletConnectCoordinator: WalletConnectCoordinator
+    private var wallet: MetaAccountModel
 
     init(
         wireframe: MainTabBarWireframeProtocol,
@@ -23,6 +24,7 @@ final class MainTabBarPresenter {
         networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol,
         reachability: ReachabilityManager?,
         walletConnectCoordinator: WalletConnectCoordinator,
+        wallet: MetaAccountModel,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.wireframe = wireframe
@@ -32,6 +34,7 @@ final class MainTabBarPresenter {
         self.networkStatusPresenter = networkStatusPresenter
         self.reachability = reachability
         self.walletConnectCoordinator = walletConnectCoordinator
+        self.wallet = wallet
         self.localizationManager = localizationManager
 
         applicationHandler.delegate = self
@@ -51,7 +54,12 @@ extension MainTabBarPresenter: MainTabBarPresenterProtocol {
 
 extension MainTabBarPresenter: MainTabBarInteractorOutputProtocol {
     func didChangeSelectedAccount(_ account: MetaAccountModel) {
+        wallet = account
         wireframe.reloadWalletDependentViews(on: view, wallet: account)
+    }
+
+    func didPrepareChains() {
+        wireframe.reloadPolkaswapViewIfUnavailable(on: view, wallet: wallet)
     }
 
     func didRequestImportAccount() {
