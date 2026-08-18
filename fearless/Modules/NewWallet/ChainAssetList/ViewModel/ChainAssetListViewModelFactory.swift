@@ -121,9 +121,17 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 walletId: wallet.metaId,
                 assetKey: chainAsset.assetKey
             )
-            guard let account = wallet.fetch(for: chainAsset.chain.accountRequest()),
-                  preference != .hidden else {
+            guard preference != .hidden else {
                 return false
+            }
+
+            guard let account = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
+                // Keep the app-owned Bitcoin utility asset discoverable while
+                // this wallet still needs its BIP-84 account. Row actions are
+                // routed to the dedicated mnemonic import flow by the presenter.
+                return UniversalWalletRegistry.bitcoinNetwork(for: chainAsset.chain.chainId) ==
+                    UniversalWalletRegistry.bitcoinMainnet &&
+                    chainAsset.asset.isUtility
             }
 
             let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: account.accountId)] ?? nil
@@ -294,6 +302,12 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
     ) -> AssetListState {
         switch displayType {
         case .chain:
+            if chainAssets.count == 1,
+               let chain = chainAssets.first?.chain,
+               UniversalWalletRegistry.bitcoinNetwork(for: chain.chainId) != nil,
+               wallet.fetch(for: chain.accountRequest()) == nil {
+                return .chainHasAccountIssue(chain: chain)
+            }
             if cells.isEmpty {
                 return .allIsHidden
             }
@@ -394,6 +408,13 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             }
         }
 
+        if UniversalWalletRegistry.bitcoinNetwork(for: chainAsset.chain.chainId) ==
+            UniversalWalletRegistry.bitcoinMainnet,
+            wallet.fetch(for: chainAsset.chain.accountRequest()) == nil {
+            // Account setup is actionable, not a balance request in flight.
+            isColdBoot = false
+        }
+
         let viewModel = ChainAccountBalanceCellViewModel(
             assetContainsChainAssets: chainAssets,
             chainIconViewViewModel: chainIconsViewModel,
@@ -417,7 +438,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             options: options,
             isColdBoot: isColdBoot,
             locale: locale,
-            hideButtonIsVisible: displayType == AssetListDisplayType.chain || metadataTrust.trust != .verified
+            hideButtonIsVisible: displayType == AssetListDisplayType.chain || metadataTrust.trust != .verified,
+            swipeActionsEnabled: wallet.fetch(for: chainAsset.chain.accountRequest()) != nil
         )
 
         return viewModel

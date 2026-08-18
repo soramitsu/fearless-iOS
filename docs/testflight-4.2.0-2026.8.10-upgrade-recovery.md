@@ -13,7 +13,9 @@ chain catalog and wallet lifecycle. Corrected successor build
 could permanently install a startup placeholder before SORA services were
 ready. Build `4.2.0 (2026.8.19)` restored Polkaswap but left its modal-era swap
 action under the redesigned translucent tab bar on iPhone 17 Pro Max.
-Corrected successor build `4.2.0 (2026.8.20)` retains ancestry from
+Build `4.2.0 (2026.8.20)` corrected that action, but Bitcoin remained absent
+for existing wallets whose BIP84 account had not been provisioned. Corrected
+successor build `4.2.0 (2026.8.21)` retains ancestry from
 distributed source commit
 `2e45e55dc03ad904598e730cfb5994fb5c1072dc`, the exact public App Store
 Substrate v8/v9 compatibility models and lossless v10 migration, the redesign,
@@ -102,13 +104,16 @@ managed tab items behind the custom tab bar on iOS 26. The `.8.15` compatibility
 build restored those legacy items. `.8.17` restored the redesign but omitted
 usable BTC support. `.8.18` added BTC but regressed Polkaswap availability and
 clean-start settings. `.8.19` restored Polkaswap but hid its swap action under
-the tab bar. Use corrected `.8.20` for the preserved-data qualification below.
+the tab bar. `.8.20` corrected the swap action but left accountless existing
+wallets without a visible Bitcoin recovery path. Use corrected `.8.21` for the
+preserved-data qualification below.
 
 ## Internal TestFlight gate
 
 1. Confirm the installed identity is `jp.co.soramitsu.fearlesswallet`, version
-   `4.2.0`, build `2026.8.19` before the corrected successor update.
-2. Assign build `2026.8.20` only to a true internal TestFlight group containing
+   `4.2.0`, build `2026.8.19` or `2026.8.20` before the corrected successor
+   update.
+2. Assign build `2026.8.21` only to a true internal TestFlight group containing
    the affected phone's App Store Connect user. Do not use the similarly named
    external affected-phone group, which requires Beta App Review, and do not
    change the public beta group.
@@ -123,7 +128,7 @@ the tab bar. Use corrected `.8.20` for the preserved-data qualification below.
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.20 \
+     --expected-build 2026.8.21 \
      --observation-seconds 900 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 300 \
@@ -147,7 +152,7 @@ the tab bar. Use corrected `.8.20` for the preserved-data qualification below.
      recorded only as pass/fail attestations; do not broadcast funds;
    - unchanged wallet counts, logical store integrity, Keychain access, and
      settings access, recorded only as pass/fail attestations without values.
-   Record `previousBuildVersion=2026.8.19` and
+   Record the actual `previousBuildVersion` (`2026.8.19` or `2026.8.20`) and
    `originalAppStoreContainerPreserved=true`; this binds the successor update
    to the still-preserved container originally installed from the App Store.
 6. After the first capture completes, force-quit once more and use a new output
@@ -164,7 +169,7 @@ the tab bar. Use corrected `.8.20` for the preserved-data qualification below.
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.20 \
+     --expected-build 2026.8.21 \
      --observation-seconds 180 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 5 \
@@ -181,12 +186,12 @@ the tab bar. Use corrected `.8.20` for the preserved-data qualification below.
    later host-only diagnostics commit:
 
    ```bash
-   chmod 600 build/testflight-2026.8.20-upgrade-usability.json
-   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.20/testflight-internal-upload.json
+   chmod 600 build/testflight-2026.8.21-upgrade-usability.json
+   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.21/testflight-internal-upload.json
    artifact_source_commit="$(jq -er '.artifactSourceCommit' "$upload_receipt")"
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/audit-testflight-upgrade-usability-gate.py \
-     build/testflight-2026.8.20-upgrade-usability.json \
+     build/testflight-2026.8.21-upgrade-usability.json \
      --first-launch-capture-receipt \
        /ABSOLUTE/PRIVATE/FIRST-HOTFIX-CAPTURE/capture-receipt.json \
      --second-launch-capture-receipt \
@@ -210,6 +215,6 @@ PYTHONDONTWRITEBYTECODE=1 python3 \
 ## Release decision
 
 Only after the audit passes may release review replace build `2026.7.28` in the
-public beta group with `2026.8.20`. Uploading and assigning the restricted group
+public beta group with `2026.8.21`. Uploading and assigning the restricted group
 do not authorize changing the public beta group; that change still requires the
 normal App Store Connect authorization and review trail.

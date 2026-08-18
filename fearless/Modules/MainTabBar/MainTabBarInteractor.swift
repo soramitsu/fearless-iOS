@@ -11,6 +11,7 @@ final class MainTabBarInteractor {
     private let eventCenter: EventCenterProtocol
     private let keystoreImportService: KeystoreImportServiceProtocol
     private let serviceCoordinator: ServiceCoordinatorProtocol
+    private let selectedWalletProvider: () -> MetaAccountModel?
 
     deinit {
         stopServices()
@@ -19,13 +20,15 @@ final class MainTabBarInteractor {
     init(
         eventCenter: EventCenterProtocol,
         serviceCoordinator: ServiceCoordinatorProtocol,
-        keystoreImportService: KeystoreImportServiceProtocol
+        keystoreImportService: KeystoreImportServiceProtocol,
+        selectedWalletProvider: @escaping () -> MetaAccountModel? = {
+            SelectedWalletSettings.shared.value
+        }
     ) {
         self.eventCenter = eventCenter
         self.keystoreImportService = keystoreImportService
         self.serviceCoordinator = serviceCoordinator
-
-        startServices()
+        self.selectedWalletProvider = selectedWalletProvider
     }
 
     private func startServices() {
@@ -49,6 +52,7 @@ extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
 
         eventCenter.add(observer: self, dispatchIn: nil)
         keystoreImportService.add(observer: self)
+        startServices()
 
         if keystoreImportService.definition != nil {
             presenter?.didRequestImportAccount()
@@ -62,6 +66,18 @@ extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
 }
 
 extension MainTabBarInteractor: EventVisitorProtocol {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        guard selectedWalletProvider()?.metaId == event.account.metaId else {
+            return
+        }
+        DispatchQueue.main.async { [weak self] in
+            guard self?.selectedWalletProvider()?.metaId == event.account.metaId else {
+                return
+            }
+            self?.presenter?.didChangeSelectedAccount(event.account)
+        }
+    }
+
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
         serviceCoordinator.updateOnAccountChange()
         DispatchQueue.main.async {

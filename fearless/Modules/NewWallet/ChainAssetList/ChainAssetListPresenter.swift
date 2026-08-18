@@ -73,7 +73,15 @@ final class ChainAssetListPresenter {
 
     private func showMissingAccountOptions(chain: ChainModel) {
         let unused = (wallet.unusedChainIds ?? []).contains(chain.chainId)
-        let options: [MissingAccountOption?] = [.create, .import, unused ? nil : .skip]
+        let options: [MissingAccountOption?]
+        if UniversalWalletRegistry.bitcoinNetwork(for: chain.chainId) != nil {
+            // Bitcoin must use the BIP-84 universal-wallet signer. The generic
+            // create/seed/keystore routes would save a Substrate key under a
+            // Bitcoin chain identifier and leave the account unsignable.
+            options = [.import]
+        } else {
+            options = [.create, .import, unused ? nil : .skip]
+        }
         let uniqueChainModel = UniqueChainModel(
             meta: wallet,
             chain: chain
@@ -121,6 +129,13 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     }
 
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
+        if UniversalWalletRegistry.bitcoinNetwork(for: viewModel.chainAsset.chain.chainId) ==
+            UniversalWalletRegistry.bitcoinMainnet,
+            wallet.fetch(for: viewModel.chainAsset.chain.accountRequest()) == nil {
+            showMissingAccountOptions(chain: viewModel.chainAsset.chain)
+            return
+        }
+
         if viewModel.chainAsset.chain.isSupported {
             interactor.getAvailableChainAssets(chainAsset: viewModel.chainAsset) { [weak self] availableChainAssets in
                 guard let strongSelf = self else { return }
@@ -149,6 +164,13 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     }
 
     func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel) {
+        if UniversalWalletRegistry.bitcoinNetwork(for: viewModel.chainAsset.chain.chainId) ==
+            UniversalWalletRegistry.bitcoinMainnet,
+            wallet.fetch(for: viewModel.chainAsset.chain.accountRequest()) == nil {
+            showMissingAccountOptions(chain: viewModel.chainAsset.chain)
+            return
+        }
+
         switch actionType {
         case .send:
             router.showSendFlow(

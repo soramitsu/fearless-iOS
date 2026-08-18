@@ -679,6 +679,67 @@ final class MainTabBarTests: XCTestCase {
         XCTAssertEqual(output.didPrepareChainsCallCount, 2)
     }
 
+    func testServicesStartOnlyAfterMainTabObserverSetup() {
+        let serviceCoordinator = MainTabBarServiceCoordinatorSpy()
+        let interactor = MainTabBarInteractor(
+            eventCenter: EventCenterProtocolStub(),
+            serviceCoordinator: serviceCoordinator,
+            keystoreImportService: MainTabBarKeystoreImportServiceStub()
+        )
+
+        XCTAssertEqual(serviceCoordinator.setupCallCount, 0)
+
+        interactor.setup(with: MainTabBarInteractorOutputSpy())
+
+        XCTAssertEqual(serviceCoordinator.setupCallCount, 1)
+    }
+
+    func testMatchingMetaAccountChangeReloadsUIWithoutRestartingServices() {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let serviceCoordinator = MainTabBarServiceCoordinatorSpy()
+        let output = MainTabBarInteractorOutputSpy()
+        let reloaded = expectation(description: "matching wallet reloads")
+        output.onDidChangeSelectedAccount = { account in
+            XCTAssertEqual(account.metaId, wallet.metaId)
+            reloaded.fulfill()
+        }
+        let interactor = MainTabBarInteractor(
+            eventCenter: EventCenterProtocolStub(),
+            serviceCoordinator: serviceCoordinator,
+            keystoreImportService: MainTabBarKeystoreImportServiceStub(),
+            selectedWalletProvider: { wallet }
+        )
+        interactor.setup(with: output)
+
+        interactor.processMetaAccountChanged(
+            event: MetaAccountModelChangedEvent(account: wallet)
+        )
+
+        wait(for: [reloaded], timeout: 1)
+        XCTAssertEqual(serviceCoordinator.updateOnAccountChangeCallCount, 0)
+    }
+
+    func testNonselectedMetaAccountChangeDoesNotReplaceMainUI() {
+        let selectedWallet = AccountGenerator.generateMetaAccount()
+        let otherWallet = AccountGenerator.generateMetaAccount()
+        let serviceCoordinator = MainTabBarServiceCoordinatorSpy()
+        let output = MainTabBarInteractorOutputSpy()
+        let interactor = MainTabBarInteractor(
+            eventCenter: EventCenterProtocolStub(),
+            serviceCoordinator: serviceCoordinator,
+            keystoreImportService: MainTabBarKeystoreImportServiceStub(),
+            selectedWalletProvider: { selectedWallet }
+        )
+        interactor.setup(with: output)
+
+        interactor.processMetaAccountChanged(
+            event: MetaAccountModelChangedEvent(account: otherWallet)
+        )
+
+        XCTAssertTrue(output.changedAccounts.isEmpty)
+        XCTAssertEqual(serviceCoordinator.updateOnAccountChangeCallCount, 0)
+    }
+
     func testBundledPolkaswapSettingsSupportOfflineCleanStartup() throws {
         let settings = try XCTUnwrap(PolkaswapSettingsFactory.bundledSettings())
         let dexIds = settings.availableDexIds.map(\.code)
@@ -2949,9 +3010,14 @@ private final class MainTabBarPresenterStub: MainTabBarPresenterProtocol {
 
 private final class MainTabBarInteractorOutputSpy: MainTabBarInteractorOutputProtocol {
     private(set) var didPrepareChainsCallCount = 0
+    private(set) var changedAccounts: [MetaAccountModel] = []
     var onDidPrepareChains: (() -> Void)?
+    var onDidChangeSelectedAccount: ((MetaAccountModel) -> Void)?
 
-    func didChangeSelectedAccount(_: MetaAccountModel) {}
+    func didChangeSelectedAccount(_ account: MetaAccountModel) {
+        changedAccounts.append(account)
+        onDidChangeSelectedAccount?(account)
+    }
 
     func didPrepareChains() {
         didPrepareChainsCallCount += 1
@@ -2964,13 +3030,16 @@ private final class MainTabBarInteractorOutputSpy: MainTabBarInteractorOutputPro
 
 private final class MainTabBarServiceCoordinatorSpy: ServiceCoordinatorProtocol {
     private(set) var setupCallCount = 0
+    private(set) var updateOnAccountChangeCallCount = 0
 
     func setup() {
         setupCallCount += 1
     }
 
     func throttle() {}
-    func updateOnAccountChange() {}
+    func updateOnAccountChange() {
+        updateOnAccountChangeCallCount += 1
+    }
 }
 
 private final class MainTabBarKeystoreImportServiceStub: KeystoreImportServiceProtocol {

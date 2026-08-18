@@ -504,9 +504,14 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
             storagePerformer: storagePerformer
         )
 
-        let result = try await service.fetchAccountInfos(for: chain, wallet: wallet)
-
-        XCTAssertTrue(result.values.allSatisfy { $0 == nil })
+        do {
+            _ = try await service.fetchAccountInfos(for: chain, wallet: wallet)
+            XCTFail("Bitcoin indexer failures must propagate for last-known balance recovery")
+        } catch TestError.indexerUnavailable {
+            // Expected fail-closed signal.
+        } catch {
+            XCTFail("Unexpected Bitcoin indexer error: \(error)")
+        }
         XCTAssertEqual(bitcoinSync.invocations.count, 1)
         XCTAssertEqual(storagePerformer.performMixInvocations, 0)
     }
@@ -541,7 +546,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         XCTAssertEqual(solanaSync.invocations.count, 1)
         XCTAssertEqual(solanaSync.invocations.first?.network, UniversalWalletRegistry.solanaMainnet)
         XCTAssertEqual(solanaSync.invocations.first?.baseURL, "https://si.soramitsu.io/")
-        XCTAssertEqual(solanaSync.invocations.first?.includeTokenMetadata, false)
+        XCTAssertEqual(solanaSync.invocations.first?.includeTokenMetadata, true)
         XCTAssertEqual(storagePerformer.performMixInvocations, 0)
 
         let nativeInfo = try XCTUnwrap(result[Self.solAsset.chainAssetId(chainId: chain.chainId)] ?? nil)
@@ -611,9 +616,14 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
             storagePerformer: storagePerformer
         )
 
-        let result = try await service.fetchAccountInfos(for: chain, wallet: wallet)
-
-        XCTAssertTrue(result.values.allSatisfy { $0 == nil })
+        do {
+            _ = try await service.fetchAccountInfos(for: chain, wallet: wallet)
+            XCTFail("Solana indexer failures must propagate for last-known balance recovery")
+        } catch TestError.indexerUnavailable {
+            // Expected fail-closed signal.
+        } catch {
+            XCTFail("Unexpected Solana indexer error: \(error)")
+        }
         XCTAssertEqual(solanaSync.invocations.count, 1)
         XCTAssertEqual(storagePerformer.performMixInvocations, 0)
     }

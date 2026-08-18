@@ -312,6 +312,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         if let wallet {
             self.wallet = wallet
         }
+        let targetWallet = self.wallet
         let requestedChains = chainAssets
             .map { $0.chain }
             .uniq(predicate: { $0.chainId })
@@ -320,9 +321,9 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         )
         let chains: [ChainModel]
         do {
-            let catalog = try await loadCompleteCatalog()
+            let catalog = try await loadCompleteCatalog(wallet: targetWallet)
             chains = catalog.productionChains(
-                wallet: self.wallet,
+                wallet: targetWallet,
                 optedInTestnetIds: optedInTestnetIds
             )
         } catch {
@@ -334,6 +335,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         }
         let updatedWallet = await updateVisibility(
             for: chains,
+            wallet: targetWallet,
             includeTestnets: optedInTestnetIds.isNotEmpty,
             trigger: .pullToRefresh
         )
@@ -375,6 +377,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     // MARK: - Private methods
 
     private func handleChains(changes: [DataProviderChange<ChainModel>], accounts: [ChainAccountModel]?) {
+        let targetWallet = wallet
         Task {
             let changedChains = changes.filter {
                 switch $0 {
@@ -386,7 +389,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
             }.compactMap { $0.item }
             let catalogChains: [ChainModel]
             do {
-                let catalog = try await loadCompleteCatalog()
+                let catalog = try await loadCompleteCatalog(wallet: targetWallet)
                 let catalogById = Dictionary(
                     uniqueKeysWithValues: catalog.chains.map { ($0.chainId, $0) }
                 )
@@ -399,7 +402,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
             }
 
             var chains = catalogChains.filter {
-                !$0.isTestnet && wallet.fetch(for: $0.accountRequest()) != nil
+                !$0.isTestnet && targetWallet.fetch(for: $0.accountRequest()) != nil
             }
             if let accounts, accounts.isNotEmpty {
                 chains = chains.filter { chain in
@@ -412,32 +415,41 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
                 }
             }
 
-            _ = await updateVisibility(for: chains, trigger: .registryUpdated)
-            performSaveAndNotify()
+            let scannedWallet = await updateVisibility(
+                for: chains,
+                wallet: targetWallet,
+                trigger: .registryUpdated
+            )
+            finishDiscovery(wallet: scannedWallet)
         }
     }
 
     private func triggerDailySweepIfDue(now: Date = Date()) {
-        guard dailyDiscoveryScheduler.isDue(walletId: wallet.metaId, now: now) else {
+        let targetWallet = wallet
+        guard dailyDiscoveryScheduler.isDue(walletId: targetWallet.metaId, now: now) else {
             return
         }
 
-        dailyDiscoveryScheduler.markAttempt(walletId: wallet.metaId, now: now)
+        dailyDiscoveryScheduler.markAttempt(walletId: targetWallet.metaId, now: now)
 
         Task {
             do {
-                let catalog = try await loadCompleteCatalog()
+                let catalog = try await loadCompleteCatalog(wallet: targetWallet)
                 let chains = dailyDiscoveryScheduler.eligibleChains(
                     from: catalog.chains,
-                    wallet: wallet
+                    wallet: targetWallet
                 )
                 guard chains.isNotEmpty else {
                     return
                 }
-                _ = await updateVisibility(for: chains, trigger: .dailySweep)
-                performSaveAndNotify()
+                let scannedWallet = await updateVisibility(
+                    for: chains,
+                    wallet: targetWallet,
+                    trigger: .dailySweep
+                )
+                finishDiscovery(wallet: scannedWallet)
             } catch {
-                dailyDiscoveryScheduler.clearAttempt(walletId: wallet.metaId)
+                dailyDiscoveryScheduler.clearAttempt(walletId: targetWallet.metaId)
                 logger.error("Asset discovery catalog fetch failed: \(error.localizedDescription)")
             }
         }
@@ -445,37 +457,46 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
 
     private func updateVisibility(
         for chains: [ChainModel],
+        wallet scannedWallet: MetaAccountModel,
         includeTestnets: Bool = false,
         trigger: AssetDiscoveryTrigger
     ) async -> MetaAccountModel {
         let result = await assetDiscoveryService.scan(
-            wallet: wallet,
+            wallet: scannedWallet,
             chains: chains,
             includeTestnets: includeTestnets,
             trigger: trigger
         )
-        updateCurrentWallet(with: result.accountInfosByChain)
-        return wallet
+        updateCurrentWallet(
+            with: result.accountInfosByChain,
+            wallet: scannedWallet
+        )
+        return scannedWallet
     }
 
     @discardableResult
     private func triggerInitialDiscoveryIfNeeded() -> Bool {
-        let key = ["portfolio.discovery.initial", wallet.metaId].joined(separator: ":")
+        let targetWallet = wallet
+        let key = ["portfolio.discovery.initial", targetWallet.metaId].joined(separator: ":")
         guard !UserDefaults.standard.bool(forKey: key) else {
             return false
         }
         UserDefaults.standard.set(true, forKey: key)
         Task {
             do {
-                let catalog = try await loadCompleteCatalog()
-                let chains = catalog.productionChains(wallet: wallet)
+                let catalog = try await loadCompleteCatalog(wallet: targetWallet)
+                let chains = catalog.productionChains(wallet: targetWallet)
                 guard chains.isNotEmpty else {
                     // Registry updates will perform the initial scan once rows arrive.
                     UserDefaults.standard.removeObject(forKey: key)
                     return
                 }
-                _ = await updateVisibility(for: chains, trigger: .walletCreatedOrImported)
-                performSaveAndNotify()
+                let scannedWallet = await updateVisibility(
+                    for: chains,
+                    wallet: targetWallet,
+                    trigger: .walletCreatedOrImported
+                )
+                finishDiscovery(wallet: scannedWallet)
             } catch {
                 UserDefaults.standard.removeObject(forKey: key)
                 logger.error("Asset discovery catalog fetch failed: \(error.localizedDescription)")
@@ -490,14 +511,17 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         guard newAccounts.isNotEmpty else {
             return
         }
-        scanAccountInfo(for: Array(newAccounts))
+        scanAccountInfo(for: Array(newAccounts), wallet: wallet)
     }
 
-    private func scanAccountInfo(for accounts: [ChainAccountModel]) {
+    private func scanAccountInfo(
+        for accounts: [ChainAccountModel],
+        wallet targetWallet: MetaAccountModel
+    ) {
         Task {
             do {
-                let catalog = try await loadCompleteCatalog()
-                let chains = catalog.productionChains(wallet: wallet).filter { chain in
+                let catalog = try await loadCompleteCatalog(wallet: targetWallet)
+                let chains = catalog.productionChains(wallet: targetWallet).filter { chain in
                     accounts.contains {
                         UniversalWalletChainAccountSupport.chainId(
                             $0.chainId,
@@ -505,15 +529,19 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
                         )
                     }
                 }
-                _ = await updateVisibility(for: chains, trigger: .accountAdded)
-                performSaveAndNotify()
+                let scannedWallet = await updateVisibility(
+                    for: chains,
+                    wallet: targetWallet,
+                    trigger: .accountAdded
+                )
+                finishDiscovery(wallet: scannedWallet)
             } catch {
                 logger.error("Asset discovery catalog fetch failed: \(error.localizedDescription)")
             }
         }
     }
 
-    private func loadCompleteCatalog() async throws -> AssetDiscoveryChainCatalog {
+    private func loadCompleteCatalog(wallet: MetaAccountModel) async throws -> AssetDiscoveryChainCatalog {
         let catalog = try await chainCatalog.fetchCatalog()
         guard catalog.isComplete else {
             throw AssetDiscoveryChainCatalogError.incomplete
@@ -534,33 +562,28 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         return Dictionary(uniqueKeysWithValues: mapped)
     }
 
-    private func performSaveAndNotify() {
-        SelectedWalletSettings.shared.performSave(value: wallet) { [weak self] result in
-            guard let self else {
-                return
-            }
-            switch result {
-            case let .success(wallet):
-                let event = MetaAccountModelChangedEvent(account: wallet)
-                self.eventCenter.notify(with: event)
-                self.markAsMigrated(wallet)
-            case let .failure(failure):
-                self.logger.customError(failure)
-            }
-        }
+    private func finishDiscovery(wallet: MetaAccountModel) {
+        // Discovery only updates canonical visibility preferences and remote
+        // balance caches. Re-saving its captured wallet can overwrite a newer
+        // account migration (notably the asynchronously provisioned BTC key).
+        markAsMigrated(wallet)
     }
 
     private func updateCurrentWallet(
-        with resultMap: [ChainModel: [ChainAssetId: AccountInfo?]]
+        with resultMap: [ChainModel: [ChainAssetId: AccountInfo?]],
+        wallet: MetaAccountModel
     ) {
         // Scans update balances, not presentation intent. In particular, a
         // positive unverified holding must remain `.auto` in Detected assets
         // until the user explicitly chooses Show or Hide.
         let chains = resultMap.keys.map { $0 }
-        setDefaultVisibilitiesIfNeeded(chains: chains)
+        setDefaultVisibilitiesIfNeeded(chains: chains, wallet: wallet)
     }
 
-    private func setDefaultVisibilitiesIfNeeded(chains: [ChainModel]) {
+    private func setDefaultVisibilitiesIfNeeded(
+        chains: [ChainModel],
+        wallet: MetaAccountModel
+    ) {
         let chainAssets: [ChainAsset] = chains
             .map { $0.chainAssets }
             .reduce([], +)
@@ -583,6 +606,13 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
                 .shown,
                 walletId: wallet.metaId,
                 assetKey: chainAsset.assetKey
+            )
+            eventCenter.notify(
+                with: AssetVisibilityPreferenceChangedEvent(
+                    walletId: wallet.metaId,
+                    assetKey: chainAsset.assetKey,
+                    preference: .shown
+                )
             )
         }
     }

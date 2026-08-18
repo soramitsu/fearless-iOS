@@ -3,9 +3,231 @@ import XCTest
 import SoraKeystore
 import RobinHood
 import Cuckoo
+import IrohaCrypto
 import SoraFoundation
 
 class AccountImportTests: XCTestCase {
+
+    func testBitcoinImportMetadataAllowsMnemonicOnly() {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let presenter = AccountImportPresenter(
+            wireframe: MockAccountImportWireframeProtocol(),
+            interactor: MockAccountImportInteractorInputProtocol(),
+            flow: .chain(
+                model: UniqueChainModel(
+                    meta: wallet,
+                    chain: UniversalWalletRegistry.bitcoinMainnetChainModel
+                )
+            )
+        )
+
+        presenter.didReceiveAccountImport(
+            metadata: MetaAccountImportMetadata(
+                availableSources: AccountImportSource.allCases,
+                defaultSource: .keystore,
+                availableCryptoTypes: CryptoType.allCases,
+                defaultCryptoType: .sr25519
+            )
+        )
+
+        XCTAssertEqual(presenter.metadata?.availableSources, [.mnemonic])
+        XCTAssertEqual(presenter.metadata?.defaultSource, .mnemonic)
+        XCTAssertEqual(presenter.metadata?.availableCryptoTypes, [.ecdsa])
+        XCTAssertEqual(presenter.metadata?.defaultCryptoType, .ecdsa)
+        XCTAssertEqual(presenter.selectedSourceType, .mnemonic)
+        XCTAssertEqual(presenter.selectedCryptoType, .ecdsa)
+    }
+
+    func testBitcoinMnemonicImportCreatesSignableBIP84Account() throws {
+        let keychain = InMemoryKeychain()
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let wallet = AccountGenerator.generateMetaAccount()
+        let mnemonicString = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        let mnemonic = try IRMnemonicCreator().mnemonic(fromList: mnemonicString)
+        let request = ChainAccountImportMnemonicRequest(
+            mnemonic: mnemonic,
+            username: wallet.name,
+            derivationPath: "",
+            cryptoType: .ecdsa,
+            isEthereum: false,
+            meta: wallet,
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId
+        )
+
+        let operation = operationFactory.importChainAccountOperation(request: request)
+        operation.start()
+        let updatedWallet = try operation.extractResultData(
+            throwing: BaseOperationError.parentOperationCancelled
+        )
+        let account = try XCTUnwrap(updatedWallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+        let address = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(
+                for: UniversalWalletRegistry.bitcoinMainnetChainModel,
+                wallet: updatedWallet
+            )
+        )
+
+        XCTAssertEqual(account.chainId, UniversalWalletRegistry.bitcoinMainnet.chainId)
+        XCTAssertEqual(account.publicKey.count, 33)
+        XCTAssertTrue(address.hasPrefix("bc1q"))
+        XCTAssertTrue(
+            try keychain.checkKey(
+                for: KeystoreTagV2.entropyTagForMetaId(
+                    wallet.metaId,
+                    accountId: account.accountId
+                )
+            )
+        )
+        XCTAssertEqual(
+            try KeychainUniversalWalletMnemonicProvider(keystore: keychain).mnemonic(
+                for: updatedWallet,
+                chain: UniversalWalletRegistry.bitcoinMainnetChainModel
+            ),
+            mnemonicString
+        )
+    }
+
+    func testBitcoinMnemonicImportRestoresSignerWithoutChangingExistingAddress() throws {
+        let keychain = InMemoryKeychain()
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let mnemonicString = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        let wallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+            to: AccountGenerator.generateMetaAccount(),
+            mnemonic: mnemonicString
+        )
+        let originalAccount = try XCTUnwrap(wallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+        let request = ChainAccountImportMnemonicRequest(
+            mnemonic: try IRMnemonicCreator().mnemonic(fromList: mnemonicString),
+            username: wallet.name,
+            derivationPath: "",
+            cryptoType: .ecdsa,
+            isEthereum: false,
+            meta: wallet,
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId
+        )
+
+        let operation = operationFactory.importChainAccountOperation(request: request)
+        operation.start()
+        let updatedWallet = try operation.extractResultData(
+            throwing: BaseOperationError.parentOperationCancelled
+        )
+        let restoredAccount = try XCTUnwrap(updatedWallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+
+        XCTAssertEqual(restoredAccount.publicKey, originalAccount.publicKey)
+        XCTAssertTrue(
+            try keychain.checkKey(
+                for: KeystoreTagV2.entropyTagForMetaId(
+                    wallet.metaId,
+                    accountId: originalAccount.accountId
+                )
+            )
+        )
+    }
+
+    func testBitcoinMnemonicImportRejectsAddressReplacementAndPreservesSigner() throws {
+        let keychain = InMemoryKeychain()
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let originalMnemonic = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        let replacementMnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        let wallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+            to: AccountGenerator.generateMetaAccount(),
+            mnemonic: originalMnemonic
+        )
+        let originalAccount = try XCTUnwrap(wallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+        let entropyTag = KeystoreTagV2.entropyTagForMetaId(
+            wallet.metaId,
+            accountId: originalAccount.accountId
+        )
+        let existingEntropy = Data("existing-signer".utf8)
+        try keychain.saveKey(existingEntropy, with: entropyTag)
+        let request = ChainAccountImportMnemonicRequest(
+            mnemonic: try IRMnemonicCreator().mnemonic(fromList: replacementMnemonic),
+            username: wallet.name,
+            derivationPath: "",
+            cryptoType: .ecdsa,
+            isEthereum: false,
+            meta: wallet,
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId
+        )
+
+        let operation = operationFactory.importChainAccountOperation(request: request)
+        operation.start()
+
+        XCTAssertThrowsError(
+            try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        ) { error in
+            guard case AccountCreateError.duplicated = error else {
+                return XCTFail("Expected address replacement to be rejected, got \(error)")
+            }
+        }
+        XCTAssertEqual(try keychain.fetchKey(for: entropyTag), existingEntropy)
+        XCTAssertEqual(
+            wallet.chainAccounts.first(where: {
+                UniversalWalletChainAccountSupport.chainId(
+                    $0.chainId,
+                    matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+                )
+            })?.publicKey,
+            originalAccount.publicKey
+        )
+    }
+
+    func testBitcoinTestnetMnemonicImportFailsWithoutKeychainWrite() throws {
+        let keychain = InMemoryKeychain()
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let wallet = AccountGenerator.generateMetaAccount()
+        let mnemonicString = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        let mnemonic = try IRMnemonicCreator().mnemonic(fromList: mnemonicString)
+        let derivedTestnetAccount = try BitcoinKeyDerivation.deriveAccount(
+            mnemonic: mnemonicString,
+            network: .testnet
+        )
+        let entropyTag = KeystoreTagV2.entropyTagForMetaId(
+            wallet.metaId,
+            accountId: derivedTestnetAccount.publicKey
+        )
+        let request = ChainAccountImportMnemonicRequest(
+            mnemonic: mnemonic,
+            username: wallet.name,
+            derivationPath: "",
+            cryptoType: .ecdsa,
+            isEthereum: false,
+            meta: wallet,
+            chainId: UniversalWalletRegistry.bitcoinTestnet.chainId
+        )
+
+        let operation = operationFactory.importChainAccountOperation(request: request)
+        operation.start()
+
+        XCTAssertThrowsError(
+            try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        ) { error in
+            guard case AccountOperationFactoryError.unsupportedNetwork = error else {
+                return XCTFail("Expected testnet import to fail closed, got \(error)")
+            }
+        }
+        XCTAssertFalse(try keychain.checkKey(for: entropyTag))
+    }
 
     func testMnemonicRestore() {
         // given

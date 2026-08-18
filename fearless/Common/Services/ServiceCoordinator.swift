@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import SoraKeystore
 import SoraFoundation
 import RobinHood
@@ -23,8 +24,11 @@ final class ServiceCoordinator {
     private let walletConnect: WalletConnectService
     private let walletAssetsObserver: WalletAssetsObserver
     private let pricesService: PricesServiceProtocol
+    private let bitcoinMnemonicProvider: UniversalWalletRootMnemonicProviding
+    private let notificationCenter: NotificationCenter
     private let bitcoinProvisioningLock = NSLock()
     private var bitcoinProvisioningWalletIds = Set<MetaAccountId>()
+    private var bitcoinProvisioningObservers: [NSObjectProtocol] = []
 
     init(
         walletSettings: SelectedWalletSettings,
@@ -34,7 +38,9 @@ final class ServiceCoordinator {
         polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol,
         walletConnect: WalletConnectService,
         walletAssetsObserver: WalletAssetsObserver,
-        pricesService: PricesServiceProtocol
+        pricesService: PricesServiceProtocol,
+        bitcoinMnemonicProvider: UniversalWalletRootMnemonicProviding = KeychainUniversalWalletMnemonicProvider(),
+        notificationCenter: NotificationCenter = .default
     ) {
         self.walletSettings = walletSettings
         self.accountInfoService = accountInfoService
@@ -44,6 +50,12 @@ final class ServiceCoordinator {
         self.walletConnect = walletConnect
         self.walletAssetsObserver = walletAssetsObserver
         self.pricesService = pricesService
+        self.bitcoinMnemonicProvider = bitcoinMnemonicProvider
+        self.notificationCenter = notificationCenter
+    }
+
+    deinit {
+        removeBitcoinProvisioningObservers()
     }
 }
 
@@ -58,8 +70,8 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
 
     func setup() {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        chainRegistry.syncUp()
         chainRegistry.subscribeToChains()
+        chainRegistry.syncUp()
 
         githubPhishingService.setup()
         accountInfoService.setup()
@@ -68,6 +80,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         walletConnect.setup()
         walletAssetsObserver.setup()
         pricesService.setup()
+        observeBitcoinProvisioningRetryEvents()
 
         if let selectedMetaAccount = walletSettings.value {
             provisionBitcoinAccountIfNeeded(for: selectedMetaAccount)
@@ -79,10 +92,43 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         accountInfoService.throttle()
         walletConnect.throttle()
         walletAssetsObserver.throttle()
+        removeBitcoinProvisioningObservers()
     }
 }
 
 private extension ServiceCoordinator {
+    func observeBitcoinProvisioningRetryEvents() {
+        guard bitcoinProvisioningObservers.isEmpty else {
+            return
+        }
+
+        let retry: (Notification) -> Void = { [weak self] _ in
+            guard let self, let wallet = self.walletSettings.value else {
+                return
+            }
+            self.provisionBitcoinAccountIfNeeded(for: wallet)
+        }
+        bitcoinProvisioningObservers = [
+            notificationCenter.addObserver(
+                forName: UIApplication.protectedDataDidBecomeAvailableNotification,
+                object: nil,
+                queue: .main,
+                using: retry
+            ),
+            notificationCenter.addObserver(
+                forName: UIApplication.didBecomeActiveNotification,
+                object: nil,
+                queue: .main,
+                using: retry
+            )
+        ]
+    }
+
+    func removeBitcoinProvisioningObservers() {
+        bitcoinProvisioningObservers.forEach { notificationCenter.removeObserver($0) }
+        bitcoinProvisioningObservers.removeAll()
+    }
+
     func provisionBitcoinAccountIfNeeded(for wallet: MetaAccountModel) {
         bitcoinProvisioningLock.lock()
         let shouldProvision = bitcoinProvisioningWalletIds.insert(wallet.metaId).inserted
@@ -92,8 +138,23 @@ private extension ServiceCoordinator {
         }
 
         do {
-            let mnemonicProvider = KeychainUniversalWalletMnemonicProvider()
-            guard let mnemonic = try mnemonicProvider.rootMnemonic(for: wallet) else {
+            if let existingAccount = wallet.chainAccounts.first(where: {
+                UniversalWalletChainAccountSupport.chainId(
+                    $0.chainId,
+                    matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+                )
+            }), UniversalWalletChainAccountSupport.address(
+                for: UniversalWalletRegistry.bitcoinMainnet.chainId,
+                publicKey: existingAccount.publicKey
+            ) != nil {
+                // A structurally valid Bitcoin account may intentionally use
+                // a chain-specific mnemonic. Never replace its receive address
+                // with a root-wallet derivation during a background retry.
+                finishBitcoinProvisioning(for: wallet.metaId)
+                return
+            }
+
+            guard let mnemonic = try bitcoinMnemonicProvider.rootMnemonic(for: wallet) else {
                 finishBitcoinProvisioning(for: wallet.metaId)
                 return
             }

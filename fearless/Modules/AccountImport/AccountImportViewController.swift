@@ -229,7 +229,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
     func setSource(type: AccountImportSource, chainType: AccountCreateChainType, selectable: Bool) {
         switch type {
         case .mnemonic:
-            rootView.setAdvancedVisibility(true)
+            rootView.setAdvancedVisibility(chainType.includeSubstrate || chainType.includeEthereum)
 
             rootView.textViewContainer.isHidden = false
 
@@ -239,7 +239,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
             switch chainType {
             case .substrate, .both:
                 rootView.setAdvancedVisibility(true)
-            case .ethereum:
+            case .ethereum, .universal:
                 rootView.setAdvancedVisibility(false)
             }
             rootView.textViewContainer.isHidden = false

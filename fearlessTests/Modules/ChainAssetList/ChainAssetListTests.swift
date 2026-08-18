@@ -50,6 +50,75 @@ final class ChainAssetListTests: XCTestCase {
         XCTAssertEqual(viewModel.displayState.rows.first?.chainAsset.asset.symbol, "BTC")
     }
 
+    func testAccountlessBitcoinAppearsInPortfolioAsActionableSetupRow() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let bitcoin = try XCTUnwrap(
+            UniversalWalletRegistry.bitcoinMainnetChainModel.chainAssets.first
+        )
+
+        let viewModel = makeFactory().buildViewModel(
+            wallet: wallet,
+            chainAssets: [bitcoin],
+            locale: Locale(identifier: "en_US"),
+            accountInfos: [:],
+            chainsWithIssue: [],
+            shouldRunManageAssetAnimate: false,
+            displayType: .assetChains,
+            chainSettings: [],
+            networkFilter: nil,
+            search: nil
+        )
+
+        let row = try XCTUnwrap(viewModel.displayState.rows.first)
+        XCTAssertEqual(row.chainAsset.assetKey, bitcoin.assetKey)
+        XCTAssertEqual(row.chainAsset.asset.symbol, "BTC")
+        XCTAssertFalse(row.isColdBoot, "Bitcoin setup must not be presented as an endless balance load")
+        XCTAssertFalse(row.swipeActionsEnabled, "Send and receive require the BIP-84 account first")
+    }
+
+    func testBitcoinNetworkRemainsVisibleWhileWalletNeedsAccountSetup() {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let bitcoin = UniversalWalletRegistry.bitcoinMainnetChainModel
+
+        let viewModel = NetworkManagmentViewModelFactoryImpl().createViewModel(
+            wallet: wallet,
+            chains: [bitcoin],
+            selectedFilter: nil,
+            initialFilter: .all,
+            searchText: nil,
+            locale: Locale(identifier: "en_US")
+        )
+
+        XCTAssertTrue(viewModel.cells.contains(where: {
+            $0.networkSelectType.identifier == bitcoin.chainId && $0.name == "Bitcoin"
+        }))
+    }
+
+    func testBitcoinOnlyFilterShowsAccountSetupInsteadOfEmptyPortfolio() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let bitcoin = try XCTUnwrap(
+            UniversalWalletRegistry.bitcoinMainnetChainModel.chainAssets.first
+        )
+
+        let viewModel = makeFactory().buildViewModel(
+            wallet: wallet,
+            chainAssets: [bitcoin],
+            locale: Locale(identifier: "en_US"),
+            accountInfos: [:],
+            chainsWithIssue: [],
+            shouldRunManageAssetAnimate: false,
+            displayType: .chain,
+            chainSettings: [],
+            networkFilter: .chain(bitcoin.chain.chainId),
+            search: nil
+        )
+
+        guard case let .chainHasAccountIssue(chain) = viewModel.displayState else {
+            return XCTFail("Bitcoin without a BIP-84 account must offer account setup")
+        }
+        XCTAssertEqual(chain.chainId, UniversalWalletRegistry.bitcoinMainnet.chainId)
+    }
+
     func testSameSymbolAssetsRemainSeparateByCanonicalIdentity() {
         let firstChain = makeChain(name: "Alpha")
         let secondChain = makeChain(name: "Beta")

@@ -452,6 +452,42 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
 
     func importChainAccountOperation(request: ChainAccountImportMnemonicRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
+            if let bitcoinNetwork = UniversalWalletRegistry.bitcoinNetwork(for: request.chainId) {
+                guard bitcoinNetwork == UniversalWalletRegistry.bitcoinMainnet else {
+                    throw AccountOperationFactoryError.unsupportedNetwork
+                }
+                let updatedWallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+                    to: request.meta,
+                    mnemonic: request.mnemonic.toString()
+                )
+                guard let bitcoinAccount = updatedWallet.chainAccounts.first(where: {
+                    UniversalWalletChainAccountSupport.chainId(
+                        $0.chainId,
+                        matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+                    )
+                }) else {
+                    throw AccountOperationFactoryError.unsupportedNetwork
+                }
+                if let existingAccount = request.meta.chainAccounts.first(where: {
+                    UniversalWalletChainAccountSupport.chainId(
+                        $0.chainId,
+                        matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+                    )
+                }), UniversalWalletChainAccountSupport.address(
+                    for: UniversalWalletRegistry.bitcoinMainnet.chainId,
+                    publicKey: existingAccount.publicKey
+                ) != nil, existingAccount.publicKey != bitcoinAccount.publicKey {
+                    throw AccountCreateError.duplicated
+                }
+
+                try saveEntropy(
+                    request.mnemonic.entropy(),
+                    metaId: request.meta.metaId,
+                    accountId: bitcoinAccount.accountId
+                )
+                return updatedWallet
+            }
+
             let query = try getQuery(
                 seedSource: .mnemonic(request.mnemonic),
                 derivationPath: request.derivationPath,

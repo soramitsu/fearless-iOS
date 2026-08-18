@@ -53,7 +53,8 @@ final class NetworkManagmentViewModelFactoryImpl: NetworkManagmentViewModelFacto
 
         let cells = networkItems.filter { item in
             if case let .chain(chain) = item {
-                return wallet.fetch(for: chain.accountRequest()) != nil
+                return wallet.fetch(for: chain.accountRequest()) != nil ||
+                    UniversalWalletRegistry.bitcoinNetwork(for: chain.chainId) != nil
             }
             return true
         }.compactMap { item in

@@ -5,6 +5,7 @@ enum AccountCreateChainType {
     case substrate
     case ethereum
     case both
+    case universal
 }
 
 extension AccountCreateChainType {
@@ -12,7 +13,7 @@ extension AccountCreateChainType {
         switch self {
         case .substrate, .both:
             return true
-        case .ethereum:
+        case .ethereum, .universal:
             return false
         }
     }
@@ -21,7 +22,7 @@ extension AccountCreateChainType {
         switch self {
         case .ethereum, .both:
             return true
-        case .substrate:
+        case .substrate, .universal:
             return false
         }
     }

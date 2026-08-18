@@ -140,6 +140,14 @@ final class AccountImportPresenter: NSObject {
 }
 
 private extension AccountImportPresenter {
+    var isBitcoinChainFlow: Bool {
+        guard case let .chain(model) = flow else {
+            return false
+        }
+
+        return UniversalWalletRegistry.bitcoinNetwork(for: model.chain.chainId) != nil
+    }
+
     func applySourceType(
         _ value: String = "",
         preferredData: PreferredData? = nil
@@ -150,8 +158,17 @@ private extension AccountImportPresenter {
 
         switch flow {
         case let .chain(model):
-            let chainType: AccountCreateChainType = model.chain.isEthereumBased ? .ethereum : .substrate
-            view?.setSource(type: selectedSourceType, chainType: chainType, selectable: true)
+            let chainType: AccountCreateChainType
+            if isBitcoinChainFlow {
+                chainType = .universal
+            } else {
+                chainType = model.chain.isEthereumBased ? .ethereum : .substrate
+            }
+            view?.setSource(
+                type: selectedSourceType,
+                chainType: chainType,
+                selectable: !isBitcoinChainFlow
+            )
         case let .wallet(step):
             switch step {
             case .substrate:
@@ -178,7 +195,13 @@ private extension AccountImportPresenter {
         }
         applyUsernameViewModel(username)
         applyPasswordViewModel()
-        applyAdvanced(preferredData?.cryptoType)
+        if isBitcoinChainFlow {
+            substrateDerivationPathViewModel = nil
+            ethereumDerivationPathViewModel = nil
+            view?.show(chainType: .universal)
+        } else {
+            applyAdvanced(preferredData?.cryptoType)
+        }
     }
 
     func applySourceTextViewModel(_ value: String = "") {
@@ -948,10 +971,21 @@ private extension Optional where Wrapped == String {
 
 extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
     func didReceiveAccountImport(metadata: MetaAccountImportMetadata) {
-        self.metadata = metadata
+        let effectiveMetadata: MetaAccountImportMetadata
+        if isBitcoinChainFlow {
+            effectiveMetadata = MetaAccountImportMetadata(
+                availableSources: [.mnemonic],
+                defaultSource: .mnemonic,
+                availableCryptoTypes: [.ecdsa],
+                defaultCryptoType: .ecdsa
+            )
+        } else {
+            effectiveMetadata = metadata
+        }
+        self.metadata = effectiveMetadata
 
-        selectedSourceType = metadata.defaultSource
-        selectedCryptoType = metadata.defaultCryptoType
+        selectedSourceType = effectiveMetadata.defaultSource
+        selectedCryptoType = effectiveMetadata.defaultCryptoType
 
         applySourceType()
     }

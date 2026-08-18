@@ -132,7 +132,10 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         setDeactivated(!viewModel.chainAsset.chain.isSupported)
         controlSkeleton(for: viewModel)
         chainIconsView.bind(viewModel: viewModel.chainIconViewViewModel)
-        if viewModel.metadataTrust.trust != .verified {
+        leftMenuButtons = viewModel.swipeActionsEnabled ? createLeftButtons() : []
+        if !viewModel.swipeActionsEnabled {
+            rightMenuButtons = []
+        } else if viewModel.metadataTrust.trust != .verified {
             rightMenuButtons = [hideButton, showButton]
         } else {
             rightMenuButtons = viewModel.hideButtonIsVisible ? [hideButton] : []
