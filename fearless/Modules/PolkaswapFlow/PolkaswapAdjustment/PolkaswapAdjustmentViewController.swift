@@ -334,6 +334,13 @@ extension PolkaswapAdjustmentViewController: AmountInputViewModelObserver {
 extension PolkaswapAdjustmentViewController: KeyboardViewAdoptable {
     var target: Constraint? { rootView.keyboardAdoptableConstraint }
 
-    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { UIConstants.bigOffset }
+    func offsetFromKeyboardWithInset(_ keyboardHeight: CGFloat) -> CGFloat {
+        guard keyboardHeight > 0 else {
+            return UIConstants.bigOffset
+        }
+
+        return UIConstants.bigOffset - rootView.safeAreaInsets.bottom
+    }
+
     func updateWhileKeyboardFrameChanging(_: CGRect) {}
 }

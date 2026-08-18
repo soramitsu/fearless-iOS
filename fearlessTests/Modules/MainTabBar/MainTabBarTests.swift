@@ -471,6 +471,128 @@ final class MainTabBarTests: XCTestCase {
         assertRenderedItemControls(viewController, in: window)
     }
 
+    func testPolkaswapPreviewButtonClearsRedesignedTabBarOnIPhone17ProMax() {
+        let polkaswapController = PolkaswapAdjustmentViewController(
+            output: PolkaswapAdjustmentViewOutputStub(),
+            bannersViewController: UIViewController(),
+            localizationManager: nil
+        )
+
+        let controllers = MainTabBarDestination.allCases.map { destination -> UIViewController in
+            let rootController: UIViewController = destination == .polkaswap
+                ? polkaswapController
+                : UIViewController()
+            rootController.tabBarItem = UITabBarItem(
+                title: destination.title,
+                image: UIImage(systemName: "circle"),
+                tag: destination.rawValue
+            )
+            return UINavigationController(rootViewController: rootController)
+        }
+        let tabBarController = MainTabBarViewController(
+            viewControllers: controllers,
+            presenter: MainTabBarPresenterStub(),
+            localizationManager: LocalizationManager.shared
+        )
+        tabBarController.select(destination: .polkaswap)
+
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 440, height: 956))
+        window.rootViewController = tabBarController
+        window.makeKeyAndVisible()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.05))
+
+        defer {
+            window.isHidden = true
+            window.rootViewController = nil
+        }
+
+        tabBarController.view.layoutIfNeeded()
+        let polkaswapLayout = polkaswapController.rootView
+        polkaswapLayout.previewButton.set(enabled: true)
+        polkaswapLayout.layoutIfNeeded()
+
+        let buttonFrame = polkaswapLayout.previewButton.convert(
+            polkaswapLayout.previewButton.bounds,
+            to: tabBarController.view
+        )
+        let tabBarFrame = tabBarController.tabBar.convert(
+            tabBarController.tabBar.bounds,
+            to: tabBarController.view
+        )
+        let bannersFrame = polkaswapLayout.bannersViewContainer.convert(
+            polkaswapLayout.bannersViewContainer.bounds,
+            to: tabBarController.view
+        )
+
+        XCTAssertGreaterThan(polkaswapLayout.safeAreaInsets.bottom, 0)
+        XCTAssertLessThanOrEqual(
+            buttonFrame.maxY,
+            tabBarFrame.minY - UIConstants.bigOffset,
+            "The Polkaswap CTA must remain fully visible and hittable above the redesigned tab bar"
+        )
+        XCTAssertFalse(buttonFrame.intersects(tabBarFrame))
+        XCTAssertLessThanOrEqual(
+            bannersFrame.maxY + UIConstants.bigOffset,
+            buttonFrame.minY,
+            "Polkaswap banners must remain above the visible CTA"
+        )
+
+        let buttonCenter = polkaswapLayout.previewButton.convert(
+            CGPoint(
+                x: polkaswapLayout.previewButton.bounds.midX,
+                y: polkaswapLayout.previewButton.bounds.midY
+            ),
+            to: window
+        )
+        let hitView = window.hitTest(buttonCenter, with: nil)
+        XCTAssertTrue(
+            hitView === polkaswapLayout.previewButton ||
+                hitView?.isDescendant(of: polkaswapLayout.previewButton) == true,
+            "The visible Polkaswap CTA must receive touches instead of the tab bar"
+        )
+
+        let normalButtonFrame = polkaswapLayout.previewButton.frame
+        let keyboardHeight: CGFloat = 346
+        polkaswapController.apply(
+            keyboardFrame: CGRect(
+                x: 0,
+                y: polkaswapLayout.bounds.maxY - keyboardHeight,
+                width: polkaswapLayout.bounds.width,
+                height: keyboardHeight
+            ),
+            keyboardHidden: false
+        )
+        polkaswapLayout.layoutIfNeeded()
+        let keyboardButtonFrame = polkaswapLayout.previewButton.convert(
+            polkaswapLayout.previewButton.bounds,
+            to: polkaswapLayout
+        )
+        let keyboardBannersFrame = polkaswapLayout.bannersViewContainer.convert(
+            polkaswapLayout.bannersViewContainer.bounds,
+            to: polkaswapLayout
+        )
+        XCTAssertEqual(
+            keyboardButtonFrame.maxY,
+            polkaswapLayout.bounds.maxY - keyboardHeight - UIConstants.bigOffset,
+            accuracy: 1,
+            "The Polkaswap CTA must remain visible above the keyboard"
+        )
+        XCTAssertLessThanOrEqual(
+            keyboardBannersFrame.maxY + UIConstants.bigOffset,
+            keyboardButtonFrame.minY,
+            "Polkaswap banners must continue to clear the keyboard-raised CTA"
+        )
+
+        polkaswapController.apply(keyboardFrame: .zero, keyboardHidden: true)
+        polkaswapLayout.layoutIfNeeded()
+        XCTAssertEqual(
+            polkaswapLayout.previewButton.frame.maxY,
+            normalButtonFrame.maxY,
+            accuracy: 1,
+            "Dismissing the keyboard must restore the tab-safe CTA position"
+        )
+    }
+
     func testReselectingRaisedPolkaswapDestinationReturnsItsStackToRoot() {
         let presenter = MainTabBarPresenterStub()
         let viewControllers = MainTabBarDestination.allCases.map { destination -> UIViewController in
@@ -2798,6 +2920,23 @@ final class MainTabBarTests: XCTestCase {
             availableNfts: []
         )
     }
+}
+
+private final class PolkaswapAdjustmentViewOutputStub: PolkaswapAdjustmentViewOutput {
+    func didLoad(view _: PolkaswapAdjustmentViewInput) {}
+    func didTapBackButton() {}
+    func didTapMarketButton() {}
+    func didTapSelectFromAsset() {}
+    func didTapSelectToAsset() {}
+    func didTapSwitchInputsButton() {}
+    func didTapMinReceiveInfo() {}
+    func didTapNetworkFeeInfo() {}
+    func didTapPreviewButton() {}
+    func selectFromAmountPercentage(_: Float) {}
+    func updateFromAmount(_: Decimal) {}
+    func selectToAmountPercentage(_: Float) {}
+    func updateToAmount(_: Decimal) {}
+    func viewDidAppear() {}
 }
 
 private final class MainTabBarPresenterStub: MainTabBarPresenterProtocol {

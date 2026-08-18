@@ -70,15 +70,16 @@ Use this checklist for every release PR from `develop` to `master`.
   bundles for Xcode's three generated crypto stubs and the stripped
   MPQRCoreSDK vendor binary; this removes App Store Connect's missing-dSYM
   warnings but does not claim unavailable MPQR source-line DWARF.
-- Validate build `4.2.0 (2026.8.19)` through a true internal TestFlight group
+- Validate build `4.2.0 (2026.8.20)` through a true internal TestFlight group
   containing the affected phone's App Store Connect user before changing the
   public beta group. Do not substitute an external group that requires Beta App
   Review. Run
   `scripts/audit-testflight-upgrade-usability-gate.py` against sanitized evidence
   and require a five-minute usable first launch, working PIN and wallet route,
   the Portfolio, DeFi, Polkaswap, Cross-chain, and Settings controls/routes,
-  loaded Polkaswap settings, a live swap quote and fee quote, a working preview,
-  Polkaswap signing readiness without broadcasting funds, a
+  loaded Polkaswap settings, a live swap quote and fee quote, a swap action
+  that is fully visible and hittable above the tab bar with the keyboard hidden
+  and shown, a working preview, Polkaswap signing readiness without broadcasting funds, a
   nonzero PI-backed Polkaswap token price, a visible native BTC asset, a
   successful BTC balance refresh, a valid BIP84 receive address, a BTC send
   fee quote, and signing readiness without broadcasting funds,
