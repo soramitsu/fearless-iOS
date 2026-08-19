@@ -31,8 +31,11 @@ readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
 # receive and remote read paths while keeping production Iroha Send disabled.
 # 2026.8.23 persists Bitcoin and Taira locally before the remote catalog fetch,
 # so an offline or stalled launch cannot hide either app-owned network.
+# 2026.8.24 ships the official Bitcoin mark, uses Mempool.space's public
+# Esplora API, and derives standard BIP84 accounts only from authentic stored
+# root mnemonic entropy without inventing an unrecoverable alternate identity.
 # Reconfirm successor uniqueness read-only immediately before archive.
-readonly EXPECTED_BUILD="2026.8.23"
+readonly EXPECTED_BUILD="2026.8.24"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -51,7 +54,7 @@ Usage:
 Preconditions:
   - exact clean git HEAD, including no untracked files, descended from the
     distributed 4.2.0 (2026.7.28) source commit;
-  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.23);
+  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.24);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 

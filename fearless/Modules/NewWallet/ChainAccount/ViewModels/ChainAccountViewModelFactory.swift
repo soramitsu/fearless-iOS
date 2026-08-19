@@ -49,6 +49,9 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
         let xcmButtomVisible = CuratedAssetRelationshipResolver.hasCuratedXcmDestination(
             for: chainAsset
         ) && ReviewedXcmExecutionAuthority.isAvailable
+        let optionsButtonVisible = !UniversalWalletChainAccountSupport.isUniversalWalletChain(
+            chainAsset.chain.chainId
+        )
 
         return ChainAccountViewModel(
             walletName: wallet.name,
@@ -60,6 +63,7 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
             buyButtonVisible: buyButtonVisible,
             polkaswapButtonVisible: polkaswapButtonVisible,
             xcmButtomVisible: xcmButtomVisible,
+            optionsButtonVisible: optionsButtonVisible,
             mode: mode
         )
     }

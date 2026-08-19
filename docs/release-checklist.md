@@ -70,7 +70,7 @@ Use this checklist for every release PR from `develop` to `master`.
   bundles for Xcode's three generated crypto stubs and the stripped
   MPQRCoreSDK vendor binary; this removes App Store Connect's missing-dSYM
   warnings but does not claim unavailable MPQR source-line DWARF.
-- Validate build `4.2.0 (2026.8.23)` through a true internal TestFlight group
+- Validate build `4.2.0 (2026.8.24)` through a true internal TestFlight group
   containing the affected phone's App Store Connect user before changing the
   public beta group. Do not substitute an external group that requires Beta App
   Review. Run
@@ -83,12 +83,19 @@ Use this checklist for every release PR from `develop` to `master`.
   nonzero PI-backed Polkaswap token price, Bitcoin and Taira visible while the
   remote chains request is deliberately unavailable, a visible native BTC asset even
   before a chain account exists, its mnemonic-only setup action, a
-  successful BTC balance refresh, a valid BIP84 receive address, a BTC send
-  fee quote, and signing readiness without broadcasting funds,
+  visible official Bitcoin mark, a successful Mempool.space public-endpoint
+  balance refresh, a valid BIP84 receive address, a BTC send fee quote, and
+  signing readiness without broadcasting funds. On a separate mnemonic-backed
+  test wallet that existed before the update with authentic stored BIP39 root
+  entropy but no Bitcoin chain account, require automatic upgrade provisioning,
+  exact standard-BIP84 address agreement, and stability across a cold
+  relaunch; raw Substrate seed/watch-only/JSON wallets must remain on the
+  explicit mnemonic-only recovery path rather than inventing a secret,
   a visible Taira Testnet and canonical XOR row even before a chain account
   exists, its mnemonic-only setup action, compatible-wallet I105 provisioning,
-  a successful Torii balance refresh, a visible valid
-  I105 receive address, and confirmation that Taira Send remains unavailable,
+  a successful Torii balance refresh, a visible valid I105 receive address,
+  confirmation that Taira Send remains unavailable, no Switch Node action for
+  either Bitcoin or Taira, and a hidden dead ellipsis on both chain-account screens,
   preservation checks, and a successful second cold launch. Do not uninstall
   or clear app data.
 - Run

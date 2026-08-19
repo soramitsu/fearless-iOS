@@ -19,14 +19,21 @@ for existing wallets whose BIP84 account had not been provisioned. Build
 publish Taira Testnet into the production chain catalog. Build
 `4.2.0 (2026.8.22)` added Taira, but both app-owned network rows still waited
 for the remote chains request to finish; a stalled or offline request could
-hide Bitcoin and Taira. Corrected successor build `4.2.0 (2026.8.23)` persists
-both rows locally before that remote request and retains ancestry from
+hide Bitcoin and Taira. Build `4.2.0 (2026.8.23)` persisted both rows locally,
+but retained the old Bitcoin branding/service behavior and treated every
+Keychain read error like a missing mnemonic. Corrected successor build
+`4.2.0 (2026.8.24)` uses the official Bitcoin mark, the public Mempool.space
+Esplora service, and authentic stored BIP39 root entropy only for automatic
+standard BIP84 provisioning. Missing entropy remains an explicit mnemonic-only
+recovery path; protected-data and other Keychain failures fail closed instead
+of manufacturing a different Bitcoin identity. The successor retains ancestry from
 distributed source commit
 `2e45e55dc03ad904598e730cfb5994fb5c1072dc`, the exact public App Store
 Substrate v8/v9 compatibility models and lossless v10 migration, the redesign,
 native BIP84 Bitcoin catalog/account/balance/receive/send integration, and
 read-only Taira Testnet catalog/account/balance/receive integration with Iroha
-Send kept unavailable. The successor must remain blocked from the public beta
+Send kept unavailable. Bitcoin and Taira omit Switch Node, while their
+chain-account screens hide the otherwise empty ellipsis. The successor must remain blocked from the public beta
 group until the affected phone passes this gate using the Apple-delivered
 restricted TestFlight build.
 
@@ -113,16 +120,18 @@ usable BTC support. `.8.18` added BTC but regressed Polkaswap availability and
 clean-start settings. `.8.19` restored Polkaswap but hid its swap action under
 the tab bar. `.8.20` corrected the swap action but left accountless existing
 wallets without a visible Bitcoin recovery path. `.8.22` added Taira but left
-both app-owned networks dependent on remote catalog completion. Use `.8.22` as
-the installed baseline, then corrected `.8.23` for the preserved-data
+both app-owned networks dependent on remote catalog completion. `.8.23`
+persisted those rows locally but retained stale Bitcoin presentation/service
+behavior and swallowed non-missing Keychain failures. Use `.8.23` as the
+installed baseline, then corrected `.8.24` for the preserved-data
 qualification below.
 
 ## Internal TestFlight gate
 
 1. Confirm the installed identity is `jp.co.soramitsu.fearlesswallet`, version
-   `4.2.0`, build `2026.8.22` before the corrected successor
+   `4.2.0`, build `2026.8.23` before the corrected successor
    update.
-2. Assign build `2026.8.23` only to a true internal TestFlight group containing
+2. Assign build `2026.8.24` only to a true internal TestFlight group containing
    the affected phone's App Store Connect user. Do not use the similarly named
    external affected-phone group, which requires Beta App Review, and do not
    change the public beta group.
@@ -137,7 +146,7 @@ qualification below.
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.23 \
+     --expected-build 2026.8.24 \
      --observation-seconds 900 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 300 \
@@ -159,18 +168,27 @@ qualification below.
    - with the remote chains request deliberately unavailable, native BTC and
      Taira already visible; restore connectivity before network-read checks;
    - native BTC visible in Portfolio before a chain account exists, its
-     mnemonic-only setup action available, a successful BTC balance refresh, a
-     valid BIP84 receive address, a BTC send fee quote, and signing readiness,
-     recorded only as pass/fail attestations; do not broadcast funds;
+     mnemonic-only setup action available, the official Bitcoin mark visible,
+     the Mempool.space public endpoint working, Switch Node absent, and the
+     empty chain-account ellipsis hidden;
+   - on a separate test wallet that existed before the update with authentic
+     stored root BIP39 entropy and no Bitcoin chain account, automatic upgrade
+     provisioning succeeds and the resulting address matches
+     standard BIP84; then require a successful BTC balance refresh, a valid
+     BIP84 receive address, a BTC send fee quote, and signing readiness,
+     recorded only as pass/fail attestations; do not broadcast funds. A raw
+     Substrate seed, watch-only account, or JSON import cannot satisfy this
+     attestation and must use the explicit mnemonic-only recovery route;
    - Taira Testnet and its canonical XOR row visible before a chain account
      exists, its mnemonic-only setup action available, an I105 account
      provisioned for a compatible wallet, a successful Torii balance refresh,
-     a visible valid I105 receive address, and Taira Send unavailable, recorded
+     a visible valid I105 receive address, Taira Send unavailable, and the
+     Switch Node absent and the empty chain-account ellipsis hidden, recorded
      only as pass/fail attestations; local derivation does not attest on-chain
      registration or funding;
    - unchanged wallet counts, logical store integrity, Keychain access, and
      settings access, recorded only as pass/fail attestations without values.
-   Record the actual `previousBuildVersion` (`2026.8.22`) and
+   Record the actual `previousBuildVersion` (`2026.8.23`) and
    `originalAppStoreContainerPreserved=true`; this binds the successor update
    to the still-preserved container originally installed from the App Store.
 6. After the first capture completes, force-quit once more and use a new output
@@ -179,8 +197,10 @@ qualification below.
    five bottom navigation controls/routes working again. Require a nonzero
    PI-backed Polkaswap token price, loaded Polkaswap settings, swap and fee
    quotes, a fully visible and hittable swap action, preview and signing
-   readiness, plus the five post-setup BTC and six post-setup Taira
-   attestations again
+   readiness, plus the post-setup BTC/Taira attestations, the official Bitcoin
+   mark and Mempool endpoint, absent Bitcoin/Taira Switch Node actions, hidden
+   Bitcoin/Taira chain-account ellipses, and a
+   stable auto-provisioned BIP84 address across relaunch
    without recording addresses, balances, transaction data, identifiers, or
    values:
 
@@ -188,7 +208,7 @@ qualification below.
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.23 \
+     --expected-build 2026.8.24 \
      --observation-seconds 180 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 5 \
@@ -205,12 +225,12 @@ qualification below.
    later host-only diagnostics commit:
 
    ```bash
-   chmod 600 build/testflight-2026.8.23-upgrade-usability.json
-   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.23/testflight-internal-upload.json
+   chmod 600 build/testflight-2026.8.24-upgrade-usability.json
+   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.24/testflight-internal-upload.json
    artifact_source_commit="$(jq -er '.artifactSourceCommit' "$upload_receipt")"
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/audit-testflight-upgrade-usability-gate.py \
-     build/testflight-2026.8.23-upgrade-usability.json \
+     build/testflight-2026.8.24-upgrade-usability.json \
      --first-launch-capture-receipt \
        /ABSOLUTE/PRIVATE/FIRST-HOTFIX-CAPTURE/capture-receipt.json \
      --second-launch-capture-receipt \
@@ -234,6 +254,6 @@ PYTHONDONTWRITEBYTECODE=1 python3 \
 ## Release decision
 
 Only after the audit passes may release review replace build `2026.7.28` in the
-public beta group with `2026.8.23`. Uploading and assigning the restricted group
+public beta group with `2026.8.24`. Uploading and assigning the restricted group
 do not authorize changing the public beta group; that change still requires the
 normal App Store Connect authorization and review trail.

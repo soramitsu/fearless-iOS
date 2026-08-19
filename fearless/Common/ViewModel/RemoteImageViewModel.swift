@@ -4,9 +4,11 @@ import SVGKit
 
 final class RemoteImageViewModel: NSObject {
     let url: URL
+    let fallbackImage: UIImage?
 
     init(url: URL) {
         self.url = url
+        fallbackImage = Self.fallbackImage(for: url)
     }
 
     init?(url: URL?) {
@@ -14,6 +16,7 @@ final class RemoteImageViewModel: NSObject {
             return nil
         }
         self.url = url
+        fallbackImage = Self.fallbackImage(for: url)
     }
 
     init?(string: String?) {
@@ -24,6 +27,11 @@ final class RemoteImageViewModel: NSObject {
             return nil
         }
         self.url = url
+        fallbackImage = Self.fallbackImage(for: url)
+    }
+
+    private static func fallbackImage(for url: URL) -> UIImage? {
+        url == UniversalWalletRegistry.bitcoinIconURL ? UIImage(named: "bitcoinLogo") : nil
     }
 }
 
@@ -51,6 +59,7 @@ extension RemoteImageViewModel: ImageViewModelProtocol {
 
         imageView.kf.setImage(
             with: url,
+            placeholder: fallbackImage,
             options: options
         )
     }
@@ -74,6 +83,7 @@ extension RemoteImageViewModel: ImageViewModelProtocol {
 
         imageView.kf.setImage(
             with: url,
+            placeholder: fallbackImage,
             options: options,
             completionHandler: completionHandler
         )
@@ -102,7 +112,7 @@ extension RemoteImageViewModel: ImageViewModelProtocol {
 
         imageView.kf.setImage(
             with: url,
-            placeholder: placholder,
+            placeholder: placholder ?? fallbackImage,
             options: options
         )
     }

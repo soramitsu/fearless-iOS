@@ -65,7 +65,10 @@ final class BitcoinHistoryOperationFactoryTests: XCTestCase {
         XCTAssertEqual(client.calls, 1)
         XCTAssertEqual(client.lastAddress, Self.mainnetAddress)
         XCTAssertEqual(client.lastNetwork, .mainnet)
-        XCTAssertNil(client.lastBaseURL)
+        XCTAssertEqual(
+            client.lastBaseURL,
+            UniversalWalletRegistry.bitcoinMainnetIndexerBaseURL.absoluteString
+        )
         XCTAssertEqual(page.transactions.count, 2)
         XCTAssertNil(page.context)
 

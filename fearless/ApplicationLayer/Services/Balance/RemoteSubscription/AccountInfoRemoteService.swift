@@ -160,36 +160,89 @@ final class KeychainUniversalWalletMnemonicProvider:
 
     func mnemonic(for wallet: MetaAccountModel, chain: ChainModel) throws -> String? {
         let accountResponse = wallet.fetch(for: chain.accountRequest())
-        var accountIds: [AccountId?] = []
 
-        if accountResponse?.isChainAccount == true {
-            accountIds.append(accountResponse?.accountId)
+        if accountResponse?.isChainAccount == true,
+           let accountMnemonic = try mnemonicIfPresent(
+               metaId: wallet.metaId,
+               accountId: accountResponse?.accountId
+           ) {
+            return mnemonicMatches(
+                accountMnemonic,
+                chainId: chain.chainId,
+                publicKey: accountResponse?.publicKey
+            ) ? accountMnemonic : nil
         }
 
-        accountIds.append(nil)
-
-        for accountId in accountIds {
-            let entropyTag = KeystoreTagV2.entropyTagForMetaId(wallet.metaId, accountId: accountId)
-            guard let entropy = try? keystore.fetchKey(for: entropyTag) else {
-                continue
-            }
-
-            return try IRMnemonicCreator().mnemonic(fromEntropy: entropy).toString()
-        }
-
-        return nil
-    }
-
-    func rootMnemonic(for wallet: MetaAccountModel) throws -> String? {
-        let entropyTag = KeystoreTagV2.entropyTagForMetaId(
-            wallet.metaId,
-            accountId: nil
-        )
-        guard let entropy = try? keystore.fetchKey(for: entropyTag) else {
+        guard let rootMnemonic = try rootMnemonic(for: wallet) else {
             return nil
         }
 
-        return try IRMnemonicCreator().mnemonic(fromEntropy: entropy).toString()
+        guard let accountResponse, accountResponse.isChainAccount else {
+            return rootMnemonic
+        }
+
+        return mnemonicMatches(
+            rootMnemonic,
+            chainId: chain.chainId,
+            publicKey: accountResponse.publicKey
+        ) ? rootMnemonic : nil
+    }
+
+    func rootMnemonic(for wallet: MetaAccountModel) throws -> String? {
+        try mnemonicIfPresent(metaId: wallet.metaId, accountId: nil)
+    }
+
+    private func mnemonicIfPresent(
+        metaId: MetaAccountId,
+        accountId: AccountId?
+    ) throws -> String? {
+        let entropyTag = KeystoreTagV2.entropyTagForMetaId(
+            metaId,
+            accountId: accountId
+        )
+
+        do {
+            let entropy = try keystore.fetchKey(for: entropyTag)
+            return try IRMnemonicCreator().mnemonic(fromEntropy: entropy).toString()
+        } catch KeystoreError.noKeyFound {
+            return nil
+        }
+    }
+
+    private func mnemonicMatches(
+        _ mnemonic: String,
+        chainId: ChainModel.Id,
+        publicKey: Data?
+    ) -> Bool {
+        guard let publicKey else {
+            return false
+        }
+
+        let derivedPublicKey: Data?
+        switch UniversalWalletChainAccountSupport.canonicalChainId(for: chainId) {
+        case UniversalWalletRegistry.bitcoinMainnet.chainId:
+            derivedPublicKey = try? BitcoinKeyDerivation.deriveAccount(
+                mnemonic: mnemonic,
+                network: .mainnet
+            ).publicKey
+        case UniversalWalletRegistry.bitcoinTestnet.chainId:
+            derivedPublicKey = try? BitcoinKeyDerivation.deriveAccount(
+                mnemonic: mnemonic,
+                network: .testnet
+            ).publicKey
+        case UniversalWalletRegistry.solanaMainnet.chainId,
+             UniversalWalletRegistry.solanaDevnet.chainId:
+            derivedPublicKey = try? SolanaKeyDerivation.deriveAccount(mnemonic: mnemonic).publicKey
+        case UniversalWalletRegistry.tonMainnetRegistryEntry.chainId:
+            derivedPublicKey = try? TonKeyDerivation.deriveAccount(mnemonic: mnemonic).publicKey
+        case UniversalWalletRegistry.taira.chainId,
+             UniversalWalletRegistry.nexus.chainId:
+            derivedPublicKey = try? IrohaKeyDerivation.deriveAccount(mnemonic: mnemonic).publicKey
+        default:
+            return false
+        }
+
+        return derivedPublicKey == publicKey
     }
 }
 
@@ -544,7 +597,7 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
             let result = try await bitcoinBalanceSync.balance(
                 address: address,
                 network: bitcoinKeyDerivationNetwork(for: network),
-                baseURL: bitcoinBalanceBaseURL(for: chain)
+                baseURL: bitcoinBalanceBaseURL(for: network)
             )
             NetworkScanStateStore.markSuccess(
                 for: chain,
@@ -574,7 +627,7 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
             let indexerNetwork: BitcoinIndexerNetwork = keyNetwork == .mainnet
                 ? .mainnet
                 : .testnet
-            let baseURL = bitcoinBalanceBaseURL(for: chain)
+            let baseURL = bitcoinBalanceBaseURL(for: network)
             let cacheKey = BitcoinWalletBalanceCache.Key(
                 walletId: wallet.metaId,
                 network: indexerNetwork,
@@ -627,8 +680,13 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         network == UniversalWalletRegistry.bitcoinTestnet ? .testnet : .mainnet
     }
 
-    private func bitcoinBalanceBaseURL(for chain: ChainModel) -> String? {
-        chain.externalApi?.history?.url.absoluteString
+    private func bitcoinBalanceBaseURL(
+        for network: UniversalWalletRegistry.BitcoinNetwork
+    ) -> String {
+        let indexerNetwork: BitcoinIndexerNetwork = network == UniversalWalletRegistry.bitcoinTestnet
+            ? .testnet
+            : .mainnet
+        return indexerNetwork.defaultBaseURL.absoluteString
     }
 
     private func bitcoinAccountInfo(

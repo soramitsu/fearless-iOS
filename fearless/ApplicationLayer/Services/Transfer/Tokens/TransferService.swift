@@ -316,7 +316,7 @@ final class BitcoinTransferService: TransferServiceProtocol {
         return BitcoinTransferContext(
             sourceAddress: normalizedSourceAddress,
             network: indexerNetwork,
-            baseURL: chain.externalApi?.history?.url.absoluteString
+            baseURL: indexerNetwork.defaultBaseURL.absoluteString
         )
     }
 

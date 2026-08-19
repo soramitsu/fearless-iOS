@@ -12,7 +12,7 @@ final class UniversalWalletIndexerClientFactoryTests: XCTestCase {
         transport.enqueue(Self.solanaBalancesJSON)
         _ = try await factory.solanaClient().balances(wallet: Self.solanaWallet)
 
-        XCTAssertEqual(transport.requests.map { $0.url?.host }, ["blockstream.info", "si.soramitsu.io"])
+        XCTAssertEqual(transport.requests.map { $0.url?.host }, ["mempool.space", "si.soramitsu.io"])
     }
 
     private final class FakeUniversalWalletHTTPTransport: UniversalWalletHTTPTransport {

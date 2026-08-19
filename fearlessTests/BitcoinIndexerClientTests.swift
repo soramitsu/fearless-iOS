@@ -10,7 +10,7 @@ final class BitcoinIndexerClientTests: XCTestCase {
         _ = try await client.address(address: Self.mainnetAddress)
         XCTAssertEqual(
             transport.lastRequest?.url?.absoluteString,
-            "https://blockstream.info/api/address/\(Self.mainnetAddress)"
+            "https://mempool.space/api/address/\(Self.mainnetAddress)"
         )
         XCTAssertEqual(transport.lastRequest?.httpMethod, "GET")
 
@@ -18,21 +18,21 @@ final class BitcoinIndexerClientTests: XCTestCase {
         _ = try await client.utxos(address: Self.testnetAddress, network: .testnet)
         XCTAssertEqual(
             transport.lastRequest?.url?.absoluteString,
-            "https://blockstream.info/testnet/api/address/\(Self.testnetAddress)/utxo"
+            "https://mempool.space/testnet/api/address/\(Self.testnetAddress)/utxo"
         )
 
         transport.enqueue(Self.transactionsJSON)
         _ = try await client.transactions(address: Self.mainnetAddress, lastSeenTxid: Self.txid.uppercased())
         XCTAssertEqual(
             transport.lastRequest?.url?.absoluteString,
-            "https://blockstream.info/api/address/\(Self.mainnetAddress)/txs/chain/\(Self.txid)"
+            "https://mempool.space/api/address/\(Self.mainnetAddress)/txs/chain/\(Self.txid)"
         )
 
         transport.enqueue(Self.transactionsJSON)
         _ = try await client.transactions(address: Self.mainnetAddress, mempool: true)
         XCTAssertEqual(
             transport.lastRequest?.url?.absoluteString,
-            "https://blockstream.info/api/address/\(Self.mainnetAddress)/txs/mempool"
+            "https://mempool.space/api/address/\(Self.mainnetAddress)/txs/mempool"
         )
     }
 
@@ -43,7 +43,7 @@ final class BitcoinIndexerClientTests: XCTestCase {
         transport.enqueue(Data(Self.txid.utf8))
         _ = try await client.broadcastTransaction(txHex: "  00AA  ", network: .testnet)
 
-        XCTAssertEqual(transport.lastRequest?.url?.absoluteString, "https://blockstream.info/testnet/api/tx")
+        XCTAssertEqual(transport.lastRequest?.url?.absoluteString, "https://mempool.space/testnet/api/tx")
         XCTAssertEqual(transport.lastRequest?.httpMethod, "POST")
         XCTAssertEqual(transport.lastRequest?.value(forHTTPHeaderField: "Content-Type"), "text/plain")
         XCTAssertEqual(transport.lastRequest?.httpBody, Data("00aa".utf8))

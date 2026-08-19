@@ -200,7 +200,7 @@ final class ChainAccountViewLayout: UIView {
         polkaswapButton.isHidden = !viewModel.polkaswapButtonVisible
         crossChainButton.isHidden = !viewModel.xcmButtomVisible
         actionsView.isHidden = viewModel.mode == .simple
-        optionsButton.isHidden = viewModel.mode == .simple
+        optionsButton.isHidden = viewModel.mode == .simple || !viewModel.optionsButtonVisible
         switch viewModel.mode {
         case .simple:
             selectNetworkButton.set(text: R.string.localizable.chainSelectionAllNetworks(preferredLanguages: locale.rLanguages), image: BundleImageViewModel(image: R.image.iconNetwotkManagmentAll()))

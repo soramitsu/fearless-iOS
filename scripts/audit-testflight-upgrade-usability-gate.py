@@ -18,7 +18,7 @@ from typing import Any
 
 EXPECTED_BUNDLE_ID = "jp.co.soramitsu.fearlesswallet"
 EXPECTED_VERSION = "4.2.0"
-EXPECTED_BUILD = "2026.8.23"
+EXPECTED_BUILD = "2026.8.24"
 EXPECTED_PREVIOUS_BUILDS = (
     "2026.8.15",
     "2026.8.17",
@@ -27,6 +27,7 @@ EXPECTED_PREVIOUS_BUILDS = (
     "2026.8.20",
     "2026.8.21",
     "2026.8.22",
+    "2026.8.23",
 )
 EXPECTED_BASE_SOURCE_COMMIT = "2e45e55dc03ad904598e730cfb5994fb5c1072dc"
 MINIMUM_USABILITY_SECONDS = 300
@@ -53,10 +54,23 @@ POLKASWAP_ATTESTATIONS = (
 )
 BITCOIN_ATTESTATIONS = (
     "bitcoinAssetVisible",
+    "bitcoinOfficialLogoVisible",
+    "bitcoinMempoolPublicEndpointWorked",
     "bitcoinBalanceRefreshWorked",
     "bitcoinReceiveAddressWorked",
     "bitcoinSendFeeQuoteWorked",
     "bitcoinSigningReady",
+    "bitcoinSwitchNodeActionAbsent",
+    "bitcoinChainAccountOptionsButtonHidden",
+)
+BITCOIN_FIRST_LAUNCH_PROVISIONING_ATTESTATIONS = (
+    "bitcoinProvisioningWalletExistedBeforeUpdate",
+    "bitcoinProvisioningWalletHadNoBitcoinAccountBeforeUpdate",
+    "bitcoinStoredRootMnemonicAutoProvisioned",
+    "bitcoinAutoProvisionedAddressMatchesBIP84",
+)
+BITCOIN_SECOND_LAUNCH_PROVISIONING_ATTESTATIONS = (
+    "bitcoinAutoProvisionedAddressStableAcrossRelaunch",
 )
 TAIRA_ATTESTATIONS = (
     "tairaTestnetVisible",
@@ -65,6 +79,8 @@ TAIRA_ATTESTATIONS = (
     "tairaBalanceRefreshWorked",
     "tairaReceiveAddressVisibleAndValid",
     "tairaSendUnavailable",
+    "tairaSwitchNodeActionAbsent",
+    "tairaChainAccountOptionsButtonHidden",
 )
 FIRST_LAUNCH_ACCOUNTLESS_ATTESTATIONS = (
     "bitcoinVisibleWhileRemoteCatalogUnavailable",
@@ -527,7 +543,7 @@ def validate(
     )
     require(
         installation.get("previousBuildVersion") in EXPECTED_PREVIOUS_BUILDS,
-        "installation must update in place from supported predecessor build 2026.8.15, 2026.8.17, 2026.8.18, 2026.8.19, 2026.8.20, 2026.8.21, or 2026.8.22",
+        "installation must update in place from supported predecessor build 2026.8.15, 2026.8.17, 2026.8.18, 2026.8.19, 2026.8.20, 2026.8.21, 2026.8.22, or 2026.8.23",
     )
     require_true(installation, "installedInPlace")
     require_true(installation, "originalAppStoreContainerPreserved")
@@ -551,6 +567,7 @@ def validate(
             PI_PRICE_ATTESTATION,
             *POLKASWAP_ATTESTATIONS,
             *BITCOIN_ATTESTATIONS,
+            *BITCOIN_FIRST_LAUNCH_PROVISIONING_ATTESTATIONS,
             *TAIRA_ATTESTATIONS,
             *FIRST_LAUNCH_ACCOUNTLESS_ATTESTATIONS,
             "captureReceiptSHA256",
@@ -605,6 +622,8 @@ def validate(
         require_true(first_launch, key)
     for key in BITCOIN_ATTESTATIONS:
         require_true(first_launch, key)
+    for key in BITCOIN_FIRST_LAUNCH_PROVISIONING_ATTESTATIONS:
+        require_true(first_launch, key)
     for key in TAIRA_ATTESTATIONS:
         require_true(first_launch, key)
     for key in FIRST_LAUNCH_ACCOUNTLESS_ATTESTATIONS:
@@ -658,6 +677,7 @@ def validate(
             PI_PRICE_ATTESTATION,
             *POLKASWAP_ATTESTATIONS,
             *BITCOIN_ATTESTATIONS,
+            *BITCOIN_SECOND_LAUNCH_PROVISIONING_ATTESTATIONS,
             *TAIRA_ATTESTATIONS,
             "captureReceiptSHA256",
         },
@@ -704,6 +724,8 @@ def validate(
     for key in POLKASWAP_ATTESTATIONS:
         require_true(second_launch, key)
     for key in BITCOIN_ATTESTATIONS:
+        require_true(second_launch, key)
+    for key in BITCOIN_SECOND_LAUNCH_PROVISIONING_ATTESTATIONS:
         require_true(second_launch, key)
     for key in TAIRA_ATTESTATIONS:
         require_true(second_launch, key)

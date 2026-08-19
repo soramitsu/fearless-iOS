@@ -1,4 +1,6 @@
 import SSFModels
+import SoraKeystore
+import IrohaCrypto
 import XCTest
 @testable import fearless
 
@@ -322,6 +324,7 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
 
         XCTAssertNotNil(viewModel.address)
         XCTAssertFalse(viewModel.sendButtonVisible)
+        XCTAssertFalse(viewModel.optionsButtonVisible)
     }
 
     func testMalformedLegacyBitcoinAccountNeverFallsBackToSubstrateAddress() throws {
@@ -364,8 +367,217 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         XCTAssertEqual(asset.precision, 8)
         XCTAssertTrue(asset.isUtility)
         XCTAssertTrue(asset.isNative)
+        XCTAssertEqual(asset.icon, UniversalWalletRegistry.bitcoinIconURL)
+        XCTAssertEqual(asset.color, "F2A900")
+        XCTAssertEqual(chain.icon, UniversalWalletRegistry.bitcoinIconURL)
+        XCTAssertNotNil(RemoteImageViewModel(url: UniversalWalletRegistry.bitcoinIconURL).fallbackImage)
+        let detailViewModel = ChainAccountViewModelFactory(
+            assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
+        ).buildChainAccountViewModel(
+            chainAsset: ChainAsset(chain: chain, asset: asset),
+            wallet: AccountGenerator.generateMetaAccount(),
+            mode: .extended
+        )
+        XCTAssertFalse(detailViewModel.optionsButtonVisible)
+        let detailLayout = ChainAccountViewLayout(frame: .zero)
+        detailLayout.bind(viewModel: detailViewModel)
+        XCTAssertTrue(detailLayout.optionsButton.isHidden)
         XCTAssertEqual(node.url, UniversalWalletRegistry.bitcoinMainnetIndexerBaseURL)
+        XCTAssertEqual(chain.nodes.map(\.url), [UniversalWalletRegistry.bitcoinMainnetIndexerBaseURL])
         XCTAssertTrue(ChainModelMapper.isNodeCompatibleWithRuntime(node, for: chain))
+    }
+
+    func testRootMnemonicAutomaticallyDerivesStandardAppOwnedAccounts() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let rootMnemonic = try IRMnemonicCreator().mnemonic(
+            fromList: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        )
+        let keystore = DictionaryKeystore(
+            keys: [
+                fearless.KeystoreTagV2.entropyTagForMetaId(wallet.metaId): rootMnemonic.entropy()
+            ]
+        )
+        let provider = KeychainUniversalWalletMnemonicProvider(keystore: keystore)
+
+        let mnemonic = try XCTUnwrap(provider.rootMnemonic(for: wallet))
+        let provisioned = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+            to: wallet,
+            mnemonic: mnemonic
+        )
+        let bitcoinAddress = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(
+                for: UniversalWalletRegistry.bitcoinMainnetChainModel,
+                wallet: provisioned
+            )
+        )
+        let tairaAddress = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(
+                for: UniversalWalletRegistry.tairaChainModel,
+                wallet: provisioned
+            )
+        )
+
+        XCTAssertEqual(bitcoinAddress, "bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu")
+        XCTAssertTrue(tairaAddress.hasPrefix("test"))
+        XCTAssertEqual(mnemonic, rootMnemonic.toString())
+        XCTAssertEqual(
+            try provider.mnemonic(
+                for: provisioned,
+                chain: UniversalWalletRegistry.bitcoinMainnetChainModel
+            ),
+            mnemonic
+        )
+    }
+
+    func testMissingRootEntropyDoesNotInventMnemonicFromSubstrateSeed() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let keystore = DictionaryKeystore(
+            keys: [
+                fearless.KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId): Data(repeating: 0xA5, count: 32)
+            ]
+        )
+        let provider = KeychainUniversalWalletMnemonicProvider(keystore: keystore)
+
+        XCTAssertNil(try provider.rootMnemonic(for: wallet))
+    }
+
+    func testUnexpectedKeychainFailureDoesNotLookLikeMissingMnemonic() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let entropyTag = fearless.KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+        let keystore = DictionaryKeystore(
+            keys: [:],
+            errors: [entropyTag: KeystoreError.unexpectedFail]
+        )
+        let provider = KeychainUniversalWalletMnemonicProvider(keystore: keystore)
+
+        XCTAssertThrowsError(try provider.rootMnemonic(for: wallet)) { error in
+            guard case KeystoreError.unexpectedFail = error else {
+                return XCTFail("Unexpected error: \(error)")
+            }
+        }
+    }
+
+    func testChainAccountKeychainFailureDoesNotFallBackToDifferentRootMnemonic() throws {
+        let accountMnemonic = Self.mnemonic
+        let rootMnemonic = try IRMnemonicCreator().mnemonic(
+            fromList: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        )
+        let wallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+            to: AccountGenerator.generateMetaAccount(),
+            mnemonic: accountMnemonic
+        )
+        let bitcoinAccount = try XCTUnwrap(wallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+        let accountEntropyTag = fearless.KeystoreTagV2.entropyTagForMetaId(
+            wallet.metaId,
+            accountId: bitcoinAccount.accountId
+        )
+        let keystore = DictionaryKeystore(
+            keys: [
+                fearless.KeystoreTagV2.entropyTagForMetaId(wallet.metaId): rootMnemonic.entropy()
+            ],
+            errors: [accountEntropyTag: KeystoreError.unexpectedFail]
+        )
+        let provider = KeychainUniversalWalletMnemonicProvider(keystore: keystore)
+
+        XCTAssertThrowsError(
+            try provider.mnemonic(
+                for: wallet,
+                chain: UniversalWalletRegistry.bitcoinMainnetChainModel
+            )
+        ) { error in
+            guard case KeystoreError.unexpectedFail = error else {
+                return XCTFail("Unexpected error: \(error)")
+            }
+        }
+    }
+
+    func testMissingChainEntropyDoesNotPairImportedBitcoinAccountWithDifferentRootMnemonic() throws {
+        let importedMnemonic = Self.mnemonic
+        let rootMnemonic = try IRMnemonicCreator().mnemonic(
+            fromList: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        )
+        let wallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+            to: AccountGenerator.generateMetaAccount(),
+            mnemonic: importedMnemonic
+        )
+        let keystore = DictionaryKeystore(
+            keys: [
+                fearless.KeystoreTagV2.entropyTagForMetaId(wallet.metaId): rootMnemonic.entropy()
+            ]
+        )
+        let provider = KeychainUniversalWalletMnemonicProvider(keystore: keystore)
+
+        XCTAssertNil(
+            try provider.mnemonic(
+                for: wallet,
+                chain: UniversalWalletRegistry.bitcoinMainnetChainModel
+            )
+        )
+    }
+
+    func testMismatchedChainEntropyNeverDrivesImportedBitcoinAccountDiscovery() throws {
+        let importedMnemonic = Self.mnemonic
+        let mismatchedMnemonic = try IRMnemonicCreator().mnemonic(
+            fromList: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        )
+        let wallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+            to: AccountGenerator.generateMetaAccount(),
+            mnemonic: importedMnemonic
+        )
+        let bitcoinAccount = try XCTUnwrap(wallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+        let keystore = DictionaryKeystore(
+            keys: [
+                fearless.KeystoreTagV2.entropyTagForMetaId(
+                    wallet.metaId,
+                    accountId: bitcoinAccount.accountId
+                ): mismatchedMnemonic.entropy()
+            ]
+        )
+        let provider = KeychainUniversalWalletMnemonicProvider(keystore: keystore)
+
+        XCTAssertNil(
+            try provider.mnemonic(
+                for: wallet,
+                chain: UniversalWalletRegistry.bitcoinMainnetChainModel
+            )
+        )
+    }
+
+    func testUnknownUniversalChainNeverAcceptsUnverifiedMnemonic() throws {
+        let chainId = "unknown:universal"
+        let publicKey = Data(repeating: 0x42, count: 32)
+        let wallet = walletWithChainAccount(
+            chainId: chainId,
+            publicKey: publicKey,
+            cryptoType: CryptoType.ed25519.rawValue
+        )
+        let mnemonic = try IRMnemonicCreator().mnemonic(fromList: Self.mnemonic)
+        let keystore = DictionaryKeystore(
+            keys: [
+                fearless.KeystoreTagV2.entropyTagForMetaId(
+                    wallet.metaId,
+                    accountId: publicKey
+                ): mnemonic.entropy()
+            ]
+        )
+        let provider = KeychainUniversalWalletMnemonicProvider(keystore: keystore)
+
+        XCTAssertNil(
+            try provider.mnemonic(
+                for: wallet,
+                chain: Self.chain(chainId)
+            )
+        )
     }
 
     func testBitcoinNeverUsesGenericSubstrateMissingAccountCreation() {
@@ -377,21 +589,15 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         let walletActions = WalletDetailsPresenter.baseActions(
             for: UniversalWalletRegistry.bitcoinMainnetChainModel
         )
-        XCTAssertEqual(walletActions.count, 2)
+        XCTAssertEqual(walletActions.count, 1)
         if case .copyAddress = walletActions[0] {} else {
             XCTFail("Bitcoin wallet details must offer copy address first")
-        }
-        if case .switchNode = walletActions[1] {} else {
-            XCTFail("Bitcoin wallet details must offer switch node second")
         }
 
         let accountActions = ChainAccountPresenter.baseActions(
             for: UniversalWalletRegistry.bitcoinMainnetChainModel
         )
-        XCTAssertEqual(accountActions.count, 1)
-        if case .switchNode = accountActions[0] {} else {
-            XCTFail("Bitcoin chain account must only offer switch node")
-        }
+        XCTAssertTrue(accountActions.isEmpty)
     }
 
     func testBitcoinRecipientValidationUsesNativeNetworkAndDetectsOwnAddress() throws {
@@ -872,3 +1078,39 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
 }
 
 private final class AccountFetchingHarness: AccountFetching {}
+
+private final class DictionaryKeystore: KeystoreProtocol {
+    private var keys: [String: Data]
+    private let errors: [String: Error]
+
+    init(keys: [String: Data], errors: [String: Error] = [:]) {
+        self.keys = keys
+        self.errors = errors
+    }
+
+    func addKey(_ data: Data, with tag: String) throws {
+        keys[tag] = data
+    }
+
+    func updateKey(_ data: Data, with tag: String) throws {
+        keys[tag] = data
+    }
+
+    func fetchKey(for tag: String) throws -> Data {
+        if let error = errors[tag] {
+            throw error
+        }
+        guard let data = keys[tag] else {
+            throw KeystoreError.noKeyFound
+        }
+        return data
+    }
+
+    func checkKey(for tag: String) throws -> Bool {
+        keys[tag] != nil
+    }
+
+    func deleteKey(for tag: String) throws {
+        keys[tag] = nil
+    }
+}

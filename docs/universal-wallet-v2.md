@@ -137,6 +137,15 @@ Redux/Pinia state, logs, or test fixtures.
 Solana import compatibility may support common existing Solana paths, but new
 Universal Wallet V2 accounts must use `m/44'/501'/0'/0'`.
 
+Automatic Bitcoin and Taira provisioning is permitted only when the wallet has
+authentic BIP39 root entropy in the protected root-entropy Keychain item. A raw
+Substrate mini-seed, watch-only account, or JSON import is not BIP39 entropy and
+cannot be inverted into the user's original mnemonic. The app must never
+synthesize a mnemonic from those values. Missing entropy keeps the network
+visible and routes the user to explicit mnemonic-only recovery; protected-data
+and other non-missing Keychain errors fail closed and retry without changing the
+wallet identity.
+
 ## Registry Requirements
 
 Registry files use `schemaVersion = 1` and a top-level `chains` array. Each
@@ -153,10 +162,23 @@ must be rooted at `m`.
 
 Endpoint kinds are `indexer`, `rpc`, `torii-mcp`, and `explorer`. Public URLs
 must be HTTPS; local development URLs may use `http://localhost` or
-`http://127.0.0.1`. Public indexer endpoints are read-only. Broadcasts,
-transaction simulation, and other write operations must use RPC or Torii
-endpoints, never a public indexer endpoint.
+`http://127.0.0.1`. Public indexer entries remain marked read-only: that flag
+describes catalog discovery and prevents generic write routing. Bitcoin's
+separately reviewed transfer service is the sole exception and may POST only a
+fully signed raw transaction to `/tx` on the canonical Mempool.space Esplora
+origin. Other broadcasts, transaction simulation, and write operations must
+use RPC or Torii endpoints.
 
+- Bitcoin mainnet Esplora base URL: `https://mempool.space/api`.
+- Bitcoin testnet Esplora base URL: `https://mempool.space/testnet/api`.
+- The app uses one explicit Mempool.space service contract for Bitcoin address,
+  UTXO, fee, history, and raw-transaction broadcast operations. It does not
+  claim decorative multi-provider failover or expose an empty HTTPS node
+  selector. Production Bitcoin balance, history, and transfer services resolve
+  this canonical origin directly, so a stale cached chain row cannot route an
+  upgraded app back to an older provider. Mempool.space learns the queried addresses and broadcast source IP;
+  users who require private infrastructure need a separately reviewed custom
+  endpoint policy.
 - TON indexer base URL: `https://ti.soramitsu.io`.
 - Native TON Wallet V4R2 building, unsigned fee emulation, signed emulation,
   bounded TonAPI transport, broadcast, and exact-message reconciliation are

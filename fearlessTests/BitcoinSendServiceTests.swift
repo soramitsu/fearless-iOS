@@ -61,14 +61,23 @@ final class BitcoinSendServiceTests: XCTestCase {
         XCTAssertEqual(fee, BigUInt(282))
         XCTAssertEqual(txid, Self.expectedTxid)
         XCTAssertEqual(client.lastFeeNetwork, .mainnet)
-        XCTAssertEqual(client.lastFeeBaseURL, "https://bitcoin.example/api")
+        XCTAssertEqual(
+            client.lastFeeBaseURL,
+            UniversalWalletRegistry.bitcoinMainnetIndexerBaseURL.absoluteString
+        )
         XCTAssertEqual(client.feeEstimateCallCount, 1)
         XCTAssertEqual(client.lastUtxosAddress, Self.mainnetAddress)
         XCTAssertEqual(client.lastUtxosNetwork, .mainnet)
-        XCTAssertEqual(client.lastUtxosBaseURL, "https://bitcoin.example/api")
+        XCTAssertEqual(
+            client.lastUtxosBaseURL,
+            UniversalWalletRegistry.bitcoinMainnetIndexerBaseURL.absoluteString
+        )
         XCTAssertEqual(client.lastBroadcastTxHex, Self.expectedTxHex)
         XCTAssertEqual(client.lastBroadcastNetwork, .mainnet)
-        XCTAssertEqual(client.lastBroadcastBaseURL, "https://bitcoin.example/api")
+        XCTAssertEqual(
+            client.lastBroadcastBaseURL,
+            UniversalWalletRegistry.bitcoinMainnetIndexerBaseURL.absoluteString
+        )
     }
 
     func testBitcoinTransferServiceRejectsMissingMnemonicRootMaterial() async throws {

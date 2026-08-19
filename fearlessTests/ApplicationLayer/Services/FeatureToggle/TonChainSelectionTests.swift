@@ -433,7 +433,10 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         XCTAssertEqual(bitcoinSync.invocations.count, 1)
         XCTAssertEqual(bitcoinSync.invocations.first?.mnemonic, Self.mnemonic)
         XCTAssertEqual(bitcoinSync.invocations.first?.network, .mainnet)
-        XCTAssertEqual(bitcoinSync.invocations.first?.baseURL, "https://blockstream.info/api/")
+        XCTAssertEqual(
+            bitcoinSync.invocations.first?.baseURL,
+            UniversalWalletRegistry.bitcoinMainnetIndexerBaseURL.absoluteString
+        )
         XCTAssertEqual(bitcoinSync.invocations.first?.gapLimit, UniversalWalletRegistry.bitcoinMainnet.defaultGapLimit)
         XCTAssertEqual(storagePerformer.performMixInvocations, 0)
 
@@ -1322,7 +1325,7 @@ private extension AssetModel {
 }
 
 final class SendDependencyContainerUniversalWalletRoutingTests: XCTestCase {
-    func testPrepareDependenciesDoesNotFailClosedForNativeTransferUniversalWalletChains() async {
+    func testPrepareDependenciesDoesNotFailClosedForEnabledNativeTransferUniversalWalletChains() async {
         let chainIds = [
             UniversalWalletRegistry.bitcoinMainnet.chainId,
             UniversalWalletRegistry.bitcoinMainnet.id,
@@ -1331,11 +1334,7 @@ final class SendDependencyContainerUniversalWalletRoutingTests: XCTestCase {
             UniversalWalletRegistry.solanaMainnet.chainId,
             UniversalWalletRegistry.solanaMainnet.id,
             UniversalWalletRegistry.solanaDevnet.chainId,
-            UniversalWalletRegistry.solanaDevnet.id,
-            UniversalWalletRegistry.taira.chainId,
-            UniversalWalletRegistry.taira.id,
-            UniversalWalletRegistry.nexus.chainId,
-            UniversalWalletRegistry.nexus.id
+            UniversalWalletRegistry.solanaDevnet.id
         ]
 
         for chainId in chainIds {

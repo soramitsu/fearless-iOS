@@ -2,8 +2,11 @@ import Foundation
 import SSFModels
 
 enum UniversalWalletRegistry {
-    static let bitcoinMainnetIndexerBaseURL = URL(string: "https://blockstream.info/api")!
-    static let bitcoinTestnetIndexerBaseURL = URL(string: "https://blockstream.info/testnet/api")!
+    static let bitcoinMainnetIndexerBaseURL = URL(string: "https://mempool.space/api")!
+    static let bitcoinTestnetIndexerBaseURL = URL(string: "https://mempool.space/testnet/api")!
+    static let bitcoinIconURL = URL(
+        string: "https://raw.githubusercontent.com/bitpay/bitcoin-brand/887f040f7c44660b84c4000f4a54897ba5518194/bitcoin.svg"
+    )!
     static let tonIndexerBaseURL = URL(string: "https://ti.soramitsu.io")!
     static let tonNativeAssetId = TonConstants.tonAssetId
     static let solanaIndexerBaseURL = URL(string: "https://si.soramitsu.io")!
@@ -37,9 +40,9 @@ enum UniversalWalletRegistry {
             name: bitcoinMainnet.name,
             symbol: bitcoinMainnet.nativeAsset.symbol,
             precision: UInt16(bitcoinMainnet.nativeAsset.decimals),
-            icon: nil,
+            icon: bitcoinIconURL,
             currencyId: bitcoinMainnet.nativeAsset.id,
-            color: "F7931A",
+            color: "F2A900",
             isUtility: true,
             isNative: true,
             staking: nil,
@@ -55,7 +58,7 @@ enum UniversalWalletRegistry {
         )
         let indexerNode = ChainNodeModel(
             url: bitcoinMainnet.indexerBaseURL,
-            name: "Blockstream Esplora",
+            name: "Mempool.space Public API",
             apikey: nil
         )
         let history = ChainModel.BlockExplorer(
@@ -75,7 +78,7 @@ enum UniversalWalletRegistry {
             nodes: [indexerNode],
             addressPrefix: 0,
             types: nil,
-            icon: nil,
+            icon: bitcoinIconURL,
             options: nil,
             externalApi: ChainModel.ExternalApiSet(
                 staking: nil,
@@ -365,6 +368,7 @@ enum UniversalWalletRegistry {
             ),
             derivationPath: network.accountPath,
             slip44CoinType: network.slip44CoinType,
+            features: ["transfer"],
             endpoints: [
                 UniversalWalletRegistryEndpoint(
                     id: "\(network.id)-indexer",

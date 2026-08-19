@@ -423,7 +423,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
 extension ChainAccountPresenter {
     static func baseActions(for chain: ChainModel) -> [ChainAction] {
         if UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) {
-            return [.switchNode]
+            return []
         }
 
         var actions: [ChainAction] = [.export]

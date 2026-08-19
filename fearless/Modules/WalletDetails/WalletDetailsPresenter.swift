@@ -249,7 +249,7 @@ private extension WalletDetailsPresenter {
 extension WalletDetailsPresenter {
     static func baseActions(for chain: ChainModel) -> [ChainAction] {
         if UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) {
-            return [.copyAddress, .switchNode]
+            return [.copyAddress]
         }
 
         return [.copyAddress, .switchNode, .export, .replace]

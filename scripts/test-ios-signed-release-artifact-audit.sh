@@ -119,7 +119,9 @@ app = {
     "CFBundleVersion": "2026.7.28",
     "FearlessBuildConfiguration": "Release",
     "FearlessBitcoinSupportContract": "bip84-mainnet-v1",
+    "FearlessBitcoinServiceContract": "mempool-space-public-esplora-v1",
     "FearlessTairaTestnetSupportContract": "iroha3-taira-read-only-v1",
+    "FearlessUniversalWalletSecretContract": "bip39-root-entropy-fail-closed-v1",
     "FearlessEnableTestability": "NO",
     "FearlessGitCommit": git_sha,
     "FearlessSwiftOptimizationLevel": "-O",
@@ -371,7 +373,9 @@ assert_contains '"archiveTreeSHA256"' "$CASE_DIR/output/receipt.json"
 assert_contains '"distributionProfile": "valid-app-store"' "$CASE_DIR/output/receipt.json"
 assert_contains '"uiDesignCompatibility": "native-redesigned-tab-bar"' "$CASE_DIR/output/receipt.json"
 assert_contains '"bitcoinSupportContract": "bip84-mainnet-v1"' "$CASE_DIR/output/receipt.json"
+assert_contains '"bitcoinServiceContract": "mempool-space-public-esplora-v1"' "$CASE_DIR/output/receipt.json"
 assert_contains '"tairaTestnetSupportContract": "iroha3-taira-read-only-v1"' "$CASE_DIR/output/receipt.json"
+assert_contains '"universalWalletSecretContract": "bip39-root-entropy-fail-closed-v1"' "$CASE_DIR/output/receipt.json"
 assert_contains '"minimumOSVersion": "15.0"' "$CASE_DIR/output/receipt.json"
 assert_contains '"dSYMContract": "exact-uuid-upload-coverage"' "$CASE_DIR/output/receipt.json"
 assert_contains '"sourceLineCoverage": "not-asserted"' "$CASE_DIR/output/receipt.json"
@@ -395,6 +399,16 @@ mutate_plist "$APP/Info.plist" \
   'value["FearlessBitcoinSupportContract"] = "engine-only"'
 expect_failure wrong-bitcoin-support-contract "does not attest the reviewed native Bitcoin support contract"
 
+prepare_case missing-bitcoin-service-contract
+mutate_plist "$APP/Info.plist" \
+  'del value["FearlessBitcoinServiceContract"]'
+expect_failure missing-bitcoin-service-contract "lacks the Bitcoin public service contract"
+
+prepare_case wrong-bitcoin-service-contract
+mutate_plist "$APP/Info.plist" \
+  'value["FearlessBitcoinServiceContract"] = "decorative-node-only"'
+expect_failure wrong-bitcoin-service-contract "does not attest the reviewed Bitcoin public service contract"
+
 prepare_case missing-taira-support-contract
 mutate_plist "$APP/Info.plist" \
   'del value["FearlessTairaTestnetSupportContract"]'
@@ -404,6 +418,16 @@ prepare_case wrong-taira-support-contract
 mutate_plist "$APP/Info.plist" \
   'value["FearlessTairaTestnetSupportContract"] = "send-enabled"'
 expect_failure wrong-taira-support-contract "does not attest the reviewed Taira Testnet read-only support contract"
+
+prepare_case missing-universal-wallet-secret-contract
+mutate_plist "$APP/Info.plist" \
+  'del value["FearlessUniversalWalletSecretContract"]'
+expect_failure missing-universal-wallet-secret-contract "lacks the universal-wallet secret derivation contract"
+
+prepare_case wrong-universal-wallet-secret-contract
+mutate_plist "$APP/Info.plist" \
+  'value["FearlessUniversalWalletSecretContract"] = "synthetic-substrate-seed-fallback"'
+expect_failure wrong-universal-wallet-secret-contract "does not attest the reviewed universal-wallet secret derivation contract"
 
 prepare_case enabled-ui-design-compatibility
 mutate_plist "$APP/Info.plist" \

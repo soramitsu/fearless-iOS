@@ -11,5 +11,6 @@ struct ChainAccountViewModel {
     let buyButtonVisible: Bool
     let polkaswapButtonVisible: Bool
     let xcmButtomVisible: Bool
+    let optionsButtonVisible: Bool
     let mode: ChainAccountViewMode
 }
