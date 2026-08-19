@@ -32,6 +32,10 @@ final class NetworkManagmentInteractor {
         self.eventCenter = eventCenter
     }
 
+    deinit {
+        eventCenter.remove(observer: self)
+    }
+
     private func fetchChains() {
         if let chainModels = chainModels {
             handleChains(result: .success(chainModels))
@@ -106,6 +110,25 @@ extension NetworkManagmentInteractor: NetworkManagmentInteractorInput {
 
     func setup(with output: NetworkManagmentInteractorOutput) {
         self.output = output
+        eventCenter.add(observer: self, dispatchIn: .main)
+        fetchChains()
+    }
+}
+
+extension NetworkManagmentInteractor: EventVisitorProtocol {
+    func processChainsUpdated(event _: ChainsUpdatedEvent) {
+        guard chainModels == nil else {
+            return
+        }
+
+        fetchChains()
+    }
+
+    func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
+        guard chainModels == nil else {
+            return
+        }
+
         fetchChains()
     }
 }

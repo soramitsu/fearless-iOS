@@ -70,7 +70,7 @@ Use this checklist for every release PR from `develop` to `master`.
   bundles for Xcode's three generated crypto stubs and the stripped
   MPQRCoreSDK vendor binary; this removes App Store Connect's missing-dSYM
   warnings but does not claim unavailable MPQR source-line DWARF.
-- Validate build `4.2.0 (2026.8.22)` through a true internal TestFlight group
+- Validate build `4.2.0 (2026.8.23)` through a true internal TestFlight group
   containing the affected phone's App Store Connect user before changing the
   public beta group. Do not substitute an external group that requires Beta App
   Review. Run
@@ -80,11 +80,14 @@ Use this checklist for every release PR from `develop` to `master`.
   loaded Polkaswap settings, a live swap quote and fee quote, a swap action
   that is fully visible and hittable above the tab bar with the keyboard hidden
   and shown, a working preview, Polkaswap signing readiness without broadcasting funds, a
-  nonzero PI-backed Polkaswap token price, a visible native BTC asset, a
+  nonzero PI-backed Polkaswap token price, Bitcoin and Taira visible while the
+  remote chains request is deliberately unavailable, a visible native BTC asset even
+  before a chain account exists, its mnemonic-only setup action, a
   successful BTC balance refresh, a valid BIP84 receive address, a BTC send
   fee quote, and signing readiness without broadcasting funds,
-  a visible Taira Testnet and canonical XOR row, automatic I105 provisioning
-  for the existing wallet, a successful Torii balance refresh, a visible valid
+  a visible Taira Testnet and canonical XOR row even before a chain account
+  exists, its mnemonic-only setup action, compatible-wallet I105 provisioning,
+  a successful Torii balance refresh, a visible valid
   I105 receive address, and confirmation that Taira Send remains unavailable,
   preservation checks, and a successful second cold launch. Do not uninstall
   or clear app data.

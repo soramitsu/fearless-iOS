@@ -843,11 +843,14 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
     ) async throws -> [ChainAssetId: AccountInfo?] {
         var accountInfos = emptyAccountInfos(for: chain)
 
-        guard
-            let irohaToriiClient,
-            let address = UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet)
-        else {
-            return accountInfos
+        guard let irohaToriiClient else {
+            throw ConvenienceError(error: "Iroha remote fetching unavailable")
+        }
+        guard let address = UniversalWalletAccountAddressResolver.address(
+            for: chain,
+            wallet: wallet
+        ) else {
+            throw ConvenienceError(error: "Iroha account address is unavailable")
         }
 
         do {

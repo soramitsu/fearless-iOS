@@ -836,7 +836,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         XCTAssertEqual(balance.data.free, BigUInt("1500000000000000000"))
     }
 
-    func testFetchAccountInfosFailsClosedForIrohaChainsWithoutSubstrateStorage() async throws {
+    func testFetchAccountInfosFailsClosedForIrohaChainsWithoutSubstrateStorage() async {
         let chainIds = [
             UniversalWalletRegistry.taira.chainId,
             UniversalWalletRegistry.taira.id,
@@ -855,30 +855,47 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
                 storagePerformer: storagePerformer
             )
 
-            let result = try await service.fetchAccountInfos(
-                for: chain,
-                wallet: AccountGenerator.generateMetaAccount()
-            )
-
-            XCTAssertTrue(result.values.allSatisfy { $0 == nil }, "Unexpected balance for \(chainId)")
+            do {
+                _ = try await service.fetchAccountInfos(
+                    for: chain,
+                    wallet: AccountGenerator.generateMetaAccount()
+                )
+                XCTFail("Expected missing Iroha account to fail for \(chainId)")
+            } catch {
+                XCTAssertTrue(
+                    String(describing: error).contains(
+                        "Iroha account address is unavailable"
+                    )
+                )
+            }
             XCTAssertEqual(ethereumFetching.fetchManyInvocations, 0)
             XCTAssertEqual(tonService.fetchInfosInvocations, 0)
             XCTAssertEqual(storagePerformer.performMixInvocations, 0)
         }
     }
 
-    func testFetchAccountInfoFailsClosedForIrohaChainAssetWithoutSubstrateStorage() async throws {
+    func testFetchAccountInfoFailsClosedForIrohaChainAssetWithoutSubstrateStorage() async {
         let chain = makeIrohaChain(chainId: UniversalWalletRegistry.taira.chainId)
         let chainAsset = ChainAsset(chain: chain, asset: Self.irohaAsset)
         let storagePerformer = StorageRequestPerformerStub()
-        let service = makeAccountInfoRemoteService(storagePerformer: storagePerformer)
-
-        let result = try await service.fetchAccountInfo(
-            for: chainAsset,
-            wallet: AccountGenerator.generateMetaAccount()
+        let service = makeAccountInfoRemoteService(
+            irohaToriiClient: IrohaToriiClientStub(),
+            storagePerformer: storagePerformer
         )
 
-        XCTAssertNil(result)
+        do {
+            _ = try await service.fetchAccountInfo(
+                for: chainAsset,
+                wallet: AccountGenerator.generateMetaAccount()
+            )
+            XCTFail("Expected missing Iroha account to fail")
+        } catch {
+            XCTAssertTrue(
+                String(describing: error).contains(
+                    "Iroha account address is unavailable"
+                )
+            )
+        }
         XCTAssertEqual(storagePerformer.performMixInvocations, 0)
     }
 

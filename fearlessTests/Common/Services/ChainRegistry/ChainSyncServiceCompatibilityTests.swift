@@ -54,36 +54,75 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
 
     func testSuccessfulSyncDeletesObsoleteBitcoinAliasAndPersistsCanonicalChain() throws {
         let remote = makeValidChain(generatingAssets: 1, addressPrefix: 42)
-        let alias = copy(
+        let bitcoinAlias = copy(
             UniversalWalletRegistry.bitcoinMainnetChainModel,
             chainId: UniversalWalletRegistry.bitcoinMainnet.id
         )
-        let repository = ScriptedChainRepository(localChains: [alias])
+        let tairaAlias = copy(
+            UniversalWalletRegistry.tairaChainModel,
+            chainId: UniversalWalletRegistry.taira.id
+        )
+        let repository = ScriptedChainRepository(
+            localChains: [bitcoinAlias, tairaAlias]
+        )
         let eventCenter = RecordingChainSyncEventCenter()
+        let remoteFetchRelease = DispatchSemaphore(value: 0)
+        defer { remoteFetchRelease.signal() }
+        let remoteFetchStarted = expectation(
+            description: "remote fetch starts after app-owned catalog persistence"
+        )
         let completionExpectation = expectation(
-            description: "canonical Bitcoin catalog persisted"
+            description: "canonical app-owned catalog persisted"
         )
         eventCenter.onEvent = { event in
             if event is ChainSyncDidComplete {
                 completionExpectation.fulfill()
             }
         }
-        let service = makeService(
+        let dataFactory = CountingDataOperationFactory(
             data: try JSONEncoder().encode([remote]),
+            firstFetchGate: remoteFetchRelease,
+            onFirstFetchStart: remoteFetchStarted.fulfill
+        )
+        let service = makeService(
+            dataFetchFactory: dataFactory,
             repository: AnyDataProviderRepository(repository),
             eventCenter: eventCenter
         )
 
         service.syncUp()
 
+        wait(for: [remoteFetchStarted], timeout: 1)
+        XCTAssertEqual(repository.saveCallCount, 1)
+        XCTAssertEqual(
+            repository.savedModels,
+            UniversalWalletRegistry.appOwnedProductionChains
+        )
+        XCTAssertEqual(
+            Set(repository.deletedIdentifiers),
+            Set([bitcoinAlias.chainId, tairaAlias.chainId])
+        )
+        XCTAssertEqual(
+            eventCenter.lastUpdatedChains,
+            UniversalWalletRegistry.appOwnedProductionChains
+        )
+        XCTAssertEqual(eventCenter.failureCount, 0)
+        XCTAssertEqual(eventCenter.completionCount, 0)
+
+        remoteFetchRelease.signal()
         wait(for: [completionExpectation], timeout: 1)
         XCTAssertEqual(
-            repository.deletedIdentifiers,
-            [UniversalWalletRegistry.bitcoinMainnet.id]
+            Set(repository.deletedIdentifiers),
+            Set([bitcoinAlias.chainId, tairaAlias.chainId])
         )
         XCTAssertTrue(
             repository.savedModels.contains(
                 UniversalWalletRegistry.bitcoinMainnetChainModel
+            )
+        )
+        XCTAssertTrue(
+            repository.savedModels.contains(
+                UniversalWalletRegistry.tairaChainModel
             )
         )
         XCTAssertEqual(eventCenter.failureCount, 0)
@@ -250,6 +289,7 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
             addressPrefix: 42
         )
         let data = try JSONEncoder().encode([remoteChain])
+        let dataFactory = CountingDataOperationFactory(data: data)
         let repository = SaveFailingChainRepository(
             error: ChainSyncCompatibilityTestError.saveFailed
         )
@@ -268,7 +308,7 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
         }
         let service = ChainSyncService(
             chainsUrl: try XCTUnwrap(URL(string: "https://chains.example/chains.json")),
-            dataFetchFactory: StaticDataOperationFactory(data: data),
+            dataFetchFactory: dataFactory,
             repository: AnyDataProviderRepository(repository),
             eventCenter: eventCenter,
             operationQueue: OperationQueue(),
@@ -283,6 +323,7 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
             timeout: 1
         )
         XCTAssertEqual(repository.saveCallCount, 1)
+        XCTAssertEqual(dataFactory.fetchCallCount, 0)
         XCTAssertEqual(eventCenter.failureCount, 1)
         XCTAssertEqual(eventCenter.completionCount, 0)
         XCTAssertTrue(
@@ -294,6 +335,9 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
         let remoteChain = makeValidChain(
             generatingAssets: 1,
             addressPrefix: 42
+        )
+        let dataFactory = CountingDataOperationFactory(
+            data: try JSONEncoder().encode([remoteChain])
         )
         let repository = ScriptedChainRepository(
             fetchAllError: ChainSyncCompatibilityTestError.fetchFailed
@@ -308,7 +352,7 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
             }
         }
         let service = makeService(
-            data: try JSONEncoder().encode([remoteChain]),
+            dataFetchFactory: dataFactory,
             repository: AnyDataProviderRepository(repository),
             eventCenter: eventCenter
         )
@@ -317,12 +361,15 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
 
         wait(for: [failureExpectation], timeout: 1)
         XCTAssertEqual(repository.replaceCallCount, 0)
+        XCTAssertEqual(dataFactory.fetchCallCount, 0)
         XCTAssertEqual(eventCenter.failureCount, 1)
         XCTAssertEqual(eventCenter.completionCount, 0)
     }
 
     func testEmptyRemotePayloadNeverDeletesReadableCache() throws {
-        let repository = ScriptedChainRepository()
+        let repository = ScriptedChainRepository(
+            localChains: UniversalWalletRegistry.appOwnedProductionChains
+        )
         let eventCenter = RecordingChainSyncEventCenter()
         let failureExpectation = expectation(
             description: "empty authoritative payload is rejected"
@@ -341,7 +388,9 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
         service.syncUp()
 
         wait(for: [failureExpectation], timeout: 1)
+        XCTAssertEqual(repository.saveCallCount, 0)
         XCTAssertEqual(repository.replaceCallCount, 0)
+        XCTAssertNil(eventCenter.lastUpdatedChains)
         XCTAssertEqual(eventCenter.failureCount, 1)
         XCTAssertEqual(eventCenter.completionCount, 0)
         XCTAssertTrue(eventCenter.lastFailure is ChainSyncServiceError)
@@ -575,7 +624,7 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
 
         wait(for: [completionExpectation], timeout: 1)
         XCTAssertEqual(repository.replaceCallCount, 0)
-        XCTAssertEqual(repository.saveCallCount, 1)
+        XCTAssertEqual(repository.saveCallCount, 2)
         XCTAssertEqual(
             repository.savedModels,
             UniversalWalletRegistry.appOwnedProductionChains
@@ -590,6 +639,9 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
             generatingAssets: 1,
             addressPrefix: 42
         )
+        let dataFactory = CountingDataOperationFactory(
+            data: try JSONEncoder().encode([remoteChain])
+        )
         let repository = ScriptedChainRepository()
         let eventCenter = RecordingChainSyncEventCenter()
         let failureExpectation = expectation(
@@ -601,7 +653,7 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
             }
         }
         let service = makeService(
-            data: try JSONEncoder().encode([remoteChain]),
+            dataFetchFactory: dataFactory,
             repository: AnyDataProviderRepository(repository),
             eventCenter: eventCenter,
             malformedChainCleanupOperationFactory: {
@@ -616,6 +668,7 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
         wait(for: [failureExpectation], timeout: 1)
         XCTAssertEqual(repository.saveCallCount, 0)
         XCTAssertEqual(repository.replaceCallCount, 0)
+        XCTAssertEqual(dataFactory.fetchCallCount, 0)
         XCTAssertEqual(eventCenter.failureCount, 1)
         XCTAssertEqual(eventCenter.completionCount, 0)
     }
@@ -629,8 +682,15 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
         let expectedChains = try ChainSyncService.sanitizingRemoteChains(
             ChainSyncService.mergingAppOwnedProductionChains(into: [remoteChain])
         )
+        let remoteFetchRelease = DispatchSemaphore(value: 0)
+        defer { remoteFetchRelease.signal() }
+        let remoteFetchStarted = expectation(
+            description: "remote fetch starts after app-owned persistence"
+        )
         let dataFactory = CountingDataOperationFactory(
-            data: try JSONEncoder().encode([remoteChain])
+            data: try JSONEncoder().encode([remoteChain]),
+            firstFetchGate: remoteFetchRelease,
+            onFirstFetchStart: remoteFetchStarted.fulfill
         )
         let repository = ScriptedChainRepository()
         let eventCenter = RecordingChainSyncEventCenter()
@@ -690,12 +750,26 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
         XCTAssertEqual(repository.saveCallCount, 0)
 
         cleanupRelease.signal()
+        wait(for: [remoteFetchStarted], timeout: 1)
+        XCTAssertEqual(repository.fetchAllCallCount, 1)
+        XCTAssertEqual(repository.saveCallCount, 1)
+        XCTAssertEqual(
+            repository.savedModels,
+            UniversalWalletRegistry.appOwnedProductionChains
+        )
+        XCTAssertEqual(
+            eventCenter.lastUpdatedChains,
+            UniversalWalletRegistry.appOwnedProductionChains
+        )
+        XCTAssertEqual(eventCenter.completionCount, 0)
+
+        remoteFetchRelease.signal()
         wait(for: [completion], timeout: 1)
 
         XCTAssertEqual(cleanupCounter.value, 1)
         XCTAssertEqual(dataFactory.fetchCallCount, 1)
-        XCTAssertEqual(repository.fetchAllCallCount, 1)
-        XCTAssertEqual(repository.saveCallCount, 1)
+        XCTAssertEqual(repository.fetchAllCallCount, 2)
+        XCTAssertEqual(repository.saveCallCount, 2)
         XCTAssertEqual(eventCenter.startCount, 1)
         XCTAssertEqual(eventCenter.failureCount, 0)
         XCTAssertEqual(eventCenter.completionCount, 1)
@@ -786,8 +860,8 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
 
         XCTAssertEqual(cleanupCounter.value, 1)
         XCTAssertEqual(dataFactory.fetchCallCount, 1)
-        XCTAssertEqual(repository.fetchAllCallCount, 0)
-        XCTAssertEqual(repository.saveCallCount, 0)
+        XCTAssertEqual(repository.fetchAllCallCount, 1)
+        XCTAssertEqual(repository.saveCallCount, 1)
         XCTAssertEqual(eventCenter.startCount, 1)
         XCTAssertEqual(eventCenter.completionCount, 0)
 
@@ -796,8 +870,8 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
 
         XCTAssertEqual(cleanupCounter.value, 1)
         XCTAssertEqual(dataFactory.fetchCallCount, 1)
-        XCTAssertEqual(repository.fetchAllCallCount, 1)
-        XCTAssertEqual(repository.saveCallCount, 1)
+        XCTAssertEqual(repository.fetchAllCallCount, 2)
+        XCTAssertEqual(repository.saveCallCount, 2)
         XCTAssertEqual(eventCenter.startCount, 1)
         XCTAssertEqual(repository.savedModels, expectedChains)
 
@@ -806,8 +880,8 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
 
         XCTAssertEqual(cleanupCounter.value, 2)
         XCTAssertEqual(dataFactory.fetchCallCount, 2)
-        XCTAssertEqual(repository.fetchAllCallCount, 2)
-        XCTAssertEqual(repository.saveCallCount, 2)
+        XCTAssertEqual(repository.fetchAllCallCount, 4)
+        XCTAssertEqual(repository.saveCallCount, 4)
         XCTAssertEqual(eventCenter.startCount, 2)
         XCTAssertEqual(eventCenter.failureCount, 0)
         XCTAssertEqual(eventCenter.completionCount, 2)
