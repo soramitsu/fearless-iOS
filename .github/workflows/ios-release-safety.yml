@@ -45,6 +45,7 @@ jobs:
           bash scripts/storage/test-user-storage-compatibility-model-audit.sh
           bash scripts/storage/test-substrate-storage-compatibility-model-audit.sh
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-filter-startup-syslog.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-capture-testflight-startup.py
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-audit-testflight-upgrade-usability-gate.py
 
       - name: Reject silent x86 Release omissions

@@ -24,11 +24,11 @@ final class ServiceCoordinator {
     private let walletConnect: WalletConnectService
     private let walletAssetsObserver: WalletAssetsObserver
     private let pricesService: PricesServiceProtocol
-    private let bitcoinMnemonicProvider: UniversalWalletRootMnemonicProviding
+    private let appOwnedMnemonicProvider: UniversalWalletRootMnemonicProviding
     private let notificationCenter: NotificationCenter
-    private let bitcoinProvisioningLock = NSLock()
-    private var bitcoinProvisioningWalletIds = Set<MetaAccountId>()
-    private var bitcoinProvisioningObservers: [NSObjectProtocol] = []
+    private let appOwnedProvisioningLock = NSLock()
+    private var appOwnedProvisioningWalletIds = Set<MetaAccountId>()
+    private var appOwnedProvisioningObservers: [NSObjectProtocol] = []
 
     init(
         walletSettings: SelectedWalletSettings,
@@ -50,12 +50,12 @@ final class ServiceCoordinator {
         self.walletConnect = walletConnect
         self.walletAssetsObserver = walletAssetsObserver
         self.pricesService = pricesService
-        self.bitcoinMnemonicProvider = bitcoinMnemonicProvider
+        appOwnedMnemonicProvider = bitcoinMnemonicProvider
         self.notificationCenter = notificationCenter
     }
 
     deinit {
-        removeBitcoinProvisioningObservers()
+        removeAppOwnedProvisioningObservers()
     }
 }
 
@@ -64,7 +64,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         if let seletedMetaAccount = walletSettings.value {
             accountInfoService.update(selectedMetaAccount: seletedMetaAccount)
             walletAssetsObserver.update(wallet: seletedMetaAccount)
-            provisionBitcoinAccountIfNeeded(for: seletedMetaAccount)
+            provisionAppOwnedAccountsIfNeeded(for: seletedMetaAccount)
         }
     }
 
@@ -80,10 +80,10 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         walletConnect.setup()
         walletAssetsObserver.setup()
         pricesService.setup()
-        observeBitcoinProvisioningRetryEvents()
+        observeAppOwnedProvisioningRetryEvents()
 
         if let selectedMetaAccount = walletSettings.value {
-            provisionBitcoinAccountIfNeeded(for: selectedMetaAccount)
+            provisionAppOwnedAccountsIfNeeded(for: selectedMetaAccount)
         }
     }
 
@@ -92,13 +92,13 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         accountInfoService.throttle()
         walletConnect.throttle()
         walletAssetsObserver.throttle()
-        removeBitcoinProvisioningObservers()
+        removeAppOwnedProvisioningObservers()
     }
 }
 
 private extension ServiceCoordinator {
-    func observeBitcoinProvisioningRetryEvents() {
-        guard bitcoinProvisioningObservers.isEmpty else {
+    func observeAppOwnedProvisioningRetryEvents() {
+        guard appOwnedProvisioningObservers.isEmpty else {
             return
         }
 
@@ -106,9 +106,9 @@ private extension ServiceCoordinator {
             guard let self, let wallet = self.walletSettings.value else {
                 return
             }
-            self.provisionBitcoinAccountIfNeeded(for: wallet)
+            self.provisionAppOwnedAccountsIfNeeded(for: wallet)
         }
-        bitcoinProvisioningObservers = [
+        appOwnedProvisioningObservers = [
             notificationCenter.addObserver(
                 forName: UIApplication.protectedDataDidBecomeAvailableNotification,
                 object: nil,
@@ -124,47 +124,51 @@ private extension ServiceCoordinator {
         ]
     }
 
-    func removeBitcoinProvisioningObservers() {
-        bitcoinProvisioningObservers.forEach { notificationCenter.removeObserver($0) }
-        bitcoinProvisioningObservers.removeAll()
+    func removeAppOwnedProvisioningObservers() {
+        appOwnedProvisioningObservers.forEach { notificationCenter.removeObserver($0) }
+        appOwnedProvisioningObservers.removeAll()
     }
 
-    func provisionBitcoinAccountIfNeeded(for wallet: MetaAccountModel) {
-        bitcoinProvisioningLock.lock()
-        let shouldProvision = bitcoinProvisioningWalletIds.insert(wallet.metaId).inserted
-        bitcoinProvisioningLock.unlock()
+    func provisionAppOwnedAccountsIfNeeded(for wallet: MetaAccountModel) {
+        appOwnedProvisioningLock.lock()
+        let shouldProvision = appOwnedProvisioningWalletIds.insert(wallet.metaId).inserted
+        appOwnedProvisioningLock.unlock()
         guard shouldProvision else {
             return
         }
 
         do {
-            if let existingAccount = wallet.chainAccounts.first(where: {
+            let hasValidBitcoinAccount = wallet.chainAccounts.contains(where: {
                 UniversalWalletChainAccountSupport.chainId(
                     $0.chainId,
                     matches: UniversalWalletRegistry.bitcoinMainnet.chainId
-                )
-            }), UniversalWalletChainAccountSupport.address(
-                for: UniversalWalletRegistry.bitcoinMainnet.chainId,
-                publicKey: existingAccount.publicKey
-            ) != nil {
-                // A structurally valid Bitcoin account may intentionally use
-                // a chain-specific mnemonic. Never replace its receive address
-                // with a root-wallet derivation during a background retry.
-                finishBitcoinProvisioning(for: wallet.metaId)
+                ) && UniversalWalletChainAccountSupport.address(
+                    for: UniversalWalletRegistry.bitcoinMainnet.chainId,
+                    publicKey: $0.publicKey
+                ) != nil
+            })
+            let hasValidTairaAccount = wallet.chainAccounts.contains(
+                where: UniversalWalletChainAccountSupport.isValidTairaAccount
+            )
+            if hasValidBitcoinAccount, hasValidTairaAccount {
+                // Structurally valid app-owned accounts may intentionally use
+                // chain-specific mnemonics. Never replace their receive
+                // addresses with a root-wallet derivation during retry.
+                finishAppOwnedProvisioning(for: wallet.metaId)
                 return
             }
 
-            guard let mnemonic = try bitcoinMnemonicProvider.rootMnemonic(for: wallet) else {
-                finishBitcoinProvisioning(for: wallet.metaId)
+            guard let mnemonic = try appOwnedMnemonicProvider.rootMnemonic(for: wallet) else {
+                finishAppOwnedProvisioning(for: wallet.metaId)
                 return
             }
 
-            let updatedWallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+            let updatedWallet = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
                 to: wallet,
                 mnemonic: mnemonic
             )
             guard updatedWallet != wallet else {
-                finishBitcoinProvisioning(for: wallet.metaId)
+                finishAppOwnedProvisioning(for: wallet.metaId)
                 return
             }
             walletSettings.save(
@@ -175,7 +179,7 @@ private extension ServiceCoordinator {
                     return
                 }
 
-                self.finishBitcoinProvisioning(for: wallet.metaId)
+                self.finishAppOwnedProvisioning(for: wallet.metaId)
                 switch result {
                 case let .success(savedWallet):
                     self.accountInfoService.update(selectedMetaAccount: savedWallet)
@@ -185,22 +189,22 @@ private extension ServiceCoordinator {
                     )
                 case let .failure(error):
                     Logger.shared.error(
-                        "Bitcoin account provisioning failed: \(error.localizedDescription)"
+                        "App-owned account provisioning failed: \(error.localizedDescription)"
                     )
                 }
             }
         } catch {
-            finishBitcoinProvisioning(for: wallet.metaId)
+            finishAppOwnedProvisioning(for: wallet.metaId)
             Logger.shared.error(
-                "Bitcoin account provisioning failed: \(error.localizedDescription)"
+                "App-owned account provisioning failed: \(error.localizedDescription)"
             )
         }
     }
 
-    func finishBitcoinProvisioning(for walletId: MetaAccountId) {
-        bitcoinProvisioningLock.lock()
-        bitcoinProvisioningWalletIds.remove(walletId)
-        bitcoinProvisioningLock.unlock()
+    func finishAppOwnedProvisioning(for walletId: MetaAccountId) {
+        appOwnedProvisioningLock.lock()
+        appOwnedProvisioningWalletIds.remove(walletId)
+        appOwnedProvisioningLock.unlock()
     }
 }
 

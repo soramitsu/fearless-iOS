@@ -64,6 +64,8 @@
 	<string>$(FEARLESS_GIT_COMMIT)</string>
 	<key>FearlessSwiftOptimizationLevel</key>
 	<string>$(SWIFT_OPTIMIZATION_LEVEL)</string>
+	<key>FearlessTairaTestnetSupportContract</key>
+	<string>iroha3-taira-read-only-v1</string>
 	<key>GIDClientID</key>
 	<string></string>
 	<key>ITSAppUsesNonExemptEncryption</key>

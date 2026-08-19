@@ -29,7 +29,7 @@ def passing_capture_receipt(*, first: bool) -> dict:
         "captureStatus": "complete",
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildNumber": "2026.8.21",
+        "buildNumber": "2026.8.22",
         "observationMethod": "paired-device-fearless-process-only-sanitized-syslog",
         "deviceSidePIDFilter": True,
         "historicalLogsRequested": False,
@@ -102,7 +102,7 @@ def write_capture_bundle(root: Path, *, first: bool) -> tuple[Path, str]:
         "observedAtUTC": "2026-08-10T11:59:59+09:00",
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildNumber": "2026.8.21",
+        "buildNumber": "2026.8.22",
     }
     records = [
         {
@@ -150,13 +150,13 @@ def passing_evidence() -> dict:
         "schemaVersion": 1,
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildVersion": "2026.8.21",
+        "buildVersion": "2026.8.22",
         "baseSourceCommit": "2e45e55dc03ad904598e730cfb5994fb5c1072dc",
         "artifactSourceCommit": EXPECTED_ARTIFACT_SOURCE_COMMIT,
         "distribution": "apple-testflight-internal",
         "installation": {
             "installedInPlace": True,
-            "previousBuildVersion": "2026.8.20",
+            "previousBuildVersion": "2026.8.21",
             "originalAppStoreContainerPreserved": True,
             "uninstalled": False,
             "offloaded": False,
@@ -192,6 +192,12 @@ def passing_evidence() -> dict:
             "bitcoinReceiveAddressWorked": True,
             "bitcoinSendFeeQuoteWorked": True,
             "bitcoinSigningReady": True,
+            "tairaTestnetVisible": True,
+            "tairaXorAssetVisible": True,
+            "tairaExistingWalletAccountProvisioned": True,
+            "tairaBalanceRefreshWorked": True,
+            "tairaReceiveAddressVisibleAndValid": True,
+            "tairaSendUnavailable": True,
             "captureReceiptSHA256": FIRST_RECEIPT_SHA256,
         },
         "preservation": {
@@ -229,6 +235,12 @@ def passing_evidence() -> dict:
             "bitcoinReceiveAddressWorked": True,
             "bitcoinSendFeeQuoteWorked": True,
             "bitcoinSigningReady": True,
+            "tairaTestnetVisible": True,
+            "tairaXorAssetVisible": True,
+            "tairaExistingWalletAccountProvisioned": True,
+            "tairaBalanceRefreshWorked": True,
+            "tairaReceiveAddressVisibleAndValid": True,
+            "tairaSendUnavailable": True,
             "captureReceiptSHA256": SECOND_RECEIPT_SHA256,
         },
         "release": {
@@ -359,6 +371,23 @@ class UpgradeUsabilityGateTests(unittest.TestCase):
 
         for launch in ("firstLaunch", "secondColdLaunch"):
             for key in GATE.BITCOIN_ATTESTATIONS:
+                with self.subTest(launch=launch, key=key):
+                    failed = passing_evidence()
+                    failed[launch][key] = False
+                    with self.assertRaisesRegex(
+                        GATE.EvidenceError,
+                        f"{key} must be true",
+                    ):
+                        validate(failed)
+
+    def test_rejects_missing_or_failed_taira_attestation(self) -> None:
+        missing = passing_evidence()
+        missing["firstLaunch"].pop("tairaTestnetVisible")
+        with self.assertRaisesRegex(GATE.EvidenceError, "privacy-safe schema"):
+            validate(missing)
+
+        for launch in ("firstLaunch", "secondColdLaunch"):
+            for key in GATE.TAIRA_ATTESTATIONS:
                 with self.subTest(launch=launch, key=key):
                     failed = passing_evidence()
                     failed[launch][key] = False

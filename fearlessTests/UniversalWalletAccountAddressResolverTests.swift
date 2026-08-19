@@ -144,6 +144,186 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         XCTAssertEqual(bitcoinAccounts.first?.cryptoType, CryptoType.ecdsa.rawValue)
     }
 
+    func testTairaProvisioningAddsCanonicalI105AccountAndIsIdempotent() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+
+        let provisioned = try UniversalWalletAccountProvisioning.addingTairaTestnetAccount(
+            to: wallet,
+            mnemonic: Self.mnemonic
+        )
+        let reprovisioned = try UniversalWalletAccountProvisioning.addingTairaTestnetAccount(
+            to: provisioned,
+            mnemonic: Self.mnemonic
+        )
+
+        let account = try XCTUnwrap(provisioned.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            )
+        }))
+        let address = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(
+                for: UniversalWalletRegistry.tairaChainModel,
+                wallet: provisioned
+            )
+        )
+        let parsed = try IrohaAddressCodec.parse(
+            address,
+            expectedDiscriminant: UniversalWalletRegistry.taira.chainDiscriminant
+        )
+
+        XCTAssertEqual(account.chainId, UniversalWalletRegistry.taira.chainId)
+        XCTAssertEqual(account.cryptoType, CryptoType.ed25519.rawValue)
+        XCTAssertEqual(account.accountId, account.publicKey)
+        XCTAssertEqual(account.publicKey.count, 32)
+        XCTAssertEqual(parsed.publicKeyHex, account.publicKey.hexString())
+        XCTAssertEqual(provisioned, reprovisioned)
+    }
+
+    func testTairaProvisioningRepairsGenericSr25519Account() throws {
+        let malformed = ChainAccountModel(
+            chainId: UniversalWalletRegistry.taira.id,
+            accountId: Data(repeating: 0x42, count: 32),
+            publicKey: Data(repeating: 0x42, count: 32),
+            cryptoType: CryptoType.sr25519.rawValue,
+            ethereumBased: false
+        )
+        let wallet = AccountGenerator.generateMetaAccount(with: [malformed])
+
+        XCTAssertFalse(UniversalWalletChainAccountSupport.isValidTairaAccount(malformed))
+        XCTAssertNil(wallet.fetch(for: UniversalWalletRegistry.tairaChainModel.accountRequest()))
+        XCTAssertNil(
+            UniversalWalletAccountAddressResolver.address(
+                for: UniversalWalletRegistry.tairaChainModel,
+                wallet: wallet
+            )
+        )
+
+        let repaired = try UniversalWalletAccountProvisioning.addingTairaTestnetAccount(
+            to: wallet,
+            mnemonic: Self.mnemonic
+        )
+        let accounts = repaired.chainAccounts.filter {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            )
+        }
+
+        XCTAssertEqual(accounts.count, 1)
+        let account = try XCTUnwrap(accounts.first)
+        XCTAssertEqual(account.cryptoType, CryptoType.ed25519.rawValue)
+        XCTAssertTrue(UniversalWalletChainAccountSupport.isValidTairaAccount(account))
+    }
+
+    func testAppOwnedUpgradeAddsTairaWithoutReplacingExistingBitcoinAccount() throws {
+        let chainSpecificMnemonic = Self.mnemonic
+        let rootMnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        let wallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+            to: AccountGenerator.generateMetaAccount(),
+            mnemonic: chainSpecificMnemonic
+        )
+        let originalBitcoin = try XCTUnwrap(wallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+
+        let upgraded = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+            to: wallet,
+            mnemonic: rootMnemonic
+        )
+        let upgradedBitcoin = try XCTUnwrap(upgraded.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+        let taira = try XCTUnwrap(upgraded.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.isValidTairaAccount($0)
+        }))
+        let expectedTaira = try IrohaKeyDerivation.deriveAccount(mnemonic: rootMnemonic)
+
+        XCTAssertEqual(upgradedBitcoin, originalBitcoin)
+        XCTAssertEqual(taira.publicKey, expectedTaira.publicKey)
+    }
+
+    func testAppOwnedUpgradePreservesValidChainSpecificTairaAccount() throws {
+        let chainSpecificMnemonic = Self.mnemonic
+        let rootMnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        let wallet = try UniversalWalletAccountProvisioning.addingTairaTestnetAccount(
+            to: AccountGenerator.generateMetaAccount(),
+            mnemonic: chainSpecificMnemonic
+        )
+        let originalTaira = try XCTUnwrap(wallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.isValidTairaAccount($0)
+        }))
+
+        let upgraded = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+            to: wallet,
+            mnemonic: rootMnemonic
+        )
+        let upgradedTaira = try XCTUnwrap(upgraded.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.isValidTairaAccount($0)
+        }))
+        let bitcoin = try XCTUnwrap(upgraded.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+        let expectedBitcoin = try BitcoinKeyDerivation.deriveAccount(
+            mnemonic: rootMnemonic,
+            network: .mainnet
+        )
+
+        XCTAssertEqual(upgradedTaira, originalTaira)
+        XCTAssertEqual(bitcoin.publicKey, expectedBitcoin.publicKey)
+    }
+
+    func testTairaProductionChainIsEnabledRankedTestnetWithCanonicalXOR() throws {
+        let chain = UniversalWalletRegistry.tairaChainModel
+        let asset = try XCTUnwrap(chain.assets.first)
+        let node = try XCTUnwrap(chain.nodes.first)
+
+        XCTAssertEqual(chain.chainId, UniversalWalletRegistry.taira.chainId)
+        XCTAssertFalse(chain.disabled)
+        XCTAssertNotNil(chain.rank)
+        XCTAssertTrue(chain.options?.contains(.testnet) == true)
+        XCTAssertEqual(asset.id, UniversalWalletRegistry.tairaNativeXorAssetDefinitionId)
+        XCTAssertEqual(asset.currencyId, UniversalWalletRegistry.tairaNativeXorAlias)
+        XCTAssertEqual(asset.symbol, "XOR")
+        XCTAssertEqual(asset.precision, 9)
+        XCTAssertTrue(asset.isUtility)
+        XCTAssertTrue(asset.isNative)
+        XCTAssertEqual(node.url, UniversalWalletRegistry.taira.toriiBaseURL)
+        XCTAssertTrue(ChainModelMapper.isNodeCompatibleWithRuntime(node, for: chain))
+        XCTAssertTrue(UniversalWalletRegistry.appOwnedProductionChains.contains(chain))
+    }
+
+    func testTairaDetailsExposeReceiveAddressButHideSend() throws {
+        let wallet = try UniversalWalletAccountProvisioning.addingTairaTestnetAccount(
+            to: AccountGenerator.generateMetaAccount(),
+            mnemonic: Self.mnemonic
+        )
+        let chainAsset = ChainAsset(
+            chain: UniversalWalletRegistry.tairaChainModel,
+            asset: try XCTUnwrap(UniversalWalletRegistry.tairaChainModel.assets.first)
+        )
+        let viewModel = ChainAccountViewModelFactory(
+            assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
+        ).buildChainAccountViewModel(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            mode: .extended
+        )
+
+        XCTAssertNotNil(viewModel.address)
+        XCTAssertFalse(viewModel.sendButtonVisible)
+    }
+
     func testMalformedLegacyBitcoinAccountNeverFallsBackToSubstrateAddress() throws {
         let malformedAccount = ChainAccountModel(
             chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,

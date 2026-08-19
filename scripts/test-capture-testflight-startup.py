@@ -641,7 +641,7 @@ class CaptureControllerTests(unittest.TestCase):
                         ).run()
                     self.assertFalse((output / "capture-receipt.json").exists())
 
-    def test_redesigned_build_is_explicitly_allowlisted_for_qualification_capture(self) -> None:
+    def test_taira_build_is_explicitly_allowlisted_for_qualification_capture(self) -> None:
         hotfix = CAPTURE.AppIdentity(
             CAPTURE.EXPECTED_BUNDLE_IDENTIFIER,
             CAPTURE.EXPECTED_MARKETING_VERSION,
@@ -652,8 +652,8 @@ class CaptureControllerTests(unittest.TestCase):
             snapshots=[
                 CAPTURE.ProcessSnapshot(False, None),
                 CAPTURE.ProcessSnapshot(False, None),
-                CAPTURE.ProcessSnapshot(True, 821),
-                CAPTURE.ProcessSnapshot(True, 821),
+                CAPTURE.ProcessSnapshot(True, 822),
+                CAPTURE.ProcessSnapshot(True, 822),
             ],
             pipeline=FakePipeline(
                 batches=[[safe_record("FEARLESS_STARTUP_READY")]],

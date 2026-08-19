@@ -7,6 +7,7 @@ struct ChainAccountViewModel {
     let selectedChainIcon: ImageViewModelProtocol?
     let address: String?
     let assetModel: AssetModel?
+    let sendButtonVisible: Bool
     let buyButtonVisible: Bool
     let polkaswapButtonVisible: Bool
     let xcmButtomVisible: Bool

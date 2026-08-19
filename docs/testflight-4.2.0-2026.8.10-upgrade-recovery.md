@@ -14,14 +14,18 @@ could permanently install a startup placeholder before SORA services were
 ready. Build `4.2.0 (2026.8.19)` restored Polkaswap but left its modal-era swap
 action under the redesigned translucent tab bar on iPhone 17 Pro Max.
 Build `4.2.0 (2026.8.20)` corrected that action, but Bitcoin remained absent
-for existing wallets whose BIP84 account had not been provisioned. Corrected
-successor build `4.2.0 (2026.8.21)` retains ancestry from
+for existing wallets whose BIP84 account had not been provisioned. Build
+`4.2.0 (2026.8.21)` made Bitcoin visible and added safe recovery, but did not
+publish Taira Testnet into the production chain catalog. Corrected successor
+build `4.2.0 (2026.8.22)` retains ancestry from
 distributed source commit
 `2e45e55dc03ad904598e730cfb5994fb5c1072dc`, the exact public App Store
 Substrate v8/v9 compatibility models and lossless v10 migration, the redesign,
-and native BIP84 Bitcoin catalog/account/balance/receive/send integration. The
-successor must remain blocked from the public beta group until the affected
-phone passes this gate using the Apple-delivered restricted TestFlight build.
+native BIP84 Bitcoin catalog/account/balance/receive/send integration, and
+read-only Taira Testnet catalog/account/balance/receive integration with Iroha
+Send kept unavailable. The successor must remain blocked from the public beta
+group until the affected phone passes this gate using the Apple-delivered
+restricted TestFlight build.
 
 ## Data boundary
 
@@ -106,14 +110,15 @@ usable BTC support. `.8.18` added BTC but regressed Polkaswap availability and
 clean-start settings. `.8.19` restored Polkaswap but hid its swap action under
 the tab bar. `.8.20` corrected the swap action but left accountless existing
 wallets without a visible Bitcoin recovery path. Use corrected `.8.21` for the
-preserved-data qualification below.
+Bitcoin recovery baseline, then corrected `.8.22` for the preserved-data
+qualification below.
 
 ## Internal TestFlight gate
 
 1. Confirm the installed identity is `jp.co.soramitsu.fearlesswallet`, version
-   `4.2.0`, build `2026.8.19` or `2026.8.20` before the corrected successor
+   `4.2.0`, build `2026.8.21` before the corrected successor
    update.
-2. Assign build `2026.8.21` only to a true internal TestFlight group containing
+2. Assign build `2026.8.22` only to a true internal TestFlight group containing
    the affected phone's App Store Connect user. Do not use the similarly named
    external affected-phone group, which requires Beta App Review, and do not
    change the public beta group.
@@ -128,7 +133,7 @@ preserved-data qualification below.
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.21 \
+     --expected-build 2026.8.22 \
      --observation-seconds 900 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 300 \
@@ -150,9 +155,14 @@ preserved-data qualification below.
    - native BTC visible in Portfolio, a successful BTC balance refresh, a
      valid BIP84 receive address, a BTC send fee quote, and signing readiness,
      recorded only as pass/fail attestations; do not broadcast funds;
+   - Taira Testnet and its canonical XOR row visible, an I105 account
+     provisioned for the existing wallet, a successful Torii balance refresh,
+     a visible valid I105 receive address, and Taira Send unavailable, recorded
+     only as pass/fail attestations; local derivation does not attest on-chain
+     registration or funding;
    - unchanged wallet counts, logical store integrity, Keychain access, and
      settings access, recorded only as pass/fail attestations without values.
-   Record the actual `previousBuildVersion` (`2026.8.19` or `2026.8.20`) and
+   Record the actual `previousBuildVersion` (`2026.8.21`) and
    `originalAppStoreContainerPreserved=true`; this binds the successor update
    to the still-preserved container originally installed from the App Store.
 6. After the first capture completes, force-quit once more and use a new output
@@ -161,7 +171,7 @@ preserved-data qualification below.
    five bottom navigation controls/routes working again. Require a nonzero
    PI-backed Polkaswap token price, loaded Polkaswap settings, swap and fee
    quotes, a fully visible and hittable swap action, preview and signing
-   readiness, plus the five BTC attestations again
+   readiness, plus the five BTC and six Taira attestations again
    without recording addresses, balances, transaction data, identifiers, or
    values:
 
@@ -169,7 +179,7 @@ preserved-data qualification below.
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.21 \
+     --expected-build 2026.8.22 \
      --observation-seconds 180 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 5 \
@@ -186,12 +196,12 @@ preserved-data qualification below.
    later host-only diagnostics commit:
 
    ```bash
-   chmod 600 build/testflight-2026.8.21-upgrade-usability.json
-   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.21/testflight-internal-upload.json
+   chmod 600 build/testflight-2026.8.22-upgrade-usability.json
+   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.22/testflight-internal-upload.json
    artifact_source_commit="$(jq -er '.artifactSourceCommit' "$upload_receipt")"
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/audit-testflight-upgrade-usability-gate.py \
-     build/testflight-2026.8.21-upgrade-usability.json \
+     build/testflight-2026.8.22-upgrade-usability.json \
      --first-launch-capture-receipt \
        /ABSOLUTE/PRIVATE/FIRST-HOTFIX-CAPTURE/capture-receipt.json \
      --second-launch-capture-receipt \
@@ -215,6 +225,6 @@ PYTHONDONTWRITEBYTECODE=1 python3 \
 ## Release decision
 
 Only after the audit passes may release review replace build `2026.7.28` in the
-public beta group with `2026.8.21`. Uploading and assigning the restricted group
+public beta group with `2026.8.22`. Uploading and assigning the restricted group
 do not authorize changing the public beta group; that change still requires the
 normal App Store Connect authorization and review trail.

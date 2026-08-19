@@ -119,6 +119,7 @@ app = {
     "CFBundleVersion": "2026.7.28",
     "FearlessBuildConfiguration": "Release",
     "FearlessBitcoinSupportContract": "bip84-mainnet-v1",
+    "FearlessTairaTestnetSupportContract": "iroha3-taira-read-only-v1",
     "FearlessEnableTestability": "NO",
     "FearlessGitCommit": git_sha,
     "FearlessSwiftOptimizationLevel": "-O",
@@ -370,6 +371,7 @@ assert_contains '"archiveTreeSHA256"' "$CASE_DIR/output/receipt.json"
 assert_contains '"distributionProfile": "valid-app-store"' "$CASE_DIR/output/receipt.json"
 assert_contains '"uiDesignCompatibility": "native-redesigned-tab-bar"' "$CASE_DIR/output/receipt.json"
 assert_contains '"bitcoinSupportContract": "bip84-mainnet-v1"' "$CASE_DIR/output/receipt.json"
+assert_contains '"tairaTestnetSupportContract": "iroha3-taira-read-only-v1"' "$CASE_DIR/output/receipt.json"
 assert_contains '"minimumOSVersion": "15.0"' "$CASE_DIR/output/receipt.json"
 assert_contains '"dSYMContract": "exact-uuid-upload-coverage"' "$CASE_DIR/output/receipt.json"
 assert_contains '"sourceLineCoverage": "not-asserted"' "$CASE_DIR/output/receipt.json"
@@ -392,6 +394,16 @@ prepare_case wrong-bitcoin-support-contract
 mutate_plist "$APP/Info.plist" \
   'value["FearlessBitcoinSupportContract"] = "engine-only"'
 expect_failure wrong-bitcoin-support-contract "does not attest the reviewed native Bitcoin support contract"
+
+prepare_case missing-taira-support-contract
+mutate_plist "$APP/Info.plist" \
+  'del value["FearlessTairaTestnetSupportContract"]'
+expect_failure missing-taira-support-contract "lacks the Taira Testnet read-only support contract"
+
+prepare_case wrong-taira-support-contract
+mutate_plist "$APP/Info.plist" \
+  'value["FearlessTairaTestnetSupportContract"] = "send-enabled"'
+expect_failure wrong-taira-support-contract "does not attest the reviewed Taira Testnet read-only support contract"
 
 prepare_case enabled-ui-design-compatibility
 mutate_plist "$APP/Info.plist" \

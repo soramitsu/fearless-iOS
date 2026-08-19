@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "platform": "ios",
-  "assessedAt": "2026-07-11",
+  "assessedAt": "2026-08-19",
   "status": "blocked",
   "releaseEnabled": false,
   "nexusEnabledByDefault": false,
@@ -69,10 +69,14 @@
     "routeLabelCurrentlyPassedAsSigningChainId": true,
     "protocolChainIdMapping": "not-authoritatively-confirmed",
     "fixtureAssetDefinitionId": "61CtjvNd9T3THAR65GsMVHr82Bjc",
-    "liveTairaNativeXorDefinitionId": "6TEAJqbb8oEPmLncoNiMRbLEK6tw",
+    "liveTairaNativeXorDefinitionId": "61CtjvNd9T3THAR65GsMVHr82Bjc",
     "liveTairaNativeXorScale": 9,
-    "liveTairaNativeXorAliasPresent": false,
-    "canonicalAssetMapping": "drifted-authoritative-live-registry-required",
+    "liveTairaNativeXorAliasPresent": true,
+    "liveTairaNativeXorAlias": "xor#sora.universal",
+    "liveTairaAlternateXorDefinitionId": "6TEAJqbb8oEPmLncoNiMRbLEK6tw",
+    "liveTairaAlternateXorAlias": "xor#universal",
+    "liveTairaAlternateXorScale": null,
+    "canonicalAssetMapping": "current-live-canonical-with-dynamic-alternate-discovery",
     "authoritativeFeePolicy": "absent",
     "currentFeeEstimate": "hardcoded-zero",
     "liveTairaNodeVersion": "2.0.0-rc.2.0",
@@ -99,14 +103,14 @@
   "blocker": {
     "code": "apple_xcframework_review_and_materialization_required",
     "defaultSigner": "UnavailableIrohaTransferSigner",
-    "reason": "Archive structure and the aligned iOS 15 minimum passed, but the official tag is not directly resolvable or compilable, published slice hashes disagree with tagged Swift expectations, canonical transaction parity is stale, binary provenance is incomplete, and authoritative protocol chain, asset, fee, secret-lifecycle, receipt-integrity, deployed-version compatibility, and funded live evidence gates remain open."
+    "reason": "Archive structure and the aligned iOS 15 minimum passed, but the official tag is not directly resolvable or compilable, published slice hashes disagree with tagged Swift expectations, canonical transaction parity is stale, binary provenance is incomplete, and authoritative protocol chain, fee, secret-lifecycle, receipt-integrity, deployed-version compatibility, and funded live evidence gates remain open."
   },
   "exitCriteria": [
     "publish-a-directly-resolvable-and-compiling-checksum-pinned-swift-package",
     "publish-source-matched-slice-digests-sbom-license-provenance-and-attestation",
     "publish-and-review-canonical-compact-swift-transaction-parity",
     "authoritatively-map-route-label-to-protocol-chain-id",
-    "resolve-live-canonical-asset-scale-and-fee-policy-without-hardcoded-fixture-ids",
+    "validate-live-asset-identity-at-use-and-resolve-authoritative-fee-policy",
     "replace-string-secret-passing-with-a-reviewed-minimal-lifetime-secret-boundary",
     "compare-local-and-torii-transaction-hashes-and-prove-accepted-and-finalized-status",
     "prove-sdk-to-deployed-node-wire-and-hash-compatibility",

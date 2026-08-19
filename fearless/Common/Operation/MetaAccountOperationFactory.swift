@@ -289,6 +289,16 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 cryptoType: CryptoType.ecdsa.rawValue,
                 ethereumBased: false
             )
+            let tairaAccount = try IrohaKeyDerivation.deriveAccount(
+                mnemonic: request.mnemonic.toString()
+            )
+            let tairaChainAccount = ChainAccountModel(
+                chainId: UniversalWalletRegistry.taira.chainId,
+                accountId: tairaAccount.publicKey,
+                publicKey: tairaAccount.publicKey,
+                cryptoType: CryptoType.ed25519.rawValue,
+                ethereumBased: false
+            )
 
             let metaAccount = try createMetaAccount(
                 name: request.username,
@@ -297,7 +307,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 ethereumPublicKey: ethereumQuery.publicKey,
                 isBackuped: isBackuped,
                 defaultChainId: request.defaultChainId,
-                chainAccounts: [bitcoinChainAccount]
+                chainAccounts: [bitcoinChainAccount, tairaChainAccount]
             )
 
             let metaId = metaAccount.metaId
@@ -488,6 +498,36 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 return updatedWallet
             }
 
+            if UniversalWalletChainAccountSupport.chainId(
+                request.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            ) {
+                let updatedWallet = try UniversalWalletAccountProvisioning.addingTairaTestnetAccount(
+                    to: request.meta,
+                    mnemonic: request.mnemonic.toString()
+                )
+                guard let tairaAccount = updatedWallet.chainAccounts.first(where: {
+                    UniversalWalletChainAccountSupport.chainId(
+                        $0.chainId,
+                        matches: UniversalWalletRegistry.taira.chainId
+                    )
+                }) else {
+                    throw AccountOperationFactoryError.unsupportedNetwork
+                }
+                if let existingAccount = request.meta.chainAccounts.first(where: {
+                    UniversalWalletChainAccountSupport.isValidTairaAccount($0)
+                }), existingAccount.publicKey != tairaAccount.publicKey {
+                    throw AccountCreateError.duplicated
+                }
+
+                try saveEntropy(
+                    request.mnemonic.entropy(),
+                    metaId: request.meta.metaId,
+                    accountId: tairaAccount.accountId
+                )
+                return updatedWallet
+            }
+
             let query = try getQuery(
                 seedSource: .mnemonic(request.mnemonic),
                 derivationPath: request.derivationPath,
@@ -530,6 +570,13 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
 
     func importChainAccountOperation(request: ChainAccountImportSeedRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
+            guard !UniversalWalletChainAccountSupport.chainId(
+                request.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            ) else {
+                throw AccountOperationFactoryError.unsupportedNetwork
+            }
+
             let seed = try Data(hexStringSSF: request.seed)
             let query = try getQuery(
                 seedSource: .seed(seed),
@@ -571,6 +618,13 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
 
     func importChainAccountOperation(request: ChainAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
+            guard !UniversalWalletChainAccountSupport.chainId(
+                request.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            ) else {
+                throw AccountOperationFactoryError.unsupportedNetwork
+            }
+
             let keystoreExtractor = KeystoreExtractor()
 
             guard let data = request.keystore.data(using: .utf8) else {

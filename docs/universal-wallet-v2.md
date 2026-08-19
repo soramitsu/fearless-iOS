@@ -1,7 +1,7 @@
 # Universal Wallet V2 Contract
 
-Status: implementation contract for the Bitcoin, Solana, TON, and SORA Nexus
-workstreams.
+Status: implementation contract for the Bitcoin, Solana, TON, Taira Testnet,
+and SORA Nexus workstreams.
 
 ## Goals
 
@@ -167,7 +167,18 @@ endpoints, never a public indexer endpoint.
 - `si.soramitsu.io` is read-only. Transaction simulation and broadcast use the
   configured Solana RPC endpoint directly.
 - Taira testnet is enabled with I105 chain discriminant `369`, Torii root
-  `https://taira.sora.org`, and chain id `iroha3-taira`.
+  `https://taira.sora.org`, and chain id `iroha3-taira`. iOS persists it as an
+  app-owned enabled testnet chain until the shared registry publishes an Iroha
+  row. Existing root-mnemonic wallets are provisioned with the canonical
+  Ed25519 I105 account; safe recovery is mnemonic-only. The current canonical
+  XOR definition is `61CtjvNd9T3THAR65GsMVHr82Bjc`, alias
+  `xor#sora.universal`, at precision `9`, while held alternates remain eligible
+  for dynamic discovery.
+- Taira iOS support is read-only for release purposes: network/asset display,
+  Torii balance refresh, history routing, and a valid I105 receive address are
+  available, but Send is hidden and rejected before account, cache, signer, or
+  transport construction. Local derivation does not register or fund an I105
+  account on-chain.
 - Nexus mainnet uses I105 chain discriminant `753` and chain id
   `sora:nexus:global`, but remains registry-gated until the
   production Torii/TLS endpoint is confirmed.

@@ -111,6 +111,30 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
 
     // MARK: - Private methods
 
+    private func isAccountlessAppOwnedChain(
+        _ chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) -> Bool {
+        guard wallet.fetch(for: chainAsset.chain.accountRequest()) == nil,
+              chainAsset.asset.isUtility else {
+            return false
+        }
+
+        return UniversalWalletRegistry.bitcoinNetwork(for: chainAsset.chain.chainId) ==
+            UniversalWalletRegistry.bitcoinMainnet ||
+            UniversalWalletChainAccountSupport.chainId(
+                chainAsset.chain.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            )
+    }
+
+    private func isTaira(_ chain: ChainModel) -> Bool {
+        UniversalWalletChainAccountSupport.chainId(
+            chain.chainId,
+            matches: UniversalWalletRegistry.taira.chainId
+        )
+    }
+
     private func portfolioAssets(
         from chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
@@ -126,12 +150,10 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             }
 
             guard let account = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
-                // Keep the app-owned Bitcoin utility asset discoverable while
-                // this wallet still needs its BIP-84 account. Row actions are
+                // Keep app-owned utility assets discoverable while this wallet
+                // still needs its ecosystem-specific account. Row actions are
                 // routed to the dedicated mnemonic import flow by the presenter.
-                return UniversalWalletRegistry.bitcoinNetwork(for: chainAsset.chain.chainId) ==
-                    UniversalWalletRegistry.bitcoinMainnet &&
-                    chainAsset.asset.isUtility
+                return isAccountlessAppOwnedChain(chainAsset, wallet: wallet)
             }
 
             let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: account.accountId)] ?? nil
@@ -234,7 +256,10 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 kind: .assets,
                 networkName: chain.name,
                 ecosystemName: ecosystemName(for: chain),
-                address: wallet.fetch(for: chain.accountRequest())?.toAddress(),
+                address: UniversalWalletAccountAddressResolver.address(
+                    for: chain,
+                    wallet: wallet
+                ) ?? wallet.fetch(for: chain.accountRequest())?.toAddress(),
                 fiatSubtotal: formattedSubtotal,
                 syncStatus: scanState.displayText,
                 detectedCount: detectedCells.count,
@@ -303,9 +328,9 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         switch displayType {
         case .chain:
             if chainAssets.count == 1,
-               let chain = chainAssets.first?.chain,
-               UniversalWalletRegistry.bitcoinNetwork(for: chain.chainId) != nil,
-               wallet.fetch(for: chain.accountRequest()) == nil {
+               let chainAsset = chainAssets.first,
+               isAccountlessAppOwnedChain(chainAsset, wallet: wallet) {
+                let chain = chainAsset.chain
                 return .chainHasAccountIssue(chain: chain)
             }
             if cells.isEmpty {
@@ -408,9 +433,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             }
         }
 
-        if UniversalWalletRegistry.bitcoinNetwork(for: chainAsset.chain.chainId) ==
-            UniversalWalletRegistry.bitcoinMainnet,
-            wallet.fetch(for: chainAsset.chain.accountRequest()) == nil {
+        if isAccountlessAppOwnedChain(chainAsset, wallet: wallet) {
             // Account setup is actionable, not a balance request in flight.
             isColdBoot = false
         }
@@ -439,7 +462,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             isColdBoot: isColdBoot,
             locale: locale,
             hideButtonIsVisible: displayType == AssetListDisplayType.chain || metadataTrust.trust != .verified,
-            swipeActionsEnabled: wallet.fetch(for: chainAsset.chain.accountRequest()) != nil
+            swipeActionsEnabled: wallet.fetch(for: chainAsset.chain.accountRequest()) != nil &&
+                !isTaira(chainAsset.chain)
         )
 
         return viewModel

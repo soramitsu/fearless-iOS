@@ -110,11 +110,13 @@ transaction chain identifier; an authoritative mapping is required before any
 signer can be enabled.
 
 The tag fixture uses asset definition `61CtjvNd9T3THAR65GsMVHr82Bjc`. A live
-2026-07-11 Taira read instead reported native XOR as
-`6TEAJqbb8oEPmLncoNiMRbLEK6tw`, scale `9`, with no alias. The wallet currently
-returns a hard-coded zero fee. Production must resolve the canonical asset,
-precision, and authoritative fee policy from reviewed live registry data; it
-must not hard-code either fixture or observed identifier as timeless truth.
+2026-08-19 Taira inventory now reports that same definition as the canonical
+`xor#sora.universal` asset at scale `9`. It also reports
+`6TEAJqbb8oEPmLncoNiMRbLEK6tw` as `xor#universal` without authoritative scale
+metadata. The read-only wallet catalog pins the current canonical definition
+and dynamically discovers held alternates. The unreachable send seam still
+returns a hard-coded zero fee, so production Send must validate live asset
+identity at use and resolve an authoritative fee policy before enablement.
 
 The deployed Taira node reported version `2.0.0-rc.2.0` at commit
 `039af2d65e10b773be5031ab8fc07cf27b40e30d`, while the SDK tag is commit

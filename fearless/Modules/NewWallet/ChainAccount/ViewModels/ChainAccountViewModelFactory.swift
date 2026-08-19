@@ -35,6 +35,13 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
         }
         let allAssets = Array(chainAsset.chain.assets)
         let chainAssetModel = allAssets.first(where: { $0.id == chainAsset.asset.id })
+        let sendButtonVisible = !UniversalWalletChainAccountSupport.chainId(
+            chainAsset.chain.chainId,
+            matches: UniversalWalletRegistry.taira.chainId
+        ) && !UniversalWalletChainAccountSupport.chainId(
+            chainAsset.chain.chainId,
+            matches: UniversalWalletRegistry.nexus.chainId
+        )
         // Legacy purchaseProviders no longer available; hide Buy button by default
         let buyButtonVisible = false
         let polkaswapButtonVisible = chainAsset.chain.options?.contains(.polkaswap) == true
@@ -49,6 +56,7 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
             selectedChainIcon: chainAsset.chain.icon.map { RemoteImageViewModel(url: $0) },
             address: address,
             assetModel: chainAssetModel,
+            sendButtonVisible: sendButtonVisible,
             buyButtonVisible: buyButtonVisible,
             polkaswapButtonVisible: polkaswapButtonVisible,
             xcmButtomVisible: xcmButtomVisible,

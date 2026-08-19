@@ -49,7 +49,19 @@ extension ChainAccountResponse {
 extension MetaAccountModel {
     func fetch(for request: ChainAccountRequest) -> ChainAccountResponse? {
         if let chainAccount = chainAccounts.first(where: {
-            UniversalWalletChainAccountSupport.chainId($0.chainId, matches: request.chainId)
+            guard UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: request.chainId
+            ) else {
+                return false
+            }
+            if UniversalWalletChainAccountSupport.chainId(
+                request.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            ) {
+                return UniversalWalletChainAccountSupport.isValidTairaAccount($0)
+            }
+            return true
         }) {
             guard let cryptoType = CryptoType(rawValue: chainAccount.cryptoType) else {
                 return nil

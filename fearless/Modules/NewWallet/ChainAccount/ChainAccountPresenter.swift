@@ -217,6 +217,16 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     }
 
     func didTapSendButton() {
+        guard !UniversalWalletChainAccountSupport.chainId(
+            chainAsset.chain.chainId,
+            matches: UniversalWalletRegistry.taira.chainId
+        ), !UniversalWalletChainAccountSupport.chainId(
+            chainAsset.chain.chainId,
+            matches: UniversalWalletRegistry.nexus.chainId
+        ) else {
+            return
+        }
+
         wireframe.presentSendFlow(
             from: view,
             chainAsset: chainAsset,

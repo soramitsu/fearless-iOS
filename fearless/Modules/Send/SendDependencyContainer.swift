@@ -29,6 +29,7 @@ struct SendDependencies {
 enum UniversalWalletSendRoutingError: Error, Equatable {
     case unsupported(chainId: String)
     case tonProductionSendDisabled
+    case irohaProductionSendDisabled
 }
 
 /// Native TON routing remains disabled in production until funded mainnet evidence is recorded.
@@ -115,6 +116,9 @@ final class SendDepencyContainer {
         // transport construction. Release builds have no initializer capable of enabling it.
         if chainAsset.chain.isTonCompatibilityChain, !tonSendReleasePolicy.isEnabled {
             throw UniversalWalletSendRoutingError.tonProductionSendDisabled
+        }
+        if isUniversalWalletIroha(chainAsset.chain) {
+            throw UniversalWalletSendRoutingError.irohaProductionSendDisabled
         }
 
         guard let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {

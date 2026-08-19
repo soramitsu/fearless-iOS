@@ -5,7 +5,19 @@ enum UniversalWalletAccountAddressResolver {
     static func address(for chain: ChainModel, wallet: MetaAccountModel) -> AccountAddress? {
         if UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) {
             guard let account = wallet.chainAccounts.first(where: {
-                UniversalWalletChainAccountSupport.chainId($0.chainId, matches: chain.chainId)
+                guard UniversalWalletChainAccountSupport.chainId(
+                    $0.chainId,
+                    matches: chain.chainId
+                ) else {
+                    return false
+                }
+                if UniversalWalletChainAccountSupport.chainId(
+                    chain.chainId,
+                    matches: UniversalWalletRegistry.taira.chainId
+                ) {
+                    return UniversalWalletChainAccountSupport.isValidTairaAccount($0)
+                }
+                return true
             }) else {
                 return nil
             }
@@ -21,6 +33,18 @@ enum UniversalWalletAccountAddressResolver {
 }
 
 enum UniversalWalletChainAccountSupport {
+    static func isValidTairaAccount(_ account: ChainAccountModel) -> Bool {
+        chainId(account.chainId, matches: UniversalWalletRegistry.taira.chainId) &&
+            account.cryptoType == CryptoType.ed25519.rawValue &&
+            !account.ethereumBased &&
+            account.accountId == account.publicKey &&
+            account.publicKey.count == 32 &&
+            address(
+                for: UniversalWalletRegistry.taira.chainId,
+                publicKey: account.publicKey
+            ) != nil
+    }
+
     static func isUniversalWalletChain(_ chainId: String) -> Bool {
         equivalentChainIds(for: chainId) != nil
     }

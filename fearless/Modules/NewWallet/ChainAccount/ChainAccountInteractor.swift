@@ -87,7 +87,9 @@ final class ChainAccountInteractor {
     }
 
     private func fetchChainAssetBasedData() {
-        if UniversalWalletRegistry.bitcoinNetwork(for: chainAsset.chain.chainId) != nil {
+        if UniversalWalletChainAccountSupport.isUniversalWalletChain(
+            chainAsset.chain.chainId
+        ) {
             fetchUniversalChainAssetData()
             return
         }

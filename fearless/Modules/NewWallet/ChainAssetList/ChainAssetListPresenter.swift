@@ -74,10 +74,10 @@ final class ChainAssetListPresenter {
     private func showMissingAccountOptions(chain: ChainModel) {
         let unused = (wallet.unusedChainIds ?? []).contains(chain.chainId)
         let options: [MissingAccountOption?]
-        if UniversalWalletRegistry.bitcoinNetwork(for: chain.chainId) != nil {
-            // Bitcoin must use the BIP-84 universal-wallet signer. The generic
-            // create/seed/keystore routes would save a Substrate key under a
-            // Bitcoin chain identifier and leave the account unsignable.
+        if requiresDedicatedUniversalAccount(for: chain) {
+            // Bitcoin and Taira use ecosystem-specific universal-wallet keys.
+            // Generic create/seed/keystore routes would store a Substrate key
+            // under their chain identifiers and leave the accounts unusable.
             options = [.import]
         } else {
             options = [.create, .import, unused ? nil : .skip]
@@ -118,6 +118,26 @@ final class ChainAssetListPresenter {
             actions: actions
         )
     }
+
+    private func requiresDedicatedUniversalAccount(for chain: ChainModel) -> Bool {
+        UniversalWalletRegistry.bitcoinNetwork(for: chain.chainId) != nil ||
+            UniversalWalletChainAccountSupport.chainId(
+                chain.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            )
+    }
+
+    private func isAccountMissing(for chain: ChainModel) -> Bool {
+        requiresDedicatedUniversalAccount(for: chain) &&
+            wallet.fetch(for: chain.accountRequest()) == nil
+    }
+
+    private func isTaira(_ chain: ChainModel) -> Bool {
+        UniversalWalletChainAccountSupport.chainId(
+            chain.chainId,
+            matches: UniversalWalletRegistry.taira.chainId
+        )
+    }
 }
 
 // MARK: - ChainAssetListViewOutput
@@ -129,9 +149,7 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     }
 
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
-        if UniversalWalletRegistry.bitcoinNetwork(for: viewModel.chainAsset.chain.chainId) ==
-            UniversalWalletRegistry.bitcoinMainnet,
-            wallet.fetch(for: viewModel.chainAsset.chain.accountRequest()) == nil {
+        if isAccountMissing(for: viewModel.chainAsset.chain) {
             showMissingAccountOptions(chain: viewModel.chainAsset.chain)
             return
         }
@@ -164,15 +182,18 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     }
 
     func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel) {
-        if UniversalWalletRegistry.bitcoinNetwork(for: viewModel.chainAsset.chain.chainId) ==
-            UniversalWalletRegistry.bitcoinMainnet,
-            wallet.fetch(for: viewModel.chainAsset.chain.accountRequest()) == nil {
+        if isAccountMissing(for: viewModel.chainAsset.chain) {
             showMissingAccountOptions(chain: viewModel.chainAsset.chain)
             return
         }
 
         switch actionType {
         case .send:
+            guard !isTaira(viewModel.chainAsset.chain) else {
+                // Taira remains receive/read-only until the audited Iroha
+                // signing and fee-readiness gate is explicitly enabled.
+                return
+            }
             router.showSendFlow(
                 from: view,
                 chainAsset: viewModel.chainAsset,

@@ -18,8 +18,15 @@ from typing import Any
 
 EXPECTED_BUNDLE_ID = "jp.co.soramitsu.fearlesswallet"
 EXPECTED_VERSION = "4.2.0"
-EXPECTED_BUILD = "2026.8.21"
-EXPECTED_PREVIOUS_BUILDS = ("2026.8.15", "2026.8.17", "2026.8.18", "2026.8.19", "2026.8.20")
+EXPECTED_BUILD = "2026.8.22"
+EXPECTED_PREVIOUS_BUILDS = (
+    "2026.8.15",
+    "2026.8.17",
+    "2026.8.18",
+    "2026.8.19",
+    "2026.8.20",
+    "2026.8.21",
+)
 EXPECTED_BASE_SOURCE_COMMIT = "2e45e55dc03ad904598e730cfb5994fb5c1072dc"
 MINIMUM_USABILITY_SECONDS = 300
 WALL_CLOCK_ROUNDING_TOLERANCE_MILLISECONDS = 1000
@@ -49,6 +56,14 @@ BITCOIN_ATTESTATIONS = (
     "bitcoinReceiveAddressWorked",
     "bitcoinSendFeeQuoteWorked",
     "bitcoinSigningReady",
+)
+TAIRA_ATTESTATIONS = (
+    "tairaTestnetVisible",
+    "tairaXorAssetVisible",
+    "tairaExistingWalletAccountProvisioned",
+    "tairaBalanceRefreshWorked",
+    "tairaReceiveAddressVisibleAndValid",
+    "tairaSendUnavailable",
 )
 CAPTURE_RECEIPT_KEYS = {
     "schemaVersion",
@@ -503,7 +518,7 @@ def validate(
     )
     require(
         installation.get("previousBuildVersion") in EXPECTED_PREVIOUS_BUILDS,
-        "installation must update in place from supported predecessor build 2026.8.15, 2026.8.17, 2026.8.18, 2026.8.19, or 2026.8.20",
+        "installation must update in place from supported predecessor build 2026.8.15, 2026.8.17, 2026.8.18, 2026.8.19, 2026.8.20, or 2026.8.21",
     )
     require_true(installation, "installedInPlace")
     require_true(installation, "originalAppStoreContainerPreserved")
@@ -527,6 +542,7 @@ def validate(
             PI_PRICE_ATTESTATION,
             *POLKASWAP_ATTESTATIONS,
             *BITCOIN_ATTESTATIONS,
+            *TAIRA_ATTESTATIONS,
             "captureReceiptSHA256",
         },
         "firstLaunch",
@@ -579,6 +595,8 @@ def validate(
         require_true(first_launch, key)
     for key in BITCOIN_ATTESTATIONS:
         require_true(first_launch, key)
+    for key in TAIRA_ATTESTATIONS:
+        require_true(first_launch, key)
     require(
         first_launch.get("readyMarkerCount")
         == first_capture_receipt.get("readyMarkerCount"),
@@ -628,6 +646,7 @@ def validate(
             PI_PRICE_ATTESTATION,
             *POLKASWAP_ATTESTATIONS,
             *BITCOIN_ATTESTATIONS,
+            *TAIRA_ATTESTATIONS,
             "captureReceiptSHA256",
         },
         "secondColdLaunch",
@@ -673,6 +692,8 @@ def validate(
     for key in POLKASWAP_ATTESTATIONS:
         require_true(second_launch, key)
     for key in BITCOIN_ATTESTATIONS:
+        require_true(second_launch, key)
+    for key in TAIRA_ATTESTATIONS:
         require_true(second_launch, key)
     require(
         second_launch.get("readyMarkerCount")

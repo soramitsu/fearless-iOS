@@ -12,7 +12,7 @@ TRANSFER_TEST="$ROOT_DIR/fearlessTests/ApplicationLayer/Services/FeatureToggle/T
 REGISTRY="$ROOT_DIR/fearless/Common/Model/UniversalWalletRegistry.swift"
 PROJECT="$ROOT_DIR/fearless.xcodeproj/project.pbxproj"
 PODFILE="$ROOT_DIR/Podfile"
-EXPECTED_MANIFEST_SHA256="d027088dfafe4b4595573c92db880830ccef49eee3320678fbdbdeb529d0869b"
+EXPECTED_MANIFEST_SHA256="0bbd2155140ea374ffdebe40453f7dd88b99d742de5f4bd64834ccc92fb359b1"
 
 fail() {
   echo "[iroha-send-readiness][ios][error] $*" >&2
@@ -83,7 +83,7 @@ exactKeys(manifest, [
 ], 'top-level manifest');
 assert(manifest.schemaVersion === 2, 'schemaVersion must be 2');
 assert(manifest.platform === 'ios', 'platform must be ios');
-assert(manifest.assessedAt === '2026-07-11', 'assessment date drifted');
+assert(manifest.assessedAt === '2026-08-19', 'assessment date drifted');
 assert(manifest.status === 'blocked', 'status must remain blocked');
 assert(manifest.releaseEnabled === false, 'releaseEnabled must remain false');
 assert(manifest.nexusEnabledByDefault === false, 'Nexus must remain disabled by default');
@@ -160,11 +160,15 @@ assert(network?.routeLabel === 'iroha3-taira', 'Taira route label drifted');
 assert(network?.routeLabelCurrentlyPassedAsSigningChainId === true, 'route-label/signing-chain ambiguity must remain explicit');
 assert(network?.protocolChainIdMapping === 'not-authoritatively-confirmed', 'protocol chain ID mapping must remain blocked');
 assert(network?.fixtureAssetDefinitionId === '61CtjvNd9T3THAR65GsMVHr82Bjc', 'fixture asset definition drifted');
-assert(network?.liveTairaNativeXorDefinitionId === '6TEAJqbb8oEPmLncoNiMRbLEK6tw', 'live Taira XOR definition drifted');
-assert(network.fixtureAssetDefinitionId !== network.liveTairaNativeXorDefinitionId, 'fixture/live asset drift must remain explicit');
+assert(network?.liveTairaNativeXorDefinitionId === '61CtjvNd9T3THAR65GsMVHr82Bjc', 'live Taira XOR definition drifted');
+assert(network.fixtureAssetDefinitionId === network.liveTairaNativeXorDefinitionId, 'fixture/live canonical asset alignment drifted');
 assert(network?.liveTairaNativeXorScale === 9, 'live Taira XOR scale drifted');
-assert(network?.liveTairaNativeXorAliasPresent === false, 'live Taira alias absence drifted');
-assert(network?.canonicalAssetMapping === 'drifted-authoritative-live-registry-required', 'canonical asset mapping blocker drifted');
+assert(network?.liveTairaNativeXorAliasPresent === true, 'live Taira alias presence drifted');
+assert(network?.liveTairaNativeXorAlias === 'xor#sora.universal', 'live Taira canonical alias drifted');
+assert(network?.liveTairaAlternateXorDefinitionId === '6TEAJqbb8oEPmLncoNiMRbLEK6tw', 'live Taira alternate XOR definition drifted');
+assert(network?.liveTairaAlternateXorAlias === 'xor#universal', 'live Taira alternate XOR alias drifted');
+assert(network?.liveTairaAlternateXorScale === null, 'live Taira alternate XOR scale must remain unknown');
+assert(network?.canonicalAssetMapping === 'current-live-canonical-with-dynamic-alternate-discovery', 'canonical asset mapping evidence drifted');
 assert(network?.authoritativeFeePolicy === 'absent', 'authoritative fee policy must remain blocked');
 assert(network?.currentFeeEstimate === 'hardcoded-zero', 'current zero-fee behavior must remain explicit');
 assert(network?.liveTairaNodeVersion === '2.0.0-rc.2.0', 'live Taira node version drifted');
@@ -246,12 +250,21 @@ require_fixed "$TRANSFER_SERVICE" \
 require_fixed "$SEND_CONTAINER" \
   'return IrohaTransferService(wallet: wallet, chain: chainAsset.chain)' \
   "send container fail-closed construction"
+require_fixed "$SEND_CONTAINER" \
+  'case irohaProductionSendDisabled' \
+  "early Iroha production-disable error"
+require_fixed "$SEND_CONTAINER" \
+  'throw UniversalWalletSendRoutingError.irohaProductionSendDisabled' \
+  "early Iroha production-disable guard"
 require_fixed "$TRANSFER_TEST" \
   'func testIrohaTransferServiceDefaultSignerFailsClosedAfterValidation()' \
   "default signer fail-closed test"
 require_fixed "$TRANSFER_TEST" \
   'func testIrohaTransferServiceRejectsMnemonicMismatchBeforeSignerOrToriiCalls()' \
   "mnemonic/key mismatch adversarial test"
+require_fixed "$TRANSFER_TEST" \
+  'func testProductionSendDependenciesRejectIrohaBeforeServiceConstruction()' \
+  "early production Iroha send-disable test"
 for marker in \
   'func testIrohaNexusWalletSmokeEvidenceThreadsExactImmutableMetadataToSigner()' \
   'func testIrohaWalletSmokeMetadataSnapshotDoesNotAliasInputOrReturnedValues()' \
@@ -290,11 +303,24 @@ function fail(message) {
 }
 const routeChecks = container.match(/if isUniversalWalletIroha\(chainAsset[.]chain\) \{/g) ?? [];
 const serviceCalls = container.match(/\bIrohaTransferService\s*\(/g) ?? [];
+const expectedGuard = `if isUniversalWalletIroha(chainAsset.chain) {
+            throw UniversalWalletSendRoutingError.irohaProductionSendDisabled
+        }`;
 const expectedRoute = `if isUniversalWalletIroha(chainAsset.chain) {
             return IrohaTransferService(wallet: wallet, chain: chainAsset.chain)
         }`;
-if (routeChecks.length !== 1 || serviceCalls.length !== 1 || !container.includes(expectedRoute)) {
-  fail('send routing must contain exactly one audited fail-closed Iroha service construction');
+if (routeChecks.length !== 2 || serviceCalls.length !== 1 ||
+    !container.includes(expectedGuard) || !container.includes(expectedRoute)) {
+  fail('send routing must contain exactly one audited fail-closed Iroha service construction and one early disable guard');
+}
+const prepareStart = container.indexOf('func prepareDepencies(chainAsset: ChainAsset)');
+const guardIndex = container.indexOf(expectedGuard, prepareStart);
+const accountLookup = container.indexOf('guard let accountResponse = wallet.fetch(', prepareStart);
+const createStart = container.indexOf('private func createTransferService(', accountLookup);
+const routeIndex = container.indexOf(expectedRoute, createStart);
+if (prepareStart < 0 || guardIndex < prepareStart || accountLookup < 0 ||
+    guardIndex > accountLookup || createStart < accountLookup || routeIndex < createStart) {
+  fail('Iroha production-disable guard must precede account lookup and service construction');
 }
 
 const requestStart = transfer.indexOf('struct IrohaTransferSigningRequest: Equatable {');

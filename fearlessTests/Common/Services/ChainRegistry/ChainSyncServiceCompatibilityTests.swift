@@ -6,16 +6,21 @@ import SSFUtils
 @testable import fearless
 
 final class ChainSyncServiceCompatibilityTests: XCTestCase {
-    func testAppOwnedBitcoinChainIsAlwaysPresentAndOverridesRemoteCollision() throws {
+    func testAppOwnedUniversalChainsAreAlwaysPresentAndOverrideRemoteCollisions() throws {
         let remote = makeValidChain(generatingAssets: 1, addressPrefix: 42)
         let collidingBitcoin = copy(
             remote,
             chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
             name: "Untrusted Bitcoin replacement"
         )
+        let collidingTaira = copy(
+            remote,
+            chainId: UniversalWalletRegistry.taira.id,
+            name: "Untrusted Taira replacement"
+        )
 
         let merged = ChainSyncService.mergingAppOwnedProductionChains(
-            into: [remote, collidingBitcoin]
+            into: [remote, collidingBitcoin, collidingTaira]
         )
         let bitcoinRows = merged.filter {
             $0.chainId == UniversalWalletRegistry.bitcoinMainnet.chainId
@@ -28,6 +33,21 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
                 $0.chainId == UniversalWalletRegistry.bitcoinMainnet.chainId
             }),
             UniversalWalletRegistry.bitcoinMainnetChainModel
+        )
+        XCTAssertEqual(
+            merged.filter {
+                UniversalWalletChainAccountSupport.chainId(
+                    $0.chainId,
+                    matches: UniversalWalletRegistry.taira.chainId
+                )
+            },
+            [UniversalWalletRegistry.tairaChainModel]
+        )
+        XCTAssertEqual(
+            sanitized.first(where: {
+                $0.chainId == UniversalWalletRegistry.taira.chainId
+            }),
+            UniversalWalletRegistry.tairaChainModel
         )
         XCTAssertTrue(merged.contains(where: { $0.chainId == remote.chainId }))
     }
@@ -375,11 +395,11 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
         XCTAssertEqual(repository.replaceCallCount, 0)
         XCTAssertEqual(
             repository.savedModels,
-            [UniversalWalletRegistry.bitcoinMainnetChainModel]
+            UniversalWalletRegistry.appOwnedProductionChains
         )
         XCTAssertEqual(
             eventCenter.lastUpdatedChains,
-            [UniversalWalletRegistry.bitcoinMainnetChainModel]
+            UniversalWalletRegistry.appOwnedProductionChains
         )
         XCTAssertTrue(repository.deletedIdentifiers.isEmpty)
         XCTAssertEqual(eventCenter.failureCount, 1)

@@ -195,6 +195,7 @@ final class ChainAccountViewLayout: UIView {
 
     func bind(viewModel: ChainAccountViewModel) {
         walletNameTitle.text = viewModel.walletName
+        sendButton.isHidden = !viewModel.sendButtonVisible
         buyButton.isHidden = !viewModel.buyButtonVisible
         polkaswapButton.isHidden = !viewModel.polkaswapButtonVisible
         crossChainButton.isHidden = !viewModel.xcmButtomVisible

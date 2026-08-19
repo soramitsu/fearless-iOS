@@ -161,8 +161,10 @@ expect_manifest_failure "tag-parity" "transactionParity.officialTagParityStatus"
 expect_manifest_failure "local-correction" "transactionParity.localCompactCorrectionStatus" '"published-reviewed"' "local correction must not be release evidence"
 expect_manifest_failure "live-parity" "transactionParity.liveReceiptParity" '"passed"' "live receipt parity must remain blocked"
 expect_manifest_failure "protocol-chain" "networkReadiness.protocolChainIdMapping" '"same-as-route"' "protocol chain ID mapping must remain blocked"
-expect_manifest_failure "live-asset" "networkReadiness.liveTairaNativeXorDefinitionId" '"61CtjvNd9T3THAR65GsMVHr82Bjc"' "live Taira XOR definition drifted"
+expect_manifest_failure "live-asset" "networkReadiness.liveTairaNativeXorDefinitionId" '"00000000000000000000000000000000000000000000"' "live Taira XOR definition drifted"
 expect_manifest_failure "asset-scale" "networkReadiness.liveTairaNativeXorScale" '18' "live Taira XOR scale drifted"
+expect_manifest_failure "asset-alias" "networkReadiness.liveTairaNativeXorAlias" '"xor#wrong"' "live Taira canonical alias drifted"
+expect_manifest_failure "alternate-asset" "networkReadiness.liveTairaAlternateXorDefinitionId" '"00000000000000000000000000000000000000000000"' "live Taira alternate XOR definition drifted"
 expect_manifest_failure "fee-policy" "networkReadiness.authoritativeFeePolicy" '"zero"' "authoritative fee policy must remain blocked"
 expect_manifest_failure "node-version" "networkReadiness.liveTairaNodeVersion" '"2.0.0-rc.2.1"' "live Taira node version drifted"
 expect_manifest_failure "node-compatibility" "networkReadiness.sdkToDeployedNodeCompatibility" '"proven"' "SDK/deployed-node compatibility must remain blocked"
@@ -190,6 +192,26 @@ sed -i.bak 's/return IrohaTransferService(wallet: wallet, chain: chainAsset.chai
   "$fixture/fearless/Modules/Send/SendDependencyContainer.swift"
 rm -f "$fixture/fearless/Modules/Send/SendDependencyContainer.swift.bak"
 expect_failure "container injection" "$fixture" "send container fail-closed construction"
+
+fixture="$(new_fixture early-guard-removed)"
+sed -i.bak \
+  's/throw UniversalWalletSendRoutingError.irohaProductionSendDisabled/throw ChainAccountFetchingError.accountNotExists/' \
+  "$fixture/fearless/Modules/Send/SendDependencyContainer.swift"
+rm -f "$fixture/fearless/Modules/Send/SendDependencyContainer.swift.bak"
+expect_failure "early Iroha guard removed" "$fixture" "early Iroha production-disable guard"
+
+fixture="$(new_fixture early-guard-after-account-lookup)"
+perl -0pi -e \
+  's/(        if isUniversalWalletIroha\(chainAsset[.]chain\) \{\n            throw UniversalWalletSendRoutingError[.]irohaProductionSendDisabled\n        \}\n\n)(        guard let accountResponse = wallet[.]fetch\(for: chainAsset[.]chain[.]accountRequest\(\)\) else \{\n            throw ChainAccountFetchingError[.]accountNotExists\n        \}\n)/$2\n$1/' \
+  "$fixture/fearless/Modules/Send/SendDependencyContainer.swift"
+expect_failure "late Iroha guard" "$fixture" "Iroha production-disable guard must precede account lookup"
+
+fixture="$(new_fixture early-guard-test-removed)"
+sed -i.bak \
+  's/testProductionSendDependenciesRejectIrohaBeforeServiceConstruction/testProductionSendDependenciesRejectIroha/' \
+  "$fixture/fearlessTests/ApplicationLayer/Services/FeatureToggle/TonChainSelectionTests.swift"
+rm -f "$fixture/fearlessTests/ApplicationLayer/Services/FeatureToggle/TonChainSelectionTests.swift.bak"
+expect_failure "early Iroha guard test removed" "$fixture" "early production Iroha send-disable test"
 
 fixture="$(new_fixture duplicate-container-bypass)"
 perl -0pi -e \

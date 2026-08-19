@@ -119,6 +119,80 @@ final class ChainAssetListTests: XCTestCase {
         XCTAssertEqual(chain.chainId, UniversalWalletRegistry.bitcoinMainnet.chainId)
     }
 
+    func testProvisionedTairaAppearsAtZeroBalanceWithReceiveOnlyActions() throws {
+        let wallet = try UniversalWalletAccountProvisioning.addingTairaTestnetAccount(
+            to: AccountGenerator.generateMetaAccount(),
+            mnemonic: "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        )
+        let taira = try XCTUnwrap(UniversalWalletRegistry.tairaChainModel.chainAssets.first)
+
+        let viewModel = makeFactory().buildViewModel(
+            wallet: wallet,
+            chainAssets: [taira],
+            locale: Locale(identifier: "en_US"),
+            accountInfos: balances(wallet: wallet, values: [taira: 0]),
+            chainsWithIssue: [],
+            shouldRunManageAssetAnimate: false,
+            displayType: .assetChains,
+            chainSettings: [],
+            networkFilter: nil,
+            search: nil
+        )
+
+        let row = try XCTUnwrap(viewModel.displayState.rows.first)
+        XCTAssertEqual(row.chainAsset.assetKey, taira.assetKey)
+        XCTAssertEqual(row.chainAsset.asset.symbol, "XOR")
+        XCTAssertFalse(row.isColdBoot)
+        XCTAssertFalse(row.swipeActionsEnabled, "Taira Send must stay closed while receive remains in details")
+    }
+
+    func testAccountlessTairaIsDiscoverableAndOffersAccountSetup() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let taira = try XCTUnwrap(UniversalWalletRegistry.tairaChainModel.chainAssets.first)
+
+        let portfolio = makeFactory().buildViewModel(
+            wallet: wallet,
+            chainAssets: [taira],
+            locale: Locale(identifier: "en_US"),
+            accountInfos: [:],
+            chainsWithIssue: [],
+            shouldRunManageAssetAnimate: false,
+            displayType: .assetChains,
+            chainSettings: [],
+            networkFilter: nil,
+            search: nil
+        )
+        let filtered = makeFactory().buildViewModel(
+            wallet: wallet,
+            chainAssets: [taira],
+            locale: Locale(identifier: "en_US"),
+            accountInfos: [:],
+            chainsWithIssue: [],
+            shouldRunManageAssetAnimate: false,
+            displayType: .chain,
+            chainSettings: [],
+            networkFilter: .chain(taira.chain.chainId),
+            search: nil
+        )
+        let networkPicker = NetworkManagmentViewModelFactoryImpl().createViewModel(
+            wallet: wallet,
+            chains: [taira.chain],
+            selectedFilter: nil,
+            initialFilter: .all,
+            searchText: nil,
+            locale: Locale(identifier: "en_US")
+        )
+
+        XCTAssertEqual(portfolio.displayState.rows.map(\.chainAsset.assetKey), [taira.assetKey])
+        guard case let .chainHasAccountIssue(chain) = filtered.displayState else {
+            return XCTFail("Taira without an I105 account must offer account setup")
+        }
+        XCTAssertEqual(chain.chainId, UniversalWalletRegistry.taira.chainId)
+        XCTAssertTrue(networkPicker.cells.contains(where: {
+            $0.networkSelectType.identifier == UniversalWalletRegistry.taira.chainId
+        }))
+    }
+
     func testSameSymbolAssetsRemainSeparateByCanonicalIdentity() {
         let firstChain = makeChain(name: "Alpha")
         let secondChain = makeChain(name: "Beta")

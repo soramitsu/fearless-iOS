@@ -709,6 +709,40 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         XCTAssertEqual(balance.data.free, expectedBalance)
     }
 
+    func testProductionTairaCatalogMapsCanonicalXORAtLivePrecision() async throws {
+        let chain = UniversalWalletRegistry.tairaChainModel
+        let asset = try XCTUnwrap(chain.assets.first)
+        let wallet = try walletWithIrohaAccount(chainId: chain.chainId)
+        let address = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet)
+        )
+        let client = IrohaToriiClientStub(
+            accountAssetsResponse: IrohaAccountAssetListResponse(
+                items: [
+                    IrohaAccountAssetListItem(
+                        accountID: address,
+                        asset: UniversalWalletRegistry.tairaNativeXorAssetDefinitionId,
+                        assetID: UniversalWalletRegistry.tairaNativeXorAssetDefinitionId,
+                        assetName: "xor",
+                        assetAlias: UniversalWalletRegistry.tairaNativeXorAlias,
+                        quantity: "1.25",
+                        scope: "global"
+                    )
+                ],
+                hasMore: false,
+                countMode: IrohaToriiCountMode.bounded.rawValue,
+                total: 1
+            )
+        )
+        let service = makeAccountInfoRemoteService(irohaToriiClient: client)
+
+        let result = try await service.fetchAccountInfos(for: chain, wallet: wallet)
+
+        let balance = try XCTUnwrap(result[asset.chainAssetId(chainId: chain.chainId)] ?? nil)
+        XCTAssertEqual(asset.precision, 9)
+        XCTAssertEqual(balance.data.free, BigUInt(1_250_000_000))
+    }
+
     func testFetchAccountInfoReturnsSingleIrohaBalance() async throws {
         let chain = makeIrohaChain(
             chainId: UniversalWalletRegistry.taira.chainId,
@@ -2000,34 +2034,29 @@ final class SendDependencyContainerUniversalWalletRoutingTests: XCTestCase {
     }
     #endif
 
-    func testPrepareDependenciesCreatesIrohaTransferServiceForTairaAccount() async throws {
-        let chain = makeIrohaChain(chainId: UniversalWalletRegistry.taira.chainId)
-        let wallet = try walletWithIrohaAccount(chainId: chain.chainId)
-        let container = SendDepencyContainer(
-            wallet: wallet,
-            operationManager: fearless.OperationManagerFacade.sharedManager
-        )
+    func testProductionSendDependenciesRejectIrohaBeforeServiceConstruction() async throws {
+        for chainId in [
+            UniversalWalletRegistry.taira.chainId,
+            UniversalWalletRegistry.nexus.chainId
+        ] {
+            let chain = makeIrohaChain(chainId: chainId)
+            let wallet = AccountGenerator.generateMetaAccount()
+            let container = SendDepencyContainer(
+                wallet: wallet,
+                operationManager: fearless.OperationManagerFacade.sharedManager
+            )
 
-        let dependencies = try await container.prepareDepencies(
-            chainAsset: ChainAsset(chain: chain, asset: Self.irohaAsset)
-        )
-
-        XCTAssertTrue(dependencies.transferService is IrohaTransferService)
-    }
-
-    func testPrepareDependenciesCreatesIrohaTransferServiceForNexusAccount() async throws {
-        let chain = makeIrohaChain(chainId: UniversalWalletRegistry.nexus.chainId)
-        let wallet = try walletWithIrohaAccount(chainId: chain.chainId)
-        let container = SendDepencyContainer(
-            wallet: wallet,
-            operationManager: fearless.OperationManagerFacade.sharedManager
-        )
-
-        let dependencies = try await container.prepareDepencies(
-            chainAsset: ChainAsset(chain: chain, asset: Self.irohaAsset)
-        )
-
-        XCTAssertTrue(dependencies.transferService is IrohaTransferService)
+            do {
+                _ = try await container.prepareDepencies(
+                    chainAsset: ChainAsset(chain: chain, asset: Self.irohaAsset)
+                )
+                XCTFail("Expected Iroha send routing to remain disabled for \(chainId)")
+            } catch let error as UniversalWalletSendRoutingError {
+                XCTAssertEqual(error, .irohaProductionSendDisabled)
+            } catch {
+                XCTFail("Unexpected Iroha send-routing error: \(error)")
+            }
+        }
     }
 
     func testIrohaTransferServiceBuildsSignerRequestAndSubmitsNorito() async throws {

@@ -13,6 +13,7 @@ readonly EXPECTED_BUNDLE="jp.co.soramitsu.fearlesswallet"
 readonly EXPECTED_VERSION="4.2.0"
 readonly EXPECTED_MINIMUM_OS="15.0"
 readonly EXPECTED_BITCOIN_SUPPORT_CONTRACT="bip84-mainnet-v1"
+readonly EXPECTED_TAIRA_SUPPORT_CONTRACT="iroha3-taira-read-only-v1"
 readonly EXPECTED_APPLICATION_ID="${EXPECTED_TEAM}.${EXPECTED_BUNDLE}"
 readonly EXPECTED_ASSOCIATED_DOMAINS_JSON='["applinks:fearlesswallet.io","webcredentials:fearlesswallet.io"]'
 readonly EXPECTED_ICLOUD_CONTAINERS_JSON='["iCloud.jp.co.soramitsu.fearlesswallet"]'
@@ -341,6 +342,8 @@ testability="$(read_plist_string "$APP_INFO" FearlessEnableTestability)" ||
   fail "archived app lacks testability attestation"
 bitcoin_support_contract="$(read_plist_string "$APP_INFO" FearlessBitcoinSupportContract)" ||
   fail "archived app lacks the native Bitcoin support contract"
+taira_support_contract="$(read_plist_string "$APP_INFO" FearlessTairaTestnetSupportContract)" ||
+  fail "archived app lacks the Taira Testnet read-only support contract"
 executable_name="$(read_plist_string "$APP_INFO" CFBundleExecutable)" ||
   fail "archived app lacks CFBundleExecutable"
 require_plist_key_absent "$APP_INFO" UIDesignRequiresCompatibility ||
@@ -364,6 +367,8 @@ require_plist_key_absent "$APP_INFO" UIDesignRequiresCompatibility ||
   fail "archived app has testability enabled"
 [[ "$bitcoin_support_contract" == "$EXPECTED_BITCOIN_SUPPORT_CONTRACT" ]] ||
   fail "archived app does not attest the reviewed native Bitcoin support contract"
+[[ "$taira_support_contract" == "$EXPECTED_TAIRA_SUPPORT_CONTRACT" ]] ||
+  fail "archived app does not attest the reviewed Taira Testnet read-only support contract"
 [[ "$executable_name" =~ ^[A-Za-z0-9._-]+$ ]] ||
   fail "archived executable name is unsafe"
 
@@ -876,6 +881,7 @@ receipt_pending="${receipt}.pending.$$"
   "$build" \
   "$minimum_os" \
   "$bitcoin_support_contract" \
+  "$taira_support_contract" \
   "$actual_executable_sha" \
   "$actual_archive_sha" \
   "$EXPECTED_TEAM" \
@@ -903,6 +909,7 @@ import sys
     build,
     minimum_os,
     bitcoin_support_contract,
+    taira_support_contract,
     executable_sha,
     archive_sha,
     team,
@@ -928,6 +935,7 @@ payload = {
     "buildNumber": build,
     "minimumOSVersion": minimum_os,
     "bitcoinSupportContract": bitcoin_support_contract,
+    "tairaTestnetSupportContract": taira_support_contract,
     "developmentTeam": team,
     "executableSHA256": executable_sha.lower(),
     "archiveTreeSHA256": archive_sha.lower(),

@@ -140,12 +140,28 @@ final class AccountImportPresenter: NSObject {
 }
 
 private extension AccountImportPresenter {
-    var isBitcoinChainFlow: Bool {
+    var isDedicatedUniversalChainFlow: Bool {
         guard case let .chain(model) = flow else {
             return false
         }
 
-        return UniversalWalletRegistry.bitcoinNetwork(for: model.chain.chainId) != nil
+        return UniversalWalletRegistry.bitcoinNetwork(for: model.chain.chainId) != nil ||
+            UniversalWalletChainAccountSupport.chainId(
+                model.chain.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            )
+    }
+
+    var dedicatedUniversalCryptoType: CryptoType {
+        guard case let .chain(model) = flow,
+              UniversalWalletChainAccountSupport.chainId(
+                  model.chain.chainId,
+                  matches: UniversalWalletRegistry.taira.chainId
+              ) else {
+            return .ecdsa
+        }
+
+        return .ed25519
     }
 
     func applySourceType(
@@ -159,7 +175,7 @@ private extension AccountImportPresenter {
         switch flow {
         case let .chain(model):
             let chainType: AccountCreateChainType
-            if isBitcoinChainFlow {
+            if isDedicatedUniversalChainFlow {
                 chainType = .universal
             } else {
                 chainType = model.chain.isEthereumBased ? .ethereum : .substrate
@@ -167,7 +183,7 @@ private extension AccountImportPresenter {
             view?.setSource(
                 type: selectedSourceType,
                 chainType: chainType,
-                selectable: !isBitcoinChainFlow
+                selectable: !isDedicatedUniversalChainFlow
             )
         case let .wallet(step):
             switch step {
@@ -195,7 +211,7 @@ private extension AccountImportPresenter {
         }
         applyUsernameViewModel(username)
         applyPasswordViewModel()
-        if isBitcoinChainFlow {
+        if isDedicatedUniversalChainFlow {
             substrateDerivationPathViewModel = nil
             ethereumDerivationPathViewModel = nil
             view?.show(chainType: .universal)
@@ -972,12 +988,12 @@ private extension Optional where Wrapped == String {
 extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
     func didReceiveAccountImport(metadata: MetaAccountImportMetadata) {
         let effectiveMetadata: MetaAccountImportMetadata
-        if isBitcoinChainFlow {
+        if isDedicatedUniversalChainFlow {
             effectiveMetadata = MetaAccountImportMetadata(
                 availableSources: [.mnemonic],
                 defaultSource: .mnemonic,
-                availableCryptoTypes: [.ecdsa],
-                defaultCryptoType: .ecdsa
+                availableCryptoTypes: [dedicatedUniversalCryptoType],
+                defaultCryptoType: dedicatedUniversalCryptoType
             )
         } else {
             effectiveMetadata = metadata
