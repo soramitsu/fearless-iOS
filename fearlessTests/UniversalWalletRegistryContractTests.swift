@@ -95,7 +95,10 @@ final class UniversalWalletRegistryContractTests: XCTestCase {
         )
 
         let taira = try XCTUnwrap(registry.chains.first { $0.id == "taira-testnet" })
-        XCTAssertEqual(taira.features, ["transfer"])
+        XCTAssertEqual(taira.features, ["receive"])
+        XCTAssertEqual(taira.nativeAsset?.id, "6TEAJqbb8oEPmLncoNiMRbLEK6tw")
+        XCTAssertEqual(taira.nativeAsset?.symbol, "XOR")
+        XCTAssertEqual(taira.nativeAsset?.decimals, 28)
         XCTAssertTrue(
             taira.endpoints.contains {
                 $0.kind == .toriiMcp &&

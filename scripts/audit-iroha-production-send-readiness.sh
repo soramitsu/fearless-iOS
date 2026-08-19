@@ -12,7 +12,7 @@ TRANSFER_TEST="$ROOT_DIR/fearlessTests/ApplicationLayer/Services/FeatureToggle/T
 REGISTRY="$ROOT_DIR/fearless/Common/Model/UniversalWalletRegistry.swift"
 PROJECT="$ROOT_DIR/fearless.xcodeproj/project.pbxproj"
 PODFILE="$ROOT_DIR/Podfile"
-EXPECTED_MANIFEST_SHA256="0bbd2155140ea374ffdebe40453f7dd88b99d742de5f4bd64834ccc92fb359b1"
+EXPECTED_MANIFEST_SHA256="f8458b314d04af044cb099207d7d50e3a3a47a36d32f883d5c9dbf05d37b17e3"
 
 fail() {
   echo "[iroha-send-readiness][ios][error] $*" >&2
@@ -83,7 +83,7 @@ exactKeys(manifest, [
 ], 'top-level manifest');
 assert(manifest.schemaVersion === 2, 'schemaVersion must be 2');
 assert(manifest.platform === 'ios', 'platform must be ios');
-assert(manifest.assessedAt === '2026-08-19', 'assessment date drifted');
+assert(manifest.assessedAt === '2026-08-20', 'assessment date drifted');
 assert(manifest.status === 'blocked', 'status must remain blocked');
 assert(manifest.releaseEnabled === false, 'releaseEnabled must remain false');
 assert(manifest.nexusEnabledByDefault === false, 'Nexus must remain disabled by default');
@@ -159,16 +159,23 @@ const network = manifest.networkReadiness;
 assert(network?.routeLabel === 'iroha3-taira', 'Taira route label drifted');
 assert(network?.routeLabelCurrentlyPassedAsSigningChainId === true, 'route-label/signing-chain ambiguity must remain explicit');
 assert(network?.protocolChainIdMapping === 'not-authoritatively-confirmed', 'protocol chain ID mapping must remain blocked');
+assert(network?.readOnlyToriiRoot === 'https://taira.sora.org', 'read-only Taira Torii root drifted');
+assert(network?.readOnlySDKRepository === '../iroha', 'read-only SDK source repository drifted');
+assert(network?.readOnlySDKBranch === 'optimizations', 'read-only SDK source branch drifted');
+assert(network?.readOnlySDKCommit === 'd8544f1d4d3a73c4a17873250a483208c9aafc16', 'read-only SDK source commit drifted');
 assert(network?.fixtureAssetDefinitionId === '61CtjvNd9T3THAR65GsMVHr82Bjc', 'fixture asset definition drifted');
-assert(network?.liveTairaNativeXorDefinitionId === '61CtjvNd9T3THAR65GsMVHr82Bjc', 'live Taira XOR definition drifted');
-assert(network.fixtureAssetDefinitionId === network.liveTairaNativeXorDefinitionId, 'fixture/live canonical asset alignment drifted');
-assert(network?.liveTairaNativeXorScale === 9, 'live Taira XOR scale drifted');
+assert(network?.fixtureMatchesCanonicalTairaXor === false, 'send fixture must remain distinct from canonical Taira XOR');
+assert(network.fixtureAssetDefinitionId !== network.liveTairaNativeXorDefinitionId, 'send fixture unexpectedly aliases canonical Taira XOR');
+assert(network?.liveTairaNativeXorDefinitionId === '6TEAJqbb8oEPmLncoNiMRbLEK6tw', 'live Taira XOR definition drifted');
+assert(network?.liveTairaNativeXorNumericSpec === 'unconstrained', 'live Taira XOR NumericSpec drifted');
+assert(network?.liveTairaNativeXorScale === null, 'canonical Taira XOR must not invent a fixed scale');
+assert(network?.liveTairaNativeXorWalletAdapterPrecision === 28, 'Taira wallet adapter precision drifted');
 assert(network?.liveTairaNativeXorAliasPresent === true, 'live Taira alias presence drifted');
-assert(network?.liveTairaNativeXorAlias === 'xor#sora.universal', 'live Taira canonical alias drifted');
-assert(network?.liveTairaAlternateXorDefinitionId === '6TEAJqbb8oEPmLncoNiMRbLEK6tw', 'live Taira alternate XOR definition drifted');
-assert(network?.liveTairaAlternateXorAlias === 'xor#universal', 'live Taira alternate XOR alias drifted');
-assert(network?.liveTairaAlternateXorScale === null, 'live Taira alternate XOR scale must remain unknown');
-assert(network?.canonicalAssetMapping === 'current-live-canonical-with-dynamic-alternate-discovery', 'canonical asset mapping evidence drifted');
+assert(network?.liveTairaNativeXorAlias === 'xor#universal', 'live Taira canonical alias drifted');
+assert(network?.liveTairaAlternateXorDefinitionId === '61CtjvNd9T3THAR65GsMVHr82Bjc', 'live Taira distinct XOR definition drifted');
+assert(network?.liveTairaAlternateXorAlias === 'xor#sora.universal', 'live Taira distinct XOR alias drifted');
+assert(network?.liveTairaAlternateXorScale === 9, 'live Taira distinct XOR scale drifted');
+assert(network?.canonicalAssetMapping === 'optimizations-d8544f1d-xor-universal-unconstrained-wallet-adapter-28', 'canonical asset mapping evidence drifted');
 assert(network?.authoritativeFeePolicy === 'absent', 'authoritative fee policy must remain blocked');
 assert(network?.currentFeeEstimate === 'hardcoded-zero', 'current zero-fee behavior must remain explicit');
 assert(network?.liveTairaNodeVersion === '2.0.0-rc.2.0', 'live Taira node version drifted');
@@ -480,8 +487,13 @@ for marker in \
   'c072426bffe62e12fc6b94a0c37ecf4eb2a805965964ce999e5183bddc9a1ce7' \
   '6cc8aa66faa4b067c44831deaf225d8637ffd6daba05b11857b69a06a6b4279b' \
   'unpublished correction' \
+  'https://taira.sora.org' \
+  'd8544f1d4d3a73c4a17873250a483208c9aafc16' \
   '61CtjvNd9T3THAR65GsMVHr82Bjc' \
   '6TEAJqbb8oEPmLncoNiMRbLEK6tw' \
+  'xor#universal' \
+  'unconstrained' \
+  'precision `28`' \
   '039af2d65e10b773be5031ab8fc07cf27b40e30d' \
   'Swift `String`' \
   'Nexus wallet-smoke metadata boundary' \

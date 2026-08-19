@@ -6,6 +6,9 @@ import SSFUtils
 
 final class IrohaHistoryOperationFactory {
     static let paginationPageKey = "page"
+    static let tairaRawOffsetKey = "rawOffset"
+
+    private static let maximumTairaPagesPerRequest = 1000
 
     private let client: IrohaToriiClientProtocol
 
@@ -32,8 +35,15 @@ final class IrohaHistoryOperationFactory {
         filters.isEmpty || filters.contains { $0.type == .transfer && $0.selected }
     }
 
-    private func historyBaseURL(for chain: ChainModel) -> String? {
-        chain.externalApi?.history?.url.absoluteString
+    private func historyBaseURL(
+        for chain: ChainModel,
+        network: UniversalWalletRegistry.IrohaNetwork
+    ) -> String? {
+        if network == UniversalWalletRegistry.taira {
+            return network.toriiBaseURL?.absoluteString
+        }
+
+        return chain.externalApi?.history?.url.absoluteString ?? network.toriiBaseURL?.absoluteString
     }
 
     private func normalizedAddress(
@@ -74,10 +84,26 @@ final class IrohaHistoryOperationFactory {
         address: String,
         pagination: Pagination
     ) async throws -> AssetTransactionPageData {
+        let limit = min(pagination.count, IrohaToriiRoutes.maxLimit)
+        if network == UniversalWalletRegistry.taira {
+            let rawOffset = pagination.context?[Self.tairaRawOffsetKey]
+                .flatMap { Int64($0) }
+                .flatMap { $0 >= 0 ? $0 : nil } ?? 0
+            return try await fetchTairaHistoryPage(
+                client: client,
+                asset: asset,
+                network: network,
+                address: address,
+                rawOffset: rawOffset,
+                limit: limit,
+                baseURL: historyBaseURL(for: chain, network: network)
+            )
+        }
+
         let page = pagination.context?[Self.paginationPageKey]
             .flatMap { Int($0) }
             .flatMap { $0 >= 0 ? $0 : nil } ?? 0
-        let limit = min(pagination.count, IrohaToriiRoutes.maxLimit)
+
         let request = try IrohaToriiRoutes.mcpJSONRPCRequest(
             method: "tools/call",
             id: "history-\(page)",
@@ -97,7 +123,7 @@ final class IrohaHistoryOperationFactory {
         let response = try await client.mcpJSONRPC(
             request,
             network: network,
-            baseURL: historyBaseURL(for: chain)
+            baseURL: historyBaseURL(for: chain, network: network)
         )
 
         guard response.error == nil else {
@@ -111,6 +137,70 @@ final class IrohaHistoryOperationFactory {
         let nextContext = items.count >= limit ? [Self.paginationPageKey: String(page + 1)] : nil
 
         return AssetTransactionPageData(transactions: transactions, context: nextContext)
+    }
+
+    private func fetchTairaHistoryPage(
+        client: IrohaToriiClientProtocol,
+        asset: AssetModel,
+        network: UniversalWalletRegistry.IrohaNetwork,
+        address: String,
+        rawOffset: Int64,
+        limit: Int,
+        baseURL: String?
+    ) async throws -> AssetTransactionPageData {
+        var nextRawOffset = rawOffset
+        var transactions: [AssetTransactionData] = []
+        var pageFingerprints = Set<String>()
+
+        for _ in 0 ..< Self.maximumTairaPagesPerRequest {
+            let response = try await client.accountHistory(
+                accountID: address,
+                baseURL: baseURL,
+                limit: IrohaToriiRoutes.maxLimit,
+                offset: nextRawOffset,
+                countMode: .bounded,
+                assetID: asset.id,
+                network: network
+            )
+            let fingerprint = response.items.map(\.id).joined(separator: "\u{1F}")
+            guard response.items.isEmpty || pageFingerprints.insert(fingerprint).inserted else {
+                throw ConvenienceError(error: "Iroha account-history pagination repeated a page")
+            }
+
+            var consumedItems = 0
+            for item in response.items {
+                consumedItems += 1
+                if let transaction = item.transactionData(accountAddress: address, asset: asset) {
+                    transactions.append(transaction)
+                    if transactions.count == limit {
+                        break
+                    }
+                }
+            }
+
+            guard let consumedItems64 = Int64(exactly: consumedItems),
+                  nextRawOffset <= Int64.max - consumedItems64 else {
+                throw ConvenienceError(error: "Iroha account-history pagination overflow")
+            }
+            nextRawOffset += consumedItems64
+
+            let hasUnconsumedItems = consumedItems < response.items.count
+            let serverHasMore = response.hasMore ?? (
+                response.items.count >= IrohaToriiRoutes.maxLimit
+            )
+            let hasMore = hasUnconsumedItems || serverHasMore
+
+            if transactions.count == limit || !hasMore {
+                let context = hasMore ? [Self.tairaRawOffsetKey: String(nextRawOffset)] : nil
+                return AssetTransactionPageData(transactions: transactions, context: context)
+            }
+
+            guard consumedItems > 0 else {
+                throw ConvenienceError(error: "Iroha account-history pagination made no progress")
+            }
+        }
+
+        throw ConvenienceError(error: "Iroha account-history pagination exceeded its page limit")
     }
 
     private func emptyPage() -> CompoundOperationWrapper<AssetTransactionPageData?> {
@@ -153,7 +243,12 @@ private extension IrohaJSONValue? {
             return []
         }
 
-        let body = result["body"]?.objectValue ?? result
+        if result["isError"]?.boolValue == true {
+            return []
+        }
+
+        let structuredContent = result["structuredContent"]?.objectValue
+        let body = structuredContent?["body"]?.objectValue ?? result["body"]?.objectValue ?? result
         return body["items"]?.arrayValue?.compactMap(\.objectValue) ?? []
     }
 }
@@ -274,6 +369,123 @@ private extension [String: IrohaJSONValue] {
     }
 }
 
+private extension IrohaAccountHistoryItem {
+    func transactionData(
+        accountAddress: String,
+        asset: AssetModel
+    ) -> AssetTransactionData? {
+        guard type.caseInsensitiveEquals("TRANSFER"),
+              accountID.caseInsensitiveEquals(accountAddress),
+              assetDefinitionID == asset.id,
+              assetID?.irohaAssetMatches(asset.id) == true,
+              let amount,
+              let decimalAmount = canonicalIrohaDecimal(
+                  amount,
+                  maximumScale: Int(asset.precision)
+              ),
+              let timestampMs,
+              timestampMs <= UInt64(Int64.max),
+              let transactionType = transactionType,
+              let transactionStatus = transactionStatus,
+              let peerAddress = peerAddress(accountAddress: accountAddress),
+              !id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return nil
+        }
+
+        return AssetTransactionData(
+            transactionId: id,
+            status: transactionStatus,
+            assetId: asset.id,
+            peerId: peerAddress,
+            peerFirstName: nil,
+            peerLastName: nil,
+            peerName: peerAddress.isEmpty ? nil : peerAddress,
+            details: "",
+            amount: AmountDecimal(value: decimalAmount),
+            fees: [],
+            timestamp: Int64(timestampMs / 1000),
+            type: transactionType.rawValue,
+            reason: "",
+            context: nil
+        )
+    }
+
+    private var transactionType: TransactionType? {
+        if direction.caseInsensitiveEquals("incoming") {
+            return .incoming
+        }
+        if direction.caseInsensitiveEquals("outgoing") {
+            return .outgoing
+        }
+        if direction.caseInsensitiveEquals("self") {
+            return .outgoing
+        }
+
+        return nil
+    }
+
+    private func peerAddress(accountAddress: String) -> String? {
+        if direction.caseInsensitiveEquals("self") {
+            return accountAddress
+        }
+
+        let peerAddress = counterpartyAccountID?.trimmingCharacters(in: .whitespacesAndNewlines)
+        return peerAddress?.isEmpty == false ? peerAddress : nil
+    }
+
+    private var transactionStatus: AssetTransactionStatus? {
+        if status.caseInsensitiveEquals("SUCCESS"), resultOk != false {
+            return .commited
+        }
+        if status.caseInsensitiveEquals("FAILED") || status.caseInsensitiveEquals("REJECTED"),
+           resultOk != true {
+            return .rejected
+        }
+
+        return nil
+    }
+}
+
+private func canonicalIrohaDecimal(
+    _ rawValue: String,
+    maximumScale: Int
+) -> Decimal? {
+    let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !value.isEmpty, maximumScale >= 0 else {
+        return nil
+    }
+
+    let components = value.split(separator: ".", omittingEmptySubsequences: false)
+    guard components.count <= 2,
+          let integer = components.first,
+          !integer.isEmpty,
+          integer.utf8.allSatisfy({ (48 ... 57).contains($0) }),
+          components.count == 1 ||
+          (!components[1].isEmpty &&
+              components[1].utf8.allSatisfy { (48 ... 57).contains($0) } &&
+              components[1].count <= maximumScale),
+          maximumScale <= Int(Int16.max) else {
+        return nil
+    }
+
+    let fraction = components.count == 2 ? String(components[1]) : ""
+    let exactPlanksString = String(integer) + fraction + String(
+        repeating: "0",
+        count: maximumScale - fraction.count
+    )
+    guard let exactPlanks = BigUInt(exactPlanksString), exactPlanks > .zero,
+          let decimal = Decimal(
+              string: value,
+              locale: Locale(identifier: "en_US_POSIX")
+          ),
+          decimal > .zero,
+          decimal.toSubstrateAmount(precision: Int16(maximumScale)) == exactPlanks else {
+        return nil
+    }
+
+    return decimal
+}
+
 private extension IrohaJSONValue {
     var objectValue: [String: IrohaJSONValue]? {
         if case let .object(value) = self {
@@ -298,6 +510,14 @@ private extension IrohaJSONValue {
 
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
+    }
+
+    var boolValue: Bool? {
+        if case let .bool(value) = self {
+            return value
+        }
+
+        return nil
     }
 }
 

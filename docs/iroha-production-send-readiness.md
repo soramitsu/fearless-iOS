@@ -109,19 +109,26 @@ request's `chainId`. A route label must not be assumed to be the protocol
 transaction chain identifier; an authoritative mapping is required before any
 signer can be enabled.
 
-The tag fixture uses asset definition `61CtjvNd9T3THAR65GsMVHr82Bjc`. A live
-2026-08-19 Taira inventory now reports that same definition as the canonical
-`xor#sora.universal` asset at scale `9`. It also reports
-`6TEAJqbb8oEPmLncoNiMRbLEK6tw` as `xor#universal` without authoritative scale
-metadata. The read-only wallet catalog pins the current canonical definition
-and dynamically discovers held alternates. The unreachable send seam still
-returns a hard-coded zero fee, so production Send must validate live asset
-identity at use and resolve an authoritative fee policy before enablement.
+The tagged send fixture uses asset definition
+`61CtjvNd9T3THAR65GsMVHr82Bjc`. The reviewed read-only wallet wire contract is
+instead grounded in the sibling Iroha repository's `optimizations` branch at
+commit `d8544f1d4d3a73c4a17873250a483208c9aafc16` and the canonical
+`https://taira.sora.org` Torii root. That source defines canonical Taira XOR as
+`6TEAJqbb8oEPmLncoNiMRbLEK6tw`, alias `xor#universal`, with unconstrained
+`NumericSpec`; the wallet adapter uses precision `28`. Definition
+`61CtjvNd9T3THAR65GsMVHr82Bjc`, alias `xor#sora.universal`, is a distinct
+scale-`9` asset. The tagged send fixture therefore must not be treated as the
+canonical wallet asset. The unreachable send seam still returns a hard-coded
+zero fee, so production Send must validate live asset identity and numeric
+schema at use and resolve an authoritative fee policy before enablement.
 
 The deployed Taira node reported version `2.0.0-rc.2.0` at commit
 `039af2d65e10b773be5031ab8fc07cf27b40e30d`, while the SDK tag is commit
 `4f8cfbdd17aa6a3b049e619f23ec02501e5297b6`. Wire, registry, fee, and hash
-compatibility across that revision gap is not proven.
+compatibility across that revision gap is not proven. Using the reviewed local
+`optimizations` revision for the read-only alias/schema adapter does not link
+the blocked send SDK, approve the published XCFramework, or establish
+transaction compatibility.
 
 ## Secret and submission-integrity blockers
 

@@ -1655,6 +1655,11 @@ final class IrohaTransferService: TransferServiceProtocol {
         network: UniversalWalletRegistry.IrohaNetwork,
         failure: (String) -> TransferServiceError
     ) throws -> String {
+        if network == UniversalWalletRegistry.taira,
+           let url = network.toriiBaseURL?.absoluteString.nonEmpty {
+            return url
+        }
+
         if let url = chain.externalApi?.history?.url.absoluteString.nonEmpty {
             return url
         }

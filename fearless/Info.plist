@@ -67,7 +67,7 @@
 	<key>FearlessSwiftOptimizationLevel</key>
 	<string>$(SWIFT_OPTIMIZATION_LEVEL)</string>
 	<key>FearlessTairaTestnetSupportContract</key>
-	<string>iroha3-taira-read-only-v1</string>
+	<string>iroha3-taira-sora-org-torii-xor-universal-unconstrained-p28-optimizations-d8544f1d-read-only-v2</string>
 	<key>FearlessUniversalWalletSecretContract</key>
 	<string>bip39-root-entropy-fail-closed-v1</string>
 	<key>GIDClientID</key>

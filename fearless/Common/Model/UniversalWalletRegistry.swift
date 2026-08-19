@@ -157,16 +157,22 @@ enum UniversalWalletRegistry {
         toriiBaseURL: URL(string: "https://taira.sora.org")!,
         mcpPath: "/v1/mcp",
         enabledByDefault: true,
-        features: ["transfer"]
+        features: ["receive"]
     )
 
     /// Taira is app-owned until the shared chains registry publishes a native
-    /// Iroha row. The utility asset identity is pinned to the current canonical
-    /// permanent XOR definition exposed by Torii; held assets are still
-    /// discovered dynamically by `AccountInfoRemoteServiceDefault`.
-    static let tairaNativeXorAssetDefinitionId = "61CtjvNd9T3THAR65GsMVHr82Bjc"
-    static let tairaNativeXorAlias = "xor#sora.universal"
-    static let tairaNativeXorPrecision: UInt16 = 9
+    /// Iroha row. These values are pinned to the public Taira profile in the
+    /// reviewed `../iroha` `optimizations` revision `d8544f1d4d3a` and are
+    /// revalidated against Torii before a balance is accepted.
+    ///
+    /// Taira's canonical XOR uses an unconstrained Iroha `NumericSpec`. The
+    /// wallet's fixed-point adapter therefore uses Iroha's maximum permitted
+    /// decimal scale so every valid wire quantity remains exact. The distinct
+    /// scale-9 `xor#sora.universal` definition is discovered as a separate
+    /// held asset and must never replace this native XOR identity.
+    static let tairaNativeXorAssetDefinitionId = "6TEAJqbb8oEPmLncoNiMRbLEK6tw"
+    static let tairaNativeXorAlias = "xor#universal"
+    static let tairaNativeXorPrecision: UInt16 = 28
     static let tairaChainIconURL = URL(
         string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/SORA.svg"
     )!
@@ -421,6 +427,14 @@ enum UniversalWalletRegistry {
         _ network: IrohaNetwork,
         displayName: String
     ) -> UniversalWalletChainRegistryEntry {
+        let nativeAsset: UniversalWalletRegistryAsset? = network == taira
+            ? UniversalWalletRegistryAsset(
+                id: tairaNativeXorAssetDefinitionId,
+                symbol: "XOR",
+                decimals: Int(tairaNativeXorPrecision),
+                name: "SORA XOR"
+            )
+            : nil
         let endpoints = network.mcpEndpointURL.map { endpoint in
             [
                 UniversalWalletRegistryEndpoint(
@@ -438,6 +452,7 @@ enum UniversalWalletRegistry {
             chainId: network.chainId,
             displayName: displayName,
             enabledByDefault: network.enabledByDefault,
+            nativeAsset: nativeAsset,
             derivationPath: UniversalWalletDerivationPaths.irohaDefault,
             slip44CoinType: 617,
             features: network.features,

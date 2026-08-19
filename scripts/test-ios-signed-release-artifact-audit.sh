@@ -120,7 +120,7 @@ app = {
     "FearlessBuildConfiguration": "Release",
     "FearlessBitcoinSupportContract": "bip84-mainnet-v1",
     "FearlessBitcoinServiceContract": "mempool-space-public-esplora-v1",
-    "FearlessTairaTestnetSupportContract": "iroha3-taira-read-only-v1",
+    "FearlessTairaTestnetSupportContract": "iroha3-taira-sora-org-torii-xor-universal-unconstrained-p28-optimizations-d8544f1d-read-only-v2",
     "FearlessUniversalWalletSecretContract": "bip39-root-entropy-fail-closed-v1",
     "FearlessEnableTestability": "NO",
     "FearlessGitCommit": git_sha,
@@ -374,7 +374,7 @@ assert_contains '"distributionProfile": "valid-app-store"' "$CASE_DIR/output/rec
 assert_contains '"uiDesignCompatibility": "native-redesigned-tab-bar"' "$CASE_DIR/output/receipt.json"
 assert_contains '"bitcoinSupportContract": "bip84-mainnet-v1"' "$CASE_DIR/output/receipt.json"
 assert_contains '"bitcoinServiceContract": "mempool-space-public-esplora-v1"' "$CASE_DIR/output/receipt.json"
-assert_contains '"tairaTestnetSupportContract": "iroha3-taira-read-only-v1"' "$CASE_DIR/output/receipt.json"
+assert_contains '"tairaTestnetSupportContract": "iroha3-taira-sora-org-torii-xor-universal-unconstrained-p28-optimizations-d8544f1d-read-only-v2"' "$CASE_DIR/output/receipt.json"
 assert_contains '"universalWalletSecretContract": "bip39-root-entropy-fail-closed-v1"' "$CASE_DIR/output/receipt.json"
 assert_contains '"minimumOSVersion": "15.0"' "$CASE_DIR/output/receipt.json"
 assert_contains '"dSYMContract": "exact-uuid-upload-coverage"' "$CASE_DIR/output/receipt.json"

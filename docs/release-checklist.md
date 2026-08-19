@@ -70,7 +70,7 @@ Use this checklist for every release PR from `develop` to `master`.
   bundles for Xcode's three generated crypto stubs and the stripped
   MPQRCoreSDK vendor binary; this removes App Store Connect's missing-dSYM
   warnings but does not claim unavailable MPQR source-line DWARF.
-- Validate build `4.2.0 (2026.8.24)` through a true internal TestFlight group
+- Validate build `4.2.0 (2026.8.25)` through a true internal TestFlight group
   containing the affected phone's App Store Connect user before changing the
   public beta group. Do not substitute an external group that requires Beta App
   Review. Run
@@ -93,7 +93,11 @@ Use this checklist for every release PR from `develop` to `master`.
   explicit mnemonic-only recovery path rather than inventing a secret,
   a visible Taira Testnet and canonical XOR row even before a chain account
   exists, its mnemonic-only setup action, compatible-wallet I105 provisioning,
-  a successful Torii balance refresh, a visible valid I105 receive address,
+  Torii resolution of canonical alias `xor#universal`, validation of its
+  unconstrained `NumericSpec` and wallet-adapter precision `28` against Iroha
+  `optimizations` commit `d8544f1d4d3a73c4a17873250a483208c9aafc16`, a
+  successful balance refresh through canonical root `https://taira.sora.org`,
+  a visible valid I105 receive address,
   confirmation that Taira Send remains unavailable, no Switch Node action for
   either Bitcoin or Taira, and a hidden dead ellipsis on both chain-account screens,
   preservation checks, and a successful second cold launch. Do not uninstall
@@ -167,7 +171,8 @@ Use this checklist for every release PR from `develop` to `master`.
   - a directly resolvable, compiling Swift package whose source expectations
     match every published XCFramework slice digest;
   - canonical compact transaction-hash parity and source/binary provenance;
-  - authoritative protocol chain ID, live asset/scale, and fee-policy mapping;
+  - authoritative protocol chain ID, live asset/schema/adapter-precision, and
+    fee-policy mapping;
   - a reviewed zeroizable secret-lifecycle boundary;
   - exact local/Torii receipt-hash equality plus accepted and finalized status;
   - deployed-node compatibility and funded Taira and Nexus broadcast evidence.

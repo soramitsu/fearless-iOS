@@ -641,7 +641,7 @@ class CaptureControllerTests(unittest.TestCase):
                         ).run()
                     self.assertFalse((output / "capture-receipt.json").exists())
 
-    def test_app_owned_catalog_hotfix_is_allowlisted_for_qualification_capture(self) -> None:
+    def test_current_hotfix_is_allowlisted_for_qualification_capture(self) -> None:
         hotfix = CAPTURE.AppIdentity(
             CAPTURE.EXPECTED_BUNDLE_IDENTIFIER,
             CAPTURE.EXPECTED_MARKETING_VERSION,

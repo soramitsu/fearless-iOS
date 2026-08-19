@@ -82,6 +82,27 @@ enum IrohaToriiRoutes {
         )
     }
 
+    static func accountHistoryURL(
+        accountID: String,
+        baseURL: String? = nil,
+        limit: Int? = nil,
+        offset: Int64? = nil,
+        countMode: IrohaToriiCountMode? = nil,
+        assetID: String? = nil
+    ) throws -> URL {
+        var queryItems = try pageQuery(limit: limit, offset: offset, countMode: countMode)
+        if let assetID {
+            queryItems.append(
+                URLQueryItem(name: "asset_id", value: try normalizeAssetSelector(assetID))
+            )
+        }
+
+        return try makeURL(
+            base: "\(accountURL(accountID: accountID, baseURL: baseURL).absoluteString)/history",
+            queryItems: queryItems
+        )
+    }
+
     static func assetDefinitionsURL(
         baseURL: String? = nil,
         limit: Int? = nil,
@@ -92,6 +113,19 @@ enum IrohaToriiRoutes {
             base: "\(normalizeBaseURL(try resolvedBaseURL(baseURL)))/v1/assets/definitions",
             queryItems: pageQuery(limit: limit, offset: offset, countMode: countMode)
         )
+    }
+
+    static func assetDefinitionURL(
+        selector: String,
+        baseURL: String? = nil
+    ) throws -> URL {
+        try makeURL(
+            "\(normalizeBaseURL(try resolvedBaseURL(baseURL)))/v1/assets/definitions/\(encodePathSegment(normalizeAssetSelector(selector)))"
+        )
+    }
+
+    static func assetAliasResolutionURL(baseURL: String? = nil) throws -> URL {
+        try makeURL("\(normalizeBaseURL(try resolvedBaseURL(baseURL)))/v1/assets/aliases/resolve")
     }
 
     static func submitTransactionURL(baseURL: String? = nil) throws -> URL {
@@ -392,8 +426,8 @@ struct IrohaAccountListItem: Codable, Equatable {
 
 struct IrohaAccountAssetListResponse: Codable, Equatable {
     let items: [IrohaAccountAssetListItem]
-    let hasMore: Bool
-    let countMode: String
+    let hasMore: Bool?
+    let countMode: String?
     let total: Int64?
 
     private enum CodingKeys: String, CodingKey {
@@ -426,8 +460,8 @@ struct IrohaAccountAssetListItem: Codable, Equatable {
 
 struct IrohaAssetDefinitionListResponse: Codable, Equatable {
     let items: [IrohaAssetDefinitionListItem]
-    let hasMore: Bool
-    let countMode: String
+    let hasMore: Bool?
+    let countMode: String?
     let total: Int64?
 
     private enum CodingKeys: String, CodingKey {
@@ -438,6 +472,54 @@ struct IrohaAssetDefinitionListResponse: Codable, Equatable {
     }
 }
 
+struct IrohaAccountHistoryResponse: Codable, Equatable {
+    let items: [IrohaAccountHistoryItem]
+    let hasMore: Bool?
+    let countMode: String?
+    let total: Int64?
+
+    private enum CodingKeys: String, CodingKey {
+        case items
+        case hasMore = "has_more"
+        case countMode = "count_mode"
+        case total
+    }
+}
+
+struct IrohaAccountHistoryItem: Codable, Equatable {
+    let id: String
+    let source: String?
+    let type: String
+    let timestampMs: UInt64?
+    let status: String
+    let resultOk: Bool?
+    let direction: String
+    let accountID: String
+    let counterpartyAccountID: String?
+    let assetID: String?
+    let assetDefinitionID: String?
+    let amount: String?
+    let transactionHash: String?
+    let operationID: String?
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case source
+        case type
+        case timestampMs = "timestamp_ms"
+        case status
+        case resultOk = "result_ok"
+        case direction
+        case accountID = "account_id"
+        case counterpartyAccountID = "counterparty_account_id"
+        case assetID = "asset_id"
+        case assetDefinitionID = "asset_definition_id"
+        case amount
+        case transactionHash = "tx_hash"
+        case operationID = "operation_id"
+    }
+}
+
 struct IrohaAssetDefinitionListItem: Codable, Equatable {
     let id: String
     let name: String?
@@ -445,6 +527,7 @@ struct IrohaAssetDefinitionListItem: Codable, Equatable {
     let ownedBy: String?
     let metadata: [String: IrohaJSONValue]?
     let aliasBinding: [String: IrohaJSONValue]?
+    let spec: IrohaAssetDefinitionSpec?
 
     private enum CodingKeys: String, CodingKey {
         case id
@@ -453,6 +536,65 @@ struct IrohaAssetDefinitionListItem: Codable, Equatable {
         case ownedBy = "owned_by"
         case metadata
         case aliasBinding = "alias_binding"
+        case spec
+    }
+}
+
+struct IrohaAssetDefinitionSpec: Codable, Equatable {
+    static let maximumScale = 28
+
+    let scale: Int?
+
+    var fixedPointAdapterPrecision: UInt16? {
+        guard let scale else {
+            return UInt16(Self.maximumScale)
+        }
+
+        guard (0 ... Self.maximumScale).contains(scale) else {
+            return nil
+        }
+
+        return UInt16(scale)
+    }
+}
+
+struct IrohaAssetAliasResolutionRequest: Codable, Equatable {
+    let alias: String
+}
+
+struct IrohaAssetAliasResolution: Codable, Equatable {
+    let alias: String
+    let assetDefinitionID: String
+    let assetName: String
+    let description: String?
+    let logo: String?
+    let source: String?
+    let aliasBinding: IrohaAssetDefinitionAliasBinding?
+
+    private enum CodingKeys: String, CodingKey {
+        case alias
+        case assetDefinitionID = "asset_definition_id"
+        case assetName = "asset_name"
+        case description
+        case logo
+        case source
+        case aliasBinding = "alias_binding"
+    }
+}
+
+struct IrohaAssetDefinitionAliasBinding: Codable, Equatable {
+    let alias: String
+    let status: String
+    let leaseExpiryMs: UInt64?
+    let graceUntilMs: UInt64?
+    let boundAtMs: UInt64
+
+    private enum CodingKeys: String, CodingKey {
+        case alias
+        case status
+        case leaseExpiryMs = "lease_expiry_ms"
+        case graceUntilMs = "grace_until_ms"
+        case boundAtMs = "bound_at_ms"
     }
 }
 

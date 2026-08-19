@@ -654,42 +654,40 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
     }
 
     func testFetchAccountInfosMapsIrohaTairaBalancesThroughTorii() async throws {
-        let chain = makeIrohaChain(
-            chainId: UniversalWalletRegistry.taira.chainId,
-            historyBaseURL: "https://taira.sora.org/",
-            assets: [Self.irohaToriiAsset]
-        )
+        let chain = UniversalWalletRegistry.tairaChainModel
+        let asset = try XCTUnwrap(chain.assets.first)
         let wallet = try walletWithIrohaAccount(chainId: chain.chainId)
-        let address = try IrohaKeyDerivation.deriveAddress(
-            mnemonic: Self.mnemonic,
-            chainDiscriminant: UniversalWalletRegistry.taira.chainDiscriminant
-        ).i105
+        let address = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet)
+        )
         let client = IrohaToriiClientStub(
             accountAssetsResponse: IrohaAccountAssetListResponse(
                 items: [
                     IrohaAccountAssetListItem(
                         accountID: address,
-                        asset: Self.irohaToriiAsset.id,
-                        assetID: nil,
-                        assetName: nil,
-                        assetAlias: nil,
+                        asset: asset.id,
+                        assetID: asset.id,
+                        assetName: "xor",
+                        assetAlias: UniversalWalletRegistry.tairaNativeXorAlias,
                         quantity: "1.5",
                         scope: "global"
                     ),
                     IrohaAccountAssetListItem(
                         accountID: address,
-                        asset: Self.irohaToriiAsset.id,
-                        assetID: nil,
-                        assetName: nil,
-                        assetAlias: nil,
+                        asset: asset.id,
+                        assetID: asset.id,
+                        assetName: "xor",
+                        assetAlias: UniversalWalletRegistry.tairaNativeXorAlias,
                         quantity: "0.25",
                         scope: "rewards"
                     )
                 ],
-                hasMore: false,
-                countMode: IrohaToriiCountMode.bounded.rawValue,
+                hasMore: nil,
+                countMode: nil,
                 total: 2
-            )
+            ),
+            aliasResolution: Self.tairaXORAliasResolution,
+            assetDefinitionResponse: Self.tairaXORDefinition
         )
         let storagePerformer = StorageRequestPerformerStub()
         let service = makeAccountInfoRemoteService(
@@ -701,14 +699,14 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
 
         XCTAssertEqual(client.accountAssetsInvocations.count, 1)
         XCTAssertEqual(client.accountAssetsInvocations.first?.accountID, address)
-        XCTAssertEqual(client.accountAssetsInvocations.first?.baseURL, "https://taira.sora.org/")
+        XCTAssertEqual(client.accountAssetsInvocations.first?.baseURL, "https://taira.sora.org")
         XCTAssertEqual(client.accountAssetsInvocations.first?.limit, IrohaToriiRoutes.maxLimit)
-        XCTAssertEqual(client.accountAssetsInvocations.first?.countMode, .bounded)
+        XCTAssertNil(client.accountAssetsInvocations.first?.countMode)
         XCTAssertEqual(client.accountAssetsInvocations.first?.network, UniversalWalletRegistry.taira)
         XCTAssertEqual(storagePerformer.performMixInvocations, 0)
 
-        let balance = try XCTUnwrap(result[Self.irohaToriiAsset.chainAssetId(chainId: chain.chainId)] ?? nil)
-        let expectedBalance = try XCTUnwrap(BigUInt("1750000000000000000"))
+        let balance = try XCTUnwrap(result[asset.chainAssetId(chainId: chain.chainId)] ?? nil)
+        let expectedBalance = try XCTUnwrap(BigUInt("17500000000000000000000000000"))
         XCTAssertEqual(balance.data.free, expectedBalance)
     }
 
@@ -728,10 +726,172 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
                         assetID: UniversalWalletRegistry.tairaNativeXorAssetDefinitionId,
                         assetName: "xor",
                         assetAlias: UniversalWalletRegistry.tairaNativeXorAlias,
-                        quantity: "1.25",
+                        quantity: "1.1234567890123456789012345678",
                         scope: "global"
                     )
                 ],
+                hasMore: false,
+                countMode: IrohaToriiCountMode.bounded.rawValue,
+                total: 1
+            ),
+            aliasResolution: Self.tairaXORAliasResolution,
+            assetDefinitionResponse: Self.tairaXORDefinition
+        )
+        let service = makeAccountInfoRemoteService(irohaToriiClient: client)
+
+        let result = try await service.fetchAccountInfos(for: chain, wallet: wallet)
+
+        let balance = try XCTUnwrap(result[asset.chainAssetId(chainId: chain.chainId)] ?? nil)
+        XCTAssertEqual(asset.id, "6TEAJqbb8oEPmLncoNiMRbLEK6tw")
+        XCTAssertEqual(asset.currencyId, "xor#universal")
+        XCTAssertEqual(asset.precision, 28)
+        XCTAssertEqual(
+            balance.data.free,
+            try XCTUnwrap(BigUInt("11234567890123456789012345678"))
+        )
+        XCTAssertEqual(client.aliasResolutionInvocations, ["https://taira.sora.org"])
+        XCTAssertEqual(client.assetDefinitionInvocations.count, 1)
+        XCTAssertEqual(client.assetDefinitionInvocations.first?.selector, "xor#universal")
+        XCTAssertEqual(client.assetDefinitionInvocations.first?.baseURL, "https://taira.sora.org")
+    }
+
+    func testProductionTairaRejectsXORWhenAliasDoesNotResolveToReviewedDefinition() async throws {
+        let chain = UniversalWalletRegistry.tairaChainModel
+        let wallet = try walletWithIrohaAccount(chainId: chain.chainId)
+        let address = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet)
+        )
+        let wrongResolution = IrohaAssetAliasResolution(
+            alias: UniversalWalletRegistry.tairaNativeXorAlias,
+            assetDefinitionID: "61CtjvNd9T3THAR65GsMVHr82Bjc",
+            assetName: "xor",
+            description: nil,
+            logo: nil,
+            source: "world_state",
+            aliasBinding: IrohaAssetDefinitionAliasBinding(
+                alias: UniversalWalletRegistry.tairaNativeXorAlias,
+                status: "permanent",
+                leaseExpiryMs: nil,
+                graceUntilMs: nil,
+                boundAtMs: 1_786_967_275_740
+            )
+        )
+        let client = IrohaToriiClientStub(
+            accountAssetsResponse: IrohaAccountAssetListResponse(
+                items: [
+                    IrohaAccountAssetListItem(
+                        accountID: address,
+                        asset: UniversalWalletRegistry.tairaNativeXorAssetDefinitionId,
+                        assetID: UniversalWalletRegistry.tairaNativeXorAssetDefinitionId,
+                        assetName: "xor",
+                        assetAlias: UniversalWalletRegistry.tairaNativeXorAlias,
+                        quantity: "1",
+                        scope: "global"
+                    )
+                ],
+                hasMore: false,
+                countMode: IrohaToriiCountMode.bounded.rawValue,
+                total: 1
+            ),
+            aliasResolution: wrongResolution,
+            assetDefinitionResponse: Self.tairaXORDefinition
+        )
+        let service = makeAccountInfoRemoteService(irohaToriiClient: client)
+
+        do {
+            _ = try await service.fetchAccountInfos(for: chain, wallet: wallet)
+            XCTFail("A noncanonical Taira XOR alias must fail closed")
+        } catch {
+            XCTAssertEqual(client.aliasResolutionInvocations, ["https://taira.sora.org"])
+            XCTAssertEqual(client.assetDefinitionInvocations.count, 1)
+        }
+    }
+
+    func testProductionTairaRejectsStalePreUpgradeXORCatalogSnapshot() async throws {
+        let staleAsset = AssetModel(
+            id: "61CtjvNd9T3THAR65GsMVHr82Bjc",
+            name: "xor",
+            symbol: "XOR",
+            precision: 9,
+            isUtility: true,
+            isNative: true
+        )
+        let chain = makeIrohaChain(
+            chainId: UniversalWalletRegistry.taira.chainId,
+            assets: [staleAsset]
+        )
+        let wallet = try walletWithIrohaAccount(chainId: chain.chainId)
+        let address = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet)
+        )
+        let client = IrohaToriiClientStub(
+            accountAssetsResponse: IrohaAccountAssetListResponse(
+                items: [
+                    IrohaAccountAssetListItem(
+                        accountID: address,
+                        asset: staleAsset.id,
+                        assetID: staleAsset.id,
+                        assetName: "xor",
+                        assetAlias: "xor#sora.universal",
+                        quantity: "1",
+                        scope: "global"
+                    )
+                ],
+                hasMore: nil,
+                countMode: nil,
+                total: 1
+            ),
+            aliasResolution: Self.tairaXORAliasResolution,
+            assetDefinitionResponse: Self.tairaXORDefinition
+        )
+        let service = makeAccountInfoRemoteService(irohaToriiClient: client)
+
+        do {
+            _ = try await service.fetchAccountInfos(for: chain, wallet: wallet)
+            XCTFail("A stale Taira catalog must not bypass canonical XOR validation")
+        } catch {
+            XCTAssertEqual(client.aliasResolutionInvocations, ["https://taira.sora.org"])
+            XCTAssertEqual(client.assetDefinitionInvocations.count, 1)
+        }
+    }
+
+    func testProductionTairaKeepsScaleNineSoraXORSeparateFromNativeXOR() async throws {
+        let chain = UniversalWalletRegistry.tairaChainModel
+        let wallet = try walletWithIrohaAccount(chainId: chain.chainId)
+        let address = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet)
+        )
+        let soraXORId = "61CtjvNd9T3THAR65GsMVHr82Bjc"
+        let client = IrohaToriiClientStub(
+            accountAssetsResponse: IrohaAccountAssetListResponse(
+                items: [
+                    IrohaAccountAssetListItem(
+                        accountID: address,
+                        asset: UniversalWalletRegistry.tairaNativeXorAssetDefinitionId,
+                        assetID: UniversalWalletRegistry.tairaNativeXorAssetDefinitionId,
+                        assetName: "xor",
+                        assetAlias: UniversalWalletRegistry.tairaNativeXorAlias,
+                        quantity: "1",
+                        scope: "global"
+                    ),
+                    IrohaAccountAssetListItem(
+                        accountID: address,
+                        asset: soraXORId,
+                        assetID: soraXORId,
+                        assetName: "xor",
+                        assetAlias: "xor#sora.universal",
+                        quantity: "2.5",
+                        scope: "global"
+                    )
+                ],
+                hasMore: false,
+                countMode: IrohaToriiCountMode.bounded.rawValue,
+                total: 2
+            ),
+            aliasResolution: Self.tairaXORAliasResolution,
+            assetDefinitionResponse: Self.tairaXORDefinition,
+            assetDefinitionsResponse: IrohaAssetDefinitionListResponse(
+                items: [Self.soraXORDefinition],
                 hasMore: false,
                 countMode: IrohaToriiCountMode.bounded.rawValue,
                 total: 1
@@ -741,76 +901,85 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
 
         let result = try await service.fetchAccountInfos(for: chain, wallet: wallet)
 
-        let balance = try XCTUnwrap(result[asset.chainAssetId(chainId: chain.chainId)] ?? nil)
-        XCTAssertEqual(asset.precision, 9)
-        XCTAssertEqual(balance.data.free, BigUInt(1_250_000_000))
+        let nativeBalance = try XCTUnwrap(
+            result[
+                ChainAssetId(
+                    chainId: chain.chainId,
+                    assetId: UniversalWalletRegistry.tairaNativeXorAssetDefinitionId
+                )
+            ] ?? nil
+        )
+        let soraBalance = try XCTUnwrap(
+            result[ChainAssetId(chainId: chain.chainId, assetId: soraXORId)] ?? nil
+        )
+        XCTAssertEqual(
+            nativeBalance.data.free,
+            try XCTUnwrap(BigUInt("10000000000000000000000000000"))
+        )
+        XCTAssertEqual(soraBalance.data.free, BigUInt(2_500_000_000))
     }
 
     func testFetchAccountInfoReturnsSingleIrohaBalance() async throws {
-        let chain = makeIrohaChain(
-            chainId: UniversalWalletRegistry.taira.chainId,
-            assets: [Self.irohaToriiAsset]
-        )
-        let chainAsset = ChainAsset(chain: chain, asset: Self.irohaToriiAsset)
+        let chain = UniversalWalletRegistry.tairaChainModel
+        let asset = try XCTUnwrap(chain.assets.first)
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
         let wallet = try walletWithIrohaAccount(chainId: chain.chainId)
-        let address = try IrohaKeyDerivation.deriveAddress(
-            mnemonic: Self.mnemonic,
-            chainDiscriminant: UniversalWalletRegistry.taira.chainDiscriminant
-        ).i105
+        let address = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet)
+        )
         let client = IrohaToriiClientStub(
             accountAssetsResponse: IrohaAccountAssetListResponse(
                 items: [
                     IrohaAccountAssetListItem(
                         accountID: address,
-                        asset: Self.irohaToriiAsset.id,
-                        assetID: nil,
-                        assetName: nil,
-                        assetAlias: nil,
+                        asset: asset.id,
+                        assetID: asset.id,
+                        assetName: "xor",
+                        assetAlias: UniversalWalletRegistry.tairaNativeXorAlias,
                         quantity: "2",
                         scope: "global"
                     )
                 ],
-                hasMore: false,
-                countMode: IrohaToriiCountMode.bounded.rawValue,
+                hasMore: nil,
+                countMode: nil,
                 total: 1
-            )
+            ),
+            aliasResolution: Self.tairaXORAliasResolution,
+            assetDefinitionResponse: Self.tairaXORDefinition
         )
         let service = makeAccountInfoRemoteService(irohaToriiClient: client)
 
         let result = try await service.fetchAccountInfo(for: chainAsset, wallet: wallet)
 
         XCTAssertEqual(client.accountAssetsInvocations.count, 1)
-        let expectedBalance = try XCTUnwrap(BigUInt("2000000000000000000"))
+        let expectedBalance = try XCTUnwrap(BigUInt("20000000000000000000000000000"))
         XCTAssertEqual(result?.data.free, expectedBalance)
     }
 
     func testFetchAccountInfosPaginatesIrohaHoldingsBeyondFiveHundredItems() async throws {
-        let chain = makeIrohaChain(
-            chainId: UniversalWalletRegistry.taira.chainId,
-            assets: [Self.irohaToriiAsset]
-        )
+        let chain = UniversalWalletRegistry.tairaChainModel
+        let asset = try XCTUnwrap(chain.assets.first)
         let wallet = try walletWithIrohaAccount(chainId: chain.chainId)
-        let address = try IrohaKeyDerivation.deriveAddress(
-            mnemonic: Self.mnemonic,
-            chainDiscriminant: UniversalWalletRegistry.taira.chainDiscriminant
-        ).i105
+        let address = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet)
+        )
         let firstPageItems = (0 ..< IrohaToriiRoutes.maxLimit).map { _ in
             IrohaAccountAssetListItem(
                 accountID: address,
-                asset: Self.irohaToriiAsset.id,
-                assetID: nil,
-                assetName: nil,
-                assetAlias: nil,
+                asset: asset.id,
+                assetID: asset.id,
+                assetName: "xor",
+                assetAlias: UniversalWalletRegistry.tairaNativeXorAlias,
                 quantity: "0.001",
                 scope: "global"
             )
         }
         let finalItem = IrohaAccountAssetListItem(
             accountID: address,
-            asset: Self.irohaToriiAsset.id,
-            assetID: nil,
-            assetName: nil,
-            assetAlias: nil,
+            asset: asset.id,
+            assetID: asset.id,
+            assetName: "xor",
+            assetAlias: UniversalWalletRegistry.tairaNativeXorAlias,
             quantity: "1",
             scope: "bonus"
         )
@@ -818,25 +987,27 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
             accountAssetsResponses: [
                 IrohaAccountAssetListResponse(
                     items: firstPageItems,
-                    hasMore: true,
-                    countMode: IrohaToriiCountMode.bounded.rawValue,
-                    total: 501
+                    hasMore: nil,
+                    countMode: nil,
+                    total: 500
                 ),
                 IrohaAccountAssetListResponse(
                     items: [finalItem],
-                    hasMore: false,
-                    countMode: IrohaToriiCountMode.bounded.rawValue,
-                    total: 501
+                    hasMore: nil,
+                    countMode: nil,
+                    total: 1
                 )
-            ]
+            ],
+            aliasResolution: Self.tairaXORAliasResolution,
+            assetDefinitionResponse: Self.tairaXORDefinition
         )
         let service = makeAccountInfoRemoteService(irohaToriiClient: client)
 
         let result = try await service.fetchAccountInfos(for: chain, wallet: wallet)
 
         XCTAssertEqual(client.accountAssetsInvocations.map(\.offset), [0, 500])
-        let balance = try XCTUnwrap(result[Self.irohaToriiAsset.chainAssetId(chainId: chain.chainId)] ?? nil)
-        XCTAssertEqual(balance.data.free, BigUInt("1500000000000000000"))
+        let balance = try XCTUnwrap(result[asset.chainAssetId(chainId: chain.chainId)] ?? nil)
+        XCTAssertEqual(balance.data.free, BigUInt("15000000000000000000000000000"))
     }
 
     func testFetchAccountInfosFailsClosedForIrohaChainsWithoutSubstrateStorage() async {
@@ -1311,6 +1482,39 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         precision: 18,
         isUtility: true,
         isNative: true
+    )
+    private static let tairaXORAliasResolution = IrohaAssetAliasResolution(
+        alias: "xor#universal",
+        assetDefinitionID: "6TEAJqbb8oEPmLncoNiMRbLEK6tw",
+        assetName: "xor",
+        description: nil,
+        logo: nil,
+        source: "world_state",
+        aliasBinding: IrohaAssetDefinitionAliasBinding(
+            alias: "xor#universal",
+            status: "permanent",
+            leaseExpiryMs: nil,
+            graceUntilMs: nil,
+            boundAtMs: 1_786_967_275_740
+        )
+    )
+    private static let tairaXORDefinition = IrohaAssetDefinitionListItem(
+        id: "6TEAJqbb8oEPmLncoNiMRbLEK6tw",
+        name: "xor",
+        alias: "xor#universal",
+        ownedBy: nil,
+        metadata: [:],
+        aliasBinding: nil,
+        spec: IrohaAssetDefinitionSpec(scale: nil)
+    )
+    private static let soraXORDefinition = IrohaAssetDefinitionListItem(
+        id: "61CtjvNd9T3THAR65GsMVHr82Bjc",
+        name: "xor",
+        alias: "xor#sora.universal",
+        ownedBy: nil,
+        metadata: [:],
+        aliasBinding: nil,
+        spec: IrohaAssetDefinitionSpec(scale: 9)
     )
 
     private enum TestError: Error {
@@ -3971,7 +4175,12 @@ private final class IrohaToriiClientStub: IrohaToriiClientProtocol {
 
     private var accountAssetsResponses: [IrohaAccountAssetListResponse]
     private let accountAssetsError: Error?
+    private let aliasResolution: IrohaAssetAliasResolution?
+    private let assetDefinitionResponse: IrohaAssetDefinitionListItem?
+    private let assetDefinitionsResponse: IrohaAssetDefinitionListResponse?
     private(set) var accountAssetsInvocations: [AccountAssetsInvocation] = []
+    private(set) var aliasResolutionInvocations: [String?] = []
+    private(set) var assetDefinitionInvocations: [(selector: String, baseURL: String?)] = []
 
     init(
         accountAssetsResponse: IrohaAccountAssetListResponse = IrohaAccountAssetListResponse(
@@ -3981,10 +4190,16 @@ private final class IrohaToriiClientStub: IrohaToriiClientProtocol {
             total: 0
         ),
         accountAssetsResponses: [IrohaAccountAssetListResponse]? = nil,
-        accountAssetsError: Error? = nil
+        accountAssetsError: Error? = nil,
+        aliasResolution: IrohaAssetAliasResolution? = nil,
+        assetDefinitionResponse: IrohaAssetDefinitionListItem? = nil,
+        assetDefinitionsResponse: IrohaAssetDefinitionListResponse? = nil
     ) {
         self.accountAssetsResponses = accountAssetsResponses ?? [accountAssetsResponse]
         self.accountAssetsError = accountAssetsError
+        self.aliasResolution = aliasResolution
+        self.assetDefinitionResponse = assetDefinitionResponse
+        self.assetDefinitionsResponse = assetDefinitionsResponse
     }
 
     func health(baseURL _: String?) async throws -> Data {
@@ -4042,7 +4257,32 @@ private final class IrohaToriiClientStub: IrohaToriiClientProtocol {
     }
 
     func assetDefinitions(baseURL _: String?) async throws -> IrohaAssetDefinitionListResponse {
-        throw AccountInfoRemoteServiceStubError.notImplemented
+        guard let assetDefinitionsResponse else {
+            throw AccountInfoRemoteServiceStubError.notImplemented
+        }
+        return assetDefinitionsResponse
+    }
+
+    func resolveAssetAlias(
+        _: String,
+        baseURL: String?
+    ) async throws -> IrohaAssetAliasResolution {
+        aliasResolutionInvocations.append(baseURL)
+        guard let aliasResolution else {
+            throw AccountInfoRemoteServiceStubError.notImplemented
+        }
+        return aliasResolution
+    }
+
+    func assetDefinition(
+        selector: String,
+        baseURL: String?
+    ) async throws -> IrohaAssetDefinitionListItem {
+        assetDefinitionInvocations.append((selector: selector, baseURL: baseURL))
+        guard let assetDefinitionResponse else {
+            throw AccountInfoRemoteServiceStubError.notImplemented
+        }
+        return assetDefinitionResponse
     }
 
     func submitTransaction(noritoBytes _: Data, baseURL _: String?) async throws -> IrohaTransactionSubmissionReceipt {

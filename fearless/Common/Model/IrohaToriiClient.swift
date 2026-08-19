@@ -14,6 +14,15 @@ protocol IrohaToriiClientProtocol {
         scope: String?,
         network: UniversalWalletRegistry.IrohaNetwork
     ) async throws -> IrohaAccountAssetListResponse
+    func accountHistory(
+        accountID: String,
+        baseURL: String?,
+        limit: Int?,
+        offset: Int64?,
+        countMode: IrohaToriiCountMode?,
+        assetID: String?,
+        network: UniversalWalletRegistry.IrohaNetwork
+    ) async throws -> IrohaAccountHistoryResponse
     func assetDefinitions(baseURL: String?) async throws -> IrohaAssetDefinitionListResponse
     func assetDefinitions(
         baseURL: String?,
@@ -21,6 +30,8 @@ protocol IrohaToriiClientProtocol {
         offset: Int64?,
         countMode: IrohaToriiCountMode?
     ) async throws -> IrohaAssetDefinitionListResponse
+    func assetDefinition(selector: String, baseURL: String?) async throws -> IrohaAssetDefinitionListItem
+    func resolveAssetAlias(_ alias: String, baseURL: String?) async throws -> IrohaAssetAliasResolution
     func submitTransaction(noritoBytes: Data, baseURL: String?) async throws -> IrohaTransactionSubmissionReceipt
     func transactionStatus(hash: String, baseURL: String?, scope: IrohaTransactionStatusScope) async throws -> IrohaPipelineTransactionStatusResponse
     func mcpCapabilities(network: UniversalWalletRegistry.IrohaNetwork, baseURL: String?) async throws -> Data
@@ -43,6 +54,32 @@ extension IrohaToriiClientProtocol {
         }
 
         return try await assetDefinitions(baseURL: baseURL)
+    }
+
+    func accountHistory(
+        accountID _: String,
+        baseURL _: String?,
+        limit _: Int?,
+        offset _: Int64?,
+        countMode _: IrohaToriiCountMode?,
+        assetID _: String?,
+        network _: UniversalWalletRegistry.IrohaNetwork
+    ) async throws -> IrohaAccountHistoryResponse {
+        throw ConvenienceError(error: "Iroha account history is unavailable")
+    }
+
+    func resolveAssetAlias(
+        _: String,
+        baseURL _: String?
+    ) async throws -> IrohaAssetAliasResolution {
+        throw ConvenienceError(error: "Iroha asset-alias resolution is unavailable")
+    }
+
+    func assetDefinition(
+        selector _: String,
+        baseURL _: String?
+    ) async throws -> IrohaAssetDefinitionListItem {
+        throw ConvenienceError(error: "Iroha asset-definition lookup is unavailable")
     }
 }
 
@@ -120,6 +157,27 @@ final class IrohaToriiClient: IrohaToriiClientProtocol {
         )
     }
 
+    func accountHistory(
+        accountID: String,
+        baseURL: String? = nil,
+        limit: Int? = nil,
+        offset: Int64? = nil,
+        countMode: IrohaToriiCountMode? = nil,
+        assetID: String? = nil,
+        network: UniversalWalletRegistry.IrohaNetwork = UniversalWalletRegistry.taira
+    ) async throws -> IrohaAccountHistoryResponse {
+        try await get(
+            try IrohaToriiRoutes.accountHistoryURL(
+                accountID: normalizeWalletAccountID(accountID, network: network),
+                baseURL: resolvedBaseURL(baseURL, network: network),
+                limit: limit,
+                offset: offset,
+                countMode: countMode,
+                assetID: assetID
+            )
+        )
+    }
+
     func assetDefinitions(baseURL: String? = nil) async throws -> IrohaAssetDefinitionListResponse {
         try await assetDefinitions(baseURL: baseURL, limit: nil, offset: nil, countMode: nil)
     }
@@ -138,6 +196,42 @@ final class IrohaToriiClient: IrohaToriiClientProtocol {
                 countMode: countMode
             )
         )
+    }
+
+    func assetDefinition(
+        selector: String,
+        baseURL: String? = nil
+    ) async throws -> IrohaAssetDefinitionListItem {
+        try await get(
+            try IrohaToriiRoutes.assetDefinitionURL(
+                selector: selector,
+                baseURL: resolvedBaseURL(baseURL)
+            )
+        )
+    }
+
+    func resolveAssetAlias(
+        _ alias: String,
+        baseURL: String? = nil
+    ) async throws -> IrohaAssetAliasResolution {
+        let normalizedAlias = try IrohaToriiRoutes.normalizeAssetSelector(alias)
+        var request = urlRequest(
+            url: try IrohaToriiRoutes.assetAliasResolutionURL(baseURL: resolvedBaseURL(baseURL)),
+            method: "POST"
+        )
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.httpBody = try encoder.encode(IrohaAssetAliasResolutionRequest(alias: normalizedAlias))
+
+        let resolution: IrohaAssetAliasResolution = try decode(try await transport.perform(request))
+        let normalizedAssetDefinitionID = try IrohaToriiRoutes.normalizeAssetSelector(
+            resolution.assetDefinitionID
+        )
+        guard resolution.alias == normalizedAlias,
+              normalizedAssetDefinitionID == resolution.assetDefinitionID else {
+            throw ConvenienceError(error: "Iroha asset-alias resolution is not canonical")
+        }
+        return resolution
     }
 
     func submitTransaction(

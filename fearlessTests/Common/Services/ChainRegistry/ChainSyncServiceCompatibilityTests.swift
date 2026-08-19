@@ -62,8 +62,20 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
             UniversalWalletRegistry.tairaChainModel,
             chainId: UniversalWalletRegistry.taira.id
         )
+        let staleTairaXor = AssetModel(
+            id: "61CtjvNd9T3THAR65GsMVHr82Bjc",
+            name: "xor",
+            symbol: "XOR",
+            precision: 9,
+            isUtility: true,
+            isNative: true
+        )
+        let staleCanonicalTaira = copy(
+            UniversalWalletRegistry.tairaChainModel,
+            assets: [staleTairaXor]
+        )
         let repository = ScriptedChainRepository(
-            localChains: [bitcoinAlias, tairaAlias]
+            localChains: [bitcoinAlias, tairaAlias, staleCanonicalTaira]
         )
         let eventCenter = RecordingChainSyncEventCenter()
         let remoteFetchRelease = DispatchSemaphore(value: 0)
@@ -124,6 +136,19 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
             repository.savedModels.contains(
                 UniversalWalletRegistry.tairaChainModel
             )
+        )
+        let persistedTaira = try XCTUnwrap(
+            repository.savedModels.first {
+                $0.chainId == UniversalWalletRegistry.taira.chainId
+            }
+        )
+        XCTAssertEqual(
+            persistedTaira.assets.map(\.id),
+            [UniversalWalletRegistry.tairaNativeXorAssetDefinitionId]
+        )
+        XCTAssertEqual(
+            persistedTaira.assets.first?.precision,
+            UniversalWalletRegistry.tairaNativeXorPrecision
         )
         XCTAssertEqual(eventCenter.failureCount, 0)
         XCTAssertEqual(eventCenter.completionCount, 1)
@@ -1568,7 +1593,8 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
         name: String? = nil,
         disabled: Bool? = nil,
         nodes: Set<ChainNodeModel>? = nil,
-        options: [ChainOptions]? = nil
+        options: [ChainOptions]? = nil,
+        assets: Set<AssetModel>? = nil
     ) -> ChainModel {
         ChainModel(
             rank: chain.rank,
@@ -1577,7 +1603,7 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
             parentId: chain.parentId,
             paraId: chain.paraId,
             name: name ?? chain.name,
-            assets: chain.assets,
+            assets: assets ?? chain.assets,
             xcm: chain.xcm,
             nodes: nodes ?? chain.nodes,
             addressPrefix: chain.addressPrefix,

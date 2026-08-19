@@ -912,6 +912,23 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         }
 
         do {
+            let baseURL = irohaBalanceBaseURL(for: chain, network: network)
+            let validatesCanonicalTairaXor = shouldValidateCanonicalTairaXor(network: network)
+            let tairaXorAliasResolution: IrohaAssetAliasResolution?
+            let tairaXorDefinition: IrohaAssetDefinitionListItem?
+            if validatesCanonicalTairaXor {
+                tairaXorAliasResolution = try await irohaToriiClient.resolveAssetAlias(
+                    UniversalWalletRegistry.tairaNativeXorAlias,
+                    baseURL: baseURL
+                )
+                tairaXorDefinition = try await irohaToriiClient.assetDefinition(
+                    selector: UniversalWalletRegistry.tairaNativeXorAlias,
+                    baseURL: baseURL
+                )
+            } else {
+                tairaXorAliasResolution = nil
+                tairaXorDefinition = nil
+            }
             var items: [IrohaAccountAssetListItem] = []
             var offset: Int64 = 0
             var hasMore = true
@@ -924,24 +941,30 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                 }
                 let response = try await irohaToriiClient.accountAssets(
                     accountID: address,
-                    baseURL: irohaBalanceBaseURL(for: chain),
+                    baseURL: baseURL,
                     limit: IrohaToriiRoutes.maxLimit,
                     offset: offset,
-                    countMode: .bounded,
+                    countMode: nil,
                     asset: nil,
                     scope: nil,
                     network: network
+                )
+                let responseHasMore = try irohaResponseHasMore(
+                    explicit: response.hasMore,
+                    offset: offset,
+                    itemCount: response.items.count,
+                    pageLimit: IrohaToriiRoutes.maxLimit
                 )
                 let fingerprint = response.items.map {
                     [$0.accountID, $0.assetID, $0.asset, $0.quantity, $0.scope]
                         .compactMap { $0 }
                         .joined(separator: "|")
                 }.joined(separator: "\n")
-                guard !response.hasMore || seenPageFingerprints.insert(fingerprint).inserted else {
+                guard !responseHasMore || seenPageFingerprints.insert(fingerprint).inserted else {
                     throw ConvenienceError(error: "Iroha account-asset pagination repeated a page")
                 }
                 items.append(contentsOf: response.items)
-                hasMore = response.hasMore && !response.items.isEmpty
+                hasMore = responseHasMore && !response.items.isEmpty
                 let pageSize = Int64(response.items.count)
                 guard offset <= Int64.max - pageSize else {
                     throw ConvenienceError(error: "Iroha account-asset pagination offset overflow")
@@ -961,12 +984,22 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
             })
             let definitionsResult = try await fetchIrohaDefinitions(
                 requiredAssetIds: requiredDefinitionIds,
-                baseURL: irohaBalanceBaseURL(for: chain),
+                baseURL: baseURL,
                 client: irohaToriiClient
             )
+            let definitions = [tairaXorDefinition].compactMap { $0 } + definitionsResult.items.filter {
+                $0.id != tairaXorDefinition?.id
+            }
+            if let tairaXorAliasResolution, let tairaXorDefinition {
+                try validateCanonicalTairaXor(
+                    chain: chain,
+                    aliasResolution: tairaXorAliasResolution,
+                    definition: tairaXorDefinition
+                )
+            }
             let discoveredAssets = discoveredIrohaAssets(
                 from: items,
-                definitions: definitionsResult.items,
+                definitions: definitions,
                 chain: chain
             )
             await dynamicAssetCatalogInjector?.inject(assetModels: discoveredAssets, into: chain)
@@ -1019,11 +1052,17 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                 baseURL: baseURL,
                 limit: IrohaToriiRoutes.maxLimit,
                 offset: offset,
-                countMode: .bounded
+                countMode: nil
+            )
+            let responseHasMore = try irohaResponseHasMore(
+                explicit: response.hasMore,
+                offset: offset,
+                itemCount: response.items.count,
+                pageLimit: IrohaToriiRoutes.maxLimit
             )
             let pageIds = response.items.map(\.id)
             let fingerprint = pageIds.joined(separator: "\n")
-            guard !response.hasMore || seenPageFingerprints.insert(fingerprint).inserted else {
+            guard !responseHasMore || seenPageFingerprints.insert(fingerprint).inserted else {
                 throw ConvenienceError(error: "Iroha asset-definition pagination repeated a page")
             }
 
@@ -1032,7 +1071,7 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
             if requiredAssetIds.isSubset(of: foundIds) {
                 return (definitions, true)
             }
-            guard response.hasMore, response.items.isNotEmpty else {
+            guard responseHasMore, response.items.isNotEmpty else {
                 return (definitions, false)
             }
 
@@ -1044,6 +1083,27 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         }
 
         throw ConvenienceError(error: "Iroha asset-definition pagination exceeded its safety bound")
+    }
+
+    private func irohaResponseHasMore(
+        explicit: Bool?,
+        offset: Int64,
+        itemCount: Int,
+        pageLimit: Int
+    ) throws -> Bool {
+        if let explicit {
+            return explicit
+        }
+
+        guard offset >= 0, itemCount >= 0, pageLimit > 0 else {
+            throw ConvenienceError(error: "Iroha pagination metadata is invalid")
+        }
+        guard let itemCount64 = Int64(exactly: itemCount),
+              offset <= Int64.max - itemCount64 else {
+            throw ConvenienceError(error: "Iroha pagination offset overflow")
+        }
+
+        return itemCount >= pageLimit
     }
 
     private func discoveredIrohaAssets(
@@ -1113,6 +1173,15 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         chain: ChainModel
     ) -> (precision: UInt16, isMetadataMissing: Bool) {
         let key = AssetKey(ecosystem: "iroha", chainId: chain.chainId, assetId: assetId)
+        if let spec = definition?.spec {
+            if let precision = spec.fixedPointAdapterPrecision {
+                DynamicAssetPrecisionStore.remember(precision, for: key)
+                return (precision, false)
+            }
+
+            return (UInt16(IrohaAssetDefinitionSpec.maximumScale), true)
+        }
+
         let metadataPrecision = definition?.metadata.flatMap { metadata in
             ["precision", "decimals", "scale"].compactMap { key in
                 metadata[key].flatMap(irohaIntegerValue)
@@ -1157,8 +1226,49 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         }
     }
 
-    private func irohaBalanceBaseURL(for chain: ChainModel) -> String? {
-        chain.externalApi?.history?.url.absoluteString
+    private func irohaBalanceBaseURL(
+        for chain: ChainModel,
+        network: UniversalWalletRegistry.IrohaNetwork
+    ) -> String? {
+        if network == UniversalWalletRegistry.taira {
+            return network.toriiBaseURL?.absoluteString
+        }
+
+        return chain.externalApi?.history?.url.absoluteString ?? network.toriiBaseURL?.absoluteString
+    }
+
+    private func shouldValidateCanonicalTairaXor(
+        network: UniversalWalletRegistry.IrohaNetwork
+    ) -> Bool {
+        network == UniversalWalletRegistry.taira
+    }
+
+    private func validateCanonicalTairaXor(
+        chain: ChainModel,
+        aliasResolution: IrohaAssetAliasResolution,
+        definition: IrohaAssetDefinitionListItem
+    ) throws {
+        let assetId = UniversalWalletRegistry.tairaNativeXorAssetDefinitionId
+        let alias = UniversalWalletRegistry.tairaNativeXorAlias
+        guard aliasResolution.alias == alias,
+              aliasResolution.assetDefinitionID == assetId,
+              aliasResolution.assetName.lowercased() == "xor",
+              aliasResolution.aliasBinding?.alias == alias,
+              aliasResolution.aliasBinding?.status == "permanent",
+              definition.id == assetId,
+              definition.alias == alias,
+              definition.name?.lowercased() == "xor",
+              definition.spec != nil,
+              definition.spec?.scale == nil,
+              let chainAsset = chain.assets.first(where: { $0.id == assetId }),
+              chainAsset.currencyId == alias,
+              chainAsset.precision == UniversalWalletRegistry.tairaNativeXorPrecision,
+              chainAsset.isUtility,
+              chainAsset.isNative else {
+            throw ConvenienceError(
+                error: "Taira XOR does not match the reviewed IrohaSwift/Torii contract"
+            )
+        }
     }
 
     private func irohaAccountInfo(

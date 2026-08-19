@@ -297,7 +297,7 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         XCTAssertEqual(asset.id, UniversalWalletRegistry.tairaNativeXorAssetDefinitionId)
         XCTAssertEqual(asset.currencyId, UniversalWalletRegistry.tairaNativeXorAlias)
         XCTAssertEqual(asset.symbol, "XOR")
-        XCTAssertEqual(asset.precision, 9)
+        XCTAssertEqual(asset.precision, 28)
         XCTAssertTrue(asset.isUtility)
         XCTAssertTrue(asset.isNative)
         XCTAssertEqual(node.url, UniversalWalletRegistry.taira.toriiBaseURL)

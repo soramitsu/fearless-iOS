@@ -26,7 +26,14 @@ Keychain read error like a missing mnemonic. Corrected successor build
 Esplora service, and authentic stored BIP39 root entropy only for automatic
 standard BIP84 provisioning. Missing entropy remains an explicit mnemonic-only
 recovery path; protected-data and other Keychain failures fail closed instead
-of manufacturing a different Bitcoin identity. The successor retains ancestry from
+of manufacturing a different Bitcoin identity. Corrected successor build
+`4.2.0 (2026.8.25)` binds Taira reads to `https://taira.sora.org` and canonical
+XOR `xor#universal` (`6TEAJqbb8oEPmLncoNiMRbLEK6tw`) using the reviewed Iroha
+`optimizations` source contract at
+`d8544f1d4d3a73c4a17873250a483208c9aafc16`. It validates unconstrained
+`NumericSpec` with wallet-adapter precision `28` and keeps
+`xor#sora.universal` (`61CtjvNd9T3THAR65GsMVHr82Bjc`, scale `9`) distinct.
+The successor retains ancestry from
 distributed source commit
 `2e45e55dc03ad904598e730cfb5994fb5c1072dc`, the exact public App Store
 Substrate v8/v9 compatibility models and lossless v10 migration, the redesign,
@@ -122,16 +129,18 @@ the tab bar. `.8.20` corrected the swap action but left accountless existing
 wallets without a visible Bitcoin recovery path. `.8.22` added Taira but left
 both app-owned networks dependent on remote catalog completion. `.8.23`
 persisted those rows locally but retained stale Bitcoin presentation/service
-behavior and swallowed non-missing Keychain failures. Use `.8.23` as the
-installed baseline, then corrected `.8.24` for the preserved-data
+behavior and swallowed non-missing Keychain failures. `.8.24` corrected the
+Bitcoin service, logo, and secret-derivation contract but retained the wrong
+Taira XOR identity. Use `.8.24` as the installed baseline, then corrected
+`.8.25` for the preserved-data
 qualification below.
 
 ## Internal TestFlight gate
 
 1. Confirm the installed identity is `jp.co.soramitsu.fearlesswallet`, version
-   `4.2.0`, build `2026.8.23` before the corrected successor
+   `4.2.0`, build `2026.8.24` before the corrected successor
    update.
-2. Assign build `2026.8.24` only to a true internal TestFlight group containing
+2. Assign build `2026.8.25` only to a true internal TestFlight group containing
    the affected phone's App Store Connect user. Do not use the similarly named
    external affected-phone group, which requires Beta App Review, and do not
    change the public beta group.
@@ -146,7 +155,7 @@ qualification below.
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.24 \
+     --expected-build 2026.8.25 \
      --observation-seconds 900 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 300 \
@@ -181,14 +190,18 @@ qualification below.
      attestation and must use the explicit mnemonic-only recovery route;
    - Taira Testnet and its canonical XOR row visible before a chain account
      exists, its mnemonic-only setup action available, an I105 account
-     provisioned for a compatible wallet, a successful Torii balance refresh,
-     a visible valid I105 receive address, Taira Send unavailable, and the
-     Switch Node absent and the empty chain-account ellipsis hidden, recorded
+     provisioned for a compatible wallet, canonical `xor#universal` resolved
+     through `https://taira.sora.org`, its unconstrained `NumericSpec` and
+     wallet-adapter precision `28` validated against Iroha `optimizations`
+     commit `d8544f1d4d3a73c4a17873250a483208c9aafc16`, a successful Torii
+     balance refresh, a visible valid I105 receive address, Taira Send
+     unavailable, and the Switch Node absent and the empty chain-account
+     ellipsis hidden, recorded
      only as pass/fail attestations; local derivation does not attest on-chain
      registration or funding;
    - unchanged wallet counts, logical store integrity, Keychain access, and
      settings access, recorded only as pass/fail attestations without values.
-   Record the actual `previousBuildVersion` (`2026.8.23`) and
+   Record the actual `previousBuildVersion` (`2026.8.24`) and
    `originalAppStoreContainerPreserved=true`; this binds the successor update
    to the still-preserved container originally installed from the App Store.
 6. After the first capture completes, force-quit once more and use a new output
@@ -202,13 +215,16 @@ qualification below.
    Bitcoin/Taira chain-account ellipses, and a
    stable auto-provisioned BIP84 address across relaunch
    without recording addresses, balances, transaction data, identifiers, or
-   values:
+   values. On both launches, the privacy-safe Taira booleans
+   `tairaCanonicalXorAliasResolved`, `tairaCanonicalXorSchemaValidated`, and
+   `tairaCanonicalToriiEndpointWorked` must be true; they must not contain the
+   returned definition, balance, address, or payload:
 
    ```bash
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.24 \
+     --expected-build 2026.8.25 \
      --observation-seconds 180 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 5 \
@@ -225,12 +241,12 @@ qualification below.
    later host-only diagnostics commit:
 
    ```bash
-   chmod 600 build/testflight-2026.8.24-upgrade-usability.json
-   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.24/testflight-internal-upload.json
+   chmod 600 build/testflight-2026.8.25-upgrade-usability.json
+   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.25/testflight-internal-upload.json
    artifact_source_commit="$(jq -er '.artifactSourceCommit' "$upload_receipt")"
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/audit-testflight-upgrade-usability-gate.py \
-     build/testflight-2026.8.24-upgrade-usability.json \
+     build/testflight-2026.8.25-upgrade-usability.json \
      --first-launch-capture-receipt \
        /ABSOLUTE/PRIVATE/FIRST-HOTFIX-CAPTURE/capture-receipt.json \
      --second-launch-capture-receipt \
@@ -254,6 +270,6 @@ PYTHONDONTWRITEBYTECODE=1 python3 \
 ## Release decision
 
 Only after the audit passes may release review replace build `2026.7.28` in the
-public beta group with `2026.8.24`. Uploading and assigning the restricted group
+public beta group with `2026.8.25`. Uploading and assigning the restricted group
 do not authorize changing the public beta group; that change still requires the
 normal App Store Connect authorization and review trail.
