@@ -39,7 +39,7 @@ protocol UniversalWalletStoredSeedAdopting {
 /// calls this only after the owner confirms the adoption. Authentic BIP39 root
 /// entropy remains authoritative and never receives a raw-seed marker.
 final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting {
-    enum AdoptionError: LocalizedError, Equatable {
+    enum AdoptionError: LocalizedError, ErrorContentConvertible, Equatable {
         case storedWalletSeedUnavailable
         case unsupportedSecretSource
         case conflictingUniversalWalletAccount
@@ -47,12 +47,21 @@ final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting 
         var errorDescription: String? {
             switch self {
             case .storedWalletSeedUnavailable:
-                return "This wallet has no compatible stored seed. Import its mnemonic instead."
+                return "This wallet has no compatible stored recovery secret. Import its original mnemonic or raw seed backup instead."
             case .unsupportedSecretSource:
                 return "This wallet uses a different recovery contract and was not changed."
             case .conflictingUniversalWalletAccount:
                 return "An existing Bitcoin or Taira account needs manual recovery and was not changed."
             }
+        }
+
+        func toErrorContent(for locale: Locale?) -> ErrorContent {
+            ErrorContent(
+                title: R.string.localizable.commonErrorGeneralTitle(
+                    preferredLanguages: locale?.rLanguages
+                ),
+                message: errorDescription ?? "Bitcoin and Taira accounts were not created."
+            )
         }
     }
 

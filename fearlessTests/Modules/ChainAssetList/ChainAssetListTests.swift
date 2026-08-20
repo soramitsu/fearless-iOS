@@ -1,6 +1,8 @@
 import BigInt
 import RobinHood
 import SoraFoundation
+import class SoraKeystore.InMemoryKeychain
+import enum SoraKeystore.KeystoreError
 import SSFModels
 import XCTest
 
@@ -23,6 +25,344 @@ final class ChainAssetListTests: XCTestCase {
         ExactAssetPriceCache.shared.clear()
         MultiChainFeaturePolicy.update(.defaultConfig)
         super.tearDown()
+    }
+
+    func testUseWalletSeedActionRunsExactlyOnceAfterDismissal() throws {
+        var adoptionCalls = 0
+        let viewModel = ChainAssetListPresenter.makeUniversalWalletSetupViewModel(
+            locale: Locale(identifier: "en_US"),
+            useStoredSeed: { adoptionCalls += 1 },
+            importAccount: {}
+        )
+        let action = try XCTUnwrap(
+            viewModel.actions.first(where: { $0.title == "Use wallet seed" })
+        )
+
+        action.handler?()
+        XCTAssertEqual(adoptionCalls, 0, "Adoption must wait until the sheet is gone")
+
+        viewModel.dismissCompletion?()
+        viewModel.dismissCompletion?()
+
+        XCTAssertEqual(
+            adoptionCalls,
+            1,
+            "The confirmed action must survive dismissal and remain one-shot"
+        )
+    }
+
+    func testUseWalletSeedActionSurvivesDismissCompletionBeforeHandler() throws {
+        var adoptionCalls = 0
+        let viewModel = ChainAssetListPresenter.makeUniversalWalletSetupViewModel(
+            locale: Locale(identifier: "en_US"),
+            useStoredSeed: { adoptionCalls += 1 },
+            importAccount: {}
+        )
+        let action = try XCTUnwrap(
+            viewModel.actions.first(where: { $0.title == "Use wallet seed" })
+        )
+
+        // SheetAlertViewLayout begins dismissal before invoking the selected
+        // action handler. Exercise the worst-case ordering directly so the
+        // tap cannot be lost when dismissal completes immediately.
+        viewModel.dismissCompletion?()
+        action.handler?()
+        action.handler?()
+
+        XCTAssertEqual(adoptionCalls, 1)
+    }
+
+    func testUniversalWalletSetupCancelDoesNotStartAnyAction() {
+        var adoptionCalls = 0
+        var importCalls = 0
+        let viewModel = ChainAssetListPresenter.makeUniversalWalletSetupViewModel(
+            locale: Locale(identifier: "en_US"),
+            useStoredSeed: { adoptionCalls += 1 },
+            importAccount: { importCalls += 1 }
+        )
+
+        viewModel.dismissCompletion?()
+
+        XCTAssertEqual(adoptionCalls, 0)
+        XCTAssertEqual(importCalls, 0)
+    }
+
+    func testUniversalWalletSetupImportRunsOnlyImportAfterDismissal() throws {
+        var adoptionCalls = 0
+        var importCalls = 0
+        let viewModel = ChainAssetListPresenter.makeUniversalWalletSetupViewModel(
+            locale: Locale(identifier: "en_US"),
+            useStoredSeed: { adoptionCalls += 1 },
+            importAccount: { importCalls += 1 }
+        )
+        let importAction = try XCTUnwrap(
+            viewModel.actions.first(where: { $0.title != "Use wallet seed" })
+        )
+
+        importAction.handler?()
+        viewModel.dismissCompletion?()
+
+        XCTAssertEqual(adoptionCalls, 0)
+        XCTAssertEqual(importCalls, 1)
+    }
+
+    func testFirstUniversalWalletSetupSelectionWinsBeforeDismissal() throws {
+        var adoptionCalls = 0
+        var importCalls = 0
+        let viewModel = ChainAssetListPresenter.makeUniversalWalletSetupViewModel(
+            locale: Locale(identifier: "en_US"),
+            useStoredSeed: { adoptionCalls += 1 },
+            importAccount: { importCalls += 1 }
+        )
+        let seedAction = try XCTUnwrap(
+            viewModel.actions.first(where: { $0.title == "Use wallet seed" })
+        )
+        let importAction = try XCTUnwrap(
+            viewModel.actions.first(where: { $0.title != "Use wallet seed" })
+        )
+
+        seedAction.handler?()
+        importAction.handler?()
+        viewModel.dismissCompletion?()
+
+        XCTAssertEqual(adoptionCalls, 1)
+        XCTAssertEqual(importCalls, 0)
+    }
+
+    func testEveryStoredSeedAdoptionErrorHasVisibleContent() {
+        let errors: [UniversalWalletStoredSeedAdopter.AdoptionError] = [
+            .storedWalletSeedUnavailable,
+            .unsupportedSecretSource,
+            .conflictingUniversalWalletAccount
+        ]
+
+        errors.forEach { error in
+            guard let convertible = error as? ErrorContentConvertible else {
+                return XCTFail("\(error) would be silently discarded by ErrorPresentable")
+            }
+
+            let content = convertible.toErrorContent(for: Locale(identifier: "en_US"))
+            XCTAssertFalse(content.title.isEmpty)
+            XCTAssertFalse(content.message.isEmpty)
+        }
+    }
+
+    func testUnexpectedStoredSeedFailureGetsVisibleRecoveryInstructions() throws {
+        let presentable = ChainAssetListPresenter.presentableStoredSeedAdoptionError(
+            KeystoreError.unexpectedFail,
+            locale: Locale(identifier: "en_US")
+        )
+        let convertible = try XCTUnwrap(presentable as? ErrorContentConvertible)
+        let content = convertible.toErrorContent(for: Locale(identifier: "en_US"))
+
+        XCTAssertFalse(content.title.isEmpty)
+        XCTAssertTrue(content.message.contains("wallet seed"))
+        XCTAssertTrue(content.message.contains("recovery phrase"))
+    }
+
+    func testStoredSeedAdoptionOperationCreatesBothAccounts() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(
+            Data(repeating: 0x2A, count: UniversalWalletSeedBridge.walletSeedLength),
+            with: fearless.KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId)
+        )
+        let completion = expectation(description: "stored seed adoption completed")
+        var adoptionResult: MetaAccountModel?
+
+        ChainAssetListInteractor.performStoredSeedAdoption(
+            walletSnapshot: wallet,
+            adopter: UniversalWalletStoredSeedAdopter(keystore: keychain),
+            operationQueue: OperationQueue(),
+            deliveryQueue: .main
+        ) { result in
+            adoptionResult = try? result.get()
+            completion.fulfill()
+        }
+
+        wait(for: [completion], timeout: Constants.defaultExpectationDuration)
+        let adoptedWallet = try XCTUnwrap(adoptionResult)
+        XCTAssertTrue(
+            UniversalWalletChainAccountSupport.hasValidDedicatedAccount(
+                in: adoptedWallet,
+                for: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        )
+        XCTAssertTrue(
+            UniversalWalletChainAccountSupport.hasValidDedicatedAccount(
+                in: adoptedWallet,
+                for: UniversalWalletRegistry.taira.chainId
+            )
+        )
+    }
+
+    func testStoredSeedAdoptedAccountsPersistAcrossSettingsReload() throws {
+        let operationQueue = OperationQueue()
+        let storageFacade = UserDataStorageTestFacade()
+        let settings = SelectedWalletSettings(
+            storageFacade: storageFacade,
+            operationQueue: operationQueue
+        )
+        let wallet = AccountGenerator.generateMetaAccount()
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(
+            Data(repeating: 0x19, count: UniversalWalletSeedBridge.walletSeedLength),
+            with: fearless.KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId)
+        )
+
+        let initialSave = expectation(description: "initial wallet saved")
+        settings.save(value: wallet, runningCompletionIn: .main) { result in
+            XCTAssertEqual(try? result.get(), wallet)
+            initialSave.fulfill()
+        }
+        wait(for: [initialSave], timeout: Constants.defaultExpectationDuration)
+
+        let adoption = expectation(description: "production adoption path persisted wallet")
+        var adoptedWallet: MetaAccountModel?
+        ChainAssetListInteractor.performAndPersistStoredSeedAdoption(
+            walletSnapshot: wallet,
+            adopter: UniversalWalletStoredSeedAdopter(keystore: keychain),
+            operationQueue: operationQueue,
+            walletSettings: settings,
+            currentWallet: { wallet }
+        ) { result in
+            adoptedWallet = try? result.get()
+            adoption.fulfill()
+        }
+        wait(for: [adoption], timeout: Constants.defaultExpectationDuration)
+
+        let reloadedSettings = SelectedWalletSettings(
+            storageFacade: storageFacade,
+            operationQueue: operationQueue
+        )
+        let reload = expectation(description: "settings reloaded")
+        var reloadedWallet: MetaAccountModel?
+        reloadedSettings.setup(runningCompletionIn: .main) { result in
+            reloadedWallet = try? result.get()
+            reload.fulfill()
+        }
+        wait(for: [reload], timeout: Constants.defaultExpectationDuration)
+
+        XCTAssertEqual(reloadedWallet, adoptedWallet)
+        XCTAssertEqual(reloadedWallet?.chainAccounts.count, 2)
+    }
+
+    func testMissingStoredSeedFailsVisiblyWithoutMutatingPersistedWallet() throws {
+        let operationQueue = OperationQueue()
+        let storageFacade = UserDataStorageTestFacade()
+        let settings = SelectedWalletSettings(
+            storageFacade: storageFacade,
+            operationQueue: operationQueue
+        )
+        let wallet = AccountGenerator.generateMetaAccount()
+        let initialSave = expectation(description: "initial wallet saved")
+        settings.save(value: wallet, runningCompletionIn: .main) { result in
+            XCTAssertEqual(try? result.get(), wallet)
+            initialSave.fulfill()
+        }
+        wait(for: [initialSave], timeout: Constants.defaultExpectationDuration)
+
+        let adoption = expectation(description: "missing stored seed reported")
+        var adoptionError: Error?
+        ChainAssetListInteractor.performAndPersistStoredSeedAdoption(
+            walletSnapshot: wallet,
+            adopter: UniversalWalletStoredSeedAdopter(keystore: InMemoryKeychain()),
+            operationQueue: operationQueue,
+            walletSettings: settings,
+            currentWallet: { wallet }
+        ) { result in
+            if case let .failure(error) = result {
+                adoptionError = error
+            }
+            adoption.fulfill()
+        }
+        wait(for: [adoption], timeout: Constants.defaultExpectationDuration)
+
+        let error = try XCTUnwrap(adoptionError)
+        XCTAssertEqual(
+            error as? UniversalWalletStoredSeedAdopter.AdoptionError,
+            .storedWalletSeedUnavailable
+        )
+        let presentable = ChainAssetListPresenter.presentableStoredSeedAdoptionError(
+            error,
+            locale: Locale(identifier: "en_US")
+        )
+        let content = try XCTUnwrap(presentable as? ErrorContentConvertible)
+            .toErrorContent(for: Locale(identifier: "en_US"))
+        XCTAssertFalse(content.message.isEmpty)
+        XCTAssertEqual(settings.value, wallet)
+
+        let reloadedSettings = SelectedWalletSettings(
+            storageFacade: storageFacade,
+            operationQueue: operationQueue
+        )
+        let reload = expectation(description: "unchanged wallet reloaded")
+        var reloadedWallet: MetaAccountModel?
+        reloadedSettings.setup(runningCompletionIn: .main) { result in
+            reloadedWallet = try? result.get()
+            reload.fulfill()
+        }
+        wait(for: [reload], timeout: Constants.defaultExpectationDuration)
+
+        XCTAssertEqual(reloadedWallet, wallet)
+        XCTAssertTrue(reloadedWallet?.chainAccounts.isEmpty == true)
+    }
+
+    func testStoredSeedAdoptionPreservesNewerSelectedWalletPayload() throws {
+        let operationQueue = OperationQueue()
+        let storageFacade = UserDataStorageTestFacade()
+        let settings = SelectedWalletSettings(
+            storageFacade: storageFacade,
+            operationQueue: operationQueue
+        )
+        let walletSnapshot = AccountGenerator.generateMetaAccount()
+        let newerWallet = walletSnapshot
+            .replacingName("renamed while adoption was running")
+            .replacingUnusedChainIds(["newer-unused-chain"])
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(
+            Data(repeating: 0x37, count: UniversalWalletSeedBridge.walletSeedLength),
+            with: fearless.KeystoreTagV2.substrateSeedTagForMetaId(walletSnapshot.metaId)
+        )
+
+        let initialSave = expectation(description: "newer wallet saved")
+        settings.save(value: newerWallet, runningCompletionIn: .main) { result in
+            XCTAssertEqual(try? result.get(), newerWallet)
+            initialSave.fulfill()
+        }
+        wait(for: [initialSave], timeout: Constants.defaultExpectationDuration)
+
+        let adoption = expectation(description: "adoption merged into newer wallet")
+        var savedWallet: MetaAccountModel?
+        ChainAssetListInteractor.performAndPersistStoredSeedAdoption(
+            walletSnapshot: walletSnapshot,
+            adopter: UniversalWalletStoredSeedAdopter(keystore: keychain),
+            operationQueue: operationQueue,
+            walletSettings: settings,
+            currentWallet: { walletSnapshot }
+        ) { result in
+            savedWallet = try? result.get()
+            adoption.fulfill()
+        }
+        wait(for: [adoption], timeout: Constants.defaultExpectationDuration)
+
+        XCTAssertEqual(savedWallet?.name, newerWallet.name)
+        XCTAssertEqual(savedWallet?.unusedChainIds, newerWallet.unusedChainIds)
+        XCTAssertEqual(savedWallet?.chainAccounts.count, 2)
+
+        let reloadedSettings = SelectedWalletSettings(
+            storageFacade: storageFacade,
+            operationQueue: operationQueue
+        )
+        let reload = expectation(description: "merged wallet reloaded")
+        var reloadedWallet: MetaAccountModel?
+        reloadedSettings.setup(runningCompletionIn: .main) { result in
+            reloadedWallet = try? result.get()
+            reload.fulfill()
+        }
+        wait(for: [reload], timeout: Constants.defaultExpectationDuration)
+
+        XCTAssertEqual(reloadedWallet, savedWallet)
     }
 
     func testStoredSeedAdoptionDeliversSuccessAfterFinishedOperationIsReleased() throws {
@@ -126,6 +466,46 @@ final class ChainAssetListTests: XCTestCase {
             try ChainAssetListInteractor.mergeStoredSeedAdoption(
                 adoptedWallet,
                 into: conflictingWallet
+            )
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletStoredSeedAdopter.AdoptionError,
+                .conflictingUniversalWalletAccount
+            )
+        }
+    }
+
+    func testStoredSeedAdoptionRejectsTwoIndependentlyChangedWalletPayloads() {
+        let walletSnapshot = AccountGenerator.generateMetaAccount()
+        let interactorWallet = walletSnapshot.replacingName("interactor rename")
+        let selectedWallet = walletSnapshot.replacingUnusedChainIds(["settings change"])
+
+        XCTAssertThrowsError(
+            try ChainAssetListInteractor.storedSeedAdoptionMergeBase(
+                walletSnapshot: walletSnapshot,
+                interactorWallet: interactorWallet,
+                selectedWallet: selectedWallet
+            )
+        ) { error in
+            XCTAssertTrue(error is BaseOperationError)
+        }
+    }
+
+    func testPersistedStoredSeedAdoptionRejectsDifferentValidAccounts() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let adoptedWallet = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+            to: wallet,
+            mnemonic: "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        )
+        let conflictingWallet = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+            to: wallet,
+            mnemonic: "letter advice cage absurd amount doctor acoustic avoid letter advice cage above"
+        )
+
+        XCTAssertThrowsError(
+            try ChainAssetListInteractor.validatePersistedStoredSeedAdoption(
+                adoptedWallet,
+                activeWallet: conflictingWallet
             )
         ) { error in
             XCTAssertEqual(

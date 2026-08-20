@@ -1,6 +1,37 @@
 import Foundation
+import RobinHood
 import SoraFoundation
 import SSFModels
+
+private final class DeferredSheetActionCoordinator {
+    private var didDismiss = false
+    private var didRun = false
+    private var pendingAction: (() -> Void)?
+
+    func select(_ action: @escaping () -> Void) {
+        guard !didRun, pendingAction == nil else {
+            return
+        }
+
+        pendingAction = action
+        runIfReady()
+    }
+
+    func dismiss() {
+        didDismiss = true
+        runIfReady()
+    }
+
+    private func runIfReady() {
+        guard didDismiss, !didRun, let pendingAction else {
+            return
+        }
+
+        didRun = true
+        self.pendingAction = nil
+        pendingAction()
+    }
+}
 
 final class ChainAssetListPresenter {
     // MARK: Private properties
@@ -119,46 +150,70 @@ final class ChainAssetListPresenter {
     }
 
     private func presentUniversalWalletSetupOptions(uniqueChainModel: UniqueChainModel) {
-        // Keep consent and execution in the same sheet, then run the selected
-        // action only after its dismissal completes. This prevents both a
-        // nested presentation race and a fast adoption error being presented
-        // while this sheet is still disappearing.
-        var pendingAction: (() -> Void)?
-        let storedSeedAction = SheetAlertPresentableAction(
-            title: "Use wallet seed",
-            style: .pinkBackgroundWhiteText
-        ) { [weak self] in
-            pendingAction = {
+        let viewModel = Self.makeUniversalWalletSetupViewModel(
+            locale: selectedLocale,
+            useStoredSeed: { [weak self] in
                 self?.interactor.adoptStoredWalletSeed()
-            }
-        }
-        let importAction = SheetAlertPresentableAction(
-            title: R.string.localizable.alreadyHaveAccount(
-                preferredLanguages: selectedLocale.rLanguages
-            )
-        ) { [weak self] in
-            pendingAction = {
+            },
+            importAccount: { [weak self] in
                 self?.router.showImport(
                     uniqueChainModel: uniqueChainModel,
                     from: self?.view
                 )
             }
-        }
-
-        let viewModel = SheetAlertPresentableViewModel(
-            title: "Create accounts from wallet seed?",
-            message: "This creates new Bitcoin and Taira addresses from this wallet's stored raw seed. It does not recover accounts previously created from a recovery phrase; import that phrase to recover those funds. Restore these new addresses with the same raw seed and Fearless seed contract.",
-            actions: [storedSeedAction, importAction],
-            closeAction: R.string.localizable.commonCancel(
-                preferredLanguages: selectedLocale.rLanguages
-            ),
-            dismissCompletion: {
-                let action = pendingAction
-                pendingAction = nil
-                action?()
-            }
         )
         router.present(viewModel: viewModel, from: view)
+    }
+
+    static func makeUniversalWalletSetupViewModel(
+        locale: Locale?,
+        useStoredSeed: @escaping () -> Void,
+        importAccount: @escaping () -> Void
+    ) -> SheetAlertPresentableViewModel {
+        let actionCoordinator = DeferredSheetActionCoordinator()
+        let storedSeedAction = SheetAlertPresentableAction(
+            title: "Use wallet seed",
+            style: .pinkBackgroundWhiteText
+        ) {
+            actionCoordinator.select(useStoredSeed)
+        }
+        let importAction = SheetAlertPresentableAction(
+            title: R.string.localizable.alreadyHaveAccount(
+                preferredLanguages: locale?.rLanguages
+            )
+        ) {
+            actionCoordinator.select(importAccount)
+        }
+
+        return SheetAlertPresentableViewModel(
+            title: "Create accounts from wallet seed?",
+            message: "This creates new Bitcoin and Taira addresses from this wallet's stored recovery secret. It does not recover accounts previously created from a different recovery phrase. Restore raw-seed wallets with the same raw seed and Fearless seed contract.",
+            actions: [storedSeedAction, importAction],
+            closeAction: R.string.localizable.commonCancel(
+                preferredLanguages: locale?.rLanguages
+            ),
+            dismissCompletion: {
+                actionCoordinator.dismiss()
+            }
+        )
+    }
+
+    static func presentableStoredSeedAdoptionError(
+        _ error: Error,
+        locale: Locale?
+    ) -> Error {
+        if error is ErrorContentConvertible ||
+            error is BaseOperationError ||
+            (error as NSError).domain == NSURLErrorDomain {
+            return error
+        }
+
+        return ConvenienceContentError(
+            title: R.string.localizable.commonErrorGeneralTitle(
+                preferredLanguages: locale?.rLanguages
+            ),
+            message: "The wallet seed could not be read. Unlock this device and try again. If it still fails, import the wallet's recovery phrase."
+        )
     }
 
     private func requiresDedicatedUniversalAccount(for chain: ChainModel) -> Bool {
@@ -293,7 +348,15 @@ extension ChainAssetListPresenter {
             wallet = updatedWallet
             provideViewModel()
         case let .failure(error):
-            router.present(error: error, from: view, locale: selectedLocale)
+            Logger.shared.customError(error)
+            router.present(
+                error: Self.presentableStoredSeedAdoptionError(
+                    error,
+                    locale: selectedLocale
+                ),
+                from: view,
+                locale: selectedLocale
+            )
         }
     }
 }

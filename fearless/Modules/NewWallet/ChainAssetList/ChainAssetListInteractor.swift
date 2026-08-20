@@ -147,6 +147,128 @@ final class ChainAssetListInteractor {
         return currentWallet.replacingChainAccounts(mergedAccounts)
     }
 
+    static func performAndPersistStoredSeedAdoption(
+        walletSnapshot: MetaAccountModel,
+        adopter: UniversalWalletStoredSeedAdopting,
+        operationQueue: OperationQueue,
+        walletSettings: SelectedWalletSettings,
+        deliveryQueue: DispatchQueue = .main,
+        currentWallet: @escaping () -> MetaAccountModel?,
+        completion: @escaping (Result<MetaAccountModel, Error>) -> Void
+    ) {
+        performStoredSeedAdoption(
+            walletSnapshot: walletSnapshot,
+            adopter: adopter,
+            operationQueue: operationQueue,
+            deliveryQueue: deliveryQueue
+        ) { result in
+            let adoptedWallet: MetaAccountModel
+            do {
+                adoptedWallet = try result.get()
+            } catch {
+                completion(.failure(error))
+                return
+            }
+
+            guard let interactorWallet = currentWallet(),
+                  let selectedWallet = walletSettings.value else {
+                completion(.failure(BaseOperationError.parentOperationCancelled))
+                return
+            }
+
+            let latestWallet: MetaAccountModel
+            do {
+                latestWallet = try storedSeedAdoptionMergeBase(
+                    walletSnapshot: walletSnapshot,
+                    interactorWallet: interactorWallet,
+                    selectedWallet: selectedWallet
+                )
+            } catch {
+                completion(.failure(error))
+                return
+            }
+
+            let walletToSave: MetaAccountModel
+            do {
+                walletToSave = try mergeStoredSeedAdoption(
+                    adoptedWallet,
+                    into: latestWallet
+                )
+            } catch {
+                completion(.failure(error))
+                return
+            }
+
+            walletSettings.save(
+                value: walletToSave,
+                runningCompletionIn: deliveryQueue
+            ) { result in
+                let savedWallet: MetaAccountModel
+                do {
+                    savedWallet = try result.get()
+                } catch {
+                    completion(.failure(error))
+                    return
+                }
+
+                let activeWallet = walletSettings.value ?? savedWallet
+                do {
+                    let validatedWallet = try validatePersistedStoredSeedAdoption(
+                        adoptedWallet,
+                        activeWallet: activeWallet
+                    )
+                    completion(.success(validatedWallet))
+                } catch {
+                    completion(.failure(error))
+                    return
+                }
+            }
+        }
+    }
+
+    static func storedSeedAdoptionMergeBase(
+        walletSnapshot: MetaAccountModel,
+        interactorWallet: MetaAccountModel,
+        selectedWallet: MetaAccountModel
+    ) throws -> MetaAccountModel {
+        guard interactorWallet.metaId == walletSnapshot.metaId,
+              selectedWallet.metaId == walletSnapshot.metaId else {
+            throw BaseOperationError.parentOperationCancelled
+        }
+
+        if interactorWallet == selectedWallet {
+            return interactorWallet
+        }
+
+        if interactorWallet == walletSnapshot {
+            return selectedWallet
+        }
+
+        if selectedWallet == walletSnapshot {
+            return interactorWallet
+        }
+
+        // Two independently changed payloads cannot be reconciled without
+        // risking loss of a concurrent wallet update. Let the user retry on
+        // the latest stable snapshot instead.
+        throw BaseOperationError.parentOperationCancelled
+    }
+
+    static func validatePersistedStoredSeedAdoption(
+        _ adoptedWallet: MetaAccountModel,
+        activeWallet: MetaAccountModel
+    ) throws -> MetaAccountModel {
+        let validatedWallet = try mergeStoredSeedAdoption(
+            adoptedWallet,
+            into: activeWallet
+        )
+        guard validatedWallet == activeWallet else {
+            throw BaseOperationError.parentOperationCancelled
+        }
+
+        return activeWallet
+    }
+
     private static func mergeStoredSeedAccount(
         chainId: ChainModel.Id,
         adoptedAccounts: Set<ChainAccountModel>,
@@ -453,74 +575,30 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
     func adoptStoredWalletSeed() {
         let walletSnapshot = wallet
-        Self.performStoredSeedAdoption(
+        Self.performAndPersistStoredSeedAdoption(
             walletSnapshot: walletSnapshot,
             adopter: storedSeedAdopter,
-            operationQueue: operationQueue
+            operationQueue: operationQueue,
+            walletSettings: walletSettings,
+            currentWallet: { [weak self] in self?.wallet }
         ) { [weak self] result in
             guard let self else {
                 return
             }
 
             switch result {
-            case let .success(updatedWallet):
-                guard self.wallet.metaId == walletSnapshot.metaId,
-                      self.walletSettings.value?.metaId == walletSnapshot.metaId else {
-                    self.output?.didAdoptStoredWalletSeed(
-                        result: .failure(BaseOperationError.parentOperationCancelled)
-                    )
-                    return
-                }
-
-                let walletToSave: MetaAccountModel
-                do {
-                    walletToSave = try Self.mergeStoredSeedAdoption(
-                        updatedWallet,
-                        into: self.wallet
-                    )
-                } catch {
-                    self.output?.didAdoptStoredWalletSeed(result: .failure(error))
-                    return
-                }
-
-                self.walletSettings.save(
-                    value: walletToSave,
-                    runningCompletionIn: .main
-                ) { [weak self] result in
-                    guard let self else { return }
-                    switch result {
-                    case let .success(savedWallet):
-                        let activeWallet = self.walletSettings.value ?? savedWallet
-                        guard activeWallet.metaId == savedWallet.metaId,
-                              UniversalWalletChainAccountSupport.hasValidDedicatedAccount(
-                                  in: activeWallet,
-                                  for: UniversalWalletRegistry.bitcoinMainnet.chainId
-                              ),
-                              UniversalWalletChainAccountSupport.hasValidDedicatedAccount(
-                                  in: activeWallet,
-                                  for: UniversalWalletRegistry.taira.chainId
-                              ) else {
-                            self.output?.didAdoptStoredWalletSeed(
-                                result: .failure(BaseOperationError.parentOperationCancelled)
-                            )
-                            return
-                        }
-
-                        self.wallet = activeWallet
-                        self.resetAccountInfoSubscription()
-                        self.updateChainAssets(
-                            using: self.filters,
-                            sorts: self.sorts,
-                            useCashe: false
-                        )
-                        self.eventCenter.notify(
-                            with: MetaAccountModelChangedEvent(account: activeWallet)
-                        )
-                        self.output?.didAdoptStoredWalletSeed(result: .success(activeWallet))
-                    case let .failure(error):
-                        self.output?.didAdoptStoredWalletSeed(result: .failure(error))
-                    }
-                }
+            case let .success(activeWallet):
+                self.wallet = activeWallet
+                self.resetAccountInfoSubscription()
+                self.updateChainAssets(
+                    using: self.filters,
+                    sorts: self.sorts,
+                    useCashe: false
+                )
+                self.eventCenter.notify(
+                    with: MetaAccountModelChangedEvent(account: activeWallet)
+                )
+                self.output?.didAdoptStoredWalletSeed(result: .success(activeWallet))
             case let .failure(error):
                 self.output?.didAdoptStoredWalletSeed(result: .failure(error))
             }
