@@ -1,4 +1,5 @@
 import BigInt
+import RobinHood
 import SoraFoundation
 import SSFModels
 import XCTest
@@ -22,6 +23,69 @@ final class ChainAssetListTests: XCTestCase {
         ExactAssetPriceCache.shared.clear()
         MultiChainFeaturePolicy.update(.defaultConfig)
         super.tearDown()
+    }
+
+    func testStoredSeedAdoptionDeliversSuccessAfterFinishedOperationIsReleased() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let updatedWallet = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+            to: wallet,
+            mnemonic: "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        )
+        let completionDelivered = expectation(description: "completion delivered")
+        let deliveryQueue = DispatchQueue(label: "test.stored-seed-adoption.delivery")
+        deliveryQueue.suspend()
+        var operation: ClosureOperation<MetaAccountModel>? = ClosureOperation {
+            updatedWallet
+        }
+        operation?.start()
+        weak var weakOperation = operation
+
+        ChainAssetListInteractor.deliverStoredSeedAdoptionResult(
+            from: operation,
+            deliveryQueue: deliveryQueue
+        ) { result in
+            XCTAssertEqual(try? result.get(), updatedWallet)
+            completionDelivered.fulfill()
+        }
+
+        operation = nil
+        XCTAssertNil(
+            weakOperation,
+            "The queued result must not rely on retaining the finished operation"
+        )
+
+        deliveryQueue.resume()
+        wait(for: [completionDelivered], timeout: 1)
+    }
+
+    func testStoredSeedAdoptionDeliversFailureAfterFinishedOperationIsReleased() {
+        let completionDelivered = expectation(description: "failure delivered")
+        let deliveryQueue = DispatchQueue(label: "test.stored-seed-adoption.failure-delivery")
+        deliveryQueue.suspend()
+        var operation: ClosureOperation<MetaAccountModel>? = ClosureOperation {
+            throw StoredSeedAdoptionTestError.expected
+        }
+        operation?.start()
+        weak var weakOperation = operation
+
+        ChainAssetListInteractor.deliverStoredSeedAdoptionResult(
+            from: operation,
+            deliveryQueue: deliveryQueue
+        ) { result in
+            switch result {
+            case .success:
+                XCTFail("The adopter failure must survive operation deallocation")
+            case let .failure(error):
+                XCTAssertEqual(error as? StoredSeedAdoptionTestError, .expected)
+            }
+            completionDelivered.fulfill()
+        }
+
+        operation = nil
+        XCTAssertNil(weakOperation)
+
+        deliveryQueue.resume()
+        wait(for: [completionDelivered], timeout: 1)
     }
 
     func testProvisionedBitcoinAppearsInPortfolioAtZeroBalance() throws {
@@ -1372,4 +1436,8 @@ private final class ChainAssetListInteractorOutputSpy: ChainAssetListInteractorO
     func handleWalletChanged(wallet _: MetaAccountModel) {}
     func didReceive(chainSettings _: [ChainSettings]) {}
     func didAdoptStoredWalletSeed(result _: Result<MetaAccountModel, Error>) {}
+}
+
+private enum StoredSeedAdoptionTestError: Error, Equatable {
+    case expected
 }

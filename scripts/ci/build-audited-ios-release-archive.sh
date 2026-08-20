@@ -40,8 +40,10 @@ readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
 # 2026.8.26 bundles the canonical Bitcoin mark and adds the explicit,
 # recoverable raw wallet-seed bridge while retaining Mempool.space as the sole
 # production Bitcoin service.
+# 2026.8.27 preserves the completed seed-adoption result across the asynchronous
+# UI handoff so the confirmed Bitcoin/Taira accounts are actually saved.
 # Reconfirm successor uniqueness read-only immediately before archive.
-readonly EXPECTED_BUILD="2026.8.26"
+readonly EXPECTED_BUILD="2026.8.27"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -60,7 +62,7 @@ Usage:
 Preconditions:
   - exact clean git HEAD, including no untracked files, descended from the
     distributed 4.2.0 (2026.7.28) source commit;
-  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.26);
+  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.27);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 

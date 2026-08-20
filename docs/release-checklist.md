@@ -70,7 +70,7 @@ Use this checklist for every release PR from `develop` to `master`.
   bundles for Xcode's three generated crypto stubs and the stripped
   MPQRCoreSDK vendor binary; this removes App Store Connect's missing-dSYM
   warnings but does not claim unavailable MPQR source-line DWARF.
-- Validate build `4.2.0 (2026.8.26)` through a true internal TestFlight group
+- Validate build `4.2.0 (2026.8.27)` through a true internal TestFlight group
   containing the affected phone's App Store Connect user before changing the
   public beta group. Do not substitute an external group that requires Beta App
   Review. Run
@@ -92,7 +92,9 @@ Use this checklist for every release PR from `develop` to `master`.
   exact standard-BIP84 address agreement, and stability across a cold
   relaunch. For the preserved legacy raw-seed wallet, require the explicit
   `Use wallet seed` confirmation, exact agreement with the reviewed raw-seed
-  bridge golden vector, and stable Bitcoin/Taira accounts across relaunch.
+  bridge golden vector, delivery of the completed adoption result, durable
+  persistence of both dedicated accounts, and stable Bitcoin/Taira accounts
+  across relaunch.
   Unmarked legacy seeds must never be interpreted without that confirmation;
   watch-only/JSON wallets remain on the mnemonic-only recovery path,
   a visible Taira Testnet and canonical XOR row even before a chain account
