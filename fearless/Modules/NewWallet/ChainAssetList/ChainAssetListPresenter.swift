@@ -73,21 +73,20 @@ final class ChainAssetListPresenter {
 
     private func showMissingAccountOptions(chain: ChainModel) {
         let unused = (wallet.unusedChainIds ?? []).contains(chain.chainId)
-        let options: [MissingAccountOption?]
-        if requiresDedicatedUniversalAccount(for: chain) {
-            // Bitcoin and Taira use ecosystem-specific universal-wallet keys.
-            // Generic create/seed/keystore routes would store a Substrate key
-            // under their chain identifiers and leave the accounts unusable.
-            options = [.import]
-        } else {
-            options = [.create, .import, unused ? nil : .skip]
-        }
         let uniqueChainModel = UniqueChainModel(
             meta: wallet,
             chain: chain
         )
 
-        var actions: [SheetAlertPresentableAction] = options.compactMap { option in
+        if requiresDedicatedUniversalAccount(for: chain) {
+            presentUniversalWalletSetupOptions(uniqueChainModel: uniqueChainModel)
+            return
+        }
+
+        let options: [MissingAccountOption?]
+        options = [.create, .import, unused ? nil : .skip]
+
+        let actions: [SheetAlertPresentableAction] = options.compactMap { option in
             switch option {
             case .create:
                 let title = R.string.localizable
@@ -112,18 +111,6 @@ final class ChainAssetListPresenter {
             }
         }
 
-        if requiresDedicatedUniversalAccount(for: chain) {
-            actions.insert(
-                SheetAlertPresentableAction(
-                    title: "Use wallet seed",
-                    style: .pinkBackgroundWhiteText
-                ) { [weak self] in
-                    self?.confirmStoredSeedAdoption()
-                },
-                at: 0
-            )
-        }
-
         router.presentAccountOptions(
             from: view,
             locale: selectedLocale,
@@ -131,25 +118,47 @@ final class ChainAssetListPresenter {
         )
     }
 
-    private func confirmStoredSeedAdoption() {
-        let confirmAction = SheetAlertPresentableAction(
-            title: R.string.localizable.commonContinue(
-                preferredLanguages: selectedLocale.rLanguages
-            ),
+    private func presentUniversalWalletSetupOptions(uniqueChainModel: UniqueChainModel) {
+        // Keep consent and execution in the same sheet, then run the selected
+        // action only after its dismissal completes. This prevents both a
+        // nested presentation race and a fast adoption error being presented
+        // while this sheet is still disappearing.
+        var pendingAction: (() -> Void)?
+        let storedSeedAction = SheetAlertPresentableAction(
+            title: "Use wallet seed",
             style: .pinkBackgroundWhiteText
         ) { [weak self] in
-            self?.interactor.adoptStoredWalletSeed()
+            pendingAction = {
+                self?.interactor.adoptStoredWalletSeed()
+            }
+        }
+        let importAction = SheetAlertPresentableAction(
+            title: R.string.localizable.alreadyHaveAccount(
+                preferredLanguages: selectedLocale.rLanguages
+            )
+        ) { [weak self] in
+            pendingAction = {
+                self?.router.showImport(
+                    uniqueChainModel: uniqueChainModel,
+                    from: self?.view
+                )
+            }
         }
 
-        router.present(
-            message: "This creates new Bitcoin and Taira addresses from this wallet's stored raw seed. It does not recover accounts previously created from a recovery phrase; import that phrase to recover those funds. Restore these new addresses with the same raw seed and Fearless seed contract.",
+        let viewModel = SheetAlertPresentableViewModel(
             title: "Create accounts from wallet seed?",
+            message: "This creates new Bitcoin and Taira addresses from this wallet's stored raw seed. It does not recover accounts previously created from a recovery phrase; import that phrase to recover those funds. Restore these new addresses with the same raw seed and Fearless seed contract.",
+            actions: [storedSeedAction, importAction],
             closeAction: R.string.localizable.commonCancel(
                 preferredLanguages: selectedLocale.rLanguages
             ),
-            from: view,
-            actions: [confirmAction]
+            dismissCompletion: {
+                let action = pendingAction
+                pendingAction = nil
+                action?()
+            }
         )
+        router.present(viewModel: viewModel, from: view)
     }
 
     private func requiresDedicatedUniversalAccount(for chain: ChainModel) -> Bool {

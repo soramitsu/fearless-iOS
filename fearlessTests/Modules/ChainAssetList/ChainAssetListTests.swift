@@ -88,6 +88,53 @@ final class ChainAssetListTests: XCTestCase {
         wait(for: [completionDelivered], timeout: 1)
     }
 
+    func testStoredSeedAdoptionMergesAccountsIntoNewerWalletPayload() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let adoptedWallet = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+            to: wallet,
+            mnemonic: "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        )
+        let currentWallet = wallet
+            .replacingName("renamed while adoption was running")
+            .replacingUnusedChainIds(["a-new-unused-chain"])
+
+        let mergedWallet = try ChainAssetListInteractor.mergeStoredSeedAdoption(
+            adoptedWallet,
+            into: currentWallet
+        )
+
+        XCTAssertEqual(mergedWallet.name, currentWallet.name)
+        XCTAssertEqual(mergedWallet.unusedChainIds, currentWallet.unusedChainIds)
+        XCTAssertEqual(
+            mergedWallet.chainAccounts,
+            adoptedWallet.chainAccounts
+        )
+    }
+
+    func testStoredSeedAdoptionRejectsConcurrentDifferentBitcoinAccount() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let adoptedWallet = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+            to: wallet,
+            mnemonic: "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        )
+        let conflictingWallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+            to: wallet,
+            mnemonic: "letter advice cage absurd amount doctor acoustic avoid letter advice cage above"
+        )
+
+        XCTAssertThrowsError(
+            try ChainAssetListInteractor.mergeStoredSeedAdoption(
+                adoptedWallet,
+                into: conflictingWallet
+            )
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletStoredSeedAdopter.AdoptionError,
+                .conflictingUniversalWalletAccount
+            )
+        }
+    }
+
     func testProvisionedBitcoinAppearsInPortfolioAtZeroBalance() throws {
         let wallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
             to: AccountGenerator.generateMetaAccount(),

@@ -135,7 +135,7 @@ try {
           echo "Exact Release gate requires dispatch to an arm64 macOS agent." >&2
           exit 78
         }
-        IOS_EXPECTED_BUILD_NUMBER=2026.8.27 \
+        IOS_EXPECTED_BUILD_NUMBER=2026.8.28 \
           IOS_RELEASE_SOURCE_PACKAGES_DIR="$PWD/SourcePackages" \
           bash scripts/ci/audit-ios-release-identity.sh
         bash scripts/storage/audit-user-storage-compatibility-models.sh

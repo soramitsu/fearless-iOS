@@ -115,6 +115,77 @@ final class ChainAssetListInteractor {
         }
     }
 
+    static func mergeStoredSeedAdoption(
+        _ adoptedWallet: MetaAccountModel,
+        into currentWallet: MetaAccountModel
+    ) throws -> MetaAccountModel {
+        guard adoptedWallet.metaId == currentWallet.metaId,
+              adoptedWallet.substrateAccountId == currentWallet.substrateAccountId,
+              adoptedWallet.substratePublicKey == currentWallet.substratePublicKey,
+              adoptedWallet.substrateCryptoType == currentWallet.substrateCryptoType else {
+            throw BaseOperationError.parentOperationCancelled
+        }
+
+        var mergedAccounts = currentWallet.chainAccounts
+        try mergeStoredSeedAccount(
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
+            adoptedAccounts: adoptedWallet.chainAccounts,
+            currentAccounts: currentWallet.chainAccounts,
+            isValid: { account in
+                UniversalWalletChainAccountSupport.isValidBitcoinAccount(account)
+            },
+            into: &mergedAccounts
+        )
+        try mergeStoredSeedAccount(
+            chainId: UniversalWalletRegistry.taira.chainId,
+            adoptedAccounts: adoptedWallet.chainAccounts,
+            currentAccounts: currentWallet.chainAccounts,
+            isValid: UniversalWalletChainAccountSupport.isValidTairaAccount,
+            into: &mergedAccounts
+        )
+
+        return currentWallet.replacingChainAccounts(mergedAccounts)
+    }
+
+    private static func mergeStoredSeedAccount(
+        chainId: ChainModel.Id,
+        adoptedAccounts: Set<ChainAccountModel>,
+        currentAccounts: Set<ChainAccountModel>,
+        isValid: (ChainAccountModel) -> Bool,
+        into mergedAccounts: inout Set<ChainAccountModel>
+    ) throws {
+        let adoptedMatches = adoptedAccounts.filter {
+            UniversalWalletChainAccountSupport.chainId($0.chainId, matches: chainId)
+        }
+        guard adoptedMatches.count == 1,
+              let adoptedAccount = adoptedMatches.first,
+              isValid(adoptedAccount) else {
+            throw UniversalWalletStoredSeedAdopter.AdoptionError
+                .conflictingUniversalWalletAccount
+        }
+
+        let currentMatches = currentAccounts.filter {
+            UniversalWalletChainAccountSupport.chainId($0.chainId, matches: chainId)
+        }
+        guard currentMatches.count <= 1 else {
+            throw UniversalWalletStoredSeedAdopter.AdoptionError
+                .conflictingUniversalWalletAccount
+        }
+
+        if let currentAccount = currentMatches.first {
+            guard isValid(currentAccount),
+                  currentAccount.accountId == adoptedAccount.accountId,
+                  currentAccount.publicKey == adoptedAccount.publicKey,
+                  currentAccount.cryptoType == adoptedAccount.cryptoType,
+                  currentAccount.ethereumBased == adoptedAccount.ethereumBased else {
+                throw UniversalWalletStoredSeedAdopter.AdoptionError
+                    .conflictingUniversalWalletAccount
+            }
+        } else {
+            mergedAccounts.insert(adoptedAccount)
+        }
+    }
+
     // MARK: - Private methods
 
     private func save(_ updatedAccount: MetaAccountModel, shouldNotify: Bool) {
@@ -393,16 +464,27 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
             switch result {
             case let .success(updatedWallet):
-                guard self.wallet == walletSnapshot,
-                      self.walletSettings.value == walletSnapshot else {
+                guard self.wallet.metaId == walletSnapshot.metaId,
+                      self.walletSettings.value?.metaId == walletSnapshot.metaId else {
                     self.output?.didAdoptStoredWalletSeed(
                         result: .failure(BaseOperationError.parentOperationCancelled)
                     )
                     return
                 }
 
+                let walletToSave: MetaAccountModel
+                do {
+                    walletToSave = try Self.mergeStoredSeedAdoption(
+                        updatedWallet,
+                        into: self.wallet
+                    )
+                } catch {
+                    self.output?.didAdoptStoredWalletSeed(result: .failure(error))
+                    return
+                }
+
                 self.walletSettings.save(
-                    value: updatedWallet,
+                    value: walletToSave,
                     runningCompletionIn: .main
                 ) { [weak self] result in
                     guard let self else { return }

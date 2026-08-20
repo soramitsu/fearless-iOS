@@ -18,7 +18,7 @@ from typing import Any
 
 EXPECTED_BUNDLE_ID = "jp.co.soramitsu.fearlesswallet"
 EXPECTED_VERSION = "4.2.0"
-EXPECTED_BUILD = "2026.8.27"
+EXPECTED_BUILD = "2026.8.28"
 EXPECTED_PREVIOUS_BUILDS = (
     "2026.8.15",
     "2026.8.17",
@@ -31,6 +31,7 @@ EXPECTED_PREVIOUS_BUILDS = (
     "2026.8.24",
     "2026.8.25",
     "2026.8.26",
+    "2026.8.27",
 )
 EXPECTED_BASE_SOURCE_COMMIT = "2e45e55dc03ad904598e730cfb5994fb5c1072dc"
 MINIMUM_USABILITY_SECONDS = 300
@@ -559,7 +560,7 @@ def validate(
     )
     require(
         installation.get("previousBuildVersion") in EXPECTED_PREVIOUS_BUILDS,
-        "installation must update in place from supported predecessor build 2026.8.15, 2026.8.17, 2026.8.18, 2026.8.19, 2026.8.20, 2026.8.21, 2026.8.22, 2026.8.23, 2026.8.24, 2026.8.25, or 2026.8.26",
+        "installation must update in place from supported predecessor build 2026.8.15, 2026.8.17, 2026.8.18, 2026.8.19, 2026.8.20, 2026.8.21, 2026.8.22, 2026.8.23, 2026.8.24, 2026.8.25, 2026.8.26, or 2026.8.27",
     )
     require_true(installation, "installedInPlace")
     require_true(installation, "originalAppStoreContainerPreserved")
