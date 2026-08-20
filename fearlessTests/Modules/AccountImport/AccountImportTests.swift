@@ -5,8 +5,328 @@ import RobinHood
 import Cuckoo
 import IrohaCrypto
 import SoraFoundation
+import struct SSFModels.ChainAccountModel
 
 class AccountImportTests: XCTestCase {
+
+    func testConfirmedLegacyWalletSeedAdoptionCreatesStableAppOwnedAccounts() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let walletSeed = Data(repeating: 0, count: 32)
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(
+            walletSeed,
+            with: KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId)
+        )
+
+        let adopter = UniversalWalletStoredSeedAdopter(keystore: keychain)
+        let adopted = try adopter.adoptStoredSecret(for: wallet)
+        let retried = try adopter.adoptStoredSecret(for: adopted)
+
+        XCTAssertEqual(adopted, retried)
+        XCTAssertTrue(
+            UniversalWalletChainAccountSupport.hasValidDedicatedAccount(
+                in: adopted,
+                for: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        )
+        XCTAssertTrue(
+            UniversalWalletChainAccountSupport.hasValidDedicatedAccount(
+                in: adopted,
+                for: UniversalWalletRegistry.taira.chainId
+            )
+        )
+        XCTAssertEqual(
+            try keychain.fetchKey(
+                for: KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+            ),
+            Data(UniversalWalletSeedBridge.contract.utf8)
+        )
+        XCTAssertEqual(
+            try KeychainUniversalWalletMnemonicProvider(keystore: keychain)
+                .rootMnemonic(for: adopted),
+            try UniversalWalletSeedBridge.mnemonic(fromWalletSeed: walletSeed)
+        )
+    }
+
+    func testStoredRootEntropyAdoptionUsesStandardMnemonicWithoutWritingBridgeMarker() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let mnemonic = try IRMnemonicCreator().mnemonic(
+            fromList: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        )
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(
+            mnemonic.entropy(),
+            with: KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+        )
+
+        let adopted = try UniversalWalletStoredSeedAdopter(keystore: keychain)
+            .adoptStoredSecret(for: wallet)
+        let address = UniversalWalletAccountAddressResolver.address(
+            for: UniversalWalletRegistry.bitcoinMainnetChainModel,
+            wallet: adopted
+        )
+
+        XCTAssertEqual(
+            address,
+            try BitcoinKeyDerivation.deriveAccount(
+                mnemonic: mnemonic.toString(),
+                network: .mainnet
+            ).firstReceiveAddress
+        )
+        XCTAssertFalse(
+            try keychain.checkKey(
+                for: KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+            )
+        )
+    }
+
+    func testLegacyWalletSeedAdoptionRejectsForeignMarkerAndInvalidSeed() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let sourceTag = KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+        let seedTag = KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId)
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(Data("foreign-v2".utf8), with: sourceTag)
+        try keychain.saveKey(Data(repeating: 0, count: 32), with: seedTag)
+
+        XCTAssertThrowsError(
+            try UniversalWalletStoredSeedAdopter(keystore: keychain)
+                .adoptStoredSecret(for: wallet)
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletStoredSeedAdopter.AdoptionError,
+                .unsupportedSecretSource
+            )
+        }
+
+        try keychain.deleteKey(for: sourceTag)
+        try keychain.updateKey(Data(repeating: 0, count: 31), with: seedTag)
+        XCTAssertThrowsError(
+            try UniversalWalletStoredSeedAdopter(keystore: keychain)
+                .adoptStoredSecret(for: wallet)
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletStoredSeedAdopter.AdoptionError,
+                .storedWalletSeedUnavailable
+            )
+        }
+        XCTAssertFalse(try keychain.checkKey(for: sourceTag))
+    }
+
+    func testWalletSeedImportAutomaticallyCreatesStableSignableBitcoinAccount() throws {
+        let walletSeed = Data(repeating: 0, count: 32)
+        let seedHex = walletSeed.toHex(includePrefix: false)
+        let expectedMnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art"
+        XCTAssertEqual(
+            try UniversalWalletSeedBridge.mnemonic(fromWalletSeed: walletSeed),
+            expectedMnemonic
+        )
+        let expectedBitcoin = try BitcoinKeyDerivation.deriveAccount(
+            mnemonic: expectedMnemonic,
+            network: .mainnet
+        )
+        XCTAssertEqual(
+            expectedBitcoin.publicKey.toHex(includePrefix: false),
+            "03c5db199831f23a3a1575518c8e9e948bfd495481aac442dec64b447ee76bd6fa"
+        )
+        XCTAssertEqual(
+            expectedBitcoin.firstReceiveAddress,
+            "bc1qzmtrqsfuaf6l6kkcsseumq26ukaphfj9skkug6"
+        )
+
+        func importWallet(into keychain: InMemoryKeychain) throws -> MetaAccountModel {
+            let request = MetaAccountImportSeedRequest(
+                substrateSeed: seedHex,
+                ethereumSeed: nil,
+                username: "seed-wallet",
+                substrateDerivationPath: "",
+                ethereumDerivationPath: nil,
+                cryptoType: .sr25519
+            )
+            let operation = MetaAccountOperationFactory(keystore: keychain)
+                .newMetaAccountOperation(request: request, isBackuped: true)
+            operation.start()
+            return try operation.extractResultData(
+                throwing: BaseOperationError.parentOperationCancelled
+            )
+        }
+
+        let firstKeychain = InMemoryKeychain()
+        let firstWallet = try importWallet(into: firstKeychain)
+        let firstBitcoin = try XCTUnwrap(firstWallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+        let firstAddress = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(
+                for: UniversalWalletRegistry.bitcoinMainnetChainModel,
+                wallet: firstWallet
+            )
+        )
+        let firstTaira = try XCTUnwrap(firstWallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.isValidTairaAccount($0)
+        }))
+
+        XCTAssertEqual(firstBitcoin.publicKey, expectedBitcoin.publicKey)
+        XCTAssertEqual(firstAddress, expectedBitcoin.firstReceiveAddress)
+        XCTAssertEqual(
+            firstTaira.publicKey.toHex(includePrefix: false),
+            "2651a79b3da908fbdb63e0756e9be9561c6c4638120c3af0d444670cd088a138"
+        )
+        XCTAssertEqual(
+            UniversalWalletChainAccountSupport.address(
+                for: UniversalWalletRegistry.taira.chainId,
+                publicKey: firstTaira.publicKey
+            ),
+            "testuﾛ1NﾍﾖﾁﾘﾗoEuKﾗﾁK2ｴA9ｸxmxBﾈｴDﾋﾐﾐﾅｴjuXvｾﾍｵn5FAXTS3"
+        )
+        XCTAssertEqual(
+            try KeychainUniversalWalletMnemonicProvider(
+                keystore: firstKeychain
+            ).mnemonic(
+                for: firstWallet,
+                chain: UniversalWalletRegistry.bitcoinMainnetChainModel
+            ),
+            expectedMnemonic
+        )
+        XCTAssertFalse(
+            try firstKeychain.checkKey(
+                for: KeystoreTagV2.entropyTagForMetaId(firstWallet.metaId)
+            ),
+            "The derived app-owned mnemonic must not masquerade as the root wallet mnemonic"
+        )
+        XCTAssertTrue(
+            try firstKeychain.checkKey(
+                for: KeystoreTagV2.substrateSeedTagForMetaId(firstWallet.metaId)
+            )
+        )
+        XCTAssertEqual(
+            try firstKeychain.fetchKey(
+                for: KeystoreTagV2.universalWalletSecretSourceTagForMetaId(
+                    firstWallet.metaId
+                )
+            ),
+            Data(UniversalWalletSeedBridge.contract.utf8)
+        )
+
+        let restoredWallet = try importWallet(into: InMemoryKeychain())
+        let restoredAddress = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(
+                for: UniversalWalletRegistry.bitcoinMainnetChainModel,
+                wallet: restoredWallet
+            )
+        )
+        XCTAssertEqual(restoredAddress, firstAddress)
+    }
+
+    func testLegacyWalletSeedAdoptionNeverReplacesConflictingUniversalAccount() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let malformedTaira = ChainAccountModel(
+            chainId: UniversalWalletRegistry.taira.chainId,
+            accountId: Data(repeating: 7, count: 32),
+            publicKey: Data(repeating: 7, count: 32),
+            cryptoType: CryptoType.sr25519.rawValue,
+            ethereumBased: false
+        )
+        let conflictingWallet = wallet.replacingChainAccounts([malformedTaira])
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(
+            Data(repeating: 0, count: 32),
+            with: KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId)
+        )
+
+        XCTAssertThrowsError(
+            try UniversalWalletStoredSeedAdopter(keystore: keychain)
+                .adoptStoredSecret(for: conflictingWallet)
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletStoredSeedAdopter.AdoptionError,
+                .conflictingUniversalWalletAccount
+            )
+        }
+        XCTAssertEqual(conflictingWallet.chainAccounts, [malformedTaira])
+        XCTAssertFalse(
+            try keychain.checkKey(
+                for: KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+            )
+        )
+    }
+
+    func testLegacyWalletSeedAdoptionRejectsUnrelatedValidAccountsWithoutSigner() throws {
+        let existingMnemonic = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        let wallet = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+            to: AccountGenerator.generateMetaAccount(),
+            mnemonic: existingMnemonic
+        )
+        let originalAccounts = wallet.chainAccounts
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(
+            Data(repeating: 0, count: 32),
+            with: KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId)
+        )
+
+        XCTAssertThrowsError(
+            try UniversalWalletStoredSeedAdopter(keystore: keychain)
+                .adoptStoredSecret(for: wallet)
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletStoredSeedAdopter.AdoptionError,
+                .conflictingUniversalWalletAccount
+            )
+        }
+        XCTAssertEqual(wallet.chainAccounts, originalAccounts)
+        XCTAssertFalse(
+            try keychain.checkKey(
+                for: KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+            )
+        )
+    }
+
+    func testLegacyWalletSeedAdoptionRejectsDuplicateValidBitcoinAliases() throws {
+        let walletSeed = Data(repeating: 0, count: 32)
+        let mnemonic = try UniversalWalletSeedBridge.mnemonic(fromWalletSeed: walletSeed)
+        let candidate = try BitcoinKeyDerivation.deriveAccount(
+            mnemonic: mnemonic,
+            network: .mainnet
+        )
+        let canonical = ChainAccountModel(
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
+            accountId: candidate.publicKey,
+            publicKey: candidate.publicKey,
+            cryptoType: CryptoType.ecdsa.rawValue,
+            ethereumBased: false
+        )
+        let alias = ChainAccountModel(
+            chainId: UniversalWalletRegistry.bitcoinMainnet.id,
+            accountId: candidate.publicKey,
+            publicKey: candidate.publicKey,
+            cryptoType: CryptoType.ecdsa.rawValue,
+            ethereumBased: false
+        )
+        let wallet = AccountGenerator.generateMetaAccount(with: [canonical, alias])
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(
+            walletSeed,
+            with: KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId)
+        )
+
+        XCTAssertThrowsError(
+            try UniversalWalletStoredSeedAdopter(keystore: keychain)
+                .adoptStoredSecret(for: wallet)
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletStoredSeedAdopter.AdoptionError,
+                .conflictingUniversalWalletAccount
+            )
+        }
+        XCTAssertEqual(wallet.chainAccounts, [canonical, alias])
+        XCTAssertFalse(
+            try keychain.checkKey(
+                for: KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+            )
+        )
+    }
 
     func testBitcoinImportMetadataAllowsMnemonicOnly() {
         let wallet = AccountGenerator.generateMetaAccount()

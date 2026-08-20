@@ -17,6 +17,14 @@ enum UniversalWalletAccountAddressResolver {
                 ) {
                     return UniversalWalletChainAccountSupport.isValidTairaAccount($0)
                 }
+
+                if UniversalWalletRegistry.bitcoinNetwork(for: chain.chainId) != nil {
+                    return UniversalWalletChainAccountSupport.isValidBitcoinAccount(
+                        $0,
+                        chainId: chain.chainId
+                    )
+                }
+
                 return true
             }) else {
                 return nil
@@ -33,6 +41,39 @@ enum UniversalWalletAccountAddressResolver {
 }
 
 enum UniversalWalletChainAccountSupport {
+    static func hasValidDedicatedAccount(
+        in wallet: MetaAccountModel,
+        for chainId: ChainModel.Id
+    ) -> Bool {
+        wallet.chainAccounts.contains { account in
+            guard self.chainId(account.chainId, matches: chainId) else {
+                return false
+            }
+
+            if self.chainId(chainId, matches: UniversalWalletRegistry.taira.chainId) {
+                return isValidTairaAccount(account)
+            }
+
+            if UniversalWalletRegistry.bitcoinNetwork(for: chainId) != nil {
+                return isValidBitcoinAccount(account, chainId: chainId)
+            }
+
+            return address(for: chainId, publicKey: account.publicKey) != nil
+        }
+    }
+
+    static func isValidBitcoinAccount(
+        _ account: ChainAccountModel,
+        chainId: ChainModel.Id = UniversalWalletRegistry.bitcoinMainnet.chainId
+    ) -> Bool {
+        self.chainId(account.chainId, matches: chainId) &&
+            account.cryptoType == CryptoType.ecdsa.rawValue &&
+            !account.ethereumBased &&
+            account.accountId == account.publicKey &&
+            account.publicKey.count == 33 &&
+            address(for: chainId, publicKey: account.publicKey) != nil
+    }
+
     static func isValidTairaAccount(_ account: ChainAccountModel) -> Bool {
         chainId(account.chainId, matches: UniversalWalletRegistry.taira.chainId) &&
             account.cryptoType == CryptoType.ed25519.rawValue &&

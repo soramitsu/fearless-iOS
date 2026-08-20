@@ -285,6 +285,37 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         XCTAssertEqual(bitcoin.publicKey, expectedBitcoin.publicKey)
     }
 
+    func testAutomaticAppOwnedProvisioningNeverReplacesMalformedExistingRows() throws {
+        let malformedBitcoin = ChainAccountModel(
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
+            accountId: Data(repeating: 3, count: 33),
+            publicKey: Data(repeating: 3, count: 33),
+            cryptoType: CryptoType.sr25519.rawValue,
+            ethereumBased: false
+        )
+        let malformedTaira = ChainAccountModel(
+            chainId: UniversalWalletRegistry.taira.chainId,
+            accountId: Data(repeating: 4, count: 32),
+            publicKey: Data(repeating: 4, count: 32),
+            cryptoType: CryptoType.sr25519.rawValue,
+            ethereumBased: false
+        )
+        let wallet = AccountGenerator.generateMetaAccount(
+            with: [malformedBitcoin, malformedTaira]
+        )
+
+        let provisioned = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+            to: wallet,
+            mnemonic: Self.mnemonic
+        )
+
+        XCTAssertEqual(provisioned, wallet)
+        XCTAssertEqual(
+            provisioned.chainAccounts,
+            [malformedBitcoin, malformedTaira]
+        )
+    }
+
     func testTairaProductionChainIsEnabledRankedTestnetWithCanonicalXOR() throws {
         let chain = UniversalWalletRegistry.tairaChainModel
         let asset = try XCTUnwrap(chain.assets.first)
@@ -368,9 +399,24 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         XCTAssertTrue(asset.isUtility)
         XCTAssertTrue(asset.isNative)
         XCTAssertEqual(asset.icon, UniversalWalletRegistry.bitcoinIconURL)
-        XCTAssertEqual(asset.color, "F2A900")
+        XCTAssertEqual(asset.color, "F7931A")
         XCTAssertEqual(chain.icon, UniversalWalletRegistry.bitcoinIconURL)
-        XCTAssertNotNil(RemoteImageViewModel(url: UniversalWalletRegistry.bitcoinIconURL).fallbackImage)
+        XCTAssertEqual(UniversalWalletRegistry.bitcoinIconURL.host, "bitcoin.org")
+        let bitcoinImage = RemoteImageViewModel(url: UniversalWalletRegistry.bitcoinIconURL)
+        XCTAssertNotNil(bitcoinImage.fallbackImage)
+        XCTAssertNil(bitcoinImage.imageSource.url)
+        if case .provider = bitcoinImage.imageSource {} else {
+            XCTFail("Bitcoin artwork must load from the bundled image provider")
+        }
+        let legacyBitcoinImage = RemoteImageViewModel(
+            url: UniversalWalletRegistry.legacyBitcoinIconURL
+        )
+        XCTAssertNotNil(legacyBitcoinImage.fallbackImage)
+        if case .provider = legacyBitcoinImage.imageSource {} else {
+            XCTFail("Persisted pre-upgrade Bitcoin artwork must use the bundled provider")
+        }
+        let unrelatedURL = URL(string: "https://example.com/unrelated.svg")!
+        XCTAssertEqual(RemoteImageViewModel(url: unrelatedURL).imageSource.url, unrelatedURL)
         let detailViewModel = ChainAccountViewModelFactory(
             assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
         ).buildChainAccountViewModel(
@@ -429,16 +475,98 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         )
     }
 
-    func testMissingRootEntropyDoesNotInventMnemonicFromSubstrateSeed() throws {
+    func testMarkedRawWalletSeedDeterministicallyBridgesToRecoverableAppOwnedMnemonic() throws {
         let wallet = AccountGenerator.generateMetaAccount()
+        let walletSeed = Data(repeating: 0, count: 32)
         let keystore = DictionaryKeystore(
             keys: [
-                fearless.KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId): Data(repeating: 0xA5, count: 32)
+                fearless.KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId): walletSeed,
+                fearless.KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId):
+                    Data(UniversalWalletSeedBridge.contract.utf8)
             ]
         )
         let provider = KeychainUniversalWalletMnemonicProvider(keystore: keystore)
 
+        let expectedMnemonic = String(
+            repeating: "abandon ",
+            count: 23
+        ) + "art"
+        XCTAssertEqual(
+            try UniversalWalletSeedBridge.mnemonic(fromWalletSeed: walletSeed),
+            expectedMnemonic
+        )
+        XCTAssertEqual(try provider.rootMnemonic(for: wallet), expectedMnemonic)
+    }
+
+    func testUnmarkedLegacySeedNeverSilentlyChangesUniversalWalletIdentity() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let provider = KeychainUniversalWalletMnemonicProvider(
+            keystore: DictionaryKeystore(
+                keys: [
+                    fearless.KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId):
+                        Data(repeating: 0, count: 32)
+                ]
+            )
+        )
+
         XCTAssertNil(try provider.rootMnemonic(for: wallet))
+    }
+
+    func testMissingRootEntropyAndWalletSeedRemainAccountless() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let provider = KeychainUniversalWalletMnemonicProvider(
+            keystore: DictionaryKeystore(keys: [:])
+        )
+
+        XCTAssertNil(try provider.rootMnemonic(for: wallet))
+    }
+
+    func testWalletSeedKeychainFailureDoesNotLookLikeMissingSecret() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let seedTag = fearless.KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId)
+        let sourceTag = fearless.KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+        let provider = KeychainUniversalWalletMnemonicProvider(
+            keystore: DictionaryKeystore(
+                keys: [sourceTag: Data(UniversalWalletSeedBridge.contract.utf8)],
+                errors: [seedTag: KeystoreError.unexpectedFail]
+            )
+        )
+
+        XCTAssertThrowsError(try provider.rootMnemonic(for: wallet)) { error in
+            guard case KeystoreError.unexpectedFail = error else {
+                return XCTFail("Unexpected error: \(error)")
+            }
+        }
+    }
+
+    func testWalletSeedSourceMarkerKeychainFailureFailsClosed() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let sourceTag = fearless.KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+        let provider = KeychainUniversalWalletMnemonicProvider(
+            keystore: DictionaryKeystore(
+                keys: [:],
+                errors: [sourceTag: KeystoreError.unexpectedFail]
+            )
+        )
+
+        XCTAssertThrowsError(try provider.rootMnemonic(for: wallet)) { error in
+            guard case KeystoreError.unexpectedFail = error else {
+                return XCTFail("Unexpected error: \(error)")
+            }
+        }
+    }
+
+    func testWalletSeedBridgeRejectsUnsupportedSeedLength() {
+        XCTAssertThrowsError(
+            try UniversalWalletSeedBridge.mnemonic(
+                fromWalletSeed: Data(repeating: 0x01, count: 31)
+            )
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletSeedBridge.BridgeError,
+                .invalidWalletSeedLength
+            )
+        }
     }
 
     func testUnexpectedKeychainFailureDoesNotLookLikeMissingMnemonic() throws {

@@ -31,6 +31,8 @@ final class ChainAssetListInteractor {
     private let accountInfoRemoteService: AccountInfoRemoteService
     private let pricesService: PricesServiceProtocol
     private let operationQueue: OperationQueue
+    private let storedSeedAdopter: UniversalWalletStoredSeedAdopting
+    private let walletSettings: SelectedWalletSettings
 
     private let mutex = NSLock()
     private var remoteFetchTimer: Timer?
@@ -55,7 +57,9 @@ final class ChainAssetListInteractor {
         chainRegistry: ChainRegistryProtocol,
         accountInfoRemoteService: AccountInfoRemoteService,
         pricesService: PricesServiceProtocol,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        storedSeedAdopter: UniversalWalletStoredSeedAdopting = UniversalWalletStoredSeedAdopter(),
+        walletSettings: SelectedWalletSettings = .shared
     ) {
         self.wallet = wallet
         self.eventCenter = eventCenter
@@ -71,6 +75,8 @@ final class ChainAssetListInteractor {
         self.accountInfoRemoteService = accountInfoRemoteService
         self.pricesService = pricesService
         self.operationQueue = operationQueue
+        self.storedSeedAdopter = storedSeedAdopter
+        self.walletSettings = walletSettings
     }
 
     // MARK: - Private methods
@@ -336,6 +342,79 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
     func retryConnection(for chainId: ChainModel.Id) {
         chainRegistry.retryConnection(for: chainId)
+    }
+
+    func adoptStoredWalletSeed() {
+        let walletSnapshot = wallet
+        let operation = ClosureOperation { [storedSeedAdopter] in
+            try storedSeedAdopter.adoptStoredSecret(for: walletSnapshot)
+        }
+
+        operation.completionBlock = { [weak self, weak operation] in
+            DispatchQueue.main.async {
+                guard let self, let operation else {
+                    return
+                }
+
+                switch operation.result {
+                case let .success(updatedWallet):
+                    guard self.wallet == walletSnapshot,
+                          self.walletSettings.value == walletSnapshot else {
+                        self.output?.didAdoptStoredWalletSeed(
+                            result: .failure(BaseOperationError.parentOperationCancelled)
+                        )
+                        return
+                    }
+
+                    self.walletSettings.save(
+                        value: updatedWallet,
+                        runningCompletionIn: .main
+                    ) { [weak self] result in
+                        guard let self else { return }
+                        switch result {
+                        case let .success(savedWallet):
+                            let activeWallet = self.walletSettings.value ?? savedWallet
+                            guard activeWallet.metaId == savedWallet.metaId,
+                                  UniversalWalletChainAccountSupport.hasValidDedicatedAccount(
+                                      in: activeWallet,
+                                      for: UniversalWalletRegistry.bitcoinMainnet.chainId
+                                  ),
+                                  UniversalWalletChainAccountSupport.hasValidDedicatedAccount(
+                                      in: activeWallet,
+                                      for: UniversalWalletRegistry.taira.chainId
+                                  ) else {
+                                self.output?.didAdoptStoredWalletSeed(
+                                    result: .failure(BaseOperationError.parentOperationCancelled)
+                                )
+                                return
+                            }
+
+                            self.wallet = activeWallet
+                            self.resetAccountInfoSubscription()
+                            self.updateChainAssets(
+                                using: self.filters,
+                                sorts: self.sorts,
+                                useCashe: false
+                            )
+                            self.eventCenter.notify(
+                                with: MetaAccountModelChangedEvent(account: activeWallet)
+                            )
+                            self.output?.didAdoptStoredWalletSeed(result: .success(activeWallet))
+                        case let .failure(error):
+                            self.output?.didAdoptStoredWalletSeed(result: .failure(error))
+                        }
+                    }
+                case let .failure(error):
+                    self.output?.didAdoptStoredWalletSeed(result: .failure(error))
+                case .none:
+                    self.output?.didAdoptStoredWalletSeed(
+                        result: .failure(BaseOperationError.parentOperationCancelled)
+                    )
+                }
+            }
+        }
+
+        operationQueue.addOperation(operation)
     }
 }
 

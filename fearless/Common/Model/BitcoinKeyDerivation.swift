@@ -1,7 +1,226 @@
 import BigInt
 import CommonCrypto
 import Foundation
+import IrohaCrypto
+import SoraKeystore
+import SSFModels
 import secp256k1
+
+/// Versioned bridge for wallets that were imported from a 32-byte raw wallet
+/// seed instead of BIP39 words. The raw seed is used directly as BIP39 entropy;
+/// no hash, random value, or irreversible synthetic secret is introduced.
+/// Restoring the same raw wallet seed therefore recreates the same app-owned
+/// accounts, while mnemonic wallets continue to use their original entropy.
+enum UniversalWalletSeedBridge {
+    static let contract = "raw-wallet-seed-as-bip39-entropy-v1"
+    static let walletSeedLength = 32
+
+    enum BridgeError: Error, Equatable {
+        case invalidWalletSeedLength
+    }
+
+    static func mnemonic(fromWalletSeed walletSeed: Data) throws -> String {
+        guard walletSeed.count == walletSeedLength else {
+            throw BridgeError.invalidWalletSeedLength
+        }
+
+        return try IRMnemonicCreator()
+            .mnemonic(fromEntropy: walletSeed)
+            .toString()
+    }
+}
+
+protocol UniversalWalletStoredSeedAdopting {
+    func adoptStoredSecret(for wallet: MetaAccountModel) throws -> MetaAccountModel
+}
+
+/// Establishes an explicit, versioned recovery contract for a legacy raw-seed
+/// wallet. An unmarked stored seed is never interpreted automatically: the UI
+/// calls this only after the owner confirms the adoption. Authentic BIP39 root
+/// entropy remains authoritative and never receives a raw-seed marker.
+final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting {
+    enum AdoptionError: LocalizedError, Equatable {
+        case storedWalletSeedUnavailable
+        case unsupportedSecretSource
+        case conflictingUniversalWalletAccount
+
+        var errorDescription: String? {
+            switch self {
+            case .storedWalletSeedUnavailable:
+                return "This wallet has no compatible stored seed. Import its mnemonic instead."
+            case .unsupportedSecretSource:
+                return "This wallet uses a different recovery contract and was not changed."
+            case .conflictingUniversalWalletAccount:
+                return "An existing Bitcoin or Taira account needs manual recovery and was not changed."
+            }
+        }
+    }
+
+    private let keystore: KeystoreProtocol
+
+    init(keystore: KeystoreProtocol = Keychain()) {
+        self.keystore = keystore
+    }
+
+    func adoptStoredSecret(for wallet: MetaAccountModel) throws -> MetaAccountModel {
+        try validateNoConflictingAccounts(in: wallet)
+
+        if let rootEntropy = try fetchIfPresent(
+            tag: KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+        ) {
+            let mnemonic = try IRMnemonicCreator()
+                .mnemonic(fromEntropy: rootEntropy)
+                .toString()
+            return try updatedWallet(from: wallet, mnemonic: mnemonic)
+        }
+
+        let sourceTag = KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+        if let source = try fetchIfPresent(tag: sourceTag),
+           String(data: source, encoding: .utf8) != UniversalWalletSeedBridge.contract {
+            throw AdoptionError.unsupportedSecretSource
+        }
+
+        guard let walletSeed = try fetchIfPresent(
+            tag: KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId)
+        ) else {
+            throw AdoptionError.storedWalletSeedUnavailable
+        }
+
+        let mnemonic: String
+        do {
+            mnemonic = try UniversalWalletSeedBridge.mnemonic(fromWalletSeed: walletSeed)
+        } catch UniversalWalletSeedBridge.BridgeError.invalidWalletSeedLength {
+            throw AdoptionError.storedWalletSeedUnavailable
+        }
+
+        let updatedWallet = try updatedWallet(from: wallet, mnemonic: mnemonic)
+
+        // Persist the contract before the wallet row. If the database save
+        // subsequently fails, retrying derives the same accounts and is safe.
+        // Derivation and conflict validation have already succeeded, so a
+        // failed adoption never leaves a marker for an unusable identity.
+        try keystore.saveKey(
+            Data(UniversalWalletSeedBridge.contract.utf8),
+            with: sourceTag
+        )
+
+        return updatedWallet
+    }
+
+    private func validateNoConflictingAccounts(in wallet: MetaAccountModel) throws {
+        let bitcoinAccounts = wallet.chainAccounts.filter {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }
+        let tairaAccounts = wallet.chainAccounts.filter {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            )
+        }
+
+        guard bitcoinAccounts.allSatisfy({
+            UniversalWalletChainAccountSupport.isValidBitcoinAccount($0)
+        }), tairaAccounts.allSatisfy(
+            UniversalWalletChainAccountSupport.isValidTairaAccount
+        ) else {
+            throw AdoptionError.conflictingUniversalWalletAccount
+        }
+    }
+
+    private func updatedWallet(
+        from wallet: MetaAccountModel,
+        mnemonic: String
+    ) throws -> MetaAccountModel {
+        let bitcoinCandidate = try BitcoinKeyDerivation.deriveAccount(
+            mnemonic: mnemonic,
+            network: .mainnet
+        )
+        let tairaCandidate = try IrohaKeyDerivation.deriveAccount(mnemonic: mnemonic)
+
+        try validateExistingAccounts(
+            in: wallet,
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
+            candidatePublicKey: bitcoinCandidate.publicKey,
+            isStructurallyValid: {
+                UniversalWalletChainAccountSupport.isValidBitcoinAccount($0)
+            },
+            derivePublicKey: {
+                try BitcoinKeyDerivation.deriveAccount(
+                    mnemonic: $0,
+                    network: .mainnet
+                ).publicKey
+            }
+        )
+        try validateExistingAccounts(
+            in: wallet,
+            chainId: UniversalWalletRegistry.taira.chainId,
+            candidatePublicKey: tairaCandidate.publicKey,
+            isStructurallyValid: UniversalWalletChainAccountSupport.isValidTairaAccount,
+            derivePublicKey: { try IrohaKeyDerivation.deriveAccount(mnemonic: $0).publicKey }
+        )
+
+        return try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+            to: wallet,
+            mnemonic: mnemonic
+        )
+    }
+
+    private func validateExistingAccounts(
+        in wallet: MetaAccountModel,
+        chainId: ChainModel.Id,
+        candidatePublicKey: Data,
+        isStructurallyValid: (ChainAccountModel) -> Bool,
+        derivePublicKey: (String) throws -> Data
+    ) throws {
+        let accounts = wallet.chainAccounts.filter {
+            UniversalWalletChainAccountSupport.chainId($0.chainId, matches: chainId)
+        }
+        guard accounts.count <= 1 else {
+            throw AdoptionError.conflictingUniversalWalletAccount
+        }
+        guard let account = accounts.first else {
+            return
+        }
+        guard isStructurallyValid(account) else {
+            throw AdoptionError.conflictingUniversalWalletAccount
+        }
+        guard account.publicKey != candidatePublicKey else {
+            return
+        }
+
+        let accountEntropyTag = KeystoreTagV2.entropyTagForMetaId(
+            wallet.metaId,
+            accountId: account.accountId
+        )
+        guard let accountEntropy = try fetchIfPresent(tag: accountEntropyTag) else {
+            throw AdoptionError.conflictingUniversalWalletAccount
+        }
+
+        do {
+            let accountMnemonic = try IRMnemonicCreator()
+                .mnemonic(fromEntropy: accountEntropy)
+                .toString()
+            guard try derivePublicKey(accountMnemonic) == account.publicKey else {
+                throw AdoptionError.conflictingUniversalWalletAccount
+            }
+        } catch let error as AdoptionError {
+            throw error
+        } catch {
+            throw AdoptionError.conflictingUniversalWalletAccount
+        }
+    }
+
+    private func fetchIfPresent(tag: String) throws -> Data? {
+        do {
+            return try keystore.fetchKey(for: tag)
+        } catch KeystoreError.noKeyFound {
+            return nil
+        }
+    }
+}
 
 enum BitcoinKeyDerivation {
     enum Network: Equatable {

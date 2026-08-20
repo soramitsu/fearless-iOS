@@ -137,14 +137,24 @@ Redux/Pinia state, logs, or test fixtures.
 Solana import compatibility may support common existing Solana paths, but new
 Universal Wallet V2 accounts must use `m/44'/501'/0'/0'`.
 
-Automatic Bitcoin and Taira provisioning is permitted only when the wallet has
-authentic BIP39 root entropy in the protected root-entropy Keychain item. A raw
-Substrate mini-seed, watch-only account, or JSON import is not BIP39 entropy and
-cannot be inverted into the user's original mnemonic. The app must never
-synthesize a mnemonic from those values. Missing entropy keeps the network
-visible and routes the user to explicit mnemonic-only recovery; protected-data
-and other non-missing Keychain errors fail closed and retry without changing the
-wallet identity.
+Automatic Bitcoin and Taira provisioning uses authentic BIP39 root entropy
+when it exists in the protected root-entropy Keychain item. A new 32-byte raw
+seed import instead establishes the explicit versioned contract
+`raw-wallet-seed-as-bip39-entropy-v1`: the same raw bytes are interpreted as
+BIP39 entropy, and the same raw seed plus this Fearless contract recreates the
+same app-owned accounts. No hash, random value, or irreversible synthetic
+secret is introduced.
+
+An unmarked legacy Substrate mini-seed is ambiguous because mnemonic-origin
+wallets also store a derived mini-seed. It must never be interpreted silently.
+The accountless Bitcoin/Taira setup route may establish the same versioned
+contract only after an explicit `Use wallet seed` confirmation that warns it
+creates new addresses and does not recover accounts previously derived from a
+recovery phrase. Watch-only and JSON wallets remain on explicit mnemonic
+recovery. Protected-data and other non-missing Keychain errors fail closed and
+retry without changing wallet identity. A mnemonic-origin wallet exported and
+restored only as a Substrate seed is not equivalent to restoring its original
+BIP39 phrase and must not be claimed to recover existing app-owned accounts.
 
 ## Registry Requirements
 
@@ -171,14 +181,17 @@ use RPC or Torii endpoints.
 
 - Bitcoin mainnet Esplora base URL: `https://mempool.space/api`.
 - Bitcoin testnet Esplora base URL: `https://mempool.space/testnet/api`.
+- The app bundles the canonical orange Bitcoin.org mark and maps both the
+  current Bitcoin.org catalog URL and the previously shipped pinned BitPay URL
+  to that local asset, so branding does not depend on a network image fetch.
 - The app uses one explicit Mempool.space service contract for Bitcoin address,
   UTXO, fee, history, and raw-transaction broadcast operations. It does not
   claim decorative multi-provider failover or expose an empty HTTPS node
   selector. Production Bitcoin balance, history, and transfer services resolve
   this canonical origin directly, so a stale cached chain row cannot route an
-  upgraded app back to an older provider. Mempool.space learns the queried addresses and broadcast source IP;
-  users who require private infrastructure need a separately reviewed custom
-  endpoint policy.
+  upgraded app back to an older provider. Mempool.space learns the queried
+  addresses and broadcast source IP; users who require private infrastructure
+  need a separately reviewed custom endpoint policy.
 - TON indexer base URL: `https://ti.soramitsu.io`.
 - Native TON Wallet V4R2 building, unsigned fee emulation, signed emulation,
   bounded TonAPI transport, broadcast, and exact-message reconciliation are

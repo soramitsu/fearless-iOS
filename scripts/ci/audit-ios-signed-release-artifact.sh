@@ -14,8 +14,9 @@ readonly EXPECTED_VERSION="4.2.0"
 readonly EXPECTED_MINIMUM_OS="15.0"
 readonly EXPECTED_BITCOIN_SUPPORT_CONTRACT="bip84-mainnet-v1"
 readonly EXPECTED_BITCOIN_SERVICE_CONTRACT="mempool-space-public-esplora-v1"
+readonly EXPECTED_BITCOIN_BRAND_CONTRACT="bitcoinorg-bundled-f7931a-v1"
 readonly EXPECTED_TAIRA_SUPPORT_CONTRACT="iroha3-taira-sora-org-torii-xor-universal-unconstrained-p28-optimizations-d8544f1d-read-only-v2"
-readonly EXPECTED_UNIVERSAL_WALLET_SECRET_CONTRACT="bip39-root-entropy-fail-closed-v1"
+readonly EXPECTED_UNIVERSAL_WALLET_SECRET_CONTRACT="bip39-root-or-confirmed-raw-seed-v2"
 readonly EXPECTED_APPLICATION_ID="${EXPECTED_TEAM}.${EXPECTED_BUNDLE}"
 readonly EXPECTED_ASSOCIATED_DOMAINS_JSON='["applinks:fearlesswallet.io","webcredentials:fearlesswallet.io"]'
 readonly EXPECTED_ICLOUD_CONTAINERS_JSON='["iCloud.jp.co.soramitsu.fearlesswallet"]'
@@ -346,6 +347,8 @@ bitcoin_support_contract="$(read_plist_string "$APP_INFO" FearlessBitcoinSupport
   fail "archived app lacks the native Bitcoin support contract"
 bitcoin_service_contract="$(read_plist_string "$APP_INFO" FearlessBitcoinServiceContract)" ||
   fail "archived app lacks the Bitcoin public service contract"
+bitcoin_brand_contract="$(read_plist_string "$APP_INFO" FearlessBitcoinBrandContract)" ||
+  fail "archived app lacks the bundled Bitcoin brand contract"
 taira_support_contract="$(read_plist_string "$APP_INFO" FearlessTairaTestnetSupportContract)" ||
   fail "archived app lacks the Taira Testnet read-only support contract"
 universal_wallet_secret_contract="$(read_plist_string "$APP_INFO" FearlessUniversalWalletSecretContract)" ||
@@ -375,6 +378,8 @@ require_plist_key_absent "$APP_INFO" UIDesignRequiresCompatibility ||
   fail "archived app does not attest the reviewed native Bitcoin support contract"
 [[ "$bitcoin_service_contract" == "$EXPECTED_BITCOIN_SERVICE_CONTRACT" ]] ||
   fail "archived app does not attest the reviewed Bitcoin public service contract"
+[[ "$bitcoin_brand_contract" == "$EXPECTED_BITCOIN_BRAND_CONTRACT" ]] ||
+  fail "archived app does not attest the reviewed bundled Bitcoin brand contract"
 [[ "$taira_support_contract" == "$EXPECTED_TAIRA_SUPPORT_CONTRACT" ]] ||
   fail "archived app does not attest the reviewed Taira Testnet read-only support contract"
 [[ "$universal_wallet_secret_contract" == "$EXPECTED_UNIVERSAL_WALLET_SECRET_CONTRACT" ]] ||
@@ -892,6 +897,7 @@ receipt_pending="${receipt}.pending.$$"
   "$minimum_os" \
   "$bitcoin_support_contract" \
   "$bitcoin_service_contract" \
+  "$bitcoin_brand_contract" \
   "$taira_support_contract" \
   "$universal_wallet_secret_contract" \
   "$actual_executable_sha" \
@@ -922,6 +928,7 @@ import sys
     minimum_os,
     bitcoin_support_contract,
     bitcoin_service_contract,
+    bitcoin_brand_contract,
     taira_support_contract,
     universal_wallet_secret_contract,
     executable_sha,
@@ -950,6 +957,7 @@ payload = {
     "minimumOSVersion": minimum_os,
     "bitcoinSupportContract": bitcoin_support_contract,
     "bitcoinServiceContract": bitcoin_service_contract,
+    "bitcoinBrandContract": bitcoin_brand_contract,
     "tairaTestnetSupportContract": taira_support_contract,
     "universalWalletSecretContract": universal_wallet_secret_contract,
     "developmentTeam": team,

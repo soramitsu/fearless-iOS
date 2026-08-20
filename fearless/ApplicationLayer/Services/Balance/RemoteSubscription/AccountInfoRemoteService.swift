@@ -189,7 +189,20 @@ final class KeychainUniversalWalletMnemonicProvider:
     }
 
     func rootMnemonic(for wallet: MetaAccountModel) throws -> String? {
-        try mnemonicIfPresent(metaId: wallet.metaId, accountId: nil)
+        if let rootMnemonic = try mnemonicIfPresent(
+            metaId: wallet.metaId,
+            accountId: nil
+        ) {
+            return rootMnemonic
+        }
+
+        guard try usesRawWalletSeedBridge(metaId: wallet.metaId),
+              let walletSeed = try walletSeedIfPresent(metaId: wallet.metaId)
+        else {
+            return nil
+        }
+
+        return try UniversalWalletSeedBridge.mnemonic(fromWalletSeed: walletSeed)
     }
 
     private func mnemonicIfPresent(
@@ -206,6 +219,27 @@ final class KeychainUniversalWalletMnemonicProvider:
             return try IRMnemonicCreator().mnemonic(fromEntropy: entropy).toString()
         } catch KeystoreError.noKeyFound {
             return nil
+        }
+    }
+
+    private func walletSeedIfPresent(metaId: MetaAccountId) throws -> Data? {
+        let seedTag = KeystoreTagV2.substrateSeedTagForMetaId(metaId)
+
+        do {
+            return try keystore.fetchKey(for: seedTag)
+        } catch KeystoreError.noKeyFound {
+            return nil
+        }
+    }
+
+    private func usesRawWalletSeedBridge(metaId: MetaAccountId) throws -> Bool {
+        let sourceTag = KeystoreTagV2.universalWalletSecretSourceTagForMetaId(metaId)
+
+        do {
+            let source = try keystore.fetchKey(for: sourceTag)
+            return String(data: source, encoding: .utf8) == UniversalWalletSeedBridge.contract
+        } catch KeystoreError.noKeyFound {
+            return false
         }
     }
 

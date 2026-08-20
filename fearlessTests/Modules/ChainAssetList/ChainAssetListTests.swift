@@ -193,6 +193,50 @@ final class ChainAssetListTests: XCTestCase {
         }))
     }
 
+    func testMalformedDedicatedUniversalAccountsRemainActionableSetupRows() throws {
+        let malformedBitcoin = ChainAccountModel(
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
+            accountId: Data(repeating: 0x01, count: 32),
+            publicKey: Data(repeating: 0x01, count: 32),
+            cryptoType: CryptoType.sr25519.rawValue,
+            ethereumBased: false
+        )
+        let malformedTaira = ChainAccountModel(
+            chainId: UniversalWalletRegistry.taira.chainId,
+            accountId: Data(repeating: 0x02, count: 32),
+            publicKey: Data(repeating: 0x02, count: 32),
+            cryptoType: CryptoType.sr25519.rawValue,
+            ethereumBased: false
+        )
+        let wallet = AccountGenerator.generateMetaAccount(
+            with: [malformedBitcoin, malformedTaira]
+        )
+        let bitcoin = try XCTUnwrap(
+            UniversalWalletRegistry.bitcoinMainnetChainModel.chainAssets.first
+        )
+        let taira = try XCTUnwrap(UniversalWalletRegistry.tairaChainModel.chainAssets.first)
+
+        let viewModel = makeFactory().buildViewModel(
+            wallet: wallet,
+            chainAssets: [bitcoin, taira],
+            locale: Locale(identifier: "en_US"),
+            accountInfos: [:],
+            chainsWithIssue: [],
+            shouldRunManageAssetAnimate: false,
+            displayType: .assetChains,
+            chainSettings: [],
+            networkFilter: nil,
+            search: nil
+        )
+
+        XCTAssertEqual(
+            Set(viewModel.displayState.rows.map(\.chainAsset.assetKey)),
+            Set([bitcoin.assetKey, taira.assetKey])
+        )
+        XCTAssertTrue(viewModel.displayState.rows.allSatisfy { !$0.isColdBoot })
+        XCTAssertTrue(viewModel.displayState.rows.allSatisfy { !$0.swipeActionsEnabled })
+    }
+
     func testSameSymbolAssetsRemainSeparateByCanonicalIdentity() {
         let firstChain = makeChain(name: "Alpha")
         let secondChain = makeChain(name: "Beta")
@@ -1327,4 +1371,5 @@ private final class ChainAssetListInteractorOutputSpy: ChainAssetListInteractorO
     func didReceive(accountInfosByChainAssets _: [ChainAsset: AccountInfo?]) {}
     func handleWalletChanged(wallet _: MetaAccountModel) {}
     func didReceive(chainSettings _: [ChainSettings]) {}
+    func didAdoptStoredWalletSeed(result _: Result<MetaAccountModel, Error>) {}
 }

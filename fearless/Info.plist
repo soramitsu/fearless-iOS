@@ -54,6 +54,8 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>FearlessBitcoinBrandContract</key>
+	<string>bitcoinorg-bundled-f7931a-v1</string>
 	<key>FearlessBitcoinServiceContract</key>
 	<string>mempool-space-public-esplora-v1</string>
 	<key>FearlessBitcoinSupportContract</key>
@@ -69,7 +71,7 @@
 	<key>FearlessTairaTestnetSupportContract</key>
 	<string>iroha3-taira-sora-org-torii-xor-universal-unconstrained-p28-optimizations-d8544f1d-read-only-v2</string>
 	<key>FearlessUniversalWalletSecretContract</key>
-	<string>bip39-root-entropy-fail-closed-v1</string>
+	<string>bip39-root-or-confirmed-raw-seed-v2</string>
 	<key>GIDClientID</key>
 	<string></string>
 	<key>ITSAppUsesNonExemptEncryption</key>

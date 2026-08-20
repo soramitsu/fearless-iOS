@@ -120,8 +120,9 @@ app = {
     "FearlessBuildConfiguration": "Release",
     "FearlessBitcoinSupportContract": "bip84-mainnet-v1",
     "FearlessBitcoinServiceContract": "mempool-space-public-esplora-v1",
+    "FearlessBitcoinBrandContract": "bitcoinorg-bundled-f7931a-v1",
     "FearlessTairaTestnetSupportContract": "iroha3-taira-sora-org-torii-xor-universal-unconstrained-p28-optimizations-d8544f1d-read-only-v2",
-    "FearlessUniversalWalletSecretContract": "bip39-root-entropy-fail-closed-v1",
+    "FearlessUniversalWalletSecretContract": "bip39-root-or-confirmed-raw-seed-v2",
     "FearlessEnableTestability": "NO",
     "FearlessGitCommit": git_sha,
     "FearlessSwiftOptimizationLevel": "-O",
@@ -374,8 +375,9 @@ assert_contains '"distributionProfile": "valid-app-store"' "$CASE_DIR/output/rec
 assert_contains '"uiDesignCompatibility": "native-redesigned-tab-bar"' "$CASE_DIR/output/receipt.json"
 assert_contains '"bitcoinSupportContract": "bip84-mainnet-v1"' "$CASE_DIR/output/receipt.json"
 assert_contains '"bitcoinServiceContract": "mempool-space-public-esplora-v1"' "$CASE_DIR/output/receipt.json"
+assert_contains '"bitcoinBrandContract": "bitcoinorg-bundled-f7931a-v1"' "$CASE_DIR/output/receipt.json"
 assert_contains '"tairaTestnetSupportContract": "iroha3-taira-sora-org-torii-xor-universal-unconstrained-p28-optimizations-d8544f1d-read-only-v2"' "$CASE_DIR/output/receipt.json"
-assert_contains '"universalWalletSecretContract": "bip39-root-entropy-fail-closed-v1"' "$CASE_DIR/output/receipt.json"
+assert_contains '"universalWalletSecretContract": "bip39-root-or-confirmed-raw-seed-v2"' "$CASE_DIR/output/receipt.json"
 assert_contains '"minimumOSVersion": "15.0"' "$CASE_DIR/output/receipt.json"
 assert_contains '"dSYMContract": "exact-uuid-upload-coverage"' "$CASE_DIR/output/receipt.json"
 assert_contains '"sourceLineCoverage": "not-asserted"' "$CASE_DIR/output/receipt.json"
@@ -408,6 +410,16 @@ prepare_case wrong-bitcoin-service-contract
 mutate_plist "$APP/Info.plist" \
   'value["FearlessBitcoinServiceContract"] = "decorative-node-only"'
 expect_failure wrong-bitcoin-service-contract "does not attest the reviewed Bitcoin public service contract"
+
+prepare_case missing-bitcoin-brand-contract
+mutate_plist "$APP/Info.plist" \
+  'del value["FearlessBitcoinBrandContract"]'
+expect_failure missing-bitcoin-brand-contract "lacks the bundled Bitcoin brand contract"
+
+prepare_case wrong-bitcoin-brand-contract
+mutate_plist "$APP/Info.plist" \
+  'value["FearlessBitcoinBrandContract"] = "remote-logo-only"'
+expect_failure wrong-bitcoin-brand-contract "does not attest the reviewed bundled Bitcoin brand contract"
 
 prepare_case missing-taira-support-contract
 mutate_plist "$APP/Info.plist" \
@@ -657,4 +669,4 @@ assert_contains "only in the explicit test harness" "$CASE_DIR/stderr"
 printf '%s\n' "[ios-signed-release-audit-test] PASS (rejected): override without harness"
 
 printf '%s\n' \
-  "[ios-signed-release-audit-test] PASS: 1 positive + 48 negative/adversarial contracts"
+  "[ios-signed-release-audit-test] PASS: 1 positive + 58 negative/adversarial contracts"

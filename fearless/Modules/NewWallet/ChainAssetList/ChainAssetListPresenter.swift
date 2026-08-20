@@ -87,7 +87,7 @@ final class ChainAssetListPresenter {
             chain: chain
         )
 
-        let actions: [SheetAlertPresentableAction] = options.compactMap { option in
+        var actions: [SheetAlertPresentableAction] = options.compactMap { option in
             switch option {
             case .create:
                 let title = R.string.localizable
@@ -112,10 +112,43 @@ final class ChainAssetListPresenter {
             }
         }
 
+        if requiresDedicatedUniversalAccount(for: chain) {
+            actions.insert(
+                SheetAlertPresentableAction(
+                    title: "Use wallet seed",
+                    style: .pinkBackgroundWhiteText
+                ) { [weak self] in
+                    self?.confirmStoredSeedAdoption()
+                },
+                at: 0
+            )
+        }
+
         router.presentAccountOptions(
             from: view,
             locale: selectedLocale,
             actions: actions
+        )
+    }
+
+    private func confirmStoredSeedAdoption() {
+        let confirmAction = SheetAlertPresentableAction(
+            title: R.string.localizable.commonContinue(
+                preferredLanguages: selectedLocale.rLanguages
+            ),
+            style: .pinkBackgroundWhiteText
+        ) { [weak self] in
+            self?.interactor.adoptStoredWalletSeed()
+        }
+
+        router.present(
+            message: "This creates new Bitcoin and Taira addresses from this wallet's stored raw seed. It does not recover accounts previously created from a recovery phrase; import that phrase to recover those funds. Restore these new addresses with the same raw seed and Fearless seed contract.",
+            title: "Create accounts from wallet seed?",
+            closeAction: R.string.localizable.commonCancel(
+                preferredLanguages: selectedLocale.rLanguages
+            ),
+            from: view,
+            actions: [confirmAction]
         )
     }
 
@@ -129,7 +162,10 @@ final class ChainAssetListPresenter {
 
     private func isAccountMissing(for chain: ChainModel) -> Bool {
         requiresDedicatedUniversalAccount(for: chain) &&
-            wallet.fetch(for: chain.accountRequest()) == nil
+            !UniversalWalletChainAccountSupport.hasValidDedicatedAccount(
+                in: wallet,
+                for: chain.chainId
+            )
     }
 
     private func isTaira(_ chain: ChainModel) -> Bool {
@@ -236,6 +272,20 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 
     func didTapResolveNetworkIssue(for chain: ChainModel) {
         interactor.retryConnection(for: chain.chainId)
+    }
+}
+
+// MARK: - Stored seed adoption
+
+extension ChainAssetListPresenter {
+    func didAdoptStoredWalletSeed(result: Result<MetaAccountModel, Error>) {
+        switch result {
+        case let .success(updatedWallet):
+            wallet = updatedWallet
+            provideViewModel()
+        case let .failure(error):
+            router.present(error: error, from: view, locale: selectedLocale)
+        }
     }
 }
 

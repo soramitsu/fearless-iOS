@@ -61,6 +61,14 @@ enum KeystoreTagV2: String, CaseIterable {
         createTagForMetaId(metaId, accountId: accountId, suffix: "-ethereumSeed")
     }
 
+    static func universalWalletSecretSourceTagForMetaId(_ metaId: String) -> String {
+        createTagForMetaId(
+            metaId,
+            accountId: nil,
+            suffix: "-universalWalletSecretSource"
+        )
+    }
+
     private static func createTagForMetaId(
         _ metaId: String,
         accountId: AccountId?,

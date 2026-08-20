@@ -5,8 +5,16 @@ enum UniversalWalletRegistry {
     static let bitcoinMainnetIndexerBaseURL = URL(string: "https://mempool.space/api")!
     static let bitcoinTestnetIndexerBaseURL = URL(string: "https://mempool.space/testnet/api")!
     static let bitcoinIconURL = URL(
+        string: "https://bitcoin.org/img/icons/logotop.svg"
+    )!
+    static let legacyBitcoinIconURL = URL(
         string: "https://raw.githubusercontent.com/bitpay/bitcoin-brand/887f040f7c44660b84c4000f4a54897ba5518194/bitcoin.svg"
     )!
+
+    static func isBitcoinIconURL(_ url: URL) -> Bool {
+        url == bitcoinIconURL || url == legacyBitcoinIconURL
+    }
+
     static let tonIndexerBaseURL = URL(string: "https://ti.soramitsu.io")!
     static let tonNativeAssetId = TonConstants.tonAssetId
     static let solanaIndexerBaseURL = URL(string: "https://si.soramitsu.io")!
@@ -42,7 +50,7 @@ enum UniversalWalletRegistry {
             precision: UInt16(bitcoinMainnet.nativeAsset.decimals),
             icon: bitcoinIconURL,
             currencyId: bitcoinMainnet.nativeAsset.id,
-            color: "F2A900",
+            color: "F7931A",
             isUtility: true,
             isNative: true,
             staking: nil,
@@ -466,27 +474,27 @@ enum UniversalWalletAccountProvisioning {
         to wallet: MetaAccountModel,
         mnemonic: String
     ) throws -> MetaAccountModel {
-        let hasValidBitcoinAccount = wallet.chainAccounts.contains(where: {
+        let hasBitcoinAccount = wallet.chainAccounts.contains(where: {
             UniversalWalletChainAccountSupport.chainId(
                 $0.chainId,
                 matches: UniversalWalletRegistry.bitcoinMainnet.chainId
-            ) && UniversalWalletChainAccountSupport.address(
-                for: UniversalWalletRegistry.bitcoinMainnet.chainId,
-                publicKey: $0.publicKey
-            ) != nil
+            )
         })
-        let hasValidTairaAccount = wallet.chainAccounts.contains(
-            where: UniversalWalletChainAccountSupport.isValidTairaAccount
-        )
+        let hasTairaAccount = wallet.chainAccounts.contains(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            )
+        })
 
         var updatedWallet = wallet
-        if !hasValidBitcoinAccount {
+        if !hasBitcoinAccount {
             updatedWallet = try addingBitcoinMainnetAccount(
                 to: updatedWallet,
                 mnemonic: mnemonic
             )
         }
-        if !hasValidTairaAccount {
+        if !hasTairaAccount {
             updatedWallet = try addingTairaTestnetAccount(
                 to: updatedWallet,
                 mnemonic: mnemonic

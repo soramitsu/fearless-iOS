@@ -115,17 +115,21 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         _ chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) -> Bool {
-        guard wallet.fetch(for: chainAsset.chain.accountRequest()) == nil,
-              chainAsset.asset.isUtility else {
+        guard chainAsset.asset.isUtility else {
             return false
         }
 
-        return UniversalWalletRegistry.bitcoinNetwork(for: chainAsset.chain.chainId) ==
+        let isAppOwned = UniversalWalletRegistry.bitcoinNetwork(for: chainAsset.chain.chainId) ==
             UniversalWalletRegistry.bitcoinMainnet ||
             UniversalWalletChainAccountSupport.chainId(
                 chainAsset.chain.chainId,
                 matches: UniversalWalletRegistry.taira.chainId
             )
+
+        return isAppOwned && !UniversalWalletChainAccountSupport.hasValidDedicatedAccount(
+            in: wallet,
+            for: chainAsset.chain.chainId
+        )
     }
 
     private func isTaira(_ chain: ChainModel) -> Bool {
@@ -149,11 +153,15 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 return false
             }
 
+            if isAccountlessAppOwnedChain(chainAsset, wallet: wallet) {
+                return true
+            }
+
             guard let account = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
                 // Keep app-owned utility assets discoverable while this wallet
                 // still needs its ecosystem-specific account. Row actions are
                 // routed to the dedicated mnemonic import flow by the presenter.
-                return isAccountlessAppOwnedChain(chainAsset, wallet: wallet)
+                return false
             }
 
             let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: account.accountId)] ?? nil
@@ -462,7 +470,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             isColdBoot: isColdBoot,
             locale: locale,
             hideButtonIsVisible: displayType == AssetListDisplayType.chain || metadataTrust.trust != .verified,
-            swipeActionsEnabled: wallet.fetch(for: chainAsset.chain.accountRequest()) != nil &&
+            swipeActionsEnabled: !isAccountlessAppOwnedChain(chainAsset, wallet: wallet) &&
+                wallet.fetch(for: chainAsset.chain.accountRequest()) != nil &&
                 !isTaira(chainAsset.chain)
         )
 

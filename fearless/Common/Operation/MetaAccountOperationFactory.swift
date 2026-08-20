@@ -133,6 +133,14 @@ private extension MetaAccountOperationFactory {
         try keystore.saveKey(seed, with: tag)
     }
 
+    func saveUniversalWalletSeedBridgeContract(metaId: String) throws {
+        let tag = KeystoreTagV2.universalWalletSecretSourceTagForMetaId(metaId)
+        try keystore.saveKey(
+            Data(UniversalWalletSeedBridge.contract.utf8),
+            with: tag
+        )
+    }
+
     // MARK: - Meta account generation function
 
     private func generateKeypair(
@@ -352,12 +360,19 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 )
             }
 
-            let metaAccount = try createMetaAccount(
+            let baseMetaAccount = try createMetaAccount(
                 name: request.username,
                 substratePublicKey: substrateQuery.publicKey,
                 substrateCryptoType: request.cryptoType,
                 ethereumPublicKey: ethereumQuery?.publicKey,
                 isBackuped: isBackuped
+            )
+            let appOwnedMnemonic = try UniversalWalletSeedBridge.mnemonic(
+                fromWalletSeed: substrateQuery.seed
+            )
+            let metaAccount = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+                to: baseMetaAccount,
+                mnemonic: appOwnedMnemonic
             )
 
             let metaId = metaAccount.metaId
@@ -371,6 +386,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 try saveDerivationPath(derivationPath, metaId: metaId, ethereumBased: true)
                 try saveSeed(query.privateKey, metaId: metaId, ethereumBased: true)
             }
+
+            try saveUniversalWalletSeedBridgeContract(metaId: metaId)
 
             return metaAccount
         }
