@@ -52,9 +52,14 @@ any conflicting dedicated account.
 Build `4.2.0 (2026.8.29)` removes the final sheet callback ordering dependency
 and surfaces missing stored recovery secrets, but its dedicated Bitcoin import
 screen still rejects raw wallet seeds and leaves the user at a dead-end error.
-Corrected successor build `4.2.0 (2026.8.30)` routes that failure directly to
-recovery, accepts only an exact 32-byte raw wallet seed, derives the standard
-BIP84 identity, and persists account-scoped entropy for signing. Mnemonic
+Build `4.2.0 (2026.8.30)` routes that failure to recovery, accepts only an exact
+32-byte raw wallet seed, derives the standard BIP84 identity, and persists
+account-scoped entropy for signing. It still omits a fresh-key path for restored
+wallets with no compatible local seed, and pasted import input can diverge from
+the presenter's submission state.
+Corrected successor build `4.2.0 (2026.8.31)` adds explicit Create and Import
+recovery choices, including a fresh signable Bitcoin key with its own recovery
+phrase, and synchronizes visible recovery input before submission. Mnemonic
 recovery remains supported and invalid seed lengths fail before any Keychain or
 wallet mutation.
 The successor retains ancestry from
@@ -172,7 +177,7 @@ qualification below.
 1. Confirm the installed identity is `jp.co.soramitsu.fearlesswallet`, version
    `4.2.0`, build `2026.8.29` before the corrected successor
    update.
-2. Assign build `2026.8.30` only to a true internal TestFlight group containing
+2. Assign build `2026.8.31` only to a true internal TestFlight group containing
    the affected phone's App Store Connect user. Do not use the similarly named
    external affected-phone group, which requires Beta App Review, and do not
    change the public beta group.
@@ -187,7 +192,7 @@ qualification below.
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.30 \
+     --expected-build 2026.8.31 \
      --observation-seconds 900 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 300 \
@@ -265,7 +270,7 @@ qualification below.
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.30 \
+     --expected-build 2026.8.31 \
      --observation-seconds 180 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 5 \
@@ -282,12 +287,12 @@ qualification below.
    later host-only diagnostics commit:
 
    ```bash
-   chmod 600 build/testflight-2026.8.30-upgrade-usability.json
-   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.30/testflight-internal-upload.json
+   chmod 600 build/testflight-2026.8.31-upgrade-usability.json
+   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.31/testflight-internal-upload.json
    artifact_source_commit="$(jq -er '.artifactSourceCommit' "$upload_receipt")"
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/audit-testflight-upgrade-usability-gate.py \
-     build/testflight-2026.8.30-upgrade-usability.json \
+     build/testflight-2026.8.31-upgrade-usability.json \
      --first-launch-capture-receipt \
        /ABSOLUTE/PRIVATE/FIRST-HOTFIX-CAPTURE/capture-receipt.json \
      --second-launch-capture-receipt \
@@ -311,6 +316,6 @@ PYTHONDONTWRITEBYTECODE=1 python3 \
 ## Release decision
 
 Only after the audit passes may release review replace build `2026.7.28` in the
-public beta group with `2026.8.30`. Uploading and assigning the restricted group
+public beta group with `2026.8.31`. Uploading and assigning the restricted group
 do not authorize changing the public beta group; that change still requires the
 normal App Store Connect authorization and review trail.

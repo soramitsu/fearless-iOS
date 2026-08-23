@@ -49,8 +49,11 @@ readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
 # 2026.8.30 routes wallets without recoverable local root entropy directly to
 # recovery, accepts an exact 32-byte raw wallet seed for Bitcoin, derives the
 # standard BIP84 identity, and persists account-scoped signer entropy.
+# 2026.8.31 adds the missing fresh-key path for restored wallets, keeps Create
+# and Import available when no compatible wallet seed exists, and synchronizes
+# pasted recovery input before submission.
 # Reconfirm successor uniqueness read-only immediately before archive.
-readonly EXPECTED_BUILD="2026.8.30"
+readonly EXPECTED_BUILD="2026.8.31"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -69,7 +72,7 @@ Usage:
 Preconditions:
   - exact clean git HEAD, including no untracked files, descended from the
     distributed 4.2.0 (2026.7.28) source commit;
-  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.30);
+  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.31);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 

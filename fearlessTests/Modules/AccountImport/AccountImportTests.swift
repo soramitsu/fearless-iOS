@@ -10,6 +10,29 @@ import class SSFModels.ChainModel
 
 class AccountImportTests: XCTestCase {
 
+    func testTextViewDidChangeSynchronizesSourceViewModelAndPresenterInput() {
+        let expectedInput = String(repeating: "ab", count: 32)
+        let inputHandler = InputHandler(required: true)
+        let sourceViewModel = InputViewModel(inputHandler: inputHandler)
+        let presenter = MockAccountImportPresenterProtocol()
+
+        stub(presenter) { stub in
+            when(stub.flow.get).thenReturn(.wallet(step: .substrate))
+            when(stub.setup()).thenDoNothing()
+            when(stub.validateInput(value: any())).thenDoNothing()
+        }
+
+        let viewController = AccountImportViewController(presenter: presenter)
+        viewController.loadViewIfNeeded()
+        viewController.setSource(viewModel: sourceViewModel)
+        viewController.rootView.textView.text = expectedInput
+
+        viewController.textViewDidChange(viewController.rootView.textView)
+
+        XCTAssertEqual(inputHandler.value, expectedInput)
+        verify(presenter, times(1)).validateInput(value: equal(to: expectedInput))
+    }
+
     func testConfirmedLegacyWalletSeedAdoptionCreatesStableAppOwnedAccounts() throws {
         let wallet = AccountGenerator.generateMetaAccount()
         let walletSeed = Data(repeating: 0, count: 32)
@@ -79,6 +102,25 @@ class AccountImportTests: XCTestCase {
                 for: KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
             )
         )
+    }
+
+    func testMalformedStoredRootEntropyRoutesToExplicitRecovery() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(
+            Data(repeating: 0, count: 31),
+            with: KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+        )
+
+        XCTAssertThrowsError(
+            try UniversalWalletStoredSeedAdopter(keystore: keychain)
+                .adoptStoredSecret(for: wallet)
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletStoredSeedAdopter.AdoptionError,
+                .storedWalletSeedUnavailable
+            )
+        }
     }
 
     func testLegacyWalletSeedAdoptionRejectsForeignMarkerAndInvalidSeed() throws {
@@ -1064,9 +1106,10 @@ class AccountImportTests: XCTestCase {
 
         wait(for: [setupExpectation], timeout: Constants.defaultExpectationDuration)
 
-        _ = sourceInputViewModel?.inputHandler.didReceiveReplacement(expectedMnemonic,
-                                                                     for: NSRange(location: 0, length: 0));
-        presenter.validateInput(value: expectedMnemonic)
+        _ = sourceInputViewModel?.inputHandler.didReceiveReplacement(
+            expectedMnemonic,
+            for: NSRange(location: 0, length: 0)
+        )
 
         _ = usernameViewModel?.inputHandler.didReceiveReplacement(expectedUsername,
                                                                   for: NSRange(location: 0, length: 0))

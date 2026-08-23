@@ -121,7 +121,7 @@ final class AccountImportPresenter: NSObject {
     private(set) var ethereumDerivationPathViewModel: InputViewModelProtocol?
 
     private lazy var jsonDeserializer = JSONSerialization()
-    private var input: String?
+    private var isImportInProgress = false
     private var inputState: ErrorPresentableInputField.State = .normal {
         didSet {
             view?.didChangeState(inputState)
@@ -553,6 +553,12 @@ private extension AccountImportPresenter {
     }
 
     func createAccount(data: AccountImportRequestData) {
+        guard !isImportInProgress else {
+            return
+        }
+
+        isImportInProgress = true
+
         switch flow {
         case let .chain(model):
             let derivationPath = model.chain.isEthereumBased
@@ -785,7 +791,6 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         let pasteAction = SheetAlertPresentableAction(title: pasteTitle) { [weak self] in
             if let json = UIPasteboard.general.string {
                 self?.interactor.deriveMetadataFromKeystore(json)
-                self?.input = json
             }
         }
         let selectFileTitle = R.string.localizable
@@ -918,13 +923,16 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
 
     func proceed() {
         guard
+            !isImportInProgress,
             let selectedSourceType = selectedSourceType,
             let selectedCryptoType = selectedCryptoType,
             let usernameViewModel = usernameViewModel,
-            let input = input?.trimmingCharacters(in: .whitespacesAndNewlines)
+            let sourceViewModel = sourceViewModel
         else {
             return
         }
+        let input = sourceViewModel.inputHandler.normalizedValue
+            .trimmingCharacters(in: .whitespacesAndNewlines)
 
         if let error = validateSource(with: input) {
             _ = wireframe.present(
@@ -976,8 +984,6 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
     }
 
     func validateInput(value: String) {
-        input = value
-
         guard AccountImportPresenter.onFlyValidationEnabled else {
             inputState = .normal
             return
@@ -1024,10 +1030,12 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
     }
 
     func didCompleteAccountImport() {
+        isImportInProgress = false
         wireframe.proceed(from: view, flow: flow)
     }
 
     func didReceiveAccountImport(error: Error) {
+        isImportInProgress = false
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         guard !wireframe.present(error: error, from: view, locale: locale) else {
@@ -1053,7 +1061,6 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
             wireframe.present(viewModel: viewModel, from: view)
             return
         }
-        input = text
         selectedSourceType = .keystore
         let preferredData = PreferredData(jsonData: preferredInfo)
         applySourceType(text, preferredData: preferredData)

@@ -71,6 +71,7 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
         }
 
         saveOperation.addDependency(importOperation)
+        currentOperation = saveOperation
 
         operationManager.enqueue(
             operations: [importOperation, saveOperation],

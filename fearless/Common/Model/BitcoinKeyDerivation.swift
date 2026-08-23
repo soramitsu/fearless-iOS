@@ -77,9 +77,14 @@ final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting 
         if let rootEntropy = try fetchIfPresent(
             tag: KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
         ) {
-            let mnemonic = try IRMnemonicCreator()
-                .mnemonic(fromEntropy: rootEntropy)
-                .toString()
+            let mnemonic: String
+            do {
+                mnemonic = try IRMnemonicCreator()
+                    .mnemonic(fromEntropy: rootEntropy)
+                    .toString()
+            } catch {
+                throw AdoptionError.storedWalletSeedUnavailable
+            }
             return try updatedWallet(from: wallet, mnemonic: mnemonic)
         }
 
