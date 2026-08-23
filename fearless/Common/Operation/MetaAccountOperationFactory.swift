@@ -16,6 +16,105 @@ protocol MetaAccountOperationFactoryProtocol {
     func importChainAccountOperation(request: ChainAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel>
 }
 
+/// Binds a Keychain mutation to the later wallet-store save performed by the
+/// import/confirmation interactors. The operation writes first so a persisted
+/// account never lacks its signer, then restores the exact prior Keychain state
+/// if wallet persistence fails.
+protocol PersistenceBoundKeychainOperation: AnyObject {
+    func commitKeychainChanges()
+    func rollbackKeychainChanges() throws
+}
+
+private final class UniversalRootRecoveryOperation:
+    BaseOperation<MetaAccountModel>,
+    PersistenceBoundKeychainOperation {
+    private enum MutationState {
+        case pending
+        case applied(previousEntropy: Data?)
+        case committed
+        case rolledBack
+    }
+
+    private let keystore: KeystoreProtocol
+    private let entropyTag: String
+    private let entropy: Data
+    private let closure: () throws -> MetaAccountModel
+    private let stateLock = NSLock()
+    private var mutationState: MutationState = .pending
+
+    init(
+        keystore: KeystoreProtocol,
+        metaId: MetaAccountId,
+        entropy: Data,
+        closure: @escaping () throws -> MetaAccountModel
+    ) {
+        self.keystore = keystore
+        entropyTag = KeystoreTagV2.entropyTagForMetaId(metaId)
+        self.entropy = entropy
+        self.closure = closure
+    }
+
+    override func main() {
+        super.main()
+
+        guard !isCancelled, result == nil else {
+            return
+        }
+
+        do {
+            let account = try closure()
+            let previousEntropy: Data?
+            do {
+                previousEntropy = try keystore.fetchKey(for: entropyTag)
+            } catch KeystoreError.noKeyFound {
+                previousEntropy = nil
+            }
+
+            try keystore.saveKey(entropy, with: entropyTag)
+
+            stateLock.lock()
+            mutationState = .applied(previousEntropy: previousEntropy)
+            stateLock.unlock()
+
+            result = .success(account)
+        } catch {
+            result = .failure(error)
+        }
+    }
+
+    func commitKeychainChanges() {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+
+        guard case .applied = mutationState else {
+            return
+        }
+
+        mutationState = .committed
+    }
+
+    func rollbackKeychainChanges() throws {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+
+        guard case let .applied(previousEntropy) = mutationState else {
+            return
+        }
+
+        if let previousEntropy {
+            try keystore.saveKey(previousEntropy, with: entropyTag)
+        } else {
+            try keystore.deleteKeyIfExists(for: entropyTag)
+        }
+
+        mutationState = .rolledBack
+    }
+
+    deinit {
+        try? rollbackKeychainChanges()
+    }
+}
+
 final class MetaAccountOperationFactory {
     private struct AccountQuery {
         let publicKey: Data
@@ -228,6 +327,63 @@ private extension MetaAccountOperationFactory {
             privateKey: keypair.secretKey,
             address: address,
             seed: seed
+        )
+    }
+
+    func isUniversalRootManagedChain(_ chainId: ChainModel.Id) -> Bool {
+        UniversalWalletRegistry.bitcoinNetwork(for: chainId) != nil ||
+            UniversalWalletChainAccountSupport.chainId(
+                chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            )
+    }
+
+    func recoverUniversalRootAccounts(
+        for wallet: MetaAccountModel,
+        mnemonic: IRMnemonicProtocol
+    ) throws -> MetaAccountModel {
+        guard let substrateCryptoType = CryptoType(rawValue: wallet.substrateCryptoType) else {
+            throw UniversalWalletRootRecoveryError.unsupportedWalletIdentity
+        }
+
+        let substrateDerivationPath = try keystore.fetchDeriviationForAddress(
+            KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId)
+        ) ?? ""
+        let substrateQuery = try getQuery(
+            seedSource: .mnemonic(mnemonic),
+            derivationPath: substrateDerivationPath,
+            cryptoType: substrateCryptoType,
+            ethereumBased: false
+        )
+        guard substrateQuery.publicKey == wallet.substratePublicKey,
+              substrateQuery.address == wallet.substrateAccountId else {
+            throw UniversalWalletRootRecoveryError.phraseDoesNotMatchWallet
+        }
+
+        if wallet.ethereumPublicKey != nil || wallet.ethereumAddress != nil {
+            let ethereumDerivationPath = try keystore.fetchDeriviationForAddress(
+                KeystoreTagV2.ethereumDerivationTagForMetaId(wallet.metaId)
+            ) ?? DerivationPathConstants.defaultEthereum
+            let ethereumQuery = try getQuery(
+                seedSource: .mnemonic(mnemonic),
+                derivationPath: ethereumDerivationPath,
+                cryptoType: .ecdsa,
+                ethereumBased: true
+            )
+
+            if let ethereumPublicKey = wallet.ethereumPublicKey,
+               ethereumQuery.publicKey != ethereumPublicKey {
+                throw UniversalWalletRootRecoveryError.phraseDoesNotMatchWallet
+            }
+            if let ethereumAddress = wallet.ethereumAddress,
+               ethereumQuery.address != ethereumAddress {
+                throw UniversalWalletRootRecoveryError.phraseDoesNotMatchWallet
+            }
+        }
+
+        return try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+            to: wallet,
+            mnemonic: mnemonic.toString()
         )
     }
 
@@ -478,73 +634,39 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
     }
 
     func importChainAccountOperation(request: ChainAccountImportMnemonicRequest) -> BaseOperation<MetaAccountModel> {
-        ClosureOperation { [self] in
-            if let bitcoinNetwork = UniversalWalletRegistry.bitcoinNetwork(for: request.chainId) {
+        if let bitcoinNetwork = UniversalWalletRegistry.bitcoinNetwork(for: request.chainId) {
+            return UniversalRootRecoveryOperation(
+                keystore: keystore,
+                metaId: request.meta.metaId,
+                entropy: request.mnemonic.entropy()
+            ) { [self] in
                 guard bitcoinNetwork == UniversalWalletRegistry.bitcoinMainnet else {
                     throw AccountOperationFactoryError.unsupportedNetwork
                 }
-                let updatedWallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
-                    to: request.meta,
-                    mnemonic: request.mnemonic.toString()
+                return try recoverUniversalRootAccounts(
+                    for: request.meta,
+                    mnemonic: request.mnemonic
                 )
-                guard let bitcoinAccount = updatedWallet.chainAccounts.first(where: {
-                    UniversalWalletChainAccountSupport.chainId(
-                        $0.chainId,
-                        matches: UniversalWalletRegistry.bitcoinMainnet.chainId
-                    )
-                }) else {
-                    throw AccountOperationFactoryError.unsupportedNetwork
-                }
-                if let existingAccount = request.meta.chainAccounts.first(where: {
-                    UniversalWalletChainAccountSupport.chainId(
-                        $0.chainId,
-                        matches: UniversalWalletRegistry.bitcoinMainnet.chainId
-                    )
-                }), UniversalWalletChainAccountSupport.address(
-                    for: UniversalWalletRegistry.bitcoinMainnet.chainId,
-                    publicKey: existingAccount.publicKey
-                ) != nil, existingAccount.publicKey != bitcoinAccount.publicKey {
-                    throw AccountCreateError.duplicated
-                }
-
-                try saveEntropy(
-                    request.mnemonic.entropy(),
-                    metaId: request.meta.metaId,
-                    accountId: bitcoinAccount.accountId
-                )
-                return updatedWallet
             }
+        }
 
-            if UniversalWalletChainAccountSupport.chainId(
-                request.chainId,
-                matches: UniversalWalletRegistry.taira.chainId
-            ) {
-                let updatedWallet = try UniversalWalletAccountProvisioning.addingTairaTestnetAccount(
-                    to: request.meta,
-                    mnemonic: request.mnemonic.toString()
+        if UniversalWalletChainAccountSupport.chainId(
+            request.chainId,
+            matches: UniversalWalletRegistry.taira.chainId
+        ) {
+            return UniversalRootRecoveryOperation(
+                keystore: keystore,
+                metaId: request.meta.metaId,
+                entropy: request.mnemonic.entropy()
+            ) { [self] in
+                try recoverUniversalRootAccounts(
+                    for: request.meta,
+                    mnemonic: request.mnemonic
                 )
-                guard let tairaAccount = updatedWallet.chainAccounts.first(where: {
-                    UniversalWalletChainAccountSupport.chainId(
-                        $0.chainId,
-                        matches: UniversalWalletRegistry.taira.chainId
-                    )
-                }) else {
-                    throw AccountOperationFactoryError.unsupportedNetwork
-                }
-                if let existingAccount = request.meta.chainAccounts.first(where: {
-                    UniversalWalletChainAccountSupport.isValidTairaAccount($0)
-                }), existingAccount.publicKey != tairaAccount.publicKey {
-                    throw AccountCreateError.duplicated
-                }
-
-                try saveEntropy(
-                    request.mnemonic.entropy(),
-                    metaId: request.meta.metaId,
-                    accountId: tairaAccount.accountId
-                )
-                return updatedWallet
             }
+        }
 
+        return ClosureOperation { [self] in
             let query = try getQuery(
                 seedSource: .mnemonic(request.mnemonic),
                 derivationPath: request.derivationPath,
@@ -587,55 +709,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
 
     func importChainAccountOperation(request: ChainAccountImportSeedRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
-            if let bitcoinNetwork = UniversalWalletRegistry.bitcoinNetwork(for: request.chainId) {
-                guard bitcoinNetwork == UniversalWalletRegistry.bitcoinMainnet else {
-                    throw AccountOperationFactoryError.unsupportedNetwork
-                }
-
-                let walletSeed = try Data(hexStringSSF: request.seed)
-                let mnemonic: String
-                do {
-                    mnemonic = try UniversalWalletSeedBridge.mnemonic(fromWalletSeed: walletSeed)
-                } catch UniversalWalletSeedBridge.BridgeError.invalidWalletSeedLength {
-                    throw AccountCreateError.invalidSeed
-                }
-
-                let updatedWallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
-                    to: request.meta,
-                    mnemonic: mnemonic
-                )
-                guard let bitcoinAccount = updatedWallet.chainAccounts.first(where: {
-                    UniversalWalletChainAccountSupport.chainId(
-                        $0.chainId,
-                        matches: UniversalWalletRegistry.bitcoinMainnet.chainId
-                    )
-                }) else {
-                    throw AccountOperationFactoryError.unsupportedNetwork
-                }
-                if let existingAccount = request.meta.chainAccounts.first(where: {
-                    UniversalWalletChainAccountSupport.chainId(
-                        $0.chainId,
-                        matches: UniversalWalletRegistry.bitcoinMainnet.chainId
-                    )
-                }), UniversalWalletChainAccountSupport.address(
-                    for: UniversalWalletRegistry.bitcoinMainnet.chainId,
-                    publicKey: existingAccount.publicKey
-                ) != nil, existingAccount.publicKey != bitcoinAccount.publicKey {
-                    throw AccountCreateError.duplicated
-                }
-
-                try saveEntropy(
-                    walletSeed,
-                    metaId: request.meta.metaId,
-                    accountId: bitcoinAccount.accountId
-                )
-                return updatedWallet
-            }
-
-            guard !UniversalWalletChainAccountSupport.chainId(
-                request.chainId,
-                matches: UniversalWalletRegistry.taira.chainId
-            ) else {
+            guard !isUniversalRootManagedChain(request.chainId) else {
                 throw AccountOperationFactoryError.unsupportedNetwork
             }
 
@@ -680,10 +754,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
 
     func importChainAccountOperation(request: ChainAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
-            guard !UniversalWalletChainAccountSupport.chainId(
-                request.chainId,
-                matches: UniversalWalletRegistry.taira.chainId
-            ) else {
+            guard !isUniversalRootManagedChain(request.chainId) else {
                 throw AccountOperationFactoryError.unsupportedNetwork
             }
 

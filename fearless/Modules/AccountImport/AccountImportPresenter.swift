@@ -148,15 +148,6 @@ private extension AccountImportPresenter {
         return UniversalWalletRegistry.bitcoinNetwork(for: model.chain.chainId) != nil
     }
 
-    var supportsDedicatedBitcoinRawSeedImport: Bool {
-        guard case let .chain(model) = flow else {
-            return false
-        }
-
-        return UniversalWalletRegistry.bitcoinNetwork(for: model.chain.chainId) ==
-            UniversalWalletRegistry.bitcoinMainnet
-    }
-
     var isDedicatedUniversalChainFlow: Bool {
         guard case let .chain(model) = flow else {
             return false
@@ -200,7 +191,7 @@ private extension AccountImportPresenter {
             view?.setSource(
                 type: selectedSourceType,
                 chainType: chainType,
-                selectable: !isDedicatedUniversalChainFlow || supportsDedicatedBitcoinRawSeedImport
+                selectable: !isDedicatedUniversalChainFlow
             )
         case let .wallet(step):
             switch step {
@@ -747,8 +738,10 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         }
         if case let .chain(model) = flow {
             let viewModel = UniqueChainViewModel(
-                text: model.chain.name,
-                icon: model.chain.icon.map { RemoteImageViewModel(url: $0) }
+                text: isDedicatedUniversalChainFlow ? "Entire wallet" : model.chain.name,
+                icon: isDedicatedUniversalChainFlow
+                    ? nil
+                    : model.chain.icon.map { RemoteImageViewModel(url: $0) }
             )
             view?.setUniqueChain(viewModel: viewModel)
         }
@@ -1013,7 +1006,7 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
         let effectiveMetadata: MetaAccountImportMetadata
         if isDedicatedUniversalChainFlow {
             effectiveMetadata = MetaAccountImportMetadata(
-                availableSources: supportsDedicatedBitcoinRawSeedImport ? [.mnemonic, .seed] : [.mnemonic],
+                availableSources: [.mnemonic],
                 defaultSource: .mnemonic,
                 availableCryptoTypes: [dedicatedUniversalCryptoType],
                 defaultCryptoType: dedicatedUniversalCryptoType

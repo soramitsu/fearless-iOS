@@ -138,26 +138,6 @@ private extension ServiceCoordinator {
         }
 
         do {
-            let hasValidBitcoinAccount = wallet.chainAccounts.contains(where: {
-                UniversalWalletChainAccountSupport.chainId(
-                    $0.chainId,
-                    matches: UniversalWalletRegistry.bitcoinMainnet.chainId
-                ) && UniversalWalletChainAccountSupport.address(
-                    for: UniversalWalletRegistry.bitcoinMainnet.chainId,
-                    publicKey: $0.publicKey
-                ) != nil
-            })
-            let hasValidTairaAccount = wallet.chainAccounts.contains(
-                where: UniversalWalletChainAccountSupport.isValidTairaAccount
-            )
-            if hasValidBitcoinAccount, hasValidTairaAccount {
-                // Structurally valid app-owned accounts may intentionally use
-                // chain-specific mnemonics. Never replace their receive
-                // addresses with a root-wallet derivation during retry.
-                finishAppOwnedProvisioning(for: wallet.metaId)
-                return
-            }
-
             guard let mnemonic = try appOwnedMnemonicProvider.rootMnemonic(for: wallet) else {
                 finishAppOwnedProvisioning(for: wallet.metaId)
                 return

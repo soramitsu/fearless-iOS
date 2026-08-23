@@ -137,24 +137,24 @@ Redux/Pinia state, logs, or test fixtures.
 Solana import compatibility may support common existing Solana paths, but new
 Universal Wallet V2 accounts must use `m/44'/501'/0'/0'`.
 
-Automatic Bitcoin and Taira provisioning uses authentic BIP39 root entropy
-when it exists in the protected root-entropy Keychain item. A new 32-byte raw
-seed import instead establishes the explicit versioned contract
-`raw-wallet-seed-as-bip39-entropy-v1`: the same raw bytes are interpreted as
-BIP39 entropy, and the same raw seed plus this Fearless contract recreates the
-same app-owned accounts. No hash, random value, or irreversible synthetic
-secret is introduced.
+Canonical Bitcoin and Taira provisioning uses the wallet's authentic BIP39
+root entropy from the protected root-entropy Keychain item. If that item is
+missing, the user may enter the wallet's original recovery phrase. The app must
+first verify that the phrase reproduces the existing Substrate and EVM identity,
+then persist it as the root and provision both Bitcoin and Taira atomically. The
+normal setup route must never generate or import a chain-specific recovery
+phrase.
 
-An unmarked legacy Substrate mini-seed is ambiguous because mnemonic-origin
-wallets also store a derived mini-seed. It must never be interpreted silently.
-The accountless Bitcoin/Taira setup route may establish the same versioned
-contract only after an explicit `Use wallet seed` confirmation that warns it
-creates new addresses and does not recover accounts previously derived from a
-recovery phrase. Watch-only and JSON wallets remain on explicit mnemonic
-recovery. Protected-data and other non-missing Keychain errors fail closed and
-retry without changing wallet identity. A mnemonic-origin wallet exported and
-restored only as a Substrate seed is not equivalent to restoring its original
-BIP39 phrase and must not be claimed to recover existing app-owned accounts.
+A 32-byte raw-seed import may still use the versioned compatibility contract
+`raw-wallet-seed-as-bip39-entropy-v1` to derive deterministic app-owned account
+keys. Those generated words are not a canonical whole-wallet recovery phrase:
+normal BIP39 restoration would derive a different Substrate identity, and an
+independently supplied EVM seed cannot be encoded in them. Raw-seed, JSON,
+watch-only, and legacy chain-specific wallets therefore cannot be converted
+safely in place to the one-phrase contract. The app must preserve their existing
+addresses and direct the user to create or restore a canonical mnemonic wallet
+and migrate assets. Protected-data and other non-missing Keychain errors fail
+closed and retry without changing wallet identity.
 
 ## Registry Requirements
 

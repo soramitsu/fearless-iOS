@@ -46,10 +46,23 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
                         self?.settings.save(value: accountItem, runningCompletionIn: .main) { result in
                             switch result {
                             case let .success(savedAccount):
+                                (importOperation as? PersistenceBoundKeychainOperation)?
+                                    .commitKeychainChanges()
                                 self?.eventCenter.notify(with: SelectedAccountChanged(account: savedAccount))
                                 self?.presenter?.didCompleteAccountImport()
                             case let .failure(error):
-                                self?.presenter?.didReceiveAccountImport(error: error)
+                                do {
+                                    try (importOperation as? PersistenceBoundKeychainOperation)?
+                                        .rollbackKeychainChanges()
+                                    self?.presenter?.didReceiveAccountImport(error: error)
+                                } catch let rollbackError {
+                                    Logger.shared.error(
+                                        "Wallet persistence and recovery-secret rollback failed: " +
+                                            "\(error.localizedDescription); " +
+                                            "\(rollbackError.localizedDescription)"
+                                    )
+                                    self?.presenter?.didReceiveAccountImport(error: rollbackError)
+                                }
                             }
                         }
                     } catch {

@@ -31,12 +31,10 @@ final class ChainAssetListTests: XCTestCase {
         var adoptionCalls = 0
         let viewModel = ChainAssetListPresenter.makeUniversalWalletSetupViewModel(
             locale: Locale(identifier: "en_US"),
-            useStoredSeed: { adoptionCalls += 1 },
-            createAccount: {},
-            importAccount: {}
+            useStoredSeed: { adoptionCalls += 1 }
         )
         let action = try XCTUnwrap(
-            viewModel.actions.first(where: { $0.title == "Use wallet seed" })
+            viewModel.actions.first(where: { $0.title == "Add from wallet phrase" })
         )
 
         action.handler?()
@@ -56,12 +54,10 @@ final class ChainAssetListTests: XCTestCase {
         var adoptionCalls = 0
         let viewModel = ChainAssetListPresenter.makeUniversalWalletSetupViewModel(
             locale: Locale(identifier: "en_US"),
-            useStoredSeed: { adoptionCalls += 1 },
-            createAccount: {},
-            importAccount: {}
+            useStoredSeed: { adoptionCalls += 1 }
         )
         let action = try XCTUnwrap(
-            viewModel.actions.first(where: { $0.title == "Use wallet seed" })
+            viewModel.actions.first(where: { $0.title == "Add from wallet phrase" })
         )
 
         // SheetAlertViewLayout begins dismissal before invoking the selected
@@ -76,159 +72,44 @@ final class ChainAssetListTests: XCTestCase {
 
     func testUniversalWalletSetupCancelDoesNotStartAnyAction() {
         var adoptionCalls = 0
-        var createCalls = 0
-        var importCalls = 0
         let viewModel = ChainAssetListPresenter.makeUniversalWalletSetupViewModel(
             locale: Locale(identifier: "en_US"),
-            useStoredSeed: { adoptionCalls += 1 },
-            createAccount: { createCalls += 1 },
-            importAccount: { importCalls += 1 }
+            useStoredSeed: { adoptionCalls += 1 }
         )
 
         viewModel.dismissCompletion?()
 
         XCTAssertEqual(adoptionCalls, 0)
-        XCTAssertEqual(createCalls, 0)
-        XCTAssertEqual(importCalls, 0)
     }
 
-    func testUniversalWalletSetupOffersCreateAndRunsItOnlyAfterDismissal() throws {
-        let locale = Locale(identifier: "en_US")
+    func testUniversalWalletSetupOffersOnlyTheWalletRootPhrase() throws {
         var adoptionCalls = 0
-        var createCalls = 0
-        var importCalls = 0
         let viewModel = ChainAssetListPresenter.makeUniversalWalletSetupViewModel(
-            locale: locale,
-            useStoredSeed: { adoptionCalls += 1 },
-            createAccount: { createCalls += 1 },
-            importAccount: { importCalls += 1 }
-        )
-        let createTitle = R.string.localizable.createNewAccount(
-            preferredLanguages: locale.rLanguages
-        )
-        let createAction = try XCTUnwrap(
-            viewModel.actions.first(where: { $0.title == createTitle })
+            locale: Locale(identifier: "en_US"),
+            useStoredSeed: { adoptionCalls += 1 }
         )
 
-        createAction.handler?()
-        XCTAssertEqual(createCalls, 0)
-
-        viewModel.dismissCompletion?()
-
-        XCTAssertEqual(adoptionCalls, 0)
-        XCTAssertEqual(createCalls, 1)
-        XCTAssertEqual(importCalls, 0)
+        XCTAssertEqual(viewModel.actions.map(\.title), ["Add from wallet phrase"])
+        XCTAssertTrue(viewModel.message?.contains("no new phrase") == true)
     }
 
-    func testUniversalWalletSetupImportRunsOnlyImportAfterDismissal() throws {
-        let locale = Locale(identifier: "en_US")
-        var adoptionCalls = 0
-        var createCalls = 0
-        var importCalls = 0
-        let viewModel = ChainAssetListPresenter.makeUniversalWalletSetupViewModel(
-            locale: locale,
-            useStoredSeed: { adoptionCalls += 1 },
-            createAccount: { createCalls += 1 },
-            importAccount: { importCalls += 1 }
-        )
-        let importTitle = R.string.localizable.alreadyHaveAccount(
-            preferredLanguages: locale.rLanguages
-        )
-        let importAction = try XCTUnwrap(
-            viewModel.actions.first(where: { $0.title == importTitle })
-        )
-
-        importAction.handler?()
-        viewModel.dismissCompletion?()
-
-        XCTAssertEqual(adoptionCalls, 0)
-        XCTAssertEqual(createCalls, 0)
-        XCTAssertEqual(importCalls, 1)
-    }
-
-    func testFirstUniversalWalletSetupSelectionWinsBeforeDismissal() throws {
-        let locale = Locale(identifier: "en_US")
-        var adoptionCalls = 0
-        var createCalls = 0
-        var importCalls = 0
-        let viewModel = ChainAssetListPresenter.makeUniversalWalletSetupViewModel(
-            locale: locale,
-            useStoredSeed: { adoptionCalls += 1 },
-            createAccount: { createCalls += 1 },
-            importAccount: { importCalls += 1 }
-        )
-        let seedAction = try XCTUnwrap(
-            viewModel.actions.first(where: { $0.title == "Use wallet seed" })
-        )
-        let importTitle = R.string.localizable.alreadyHaveAccount(
-            preferredLanguages: locale.rLanguages
-        )
-        let importAction = try XCTUnwrap(
-            viewModel.actions.first(where: { $0.title == importTitle })
-        )
-
-        seedAction.handler?()
-        importAction.handler?()
-        viewModel.dismissCompletion?()
-
-        XCTAssertEqual(adoptionCalls, 1)
-        XCTAssertEqual(createCalls, 0)
-        XCTAssertEqual(importCalls, 0)
-    }
-
-    func testUniversalWalletRecoveryOffersCreateAndImportChoices() throws {
-        let locale = Locale(identifier: "en_US")
-        var createCalls = 0
+    func testUniversalWalletRecoveryOffersOnlyTheOriginalWalletPhrase() throws {
         var importCalls = 0
         let viewModel = ChainAssetListPresenter.makeUniversalWalletRecoveryViewModel(
-            locale: locale,
-            createAccount: { createCalls += 1 },
-            importAccount: { importCalls += 1 }
-        )
-        let createTitle = R.string.localizable.createNewAccount(
-            preferredLanguages: locale.rLanguages
-        )
-        let importTitle = R.string.localizable.alreadyHaveAccount(
-            preferredLanguages: locale.rLanguages
-        )
-
-        XCTAssertEqual(
-            Set(viewModel.actions.map(\.title)),
-            Set([createTitle, importTitle])
-        )
-
-        let createAction = try XCTUnwrap(
-            viewModel.actions.first(where: { $0.title == createTitle })
-        )
-        createAction.handler?()
-        XCTAssertEqual(createCalls, 0)
-        viewModel.dismissCompletion?()
-
-        XCTAssertEqual(createCalls, 1)
-        XCTAssertEqual(importCalls, 0)
-    }
-
-    func testUniversalWalletRecoveryImportRunsAfterDismissal() throws {
-        let locale = Locale(identifier: "en_US")
-        var createCalls = 0
-        var importCalls = 0
-        let viewModel = ChainAssetListPresenter.makeUniversalWalletRecoveryViewModel(
-            locale: locale,
-            createAccount: { createCalls += 1 },
-            importAccount: { importCalls += 1 }
-        )
-        let importTitle = R.string.localizable.alreadyHaveAccount(
-            preferredLanguages: locale.rLanguages
+            locale: Locale(identifier: "en_US"),
+            importWalletPhrase: { importCalls += 1 }
         )
         let importAction = try XCTUnwrap(
-            viewModel.actions.first(where: { $0.title == importTitle })
+            viewModel.actions.first(where: { $0.title == "Enter wallet recovery phrase" })
         )
 
         importAction.handler?()
+        XCTAssertEqual(importCalls, 0)
         viewModel.dismissCompletion?()
 
-        XCTAssertEqual(createCalls, 0)
         XCTAssertEqual(importCalls, 1)
+        XCTAssertEqual(viewModel.actions.count, 1)
+        XCTAssertTrue(viewModel.message?.contains("second phrase is never created") == true)
     }
 
     func testEveryStoredSeedAdoptionErrorHasVisibleContent() {
@@ -280,7 +161,7 @@ final class ChainAssetListTests: XCTestCase {
         )
     }
 
-    func testMissingStoredSeedCallbackPresentsRecoveryChoicesForSelectedBitcoinChain() throws {
+    func testMissingStoredSeedCallbackRoutesOnlyOriginalPhraseForSelectedBitcoinChain() throws {
         let wallet = AccountGenerator.generateMetaAccount()
         let interactor = ChainAssetListInteractorInputSpy()
         let router = ChainAssetListRouterSpy()
@@ -297,7 +178,7 @@ final class ChainAssetListTests: XCTestCase {
         )
         let setup = try XCTUnwrap(router.presentedSetupViewModels.last)
         let useStoredSeed = try XCTUnwrap(
-            setup.actions.first(where: { $0.title == "Use wallet seed" })
+            setup.actions.first(where: { $0.title == "Add from wallet phrase" })
         )
         useStoredSeed.handler?()
         setup.dismissCompletion?()
@@ -321,31 +202,21 @@ final class ChainAssetListTests: XCTestCase {
         XCTAssertTrue(router.createdChainModels.isEmpty)
         XCTAssertEqual(router.presentedSetupViewModels.count, 2)
         let recovery = try XCTUnwrap(router.presentedSetupViewModels.last)
-        let locale = LocalizationManager.shared.selectedLocale
-        let createTitle = R.string.localizable.createNewAccount(
-            preferredLanguages: locale.rLanguages
-        )
-        let importTitle = R.string.localizable.alreadyHaveAccount(
-            preferredLanguages: locale.rLanguages
-        )
-        XCTAssertEqual(
-            Set(recovery.actions.map(\.title)),
-            Set([createTitle, importTitle])
-        )
+        XCTAssertEqual(recovery.actions.map(\.title), ["Enter wallet recovery phrase"])
 
-        let createAction = try XCTUnwrap(
-            recovery.actions.first(where: { $0.title == createTitle })
+        let importAction = try XCTUnwrap(
+            recovery.actions.first(where: { $0.title == "Enter wallet recovery phrase" })
         )
-        createAction.handler?()
+        importAction.handler?()
         recovery.dismissCompletion?()
 
-        let routedModel = try XCTUnwrap(router.createdChainModels.last)
+        let routedModel = try XCTUnwrap(router.importedChainModels.last)
         XCTAssertEqual(routedModel.meta.metaId, wallet.metaId)
         XCTAssertEqual(
             routedModel.chain.chainId,
             UniversalWalletRegistry.bitcoinMainnet.chainId
         )
-        XCTAssertTrue(router.importedChainModels.isEmpty)
+        XCTAssertTrue(router.createdChainModels.isEmpty)
         XCTAssertEqual(router.presentedErrors.count, 0)
     }
 
@@ -385,6 +256,10 @@ final class ChainAssetListTests: XCTestCase {
         try keychain.saveKey(
             Data(repeating: 0x2A, count: UniversalWalletSeedBridge.walletSeedLength),
             with: fearless.KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId)
+        )
+        try keychain.saveKey(
+            Data(UniversalWalletSeedBridge.contract.utf8),
+            with: fearless.KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
         )
         let completion = expectation(description: "stored seed adoption completed")
         var adoptionResult: MetaAccountModel?
@@ -427,6 +302,10 @@ final class ChainAssetListTests: XCTestCase {
         try keychain.saveKey(
             Data(repeating: 0x19, count: UniversalWalletSeedBridge.walletSeedLength),
             with: fearless.KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId)
+        )
+        try keychain.saveKey(
+            Data(UniversalWalletSeedBridge.contract.utf8),
+            with: fearless.KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
         )
 
         let initialSave = expectation(description: "initial wallet saved")
@@ -542,6 +421,10 @@ final class ChainAssetListTests: XCTestCase {
         try keychain.saveKey(
             Data(repeating: 0x37, count: UniversalWalletSeedBridge.walletSeedLength),
             with: fearless.KeystoreTagV2.substrateSeedTagForMetaId(walletSnapshot.metaId)
+        )
+        try keychain.saveKey(
+            Data(UniversalWalletSeedBridge.contract.utf8),
+            with: fearless.KeystoreTagV2.universalWalletSecretSourceTagForMetaId(walletSnapshot.metaId)
         )
 
         let initialSave = expectation(description: "newer wallet saved")

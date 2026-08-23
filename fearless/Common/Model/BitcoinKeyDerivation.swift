@@ -34,10 +34,44 @@ protocol UniversalWalletStoredSeedAdopting {
     func adoptStoredSecret(for wallet: MetaAccountModel) throws -> MetaAccountModel
 }
 
-/// Establishes an explicit, versioned recovery contract for a legacy raw-seed
-/// wallet. An unmarked stored seed is never interpreted automatically: the UI
-/// calls this only after the owner confirms the adoption. Authentic BIP39 root
-/// entropy remains authoritative and never receives a raw-seed marker.
+enum UniversalWalletRootRecoveryError: LocalizedError, ErrorContentConvertible, Equatable {
+    case phraseDoesNotMatchWallet
+    case existingAccountUsesDifferentPhrase
+    case unsupportedWalletIdentity
+
+    var errorDescription: String? {
+        switch self {
+        case .phraseDoesNotMatchWallet:
+            return "That recovery phrase does not recreate this wallet. No accounts or keys were changed."
+        case .existingAccountUsesDifferentPhrase:
+            return "This wallet already contains a Bitcoin or Taira account from a different recovery phrase. It was not replaced because doing so could hide funds."
+        case .unsupportedWalletIdentity:
+            return "This legacy wallet cannot be converted safely to one recovery phrase in place. Create or restore a mnemonic wallet and move the assets to it."
+        }
+    }
+
+    func toErrorContent(for _: Locale?) -> ErrorContent {
+        let title: String
+        switch self {
+        case .phraseDoesNotMatchWallet:
+            title = "Recovery phrase does not match"
+        case .existingAccountUsesDifferentPhrase:
+            title = "Different recovery phrase detected"
+        case .unsupportedWalletIdentity:
+            title = "Wallet migration required"
+        }
+
+        return ErrorContent(
+            title: title,
+            message: errorDescription ?? "The wallet was not changed."
+        )
+    }
+}
+
+/// Restores app-owned accounts only from an established wallet recovery
+/// contract. Authentic BIP39 root entropy is authoritative. A raw seed is used
+/// only when the wallet was imported with the explicit versioned bridge marker;
+/// an ambiguous unmarked seed is never converted into a second phrase.
 final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting {
     enum AdoptionError: LocalizedError, ErrorContentConvertible, Equatable {
         case storedWalletSeedUnavailable
@@ -47,11 +81,11 @@ final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting 
         var errorDescription: String? {
             switch self {
             case .storedWalletSeedUnavailable:
-                return "This wallet has no compatible stored recovery secret. Import its original mnemonic or raw seed backup instead."
+                return "This device does not have the wallet recovery phrase. Enter the original phrase to add Bitcoin and Taira."
             case .unsupportedSecretSource:
-                return "This wallet uses a different recovery contract and was not changed."
+                return "This legacy wallet cannot be converted safely to one recovery phrase in place. Create or restore a mnemonic wallet and move the assets to it."
             case .conflictingUniversalWalletAccount:
-                return "An existing Bitcoin or Taira account needs manual recovery and was not changed."
+                return "This wallet already contains a Bitcoin or Taira account from a different recovery phrase. Its address and key were preserved; move any funds before migrating to the wallet root."
             }
         }
 
@@ -89,8 +123,10 @@ final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting 
         }
 
         let sourceTag = KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
-        if let source = try fetchIfPresent(tag: sourceTag),
-           String(data: source, encoding: .utf8) != UniversalWalletSeedBridge.contract {
+        guard let source = try fetchIfPresent(tag: sourceTag) else {
+            throw AdoptionError.storedWalletSeedUnavailable
+        }
+        guard String(data: source, encoding: .utf8) == UniversalWalletSeedBridge.contract else {
             throw AdoptionError.unsupportedSecretSource
         }
 
@@ -107,18 +143,7 @@ final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting 
             throw AdoptionError.storedWalletSeedUnavailable
         }
 
-        let updatedWallet = try updatedWallet(from: wallet, mnemonic: mnemonic)
-
-        // Persist the contract before the wallet row. If the database save
-        // subsequently fails, retrying derives the same accounts and is safe.
-        // Derivation and conflict validation have already succeeded, so a
-        // failed adoption never leaves a marker for an unusable identity.
-        try keystore.saveKey(
-            Data(UniversalWalletSeedBridge.contract.utf8),
-            with: sourceTag
-        )
-
-        return updatedWallet
+        return try updatedWallet(from: wallet, mnemonic: mnemonic)
     }
 
     private func validateNoConflictingAccounts(in wallet: MetaAccountModel) throws {
@@ -160,20 +185,13 @@ final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting 
             candidatePublicKey: bitcoinCandidate.publicKey,
             isStructurallyValid: {
                 UniversalWalletChainAccountSupport.isValidBitcoinAccount($0)
-            },
-            derivePublicKey: {
-                try BitcoinKeyDerivation.deriveAccount(
-                    mnemonic: $0,
-                    network: .mainnet
-                ).publicKey
             }
         )
         try validateExistingAccounts(
             in: wallet,
             chainId: UniversalWalletRegistry.taira.chainId,
             candidatePublicKey: tairaCandidate.publicKey,
-            isStructurallyValid: UniversalWalletChainAccountSupport.isValidTairaAccount,
-            derivePublicKey: { try IrohaKeyDerivation.deriveAccount(mnemonic: $0).publicKey }
+            isStructurallyValid: UniversalWalletChainAccountSupport.isValidTairaAccount
         )
 
         return try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
@@ -186,8 +204,7 @@ final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting 
         in wallet: MetaAccountModel,
         chainId: ChainModel.Id,
         candidatePublicKey: Data,
-        isStructurallyValid: (ChainAccountModel) -> Bool,
-        derivePublicKey: (String) throws -> Data
+        isStructurallyValid: (ChainAccountModel) -> Bool
     ) throws {
         let accounts = wallet.chainAccounts.filter {
             UniversalWalletChainAccountSupport.chainId($0.chainId, matches: chainId)
@@ -201,28 +218,7 @@ final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting 
         guard isStructurallyValid(account) else {
             throw AdoptionError.conflictingUniversalWalletAccount
         }
-        guard account.publicKey != candidatePublicKey else {
-            return
-        }
-
-        let accountEntropyTag = KeystoreTagV2.entropyTagForMetaId(
-            wallet.metaId,
-            accountId: account.accountId
-        )
-        guard let accountEntropy = try fetchIfPresent(tag: accountEntropyTag) else {
-            throw AdoptionError.conflictingUniversalWalletAccount
-        }
-
-        do {
-            let accountMnemonic = try IRMnemonicCreator()
-                .mnemonic(fromEntropy: accountEntropy)
-                .toString()
-            guard try derivePublicKey(accountMnemonic) == account.publicKey else {
-                throw AdoptionError.conflictingUniversalWalletAccount
-            }
-        } catch let error as AdoptionError {
-            throw error
-        } catch {
+        guard account.publicKey == candidatePublicKey else {
             throw AdoptionError.conflictingUniversalWalletAccount
         }
     }

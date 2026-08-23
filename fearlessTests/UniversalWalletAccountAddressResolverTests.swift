@@ -219,7 +219,7 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         XCTAssertTrue(UniversalWalletChainAccountSupport.isValidTairaAccount(account))
     }
 
-    func testAppOwnedUpgradeAddsTairaWithoutReplacingExistingBitcoinAccount() throws {
+    func testAppOwnedUpgradeRejectsBitcoinFromDifferentPhrase() throws {
         let chainSpecificMnemonic = Self.mnemonic
         let rootMnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
         let wallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
@@ -233,26 +233,21 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
             )
         }))
 
-        let upgraded = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
-            to: wallet,
-            mnemonic: rootMnemonic
-        )
-        let upgradedBitcoin = try XCTUnwrap(upgraded.chainAccounts.first(where: {
-            UniversalWalletChainAccountSupport.chainId(
-                $0.chainId,
-                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+        XCTAssertThrowsError(
+            try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+                to: wallet,
+                mnemonic: rootMnemonic
             )
-        }))
-        let taira = try XCTUnwrap(upgraded.chainAccounts.first(where: {
-            UniversalWalletChainAccountSupport.isValidTairaAccount($0)
-        }))
-        let expectedTaira = try IrohaKeyDerivation.deriveAccount(mnemonic: rootMnemonic)
-
-        XCTAssertEqual(upgradedBitcoin, originalBitcoin)
-        XCTAssertEqual(taira.publicKey, expectedTaira.publicKey)
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletRootRecoveryError,
+                .existingAccountUsesDifferentPhrase
+            )
+        }
+        XCTAssertEqual(wallet.chainAccounts, [originalBitcoin])
     }
 
-    func testAppOwnedUpgradePreservesValidChainSpecificTairaAccount() throws {
+    func testAppOwnedUpgradeRejectsTairaFromDifferentPhrase() throws {
         let chainSpecificMnemonic = Self.mnemonic
         let rootMnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
         let wallet = try UniversalWalletAccountProvisioning.addingTairaTestnetAccount(
@@ -263,26 +258,18 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
             UniversalWalletChainAccountSupport.isValidTairaAccount($0)
         }))
 
-        let upgraded = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
-            to: wallet,
-            mnemonic: rootMnemonic
-        )
-        let upgradedTaira = try XCTUnwrap(upgraded.chainAccounts.first(where: {
-            UniversalWalletChainAccountSupport.isValidTairaAccount($0)
-        }))
-        let bitcoin = try XCTUnwrap(upgraded.chainAccounts.first(where: {
-            UniversalWalletChainAccountSupport.chainId(
-                $0.chainId,
-                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+        XCTAssertThrowsError(
+            try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+                to: wallet,
+                mnemonic: rootMnemonic
             )
-        }))
-        let expectedBitcoin = try BitcoinKeyDerivation.deriveAccount(
-            mnemonic: rootMnemonic,
-            network: .mainnet
-        )
-
-        XCTAssertEqual(upgradedTaira, originalTaira)
-        XCTAssertEqual(bitcoin.publicKey, expectedBitcoin.publicKey)
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletRootRecoveryError,
+                .existingAccountUsesDifferentPhrase
+            )
+        }
+        XCTAssertEqual(wallet.chainAccounts, [originalTaira])
     }
 
     func testAutomaticAppOwnedProvisioningNeverReplacesMalformedExistingRows() throws {
@@ -304,16 +291,18 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
             with: [malformedBitcoin, malformedTaira]
         )
 
-        let provisioned = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
-            to: wallet,
-            mnemonic: Self.mnemonic
-        )
-
-        XCTAssertEqual(provisioned, wallet)
-        XCTAssertEqual(
-            provisioned.chainAccounts,
-            [malformedBitcoin, malformedTaira]
-        )
+        XCTAssertThrowsError(
+            try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+                to: wallet,
+                mnemonic: Self.mnemonic
+            )
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletRootRecoveryError,
+                .existingAccountUsesDifferentPhrase
+            )
+        }
+        XCTAssertEqual(wallet.chainAccounts, [malformedBitcoin, malformedTaira])
     }
 
     func testTairaProductionChainIsEnabledRankedTestnetWithCanonicalXOR() throws {
@@ -496,6 +485,41 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
             expectedMnemonic
         )
         XCTAssertEqual(try provider.rootMnemonic(for: wallet), expectedMnemonic)
+    }
+
+    func testCanonicalAccountUsesRootBeforeLegacyAccountEntropy() throws {
+        let rootMnemonic = try IRMnemonicCreator().mnemonic(fromList: Self.mnemonic)
+        let wallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+            to: AccountGenerator.generateMetaAccount(),
+            mnemonic: rootMnemonic.toString()
+        )
+        let bitcoinAccount = try XCTUnwrap(wallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+        let accountEntropyTag = fearless.KeystoreTagV2.entropyTagForMetaId(
+            wallet.metaId,
+            accountId: bitcoinAccount.accountId
+        )
+        let provider = KeychainUniversalWalletMnemonicProvider(
+            keystore: DictionaryKeystore(
+                keys: [
+                    fearless.KeystoreTagV2.entropyTagForMetaId(wallet.metaId):
+                        rootMnemonic.entropy()
+                ],
+                errors: [accountEntropyTag: KeystoreError.unexpectedFail]
+            )
+        )
+
+        XCTAssertEqual(
+            try provider.mnemonic(
+                for: wallet,
+                chain: UniversalWalletRegistry.bitcoinMainnetChainModel
+            ),
+            rootMnemonic.toString()
+        )
     }
 
     func testUnmarkedLegacySeedNeverSilentlyChangesUniversalWalletIdentity() throws {

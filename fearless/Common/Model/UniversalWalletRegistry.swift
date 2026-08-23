@@ -474,18 +474,27 @@ enum UniversalWalletAccountProvisioning {
         to wallet: MetaAccountModel,
         mnemonic: String
     ) throws -> MetaAccountModel {
-        let hasBitcoinAccount = wallet.chainAccounts.contains(where: {
-            UniversalWalletChainAccountSupport.chainId(
-                $0.chainId,
-                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
-            )
-        })
-        let hasTairaAccount = wallet.chainAccounts.contains(where: {
-            UniversalWalletChainAccountSupport.chainId(
-                $0.chainId,
-                matches: UniversalWalletRegistry.taira.chainId
-            )
-        })
+        let bitcoinPublicKey = try BitcoinKeyDerivation.deriveAccount(
+            mnemonic: mnemonic,
+            network: .mainnet
+        ).publicKey
+        let tairaPublicKey = try IrohaKeyDerivation.deriveAccount(
+            mnemonic: mnemonic
+        ).publicKey
+        let hasBitcoinAccount = try validateExistingAccount(
+            in: wallet,
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
+            candidatePublicKey: bitcoinPublicKey,
+            isStructurallyValid: {
+                UniversalWalletChainAccountSupport.isValidBitcoinAccount($0)
+            }
+        )
+        let hasTairaAccount = try validateExistingAccount(
+            in: wallet,
+            chainId: UniversalWalletRegistry.taira.chainId,
+            candidatePublicKey: tairaPublicKey,
+            isStructurallyValid: UniversalWalletChainAccountSupport.isValidTairaAccount
+        )
 
         var updatedWallet = wallet
         if !hasBitcoinAccount {
@@ -502,6 +511,28 @@ enum UniversalWalletAccountProvisioning {
         }
 
         return updatedWallet
+    }
+
+    private static func validateExistingAccount(
+        in wallet: MetaAccountModel,
+        chainId: ChainModel.Id,
+        candidatePublicKey: Data,
+        isStructurallyValid: (ChainAccountModel) -> Bool
+    ) throws -> Bool {
+        let accounts = wallet.chainAccounts.filter {
+            UniversalWalletChainAccountSupport.chainId($0.chainId, matches: chainId)
+        }
+        guard accounts.count <= 1 else {
+            throw UniversalWalletRootRecoveryError.existingAccountUsesDifferentPhrase
+        }
+        guard let account = accounts.first else {
+            return false
+        }
+        guard isStructurallyValid(account), account.publicKey == candidatePublicKey else {
+            throw UniversalWalletRootRecoveryError.existingAccountUsesDifferentPhrase
+        }
+
+        return true
     }
 
     static func addingBitcoinMainnetAccount(

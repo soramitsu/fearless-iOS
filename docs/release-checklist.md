@@ -70,7 +70,7 @@ Use this checklist for every release PR from `develop` to `master`.
   bundles for Xcode's three generated crypto stubs and the stripped
   MPQRCoreSDK vendor binary; this removes App Store Connect's missing-dSYM
   warnings but does not claim unavailable MPQR source-line DWARF.
-- Validate build `4.2.0 (2026.8.32)` through a true internal TestFlight group
+- Validate build `4.2.0 (2026.8.33)` through a true internal TestFlight group
   containing the affected phone's App Store Connect user before changing the
   public beta group. Do not substitute an external group that requires Beta App
   Review. Run
@@ -82,7 +82,7 @@ Use this checklist for every release PR from `develop` to `master`.
   and shown, a working preview, Polkaswap signing readiness without broadcasting funds, a
   nonzero PI-backed Polkaswap token price, Bitcoin and Taira visible while the
   remote chains request is deliberately unavailable, a visible native BTC asset even
-  before a chain account exists, its mnemonic-only setup action, a
+  before a chain account exists, its single wallet-phrase setup action, a
   visible bundled official Bitcoin mark without a network image dependency, a
   successful Mempool.space public-endpoint
   balance refresh, a valid BIP84 receive address, a BTC send fee quote, and
@@ -90,17 +90,16 @@ Use this checklist for every release PR from `develop` to `master`.
   test wallet that existed before the update with authentic stored BIP39 root
   entropy but no Bitcoin chain account, require automatic upgrade provisioning,
   exact standard-BIP84 address agreement, and stability across a cold
-  relaunch. For the preserved legacy raw-seed wallet, require the explicit
-  `Use wallet seed` confirmation, exact agreement with the reviewed raw-seed
-  bridge golden vector, action delivery regardless of sheet-dismissal callback
-  order, delivery of the completed adoption result through the production
-  merge/save path, durable persistence of both dedicated accounts, and stable
-  Bitcoin/Taira accounts across relaunch. On a wallet without a compatible
-  stored recovery secret, require a visible actionable error and no mutation.
-  Unmarked legacy seeds must never be interpreted without that confirmation;
-  watch-only/JSON wallets remain on the mnemonic-only recovery path,
+  relaunch. For a wallet without stored root entropy, require entry of the
+  original recovery phrase, verification against the existing Substrate/EVM
+  identity before any Keychain write, atomic provisioning of both Bitcoin and
+  Taira, and no chain-specific Create, raw-seed, or JSON option. A mismatched
+  phrase or existing legacy chain account must produce a visible actionable
+  error without replacing its address or secret. Already marked raw-seed bridge
+  wallets remain stable for compatibility, but unmarked raw seeds, watch-only,
+  and JSON wallets must be directed to create a mnemonic wallet and migrate,
   a visible Taira Testnet and canonical XOR row even before a chain account
-  exists, its mnemonic-only setup action, compatible-wallet I105 provisioning,
+  exists, its single wallet-phrase setup action, compatible-wallet I105 provisioning,
   Torii resolution of canonical alias `xor#universal`, validation of its
   unconstrained `NumericSpec` and wallet-adapter precision `28` against Iroha
   `optimizations` commit `d8544f1d4d3a73c4a17873250a483208c9aafc16`, a

@@ -55,8 +55,12 @@ readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
 # save when EventCenter.remove strongly recaptures a deinitializing observer.
 # 2026.8.32 removes observers by ObjectIdentifier without retaining the observer
 # across the asynchronous EventCenter cleanup.
+# 2026.8.33 removes chain-specific recovery phrase creation, validates the
+# original wallet phrase against its Substrate/EVM identity, and provisions
+# Bitcoin and Taira atomically from that single root without replacing legacy
+# addresses derived from a different phrase.
 # Reconfirm successor uniqueness read-only immediately before archive.
-readonly EXPECTED_BUILD="2026.8.32"
+readonly EXPECTED_BUILD="2026.8.33"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -75,7 +79,7 @@ Usage:
 Preconditions:
   - exact clean git HEAD, including no untracked files, descended from the
     distributed 4.2.0 (2026.7.28) source commit;
-  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.32);
+  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.33);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 

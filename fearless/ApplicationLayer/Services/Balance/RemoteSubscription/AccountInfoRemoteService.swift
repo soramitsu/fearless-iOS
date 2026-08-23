@@ -161,6 +161,22 @@ final class KeychainUniversalWalletMnemonicProvider:
     func mnemonic(for wallet: MetaAccountModel, chain: ChainModel) throws -> String? {
         let accountResponse = wallet.fetch(for: chain.accountRequest())
 
+        if let rootMnemonic = try rootMnemonic(for: wallet) {
+            guard let accountResponse, accountResponse.isChainAccount else {
+                return rootMnemonic
+            }
+
+            if mnemonicMatches(
+                rootMnemonic,
+                chainId: chain.chainId,
+                publicKey: accountResponse.publicKey
+            ) {
+                return rootMnemonic
+            }
+        }
+
+        // Compatibility only for accounts created by older releases with a
+        // chain-specific phrase. New provisioning never writes this entropy.
         if accountResponse?.isChainAccount == true,
            let accountMnemonic = try mnemonicIfPresent(
                metaId: wallet.metaId,
@@ -173,19 +189,7 @@ final class KeychainUniversalWalletMnemonicProvider:
             ) ? accountMnemonic : nil
         }
 
-        guard let rootMnemonic = try rootMnemonic(for: wallet) else {
-            return nil
-        }
-
-        guard let accountResponse, accountResponse.isChainAccount else {
-            return rootMnemonic
-        }
-
-        return mnemonicMatches(
-            rootMnemonic,
-            chainId: chain.chainId,
-            publicKey: accountResponse.publicKey
-        ) ? rootMnemonic : nil
+        return nil
     }
 
     func rootMnemonic(for wallet: MetaAccountModel) throws -> String? {

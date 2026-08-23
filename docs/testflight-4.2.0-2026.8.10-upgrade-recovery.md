@@ -62,10 +62,14 @@ recovery choices, including a fresh signable Bitcoin key with its own recovery
 phrase, and synchronizes visible recovery input before submission. It can abort
 after the Bitcoin account is saved because `EventCenter.remove(observer:)`
 strongly recaptures an observer that is already deinitializing.
-Corrected successor build `4.2.0 (2026.8.32)` retains that recovery behavior and
-removes observers by `ObjectIdentifier`, so asynchronous EventCenter cleanup no
-longer retains a deinitializing observer. Mnemonic recovery remains supported
-and invalid seed lengths fail before any Keychain or wallet mutation.
+Build `4.2.0 (2026.8.32)` retains that fragmented recovery behavior and removes
+observers by `ObjectIdentifier`, so asynchronous EventCenter cleanup no longer
+retains a deinitializing observer.
+Corrected successor build `4.2.0 (2026.8.33)` removes chain-specific phrase and
+raw-seed creation from Bitcoin and Taira setup. It verifies the original wallet
+phrase against the existing Substrate/EVM identity, provisions Bitcoin and
+Taira together from that one root, and refuses to replace a legacy address that
+was derived from a different phrase.
 The successor retains ancestry from
 distributed source commit
 `2e45e55dc03ad904598e730cfb5994fb5c1072dc`, the exact public App Store
@@ -176,16 +180,17 @@ button handler and silently discarded unavailable-Keychain failures. `.8.29`
 surfaced those failures but left raw-seed import at a dead end. `.8.30` added
 the raw-seed recovery path but omitted fresh-key creation for restored wallets.
 `.8.31` added fresh Bitcoin key creation, but its post-save event could abort
-while a deinitializing observer was strongly recaptured. Use `.8.31` as the
-installed baseline, then corrected `.8.32` for the preserved-data qualification
-below.
+while a deinitializing observer was strongly recaptured. `.8.32` fixes that
+crash but still permits a second chain-specific recovery phrase. Use `.8.32` as
+the installed baseline, then corrected `.8.33` for the preserved-data
+qualification below.
 
 ## Internal TestFlight gate
 
 1. Confirm the installed identity is `jp.co.soramitsu.fearlesswallet`, version
-   `4.2.0`, build `2026.8.31` before the corrected successor
+   `4.2.0`, build `2026.8.32` before the corrected successor
    update.
-2. Assign build `2026.8.32` only to a true internal TestFlight group containing
+2. Assign build `2026.8.33` only to a true internal TestFlight group containing
    the affected phone's App Store Connect user. Do not use the similarly named
    external affected-phone group, which requires Beta App Review, and do not
    change the public beta group.
@@ -200,7 +205,7 @@ below.
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.32 \
+     --expected-build 2026.8.33 \
      --observation-seconds 900 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 300 \
@@ -221,8 +226,8 @@ below.
      pass/fail attestation without the token identifier or price value;
    - with the remote chains request deliberately unavailable, native BTC and
      Taira already visible; restore connectivity before network-read checks;
-   - native BTC visible in Portfolio before a chain account exists, its
-     mnemonic-only setup action available, the bundled official Bitcoin mark
+   - native BTC visible in Portfolio before a chain account exists, its single
+     wallet-phrase setup action available, the bundled official Bitcoin mark
      visible without a network image fetch,
      the Mempool.space public endpoint working, Switch Node absent, and the
      empty chain-account ellipsis hidden;
@@ -231,19 +236,18 @@ below.
      provisioning succeeds and the resulting address matches
      standard BIP84; then require a successful BTC balance refresh, a valid
      BIP84 receive address, a BTC send fee quote, and signing readiness,
-     recorded only as pass/fail attestations; do not broadcast funds. A raw
-     Substrate seed, watch-only account, or JSON import cannot satisfy this
-     attestation. For the preserved legacy raw-seed wallet, require the
-     explicit `Use wallet seed` confirmation, exact agreement with the reviewed
-     bridge golden vector, action delivery regardless of sheet-dismissal callback
-     ordering, delivery of the completed adoption result, durable
-     persistence of both dedicated accounts without replacing any existing
-     account, and a successful balance/receive refresh. The copy
-     must warn that this creates new addresses and does not recover earlier
-     phrase-derived accounts. On a wallet with no compatible stored recovery
-     secret, require a visible actionable error and no wallet mutation;
+     recorded only as pass/fail attestations; do not broadcast funds. On a
+     mnemonic wallet whose root is not retained on this device, require entry
+     of the original wallet phrase, verification against the existing
+     Substrate/EVM identity before any Keychain write, and atomic provisioning
+     of both Bitcoin and Taira. A mismatched phrase or a legacy dedicated
+     account derived from another phrase must remain unchanged and produce a
+     visible actionable error. A raw Substrate seed, watch-only account, or JSON
+     import must be directed to create a mnemonic wallet and migrate assets.
+     Previously marked raw-seed bridge wallets retain their exact existing
+     addresses and signing keys for compatibility across relaunch;
    - Taira Testnet and its canonical XOR row visible before a chain account
-     exists, its mnemonic-only setup action available, an I105 account
+     exists, its single wallet-phrase setup action available, an I105 account
      provisioned for a compatible wallet, canonical `xor#universal` resolved
      through `https://taira.sora.org`, its unconstrained `NumericSpec` and
      wallet-adapter precision `28` validated against Iroha `optimizations`
@@ -255,7 +259,7 @@ below.
      registration or funding;
    - unchanged wallet counts, logical store integrity, Keychain access, and
      settings access, recorded only as pass/fail attestations without values.
-   Record the actual `previousBuildVersion` (`2026.8.31`) and
+   Record the actual `previousBuildVersion` (`2026.8.32`) and
    `originalAppStoreContainerPreserved=true`; this binds the successor update
    to the still-preserved container originally installed from the App Store.
 6. After the first capture completes, force-quit once more and use a new output
@@ -278,7 +282,7 @@ below.
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.32 \
+     --expected-build 2026.8.33 \
      --observation-seconds 180 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 5 \
@@ -295,12 +299,12 @@ below.
    later host-only diagnostics commit:
 
    ```bash
-   chmod 600 build/testflight-2026.8.32-upgrade-usability.json
-   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.32/testflight-internal-upload.json
+   chmod 600 build/testflight-2026.8.33-upgrade-usability.json
+   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.33/testflight-internal-upload.json
    artifact_source_commit="$(jq -er '.artifactSourceCommit' "$upload_receipt")"
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/audit-testflight-upgrade-usability-gate.py \
-     build/testflight-2026.8.32-upgrade-usability.json \
+     build/testflight-2026.8.33-upgrade-usability.json \
      --first-launch-capture-receipt \
        /ABSOLUTE/PRIVATE/FIRST-HOTFIX-CAPTURE/capture-receipt.json \
      --second-launch-capture-receipt \
@@ -324,6 +328,6 @@ PYTHONDONTWRITEBYTECODE=1 python3 \
 ## Release decision
 
 Only after the audit passes may release review replace build `2026.7.28` in the
-public beta group with `2026.8.32`. Uploading and assigning the restricted group
+public beta group with `2026.8.33`. Uploading and assigning the restricted group
 do not authorize changing the public beta group; that change still requires the
 normal App Store Connect authorization and review trail.

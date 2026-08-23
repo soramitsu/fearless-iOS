@@ -164,32 +164,6 @@ final class ChainAssetListPresenter {
 
                 self.pendingUniversalWalletRecovery = uniqueChainModel
                 self.interactor.adoptStoredWalletSeed()
-            },
-            createAccount: { [weak self] in
-                guard let self else {
-                    return
-                }
-
-                self.router.showCreate(
-                    uniqueChainModel: UniqueChainModel(
-                        meta: self.wallet,
-                        chain: uniqueChainModel.chain
-                    ),
-                    from: self.view
-                )
-            },
-            importAccount: { [weak self] in
-                guard let self else {
-                    return
-                }
-
-                self.router.showImport(
-                    uniqueChainModel: UniqueChainModel(
-                        meta: self.wallet,
-                        chain: uniqueChainModel.chain
-                    ),
-                    from: self.view
-                )
             }
         )
         router.present(viewModel: viewModel, from: view)
@@ -197,38 +171,21 @@ final class ChainAssetListPresenter {
 
     static func makeUniversalWalletSetupViewModel(
         locale: Locale?,
-        useStoredSeed: @escaping () -> Void,
-        createAccount: @escaping () -> Void,
-        importAccount: @escaping () -> Void
+        useStoredSeed: @escaping () -> Void
     ) -> SheetAlertPresentableViewModel {
         let actionCoordinator = DeferredSheetActionCoordinator()
         let storedSeedAction = SheetAlertPresentableAction(
-            title: "Use wallet seed",
+            title: "Add from wallet phrase",
             style: .pinkBackgroundWhiteText
         ) {
             actionCoordinator.select(useStoredSeed)
         }
-        let createAction = SheetAlertPresentableAction(
-            title: R.string.localizable.createNewAccount(
-                preferredLanguages: locale?.rLanguages
-            )
-        ) {
-            actionCoordinator.select(createAccount)
-        }
-        let importAction = SheetAlertPresentableAction(
-            title: R.string.localizable.alreadyHaveAccount(
-                preferredLanguages: locale?.rLanguages
-            )
-        ) {
-            actionCoordinator.select(importAccount)
-        }
 
         return SheetAlertPresentableViewModel(
-            title: "Set up Bitcoin or Taira",
-            message: "Use this wallet's recovery seed, generate a new key with its own " +
-                "recovery phrase, or import an existing key. A restored wallet may not " +
-                "contain the original wallet seed on this device.",
-            actions: [storedSeedAction, createAction, importAction],
+            title: "One recovery phrase",
+            message: "Bitcoin and Taira use the same recovery phrase as this wallet. " +
+                "Adding either network configures both, and no new phrase is created.",
+            actions: [storedSeedAction],
             closeAction: R.string.localizable.commonCancel(
                 preferredLanguages: locale?.rLanguages
             ),
@@ -240,32 +197,23 @@ final class ChainAssetListPresenter {
 
     static func makeUniversalWalletRecoveryViewModel(
         locale: Locale?,
-        createAccount: @escaping () -> Void,
-        importAccount: @escaping () -> Void
+        importWalletPhrase: @escaping () -> Void
     ) -> SheetAlertPresentableViewModel {
         let actionCoordinator = DeferredSheetActionCoordinator()
-        let createAction = SheetAlertPresentableAction(
-            title: R.string.localizable.createNewAccount(
-                preferredLanguages: locale?.rLanguages
-            ),
+        let importAction = SheetAlertPresentableAction(
+            title: "Enter wallet recovery phrase",
             style: .pinkBackgroundWhiteText
         ) {
-            actionCoordinator.select(createAccount)
-        }
-        let importAction = SheetAlertPresentableAction(
-            title: R.string.localizable.alreadyHaveAccount(
-                preferredLanguages: locale?.rLanguages
-            )
-        ) {
-            actionCoordinator.select(importAccount)
+            actionCoordinator.select(importWalletPhrase)
         }
 
         return SheetAlertPresentableViewModel(
-            title: "Wallet seed unavailable",
-            message: "This restored wallet does not contain a compatible wallet seed on " +
-                "this device. Generate a new key with its own recovery phrase, or import " +
-                "the original mnemonic or 32-byte raw seed.",
-            actions: [createAction, importAction],
+            title: "Wallet phrase required",
+            message: "Enter the recovery phrase used to create or restore this wallet. " +
+                "It will be verified against the existing wallet before Bitcoin and " +
+                "Taira are added. A second phrase is never created. Raw-seed and JSON " +
+                "wallets require a new mnemonic wallet and an asset migration.",
+            actions: [importAction],
             closeAction: R.string.localizable.commonCancel(
                 preferredLanguages: locale?.rLanguages
             ),
@@ -281,20 +229,7 @@ final class ChainAssetListPresenter {
         let chain = uniqueChainModel.chain
         let viewModel = Self.makeUniversalWalletRecoveryViewModel(
             locale: selectedLocale,
-            createAccount: { [weak self] in
-                guard let self else {
-                    return
-                }
-
-                self.router.showCreate(
-                    uniqueChainModel: UniqueChainModel(
-                        meta: self.wallet,
-                        chain: chain
-                    ),
-                    from: self.view
-                )
-            },
-            importAccount: { [weak self] in
+            importWalletPhrase: { [weak self] in
                 guard let self else {
                     return
                 }

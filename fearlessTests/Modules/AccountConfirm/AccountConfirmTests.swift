@@ -26,17 +26,32 @@ class AccountConfirmTests: XCTestCase {
         syncQueue.sync {}
     }
 
-    func testBitcoinChainMnemonicConfirmationCreatesPersistedSignableAccount() throws {
+    func testBitcoinPhraseConfirmationPersistsBothAccountsUnderWalletRoot() throws {
         let storageFacade = UserDataStorageTestFacade()
         let settings = SelectedWalletSettings(
             storageFacade: storageFacade,
             operationQueue: OperationQueue()
         )
-        let wallet = AccountGenerator.generateMetaAccount()
-        let keychain = InMemoryKeychain()
         let mnemonic = try IRMnemonicCreator().mnemonic(
             fromList: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
         )
+        let identityOperation = MetaAccountOperationFactory(keystore: InMemoryKeychain())
+            .newMetaAccountOperation(
+                request: MetaAccountImportMnemonicRequest(
+                    mnemonic: mnemonic,
+                    username: "Universal wallet",
+                    substrateDerivationPath: "",
+                    ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
+                    cryptoType: .sr25519,
+                    defaultChainId: nil
+                ),
+                isBackuped: true
+            )
+        identityOperation.start()
+        let wallet = try identityOperation.extractResultData(
+            throwing: BaseOperationError.parentOperationCancelled
+        ).replacingChainAccounts([])
+        let keychain = InMemoryKeychain()
         let request = ChainAccountImportMnemonicRequest(
             mnemonic: mnemonic,
             username: wallet.name,
@@ -97,10 +112,21 @@ class AccountConfirmTests: XCTestCase {
 
         XCTAssertTrue(
             try keychain.checkKey(
+                for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+            )
+        )
+        XCTAssertFalse(
+            try keychain.checkKey(
                 for: KeystoreTagV2.entropyTagForMetaId(
                     wallet.metaId,
                     accountId: bitcoinAccount.accountId
                 )
+            )
+        )
+        XCTAssertTrue(
+            UniversalWalletChainAccountSupport.hasValidDedicatedAccount(
+                in: updatedWallet,
+                for: UniversalWalletRegistry.taira.chainId
             )
         )
         XCTAssertEqual(
@@ -220,6 +246,27 @@ class AccountConfirmTests: XCTestCase {
 
         XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.substrateSeedTagForMetaId(metaId)))
         XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.ethereumSeedTagForMetaId(metaId)))
+
+        let appOwnedAccounts = selectedAccount.chainAccounts.filter {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            ) || UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            )
+        }
+        XCTAssertEqual(appOwnedAccounts.count, 2)
+        for account in appOwnedAccounts {
+            XCTAssertFalse(
+                try keychain.checkKey(
+                    for: KeystoreTagV2.entropyTagForMetaId(
+                        metaId,
+                        accountId: account.accountId
+                    )
+                )
+            )
+        }
     }
 }
 
