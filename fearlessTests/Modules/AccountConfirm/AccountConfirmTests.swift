@@ -8,6 +8,24 @@ import SoraFoundation
 
 class AccountConfirmTests: XCTestCase {
 
+    func testEventCenterRemovalFromObserverDeinitDoesNotRetainObserver() {
+        let syncQueue = DispatchQueue(label: "co.jp.soramitsu.fearless.tests.event-center")
+        let eventCenter = EventCenter(syncQueue: syncQueue)
+        weak var weakObserver: DeinitRemovingEventVisitor?
+
+        autoreleasepool {
+            var observer: DeinitRemovingEventVisitor? = DeinitRemovingEventVisitor(eventCenter: eventCenter)
+            weakObserver = observer
+            eventCenter.add(observer: observer!, dispatchIn: .main)
+            syncQueue.sync {}
+
+            observer = nil
+        }
+
+        XCTAssertNil(weakObserver)
+        syncQueue.sync {}
+    }
+
     func testBitcoinChainMnemonicConfirmationCreatesPersistedSignableAccount() throws {
         let storageFacade = UserDataStorageTestFacade()
         let settings = SelectedWalletSettings(
@@ -202,5 +220,17 @@ class AccountConfirmTests: XCTestCase {
 
         XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.substrateSeedTagForMetaId(metaId)))
         XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.ethereumSeedTagForMetaId(metaId)))
+    }
+}
+
+private final class DeinitRemovingEventVisitor: EventVisitorProtocol {
+    private let eventCenter: EventCenterProtocol
+
+    init(eventCenter: EventCenterProtocol) {
+        self.eventCenter = eventCenter
+    }
+
+    deinit {
+        eventCenter.remove(observer: self)
     }
 }

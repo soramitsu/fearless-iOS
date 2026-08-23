@@ -57,11 +57,15 @@ Build `4.2.0 (2026.8.30)` routes that failure to recovery, accepts only an exact
 account-scoped entropy for signing. It still omits a fresh-key path for restored
 wallets with no compatible local seed, and pasted import input can diverge from
 the presenter's submission state.
-Corrected successor build `4.2.0 (2026.8.31)` adds explicit Create and Import
+Build `4.2.0 (2026.8.31)` adds explicit Create and Import
 recovery choices, including a fresh signable Bitcoin key with its own recovery
-phrase, and synchronizes visible recovery input before submission. Mnemonic
-recovery remains supported and invalid seed lengths fail before any Keychain or
-wallet mutation.
+phrase, and synchronizes visible recovery input before submission. It can abort
+after the Bitcoin account is saved because `EventCenter.remove(observer:)`
+strongly recaptures an observer that is already deinitializing.
+Corrected successor build `4.2.0 (2026.8.32)` retains that recovery behavior and
+removes observers by `ObjectIdentifier`, so asynchronous EventCenter cleanup no
+longer retains a deinitializing observer. Mnemonic recovery remains supported
+and invalid seed lengths fail before any Keychain or wallet mutation.
 The successor retains ancestry from
 distributed source commit
 `2e45e55dc03ad904598e730cfb5994fb5c1072dc`, the exact public App Store
@@ -168,16 +172,20 @@ unsaved. `.8.27` preserved the operation result, but its second confirmation
 sheet could be rejected during dismissal of the first sheet, and a stale
 full-wallet cache comparison could cancel persistence. `.8.28` removed that
 nested sheet but still depended on dismissal completion occurring after the
-button handler and silently discarded unavailable-Keychain failures. Use
-`.8.29` as the installed baseline, then corrected `.8.30` for the preserved-data
-qualification below.
+button handler and silently discarded unavailable-Keychain failures. `.8.29`
+surfaced those failures but left raw-seed import at a dead end. `.8.30` added
+the raw-seed recovery path but omitted fresh-key creation for restored wallets.
+`.8.31` added fresh Bitcoin key creation, but its post-save event could abort
+while a deinitializing observer was strongly recaptured. Use `.8.31` as the
+installed baseline, then corrected `.8.32` for the preserved-data qualification
+below.
 
 ## Internal TestFlight gate
 
 1. Confirm the installed identity is `jp.co.soramitsu.fearlesswallet`, version
-   `4.2.0`, build `2026.8.29` before the corrected successor
+   `4.2.0`, build `2026.8.31` before the corrected successor
    update.
-2. Assign build `2026.8.31` only to a true internal TestFlight group containing
+2. Assign build `2026.8.32` only to a true internal TestFlight group containing
    the affected phone's App Store Connect user. Do not use the similarly named
    external affected-phone group, which requires Beta App Review, and do not
    change the public beta group.
@@ -192,7 +200,7 @@ qualification below.
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.31 \
+     --expected-build 2026.8.32 \
      --observation-seconds 900 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 300 \
@@ -247,7 +255,7 @@ qualification below.
      registration or funding;
    - unchanged wallet counts, logical store integrity, Keychain access, and
      settings access, recorded only as pass/fail attestations without values.
-   Record the actual `previousBuildVersion` (`2026.8.28`) and
+   Record the actual `previousBuildVersion` (`2026.8.31`) and
    `originalAppStoreContainerPreserved=true`; this binds the successor update
    to the still-preserved container originally installed from the App Store.
 6. After the first capture completes, force-quit once more and use a new output
@@ -270,7 +278,7 @@ qualification below.
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.31 \
+     --expected-build 2026.8.32 \
      --observation-seconds 180 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 5 \
@@ -287,12 +295,12 @@ qualification below.
    later host-only diagnostics commit:
 
    ```bash
-   chmod 600 build/testflight-2026.8.31-upgrade-usability.json
-   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.31/testflight-internal-upload.json
+   chmod 600 build/testflight-2026.8.32-upgrade-usability.json
+   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.32/testflight-internal-upload.json
    artifact_source_commit="$(jq -er '.artifactSourceCommit' "$upload_receipt")"
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/audit-testflight-upgrade-usability-gate.py \
-     build/testflight-2026.8.31-upgrade-usability.json \
+     build/testflight-2026.8.32-upgrade-usability.json \
      --first-launch-capture-receipt \
        /ABSOLUTE/PRIVATE/FIRST-HOTFIX-CAPTURE/capture-receipt.json \
      --second-launch-capture-receipt \
@@ -301,7 +309,7 @@ qualification below.
    ```
 
 The evidence schema is enforced by the audit's tests. It binds both the exact
-`.30` base commit and the clean hotfix commit embedded in the artifact, plus
+`.31` regression build and the clean hotfix commit embedded in the artifact, plus
 build identity, timestamps, marker counts, and boolean attestations. It must not
 contain database counts, wallet names/addresses, keys, paths, or device IDs.
 Run the privacy boundary self-tests before producing evidence:
@@ -316,6 +324,6 @@ PYTHONDONTWRITEBYTECODE=1 python3 \
 ## Release decision
 
 Only after the audit passes may release review replace build `2026.7.28` in the
-public beta group with `2026.8.31`. Uploading and assigning the restricted group
+public beta group with `2026.8.32`. Uploading and assigning the restricted group
 do not authorize changing the public beta group; that change still requires the
 normal App Store Connect authorization and review trail.
