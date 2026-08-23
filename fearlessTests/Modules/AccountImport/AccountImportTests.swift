@@ -6,6 +6,7 @@ import Cuckoo
 import IrohaCrypto
 import SoraFoundation
 import struct SSFModels.ChainAccountModel
+import class SSFModels.ChainModel
 
 class AccountImportTests: XCTestCase {
 
@@ -328,8 +329,23 @@ class AccountImportTests: XCTestCase {
         )
     }
 
-    func testBitcoinImportMetadataAllowsMnemonicOnly() {
+    func testBitcoinImportMetadataAllowsMnemonicAndRawSeed() {
         let wallet = AccountGenerator.generateMetaAccount()
+        let view = MockAccountImportViewProtocol()
+        var sourceSelectionEnabled: Bool?
+        stub(view) { stub in
+            stub.setSource(viewModel: any(InputViewModelProtocol.self)).thenDoNothing()
+            stub.setName(
+                viewModel: any(InputViewModelProtocol.self),
+                visible: any(Bool.self)
+            ).thenDoNothing()
+            stub.setSource(
+                type: any(AccountImportSource.self),
+                chainType: any(AccountCreateChainType.self),
+                selectable: any(Bool.self)
+            ).then { sourceSelectionEnabled = $0.2 }
+            stub.show(chainType: any(AccountCreateChainType.self)).thenDoNothing()
+        }
         let presenter = AccountImportPresenter(
             wireframe: MockAccountImportWireframeProtocol(),
             interactor: MockAccountImportInteractorInputProtocol(),
@@ -340,6 +356,73 @@ class AccountImportTests: XCTestCase {
                 )
             )
         )
+        presenter.view = view
+
+        presenter.didReceiveAccountImport(
+            metadata: MetaAccountImportMetadata(
+                availableSources: AccountImportSource.allCases,
+                defaultSource: .keystore,
+                availableCryptoTypes: CryptoType.allCases,
+                defaultCryptoType: .sr25519
+            )
+        )
+
+        XCTAssertEqual(presenter.metadata?.availableSources, [.mnemonic, .seed])
+        XCTAssertEqual(presenter.metadata?.defaultSource, .mnemonic)
+        XCTAssertEqual(presenter.metadata?.availableCryptoTypes, [.ecdsa])
+        XCTAssertEqual(presenter.metadata?.defaultCryptoType, .ecdsa)
+        XCTAssertEqual(presenter.selectedSourceType, .mnemonic)
+        XCTAssertEqual(presenter.selectedCryptoType, .ecdsa)
+        XCTAssertEqual(sourceSelectionEnabled, true)
+    }
+
+    func testBitcoinTestnetMetadataDoesNotAdvertiseUnsupportedRawSeedImport() {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let bitcoinTestnetChain = ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: UniversalWalletRegistry.bitcoinTestnet.chainId,
+            parentId: nil,
+            paraId: nil,
+            name: UniversalWalletRegistry.bitcoinTestnet.name,
+            xcm: nil,
+            nodes: [],
+            addressPrefix: 0,
+            types: nil,
+            icon: nil,
+            options: nil,
+            externalApi: nil,
+            selectedNode: nil,
+            customNodes: nil,
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+        let view = MockAccountImportViewProtocol()
+        var sourceSelectionEnabled: Bool?
+        stub(view) { stub in
+            stub.setSource(viewModel: any(InputViewModelProtocol.self)).thenDoNothing()
+            stub.setName(
+                viewModel: any(InputViewModelProtocol.self),
+                visible: any(Bool.self)
+            ).thenDoNothing()
+            stub.setSource(
+                type: any(AccountImportSource.self),
+                chainType: any(AccountCreateChainType.self),
+                selectable: any(Bool.self)
+            ).then { sourceSelectionEnabled = $0.2 }
+            stub.show(chainType: any(AccountCreateChainType.self)).thenDoNothing()
+        }
+        let presenter = AccountImportPresenter(
+            wireframe: MockAccountImportWireframeProtocol(),
+            interactor: MockAccountImportInteractorInputProtocol(),
+            flow: .chain(
+                model: UniqueChainModel(
+                    meta: wallet,
+                    chain: bitcoinTestnetChain
+                )
+            )
+        )
+        presenter.view = view
 
         presenter.didReceiveAccountImport(
             metadata: MetaAccountImportMetadata(
@@ -356,6 +439,7 @@ class AccountImportTests: XCTestCase {
         XCTAssertEqual(presenter.metadata?.defaultCryptoType, .ecdsa)
         XCTAssertEqual(presenter.selectedSourceType, .mnemonic)
         XCTAssertEqual(presenter.selectedCryptoType, .ecdsa)
+        XCTAssertEqual(sourceSelectionEnabled, false)
     }
 
     func testTairaImportMetadataAllowsMnemonicEd25519Only() {
@@ -646,6 +730,99 @@ class AccountImportTests: XCTestCase {
             ),
             mnemonicString
         )
+    }
+
+    func testBitcoinRawSeedImportCreatesExpectedSignableBIP84Account() throws {
+        let keychain = InMemoryKeychain()
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let wallet = AccountGenerator.generateMetaAccount()
+        let walletSeed = Data(repeating: 0, count: UniversalWalletSeedBridge.walletSeedLength)
+        let expectedMnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art"
+        let request = ChainAccountImportSeedRequest(
+            seed: walletSeed.toHex(includePrefix: false),
+            username: wallet.name,
+            derivationPath: "",
+            cryptoType: .ecdsa,
+            isEthereum: false,
+            meta: wallet,
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId
+        )
+
+        let operation = operationFactory.importChainAccountOperation(request: request)
+        operation.start()
+        let updatedWallet = try operation.extractResultData(
+            throwing: BaseOperationError.parentOperationCancelled
+        )
+        let account = try XCTUnwrap(updatedWallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+        let address = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(
+                for: UniversalWalletRegistry.bitcoinMainnetChainModel,
+                wallet: updatedWallet
+            )
+        )
+        let entropyTag = KeystoreTagV2.entropyTagForMetaId(
+            wallet.metaId,
+            accountId: account.accountId
+        )
+
+        XCTAssertEqual(
+            account.publicKey.toHex(includePrefix: false),
+            "03c5db199831f23a3a1575518c8e9e948bfd495481aac442dec64b447ee76bd6fa"
+        )
+        XCTAssertEqual(address, "bc1qzmtrqsfuaf6l6kkcsseumq26ukaphfj9skkug6")
+        XCTAssertEqual(try keychain.fetchKey(for: entropyTag), walletSeed)
+        XCTAssertEqual(
+            try KeychainUniversalWalletMnemonicProvider(keystore: keychain).mnemonic(
+                for: updatedWallet,
+                chain: UniversalWalletRegistry.bitcoinMainnetChainModel
+            ),
+            expectedMnemonic
+        )
+    }
+
+    func testBitcoinRawSeedImportRejectsInvalidLengthWithoutKeychainWrite() throws {
+        let keychain = MockKeystoreProtocol()
+        stub(keychain) { stub in
+            stub.checkKey(for: any()).thenReturn(false)
+            stub.addKey(any(), with: any()).thenDoNothing()
+            stub.updateKey(any(), with: any()).thenDoNothing()
+        }
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let wallet = AccountGenerator.generateMetaAccount()
+        let invalidLengths = [
+            UniversalWalletSeedBridge.walletSeedLength - 1,
+            UniversalWalletSeedBridge.walletSeedLength + 1
+        ]
+
+        for invalidLength in invalidLengths {
+            let request = ChainAccountImportSeedRequest(
+                seed: Data(repeating: 0, count: invalidLength).toHex(includePrefix: false),
+                username: wallet.name,
+                derivationPath: "",
+                cryptoType: .ecdsa,
+                isEthereum: false,
+                meta: wallet,
+                chainId: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+            let operation = operationFactory.importChainAccountOperation(request: request)
+            operation.start()
+
+            XCTAssertThrowsError(
+                try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            ) { error in
+                guard case AccountCreateError.invalidSeed = error else {
+                    return XCTFail("Expected invalid Bitcoin wallet seed length, got \(error)")
+                }
+            }
+        }
+        verify(keychain, times(0)).addKey(any(), with: any())
+        verify(keychain, times(0)).updateKey(any(), with: any())
+        XCTAssertTrue(wallet.chainAccounts.isEmpty)
     }
 
     func testBitcoinMnemonicImportRestoresSignerWithoutChangingExistingAddress() throws {

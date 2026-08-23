@@ -587,6 +587,51 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
 
     func importChainAccountOperation(request: ChainAccountImportSeedRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
+            if let bitcoinNetwork = UniversalWalletRegistry.bitcoinNetwork(for: request.chainId) {
+                guard bitcoinNetwork == UniversalWalletRegistry.bitcoinMainnet else {
+                    throw AccountOperationFactoryError.unsupportedNetwork
+                }
+
+                let walletSeed = try Data(hexStringSSF: request.seed)
+                let mnemonic: String
+                do {
+                    mnemonic = try UniversalWalletSeedBridge.mnemonic(fromWalletSeed: walletSeed)
+                } catch UniversalWalletSeedBridge.BridgeError.invalidWalletSeedLength {
+                    throw AccountCreateError.invalidSeed
+                }
+
+                let updatedWallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+                    to: request.meta,
+                    mnemonic: mnemonic
+                )
+                guard let bitcoinAccount = updatedWallet.chainAccounts.first(where: {
+                    UniversalWalletChainAccountSupport.chainId(
+                        $0.chainId,
+                        matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+                    )
+                }) else {
+                    throw AccountOperationFactoryError.unsupportedNetwork
+                }
+                if let existingAccount = request.meta.chainAccounts.first(where: {
+                    UniversalWalletChainAccountSupport.chainId(
+                        $0.chainId,
+                        matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+                    )
+                }), UniversalWalletChainAccountSupport.address(
+                    for: UniversalWalletRegistry.bitcoinMainnet.chainId,
+                    publicKey: existingAccount.publicKey
+                ) != nil, existingAccount.publicKey != bitcoinAccount.publicKey {
+                    throw AccountCreateError.duplicated
+                }
+
+                try saveEntropy(
+                    walletSeed,
+                    metaId: request.meta.metaId,
+                    accountId: bitcoinAccount.accountId
+                )
+                return updatedWallet
+            }
+
             guard !UniversalWalletChainAccountSupport.chainId(
                 request.chainId,
                 matches: UniversalWalletRegistry.taira.chainId

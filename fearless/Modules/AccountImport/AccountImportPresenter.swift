@@ -140,12 +140,29 @@ final class AccountImportPresenter: NSObject {
 }
 
 private extension AccountImportPresenter {
+    var isDedicatedBitcoinChainFlow: Bool {
+        guard case let .chain(model) = flow else {
+            return false
+        }
+
+        return UniversalWalletRegistry.bitcoinNetwork(for: model.chain.chainId) != nil
+    }
+
+    var supportsDedicatedBitcoinRawSeedImport: Bool {
+        guard case let .chain(model) = flow else {
+            return false
+        }
+
+        return UniversalWalletRegistry.bitcoinNetwork(for: model.chain.chainId) ==
+            UniversalWalletRegistry.bitcoinMainnet
+    }
+
     var isDedicatedUniversalChainFlow: Bool {
         guard case let .chain(model) = flow else {
             return false
         }
 
-        return UniversalWalletRegistry.bitcoinNetwork(for: model.chain.chainId) != nil ||
+        return isDedicatedBitcoinChainFlow ||
             UniversalWalletChainAccountSupport.chainId(
                 model.chain.chainId,
                 matches: UniversalWalletRegistry.taira.chainId
@@ -183,7 +200,7 @@ private extension AccountImportPresenter {
             view?.setSource(
                 type: selectedSourceType,
                 chainType: chainType,
-                selectable: !isDedicatedUniversalChainFlow
+                selectable: !isDedicatedUniversalChainFlow || supportsDedicatedBitcoinRawSeedImport
             )
         case let .wallet(step):
             switch step {
@@ -990,7 +1007,7 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
         let effectiveMetadata: MetaAccountImportMetadata
         if isDedicatedUniversalChainFlow {
             effectiveMetadata = MetaAccountImportMetadata(
-                availableSources: [.mnemonic],
+                availableSources: supportsDedicatedBitcoinRawSeedImport ? [.mnemonic, .seed] : [.mnemonic],
                 defaultSource: .mnemonic,
                 availableCryptoTypes: [dedicatedUniversalCryptoType],
                 defaultCryptoType: dedicatedUniversalCryptoType

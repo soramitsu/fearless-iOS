@@ -160,6 +160,100 @@ final class ChainAssetListTests: XCTestCase {
         XCTAssertTrue(content.message.contains("recovery phrase"))
     }
 
+    func testMissingStoredSeedRoutesToUniversalWalletRecoveryImport() {
+        XCTAssertTrue(
+            ChainAssetListPresenter.requiresUniversalWalletRecoveryImport(
+                for: UniversalWalletStoredSeedAdopter.AdoptionError.storedWalletSeedUnavailable
+            )
+        )
+        XCTAssertFalse(
+            ChainAssetListPresenter.requiresUniversalWalletRecoveryImport(
+                for: UniversalWalletStoredSeedAdopter.AdoptionError.unsupportedSecretSource
+            )
+        )
+        XCTAssertFalse(
+            ChainAssetListPresenter.requiresUniversalWalletRecoveryImport(
+                for: KeystoreError.unexpectedFail
+            )
+        )
+    }
+
+    func testMissingStoredSeedCallbackRoutesTheSelectedBitcoinChainToImport() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let interactor = ChainAssetListInteractorInputSpy()
+        let router = ChainAssetListRouterSpy()
+        let presenter = ChainAssetListPresenter(
+            interactor: interactor,
+            router: router,
+            localizationManager: LocalizationManager.shared,
+            wallet: wallet,
+            viewModelFactory: makeFactory()
+        )
+
+        presenter.didTapResolveAccountIssue(
+            for: UniversalWalletRegistry.bitcoinMainnetChainModel
+        )
+        let setup = try XCTUnwrap(router.presentedSetupViewModels.last)
+        let useStoredSeed = try XCTUnwrap(
+            setup.actions.first(where: { $0.title == "Use wallet seed" })
+        )
+        useStoredSeed.handler?()
+        setup.dismissCompletion?()
+
+        XCTAssertEqual(interactor.storedSeedAdoptionCalls, 1)
+
+        presenter.didTapResolveAccountIssue(for: UniversalWalletRegistry.tairaChainModel)
+        XCTAssertEqual(
+            router.presentedSetupViewModels.count,
+            1,
+            "A second recovery sheet must not replace an in-flight adoption target"
+        )
+
+        presenter.didAdoptStoredWalletSeed(
+            result: .failure(
+                UniversalWalletStoredSeedAdopter.AdoptionError.storedWalletSeedUnavailable
+            )
+        )
+
+        let routedModel = try XCTUnwrap(router.importedChainModels.last)
+        XCTAssertEqual(routedModel.meta.metaId, wallet.metaId)
+        XCTAssertEqual(
+            routedModel.chain.chainId,
+            UniversalWalletRegistry.bitcoinMainnet.chainId
+        )
+        XCTAssertEqual(router.presentedErrors.count, 0)
+    }
+
+    func testCancelledRecoverySheetDoesNotLeaveAStaleImportTarget() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let interactor = ChainAssetListInteractorInputSpy()
+        let router = ChainAssetListRouterSpy()
+        let presenter = ChainAssetListPresenter(
+            interactor: interactor,
+            router: router,
+            localizationManager: LocalizationManager.shared,
+            wallet: wallet,
+            viewModelFactory: makeFactory()
+        )
+
+        presenter.didTapResolveAccountIssue(
+            for: UniversalWalletRegistry.bitcoinMainnetChainModel
+        )
+        let setup = try XCTUnwrap(router.presentedSetupViewModels.last)
+        setup.dismissCompletion?()
+
+        XCTAssertEqual(interactor.storedSeedAdoptionCalls, 0)
+
+        presenter.didAdoptStoredWalletSeed(
+            result: .failure(
+                UniversalWalletStoredSeedAdopter.AdoptionError.storedWalletSeedUnavailable
+            )
+        )
+
+        XCTAssertTrue(router.importedChainModels.isEmpty)
+        XCTAssertEqual(router.presentedErrors.count, 1)
+    }
+
     func testStoredSeedAdoptionOperationCreatesBothAccounts() throws {
         let wallet = AccountGenerator.generateMetaAccount()
         let keychain = InMemoryKeychain()
@@ -1867,4 +1961,102 @@ private final class ChainAssetListInteractorOutputSpy: ChainAssetListInteractorO
 
 private enum StoredSeedAdoptionTestError: Error, Equatable {
     case expected
+}
+
+private final class ChainAssetListInteractorInputSpy: ChainAssetListInteractorInput {
+    var shouldRunManageAssetAnimate = false
+    private(set) var storedSeedAdoptionCalls = 0
+
+    func setup(with _: ChainAssetListInteractorOutput) {}
+
+    func updateChainAssets(
+        using _: [ChainAssetsFetching.Filter],
+        sorts _: [ChainAssetsFetching.SortDescriptor],
+        useCashe _: Bool
+    ) {}
+
+    func markUnused(chain _: ChainModel) {}
+    func reload() {}
+
+    func getAvailableChainAssets(
+        chainAsset _: ChainAsset,
+        completion: @escaping (([ChainAsset]) -> Void)
+    ) {
+        completion([])
+    }
+
+    func hideChainAsset(_: ChainAsset) {}
+    func showChainAsset(_: ChainAsset) {}
+    func retryConnection(for _: ChainModel.Id) {}
+
+    func adoptStoredWalletSeed() {
+        storedSeedAdoptionCalls += 1
+    }
+}
+
+private final class ChainAssetListRouterSpy: ChainAssetListRouterInput {
+    private(set) var presentedSetupViewModels: [SheetAlertPresentableViewModel] = []
+    private(set) var importedChainModels: [UniqueChainModel] = []
+    private(set) var presentedErrors: [Error] = []
+
+    func present(
+        viewModel: SheetAlertPresentableViewModel,
+        from _: ControllerBackedProtocol?
+    ) {
+        presentedSetupViewModels.append(viewModel)
+    }
+
+    func present(
+        error: Error,
+        from _: ControllerBackedProtocol?,
+        locale _: Locale?
+    ) -> Bool {
+        presentedErrors.append(error)
+        return true
+    }
+
+    func showImport(
+        uniqueChainModel: UniqueChainModel,
+        from _: ControllerBackedProtocol?
+    ) {
+        importedChainModels.append(uniqueChainModel)
+    }
+
+    func showAssetNetworks(from _: ControllerBackedProtocol?, chainAsset _: ChainAsset) {}
+    func showChainAccount(from _: ControllerBackedProtocol?, chainAsset _: ChainAsset) {}
+
+    func showSendFlow(
+        from _: ControllerBackedProtocol?,
+        chainAsset _: ChainAsset,
+        wallet _: MetaAccountModel
+    ) {}
+
+    func showReceiveFlow(
+        from _: ControllerBackedProtocol?,
+        chainAsset _: ChainAsset,
+        wallet _: MetaAccountModel
+    ) {}
+
+    func presentAccountOptions(
+        from _: ControllerBackedProtocol?,
+        locale _: Locale?,
+        actions _: [SheetAlertPresentableAction]
+    ) {}
+
+    func showCreate(
+        uniqueChainModel _: UniqueChainModel,
+        from _: ControllerBackedProtocol?
+    ) {}
+
+    func showManageAsset(
+        from _: ControllerBackedProtocol?,
+        wallet _: MetaAccountModel,
+        filter _: NetworkManagmentFilter?
+    ) {}
+
+    func showIssueNotification(
+        from _: ControllerBackedProtocol?,
+        issues _: [ChainIssue],
+        wallet _: MetaAccountModel
+    ) {}
 }

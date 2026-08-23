@@ -46,8 +46,11 @@ readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
 # conflict-safely merges dedicated accounts into the current selected wallet.
 # 2026.8.29 makes the selected action independent of dismissal callback order,
 # persists through the production adoption path, and surfaces seed failures.
+# 2026.8.30 routes wallets without recoverable local root entropy directly to
+# recovery, accepts an exact 32-byte raw wallet seed for Bitcoin, derives the
+# standard BIP84 identity, and persists account-scoped signer entropy.
 # Reconfirm successor uniqueness read-only immediately before archive.
-readonly EXPECTED_BUILD="2026.8.29"
+readonly EXPECTED_BUILD="2026.8.30"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -66,7 +69,7 @@ Usage:
 Preconditions:
   - exact clean git HEAD, including no untracked files, descended from the
     distributed 4.2.0 (2026.7.28) source commit;
-  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.29);
+  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.30);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 

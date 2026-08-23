@@ -49,10 +49,14 @@ presentation race by using one explicit seed-adoption confirmation sheet. It
 also merges the derived Bitcoin and Taira accounts into the current selected
 wallet by identity, preserving concurrent benign wallet changes while rejecting
 any conflicting dedicated account.
-Corrected successor build `4.2.0 (2026.8.29)` removes the final sheet callback
-ordering dependency, runs the real adoption/merge/save path under regression
-tests, and turns missing or inaccessible stored recovery secrets into a visible,
-actionable error instead of silently discarding the failure.
+Build `4.2.0 (2026.8.29)` removes the final sheet callback ordering dependency
+and surfaces missing stored recovery secrets, but its dedicated Bitcoin import
+screen still rejects raw wallet seeds and leaves the user at a dead-end error.
+Corrected successor build `4.2.0 (2026.8.30)` routes that failure directly to
+recovery, accepts only an exact 32-byte raw wallet seed, derives the standard
+BIP84 identity, and persists account-scoped entropy for signing. Mnemonic
+recovery remains supported and invalid seed lengths fail before any Keychain or
+wallet mutation.
 The successor retains ancestry from
 distributed source commit
 `2e45e55dc03ad904598e730cfb5994fb5c1072dc`, the exact public App Store
@@ -160,15 +164,15 @@ sheet could be rejected during dismissal of the first sheet, and a stale
 full-wallet cache comparison could cancel persistence. `.8.28` removed that
 nested sheet but still depended on dismissal completion occurring after the
 button handler and silently discarded unavailable-Keychain failures. Use
-`.8.28` as the installed baseline, then corrected `.8.29` for the preserved-data
+`.8.29` as the installed baseline, then corrected `.8.30` for the preserved-data
 qualification below.
 
 ## Internal TestFlight gate
 
 1. Confirm the installed identity is `jp.co.soramitsu.fearlesswallet`, version
-   `4.2.0`, build `2026.8.28` before the corrected successor
+   `4.2.0`, build `2026.8.29` before the corrected successor
    update.
-2. Assign build `2026.8.29` only to a true internal TestFlight group containing
+2. Assign build `2026.8.30` only to a true internal TestFlight group containing
    the affected phone's App Store Connect user. Do not use the similarly named
    external affected-phone group, which requires Beta App Review, and do not
    change the public beta group.
@@ -183,7 +187,7 @@ qualification below.
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.29 \
+     --expected-build 2026.8.30 \
      --observation-seconds 900 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 300 \
@@ -261,7 +265,7 @@ qualification below.
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/capture-testflight-startup.py \
      --pymobiledevice3 /ABSOLUTE/PATH/TO/PINNED-10.7.2/pymobiledevice3 \
-     --expected-build 2026.8.29 \
+     --expected-build 2026.8.30 \
      --observation-seconds 180 \
      --terminal-grace-seconds 2 \
      --ready-observation-seconds 5 \
@@ -278,12 +282,12 @@ qualification below.
    later host-only diagnostics commit:
 
    ```bash
-   chmod 600 build/testflight-2026.8.29-upgrade-usability.json
-   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.29/testflight-internal-upload.json
+   chmod 600 build/testflight-2026.8.30-upgrade-usability.json
+   upload_receipt=/ABSOLUTE/PATH/TO/2026.8.30/testflight-internal-upload.json
    artifact_source_commit="$(jq -er '.artifactSourceCommit' "$upload_receipt")"
    PYTHONDONTWRITEBYTECODE=1 python3 \
      scripts/audit-testflight-upgrade-usability-gate.py \
-     build/testflight-2026.8.29-upgrade-usability.json \
+     build/testflight-2026.8.30-upgrade-usability.json \
      --first-launch-capture-receipt \
        /ABSOLUTE/PRIVATE/FIRST-HOTFIX-CAPTURE/capture-receipt.json \
      --second-launch-capture-receipt \
@@ -292,7 +296,7 @@ qualification below.
    ```
 
 The evidence schema is enforced by the audit's tests. It binds both the exact
-`.29` base commit and the clean hotfix commit embedded in the artifact, plus
+`.30` base commit and the clean hotfix commit embedded in the artifact, plus
 build identity, timestamps, marker counts, and boolean attestations. It must not
 contain database counts, wallet names/addresses, keys, paths, or device IDs.
 Run the privacy boundary self-tests before producing evidence:
@@ -307,6 +311,6 @@ PYTHONDONTWRITEBYTECODE=1 python3 \
 ## Release decision
 
 Only after the audit passes may release review replace build `2026.7.28` in the
-public beta group with `2026.8.29`. Uploading and assigning the restricted group
+public beta group with `2026.8.30`. Uploading and assigning the restricted group
 do not authorize changing the public beta group; that change still requires the
 normal App Store Connect authorization and review trail.

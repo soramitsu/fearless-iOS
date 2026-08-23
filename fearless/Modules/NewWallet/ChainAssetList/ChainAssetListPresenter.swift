@@ -53,6 +53,7 @@ final class ChainAssetListPresenter {
 
     private var networkFilter: NetworkManagmentFilter?
     private var searchText: String?
+    private var pendingUniversalWalletRecovery: UniqueChainModel?
 
     // MARK: - Constructors
 
@@ -150,15 +151,28 @@ final class ChainAssetListPresenter {
     }
 
     private func presentUniversalWalletSetupOptions(uniqueChainModel: UniqueChainModel) {
+        guard pendingUniversalWalletRecovery == nil else {
+            return
+        }
+
         let viewModel = Self.makeUniversalWalletSetupViewModel(
             locale: selectedLocale,
             useStoredSeed: { [weak self] in
-                self?.interactor.adoptStoredWalletSeed()
+                guard let self, self.pendingUniversalWalletRecovery == nil else {
+                    return
+                }
+
+                self.pendingUniversalWalletRecovery = uniqueChainModel
+                self.interactor.adoptStoredWalletSeed()
             },
             importAccount: { [weak self] in
-                self?.router.showImport(
+                guard let self else {
+                    return
+                }
+
+                self.router.showImport(
                     uniqueChainModel: uniqueChainModel,
-                    from: self?.view
+                    from: self.view
                 )
             }
         )
@@ -214,6 +228,11 @@ final class ChainAssetListPresenter {
             ),
             message: "The wallet seed could not be read. Unlock this device and try again. If it still fails, import the wallet's recovery phrase."
         )
+    }
+
+    static func requiresUniversalWalletRecoveryImport(for error: Error) -> Bool {
+        (error as? UniversalWalletStoredSeedAdopter.AdoptionError) ==
+            .storedWalletSeedUnavailable
     }
 
     private func requiresDedicatedUniversalAccount(for chain: ChainModel) -> Bool {
@@ -345,10 +364,21 @@ extension ChainAssetListPresenter {
     func didAdoptStoredWalletSeed(result: Result<MetaAccountModel, Error>) {
         switch result {
         case let .success(updatedWallet):
+            pendingUniversalWalletRecovery = nil
             wallet = updatedWallet
             provideViewModel()
         case let .failure(error):
             Logger.shared.customError(error)
+
+            let recovery = pendingUniversalWalletRecovery
+            pendingUniversalWalletRecovery = nil
+
+            if Self.requiresUniversalWalletRecoveryImport(for: error),
+               let recovery {
+                router.showImport(uniqueChainModel: recovery, from: view)
+                return
+            }
+
             router.present(
                 error: Self.presentableStoredSeedAdoptionError(
                     error,
