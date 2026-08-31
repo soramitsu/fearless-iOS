@@ -42,3 +42,8 @@ protocol ScanQRModuleInput: AnyObject {}
 protocol ScanQRModuleOutput: AnyObject {
     func didFinishWith(scanType: QRMatcherType)
 }
+
+protocol ScanQRRawCodeOutput: AnyObject {
+    func shouldAccept(rawCode: String) -> Bool
+    func didFinishWith(rawCode: String)
+}

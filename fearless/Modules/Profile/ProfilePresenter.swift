@@ -106,6 +106,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
                 )
             }
             wireframe.showTonConnectCapability(from: view, hasTonAccount: hasTonAccount)
+        case .irohaConnect:
+            wireframe.showIrohaConnect(from: view)
         }
     }
 

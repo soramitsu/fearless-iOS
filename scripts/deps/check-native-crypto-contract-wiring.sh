@@ -21,7 +21,14 @@ ensure_absent() {
   local pattern="$1"
   local label="$2"
 
-  if /usr/bin/grep -RInF "$pattern" "$ROOT" --exclude-dir=.git --exclude="$(basename "$0")" >/dev/null 2>&1; then
+  # Release workspaces contain ignored DerivedData, archives, and package
+  # checkouts. Search the reviewed source index so generated binaries cannot
+  # turn this source-wiring assertion into an unbounded filesystem crawl.
+  git -C "$ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1 ||
+    fail "Root is not a Git worktree: $ROOT"
+  if git -C "$ROOT" grep -nF "$pattern" \
+    -- . \
+    ":(exclude)scripts/deps/$(basename "$0")" >/dev/null 2>&1; then
     fail "$label"
   fi
 }

@@ -157,6 +157,10 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         view?.controller.present(alert, animated: true)
     }
 
+    func showIrohaConnect(from view: ControllerBackedProtocol?) {
+        IrohaConnectCoordinator.shared.presentLanding(from: view?.controller)
+    }
+
     // MARK: Private
 
     private func showPinSetup(from view: ProfileViewProtocol?) {

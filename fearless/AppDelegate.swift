@@ -9,7 +9,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(
         _: UIApplication,
-        didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         FailClosedSecureUnarchiveFromDataTransformer.register()
 
@@ -18,10 +18,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let rootWindow = FearlessWindow()
         window = rootWindow
 
+        URLHandlingService.shared.setup(children: [IrohaConnectURLHandler.shared])
+
         let presenter = RootPresenterFactory.createPresenter(with: rootWindow)
         presenter.loadOnLaunch()
 
         rootWindow.makeKeyAndVisible()
+
+        if let launchURL = launchOptions?[.url] as? URL {
+            DispatchQueue.main.async {
+                _ = IrohaConnectURLHandler.shared.handle(url: launchURL)
+            }
+        }
         return true
     }
 

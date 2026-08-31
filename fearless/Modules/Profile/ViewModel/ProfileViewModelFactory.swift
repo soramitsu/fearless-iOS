@@ -29,6 +29,7 @@ enum ProfileOption: UInt, CaseIterable {
     case accountScore
     case networkAssets
     case tonConnect
+    case irohaConnect
 }
 
 final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
@@ -164,6 +165,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                     )
                 }
                 return createTonConnectViewModel(hasTonAccount: hasTonAccount)
+            case .irohaConnect:
+                return createIrohaConnectViewModel()
             }
         }
 
@@ -202,6 +205,17 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryImage: nil,
             accessoryType: .arrow,
             option: .tonConnect
+        )
+    }
+
+    private func createIrohaConnectViewModel() -> ProfileOptionViewModel {
+        ProfileOptionViewModel(
+            title: "IrohaConnect",
+            icon: UIImage(systemName: "link.badge.plus"),
+            accessoryTitle: "SORA 3",
+            accessoryImage: nil,
+            accessoryType: .arrow,
+            option: .irohaConnect
         )
     }
 

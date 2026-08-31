@@ -70,7 +70,21 @@ Use this checklist for every release PR from `develop` to `master`.
   bundles for Xcode's three generated crypto stubs and the stripped
   MPQRCoreSDK vendor binary; this removes App Store Connect's missing-dSYM
   warnings but does not claim unavailable MPQR source-line DWARF.
-- Validate build `4.2.0 (2026.8.33)` through a true internal TestFlight group
+- Validate build `4.2.0 (2026.8.34)` through a true internal TestFlight group.
+  Pair from Uranai through both a custom-scheme handoff and QR scan, require the
+  canonical Taira network and `https://taira.sora.org`, and confirm the Sakura
+  connection prompt identifies the dApp, account, origin, and scoped
+  contract-call permission before PIN authorization. For each `sign_raw`
+  request, require a separate PIN-gated prompt with the byte count and SHA-256
+  digest, successful encrypted Ed25519 response interoperability, and clean
+  rejection without a signature. Also verify fail-closed handling for modified
+  session IDs, unexpected endpoints or permissions, replayed sequences,
+  malformed ciphertext, and expired sessions. With Reduce Motion enabled,
+  require static Sakura branding rather than falling petals. Confirm no recovery
+  phrase, private key, raw payload, relay credential, or WebSocket frame appears
+  in UI, logs, receipts, or analytics.
+- Repeat the existing upgrade regression gate below on `4.2.0 (2026.8.34)`
+  through a true internal TestFlight group
   containing the affected phone's App Store Connect user before changing the
   public beta group. Do not substitute an external group that requires Beta App
   Review. Run

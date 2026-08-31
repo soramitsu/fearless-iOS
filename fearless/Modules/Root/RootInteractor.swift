@@ -639,6 +639,7 @@ final class RootInteractor {
         let polkamarktDeepLinkHandler = PolkamarktDeepLinkHandler(eventCenter: eventCenter)
 
         URLHandlingService.shared.setup(children: [
+            IrohaConnectURLHandler.shared,
             purchaseHandler,
             polkamarktDeepLinkHandler,
             keystoreImportService

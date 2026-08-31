@@ -59,8 +59,11 @@ readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
 # original wallet phrase against its Substrate/EVM identity, and provisions
 # Bitcoin and Taira atomically from that single root without replacing legacy
 # addresses derived from a different phrase.
+# 2026.8.34 adds native IrohaConnect for canonical Taira Uranai sessions,
+# authenticated encrypted contract-call signing, and explicit PIN-gated Sakura
+# connection and per-signature approval surfaces.
 # Reconfirm successor uniqueness read-only immediately before archive.
-readonly EXPECTED_BUILD="2026.8.33"
+readonly EXPECTED_BUILD="2026.8.34"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -79,7 +82,7 @@ Usage:
 Preconditions:
   - exact clean git HEAD, including no untracked files, descended from the
     distributed 4.2.0 (2026.7.28) source commit;
-  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.33);
+  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.34);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 

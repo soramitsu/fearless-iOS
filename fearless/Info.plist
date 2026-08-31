@@ -51,6 +51,17 @@
 				<string>fearless</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleURLName</key>
+			<string>jp.co.soramitsu.fearlesswallet.irohaconnect</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>irohaconnect</string>
+				<string>iroha</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>

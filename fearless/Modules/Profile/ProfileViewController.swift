@@ -53,7 +53,7 @@ final class ProfileViewController: UIViewController, ViewHolder {
             case .networksAssets:
                 return [.networkAssets]
             case .connections:
-                return [.walletConnect, .tonConnect]
+                return [.walletConnect, .tonConnect, .irohaConnect]
             case .security:
                 return [.changePincode, .biometry]
             case .preferences:

@@ -6,6 +6,19 @@ final class ScanQRAssembly {
     static func configureModule(
         moduleOutput: ScanQRModuleOutput
     ) -> ScanQRModuleCreationResult? {
+        configureModule(moduleOutput: moduleOutput, rawCodeOutput: nil)
+    }
+
+    static func configureRawModule(
+        rawCodeOutput: ScanQRRawCodeOutput
+    ) -> ScanQRModuleCreationResult? {
+        configureModule(moduleOutput: nil, rawCodeOutput: rawCodeOutput)
+    }
+
+    private static func configureModule(
+        moduleOutput: ScanQRModuleOutput?,
+        rawCodeOutput: ScanQRRawCodeOutput?
+    ) -> ScanQRModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let qrScanService = QRCaptureServiceFactory().createService(
@@ -26,6 +39,7 @@ final class ScanQRAssembly {
             router: router,
             logger: Logger.shared,
             moduleOutput: moduleOutput,
+            rawCodeOutput: rawCodeOutput,
             localizationManager: LocalizationManager.shared
         )
 

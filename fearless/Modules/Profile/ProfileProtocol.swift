@@ -57,6 +57,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     func showWalletConnect(from view: ControllerBackedProtocol?)
     func showNetworkAssets(from view: ControllerBackedProtocol?, wallet: MetaAccountModel)
     func showTonConnectCapability(from view: ControllerBackedProtocol?, hasTonAccount: Bool)
+    func showIrohaConnect(from view: ControllerBackedProtocol?)
 }
 
 protocol ProfileViewFactoryProtocol: AnyObject {
@@ -66,4 +67,5 @@ protocol ProfileViewFactoryProtocol: AnyObject {
 extension ProfileWireframeProtocol {
     func showNetworkAssets(from _: ControllerBackedProtocol?, wallet _: MetaAccountModel) {}
     func showTonConnectCapability(from _: ControllerBackedProtocol?, hasTonAccount _: Bool) {}
+    func showIrohaConnect(from _: ControllerBackedProtocol?) {}
 }
