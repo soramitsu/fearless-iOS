@@ -10,13 +10,13 @@ enum MainTabBarDestination: Int, CaseIterable {
     var title: String {
         switch self {
         case .portfolio:
-            return NSLocalizedString("tab.portfolio", value: "Portfolio", comment: "")
+            return NSLocalizedString("tab.portfolio", value: "Wallet", comment: "")
         case .defi:
-            return NSLocalizedString("tab.defi", value: "DeFi", comment: "")
+            return NSLocalizedString("tab.defi", value: "Earn", comment: "")
         case .polkaswap:
-            return NSLocalizedString("tab.polkaswap", value: "Polkaswap", comment: "")
+            return NSLocalizedString("tab.polkaswap", value: "Swap", comment: "")
         case .crossChain:
-            return NSLocalizedString("tab.cross_chain", value: "Cross-chain", comment: "")
+            return NSLocalizedString("tab.cross_chain", value: "Transfer", comment: "")
         case .settings:
             return NSLocalizedString("tab.settings", value: "Settings", comment: "")
         }

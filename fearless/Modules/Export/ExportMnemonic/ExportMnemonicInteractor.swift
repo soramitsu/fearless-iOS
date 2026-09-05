@@ -37,7 +37,12 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
                 let entropyTag = KeystoreTagV2.entropyTagForMetaId(wallet.metaId, accountId: accountId)
                 let entropy = try keystore.fetchKey(for: entropyTag)
 
-                let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
+                let mnemonic: IRMnemonicProtocol
+                if let legacy = wallet.legacyTonAccount, chainAccount.chain.isTonCompatibilityChain, accountId == nil {
+                    mnemonic = try legacy.mnemonic(from: entropy)
+                } else {
+                    mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
+                }
                 let derivationPathTag = chainAccount.chain.isEthereumBased ?
                     KeystoreTagV2.ethereumDerivationTagForMetaId(wallet.metaId, accountId: accountId) :
                     KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId, accountId: accountId)
@@ -72,6 +77,7 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
                 }
                 self?.fetchExportData(
                     metaId: wallet.metaId,
+                    legacyTonAccount: wallet.legacyTonAccount,
                     accountId: response.isChainAccount ? accountId : nil,
                     cryptoType: response.cryptoType,
                     chain: chain
@@ -84,6 +90,7 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
 
     private func fetchExportData(
         metaId: String,
+        legacyTonAccount: LegacyTonAccount?,
         accountId: AccountId?,
         cryptoType: CryptoType,
         chain: ChainModel
@@ -94,7 +101,12 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
                 throw ExportMnemonicInteractorError.missingEntropy
             }
 
-            let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
+            let mnemonic: IRMnemonicProtocol
+            if let legacyTonAccount, chain.isTonCompatibilityChain, accountId == nil {
+                mnemonic = try legacyTonAccount.mnemonic(from: entropy)
+            } else {
+                mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
+            }
             let derivationPathTag = chain.isEthereumBased ?
                 KeystoreTagV2.ethereumDerivationTagForMetaId(metaId, accountId: accountId) :
                 KeystoreTagV2.substrateDerivationTagForMetaId(metaId, accountId: accountId)

@@ -1,5 +1,5 @@
 {
-  "originHash" : "66437b32f2895202438a2119c897760cc8a6a2d4d3f57440805ccb430238d958",
+  "originHash" : "10d84855bef10a332f2924e9d1b7a1091625c8cd3d56b45d88360bc02959a500",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -388,15 +388,6 @@
       }
     },
     {
-      "identity" : "ton-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tonkeeper/ton-swift.git",
-      "state" : {
-        "revision" : "03dbe1f4cef7471b012993ec54e0783882acb3ab",
-        "version" : "1.0.4"
-      }
-    },
-    {
       "identity" : "tweetnacl-swiftwrap",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bitmark-inc/tweetnacl-swiftwrap",
@@ -417,7 +408,7 @@
     {
       "identity" : "web3-swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/soramitsu/web3-swift",
+      "location" : "https://github.com/bnsports/Web3.swift.git",
       "state" : {
         "revision" : "a526779488e5fe2fa993d9614f11f57b00cc1858",
         "version" : "7.7.7"

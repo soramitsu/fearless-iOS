@@ -158,7 +158,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             case .networkAssets:
                 return createNetworkAssetsViewModel()
             case .tonConnect:
-                let hasTonAccount = wallet.chainAccounts.contains {
+                let hasTonAccount = wallet.legacyTonAccount != nil || wallet.chainAccounts.contains {
                     UniversalWalletChainAccountSupport.chainId(
                         $0.chainId,
                         matches: UniversalWalletRegistry.tonMainnetRegistryEntry.chainId
@@ -200,7 +200,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: "TonConnect",
             icon: UIImage(systemName: "link.circle"),
             accessoryTitle: hasTonAccount
-                ? NSLocalizedString("common.unavailable", value: "Build unavailable", comment: "")
+                ? nil
                 : NSLocalizedString("settings.ton_account_required", value: "TON account required", comment: ""),
             accessoryImage: nil,
             accessoryType: .arrow,

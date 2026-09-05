@@ -47,6 +47,12 @@ enum DeFiHubPositionRowKind: Equatable {
     case loading
 }
 
+enum DeFiPositionFreshness: Equatable {
+    case current
+    case stale
+    case unavailable
+}
+
 struct DeFiHubPositionRow: Equatable {
     let id: String
     let feature: DeFiFeature?
@@ -54,6 +60,7 @@ struct DeFiHubPositionRow: Equatable {
     let title: String
     let subtitle: String
     let assetKeys: [AssetKey]
+    let freshness: DeFiPositionFreshness
 
     init(
         id: String,
@@ -61,7 +68,8 @@ struct DeFiHubPositionRow: Equatable {
         kind: DeFiHubPositionRowKind,
         title: String,
         subtitle: String,
-        assetKeys: [AssetKey] = []
+        assetKeys: [AssetKey] = [],
+        freshness: DeFiPositionFreshness = .current
     ) {
         self.id = id
         self.feature = feature
@@ -69,6 +77,7 @@ struct DeFiHubPositionRow: Equatable {
         self.title = title
         self.subtitle = subtitle
         self.assetKeys = assetKeys
+        self.freshness = freshness
     }
 
     static let loadingPositions = DeFiHubPositionRow(
@@ -76,7 +85,7 @@ struct DeFiHubPositionRow: Equatable {
         feature: nil,
         kind: .loading,
         title: "Loading positions…",
-        subtitle: "Checking native SORA and indexed DeFi positions."
+        subtitle: NSLocalizedString("ux.positions_loading", value: "Checking your holdings and rewards.", comment: "")
     )
 }
 
@@ -113,7 +122,7 @@ final class DeFiPositionsAggregator {
     func load() async -> DeFiPositionsSnapshot {
         var positions: [DeFiHubPositionRow] = []
         var statuses = explicitlyUnavailableRows
-        var hasFailure = false
+        var hasFailure = !explicitlyUnavailableRows.isEmpty
 
         for source in sources {
             do {
@@ -137,8 +146,9 @@ final class DeFiPositionsAggregator {
                         kind: .status,
                         title: cached.isEmpty ? "\(source.title) positions unavailable" : "\(source.title) positions are stale",
                         subtitle: cached.isEmpty
-                            ? error.localizedDescription
-                            : "Showing the last successful result. Refresh failed: \(error.localizedDescription)"
+                            ? NSLocalizedString("ux.positions_unavailable", value: "These positions could not be loaded. Try again.", comment: "")
+                            : NSLocalizedString("ux.positions_stale", value: "Showing your last loaded positions. Try again to update them.", comment: ""),
+                        freshness: cached.isEmpty ? .unavailable : .stale
                     )
                 )
             }
@@ -146,14 +156,14 @@ final class DeFiPositionsAggregator {
 
         positions.sort { ($0.title, $0.id) < ($1.title, $1.id) }
         statuses.sort { ($0.title, $0.id) < ($1.title, $1.id) }
-        if positions.isEmpty {
+        if positions.isEmpty, !hasFailure {
             positions.append(
                 DeFiHubPositionRow(
                     id: "positions:empty",
                     feature: nil,
                     kind: .empty,
-                    title: "No active DeFi positions",
-                    subtitle: "Connected staking, nomination-pool, SORA liquidity, Demeter, and Polkamarkt providers returned no positive positions."
+                    title: NSLocalizedString("ux.positions_empty", value: "You have no active positions", comment: ""),
+                    subtitle: NSLocalizedString("ux.positions_explore", value: "Explore ways to earn below.", comment: "")
                 )
             )
         }
@@ -463,7 +473,7 @@ final class DeFiHubViewController: UIViewController {
             case .positions:
                 return "Your positions"
             case .opportunities:
-                return "Explore DeFi"
+                return NSLocalizedString("ux.explore_earn", value: "Explore ways to earn", comment: "")
             }
         }
     }
@@ -493,9 +503,14 @@ final class DeFiHubViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = "DeFi"
+        title = MainTabBarDestination.defi.title
         view.backgroundColor = R.color.colorBlack19()
         configureTableView()
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            systemItem: .refresh,
+            primaryAction: UIAction { [weak self] _ in self?.reloadPositions() }
+        )
+        navigationItem.rightBarButtonItem?.accessibilityLabel = NSLocalizedString("ux.refresh_positions", value: "Refresh positions", comment: "")
         capabilities = buildCapabilities()
     }
 
@@ -843,7 +858,13 @@ final class DeFiHubViewController: UIViewController {
             message: capability.state.reason,
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("ux.retry", value: "Try again", comment: ""), style: .default) { [weak self] _ in
+            guard let self else { return }
+            self.capabilities = self.buildCapabilities()
+            self.tableView.reloadData()
+            self.reloadPositions()
+        })
+        alert.addAction(UIAlertAction(title: NSLocalizedString("common.cancel", value: "Cancel", comment: ""), style: .cancel))
         present(alert, animated: true)
     }
 }
@@ -864,13 +885,19 @@ extension DeFiHubViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "DeFiCapabilityCell", for: indexPath)
         var configuration = cell.defaultContentConfiguration()
+        configuration.textProperties.numberOfLines = 0
+        configuration.secondaryTextProperties.numberOfLines = 0
         configuration.textProperties.color = R.color.colorWhite() ?? .white
         configuration.secondaryTextProperties.color = R.color.colorLightGray() ?? .lightGray
 
         if Section(rawValue: indexPath.section) == .positions {
             let row = positionRows[indexPath.row]
             configuration.text = row.title
-            configuration.secondaryText = row.subtitle
+            configuration.secondaryText = row.kind == .status
+                ? (row.freshness == .stale
+                    ? NSLocalizedString("ux.positions_stale", value: "Showing your last loaded positions. Try again to update them.", comment: "")
+                    : NSLocalizedString("ux.positions_unavailable", value: "These positions could not be loaded. Try again.", comment: ""))
+                : row.subtitle
             configuration.image = row.kind == .position
                 ? image(for: row.feature ?? .staking)
                 : UIImage(systemName: row.kind == .loading ? "arrow.triangle.2.circlepath" : "info.circle")

@@ -6,12 +6,15 @@ class SearchTextField: BackgroundedContentControl {
     private enum Constants {
         static let delay: CGFloat = 0.5
         static let textFieldInsets: CGFloat = 13
-        static let searchTextFieldHeight: CGFloat = 36
+        static let minimumTextFieldHeight: CGFloat = 44
     }
 
     let textField: UITextField = {
-        let textField = UITextField()
+        let textField = AccessibleSearchTextField()
         textField.borderStyle = .none
+        textField.font = .preferredFont(forTextStyle: .body)
+        textField.adjustsFontForContentSizeCategory = true
+        textField.setContentCompressionResistancePriority(.init(999), for: .vertical)
         return textField
     }()
 
@@ -26,7 +29,7 @@ class SearchTextField: BackgroundedContentControl {
     override init(frame: CGRect) {
         super.init(frame: frame)
         createUI()
-        setSearchLeftButton()
+        setSearchIcon()
         textField.addTarget(self, action: #selector(handleThorttle), for: UIControl.Event.editingChanged)
         textField.delegate = self
         textField.clearButtonMode = .whileEditing
@@ -39,12 +42,10 @@ class SearchTextField: BackgroundedContentControl {
 
     // MARK: - Private
 
-    private func setSearchLeftButton() {
-        let iconSearchButton = UIButton()
-        iconSearchButton.setImage(R.image.iconSearch(), for: .normal)
-        iconSearchButton.addTarget(self, action: #selector(handleIconSearchButton), for: .touchUpInside)
-
-        textField.leftView = iconSearchButton
+    private func setSearchIcon() {
+        let icon = UIImageView(image: R.image.iconSearch())
+        icon.isAccessibilityElement = false
+        textField.leftView = icon
         textField.leftViewMode = .always
     }
 
@@ -58,7 +59,7 @@ class SearchTextField: BackgroundedContentControl {
         textField.snp.makeConstraints { make in
             make.top.bottom.equalToSuperview().inset(1)
             make.leading.trailing.equalToSuperview().inset(Constants.textFieldInsets)
-            make.height.equalTo(Constants.searchTextFieldHeight)
+            make.height.greaterThanOrEqualTo(Constants.minimumTextFieldHeight).priority(999)
         }
     }
 
@@ -73,12 +74,26 @@ class SearchTextField: BackgroundedContentControl {
         perform(#selector(textFieldDidChange), with: nil, afterDelay: Constants.delay)
     }
 
-    @objc private func handleIconSearchButton() {
-        textField.becomeFirstResponder()
-    }
-
     @objc func textFieldDidChange() {
         onTextDidChanged?(textField.text)
+    }
+}
+
+private final class AccessibleSearchTextField: UITextField {
+    override var placeholder: String? {
+        didSet {
+            attributedPlaceholder = placeholder.map {
+                NSAttributedString(string: $0, attributes: [.foregroundColor: R.color.colorWhite75() ?? UIColor.lightGray])
+            }
+        }
+    }
+
+    override var accessibilityLabel: String? {
+        get {
+            let label = super.accessibilityLabel
+            return label?.isEmpty == false ? label : placeholder
+        }
+        set { super.accessibilityLabel = newValue }
     }
 }
 

@@ -7,9 +7,9 @@ typealias MetaAccountId = String
 struct MetaAccountModel: Equatable, Codable {
     let metaId: MetaAccountId
     let name: String
-    let substrateAccountId: Data
+    let substrateAccountId: Data?
     let substrateCryptoType: UInt8
-    let substratePublicKey: Data
+    let substratePublicKey: Data?
     let ethereumAddress: Data?
     let ethereumPublicKey: Data?
     let chainAccounts: Set<ChainAccountModel>
@@ -22,8 +22,18 @@ struct MetaAccountModel: Equatable, Codable {
     let hasBackup: Bool
     let favouriteChainIds: [ChainModel.Id]
 
-    var utilsModel: SSFModels.MetaAccountModel {
-        SSFModels.MetaAccountModel(
+    var legacyTonAccount: LegacyTonAccount? = nil
+
+    var backupAddress: String {
+        if let legacyTonAccount, substratePublicKey == nil {
+            return legacyTonAccount.address
+        }
+        return substratePublicKey.flatMap { try? $0.toAddress(using: .substrate(42)) } ?? substratePublicKey?.toHex() ?? metaId
+    }
+
+    var utilsModel: SSFModels.MetaAccountModel? {
+        guard let substrateAccountId, let substratePublicKey else { return nil }
+        return SSFModels.MetaAccountModel(
             metaId: metaId,
             name: name,
             substrateAccountId: substrateAccountId,
@@ -84,7 +94,8 @@ extension MetaAccountModel {
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
             hasBackup: hasBackup,
-            favouriteChainIds: favouriteChainIds
+            favouriteChainIds: favouriteChainIds,
+            legacyTonAccount: legacyTonAccount
         )
     }
 
@@ -105,7 +116,8 @@ extension MetaAccountModel {
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
             hasBackup: hasBackup,
-            favouriteChainIds: favouriteChainIds
+            favouriteChainIds: favouriteChainIds,
+            legacyTonAccount: legacyTonAccount
         )
     }
 
@@ -126,7 +138,8 @@ extension MetaAccountModel {
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
             hasBackup: hasBackup,
-            favouriteChainIds: favouriteChainIds
+            favouriteChainIds: favouriteChainIds,
+            legacyTonAccount: legacyTonAccount
         )
     }
 
@@ -147,7 +160,8 @@ extension MetaAccountModel {
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
             hasBackup: hasBackup,
-            favouriteChainIds: favouriteChainIds
+            favouriteChainIds: favouriteChainIds,
+            legacyTonAccount: legacyTonAccount
         )
     }
 
@@ -168,7 +182,8 @@ extension MetaAccountModel {
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
             hasBackup: hasBackup,
-            favouriteChainIds: favouriteChainIds
+            favouriteChainIds: favouriteChainIds,
+            legacyTonAccount: legacyTonAccount
         )
     }
 
@@ -189,7 +204,8 @@ extension MetaAccountModel {
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
             hasBackup: hasBackup,
-            favouriteChainIds: favouriteChainIds
+            favouriteChainIds: favouriteChainIds,
+            legacyTonAccount: legacyTonAccount
         )
     }
 
@@ -210,7 +226,8 @@ extension MetaAccountModel {
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
             hasBackup: hasBackup,
-            favouriteChainIds: favouriteChainIds
+            favouriteChainIds: favouriteChainIds,
+            legacyTonAccount: legacyTonAccount
         )
     }
 
@@ -231,7 +248,8 @@ extension MetaAccountModel {
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
             hasBackup: hasBackup,
-            favouriteChainIds: favouriteChainIds
+            favouriteChainIds: favouriteChainIds,
+            legacyTonAccount: legacyTonAccount
         )
     }
 
@@ -252,7 +270,8 @@ extension MetaAccountModel {
             networkManagmentFilter: identifire,
             assetsVisibility: assetsVisibility,
             hasBackup: hasBackup,
-            favouriteChainIds: favouriteChainIds
+            favouriteChainIds: favouriteChainIds,
+            legacyTonAccount: legacyTonAccount
         )
     }
 
@@ -273,7 +292,8 @@ extension MetaAccountModel {
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: newAssetsVisibility,
             hasBackup: hasBackup,
-            favouriteChainIds: favouriteChainIds
+            favouriteChainIds: favouriteChainIds,
+            legacyTonAccount: legacyTonAccount
         )
     }
 
@@ -294,7 +314,8 @@ extension MetaAccountModel {
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
             hasBackup: isBackuped,
-            favouriteChainIds: favouriteChainIds
+            favouriteChainIds: favouriteChainIds,
+            legacyTonAccount: legacyTonAccount
         )
     }
 
@@ -315,7 +336,8 @@ extension MetaAccountModel {
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
             hasBackup: hasBackup,
-            favouriteChainIds: favouriteChainIds
+            favouriteChainIds: favouriteChainIds,
+            legacyTonAccount: legacyTonAccount
         )
     }
 }

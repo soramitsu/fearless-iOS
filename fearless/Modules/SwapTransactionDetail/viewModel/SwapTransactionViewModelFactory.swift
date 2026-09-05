@@ -43,6 +43,8 @@ final class SwapTransactionViewModelFactory: SwapTransactionViewModelFactoryProt
             toAmount: transaction.amount.decimalValue,
             fromChainAsset: sendAsset,
             toChainAsset: receiveAsset,
+            fromSymbol: chainAsset.chain.isTonCompatibilityChain ? transaction.context?["tonSwapInputSymbol"] : nil,
+            toSymbol: chainAsset.chain.isTonCompatibilityChain ? transaction.context?["tonSwapOutputSymbol"] : nil,
             locale: locale
         )
 
@@ -98,16 +100,18 @@ final class SwapTransactionViewModelFactory: SwapTransactionViewModelFactoryProt
         toAmount: Decimal,
         fromChainAsset: ChainAsset?,
         toChainAsset: ChainAsset?,
+        fromSymbol: String?,
+        toSymbol: String?,
         locale: Locale
     ) -> NSMutableAttributedString {
         let fromAmount = fromAmount.toString(locale: locale, maximumDigits: 4)
-        let fromName = fromChainAsset?.asset.symbolUppercased
+        let fromName = fromChainAsset?.asset.symbolUppercased ?? fromSymbol
         let leftText = [fromAmount, fromName]
             .compactMap { $0 }
             .joined(separator: " ")
 
         let rightAmount = toAmount.toString(locale: locale, maximumDigits: 4)
-        let rightName = toChainAsset?.asset.symbolUppercased
+        let rightName = toChainAsset?.asset.symbolUppercased ?? toSymbol
         let rightText = [rightAmount, rightName]
             .compactMap { $0 }
             .joined(separator: " ")
@@ -169,7 +173,7 @@ final class SwapTransactionViewModelFactory: SwapTransactionViewModelFactoryProt
         let xorChainAsset = chainAsset.chain.utilityChainAssets().first
 
         let totalFee = transaction.fees.reduce(Decimal(0)) { result, item in
-            if item.assetId == transaction.assetId {
+            if item.assetId == (chainAsset.chain.isTonCompatibilityChain ? xorChainAsset?.asset.id : transaction.assetId) {
                 return result + item.amount.decimalValue
             } else {
                 return result

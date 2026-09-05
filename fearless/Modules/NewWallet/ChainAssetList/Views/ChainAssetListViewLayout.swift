@@ -31,9 +31,11 @@ final class ChainAssetListViewLayout: UIView {
 
     let containerView = UIView()
     let tableView: UITableView = {
-        let view = UITableView()
+        let view = UITableView(frame: .zero, style: .grouped)
         view.backgroundColor = .clear
         view.separatorStyle = .none
+        view.sectionFooterHeight = .leastNormalMagnitude
+        view.estimatedSectionFooterHeight = 0
         view.contentInset = Constants.tableViewContentInset
         view.refreshControl = UIRefreshControl()
         return view

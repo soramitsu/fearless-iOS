@@ -49,6 +49,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>fearless</string>
+				<string>tc</string>
 			</array>
 		</dict>
 		<dict>

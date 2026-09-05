@@ -9,6 +9,7 @@ SEND_CONTAINER="$ROOT_DIR/fearless/Modules/Send/SendDependencyContainer.swift"
 CHAIN_REGISTRY="$ROOT_DIR/fearless/Common/Services/ChainRegistry/ChainRegistry.swift"
 TON_BUILDER="$ROOT_DIR/fearless/Common/Model/TonTransferTransactionBuilder.swift"
 TON_SERVICE="$ROOT_DIR/fearless/Common/Model/TonSendService.swift"
+TON_KEYS="$ROOT_DIR/fearless/Common/Model/TonKeyDerivation.swift"
 RUN_PR="$ROOT_DIR/scripts/ci/run-pr.sh"
 WORKFLOW="$ROOT_DIR/.github/workflows/codecov.yml"
 EXPECTED_MANIFEST_SHA256="${TON_SEND_AUDIT_EXPECTED_MANIFEST_SHA256:-5673b0df8a293df3961761db4f7c3a08363d3eb8a84ebdb49f1d2f4822209286}"
@@ -56,7 +57,7 @@ require_active_line() {
 
 for path in \
   "$MANIFEST" "$DOC" "$RELEASE_CHECKLIST" "$SEND_CONTAINER" \
-  "$CHAIN_REGISTRY" "$TON_BUILDER" "$TON_SERVICE" "$RUN_PR" "$WORKFLOW"; do
+  "$CHAIN_REGISTRY" "$TON_BUILDER" "$TON_SERVICE" "$TON_KEYS" "$RUN_PR" "$WORKFLOW"; do
   require_file "$path"
 done
 
@@ -211,7 +212,7 @@ exactArray(manifest.exitCriteria, [
 ], 'exit criteria');
 NODE
 
-node - "$SEND_CONTAINER" "$CHAIN_REGISTRY" "$TON_BUILDER" "$TON_SERVICE" <<'NODE'
+node - "$SEND_CONTAINER" "$CHAIN_REGISTRY" "$TON_BUILDER" "$TON_SERVICE" "$TON_KEYS" <<'NODE'
 const fs = require('node:fs');
 
 function fail(message) {
@@ -450,6 +451,7 @@ const sendLexed = lexSwift(fs.readFileSync(process.argv[2], 'utf8'), 'send depen
 const registryLexed = lexSwift(fs.readFileSync(process.argv[3], 'utf8'), 'chain registry');
 const builderLexed = lexSwift(fs.readFileSync(process.argv[4], 'utf8'), 'TON transaction builder');
 const serviceLexed = lexSwift(fs.readFileSync(process.argv[5], 'utf8'), 'TON send service');
+const keyLexed = lexSwift(fs.readFileSync(process.argv[6], 'utf8'), 'TON legacy identity');
 const send = sendLexed.code;
 const registry = registryLexed.code;
 const builder = builderLexed.code;
@@ -459,6 +461,8 @@ const debugDefinitions = new Map([['DEBUG', true]]);
 const releaseSend = activeConditionalCode(send, releaseDefinitions, 'send dependency container');
 const debugSend = activeConditionalCode(send, debugDefinitions, 'send dependency container');
 const releaseRegistry = activeConditionalCode(registry, releaseDefinitions, 'chain registry');
+const releaseService = activeConditionalCode(service, releaseDefinitions, 'TON send service');
+const releaseKeys = activeConditionalCode(keyLexed.code, releaseDefinitions, 'TON legacy identity');
 
 if (count(releaseSend, /static\s+let\s+production\s*=\s*TonProductionSendReleasePolicy\s*\(\s*isEnabled:\s*false\s*\)/g) !== 1) {
   fail('TON production policy must have exactly one active false initializer');
@@ -490,8 +494,41 @@ if (canonicalOriginMatches.length !== 1 ||
     registryLexed.strings[Number(canonicalOriginMatches[0][1])]?.value !== 'https://tonapi.io') {
   fail('canonical authenticated TonAPI origin drifted');
 }
-if (count(releaseRegistry, /reviewedProductionSendOrigins\s*=\s*\[\s*canonicalAuthenticatedOrigin\s*\]/g) !== 1) {
+const testnetOriginMatches = [...releaseRegistry.matchAll(
+  /canonicalTestnetOrigin\s*=\s*URL\s*\(\s*string:\s*__TON_SWIFT_STRING_LITERAL_(\d+)__\s*\)!/g
+)];
+if (testnetOriginMatches.length !== 1 ||
+    registryLexed.strings[Number(testnetOriginMatches[0][1])]?.value !== 'https://testnet.tonapi.io') {
+  fail('canonical testnet TonAPI origin drifted');
+}
+if (count(releaseRegistry, /reviewedProductionSendOrigins\s*=\s*\[\s*canonicalAuthenticatedOrigin\s*,\s*canonicalTestnetOrigin\s*\]/g) !== 1) {
   fail('reviewed TonAPI send-origin allowlist drifted');
+}
+
+// User-authorized pre-4.2 native TON compatibility is a typed, key-bound path.
+// It cannot enable the general universal-wallet policy or custom endpoints.
+if (!/if\s+chainAsset\.chain\.isTonCompatibilityChain\s*,\s*!tonSendReleasePolicy\.isEnabled\s*,\s*wallet\.legacyTonAccount\s*==\s*nil\s*\{\s*throw\s+UniversalWalletSendRoutingError\.tonProductionSendDisabled/.test(releaseSend)) {
+  fail('legacy TON entry guard must exclude unqualified accounts');
+}
+if (!/guard\s+tonSendReleasePolicy\.isEnabled\s*\|\|\s*wallet\.legacyTonAccount\s*!=\s*nil\s+else\s*\{\s*throw\s+UniversalWalletSendRoutingError\.tonProductionSendDisabled/.test(releaseSend)) {
+  fail('legacy TON factory guard must exclude unqualified accounts');
+}
+if (!/guard\s+let\s+nativeAccount\s*=\s*legacyAccount\s*,\s*nativeAccount\.publicKey\s*==\s*request\.publicKey\s*,\s*try\s+TonSwift\.Address\.parse\(nativeAccount\.address\)\.toRaw\(\)\s*==\s*TonSwift\.Address\.parse\(request\.senderAddress\)\.toRaw\(\)\s*else\s*\{\s*throw\s+TonSendServiceError\.productionSendDisabled/.test(releaseService)) {
+  fail('legacy TON Release send must bind the exact native public key and address');
+}
+if (!/if\s+let\s+legacyAccount\s*\{\s*guard\s+let\s+key\s*=\s*credentials\.legacyNativePrivateKey\s+else\s*\{\s*throw\s+TonSendServiceError\.invalidAccount\s*\}\s*_\s*=\s*try\s+legacyAccount\.validatedPrivateKey\(key\)/.test(releaseService)) {
+  fail('legacy TON send must validate the original native signing key');
+}
+const legacyContract = releaseKeys.match(/guard\s+contractVersion\s*==\s*__TON_SWIFT_STRING_LITERAL_(\d+)__\s*,\s*publicKey\.count\s*==\s*32/);
+if (!legacyContract || keyLexed.strings[Number(legacyContract[1])]?.value !== 'v4R2' ||
+    !/address\.workchain\s*==\s*0\s*,\s*address\.hash\.count\s*==\s*32\s*,\s*address\.hash\s*==\s*\(try\s+TonAddressCodec\.v4R2AccountHash\(publicKey:\s*publicKey\)\)/.test(releaseKeys)) {
+  fail('legacy TON identity must bind the released V4R2 contract and address');
+}
+if (!/guard\s+secret\.count\s*==\s*64\s+else\s*\{\s*throw\s+TonSendServiceError\.invalidAccount\s*\}\s*let\s+key\s*=\s*try\s+Curve25519\.Signing\.PrivateKey\(rawRepresentation:\s*secret\.prefix\(32\)\)\s*guard\s+key\.publicKey\.rawRepresentation\s*==\s*publicKey\s*,\s*secret\.suffix\(32\)\s*==\s*publicKey\s+else\s*\{\s*throw\s+TonSendServiceError\.invalidAccount/.test(releaseKeys)) {
+  fail('legacy TON private key must match both seed-derived and stored public keys');
+}
+if (!/func\s+sendTonConnect\([\s\S]{0,700}try\s+requireNetworkOrigin\(request\.network\)[\s\S]{0,200}legacyAccount:\s*legacyAccount/.test(releaseService)) {
+  fail('legacy TonConnect must bind its explicit network and native account');
 }
 if (!/!bytes\.isEmpty\s*&&\s*bytes\.count\s*<=\s*4096\s*&&\s*bytes\.allSatisfy/.test(releaseRegistry) ||
     !/\(0x21\s*\.\.\.\s*0x7E\)\.contains\(byte\)/.test(releaseRegistry)) {

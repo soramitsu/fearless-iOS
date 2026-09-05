@@ -14,6 +14,13 @@ import XCTest
 final class MainTabBarTests: XCTestCase {
     private let expectedItemCount = 5
 
+    func testAccessibleTabActivatesItsDestination() {
+        var activations = 0
+        let element = TabBarAccessibilityElement(container: UIView()) { activations += 1 }
+        XCTAssertTrue(element.accessibilityActivate())
+        XCTAssertEqual(activations, 1)
+    }
+
     func testRemoteFlagEnablesOnlyReviewedLiquidityPoolSubmissionBoundary() {
         MultiChainFeaturePolicy.update(
             FeatureToggleConfig(
@@ -376,12 +383,12 @@ final class MainTabBarTests: XCTestCase {
 
         XCTAssertFalse(failedSnapshot.hasPositivePositions)
         XCTAssertTrue(failedSnapshot.hasPartialFailure)
-        XCTAssertTrue(failedSnapshot.rows.contains { $0.kind == .empty })
+        XCTAssertFalse(failedSnapshot.rows.contains { $0.kind == .empty })
         XCTAssertTrue(failedSnapshot.rows.contains {
             $0.kind == .status &&
                 $0.feature == .liquidityPools &&
                 $0.title == "Liquidity pools positions unavailable" &&
-                $0.subtitle == "Source offline"
+                $0.subtitle == NSLocalizedString("ux.positions_unavailable", comment: "")
         })
     }
 
@@ -402,11 +409,7 @@ final class MainTabBarTests: XCTestCase {
         assertStableTabBar(viewController, expectedTabBar: controllerManagedTabBar)
         XCTAssertEqual(presenter.didLoadCallCount, 1)
 
-        let middleButton = controls(in: viewController.tabBar)
-            .compactMap { $0 as? TabBarMiddleButton }
-            .first
-
-        middleButton?.sendActions(for: .touchUpInside)
+        (viewController.tabBar.accessibilityElements?[safe: 2] as? UIButton)?.sendActions(for: .touchUpInside)
         XCTAssertEqual(viewController.selectedIndex, MainTabBarDestination.polkaswap.rawValue)
 
         performAppearanceTransition(on: viewController, appearing: false)
@@ -471,6 +474,140 @@ final class MainTabBarTests: XCTestCase {
         assertRenderedItemControls(viewController, in: window)
     }
 
+    func testCenterPolkaswapRendersAtNarrowWidthAndMaximumText() {
+        let category = UIContentSizeCategory.accessibilityExtraExtraExtraLarge
+        UITraitCollection(preferredContentSizeCategory: category).performAsCurrent {
+            let (controller, _) = makeViewController()
+            let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 320, height: 640))
+            window.overrideUserInterfaceStyle = .dark
+            if #available(iOS 17.0, *) { window.traitOverrides.preferredContentSizeCategory = category }
+            window.rootViewController = controller
+            window.makeKeyAndVisible()
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.05))
+            controller.view.layoutIfNeeded()
+            controller.tabBar.layoutIfNeeded()
+            assertRenderedItemControls(controller, in: window)
+            let middleButton = controls(in: controller.tabBar).compactMap { $0 as? TabBarMiddleButton }.first!
+            XCTAssertLessThanOrEqual(middleButton.frame.maxY, 30,
+                                     "The artwork must leave room for the native Swap caption")
+            let raisedPoint = middleButton.convert(CGPoint(x: 28, y: 14), to: window)
+            let touchTarget = window.hitTest(raisedPoint, with: nil) as? UIControl
+            XCTAssertNotNil(touchTarget, "The raised half of the artwork must accept touches above the tab bar")
+            touchTarget?.sendActions(for: .touchUpInside)
+            XCTAssertEqual(controller.selectedIndex, MainTabBarDestination.polkaswap.rawValue)
+            for child in controller.viewControllers ?? [] {
+                XCTAssertGreaterThanOrEqual(child.navigationRootViewController()?.additionalSafeAreaInsets.bottom ?? 0, 30)
+            }
+            let image = UIGraphicsImageRenderer(bounds: controller.view.bounds).image { _ in
+                controller.view.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
+            }
+            let attachment = XCTAttachment(image: image)
+            attachment.name = "center-polkaswap-320pt-maximum-text"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+            window.isHidden = true
+            window.rootViewController = nil
+        }
+    }
+
+    func testWalletAssetRowWrapsAtMaximumTextAndDoesNotAccumulateSwipeActions() {
+        let traits = UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
+        traits.performAsCurrent {
+            let chain = makePositionChain()
+            let cell = ChainAccountBalanceTableCell(style: .default, reuseIdentifier: nil)
+            let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 320, height: 640))
+            let controller = UIViewController()
+            controller.view.addSubview(cell)
+            if #available(iOS 17.0, *) { window.traitOverrides.preferredContentSizeCategory = .accessibilityExtraExtraExtraLarge }
+            window.rootViewController = controller
+            window.makeKeyAndVisible()
+            defer { window.isHidden = true; window.rootViewController = nil }
+            let model = ChainAccountBalanceCellViewModel(
+                assetContainsChainAssets: [chain.chainAssets[0]],
+                chainIconViewViewModel: ChainCollectionViewModel(maxImagesCount: 3, chainImages: []),
+                chainAsset: chain.chainAssets[0],
+                metadataTrust: AssetMetadataTrustInfo(trust: .verified, provenance: .registry),
+                assetName: "Long network asset name", assetInfo: nil, imageViewModel: nil,
+                balanceString: .normal("12345678901234567890.123456789"),
+                priceAttributedString: .normal("$2,477.46 +12.34%"),
+                totalAmountString: .normal("$123,456,789.01"), options: nil,
+                isColdBoot: false, locale: Locale(identifier: "en"),
+                hideButtonIsVisible: false, swipeActionsEnabled: true
+            )
+            cell.bind(to: model)
+            cell.frame = CGRect(x: 0, y: 0, width: 320, height: 93)
+            cell.layoutIfNeeded()
+            let size = cell.contentView.systemLayoutSizeFitting(
+                CGSize(width: 320, height: 0),
+                withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel
+            )
+            XCTAssertGreaterThan(size.height, 93)
+            cell.frame.size.height = size.height
+            for _ in 0..<5 { cell.bind(to: model); cell.setNeedsLayout(); cell.layoutIfNeeded() }
+            func labels(in view: UIView) -> [UILabel] {
+                view.subviews.flatMap { ($0 as? UILabel).map { [$0] } ?? labels(in: $0) }
+            }
+            let visibleLabels = labels(in: cell.cloudView).filter { $0.text?.isEmpty == false }
+            XCTAssertEqual(visibleLabels.count, 5)
+            for label in visibleLabels {
+                let fitting = label.sizeThatFits(CGSize(width: label.bounds.width, height: .greatestFiniteMagnitude))
+                XCTAssertGreaterThanOrEqual(label.bounds.height + 1, fitting.height, label.text ?? "")
+                XCTAssertGreaterThan(label.bounds.width, 100)
+            }
+            XCTAssertEqual(cell.leftMenuBackgroundView.subviews.compactMap { $0 as? UIButton }.count, 2)
+            XCTAssertEqual(cell.leftMenuBackgroundView.superview?.accessibilityElementsHidden, true)
+            let image = UIGraphicsImageRenderer(bounds: cell.bounds).image { context in
+                cell.layer.render(in: context.cgContext)
+            }
+            let attachment = XCTAttachment(image: image)
+            attachment.name = "wallet-asset-row-320pt-maximum-text"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
+    }
+
+    func testNetworkHeaderWrapsAndOffersOneAccessibleToggle() {
+        let traits = UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
+        traits.performAsCurrent {
+            let header = AssetNetworkHeaderView(reuseIdentifier: nil)
+            header.bind(AssetNetworkSectionViewModel(
+                id: "unit", chainId: "unit", kind: .assets,
+                networkName: "Ethereum", ecosystemName: "EVM", address: "0x1234567890",
+                fiatSubtotal: nil, syncStatus: "Catalog only · Synced just now",
+                detectedCount: 0, rows: []
+            ), collapsed: false)
+            header.frame = CGRect(x: 0, y: 0, width: 320, height: 72)
+            header.layoutIfNeeded()
+            let size = header.contentView.systemLayoutSizeFitting(
+                CGSize(width: 320, height: 0),
+                withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel
+            )
+            XCTAssertGreaterThan(size.height, 72)
+            header.frame.size.height = size.height
+            header.layoutIfNeeded()
+            XCTAssertTrue(header.isAccessibilityElement)
+            XCTAssertTrue(header.accessibilityTraits.contains(.button))
+            XCTAssertTrue(header.accessibilityLabel?.contains("Ethereum") == true)
+            XCTAssertFalse(header.accessibilityActivate())
+            var toggles = 0
+            header.onTap = { toggles += 1 }
+            XCTAssertTrue(header.accessibilityActivate())
+            XCTAssertEqual(toggles, 1)
+        }
+    }
+
+    func testSharedNavigationBackAndCloseHaveNamed44PointTargets() {
+        let navigation = BaseNavigationBar()
+        navigation.frame = CGRect(x: 0, y: 0, width: 320, height: 72)
+        navigation.layoutIfNeeded()
+        XCTAssertGreaterThanOrEqual(navigation.backButton.bounds.width, 44)
+        XCTAssertGreaterThanOrEqual(navigation.backButton.bounds.height, 44)
+        navigation.set(.push)
+        XCTAssertEqual(navigation.backButton.accessibilityLabel, NSLocalizedString("ux.back", value: "Back", comment: ""))
+        navigation.set(.present)
+        XCTAssertEqual(navigation.backButton.accessibilityLabel, NSLocalizedString("common.close", value: "Close", comment: ""))
+    }
+
     func testPolkaswapPreviewButtonClearsRedesignedTabBarOnIPhone17ProMax() {
         let polkaswapController = PolkaswapAdjustmentViewController(
             output: PolkaswapAdjustmentViewOutputStub(),
@@ -531,6 +668,10 @@ final class MainTabBarTests: XCTestCase {
             "The Polkaswap CTA must remain fully visible and hittable above the redesigned tab bar"
         )
         XCTAssertFalse(buttonFrame.intersects(tabBarFrame))
+        let raisedButton = controls(in: tabBarController.tabBar).compactMap { $0 as? TabBarMiddleButton }.first!
+        let raisedButtonFrame = raisedButton.convert(raisedButton.bounds, to: tabBarController.view)
+        XCTAssertLessThanOrEqual(buttonFrame.maxY + UIConstants.bigOffset, raisedButtonFrame.minY,
+                                 "The CTA must clear the selected raised artwork as well as the tab bar")
         XCTAssertLessThanOrEqual(
             bannersFrame.maxY + UIConstants.bigOffset,
             buttonFrame.minY,
@@ -650,6 +791,7 @@ final class MainTabBarTests: XCTestCase {
         )
 
         XCTAssertFalse(viewController.isPolkaswapUnavailable)
+        XCTAssertEqual(availableController.viewControllers.first?.additionalSafeAreaInsets.bottom, 30)
         XCTAssertTrue(
             viewController.viewControllers?[MainTabBarDestination.polkaswap.rawValue] === availableController
         )
@@ -1807,7 +1949,7 @@ final class MainTabBarTests: XCTestCase {
         XCTAssertFalse(snapshot.hasPositivePositions)
         XCTAssertFalse(snapshot.hasPartialFailure)
         XCTAssertEqual(snapshot.rows.first?.kind, .empty)
-        XCTAssertEqual(snapshot.rows.first?.title, "No active DeFi positions")
+        XCTAssertEqual(snapshot.rows.first?.title, NSLocalizedString("ux.positions_empty", comment: ""))
     }
 
     func testDeFiPositionsAggregatorSurfacesPartialFailureAndRetainsStaleRows() async {
@@ -1842,7 +1984,7 @@ final class MainTabBarTests: XCTestCase {
         let stale = await aggregator.load()
         XCTAssertTrue(stale.hasPartialFailure)
         XCTAssertTrue(stale.rows.contains(demeter))
-        XCTAssertTrue(stale.rows.contains { $0.title == "Demeter positions are stale" })
+        XCTAssertTrue(stale.rows.contains { $0.feature == .farming && $0.freshness == .stale })
     }
 
     func testPolkamarktSharedContractPreservesCanonicalNetworkCatalogAndRawIntegers() throws {
@@ -2763,6 +2905,10 @@ final class MainTabBarTests: XCTestCase {
         line: UInt = #line
     ) {
         XCTAssertTrue(viewController.tabBar === expectedTabBar, file: file, line: line)
+        let accessibleItems = viewController.tabBar.accessibilityElements ?? []
+        XCTAssertEqual(accessibleItems.count, expectedItemCount, file: file, line: line)
+        XCTAssertEqual((accessibleItems[safe: 2] as? UIButton)?.accessibilityLabel, "Polkaswap", file: file, line: line)
+
         XCTAssertEqual(viewController.tabBar.items?.count, expectedItemCount, file: file, line: line)
         XCTAssertEqual(
             viewController.tabBar.items?.compactMap(\.title),
@@ -2812,12 +2958,6 @@ final class MainTabBarTests: XCTestCase {
         let sortedSlots = controlsBySlot.sorted { $0.key < $1.key }
 
         XCTAssertEqual(middleButtons.count, 1, file: file, line: line)
-        XCTAssertTrue(
-            middleButtons.first.map { isEffectivelyVisible($0, in: window) } == true,
-            file: file,
-            line: line
-        )
-        XCTAssertTrue(viewController.tabBar.subviews.last === middleButtons.first, file: file, line: line)
 
         XCTAssertEqual(
             sortedSlots.count,

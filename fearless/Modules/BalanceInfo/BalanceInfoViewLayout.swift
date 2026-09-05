@@ -6,6 +6,8 @@ final class BalanceInfoViewLayout: UIView {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textAlignment = .center
+        label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
         return label
     }()
 
@@ -14,8 +16,10 @@ final class BalanceInfoViewLayout: UIView {
     private let balanceLabel: UILabel = {
         let label = UILabel()
         label.font = .h1Title
-        label.lineBreakMode = .byTruncatingMiddle
+        label.lineBreakMode = .byCharWrapping
         label.textAlignment = .center
+        label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
         return label
     }()
 
@@ -51,14 +55,14 @@ final class BalanceInfoViewLayout: UIView {
         vStackView.alignment = .fill
         addSubview(vStackView)
         vStackView.snp.makeConstraints { make in
-            make.center.equalToSuperview()
+            make.edges.equalToSuperview()
         }
 
         vStackView.addArrangedSubview(priceLabel)
         vStackView.addArrangedSubview(balanceContainerView)
 
-        balanceLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
-        priceLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        balanceLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        priceLabel.setContentCompressionResistancePriority(.required, for: .vertical)
     }
 }
 

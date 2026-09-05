@@ -1050,6 +1050,7 @@ final class CrashConsistentStoreReplacer { // swiftlint:disable:this type_body_l
     func reconcile(
         validateCommittedStore: (URL) throws -> Void
     ) throws {
+        try prepareDatabaseDirectoryIfMissing()
         try requireSafeDatabaseDirectory()
 
         switch pathKind(at: transactionDirectoryURL) {
@@ -2447,6 +2448,35 @@ final class CrashConsistentStoreReplacer { // swiftlint:disable:this type_body_l
         } catch {
             throw CrashConsistentStoreReplacementError
                 .directorySynchronizationFailed(url, error)
+        }
+    }
+
+    private func prepareDatabaseDirectoryIfMissing() throws {
+        guard pathKind(at: databaseDirectoryURL) == .missing else {
+            return
+        }
+
+        // A fresh installation has no CoreData directory yet. Create only that
+        // directory, anchored to an existing real parent; never follow a link
+        // or create missing ancestors while preparing wallet storage.
+        let parentURL = databaseDirectoryURL.deletingLastPathComponent()
+        let descriptor = Darwin.open(
+            parentURL.path,
+            O_RDONLY | O_DIRECTORY | O_NOFOLLOW
+        )
+        guard descriptor >= 0 else {
+            throw CrashConsistentStoreReplacementError
+                .unsafeDirectory(parentURL)
+        }
+        defer { _ = Darwin.close(descriptor) }
+
+        let result = Darwin.mkdirat(
+            descriptor,
+            databaseDirectoryURL.lastPathComponent,
+            mode_t(S_IRWXU)
+        )
+        guard result == 0 || errno == EEXIST else {
+            throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
         }
     }
 

@@ -10,7 +10,7 @@ final class TabBarMiddleButton: UIButton {
             .tinted(with: R.color.colorPolkaswapPink()!)
         setImage(image, for: .normal)
         backgroundColor = R.color.colorWhite()
-        accessibilityLabel = MainTabBarDestination.polkaswap.title
+        accessibilityLabel = "Polkaswap"
         accessibilityTraits = .button
         layer.shadowOpacity = 1
         layer.shadowColor = R.color.colorPolkaswapPink()?.cgColor
@@ -38,8 +38,9 @@ final class TabBarMiddleButton: UIButton {
 
 final class TabBarBackgroundView: UIVisualEffectView {
     init() {
-        super.init(effect: UIBlurEffect(style: .dark))
+        super.init(effect: nil)
 
+        contentView.backgroundColor = R.color.colorBlack19()
         clipsToBounds = true
         isUserInteractionEnabled = false
     }
@@ -57,7 +58,6 @@ final class TabBarBackgroundView: UIVisualEffectView {
     private func createMaskLayer() -> CAShapeLayer {
         let padding: CGFloat = 6.0
         let centerButtonHeight: CGFloat = 56.0
-        let radius = CGFloat(28)
 
         let cutoutRadius = CGFloat(centerButtonHeight / 2.0) + padding
         let height = bounds.height
@@ -66,21 +66,13 @@ final class TabBarBackgroundView: UIVisualEffectView {
         let path = UIBezierPath()
         path.move(to: .zero)
 
-        path.addLine(to: CGPoint(x: halfW - cutoutRadius + padding, y: 0))
-        path.addQuadCurve(
-            to: CGPoint(x: halfW - cutoutRadius, y: radius / 2.0),
-            controlPoint: CGPoint(x: halfW - cutoutRadius, y: 0)
-        )
+        path.addLine(to: CGPoint(x: halfW - cutoutRadius, y: 0))
         path.addArc(
-            withCenter: CGPoint(x: halfW, y: radius / 2.0),
+            withCenter: CGPoint(x: halfW, y: 0),
             radius: cutoutRadius,
             startAngle: .pi,
             endAngle: 0,
             clockwise: false
-        )
-        path.addQuadCurve(
-            to: CGPoint(x: halfW + cutoutRadius - padding, y: 0),
-            controlPoint: CGPoint(x: halfW + cutoutRadius, y: 0)
         )
 
         path.addLine(to: CGPoint(x: width, y: 0))
@@ -96,5 +88,21 @@ final class TabBarBackgroundView: UIVisualEffectView {
         maskLayer.fillRule = .evenOdd
 
         return maskLayer
+    }
+}
+
+/// A single accessible action for each surrounding tab avoids announcing the
+/// system center item a second time beside the raised Polkaswap button.
+final class TabBarAccessibilityElement: UIAccessibilityElement {
+    private let activate: () -> Void
+
+    init(container: Any, activate: @escaping () -> Void) {
+        self.activate = activate
+        super.init(accessibilityContainer: container)
+    }
+
+    override func accessibilityActivate() -> Bool {
+        activate()
+        return true
     }
 }

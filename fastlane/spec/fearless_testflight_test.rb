@@ -47,7 +47,7 @@ class FearlessTestFlightTest < Minitest::Test
   def test_release_identity_accepts_numeric_version_and_build
     assert FearlessTestFlight.validate_release_identity!(
       version: "4.2.0",
-      build_number: "2026.8.33"
+      build_number: "2026.9.6"
     )
   end
 

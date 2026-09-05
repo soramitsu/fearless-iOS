@@ -640,6 +640,7 @@ final class RootInteractor {
 
         URLHandlingService.shared.setup(children: [
             IrohaConnectURLHandler.shared,
+            LegacyTonConnectURLHandler.shared,
             purchaseHandler,
             polkamarktDeepLinkHandler,
             keystoreImportService

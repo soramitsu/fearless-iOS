@@ -265,7 +265,8 @@ final class TonAPIClientFactory {
     /// Binary-owned allowlist for operations that expose a signed bearer BOC.
     /// Read-only balance clients may still use other valid registry nodes, but native
     /// submission must remain pinned to an independently reviewed exact origin.
-    static let reviewedProductionSendOrigins = [canonicalAuthenticatedOrigin]
+    static let canonicalTestnetOrigin = URL(string: "https://testnet.tonapi.io")!
+    static let reviewedProductionSendOrigins = [canonicalAuthenticatedOrigin, canonicalTestnetOrigin]
 
     private let tonAPIURL: URL
     private let token: String
@@ -297,7 +298,13 @@ final class TonAPIClientFactory {
     }
 
     static func canAttachAuthorization(to url: URL) -> Bool {
-        hasExactOrigin(url, canonical: canonicalAuthenticatedOrigin)
+        reviewedSendNetwork(for: url) != nil
+    }
+
+    static func reviewedSendNetwork(for url: URL) -> TonTransferNetwork? {
+        if hasExactOrigin(url, canonical: canonicalAuthenticatedOrigin) { return .mainnet }
+        if hasExactOrigin(url, canonical: canonicalTestnetOrigin) { return .testnet }
+        return nil
     }
 
     static func isValidAuthorizationToken(_ token: String) -> Bool {
@@ -892,6 +899,11 @@ extension ChainRegistry: ChainRegistryProtocol {
 
     /// Creates a client for the exact chain being sent from. This deliberately does not use
     /// the environment-toggle/global TON selection used by balance subscriptions.
+    func getTonApiClientFactory(for network: TonTransferNetwork) throws -> TonAPIClientFactory {
+        let origin = network == .mainnet ? TonAPIClientFactory.canonicalAuthenticatedOrigin : TonAPIClientFactory.canonicalTestnetOrigin
+        return TonAPIClientFactory(tonAPIURL: origin, token: currentTonApiKey)
+    }
+
     func getTonApiClientFactory(for chain: ChainModel) throws -> TonAPIClientFactory {
         let baseURL = try Self.tonAPIBaseURL(for: chain)
         guard TonAPIClientFactory.isReviewedProductionSendServerURL(baseURL) else {

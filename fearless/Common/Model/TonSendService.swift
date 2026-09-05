@@ -1,9 +1,11 @@
 import Foundation
+import BigInt
 import TonAPI
 import TonSwift
 
 protocol TonTransferRemoteProtocol: Sendable {
     var reviewedSignedOperationOrigin: String? { get }
+    func jettonWallet(ownerAddress: String, assetAddress: String, amount: String, precision: Int) async throws -> TonResolvedJettonWallet
     func walletState(address: String) async throws -> TonWalletRemoteState
     func recipientRequiresMemo(address: String) async throws -> Bool
     func emulateUnsigned(
@@ -23,6 +25,14 @@ protocol TonTransferRemoteProtocol: Sendable {
 
 extension TonTransferRemoteProtocol {
     var reviewedSignedOperationOrigin: String? { nil }
+    func jettonWallet(ownerAddress _: String, assetAddress _: String, amount _: String, precision _: Int) async throws -> TonResolvedJettonWallet {
+        throw TonTransferTransactionBuilderError.unsupportedAsset
+    }
+}
+
+struct TonResolvedJettonWallet: Equatable, Sendable {
+    let masterAddress: String
+    let walletAddress: String
 }
 
 enum TonReconciliationResult: Equatable, Sendable {
@@ -36,11 +46,13 @@ struct TonEmulationIntent: Equatable, Sendable {
     let amountNanotons: Int64
     let bounce: Bool
     let messageBodyHashHex: String
+    let jetton: TonJettonTransferDetails?
+    let tonConnect: TonConnectTransferRequest?
 
     init(request: TonNativeTransferDetails) throws {
         let identity = try TonTransferIntentIdentity(request: request)
         guard let amount = Int64(identity.amountNanotons),
-              amount > 0
+              amount > 0 || identity.tonConnect != nil
         else {
             throw TonTransferTransactionBuilderError.invalidAmount
         }
@@ -48,9 +60,11 @@ struct TonEmulationIntent: Equatable, Sendable {
         recipientAddress = identity.recipient
         amountNanotons = amount
         bounce = identity.bounce
-        messageBodyHashHex = try TonTransferTransactionBuilder.messageBodyHashHex(
-            comment: identity.comment
+        messageBodyHashHex = try identity.tonConnect.map { try $0.bindingHashHex() } ?? TonTransferTransactionBuilder.messageBodyHashHex(
+            comment: identity.comment, jetton: identity.jetton, senderAddress: identity.sender
         )
+        jetton = identity.jetton
+        tonConnect = identity.tonConnect
     }
 }
 
@@ -62,12 +76,14 @@ struct TonWalletRemoteState: Equatable, Sendable {
 struct TonEmulationResult: Equatable, Sendable {
     let accepted: Bool
     let totalFeeNanotons: UInt64?
+    var executionEffects: TonConnectExecutionEffects?
 }
 
 struct TonNativeSendRequest: Equatable, Sendable {
     let asset: TonTransferAsset
     let network: TonTransferNetwork
     let mnemonic: String
+    let legacyNativePrivateKey: Data?
     let passphrase: String
     let derivationPath: String
     let senderAddress: String
@@ -75,6 +91,8 @@ struct TonNativeSendRequest: Equatable, Sendable {
     let amountNanotons: String
     let bounce: Bool
     let comment: String?
+    let jetton: TonJettonTransferDetails?
+    let tonConnect: TonConnectTransferRequest?
 
     init(
         asset: TonTransferAsset = .nativeTon,
@@ -86,11 +104,15 @@ struct TonNativeSendRequest: Equatable, Sendable {
         recipientAddress: String,
         amountNanotons: String,
         bounce: Bool,
-        comment: String? = nil
+        comment: String? = nil,
+        legacyNativePrivateKey: Data? = nil,
+        jetton: TonJettonTransferDetails? = nil,
+        tonConnect: TonConnectTransferRequest? = nil
     ) {
         self.asset = asset
         self.network = network
         self.mnemonic = mnemonic
+        self.legacyNativePrivateKey = legacyNativePrivateKey
         self.passphrase = passphrase
         self.derivationPath = derivationPath
         self.senderAddress = senderAddress
@@ -98,20 +120,25 @@ struct TonNativeSendRequest: Equatable, Sendable {
         self.amountNanotons = amountNanotons
         self.bounce = bounce
         self.comment = comment
+        self.jetton = jetton
+        self.tonConnect = tonConnect
     }
 }
 
 struct TonSigningCredentials: Equatable, Sendable {
     let mnemonic: String
+    let legacyNativePrivateKey: Data?
     let passphrase: String
     let derivationPath: String
 
     init(
         mnemonic: String,
         passphrase: String = "",
-        derivationPath: String = UniversalWalletDerivationPaths.tonDefault
+        derivationPath: String = UniversalWalletDerivationPaths.tonDefault,
+        legacyNativePrivateKey: Data? = nil
     ) {
         self.mnemonic = mnemonic
+        self.legacyNativePrivateKey = legacyNativePrivateKey
         self.passphrase = passphrase
         self.derivationPath = derivationPath
     }
@@ -126,6 +153,8 @@ struct TonNativeEstimateRequest: Equatable, Sendable {
     let amountNanotons: String
     let bounce: Bool
     let comment: String?
+    let jetton: TonJettonTransferDetails?
+    let tonConnect: TonConnectTransferRequest?
 
     init(
         asset: TonTransferAsset = .nativeTon,
@@ -135,7 +164,9 @@ struct TonNativeEstimateRequest: Equatable, Sendable {
         recipientAddress: String,
         amountNanotons: String,
         bounce: Bool,
-        comment: String? = nil
+        comment: String? = nil,
+        jetton: TonJettonTransferDetails? = nil,
+        tonConnect: TonConnectTransferRequest? = nil
     ) {
         self.asset = asset
         self.network = network
@@ -145,6 +176,8 @@ struct TonNativeEstimateRequest: Equatable, Sendable {
         self.amountNanotons = amountNanotons
         self.bounce = bounce
         self.comment = comment
+        self.jetton = jetton
+        self.tonConnect = tonConnect
     }
 }
 
@@ -156,8 +189,11 @@ protocol TonNativeTransferDetails {
     var amountNanotons: String { get }
     var bounce: Bool { get }
     var comment: String? { get }
+    var jetton: TonJettonTransferDetails? { get }
+    var tonConnect: TonConnectTransferRequest? { get }
 }
 
+extension TonNativeTransferDetails { var tonConnect: TonConnectTransferRequest? { nil } }
 extension TonNativeSendRequest: TonNativeTransferDetails {}
 extension TonNativeEstimateRequest: TonNativeTransferDetails {}
 
@@ -210,8 +246,15 @@ struct TonTransferIntentIdentity: Equatable, Hashable, Sendable {
     let amountNanotons: String
     let bounce: Bool
     let comment: String?
+    let jetton: TonJettonTransferDetails?
+    let tonConnect: TonConnectTransferRequest?
+
+    var network: TonTransferNetwork { tonConnect?.network ?? .mainnet }
+    var coordinationKey: String { network == .testnet ? "testnet:" + sender : sender }
+    var asset: TonTransferAsset { tonConnect != nil ? .tonConnect : (jetton.map { .jetton(masterAddress: $0.masterAddress) } ?? .nativeTon) }
 
     init(request: TonNativeTransferDetails) throws {
+        try TonTransferTransactionBuilder.validateSupportedScope(asset: request.asset, network: request.network, jetton: request.jetton, tonConnect: request.tonConnect)
         guard request.amountNanotons.utf8.count <= 19 else {
             throw TonTransferTransactionBuilderError.invalidAmount
         }
@@ -238,6 +281,8 @@ struct TonTransferIntentIdentity: Equatable, Hashable, Sendable {
         amountNanotons = request.amountNanotons
         bounce = request.bounce
         comment = request.comment
+        jetton = request.jetton
+        tonConnect = request.tonConnect
     }
 }
 
@@ -259,7 +304,7 @@ actor TonPendingIntentCoordinator {
     }
 
     static let shared = TonPendingIntentCoordinator(
-        productionJournal: TonKeychainPendingIntentJournal()
+        journal: TonKeychainPendingIntentJournal()
     )
 
     private enum State {
@@ -271,24 +316,32 @@ actor TonPendingIntentCoordinator {
     private let journal: TonPendingIntentJournaling
     private var statesBySender: [String: State] = [:]
 
-    private init(productionJournal journal: TonPendingIntentJournaling) {
+    init(journal: TonPendingIntentJournaling) {
         self.journal = journal
     }
 
     #if DEBUG
-        init(journal: TonPendingIntentJournaling = TonInMemoryPendingIntentJournal()) {
-            self.journal = journal
+        init() {
+            journal = TonInMemoryPendingIntentJournal()
         }
     #endif
 
+    func pending(senderRaw: String) throws -> TonPendingSignedIntent? {
+        switch statesBySender[senderRaw] {
+        case let .pending(pending), let .retrying(pending): return pending
+        case .preparing: return nil
+        case .none: return try journal.load(senderRaw: senderRaw)
+        }
+    }
+
     func begin(_ identity: TonTransferIntentIdentity) throws -> BeginResult {
-        if statesBySender[identity.sender] == nil,
-           let persisted = try journal.load(senderRaw: identity.sender) {
-            statesBySender[identity.sender] = .pending(persisted)
+        if statesBySender[identity.coordinationKey] == nil,
+           let persisted = try journal.load(senderRaw: identity.coordinationKey) {
+            statesBySender[identity.coordinationKey] = .pending(persisted)
         }
 
-        guard let state = statesBySender[identity.sender] else {
-            statesBySender[identity.sender] = .preparing(identity)
+        guard let state = statesBySender[identity.coordinationKey] else {
+            statesBySender[identity.coordinationKey] = .preparing(identity)
             return .fresh
         }
 
@@ -299,7 +352,7 @@ actor TonPendingIntentCoordinator {
             }
             throw TonSendServiceError.differentPendingIntent(senderAddress: identity.sender)
         case let .pending(pending):
-            statesBySender[identity.sender] = .retrying(pending)
+            statesBySender[identity.coordinationKey] = .retrying(pending)
             return pending.identity == identity ? .retry(pending) : .recoverDifferent(pending)
         case let .retrying(pending):
             if pending.identity == identity {
@@ -310,13 +363,13 @@ actor TonPendingIntentCoordinator {
     }
 
     func reserve(_ pending: TonPendingSignedIntent) throws {
-        guard case let .preparing(identity) = statesBySender[pending.identity.sender],
+        guard case let .preparing(identity) = statesBySender[pending.identity.coordinationKey],
               identity == pending.identity
         else {
             throw TonSendServiceError.sendAlreadyInFlight(senderAddress: pending.identity.sender)
         }
         try journal.save(pending)
-        statesBySender[pending.identity.sender] = .pending(pending)
+        statesBySender[pending.identity.coordinationKey] = .pending(pending)
     }
 
     func recordEmulation(
@@ -325,7 +378,7 @@ actor TonPendingIntentCoordinator {
     ) throws {
         let storedPending: TonPendingSignedIntent
         let isRetrying: Bool
-        switch statesBySender[identity.sender] {
+        switch statesBySender[identity.coordinationKey] {
         case let .pending(value):
             storedPending = value
             isRetrying = false
@@ -341,12 +394,12 @@ actor TonPendingIntentCoordinator {
         var updatedPending = storedPending
         updatedPending.emulation = emulation
         try journal.save(updatedPending)
-        statesBySender[identity.sender] = isRetrying ? .retrying(updatedPending) : .pending(updatedPending)
+        statesBySender[identity.coordinationKey] = isRetrying ? .retrying(updatedPending) : .pending(updatedPending)
     }
 
     func recordConfirmed(_ pending: TonPendingSignedIntent) throws -> TonPendingSignedIntent {
         let storedPending: TonPendingSignedIntent
-        switch statesBySender[pending.identity.sender] {
+        switch statesBySender[pending.identity.coordinationKey] {
         case let .pending(value), let .retrying(value):
             storedPending = value
         default:
@@ -360,13 +413,13 @@ actor TonPendingIntentCoordinator {
         var confirmedPending = storedPending
         confirmedPending.confirmed = true
         try journal.save(confirmedPending)
-        statesBySender[pending.identity.sender] = .pending(confirmedPending)
+        statesBySender[pending.identity.coordinationKey] = .pending(confirmedPending)
         return confirmedPending
     }
 
     func retainPending(_ pending: TonPendingSignedIntent) throws {
         let storedPending: TonPendingSignedIntent
-        switch statesBySender[pending.identity.sender] {
+        switch statesBySender[pending.identity.coordinationKey] {
         case let .pending(value), let .retrying(value):
             storedPending = value
         default:
@@ -389,16 +442,16 @@ actor TonPendingIntentCoordinator {
             retained = pending
         }
         try journal.save(retained)
-        statesBySender[pending.identity.sender] = .pending(retained)
+        statesBySender[pending.identity.coordinationKey] = .pending(retained)
     }
 
     func abortBeforeExposure(_ identity: TonTransferIntentIdentity) {
-        guard case let .preparing(existing) = statesBySender[identity.sender],
+        guard case let .preparing(existing) = statesBySender[identity.coordinationKey],
               existing == identity
         else {
             return
         }
-        statesBySender.removeValue(forKey: identity.sender)
+        statesBySender.removeValue(forKey: identity.coordinationKey)
     }
 
     func acknowledgeConfirmed(
@@ -453,33 +506,16 @@ final class TonSendService: @unchecked Sendable {
         messageLifetimeSeconds: UInt64 = TonSendService.defaultMessageLifetimeSeconds,
         remoteTimeoutNanoseconds: UInt64 = TonSendService.defaultRemoteTimeoutNanoseconds,
         maximumFeeNanotons: UInt64 = TonSendService.defaultMaximumFeeNanotons,
+        pendingCoordinator: TonPendingIntentCoordinator = .shared,
         clock: @escaping @Sendable() -> UInt64 = { UInt64(Date().timeIntervalSince1970) }
     ) {
         self.remote = remote
         self.messageLifetimeSeconds = messageLifetimeSeconds
         self.remoteTimeoutNanoseconds = remoteTimeoutNanoseconds
         self.maximumFeeNanotons = maximumFeeNanotons
-        pendingCoordinator = .shared
+        self.pendingCoordinator = pendingCoordinator
         self.clock = clock
     }
-
-    #if DEBUG
-        init(
-            remote: TonTransferRemoteProtocol,
-            messageLifetimeSeconds: UInt64 = TonSendService.defaultMessageLifetimeSeconds,
-            remoteTimeoutNanoseconds: UInt64 = TonSendService.defaultRemoteTimeoutNanoseconds,
-            maximumFeeNanotons: UInt64 = TonSendService.defaultMaximumFeeNanotons,
-            pendingCoordinator: TonPendingIntentCoordinator,
-            clock: @escaping @Sendable() -> UInt64 = { UInt64(Date().timeIntervalSince1970) }
-        ) {
-            self.remote = remote
-            self.messageLifetimeSeconds = messageLifetimeSeconds
-            self.remoteTimeoutNanoseconds = remoteTimeoutNanoseconds
-            self.maximumFeeNanotons = maximumFeeNanotons
-            self.pendingCoordinator = pendingCoordinator
-            self.clock = clock
-        }
-    #endif
 
     private struct BuiltSignedTransfer {
         let identity: TonTransferIntentIdentity
@@ -488,8 +524,27 @@ final class TonSendService: @unchecked Sendable {
         let walletState: TonWalletRemoteState
     }
 
+    /// A persisted transfer stays recoverable even after a full-balance token send or
+    /// when an account-balance request is unavailable following restart.
+    func resolveJettonWallet(ownerAddress: String, assetAddress: String, recipientAddress: String, amount: String, precision: Int) async throws -> TonResolvedJettonWallet {
+        let owner = try TonTransferTransactionBuilder.canonicalMainnetAddress(ownerAddress, basechainOnly: true)
+        let asset = try TonTransferTransactionBuilder.canonicalMainnetAddress(assetAddress, basechainOnly: true)
+        let recipient = try TonTransferTransactionBuilder.canonicalMainnetAddress(recipientAddress)
+        _ = try TonTransferTransactionBuilder.parseAmount(amount)
+        if let pending = try await pendingCoordinator.pending(senderRaw: owner),
+           let jetton = pending.identity.jetton,
+           jetton.recipientAddress == recipient, jetton.amount == amount,
+           asset == jetton.masterAddress || asset == pending.identity.recipient {
+            return TonResolvedJettonWallet(masterAddress: jetton.masterAddress, walletAddress: pending.identity.recipient)
+        }
+        return try await withRemoteTimeout(error: .recipientInspectionTimedOut) {
+            try await self.remote.jettonWallet(ownerAddress: owner, assetAddress: asset, amount: amount, precision: precision)
+        }
+    }
+
     func estimate(_ request: TonNativeEstimateRequest) async throws -> TonEstimatedTransferTransaction {
         let (now, validUntil) = try validatedTiming(for: request)
+        if request.tonConnect != nil { try requireNetworkOrigin(request.network) }
         let intent = try TonEmulationIntent(request: request)
         let provisionalRequest = transactionRequest(
             from: request,
@@ -505,7 +560,7 @@ final class TonSendService: @unchecked Sendable {
             publicKey: request.publicKey,
             now: now
         )
-        try await rejectMemoRequiredRecipient(request.recipientAddress)
+        try await inspectRecipients(request)
 
         let walletState = try await loadWalletState(senderAddress: request.senderAddress)
         let emulationMessage = try TonTransferTransactionBuilder.buildForFeeEstimation(
@@ -570,7 +625,9 @@ final class TonSendService: @unchecked Sendable {
             includeStateInit: !estimated.walletState.isInitialized,
             validUntil: validUntil,
             bounce: identity.bounce,
-            comment: identity.comment
+            comment: identity.comment,
+            jetton: identity.jetton,
+            tonConnect: identity.tonConnect
         )
         return try TonTransferFeeQuote(
             templateCreatedAt: estimated.templateCreatedAt,
@@ -583,7 +640,8 @@ final class TonSendService: @unchecked Sendable {
             transactionRequest: transaction,
             walletState: estimated.walletState,
             unsignedMessage: estimated.emulationMessage,
-            feeNanotons: feeNanotons
+            feeNanotons: feeNanotons,
+            executionEffects: estimated.emulation.executionEffects
         )
     }
 
@@ -592,23 +650,23 @@ final class TonSendService: @unchecked Sendable {
         feeQuote: TonTransferFeeQuote? = nil
     ) async throws -> TonSentTransferTransaction {
         #if !DEBUG
-            // Native TON submission is intentionally unavailable in production binaries
-            // until the durable-recovery and confirmation-binding release gates are met.
-            throw TonSendServiceError.productionSendDisabled
-        #else
-            return try await performSend(
-                request,
-                feeQuote: feeQuote,
-                requiresFeeQuote: true,
-                signingCredentials: {
-                    TonSigningCredentials(
-                        mnemonic: request.mnemonic,
-                        passphrase: request.passphrase,
-                        derivationPath: request.derivationPath
-                    )
-                }
-            )
+            guard request.legacyNativePrivateKey != nil else {
+                throw TonSendServiceError.productionSendDisabled
+            }
         #endif
+        return try await performSend(
+            request,
+            feeQuote: feeQuote,
+            requiresFeeQuote: true,
+            signingCredentials: {
+                TonSigningCredentials(
+                    mnemonic: request.mnemonic,
+                    passphrase: request.passphrase,
+                    derivationPath: request.derivationPath,
+                    legacyNativePrivateKey: request.legacyNativePrivateKey
+                )
+            }
+        )
     }
 
     /// Submission entry point used by the wallet integration. Pending journal recovery is
@@ -617,18 +675,27 @@ final class TonSendService: @unchecked Sendable {
     func send(
         _ request: TonNativeEstimateRequest,
         feeQuote: TonTransferFeeQuote?,
+        legacyAccount: LegacyTonAccount? = nil,
         signingCredentials: @escaping () throws -> TonSigningCredentials
     ) async throws -> TonSentTransferTransaction {
         #if !DEBUG
-            throw TonSendServiceError.productionSendDisabled
-        #else
-            return try await performSend(
-                request,
-                feeQuote: feeQuote,
-                requiresFeeQuote: true,
-                signingCredentials: signingCredentials
-            )
+            guard let nativeAccount = legacyAccount, nativeAccount.publicKey == request.publicKey,
+                  try TonSwift.Address.parse(nativeAccount.address).toRaw() == TonSwift.Address.parse(request.senderAddress).toRaw()
+            else { throw TonSendServiceError.productionSendDisabled }
         #endif
+        return try await performSend(
+            request,
+            feeQuote: feeQuote,
+            requiresFeeQuote: true,
+            signingCredentials: {
+                let credentials = try signingCredentials()
+                if let legacyAccount {
+                    guard let key = credentials.legacyNativePrivateKey else { throw TonSendServiceError.invalidAccount }
+                    _ = try legacyAccount.validatedPrivateKey(key)
+                }
+                return credentials
+            }
+        )
     }
 
     #if DEBUG
@@ -645,116 +712,122 @@ final class TonSendService: @unchecked Sendable {
                     TonSigningCredentials(
                         mnemonic: request.mnemonic,
                         passphrase: request.passphrase,
-                        derivationPath: request.derivationPath
+                        derivationPath: request.derivationPath,
+                        legacyNativePrivateKey: request.legacyNativePrivateKey
                     )
                 }
             )
         }
 
-        private func performSend(
-            _ request: any TonNativeTransferDetails,
-            feeQuote: TonTransferFeeQuote?,
-            requiresFeeQuote: Bool,
-            signingCredentials: () throws -> TonSigningCredentials
-        ) async throws -> TonSentTransferTransaction {
-            let identity = try TonTransferIntentIdentity(request: request)
-            switch try await pendingCoordinator.begin(identity) {
-            case let .retry(pending):
-                try requireStoredEndpointForRecovery(pending)
-                if requiresFeeQuote {
-                    return try await recoverPendingWithoutRebroadcast(pending)
-                }
-                return try await retry(pending)
-            case let .recoverDifferent(pending):
-                try requireStoredEndpointForRecovery(pending)
-                return try await recoverDifferentPending(pending)
-            case .fresh:
-                break
-            }
+    #endif
 
-            if requiresFeeQuote, feeQuote == nil {
-                await pendingCoordinator.abortBeforeExposure(identity)
-                throw TonSendServiceError.feeQuoteRequired
+    private func performSend(
+        _ request: any TonNativeTransferDetails,
+        feeQuote: TonTransferFeeQuote?,
+        requiresFeeQuote: Bool,
+        signingCredentials: () throws -> TonSigningCredentials
+    ) async throws -> TonSentTransferTransaction {
+        let identity = try TonTransferIntentIdentity(request: request)
+        switch try await pendingCoordinator.begin(identity) {
+        case let .retry(pending):
+            try requireStoredEndpointForRecovery(pending)
+            if requiresFeeQuote {
+                return try await recoverPendingWithoutRebroadcast(pending)
             }
+            return try await retry(pending)
+        case let .recoverDifferent(pending):
+            try requireStoredEndpointForRecovery(pending)
+            return try await recoverDifferentPending(pending)
+        case .fresh:
+            break
+        }
 
-            let built: BuiltSignedTransfer
-            let emulatedPending: TonPendingSignedIntent
-            do {
-                let credentials = try signingCredentials()
-                let signingRequest = TonNativeSendRequest(
-                    asset: request.asset,
-                    network: request.network,
-                    mnemonic: credentials.mnemonic,
-                    passphrase: credentials.passphrase,
-                    derivationPath: credentials.derivationPath,
-                    senderAddress: request.senderAddress,
-                    recipientAddress: request.recipientAddress,
-                    amountNanotons: request.amountNanotons,
-                    bounce: request.bounce,
-                    comment: request.comment
-                )
-                built = try await buildSignedTransfer(
-                    signingRequest,
-                    identity: identity,
-                    feeQuote: feeQuote
-                )
-                try await pendingCoordinator.reserve(
-                    TonPendingSignedIntent(
-                        identity: identity,
-                        intent: built.intent,
-                        message: built.message,
-                        walletState: built.walletState,
-                        feeQuote: feeQuote,
-                        emulation: nil
-                    )
-                )
-            } catch {
-                await pendingCoordinator.abortBeforeExposure(identity)
-                throw error
-            }
+        if requiresFeeQuote, feeQuote == nil {
+            await pendingCoordinator.abortBeforeExposure(identity)
+            throw TonSendServiceError.feeQuoteRequired
+        }
 
-            do {
-                let emulation = try await withRemoteTimeout(error: .emulationTimedOut) {
-                    try await self.remote.emulateSigned(
-                        message: built.message,
-                        intent: built.intent
-                    )
-                }
-                try validateEmulation(emulation)
-                if let feeQuote,
-                   emulation.totalFeeNanotons != feeQuote.feeNanotons {
-                    throw TonSendServiceError.feeChangedAfterConfirmation(
-                        quoted: feeQuote.feeNanotons,
-                        signedEmulation: emulation.totalFeeNanotons ?? 0
-                    )
-                }
-                try await pendingCoordinator.recordEmulation(emulation, for: identity)
-                emulatedPending = TonPendingSignedIntent(
+        let built: BuiltSignedTransfer
+        let emulatedPending: TonPendingSignedIntent
+        do {
+            let credentials = try signingCredentials()
+            let signingRequest = TonNativeSendRequest(
+                asset: request.asset,
+                network: request.network,
+                mnemonic: credentials.mnemonic,
+                passphrase: credentials.passphrase,
+                derivationPath: credentials.derivationPath,
+                senderAddress: request.senderAddress,
+                recipientAddress: request.recipientAddress,
+                amountNanotons: request.amountNanotons,
+                bounce: request.bounce,
+                comment: request.comment,
+                legacyNativePrivateKey: credentials.legacyNativePrivateKey,
+                jetton: request.jetton,
+                tonConnect: request.tonConnect
+            )
+            built = try await buildSignedTransfer(
+                signingRequest,
+                identity: identity,
+                feeQuote: feeQuote
+            )
+            try await pendingCoordinator.reserve(
+                TonPendingSignedIntent(
                     identity: identity,
                     intent: built.intent,
                     message: built.message,
                     walletState: built.walletState,
                     feeQuote: feeQuote,
-                    emulation: emulation
+                    emulation: nil
                 )
-            } catch {
-                // A valid bearer message was already exposed to the remote. Its absence at one
-                // instant cannot prove it will not be broadcast later, so retain it and fail with
-                // an explicitly ambiguous outcome unless reconciliation confirms execution.
-                return try await reconcileOrThrowUnknown(
-                    TonPendingSignedIntent(
-                        identity: identity,
-                        intent: built.intent,
-                        message: built.message,
-                        walletState: built.walletState,
-                        feeQuote: feeQuote,
-                        emulation: nil
-                    )
+            )
+        } catch {
+            await pendingCoordinator.abortBeforeExposure(identity)
+            throw error
+        }
+
+        do {
+            let emulation = try await withRemoteTimeout(error: .emulationTimedOut) {
+                try await self.remote.emulateSigned(
+                    message: built.message,
+                    intent: built.intent
                 )
             }
-            return try await broadcastAndReconcile(emulatedPending)
+            try validateEmulation(emulation)
+            guard emulation.executionEffects == feeQuote?.executionEffects else { throw TonSendServiceError.feeQuoteMismatch }
+            if let feeQuote,
+               emulation.totalFeeNanotons != feeQuote.feeNanotons {
+                throw TonSendServiceError.feeChangedAfterConfirmation(
+                    quoted: feeQuote.feeNanotons,
+                    signedEmulation: emulation.totalFeeNanotons ?? 0
+                )
+            }
+            try await pendingCoordinator.recordEmulation(emulation, for: identity)
+            emulatedPending = TonPendingSignedIntent(
+                identity: identity,
+                intent: built.intent,
+                message: built.message,
+                walletState: built.walletState,
+                feeQuote: feeQuote,
+                emulation: emulation
+            )
+        } catch {
+            // A valid bearer message was already exposed to the remote. Its absence at one
+            // instant cannot prove it will not be broadcast later, so retain it and fail with
+            // an explicitly ambiguous outcome unless reconciliation confirms execution.
+            return try await reconcileOrThrowUnknown(
+                TonPendingSignedIntent(
+                    identity: identity,
+                    intent: built.intent,
+                    message: built.message,
+                    walletState: built.walletState,
+                    feeQuote: feeQuote,
+                    emulation: nil
+                )
+            )
         }
-    #endif
+        return try await broadcastAndReconcile(emulatedPending)
+    }
 
     func acknowledgeConfirmedTransfer(
         senderAddress: String,
@@ -771,7 +844,7 @@ final class TonSendService: @unchecked Sendable {
             throw TonPendingIntentJournalError.corrupted
         }
         try await pendingCoordinator.acknowledgeConfirmed(
-            senderRaw: identity.sender,
+            senderRaw: identity.coordinationKey,
             identity: identity,
             messageHashHex: messageHashHex
         )
@@ -797,11 +870,7 @@ final class TonSendService: @unchecked Sendable {
         // it across recipient/account network suspension points.
         do {
             try { () throws in
-                let account = try TonKeyDerivation.deriveAccount(
-                    mnemonic: request.mnemonic,
-                    passphrase: request.passphrase,
-                    derivationPath: request.derivationPath
-                )
+                let account = try TonKeyDerivation.signingAccount(for: request)
                 _ = try TonTransferTransactionBuilder.buildAndSign(
                     request: transactionRequest(
                         from: request,
@@ -819,17 +888,13 @@ final class TonSendService: @unchecked Sendable {
             throw TonSendServiceError.invalidAccount
         }
 
-        try await rejectMemoRequiredRecipient(request.recipientAddress)
+        try await inspectRecipients(request)
         let walletState = try await loadWalletState(senderAddress: request.senderAddress)
         let message: TonSignedExternalMessage
         do {
             // Re-derive only after all pre-signing network checks have completed so private
             // key material is live for the shortest practical synchronous signing window.
-            let account = try TonKeyDerivation.deriveAccount(
-                mnemonic: request.mnemonic,
-                passphrase: request.passphrase,
-                derivationPath: request.derivationPath
-            )
+            let account = try TonKeyDerivation.signingAccount(for: request)
             message = try TonTransferTransactionBuilder.buildAndSign(
                 request: transactionRequest(
                     from: request,
@@ -878,11 +943,7 @@ final class TonSendService: @unchecked Sendable {
         // Validate key and sender ownership synchronously, then discard the first private-key
         // derivation before any suspension point.
         do {
-            let account = try TonKeyDerivation.deriveAccount(
-                mnemonic: request.mnemonic,
-                passphrase: request.passphrase,
-                derivationPath: request.derivationPath
-            )
+            let account = try TonKeyDerivation.signingAccount(for: request)
             guard account.publicKey == feeQuote.publicKey,
                   try TonSwift.Address.parse(account.addressNonBounceable).toRaw() == identity.sender
             else {
@@ -895,7 +956,7 @@ final class TonSendService: @unchecked Sendable {
         }
 
         // Recheck mutable remote facts before signing. Any drift invalidates the visible quote.
-        try await rejectMemoRequiredRecipient(request.recipientAddress)
+        try await inspectRecipients(request)
         let walletState = try await loadWalletState(senderAddress: request.senderAddress)
         guard walletState == feeQuote.walletState else {
             throw TonSendServiceError.walletStateChangedSinceQuote
@@ -922,11 +983,7 @@ final class TonSendService: @unchecked Sendable {
 
         let signedMessage: TonSignedExternalMessage
         do {
-            let account = try TonKeyDerivation.deriveAccount(
-                mnemonic: request.mnemonic,
-                passphrase: request.passphrase,
-                derivationPath: request.derivationPath
-            )
+            let account = try TonKeyDerivation.signingAccount(for: request)
             signedMessage = try TonTransferTransactionBuilder.buildAndSign(
                 request: feeQuote.transactionRequest,
                 privateKeySeed: account.privateKey,
@@ -1173,15 +1230,15 @@ final class TonSendService: @unchecked Sendable {
     private func validatedTiming(
         for request: TonNativeTransferDetails
     ) throws -> (now: UInt64, validUntil: UInt64) {
-        guard request.asset == .nativeTon else {
-            throw TonTransferTransactionBuilderError.unsupportedAsset
-        }
-        guard request.network == .mainnet else {
-            throw TonTransferTransactionBuilderError.unsupportedNetwork
-        }
+        try TonTransferTransactionBuilder.validateSupportedScope(asset: request.asset, network: request.network, jetton: request.jetton, tonConnect: request.tonConnect)
         _ = try TonEmulationIntent(request: request) // Includes the Int64 service cap.
 
         let now = clock()
+        if let connect = request.tonConnect {
+            guard connect.validUntil > now, connect.validUntil - now >= TonTransferTransactionBuilder.minimumLifetimeSeconds,
+                  remoteTimeoutNanoseconds > 0, maximumFeeNanotons > 0 else { throw TonSendServiceError.feeQuoteExpired }
+            return (now, connect.validUntil)
+        }
         guard now <= UInt64(UInt32.max),
               messageLifetimeSeconds >= TonTransferTransactionBuilder.minimumLifetimeSeconds,
               messageLifetimeSeconds <= TonTransferTransactionBuilder.maximumLifetimeSeconds,
@@ -1210,7 +1267,9 @@ final class TonSendService: @unchecked Sendable {
             includeStateInit: includeStateInit,
             validUntil: validUntil,
             bounce: request.bounce,
-            comment: request.comment
+            comment: request.comment,
+            jetton: request.jetton,
+            tonConnect: request.tonConnect
         )
     }
 
@@ -1491,6 +1550,26 @@ final class TonAPIRemoteClient: TonTransferRemoteProtocol, @unchecked Sendable {
         )
     }
 
+    func jettonWallet(ownerAddress: String, assetAddress: String, amount: String, precision: Int) async throws -> TonResolvedJettonWallet {
+        try requireTrustedSignedOperationEndpoint()
+        let requested = try TonTransferTransactionBuilder.parseAmount(amount)
+        let owner = try TonTransferTransactionBuilder.canonicalMainnetAddress(ownerAddress, basechainOnly: true)
+        let selected = try TonTransferTransactionBuilder.canonicalMainnetAddress(assetAddress, basechainOnly: true)
+        let balances = try await client.getAccountJettonsBalances(.init(path: .init(account_id: owner))).ok.body.json.balances
+        let matching = balances.filter { balance in
+            addressesMatch(balance.jetton.address, selected) || addressesMatch(balance.wallet_address.address, selected)
+        }
+        guard matching.count == 1, let balance = matching.first,
+              !balance.wallet_address.is_scam, balance.jetton.decimals == precision,
+              let available = BigUInt(balance.balance), requested <= available,
+              balance.lock == nil || balance.lock?.amount == "0"
+        else { throw TonTransferTransactionBuilderError.unsupportedAsset }
+        let master = try TonTransferTransactionBuilder.canonicalMainnetAddress(balance.jetton.address, basechainOnly: true)
+        let wallet = try TonTransferTransactionBuilder.canonicalMainnetAddress(balance.wallet_address.address, basechainOnly: true)
+        guard master != wallet, owner != wallet else { throw TonTransferTransactionBuilderError.unsupportedAsset }
+        return TonResolvedJettonWallet(masterAddress: master, walletAddress: wallet)
+    }
+
     func walletState(address: String) async throws -> TonWalletRemoteState {
         async let accountOutput = client.getAccount(
             .init(path: .init(account_id: address))
@@ -1556,13 +1635,15 @@ final class TonAPIRemoteClient: TonTransferRemoteProtocol, @unchecked Sendable {
         )
         let trace = try output.ok.body.json
         let feeNanotons = try TonEmulationPolicy.feeNanotons(trace.transaction.total_fees)
+        let effects = intent.tonConnect == nil ? nil : try await tonConnectEffects(bocBase64: message.bocBase64, unsigned: true)
         return TonEmulationResult(
             accepted: executionAccepted(
                 trace: trace,
                 intent: intent,
                 externalMessageBoc: message.boc
             ),
-            totalFeeNanotons: feeNanotons
+            totalFeeNanotons: feeNanotons,
+            executionEffects: effects
         )
     }
 
@@ -1571,6 +1652,7 @@ final class TonAPIRemoteClient: TonTransferRemoteProtocol, @unchecked Sendable {
         intent: TonEmulationIntent
     ) async throws -> TonEmulationResult {
         try requireTrustedSignedOperationEndpoint()
+        try requireReviewedNetwork(intent)
         let output = try await client.emulateMessageToWallet(
             .init(
                 body: .json(
@@ -1582,6 +1664,14 @@ final class TonAPIRemoteClient: TonTransferRemoteProtocol, @unchecked Sendable {
         let transaction = consequences.trace.transaction
         let risk = consequences.risk
         let feeNanotons = try TonEmulationPolicy.feeNanotons(transaction.total_fees)
+        if intent.tonConnect != nil {
+            let effects = try await tonConnectEffects(bocBase64: message.bocBase64, unsigned: false)
+            let accepted = executionAccepted(trace: consequences.trace, intent: intent, externalMessageBoc: message.boc) &&
+                !consequences.event.is_scam && !consequences.event.in_progress &&
+                addressesMatch(consequences.event.account.address, intent.senderAddress) &&
+                tonConnectRiskMatches(risk, effects: effects, intent: intent)
+            return TonEmulationResult(accepted: accepted, totalFeeNanotons: feeNanotons, executionEffects: effects)
+        }
         let accepted = executionAccepted(
             trace: consequences.trace,
             intent: intent,
@@ -1591,9 +1681,10 @@ final class TonAPIRemoteClient: TonTransferRemoteProtocol, @unchecked Sendable {
             eventInProgress: consequences.event.in_progress,
             transfersAllRemainingBalance: risk.transfer_all_remaining_balance,
             tonRiskWithinIntent: risk.ton >= 0 && risk.ton <= intent.amountNanotons,
-            hasJettonRisk: !risk.jettons.isEmpty,
+            hasJettonRisk: !jettonRiskMatches(risk.jettons, intent: intent),
             hasNFTRisk: !risk.nfts.isEmpty
-        ) && addressesMatch(consequences.event.account.address, intent.senderAddress)
+        ) && addressesMatch(consequences.event.account.address, intent.senderAddress) &&
+            jettonEventMatches(consequences.event, intent: intent)
 
         return TonEmulationResult(
             accepted: accepted,
@@ -1618,6 +1709,7 @@ final class TonAPIRemoteClient: TonTransferRemoteProtocol, @unchecked Sendable {
         intent: TonEmulationIntent
     ) async throws -> TonReconciliationResult {
         try requireTrustedSignedOperationEndpoint()
+        try requireReviewedNetwork(intent)
         let output = try await client.getBlockchainTransactionByMessageHash(
             .init(path: .init(msg_id: message.messageHashHex))
         )
@@ -1640,6 +1732,13 @@ final class TonAPIRemoteClient: TonTransferRemoteProtocol, @unchecked Sendable {
         }
     }
 
+    private func requireReviewedNetwork(_ intent: TonEmulationIntent) throws {
+        guard let origin = signedOperationOrigin, let url = URL(string: origin),
+              TonAPIClientFactory.reviewedSendNetwork(for: url) == (intent.tonConnect?.network ?? .mainnet) else {
+            throw TonTransferRemoteError.untrustedSignedOperationEndpoint
+        }
+    }
+
     private func requireTrustedSignedOperationEndpoint() throws {
         guard signedOperationsAllowed else {
             throw TonTransferRemoteError.untrustedSignedOperationEndpoint
@@ -1651,6 +1750,11 @@ final class TonAPIRemoteClient: TonTransferRemoteProtocol, @unchecked Sendable {
         intent: TonEmulationIntent,
         externalMessageBoc: Data
     ) -> Bool {
+        if intent.tonConnect != nil {
+            return trace.emulated == true && trace.interfaces.contains("wallet_v4r2") &&
+                linkedChildrenAccepted(trace, intent: intent) &&
+                transactionAccepted(trace.transaction, intent: intent, externalMessageBoc: externalMessageBoc)
+        }
         let transaction = trace.transaction
         let computePhase = transaction.compute_phase
         let actionPhase = transaction.action_phase
@@ -1662,7 +1766,7 @@ final class TonAPIRemoteClient: TonTransferRemoteProtocol, @unchecked Sendable {
             traceEmulated: trace.emulated == true,
             traceHasWalletV4R2Interface: trace.interfaces.contains("wallet_v4r2"),
             // TonAPI omits `children` when empty in some valid responses.
-            traceChildrenAreEmpty: trace.children?.isEmpty != false,
+            traceChildrenAreEmpty: linkedChildrenAccepted(trace, intent: intent),
             transactionAccountMatches: addressesMatch(
                 transaction.account.address,
                 intent.senderAddress
@@ -1689,6 +1793,76 @@ final class TonAPIRemoteClient: TonTransferRemoteProtocol, @unchecked Sendable {
         return accepted
     }
 
+    private func jettonRiskMatches(_ risks: [Components.Schemas.JettonQuantity], intent: TonEmulationIntent) -> Bool {
+        guard let jetton = intent.jetton else { return risks.isEmpty }
+        guard risks.count == 1, let risk = risks.first else { return false }
+        return risk.quantity == jetton.amount && !risk.wallet_address.is_scam &&
+            addressesMatch(risk.wallet_address.address, intent.recipientAddress) &&
+            addressesMatch(risk.jetton.address, jetton.masterAddress)
+    }
+
+    private func jettonEventMatches(_ event: Components.Schemas.AccountEvent, intent: TonEmulationIntent) -> Bool {
+        guard let jetton = intent.jetton else { return true }
+        let transfers = event.actions.filter { $0.JettonTransfer != nil }
+        guard transfers.count == 1, let action = transfers.first, action.status == .ok,
+              let transfer = action.JettonTransfer else { return false }
+        return transfer.amount == jetton.amount && transfer.refund == nil && transfer.encrypted_comment == nil &&
+            transfer.sender?.is_scam == false && transfer.recipient?.is_scam == false &&
+            addressesMatch(transfer.sender?.address, intent.senderAddress) &&
+            addressesMatch(transfer.recipient?.address, jetton.recipientAddress) &&
+            addressesMatch(transfer.senders_wallet, intent.recipientAddress) &&
+            addressesMatch(transfer.jetton.address, jetton.masterAddress)
+    }
+
+    /// Delivered native transfers and TEP-74 transfers have child transactions. Bind
+    /// every returned child to one unique internal message of its parent, with bounded
+    /// depth/size. A token notification to an uninitialized owner may skip computation;
+    /// token delivery itself must still appear as the exact successful Jetton event.
+    private func linkedChildrenAccepted(_ trace: Components.Schemas.Trace, intent: TonEmulationIntent) -> Bool {
+        if intent.jetton != nil, trace.children?.isEmpty != false { return false }
+        var count = 0
+        func visit(_ parent: Components.Schemas.Trace, depth: Int) -> Bool {
+            let children = parent.children ?? []
+            guard depth <= 8, children.count <= 16 else { return false }
+            var consumed = Set<Int>()
+            for child in children {
+                count += 1
+                let transaction = child.transaction
+                guard count <= 32, child.emulated == true, !transaction.destroyed,
+                      transaction.transaction_type == .TransOrd, !transaction.account.is_scam,
+                      let inbound = transaction.in_msg, inbound.msg_type == .int_msg,
+                      inbound.value >= 0, inbound.destination?.is_scam == false,
+                      addressesMatch(inbound.destination?.address, transaction.account.address),
+                      let index = parent.transaction.out_msgs.indices.first(where: { index in
+                          let outbound = parent.transaction.out_msgs[index]
+                          return !consumed.contains(index) && outbound.msg_type == .int_msg &&
+                              outbound.created_lt == inbound.created_lt && outbound.value == inbound.value &&
+                              outbound.bounce == inbound.bounce && outbound.bounced == inbound.bounced &&
+                              outbound.raw_body?.lowercased() == inbound.raw_body?.lowercased() &&
+                              outbound._init == inbound._init &&
+                              addressesMatch(outbound.source?.address, parent.transaction.account.address) &&
+                              addressesMatch(inbound.source?.address, parent.transaction.account.address) &&
+                              addressesMatch(outbound.destination?.address, transaction.account.address)
+                      }) else { return false }
+                consumed.insert(index)
+                let target = intent.jetton?.recipientAddress ?? intent.recipientAddress
+                let value = intent.jetton == nil ? intent.amountNanotons : 1
+                let connectReceipt = intent.tonConnect?.messages.contains { message in
+                    !message.bounce && Int64(message.amountNanotons) == inbound.value &&
+                        addressesMatch(message.recipientAddress, transaction.account.address)
+                } == true
+                let uninitializedReceipt = transaction.compute_phase?.skipped == true &&
+                    !inbound.bounce && !inbound.bounced &&
+                    ((inbound.value == value && addressesMatch(transaction.account.address, target)) || connectReceipt) && transaction.out_msgs.isEmpty &&
+                    child.children?.isEmpty != false
+                guard (transaction.success && !transaction.aborted) || uninitializedReceipt,
+                      visit(child, depth: depth + 1) else { return false }
+            }
+            return true
+        }
+        return visit(trace, depth: 0)
+    }
+
     private func transactionAccepted(
         _ transaction: Components.Schemas.Transaction,
         intent: TonEmulationIntent,
@@ -1708,15 +1882,15 @@ final class TonAPIRemoteClient: TonTransferRemoteProtocol, @unchecked Sendable {
             computePhase?.success == true &&
             computePhase?.exit_code == 0 &&
             actionPhase?.success == true &&
-            actionPhase?.total_actions == 1 &&
+            actionPhase?.total_actions == Int32(intent.tonConnect?.messages.count ?? 1) &&
             actionPhase?.skipped_actions == 0 &&
-            transaction.out_msgs.count == 1 &&
+            transaction.out_msgs.count == (intent.tonConnect?.messages.count ?? 1) &&
             inboundMessageMatches(
                 transaction.in_msg,
                 senderAddress: intent.senderAddress,
                 externalMessageBoc: externalMessageBoc
             ) &&
-            outboundMessageMatches(transaction.out_msgs.first, intent: intent)
+            outboundMessagesMatch(transaction.out_msgs, intent: intent)
     }
 
     private func inboundMessageMatches(
@@ -1762,7 +1936,7 @@ final class TonAPIRemoteClient: TonTransferRemoteProtocol, @unchecked Sendable {
     }
 
     private func externalMessageBodyHashHex(_ boc: Data) -> String? {
-        guard let root = try? Cell.fromBoc(src: boc).only,
+        guard let root = try? TonTransferTransactionBuilder.parseBoundedBoc(boc, maximumBytes: TonTransferTransactionBuilder.maximumTonConnectBocBytes),
               let message = try? Message.loadFrom(slice: root.beginParse())
         else {
             return nil
@@ -1777,7 +1951,7 @@ final class TonAPIRemoteClient: TonTransferRemoteProtocol, @unchecked Sendable {
               !rawBody.hasPrefix("0x"),
               rawBody.unicodeScalars.allSatisfy(Self.isHexScalar),
               let data = Data(hex: rawBody),
-              let root = try? Cell.fromBoc(src: data).only
+              let root = try? TonTransferTransactionBuilder.parseBoundedBoc(data, maximumBytes: TonTransferTransactionBuilder.maximumTonConnectBocBytes)
         else {
             return false
         }
@@ -1807,5 +1981,179 @@ final class TonAPIRemoteClient: TonTransferRemoteProtocol, @unchecked Sendable {
 private extension Array {
     var only: Element? {
         count == 1 ? self[0] : nil
+    }
+}
+
+extension TonConnectTransferRequest {
+    var estimateRequest: TonNativeEstimateRequest {
+        TonNativeEstimateRequest(
+            asset: .tonConnect,
+            network: network,
+            publicKey: publicKey,
+            senderAddress: senderAddress,
+            recipientAddress: messages[0].recipientAddress,
+            amountNanotons: amountNanotons,
+            bounce: messages[0].bounce,
+            tonConnect: self
+        )
+    }
+}
+
+extension TonSendService {
+    func quoteTonConnect(_ request: TonConnectTransferRequest) async throws -> TonTransferFeeQuote {
+        _ = try TonConnectTransferRequest.decodeCanonical(request.canonicalData())
+        return try await quote(request.estimateRequest)
+    }
+
+    func sendTonConnect(
+        _ request: TonConnectTransferRequest, feeQuote: TonTransferFeeQuote?, legacyAccount: LegacyTonAccount,
+        signingCredentials: @escaping () throws -> TonSigningCredentials
+    ) async throws -> TonSentTransferTransaction {
+        _ = try TonConnectTransferRequest.decodeCanonical(request.canonicalData())
+        try requireNetworkOrigin(request.network)
+        return try await send(
+            request.estimateRequest,
+            feeQuote: feeQuote,
+            legacyAccount: legacyAccount,
+            signingCredentials: signingCredentials
+        )
+    }
+
+    /// The bridge persists its exact reply before acknowledgement. Retrying this after
+    /// a crash must succeed even if the previous acknowledgement already removed the bearer.
+    func acknowledgeTonConnect(request: TonConnectTransferRequest, messageHashHex: String) async throws {
+        let identity = try TonTransferIntentIdentity(request: request.estimateRequest)
+        guard let pending = try await pendingCoordinator.pending(senderRaw: identity.coordinationKey) else { return }
+        // A newer identity can own this nonce slot only after the prior bearer was
+        // acknowledged. A cached bridge reply must not disturb that newer request.
+        guard pending.identity == identity else { return }
+        try await pendingCoordinator.acknowledgeConfirmed(
+            senderRaw: identity.coordinationKey,
+            identity: identity,
+            messageHashHex: messageHashHex
+        )
+    }
+
+    private func requireNetworkOrigin(_ network: TonTransferNetwork) throws {
+        guard let origin = remote.reviewedSignedOperationOrigin,
+              let url = URL(string: origin), TonAPIClientFactory.reviewedSendNetwork(for: url) == network else {
+            throw TonSendServiceError.untrustedFeeQuoteEndpoint
+        }
+    }
+
+    private func inspectRecipients(_ request: TonNativeTransferDetails) async throws {
+        if let connect = request.tonConnect {
+            for message in connect.messages where message.payloadBocBase64 == nil && message.stateInitBocBase64 == nil {
+                try await rejectMemoRequiredRecipient(message.recipientAddress)
+            }
+        } else { try await rejectMemoRequiredRecipient(request.jetton?.recipientAddress ?? request.recipientAddress) }
+    }
+}
+
+/// Exact predicted actions are retained with the visible quote. Hashes, timestamps and
+/// transaction IDs of the enclosing event are excluded because signed emulation changes them.
+struct TonConnectExecutionEffects: Equatable, Sendable {
+    let actionsData: Data
+
+    init(actionsData: Data) throws {
+        guard !actionsData.isEmpty, actionsData.count <= 128 * 1024 else { throw TonSendServiceError.emulationRejected }
+        let actions = try JSONDecoder().decode([Components.Schemas.Action].self, from: actionsData)
+        guard (1 ... 64).contains(actions.count), actions.allSatisfy({ action in
+            guard action.status == .ok, action.simple_preview.accounts.allSatisfy({ !$0.is_scam }),
+                  let encoded = try? JSONEncoder().encode(action),
+                  let object = try? JSONSerialization.jsonObject(with: encoded) as? [String: Any] else { return false }
+            return object.keys.filter { $0 != "status" && $0 != "simple_preview" }.count == 1
+        }) else { throw TonSendServiceError.emulationRejected }
+        self.actionsData = actionsData
+    }
+
+    init(actions: [Components.Schemas.Action]) throws {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
+        try self.init(actionsData: encoder.encode(actions))
+    }
+
+    var descriptions: [String] {
+        guard let actions = try? JSONDecoder().decode([Components.Schemas.Action].self, from: actionsData) else { return [] }
+        return actions.map { action in
+            let preview = action.simple_preview
+            return [preview.name, preview.value, preview.description].compactMap { $0 }.joined(separator: " · ")
+        }
+    }
+}
+
+extension TonAPIRemoteClient {
+    private func tonConnectEffects(bocBase64: String, unsigned: Bool) async throws -> TonConnectExecutionEffects {
+        let output = try await client.emulateMessageToEvent(.init(
+            query: .init(ignore_signature_check: unsigned),
+            headers: .init(Accept_hyphen_Language: "en"),
+            body: .json(.init(boc: bocBase64))
+        ))
+        let event = try output.ok.body.json
+        guard !event.is_scam, !event.in_progress else { throw TonSendServiceError.emulationRejected }
+        return try TonConnectExecutionEffects(actions: event.actions)
+    }
+
+    private func outboundMessagesMatch(_ messages: [Components.Schemas.Message], intent: TonEmulationIntent) -> Bool {
+        guard let connect = intent.tonConnect else {
+            return messages.count == 1 && outboundMessageMatches(messages.first, intent: intent)
+        }
+        guard messages.count == connect.messages.count else { return false }
+        return zip(messages, connect.messages).allSatisfy { actual, expected in
+            guard actual.msg_type == .int_msg, actual.ihr_disabled, !actual.bounced,
+                  actual.bounce == expected.bounce, actual.value == Int64(expected.amountNanotons),
+                  actual.ihr_fee >= 0, actual.fwd_fee >= 0,
+                  actual.source?.is_scam == false, actual.destination?.is_scam == false,
+                  addressesMatch(actual.source?.address, connect.senderAddress),
+                  addressesMatch(actual.destination?.address, expected.recipientAddress),
+                  let bodyHash = try? expected.payloadBocBase64.map({ try TonTransferTransactionBuilder.tonConnectBoc($0).hash }) ?? TonTransferTransactionBuilder.messageBodyHashHex(comment: nil),
+                  rawBodyMatches(actual.raw_body, expectedHashHex: bodyHash) else { return false }
+            if let stateHash = expected.stateInitHashHex {
+                guard let actualState = actual._init?.boc else { return false }
+                let candidates = [Data(base64Encoded: actualState), Data(hex: actualState)].compactMap { $0 }
+                guard candidates.contains(where: { bytes in
+                    guard let root = try? TonTransferTransactionBuilder.parseBoundedBoc(bytes, maximumBytes: TonTransferTransactionBuilder.maximumTonConnectBocBytes) else { return false }
+                    return root.hash().hexString().lowercased() == stateHash
+                }) else { return false }
+            } else if actual._init != nil { return false }
+            return true
+        }
+    }
+
+    /// Every additional asset debit reported by signed emulation must appear as a
+    /// successful action in the immutable effects reviewed on the previous screen.
+    private func tonConnectRiskMatches(_ risk: Components.Schemas.Risk, effects: TonConnectExecutionEffects, intent: TonEmulationIntent) -> Bool {
+        guard !risk.transfer_all_remaining_balance, risk.ton >= 0, risk.ton <= intent.amountNanotons,
+              let actions = try? JSONDecoder().decode([Components.Schemas.Action].self, from: effects.actionsData) else { return false }
+        var jettonAmounts: [String: BigUInt] = [:]
+        var nftAddresses = Set<String>()
+        for action in actions {
+            if let transfer = action.JettonTransfer, addressesMatch(transfer.sender?.address, intent.senderAddress),
+               let amount = BigUInt(transfer.amount), let master = try? TonSwift.Address.parse(transfer.jetton.address).toRaw() {
+                jettonAmounts[master, default: BigUInt(0)] += amount
+            }
+            if let burn = action.JettonBurn, addressesMatch(burn.sender.address, intent.senderAddress),
+               let amount = BigUInt(burn.amount), let master = try? TonSwift.Address.parse(burn.jetton.address).toRaw() {
+                jettonAmounts[master, default: BigUInt(0)] += amount
+            }
+            if let swap = action.JettonSwap, addressesMatch(swap.user_wallet.address, intent.senderAddress),
+               let amount = BigUInt(swap.amount_in), let masterValue = swap.jetton_master_in?.address,
+               let master = try? TonSwift.Address.parse(masterValue).toRaw() {
+                jettonAmounts[master, default: BigUInt(0)] += amount
+            }
+            if let transfer = action.NftItemTransfer, addressesMatch(transfer.sender?.address, intent.senderAddress),
+               let address = try? TonSwift.Address.parse(transfer.nft).toRaw() { nftAddresses.insert(address) }
+        }
+        var debits: [String: BigUInt] = [:]
+        for item in risk.jettons {
+            guard !item.wallet_address.is_scam, let amount = BigUInt(item.quantity),
+                  let master = try? TonSwift.Address.parse(item.jetton.address).toRaw() else { return false }
+            debits[master, default: BigUInt(0)] += amount
+        }
+        guard debits.allSatisfy({ master, amount in amount <= jettonAmounts[master, default: BigUInt(0)] }) else { return false }
+        return risk.nfts.allSatisfy { item in
+            guard let raw = try? TonSwift.Address.parse(item.address).toRaw() else { return false }
+            return nftAddresses.contains(raw)
+        }
     }
 }

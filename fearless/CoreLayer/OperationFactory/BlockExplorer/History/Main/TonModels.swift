@@ -234,6 +234,8 @@ public struct TonJettonItem: Codable {
     public let walletAddress: TonSwift.Address
 }
 
+enum TonJettonMetadataError: Error { case invalidDecimals }
+
 public struct TonJettonInfo: Codable {
     public let address: TonSwift.Address
     public let name: String
@@ -245,6 +247,7 @@ public struct TonJettonInfo: Codable {
     public let fractionDigits: Int
 
     init(jettonPreview: Components.Schemas.JettonPreview) throws {
+        guard (0 ... 255).contains(jettonPreview.decimals) else { throw TonJettonMetadataError.invalidDecimals }
         address = try TonSwift.Address.parse(jettonPreview.address)
         name = jettonPreview.name
         symbol = jettonPreview.symbol.isEmpty ? nil : jettonPreview.symbol

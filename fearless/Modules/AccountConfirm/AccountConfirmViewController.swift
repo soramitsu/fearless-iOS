@@ -9,9 +9,9 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
         static let itemsSpacing: CGFloat = 8.0
         static let internalMargin: CGFloat = 16.0
         static let itemContentInsets = UIEdgeInsets(
-            top: 7.0,
+            top: 13.0,
             left: 11.0,
-            bottom: 7.0,
+            bottom: 13.0,
             right: 11.0
         )
         static let cornerRadius: CGFloat = 4.0
@@ -93,6 +93,9 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
         }
 
         title = R.string.localizable.accountConfirmationTitle(preferredLanguages: locale.rLanguages)
+        navigationItem.rightBarButtonItem?.customView?.accessibilityLabel = R.string.localizable.commonReset(
+            preferredLanguages: locale.rLanguages
+        )
 
         detailsLabel.text = R.string.localizable
             .accountConfirmationDetails(preferredLanguages: locale.rLanguages)
@@ -156,13 +159,10 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func setupNavigationItem() {
-        let infoItem = UIBarButtonItem(
-            image: R.image.iconRetry(),
-            style: .plain,
-            target: self,
-            action: #selector(actionRetry)
-        )
-        navigationItem.rightBarButtonItem = infoItem
+        let resetButton = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
+        resetButton.setImage(R.image.iconRetry(), for: .normal)
+        resetButton.addTarget(self, action: #selector(actionRetry), for: .touchUpInside)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: resetButton)
     }
 
     private func createSkipButton() {

@@ -33,6 +33,15 @@ struct TonTransferFeeQuote: Equatable, Sendable {
     let walletState: TonWalletRemoteState
     let unsignedMessage: TonUnsignedEmulationMessage
     let feeNanotons: UInt64
+    let executionEffects: TonConnectExecutionEffects?
+
+    var effectDescriptions: [String] { executionEffects?.descriptions ?? [] }
+
+    /// Maximum TON required upfront. Jetton contracts return unused attachment to the
+    /// original owner; confirmation still reserves the entire released attachment budget.
+    var requiredTonNanotons: UInt64 {
+        feeNanotons + (identity.tonConnect != nil ? UInt64(identity.amountNanotons)! : (identity.jetton == nil ? 0 : UInt64(TonJettonTransferDetails.attachedNanotons)!))
+    }
 
     init(
         version: UInt8 = TonTransferFeeQuote.currentVersion,
@@ -47,14 +56,15 @@ struct TonTransferFeeQuote: Equatable, Sendable {
         transactionRequest: TonTransferTransactionRequest,
         walletState: TonWalletRemoteState,
         unsignedMessage: TonUnsignedEmulationMessage,
-        feeNanotons: UInt64
+        feeNanotons: UInt64,
+        executionEffects: TonConnectExecutionEffects? = nil
     ) throws {
         guard version == Self.currentVersion else {
             throw TonTransferFeeQuoteError.invalidVersion
         }
         guard let endpointURL = URL(string: endpointOrigin),
               endpointURL.absoluteString == endpointOrigin,
-              TonAPIClientFactory.isReviewedProductionSendServerURL(endpointURL)
+              TonAPIClientFactory.reviewedSendNetwork(for: endpointURL) == identity.network
         else {
             throw TonTransferFeeQuoteError.invalidEndpoint
         }
@@ -64,7 +74,7 @@ struct TonTransferFeeQuote: Equatable, Sendable {
               expiresAt < transactionRequest.validUntil,
               transactionRequest.validUntil - expiresAt >= TonTransferTransactionBuilder.minimumLifetimeSeconds,
               transactionRequest.validUntil - templateCreatedAt >= TonTransferTransactionBuilder.minimumLifetimeSeconds,
-              transactionRequest.validUntil - templateCreatedAt <= TonTransferTransactionBuilder.maximumLifetimeSeconds,
+              identity.tonConnect != nil || transactionRequest.validUntil - templateCreatedAt <= TonTransferTransactionBuilder.maximumLifetimeSeconds,
               transactionRequest.validUntil <= UInt64(UInt32.max)
         else {
             throw TonTransferFeeQuoteError.invalidTiming
@@ -79,9 +89,14 @@ struct TonTransferFeeQuote: Equatable, Sendable {
               unsignedMessage.publicKey == publicKey,
               unsignedMessage.bocBase64 == unsignedMessage.boc.base64EncodedString(),
               !unsignedMessage.boc.isEmpty,
-              unsignedMessage.boc.count <= TonTransferTransactionBuilder.maximumBocBytes,
-              transactionRequest.asset == .nativeTon,
-              transactionRequest.network == .mainnet,
+              unsignedMessage.boc.count <= (identity.tonConnect == nil ? TonTransferTransactionBuilder.maximumBocBytes : TonTransferTransactionBuilder.maximumTonConnectBocBytes),
+              transactionRequest.asset == identity.asset,
+              transactionRequest.tonConnect == identity.tonConnect,
+              intent.tonConnect == identity.tonConnect,
+              (identity.tonConnect != nil) == (executionEffects != nil),
+              transactionRequest.jetton == identity.jetton,
+              intent.jetton == identity.jetton,
+              transactionRequest.network == identity.network,
               transactionRequest.senderAddress == identity.sender,
               transactionRequest.recipientAddress == identity.recipient,
               transactionRequest.amountNanotons == identity.amountNanotons,
@@ -91,7 +106,7 @@ struct TonTransferFeeQuote: Equatable, Sendable {
               intent.recipientAddress == identity.recipient,
               intent.amountNanotons.description == identity.amountNanotons,
               intent.bounce == identity.bounce,
-              intent.messageBodyHashHex == (try TonTransferTransactionBuilder.messageBodyHashHex(comment: identity.comment)),
+              intent.messageBodyHashHex == (try identity.tonConnect.map { try $0.bindingHashHex() } ?? TonTransferTransactionBuilder.messageBodyHashHex(comment: identity.comment, jetton: identity.jetton, senderAddress: identity.sender)),
               transactionRequest.sequenceNumber == walletState.sequenceNumber,
               transactionRequest.includeStateInit == !walletState.isInitialized,
               (try? TonSwift.Address.parse(unsignedMessage.walletAddress).toRaw()) == identity.sender,
@@ -104,7 +119,7 @@ struct TonTransferFeeQuote: Equatable, Sendable {
             throw TonTransferFeeQuoteError.invalidBinding
         }
 
-        let computedQuoteID = TonTransferFeeQuoteBinding.quoteIDHex(
+        let computedQuoteID = try TonTransferFeeQuoteBinding.quoteIDHex(
             version: version,
             templateCreatedAt: templateCreatedAt,
             issuedAt: issuedAt,
@@ -116,7 +131,8 @@ struct TonTransferFeeQuote: Equatable, Sendable {
             transactionRequest: transactionRequest,
             walletState: walletState,
             unsignedMessage: unsignedMessage,
-            feeNanotons: feeNanotons
+            feeNanotons: feeNanotons,
+            executionEffects: executionEffects
         )
         if let expectedQuoteIDHex,
            expectedQuoteIDHex != computedQuoteID {
@@ -136,6 +152,7 @@ struct TonTransferFeeQuote: Equatable, Sendable {
         self.walletState = walletState
         self.unsignedMessage = unsignedMessage
         self.feeNanotons = feeNanotons
+        self.executionEffects = executionEffects
     }
 
     func validate(at now: UInt64, endpointOrigin currentEndpointOrigin: String?) throws {
@@ -162,7 +179,8 @@ struct TonTransferFeeQuote: Equatable, Sendable {
             transactionRequest: transactionRequest,
             walletState: walletState,
             unsignedMessage: unsignedMessage,
-            feeNanotons: feeNanotons
+            feeNanotons: feeNanotons,
+            executionEffects: executionEffects
         )
     }
 
@@ -188,15 +206,27 @@ private enum TonTransferFeeQuoteBinding {
         transactionRequest: TonTransferTransactionRequest,
         walletState: TonWalletRemoteState,
         unsignedMessage: TonUnsignedEmulationMessage,
-        feeNanotons: UInt64
-    ) -> String {
+        feeNanotons: UInt64,
+        executionEffects: TonConnectExecutionEffects?
+    ) throws -> String {
         var payload = domain
         payload.append(version)
         append(Self.transportContractData, to: &payload)
         append(endpointOrigin, to: &payload)
         append(publicKey, to: &payload)
-        append("native-ton", to: &payload)
-        append("mainnet", to: &payload)
+        if let connect = identity.tonConnect {
+            append("ton-connect", to: &payload)
+            append(try connect.canonicalData(), to: &payload)
+            append(executionEffects?.actionsData ?? Data(), to: &payload)
+        } else if let jetton = identity.jetton {
+            append("jetton", to: &payload)
+            append(jetton.masterAddress, to: &payload)
+            append(jetton.recipientAddress, to: &payload)
+            append(jetton.amount, to: &payload)
+        } else {
+            append("native-ton", to: &payload)
+        }
+        append(identity.network.rawValue, to: &payload)
         append(identity.sender, to: &payload)
         append(identity.recipient, to: &payload)
         append(identity.amountNanotons, to: &payload)

@@ -338,6 +338,7 @@ class SwipableTableViewCell: UITableViewCell {
         container: UIView,
         isLeftMenu: Bool
     ) {
+        container.accessibilityElementsHidden = isLeftMenu ? !isLeftMenuOpen : !isRightMenuOpen
         guard container.frame != .zero else {
             return
         }
@@ -346,6 +347,7 @@ class SwipableTableViewCell: UITableViewCell {
         }
 
         let buttonContainer = isLeftMenu ? leftMenuBackgroundView : rightMenuBackgroundView
+        buttonContainer.subviews.forEach { $0.removeFromSuperview() }
         buttonContainer.frame.size = CGSize(
             width: isLeftMenu ? leftMenuWidth : rightMenuWidth,
             height: container.frame.size.height

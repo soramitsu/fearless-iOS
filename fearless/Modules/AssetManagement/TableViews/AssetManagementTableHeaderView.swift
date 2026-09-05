@@ -73,6 +73,13 @@ final class AssetManagementTableHeaderView: UITableViewHeaderFooterView {
     // MARK: - Private methods
 
     private func setupLayout() {
+        [symbolLabel, countLabel].forEach { label in
+            label.numberOfLines = 0
+            label.adjustsFontForContentSizeCategory = true
+            label.setContentCompressionResistancePriority(.required, for: .vertical)
+        }
+        textContainer.distribution = .fill
+        textContainer.spacing = 2
         [
             assetImageView,
             textContainer,
@@ -92,14 +99,15 @@ final class AssetManagementTableHeaderView: UITableViewHeaderFooterView {
 
         textContainer.snp.makeConstraints { make in
             make.leading.equalTo(assetImageView.snp.trailing).offset(12)
-            make.centerY.equalToSuperview()
+            make.top.bottom.equalToSuperview().inset(8)
         }
 
         imageView.snp.makeConstraints { make in
-            make.leading.greaterThanOrEqualTo(textContainer.snp.trailing).offset(12).priority(.low)
+            make.leading.equalTo(textContainer.snp.trailing).offset(12)
             make.trailing.equalToSuperview().inset(16)
             make.centerY.equalToSuperview()
             make.size.equalTo(16)
         }
+        contentView.snp.makeConstraints { make in make.height.greaterThanOrEqualTo(55) }
     }
 }

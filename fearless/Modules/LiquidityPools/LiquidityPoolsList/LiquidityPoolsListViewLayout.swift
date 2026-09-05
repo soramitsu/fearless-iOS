@@ -156,7 +156,6 @@ final class LiquidityPoolsListViewLayout: UIView {
 
         searchTextField.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(8)
-            make.height.equalTo(32)
         }
 
         moreButton.snp.makeConstraints { make in

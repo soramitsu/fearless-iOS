@@ -29,7 +29,7 @@ def passing_capture_receipt(*, first: bool) -> dict:
         "captureStatus": "complete",
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildNumber": "2026.8.34",
+        "buildNumber": "2026.9.6",
         "observationMethod": "paired-device-fearless-process-only-sanitized-syslog",
         "deviceSidePIDFilter": True,
         "historicalLogsRequested": False,
@@ -102,7 +102,7 @@ def write_capture_bundle(root: Path, *, first: bool) -> tuple[Path, str]:
         "observedAtUTC": "2026-08-10T11:59:59+09:00",
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildNumber": "2026.8.34",
+        "buildNumber": "2026.9.6",
     }
     records = [
         {
@@ -150,7 +150,7 @@ def passing_evidence() -> dict:
         "schemaVersion": 1,
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildVersion": "2026.8.34",
+        "buildVersion": "2026.9.6",
         "baseSourceCommit": "2e45e55dc03ad904598e730cfb5994fb5c1072dc",
         "artifactSourceCommit": EXPECTED_ARTIFACT_SOURCE_COMMIT,
         "distribution": "apple-testflight-internal",
@@ -345,6 +345,10 @@ class UpgradeUsabilityGateTests(unittest.TestCase):
         redesigned_predecessor = passing_evidence()
         redesigned_predecessor["installation"]["previousBuildVersion"] = "2026.8.17"
         validate(redesigned_predecessor)
+
+        latest_predecessor = passing_evidence()
+        latest_predecessor["installation"]["previousBuildVersion"] = "2026.8.34"
+        validate(latest_predecessor)
 
         no_wallet_route = copy.deepcopy(passing_evidence())
         no_wallet_route["firstLaunch"]["walletRouteWorked"] = False

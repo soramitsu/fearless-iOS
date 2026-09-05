@@ -1,3 +1,5 @@
+import RobinHood
+import TonSwift
 import Foundation
 import HTTPTypes
 import OpenAPIRuntime
@@ -277,6 +279,47 @@ final class TonRemoteBalanceFetchingParsingTests: XCTestCase {
             reconciled.first { $0.0.assetKey == second.assetKey }?.1.data.sendAvailable,
             .zero
         )
+    }
+
+    func testLegacyOwnerWalletAliasKeepsBalanceAndMasterDuplicateIsZero() throws {
+        let chain = makeChain()
+        let master = try TonSwift.Address.parse("0:" + String(repeating: "11", count: 32))
+        let ownerWallet = try TonSwift.Address.parse("0:" + String(repeating: "22", count: 32))
+        let legacy = makeJetton(id: ownerWallet.toRaw(), chain: chain)
+        let modern = makeJetton(id: master.toRaw(), chain: chain)
+        let preferred = try XCTUnwrap(TonRemoteBalanceFetchingImpl.preferredKnownJetton(
+            known: [modern, legacy], master: master, wallet: ownerWallet
+        ))
+        let result = TonRemoteBalanceFetchingImpl.reconcileKnownJettons(
+            known: [modern, legacy], fetched: [(preferred, AccountInfo(ethBalance: BigUInt(42)))])
+        XCTAssertEqual(preferred.assetKey, legacy.assetKey)
+        XCTAssertEqual(result.first { $0.0.assetKey == modern.assetKey }?.1.data.sendAvailable, .zero)
+        XCTAssertEqual(result.reduce(BigUInt.zero) { $0 + $1.1.data.sendAvailable }, BigUInt(42))
+    }
+
+    func testOtherOwnerDoesNotInheritPreviousOwnersJettonWalletAlias() throws {
+        let chain = makeChain()
+        let master = try TonSwift.Address.parse("0:" + String(repeating: "11", count: 32))
+        let oldWallet = try TonSwift.Address.parse("0:" + String(repeating: "22", count: 32))
+        let newWallet = try TonSwift.Address.parse("0:" + String(repeating: "33", count: 32))
+        let legacy = makeJetton(id: oldWallet.toRaw(), chain: chain)
+        let modern = makeJetton(id: master.toRaw(), chain: chain)
+        XCTAssertNil(TonRemoteBalanceFetchingImpl.preferredKnownJetton(known: [legacy], master: master, wallet: newWallet))
+        XCTAssertEqual(TonRemoteBalanceFetchingImpl.preferredKnownJetton(
+            known: [legacy, modern], master: master, wallet: newWallet)?.assetKey, modern.assetKey)
+    }
+
+    func testFriendlyAddressAliasesRetainExistingIdentifierAndSelectionIsStable() throws {
+        let chain = makeChain()
+        let master = try TonSwift.Address.parse("0:" + String(repeating: "11", count: 32))
+        let wallet = try TonSwift.Address.parse("0:" + String(repeating: "22", count: 32))
+        let friendly = makeJetton(id: wallet.toFriendly().toString(), chain: chain)
+        let raw = makeJetton(id: wallet.toRaw(), chain: chain)
+        XCTAssertEqual(TonRemoteBalanceFetchingImpl.preferredKnownJetton(
+            known: [friendly], master: master, wallet: wallet)?.assetKey, friendly.assetKey)
+        let first = TonRemoteBalanceFetchingImpl.preferredKnownJetton(known: [friendly, raw], master: master, wallet: wallet)
+        let second = TonRemoteBalanceFetchingImpl.preferredKnownJetton(known: [raw, friendly], master: master, wallet: wallet)
+        XCTAssertEqual(first?.assetKey, second?.assetKey)
     }
 
     private func makeChain() -> ChainModel {
@@ -3378,7 +3421,7 @@ final class ChainRegistryTonNodeSelectionTests: XCTestCase {
     func testTonProductionSendEndpointAllowlistPinsExactBinaryOwnedOrigin() throws {
         XCTAssertEqual(
             TonAPIClientFactory.reviewedProductionSendOrigins,
-            [URL(string: "https://tonapi.io")!]
+            [URL(string: "https://tonapi.io")!, URL(string: "https://testnet.tonapi.io")!]
         )
         XCTAssertTrue(
             TonAPIClientFactory.isReviewedProductionSendServerURL(
@@ -4373,5 +4416,90 @@ private final class StorageRequestPerformerStub: SSFStorageQueryKit.StorageReque
         performMixInvocations += 1
         lastMixRequests = requests
         return []
+    }
+}
+
+final class LegacyTonJettonCatalogTests: XCTestCase {
+    private let master = "0:" + String(repeating: "11", count: 32)
+    private let ownerWallet = "0:" + String(repeating: "22", count: 32)
+
+    func testExistingOwnerWalletAssetRetainsItsIdWithoutNewMasterDuplicate() async throws {
+        let legacy = AssetModel(id: ownerWallet, name: "Legacy token", symbol: "JET", precision: 6,
+                                currencyId: ownerWallet, isUtility: false, isNative: false, type: .xcm)
+        let chain = makeChain(id: "-239", assets: [legacy])
+        let repository = LegacyTonCatalogRepository(models: [chain])
+        let injector = TonJettonInjectorImpl(chainModelRepository: AsyncAnyRepository(repository), eventCenter: EventCenterProtocolStub(), logger: Logger.shared)
+        await injector.inject(jettonItems: [try balance(wallet: ownerWallet)], chainId: chain.chainId)
+        let saved = try await repository.fetch(by: chain.chainId, options: RepositoryFetchOptions())
+        XCTAssertEqual(saved?.assets, [legacy])
+    }
+
+    func testNewOwnerDiscoversMasterWithoutPublishingItsPrivateWalletAlias() async throws {
+        let legacy = AssetModel(id: ownerWallet, name: "Legacy token", symbol: "JET", precision: 6,
+                                currencyId: ownerWallet, isUtility: false, isNative: false, type: .xcm)
+        let chain = makeChain(id: "-239", assets: [legacy])
+        let repository = LegacyTonCatalogRepository(models: [chain])
+        let injector = TonJettonInjectorImpl(chainModelRepository: AsyncAnyRepository(repository), eventCenter: EventCenterProtocolStub(), logger: Logger.shared)
+        let anotherWallet = "0:" + String(repeating: "33", count: 32)
+        await injector.inject(jettonItems: [try balance(wallet: anotherWallet)], chainId: chain.chainId)
+        let saved = try await repository.fetch(by: chain.chainId, options: RepositoryFetchOptions())
+        XCTAssertEqual(Set(saved?.assets.map(\.id) ?? []), Set([ownerWallet, master]))
+        XCTAssertFalse(saved?.assets.contains(where: { $0.id == anotherWallet }) ?? true)
+    }
+
+    func testExplicitNetworkInjectionDoesNotModifyOtherNetworkAfterToggleChanges() async throws {
+        let mainnet = makeChain(id: "-239", assets: [])
+        let testnet = makeChain(id: "-3", assets: [])
+        let repository = LegacyTonCatalogRepository(models: [mainnet, testnet])
+        let injector = TonJettonInjectorImpl(chainModelRepository: AsyncAnyRepository(repository), eventCenter: EventCenterProtocolStub(), logger: Logger.shared)
+        await injector.inject(jettonItems: [try balance(wallet: ownerWallet)], chainId: testnet.chainId)
+        let originalMainnet = try await repository.fetch(by: mainnet.chainId, options: RepositoryFetchOptions())
+        let updatedTestnet = try await repository.fetch(by: testnet.chainId, options: RepositoryFetchOptions())
+        XCTAssertEqual(originalMainnet?.assets.count, 0)
+        XCTAssertEqual(updatedTestnet?.assets.map(\.id), [master])
+    }
+
+    func testNativePriceInjectionUsesExplicitOriginalNetwork() async throws {
+        let ton = AssetModel(id: "ton", name: "TON", symbol: "TON", precision: 9,
+                             isUtility: true, isNative: true, coingeckoPriceId: "legacy-ton-" + UUID().uuidString)
+        let mainnet = makeChain(id: "-239", assets: [ton])
+        let testnet = makeChain(id: "-3", assets: [ton])
+        let repository = LegacyTonCatalogRepository(models: [mainnet, testnet])
+        let injector = TonJettonInjectorImpl(chainModelRepository: AsyncAnyRepository(repository), eventCenter: EventCenterProtocolStub(), logger: Logger.shared)
+        let rate = PriceData(currencyId: "usd", priceId: "", price: "2.5", fiatDayChange: 1, coingeckoPriceId: nil)
+        await injector.inject(tonPriceData: [rate], chainId: testnet.chainId)
+        let originalMainnet = try await repository.fetch(by: mainnet.chainId, options: RepositoryFetchOptions())
+        let updatedTestnet = try await repository.fetch(by: testnet.chainId, options: RepositoryFetchOptions())
+        XCTAssertNil(originalMainnet?.assets.first?.price)
+        XCTAssertEqual(updatedTestnet?.assets.first?.price, Decimal(string: "2.5"))
+    }
+
+    private func makeChain(id: String, assets: Set<AssetModel>) -> ChainModel {
+        ChainModel(rank: nil, disabled: false, chainId: id, parentId: nil, paraId: nil, name: "TON",
+                   assets: assets, xcm: nil, nodes: [], addressPrefix: 0, icon: nil, options: nil,
+                   externalApi: nil, customNodes: nil, iosMinAppVersion: nil, identityChain: nil)
+    }
+
+    private func balance(wallet: String) throws -> TonJettonBalance {
+        let preview = try JSONDecoder().decode(Components.Schemas.JettonPreview.self, from: JSONSerialization.data(withJSONObject: [
+            "address": master, "name": "Token", "symbol": "JET", "decimals": 6,
+            "image": "https://example.org/token.png", "verification": "whitelist"
+        ]))
+        return TonJettonBalance(item: TonJettonItem(jettonInfo: try TonJettonInfo(jettonPreview: preview),
+                                                    walletAddress: try TonSwift.Address.parse(wallet)),
+                                quantity: BigUInt(42), priceData: [])
+    }
+}
+
+private actor LegacyTonCatalogRepository: AsyncCoreDataRepository {
+    typealias Model = ChainModel
+    private var models: [String: ChainModel]
+    init(models: [ChainModel]) { self.models = Dictionary(uniqueKeysWithValues: models.map { ($0.chainId, $0) }) }
+    func fetch(by modelIds: [String], options _: RepositoryFetchOptions) async throws -> [ChainModel] { modelIds.compactMap { models[$0] } }
+    func fetch(by modelId: String, options _: RepositoryFetchOptions) async throws -> ChainModel? { models[modelId] }
+    func fetchAll(with _: RepositoryFetchOptions) async throws -> [ChainModel] { Array(models.values) }
+    func save(models values: [ChainModel], deleteIds: [String]) async {
+        deleteIds.forEach { models.removeValue(forKey: $0) }
+        values.forEach { models[$0.chainId] = $0 }
     }
 }

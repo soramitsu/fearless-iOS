@@ -28,7 +28,7 @@ class AccountExportPasswordTests: XCTestCase {
         let wireframe = MockAccountExportPasswordWireframeProtocol()
 
         let chain = ChainModelGenerator.generateChain(generatingAssets: 0, addressPrefix: UInt16(0))
-        let walletAddress = try AddressFactory.address(for: wallet.substrateAccountId, chain: chain)
+        let walletAddress = try AddressFactory.address(for: try XCTUnwrap(wallet.substrateAccountId), chain: chain)
 
         let presenter = AccountExportPasswordPresenter(
             flow: .single(chain: chain, address: walletAddress, wallet: wallet),

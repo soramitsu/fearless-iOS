@@ -11,6 +11,7 @@ class AccountScoreView: UIView {
 
     private var skeletonView: SkrullableView?
     private var rate: AccountScoreRate?
+    private var contentHeightConstraint: NSLayoutConstraint?
 
     let starView: FWCosmosView = {
         let view = FWCosmosView()
@@ -33,6 +34,21 @@ class AccountScoreView: UIView {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        updateTypography()
+    }
+
+    private func updateTypography() {
+        traitCollection.performAsCurrent {
+            starView.settings.textFont = rate == nil ? .p2Paragraph : .h6Title
+        }
+        starView.settings.starSize = Double(UIFontMetrics(forTextStyle: .caption1).scaledValue(
+            for: 15, compatibleWith: traitCollection
+        ))
+        contentHeightConstraint?.constant = max(44, ceil(starView.intrinsicContentSize.height))
     }
 
     func bind(viewModel: AccountScoreViewModel?) {
@@ -59,6 +75,7 @@ class AccountScoreView: UIView {
         self.rate = rate
         stopLoadingIfNeeded()
         starView.text = "\(score)"
+        updateTypography()
 
         if let color = rate.color {
             starView.settings.emptyBorderColor = color
@@ -84,7 +101,7 @@ class AccountScoreView: UIView {
         stopLoadingIfNeeded()
         starView.text = "N/A"
         starView.rating = 0
-        starView.settings.textFont = .p2Paragraph
+        updateTypography()
 
         if let color = R.color.colorLightGray() {
             starView.settings.emptyBorderColor = color
@@ -100,9 +117,14 @@ class AccountScoreView: UIView {
     }
 
     private func setupConstraints() {
+        contentHeightConstraint = heightAnchor.constraint(equalToConstant: max(44, ceil(starView.intrinsicContentSize.height)))
+        contentHeightConstraint?.isActive = true
+        starView.setContentCompressionResistancePriority(.required, for: .vertical)
         starView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-            make.height.equalTo(15)
+            make.leading.trailing.centerY.equalToSuperview()
+            make.top.greaterThanOrEqualToSuperview()
+            make.bottom.lessThanOrEqualToSuperview()
+            make.height.greaterThanOrEqualTo(15)
         }
     }
 

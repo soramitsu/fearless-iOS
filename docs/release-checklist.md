@@ -70,7 +70,7 @@ Use this checklist for every release PR from `develop` to `master`.
   bundles for Xcode's three generated crypto stubs and the stripped
   MPQRCoreSDK vendor binary; this removes App Store Connect's missing-dSYM
   warnings but does not claim unavailable MPQR source-line DWARF.
-- Validate build `4.2.0 (2026.8.34)` through a true internal TestFlight group.
+- Validate build `4.2.0 (2026.9.6)` through a true internal TestFlight group.
   Pair from Uranai through both a custom-scheme handoff and QR scan, require the
   canonical Taira network and `https://taira.sora.org`, and confirm the Sakura
   connection prompt identifies the dApp, account, origin, and scoped
@@ -83,7 +83,7 @@ Use this checklist for every release PR from `develop` to `master`.
   require static Sakura branding rather than falling petals. Confirm no recovery
   phrase, private key, raw payload, relay credential, or WebSocket frame appears
   in UI, logs, receipts, or analytics.
-- Repeat the existing upgrade regression gate below on `4.2.0 (2026.8.34)`
+- Repeat the existing upgrade regression gate below on `4.2.0 (2026.9.6)`
   through a true internal TestFlight group
   containing the affected phone's App Store Connect user before changing the
   public beta group. Do not substitute an external group that requires Beta App
@@ -129,8 +129,11 @@ Use this checklist for every release PR from `develop` to `master`.
   with `releaseEnabled` set to `false`. This evidence gate is required in
   addition to the transaction-builder fixture audit; it must not be skipped for
   a release archive.
-- Keep `TonProductionSendReleasePolicy.production` hard-disabled. Native TON
-  send remains unavailable even though the local implementation now enforces:
+- Keep `TonProductionSendReleasePolicy.production` hard-disabled for general
+  universal-wallet enablement. The validated pre-4.2 native TON compatibility
+  path is qualified separately in `docs/legacy-upgrade-audit-20260906.md` and
+  `docs/ton-production-send-readiness.md`; it preserves the original V4R2
+  identity, explicit network and native signing key. All paths retain:
   - a versioned, bounded, canonical Keychain journal persists the exact signed
     bearer BOC before signed emulation; pending intents survive process
     termination, validate their signature/template/quote on load, and reconcile

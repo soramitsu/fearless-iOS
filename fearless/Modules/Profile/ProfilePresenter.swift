@@ -99,7 +99,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             wireframe.showNetworkAssets(from: view, wallet: selectedWallet)
         case .tonConnect:
             guard let selectedWallet else { return }
-            let hasTonAccount = selectedWallet.chainAccounts.contains {
+            let hasTonAccount = selectedWallet.legacyTonAccount != nil || selectedWallet.chainAccounts.contains {
                 UniversalWalletChainAccountSupport.chainId(
                     $0.chainId,
                     matches: UniversalWalletRegistry.tonMainnetRegistryEntry.chainId

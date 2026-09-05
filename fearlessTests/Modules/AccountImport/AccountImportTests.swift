@@ -9,7 +9,140 @@ import SoraFoundation
 import struct SSFModels.ChainAccountModel
 import class SSFModels.ChainModel
 
+private let nativeTonRecoveryFixture = "cluster notice abandon frost gospel boring element situate click mix vague replace imitate garment useful crater resource dose tenant theme foam ancient phrase slight"
+
 class AccountImportTests: XCTestCase {
+    private func nativeTonRecoveryOperation(_ keychain: KeystoreProtocol) throws -> BaseOperation<MetaAccountModel> {
+        MetaAccountOperationFactory(keystore: keychain).newMetaAccountOperation(
+            request: MetaAccountImportMnemonicRequest(
+                mnemonic: try LegacyTonMnemonic.validatedForImport(nativeTonRecoveryFixture),
+                username: "Restored TON", substrateDerivationPath: "",
+                ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
+                cryptoType: .sr25519, defaultChainId: nil
+            ), isBackuped: true
+        )
+    }
+
+    func testNativeTonRecoveryKeepsExactIdentityPhraseAndIndependentLegacySecrets() throws {
+        let keychain = NativeTonRecoveryTestKeychain()
+        keychain.values["older-wallet-secret"] = Data([9, 8, 7])
+        let operation = try nativeTonRecoveryOperation(keychain)
+        operation.start()
+        let wallet = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        let legacy = try XCTUnwrap(wallet.legacyTonAccount)
+        XCTAssertEqual(legacy.publicKey.toHex(includePrefix: false), "34eb4b67d64f74d989ce2bc2e3dfddb7ed4cb0eec92f29fbecd05b1eabab0254")
+        XCTAssertNil(wallet.substrateAccountId)
+        XCTAssertNil(wallet.substratePublicKey)
+        XCTAssertNil(wallet.ethereumPublicKey)
+        XCTAssertTrue(wallet.chainAccounts.isEmpty)
+        let entropyTag = KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+        let keyTag = KeystoreTagV2.tonSecretKeyTagForMetaId(wallet.metaId)
+        XCTAssertEqual(try keychain.fetchKey(for: entropyTag), Data(nativeTonRecoveryFixture.utf8))
+        XCTAssertEqual(try legacy.validatedPrivateKey(keychain.fetchKey(for: keyTag)).count, 64)
+        XCTAssertEqual(try legacy.mnemonic(from: keychain.fetchKey(for: entropyTag)).toString(), nativeTonRecoveryFixture)
+        (operation as? PersistenceBoundKeychainOperation)?.commitKeychainChanges()
+        try (operation as? PersistenceBoundKeychainOperation)?.rollbackKeychainChanges()
+        XCTAssertTrue(try keychain.checkKey(for: keyTag))
+        XCTAssertEqual(keychain.values["older-wallet-secret"], Data([9, 8, 7]))
+    }
+
+    func testNativeTonRecoveryRetainsReleasedShortPhraseSupport() throws {
+        // Public vector cross-checked with @ton/crypto native mnemonic derivation.
+        let phrase = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ankle"
+        let keychain = NativeTonRecoveryTestKeychain()
+        let operation = LegacyTonAccountImportOperation(
+            keystore: keychain, phrase: phrase, username: "Older import", isBackuped: true
+        )
+        operation.start()
+        let wallet = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        XCTAssertEqual(wallet.legacyTonAccount?.publicKey.toHex(includePrefix: false),
+                       "f6e89217cdc90b46e58d646b9616b7c163ed87911ebd1783b209c3595749a469")
+        XCTAssertEqual(try keychain.fetchKey(for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId)), Data(phrase.utf8))
+        try (operation as? PersistenceBoundKeychainOperation)?.rollbackKeychainChanges()
+        XCTAssertTrue(keychain.values.isEmpty)
+    }
+
+    func testNativeTonRecoveryRejectsInvalidOrOrdinaryBip39PhraseBeforeWriting() {
+        XCTAssertThrowsError(try LegacyTonMnemonic.validatedForImport("not a recovery phrase"))
+        let keychain = NativeTonRecoveryTestKeychain()
+        let operation = LegacyTonAccountImportOperation(
+            keystore: keychain,
+            phrase: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+            username: "Incorrect format", isBackuped: true
+        )
+        operation.start()
+        XCTAssertThrowsError(try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled))
+        XCTAssertTrue(keychain.values.isEmpty)
+    }
+
+    func testNativeTonRecoveryRollsBackPartialSecretWritesAndCanRetry() throws {
+        let keychain = NativeTonRecoveryTestKeychain()
+        keychain.values["legacy-existing"] = Data([42])
+        keychain.failOnAddNumber = 2
+        let failed = try nativeTonRecoveryOperation(keychain)
+        failed.start()
+        XCTAssertThrowsError(try failed.extractResultData(throwing: BaseOperationError.parentOperationCancelled))
+        XCTAssertEqual(keychain.values, ["legacy-existing": Data([42])])
+        keychain.failOnAddNumber = nil
+        let retry = try nativeTonRecoveryOperation(keychain)
+        retry.start()
+        _ = try retry.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        try (retry as? PersistenceBoundKeychainOperation)?.rollbackKeychainChanges()
+        XCTAssertEqual(keychain.values, ["legacy-existing": Data([42])])
+    }
+
+    func testExplicitNativeTonImportRoutesToNativeFactoryWithoutSubstrateDerivation() {
+        let interactor = MockAccountImportInteractorInputProtocol()
+        var imported: MetaAccountImportRequest?
+        stub(interactor) { stub in
+            when(stub.importMetaAccount(request: any())).then { imported = $0 }
+        }
+        let presenter = AccountImportPresenter(
+            wireframe: MockAccountImportWireframeProtocol(), interactor: interactor,
+            flow: .wallet(step: .substrate)
+        )
+        presenter.didReceiveAccountImport(metadata: MetaAccountImportMetadata(
+            availableSources: AccountImportSource.allCases, defaultSource: .legacyTonMnemonic,
+            availableCryptoTypes: CryptoType.allCases, defaultCryptoType: .sr25519
+        ))
+        presenter.sourceViewModel?.inputHandler.changeValue(to: nativeTonRecoveryFixture)
+        presenter.usernameViewModel?.inputHandler.changeValue(to: "Restored TON")
+        XCTAssertNil(presenter.substrateDerivationPathViewModel)
+        XCTAssertNil(presenter.ethereumDerivationPathViewModel)
+        presenter.proceed()
+        guard case let .mnemonic(data)? = imported?.source else { return XCTFail("Native recovery was not routed") }
+        XCTAssertTrue(data.mnemonic is LegacyTonMnemonic)
+        XCTAssertEqual(data.mnemonic.toString(), nativeTonRecoveryFixture)
+        verify(interactor, never()).createMnemonicFromString(any())
+    }
+
+    func testAddingNativeTonWalletRollsBackSecretsWhenWalletStoreFails() throws {
+        let keychain = NativeTonRecoveryTestKeychain()
+        keychain.values["existing-wallet"] = Data([6])
+        let storageFacade = AlwaysFailingAccountImportStorageFacade()
+        let settings = SelectedWalletSettings(storageFacade: storageFacade, operationQueue: OperationQueue())
+        let repository = AccountRepositoryFactory(storageFacade: storageFacade)
+            .createMetaAccountRepository(for: nil, sortDescriptors: [])
+        let interactor = AddAccount.AccountImportInteractor(
+            accountOperationFactory: MetaAccountOperationFactory(keystore: keychain),
+            accountRepository: AnyDataProviderRepository(repository), operationManager: OperationManager(),
+            settings: settings, keystoreImportService: KeystoreImportService(logger: Logger.shared),
+            eventCenter: MockEventCenterProtocol(), defaultSource: .legacyTonMnemonic
+        )
+        let output = MockAccountImportInteractorOutputProtocol()
+        interactor.presenter = output
+        let failure = expectation(description: "Native import store failure")
+        stub(output) { stub in
+            when(stub.didReceiveAccountImport(error: any())).then { _ in failure.fulfill() }
+            when(stub.didCompleteAccountImport()).then { XCTFail("Failed import was marked complete") }
+        }
+        let operation = try nativeTonRecoveryOperation(keychain)
+        interactor.importAccountUsingOperation(operation)
+        wait(for: [failure], timeout: 10)
+        XCTAssertNil(settings.value)
+        XCTAssertEqual(keychain.values, ["existing-wallet": Data([6])])
+    }
+
     private func makeMnemonicWalletIdentity(
         mnemonicString: String,
         chainAccounts: Set<ChainAccountModel> = []
@@ -1404,4 +1537,23 @@ private final class AlwaysFailingAccountImportStorageFacade: StorageFacadeProtoc
             sortDescriptors: sortDescriptors
         )
     }
+}
+
+private final class NativeTonRecoveryTestKeychain: KeystoreProtocol {
+    var values: [String: Data] = [:]
+    var failOnAddNumber: Int?
+    private var additions = 0
+    func addKey(_ key: Data, with identifier: String) throws {
+        additions += 1
+        if additions == failOnAddNumber { throw KeystoreError.unexpectedFail }
+        guard values[identifier] == nil else { throw KeystoreError.duplicatedItem }
+        values[identifier] = key
+    }
+    func updateKey(_: Data, with _: String) throws { throw KeystoreError.unexpectedFail }
+    func fetchKey(for identifier: String) throws -> Data {
+        guard let key = values[identifier] else { throw KeystoreError.noKeyFound }
+        return key
+    }
+    func checkKey(for identifier: String) throws -> Bool { values[identifier] != nil }
+    func deleteKey(for identifier: String) throws { values.removeValue(forKey: identifier) }
 }

@@ -331,10 +331,11 @@ class SigningWrapperTests: XCTestCase {
                 walletId: metaAccount.metaId
             )
         } else {
+            guard let accountId = metaAccount.substrateAccountId, let publicKey = metaAccount.substratePublicKey else { return nil }
             return ChainAccountResponse(
                 chainId: "test-chain",
-                accountId: metaAccount.substrateAccountId,
-                publicKey: metaAccount.substratePublicKey,
+                accountId: accountId,
+                publicKey: publicKey,
                 name: metaAccount.name,
                 cryptoType: cryptoType,
                 addressPrefix: addressPrefix,

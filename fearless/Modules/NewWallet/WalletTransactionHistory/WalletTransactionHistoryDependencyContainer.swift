@@ -74,7 +74,7 @@ final class WalletTransactionHistoryDependencyContainer {
         if chain.hasStakingRewardHistory || chain.isSora {
             filters.insert(WalletTransactionHistoryFilter(type: .reward, selected: true), at: 1)
         }
-        if chain.hasPolkaswap {
+        if chain.hasPolkaswap || chain.isTonCompatibilityChain {
             filters.insert(WalletTransactionHistoryFilter(type: .swap, selected: true), at: 0)
             filters.removeAll(where: { $0.type == .other })
         }

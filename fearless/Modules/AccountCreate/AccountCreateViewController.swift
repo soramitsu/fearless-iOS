@@ -57,13 +57,13 @@ final class AccountCreateViewController: UIViewController, ViewHolder {
 
 private extension AccountCreateViewController {
     func setupNavigationItem() {
-        let infoItem = UIBarButtonItem(
-            image: R.image.iconInfo(),
-            style: .plain,
-            target: self,
-            action: #selector(actionOpenInfo)
+        let infoButton = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
+        infoButton.setImage(R.image.iconInfo(), for: .normal)
+        infoButton.addTarget(self, action: #selector(actionOpenInfo), for: .touchUpInside)
+        infoButton.accessibilityLabel = R.string.localizable.commonInfo(
+            preferredLanguages: locale.rLanguages
         )
-        navigationItem.rightBarButtonItem = infoItem
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: infoButton)
         switch presenter.flow {
         case .wallet, .chain:
             title = R.string.localizable.accountCreateTitle(preferredLanguages: locale.rLanguages)

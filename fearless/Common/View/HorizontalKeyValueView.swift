@@ -15,6 +15,16 @@ class HorizontalKeyValueView: UIView {
         return stackView
     }()
 
+    var axis: NSLayoutConstraint.Axis {
+        get { stackView.axis }
+        set {
+            stackView.axis = newValue
+            stackView.distribution = newValue == .vertical ? .fill : .equalSpacing
+            stackView.spacing = newValue == .vertical ? 2 : 8
+            valueLabel.textAlignment = newValue == .vertical ? .left : .right
+        }
+    }
+
     let keyLabel: ShimmeredLabel = {
         let label = ShimmeredLabel()
         label.textColor = R.color.colorWhite()

@@ -15,6 +15,10 @@ final class SelectedNetworkButton: UIControl {
     private let title: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
+        label.adjustsFontForContentSizeCategory = true
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        label.setContentCompressionResistancePriority(.required, for: .vertical)
         return label
     }()
 
@@ -55,6 +59,8 @@ final class SelectedNetworkButton: UIControl {
     }
 
     private func setup() {
+        isAccessibilityElement = true
+        accessibilityTraits = .button
         backgroundColor = R.color.colorWhite8()
         let container = UIFactory.default.createHorizontalStackView(spacing: 4)
         container.alignment = .center

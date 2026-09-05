@@ -91,6 +91,7 @@ final class PolkaswapDisclaimerViewLayout: UIView {
         firstParagraphLabel.attributedText = viewModel.firstParagraph
         fourthParagraphLabel.attributedText = viewModel.fourthParagraph
         importantTextLabel.attributedText = viewModel.importantParagraph
+        confirmSwitch.accessibilityLabel = viewModel.importantParagraph.string
 
         firstParagraphLabel.setLinks(viewModel.firstParagraphLinks, delegate: viewModel.delegate)
         fourthParagraphLabel.setLinks(viewModel.fourthParagraphLinks, delegate: viewModel.delegate)

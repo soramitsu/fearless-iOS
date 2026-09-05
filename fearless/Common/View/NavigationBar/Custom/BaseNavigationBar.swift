@@ -2,7 +2,7 @@ import UIKit
 
 class BaseNavigationBar: BaseTopBar {
     enum LayoutConstants {
-        static let backButtonSize: CGFloat = 32
+        static let backButtonSize: CGFloat = 44
     }
 
     enum NavigationStyle {
@@ -23,6 +23,7 @@ class BaseNavigationBar: BaseTopBar {
     let backButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconBack(), for: .normal)
+        button.accessibilityLabel = NSLocalizedString("ux.back", value: "Back", comment: "Navigation action")
         button.layer.masksToBounds = true
         button.backgroundColor = R.color.colorWhite8()
         button.layer.cornerRadius = LayoutConstants.backButtonSize / 2
@@ -72,8 +73,10 @@ class BaseNavigationBar: BaseTopBar {
         switch style {
         case .push:
             backButton.setImage(R.image.iconBack(), for: .normal)
+            backButton.accessibilityLabel = NSLocalizedString("ux.back", value: "Back", comment: "Navigation action")
         case .present:
             backButton.setImage(R.image.iconClose(), for: .normal)
+            backButton.accessibilityLabel = NSLocalizedString("common.close", value: "Close", comment: "Navigation action")
         }
     }
 

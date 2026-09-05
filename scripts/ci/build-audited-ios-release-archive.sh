@@ -62,8 +62,11 @@ readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
 # 2026.8.34 adds native IrohaConnect for canonical Taira Uranai sessions,
 # authenticated encrypted contract-call signing, and explicit PIN-gated Sakura
 # connection and per-signature approval surfaces.
+# 2026.9.6 preserves pre-4.2.0 accounts and native TON/Jetton/TonConnect
+# functionality, adds missing networks without replacing legacy identities,
+# and includes the qualified accessibility and layout fixes.
 # Reconfirm successor uniqueness read-only immediately before archive.
-readonly EXPECTED_BUILD="2026.8.34"
+readonly EXPECTED_BUILD="2026.9.6"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -82,7 +85,7 @@ Usage:
 Preconditions:
   - exact clean git HEAD, including no untracked files, descended from the
     distributed 4.2.0 (2026.7.28) source commit;
-  - App Store Connect read-only uniqueness check for 4.2.0 (2026.8.34);
+  - App Store Connect read-only uniqueness check for 4.2.0 (2026.9.6);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 
@@ -159,6 +162,13 @@ git cat-file -e "${EXPECTED_BASE_SOURCE_COMMIT}^{commit}" ||
 git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$source_commit" ||
   fail "release source is not descended from the exact distributed 4.2.0 (2026.7.28) source"
 
+# Generated service configuration is ignored by git; bind its exact reviewed
+# bytes separately so regeneration cannot silently replace production settings.
+service_configuration_before="${receipt%.json}.service-configuration-before.json"
+service_configuration_after="${receipt%.json}.service-configuration-after.json"
+python3 "$SCRIPT_DIR/audit-ios-release-service-configuration.py" \
+  --receipt "$service_configuration_before"
+
 IOS_EXPECTED_BUILD_NUMBER="$EXPECTED_BUILD" \
 IOS_RELEASE_SOURCE_PACKAGES_DIR="${IOS_RELEASE_SOURCE_PACKAGES_DIR:-}" \
   bash "$SCRIPT_DIR/audit-ios-release-identity.sh"
@@ -195,6 +205,11 @@ xcodebuild_arguments+=(
 printf '%s\n' \
   "$LOG_PREFIX building local Release archive from clean commit $source_commit"
 xcodebuild "${xcodebuild_arguments[@]}"
+
+python3 "$SCRIPT_DIR/audit-ios-release-service-configuration.py" \
+  --expected-receipt "$service_configuration_before" \
+  --archive "$archive" \
+  --receipt "$service_configuration_after"
 
 bash "$SCRIPT_DIR/materialize-embedded-framework-dsyms.sh" "$archive"
 

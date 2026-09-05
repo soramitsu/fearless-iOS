@@ -60,11 +60,24 @@ final class AssetManagementTableCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
         setupLayout()
+        updateTextLayout()
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        updateTextLayout()
+    }
+
+    private func updateTextLayout() {
+        let stacked = traitCollection.preferredContentSizeCategory.isAccessibilityCategory
+        textContainer.axis = stacked ? .vertical : .horizontal
+        balanceLabel.textAlignment = stacked ? .left : .right
+        fiatBalanceLabel.textAlignment = stacked ? .left : .right
     }
 
     func bind(viewModel: AssetManagementTableCellViewModel) {
@@ -178,6 +191,17 @@ final class AssetManagementTableCell: UITableViewCell {
     }
 
     private func setupLayout() {
+        [symbolLabel, chainNameLabel, balanceLabel, fiatBalanceLabel].forEach { label in
+            label.numberOfLines = 0
+            label.lineBreakMode = .byCharWrapping
+            label.adjustsFontForContentSizeCategory = true
+            label.setContentCompressionResistancePriority(.required, for: .vertical)
+        }
+        [textContainer, assetTextsContainer, balanceTextsContainer].forEach { stack in
+            stack.distribution = .fill
+            stack.alignment = .fill
+            stack.spacing = 2
+        }
         [
             symbolLabel,
             chainNameLabel
@@ -207,8 +231,9 @@ final class AssetManagementTableCell: UITableViewCell {
 
         textContainer.snp.makeConstraints { make in
             make.leading.equalTo(iconImageView.snp.trailing).offset(12)
-            make.centerY.equalToSuperview()
+            make.top.bottom.equalToSuperview().inset(8)
         }
+        contentView.snp.makeConstraints { make in make.height.greaterThanOrEqualTo(55) }
 
         switchView.set(width: 36, height: 21)
         switchView.snp.makeConstraints { make in

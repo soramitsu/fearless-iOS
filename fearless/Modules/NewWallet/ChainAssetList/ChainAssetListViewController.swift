@@ -92,6 +92,7 @@ private extension ChainAssetListViewController {
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
         rootView.tableView.estimatedRowHeight = 93
+        rootView.tableView.estimatedSectionHeaderHeight = 90
 
         if #available(iOS 15.0, *) {
             rootView.tableView.sectionHeaderTopPadding = 0
@@ -225,16 +226,8 @@ extension ChainAssetListViewController: UITableViewDelegate {
         output.didSelectViewModel(viewModel)
     }
 
-    func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if
-            let assetCell = cell as? ChainAccountBalanceTableCell,
-            let viewModel = cellViewModel(for: indexPath) {
-            assetCell.bind(to: viewModel)
-        }
-    }
-
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
-        ChainAccountBalanceTableCell.LayoutConstants.cellHeight
+        UITableView.automaticDimension
     }
 
     func tableView(_: UITableView, estimatedHeightForRowAt _: IndexPath) -> CGFloat {
@@ -257,11 +250,12 @@ extension ChainAssetListViewController: UITableViewDataSource {
         return collapsedNetworkSectionIds.contains(networkSection.id) ? 0 : networkSection.rows.count
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCellWithType(ChainAccountBalanceTableCell.self) else {
             return UITableViewCell()
         }
         cell.delegate = self
+        if let viewModel = cellViewModel(for: indexPath) { cell.bind(to: viewModel) }
         return cell
     }
 }
@@ -274,7 +268,7 @@ private extension ChainAssetListViewController {
 
 extension ChainAssetListViewController {
     func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        networkSection(at: section) == nil ? .leastNormalMagnitude : 72
+        networkSection(at: section) == nil ? .leastNormalMagnitude : UITableView.automaticDimension
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -307,7 +301,7 @@ extension ChainAssetListViewController {
     }
 }
 
-private final class AssetNetworkHeaderView: UITableViewHeaderFooterView {
+final class AssetNetworkHeaderView: UITableViewHeaderFooterView {
     static let reuseId = "AssetNetworkHeaderView"
 
     var onTap: (() -> Void)?
@@ -327,34 +321,31 @@ private final class AssetNetworkHeaderView: UITableViewHeaderFooterView {
         detailLabel.textColor = R.color.colorLightGray()
         subtotalLabel.font = .h6Title
         subtotalLabel.textColor = R.color.colorWhite()
-        subtotalLabel.textAlignment = .right
+        subtotalLabel.textAlignment = .left
         chevronView.tintColor = R.color.colorLightGray()
 
-        let labels = UIStackView(arrangedSubviews: [titleLabel, detailLabel])
+        [titleLabel, detailLabel, subtotalLabel].forEach { $0.numberOfLines = 0 }
+        let labels = UIStackView(arrangedSubviews: [titleLabel, detailLabel, subtotalLabel])
         labels.axis = .vertical
         labels.spacing = 3
 
         contentView.addSubview(labels)
-        contentView.addSubview(subtotalLabel)
         contentView.addSubview(chevronView)
 
         labels.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.centerY.equalToSuperview()
-            make.trailing.lessThanOrEqualTo(subtotalLabel.snp.leading).offset(-8)
+            make.top.bottom.equalToSuperview().inset(12)
+            make.trailing.equalTo(chevronView.snp.leading).offset(-8)
         }
         chevronView.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.centerY.equalToSuperview()
             make.size.equalTo(14)
         }
-        subtotalLabel.snp.makeConstraints { make in
-            make.trailing.equalTo(chevronView.snp.leading).offset(-8)
-            make.centerY.equalToSuperview()
-        }
-
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTap))
         contentView.addGestureRecognizer(tapGesture)
+        isAccessibilityElement = true
+        accessibilityTraits = .button
     }
 
     @available(*, unavailable)
@@ -408,6 +399,15 @@ private final class AssetNetworkHeaderView: UITableViewHeaderFooterView {
             subtotalLabel.text = NSLocalizedString("portfolio.asset.review", value: "Review", comment: "")
         }
         chevronView.image = UIImage(systemName: collapsed ? "chevron.down" : "chevron.up")
+        accessibilityLabel = [titleLabel.text, detailLabel.text, subtotalLabel.text].compactMap { $0 }.joined(separator: ", ")
+        accessibilityValue = collapsed
+            ? NSLocalizedString("ux.collapsed", value: "Collapsed", comment: "Section state")
+            : NSLocalizedString("ux.expanded", value: "Expanded", comment: "Section state")
+    }
+
+    override func accessibilityActivate() -> Bool {
+        onTap?()
+        return onTap != nil
     }
 
     @objc private func didTap() {
