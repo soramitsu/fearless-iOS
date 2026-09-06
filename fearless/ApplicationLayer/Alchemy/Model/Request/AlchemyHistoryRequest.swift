@@ -49,6 +49,8 @@ struct AlchemyHistoryRequest: Codable {
     let fromAddress: String?
     let toAddress: String?
     let order: AlchemySortOrder?
+    let pageKey: String?
+    let contractAddresses: [String]?
 
     init(fromAddress: String, category: [AlchemyTokenCategory]) {
         self.init(category: category, fromAddress: fromAddress, toAddress: nil)
@@ -67,7 +69,9 @@ struct AlchemyHistoryRequest: Codable {
         maxCount: String? = nil,
         fromAddress: String?,
         toAddress: String?,
-        order: AlchemySortOrder = .desc
+        order: AlchemySortOrder = .desc,
+        pageKey: String? = nil,
+        contractAddresses: [String]? = nil
     ) {
         self.fromBlock = fromBlock
         self.toBlock = toBlock
@@ -78,5 +82,7 @@ struct AlchemyHistoryRequest: Codable {
         self.fromAddress = fromAddress
         self.toAddress = toAddress
         self.order = order
+        self.pageKey = pageKey
+        self.contractAddresses = contractAddresses
     }
 }

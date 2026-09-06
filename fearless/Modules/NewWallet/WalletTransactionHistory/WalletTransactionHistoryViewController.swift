@@ -29,6 +29,7 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
     let presenter: WalletTransactionHistoryPresenterProtocol
 
     private var state: WalletTransactionHistoryViewState = .loading
+    private var isShowingHistoryRecovery = false
 
     private var draggableState: DraggableState = .compact
     private var compactInsets: UIEdgeInsets = .zero
@@ -81,6 +82,8 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
             for: .touchUpInside
         )
 
+        rootView.retryButton.addTarget(self, action: #selector(retryHistoryClicked), for: .touchUpInside)
+        rootView.explorerButton.addTarget(self, action: #selector(viewHistoryOnExplorerClicked), for: .touchUpInside)
         rootView.typeSwitcher.delegate = self
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
@@ -98,6 +101,8 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
     }
 
     func applyState(_: WalletTransactionHistoryViewState) {
+        isShowingHistoryRecovery = false
+        rootView.recoveryView.isHidden = true
         switch state {
         case .loading:
             rootView.tableView.isHidden = true
@@ -165,12 +170,27 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
         }
     }
 
+    @objc private func retryHistoryClicked() {
+        presenter.retryHistory()
+    }
+
+    @objc private func viewHistoryOnExplorerClicked() {
+        presenter.viewHistoryOnExplorer()
+    }
+
     @objc private func filtersButtonClicked() {
         presenter.didTapFiltersButton()
     }
 }
 
 extension WalletTransactionHistoryViewController: WalletTransactionHistoryViewProtocol {
+    func didReceiveHistoryFailure(canViewExplorer: Bool) {
+        isShowingHistoryRecovery = true
+        rootView.recoveryView.isHidden = false
+        rootView.explorerButton.isHidden = !canViewExplorer
+        updateLoadingAndEmptyState(animated: true)
+    }
+
     func didReceive(state: WalletTransactionHistoryViewState) {
         self.state = state
         applyState(state)
@@ -553,6 +573,7 @@ extension WalletTransactionHistoryViewController: Draggable {
 
 extension WalletTransactionHistoryViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
+        guard !isShowingHistoryRecovery else { return false }
         switch state {
         case let .loaded(viewModel):
             return viewModel.sections.isEmpty

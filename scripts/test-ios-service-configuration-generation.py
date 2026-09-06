@@ -20,6 +20,18 @@ TEMPLATE = (ROOT / "fearless/CIKeys.stencil").read_text()
 
 
 class ServiceConfigurationGenerationTests(unittest.TestCase):
+    def test_deployed_jenkins_ton_alias_and_identical_aliases_are_supported(self):
+        for environment in [
+            {"FL_IOS_TON_API_KEY": "synthetic-ton-key"},
+            {"FL_TON_API_KEY": "", "FL_IOS_TON_API_KEY": "synthetic-ton-key"},
+            {"FL_TON_API_KEY": "synthetic-ton-key", "FL_IOS_TON_API_KEY": "synthetic-ton-key"},
+        ]:
+            self.assertIn('tonApiKey: String = "synthetic-ton-key"', GENERATOR.render(TEMPLATE, environment))
+
+    def test_conflicting_ton_aliases_are_rejected_without_disclosing_values(self):
+        with self.assertRaisesRegex(ValueError, "^conflicting service environment aliases$"):
+            GENERATOR.render(TEMPLATE, {"FL_TON_API_KEY": "synthetic-one", "FL_IOS_TON_API_KEY": "synthetic-two"})
+
     def test_every_template_argument_uses_its_existing_environment_name(self):
         environment = {name: "fixture-" + name for name in GENERATOR.ARGUMENT_ENVIRONMENT.values()}
         rendered = GENERATOR.render(TEMPLATE, environment)
@@ -73,6 +85,20 @@ class ServiceConfigurationGenerationTests(unittest.TestCase):
                     GENERATOR.generate(root, {})
             self.assertEqual(output.read_text(), expected)
             self.assertEqual(list(root.glob(".CIKeys.*")), [])
+
+    def test_identical_configuration_preserves_timestamp_and_restores_private_mode(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "fearless").mkdir()
+            (root / "fearless/CIKeys.stencil").write_text(TEMPLATE)
+            GENERATOR.generate(root, {})
+            output = root / "CIKeys.generated.swift"
+            output.chmod(0o644)
+            modified = output.stat().st_mtime_ns
+            with patch.object(GENERATOR.os, "replace", side_effect=AssertionError("identical output replaced")):
+                GENERATOR.generate(root, {})
+            self.assertEqual(output.stat().st_mtime_ns, modified)
+            self.assertEqual(output.stat().st_mode & 0o777, 0o600)
 
     def test_symlink_output_is_rejected_without_changing_target(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -10,7 +10,7 @@ final class WalletTransactionHistoryInteractor {
     }
 
     weak var presenter: WalletTransactionHistoryInteractorOutputProtocol?
-    private let dependencyContainer: WalletTransactionHistoryDependencyContainer
+    private let dependencyContainer: WalletTransactionHistoryDependencyContaining
     let logger: LoggerProtocol?
     var defaultFilter: WalletHistoryRequest
     var chainAsset: ChainAsset
@@ -25,12 +25,17 @@ final class WalletTransactionHistoryInteractor {
     private(set) var pages: [AssetTransactionPageData] = []
 
     private var reloadTimer: Timer?
+    private var contextGeneration: UInt64 = 0
+    private var requestGeneration: UInt64 = 0
+    private var historyRecoveryNeeded = false
+
+    private enum LoadingError: Error { case unavailable }
 
     init(
         chain: ChainModel,
         asset: AssetModel,
         selectedAccount: MetaAccountModel,
-        dependencyContainer: WalletTransactionHistoryDependencyContainer,
+        dependencyContainer: WalletTransactionHistoryDependencyContaining,
         logger: LoggerProtocol?,
         defaultFilter: WalletHistoryRequest,
         selectedFilter: WalletHistoryRequest,
@@ -54,38 +59,29 @@ final class WalletTransactionHistoryInteractor {
     }
 
     private func loadTransactions(for pagination: Pagination) {
-        guard let utilityChainAsset = getUtilityAsset(for: chainAsset) else {
+        requestGeneration &+= 1
+        let generation = requestGeneration
+        let context = contextGeneration
+        guard let utilityChainAsset = getUtilityAsset(for: chainAsset),
+              let address = UniversalWalletAccountAddressResolver.address(for: utilityChainAsset.chain, wallet: selectedAccount),
+              let service = dependencyContainer.dependencies?.historyService else {
+            handleNext(error: LoadingError.unavailable, for: pagination)
             return
         }
 
-        guard let address = selectedAccount.fetch(for: utilityChainAsset.chain.accountRequest())?.toAddress() else {
-            return
-        }
-
-        let filterValues: [WalletTransactionHistoryFilter] = filters.compactMap {
-            $0.items as? [WalletTransactionHistoryFilter]
-        }.reduce([], +)
-
-        dependencyContainer.dependencies?.historyService.fetchTransactionHistory(
-            for: address,
-            asset: chainAsset.asset,
-            chain: chainAsset.chain,
-            filters: filterValues,
-            pagination: pagination,
-            runCompletionIn: .main
+        let filterValues = filters.compactMap { $0.items as? [WalletTransactionHistoryFilter] }.reduce([], +)
+        service.fetchTransactionHistory(
+            for: address, asset: chainAsset.asset, chain: chainAsset.chain, filters: filterValues,
+            pagination: pagination, runCompletionIn: .main
         ) { [weak self] optionalResult in
-            if let result = optionalResult {
-                switch result {
-                case let .success(pageData):
-                    let loadedData = pageData ??
-                        AssetTransactionPageData(transactions: [])
-                    self?.handleNext(
-                        transactionData: loadedData,
-                        for: pagination
-                    )
-                case let .failure(error):
-                    self?.handleNext(error: error, for: pagination)
-                }
+            guard let self, generation == self.requestGeneration, context == self.contextGeneration else { return }
+            switch optionalResult {
+            case let .success(pageData?):
+                self.handleNext(transactionData: pageData, for: pagination)
+            case let .failure(error):
+                self.handleNext(error: error, for: pagination)
+            default:
+                self.handleNext(error: LoadingError.unavailable, for: pagination)
             }
         }
     }
@@ -93,6 +89,7 @@ final class WalletTransactionHistoryInteractor {
     private func handleDataProvider(transactionData: AssetTransactionPageData?) {
         switch dataLoadingState {
         case .waitingCached:
+            historyRecoveryNeeded = false
             let loadedTransactionData = transactionData ?? AssetTransactionPageData(transactions: [])
 
             dataLoadingState = WalletTransactionHistoryDataState.loading(
@@ -110,6 +107,7 @@ final class WalletTransactionHistoryInteractor {
             dependencyContainer.dependencies?.dataProvider?.refresh()
 
         case .loading, .loaded:
+            historyRecoveryNeeded = false
             if let transactionData = transactionData {
                 let loadedPage = Pagination(count: transactionData.transactions.count)
                 dataLoadingState = WalletTransactionHistoryDataState.loaded(
@@ -143,28 +141,24 @@ final class WalletTransactionHistoryInteractor {
         }
     }
 
-    private func handleDataProvider(error: Error) {
+    func handleDataProvider(error _: Error) {
         switch dataLoadingState {
         case .waitingCached:
-            logger?.error("Cache unexpectedly failed \(error)")
-        case .loading:
-            if let firstPage = pages.first {
-                let loadedPage = Pagination(count: firstPage.transactions.count, context: nil)
-                dataLoadingState = .loaded(page: loadedPage, nextContext: firstPage.context)
-                presenter?.didReceive(
-                    pageData: firstPage,
-                    reload: true
-                )
-            }
-
-            logger?.debug("Cache refresh failed \(error)")
+            dataLoadingState = .loaded(page: nil, nextContext: nil)
+        case let .loading(currentPage, previousPage):
+            dataLoadingState = .loaded(page: previousPage, nextContext: currentPage.context)
         case .loaded:
-            logger?.debug("Unexpected loading failed \(error)")
-        default: break
+            break
+        default:
+            return
         }
+        historyRecoveryNeeded = true
+        logger?.debug("History provider refresh failed")
+        presenter?.didReceiveHistoryFailure()
     }
 
     private func handleNext(transactionData: AssetTransactionPageData, for pagination: Pagination) {
+        historyRecoveryNeeded = false
         switch dataLoadingState {
         case .waitingCached:
             logger?.error("Unexpected page loading before cache")
@@ -215,37 +209,27 @@ final class WalletTransactionHistoryInteractor {
         }
     }
 
-    private func handleNext(error: Error, for pagination: Pagination) {
+    private func handleNext(error _: Error, for pagination: Pagination) {
         switch dataLoadingState {
-        case .waitingCached:
-            logger?.error("Cached data expected but received page error \(error)")
-        case let .loading(currentPage, previousPage):
-            if currentPage == pagination {
-                logger?.debug("Loading page with context \(String(describing: pagination.context)) failed")
-
-                dataLoadingState = .loaded(page: previousPage, nextContext: currentPage.context)
-            } else {
-                logger?.debug("Unexpected pagination context \(String(describing: pagination.context))")
-            }
-        case let .filtering(currentPage, previousPage):
-            if currentPage == pagination {
-                logger?.debug("Loading page with context \(String(describing: pagination.context)) failed")
-
-                dataLoadingState = .filtered(page: previousPage, nextContext: currentPage.context)
-            } else {
-                logger?.debug("Unexpected failed page with context \(String(describing: pagination.context))")
-            }
-        case .loaded, .filtered:
-            logger?.debug("Failed page already loaded")
+        case let .loading(currentPage, previousPage) where currentPage == pagination:
+            dataLoadingState = .loaded(page: previousPage, nextContext: currentPage.context)
+        case let .filtering(currentPage, previousPage) where currentPage == pagination:
+            dataLoadingState = .filtered(page: previousPage, nextContext: currentPage.context)
+        default:
+            return
         }
+        historyRecoveryNeeded = true
+        logger?.debug("History page could not be loaded")
+        presenter?.didReceiveHistoryFailure()
     }
 
     private func setupReloadTimer() {
+        reloadTimer?.invalidate()
         reloadTimer = Timer.scheduledTimer(
             withTimeInterval: Constants.reloadInterval,
             repeats: true,
             block: { [weak self] _ in
-                guard let strongSelf = self else {
+                guard let strongSelf = self, !strongSelf.historyRecoveryNeeded else {
                     return
                 }
                 let pagination = Pagination(count: strongSelf.transactionsPerPage)
@@ -265,24 +249,31 @@ final class WalletTransactionHistoryInteractor {
     }
 
     private func setupDependencies(for chainAsset: ChainAsset) {
+        let context = contextGeneration
         do {
             try dependencyContainer.createDependencies(for: chainAsset, selectedAccount: selectedAccount)
 
             let changesBlock = { [weak self] (changes: [DataProviderChange<AssetTransactionPageData>]) -> Void in
+                guard let self, context == self.contextGeneration else { return }
                 if let change = changes.first {
                     switch change {
                     case let .insert(item), let .update(item):
-                        self?.handleDataProvider(transactionData: item)
+                        self.handleDataProvider(transactionData: item)
                     default:
                         break
                     }
                 } else {
-                    self?.handleDataProvider(transactionData: nil)
+                    self.handleDataProvider(transactionData: nil)
                 }
             }
 
             let failBlock: (Error) -> Void = { [weak self] (error: Error) in
-                self?.handleDataProvider(error: error)
+                guard let self, context == self.contextGeneration else { return }
+                self.handleDataProvider(error: error)
+            }
+            guard dependencyContainer.dependencies?.dataProvider != nil else {
+                reload()
+                return
             }
 
             let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: true)
@@ -294,6 +285,9 @@ final class WalletTransactionHistoryInteractor {
                 options: options
             )
         } catch {
+            dependencyContainer.dependencies = nil
+            historyRecoveryNeeded = true
+            dataLoadingState = .loaded(page: nil, nextContext: nil)
             presenter?.didReceiveUnsupported()
         }
     }
@@ -312,6 +306,7 @@ extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractor
     }
 
     func loadNext() -> Bool {
+        guard !historyRecoveryNeeded else { return false }
         reloadTimer?.invalidate()
 
         switch dataLoadingState {
@@ -345,12 +340,20 @@ extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractor
     }
 
     @objc func reload() {
+        historyRecoveryNeeded = false
+        if dependencyContainer.dependencies == nil {
+            dataLoadingState = .waitingCached
+            setupDependencies(for: chainAsset)
+            return
+        }
         let pagination = Pagination(count: transactionsPerPage)
         dataLoadingState = .filtering(page: pagination, previousPage: nil)
         loadTransactions(for: pagination)
     }
 
     func applyFilters(_ filters: [FilterSet]) {
+        contextGeneration &+= 1
+        historyRecoveryNeeded = false
         self.filters = filters
 
         dependencyContainer.dependencies?.dataProvider?.removeObserver(self)
@@ -363,15 +366,40 @@ extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractor
     }
 
     func chainAssetChanged(_ newChainAsset: ChainAsset) {
-        if chainAsset != newChainAsset {
-            filters = WalletTransactionHistoryViewFactory.transactionHistoryFilters(for: newChainAsset.chain)
-            chainAsset = newChainAsset
-            dependencyContainer.dependencies?.dataProvider?.removeObserver(self)
-            setupDependencies(for: newChainAsset)
-            dataLoadingState = .waitingCached
-            pages = []
-            reload()
+        guard chainAsset != newChainAsset else { return }
+        filters = WalletTransactionHistoryViewFactory.transactionHistoryFilters(for: newChainAsset.chain)
+        chainAsset = newChainAsset
+        resetHistoryContext()
+    }
+
+    func historyExplorerURL() -> URL? {
+        guard let address = UniversalWalletAccountAddressResolver.address(for: chainAsset.chain, wallet: selectedAccount) else { return nil }
+        for explorer in chainAsset.chain.externalApi?.explorers ?? [] {
+            let type: ChainModel.SubscanType = explorer.types.contains(.address) ? .address : .account
+            guard explorer.types.contains(type), let url = explorer.explorerUrl(for: address, type: type),
+                  url.scheme?.lowercased() == "https", let host = url.host, !host.isEmpty,
+                  url.user == nil, url.password == nil else { continue }
+            if chainAsset.chain.chainId == "196",
+               ["www.okx.com", "web3.okx.com", "www.oklink.com", "oklink.com"].contains(host.lowercased()),
+               ["/explorer/xlayer-test/", "/xlayer-test/", "/x-layer/"].contains(where: url.path.hasPrefix) {
+                // The released registry used xlayer-test even for mainnet 196.
+                // Keep the original account, correcting only that provider route.
+                return URL(string: "https://www.oklink.com/xlayer/address/\(address)")
+            }
+            return url
         }
+        return nil
+    }
+
+    private func resetHistoryContext() {
+        contextGeneration &+= 1
+        requestGeneration &+= 1
+        historyRecoveryNeeded = false
+        dependencyContainer.dependencies?.dataProvider?.removeObserver(self)
+        dataLoadingState = .waitingCached
+        pages = []
+        presenter?.didResetHistory()
+        setupDependencies(for: chainAsset)
     }
 }
 
@@ -382,7 +410,7 @@ extension WalletTransactionHistoryInteractor: EventVisitorProtocol {
 
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
         selectedAccount = event.account
-        reload()
+        resetHistoryContext()
     }
 }
 

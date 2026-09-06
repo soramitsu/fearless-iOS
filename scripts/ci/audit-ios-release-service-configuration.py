@@ -14,27 +14,24 @@ import re
 import sys
 
 PREFIX = '[ios-release-service-configuration]'
-# Active Release credential consumers: ChainRegistry, EthereumNodeFetching,
-# WalletConnectService, Google backup, Alchemy, NodeApiKeyInjector and explorers.
+# Active Release credential consumers: ChainRegistry,
+# WalletConnectService, Google backup, Alchemy and explorers.
 REQUIRED = frozenset({
     'TonNodeApiKey.tonApiKey',
-    'EthereumNodesApiKeys.ethereumApiKey',
-    'EthereumNodesApiKeys.bscApiKey',
-    'EthereumNodesApiKeys.polygonApiKey',
-    'EthereumNodesApiKeys.sepoliaApiKey',
     'WalletConnect.projectId',
     'GoogleBackup.googleToken',
     'GoogleBackup.googleUrlScheme',
     'ThirdPartyServicesApiKeys.alchemyApiKey',
-    'DwellirNodeApiKey.dwellirApiKey',
     'BlockExplorerApiKeys.etherscanApiKey',
     'BlockExplorerApiKeys.polygonscanApiKey',
     'BlockExplorerApiKeys.bscscanApiKey',
-    'BlockExplorerApiKeys.oklinkApiKey',
     'BlockExplorerApiKeys.opMainnetApiKey',
 })
-# Deprecated Goerli, Debug credentials and optional partner/card integrations
-# may be empty. No generated setting may contain a nonempty placeholder.
+# Retired Blast/Goerli fields are no longer consumed by EVM node selection.
+# Dwellir is optional with catalog failover. Rejected OKLink credentials are omitted;
+# replacement history providers and explicit explorer recovery handle its catalog routes.
+# These, Debug credentials and optional partner/card integrations may be empty.
+# No generated setting may contain a nonempty placeholder.
 PLACEHOLDER = re.compile(
     r'^(?:true|false|yes|no|nil|null|none|undefined|0|1|todo|tbd|dummy|placeholder|'
     r'changeme|change[-_ ]?me|replace[-_ ]?me|test|testing|example|sample|'

@@ -35,7 +35,15 @@ final class HistoryOperationFactoriesAssembly {
             return KaiaHistoryOperationFactory()
         }
 
-        if historyUrl.contains("oklink.com/api/") {
+        let historyEndpoint = chain.externalApi?.history?.url
+        if ["www.oklink.com", "oklink.com"].contains(historyEndpoint?.host?.lowercased() ?? ""),
+           historyEndpoint?.path.hasPrefix("/api/") == true {
+            if chain.isEthereumBased, AlchemyHistoryNetwork.identifier(chainId: chain.chainId) != nil {
+                return AlchemyHistoryOperationFactory()
+            }
+            if chain.isEthereumBased, chain.chainId == "43114" {
+                return EtherscanHistoryOperationFactory(baseURL: EtherscanHistoryOperationFactory.avalancheHistoryURL)
+            }
             return OklinkHistoryOperationFactory()
         }
 

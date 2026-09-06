@@ -100,6 +100,25 @@ class AuditTests(unittest.TestCase):
                 with self.assertRaises(A.AuditFailure):
                     A.validate_values(candidate, SCHEMA)
 
+    def test_retired_blast_credentials_are_optional_after_provider_removal(self):
+        retired = [name for name in SCHEMA if name.startswith('EthereumNodesApiKeys.')]
+        self.assertEqual(5, len(retired))
+        self.assertFalse(A.REQUIRED.intersection(retired))
+        A.validate_values(self.fields | {name: '' for name in retired}, SCHEMA)
+        source = (REPO / 'fearless/Common/Helpers/EthereumNodeFetching.swift').read_text()
+        self.assertNotIn('EthereumNodesApiKeys', source)
+        self.assertNotIn('appendingPathComponent', source)
+
+    def test_dwellir_is_optional_with_catalog_connection_fallback(self):
+        field = 'DwellirNodeApiKey.dwellirApiKey'
+        self.assertNotIn(field, A.REQUIRED)
+        A.validate_values(self.fields | {field: ''}, SCHEMA)
+
+    def test_oklink_is_optional_with_replacement_providers_and_explorer_recovery(self):
+        field = 'BlockExplorerApiKeys.oklinkApiKey'
+        self.assertNotIn(field, A.REQUIRED)
+        A.validate_values(self.fields | {field: ''}, SCHEMA)
+
     def test_optional_placeholders_are_rejected_but_real_optional_values_are_allowed(self):
         for field in SCHEMA.keys() - A.REQUIRED:
             with self.subTest(field=field):

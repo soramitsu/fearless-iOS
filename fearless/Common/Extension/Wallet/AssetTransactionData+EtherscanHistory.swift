@@ -9,7 +9,7 @@ extension AssetTransactionData {
         chain: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
-        let peerAddress = item.from == address ? item.to : item.from
+        let peerAddress = item.from?.lowercased() == address.lowercased() ? item.to : item.from
         let type = item.from?.lowercased() == address.lowercased() ? TransactionType.outgoing :
             TransactionType.incoming
 
@@ -28,8 +28,8 @@ extension AssetTransactionData {
         let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(utilityAsset.precision)) ?? .zero
 
         let fee = AssetTransactionFee(
-            identifier: asset.id,
-            assetId: asset.id,
+            identifier: utilityAsset.id,
+            assetId: utilityAsset.id,
             amount: AmountDecimal(value: feeDecimal),
             context: nil
         )
@@ -37,8 +37,8 @@ extension AssetTransactionData {
 
         return AssetTransactionData(
             transactionId: item.hash ?? "",
-            status: .commited,
-            assetId: item.contractAddress ?? "",
+            status: item.isError == "1" ? .rejected : .commited,
+            assetId: asset.id,
             peerId: "",
             peerFirstName: nil,
             peerLastName: nil,

@@ -11,6 +11,7 @@ final class WalletTransactionHistoryPresenter {
     private var chainAsset: ChainAsset
     private let logger: LoggerProtocol
 
+    private var historyRecoveryNeeded = false
     private var filters: [FilterSet]?
     private(set) var viewModels: [WalletTransactionHistorySection] = []
 
@@ -59,7 +60,17 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
     }
 
     func loadNext() -> Bool {
-        interactor.loadNext()
+        historyRecoveryNeeded ? false : interactor.loadNext()
+    }
+
+    func retryHistory() {
+        view?.didStartLoading()
+        interactor.reload()
+    }
+
+    func viewHistoryOnExplorer() {
+        guard let view, let url = interactor.historyExplorerURL() else { return }
+        wireframe.showHistoryExplorer(url: url, from: view)
     }
 
     func didTapFiltersButton() {
@@ -87,7 +98,19 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
 
 extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorOutputProtocol {
     func didReceiveUnsupported() {
-        view?.didReceive(state: .unsupported)
+        didReceiveHistoryFailure()
+    }
+
+    func didReceiveHistoryFailure() {
+        historyRecoveryNeeded = true
+        view?.didStopLoading()
+        view?.didReceiveHistoryFailure(canViewExplorer: interactor.historyExplorerURL() != nil)
+    }
+
+    func didResetHistory() {
+        historyRecoveryNeeded = false
+        viewModels = []
+        view?.didReceive(state: .loading)
     }
 
     func didReceive(filters: [FilterSet]) {
@@ -98,10 +121,10 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
         pageData: AssetTransactionPageData,
         reload: Bool
     ) {
+        historyRecoveryNeeded = false
         view?.didStopLoading()
         guard chainAsset.chain.externalApi?.history != nil else {
-            let state: WalletTransactionHistoryViewState = .unsupported
-            view?.didReceive(state: state)
+            didReceiveHistoryFailure()
             return
         }
 
@@ -127,8 +150,8 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
                 : .loaded(viewModel: viewModel)
             view?.didReceive(state: state)
         } catch {
-            logger.error("\(error)")
-            view?.didReceive(state: .unsupported)
+            logger.error("History could not be displayed")
+            didReceiveHistoryFailure()
         }
     }
 

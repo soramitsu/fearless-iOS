@@ -1259,3 +1259,5 @@ belongs to the right network";
 "ux.back" = "Back";
 "ux.collapsed" = "Collapsed";
 "ux.expanded" = "Expanded";
+
+"wallet.transaction.history.view.explorer" = "View on explorer";

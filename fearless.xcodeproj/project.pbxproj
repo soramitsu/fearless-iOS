@@ -1071,6 +1071,7 @@
 		84BEE22325646AC000D05EB3 /* SelectedUsernameChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEE22225646ABF00D05EB3 /* SelectedUsernameChanged.swift */; };
 		84BEE22D2564765F00D05EB3 /* UIAlertViewController+Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEE22C2564765F00D05EB3 /* UIAlertViewController+Account.swift */; };
 		84BEE63026CBFDBC00757009 /* ChainRegistryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEE62F26CBFDBC00757009 /* ChainRegistryTests.swift */; };
+		A5090600E0E0000000000002 /* EthereumNodeFetchingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5090600E0E0000000000001 /* EthereumNodeFetchingTests.swift */; };
 		84C07EDC24AF1924008FC35B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 84C07EDA24AF1924008FC35B /* InfoPlist.strings */; };
 		84C2F27725E296CD0050A4AD /* RewardDestinationViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C2F27625E296CD0050A4AD /* RewardDestinationViewModelFactory.swift */; };
 		84C2F27D25E297350050A4AD /* CalculatedReward.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C2F27C25E297350050A4AD /* CalculatedReward.swift */; };
@@ -3153,6 +3154,7 @@
 		07F9CC0B759747814407E5D0 /* LegacyTonConnectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28AFCB150BAB5F52D8CBBDA1 /* LegacyTonConnectTests.swift */; };
 		A99FDB6874894EA3ABCC0708 /* LegacyTonConnectCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84E87C8682A4D719FCEE21E /* LegacyTonConnectCoordinator.swift */; };
 		C574F4EA806B4DAD8B640ADA /* LegacyTonConnectViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F17236D4C8940C9B266FF61 /* LegacyTonConnectViews.swift */; };
+		A5090600A1C0000000000002 /* AlchemyHistoryOperationFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5090600A1C0000000000001 /* AlchemyHistoryOperationFactoryTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -4258,6 +4260,7 @@
 		84BEE22225646ABF00D05EB3 /* SelectedUsernameChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedUsernameChanged.swift; sourceTree = "<group>"; };
 		84BEE22C2564765F00D05EB3 /* UIAlertViewController+Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAlertViewController+Account.swift"; sourceTree = "<group>"; };
 		84BEE62F26CBFDBC00757009 /* ChainRegistryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainRegistryTests.swift; sourceTree = "<group>"; };
+		A5090600E0E0000000000001 /* EthereumNodeFetchingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumNodeFetchingTests.swift; sourceTree = "<group>"; };
 		84C07EDD24AF1935008FC35B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		84C07EE524AF1990008FC35B /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		84C2F27625E296CD0050A4AD /* RewardDestinationViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardDestinationViewModelFactory.swift; sourceTree = "<group>"; };
@@ -6352,6 +6355,7 @@
 		28AFCB150BAB5F52D8CBBDA1 /* LegacyTonConnectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearlessTests/LegacyTonConnectTests.swift; sourceTree = SOURCE_ROOT; };
 		D84E87C8682A4D719FCEE21E /* LegacyTonConnectCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/Common/Model/LegacyTonConnect/LegacyTonConnectCoordinator.swift; sourceTree = SOURCE_ROOT; };
 		3F17236D4C8940C9B266FF61 /* LegacyTonConnectViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/Common/Model/LegacyTonConnect/LegacyTonConnectViews.swift; sourceTree = SOURCE_ROOT; };
+		A5090600A1C0000000000001 /* AlchemyHistoryOperationFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearlessTests/AlchemyHistoryOperationFactoryTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -7670,6 +7674,7 @@
 			children = (
 				F4AE12A5268DDC780097D1C7 /* MnemonicTextNormalizerTest.swift */,
 				18228EC4A56493660DC7DBB1 /* AccountImportTests.swift */,
+				A5090600A1C0000000000001 /* AlchemyHistoryOperationFactoryTests.swift */,
 			);
 			path = AccountImport;
 			sourceTree = "<group>";
@@ -8378,6 +8383,7 @@
 				84AA004226C5DFD800BCB4DC /* RuntimeSyncServiceTests.swift */,
 				84CE9AE826CAA83100B4EF62 /* RuntimeProviderTests.swift */,
 				84BEE62F26CBFDBC00757009 /* ChainRegistryTests.swift */,
+				A5090600E0E0000000000001 /* EthereumNodeFetchingTests.swift */,
 				8469936A26CD1BBE002CC786 /* RuntimePoolTests.swift */,
 				84D9C41026CD361C004AB2AB /* SpecVersionSubscriptionTests.swift */,
 				189CE1DE8D520FEB61152078 /* ChainSyncServiceCompatibilityTests.swift */,
@@ -19279,6 +19285,7 @@
 				84563D0324EFE6D70055591D /* NetworkItemMapperTests.swift in Sources */,
 				F47F6403263BD90000FF67E9 /* StubBalanceViewModelFactory.swift in Sources */,
 				84BEE63026CBFDBC00757009 /* ChainRegistryTests.swift in Sources */,
+				A5090600E0E0000000000002 /* EthereumNodeFetchingTests.swift in Sources */,
 				84F13F1426F20AA2006725FF /* StakingSettingsTests.swift in Sources */,
 				84EAC2F82642EA52003CC2ED /* StakingRebondConfirmationTests.swift in Sources */,
 				84300B2F26C1112300D64514 /* ConnectionPoolTests.swift in Sources */,
@@ -19325,6 +19332,7 @@
 				84F4388525DA4F2A00AEDA56 /* NetworkMockManager.swift in Sources */,
 				84F4389225DA505300AEDA56 /* NetworkBaseTests.swift in Sources */,
 				3F312DAAA6ACF1C9DEC4C079 /* AccountImportTests.swift in Sources */,
+				A5090600A1C0000000000002 /* AlchemyHistoryOperationFactoryTests.swift in Sources */,
 				07F9CC0B759747814407E5D0 /* LegacyTonConnectTests.swift in Sources */,
 				97522E326B7319D544673767 /* TonHistoryOperationFactoryTests.swift in Sources */,
 				8467FD5C24EFDCC9005D486C /* UserDataStorageTestFacade.swift in Sources */,

@@ -47,6 +47,20 @@ final class WalletTransactionHistoryViewLayout: UIView {
     }()
 
     let contentView = UIView()
+    private let bodyStackView = UIFactory.default.createVerticalStackView(spacing: 12)
+    private let bodyContentView = UIView()
+    let recoveryView = UIFactory.default.createVerticalStackView(spacing: 8)
+    let recoveryLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.font = UIFont.preferredFont(forTextStyle: .footnote)
+        label.adjustsFontForContentSizeCategory = true
+        label.textColor = R.color.colorAlmostWhite()
+        return label
+    }()
+
+    let retryButton = UIButton(type: .system)
+    let explorerButton = UIButton(type: .system)
 
     let closeButton: UIButton = {
         let button = UIButton()
@@ -113,8 +127,29 @@ final class WalletTransactionHistoryViewLayout: UIView {
         addSubview(containerView)
         containerView.addSubview(backgroundView)
         containerView.addSubview(headerView)
-        containerView.addSubview(contentView)
-        containerView.addSubview(tableView)
+        containerView.addSubview(bodyStackView)
+        bodyStackView.addArrangedSubview(recoveryView)
+        bodyStackView.addArrangedSubview(bodyContentView)
+        bodyContentView.addSubview(contentView)
+        bodyContentView.addSubview(tableView)
+        recoveryView.addArrangedSubview(recoveryLabel)
+        let recoveryActions = UIStackView(arrangedSubviews: [retryButton, explorerButton])
+        recoveryActions.axis = .horizontal
+        recoveryActions.distribution = .fillEqually
+        recoveryActions.spacing = 8
+        recoveryView.addArrangedSubview(recoveryActions)
+        recoveryView.isHidden = true
+        recoveryView.accessibilityIdentifier = "history.recovery"
+        retryButton.accessibilityIdentifier = "history.retry"
+        explorerButton.accessibilityIdentifier = "history.view-explorer"
+        for button in [retryButton, explorerButton] {
+            button.tintColor = R.color.colorWhite()
+            button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .body)
+            button.titleLabel?.adjustsFontForContentSizeCategory = true
+            button.titleLabel?.numberOfLines = 0
+            button.titleLabel?.textAlignment = .center
+            button.snp.makeConstraints { $0.height.greaterThanOrEqualTo(44).priority(999) }
+        }
         containerView.addSubview(stripeIconImageView)
 
         headerView.addSubview(headerContentStackView)
@@ -159,19 +194,15 @@ final class WalletTransactionHistoryViewLayout: UIView {
             make.edges.equalToSuperview()
         }
 
-        contentView.snp.makeConstraints { make in
+        bodyStackView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.bottom.equalToSuperview()
             make.top.equalTo(headerView.snp.bottom)
         }
-
-        tableView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
-            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.bottom.equalToSuperview()
-            make.top.equalTo(headerView.snp.bottom)
-        }
+        bodyContentView.snp.makeConstraints { $0.height.greaterThanOrEqualTo(0) }
+        contentView.snp.makeConstraints { $0.edges.equalToSuperview() }
+        tableView.snp.makeConstraints { $0.edges.equalToSuperview() }
 
         closeButton.snp.makeConstraints { make in
             make.size.equalTo(Constants.buttonSize)
@@ -218,6 +249,12 @@ final class WalletTransactionHistoryViewLayout: UIView {
     }
 
     private func applyLocalization() {
+        recoveryLabel.text = R.string.localizable.walletTransactionHistoryErrorMessage(preferredLanguages: locale.rLanguages)
+        retryButton.setTitle(R.string.localizable.commonRetry(preferredLanguages: locale.rLanguages), for: .normal)
+        explorerButton.setTitle(
+            NSLocalizedString("wallet.transaction.history.view.explorer", value: "View on explorer", comment: "Open the current wallet address in its network explorer"),
+            for: .normal
+        )
         typeSwitcher.setSegmentItems([R.string.localizable.walletFiltersTransfers(preferredLanguages: locale.rLanguages),
                                       R.string.localizable.stakingRewardsTitle(preferredLanguages: locale.rLanguages),
                                       R.string.localizable.tranactionHistoryOthersTabTitle(preferredLanguages: locale.rLanguages)])

@@ -7,7 +7,12 @@ enum WalletTransactionHistoryDependencyContainerError: Error {
     case unsupported
 }
 
-final class WalletTransactionHistoryDependencyContainer {
+protocol WalletTransactionHistoryDependencyContaining: AnyObject {
+    var dependencies: WalletTransactionHistoryDependencyContainer.WalletTransactionHistoryDependencies? { get set }
+    func createDependencies(for chainAsset: ChainAsset, selectedAccount: MetaAccountModel) throws
+}
+
+final class WalletTransactionHistoryDependencyContainer: WalletTransactionHistoryDependencyContaining {
     struct WalletTransactionHistoryDependencies {
         let dataProvider: SingleValueProvider<AssetTransactionPageData>?
         let historyService: HistoryServiceProtocol

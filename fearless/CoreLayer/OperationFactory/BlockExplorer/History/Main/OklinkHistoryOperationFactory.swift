@@ -9,6 +9,15 @@ import SSFModels
 #endif
 
 final class OklinkHistoryOperationFactory {
+    static func decodeResponse(_ data: Data, response: URLResponse?) throws -> OklinkHistoryResponse {
+        guard let http = response as? HTTPURLResponse, (200 ..< 300).contains(http.statusCode),
+              let decoded = try? JSONDecoder().decode(OklinkHistoryResponse.self, from: data),
+              decoded.code == "0" else {
+            throw EtherscanHistoryError.invalidResponse
+        }
+        return decoded
+    }
+
     private func createOperation(
         address: String,
         url: URL,
@@ -51,12 +60,7 @@ final class OklinkHistoryOperationFactory {
 
             do {
                 if let data = data {
-                    let response = try JSONDecoder().decode(
-                        OklinkHistoryResponse.self,
-                        from: data
-                    )
-
-                    return .success(response)
+                    return .success(try Self.decodeResponse(data, response: response))
                 } else if let error = error {
                     return .failure(error)
                 } else {

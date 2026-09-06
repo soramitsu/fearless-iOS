@@ -2,7 +2,11 @@ import Foundation
 import UIKit
 import SSFModels
 
-final class WalletTransactionHistoryWireframe: WalletTransactionHistoryWireframeProtocol {
+final class WalletTransactionHistoryWireframe: WalletTransactionHistoryWireframeProtocol, WebPresentable {
+    func showHistoryExplorer(url: URL, from view: ControllerBackedProtocol) {
+        showWeb(url: url, from: view, style: .modal)
+    }
+
     func showTransactionDetails(
         from view: ControllerBackedProtocol?,
         transaction: AssetTransactionData,

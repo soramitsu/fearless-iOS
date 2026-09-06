@@ -50,6 +50,15 @@ ARGUMENT_ENVIRONMENT = {
     "tonApiKeyDebug": "FL_TON_API_KEY_DEBUG",
 }
 PLACEHOLDER = re.compile(r'"\{\{\s*argument\.(\w+)\s*\}\}"')
+ENVIRONMENT_ALIASES = {"FL_TON_API_KEY": ("FL_IOS_TON_API_KEY",)}
+
+
+def environment_value(name, environment):
+    """Accept the deployed Jenkins name without silently choosing conflicting keys."""
+    values = {environment[key] for key in (name, *ENVIRONMENT_ALIASES.get(name, ())) if environment.get(key)}
+    if len(values) > 1:
+        raise ValueError("conflicting service environment aliases")
+    return next(iter(values), "")
 
 
 def swift_literal(value):
@@ -71,7 +80,7 @@ def render(template, environment):
     if "{{" in skeleton or "{%" in skeleton or "}}" in skeleton or "%}" in skeleton:
         raise ValueError("service template contains unsupported syntax")
     rendered = PLACEHOLDER.sub(
-        lambda match: swift_literal(environment.get(ARGUMENT_ENVIRONMENT[match.group(1)], "")),
+        lambda match: swift_literal(environment_value(ARGUMENT_ENVIRONMENT[match.group(1)], environment)),
         template,
     )
     return "// Generated from CIKeys.stencil. Do not edit or commit this file.\n\n" + rendered
@@ -83,6 +92,12 @@ def generate(root, environment):
     output = root / "CIKeys.generated.swift"
     if output.is_symlink():
         raise ValueError("generated service configuration must not be a symlink")
+    if output.is_file() and output.read_bytes() == result.encode("utf-8"):
+        # Preserve the input timestamp so a retry does not recompile the entire
+        # optimized app when its private configuration is already identical.
+        if output.stat().st_mode & 0o777 != 0o600:
+            output.chmod(0o600)
+        return
     temporary = None
     try:
         with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=root, prefix=".CIKeys.", delete=False) as stream:

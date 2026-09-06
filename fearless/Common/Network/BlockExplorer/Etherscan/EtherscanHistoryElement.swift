@@ -11,6 +11,7 @@ struct EtherscanHistoryElement: Decodable {
     let from: String?
     let to: String?
     let contractAddress: String?
+    let isError: String?
     @StringCodable var value: BigUInt
     @StringCodable var gas: BigUInt
     @StringCodable var gasPrice: BigUInt
