@@ -299,6 +299,43 @@ class InjectionTests(unittest.TestCase):
         I.inject(self.env)
         self.assertEqual(first, self.plist.read_bytes())
 
+    def test_archive_target_directory_accepts_products_app_symlink_without_source_writes(self):
+        target = self.root / 'InstallationBuildProductsLocation/Applications'
+        target.mkdir(parents=True)
+        source = self.root / 'fearless/Info.plist'
+        source.parent.mkdir()
+        source.write_bytes(plistlib.dumps(info()))
+        before = source.read_bytes()
+        installed_app = target / self.app.name
+        self.app.rename(installed_app)
+        self.app.symlink_to(installed_app, target_is_directory=True)
+        self.assertTrue(I.inject(self.env | {'TARGET_BUILD_DIR': str(target)}))
+        A.validate_built_plist((installed_app / 'Info.plist').read_bytes(), SCHEME)
+        self.assertTrue(self.app.is_symlink())
+        self.assertEqual(before, source.read_bytes())
+
+    def test_target_directory_rejects_escaping_paths_and_app_symlink_without_falling_back(self):
+        target = self.root / 'InstallationBuildProductsLocation/Applications'
+        target.mkdir(parents=True)
+        source_app = self.root / 'source/fearless.app'
+        source_app.mkdir(parents=True)
+        source = source_app / 'Info.plist'
+        source.write_bytes(plistlib.dumps(info()))
+        (target / 'fearless.app').symlink_to(source_app, target_is_directory=True)
+        before = source.read_bytes()
+        built_before = self.plist.read_bytes()
+        for relative in ('../../source/fearless.app/Info.plist', str(source), 'fearless.app/Info.plist'):
+            with self.assertRaises(I.audit.AuditFailure):
+                I.inject(self.env | {'TARGET_BUILD_DIR': str(target), 'INFOPLIST_PATH': relative})
+        self.assertEqual(before, source.read_bytes())
+        self.assertEqual(built_before, self.plist.read_bytes())
+
+    def test_missing_explicit_target_directory_does_not_fall_back_to_products(self):
+        before = self.plist.read_bytes()
+        with self.assertRaises(FileNotFoundError):
+            I.inject(self.env | {'TARGET_BUILD_DIR': str(self.root / 'missing-target')})
+        self.assertEqual(before, self.plist.read_bytes())
+
     def test_explicit_environment_wins_over_legacy_file_variables(self):
         env = self.env | {'google_client_id': WEB_CLIENT, 'google_url_scheme': 'com.googleusercontent.apps.987654321-webSyntheticId'}
         I.inject(env)
@@ -359,6 +396,7 @@ class BuildWiringTests(unittest.TestCase):
     def test_project_uses_helpers_exports_ignored_env_and_never_rewrites_sources(self):
         project = json.loads(subprocess.check_output(['plutil', '-convert', 'json', '-o', '-', str(REPO / 'fearless.xcodeproj/project.pbxproj')]))
         objects = project['objects']
+        self.assertEqual(['${TARGET_BUILD_DIR}/${INFOPLIST_PATH}'], objects['FAD429442A8A1A74001D6A16']['inputPaths'])
         expected = {'AE2060202636DA5900357578': 'generate-ios-service-configuration.py', 'FAD429442A8A1A74001D6A16': 'inject-ios-google-service-configuration.py'}
         for identity, helper in expected.items():
             phase = objects[identity]
@@ -402,7 +440,10 @@ class BuildWiringTests(unittest.TestCase):
             app = archive / 'Products/Applications/fearless.app'
             app.mkdir(parents=True)
             (app / 'Info.plist').write_bytes(plistlib.dumps(info()))
-            env = {'PATH': os.environ['PATH'], 'PROJECT_DIR': str(root), 'PROJECT_NAME': 'fearless', 'PODS_ROOT': str(root / 'Pods'), 'CONFIGURATION': 'Release', 'ACTION': 'install', 'BUILT_PRODUCTS_DIR': str(app.parent), 'INFOPLIST_PATH': 'fearless.app/Info.plist'}
+            products = root / 'BuildProductsPath/Release-iphoneos'
+            products.mkdir(parents=True)
+            (products / 'fearless.app').symlink_to(app, target_is_directory=True)
+            env = {'PATH': os.environ['PATH'], 'PROJECT_DIR': str(root), 'PROJECT_NAME': 'fearless', 'PODS_ROOT': str(root / 'Pods'), 'CONFIGURATION': 'Release', 'ACTION': 'install', 'BUILT_PRODUCTS_DIR': str(products), 'TARGET_BUILD_DIR': str(app.parent), 'INFOPLIST_PATH': 'fearless.app/Info.plist'}
             for identity in ('AE2060202636DA5900357578', 'FAD429442A8A1A74001D6A16'):
                 phase = project['objects'][identity]['shellScript']
                 result = subprocess.run(['/bin/sh', '-c', phase], env=env, text=True, capture_output=True)

@@ -24,7 +24,9 @@ def inject(environment):
     if not client and not scheme and not is_release_archive:
         return False
     audit.validate_google_identity(client, scheme)
-    built = Path(environment['BUILT_PRODUCTS_DIR']).resolve(strict=True)
+    # Archives install the app under TARGET_BUILD_DIR. BUILT_PRODUCTS_DIR can
+    # contain only an app symlink pointing outside that directory.
+    built = Path(environment.get('TARGET_BUILD_DIR') or environment['BUILT_PRODUCTS_DIR']).resolve(strict=True)
     relative = Path(environment['INFOPLIST_PATH'])
     if relative.is_absolute() or '..' in relative.parts:
         raise audit.AuditFailure('built Info.plist path must be inside the built products directory')

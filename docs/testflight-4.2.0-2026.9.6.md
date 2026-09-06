@@ -1,8 +1,8 @@
 # TestFlight 4.2.0 (2026.9.6)
 
 Status on 2026-09-06: production service configuration is provisioned and verified.
-Final network and history regression tests are in progress before the signed
-archive and TestFlight upload. Publication receipts are kept with the archive.
+All 69 final network, history and recovery Release tests passed.
+The signed archive and TestFlight upload are being qualified. Publication receipts are kept with the archive.
 
 ## Included changes and qualification
 
@@ -22,8 +22,10 @@ SwiftPM lockfiles, and correct build-time service configuration handling.
 - Real Xcode production identity preflight passed for this version/build.
 - Service configuration generation: 10 passing tests, including compiled Swift
   literal round trips and atomic write failure recovery.
-- Service configuration audit and actual project-phase injection: 30 passing
+- Service configuration audit and actual project-phase injection: 33 passing
   tests; missing and placeholder configuration is rejected.
+- Final combined network/history/recovery run: 69 passing Release tests, no
+  failures or skips; includes the manual-refresh recovery regression.
 - Production EVM node selection: 14 passing integrated Release tests (12 new
   selector cases plus 2 existing chain-registry lifecycle checks).
 - Device-upgrade evidence audit: 20 passing tests; startup capture: 39 passing
@@ -67,7 +69,9 @@ The generator now renders the reviewed template from the existing environment
 variable names, escapes Swift literals, leaves unset settings empty, writes the
 ignored output atomically with mode 0600, and never places credentials in process
 arguments or diagnostics. Google identity injection only changes the built app;
-it no longer rewrites tracked plist or xcconfig files. Archive preflight rejects
+it no longer rewrites tracked plist or xcconfig files. The helper and build-phase
+input use `TARGET_BUILD_DIR`, which correctly handles Xcode archive app symlinks
+without allowing writes outside the actual target product. Archive preflight rejects
 missing/placeholder active service settings, and postflight verifies unchanged
 configuration and the actual archived Google OAuth identity. Receipts contain
 hashes and presence information, never setting values.
@@ -91,7 +95,7 @@ server client. Do not commit service configuration.
 
 ## Publication steps remaining
 
-1. Complete the final network, history and recovery regression run.
+1. Final regression qualification is complete (69/69 passing).
 2. Archive the reviewed release source from its clean, exact HEAD with
    `scripts/ci/build-audited-ios-release-archive.sh`.
 3. Verify the production signing identity, app groups, default Keychain access,
