@@ -1,8 +1,14 @@
 # TestFlight 4.2.0 (2026.9.6)
 
-Status on 2026-09-06: production service configuration is provisioned and verified.
-All 69 final network, history and recovery Release tests passed.
-The signed archive and TestFlight upload are being qualified. Publication receipts are kept with the archive.
+Published on 2026-09-06. Apple accepted and processed the signed archive; the
+existing `App Store Connect Users` internal group shows this build as **Testing**
+for its six testers. Complete test notes are saved.
+
+- [App Store Connect build](https://appstoreconnect.apple.com/teams/69a6de8e-8bb9-47e3-e053-5b8c7c11a4d1/apps/1537251089/testflight/ios/d3278028-7aa4-4f0a-b19d-2c12f7e3f50b)
+- Release source commit: `645c15373bef2c9e384abf4f28deaef34007e7bf`.
+- Signed archive: `build/testflight-2026.9.6-signed-release-pass3/fearless.xcarchive`.
+- Signed audit: `build/testflight-2026.9.6-signed-release-pass3/signed-archive-audit.json`.
+- Publication attestation: `build/release-preparation-20260906/testflight-publication-attestation.json`.
 
 ## Included changes and qualification
 
@@ -93,16 +99,17 @@ Regeneration preserves identical files so incremental builds remain valid. The n
 callback must match; the template's web client identifier may be a separate
 server client. Do not commit service configuration.
 
-## Publication steps remaining
+## Publication verification
 
-1. Final regression qualification is complete (69/69 passing).
-2. Archive the reviewed release source from its clean, exact HEAD with
-   `scripts/ci/build-audited-ios-release-archive.sh`.
-3. Verify the production signing identity, app groups, default Keychain access,
-   storage compatibility models, configuration receipts, and archive hashes.
-4. Upload the audited archive through the existing authenticated Xcode account.
-5. Wait for Apple processing and verify this exact build is available to the
-   existing internal tester group. Save the upload and distribution receipts.
+All 69 final Release tests passed with no failures or skips. The production
+archive passed the exact signing identity, entitlements, default Keychain access,
+legacy storage models, service configuration and symbol coverage audits. Its tree
+SHA-256 is `18cdd063ad66f956529cc3e3afc6b5fe7d92e1b0715c779b1e3753830bca501d`.
+
+Xcode Organizer uploaded a copy of the audited archive with version/build
+management disabled and the reviewed production certificate/profile selected.
+Apple processing completed, and the existing internal group's build list shows
+`4.2.0 (2026.9.6)` as `Testing`. The original audited archive remains unchanged.
 
 Signed-device upgrades in place from historical releases remain the acceptance
 gate before broader release. The local synthetic qualification does not replace
