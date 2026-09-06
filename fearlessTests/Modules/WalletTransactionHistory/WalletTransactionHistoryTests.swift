@@ -49,6 +49,23 @@ final class WalletTransactionHistoryTests: XCTestCase {
         }
     }
 
+    func testProviderFailureDuringReloadPreservesRowsAndRejectsPendingCompletionUntilRetry() throws {
+        let (interactor, remote, output) = try fixture()
+        remote.complete(0, .success(page("loaded")))
+        interactor.reload()
+        interactor.handleDataProvider(error: HistoryFixtureError.unavailable)
+        XCTAssertEqual(output.failures, 1)
+        XCTAssertFalse(interactor.loadNext())
+        XCTAssertEqual(interactor.pages.flatMap(\.transactions).map(\.transactionId), ["loaded"])
+        remote.complete(1, .success(page("stale-pending-reload")))
+        XCTAssertEqual(output.pages.count, 1)
+        XCTAssertFalse(interactor.loadNext())
+        interactor.reload()
+        remote.complete(2, .success(page("retry-recovered", context: ["next": "older"])))
+        XCTAssertEqual(output.pages.last?.0.transactions.first?.transactionId, "retry-recovered")
+        XCTAssertTrue(interactor.loadNext())
+    }
+
     func testRetryRecreatesDependenciesAfterTransientSetupFailure() throws {
         let remote = HistoryRecoveryRemote()
         let dependencies = HistoryDependencies(remote: remote)

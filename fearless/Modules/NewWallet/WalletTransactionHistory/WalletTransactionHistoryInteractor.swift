@@ -147,11 +147,12 @@ final class WalletTransactionHistoryInteractor {
             dataLoadingState = .loaded(page: nil, nextContext: nil)
         case let .loading(currentPage, previousPage):
             dataLoadingState = .loaded(page: previousPage, nextContext: currentPage.context)
-        case .loaded:
+        case let .filtering(currentPage, previousPage):
+            dataLoadingState = .filtered(page: previousPage, nextContext: currentPage.context)
+        case .loaded, .filtered:
             break
-        default:
-            return
         }
+        requestGeneration &+= 1
         historyRecoveryNeeded = true
         logger?.debug("History provider refresh failed")
         presenter?.didReceiveHistoryFailure()
