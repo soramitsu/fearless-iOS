@@ -20,8 +20,10 @@ SHA-256 checks, compares the re-encoded canonical bytes to the exact journaled
 bytes, and then invokes a mandatory `PasskeyLocalWalletVerifier`. The verifier
 contract requires local credential unwrap, AES-GCM decryption, public wallet
 identity comparison, an original-key signing check and an original-key export
-check. The coordinator rejects missing, false or mismatched evidence. Only
-after these checks does it return `PasskeyBackupLocallyVerifiedGeneration`,
+check. The coordinator rejects missing, false or mismatched evidence, then
+re-reads the exact attempted journal entry and selected Google account after
+the asynchronous verifier. Only after these checks does it return
+`PasskeyBackupLocallyVerifiedGeneration`,
 which is evidence of this round trip alone.
 
 There is no production verifier implementation in this increment. Wiring the

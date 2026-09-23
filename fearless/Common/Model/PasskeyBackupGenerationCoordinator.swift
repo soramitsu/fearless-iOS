@@ -107,6 +107,14 @@ final class PasskeyBackupGenerationCoordinator {
         }
         let downloaded = try await readExact(prepared, expectedWallet: expectedWallet)
         let evidence = try await verifyLocal(downloaded, expectedWallet: expectedWallet)
+        // A verifier may suspend while the account or app-private journal changes.
+        guard let confirmed = try journal.read(operationID: operationID, expectedScope: authenticatedScope),
+              confirmed.createAttempted, confirmed.fileID == prepared.fileID,
+              confirmed.context == prepared.context, confirmed.sha256 == prepared.sha256,
+              confirmed.bytes == prepared.bytes else {
+            throw PasskeyBackupGenerationJournalError.invalidRecord
+        }
+        try await storage.requireSelectedAccount()
         try Task.checkCancellation()
         return PasskeyBackupLocallyVerifiedGeneration(
             operationID: operationID, fileID: prepared.fileID, context: prepared.context,

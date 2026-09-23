@@ -399,6 +399,64 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         XCTAssertFalse(PasskeyBackupReleaseConfig.isPasskeyBackupEnabled)
     }
 
+    func testCoordinatorRejectsGoogleAccountChangedDuringLocalVerification() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let (journal, parent) = try coordinatorJournal()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let changed = try authorization(subject: "other-subject")
+        let verifier = GenerationLocalVerifierFixture()
+        verifier.afterVerify = { await MainActor.run { fixture.oauth.current = changed } }
+        fixture.transport.responses = [
+            .success(.init(statusCode: 201, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: candidate.bytes))
+        ]
+        do {
+            _ = try await PasskeyBackupGenerationCoordinator(
+                storage: fixture.store, journal: journal, verifier: verifier
+            ).verifyPreparedGeneration(
+                operationID: coordinatorOperationID, authenticatedScope: scope(candidate),
+                expectedWallet: expectedWallet(), candidate: candidate
+            )
+            XCTFail("A switched Google account was accepted")
+        } catch {
+            XCTAssertEqual(error as? GoogleDrivePasskeyBackupError, .accountChanged)
+        }
+        XCTAssertEqual(verifier.calls, 1)
+        XCTAssertEqual(fixture.transport.requests.map(\.method), ["POST", "GET", "GET"])
+        XCTAssertTrue(try XCTUnwrap(journal.read(
+            operationID: coordinatorOperationID, expectedScope: scope(candidate)
+        )).createAttempted)
+    }
+
+    func testCoordinatorRejectsJournalRemovedDuringLocalVerification() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let (journal, parent) = try coordinatorJournal()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let verifier = GenerationLocalVerifierFixture()
+        verifier.afterVerify = { try FileManager.default.removeItem(at: parent) }
+        fixture.transport.responses = [
+            .success(.init(statusCode: 201, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: candidate.bytes))
+        ]
+        do {
+            _ = try await PasskeyBackupGenerationCoordinator(
+                storage: fixture.store, journal: journal, verifier: verifier
+            ).verifyPreparedGeneration(
+                operationID: coordinatorOperationID, authenticatedScope: scope(candidate),
+                expectedWallet: expectedWallet(), candidate: candidate
+            )
+            XCTFail("A removed journal was accepted")
+        } catch {
+            XCTAssertEqual(error as? PasskeyBackupGenerationJournalError, .unavailable)
+        }
+        XCTAssertEqual(verifier.calls, 1)
+        XCTAssertEqual(fixture.transport.requests.map(\.method), ["POST", "GET", "GET"])
+    }
+
     func testCoordinatorReconcilesUnknownUploadAnd404AfterRestartWithoutSecondPost() async throws {
         let fixture = try fixture()
         let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
@@ -693,12 +751,14 @@ private struct GenerationFixture {
 private final class GenerationLocalVerifierFixture: PasskeyLocalWalletVerifier {
     var calls = 0
     var failedCheck: Int?
+    var afterVerify: (() async throws -> Void)?
 
     func decryptAndVerifyOriginalWallet(
         _: PasskeyBackupGenerationV1,
         expectedIdentity: PasskeyBackupExpectedWalletIdentity
     ) async throws -> PasskeyBackupLocalWalletEvidence {
         calls += 1
+        try await afterVerify?()
         return PasskeyBackupLocalWalletEvidence(
             storageKey: expectedIdentity.storageKey, walletId: expectedIdentity.walletId,
             publicIdentitySha256: expectedIdentity.publicIdentitySha256,

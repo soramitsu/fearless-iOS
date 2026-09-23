@@ -143,6 +143,18 @@ final class GoogleDrivePasskeyGenerationStorage {
         )
     }
 
+    /// Recheck the selected Google identity after an asynchronous local wallet ceremony.
+    /// This does not read or mutate a Drive file.
+    func requireSelectedAccount() async throws {
+        try Task.checkCancellation()
+        let authorization = try await tokenProvider.authorization()
+        try Task.checkCancellation()
+        guard authorization.account.subject == account.subject else {
+            throw GoogleDrivePasskeyBackupError.accountChanged
+        }
+        try authorization.validate(now: now())
+    }
+
     private func requireAccount(_ context: PasskeyBackupGenerationV1.Context) throws {
         guard context.storageAccountBinding == accountBinding else {
             throw GoogleDrivePasskeyBackupError.accountChanged
