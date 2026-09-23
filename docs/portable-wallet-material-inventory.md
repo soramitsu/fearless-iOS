@@ -23,6 +23,26 @@ and all historical secret availability. The legacy Google backup path now
 rejects partial export and requires download/decryption readback before marking
 a wallet backed up, but that does not make it a portable passkey backup.
 
+`IOSPasskeyWalletMaterialPreflight` is a read-only, count-only safety check for
+future portable backup work. It compares raw persisted `CDMetaAccount` row
+counts with selection-safe projections, rejects unsupported or quarantined
+rows, duplicates, a pending Keychain migration, missing or inaccessible root
+and independent chain keys, and public metadata that changes during the read.
+It validates an EVM private key against its stored address and a native TON
+phrase against the original V4R2 identity. A native TON phrase alone can
+recreate the same private key; a private-key-only native TON row fails this
+preflight because the released phrase-export UX cannot be preserved. The
+persisted iOS model does not represent an EVM-only wallet without a Substrate
+or native TON root; such a row remains unsupported and fails closed.
+
+This preflight checks Substrate secret presence and public metadata, but it
+does not prove that the stored Substrate secret derives the public key or can
+sign and export. It also does not serialize all optional entropy, seed and
+derivation tags; perform an atomic secret capture and original-key signing and
+export proof before allowing any backup-complete state. Its two wallet-store
+reads detect ordinary metadata drift but are not a transaction spanning
+Core Data and Keychain. The production passkey feature remains disabled.
+
 The disabled passkey generation code authenticates an encrypted envelope,
 unwraps a credential-local backup key from a native PRF result and calls the
 `PasskeyBackupPlaintextWalletVerifier` protocol. Only synthetic test fixtures
