@@ -54,6 +54,87 @@ struct PasskeyBackupLocalWalletEvidence: CustomStringConvertible, CustomDebugStr
     var debugDescription: String { description }
 }
 
+/// The app must derive original public identities from decrypted keys, then prove signing and export.
+/// Neither generation metadata nor a Google account is a valid implementation of this contract.
+protocol PasskeyBackupPlaintextWalletVerifier {
+    func verifyOriginalWallet(
+        _ plaintextBackup: Data,
+        expectedIdentity: PasskeyBackupExpectedWalletIdentity
+    ) async throws -> PasskeyBackupLocalWalletEvidence
+}
+
+/// Local crypto half of generation verification. Owner authentication, exact-head retrieval,
+/// a live credential assertion and wallet installation remain separate release gates.
+final class PasskeyBackupGenerationCryptographicVerifier {
+    private let walletVerifier: PasskeyBackupPlaintextWalletVerifier
+    private let envelopeCryptography: PasskeyBackupEnvelopeCryptography
+    private let keyWrapper: PasskeyBackupCredentialKeyWrapper
+
+    init(
+        walletVerifier: PasskeyBackupPlaintextWalletVerifier,
+        envelopeCryptography: PasskeyBackupEnvelopeCryptography = AESGCMPasskeyBackupEnvelopeCryptography(),
+        keyWrapper: PasskeyBackupCredentialKeyWrapper = PasskeyBackupCredentialKeyWrapper()
+    ) {
+        self.walletVerifier = walletVerifier
+        self.envelopeCryptography = envelopeCryptography
+        self.keyWrapper = keyWrapper
+    }
+
+    func verify(
+        _ generation: PasskeyBackupGenerationV1,
+        verifiedPRF: PasskeyBackupVerifiedLocalPRF,
+        expectedIdentity: PasskeyBackupExpectedWalletIdentity
+    ) async throws -> PasskeyBackupLocalWalletEvidence {
+        try Task.checkCancellation()
+        let envelope = generation.envelope
+        guard verifiedPRF.storageKey == expectedIdentity.storageKey,
+              envelope.storageKey == expectedIdentity.storageKey,
+              envelope.walletId == expectedIdentity.walletId else {
+            throw PasskeyBackupGenerationCoordinatorError.walletIdentityMismatch
+        }
+        let metadata = try envelope.envelopeMetadata()
+        let credentialID = Self.base64URL(verifiedPRF.credentialID)
+        let context = try PasskeyBackupKeyWrapperContext(
+            ownerSubject: generation.context.ownerSubject,
+            credentialId: credentialID,
+            keyEpoch: generation.context.keyEpoch,
+            envelopeMetadata: metadata
+        )
+        guard let record = generation.wrappers.first(where: { $0.context.credentialId == credentialID }),
+              record.context == context, record.prfSalt == verifiedPRF.prfSalt else {
+            throw PasskeyBackupGenerationCoordinatorError.localVerificationFailed
+        }
+        var plaintext = try verifiedPRF.withOutput { prfOutput in
+            var backupKey = try keyWrapper.unwrap(
+                record: record, prfOutput: prfOutput, expectedContext: context
+            )
+            defer { backupKey.resetBytes(in: 0 ..< backupKey.count) }
+            return try envelopeCryptography.decrypt(
+                envelope.encryptedPayload, metadata: metadata, key: backupKey
+            )
+        }
+        defer { plaintext.resetBytes(in: 0 ..< plaintext.count) }
+        try Task.checkCancellation()
+        let evidence = try await walletVerifier.verifyOriginalWallet(
+            plaintext, expectedIdentity: expectedIdentity
+        )
+        try Task.checkCancellation()
+        guard evidence.storageKey == expectedIdentity.storageKey,
+              evidence.walletId == expectedIdentity.walletId,
+              evidence.publicIdentitySha256 == expectedIdentity.publicIdentitySha256,
+              evidence.decryptionVerified, evidence.originalKeySigningVerified,
+              evidence.originalKeyExportVerified else {
+            throw PasskeyBackupGenerationCoordinatorError.localVerificationFailed
+        }
+        return evidence
+    }
+
+    private static func base64URL(_ bytes: Data) -> String {
+        bytes.base64EncodedString().replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
+    }
+}
+
 /// Evidence of a local round trip only. It is not an owner-head update or backup-complete state.
 struct PasskeyBackupLocallyVerifiedGeneration: CustomStringConvertible, CustomDebugStringConvertible {
     let operationID: String

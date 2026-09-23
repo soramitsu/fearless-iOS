@@ -26,11 +26,15 @@ the asynchronous verifier. Only after these checks does it return
 `PasskeyBackupLocallyVerifiedGeneration`,
 which is evidence of this round trip alone.
 
-There is no production verifier implementation in this increment. Wiring the
-native PRF ceremony, credential-key unwrap and existing AES-GCM envelope to
-the actual wallet migration/signing/export paths needs separate review. The
-owner/grant authority, transactional head update, retention policy, credential
-rotation, device/provider interoperability and distribution tests remain
-release gates. The passkey recovery flag stays disabled. A test verifier
-exists only in the simulator fixture and cannot be selected by production
-code.
+`PasskeyBackupGenerationCryptographicVerifier` now accepts only the typed local
+PRF result released after challenge verification. It requires the exact
+credential wrapper and salt, unwraps the backup key, decrypts FPBKAEAD, and
+checks the wallet callback's original identity, signing and export evidence.
+Its mutable local PRF, key and plaintext `Data` buffers are reset after use;
+Swift/CryptoKit and the wallet callback may retain other copies, which need
+security review. Its tests use synthetic wallet material; the production wallet
+migration/signing/export callback is not implemented or wired into the
+coordinator. Owner/grant HTTP integration, transactional head update,
+retention, credential rotation, device/provider interoperability and
+distribution tests remain release gates. The passkey recovery flag stays
+disabled.

@@ -186,6 +186,64 @@ final class PasskeyBackupPRFCeremonyTests: XCTestCase {
         XCTAssertEqual(verifier.requests.count, 1)
     }
 
+    func testVerifiedPRFDecryptsSharedGenerationAndRequiresOriginalKeyEvidence() async throws {
+        let local = FixturePlaintextWalletVerifier()
+        let verifier = PasskeyBackupGenerationCryptographicVerifier(walletVerifier: local)
+        let identity = try PasskeyBackupExpectedWalletIdentity(
+            storageKey: "wallet-1234", walletId: "wallet-001",
+            publicIdentitySha256: String(repeating: "b", count: 64)
+        )
+        let output = try await verifiedOutput()
+        let evidence = try await verifier.verify(
+            generation(), verifiedPRF: output, expectedIdentity: identity
+        )
+        XCTAssertEqual(evidence.publicIdentitySha256, identity.publicIdentitySha256)
+        XCTAssertEqual(local.calls, 1)
+        XCTAssertEqual(local.lastPlaintext, Data("cross-platform-passkey-backup".utf8))
+    }
+
+    func testGenerationVerificationRejectsWrongCredentialPRFAndWalletEvidence() async throws {
+        let local = FixturePlaintextWalletVerifier()
+        let verifier = PasskeyBackupGenerationCryptographicVerifier(walletVerifier: local)
+        let identity = try PasskeyBackupExpectedWalletIdentity(
+            storageKey: "wallet-1234", walletId: "wallet-001",
+            publicIdentitySha256: String(repeating: "b", count: 64)
+        )
+        let wrongCredential = try await verifiedOutput(credential: Data(repeating: 0x23, count: 32))
+        let wrongPRF = try await verifiedOutput(prf: Data(repeating: 0x67, count: 32))
+        for output in [wrongCredential, wrongPRF] {
+            do {
+                _ = try await verifier.verify(generation(), verifiedPRF: output, expectedIdentity: identity)
+                XCTFail("Unrelated credential or PRF opened a generation")
+            } catch {}
+        }
+        XCTAssertEqual(local.calls, 0)
+        let otherWallet = try PasskeyBackupExpectedWalletIdentity(
+            storageKey: "wallet-9999", walletId: "wallet-001",
+            publicIdentitySha256: identity.publicIdentitySha256
+        )
+        let validOutput = try await verifiedOutput()
+        do {
+            _ = try await verifier.verify(
+                generation(), verifiedPRF: validOutput, expectedIdentity: otherWallet
+            )
+            XCTFail("Wrong wallet identity accepted")
+        } catch {
+            XCTAssertEqual(error as? PasskeyBackupGenerationCoordinatorError, .walletIdentityMismatch)
+        }
+        XCTAssertEqual(local.calls, 0)
+        local.failedCheck = 1
+        do {
+            _ = try await verifier.verify(
+                generation(), verifiedPRF: validOutput, expectedIdentity: identity
+            )
+            XCTFail("Missing original-key signing evidence accepted")
+        } catch {
+            XCTAssertEqual(error as? PasskeyBackupGenerationCoordinatorError, .localVerificationFailed)
+        }
+        XCTAssertEqual(local.calls, 1)
+    }
+
     func testMissingCreationOutputNeedsFreshVerifiedSameCredentialAssertion() async throws {
         let gate = try PasskeyBackupPRFEnrollmentGate(registration: registrationResult())
         XCTAssertThrowsError(try gate.assertionContext(assertion()))
@@ -416,14 +474,65 @@ final class PasskeyBackupPRFCeremonyTests: XCTestCase {
     }
 
     private func registrationResult(
-        output: ASAuthorizationPublicKeyCredentialPRFRegistrationOutput? = nil
+        output: ASAuthorizationPublicKeyCredentialPRFRegistrationOutput? = nil,
+        credential: Data? = nil
     ) throws -> PasskeyBackupPRFCeremonyResult {
         try .registration(
             context: PasskeyBackupPRFContext.registration(registration(), prfSalt: salt),
-            credentialID: credentialID,
+            credentialID: credential ?? credentialID,
             clientDataJSON: Data("public-client-data".utf8),
             attestationObject: Data([1, 2, 3]),
             prf: output
+        )
+    }
+
+    private func verifiedOutput(
+        prf: Data = Data(repeating: 0x66, count: 32),
+        credential: Data? = nil
+    ) async throws -> PasskeyBackupVerifiedLocalPRF {
+        let gate = try PasskeyBackupPRFEnrollmentGate(registration: registrationResult(
+            output: .init(first: SymmetricKey(data: prf), second: nil), credential: credential
+        ))
+        try await gate.verifyRegistration(using: FixturePRFVerifier())
+        return try gate.takeVerifiedOutput()
+    }
+
+    private func generation() throws -> PasskeyBackupGenerationV1 {
+        let owner = "owner:ERERERERERERERERERERERERERERERERERERERERERE"
+        let metadata = try PasskeyBackupEnvelopeMetadata(
+            storageKey: "wallet-1234", walletId: "wallet-001", accountName: "alice@example.com",
+            createdAtMillis: 1_767_225_600_000
+        )
+        let envelope = try PasskeyBackupEncryptedRecord(
+            storageKey: metadata.storageKey, walletId: metadata.walletId,
+            accountName: metadata.accountName, createdAtMillis: metadata.createdAtMillis,
+            encryptedPayload: PasskeyBackupContract.decodeBase64URL(
+                "RlBCS0FFQUQBAQwQAAAAHQABAgMEBQYHCAkKC83JBCkpwJEyw__KPV-GpFaKNXesucIWrPbymd1fJxz0FX_uLctQsHJRM3AfVA"
+            )
+        )
+        let wrapper = try PasskeyBackupCredentialKeyWrapperRecord(
+            context: PasskeyBackupKeyWrapperContext(
+                ownerSubject: owner, credentialId: base64URL(credentialID), keyEpoch: 7,
+                envelopeMetadata: metadata
+            ),
+            prfSalt: salt, hkdfSalt: Data(repeating: 0x44, count: 32),
+            nonce: Data(repeating: 0x55, count: 12),
+            ciphertextAndTag: PasskeyBackupContract.decodeBase64URL(
+                "m_xnd6ezMk5VjmGJjqjAVrBDJYQTp7NxcktIT8CmyM8uzo4ZphIMYP-2QRflGgs5"
+            )
+        )
+        return try PasskeyBackupGenerationV1(
+            context: PasskeyBackupGenerationV1.Context(
+                ownerSubject: owner,
+                backupNamespace: "backup:iIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIg",
+                generationId: "mZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZk",
+                parentHeadRevision: 6, parentHeadSha256: String(repeating: "a", count: 64),
+                keyEpoch: 7,
+                storageAccountBinding: PasskeyBackupGenerationV1Format.storageAccountBinding(
+                    verifiedGoogleSubject: "google-subject-123"
+                )
+            ),
+            envelope: envelope, wrappers: [wrapper]
         )
     }
 
@@ -447,6 +556,31 @@ final class PasskeyBackupPRFCeremonyTests: XCTestCase {
     private func base64URL(_ data: Data) -> String {
         data.base64EncodedString().replacingOccurrences(of: "+", with: "-")
             .replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
+    }
+}
+
+private final class FixturePlaintextWalletVerifier: PasskeyBackupPlaintextWalletVerifier {
+    var calls = 0
+    var failedCheck: Int?
+    var lastPlaintext: Data?
+
+    func verifyOriginalWallet(
+        _ plaintextBackup: Data,
+        expectedIdentity: PasskeyBackupExpectedWalletIdentity
+    ) async throws -> PasskeyBackupLocalWalletEvidence {
+        calls += 1
+        lastPlaintext = plaintextBackup
+        guard plaintextBackup == Data("cross-platform-passkey-backup".utf8) else {
+            throw PasskeyBackupGenerationCoordinatorError.localVerificationFailed
+        }
+        return PasskeyBackupLocalWalletEvidence(
+            storageKey: expectedIdentity.storageKey,
+            walletId: expectedIdentity.walletId,
+            publicIdentitySha256: expectedIdentity.publicIdentitySha256,
+            decryptionVerified: failedCheck != 0,
+            originalKeySigningVerified: failedCheck != 1,
+            originalKeyExportVerified: failedCheck != 2
+        )
     }
 }
 
