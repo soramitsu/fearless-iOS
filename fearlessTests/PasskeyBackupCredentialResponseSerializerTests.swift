@@ -890,6 +890,34 @@ final class PasskeyCredentialResponseSerializerTests: XCTestCase {
         }
     }
 
+    func testIncompleteRegistrationRevokeBindsConfirmationToExactGrantBody() async throws {
+        let credentialId = base64URL(Data("credential-rollback".utf8))
+        let transport = AuthorizationTestTransport(responses: [
+            httpJSON(
+                #"{"storageKey":"wallet-1234","credentialId":"\#(credentialId)","remainingCredentials":0,"rpId":"fearlesswallet.io","schemaVersion":1}"#
+            )
+        ])
+        let authorization = AuthorizationTestProvider(token: "test-token")
+        let service = try HTTPPasskeyBackupChallengeService(
+            baseURL: "https://backup.fearlesswallet.io",
+            transport: transport,
+            authorizationProvider: authorization
+        )
+
+        _ = try await service.revokeIncompleteRegistrationCredential(
+            storageKey: "wallet-1234",
+            credentialId: credentialId
+        )
+        let request = try XCTUnwrap(transport.requests.first)
+        let bodyData = try XCTUnwrap(request.body)
+        let body = try XCTUnwrap(JSONSerialization.jsonObject(with: bodyData) as? [String: Any])
+        XCTAssertEqual(Set(body.keys), [
+            "storageKey", "credentialId", "confirmFinalRecoveryRemoval", "rpId", "schemaVersion"
+        ])
+        XCTAssertEqual(body["confirmFinalRecoveryRemoval"] as? Bool, true)
+        XCTAssertEqual(authorization.requests.first?.bodySha256, sha256Base64URL(bodyData))
+    }
+
     func testDeleteRevokesServerCredentialsBeforeCloudAndPreservesCloudOnServerFailure() async throws {
         let envelope = try AESGCMPasskeyBackupEnvelopeCryptography().encrypt(
             Data([1, 2, 3]),
@@ -1070,6 +1098,7 @@ final class PasskeyCredentialResponseSerializerTests: XCTestCase {
         XCTAssertEqual(service.completedRegistrationId, "registration-1234")
         XCTAssertEqual(service.revokedCredentialStorageKey, "wallet-1234")
         XCTAssertEqual(service.revokedCredentialId, credentialId)
+        XCTAssertTrue(service.revokedIncompleteRegistrationCredential)
         XCTAssertNil(service.revokedAllStorageKey)
     }
 
@@ -2163,6 +2192,7 @@ private final class LifecycleTestChallengeService: PasskeyBackupChallengeService
     private(set) var completedAssertionId: String?
     private(set) var revokedCredentialStorageKey: String?
     private(set) var revokedCredentialId: String?
+    private(set) var revokedIncompleteRegistrationCredential = false
 
     init(
         revokeAllError: Error? = nil,
@@ -2252,6 +2282,14 @@ private final class LifecycleTestChallengeService: PasskeyBackupChallengeService
             credentialId: credentialId,
             remainingCredentials: 0
         )
+    }
+
+    func revokeIncompleteRegistrationCredential(
+        storageKey: String,
+        credentialId: String
+    ) async throws -> PasskeyBackupCredentialRevokeResult {
+        revokedIncompleteRegistrationCredential = true
+        return try await revokeCredential(storageKey: storageKey, credentialId: credentialId)
     }
 }
 
@@ -2532,6 +2570,13 @@ private final class AdversarialCompensationChallengeService: PasskeyBackupChalle
             credentialId: credentialId,
             remainingCredentials: 0
         )
+    }
+
+    func revokeIncompleteRegistrationCredential(
+        storageKey: String,
+        credentialId: String
+    ) async throws -> PasskeyBackupCredentialRevokeResult {
+        try await revokeCredential(storageKey: storageKey, credentialId: credentialId)
     }
 
     func revokeAllCredentials(storageKey _: String) async throws -> PasskeyBackupCredentialRevokeResult {

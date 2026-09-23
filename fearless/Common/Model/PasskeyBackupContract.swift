@@ -810,6 +810,11 @@ protocol PasskeyBackupChallengeService {
         credentialId: String
     ) async throws -> PasskeyBackupCredentialRevokeResult
 
+    func revokeIncompleteRegistrationCredential(
+        storageKey: String,
+        credentialId: String
+    ) async throws -> PasskeyBackupCredentialRevokeResult
+
     func revokeAllCredentials(storageKey: String) async throws -> PasskeyBackupCredentialRevokeResult
 }
 
@@ -823,6 +828,13 @@ extension PasskeyBackupChallengeService {
     }
 
     func revokeCredential(
+        storageKey _: String,
+        credentialId _: String
+    ) async throws -> PasskeyBackupCredentialRevokeResult {
+        throw PasskeyBackupError.unavailableAuthorization
+    }
+
+    func revokeIncompleteRegistrationCredential(
         storageKey _: String,
         credentialId _: String
     ) async throws -> PasskeyBackupCredentialRevokeResult {
@@ -1595,10 +1607,38 @@ extension HTTPPasskeyBackupChallengeService {
         storageKey: String,
         credentialId: String
     ) async throws -> PasskeyBackupCredentialRevokeResult {
+        try await revokeCredential(
+            storageKey: storageKey,
+            credentialId: credentialId,
+            confirmIncompleteRegistrationRollback: false
+        )
+    }
+
+    func revokeIncompleteRegistrationCredential(
+        storageKey: String,
+        credentialId: String
+    ) async throws -> PasskeyBackupCredentialRevokeResult {
+        try await revokeCredential(
+            storageKey: storageKey,
+            credentialId: credentialId,
+            confirmIncompleteRegistrationRollback: true
+        )
+    }
+
+    private func revokeCredential(
+        storageKey: String,
+        credentialId: String,
+        confirmIncompleteRegistrationRollback: Bool
+    ) async throws -> PasskeyBackupCredentialRevokeResult {
         let normalizedStorageKey = try PasskeyBackupContract.validateStorageKey(storageKey)
         let normalizedCredentialId = try PasskeyBackupContract.validateCredentialId(credentialId)
         var body = lifecycleBody(storageKey: normalizedStorageKey)
         body["credentialId"] = normalizedCredentialId
+        if confirmIncompleteRegistrationRollback {
+            // This credential was never accepted as a usable recovery route.
+            // The server binds the exception to this exact one-time grant body.
+            body["confirmFinalRecoveryRemoval"] = true
+        }
         let response = try await post(
             path: PasskeyBackupAuthorizationRequest.credentialsRevokePath,
             body: body
@@ -2351,7 +2391,7 @@ private extension PasskeyBackupWorkflow {
         // an unsafe detached capture when the registration task is cancelled.
         let revokeTask = Task {
             do {
-                let result = try await challengeService.revokeCredential(
+                let result = try await challengeService.revokeIncompleteRegistrationCredential(
                     storageKey: storageKey,
                     credentialId: credentialId
                 )
