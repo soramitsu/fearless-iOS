@@ -11,6 +11,7 @@ final class PasskeyBackupGenerationJournal {
     private let directoryFD: Int32
     private let lockFD: Int32
     private static let processLock = NSLock()
+    private let fileSync: (Int32) -> Int32
     private let boundaryHook: (Boundary) throws -> Void
 
     static func applicationSupport() throws -> PasskeyBackupGenerationJournal {
@@ -23,7 +24,11 @@ final class PasskeyBackupGenerationJournal {
     }
 
     /// The parent must be the app's Application Support directory, or a private test fixture.
-    init(parentDirectoryURL: URL, boundaryHook: @escaping (Boundary) throws -> Void = { _ in }) throws {
+    init(
+        parentDirectoryURL: URL, parentSync: (Int32) -> Int32 = { Darwin.fsync($0) },
+        fileSync: @escaping (Int32) -> Int32 = { Darwin.fsync($0) },
+        boundaryHook: @escaping (Boundary) throws -> Void = { _ in }
+    ) throws {
         let parentFD = Darwin.open(parentDirectoryURL.path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW)
         guard parentFD >= 0 else { throw PasskeyBackupGenerationJournalError.unavailable }
         defer { _ = Darwin.close(parentFD) }
@@ -53,6 +58,10 @@ final class PasskeyBackupGenerationJournal {
                 guard Darwin.fsync(openedDirectory) == 0 else {
                     throw PasskeyBackupGenerationJournalError.unavailable
                 }
+                // The new directory name itself must survive power loss before any POST can be admitted.
+                guard parentSync(parentFD) == 0 else {
+                    throw PasskeyBackupGenerationJournalError.unavailable
+                }
             } catch {
                 _ = Darwin.close(openedLock)
                 throw error
@@ -60,6 +69,7 @@ final class PasskeyBackupGenerationJournal {
             directoryURL = url
             directoryFD = openedDirectory
             lockFD = openedLock
+            self.fileSync = fileSync
             self.boundaryHook = boundaryHook
         } catch {
             _ = Darwin.close(openedDirectory)
@@ -90,7 +100,7 @@ final class PasskeyBackupGenerationJournal {
             let name = Self.recordName(operationID)
             if let existing = try readFile(name, maximum: PasskeyBackupGenerationJournalRecord.maximumBytes) {
                 guard existing == record else { throw PasskeyBackupGenerationJournalError.invalidRecord }
-                try synchronizeDirectory()
+                try confirmPreparedDurable(name, expected: record)
             } else {
                 let entries = try checkedEntries()
                 guard entries.count < Self.maximumEntries else {
@@ -124,6 +134,7 @@ final class PasskeyBackupGenerationJournal {
                 throw PasskeyBackupGenerationJournalError.invalidRecord
             }
             _ = try verifiedEntry(record, operationID: operationID, expectedScope: expectedScope)
+            try confirmPreparedDurable(Self.recordName(operationID), expected: record)
             let marker = PasskeyBackupGenerationJournalRecord.attemptMarker(for: record)
             let name = Self.attemptName(operationID)
             if let existing = try readFile(name, maximum: marker.count) {
@@ -253,13 +264,17 @@ private extension PasskeyBackupGenerationJournal {
     }
 
     private func readFile(_ name: String, maximum: Int) throws -> Data? {
-        let descriptor = Darwin.openat(directoryFD, name, O_RDONLY | O_NOFOLLOW)
+        let descriptor = Darwin.openat(directoryFD, name, O_RDONLY | O_NOFOLLOW | O_NONBLOCK)
         if descriptor < 0 {
             if errno == ENOENT { return nil }
             throw PasskeyBackupGenerationJournalError.unavailable
         }
         defer { _ = Darwin.close(descriptor) }
         try Self.requirePrivateFile(descriptor, maximum: maximum)
+        return try readDescriptor(descriptor, maximum: maximum)
+    }
+
+    private func readDescriptor(_ descriptor: Int32, maximum: Int) throws -> Data {
         var result = Data()
         var buffer = [UInt8](repeating: 0, count: 8192)
         while true {
@@ -273,6 +288,18 @@ private extension PasskeyBackupGenerationJournal {
             result.append(contentsOf: buffer.prefix(count))
         }
         return result
+    }
+
+    private func confirmPreparedDurable(_ name: String, expected: Data) throws {
+        let descriptor = Darwin.openat(directoryFD, name, O_RDONLY | O_NOFOLLOW | O_NONBLOCK)
+        guard descriptor >= 0 else { throw PasskeyBackupGenerationJournalError.unavailable }
+        defer { _ = Darwin.close(descriptor) }
+        try Self.requirePrivateFile(descriptor, maximum: expected.count)
+        guard try readDescriptor(descriptor, maximum: expected.count) == expected else {
+            throw PasskeyBackupGenerationJournalError.invalidRecord
+        }
+        guard fileSync(descriptor) == 0 else { throw PasskeyBackupGenerationJournalError.unavailable }
+        try synchronizeDirectory()
     }
 
     private func writeExclusive(_ data: Data, name: String) throws {
@@ -299,7 +326,7 @@ private extension PasskeyBackupGenerationJournal {
             ofItemAtPath: directoryURL.appendingPathComponent(name).path
         )
         try boundaryHook(.afterWrite)
-        guard Darwin.fsync(descriptor) == 0 else { throw PasskeyBackupGenerationJournalError.unavailable }
+        guard fileSync(descriptor) == 0 else { throw PasskeyBackupGenerationJournalError.unavailable }
         try boundaryHook(.afterFileSync)
         try synchronizeDirectory()
     }

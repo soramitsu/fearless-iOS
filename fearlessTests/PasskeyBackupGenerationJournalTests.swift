@@ -24,6 +24,47 @@ final class PasskeyBackupGenerationJournalTests: XCTestCase {
         )).count, 0)
     }
 
+    func testParentDirectorySyncFailureCannotReturnAUsableJournal() throws {
+        let parent = try temporaryParent()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        var parentSyncCalls = 0
+        XCTAssertThrowsError(try PasskeyBackupGenerationJournal(
+            parentDirectoryURL: parent,
+            parentSync: { _ in parentSyncCalls += 1; return -1 }
+        ))
+        XCTAssertEqual(parentSyncCalls, 1)
+        let recovered = try PasskeyBackupGenerationJournal(parentDirectoryURL: parent)
+        let (_, scope) = try fixture()
+        XCTAssertEqual(try recovered.listPending(expectedScope: scope).count, 0)
+    }
+
+    func testCompleteLookingUnsyncedRecordCannotAdmitUntilFileSyncSucceeds() throws {
+        let parent = try temporaryParent()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let (candidate, scope) = try fixture()
+        let interrupted = try PasskeyBackupGenerationJournal(parentDirectoryURL: parent) { boundary in
+            if case .afterWrite = boundary { throw PasskeyBackupGenerationJournalError.unavailable }
+        }
+        XCTAssertThrowsError(try interrupted.persistPrepared(
+            operationID: operationID, candidate: candidate, expectedScope: scope
+        ))
+        let recordURL = parent.appendingPathComponent("passkey-generations-v1/op-\(operationID).journal")
+        XCTAssertGreaterThan(try Data(contentsOf: recordURL).count, 0)
+
+        let failedSync = try PasskeyBackupGenerationJournal(parentDirectoryURL: parent, fileSync: { _ in -1 })
+        XCTAssertThrowsError(try failedSync.persistPrepared(
+            operationID: operationID, candidate: candidate, expectedScope: scope
+        ))
+        XCTAssertThrowsError(try failedSync.admitFirstCreateAttempt(operationID: operationID, expectedScope: scope))
+        XCTAssertFalse(FileManager.default.fileExists(
+            atPath: parent.appendingPathComponent("passkey-generations-v1/op-\(operationID).attempt").path
+        ))
+
+        let recovered = try PasskeyBackupGenerationJournal(parentDirectoryURL: parent)
+        _ = try recovered.persistPrepared(operationID: operationID, candidate: candidate, expectedScope: scope)
+        XCTAssertTrue(try recovered.admitFirstCreateAttempt(operationID: operationID, expectedScope: scope))
+    }
+
     func testPreparedBytesSurviveRestartAndOnlyOneDurableCreateAttemptIsAdmitted() throws {
         let parent = try temporaryParent()
         defer { try? FileManager.default.removeItem(at: parent) }

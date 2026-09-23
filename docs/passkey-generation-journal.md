@@ -18,8 +18,11 @@ head mutation or network request API.
 The journal creates its directory under Application Support with a no-backup
 attribute and complete file protection, checks private file and directory
 ownership/modes, refuses symlinks, serializes local and cross-process access,
-and synchronizes each new file and the containing directory before returning.
-An interrupted or malformed record remains in place and fails closed. The
+and synchronizes each new file, the containing directory and its parent
+directory entry before returning. A complete-looking record left by an
+interrupted write is explicitly re-synced before it can authorize an attempt;
+the same check runs even for direct attempt admission. An interrupted or
+malformed record remains in place and fails closed. The
 separate attempt marker binds the SHA-256 of the exact prepared record. The
 first durable marker creation admits one application-level Drive create
 attempt; a restarted caller seeing that marker must read and reconcile the
