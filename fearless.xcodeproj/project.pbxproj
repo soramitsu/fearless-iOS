@@ -25,6 +25,9 @@
 		A50923CCCC00000000000002 /* PasskeyBackupGenerationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCC00000000000001 /* PasskeyBackupGenerationCoordinator.swift */; };
 		A50923CCCD00000000000002 /* IOSPasskeyWalletMaterialPreflight.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCD00000000000001 /* IOSPasskeyWalletMaterialPreflight.swift */; };
 		A50923CCCE00000000000002 /* IOSPortableWalletMaterialEnvelope.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCE00000000000001 /* IOSPortableWalletMaterialEnvelope.swift */; };
+		A50923CCCF00000000000002 /* IOSPortableWalletSemanticMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCF00000000000001 /* IOSPortableWalletSemanticMaterial.swift */; };
+		A50923CCCF00000000000006 /* IOSPortableWalletSemanticMaterialValidation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCF00000000000005 /* IOSPortableWalletSemanticMaterialValidation.swift */; };
+		A50923CCCF00000000000004 /* IOSPortableWalletSemanticMaterialTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCF00000000000003 /* IOSPortableWalletSemanticMaterialTests.swift */; };
 		A50923CCCD00000000000004 /* IOSPasskeyWalletMaterialPreflightTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCD00000000000003 /* IOSPasskeyWalletMaterialPreflightTests.swift */; };
 		A50923DDDD00000000000002 /* PasskeyBackupAuthenticatedHead.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923DDDD00000000000001 /* PasskeyBackupAuthenticatedHead.swift */; };
 		A5092300DD00000000000002 /* GoogleDrivePasskeyBackupTokenProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5092300DD00000000000001 /* GoogleDrivePasskeyBackupTokenProvider.swift */; };
@@ -3222,6 +3225,9 @@
 		A50923CCCC00000000000001 /* PasskeyBackupGenerationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupGenerationCoordinator.swift; sourceTree = "<group>"; };
 		A50923CCCD00000000000001 /* IOSPasskeyWalletMaterialPreflight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPasskeyWalletMaterialPreflight.swift; sourceTree = "<group>"; };
 		A50923CCCE00000000000001 /* IOSPortableWalletMaterialEnvelope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletMaterialEnvelope.swift; sourceTree = "<group>"; };
+		A50923CCCF00000000000001 /* IOSPortableWalletSemanticMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletSemanticMaterial.swift; sourceTree = "<group>"; };
+		A50923CCCF00000000000005 /* IOSPortableWalletSemanticMaterialValidation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletSemanticMaterialValidation.swift; sourceTree = "<group>"; };
+		A50923CCCF00000000000003 /* IOSPortableWalletSemanticMaterialTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletSemanticMaterialTests.swift; sourceTree = "<group>"; };
 		A50923CCCD00000000000003 /* IOSPasskeyWalletMaterialPreflightTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPasskeyWalletMaterialPreflightTests.swift; sourceTree = "<group>"; };
 		A50923DDDD00000000000001 /* PasskeyBackupAuthenticatedHead.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupAuthenticatedHead.swift; sourceTree = "<group>"; };
 		A5092300DD00000000000001 /* GoogleDrivePasskeyBackupTokenProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleDrivePasskeyBackupTokenProvider.swift; sourceTree = "<group>"; };
@@ -9421,6 +9427,7 @@
 				A50923CCAA00000000000007 /* GoogleDrivePasskeyGenerationStorageTests.swift */,
 				A50923CCBB00000000000005 /* PasskeyBackupGenerationJournalTests.swift */,
 				A50923CCCD00000000000003 /* IOSPasskeyWalletMaterialPreflightTests.swift */,
+				A50923CCCF00000000000003 /* IOSPortableWalletSemanticMaterialTests.swift */,
 				FAE602032ECA700100000001 /* FeatureToggleProviderTests.swift */,
 				A5092200AA00000000000007 /* MutationAuthorizationTests.swift */,
 				A5092200AB00000000000001 /* XcmReadOnlyServicesTests.swift */,
@@ -9726,6 +9733,8 @@
 				A50923CCCC00000000000001 /* PasskeyBackupGenerationCoordinator.swift */,
 				A50923CCCD00000000000001 /* IOSPasskeyWalletMaterialPreflight.swift */,
 				A50923CCCE00000000000001 /* IOSPortableWalletMaterialEnvelope.swift */,
+				A50923CCCF00000000000001 /* IOSPortableWalletSemanticMaterial.swift */,
+				A50923CCCF00000000000005 /* IOSPortableWalletSemanticMaterialValidation.swift */,
 				A50923DDDD00000000000001 /* PasskeyBackupAuthenticatedHead.swift */,
 				A5092300DD00000000000001 /* GoogleDrivePasskeyBackupTokenProvider.swift */,
 				FAE601452ECA700100000001 /* UniversalWalletHTTPTransport.swift */,
@@ -17598,6 +17607,8 @@
 				A50923CCCC00000000000002 /* PasskeyBackupGenerationCoordinator.swift in Sources */,
 				A50923CCCD00000000000002 /* IOSPasskeyWalletMaterialPreflight.swift in Sources */,
 				A50923CCCE00000000000002 /* IOSPortableWalletMaterialEnvelope.swift in Sources */,
+				A50923CCCF00000000000002 /* IOSPortableWalletSemanticMaterial.swift in Sources */,
+				A50923CCCF00000000000006 /* IOSPortableWalletSemanticMaterialValidation.swift in Sources */,
 				A50923DDDD00000000000002 /* PasskeyBackupAuthenticatedHead.swift in Sources */,
 				A5092300DD00000000000002 /* GoogleDrivePasskeyBackupTokenProvider.swift in Sources */,
 				FAE601442ECA700100000001 /* UniversalWalletHTTPTransport.swift in Sources */,
@@ -19377,6 +19388,7 @@
 				A50923CCAA00000000000008 /* GoogleDrivePasskeyGenerationStorageTests.swift in Sources */,
 				A50923CCBB00000000000006 /* PasskeyBackupGenerationJournalTests.swift in Sources */,
 				A50923CCCD00000000000004 /* IOSPasskeyWalletMaterialPreflightTests.swift in Sources */,
+				A50923CCCF00000000000004 /* IOSPortableWalletSemanticMaterialTests.swift in Sources */,
 				FAE602022ECA700100000001 /* FeatureToggleProviderTests.swift in Sources */,
 				A5092200AA00000000000008 /* MutationAuthorizationTests.swift in Sources */,
 				A5092200AB00000000000002 /* XcmReadOnlyServicesTests.swift in Sources */,
