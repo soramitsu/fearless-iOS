@@ -58,7 +58,12 @@ struct PasskeyBackupPRFContext: Equatable, CustomStringConvertible, CustomReflec
     static func assertion(
         _ pending: PendingPasskeyBackupAssertion, prfSalt: Data, credentialID: Data
     ) throws -> Self {
-        try Self(
+        guard let directedID = pending.credentialId,
+              let boundID = try? PasskeyBackupContract.decodeBase64URL(directedID),
+              boundID == credentialID else {
+            throw PasskeyBackupPRFError.unexpectedCredential
+        }
+        return try Self(
             kind: .assertion,
             ceremonyId: pending.assertionId,
             storageKey: pending.storageKey,
@@ -156,14 +161,17 @@ final class PasskeyBackupPRFCeremonyResult: CustomStringConvertible, CustomRefle
     // swiftlint:disable:next function_parameter_count
     static func assertion(
         context: PasskeyBackupPRFContext, credentialID: Data, clientDataJSON: Data,
-        authenticatorData: Data, signature: Data, userHandle: Data,
+        authenticatorData: Data, signature: Data, userHandle: Data?,
         prf: ASAuthorizationPublicKeyCredentialPRFAssertionOutput?
     ) throws -> PasskeyBackupPRFCeremonyResult {
-        guard context.kind == .assertion, let prf, prf.second == nil else {
+        guard context.kind == .assertion,
+              let allowedID = context.expectedCredentialID, allowedID == credentialID,
+              let prf, prf.second == nil else {
             throw PasskeyBackupPRFError.missingOutput
         }
-        let json = try PasskeyCredentialResponseSerializer.assertionJSON(
-            credentialID: credentialID, clientDataJSON: clientDataJSON, authenticatorData: authenticatorData,
+        let json = try PasskeyCredentialResponseSerializer.credentialDirectedAssertionJSON(
+            credentialID: credentialID, allowedCredentialID: allowedID,
+            clientDataJSON: clientDataJSON, authenticatorData: authenticatorData,
             signature: signature, userHandle: userHandle
         )
         return try Self(context: context, credentialID: credentialID, credentialResponseJSON: json, output: prf.first)
@@ -179,6 +187,13 @@ struct PasskeyBackupPRFVerificationRequest {
     let context: PasskeyBackupPRFContext
     let credentialID: Data
     let credentialResponseJSON: String
+
+    /// The only constructor takes a native ceremony result whose serializer excludes PRF output.
+    init(result: PasskeyBackupPRFCeremonyResult) {
+        context = result.context
+        credentialID = result.credentialID
+        credentialResponseJSON = result.credentialResponseJSON
+    }
 
     var bindingSHA256: Data {
         var bytes = Data("FPBK-PRF-VERIFY-v1".utf8)
@@ -202,6 +217,46 @@ struct PasskeyBackupPRFVerificationReceipt {
 @MainActor
 protocol PasskeyBackupPRFVerifier {
     func verify(_ request: PasskeyBackupPRFVerificationRequest) async throws -> PasskeyBackupPRFVerificationReceipt
+}
+
+/// Completes the exact one-use ceremony through the already authorized challenge service.
+/// The only material sent is the sanitized public WebAuthn response; PRF stays local.
+/// Enrollment still needs compensation/reconciliation after an uncertain server commit and
+/// a verified backup round trip before a credential can become a recovery route.
+@MainActor
+final class ChallengeServicePasskeyBackupPRFVerifier: PasskeyBackupPRFVerifier {
+    private let service: PasskeyBackupChallengeService
+
+    init(service: PasskeyBackupChallengeService) { self.service = service }
+
+    func verify(_ request: PasskeyBackupPRFVerificationRequest) async throws -> PasskeyBackupPRFVerificationReceipt {
+        try Task.checkCancellation()
+        let result: PasskeyBackupChallengeResult
+        switch request.context.kind {
+        case .registration:
+            result = try await service.completeRegistration(
+                registrationId: request.context.ceremonyId,
+                credentialResponseJSON: request.credentialResponseJSON
+            )
+        case .assertion:
+            guard let directedID = request.context.expectedCredentialID,
+                  directedID == request.credentialID else {
+                throw PasskeyBackupPRFError.unexpectedCredential
+            }
+            result = try await service.completeAssertion(
+                assertionId: request.context.ceremonyId,
+                credentialResponseJSON: request.credentialResponseJSON
+            )
+        }
+        try Task.checkCancellation()
+        guard result.storageKey == request.context.storageKey else {
+            throw PasskeyBackupPRFError.verificationMismatch
+        }
+        return PasskeyBackupPRFVerificationReceipt(
+            requestBindingSHA256: request.bindingSHA256,
+            credentialID: request.credentialID
+        )
+    }
 }
 
 struct UnavailablePasskeyBackupPRFVerifier: PasskeyBackupPRFVerifier {
@@ -307,10 +362,7 @@ final class PasskeyBackupPRFEnrollmentGate {
         _ result: PasskeyBackupPRFCeremonyResult, using verifier: PasskeyBackupPRFVerifier
     ) async throws {
         try Task.checkCancellation()
-        let request = PasskeyBackupPRFVerificationRequest(
-            context: result.context, credentialID: result.credentialID,
-            credentialResponseJSON: result.credentialResponseJSON
-        )
+        let request = PasskeyBackupPRFVerificationRequest(result: result)
         let receipt = try await verifier.verify(request)
         try Task.checkCancellation()
         guard receipt.requestBindingSHA256 == request.bindingSHA256,

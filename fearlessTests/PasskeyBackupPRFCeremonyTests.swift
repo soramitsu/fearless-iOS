@@ -54,6 +54,12 @@ final class PasskeyBackupPRFCeremonyTests: XCTestCase {
         XCTAssertThrowsError(try PasskeyBackupPRFRequestFactory.assertion(
             PasskeyBackupPRFContext.registration(registration(), prfSalt: salt)
         ))
+        XCTAssertThrowsError(try PasskeyBackupPRFContext.assertion(
+            assertion(directed: false), prfSalt: salt, credentialID: credentialID
+        ))
+        XCTAssertThrowsError(try PasskeyBackupPRFContext.assertion(
+            assertion(), prfSalt: salt, credentialID: Data(repeating: 0x44, count: 32)
+        ))
     }
 
     func testCreationMissingUnsupportedOrSupportOnlyOutputRequiresAssertion() throws {
@@ -104,6 +110,29 @@ final class PasskeyBackupPRFCeremonyTests: XCTestCase {
         XCTAssertThrowsError(
             try PasskeyBackupPRFEnrollmentGate(registration: assertionResult(context: assertionContext()))
         )
+    }
+
+    func testDirectedAssertionSerializesAbsentNativeUserHandleAsNull() throws {
+        let result = try PasskeyBackupPRFCeremonyResult.assertion(
+            context: assertionContext(), credentialID: credentialID,
+            clientDataJSON: Data("public-client-data".utf8),
+            authenticatorData: Data([1]), signature: Data([2]), userHandle: nil,
+            prf: .init(first: SymmetricKey(data: secret), second: nil)
+        )
+        let credential = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: Data(result.credentialResponseJSON.utf8)) as? [String: Any]
+        )
+        let response = try XCTUnwrap(credential["response"] as? [String: Any])
+        XCTAssertTrue(response["userHandle"] is NSNull)
+        XCTAssertFalse(result.credentialResponseJSON.contains("prf"))
+        XCTAssertThrowsError(try PasskeyCredentialResponseSerializer.credentialDirectedAssertionJSON(
+            credentialID: credentialID, allowedCredentialID: Data(repeating: 0x44, count: 32),
+            clientDataJSON: Data([1]), authenticatorData: Data([2]), signature: Data([3]), userHandle: nil
+        ))
+        XCTAssertThrowsError(try PasskeyCredentialResponseSerializer.credentialDirectedAssertionJSON(
+            credentialID: credentialID, allowedCredentialID: credentialID,
+            clientDataJSON: Data([1]), authenticatorData: Data([2]), signature: Data([3]), userHandle: Data()
+        ))
     }
 
     func testUnavailableVerifierNeverReleasesOutput() async throws {
@@ -219,6 +248,40 @@ final class PasskeyBackupPRFCeremonyTests: XCTestCase {
         }
     }
 
+    func testChallengeServiceVerifierCompletesBoundCeremoniesWithoutPRFMaterial() async throws {
+        let service = FixturePRFChallengeService(storageKey: "wallet-1234")
+        let verifier = ChallengeServicePasskeyBackupPRFVerifier(service: service)
+        let registration = try registrationResult(output: .init(
+            first: SymmetricKey(data: secret), second: nil
+        ))
+        let gate = try PasskeyBackupPRFEnrollmentGate(registration: registration)
+        try await gate.verifyRegistration(using: verifier)
+        XCTAssertEqual(service.registrationID, registration.context.ceremonyId)
+        XCTAssertEqual(service.registrationJSON, registration.credentialResponseJSON)
+        XCTAssertFalse(try XCTUnwrap(service.registrationJSON).contains("prf"))
+        XCTAssertEqual(try gate.takeVerifiedOutput().withOutput { $0 }, secret)
+
+        let assertion = try assertionResult(context: assertionContext())
+        let request = PasskeyBackupPRFVerificationRequest(result: assertion)
+        let receipt = try await verifier.verify(request)
+        XCTAssertEqual(receipt.requestBindingSHA256, request.bindingSHA256)
+        XCTAssertEqual(receipt.credentialID, credentialID)
+        XCTAssertEqual(service.assertionID, assertion.context.ceremonyId)
+        XCTAssertEqual(service.assertionJSON, assertion.credentialResponseJSON)
+    }
+
+    func testChallengeServiceVerifierRejectsMismatchedStorageBeforeReleasingPRF() async throws {
+        let service = FixturePRFChallengeService(storageKey: "wallet-5678")
+        let gate = try PasskeyBackupPRFEnrollmentGate(registration: registrationResult(output: .init(
+            first: SymmetricKey(data: secret), second: nil
+        )))
+        do {
+            try await gate.verifyRegistration(using: ChallengeServicePasskeyBackupPRFVerifier(service: service))
+            XCTFail("Mismatched server result released PRF output")
+        } catch { XCTAssertEqual(error as? PasskeyBackupPRFError, .verificationMismatch) }
+        XCTAssertThrowsError(try gate.takeVerifiedOutput())
+    }
+
     func testVerificationCannotRaceDuplicateOrCancellation() async throws {
         let gate = try PasskeyBackupPRFEnrollmentGate(registration: registrationResult(
             output: .init(first: SymmetricKey(data: secret), second: nil)
@@ -240,13 +303,20 @@ final class PasskeyBackupPRFCeremonyTests: XCTestCase {
 
     func testVerificationBindingCoversPublicTranscriptAndCredential() throws {
         let result = try registrationResult()
-        let make: (Data, String) -> PasskeyBackupPRFVerificationRequest = { id, json in
-            PasskeyBackupPRFVerificationRequest(context: result.context, credentialID: id, credentialResponseJSON: json)
-        }
-        let request = make(credentialID, result.credentialResponseJSON)
+        let request = PasskeyBackupPRFVerificationRequest(result: result)
+        let otherCredential = try PasskeyBackupPRFCeremonyResult.registration(
+            context: result.context, credentialID: Data([1]),
+            clientDataJSON: Data("public-client-data".utf8), attestationObject: Data([1, 2, 3]), prf: nil
+        )
+        let otherTranscript = try PasskeyBackupPRFCeremonyResult.registration(
+            context: result.context, credentialID: credentialID,
+            clientDataJSON: Data("public-client-data ".utf8), attestationObject: Data([1, 2, 3]), prf: nil
+        )
         XCTAssertEqual(request.bindingSHA256.count, 32)
-        XCTAssertNotEqual(request.bindingSHA256, make(Data([1]), result.credentialResponseJSON).bindingSHA256)
-        XCTAssertNotEqual(request.bindingSHA256, make(credentialID, result.credentialResponseJSON + " ").bindingSHA256)
+        XCTAssertNotEqual(request.bindingSHA256,
+                          PasskeyBackupPRFVerificationRequest(result: otherCredential).bindingSHA256)
+        XCTAssertNotEqual(request.bindingSHA256,
+                          PasskeyBackupPRFVerificationRequest(result: otherTranscript).bindingSHA256)
         XCTAssertEqual(String(describing: result.context), "PasskeyBackupPRFContext(<redacted>)")
     }
 
@@ -332,10 +402,12 @@ final class PasskeyBackupPRFCeremonyTests: XCTestCase {
     }
 
     private func assertion(
-        id: String = "assertion-two", challenge: Data = Data(repeating: 3, count: 32), storage: String = "wallet-1234"
+        id: String = "assertion-two", challenge: Data = Data(repeating: 3, count: 32),
+        storage: String = "wallet-1234", directed: Bool = true
     ) throws -> PendingPasskeyBackupAssertion {
         try PendingPasskeyBackupAssertion(challenge: PasskeyBackupAssertionChallenge(
-            assertionId: id, challenge: challenge, storageKey: storage
+            assertionId: id, challenge: challenge, storageKey: storage,
+            credentialId: directed ? base64URL(credentialID) : nil
         ))
     }
 
@@ -403,6 +475,42 @@ private final class FixturePRFVerifier: PasskeyBackupPRFVerifier {
     }
 
     func resume() { continuation?.resume(); continuation = nil }
+}
+
+private final class FixturePRFChallengeService: PasskeyBackupChallengeService {
+    let storageKey: String
+    private(set) var registrationID: String?
+    private(set) var registrationJSON: String?
+    private(set) var assertionID: String?
+    private(set) var assertionJSON: String?
+
+    init(storageKey: String) { self.storageKey = storageKey }
+
+    func registrationChallenge(
+        walletId _: String, accountName _: String, displayName _: String
+    ) async throws -> PasskeyBackupRegistrationChallenge {
+        throw PasskeyBackupError.unavailableAuthorization
+    }
+
+    func completeRegistration(
+        registrationId: String, credentialResponseJSON: String
+    ) async throws -> PasskeyBackupChallengeResult {
+        registrationID = registrationId
+        registrationJSON = credentialResponseJSON
+        return try PasskeyBackupChallengeResult(storageKey: storageKey)
+    }
+
+    func assertionChallenge(storageKey _: String) async throws -> PasskeyBackupAssertionChallenge {
+        throw PasskeyBackupError.unavailableAuthorization
+    }
+
+    func completeAssertion(
+        assertionId: String, credentialResponseJSON: String
+    ) async throws -> PasskeyBackupChallengeResult {
+        assertionID = assertionId
+        assertionJSON = credentialResponseJSON
+        return try PasskeyBackupChallengeResult(storageKey: storageKey)
+    }
 }
 
 @available(iOS 18.0, *)

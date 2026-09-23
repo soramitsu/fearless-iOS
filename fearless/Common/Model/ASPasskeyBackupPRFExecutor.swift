@@ -147,7 +147,7 @@ private final class NativePasskeyBackupPRFSession: NSObject, PasskeyBackupPRFAut
                 result = try .assertion(
                     context: context, credentialID: credential.credentialID,
                     clientDataJSON: credential.rawClientDataJSON, authenticatorData: credential.rawAuthenticatorData,
-                    signature: credential.signature, userHandle: credential.userID, prf: credential.prf
+                    signature: credential.signature, userHandle: credential.userID as Data?, prf: credential.prf
                 )
             default:
                 throw PasskeyBackupPRFError.unexpectedCredential

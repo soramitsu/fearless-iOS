@@ -81,6 +81,40 @@ final class PasskeyCredentialResponseSerializerTests: XCTestCase {
         )
     }
 
+    func testDirectedAssertionBindsRequestedCredentialAndRejectsSubstitutedEcho() async throws {
+        let credentialId = base64URL(Data(repeating: 0x22, count: 32))
+        let challenge = base64URL(Data(repeating: 0x33, count: 32))
+        let response = """
+        {"assertionId":"assertion-1234","challenge":"\(challenge)","storageKey":"wallet-1234",\
+        "credentialId":"\(credentialId)","rpId":"fearlesswallet.io","schemaVersion":1}
+        """
+        let transport = AuthorizationTestTransport(
+            responses: [PasskeyBackupHTTPResponse(statusCode: 200, body: Data(response.utf8))]
+        )
+        let service = try HTTPPasskeyBackupChallengeService(
+            baseURL: "https://backup.fearlesswallet.io", transport: transport,
+            authorizationProvider: AuthorizationTestProvider(token: "test-token")
+        )
+        let pending = try await service.assertionChallenge(storageKey: "wallet-1234", credentialId: credentialId)
+        XCTAssertEqual(pending.credentialId, credentialId)
+        let request = try XCTUnwrap(transport.requests.first)
+        let body = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(request.body)) as? [String: Any])
+        XCTAssertEqual(body["credentialId"] as? String, credentialId)
+
+        let substituted = response.replacingOccurrences(of: credentialId, with: base64URL(Data(repeating: 0x44, count: 32)))
+        let wrongTransport = AuthorizationTestTransport(
+            responses: [PasskeyBackupHTTPResponse(statusCode: 200, body: Data(substituted.utf8))]
+        )
+        let wrongService = try HTTPPasskeyBackupChallengeService(
+            baseURL: "https://backup.fearlesswallet.io", transport: wrongTransport,
+            authorizationProvider: AuthorizationTestProvider(token: "test-token")
+        )
+        do {
+            _ = try await wrongService.assertionChallenge(storageKey: "wallet-1234", credentialId: credentialId)
+            XCTFail("Substituted credential ID accepted")
+        } catch { XCTAssertEqual(error as? PasskeyBackupError, .mismatchedChallengeCredentialId) }
+    }
+
     func testChallengeClientFailsClosedWithoutAuthorizationProvider() async throws {
         let transport = AuthorizationTestTransport(responses: [])
         let service = try HTTPPasskeyBackupChallengeService(

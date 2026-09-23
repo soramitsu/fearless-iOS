@@ -39,6 +39,7 @@ enum PasskeyBackupError: Error, Equatable {
     case unavailableAuthorization
     case invalidAuthorizationToken
     case mismatchedChallengeStorageKey
+    case mismatchedChallengeCredentialId
     case missingCloudBackup
     case passkeyBackupDisabled
 }
@@ -456,9 +457,51 @@ enum PasskeyCredentialResponseSerializer {
         signature: Data,
         userHandle: Data
     ) throws -> String {
-        do {
-            try PasskeyBackupContract.validateUserId(userHandle)
-        } catch {
+        try assertionJSON(
+            credentialID: credentialID, clientDataJSON: clientDataJSON,
+            authenticatorData: authenticatorData, signature: signature,
+            userHandle: userHandle, allowNullUserHandle: false
+        )
+    }
+
+    /// WebAuthn permits a null handle only when the server challenge names an exact credential.
+    static func credentialDirectedAssertionJSON(
+        credentialID: Data,
+        allowedCredentialID: Data,
+        clientDataJSON: Data,
+        authenticatorData: Data,
+        signature: Data,
+        userHandle: Data?
+    ) throws -> String {
+        guard credentialID == allowedCredentialID else {
+            throw PasskeyBackupError.invalidCredentialResponse
+        }
+        return try assertionJSON(
+            credentialID: credentialID, clientDataJSON: clientDataJSON,
+            authenticatorData: authenticatorData, signature: signature,
+            userHandle: userHandle, allowNullUserHandle: true
+        )
+    }
+
+    private static func assertionJSON(
+        credentialID: Data,
+        clientDataJSON: Data,
+        authenticatorData: Data,
+        signature: Data,
+        userHandle: Data?,
+        allowNullUserHandle: Bool
+    ) throws -> String {
+        let encodedHandle: Any
+        if let userHandle {
+            do {
+                try PasskeyBackupContract.validateUserId(userHandle)
+                encodedHandle = try encodeRequired(userHandle)
+            } catch {
+                throw PasskeyBackupError.invalidCredentialResponse
+            }
+        } else if allowNullUserHandle {
+            encodedHandle = NSNull()
+        } else {
             throw PasskeyBackupError.invalidCredentialResponse
         }
 
@@ -469,7 +512,7 @@ enum PasskeyCredentialResponseSerializer {
             ),
             "authenticatorData": try encodeRequired(authenticatorData),
             "signature": try encodeRequired(signature),
-            "userHandle": try encodeRequired(userHandle)
+            "userHandle": encodedHandle
         ]
 
         return try credentialJSON(
@@ -612,12 +655,14 @@ struct PasskeyBackupAssertionChallenge: Equatable {
     let assertionId: String
     let challenge: Data
     let storageKey: String
+    let credentialId: String?
     let schemaVersion: Int
 
     init(
         assertionId: String,
         challenge: Data,
         storageKey: String,
+        credentialId: String? = nil,
         schemaVersion: Int = PasskeyBackupContract.schemaVersion
     ) throws {
         self.assertionId = try PasskeyBackupContract.validateCeremonyId(assertionId)
@@ -629,6 +674,7 @@ struct PasskeyBackupAssertionChallenge: Equatable {
 
         self.challenge = challenge
         self.storageKey = try PasskeyBackupContract.validateStorageKey(storageKey)
+        self.credentialId = try credentialId.map(PasskeyBackupContract.validateCredentialId)
         self.schemaVersion = schemaVersion
     }
 }
@@ -750,6 +796,8 @@ protocol PasskeyBackupChallengeService {
 
     func assertionChallenge(storageKey: String) async throws -> PasskeyBackupAssertionChallenge
 
+    func assertionChallenge(storageKey: String, credentialId: String) async throws -> PasskeyBackupAssertionChallenge
+
     func completeAssertion(
         assertionId: String,
         credentialResponseJSON: String
@@ -766,6 +814,10 @@ protocol PasskeyBackupChallengeService {
 }
 
 extension PasskeyBackupChallengeService {
+    func assertionChallenge(storageKey _: String, credentialId _: String) async throws -> PasskeyBackupAssertionChallenge {
+        throw PasskeyBackupError.unavailableAuthorization
+    }
+
     func listCredentials(storageKey _: String) async throws -> PasskeyBackupCredentialListResult {
         throw PasskeyBackupError.unavailableAuthorization
     }
@@ -1212,7 +1264,8 @@ final class HTTPPasskeyBackupChallengeService: PasskeyBackupChallengeService {
         do {
             guard let root = try JSONSerialization.jsonObject(with: response.body) as? [String: Any],
                   let expectedKeys = Self.expectedResponseKeysByPath[path],
-                  Set(root.keys) == expectedKeys else {
+                  Set(root.keys) == (path == PasskeyBackupAuthorizationRequest.assertionChallengePath &&
+                      body["credentialId"] != nil ? expectedKeys.union(["credentialId"]) : expectedKeys) else {
                 throw PasskeyBackupError.malformedChallengeServiceResponse
             }
 
@@ -1428,14 +1481,26 @@ extension HTTPPasskeyBackupChallengeService {
     }
 
     func assertionChallenge(storageKey: String) async throws -> PasskeyBackupAssertionChallenge {
+        try await assertionChallenge(storageKey: storageKey, credentialId: nil)
+    }
+
+    func assertionChallenge(storageKey: String, credentialId: String) async throws -> PasskeyBackupAssertionChallenge {
+        try await assertionChallenge(storageKey: storageKey, credentialId: Optional(credentialId))
+    }
+
+    private func assertionChallenge(storageKey: String, credentialId: String?) async throws -> PasskeyBackupAssertionChallenge {
         let normalizedStorageKey = try PasskeyBackupContract.validateStorageKey(storageKey)
+        var body: [String: Any] = [
+            "storageKey": normalizedStorageKey,
+            "rpId": PasskeyBackupContract.PASSKEY_RP_ID,
+            "schemaVersion": PasskeyBackupContract.schemaVersion
+        ]
+        if let credentialId {
+            body["credentialId"] = try PasskeyBackupContract.validateCredentialId(credentialId)
+        }
         let response = try await post(
             path: PasskeyBackupAuthorizationRequest.assertionChallengePath,
-            body: [
-                "storageKey": normalizedStorageKey,
-                "rpId": PasskeyBackupContract.PASSKEY_RP_ID,
-                "schemaVersion": PasskeyBackupContract.schemaVersion
-            ]
+            body: body
         )
 
         try requireRelyingPartyId(response)
@@ -1446,6 +1511,9 @@ extension HTTPPasskeyBackupChallengeService {
         guard responseStorageKey == normalizedStorageKey else {
             throw PasskeyBackupError.mismatchedChallengeStorageKey
         }
+        guard (response["credentialId"] as? String) == credentialId else {
+            throw PasskeyBackupError.mismatchedChallengeCredentialId
+        }
 
         return try PasskeyBackupAssertionChallenge(
             assertionId: requiredString(response, name: "assertionId"),
@@ -1453,6 +1521,7 @@ extension HTTPPasskeyBackupChallengeService {
                 requiredString(response, name: "challenge")
             ),
             storageKey: responseStorageKey,
+            credentialId: credentialId,
             schemaVersion: requiredInt(response, name: "schemaVersion")
         )
     }
@@ -1883,11 +1952,13 @@ struct PendingPasskeyBackupAssertion: Equatable {
     let assertionId: String
     let storageKey: String
     let challenge: Data
+    let credentialId: String?
 
     init(challenge: PasskeyBackupAssertionChallenge) {
         assertionId = challenge.assertionId
         storageKey = challenge.storageKey
         self.challenge = challenge.challenge
+        credentialId = challenge.credentialId
     }
 }
 
