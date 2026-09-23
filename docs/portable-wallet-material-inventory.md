@@ -36,13 +36,16 @@ persisted iOS model does not represent an EVM-only wallet without a Substrate
 or native TON root; such a row remains unsupported and fails closed.
 
 This preflight now checks a local, domain-separated signature against each
-stored ED25519/ECDSA Substrate root, EVM root and explicitly stored ED25519/ECDSA chain key;
+stored SR25519/ED25519/ECDSA Substrate root, EVM root and explicitly stored
+SR25519/ED25519/ECDSA chain key;
 it rejects a readable Keychain item that cannot sign for its original public
 identity. It also validates the native TON phrase against its V4R2 identity.
-The pinned SR25519 C/Rust signing boundary aborts on some malformed 64-byte
-private keys. Until that native boundary returns a recoverable error for invalid
-input, the preflight rejects SR25519 wallets before calling it. This is a
-portable-recovery blocker, not a change to existing wallet signing or export.
+The pinned shared-features source now uses a checked SR25519 C/Rust signing
+entrypoint: malformed secret/public keys and mismatched keypairs return a
+recoverable signing error, and the preflight fails closed without a process
+abort. The rebuilt iOS native library has source, ABI, simulator parity and
+architecture-link evidence; physical-device execution and independent review
+remain open.
 These checks do not serialize all optional entropy, seed and derivation tags,
 or prove that the released export UX can reproduce them. Atomic secret capture,
 export proof and a transactional installer remain required before allowing any

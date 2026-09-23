@@ -14,7 +14,6 @@ enum IOSPasskeyWalletMaterialPreflightError: Error, Equatable {
     case unavailableSecretMaterial
     case pendingKeyMigration
     case walletStoreChanged
-    case unqualifiedNativeSigningBoundary
 }
 
 /// Counts only. This is an eligibility check, not serialized backup material or recovery evidence.
@@ -309,12 +308,6 @@ final class IOSPasskeyWalletMaterialPreflight {
         wallet: MetaAccountModel, accountId: Data, publicKey: Data,
         cryptoType: CryptoType, ethereumBased: Bool, chainId: String?
     ) throws {
-        // The pinned sr25519 C/Rust signer aborts the process for some malformed
-        // 64-byte secrets instead of reporting a recoverable error. No untrusted
-        // Keychain bytes may reach it from portable-backup qualification.
-        guard ethereumBased || cryptoType != .sr25519 else {
-            throw IOSPasskeyWalletMaterialPreflightError.unqualifiedNativeSigningBoundary
-        }
         // A domain-separated local signature proves that the Keychain item can
         // still sign for the persisted identity. Nothing leaves this process.
         let message = Data("FPBK-LOCAL-KEY-PROOF-v1".utf8) + Data(wallet.metaId.utf8) + publicKey
@@ -336,7 +329,11 @@ final class IOSPasskeyWalletMaterialPreflight {
             } else {
                 switch cryptoType {
                 case .sr25519:
-                    throw IOSPasskeyWalletMaterialPreflightError.unqualifiedNativeSigningBoundary
+                    verified = try SNSignatureVerifier().verify(
+                        SNSignature(rawData: signature.rawData()),
+                        forOriginalData: message,
+                        using: SNPublicKey(rawData: publicKey)
+                    )
                 case .ed25519:
                     verified = try EDSignatureVerifier().verify(
                         signature, forOriginalData: message,

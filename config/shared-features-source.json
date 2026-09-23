@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "repository": "https://github.com/soramitsu/shared-features-spm.git",
-  "revision": "b7ef68761b7962fc06193b500467da7ba5498070",
-  "tree": "53bb7f75f3cd1a30f2ab53e189535decbffa42e9",
+  "revision": "4323032511ee788b178aa3f9ed05e2518ee21c74",
+  "tree": "bda39df7a41621190c3c34be9a60aa87c73141c2",
   "baseRevision": "3ad0fe928333c9ac28972e3669ca733c6972f060",
   "reviewUrl": "https://github.com/soramitsu/shared-features-spm/pull/84",
   "carriedDeltas": [

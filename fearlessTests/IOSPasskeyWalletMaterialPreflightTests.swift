@@ -144,14 +144,21 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         }
     }
 
-    func testSr25519RootStopsBeforeUnsafeNativeSigningBoundary() throws {
+    func testSr25519RootSignsForItsIdentityAndCorruptKeyFailsWithoutAborting() throws {
         let wallet = try substrateWallet(cryptoType: .sr25519)
         let tag = fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId)
-        for secret in [try substrateSecretKey(for: .sr25519), Data(repeating: 0x44, count: 64)] {
-            let keys = PreflightKeystore(keys: [tag: secret])
-            XCTAssertThrowsError(try makePreflight([projection(wallet)], keys: keys).inspect()) {
-                XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .unqualifiedNativeSigningBoundary)
-            }
+        let keys = PreflightKeystore(keys: [tag: try substrateSecretKey(for: .sr25519)])
+        XCTAssertEqual(try makePreflight([projection(wallet)], keys: keys).inspect().substrateRootCount, 1)
+
+        keys.keys[tag] = Data(repeating: 0x44, count: 64)
+        XCTAssertThrowsError(try makePreflight([projection(wallet)], keys: keys).inspect()) {
+            XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .incompletePublicIdentity)
+        }
+
+        keys.keys[tag] = try SNKeyFactory().createKeypair(fromSeed: Data(repeating: 0x22, count: 32))
+            .privateKey().rawData()
+        XCTAssertThrowsError(try makePreflight([projection(wallet)], keys: keys).inspect()) {
+            XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .incompletePublicIdentity)
         }
     }
 
