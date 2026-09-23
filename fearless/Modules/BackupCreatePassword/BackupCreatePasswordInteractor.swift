@@ -225,8 +225,9 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         }
         Task {
             do {
-                try await cloudStorage.saveBackup(account: account, password: password)
-                let downloaded = try await cloudStorage.importBackup(account: account, password: password)
+                let downloaded = try await cloudStorage.saveBackupAndImport(
+                    account: account, password: password
+                )
                 guard Self.matchesReadback(downloaded, expected: account) else {
                     throw BackupCreatePasswordError.cloudBackupReadbackMismatch
                 }
