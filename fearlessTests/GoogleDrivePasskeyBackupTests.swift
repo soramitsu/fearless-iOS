@@ -26,13 +26,15 @@ final class GoogleDrivePasskeyBackupTests: XCTestCase {
         XCTAssertTrue(query(transport.requests[0].url)["fields"]?.contains("nextPageToken") == true)
     }
 
-    func testUpdateUsesExistingFileAndDoesNotAttemptToReplaceParents() async throws {
+    func testExistingLegacyBackupCannotBeOverwrittenBeforeImmutableGenerationMigration() async throws {
         let record = try record()
-        let (storage, transport, _) = try fixture(responses: [list([file(record)]), fileResponse(record)])
-        try await storage.savePasskeyBackup(record)
-        XCTAssertEqual(transport.requests.map(\.method), ["GET", "PATCH"])
-        XCTAssertEqual(transport.requests[1].url.path, "/upload/drive/v3/files/drive-id_123")
-        XCTAssertNil(try multipart(transport.requests[1])["parents"])
+        let (storage, transport, _) = try fixture(responses: [
+            list([file(record)]), list([file(record)]), .init(statusCode: 200, body: record.encryptedPayload)
+        ])
+        await assertError(.immutableGenerationRequired) { try await storage.savePasskeyBackup(record) }
+        let loaded = try await storage.loadPasskeyBackup(storageKey: record.storageKey)
+        XCTAssertEqual(loaded, record)
+        XCTAssertEqual(transport.requests.map(\.method), ["GET", "GET", "GET"])
     }
 
     func testLoadsAndroidMetadataAndAuthenticatesOriginalAADAfterAccountEmailRename() async throws {
@@ -185,10 +187,10 @@ final class GoogleDrivePasskeyBackupTests: XCTestCase {
     func testMismatchedUploadAcknowledgmentDoesNotReportSuccess() async throws {
         let record = try record()
         var changed = file(record)
-        changed["id"] = "other-file"
-        let (storage, transport, _) = try fixture(responses: [list([file(record)]), json(changed)])
+        changed["appProperties"] = ["storageKey": "different-storage"]
+        let (storage, transport, _) = try fixture(responses: [list([]), json(changed)])
         await assertError(.malformedResponse) { try await storage.savePasskeyBackup(record) }
-        XCTAssertEqual(transport.requests.count, 2)
+        XCTAssertEqual(transport.requests.map(\.method), ["GET", "POST"])
     }
 
     func testNativeConsentRequestsAccountAndChecksScope() async throws {

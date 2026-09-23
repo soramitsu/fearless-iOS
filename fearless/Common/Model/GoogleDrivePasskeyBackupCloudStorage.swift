@@ -31,12 +31,15 @@ final class GoogleDrivePasskeyBackupCloudStorage: PasskeyBackupCloudStorage {
             throw GoogleDrivePasskeyBackupError.metadataTooLarge
         }
         let existing = try await findBackup(storageKey: record.storageKey)
-        var metadata: [String: Any] = [
+        // The legacy single-file format remains readable. Replacing it could destroy the
+        // last decryptable backup before an immutable generation is verified and promoted.
+        guard existing == nil else { throw GoogleDrivePasskeyBackupError.immutableGenerationRequired }
+        let metadata: [String: Any] = [
             "name": Self.fileName(record.storageKey),
             "mimeType": Self.mimeType,
-            "appProperties": properties
+            "appProperties": properties,
+            "parents": [Self.appDataFolder]
         ]
-        if existing == nil { metadata["parents"] = [Self.appDataFolder] }
         // A random boundary prevents arbitrary encrypted bytes from being interpreted as MIME delimiters.
         let boundary = "fearless-passkey-\(UUID().uuidString)"
         var body = Data("--\(boundary)\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n".utf8)
@@ -44,12 +47,9 @@ final class GoogleDrivePasskeyBackupCloudStorage: PasskeyBackupCloudStorage {
         body.append(Data("\r\n--\(boundary)\r\nContent-Type: \(Self.mimeType)\r\n\r\n".utf8))
         body.append(record.encryptedPayload)
         body.append(Data("\r\n--\(boundary)--\r\n".utf8))
-        let url = try Self.url(
-            base: Self.uploadURL, fileID: existing?.id,
-            query: ["uploadType": "multipart", "fields": "id,name,appProperties"]
-        )
+        let url = try Self.url(base: Self.uploadURL, query: ["uploadType": "multipart", "fields": "id,name,appProperties"])
         let response = try await execute(
-            method: existing == nil ? "POST" : "PATCH", url: url,
+            method: "POST", url: url,
             headers: ["Content-Type": "multipart/related; boundary=\(boundary)"], body: body
         )
         try Self.requireSuccess(response)
@@ -57,7 +57,7 @@ final class GoogleDrivePasskeyBackupCloudStorage: PasskeyBackupCloudStorage {
             JSONSerialization.jsonObject(with: response.body),
             storageKey: record.storageKey
         )
-        guard saved.properties == properties, existing == nil || saved.id == existing?.id else {
+        guard saved.properties == properties else {
             throw GoogleDrivePasskeyBackupError.malformedResponse
         }
     }

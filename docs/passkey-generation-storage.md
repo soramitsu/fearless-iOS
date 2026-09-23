@@ -2,6 +2,8 @@
 
 `GoogleDrivePasskeyGenerationStorage` is a disabled recovery building block. It stores canonical FPBKGEN1 ciphertext with the same byte layout, metadata and file naming as Android. It does not authorize a wallet owner, invoke a passkey, unwrap a backup key, decrypt a wallet, change the authoritative head, overwrite or delete a Drive file. Production recovery remains disabled.
 
+The older single-file Drive adapter remains able to read historical encrypted backups. It now refuses to PATCH an existing backup; that path could replace the last decryptable copy before the new generation is locally verified. Existing records must be migrated through the immutable generation flow, and a legacy overwrite is never treated as a completed backup.
+
 The caller must obtain an authenticated owner/namespace and the current head before preparing a generation. A Google account identifies only the ciphertext storage account. Each request obtains fresh scoped authorization and requires the pinned Google `sub`; an email rename preserves the original FPBKAEAD accountName and authenticated bytes. Both apps must use the same approved Google project and Drive appData consent scope.
 
 1. Allocate a file ID with `GET /drive/v3/files/generateIds?count=1&space=appDataFolder&type=files`. Require exactly one ID for the appData space.

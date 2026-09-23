@@ -10,16 +10,16 @@ The registered Google callback handler admits only the configured URL scheme, th
 
 ## Portable storage format
 
-The adapter reads and writes the existing Android format:
+The adapter reads the existing Android format and can create a new legacy-format copy only when no file already exists:
 
 - Filename: `fearless-passkey-backup-<storageKey>.bin` in `appDataFolder`.
 - Media type: `application/octet-stream`; media bytes are the unchanged canonical `FPBKAEAD` envelope.
 - Five string `appProperties`: `storageKey`, `walletId`, `accountName`, `createdAtMillis`, `schemaVersion`.
 - Original AAD metadata is preserved when reading, including an earlier account email after a Google email change.
 
-The current Android provider binds storage access to `Account(email)` and requires matching metadata email. It therefore rejects the renamed-email case that this iOS subject binding can read. That remains a cross-platform recovery gap until Android has stable Google-subject binding and the shared owner/lifecycle protocol is complete; this iOS test is not bidirectional acceptance evidence.
+Both current native adapters pin the selected Google subject for storage access. This iOS test of an email rename is still not bidirectional acceptance evidence; the shared owner/lifecycle protocol and real replacement-device tests remain required.
 
-Create uses multipart metadata and encrypted bytes with the `appDataFolder` parent. Update omits the parents field. Each request obtains a refreshed token for the selected subject. Search explicitly requests pagination metadata and denies a partial search or duplicate filename rather than choosing one file or assuming absence. Successful uploads must acknowledge the expected filename and exact metadata; updates must acknowledge the same file ID.
+Create uses multipart metadata and encrypted bytes with the `appDataFolder` parent. The adapter refuses to update an existing file, preserving that legacy ciphertext until migration through the immutable generation flow. Each request obtains a refreshed token for the selected subject. Search explicitly requests pagination metadata and denies a partial search or duplicate filename rather than choosing one file or assuming absence. Successful uploads must acknowledge the expected filename and exact metadata.
 
 Google limits each private property's key plus value to 124 UTF-8 bytes. This implementation rejects larger metadata before requesting a token; it never truncates authenticated metadata. The shared wallet/account validators allow some larger values. A reviewed cross-platform format revision is required to support those values, portable credential wrappers and backup generations together.
 
@@ -29,7 +29,7 @@ The HTTP transport uses the existing ephemeral, cookie-free, cache-free session,
 
 `PasskeyBackupComposition.makeGoogleDriveClient` keeps the compiled release gate and unavailable owner/key defaults. CloudKit remains an explicitly selected optional additional copy; it is never a silent fallback from failed Google Drive access. This patch adds no visible enabled recovery flow.
 
-Before enabling recovery, complete native PRF and key wrapping, exact-request owner grants, successful local-decryption proof before enrollment, safe final-credential removal/key rotation, and generation-aware cross-device update/rollback protection. Drive list-then-create/update is not an atomic cross-device transaction. Concurrent creates can result in duplicates, which later reads intentionally reject. Concurrent updates and challenge/store coordination still require the reviewed lifecycle protocol.
+Before enabling recovery, complete native PRF and key wrapping, exact-request owner grants, successful local-decryption proof before enrollment, safe final-credential removal/key rotation, and generation-aware cross-device update/rollback protection. Drive list-then-create is not an atomic cross-device transaction. Concurrent creates can result in duplicates, which later reads intentionally reject. Generation head updates and challenge/store coordination still require the reviewed lifecycle protocol.
 
 Qualification must include live account selection/denied consent/cancellation, account changes during refresh, same-project Android↔iOS replacement-device restore, preserved AAD and wrapper migration, no plaintext/key/PRF/token leakage, and store-signed upgrade testing. Local tests use synthetic authorization and transport fixtures; they do not sign into Google, store live ciphertext, or validate lost-device recovery.
 

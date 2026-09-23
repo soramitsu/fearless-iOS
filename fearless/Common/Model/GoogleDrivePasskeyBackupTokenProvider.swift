@@ -10,6 +10,7 @@ enum GoogleDrivePasskeyBackupError: Error, Equatable {
     case invalidToken
     case malformedResponse
     case ambiguousBackup
+    case immutableGenerationRequired
     case metadataTooLarge
     case httpStatus(Int)
 }
