@@ -249,6 +249,81 @@ final class PasskeyBackupCredentialKeyWrapperTests: XCTestCase {
         XCTAssertFalse(PasskeyBackupReleaseConfig.isPasskeyBackupEnabled)
     }
 
+    func testImmutableGenerationMatchesAndroidCanonicalVector() throws {
+        let generation = try fixedGeneration()
+        let bytes = try PasskeyBackupGenerationV1Format.encode(generation)
+        XCTAssertEqual(bytes.count, 785)
+        XCTAssertEqual(
+            PasskeyBackupGenerationV1Format.sha256(bytes),
+            "1c92b544dc25c687c202317d0e5747b5690a1056cf72e61d1dfab84c07c057a4"
+        )
+        let decoded = try PasskeyBackupGenerationV1Format.decode(
+            bytes, expectedContext: generation.context,
+            expectedSha256: PasskeyBackupGenerationV1Format.sha256(bytes)
+        )
+        XCTAssertEqual(try PasskeyBackupGenerationV1Format.encode(decoded), bytes)
+        XCTAssertEqual(
+            try wrapper.unwrap(
+                record: XCTUnwrap(decoded.wrappers.first),
+                prfOutput: prfOutput,
+                expectedContext: context()
+            ), backupKey
+        )
+        XCTAssertEqual(String(reflecting: generation), "PasskeyBackupGenerationV1(<redacted>)")
+        XCTAssertEqual(String(reflecting: generation.context), "PasskeyBackupGenerationV1.Context(<redacted>)")
+    }
+
+    func testImmutableGenerationRejectsWrongHeadAndTamperedBytes() throws {
+        let generation = try fixedGeneration()
+        let bytes = try PasskeyBackupGenerationV1Format.encode(generation)
+        let digest = PasskeyBackupGenerationV1Format.sha256(bytes)
+        XCTAssertThrowsError(try PasskeyBackupGenerationV1Format.decode(
+            bytes, expectedContext: generation.context, expectedSha256: String(repeating: "0", count: 64)
+        ))
+        let changedContext = try PasskeyBackupGenerationV1.Context(
+            ownerSubject: generation.context.ownerSubject,
+            backupNamespace: generation.context.backupNamespace,
+            generationId: "mZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZo",
+            parentHeadRevision: generation.context.parentHeadRevision,
+            parentHeadSha256: generation.context.parentHeadSha256,
+            keyEpoch: generation.context.keyEpoch,
+            storageAccountBinding: generation.context.storageAccountBinding
+        )
+        XCTAssertThrowsError(try PasskeyBackupGenerationV1Format.decode(
+            bytes, expectedContext: changedContext, expectedSha256: digest
+        ))
+        for position in [0, 8, 12, 64, bytes.count - 1] {
+            var changed = bytes
+            changed[position] ^= 1
+            XCTAssertThrowsError(try PasskeyBackupGenerationV1Format.decode(
+                changed, expectedContext: generation.context, expectedSha256: digest
+            ))
+        }
+        XCTAssertThrowsError(try PasskeyBackupGenerationV1Format.decode(
+            bytes + Data([0]), expectedContext: generation.context,
+            expectedSha256: PasskeyBackupGenerationV1Format.sha256(bytes + Data([0]))
+        ))
+    }
+
+    private func fixedGeneration() throws -> PasskeyBackupGenerationV1 {
+        let envelope = try PasskeyBackupEncryptedRecord(
+            storageKey: "wallet-1234", walletId: "wallet-001", accountName: "alice@example.com",
+            createdAtMillis: 1_767_225_600_000,
+            encryptedPayload: PasskeyBackupContract.decodeBase64URL(
+                "RlBCS0FFQUQBAQwQAAAAHQABAgMEBQYHCAkKC83JBCkpwJEyw__KPV-GpFaKNXesucIWrPbymd1fJxz0FX_uLctQsHJRM3AfVA"
+            )
+        )
+        let generationContext = try PasskeyBackupGenerationV1.Context(
+            ownerSubject: "owner:ERERERERERERERERERERERERERERERERERERERERERE",
+            backupNamespace: "backup:iIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIg",
+            generationId: "mZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZk",
+            parentHeadRevision: 6, parentHeadSha256: String(repeating: "a", count: 64),
+            keyEpoch: 7,
+            storageAccountBinding: "a5b6fab414ef8a7721025c657815ec11b8723cfdc62ec716623270b6caacb490"
+        )
+        return try PasskeyBackupGenerationV1(context: generationContext, envelope: envelope, wrappers: [fixedRecord()])
+    }
+
     private func context(
         owner: String = "owner:ERERERERERERERERERERERERERERERERERERERERERE",
         credential: String = "IiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiI", epoch: Int64 = 7,
