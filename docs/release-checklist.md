@@ -205,15 +205,20 @@ Use this checklist for every release PR from `develop` to `master`.
 - From the workspace root, run
   `bash scripts/audit-passkey-backup-prerequisites.sh` and confirm
   `config/passkey-backup-production.json` still matches iOS passkey code,
-  associated domains, CloudKit storage, and the production challenge-service
+  associated domains, Google Drive appData storage, optional CloudKit storage, and the production challenge-service
   contract. Before enabling user-facing passkey backup, run the same audit with
   `PASSKEY_BACKUP_LIVE_HEALTH=1` and confirm the deployed challenge service
   passes. Keep `isPasskeyBackupEnabled=false` unless that live release audit is
   green for the release.
 - Before enabling user-facing passkey backup, confirm the iOS flow handles
-  iCloud account availability, CloudKit production schema readiness,
-  associated-domain provisioning, provisioning profiles, and a recovery path
-  that offers restore before creating a new backup.
+  explicit Google account selection and Google Drive consent for the exact
+  `drive.appdata` scope. Prove cross-platform restore from iOS to a replacement
+  Android device and from Android to a replacement iPhone while the original
+  devices are unavailable. The Google OAuth clients must use the same Fearless
+  application and read the same appData files. iCloud is an optional additional
+  copy: check iCloud account availability and CloudKit production schema only
+  for that path. Also verify associated-domain provisioning, provisioning
+  profiles, and a recovery path that offers restore before creating a new backup.
 - Keep the default `UnavailableBackupAuthorizationProvider` in place
   until a reviewed issuer supplies one-time, exact-request-body-bound grants
   backed by production App Attest/provisioning evidence. Its authorization
@@ -222,14 +227,15 @@ Use this checklist for every release PR from `develop` to `master`.
   malformed, replayed, wrong-body, and wrong-subject grants fail before any
   challenge is issued.
 - Keep `UnavailablePasskeyBackupKeyProvider` in place until product and
-  security approve a wallet-owned, cross-device recovery source for an exact
-  32-byte backup key. A device-local Keychain key is not a cross-device
-  recovery key. Verify loss/replacement-device recovery plus wrong-key,
-  tamper, metadata-swap, truncation, and nonce-uniqueness tests for the
-  canonical AES-256-GCM envelope before enabling the flag.
+  security review the native iOS 18+ provider PRF, client-side HKDF-SHA256 and
+  AES-GCM credential wrappers around a random 32-byte backup key. A device-local
+  Keychain key is not a cross-device recovery key. Verify loss/replacement-device
+  recovery plus wrong-key, tamper, metadata-swap, truncation, and nonce-uniqueness
+  tests for the canonical AES-256-GCM envelope before enabling the flag.
 - Verify credential list, single revoke, and revoke-all use exact-body-bound
-  grants. Deletion must durably revoke all server credentials before removing
-  the CloudKit record; a revoke failure must leave the encrypted record intact.
+  grants. Deletion must durably revoke server access before retiring Drive
+  generations or an optional CloudKit copy; a revoke failure must leave the
+  last decryptable encrypted generation intact.
 - Confirm public build instructions still work without private overlays.
 - When the private iOS overlay checkout is available, run
   `PRIVATE_OVERLAY_REPORT=build/reports/private-overlay-boundary.tsv PRIVATE_REPO_DIR=../fearless-iOS-priv ./scripts/audit-private-overlay-boundary.sh`

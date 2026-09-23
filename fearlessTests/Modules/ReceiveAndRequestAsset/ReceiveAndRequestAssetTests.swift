@@ -313,12 +313,32 @@ final class ReceiveAndRequestAssetTests: XCTestCase {
                     XCTAssertLessThanOrEqual(view.addressLabel.bounds.width, 288)
                     attachFixture(view, name: "receive-320pt-\(category.rawValue)-top")
                     let scroll = view.contentView.scrollView
-                    scroll.setContentOffset(CGPoint(x: 0, y: max(0, scroll.contentSize.height - scroll.bounds.height)), animated: false)
-                    view.layoutIfNeeded()
-                    let addressFrame = view.addressLabel.convert(view.addressLabel.bounds, to: view)
-                    XCTAssertLessThanOrEqual(addressFrame.maxY, view.copyButton.frame.minY + 1)
-                    XCTAssertGreaterThanOrEqual(addressFrame.minY, view.navigationBar.frame.maxY)
-                    attachFixture(view, name: "receive-320pt-\(category.rawValue)-address")
+                    XCTAssertTrue(scroll.clipsToBounds)
+                    let addressContentFrame = view.addressLabel.convert(view.addressLabel.bounds, to: scroll)
+                    let minimumOffset = -scroll.adjustedContentInset.top
+                    let maximumOffset = max(minimumOffset, scroll.contentSize.height - scroll.bounds.height + scroll.adjustedContentInset.bottom)
+                    let addressStartOffset = min(maximumOffset, max(minimumOffset, addressContentFrame.minY - scroll.adjustedContentInset.top))
+                    for (position, offset) in [("start", addressStartOffset), ("end", maximumOffset)] {
+                        scroll.setContentOffset(CGPoint(x: 0, y: offset), animated: false)
+                        view.layoutIfNeeded()
+                        let viewport = scroll.convert(scroll.bounds.inset(by: scroll.adjustedContentInset), to: view)
+                        let addressFrame = view.addressLabel.convert(view.addressLabel.bounds, to: view)
+                        let visibleAddress = addressFrame.intersection(viewport)
+                        XCTAssertFalse(visibleAddress.isNull, "Address must remain reachable at \(position)")
+                        XCTAssertGreaterThan(visibleAddress.height, 0)
+                        XCTAssertGreaterThanOrEqual(visibleAddress.minY, view.navigationBar.frame.maxY)
+                        XCTAssertLessThanOrEqual(visibleAddress.maxY, view.copyButton.frame.minY + 1)
+                        if position == "start" {
+                            XCTAssertEqual(visibleAddress.minY, addressFrame.minY, accuracy: 1)
+                        } else {
+                            XCTAssertEqual(visibleAddress.maxY, addressFrame.maxY, accuracy: 1)
+                        }
+                        XCTAssertEqual(view.addressLabel.text, address)
+                        XCTAssertEqual(view.addressLabel.accessibilityLabel, address)
+                        XCTAssertEqual(view.networkLabel.text, "USDT · Ethereum")
+                        XCTAssertTrue(view.copyButton.isUserInteractionEnabled)
+                        attachFixture(view, name: "receive-320pt-\(category.rawValue)-address-\(position)")
+                    }
                 }
             }
         }

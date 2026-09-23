@@ -72,11 +72,11 @@ class CommonInputViewV2: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         // AnimatedTextField forwards taps across its full bounds to this input.
-        if #unavailable(iOS 17.0) {
-            animatedInputField.textField.accessibilityFrame = UIAccessibility.convertToScreenCoordinates(
-                animatedInputField.bounds, in: animatedInputField
-            )
-        }
+        // Keep the stored frame coherent for direct accessibility consumers too.
+        // On iOS 17+, the dynamic block still takes precedence for VoiceOver.
+        animatedInputField.textField.accessibilityFrame = UIAccessibility.convertToScreenCoordinates(
+            animatedInputField.bounds, in: animatedInputField
+        )
     }
 
     private func setupLayout() {

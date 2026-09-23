@@ -114,6 +114,7 @@ final class ReceiveAndRequestAssetViewLayout: UIView {
         )
         walletLabel.text = viewModel.accountName
         addressLabel.text = viewModel.address
+        addressLabel.accessibilityLabel = viewModel.address
     }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol?) {
