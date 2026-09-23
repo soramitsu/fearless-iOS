@@ -14,6 +14,7 @@ enum IOSPasskeyWalletMaterialPreflightError: Error, Equatable {
     case unavailableSecretMaterial
     case pendingKeyMigration
     case walletStoreChanged
+    case unqualifiedNativeSigningBoundary
 }
 
 /// Counts only. This is an eligibility check, not serialized backup material or recovery evidence.
@@ -169,14 +170,15 @@ final class IOSPasskeyWalletMaterialPreflight {
 
         if let accountId = wallet.substrateAccountId,
            let publicKey = wallet.substratePublicKey {
-            guard CryptoType(rawValue: wallet.substrateCryptoType) != nil,
+            guard let cryptoType = CryptoType(rawValue: wallet.substrateCryptoType),
                   (try? publicKey.publicKeyToAccountId()) == accountId else {
                 throw IOSPasskeyWalletMaterialPreflightError.incompletePublicIdentity
             }
-            // This checks coverage and public metadata only for Substrate. The
-            // secret-to-public binding and original-key signing/export proof are
-            // still mandatory before any generation can become backup-complete.
             _ = try requiredKey(KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId))
+            try verifyOriginalKeySigning(
+                wallet: wallet, accountId: accountId, publicKey: publicKey,
+                cryptoType: cryptoType, ethereumBased: false, chainId: nil
+            )
         }
 
         if let address = wallet.ethereumAddress,
@@ -189,6 +191,10 @@ final class IOSPasskeyWalletMaterialPreflight {
                 .publicKey().rawData().ethereumAddressFromPublicKey()) == address else {
                 throw IOSPasskeyWalletMaterialPreflightError.incompletePublicIdentity
             }
+            try verifyOriginalKeySigning(
+                wallet: wallet, accountId: address, publicKey: publicKey,
+                cryptoType: .ecdsa, ethereumBased: true, chainId: nil
+            )
         }
 
         guard hasSubstrate else { return nil }
@@ -267,6 +273,13 @@ final class IOSPasskeyWalletMaterialPreflight {
                     throw IOSPasskeyWalletMaterialPreflightError.incompletePublicIdentity
                 }
             }
+            guard let cryptoType = CryptoType(rawValue: account.cryptoType) else {
+                throw IOSPasskeyWalletMaterialPreflightError.incompletePublicIdentity
+            }
+            try verifyOriginalKeySigning(
+                wallet: wallet, accountId: account.accountId, publicKey: account.publicKey,
+                cryptoType: cryptoType, ethereumBased: account.ethereumBased, chainId: account.chainId
+            )
             return
         }
 
@@ -289,6 +302,58 @@ final class IOSPasskeyWalletMaterialPreflight {
         }
         guard derived == account.publicKey else {
             throw IOSPasskeyWalletMaterialPreflightError.missingSecretMaterial
+        }
+    }
+
+    private func verifyOriginalKeySigning(
+        wallet: MetaAccountModel, accountId: Data, publicKey: Data,
+        cryptoType: CryptoType, ethereumBased: Bool, chainId: String?
+    ) throws {
+        // The pinned sr25519 C/Rust signer aborts the process for some malformed
+        // 64-byte secrets instead of reporting a recoverable error. No untrusted
+        // Keychain bytes may reach it from portable-backup qualification.
+        guard ethereumBased || cryptoType != .sr25519 else {
+            throw IOSPasskeyWalletMaterialPreflightError.unqualifiedNativeSigningBoundary
+        }
+        // A domain-separated local signature proves that the Keychain item can
+        // still sign for the persisted identity. Nothing leaves this process.
+        let message = Data("FPBK-LOCAL-KEY-PROOF-v1".utf8) + Data(wallet.metaId.utf8) + publicKey
+        let account = ChainAccountResponse(
+            chainId: chainId ?? "passkey-preflight", accountId: accountId, publicKey: publicKey,
+            name: wallet.name, cryptoType: cryptoType, addressPrefix: 42,
+            isEthereumBased: ethereumBased, isChainAccount: chainId != nil, walletId: wallet.metaId
+        )
+        do {
+            let signature = try SigningWrapper(
+                keystore: keystore, metaId: wallet.metaId, accountResponse: account
+            ).sign(message)
+            let verified: Bool
+            if ethereumBased {
+                verified = try SECSignatureVerifier().verify(
+                    signature, forOriginalData: message.keccak256(),
+                    usingPublicKey: SECPublicKey(rawData: publicKey)
+                )
+            } else {
+                switch cryptoType {
+                case .sr25519:
+                    throw IOSPasskeyWalletMaterialPreflightError.unqualifiedNativeSigningBoundary
+                case .ed25519:
+                    verified = try EDSignatureVerifier().verify(
+                        signature, forOriginalData: message,
+                        usingPublicKey: EDPublicKey(rawData: publicKey)
+                    )
+                case .ecdsa:
+                    verified = try SECSignatureVerifier().verify(
+                        signature, forOriginalData: message.blake2b32(),
+                        usingPublicKey: SECPublicKey(rawData: publicKey)
+                    )
+                }
+            }
+            guard verified else { throw IOSPasskeyWalletMaterialPreflightError.incompletePublicIdentity }
+        } catch let error as IOSPasskeyWalletMaterialPreflightError {
+            throw error
+        } catch {
+            throw IOSPasskeyWalletMaterialPreflightError.incompletePublicIdentity
         }
     }
 

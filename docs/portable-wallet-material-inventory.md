@@ -35,13 +35,20 @@ preflight because the released phrase-export UX cannot be preserved. The
 persisted iOS model does not represent an EVM-only wallet without a Substrate
 or native TON root; such a row remains unsupported and fails closed.
 
-This preflight checks Substrate secret presence and public metadata, but it
-does not prove that the stored Substrate secret derives the public key or can
-sign and export. It also does not serialize all optional entropy, seed and
-derivation tags; perform an atomic secret capture and original-key signing and
-export proof before allowing any backup-complete state. Its two wallet-store
-reads detect ordinary metadata drift but are not a transaction spanning
-Core Data and Keychain. The production passkey feature remains disabled.
+This preflight now checks a local, domain-separated signature against each
+stored ED25519/ECDSA Substrate root, EVM root and explicitly stored ED25519/ECDSA chain key;
+it rejects a readable Keychain item that cannot sign for its original public
+identity. It also validates the native TON phrase against its V4R2 identity.
+The pinned SR25519 C/Rust signing boundary aborts on some malformed 64-byte
+private keys. Until that native boundary returns a recoverable error for invalid
+input, the preflight rejects SR25519 wallets before calling it. This is a
+portable-recovery blocker, not a change to existing wallet signing or export.
+These checks do not serialize all optional entropy, seed and derivation tags,
+or prove that the released export UX can reproduce them. Atomic secret capture,
+export proof and a transactional installer remain required before allowing any
+backup-complete state. Its two wallet-store reads detect ordinary metadata
+drift but are not a transaction spanning Core Data and Keychain. The production
+passkey feature remains disabled.
 
 The disabled passkey generation code authenticates an encrypted envelope,
 unwraps a credential-local backup key from a native PRF result and calls the

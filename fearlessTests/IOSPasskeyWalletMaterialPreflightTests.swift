@@ -10,7 +10,7 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         let substrate = try substrateWallet()
         let native = try LegacyNativeTonFixture.wallet()
         let keys = PreflightKeystore(keys: [
-            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(substrate.metaId): Data(repeating: 0x11, count: 64),
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(substrate.metaId): substrateSecretKey,
             fearless.KeystoreTagV2.tonSecretKeyTagForMetaId(native.metaId): try LegacyNativeTonFixture.privateKey(),
             fearless.KeystoreTagV2.entropyTagForMetaId(native.metaId): Data(LegacyNativeTonFixture.phrase.utf8)
         ])
@@ -45,7 +45,7 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
     func testQuarantinedOrUnsupportedRowBlocksEntireInventory() throws {
         let wallet = try substrateWallet()
         let keys = PreflightKeystore(keys: [
-            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): Data(repeating: 0x11, count: 64)
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): substrateSecretKey
         ])
         for state: MetaAccountSelectionRecordState in [.corrupt, .unsupported] {
             let quarantined = MetaAccountSelectionModel(
@@ -61,7 +61,7 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
     func testRawRowCountRejectsAProjectionLostDuringMapping() throws {
         let wallet = try substrateWallet()
         let keys = PreflightKeystore(keys: [
-            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): Data(repeating: 0x11, count: 64)
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): substrateSecretKey
         ])
         let projections = [projection(wallet)]
         let preflight = IOSPasskeyWalletMaterialPreflight(
@@ -120,11 +120,46 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         }
     }
 
+    func testSubstrateRootMustSignForItsPersistedPublicIdentity() throws {
+        let wallet = try substrateWallet()
+        let tag = fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId)
+        let keys = PreflightKeystore(keys: [tag: substrateSecretKey])
+        XCTAssertEqual(try makePreflight([projection(wallet)], keys: keys).inspect().substrateRootCount, 1)
+
+        keys.keys[tag] = Data(repeating: 0x44, count: 64)
+        XCTAssertThrowsError(try makePreflight([projection(wallet)], keys: keys).inspect()) {
+            XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .incompletePublicIdentity)
+        }
+    }
+
+    func testEcdsaRootMustSignForItsPersistedIdentity() throws {
+        let wallet = try substrateWallet(cryptoType: .ecdsa)
+        let tag = fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId)
+        let keys = PreflightKeystore(keys: [tag: Data(repeating: 0x11, count: 32)])
+        XCTAssertEqual(try makePreflight([projection(wallet)], keys: keys).inspect().substrateRootCount, 1)
+
+        keys.keys[tag] = Data(repeating: 0x44, count: 32)
+        XCTAssertThrowsError(try makePreflight([projection(wallet)], keys: keys).inspect()) {
+            XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .incompletePublicIdentity)
+        }
+    }
+
+    func testSr25519RootStopsBeforeUnsafeNativeSigningBoundary() throws {
+        let wallet = try substrateWallet(cryptoType: .sr25519)
+        let tag = fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId)
+        for secret in [try substrateSecretKey(for: .sr25519), Data(repeating: 0x44, count: 64)] {
+            let keys = PreflightKeystore(keys: [tag: secret])
+            XCTAssertThrowsError(try makePreflight([projection(wallet)], keys: keys).inspect()) {
+                XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .unqualifiedNativeSigningBoundary)
+            }
+        }
+    }
+
     func testIndependentEthereumRootRequiresItsOwnMatchingKeyAndBoundPublicIdentity() throws {
         let wallet = try substrateWallet(includeEthereum: true)
         let substrateTag = fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId)
         let ethereumTag = fearless.KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId)
-        let keys = PreflightKeystore(keys: [substrateTag: Data(repeating: 0x22, count: 64)])
+        let keys = PreflightKeystore(keys: [substrateTag: substrateSecretKey])
         XCTAssertThrowsError(try makePreflight([projection(wallet)], keys: keys).inspect()) {
             XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .missingSecretMaterial)
         }
@@ -145,7 +180,8 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
 
     func testIndependentChainAccountCannotDisappearBehindRootWalletMaterial() throws {
         let base = try substrateWallet()
-        let publicKey = Data(repeating: 0x31, count: 32)
+        let publicKey = try EDKeyFactory().derive(fromSeed: Data(repeating: 0x32, count: 32))
+            .publicKey().rawData()
         let accountId = try publicKey.publicKeyToAccountId()
         let chain = ChainAccountModel(
             chainId: "independent:substrate", accountId: accountId, publicKey: publicKey,
@@ -153,7 +189,7 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         )
         let wallet = base.insertingChainAccount(chain)
         let keys = PreflightKeystore(keys: [
-            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): Data(repeating: 0x11, count: 64)
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): substrateSecretKey
         ])
         XCTAssertThrowsError(try makePreflight([projection(wallet)], keys: keys).inspect()) {
             XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .missingSecretMaterial)
@@ -161,6 +197,12 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         keys.keys[fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)] =
             Data(repeating: 0x32, count: 32)
         XCTAssertEqual(try makePreflight([projection(wallet)], keys: keys).inspect().chainAccountCount, 1)
+
+        keys.keys[fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)] =
+            Data(repeating: 0x33, count: 32)
+        XCTAssertThrowsError(try makePreflight([projection(wallet)], keys: keys).inspect()) {
+            XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .incompletePublicIdentity)
+        }
     }
 
     func testAppOwnedBitcoinRequiresOriginalRootAndMatchingPublicKey() throws {
@@ -174,7 +216,7 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         )
         let wallet = base.insertingChainAccount(chain)
         let keys = PreflightKeystore(keys: [
-            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): Data(repeating: 0x11, count: 64)
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): substrateSecretKey
         ])
         XCTAssertThrowsError(try makePreflight([projection(wallet)], keys: keys).inspect()) {
             XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .incompletePublicIdentity)
@@ -187,7 +229,7 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
     func testPendingMigrationAndWalletChangesBlockPreflight() throws {
         let wallet = try substrateWallet()
         let keys = PreflightKeystore(keys: [
-            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): Data(repeating: 0x11, count: 64),
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): substrateSecretKey,
             KeystoreMigrator.pendingCleanupIdentifier: Data("pending".utf8)
         ])
         XCTAssertThrowsError(try makePreflight([projection(wallet)], keys: keys).inspect()) {
@@ -212,21 +254,33 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         }
         let wallet = try substrateWallet()
         let keys = PreflightKeystore(keys: [
-            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): Data(repeating: 0x11, count: 64)
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): substrateSecretKey
         ])
         XCTAssertThrowsError(try makePreflight([projection(wallet), projection(wallet)], keys: keys).inspect()) {
             XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .duplicateWalletIdentifier)
         }
     }
 
-    private func substrateWallet(includeEthereum: Bool = false) throws -> MetaAccountModel {
-        let publicKey = Data(repeating: 0x21, count: 32)
+    private func substrateWallet(
+        includeEthereum: Bool = false, cryptoType: CryptoType = .ed25519
+    ) throws -> MetaAccountModel {
+        let seed = Data(repeating: 0x11, count: 32)
+        let publicKey: Data
+        switch cryptoType {
+        case .sr25519:
+            publicKey = try SNKeyFactory().createKeypair(fromSeed: seed).publicKey().rawData()
+        case .ed25519:
+            publicKey = try EDKeyFactory().derive(fromSeed: seed).publicKey().rawData()
+        case .ecdsa:
+            publicKey = try SECKeyFactory().derive(fromPrivateKey: SECPrivateKey(rawData: seed))
+                .publicKey().rawData()
+        }
         let ethereumPublicKey = includeEthereum ? try SECKeyFactory()
             .derive(fromPrivateKey: SECPrivateKey(rawData: ethereumPrivateKey))
             .publicKey().rawData() : nil
         return MetaAccountModel(
             metaId: "preflight-wallet", name: "Wallet", substrateAccountId: try publicKey.publicKeyToAccountId(),
-            substrateCryptoType: CryptoType.ed25519.rawValue, substratePublicKey: publicKey,
+            substrateCryptoType: cryptoType.rawValue, substratePublicKey: publicKey,
             ethereumAddress: try ethereumPublicKey?.ethereumAddressFromPublicKey(),
             ethereumPublicKey: ethereumPublicKey, chainAccounts: [], assetKeysOrder: nil,
             canExportEthereumMnemonic: false, unusedChainIds: nil,
@@ -240,6 +294,19 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
     }
 
     private var ethereumPrivateKey: Data { Data(repeating: 0x01, count: 32) }
+    private var substrateSecretKey: Data { Data(repeating: 0x11, count: 64) }
+
+    private func substrateSecretKey(for cryptoType: CryptoType) throws -> Data {
+        switch cryptoType {
+        case .sr25519:
+            return try SNKeyFactory().createKeypair(fromSeed: Data(repeating: 0x11, count: 32))
+                .privateKey().rawData()
+        case .ed25519:
+            return substrateSecretKey
+        case .ecdsa:
+            return Data(repeating: 0x11, count: 32)
+        }
+    }
 
     private func makePreflight(
         _ projections: [MetaAccountSelectionModel], keys: PreflightKeystore
