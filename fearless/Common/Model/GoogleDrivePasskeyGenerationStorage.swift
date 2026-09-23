@@ -143,6 +143,18 @@ final class GoogleDrivePasskeyGenerationStorage {
         )
     }
 
+    /// Restore reads the exact committed owner head, never a Drive listing or a local hint.
+    /// The caller must obtain `authenticatedHead` from a fresh owner session and still unwrap,
+    /// decrypt, and verify the original wallet before reporting recovery.
+    func readCurrentHead(_ authenticatedHead: PasskeyBackupAuthenticatedHead) async throws
+        -> PasskeyBackupGenerationV1? {
+        let expected = try authenticatedHead.currentReadParameters()
+        return try await readCandidate(
+            fileID: expected.fileID, expectedContext: expected.context,
+            expectedSha256: expected.sha256
+        )
+    }
+
     /// Recheck the selected Google identity after an asynchronous local wallet ceremony.
     /// This does not read or mutate a Drive file.
     func requireSelectedAccount() async throws {

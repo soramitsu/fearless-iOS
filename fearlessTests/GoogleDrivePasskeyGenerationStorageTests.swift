@@ -146,6 +146,92 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         XCTAssertEqual(fixture.transport.requests.map(\.method), ["GET", "GET"])
     }
 
+    func testCommittedHeadSelectsOnlyExactAuthenticatedDriveGeneration() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let committed = try authenticatedHead(candidate)
+        let selected = try committed.currentReadParameters()
+        XCTAssertEqual(selected.fileID, fileID)
+        XCTAssertEqual(selected.context, candidate.context)
+        XCTAssertEqual(selected.sha256, candidate.sha256)
+        fixture.transport.responses = [.success(.init(statusCode: 200, body: try metadata(candidate))),
+                                       .success(.init(statusCode: 200, body: candidate.bytes))]
+        let read = try await fixture.store.readCurrentHead(committed)
+        XCTAssertEqual(try PasskeyBackupGenerationV1Format.encode(XCTUnwrap(read)), candidate.bytes)
+        XCTAssertEqual(fixture.transport.requests.map(\.url.path), [
+            "/drive/v3/files/\(fileID)", "/drive/v3/files/\(fileID)"
+        ])
+        XCTAssertEqual(String(reflecting: committed), "PasskeyBackupAuthenticatedHead(<redacted>)")
+        XCTAssertEqual(String(reflecting: try XCTUnwrap(committed.head)), "PasskeyBackupHeadDescriptor(<redacted>)")
+    }
+
+    func testCommittedHeadRejectsOwnerAccountAndParentSubstitutionBeforeNetwork() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let descriptor = try PasskeyBackupHeadDescriptor(
+            headRevision: 7, parentHeadRevision: 6, parentHeadSha256: candidate.context.parentHeadSha256,
+            generationId: candidate.context.generationId, bundleSha256: candidate.sha256,
+            keyEpoch: candidate.context.keyEpoch, driveFileID: fileID,
+            storageAccountBinding: candidate.context.storageAccountBinding
+        )
+        let previous = try PasskeyBackupHeadDescriptor(
+            headRevision: 6, parentHeadRevision: 5, parentHeadSha256: String(repeating: "b", count: 64),
+            generationId: String(repeating: "E", count: 43), bundleSha256: String(repeating: "a", count: 64),
+            keyEpoch: 7, driveFileID: "previous-drive-id",
+            storageAccountBinding: candidate.context.storageAccountBinding
+        )
+        XCTAssertThrowsError(try PasskeyBackupAuthenticatedHead(
+            ownerSubject: candidate.context.ownerSubject, backupNamespace: candidate.context.backupNamespace,
+            head: descriptor, previous: previous, expectedOwnerSubject: "owner:" + String(repeating: "A", count: 43),
+            expectedBackupNamespace: candidate.context.backupNamespace,
+            expectedStorageAccountBinding: candidate.context.storageAccountBinding
+        ))
+        XCTAssertThrowsError(try PasskeyBackupAuthenticatedHead(
+            ownerSubject: candidate.context.ownerSubject, backupNamespace: candidate.context.backupNamespace,
+            head: descriptor, previous: previous, expectedOwnerSubject: candidate.context.ownerSubject,
+            expectedBackupNamespace: candidate.context.backupNamespace,
+            expectedStorageAccountBinding: String(repeating: "c", count: 64)
+        ))
+        XCTAssertThrowsError(try PasskeyBackupAuthenticatedHead(
+            ownerSubject: candidate.context.ownerSubject, backupNamespace: candidate.context.backupNamespace,
+            head: descriptor, previous: nil, expectedOwnerSubject: candidate.context.ownerSubject,
+            expectedBackupNamespace: candidate.context.backupNamespace,
+            expectedStorageAccountBinding: candidate.context.storageAccountBinding
+        ))
+        let wrongParent = try PasskeyBackupHeadDescriptor(
+            headRevision: 6, parentHeadRevision: 5, parentHeadSha256: String(repeating: "b", count: 64),
+            generationId: String(repeating: "E", count: 43), bundleSha256: String(repeating: "d", count: 64),
+            keyEpoch: 7, driveFileID: "previous-drive-id",
+            storageAccountBinding: candidate.context.storageAccountBinding
+        )
+        XCTAssertThrowsError(try PasskeyBackupAuthenticatedHead(
+            ownerSubject: candidate.context.ownerSubject, backupNamespace: candidate.context.backupNamespace,
+            head: descriptor, previous: wrongParent, expectedOwnerSubject: candidate.context.ownerSubject,
+            expectedBackupNamespace: candidate.context.backupNamespace,
+            expectedStorageAccountBinding: candidate.context.storageAccountBinding
+        ))
+        XCTAssertThrowsError(try PasskeyBackupHeadDescriptor(
+            headRevision: 7, parentHeadRevision: 5, parentHeadSha256: candidate.context.parentHeadSha256,
+            generationId: candidate.context.generationId, bundleSha256: candidate.sha256,
+            keyEpoch: candidate.context.keyEpoch, driveFileID: fileID,
+            storageAccountBinding: candidate.context.storageAccountBinding
+        ))
+        XCTAssertTrue(fixture.transport.requests.isEmpty)
+    }
+
+    func testEmptyAuthenticatedHeadCannotChooseUncommittedDriveCandidate() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let empty = try PasskeyBackupAuthenticatedHead(
+            ownerSubject: candidate.context.ownerSubject, backupNamespace: candidate.context.backupNamespace,
+            head: nil, previous: nil, expectedOwnerSubject: candidate.context.ownerSubject,
+            expectedBackupNamespace: candidate.context.backupNamespace,
+            expectedStorageAccountBinding: candidate.context.storageAccountBinding
+        )
+        await assertFailure { _ = try await fixture.store.readCurrentHead(empty) }
+        XCTAssertTrue(fixture.transport.requests.isEmpty)
+    }
+
     func testAccountSwitchBetweenMetadataAndMediaCannotReadWithOtherBearer() async throws {
         let fixture = try fixture()
         let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
@@ -711,6 +797,29 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
             parentHeadRevision: 6, parentHeadSha256: String(repeating: "a", count: 64), keyEpoch: epoch,
             storageAccountBinding: PasskeyBackupGenerationV1Format.storageAccountBinding(verifiedGoogleSubject: subject)
         ), envelope: envelope, wrappers: [wrapper])
+    }
+
+    private func authenticatedHead(
+        _ candidate: GoogleDrivePasskeyGenerationStorage.Candidate
+    ) throws -> PasskeyBackupAuthenticatedHead {
+        let previous = try PasskeyBackupHeadDescriptor(
+            headRevision: 6, parentHeadRevision: 5, parentHeadSha256: String(repeating: "b", count: 64),
+            generationId: String(repeating: "E", count: 43), bundleSha256: String(repeating: "a", count: 64),
+            keyEpoch: candidate.context.keyEpoch, driveFileID: "previous-drive-id",
+            storageAccountBinding: candidate.context.storageAccountBinding
+        )
+        let head = try PasskeyBackupHeadDescriptor(
+            headRevision: 7, parentHeadRevision: 6, parentHeadSha256: candidate.context.parentHeadSha256,
+            generationId: candidate.context.generationId, bundleSha256: candidate.sha256,
+            keyEpoch: candidate.context.keyEpoch, driveFileID: candidate.fileID,
+            storageAccountBinding: candidate.context.storageAccountBinding
+        )
+        return try PasskeyBackupAuthenticatedHead(
+            ownerSubject: candidate.context.ownerSubject, backupNamespace: candidate.context.backupNamespace,
+            head: head, previous: previous, expectedOwnerSubject: candidate.context.ownerSubject,
+            expectedBackupNamespace: candidate.context.backupNamespace,
+            expectedStorageAccountBinding: candidate.context.storageAccountBinding
+        )
     }
 
     private func metadataObject(_ candidate: GoogleDrivePasskeyGenerationStorage.Candidate) throws -> [String: Any] {
