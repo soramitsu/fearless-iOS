@@ -470,6 +470,32 @@ enum UniversalWalletRegistry {
 }
 
 enum UniversalWalletAccountProvisioning {
+    /// Upgrade enrollment only fills absent networks. Existing dedicated keys,
+    /// including keys imported from another phrase, retain their own identity.
+    /// Explicit root recovery uses the stricter validation below before it may
+    /// persist recovery material.
+    static func addingMissingAppOwnedAccounts(
+        to wallet: MetaAccountModel,
+        mnemonic: String
+    ) throws -> MetaAccountModel {
+        var updatedWallet = wallet
+        if !wallet.chainAccounts.contains(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId, matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }) {
+            updatedWallet = try addingBitcoinMainnetAccount(to: updatedWallet, mnemonic: mnemonic)
+        }
+        if !wallet.chainAccounts.contains(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId, matches: UniversalWalletRegistry.taira.chainId
+            )
+        }) {
+            updatedWallet = try addingTairaTestnetAccount(to: updatedWallet, mnemonic: mnemonic)
+        }
+        return updatedWallet
+    }
+
     static func addingAppOwnedAccounts(
         to wallet: MetaAccountModel,
         mnemonic: String
@@ -544,6 +570,14 @@ enum UniversalWalletAccountProvisioning {
             mnemonic: mnemonic,
             network: .mainnet
         )
+        if try validateExistingAccount(
+            in: wallet,
+            chainId: chainId,
+            candidatePublicKey: account.publicKey,
+            isStructurallyValid: { UniversalWalletChainAccountSupport.isValidBitcoinAccount($0) }
+        ) {
+            return wallet
+        }
         let chainAccount = ChainAccountModel(
             chainId: chainId,
             accountId: account.publicKey,
@@ -552,9 +586,7 @@ enum UniversalWalletAccountProvisioning {
             ethereumBased: false
         )
 
-        var chainAccounts = wallet.chainAccounts.filter {
-            !UniversalWalletChainAccountSupport.chainId($0.chainId, matches: chainId)
-        }
+        var chainAccounts = wallet.chainAccounts
         chainAccounts.insert(chainAccount)
 
         guard chainAccounts != wallet.chainAccounts else {
@@ -570,6 +602,14 @@ enum UniversalWalletAccountProvisioning {
     ) throws -> MetaAccountModel {
         let chainId = UniversalWalletRegistry.taira.chainId
         let account = try IrohaKeyDerivation.deriveAccount(mnemonic: mnemonic)
+        if try validateExistingAccount(
+            in: wallet,
+            chainId: chainId,
+            candidatePublicKey: account.publicKey,
+            isStructurallyValid: UniversalWalletChainAccountSupport.isValidTairaAccount
+        ) {
+            return wallet
+        }
         let chainAccount = ChainAccountModel(
             chainId: chainId,
             accountId: account.publicKey,
@@ -578,9 +618,7 @@ enum UniversalWalletAccountProvisioning {
             ethereumBased: false
         )
 
-        var chainAccounts = wallet.chainAccounts.filter {
-            !UniversalWalletChainAccountSupport.chainId($0.chainId, matches: chainId)
-        }
+        var chainAccounts = wallet.chainAccounts
         chainAccounts.insert(chainAccount)
 
         guard chainAccounts != wallet.chainAccounts else {

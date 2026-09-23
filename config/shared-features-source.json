@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "repository": "https://github.com/soramitsu/shared-features-spm.git",
+  "revision": "04c0d25190b748b3cc219c8d33630cb48f679d3e",
+  "tree": "2cbfed467120ef8c0656c7dadc836a985e762969",
+  "baseRevision": "3ad0fe928333c9ac28972e3669ca733c6972f060",
+  "reviewUrl": "https://github.com/soramitsu/shared-features-spm/pull/84",
+  "carriedDeltas": [
+    "web3-mirror-normalization",
+    "ssfmodels-explicit-dependencies",
+    "ssfpolkaswap-explicit-dependencies",
+    "sorakeystore-runtime-namespace",
+    "ethereum-private-key-data-array",
+    "addressfactory-compatibility-cleanup",
+    "scrypt-simulator-arch-guard",
+    "native-crypto-sidecar-pruning",
+    "ssfpools-public-initializers",
+    "native-crypto-contract-reapply",
+    "strict-required-patch-accounting"
+  ]
+}

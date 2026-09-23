@@ -20,7 +20,7 @@ struct AssetNetworkSectionViewModel: Equatable {
     let ecosystemName: String
     let address: String?
     let fiatSubtotal: String?
-    let syncStatus: String
+    let syncStatus: String?
     let detectedCount: Int
     let rows: [ChainAccountBalanceCellViewModel]
 }

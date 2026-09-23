@@ -6,6 +6,52 @@ import enum SSFModels.CryptoType
 import struct SSFModels.ChainAccountModel
 
 class SelectedAccountSettingsTests: XCTestCase {
+    func testReleasedNativeTonOnlyWalletLoadsEditsAndRemainsVisibleToWalletRepository() throws {
+        let facade = UserDataStorageTestFacade()
+        let queue = OperationQueue()
+        let native = try LegacyNativeTonFixture.account()
+        try performCoreData(in: facade) { context in
+            let entity = CDMetaAccount(context: context)
+            entity.metaId = "released-native-ton"
+            entity.name = "Native TON"
+            entity.favouriteChainIds = NSArray()
+            entity.setValue(false, forKey: "zeroBalanceAssetsHidden")
+            entity.isSelected = true
+            entity.order = 3
+            entity.canExportEthereumMnemonic = true
+            entity.setValue(native.serializedAddress, forKey: "tonAddress")
+            entity.setValue(native.publicKey, forKey: "tonPublicKey")
+            entity.setValue(native.contractVersion, forKey: "tonContractVersion")
+            try context.save()
+        }
+        let before = try rawWalletSnapshots(in: facade)
+        let settings = SelectedWalletSettings(storageFacade: facade, operationQueue: queue)
+        let wallet = try XCTUnwrap(setup(settings))
+        XCTAssertEqual(settings.storeState, .ready)
+        XCTAssertNil(wallet.substrateAccountId)
+        XCTAssertEqual(wallet.legacyTonAccount, native)
+        XCTAssertEqual(try rawWalletSnapshots(in: facade), before)
+        let changed = try save(wallet.replacingName("Native TON renamed"), in: settings)
+        XCTAssertEqual(changed.legacyTonAccount, native)
+        let reopened = SelectedWalletSettings(storageFacade: facade, operationQueue: queue)
+        XCTAssertEqual(try setup(reopened), changed)
+        let repository = AccountRepositoryFactory(storageFacade: facade).createMetaAccountRepository(for: nil, sortDescriptors: [])
+        let loaded = try execute(repository.fetchAllOperation(with: RepositoryFetchOptions()), using: queue)
+        XCTAssertEqual(loaded, [changed])
+        let filtered = AccountRepositoryFactory(storageFacade: facade).createMetaAccountRepository(
+            for: NSPredicate.filterAccountItemByAccountId(native.serializedAddress), sortDescriptors: [])
+        XCTAssertEqual(try execute(filtered.fetchAllOperation(with: RepositoryFetchOptions()), using: queue), [changed])
+
+        try performCoreData(in: facade) { context in
+            let entity = try XCTUnwrap(context.fetch(CDMetaAccount.fetchRequest()).first)
+            XCTAssertNil(entity.substrateAccountId)
+            XCTAssertNil(entity.substratePublicKey)
+            XCTAssertEqual(entity.value(forKey: "tonAddress") as? Data, native.serializedAddress)
+            XCTAssertEqual(entity.value(forKey: "tonPublicKey") as? Data, native.publicKey)
+            XCTAssertEqual(entity.value(forKey: "tonContractVersion") as? String, "v4R2")
+        }
+    }
+
     func testSelectFirst() throws {
         // given
 
@@ -1495,6 +1541,104 @@ class SelectedAccountSettingsTests: XCTestCase {
         XCTAssertEqual(controlledService.requestCount, 2)
     }
 
+    func testConditionalUpgradeSaveRejectsChangedWalletAndPreservesPersistedAccounts() throws {
+        let queue = OperationQueue()
+        let facade = UserDataStorageTestFacade()
+        let settings = SelectedWalletSettings(storageFacade: facade, operationQueue: queue)
+        let original = AccountGenerator.generateMetaAccount(generatingChainAccounts: 2)
+        let initialSave = expectation(description: "legacy wallet saved")
+        settings.save(value: original, runningCompletionIn: .main) { result in
+            if case .failure = result { XCTFail("Save failed") }
+            initialSave.fulfill()
+        }
+        wait(for: [initialSave], timeout: Constants.defaultExpectationDuration)
+        let upgraded = original.replacingChainAccounts(original.chainAccounts.union(
+            AccountGenerator.generateMetaAccount(generatingChainAccounts: 1).chainAccounts
+        ))
+        let changed = original.replacingChainAccounts(original.chainAccounts.union(
+            AccountGenerator.generateMetaAccount(generatingChainAccounts: 1).chainAccounts
+        ))
+        let editSave = expectation(description: "user added dedicated account")
+        settings.save(value: changed, runningCompletionIn: .main) { result in
+            if case .failure = result { XCTFail("Save failed") }
+            editSave.fulfill()
+        }
+        wait(for: [editSave], timeout: Constants.defaultExpectationDuration)
+        let before = try rawWalletSnapshots(in: facade)
+        XCTAssertFalse(settings.save(
+            value: upgraded,
+            ifCurrentValueSatisfies: { $0 == original },
+            runningCompletionIn: .main
+        ) { _ in XCTFail("Rejected enrichment must not persist") })
+        XCTAssertEqual(settings.value, changed)
+        XCTAssertEqual(try rawWalletSnapshots(in: facade), before)
+
+        let other = AccountGenerator.generateMetaAccount(generatingChainAccounts: 1)
+        let switchSave = expectation(description: "wallet switched")
+        settings.save(value: other, runningCompletionIn: .main) { _ in switchSave.fulfill() }
+        wait(for: [switchSave], timeout: Constants.defaultExpectationDuration)
+        XCTAssertFalse(settings.save(
+            value: upgraded,
+            ifCurrentValueSatisfies: { $0 == original },
+            runningCompletionIn: nil,
+            completionClosure: nil
+        ))
+        XCTAssertEqual(settings.value, other)
+        let reopen = SelectedWalletSettings(storageFacade: facade, operationQueue: queue)
+        let reopened = expectation(description: "reopened")
+        reopen.setup(runningCompletionIn: .main) { result in
+            XCTAssertEqual(try? result.get(), other)
+            reopened.fulfill()
+        }
+        wait(for: [reopened], timeout: Constants.defaultExpectationDuration)
+    }
+
+    func testConditionalUpgradeSaveRetriesAfterPersistenceFailureWithoutLosingLegacyWallet() throws {
+        let queue = OperationQueue()
+        let facade = UserDataStorageTestFacade()
+        let original = AccountGenerator.generateMetaAccount(generatingChainAccounts: 2)
+        try seed([ManagedMetaAccountModel(info: original, isSelected: true)], in: facade, using: queue)
+        let before = try rawWalletSnapshots(in: facade)
+        let fetch = expectation(description: "upgrade fetch")
+        let retryFetch = expectation(description: "retry fetch")
+        let persist = expectation(description: "retry persist")
+        let service = ControllableWalletCoreDataService(
+            configuration: facade.databaseService.configuration,
+            requestExpectations: [fetch, retryFetch, persist]
+        )
+        let settings = SelectedWalletSettings(
+            storageFacade: ControllableWalletStorageFacade(databaseService: service), operationQueue: queue
+        )
+        settings.applySetupResult(.success(original))
+        let upgraded = original.replacingChainAccounts(original.chainAccounts.union(
+            AccountGenerator.generateMetaAccount(generatingChainAccounts: 1).chainAccounts
+        ))
+        let failed = expectation(description: "failed upgrade save")
+        XCTAssertTrue(settings.save(value: upgraded, ifCurrentValueSatisfies: { $0 == original }, runningCompletionIn: .main) {
+            if case .success = $0 { XCTFail("Expected injected save failure") }
+            failed.fulfill()
+        })
+        wait(for: [fetch], timeout: Constants.defaultExpectationDuration)
+        // Even a matching pending value is not a durable base for enrichment.
+        XCTAssertFalse(settings.save(value: upgraded, ifCurrentValueSatisfies: { $0 == upgraded }, runningCompletionIn: nil, completionClosure: nil))
+        try service.failRequest(at: 0, with: ControllableWalletCoreDataServiceError.injectedFailure)
+        wait(for: [failed], timeout: Constants.defaultExpectationDuration)
+        XCTAssertEqual(settings.value, original)
+        XCTAssertEqual(try rawWalletSnapshots(in: facade), before)
+        let saved = expectation(description: "retry succeeded")
+        XCTAssertTrue(settings.save(value: upgraded, ifCurrentValueSatisfies: { $0 == original }, runningCompletionIn: .main) {
+            if case .failure = $0 { XCTFail("Retry failed") }
+            saved.fulfill()
+        })
+        wait(for: [retryFetch], timeout: Constants.defaultExpectationDuration)
+        try service.resolveRequest(at: 1, using: facade.databaseService)
+        wait(for: [persist], timeout: Constants.defaultExpectationDuration)
+        try service.resolveRequest(at: 2, using: facade.databaseService)
+        wait(for: [saved], timeout: Constants.defaultExpectationDuration)
+        XCTAssertEqual(settings.value, upgraded)
+        XCTAssertTrue(original.chainAccounts.isSubset(of: upgraded.chainAccounts))
+    }
+
     func testConcurrentSavesAreSerializedAndOlderFailureCannotRollbackLatestSelection() throws {
         let operationQueue = OperationQueue()
         operationQueue.maxConcurrentOperationCount = 8
@@ -2067,7 +2211,7 @@ class SelectedAccountSettingsTests: XCTestCase {
             )
             // The account-ID provider must match this corrupt row through its child
             // relationship, not merely through the primary account columns.
-            child.accountId = validWallet.substrateAccountId.toHex()
+            child.accountId = try XCTUnwrap(validWallet.substrateAccountId).toHex()
 
             // A structurally corrupt sibling with the same persistent identifier must
             // not make the healthy row disappear from tolerant reads.
@@ -2088,7 +2232,7 @@ class SelectedAccountSettingsTests: XCTestCase {
             let duplicateChild = try XCTUnwrap(
                 duplicateEntity.chainAccounts?.allObjects.first as? CDChainAccount
             )
-            duplicateChild.accountId = validWallet.substrateAccountId.toHex()
+            duplicateChild.accountId = try XCTUnwrap(validWallet.substrateAccountId).toHex()
             try context.save()
         }
 
@@ -2133,7 +2277,7 @@ class SelectedAccountSettingsTests: XCTestCase {
             operationManager: operationManager
         )
         let accountProvider = providerFactory.createStreambleProvider(
-            for: validWallet.substrateAccountId
+            for: try XCTUnwrap(validWallet.substrateAccountId)
         )
         let managedProvider = providerFactory.createManagedMetaAccountProvider(
             for: NSPredicate.selectedMetaAccount(),
@@ -2325,7 +2469,7 @@ class SelectedAccountSettingsTests: XCTestCase {
             let child = try XCTUnwrap(
                 entity.chainAccounts?.allObjects.first as? CDChainAccount
             )
-            child.accountId = validWallet.substrateAccountId.toHex()
+            child.accountId = try XCTUnwrap(validWallet.substrateAccountId).toHex()
             try context.save()
 
             // Exercise an update notification for the same still-corrupt matching row.

@@ -1212,3 +1212,11 @@
 "your.validators.stop.nominating.title" = "停止提名";
 "your.validators.validator.total.stake" = "总质押：%@";
 "сurrencies.stub.text" = "货币";
+
+/* Other holdings may not appear because balance checks use the app's asset list. */
+"portfolio.discovery.catalog_only" = "部分代币可能不会显示";
+
+/* Only shown when network balances need attention. */
+"portfolio.balance.update_failed" = "余额更新失败";
+"portfolio.balance.outdated" = "余额可能已过时";
+"portfolio.balance.not_loaded" = "余额尚未加载";

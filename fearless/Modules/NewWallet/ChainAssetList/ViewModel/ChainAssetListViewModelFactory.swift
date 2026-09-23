@@ -269,7 +269,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                     wallet: wallet
                 ) ?? wallet.fetch(for: chain.accountRequest())?.toAddress(),
                 fiatSubtotal: formattedSubtotal,
-                syncStatus: scanState.displayText,
+                syncStatus: scanState.attentionText,
                 detectedCount: detectedCells.count,
                 rows: visibleCells.sorted {
                     ($0.chainAsset.asset.symbolUppercased, $0.chainAsset.identifier) <
@@ -284,7 +284,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 ecosystemName: ecosystemName(for: chain),
                 address: nil,
                 fiatSubtotal: nil,
-                syncStatus: scanState.displayText,
+                syncStatus: scanState.attentionText,
                 detectedCount: detectedCells.count,
                 rows: detectedCells.sorted {
                     ($0.chainAsset.asset.symbolUppercased, $0.chainAsset.identifier) <

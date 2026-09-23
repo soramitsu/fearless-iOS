@@ -1285,6 +1285,77 @@ final class UserStorageCompatibilityMigrationTests: XCTestCase {
         }
     }
 
+    func testMigration_whenFreshInstallHasNoDatabaseDirectory_thenPreparesEmptyDirectoryIdempotently() throws {
+        let databaseDirectory = testDirectory.appendingPathComponent("CoreData")
+        let freshStoreURL = databaseDirectory.appendingPathComponent("UserDataModel.sqlite")
+        let migrator = makeMigrator(storeURL: freshStoreURL)
+
+        XCTAssertFalse(try migrator.performMigration())
+        XCTAssertFalse(try migrator.performMigration())
+        XCTAssertEqual(
+            try FileManager.default.contentsOfDirectory(atPath: databaseDirectory.path),
+            []
+        )
+        let replacer = CrashConsistentStoreReplacer(
+            storeURL: freshStoreURL,
+            fileManager: .default,
+            storeReplacer: { _, _ in XCTFail("A fresh install must not replace a store") }
+        )
+        try replacer.reconcile { _ in XCTFail("There is no committed store to validate") }
+        XCTAssertFalse(try replacer.liveStoreExistsSafely())
+    }
+
+    func testMigration_whenDatabaseDirectoryIsFileOrLink_thenRejectsWithoutMutation() throws {
+        for kind in ["file", "link"] {
+            let directory = testDirectory.appendingPathComponent("CoreData-\(kind)")
+            let target = testDirectory.appendingPathComponent("target-\(kind)")
+            if kind == "file" {
+                try Data("preserve".utf8).write(to: directory)
+            } else {
+                try FileManager.default.createDirectory(at: target, withIntermediateDirectories: false)
+                try FileManager.default.createSymbolicLink(at: directory, withDestinationURL: target)
+            }
+
+            XCTAssertThrowsError(
+                try makeMigrator(storeURL: directory.appendingPathComponent("UserDataModel.sqlite"))
+                    .performMigration()
+            )
+            if kind == "file" {
+                XCTAssertEqual(try Data(contentsOf: directory), Data("preserve".utf8))
+            } else {
+                XCTAssertEqual(try FileManager.default.destinationOfSymbolicLink(atPath: directory.path), target.path)
+                XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: target.path), [])
+            }
+        }
+    }
+
+    func testMigration_whenMissingDatabaseDirectoryHasUnsafeParent_thenDoesNotCreateAncestorsOrFollowLinks() throws {
+        for kind in ["missing", "file", "link"] {
+            let parent = testDirectory.appendingPathComponent("parent-\(kind)")
+            let target = testDirectory.appendingPathComponent("parent-target")
+            if kind == "file" {
+                try Data("preserve".utf8).write(to: parent)
+            } else if kind == "link" {
+                try FileManager.default.createDirectory(at: target, withIntermediateDirectories: false)
+                try FileManager.default.createSymbolicLink(at: parent, withDestinationURL: target)
+            }
+            let databaseDirectory = parent.appendingPathComponent("CoreData")
+
+            XCTAssertThrowsError(
+                try makeMigrator(storeURL: databaseDirectory.appendingPathComponent("UserDataModel.sqlite"))
+                    .performMigration()
+            )
+            XCTAssertFalse(FileManager.default.fileExists(atPath: databaseDirectory.path))
+            if kind == "missing" {
+                XCTAssertFalse(FileManager.default.fileExists(atPath: parent.path))
+            } else if kind == "file" {
+                XCTAssertEqual(try Data(contentsOf: parent), Data("preserve".utf8))
+            } else {
+                XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: target.path), [])
+            }
+        }
+    }
+
     func testCrashConsistentReplacement_whenLiveFamilyIsUnsafeOrOrphaned_thenNeverReportsAnEmptyStore() throws {
         let orphanDirectory = try makeSyntheticScenarioDirectory(
             "orphan-sidecar"
@@ -2217,6 +2288,38 @@ final class UserStorageCompatibilityMigrationTests: XCTestCase {
             try durableStoreSnapshot(at: storeURL),
             sourceFiles
         )
+    }
+
+    func testMigration_whenReleasedNativeTonOnlyStore_thenReopensWithOriginalIdentityAndNoSubstrateRoot() throws {
+        let legacyModel = try model(for: .version13)
+        let native = try LegacyNativeTonFixture.account()
+        try createStore(at: storeURL, model: legacyModel) { context in
+            let wallet = try self.insertWallet(metaId: "released-native-ton", name: "Native TON", in: context, model: legacyModel)
+            wallet.setValue(true, forKey: "isSelected")
+            wallet.setValue(native.serializedAddress, forKey: "tonAddress")
+            wallet.setValue(native.publicKey, forKey: "tonPublicKey")
+            wallet.setValue(native.contractVersion, forKey: "tonContractVersion")
+        }
+        let before = try walletSnapshots(from: storeURL, model: legacyModel)
+        try makeMigrator().performMigration()
+        XCTAssertFalse(makeMigrator().requiresMigration())
+        let currentModel = try XCTUnwrap(model(for: .version14).copy() as? NSManagedObjectModel)
+        // Bind a private copy before the first coordinator makes the model immutable.
+        currentModel.entitiesByName["CDMetaAccount"]?.managedObjectClassName = NSStringFromClass(CDMetaAccount.self)
+        XCTAssertEqual(try walletSnapshots(from: storeURL, model: currentModel), before)
+        for _ in 0 ..< 2 {
+            try useStore(at: storeURL, model: currentModel) { context in
+                let request = NSFetchRequest<CDMetaAccount>(entityName: "CDMetaAccount")
+                let entity = try XCTUnwrap(context.fetch(request).first)
+                let wallet = try MetaAccountMapper().transform(entity: entity)
+                XCTAssertEqual(wallet.legacyTonAccount, native)
+                XCTAssertNil(wallet.substrateAccountId)
+                XCTAssertNil(wallet.substratePublicKey)
+                XCTAssertTrue(entity.isSelected)
+                XCTAssertEqual(wallet.legacyTonAccount?.serializedAddress, native.serializedAddress)
+            }
+        }
+        XCTAssertEqual(try walletSnapshots(from: storeURL, model: model(for: .version14)), before)
     }
 
     func testMigration_whenLegacyEcosystemStore_thenPreservesWalletTonAssetAndChainData() throws {

@@ -1021,30 +1021,8 @@ final class CrossChainRootViewController: UIViewController {
     }
 
     private func open(_ route: CrossChainOriginRoute) {
-        guard MultiChainFeaturePolicy.current.crossChainMutationsEnabled else {
-            presentMessage(
-                title: NSLocalizedString("cross_chain.actions_paused", value: "Cross-chain actions paused", comment: ""),
-                message: NSLocalizedString(
-                    "cross_chain.actions_paused_message",
-                    value: "Reviewed routes remain visible, but transfers are temporarily disabled by the remote safety switch.",
-                    comment: ""
-                )
-            )
-            return
-        }
-
-        guard route.canSign else {
-            presentMessage(
-                title: NSLocalizedString("cross_chain.route_unavailable", value: "Route unavailable", comment: ""),
-                message: route.unavailableReason ?? NSLocalizedString(
-                    "cross_chain.cannot_sign",
-                    value: "This wallet cannot sign transactions for the selected origin.",
-                    comment: ""
-                )
-            )
-            return
-        }
-
+        // Opening a reviewed route only discovers assets and quotes fees. The
+        // confirmation authorizer separately owns every signing/submission gate.
         guard let module = CrossChainAssembly.configureModule(
             with: route.chainAsset,
             wallet: wallet,
@@ -1118,7 +1096,7 @@ extension CrossChainRootViewController: UITableViewDataSource {
                     route.warnings.first
                 ].compactMap { $0 }.joined(separator: " · ")
                 configuration.image = R.image.crossChainIcon()
-                cell.accessoryType = route.canSign ? .disclosureIndicator : .none
+                cell.accessoryType = .disclosureIndicator
                 cell.selectionStyle = .default
                 break
             }

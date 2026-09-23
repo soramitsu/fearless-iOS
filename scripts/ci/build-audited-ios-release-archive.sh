@@ -159,6 +159,13 @@ git cat-file -e "${EXPECTED_BASE_SOURCE_COMMIT}^{commit}" ||
 git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$source_commit" ||
   fail "release source is not descended from the exact distributed 4.2.0 (2026.7.28) source"
 
+# Generated service configuration is ignored by git; bind its exact reviewed
+# bytes separately so regeneration cannot silently replace production settings.
+service_configuration_before="${receipt%.json}.service-configuration-before.json"
+service_configuration_after="${receipt%.json}.service-configuration-after.json"
+python3 "$SCRIPT_DIR/audit-ios-release-service-configuration.py" \
+  --receipt "$service_configuration_before"
+
 IOS_EXPECTED_BUILD_NUMBER="$EXPECTED_BUILD" \
 IOS_RELEASE_SOURCE_PACKAGES_DIR="${IOS_RELEASE_SOURCE_PACKAGES_DIR:-}" \
   bash "$SCRIPT_DIR/audit-ios-release-identity.sh"
@@ -195,6 +202,11 @@ xcodebuild_arguments+=(
 printf '%s\n' \
   "$LOG_PREFIX building local Release archive from clean commit $source_commit"
 xcodebuild "${xcodebuild_arguments[@]}"
+
+python3 "$SCRIPT_DIR/audit-ios-release-service-configuration.py" \
+  --expected-receipt "$service_configuration_before" \
+  --archive "$archive" \
+  --receipt "$service_configuration_after"
 
 bash "$SCRIPT_DIR/materialize-embedded-framework-dsyms.sh" "$archive"
 

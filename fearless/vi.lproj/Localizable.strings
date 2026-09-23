@@ -1215,3 +1215,11 @@ thuộc đúng mạng";
 "your.validators.stop.nominating.title" = "Dừng đề cử";
 "your.validators.validator.total.stake" = "Tổng đã stake: %@";
 "сurrencies.stub.text" = "Tiền tệ";
+
+/* Other holdings may not appear because balance checks use the app's asset list. */
+"portfolio.discovery.catalog_only" = "Một số token có thể không hiển thị";
+
+/* Only shown when network balances need attention. */
+"portfolio.balance.update_failed" = "Không thể cập nhật số dư";
+"portfolio.balance.outdated" = "Số dư có thể đã cũ";
+"portfolio.balance.not_loaded" = "Chưa tải số dư";

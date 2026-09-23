@@ -78,6 +78,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         scamSyncService.syncUp()
         polkaswapSettingsService.syncUp()
         walletConnect.setup()
+        LegacyTonConnectCoordinator.shared.setup()
         walletAssetsObserver.setup()
         pricesService.setup()
         observeAppOwnedProvisioningRetryEvents()
@@ -91,6 +92,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         githubPhishingService.throttle()
         accountInfoService.throttle()
         walletConnect.throttle()
+        LegacyTonConnectCoordinator.shared.throttle()
         walletAssetsObserver.throttle()
         removeAppOwnedProvisioningObservers()
     }
@@ -137,47 +139,56 @@ private extension ServiceCoordinator {
             return
         }
 
-        do {
-            guard let mnemonic = try appOwnedMnemonicProvider.rootMnemonic(for: wallet) else {
-                finishAppOwnedProvisioning(for: wallet.metaId)
-                return
-            }
-
-            let updatedWallet = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
-                to: wallet,
-                mnemonic: mnemonic
-            )
-            guard updatedWallet != wallet else {
-                finishAppOwnedProvisioning(for: wallet.metaId)
-                return
-            }
-            walletSettings.save(
-                value: updatedWallet,
-                runningCompletionIn: nil
-            ) { [weak self] result in
-                guard let self else {
+        DispatchQueue.global(qos: .utility).async { [self] in
+            do {
+                guard let mnemonic = try appOwnedMnemonicProvider.rootMnemonic(for: wallet) else {
+                    finishAppOwnedProvisioning(for: wallet.metaId)
                     return
                 }
 
-                self.finishAppOwnedProvisioning(for: wallet.metaId)
-                switch result {
-                case let .success(savedWallet):
-                    self.accountInfoService.update(selectedMetaAccount: savedWallet)
-                    self.walletAssetsObserver.update(wallet: savedWallet)
-                    EventCenter.shared.notify(
-                        with: MetaAccountModelChangedEvent(account: savedWallet)
-                    )
-                case let .failure(error):
-                    Logger.shared.error(
-                        "App-owned account provisioning failed: \(error.localizedDescription)"
-                    )
+                let updatedWallet = try UniversalWalletAccountProvisioning.addingMissingAppOwnedAccounts(
+                    to: wallet,
+                    mnemonic: mnemonic
+                )
+                guard updatedWallet != wallet else {
+                    finishAppOwnedProvisioning(for: wallet.metaId)
+                    return
                 }
+                let accepted = walletSettings.save(
+                    value: updatedWallet,
+                    ifCurrentValueSatisfies: { $0 == wallet },
+                    runningCompletionIn: .main
+                ) { [weak self] result in
+                    guard let self else {
+                        return
+                    }
+
+                    self.finishAppOwnedProvisioning(for: wallet.metaId)
+                    switch result {
+                    case let .success(savedWallet):
+                        guard self.walletSettings.value == savedWallet else {
+                            return
+                        }
+                        self.accountInfoService.update(selectedMetaAccount: savedWallet)
+                        self.walletAssetsObserver.update(wallet: savedWallet)
+                        EventCenter.shared.notify(
+                            with: MetaAccountModelChangedEvent(account: savedWallet)
+                        )
+                    case let .failure(error):
+                        Logger.shared.error(
+                            "App-owned account provisioning failed: \(error.localizedDescription)"
+                        )
+                    }
+                }
+                if !accepted {
+                    finishAppOwnedProvisioning(for: wallet.metaId)
+                }
+            } catch {
+                finishAppOwnedProvisioning(for: wallet.metaId)
+                Logger.shared.error(
+                    "App-owned account provisioning failed: \(error.localizedDescription)"
+                )
             }
-        } catch {
-            finishAppOwnedProvisioning(for: wallet.metaId)
-            Logger.shared.error(
-                "App-owned account provisioning failed: \(error.localizedDescription)"
-            )
         }
     }
 

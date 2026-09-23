@@ -1217,3 +1217,53 @@ belongs to the right network";
 "profile.account.score.title" = "Nomis multichain score";
 "scam.info.nomis.name" = "Nomis multi-chain score";
 "scam.info.nomis.subtype.text" = "Proceed with caution";
+
+"tab.portfolio" = "Wallet";
+
+"tab.defi" = "Earn";
+
+"tab.polkaswap" = "Swap";
+
+"tab.cross_chain" = "Transfer";
+
+"ux.switch_wallet" = "Switch wallet";
+
+"ux.choose_network" = "Choose network";
+
+"ux.search_assets" = "Search assets";
+
+"ux.scan_qr" = "Scan QR code";
+
+"ux.receive_network_instruction" = "Send only %@ on %@ to this address.";
+
+"ux.retry" = "Try again";
+
+"ux.manage_wallets" = "Manage wallets";
+
+"ux.transfer_networks" = "Transfer between networks →";
+
+"ux.positions_loading" = "Checking your holdings and rewards.";
+
+"ux.positions_unavailable" = "These positions could not be loaded. Try again.";
+
+"ux.positions_stale" = "Showing your last loaded positions. Try again to update them.";
+
+"ux.positions_empty" = "You have no active positions";
+
+"ux.positions_explore" = "Explore ways to earn below.";
+
+"ux.explore_earn" = "Explore ways to earn";
+
+"ux.refresh_positions" = "Refresh positions";
+
+"ux.back" = "Back";
+"ux.collapsed" = "Collapsed";
+"ux.expanded" = "Expanded";
+
+/* Other holdings may not appear because balance checks use the app's asset list. */
+"portfolio.discovery.catalog_only" = "Some tokens may not appear";
+
+/* Only shown when network balances need attention. */
+"portfolio.balance.update_failed" = "Balance update failed";
+"portfolio.balance.outdated" = "Balances may be outdated";
+"portfolio.balance.not_loaded" = "Balances not loaded";

@@ -11,8 +11,15 @@ final class SigningWrapper: SigningWrapperProtocol {
     let isEthereumBased: Bool
     let cryptoType: CryptoType
     let publicKeyData: Data
+    let mutationAuthorization: MutationOperationAuthorization?
 
-    init(keystore: KeystoreProtocol, metaId: String, accountResponse: ChainAccountResponse) {
+    init(
+        keystore: KeystoreProtocol,
+        metaId: String,
+        accountResponse: ChainAccountResponse,
+        mutationAuthorization: MutationOperationAuthorization? = nil
+    ) {
+        self.mutationAuthorization = mutationAuthorization
         self.keystore = keystore
         self.metaId = metaId
         accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
@@ -26,7 +33,12 @@ final class SigningWrapper: SigningWrapperProtocol {
             KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId) :
             KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId)
 
-        let secretKey = try keystore.fetchKey(for: tag)
+        let secretKey: Data
+        if let mutationAuthorization {
+            secretKey = try mutationAuthorization.withKeyAccess { try keystore.fetchKey(for: tag) }
+        } else {
+            secretKey = try keystore.fetchKey(for: tag)
+        }
 
         if isEthereumBased {
             return try signEthereumEcdsa(

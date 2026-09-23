@@ -52,7 +52,7 @@ final class CrossChainRouter: CrossChainRouterInput {
     func showConfirmation(
         from view: ControllerBackedProtocol?,
         data: CrossChainConfirmationData,
-        xcmServices: XcmExtrinsicServices
+        xcmServices: XcmReadOnlyServices
     ) {
         guard let module = CrossChainConfirmationAssembly.configureModule(with: data, xcmServices: xcmServices) else {
             return

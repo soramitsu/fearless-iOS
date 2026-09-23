@@ -141,6 +141,14 @@ extension BitcoinBalanceSyncing {
 
 protocol UniversalWalletMnemonicProviding {
     func mnemonic(for wallet: MetaAccountModel, chain: ChainModel) throws -> String?
+    func tonSigningCredentials(for wallet: MetaAccountModel, chain: ChainModel) throws -> TonSigningCredentials
+}
+
+extension UniversalWalletMnemonicProviding {
+    func tonSigningCredentials(for wallet: MetaAccountModel, chain: ChainModel) throws -> TonSigningCredentials {
+        guard let mnemonic = try mnemonic(for: wallet, chain: chain) else { throw TonSendServiceError.invalidAccount }
+        return TonSigningCredentials(mnemonic: mnemonic)
+    }
 }
 
 protocol BitcoinMnemonicProviding: UniversalWalletMnemonicProviding {}
@@ -158,7 +166,18 @@ final class KeychainUniversalWalletMnemonicProvider:
         self.keystore = keystore
     }
 
+    func tonSigningCredentials(for wallet: MetaAccountModel, chain: ChainModel) throws -> TonSigningCredentials {
+        if let legacy = wallet.legacyTonAccount, chain.isTonCompatibilityChain {
+            return try legacy.signingCredentials(keystore: keystore, metaId: wallet.metaId)
+        }
+        guard let mnemonic = try mnemonic(for: wallet, chain: chain) else { throw TonSendServiceError.invalidAccount }
+        return TonSigningCredentials(mnemonic: mnemonic)
+    }
+
     func mnemonic(for wallet: MetaAccountModel, chain: ChainModel) throws -> String? {
+        if let legacy = wallet.legacyTonAccount, chain.isTonCompatibilityChain {
+            return try legacy.mnemonic(from: keystore.fetchKey(for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId))).toString()
+        }
         let accountResponse = wallet.fetch(for: chain.accountRequest())
 
         if let rootMnemonic = try rootMnemonic(for: wallet) {
@@ -193,6 +212,7 @@ final class KeychainUniversalWalletMnemonicProvider:
     }
 
     func rootMnemonic(for wallet: MetaAccountModel) throws -> String? {
+        if wallet.substrateAccountId == nil, wallet.legacyTonAccount != nil { return nil }
         if let rootMnemonic = try mnemonicIfPresent(
             metaId: wallet.metaId,
             accountId: nil

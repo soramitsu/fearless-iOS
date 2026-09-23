@@ -23,6 +23,29 @@ contains_workspace_signing_override() {
 [[ -f "$IDENTITY_AUDIT" && ! -L "$IDENTITY_AUDIT" ]] ||
   fail "release identity audit is missing or unsafe"
 
+# The archived build must be the same canonical version as the production
+# target. Checking the project directly avoids resolving dependencies or signing.
+python3 - "$BUILD_SCRIPT" "$SCRIPT_DIR/../fearless.xcodeproj/project.pbxproj" <<'PYTHON'
+import json
+import re
+import subprocess
+import sys
+from pathlib import Path
+script, project_path = sys.argv[1:]
+source = Path(script).read_text()
+builds = re.findall(r'^readonly EXPECTED_BUILD="([0-9.]+)"$', source, re.MULTILINE)
+assert len(builds) == 1, 'archive must declare exactly one canonical build'
+assert re.fullmatch(r'[1-9][0-9]{0,3}(\.[0-9]{1,2}){0,2}', builds[0]), 'invalid archive build'
+objects = json.loads(subprocess.check_output(['plutil', '-convert', 'json', '-o', '-', project_path]))['objects']
+targets = [obj for obj in objects.values() if obj.get('isa') == 'PBXNativeTarget' and obj.get('name') == 'fearless']
+assert len(targets) == 1, 'production target must be unique'
+configurations = objects[targets[0]['buildConfigurationList']]['buildConfigurations']
+release = [objects[key]['buildSettings'] for key in configurations if objects[key].get('name') == 'Release']
+assert len(release) == 1, 'production Release configuration must be unique'
+assert release[0]['CURRENT_PROJECT_VERSION'] == builds[0], 'archive/project build drift'
+assert release[0]['MARKETING_VERSION'] == '4.2.0', 'archive/project marketing version drift'
+PYTHON
+
 # Command-line build-setting overrides apply to every target in a workspace.
 # Profiles and manual signing must remain target-scoped, so neither is allowed
 # in the xcodebuild argument vector assembled by this script.

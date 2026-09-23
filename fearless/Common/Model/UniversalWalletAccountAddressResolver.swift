@@ -3,6 +3,10 @@ import SSFModels
 
 enum UniversalWalletAccountAddressResolver {
     static func address(for chain: ChainModel, wallet: MetaAccountModel) -> AccountAddress? {
+        if UniversalWalletChainAccountSupport.chainId(chain.chainId, matches: TonChainSelection.mainnetChainId),
+           let legacyTonAccount = wallet.legacyTonAccount {
+            return legacyTonAccount.address
+        }
         if UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) {
             guard let account = wallet.chainAccounts.first(where: {
                 guard UniversalWalletChainAccountSupport.chainId(
@@ -45,7 +49,10 @@ enum UniversalWalletChainAccountSupport {
         in wallet: MetaAccountModel,
         for chainId: ChainModel.Id
     ) -> Bool {
-        wallet.chainAccounts.contains { account in
+        if self.chainId(chainId, matches: TonChainSelection.mainnetChainId), wallet.legacyTonAccount != nil {
+            return true
+        }
+        return wallet.chainAccounts.contains { account in
             guard self.chainId(account.chainId, matches: chainId) else {
                 return false
             }

@@ -114,7 +114,7 @@ final class SendDepencyContainer {
     func prepareDepencies(chainAsset: ChainAsset) async throws -> SendDependencies {
         // This guard must precede account lookup, dependency cache access, and all service or
         // transport construction. Release builds have no initializer capable of enabling it.
-        if chainAsset.chain.isTonCompatibilityChain, !tonSendReleasePolicy.isEnabled {
+        if chainAsset.chain.isTonCompatibilityChain, !tonSendReleasePolicy.isEnabled, wallet.legacyTonAccount == nil {
             throw UniversalWalletSendRoutingError.tonProductionSendDisabled
         }
         if isUniversalWalletIroha(chainAsset.chain) {
@@ -217,7 +217,7 @@ final class SendDepencyContainer {
         }
 
         if chainAsset.chain.isTonCompatibilityChain {
-            guard tonSendReleasePolicy.isEnabled else {
+            guard tonSendReleasePolicy.isEnabled || wallet.legacyTonAccount != nil else {
                 throw UniversalWalletSendRoutingError.tonProductionSendDisabled
             }
             let chainId = chainAsset.chain.chainId.lowercased()
@@ -228,15 +228,7 @@ final class SendDepencyContainer {
             else {
                 throw UniversalWalletSendRoutingError.unsupported(chainId: chainAsset.chain.chainId)
             }
-            guard chainAsset.isNative,
-                  chainAsset.asset.isNative,
-                  chainAsset.asset.isUtility,
-                  chainAsset.asset.id == UniversalWalletRegistry.tonNativeAssetId ||
-                  chainAsset.asset.id.uppercased() == "TON",
-                  chainAsset.asset.symbol.uppercased() == "TON",
-                  chainAsset.asset.precision == 9,
-                  chainAsset.asset.type == nil || chainAsset.asset.type == .normal
-            else {
+            guard TonTransferService.supportsAsset(chainAsset, allowLegacyJettons: wallet.legacyTonAccount != nil) else {
                 throw UniversalWalletSendRoutingError.unsupported(
                     chainId: "\(chainAsset.chain.chainId)/\(chainAsset.asset.id)"
                 )

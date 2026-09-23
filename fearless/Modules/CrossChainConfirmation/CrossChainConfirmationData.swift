@@ -643,9 +643,9 @@ protocol ReviewedCrossChainExtrinsicExecuting: AnyObject {
 
 final class ReviewedCrossChainExtrinsicExecutor: ReviewedCrossChainExtrinsicExecuting {
     private let service: ExtrinsicServiceProtocol
-    private let signer: SigningWrapperProtocol
+    private let signer: SigningWrapperProtocol?
 
-    init(service: ExtrinsicServiceProtocol, signer: SigningWrapperProtocol) {
+    init(service: ExtrinsicServiceProtocol, signer: SigningWrapperProtocol? = nil) {
         self.service = service
         self.signer = signer
     }
@@ -657,7 +657,8 @@ final class ReviewedCrossChainExtrinsicExecutor: ReviewedCrossChainExtrinsicExec
     }
 
     func submit(_ builder: @escaping ExtrinsicBuilderClosure) async throws -> String {
-        try await withCheckedThrowingContinuation { continuation in
+        guard let signer, signer.mutationAuthorization != nil else { throw MutationAuthorizationError.denied }
+        return try await withCheckedThrowingContinuation { continuation in
             service.submit(builder, signer: signer, runningIn: .main) { continuation.resume(with: $0) }
         }
     }
@@ -685,6 +686,7 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
         let connection: JSONRPCEngine
         let runtimeSpecVersion: UInt32
         let balanceProvider: ReviewedCrossChainBalanceProviding
+        let service: ExtrinsicServiceProtocol
         let executor: ReviewedCrossChainExtrinsicExecuting
     }
 
@@ -732,12 +734,29 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
         // checks. Only the second pass's exact builder may be submitted.
         _ = try await authorizeRound(context)
         try validateCurrentContext(context)
-        let builder = try await authorizeRound(context)
+        let final = try await authorizeRound(context)
         try validateCurrentContext(context)
-
+        let intent = try MutationIntentDigest.make([
+            MutationCapability.xcm.rawValue, context.wallet.metaId,
+            context.origin.chain.chainId, context.account.accountId.toHex(),
+            context.account.publicKey.toHex(), String(context.account.cryptoType.rawValue),
+            String(context.runtimeSpecVersion), expectedRouteFingerprint,
+            context.origin.asset.id, String(context.origin.asset.precision),
+            context.destination.chainId, context.destinationAccountId.toHex(),
+            data.amount.description, final.burnAmount.description, final.originFee.description
+        ])
+        let authorization = try MultiChainFeaturePolicy.authorization(for: .xcm, intentSha256: intent) {
+            try self.validateCurrentContext(context, checkPolicy: false)
+        }
+        let signer = SigningWrapper(
+            keystore: keystore,
+            metaId: context.wallet.metaId,
+            accountResponse: context.account,
+            mutationAuthorization: authorization
+        )
         return ReviewedCrossChainAuthorizedSubmission(
-            builder: builder,
-            executor: context.executor,
+            builder: final.builder,
+            executor: ReviewedCrossChainExtrinsicExecutor(service: context.service, signer: signer),
             finalGuard: { [weak self] in
                 guard let self else {
                     throw ReviewedCrossChainSubmissionError.runtimeUnavailable
@@ -747,7 +766,8 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
         )
     }
 
-    private func authorizeRound(_ context: Context) async throws -> ExtrinsicBuilderClosure {
+    private func authorizeRound(_ context: Context) async throws
+        -> (builder: ExtrinsicBuilderClosure, burnAmount: BigUInt, originFee: BigUInt) {
         try validateCurrentContext(context)
         let capability = try await runtimeNegotiator.negotiate(
             runtime: context.runtime,
@@ -777,7 +797,7 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
             originFee: originFee
         )
         try validateCurrentContext(context)
-        return builder
+        return (builder, burnAmount, originFee)
     }
 
     private func destinationFeeInOriginUnits(_ context: Context) async throws -> BigUInt {
@@ -837,11 +857,6 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
               let connection = chainRegistry.getConnection(for: originChain.chainId) else {
             throw ReviewedCrossChainSubmissionError.runtimeUnavailable
         }
-        let signer = SigningWrapper(
-            keystore: keystore,
-            metaId: wallet.metaId,
-            accountResponse: account
-        )
         let extrinsic = ExtrinsicService(
             accountId: account.accountId,
             chainFormat: originChain.chainFormat,
@@ -865,7 +880,8 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
                 chain: originChain,
                 definition: definition
             ),
-            executor: ReviewedCrossChainExtrinsicExecutor(service: extrinsic, signer: signer)
+            service: extrinsic,
+            executor: ReviewedCrossChainExtrinsicExecutor(service: extrinsic)
         )
     }
 
@@ -878,19 +894,19 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
         }
     }
 
-    private func validateCurrentContext(_ context: Context) throws {
-        try validatePolicyAndWallet()
+    private func validateCurrentContext(_ context: Context, checkPolicy: Bool = true) throws {
+        if checkPolicy { try validatePolicyAndWallet() }
         guard data.reviewedRoute.routeId == expectedRouteFingerprint,
               let wallet = selectedWallet(),
               wallet.metaId == context.wallet.metaId,
-              let originChain = chainRegistry.getChain(for: context.origin.chain.chainId),
+              let originChain = chainRegistry.getChainForMutationAuthorization(for: context.origin.chain.chainId),
               originChain == context.origin.chain,
-              let destination = chainRegistry.getChain(for: context.destination.chainId),
+              let destination = chainRegistry.getChainForMutationAuthorization(for: context.destination.chainId),
               destination == context.destination,
               let currentOrigin = exactOrigin(definition: context.definition, chain: originChain),
               let runtime = chainRegistry.getRuntimeProvider(for: originChain.chainId),
               ObjectIdentifier(runtime) == ObjectIdentifier(context.runtime),
-              runtime.snapshot?.specVersion == context.runtimeSpecVersion,
+              (runtime as? RuntimeProvider)?.mutationAuthorizationSpecVersion == context.runtimeSpecVersion,
               let connection = chainRegistry.getConnection(for: originChain.chainId),
               ObjectIdentifier(connection) == ObjectIdentifier(context.connection),
               let destinationAccountId = try? AddressFactory.accountId(

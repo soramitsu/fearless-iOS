@@ -12,6 +12,28 @@ import UIKit
 class TriangularedButton: BackgroundedContentControl {
     private var isLoading: Bool = false
 
+    override var accessibilityLabel: String? {
+        get { super.accessibilityLabel ?? imageWithTitleView?.title }
+        set { super.accessibilityLabel = newValue }
+    }
+
+    override var accessibilityTraits: UIAccessibilityTraits {
+        get {
+            var traits = super.accessibilityTraits.union(.button)
+            if !isEnabled || isLoading || !isUserInteractionEnabled {
+                traits.insert(.notEnabled)
+            }
+            return traits
+        }
+        set { super.accessibilityTraits = newValue }
+    }
+
+    override func accessibilityActivate() -> Bool {
+        guard isEnabled, !isLoading, isUserInteractionEnabled, !isHidden else { return false }
+        sendActions(for: .touchUpInside)
+        return true
+    }
+
     /// Returns content view that consists of title and icon
     public var imageWithTitleView: ImageWithTitleView? {
         contentView as? ImageWithTitleView
@@ -54,6 +76,7 @@ class TriangularedButton: BackgroundedContentControl {
      */
     open func configure() {
         backgroundColor = UIColor.clear
+        isAccessibilityElement = true
 
         if backgroundView == nil {
             backgroundView = TriangularedView()

@@ -7,7 +7,7 @@ import SSFNetwork
 final class CrossChainConfirmationAssembly {
     static func configureModule(
         with data: CrossChainConfirmationData,
-        xcmServices _: XcmExtrinsicServices
+        xcmServices _: XcmReadOnlyServices
     ) -> CrossChainConfirmationModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 

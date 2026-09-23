@@ -120,17 +120,14 @@ jobs:
       - name: Build & Test (Simulator)
         run: |
           set -o pipefail
-          # Resolve SPM into a stable workspace path and patch after resolve
+          # Resolve SPM into a stable workspace path, then verify immutable source
           SP_DIR="$PWD/SourcePackages"
           mkdir -p "$SP_DIR"
           xcodebuild -resolvePackageDependencies \
             -workspace fearless.xcworkspace \
             -scheme fearless \
             -clonedSourcePackagesDirPath "$SP_DIR"
-          # Apply patches on the resolved checkout (fail fast if contracts cannot be restored)
-          SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$(pwd)"
-          # Ensure native crypto checkout/modulemap contract is restored after resolve.
-          SOURCE_PACKAGES_DIR="$SP_DIR" STRICT_REQUIRED_PATCHES=1 bash scripts/deps/prepare-native-crypto-checkout.sh "$(pwd)" fearless.xcworkspace fearless.tests
+          SOURCE_PACKAGES_DIR="$SP_DIR" python3 scripts/deps/verify-shared-features-source.py "$(pwd)"
           echo "Preflight: checking remaining 'enum AddressFactory' in $SP_DIR checkouts (warn-only)"
           if command -v rg >/dev/null 2>&1; then
             rg -n "\\benum\\s+AddressFactory\\b" "$SP_DIR/checkouts/shared-features-spm/Sources" -S | sed -n '1,120p' || true

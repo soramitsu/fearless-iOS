@@ -46,14 +46,14 @@ final class TonInMemoryPendingIntentJournal: TonPendingIntentJournaling, @unchec
     func save(_ pending: TonPendingSignedIntent) throws {
         lock.lock()
         defer { lock.unlock() }
-        if let existing = pendingBySender[pending.identity.sender] {
+        if let existing = pendingBySender[pending.identity.coordinationKey] {
             guard pending.hasSameBearer(as: existing),
                   pending.journalPhaseRank >= existing.journalPhaseRank
             else {
                 throw TonPendingIntentJournalError.conflict
             }
         }
-        pendingBySender[pending.identity.sender] = pending
+        pendingBySender[pending.identity.coordinationKey] = pending
     }
 
     func delete(senderRaw: String, expectedMessageHashHex: String) throws {
@@ -100,8 +100,8 @@ final class TonKeychainPendingIntentJournal: TonPendingIntentJournaling, @unchec
     }
 
     func save(_ pending: TonPendingSignedIntent) throws {
-        let identifier = try keyIdentifier(senderRaw: pending.identity.sender)
-        if let existing = try load(senderRaw: pending.identity.sender) {
+        let identifier = try keyIdentifier(senderRaw: pending.identity.coordinationKey)
+        if let existing = try load(senderRaw: pending.identity.coordinationKey) {
             guard pending.hasSameBearer(as: existing),
                   pending.journalPhaseRank >= existing.journalPhaseRank
             else {
@@ -134,8 +134,9 @@ final class TonKeychainPendingIntentJournal: TonPendingIntentJournaling, @unchec
     }
 
     private func keyIdentifier(senderRaw: String) throws -> String {
-        guard let address = try? TonSwift.Address.parse(raw: senderRaw),
-              address.toRaw() == senderRaw,
+        let rawAddress = senderRaw.hasPrefix("testnet:") ? String(senderRaw.dropFirst(8)) : senderRaw
+        guard let address = try? TonSwift.Address.parse(raw: rawAddress),
+              address.toRaw() == rawAddress,
               address.workchain == 0
         else {
             throw TonPendingIntentJournalError.corrupted
@@ -148,7 +149,7 @@ final class TonKeychainPendingIntentJournal: TonPendingIntentJournaling, @unchec
 }
 
 enum TonPendingIntentJournalCodec {
-    static let maximumRecordBytes = 48 * 1024
+    static let maximumRecordBytes = 512 * 1024
     private static let schemaVersion: UInt8 = 1
 
     private struct Record: Codable {
@@ -161,6 +162,11 @@ enum TonPendingIntentJournalCodec {
         let amountNanotons: String
         let bounce: Bool
         let comment: String?
+        let jettonMasterRaw: String?
+        let jettonRecipientRaw: String?
+        let jettonAmount: String?
+        let tonConnectRequestBase64: String?
+        let tonConnectEffectsBase64: String?
         let publicKeyBase64: String
         let walletSequenceNumber: UInt64
         let walletIsInitialized: Bool
@@ -199,7 +205,8 @@ enum TonPendingIntentJournalCodec {
             phase = "confirmed"
             if let emulation = pending.emulation {
                 guard emulation.accepted,
-                      emulation.totalFeeNanotons == quote.feeNanotons
+                      emulation.totalFeeNanotons == quote.feeNanotons,
+                      emulation.executionEffects == quote.executionEffects
                 else {
                     throw TonPendingIntentJournalError.corrupted
                 }
@@ -211,7 +218,8 @@ enum TonPendingIntentJournalCodec {
             }
         } else if let emulation = pending.emulation {
             guard emulation.accepted,
-                  emulation.totalFeeNanotons == quote.feeNanotons
+                  emulation.totalFeeNanotons == quote.feeNanotons,
+                  emulation.executionEffects == quote.executionEffects
             else {
                 throw TonPendingIntentJournalError.corrupted
             }
@@ -227,13 +235,18 @@ enum TonPendingIntentJournalCodec {
         let record = Record(
             schemaVersion: schemaVersion,
             phase: phase,
-            asset: "native-ton",
-            network: "mainnet",
+            asset: pending.identity.tonConnect != nil ? "ton-connect" : (pending.identity.jetton == nil ? "native-ton" : "jetton"),
+            network: pending.identity.network.rawValue,
             senderRaw: pending.identity.sender,
             recipientRaw: pending.identity.recipient,
             amountNanotons: pending.identity.amountNanotons,
             bounce: pending.identity.bounce,
             comment: pending.identity.comment,
+            jettonMasterRaw: pending.identity.jetton?.masterAddress,
+            jettonRecipientRaw: pending.identity.jetton?.recipientAddress,
+            jettonAmount: pending.identity.jetton?.amount,
+            tonConnectRequestBase64: try pending.identity.tonConnect?.canonicalData().base64EncodedString(),
+            tonConnectEffectsBase64: quote.executionEffects?.actionsData.base64EncodedString(),
             publicKeyBase64: quote.publicKey.base64EncodedString(),
             walletSequenceNumber: pending.walletState.sequenceNumber,
             walletIsInitialized: pending.walletState.isInitialized,
@@ -254,7 +267,7 @@ enum TonPendingIntentJournalCodec {
             throw TonPendingIntentJournalError.corrupted
         }
         // Encode is also a validation boundary, not merely serialization.
-        _ = try decode(data, expectedSenderRaw: pending.identity.sender)
+        _ = try decode(data, expectedSenderRaw: pending.identity.coordinationKey)
         return data
     }
 
@@ -271,9 +284,9 @@ enum TonPendingIntentJournalCodec {
             let legacyData = encodeRecord(record, order: .legacyFoundation17)
             guard data == canonicalData || data == legacyData,
                   record.schemaVersion == schemaVersion,
-                  record.asset == "native-ton",
-                  record.network == "mainnet",
-                  record.senderRaw == expectedSenderRaw,
+                  ["native-ton", "jetton", "ton-connect"].contains(record.asset),
+                  record.network == (expectedSenderRaw.hasPrefix("testnet:") ? "testnet" : "mainnet"),
+                  record.senderRaw == (expectedSenderRaw.hasPrefix("testnet:") ? String(expectedSenderRaw.dropFirst(8)) : expectedSenderRaw),
                   isLowercaseHash(record.quoteIDHex),
                   isLowercaseHash(record.signedMessageHashHex)
             else {
@@ -286,16 +299,16 @@ enum TonPendingIntentJournalCodec {
             guard publicKey.count == 32,
                   publicKey.contains(where: { $0 != 0 }),
                   !unsignedBoc.isEmpty,
-                  unsignedBoc.count <= TonTransferTransactionBuilder.maximumBocBytes,
+                  unsignedBoc.count <= (record.asset == "ton-connect" ? TonTransferTransactionBuilder.maximumTonConnectBocBytes : TonTransferTransactionBuilder.maximumBocBytes),
                   !signedBoc.isEmpty,
-                  signedBoc.count <= TonTransferTransactionBuilder.maximumBocBytes,
+                  signedBoc.count <= (record.asset == "ton-connect" ? TonTransferTransactionBuilder.maximumTonConnectBocBytes : TonTransferTransactionBuilder.maximumBocBytes),
                   let sender = try? TonSwift.Address.parse(raw: record.senderRaw),
                   sender.toRaw() == record.senderRaw,
                   sender.workchain == 0,
                   let recipient = try? TonSwift.Address.parse(raw: record.recipientRaw),
                   recipient.toRaw() == record.recipientRaw,
                   [Int8(0), Int8(-1)].contains(recipient.workchain),
-                  sender != recipient
+                  record.asset == "ton-connect" || sender != recipient
             else {
                 throw TonPendingIntentJournalError.corrupted
             }
@@ -304,13 +317,45 @@ enum TonPendingIntentJournalCodec {
                 throw TonPendingIntentJournalError.corrupted
             }
 
+            let jetton: TonJettonTransferDetails?
+            if record.asset == "jetton" {
+                guard let master = record.jettonMasterRaw, let recipient = record.jettonRecipientRaw,
+                      let amount = record.jettonAmount else { throw TonPendingIntentJournalError.corrupted }
+                let details = try TonJettonTransferDetails(masterAddress: master, recipientAddress: recipient, amount: amount)
+                guard details.masterAddress == master, details.recipientAddress == recipient else {
+                    throw TonPendingIntentJournalError.corrupted
+                }
+                jetton = details
+            } else {
+                guard record.jettonMasterRaw == nil, record.jettonRecipientRaw == nil, record.jettonAmount == nil else {
+                    throw TonPendingIntentJournalError.corrupted
+                }
+                jetton = nil
+            }
+            let connect: TonConnectTransferRequest?
+            let effects: TonConnectExecutionEffects?
+            if record.asset == "ton-connect" {
+                guard let encoded = record.tonConnectRequestBase64, let predicted = record.tonConnectEffectsBase64 else { throw TonPendingIntentJournalError.corrupted }
+                connect = try TonConnectTransferRequest.decodeCanonical(decodeCanonicalBase64(encoded))
+                effects = try TonConnectExecutionEffects(actionsData: decodeCanonicalBase64(predicted))
+                guard connect?.network.rawValue == record.network, connect?.publicKey == publicKey else { throw TonPendingIntentJournalError.corrupted }
+            } else {
+                guard record.tonConnectRequestBase64 == nil, record.tonConnectEffectsBase64 == nil, record.network == "mainnet" else { throw TonPendingIntentJournalError.corrupted }
+                connect = nil
+                effects = nil
+            }
+            let asset: TonTransferAsset = connect != nil ? .tonConnect : (jetton.map { .jetton(masterAddress: $0.masterAddress) } ?? .nativeTon)
             let requestDetails = TonNativeSendRequest(
+                asset: asset,
+                network: connect?.network ?? .mainnet,
                 mnemonic: "",
                 senderAddress: record.senderRaw,
                 recipientAddress: record.recipientRaw,
                 amountNanotons: record.amountNanotons,
                 bounce: record.bounce,
-                comment: record.comment
+                comment: record.comment,
+                jetton: jetton,
+                tonConnect: connect
             )
             let identity = try TonTransferIntentIdentity(request: requestDetails)
             let intent = try TonEmulationIntent(request: requestDetails)
@@ -322,6 +367,8 @@ enum TonPendingIntentJournalCodec {
                 throw TonPendingIntentJournalError.corrupted
             }
             let transactionRequest = TonTransferTransactionRequest(
+                asset: asset,
+                network: connect?.network ?? .mainnet,
                 senderAddress: identity.sender,
                 recipientAddress: identity.recipient,
                 amountNanotons: identity.amountNanotons,
@@ -329,7 +376,9 @@ enum TonPendingIntentJournalCodec {
                 includeStateInit: !walletState.isInitialized,
                 validUntil: try signedValidUntil(signedBoc),
                 bounce: identity.bounce,
-                comment: identity.comment
+                comment: identity.comment,
+                jetton: jetton,
+                tonConnect: connect
             )
 
             let rebuiltUnsigned = try TonTransferTransactionBuilder.buildForFeeEstimation(
@@ -352,10 +401,11 @@ enum TonPendingIntentJournalCodec {
                 transactionRequest: transactionRequest,
                 walletState: walletState,
                 unsignedMessage: rebuiltUnsigned,
-                feeNanotons: record.quotedFeeNanotons
+                feeNanotons: record.quotedFeeNanotons,
+                executionEffects: effects
             )
 
-            let inspection = try TonTransferTransactionBuilder.inspectSignedMessage(signedBoc)
+            let inspection = try TonTransferTransactionBuilder.inspectSignedMessage(signedBoc, tonConnect: connect)
             guard inspection.messageHashHex == record.signedMessageHashHex,
                   inspection.walletAddress == identity.sender,
                   inspection.recipientAddress == identity.recipient,
@@ -404,7 +454,8 @@ enum TonPendingIntentJournalCodec {
                 }
                 emulation = TonEmulationResult(
                     accepted: true,
-                    totalFeeNanotons: record.signedEmulationFeeNanotons
+                    totalFeeNanotons: record.signedEmulationFeeNanotons,
+                    executionEffects: effects
                 )
                 confirmed = false
             case "confirmed":
@@ -419,7 +470,8 @@ enum TonPendingIntentJournalCodec {
                     }
                     emulation = TonEmulationResult(
                         accepted: true,
-                        totalFeeNanotons: record.signedEmulationFeeNanotons
+                        totalFeeNanotons: record.signedEmulationFeeNanotons,
+                        executionEffects: effects
                     )
                 }
                 confirmed = true
@@ -444,15 +496,14 @@ enum TonPendingIntentJournalCodec {
     }
 
     private static func signedValidUntil(_ boc: Data) throws -> UInt64 {
-        try TonTransferTransactionBuilder.inspectSignedMessage(boc).validUntil
+        let root = try TonTransferTransactionBuilder.parseBoundedBoc(boc, maximumBytes: TonTransferTransactionBuilder.maximumTonConnectBocBytes)
+        let message = try Message.loadFrom(slice: root.beginParse())
+        let body = try message.body.beginParse()
+        _ = try body.loadBytes(64)
+        _ = try body.loadUint(bits: 32)
+        return try body.loadUint(bits: 32)
     }
 
-    /// `JSONEncoder.OutputFormatting.sortedKeys` changed its ordering between
-    /// iOS 17 and iOS 18 for keys that differ by case at the comparison point
-    /// (`quotedFeeNanotons` versus `quoteEndpointOrigin`). Persisted bearer
-    /// journals must survive an OS upgrade, so new records use an explicit
-    /// UTF-8 byte ordering while the one legacy Foundation ordering remains a
-    /// read-only migration format.
     private static func encodeRecord(
         _ record: Record,
         order: RecordEncodingOrder
@@ -479,6 +530,11 @@ enum TonPendingIntentJournalCodec {
             ("signedBocBase64", .string(record.signedBocBase64)),
             ("signedMessageHashHex", .string(record.signedMessageHashHex))
         ]
+        if let connect = record.tonConnectRequestBase64 { fields.append(("tonConnectRequestBase64", .string(connect))) }
+        if let effects = record.tonConnectEffectsBase64 { fields.append(("tonConnectEffectsBase64", .string(effects))) }
+        if let master = record.jettonMasterRaw { fields.append(("jettonMasterRaw", .string(master))) }
+        if let recipient = record.jettonRecipientRaw { fields.append(("jettonRecipientRaw", .string(recipient))) }
+        if let amount = record.jettonAmount { fields.append(("jettonAmount", .string(amount))) }
         if let comment = record.comment {
             fields.append(("comment", .string(comment)))
         }

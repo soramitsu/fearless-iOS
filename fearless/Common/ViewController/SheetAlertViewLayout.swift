@@ -1,12 +1,13 @@
 import Foundation
 import UIKit
+import SoraFoundation
 
 final class SheetAlertViewLayout: UIView {
     private enum Constants {
         static let cornerRadius: CGFloat = 20.0
         static let imageViewContainerSize: CGFloat = 80.0
         static let imageViewSize = CGSize(width: 48, height: 42)
-        static let closeButton: CGFloat = 32.0
+        static let closeButton: CGFloat = 44.0
         static var popupWindowHeightRatio: CGFloat {
             let window = SceneWindowFinder.activeWindow()
             let topPadding = window?.safeAreaInsets.top ?? .zero
@@ -21,6 +22,9 @@ final class SheetAlertViewLayout: UIView {
         let button = UIButton()
         button.backgroundColor = R.color.colorSemiBlack()
         button.setImage(R.image.iconClose(), for: .normal)
+        button.accessibilityLabel = R.string.localizable.commonClose(
+            preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages
+        )
         return button
     }()
 

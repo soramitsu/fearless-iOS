@@ -1,4 +1,5 @@
 import Foundation
+import TonSwift
 import IrohaCrypto
 import SSFModels
 
@@ -69,11 +70,17 @@ extension NSPredicate {
             format: "ANY %K == %@", "chainAccounts.accountId", hexAccountId
         )
 
-        return NSCompoundPredicate(orPredicateWithSubpredicates: [
+        var predicates = [
             substrateAccountFilter,
             ethereumAccountFilter,
             chainAccountFilter
-        ])
+        ]
+        // Only legacy JSON TON account IDs use this field; old Substrate-only models
+        // never receive a predicate for a property that they do not contain.
+        if let address = try? JSONDecoder().decode(TonSwift.Address.self, from: accountId), address.hash.count == 32 {
+            predicates.append(NSPredicate(format: "%K == %@", "tonAddress", accountId as NSData))
+        }
+        return NSCompoundPredicate(orPredicateWithSubpredicates: predicates)
     }
 
     static func selectedMetaAccount() -> NSPredicate {

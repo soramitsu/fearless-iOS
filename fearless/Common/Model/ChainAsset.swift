@@ -372,7 +372,11 @@ enum AssetDiscoveryCoverage: String, Codable {
         case .complete:
             return NSLocalizedString("portfolio.discovery.complete", value: "Full discovery", comment: "")
         case .catalogOnly:
-            return NSLocalizedString("portfolio.discovery.catalog_only", value: "Catalog only", comment: "")
+            return NSLocalizedString(
+                "portfolio.discovery.catalog_only",
+                value: "Some tokens may not appear",
+                comment: "Balances are checked only for tokens in the app's asset list; other holdings may not be shown."
+            )
         case .limited:
             return NSLocalizedString("portfolio.discovery.limited", value: "Limited discovery", comment: "")
         }
@@ -410,6 +414,35 @@ struct NetworkScanState: Codable, Equatable {
             return true
         }
         return now.timeIntervalSince(lastSuccess) > 36 * 60 * 60
+    }
+
+    // Healthy scans need no status in the asset list. Keep detailed scan
+    // metadata separate from the few states that affect displayed balances.
+    var attentionText: String? {
+        attentionText(now: Date())
+    }
+
+    func attentionText(now: Date) -> String? {
+        if hasError {
+            return NSLocalizedString(
+                "portfolio.balance.update_failed",
+                value: "Balance update failed",
+                comment: "A balance refresh failed; previously loaded balances remain visible."
+            )
+        } else if lastSuccess == nil {
+            return NSLocalizedString(
+                "portfolio.balance.not_loaded",
+                value: "Balances not loaded",
+                comment: "No successful balance refresh has completed for this network."
+            )
+        } else if isStale(at: now) {
+            return NSLocalizedString(
+                "portfolio.balance.outdated",
+                value: "Balances may be outdated",
+                comment: "The last successful balance refresh is too old."
+            )
+        }
+        return nil
     }
 
     var displayText: String {

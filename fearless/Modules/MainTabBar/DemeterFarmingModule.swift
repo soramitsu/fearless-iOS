@@ -352,6 +352,19 @@ enum DemeterMutation {
     case deposit(pool: DemeterPool, amount: String)
     case withdraw(pool: DemeterPool, amount: String)
     case claim(pool: DemeterPool)
+
+    var authorizationFields: [String] {
+        let pool: DemeterPool
+        let action: String
+        let amount: String
+        switch self {
+        case let .deposit(value, raw): pool = value; action = "deposit"; amount = raw
+        case let .withdraw(value, raw): pool = value; action = "withdraw"; amount = raw
+        case let .claim(value): pool = value; action = "claim"; amount = ""
+        }
+        return [action, pool.identity.baseAssetId, pool.identity.poolAssetId,
+                pool.identity.rewardAssetId, String(pool.identity.isFarm), amount]
+    }
 }
 
 struct DemeterDepositCall: Codable {
@@ -740,9 +753,9 @@ protocol DemeterMutationExtrinsicExecuting: AnyObject {
 
 final class DemeterMutationExtrinsicExecutor: DemeterMutationExtrinsicExecuting {
     private let service: ExtrinsicServiceProtocol
-    private let signer: SigningWrapperProtocol
+    private let signer: SigningWrapperProtocol?
 
-    init(service: ExtrinsicServiceProtocol, signer: SigningWrapperProtocol) {
+    init(service: ExtrinsicServiceProtocol, signer: SigningWrapperProtocol? = nil) {
         self.service = service
         self.signer = signer
     }
@@ -754,7 +767,8 @@ final class DemeterMutationExtrinsicExecutor: DemeterMutationExtrinsicExecuting 
     }
 
     func submit(_ builder: @escaping ExtrinsicBuilderClosure) async throws -> String {
-        try await withCheckedThrowingContinuation { continuation in
+        guard let signer, signer.mutationAuthorization != nil else { throw MutationAuthorizationError.denied }
+        return try await withCheckedThrowingContinuation { continuation in
             service.submit(builder, signer: signer, runningIn: .main) { continuation.resume(with: $0) }
         }
     }
@@ -776,9 +790,11 @@ final class DemeterMutationSubmissionAuthorizer: DemeterMutationSubmissionAuthor
         let chain: ChainModel
         let account: ChainAccountResponse
         let runtime: RuntimeProviderProtocol
+        let runtimeSpecVersion: UInt32
         let connection: JSONRPCEngine
         let snapshotProvider: DemeterRuntimeSnapshotProviding
         let balanceProvider: DemeterAuthoritativeBalanceProviding
+        let service: ExtrinsicServiceProtocol
         let executor: DemeterMutationExtrinsicExecuting
     }
 
@@ -823,9 +839,24 @@ final class DemeterMutationSubmissionAuthorizer: DemeterMutationSubmissionAuthor
         let authorized = try await authorizeRound(mutation, context: context)
         try validateCurrentContext(context)
 
+        let intent = try MutationIntentDigest.make([
+            MutationCapability.demeter.rawValue, context.wallet.metaId, context.chain.chainId,
+            context.account.accountId.toHex(), context.account.publicKey.toHex(),
+            String(context.account.cryptoType.rawValue), String(context.runtimeSpecVersion),
+            authorized.fee.description
+        ] + mutation.authorizationFields)
+        let authorization = try MultiChainFeaturePolicy.authorization(for: .demeter, intentSha256: intent) {
+            try self.validateCurrentContext(context, checkPolicy: false)
+        }
+        let signer = SigningWrapper(
+            keystore: keystore,
+            metaId: context.wallet.metaId,
+            accountResponse: context.account,
+            mutationAuthorization: authorization
+        )
         return DemeterAuthorizedSubmission(
             builder: authorized.builder,
-            executor: context.executor,
+            executor: DemeterMutationExtrinsicExecutor(service: context.service, signer: signer),
             finalGuard: { [weak self] in
                 guard let self else { throw DemeterSubmissionError.runtimeUnavailable }
                 try self.validateCurrentContext(context)
@@ -869,7 +900,7 @@ final class DemeterMutationSubmissionAuthorizer: DemeterMutationSubmissionAuthor
               !chain.disabled,
               !chain.isTestnet,
               let runtime = chainRegistry.getRuntimeProvider(for: chainId),
-              runtime.snapshot != nil,
+              let snapshot = runtime.snapshot,
               let connection = chainRegistry.getConnection(for: chainId),
               let snapshotProvider = DemeterRuntimeService(
                   wallet: wallet,
@@ -882,11 +913,6 @@ final class DemeterMutationSubmissionAuthorizer: DemeterMutationSubmissionAuthor
             throw DemeterSubmissionError.runtimeUnavailable
         }
         let account = try validateSigningAccount(wallet: wallet, chain: chain)
-        let signer = SigningWrapper(
-            keystore: keystore,
-            metaId: wallet.metaId,
-            accountResponse: account
-        )
         let extrinsic = ExtrinsicService(
             accountId: account.accountId,
             chainFormat: chain.chainFormat,
@@ -900,10 +926,12 @@ final class DemeterMutationSubmissionAuthorizer: DemeterMutationSubmissionAuthor
             chain: chain,
             account: account,
             runtime: runtime,
+            runtimeSpecVersion: snapshot.specVersion,
             connection: connection,
             snapshotProvider: snapshotProvider,
             balanceProvider: DemeterAuthoritativeBalanceProvider(wallet: wallet, chain: chain),
-            executor: DemeterMutationExtrinsicExecutor(service: extrinsic, signer: signer)
+            service: extrinsic,
+            executor: DemeterMutationExtrinsicExecutor(service: extrinsic)
         )
     }
 
@@ -916,16 +944,16 @@ final class DemeterMutationSubmissionAuthorizer: DemeterMutationSubmissionAuthor
         }
     }
 
-    private func validateCurrentContext(_ context: Context) throws {
-        try validatePolicyAndWallet()
+    private func validateCurrentContext(_ context: Context, checkPolicy: Bool = true) throws {
+        if checkPolicy { try validatePolicyAndWallet() }
         guard let wallet = selectedWallet(),
               wallet.metaId == context.wallet.metaId,
-              let chain = chainRegistry.getChain(for: chainId),
+              let chain = chainRegistry.getChainForMutationAuthorization(for: chainId),
               chain == context.chain,
               !chain.disabled,
               !chain.isTestnet,
               let runtime = chainRegistry.getRuntimeProvider(for: chainId),
-              runtime.snapshot != nil,
+              (runtime as? RuntimeProvider)?.mutationAuthorizationSpecVersion == context.runtimeSpecVersion,
               ObjectIdentifier(runtime) == ObjectIdentifier(context.runtime),
               let connection = chainRegistry.getConnection(for: chainId),
               ObjectIdentifier(connection) == ObjectIdentifier(context.connection) else {
@@ -944,7 +972,8 @@ final class DemeterMutationSubmissionAuthorizer: DemeterMutationSubmissionAuthor
         expected: ChainAccountResponse? = nil
     ) throws -> ChainAccountResponse {
         guard let account = wallet.fetch(for: chain.accountRequest()),
-              expected.map({ $0.accountId == account.accountId }) ?? true else {
+              expected.map({ $0.accountId == account.accountId &&
+                      $0.publicKey == account.publicKey && $0.cryptoType == account.cryptoType }) ?? true else {
             throw DemeterSubmissionError.signerUnavailable
         }
         let accountId = account.isChainAccount ? account.accountId : nil

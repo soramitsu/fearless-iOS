@@ -77,8 +77,7 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
         backupAccounts: [OpenBackupAccount]?,
         locale: Locale
     ) -> [ProfileOptionViewModelProtocol] {
-        let publicKey = wallet.substratePublicKey
-        let address = try? AddressFactory.address(for: publicKey, chainFormat: .substrate(42))
+        let address = wallet.backupAddress
 
         var backupOptions: [BackupWalletOptions] = exportOptions.map { BackupWalletOptions(exportOptions: $0) }
         if backupAccounts?.contains(where: { $0.address == address }) == true {

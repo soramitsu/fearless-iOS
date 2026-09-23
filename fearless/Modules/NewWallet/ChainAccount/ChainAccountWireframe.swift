@@ -75,22 +75,8 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
             )
             return
         }
-        guard MultiChainFeaturePolicy.current.crossChainMutationsEnabled else {
-            presentCrossChainCapability(
-                title: "Cross-chain actions paused",
-                message: "Reviewed routes remain visible in the Cross-chain tab, but transfers are temporarily disabled by the remote safety switch.",
-                from: view
-            )
-            return
-        }
-        guard route.canSign else {
-            presentCrossChainCapability(
-                title: "Route unavailable",
-                message: route.unavailableReason ?? "This wallet cannot sign the selected route.",
-                from: view
-            )
-            return
-        }
+        // Read-only route and fee discovery does not need mutation permission
+        // or a local secret. Signing is authorized only at confirmation.
         guard let controller = CrossChainAssembly.configureModule(
             with: chainAsset,
             wallet: wallet,

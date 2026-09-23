@@ -30,7 +30,7 @@ extension AddAccount {
             )
         }
 
-        private func importAccountItem(_ item: MetaAccountModel) {
+        private func importAccountItem(_ item: MetaAccountModel, importOperation: BaseOperation<MetaAccountModel>) {
             let checkOperation = accountRepository.fetchOperation(
                 by: item.identifier,
                 options: RepositoryFetchOptions()
@@ -46,25 +46,28 @@ extension AddAccount {
             }
 
             saveOperation.completionBlock = { [weak self] in
+                let result = saveOperation.result
+                saveOperation.completionBlock = nil
                 DispatchQueue.main.async {
-                    switch saveOperation.result {
+                    switch result {
                     case .success:
                         self?.settings.save(value: item, runningCompletionIn: .main) { result in
                             switch result {
                             case let .success(savedAccount):
+                                (importOperation as? PersistenceBoundKeychainOperation)?.commitKeychainChanges()
                                 self?.eventCenter.notify(with: SelectedAccountChanged(account: savedAccount))
                                 self?.presenter?.didCompleteAccountImport()
                             case let .failure(error):
-                                self?.presenter?.didReceiveAccountImport(error: error)
+                                self?.finishImportFailure(error, importOperation: importOperation)
                             }
                         }
 
                     case let .failure(error):
-                        self?.presenter?.didReceiveAccountImport(error: error)
+                        self?.finishImportFailure(error, importOperation: importOperation)
 
                     case .none:
                         let error = BaseOperationError.parentOperationCancelled
-                        self?.presenter?.didReceiveAccountImport(error: error)
+                        self?.finishImportFailure(error, importOperation: importOperation)
                     }
                 }
             }
@@ -77,12 +80,23 @@ extension AddAccount {
             )
         }
 
+        private func finishImportFailure(_ error: Error, importOperation: BaseOperation<MetaAccountModel>) {
+            do {
+                try (importOperation as? PersistenceBoundKeychainOperation)?.rollbackKeychainChanges()
+                presenter?.didReceiveAccountImport(error: error)
+            } catch let rollbackError {
+                presenter?.didReceiveAccountImport(error: rollbackError)
+            }
+        }
+
         override func importAccountUsingOperation(_ importOperation: BaseOperation<MetaAccountModel>) {
             importOperation.completionBlock = { [weak self] in
+                let result = importOperation.result
+                importOperation.completionBlock = nil
                 DispatchQueue.main.async {
-                    switch importOperation.result {
+                    switch result {
                     case let .success(accountItem):
-                        self?.importAccountItem(accountItem)
+                        self?.importAccountItem(accountItem, importOperation: importOperation)
                     case let .failure(error):
                         self?.presenter?.didReceiveAccountImport(error: error)
                     case .none:

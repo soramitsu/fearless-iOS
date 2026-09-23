@@ -1,9 +1,6 @@
 import Foundation
 import SSFModels
 import Web3
-#if canImport(FearlessKeys)
-    import FearlessKeys
-#endif
 
 enum EthereumChain: String {
     case ethereumMainnet = "1"
@@ -29,116 +26,74 @@ enum EthereumChain: String {
             return "polygon-mainnet"
         }
     }
-
-    func apiKeyInjectedURL(baseURL: URL) -> URL {
-        switch self {
-        case .ethereumMainnet:
-            #if canImport(FearlessKeys) && DEBUG
-                let apiKey = EthereumNodesApiKeysDebug.ethereumApiKey
-            #else
-                let apiKey = EthereumNodesApiKeys.ethereumApiKey
-            #endif
-            return baseURL.appendingPathComponent(apiKey)
-        case .sepolia:
-            #if canImport(FearlessKeys) && DEBUG
-                let apiKey = EthereumNodesApiKeysDebug.sepoliaApiKey
-            #else
-                let apiKey = EthereumNodesApiKeys.sepoliaApiKey
-            #endif
-            return baseURL.appendingPathComponent(apiKey)
-        case .goerli:
-            #if canImport(FearlessKeys) && DEBUG
-                let apiKey = EthereumNodesApiKeysDebug.goerliApiKey
-            #else
-                let apiKey = EthereumNodesApiKeys.goerliApiKey
-            #endif
-            return baseURL.appendingPathComponent(apiKey)
-        case .bscMainnet:
-            #if canImport(FearlessKeys) && DEBUG
-                let apiKey = EthereumNodesApiKeysDebug.bscApiKey
-            #else
-                let apiKey = EthereumNodesApiKeys.bscApiKey
-            #endif
-            return baseURL.appendingPathComponent(apiKey)
-        case .bscTestnet:
-            #if canImport(FearlessKeys) && DEBUG
-                let apiKey = EthereumNodesApiKeysDebug.bscApiKey
-            #else
-                let apiKey = EthereumNodesApiKeys.bscApiKey
-            #endif
-            return baseURL.appendingPathComponent(apiKey)
-        case .polygon:
-            #if canImport(FearlessKeys) && DEBUG
-                let apiKey = EthereumNodesApiKeysDebug.polygonApiKey
-            #else
-                let apiKey = EthereumNodesApiKeys.polygonApiKey
-            #endif
-            return baseURL.appendingPathComponent(apiKey)
-        }
-    }
-
-    private func availableNodesUrls() -> [String] {
-        switch self {
-        case .ethereumMainnet:
-            return ["eth-mainnet.blastapi.io"]
-        case .sepolia:
-            return ["eth-sepolia.blastapi.io"]
-        case .goerli:
-            return ["eth-goerli.blastapi.io"]
-        case .bscMainnet:
-            return ["bsc-mainnet.blastapi.io"]
-        case .bscTestnet:
-            return ["bsc-testnet.blastapi.io"]
-        case .polygon:
-            return ["polygon-mainnet.blastapi.io"]
-        }
-    }
 }
 
 protocol EthereumNodeFetchingProtocol {
     func getNode(for chain: ChainModel) throws -> Web3.Eth
 }
 
-final class EthereumNodeFetching: EthereumNodeFetchingProtocol {
-    func getNode(for chain: ChainModel) throws -> Web3.Eth {
-        if let https = try? getHttps(for: chain) {
-            return https
+enum EthereumNodeFetchingError: LocalizedError, Equatable {
+    case noSupportedNode(chainName: String)
+
+    var errorDescription: String? {
+        switch self {
+        case let .noSupportedNode(chainName):
+            return "No supported node is available for \(chainName). Select an HTTPS or WSS node in network settings."
+        }
+    }
+}
+
+enum EthereumNodeSelection {
+    static func url(for chain: ChainModel) throws -> URL {
+        if let selected = chain.selectedNode?.url, isSupported(selected) {
+            return selected
         }
 
-        let randomWssNode = chain.nodes.filter {
-            $0.url.scheme?.lowercased() == "wss"
-        }.randomElement()
-        let hasSelectedWssNode =
-            chain.selectedNode?.url.scheme?.lowercased() == "wss"
-        let node = hasSelectedWssNode ? chain.selectedNode : randomWssNode
-
-        guard var wssURL = node?.url else {
-            throw ConvenienceError(error: "cannot obtain eth wss url for chain: \(chain.name)")
+        // Catalog nodes are a Set. A stable HTTPS-first order avoids random
+        // provider changes between launches and preserves explicit user choices.
+        let candidates = chain.nodes.map(\.url).filter(isSupported).sorted {
+            let firstIsHttps = $0.scheme?.lowercased() == "https"
+            let secondIsHttps = $1.scheme?.lowercased() == "https"
+            if firstIsHttps != secondIsHttps {
+                return firstIsHttps
+            }
+            return $0.absoluteString < $1.absoluteString
         }
-
-        if let ethereumChain = EthereumChain(rawValue: chain.chainId) {
-            wssURL = ethereumChain.apiKeyInjectedURL(baseURL: wssURL)
+        guard let selected = candidates.first else {
+            throw EthereumNodeFetchingError.noSupportedNode(chainName: chain.name)
         }
-
-        let provider = try Web3WebSocketProvider(wsUrl: wssURL.absoluteString, timeout: .seconds(10))
-        let web3 = Web3(provider: provider, rpcId: Int(chain.chainId) ?? 1)
-        return web3.eth
+        return selected
     }
 
-    func getHttps(for chain: ChainModel) throws -> Web3.Eth {
-        let randomHttpsNode = chain.nodes.filter {
-            $0.url.scheme?.lowercased() == "https"
-        }.randomElement()
-        let hasSelectedHttpsNode =
-            chain.selectedNode?.url.scheme?.lowercased() == "https"
-        let node = hasSelectedHttpsNode
-            ? chain.selectedNode
-            : randomHttpsNode
+    private static func isSupported(_ url: URL) -> Bool {
+        guard
+            let scheme = url.scheme?.lowercased(),
+            scheme == "https" || scheme == "wss",
+            var host = url.host?.lowercased(),
+            !host.isEmpty
+        else {
+            return false
+        }
+        while host.hasSuffix(".") {
+            host.removeLast()
+        }
+        // Blast retired its complete provider service. The DNS boundary matters:
+        // do not reject a custom node merely because its path/name mentions it.
+        return !host.isEmpty && host != "blastapi.io" && !host.hasSuffix(".blastapi.io")
+    }
+}
 
-        guard let httpsURL = node?.url else {
-            throw ConvenienceError(error: "cannot obtain eth https url for chain: \(chain.name)")
+final class EthereumNodeFetching: EthereumNodeFetchingProtocol {
+    func getNode(for chain: ChainModel) throws -> Web3.Eth {
+        let url = try EthereumNodeSelection.url(for: chain)
+        if url.scheme?.lowercased() == "https" {
+            return Web3(rpcURL: url.absoluteString).eth
         }
 
-        return Web3(rpcURL: httpsURL.absoluteString).eth
+        // Public and custom node URLs may already contain authentication/path
+        // components. Preserve them exactly; unrelated provider keys must never
+        // be appended or disclosed to these hosts.
+        let provider = try Web3WebSocketProvider(wsUrl: url.absoluteString, timeout: .seconds(10))
+        return Web3(provider: provider, rpcId: Int(chain.chainId) ?? 1).eth
     }
 }

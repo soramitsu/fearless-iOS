@@ -5,7 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 AUDIT="$ROOT_DIR/scripts/audit-ton-production-send-readiness.sh"
 TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ton-send-readiness-test.XXXXXX")"
 CASES=0
-EXPECTED_CASES=72
+EXPECTED_CASES=84
 
 cleanup() {
   rm -rf "$TMP_DIR"
@@ -42,6 +42,7 @@ make_fixture() {
   cp "$ROOT_DIR/fearless/Common/Services/ChainRegistry/ChainRegistry.swift" "$fixture/fearless/Common/Services/ChainRegistry/"
   cp "$ROOT_DIR/fearless/Common/Model/TonTransferTransactionBuilder.swift" "$fixture/fearless/Common/Model/"
   cp "$ROOT_DIR/fearless/Common/Model/TonSendService.swift" "$fixture/fearless/Common/Model/"
+  cp "$ROOT_DIR/fearless/Common/Model/TonKeyDerivation.swift" "$fixture/fearless/Common/Model/"
   cp "$ROOT_DIR/scripts/ci/run-pr.sh" "$fixture/scripts/ci/"
   cp "$ROOT_DIR/.github/workflows/codecov.yml" "$fixture/.github/workflows/"
 }
@@ -78,10 +79,11 @@ const fs = require('node:fs');
 const [path, scenario] = process.argv.slice(2);
 const policy = 'static let production = TonProductionSendReleasePolicy(isEnabled: false)';
 const origin = 'static let canonicalAuthenticatedOrigin = URL(string: "https://tonapi.io")!';
-const allowlist = 'static let reviewedProductionSendOrigins = [canonicalAuthenticatedOrigin]';
+const allowlist = 'static let reviewedProductionSendOrigins = [canonicalAuthenticatedOrigin, canonicalTestnetOrigin]';
+const testnetOrigin = 'static let canonicalTestnetOrigin = URL(string: "https://testnet.tonapi.io")!';
 const enabledPolicy = 'static let production = TonProductionSendReleasePolicy(isEnabled: true)';
 const evilOrigin = 'static let canonicalAuthenticatedOrigin = URL(string: "https://evil.example")!';
-const expandedAllowlist = 'static let reviewedProductionSendOrigins = [canonicalAuthenticatedOrigin, URL(string: "https://evil.example")!]';
+const expandedAllowlist = 'static let reviewedProductionSendOrigins = [canonicalAuthenticatedOrigin, canonicalTestnetOrigin, URL(string: "https://evil.example")!]';
 
 const mutations = {
   'policy-multiline-string': [policy, `let disabledPolicyDecoy = """
@@ -135,6 +137,8 @@ const mutations = {
        /* nested decoy */
        ${origin}
     ${evilOrigin}`],
+  'testnet-origin-raw-string': [testnetOrigin, `let testnetOriginDecoy = #"${testnetOrigin}"#
+    static let canonicalTestnetOrigin = URL(string: "https://evil.example")!`],
   'allowlist-raw-string': [allowlist, `let reviewedAllowlistDecoy = #"${allowlist}"#
     ${expandedAllowlist}`]
 };
@@ -450,7 +454,7 @@ mutate_swift_decoy "$fixture/fearless/Common/Services/ChainRegistry/ChainRegistr
 expect_failure "unterminated nested origin comment" "$fixture" "unterminated nested block comment"
 
 fixture="$(new_fixture expanded-origin-allowlist)"
-perl -0pi -e 's/\[canonicalAuthenticatedOrigin\]/[canonicalAuthenticatedOrigin, URL(string: "https:\/\/evil.example")!]/' "$fixture/fearless/Common/Services/ChainRegistry/ChainRegistry.swift"
+perl -0pi -e 's/\[canonicalAuthenticatedOrigin, canonicalTestnetOrigin\]/[canonicalAuthenticatedOrigin, canonicalTestnetOrigin, URL(string: "https:\/\/evil.example")!]/' "$fixture/fearless/Common/Services/ChainRegistry/ChainRegistry.swift"
 expect_failure "expanded send-origin allowlist" "$fixture" "reviewed TonAPI send-origin allowlist drifted"
 
 fixture="$(new_fixture raw-string-allowlist-decoy)"
@@ -484,6 +488,54 @@ expect_failure "reversed signed fee-drift guard" "$fixture" "signed-emulation fe
 fixture="$(new_fixture unsigned-builder)"
 perl -0pi -e 's/static func buildForFeeEstimation\(/static func buildAdvisoryEstimate\(/' "$fixture/fearless/Common/Model/TonTransferTransactionBuilder.swift"
 expect_failure "removed unsigned Wallet V4R2 builder" "$fixture" "Wallet V4R2 unsigned fee-estimation builder drifted"
+
+fixture="$(new_fixture insecure-testnet-origin)"
+perl -0pi -e 's#https://testnet\.tonapi\.io#http://testnet.tonapi.io#' "$fixture/fearless/Common/Services/ChainRegistry/ChainRegistry.swift"
+expect_failure "insecure testnet endpoint" "$fixture" "canonical testnet TonAPI origin drifted"
+
+fixture="$(new_fixture raw-string-testnet-origin-decoy)"
+mutate_swift_decoy "$fixture/fearless/Common/Services/ChainRegistry/ChainRegistry.swift" testnet-origin-raw-string
+expect_failure "raw-string testnet-origin decoy" "$fixture" "canonical testnet TonAPI origin drifted"
+
+fixture="$(new_fixture missing-testnet-allowlist)"
+perl -0pi -e 's/\[canonicalAuthenticatedOrigin, canonicalTestnetOrigin\]/[canonicalAuthenticatedOrigin]/' "$fixture/fearless/Common/Services/ChainRegistry/ChainRegistry.swift"
+expect_failure "removed released testnet support" "$fixture" "reviewed TonAPI send-origin allowlist drifted"
+
+fixture="$(new_fixture unqualified-legacy-entry)"
+perl -0pi -e 's/wallet\.legacyTonAccount == nil/false/' "$fixture/fearless/Modules/Send/SendDependencyContainer.swift"
+expect_failure "unqualified legacy entry" "$fixture" "legacy TON entry guard must exclude unqualified accounts"
+
+fixture="$(new_fixture unqualified-legacy-factory)"
+perl -0pi -e 's/tonSendReleasePolicy\.isEnabled \|\| wallet\.legacyTonAccount != nil/tonSendReleasePolicy.isEnabled || true/' "$fixture/fearless/Modules/Send/SendDependencyContainer.swift"
+expect_failure "unqualified legacy factory" "$fixture" "legacy TON factory guard must exclude unqualified accounts"
+
+fixture="$(new_fixture mismatched-legacy-request-key)"
+perl -0pi -e 's/nativeAccount\.publicKey == request\.publicKey/nativeAccount.publicKey != request.publicKey/' "$fixture/fearless/Common/Model/TonSendService.swift"
+expect_failure "mismatched legacy request key" "$fixture" "legacy TON Release send must bind the exact native public key and address"
+
+fixture="$(new_fixture unchecked-legacy-signing-key)"
+perl -0pi -e 's/try legacyAccount\.validatedPrivateKey\(key\)/key/' "$fixture/fearless/Common/Model/TonSendService.swift"
+expect_failure "unchecked legacy signing key" "$fixture" "legacy TON send must validate the original native signing key"
+
+fixture="$(new_fixture unsupported-legacy-contract)"
+perl -0pi -e 's/contractVersion == "v4R2"/contractVersion == "v5R1"/' "$fixture/fearless/Common/Model/TonKeyDerivation.swift"
+expect_failure "unqualified legacy contract" "$fixture" "legacy TON identity must bind the released V4R2 contract and address"
+
+fixture="$(new_fixture legacy-address-mismatch)"
+perl -0pi -e 's/address\.hash == \(try TonAddressCodec/address.hash != (try TonAddressCodec/' "$fixture/fearless/Common/Model/TonKeyDerivation.swift"
+expect_failure "legacy address mismatch" "$fixture" "legacy TON identity must bind the released V4R2 contract and address"
+
+fixture="$(new_fixture legacy-public-suffix-mismatch)"
+perl -0pi -e 's/secret\.suffix\(32\) == publicKey/secret.suffix(32) != publicKey/g' "$fixture/fearless/Common/Model/TonKeyDerivation.swift"
+expect_failure "legacy key suffix mismatch" "$fixture" "legacy TON private key must match both seed-derived and stored public keys"
+
+fixture="$(new_fixture legacy-private-seed-mismatch)"
+perl -0pi -e 's/rawRepresentation: secret\.prefix\(32\)/rawRepresentation: secret.suffix(32)/' "$fixture/fearless/Common/Model/TonKeyDerivation.swift"
+expect_failure "legacy private seed mismatch" "$fixture" "legacy TON private key must match both seed-derived and stored public keys"
+
+fixture="$(new_fixture missing-tonconnect-network-binding)"
+perl -0pi -e 's/(func sendTonConnect\([\s\S]{0,600}?)try requireNetworkOrigin\(request\.network\)/$1/' "$fixture/fearless/Common/Model/TonSendService.swift"
+expect_failure "missing TonConnect network binding" "$fixture" "legacy TonConnect must bind its explicit network and native account"
 
 if ((CASES != EXPECTED_CASES)); then
   fail "executed $CASES fixtures; expected exactly $EXPECTED_CASES"

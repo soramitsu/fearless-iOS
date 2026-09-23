@@ -45,7 +45,7 @@ function assert(condition, message) {
 
 assert(report.schemaVersion === 1, 'delta report schemaVersion must be 1');
 assert(Array.isArray(report.carriedDeltas) && report.carriedDeltas.length > 0, 'delta report must contain carriedDeltas');
-assert(report.removalReadiness?.status === 'blocked', 'removalReadiness.status must remain blocked for handoff');
+assert(['blocked', 'ready'].includes(report.removalReadiness?.status), 'removalReadiness.status must be explicit for handoff');
 
 const deltaLines = report.carriedDeltas.map((item) => `- ${item.id}: ${item.label}`);
 const blockerLines = report.removalReadiness.blockers.map((item) => `- ${item}`);

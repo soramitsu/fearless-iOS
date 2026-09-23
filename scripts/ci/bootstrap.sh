@@ -128,7 +128,7 @@ mkdir -p "$SP_DIR"
 if [[ -f fearless.xcworkspace/contents.xcworkspacedata ]]; then
   # Enforce the known-good shared-features-spm revision before resolving
   if [[ -f scripts/deps/enforce-ssf-pin.sh ]]; then
-    bash scripts/deps/enforce-ssf-pin.sh || true
+    bash scripts/deps/enforce-ssf-pin.sh
   fi
   if [[ -x scripts/deps/check-dependency-contracts.sh ]]; then
     scripts/deps/check-dependency-contracts.sh
@@ -168,17 +168,8 @@ else
   echo "[bootstrap] WARNING: git-lfs not available; MPQRCoreSDK may be missing"
 fi
 
-# 4) Apply repo-owned native crypto contracts
-if [[ -f "scripts/deps/prepare-native-crypto-checkout.sh" ]]; then
-  echo "[bootstrap] Preparing native crypto checkout"
-  SOURCE_PACKAGES_DIR="$SP_DIR" STRICT_REQUIRED_PATCHES=1 bash scripts/deps/prepare-native-crypto-checkout.sh "$WORKSPACE_DIR" fearless.xcworkspace fearless
-fi
-
-# Apply required shared-features-spm compatibility fixes (manifest + Web3 API drift)
-if [[ -f "scripts/spm-shared-features-fixes.sh" ]]; then
-  echo "[bootstrap] Applying required shared-features-spm compatibility fixes"
-  SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR"
-fi
+# Verify the exact resolved source; never repair dependency contents during a build.
+SOURCE_PACKAGES_DIR="$SP_DIR" python3 scripts/deps/verify-shared-features-source.py "$WORKSPACE_DIR"
 
 popd >/dev/null
 echo "[bootstrap] Completed CI bootstrap"

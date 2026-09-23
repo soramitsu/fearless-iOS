@@ -5,6 +5,13 @@ import SSFModels
 protocol TonJettonInjector {
     func inject(jettonItems: [TonJettonBalance]) async
     func inject(tonPriceData: [PriceData]) async
+    func inject(jettonItems: [TonJettonBalance], chainId: ChainModel.Id) async
+    func inject(tonPriceData: [PriceData], chainId: ChainModel.Id) async
+}
+
+extension TonJettonInjector {
+    func inject(jettonItems: [TonJettonBalance], chainId _: ChainModel.Id) async { await inject(jettonItems: jettonItems) }
+    func inject(tonPriceData: [PriceData], chainId _: ChainModel.Id) async { await inject(tonPriceData: tonPriceData) }
 }
 
 actor TonJettonInjectorImpl: TonJettonInjector {
@@ -23,8 +30,12 @@ actor TonJettonInjectorImpl: TonJettonInjector {
     }
 
     func inject(jettonItems: [TonJettonBalance]) async {
+        await inject(jettonItems: jettonItems, chainId: tonChainId())
+    }
+
+    func inject(jettonItems: [TonJettonBalance], chainId: ChainModel.Id) async {
         do {
-            let tonChain = try await fetchTonChain()
+            let tonChain = try await fetchTonChain(chainId: chainId)
             let heldAssets = map(jettonItems: jettonItems)
             var mergedById = Dictionary(uniqueKeysWithValues: tonChain.assets.map { ($0.id, $0) })
 
@@ -35,7 +46,21 @@ actor TonJettonInjectorImpl: TonJettonInjector {
             }
             ExactAssetPriceCache.shared.upsert(exactPrices)
 
-            heldAssets.forEach { heldAsset in
+            zip(jettonItems, heldAssets).forEach { item, heldAsset in
+                let legacyAlias = TonRemoteBalanceFetchingImpl.preferredKnownJetton(
+                    known: tonChain.chainAssets,
+                    master: item.item.jettonInfo.address,
+                    wallet: item.item.walletAddress
+                )
+                // Retain an existing owner's wallet-ID catalog entry. Discover
+                // new assets only under globally meaningful master addresses.
+                if let legacyAlias, legacyAlias.asset.id != heldAsset.asset.id {
+                    if let price = item.priceData.compactMap({ exactPrice($0, for: legacyAlias.asset) }).first {
+                        mergedById[legacyAlias.asset.id] = legacyAlias.asset.replacingPrice(price)
+                        ExactAssetPriceCache.shared.upsert([price])
+                    }
+                    return
+                }
                 let existingAsset = mergedById[heldAsset.asset.id]
                 let existingTrust = existingAsset.map {
                     AssetTrustResolver.metadataTrust(
@@ -69,8 +94,12 @@ actor TonJettonInjectorImpl: TonJettonInjector {
     }
 
     func inject(tonPriceData: [PriceData]) async {
+        await inject(tonPriceData: tonPriceData, chainId: tonChainId())
+    }
+
+    func inject(tonPriceData: [PriceData], chainId: ChainModel.Id) async {
         do {
-            let tonChain = try await fetchTonChain()
+            let tonChain = try await fetchTonChain(chainId: chainId)
             guard let tonAsset = tonChain.utilityChainAssets().first else {
                 return
             }
@@ -141,9 +170,7 @@ actor TonJettonInjectorImpl: TonJettonInjector {
         )
     }
 
-    private func fetchTonChain() async throws -> ChainModel {
-        let chainId = tonChainId()
-
+    private func fetchTonChain(chainId: ChainModel.Id) async throws -> ChainModel {
         guard let tonChain = try await chainModelRepository.fetch(by: chainId, options: RepositoryFetchOptions()) else {
             throw ConvenienceError(error: "Ton chain is not fetched for chainId: \(chainId)")
         }

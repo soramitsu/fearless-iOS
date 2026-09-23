@@ -134,12 +134,24 @@ class PersistentValueSettings<T> {
         setup(runningCompletionIn: nil, completionClosure: nil)
     }
 
+    /// Checks and registers a conditional save under the same lock. Background
+    /// enrichment must not overwrite a newer selection or account mutation.
+    /// Conditional saves also wait for committed state: a pending user save may
+    /// still fail. A rejected save does not invoke its completion or change the store.
+    @discardableResult
     func save(
         value: T,
+        ifCurrentValueSatisfies predicate: ((T?) -> Bool)? = nil,
         runningCompletionIn queue: DispatchQueue?,
         completionClosure: ((Result<T, Error>) -> Void)?
-    ) {
+    ) -> Bool {
         mutex.lock()
+        if let predicate {
+            guard pendingSaves.isEmpty, !isPerformingSave, predicate(internalValue) else {
+                mutex.unlock()
+                return false
+            }
+        }
         prepareForSaveInvocation()
         internalValue = value
         pendingSaves.append(
@@ -160,6 +172,7 @@ class PersistentValueSettings<T> {
         if shouldStartSave {
             performNextSave()
         }
+        return true
     }
 
     private func performNextSave() {

@@ -8,6 +8,8 @@ final class MainTabBarViewController: UITabBarController {
 
     private let tabBarBackgroundView = TabBarBackgroundView()
     private let middleButton = TabBarMiddleButton(frame: .zero)
+    private let middleButtonTouchTarget = UIControl()
+    private var accessibleTabs: [MainTabBarDestination: TabBarAccessibilityElement] = [:]
 
     init(
         viewControllers: [UIViewController],
@@ -39,6 +41,11 @@ final class MainTabBarViewController: UITabBarController {
 
         tabBar.sendSubviewToBack(tabBarBackgroundView)
         tabBar.bringSubviewToFront(middleButton)
+        view.bringSubviewToFront(middleButtonTouchTarget)
+        middleButtonTouchTarget.isHidden = tabBar.isHidden
+        middleButtonTouchTarget.alpha = tabBar.alpha
+        viewControllers?.forEach { reserveRaisedButtonSpace(in: $0) }
+        updateAccessibleTabs()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -69,11 +76,11 @@ final class MainTabBarViewController: UITabBarController {
             appearance.shadowColor = .clear
             appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
                 .foregroundColor: R.color.colorGray() ?? UIColor.gray,
-                .font: UIFont.systemFont(ofSize: 10, weight: .medium)
+                .font: UIFont.systemFont(ofSize: 12, weight: .medium)
             ]
             appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
                 .foregroundColor: R.color.colorWhite() ?? UIColor.white,
-                .font: UIFont.systemFont(ofSize: 10, weight: .semibold)
+                .font: UIFont.systemFont(ofSize: 12, weight: .semibold)
             ]
             tabBar.standardAppearance = appearance
 
@@ -95,13 +102,44 @@ final class MainTabBarViewController: UITabBarController {
         middleButton.snp.makeConstraints { make in
             make.size.equalTo(56)
             make.centerX.equalToSuperview()
-            make.centerY.equalTo(tabBar.snp.top).offset(12)
+            make.centerY.equalTo(tabBar.snp.top)
         }
         middleButton.addAction { [weak self] in
             self?.select(destination: .polkaswap)
         }
+        // UIKit's tab bar ignores touches above its bounds. Extend the artwork's
+        // touch region in the parent view while retaining its single AX button.
+        middleButtonTouchTarget.isAccessibilityElement = false
+        middleButtonTouchTarget.accessibilityElementsHidden = true
+        view.addSubview(middleButtonTouchTarget)
+        middleButtonTouchTarget.snp.makeConstraints { make in
+            make.size.equalTo(56)
+            make.centerX.equalTo(tabBar)
+            make.centerY.equalTo(tabBar.snp.top)
+        }
+        middleButtonTouchTarget.addAction { [weak self] in
+            self?.middleButton.sendActions(for: .touchUpInside)
+        }
+        viewControllers?.forEach { reserveRaisedButtonSpace(in: $0) }
 
+        for destination in MainTabBarDestination.allCases where destination != .polkaswap {
+            accessibleTabs[destination] = TabBarAccessibilityElement(container: tabBar) { [weak self] in
+                self?.select(destination: destination)
+            }
+        }
+        tabBar.accessibilityElements = MainTabBarDestination.allCases.compactMap { destination -> Any? in
+            destination == .polkaswap ? middleButton : accessibleTabs[destination]
+        }
         updateMiddleButtonSelection()
+    }
+
+    private func reserveRaisedButtonSpace(in controller: UIViewController) {
+        guard let root = controller.navigationRootViewController() else { return }
+        // Include the selected artwork's 1.05 scale. Only the tab root needs
+        // this space; pushed screens that hide the tab bar keep their layout.
+        if root.additionalSafeAreaInsets.bottom < 30 {
+            root.additionalSafeAreaInsets.bottom = 30
+        }
     }
 
     func select(destination: MainTabBarDestination) {
@@ -132,6 +170,19 @@ final class MainTabBarViewController: UITabBarController {
 
     private func updateMiddleButtonSelection() {
         middleButton.isSelected = selectedIndex == MainTabBarDestination.polkaswap.rawValue
+        updateAccessibleTabs()
+    }
+
+    private func updateAccessibleTabs() {
+        let slotWidth = tabBar.bounds.width / CGFloat(MainTabBarDestination.allCases.count)
+        for (destination, element) in accessibleTabs {
+            element.accessibilityLabel = destination.title
+            element.accessibilityTraits = selectedIndex == destination.rawValue ? [.button, .selected] : .button
+            element.accessibilityFrameInContainerSpace = CGRect(
+                x: CGFloat(destination.rawValue) * slotWidth, y: 0,
+                width: slotWidth, height: max(44, tabBar.bounds.height - tabBar.safeAreaInsets.bottom)
+            )
+        }
     }
 }
 
@@ -168,6 +219,7 @@ extension MainTabBarViewController: MainTabBarViewProtocol {
         }
 
         newViewControllers[index] = newView
+        reserveRaisedButtonSpace(in: newView)
 
         setViewControllers(newViewControllers, animated: false)
     }
@@ -190,6 +242,7 @@ extension MainTabBarViewController: Localizable {
             viewControllers?[safe: destination.rawValue]?.tabBarItem.title = destination.title
             viewControllers?[safe: destination.rawValue]?.tabBarItem.accessibilityLabel = destination.title
         }
-        middleButton.accessibilityLabel = MainTabBarDestination.polkaswap.title
+        middleButton.accessibilityLabel = "Polkaswap"
+        updateAccessibleTabs()
     }
 }

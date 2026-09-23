@@ -1293,3 +1293,11 @@ To find out more, contact %@";
 "profile.account.score.title" = "Nomis multichain score";
 "scam.info.nomis.name" = "Nomis multi-chain score";
 "scam.info.nomis.subtype.text" = "Proceed with caution";
+
+/* Other holdings may not appear because balance checks use the app's asset list. */
+"portfolio.discovery.catalog_only" = "Alguns tokens podem não aparecer";
+
+/* Only shown when network balances need attention. */
+"portfolio.balance.update_failed" = "Falha ao atualizar os saldos";
+"portfolio.balance.outdated" = "Os saldos podem estar desatualizados";
+"portfolio.balance.not_loaded" = "Saldos não carregados";

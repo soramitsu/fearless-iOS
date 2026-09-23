@@ -1213,3 +1213,11 @@ ait olduğundan emin olun.";
 "your.validators.stop.nominating.title" = "Aday göstermeyi bırak";
 "your.validators.validator.total.stake" = "Toplam yatırılan miktar:%@";
 "сurrencies.stub.text" = "Para birimleri";
+
+/* Other holdings may not appear because balance checks use the app's asset list. */
+"portfolio.discovery.catalog_only" = "Bazı tokenler görüntülenmeyebilir";
+
+/* Only shown when network balances need attention. */
+"portfolio.balance.update_failed" = "Bakiyeler güncellenemedi";
+"portfolio.balance.outdated" = "Bakiyeler güncel olmayabilir";
+"portfolio.balance.not_loaded" = "Bakiyeler yüklenmedi";

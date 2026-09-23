@@ -66,26 +66,36 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             throw MetaAccountMapperError.invalidWalletRecord
         }
 
-        guard
-            let substrateAccountIdHex = entity.substrateAccountId,
-            let substratePublicKey = entity.substratePublicKey
-        else {
-            throw MetaAccountMapperError.unsupportedWalletRecord
-        }
-
-        guard
-            !substrateAccountIdHex.isEmpty,
-            let substrateCryptoType = CryptoType(
-                rawValue: UInt8(truncatingIfNeeded: entity.substrateCryptoType)
-            ),
-            Int16(substrateCryptoType.rawValue) == entity.substrateCryptoType
-        else {
-            throw MetaAccountMapperError.invalidWalletRecord
-        }
-
-        let expectedSubstratePublicKeyLength = substrateCryptoType == .ecdsa ? 33 : 32
-        guard substratePublicKey.count == expectedSubstratePublicKeyLength else {
-            throw MetaAccountMapperError.invalidWalletRecord
+        let substrateAccountId: Data?
+        let substratePublicKey: Data?
+        let substrateCryptoType: CryptoType
+        let legacyTonAccount: LegacyTonAccount?
+        if let accountIdHex = entity.substrateAccountId, let publicKey = entity.substratePublicKey {
+            guard !accountIdHex.isEmpty,
+                  let cryptoType = CryptoType(rawValue: UInt8(truncatingIfNeeded: entity.substrateCryptoType)),
+                  Int16(cryptoType.rawValue) == entity.substrateCryptoType,
+                  publicKey.count == (cryptoType == .ecdsa ? 33 : 32)
+            else { throw MetaAccountMapperError.invalidWalletRecord }
+            let accountId = try Data(hexStringSSF: accountIdHex)
+            guard accountId.count == 32 else { throw MetaAccountMapperError.invalidWalletRecord }
+            substrateAccountId = accountId
+            substratePublicKey = publicKey
+            substrateCryptoType = cryptoType
+            legacyTonAccount = nil
+        } else {
+            guard entity.substrateAccountId == nil, entity.substratePublicKey == nil,
+                  entity.entity.propertiesByName["tonAddress"] != nil,
+                  let version = entity.value(forKey: "tonContractVersion") as? String,
+                  version == "v4R2",
+                  let serializedAddress = entity.value(forKey: "tonAddress") as? Data,
+                  let publicKey = entity.value(forKey: "tonPublicKey") as? Data
+            else { throw MetaAccountMapperError.unsupportedWalletRecord }
+            legacyTonAccount = try LegacyTonAccount(
+                serializedAddress: serializedAddress, publicKey: publicKey, contractVersion: version
+            )
+            substrateAccountId = nil
+            substratePublicKey = nil
+            substrateCryptoType = .ed25519
         }
 
         let chainAccountEntities = entity.chainAccounts?.allObjects as? [CDChainAccount] ?? []
@@ -163,11 +173,6 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             )
         }
 
-        let substrateAccountId = try Data(hexStringSSF: substrateAccountIdHex)
-        guard substrateAccountId.count == 32 else {
-            throw MetaAccountMapperError.invalidWalletRecord
-        }
-
         let ethereumAddress = try entity.ethereumAddress.map {
             let address = try Data(hexStringSSF: $0)
             guard address.count == 20 else {
@@ -225,7 +230,8 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             networkManagmentFilter: entity.networkManagmentFilter,
             assetsVisibility: assetsVisibility,
             hasBackup: entity.hasBackup,
-            favouriteChainIds: favouriteChainIds
+            favouriteChainIds: favouriteChainIds,
+            legacyTonAccount: legacyTonAccount
         )
     }
 
@@ -243,8 +249,18 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
 
         entity.metaId = model.metaId
         entity.name = model.name
-        entity.substrateAccountId = model.substrateAccountId.toHex()
-        entity.substrateCryptoType = Int16(bitPattern: UInt16(model.substrateCryptoType))
+        entity.substrateAccountId = model.substrateAccountId?.toHex()
+        if model.substrateAccountId != nil {
+            entity.substrateCryptoType = Int16(bitPattern: UInt16(model.substrateCryptoType))
+        }
+        if let ton = model.legacyTonAccount {
+            guard entity.entity.propertiesByName["tonAddress"] != nil else {
+                throw MetaAccountMapperError.unsupportedWalletRecord
+            }
+            entity.setValue(ton.serializedAddress, forKey: "tonAddress")
+            entity.setValue(ton.publicKey, forKey: "tonPublicKey")
+            entity.setValue(ton.contractVersion, forKey: "tonContractVersion")
+        }
         entity.substratePublicKey = model.substratePublicKey
         entity.ethereumPublicKey = model.ethereumPublicKey
         entity.ethereumAddress = model.ethereumAddress?.toHex()

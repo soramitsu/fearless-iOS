@@ -6,7 +6,14 @@ import SSFModels
 
     extension TonSwift.Address {
         static func parse(accountId: Data, workchainId: Int32) throws -> TonSwift.Address {
-            TonSwift.Address(workchain: Int8(workchainId), hash: accountId)
+            if let stored = try? JSONDecoder().decode(TonSwift.Address.self, from: accountId),
+               stored.hash.count == 32 {
+                return stored
+            }
+            guard accountId.count == 32, let workchain = Int8(exactly: workchainId) else {
+                throw TonSendServiceError.invalidAccount
+            }
+            return TonSwift.Address(workchain: workchain, hash: accountId)
         }
 
         var accountId: Data { hash }

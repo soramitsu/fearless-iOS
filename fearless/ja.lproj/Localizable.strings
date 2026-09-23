@@ -1207,3 +1207,52 @@
 "profile.account.score.title" = "Nomis multichain score";
 "scam.info.nomis.name" = "Nomis multi-chain score";
 "scam.info.nomis.subtype.text" = "Proceed with caution";
+
+"tab.portfolio" = "ウォレット";
+
+"tab.defi" = "運用";
+
+"tab.polkaswap" = "交換";
+
+"tab.cross_chain" = "送金";
+
+"ux.switch_wallet" = "ウォレットを切り替え";
+
+"ux.choose_network" = "ネットワークを選択";
+
+"ux.search_assets" = "資産を検索";
+
+"ux.scan_qr" = "QRコードをスキャン";
+
+"ux.receive_network_instruction" = "このアドレスには %@ を %@ ネットワークでのみ送金してください。";
+
+"ux.retry" = "再試行";
+
+"ux.manage_wallets" = "ウォレットを管理";
+
+"ux.transfer_networks" = "ネットワーク間の送金 →";
+
+"ux.positions_loading" = "保有資産と報酬を確認しています。";
+
+"ux.positions_unavailable" = "ポジションを読み込めませんでした。再試行してください。";
+
+"ux.positions_stale" = "前回のポジションを表示しています。再試行して更新してください。";
+
+"ux.positions_empty" = "現在ポジションはありません";
+
+"ux.positions_explore" = "以下から運用方法を選択できます。";
+
+"ux.explore_earn" = "運用方法を探す";
+
+"ux.refresh_positions" = "ポジションを更新";
+"ux.back" = "戻る";
+"ux.collapsed" = "折りたたみ済み";
+"ux.expanded" = "展開済み";
+
+/* Other holdings may not appear because balance checks use the app's asset list. */
+"portfolio.discovery.catalog_only" = "一部のトークンが表示されない場合があります";
+
+/* Only shown when network balances need attention. */
+"portfolio.balance.update_failed" = "残高を更新できませんでした";
+"portfolio.balance.outdated" = "残高が古い可能性があります";
+"portfolio.balance.not_loaded" = "残高が読み込まれていません";

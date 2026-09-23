@@ -100,6 +100,18 @@ write_fixture() {
     'echo "No shared-features-spm checkout was available to patch"'
   chmod +x "$root/scripts/spm-shared-features-fixes.sh"
 
+  local mutation_source
+  for mutation_source in \
+    .github/workflows/codecov.yml \
+    scripts/dev-setup.sh \
+    scripts/ci/bootstrap.sh \
+    scripts/ci/run-pr.sh \
+    scripts/test-matrix.sh; do
+    write_file "$root/$mutation_source" \
+      'scripts/spm-shared-features-fixes.sh' \
+      'scripts/deps/prepare-native-crypto-checkout.sh'
+  done
+
   cp "$AUDIT_SCRIPT" "$root/scripts/deps/audit-shared-features-delta-report.sh"
   chmod +x "$root/scripts/deps/audit-shared-features-delta-report.sh"
 }
@@ -180,8 +192,71 @@ assert(report.exitCondition.includes('CI no longer runs checkout mutation script
 assert(report.removalReadiness.status === 'blocked', 'removalReadiness status must remain blocked while checkout mutation is still required');
 assert(report.removalReadiness.requiredAction.includes('carriedDeltas'), 'removalReadiness required action must reference carried deltas');
 assert(report.removalReadiness.verificationCommand.includes('audit-shared-features-delta-report.sh'), 'removalReadiness verification command must name the audit');
+assert(report.removalReadiness.verificationCommand.includes('--require-ready'), 'removalReadiness verification command must require ready state');
 assert(report.removalReadiness.blockers.length >= 3, 'removalReadiness blockers must be explicit');
 assert(report.removalReadiness.requiredAbsentMarkersBeforeResolved.some((item) => item.includes('scripts/spm-shared-features-fixes.sh')), 'removalReadiness must name the mutation marker that has to disappear');
+NODE
+
+require_ready_report="$tmp_dir/shared-features-require-ready-report.json"
+expect_failure \
+  "blocked removal readiness cannot authorize release" \
+  "remaining checkout-mutation call in .github/workflows/codecov.yml" \
+  "$fixture" \
+  --write-report "$require_ready_report" \
+  --require-ready
+[[ -f "$require_ready_report" ]] || fail "--require-ready failure must retain the diagnostic report"
+grep -q '"status": "blocked"' "$require_ready_report" ||
+  fail "--require-ready diagnostic report must preserve blocked removal readiness"
+grep -q '"mutatesResolvedCheckout": true' "$require_ready_report" ||
+  fail "--require-ready diagnostic report must preserve checkout mutation state"
+
+forged_ready_script="$tmp_dir/audit-shared-features-forged-ready.sh"
+cp "$AUDIT_SCRIPT" "$forged_ready_script"
+chmod +x "$forged_ready_script"
+perl -0pi -e 's/REMOVAL_READINESS_STATUS="blocked"/REMOVAL_READINESS_STATUS="ready"/; s/MUTATES_RESOLVED_CHECKOUT=true/MUTATES_RESOLVED_CHECKOUT=false/; s/REMOVAL_BLOCKERS=\(.*?\n\)/REMOVAL_BLOCKERS=()/s' "$forged_ready_script"
+
+forged_ready_blocked_report="$tmp_dir/shared-features-forged-ready-blocked-report.json"
+expect_script_failure \
+  "ready declaration with remaining mutation call is rejected" \
+  "remaining checkout-mutation call in .github/workflows/codecov.yml" \
+  "$forged_ready_script" \
+  "$fixture" \
+  --write-report "$forged_ready_blocked_report" \
+  --require-ready
+grep -q '"status": "blocked"' "$forged_ready_blocked_report" ||
+  fail "forged-ready diagnostic report must derive blocked status from source"
+grep -q '"mutatesResolvedCheckout": true' "$forged_ready_blocked_report" ||
+  fail "forged-ready diagnostic report must derive checkout mutation from source"
+
+ready_fixture="$tmp_dir/ready-repo"
+cp -R "$fixture" "$ready_fixture"
+for mutation_source in \
+  .github/workflows/codecov.yml \
+  scripts/dev-setup.sh \
+  scripts/ci/bootstrap.sh \
+  scripts/ci/run-pr.sh \
+  scripts/test-matrix.sh; do
+  write_file "$ready_fixture/$mutation_source" '# shared-features checkout mutation removed'
+done
+forged_ready_report="$tmp_dir/shared-features-forged-ready-report.json"
+"$forged_ready_script" \
+  "$ready_fixture" \
+  --write-report "$forged_ready_report" \
+  --require-ready >/dev/null
+
+node - "$forged_ready_report" <<'NODE'
+const fs = require('fs');
+const report = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+
+if (report.removalReadiness.status !== 'ready') {
+  throw new Error('ready declaration passes only after all mutation calls are removed: status');
+}
+if (report.mutatesResolvedCheckout !== false) {
+  throw new Error('ready declaration passes only after all mutation calls are removed: mutation state');
+}
+if (!Array.isArray(report.removalReadiness.blockers) || report.removalReadiness.blockers.length !== 0) {
+  throw new Error('ready declaration passes only after all mutation calls are removed: blockers');
+}
 NODE
 
 handoff_dir="$tmp_dir/shared-features-upstream-delta"

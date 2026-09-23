@@ -78,6 +78,26 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
         XCTAssertNil(page.context)
     }
 
+    func testMissingMalformedOrNegativeTairaCursorStartsAtZero() throws {
+        let contexts: [PaginationContext?] = [
+            nil,
+            [:],
+            [IrohaHistoryOperationFactory.tairaRawOffsetKey: "not-a-number"],
+            [IrohaHistoryOperationFactory.tairaRawOffsetKey: "-1"],
+            [IrohaHistoryOperationFactory.tairaRawOffsetKey: "9223372036854775808"]
+        ]
+        for context in contexts {
+            let client = FakeIrohaToriiClient(historyResponses: [
+                Self.historyResponse(items: [
+                    Self.historyItem(id: "first-transfer", direction: "incoming", amount: "1")
+                ])
+            ])
+            let page = try XCTUnwrap(execute(Self.tairaHistoryOperation(client: client, count: 1, context: context)))
+            XCTAssertEqual(client.accountHistoryInvocations.map(\.offset), [0])
+            XCTAssertEqual(page.transactions.map(\.transactionId), ["first-transfer"])
+        }
+    }
+
     func testTairaRawOffsetContextDoesNotDropUnconsumedHistoryItems() throws {
         let client = FakeIrohaToriiClient(historyResponses: [
             Self.historyResponse(
@@ -195,6 +215,29 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
         XCTAssertEqual(client.lastBaseURL, "https://nexus.example")
         XCTAssertEqual(result?.transactions.first?.amount.decimalValue, Decimal(string: "1.23"))
         XCTAssertEqual(result?.transactions.first?.type, TransactionType.outgoing.rawValue)
+    }
+
+    func testNexusPaginationUsesNonnegativeNumericPageWithZeroFallback() throws {
+        let cases: [(String?, Int64)] = [(nil, 0), ("invalid", 0), ("-1", 0), ("9223372036854775808", 0), ("3", 3)]
+        for (cursor, expectedPage) in cases {
+            let client = FakeIrohaToriiClient()
+            let context = cursor.map { [IrohaHistoryOperationFactory.paginationPageKey: $0] }
+            _ = try execute(
+                IrohaHistoryOperationFactory(client: client).fetchTransactionHistoryOperation(
+                    asset: Self.irohaAsset,
+                    chain: Self.irohaChain(chainId: UniversalWalletRegistry.nexus.chainId),
+                    address: Self.nexusAddress,
+                    filters: [],
+                    pagination: Pagination(count: 10, context: context)
+                )
+            )
+            let request = try XCTUnwrap(client.lastRequest)
+            XCTAssertEqual(request.id, "history-\(expectedPage)")
+            guard case let .object(arguments) = request.params?["arguments"] else {
+                return XCTFail("Missing history request arguments")
+            }
+            XCTAssertEqual(arguments["page"], .int(expectedPage))
+        }
     }
 
     func testNexusMcpIsErrorReturnsEmptyPage() throws {

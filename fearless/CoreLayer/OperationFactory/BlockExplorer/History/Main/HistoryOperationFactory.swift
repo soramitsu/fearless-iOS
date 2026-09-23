@@ -11,6 +11,10 @@ final class HistoryOperationFactoriesAssembly {
     ) -> HistoryOperationFactoryProtocol? {
         let historyUrl = chain.externalApi?.history?.url.absoluteString.lowercased() ?? ""
 
+        if chain.isTonCompatibilityChain {
+            return TonHistoryOperationFactory()
+        }
+
         if BitcoinHistoryOperationFactory.supports(chain: chain) {
             return BitcoinHistoryOperationFactory()
         }

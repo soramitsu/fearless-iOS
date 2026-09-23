@@ -95,14 +95,8 @@ if [[ -f "$WORKSPACE_DIR/fearless.xcworkspace/contents.xcworkspacedata" ]]; then
     -scheme fearless \
     -clonedSourcePackagesDirPath "$SP_DIR"
 
-  if [[ -x "scripts/deps/prepare-native-crypto-checkout.sh" ]]; then
-    echo "[run-pr] Preparing native crypto checkout"
-    SOURCE_PACKAGES_DIR="$SP_DIR" STRICT_REQUIRED_PATCHES=1 scripts/deps/prepare-native-crypto-checkout.sh "$WORKSPACE_DIR" "$WORKSPACE_DIR/fearless.xcworkspace" fearless
-  fi
-  if [[ -f "scripts/spm-shared-features-fixes.sh" ]]; then
-    echo "[run-pr] Applying required shared-features-spm compatibility fixes"
-    SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR"
-  fi
+  SOURCE_PACKAGES_DIR="$SP_DIR" python3 "$WORKSPACE_DIR/scripts/deps/verify-shared-features-source.py" "$WORKSPACE_DIR"
+
 else
   echo "[run-pr] ERROR: Workspace not found at $WORKSPACE_DIR/fearless.xcworkspace" >&2
   exit 1

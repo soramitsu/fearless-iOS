@@ -164,7 +164,8 @@ final class PolkaswapAdjustmentViewLayout: UIView {
 
     private func setupNavigationLayout(for container: UIView) {
         container.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
+            make.top.equalTo(safeAreaLayoutGuide.snp.top)
+            make.leading.trailing.equalToSuperview()
             make.height.equalTo(Constants.navigationBarHeight)
         }
 

@@ -2,7 +2,7 @@
 
 Status: **BLOCKED / fail closed**. This document and
 `config/ton-production-send-readiness.json` record the evidence that is still
-missing; they do not authorize production TON send. The Release policy remains
+missing for general universal-wallet TON send. The Release policy remains
 `TonProductionSendReleasePolicy(isEnabled: false)`, with no environment,
 remote-config, or runtime override.
 
@@ -43,8 +43,15 @@ bash ./scripts/audit-ton-production-send-readiness.sh
 ```
 
 The audit pins the blocked manifest digest, validates its exact schema, checks
-the Release runtime kill switch and exact authenticated TonAPI origin, and
+the general Release runtime kill switch, exact authenticated TonAPI origins, and the validated legacy-only path, and
 requires both PR and GitHub CI to run the adversarial self-test and audit. Any
 evidence claim or enablement change therefore requires a deliberate, reviewed
 update to the manifest, documentation, audit, tests, and runtime policy in the
 same release change.
+
+
+## Released native-wallet compatibility
+
+Build `4.2.0 (2026.9.6)` retains the user-authorized pre-4.2 native TON, Jetton and TonConnect functions. This is a separate typed legacy-account path; it does not enable `TonProductionSendReleasePolicy.production` or claim the missing funded-mainnet evidence above. The original V4R2 address must match the retained public key, and the original 64-byte native secret must match both its seed-derived public key and its stored suffix. Release send also binds that identity to the exact request sender/public key, requires the reviewed fee quote, and retains signed-message journaling and recovery.
+
+The only reviewed signed-operation origins are exactly `https://tonapi.io` and `https://testnet.tonapi.io`. Released TonConnect requests preserve their explicit mainnet/testnet network through quote, authorization, signing and journal recovery. No registry node or arbitrary HTTPS origin receives a credential or signed operation. The audit's adversarial fixtures reject an extra origin, missing testnet compatibility, an insecure or disguised testnet origin, unqualified account routing, mismatched contract/address/private key, and removed network binding. The immutable general-enablement manifest remains unchanged and blocked. Local compatibility evidence is recorded in `legacy-upgrade-audit-20260906.md` (526 app cases and 41 SDK cases); no live transfer is claimed.

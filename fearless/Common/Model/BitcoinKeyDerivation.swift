@@ -106,6 +106,7 @@ final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting 
     }
 
     func adoptStoredSecret(for wallet: MetaAccountModel) throws -> MetaAccountModel {
+        if wallet.substrateAccountId == nil, wallet.legacyTonAccount != nil { return wallet }
         try validateNoConflictingAccounts(in: wallet)
 
         if let rootEntropy = try fetchIfPresent(

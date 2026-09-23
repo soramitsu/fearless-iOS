@@ -4,6 +4,35 @@ import XCTest
 @testable import fearless
 
 final class FeatureToggleProviderTests: XCTestCase {
+    func testUnsignedAndMalformedSignedConfigurationCannotEnableNewMutations() throws {
+        defer { MultiChainFeaturePolicy.update(.defaultConfig) }
+        for token in [nil, "invalid", String(repeating: "a", count: 8193)] as [String?] {
+            MultiChainFeaturePolicy.update(FeatureToggleConfig(
+                pendulumCaseEnabled: true, nftEnabled: true,
+                polkaswapMutationsEnabled: true,
+                demeterMutationsEnabled: true, polkamarktMutationsEnabled: true,
+                crossChainMutationsEnabled: true, assetDiscoveryShadowMode: false,
+                signedMutationAuthorization: token
+            ))
+            let current = MultiChainFeaturePolicy.current
+            XCTAssertFalse(current.demeterMutationsEnabled)
+            XCTAssertFalse(current.polkamarktMutationsEnabled)
+            XCTAssertFalse(current.crossChainMutationsEnabled)
+            XCTAssertTrue(current.polkaswapMutationsEnabled)
+            XCTAssertEqual(current.pendulumCaseEnabled, true)
+            XCTAssertEqual(current.nftEnabled, true)
+            XCTAssertFalse(current.assetDiscoveryShadowMode)
+        }
+        for decoder in [JSONDecoder(), GithubJSONDecoder()] {
+            let decoded = try decoder.decode(FeatureToggleConfig.self, from: Data(
+                #"{"mutation_authorization":"bounded-wire-token"}"#.utf8
+            ))
+            XCTAssertEqual(decoded.signedMutationAuthorization, "bounded-wire-token")
+        }
+        XCTAssertThrowsError(try JSONDecoder().decode(FeatureToggleConfig.self, from: Data(
+            #"{"mutation_authorization":"one","mutationAuthorization":"another"}"#.utf8
+        )))
+    }
     func testNilNetworkConfigFallsBackAndFinishesFetchOperation() throws {
         let context = makeProvider(networkPayload: Data("null".utf8), suspendNetwork: true)
         let fetchOperation = context.provider.fetchConfigOperation()

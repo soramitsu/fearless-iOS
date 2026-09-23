@@ -1,6 +1,16 @@
 # SSF Native Crypto Upstream Delta
 
-This document records the exact native crypto package-state contract that still has to be carried locally for the pinned `shared-features-spm` revision:
+The September production candidate pins source revision
+`9a91c22b9baa60f7237637a032d4c29159b8e16b` from
+[shared-features-spm PR #82](https://github.com/soramitsu/shared-features-spm/pull/82).
+`config/shared-features-source.json` binds its commit and tree. Build paths verify
+every dependency file against that source, including ignored/untracked additions;
+the former patch entry points now perform the same read-only verification.
+The draft PR and passing source checks are not production approval. Independent
+review, protected-branch CI and final wallet/distribution acceptance remain required.
+
+The historical native crypto package-state contract below was previously carried
+locally for this base revision:
 
 - Revision:
   - `3ad0fe928333c9ac28972e3669ca733c6972f060`

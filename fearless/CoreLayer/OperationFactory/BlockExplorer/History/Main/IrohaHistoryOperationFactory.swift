@@ -86,7 +86,7 @@ final class IrohaHistoryOperationFactory {
     ) async throws -> AssetTransactionPageData {
         let limit = min(pagination.count, IrohaToriiRoutes.maxLimit)
         if network == UniversalWalletRegistry.taira {
-            let rawOffset = pagination.context?[Self.tairaRawOffsetKey]
+            let rawOffset: Int64 = (pagination.context?[Self.tairaRawOffsetKey])
                 .flatMap { Int64($0) }
                 .flatMap { $0 >= 0 ? $0 : nil } ?? 0
             return try await fetchTairaHistoryPage(
@@ -100,7 +100,7 @@ final class IrohaHistoryOperationFactory {
             )
         }
 
-        let page = pagination.context?[Self.paginationPageKey]
+        let page: Int = (pagination.context?[Self.paginationPageKey])
             .flatMap { Int($0) }
             .flatMap { $0 >= 0 ? $0 : nil } ?? 0
 

@@ -137,7 +137,14 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             FeatureUnavailableViewController(
                 title: MainTabBarDestination.portfolio.title,
                 message: "Portfolio data is unavailable while wallet services are starting.",
-                icon: MainTabBarDestination.portfolio.image
+                icon: MainTabBarDestination.portfolio.image,
+                actionTitle: NSLocalizedString("ux.retry", value: "Try again", comment: ""),
+                action: { controller in
+                    (controller.tabBarController as? MainTabBarViewController)?.didReplaceView(
+                        for: createPortfolioController(walletConnect: walletConnect, wallet: wallet),
+                        for: MainTabBarDestination.portfolio.rawValue
+                    )
+                }
             )
 
         return navigationController(
@@ -162,7 +169,21 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             root: FeatureUnavailableViewController(
                 title: MainTabBarDestination.polkaswap.title,
                 message: "Add a SORA account and connect to the SORA network to use Polkaswap.",
-                icon: R.image.polkaswapPinkButton()
+                icon: R.image.polkaswapPinkButton(),
+                actionTitle: NSLocalizedString("ux.choose_network", value: "Choose network", comment: ""),
+                action: { controller in
+                    guard let module = NetworkManagmentAssembly.configureModule(
+                        wallet: wallet, chains: nil, contextTag: nil, moduleOutput: nil
+                    ) else { return }
+                    controller.present(module.view.controller, animated: true)
+                },
+                secondaryActionTitle: NSLocalizedString("ux.manage_wallets", value: "Manage wallets", comment: ""),
+                secondaryAction: { controller in
+                    guard let module = WalletsManagmentAssembly.configureModule(
+                        shouldSaveSelected: true, moduleOutput: nil
+                    ) else { return }
+                    controller.present(module.view.controller, animated: true)
+                }
             ),
             destination: .polkaswap
         )
@@ -196,7 +217,13 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             FeatureUnavailableViewController(
                 title: MainTabBarDestination.settings.title,
                 message: "Settings are temporarily unavailable.",
-                icon: MainTabBarDestination.settings.image
+                icon: MainTabBarDestination.settings.image,
+                actionTitle: NSLocalizedString("ux.retry", value: "Try again", comment: ""),
+                action: { controller in
+                    (controller.tabBarController as? MainTabBarViewController)?.didReplaceView(
+                        for: createSettingsController(), for: MainTabBarDestination.settings.rawValue
+                    )
+                }
             )
 
         return navigationController(
@@ -215,7 +242,8 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     }
 
     static func createTabBarItem(for destination: MainTabBarDestination) -> UITabBarItem {
-        let icon = destination.image
+        // The raised middle button supplies Polkaswap's only icon.
+        let icon = destination == .polkaswap ? nil : destination.image
         let normalIcon = R.color.colorGray().flatMap { color in
             icon?.tinted(with: color)?.withRenderingMode(.alwaysOriginal)
         }

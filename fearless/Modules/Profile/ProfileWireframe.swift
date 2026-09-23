@@ -129,20 +129,13 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
     }
 
     func showTonConnectCapability(from view: ControllerBackedProtocol?, hasTonAccount: Bool) {
-        let message: String
-        if hasTonAccount {
-            message = NSLocalizedString(
-                "settings.tonconnect.unavailable",
-                value: "This wallet has a TON account. TonConnect sessions are not supported in this build yet; WalletConnect remains available separately.",
-                comment: ""
-            )
-        } else {
-            message = NSLocalizedString(
-                "settings.tonconnect.account_required",
-                value: "This wallet does not have a TON account. Add one in Wallets & Accounts. TonConnect sessions are not supported in this build yet.",
-                comment: ""
-            )
+        if hasTonAccount, let controller = view?.controller {
+            DispatchQueue.main.async {
+                LegacyTonConnectCoordinator.shared.presentSessions(from: controller)
+            }
+            return
         }
+        let message = "Select or restore your TON wallet in Wallets & Accounts to connect applications."
         let alert = UIAlertController(
             title: "TonConnect",
             message: message,

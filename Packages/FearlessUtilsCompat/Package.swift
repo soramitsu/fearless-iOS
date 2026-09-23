@@ -11,7 +11,7 @@ let package = Package(
     ],
     dependencies: [
         // Depend on the same shared-features-spm repo used by the app, pinned to the Ton-ready revision
-        .package(url: "https://github.com/soramitsu/shared-features-spm.git", revision: "3ad0fe928333c9ac28972e3669ca733c6972f060")
+        .package(url: "https://github.com/soramitsu/shared-features-spm.git", revision: "04c0d25190b748b3cc219c8d33630cb48f679d3e")
     ],
     targets: [
         .target(

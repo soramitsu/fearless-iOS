@@ -142,11 +142,11 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             ethSeed: ethSeed
         )
         let cryptoType = CryptoType(rawValue: wallet.substrateCryptoType)
-        let address42 = try? wallet.substratePublicKey.toAddress(using: ChainFormat.substrate(42))
+        let address42 = wallet.backupAddress
 
         let account = OpenBackupAccount(
             name: wallet.name,
-            address: address42 ?? wallet.substratePublicKey.toHex(),
+            address: wallet.backupAddress,
             cryptoType: cryptoType?.stringValue.uppercased(),
             substrateDerivationPath: substrateRestoreSeed?.derivationPath,
             ethDerivationPath: ethereumRestoreSeed?.derivationPath,
@@ -169,11 +169,11 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             ethJson: ethereumRestoreJson?.data
         )
         let cryptoType = CryptoType(rawValue: wallet.substrateCryptoType)
-        let address42 = try? wallet.substratePublicKey.toAddress(using: ChainFormat.substrate(42))
+        let address42 = wallet.backupAddress
 
         let account = OpenBackupAccount(
             name: wallet.name,
-            address: address42 ?? wallet.substratePublicKey.toHex(),
+            address: wallet.backupAddress,
             cryptoType: cryptoType?.stringValue.uppercased(),
             backupAccountType: [.json],
             json: json
@@ -186,10 +186,10 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         request: MetaAccountImportMnemonicRequest,
         password: String
     ) {
-        let address42 = try? wallet.substratePublicKey.toAddress(using: ChainFormat.substrate(42))
+        let address42 = wallet.backupAddress
         let account = OpenBackupAccount(
             name: request.username,
-            address: address42 ?? wallet.substratePublicKey.toHex(),
+            address: wallet.backupAddress,
             passphrase: request.mnemonic.toString(),
             cryptoType: request.cryptoType.stringValue.uppercased(),
             substrateDerivationPath: request.substrateDerivationPath,

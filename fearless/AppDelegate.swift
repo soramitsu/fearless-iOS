@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let rootWindow = FearlessWindow()
         window = rootWindow
 
-        URLHandlingService.shared.setup(children: [IrohaConnectURLHandler.shared])
+        URLHandlingService.shared.setup(children: [IrohaConnectURLHandler.shared, LegacyTonConnectURLHandler.shared])
 
         let presenter = RootPresenterFactory.createPresenter(with: rootWindow)
         presenter.loadOnLaunch()
@@ -27,7 +27,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         if let launchURL = launchOptions?[.url] as? URL {
             DispatchQueue.main.async {
-                _ = IrohaConnectURLHandler.shared.handle(url: launchURL)
+                _ = URLHandlingService.shared.handle(url: launchURL)
             }
         }
         return true

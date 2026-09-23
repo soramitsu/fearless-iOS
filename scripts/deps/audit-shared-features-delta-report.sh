@@ -1,17 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="${1:-$(pwd)}"
+ROOT="$(pwd)"
 REPORT_FILE=""
+REQUIRE_READY=false
 
 usage() {
   cat <<'USAGE'
-Usage: scripts/deps/audit-shared-features-delta-report.sh [ROOT] [--write-report <path>]
+Usage: scripts/deps/audit-shared-features-delta-report.sh [ROOT] [--write-report <path>] [--require-ready]
 
 Validates the repo-owned shared-features-spm compatibility delta and optionally
 writes a JSON report for CI/release review. This does not mutate SwiftPM
 checkouts; it records why the current checkout-mutation scripts still exist and
 what upstream/source changes are needed to remove them.
+
+--require-ready rejects a report that still mutates a resolved checkout, has
+removal blockers, or does not declare removalReadiness.status=ready.
 USAGE
 }
 
@@ -21,6 +25,10 @@ while (($#)); do
       [[ $# -ge 2 ]] || { echo "[shared-features-delta][error] --write-report requires a path" >&2; exit 2; }
       REPORT_FILE="$2"
       shift 2
+      ;;
+    --require-ready)
+      REQUIRE_READY=true
+      shift
       ;;
     -h|--help)
       usage
@@ -37,6 +45,15 @@ while (($#)); do
       ;;
   esac
 done
+
+# A source contract switches this audit to exact source and read-only build
+# verification. Historical fixtures without it retain the legacy blocked report.
+if [[ -f "$ROOT/config/shared-features-source.json" ]]; then
+  args=("$ROOT")
+  [[ -z "$REPORT_FILE" ]] || args+=(--write-report "$REPORT_FILE")
+  [[ "$REQUIRE_READY" != true ]] || args+=(--require-ready)
+  exec python3 "$ROOT/scripts/deps/audit-pinned-shared-features.py" "${args[@]}"
+fi
 
 failures=()
 
@@ -184,8 +201,9 @@ validate_delta_metadata_contract() {
 }
 
 REMOVAL_READINESS_STATUS="blocked"
+MUTATES_RESOLVED_CHECKOUT=true
 REMOVAL_REQUIRED_ACTION="Upstream or vendor every carriedDeltas entry into the pinned shared-features-spm source, then remove post-resolution checkout mutation from CI and release scripts."
-REMOVAL_VERIFICATION_COMMAND='bash scripts/deps/test-shared-features-delta-report.sh && bash scripts/deps/audit-shared-features-delta-report.sh "$PWD" --write-report build/reports/shared-features-delta-report.json'
+REMOVAL_VERIFICATION_COMMAND='bash scripts/deps/test-shared-features-delta-report.sh && bash scripts/deps/audit-shared-features-delta-report.sh "$PWD" --write-report build/reports/shared-features-delta-report.json --require-ready'
 REMOVAL_BLOCKERS=(
   "Pinned shared-features-spm source does not yet contain every carriedDeltas entry."
   "CI still runs STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh after package resolution."
@@ -197,6 +215,45 @@ REMOVAL_REQUIRED_ABSENT_MARKERS=(
   "scripts/deps/apply-native-crypto-package-contract.sh against a resolved checkout"
   "scripts/deps/apply-native-crypto-modulemap-contract.sh against a resolved checkout"
 )
+REMOVAL_MUTATION_CALL_SITES=(
+  '.github/workflows/codecov.yml|scripts/spm-shared-features-fixes.sh'
+  '.github/workflows/codecov.yml|scripts/deps/prepare-native-crypto-checkout.sh'
+  'scripts/dev-setup.sh|scripts/spm-shared-features-fixes.sh'
+  'scripts/dev-setup.sh|scripts/deps/prepare-native-crypto-checkout.sh'
+  'scripts/ci/bootstrap.sh|scripts/spm-shared-features-fixes.sh'
+  'scripts/ci/bootstrap.sh|scripts/deps/prepare-native-crypto-checkout.sh'
+  'scripts/ci/run-pr.sh|scripts/spm-shared-features-fixes.sh'
+  'scripts/ci/run-pr.sh|scripts/deps/prepare-native-crypto-checkout.sh'
+  'scripts/test-matrix.sh|scripts/spm-shared-features-fixes.sh'
+  'scripts/test-matrix.sh|scripts/deps/prepare-native-crypto-checkout.sh'
+)
+
+SOURCE_MUTATION_BLOCKERS=()
+for contract in "${REMOVAL_MUTATION_CALL_SITES[@]}"; do
+  IFS='|' read -r relative_file marker <<< "$contract"
+  source_file="$ROOT/$relative_file"
+  if [[ ! -f "$source_file" ]]; then
+    SOURCE_MUTATION_BLOCKERS+=("ready-state source is missing: ${relative_file}")
+  elif grep -Fq "$marker" "$source_file"; then
+    SOURCE_MUTATION_BLOCKERS+=("remaining checkout-mutation call in ${relative_file}: ${marker}")
+  fi
+done
+
+EFFECTIVE_REMOVAL_READINESS_STATUS="$REMOVAL_READINESS_STATUS"
+EFFECTIVE_MUTATES_RESOLVED_CHECKOUT="$MUTATES_RESOLVED_CHECKOUT"
+if ((${#SOURCE_MUTATION_BLOCKERS[@]} > 0)); then
+  EFFECTIVE_REMOVAL_READINESS_STATUS="blocked"
+  EFFECTIVE_MUTATES_RESOLVED_CHECKOUT=true
+fi
+ALL_REMOVAL_BLOCKERS=()
+# macOS Bash 3.2 treats an empty array expansion as unset under nounset.
+# A genuinely ready dependency tree has no blockers and must remain auditable.
+if ((${#REMOVAL_BLOCKERS[@]} > 0)); then
+  ALL_REMOVAL_BLOCKERS+=("${REMOVAL_BLOCKERS[@]}")
+fi
+if ((${#SOURCE_MUTATION_BLOCKERS[@]} > 0)); then
+  ALL_REMOVAL_BLOCKERS+=("${SOURCE_MUTATION_BLOCKERS[@]}")
+fi
 
 if validate_delta_metadata_contract; then
   for index in "${!DELTA_IDS[@]}"; do
@@ -235,17 +292,17 @@ write_report() {
     echo "{"
     echo "  \"schemaVersion\": 1,"
     echo "  \"sharedFeaturesRevision\": \"$(printf '%s' "$REVISION" | json_escape)\","
-    echo "  \"mutatesResolvedCheckout\": true,"
+    echo "  \"mutatesResolvedCheckout\": ${EFFECTIVE_MUTATES_RESOLVED_CHECKOUT},"
     echo "  \"exitCondition\": \"Pinned shared-features-spm source contains all carried deltas and CI no longer runs checkout mutation scripts after package resolution.\","
     echo "  \"removalReadiness\": {"
-    echo "    \"status\": \"$(printf '%s' "$REMOVAL_READINESS_STATUS" | json_escape)\","
+    echo "    \"status\": \"$(printf '%s' "$EFFECTIVE_REMOVAL_READINESS_STATUS" | json_escape)\","
     echo "    \"requiredAction\": \"$(printf '%s' "$REMOVAL_REQUIRED_ACTION" | json_escape)\","
     echo "    \"verificationCommand\": \"$(printf '%s' "$REMOVAL_VERIFICATION_COMMAND" | json_escape)\","
     echo "    \"blockers\": ["
-    for index in "${!REMOVAL_BLOCKERS[@]}"; do
+    for index in "${!ALL_REMOVAL_BLOCKERS[@]}"; do
       local comma=","
-      [[ "$index" == "$((${#REMOVAL_BLOCKERS[@]} - 1))" ]] && comma=""
-      echo "      \"$(printf '%s' "${REMOVAL_BLOCKERS[$index]}" | json_escape)\"${comma}"
+      [[ "$index" == "$((${#ALL_REMOVAL_BLOCKERS[@]} - 1))" ]] && comma=""
+      echo "      \"$(printf '%s' "${ALL_REMOVAL_BLOCKERS[$index]}" | json_escape)\"${comma}"
     done
     echo "    ],"
     echo "    \"requiredAbsentMarkersBeforeResolved\": ["
@@ -298,7 +355,32 @@ if [[ -n "$REPORT_FILE" ]]; then
   write_report "$REPORT_FILE"
 fi
 
-echo "[shared-features-delta] Audit passed: revision=${REVISION}, carriedDeltas=${#DELTA_IDS[@]}"
+if [[ "$REQUIRE_READY" == true ]]; then
+  readiness_failures=()
+  if [[ "$EFFECTIVE_REMOVAL_READINESS_STATUS" != "ready" ]]; then
+    readiness_failures+=("removalReadiness.status must be ready, got ${EFFECTIVE_REMOVAL_READINESS_STATUS}")
+  fi
+  if [[ "$EFFECTIVE_MUTATES_RESOLVED_CHECKOUT" != "false" ]]; then
+    readiness_failures+=("mutatesResolvedCheckout must be false, got ${EFFECTIVE_MUTATES_RESOLVED_CHECKOUT}")
+  fi
+  if ((${#ALL_REMOVAL_BLOCKERS[@]} > 0)); then
+    readiness_failures+=("removalReadiness.blockers must be empty, got ${#ALL_REMOVAL_BLOCKERS[@]}")
+  fi
+  if ((${#SOURCE_MUTATION_BLOCKERS[@]} > 0)); then
+    for failure in "${SOURCE_MUTATION_BLOCKERS[@]}"; do
+      readiness_failures+=("$failure")
+    done
+  fi
+  if ((${#readiness_failures[@]} > 0)); then
+    echo "[shared-features-delta][error] --require-ready rejected unresolved shared-features checkout mutation:" >&2
+    for failure in "${readiness_failures[@]}"; do
+      echo "  - $failure" >&2
+    done
+    exit 1
+  fi
+fi
+
+echo "[shared-features-delta] Audit complete: revision=${REVISION}, carriedDeltas=${#DELTA_IDS[@]}, removalReadiness=${EFFECTIVE_REMOVAL_READINESS_STATUS}"
 if [[ -n "$REPORT_FILE" ]]; then
   echo "[shared-features-delta] Wrote report: $REPORT_FILE"
 fi

@@ -3,6 +3,7 @@ import SoraFoundation
 import Rswift
 import SSFUtils
 import SSFModels
+import IrohaCrypto
 
 // swiftlint:disable function_body_length file_length
 enum AccountImportContext: String {
@@ -238,9 +239,10 @@ private extension AccountImportPresenter {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         switch selectedSourceType {
-        case .mnemonic:
-            let placeholder = R.string.localizable
-                .importMnemonic(preferredLanguages: locale.rLanguages)
+        case .mnemonic, .legacyTonMnemonic:
+            let placeholder = selectedSourceType == .legacyTonMnemonic
+                ? NSLocalizedString("import.legacy_ton_phrase_placeholder", value: "Enter your native TON recovery phrase", comment: "")
+                : R.string.localizable.importMnemonic(preferredLanguages: locale.rLanguages)
             let normalizer = MnemonicTextNormalizer()
             let inputHandler = InputHandler(
                 value: value,
@@ -307,7 +309,7 @@ private extension AccountImportPresenter {
         }
 
         switch selectedSourceType {
-        case .mnemonic, .seed:
+        case .mnemonic, .legacyTonMnemonic, .seed:
             passwordViewModel = nil
         case .keystore:
             let viewModel = InputViewModel(inputHandler: InputHandler(required: true))
@@ -325,6 +327,11 @@ private extension AccountImportPresenter {
             return
         }
         switch selectedSourceType {
+        case .legacyTonMnemonic:
+            selectedCryptoType = .ed25519
+            substrateDerivationPathViewModel = nil
+            ethereumDerivationPathViewModel = nil
+            view?.show(chainType: .universal)
         case .mnemonic:
             applyCryptoTypeViewModel(cryptoType)
 
@@ -573,9 +580,12 @@ private extension AccountImportPresenter {
 
     func importMetaAccount(data: AccountImportRequestData, step: AccountCreationStep) {
         switch (data.selectedSourceType, step) {
-        case (.mnemonic, _):
+        case (.mnemonic, _), (.legacyTonMnemonic, _):
             let mnemonicString = data.source
-            guard let mnemonic = interactor.createMnemonicFromString(mnemonicString) else {
+            let parsed: IRMnemonicProtocol? = data.selectedSourceType == .legacyTonMnemonic
+                ? (try? LegacyTonMnemonic.validatedForImport(mnemonicString))
+                : interactor.createMnemonicFromString(mnemonicString)
+            guard let mnemonic = parsed else {
                 didReceiveAccountImport(error: AccountCreateError.invalidMnemonicFormat)
                 return
             }
@@ -678,6 +688,9 @@ private extension AccountImportPresenter {
     func importUniqueChain(data: UniqueChainImportRequestData) {
         var source: UniqueChainImportRequestSource
         switch data.selectedSourceType {
+        case .legacyTonMnemonic:
+            didReceiveAccountImport(error: AccountCreateError.invalidMnemonicFormat)
+            return
         case .mnemonic:
             guard let mnemonic = interactor.createMnemonicFromString(data.source) else {
                 didReceiveAccountImport(error: AccountCreateError.invalidMnemonicFormat)
@@ -717,6 +730,9 @@ private extension AccountImportPresenter {
         }
 
         switch selectedSourceType {
+        case .legacyTonMnemonic:
+            return (try? LegacyTonMnemonic.validatedForImport(value)) == nil
+                ? AccountCreateError.invalidMnemonicFormat : nil
         case .mnemonic:
             return validateMnemonic(value: value)
         case .seed:
@@ -1011,8 +1027,15 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
                 availableCryptoTypes: [dedicatedUniversalCryptoType],
                 defaultCryptoType: dedicatedUniversalCryptoType
             )
-        } else {
+        } else if case .wallet(step: .substrate) = flow {
             effectiveMetadata = metadata
+        } else {
+            effectiveMetadata = MetaAccountImportMetadata(
+                availableSources: metadata.availableSources.filter { $0 != .legacyTonMnemonic },
+                defaultSource: metadata.defaultSource == .legacyTonMnemonic ? .mnemonic : metadata.defaultSource,
+                availableCryptoTypes: metadata.availableCryptoTypes,
+                defaultCryptoType: metadata.defaultCryptoType
+            )
         }
         self.metadata = effectiveMetadata
 

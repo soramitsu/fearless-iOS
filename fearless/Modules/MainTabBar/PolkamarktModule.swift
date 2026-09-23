@@ -1017,6 +1017,15 @@ enum PolkamarktMutation {
     case claimTrader(marketId: String)
     case claimCreator(marketId: String)
 
+    var authorizationFields: [String] {
+        switch self {
+        case let .buy(id, outcome, amount, minimum): return ["buy", id, outcome.rawValue, amount, minimum]
+        case let .sell(id, outcome, amount, minimum): return ["sell", id, outcome.rawValue, amount, minimum]
+        case let .claimTrader(id): return ["claimTrader", id]
+        case let .claimCreator(id): return ["claimCreator", id]
+        }
+    }
+
     var requiredCollateral: BigUInt? {
         guard case let .buy(_, _, collateralIn, _) = self else { return nil }
         return BigUInt(collateralIn, radix: 10)
@@ -1262,9 +1271,9 @@ protocol PolkamarktMutationExtrinsicExecuting: AnyObject {
 
 final class PolkamarktMutationExtrinsicExecutor: PolkamarktMutationExtrinsicExecuting {
     private let service: ExtrinsicServiceProtocol
-    private let signer: SigningWrapperProtocol
+    private let signer: SigningWrapperProtocol?
 
-    init(service: ExtrinsicServiceProtocol, signer: SigningWrapperProtocol) {
+    init(service: ExtrinsicServiceProtocol, signer: SigningWrapperProtocol? = nil) {
         self.service = service
         self.signer = signer
     }
@@ -1276,7 +1285,8 @@ final class PolkamarktMutationExtrinsicExecutor: PolkamarktMutationExtrinsicExec
     }
 
     func submit(_ builder: @escaping ExtrinsicBuilderClosure) async throws -> String {
-        try await withCheckedThrowingContinuation { continuation in
+        guard let signer, signer.mutationAuthorization != nil else { throw MutationAuthorizationError.denied }
+        return try await withCheckedThrowingContinuation { continuation in
             service.submit(builder, signer: signer, runningIn: .main) { continuation.resume(with: $0) }
         }
     }
@@ -1360,9 +1370,24 @@ final class PolkamarktMutationSubmissionAuthorizer: PolkamarktMutationSubmission
         // balance work so caller-built mutations cannot bypass the final state.
         try await validateMutation(mutation, context: context)
         try validateCurrentContext(context)
+        let intent = try MutationIntentDigest.make([
+            MutationCapability.polkamarkt.rawValue, context.wallet.metaId, context.chain.chainId,
+            context.account.accountId.toHex(), context.account.publicKey.toHex(),
+            String(context.account.cryptoType.rawValue), String(context.runtimeSpecVersion),
+            PolkamarktConstants.collateralAssetId, PolkamarktConstants.feeAssetId, requiredFee.description
+        ] + mutation.authorizationFields)
+        let authorization = try MultiChainFeaturePolicy.authorization(for: .polkamarkt, intentSha256: intent) {
+            try self.validateCurrentContext(context, checkPolicy: false)
+        }
+        let signer = SigningWrapper(
+            keystore: keystore,
+            metaId: context.wallet.metaId,
+            accountResponse: context.account,
+            mutationAuthorization: authorization
+        )
         return PolkamarktAuthorizedSubmission(
             builder: builder,
-            executor: context.executor,
+            executor: PolkamarktMutationExtrinsicExecutor(service: context.service, signer: signer),
             finalGuard: { [weak self] in
                 guard let self else { throw PolkamarktSubmissionError.runtimeUnavailable }
                 try self.validateCurrentContext(context)
@@ -1381,6 +1406,7 @@ final class PolkamarktMutationSubmissionAuthorizer: PolkamarktMutationSubmission
         let rpc: PolkamarktRPCClient
         let catalog: PolkamarktRuntimeCatalogProviding
         let capabilities: PolkamarktRuntimeCapabilities
+        let service: ExtrinsicServiceProtocol
         let executor: PolkamarktMutationExtrinsicExecuting
     }
 
@@ -1410,11 +1436,6 @@ final class PolkamarktMutationSubmissionAuthorizer: PolkamarktMutationSubmission
             chain: chain,
             rpcClient: rpc
         )
-        let signer = SigningWrapper(
-            keystore: keystore,
-            metaId: wallet.metaId,
-            accountResponse: account
-        )
         let extrinsic = ExtrinsicService(
             accountId: account.accountId,
             chainFormat: chain.chainFormat,
@@ -1434,7 +1455,8 @@ final class PolkamarktMutationSubmissionAuthorizer: PolkamarktMutationSubmission
             rpc: rpc,
             catalog: catalog,
             capabilities: capabilities,
-            executor: PolkamarktMutationExtrinsicExecutor(service: extrinsic, signer: signer)
+            service: extrinsic,
+            executor: PolkamarktMutationExtrinsicExecutor(service: extrinsic)
         )
     }
 
@@ -1547,8 +1569,8 @@ final class PolkamarktMutationSubmissionAuthorizer: PolkamarktMutationSubmission
         }
     }
 
-    private func validatePolicies() throws {
-        guard MultiChainFeaturePolicy.current.polkamarktMutationsEnabled else {
+    private func validatePolicies(checkMutationPolicy: Bool = true) throws {
+        if checkMutationPolicy, !MultiChainFeaturePolicy.current.polkamarktMutationsEnabled {
             throw PolkamarktServiceError.actionsPaused
         }
         guard PolkaswapDisclaimerPolicy.isAccepted(in: settings) else {
@@ -1565,17 +1587,17 @@ final class PolkamarktMutationSubmissionAuthorizer: PolkamarktMutationSubmission
         }
     }
 
-    private func validateCurrentContext(_ context: Context) throws {
-        try validatePolicyAndWallet()
+    private func validateCurrentContext(_ context: Context, checkPolicy: Bool = true) throws {
+        try validatePolicies(checkMutationPolicy: checkPolicy)
         guard let wallet = selectedWallet(),
               wallet.metaId == context.wallet.metaId,
-              let chain = chainRegistry.getChain(for: chainId),
+              let chain = chainRegistry.getChainForMutationAuthorization(for: chainId),
               chain == context.chain,
               !chain.disabled,
               !chain.isTestnet,
               let runtime = chainRegistry.getRuntimeProvider(for: chainId),
               ObjectIdentifier(runtime) == ObjectIdentifier(context.runtime),
-              runtime.snapshot?.specVersion == context.runtimeSpecVersion,
+              (runtime as? RuntimeProvider)?.mutationAuthorizationSpecVersion == context.runtimeSpecVersion,
               let connection = chainRegistry.getConnection(for: chainId),
               ObjectIdentifier(connection) == ObjectIdentifier(context.connection) else {
             throw PolkamarktSubmissionError.runtimeUnavailable

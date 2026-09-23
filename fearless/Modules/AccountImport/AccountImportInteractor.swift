@@ -37,8 +37,10 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
         }
 
         saveOperation.completionBlock = { [weak self] in
+            let result = saveOperation.result
+            saveOperation.completionBlock = nil
             DispatchQueue.main.async {
-                switch saveOperation.result {
+                switch result {
                 case .success:
                     do {
                         let accountItem = try importOperation

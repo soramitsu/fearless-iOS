@@ -45,7 +45,8 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
 
         let chainAccountInfos = try await getChainAccountInfos(
             address: address,
-            currency: wallet.selectedCurrency
+            currency: wallet.selectedCurrency,
+            chain: chain
         )
         let normalBalance = chainAccountInfos.normal
         let jettonBalances = chainAccountInfos.jettons
@@ -82,16 +83,21 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         let accountInfo: AccountInfo?
         switch chainAsset.chainAssetType.tonAssetType {
         case .normal:
-            accountInfo = try await getAccountInfo(address: address, currency: wallet.selectedCurrency)
+            accountInfo = try await getAccountInfo(address: address, currency: wallet.selectedCurrency, chain: chainAsset.chain)
         case .jetton:
             let jettons = try await getAccountJettonsBalances(
                 address: address,
-                currency: wallet.selectedCurrency
+                currency: wallet.selectedCurrency,
+                chain: chainAsset.chain
             )
             guard let jetton = jettons.first(where: { jetton in
-                let masterAddress = jetton.item.jettonInfo.address.toRaw()
-                let walletAddress = jetton.item.walletAddress.toRaw()
-                return masterAddress == chainAsset.asset.id || walletAddress == chainAsset.asset.id
+                let preferred = Self.preferredKnownJetton(
+                    known: chainAsset.chain.chainAssets + [chainAsset],
+                    master: jetton.item.jettonInfo.address,
+                    wallet: jetton.item.walletAddress
+                )
+                if let preferred { return preferred.assetKey == chainAsset.assetKey }
+                return (try? TonSwift.Address.parse(chainAsset.asset.id)) == jetton.item.jettonInfo.address
             }) else {
                 // A successful all-Jettons response is authoritative. An
                 // omitted known master has a zero balance; transport and decode
@@ -128,7 +134,8 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         let address = try accountId.asTonAddress().toFriendly().toString()
         let chainAccountInfos = try await getChainAccountInfos(
             address: address,
-            currency: wallet.selectedCurrency
+            currency: wallet.selectedCurrency,
+            chain: normal.chain
         )
         let normalBalance = chainAccountInfos.normal
         let jettonBalances = chainAccountInfos.jettons
@@ -136,7 +143,8 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
 
         let fetchedJettonsAccountInfos = createJettonsAccountInfos(
             jettonBalances: jettonBalances,
-            chain: normal.chain
+            chain: normal.chain,
+            known: chainAssets.remainder
         ).filter { requestedAssetKeys.contains($0.0.assetKey) }
         let jettonsAccountInfos = Self.reconcileKnownJettons(
             known: chainAssets.remainder,
@@ -156,9 +164,10 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
     }
 
     private func getTonRates(
-        currency: Currency
+        currency: Currency,
+        chain: ChainModel
     ) async throws -> [String: Components.Schemas.TokenRates] {
-        let tonApiClientFactory = try chainRegistry.getTonApiClientFactory()
+        let tonApiClientFactory = try clientFactory(for: chain)
         let tonAPIClient = tonApiClientFactory.tonAPIClient()
 
         let response = try await tonAPIClient.getRates(
@@ -171,7 +180,8 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
 
     private func createJettonsAccountInfos(
         jettonBalances: [TonJettonBalance],
-        chain: ChainModel
+        chain: ChainModel,
+        known: [ChainAsset] = []
     ) -> [(ChainAsset, AccountInfo)] {
         let jettonsAccountInfo: [(ChainAsset, AccountInfo)] = jettonBalances.map { jetton in
             let asset = AssetModel(
@@ -195,9 +205,11 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
                 coingeckoPriceId: jetton.priceData.first?.coingeckoPriceId
             )
             let discoveredChainAsset = ChainAsset(chain: chain, asset: asset)
-            let existingChainAsset = chain.chainAssets.first { existing in
-                existing.assetKey == discoveredChainAsset.assetKey
-            }
+            let existingChainAsset = Self.preferredKnownJetton(
+                known: chain.chainAssets + known,
+                master: jetton.item.jettonInfo.address,
+                wallet: jetton.item.walletAddress
+            )
             let chainAsset = existingChainAsset ?? discoveredChainAsset
 
             if existingChainAsset == nil ||
@@ -214,10 +226,11 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
 
     private func getChainAccountInfos(
         address: String,
-        currency: Currency
+        currency: Currency,
+        chain: ChainModel
     ) async throws -> (normal: AccountInfo, jettons: [TonJettonBalance]) {
-        async let normalBalanceTask = getAccountInfo(address: address, currency: currency)
-        async let jettonBalancesTask = getAccountJettonsBalances(address: address, currency: currency)
+        async let normalBalanceTask = getAccountInfo(address: address, currency: currency, chain: chain)
+        async let jettonBalancesTask = getAccountJettonsBalances(address: address, currency: currency, chain: chain)
         let normalBalance = try await normalBalanceTask
         let jettonBalances = try await jettonBalancesTask
         return (normalBalance, jettonBalances)
@@ -225,13 +238,14 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
 
     private func getAccountInfo(
         address: String,
-        currency: Currency
+        currency: Currency,
+        chain: ChainModel
     ) async throws -> AccountInfo {
-        let tonApiClientFactory = try chainRegistry.getTonApiClientFactory()
+        let tonApiClientFactory = try clientFactory(for: chain)
         let tonAPIClient = tonApiClientFactory.tonAPIClient()
 
         async let response = try tonAPIClient.getAccount(.init(path: .init(account_id: address)))
-        async let rates = try getTonRates(currency: currency)
+        async let rates = try getTonRates(currency: currency, chain: chain)
 
         let account = try TonAccount(account: try await response.ok.body.json)
         let stringBalance = String(account.balance)
@@ -243,7 +257,7 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
 
         if let tonRates = ratesValue["TON"] {
             let tonPriceData = mapJettonRates(rates: tonRates, currency: currency)
-            await jettonInjector.inject(tonPriceData: tonPriceData)
+            await jettonInjector.inject(tonPriceData: tonPriceData, chainId: chain.chainId)
         }
 
         let accountInfo = AccountInfo(ethBalance: balance)
@@ -252,9 +266,10 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
 
     private func getAccountJettonsBalances(
         address: String,
-        currency: Currency
+        currency: Currency,
+        chain: ChainModel
     ) async throws -> [TonJettonBalance] {
-        let tonApiClientFactory = try chainRegistry.getTonApiClientFactory()
+        let tonApiClientFactory = try clientFactory(for: chain)
         let tonAPIClient = tonApiClientFactory.tonAPIClient()
 
         let response = try await tonAPIClient.getAccountJettonsBalances(
@@ -279,11 +294,35 @@ final actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
             )
         }
 
+        guard Set(jettons.map { $0.item.jettonInfo.address.toRaw() }).count == jettons.count,
+              Set(jettons.map { $0.item.walletAddress.toRaw() }).count == jettons.count else {
+            throw TonRemoteBalanceFetchingError.balanceError
+        }
         Task {
-            await jettonInjector.inject(jettonItems: jettons)
+            await jettonInjector.inject(jettonItems: jettons, chainId: chain.chainId)
         }
 
         return jettons
+    }
+
+    private func clientFactory(for chain: ChainModel) throws -> TonAPIClientFactory {
+        let baseURL = try ChainRegistry.tonAPIBaseURL(for: chain)
+        if let configured = try? chainRegistry.getTonApiClientFactory(), configured.serverURL == baseURL {
+            return configured
+        }
+        return TonAPIClientFactory(tonAPIURL: baseURL, token: "")
+    }
+
+    /// The released catalog used the owner's Jetton-wallet address. Keep that
+    /// existing row funded when both it and a newer master-ID row are present.
+    /// Match only addresses supplied together by this owner's response; never
+    /// infer aliases from symbols or publish owner-specific IDs as new assets.
+    static func preferredKnownJetton(
+        known: [ChainAsset], master: TonSwift.Address, wallet: TonSwift.Address
+    ) -> ChainAsset? {
+        let candidates = known.filter { !$0.asset.isUtility }.sorted { $0.asset.id < $1.asset.id }
+        return candidates.first { (try? TonSwift.Address.parse($0.asset.id)) == wallet } ??
+            candidates.first { (try? TonSwift.Address.parse($0.asset.id)) == master }
     }
 
     /// Reconciles an authoritative successful response with the catalog known

@@ -26,6 +26,10 @@ enum KeystoreTagV2: String, CaseIterable {
         createTagForMetaId(metaId, accountId: accountId, suffix: "-ethereumSecretKey")
     }
 
+    static func tonSecretKeyTagForMetaId(_ metaId: String, accountId: AccountId? = nil) -> String {
+        createTagForMetaId(metaId, accountId: accountId, suffix: "-tonSecretKey")
+    }
+
     static func entropyTagForMetaId(
         _ metaId: String,
         accountId: AccountId? = nil

@@ -1215,3 +1215,52 @@ Euro cash";
 "your.validators.stop.nominating.title" = "Stop nominating";
 "your.validators.validator.total.stake" = "Всего в стейкинге: %@";
 "сurrencies.stub.text" = "Токены";
+
+"tab.portfolio" = "Кошелёк";
+
+"tab.defi" = "Доход";
+
+"tab.polkaswap" = "Обмен";
+
+"tab.cross_chain" = "Перевод";
+
+"ux.switch_wallet" = "Выбрать кошелёк";
+
+"ux.choose_network" = "Выбрать сеть";
+
+"ux.search_assets" = "Поиск активов";
+
+"ux.scan_qr" = "Сканировать QR-код";
+
+"ux.receive_network_instruction" = "Отправляйте на этот адрес только %@ в сети %@.";
+
+"ux.retry" = "Повторить";
+
+"ux.manage_wallets" = "Управление кошельками";
+
+"ux.transfer_networks" = "Перевод между сетями →";
+
+"ux.positions_loading" = "Проверяем ваши позиции и награды.";
+
+"ux.positions_unavailable" = "Не удалось загрузить позиции. Повторите попытку.";
+
+"ux.positions_stale" = "Показаны последние загруженные позиции. Повторите попытку для обновления.";
+
+"ux.positions_empty" = "У вас нет активных позиций";
+
+"ux.positions_explore" = "Выберите способ получения дохода ниже.";
+
+"ux.explore_earn" = "Способы получения дохода";
+
+"ux.refresh_positions" = "Обновить позиции";
+"ux.back" = "Назад";
+"ux.collapsed" = "Свёрнуто";
+"ux.expanded" = "Развёрнуто";
+
+/* Other holdings may not appear because balance checks use the app's asset list. */
+"portfolio.discovery.catalog_only" = "Некоторые токены могут не отображаться";
+
+/* Only shown when network balances need attention. */
+"portfolio.balance.update_failed" = "Не удалось обновить балансы";
+"portfolio.balance.outdated" = "Балансы могут быть устаревшими";
+"portfolio.balance.not_loaded" = "Балансы не загружены";

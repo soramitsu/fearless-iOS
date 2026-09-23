@@ -101,6 +101,10 @@ final class AccountProviderFactory: AccountProviderFactoryProtocol {
             return true
         }
 
+        if metaAccount.entity.propertiesByName["tonAddress"] != nil,
+           let tonAddress = metaAccount.value(forKey: "tonAddress") as? Data,
+           tonAddress.toHex() == accountId { return true }
+
         guard let chainAccounts = metaAccount.chainAccounts else {
             return false
         }

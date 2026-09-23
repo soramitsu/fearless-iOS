@@ -2,7 +2,9 @@
 set -euo pipefail
 
 ROOT="${1:-$(pwd)}"
-EXPECTED_SSF_REVISION="${2:-3ad0fe928333c9ac28972e3669ca733c6972f060}"
+SOURCE_REVISION="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["revision"])' "$ROOT/config/shared-features-source.json")"
+EXPECTED_SSF_REVISION="${2:-$SOURCE_REVISION}"
+python3 "$ROOT/scripts/deps/verify-shared-features-source.py" "$ROOT" --pins-only
 
 WORKSPACE_RESOLVED="$ROOT/fearless.xcworkspace/xcshareddata/swiftpm/Package.resolved"
 PROJECT_RESOLVED="$ROOT/fearless.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
@@ -74,9 +76,6 @@ if ! grep -Fq "$EXPECTED_SSF_REVISION" "$FEARLESS_UTILS_PACKAGE"; then
   fail "FearlessUtilsCompat package is not pinned to shared-features-spm revision $EXPECTED_SSF_REVISION"
 fi
 
-if ! grep -Fq "REVISION=\"\${1:-$EXPECTED_SSF_REVISION}\"" "$ENFORCE_SCRIPT"; then
-  fail "enforce-ssf-pin.sh default revision is not $EXPECTED_SSF_REVISION"
-fi
 
 if grep -Fq '"identity" : "web3.swift"' "$WORKSPACE_RESOLVED" || grep -Fq '"identity" : "web3.swift"' "$PROJECT_RESOLVED"; then
   fail "Stale web3.swift identity still exists in committed Package.resolved"

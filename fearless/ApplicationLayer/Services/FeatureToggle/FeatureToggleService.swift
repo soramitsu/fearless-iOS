@@ -20,6 +20,7 @@ final class FeatureToggleProvider {
     private let networkOperationFactory: NetworkOperationFactoryProtocol
     private let operationQueue: OperationQueue
     private let stateLock = NSLock()
+    private var refreshTimer: DispatchSourceTimer?
 
     private(set) var snapshot: FeatureToggleConfig?
     private(set) var pendingRequests: [PendingRequest] = []
@@ -37,7 +38,20 @@ final class FeatureToggleProvider {
             snapshot = FeatureToggleConfig.defaultConfig
             MultiChainFeaturePolicy.update(FeatureToggleConfig.defaultConfig)
         }
+        let timer = DispatchSource.makeTimerSource(queue: DispatchQueue.global(qos: .utility))
+        timer.schedule(
+            deadline: .now() + MutationAuthorizationAuthority.refreshInterval,
+            repeating: MutationAuthorizationAuthority.refreshInterval
+        )
+        timer.setEventHandler { [weak self] in
+            do { try self?.setup() }
+            catch { self?.handleDefault() }
+        }
+        refreshTimer = timer
+        timer.resume()
     }
+
+    deinit { refreshTimer?.cancel() }
 
     private func setup() throws {
         guard let featureToggleURL = ApplicationConfig.shared.featureToggleURL else {

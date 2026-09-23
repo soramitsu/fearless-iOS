@@ -1222,3 +1222,11 @@ pertence à rede certa";
 "your.validators.stop.nominating.title" = "Deixar de nomear";
 "your.validators.validator.total.stake" = "Total em stake: %@";
 "сurrencies.stub.text" = "Moedas";
+
+/* Other holdings may not appear because balance checks use the app's asset list. */
+"portfolio.discovery.catalog_only" = "Alguns tokens podem não aparecer";
+
+/* Only shown when network balances need attention. */
+"portfolio.balance.update_failed" = "Falha ao atualizar os saldos";
+"portfolio.balance.outdated" = "Os saldos podem estar desatualizados";
+"portfolio.balance.not_loaded" = "Saldos não carregados";

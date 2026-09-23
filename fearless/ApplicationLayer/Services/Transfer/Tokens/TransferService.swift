@@ -534,7 +534,7 @@ private final class TonTransferFeeQuoteStore: @unchecked Sendable {
         defer { lock.unlock() }
         guard let quote,
               quote.quoteIDHex == presentationID,
-              fee == BigUInt(quote.feeNanotons),
+              fee == BigUInt(quote.requiredTonNanotons),
               pendingIdentity == quote.identity
         else {
             return false
@@ -581,6 +581,19 @@ final class TonTransferService: TransferServiceProtocol {
         let recipientAddress: String
         let amountNanotons: String
         let bounce: Bool
+        let jetton: TonJettonTransferDetails?
+
+        var request: TonNativeEstimateRequest {
+            TonNativeEstimateRequest(
+                asset: jetton.map { .jetton(masterAddress: $0.masterAddress) } ?? .nativeTon,
+                publicKey: publicKey,
+                senderAddress: senderAddress,
+                recipientAddress: recipientAddress,
+                amountNanotons: amountNanotons,
+                bounce: bounce,
+                jetton: jetton
+            )
+        }
     }
 
     private let wallet: MetaAccountModel
@@ -595,6 +608,7 @@ final class TonTransferService: TransferServiceProtocol {
         chain: ChainModel,
         remote: TonTransferRemoteProtocol,
         mnemonicProvider: UniversalWalletMnemonicProviding = KeychainUniversalWalletMnemonicProvider(),
+        pendingCoordinator: TonPendingIntentCoordinator = .shared,
         clock: @escaping @Sendable() -> UInt64 = { UInt64(Date().timeIntervalSince1970) }
     ) {
         self.wallet = wallet
@@ -602,29 +616,10 @@ final class TonTransferService: TransferServiceProtocol {
         self.mnemonicProvider = mnemonicProvider
         sendService = TonSendService(
             remote: remote,
+            pendingCoordinator: pendingCoordinator,
             clock: clock
         )
     }
-
-    #if DEBUG
-        init(
-            wallet: MetaAccountModel,
-            chain: ChainModel,
-            remote: TonTransferRemoteProtocol,
-            mnemonicProvider: UniversalWalletMnemonicProviding = KeychainUniversalWalletMnemonicProvider(),
-            pendingCoordinator: TonPendingIntentCoordinator,
-            clock: @escaping @Sendable() -> UInt64 = { UInt64(Date().timeIntervalSince1970) }
-        ) {
-            self.wallet = wallet
-            self.chain = chain
-            self.mnemonicProvider = mnemonicProvider
-            sendService = TonSendService(
-                remote: remote,
-                pendingCoordinator: pendingCoordinator,
-                clock: clock
-            )
-        }
-    #endif
 
     func estimateFee(for transfer: Transfer) async throws -> BigUInt {
         // This compatibility API may calculate a fee, but it must never authorize a send.
@@ -637,19 +632,13 @@ final class TonTransferService: TransferServiceProtocol {
         for transfer: Transfer,
         readyForSubmission: Bool
     ) async throws -> PreparedFeePresentation {
-        let resolved = try resolveTransfer(
+        let resolved = try await resolveTransfer(
             for: transfer,
             failure: TransferServiceError.cannotEstimateFee(reason:)
         )
 
         do {
-            let estimateRequest = TonNativeEstimateRequest(
-                publicKey: resolved.publicKey,
-                senderAddress: resolved.senderAddress,
-                recipientAddress: resolved.recipientAddress,
-                amountNanotons: resolved.amountNanotons,
-                bounce: resolved.bounce
-            )
+            let estimateRequest = resolved.request
             let identity = try TonTransferIntentIdentity(request: estimateRequest)
             let generation = feeQuoteStore.begin(identity: identity)
             do {
@@ -667,7 +656,7 @@ final class TonTransferService: TransferServiceProtocol {
                 // below synchronously revokes this exact generation if cancellation won.
                 try Task.checkCancellation()
                 return PreparedFeePresentation(
-                    fee: BigUInt(quote.feeNanotons),
+                    fee: BigUInt(quote.requiredTonNanotons),
                     presentationID: quote.quoteIDHex
                 )
             } catch {
@@ -683,66 +672,46 @@ final class TonTransferService: TransferServiceProtocol {
 
     func submit(transfer: Transfer) async throws -> String {
         #if !DEBUG
-            // Keep the integration boundary fail-closed before transfer resolution or
-            // mnemonic/keychain access, even if same-module code bypasses normal DI.
-            throw TransferServiceError.tonProductionSendDisabled
-        #else
-            let resolved = try resolveTransfer(
-                for: transfer,
-                failure: TransferServiceError.transferFailed(reason:)
-            )
-
-            let identity = try TonTransferIntentIdentity(
-                request: TonNativeEstimateRequest(
-                    publicKey: resolved.publicKey,
-                    senderAddress: resolved.senderAddress,
-                    recipientAddress: resolved.recipientAddress,
-                    amountNanotons: resolved.amountNanotons,
-                    bounce: resolved.bounce
-                )
-            )
-            // Atomically consume the exact quote. A nil quote is still passed through so
-            // TonSendService can recover an already-persisted same-intent BOC after restart;
-            // a genuinely fresh unquoted send fails before signing or remote work.
-            let feeQuote = feeQuoteStore.consume(identity: identity)
-
-            do {
-                return try await sendService.send(
-                    TonNativeEstimateRequest(
-                        publicKey: resolved.publicKey,
-                        senderAddress: resolved.senderAddress,
-                        recipientAddress: resolved.recipientAddress,
-                        amountNanotons: resolved.amountNanotons,
-                        bounce: resolved.bounce
-                    ),
-                    feeQuote: feeQuote,
-                    signingCredentials: {
-                        guard let mnemonic = try self.mnemonicProvider.mnemonic(
-                            for: self.wallet,
-                            chain: self.chain
-                        ) else {
-                            throw TonSendServiceError.invalidAccount
-                        }
-                        return TonSigningCredentials(mnemonic: mnemonic)
-                    }
-                ).messageHashHex
-            } catch let error as TonSendServiceError {
-                if case let .priorIntentConfirmed(identity, messageHashHex) = error {
-                    throw TransferServiceError.tonPriorTransferConfirmed(
-                        identity: identity,
-                        messageHashHex: messageHashHex
-                    )
-                }
-                if case let .broadcastOutcomeUnknown(messageHashHex) = error {
-                    throw TransferServiceError.tonBroadcastOutcomeUnknown(
-                        messageHashHex: messageHashHex
-                    )
-                }
-                throw TransferServiceError.transferFailed(reason: "TON transfer validation, emulation, or broadcast failed")
-            } catch {
-                throw TransferServiceError.transferFailed(reason: "TON transfer validation, emulation, or broadcast failed")
-            }
+            guard wallet.legacyTonAccount != nil else { throw TransferServiceError.tonProductionSendDisabled }
         #endif
+        let resolved = try await resolveTransfer(
+            for: transfer,
+            failure: TransferServiceError.transferFailed(reason:)
+        )
+
+        let identity = try TonTransferIntentIdentity(
+            request: resolved.request
+        )
+        // Atomically consume the exact quote. A nil quote is still passed through so
+        // TonSendService can recover an already-persisted same-intent BOC after restart;
+        // a genuinely fresh unquoted send fails before signing or remote work.
+        let feeQuote = feeQuoteStore.consume(identity: identity)
+
+        do {
+            return try await sendService.send(
+                resolved.request,
+                feeQuote: feeQuote,
+                legacyAccount: wallet.legacyTonAccount,
+                signingCredentials: {
+                    try self.mnemonicProvider.tonSigningCredentials(for: self.wallet, chain: self.chain)
+                }
+            ).messageHashHex
+        } catch let error as TonSendServiceError {
+            if case let .priorIntentConfirmed(identity, messageHashHex) = error {
+                throw TransferServiceError.tonPriorTransferConfirmed(
+                    identity: identity,
+                    messageHashHex: messageHashHex
+                )
+            }
+            if case let .broadcastOutcomeUnknown(messageHashHex) = error {
+                throw TransferServiceError.tonBroadcastOutcomeUnknown(
+                    messageHashHex: messageHashHex
+                )
+            }
+            throw TransferServiceError.transferFailed(reason: "TON transfer validation, emulation, or broadcast failed")
+        } catch {
+            throw TransferServiceError.transferFailed(reason: "TON transfer validation, emulation, or broadcast failed")
+        }
     }
 
     func subscribeForFee(transfer: Transfer, listener: TransferFeeEstimationListener) {
@@ -788,20 +757,14 @@ final class TonTransferService: TransferServiceProtocol {
     }
 
     func acknowledgeSubmittedTransfer(hash: String, transfer: Transfer) async -> Bool {
-        guard let resolved = try? resolveTransfer(
+        guard let resolved = try? await resolveTransfer(
             for: transfer,
             failure: TransferServiceError.transferFailed(reason:)
         ) else {
             return false
         }
         guard let identity = try? TonTransferIntentIdentity(
-            request: TonNativeEstimateRequest(
-                publicKey: resolved.publicKey,
-                senderAddress: resolved.senderAddress,
-                recipientAddress: resolved.recipientAddress,
-                amountNanotons: resolved.amountNanotons,
-                bounce: resolved.bounce
-            )
+            request: resolved.request
         ) else {
             return false
         }
@@ -849,10 +812,21 @@ final class TonTransferService: TransferServiceProtocol {
         }
     }
 
+    static func supportsAsset(_ chainAsset: ChainAsset, allowLegacyJettons: Bool) -> Bool {
+        let asset = chainAsset.asset
+        if chainAsset.isNative, asset.isNative, asset.isUtility,
+           asset.id == UniversalWalletRegistry.tonNativeAssetId || asset.id.uppercased() == "TON",
+           asset.symbol.uppercased() == "TON", asset.precision == 9,
+           asset.type == nil || asset.type == .normal { return true }
+        return allowLegacyJettons && !chainAsset.isNative && !asset.isNative && !asset.isUtility &&
+            asset.type != .normal && asset.ethereumType == nil && asset.precision <= 255 &&
+            (try? TonTransferTransactionBuilder.canonicalMainnetAddress(asset.id, basechainOnly: true)) != nil
+    }
+
     private func resolveTransfer(
         for transfer: Transfer,
         failure: (String) -> TransferServiceError
-    ) throws -> ResolvedTransfer {
+    ) async throws -> ResolvedTransfer {
         guard transfer.tip == nil, transfer.appId == nil else {
             throw failure("TON tips and app identifiers are not supported")
         }
@@ -871,16 +845,8 @@ final class TonTransferService: TransferServiceProtocol {
         }
 
         let asset = transfer.chainAsset.asset
-        guard transfer.chainAsset.isNative,
-              asset.isNative,
-              asset.isUtility,
-              asset.id == UniversalWalletRegistry.tonNativeAssetId ||
-              asset.id.uppercased() == "TON",
-              asset.symbol.uppercased() == "TON",
-              asset.precision == 9,
-              asset.type == nil || asset.type == .normal
-        else {
-            throw failure("Only native TON transfers are supported")
+        guard Self.supportsAsset(transfer.chainAsset, allowLegacyJettons: wallet.legacyTonAccount != nil) else {
+            throw failure("Unsupported TON asset")
         }
 
         guard let sourceAddress = UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet) else {
@@ -890,6 +856,30 @@ final class TonTransferService: TransferServiceProtocol {
               account.publicKey.count == 32
         else {
             throw failure("TON public key is unavailable for \(chain.chainId)")
+        }
+
+        if !transfer.chainAsset.isNative {
+            let recipient = try TonTransferTransactionBuilder.canonicalMainnetAddress(transfer.receiver)
+            let tokenWallet = try await sendService.resolveJettonWallet(
+                ownerAddress: sourceAddress,
+                assetAddress: asset.id,
+                recipientAddress: recipient,
+                amount: transfer.amount.description,
+                precision: Int(asset.precision)
+            )
+            let details = try TonJettonTransferDetails(
+                masterAddress: tokenWallet.masterAddress,
+                recipientAddress: recipient,
+                amount: transfer.amount.description
+            )
+            return ResolvedTransfer(
+                publicKey: account.publicKey,
+                senderAddress: sourceAddress,
+                recipientAddress: tokenWallet.walletAddress,
+                amountNanotons: TonJettonTransferDetails.attachedNanotons,
+                bounce: true,
+                jetton: details
+            )
         }
 
         let bounce: Bool
@@ -906,7 +896,8 @@ final class TonTransferService: TransferServiceProtocol {
             senderAddress: sourceAddress,
             recipientAddress: transfer.receiver,
             amountNanotons: transfer.amount.description,
-            bounce: bounce
+            bounce: bounce,
+            jetton: nil
         )
     }
 }

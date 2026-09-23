@@ -36,10 +36,10 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
 
     private var contentStackView: UIStackView = {
         let stackView = UIStackView()
-        stackView.spacing = 0
+        stackView.spacing = 2
         stackView.axis = .vertical
-        stackView.distribution = .fillEqually
-        stackView.alignment = .leading
+        stackView.distribution = .fill
+        stackView.alignment = .fill
         return stackView
     }()
 
@@ -72,7 +72,8 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         return view
     }()
 
-    private var chainInfoContainerView = UIView()
+    private let chainInfoContainerView = UIStackView()
+    private let metadataStackView = UIStackView()
     private var chainIconsView = ChainCollectionView()
     private var skeletonView: SkrullableView?
 
@@ -88,6 +89,7 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
 
         configure()
         setupLayout()
+        updateTextLayout()
     }
 
     @available(*, unavailable)
@@ -120,6 +122,7 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
             animated: false
         )
 
+        chainOptionsView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         if let options = viewModel.options {
             options.forEach { option in
                 let view = ChainOptionsView()
@@ -132,6 +135,9 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         setDeactivated(!viewModel.chainAsset.chain.isSupported)
         controlSkeleton(for: viewModel)
         chainIconsView.bind(viewModel: viewModel.chainIconViewViewModel)
+        chainOptionsView.isHidden = viewModel.options?.isEmpty != false
+        chainIconsView.isHidden = viewModel.chainIconViewViewModel.chainImages.isEmpty
+        metadataStackView.isHidden = chainOptionsView.isHidden && chainIconsView.isHidden
         leftMenuButtons = viewModel.swipeActionsEnabled ? createLeftButtons() : []
         if !viewModel.swipeActionsEnabled {
             rightMenuButtons = []
@@ -142,6 +148,23 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         }
 
         locale = viewModel.locale
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        updateTextLayout()
+    }
+
+    private func updateTextLayout() {
+        let axis: NSLayoutConstraint.Axis = traitCollection.preferredContentSizeCategory.isAccessibilityCategory
+            ? .vertical : .horizontal
+        balanceView.axis = axis
+        priceView.axis = axis
+        [chainNameLabel, balanceView.keyLabel, balanceView.valueLabel, priceView.keyLabel, priceView.valueLabel].forEach {
+            $0.numberOfLines = 0
+            $0.lineBreakMode = .byCharWrapping
+            $0.setContentCompressionResistancePriority(.required, for: .vertical)
+        }
     }
 
     // MARK: - Private methods
@@ -172,6 +195,7 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         cloudView.addSubview(backgroundTriangularedView)
         backgroundTriangularedView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
+            make.height.greaterThanOrEqualTo(LayoutConstants.cellHeight - cloudViewEdgeInsets.top)
         }
 
         backgroundTriangularedView.addSubview(assetIconImageView)
@@ -217,20 +241,17 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
             make.trailing.equalToSuperview()
         }
 
-        chainInfoContainerView.addSubview(chainNameLabel)
-        chainNameLabel.snp.makeConstraints { make in
-            make.leading.top.bottom.equalToSuperview()
-        }
-        chainInfoContainerView.addSubview(chainOptionsView)
-        chainOptionsView.snp.makeConstraints { make in
-            make.leading.equalTo(chainNameLabel.snp.trailing).offset(UIConstants.bigOffset)
-            make.top.bottom.equalToSuperview()
-        }
-        chainInfoContainerView.addSubview(chainIconsView)
+        chainInfoContainerView.axis = .vertical
+        chainInfoContainerView.spacing = 4
+        chainInfoContainerView.addArrangedSubview(chainNameLabel)
+        chainInfoContainerView.addArrangedSubview(metadataStackView)
+        metadataStackView.spacing = UIConstants.defaultOffset
+        metadataStackView.alignment = .center
+        metadataStackView.addArrangedSubview(chainOptionsView)
+        metadataStackView.addArrangedSubview(chainIconsView)
         chainIconsView.snp.makeConstraints { make in
-            make.leading.greaterThanOrEqualTo(chainOptionsView.snp.trailing).offset(UIConstants.bigOffset)
-            make.top.bottom.trailing.equalToSuperview()
-            make.width.equalTo(90).priority(.low)
+            make.width.equalTo(90)
+            make.height.equalTo(16)
         }
     }
 }

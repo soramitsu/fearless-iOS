@@ -98,16 +98,9 @@ final class AccountRepositoryFactory: AccountRepositoryFactoryProtocol {
         project: @escaping (MetaAccountSelectionModel) -> Model?,
         makeUpdate: @escaping (Model) -> MetaAccountSelectionModel
     ) -> TolerantMetaAccountRepository<Model> {
-        let supportedWalletFilter = NSPredicate(
-            format: "%K != nil AND %K != nil",
-            #keyPath(CDMetaAccount.substrateAccountId),
-            #keyPath(CDMetaAccount.substratePublicKey)
-        )
-        let readFilter = filter.map {
-            NSCompoundPredicate(
-                andPredicateWithSubpredicates: [$0, supportedWalletFilter]
-            )
-        } ?? supportedWalletFilter
+        // The mapper validates supported roots. A Substrate-only SQL predicate hides
+        // released native TON wallets before the tolerant mapper can inspect them.
+        let readFilter = filter
         let readRepository = storageFacade.createRepository(
             filter: readFilter,
             sortDescriptors: sortDescriptors,

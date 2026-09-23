@@ -92,8 +92,8 @@ class ExportMnemonicTests: XCTestCase {
         )
         let accountResponse = fearless.ChainAccountResponse(
             chainId: chain.chainId,
-            accountId: givenAccount.substrateAccountId,
-            publicKey: givenAccount.substratePublicKey,
+            accountId: try XCTUnwrap(givenAccount.substrateAccountId),
+            publicKey: try XCTUnwrap(givenAccount.substratePublicKey),
             name: givenAccount.name,
             cryptoType: CryptoType(rawValue: givenAccount.substrateCryptoType) ?? .sr25519,
             addressPrefix: chain.addressPrefix,
@@ -151,8 +151,8 @@ class ExportMnemonicTests: XCTestCase {
             .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
         XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount.substrateCryptoType)
-        XCTAssertEqual(givenAccount.substrateAccountId, importedAccount.substrateAccountId)
-        XCTAssertEqual(givenAccount.substratePublicKey, importedAccount.substratePublicKey)
+        XCTAssertEqual(try XCTUnwrap(givenAccount.substrateAccountId), importedAccount.substrateAccountId)
+        XCTAssertEqual(try XCTUnwrap(givenAccount.substratePublicKey), importedAccount.substratePublicKey)
     }
     
     func testEthereumExport() throws {
@@ -267,7 +267,7 @@ class ExportMnemonicTests: XCTestCase {
             .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
         XCTAssertEqual(givenAccount.substrateCryptoType, importedAccount.substrateCryptoType)
-        XCTAssertEqual(givenAccount.substrateAccountId, importedAccount.substrateAccountId)
-        XCTAssertEqual(givenAccount.substratePublicKey, importedAccount.substratePublicKey)
+        XCTAssertEqual(try XCTUnwrap(givenAccount.substrateAccountId), importedAccount.substrateAccountId)
+        XCTAssertEqual(try XCTUnwrap(givenAccount.substratePublicKey), importedAccount.substratePublicKey)
     }
 }

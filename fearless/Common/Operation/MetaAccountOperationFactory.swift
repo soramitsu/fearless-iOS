@@ -427,7 +427,13 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
         request: MetaAccountImportMnemonicRequest,
         isBackuped: Bool
     ) -> BaseOperation<MetaAccountModel> {
-        ClosureOperation { [self] in
+        if let native = request.mnemonic as? LegacyTonMnemonic {
+            return LegacyTonAccountImportOperation(
+                keystore: keystore, phrase: native.toString(),
+                username: request.username, isBackuped: isBackuped
+            )
+        }
+        return ClosureOperation { [self] in
             let substrateQuery = try getQuery(
                 seedSource: .mnemonic(request.mnemonic),
                 derivationPath: request.substrateDerivationPath,

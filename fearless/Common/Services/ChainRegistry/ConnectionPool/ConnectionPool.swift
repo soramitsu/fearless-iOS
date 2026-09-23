@@ -3,9 +3,18 @@ import SSFUtils
 import SoraFoundation
 import SSFModels
 
-enum ConnectionPoolError: Error {
+enum ConnectionPoolError: LocalizedError {
     case onlyOneNode
     case noConnection
+
+    var errorDescription: String? {
+        switch self {
+        case .onlyOneNode:
+            return "No alternative network node is available."
+        case .noConnection:
+            return "No WebSocket node is available. Select a WS or WSS node in network settings."
+        }
+    }
 }
 
 protocol ConnectionPoolProtocol {
@@ -29,13 +38,14 @@ final class ConnectionPool {
 
     private let connectionFactory: ConnectionFactoryProtocol
     private let applicationHandler = ApplicationHandler()
-    private lazy var injector = NodeApiKeyInjector()
+    private let injector: NodeApiKeyInjector
     private weak var delegate: ConnectionPoolDelegate?
 
     private(set) var connections: SafeArray<ConnectionWrapper> = .init()
 
-    init(connectionFactory: ConnectionFactoryProtocol) {
+    init(connectionFactory: ConnectionFactoryProtocol, injector: NodeApiKeyInjector = NodeApiKeyInjector()) {
         self.connectionFactory = connectionFactory
+        self.injector = injector
     }
 
     private func clearUnusedConnections() {
@@ -53,14 +63,24 @@ extension ConnectionPool: ConnectionPoolProtocol {
         if let connection = getConnection(for: chain.chainId) {
             return connection
         }
-        let nodesForPreparing: [ChainNodeModel]
-        if let selectedNode = chain.selectedNode {
-            nodesForPreparing = [selectedNode]
-        } else {
-            nodesForPreparing = Array(chain.nodes)
+        // Keep the user's preference first, but retain catalog fallbacks when
+        // that endpoint is unavailable. This never rewrites the saved selection.
+        let catalogNodes = chain.nodes.sorted {
+            ($0.url.absoluteString, $0.name) < ($1.url.absoluteString, $1.name)
         }
-
-        let preparedUrls = injector.injectKey(nodes: nodesForPreparing)
+        let nodesForPreparing = chain.selectedNode.map { [$0] + catalogNodes } ?? catalogNodes
+        var seen: Set<URL> = []
+        let preparedUrls = injector.injectKey(nodes: nodesForPreparing).filter { url in
+            guard let scheme = url.scheme?.lowercased(), ["ws", "wss"].contains(scheme),
+                  let host = url.host, !host.isEmpty
+            else {
+                return false
+            }
+            return seen.insert(url).inserted
+        }
+        guard !preparedUrls.isEmpty else {
+            throw ConnectionPoolError.noConnection
+        }
         let connection = try connectionFactory.createConnection(
             connectionName: chain.chainId,
             for: preparedUrls,

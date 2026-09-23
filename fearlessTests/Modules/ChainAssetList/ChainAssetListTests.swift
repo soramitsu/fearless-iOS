@@ -1431,6 +1431,40 @@ final class ChainAssetListTests: XCTestCase {
         )
     }
 
+    func testHealthyNetworkScansDoNotAddHeaderStatusForAnyCoverage() {
+        let now = Date(timeIntervalSince1970: 2_000_000)
+        for coverage in [AssetDiscoveryCoverage.complete, .catalogOnly, .limited] {
+            let state = NetworkScanState(
+                lastAttempt: now,
+                lastSuccess: now.addingTimeInterval(-30),
+                hasError: false,
+                coverage: coverage
+            )
+            XCTAssertNil(state.attentionText(now: now))
+        }
+    }
+
+    func testNetworkHeaderStatusDistinguishesFailedUnloadedAndOutdatedBalances() {
+        let now = Date(timeIntervalSince1970: 2_000_000)
+        let fresh = now.addingTimeInterval(-30)
+        for lastSuccess in [fresh, nil] {
+            XCTAssertEqual(
+                NetworkScanState(lastAttempt: now, lastSuccess: lastSuccess, hasError: true, coverage: .catalogOnly)
+                    .attentionText(now: now),
+                NSLocalizedString("portfolio.balance.update_failed", value: "Balance update failed", comment: "")
+            )
+        }
+        XCTAssertEqual(
+            NetworkScanState(lastAttempt: nil, lastSuccess: nil, hasError: false, coverage: .catalogOnly)
+                .attentionText(now: now),
+            NSLocalizedString("portfolio.balance.not_loaded", value: "Balances not loaded", comment: "")
+        )
+        let expiry = fresh.addingTimeInterval(36 * 60 * 60)
+        let state = NetworkScanState(lastAttempt: now, lastSuccess: fresh, hasError: false, coverage: .limited)
+        XCTAssertNil(state.attentionText(now: expiry))
+        XCTAssertEqual(state.attentionText(now: expiry.addingTimeInterval(1)), NSLocalizedString("portfolio.balance.outdated", value: "Balances may be outdated", comment: ""))
+    }
+
     func testNetworkScanStatusIncludesDeterministicFreshnessAndRetainsItOnFailure() {
         let now = Date(timeIntervalSince1970: 2_000_000)
         let recent = NetworkScanState(
@@ -1450,7 +1484,7 @@ final class ChainAssetListTests: XCTestCase {
         )
         XCTAssertEqual(
             failed.displayText(now: now),
-            "Sync error · Catalog only · Synced 12m ago"
+            "Sync error · \(AssetDiscoveryCoverage.catalogOnly.title) · Synced 12m ago"
         )
 
         let stale = NetworkScanState(

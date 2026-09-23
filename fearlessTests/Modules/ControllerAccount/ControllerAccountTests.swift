@@ -89,8 +89,8 @@ class ControllerAccountTests: XCTestCase {
         }
 
         let chainAccountItem = fearless.ChainAccountResponse(chainId: chain.chainId,
-                                                    accountId: selectedAccount.substrateAccountId,
-                                                    publicKey: selectedAccount.substratePublicKey,
+                                                    accountId: try XCTUnwrap(selectedAccount.substrateAccountId),
+                                                    publicKey: try XCTUnwrap(selectedAccount.substratePublicKey),
                                                     name: "test",
                                                     cryptoType: .ecdsa,
                                                     addressPrefix: chain.addressPrefix,
@@ -100,8 +100,8 @@ class ControllerAccountTests: XCTestCase {
         let chosenControllerAddress = try XCTUnwrap(chainAccountItem.toAddress())
         let stashMetaAccount = AccountGenerator.generateMetaAccount()
         let stashAccountItem = fearless.ChainAccountResponse(chainId: chain.chainId,
-                                                    accountId: stashMetaAccount.substrateAccountId,
-                                                    publicKey: stashMetaAccount.substratePublicKey,
+                                                    accountId: try XCTUnwrap(stashMetaAccount.substrateAccountId),
+                                                    publicKey: try XCTUnwrap(stashMetaAccount.substratePublicKey),
                                                     name: "stash",
                                                     cryptoType: .ecdsa,
                                                     addressPrefix: chain.addressPrefix,

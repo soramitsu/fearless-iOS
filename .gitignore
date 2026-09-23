@@ -76,3 +76,19 @@ SourcePackages/
 fearless.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 # Private pod/env helper
 .env.private
+
+# Local temporary files and generated review artifacts
+/tmp/
+/.tmp/
+/tmp-*/
+/.tmp-*/
+*.tmp
+/output/
+/.playwright-cli/
+/playwright-report/
+/test-results/
+/review-output/
+/review-artifacts/
+# Dated local acceptance and review reports
+/docs/validation/20*/
+/docs/legacy-upgrade-audit-20*.md
