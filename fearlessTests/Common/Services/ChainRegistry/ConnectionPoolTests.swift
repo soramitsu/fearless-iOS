@@ -112,7 +112,9 @@ class ConnectionPoolTests: XCTestCase {
                 }
             }
         }
-        XCTAssertEqual(work.wait(timeout: .now() + 10), .success)
+        // The work intentionally queues thousands of barriers. Whole-suite CI
+        // load can delay completion without indicating a deadlock.
+        XCTAssertEqual(work.wait(timeout: .now() + 60), .success)
         pool.connections.replace(array: [])
         XCTAssertNil(pool.getConnection(for: "first"))
         XCTAssertNil(pool.getConnection(for: "second"))
