@@ -88,20 +88,6 @@ jobs:
       - name: Private overlay audit self-test
         run: bash ./scripts/test-private-overlay-boundary.sh
 
-      - name: Shared-features delta report
-        run: |
-          bash ./scripts/deps/test-shared-features-delta-report.sh
-          bash ./scripts/deps/audit-shared-features-delta-report.sh "$(pwd)" --write-report build/reports/shared-features-delta-report.json
-
-      - name: Upload shared-features delta report
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: shared-features-delta-report
-          path: build/reports/shared-features-delta-report.json
-          if-no-files-found: ignore
-          retention-days: 14
-
       - name: Configure GitHub auth for private pods (optional)
         env:
           GH_READ_TOKEN: ${{ secrets.GH_READ_TOKEN }}
@@ -116,6 +102,20 @@ jobs:
       - name: Bootstrap Dependencies
         run: |
           bash scripts/ci/bootstrap.sh
+
+      - name: Shared-features delta report
+        run: |
+          bash ./scripts/deps/test-shared-features-delta-report.sh
+          bash ./scripts/deps/audit-shared-features-delta-report.sh "$(pwd)" --write-report build/reports/shared-features-delta-report.json
+
+      - name: Upload shared-features delta report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: shared-features-delta-report
+          path: build/reports/shared-features-delta-report.json
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Build & Test (Simulator)
         run: |

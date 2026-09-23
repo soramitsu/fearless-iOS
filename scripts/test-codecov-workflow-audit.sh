@@ -97,4 +97,63 @@ reset_fixture
 printf '\n      - run: curl -fsSL https://codecov.io/bash | sh\n' >> "$fixture"
 expect_failure "piped unverified uploader"
 
+# Guard both sides of the source-resolution/report/build ordering contract.
+for destination in before-bootstrap after-build; do
+  reset_fixture
+  python3 - "$fixture" "$destination" <<'PYTHON'
+from pathlib import Path
+import re
+import sys
+p = Path(sys.argv[1])
+s = p.read_text()
+steps = list(re.finditer(r"^      - name: (.+)$", s, re.MULTILINE))
+blocks = {}
+for i, match in enumerate(steps):
+    end = steps[i + 1].start() if i + 1 < len(steps) else len(s)
+    blocks[match.group(1)] = s[match.start():end]
+report = blocks["Shared-features delta report"]
+s = s.replace(report, "", 1)
+if sys.argv[2] == "before-bootstrap":
+    target = blocks["Bootstrap Dependencies"]
+    s = s.replace(target, report + target, 1)
+else:
+    target = blocks["Build & Test (Simulator)"]
+    s = s.replace(target, target + report, 1)
+p.write_text(s)
+PYTHON
+  expect_failure "misordered exact-source report: $destination"
+done
+
+reset_fixture
+comment_line 'bash scripts/ci/bootstrap.sh'
+expect_failure "commented-out dependency bootstrap"
+
+reset_fixture
+comment_line 'bash ./scripts/deps/audit-shared-features-delta-report.sh'
+expect_failure "commented-out exact-source report"
+
+for step in 'Bootstrap Dependencies' 'Shared-features delta report'; do
+  reset_fixture
+  python3 - "$fixture" "$step" <<'PYTHON'
+from pathlib import Path
+import sys
+p = Path(sys.argv[1]); s = p.read_text()
+needle = "      - name: " + sys.argv[2] + "\n"
+assert s.count(needle) == 1
+p.write_text(s.replace(needle, needle + "        if: false\n", 1))
+PYTHON
+  expect_failure "conditional dependency pipeline step: $step"
+
+  reset_fixture
+  python3 - "$fixture" "$step" <<'PYTHON'
+from pathlib import Path
+import sys
+p = Path(sys.argv[1]); s = p.read_text()
+needle = "      - name: " + sys.argv[2] + "\n"
+assert s.count(needle) == 1
+p.write_text(s.replace(needle, needle + "        continue-on-error: true\n", 1))
+PYTHON
+  expect_failure "ignored dependency pipeline failure: $step"
+done
+
 echo "[codecov-workflow-audit-test] all adversarial fixtures passed"

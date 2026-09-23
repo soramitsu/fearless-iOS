@@ -52,4 +52,36 @@ fi
 unpinned="$(grep -E '^[[:space:]]*uses:[[:space:]]+' "$WORKFLOW_FILE" | grep -Ev '@[0-9a-f]{40}([[:space:]]|$)' || true)"
 [[ -z "$unpinned" ]] || fail "Workflow action reference is not a full commit SHA: $unpinned"
 
+# Exact-source reports need bootstrap's resolved checkouts, and must fail before
+# any simulator build can consume them. Audit the reviewed workflow step format.
+python3 - "$WORKFLOW_FILE" <<'PYTHON'
+from pathlib import Path
+import re
+import sys
+
+text = Path(sys.argv[1]).read_text()
+steps = list(re.finditer(r"^      - name: (.+)$", text, re.MULTILINE))
+required = (
+    ("Bootstrap Dependencies", r"^          bash scripts/ci/bootstrap\.sh$"),
+    ("Shared-features delta report", r'^          bash \./scripts/deps/audit-shared-features-delta-report\.sh "\$\(pwd\)" --write-report build/reports/shared-features-delta-report\.json$'),
+    ("Build & Test (Simulator)", None),
+)
+positions = []
+for name, command in required:
+    matches = [(index, step) for index, step in enumerate(steps) if step.group(1) == name]
+    if len(matches) != 1:
+        raise SystemExit(f"[codecov-workflow-audit][error] Require exactly one dependency pipeline step: {name}")
+    index, step = matches[0]
+    positions.append(step.start())
+    end = steps[index + 1].start() if index + 1 < len(steps) else len(text)
+    block = text[step.end():end]
+    if command is not None:
+        if not re.search(command, block, re.MULTILINE):
+            raise SystemExit(f"[codecov-workflow-audit][error] Required active command missing from {name}")
+        if re.search(r"^        (?:if|continue-on-error):", block, re.MULTILINE):
+            raise SystemExit(f"[codecov-workflow-audit][error] Dependency pipeline step must remain unconditional and fail closed: {name}")
+if positions != sorted(positions):
+    raise SystemExit("[codecov-workflow-audit][error] Dependency bootstrap must precede the exact-source report, and the report must precede simulator build/test")
+PYTHON
+
 echo "[codecov-workflow-audit] passed"
