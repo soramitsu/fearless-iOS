@@ -28,6 +28,9 @@ struct MetaAccountModel: Equatable, Codable {
         if let legacyTonAccount, substratePublicKey == nil {
             return legacyTonAccount.address
         }
+        if substratePublicKey == nil, let ethereumAddress {
+            return (try? ethereumAddress.toAddress(using: .ethereum)) ?? ethereumAddress.toHex()
+        }
         return substratePublicKey.flatMap { try? $0.toAddress(using: .substrate(42)) } ?? substratePublicKey?.toHex() ?? metaId
     }
 

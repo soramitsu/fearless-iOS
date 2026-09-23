@@ -4,6 +4,7 @@ import IrohaCrypto
 import SoraKeystore
 import struct SSFCrypto.SeedFactory
 import SSFModels
+import SSFUtils
 import XCTest
 
 final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
@@ -41,6 +42,97 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         XCTAssertThrowsError(try makePreflight([projection(native)], keys: keys).inspect()) {
             XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .missingSecretMaterial)
         }
+    }
+
+    func testEvmOnlyRootRetainsItsOriginalSignerAndKeystoreExport() throws {
+        let wallet = try ethereumOnlyWallet()
+        let tag = fearless.KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId)
+        let keys = PreflightKeystore(keys: [tag: ethereumPrivateKey])
+        let preflight = makePreflight([projection(wallet)], keys: keys)
+
+        let inventory = try preflight.inspect()
+        XCTAssertEqual(inventory.walletCount, 1)
+        XCTAssertEqual(inventory.substrateRootCount, 0)
+        XCTAssertEqual(inventory.ethereumRootCount, 1)
+        XCTAssertEqual(inventory.nativeTonRootCount, 0)
+
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: preflight, keystore: keys
+        ).capture()
+        XCTAssertEqual(draft.wallets.map(\.publicIdentity), [wallet])
+        XCTAssertEqual(draft.wallets[0].slots.count, 1)
+        XCTAssertEqual(draft.wallets[0].slots[0].role, .ethereumSecret)
+        XCTAssertEqual(draft.wallets[0].slots[0].bytes, ethereumPrivateKey)
+
+        let publicKey = try XCTUnwrap(wallet.ethereumPublicKey)
+        let address = try XCTUnwrap(wallet.ethereumAddress)
+        let account = ChainAccountResponse(
+            chainId: "evm-only-export", accountId: address, publicKey: publicKey,
+            name: wallet.name, cryptoType: .ecdsa, addressPrefix: 42,
+            isEthereumBased: true, isChainAccount: false, walletId: wallet.metaId
+        )
+        let addressString = "0x" + address.map { String(format: "%02x", $0) }.joined()
+        let exported = try KeystoreExportWrapper(keystore: keys).export(
+            chainAccount: account, password: "evm-only-test-password", address: addressString,
+            metaId: wallet.metaId, accountId: nil, genesisHash: nil
+        )
+        let definition = try JSONDecoder().decode(KeystoreDefinition.self, from: exported)
+        let restored = try KeystoreExtractor().extractFromDefinition(
+            definition, password: "evm-only-test-password"
+        )
+        XCTAssertEqual(restored.secretKeyData, ethereumPrivateKey)
+        XCTAssertEqual(restored.publicKeyData, publicKey)
+        XCTAssertEqual(restored.address, addressString)
+    }
+
+    func testEvmOnlyRootRejectsUnavailableOrMismatchedMaterial() throws {
+        let wallet = try ethereumOnlyWallet()
+        let tag = fearless.KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId)
+        XCTAssertThrowsError(try makePreflight(
+            [projection(wallet)], keys: PreflightKeystore()
+        ).inspect()) {
+            XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .missingSecretMaterial)
+        }
+        XCTAssertThrowsError(try makePreflight(
+            [projection(wallet)], keys: PreflightKeystore(errors: [tag: KeystoreError.unexpectedFail])
+        ).inspect()) {
+            XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .unavailableSecretMaterial)
+        }
+        XCTAssertThrowsError(try makePreflight(
+            [projection(wallet)], keys: PreflightKeystore(keys: [tag: Data(repeating: 0x02, count: 32)])
+        ).inspect()) {
+            XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .incompletePublicIdentity)
+        }
+        let wrongAddress = wallet.replacingEthereumAddress(Data(repeating: 0x44, count: 20))
+        XCTAssertThrowsError(try makePreflight(
+            [projection(wrongAddress)], keys: PreflightKeystore(keys: [tag: ethereumPrivateKey])
+        ).inspect()) {
+            XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .incompletePublicIdentity)
+        }
+        let incomplete = wallet.replacingEthereumPublicKey(nil)
+        XCTAssertThrowsError(try makePreflight(
+            [projection(incomplete)], keys: PreflightKeystore(keys: [tag: ethereumPrivateKey])
+        ).inspect()) {
+            XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .incompletePublicIdentity)
+        }
+    }
+
+    func testEvmOnlyRootDoesNotAdoptUnboundUniversalAccounts() throws {
+        let wallet = try ethereumOnlyWallet()
+        let entropy = Data(repeating: 0x01, count: 16)
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId): ethereumPrivateKey,
+            fearless.KeystoreTagV2.entropyTagForMetaId(wallet.metaId): entropy
+        ])
+        XCTAssertNil(try KeychainUniversalWalletMnemonicProvider(keystore: keys)
+            .rootMnemonic(for: wallet))
+        XCTAssertEqual(try UniversalWalletStoredSeedAdopter(keystore: keys)
+            .adoptStoredSecret(for: wallet), wallet)
+        XCTAssertTrue(wallet.chainAccounts.isEmpty)
+        XCTAssertEqual(
+            wallet.backupAddress,
+            try XCTUnwrap(wallet.ethereumAddress).toAddress(using: .ethereum)
+        )
     }
 
     func testQuarantinedOrUnsupportedRowBlocksEntireInventory() throws {
@@ -567,6 +659,23 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
             substrateCryptoType: cryptoType.rawValue, substratePublicKey: publicKey,
             ethereumAddress: try ethereumPublicKey?.ethereumAddressFromPublicKey(),
             ethereumPublicKey: ethereumPublicKey, chainAccounts: [], assetKeysOrder: nil,
+            canExportEthereumMnemonic: false, unusedChainIds: nil,
+            selectedCurrency: Currency.defaultCurrency(), networkManagmentFilter: nil,
+            assetsVisibility: [], hasBackup: false, favouriteChainIds: []
+        )
+    }
+
+    private func ethereumOnlyWallet() throws -> MetaAccountModel {
+        let publicKey = try SECKeyFactory().derive(
+            fromPrivateKey: SECPrivateKey(rawData: ethereumPrivateKey)
+        ).publicKey().rawData()
+        return MetaAccountModel(
+            metaId: "evm-only-preflight-wallet", name: "EVM only",
+            substrateAccountId: nil, substrateCryptoType: CryptoType.ed25519.rawValue,
+            substratePublicKey: nil,
+            ethereumAddress: try publicKey.ethereumAddressFromPublicKey(),
+            ethereumPublicKey: publicKey,
+            chainAccounts: [], assetKeysOrder: nil,
             canExportEthereumMnemonic: false, unusedChainIds: nil,
             selectedCurrency: Currency.defaultCurrency(), networkManagmentFilter: nil,
             assetsVisibility: [], hasBackup: false, favouriteChainIds: []

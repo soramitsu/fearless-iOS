@@ -83,16 +83,42 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             substrateCryptoType = cryptoType
             legacyTonAccount = nil
         } else {
-            guard entity.substrateAccountId == nil, entity.substratePublicKey == nil,
-                  entity.entity.propertiesByName["tonAddress"] != nil,
-                  let version = entity.value(forKey: "tonContractVersion") as? String,
-                  version == "v4R2",
-                  let serializedAddress = entity.value(forKey: "tonAddress") as? Data,
-                  let publicKey = entity.value(forKey: "tonPublicKey") as? Data
-            else { throw MetaAccountMapperError.unsupportedWalletRecord }
-            legacyTonAccount = try LegacyTonAccount(
-                serializedAddress: serializedAddress, publicKey: publicKey, contractVersion: version
-            )
+            guard entity.substrateAccountId == nil, entity.substratePublicKey == nil else {
+                throw MetaAccountMapperError.invalidWalletRecord
+            }
+            let tonColumnCount = ["tonAddress", "tonPublicKey", "tonContractVersion"].filter {
+                entity.entity.propertiesByName[$0] != nil
+            }.count
+            guard tonColumnCount == 0 || tonColumnCount == 3 else {
+                throw MetaAccountMapperError.unsupportedWalletRecord
+            }
+            let hasTonColumns = tonColumnCount == 3
+            let version = hasTonColumns ? entity.value(forKey: "tonContractVersion") as? String : nil
+            let serializedAddress = hasTonColumns ? entity.value(forKey: "tonAddress") as? Data : nil
+            let tonPublicKey = hasTonColumns ? entity.value(forKey: "tonPublicKey") as? Data : nil
+            if version != nil || serializedAddress != nil || tonPublicKey != nil {
+                guard let version, version == "v4R2",
+                      let serializedAddress, let tonPublicKey else {
+                    throw MetaAccountMapperError.unsupportedWalletRecord
+                }
+                legacyTonAccount = try LegacyTonAccount(
+                    serializedAddress: serializedAddress, publicKey: tonPublicKey, contractVersion: version
+                )
+            } else {
+                // EVM-only wallets are valid roots on Android. The current Core Data
+                // schema can represent them, but never mistake a partial or foreign
+                // public identity for an installable iOS wallet.
+                guard let addressHex = entity.ethereumAddress,
+                      let ethereumPublicKey = entity.ethereumPublicKey else {
+                    throw MetaAccountMapperError.unsupportedWalletRecord
+                }
+                let address = try Data(hexStringSSF: addressHex)
+                guard address.count == 20,
+                      (try? ethereumPublicKey.ethereumAddressFromPublicKey()) == address else {
+                    throw MetaAccountMapperError.invalidWalletRecord
+                }
+                legacyTonAccount = nil
+            }
             substrateAccountId = nil
             substratePublicKey = nil
             substrateCryptoType = .ed25519
@@ -240,6 +266,19 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         from model: DataProviderModel,
         using context: NSManagedObjectContext
     ) throws {
+        guard (model.substrateAccountId == nil) == (model.substratePublicKey == nil),
+              (model.ethereumAddress == nil) == (model.ethereumPublicKey == nil) else {
+            throw MetaAccountMapperError.invalidWalletRecord
+        }
+        if model.substrateAccountId == nil, model.substratePublicKey == nil,
+           model.legacyTonAccount == nil {
+            guard let publicKey = model.ethereumPublicKey,
+                  let address = model.ethereumAddress,
+                  address.count == 20,
+                  (try? publicKey.ethereumAddressFromPublicKey()) == address else {
+                throw MetaAccountMapperError.invalidWalletRecord
+            }
+        }
         // Validate unordered child identities before changing the managed object. A model can
         // contain distinct `ChainAccountModel` values whose chain IDs are aliases of one chain.
         // Persisting both would make subsequent account selection depend on NSSet iteration order.

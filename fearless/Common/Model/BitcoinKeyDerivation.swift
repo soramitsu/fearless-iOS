@@ -106,7 +106,9 @@ final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting 
     }
 
     func adoptStoredSecret(for wallet: MetaAccountModel) throws -> MetaAccountModel {
-        if wallet.substrateAccountId == nil, wallet.legacyTonAccount != nil { return wallet }
+        // EVM-only and native TON roots have no Substrate recovery contract to
+        // authorize adding Bitcoin or Taira accounts from an incidental entropy tag.
+        if wallet.substrateAccountId == nil { return wallet }
         try validateNoConflictingAccounts(in: wallet)
 
         if let rootEntropy = try fetchIfPresent(

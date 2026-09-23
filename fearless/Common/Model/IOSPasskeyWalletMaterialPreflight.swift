@@ -142,9 +142,10 @@ final class IOSPasskeyWalletMaterialPreflight {
 
     private func inspectRoot(_ wallet: MetaAccountModel) throws -> String? {
         let hasSubstrate = wallet.substrateAccountId != nil || wallet.substratePublicKey != nil
-        // The persisted iOS model supports a Substrate root or the released TON-only
-        // root. A standalone EVM root has no supported Core Data representation yet.
-        guard hasSubstrate || wallet.legacyTonAccount != nil,
+        let hasEthereum = wallet.ethereumAddress != nil || wallet.ethereumPublicKey != nil
+        // An EVM-only root is valid when its private key signs for the exact
+        // persisted address. Native TON remains a separate released root.
+        guard hasSubstrate || hasEthereum || wallet.legacyTonAccount != nil,
               (wallet.substrateAccountId == nil) == (wallet.substratePublicKey == nil),
               (wallet.ethereumAddress == nil) == (wallet.ethereumPublicKey == nil) else {
             throw IOSPasskeyWalletMaterialPreflightError.incompletePublicIdentity

@@ -3,6 +3,7 @@ import XCTest
 import RobinHood
 import SSFModels
 import CoreData
+import IrohaCrypto
 
 class MetaAccountMapperTests: XCTestCase {
     func testTransformConvertsMandatoryGetterExceptionToSanitizedSwiftError() {
@@ -185,6 +186,111 @@ class MetaAccountMapperTests: XCTestCase {
         operationQueue.addOperations([fetchOperation], waitUntilFinished: true)
 
         XCTAssertEqual(try XCTUnwrap(fetchOperation.result).get(), [wallet])
+    }
+
+    func testEvmOnlyWalletRoundTripsThroughCurrentStoreAndSelectionMapper() throws {
+        let privateKey = Data(repeating: 0x01, count: 32)
+        let publicKey = try SECKeyFactory().derive(
+            fromPrivateKey: SECPrivateKey(rawData: privateKey)
+        ).publicKey().rawData()
+        let address = try publicKey.ethereumAddressFromPublicKey()
+        let wallet = MetaAccountModel(
+            metaId: "evm-only-mapper-wallet", name: "Independent EVM",
+            substrateAccountId: nil, substrateCryptoType: CryptoType.ed25519.rawValue,
+            substratePublicKey: nil, ethereumAddress: address, ethereumPublicKey: publicKey,
+            chainAccounts: [], assetKeysOrder: nil, canExportEthereumMnemonic: false,
+            unusedChainIds: nil, selectedCurrency: Currency.defaultCurrency(),
+            networkManagmentFilter: nil, assetsVisibility: [], hasBackup: false,
+            favouriteChainIds: []
+        )
+        let facade = UserDataStorageTestFacade()
+        let queue = OperationQueue()
+        let repository = facade.createRepository(mapper: AnyCoreDataMapper(ManagedMetaAccountMapper()))
+        let save = repository.saveOperation(
+            { [ManagedMetaAccountModel(info: wallet, isSelected: true)] }, { [] }
+        )
+        queue.addOperations([save], waitUntilFinished: true)
+        _ = try XCTUnwrap(save.result).get()
+
+        let fetch = repository.fetchAllOperation(with: RepositoryFetchOptions(
+            includesProperties: true, includesSubentities: true
+        ))
+        queue.addOperations([fetch], waitUntilFinished: true)
+        let stored = try XCTUnwrap(fetch.result).get()
+        XCTAssertEqual(stored.count, 1)
+        XCTAssertEqual(stored[0].info, wallet)
+        XCTAssertTrue(stored[0].isSelected)
+        XCTAssertNil(stored[0].info.substratePublicKey)
+        XCTAssertNil(stored[0].info.legacyTonAccount)
+
+        let selectionRepository = facade.createRepository(
+            mapper: AnyCoreDataMapper(MetaAccountSelectionMapper(captureDisplayPreferences: true))
+        )
+        let selectionFetch = selectionRepository.fetchAllOperation(with: RepositoryFetchOptions(
+            includesProperties: true, includesSubentities: true
+        ))
+        queue.addOperations([selectionFetch], waitUntilFinished: true)
+        let projection = try XCTUnwrap(try XCTUnwrap(selectionFetch.result).get().first)
+        XCTAssertEqual(projection.recordState, .supported)
+        XCTAssertEqual(projection.wallet?.ethereumAddress, address)
+        XCTAssertEqual(projection.wallet?.ethereumPublicKey, publicKey)
+    }
+
+    func testEvmOnlyMapperQuarantinesIncompleteMismatchedAndPartialTonRows() throws {
+        let privateKey = Data(repeating: 0x01, count: 32)
+        let publicKey = try SECKeyFactory().derive(
+            fromPrivateKey: SECPrivateKey(rawData: privateKey)
+        ).publicKey().rawData()
+        let address = try publicKey.ethereumAddressFromPublicKey()
+        let validAddress = address.map { String(format: "%02x", $0) }.joined()
+        let facade = UserDataStorageTestFacade()
+        let checked = expectation(description: "Check unsaved EVM-only row mutations")
+        var didAcceptValid = false
+        var didRejectWrongAddress = false
+        var didRejectMissingPublicKey = false
+        var didRejectPartialTon = false
+        var callbackError: Error?
+        facade.databaseService.performAsync { context, error in
+            defer { checked.fulfill() }
+            do {
+                if let error { throw error }
+                guard let context else { throw MetaAccountMapperError.invalidWalletRecord }
+                let row = CDMetaAccount(context: context)
+                row.metaId = "evm-only-corruption-probe"
+                row.name = "EVM only"
+                row.ethereumAddress = validAddress
+                row.ethereumPublicKey = publicKey
+                row.favouriteChainIds = NSArray()
+                didAcceptValid = (try? MetaAccountMapper().transform(entity: row)) != nil
+
+                row.ethereumAddress = Data(repeating: 0x44, count: 20)
+                    .map { String(format: "%02x", $0) }.joined()
+                let wrongAddressState = try MetaAccountSelectionMapper().transform(entity: row).recordState
+                didRejectWrongAddress = (try? MetaAccountMapper().transform(entity: row)) == nil &&
+                    wrongAddressState == .corrupt
+                row.ethereumAddress = validAddress
+
+                row.ethereumPublicKey = nil
+                let missingKeyState = try MetaAccountSelectionMapper().transform(entity: row).recordState
+                didRejectMissingPublicKey = (try? MetaAccountMapper().transform(entity: row)) == nil &&
+                    missingKeyState == .unsupported
+                row.ethereumPublicKey = publicKey
+
+                row.setValue(Data([0x01]), forKey: "tonAddress")
+                let partialTonState = try MetaAccountSelectionMapper().transform(entity: row).recordState
+                didRejectPartialTon = (try? MetaAccountMapper().transform(entity: row)) == nil &&
+                    partialTonState == .unsupported
+                context.rollback()
+            } catch {
+                callbackError = error
+            }
+        }
+        wait(for: [checked], timeout: Constants.defaultExpectationDuration)
+        if let callbackError { throw callbackError }
+        XCTAssertTrue(didAcceptValid)
+        XCTAssertTrue(didRejectWrongAddress)
+        XCTAssertTrue(didRejectMissingPublicKey)
+        XCTAssertTrue(didRejectPartialTon)
     }
 
     func testNonPersistableNilRequiredFieldsAreQuarantinedByMappersWithoutSaving() throws {

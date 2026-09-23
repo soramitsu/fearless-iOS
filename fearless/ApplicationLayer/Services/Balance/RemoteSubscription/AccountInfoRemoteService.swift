@@ -212,7 +212,7 @@ final class KeychainUniversalWalletMnemonicProvider:
     }
 
     func rootMnemonic(for wallet: MetaAccountModel) throws -> String? {
-        if wallet.substrateAccountId == nil, wallet.legacyTonAccount != nil { return nil }
+        guard wallet.substrateAccountId != nil else { return nil }
         if let rootMnemonic = try mnemonicIfPresent(
             metaId: wallet.metaId,
             accountId: nil
