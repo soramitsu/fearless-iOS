@@ -35,11 +35,10 @@ an operation ID and an independently authenticated owner/account scope. It
 stages the exact candidate and durably marks the attempt before invoking the
 transport; repeat calls return `reconcileRequired` without another POST.
 
-This patch does not connect the journal to an owner grant, decryption
-verification or authoritative head CAS. A future coordinator must download
-the same ID, unwrap and decrypt locally, verify wallet identity and
-signing/export, then advance the owner head transactionally. It must retain
-the previous decryptable generation through an interrupted replacement and
-define monitored recovery for unresolved markers. The release flag remains
-off; real iOS-to-Android and Android-to-iOS replacement-device tests are
-still required.
+The [round-trip coordinator](passkey-generation-coordinator.md) now downloads
+the same ID and requires a mandatory injected local wallet verifier before
+returning local evidence. Production decryption and wallet verification still
+need wiring. The owner grant and authoritative head CAS must retain the
+previous decryptable generation through an interrupted replacement and define
+monitored recovery for unresolved markers. The release flag remains off; real
+iOS-to-Android and Android-to-iOS replacement-device tests are still required.

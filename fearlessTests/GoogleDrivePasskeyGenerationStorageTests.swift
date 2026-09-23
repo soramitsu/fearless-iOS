@@ -373,6 +373,200 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         }
     }
 
+    func testCoordinatorReturnsLocalEvidenceOnlyAfterExactDownloadAndWalletVerification() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let (journal, parent) = try coordinatorJournal()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let verifier = GenerationLocalVerifierFixture()
+        fixture.transport.responses = [
+            .success(.init(statusCode: 201, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: candidate.bytes))
+        ]
+        let result = try await PasskeyBackupGenerationCoordinator(
+            storage: fixture.store, journal: journal, verifier: verifier
+        ).verifyPreparedGeneration(
+            operationID: coordinatorOperationID, authenticatedScope: scope(candidate),
+            expectedWallet: try expectedWallet(), candidate: candidate
+        )
+        XCTAssertEqual(result.fileID, candidate.fileID)
+        XCTAssertEqual(result.sha256, candidate.sha256)
+        XCTAssertEqual(result.publicIdentitySha256, String(repeating: "b", count: 64))
+        XCTAssertEqual(verifier.calls, 1)
+        XCTAssertEqual(fixture.transport.requests.map(\.method), ["POST", "GET", "GET"])
+        XCTAssertEqual(String(reflecting: result), "PasskeyBackupLocallyVerifiedGeneration(<redacted>)")
+        XCTAssertFalse(PasskeyBackupReleaseConfig.isPasskeyBackupEnabled)
+    }
+
+    func testCoordinatorReconcilesUnknownUploadAnd404AfterRestartWithoutSecondPost() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let (journal, parent) = try coordinatorJournal()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let verifier = GenerationLocalVerifierFixture()
+        let initial = PasskeyBackupGenerationCoordinator(storage: fixture.store, journal: journal, verifier: verifier)
+        fixture.transport.responses = [
+            .failure(URLError(.networkConnectionLost)), .success(.init(statusCode: 404))
+        ]
+        do {
+            _ = try await initial.verifyPreparedGeneration(
+                operationID: coordinatorOperationID, authenticatedScope: scope(candidate),
+                expectedWallet: expectedWallet(), candidate: candidate
+            )
+            XCTFail("An unknown upload followed by 404 was accepted")
+        } catch {
+            XCTAssertEqual(error as? PasskeyBackupGenerationCoordinatorError, .generationUnavailable)
+        }
+        XCTAssertEqual(verifier.calls, 0)
+        XCTAssertEqual(fixture.transport.requests.map(\.method), ["POST", "GET"])
+        XCTAssertTrue(try XCTUnwrap(journal.read(
+            operationID: coordinatorOperationID, expectedScope: scope(candidate)
+        )).createAttempted)
+
+        let restarted = try PasskeyBackupGenerationJournal(parentDirectoryURL: parent)
+        fixture.transport.responses = [
+            .success(.init(statusCode: 200, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: candidate.bytes))
+        ]
+        _ = try await PasskeyBackupGenerationCoordinator(
+            storage: fixture.store, journal: restarted, verifier: verifier
+        ).verifyPreparedGeneration(
+            operationID: coordinatorOperationID, authenticatedScope: scope(candidate),
+            expectedWallet: expectedWallet()
+        )
+        XCTAssertEqual(fixture.transport.requests.map(\.method), ["POST", "GET", "GET", "GET"])
+        XCTAssertEqual(verifier.calls, 1)
+    }
+
+    func testCoordinatorRejectsTamperedMediaAndNeverCallsWalletVerifier() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let (journal, parent) = try coordinatorJournal()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let verifier = GenerationLocalVerifierFixture()
+        var tampered = candidate.bytes
+        tampered[tampered.count - 1] ^= 1
+        fixture.transport.responses = [
+            .success(.init(statusCode: 201, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: tampered))
+        ]
+        await assertFailure {
+            _ = try await PasskeyBackupGenerationCoordinator(
+                storage: fixture.store, journal: journal, verifier: verifier
+            ).verifyPreparedGeneration(
+                operationID: self.coordinatorOperationID, authenticatedScope: self.scope(candidate),
+                expectedWallet: self.expectedWallet(), candidate: candidate
+            )
+        }
+        XCTAssertEqual(verifier.calls, 0)
+        XCTAssertEqual(fixture.transport.requests.map(\.method), ["POST", "GET", "GET"])
+    }
+
+    func testCoordinatorRejectsWrongOwnerScopeAndGoogleAccountBeforeUpload() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let (journal, parent) = try coordinatorJournal()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let verifier = GenerationLocalVerifierFixture()
+        let wrongScope = PasskeyBackupGenerationJournalScope(
+            ownerSubject: "owner:" + String(repeating: "A", count: 43),
+            backupNamespace: candidate.context.backupNamespace,
+            storageAccountBinding: candidate.context.storageAccountBinding
+        )
+        await assertFailure {
+            _ = try await PasskeyBackupGenerationCoordinator(
+                storage: fixture.store, journal: journal, verifier: verifier
+            ).verifyPreparedGeneration(
+                operationID: self.coordinatorOperationID, authenticatedScope: wrongScope,
+                expectedWallet: self.expectedWallet(), candidate: candidate
+            )
+        }
+        XCTAssertNil(try journal.read(operationID: coordinatorOperationID, expectedScope: scope(candidate)))
+        let otherAccount = try GoogleDriveBackupAccount(subject: "other-subject", email: "other@example.com")
+        let otherStore = try GoogleDrivePasskeyGenerationStorage(
+            account: otherAccount,
+            tokenProvider: GoogleDrivePasskeyBackupTokenProvider(account: otherAccount, session: fixture.oauth),
+            transport: fixture.transport
+        )
+        await assertFailure {
+            _ = try await PasskeyBackupGenerationCoordinator(
+                storage: otherStore, journal: journal, verifier: verifier
+            ).verifyPreparedGeneration(
+                operationID: self.coordinatorOperationID, authenticatedScope: self.scope(candidate),
+                expectedWallet: self.expectedWallet(), candidate: candidate
+            )
+        }
+        XCTAssertNil(try journal.read(operationID: coordinatorOperationID, expectedScope: scope(candidate)))
+        fixture.oauth.current = try authorization(subject: "other-subject")
+        await assertFailure {
+            _ = try await PasskeyBackupGenerationCoordinator(
+                storage: fixture.store, journal: journal, verifier: verifier
+            ).verifyPreparedGeneration(
+                operationID: self.coordinatorOperationID, authenticatedScope: self.scope(candidate),
+                expectedWallet: self.expectedWallet(), candidate: candidate
+            )
+        }
+        XCTAssertTrue(fixture.transport.requests.isEmpty)
+        XCTAssertEqual(verifier.calls, 0)
+    }
+
+    func testCoordinatorRejectsFailedLocalDecryptSigningOrExportAndRetainsAttempt() async throws {
+        for failedCheck in 0 ..< 3 {
+            let fixture = try fixture()
+            let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+            let (journal, parent) = try coordinatorJournal()
+            defer { try? FileManager.default.removeItem(at: parent) }
+            let verifier = GenerationLocalVerifierFixture()
+            verifier.failedCheck = failedCheck
+            fixture.transport.responses = [
+                .success(.init(statusCode: 201, body: try metadata(candidate))),
+                .success(.init(statusCode: 200, body: try metadata(candidate))),
+                .success(.init(statusCode: 200, body: candidate.bytes))
+            ]
+            do {
+                _ = try await PasskeyBackupGenerationCoordinator(
+                    storage: fixture.store, journal: journal, verifier: verifier
+                ).verifyPreparedGeneration(
+                    operationID: coordinatorOperationID, authenticatedScope: scope(candidate),
+                    expectedWallet: expectedWallet(), candidate: candidate
+                )
+                XCTFail("Failed local wallet check was accepted")
+            } catch {
+                XCTAssertEqual(error as? PasskeyBackupGenerationCoordinatorError, .localVerificationFailed)
+            }
+            XCTAssertTrue(try XCTUnwrap(journal.read(
+                operationID: coordinatorOperationID, expectedScope: scope(candidate)
+            )).createAttempted)
+            XCTAssertEqual(verifier.calls, 1)
+        }
+    }
+
+    private var coordinatorOperationID: String { String(repeating: "A", count: 43) }
+
+    private func scope(
+        _ candidate: GoogleDrivePasskeyGenerationStorage.Candidate
+    ) -> PasskeyBackupGenerationJournalScope {
+        .init(
+            ownerSubject: candidate.context.ownerSubject,
+            backupNamespace: candidate.context.backupNamespace,
+            storageAccountBinding: candidate.context.storageAccountBinding
+        )
+    }
+
+    private func expectedWallet() throws -> PasskeyBackupExpectedWalletIdentity {
+        try .init(storageKey: "wallet-1234", walletId: "wallet-001", publicIdentitySha256: String(repeating: "b", count: 64))
+    }
+
+    private func coordinatorJournal() throws -> (PasskeyBackupGenerationJournal, URL) {
+        let parent = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(
+            at: parent, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700]
+        )
+        return try (PasskeyBackupGenerationJournal(parentDirectoryURL: parent), parent)
+    }
+
     private func fixture() throws -> GenerationFixture {
         let account = try GoogleDriveBackupAccount(subject: subject, email: "alice@example.com")
         let oauth = GenerationOAuthFixture(current: try authorization())
@@ -494,6 +688,25 @@ private struct GenerationFixture {
     let oauth: GenerationOAuthFixture
     let transport: GenerationTransportFixture
     let store: GoogleDrivePasskeyGenerationStorage
+}
+
+private final class GenerationLocalVerifierFixture: PasskeyLocalWalletVerifier {
+    var calls = 0
+    var failedCheck: Int?
+
+    func decryptAndVerifyOriginalWallet(
+        _: PasskeyBackupGenerationV1,
+        expectedIdentity: PasskeyBackupExpectedWalletIdentity
+    ) async throws -> PasskeyBackupLocalWalletEvidence {
+        calls += 1
+        return PasskeyBackupLocalWalletEvidence(
+            storageKey: expectedIdentity.storageKey, walletId: expectedIdentity.walletId,
+            publicIdentitySha256: expectedIdentity.publicIdentitySha256,
+            decryptionVerified: failedCheck != 0,
+            originalKeySigningVerified: failedCheck != 1,
+            originalKeyExportVerified: failedCheck != 2
+        )
+    }
 }
 
 @MainActor
