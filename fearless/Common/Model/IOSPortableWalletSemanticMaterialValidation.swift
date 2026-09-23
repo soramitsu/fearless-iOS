@@ -301,7 +301,7 @@ extension IOSPortableWalletSemanticMaterial {
                 switch sourceRole {
                 case 1, 5, 7: compatible = [1, 2, 5].contains(binding)
                 case 2, 6, 8: compatible = [1, 3, 5].contains(binding)
-                case 3: compatible = binding == 1 || binding == 4
+                case 3: compatible = [1, 4, 5].contains(binding)
                 case 4: compatible = (1 ... 5).contains(binding)
                 case 9: compatible = binding == 1
                 default: compatible = false

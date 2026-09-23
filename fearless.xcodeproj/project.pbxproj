@@ -27,6 +27,8 @@
 		A50923CCCE00000000000002 /* IOSPortableWalletMaterialEnvelope.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCE00000000000001 /* IOSPortableWalletMaterialEnvelope.swift */; };
 		A50923CCCF00000000000002 /* IOSPortableWalletSemanticMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCF00000000000001 /* IOSPortableWalletSemanticMaterial.swift */; };
 		A50923CCCF00000000000006 /* IOSPortableWalletSemanticMaterialValidation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCF00000000000005 /* IOSPortableWalletSemanticMaterialValidation.swift */; };
+		A50923CCCF00000000000008 /* IOSPortableWalletSemanticDraftAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCF00000000000007 /* IOSPortableWalletSemanticDraftAdapter.swift */; };
+		A50923CCCF0000000000000A /* IOSPortableWalletSemanticDraftAdapter+Signed.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCF00000000000009 /* IOSPortableWalletSemanticDraftAdapter+Signed.swift */; };
 		A50923CCCF00000000000004 /* IOSPortableWalletSemanticMaterialTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCF00000000000003 /* IOSPortableWalletSemanticMaterialTests.swift */; };
 		A50923CCCD00000000000004 /* IOSPasskeyWalletMaterialPreflightTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCD00000000000003 /* IOSPasskeyWalletMaterialPreflightTests.swift */; };
 		A50923DDDD00000000000002 /* PasskeyBackupAuthenticatedHead.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923DDDD00000000000001 /* PasskeyBackupAuthenticatedHead.swift */; };
@@ -3227,6 +3229,8 @@
 		A50923CCCE00000000000001 /* IOSPortableWalletMaterialEnvelope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletMaterialEnvelope.swift; sourceTree = "<group>"; };
 		A50923CCCF00000000000001 /* IOSPortableWalletSemanticMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletSemanticMaterial.swift; sourceTree = "<group>"; };
 		A50923CCCF00000000000005 /* IOSPortableWalletSemanticMaterialValidation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletSemanticMaterialValidation.swift; sourceTree = "<group>"; };
+		A50923CCCF00000000000007 /* IOSPortableWalletSemanticDraftAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletSemanticDraftAdapter.swift; sourceTree = "<group>"; };
+		A50923CCCF00000000000009 /* IOSPortableWalletSemanticDraftAdapter+Signed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IOSPortableWalletSemanticDraftAdapter+Signed.swift"; sourceTree = "<group>"; };
 		A50923CCCF00000000000003 /* IOSPortableWalletSemanticMaterialTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletSemanticMaterialTests.swift; sourceTree = "<group>"; };
 		A50923CCCD00000000000003 /* IOSPasskeyWalletMaterialPreflightTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPasskeyWalletMaterialPreflightTests.swift; sourceTree = "<group>"; };
 		A50923DDDD00000000000001 /* PasskeyBackupAuthenticatedHead.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupAuthenticatedHead.swift; sourceTree = "<group>"; };
@@ -9735,6 +9739,8 @@
 				A50923CCCE00000000000001 /* IOSPortableWalletMaterialEnvelope.swift */,
 				A50923CCCF00000000000001 /* IOSPortableWalletSemanticMaterial.swift */,
 				A50923CCCF00000000000005 /* IOSPortableWalletSemanticMaterialValidation.swift */,
+				A50923CCCF00000000000007 /* IOSPortableWalletSemanticDraftAdapter.swift */,
+				A50923CCCF00000000000009 /* IOSPortableWalletSemanticDraftAdapter+Signed.swift */,
 				A50923DDDD00000000000001 /* PasskeyBackupAuthenticatedHead.swift */,
 				A5092300DD00000000000001 /* GoogleDrivePasskeyBackupTokenProvider.swift */,
 				FAE601452ECA700100000001 /* UniversalWalletHTTPTransport.swift */,
@@ -17609,6 +17615,8 @@
 				A50923CCCE00000000000002 /* IOSPortableWalletMaterialEnvelope.swift in Sources */,
 				A50923CCCF00000000000002 /* IOSPortableWalletSemanticMaterial.swift in Sources */,
 				A50923CCCF00000000000006 /* IOSPortableWalletSemanticMaterialValidation.swift in Sources */,
+				A50923CCCF00000000000008 /* IOSPortableWalletSemanticDraftAdapter.swift in Sources */,
+				A50923CCCF0000000000000A /* IOSPortableWalletSemanticDraftAdapter+Signed.swift in Sources */,
 				A50923DDDD00000000000002 /* PasskeyBackupAuthenticatedHead.swift in Sources */,
 				A5092300DD00000000000002 /* GoogleDrivePasskeyBackupTokenProvider.swift in Sources */,
 				FAE601442ECA700100000001 /* UniversalWalletHTTPTransport.swift in Sources */,

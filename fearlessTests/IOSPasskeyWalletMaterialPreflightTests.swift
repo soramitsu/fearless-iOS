@@ -126,8 +126,11 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         ])
         XCTAssertNil(try KeychainUniversalWalletMnemonicProvider(keystore: keys)
             .rootMnemonic(for: wallet))
-        XCTAssertEqual(try UniversalWalletStoredSeedAdopter(keystore: keys)
-            .adoptStoredSecret(for: wallet), wallet)
+        XCTAssertEqual(
+            try UniversalWalletStoredSeedAdopter(keystore: keys)
+                .adoptStoredSecret(for: wallet),
+            wallet
+        )
         XCTAssertTrue(wallet.chainAccounts.isEmpty)
         XCTAssertEqual(
             wallet.backupAddress,
@@ -635,6 +638,173 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         ) {
             XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .unavailableSecretMaterial)
         }
+    }
+
+    func testFreshEvmOnlyDraftConvertsToPortableMaterialWithoutLosingHistoricalKeychainBytes() throws {
+        let wallet = try ethereumOnlyWallet()
+        let strayEntropy = Data(repeating: 0x42, count: 16)
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId): ethereumPrivateKey,
+            fearless.KeystoreTagV2.entropyTagForMetaId(wallet.metaId): strayEntropy
+        ])
+        let selected = MetaAccountSelectionModel(
+            identifier: wallet.metaId, wallet: wallet, isSelected: true, order: 7,
+            displayPreferences: PersistedWalletDisplayPreferences(
+                assetFilterOptions: ["historical"], zeroBalanceAssetsHidden: true
+            )
+        )
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([selected], keys: keys), keystore: keys
+        ).capture()
+        let bytes = try IOSPortableWalletSemanticDraftAdapter.encode(draft)
+        var semantic = try IOSPortableWalletSemanticMaterial.decode(bytes)
+        defer { semantic.clearSecrets() }
+
+        XCTAssertEqual(semantic.selectedIndex, 0)
+        XCTAssertEqual(semantic.wallets[0].sourcePosition, 7)
+        XCTAssertEqual(semantic.wallets[0].slots.map(\.role), [2, 7, 7])
+        XCTAssertEqual(try semantic.wallets[0].slots[0].value(2), Array(ethereumPrivateKey))
+        XCTAssertEqual(try semantic.wallets[0].slots[2].value(20), Array(strayEntropy))
+        XCTAssertEqual(try semantic.wallets[0].slots[2].value(17), [1])
+        XCTAssertEqual(semantic.wallets[0].metadata.map(\.id), [3, 5, 6, 7, 8, 9])
+        XCTAssertEqual(try semantic.wallets[0].metadata.first(where: { $0.id == 8 })?.value, [1])
+        XCTAssertEqual(try IOSPortableWalletSemanticMaterial.encode(semantic), bytes)
+    }
+
+    func testFreshNativeTonDraftConvertsWithVerifiedPhraseAndPrivateKey() throws {
+        let wallet = try LegacyNativeTonFixture.wallet()
+        let phrase = Data(LegacyNativeTonFixture.phrase.utf8)
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.entropyTagForMetaId(wallet.metaId): phrase
+        ])
+        let selected = MetaAccountSelectionModel(
+            identifier: wallet.metaId, wallet: wallet, isSelected: true, order: 0,
+            displayPreferences: PersistedWalletDisplayPreferences(
+                assetFilterOptions: nil, zeroBalanceAssetsHidden: false
+            )
+        )
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([selected], keys: keys), keystore: keys
+        ).capture()
+        var semantic = try IOSPortableWalletSemanticDraftAdapter.snapshot(from: draft)
+        defer { semantic.clearSecrets() }
+
+        XCTAssertEqual(semantic.wallets[0].slots.map(\.role), [3, 7])
+        let ton = semantic.wallets[0].slots[0]
+        XCTAssertEqual(try ton.value(2), Array(try LegacyNativeTonFixture.privateKey()))
+        XCTAssertEqual(try ton.value(12), Array(phrase))
+        XCTAssertEqual(try ton.value(13), [2])
+        XCTAssertEqual(try ton.value(14), [2])
+        XCTAssertNoThrow(try IOSPortableWalletSemanticMaterial.encode(semantic))
+    }
+
+    func testDraftConversionFailsClosedWithoutSelectionOrSignedRootKey() throws {
+        let wallet = try ethereumOnlyWallet()
+        let preferences = PersistedWalletDisplayPreferences(
+            assetFilterOptions: nil, zeroBalanceAssetsHidden: false
+        )
+        let noSelection = IOSPasskeyWalletMaterialDraft(wallets: [.init(
+            publicIdentity: wallet, isSelected: false, order: 0,
+            displayPreferences: preferences,
+            slots: [.init(role: .ethereumSecret, chainId: nil, accountId: nil, bytes: ethereumPrivateKey)]
+        )])
+        XCTAssertThrowsError(try IOSPortableWalletSemanticDraftAdapter.encode(noSelection))
+
+        let missingKey = IOSPasskeyWalletMaterialDraft(wallets: [.init(
+            publicIdentity: wallet, isSelected: true, order: 0,
+            displayPreferences: preferences, slots: []
+        )])
+        XCTAssertThrowsError(try IOSPortableWalletSemanticDraftAdapter.encode(missingKey))
+    }
+
+    func testAccountScopedTonKeychainSourceIsRetainedWithoutGrantingItSigningAuthority() throws {
+        let base = try substrateWallet()
+        let chainSecret = Data(repeating: 0x32, count: 32)
+        let publicKey = try EDKeyFactory().derive(fromSeed: chainSecret).publicKey().rawData()
+        let accountID = try publicKey.publicKeyToAccountId()
+        let chain = ChainAccountModel(
+            chainId: "historical:chain", accountId: accountID, publicKey: publicKey,
+            cryptoType: CryptoType.ed25519.rawValue, ethereumBased: false
+        )
+        let wallet = base.insertingChainAccount(chain)
+        let historicalTonBytes = Data(repeating: 0xAC, count: 64)
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): substrateSecretKey,
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(
+                wallet.metaId, accountId: accountID
+            ): chainSecret,
+            fearless.KeystoreTagV2.tonSecretKeyTagForMetaId(
+                wallet.metaId, accountId: accountID
+            ): historicalTonBytes
+        ])
+        let selected = MetaAccountSelectionModel(
+            identifier: wallet.metaId, wallet: wallet, isSelected: true, order: 0,
+            displayPreferences: PersistedWalletDisplayPreferences(
+                assetFilterOptions: nil, zeroBalanceAssetsHidden: false
+            )
+        )
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([selected], keys: keys), keystore: keys
+        ).capture()
+        var semantic = try IOSPortableWalletSemanticDraftAdapter.snapshot(from: draft)
+        defer { semantic.clearSecrets() }
+
+        XCTAssertEqual(semantic.wallets[0].slots.map(\.role), [1, 5, 7, 7, 7])
+        let auxiliary = try XCTUnwrap(semantic.wallets[0].slots.first {
+            $0.role == 7 && (try? $0.value(16)) == [3]
+        })
+        XCTAssertEqual(try auxiliary.value(17), [5])
+        XCTAssertEqual(try auxiliary.value(18), Array(chain.chainId.utf8))
+        XCTAssertEqual(try auxiliary.value(21), Array(accountID))
+        XCTAssertEqual(try auxiliary.value(20), Array(historicalTonBytes))
+        XCTAssertNoThrow(try IOSPortableWalletSemanticMaterial.encode(semantic))
+    }
+
+    func testRootDerivedBitcoinChainReceivesItsOriginalSignableKey() throws {
+        let entropy = Data(repeating: 0x01, count: 16)
+        let phrase = try IRMnemonicCreator().mnemonic(fromEntropy: entropy).toString()
+        let rootSeed = try SeedFactory().deriveSeed(from: phrase, password: "").seed.miniSeed
+        let rootPublicKey = try EDKeyFactory().derive(fromSeed: rootSeed).publicKey().rawData()
+        let bitcoin = try BitcoinKeyDerivation.deriveAccount(mnemonic: phrase, network: .mainnet)
+        let chain = ChainAccountModel(
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
+            accountId: bitcoin.publicKey, publicKey: bitcoin.publicKey,
+            cryptoType: CryptoType.ecdsa.rawValue, ethereumBased: false
+        )
+        let wallet = MetaAccountModel(
+            metaId: "derived-bitcoin-wallet", name: "Derived",
+            substrateAccountId: try rootPublicKey.publicKeyToAccountId(),
+            substrateCryptoType: CryptoType.ed25519.rawValue,
+            substratePublicKey: rootPublicKey, ethereumAddress: nil,
+            ethereumPublicKey: nil, chainAccounts: [chain], assetKeysOrder: nil,
+            canExportEthereumMnemonic: false, unusedChainIds: nil,
+            selectedCurrency: Currency.defaultCurrency(), networkManagmentFilter: nil,
+            assetsVisibility: [], hasBackup: false, favouriteChainIds: []
+        )
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): rootSeed,
+            fearless.KeystoreTagV2.entropyTagForMetaId(wallet.metaId): entropy,
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(
+                wallet.metaId, accountId: bitcoin.publicKey
+            ): Data(repeating: 0xAA, count: 32)
+        ])
+        let selected = MetaAccountSelectionModel(
+            identifier: wallet.metaId, wallet: wallet, isSelected: true, order: 0,
+            displayPreferences: PersistedWalletDisplayPreferences(
+                assetFilterOptions: nil, zeroBalanceAssetsHidden: false
+            )
+        )
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([selected], keys: keys), keystore: keys
+        ).capture()
+        var semantic = try IOSPortableWalletSemanticDraftAdapter.snapshot(from: draft)
+        defer { semantic.clearSecrets() }
+
+        XCTAssertEqual(semantic.wallets[0].slots.map(\.role), [1, 5, 7, 7, 7])
+        let chainSlot = try XCTUnwrap(semantic.wallets[0].slots.first { $0.role == 5 })
+        XCTAssertEqual(try chainSlot.value(2), Array(bitcoin.privateKey))
+        XCTAssertEqual(try chainSlot.value(1), Array(bitcoin.publicKey))
+        XCTAssertNoThrow(try IOSPortableWalletSemanticMaterial.encode(semantic))
     }
 
     private func substrateWallet(
