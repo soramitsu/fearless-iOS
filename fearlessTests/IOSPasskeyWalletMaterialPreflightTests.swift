@@ -698,6 +698,115 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         XCTAssertNoThrow(try IOSPortableWalletSemanticMaterial.encode(semantic))
     }
 
+    func testImportedEVMRootProvesOriginalSignerAndRejectsAlteredSecretOrAddress() throws {
+        let wallet = try ethereumOnlyWallet()
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId): ethereumPrivateKey
+        ])
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([selectedProjection(wallet)], keys: keys), keystore: keys
+        ).capture()
+        let encoded = try IOSPortableWalletSemanticDraftAdapter.encode(draft)
+        XCTAssertEqual(
+            try IOSPortableRootSigningProof.verify(encoded),
+            .init(wallets: 1, substrateRoots: 0, evmRoots: 1, nativeTonRoots: 0, legacySubstrateRoots: 0)
+        )
+
+        var semantic = try IOSPortableWalletSemanticMaterial.decode(encoded)
+        defer { semantic.clearSecrets() }
+        let keyIndex = try XCTUnwrap(semantic.wallets[0].slots[0].fields.firstIndex { $0.id == 2 })
+        semantic.wallets[0].slots[0].fields[keyIndex].value[0] ^= 1
+        XCTAssertThrowsError(try IOSPortableRootSigningProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(semantic)
+        ))
+        semantic.wallets[0].slots[0].fields[keyIndex].value[0] ^= 1
+        let addressIndex = try XCTUnwrap(semantic.wallets[0].slots[0].fields.firstIndex { $0.id == 7 })
+        semantic.wallets[0].slots[0].fields[addressIndex].value[0] ^= 1
+        XCTAssertThrowsError(try IOSPortableRootSigningProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(semantic)
+        ))
+    }
+
+    func testImportedSubstrateRootProvesAllReleasedCryptoTypes() throws {
+        for cryptoType in [CryptoType.sr25519, .ed25519, .ecdsa] {
+            let wallet = try substrateWallet(cryptoType: cryptoType)
+            let keys = PreflightKeystore(keys: [
+                fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId):
+                    try substrateSecretKey(for: cryptoType)
+            ])
+            let draft = try IOSPasskeyWalletMaterialDraftCapture(
+                preflight: makePreflight([selectedProjection(wallet)], keys: keys), keystore: keys
+            ).capture()
+            let encoded = try IOSPortableWalletSemanticDraftAdapter.encode(draft)
+            XCTAssertEqual(
+                try IOSPortableRootSigningProof.verify(encoded),
+                .init(wallets: 1, substrateRoots: 1, evmRoots: 0, nativeTonRoots: 0, legacySubstrateRoots: 0)
+            )
+        }
+    }
+
+    func testImportedLegacySubstrateRootChecksSS58IdentityAndSigner() throws {
+        let keypair = try SNKeyFactory().createKeypair(fromSeed: Data(repeating: 0x11, count: 32))
+        let publicKey = try keypair.publicKey().rawData()
+        let secret = try keypair.privateKey().rawData()
+        let accountID = try publicKey.publicKeyToAccountId()
+        let address = try accountID.toAddress(using: .substrate(42))
+        let slot = IOSPortableWalletSemanticMaterial.Slot(role: 4, key: "", fields: [
+            .init(id: 1, value: Array(publicKey)), .init(id: 2, value: Array(secret)),
+            .init(id: 7, value: Array(address.utf8)), .init(id: 8, value: [1]),
+            .init(id: 11, value: [5])
+        ])
+        var snapshot = IOSPortableWalletSemanticMaterial.Snapshot(selectedIndex: 0, wallets: [
+            .init(
+                portableID: (1 ... 16).map { UInt8($0) }, sourcePosition: 0, initialized: true,
+                name: "Legacy", metadata: [], slots: [slot]
+            )
+        ])
+        defer { snapshot.clearSecrets() }
+        XCTAssertEqual(try IOSPortableRootSigningProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(snapshot)
+        ).legacySubstrateRoots, 1)
+
+        let differentPublicKey = try SNKeyFactory()
+            .createKeypair(fromSeed: Data(repeating: 0x12, count: 32)).publicKey().rawData()
+        let differentAddress = try differentPublicKey.publicKeyToAccountId()
+            .toAddress(using: .substrate(42))
+        snapshot.wallets[0].slots[0].fields[2].value = Array(differentAddress.utf8)
+        XCTAssertThrowsError(try IOSPortableRootSigningProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(snapshot)
+        ))
+    }
+
+    func testImportedNativeTonRootChecksPhraseAndBothAddressEncodings() throws {
+        let wallet = try LegacyNativeTonFixture.wallet()
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.entropyTagForMetaId(wallet.metaId): Data(LegacyNativeTonFixture.phrase.utf8)
+        ])
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([selectedProjection(wallet)], keys: keys), keystore: keys
+        ).capture()
+        let encoded = try IOSPortableWalletSemanticDraftAdapter.encode(draft)
+        XCTAssertEqual(try IOSPortableRootSigningProof.verify(encoded).nativeTonRoots, 1)
+
+        var semantic = try IOSPortableWalletSemanticMaterial.decode(encoded)
+        defer { semantic.clearSecrets() }
+        let fields = semantic.wallets[0].slots[0].fields
+        let addressIndex = try XCTUnwrap(fields.firstIndex { $0.id == 7 })
+        let encodingIndex = try XCTUnwrap(fields.firstIndex { $0.id == 14 })
+        let phraseIndex = try XCTUnwrap(fields.firstIndex { $0.id == 12 })
+        let publicKey = try XCTUnwrap(wallet.legacyTonAccount?.publicKey)
+        semantic.wallets[0].slots[0].fields[addressIndex].value = [0] +
+            Array(try TonAddressCodec.v4R2AccountHash(publicKey: publicKey))
+        semantic.wallets[0].slots[0].fields[encodingIndex].value = [1]
+        XCTAssertEqual(try IOSPortableRootSigningProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(semantic)
+        ).nativeTonRoots, 1)
+        semantic.wallets[0].slots[0].fields[phraseIndex].value = Array("wrong phrase".utf8)
+        XCTAssertThrowsError(try IOSPortableRootSigningProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(semantic)
+        ))
+    }
+
     func testDraftConversionFailsClosedWithoutSelectionOrSignedRootKey() throws {
         let wallet = try ethereumOnlyWallet()
         let preferences = PersistedWalletDisplayPreferences(
@@ -855,6 +964,15 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
     private func projection(_ wallet: MetaAccountModel) -> MetaAccountSelectionModel {
         MetaAccountSelectionModel(
             identifier: wallet.metaId, wallet: wallet, isSelected: false, order: 0,
+            displayPreferences: PersistedWalletDisplayPreferences(
+                assetFilterOptions: nil, zeroBalanceAssetsHidden: false
+            )
+        )
+    }
+
+    private func selectedProjection(_ wallet: MetaAccountModel) -> MetaAccountSelectionModel {
+        MetaAccountSelectionModel(
+            identifier: wallet.metaId, wallet: wallet, isSelected: true, order: 0,
             displayPreferences: PersistedWalletDisplayPreferences(
                 assetFilterOptions: nil, zeroBalanceAssetsHidden: false
             )
