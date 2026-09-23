@@ -16,8 +16,19 @@ fail() {
   exit 1
 }
 
-mkdir -p "$FIXTURE/fearless.xcworkspace" "$FIXTURE/SourcePackages/checkouts" "$BIN_DIR" "$PROFILE_DIR"
+mkdir -p "$FIXTURE/fearless.xcworkspace" "$FIXTURE/SourcePackages/checkouts" "$FIXTURE/scripts/ci" "$BIN_DIR" "$PROFILE_DIR"
 touch "$PROFILE_DIR/release.mobileprovision"
+
+# The archive gate delegates UUID-bound symbol generation to a separately
+# tested script. This fixture proves the handoff occurs on the signed archive.
+cat > "$FIXTURE/scripts/ci/materialize-embedded-framework-dsyms.sh" <<'SCRIPT'
+#!/usr/bin/env bash
+set -euo pipefail
+[[ "$#" == 1 && "$1" == /*.xcarchive ]]
+[[ -d "$1/Products/Applications/fearless.app" ]]
+[[ -n "${FAKE_DSYM_CALLED:-}" ]]
+: > "$FAKE_DSYM_CALLED"
+SCRIPT
 
 cat > "$FIXTURE/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -160,6 +171,7 @@ run_gate() {
   FAKE_XCODEBUILD_FAIL="${FAKE_XCODEBUILD_FAIL:-0}" \
   FAKE_CODESIGN_VERIFY_FAIL="${FAKE_CODESIGN_VERIFY_FAIL:-0}" \
   FAKE_MISSING_PRIVACY="${FAKE_MISSING_PRIVACY:-0}" \
+  FAKE_DSYM_CALLED="$OUTPUT/dsym-called" \
   GITHUB_ACTIONS="${TEST_GITHUB_ACTIONS:-false}" \
   GITHUB_EVENT_NAME="${TEST_GITHUB_EVENT_NAME:-}" \
   GITHUB_REF="${TEST_GITHUB_REF:-}" \
@@ -181,6 +193,7 @@ if ! run_gate; then
   fail "valid signed Release fixture was rejected"
 fi
 grep -Fq 'PASSED' "$OUTPUT/stdout" || fail "valid signed Release fixture did not report success"
+[[ -f "$OUTPUT/dsym-called" ]] || fail "signed Release archive did not invoke dSYM materialization"
 if grep -Fq "$SECRET_SENTINEL" "$OUTPUT/stdout" "$OUTPUT/stderr"; then
   fail "valid signed Release run leaked signing identity material"
 fi
@@ -221,6 +234,7 @@ TEST_SIGNING_REQUIRED=invalid expect_failure "invalid signing-required policy"
 FAKE_IDENTITY_AVAILABLE=0 TEST_PROFILE_DIRS="$TMP_DIR/no-profiles" run_gate || fail \
   "missing optional signing material did not skip cleanly"
 grep -Fq 'SKIPPED' "$OUTPUT/stdout" || fail "missing optional signing material was not explicit"
+[[ ! -e "$OUTPUT/dsym-called" ]] || fail "unsigned skip invoked dSYM materialization"
 
 FAKE_IDENTITY_AVAILABLE=0 TEST_PROFILE_DIRS="$TMP_DIR/no-profiles" TEST_SIGNING_REQUIRED=1 \
   expect_failure "missing required signing material"
