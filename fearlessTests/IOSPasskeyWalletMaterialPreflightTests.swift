@@ -914,6 +914,61 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         XCTAssertEqual(try chainSlot.value(2), Array(bitcoin.privateKey))
         XCTAssertEqual(try chainSlot.value(1), Array(bitcoin.publicKey))
         XCTAssertNoThrow(try IOSPortableWalletSemanticMaterial.encode(semantic))
+        XCTAssertEqual(try IOSPortableNamedChainProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(semantic)
+        ), .init(bitcoinAccounts: 1, tairaAccounts: 0))
+
+        let chainIndex = try XCTUnwrap(semantic.wallets[0].slots.firstIndex { $0.role == 5 })
+        let keyIndex = try XCTUnwrap(semantic.wallets[0].slots[chainIndex].fields.firstIndex { $0.id == 2 })
+        semantic.wallets[0].slots[chainIndex].fields[keyIndex].value[0] ^= 1
+        XCTAssertThrowsError(try IOSPortableNamedChainProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(semantic)
+        ))
+    }
+
+    func testRootDerivedTairaChainRequiresExactMnemonicAndPrivateKey() throws {
+        let walletSeed = Data(repeating: 0x01, count: 32)
+        let phrase = try UniversalWalletSeedBridge.mnemonic(fromWalletSeed: walletSeed)
+        let rootPublicKey = try EDKeyFactory().derive(fromSeed: walletSeed).publicKey().rawData()
+        let taira = try IrohaKeyDerivation.deriveAccount(mnemonic: phrase)
+        let chain = ChainAccountModel(
+            chainId: UniversalWalletRegistry.taira.chainId,
+            accountId: taira.publicKey, publicKey: taira.publicKey,
+            cryptoType: CryptoType.ed25519.rawValue, ethereumBased: false
+        )
+        let wallet = MetaAccountModel(
+            metaId: "derived-taira-wallet", name: "Derived",
+            substrateAccountId: try rootPublicKey.publicKeyToAccountId(),
+            substrateCryptoType: CryptoType.ed25519.rawValue,
+            substratePublicKey: rootPublicKey, ethereumAddress: nil,
+            ethereumPublicKey: nil, chainAccounts: [chain], assetKeysOrder: nil,
+            canExportEthereumMnemonic: false, unusedChainIds: nil,
+            selectedCurrency: Currency.defaultCurrency(), networkManagmentFilter: nil,
+            assetsVisibility: [], hasBackup: false, favouriteChainIds: []
+        )
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): walletSeed,
+            fearless.KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId): walletSeed,
+            fearless.KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId):
+                Data(UniversalWalletSeedBridge.contract.utf8)
+        ])
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([selectedProjection(wallet)], keys: keys), keystore: keys
+        ).capture()
+        var semantic = try IOSPortableWalletSemanticDraftAdapter.snapshot(from: draft)
+        defer { semantic.clearSecrets() }
+        XCTAssertEqual(try IOSPortableNamedChainProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(semantic)
+        ), .init(bitcoinAccounts: 0, tairaAccounts: 1))
+
+        let bridgeIndex = try XCTUnwrap(semantic.wallets[0].slots.firstIndex { slot in
+            slot.role == 7 && (try? slot.value(16)) == [9]
+        })
+        let sourceIndex = try XCTUnwrap(semantic.wallets[0].slots[bridgeIndex].fields.firstIndex { $0.id == 20 })
+        semantic.wallets[0].slots[bridgeIndex].fields[sourceIndex].value[0] ^= 1
+        XCTAssertThrowsError(try IOSPortableNamedChainProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(semantic)
+        ))
     }
 
     private func substrateWallet(
