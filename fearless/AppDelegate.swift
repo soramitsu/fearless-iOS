@@ -18,7 +18,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let rootWindow = FearlessWindow()
         window = rootWindow
 
-        URLHandlingService.shared.setup(children: [IrohaConnectURLHandler.shared, LegacyTonConnectURLHandler.shared])
+        URLHandlingService.shared.setup(children: [
+            IrohaConnectURLHandler.shared, LegacyTonConnectURLHandler.shared, GoogleDriveBackupURLHandler.shared
+        ])
 
         let presenter = RootPresenterFactory.createPresenter(with: rootWindow)
         presenter.loadOnLaunch()
