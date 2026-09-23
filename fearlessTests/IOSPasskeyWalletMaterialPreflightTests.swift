@@ -805,6 +805,26 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         XCTAssertThrowsError(try IOSPortableRootSigningProof.verify(
             IOSPortableWalletSemanticMaterial.encode(semantic)
         ))
+
+        // Android V3 retains a 32-byte TON private seed and its original
+        // mnemonic, while native iOS retains seed||public and field 12.
+        var androidFields = fields.filter { $0.id != 12 }
+        let privateIndex = try XCTUnwrap(androidFields.firstIndex { $0.id == 2 })
+        androidFields[privateIndex].value = Array(try LegacyNativeTonFixture.privateKey().prefix(32))
+        androidFields.append(.init(id: 5, value: Array(LegacyNativeTonFixture.phrase.utf8)))
+        semantic.wallets[0].slots[0].fields = androidFields.sorted { $0.id < $1.id }
+        XCTAssertEqual(try IOSPortableRootSigningProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(semantic)
+        ).nativeTonRoots, 1)
+        let seedIndex = try XCTUnwrap(semantic.wallets[0].slots[0].fields.firstIndex { $0.id == 5 })
+        semantic.wallets[0].slots[0].fields[seedIndex].value = Array("wrong phrase".utf8)
+        XCTAssertThrowsError(try IOSPortableRootSigningProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(semantic)
+        ))
+        semantic.wallets[0].slots[0].fields.remove(at: seedIndex)
+        XCTAssertThrowsError(try IOSPortableRootSigningProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(semantic)
+        ))
     }
 
     func testDraftConversionFailsClosedWithoutSelectionOrSignedRootKey() throws {

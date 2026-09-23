@@ -108,11 +108,27 @@ enum IOSPortableRootSigningProof {
     private static func verifyTON(_ slot: Codec.Slot, portableID: [UInt8]) throws {
         let publicKey = Data(try slot.value(FieldID.publicKey))
         let secret = Data(try slot.value(FieldID.privateKey))
-        guard publicKey.count == 32, secret.count == 64,
-              secret.suffix(32) == publicKey else { throw ProofError.invalidRootIdentity }
+        // Android V3 stores the 32-byte ED25519 seed plus a mnemonic in field
+        // 5; released native iOS stores seed||public (64 bytes) and field 12.
+        guard publicKey.count == 32, [32, 64].contains(secret.count) else {
+            throw ProofError.invalidRootIdentity
+        }
+        if secret.count == 64 {
+            guard secret.suffix(32) == publicKey else { throw ProofError.invalidRootIdentity }
+        }
         let signer = try Curve25519.Signing.PrivateKey(rawRepresentation: Data(secret.prefix(32)))
         guard signer.publicKey.rawRepresentation == publicKey else { throw ProofError.invalidRootIdentity }
 
+        try verifyTONAddress(slot, publicKey: publicKey)
+        try verifyTONMnemonic(slot, secret: secret)
+        let message = proofMessage(portableID: portableID, role: slot.role, publicKey: publicKey)
+        let signature = try signer.signature(for: message)
+        guard signer.publicKey.isValidSignature(signature, for: message) else {
+            throw ProofError.invalidRootIdentity
+        }
+    }
+
+    private static func verifyTONAddress(_ slot: Codec.Slot, publicKey: Data) throws {
         let address = Data(try slot.value(FieldID.accountIDOrAddress))
         switch try slot.number(FieldID.tonAddressEncoding) {
         case 1:
@@ -127,20 +143,23 @@ enum IOSPortableRootSigningProof {
         default:
             throw ProofError.invalidRootIdentity
         }
-        if let phraseBytes = slot.fields.first(where: { $0.id == FieldID.mnemonic })?.value {
+    }
+
+    private static func verifyTONMnemonic(_ slot: Codec.Slot, secret: Data) throws {
+        let phrase = slot.fields.first(where: { $0.id == FieldID.mnemonic })?.value
+        let androidMnemonic = secret.count == 32
+            ? slot.fields.first(where: { $0.id == FieldID.seed })?.value : nil
+        guard secret.count != 32 || androidMnemonic != nil else { throw ProofError.invalidRootIdentity }
+        for phraseBytes in [phrase, androidMnemonic].compactMap({ $0 }) {
             guard let phrase = String(bytes: phraseBytes, encoding: .utf8) else {
                 throw ProofError.invalidRootIdentity
             }
             let words = phrase.components(separatedBy: " ")
             guard !words.isEmpty, words.allSatisfy({ TonSwift.Mnemonic.words.contains($0.lowercased()) }),
-                  try TonSwift.Mnemonic.mnemonicToPrivateKey(mnemonicArray: words).privateKey.data == secret else {
+                  try TonSwift.Mnemonic.mnemonicToPrivateKey(mnemonicArray: words)
+                  .privateKey.data.prefix(32) == secret.prefix(32) else {
                 throw ProofError.invalidRootIdentity
             }
-        }
-        let message = proofMessage(portableID: portableID, role: slot.role, publicKey: publicKey)
-        let signature = try signer.signature(for: message)
-        guard signer.publicKey.isValidSignature(signature, for: message) else {
-            throw ProofError.invalidRootIdentity
         }
     }
 
