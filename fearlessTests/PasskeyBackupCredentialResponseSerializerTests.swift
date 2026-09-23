@@ -439,7 +439,7 @@ final class PasskeyCredentialResponseSerializerTests: XCTestCase {
 
         do {
             _ = try await workflow.finishRegistrationWithPlaintext(
-                pending: self.pendingRegistration(),
+                pending: pendingRegistration(),
                 credentialResponseJSON: #"{"id":"\#(credentialId)"}"#,
                 plaintextBackup: Data([1, 2, 3])
             )
@@ -1102,6 +1102,68 @@ final class PasskeyCredentialResponseSerializerTests: XCTestCase {
         XCTAssertNil(service.revokedAllStorageKey)
     }
 
+    func testMissingCloudReadbackDoesNotCompleteRegistration() async throws {
+        let credentialId = base64URL(Data("credential-1".utf8))
+        let service = LifecycleTestChallengeService()
+        let cloud = LifecycleTestCloudStorage(record: nil, readbackOverride: { _ in nil })
+        let workflow = try PasskeyBackupWorkflow(
+            challengeService: service,
+            cloudStorage: cloud,
+            backupKeyProvider: FixedTestBackupKeyProvider(),
+            isReleaseEnabled: true,
+            createdAtMillisProvider: { 1_767_225_600_000 }
+        )
+
+        do {
+            _ = try await workflow.finishRegistrationWithPlaintext(
+                pending: pendingRegistration(),
+                credentialResponseJSON: #"{"id":"\#(credentialId)"}"#,
+                plaintextBackup: Data([1, 2, 3])
+            )
+            XCTFail("Registration unexpectedly completed without cloud readback")
+        } catch {
+            XCTAssertEqual(error as? PasskeyBackupError, .missingCloudBackup)
+        }
+        XCTAssertEqual(service.completedRegistrationId, "registration-1234")
+        XCTAssertEqual(service.revokedCredentialId, credentialId)
+        XCTAssertTrue(service.revokedIncompleteRegistrationCredential)
+    }
+
+    func testChangedCloudReadbackDoesNotCompleteRegistration() async throws {
+        let credentialId = base64URL(Data("credential-1".utf8))
+        let service = LifecycleTestChallengeService()
+        let cloud = LifecycleTestCloudStorage(record: nil, readbackOverride: { saved in
+            guard let saved else { return nil }
+            return try? PasskeyBackupEncryptedRecord(
+                storageKey: saved.storageKey,
+                walletId: saved.walletId,
+                accountName: saved.accountName,
+                createdAtMillis: saved.createdAtMillis + 1,
+                encryptedPayload: saved.encryptedPayload
+            )
+        })
+        let workflow = try PasskeyBackupWorkflow(
+            challengeService: service,
+            cloudStorage: cloud,
+            backupKeyProvider: FixedTestBackupKeyProvider(),
+            isReleaseEnabled: true,
+            createdAtMillisProvider: { 1_767_225_600_000 }
+        )
+
+        do {
+            _ = try await workflow.finishRegistrationWithPlaintext(
+                pending: pendingRegistration(),
+                credentialResponseJSON: #"{"id":"\#(credentialId)"}"#,
+                plaintextBackup: Data([1, 2, 3])
+            )
+            XCTFail("Registration unexpectedly completed with changed cloud ciphertext metadata")
+        } catch {
+            XCTAssertEqual(error as? PasskeyBackupError, .cloudBackupReadbackMismatch)
+        }
+        XCTAssertEqual(service.revokedCredentialId, credentialId)
+        XCTAssertTrue(service.revokedIncompleteRegistrationCredential)
+    }
+
     func testLegacyRawRegistrationFailsClosedBeforeClockOrCeremonyWithoutExplicitMetadata() async throws {
         var clockCalls = 0
         let service = LifecycleTestChallengeService()
@@ -1123,7 +1185,7 @@ final class PasskeyCredentialResponseSerializerTests: XCTestCase {
 
         do {
             _ = try await workflow.finishRegistration(
-                pending: self.pendingRegistration(),
+                pending: pendingRegistration(),
                 credentialResponseJSON: #"{"id":"Y3JlZC0x"}"#,
                 encryptedPayload: envelope
             )
@@ -1165,7 +1227,7 @@ final class PasskeyCredentialResponseSerializerTests: XCTestCase {
         )
 
         let saved = try await workflow.finishRegistrationWithEncryptedRecord(
-            pending: self.pendingRegistration(),
+            pending: pendingRegistration(),
             credentialResponseJSON: #"{"id":"Y3JlZC0x"}"#,
             record: record
         )
@@ -1202,7 +1264,7 @@ final class PasskeyCredentialResponseSerializerTests: XCTestCase {
 
         do {
             _ = try await workflow.finishRegistrationWithEncryptedRecord(
-                pending: self.pendingRegistration(),
+                pending: pendingRegistration(),
                 credentialResponseJSON: #"{"id":"Y3JlZC0x"}"#,
                 record: mismatchedRecord
             )
@@ -1251,7 +1313,7 @@ final class PasskeyCredentialResponseSerializerTests: XCTestCase {
             )
             do {
                 _ = try await workflow.finishRegistrationWithEncryptedRecord(
-                    pending: self.pendingRegistration(),
+                    pending: pendingRegistration(),
                     credentialResponseJSON: #"{"id":"Y3JlZC0x"}"#,
                     record: record
                 )
@@ -1347,7 +1409,7 @@ final class PasskeyCredentialResponseSerializerTests: XCTestCase {
 
         do {
             _ = try await workflow.finishRegistrationWithPlaintext(
-                pending: self.pendingRegistration(),
+                pending: pendingRegistration(),
                 credentialResponseJSON: #"{"id":"Y3JlZC0x"}"#,
                 plaintextBackup: Data([1, 2, 3])
             )
@@ -1573,9 +1635,9 @@ final class PasskeyCredentialResponseSerializerTests: XCTestCase {
                 let compensationError = error as? PasskeyBackupRegistrationCompensationError
                 let preservedPrimaryAndTimeout =
                     (compensationError?.primaryError as? PasskeyBackupError) ==
-                        .unavailableCloudStorage &&
-                        compensationError?.failureKind == .timedOut &&
-                        compensationError?.cleanupError == nil
+                    .unavailableCloudStorage &&
+                    compensationError?.failureKind == .timedOut &&
+                    compensationError?.cleanupError == nil
                 await completion.record(didPreserveOriginalError: preservedPrimaryAndTimeout)
             }
         }
@@ -1974,6 +2036,37 @@ final class PasskeyCredentialResponseSerializerTests: XCTestCase {
 
     @MainActor
     @available(iOS 15.0, *)
+    func testCoordinatorRequiresCloudReadbackAfterSaving() async throws {
+        let metadata = try envelopeMetadata()
+        let envelope = try AESGCMPasskeyBackupEnvelopeCryptography().encrypt(
+            Data([1, 2, 3]),
+            metadata: metadata,
+            key: Data((1 ... 32).map(UInt8.init))
+        )
+        let record = try PasskeyBackupEncryptedRecord(
+            storageKey: metadata.storageKey,
+            walletId: metadata.walletId,
+            accountName: metadata.accountName,
+            createdAtMillis: metadata.createdAtMillis,
+            encryptedPayload: envelope
+        )
+        let cloud = LifecycleTestCloudStorage(record: nil, readbackOverride: { _ in nil })
+        let coordinator = try PasskeyBackupCoordinator(
+            cloudStorage: cloud,
+            backupKeyProvider: FixedTestBackupKeyProvider(),
+            isReleaseEnabled: true
+        )
+
+        do {
+            try await coordinator.saveEncryptedCloudBackup(record)
+            XCTFail("Coordinator unexpectedly accepted an unreadable backup")
+        } catch {
+            XCTAssertEqual(error as? PasskeyBackupError, .missingCloudBackup)
+        }
+    }
+
+    @MainActor
+    @available(iOS 15.0, *)
     func testNativeAuthorizationControllerExecutorFailsClosedBehindReleaseFlag() async throws {
         let executor = try ASPasskeyBackupCeremonyExecutor(
             isReleaseEnabled: false,
@@ -2296,16 +2389,19 @@ private final class LifecycleTestChallengeService: PasskeyBackupChallengeService
 private final class LifecycleTestCloudStorage: PasskeyBackupCloudStorage {
     private var record: PasskeyBackupEncryptedRecord?
     private let saveError: Error?
+    private let readbackOverride: ((PasskeyBackupEncryptedRecord?) -> PasskeyBackupEncryptedRecord?)?
     private let beforeDelete: () -> Void
     private(set) var deletedStorageKey: String?
 
     init(
         record: PasskeyBackupEncryptedRecord?,
         saveError: Error? = nil,
+        readbackOverride: ((PasskeyBackupEncryptedRecord?) -> PasskeyBackupEncryptedRecord?)? = nil,
         beforeDelete: @escaping () -> Void = {}
     ) {
         self.record = record
         self.saveError = saveError
+        self.readbackOverride = readbackOverride
         self.beforeDelete = beforeDelete
     }
 
@@ -2317,6 +2413,9 @@ private final class LifecycleTestCloudStorage: PasskeyBackupCloudStorage {
     }
 
     func loadPasskeyBackup(storageKey: String) async throws -> PasskeyBackupEncryptedRecord? {
+        if let readbackOverride {
+            return readbackOverride(record)
+        }
         guard record?.storageKey == storageKey else {
             return nil
         }

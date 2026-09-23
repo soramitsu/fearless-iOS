@@ -41,6 +41,7 @@ enum PasskeyBackupError: Error, Equatable {
     case mismatchedChallengeStorageKey
     case mismatchedChallengeCredentialId
     case missingCloudBackup
+    case cloudBackupReadbackMismatch
     case passkeyBackupDisabled
 }
 
@@ -2132,7 +2133,7 @@ final class PasskeyBackupWorkflow {
                 expected: expectedStorageKey,
                 actual: result.storageKey
             )
-            try await self.cloudStorage.savePasskeyBackup(record)
+            try await self.saveAndVerifyCloudBackup(record)
             return record
         }
     }
@@ -2202,7 +2203,7 @@ final class PasskeyBackupWorkflow {
                 expected: expectedStorageKey,
                 actual: result.storageKey
             )
-            try await self.cloudStorage.savePasskeyBackup(record)
+            try await self.saveAndVerifyCloudBackup(record)
             return record
         }
     }
@@ -2339,6 +2340,17 @@ final class PasskeyBackupWorkflow {
             key: key
         )
         plaintext.resetBytes(in: 0 ..< plaintext.count)
+    }
+
+    private func saveAndVerifyCloudBackup(_ record: PasskeyBackupEncryptedRecord) async throws {
+        try await cloudStorage.savePasskeyBackup(record)
+        guard let downloaded = try await cloudStorage.loadPasskeyBackup(storageKey: record.storageKey) else {
+            throw PasskeyBackupError.missingCloudBackup
+        }
+        guard downloaded == record else {
+            throw PasskeyBackupError.cloudBackupReadbackMismatch
+        }
+        try await requireAuthenticatedEnvelope(downloaded)
     }
 }
 
@@ -2488,6 +2500,13 @@ final class PasskeyBackupCoordinator {
         try PasskeyBackupReleaseConfig.validateEnabled(isReleaseEnabled)
         try await requireAuthenticatedEnvelope(record)
         try await cloudStorage.savePasskeyBackup(record)
+        guard let downloaded = try await cloudStorage.loadPasskeyBackup(storageKey: record.storageKey) else {
+            throw PasskeyBackupError.missingCloudBackup
+        }
+        guard downloaded == record else {
+            throw PasskeyBackupError.cloudBackupReadbackMismatch
+        }
+        try await requireAuthenticatedEnvelope(downloaded)
     }
 
     func loadEncryptedCloudBackup(storageKey: String) async throws -> PasskeyBackupEncryptedRecord? {
