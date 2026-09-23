@@ -641,6 +641,7 @@ final class RootInteractor {
         URLHandlingService.shared.setup(children: [
             IrohaConnectURLHandler.shared,
             LegacyTonConnectURLHandler.shared,
+            GoogleDriveBackupURLHandler.shared,
             purchaseHandler,
             polkamarktDeepLinkHandler,
             keystoreImportService

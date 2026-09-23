@@ -941,6 +941,7 @@
 		848FFE9525E6DF2200652AA5 /* PagedKeysRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848FFE9425E6DF2200652AA5 /* PagedKeysRequest.swift */; };
 		848FFE9A25E6E0E400652AA5 /* ValidatorExposure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848FFE9925E6E0E400652AA5 /* ValidatorExposure.swift */; };
 		849013AC24A80984008F705E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849013AB24A80984008F705E /* AppDelegate.swift */; };
+		C0DE27A20000000000000002 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE27A20000000000000001 /* SceneDelegate.swift */; };
 		849013B524A80986008F705E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 849013B424A80986008F705E /* Assets.xcassets */; };
 		849013B824A80986008F705E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 849013B624A80986008F705E /* LaunchScreen.storyboard */; };
 		849013D024A9267F008F705E /* R.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849013CF24A9267F008F705E /* R.generated.swift */; };
@@ -4142,6 +4143,7 @@
 		848FFE9925E6E0E400652AA5 /* ValidatorExposure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorExposure.swift; sourceTree = "<group>"; };
 		849013A824A80984008F705E /* fearless.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = fearless.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		849013AB24A80984008F705E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		C0DE27A20000000000000001 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		849013B424A80986008F705E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		849013B924A80986008F705E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FA714001ABCDEF0123456789 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -9342,6 +9344,7 @@
 				AE2060AF2637068700357578 /* CIKeys.stencil */,
 				AE8D028D2638074D00780D18 /* CIKeys.generated.swift */,
 				849013AB24A80984008F705E /* AppDelegate.swift */,
+				C0DE27A20000000000000001 /* SceneDelegate.swift */,
 				849013CF24A9267F008F705E /* R.generated.swift */,
 				841937862544772F00CFA50C /* animatedBg.gif */,
 				C6DC2D5D2B183D7900BAA4DB /* animatedIcon.gif */,
@@ -17274,6 +17277,7 @@
 				AEE5FB1A26457AE9002B8FDC /* StakingRewardDestSetupProtocols.swift in Sources */,
 				8436EDE225895804004D9E97 /* RampProvider.swift in Sources */,
 				849013AC24A80984008F705E /* AppDelegate.swift in Sources */,
+				C0DE27A20000000000000002 /* SceneDelegate.swift in Sources */,
 				FAD428942A834A8E001D6A16 /* TopViewControllerHelper.swift in Sources */,
 				FAE41F5B2C8CF4C900123456 /* SceneWindowFinder.swift in Sources */,
 				84CE69E82566750D00559427 /* ByteLengthProcessor.swift in Sources */,

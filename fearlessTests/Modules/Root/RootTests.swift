@@ -55,6 +55,23 @@ class RootTests: XCTestCase {
         )
     }
 
+    func testApplicationBundleHasSingleWindowSceneConfiguration() throws {
+        let manifest = try XCTUnwrap(
+            Bundle.main.object(forInfoDictionaryKey: "UIApplicationSceneManifest") as? [String: Any]
+        )
+        XCTAssertEqual(manifest["UIApplicationSupportsMultipleScenes"] as? Bool, false)
+
+        let roles = try XCTUnwrap(manifest["UISceneConfigurations"] as? [String: Any])
+        let configurations = try XCTUnwrap(
+            roles["UIWindowSceneSessionRoleApplication"] as? [[String: Any]]
+        )
+        XCTAssertEqual(configurations.count, 1)
+        XCTAssertEqual(
+            configurations[0]["UISceneDelegateClassName"] as? String,
+            NSStringFromClass(SceneDelegate.self)
+        )
+    }
+
     func testCoreDataPreflightForwardsStoreOpenError() throws {
         let configuration = try makeSubstrateInMemoryConfiguration()
         let preflight = RootCoreDataStoragePreflight(
