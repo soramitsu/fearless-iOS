@@ -32,8 +32,9 @@ It validates an EVM private key against its stored address and a native TON
 phrase against the original V4R2 identity. A native TON phrase alone can
 recreate the same private key; a private-key-only native TON row fails this
 preflight because the released phrase-export UX cannot be preserved. The
-persisted iOS model does not represent an EVM-only wallet without a Substrate
-or native TON root; such a row remains unsupported and fails closed.
+persisted iOS model now accepts an EVM-only wallet when its complete public key
+derives the stored address; incomplete or mismatched records still fail closed.
+Backup preflight requires its original EVM private key and signing proof.
 
 This preflight now checks a local, domain-separated signature against each
 stored SR25519/ED25519/ECDSA Substrate root, EVM root and explicitly stored
@@ -65,9 +66,9 @@ the bytes, then re-reads the wallet projections and all
 present **and absent** Keychain tags before returning, failing if an ordinary
 interleaved mutation is seen. The draft has redacted debug descriptions and
 reflection to avoid routine inspection exposing Keychain bytes; it has no
-wire serializer or upload caller. The current iOS source model cannot
-represent an EVM-only wallet; independently stored EVM keys on a supported
-wallet are captured as their own slots.
+wire serializer or upload caller. EVM-only wallets are captured with their
+own secret slot, and independently stored EVM keys on multi-root wallets
+remain separate slots.
 
 This remains a capture candidate, not an atomic Core Data/Keychain snapshot:
 a concurrent writer can change and restore bytes between reads, and the app
