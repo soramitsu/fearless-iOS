@@ -624,3 +624,73 @@ private final class PreflightKeystore: KeystoreProtocol {
     func checkKey(for identifier: String) throws -> Bool { keys[identifier] != nil }
     func deleteKey(for identifier: String) throws { keys.removeValue(forKey: identifier) }
 }
+
+final class IOSPortableWalletMaterialEnvelopeTests: XCTestCase {
+    func testSyntheticGoldenVectorsMatchAndroidCodecInBothSourceDirections() throws {
+        let vectors: [(
+            String,
+            IOSPortableWalletMaterialEnvelope.Origin,
+            IOSPortableWalletMaterialEnvelope.SourceFormat,
+            Data
+        )] = [
+            (
+                "4650574d4c453031010101000000000400010203",
+                .android,
+                .androidDraftV2,
+                Data([0, 1, 2, 3])
+            ),
+            (
+                "4650574d4c453031010202000000000210fe",
+                .ios,
+                .iosKeychainV2Inventory,
+                Data([0x10, 0xFE])
+            )
+        ]
+        for (hex, origin, format, payload) in vectors {
+            let encoded = data(hex)
+            let decoded = try IOSPortableWalletMaterialEnvelope.decode(encoded)
+            XCTAssertEqual(decoded.origin, origin)
+            XCTAssertEqual(decoded.sourceFormat, format)
+            XCTAssertEqual(decoded.derivationMode, .localOpaque)
+            XCTAssertEqual(decoded.payload, payload)
+            XCTAssertEqual(try IOSPortableWalletMaterialEnvelope.encode(decoded), encoded)
+            XCTAssertEqual(
+                String(reflecting: decoded),
+                "IOSPortableWalletMaterialEnvelope.Record(<redacted>)"
+            )
+        }
+    }
+
+    func testRejectsUnknownSourceDerivationLengthAndTrailingMaterial() throws {
+        let valid = data("4650574d4c453031010101000000000400010203")
+        var invalid = [Data(valid.dropLast()), valid + Data([0])]
+        for (offset, replacement) in [(0, 0), (8, 2), (9, 2), (10, 3),
+                                      (11, 1), (12, 0x7F), (15, 0)] {
+            var candidate = valid
+            candidate[offset] = UInt8(replacement)
+            invalid.append(candidate)
+        }
+        for candidate in invalid {
+            XCTAssertThrowsError(try IOSPortableWalletMaterialEnvelope.decode(candidate))
+        }
+        XCTAssertThrowsError(try IOSPortableWalletMaterialEnvelope.encode(.init(
+            origin: .android, sourceFormat: .iosKeychainV2Inventory,
+            derivationMode: .localOpaque, payload: Data([1])
+        )))
+        XCTAssertThrowsError(try IOSPortableWalletMaterialEnvelope.encode(.init(
+            origin: .android, sourceFormat: .androidDraftV2,
+            derivationMode: .localOpaque, payload: Data(repeating: 0, count: 256 * 1024)
+        )))
+        XCTAssertThrowsError(try IOSPortableWalletMaterialEnvelope.decode(
+            Data(repeating: 0, count: 256 * 1024)
+        ))
+    }
+
+    private func data(_ hex: String) -> Data {
+        Data(stride(from: 0, to: hex.count, by: 2).map { offset in
+            let start = hex.index(hex.startIndex, offsetBy: offset)
+            let end = hex.index(start, offsetBy: 2)
+            return UInt8(hex[start ..< end], radix: 16)!
+        })
+    }
+}
