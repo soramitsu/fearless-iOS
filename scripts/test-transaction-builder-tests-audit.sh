@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 AUDIT_SCRIPT="$SCRIPT_DIR/audit-transaction-builder-tests.sh"
-EXPECTED_DESTRUCTIVE_FIXTURES=128
+EXPECTED_DESTRUCTIVE_FIXTURES=140
 executed_destructive_fixtures=0
 
 fail() {
@@ -58,7 +58,7 @@ write_valid_fixture() {
     '  let domain = Data("fearless.ton.fee-quote.v1\0".utf8)' \
     "  let unsignedMessage: TonUnsignedEmulationMessage" \
     "  init() {" \
-    "    _ = TonAPIClientFactory.isReviewedProductionSendServerURL(endpointURL)" \
+    "    _ = TonAPIClientFactory.reviewedSendNetwork(for: endpointURL) == identity.network" \
     "    _ = unsignedMessage.signingPayloadHashHex" \
     "    _ = SHA256.hash(data: unsignedMessage.boc)" \
     "  }" \
@@ -72,7 +72,7 @@ write_valid_fixture() {
     "}" \
     "final class TonKeychainPendingIntentJournal {}" \
     'let identifierPrefix = "jp.co.soramitsu.fearless.ton.pending.v1."' \
-    "let maximumRecordBytes = 48 * 1024" \
+    "let maximumRecordBytes = 512 * 1024" \
     "enum RecordEncodingOrder { case utf8Lexicographic; case legacyFoundation17 }" \
     "fields.sort { lhs, rhs in lhs.0.utf8.lexicographicallyPrecedes(rhs.0.utf8) }" \
     "let canonicalData = encodeRecord(record, order: .utf8Lexicographic)" \
@@ -103,14 +103,16 @@ write_valid_fixture() {
     "}" \
     "enum TonSendServiceError { case productionSendDisabled; case feeQuoteRequired; case broadcastOutcomeUnknown(messageHashHex: String); case priorIntentConfirmed(identity: TonTransferIntentIdentity, messageHashHex: String) }" \
     "enum TonTransferRemoteError { case untrustedSignedOperationEndpoint }" \
+    'var coordinationKey: String { network == .testnet ? "testnet:" + sender : sender }' \
+    "_ = TonAPIClientFactory.reviewedSendNetwork(for: url) == (intent.tonConnect?.network ?? .mainnet)" \
     "actor TonPendingIntentCoordinator {" \
     "  static let shared = TonPendingIntentCoordinator(" \
-    "    productionJournal: TonKeychainPendingIntentJournal()" \
+    "    journal: TonKeychainPendingIntentJournal()" \
     "  )" \
     "  func recover() throws {" \
-    "    _ = try journal.load(senderRaw: identity.sender)" \
+    "    _ = try journal.load(senderRaw: identity.coordinationKey)" \
     "    try journal.save(pending)" \
-    "    statesBySender[pending.identity.sender] = .pending(pending)" \
+    "    statesBySender[pending.identity.coordinationKey] = .pending(pending)" \
     "    try journal.delete(senderRaw: identity.sender)" \
     "  }" \
     "  func recordConfirmed(_ pending: TonPendingSignedIntent) throws {}" \
@@ -123,7 +125,7 @@ write_valid_fixture() {
     "      retained = pending" \
     "    }" \
     "    try journal.save(retained)" \
-    "    statesBySender[pending.identity.sender] = .pending(retained)" \
+    "    statesBySender[pending.identity.coordinationKey] = .pending(retained)" \
     "  }" \
     "  func acknowledgeConfirmed(senderRaw: String, identity: TonTransferIntentIdentity, messageHashHex: String) throws {" \
     "    guard pending.confirmed," \
@@ -158,6 +160,7 @@ write_valid_fixture() {
     "try requireTrustedSignedOperationEndpoint()" \
     "try requireTrustedSignedOperationEndpoint()" \
     "try requireTrustedSignedOperationEndpoint()" \
+    "try requireTrustedSignedOperationEndpoint()" \
     "#if DEBUG" \
     "init(trustedTestClient client: any APIProtocol) {}" \
     "#endif" \
@@ -167,17 +170,27 @@ write_valid_fixture() {
     "func sendUnquotedForTesting() {}" \
     "#endif" \
     "#if !DEBUG" \
-    "throw TonSendServiceError.productionSendDisabled" \
-    "#else" \
-    "let debugOnlyTonSend = true" \
-    "#endif"
+    "guard request.legacyNativePrivateKey != nil else {" \
+    "  throw TonSendServiceError.productionSendDisabled" \
+    "}" \
+    "#endif" \
+    "#if !DEBUG" \
+    "guard let nativeAccount = legacyAccount, nativeAccount.publicKey == request.publicKey," \
+    "      try TonSwift.Address.parse(nativeAccount.address).toRaw() == TonSwift.Address.parse(request.senderAddress).toRaw()" \
+    "else { throw TonSendServiceError.productionSendDisabled }" \
+    "#endif" \
+    "guard let key = credentials.legacyNativePrivateKey else { throw TonSendServiceError.invalidAccount }" \
+    "_ = try legacyAccount.validatedPrivateKey(key)"
 
   write_file "$root/fearless/Common/Model/ChainRegistry/ChainModel.swift" \
     "let canonicalTonChainIds = [\"-239\", \"ton:mainnet\"]"
 
   write_file "$root/fearless/Common/Services/ChainRegistry/ChainRegistry.swift" \
     "static let canonicalAuthenticatedOrigin = URL(string: \"https://tonapi.io\")!" \
-    "static let reviewedProductionSendOrigins = [canonicalAuthenticatedOrigin]" \
+    "static let canonicalTestnetOrigin = URL(string: \"https://testnet.tonapi.io\")!" \
+    "static let reviewedProductionSendOrigins = [canonicalAuthenticatedOrigin, canonicalTestnetOrigin]" \
+    "if hasExactOrigin(url, canonical: canonicalAuthenticatedOrigin) { return .mainnet }" \
+    "if hasExactOrigin(url, canonical: canonicalTestnetOrigin) { return .testnet }" \
     "static func isReviewedProductionSendServerURL(_ url: URL) -> Bool { true }" \
     "static func isValidAuthorizationToken(_ token: String) -> Bool {" \
     "  token.utf8.allSatisfy { byte in (0x21 ... 0x7E).contains(byte) }" \
@@ -276,9 +289,7 @@ write_valid_fixture() {
     "  feeTask?.cancel()" \
     "}" \
     "#if !DEBUG" \
-    "throw TransferServiceError.tonProductionSendDisabled" \
-    "#else" \
-    "let debugTonIntegrationSend = true" \
+    "guard wallet.legacyTonAccount != nil else { throw TransferServiceError.tonProductionSendDisabled }" \
     "#endif"
 
   write_file "$root/fearlessTests/ApplicationLayer/Services/FeatureToggle/TonChainSelectionTests.swift" \
@@ -587,12 +598,12 @@ expect_failure "missing TON pending amount cap" "$missing_ton_pending_amount_cap
 bypassed_ton_release_service_guard="$tmp_dir/bypassed-ton-release-service-guard"
 write_valid_fixture "$bypassed_ton_release_service_guard"
 perl -0pi -e 's/#if !DEBUG/#if DEBUG/' "$bypassed_ton_release_service_guard/fearless/Common/Model/TonSendService.swift"
-expect_failure "bypassed TON Release service guard" "$bypassed_ton_release_service_guard" "TON Release service compile-time fail-closed guard"
+expect_failure "bypassed TON Release service guard" "$bypassed_ton_release_service_guard" "TON Release service legacy-key-only guard"
 
 comment_decoy_ton_release_service_guard="$tmp_dir/comment-decoy-ton-release-service-guard"
 write_valid_fixture "$comment_decoy_ton_release_service_guard"
-perl -0pi -e 's/#if !DEBUG/#if DEBUG/; $_ .= "\n\/\/ #if !DEBUG\n\/\/ throw TonSendServiceError.productionSendDisabled\n\/\/ #else\n"' "$comment_decoy_ton_release_service_guard/fearless/Common/Model/TonSendService.swift"
-expect_failure "comment-decoy TON Release service guard" "$comment_decoy_ton_release_service_guard" "TON Release service compile-time fail-closed guard"
+perl -0pi -e 's/#if !DEBUG/#if DEBUG/; $_ .= "\n\/\/ #if !DEBUG\n\/\/ guard request.legacyNativePrivateKey != nil else { throw TonSendServiceError.productionSendDisabled }\n"' "$comment_decoy_ton_release_service_guard/fearless/Common/Model/TonSendService.swift"
+expect_failure "comment-decoy TON Release service guard" "$comment_decoy_ton_release_service_guard" "TON Release service legacy-key-only guard"
 
 missing_ton_release_behavior_test="$tmp_dir/missing-ton-release-behavior-test"
 write_valid_fixture "$missing_ton_release_behavior_test"
@@ -607,7 +618,7 @@ expect_failure "missing TON broadcast contract test" "$missing_ton_broadcast_con
 bypassed_ton_release_integration_guard="$tmp_dir/bypassed-ton-release-integration-guard"
 write_valid_fixture "$bypassed_ton_release_integration_guard"
 perl -0pi -e 's/#if !DEBUG/#if DEBUG/' "$bypassed_ton_release_integration_guard/fearless/ApplicationLayer/Services/Transfer/Tokens/TransferService.swift"
-expect_failure "bypassed TON Release integration guard" "$bypassed_ton_release_integration_guard" "TON Release integration compile-time fail-closed guard"
+expect_failure "bypassed TON Release integration guard" "$bypassed_ton_release_integration_guard" "TON Release integration legacy-account-only guard"
 
 missing_ton_release_integration_behavior_test="$tmp_dir/missing-ton-release-integration-behavior-test"
 write_valid_fixture "$missing_ton_release_integration_behavior_test"
@@ -666,7 +677,7 @@ expect_failure "missing TON canonical Release gate test" "$missing_ton_canonical
 
 missing_ton_production_endpoint_allowlist="$tmp_dir/missing-ton-production-endpoint-allowlist"
 write_valid_fixture "$missing_ton_production_endpoint_allowlist"
-perl -0pi -e 's/reviewedProductionSendOrigins = \[canonicalAuthenticatedOrigin\]/reviewedProductionSendOrigins = []/' "$missing_ton_production_endpoint_allowlist/fearless/Common/Services/ChainRegistry/ChainRegistry.swift"
+perl -0pi -e 's/reviewedProductionSendOrigins = \[canonicalAuthenticatedOrigin, canonicalTestnetOrigin\]/reviewedProductionSendOrigins = []/' "$missing_ton_production_endpoint_allowlist/fearless/Common/Services/ChainRegistry/ChainRegistry.swift"
 expect_failure "missing TON production endpoint allowlist" "$missing_ton_production_endpoint_allowlist" "TON binary-owned production endpoint allowlist"
 
 bypassed_ton_send_endpoint_factory_guard="$tmp_dir/bypassed-ton-send-endpoint-factory-guard"
@@ -786,8 +797,8 @@ expect_failure "changed TON quote domain" "$changed_ton_quote_domain" "TON domai
 
 bypassed_ton_quote_endpoint="$tmp_dir/bypassed-ton-quote-endpoint"
 write_valid_fixture "$bypassed_ton_quote_endpoint"
-perl -0pi -e 's/TonAPIClientFactory\.isReviewedProductionSendServerURL/allowAnyTonAPIURL/' "$bypassed_ton_quote_endpoint/fearless/Common/Model/TonTransferFeeQuote.swift"
-expect_failure "bypassed TON quote endpoint" "$bypassed_ton_quote_endpoint" "TON fee quote reviewed-origin binding"
+perl -0pi -e 's/TonAPIClientFactory\.reviewedSendNetwork\(for: endpointURL\) == identity\.network/true/' "$bypassed_ton_quote_endpoint/fearless/Common/Model/TonTransferFeeQuote.swift"
+expect_failure "bypassed TON quote endpoint" "$bypassed_ton_quote_endpoint" "TON fee quote reviewed-origin and network binding"
 
 missing_ton_unsigned_boc_digest="$tmp_dir/missing-ton-unsigned-boc-digest"
 write_valid_fixture "$missing_ton_unsigned_boc_digest"
@@ -801,7 +812,7 @@ expect_failure "missing TON journal file" "$missing_ton_journal_file" "TON durab
 
 weakened_ton_journal_bound="$tmp_dir/weakened-ton-journal-bound"
 write_valid_fixture "$weakened_ton_journal_bound"
-perl -0pi -e 's/maximumRecordBytes = 48 \* 1024/maximumRecordBytes = Int.max/' "$weakened_ton_journal_bound/fearless/Common/Model/TonPendingIntentJournal.swift"
+perl -0pi -e 's/maximumRecordBytes = 512 \* 1024/maximumRecordBytes = Int.max/' "$weakened_ton_journal_bound/fearless/Common/Model/TonPendingIntentJournal.swift"
 expect_failure "weakened TON journal bound" "$weakened_ton_journal_bound" "TON bounded journal record"
 
 weakened_ton_journal_utf8_order="$tmp_dir/weakened-ton-journal-utf8-order"
@@ -841,17 +852,17 @@ expect_failure "missing TON journal BOC equality" "$missing_ton_journal_boc_equa
 
 bypassed_ton_shared_keychain_journal="$tmp_dir/bypassed-ton-shared-keychain-journal"
 write_valid_fixture "$bypassed_ton_shared_keychain_journal"
-perl -0pi -e 's/productionJournal: TonKeychainPendingIntentJournal\(\)/productionJournal: TonInMemoryPendingIntentJournal()/' "$bypassed_ton_shared_keychain_journal/fearless/Common/Model/TonSendService.swift"
+perl -0pi -e 's/journal: TonKeychainPendingIntentJournal\(\)/journal: TonInMemoryPendingIntentJournal()/' "$bypassed_ton_shared_keychain_journal/fearless/Common/Model/TonSendService.swift"
 expect_failure "bypassed TON shared Keychain journal" "$bypassed_ton_shared_keychain_journal" "TON production coordinator Keychain journal binding"
 
 missing_ton_journal_first_load="$tmp_dir/missing-ton-journal-first-load"
 write_valid_fixture "$missing_ton_journal_first_load"
-perl -0pi -e 's/journal\.load\(senderRaw: identity\.sender\)/memory.load(senderRaw: identity.sender)/' "$missing_ton_journal_first_load/fearless/Common/Model/TonSendService.swift"
-expect_failure "missing TON journal-first load" "$missing_ton_journal_first_load" "TON journal-first sender recovery"
+perl -0pi -e 's/journal\.load\(senderRaw: identity\.coordinationKey\)/memory.load(senderRaw: identity.coordinationKey)/' "$missing_ton_journal_first_load/fearless/Common/Model/TonSendService.swift"
+expect_failure "missing TON journal-first load" "$missing_ton_journal_first_load" "TON journal-first network-scoped sender recovery"
 
 reordered_ton_durable_reserve="$tmp_dir/reordered-ton-durable-reserve"
 write_valid_fixture "$reordered_ton_durable_reserve"
-perl -0pi -e 's/try journal\.save\(pending\)\n[[:space:]]*statesBySender\[pending\.identity\.sender\] = \.pending\(pending\)/statesBySender[pending.identity.sender] = .pending(pending)\n    try journal.save(pending)/' "$reordered_ton_durable_reserve/fearless/Common/Model/TonSendService.swift"
+perl -0pi -e 's/try journal\.save\(pending\)\n[[:space:]]*statesBySender\[pending\.identity\.coordinationKey\] = \.pending\(pending\)/statesBySender[pending.identity.coordinationKey] = .pending(pending)\n    try journal.save(pending)/' "$reordered_ton_durable_reserve/fearless/Common/Model/TonSendService.swift"
 expect_failure "reordered TON durable reserve" "$reordered_ton_durable_reserve" "TON durable reserve before in-memory exposure state"
 
 bypassed_ton_quote_requirement="$tmp_dir/bypassed-ton-quote-requirement"
@@ -1096,7 +1107,7 @@ expect_failure "bypassed TON journal bearer guard" "$bypassed_ton_journal_bearer
 
 reordered_ton_retain_durable_save="$tmp_dir/reordered-ton-retain-durable-save"
 write_valid_fixture "$reordered_ton_retain_durable_save"
-perl -0pi -e 's/    try journal\.save\(retained\)\n    statesBySender\[pending\.identity\.sender\] = \.pending\(retained\)/    statesBySender[pending.identity.sender] = .pending(retained)\n    try journal.save(retained)/' "$reordered_ton_retain_durable_save/fearless/Common/Model/TonSendService.swift"
+perl -0pi -e 's/    try journal\.save\(retained\)\n    statesBySender\[pending\.identity\.coordinationKey\] = \.pending\(retained\)/    statesBySender[pending.identity.coordinationKey] = .pending(retained)\n    try journal.save(retained)/' "$reordered_ton_retain_durable_save/fearless/Common/Model/TonSendService.swift"
 expect_failure "reordered TON retain durable save" "$reordered_ton_retain_durable_save" "TON retained pending durable-save-before-state ordering"
 
 dropped_ton_stale_confirmed_preservation="$tmp_dir/dropped-ton-stale-confirmed-preservation"
@@ -1123,6 +1134,68 @@ missing_ton_unordered_utility_asset_test="$tmp_dir/missing-ton-unordered-utility
 write_valid_fixture "$missing_ton_unordered_utility_asset_test"
 perl -0pi -e 's/testTonFeePaymentAssetIgnoresAdditionalUnorderedUtilityAssets/testTonFeePaymentAssetUsesFirstUtilityAsset/' "$missing_ton_unordered_utility_asset_test/fearlessTests/ApplicationLayer/Services/FeatureToggle/TonChainSelectionTests.swift"
 expect_failure "missing TON unordered utility-asset test" "$missing_ton_unordered_utility_asset_test" "TON unordered utility-asset registry-confusion regression"
+
+# Consolidated Release retains both legacy-account entry points. None of the
+# key, public-key, sender, origin, network or durable-namespace bindings is optional.
+bypassed_legacy_key_requirement="$tmp_dir/bypassed-legacy-key-requirement"
+write_valid_fixture "$bypassed_legacy_key_requirement"
+perl -0pi -e 's/guard request\.legacyNativePrivateKey != nil/guard true/' "$bypassed_legacy_key_requirement/fearless/Common/Model/TonSendService.swift"
+expect_failure "bypassed legacy key requirement" "$bypassed_legacy_key_requirement" "TON Release service legacy-key-only guard"
+
+bypassed_legacy_account_release_guard="$tmp_dir/bypassed-legacy-account-release-guard"
+write_valid_fixture "$bypassed_legacy_account_release_guard"
+perl -0pi -e 's/#if !DEBUG\nguard let nativeAccount/#if DEBUG\nguard let nativeAccount/' "$bypassed_legacy_account_release_guard/fearless/Common/Model/TonSendService.swift"
+expect_failure "bypassed second legacy Release service guard" "$bypassed_legacy_account_release_guard" "TON Release service matching legacy-account guard"
+
+bypassed_legacy_public_key="$tmp_dir/bypassed-legacy-public-key"
+write_valid_fixture "$bypassed_legacy_public_key"
+perl -0pi -e 's/nativeAccount\.publicKey == request\.publicKey/true/' "$bypassed_legacy_public_key/fearless/Common/Model/TonSendService.swift"
+expect_failure "bypassed legacy public-key equality" "$bypassed_legacy_public_key" "TON Release service matching legacy-account guard"
+
+bypassed_legacy_sender="$tmp_dir/bypassed-legacy-sender"
+write_valid_fixture "$bypassed_legacy_sender"
+perl -0pi -e 's/try TonSwift\.Address\.parse\(nativeAccount\.address\)\.toRaw\(\) == TonSwift\.Address\.parse\(request\.senderAddress\)\.toRaw\(\)/true/' "$bypassed_legacy_sender/fearless/Common/Model/TonSendService.swift"
+expect_failure "bypassed legacy sender equality" "$bypassed_legacy_sender" "TON Release service matching legacy-account guard"
+
+bypassed_legacy_private_key_validation="$tmp_dir/bypassed-legacy-private-key-validation"
+write_valid_fixture "$bypassed_legacy_private_key_validation"
+perl -0pi -e 's/_ = try legacyAccount\.validatedPrivateKey\(key\)/_ = key/' "$bypassed_legacy_private_key_validation/fearless/Common/Model/TonSendService.swift"
+expect_failure "bypassed legacy private-key validation" "$bypassed_legacy_private_key_validation" "TON legacy private-key validation before signing"
+
+bypassed_wallet_legacy_account="$tmp_dir/bypassed-wallet-legacy-account"
+write_valid_fixture "$bypassed_wallet_legacy_account"
+perl -0pi -e 's/guard wallet\.legacyTonAccount != nil/guard true/' "$bypassed_wallet_legacy_account/fearless/ApplicationLayer/Services/Transfer/Tokens/TransferService.swift"
+expect_failure "bypassed wallet legacy account requirement" "$bypassed_wallet_legacy_account" "TON Release integration legacy-account-only guard"
+
+substituted_mainnet_origin="$tmp_dir/substituted-mainnet-origin"
+write_valid_fixture "$substituted_mainnet_origin"
+perl -0pi -e 's#"https://tonapi\.io"#"https://unreviewed.example"#' "$substituted_mainnet_origin/fearless/Common/Services/ChainRegistry/ChainRegistry.swift"
+expect_failure "substituted mainnet origin" "$substituted_mainnet_origin" "TON immutable mainnet origin"
+
+substituted_testnet_origin="$tmp_dir/substituted-testnet-origin"
+write_valid_fixture "$substituted_testnet_origin"
+perl -0pi -e 's#"https://testnet\.tonapi\.io"#"https://unreviewed.example"#' "$substituted_testnet_origin/fearless/Common/Services/ChainRegistry/ChainRegistry.swift"
+expect_failure "substituted testnet origin" "$substituted_testnet_origin" "TON immutable testnet origin"
+
+mismatched_mainnet_mapping="$tmp_dir/mismatched-mainnet-mapping"
+write_valid_fixture "$mismatched_mainnet_mapping"
+perl -0pi -e 's/canonical: canonicalAuthenticatedOrigin\) \{ return \.mainnet/canonical: canonicalAuthenticatedOrigin) { return .testnet/' "$mismatched_mainnet_mapping/fearless/Common/Services/ChainRegistry/ChainRegistry.swift"
+expect_failure "mismatched mainnet origin mapping" "$mismatched_mainnet_mapping" "TON reviewed mainnet origin mapping"
+
+mismatched_testnet_mapping="$tmp_dir/mismatched-testnet-mapping"
+write_valid_fixture "$mismatched_testnet_mapping"
+perl -0pi -e 's/canonical: canonicalTestnetOrigin\) \{ return \.testnet/canonical: canonicalTestnetOrigin) { return .mainnet/' "$mismatched_testnet_mapping/fearless/Common/Services/ChainRegistry/ChainRegistry.swift"
+expect_failure "mismatched testnet origin mapping" "$mismatched_testnet_mapping" "TON reviewed testnet origin mapping"
+
+merged_network_pending_namespace="$tmp_dir/merged-network-pending-namespace"
+write_valid_fixture "$merged_network_pending_namespace"
+perl -0pi -e 's/network == \.testnet \? "testnet:" \+ sender : sender/sender/' "$merged_network_pending_namespace/fearless/Common/Model/TonSendService.swift"
+expect_failure "merged network pending namespace" "$merged_network_pending_namespace" "TON network-separated pending-intent key"
+
+bypassed_signed_network_binding="$tmp_dir/bypassed-signed-network-binding"
+write_valid_fixture "$bypassed_signed_network_binding"
+perl -0pi -e 's/TonAPIClientFactory\.reviewedSendNetwork\(for: url\) == \(intent\.tonConnect\?\.network \?\? \.mainnet\)/true/' "$bypassed_signed_network_binding/fearless/Common/Model/TonSendService.swift"
+expect_failure "bypassed signed-operation network binding" "$bypassed_signed_network_binding" "TON signed remote-operation network binding"
 
 if ((executed_destructive_fixtures != EXPECTED_DESTRUCTIVE_FIXTURES)); then
   fail "expected exactly $EXPECTED_DESTRUCTIVE_FIXTURES destructive fixtures, executed $executed_destructive_fixtures"
