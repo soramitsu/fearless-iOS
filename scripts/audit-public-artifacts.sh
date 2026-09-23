@@ -26,7 +26,7 @@ if grep -E '(GoogleService-Info\.plist$|\.mobileprovision$|\.p12$|\.p8$|\.pem$|\
   fail 'signing material, Firebase config, or private key artifacts are tracked'
 fi
 
-if grep -E '(^|/)\.env($|\.|/)' "$tracked_files" | grep -Ev '^\.env\.example$' > "$tmp_matches"; then
+if grep -E '(^|/)\.env($|\.|/)' "$tracked_files" | grep -Ev '^(\.env\.example|fastlane/\.env\.example)$' > "$tmp_matches"; then
   cat "$tmp_matches" >&2
   fail 'unexpected env file is tracked'
 fi
