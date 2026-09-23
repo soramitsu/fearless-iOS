@@ -1,8 +1,8 @@
 import Foundation
 
-/// Shared Android/iOS plaintext envelope grammar for a local wallet-material draft. The v1
-/// derivation mode is deliberately opaque: decoding this header does not make the inner Android
-/// SCALE or iOS Keychain material installable on another platform. No recovery flow uses it yet.
+/// Shared Android/iOS plaintext envelope grammar. Local drafts remain opaque; a separate
+/// portable semantic payload may use the portable source/mode pair, but decoding this header
+/// alone never proves the material installable on another platform. No recovery flow uses it yet.
 ///
 /// Bytes: ASCII "FPWMLE01", u8 version (1), u8 origin, u8 source format, u8 derivation mode,
 /// big-endian u32 payload length, then exact payload bytes. The Android codec is byte-identical.
@@ -16,10 +16,12 @@ enum IOSPortableWalletMaterialEnvelope {
         case androidDraftV2 = 1
         /// Reserved for the existing iOS in-memory draft; no serializer or installer is wired.
         case iosKeychainV2Inventory = 2
+        case portableSemanticV1 = 3
     }
 
     enum DerivationMode: UInt8 {
         case localOpaque = 0
+        case portable = 1
     }
 
     enum CodecError: Error, Equatable {
@@ -93,9 +95,18 @@ enum IOSPortableWalletMaterialEnvelope {
     }
 
     private static func validateSource(_ record: Record) throws {
-        guard record.derivationMode == .localOpaque,
-              record.origin == .android && record.sourceFormat == .androidDraftV2 ||
-              record.origin == .ios && record.sourceFormat == .iosKeychainV2Inventory else {
+        let supported: Bool
+        switch (record.sourceFormat, record.derivationMode) {
+        case (.androidDraftV2, .localOpaque):
+            supported = record.origin == .android
+        case (.iosKeychainV2Inventory, .localOpaque):
+            supported = record.origin == .ios
+        case (.portableSemanticV1, .portable):
+            supported = true
+        default:
+            supported = false
+        }
+        guard supported else {
             throw CodecError.unsupportedSource
         }
     }

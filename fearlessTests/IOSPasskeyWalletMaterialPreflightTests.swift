@@ -735,6 +735,30 @@ private final class PreflightKeystore: KeystoreProtocol {
 }
 
 final class IOSPortableWalletMaterialEnvelopeTests: XCTestCase {
+    func testPortableSemanticEnvelopeAcceptsEitherOriginOnlyWithPortableMode() throws {
+        let vectors: [(String, IOSPortableWalletMaterialEnvelope.Origin)] = [
+            ("4650574d4c4530310101030100000002abcd", .android),
+            ("4650574d4c4530310102030100000002abcd", .ios)
+        ]
+        for (hex, origin) in vectors {
+            let encoded = data(hex)
+            let decoded = try IOSPortableWalletMaterialEnvelope.decode(encoded)
+            XCTAssertEqual(decoded.origin, origin)
+            XCTAssertEqual(decoded.sourceFormat, .portableSemanticV1)
+            XCTAssertEqual(decoded.derivationMode, .portable)
+            XCTAssertEqual(decoded.payload, Data([0xAB, 0xCD]))
+            XCTAssertEqual(try IOSPortableWalletMaterialEnvelope.encode(decoded), encoded)
+
+            var wrongMode = encoded
+            wrongMode[11] = IOSPortableWalletMaterialEnvelope.DerivationMode.localOpaque.rawValue
+            XCTAssertThrowsError(try IOSPortableWalletMaterialEnvelope.decode(wrongMode))
+        }
+        XCTAssertThrowsError(try IOSPortableWalletMaterialEnvelope.encode(.init(
+            origin: .ios, sourceFormat: .androidDraftV2,
+            derivationMode: .portable, payload: Data([0xAB])
+        )))
+    }
+
     func testSyntheticGoldenVectorsMatchAndroidCodecInBothSourceDirections() throws {
         let vectors: [(
             String,
