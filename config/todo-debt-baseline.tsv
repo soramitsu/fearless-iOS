@@ -12,6 +12,11 @@ fearless/Modules/Export/ExportMnemonic/ExportMnemonicPresenter.swift	// TODO: Su
 fearless/Modules/PolkaswapFlow/PolkaswapAdjustment/PolkaswapAdjustmentPresenter.swift	// TODO: - need think about this
 fearless/Modules/Profile/ProfileViewFactory.swift	// TODO: Eth account info fetching
 fearless/Modules/Staking/SelectValidatorsFlow/ValidatorInfo/Flow/Parachain/ValidatorInfoParachainViewModelFactory.swift	// TODO: Has slashes real value
-fearlessTests/Common/Crypto/KeystoreExportWrapperTests.swift	//                                                                    cryptoType: .sr25519) // FIXME: cryptoType: info.cryptoType ?? .sr25519)
 fearlessTests/Modules/ControllerAccountConfirmation/ControllerAccountConfirmationTests.swift	// TODO
 fearlessTests/Modules/StakingUnbondSetup/StakingUnbondSetupTests.swift	// TODO
+# Third-party TON SDK 1.0.4 source, pinned and documented in Packages/ton-swift/FEARLESS_PATCHES.md.
+Packages/ton-swift/Source/TonSwift/Cells/Bitstring.swift	/// TODO: might be useful to re-align bitstring in such case and only require that `length` is byte-aligned.
+Packages/ton-swift/Source/TonSwift/Cells/Dictionary.swift	// TODO: review this decision to return empty dicts from exotic cells
+Packages/ton-swift/Tests/TonSwiftTests/Cells/BocTest.swift	// TODO: create tests for large and files
+Packages/ton-swift/Tests/TonSwiftTests/Cells/BuilderTest.swift	// TODO: - create tests for int, varUint, varInt, coins, address, external address
+Packages/ton-swift/Tests/TonSwiftTests/Cells/SliceTest.swift	// TODO: - create tests for int, varUint, varInt, coins, address
