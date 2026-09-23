@@ -456,7 +456,11 @@ final class ReceiveAndRequestAssetTests: XCTestCase {
     }
 
     private func withVisibleFixture(_ controller: UIViewController, category: UIContentSizeCategory, checks: () -> Void) {
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 320, height: 640))
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        let scene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first
+        XCTAssertNotNil(scene, "Accessibility layout needs a live window scene")
+        let window = scene.map(UIWindow.init(windowScene:)) ?? UIWindow(frame: .zero)
+        window.frame = CGRect(x: 0, y: 0, width: 320, height: 640)
         window.overrideUserInterfaceStyle = .dark
         if #available(iOS 17.0, *) { window.traitOverrides.preferredContentSizeCategory = category }
         window.rootViewController = controller
