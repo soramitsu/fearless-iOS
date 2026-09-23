@@ -10,6 +10,12 @@ protocol BackupCreatePasswordInteractorOutput: AnyObject {
     func didComplete()
 }
 
+enum BackupCreatePasswordError: Error {
+    case incompleteBackupMaterial
+    case unavailableCloudStorage
+    case cloudBackupReadbackMismatch
+}
+
 final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
     var cloudStorage: CloudStorageServiceProtocol?
 
@@ -114,6 +120,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
 
     private func saveBackupAccount(wallet: MetaAccountModel, requestType: BackupCreatePasswordFlow.RequestType) {
         guard let password = password else {
+            output?.didReceive(error: BackupCreatePasswordError.incompleteBackupMaterial)
             return
         }
 
@@ -132,6 +139,10 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         seeds: [ExportSeedData],
         password: String
     ) {
+        guard !seeds.isEmpty else {
+            output?.didReceive(error: BackupCreatePasswordError.incompleteBackupMaterial)
+            return
+        }
         let substrateRestoreSeed = seeds.first(where: { !$0.chain.isEthereumBased })
         let ethereumRestoreSeed = seeds.first(where: { $0.chain.isEthereumBased })
 
@@ -161,6 +172,10 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         jsons: [RestoreJson],
         password: String
     ) {
+        guard !jsons.isEmpty else {
+            output?.didReceive(error: BackupCreatePasswordError.incompleteBackupMaterial)
+            return
+        }
         let substrateRestoreJson = jsons.first(where: { !$0.chain.isEthereumBased })
         let ethereumRestoreJson = jsons.first(where: { $0.chain.isEthereumBased })
 
@@ -204,25 +219,64 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         password: String,
         wallet: MetaAccountModel
     ) {
+        guard let cloudStorage = cloudStorage else {
+            output?.didReceive(error: BackupCreatePasswordError.unavailableCloudStorage)
+            return
+        }
         Task {
             do {
-                try await cloudStorage?.saveBackup(account: account, password: password)
-                didBackuped(wallet: wallet)
-                await MainActor.run {
-                    self.output?.didComplete()
+                try await cloudStorage.saveBackup(account: account, password: password)
+                let downloaded = try await cloudStorage.importBackup(account: account, password: password)
+                guard Self.matchesReadback(downloaded, expected: account) else {
+                    throw BackupCreatePasswordError.cloudBackupReadbackMismatch
+                }
+                didBackuped(wallet: wallet) { result in
+                    DispatchQueue.main.async { [weak self] in
+                        switch result {
+                        case .success:
+                            self?.output?.didComplete()
+                        case let .failure(error):
+                            self?.output?.didReceive(error: error)
+                        }
+                    }
                 }
             } catch {
-                self.output?.didReceive(error: error)
+                await MainActor.run { self.output?.didReceive(error: error) }
             }
         }
     }
 
-    private func didBackuped(wallet: MetaAccountModel) {
+    private static func matchesReadback(_ actual: OpenBackupAccount, expected: OpenBackupAccount) -> Bool {
+        actual.address == expected.address &&
+            actual.name == expected.name &&
+            actual.cryptoType == expected.cryptoType &&
+            actual.substrateDerivationPath == expected.substrateDerivationPath &&
+            actual.ethDerivationPath == expected.ethDerivationPath &&
+            actual.backupAccountType == expected.backupAccountType &&
+            actual.passphrase == expected.passphrase &&
+            actual.json?.substrateJson == expected.json?.substrateJson &&
+            actual.json?.ethJson == expected.json?.ethJson &&
+            actual.encryptedSeed?.substrateSeed == expected.encryptedSeed?.substrateSeed &&
+            actual.encryptedSeed?.ethSeed == expected.encryptedSeed?.ethSeed
+    }
+
+    private func didBackuped(wallet: MetaAccountModel, completion: @escaping (Result<Void, Error>) -> Void) {
         let updatedWallet = wallet.replacingIsBackuped(true)
         let saveOperation = accountRepository.saveOperation {
             [updatedWallet]
         } _: {
             []
+        }
+        saveOperation.completionBlock = { [weak saveOperation] in
+            do {
+                guard let saveOperation = saveOperation else {
+                    throw BaseOperationError.parentOperationCancelled
+                }
+                _ = try saveOperation.extractNoCancellableResultData()
+                completion(.success(()))
+            } catch {
+                completion(.failure(error))
+            }
         }
         operationManager.enqueue(operations: [saveOperation], in: .transient)
     }
@@ -270,29 +324,34 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         var jsons: [RestoreJson] = []
 
         for chainAccount in accounts {
-            if let data = try? exportJsonWrapper.export(
-                chainAccount: chainAccount.account,
-                password: password,
-                address: AddressFactory.address(for: chainAccount.account.accountId, chain: chainAccount.chain),
-                metaId: wallet.metaId,
-                accountId: chainAccount.account.isChainAccount ? chainAccount.account.accountId : nil,
-                genesisHash: nil
-            ), let result = String(data: data, encoding: .utf8) {
-                do {
-                    let fileUrl = try URL(fileURLWithPath: NSTemporaryDirectory() + "/\(AddressFactory.address(for: chainAccount.account.accountId, chain: chainAccount.chain)).json")
-                    try result.write(toFile: fileUrl.path, atomically: true, encoding: .utf8)
-                    let json = RestoreJson(
-                        data: result,
-                        chain: chainAccount.chain,
-                        cryptoType: nil,
-                        fileURL: fileUrl
-                    )
-
-                    jsons.append(json)
-                } catch {
-                    output?.didReceive(error: error)
+            do {
+                let address = try AddressFactory.address(
+                    for: chainAccount.account.accountId, chain: chainAccount.chain
+                )
+                let data = try exportJsonWrapper.export(
+                    chainAccount: chainAccount.account,
+                    password: password,
+                    address: address,
+                    metaId: wallet.metaId,
+                    accountId: chainAccount.account.isChainAccount ? chainAccount.account.accountId : nil,
+                    genesisHash: nil
+                )
+                guard let result = String(data: data, encoding: .utf8) else {
+                    throw BackupCreatePasswordError.incompleteBackupMaterial
                 }
+                let fileURL = URL(fileURLWithPath: NSTemporaryDirectory() + "/\(address).json")
+                try result.write(to: fileURL, atomically: true, encoding: .utf8)
+                jsons.append(RestoreJson(
+                    data: result, chain: chainAccount.chain, cryptoType: nil, fileURL: fileURL
+                ))
+            } catch {
+                output?.didReceive(error: error)
+                return
             }
+        }
+        guard jsons.count == accounts.count, !jsons.isEmpty else {
+            output?.didReceive(error: BackupCreatePasswordError.incompleteBackupMaterial)
+            return
         }
         saveBackupAccount(wallet: wallet, requestType: .jsons(jsons))
     }
@@ -346,7 +405,12 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
                 seeds.append(seedData)
             } catch {
                 output?.didReceive(error: error)
+                return
             }
+        }
+        guard seeds.count == accounts.count, !seeds.isEmpty else {
+            output?.didReceive(error: BackupCreatePasswordError.incompleteBackupMaterial)
+            return
         }
         saveBackupAccount(wallet: wallet, requestType: .seeds(seeds))
     }
@@ -367,15 +431,21 @@ extension BackupCreatePasswordInteractor: BackupCreatePasswordInteractorInput {
             skipConfirmation()
         case let .backupWallet(flow, options):
             switch flow {
-            case let .multiple(wallet, accounts):
-                let ethereum = accounts.first(where: { $0.chain.isEthereumBased })
-                guard let substrate = accounts.first(where: { !$0.chain.isEthereumBased }) else {
+            case let .multiple(wallet, selectedAccounts):
+                let ethereum = selectedAccounts.first(where: { $0.chain.isEthereumBased })
+                guard let substrate = selectedAccounts.first(where: { !$0.chain.isEthereumBased }) else {
+                    output?.didReceive(error: BackupCreatePasswordError.incompleteBackupMaterial)
                     return
                 }
                 let accounts = [substrate, ethereum].compactMap { $0 }
+                guard accounts.count == selectedAccounts.count else {
+                    output?.didReceive(error: BackupCreatePasswordError.incompleteBackupMaterial)
+                    return
+                }
 
                 if options.contains(.mnemonic) {
                     guard let ethereum = ethereum else {
+                        output?.didReceive(error: BackupCreatePasswordError.incompleteBackupMaterial)
                         return
                     }
                     saveMnemonic(
@@ -387,10 +457,12 @@ extension BackupCreatePasswordInteractor: BackupCreatePasswordInteractorInput {
                     saveSeed(wallet: wallet, accounts: accounts)
                 } else if options.contains(.keystore) {
                     saveKeystore(wallet: wallet, accounts: accounts, password: password)
+                } else {
+                    output?.didReceive(error: BackupCreatePasswordError.incompleteBackupMaterial)
                 }
             case .single:
                 // not support chain account backup
-                break
+                output?.didReceive(error: BackupCreatePasswordError.incompleteBackupMaterial)
             }
         }
     }
