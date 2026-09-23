@@ -14,6 +14,7 @@ enum IOSPasskeyWalletMaterialPreflightError: Error, Equatable {
     case unavailableSecretMaterial
     case pendingKeyMigration
     case walletStoreChanged
+    case unverifiedExportMaterial
 }
 
 /// Counts only. This is an eligibility check, not serialized backup material or recovery evidence.
@@ -502,6 +503,7 @@ final class IOSPasskeyWalletMaterialDraftCapture {
         guard before.count == inventory.walletCount else {
             throw IOSPasskeyWalletMaterialPreflightError.walletStoreChanged
         }
+        try validateCapturedExportSources(captured)
         let after = try preflight.snapshot()
         guard projectionsMatch(before, after),
               try keyState(KeystoreMigrator.pendingCleanupIdentifier) == .missing else {
@@ -518,6 +520,121 @@ final class IOSPasskeyWalletMaterialDraftCapture {
                 : $0.order < $1.order
         }
         return IOSPasskeyWalletMaterialDraft(wallets: captured)
+    }
+
+    private func validateCapturedExportSources(
+        _ wallets: [IOSPasskeyWalletMaterialDraft.Wallet]
+    ) throws {
+        // Seed tags are retained but not interpreted here: historical imports
+        // can store a full seed where current imports store a mini seed, while
+        // EVM tags can hold a BIP32 seed or final private key. Export/import
+        // parity for those cohorts needs provenance-aware qualification.
+        let derivation = MetaAccountOperationFactory(keystore: keystore)
+        for entry in wallets {
+            let wallet = entry.publicIdentity
+            let rootEntropy = slot(.entropy, in: entry, chainId: nil, accountId: nil)
+            let substratePath = try path(.substrateDerivation, in: entry, chainId: nil, accountId: nil) ?? ""
+            let ethereumPath = try path(.ethereumDerivation, in: entry, chainId: nil, accountId: nil)
+
+            if let publicKey = wallet.substratePublicKey {
+                guard let cryptoType = CryptoType(rawValue: wallet.substrateCryptoType) else {
+                    throw IOSPasskeyWalletMaterialPreflightError.unverifiedExportMaterial
+                }
+                try verify(
+                    entropy: rootEntropy,
+                    path: substratePath, cryptoType: cryptoType, ethereumBased: false,
+                    publicKey: publicKey, derivation: derivation
+                )
+            }
+            if let publicKey = wallet.ethereumPublicKey {
+                // Historical root and chain EVM seed slots have different recipes:
+                // mnemonic-derived BIP32 seed versus an exported private key.
+                // The released seed export reads ethereumSecret, already covered
+                // by the signing preflight. Preserve ethereumSeed without guessing.
+                try verify(
+                    entropy: wallet.canExportEthereumMnemonic && ethereumPath != nil ? rootEntropy : nil,
+                    path: ethereumPath ?? "", cryptoType: .ecdsa, ethereumBased: true,
+                    publicKey: publicKey, derivation: derivation
+                )
+            }
+
+            for account in wallet.chainAccounts {
+                // These released networks derive from the root through their
+                // own contracts, not the generic Substrate junction recipe.
+                // Keep any historical per-chain slots for the later installer.
+                let canonicalChainId = UniversalWalletChainAccountSupport.canonicalChainId(
+                    for: account.chainId
+                )
+                if [
+                    UniversalWalletRegistry.bitcoinMainnet.chainId,
+                    UniversalWalletRegistry.bitcoinTestnet.chainId,
+                    UniversalWalletRegistry.taira.chainId,
+                    UniversalWalletRegistry.solanaMainnet.chainId,
+                    UniversalWalletRegistry.solanaDevnet.chainId,
+                    UniversalWalletRegistry.tonMainnetRegistryEntry.chainId,
+                    UniversalWalletRegistry.nexus.chainId
+                ].contains(canonicalChainId) {
+                    continue
+                }
+                let role: IOSPasskeyWalletMaterialDraft.SecretSlot.Role = account.ethereumBased
+                    ? .ethereumDerivation : .substrateDerivation
+                let pathValue = try path(role, in: entry, chainId: account.chainId, accountId: account.accountId)
+                let entropy = slot(.entropy, in: entry, chainId: account.chainId, accountId: account.accountId)
+                guard let cryptoType = CryptoType(rawValue: account.cryptoType) else {
+                    throw IOSPasskeyWalletMaterialPreflightError.unverifiedExportMaterial
+                }
+                try verify(
+                    entropy: account.ethereumBased && (!wallet.canExportEthereumMnemonic || pathValue == nil)
+                        ? nil : entropy,
+                    path: pathValue ?? "", cryptoType: cryptoType,
+                    ethereumBased: account.ethereumBased, publicKey: account.publicKey,
+                    derivation: derivation
+                )
+            }
+        }
+    }
+
+    private func verify(
+        entropy: Data?, path: String,
+        cryptoType: CryptoType, ethereumBased: Bool, publicKey: Data,
+        derivation: MetaAccountOperationFactory
+    ) throws {
+        do {
+            if let entropy {
+                guard try derivation.publicKeyForExportEntropy(
+                    entropy, derivationPath: path, cryptoType: cryptoType,
+                    ethereumBased: ethereumBased
+                ) == publicKey else {
+                    throw IOSPasskeyWalletMaterialPreflightError.unverifiedExportMaterial
+                }
+            }
+        } catch {
+            throw IOSPasskeyWalletMaterialPreflightError.unverifiedExportMaterial
+        }
+    }
+
+    private func path(
+        _ role: IOSPasskeyWalletMaterialDraft.SecretSlot.Role,
+        in wallet: IOSPasskeyWalletMaterialDraft.Wallet,
+        chainId: String?, accountId: Data?
+    ) throws -> String? {
+        guard let bytes = slot(role, in: wallet, chainId: chainId, accountId: accountId) else {
+            return nil
+        }
+        guard let value = String(data: bytes, encoding: .utf8), !value.isEmpty else {
+            throw IOSPasskeyWalletMaterialPreflightError.unverifiedExportMaterial
+        }
+        return value
+    }
+
+    private func slot(
+        _ role: IOSPasskeyWalletMaterialDraft.SecretSlot.Role,
+        in wallet: IOSPasskeyWalletMaterialDraft.Wallet,
+        chainId: String?, accountId: Data?
+    ) -> Data? {
+        wallet.slots.first {
+            $0.role == role && $0.chainId == chainId && $0.accountId == accountId
+        }?.bytes
     }
 
     private func projectionsMatch(

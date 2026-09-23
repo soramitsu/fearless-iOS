@@ -133,6 +133,22 @@ final class MetaAccountOperationFactory {
     init(keystore: KeystoreProtocol) {
         self.keystore = keystore
     }
+
+    /// Reuses the released import derivation recipe without writing Keychain or Core Data.
+    /// A portable backup may only advertise mnemonic export if this reproduces
+    /// the persisted public key for the exact captured entropy and path.
+    func publicKeyForExportEntropy(
+        _ entropy: Data,
+        derivationPath: String,
+        cryptoType: CryptoType,
+        ethereumBased: Bool
+    ) throws -> Data {
+        let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
+        return try getQuery(
+            seedSource: .mnemonic(mnemonic), derivationPath: derivationPath,
+            cryptoType: cryptoType, ethereumBased: ethereumBased
+        ).publicKey
+    }
 }
 
 private extension MetaAccountOperationFactory {

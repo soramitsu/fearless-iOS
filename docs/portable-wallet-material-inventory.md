@@ -77,12 +77,22 @@ not an agreed cross-platform plaintext encoding. A reviewed semantic mapping,
 canonical serializer, original-key export proof, transactional installer and
 real replacement-device tests remain required.
 
-The signer proof covers the raw signing keys, not the relationship between an
-optional phrase, seed or derivation path and the exported identity. Historical
-slots can be internally contradictory; the draft preserves them for later
-inspection but must never establish backup completion. The production
-verifier must prove each export path recreates the original identity before a
-generation can become authoritative.
+The draft now reuses the released import derivation without writing storage
+to reject a captured Substrate mnemonic/path that does not recreate the
+persisted public key. It also checks EVM mnemonic/path where the app advertises
+that export, and checks generic chain mnemonic paths where their own source
+contract applies. A matching root secret alone would not catch these errors.
+Native TON phrase proof remains in the existing preflight.
+
+Seed slots are preserved byte-for-byte but remain provenance-dependent:
+historical Substrate migration can store a full seed where current import
+stores a mini seed, and EVM slots can store a BIP32 seed or final private key.
+App-owned Bitcoin, Taira, Solana, TON and Nexus chain identities use separate
+derivation contracts, so the generic mnemonic check does not reinterpret
+their optional slots. The released seed and JSON export flows, path-only
+material, and every exported account's reimport still need direct round-trip
+proof. The draft must never establish backup completion until that proof and
+the cross-platform installer pass.
 
 The disabled passkey generation code authenticates an encrypted envelope,
 unwraps a credential-local backup key from a native PRF result and calls the

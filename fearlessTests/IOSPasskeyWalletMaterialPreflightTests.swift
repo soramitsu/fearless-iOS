@@ -2,6 +2,7 @@
 import CoreData
 import IrohaCrypto
 import SoraKeystore
+import struct SSFCrypto.SeedFactory
 import SSFModels
 import XCTest
 
@@ -316,9 +317,11 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         let native = try LegacyNativeTonFixture.wallet()
         let tonPhrase = Data(LegacyNativeTonFixture.phrase.utf8)
         let tonPrivateKey = try LegacyNativeTonFixture.privateKey()
+        let historicalEthereumSeed = Data(repeating: 0x42, count: 64)
         let keys = PreflightKeystore(keys: [
             fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(substrate.metaId): substrateSecretKey,
             fearless.KeystoreTagV2.ethereumSecretKeyTagForMetaId(substrate.metaId): ethereumPrivateKey,
+            fearless.KeystoreTagV2.ethereumSeedTagForMetaId(substrate.metaId): historicalEthereumSeed,
             fearless.KeystoreTagV2.tonSecretKeyTagForMetaId(native.metaId): tonPrivateKey,
             fearless.KeystoreTagV2.entropyTagForMetaId(native.metaId): tonPhrase
         ])
@@ -363,6 +366,10 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
             ethereumPrivateKey
         )
         XCTAssertEqual(
+            draft.wallets[0].slots.first(where: { $0.role == .ethereumSeed })?.bytes,
+            historicalEthereumSeed
+        )
+        XCTAssertEqual(
             draft.wallets[1].slots.first(where: { $0.role == .tonSecret })?.bytes,
             tonPrivateKey
         )
@@ -383,7 +390,7 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         XCTAssertFalse(reflectedSlot.contains("bytes"))
     }
 
-    func testDraftRetainsIndependentChainKeyAndOptionalDerivationBytes() throws {
+    func testDraftPreservesHistoricalSeedBytesAndRejectsBadMnemonicExport() throws {
         let base = try substrateWallet()
         let seed = Data(repeating: 0x32, count: 32)
         let publicKey = try EDKeyFactory().derive(fromSeed: seed).publicKey().rawData()
@@ -393,38 +400,81 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
             cryptoType: CryptoType.ed25519.rawValue, ethereumBased: false
         )
         let wallet = base.insertingChainAccount(chain)
-        let rootEntropy = Data(repeating: 0x01, count: 16)
-        let chainDerivation = Data("//historical-chain".utf8)
-        let rootDerivation = Data("//historical-root".utf8)
+        let rootSeed = Data(repeating: 0x42, count: 64)
         let keys = PreflightKeystore(keys: [
             fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): substrateSecretKey,
-            fearless.KeystoreTagV2.entropyTagForMetaId(wallet.metaId): rootEntropy,
-            fearless.KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId): rootDerivation,
+            fearless.KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId): rootSeed,
             fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accountId): seed,
-            fearless.KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId, accountId: accountId):
-                chainDerivation
+            fearless.KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId, accountId: accountId): seed
         ])
         let draft = try IOSPasskeyWalletMaterialDraftCapture(
             preflight: makePreflight([projection(wallet)], keys: keys), keystore: keys
         ).capture()
         let slots = draft.wallets[0].slots
         XCTAssertEqual(
-            slots.first(where: { $0.role == .entropy && $0.chainId == nil })?.bytes,
-            rootEntropy
-        )
-        XCTAssertEqual(
-            slots.first(where: { $0.role == .substrateDerivation && $0.chainId == nil })?.bytes,
-            rootDerivation
+            slots.first(where: { $0.role == .substrateSeed && $0.chainId == nil })?.bytes,
+            rootSeed
         )
         XCTAssertEqual(
             slots.first(where: { $0.role == .substrateSecret && $0.chainId == chain.chainId })?.bytes,
             seed
         )
         XCTAssertEqual(
-            slots.first(where: { $0.role == .substrateDerivation && $0.chainId == chain.chainId })?.bytes,
-            chainDerivation
+            slots.first(where: { $0.role == .substrateSeed && $0.chainId == chain.chainId })?.bytes,
+            seed
         )
         XCTAssertEqual(slots.first(where: { $0.chainId == chain.chainId })?.accountId, accountId)
+
+        keys.keys[fearless.KeystoreTagV2.entropyTagForMetaId(wallet.metaId)] = Data(repeating: 0x01, count: 16)
+        XCTAssertThrowsError(try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([projection(wallet)], keys: keys), keystore: keys
+        ).capture()) {
+            XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .unverifiedExportMaterial)
+        }
+        keys.keys.removeValue(forKey: fearless.KeystoreTagV2.entropyTagForMetaId(wallet.metaId))
+        keys.keys[fearless.KeystoreTagV2.entropyTagForMetaId(wallet.metaId, accountId: accountId)] =
+            Data(repeating: 0x01, count: 16)
+        keys.keys[fearless.KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId, accountId: accountId)] =
+            Data("//wrong-chain-path".utf8)
+        XCTAssertThrowsError(try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([projection(wallet)], keys: keys), keystore: keys
+        ).capture()) {
+            XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .unverifiedExportMaterial)
+        }
+    }
+
+    func testDraftAcceptsMnemonicThatRederivesOriginalRoot() throws {
+        let entropy = Data(repeating: 0x01, count: 16)
+        let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
+        let seed = try SeedFactory().deriveSeed(from: mnemonic.toString(), password: "").seed.miniSeed
+        let publicKey = try EDKeyFactory().derive(fromSeed: seed).publicKey().rawData()
+        let ethereumPath = DerivationPathConstants.defaultEthereum
+        let ethereum = try EthereumAccountImportWrapper().importEntropy(entropy, derivationPath: ethereumPath)
+        let ethereumPublicKey = try ethereum.keypair.publicKey().rawData()
+        let ethereumPrivateKey = try ethereum.keypair.privateKey().rawData()
+        let wallet = MetaAccountModel(
+            metaId: "mnemonic-proof-wallet", name: "Mnemonic", substrateAccountId: try publicKey.publicKeyToAccountId(),
+            substrateCryptoType: CryptoType.ed25519.rawValue, substratePublicKey: publicKey,
+            ethereumAddress: try ethereumPublicKey.ethereumAddressFromPublicKey(),
+            ethereumPublicKey: ethereumPublicKey, chainAccounts: [], assetKeysOrder: nil,
+            canExportEthereumMnemonic: true, unusedChainIds: nil,
+            selectedCurrency: Currency.defaultCurrency(), networkManagmentFilter: nil,
+            assetsVisibility: [], hasBackup: false, favouriteChainIds: []
+        )
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): seed,
+            fearless.KeystoreTagV2.entropyTagForMetaId(wallet.metaId): entropy,
+            fearless.KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId): ethereumPrivateKey,
+            fearless.KeystoreTagV2.ethereumDerivationTagForMetaId(wallet.metaId): Data(ethereumPath.utf8)
+        ])
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([projection(wallet)], keys: keys), keystore: keys
+        ).capture()
+        XCTAssertEqual(draft.wallets[0].slots.first(where: { $0.role == .entropy })?.bytes, entropy)
+        XCTAssertEqual(
+            draft.wallets[0].slots.first(where: { $0.role == .ethereumSecret })?.bytes,
+            ethereumPrivateKey
+        )
     }
 
     func testDraftRejectsSecretMutationAfterValidatedRead() throws {
