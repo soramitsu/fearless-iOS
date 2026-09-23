@@ -8,7 +8,7 @@ exist yet.
 
 | Material | Durable iOS source | Required restore property |
 | --- | --- | --- |
-| Wallet identity and presentation | `MetaAccountModel` carries the meta ID, name, Substrate and EVM public identities, crypto type, chain-account set, filters, currency, visibility, favorites, backup flag and optional native TON identity. `ManagedMetaAccountModel` and `SelectedWalletSettings` carry selection and order. | Preserve every wallet, its original public identities, selected wallet, order and user-visible settings. The decrypted keys must rederive the original addresses before installation. |
+| Wallet identity and presentation | `MetaAccountModel` carries the meta ID, name, Substrate and EVM public identities, crypto type, chain-account set, currency, visibility, favorites, backup flag and optional native TON identity. `MetaAccountSelectionModel` carries selection/order and captures raw persisted `assetFilterOptions` and `zeroBalanceAssetsHidden` for this draft; the ordinary wallet model omits those two historical preferences. | Preserve every wallet, its original public identities, selected wallet, order and user-visible settings. The decrypted keys must rederive the original addresses before installation. |
 | Substrate root | `KeystoreTagV2` addresses entropy, seed, secret key and derivation path by meta ID. The crypto type and public key live in the wallet model. | Preserve the exact signing key and derivation metadata. Entropy, seed and raw secret-key availability are separate historical cases; a raw-key wallet must not be relabeled as mnemonic-derived. |
 | EVM root | `KeystoreTagV2` addresses the EVM secret key, seed and derivation path by meta ID; the model stores public key and address. Some imported EVM keys are independent of the Substrate mnemonic. | Preserve the exact original private/public key and address. Only claim mnemonic export when the restored phrase and path actually reproduce that key. |
 | Chain-specific accounts | The same Keychain tags accept an `accountId` suffix. `MetaAccountModel.chainAccounts` identifies per-chain accounts and their public identities. | Include every separately stored chain key, entropy/seed and path; do not infer that a root can reproduce it without proving the public identity. |
@@ -52,6 +52,37 @@ export proof and a transactional installer remain required before allowing any
 backup-complete state. Its two wallet-store reads detect ordinary metadata
 drift but are not a transaction spanning Core Data and Keychain. The production
 passkey feature remains disabled.
+
+`IOSPasskeyWalletMaterialDraftCapture` is an in-memory next step. It reads
+every known V2 root and chain-account Keychain
+slot: Substrate/EVM/TON secret keys, entropy, Substrate/EVM seeds and derivation
+bytes, plus the universal-wallet source marker. It binds chain slots to their
+original chain and account IDs, carries every public wallet model with
+selection/order and the two historical display preferences, and resets the
+copied backup-complete flag because that flag
+cannot prove a restored backup. It runs the signing preflight after capturing
+the bytes, then re-reads the wallet projections and all
+present **and absent** Keychain tags before returning, failing if an ordinary
+interleaved mutation is seen. The draft has redacted debug descriptions and
+reflection to avoid routine inspection exposing Keychain bytes; it has no
+wire serializer or upload caller. The current iOS source model cannot
+represent an EVM-only wallet; independently stored EVM keys on a supported
+wallet are captured as their own slots.
+
+This remains a capture candidate, not an atomic Core Data/Keychain snapshot:
+a concurrent writer can change and restore bytes between reads, and the app
+does not yet hold a shared writer lock across both stores. The Android draft
+keeps exact Android V3/V2 SCALE secret blobs; these iOS raw Keychain slots are
+not an agreed cross-platform plaintext encoding. A reviewed semantic mapping,
+canonical serializer, original-key export proof, transactional installer and
+real replacement-device tests remain required.
+
+The signer proof covers the raw signing keys, not the relationship between an
+optional phrase, seed or derivation path and the exported identity. Historical
+slots can be internally contradictory; the draft preserves them for later
+inspection but must never establish backup completion. The production
+verifier must prove each export path recreates the original identity before a
+generation can become authoritative.
 
 The disabled passkey generation code authenticates an encrypted envelope,
 unwraps a credential-local backup key from a native PRF result and calls the

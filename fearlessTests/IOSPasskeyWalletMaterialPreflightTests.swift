@@ -107,6 +107,49 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         }
     }
 
+    func testProductionCaptureKeepsPersistedDisplayPreferences() throws {
+        let wallet = try substrateWallet()
+        let facade = UserDataStorageTestFacade()
+        let inserted = expectation(description: "Persist wallet display preferences")
+        var insertionError: Error?
+        facade.databaseService.performAsync { context, error in
+            do {
+                if let error { throw error }
+                guard let context else { throw IOSPasskeyWalletMaterialPreflightError.unavailableWalletStore }
+                let row = CDMetaAccount(context: context)
+                row.metaId = wallet.metaId
+                row.name = wallet.name
+                row.isSelected = true
+                row.order = 1
+                row.substrateAccountId = wallet.substrateAccountId?.map { String(format: "%02x", $0) }.joined()
+                row.substratePublicKey = wallet.substratePublicKey
+                row.substrateCryptoType = Int16(wallet.substrateCryptoType)
+                row.canExportEthereumMnemonic = false
+                row.hasBackup = true
+                row.favouriteChainIds = NSArray()
+                row.setValue(NSArray(array: ["historical-filter"]), forKey: "assetFilterOptions")
+                row.setValue(true, forKey: "zeroBalanceAssetsHidden")
+                try context.save()
+            } catch {
+                insertionError = error
+            }
+            inserted.fulfill()
+        }
+        wait(for: [inserted], timeout: Constants.defaultExpectationDuration)
+        if let insertionError { throw insertionError }
+
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): substrateSecretKey
+        ])
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            storageFacade: facade, keystore: keys
+        ).capture()
+        XCTAssertEqual(draft.wallets.count, 1)
+        XCTAssertEqual(draft.wallets[0].displayPreferences.assetFilterOptions, ["historical-filter"])
+        XCTAssertTrue(draft.wallets[0].displayPreferences.zeroBalanceAssetsHidden)
+        XCTAssertFalse(draft.wallets[0].publicIdentity.hasBackup)
+    }
+
     func testMissingAndLockedRootKeysFailClosed() throws {
         let wallet = try substrateWallet()
         let tag = fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId)
@@ -268,6 +311,190 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         }
     }
 
+    func testDraftCapturesMultipleRootsWithoutTrustingPriorBackupState() throws {
+        let substrate = try substrateWallet(includeEthereum: true).replacingIsBackuped(true)
+        let native = try LegacyNativeTonFixture.wallet()
+        let tonPhrase = Data(LegacyNativeTonFixture.phrase.utf8)
+        let tonPrivateKey = try LegacyNativeTonFixture.privateKey()
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(substrate.metaId): substrateSecretKey,
+            fearless.KeystoreTagV2.ethereumSecretKeyTagForMetaId(substrate.metaId): ethereumPrivateKey,
+            fearless.KeystoreTagV2.tonSecretKeyTagForMetaId(native.metaId): tonPrivateKey,
+            fearless.KeystoreTagV2.entropyTagForMetaId(native.metaId): tonPhrase
+        ])
+        let projections = [
+            MetaAccountSelectionModel(
+                identifier: substrate.metaId,
+                wallet: substrate,
+                isSelected: true,
+                order: 1,
+                displayPreferences: PersistedWalletDisplayPreferences(
+                    assetFilterOptions: ["historical-filter"], zeroBalanceAssetsHidden: true
+                )
+            ),
+            MetaAccountSelectionModel(
+                identifier: native.metaId,
+                wallet: native,
+                isSelected: false,
+                order: 2,
+                displayPreferences: PersistedWalletDisplayPreferences(
+                    assetFilterOptions: nil, zeroBalanceAssetsHidden: false
+                )
+            )
+        ]
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight(projections, keys: keys), keystore: keys
+        ).capture()
+
+        XCTAssertEqual(draft.wallets.count, 2)
+        XCTAssertEqual(draft.wallets.map(\.publicIdentity.metaId), [substrate.metaId, native.metaId])
+        XCTAssertTrue(draft.wallets[0].isSelected)
+        XCTAssertEqual(draft.wallets[0].order, 1)
+        XCTAssertEqual(draft.wallets[0].displayPreferences.assetFilterOptions, ["historical-filter"])
+        XCTAssertTrue(draft.wallets[0].displayPreferences.zeroBalanceAssetsHidden)
+        XCTAssertFalse(draft.wallets[0].publicIdentity.hasBackup)
+        XCTAssertFalse(draft.wallets[1].publicIdentity.hasBackup)
+        XCTAssertEqual(
+            draft.wallets[0].slots.first(where: { $0.role == .substrateSecret })?.bytes,
+            substrateSecretKey
+        )
+        XCTAssertEqual(
+            draft.wallets[0].slots.first(where: { $0.role == .ethereumSecret })?.bytes,
+            ethereumPrivateKey
+        )
+        XCTAssertEqual(
+            draft.wallets[1].slots.first(where: { $0.role == .tonSecret })?.bytes,
+            tonPrivateKey
+        )
+        XCTAssertEqual(
+            draft.wallets[1].slots.first(where: { $0.role == .entropy })?.bytes,
+            tonPhrase
+        )
+        XCTAssertEqual(String(reflecting: draft), "IOSPasskeyWalletMaterialDraft(<redacted>)")
+        XCTAssertEqual(
+            String(reflecting: draft.wallets[0].slots[0]),
+            "IOSPasskeyWalletMaterialDraft.SecretSlot(<redacted>)"
+        )
+        var reflectedDraft = ""
+        dump(draft, to: &reflectedDraft)
+        XCTAssertFalse(reflectedDraft.contains("bytes"))
+        var reflectedSlot = ""
+        dump(draft.wallets[0].slots[0], to: &reflectedSlot)
+        XCTAssertFalse(reflectedSlot.contains("bytes"))
+    }
+
+    func testDraftRetainsIndependentChainKeyAndOptionalDerivationBytes() throws {
+        let base = try substrateWallet()
+        let seed = Data(repeating: 0x32, count: 32)
+        let publicKey = try EDKeyFactory().derive(fromSeed: seed).publicKey().rawData()
+        let accountId = try publicKey.publicKeyToAccountId()
+        let chain = ChainAccountModel(
+            chainId: "independent:substrate", accountId: accountId, publicKey: publicKey,
+            cryptoType: CryptoType.ed25519.rawValue, ethereumBased: false
+        )
+        let wallet = base.insertingChainAccount(chain)
+        let rootEntropy = Data(repeating: 0x01, count: 16)
+        let chainDerivation = Data("//historical-chain".utf8)
+        let rootDerivation = Data("//historical-root".utf8)
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): substrateSecretKey,
+            fearless.KeystoreTagV2.entropyTagForMetaId(wallet.metaId): rootEntropy,
+            fearless.KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId): rootDerivation,
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accountId): seed,
+            fearless.KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId, accountId: accountId):
+                chainDerivation
+        ])
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([projection(wallet)], keys: keys), keystore: keys
+        ).capture()
+        let slots = draft.wallets[0].slots
+        XCTAssertEqual(
+            slots.first(where: { $0.role == .entropy && $0.chainId == nil })?.bytes,
+            rootEntropy
+        )
+        XCTAssertEqual(
+            slots.first(where: { $0.role == .substrateDerivation && $0.chainId == nil })?.bytes,
+            rootDerivation
+        )
+        XCTAssertEqual(
+            slots.first(where: { $0.role == .substrateSecret && $0.chainId == chain.chainId })?.bytes,
+            seed
+        )
+        XCTAssertEqual(
+            slots.first(where: { $0.role == .substrateDerivation && $0.chainId == chain.chainId })?.bytes,
+            chainDerivation
+        )
+        XCTAssertEqual(slots.first(where: { $0.chainId == chain.chainId })?.accountId, accountId)
+    }
+
+    func testDraftRejectsSecretMutationAfterValidatedRead() throws {
+        let wallet = try substrateWallet()
+        let tag = fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId)
+        let keys = PreflightKeystore(keys: [tag: substrateSecretKey])
+        var projectionReads = 0
+        let preflight = IOSPasskeyWalletMaterialPreflight(readProjections: {
+            projectionReads += 1
+            if projectionReads == 4 { keys.keys[tag] = Data(repeating: 0x44, count: 64) }
+            return [self.projection(wallet)]
+        }, keystore: keys)
+        XCTAssertThrowsError(
+            try IOSPasskeyWalletMaterialDraftCapture(preflight: preflight, keystore: keys).capture()
+        ) {
+            XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .walletStoreChanged)
+        }
+    }
+
+    func testDraftRejectsKeySubstitutionAfterSigningProof() throws {
+        let wallet = try substrateWallet()
+        let tag = fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId)
+        let keys = PreflightKeystore(keys: [tag: substrateSecretKey])
+        var projectionReads = 0
+        let preflight = IOSPasskeyWalletMaterialPreflight(readProjections: {
+            projectionReads += 1
+            if projectionReads == 3 { keys.keys[tag] = Data(repeating: 0x44, count: 64) }
+            return [self.projection(wallet)]
+        }, keystore: keys)
+        XCTAssertThrowsError(
+            try IOSPasskeyWalletMaterialDraftCapture(preflight: preflight, keystore: keys).capture()
+        ) {
+            XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .walletStoreChanged)
+        }
+    }
+
+    func testDraftRejectsNewOptionalSlotAppearingDuringCapture() throws {
+        let wallet = try substrateWallet()
+        let rootTag = fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId)
+        let optionalTag = fearless.KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId)
+        let keys = PreflightKeystore(keys: [rootTag: substrateSecretKey])
+        var projectionReads = 0
+        let preflight = IOSPasskeyWalletMaterialPreflight(readProjections: {
+            projectionReads += 1
+            if projectionReads == 4 { keys.keys[optionalTag] = Data("//new-path".utf8) }
+            return [self.projection(wallet)]
+        }, keystore: keys)
+        XCTAssertThrowsError(
+            try IOSPasskeyWalletMaterialDraftCapture(preflight: preflight, keystore: keys).capture()
+        ) {
+            XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .walletStoreChanged)
+        }
+    }
+
+    func testDraftRejectsLockedOptionalKeychainSlot() throws {
+        let wallet = try substrateWallet()
+        let optionalTag = fearless.KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId)
+        let keys = PreflightKeystore(
+            keys: [fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): substrateSecretKey],
+            errors: [optionalTag: KeystoreError.unexpectedFail]
+        )
+        XCTAssertThrowsError(
+            try IOSPasskeyWalletMaterialDraftCapture(
+                preflight: makePreflight([projection(wallet)], keys: keys), keystore: keys
+            ).capture()
+        ) {
+            XCTAssertEqual($0 as? IOSPasskeyWalletMaterialPreflightError, .unavailableSecretMaterial)
+        }
+    }
+
     private func substrateWallet(
         includeEthereum: Bool = false, cryptoType: CryptoType = .ed25519
     ) throws -> MetaAccountModel {
@@ -297,7 +524,12 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
     }
 
     private func projection(_ wallet: MetaAccountModel) -> MetaAccountSelectionModel {
-        MetaAccountSelectionModel(identifier: wallet.metaId, wallet: wallet, isSelected: false, order: 0)
+        MetaAccountSelectionModel(
+            identifier: wallet.metaId, wallet: wallet, isSelected: false, order: 0,
+            displayPreferences: PersistedWalletDisplayPreferences(
+                assetFilterOptions: nil, zeroBalanceAssetsHidden: false
+            )
+        )
     }
 
     private var ethereumPrivateKey: Data { Data(repeating: 0x01, count: 32) }
@@ -338,6 +570,7 @@ private final class PreflightKeystore: KeystoreProtocol {
         guard let key = keys[identifier] else { throw KeystoreError.noKeyFound }
         return key
     }
+
     func checkKey(for identifier: String) throws -> Bool { keys[identifier] != nil }
     func deleteKey(for identifier: String) throws { keys.removeValue(forKey: identifier) }
 }

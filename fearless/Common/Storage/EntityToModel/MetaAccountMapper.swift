@@ -429,11 +429,19 @@ enum MetaAccountSelectionRecordState: Equatable {
     }
 }
 
+/// Raw persisted display choices that the app-local wallet model does not expose.
+/// Retain unknown filter names so recovery cannot silently discard them.
+struct PersistedWalletDisplayPreferences: Equatable {
+    let assetFilterOptions: [String]?
+    let zeroBalanceAssetsHidden: Bool
+}
+
 struct MetaAccountSelectionModel: Identifiable {
     let identifier: String
     let wallet: MetaAccountModel?
     let isSelected: Bool
     let order: UInt32
+    let displayPreferences: PersistedWalletDisplayPreferences?
     let recordState: MetaAccountSelectionRecordState
     let updatesWalletPayload: Bool
     let updatesSelection: Bool
@@ -443,6 +451,7 @@ struct MetaAccountSelectionModel: Identifiable {
         wallet: MetaAccountModel?,
         isSelected: Bool,
         order: UInt32,
+        displayPreferences: PersistedWalletDisplayPreferences? = nil,
         recordState: MetaAccountSelectionRecordState = .supported,
         updatesWalletPayload: Bool = false,
         updatesSelection: Bool = true
@@ -451,6 +460,7 @@ struct MetaAccountSelectionModel: Identifiable {
         self.wallet = wallet
         self.isSelected = isSelected
         self.order = order
+        self.displayPreferences = displayPreferences
         self.recordState = recordState
         self.updatesWalletPayload = updatesWalletPayload
         self.updatesSelection = updatesSelection
@@ -462,6 +472,7 @@ struct MetaAccountSelectionModel: Identifiable {
             wallet: wallet,
             isSelected: isSelected,
             order: order,
+            displayPreferences: displayPreferences,
             recordState: recordState,
             updatesSelection: recordState.allowsStoredRecordUpdates
         )
@@ -475,6 +486,11 @@ final class MetaAccountSelectionMapper {
     typealias CoreDataEntity = CDMetaAccount
 
     private lazy var metaAccountMapper = MetaAccountMapper()
+    private let captureDisplayPreferences: Bool
+
+    init(captureDisplayPreferences: Bool = false) {
+        self.captureDisplayPreferences = captureDisplayPreferences
+    }
 
     private func quarantineIdentifier(for entity: CDMetaAccount) -> String {
         "fearless.quarantined-wallet:\(entity.objectID.uriRepresentation().absoluteString)"
@@ -577,11 +593,37 @@ extension MetaAccountSelectionMapper: CoreDataMapperProtocol {
             recordState = .corrupt
         }
 
+        let displayPreferences: PersistedWalletDisplayPreferences?
+        if captureDisplayPreferences, recordState == .supported {
+            guard entity.entity.propertiesByName["assetFilterOptions"] != nil,
+                  entity.entity.propertiesByName["zeroBalanceAssetsHidden"] != nil else {
+                throw MetaAccountMapperError.unsupportedWalletRecord
+            }
+            let filters: [String]? = try SafeTransformableValueReader.read(
+                from: entity, key: "assetFilterOptions"
+            )
+            let hidden: NSNumber? = try SafeTransformableValueReader.read(
+                from: entity, key: "zeroBalanceAssetsHidden"
+            )
+            guard let hidden,
+                  (filters?.count ?? 0) <= 32,
+                  filters?.allSatisfy({ !$0.isEmpty && $0.utf8.count <= 128 }) != false else {
+                throw MetaAccountMapperError.invalidWalletRecord
+            }
+            displayPreferences = PersistedWalletDisplayPreferences(
+                assetFilterOptions: filters,
+                zeroBalanceAssetsHidden: hidden.boolValue
+            )
+        } else {
+            displayPreferences = nil
+        }
+
         return MetaAccountSelectionModel(
             identifier: identifier,
             wallet: wallet,
             isSelected: storedIsSelected,
             order: storedOrder,
+            displayPreferences: displayPreferences,
             recordState: recordState
         )
     }
