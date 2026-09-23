@@ -63,18 +63,24 @@ final class GoogleDrivePasskeyGenerationStorage {
         return try Candidate(fileID: fileID, generation: generation)
     }
 
-    /// Exactly one application POST per call, with no automatic retry or replacement ID allocation.
-    /// Acknowledgement is not decryption proof or a head commit. Cancellation after transport admission
-    /// also has an unknown outcome. Reconcile the same journaled ID; this class supplies no crash journal.
-    func createCandidate(_ candidate: Candidate) async throws -> CreateOutcome {
+    /// A durable candidate and attempt marker are required before the only possible POST.
+    /// Acknowledgement is not decryption proof or a head commit. An existing marker or
+    /// unknown transport outcome requires reconciliation of the same preallocated ID.
+    func createCandidate(
+        _ candidate: Candidate, operationID: String, journal: PasskeyBackupGenerationJournal,
+        expectedScope: PasskeyBackupGenerationJournalScope
+    ) async throws -> CreateOutcome {
         try requireAccount(candidate.context)
+        _ = try journal.persistPrepared(
+            operationID: operationID, candidate: candidate, expectedScope: expectedScope
+        )
         let metadata: [String: Any] = [
             "id": candidate.fileID, "name": Self.fileName(candidate.context), "mimeType": Self.mimeType,
             "parents": ["appDataFolder"], "appProperties": Self.properties(candidate.context, digest: candidate.sha256)
         ]
         let boundary = "fearless-generation-\(UUID().uuidString)"
         var body = Data("--\(boundary)\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n".utf8)
-        body.append(try JSONSerialization.data(withJSONObject: metadata, options: [.sortedKeys]))
+        try body.append(JSONSerialization.data(withJSONObject: metadata, options: [.sortedKeys]))
         body.append(Data("\r\n--\(boundary)\r\nContent-Type: \(Self.mimeType)\r\n\r\n".utf8))
         body.append(candidate.bytes)
         body.append(Data("\r\n--\(boundary)--\r\n".utf8))
@@ -83,6 +89,10 @@ final class GoogleDrivePasskeyGenerationStorage {
             url: Self.url(base: Self.uploadURL, query: ["uploadType": "multipart", "fields": Self.fields]),
             headers: ["Content-Type": "multipart/related; boundary=\(boundary)"], body: body
         )
+        try Task.checkCancellation()
+        guard try journal.admitFirstCreateAttempt(
+            operationID: operationID, expectedScope: expectedScope
+        ) else { return .reconcileRequired }
         let response: PasskeyBackupHTTPResponse
         do {
             response = try await transport.execute(request)

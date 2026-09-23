@@ -52,7 +52,7 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         let fixture = try fixture()
         let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
         fixture.transport.responses = [.success(.init(statusCode: 201, body: try metadata(candidate)))]
-        let outcome = try await fixture.store.createCandidate(candidate)
+        let outcome = try await submit(candidate, fixture: fixture)
         XCTAssertEqual(outcome, .acknowledged)
         XCTAssertEqual(fixture.transport.requests.count, 1)
         let request = try XCTUnwrap(fixture.transport.requests.first)
@@ -74,6 +74,34 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         XCTAssertFalse(PasskeyBackupReleaseConfig.isPasskeyBackupEnabled)
     }
 
+    func testDurableAttemptMarkerPreventsSecondPostOfTheSameCandidate() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let parent = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(
+            at: parent, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700]
+        )
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let journal = try PasskeyBackupGenerationJournal(parentDirectoryURL: parent)
+        let scope = PasskeyBackupGenerationJournalScope(
+            ownerSubject: candidate.context.ownerSubject,
+            backupNamespace: candidate.context.backupNamespace,
+            storageAccountBinding: candidate.context.storageAccountBinding
+        )
+        let operationID = String(repeating: "A", count: 43)
+        fixture.transport.responses = [.success(.init(statusCode: 201, body: try metadata(candidate)))]
+        let first = try await fixture.store.createCandidate(
+            candidate, operationID: operationID, journal: journal, expectedScope: scope
+        )
+        XCTAssertEqual(first, .acknowledged)
+        XCTAssertTrue(try journal.read(operationID: operationID, expectedScope: scope)?.createAttempted == true)
+        let second = try await fixture.store.createCandidate(
+            candidate, operationID: operationID, journal: journal, expectedScope: scope
+        )
+        XCTAssertEqual(second, .reconcileRequired)
+        XCTAssertEqual(fixture.transport.requests.map(\.method), ["POST"])
+    }
+
     func testLostResponseConflictRedirectAndMalformedAcknowledgementRequireReconciliationWithoutRetry() async throws {
         for result: Result<PasskeyBackupHTTPResponse, Error> in [
             .failure(URLError(.networkConnectionLost)), .success(.init(statusCode: 409)),
@@ -83,7 +111,7 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
             let fixture = try fixture()
             let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
             fixture.transport.responses = [result]
-            let outcome = try await fixture.store.createCandidate(candidate)
+            let outcome = try await submit(candidate, fixture: fixture)
             XCTAssertEqual(outcome, .reconcileRequired)
             XCTAssertEqual(fixture.transport.requests.map(\.method), ["POST"])
             XCTAssertEqual(fixture.oauth.refreshes, 1)
@@ -95,7 +123,7 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
         fixture.transport.responses = [.failure(CancellationError())]
         do {
-            _ = try await fixture.store.createCandidate(candidate)
+            _ = try await submit(candidate, fixture: fixture)
             XCTFail("Cancelled upload was treated as acknowledged")
         } catch { XCTAssertTrue(error is CancellationError) }
         XCTAssertEqual(fixture.transport.requests.map(\.method), ["POST"])
@@ -136,7 +164,7 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
             let fixture = try fixture()
             let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
             fixture.oauth.current = invalid
-            await assertFailure { _ = try await fixture.store.createCandidate(candidate) }
+            await assertFailure { _ = try await self.submit(candidate, fixture: fixture) }
             XCTAssertTrue(fixture.transport.requests.isEmpty)
         }
     }
@@ -353,6 +381,26 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         return try GenerationFixture(oauth: oauth, transport: transport, store: GoogleDrivePasskeyGenerationStorage(
             account: account, tokenProvider: provider, transport: transport
         ))
+    }
+
+    private func submit(
+        _ candidate: GoogleDrivePasskeyGenerationStorage.Candidate,
+        fixture: GenerationFixture
+    ) async throws -> GoogleDrivePasskeyGenerationStorage.CreateOutcome {
+        let parent = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(
+            at: parent, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700]
+        )
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let journal = try PasskeyBackupGenerationJournal(parentDirectoryURL: parent)
+        return try await fixture.store.createCandidate(
+            candidate, operationID: String(repeating: "A", count: 43), journal: journal,
+            expectedScope: PasskeyBackupGenerationJournalScope(
+                ownerSubject: candidate.context.ownerSubject,
+                backupNamespace: candidate.context.backupNamespace,
+                storageAccountBinding: candidate.context.storageAccountBinding
+            )
+        )
     }
 
     private func authorization(
