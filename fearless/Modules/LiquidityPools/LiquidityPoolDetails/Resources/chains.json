@@ -7216,7 +7216,7 @@
                 "tx",
                 "address"
               ],
-              "url": "https://www.okx.com/explorer/xlayer-test/{type}/{value}"
+              "url": "https://www.okx.com/web3/explorer/xlayer-test/{type}/{value}"
             }
           ]
         },
@@ -7275,7 +7275,7 @@
                 "tx",
                 "address"
               ],
-              "url": "https://www.okx.com/web3/explorer/xlayer-test/{type}/{value}"
+              "url": "https://www.okx.com/web3/explorer/xlayer/{type}/{value}"
             }
           ]
         },
