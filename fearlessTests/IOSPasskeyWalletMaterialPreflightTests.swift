@@ -728,6 +728,108 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         ))
     }
 
+    func testPortableReceivePlanRetainsEvmWalletWithoutAuthorizingInstallation() throws {
+        let wallet = try ethereumOnlyWallet()
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId): ethereumPrivateKey
+        ])
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([selectedProjection(wallet)], keys: keys), keystore: keys
+        ).capture()
+        let encoded = try IOSPortableWalletSemanticDraftAdapter.encode(draft)
+
+        var plan = try IOSPortableWalletReceiveInstallPlan.prepare(
+            encoded, approvedSubstrateGenesisIDs: []
+        )
+        defer { plan.clearSecrets() }
+        XCTAssertEqual(plan.snapshot.selectedIndex, 0)
+        XCTAssertEqual(plan.snapshot.wallets.count, 1)
+        XCTAssertEqual(plan.slots, [.init(walletIndex: 0, slotIndex: 0, destination: .evmRoot),
+                                    .init(walletIndex: 0, slotIndex: 1, destination: .auxiliarySource)])
+        XCTAssertEqual(plan.blockers, [.unprovenAuxiliarySources(1), .transactionalInstallerUnavailable])
+        XCTAssertEqual(try IOSPortableWalletSemanticMaterial.encode(plan.snapshot), encoded)
+        XCTAssertEqual(String(reflecting: plan), "IOSPortableWalletReceiveInstallPlan.Plan(<redacted>)")
+    }
+
+    func testPortableReceivePlanRetainsSelectionAndWatchWalletWithoutWriting() throws {
+        let wallet = try ethereumOnlyWallet()
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId): ethereumPrivateKey
+        ])
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([selectedProjection(wallet)], keys: keys), keystore: keys
+        ).capture()
+        var original = try IOSPortableWalletSemanticMaterial.decode(
+            IOSPortableWalletSemanticDraftAdapter.encode(draft)
+        )
+        defer { original.clearSecrets() }
+        let watch = IOSPortableWalletSemanticMaterial.Wallet(
+            portableID: (32 ... 47).map { UInt8($0) }, sourcePosition: 9,
+            initialized: false, name: "Watch", metadata: [], slots: [
+                .init(role: 8, key: "0000", fields: [
+                    .init(id: 7, value: [9]), .init(id: 22, value: [2])
+                ])
+            ]
+        )
+        var cohort = IOSPortableWalletSemanticMaterial.Snapshot(
+            selectedIndex: 1, wallets: [original.wallets[0], watch]
+        )
+        defer { cohort.clearSecrets() }
+        let encoded = try IOSPortableWalletSemanticMaterial.encode(cohort)
+
+        var plan = try IOSPortableWalletReceiveInstallPlan.prepare(
+            encoded, approvedSubstrateGenesisIDs: []
+        )
+        defer { plan.clearSecrets() }
+        XCTAssertEqual(plan.snapshot.selectedIndex, 1)
+        XCTAssertEqual(plan.snapshot.wallets[1].portableID, watch.portableID)
+        XCTAssertEqual(plan.snapshot.wallets[1].sourcePosition, 9)
+        XCTAssertEqual(plan.slots.last?.destination, .watchIdentity)
+        XCTAssertEqual(plan.blockers, [
+            .unprovenAuxiliarySources(1), .unprovenWatchIdentities(1),
+            .transactionalInstallerUnavailable
+        ])
+        XCTAssertEqual(try IOSPortableWalletSemanticMaterial.encode(plan.snapshot), encoded)
+    }
+
+    func testPortableReceivePlanRejectsSubstitutedOriginalKey() throws {
+        let wallet = try ethereumOnlyWallet()
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId): ethereumPrivateKey
+        ])
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([selectedProjection(wallet)], keys: keys), keystore: keys
+        ).capture()
+        var semantic = try IOSPortableWalletSemanticMaterial.decode(
+            IOSPortableWalletSemanticDraftAdapter.encode(draft)
+        )
+        defer { semantic.clearSecrets() }
+        let keyIndex = try XCTUnwrap(semantic.wallets[0].slots[0].fields.firstIndex { $0.id == 2 })
+        semantic.wallets[0].slots[0].fields[keyIndex].value[0] ^= 1
+        XCTAssertThrowsError(try IOSPortableWalletReceiveInstallPlan.prepare(
+            IOSPortableWalletSemanticMaterial.encode(semantic), approvedSubstrateGenesisIDs: []
+        ))
+    }
+
+    func testPortableReceivePlanRequiresApprovedGenesisForChainKeyProof() throws {
+        let genesisID = "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3"
+        let encoded = try importedChainMaterial(cryptoType: .ed25519, chainID: genesisID)
+
+        var unapproved = try IOSPortableWalletReceiveInstallPlan.prepare(
+            encoded, approvedSubstrateGenesisIDs: []
+        )
+        defer { unapproved.clearSecrets() }
+        XCTAssertTrue(unapproved.blockers.contains(.unprovenChainAccounts(1)))
+
+        var approved = try IOSPortableWalletReceiveInstallPlan.prepare(
+            encoded, approvedSubstrateGenesisIDs: [genesisID]
+        )
+        defer { approved.clearSecrets() }
+        XCTAssertFalse(approved.blockers.contains(.unprovenChainAccounts(1)))
+        XCTAssertTrue(approved.blockers.contains(.transactionalInstallerUnavailable))
+        XCTAssertEqual(try IOSPortableWalletSemanticMaterial.encode(approved.snapshot), encoded)
+    }
+
     func testImportedSubstrateRootProvesAllReleasedCryptoTypes() throws {
         for cryptoType in [CryptoType.sr25519, .ed25519, .ecdsa] {
             let wallet = try substrateWallet(cryptoType: cryptoType)
