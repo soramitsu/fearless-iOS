@@ -183,10 +183,12 @@ enum IOSPortableWalletReceiveJournalRecord {
             throw JournalError.invalidRecord
         }
         var walletIDs = Set<String>()
+        var normalizedWalletIDs = Set<String>()
         var portableIDs = Set<Data>()
         for wallet in record.wallets {
             guard isCanonicalV4UUID(wallet.metaID),
                   walletIDs.insert(wallet.metaID).inserted,
+                  normalizedWalletIDs.insert(wallet.metaID.lowercased()).inserted,
                   wallet.portableID.count == 16,
                   wallet.portableID.contains(where: { $0 != 0 }),
                   portableIDs.insert(wallet.portableID).inserted else {

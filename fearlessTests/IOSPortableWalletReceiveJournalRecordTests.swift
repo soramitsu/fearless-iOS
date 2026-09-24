@@ -57,6 +57,15 @@ final class IOSReceiveJournalRecordTests: XCTestCase {
         )
         XCTAssertThrowsError(try Journal.encode(duplicateWallet))
 
+        let caseChangedDuplicate = Journal.Record(
+            schemaVersion: record.schemaVersion, transactionID: record.transactionID,
+            semanticSHA256: record.semanticSHA256, selectedIndex: 0,
+            wallets: [record.wallets[0], .init(
+                metaID: firstID.uppercased(), portableID: Data(repeating: 0x33, count: 16)
+            )], keys: [], phase: record.phase
+        )
+        XCTAssertThrowsError(try Journal.encode(caseChangedDuplicate))
+
         let foreign = Journal.KeyProof(tag: "user-pincode", sha256: Data(repeating: 9, count: 32))
         XCTAssertThrowsError(try Journal.encode(replacing(record, keys: [foreign])))
         XCTAssertThrowsError(try Journal.encode(replacing(record, keys: Array(record.keys.reversed()))))
