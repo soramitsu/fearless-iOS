@@ -3190,6 +3190,7 @@
 		A5092200AA00000000000008 /* MutationAuthorizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5092200AA00000000000007 /* MutationAuthorizationTests.swift */; };
 		A5092200AB00000000000002 /* XcmReadOnlyServicesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5092200AB00000000000001 /* XcmReadOnlyServicesTests.swift */; };
 		A5092200AA0000000000000A /* MutationAuthorizationVectors.json in Resources */ = {isa = PBXBuildFile; fileRef = A5092200AA00000000000009 /* MutationAuthorizationVectors.json */; };
+		C0D390240000000000000002 /* AndroidNativeTonPortableVector.json in Resources */ = {isa = PBXBuildFile; fileRef = C0D390240000000000000001 /* AndroidNativeTonPortableVector.json */; };
 		A5092200AA0000000000000C /* MutationAuthorizationReleaseBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5092200AA0000000000000B /* MutationAuthorizationReleaseBinding.swift */; };
 /* End PBXBuildFile section */
 
@@ -6427,6 +6428,7 @@
 		A5092200AA00000000000007 /* MutationAuthorizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutationAuthorizationTests.swift; sourceTree = "<group>"; };
 		A5092200AB00000000000001 /* XcmReadOnlyServicesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XcmReadOnlyServicesTests.swift; sourceTree = "<group>"; };
 		A5092200AA00000000000009 /* MutationAuthorizationVectors.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = MutationAuthorizationVectors.json; sourceTree = "<group>"; };
+		C0D390240000000000000001 /* AndroidNativeTonPortableVector.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = AndroidNativeTonPortableVector.json; sourceTree = "<group>"; };
 		A5092200AA0000000000000B /* MutationAuthorizationReleaseBinding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutationAuthorizationReleaseBinding.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -11034,6 +11036,7 @@
 				848DB992260638440055DDE7 /* rewardResponse.json */,
 				846B32A426DD07AF00250E89 /* rewardErrorResponse.json */,
 				A5092200AA00000000000009 /* MutationAuthorizationVectors.json */,
+				C0D390240000000000000001 /* AndroidNativeTonPortableVector.json */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -16187,6 +16190,7 @@
 				FA936BFD2872E3A20059B97A /* westend-metadata-v14 in Resources */,
 				846B32A526DD07AF00250E89 /* rewardErrorResponse.json in Resources */,
 				A5092200AA0000000000000A /* MutationAuthorizationVectors.json in Resources */,
+				C0D390240000000000000002 /* AndroidNativeTonPortableVector.json in Resources */,
 				848DB993260638440055DDE7 /* rewardResponse.json in Resources */,
 				8467FD0624E5E0A5005D486C /* invalidKeystore.json in Resources */,
 				84F438B225DA548700AEDA56 /* runtimeTestMetadata in Resources */,

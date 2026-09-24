@@ -1,5 +1,6 @@
 @testable import fearless
 import CoreData
+import CryptoKit
 import IrohaCrypto
 import SoraKeystore
 import struct SSFCrypto.SeedFactory
@@ -827,6 +828,39 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         ))
     }
 
+    func testAndroidProducedNativeTonBytesProveOriginalIOSIdentity() throws {
+        let url = try XCTUnwrap(Bundle(for: type(of: self)).url(
+            forResource: "AndroidNativeTonPortableVector", withExtension: "json"
+        ))
+        let fixture = try JSONDecoder().decode(AndroidNativeTonPortableVector.self, from: Data(contentsOf: url))
+        let encoded = try XCTUnwrap(Data(hex: fixture.encodedHex))
+        XCTAssertEqual(encoded.count, 604)
+        XCTAssertEqual(
+            SHA256.hash(data: encoded).map { String(format: "%02x", $0) }.joined(), fixture.sha256
+        )
+        XCTAssertEqual(fixture.mnemonic, LegacyNativeTonFixture.phrase)
+        XCTAssertEqual(
+            fixture.publicKeyHex,
+            try LegacyNativeTonFixture.account().publicKey.toHex(includePrefix: false)
+        )
+
+        var decoded = try IOSPortableWalletSemanticMaterial.decode(encoded)
+        defer { decoded.clearSecrets() }
+        XCTAssertEqual(try IOSPortableWalletSemanticMaterial.encode(decoded), encoded)
+        let wallet = try XCTUnwrap(decoded.wallets.first)
+        XCTAssertEqual(wallet.name, "Wallet 42")
+        let ton = try XCTUnwrap(wallet.slots.first {
+            $0.role == IOSPortableWalletSemanticMaterial.Role.tonRoot
+        })
+        XCTAssertEqual(try ton.value(1), Array(try XCTUnwrap(Data(hex: fixture.publicKeyHex))))
+        XCTAssertEqual(try ton.value(2), Array(try LegacyNativeTonFixture.privateKey().prefix(32)))
+        XCTAssertEqual(try ton.value(5), Array(fixture.mnemonic.utf8))
+        XCTAssertEqual(
+            try IOSPortableRootSigningProof.verify(encoded),
+            .init(wallets: 1, substrateRoots: 0, evmRoots: 0, nativeTonRoots: 1, legacySubstrateRoots: 0)
+        )
+    }
+
     func testDraftConversionFailsClosedWithoutSelectionOrSignedRootKey() throws {
         let wallet = try ethereumOnlyWallet()
         let preferences = PersistedWalletDisplayPreferences(
@@ -1074,6 +1108,13 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
     ) -> IOSPasskeyWalletMaterialPreflight {
         IOSPasskeyWalletMaterialPreflight(readProjections: { projections }, keystore: keys)
     }
+}
+
+private struct AndroidNativeTonPortableVector: Decodable {
+    let mnemonic: String
+    let publicKeyHex: String
+    let encodedHex: String
+    let sha256: String
 }
 
 private final class PreflightKeystore: KeystoreProtocol {
