@@ -185,6 +185,65 @@ final class PasskeyBackupGenerationJournalTests: XCTestCase {
         XCTAssertEqual(try journal.listPending(expectedScope: scope).count, 1)
     }
 
+    func testSecondFirstGenerationIsRejectedAcrossJournalInstancesAfterUnknownCreate() throws {
+        let parent = try temporaryParent()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let (fixtureCandidate, scope) = try fixture()
+        let existing = try PasskeyBackupGenerationV1Format.decode(
+            fixtureCandidate.bytes, expectedContext: fixtureCandidate.context,
+            expectedSha256: fixtureCandidate.sha256
+        )
+        let account = try GoogleDriveBackupAccount(subject: subject, email: "alice@example.com")
+        let store = try GoogleDrivePasskeyGenerationStorage(
+            account: account, tokenProvider: NeverJournalTokenProvider()
+        )
+        func firstCandidate(_ seed: UInt8, fileID: String) throws
+            -> GoogleDrivePasskeyGenerationStorage.Candidate {
+            let generationID = Data(repeating: seed, count: 32).base64EncodedString()
+                .replacingOccurrences(of: "+", with: "-")
+                .replacingOccurrences(of: "/", with: "_")
+                .replacingOccurrences(of: "=", with: "")
+            let context = try PasskeyBackupGenerationV1.Context(
+                ownerSubject: scope.ownerSubject, backupNamespace: scope.backupNamespace,
+                generationId: generationID, parentHeadRevision: 0, parentHeadSha256: nil,
+                keyEpoch: 1, storageAccountBinding: scope.storageAccountBinding
+            )
+            let originalWrapper = try XCTUnwrap(existing.wrappers.first)
+            let wrapper = try PasskeyBackupCredentialKeyWrapperRecord(
+                context: PasskeyBackupKeyWrapperContext(
+                    ownerSubject: scope.ownerSubject,
+                    credentialId: originalWrapper.context.credentialId,
+                    keyEpoch: 1, envelopeMetadata: existing.envelope.envelopeMetadata()
+                ),
+                prfSalt: originalWrapper.prfSalt, hkdfSalt: originalWrapper.hkdfSalt,
+                nonce: originalWrapper.nonce, ciphertextAndTag: originalWrapper.ciphertextAndTag
+            )
+            let generation = try PasskeyBackupGenerationV1(
+                context: context, envelope: existing.envelope, wrappers: [wrapper]
+            )
+            return try store.prepareCandidate(fileID: fileID, generation: generation)
+        }
+        let first = try firstCandidate(0x11, fileID: "first-drive-id")
+        let second = try firstCandidate(0x22, fileID: "second-drive-id")
+        let journal = try PasskeyBackupGenerationJournal(parentDirectoryURL: parent)
+        _ = try journal.persistPrepared(
+            operationID: operationID, candidate: first, expectedScope: scope
+        )
+        XCTAssertTrue(try journal.admitFirstCreateAttempt(operationID: operationID, expectedScope: scope))
+        let restarted = try PasskeyBackupGenerationJournal(parentDirectoryURL: parent)
+        let otherOperation = Data(repeating: 0x33, count: 32).base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
+        XCTAssertThrowsError(try restarted.persistPrepared(
+            operationID: otherOperation, candidate: second, expectedScope: scope
+        ))
+        XCTAssertEqual(try restarted.listPending(expectedScope: scope).count, 1)
+        XCTAssertEqual(try restarted.persistPrepared(
+            operationID: operationID, candidate: first, expectedScope: scope
+        ).bytes, first.bytes)
+    }
+
     func testInterruptedAttemptMarkerRequiresReconciliationAfterRestart() throws {
         let parent = try temporaryParent()
         defer { try? FileManager.default.removeItem(at: parent) }

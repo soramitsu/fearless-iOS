@@ -111,7 +111,8 @@ final class PasskeyBackupGenerationJournal {
                         prior.fileID == entry.fileID ||
                         prior.context.ownerSubject == entry.context.ownerSubject &&
                         prior.context.backupNamespace == entry.context.backupNamespace &&
-                        prior.context.generationId == entry.context.generationId {
+                        (prior.context.generationId == entry.context.generationId ||
+                            prior.context.parentHeadRevision == 0 && entry.context.parentHeadRevision == 0) {
                         throw PasskeyBackupGenerationJournalError.invalidRecord
                     }
                 }
