@@ -692,6 +692,7 @@ extension MetaAccountSelectionMapper: CoreDataMapperProtocol {
             }
 
             try metaAccountMapper.populate(entity: entity, from: wallet, using: context)
+            try persistDisplayPreferences(model.displayPreferences, in: entity)
 
             if isNew {
                 entity.order = try nextOrder(in: context)
@@ -715,6 +716,29 @@ extension MetaAccountSelectionMapper: CoreDataMapperProtocol {
 
         if model.updatesSelection {
             entity.isSelected = model.isSelected
+        }
+    }
+
+    private func persistDisplayPreferences(
+        _ preferences: PersistedWalletDisplayPreferences?, in entity: CDMetaAccount
+    ) throws {
+        guard let preferences else { return }
+        guard entity.entity.propertiesByName["assetFilterOptions"] != nil,
+              entity.entity.propertiesByName["zeroBalanceAssetsHidden"] != nil else {
+            throw MetaAccountMapperError.unsupportedWalletRecord
+        }
+        guard (preferences.assetFilterOptions?.count ?? 0) <= 32,
+              preferences.assetFilterOptions?.allSatisfy({
+                  !$0.isEmpty && $0.utf8.count <= 128
+              }) != false else {
+            throw MetaAccountMapperError.invalidWalletRecord
+        }
+        try SafeObjectiveCExceptionBoundary.perform {
+            entity.setValue(preferences.assetFilterOptions as NSArray?, forKey: "assetFilterOptions")
+            entity.setValue(
+                NSNumber(value: preferences.zeroBalanceAssetsHidden),
+                forKey: "zeroBalanceAssetsHidden"
+            )
         }
     }
 

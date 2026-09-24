@@ -135,6 +135,47 @@ class MetaAccountMapperTests: XCTestCase {
         XCTAssertEqual(differentOrders.count, accountCount)
     }
 
+    func testExplicitRestoreDisplayPreferencesSurviveAnOrdinaryWalletSave() throws {
+        let queue = OperationQueue()
+        let facade = UserDataStorageTestFacade()
+        let repository = facade.createRepository(
+            mapper: AnyCoreDataMapper(MetaAccountSelectionMapper(captureDisplayPreferences: true))
+        )
+        let wallet = AccountGenerator.generateMetaAccount(generatingChainAccounts: 1)
+        let preferences = PersistedWalletDisplayPreferences(
+            assetFilterOptions: ["unknown-future-filter", "hide-spam"],
+            zeroBalanceAssetsHidden: true
+        )
+        let restore = MetaAccountSelectionModel(
+            identifier: wallet.metaId, wallet: wallet, isSelected: true,
+            order: fearless.ManagedMetaAccountModel.noOrder,
+            displayPreferences: preferences, updatesWalletPayload: true
+        )
+        let restoreOperation = repository.saveOperation({ [restore] }, { [] })
+        queue.addOperations([restoreOperation], waitUntilFinished: true)
+        _ = try XCTUnwrap(restoreOperation.result).get()
+
+        let firstFetch = repository.fetchAllOperation(with: RepositoryFetchOptions())
+        queue.addOperations([firstFetch], waitUntilFinished: true)
+        let restored = try XCTUnwrap(try XCTUnwrap(firstFetch.result).get().first)
+        XCTAssertEqual(restored.displayPreferences, preferences)
+
+        let ordinarySave = MetaAccountSelectionModel(
+            identifier: wallet.metaId, wallet: wallet, isSelected: true,
+            order: restored.order, updatesWalletPayload: true
+        )
+        let ordinaryOperation = repository.saveOperation({ [ordinarySave] }, { [] })
+        queue.addOperations([ordinaryOperation], waitUntilFinished: true)
+        _ = try XCTUnwrap(ordinaryOperation.result).get()
+
+        let secondFetch = repository.fetchAllOperation(with: RepositoryFetchOptions())
+        queue.addOperations([secondFetch], waitUntilFinished: true)
+        XCTAssertEqual(
+            try XCTUnwrap(secondFetch.result).get().first?.displayPreferences,
+            preferences
+        )
+    }
+
     func testCanonicalEcdsaSubstratePublicKeyIsAccepted() throws {
         let operationQueue = OperationQueue()
         let facade = UserDataStorageTestFacade()
