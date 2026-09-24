@@ -109,7 +109,7 @@ final class HTTPPasskeyBackupOwnerHeadSource: PasskeyBackupOwnerHeadSource {
         guard response.statusCode == 200 else {
             throw PasskeyBackupOwnerHeadHTTPError.httpStatus(response.statusCode)
         }
-        return try PasskeyBackupOwnerHeadResponse.decode(
+        return try PasskeyBackupOwnerResponseJSON.decodeHead(
             response.body, session: session,
             expectedStorageAccountBinding: expectedStorageAccountBinding
         )
@@ -118,24 +118,18 @@ final class HTTPPasskeyBackupOwnerHeadSource: PasskeyBackupOwnerHeadSource {
 
 /// Closed, bounded JSON decoding is required before interpreting an authenticated owner head.
 /// In particular, duplicate decoded keys must not select different generations on two clients.
-private enum PasskeyBackupOwnerHeadResponse {
-    private indirect enum Value: Equatable {
+enum PasskeyBackupOwnerResponseJSON {
+    indirect enum Value: Equatable {
         case string(String), number(Int64), object([String: Value]), null
     }
 
-    static func decode(
+    static func decodeHead(
         _ data: Data, session: PasskeyBackupOwnerSession,
         expectedStorageAccountBinding: String
     ) throws -> PasskeyBackupAuthenticatedHead {
         do {
-            guard (1 ... 8192).contains(data.count) else { throw PasskeyBackupOwnerHeadHTTPError.malformedResponse }
-            var parser = Parser(bytes: Array(data))
-            guard case let .object(root) = try parser.value(depth: 0) else {
-                throw PasskeyBackupOwnerHeadHTTPError.malformedResponse
-            }
-            parser.whitespace()
-            guard parser.index == parser.bytes.count,
-                  Set(root.keys) == Set(["schemaVersion", "ownerSubject", "backupNamespace", "head", "previous"]),
+            let root = try parseObject(data)
+            guard Set(root.keys) == Set(["schemaVersion", "ownerSubject", "backupNamespace", "head", "previous"]),
                   root["schemaVersion"] == .number(1),
                   case let .string(ownerSubject) = root["ownerSubject"],
                   case let .string(backupNamespace) = root["backupNamespace"] else {
@@ -151,6 +145,19 @@ private enum PasskeyBackupOwnerHeadResponse {
         } catch {
             throw PasskeyBackupOwnerHeadHTTPError.malformedResponse
         }
+    }
+
+    static func parseObject(_ data: Data) throws -> [String: Value] {
+        guard (1 ... 8192).contains(data.count) else { throw PasskeyBackupOwnerHeadHTTPError.malformedResponse }
+        var parser = Parser(bytes: Array(data))
+        guard case let .object(root) = try parser.value(depth: 0) else {
+            throw PasskeyBackupOwnerHeadHTTPError.malformedResponse
+        }
+        parser.whitespace()
+        guard parser.index == parser.bytes.count else {
+            throw PasskeyBackupOwnerHeadHTTPError.malformedResponse
+        }
+        return root
     }
 
     private static func descriptor(_ value: Value?) throws -> PasskeyBackupHeadDescriptor? {
@@ -236,7 +243,7 @@ private enum PasskeyBackupOwnerHeadResponse {
             }
             repeat {
                 let key = try string()
-                guard object[key] == nil, object.count < 8, consume(58) else {
+                guard object[key] == nil, object.count < 12, consume(58) else {
                     throw PasskeyBackupOwnerHeadHTTPError.malformedResponse
                 }
                 object[key] = try value(depth: depth + 1)
