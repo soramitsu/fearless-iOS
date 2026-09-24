@@ -10,9 +10,9 @@ extension PasskeyBackupAppAttestBootstrap: PasskeyBackupFirstOwnerAppAttestor {}
 
 /// Candidate first-owner path. The compiled release gate is false and no app flow
 /// constructs this source. A returned session only authorizes the next encrypted
-/// generation operation; it never means a recoverable backup exists. Native PRF
-/// registration for this new challenge and a concrete original-wallet signer
-/// remain missing, so this cannot establish a recovery route yet.
+/// generation operation; it never means a recoverable backup exists. The separate
+/// native PRF registration adapter is unwired, and a concrete original-wallet
+/// signer and real-provider qualification remain missing.
 @MainActor
 final class HTTPPasskeyOwnerBootstrapSource {
     private static let challengePath = "/api/passkey-backup/v1/owner/bootstrap/challenge"

@@ -325,7 +325,7 @@ private extension PasskeyBackupFirstOwnerBootstrapTests {
     }
 }
 
-private final class BootstrapTransportFixture: PasskeyBackupHTTPTransport {
+final class BootstrapTransportFixture: PasskeyBackupHTTPTransport {
     var requests: [PasskeyBackupHTTPRequest] = []
     var responses: [PasskeyBackupHTTPResponse] = []
 
@@ -337,7 +337,7 @@ private final class BootstrapTransportFixture: PasskeyBackupHTTPTransport {
 }
 
 @MainActor
-private final class BootstrapSignerFixture: PasskeyOwnerWalletSigner {
+final class BootstrapSignerFixture: PasskeyOwnerWalletSigner {
     var calls = 0
     var verifyCalls = 0
     var observedAfterUI: PasskeyBackupExpectedWalletIdentity?
@@ -383,7 +383,7 @@ private final class BootstrapSignerFixture: PasskeyOwnerWalletSigner {
 }
 
 @MainActor
-private final class BootstrapAttestorFixture: PasskeyBackupFirstOwnerAppAttestor {
+final class BootstrapAttestorFixture: PasskeyBackupFirstOwnerAppAttestor {
     var calls = 0
     var nonce: String?
 
