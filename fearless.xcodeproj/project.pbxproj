@@ -46,7 +46,9 @@
 		A50923CCCD00000000000004 /* IOSPasskeyWalletMaterialPreflightTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCD00000000000003 /* IOSPasskeyWalletMaterialPreflightTests.swift */; };
 		A50923DDDD00000000000002 /* PasskeyBackupAuthenticatedHead.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923DDDD00000000000001 /* PasskeyBackupAuthenticatedHead.swift */; };
 		A50923EEAA00000000000002 /* PasskeyBackupAppAttestBootstrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923EEAA00000000000001 /* PasskeyBackupAppAttestBootstrap.swift */; };
+		A50923EEAA00000000000006 /* PasskeyBackupAppAttestPendingKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923EEAA00000000000005 /* PasskeyBackupAppAttestPendingKey.swift */; };
 		A50923EEAA00000000000004 /* PasskeyBackupAppAttestBootstrapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923EEAA00000000000003 /* PasskeyBackupAppAttestBootstrapTests.swift */; };
+		A50923EEAA00000000000008 /* PasskeyBackupAppAttestRetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923EEAA00000000000007 /* PasskeyBackupAppAttestRetryTests.swift */; };
 		A5092300DD00000000000002 /* GoogleDrivePasskeyBackupTokenProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5092300DD00000000000001 /* GoogleDrivePasskeyBackupTokenProvider.swift */; };
 		1E57ED0C647818F9484B8F23 /* LegacyTonAccountImportOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155AC1575B16312845ACFA10 /* LegacyTonAccountImportOperation.swift */; };
 		1C0A34010000000000000001 /* IrohaConnectModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0A34020000000000000001 /* IrohaConnectModels.swift */; };
@@ -3265,7 +3267,9 @@
 		A50923CCCD00000000000003 /* IOSPasskeyWalletMaterialPreflightTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPasskeyWalletMaterialPreflightTests.swift; sourceTree = "<group>"; };
 		A50923DDDD00000000000001 /* PasskeyBackupAuthenticatedHead.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupAuthenticatedHead.swift; sourceTree = "<group>"; };
 		A50923EEAA00000000000001 /* PasskeyBackupAppAttestBootstrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupAppAttestBootstrap.swift; sourceTree = "<group>"; };
+		A50923EEAA00000000000005 /* PasskeyBackupAppAttestPendingKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupAppAttestPendingKey.swift; sourceTree = "<group>"; };
 		A50923EEAA00000000000003 /* PasskeyBackupAppAttestBootstrapTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupAppAttestBootstrapTests.swift; sourceTree = "<group>"; };
+		A50923EEAA00000000000007 /* PasskeyBackupAppAttestRetryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupAppAttestRetryTests.swift; sourceTree = "<group>"; };
 		A5092300DD00000000000001 /* GoogleDrivePasskeyBackupTokenProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleDrivePasskeyBackupTokenProvider.swift; sourceTree = "<group>"; };
 		155AC1575B16312845ACFA10 /* LegacyTonAccountImportOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/Common/Operation/LegacyTonAccountImportOperation.swift; sourceTree = SOURCE_ROOT; };
 		1C0A34020000000000000001 /* IrohaConnectModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/Common/Model/IrohaConnect/IrohaConnectModels.swift; sourceTree = SOURCE_ROOT; };
@@ -9463,6 +9467,7 @@
 				A5092300EE00000000000003 /* PasskeyBackupCredentialKeyWrapperTests.swift */,
 				A5092300FF00000000000005 /* PasskeyBackupPRFCeremonyTests.swift */,
 		A50923EEAA00000000000003 /* PasskeyBackupAppAttestBootstrapTests.swift */,
+		A50923EEAA00000000000007 /* PasskeyBackupAppAttestRetryTests.swift */,
 				A5092300DD00000000000005 /* GoogleDrivePasskeyBackupTests.swift */,
 				A50923CCAA00000000000007 /* GoogleDrivePasskeyGenerationStorageTests.swift */,
 				A50923CCBB00000000000005 /* PasskeyBackupGenerationJournalTests.swift */,
@@ -9792,6 +9797,7 @@
 				A50923CCD400000000000011 /* IOSPortableAndroidSourceProof.swift */,
 				A50923DDDD00000000000001 /* PasskeyBackupAuthenticatedHead.swift */,
 		A50923EEAA00000000000001 /* PasskeyBackupAppAttestBootstrap.swift */,
+		A50923EEAA00000000000005 /* PasskeyBackupAppAttestPendingKey.swift */,
 				A5092300DD00000000000001 /* GoogleDrivePasskeyBackupTokenProvider.swift */,
 				FAE601452ECA700100000001 /* UniversalWalletHTTPTransport.swift */,
 				FAE601472ECA700100000001 /* UniversalWalletIndexerClientFactory.swift */,
@@ -17680,6 +17686,7 @@
 				A50923CCD400000000000012 /* IOSPortableAndroidSourceProof.swift in Sources */,
 				A50923DDDD00000000000002 /* PasskeyBackupAuthenticatedHead.swift in Sources */,
 		A50923EEAA00000000000002 /* PasskeyBackupAppAttestBootstrap.swift in Sources */,
+		A50923EEAA00000000000006 /* PasskeyBackupAppAttestPendingKey.swift in Sources */,
 				A5092300DD00000000000002 /* GoogleDrivePasskeyBackupTokenProvider.swift in Sources */,
 				FAE601442ECA700100000001 /* UniversalWalletHTTPTransport.swift in Sources */,
 				FAE601462ECA700100000001 /* UniversalWalletIndexerClientFactory.swift in Sources */,
@@ -19456,6 +19463,7 @@
 				A5092300EE00000000000004 /* PasskeyBackupCredentialKeyWrapperTests.swift in Sources */,
 				A5092300FF00000000000006 /* PasskeyBackupPRFCeremonyTests.swift in Sources */,
 		A50923EEAA00000000000004 /* PasskeyBackupAppAttestBootstrapTests.swift in Sources */,
+		A50923EEAA00000000000008 /* PasskeyBackupAppAttestRetryTests.swift in Sources */,
 				A5092300DD00000000000006 /* GoogleDrivePasskeyBackupTests.swift in Sources */,
 				A50923CCAA00000000000008 /* GoogleDrivePasskeyGenerationStorageTests.swift in Sources */,
 				A50923CCBB00000000000006 /* PasskeyBackupGenerationJournalTests.swift in Sources */,

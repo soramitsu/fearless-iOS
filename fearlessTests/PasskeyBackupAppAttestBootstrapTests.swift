@@ -1,4 +1,5 @@
 import CryptoKit
+import DeviceCheck
 @testable import fearless
 import XCTest
 
@@ -8,6 +9,7 @@ final class PasskeyBackupAppAttestBootstrapTests: XCTestCase {
     private let secp256k1Nonce = "9x058rszLaGLNZygww8u8wdT1V91_W9HvLAn_PDMGwY"
     private let appleKeyID = Data((0 ..< 32).map(UInt8.init)).base64EncodedString()
     private let attestation = Data(repeating: 0xA5, count: 64)
+    private let pendingStore = FixtureStore()
 
     func testClientDataHashMatchesServerWalletProofVectors() throws {
         // These are the owner authority's real-signature public Ed25519/secp256k1 vectors.
@@ -59,7 +61,7 @@ final class PasskeyBackupAppAttestBootstrapTests: XCTestCase {
 
     func testCompiledRecoveryGateStopsBeforeNativeSupportOrKeyGeneration() async {
         let gateway = FixtureGateway()
-        let bootstrap = PasskeyBackupAppAttestBootstrap(gateway: gateway)
+        let bootstrap = PasskeyBackupAppAttestBootstrap(gateway: gateway, pendingStore: pendingStore)
         do {
             _ = try await bootstrap.attest(serverNonce: ed25519Nonce)
             XCTFail("Expected rejection")
@@ -71,7 +73,9 @@ final class PasskeyBackupAppAttestBootstrapTests: XCTestCase {
 
     func testUnsupportedAndInvalidNonceFailBeforeGeneratingKey() async {
         let gateway = FixtureGateway()
-        let bootstrap = PasskeyBackupAppAttestBootstrap(gateway: gateway, isReleaseEnabled: true)
+        let bootstrap = PasskeyBackupAppAttestBootstrap(
+            gateway: gateway, pendingStore: pendingStore, isReleaseEnabled: true
+        )
         do {
             _ = try await bootstrap.attest(serverNonce: "invalid")
             XCTFail("Expected rejection")
@@ -90,7 +94,9 @@ final class PasskeyBackupAppAttestBootstrapTests: XCTestCase {
         let attestStarted = expectation(description: "attestation started")
         gateway.onGenerate = { keyStarted.fulfill() }
         gateway.onAttest = { attestStarted.fulfill() }
-        let bootstrap = PasskeyBackupAppAttestBootstrap(gateway: gateway, isReleaseEnabled: true)
+        let bootstrap = PasskeyBackupAppAttestBootstrap(
+            gateway: gateway, pendingStore: pendingStore, isReleaseEnabled: true
+        )
         let task = Task { try await bootstrap.attest(serverNonce: ed25519Nonce) }
         await fulfillment(of: [keyStarted], timeout: 2)
         XCTAssertNil(gateway.attestCompletion)
@@ -107,7 +113,9 @@ final class PasskeyBackupAppAttestBootstrapTests: XCTestCase {
         let gateway = FixtureGateway()
         let keyStarted = expectation(description: "key generation started")
         gateway.onGenerate = { keyStarted.fulfill() }
-        let bootstrap = PasskeyBackupAppAttestBootstrap(gateway: gateway, isReleaseEnabled: true)
+        let bootstrap = PasskeyBackupAppAttestBootstrap(
+            gateway: gateway, pendingStore: pendingStore, isReleaseEnabled: true
+        )
         let failed = Task { try await bootstrap.attest(serverNonce: ed25519Nonce) }
         await fulfillment(of: [keyStarted], timeout: 2)
         gateway.generateCompletion?(.failure(FixtureError.secret))
@@ -152,7 +160,9 @@ final class PasskeyBackupAppAttestBootstrapTests: XCTestCase {
         let gateway = FixtureGateway()
         let firstStarted = expectation(description: "first key started")
         gateway.onGenerate = { firstStarted.fulfill() }
-        let bootstrap = PasskeyBackupAppAttestBootstrap(gateway: gateway, isReleaseEnabled: true)
+        let bootstrap = PasskeyBackupAppAttestBootstrap(
+            gateway: gateway, pendingStore: pendingStore, isReleaseEnabled: true
+        )
         let first = Task { try await bootstrap.attest(serverNonce: ed25519Nonce) }
         await fulfillment(of: [firstStarted], timeout: 2)
         let oldCompletion = try XCTUnwrap(gateway.generateCompletion)
@@ -181,53 +191,90 @@ final class PasskeyBackupAppAttestBootstrapTests: XCTestCase {
         let secondResult = try await second.value
         XCTAssertEqual(secondResult.kind, "app-attest")
     }
+}
 
-    private struct FixtureError: Error, CustomStringConvertible {
-        static let secret = FixtureError()
-        var description: String {
-            "provider-secret"
-        }
+private struct FixtureError: Error, CustomStringConvertible {
+    static let secret = FixtureError()
+    var description: String {
+        "provider-secret"
+    }
+}
+
+@MainActor
+final class FixtureStore: PasskeyBackupPendingAttestationStore {
+    var pending: PasskeyBackupPendingAppAttestation?
+    var saveCount = 0
+    var clearCount = 0
+    var failClear = false
+    func load() throws -> PasskeyBackupPendingAppAttestation? {
+        pending
     }
 
-    @MainActor
-    private final class FixtureGateway: PasskeyBackupAppAttestGateway {
-        var supported = true
-        var supportChecks = 0
-        var generateCount = 0
-        var attestCount = 0
-        var onGenerate: (() -> Void)?
-        var onAttest: (() -> Void)?
-        var generateCompletion: ((Result<String, Error>) -> Void)?
-        var attestCompletion: ((Result<Data, Error>) -> Void)?
-        var attestedKeyID: String?
-        var clientDataHash: Data?
+    func save(_ pending: PasskeyBackupPendingAppAttestation) throws {
+        self.pending = pending
+        saveCount += 1
+    }
 
-        var isSupported: Bool {
-            supportChecks += 1
-            return supported
+    func clear() throws {
+        if failClear {
+            throw PasskeyBackupAppAttestError.storageUnavailable
         }
+        pending = nil
+        clearCount += 1
+    }
+}
 
-        func generateKey(completion: @escaping (Result<String, Error>) -> Void) {
-            generateCount += 1
-            generateCompletion = completion
-            onGenerate?()
-        }
+@MainActor
+final class FixtureGateway: PasskeyBackupAppAttestGateway {
+    var supported = true
+    var supportChecks = 0
+    var generateCount = 0
+    var attestCount = 0
+    var onGenerate: (() -> Void)?
+    var onAttest: (() -> Void)?
+    var generateCompletion: ((Result<String, Error>) -> Void)?
+    var attestCompletion: ((Result<Data, Error>) -> Void)?
+    var attestedKeyID: String?
+    var clientDataHash: Data?
 
-        func attestKey(
-            _ keyID: String, clientDataHash: Data,
-            completion: @escaping (Result<Data, Error>) -> Void
-        ) {
-            attestCount += 1
-            attestedKeyID = keyID
-            self.clientDataHash = clientDataHash
-            attestCompletion = completion
-            onAttest?()
-        }
+    var isSupported: Bool {
+        supportChecks += 1
+        return supported
+    }
+
+    func generateKey(completion: @escaping (Result<String, Error>) -> Void) {
+        generateCount += 1
+        generateCompletion = completion
+        onGenerate?()
+    }
+
+    func attestKey(
+        _ keyID: String, clientDataHash: Data,
+        completion: @escaping (Result<Data, Error>) -> Void
+    ) {
+        attestCount += 1
+        attestedKeyID = keyID
+        self.clientDataHash = clientDataHash
+        attestCompletion = completion
+        onAttest?()
     }
 }
 
 private extension Data {
     var hex: String {
         map { String(format: "%02x", $0) }.joined()
+    }
+}
+
+@MainActor
+private extension PasskeyBackupAppAttestBootstrap {
+    func attest(serverNonce: String) async throws -> PasskeyBackupAppAttestTransport {
+        let challenge = try PasskeyBackupAppAttestChallenge(
+            serverNonce: serverNonce,
+            ceremonyID: "ceremony.0123456789abcdef",
+            subject: "owner:0123456789abcdef",
+            expiresAt: Date(timeIntervalSince1970: Double(Int64(Date().timeIntervalSince1970) + 90))
+        )
+        return try await attest(challenge: challenge)
     }
 }
