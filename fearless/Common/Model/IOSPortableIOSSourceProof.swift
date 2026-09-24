@@ -27,6 +27,11 @@ enum IOSPortableIOSSourceProof {
         }
     }
 
+    private struct Destination {
+        let firstSlotIndex: Int
+        var chainIDs: Set<String>
+    }
+
     static func verify(_ encoded: Data) throws -> Counts {
         var snapshot: Codec.Snapshot
         do {
@@ -40,8 +45,8 @@ enum IOSPortableIOSSourceProof {
         var unproven = 0
         do {
             for wallet in snapshot.wallets {
-                var destinations = Set<Data>()
-                for source in wallet.slots where source.role == Role.auxiliarySource {
+                var destinations = [Data: Destination]()
+                for (slotIndex, source) in wallet.slots.enumerated() where source.role == Role.auxiliarySource {
                     guard try source.number(FieldID.sourcePlatform) == 2 else { continue }
                     guard try source.number(FieldID.sourceRecipe) == 0,
                           (try source.number(FieldID.sourceFormat)) == 1 else {
@@ -53,7 +58,19 @@ enum IOSPortableIOSSourceProof {
                     guard (1 ... 4096).contains(bytes.count) else { throw ProofError.invalidSource }
                     let accountID = binding == 5 ? try source.value(FieldID.bindingAccountID) : []
                     let destination = Data([sourceRole]) + Data(accountID)
-                    guard destinations.insert(destination).inserted else { throw ProofError.invalidSource }
+                    let chainID = binding == 5
+                        ? try Codec.strictText(source.value(FieldID.bindingChainID), allowEmpty: false) : nil
+                    if var prior = destinations[destination] {
+                        guard let chainID, !prior.chainIDs.isEmpty,
+                              prior.chainIDs.insert(chainID).inserted,
+                              try wallet.slots[prior.firstSlotIndex].value(FieldID.sourceBytes) == bytes else {
+                            throw ProofError.invalidSource
+                        }
+                        destinations[destination] = prior
+                    } else {
+                        let chainIDs = Set(chainID.map { [$0] } ?? [])
+                        destinations[destination] = Destination(firstSlotIndex: slotIndex, chainIDs: chainIDs)
+                    }
 
                     if try prove(sourceRole, binding: binding, bytes: bytes, source: source, wallet: wallet) {
                         verified += 1

@@ -55,9 +55,14 @@ enum IOSPortableWalletSemanticDraftAdapter {
     static func encode(_ draft: IOSPasskeyWalletMaterialDraft) throws -> Data {
         var material = try snapshot(from: draft)
         defer { material.clearSecrets() }
-        let encoded = try Codec.encode(material)
-        _ = try IOSPortableIOSSourceProof.verify(encoded)
-        return encoded
+        var encoded = try Codec.encode(material)
+        do {
+            _ = try IOSPortableIOSSourceProof.verify(encoded)
+            return encoded
+        } catch {
+            encoded.resetBytes(in: 0 ..< encoded.count)
+            throw error
+        }
     }
 
     private static func wallet(from entry: IOSPasskeyWalletMaterialDraft.Wallet) throws -> Codec.Wallet {

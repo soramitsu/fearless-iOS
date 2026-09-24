@@ -56,15 +56,9 @@ enum IOSReceiveKeychainProjection {
         do {
             var tags = Set<String>()
             for (wallet, binding) in zip(snapshot.wallets, journal.wallets) {
-                var walletItemIndexes = [String: Int]()
-                for slot in wallet.slots where slot.role == Codec.Role.auxiliarySource {
-                    let item = try project(slot, wallet: wallet, metaID: binding.metaID)
-                    guard tags.insert(item.tag).inserted else {
-                        throw ProjectionError.duplicateDestinationTag
-                    }
-                    walletItemIndexes[item.tag] = result.count
-                    result.append(item)
-                }
+                let walletItemIndexes = try projectWalletSources(
+                    wallet, metaID: binding.metaID, tags: &tags, items: &result
+                )
                 try requireRootSources(
                     wallet, metaID: binding.metaID,
                     itemIndexes: walletItemIndexes, items: result
@@ -278,5 +272,50 @@ enum IOSReceiveKeychainProjection {
               try Data(primary.value(FieldID.privateKey)) == value else {
             throw ProjectionError.invalidSource
         }
+    }
+}
+
+private extension IOSReceiveKeychainProjection {
+    private struct SeenSource {
+        let role: UInt8
+        var chainIDs: Set<String>
+    }
+
+    /// One account ID can occur on several chain IDs while the released
+    /// Keychain tag contains only that account ID. Keep every semantic chain
+    /// binding but stage the identical underlying Keychain item only once.
+    private static func projectWalletSources(
+        _ wallet: Codec.Wallet, metaID: String,
+        tags: inout Set<String>, items: inout [Item]
+    ) throws -> [String: Int] {
+        var indexes = [String: Int]()
+        var seen = [String: SeenSource]()
+        for slot in wallet.slots where slot.role == Codec.Role.auxiliarySource {
+            let role = try slot.number(FieldID.sourceSlotRole)
+            let binding = try slot.number(FieldID.bindingKind)
+            let chainID = binding == 5
+                ? try Codec.strictText(slot.value(FieldID.bindingChainID), allowEmpty: false) : nil
+            var item = try project(slot, wallet: wallet, metaID: metaID)
+            if let index = indexes[item.tag] {
+                guard var prior = seen[item.tag], let chainID,
+                      prior.role == role, !prior.chainIDs.isEmpty,
+                      prior.chainIDs.insert(chainID).inserted,
+                      items[index].value == item.value else {
+                    item.clearSecret()
+                    throw ProjectionError.duplicateDestinationTag
+                }
+                seen[item.tag] = prior
+                item.clearSecret()
+                continue
+            }
+            guard tags.insert(item.tag).inserted else {
+                item.clearSecret()
+                throw ProjectionError.duplicateDestinationTag
+            }
+            indexes[item.tag] = items.count
+            seen[item.tag] = SeenSource(role: role, chainIDs: Set(chainID.map { [$0] } ?? []))
+            items.append(item)
+        }
+        return indexes
     }
 }

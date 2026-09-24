@@ -21,7 +21,11 @@ fields:
 It rejects mismatched active bytes. In a wallet containing at least one iOS
 source, it also rejects missing root signing/TON phrase sources and missing
 scoped key sources for regular chains. It rejects duplicate
-Keychain destinations, malformed source metadata, and source bytes above the
+Keychain destinations unless two distinct chain IDs reference the same
+account-ID-scoped tag with identical bytes. The receive Keychain projection
+retains both semantic chain bindings and stages one item for that tag. A
+repeated binding or conflicting byte value fails closed. The proof also
+rejects malformed source metadata and source bytes above the
 released 4096-byte Keychain bound. The root and chain signing proofs run
 separately; matching source bytes alone never establish a valid signer.
 
@@ -37,8 +41,9 @@ an original-device-unavailable cross-platform restoration. The production
 passkey recovery gate remains disabled until those checks and real device,
 provider, independent security and distribution acceptance pass.
 
-On the exact source, the Release `fearless.tests` workspace run on an iOS 18.1
-arm64 simulator passed all 51 `IOSPasskeyWalletMaterialPreflightTests` with zero
-failures. Strict SwiftLint passed for the changed production Swift files;
-SwiftFormat checked the new verifier, and the Xcode project parsed. These local
-checks are not independent security review or signed-device acceptance.
+On the corrected source, the iOS 18.1 arm64 Release simulator workspace run
+passed 53 wallet preflight tests and 11 Keychain projection tests, 64 total
+with zero failures. Strict SwiftLint passed for the changed production Swift
+files, SwiftFormat checked the verifier and projection, and the project file
+parsed. These local checks are not independent security review or signed-device
+acceptance.

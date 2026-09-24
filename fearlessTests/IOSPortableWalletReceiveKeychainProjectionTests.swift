@@ -229,6 +229,39 @@ final class IOSReceiveKeychainProjectionTests: XCTestCase {
         XCTAssertEqual(projected.first(where: { $0.tag == tag })?.value, Data([0xF1]))
     }
 
+    func testSharedAccountIDAcrossChainsStagesOneIdenticalKeychainItem() throws {
+        let accountID = Data(repeating: 0xAB, count: 20)
+        let chainA = chain("chain-a", accountID: accountID)
+        let chainB = chain("chain-b", accountID: accountID)
+        var snapshot = wallet(slots: [
+            evmRoot(), chainA, chainB,
+            source("0000", role: 2, binding: 3, bytes: [0xA1, 0xB2]),
+            source("0001", role: 1, binding: 5, bytes: [0xF1], chainID: "chain-a", accountID: accountID),
+            source("0002", role: 1, binding: 5, bytes: [0xF1], chainID: "chain-b", accountID: accountID)
+        ])
+        defer { snapshot.clearSecrets() }
+        let rootTag = KeystoreTagV2.ethereumSecretKeyTagForMetaId(destinationID)
+        let scopedTag = KeystoreTagV2.substrateSecretKeyTagForMetaId(destinationID, accountId: accountID)
+        let encoded = try Codec.encode(snapshot)
+        let record = journal(encoded, wallet: snapshot.wallets[0], keys: [
+            (rootTag, Data([0xA1, 0xB2])), (scopedTag, Data([0xF1]))
+        ])
+        var projected = try Projection.project(semantic: encoded, journal: record)
+        XCTAssertEqual(projected.map(\.tag), [rootTag, scopedTag].sorted())
+        for index in projected.indices { projected[index].clearSecret() }
+
+        snapshot.wallets[0].slots[5] = source(
+            "0002", role: 1, binding: 5, bytes: [0xF1], chainID: "chain-a", accountID: accountID
+        )
+        let repeatedBinding = try Codec.encode(snapshot)
+        let repeatedRecord = journal(repeatedBinding, wallet: snapshot.wallets[0], keys: [
+            (rootTag, Data([0xA1, 0xB2])), (scopedTag, Data([0xF1]))
+        ])
+        XCTAssertThrowsError(try Projection.project(semantic: repeatedBinding, journal: repeatedRecord)) { error in
+            XCTAssertEqual(error as? Projection.ProjectionError, .duplicateDestinationTag)
+        }
+    }
+
     func testChainExportFieldsRequireMatchingScopedOriginalSources() throws {
         let accountID = Data(repeating: 0xAB, count: 20)
         let cases: [ExportSourceCase] = [
@@ -272,6 +305,15 @@ private extension IOSReceiveKeychainProjectionTests {
         Codec.Slot(role: Codec.Role.evmRoot, key: "", fields: [
             field(FieldID.publicKey, [1]), field(FieldID.privateKey, secret),
             field(FieldID.accountIDOrAddress, [2]), field(FieldID.sourceRecipe, [0])
+        ])
+    }
+
+    private func chain(_ key: String, accountID: Data) -> Codec.Slot {
+        Codec.Slot(role: Codec.Role.chainAccount, key: key, fields: [
+            field(FieldID.publicKey, [1]), field(FieldID.privateKey, [0xF1]),
+            field(FieldID.accountIDOrAddress, Array(accountID)), field(FieldID.cryptoType, [1]),
+            field(FieldID.chainName, []), field(FieldID.initializedOrFavorite, [1]),
+            field(FieldID.sourceRecipe, [0])
         ])
     }
 

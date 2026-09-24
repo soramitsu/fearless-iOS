@@ -734,6 +734,28 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         ))
     }
 
+    func testIOSDraftEncoderRejectsDuplicateSourceAfterEncodingPlaintext() throws {
+        let wallet = try ethereumOnlyWallet()
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId): ethereumPrivateKey
+        ])
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([selectedProjection(wallet)], keys: keys), keystore: keys
+        ).capture()
+        let original = try XCTUnwrap(draft.wallets.first)
+        let duplicate = try XCTUnwrap(original.slots.first)
+        let repeated = IOSPasskeyWalletMaterialDraft.Wallet(
+            publicIdentity: original.publicIdentity, isSelected: original.isSelected,
+            order: original.order, displayPreferences: original.displayPreferences,
+            slots: original.slots + [duplicate]
+        )
+        XCTAssertThrowsError(try IOSPortableWalletSemanticDraftAdapter.encode(
+            .init(wallets: [repeated])
+        )) {
+            XCTAssertEqual($0 as? IOSPortableIOSSourceProof.ProofError, .invalidSource)
+        }
+    }
+
     func testIOSOriginalKeySourceProofChecksExplicitlyBoundRootEntropy() throws {
         let wallet = try ethereumOnlyWallet()
         let entropy = Data(repeating: 0x42, count: 16)
@@ -1045,6 +1067,61 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
                 .init(verifiedAccounts: 1, unprovenAccounts: 0)
             )
         }
+    }
+
+    func testCapturedChainsSharingAccountIDRetainDistinctBindingsForOneKeychainTag() throws {
+        let seed = Data(repeating: 0x32, count: 32)
+        let publicKey = try EDKeyFactory().derive(fromSeed: seed).publicKey().rawData()
+        let accountID = try publicKey.publicKeyToAccountId()
+        let first = ChainAccountModel(
+            chainId: "historical:chain-a", accountId: accountID, publicKey: publicKey,
+            cryptoType: CryptoType.ed25519.rawValue, ethereumBased: false
+        )
+        let second = ChainAccountModel(
+            chainId: "historical:chain-b", accountId: accountID, publicKey: publicKey,
+            cryptoType: CryptoType.ed25519.rawValue, ethereumBased: false
+        )
+        let wallet = try substrateWallet().insertingChainAccount(first).insertingChainAccount(second)
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): substrateSecretKey,
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accountID): seed
+        ])
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([selectedProjection(wallet)], keys: keys), keystore: keys
+        ).capture()
+        var material = try IOSPortableWalletSemanticMaterial.decode(
+            IOSPortableWalletSemanticDraftAdapter.encode(draft)
+        )
+        defer { material.clearSecrets() }
+        let sources = material.wallets[0].slots.filter { slot in
+            slot.role == 7 && (try? slot.number(17)) == 5
+        }
+        XCTAssertEqual(sources.count, 2)
+        XCTAssertEqual(Set(try sources.map {
+            try IOSPortableWalletSemanticMaterial.strictText($0.value(18), allowEmpty: false)
+        }), [first.chainId, second.chainId])
+        XCTAssertEqual(try sources.map { try $0.value(20) }, [Array(seed), Array(seed)])
+        XCTAssertEqual(
+            try IOSPortableIOSSourceProof.verify(IOSPortableWalletSemanticMaterial.encode(material)),
+            .init(verifiedSources: 3, unprovenSources: 0)
+        )
+
+        var altered = material
+        defer { altered.clearSecrets() }
+        let secondIndex = try XCTUnwrap(altered.wallets[0].slots.firstIndex { slot in
+            slot.role == 7 && (try? slot.value(18)) == Array(second.chainId.utf8)
+        })
+        let bytesIndex = try XCTUnwrap(altered.wallets[0].slots[secondIndex].fields.firstIndex { $0.id == 20 })
+        altered.wallets[0].slots[secondIndex].fields[bytesIndex].value[0] ^= 1
+        XCTAssertThrowsError(try IOSPortableIOSSourceProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(altered)
+        ))
+
+        let repeated = sources[0]
+        material.wallets[0].slots.append(.init(role: repeated.role, key: "0003", fields: repeated.fields))
+        XCTAssertThrowsError(try IOSPortableIOSSourceProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(material)
+        ))
     }
 
     func testImportedRegularSubstrateChainRejectsWrongSecretAccountAndCryptoType() throws {
