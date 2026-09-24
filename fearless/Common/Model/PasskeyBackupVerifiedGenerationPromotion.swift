@@ -259,6 +259,11 @@ private extension PasskeyBackupVerifiedGenerationPromotion {
         try requireJournal(context)
         try await storage.requireSelectedAccount()
         try requireAuthorized(context.ownerSession)
+        // The selected-account check suspends after the verifier's last owner read.
+        // Make the authenticated head the final remote observation before returning proof.
+        let final = try await ownerHeadSource.readHead(session: context.ownerSession)
+        guard final == selected else { throw PasskeyBackupAuthenticatedHeadError.headChanged }
+        try requireAuthorized(context.ownerSession)
         return evidence
     }
 

@@ -997,6 +997,7 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
             .success(.init(statusCode: 200, body: try parentHeadBody(candidate))),
             .success(.init(statusCode: 200, body: try parentHeadBody(candidate))),
             .success(.init(statusCode: 200, body: try ownerHeadBody(candidate))),
+            .success(.init(statusCode: 200, body: try ownerHeadBody(candidate))),
             .success(.init(statusCode: 200, body: try ownerHeadBody(candidate)))
         ]
         let grantBody = try json([
@@ -1037,6 +1038,55 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         XCTAssertTrue(try XCTUnwrap(journal.read(
             operationID: coordinatorOperationID, expectedScope: scope(candidate)
         )).commitAttempted)
+    }
+
+    @available(iOS 18.0, *)
+    func testVerifiedPromotionRejectsHeadAdvanceAfterFinalAccountCheck() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let (journal, parent) = try coordinatorJournal()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let wallet = ReadbackWalletVerifierFixture()
+        let ownerTransport = GenerationTransportFixture()
+        ownerTransport.responses = [
+            .success(.init(statusCode: 200, body: try parentHeadBody(candidate))),
+            .success(.init(statusCode: 200, body: try parentHeadBody(candidate))),
+            .success(.init(statusCode: 200, body: try parentHeadBody(candidate))),
+            .success(.init(statusCode: 200, body: try ownerHeadBody(candidate))),
+            .success(.init(statusCode: 200, body: try ownerHeadBody(candidate))),
+            .success(.init(statusCode: 200, body: try ownerHeadBody(advancedHead(candidate))))
+        ]
+        let generationTransport = GenerationTransportFixture()
+        generationTransport.responses = [
+            .success(.init(statusCode: 200, body: Data(#"{"status":"absent"}"#.utf8))),
+            .success(.init(statusCode: 200, body: try json([
+                "token": "grant." + String(repeating: "E", count: 43),
+                "expiresAt": ownerNowUnixSeconds + 60
+            ]))),
+            .success(.init(statusCode: 200, body: try committedOperation(candidate)))
+        ]
+        fixture.transport.responses = [
+            .success(.init(statusCode: 201, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: candidate.bytes)),
+            .success(.init(statusCode: 200, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: candidate.bytes))
+        ]
+        do {
+            _ = try await promotion(
+                fixture, journal: journal, wallet: wallet,
+                ownerTransport: ownerTransport, generationTransport: generationTransport
+            ).promote(
+                operationID: coordinatorOperationID, ownerSession: ownerSession(candidate),
+                verifiedPRF: try await verifiedReadbackPRF(), expectedWallet: expectedWallet(),
+                candidate: candidate
+            )
+            XCTFail("A newer head after the final account check returned stale proof")
+        } catch {
+            XCTAssertEqual(error as? PasskeyBackupAuthenticatedHeadError, .headChanged)
+        }
+        XCTAssertEqual(wallet.calls, 1)
+        XCTAssertEqual(ownerTransport.requests.count, 6)
     }
 
     @available(iOS 18.0, *)
@@ -1084,6 +1134,7 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
             .success(.init(statusCode: 200, body: try parentHeadBody(candidate))),
             .success(.init(statusCode: 200, body: try parentHeadBody(candidate))),
             .success(.init(statusCode: 200, body: try parentHeadBody(candidate))),
+            .success(.init(statusCode: 200, body: try ownerHeadBody(candidate))),
             .success(.init(statusCode: 200, body: try ownerHeadBody(candidate))),
             .success(.init(statusCode: 200, body: try ownerHeadBody(candidate)))
         ]
@@ -1139,7 +1190,7 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         let ownerTransport = GenerationTransportFixture()
         ownerTransport.responses = Array(repeating: .success(.init(
             statusCode: 200, body: try ownerHeadBody(candidate)
-        )), count: 4)
+        )), count: 5)
         let generationTransport = GenerationTransportFixture()
         generationTransport.responses = [
             .success(.init(statusCode: 200, body: try committedOperation(candidate)))
@@ -1619,6 +1670,24 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
             headRevision: 7, parentHeadRevision: 6, parentHeadSha256: candidate.context.parentHeadSha256,
             generationId: candidate.context.generationId, bundleSha256: candidate.sha256,
             keyEpoch: candidate.context.keyEpoch, driveFileID: candidate.fileID,
+            storageAccountBinding: candidate.context.storageAccountBinding
+        )
+        return try PasskeyBackupAuthenticatedHead(
+            ownerSubject: candidate.context.ownerSubject, backupNamespace: candidate.context.backupNamespace,
+            head: head, previous: previous, expectedOwnerSubject: candidate.context.ownerSubject,
+            expectedBackupNamespace: candidate.context.backupNamespace,
+            expectedStorageAccountBinding: candidate.context.storageAccountBinding
+        )
+    }
+
+    private func advancedHead(
+        _ candidate: GoogleDrivePasskeyGenerationStorage.Candidate
+    ) throws -> PasskeyBackupAuthenticatedHead {
+        let previous = try XCTUnwrap(authenticatedHead(candidate).head)
+        let head = try PasskeyBackupHeadDescriptor(
+            headRevision: 8, parentHeadRevision: 7, parentHeadSha256: candidate.sha256,
+            generationId: String(repeating: "Q", count: 43), bundleSha256: String(repeating: "f", count: 64),
+            keyEpoch: candidate.context.keyEpoch, driveFileID: "newer-drive-generation",
             storageAccountBinding: candidate.context.storageAccountBinding
         )
         return try PasskeyBackupAuthenticatedHead(
