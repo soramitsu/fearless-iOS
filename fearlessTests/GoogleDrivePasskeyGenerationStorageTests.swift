@@ -168,6 +168,179 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         XCTAssertEqual(String(reflecting: try XCTUnwrap(committed.head)), "PasskeyBackupHeadDescriptor(<redacted>)")
     }
 
+    func testOwnerGenerationMetadataGrantCommitAndStatusUseExactAccountAndRequest() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let prepared = try ownerGenerationMetadata(candidate)
+        let session = try ownerSession(candidate)
+        let transport = GenerationTransportFixture()
+        transport.responses = [
+            .success(.init(statusCode: 200, body: try json([
+                "token": "grant." + String(repeating: "E", count: 43),
+                "expiresAt": ownerNowUnixSeconds + 60
+            ]))),
+            .success(.init(statusCode: 200, body: try committedOperation(candidate))),
+            .success(.init(statusCode: 200, body: Data(#"{"status":"absent"}"#.utf8))),
+            .success(.init(statusCode: 200, body: try committedOperation(candidate)))
+        ]
+        let client = try ownerGenerationClient(fixture, transport: transport, isReleaseEnabled: true)
+        let grant = try await client.grant(session: session, metadata: prepared)
+        let descriptor = try await client.commit(session: session, metadata: prepared, grant: grant)
+        XCTAssertEqual(descriptor.headRevision, 7)
+        let absent = try await client.operationStatus(session: session, metadata: prepared)
+        let committed = try await client.operationStatus(session: session, metadata: prepared)
+        XCTAssertEqual(absent, .absent)
+        XCTAssertEqual(committed, .committed(descriptor))
+        try assertOwnerGenerationRequests(transport.requests, session: session, grant: grant, candidate: candidate)
+        XCTAssertEqual(String(reflecting: grant), "PasskeyBackupGenerationGrant(<redacted>)")
+        XCTAssertFalse(PasskeyBackupReleaseConfig.isPasskeyBackupEnabled)
+        XCTAssertEqual(fixture.oauth.refreshes, 8)
+
+        let disabled = try ownerGenerationClient(fixture, transport: GenerationTransportFixture())
+        do {
+            _ = try await disabled.grant(session: session, metadata: prepared)
+            XCTFail("The production-disabled candidate sent a request")
+        } catch { XCTAssertEqual(error as? PasskeyBackupError, .passkeyBackupDisabled) }
+    }
+
+    func testOwnerGenerationRejectsAccountSwitchExpiryAndGrantSubstitution() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let prepared = try ownerGenerationMetadata(candidate)
+        let session = try ownerSession(candidate)
+        let transport = GenerationTransportFixture()
+        let grantBody = try json(["token": "grant." + String(repeating: "E", count: 43),
+                                  "expiresAt": ownerNowUnixSeconds + 60])
+        transport.responses = [.success(.init(statusCode: 200, body: grantBody))]
+        let other = try authorization(subject: "another-google-subject")
+        transport.afterRequest = { _ in fixture.oauth.current = other }
+        let client = try ownerGenerationClient(fixture, transport: transport, isReleaseEnabled: true)
+        await assertFailure { _ = try await client.grant(session: session, metadata: prepared) }
+        XCTAssertEqual(transport.requests.count, 1)
+
+        fixture.oauth.current = try authorization()
+        transport.afterRequest = nil
+        transport.responses = [.success(.init(statusCode: 200, body: grantBody))]
+        let grant = try await client.grant(session: session, metadata: prepared)
+        let substituted = try PasskeyBackupGenerationMetadata(
+            operationID: String(repeating: "I", count: 43), candidate: candidate,
+            authenticatedHead: parentHead(candidate)
+        )
+        do {
+            _ = try await client.commit(session: session, metadata: substituted, grant: grant)
+            XCTFail("Grant was usable for another operation")
+        } catch { XCTAssertEqual(error as? PasskeyBackupOwnerGenerationHTTPError, .invalidGrant) }
+        XCTAssertEqual(transport.requests.count, 2)
+
+        let expiringTransport = GenerationTransportFixture()
+        expiringTransport.responses = [.success(.init(statusCode: 200, body: grantBody))]
+        var now = ownerNowUnixSeconds
+        expiringTransport.afterRequest = { _ in now += 700 }
+        let expiring = try ownerGenerationClient(
+            fixture, transport: expiringTransport, nowUnixSeconds: { now }, isReleaseEnabled: true
+        )
+        do {
+            _ = try await expiring.grant(session: session, metadata: prepared)
+            XCTFail("Expired owner session accepted after network response")
+        } catch { XCTAssertEqual(error as? PasskeyBackupOwnerHeadHTTPError, .invalidSession) }
+
+        let afterRefreshTransport = GenerationTransportFixture()
+        afterRefreshTransport.responses = [.success(.init(statusCode: 200, body: grantBody))]
+        now = ownerNowUnixSeconds
+        let refreshStart = fixture.oauth.refreshes
+        fixture.oauth.afterRefresh = { if fixture.oauth.refreshes == refreshStart + 2 { now += 700 } }
+        let afterRefresh = try ownerGenerationClient(
+            fixture, transport: afterRefreshTransport, nowUnixSeconds: { now }, isReleaseEnabled: true
+        )
+        do {
+            _ = try await afterRefresh.grant(session: session, metadata: prepared)
+            XCTFail("Expired owner session accepted after selected-account recheck")
+        } catch { XCTAssertEqual(error as? PasskeyBackupOwnerHeadHTTPError, .invalidSession) }
+    }
+
+    func testOwnerGenerationRejectsMalformedAndSubstitutedResponses() async throws {
+        let candidate = try fixture().store.prepareCandidate(fileID: fileID, generation: generation())
+        let prepared = try ownerGenerationMetadata(candidate)
+        let session = try ownerSession(candidate)
+        let grantCases = [
+            #"{"token":"grant.EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE","expiresAt":"1700000060"}"#,
+            #"{"token":"grant.EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE","expiresAt":1700000060,"expiresAt":2}"#,
+            #"{"token":"grant.EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE","expiresAt":1700000060,"\u0065xpiresAt":2}"#,
+            #"{"token":"grant.EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE","expiresAt":1700000060,"prf":"secret"}"#,
+            #"{"token":"grant.EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE","expiresAt":1700000060}{}"#,
+            #"{"token":"grant.EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE","expiresAt":true}"#
+        ]
+        for invalid in grantCases {
+            let fixture = try fixture()
+            let transport = GenerationTransportFixture()
+            transport.responses = [.success(.init(statusCode: 200, body: Data(invalid.utf8)))]
+            let client = try ownerGenerationClient(fixture, transport: transport, isReleaseEnabled: true)
+            await assertFailure { _ = try await client.grant(session: session, metadata: prepared) }
+            XCTAssertEqual(transport.requests.count, 1)
+        }
+        let invalidStatus = [
+            #"{"status":"absent","descriptor":null}"#,
+            #"{"status":"absent","\u0073tatus":"committed"}"#,
+            #"{"status":1}"#,
+            #"{"status":"committed","descriptor":{}}"#,
+            #"{"status":"committed","descriptor":{"keyEpoch":"7","\u006beyEpoch":"7"}}"#
+        ]
+        for invalid in invalidStatus {
+            let fixture = try fixture()
+            let transport = GenerationTransportFixture()
+            transport.responses = [.success(.init(statusCode: 200, body: Data(invalid.utf8)))]
+            let client = try ownerGenerationClient(fixture, transport: transport, isReleaseEnabled: true)
+            await assertFailure { _ = try await client.operationStatus(session: session, metadata: prepared) }
+        }
+        var object = try XCTUnwrap(JSONSerialization.jsonObject(with: committedOperation(candidate)) as? [String: Any])
+        let correctDescriptor = try XCTUnwrap(object["descriptor"] as? [String: Any])
+        for (field, replacement) in [
+            ("driveFileId", "substituted-drive-id"),
+            ("bundleSha256", String(repeating: "f", count: 64)),
+            ("keyEpoch", "8")
+        ] {
+            let fixture = try fixture()
+            let transport = GenerationTransportFixture()
+            var descriptor = correctDescriptor
+            descriptor[field] = replacement
+            object["descriptor"] = descriptor
+            transport.responses = [.success(.init(statusCode: 200, body: try json(object)))]
+            let client = try ownerGenerationClient(fixture, transport: transport, isReleaseEnabled: true)
+            await assertFailure { _ = try await client.operationStatus(session: session, metadata: prepared) }
+        }
+    }
+
+    func testOwnerGenerationRejectsAuthenticatedHeadOnDifferentStorageAccountBeforeHTTP() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let selected = try parentHead(candidate)
+        let wrongBinding = try PasskeyBackupGenerationV1Format.storageAccountBinding(
+            verifiedGoogleSubject: "another-google-subject"
+        )
+        func replacingBinding(_ descriptor: PasskeyBackupHeadDescriptor) throws -> PasskeyBackupHeadDescriptor {
+            try PasskeyBackupHeadDescriptor(
+                headRevision: descriptor.headRevision, parentHeadRevision: descriptor.parentHeadRevision,
+                parentHeadSha256: descriptor.parentHeadSha256, generationId: descriptor.generationId,
+                bundleSha256: descriptor.bundleSha256, keyEpoch: descriptor.keyEpoch,
+                driveFileID: descriptor.driveFileID, storageAccountBinding: wrongBinding
+            )
+        }
+        let wrong = try PasskeyBackupAuthenticatedHead(
+            ownerSubject: selected.ownerSubject, backupNamespace: selected.backupNamespace,
+            head: replacingBinding(XCTUnwrap(selected.head)),
+            previous: replacingBinding(XCTUnwrap(selected.previous)),
+            expectedOwnerSubject: selected.ownerSubject,
+            expectedBackupNamespace: selected.backupNamespace,
+            expectedStorageAccountBinding: wrongBinding
+        )
+        XCTAssertThrowsError(try PasskeyBackupGenerationMetadata(
+            operationID: String(repeating: "A", count: 43), candidate: candidate, authenticatedHead: wrong
+        )) { error in
+            XCTAssertEqual(error as? PasskeyBackupOwnerGenerationHTTPError, .invalidMetadata)
+        }
+        XCTAssertFalse(PasskeyBackupReleaseConfig.isPasskeyBackupEnabled)
+    }
+
     func testOwnerHeadHTTPRequiresExactSessionOwnerAccountAndClosedResponse() async throws {
         let fixture = try fixture()
         let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
@@ -1172,6 +1345,99 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
             expectedBackupNamespace: candidate.context.backupNamespace,
             expectedStorageAccountBinding: candidate.context.storageAccountBinding
         )
+    }
+
+    private func parentHead(
+        _ candidate: GoogleDrivePasskeyGenerationStorage.Candidate
+    ) throws -> PasskeyBackupAuthenticatedHead {
+        let previous = try PasskeyBackupHeadDescriptor(
+            headRevision: 5, parentHeadRevision: 4, parentHeadSha256: String(repeating: "c", count: 64),
+            generationId: String(repeating: "I", count: 43), bundleSha256: String(repeating: "b", count: 64),
+            keyEpoch: candidate.context.keyEpoch, driveFileID: "older-drive-id",
+            storageAccountBinding: candidate.context.storageAccountBinding
+        )
+        let head = try PasskeyBackupHeadDescriptor(
+            headRevision: 6, parentHeadRevision: 5, parentHeadSha256: previous.bundleSha256,
+            generationId: String(repeating: "E", count: 43), bundleSha256: String(repeating: "a", count: 64),
+            keyEpoch: candidate.context.keyEpoch, driveFileID: "previous-drive-id",
+            storageAccountBinding: candidate.context.storageAccountBinding
+        )
+        return try PasskeyBackupAuthenticatedHead(
+            ownerSubject: candidate.context.ownerSubject, backupNamespace: candidate.context.backupNamespace,
+            head: head, previous: previous, expectedOwnerSubject: candidate.context.ownerSubject,
+            expectedBackupNamespace: candidate.context.backupNamespace,
+            expectedStorageAccountBinding: candidate.context.storageAccountBinding
+        )
+    }
+
+    private func ownerGenerationMetadata(
+        _ candidate: GoogleDrivePasskeyGenerationStorage.Candidate
+    ) throws -> PasskeyBackupGenerationMetadata {
+        try PasskeyBackupGenerationMetadata(
+            operationID: String(repeating: "A", count: 43), candidate: candidate,
+            authenticatedHead: parentHead(candidate)
+        )
+    }
+
+    private func committedOperation(
+        _ candidate: GoogleDrivePasskeyGenerationStorage.Candidate
+    ) throws -> Data {
+        try json(["status": "committed", "descriptor": [
+            "headRevision": "7", "parentHeadRevision": "6",
+            "parentHeadSha256": String(repeating: "a", count: 64),
+            "generationId": candidate.context.generationId,
+            "bundleSha256": candidate.sha256, "keyEpoch": String(candidate.context.keyEpoch),
+            "driveFileId": candidate.fileID,
+            "storageAccountBinding": candidate.context.storageAccountBinding
+        ]])
+    }
+
+    private func ownerGenerationClient(
+        _ fixture: GenerationFixture, transport: GenerationTransportFixture,
+        nowUnixSeconds: (() -> Int64)? = nil, isReleaseEnabled: Bool = PasskeyBackupReleaseConfig.isPasskeyBackupEnabled
+    ) throws -> HTTPPasskeyBackupOwnerGenerationClient {
+        let account = try GoogleDriveBackupAccount(subject: subject, email: "alice@example.com")
+        return try HTTPPasskeyBackupOwnerGenerationClient(
+            baseURL: URL(string: "https://backup.fearlesswallet.io")!, transport: transport,
+            tokenProvider: GoogleDrivePasskeyBackupTokenProvider(account: account, session: fixture.oauth),
+            nowUnixSeconds: nowUnixSeconds ?? { self.ownerNowUnixSeconds },
+            isReleaseEnabled: isReleaseEnabled
+        )
+    }
+
+    private func assertOwnerGenerationRequests(
+        _ requests: [PasskeyBackupHTTPRequest], session: PasskeyBackupOwnerSession,
+        grant: PasskeyBackupGenerationGrant, candidate: GoogleDrivePasskeyGenerationStorage.Candidate
+    ) throws {
+        XCTAssertEqual(requests.map(\.url.path), [
+            "/api/passkey-backup/v1/owner/backup/grant",
+            "/api/passkey-backup/v1/owner/backup/commit",
+            "/api/passkey-backup/v1/owner/backup/operation",
+            "/api/passkey-backup/v1/owner/backup/operation"
+        ])
+        let grantRequest = try XCTUnwrap(requests.first)
+        let commitRequest = requests[1]
+        XCTAssertEqual(grantRequest.method, "POST")
+        XCTAssertEqual(grantRequest.body, commitRequest.body)
+        XCTAssertEqual(grantRequest.headers["Authorization"], "Bearer \(session.token)")
+        XCTAssertNil(grantRequest.headers["X-Passkey-Owner-Session"])
+        XCTAssertEqual(commitRequest.headers["Authorization"], "Bearer \(grant.token)")
+        XCTAssertEqual(commitRequest.headers["X-Passkey-Owner-Session"], session.token)
+        let body = try XCTUnwrap(grantRequest.body)
+        let object = try XCTUnwrap(JSONSerialization.jsonObject(with: body) as? [String: Any])
+        XCTAssertEqual(Set(object.keys), Set([
+            "schemaVersion", "operationId", "generationId", "backupNamespace",
+            "expectedHeadRevision", "expectedHeadSha256", "bundleSha256", "keyEpoch",
+            "driveFileId", "storageAccountBinding"
+        ]))
+        XCTAssertEqual(object["expectedHeadRevision"] as? String, "6")
+        XCTAssertEqual(object["expectedHeadSha256"] as? String, String(repeating: "a", count: 64))
+        XCTAssertEqual(object["keyEpoch"] as? String, "7")
+        XCTAssertEqual(object["storageAccountBinding"] as? String, candidate.context.storageAccountBinding)
+        let text = try XCTUnwrap(String(data: body, encoding: .utf8))
+        XCTAssertFalse(text.contains("fixture-token"))
+        XCTAssertFalse(text.contains("prf"))
+        XCTAssertFalse(requests.contains { $0.headers.values.contains("fixture-token") })
     }
 
     private func ownerSession(

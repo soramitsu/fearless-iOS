@@ -54,14 +54,16 @@ account switch during its request. The readback verifier checks session expiry
 again after its final asynchronous Drive-account check. Before installation,
 the caller must re-authenticate
 the owner, compare the current head and key epoch, and complete the separate
-wallet migration checks. There is no production owner adapter or installation
-caller for this primitive yet.
+wallet migration checks. There is no production owner flow or installation
+caller for this primitive yet. A separate disabled metadata HTTP adapter can
+request an exact owner grant, commit a generation descriptor and query its
+operation status; it is not wired to this coordinator or to a completion flag.
 
 Its mutable local PRF, key and plaintext `Data` buffers are reset after use;
 Swift/CryptoKit and the wallet callback may retain other copies, which need
 security review. Its tests use synthetic wallet material; the production wallet
 migration/signing/export callback is not implemented or wired into the
-coordinator. Owner/grant HTTP integration, transactional head update,
+coordinator. Owner/grant HTTP candidate wiring and qualification, transactional head update,
 retention, credential rotation, device/provider interoperability and
 distribution tests remain release gates. The passkey recovery flag stays
 disabled.

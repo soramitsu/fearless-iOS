@@ -34,10 +34,23 @@ not connected to production recovery UI or a deployed owner service. Native
 completion and cancellation callbacks are bound to their exact ceremony
 attempt, so a delayed cancellation cannot terminate a successor prompt.
 
+An unwired owner-generation HTTP candidate now covers metadata-only grant,
+commit and operation-status calls. It prepares the exact ten-field request
+from an immutable Drive candidate and authenticated current/previous head,
+then checks the selected Google subject through the same token provider as
+Drive before and after each owner request. A short-lived grant is bound to
+that exact request and owner session; the commit reuses the identical body.
+Responses are bounded and reject duplicate decoded JSON members, coercions,
+unknown fields and substituted generation descriptors. The owner service
+receives no Drive token, PRF output or wallet plaintext. A successful metadata
+commit does not prove that the ciphertext was uploaded, downloaded and
+decrypted, or that original keys sign and export. Production recovery remains
+disabled and no caller marks backup complete through this adapter.
+
 The four appProperties are `format=FPBKGEN1`, `namespaceSha256=SHA256(UTF8(backupNamespace))`, `generationId`, and `bundleSha256`. The name is `fearless-passkey-generation-{generationId}.bin`. Metadata is bounded to 8 KiB and rejects duplicate decoded JSON keys, trailing JSON, unknown fields, coercions and ambiguous arrays. The store defaults to the dedicated `URLSessionPasskeyGenerationTransport`, while retaining explicit transport injection for tests. This transport bounds decoded responses to 512 KiB, disables redirects, cookies, credential storage and caching, sends POST through an input stream and refuses replacement streams and HTTP authentication retries. URLSession exposes no blanket switch proving exactly one physical transmission; these controls prevent application retries and requested stream regeneration. It does not promise that losing a network response means no bytes reached Drive. The preallocated file ID and mandatory reconciliation handle unknown outcomes. The legacy challenge/envelope transport remains capped at 256 KiB.
 
 The Android/Node fixed vector is 785 bytes with SHA-256 `1c92b544dc25c687c202317d0e5747b5690a1056cf72e61d1dfab84c07c057a4`. Tests also cover a maximum-size 256 KiB legacy envelope inside the larger generation without changing its bytes or limit.
 
-Remaining integration gates: production owner authentication qualification, grant issuance and monotonic head/CAS HTTP writes; production local unwrap/decrypt and original-key wallet verification wiring; synchronized credential enrollment/revocation/key-epoch rotation; real Google consent/provider and replacement-device tests in both directions; retention of the last decryptable and unresolved generations; independent source/device/security acceptance. No UI or release flag is enabled by this patch.
+Remaining integration gates: production owner authentication and grant qualification, full-live monotonic head/CAS acceptance; production local unwrap/decrypt and original-key wallet verification wiring; synchronized credential enrollment/revocation/key-epoch rotation; real Google consent/provider and replacement-device tests in both directions; retention of the last decryptable and unresolved generations; independent source/device/security acceptance. No UI or release flag is enabled by this patch.
 
 Primary API references: [Drive generateIds](https://developers.google.com/workspace/drive/api/reference/rest/v3/files/generateIds), [pre-generated IDs](https://developers.google.com/workspace/drive/api/guides/create-file#generate-ids), [Drive appData](https://developers.google.com/workspace/drive/api/guides/appdata), [file metadata](https://developers.google.com/workspace/drive/api/reference/rest/v3/files), and [Foundation replacement body streams](https://developer.apple.com/documentation/foundation/urlsessiontaskdelegate/urlsession(_:task:neednewbodystream:)).
