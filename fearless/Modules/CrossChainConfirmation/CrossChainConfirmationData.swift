@@ -77,12 +77,28 @@ enum ReviewedCrossChainSubmissionValidator {
         origin: ChainAsset,
         destination: ChainModel,
         reviewedRoute: ReviewedCrossChainRouteContext,
-        mutationsEnabled: Bool = MultiChainFeaturePolicy.current.crossChainMutationsEnabled,
+        mutationsEnabled: Bool,
         executionAdapterAvailable: Bool = ReviewedXcmExecutionAuthority.isAvailable
     ) throws {
         guard mutationsEnabled else {
             throw ReviewedCrossChainSubmissionError.actionsPaused
         }
+        try validateReviewedRoute(
+            origin: origin,
+            destination: destination,
+            reviewedRoute: reviewedRoute,
+            executionAdapterAvailable: executionAdapterAvailable
+        )
+    }
+
+    /// The final signed-authority boundary has already checked the policy
+    /// under its lock. Re-reading it here would recursively acquire that lock.
+    static func validateReviewedRoute(
+        origin: ChainAsset,
+        destination: ChainModel,
+        reviewedRoute: ReviewedCrossChainRouteContext,
+        executionAdapterAvailable: Bool = ReviewedXcmExecutionAuthority.isAvailable
+    ) throws {
         guard executionAdapterAvailable else {
             throw ReviewedCrossChainSubmissionError.executionAdapterUnavailable
         }
@@ -843,7 +859,8 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
         try ReviewedCrossChainSubmissionValidator.validate(
             origin: origin,
             destination: destination,
-            reviewedRoute: data.reviewedRoute
+            reviewedRoute: data.reviewedRoute,
+            mutationsEnabled: mutationsEnabled()
         )
         let account = try validateSigningAccount(wallet: wallet, chain: originChain)
         guard let destinationAccountId = try? AddressFactory.accountId(
@@ -916,7 +933,7 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
               destinationAccountId == context.destinationAccountId else {
             throw ReviewedCrossChainSubmissionError.runtimeUnavailable
         }
-        try ReviewedCrossChainSubmissionValidator.validate(
+        try ReviewedCrossChainSubmissionValidator.validateReviewedRoute(
             origin: currentOrigin,
             destination: destination,
             reviewedRoute: data.reviewedRoute

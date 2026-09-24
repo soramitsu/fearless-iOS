@@ -62,7 +62,8 @@ extension CrossChainConfirmationPresenter: CrossChainConfirmationViewOutput {
             try ReviewedCrossChainSubmissionValidator.validate(
                 origin: teleportData.originChainAsset,
                 destination: teleportData.destChainModel,
-                reviewedRoute: teleportData.reviewedRoute
+                reviewedRoute: teleportData.reviewedRoute,
+                mutationsEnabled: MultiChainFeaturePolicy.current.crossChainMutationsEnabled
             )
         } catch {
             guard let view else { return }

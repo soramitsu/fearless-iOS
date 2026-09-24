@@ -1821,6 +1821,16 @@ final class MainTabBarTests: XCTestCase {
                 mutationsEnabled: true
             )
         )
+        // The signed-authority boundary holds the policy lock before checking
+        // this route. Route validation must remain independent of the switch
+        // already checked above, while still rejecting changed route inputs.
+        XCTAssertNoThrow(
+            try ReviewedCrossChainSubmissionValidator.validateReviewedRoute(
+                origin: exactOrigin,
+                destination: destination,
+                reviewedRoute: context
+            )
+        )
         XCTAssertThrowsError(
             try ReviewedCrossChainSubmissionValidator.validate(
                 origin: exactOrigin,
@@ -1855,6 +1865,15 @@ final class MainTabBarTests: XCTestCase {
                 reviewedRoute: context,
                 mutationsEnabled: true,
                 executionAdapterAvailable: true
+            )
+        ) { error in
+            XCTAssertEqual(error as? ReviewedCrossChainSubmissionError, .unreviewedRoute)
+        }
+        XCTAssertThrowsError(
+            try ReviewedCrossChainSubmissionValidator.validateReviewedRoute(
+                origin: ChainAsset(chain: origin, asset: sameSymbolDifferentIdentity),
+                destination: destination,
+                reviewedRoute: context
             )
         ) { error in
             XCTAssertEqual(error as? ReviewedCrossChainSubmissionError, .unreviewedRoute)
