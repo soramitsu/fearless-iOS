@@ -22,8 +22,12 @@ enum IOSPortableWalletReceiveInstallPlan {
         case unprovenRootExportMaterial(Int)
         case unprovenChainExportMaterial(Int)
         case unprovenChainAccounts(Int)
+        case unmappedChainPresentation(Int)
+        case unmappedFavoriteChains(Int)
         case unprovenAuxiliarySources(Int)
         case unprovenWatchIdentities(Int)
+        case unmappedMetadata(Int)
+        case unmappedWalletState(Int)
         case transactionalInstallerUnavailable
     }
 
@@ -63,8 +67,12 @@ enum IOSPortableWalletReceiveInstallPlan {
         var rootExport = 0
         var chainExport = 0
         var unknownChains = 0
+        var chainPresentation = 0
+        var favorite = 0
         var auxiliary = 0
         var watch = 0
+        var metadata = 0
+        var walletState = 0
 
         mutating func record(
             _ source: IOSPortableWalletSemanticMaterial.Slot,
@@ -86,6 +94,11 @@ enum IOSPortableWalletReceiveInstallPlan {
                 if IOSPortableWalletReceiveInstallPlan.hasUnprovenExportMaterial(source) {
                     chainExport += 1
                 }
+                let chainName = try source.value(FieldID.chainName)
+                let initialized = try source.number(FieldID.initializedOrFavorite)
+                if !chainName.isEmpty || initialized != 1 {
+                    chainPresentation += 1
+                }
                 let canonical = UniversalWalletChainAccountSupport.canonicalChainId(for: source.key)
                 if !approvedSubstrateGenesisIDs.contains(source.key),
                    !IOSPortableWalletReceiveInstallPlan.namedChainIDs.contains(canonical) {
@@ -96,7 +109,7 @@ enum IOSPortableWalletReceiveInstallPlan {
             case .watchIdentity:
                 watch += 1
             case .favoriteChain:
-                break
+                favorite += 1
             }
         }
 
@@ -111,11 +124,23 @@ enum IOSPortableWalletReceiveInstallPlan {
             if unknownChains > 0 {
                 result.append(.unprovenChainAccounts(unknownChains))
             }
+            if chainPresentation > 0 {
+                result.append(.unmappedChainPresentation(chainPresentation))
+            }
+            if favorite > 0 {
+                result.append(.unmappedFavoriteChains(favorite))
+            }
             if auxiliary > 0 {
                 result.append(.unprovenAuxiliarySources(auxiliary))
             }
             if watch > 0 {
                 result.append(.unprovenWatchIdentities(watch))
+            }
+            if metadata > 0 {
+                result.append(.unmappedMetadata(metadata))
+            }
+            if walletState > 0 {
+                result.append(.unmappedWalletState(walletState))
             }
             result.append(.transactionalInstallerUnavailable)
             return result
@@ -138,6 +163,10 @@ enum IOSPortableWalletReceiveInstallPlan {
         do {
             var inventory = Inventory()
             for (walletIndex, wallet) in snapshot.wallets.enumerated() {
+                inventory.metadata += wallet.metadata.count
+                if !wallet.initialized {
+                    inventory.walletState += 1
+                }
                 for (slotIndex, source) in wallet.slots.enumerated() {
                     try inventory.record(
                         source, walletIndex: walletIndex, slotIndex: slotIndex,

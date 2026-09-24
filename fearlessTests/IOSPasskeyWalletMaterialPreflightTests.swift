@@ -746,7 +746,12 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         XCTAssertEqual(plan.snapshot.wallets.count, 1)
         XCTAssertEqual(plan.slots, [.init(walletIndex: 0, slotIndex: 0, destination: .evmRoot),
                                     .init(walletIndex: 0, slotIndex: 1, destination: .auxiliarySource)])
-        XCTAssertEqual(plan.blockers, [.unprovenAuxiliarySources(1), .transactionalInstallerUnavailable])
+        let metadataCount = plan.snapshot.wallets[0].metadata.count
+        XCTAssertGreaterThan(metadataCount, 0)
+        XCTAssertEqual(plan.blockers, [
+            .unprovenAuxiliarySources(1), .unmappedMetadata(metadataCount),
+            .transactionalInstallerUnavailable
+        ])
         XCTAssertEqual(try IOSPortableWalletSemanticMaterial.encode(plan.snapshot), encoded)
         XCTAssertEqual(String(reflecting: plan), "IOSPortableWalletReceiveInstallPlan.Plan(<redacted>)")
     }
@@ -785,8 +790,11 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         XCTAssertEqual(plan.snapshot.wallets[1].portableID, watch.portableID)
         XCTAssertEqual(plan.snapshot.wallets[1].sourcePosition, 9)
         XCTAssertEqual(plan.slots.last?.destination, .watchIdentity)
+        let metadataCount = plan.snapshot.wallets[0].metadata.count
+        XCTAssertGreaterThan(metadataCount, 0)
         XCTAssertEqual(plan.blockers, [
             .unprovenAuxiliarySources(1), .unprovenWatchIdentities(1),
+            .unmappedMetadata(metadataCount), .unmappedWalletState(1),
             .transactionalInstallerUnavailable
         ])
         XCTAssertEqual(try IOSPortableWalletSemanticMaterial.encode(plan.snapshot), encoded)
@@ -850,6 +858,58 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         )
         defer { plan.clearSecrets() }
         XCTAssertTrue(plan.blockers.contains(.unprovenChainExportMaterial(1)))
+        XCTAssertFalse(plan.blockers.contains(.unprovenChainAccounts(1)))
+        XCTAssertEqual(try IOSPortableWalletSemanticMaterial.encode(plan.snapshot), encoded)
+    }
+
+    func testPortableReceivePlanBlocksUnmappedFavoriteAndMetadata() throws {
+        let wallet = try ethereumOnlyWallet()
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId): ethereumPrivateKey
+        ])
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([selectedProjection(wallet)], keys: keys), keystore: keys
+        ).capture()
+        var material = try IOSPortableWalletSemanticMaterial.decode(
+            IOSPortableWalletSemanticDraftAdapter.encode(draft)
+        )
+        defer { material.clearSecrets() }
+        material.wallets[0].metadata.removeAll { $0.id == 6 }
+        material.wallets[0].slots.append(.init(
+            role: 6, key: "chain-x", fields: [.init(id: 10, value: [1])]
+        ))
+        material.wallets[0].slots.sort {
+            $0.role < $1.role || $0.role == $1.role && $0.key < $1.key
+        }
+        let encoded = try IOSPortableWalletSemanticMaterial.encode(material)
+
+        var plan = try IOSPortableWalletReceiveInstallPlan.prepare(
+            encoded, approvedSubstrateGenesisIDs: []
+        )
+        defer { plan.clearSecrets() }
+        XCTAssertTrue(plan.blockers.contains(.unmappedFavoriteChains(1)))
+        XCTAssertTrue(plan.blockers.contains(.unmappedMetadata(material.wallets[0].metadata.count)))
+        XCTAssertEqual(try IOSPortableWalletSemanticMaterial.encode(plan.snapshot), encoded)
+    }
+
+    func testPortableReceivePlanBlocksUnmappedChainPresentation() throws {
+        let genesisID = "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3"
+        var material = try IOSPortableWalletSemanticMaterial.decode(
+            importedChainMaterial(cryptoType: .ed25519, chainID: genesisID)
+        )
+        defer { material.clearSecrets() }
+        let chainIndex = try XCTUnwrap(material.wallets[0].slots.firstIndex { $0.role == 5 })
+        let nameIndex = try XCTUnwrap(material.wallets[0].slots[chainIndex].fields.firstIndex { $0.id == 9 })
+        let stateIndex = try XCTUnwrap(material.wallets[0].slots[chainIndex].fields.firstIndex { $0.id == 10 })
+        material.wallets[0].slots[chainIndex].fields[nameIndex].value = Array("Android label".utf8)
+        material.wallets[0].slots[chainIndex].fields[stateIndex].value = [0]
+        let encoded = try IOSPortableWalletSemanticMaterial.encode(material)
+
+        var plan = try IOSPortableWalletReceiveInstallPlan.prepare(
+            encoded, approvedSubstrateGenesisIDs: [genesisID]
+        )
+        defer { plan.clearSecrets() }
+        XCTAssertTrue(plan.blockers.contains(.unmappedChainPresentation(1)))
         XCTAssertFalse(plan.blockers.contains(.unprovenChainAccounts(1)))
         XCTAssertEqual(try IOSPortableWalletSemanticMaterial.encode(plan.snapshot), encoded)
     }
@@ -1013,6 +1073,11 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         ).capture()
         let encoded = try IOSPortableWalletSemanticDraftAdapter.encode(draft)
         XCTAssertEqual(try IOSPortableRootSigningProof.verify(encoded).nativeTonRoots, 1)
+        var receivePlan = try IOSPortableWalletReceiveInstallPlan.prepare(
+            encoded, approvedSubstrateGenesisIDs: []
+        )
+        defer { receivePlan.clearSecrets() }
+        XCTAssertTrue(receivePlan.blockers.contains(.unprovenRootExportMaterial(1)))
 
         var semantic = try IOSPortableWalletSemanticMaterial.decode(encoded)
         defer { semantic.clearSecrets() }
