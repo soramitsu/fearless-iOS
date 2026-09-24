@@ -203,6 +203,27 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         } catch { XCTAssertEqual(error as? PasskeyBackupError, .passkeyBackupDisabled) }
     }
 
+    func testOwnerOperationStatusReconcilesJournaledGenerationAfterHeadAdvances() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let entry = PasskeyBackupGenerationJournalEntry(
+            operationID: coordinatorOperationID, fileID: candidate.fileID,
+            context: candidate.context, bytes: candidate.bytes,
+            sha256: candidate.sha256, createAttempted: true
+        )
+        let reference = try PasskeyBackupOperationReference(journalEntry: entry)
+        let transport = GenerationTransportFixture()
+        transport.responses = [.success(.init(statusCode: 200, body: try committedOperation(candidate)))]
+        let result = try await ownerGenerationClient(
+            fixture, transport: transport, isReleaseEnabled: true
+        ).operationStatus(session: ownerSession(candidate), reference: reference)
+        XCTAssertEqual(result, .committed(try XCTUnwrap(authenticatedHead(candidate).head)))
+        XCTAssertEqual(transport.requests.map(\.url.path), [
+            "/api/passkey-backup/v1/owner/backup/operation"
+        ])
+        XCTAssertEqual(String(reflecting: reference), "PasskeyBackupOperationReference(<redacted>)")
+    }
+
     func testOwnerGenerationRejectsAccountSwitchExpiryAndGrantSubstitution() async throws {
         let fixture = try fixture()
         let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
@@ -470,7 +491,7 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         let wallet = ReadbackWalletVerifierFixture()
         let result = try await PasskeyBackupHeadReadbackVerifier(
             storage: fixture.store,
-            cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier(walletVerifier: wallet),
+            cryptographicVerifier: PasskeyBackupCryptoVerifier(walletVerifier: wallet),
             nowUnixSeconds: { self.ownerNowUnixSeconds }
         ).verifyCurrent(
             ownerHeadSource: ownerSource, ownerSession: ownerSession(candidate),
@@ -502,7 +523,7 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         do {
             _ = try await PasskeyBackupHeadReadbackVerifier(
                 storage: fixture.store,
-                cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier(
+                cryptographicVerifier: PasskeyBackupCryptoVerifier(
                     walletVerifier: ReadbackWalletVerifierFixture()
                 ),
                 nowUnixSeconds: { now }
@@ -533,7 +554,7 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         do {
             _ = try await PasskeyBackupHeadReadbackVerifier(
                 storage: fixture.store,
-                cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier(
+                cryptographicVerifier: PasskeyBackupCryptoVerifier(
                     walletVerifier: ReadbackWalletVerifierFixture()
                 ),
                 nowUnixSeconds: { self.ownerNowUnixSeconds }
@@ -563,7 +584,7 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         do {
             _ = try await PasskeyBackupHeadReadbackVerifier(
                 storage: fixture.store,
-                cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier(
+                cryptographicVerifier: PasskeyBackupCryptoVerifier(
                     walletVerifier: ReadbackWalletVerifierFixture()
                 ),
                 nowUnixSeconds: { self.ownerNowUnixSeconds }
@@ -587,7 +608,7 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
                                        .success(.init(statusCode: 200, body: candidate.bytes))]
         let result = try await PasskeyBackupHeadReadbackVerifier(
             storage: fixture.store,
-            cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier(walletVerifier: wallet)
+            cryptographicVerifier: PasskeyBackupCryptoVerifier(walletVerifier: wallet)
         ).verify(
             authenticatedHead: authenticatedHead(candidate),
             verifiedPRF: try await verifiedReadbackPRF(), expectedWallet: expectedWallet()
@@ -612,7 +633,7 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         do {
             _ = try await PasskeyBackupHeadReadbackVerifier(
                 storage: fixture.store,
-                cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier(walletVerifier: wallet)
+                cryptographicVerifier: PasskeyBackupCryptoVerifier(walletVerifier: wallet)
             ).verify(
                 authenticatedHead: authenticatedHead(candidate),
                 verifiedPRF: try await verifiedReadbackPRF(), expectedWallet: expectedWallet()
@@ -637,7 +658,7 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         do {
             _ = try await PasskeyBackupHeadReadbackVerifier(
                 storage: fixture.store,
-                cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier(walletVerifier: wallet)
+                cryptographicVerifier: PasskeyBackupCryptoVerifier(walletVerifier: wallet)
             ).verify(
                 authenticatedHead: authenticatedHead(candidate),
                 verifiedPRF: try await verifiedReadbackPRF(), expectedWallet: expectedWallet()
@@ -659,7 +680,7 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         do {
             _ = try await PasskeyBackupHeadReadbackVerifier(
                 storage: fixture.store,
-                cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier(walletVerifier: wallet)
+                cryptographicVerifier: PasskeyBackupCryptoVerifier(walletVerifier: wallet)
             ).verify(
                 authenticatedHead: authenticatedHead(candidate),
                 verifiedPRF: try await verifiedReadbackPRF(), expectedWallet: expectedWallet()
@@ -961,6 +982,221 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
                         PasskeyBackupHTTPRequest(method: "GET", url: URL(string: "http://www.googleapis.com/")!)] {
             await assertFailure { _ = try await transport.execute(request) }
         }
+    }
+
+    @available(iOS 18.0, *)
+    func testVerifiedPromotionCommitsOnlyAfterDecryptionAndChecksCommittedBytes() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let (journal, parent) = try coordinatorJournal()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let wallet = ReadbackWalletVerifierFixture()
+        let ownerTransport = GenerationTransportFixture()
+        ownerTransport.responses = [
+            .success(.init(statusCode: 200, body: try parentHeadBody(candidate))),
+            .success(.init(statusCode: 200, body: try parentHeadBody(candidate))),
+            .success(.init(statusCode: 200, body: try parentHeadBody(candidate))),
+            .success(.init(statusCode: 200, body: try ownerHeadBody(candidate))),
+            .success(.init(statusCode: 200, body: try ownerHeadBody(candidate)))
+        ]
+        let grantBody = try json([
+            "token": "grant." + String(repeating: "E", count: 43),
+            "expiresAt": ownerNowUnixSeconds + 60
+        ])
+        let generationTransport = GenerationTransportFixture()
+        generationTransport.responses = [
+            .success(.init(statusCode: 200, body: Data(#"{"status":"absent"}"#.utf8))),
+            .success(.init(statusCode: 200, body: grantBody)),
+            .success(.init(statusCode: 200, body: try committedOperation(candidate)))
+        ]
+        fixture.transport.responses = [
+            .success(.init(statusCode: 201, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: candidate.bytes)),
+            .success(.init(statusCode: 200, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: candidate.bytes))
+        ]
+        let result = try await promotion(
+            fixture, journal: journal, wallet: wallet,
+            ownerTransport: ownerTransport, generationTransport: generationTransport
+        ).promote(
+            operationID: coordinatorOperationID, ownerSession: ownerSession(candidate),
+            verifiedPRF: try await verifiedReadbackPRF(), expectedWallet: expectedWallet(),
+            candidate: candidate
+        )
+        XCTAssertEqual(result.headRevision, 7)
+        XCTAssertEqual(result.sha256, candidate.sha256)
+        XCTAssertEqual(wallet.calls, 1)
+        XCTAssertEqual(fixture.transport.requests.map(\.method), ["POST", "GET", "GET", "GET", "GET"])
+        XCTAssertEqual(generationTransport.requests.map(\.url.lastPathComponent), [
+            "operation", "grant", "commit"
+        ])
+        XCTAssertTrue(try XCTUnwrap(journal.read(
+            operationID: coordinatorOperationID, expectedScope: scope(candidate)
+        )).createAttempted)
+    }
+
+    @available(iOS 18.0, *)
+    func testVerifiedPromotionRejectsFailedOriginalKeyProofBeforeGrant() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let (journal, parent) = try coordinatorJournal()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let wallet = ReadbackWalletVerifierFixture()
+        wallet.originalKeySigningVerified = false
+        let ownerTransport = GenerationTransportFixture()
+        ownerTransport.responses = [.success(.init(statusCode: 200, body: try parentHeadBody(candidate)))]
+        let generationTransport = GenerationTransportFixture()
+        generationTransport.responses = [
+            .success(.init(statusCode: 200, body: Data(#"{"status":"absent"}"#.utf8)))
+        ]
+        fixture.transport.responses = [
+            .success(.init(statusCode: 201, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: candidate.bytes))
+        ]
+        await assertFailure {
+            _ = try await promotion(
+                fixture, journal: journal, wallet: wallet,
+                ownerTransport: ownerTransport, generationTransport: generationTransport
+            ).promote(
+                operationID: coordinatorOperationID, ownerSession: ownerSession(candidate),
+                verifiedPRF: try await verifiedReadbackPRF(), expectedWallet: expectedWallet(),
+                candidate: candidate
+            )
+        }
+        XCTAssertEqual(generationTransport.requests.map(\.url.lastPathComponent), ["operation"])
+        XCTAssertEqual(wallet.calls, 1)
+    }
+
+    @available(iOS 18.0, *)
+    func testVerifiedPromotionReconcilesLostCommitResponseWithoutSecondUpload() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let (journal, parent) = try coordinatorJournal()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let wallet = ReadbackWalletVerifierFixture()
+        let ownerTransport = GenerationTransportFixture()
+        ownerTransport.responses = [
+            .success(.init(statusCode: 200, body: try parentHeadBody(candidate))),
+            .success(.init(statusCode: 200, body: try parentHeadBody(candidate))),
+            .success(.init(statusCode: 200, body: try parentHeadBody(candidate))),
+            .success(.init(statusCode: 200, body: try ownerHeadBody(candidate))),
+            .success(.init(statusCode: 200, body: try ownerHeadBody(candidate)))
+        ]
+        let generationTransport = GenerationTransportFixture()
+        generationTransport.responses = [
+            .success(.init(statusCode: 200, body: Data(#"{"status":"absent"}"#.utf8))),
+            .success(.init(statusCode: 200, body: try json([
+                "token": "grant." + String(repeating: "E", count: 43),
+                "expiresAt": ownerNowUnixSeconds + 60
+            ]))),
+            .failure(URLError(.networkConnectionLost)),
+            .success(.init(statusCode: 200, body: try committedOperation(candidate)))
+        ]
+        fixture.transport.responses = [
+            .success(.init(statusCode: 201, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: candidate.bytes)),
+            .success(.init(statusCode: 200, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: candidate.bytes))
+        ]
+        let result = try await promotion(
+            fixture, journal: journal, wallet: wallet,
+            ownerTransport: ownerTransport, generationTransport: generationTransport
+        ).promote(
+            operationID: coordinatorOperationID, ownerSession: ownerSession(candidate),
+            verifiedPRF: try await verifiedReadbackPRF(), expectedWallet: expectedWallet(),
+            candidate: candidate
+        )
+        XCTAssertEqual(result.sha256, candidate.sha256)
+        XCTAssertEqual(wallet.calls, 1)
+        XCTAssertEqual(fixture.transport.requests.filter { $0.method == "POST" }.count, 1)
+        XCTAssertEqual(generationTransport.requests.map(\.url.lastPathComponent), [
+            "operation", "grant", "commit", "operation"
+        ])
+    }
+
+    @available(iOS 18.0, *)
+    func testVerifiedPromotionRestartReadsCommittedJournalWithoutUpload() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let (journal, parent) = try coordinatorJournal()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        _ = try journal.persistPrepared(
+            operationID: coordinatorOperationID, candidate: candidate, expectedScope: scope(candidate)
+        )
+        XCTAssertTrue(try journal.admitFirstCreateAttempt(
+            operationID: coordinatorOperationID, expectedScope: scope(candidate)
+        ))
+        let wallet = ReadbackWalletVerifierFixture()
+        let ownerTransport = GenerationTransportFixture()
+        ownerTransport.responses = Array(repeating: .success(.init(
+            statusCode: 200, body: try ownerHeadBody(candidate)
+        )), count: 4)
+        let generationTransport = GenerationTransportFixture()
+        generationTransport.responses = [
+            .success(.init(statusCode: 200, body: try committedOperation(candidate)))
+        ]
+        fixture.transport.responses = [
+            .success(.init(statusCode: 200, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: candidate.bytes))
+        ]
+        let result = try await promotion(
+            fixture, journal: journal, wallet: wallet,
+            ownerTransport: ownerTransport, generationTransport: generationTransport
+        ).promote(
+            operationID: coordinatorOperationID, ownerSession: ownerSession(candidate),
+            verifiedPRF: try await verifiedReadbackPRF(), expectedWallet: expectedWallet()
+        )
+        XCTAssertEqual(result.sha256, candidate.sha256)
+        XCTAssertEqual(wallet.calls, 1)
+        XCTAssertEqual(fixture.transport.requests.map(\.method), ["GET", "GET"])
+        XCTAssertEqual(generationTransport.requests.map(\.url.lastPathComponent), ["operation"])
+    }
+
+    @available(iOS 18.0, *)
+    func testVerifiedPromotionKeepsJournalWhenCommitOutcomeRemainsAbsent() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let (journal, parent) = try coordinatorJournal()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let ownerTransport = GenerationTransportFixture()
+        ownerTransport.responses = Array(repeating: .success(.init(
+            statusCode: 200, body: try parentHeadBody(candidate)
+        )), count: 3)
+        let generationTransport = GenerationTransportFixture()
+        generationTransport.responses = [
+            .success(.init(statusCode: 200, body: Data(#"{"status":"absent"}"#.utf8))),
+            .success(.init(statusCode: 200, body: try json([
+                "token": "grant." + String(repeating: "E", count: 43),
+                "expiresAt": ownerNowUnixSeconds + 60
+            ]))),
+            .failure(URLError(.networkConnectionLost)),
+            .success(.init(statusCode: 200, body: Data(#"{"status":"absent"}"#.utf8)))
+        ]
+        fixture.transport.responses = [
+            .success(.init(statusCode: 201, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: try metadata(candidate))),
+            .success(.init(statusCode: 200, body: candidate.bytes))
+        ]
+        do {
+            _ = try await promotion(
+                fixture, journal: journal, wallet: ReadbackWalletVerifierFixture(),
+                ownerTransport: ownerTransport, generationTransport: generationTransport
+            ).promote(
+                operationID: coordinatorOperationID, ownerSession: ownerSession(candidate),
+                verifiedPRF: try await verifiedReadbackPRF(), expectedWallet: expectedWallet(),
+                candidate: candidate
+            )
+            XCTFail("Unknown commit outcome was treated as complete")
+        } catch {
+            XCTAssertEqual(error as? PasskeyBackupVerifiedPromotionError, .unresolvedCommit)
+        }
+        XCTAssertTrue(try XCTUnwrap(journal.read(
+            operationID: coordinatorOperationID, expectedScope: scope(candidate)
+        )).createAttempted)
+        XCTAssertEqual(fixture.transport.requests.filter { $0.method == "POST" }.count, 1)
     }
 
     func testCoordinatorReturnsLocalEvidenceOnlyAfterExactDownloadAndWalletVerification() async throws {
@@ -1468,7 +1704,16 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         _ candidate: GoogleDrivePasskeyGenerationStorage.Candidate,
         changedFileID: String? = nil
     ) throws -> Data {
-        let authenticated = try authenticatedHead(candidate)
+        try ownerHeadBody(authenticatedHead(candidate), changedFileID: changedFileID)
+    }
+
+    private func parentHeadBody(_ candidate: GoogleDrivePasskeyGenerationStorage.Candidate) throws -> Data {
+        try ownerHeadBody(parentHead(candidate))
+    }
+
+    private func ownerHeadBody(
+        _ authenticated: PasskeyBackupAuthenticatedHead, changedFileID: String? = nil
+    ) throws -> Data {
         let head = try XCTUnwrap(authenticated.head)
         let previous = try XCTUnwrap(authenticated.previous)
         func object(_ descriptor: PasskeyBackupHeadDescriptor) -> [String: Any] {
@@ -1484,6 +1729,22 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         return try json(["schemaVersion": 1, "ownerSubject": authenticated.ownerSubject,
                          "backupNamespace": authenticated.backupNamespace,
                          "head": headObject, "previous": object(previous)])
+    }
+
+    private func promotion(
+        _ fixture: GenerationFixture, journal: PasskeyBackupGenerationJournal,
+        wallet: PasskeyBackupPlaintextWalletVerifier,
+        ownerTransport: GenerationTransportFixture,
+        generationTransport: GenerationTransportFixture
+    ) throws -> PasskeyBackupVerifiedGenerationPromotion {
+        PasskeyBackupVerifiedGenerationPromotion(
+            storage: fixture.store, journal: journal,
+            cryptographicVerifier: PasskeyBackupCryptoVerifier(walletVerifier: wallet),
+            ownerHeadSource: try ownerHeadSource(fixture, transport: ownerTransport),
+            ownerGenerationClient: try ownerGenerationClient(
+                fixture, transport: generationTransport, isReleaseEnabled: true
+            ), nowUnixSeconds: { self.ownerNowUnixSeconds }, isReleaseEnabled: true
+        )
     }
 
     private func metadataObject(_ candidate: GoogleDrivePasskeyGenerationStorage.Candidate) throws -> [String: Any] {

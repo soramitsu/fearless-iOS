@@ -18,6 +18,7 @@ struct PasskeyBackupGenerationMetadata: CustomStringConvertible, CustomDebugStri
     let driveFileID: String
     let expectedHeadRevision: Int64
     let expectedHeadSHA256: String?
+    let operationReference: PasskeyBackupOperationReference
     private let requestBody: Data
 
     init(
@@ -61,6 +62,10 @@ struct PasskeyBackupGenerationMetadata: CustomStringConvertible, CustomDebugStri
         driveFileID = candidate.fileID
         expectedHeadRevision = revision
         expectedHeadSHA256 = parentDigest
+        operationReference = try PasskeyBackupOperationReference(
+            operationID: operationID, context: context, bundleSHA256: candidate.sha256,
+            driveFileID: candidate.fileID
+        )
         requestBody = encoded
     }
 
@@ -72,36 +77,15 @@ struct PasskeyBackupGenerationMetadata: CustomStringConvertible, CustomDebugStri
         PasskeyBackupGenerationV1Format.sha256(requestBody)
     }
 
-    fileprivate func requireScope(session: PasskeyBackupOwnerSession, storageBinding: String) throws {
-        guard context.ownerSubject == session.ownerSubject,
-              context.backupNamespace == session.backupNamespace,
-              context.storageAccountBinding == storageBinding else {
-            throw PasskeyBackupOwnerGenerationHTTPError.invalidMetadata
-        }
-    }
-
-    fileprivate func requireDescriptor(_ descriptor: PasskeyBackupHeadDescriptor) throws {
-        guard descriptor.headRevision == expectedHeadRevision + 1,
-              descriptor.parentHeadRevision == expectedHeadRevision,
-              descriptor.parentHeadSha256 == expectedHeadSHA256,
-              descriptor.generationId == context.generationId,
-              descriptor.bundleSha256 == bundleSHA256,
-              descriptor.keyEpoch == context.keyEpoch,
-              descriptor.driveFileID == driveFileID,
-              descriptor.storageAccountBinding == context.storageAccountBinding else {
-            throw PasskeyBackupOwnerGenerationHTTPError.malformedResponse
-        }
-    }
-
     private static let maximumSafeInteger: Int64 = 9_007_199_254_740_991
 
-    fileprivate static func validID(_ value: String, prefix: String) -> Bool {
+    static func validID(_ value: String, prefix: String) -> Bool {
         guard value.hasPrefix(prefix) else { return false }
         let token = String(value.dropFirst(prefix.count))
         return token.utf8.count == 43 && (try? PasskeyBackupContract.decodeBase64URL(token))?.count == 32
     }
 
-    private static func validDigest(_ value: String) -> Bool {
+    static func validDigest(_ value: String) -> Bool {
         value.utf8.count == 64 && value.utf8.allSatisfy { (48 ... 57).contains($0) || (97 ... 102).contains($0) }
     }
 
@@ -224,7 +208,7 @@ final class HTTPPasskeyBackupOwnerGenerationClient {
     ) async throws -> PasskeyBackupGenerationGrant {
         let response = try await execute(
             path: Self.grantPath, bearer: session.token, session: session,
-            metadata: metadata, body: metadata.body
+            reference: metadata.operationReference, body: metadata.body
         )
         let grant = try Self.decodeGrant(response.body, session: session, metadata: metadata, now: nowUnixSeconds())
         try Task.checkCancellation()
@@ -241,12 +225,12 @@ final class HTTPPasskeyBackupOwnerGenerationClient {
         try grant.requireFor(session: session, metadata: metadata, now: nowUnixSeconds())
         let response = try await execute(
             path: Self.commitPath, bearer: grant.token, session: session,
-            metadata: metadata, body: metadata.body,
+            reference: metadata.operationReference, body: metadata.body,
             extraHeaders: ["X-Passkey-Owner-Session": session.token]
         )
         try grant.requireFor(session: session, metadata: metadata, now: nowUnixSeconds())
         guard case let .committed(descriptor) = try Self.decodeStatus(
-            response.body, metadata: metadata, allowAbsent: false
+            response.body, reference: metadata.operationReference, allowAbsent: false
         ) else { throw PasskeyBackupOwnerGenerationHTTPError.malformedResponse }
         return descriptor
     }
@@ -255,19 +239,27 @@ final class HTTPPasskeyBackupOwnerGenerationClient {
     func operationStatus(
         session: PasskeyBackupOwnerSession, metadata: PasskeyBackupGenerationMetadata
     ) async throws -> PasskeyBackupGenerationOperationStatus {
+        try await operationStatus(session: session, reference: metadata.operationReference)
+    }
+
+    /// Read-only reconciliation uses the durable candidate, even if its commit already advanced
+    /// the owner head. A 404/absent result does not authorize a second upload or commit attempt.
+    func operationStatus(
+        session: PasskeyBackupOwnerSession, reference: PasskeyBackupOperationReference
+    ) async throws -> PasskeyBackupGenerationOperationStatus {
         let body = try JSONSerialization.data(withJSONObject: [
-            "schemaVersion": 1, "operationId": metadata.operationID
+            "schemaVersion": 1, "operationId": reference.operationID
         ], options: [.sortedKeys])
         let response = try await execute(
             path: Self.operationPath, bearer: session.token, session: session,
-            metadata: metadata, body: body
+            reference: reference, body: body
         )
-        return try Self.decodeStatus(response.body, metadata: metadata, allowAbsent: true)
+        return try Self.decodeStatus(response.body, reference: reference, allowAbsent: true)
     }
 
     private func execute(
         path: String, bearer: String, session: PasskeyBackupOwnerSession,
-        metadata: PasskeyBackupGenerationMetadata, body: Data,
+        reference: PasskeyBackupOperationReference, body: Data,
         extraHeaders: [String: String] = [:]
     ) async throws -> PasskeyBackupHTTPResponse {
         try PasskeyBackupReleaseConfig.validateEnabled(isReleaseEnabled)
@@ -283,7 +275,7 @@ final class HTTPPasskeyBackupOwnerGenerationClient {
         let binding = try PasskeyBackupGenerationV1Format.storageAccountBinding(verifiedGoogleSubject: selectedSubject)
         try Task.checkCancellation()
         try session.requireFresh(nowUnixSeconds: nowUnixSeconds())
-        try metadata.requireScope(session: session, storageBinding: binding)
+        try reference.requireScope(session: session, storageBinding: binding)
         let response = try await transport.execute(PasskeyBackupHTTPRequest(
             method: "POST", url: baseURL.appendingPathComponent(String(path.dropFirst())),
             headers: [
@@ -330,7 +322,7 @@ final class HTTPPasskeyBackupOwnerGenerationClient {
     }
 
     private static func decodeStatus(
-        _ data: Data, metadata: PasskeyBackupGenerationMetadata, allowAbsent: Bool
+        _ data: Data, reference: PasskeyBackupOperationReference, allowAbsent: Bool
     ) throws -> PasskeyBackupGenerationOperationStatus {
         let object = try parse(data)
         if object["status"] == .string("absent") {
@@ -368,7 +360,7 @@ final class HTTPPasskeyBackupOwnerGenerationClient {
                 bundleSha256: bundleDigest, keyEpoch: decimal(epoch),
                 driveFileID: fileID, storageAccountBinding: binding
             )
-            try metadata.requireDescriptor(descriptor)
+            try reference.requireDescriptor(descriptor)
             return .committed(descriptor)
         } catch {
             throw PasskeyBackupOwnerGenerationHTTPError.malformedResponse

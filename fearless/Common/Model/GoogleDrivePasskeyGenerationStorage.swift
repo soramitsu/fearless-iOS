@@ -167,6 +167,12 @@ final class GoogleDrivePasskeyGenerationStorage {
         try authorization.validate(now: now())
     }
 
+    /// Scope a durable operation to the currently selected, verified Drive account.
+    func selectedAccountBinding() async throws -> String {
+        try await requireSelectedAccount()
+        return accountBinding
+    }
+
     private func requireAccount(_ context: PasskeyBackupGenerationV1.Context) throws {
         guard context.storageAccountBinding == accountBinding else {
             throw GoogleDrivePasskeyBackupError.accountChanged

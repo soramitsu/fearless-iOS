@@ -65,7 +65,7 @@ protocol PasskeyBackupPlaintextWalletVerifier {
 
 /// Local crypto half of generation verification. Owner authentication, exact-head retrieval,
 /// a live credential assertion and wallet installation remain separate release gates.
-final class PasskeyBackupGenerationCryptographicVerifier {
+final class PasskeyBackupCryptoVerifier {
     private let walletVerifier: PasskeyBackupPlaintextWalletVerifier
     private let envelopeCryptography: PasskeyBackupEnvelopeCryptography
     private let keyWrapper: PasskeyBackupCredentialKeyWrapper
@@ -313,12 +313,12 @@ struct PasskeyBackupLocallyVerifiedHead: CustomStringConvertible, CustomDebugStr
 /// This type has no write, head-promotion, or wallet-installation operation.
 final class PasskeyBackupHeadReadbackVerifier {
     private let storage: GoogleDrivePasskeyGenerationStorage
-    private let cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier
+    private let cryptographicVerifier: PasskeyBackupCryptoVerifier
     private let nowUnixSeconds: () -> Int64
 
     init(
         storage: GoogleDrivePasskeyGenerationStorage,
-        cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier,
+        cryptographicVerifier: PasskeyBackupCryptoVerifier,
         nowUnixSeconds: @escaping () -> Int64 = { Int64(Date().timeIntervalSince1970) }
     ) {
         self.storage = storage

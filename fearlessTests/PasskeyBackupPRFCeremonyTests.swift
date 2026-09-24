@@ -327,7 +327,7 @@ final class PasskeyBackupPRFCeremonyTests: XCTestCase {
 
     func testVerifiedPRFDecryptsSharedGenerationAndRequiresOriginalKeyEvidence() async throws {
         let local = FixturePlaintextWalletVerifier()
-        let verifier = PasskeyBackupGenerationCryptographicVerifier(walletVerifier: local)
+        let verifier = PasskeyBackupCryptoVerifier(walletVerifier: local)
         let identity = try PasskeyBackupExpectedWalletIdentity(
             storageKey: "wallet-1234", walletId: "wallet-001",
             publicIdentitySha256: String(repeating: "b", count: 64)
@@ -343,7 +343,7 @@ final class PasskeyBackupPRFCeremonyTests: XCTestCase {
 
     func testGenerationVerificationRejectsWrongCredentialPRFAndWalletEvidence() async throws {
         let local = FixturePlaintextWalletVerifier()
-        let verifier = PasskeyBackupGenerationCryptographicVerifier(walletVerifier: local)
+        let verifier = PasskeyBackupCryptoVerifier(walletVerifier: local)
         let identity = try PasskeyBackupExpectedWalletIdentity(
             storageKey: "wallet-1234", walletId: "wallet-001",
             publicIdentitySha256: String(repeating: "b", count: 64)

@@ -26,7 +26,7 @@ the asynchronous verifier. Only after these checks does it return
 `PasskeyBackupLocallyVerifiedGeneration`,
 which is evidence of this round trip alone.
 
-`PasskeyBackupGenerationCryptographicVerifier` now accepts only the typed local
+`PasskeyBackupCryptoVerifier` now accepts only the typed local
 PRF result released after challenge verification. It requires the exact
 credential wrapper and salt, unwraps the backup key, decrypts FPBKAEAD, and
 checks the wallet callback's original identity, signing and export evidence.
@@ -55,15 +55,30 @@ again after its final asynchronous Drive-account check. Before installation,
 the caller must re-authenticate
 the owner, compare the current head and key epoch, and complete the separate
 wallet migration checks. There is no production owner flow or installation
-caller for this primitive yet. A separate disabled metadata HTTP adapter can
-request an exact owner grant, commit a generation descriptor and query its
-operation status; it is not wired to this coordinator or to a completion flag.
+caller for this primitive yet.
+
+The disabled `PasskeyBackupVerifiedGenerationPromotion` candidate now composes
+the journal, immutable Drive storage, local cryptographic verifier, authenticated
+owner head, and metadata grant/commit client. It first queries operation status
+using a reference reconstructed from the exact durable candidate. That lookup
+still works after a successful commit advances the parent head. If the operation
+is absent, promotion uploads or reconciles the one candidate, downloads its
+exact bytes, consumes a verified PRF once to decrypt and check the original
+wallet, rechecks the owner head and Google account, then requests a single-use
+grant and conditional owner commit. A lost commit response triggers read-only
+operation reconciliation; it never triggers a second upload or blind commit.
+The prior decryptable owner head remains until the server has committed the
+candidate. On successful commit, the client reads the new authenticated head
+and exact Drive bytes again, comparing them to the ciphertext already decrypted
+before commit. A restarted committed operation instead requires a fresh PRF
+ceremony and full head decryption/signing/export verification. The result is
+still local evidence, not a persisted backup-complete marker or a recovery
+installation authorization.
 
 Its mutable local PRF, key and plaintext `Data` buffers are reset after use;
 Swift/CryptoKit and the wallet callback may retain other copies, which need
 security review. Its tests use synthetic wallet material; the production wallet
-migration/signing/export callback is not implemented or wired into the
-coordinator. Owner/grant HTTP candidate wiring and qualification, transactional head update,
-retention, credential rotation, device/provider interoperability and
-distribution tests remain release gates. The passkey recovery flag stays
-disabled.
+migration/signing/export callback is not implemented or wired into the app.
+Owner/grant deployment and qualification, transactional head update, retention,
+credential rotation, device/provider interoperability and distribution tests
+remain release gates. The passkey recovery flag stays disabled.
