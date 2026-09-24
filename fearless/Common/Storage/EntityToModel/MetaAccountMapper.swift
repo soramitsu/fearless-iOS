@@ -364,7 +364,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             if
                 let chainAccountEntity,
                 chainAccountEntity.entity.propertiesByName["ecosystem"] != nil,
-                chainAccountEntity.value(forKey: "ecosystem") == nil {
+                replaceChildrenExactly || chainAccountEntity.value(forKey: "ecosystem") == nil {
                 chainAccountEntity.setValue(
                     chainAccount.ethereumBased
                         ? UniversalWalletEcosystem.evm.rawValue
@@ -409,10 +409,10 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         }
         let relationSet = entity.mutableSetValue(forKey: "assetsVisibility")
         let wantedIDs = Set(visibility.map(\.assetId))
-        guard wantedIDs.count == visibility.count else {
-            throw MetaAccountMapperError.invalidWalletRecord
-        }
         if replaceExactly {
+            guard wantedIDs.count == visibility.count else {
+                throw MetaAccountMapperError.invalidWalletRecord
+            }
             var storedIDs = Set<String>()
             for case let stored as NSManagedObject in relationSet.allObjects {
                 guard let assetID = stored.value(forKey: "assetId") as? String,
@@ -761,9 +761,6 @@ extension MetaAccountSelectionMapper: CoreDataMapperProtocol {
         from model: MetaAccountSelectionModel,
         using context: NSManagedObjectContext
     ) throws {
-        guard !model.replacesWalletChildrenExactly || model.updatesWalletPayload else {
-            throw MetaAccountMapperError.invalidWalletRecord
-        }
         if model.updatesWalletPayload {
             guard
                 let wallet = model.wallet,
