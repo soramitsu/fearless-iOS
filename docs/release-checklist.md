@@ -177,7 +177,9 @@ Use this checklist for every release PR from `develop` to `master`.
     recovery workflow exists for expired, never-confirmed bearer records; the
     current fail-closed journal intentionally blocks that sender indefinitely
     rather than guessing absence, and storage atomicity must be reviewed if any
-    second process or app extension can access the same Keychain namespace; and
+    second process or app extension can access the same Keychain namespace;
+    a corrected reviewed endpoint can retry reconciliation in the same process
+    after an endpoint-mismatch rejection, but this never releases the sender; and
   - a funded mainnet Wallet V4R2 transfer has independently verified emulation,
     broadcast, on-chain reconciliation, fee, and recipient credit evidence.
   Unit and fixture tests alone do not authorize production TON send.

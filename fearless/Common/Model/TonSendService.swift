@@ -730,13 +730,13 @@ final class TonSendService: @unchecked Sendable {
         let identity = try TonTransferIntentIdentity(request: request)
         switch try await pendingCoordinator.begin(identity) {
         case let .retry(pending):
-            try requireStoredEndpointForRecovery(pending)
+            try await requireStoredEndpointForRecovery(pending)
             if requiresFeeQuote {
                 return try await recoverPendingWithoutRebroadcast(pending)
             }
             return try await retry(pending)
         case let .recoverDifferent(pending):
-            try requireStoredEndpointForRecovery(pending)
+            try await requireStoredEndpointForRecovery(pending)
             return try await recoverDifferentPending(pending)
         case .fresh:
             break
@@ -1074,11 +1074,14 @@ final class TonSendService: @unchecked Sendable {
         }
     }
 
-    private func requireStoredEndpointForRecovery(_ pending: TonPendingSignedIntent) throws {
+    private func requireStoredEndpointForRecovery(_ pending: TonPendingSignedIntent) async throws {
         guard let storedOrigin = pending.feeQuote?.endpointOrigin,
               let currentOrigin = remote.reviewedSignedOperationOrigin,
               storedOrigin == currentOrigin
         else {
+            // `begin` moved this durable bearer to retrying. A temporary endpoint failure
+            // must not strand that state or allow a new intent to replace the bearer.
+            try? await pendingCoordinator.retainPending(pending)
             throw TonSendServiceError.broadcastOutcomeUnknown(
                 messageHashHex: pending.message.messageHashHex
             )

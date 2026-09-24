@@ -33,6 +33,15 @@ below before the runtime policy can be reconsidered:
    intentional behavior is to block that sender indefinitely rather than guess
    that the message is absent.
 
+The local recovery coordinator now restores a persisted bearer from its transient
+retry state if the current reviewed endpoint is missing or differs from the
+stored quote origin. An expired bearer remains in the journal, blocks any new
+intent, and can be reconciled again in the same process after the endpoint is
+corrected. Repeated `notFound` responses do not release the sender or authorize
+a broadcast. This is a fail-closed continuity fix, not the audited quarantine
+and release procedure required above; it supplies no finalized-chain absence,
+fee-parity, funded-transfer, or live TonAPI evidence.
+
 ## Enforced blocker
 
 Run the executable contract directly:

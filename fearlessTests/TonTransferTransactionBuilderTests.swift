@@ -822,6 +822,56 @@ final class TonSendServiceTests: XCTestCase {
         }
     }
 
+    func testExpiredBearerCanReconcileAfterTemporaryEndpointRejectionWithoutRebroadcast() async throws {
+        let fixture = try await makeExpiredPendingForRecovery()
+
+        let recoveryRemote = FakeRemote()
+        recoveryRemote.reviewedSignedOperationOrigin = nil
+        recoveryRemote.reconciliation = .notFound
+        let recoveryService = TonSendService(
+            remote: recoveryRemote,
+            pendingCoordinator: fixture.coordinator,
+            clock: { Self.now + 1_000 }
+        )
+        let differentRequest = makeRequest(amountNanotons: "100000001")
+        let untrusted = await sendError(
+            quotedService: recoveryService,
+            request: differentRequest,
+            quote: nil
+        )
+        XCTAssertEqual(unknownOutcomeHash(untrusted), fixture.hash)
+        XCTAssertTrue(recoveryRemote.reconciledBocs.isEmpty)
+        XCTAssertEqual(try fixture.journal.load(senderRaw: fixture.quote.identity.sender), fixture.pending)
+
+        recoveryRemote.reviewedSignedOperationOrigin = TonAPIClientFactory.canonicalAuthenticatedOrigin.absoluteString
+        let absent = await sendError(
+            quotedService: recoveryService,
+            request: differentRequest,
+            quote: nil
+        )
+        XCTAssertEqual(unknownOutcomeHash(absent), fixture.hash)
+        XCTAssertEqual(recoveryRemote.reconciledBocs.count, 3)
+        XCTAssertEqual(try fixture.journal.load(senderRaw: fixture.quote.identity.sender), fixture.pending)
+
+        recoveryRemote.reconciliation = .confirmed
+        let confirmed = await sendError(
+            quotedService: recoveryService,
+            request: differentRequest,
+            quote: nil
+        )
+        guard let serviceError = confirmed as? TonSendServiceError,
+              case let .priorIntentConfirmed(identity, hash) = serviceError
+        else {
+            return XCTFail("Recovered prior bearer must not become the new transfer's success")
+        }
+        XCTAssertEqual(identity, fixture.quote.identity)
+        XCTAssertEqual(hash, fixture.hash)
+        XCTAssertTrue(try XCTUnwrap(fixture.journal.load(senderRaw: fixture.quote.identity.sender)).confirmed)
+        XCTAssertTrue(recoveryRemote.callOrder.isEmpty)
+        XCTAssertTrue(recoveryRemote.emulatedBocs.isEmpty)
+        XCTAssertTrue(recoveryRemote.broadcastBocs.isEmpty)
+    }
+
     func testPersistedRecoveryRunsBeforeSigningCredentialsAreRequested() async throws {
         let quoteRemote = FakeRemote()
         quoteRemote.walletState = TonWalletRemoteState(sequenceNumber: 7, isInitialized: true)
@@ -1892,6 +1942,44 @@ final class TonSendServiceTests: XCTestCase {
             remote: remote,
             pendingCoordinator: TonPendingIntentCoordinator(),
             clock: { Self.now }
+        )
+    }
+
+    private struct ExpiredPendingFixture {
+        let quote: TonTransferFeeQuote
+        let journal: TonInMemoryPendingIntentJournal
+        let coordinator: TonPendingIntentCoordinator
+        let hash: String
+        let pending: TonPendingSignedIntent
+    }
+
+    private func makeExpiredPendingForRecovery() async throws -> ExpiredPendingFixture {
+        let quoteRemote = FakeRemote()
+        quoteRemote.walletState = TonWalletRemoteState(sequenceNumber: 7, isInitialized: true)
+        let quote = try await makeService(remote: quoteRemote).quote(makeEstimateRequest())
+        let journal = TonInMemoryPendingIntentJournal()
+        let coordinator = TonPendingIntentCoordinator(journal: journal)
+        let firstRemote = FakeRemote()
+        firstRemote.walletState = quote.walletState
+        firstRemote.reconciliation = .notFound
+        let firstError = await sendError(
+            quotedService: TonSendService(
+                remote: firstRemote,
+                pendingCoordinator: coordinator,
+                clock: { Self.now }
+            ),
+            request: makeRequest(),
+            quote: quote
+        )
+        let hash = try XCTUnwrap(unknownOutcomeHash(firstError))
+        let pending = try XCTUnwrap(journal.load(senderRaw: quote.identity.sender))
+        XCTAssertLessThan(pending.message.validUntil, Self.now + 1_000)
+        return ExpiredPendingFixture(
+            quote: quote,
+            journal: journal,
+            coordinator: coordinator,
+            hash: hash,
+            pending: pending
         )
     }
 
