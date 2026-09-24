@@ -69,6 +69,10 @@ enum IOSReceiveKeychainProjection {
                     wallet, metaID: binding.metaID,
                     itemIndexes: walletItemIndexes, items: result
                 )
+                try requireChainExportSources(
+                    wallet, metaID: binding.metaID,
+                    itemIndexes: walletItemIndexes, items: result
+                )
             }
             result.sort { $0.tag < $1.tag }
             let proofs = result.map { item in
@@ -199,6 +203,34 @@ enum IOSReceiveKeychainProjection {
     private static func requireTonPhrase(_ slot: Codec.Slot) throws {
         guard slot.fields.contains(where: { $0.id == FieldID.mnemonic }) else {
             throw ProjectionError.missingRequiredKey
+        }
+    }
+
+    private static func requireChainExportSources(
+        _ wallet: Codec.Wallet, metaID: String,
+        itemIndexes: [String: Int], items: [Item]
+    ) throws {
+        for chain in wallet.slots where chain.role == Codec.Role.chainAccount {
+            let accountID = try Data(chain.value(FieldID.accountIDOrAddress))
+            let sources: [(UInt8, [String])] = [
+                (FieldID.entropy, [KeystoreTagV2.entropyTagForMetaId(metaID, accountId: accountID)]),
+                (FieldID.seed, [
+                    KeystoreTagV2.substrateSeedTagForMetaId(metaID, accountId: accountID),
+                    KeystoreTagV2.ethereumSeedTagForMetaId(metaID, accountId: accountID)
+                ]),
+                (FieldID.derivationPath, [
+                    KeystoreTagV2.substrateDerivationTagForMetaId(metaID, accountId: accountID),
+                    KeystoreTagV2.ethereumDerivationTagForMetaId(metaID, accountId: accountID)
+                ])
+            ]
+            for (fieldID, tags) in sources {
+                guard let field = chain.fields.first(where: { $0.id == fieldID }) else { continue }
+                let candidateIndexes = tags.compactMap { itemIndexes[$0] }
+                guard !candidateIndexes.isEmpty else { throw ProjectionError.missingRequiredKey }
+                guard candidateIndexes.contains(where: { items[$0].value.elementsEqual(field.value) }) else {
+                    throw ProjectionError.invalidSource
+                }
+            }
         }
     }
 

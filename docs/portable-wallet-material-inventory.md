@@ -104,3 +104,14 @@ wallet store, compare every original public identity, prove original-key
 signing and export, and pass real iOS↔Android replacement-device recovery with
 the original devices unavailable. An owner session and Drive account alone
 cannot substitute for these local proofs.
+
+The read-only iOS receiving Keychain projection now requires any chain
+account's recorded entropy, seed and derivation bytes to match an exact
+scoped original-source Keychain item in the same journal-bound cohort. A
+missing or conflicting item fails before a storage write; a historical
+root-derived chain source remains retained separately from its canonical
+signing key. The focused projection suite passes 10/10 on the iOS 26.5
+simulator, and both touched Swift files pass strict lint and formatting.
+This check preserves the captured iOS source tags only. Android opaque source
+sidecars are still unsupported by the iOS projection; neither a transactional
+installer nor cross-platform restoration is enabled.

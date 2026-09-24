@@ -229,6 +229,32 @@ final class IOSReceiveKeychainProjectionTests: XCTestCase {
         XCTAssertEqual(projected.first(where: { $0.tag == tag })?.value, Data([0xF1]))
     }
 
+    func testChainExportFieldsRequireMatchingScopedOriginalSources() throws {
+        let accountID = Data(repeating: 0xAB, count: 20)
+        let cases: [ExportSourceCase] = [
+            .init(
+                field: FieldID.entropy, role: 4, binding: 5,
+                tag: KeystoreTagV2.entropyTagForMetaId(destinationID, accountId: accountID),
+                value: [0xC3]
+            ),
+            .init(
+                field: FieldID.seed, role: 5, binding: 5,
+                tag: KeystoreTagV2.substrateSeedTagForMetaId(destinationID, accountId: accountID),
+                value: [0xD4]
+            ),
+            .init(
+                field: FieldID.derivationPath, role: 8, binding: 5,
+                tag: KeystoreTagV2.ethereumDerivationTagForMetaId(destinationID, accountId: accountID),
+                value: [0x61]
+            )
+        ]
+        for testCase in cases {
+            try assertChainExportSource(testCase, accountID: accountID)
+        }
+    }
+}
+
+private extension IOSReceiveKeychainProjectionTests {
     private func wallet(slots: [Codec.Slot]) -> Codec.Snapshot {
         Codec.Snapshot(selectedIndex: 0, wallets: [
             .init(
@@ -272,9 +298,7 @@ final class IOSReceiveKeychainProjectionTests: XCTestCase {
     private func field(_ id: UInt8, _ value: [UInt8]) -> Codec.Field {
         Codec.Field(id: id, value: value)
     }
-}
 
-private extension IOSReceiveKeychainProjectionTests {
     private func journal(
         _ encoded: Data, wallet: Codec.Wallet, keys: [(String, Data)]
     ) -> Journal.Record {
@@ -305,7 +329,6 @@ private extension IOSReceiveKeychainProjectionTests {
         XCTAssertThrowsError(try Projection.project(semantic: encoded, journal: record)) { error in
             XCTAssertEqual(error as? Projection.ProjectionError, .missingRequiredKey)
         }
-
         snapshot.wallets[0].slots.append(source(
             "0001", role: testCase.role, binding: testCase.binding, bytes: [0xEE]
         ))
@@ -316,13 +339,57 @@ private extension IOSReceiveKeychainProjectionTests {
         XCTAssertThrowsError(try Projection.project(semantic: encoded, journal: record)) { error in
             XCTAssertEqual(error as? Projection.ProjectionError, .invalidSource)
         }
-
         snapshot.wallets[0].slots[2] = source(
             "0001", role: testCase.role, binding: testCase.binding, bytes: testCase.value
         )
         encoded = try Codec.encode(snapshot)
         record = journal(encoded, wallet: snapshot.wallets[0], keys: [
             (secretTag, Data([0xA1, 0xB2])), (testCase.tag, Data(testCase.value))
+        ])
+        var projected = try Projection.project(semantic: encoded, journal: record)
+        XCTAssertEqual(projected.first(where: { $0.tag == testCase.tag })?.value, Data(testCase.value))
+        for index in projected.indices {
+            projected[index].clearSecret()
+        }
+    }
+
+    private func assertChainExportSource(_ testCase: ExportSourceCase, accountID: Data) throws {
+        let rootTag = KeystoreTagV2.ethereumSecretKeyTagForMetaId(destinationID)
+        let chain = Codec.Slot(role: Codec.Role.chainAccount, key: "chain-a", fields: [
+            field(FieldID.publicKey, [1]), field(FieldID.privateKey, [0xF1]),
+            field(FieldID.accountIDOrAddress, Array(accountID)), field(FieldID.cryptoType, [1]),
+            field(FieldID.chainName, []), field(FieldID.initializedOrFavorite, [1]),
+            field(FieldID.sourceRecipe, [0]), field(testCase.field, testCase.value)
+        ].sorted { $0.id < $1.id })
+        var snapshot = wallet(slots: [
+            evmRoot(), chain, source("0000", role: 2, binding: 3, bytes: [0xA1, 0xB2])
+        ])
+        defer { snapshot.clearSecrets() }
+        var encoded = try Codec.encode(snapshot)
+        var record = journal(encoded, wallet: snapshot.wallets[0], keys: [
+            (rootTag, Data([0xA1, 0xB2]))
+        ])
+        XCTAssertThrowsError(try Projection.project(semantic: encoded, journal: record)) { error in
+            XCTAssertEqual(error as? Projection.ProjectionError, .missingRequiredKey)
+        }
+        snapshot.wallets[0].slots.append(source(
+            "0001", role: testCase.role, binding: 5, bytes: [0xEE],
+            chainID: "chain-a", accountID: accountID
+        ))
+        encoded = try Codec.encode(snapshot)
+        record = journal(encoded, wallet: snapshot.wallets[0], keys: [
+            (rootTag, Data([0xA1, 0xB2])), (testCase.tag, Data([0xEE]))
+        ])
+        XCTAssertThrowsError(try Projection.project(semantic: encoded, journal: record)) { error in
+            XCTAssertEqual(error as? Projection.ProjectionError, .invalidSource)
+        }
+        snapshot.wallets[0].slots[3] = source(
+            "0001", role: testCase.role, binding: 5, bytes: testCase.value,
+            chainID: "chain-a", accountID: accountID
+        )
+        encoded = try Codec.encode(snapshot)
+        record = journal(encoded, wallet: snapshot.wallets[0], keys: [
+            (rootTag, Data([0xA1, 0xB2])), (testCase.tag, Data(testCase.value))
         ])
         var projected = try Projection.project(semantic: encoded, journal: record)
         XCTAssertEqual(projected.first(where: { $0.tag == testCase.tag })?.value, Data(testCase.value))
