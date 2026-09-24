@@ -112,6 +112,12 @@ missing or conflicting item fails before a storage write; a historical
 root-derived chain source remains retained separately from its canonical
 signing key. The focused projection suite passes 10/10 on the iOS 26.5
 simulator, and both touched Swift files pass strict lint and formatting.
-This check preserves the captured iOS source tags only. Android opaque source
-sidecars are still unsupported by the iOS projection; neither a transactional
-installer nor cross-platform restoration is enabled.
+This Keychain projection preserves captured iOS source tags only. The receiving
+plan now separately decodes Android's V1 source, V2 chain-account and V3 root
+SCALE sidecars with bounded canonical lengths, strict optional discriminants,
+UTF-8 validation and no trailing bytes. It requires the original private and
+public keys, nonce, entropy, seed and derivation path to agree exactly with
+their semantic slots, and checks chain/account binding before accepting a
+read-only plan. Android sidecars still have no reviewed iOS storage projection
+or transactional installer. This source proof does not enable cross-platform
+restoration or establish original-key export behavior after installation.
