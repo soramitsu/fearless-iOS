@@ -171,6 +171,7 @@ enum IOSPortableWalletReceiveInstallPlan {
         )
         _ = try IOSPortableNamedChainProof.verify(encoded)
         _ = try IOSPortableAndroidSourceProof.verify(encoded)
+        _ = try IOSPortableIOSSourceProof.verify(encoded)
 
         var snapshot = try Codec.decode(encoded)
         do {

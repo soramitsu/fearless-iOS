@@ -41,6 +41,7 @@
 		A50923CCD300000000000012 /* IOSPortableWalletReceiveKeychainProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCD300000000000011 /* IOSPortableWalletReceiveKeychainProjection.swift */; };
 		A50923CCD300000000000014 /* IOSPortableWalletReceiveKeychainProjectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCD300000000000013 /* IOSPortableWalletReceiveKeychainProjectionTests.swift */; };
 		A50923CCD400000000000012 /* IOSPortableAndroidSourceProof.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCD400000000000011 /* IOSPortableAndroidSourceProof.swift */; };
+		A50923CCD500000000000012 /* IOSPortableIOSSourceProof.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCD500000000000011 /* IOSPortableIOSSourceProof.swift */; };
 		A50923CCD400000000000014 /* IOSPortableAndroidSourceProofTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCD400000000000013 /* IOSPortableAndroidSourceProofTests.swift */; };
 		A50923CCCF00000000000004 /* IOSPortableWalletSemanticMaterialTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCF00000000000003 /* IOSPortableWalletSemanticMaterialTests.swift */; };
 		A50923CCCD00000000000004 /* IOSPasskeyWalletMaterialPreflightTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCD00000000000003 /* IOSPasskeyWalletMaterialPreflightTests.swift */; };
@@ -3274,6 +3275,7 @@
 		A50923CCD300000000000011 /* IOSPortableWalletReceiveKeychainProjection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletReceiveKeychainProjection.swift; sourceTree = "<group>"; };
 		A50923CCD300000000000013 /* IOSPortableWalletReceiveKeychainProjectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletReceiveKeychainProjectionTests.swift; sourceTree = "<group>"; };
 		A50923CCD400000000000011 /* IOSPortableAndroidSourceProof.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableAndroidSourceProof.swift; sourceTree = "<group>"; };
+		A50923CCD500000000000011 /* IOSPortableIOSSourceProof.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableIOSSourceProof.swift; sourceTree = "<group>"; };
 		A50923CCD400000000000013 /* IOSPortableAndroidSourceProofTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableAndroidSourceProofTests.swift; sourceTree = "<group>"; };
 		A50923CCCF00000000000003 /* IOSPortableWalletSemanticMaterialTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletSemanticMaterialTests.swift; sourceTree = "<group>"; };
 		A50923CCCD00000000000003 /* IOSPasskeyWalletMaterialPreflightTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPasskeyWalletMaterialPreflightTests.swift; sourceTree = "<group>"; };
@@ -9822,6 +9824,7 @@
 				A50923CCD200000000000011 /* IOSPortableWalletReceiveMetadataProjection.swift */,
 				A50923CCD300000000000011 /* IOSPortableWalletReceiveKeychainProjection.swift */,
 				A50923CCD400000000000011 /* IOSPortableAndroidSourceProof.swift */,
+				A50923CCD500000000000011 /* IOSPortableIOSSourceProof.swift */,
 				A50923DDDD00000000000001 /* PasskeyBackupAuthenticatedHead.swift */,
 				A50923DDDE00000000000001 /* PasskeyBackupOwnerHeadHTTP.swift */,
 				A50923DDE200000000000001 /* PasskeyBackupOwnerGenerationHTTP.swift */,
@@ -17720,6 +17723,7 @@
 				A50923CCD200000000000012 /* IOSPortableWalletReceiveMetadataProjection.swift in Sources */,
 				A50923CCD300000000000012 /* IOSPortableWalletReceiveKeychainProjection.swift in Sources */,
 				A50923CCD400000000000012 /* IOSPortableAndroidSourceProof.swift in Sources */,
+				A50923CCD500000000000012 /* IOSPortableIOSSourceProof.swift in Sources */,
 				A50923DDDD00000000000002 /* PasskeyBackupAuthenticatedHead.swift in Sources */,
 				A50923DDDE00000000000002 /* PasskeyBackupOwnerHeadHTTP.swift in Sources */,
 				A50923DDE200000000000002 /* PasskeyBackupOwnerGenerationHTTP.swift in Sources */,
