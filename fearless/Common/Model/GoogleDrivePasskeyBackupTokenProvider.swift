@@ -6,6 +6,7 @@ enum GoogleDrivePasskeyBackupError: Error, Equatable {
     case unavailableConfiguration
     case consentRequired
     case authorizationFailed
+    case accountSelectionDeclined
     case accountChanged
     case invalidToken
     case malformedResponse
@@ -84,6 +85,7 @@ final class GoogleDrivePasskeyBackupTokenProvider: GoogleDriveBackupAccessTokenP
     static func requestConsent(
         presenting: UIViewController,
         session: GoogleDriveBackupOAuthSession,
+        confirmSelectedAccount: (GoogleDriveBackupAccount) async throws -> Bool,
         now: @escaping () -> Date = Date.init
     ) async throws -> GoogleDrivePasskeyBackupTokenProvider {
         try Task.checkCancellation()
@@ -93,8 +95,13 @@ final class GoogleDrivePasskeyBackupTokenProvider: GoogleDriveBackupAccessTokenP
             throw GoogleDrivePasskeyBackupError.unavailableConfiguration
         }
         try authorization.validate(now: now())
+        guard try await confirmSelectedAccount(authorization.account) else {
+            throw GoogleDrivePasskeyBackupError.accountSelectionDeclined
+        }
+        try Task.checkCancellation()
         let provider = GoogleDrivePasskeyBackupTokenProvider(account: authorization.account, session: session, now: now)
-        _ = try provider.requireSelectedAccount(session.currentAuthorization())
+        let selected = try provider.requireSelectedAccount(session.currentAuthorization())
+        try selected.validate(now: now())
         return provider
     }
 

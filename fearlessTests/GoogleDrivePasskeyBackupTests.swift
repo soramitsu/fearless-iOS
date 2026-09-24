@@ -195,12 +195,15 @@ final class GoogleDrivePasskeyBackupTests: XCTestCase {
 
     func testNativeConsentRequestsAccountAndChecksScope() async throws {
         let session = DriveOAuthFixture(value: try authorization())
+        var confirmedAccount: GoogleDriveBackupAccount?
         let provider = try await GoogleDrivePasskeyBackupTokenProvider.requestConsent(
             presenting: UIViewController(),
             session: session,
+            confirmSelectedAccount: { account in confirmedAccount = account; return true },
             now: { self.time }
         )
         XCTAssertEqual(session.consentCalls, 1)
+        XCTAssertEqual(confirmedAccount, try account())
         XCTAssertEqual(provider.account, try account())
         let token = try await provider.authorization()
         XCTAssertEqual(token.accessToken, "synthetic-token")
@@ -214,7 +217,38 @@ final class GoogleDrivePasskeyBackupTests: XCTestCase {
             _ = try await GoogleDrivePasskeyBackupTokenProvider.requestConsent(
                 presenting: UIViewController(),
                 session: session,
+                confirmSelectedAccount: { _ in XCTFail("Unconsented account reached confirmation"); return true },
                 now: { self.time }
+            )
+        }
+        XCTAssertEqual(session.refreshCalls, 0)
+    }
+
+    func testDeclinedAccountConfirmationCannotCreateAProvider() async throws {
+        let session = DriveOAuthFixture(value: try authorization())
+        await assertError(.accountSelectionDeclined) {
+            _ = try await GoogleDrivePasskeyBackupTokenProvider.requestConsent(
+                presenting: UIViewController(), session: session,
+                confirmSelectedAccount: { account in
+                    XCTAssertEqual(account, try self.account())
+                    return false
+                }, now: { self.time }
+            )
+        }
+        XCTAssertEqual(session.consentCalls, 1)
+        XCTAssertEqual(session.refreshCalls, 0)
+    }
+
+    func testAccountSwitchDuringConfirmationCannotCreateAProvider() async throws {
+        let session = DriveOAuthFixture(value: try authorization())
+        await assertError(.accountChanged) {
+            _ = try await GoogleDrivePasskeyBackupTokenProvider.requestConsent(
+                presenting: UIViewController(), session: session,
+                confirmSelectedAccount: { account in
+                    XCTAssertEqual(account.subject, "google-subject")
+                    session.value = try self.authorization(subject: "other-subject")
+                    return true
+                }, now: { self.time }
             )
         }
         XCTAssertEqual(session.refreshCalls, 0)
@@ -322,7 +356,9 @@ final class GoogleDrivePasskeyBackupTests: XCTestCase {
         let session = DriveOAuthFixture(value: try authorization())
         let consent = Task { @MainActor in
             try await GoogleDrivePasskeyBackupTokenProvider.requestConsent(
-                presenting: UIViewController(), session: session, now: { self.time }
+                presenting: UIViewController(), session: session,
+                confirmSelectedAccount: { _ in XCTFail("Cancelled consent reached confirmation"); return true },
+                now: { self.time }
             )
         }
         consent.cancel()
