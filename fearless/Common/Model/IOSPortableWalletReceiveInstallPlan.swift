@@ -42,6 +42,9 @@ enum IOSPortableWalletReceiveInstallPlan {
         /// This is sensitive plaintext; the caller must discard it promptly.
         private(set) var snapshot: IOSPortableWalletSemanticMaterial.Snapshot
         let slots: [Slot]
+        /// Present only when every metadata value fits current iOS destination
+        /// bounds. This is read-only and does not clear the metadata blocker.
+        let metadataProjections: [IOSPortableReceiveMetadata.Projection?]
         let blockers: [Blocker]
 
         /// Best-effort erasure only: Swift copies may retain earlier storage.
@@ -162,8 +165,12 @@ enum IOSPortableWalletReceiveInstallPlan {
         var snapshot = try Codec.decode(encoded)
         do {
             var inventory = Inventory()
+            var metadataProjections = [IOSPortableReceiveMetadata.Projection?]()
             for (walletIndex, wallet) in snapshot.wallets.enumerated() {
                 inventory.metadata += wallet.metadata.count
+                metadataProjections.append(
+                    try? IOSPortableReceiveMetadata.decode(wallet.metadata)
+                )
                 if !wallet.initialized {
                     inventory.walletState += 1
                 }
@@ -174,7 +181,11 @@ enum IOSPortableWalletReceiveInstallPlan {
                     )
                 }
             }
-            return Plan(snapshot: snapshot, slots: inventory.slots, blockers: inventory.blockers)
+            return Plan(
+                snapshot: snapshot, slots: inventory.slots,
+                metadataProjections: metadataProjections,
+                blockers: inventory.blockers
+            )
         } catch {
             snapshot.clearSecrets()
             throw error
