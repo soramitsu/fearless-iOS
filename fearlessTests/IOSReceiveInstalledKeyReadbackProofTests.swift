@@ -9,6 +9,7 @@ final class IOSReceiveInstalledKeyReadbackProofTests: XCTestCase {
     private typealias FieldID = IOSPortableWalletSemanticMaterial.FieldID
     private typealias Journal = IOSPortableWalletReceiveJournalRecord
     private typealias Proof = IOSReceiveInstalledKeyReadbackProof
+    private typealias Vacancy = IOSReceiveDestinationVacancyProof
 
     private struct Fixture {
         let semantic: Data
@@ -19,7 +20,9 @@ final class IOSReceiveInstalledKeyReadbackProofTests: XCTestCase {
     private final class RecordingKeystore: KeystoreProtocol {
         var keys: [String: Data]
         var reads = [String: Int]()
+        var checks = [String: Int]()
         var fetchOverride: ((String, Int) throws -> Data)?
+        var checkOverride: ((String, Int) throws -> Bool)?
         private(set) var writes = 0
 
         init(keys: [String: Data]) {
@@ -37,7 +40,12 @@ final class IOSReceiveInstalledKeyReadbackProofTests: XCTestCase {
         }
 
         func checkKey(for identifier: String) throws -> Bool {
-            keys[identifier] != nil
+            let count = (checks[identifier] ?? 0) + 1
+            checks[identifier] = count
+            if let checkOverride {
+                return try checkOverride(identifier, count)
+            }
+            return keys[identifier] != nil
         }
 
         func addKey(_: Data, with _: String) throws {
@@ -133,6 +141,68 @@ final class IOSReceiveInstalledKeyReadbackProofTests: XCTestCase {
             semantic: semantic, journal: changed, keystore: keystore
         )) { error in
             XCTAssertEqual(error as? IOSReceiveKeychainProjection.ProjectionError, .journalMismatch)
+        }
+        XCTAssertTrue(keystore.reads.isEmpty)
+        XCTAssertEqual(keystore.writes, 0)
+    }
+
+    func testVacancyRequiresMissingDestinationOnTwoPassesWithoutReadingSecrets() throws {
+        let source = try fixture()
+        let keystore = RecordingKeystore(keys: [:])
+
+        XCTAssertEqual(try Vacancy.verify(
+            semantic: source.semantic, journal: source.journal,
+            existingWalletIDs: [], keystore: keystore
+        ), .init(wallets: 1, keys: 1))
+        XCTAssertEqual(keystore.checks[source.tag], 2)
+        XCTAssertTrue(keystore.reads.isEmpty)
+        XCTAssertEqual(keystore.writes, 0)
+    }
+
+    func testVacancyRejectsWalletIDCollisionBeforeTouchingKeychain() throws {
+        let source = try fixture()
+        let keystore = RecordingKeystore(keys: [:])
+
+        XCTAssertThrowsError(try Vacancy.verify(
+            semantic: source.semantic, journal: source.journal,
+            existingWalletIDs: [destinationID.lowercased()], keystore: keystore
+        )) { error in
+            XCTAssertEqual(error as? Vacancy.Failure, .walletIDOccupied)
+        }
+        XCTAssertTrue(keystore.checks.isEmpty)
+        XCTAssertTrue(keystore.reads.isEmpty)
+        XCTAssertEqual(keystore.writes, 0)
+    }
+
+    func testVacancyRejectsOccupiedDriftingAndUnavailableKeyTags() throws {
+        let source = try fixture()
+        let keystore = RecordingKeystore(keys: [source.tag: Data([0xA1, 0xB2])])
+
+        XCTAssertThrowsError(try Vacancy.verify(
+            semantic: source.semantic, journal: source.journal,
+            existingWalletIDs: [], keystore: keystore
+        )) { error in
+            XCTAssertEqual(error as? Vacancy.Failure, .keyTagOccupied)
+        }
+        XCTAssertEqual(keystore.checks[source.tag], 1)
+
+        keystore.checks.removeAll()
+        keystore.checkOverride = { _, count in count == 2 }
+        XCTAssertThrowsError(try Vacancy.verify(
+            semantic: source.semantic, journal: source.journal,
+            existingWalletIDs: [], keystore: keystore
+        )) { error in
+            XCTAssertEqual(error as? Vacancy.Failure, .keyTagOccupied)
+        }
+        XCTAssertEqual(keystore.checks[source.tag], 2)
+
+        keystore.checks.removeAll()
+        keystore.checkOverride = { _, _ in throw KeystoreError.unexpectedFail }
+        XCTAssertThrowsError(try Vacancy.verify(
+            semantic: source.semantic, journal: source.journal,
+            existingWalletIDs: [], keystore: keystore
+        )) { error in
+            XCTAssertEqual(error as? Vacancy.Failure, .unavailableKeystore)
         }
         XCTAssertTrue(keystore.reads.isEmpty)
         XCTAssertEqual(keystore.writes, 0)

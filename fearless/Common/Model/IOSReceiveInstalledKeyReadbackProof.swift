@@ -60,3 +60,64 @@ enum IOSReceiveInstalledKeyReadbackProof {
         }
     }
 }
+
+/// Read-only pre-stage check for one future cohort installer. The caller must
+/// obtain the complete Core Data ID inventory and hold its own writer boundary
+/// through staging; this observation does not reserve an ID or Keychain tag.
+enum IOSReceiveDestinationVacancyProof {
+    enum Failure: Error, Equatable {
+        case walletIDOccupied
+        case keyTagOccupied
+        case unavailableKeystore
+    }
+
+    struct Counts: Equatable, CustomStringConvertible, CustomDebugStringConvertible {
+        let wallets: Int
+        let keys: Int
+
+        var description: String {
+            "IOSReceiveDestinationVacancyProof.Counts(<redacted>)"
+        }
+
+        var debugDescription: String {
+            description
+        }
+    }
+
+    static func verify(
+        semantic encoded: Data,
+        journal: IOSPortableWalletReceiveJournalRecord.Record,
+        existingWalletIDs: Set<String>,
+        keystore: KeystoreProtocol
+    ) throws -> Counts {
+        var expected = try IOSReceiveKeychainProjection.project(semantic: encoded, journal: journal)
+        defer {
+            for index in expected.indices {
+                expected[index].clearSecret()
+            }
+        }
+
+        let occupiedIDs = Set(existingWalletIDs.map { $0.lowercased() })
+        guard journal.wallets.allSatisfy({ !occupiedIDs.contains($0.metaID.lowercased()) }) else {
+            throw Failure.walletIDOccupied
+        }
+        try verifyKeyPass(expected, keystore: keystore)
+        try verifyKeyPass(expected, keystore: keystore)
+        return Counts(wallets: journal.wallets.count, keys: expected.count)
+    }
+
+    private static func verifyKeyPass(
+        _ expected: [IOSReceiveKeychainProjection.Item],
+        keystore: KeystoreProtocol
+    ) throws {
+        for item in expected {
+            let exists: Bool
+            do {
+                exists = try keystore.checkKey(for: item.tag)
+            } catch {
+                throw Failure.unavailableKeystore
+            }
+            guard !exists else { throw Failure.keyTagOccupied }
+        }
+    }
+}

@@ -49,9 +49,18 @@ hold its writer boundary around staging, this readback and Core Data commit;
 that installer does not exist yet. Local readback is not original-key
 signing/export proof or recovery acceptance.
 
+`IOSReceiveDestinationVacancyProof` is a read-only pre-stage companion. After
+the same semantic/journal projection succeeds, it rejects destination wallet
+IDs already present in the caller's complete Core Data ID inventory, comparing
+UUID spellings case-insensitively. It checks every planned Keychain tag twice
+without fetching key bytes or writing a key, and fails on an occupied tag or
+unavailable Keychain. The future installer must hold its writer boundary from
+this observation through staging and Core Data commit; this proof cannot
+reserve either store or make the receive transaction atomic.
+
 On the current source, the iOS 18.1 arm64 Release simulator workspace run
-passed 53 wallet preflight, 11 Keychain projection and three installed-readback
-tests, **67/67** total with zero failures or skips. Strict SwiftLint and
-SwiftFormat passed on the new proof and test source; the project file parsed
-and the diff check passed. These local checks are not independent security
+passed 53 wallet preflight, 11 Keychain projection, three installed-readback
+and three pre-stage vacancy tests, **70/70** total with zero failures or skips.
+Strict SwiftLint and SwiftFormat passed on the proof and test source; the diff
+check passed. These local checks are not independent security
 review or signed-device acceptance.
