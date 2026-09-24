@@ -126,6 +126,11 @@ final class PasskeyFirstOwnerPRFCeremonyResult: CustomStringConvertible, CustomR
         }
     }
 
+    fileprivate func discard() {
+        state = .consumed
+        output = nil
+    }
+
     nonisolated var description: String {
         "PasskeyFirstOwnerPRFCeremonyResult(<redacted>)"
     }
@@ -235,9 +240,18 @@ final class ASFirstOwnerPRFExecutor {
                 self?.finish(id: id, result: .failure(PasskeyBackupPRFError.cancelled), cancel: true)
             }
         }
-        try Task.checkCancellation()
-        try challenge.requireFresh(nowUnixSeconds: nowUnixSeconds())
-        return result
+        do {
+            try Task.checkCancellation()
+            try challenge.requireFresh(nowUnixSeconds: nowUnixSeconds())
+            try result.context.requireSameChallenge(challenge)
+            guard result.context.prfSalt == context.prfSalt else {
+                throw PasskeyBackupPRFError.invalidInput
+            }
+            return result
+        } catch {
+            result.discard()
+            throw error
+        }
     }
 
     private func finish(

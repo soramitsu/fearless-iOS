@@ -192,6 +192,25 @@ final class FirstOwnerPRFRegistrationTests: XCTestCase {
         XCTAssertEqual(result.registration.credentialID, try registration().credentialID)
     }
 
+    func testNativeFirstOwnerExecutorRejectsCallbackWithDifferentPRFSalt() async throws {
+        let challenge = try challenge()
+        let requestedSalt = Data(repeating: 0x55, count: 32)
+        let substituted = try nativeRegistration(context: PasskeyFirstOwnerPRFRequestContext(
+            challenge: challenge, prfSalt: Data(repeating: 0x99, count: 32)
+        ))
+        let executor = ASFirstOwnerPRFExecutor(
+            isReleaseEnabled: true,
+            nowUnixSeconds: { self.now },
+            sessionFactory: { _, _, completion in
+                BootstrapNativeSession { completion(.success(substituted)) }
+            }
+        )
+        do {
+            _ = try await executor.performRegistration(challenge: challenge, prfSalt: requestedSalt)
+            XCTFail("Substituted PRF salt accepted")
+        } catch { XCTAssertEqual(error as? PasskeyBackupPRFError, .invalidInput) }
+    }
+
     func testNativeFirstOwnerExecutorCancellationCannotSettleNextCeremony() async throws {
         var sessions: [BootstrapNativeSession] = []
         var completions: [ASFirstOwnerPRFExecutor.Completion] = []
