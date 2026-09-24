@@ -25,7 +25,9 @@ adapter now requests a discoverable, user-verified native passkey assertion with
 no credential hint or PRF extension, sends only the public WebAuthn assertion to
 the owner authority, and accepts a short-lived session from an exact, bounded
 response. It does not use a Google account as owner proof. This candidate is
-not connected to production recovery UI or a deployed owner service.
+not connected to production recovery UI or a deployed owner service. Native
+completion and cancellation callbacks are bound to their exact ceremony
+attempt, so a delayed cancellation cannot terminate a successor prompt.
 
 The four appProperties are `format=FPBKGEN1`, `namespaceSha256=SHA256(UTF8(backupNamespace))`, `generationId`, and `bundleSha256`. The name is `fearless-passkey-generation-{generationId}.bin`. Metadata is bounded to 8 KiB and rejects duplicate decoded JSON keys, trailing JSON, unknown fields, coercions and ambiguous arrays. The store defaults to the dedicated `URLSessionPasskeyGenerationTransport`, while retaining explicit transport injection for tests. This transport bounds decoded responses to 512 KiB, disables redirects, cookies, credential storage and caching, sends POST through an input stream and refuses replacement streams and HTTP authentication retries. URLSession exposes no blanket switch proving exactly one physical transmission; these controls prevent application retries and requested stream regeneration. It does not promise that losing a network response means no bytes reached Drive. The preallocated file ID and mandatory reconciliation handle unknown outcomes. The legacy challenge/envelope transport remains capped at 256 KiB.
 

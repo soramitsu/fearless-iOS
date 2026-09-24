@@ -8,6 +8,17 @@ final class PasskeyBackupOwnerAuthenticationTests: XCTestCase {
     private let endpoint = URL(string: "https://backup.fearlesswallet.io")!
     private let now: Int64 = 1000
 
+    func testDelayedCancellationCannotFinishTheNextCeremony() {
+        var gate = PasskeyOwnerAuthAttemptGate()
+        let first = UUID(), second = UUID()
+        XCTAssertTrue(gate.begin(first))
+        XCTAssertTrue(gate.finish(first))
+        XCTAssertTrue(gate.begin(second))
+        XCTAssertFalse(gate.finish(first))
+        XCTAssertEqual(gate.activeID, second)
+        XCTAssertTrue(gate.finish(second))
+    }
+
     func testDiscoverableCeremonySendsOnlyPublicAssertionAndAcceptsBoundSession() async throws {
         let transport = OwnerAuthenticationTransportFixture()
         transport.responses = [

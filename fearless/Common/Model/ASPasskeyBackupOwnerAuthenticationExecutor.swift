@@ -24,6 +24,23 @@ enum PasskeyOwnerAuthRequestFactory {
     }
 }
 
+/// A delayed cancellation may complete only the ceremony that installed it.
+struct PasskeyOwnerAuthAttemptGate {
+    private(set) var activeID: UUID?
+
+    mutating func begin(_ id: UUID) -> Bool {
+        guard activeID == nil else { return false }
+        activeID = id
+        return true
+    }
+
+    mutating func finish(_ id: UUID) -> Bool {
+        guard activeID == id else { return false }
+        activeID = nil
+        return true
+    }
+}
+
 /// A separate discoverable ceremony produces only public WebAuthn assertion fields.
 /// The PRF-producing directed assertion remains a later, local-only recovery step.
 @available(iOS 18.0, *)
@@ -36,6 +53,7 @@ final class ASPasskeyOwnerAuthExecutor: NSObject,
     private let isReleaseEnabled: Bool
     private var controller: ASAuthorizationController?
     private var continuation: CheckedContinuation<PasskeyBackupOwnerPublicAssertion, Error>?
+    private var attemptGate = PasskeyOwnerAuthAttemptGate()
 
     init(
         isReleaseEnabled: Bool = PasskeyBackupReleaseConfig.isPasskeyBackupEnabled,
@@ -52,10 +70,15 @@ final class ASPasskeyOwnerAuthExecutor: NSObject,
         try Task.checkCancellation()
         guard continuation == nil else { throw PasskeyBackupError.ceremonyInProgress }
         let request = PasskeyOwnerAuthRequestFactory.assertion(challenge)
+        let attemptID = UUID()
         let result: PasskeyBackupOwnerPublicAssertion = try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in
                 guard !Task.isCancelled else {
                     continuation.resume(throwing: PasskeyBackupError.ceremonyCancelled)
+                    return
+                }
+                guard attemptGate.begin(attemptID) else {
+                    continuation.resume(throwing: PasskeyBackupError.ceremonyInProgress)
                     return
                 }
                 let active = ASAuthorizationController(authorizationRequests: [request])
@@ -67,7 +90,7 @@ final class ASPasskeyOwnerAuthExecutor: NSObject,
             }
         } onCancel: {
             Task { @MainActor [weak self] in
-                self?.finish(.failure(PasskeyBackupError.ceremonyCancelled), cancel: true)
+                self?.finish(.failure(PasskeyBackupError.ceremonyCancelled), attemptID: attemptID, cancel: true)
             }
         }
         try Task.checkCancellation()
@@ -81,7 +104,7 @@ final class ASPasskeyOwnerAuthExecutor: NSObject,
     func authorizationController(
         controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization
     ) {
-        guard controller === self.controller else { return }
+        guard controller === self.controller, let attemptID = attemptGate.activeID else { return }
         do {
             guard let credential = authorization.credential as?
                 ASAuthorizationPlatformPublicKeyCredentialAssertion else {
@@ -94,23 +117,24 @@ final class ASPasskeyOwnerAuthExecutor: NSObject,
                 signature: credential.signature,
                 userHandle: credential.userID
             )
-            finish(.success(assertion))
+            finish(.success(assertion), attemptID: attemptID)
         } catch {
-            finish(.failure(PasskeyBackupOwnerAuthenticationError.invalidAssertion))
+            finish(.failure(PasskeyBackupOwnerAuthenticationError.invalidAssertion), attemptID: attemptID)
         }
     }
 
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
-        guard controller === self.controller else { return }
+        guard controller === self.controller, let attemptID = attemptGate.activeID else { return }
         let cancelled = (error as? ASAuthorizationError)?.code == .canceled
         finish(.failure(cancelled ? PasskeyBackupError.ceremonyCancelled :
-                PasskeyBackupOwnerAuthenticationError.invalidAssertion))
+                PasskeyBackupOwnerAuthenticationError.invalidAssertion), attemptID: attemptID)
     }
 
     private func finish(
-        _ result: Result<PasskeyBackupOwnerPublicAssertion, Error>, cancel: Bool = false
+        _ result: Result<PasskeyBackupOwnerPublicAssertion, Error>,
+        attemptID: UUID, cancel: Bool = false
     ) {
-        guard let continuation else { return }
+        guard let continuation, attemptGate.finish(attemptID) else { return }
         let active = controller
         self.continuation = nil
         controller = nil
