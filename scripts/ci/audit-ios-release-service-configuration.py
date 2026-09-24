@@ -15,7 +15,7 @@ import sys
 
 PREFIX = '[ios-release-service-configuration]'
 # Active Release credential consumers: ChainRegistry,
-# WalletConnectService, Google backup, Alchemy and explorers.
+# WalletConnectService, Google backup, Alchemy and Etherscan V2 history.
 REQUIRED = frozenset({
     'TonNodeApiKey.tonApiKey',
     'WalletConnect.projectId',
@@ -23,12 +23,11 @@ REQUIRED = frozenset({
     'GoogleBackup.googleUrlScheme',
     'ThirdPartyServicesApiKeys.alchemyApiKey',
     'BlockExplorerApiKeys.etherscanApiKey',
-    'BlockExplorerApiKeys.polygonscanApiKey',
-    'BlockExplorerApiKeys.bscscanApiKey',
-    'BlockExplorerApiKeys.opMainnetApiKey',
 })
 # Retired Blast/Goerli fields are no longer consumed by EVM node selection.
-# Dwellir is optional with catalog failover. Rejected OKLink credentials are omitted;
+# Dwellir is optional with catalog failover. Retired chain-specific explorer
+# keys remain in the generated schema for compatibility but are not needed by
+# Etherscan V2 history. Rejected OKLink credentials are omitted;
 # replacement history providers and explicit explorer recovery handle its catalog routes.
 # These, Debug credentials and optional partner/card integrations may be empty.
 # No generated setting may contain a nonempty placeholder.

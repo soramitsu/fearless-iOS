@@ -3067,6 +3067,7 @@
 		FAE601AE2ECA700100000001 /* IrohaHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601AF2ECA700100000001 /* IrohaHistoryOperationFactory.swift */; };
 		FAE601B02ECA700100000001 /* IrohaHistoryOperationFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601B12ECA700100000001 /* IrohaHistoryOperationFactoryTests.swift */; };
 		FAE601B22ECA700100000001 /* PasskeyBackupContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601B32ECA700100000001 /* PasskeyBackupContract.swift */; };
+		FAE601B42ECA700100000001 /* EtherscanHistoryOperationFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601B52ECA700100000001 /* EtherscanHistoryOperationFactoryTests.swift */; };
 		FAE9EB9D288AB74D009390B6 /* AnalyticsRewardsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE9EB9C288AB74D009390B6 /* AnalyticsRewardsFlow.swift */; };
 		FAE9EB9F288ABBBE009390B6 /* AnalyticRewardsParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE9EB9E288ABBBE009390B6 /* AnalyticRewardsParachainViewModelState.swift */; };
 		FAE9EBA1288ABBC7009390B6 /* AnalyticRewardsParachainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE9EBA0288ABBC7009390B6 /* AnalyticRewardsParachainStrategy.swift */; };
@@ -6306,6 +6307,7 @@
 		FAE601AF2ECA700100000001 /* IrohaHistoryOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrohaHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		FAE601B12ECA700100000001 /* IrohaHistoryOperationFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrohaHistoryOperationFactoryTests.swift; sourceTree = "<group>"; };
 		FAE601B32ECA700100000001 /* PasskeyBackupContract.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupContract.swift; sourceTree = "<group>"; };
+		FAE601B52ECA700100000001 /* EtherscanHistoryOperationFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherscanHistoryOperationFactoryTests.swift; sourceTree = "<group>"; };
 		FAE9EB9C288AB74D009390B6 /* AnalyticsRewardsFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsFlow.swift; sourceTree = "<group>"; };
 		FAE9EB9E288ABBBE009390B6 /* AnalyticRewardsParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticRewardsParachainViewModelState.swift; sourceTree = "<group>"; };
 		FAE9EBA0288ABBC7009390B6 /* AnalyticRewardsParachainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticRewardsParachainStrategy.swift; sourceTree = "<group>"; };
@@ -9439,6 +9441,7 @@
 				FAE601A92ECA700100000001 /* UniversalWalletAccountAddressResolverTests.swift */,
 				FAE601AD2ECA700100000001 /* SolanaHistoryOperationFactoryTests.swift */,
 				FAE601B12ECA700100000001 /* IrohaHistoryOperationFactoryTests.swift */,
+				FAE601B52ECA700100000001 /* EtherscanHistoryOperationFactoryTests.swift */,
 				FAE6018D2ECA700100000001 /* BitcoinSendServiceTests.swift */,
 				FAE601492ECA700100000001 /* UniversalWalletIndexerClientFactoryTests.swift */,
 				FAE6014D2ECA700100000001 /* UniversalWalletIdentityTests.swift */,
@@ -19423,6 +19426,7 @@
 				FAE601A82ECA700100000001 /* UniversalWalletAccountAddressResolverTests.swift in Sources */,
 				FAE601AC2ECA700100000001 /* SolanaHistoryOperationFactoryTests.swift in Sources */,
 				FAE601B02ECA700100000001 /* IrohaHistoryOperationFactoryTests.swift in Sources */,
+				FAE601B42ECA700100000001 /* EtherscanHistoryOperationFactoryTests.swift in Sources */,
 				FAE6018C2ECA700100000001 /* BitcoinSendServiceTests.swift in Sources */,
 				FAE601482ECA700100000001 /* UniversalWalletIndexerClientFactoryTests.swift in Sources */,
 				FAE6014C2ECA700100000001 /* UniversalWalletIdentityTests.swift in Sources */,
