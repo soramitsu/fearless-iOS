@@ -53,6 +53,7 @@ enum WalletConnect {
 
 enum BlockExplorerApiKeys {
     static var etherscanApiKey: String = "{{ argument.etherscanApiKey }}"
+    static var kaiaScanApiKey: String = "{{ argument.kaiaScanApiKey }}"
     static var polygonscanApiKey: String = "{{ argument.polygonscanApiKey }}"
     static var bscscanApiKey: String = "{{ argument.bscscanApiKey }}"
     static var oklinkApiKey: String = "{{ argument.oklinkApiKey }}"
@@ -61,6 +62,7 @@ enum BlockExplorerApiKeys {
 
 enum BlockExplorerApiKeysDebug {
     static var etherscanApiKey: String = "{{ argument.etherscanApiKey }}"
+    static var kaiaScanApiKey: String = "{{ argument.kaiaScanApiKey }}"
     static var polygonscanApiKey: String = "{{ argument.polygonscanApiKey }}"
     static var bscscanApiKey: String = "{{ argument.bscscanApiKey }}"
     static var oklinkApiKey: String = "{{ argument.oklinkApiKey }}"

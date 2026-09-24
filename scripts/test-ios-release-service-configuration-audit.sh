@@ -78,7 +78,7 @@ class AuditTests(unittest.TestCase):
 
     def test_valid_preflight_allows_empty_source_plist_and_optional_settings(self):
         result = A.audit(self.root)
-        self.assertEqual(42, len(result['fields']))
+        self.assertEqual(44, len(result['fields']))
         self.assertEqual(len(A.REQUIRED), sum(f['required'] for f in result['fields'].values()))
         self.assertTrue(all(not row['present'] and row['sha256'] is None for name, row in result['fields'].items() if name not in A.REQUIRED))
         encoded = json.dumps(result)

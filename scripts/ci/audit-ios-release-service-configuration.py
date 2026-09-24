@@ -23,6 +23,7 @@ REQUIRED = frozenset({
     'GoogleBackup.googleUrlScheme',
     'ThirdPartyServicesApiKeys.alchemyApiKey',
     'BlockExplorerApiKeys.etherscanApiKey',
+    'BlockExplorerApiKeys.kaiaScanApiKey',
 })
 # Retired Blast/Goerli fields are no longer consumed by EVM node selection.
 # Dwellir is optional with catalog failover. Retired chain-specific explorer

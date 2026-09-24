@@ -39,6 +39,7 @@ ARGUMENT_ENVIRONMENT = {
     "webClientIdDebug": "WEB_CLIENT_ID_DEBUG",
     "fearlessGoogleUrlSchemeDebug": "FEARLESS_GOOGLE_URL_SCHEME_DEBUG",
     "etherscanApiKey": "FL_IOS_ETHERSCAN_API_KEY",
+    "kaiaScanApiKey": "FL_IOS_KAIASCAN_API_KEY",
     "bscscanApiKey": "FL_IOS_BSCSCAN_API_KEY",
     "polygonscanApiKey": "FL_IOS_POLYGONSCAN_API_KEY",
     "alchemyApiKey": "FL_IOS_ALCHEMY_API_ETHEREUM_KEY",
