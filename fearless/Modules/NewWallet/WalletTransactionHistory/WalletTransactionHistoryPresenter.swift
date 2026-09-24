@@ -90,6 +90,13 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
         view?.didReceive(state: .unsupported)
     }
 
+    func didReceiveHistoryFailure(hasCachedHistory: Bool) {
+        view?.didStopLoading()
+        if !hasCachedHistory {
+            view?.didReceive(state: .unavailable)
+        }
+    }
+
     func didReceive(filters: [FilterSet]) {
         self.filters = filters
     }

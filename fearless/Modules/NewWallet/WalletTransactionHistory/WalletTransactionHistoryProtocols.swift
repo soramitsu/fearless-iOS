@@ -30,6 +30,7 @@ protocol WalletTransactionHistoryInteractorOutputProtocol: AnyObject {
 
     func didReceive(filters: [FilterSet])
     func didReceiveUnsupported()
+    func didReceiveHistoryFailure(hasCachedHistory: Bool)
 }
 
 protocol WalletTransactionHistoryWireframeProtocol: AnyObject, FiltersPresentable {

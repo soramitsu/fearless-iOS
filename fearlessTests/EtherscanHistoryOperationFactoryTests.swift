@@ -1,4 +1,5 @@
 import Foundation
+import SoraFoundation
 import XCTest
 @testable import fearless
 
@@ -94,4 +95,35 @@ final class EtherscanHistoryOperationFactoryTests: XCTestCase {
         XCTAssertEqual(response.result.first?.hash, "0xabc")
         XCTAssertEqual(response.result.first?.timestampInSeconds, 1_710_000_000)
     }
+
+    func testUnavailableHistoryShowsServiceErrorInsteadOfEmptyHistory() {
+        let controller = WalletTransactionHistoryViewController(
+            presenter: HistoryPresenterFixture(),
+            localizationManager: LocalizationManager.shared
+        )
+        controller.loadViewIfNeeded()
+        controller.didReceive(state: .unavailable)
+
+        XCTAssertTrue(controller.shouldDisplayEmptyState)
+        XCTAssertEqual(
+            controller.titleForEmptyState,
+            R.string.localizable.walletTransactionHistoryErrorMessage(
+                preferredLanguages: controller.selectedLocale.rLanguages
+            )
+        )
+        XCTAssertNotEqual(
+            controller.titleForEmptyState,
+            R.string.localizable.walletTransactionHistoryEmptyMessage(
+                preferredLanguages: controller.selectedLocale.rLanguages
+            )
+        )
+    }
+}
+
+private final class HistoryPresenterFixture: WalletTransactionHistoryPresenterProtocol {
+    func setup(with _: WalletTransactionHistoryViewProtocol) {}
+    func loadNext() -> Bool { false }
+    func didSelect(viewModel _: WalletTransactionHistoryCellViewModel) {}
+    func didTapFiltersButton() {}
+    func didChangeFiltersSliderValue(index _: Int) {}
 }
