@@ -30,6 +30,14 @@ which is evidence of this round trip alone.
 PRF result released after challenge verification. It requires the exact
 credential wrapper and salt, unwraps the backup key, decrypts FPBKAEAD, and
 checks the wallet callback's original identity, signing and export evidence.
+The local unwrap now goes through a one-use `PasskeyBackupVerifiedPRFKeyProvider`.
+It binds the native credential ID and salt to the independently supplied
+owner/wallet/epoch/metadata wrapper context, burns the PRF capability before
+returning a key, and rejects changed metadata or a second call. A PRF result
+cannot be reused by a second provider. The old string-only backup client still
+defaults to `UnavailablePasskeyBackupKeyProvider`: it cannot obtain a verified
+PRF result before its registration key request and must not be wired to this
+provider without replacing that lifecycle.
 Its mutable local PRF, key and plaintext `Data` buffers are reset after use;
 Swift/CryptoKit and the wallet callback may retain other copies, which need
 security review. Its tests use synthetic wallet material; the production wallet

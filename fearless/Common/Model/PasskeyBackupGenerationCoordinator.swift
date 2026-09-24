@@ -104,12 +104,15 @@ final class PasskeyBackupGenerationCryptographicVerifier {
               record.context == context, record.prfSalt == verifiedPRF.prfSalt else {
             throw PasskeyBackupGenerationCoordinatorError.localVerificationFailed
         }
-        var plaintext = try verifiedPRF.withOutput { prfOutput in
-            var backupKey = try keyWrapper.unwrap(
-                record: record, prfOutput: prfOutput, expectedContext: context
-            )
+        let provider = try PasskeyBackupVerifiedPRFKeyProvider(
+            verifiedPRF: verifiedPRF, record: record,
+            expectedContext: context, keyWrapper: keyWrapper
+        )
+        var plaintext: Data
+        do {
+            var backupKey = try await provider.backupKey(for: metadata)
             defer { backupKey.resetBytes(in: 0 ..< backupKey.count) }
-            return try envelopeCryptography.decrypt(
+            plaintext = try envelopeCryptography.decrypt(
                 envelope.encryptedPayload, metadata: metadata, key: backupKey
             )
         }

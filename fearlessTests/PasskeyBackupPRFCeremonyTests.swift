@@ -181,9 +181,148 @@ final class PasskeyBackupPRFCeremonyTests: XCTestCase {
         }, Data(repeating: 0x77, count: 32))
         XCTAssertEqual(Mirror(reflecting: output).children.count, 0)
         XCTAssertEqual(String(reflecting: output), "PasskeyBackupVerifiedLocalPRF(<redacted>)")
-        XCTAssertThrowsError(try output.withOutput { _ in throw PasskeyBackupPRFError.invalidInput })
+        do {
+            _ = try output.withOutput { $0 }
+            XCTFail("A verified PRF result was reused")
+        } catch { XCTAssertEqual(error as? PasskeyBackupPRFError, .invalidState) }
         XCTAssertThrowsError(try gate.takeVerifiedOutput())
         XCTAssertEqual(verifier.requests.count, 1)
+    }
+
+    func testVerifiedPRFOutputIsBurnedWhenLocalUseThrows() async throws {
+        let output = try await verifiedOutput()
+        do {
+            _ = try output.withOutput { _ -> Data in throw PasskeyBackupPRFError.invalidInput }
+            XCTFail("Local failure did not propagate")
+        } catch { XCTAssertEqual(error as? PasskeyBackupPRFError, .invalidInput) }
+        do {
+            _ = try output.withOutput { $0 }
+            XCTFail("A failed use left PRF available")
+        } catch { XCTAssertEqual(error as? PasskeyBackupPRFError, .invalidState) }
+    }
+
+    func testScopedKeyProviderUnwrapsOnceForExactCredentialAndMetadata() async throws {
+        let generation = try generation()
+        let record = try XCTUnwrap(generation.wrappers.first)
+        let output = try await verifiedOutput()
+        let provider = try PasskeyBackupVerifiedPRFKeyProvider(
+            verifiedPRF: output, record: record, expectedContext: record.context
+        )
+        let metadata = try generation.envelope.envelopeMetadata()
+        var key = try await provider.backupKey(for: metadata)
+        XCTAssertEqual(key, Data(repeating: 0x77, count: 32))
+        key.resetBytes(in: 0 ..< key.count)
+        do {
+            _ = try await provider.backupKey(for: metadata)
+            XCTFail("Provider allowed a second unwrap")
+        } catch { XCTAssertEqual(error as? PasskeyBackupPRFError, .invalidState) }
+        XCTAssertEqual(String(describing: provider), "PasskeyBackupVerifiedPRFKeyProvider(<redacted>)")
+        XCTAssertEqual(Mirror(reflecting: provider).children.count, 0)
+    }
+
+    func testScopedKeyProviderRejectsSubstitutedOwnerEpochCredentialSaltAndMetadata() async throws {
+        let generation = try generation()
+        let record = try XCTUnwrap(generation.wrappers.first)
+        let metadata = try generation.envelope.envelopeMetadata()
+        let otherOwner = try PasskeyBackupKeyWrapperContext(
+            ownerSubject: "owner:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            credentialId: record.context.credentialId, keyEpoch: record.context.keyEpoch,
+            envelopeMetadata: metadata
+        )
+        let otherEpoch = try PasskeyBackupKeyWrapperContext(
+            ownerSubject: record.context.ownerSubject,
+            credentialId: record.context.credentialId, keyEpoch: record.context.keyEpoch + 1,
+            envelopeMetadata: metadata
+        )
+        let boundOutput = try await verifiedOutput()
+        for context in [otherOwner, otherEpoch] {
+            XCTAssertThrowsError(try PasskeyBackupVerifiedPRFKeyProvider(
+                verifiedPRF: boundOutput, record: record, expectedContext: context
+            ))
+        }
+        let wrongCredential = try await verifiedOutput(credential: Data(repeating: 0x23, count: 32))
+        XCTAssertThrowsError(try PasskeyBackupVerifiedPRFKeyProvider(
+            verifiedPRF: wrongCredential, record: record, expectedContext: record.context
+        ))
+        let wrongSalt = try PasskeyBackupCredentialKeyWrapperRecord(
+            context: record.context, prfSalt: Data(repeating: 0x34, count: 32),
+            hkdfSalt: record.hkdfSalt, nonce: record.nonce, ciphertextAndTag: record.ciphertextAndTag
+        )
+        let saltOutput = try await verifiedOutput()
+        XCTAssertThrowsError(try PasskeyBackupVerifiedPRFKeyProvider(
+            verifiedPRF: saltOutput, record: wrongSalt, expectedContext: record.context
+        ))
+        let metadataOutput = try await verifiedOutput()
+        let provider = try PasskeyBackupVerifiedPRFKeyProvider(
+            verifiedPRF: metadataOutput, record: record, expectedContext: record.context
+        )
+        let otherMetadata = try PasskeyBackupEnvelopeMetadata(
+            storageKey: metadata.storageKey, walletId: "wallet-9999", accountName: metadata.accountName,
+            createdAtMillis: metadata.createdAtMillis
+        )
+        do {
+            _ = try await provider.backupKey(for: otherMetadata)
+            XCTFail("Provider accepted a different wallet")
+        } catch {
+            XCTAssertEqual(error as? PasskeyBackupVerifiedPRFKeyProviderError, .bindingMismatch)
+        }
+        do {
+            _ = try await provider.backupKey(for: metadata)
+            XCTFail("Failed lookup remained usable")
+        } catch { XCTAssertEqual(error as? PasskeyBackupPRFError, .invalidState) }
+        let replacementProvider = try PasskeyBackupVerifiedPRFKeyProvider(
+            verifiedPRF: metadataOutput, record: record, expectedContext: record.context
+        )
+        do {
+            _ = try await replacementProvider.backupKey(for: metadata)
+            XCTFail("A metadata mismatch left the PRF reusable through another provider")
+        } catch { XCTAssertEqual(error as? PasskeyBackupPRFError, .invalidState) }
+    }
+
+    func testVerifiedPRFOutputCannotBeReplayedThroughAnotherProvider() async throws {
+        let generation = try generation()
+        let record = try XCTUnwrap(generation.wrappers.first)
+        let output = try await verifiedOutput()
+        let first = try PasskeyBackupVerifiedPRFKeyProvider(
+            verifiedPRF: output, record: record, expectedContext: record.context
+        )
+        let second = try PasskeyBackupVerifiedPRFKeyProvider(
+            verifiedPRF: output, record: record, expectedContext: record.context
+        )
+        let metadata = try generation.envelope.envelopeMetadata()
+        var key = try await first.backupKey(for: metadata)
+        key.resetBytes(in: 0 ..< key.count)
+        do {
+            _ = try await second.backupKey(for: metadata)
+            XCTFail("Another provider replayed the native PRF result")
+        } catch { XCTAssertEqual(error as? PasskeyBackupPRFError, .invalidState) }
+    }
+
+    func testCancelledScopedProviderBurnsVerifiedPRFForEveryProvider() async throws {
+        let generation = try generation()
+        let record = try XCTUnwrap(generation.wrappers.first)
+        let output = try await verifiedOutput()
+        let first = try PasskeyBackupVerifiedPRFKeyProvider(
+            verifiedPRF: output, record: record, expectedContext: record.context
+        )
+        let second = try PasskeyBackupVerifiedPRFKeyProvider(
+            verifiedPRF: output, record: record, expectedContext: record.context
+        )
+        let metadata = try generation.envelope.envelopeMetadata()
+        let cancelled = Task {
+            withUnsafeCurrentTask { $0?.cancel() }
+            return try await first.backupKey(for: metadata)
+        }
+        do {
+            _ = try await cancelled.value
+            XCTFail("Cancelled key access succeeded")
+        } catch is CancellationError {} catch { XCTFail("Unexpected cancellation error: \(error)") }
+        for provider in [first, second] {
+            do {
+                _ = try await provider.backupKey(for: metadata)
+                XCTFail("Cancellation left verified PRF available")
+            } catch { XCTAssertEqual(error as? PasskeyBackupPRFError, .invalidState) }
+        }
     }
 
     func testVerifiedPRFDecryptsSharedGenerationAndRequiresOriginalKeyEvidence() async throws {
@@ -371,10 +510,14 @@ final class PasskeyBackupPRFCeremonyTests: XCTestCase {
             clientDataJSON: Data("public-client-data ".utf8), attestationObject: Data([1, 2, 3]), prf: nil
         )
         XCTAssertEqual(request.bindingSHA256.count, 32)
-        XCTAssertNotEqual(request.bindingSHA256,
-                          PasskeyBackupPRFVerificationRequest(result: otherCredential).bindingSHA256)
-        XCTAssertNotEqual(request.bindingSHA256,
-                          PasskeyBackupPRFVerificationRequest(result: otherTranscript).bindingSHA256)
+        XCTAssertNotEqual(
+            request.bindingSHA256,
+            PasskeyBackupPRFVerificationRequest(result: otherCredential).bindingSHA256
+        )
+        XCTAssertNotEqual(
+            request.bindingSHA256,
+            PasskeyBackupPRFVerificationRequest(result: otherTranscript).bindingSHA256
+        )
         XCTAssertEqual(String(describing: result.context), "PasskeyBackupPRFContext(<redacted>)")
     }
 

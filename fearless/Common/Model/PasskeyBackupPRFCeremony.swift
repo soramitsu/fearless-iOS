@@ -269,7 +269,8 @@ final class PasskeyBackupVerifiedLocalPRF: CustomStringConvertible, CustomReflec
     let credentialID: Data
     let prfSalt: Data
     let storageKey: String
-    private let output: SymmetricKey
+    private let outputLock = NSLock()
+    private var output: SymmetricKey?
 
     fileprivate init(_ result: PasskeyBackupPRFCeremonyResult, output: SymmetricKey) {
         credentialID = result.credentialID
@@ -278,8 +279,16 @@ final class PasskeyBackupVerifiedLocalPRF: CustomStringConvertible, CustomReflec
         self.output = output
     }
 
-    func withOutput<T>(_ action: (Data) throws -> T) rethrows -> T {
-        var bytes = output.withUnsafeBytes { Data($0) }
+    /// A verified ceremony grants one local use. A second provider cannot replay its PRF result.
+    func withOutput<T>(_ action: (Data) throws -> T) throws -> T {
+        outputLock.lock()
+        guard let key = output else {
+            outputLock.unlock()
+            throw PasskeyBackupPRFError.invalidState
+        }
+        output = nil
+        outputLock.unlock()
+        var bytes = key.withUnsafeBytes { Data($0) }
         defer { bytes.resetBytes(in: 0 ..< bytes.count) }
         return try action(bytes)
     }

@@ -10,6 +10,7 @@
 		A5092300FF00000000000006 /* PasskeyBackupPRFCeremonyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5092300FF00000000000005 /* PasskeyBackupPRFCeremonyTests.swift */; };
 		A5092300FF00000000000004 /* ASPasskeyBackupPRFExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5092300FF00000000000003 /* ASPasskeyBackupPRFExecutor.swift */; };
 		A5092300FF00000000000002 /* PasskeyBackupPRFCeremony.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5092300FF00000000000001 /* PasskeyBackupPRFCeremony.swift */; };
+		A5092300FF00000000000008 /* PasskeyBackupVerifiedPRFKeyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5092300FF00000000000007 /* PasskeyBackupVerifiedPRFKeyProvider.swift */; };
 		A5092300EE00000000000004 /* PasskeyBackupCredentialKeyWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5092300EE00000000000003 /* PasskeyBackupCredentialKeyWrapperTests.swift */; };
 		A5092300EE00000000000002 /* PasskeyBackupCredentialKeyWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5092300EE00000000000001 /* PasskeyBackupCredentialKeyWrapper.swift */; };
 		A5092300EE00000000000012 /* PasskeyBackupGenerationV1.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5092300EE00000000000011 /* PasskeyBackupGenerationV1.swift */; };
@@ -3226,6 +3227,7 @@
 		A5092300FF00000000000005 /* PasskeyBackupPRFCeremonyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupPRFCeremonyTests.swift; sourceTree = "<group>"; };
 		A5092300FF00000000000003 /* ASPasskeyBackupPRFExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASPasskeyBackupPRFExecutor.swift; sourceTree = "<group>"; };
 		A5092300FF00000000000001 /* PasskeyBackupPRFCeremony.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupPRFCeremony.swift; sourceTree = "<group>"; };
+		A5092300FF00000000000007 /* PasskeyBackupVerifiedPRFKeyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupVerifiedPRFKeyProvider.swift; sourceTree = "<group>"; };
 		A5092300EE00000000000003 /* PasskeyBackupCredentialKeyWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupCredentialKeyWrapperTests.swift; sourceTree = "<group>"; };
 		A5092300EE00000000000001 /* PasskeyBackupCredentialKeyWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupCredentialKeyWrapper.swift; sourceTree = "<group>"; };
 		A5092300EE00000000000011 /* PasskeyBackupGenerationV1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupGenerationV1.swift; sourceTree = "<group>"; };
@@ -9761,6 +9763,7 @@
 				A5092300EE00000000000011 /* PasskeyBackupGenerationV1.swift */,
 				A5092300FF00000000000003 /* ASPasskeyBackupPRFExecutor.swift */,
 				A5092300FF00000000000001 /* PasskeyBackupPRFCeremony.swift */,
+				A5092300FF00000000000007 /* PasskeyBackupVerifiedPRFKeyProvider.swift */,
 				A5092300DD00000000000003 /* GoogleDrivePasskeyBackupCloudStorage.swift */,
 				A50923CCAA00000000000005 /* URLSessionPasskeyGenerationTransport.swift */,
 				A50923CCAA00000000000003 /* GoogleDriveGenerationResponse.swift */,
@@ -17647,6 +17650,7 @@
 				A5092300EE00000000000012 /* PasskeyBackupGenerationV1.swift in Sources */,
 				A5092300FF00000000000004 /* ASPasskeyBackupPRFExecutor.swift in Sources */,
 				A5092300FF00000000000002 /* PasskeyBackupPRFCeremony.swift in Sources */,
+				A5092300FF00000000000008 /* PasskeyBackupVerifiedPRFKeyProvider.swift in Sources */,
 				A5092300DD00000000000004 /* GoogleDrivePasskeyBackupCloudStorage.swift in Sources */,
 				A50923CCAA00000000000006 /* URLSessionPasskeyGenerationTransport.swift in Sources */,
 				A50923CCAA00000000000004 /* GoogleDriveGenerationResponse.swift in Sources */,
