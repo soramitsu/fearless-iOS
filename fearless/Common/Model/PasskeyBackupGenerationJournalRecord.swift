@@ -28,6 +28,20 @@ struct PasskeyBackupGenerationJournalEntry: CustomStringConvertible, CustomDebug
     let bytes: Data
     let sha256: String
     let createAttempted: Bool
+    let commitAttempted: Bool
+
+    init(
+        operationID: String, fileID: String, context: PasskeyBackupGenerationV1.Context,
+        bytes: Data, sha256: String, createAttempted: Bool, commitAttempted: Bool = false
+    ) {
+        self.operationID = operationID
+        self.fileID = fileID
+        self.context = context
+        self.bytes = bytes
+        self.sha256 = sha256
+        self.createAttempted = createAttempted
+        self.commitAttempted = commitAttempted
+    }
 
     var description: String { "PasskeyBackupGenerationJournalEntry(<redacted>)" }
     var debugDescription: String { description }
@@ -126,6 +140,10 @@ enum PasskeyBackupGenerationJournalRecord {
 
     static func attemptMarker(for record: Data) -> Data {
         Data("FPBKATT1".utf8) + Data(SHA256.hash(data: record))
+    }
+
+    static func commitMarker(for record: Data) -> Data {
+        Data("FPBKCOM1".utf8) + Data(SHA256.hash(data: record))
     }
 
     private static func appendText(_ value: String, to data: inout Data) throws {

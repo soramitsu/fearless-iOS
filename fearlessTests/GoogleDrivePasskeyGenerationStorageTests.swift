@@ -1034,6 +1034,9 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         XCTAssertTrue(try XCTUnwrap(journal.read(
             operationID: coordinatorOperationID, expectedScope: scope(candidate)
         )).createAttempted)
+        XCTAssertTrue(try XCTUnwrap(journal.read(
+            operationID: coordinatorOperationID, expectedScope: scope(candidate)
+        )).commitAttempted)
     }
 
     @available(iOS 18.0, *)
@@ -1129,6 +1132,9 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         XCTAssertTrue(try journal.admitFirstCreateAttempt(
             operationID: coordinatorOperationID, expectedScope: scope(candidate)
         ))
+        XCTAssertTrue(try journal.admitFirstCommitAttempt(
+            operationID: coordinatorOperationID, expectedScope: scope(candidate)
+        ))
         let wallet = ReadbackWalletVerifierFixture()
         let ownerTransport = GenerationTransportFixture()
         ownerTransport.responses = Array(repeating: .success(.init(
@@ -1152,6 +1158,43 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         XCTAssertEqual(result.sha256, candidate.sha256)
         XCTAssertEqual(wallet.calls, 1)
         XCTAssertEqual(fixture.transport.requests.map(\.method), ["GET", "GET"])
+        XCTAssertEqual(generationTransport.requests.map(\.url.lastPathComponent), ["operation"])
+    }
+
+    @available(iOS 18.0, *)
+    func testVerifiedPromotionRestartWithAbsentStatusNeverRetriesCommit() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let (journal, parent) = try coordinatorJournal()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        _ = try journal.persistPrepared(
+            operationID: coordinatorOperationID, candidate: candidate, expectedScope: scope(candidate)
+        )
+        XCTAssertTrue(try journal.admitFirstCreateAttempt(
+            operationID: coordinatorOperationID, expectedScope: scope(candidate)
+        ))
+        XCTAssertTrue(try journal.admitFirstCommitAttempt(
+            operationID: coordinatorOperationID, expectedScope: scope(candidate)
+        ))
+        let ownerTransport = GenerationTransportFixture()
+        ownerTransport.responses = [.success(.init(statusCode: 200, body: try parentHeadBody(candidate)))]
+        let generationTransport = GenerationTransportFixture()
+        generationTransport.responses = [
+            .success(.init(statusCode: 200, body: Data(#"{"status":"absent"}"#.utf8)))
+        ]
+        do {
+            _ = try await promotion(
+                fixture, journal: journal, wallet: ReadbackWalletVerifierFixture(),
+                ownerTransport: ownerTransport, generationTransport: generationTransport
+            ).promote(
+                operationID: coordinatorOperationID, ownerSession: ownerSession(candidate),
+                verifiedPRF: try await verifiedReadbackPRF(), expectedWallet: expectedWallet()
+            )
+            XCTFail("A prior commit attempt was repeated")
+        } catch {
+            XCTAssertEqual(error as? PasskeyBackupVerifiedPromotionError, .unresolvedCommit)
+        }
+        XCTAssertTrue(fixture.transport.requests.isEmpty)
         XCTAssertEqual(generationTransport.requests.map(\.url.lastPathComponent), ["operation"])
     }
 
@@ -1196,6 +1239,9 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         XCTAssertTrue(try XCTUnwrap(journal.read(
             operationID: coordinatorOperationID, expectedScope: scope(candidate)
         )).createAttempted)
+        XCTAssertTrue(try XCTUnwrap(journal.read(
+            operationID: coordinatorOperationID, expectedScope: scope(candidate)
+        )).commitAttempted)
         XCTAssertEqual(fixture.transport.requests.filter { $0.method == "POST" }.count, 1)
     }
 

@@ -80,11 +80,14 @@ final class PasskeyBackupVerifiedGenerationPromotion {
         )
         switch status {
         case let .committed(descriptor):
-            guard prepared.createAttempted else {
+            guard prepared.createAttempted, prepared.commitAttempted else {
                 throw PasskeyBackupVerifiedPromotionError.operationNotAttempted
             }
             return try await verifyCommitted(descriptor: descriptor, context: context)
         case .absent:
+            guard !prepared.commitAttempted else {
+                throw PasskeyBackupVerifiedPromotionError.unresolvedCommit
+            }
             return try await promoteAbsent(context: context, initialHead: initialHead)
         }
     }
@@ -122,6 +125,11 @@ final class PasskeyBackupVerifiedGenerationPromotion {
             session: context.ownerSession, metadata: metadata
         )
         try await requireUnchangedHead(initialHead, ownerSession: context.ownerSession)
+        guard try journal.admitFirstCommitAttempt(
+            operationID: context.reference.operationID, expectedScope: context.scope
+        ) else {
+            throw PasskeyBackupVerifiedPromotionError.unresolvedCommit
+        }
         return try await commitVerified(context: context, metadata: metadata, grant: grant, evidence: evidence)
     }
 
@@ -285,7 +293,7 @@ private extension PasskeyBackupVerifiedGenerationPromotion {
         let prepared = context.prepared
         guard let current = try journal.read(
             operationID: context.reference.operationID, expectedScope: context.scope
-        ), current.createAttempted, current.fileID == prepared.fileID,
+        ), current.createAttempted, current.commitAttempted, current.fileID == prepared.fileID,
         current.context == prepared.context, current.sha256 == prepared.sha256,
         current.bytes == prepared.bytes else {
             throw PasskeyBackupGenerationJournalError.invalidRecord

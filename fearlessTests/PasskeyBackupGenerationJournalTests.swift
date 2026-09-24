@@ -203,6 +203,32 @@ final class PasskeyBackupGenerationJournalTests: XCTestCase {
         XCTAssertFalse(try restarted.admitFirstCreateAttempt(operationID: operationID, expectedScope: scope))
     }
 
+    func testCommitMarkerIsOneWayAcrossRestartAndPartialWrite() throws {
+        let parent = try temporaryParent()
+        defer { try? FileManager.default.removeItem(at: parent) }
+        let (candidate, scope) = try fixture()
+        let journal = try PasskeyBackupGenerationJournal(parentDirectoryURL: parent)
+        _ = try journal.persistPrepared(operationID: operationID, candidate: candidate, expectedScope: scope)
+        XCTAssertTrue(try journal.admitFirstCreateAttempt(operationID: operationID, expectedScope: scope))
+        XCTAssertTrue(try journal.admitFirstCommitAttempt(operationID: operationID, expectedScope: scope))
+        XCTAssertFalse(try journal.admitFirstCommitAttempt(operationID: operationID, expectedScope: scope))
+
+        let restarted = try PasskeyBackupGenerationJournal(parentDirectoryURL: parent)
+        XCTAssertTrue(try XCTUnwrap(restarted.read(
+            operationID: operationID, expectedScope: scope
+        )).commitAttempted)
+        let markerURL = parent.appendingPathComponent("passkey-generations-v1/op-\(operationID).commit")
+        let handle = try FileHandle(forWritingTo: markerURL)
+        try handle.truncate(atOffset: 3)
+        try handle.synchronize()
+        try handle.close()
+        XCTAssertTrue(try XCTUnwrap(restarted.read(
+            operationID: operationID, expectedScope: scope
+        )).commitAttempted)
+        XCTAssertFalse(try restarted.admitFirstCommitAttempt(operationID: operationID, expectedScope: scope))
+        XCTAssertEqual(try restarted.listPending(expectedScope: scope).count, 1)
+    }
+
     func testSymlinkDirectoryIsRejectedBeforeReadingCandidate() throws {
         let parent = try temporaryParent()
         defer { try? FileManager.default.removeItem(at: parent) }

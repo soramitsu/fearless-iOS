@@ -66,7 +66,11 @@ is absent, promotion uploads or reconciles the one candidate, downloads its
 exact bytes, consumes a verified PRF once to decrypt and check the original
 wallet, rechecks the owner head and Google account, then requests a single-use
 grant and conditional owner commit. A lost commit response triggers read-only
-operation reconciliation; it never triggers a second upload or blind commit.
+operation reconciliation. A distinct, durably synced commit-attempt marker is
+written before the only possible owner CAS. A surviving partial marker also
+blocks another commit; a restarted caller may query operation status but may
+not retry the write when the result is absent or unknown. It never triggers a
+second upload or blind commit.
 The prior decryptable owner head remains until the server has committed the
 candidate. On successful commit, the client reads the new authenticated head
 and exact Drive bytes again, comparing them to the ciphertext already decrypted

@@ -146,6 +146,29 @@ final class PasskeyBackupGenerationJournal {
         }
     }
 
+    /// Persist a one-way fence before any owner CAS request. Even a partial surviving marker
+    /// blocks another write; the operation may still be reconciled read-only by its exact ID.
+    func admitFirstCommitAttempt(
+        operationID: String, expectedScope: PasskeyBackupGenerationJournalScope
+    ) throws -> Bool {
+        try PasskeyBackupGenerationJournalRecord.requireOperationID(operationID)
+        return try locked {
+            guard let record = try readFile(
+                Self.recordName(operationID),
+                maximum: PasskeyBackupGenerationJournalRecord.maximumBytes
+            ) else {
+                throw PasskeyBackupGenerationJournalError.invalidRecord
+            }
+            let entry = try verifiedEntry(record, operationID: operationID, expectedScope: expectedScope)
+            guard entry.createAttempted else { throw PasskeyBackupGenerationJournalError.invalidRecord }
+            try confirmPreparedDurable(Self.recordName(operationID), expected: record)
+            let name = Self.commitName(operationID)
+            if try readFile(name, maximum: 40) != nil { return false }
+            try writeExclusive(PasskeyBackupGenerationJournalRecord.commitMarker(for: record), name: name)
+            return true
+        }
+    }
+
     func read(
         operationID: String, expectedScope: PasskeyBackupGenerationJournalScope
     ) throws -> PasskeyBackupGenerationJournalEntry? {
@@ -169,42 +192,6 @@ final class PasskeyBackupGenerationJournal {
         }
     }
 
-    private func checkedEntries() throws -> [PasskeyBackupGenerationJournalEntry] {
-        let names = try fileNames()
-        guard names.count <= Self.maximumEntries * 2 + 1 else {
-            throw PasskeyBackupGenerationJournalError.capacityExceeded
-        }
-        let records = names.filter { $0.hasSuffix(".journal") }
-        for name in names where name != ".lock" {
-            guard name.hasSuffix(".journal") || name.hasSuffix(".attempt") else {
-                throw PasskeyBackupGenerationJournalError.invalidRecord
-            }
-            if name.hasSuffix(".attempt") {
-                let id = String(name.dropFirst(3).dropLast(8))
-                try PasskeyBackupGenerationJournalRecord.requireOperationID(id)
-                guard records.contains(Self.recordName(id)) else {
-                    throw PasskeyBackupGenerationJournalError.invalidRecord
-                }
-            }
-        }
-        let entries = try records.sorted().map { name in
-            let id = String(name.dropFirst(3).dropLast(8))
-            try PasskeyBackupGenerationJournalRecord.requireOperationID(id)
-            guard let record = try readFile(name, maximum: PasskeyBackupGenerationJournalRecord.maximumBytes) else {
-                throw PasskeyBackupGenerationJournalError.invalidRecord
-            }
-            return try verifiedEntry(record, operationID: id)
-        }
-        let driveKeys = entries.map { $0.context.storageAccountBinding + "\u{0}" + $0.fileID }
-        let generationKeys = entries.map {
-            $0.context.ownerSubject + "\u{0}" + $0.context.backupNamespace + "\u{0}" + $0.context.generationId
-        }
-        guard Set(driveKeys).count == entries.count, Set(generationKeys).count == entries.count else {
-            throw PasskeyBackupGenerationJournalError.invalidRecord
-        }
-        return entries
-    }
-
     private func verifiedEntry(
         _ record: Data, operationID: String,
         expectedScope: PasskeyBackupGenerationJournalScope? = nil
@@ -214,11 +201,17 @@ final class PasskeyBackupGenerationJournal {
             throw PasskeyBackupGenerationJournalError.invalidRecord
         }
         let entry = try PasskeyBackupGenerationJournalRecord.decode(record, attempted: marker != nil)
+        let commit = try readFile(Self.commitName(operationID), maximum: 40)
+        guard commit == nil || marker != nil else { throw PasskeyBackupGenerationJournalError.invalidRecord }
         guard entry.operationID == operationID else { throw PasskeyBackupGenerationJournalError.invalidRecord }
         if let expectedScope = expectedScope, !expectedScope.matches(entry.context) {
             throw PasskeyBackupGenerationJournalError.scopeMismatch
         }
-        return entry
+        return PasskeyBackupGenerationJournalEntry(
+            operationID: entry.operationID, fileID: entry.fileID, context: entry.context,
+            bytes: entry.bytes, sha256: entry.sha256,
+            createAttempted: entry.createAttempted, commitAttempted: commit != nil
+        )
     }
 
     private func locked<Result>(_ action: () throws -> Result) throws -> Result {
@@ -255,6 +248,49 @@ final class PasskeyBackupGenerationJournal {
 }
 
 private extension PasskeyBackupGenerationJournal {
+    func checkedEntries() throws -> [PasskeyBackupGenerationJournalEntry] {
+        let names = try fileNames()
+        guard names.count <= Self.maximumEntries * 3 + 1 else {
+            throw PasskeyBackupGenerationJournalError.capacityExceeded
+        }
+        let records = names.filter { $0.hasSuffix(".journal") }
+        for name in names where name != ".lock" {
+            guard name.hasSuffix(".journal") || name.hasSuffix(".attempt") || name.hasSuffix(".commit") else {
+                throw PasskeyBackupGenerationJournalError.invalidRecord
+            }
+            if name.hasSuffix(".attempt") {
+                let id = String(name.dropFirst(3).dropLast(8))
+                try PasskeyBackupGenerationJournalRecord.requireOperationID(id)
+                guard records.contains(Self.recordName(id)) else {
+                    throw PasskeyBackupGenerationJournalError.invalidRecord
+                }
+            }
+            if name.hasSuffix(".commit") {
+                let id = String(name.dropFirst(3).dropLast(7))
+                try PasskeyBackupGenerationJournalRecord.requireOperationID(id)
+                guard records.contains(Self.recordName(id)), names.contains(Self.attemptName(id)) else {
+                    throw PasskeyBackupGenerationJournalError.invalidRecord
+                }
+            }
+        }
+        let entries = try records.sorted().map { name in
+            let id = String(name.dropFirst(3).dropLast(8))
+            try PasskeyBackupGenerationJournalRecord.requireOperationID(id)
+            guard let record = try readFile(name, maximum: PasskeyBackupGenerationJournalRecord.maximumBytes) else {
+                throw PasskeyBackupGenerationJournalError.invalidRecord
+            }
+            return try verifiedEntry(record, operationID: id)
+        }
+        let driveKeys = entries.map { $0.context.storageAccountBinding + "\u{0}" + $0.fileID }
+        let generationKeys = entries.map {
+            $0.context.ownerSubject + "\u{0}" + $0.context.backupNamespace + "\u{0}" + $0.context.generationId
+        }
+        guard Set(driveKeys).count == entries.count, Set(generationKeys).count == entries.count else {
+            throw PasskeyBackupGenerationJournalError.invalidRecord
+        }
+        return entries
+    }
+
     func fileNames() throws -> [String] {
         do {
             return try FileManager.default.contentsOfDirectory(atPath: directoryURL.path)
@@ -354,4 +390,5 @@ private extension PasskeyBackupGenerationJournal {
 
     private static func recordName(_ operationID: String) -> String { "op-\(operationID).journal" }
     private static func attemptName(_ operationID: String) -> String { "op-\(operationID).attempt" }
+    private static func commitName(_ operationID: String) -> String { "op-\(operationID).commit" }
 }
