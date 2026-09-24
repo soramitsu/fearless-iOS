@@ -176,6 +176,31 @@ class MetaAccountMapperTests: XCTestCase {
         )
     }
 
+    func testExactNewWalletReplacementRetainsExplicitCohortOrder() throws {
+        let queue = OperationQueue()
+        let facade = UserDataStorageTestFacade()
+        let repository = facade.createRepository(
+            mapper: AnyCoreDataMapper(MetaAccountSelectionMapper())
+        )
+        let wallet = AccountGenerator.generateMetaAccount(generatingChainAccounts: 0)
+        let expectedOrder: UInt32 = 123
+        let restore = MetaAccountSelectionModel(
+            identifier: wallet.metaId, wallet: wallet, isSelected: true,
+            order: expectedOrder, updatesWalletPayload: true,
+            replacesWalletChildrenExactly: true
+        )
+        let save = repository.saveOperation({ [restore] }, { [] })
+        queue.addOperations([save], waitUntilFinished: true)
+        _ = try XCTUnwrap(save.result).get()
+
+        let fetch = repository.fetchAllOperation(with: RepositoryFetchOptions())
+        queue.addOperations([fetch], waitUntilFinished: true)
+        let stored = try XCTUnwrap(try XCTUnwrap(fetch.result).get().first)
+        XCTAssertEqual(stored.identifier, wallet.metaId)
+        XCTAssertEqual(stored.order, expectedOrder)
+        XCTAssertTrue(stored.isSelected)
+    }
+
     func testWalletReplacementRemovesObsoleteChainAndVisibilityRows() throws {
         let queue = OperationQueue()
         let facade = UserDataStorageTestFacade()

@@ -788,7 +788,7 @@ extension MetaAccountSelectionMapper: CoreDataMapperProtocol {
             try persistDisplayPreferences(model.displayPreferences, in: entity)
 
             if isNew {
-                entity.order = try nextOrder(in: context)
+                entity.order = try orderForNewWallet(model, in: context)
             } else if model.order != ManagedMetaAccountModel.noOrder {
                 entity.order = Int32(bitPattern: model.order)
             }
@@ -833,6 +833,18 @@ extension MetaAccountSelectionMapper: CoreDataMapperProtocol {
                 forKey: "zeroBalanceAssetsHidden"
             )
         }
+    }
+
+    private func orderForNewWallet(
+        _ model: MetaAccountSelectionModel,
+        in context: NSManagedObjectContext
+    ) throws -> Int32 {
+        if model.replacesWalletChildrenExactly,
+           model.order != ManagedMetaAccountModel.noOrder {
+            // A verified cohort restore must retain the source order.
+            return Int32(bitPattern: model.order)
+        }
+        return try nextOrder(in: context)
     }
 
     private func nextOrder(in context: NSManagedObjectContext) throws -> Int32 {
