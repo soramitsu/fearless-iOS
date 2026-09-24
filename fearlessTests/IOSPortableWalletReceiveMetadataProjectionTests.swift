@@ -98,7 +98,24 @@ final class IOSReceiveMetadataProjectionTests: XCTestCase {
         XCTAssertEqual(plan.metadataProjections[0]?.selectedCurrencyID, "JPY")
         XCTAssertTrue(plan.blockers.contains(.unmappedMetadata(1)))
         XCTAssertTrue(plan.blockers.contains(.transactionalInstallerUnavailable))
+        XCTAssertEqual(try plan.destinationOrders(after: [6, 6]), [7])
         XCTAssertEqual(try Codec.encode(plan.snapshot), encoded)
+    }
+
+    func testDestinationOrdersUseRecordSequenceAndBoundedPositiveCoreDataSpace() throws {
+        XCTAssertEqual(try IOSPortableReceiveOrderAllocator.assign(walletCount: 2, after: []), [1, 2])
+        XCTAssertEqual(try IOSPortableReceiveOrderAllocator.assign(walletCount: 3, after: [0, 9, 9]), [10, 11, 12])
+        XCTAssertEqual(
+            try IOSPortableReceiveOrderAllocator.assign(walletCount: 1, after: [UInt32(Int32.max - 1)]),
+            [UInt32(Int32.max)]
+        )
+        XCTAssertThrowsError(
+            try IOSPortableReceiveOrderAllocator.assign(walletCount: 2, after: [UInt32(Int32.max - 1)])
+        )
+        XCTAssertThrowsError(
+            try IOSPortableReceiveOrderAllocator.assign(walletCount: 1, after: [UInt32(Int32.max) + 1])
+        )
+        XCTAssertThrowsError(try IOSPortableReceiveOrderAllocator.assign(walletCount: 0, after: []))
     }
 
     private func stringList(_ values: [String]) throws -> [UInt8] {

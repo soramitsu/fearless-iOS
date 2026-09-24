@@ -201,6 +201,27 @@ class MetaAccountMapperTests: XCTestCase {
         XCTAssertTrue(stored.isSelected)
     }
 
+    func testExactNewWalletReplacementRejectsOrderOutsideCoreDataRange() throws {
+        let queue = OperationQueue()
+        let facade = UserDataStorageTestFacade()
+        let repository = facade.createRepository(
+            mapper: AnyCoreDataMapper(MetaAccountSelectionMapper())
+        )
+        let wallet = AccountGenerator.generateMetaAccount(generatingChainAccounts: 0)
+        let invalid = MetaAccountSelectionModel(
+            identifier: wallet.metaId, wallet: wallet, isSelected: true,
+            order: UInt32(Int32.max) + 1, updatesWalletPayload: true,
+            replacesWalletChildrenExactly: true
+        )
+        let save = repository.saveOperation({ [invalid] }, { [] })
+        queue.addOperations([save], waitUntilFinished: true)
+        XCTAssertThrowsError(try XCTUnwrap(save.result).get())
+
+        let count = repository.fetchCountOperation()
+        queue.addOperations([count], waitUntilFinished: true)
+        XCTAssertEqual(try XCTUnwrap(count.result).get(), 0)
+    }
+
     func testWalletReplacementRemovesObsoleteChainAndVisibilityRows() throws {
         let queue = OperationQueue()
         let facade = UserDataStorageTestFacade()

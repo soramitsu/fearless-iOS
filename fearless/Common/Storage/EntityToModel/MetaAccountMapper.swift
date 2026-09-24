@@ -841,8 +841,11 @@ extension MetaAccountSelectionMapper: CoreDataMapperProtocol {
     ) throws -> Int32 {
         if model.replacesWalletChildrenExactly,
            model.order != ManagedMetaAccountModel.noOrder {
-            // A verified cohort restore must retain the source order.
-            return Int32(bitPattern: model.order)
+            // A verified cohort restore must retain its assigned record order.
+            guard model.order <= UInt32(Int32.max) else {
+                throw MetaAccountMapperError.walletOrderOverflow
+            }
+            return Int32(model.order)
         }
         return try nextOrder(in: context)
     }

@@ -47,6 +47,15 @@ enum IOSPortableWalletReceiveInstallPlan {
         let metadataProjections: [IOSPortableReceiveMetadata.Projection?]
         let blockers: [Blocker]
 
+        /// Uses the semantic record sequence, not historical source positions.
+        /// A future installer must read existing orders under its writer lock and
+        /// recheck them in the same Core Data transaction before persistence.
+        func destinationOrders(after existingOrders: [UInt32]) throws -> [UInt32] {
+            try IOSPortableReceiveOrderAllocator.assign(
+                walletCount: snapshot.wallets.count, after: existingOrders
+            )
+        }
+
         /// Best-effort erasure only: Swift copies may retain earlier storage.
         mutating func clearSecrets() {
             snapshot.clearSecrets()
@@ -224,4 +233,26 @@ enum IOSPortableWalletReceiveInstallPlan {
         UniversalWalletRegistry.tonMainnetRegistryEntry.chainId,
         UniversalWalletRegistry.nexus.chainId
     ]
+}
+
+/// Assigns positive Core Data order values for a complete receiving cohort.
+/// Historical source positions may tie or exceed Int32, so only record order
+/// determines the new wallets' relative presentation order.
+enum IOSPortableReceiveOrderAllocator {
+    enum OrderError: Error, Equatable {
+        case invalidExistingOrder
+        case orderSpaceExhausted
+    }
+
+    static func assign(walletCount: Int, after existingOrders: [UInt32]) throws -> [UInt32] {
+        guard (1 ... IOSPortableWalletSemanticMaterial.maxWallets).contains(walletCount) else {
+            throw OrderError.orderSpaceExhausted
+        }
+        let maximum = existingOrders.max() ?? 0
+        guard maximum <= UInt32(Int32.max) else { throw OrderError.invalidExistingOrder }
+        guard UInt64(maximum) + UInt64(walletCount) <= UInt64(Int32.max) else {
+            throw OrderError.orderSpaceExhausted
+        }
+        return (1 ... walletCount).map { maximum + UInt32($0) }
+    }
 }
