@@ -27,6 +27,10 @@ enum IOSPortableReceiveMetadata {
         let assetFilterOptions: [String]?
         let zeroBalanceAssetsHidden: Bool?
         let canExportEthereumMnemonic: Bool?
+        /// Android display preferences are retained exactly for a future
+        /// destination mapping; nil differs from an explicitly empty value.
+        let androidSelectedChainID: String?
+        let androidChainSelectFilter: String?
 
         var description: String {
             "IOSPortableReceiveMetadata.Projection(<redacted>)"
@@ -51,6 +55,8 @@ enum IOSPortableReceiveMetadata {
         var assetFilters: [String]?
         var zeroBalanceHidden: Bool?
         var canExportEthereumMnemonic: Bool?
+        var androidSelectedChainID: String?
+        var androidChainSelectFilter: String?
 
         var projection: Projection {
             Projection(
@@ -58,13 +64,17 @@ enum IOSPortableReceiveMetadata {
                 selectedCurrencyID: currency, networkManagementFilter: networkFilter,
                 assetVisibility: visibility, favoriteChainIDs: favorites,
                 assetFilterOptions: assetFilters, zeroBalanceAssetsHidden: zeroBalanceHidden,
-                canExportEthereumMnemonic: canExportEthereumMnemonic
+                canExportEthereumMnemonic: canExportEthereumMnemonic,
+                androidSelectedChainID: androidSelectedChainID,
+                androidChainSelectFilter: androidChainSelectFilter
             )
         }
     }
 
     static func decode(_ metadata: [Codec.Metadata]) throws -> Projection {
-        guard metadata.count <= 9 else { throw ProjectionError.invalidMetadata }
+        guard metadata.count <= Int(MetadataID.androidChainSelectFilter) else {
+            throw ProjectionError.invalidMetadata
+        }
         var state = State()
         var priorID: UInt8 = 0
 
@@ -113,6 +123,10 @@ enum IOSPortableReceiveMetadata {
             state.zeroBalanceHidden = try boolean(item.value)
         case MetadataID.canExportEthereumMnemonic:
             state.canExportEthereumMnemonic = try boolean(item.value)
+        case MetadataID.androidSelectedChainID:
+            state.androidSelectedChainID = try text(item.value, allowEmpty: true)
+        case MetadataID.androidChainSelectFilter:
+            state.androidChainSelectFilter = try text(item.value, allowEmpty: true)
         default:
             throw ProjectionError.invalidMetadata
         }

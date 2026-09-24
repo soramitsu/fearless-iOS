@@ -128,7 +128,7 @@ final class IOSPortableWalletSemanticMaterialTests: XCTestCase {
         XCTAssertThrowsError(try Codec.encode(.init(
             selectedIndex: 0, wallets: [wallet(metadata: duplicateMetadata, slots: [evmSlot()])]
         )))
-        let unknownMetadata = [Codec.Metadata(id: 10, value: [1])]
+        let unknownMetadata = [Codec.Metadata(id: 12, value: [1])]
         XCTAssertThrowsError(try Codec.encode(.init(
             selectedIndex: 0, wallets: [wallet(metadata: unknownMetadata, slots: [evmSlot()])]
         )))

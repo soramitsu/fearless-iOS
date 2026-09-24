@@ -54,6 +54,60 @@ final class IOSReceiveMetadataProjectionTests: XCTestCase {
         XCTAssertThrowsError(try Projection.decode([.init(id: MetadataID.selectedCurrency, value: [])]))
     }
 
+    func testAndroidDisplayMetadataRoundTripsAndRetainsExplicitEmpty() throws {
+        let metadata: [Codec.Metadata] = [
+            .init(id: MetadataID.androidSelectedChainID, value: Array("sora".utf8)),
+            .init(id: MetadataID.androidChainSelectFilter, value: [])
+        ]
+        let projected = try Projection.decode(metadata)
+        XCTAssertEqual(projected.androidSelectedChainID, "sora")
+        XCTAssertEqual(projected.androidChainSelectFilter, "")
+        XCTAssertNil(try Projection.decode([]).androidSelectedChainID)
+        XCTAssertNil(try Projection.decode([]).androidChainSelectFilter)
+
+        let watch = Codec.Slot(role: Codec.Role.watchIdentity, key: "0000", fields: [
+            .init(id: Codec.FieldID.accountIDOrAddress, value: [9]),
+            .init(id: Codec.FieldID.watchEcosystem, value: [2])
+        ])
+        var snapshot = Codec.Snapshot(selectedIndex: 0, wallets: [
+            .init(
+                portableID: [UInt8](repeating: 0x33, count: 16), sourcePosition: 0,
+                initialized: true, name: "watch", metadata: metadata, slots: [watch]
+            )
+        ])
+        defer { snapshot.clearSecrets() }
+        let encoded = try Codec.encode(snapshot)
+        let expectedHex =
+            "4650574d534d3031010001000033333333333333333333333333333333000000000100" +
+            "057761746368020a0004736f72610b0000000108000430303030020700010916000102"
+        XCTAssertEqual(encoded.map { String(format: "%02x", $0) }.joined(), expectedHex)
+        var decoded = try Codec.decode(encoded)
+        defer { decoded.clearSecrets() }
+        XCTAssertEqual(decoded.wallets[0].metadata, metadata)
+        var plan = try IOSPortableWalletReceiveInstallPlan.prepare(
+            encoded, approvedSubstrateGenesisIDs: []
+        )
+        defer { plan.clearSecrets() }
+        XCTAssertEqual(plan.metadataProjections[0]?.androidSelectedChainID, "sora")
+        XCTAssertEqual(plan.metadataProjections[0]?.androidChainSelectFilter, "")
+        XCTAssertTrue(plan.blockers.contains(.unmappedMetadata(2)))
+        XCTAssertEqual(try Codec.encode(plan.snapshot), encoded)
+    }
+
+    func testRejectsMalformedAndroidDisplayMetadata() throws {
+        XCTAssertThrowsError(try Projection.decode([
+            .init(id: MetadataID.androidSelectedChainID, value: [0xFF])
+        ]))
+        XCTAssertThrowsError(try Projection.decode([
+            .init(id: MetadataID.androidChainSelectFilter, value: Array(repeating: 0x61, count: 2049))
+        ]))
+        XCTAssertThrowsError(try Projection.decode([
+            .init(id: MetadataID.androidChainSelectFilter, value: []),
+            .init(id: MetadataID.androidSelectedChainID, value: [])
+        ]))
+        XCTAssertThrowsError(try Projection.decode([.init(id: 12, value: [])]))
+    }
+
     func testRejectsDisplayFiltersNotRepresentableInCurrentCoreData() throws {
         let tooMany = (0 ..< 33).map { "filter\($0)" }
         XCTAssertThrowsError(try Projection.decode([

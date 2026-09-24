@@ -64,3 +64,14 @@ and three pre-stage vacancy tests, **70/70** total with zero failures or skips.
 Strict SwiftLint and SwiftFormat passed on the proof and test source; the diff
 check passed. These local checks are not independent security
 review or signed-device acceptance.
+
+The FPWMSM01 codec now accepts optional Android display metadata IDs 10
+(selected chain) and 11 (chain-selector filter) as exact strict UTF-8 strings.
+The receive projection preserves absent versus explicitly empty values and
+rejects invalid UTF-8, oversize strings, unknown IDs and noncanonical order.
+The receive plan retains both values and its metadata-install blocker; no iOS
+wallet metadata is changed or installed from them yet. The exact 70-byte
+Android display-metadata vector is asserted by the iOS codec. The final-source
+iOS 18.1 arm64 Release simulator run passed 18/18 semantic-codec and receive
+projection tests with no skips or failures. This establishes byte compatibility,
+not destination installation or replacement-device recovery.

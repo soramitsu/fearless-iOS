@@ -32,7 +32,7 @@ extension IOSPortableWalletSemanticMaterial {
 
     static func validateWallet(_ wallet: Wallet) throws {
         _ = try strictText(Array(wallet.name.utf8), allowEmpty: true)
-        try ensure(wallet.metadata.count <= 9)
+        try ensure(wallet.metadata.count <= Int(MetadataID.androidChainSelectFilter))
         var lastMetadataID: UInt8 = 0
         for item in wallet.metadata {
             try ensure(item.id > lastMetadataID)
@@ -82,13 +82,14 @@ extension IOSPortableWalletSemanticMaterial {
     }
 
     static func validateMetadata(_ item: Metadata) throws {
-        try ensure((MetadataID.assetKeysOrder ... MetadataID.canExportEthereumMnemonic).contains(item.id))
+        try ensure((MetadataID.assetKeysOrder ... MetadataID.androidChainSelectFilter).contains(item.id))
         try ensure(item.value.count <= maxSecret)
         switch item.id {
         case MetadataID.assetKeysOrder, MetadataID.unusedChainIDs,
              MetadataID.favoriteChainIDs, MetadataID.assetFilterOptions:
             try validateStringList(item.value)
-        case MetadataID.selectedCurrency, MetadataID.networkManagementFilter:
+        case MetadataID.selectedCurrency, MetadataID.networkManagementFilter,
+             MetadataID.androidSelectedChainID, MetadataID.androidChainSelectFilter:
             _ = try strictText(item.value, allowEmpty: true)
         case MetadataID.assetVisibility:
             try validateVisibilityMap(item.value)
