@@ -211,6 +211,45 @@ final class GoogleDrivePasskeyBackupTests: XCTestCase {
         XCTAssertEqual(String(reflecting: token), "GoogleDriveBackupAuthorization(<redacted>)")
     }
 
+    func testTypedAccountConfirmationRequiresExplicitContinueForSelectedSubject() async throws {
+        let session = DriveOAuthFixture(value: try authorization())
+        let confirmer = DriveAccountConfirmerFixture(decision: .continueWithSelectedSubject("google-subject"))
+        let provider = try await GoogleDrivePasskeyBackupTokenProvider.requestConsent(
+            presenting: UIViewController(), session: session, accountConfirmer: confirmer, now: { self.time }
+        )
+        XCTAssertEqual(confirmer.confirmedAccounts, [try account()])
+        XCTAssertEqual(provider.account, try account())
+        XCTAssertEqual(session.consentCalls, 1)
+    }
+
+    func testTypedAccountConfirmationCancelOrDifferentSubjectFailsClosed() async throws {
+        let cases: [(GoogleDriveBackupAccountDecision, GoogleDrivePasskeyBackupError)] = [
+            (.cancel, .accountSelectionDeclined),
+            (.continueWithSelectedSubject("other-subject"), .accountChanged)
+        ]
+        for (decision, expected) in cases {
+            let session = DriveOAuthFixture(value: try authorization())
+            let confirmer = DriveAccountConfirmerFixture(decision: decision)
+            await assertError(expected) {
+                _ = try await GoogleDrivePasskeyBackupTokenProvider.requestConsent(
+                    presenting: UIViewController(), session: session, accountConfirmer: confirmer, now: { self.time }
+                )
+            }
+            XCTAssertEqual(confirmer.confirmedAccounts, [try account()])
+            XCTAssertEqual(session.refreshCalls, 0)
+        }
+    }
+
+    func testNativeAccountPromptShowsSelectedEmailAndSubjectWithExplicitActions() throws {
+        let alert = UIKitGoogleDriveBackupAccountConfirmer.makeAlert(for: try account(), onDecision: { _ in })
+        XCTAssertTrue(alert.message?.contains("alice@example.com") == true)
+        XCTAssertTrue(alert.message?.contains("google-subject") == true)
+        XCTAssertEqual(alert.actions.count, 2)
+        XCTAssertEqual(alert.actions.map(\.style), [.cancel, .default])
+        XCTAssertEqual(alert.actions[0].title, NSLocalizedString("common.cancel", comment: ""))
+        XCTAssertEqual(alert.actions[1].title, NSLocalizedString("common.continue", comment: ""))
+    }
+
     func testDeniedConsentCannotCreateAProvider() async throws {
         let session = DriveOAuthFixture(value: try authorization(scopes: []))
         await assertError(.consentRequired) {
@@ -341,6 +380,20 @@ final class GoogleDrivePasskeyBackupTests: XCTestCase {
         )) { XCTAssertEqual($0 as? PasskeyBackupError, .passkeyBackupDisabled) }
         XCTAssertEqual(provider.calls, 0)
         XCTAssertFalse(PasskeyBackupReleaseConfig.isPasskeyBackupEnabled)
+    }
+
+    func testDisabledAccountConsentCompositionDoesNotOpenGoogleOrConfirmation() async throws {
+        let confirmer = DriveAccountConfirmerFixture(decision: .continueWithSelectedSubject("google-subject"))
+        do {
+            _ = try await PasskeyBackupComposition.requestGoogleDriveAccountConsent(
+                presenting: UIViewController(), accountConfirmer: confirmer,
+                makeSession: { XCTFail("Disabled consent initialized Google"); return DriveOAuthFixture(value: nil) }
+            )
+            XCTFail("Disabled consent was accepted")
+        } catch {
+            XCTAssertEqual(error as? PasskeyBackupError, .passkeyBackupDisabled)
+        }
+        XCTAssertTrue(confirmer.confirmedAccounts.isEmpty)
     }
 
     func testMissingNativeConfigurationDoesNotInitializeGoogleSDK() {
@@ -528,5 +581,19 @@ private final class DriveOAuthFixture: GoogleDriveBackupOAuthSession {
     func refreshAuthorization() async throws -> GoogleDriveBackupAuthorization {
         refreshCalls += 1
         return try refresh?() ?? XCTUnwrap(value)
+    }
+}
+
+@MainActor
+private final class DriveAccountConfirmerFixture: GoogleDriveBackupAccountConfirming {
+    let decision: GoogleDriveBackupAccountDecision
+    var confirmedAccounts: [GoogleDriveBackupAccount] = []
+
+    init(decision: GoogleDriveBackupAccountDecision) { self.decision = decision }
+
+    func confirm(_ account: GoogleDriveBackupAccount, presenting _: UIViewController) async throws
+        -> GoogleDriveBackupAccountDecision {
+        confirmedAccounts.append(account)
+        return decision
     }
 }

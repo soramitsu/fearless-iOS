@@ -156,6 +156,7 @@
 "backup.select.wallet.create.button" = "Create new account";
 "backup.select.wallet.title" = "Select wallet to import";
 "backup.wallet.backup.google" = "Backup to Google";
+"passkey.backup.drive.confirm.account" = "Use this Google Drive account for encrypted backups?\n%@\nGoogle account ID: %@";
 "backup.wallet.delete.google" = "Delete Google backup";
 "backup.wallet.delete.message" = "If you delete your Google backup, you’ll only be able to recover your wallet with a manual backup of your passphrase";
 "backup.wallet.footer.view.text" = "If you loose access to this device, your funds will be lost, unless you back up!";

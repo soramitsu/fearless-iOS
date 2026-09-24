@@ -195,6 +195,20 @@ final class GoogleDrivePasskeyBackupCloudStorage: PasskeyBackupCloudStorage {
 
 @MainActor
 extension PasskeyBackupComposition {
+    /// Explicit consent starts only after the compiled release gate opens. No backup screen calls this yet.
+    static func requestGoogleDriveAccountConsent(
+        presenting: UIViewController,
+        accountConfirmer: GoogleDriveBackupAccountConfirming? = nil,
+        makeSession: (() throws -> GoogleDriveBackupOAuthSession)? = nil
+    ) async throws -> GoogleDrivePasskeyBackupTokenProvider {
+        try PasskeyBackupReleaseConfig.validateEnabled()
+        try Task.checkCancellation()
+        let session = try makeSession?() ?? NativeGoogleDriveBackupOAuthSession()
+        return try await GoogleDrivePasskeyBackupTokenProvider.requestConsent(
+            presenting: presenting, session: session, accountConfirmer: accountConfirmer
+        )
+    }
+
     /// Drive is the portable primary store; callers may explicitly save an optional CloudKit copy separately.
     /// Missing owner authorization/recoverable key implementations still fail closed in the workflow.
     static func makeGoogleDriveClient(

@@ -65,6 +65,84 @@ protocol GoogleDriveBackupOAuthSession {
     func refreshAuthorization() async throws -> GoogleDriveBackupAuthorization
 }
 
+/// Echoing the selected subject prevents a confirmation UI from approving a different account.
+enum GoogleDriveBackupAccountDecision: Equatable {
+    case continueWithSelectedSubject(String)
+    case cancel
+}
+
+@MainActor
+protocol GoogleDriveBackupAccountConfirming {
+    func confirm(_ account: GoogleDriveBackupAccount, presenting: UIViewController) async throws
+        -> GoogleDriveBackupAccountDecision
+}
+
+/// The standard confirmation UI for the explicit, user-initiated Drive consent path.
+@MainActor
+final class UIKitGoogleDriveBackupAccountConfirmer: GoogleDriveBackupAccountConfirming {
+    func confirm(_ account: GoogleDriveBackupAccount, presenting: UIViewController) async throws
+        -> GoogleDriveBackupAccountDecision {
+        try Task.checkCancellation()
+        guard presenting.view.window != nil, presenting.presentedViewController == nil else {
+            throw GoogleDrivePasskeyBackupError.authorizationFailed
+        }
+        let pending = PendingConfirmation()
+        let decision = await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                pending.continuation = continuation
+                if Task.isCancelled {
+                    pending.resolve(.cancel)
+                    return
+                }
+                let alert = Self.makeAlert(for: account, onDecision: { pending.resolve($0) })
+                pending.alert = alert
+                presenting.present(alert, animated: true)
+            }
+        } onCancel: {
+            Task { @MainActor in pending.resolve(.cancel) }
+        }
+        try Task.checkCancellation()
+        return decision
+    }
+
+    static func makeAlert(
+        for account: GoogleDriveBackupAccount,
+        onDecision: @escaping (GoogleDriveBackupAccountDecision) -> Void
+    ) -> UIAlertController {
+        let title = NSLocalizedString("backup.wallet.backup.google", value: "Backup to Google", comment: "")
+        let messageFormat = NSLocalizedString(
+            "passkey.backup.drive.confirm.account",
+            value: "Use this Google Drive account for encrypted backups?\n%@\nGoogle account ID: %@",
+            comment: "Confirm the selected Google Drive account before portable wallet backup"
+        )
+        let alert = UIAlertController(
+            title: title,
+            message: String(format: messageFormat, account.email, account.subject),
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(
+            title: NSLocalizedString("common.cancel", value: "Cancel", comment: ""), style: .cancel
+        ) { _ in onDecision(.cancel) })
+        alert.addAction(UIAlertAction(
+            title: NSLocalizedString("common.continue", value: "Continue", comment: ""), style: .default
+        ) { _ in onDecision(.continueWithSelectedSubject(account.subject)) })
+        return alert
+    }
+
+    @MainActor
+    private final class PendingConfirmation {
+        var continuation: CheckedContinuation<GoogleDriveBackupAccountDecision, Never>?
+        weak var alert: UIAlertController?
+
+        func resolve(_ decision: GoogleDriveBackupAccountDecision) {
+            guard let continuation else { return }
+            self.continuation = nil
+            alert?.dismiss(animated: true)
+            continuation.resume(returning: decision)
+        }
+    }
+}
+
 @MainActor
 final class GoogleDrivePasskeyBackupTokenProvider: GoogleDriveBackupAccessTokenProvider {
     let account: GoogleDriveBackupAccount
@@ -79,6 +157,31 @@ final class GoogleDrivePasskeyBackupTokenProvider: GoogleDriveBackupAccessTokenP
         self.account = account
         self.session = session
         self.now = now
+    }
+
+    /// Production callers use the native confirmation; the callback form below is a test/integration seam.
+    static func requestConsent(
+        presenting: UIViewController,
+        session: GoogleDriveBackupOAuthSession,
+        accountConfirmer: GoogleDriveBackupAccountConfirming? = nil,
+        now: @escaping () -> Date = Date.init
+    ) async throws -> GoogleDrivePasskeyBackupTokenProvider {
+        let accountConfirmer = accountConfirmer ?? UIKitGoogleDriveBackupAccountConfirmer()
+        return try await requestConsent(
+            presenting: presenting, session: session,
+            confirmSelectedAccount: { account in
+                switch try await accountConfirmer.confirm(account, presenting: presenting) {
+                case let .continueWithSelectedSubject(subject):
+                    guard subject == account.subject else {
+                        throw GoogleDrivePasskeyBackupError.accountChanged
+                    }
+                    return true
+                case .cancel:
+                    return false
+                }
+            },
+            now: now
+        )
     }
 
     /// Invoke only from an explicit account/consent user action, never during storage I/O.
