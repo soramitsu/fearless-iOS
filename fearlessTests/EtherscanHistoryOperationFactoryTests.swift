@@ -247,6 +247,27 @@ final class KaiaScanHistoryOperationFactoryTests: XCTestCase {
         XCTAssertNil(result.first?.transactionFee)
     }
 
+    func testFeePayerOnlyActivityDoesNotBecomeAnIncomingTransfer() throws {
+        let json = #"""
+        {"results":[{
+          "transaction_hash":"0xfee-only","datetime":"2026-07-23T04:55:58.177Z",
+          "from":"0x1111111111111111111111111111111111111111",
+          "to":"0x2222222222222222222222222222222222222222",
+          "fee_payer":"0x1234567890123456789012345678901234567890",
+          "amount":5,"transaction_fee":0.001,
+          "status":{"status":"Success"}
+        },{
+          "transaction_hash":"0xreceived","datetime":"2026-07-23T04:56:58.177Z",
+          "from":"0x1111111111111111111111111111111111111111",
+          "to":"0x1234567890123456789012345678901234567890",
+          "amount":2,"transaction_fee":0.001,
+          "status":{"status":"Success"}
+        }],"paging":{"total_count":2,"current_page":1,"last":true,"total_page":1}}
+        """#
+        let result = try decode(json).validatedTransactions(page: 1, address: address, tokenContract: nil)
+        XCTAssertEqual(result.map(\.transactionHash), ["0xreceived"])
+    }
+
     func testProviderFailureAndWrongContractCannotAppearAsEmptyHistory() throws {
         for json in [
             #"{"success":false,"code":500,"result":[]}"#,

@@ -28,8 +28,11 @@ values, so the client decodes them as `Decimal` without the previous wei
 conversion. Transaction `status` maps success/failure to committed/rejected.
 The token-transfer response has no fee field; the UI leaves token transfer fees
 unspecified instead of displaying a fabricated zero. Account transaction fees
-may also be paid by a separate `fee_payer` under Kaia's delegated-fee model;
-funded reconciliation must qualify the intended UI treatment before release.
+may also be paid by a separate `fee_payer` under Kaia's delegated-fee model.
+Rows where the wallet is only the fee payer are excluded from transfer amounts,
+so someone else's payment cannot appear as an incoming wallet transfer. Funded
+reconciliation must qualify fee-only activity and the intended UI treatment
+before release.
 
 Source contracts:
 

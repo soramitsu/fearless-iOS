@@ -20,20 +20,24 @@ struct KaiaHistoryResponse: Decodable {
         guard paging.currentPage == page || documentedEmptyPage,
               paging.totalCount >= 0,
               paging.totalPage >= 0,
+              results.isEmpty || paging.totalCount >= Int64(results.count) && paging.totalPage >= page,
               !(!paging.last && results.isEmpty) else {
             throw KaiaHistoryError.providerRejected
         }
 
+        var transfers: [KaiaHistoryTransaction] = []
         for transaction in results {
-            let involvedAddresses = [transaction.fromAddress, transaction.toAddress, transaction.feePayer]
-                .compactMap { $0 }
-            let matchesAccount = involvedAddresses.contains {
+            let isSender = transaction.fromAddress.caseInsensitiveCompare(address) == .orderedSame
+            let isRecipient = transaction.toAddress.map {
                 $0.caseInsensitiveCompare(address) == .orderedSame
-            }
+            } ?? false
+            let isFeePayer = transaction.feePayer.map {
+                $0.caseInsensitiveCompare(address) == .orderedSame
+            } ?? false
             guard transaction.amount >= 0,
                   !transaction.transactionHash.isEmpty,
                   transaction.timestampInSeconds != nil,
-                  matchesAccount else {
+                  isSender || isRecipient || isFeePayer else {
                 throw KaiaHistoryError.providerRejected
             }
 
@@ -48,9 +52,18 @@ struct KaiaHistoryResponse: Decodable {
                     throw KaiaHistoryError.providerRejected
                 }
             }
+            if let status = transaction.status?.status,
+               !["Success", "Fail"].contains(status) {
+                throw KaiaHistoryError.providerRejected
+            }
+            // A fee-payer-only row is real account activity, but its transfer
+            // amount belongs to the sender and recipient, not this wallet.
+            if isSender || isRecipient {
+                transfers.append(transaction)
+            }
         }
 
-        return results
+        return transfers
     }
 }
 
