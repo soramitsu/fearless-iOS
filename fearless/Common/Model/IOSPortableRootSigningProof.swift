@@ -215,7 +215,7 @@ enum IOSPortableRootSigningProof {
     }
 }
 
-private final class ImportedRootSigner: SigningWrapperProtocol {
+final class ImportedRootSigner: SigningWrapperProtocol {
     let secret: Data
     let publicKey: Data
     let cryptoType: CryptoType

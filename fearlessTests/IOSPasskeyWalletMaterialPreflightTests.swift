@@ -746,6 +746,100 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         }
     }
 
+    func testImportedRegularSubstrateChainProvesOriginalKeyForAllReleasedCryptoTypes() throws {
+        let genesisID = "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3"
+        for cryptoType in [CryptoType.sr25519, .ed25519, .ecdsa] {
+            let encoded = try importedChainMaterial(cryptoType: cryptoType, chainID: genesisID)
+            XCTAssertEqual(
+                try IOSPortableRegularSubstrateChainProof.verify(
+                    encoded, approvedSubstrateGenesisIDs: [genesisID]
+                ),
+                .init(verifiedAccounts: 1, unprovenAccounts: 0)
+            )
+        }
+    }
+
+    func testImportedRegularSubstrateChainRejectsWrongSecretAccountAndCryptoType() throws {
+        let genesisID = "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3"
+        var material = try IOSPortableWalletSemanticMaterial.decode(
+            importedChainMaterial(cryptoType: .ed25519, chainID: genesisID)
+        )
+        defer { material.clearSecrets() }
+        material.wallets[0].slots.removeAll { $0.role == 7 }
+        let chainIndex = try XCTUnwrap(material.wallets[0].slots.firstIndex { $0.role == 5 })
+        let original = material.wallets[0].slots[chainIndex].fields
+        for fieldID in [UInt8(2), 7, 8] {
+            let index = try XCTUnwrap(material.wallets[0].slots[chainIndex].fields.firstIndex { $0.id == fieldID })
+            material.wallets[0].slots[chainIndex].fields[index].value[0] ^= 1
+            let encoded = try IOSPortableWalletSemanticMaterial.encode(material)
+            XCTAssertThrowsError(try IOSPortableRegularSubstrateChainProof.verify(
+                encoded, approvedSubstrateGenesisIDs: [genesisID]
+            )) {
+                XCTAssertEqual($0 as? IOSPortableRegularSubstrateChainProof.ProofError, .invalidChainIdentity)
+            }
+            material.wallets[0].slots[chainIndex].fields = original
+        }
+    }
+
+    func testImportedRegularSubstrateChainLeavesUnapprovedAndNamedSlotsUnproven() throws {
+        let genesisID = "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3"
+        var material = try IOSPortableWalletSemanticMaterial.decode(
+            importedChainMaterial(cryptoType: .ed25519, chainID: genesisID)
+        )
+        defer { material.clearSecrets() }
+        // Remove captured auxiliary source bindings to isolate role-5 routing.
+        material.wallets[0].slots.removeAll { $0.role == 7 }
+        let chainIndex = try XCTUnwrap(material.wallets[0].slots.firstIndex { $0.role == 5 })
+        XCTAssertEqual(try IOSPortableRegularSubstrateChainProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(material), approvedSubstrateGenesisIDs: []
+        ), .init(verifiedAccounts: 0, unprovenAccounts: 1))
+
+        material.wallets[0].slots[chainIndex] = .init(
+            role: 5, key: UniversalWalletRegistry.solanaMainnet.chainId,
+            fields: material.wallets[0].slots[chainIndex].fields
+        )
+        XCTAssertEqual(try IOSPortableRegularSubstrateChainProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(material),
+            approvedSubstrateGenesisIDs: [genesisID]
+        ), .init(verifiedAccounts: 0, unprovenAccounts: 1))
+        XCTAssertThrowsError(try IOSPortableRegularSubstrateChainProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(material),
+            approvedSubstrateGenesisIDs: [UniversalWalletRegistry.solanaMainnet.chainId]
+        )) {
+            XCTAssertEqual(
+                $0 as? IOSPortableRegularSubstrateChainProof.ProofError,
+                .invalidApprovedChainInventory
+            )
+        }
+    }
+
+    func testImportedRegularSubstrateChainRejectsEvmAccountOnApprovedGenesis() throws {
+        let genesisID = "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3"
+        var material = try IOSPortableWalletSemanticMaterial.decode(
+            importedChainMaterial(cryptoType: .ed25519, chainID: genesisID)
+        )
+        defer { material.clearSecrets() }
+        let publicKey = try SECKeyFactory().derive(
+            fromPrivateKey: SECPrivateKey(rawData: ethereumPrivateKey)
+        ).publicKey().rawData()
+        let address = try publicKey.ethereumAddressFromPublicKey()
+        material.wallets[0].slots.removeAll { $0.role == 7 }
+        let chainIndex = try XCTUnwrap(material.wallets[0].slots.firstIndex { $0.role == 5 })
+        let changedFields: [(UInt8, Data)] = [
+            (1, publicKey), (2, ethereumPrivateKey), (7, address), (8, Data([3]))
+        ]
+        for (fieldID, value) in changedFields {
+            let index = try XCTUnwrap(material.wallets[0].slots[chainIndex].fields.firstIndex { $0.id == fieldID })
+            material.wallets[0].slots[chainIndex].fields[index].value = Array(value)
+        }
+        XCTAssertThrowsError(try IOSPortableRegularSubstrateChainProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(material),
+            approvedSubstrateGenesisIDs: [genesisID]
+        )) {
+            XCTAssertEqual($0 as? IOSPortableRegularSubstrateChainProof.ProofError, .invalidChainIdentity)
+        }
+    }
+
     func testImportedLegacySubstrateRootChecksSS58IdentityAndSigner() throws {
         let keypair = try SNKeyFactory().createKeypair(fromSeed: Data(repeating: 0x11, count: 32))
         let publicKey = try keypair.publicKey().rawData()
@@ -1086,6 +1180,40 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
                 assetFilterOptions: nil, zeroBalanceAssetsHidden: false
             )
         )
+    }
+
+    private func importedChainMaterial(cryptoType: CryptoType, chainID: String) throws -> Data {
+        let seed = Data(repeating: 0x32, count: 32)
+        let publicKey: Data
+        let secret: Data
+        switch cryptoType {
+        case .sr25519:
+            let keypair = try SNKeyFactory().createKeypair(fromSeed: seed)
+            publicKey = try keypair.publicKey().rawData()
+            secret = try keypair.privateKey().rawData()
+        case .ed25519:
+            publicKey = try EDKeyFactory().derive(fromSeed: seed).publicKey().rawData()
+            secret = seed
+        case .ecdsa:
+            publicKey = try SECKeyFactory().derive(fromPrivateKey: SECPrivateKey(rawData: seed))
+                .publicKey().rawData()
+            secret = seed
+        }
+        let accountID = try publicKey.publicKeyToAccountId()
+        let wallet = try substrateWallet().insertingChainAccount(ChainAccountModel(
+            chainId: chainID, accountId: accountID, publicKey: publicKey,
+            cryptoType: cryptoType.rawValue, ethereumBased: false
+        ))
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): substrateSecretKey,
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(
+                wallet.metaId, accountId: accountID
+            ): secret
+        ])
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([selectedProjection(wallet)], keys: keys), keystore: keys
+        ).capture()
+        return try IOSPortableWalletSemanticDraftAdapter.encode(draft)
     }
 
     private var ethereumPrivateKey: Data { Data(repeating: 0x01, count: 32) }
