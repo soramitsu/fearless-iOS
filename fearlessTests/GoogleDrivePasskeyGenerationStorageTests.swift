@@ -1,3 +1,5 @@
+import AuthenticationServices
+import CryptoKit
 import UIKit
 import XCTest
 @testable import fearless
@@ -163,6 +165,97 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         ])
         XCTAssertEqual(String(reflecting: committed), "PasskeyBackupAuthenticatedHead(<redacted>)")
         XCTAssertEqual(String(reflecting: try XCTUnwrap(committed.head)), "PasskeyBackupHeadDescriptor(<redacted>)")
+    }
+
+    @available(iOS 18.0, *)
+    func testHeadReadbackDecryptsExactCommittedGenerationAndReturnsOnlyLocalEvidence() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let wallet = ReadbackWalletVerifierFixture()
+        fixture.transport.responses = [.success(.init(statusCode: 200, body: try metadata(candidate))),
+                                       .success(.init(statusCode: 200, body: candidate.bytes))]
+        let result = try await PasskeyBackupHeadReadbackVerifier(
+            storage: fixture.store,
+            cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier(walletVerifier: wallet)
+        ).verify(
+            authenticatedHead: authenticatedHead(candidate),
+            verifiedPRF: try await verifiedReadbackPRF(), expectedWallet: expectedWallet()
+        )
+        XCTAssertEqual(result.headRevision, 7)
+        XCTAssertEqual(result.fileID, candidate.fileID)
+        XCTAssertEqual(result.sha256, candidate.sha256)
+        XCTAssertEqual(result.publicIdentitySha256, String(repeating: "b", count: 64))
+        XCTAssertEqual(wallet.calls, 1)
+        XCTAssertEqual(fixture.transport.requests.map(\.method), ["GET", "GET"])
+        XCTAssertEqual(fixture.oauth.refreshes, 3)
+        XCTAssertEqual(String(reflecting: result), "PasskeyBackupLocallyVerifiedHead(<redacted>)")
+        XCTAssertFalse(PasskeyBackupReleaseConfig.isPasskeyBackupEnabled)
+    }
+
+    @available(iOS 18.0, *)
+    func testHeadReadbackRejectsMissingGenerationBeforeLocalPRFUse() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let wallet = ReadbackWalletVerifierFixture()
+        fixture.transport.responses = [.success(.init(statusCode: 404))]
+        do {
+            _ = try await PasskeyBackupHeadReadbackVerifier(
+                storage: fixture.store,
+                cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier(walletVerifier: wallet)
+            ).verify(
+                authenticatedHead: authenticatedHead(candidate),
+                verifiedPRF: try await verifiedReadbackPRF(), expectedWallet: expectedWallet()
+            )
+            XCTFail("Missing committed ciphertext was accepted")
+        } catch {
+            XCTAssertEqual(error as? PasskeyBackupGenerationCoordinatorError, .generationUnavailable)
+        }
+        XCTAssertEqual(wallet.calls, 0)
+        XCTAssertEqual(fixture.transport.requests.map(\.method), ["GET"])
+    }
+
+    @available(iOS 18.0, *)
+    func testHeadReadbackRejectsAccountChangeAfterLocalDecryption() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let wallet = ReadbackWalletVerifierFixture()
+        let changed = try authorization(subject: "other-subject")
+        wallet.afterVerify = { await MainActor.run { fixture.oauth.current = changed } }
+        fixture.transport.responses = [.success(.init(statusCode: 200, body: try metadata(candidate))),
+                                       .success(.init(statusCode: 200, body: candidate.bytes))]
+        do {
+            _ = try await PasskeyBackupHeadReadbackVerifier(
+                storage: fixture.store,
+                cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier(walletVerifier: wallet)
+            ).verify(
+                authenticatedHead: authenticatedHead(candidate),
+                verifiedPRF: try await verifiedReadbackPRF(), expectedWallet: expectedWallet()
+            )
+            XCTFail("Readback from a switched Google account was accepted")
+        } catch { XCTAssertEqual(error as? GoogleDrivePasskeyBackupError, .accountChanged) }
+        XCTAssertEqual(wallet.calls, 1)
+        XCTAssertEqual(fixture.transport.requests.map(\.method), ["GET", "GET"])
+    }
+
+    @available(iOS 18.0, *)
+    func testHeadReadbackRejectsMissingOriginalKeySigningProof() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let wallet = ReadbackWalletVerifierFixture()
+        wallet.originalKeySigningVerified = false
+        fixture.transport.responses = [.success(.init(statusCode: 200, body: try metadata(candidate))),
+                                       .success(.init(statusCode: 200, body: candidate.bytes))]
+        do {
+            _ = try await PasskeyBackupHeadReadbackVerifier(
+                storage: fixture.store,
+                cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier(walletVerifier: wallet)
+            ).verify(
+                authenticatedHead: authenticatedHead(candidate),
+                verifiedPRF: try await verifiedReadbackPRF(), expectedWallet: expectedWallet()
+            )
+            XCTFail("Original-key signing failure was accepted")
+        } catch { XCTAssertEqual(error as? PasskeyBackupGenerationCoordinatorError, .localVerificationFailed) }
+        XCTAssertEqual(wallet.calls, 1)
     }
 
     func testCommittedHeadRejectsOwnerAccountAndParentSubstitutionBeforeNetwork() async throws {
@@ -703,6 +796,27 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         try .init(storageKey: "wallet-1234", walletId: "wallet-001", publicIdentitySha256: String(repeating: "b", count: 64))
     }
 
+    @available(iOS 18.0, *)
+    private func verifiedReadbackPRF() async throws -> PasskeyBackupVerifiedLocalPRF {
+        let credential = Data(repeating: 0x22, count: 32)
+        let pending = try PendingPasskeyBackupAssertion(challenge: PasskeyBackupAssertionChallenge(
+            assertionId: "readback-assertion", challenge: Data(repeating: 1, count: 32),
+            storageKey: "wallet-1234", credentialId: "IiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiI"
+        ))
+        let result = try PasskeyBackupPRFCeremonyResult.assertion(
+            context: PasskeyBackupPRFContext.assertion(
+                pending, prfSalt: Data(repeating: 0x33, count: 32), credentialID: credential
+            ),
+            credentialID: credential, clientDataJSON: Data("public-client-data".utf8),
+            authenticatorData: Data([1]), signature: Data([2]),
+            userHandle: Data(repeating: 2, count: 32),
+            prf: .init(first: SymmetricKey(data: Data(repeating: 0x66, count: 32)), second: nil)
+        )
+        let gate = try PasskeyBackupPRFRestoreGate(assertion: result)
+        try await gate.verifyAssertion(using: ReadbackPRFVerifierFixture())
+        return try gate.takeVerifiedOutput()
+    }
+
     private func coordinatorJournal() throws -> (PasskeyBackupGenerationJournal, URL) {
         let parent = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(
@@ -874,6 +988,38 @@ private final class GenerationLocalVerifierFixture: PasskeyLocalWalletVerifier {
             decryptionVerified: failedCheck != 0,
             originalKeySigningVerified: failedCheck != 1,
             originalKeyExportVerified: failedCheck != 2
+        )
+    }
+}
+
+@available(iOS 18.0, *)
+@MainActor
+private final class ReadbackPRFVerifierFixture: PasskeyBackupPRFVerifier {
+    func verify(_ request: PasskeyBackupPRFVerificationRequest) async throws -> PasskeyBackupPRFVerificationReceipt {
+        PasskeyBackupPRFVerificationReceipt(
+            requestBindingSHA256: request.bindingSHA256, credentialID: request.credentialID
+        )
+    }
+}
+
+private final class ReadbackWalletVerifierFixture: PasskeyBackupPlaintextWalletVerifier {
+    var calls = 0
+    var originalKeySigningVerified = true
+    var afterVerify: (() async throws -> Void)?
+
+    func verifyOriginalWallet(
+        _ plaintextBackup: Data, expectedIdentity: PasskeyBackupExpectedWalletIdentity
+    ) async throws -> PasskeyBackupLocalWalletEvidence {
+        calls += 1
+        guard plaintextBackup == Data("cross-platform-passkey-backup".utf8) else {
+            throw PasskeyBackupGenerationCoordinatorError.localVerificationFailed
+        }
+        try await afterVerify?()
+        return PasskeyBackupLocalWalletEvidence(
+            storageKey: expectedIdentity.storageKey, walletId: expectedIdentity.walletId,
+            publicIdentitySha256: expectedIdentity.publicIdentitySha256,
+            decryptionVerified: true, originalKeySigningVerified: originalKeySigningVerified,
+            originalKeyExportVerified: true
         )
     }
 }

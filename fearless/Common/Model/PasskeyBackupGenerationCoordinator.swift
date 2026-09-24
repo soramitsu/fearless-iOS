@@ -295,3 +295,58 @@ final class PasskeyBackupGenerationCoordinator {
         }
     }
 }
+
+/// Read-only evidence that the exact owner-selected Drive generation was opened locally.
+/// It does not install a wallet, authorize an owner, or establish that the head is still current.
+struct PasskeyBackupLocallyVerifiedHead: CustomStringConvertible, CustomDebugStringConvertible {
+    let headRevision: Int64
+    let fileID: String
+    let sha256: String
+    let publicIdentitySha256: String
+
+    var description: String { "PasskeyBackupLocallyVerifiedHead(<redacted>)" }
+    var debugDescription: String { description }
+}
+
+/// A replacement-device readback boundary. The caller must obtain the head and expected wallet
+/// identity from a fresh owner session, and must re-authorize the owner before wallet installation.
+/// This type has no write, head-promotion, or wallet-installation operation.
+final class PasskeyBackupHeadReadbackVerifier {
+    private let storage: GoogleDrivePasskeyGenerationStorage
+    private let cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier
+
+    init(
+        storage: GoogleDrivePasskeyGenerationStorage,
+        cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier
+    ) {
+        self.storage = storage
+        self.cryptographicVerifier = cryptographicVerifier
+    }
+
+    func verify(
+        authenticatedHead: PasskeyBackupAuthenticatedHead,
+        verifiedPRF: PasskeyBackupVerifiedLocalPRF,
+        expectedWallet: PasskeyBackupExpectedWalletIdentity
+    ) async throws -> PasskeyBackupLocallyVerifiedHead {
+        try Task.checkCancellation()
+        let selected = try authenticatedHead.currentReadParameters()
+        guard let head = authenticatedHead.head else {
+            throw PasskeyBackupAuthenticatedHeadError.missingHead
+        }
+        guard let downloaded = try await storage.readCurrentHead(authenticatedHead) else {
+            throw PasskeyBackupGenerationCoordinatorError.generationUnavailable
+        }
+        try Task.checkCancellation()
+        let evidence = try await cryptographicVerifier.verify(
+            downloaded, verifiedPRF: verifiedPRF, expectedIdentity: expectedWallet
+        )
+        // Decryption and original-key checks can suspend while the selected Google identity changes.
+        try await storage.requireSelectedAccount()
+        try Task.checkCancellation()
+        return PasskeyBackupLocallyVerifiedHead(
+            headRevision: head.headRevision,
+            fileID: selected.fileID, sha256: selected.sha256,
+            publicIdentitySha256: evidence.publicIdentitySha256
+        )
+    }
+}

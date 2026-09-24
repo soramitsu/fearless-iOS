@@ -401,6 +401,53 @@ final class PasskeyBackupPRFCeremonyTests: XCTestCase {
         XCTAssertNotEqual(verifier.requests[0].bindingSHA256, verifier.requests[1].bindingSHA256)
     }
 
+    func testReplacementDeviceRestoreGateReleasesOnlyVerifiedDirectedAssertionPRF() async throws {
+        let assertion = try assertionResult(context: assertionContext())
+        let gate = try PasskeyBackupPRFRestoreGate(assertion: assertion)
+        XCTAssertThrowsError(try gate.takeVerifiedOutput())
+        let verifier = FixturePRFVerifier()
+        try await gate.verifyAssertion(using: verifier)
+        XCTAssertEqual(verifier.requests.map(\.context.kind), [.assertion])
+        XCTAssertEqual(verifier.requests.first?.credentialID, credentialID)
+        XCTAssertFalse(assertion.credentialResponseJSON.contains("prf"))
+        XCTAssertEqual(try gate.takeVerifiedOutput().withOutput { $0 }, secret)
+        XCTAssertThrowsError(try gate.takeVerifiedOutput())
+        do { try await gate.verifyAssertion(using: verifier); XCTFail("Assertion was replayed") }
+        catch { XCTAssertEqual(error as? PasskeyBackupPRFError, .invalidState) }
+    }
+
+    func testReplacementDeviceRestoreGateFailsClosedWithoutValidServerReceipt() async throws {
+        XCTAssertThrowsError(try PasskeyBackupPRFRestoreGate(assertion: registrationResult()))
+        let verifiers: [PasskeyBackupPRFVerifier?] = [
+            nil, FixturePRFVerifier(mode: .wrongBinding), FixturePRFVerifier(mode: .wrongCredential)
+        ]
+        for verifier in verifiers {
+            let gate = try PasskeyBackupPRFRestoreGate(assertion: assertionResult(context: assertionContext()))
+            do {
+                try await gate.verifyAssertion(using: verifier)
+                XCTFail("Unverified assertion released a recovery PRF")
+            } catch {
+                XCTAssertTrue(error is PasskeyBackupPRFError)
+            }
+            XCTAssertThrowsError(try gate.takeVerifiedOutput())
+            do { try await gate.verifyAssertion(using: FixturePRFVerifier()); XCTFail("Failed gate retried") }
+            catch { XCTAssertEqual(error as? PasskeyBackupPRFError, .invalidState) }
+        }
+    }
+
+    func testReplacementDeviceRestoreGateCannotReleaseWhileVerificationSuspends() async throws {
+        let gate = try PasskeyBackupPRFRestoreGate(assertion: assertionResult(context: assertionContext()))
+        let verifier = FixturePRFVerifier(mode: .suspended)
+        let task = Task { try await gate.verifyAssertion(using: verifier) }
+        await verifier.waitForRequest()
+        XCTAssertThrowsError(try gate.takeVerifiedOutput())
+        do { try await gate.verifyAssertion(using: FixturePRFVerifier()); XCTFail("Concurrent verify accepted") }
+        catch { XCTAssertEqual(error as? PasskeyBackupPRFError, .invalidState) }
+        verifier.resume()
+        try await task.value
+        XCTAssertEqual(try gate.takeVerifiedOutput().withOutput { $0 }, secret)
+    }
+
     func testFallbackRejectsReusedChallengeIDAndOtherStorageBeforeRequest() async throws {
         let gate = try PasskeyBackupPRFEnrollmentGate(registration: registrationResult())
         try await gate.verifyRegistration(using: FixturePRFVerifier())

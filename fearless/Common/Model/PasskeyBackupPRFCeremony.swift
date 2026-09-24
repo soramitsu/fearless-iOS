@@ -319,7 +319,9 @@ final class PasskeyBackupPRFEnrollmentGate {
         guard case .unverified = state else { throw PasskeyBackupPRFError.invalidState }
         state = .verifying
         do {
-            try await verify(registration, using: verifier ?? UnavailablePasskeyBackupPRFVerifier())
+            try await PasskeyBackupPRFReceiptValidator.verify(
+                registration, using: verifier ?? UnavailablePasskeyBackupPRFVerifier()
+            )
             state = registration.requiresAssertion ? .needsAssertion : .ready(registration)
         } catch {
             state = .failed
@@ -351,7 +353,9 @@ final class PasskeyBackupPRFEnrollmentGate {
         }
         state = .verifying
         do {
-            try await verify(result, using: verifier ?? UnavailablePasskeyBackupPRFVerifier())
+            try await PasskeyBackupPRFReceiptValidator.verify(
+                result, using: verifier ?? UnavailablePasskeyBackupPRFVerifier()
+            )
             state = .ready(result)
         } catch {
             state = .failed
@@ -366,8 +370,52 @@ final class PasskeyBackupPRFEnrollmentGate {
         state = .consumed
         return PasskeyBackupVerifiedLocalPRF(result, output: output)
     }
+}
 
-    private func verify(
+/// A replacement device has no registration output. It must verify a fresh, credential-directed
+/// assertion before local PRF material can be used for Drive ciphertext readback.
+@MainActor
+final class PasskeyBackupPRFRestoreGate {
+    private enum State { case unverified, verifying, ready, consumed, failed }
+
+    private let assertion: PasskeyBackupPRFCeremonyResult
+    private var state: State = .unverified
+
+    init(assertion: PasskeyBackupPRFCeremonyResult) throws {
+        guard assertion.context.kind == .assertion,
+              assertion.context.expectedCredentialID == assertion.credentialID,
+              assertion.output != nil else {
+            throw PasskeyBackupPRFError.invalidInput
+        }
+        self.assertion = assertion
+    }
+
+    func verifyAssertion(using verifier: PasskeyBackupPRFVerifier? = nil) async throws {
+        guard case .unverified = state else { throw PasskeyBackupPRFError.invalidState }
+        state = .verifying
+        do {
+            try await PasskeyBackupPRFReceiptValidator.verify(
+                assertion, using: verifier ?? UnavailablePasskeyBackupPRFVerifier()
+            )
+            state = .ready
+        } catch {
+            state = .failed
+            throw error
+        }
+    }
+
+    func takeVerifiedOutput() throws -> PasskeyBackupVerifiedLocalPRF {
+        guard case .ready = state, let output = assertion.output else {
+            throw PasskeyBackupPRFError.invalidState
+        }
+        state = .consumed
+        return PasskeyBackupVerifiedLocalPRF(assertion, output: output)
+    }
+}
+
+@MainActor
+private enum PasskeyBackupPRFReceiptValidator {
+    static func verify(
         _ result: PasskeyBackupPRFCeremonyResult, using verifier: PasskeyBackupPRFVerifier
     ) async throws {
         try Task.checkCancellation()

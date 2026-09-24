@@ -15,6 +15,16 @@ The enrollment precondition has the following sequence:
 
 The [WebAuthn PRF specification](https://www.w3.org/TR/webauthn-3/#prf-extension) permits creation to omit PRF output; a successful registration or a support flag alone is not evidence that recovery key derivation succeeded.
 
+On a replacement device, `PasskeyBackupPRFRestoreGate` accepts only a
+credential-directed assertion for the credential and public salt in the
+selected wrapper. It verifies that assertion's exact public transcript through
+the challenge-service verifier before releasing the local PRF result once.
+Registration output from the original device is neither available nor accepted
+at this gate. Its default verifier fails closed, and this primitive does not
+bootstrap owner access or establish that Google Password Manager synced the
+credential; those require the separate discoverable-passkey flow and real
+cross-device tests.
+
 ## Server adapter boundary
 
 `PasskeyBackupPRFVerifier` accepts only public ceremony context, credential ID and WebAuthn JSON. Its receipt must match the credential ID and a SHA-256 binding over a domain prefix `FPBK-PRF-VERIFY-v1` followed by length-prefixed fields: RP ID, ceremony kind, server ceremony ID, storage key, challenge, public PRF salt, credential ID and the exact UTF-8 public response JSON. Lengths are four-byte big-endian byte counts. No secret PRF result appears in the request or binding.

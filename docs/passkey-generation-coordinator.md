@@ -38,6 +38,20 @@ cannot be reused by a second provider. The old string-only backup client still
 defaults to `UnavailablePasskeyBackupKeyProvider`: it cannot obtain a verified
 PRF result before its registration key request and must not be wired to this
 provider without replacing that lifecycle.
+
+The read-only `PasskeyBackupHeadReadbackVerifier` is the replacement-device
+counterpart. Given a head and expected wallet identity obtained independently
+from an authenticated owner session, it reads only that exact Drive file and
+digest, requires a server-verified local PRF result to unwrap and decrypt it,
+then invokes the original-wallet identity/signing/export verifier. It checks
+the selected Google account again after that asynchronous local verification.
+Its redacted result is local evidence for one observed head revision, not a
+wallet-installation command, fresh owner authorization or proof that the head
+has remained current. Before installation, the caller must re-authenticate
+the owner, compare the current head and key epoch, and complete the separate
+wallet migration checks. There is no production owner adapter or installation
+caller for this primitive yet.
+
 Its mutable local PRF, key and plaintext `Data` buffers are reset after use;
 Swift/CryptoKit and the wallet callback may retain other copies, which need
 security review. Its tests use synthetic wallet material; the production wallet
