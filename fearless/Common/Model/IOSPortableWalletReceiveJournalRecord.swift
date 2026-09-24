@@ -210,7 +210,7 @@ enum IOSPortableWalletReceiveJournalRecord {
               uuid.uuidString == value || uuid.uuidString.lowercased() == value,
               value.count == 36 else { return false }
         let characters = Array(value)
-        return characters[14] == "4" && "89ab".contains(characters[19])
+        return characters[14] == "4" && "89ab".contains(String(characters[19]).lowercased())
     }
 
     private static func isOwnedKeyTag(_ tag: String, walletIDs: Set<String>) -> Bool {
