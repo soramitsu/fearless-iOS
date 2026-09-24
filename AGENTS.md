@@ -131,15 +131,15 @@ The project mixes CocoaPods and Swift Package Manager. Follow these steps in ord
   - Alternatively, write a `~/.netrc` with GitHub credentials (read-only).
 
 7) IrohaCrypto + SPM stability (Xcode 16/18)
-- The SPM package `shared-features-spm` must be pinned to a revision that works with Xcode 16/18 (`3ad0fe9…`). We now enforce this automatically via `scripts/deps/enforce-ssf-pin.sh` in CI (`bootstrap.sh`), local dev (`dev-setup.sh`), and tests (`test-matrix.sh`).
+- The reviewed `shared-features-spm` source is pinned by `config/shared-features-source.json` at `4323032511ee788b178aa3f9ed05e2518ee21c74`. `scripts/deps/enforce-ssf-pin.sh` verifies that revision in CI, local setup, and tests; it never rewrites resolved packages.
 - Dependency-contract validation is centralized in:
   - `scripts/deps/check-dependency-contracts.sh`
-- Native crypto stability now uses dedicated contract scripts:
+- Native crypto stability uses these verify-only compatibility entry points and the package-state audit:
   - `scripts/deps/prepare-native-crypto-checkout.sh`
   - `scripts/deps/apply-native-crypto-package-contract.sh`
   - `scripts/deps/apply-native-crypto-modulemap-contract.sh`
   - `scripts/deps/verify-native-crypto-package-state.sh`
-- Additional required `shared-features-spm` compatibility fixes (BigInt dep, Web3 Data.bytes, AddressFactory type usage, scrypt guard) are applied by `scripts/spm-shared-features-fixes.sh`.
+- The reviewed compatibility deltas are in the pinned upstream source. `scripts/spm-shared-features-fixes.sh` verifies that source and must not patch a resolved checkout.
 
 8) Web3 duplication
 - The project uses `soramitsu/web3-swift@7.7.7`. Do not add another Web3 source; duplicate packages will cause resolver failure.
