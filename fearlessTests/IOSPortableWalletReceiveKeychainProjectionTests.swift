@@ -88,6 +88,35 @@ final class IOSReceiveKeychainProjectionTests: XCTestCase {
         }
     }
 
+    func testRejectsMissingRootSignerAndConflictingWalletEntropy() throws {
+        var missing = wallet(slots: [evmRoot()])
+        defer { missing.clearSecrets() }
+        let missingBytes = try Codec.encode(missing)
+        let missingRecord = journal(missingBytes, wallet: missing.wallets[0], keys: [])
+        XCTAssertThrowsError(try Projection.project(semantic: missingBytes, journal: missingRecord)) { error in
+            XCTAssertEqual(error as? Projection.ProjectionError, .missingRequiredKey)
+        }
+
+        var root = evmRoot()
+        root.fields.append(field(FieldID.entropy, [0xC3]))
+        root.fields.sort { $0.id < $1.id }
+        var conflicting = wallet(slots: [
+            root,
+            source("0000", role: 2, binding: 3, bytes: [0xA1, 0xB2]),
+            source("0001", role: 4, binding: 1, bytes: [0xD4])
+        ])
+        defer { conflicting.clearSecrets() }
+        let encoded = try Codec.encode(conflicting)
+        let secretTag = KeystoreTagV2.ethereumSecretKeyTagForMetaId(destinationID)
+        let entropyTag = KeystoreTagV2.entropyTagForMetaId(destinationID)
+        let record = journal(encoded, wallet: conflicting.wallets[0], keys: [
+            (secretTag, Data([0xA1, 0xB2])), (entropyTag, Data([0xD4]))
+        ])
+        XCTAssertThrowsError(try Projection.project(semantic: encoded, journal: record)) { error in
+            XCTAssertEqual(error as? Projection.ProjectionError, .invalidSource)
+        }
+    }
+
     func testRejectsUnmappedAndroidSourceAndOversizedIOSSource() throws {
         var snapshot = wallet(slots: [
             evmRoot(),
@@ -118,18 +147,22 @@ final class IOSReceiveKeychainProjectionTests: XCTestCase {
         ])
         var snapshot = wallet(slots: [
             evmRoot(), chain,
-            source("0000", role: 1, binding: 5, bytes: [0xF1], chainID: "chain-a", accountID: accountID)
+            source("0000", role: 2, binding: 3, bytes: [0xA1, 0xB2]),
+            source("0001", role: 1, binding: 5, bytes: [0xF1], chainID: "chain-a", accountID: accountID)
         ])
         defer { snapshot.clearSecrets() }
         let encoded = try Codec.encode(snapshot)
         let tag = KeystoreTagV2.substrateSecretKeyTagForMetaId(destinationID, accountId: accountID)
-        let record = journal(encoded, wallet: snapshot.wallets[0], keys: [(tag, Data([0xF1]))])
+        let rootTag = KeystoreTagV2.ethereumSecretKeyTagForMetaId(destinationID)
+        let record = journal(encoded, wallet: snapshot.wallets[0], keys: [
+            (rootTag, Data([0xA1, 0xB2])), (tag, Data([0xF1]))
+        ])
         var projected = try Projection.project(semantic: encoded, journal: record)
         defer { for index in projected.indices {
             projected[index].clearSecret()
         } }
-        XCTAssertEqual(projected.map(\.tag), [tag])
-        XCTAssertEqual(projected[0].value, Data([0xF1]))
+        XCTAssertEqual(projected.map(\.tag), [rootTag, tag].sorted())
+        XCTAssertEqual(projected.first(where: { $0.tag == tag })?.value, Data([0xF1]))
     }
 
     private func wallet(slots: [Codec.Slot]) -> Codec.Snapshot {

@@ -13,6 +13,7 @@ enum IOSReceiveKeychainProjection {
         case unsupportedSource
         case invalidSource
         case duplicateDestinationTag
+        case missingRequiredKey
         case journalMismatch
     }
 
@@ -38,9 +39,10 @@ enum IOSReceiveKeychainProjection {
         }
     }
 
-    /// The journal supplies fresh destination wallet IDs and the exact expected
-    /// tag/digest inventory. No item is returned if a captured source is not a
-    /// released iOS Keychain byte record or if any item is missing or altered.
+    /// The journal names candidate destination wallet IDs and the expected
+    /// tag/digest inventory. The installer must prove the IDs and tags are
+    /// unoccupied under its writer lock before staging any item. No item is
+    /// returned if a captured source is unsupported, missing or altered.
     static func project(semantic encoded: Data, journal: Journal.Record) throws -> [Item] {
         do {
             try Journal.verifySemanticMaterial(encoded, for: journal)
@@ -54,13 +56,16 @@ enum IOSReceiveKeychainProjection {
         do {
             var tags = Set<String>()
             for (wallet, binding) in zip(snapshot.wallets, journal.wallets) {
+                var walletTags = Set<String>()
                 for slot in wallet.slots where slot.role == Codec.Role.auxiliarySource {
                     let item = try project(slot, wallet: wallet, metaID: binding.metaID)
                     guard tags.insert(item.tag).inserted else {
                         throw ProjectionError.duplicateDestinationTag
                     }
+                    walletTags.insert(item.tag)
                     result.append(item)
                 }
+                try requireRootSources(wallet, metaID: binding.metaID, tags: walletTags)
             }
             result.sort { $0.tag < $1.tag }
             let proofs = result.map { item in
@@ -122,7 +127,51 @@ enum IOSReceiveKeychainProjection {
             sourceRole: sourceRole, binding: binding, source: slot,
             wallet: wallet, value: value
         )
+        if sourceRole == 4, binding == 1 {
+            try validateWalletEntropyAgreement(wallet, value: value)
+        }
         return Item(tag: tag, value: value)
+    }
+
+    private static func validateWalletEntropyAgreement(
+        _ wallet: Codec.Wallet, value: Data
+    ) throws {
+        for primary in wallet.slots {
+            let fieldID: UInt8
+            switch primary.role {
+            case Codec.Role.substrateRoot, Codec.Role.evmRoot:
+                fieldID = FieldID.entropy
+            case Codec.Role.tonRoot:
+                fieldID = FieldID.mnemonic
+            default:
+                continue
+            }
+            if let recorded = primary.fields.first(where: { $0.id == fieldID }),
+               Data(recorded.value) != value {
+                throw ProjectionError.invalidSource
+            }
+        }
+    }
+
+    private static func requireRootSources(
+        _ wallet: Codec.Wallet, metaID: String, tags: Set<String>
+    ) throws {
+        for slot in wallet.slots {
+            let required: String
+            switch slot.role {
+            case Codec.Role.substrateRoot, Codec.Role.legacySubstrate:
+                required = KeystoreTagV2.substrateSecretKeyTagForMetaId(metaID)
+            case Codec.Role.evmRoot:
+                required = KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaID)
+            case Codec.Role.tonRoot:
+                // The released native TON signer can recreate its key from
+                // the captured phrase, which must also survive for export.
+                required = KeystoreTagV2.entropyTagForMetaId(metaID)
+            default:
+                continue
+            }
+            guard tags.contains(required) else { throw ProjectionError.missingRequiredKey }
+        }
     }
 
     private static func validateSigningKeyAgreement(
