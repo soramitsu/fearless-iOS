@@ -35,15 +35,23 @@ from the root are counted as unproven history. Android SCALE sources are handled
 by their own verifier. The receive plan still reports auxiliary-source and
 export-material blockers even for sources this check matches. This proof does
 not make the Core Data/Keychain capture atomic, reproduce released export UX,
-prove key installation or readback, detect removal of every iOS auxiliary
+prove key installation, detect removal of every iOS auxiliary
 source from a payload of unknown provenance, qualify every historical cohort, or verify
 an original-device-unavailable cross-platform restoration. The production
 passkey recovery gate remains disabled until those checks and real device,
 provider, independent security and distribution acceptance pass.
 
-On the corrected source, the iOS 18.1 arm64 Release simulator workspace run
-passed 53 wallet preflight tests and 11 Keychain projection tests, 64 total
-with zero failures. Strict SwiftLint passed for the changed production Swift
-files, SwiftFormat checked the verifier and projection, and the project file
-parsed. These local checks are not independent security review or signed-device
-acceptance.
+`IOSReceiveInstalledKeyReadbackProof` now takes the exact semantic cohort and
+receive journal, derives every expected destination item, then reads each tag
+twice through the app's `KeystoreProtocol`. It rejects missing, changed or
+unavailable Keychain data and never writes a key. The cohort installer must
+hold its writer boundary around staging, this readback and Core Data commit;
+that installer does not exist yet. Local readback is not original-key
+signing/export proof or recovery acceptance.
+
+On the current source, the iOS 18.1 arm64 Release simulator workspace run
+passed 53 wallet preflight, 11 Keychain projection and three installed-readback
+tests, **67/67** total with zero failures or skips. Strict SwiftLint and
+SwiftFormat passed on the new proof and test source; the project file parsed
+and the diff check passed. These local checks are not independent security
+review or signed-device acceptance.
