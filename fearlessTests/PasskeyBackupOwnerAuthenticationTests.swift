@@ -38,6 +38,7 @@ final class PasskeyBackupOwnerAuthenticationTests: XCTestCase {
         let session = try await source.complete(challenge: challenge, assertion: assertion)
         XCTAssertEqual(session.ownerSubject, ownerSubject)
         XCTAssertEqual(session.backupNamespace, backupNamespace)
+        XCTAssertEqual(session.expiresAtUnixSeconds, 1600)
         XCTAssertEqual(String(reflecting: assertion), "PasskeyBackupOwnerPublicAssertion(<redacted>)")
         XCTAssertEqual(Array(Mirror(reflecting: assertion).children).count, 0)
 

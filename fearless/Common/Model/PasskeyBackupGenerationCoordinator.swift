@@ -314,13 +314,16 @@ struct PasskeyBackupLocallyVerifiedHead: CustomStringConvertible, CustomDebugStr
 final class PasskeyBackupHeadReadbackVerifier {
     private let storage: GoogleDrivePasskeyGenerationStorage
     private let cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier
+    private let nowUnixSeconds: () -> Int64
 
     init(
         storage: GoogleDrivePasskeyGenerationStorage,
-        cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier
+        cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier,
+        nowUnixSeconds: @escaping () -> Int64 = { Int64(Date().timeIntervalSince1970) }
     ) {
         self.storage = storage
         self.cryptographicVerifier = cryptographicVerifier
+        self.nowUnixSeconds = nowUnixSeconds
     }
 
     func verify(
@@ -356,24 +359,20 @@ final class PasskeyBackupHeadReadbackVerifier {
     func verifyCurrent(
         ownerHeadSource: PasskeyBackupOwnerHeadSource,
         ownerSession: PasskeyBackupOwnerSession,
-        expectedStorageAccountBinding: String,
         verifiedPRF: PasskeyBackupVerifiedLocalPRF,
         expectedWallet: PasskeyBackupExpectedWalletIdentity
     ) async throws -> PasskeyBackupLocallyVerifiedHead {
         try Task.checkCancellation()
-        let initial = try await ownerHeadSource.readHead(
-            session: ownerSession, expectedStorageAccountBinding: expectedStorageAccountBinding
-        )
+        let initial = try await ownerHeadSource.readHead(session: ownerSession)
         let evidence = try await verify(
             authenticatedHead: initial, verifiedPRF: verifiedPRF, expectedWallet: expectedWallet
         )
-        let final = try await ownerHeadSource.readHead(
-            session: ownerSession, expectedStorageAccountBinding: expectedStorageAccountBinding
-        )
+        let final = try await ownerHeadSource.readHead(session: ownerSession)
         try Task.checkCancellation()
         guard initial == final else { throw PasskeyBackupAuthenticatedHeadError.headChanged }
         try await storage.requireSelectedAccount()
         try Task.checkCancellation()
+        try ownerSession.requireFresh(nowUnixSeconds: nowUnixSeconds())
         return evidence
     }
 }

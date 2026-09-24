@@ -47,7 +47,12 @@ then invokes the original-wallet identity/signing/export verifier. It checks
 the selected Google account again after that asynchronous local verification.
 Its redacted result is local evidence for one observed head revision, not a
 wallet-installation command, fresh owner authorization or proof that the head
-has remained current. Before installation, the caller must re-authenticate
+has remained current. The read-only owner-head HTTP source now derives the
+expected account binding from the verified selected Google subject rather
+than a caller-supplied digest, and rejects an expired owner session or an
+account switch during its request. The readback verifier checks session expiry
+again after its final asynchronous Drive-account check. Before installation,
+the caller must re-authenticate
 the owner, compare the current head and key epoch, and complete the separate
 wallet migration checks. There is no production owner adapter or installation
 caller for this primitive yet.

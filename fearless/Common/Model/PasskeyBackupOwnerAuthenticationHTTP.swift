@@ -224,7 +224,8 @@ final class HTTPPasskeyOwnerAuthSource: PasskeyBackupOwnerAuthenticationSource {
                 throw PasskeyBackupOwnerAuthenticationError.malformedResponse
             }
             return try PasskeyBackupOwnerSession(
-                token: token, ownerSubject: subject, backupNamespace: namespace
+                token: token, ownerSubject: subject, backupNamespace: namespace,
+                generation: generation, platform: "ios", expiresAtUnixSeconds: expiresAt
             )
         } catch {
             throw PasskeyBackupOwnerAuthenticationError.malformedResponse

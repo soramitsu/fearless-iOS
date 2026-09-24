@@ -14,11 +14,16 @@ struct PasskeyBackupOwnerSession: CustomStringConvertible, CustomDebugStringConv
     let token: String
     let ownerSubject: String
     let backupNamespace: String
+    let generation: Int64
+    let expiresAtUnixSeconds: Int64
 
-    init(token: String, ownerSubject: String, backupNamespace: String) throws {
+    init(
+        token: String, ownerSubject: String, backupNamespace: String,
+        generation: Int64, platform: String, expiresAtUnixSeconds: Int64
+    ) throws {
         guard token.hasPrefix("session."),
               let decoded = try? PasskeyBackupContract.decodeBase64URL(String(token.dropFirst(8))),
-              decoded.count == 32 else {
+              decoded.count == 32, generation >= 0, platform == "ios", expiresAtUnixSeconds > 0 else {
             throw PasskeyBackupOwnerHeadHTTPError.invalidSession
         }
         do {
@@ -34,6 +39,16 @@ struct PasskeyBackupOwnerSession: CustomStringConvertible, CustomDebugStringConv
         self.token = token
         self.ownerSubject = ownerSubject
         self.backupNamespace = backupNamespace
+        self.generation = generation
+        self.expiresAtUnixSeconds = expiresAtUnixSeconds
+    }
+
+    func requireFresh(nowUnixSeconds: Int64) throws {
+        guard nowUnixSeconds >= 0, nowUnixSeconds <= Int64.max - 660,
+              expiresAtUnixSeconds > nowUnixSeconds,
+              expiresAtUnixSeconds <= nowUnixSeconds + 660 else {
+            throw PasskeyBackupOwnerHeadHTTPError.invalidSession
+        }
     }
 
     var description: String {
@@ -50,10 +65,7 @@ struct PasskeyBackupOwnerSession: CustomStringConvertible, CustomDebugStringConv
 }
 
 protocol PasskeyBackupOwnerHeadSource {
-    func readHead(
-        session: PasskeyBackupOwnerSession,
-        expectedStorageAccountBinding: String
-    ) async throws -> PasskeyBackupAuthenticatedHead
+    func readHead(session: PasskeyBackupOwnerSession) async throws -> PasskeyBackupAuthenticatedHead
 }
 
 /// Read-only owner endpoint. The bearer session must come from a freshly verified passkey
@@ -65,8 +77,14 @@ final class HTTPPasskeyBackupOwnerHeadSource: PasskeyBackupOwnerHeadSource {
 
     private let endpoint: URL
     private let transport: PasskeyBackupHTTPTransport
+    private let tokenProvider: GoogleDriveBackupAccessTokenProvider
+    private let nowUnixSeconds: () -> Int64
 
-    init(baseURL: URL, transport: PasskeyBackupHTTPTransport) throws {
+    init(
+        baseURL: URL, transport: PasskeyBackupHTTPTransport,
+        tokenProvider: GoogleDriveBackupAccessTokenProvider,
+        nowUnixSeconds: @escaping () -> Int64 = { Int64(Date().timeIntervalSince1970) }
+    ) throws {
         guard let components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false),
               components.scheme == "https", let host = components.host, !host.isEmpty,
               host == host.lowercased(), components.user == nil, components.password == nil,
@@ -79,20 +97,28 @@ final class HTTPPasskeyBackupOwnerHeadSource: PasskeyBackupOwnerHeadSource {
         }
         self.endpoint = endpoint
         self.transport = transport
+        self.tokenProvider = tokenProvider
+        self.nowUnixSeconds = nowUnixSeconds
     }
 
     @available(iOS 15.0, macOS 12.0, *)
-    convenience init(baseURL: URL) throws {
+    convenience init(baseURL: URL, tokenProvider: GoogleDriveBackupAccessTokenProvider) throws {
         try self.init(
             baseURL: baseURL,
-            transport: URLSessionPasskeyBackupHTTPTransport(maximumResponseBytes: Self.maximumResponseBytes)
+            transport: URLSessionPasskeyBackupHTTPTransport(maximumResponseBytes: Self.maximumResponseBytes),
+            tokenProvider: tokenProvider
         )
     }
 
-    func readHead(
-        session: PasskeyBackupOwnerSession,
-        expectedStorageAccountBinding: String
-    ) async throws -> PasskeyBackupAuthenticatedHead {
+    func readHead(session: PasskeyBackupOwnerSession) async throws -> PasskeyBackupAuthenticatedHead {
+        try Task.checkCancellation()
+        try session.requireFresh(nowUnixSeconds: nowUnixSeconds())
+        let selectedAuthorization = try await tokenProvider.authorization()
+        try selectedAuthorization.validate(now: Date(timeIntervalSince1970: TimeInterval(nowUnixSeconds())))
+        let selectedSubject = selectedAuthorization.account.subject
+        let expectedStorageAccountBinding = try PasskeyBackupGenerationV1Format.storageAccountBinding(
+            verifiedGoogleSubject: selectedSubject
+        )
         try Task.checkCancellation()
         let response = try await transport.execute(PasskeyBackupHTTPRequest(
             method: "POST", url: endpoint,
@@ -103,6 +129,14 @@ final class HTTPPasskeyBackupOwnerHeadSource: PasskeyBackupOwnerHeadSource {
             ], body: Self.body
         ))
         try Task.checkCancellation()
+        try session.requireFresh(nowUnixSeconds: nowUnixSeconds())
+        let currentAuthorization = try await tokenProvider.authorization()
+        try currentAuthorization.validate(now: Date(timeIntervalSince1970: TimeInterval(nowUnixSeconds())))
+        guard currentAuthorization.account.subject == selectedSubject else {
+            throw GoogleDrivePasskeyBackupError.accountChanged
+        }
+        try Task.checkCancellation()
+        try session.requireFresh(nowUnixSeconds: nowUnixSeconds())
         guard response.body.count <= Self.maximumResponseBytes else {
             throw PasskeyBackupOwnerHeadHTTPError.responseTooLarge
         }

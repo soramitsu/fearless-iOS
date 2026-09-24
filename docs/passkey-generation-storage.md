@@ -17,7 +17,12 @@ HTTP adapter. It sends a canonical `{"schemaVersion":1}` request with a
 server-issued owner session to `/api/passkey-backup/v1/owner/backup/head`,
 requires an exact bounded response with no duplicate decoded JSON keys, and
 checks owner, backup namespace, Google storage binding and parent history
-before selecting a Drive file. After local decryption and original-key proof,
+before selecting a Drive file. The adapter derives the expected binding from
+the verified selected Google subject through the same token-provider contract
+used for Drive; it does not accept a caller-supplied digest or send a Drive
+token to the owner service. It checks owner-session expiry before and after
+the request and rechecks the selected Google subject after the response.
+After local decryption and original-key proof,
 it fetches the authenticated head again and rejects a changed head or revoked
 session before returning local evidence. This path still does not install a
 wallet or mark a backup complete. A separate disabled iOS 18+ authentication
