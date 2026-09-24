@@ -266,6 +266,25 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         from model: DataProviderModel,
         using context: NSManagedObjectContext
     ) throws {
+        try populate(entity: entity, from: model, using: context, replaceChildrenExactly: false)
+    }
+
+    /// Explicit exact replacement for a future verified restore writer.
+    /// Ordinary wallet saves retain their released merge behavior.
+    func populateExactReplacement(
+        entity: CoreDataEntity,
+        from model: DataProviderModel,
+        using context: NSManagedObjectContext
+    ) throws {
+        try populate(entity: entity, from: model, using: context, replaceChildrenExactly: true)
+    }
+
+    private func populate(
+        entity: CoreDataEntity,
+        from model: DataProviderModel,
+        using context: NSManagedObjectContext,
+        replaceChildrenExactly: Bool
+    ) throws {
         guard (model.substrateAccountId == nil) == (model.substratePublicKey == nil),
               (model.ethereumAddress == nil) == (model.ethereumPublicKey == nil) else {
             throw MetaAccountMapperError.invalidWalletRecord
@@ -292,14 +311,9 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         if model.substrateAccountId != nil {
             entity.substrateCryptoType = Int16(bitPattern: UInt16(model.substrateCryptoType))
         }
-        if let ton = model.legacyTonAccount {
-            guard entity.entity.propertiesByName["tonAddress"] != nil else {
-                throw MetaAccountMapperError.unsupportedWalletRecord
-            }
-            entity.setValue(ton.serializedAddress, forKey: "tonAddress")
-            entity.setValue(ton.publicKey, forKey: "tonPublicKey")
-            entity.setValue(ton.contractVersion, forKey: "tonContractVersion")
-        }
+        try populateTonIdentity(
+            model.legacyTonAccount, in: entity, replaceExactly: replaceChildrenExactly
+        )
         entity.substratePublicKey = model.substratePublicKey
         entity.ethereumPublicKey = model.ethereumPublicKey
         entity.ethereumAddress = model.ethereumAddress?.toHex()
@@ -310,25 +324,15 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         entity.hasBackup = model.hasBackup
         entity.favouriteChainIds = model.favouriteChainIds as NSArray
 
-        // Persist assetsVisibility via KVC/entity name when the relationship is available in the model
-        if entity.entity.propertiesByName["assetsVisibility"] != nil {
-            let relationSet = entity.mutableSetValue(forKey: "assetsVisibility")
-            for assetVisibility in model.assetsVisibility {
-                var match: NSManagedObject?
-                for case let obj as NSManagedObject in relationSet {
-                    if let assetId = obj.value(forKey: "assetId") as? String, assetId == assetVisibility.assetId {
-                        match = obj
-                        break
-                    }
-                }
-                if match == nil {
-                    let newObj = NSEntityDescription.insertNewObject(forEntityName: "CDAssetVisibility", into: context)
-                    relationSet.add(newObj)
-                    match = newObj
-                }
-                match?.setValue(assetVisibility.assetId, forKey: "assetId")
-                match?.setValue(assetVisibility.hidden, forKey: "hidden")
-            }
+        try replaceVisibilityRows(
+            model.assetsVisibility, in: entity, using: context,
+            replaceExactly: replaceChildrenExactly
+        )
+        if replaceChildrenExactly {
+            try removeObsoleteChainRows(
+                storedChainAccounts, keeping: model.chainAccounts,
+                in: entity, using: context
+            )
         }
 
         for chainAccount in model.chainAccounts {
@@ -371,6 +375,88 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         }
 
         updatedEntityCurrency(for: entity, from: model, context: context)
+    }
+
+    private func populateTonIdentity(
+        _ ton: LegacyTonAccount?, in entity: CDMetaAccount, replaceExactly: Bool
+    ) throws {
+        let columns = ["tonAddress", "tonPublicKey", "tonContractVersion"]
+        let available = columns.filter { entity.entity.propertiesByName[$0] != nil }
+        guard available.isEmpty || available.count == columns.count else {
+            throw MetaAccountMapperError.unsupportedWalletRecord
+        }
+        if let ton {
+            guard available.count == columns.count else {
+                throw MetaAccountMapperError.unsupportedWalletRecord
+            }
+            entity.setValue(ton.serializedAddress, forKey: "tonAddress")
+            entity.setValue(ton.publicKey, forKey: "tonPublicKey")
+            entity.setValue(ton.contractVersion, forKey: "tonContractVersion")
+        } else if replaceExactly, available.count == columns.count {
+            // A replacement must not retain an earlier native TON identity.
+            for column in columns {
+                entity.setValue(nil, forKey: column)
+            }
+        }
+    }
+
+    private func replaceVisibilityRows(
+        _ visibility: [AssetVisibility], in entity: CDMetaAccount,
+        using context: NSManagedObjectContext, replaceExactly: Bool
+    ) throws {
+        guard entity.entity.propertiesByName["assetsVisibility"] != nil else {
+            return
+        }
+        let relationSet = entity.mutableSetValue(forKey: "assetsVisibility")
+        let wantedIDs = Set(visibility.map(\.assetId))
+        guard wantedIDs.count == visibility.count else {
+            throw MetaAccountMapperError.invalidWalletRecord
+        }
+        if replaceExactly {
+            var storedIDs = Set<String>()
+            for case let stored as NSManagedObject in relationSet.allObjects {
+                guard let assetID = stored.value(forKey: "assetId") as? String,
+                      storedIDs.insert(assetID).inserted else {
+                    throw MetaAccountMapperError.invalidWalletRecord
+                }
+                if !wantedIDs.contains(assetID) {
+                    relationSet.remove(stored)
+                    context.delete(stored)
+                }
+            }
+        }
+        for item in visibility {
+            let matching = relationSet.allObjects
+                .compactMap { $0 as? NSManagedObject }
+                .first { $0.value(forKey: "assetId") as? String == item.assetId }
+            let row = matching ?? NSEntityDescription.insertNewObject(
+                forEntityName: "CDAssetVisibility", into: context
+            )
+            if matching == nil {
+                relationSet.add(row)
+            }
+            row.setValue(item.assetId, forKey: "assetId")
+            row.setValue(item.hidden, forKey: "hidden")
+        }
+    }
+
+    private func removeObsoleteChainRows(
+        _ storedRows: [CDChainAccount], keeping accounts: Set<ChainAccountModel>,
+        in entity: CDMetaAccount, using context: NSManagedObjectContext
+    ) throws {
+        // Core Data's cascade rule only applies when deleting the whole wallet.
+        let wantedIDs = Set(accounts.map {
+            UniversalWalletChainAccountSupport.canonicalChainId(for: $0.chainId)
+        })
+        for stored in storedRows {
+            guard let chainID = stored.chainId else {
+                throw MetaAccountMapperError.invalidWalletRecord
+            }
+            if !wantedIDs.contains(UniversalWalletChainAccountSupport.canonicalChainId(for: chainID)) {
+                entity.mutableSetValue(forKey: "chainAccounts").remove(stored)
+                context.delete(stored)
+            }
+        }
     }
 
     private func validateChainAccountsBeforeMutation(
@@ -484,6 +570,7 @@ struct MetaAccountSelectionModel: Identifiable {
     let recordState: MetaAccountSelectionRecordState
     let updatesWalletPayload: Bool
     let updatesSelection: Bool
+    let replacesWalletChildrenExactly: Bool
 
     init(
         identifier: String,
@@ -493,7 +580,8 @@ struct MetaAccountSelectionModel: Identifiable {
         displayPreferences: PersistedWalletDisplayPreferences? = nil,
         recordState: MetaAccountSelectionRecordState = .supported,
         updatesWalletPayload: Bool = false,
-        updatesSelection: Bool = true
+        updatesSelection: Bool = true,
+        replacesWalletChildrenExactly: Bool = false
     ) {
         self.identifier = identifier
         self.wallet = wallet
@@ -503,6 +591,7 @@ struct MetaAccountSelectionModel: Identifiable {
         self.recordState = recordState
         self.updatesWalletPayload = updatesWalletPayload
         self.updatesSelection = updatesSelection
+        self.replacesWalletChildrenExactly = replacesWalletChildrenExactly
     }
 
     func replacingSelection(_ isSelected: Bool) -> MetaAccountSelectionModel {
@@ -672,6 +761,9 @@ extension MetaAccountSelectionMapper: CoreDataMapperProtocol {
         from model: MetaAccountSelectionModel,
         using context: NSManagedObjectContext
     ) throws {
+        guard !model.replacesWalletChildrenExactly || model.updatesWalletPayload else {
+            throw MetaAccountMapperError.invalidWalletRecord
+        }
         if model.updatesWalletPayload {
             guard
                 let wallet = model.wallet,
@@ -691,7 +783,11 @@ extension MetaAccountSelectionMapper: CoreDataMapperProtocol {
                 }
             }
 
-            try metaAccountMapper.populate(entity: entity, from: wallet, using: context)
+            if model.replacesWalletChildrenExactly {
+                try metaAccountMapper.populateExactReplacement(entity: entity, from: wallet, using: context)
+            } else {
+                try metaAccountMapper.populate(entity: entity, from: wallet, using: context)
+            }
             try persistDisplayPreferences(model.displayPreferences, in: entity)
 
             if isNew {

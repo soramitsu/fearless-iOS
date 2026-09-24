@@ -176,6 +176,81 @@ class MetaAccountMapperTests: XCTestCase {
         )
     }
 
+    func testWalletReplacementRemovesObsoleteChainAndVisibilityRows() throws {
+        let queue = OperationQueue()
+        let facade = UserDataStorageTestFacade()
+        let repository = facade.createRepository(mapper: AnyCoreDataMapper(MetaAccountSelectionMapper()))
+        let original = AccountGenerator.generateMetaAccount(generatingChainAccounts: 0)
+            .replacingChainAccounts([
+                ChainAccountModel(
+                    chainId: "retained-chain", accountId: Data(repeating: 0x11, count: 32),
+                    publicKey: Data(repeating: 0x21, count: 32),
+                    cryptoType: CryptoType.ed25519.rawValue, ethereumBased: false
+                ),
+                ChainAccountModel(
+                    chainId: "obsolete-chain", accountId: Data(repeating: 0x12, count: 32),
+                    publicKey: Data(repeating: 0x22, count: 32),
+                    cryptoType: CryptoType.ed25519.rawValue, ethereumBased: false
+                )
+            ])
+            .replacingAssetsVisibility([
+                AssetVisibility(assetId: "retained-asset", hidden: true),
+                AssetVisibility(assetId: "obsolete-asset", hidden: false)
+            ])
+        let firstSave = repository.saveOperation({ [MetaAccountSelectionModel(
+            identifier: original.metaId, wallet: original, isSelected: true,
+            order: fearless.ManagedMetaAccountModel.noOrder, updatesWalletPayload: true
+        )] }, { [] })
+        queue.addOperations([firstSave], waitUntilFinished: true)
+        _ = try XCTUnwrap(firstSave.result).get()
+
+        let replacement = original
+            .replacingChainAccounts(Set(original.chainAccounts.filter { $0.chainId == "retained-chain" }))
+            .replacingAssetsVisibility([AssetVisibility(assetId: "retained-asset", hidden: false)])
+        let secondSave = repository.saveOperation({ [MetaAccountSelectionModel(
+            identifier: replacement.metaId, wallet: replacement, isSelected: true,
+            order: fearless.ManagedMetaAccountModel.noOrder, updatesWalletPayload: true,
+            replacesWalletChildrenExactly: true
+        )] }, { [] })
+        queue.addOperations([secondSave], waitUntilFinished: true)
+        _ = try XCTUnwrap(secondSave.result).get()
+
+        let fetch = repository.fetchAllOperation(with: RepositoryFetchOptions(
+            includesProperties: true, includesSubentities: true
+        ))
+        queue.addOperations([fetch], waitUntilFinished: true)
+        let stored = try XCTUnwrap(try XCTUnwrap(fetch.result).get().first)
+        XCTAssertEqual(stored.wallet?.chainAccounts, replacement.chainAccounts)
+        XCTAssertEqual(stored.wallet?.assetsVisibility, replacement.assetsVisibility)
+        XCTAssertTrue(stored.isSelected)
+    }
+
+    func testOrdinaryWalletSaveRetainsExistingChildRows() throws {
+        let queue = OperationQueue()
+        let facade = UserDataStorageTestFacade()
+        let repository = facade.createRepository(mapper: AnyCoreDataMapper(ManagedMetaAccountMapper()))
+        let wallet = AccountGenerator.generateMetaAccount(generatingChainAccounts: 1)
+            .replacingAssetsVisibility([AssetVisibility(assetId: "historical-asset", hidden: true)])
+        let initialSave = repository.saveOperation(
+            { [fearless.ManagedMetaAccountModel(info: wallet, isSelected: true)] }, { [] }
+        )
+        queue.addOperations([initialSave], waitUntilFinished: true)
+        _ = try XCTUnwrap(initialSave.result).get()
+
+        let ordinaryUpdate = wallet.replacingChainAccounts([]).replacingAssetsVisibility([])
+        let updateSave = repository.saveOperation(
+            { [fearless.ManagedMetaAccountModel(info: ordinaryUpdate, isSelected: true)] }, { [] }
+        )
+        queue.addOperations([updateSave], waitUntilFinished: true)
+        _ = try XCTUnwrap(updateSave.result).get()
+
+        let fetch = repository.fetchAllOperation(with: RepositoryFetchOptions())
+        queue.addOperations([fetch], waitUntilFinished: true)
+        let stored = try XCTUnwrap(try XCTUnwrap(fetch.result).get().first)
+        XCTAssertEqual(stored.info.chainAccounts, wallet.chainAccounts)
+        XCTAssertEqual(stored.info.assetsVisibility, wallet.assetsVisibility)
+    }
+
     func testCanonicalEcdsaSubstratePublicKeyIsAccepted() throws {
         let operationQueue = OperationQueue()
         let facade = UserDataStorageTestFacade()
