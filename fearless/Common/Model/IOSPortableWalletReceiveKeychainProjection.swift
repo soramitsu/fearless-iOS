@@ -56,16 +56,19 @@ enum IOSReceiveKeychainProjection {
         do {
             var tags = Set<String>()
             for (wallet, binding) in zip(snapshot.wallets, journal.wallets) {
-                var walletTags = Set<String>()
+                var walletItemIndexes = [String: Int]()
                 for slot in wallet.slots where slot.role == Codec.Role.auxiliarySource {
                     let item = try project(slot, wallet: wallet, metaID: binding.metaID)
                     guard tags.insert(item.tag).inserted else {
                         throw ProjectionError.duplicateDestinationTag
                     }
-                    walletTags.insert(item.tag)
+                    walletItemIndexes[item.tag] = result.count
                     result.append(item)
                 }
-                try requireRootSources(wallet, metaID: binding.metaID, tags: walletTags)
+                try requireRootSources(
+                    wallet, metaID: binding.metaID,
+                    itemIndexes: walletItemIndexes, items: result
+                )
             }
             result.sort { $0.tag < $1.tag }
             let proofs = result.map { item in
@@ -154,23 +157,48 @@ enum IOSReceiveKeychainProjection {
     }
 
     private static func requireRootSources(
-        _ wallet: Codec.Wallet, metaID: String, tags: Set<String>
+        _ wallet: Codec.Wallet, metaID: String,
+        itemIndexes: [String: Int], items: [Item]
     ) throws {
         for slot in wallet.slots {
             let required: String
+            var exportSources = [(UInt8, String)]()
             switch slot.role {
             case Codec.Role.substrateRoot, Codec.Role.legacySubstrate:
                 required = KeystoreTagV2.substrateSecretKeyTagForMetaId(metaID)
+                exportSources = [
+                    (FieldID.entropy, KeystoreTagV2.entropyTagForMetaId(metaID)),
+                    (FieldID.seed, KeystoreTagV2.substrateSeedTagForMetaId(metaID)),
+                    (FieldID.derivationPath, KeystoreTagV2.substrateDerivationTagForMetaId(metaID))
+                ]
             case Codec.Role.evmRoot:
                 required = KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaID)
+                exportSources = [
+                    (FieldID.entropy, KeystoreTagV2.entropyTagForMetaId(metaID)),
+                    (FieldID.seed, KeystoreTagV2.ethereumSeedTagForMetaId(metaID)),
+                    (FieldID.derivationPath, KeystoreTagV2.ethereumDerivationTagForMetaId(metaID))
+                ]
             case Codec.Role.tonRoot:
                 // The released native TON signer can recreate its key from
                 // the captured phrase, which must also survive for export.
                 required = KeystoreTagV2.entropyTagForMetaId(metaID)
+                try requireTonPhrase(slot)
+                exportSources = [(FieldID.mnemonic, required)]
             default:
                 continue
             }
-            guard tags.contains(required) else { throw ProjectionError.missingRequiredKey }
+            guard itemIndexes[required] != nil else { throw ProjectionError.missingRequiredKey }
+            for (fieldID, tag) in exportSources {
+                guard let field = slot.fields.first(where: { $0.id == fieldID }) else { continue }
+                guard let index = itemIndexes[tag] else { throw ProjectionError.missingRequiredKey }
+                guard items[index].value == Data(field.value) else { throw ProjectionError.invalidSource }
+            }
+        }
+    }
+
+    private static func requireTonPhrase(_ slot: Codec.Slot) throws {
+        guard slot.fields.contains(where: { $0.id == FieldID.mnemonic }) else {
+            throw ProjectionError.missingRequiredKey
         }
     }
 
