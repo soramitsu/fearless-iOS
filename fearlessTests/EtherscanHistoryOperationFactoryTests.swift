@@ -1,13 +1,13 @@
+@testable import fearless
 import Foundation
 import SoraFoundation
 import XCTest
-@testable import fearless
 
 final class EtherscanHistoryOperationFactoryTests: XCTestCase {
     func testBscMainnetUsesChainBoundV2AndUnifiedKey() throws {
         let url = try EtherscanHistoryOperationFactory.historyURL(
             address: "0x1234567890123456789012345678901234567890",
-            baseURL: try XCTUnwrap(URL(string: "https://api.bscscan.com/api")),
+            baseURL: XCTUnwrap(URL(string: "https://api.bscscan.com/api")),
             chainId: "56",
             action: "tokentx",
             unifiedAPIKey: "unified-test-key"
@@ -54,7 +54,7 @@ final class EtherscanHistoryOperationFactoryTests: XCTestCase {
     func testUnknownHistoryHostNeverReceivesUnifiedExplorerKey() throws {
         let url = try EtherscanHistoryOperationFactory.historyURL(
             address: "0x1234567890123456789012345678901234567890",
-            baseURL: try XCTUnwrap(URL(string: "https://example.org/api")),
+            baseURL: XCTUnwrap(URL(string: "https://example.org/api")),
             chainId: "56", action: "txlist", unifiedAPIKey: "unified-test-key"
         )
         XCTAssertEqual(url.host, "example.org")
@@ -120,9 +120,47 @@ final class EtherscanHistoryOperationFactoryTests: XCTestCase {
     }
 }
 
+final class HistoryProviderFailureTests: XCTestCase {
+    func testKaiaFailureAndMissingResultCannotBecomeEmptyHistory() throws {
+        for json in [
+            #"{"success":false,"code":500,"result":[]}"#,
+            #"{"code":500,"result":[]}"#,
+            #"{"success":true,"code":0}"#
+        ] {
+            let response = try JSONDecoder().decode(KaiaHistoryResponse.self, from: Data(json.utf8))
+            XCTAssertThrowsError(try response.validatedTransactions()) {
+                XCTAssertEqual($0 as? KaiaHistoryError, .providerRejected)
+            }
+        }
+        let empty = try JSONDecoder().decode(
+            KaiaHistoryResponse.self,
+            from: Data(#"{"success":true,"code":0,"result":[]}"#.utf8)
+        )
+        XCTAssertTrue(try empty.validatedTransactions().isEmpty)
+    }
+
+    func testOklinkProviderErrorCannotBecomeEmptyHistory() throws {
+        let failure = try JSONDecoder().decode(
+            OklinkHistoryResponse.self,
+            from: Data(#"{"code":"500","msg":"rate limited","data":[]}"#.utf8)
+        )
+        XCTAssertThrowsError(try failure.validatedData()) {
+            XCTAssertEqual($0 as? OklinkHistoryError, .providerRejected)
+        }
+        let empty = try JSONDecoder().decode(
+            OklinkHistoryResponse.self,
+            from: Data(#"{"code":"0","msg":"","data":[]}"#.utf8)
+        )
+        XCTAssertTrue(try empty.validatedData().isEmpty)
+    }
+}
+
 private final class HistoryPresenterFixture: WalletTransactionHistoryPresenterProtocol {
     func setup(with _: WalletTransactionHistoryViewProtocol) {}
-    func loadNext() -> Bool { false }
+    func loadNext() -> Bool {
+        false
+    }
+
     func didSelect(viewModel _: WalletTransactionHistoryCellViewModel) {}
     func didTapFiltersButton() {}
     func didChangeFiltersSliderValue(index _: Int) {}

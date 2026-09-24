@@ -1,6 +1,6 @@
 import Foundation
-import SSFModels
 import RobinHood
+import SSFModels
 
 final class KaiaHistoryOperationFactory {
     private func createOperation(
@@ -20,17 +20,21 @@ final class KaiaHistoryOperationFactory {
         }
 
         let resultFactory = AnyNetworkResultFactory<KaiaHistoryResponse> { data, response, error in
-
             do {
+                if let error {
+                    return .failure(error)
+                }
+                guard let response = response as? HTTPURLResponse,
+                      (200 ... 299).contains(response.statusCode) else {
+                    throw KaiaHistoryError.invalidHTTPResponse
+                }
                 if let data = data {
-                    let response = try GithubJSONDecoder().decode(
+                    let decoded = try GithubJSONDecoder().decode(
                         KaiaHistoryResponse.self,
                         from: data
                     )
-
-                    return .success(response)
-                } else if let error = error {
-                    return .failure(error)
+                    _ = try decoded.validatedTransactions()
+                    return .success(decoded)
                 } else {
                     return .failure(SubqueryHistoryOperationFactoryError.incorrectInputData)
                 }
@@ -39,12 +43,10 @@ final class KaiaHistoryOperationFactory {
             }
         }
 
-        let operation = NetworkOperation(
+        return NetworkOperation(
             requestFactory: requestFactory,
             resultFactory: resultFactory
         )
-
-        return operation
     }
 
     private func createMapOperation(
@@ -54,13 +56,13 @@ final class KaiaHistoryOperationFactory {
         chain: ChainModel
     ) -> BaseOperation<AssetTransactionPageData?> {
         ClosureOperation {
-            let remoteTransactions = try remoteOperation.extractNoCancellableResultData().result
+            let remoteTransactions = try remoteOperation.extractNoCancellableResultData().validatedTransactions()
 
-            let transactions = remoteTransactions?
+            let transactions = remoteTransactions
                 .compactMap {
                     AssetTransactionData.createTransaction(from: $0, address: address, chain: chain, asset: asset)
                 }.filter { $0.amount.decimalValue > 0 }
-                .sorted(by: { $0.timestamp > $1.timestamp }) ?? []
+                .sorted(by: { $0.timestamp > $1.timestamp })
 
             return AssetTransactionPageData(transactions: transactions)
         }

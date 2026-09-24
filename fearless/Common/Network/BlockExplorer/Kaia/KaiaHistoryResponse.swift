@@ -1,11 +1,23 @@
-import Foundation
 import BigInt
+import Foundation
 import SSFUtils
 
 struct KaiaHistoryResponse: Decodable {
     let success: Bool?
     let code: Int?
     let result: [KaiaHistoryTransaction]?
+
+    func validatedTransactions() throws -> [KaiaHistoryTransaction] {
+        guard success != false, code == nil || code == 0, let result else {
+            throw KaiaHistoryError.providerRejected
+        }
+        return result
+    }
+}
+
+enum KaiaHistoryError: Error, Equatable {
+    case invalidHTTPResponse
+    case providerRejected
 }
 
 struct KaiaHistoryTransaction: Decodable {
