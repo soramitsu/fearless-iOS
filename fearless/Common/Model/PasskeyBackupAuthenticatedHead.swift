@@ -6,10 +6,11 @@ enum PasskeyBackupAuthenticatedHeadError: Error, Equatable {
     case wrongStorageAccount
     case brokenHistory
     case missingHead
+    case headChanged
 }
 
 /// Metadata from an authenticated owner session. Its fields alone do not authenticate an HTTP response.
-struct PasskeyBackupHeadDescriptor: CustomStringConvertible, CustomDebugStringConvertible {
+struct PasskeyBackupHeadDescriptor: Equatable, CustomStringConvertible, CustomDebugStringConvertible {
     let headRevision: Int64
     let parentHeadRevision: Int64
     let parentHeadSha256: String?
@@ -46,8 +47,13 @@ struct PasskeyBackupHeadDescriptor: CustomStringConvertible, CustomDebugStringCo
         self.storageAccountBinding = storageAccountBinding
     }
 
-    var description: String { "PasskeyBackupHeadDescriptor(<redacted>)" }
-    var debugDescription: String { description }
+    var description: String {
+        "PasskeyBackupHeadDescriptor(<redacted>)"
+    }
+
+    var debugDescription: String {
+        description
+    }
 
     func expectedContext(ownerSubject: String, backupNamespace: String) throws
         -> PasskeyBackupGenerationV1.Context {
@@ -69,7 +75,7 @@ struct PasskeyBackupHeadDescriptor: CustomStringConvertible, CustomDebugStringCo
 
 /// The caller must obtain this from a fresh, authenticated owner-session response.
 /// A current head is never inferred from Drive listing or an app-private journal.
-struct PasskeyBackupAuthenticatedHead: CustomStringConvertible, CustomDebugStringConvertible {
+struct PasskeyBackupAuthenticatedHead: Equatable, CustomStringConvertible, CustomDebugStringConvertible {
     let ownerSubject: String
     let backupNamespace: String
     let head: PasskeyBackupHeadDescriptor?
@@ -117,8 +123,13 @@ struct PasskeyBackupAuthenticatedHead: CustomStringConvertible, CustomDebugStrin
         self.previous = previous
     }
 
-    var description: String { "PasskeyBackupAuthenticatedHead(<redacted>)" }
-    var debugDescription: String { description }
+    var description: String {
+        "PasskeyBackupAuthenticatedHead(<redacted>)"
+    }
+
+    var debugDescription: String {
+        description
+    }
 
     func currentReadParameters() throws -> (
         fileID: String, context: PasskeyBackupGenerationV1.Context, sha256: String

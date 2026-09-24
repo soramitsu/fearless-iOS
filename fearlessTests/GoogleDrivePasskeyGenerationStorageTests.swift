@@ -167,6 +167,170 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
         XCTAssertEqual(String(reflecting: try XCTUnwrap(committed.head)), "PasskeyBackupHeadDescriptor(<redacted>)")
     }
 
+    func testOwnerHeadHTTPRequiresExactSessionOwnerAccountAndClosedResponse() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let ownerTransport = GenerationTransportFixture()
+        let source = try HTTPPasskeyBackupOwnerHeadSource(
+            baseURL: URL(string: "https://backup.fearlesswallet.io")!, transport: ownerTransport
+        )
+        let session = try ownerSession(candidate)
+        ownerTransport.responses = [.success(.init(statusCode: 200, body: try ownerHeadBody(candidate)))]
+        let head = try await source.readHead(
+            session: session, expectedStorageAccountBinding: candidate.context.storageAccountBinding
+        )
+        XCTAssertEqual(try head.currentReadParameters().fileID, fileID)
+        let request = try XCTUnwrap(ownerTransport.requests.first)
+        XCTAssertEqual(request.method, "POST")
+        XCTAssertEqual(
+            request.url.absoluteString,
+            "https://backup.fearlesswallet.io/api/passkey-backup/v1/owner/backup/head"
+        )
+        XCTAssertEqual(request.headers["Authorization"], "Bearer \(session.token)")
+        XCTAssertEqual(request.headers["Cache-Control"], "no-store")
+        XCTAssertEqual(request.body, Data(#"{"schemaVersion":1}"#.utf8))
+        XCTAssertFalse(try XCTUnwrap(String(data: XCTUnwrap(request.body), encoding: .utf8)).contains("prf"))
+        XCTAssertEqual(String(reflecting: session), "PasskeyBackupOwnerSession(<redacted>)")
+        XCTAssertEqual(Array(Mirror(reflecting: session).children).count, 0)
+
+        XCTAssertThrowsError(try HTTPPasskeyBackupOwnerHeadSource(
+            baseURL: URL(string: "http://backup.fearlesswallet.io")!, transport: ownerTransport
+        ))
+        XCTAssertThrowsError(try PasskeyBackupOwnerSession(
+            token: "session.bad", ownerSubject: candidate.context.ownerSubject,
+            backupNamespace: candidate.context.backupNamespace
+        ))
+    }
+
+    func testOwnerHeadHTTPRejectsDuplicateCoercedAndSubstitutedFields() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let session = try ownerSession(candidate)
+        let original = try String(decoding: ownerHeadBody(candidate), as: UTF8.self)
+        let cases = [
+            original.replacingOccurrences(of: #""schemaVersion":1"#, with: #""schemaVersion":"1""#),
+            original.replacingOccurrences(of: #""schemaVersion":1"#, with: #""schemaVersion":1,"schemaVersion":1"#),
+            original.replacingOccurrences(
+                of: #""ownerSubject":"#, with: #""\u006fwnerSubject":"bogus","ownerSubject":"#
+            ),
+            original.replacingOccurrences(of: #""bundleSha256":"#, with: #""bundleSha256":"oops","bundleSha256":"#),
+            original.replacingOccurrences(of: #""ownerSubject":"#, with: #""unexpected":null,"ownerSubject":"#),
+            original.replacingOccurrences(of: candidate.context.ownerSubject, with: "owner:" + String(repeating: "A", count: 43)),
+            original.replacingOccurrences(of: candidate.context.storageAccountBinding, with: String(repeating: "0", count: 64)),
+            original + "{}"
+        ]
+        for body in cases {
+            XCTAssertNotEqual(body, original)
+            let ownerTransport = GenerationTransportFixture()
+            ownerTransport.responses = [.success(.init(statusCode: 200, body: Data(body.utf8)))]
+            let source = try HTTPPasskeyBackupOwnerHeadSource(
+                baseURL: URL(string: "https://backup.fearlesswallet.io")!, transport: ownerTransport
+            )
+            do {
+                _ = try await source.readHead(
+                    session: session, expectedStorageAccountBinding: candidate.context.storageAccountBinding
+                )
+                XCTFail("Untrusted owner head was accepted")
+            } catch {
+                XCTAssertEqual(error as? PasskeyBackupOwnerHeadHTTPError, .malformedResponse)
+            }
+        }
+    }
+
+    @available(iOS 18.0, *)
+    func testCurrentOwnerHeadReadbackRechecksHeadAfterLocalProof() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let ownerTransport = GenerationTransportFixture()
+        ownerTransport.responses = [
+            .success(.init(statusCode: 200, body: try ownerHeadBody(candidate))),
+            .success(.init(statusCode: 200, body: try ownerHeadBody(candidate)))
+        ]
+        fixture.transport.responses = [.success(.init(statusCode: 200, body: try metadata(candidate))),
+                                       .success(.init(statusCode: 200, body: candidate.bytes))]
+        let ownerSource = try HTTPPasskeyBackupOwnerHeadSource(
+            baseURL: URL(string: "https://backup.fearlesswallet.io")!, transport: ownerTransport
+        )
+        let wallet = ReadbackWalletVerifierFixture()
+        let result = try await PasskeyBackupHeadReadbackVerifier(
+            storage: fixture.store,
+            cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier(walletVerifier: wallet)
+        ).verifyCurrent(
+            ownerHeadSource: ownerSource, ownerSession: ownerSession(candidate),
+            expectedStorageAccountBinding: candidate.context.storageAccountBinding,
+            verifiedPRF: try await verifiedReadbackPRF(), expectedWallet: expectedWallet()
+        )
+        XCTAssertEqual(result.sha256, candidate.sha256)
+        XCTAssertEqual(ownerTransport.requests.count, 2)
+        XCTAssertEqual(fixture.transport.requests.count, 2)
+        XCTAssertEqual(wallet.calls, 1)
+        XCTAssertFalse(PasskeyBackupReleaseConfig.isPasskeyBackupEnabled)
+    }
+
+    @available(iOS 18.0, *)
+    func testCurrentOwnerHeadReadbackRejectsChangedHeadAfterLocalProof() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let ownerTransport = GenerationTransportFixture()
+        ownerTransport.responses = [
+            .success(.init(statusCode: 200, body: try ownerHeadBody(candidate))),
+            .success(.init(statusCode: 200, body: try ownerHeadBody(candidate, changedFileID: "replacement-generation-id")))
+        ]
+        fixture.transport.responses = [.success(.init(statusCode: 200, body: try metadata(candidate))),
+                                       .success(.init(statusCode: 200, body: candidate.bytes))]
+        let ownerSource = try HTTPPasskeyBackupOwnerHeadSource(
+            baseURL: URL(string: "https://backup.fearlesswallet.io")!, transport: ownerTransport
+        )
+        do {
+            _ = try await PasskeyBackupHeadReadbackVerifier(
+                storage: fixture.store,
+                cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier(
+                    walletVerifier: ReadbackWalletVerifierFixture()
+                )
+            ).verifyCurrent(
+                ownerHeadSource: ownerSource, ownerSession: ownerSession(candidate),
+                expectedStorageAccountBinding: candidate.context.storageAccountBinding,
+                verifiedPRF: try await verifiedReadbackPRF(), expectedWallet: expectedWallet()
+            )
+            XCTFail("A changed owner head returned usable local evidence")
+        } catch {
+            XCTAssertEqual(error as? PasskeyBackupAuthenticatedHeadError, .headChanged)
+        }
+        XCTAssertEqual(ownerTransport.requests.count, 2)
+    }
+
+    @available(iOS 18.0, *)
+    func testCurrentOwnerHeadReadbackRejectsRevokedSessionAfterLocalProof() async throws {
+        let fixture = try fixture()
+        let candidate = try fixture.store.prepareCandidate(fileID: fileID, generation: generation())
+        let ownerTransport = GenerationTransportFixture()
+        ownerTransport.responses = [
+            .success(.init(statusCode: 200, body: try ownerHeadBody(candidate))),
+            .success(.init(statusCode: 401))
+        ]
+        fixture.transport.responses = [.success(.init(statusCode: 200, body: try metadata(candidate))),
+                                       .success(.init(statusCode: 200, body: candidate.bytes))]
+        let ownerSource = try HTTPPasskeyBackupOwnerHeadSource(
+            baseURL: URL(string: "https://backup.fearlesswallet.io")!, transport: ownerTransport
+        )
+        do {
+            _ = try await PasskeyBackupHeadReadbackVerifier(
+                storage: fixture.store,
+                cryptographicVerifier: PasskeyBackupGenerationCryptographicVerifier(
+                    walletVerifier: ReadbackWalletVerifierFixture()
+                )
+            ).verifyCurrent(
+                ownerHeadSource: ownerSource, ownerSession: ownerSession(candidate),
+                expectedStorageAccountBinding: candidate.context.storageAccountBinding,
+                verifiedPRF: try await verifiedReadbackPRF(), expectedWallet: expectedWallet()
+            )
+            XCTFail("A revoked owner session returned usable local evidence")
+        } catch {
+            XCTAssertEqual(error as? PasskeyBackupOwnerHeadHTTPError, .httpStatus(401))
+        }
+        XCTAssertEqual(ownerTransport.requests.count, 2)
+    }
+
     @available(iOS 18.0, *)
     func testHeadReadbackDecryptsExactCommittedGenerationAndReturnsOnlyLocalEvidence() async throws {
         let fixture = try fixture()
@@ -934,6 +1098,38 @@ final class GoogleDrivePasskeyGenerationStorageTests: XCTestCase {
             expectedBackupNamespace: candidate.context.backupNamespace,
             expectedStorageAccountBinding: candidate.context.storageAccountBinding
         )
+    }
+
+    private func ownerSession(
+        _ candidate: GoogleDrivePasskeyGenerationStorage.Candidate
+    ) throws -> PasskeyBackupOwnerSession {
+        try PasskeyBackupOwnerSession(
+            token: "session." + String(repeating: "A", count: 43),
+            ownerSubject: candidate.context.ownerSubject,
+            backupNamespace: candidate.context.backupNamespace
+        )
+    }
+
+    private func ownerHeadBody(
+        _ candidate: GoogleDrivePasskeyGenerationStorage.Candidate,
+        changedFileID: String? = nil
+    ) throws -> Data {
+        let authenticated = try authenticatedHead(candidate)
+        let head = try XCTUnwrap(authenticated.head)
+        let previous = try XCTUnwrap(authenticated.previous)
+        func object(_ descriptor: PasskeyBackupHeadDescriptor) -> [String: Any] {
+            ["headRevision": String(descriptor.headRevision),
+             "parentHeadRevision": String(descriptor.parentHeadRevision),
+             "parentHeadSha256": descriptor.parentHeadSha256.map { $0 as Any } ?? NSNull(),
+             "generationId": descriptor.generationId, "bundleSha256": descriptor.bundleSha256,
+             "keyEpoch": String(descriptor.keyEpoch), "driveFileId": descriptor.driveFileID,
+             "storageAccountBinding": descriptor.storageAccountBinding]
+        }
+        var headObject = object(head)
+        if let changedFileID { headObject["driveFileId"] = changedFileID }
+        return try json(["schemaVersion": 1, "ownerSubject": authenticated.ownerSubject,
+                         "backupNamespace": authenticated.backupNamespace,
+                         "head": headObject, "previous": object(previous)])
     }
 
     private func metadataObject(_ candidate: GoogleDrivePasskeyGenerationStorage.Candidate) throws -> [String: Any] {

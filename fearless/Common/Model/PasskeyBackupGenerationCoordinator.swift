@@ -349,4 +349,31 @@ final class PasskeyBackupHeadReadbackVerifier {
             publicIdentitySha256: evidence.publicIdentitySha256
         )
     }
+
+    /// A current owner session selects the generation both before and after the local proof.
+    /// If the owner head changes while Drive or key verification suspends, no evidence is returned.
+    /// Wallet installation still requires its own fresh owner authorization and transaction.
+    func verifyCurrent(
+        ownerHeadSource: PasskeyBackupOwnerHeadSource,
+        ownerSession: PasskeyBackupOwnerSession,
+        expectedStorageAccountBinding: String,
+        verifiedPRF: PasskeyBackupVerifiedLocalPRF,
+        expectedWallet: PasskeyBackupExpectedWalletIdentity
+    ) async throws -> PasskeyBackupLocallyVerifiedHead {
+        try Task.checkCancellation()
+        let initial = try await ownerHeadSource.readHead(
+            session: ownerSession, expectedStorageAccountBinding: expectedStorageAccountBinding
+        )
+        let evidence = try await verify(
+            authenticatedHead: initial, verifiedPRF: verifiedPRF, expectedWallet: expectedWallet
+        )
+        let final = try await ownerHeadSource.readHead(
+            session: ownerSession, expectedStorageAccountBinding: expectedStorageAccountBinding
+        )
+        try Task.checkCancellation()
+        guard initial == final else { throw PasskeyBackupAuthenticatedHeadError.headChanged }
+        try await storage.requireSelectedAccount()
+        try Task.checkCancellation()
+        return evidence
+    }
 }

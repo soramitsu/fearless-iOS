@@ -45,6 +45,7 @@
 		A50923CCCF00000000000004 /* IOSPortableWalletSemanticMaterialTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCF00000000000003 /* IOSPortableWalletSemanticMaterialTests.swift */; };
 		A50923CCCD00000000000004 /* IOSPasskeyWalletMaterialPreflightTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCD00000000000003 /* IOSPasskeyWalletMaterialPreflightTests.swift */; };
 		A50923DDDD00000000000002 /* PasskeyBackupAuthenticatedHead.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923DDDD00000000000001 /* PasskeyBackupAuthenticatedHead.swift */; };
+		A50923DDDE00000000000002 /* PasskeyBackupOwnerHeadHTTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923DDDE00000000000001 /* PasskeyBackupOwnerHeadHTTP.swift */; };
 		A50923EEAA00000000000002 /* PasskeyBackupAppAttestBootstrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923EEAA00000000000001 /* PasskeyBackupAppAttestBootstrap.swift */; };
 		A50923EEAA00000000000006 /* PasskeyBackupAppAttestPendingKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923EEAA00000000000005 /* PasskeyBackupAppAttestPendingKey.swift */; };
 		A50923EEAA00000000000004 /* PasskeyBackupAppAttestBootstrapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923EEAA00000000000003 /* PasskeyBackupAppAttestBootstrapTests.swift */; };
@@ -3266,6 +3267,7 @@
 		A50923CCCF00000000000003 /* IOSPortableWalletSemanticMaterialTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletSemanticMaterialTests.swift; sourceTree = "<group>"; };
 		A50923CCCD00000000000003 /* IOSPasskeyWalletMaterialPreflightTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPasskeyWalletMaterialPreflightTests.swift; sourceTree = "<group>"; };
 		A50923DDDD00000000000001 /* PasskeyBackupAuthenticatedHead.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupAuthenticatedHead.swift; sourceTree = "<group>"; };
+		A50923DDDE00000000000001 /* PasskeyBackupOwnerHeadHTTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupOwnerHeadHTTP.swift; sourceTree = "<group>"; };
 		A50923EEAA00000000000001 /* PasskeyBackupAppAttestBootstrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupAppAttestBootstrap.swift; sourceTree = "<group>"; };
 		A50923EEAA00000000000005 /* PasskeyBackupAppAttestPendingKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupAppAttestPendingKey.swift; sourceTree = "<group>"; };
 		A50923EEAA00000000000003 /* PasskeyBackupAppAttestBootstrapTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupAppAttestBootstrapTests.swift; sourceTree = "<group>"; };
@@ -9796,6 +9798,7 @@
 				A50923CCD300000000000011 /* IOSPortableWalletReceiveKeychainProjection.swift */,
 				A50923CCD400000000000011 /* IOSPortableAndroidSourceProof.swift */,
 				A50923DDDD00000000000001 /* PasskeyBackupAuthenticatedHead.swift */,
+				A50923DDDE00000000000001 /* PasskeyBackupOwnerHeadHTTP.swift */,
 		A50923EEAA00000000000001 /* PasskeyBackupAppAttestBootstrap.swift */,
 		A50923EEAA00000000000005 /* PasskeyBackupAppAttestPendingKey.swift */,
 				A5092300DD00000000000001 /* GoogleDrivePasskeyBackupTokenProvider.swift */,
@@ -17685,6 +17688,7 @@
 				A50923CCD300000000000012 /* IOSPortableWalletReceiveKeychainProjection.swift in Sources */,
 				A50923CCD400000000000012 /* IOSPortableAndroidSourceProof.swift in Sources */,
 				A50923DDDD00000000000002 /* PasskeyBackupAuthenticatedHead.swift in Sources */,
+				A50923DDDE00000000000002 /* PasskeyBackupOwnerHeadHTTP.swift in Sources */,
 		A50923EEAA00000000000002 /* PasskeyBackupAppAttestBootstrap.swift in Sources */,
 		A50923EEAA00000000000006 /* PasskeyBackupAppAttestPendingKey.swift in Sources */,
 				A5092300DD00000000000002 /* GoogleDrivePasskeyBackupTokenProvider.swift in Sources */,
