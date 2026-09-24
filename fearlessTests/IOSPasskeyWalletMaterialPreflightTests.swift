@@ -1064,7 +1064,10 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         XCTAssertNoThrow(try IOSPortableWalletSemanticMaterial.encode(semantic))
         XCTAssertEqual(try IOSPortableNamedChainProof.verify(
             IOSPortableWalletSemanticMaterial.encode(semantic)
-        ), .init(bitcoinAccounts: 1, tairaAccounts: 0))
+        ), .init(
+            bitcoinAccounts: 1, tairaAccounts: 0, solanaAccounts: 0,
+            tonAccounts: 0, nexusAccounts: 0
+        ))
 
         let chainIndex = try XCTUnwrap(semantic.wallets[0].slots.firstIndex { $0.role == 5 })
         let keyIndex = try XCTUnwrap(semantic.wallets[0].slots[chainIndex].fields.firstIndex { $0.id == 2 })
@@ -1107,7 +1110,10 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         defer { semantic.clearSecrets() }
         XCTAssertEqual(try IOSPortableNamedChainProof.verify(
             IOSPortableWalletSemanticMaterial.encode(semantic)
-        ), .init(bitcoinAccounts: 0, tairaAccounts: 1))
+        ), .init(
+            bitcoinAccounts: 0, tairaAccounts: 1, solanaAccounts: 0,
+            tonAccounts: 0, nexusAccounts: 0
+        ))
 
         let bridgeIndex = try XCTUnwrap(semantic.wallets[0].slots.firstIndex { slot in
             slot.role == 7 && (try? slot.value(16)) == [9]
@@ -1117,6 +1123,87 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         XCTAssertThrowsError(try IOSPortableNamedChainProof.verify(
             IOSPortableWalletSemanticMaterial.encode(semantic)
         ))
+    }
+
+    func testRootDerivedSolanaTonAndNexusChainsRejectChangedKeys() throws {
+        let walletSeed = Data(repeating: 0x26, count: 32)
+        let phrase = try UniversalWalletSeedBridge.mnemonic(fromWalletSeed: walletSeed)
+        let rootPublicKey = try EDKeyFactory().derive(fromSeed: walletSeed).publicKey().rawData()
+        let solana = try SolanaKeyDerivation.deriveAccount(mnemonic: phrase)
+        let ton = try TonKeyDerivation.deriveAccount(mnemonic: phrase)
+        let nexus = try IrohaKeyDerivation.deriveAccount(mnemonic: phrase)
+        let chains: [(String, Data)] = [
+            (UniversalWalletRegistry.solanaMainnet.chainId, solana.publicKey),
+            (UniversalWalletRegistry.solanaDevnet.chainId, solana.publicKey),
+            (UniversalWalletRegistry.tonMainnetRegistryEntry.chainId, ton.publicKey),
+            (UniversalWalletRegistry.nexus.chainId, nexus.publicKey)
+        ]
+        let accounts = Set(chains.map { chainID, publicKey in
+            ChainAccountModel(
+                chainId: chainID, accountId: publicKey, publicKey: publicKey,
+                cryptoType: CryptoType.ed25519.rawValue, ethereumBased: false
+            )
+        })
+        let wallet = MetaAccountModel(
+            metaId: "derived-named-wallet", name: "Derived",
+            substrateAccountId: try rootPublicKey.publicKeyToAccountId(),
+            substrateCryptoType: CryptoType.ed25519.rawValue,
+            substratePublicKey: rootPublicKey, ethereumAddress: nil,
+            ethereumPublicKey: nil, chainAccounts: accounts, assetKeysOrder: nil,
+            canExportEthereumMnemonic: false, unusedChainIds: nil,
+            selectedCurrency: Currency.defaultCurrency(), networkManagmentFilter: nil,
+            assetsVisibility: [], hasBackup: false, favouriteChainIds: []
+        )
+        let keys = PreflightKeystore(keys: [
+            fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId): walletSeed,
+            fearless.KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId): walletSeed,
+            fearless.KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId):
+                Data(UniversalWalletSeedBridge.contract.utf8)
+        ])
+        let draft = try IOSPasskeyWalletMaterialDraftCapture(
+            preflight: makePreflight([selectedProjection(wallet)], keys: keys), keystore: keys
+        ).capture()
+        var semantic = try IOSPortableWalletSemanticDraftAdapter.snapshot(from: draft)
+        defer { semantic.clearSecrets() }
+        XCTAssertEqual(try IOSPortableNamedChainProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(semantic)
+        ), .init(
+            bitcoinAccounts: 0, tairaAccounts: 0, solanaAccounts: 2,
+            tonAccounts: 1, nexusAccounts: 1
+        ))
+
+        for (chainID, _) in chains {
+            var corrupted = semantic
+            defer { corrupted.clearSecrets() }
+            let chainIndex = try XCTUnwrap(corrupted.wallets[0].slots.firstIndex {
+                $0.role == 5 && $0.key == chainID
+            })
+            let keyIndex = try XCTUnwrap(corrupted.wallets[0].slots[chainIndex].fields.firstIndex { $0.id == 2 })
+            corrupted.wallets[0].slots[chainIndex].fields[keyIndex].value[0] ^= 1
+            XCTAssertThrowsError(try IOSPortableNamedChainProof.verify(
+                IOSPortableWalletSemanticMaterial.encode(corrupted)
+            ))
+        }
+
+        // A separately imported Solana signer is a valid wallet identity even
+        // when it is unrelated to the root mnemonic.
+        var independent = semantic
+        defer { independent.clearSecrets() }
+        let separateKey = Data(repeating: 0x53, count: 32)
+        let separatePublicKey = try SolanaKeyDerivation.publicKey(fromPrivateKey: separateKey)
+        let solanaIndex = try XCTUnwrap(independent.wallets[0].slots.firstIndex {
+            $0.role == 5 && $0.key == UniversalWalletRegistry.solanaMainnet.chainId
+        })
+        for (fieldID, bytes) in [(UInt8(1), separatePublicKey), (UInt8(2), separateKey),
+                                 (UInt8(7), separatePublicKey)] {
+            let fieldIndex = try XCTUnwrap(independent.wallets[0].slots[solanaIndex].fields.firstIndex {
+                $0.id == fieldID
+            })
+            independent.wallets[0].slots[solanaIndex].fields[fieldIndex].value = Array(bytes)
+        }
+        XCTAssertEqual(try IOSPortableNamedChainProof.verify(
+            IOSPortableWalletSemanticMaterial.encode(independent)
+        ).solanaAccounts, 2)
     }
 
     private func substrateWallet(
