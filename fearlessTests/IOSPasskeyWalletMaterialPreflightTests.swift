@@ -830,6 +830,30 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         XCTAssertEqual(try IOSPortableWalletSemanticMaterial.encode(approved.snapshot), encoded)
     }
 
+    func testPortableReceivePlanDoesNotTreatChainExportSourceAsProvenBySigning() throws {
+        let genesisID = "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3"
+        var material = try IOSPortableWalletSemanticMaterial.decode(
+            importedChainMaterial(cryptoType: .ed25519, chainID: genesisID)
+        )
+        defer { material.clearSecrets() }
+        let chainIndex = try XCTUnwrap(material.wallets[0].slots.firstIndex { $0.role == 5 })
+        if let seedIndex = material.wallets[0].slots[chainIndex].fields.firstIndex(where: { $0.id == 5 }) {
+            material.wallets[0].slots[chainIndex].fields[seedIndex].value = [0x42]
+        } else {
+            material.wallets[0].slots[chainIndex].fields.append(.init(id: 5, value: [0x42]))
+            material.wallets[0].slots[chainIndex].fields.sort { $0.id < $1.id }
+        }
+        let encoded = try IOSPortableWalletSemanticMaterial.encode(material)
+
+        var plan = try IOSPortableWalletReceiveInstallPlan.prepare(
+            encoded, approvedSubstrateGenesisIDs: [genesisID]
+        )
+        defer { plan.clearSecrets() }
+        XCTAssertTrue(plan.blockers.contains(.unprovenChainExportMaterial(1)))
+        XCTAssertFalse(plan.blockers.contains(.unprovenChainAccounts(1)))
+        XCTAssertEqual(try IOSPortableWalletSemanticMaterial.encode(plan.snapshot), encoded)
+    }
+
     func testImportedSubstrateRootProvesAllReleasedCryptoTypes() throws {
         for cryptoType in [CryptoType.sr25519, .ed25519, .ecdsa] {
             let wallet = try substrateWallet(cryptoType: cryptoType)
@@ -963,6 +987,11 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
         XCTAssertEqual(try IOSPortableRootSigningProof.verify(
             IOSPortableWalletSemanticMaterial.encode(snapshot)
         ).legacySubstrateRoots, 1)
+        var receivePlan = try IOSPortableWalletReceiveInstallPlan.prepare(
+            IOSPortableWalletSemanticMaterial.encode(snapshot), approvedSubstrateGenesisIDs: []
+        )
+        defer { receivePlan.clearSecrets() }
+        XCTAssertTrue(receivePlan.blockers.contains(.unprovenRootExportMaterial(1)))
 
         let differentPublicKey = try SNKeyFactory()
             .createKeypair(fromSeed: Data(repeating: 0x12, count: 32)).publicKey().rawData()

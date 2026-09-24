@@ -20,6 +20,7 @@ enum IOSPortableWalletReceiveInstallPlan {
 
     enum Blocker: Equatable {
         case unprovenRootExportMaterial(Int)
+        case unprovenChainExportMaterial(Int)
         case unprovenChainAccounts(Int)
         case unprovenAuxiliarySources(Int)
         case unprovenWatchIdentities(Int)
@@ -60,6 +61,7 @@ enum IOSPortableWalletReceiveInstallPlan {
     private struct Inventory {
         var slots = [Slot]()
         var rootExport = 0
+        var chainExport = 0
         var unknownChains = 0
         var auxiliary = 0
         var watch = 0
@@ -73,11 +75,17 @@ enum IOSPortableWalletReceiveInstallPlan {
             let destination = try IOSPortableWalletReceiveInstallPlan.destination(for: source.role)
             slots.append(Slot(walletIndex: walletIndex, slotIndex: slotIndex, destination: destination))
             switch destination {
-            case .substrateRoot, .evmRoot, .nativeTonRoot, .legacySubstrate:
+            case .substrateRoot, .evmRoot, .nativeTonRoot:
                 if IOSPortableWalletReceiveInstallPlan.hasUnprovenExportMaterial(source) {
                     rootExport += 1
                 }
+            case .legacySubstrate:
+                // A valid signer does not prove the historical source recipe.
+                rootExport += 1
             case .chainAccount:
+                if IOSPortableWalletReceiveInstallPlan.hasUnprovenExportMaterial(source) {
+                    chainExport += 1
+                }
                 let canonical = UniversalWalletChainAccountSupport.canonicalChainId(for: source.key)
                 if !approvedSubstrateGenesisIDs.contains(source.key),
                    !IOSPortableWalletReceiveInstallPlan.namedChainIDs.contains(canonical) {
@@ -96,6 +104,9 @@ enum IOSPortableWalletReceiveInstallPlan {
             var result = [Blocker]()
             if rootExport > 0 {
                 result.append(.unprovenRootExportMaterial(rootExport))
+            }
+            if chainExport > 0 {
+                result.append(.unprovenChainExportMaterial(chainExport))
             }
             if unknownChains > 0 {
                 result.append(.unprovenChainAccounts(unknownChains))
