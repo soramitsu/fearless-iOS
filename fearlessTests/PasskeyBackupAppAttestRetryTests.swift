@@ -225,4 +225,23 @@ final class PasskeyBackupAppAttestRetryTests: XCTestCase {
             XCTFail("Expected cancellation")
         } catch { XCTAssertEqual(error as? PasskeyBackupAppAttestError, .cancelled) }
     }
+
+    func testSmallClientClockLagKeepsBootstrapAndAppAttestCeremonyUsable() throws {
+        let encoded = PasskeyBackupServerAttestationNonce.base64URL(Data(repeating: 6, count: 32))
+        let ceremonyID = "ceremony." + encoded
+        let subject = "owner:" + encoded
+        let challenge = try PasskeyBackupFirstOwnerChallenge(
+            ceremonyID: ceremonyID, challenge: Data(repeating: 7, count: 32),
+            ownerSubject: subject, backupNamespace: "backup:" + encoded,
+            userHandle: Data(repeating: 8, count: 32), expiresAtUnixSeconds: 1120
+        )
+        try challenge.requireFresh(nowUnixSeconds: 999)
+        let attestation = try PasskeyBackupAppAttestChallenge(
+            serverNonce: "Iz4cYbaBAGnIT-VUoHJuwDl33KZ6PuuXYyx7V-yUKL4",
+            ceremonyID: ceremonyID, subject: subject,
+            expiresAt: Date(timeIntervalSince1970: 1120)
+        )
+        try attestation.validate(now: Date(timeIntervalSince1970: 999))
+        XCTAssertThrowsError(try challenge.requireFresh(nowUnixSeconds: 800))
+    }
 }

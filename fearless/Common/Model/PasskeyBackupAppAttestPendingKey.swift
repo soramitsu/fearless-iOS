@@ -26,7 +26,9 @@ struct PasskeyBackupAppAttestChallenge: CustomStringConvertible {
 
     func validate(now: Date) throws {
         let remaining = Double(expiresAtSeconds) - now.timeIntervalSince1970
-        guard remaining > 0, remaining <= 120 else {
+        // The authority expires ceremonies after two minutes. A small client
+        // clock lag must not reject a still-live server ceremony locally.
+        guard remaining > 0, remaining <= 300 else {
             throw PasskeyBackupAppAttestError.challengeExpired
         }
     }
