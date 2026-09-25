@@ -32,6 +32,9 @@ enum IOSPortableReceiveMetadata {
         /// Neither value is the iOS networkManagementFilter (metadata ID 4).
         let androidSelectedChainID: String?
         let androidChainSelectFilter: String?
+        /// Raw Android wallet-scoped asset presentation has no iOS Core Data
+        /// destination yet. A receiver must preserve it or refuse install.
+        let androidAssetRows: [Codec.AssetRowPresentation]?
 
         var description: String {
             "IOSPortableReceiveMetadata.Projection(<redacted>)"
@@ -58,6 +61,7 @@ enum IOSPortableReceiveMetadata {
         var canExportEthereumMnemonic: Bool?
         var androidSelectedChainID: String?
         var androidChainSelectFilter: String?
+        var androidAssetRows: [Codec.AssetRowPresentation]?
 
         var projection: Projection {
             Projection(
@@ -67,13 +71,14 @@ enum IOSPortableReceiveMetadata {
                 assetFilterOptions: assetFilters, zeroBalanceAssetsHidden: zeroBalanceHidden,
                 canExportEthereumMnemonic: canExportEthereumMnemonic,
                 androidSelectedChainID: androidSelectedChainID,
-                androidChainSelectFilter: androidChainSelectFilter
+                androidChainSelectFilter: androidChainSelectFilter,
+                androidAssetRows: androidAssetRows
             )
         }
     }
 
     static func decode(_ metadata: [Codec.Metadata]) throws -> Projection {
-        guard metadata.count <= Int(MetadataID.androidChainSelectFilter) else {
+        guard metadata.count <= Int(MetadataID.androidAssetRowPresentation) else {
             throw ProjectionError.invalidMetadata
         }
         var state = State()
@@ -128,6 +133,12 @@ enum IOSPortableReceiveMetadata {
             state.androidSelectedChainID = try text(item.value, allowEmpty: true)
         case MetadataID.androidChainSelectFilter:
             state.androidChainSelectFilter = try text(item.value, allowEmpty: true)
+        case MetadataID.androidAssetRowPresentation:
+            do {
+                state.androidAssetRows = try Codec.decodeAssetRowPresentation(item.value)
+            } catch {
+                throw ProjectionError.invalidMetadata
+            }
         default:
             throw ProjectionError.invalidMetadata
         }

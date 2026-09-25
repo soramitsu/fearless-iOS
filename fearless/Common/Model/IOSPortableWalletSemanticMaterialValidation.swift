@@ -32,7 +32,7 @@ extension IOSPortableWalletSemanticMaterial {
 
     static func validateWallet(_ wallet: Wallet) throws {
         _ = try strictText(Array(wallet.name.utf8), allowEmpty: true)
-        try ensure(wallet.metadata.count <= Int(MetadataID.androidChainSelectFilter))
+        try ensure(wallet.metadata.count <= Int(MetadataID.androidAssetRowPresentation))
         var lastMetadataID: UInt8 = 0
         for item in wallet.metadata {
             try ensure(item.id > lastMetadataID)
@@ -82,7 +82,7 @@ extension IOSPortableWalletSemanticMaterial {
     }
 
     static func validateMetadata(_ item: Metadata) throws {
-        try ensure((MetadataID.assetKeysOrder ... MetadataID.androidChainSelectFilter).contains(item.id))
+        try ensure((MetadataID.assetKeysOrder ... MetadataID.androidAssetRowPresentation).contains(item.id))
         try ensure(item.value.count <= maxSecret)
         switch item.id {
         case MetadataID.assetKeysOrder, MetadataID.unusedChainIDs,
@@ -95,6 +95,8 @@ extension IOSPortableWalletSemanticMaterial {
             try validateVisibilityMap(item.value)
         case MetadataID.zeroBalanceAssetsHidden, MetadataID.canExportEthereumMnemonic:
             try validateBoolean(item.value)
+        case MetadataID.androidAssetRowPresentation:
+            _ = try decodeAssetRowPresentation(item.value)
         default:
             throw CodecError.invalidMaterial
         }

@@ -56,6 +56,7 @@ enum IOSPortableWalletSemanticMaterial {
         static let canExportEthereumMnemonic: UInt8 = 9
         static let androidSelectedChainID: UInt8 = 10
         static let androidChainSelectFilter: UInt8 = 11
+        static let androidAssetRowPresentation: UInt8 = 12
     }
 
     struct Snapshot: Equatable, CustomStringConvertible, CustomDebugStringConvertible, CustomReflectable {
@@ -240,7 +241,7 @@ extension IOSPortableWalletSemanticMaterial {
             let initialized = try cursor.readBoolean()
             let name = try cursor.readText(allowEmpty: true)
             let metadataCount = Int(try cursor.readByte())
-            guard metadataCount <= Int(MetadataID.androidChainSelectFilter) else {
+            guard metadataCount <= Int(MetadataID.androidAssetRowPresentation) else {
                 throw CodecError.invalidMaterial
             }
             metadata.reserveCapacity(metadataCount)

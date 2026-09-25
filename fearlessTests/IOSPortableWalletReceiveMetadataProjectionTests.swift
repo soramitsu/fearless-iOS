@@ -113,7 +113,8 @@ final class IOSReceiveMetadataProjectionTests: XCTestCase {
             .init(id: MetadataID.androidChainSelectFilter, value: []),
             .init(id: MetadataID.androidSelectedChainID, value: [])
         ]))
-        XCTAssertThrowsError(try Projection.decode([.init(id: 12, value: [])]))
+        XCTAssertThrowsError(try Projection.decode([.init(id: MetadataID.androidAssetRowPresentation, value: [])]))
+        XCTAssertThrowsError(try Projection.decode([.init(id: 13, value: [])]))
     }
 
     func testAndroidDisplayMetadataCannotSubstituteForIOSNetworkFilter() throws {

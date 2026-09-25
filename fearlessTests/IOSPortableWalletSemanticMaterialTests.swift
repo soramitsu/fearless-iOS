@@ -128,7 +128,7 @@ final class IOSPortableWalletSemanticMaterialTests: XCTestCase {
         XCTAssertThrowsError(try Codec.encode(.init(
             selectedIndex: 0, wallets: [wallet(metadata: duplicateMetadata, slots: [evmSlot()])]
         )))
-        let unknownMetadata = [Codec.Metadata(id: 12, value: [1])]
+        let unknownMetadata = [Codec.Metadata(id: 13, value: [1])]
         XCTAssertThrowsError(try Codec.encode(.init(
             selectedIndex: 0, wallets: [wallet(metadata: unknownMetadata, slots: [evmSlot()])]
         )))
@@ -244,6 +244,16 @@ final class IOSPortableWalletSemanticMaterialTests: XCTestCase {
         }
     }
 
+    private let evmGoldenHex =
+        "4650574d534d303101000100000102030405060708090a0b0c0d0e0f100000000701000145" +
+        "00000102000004010002020302000104070001050b000100"
+    private let multiRootSHA256 =
+        "784647ca5aa76953d4d19404d7fe78c461b9df329a2dd698cc8b5cc18b49d22c"
+    private let fullMetadataSHA256 =
+        "181f843dcbafbd0ba151a7476b1f63c3a6060df9c9fd45055869ff8383608b16"
+}
+
+private extension IOSPortableWalletSemanticMaterialTests {
     private func evmSnapshot() -> Codec.Snapshot {
         Codec.Snapshot(selectedIndex: 0, wallets: [wallet(slots: [evmSlot()])])
     }
@@ -358,7 +368,7 @@ final class IOSPortableWalletSemanticMaterialTests: XCTestCase {
             bytes + [visible ? 1 : 0]
     }
 
-    private func data(hex: String) throws -> Data {
+    func data(hex: String) throws -> Data {
         guard hex.count.isMultiple(of: 2) else { throw Codec.CodecError.invalidMaterial }
         var bytes = [UInt8]()
         bytes.reserveCapacity(hex.count / 2)
@@ -373,14 +383,7 @@ final class IOSPortableWalletSemanticMaterialTests: XCTestCase {
         return Data(bytes)
     }
 
-    private func sha256(_ data: Data) -> String {
+    func sha256(_ data: Data) -> String {
         SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
     }
-
-    private let evmGoldenHex =
-        "4650574d534d303101000100000102030405060708090a0b0c0d0e0f10000000070100014500000102000004010002020302000104070001050b000100"
-    private let multiRootSHA256 =
-        "784647ca5aa76953d4d19404d7fe78c461b9df329a2dd698cc8b5cc18b49d22c"
-    private let fullMetadataSHA256 =
-        "181f843dcbafbd0ba151a7476b1f63c3a6060df9c9fd45055869ff8383608b16"
 }
