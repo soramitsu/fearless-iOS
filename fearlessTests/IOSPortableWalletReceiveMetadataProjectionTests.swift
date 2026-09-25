@@ -108,6 +108,39 @@ final class IOSReceiveMetadataProjectionTests: XCTestCase {
         XCTAssertThrowsError(try Projection.decode([.init(id: 12, value: [])]))
     }
 
+    func testAndroidDisplayMetadataCannotSubstituteForIOSNetworkFilter() throws {
+        let metadata: [Codec.Metadata] = [
+            .init(id: MetadataID.networkManagementFilter, value: Array("all".utf8)),
+            .init(id: MetadataID.androidSelectedChainID, value: []),
+            .init(id: MetadataID.androidChainSelectFilter, value: Array("All".utf8))
+        ]
+        let projected = try Projection.decode(metadata)
+        XCTAssertEqual(projected.networkManagementFilter, "all")
+        XCTAssertEqual(projected.androidSelectedChainID, "")
+        XCTAssertEqual(projected.androidChainSelectFilter, "All")
+        XCTAssertTrue(NetworkManagmentFilter(identifier: "").isChainSelected)
+        XCTAssertEqual(NetworkManagmentFilter(identifier: "").selectedChainId, "")
+
+        let watch = Codec.Slot(role: Codec.Role.watchIdentity, key: "0000", fields: [
+            .init(id: Codec.FieldID.accountIDOrAddress, value: [9]),
+            .init(id: Codec.FieldID.watchEcosystem, value: [2])
+        ])
+        var snapshot = Codec.Snapshot(selectedIndex: 0, wallets: [
+            .init(
+                portableID: [UInt8](repeating: 0x33, count: 16), sourcePosition: 0,
+                initialized: true, name: "watch", metadata: metadata, slots: [watch]
+            )
+        ])
+        defer { snapshot.clearSecrets() }
+        var plan = try IOSPortableWalletReceiveInstallPlan.prepare(
+            Codec.encode(snapshot), approvedSubstrateGenesisIDs: []
+        )
+        defer { plan.clearSecrets() }
+        XCTAssertEqual(plan.metadataProjections[0], projected)
+        XCTAssertTrue(plan.blockers.contains(.unmappedMetadata(3)))
+        XCTAssertTrue(plan.blockers.contains(.transactionalInstallerUnavailable))
+    }
+
     func testRejectsDisplayFiltersNotRepresentableInCurrentCoreData() throws {
         let tooMany = (0 ..< 33).map { "filter\($0)" }
         XCTAssertThrowsError(try Projection.decode([

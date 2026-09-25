@@ -72,6 +72,19 @@ rejects invalid UTF-8, oversize strings, unknown IDs and noncanonical order.
 The receive plan retains both values and its metadata-install blocker; no iOS
 wallet metadata is changed or installed from them yet. The exact 70-byte
 Android display-metadata vector is asserted by the iOS codec. The final-source
-iOS 18.1 arm64 Release simulator run passed 18/18 semantic-codec and receive
+iOS 18.1 arm64 Release simulator run passed 19/19 semantic-codec and receive
 projection tests with no skips or failures. This establishes byte compatibility,
 not destination installation or replacement-device recovery.
+
+The Android `wallet_selected_chain_id<id>` preference feeds the balance and
+asset-management selected chain; `chain_select_filter_applied_<id>` stores a
+chain-selector enum name. These are independent of iOS's Core Data
+`networkManagmentFilter` (portable metadata ID 4), which drives the wallet's
+network and NFT view. In particular, iOS interprets an empty filter identifier
+as `.chain("")`, not as the absence of a selection. Reusing ID 4 would both
+change display behavior and erase the distinction between absent and explicitly
+empty Android values. A wallet-bound durable destination for IDs 10/11 and its
+atomic install/readback integration are still required. The receive plan keeps
+all three values separately projected and refuses installation. A Release
+simulator regression test proves the independent values and both receive
+blockers even when the Android selected-chain field is explicitly empty.

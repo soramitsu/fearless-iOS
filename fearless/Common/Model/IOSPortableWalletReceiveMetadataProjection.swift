@@ -29,6 +29,7 @@ enum IOSPortableReceiveMetadata {
         let canExportEthereumMnemonic: Bool?
         /// Android display preferences are retained exactly for a future
         /// destination mapping; nil differs from an explicitly empty value.
+        /// Neither value is the iOS networkManagementFilter (metadata ID 4).
         let androidSelectedChainID: String?
         let androidChainSelectFilter: String?
 
