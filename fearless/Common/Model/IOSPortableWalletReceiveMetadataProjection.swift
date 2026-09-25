@@ -194,9 +194,9 @@ enum IOSPortableReceiveMetadata {
     }
 }
 
-/// Android's selected chain and chain-selector filter have no equivalent iOS
-/// wallet field. These read-only records describe a future wallet-owned
-/// sidecar; they never write one or authorize receiving a wallet.
+/// Android's selected chain, chain-selector filter and asset-row presentation
+/// have no equivalent iOS wallet fields. These read-only records describe a
+/// future wallet-owned sidecar; they never write one or authorize receiving a wallet.
 enum IOSForeignDisplayPrefs {
     private typealias Codec = IOSPortableWalletSemanticMaterial
 
@@ -214,6 +214,17 @@ enum IOSForeignDisplayPrefs {
         let destination: Destination
         let androidSelectedChainID: String?
         let androidChainSelectFilter: String?
+        /// Retain the authenticated wire value, including optionality and
+        /// original UTF-8 bytes, until a wallet-bound sidecar is installed.
+        let androidAssetRowWire: Data?
+
+        static func == (left: Self, right: Self) -> Bool {
+            left.walletIndex == right.walletIndex && left.portableID == right.portableID &&
+                left.destination == right.destination &&
+                rawUTF8Equal(left.androidSelectedChainID, right.androidSelectedChainID) &&
+                rawUTF8Equal(left.androidChainSelectFilter, right.androidChainSelectFilter) &&
+                left.androidAssetRowWire == right.androidAssetRowWire
+        }
 
         var description: String {
             "ForeignDisplayPreferences.Candidate(<redacted>)"
@@ -234,6 +245,15 @@ enum IOSForeignDisplayPrefs {
         let destination: Destination
         let androidSelectedChainID: String?
         let androidChainSelectFilter: String?
+        let androidAssetRowWire: Data?
+
+        static func == (left: Self, right: Self) -> Bool {
+            left.destinationMetaID == right.destinationMetaID &&
+                left.portableID == right.portableID && left.destination == right.destination &&
+                rawUTF8Equal(left.androidSelectedChainID, right.androidSelectedChainID) &&
+                rawUTF8Equal(left.androidChainSelectFilter, right.androidChainSelectFilter) &&
+                left.androidAssetRowWire == right.androidAssetRowWire
+        }
 
         var description: String {
             "ForeignDisplayPreferences.BoundRecord(<redacted>)"
@@ -254,14 +274,19 @@ enum IOSForeignDisplayPrefs {
         metadata: IOSPortableReceiveMetadata.Projection?
     ) -> Candidate? {
         guard let metadata,
-              metadata.androidSelectedChainID != nil || metadata.androidChainSelectFilter != nil else {
+              metadata.androidSelectedChainID != nil || metadata.androidChainSelectFilter != nil ||
+              metadata.androidAssetRows != nil else {
             return nil
         }
+        let assetRowWire = wallet.metadata.first {
+            $0.id == Codec.MetadataID.androidAssetRowPresentation
+        }.map { Data($0.value) }
         return Candidate(
             walletIndex: walletIndex, portableID: Data(wallet.portableID),
             destination: .walletBoundSidecar,
             androidSelectedChainID: metadata.androidSelectedChainID,
-            androidChainSelectFilter: metadata.androidChainSelectFilter
+            androidChainSelectFilter: metadata.androidChainSelectFilter,
+            androidAssetRowWire: assetRowWire
         )
     }
 
@@ -295,7 +320,9 @@ enum IOSForeignDisplayPrefs {
                   seenWallets.insert(candidate.walletIndex).inserted,
                   candidate.portableID == journal.wallets[candidate.walletIndex].portableID,
                   candidate.destination == .walletBoundSidecar,
-                  candidate.androidSelectedChainID != nil || candidate.androidChainSelectFilter != nil else {
+                  candidate.androidSelectedChainID != nil ||
+                  candidate.androidChainSelectFilter != nil ||
+                  candidate.androidAssetRowWire != nil else {
                 throw ProjectionError.invalidWalletBinding
             }
             let wallet = journal.wallets[candidate.walletIndex]
@@ -303,8 +330,20 @@ enum IOSForeignDisplayPrefs {
                 destinationMetaID: wallet.metaID, portableID: candidate.portableID,
                 destination: .walletBoundSidecar,
                 androidSelectedChainID: candidate.androidSelectedChainID,
-                androidChainSelectFilter: candidate.androidChainSelectFilter
+                androidChainSelectFilter: candidate.androidChainSelectFilter,
+                androidAssetRowWire: candidate.androidAssetRowWire
             )
+        }
+    }
+
+    private static func rawUTF8Equal(_ left: String?, _ right: String?) -> Bool {
+        switch (left, right) {
+        case (nil, nil):
+            return true
+        case let (left?, right?):
+            return Array(left.utf8) == Array(right.utf8)
+        default:
+            return false
         }
     }
 }

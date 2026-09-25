@@ -85,10 +85,13 @@ network and NFT view. In particular, iOS interprets an empty filter identifier
 as `.chain("")`, not as the absence of a selection. Reusing ID 4 would both
 change display behavior and erase the distinction between absent and explicitly
 empty Android values. The receive plan now describes a prospective sidecar for
-IDs 10/11, bound to the source portable wallet ID. Given a journal for the
+IDs 10/11/12, bound to the source portable wallet ID. Given a journal for the
 exact semantic cohort, a read-only projection resolves each candidate to its
 fresh iOS destination wallet ID. It keeps absent and explicitly empty values
-distinct and does not map either value to iOS metadata ID 4. No sidecar is
-written, and the plan retains its metadata and transactional-installer blockers.
+distinct and does not map either value to iOS metadata ID 4. Metadata ID 12
+creates a candidate even when IDs 10/11 are absent; its asset-row wire bytes
+are retained exactly. Binding rejects a substitute value with different raw
+UTF-8 bytes even when Swift considers the text canonically equivalent. No
+sidecar is written, and the plan retains its metadata and transactional-installer blockers.
 A wallet-bound durable destination, atomic installation and readback are still
 required before recovery can be enabled.

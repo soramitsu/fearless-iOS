@@ -1,5 +1,5 @@
-@testable import fearless
 import CryptoKit
+@testable import fearless
 import Foundation
 import XCTest
 
@@ -203,4 +203,111 @@ final class IOSPortableWalletAssetPresentationTests: XCTestCase {
         "057761746368030a0004736f72610b00000c00350100020004736f72610003646f" +
         "74000002fffffffe010100000004736f72610003646f7400020180017fffffff0001" +
         "00044d61696e000108000430303030020700010916000102"
+}
+
+final class IOSForeignDisplayAssetSidecarTests: XCTestCase {
+    private typealias Codec = IOSPortableWalletSemanticMaterial
+    private typealias MetadataID = IOSPortableWalletSemanticMaterial.MetadataID
+    private typealias Journal = IOSPortableWalletReceiveJournalRecord
+    private let firstMetaID = "11111111-1111-4111-a111-111111111111"
+
+    func testAssetRowsAloneBindExactBytesAndRejectSubstitution() throws {
+        let rows = try assetRowWire(sortIndex: -2)
+        let changedRows = try assetRowWire(sortIndex: -1)
+        let (encoded, journal) = try singleWatchFixture(metadata: [
+            .init(id: MetadataID.androidAssetRowPresentation, value: rows)
+        ])
+        var plan = try IOSPortableWalletReceiveInstallPlan.prepare(
+            encoded, approvedSubstrateGenesisIDs: []
+        )
+        defer { plan.clearSecrets() }
+        XCTAssertEqual(plan.foreignDisplayPreferenceCandidates.count, 1)
+        let candidate = try XCTUnwrap(plan.foreignDisplayPreferenceCandidates.first)
+        XCTAssertNil(candidate.androidSelectedChainID)
+        XCTAssertNil(candidate.androidChainSelectFilter)
+        XCTAssertEqual(candidate.androidAssetRowWire, Data(rows))
+
+        let bound = try plan.prospectiveForeignDisplaySidecars(for: journal)
+        XCTAssertEqual(bound.map(\.destinationMetaID), [firstMetaID])
+        XCTAssertEqual(bound[0].androidAssetRowWire, Data(rows))
+        XCTAssertTrue(plan.blockers.contains(.unmappedMetadata(1)))
+        XCTAssertTrue(plan.blockers.contains(.transactionalInstallerUnavailable))
+
+        let substituted = IOSForeignDisplayPrefs.Candidate(
+            walletIndex: candidate.walletIndex, portableID: candidate.portableID,
+            destination: candidate.destination,
+            androidSelectedChainID: nil, androidChainSelectFilter: nil,
+            androidAssetRowWire: Data(changedRows)
+        )
+        XCTAssertThrowsError(try IOSForeignDisplayPrefs.bind(
+            [substituted], semantic: encoded, journal: journal
+        ))
+        XCTAssertFalse(String(reflecting: bound[0]).contains("sora"))
+    }
+
+    func testJournalBindingRejectsEquivalentUnicodeWithDifferentUTF8() throws {
+        let original = "e\u{301}"
+        let substituted = "\u{E9}"
+        XCTAssertEqual(original, substituted)
+        XCTAssertNotEqual(Array(original.utf8), Array(substituted.utf8))
+        let (encoded, journal) = try singleWatchFixture(metadata: [
+            .init(id: MetadataID.androidSelectedChainID, value: Array(original.utf8))
+        ])
+        var plan = try IOSPortableWalletReceiveInstallPlan.prepare(
+            encoded, approvedSubstrateGenesisIDs: []
+        )
+        defer { plan.clearSecrets() }
+        let candidate = try XCTUnwrap(plan.foreignDisplayPreferenceCandidates.first)
+        let forged = IOSForeignDisplayPrefs.Candidate(
+            walletIndex: candidate.walletIndex, portableID: candidate.portableID,
+            destination: candidate.destination,
+            androidSelectedChainID: substituted, androidChainSelectFilter: nil,
+            androidAssetRowWire: nil
+        )
+        XCTAssertNotEqual(candidate, forged)
+        XCTAssertThrowsError(try IOSForeignDisplayPrefs.bind(
+            [forged], semantic: encoded, journal: journal
+        ))
+        XCTAssertEqual(
+            try plan.prospectiveForeignDisplaySidecars(for: journal)[0].androidSelectedChainID,
+            original
+        )
+    }
+
+    private func assetRowWire(sortIndex: Int32) throws -> [UInt8] {
+        var writer = Codec.Writer()
+        defer { writer.erase() }
+        try writer.write(1)
+        try writer.writeUInt16(1)
+        try writer.writeText("sora")
+        try writer.writeText("xor")
+        try writer.writeValue([])
+        try writer.write(2)
+        try writer.writeUInt32(UInt32(bitPattern: sortIndex))
+        try writer.write(0)
+        try writer.write(0)
+        return writer.bytes
+    }
+
+    private func singleWatchFixture(metadata: [Codec.Metadata]) throws -> (Data, Journal.Record) {
+        let watch = Codec.Slot(role: Codec.Role.watchIdentity, key: "0000", fields: [
+            .init(id: Codec.FieldID.accountIDOrAddress, value: [9]),
+            .init(id: Codec.FieldID.watchEcosystem, value: [2])
+        ])
+        let wallet = Codec.Wallet(
+            portableID: [UInt8](repeating: 0x11, count: 16), sourcePosition: 0,
+            initialized: true, name: "watch", metadata: metadata, slots: [watch]
+        )
+        var snapshot = Codec.Snapshot(selectedIndex: 0, wallets: [wallet])
+        defer { snapshot.clearSecrets() }
+        let encoded = try Codec.encode(snapshot)
+        let journal = Journal.Record(
+            schemaVersion: Journal.schemaVersion,
+            transactionID: "33333333-3333-4333-8333-333333333333",
+            semanticSHA256: Data(SHA256.hash(data: encoded)), selectedIndex: 0,
+            wallets: [.init(metaID: firstMetaID, portableID: Data(wallet.portableID))],
+            keys: [], phase: .staging
+        )
+        return (encoded, journal)
+    }
 }
