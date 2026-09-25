@@ -48,6 +48,7 @@
 		A50923CCD600000000000014 /* IOSReceiveInstalledKeyReadbackProofTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCD600000000000013 /* IOSReceiveInstalledKeyReadbackProofTests.swift */; };
 		A50923CCD400000000000014 /* IOSPortableAndroidSourceProofTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCD400000000000013 /* IOSPortableAndroidSourceProofTests.swift */; };
 		A50923CCCF00000000000004 /* IOSPortableWalletSemanticMaterialTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCF00000000000003 /* IOSPortableWalletSemanticMaterialTests.swift */; };
+		A50923CCDC00000000000012 /* IOSPortableWatchIdentityProofTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCDC00000000000011 /* IOSPortableWatchIdentityProofTests.swift */; };
 		A50923CCCD00000000000004 /* IOSPasskeyWalletMaterialPreflightTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCCD00000000000003 /* IOSPasskeyWalletMaterialPreflightTests.swift */; };
 		A50923DDDD00000000000002 /* PasskeyBackupAuthenticatedHead.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923DDDD00000000000001 /* PasskeyBackupAuthenticatedHead.swift */; };
 		A50923DDDE00000000000002 /* PasskeyBackupOwnerHeadHTTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923DDDE00000000000001 /* PasskeyBackupOwnerHeadHTTP.swift */; };
@@ -3286,6 +3287,7 @@
 		A50923CCD600000000000013 /* IOSReceiveInstalledKeyReadbackProofTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSReceiveInstalledKeyReadbackProofTests.swift; sourceTree = "<group>"; };
 		A50923CCD400000000000013 /* IOSPortableAndroidSourceProofTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableAndroidSourceProofTests.swift; sourceTree = "<group>"; };
 		A50923CCCF00000000000003 /* IOSPortableWalletSemanticMaterialTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletSemanticMaterialTests.swift; sourceTree = "<group>"; };
+		A50923CCDC00000000000011 /* IOSPortableWatchIdentityProofTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWatchIdentityProofTests.swift; sourceTree = "<group>"; };
 		A50923CCCD00000000000003 /* IOSPasskeyWalletMaterialPreflightTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPasskeyWalletMaterialPreflightTests.swift; sourceTree = "<group>"; };
 		A50923DDDD00000000000001 /* PasskeyBackupAuthenticatedHead.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupAuthenticatedHead.swift; sourceTree = "<group>"; };
 		A50923DDDE00000000000001 /* PasskeyBackupOwnerHeadHTTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasskeyBackupOwnerHeadHTTP.swift; sourceTree = "<group>"; };
@@ -9510,6 +9512,7 @@
 				A50923CCBB00000000000005 /* PasskeyBackupGenerationJournalTests.swift */,
 				A50923CCCD00000000000003 /* IOSPasskeyWalletMaterialPreflightTests.swift */,
 				A50923CCCF00000000000003 /* IOSPortableWalletSemanticMaterialTests.swift */,
+				A50923CCDC00000000000011 /* IOSPortableWatchIdentityProofTests.swift */,
 				A50923CCD100000000000013 /* IOSPortableWalletReceiveJournalRecordTests.swift */,
 				A50923CCD200000000000013 /* IOSPortableWalletReceiveMetadataProjectionTests.swift */,
 				A50923CCD200000000000015 /* IOSPortableWalletAssetPresentationTests.swift */,
@@ -19535,6 +19538,7 @@
 				A50923CCBB00000000000006 /* PasskeyBackupGenerationJournalTests.swift in Sources */,
 				A50923CCCD00000000000004 /* IOSPasskeyWalletMaterialPreflightTests.swift in Sources */,
 				A50923CCCF00000000000004 /* IOSPortableWalletSemanticMaterialTests.swift in Sources */,
+				A50923CCDC00000000000012 /* IOSPortableWatchIdentityProofTests.swift in Sources */,
 				A50923CCD100000000000014 /* IOSPortableWalletReceiveJournalRecordTests.swift in Sources */,
 				A50923CCD200000000000014 /* IOSPortableWalletReceiveMetadataProjectionTests.swift in Sources */,
 				A50923CCD200000000000016 /* IOSPortableWalletAssetPresentationTests.swift in Sources */,

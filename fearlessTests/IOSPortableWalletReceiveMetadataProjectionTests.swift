@@ -67,7 +67,7 @@ final class IOSReceiveMetadataProjectionTests: XCTestCase {
         XCTAssertNil(try Projection.decode([]).androidChainSelectFilter)
 
         let watch = Codec.Slot(role: Codec.Role.watchIdentity, key: "0000", fields: [
-            .init(id: Codec.FieldID.accountIDOrAddress, value: [9]),
+            .init(id: Codec.FieldID.accountIDOrAddress, value: Array(repeating: 9, count: 20)),
             .init(id: Codec.FieldID.watchEcosystem, value: [2])
         ])
         var snapshot = Codec.Snapshot(selectedIndex: 0, wallets: [
@@ -80,7 +80,8 @@ final class IOSReceiveMetadataProjectionTests: XCTestCase {
         let encoded = try Codec.encode(snapshot)
         let expectedHex =
             "4650574d534d3031010001000033333333333333333333333333333333000000000100" +
-            "057761746368020a0004736f72610b0000000108000430303030020700010916000102"
+            "057761746368020a0004736f72610b000000010800043030303002070014" +
+            "090909090909090909090909090909090909090916000102"
         XCTAssertEqual(encoded.map { String(format: "%02x", $0) }.joined(), expectedHex)
         var decoded = try Codec.decode(encoded)
         defer { decoded.clearSecrets() }
@@ -131,7 +132,7 @@ final class IOSReceiveMetadataProjectionTests: XCTestCase {
         XCTAssertEqual(NetworkManagmentFilter(identifier: "").selectedChainId, "")
 
         let watch = Codec.Slot(role: Codec.Role.watchIdentity, key: "0000", fields: [
-            .init(id: Codec.FieldID.accountIDOrAddress, value: [9]),
+            .init(id: Codec.FieldID.accountIDOrAddress, value: Array(repeating: 9, count: 20)),
             .init(id: Codec.FieldID.watchEcosystem, value: [2])
         ])
         var snapshot = Codec.Snapshot(selectedIndex: 0, wallets: [
@@ -176,7 +177,7 @@ final class IOSReceiveMetadataProjectionTests: XCTestCase {
 
     func testReadOnlyReceivePlanRetainsProjectionAndItsInstallBlocker() throws {
         let watch = Codec.Slot(role: Codec.Role.watchIdentity, key: "0000", fields: [
-            .init(id: Codec.FieldID.accountIDOrAddress, value: [9]),
+            .init(id: Codec.FieldID.accountIDOrAddress, value: Array(repeating: 9, count: 20)),
             .init(id: Codec.FieldID.watchEcosystem, value: [2])
         ])
         var snapshot = Codec.Snapshot(selectedIndex: 0, wallets: [
@@ -281,7 +282,7 @@ final class IOSForeignDisplayPrefsTests: XCTestCase {
 
     func testIOSNetworkFilterAloneDoesNotCreateForeignDisplaySidecar() throws {
         let watch = Codec.Slot(role: Codec.Role.watchIdentity, key: "0000", fields: [
-            .init(id: Codec.FieldID.accountIDOrAddress, value: [9]),
+            .init(id: Codec.FieldID.accountIDOrAddress, value: Array(repeating: 9, count: 20)),
             .init(id: Codec.FieldID.watchEcosystem, value: [2])
         ])
         var snapshot = Codec.Snapshot(selectedIndex: 0, wallets: [
@@ -309,7 +310,7 @@ final class IOSForeignDisplayPrefsTests: XCTestCase {
 
     private func sidecarFixture() throws -> (Data, Journal.Record) {
         let watch = Codec.Slot(role: Codec.Role.watchIdentity, key: "0000", fields: [
-            .init(id: Codec.FieldID.accountIDOrAddress, value: [9]),
+            .init(id: Codec.FieldID.accountIDOrAddress, value: Array(repeating: 9, count: 20)),
             .init(id: Codec.FieldID.watchEcosystem, value: [2])
         ])
         let first = Codec.Wallet(

@@ -892,7 +892,8 @@ final class IOSPasskeyWalletMaterialPreflightTests: XCTestCase {
             portableID: (32 ... 47).map { UInt8($0) }, sourcePosition: 9,
             initialized: false, name: "Watch", metadata: [], slots: [
                 .init(role: 8, key: "0000", fields: [
-                    .init(id: 7, value: [9]), .init(id: 22, value: [2])
+                    .init(id: 7, value: Array(repeating: 9, count: 20)),
+                    .init(id: 22, value: [2])
                 ])
             ]
         )

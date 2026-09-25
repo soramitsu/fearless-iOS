@@ -94,15 +94,20 @@ final class IOSPortableWalletAssetPresentationTests: XCTestCase {
         XCTAssertEqual(projected.androidAssetRows?[1].chainAccountName, "Main")
         XCTAssertNil(try IOSPortableReceiveMetadata.decode([]).androidAssetRows)
 
+        // Preserve the cross-platform structural vector, which intentionally
+        // uses a one-byte synthetic watch address and is not installable.
+        var vector = watchSnapshot(metadata: metadata, watchAddress: [9])
+        defer { vector.clearSecrets() }
+        let vectorBytes = try Codec.encode(vector)
+        XCTAssertEqual(vectorBytes.count, 126)
+        XCTAssertEqual(vectorBytes.map { String(format: "%02x", $0) }.joined(), androidVectorHex)
+        XCTAssertEqual(
+            SHA256.hash(data: vectorBytes).map { String(format: "%02x", $0) }.joined(),
+            "842124d8aa738dc490b5f1366470f9e3183158514236b3c6ba4758bb927a66ab"
+        )
         var snapshot = watchSnapshot(metadata: metadata)
         defer { snapshot.clearSecrets() }
         let encoded = try Codec.encode(snapshot)
-        XCTAssertEqual(encoded.count, 126)
-        XCTAssertEqual(encoded.map { String(format: "%02x", $0) }.joined(), androidVectorHex)
-        XCTAssertEqual(
-            SHA256.hash(data: encoded).map { String(format: "%02x", $0) }.joined(),
-            "842124d8aa738dc490b5f1366470f9e3183158514236b3c6ba4758bb927a66ab"
-        )
         var plan = try IOSPortableWalletReceiveInstallPlan.prepare(
             encoded, approvedSubstrateGenesisIDs: []
         )
@@ -113,9 +118,11 @@ final class IOSPortableWalletAssetPresentationTests: XCTestCase {
         XCTAssertEqual(try Codec.encode(plan.snapshot), encoded)
     }
 
-    private func watchSnapshot(metadata: [Codec.Metadata]) -> Codec.Snapshot {
+    private func watchSnapshot(
+        metadata: [Codec.Metadata], watchAddress: [UInt8] = Array(repeating: 9, count: 20)
+    ) -> Codec.Snapshot {
         let watch = Codec.Slot(role: Codec.Role.watchIdentity, key: "0000", fields: [
-            .init(id: Codec.FieldID.accountIDOrAddress, value: [9]),
+            .init(id: Codec.FieldID.accountIDOrAddress, value: watchAddress),
             .init(id: Codec.FieldID.watchEcosystem, value: [2])
         ])
         return Codec.Snapshot(selectedIndex: 0, wallets: [
@@ -291,7 +298,7 @@ final class IOSForeignDisplayAssetSidecarTests: XCTestCase {
 
     private func singleWatchFixture(metadata: [Codec.Metadata]) throws -> (Data, Journal.Record) {
         let watch = Codec.Slot(role: Codec.Role.watchIdentity, key: "0000", fields: [
-            .init(id: Codec.FieldID.accountIDOrAddress, value: [9]),
+            .init(id: Codec.FieldID.accountIDOrAddress, value: Array(repeating: 9, count: 20)),
             .init(id: Codec.FieldID.watchEcosystem, value: [2])
         ])
         let wallet = Codec.Wallet(
