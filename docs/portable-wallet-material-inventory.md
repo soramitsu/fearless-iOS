@@ -121,3 +121,28 @@ their semantic slots, and checks chain/account binding before accepting a
 read-only plan. Android sidecars still have no reviewed iOS storage projection
 or transactional installer. This source proof does not enable cross-platform
 restoration or establish original-key export behavior after installation.
+
+The receiving Core Data projection now binds the semantic cohort to its journal
+and produces the app-owned `MetaAccountSelectionModel` records consumed by the
+existing exact-replacement mapper. It retains journal-assigned wallet IDs,
+cohort order and selected wallet, signed Substrate/EVM/native TON identities,
+approved Substrate and app-owned named chain accounts, favorites and native
+display preferences. Currency IDs resolve only against an explicit local
+catalog. The backup-complete flag remains false and the projection returns the
+existing install blockers; a representable public after-image is not an install
+authorization or proof that the corresponding Keychain bytes were staged.
+
+Watch custody has no discriminator in the released iOS wallet model, so any
+watch slot rejects the whole projection. Android-only display values,
+uninitialized wallets, nonempty per-chain names, unsupported chain identities,
+explicit nonfavorite records and root combinations the mapper cannot round-trip
+also reject before returning any records. The native source bytes remain in the
+semantic/key projection, not in Core Data. A complete installer still needs the
+writer boundary, durable journal, foreign-source/display storage, final signing
+and export readback, and real cross-platform replacement-device qualification.
+
+The projection and existing mapper regression suites pass 25/25 tests in the
+iOS 18.1 arm64 Release simulator, with no skips or failures. The new tests write
+and refetch real Core Data records for mixed Substrate/EVM roots, standalone
+EVM, native TON, TON/EVM, historical SS58 Substrate and named chain accounts,
+and reject altered journal/signer data or unrepresentable complete cohorts.

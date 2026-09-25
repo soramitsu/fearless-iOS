@@ -39,7 +39,9 @@
 		A50923CCD100000000000012 /* IOSPortableWalletReceiveJournalRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCD100000000000011 /* IOSPortableWalletReceiveJournalRecord.swift */; };
 		A50923CCD100000000000014 /* IOSPortableWalletReceiveJournalRecordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCD100000000000013 /* IOSPortableWalletReceiveJournalRecordTests.swift */; };
 		A50923CCD200000000000012 /* IOSPortableWalletReceiveMetadataProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCD200000000000011 /* IOSPortableWalletReceiveMetadataProjection.swift */; };
+		A50925CCD200000000000022 /* IOSReceiveCoreDataProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50925CCD200000000000021 /* IOSReceiveCoreDataProjection.swift */; };
 		A50923CCD200000000000014 /* IOSPortableWalletReceiveMetadataProjectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCD200000000000013 /* IOSPortableWalletReceiveMetadataProjectionTests.swift */; };
+		A50925CCD200000000000024 /* IOSReceiveCoreDataProjectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50925CCD200000000000023 /* IOSReceiveCoreDataProjectionTests.swift */; };
 		A50923CCD200000000000016 /* IOSPortableWalletAssetPresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCD200000000000015 /* IOSPortableWalletAssetPresentationTests.swift */; };
 		A50923CCD300000000000012 /* IOSPortableWalletReceiveKeychainProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCD300000000000011 /* IOSPortableWalletReceiveKeychainProjection.swift */; };
 		A50923CCD300000000000014 /* IOSPortableWalletReceiveKeychainProjectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50923CCD300000000000013 /* IOSPortableWalletReceiveKeychainProjectionTests.swift */; };
@@ -3279,7 +3281,9 @@
 		A50923CCD100000000000011 /* IOSPortableWalletReceiveJournalRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletReceiveJournalRecord.swift; sourceTree = "<group>"; };
 		A50923CCD100000000000013 /* IOSPortableWalletReceiveJournalRecordTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletReceiveJournalRecordTests.swift; sourceTree = "<group>"; };
 		A50923CCD200000000000011 /* IOSPortableWalletReceiveMetadataProjection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletReceiveMetadataProjection.swift; sourceTree = "<group>"; };
+		A50925CCD200000000000021 /* IOSReceiveCoreDataProjection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSReceiveCoreDataProjection.swift; sourceTree = "<group>"; };
 		A50923CCD200000000000013 /* IOSPortableWalletReceiveMetadataProjectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletReceiveMetadataProjectionTests.swift; sourceTree = "<group>"; };
+		A50925CCD200000000000023 /* IOSReceiveCoreDataProjectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSReceiveCoreDataProjectionTests.swift; sourceTree = "<group>"; };
 		A50923CCD200000000000015 /* IOSPortableWalletAssetPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletAssetPresentationTests.swift; sourceTree = "<group>"; };
 		A50923CCD300000000000011 /* IOSPortableWalletReceiveKeychainProjection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletReceiveKeychainProjection.swift; sourceTree = "<group>"; };
 		A50923CCD300000000000013 /* IOSPortableWalletReceiveKeychainProjectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPortableWalletReceiveKeychainProjectionTests.swift; sourceTree = "<group>"; };
@@ -9517,6 +9521,7 @@
 				A50923CCDC00000000000011 /* IOSPortableWatchIdentityProofTests.swift */,
 				A50923CCD100000000000013 /* IOSPortableWalletReceiveJournalRecordTests.swift */,
 				A50923CCD200000000000013 /* IOSPortableWalletReceiveMetadataProjectionTests.swift */,
+				A50925CCD200000000000023 /* IOSReceiveCoreDataProjectionTests.swift */,
 				A50923CCD200000000000015 /* IOSPortableWalletAssetPresentationTests.swift */,
 				A50923CCD300000000000013 /* IOSPortableWalletReceiveKeychainProjectionTests.swift */,
 				A50923CCD600000000000013 /* IOSReceiveInstalledKeyReadbackProofTests.swift */,
@@ -9839,6 +9844,7 @@
 				A50923CCDF00000000000001 /* IOSPortableWatchIdentityProof.swift */,
 				A50923CCD100000000000011 /* IOSPortableWalletReceiveJournalRecord.swift */,
 				A50923CCD200000000000011 /* IOSPortableWalletReceiveMetadataProjection.swift */,
+				A50925CCD200000000000021 /* IOSReceiveCoreDataProjection.swift */,
 				A50923CCD300000000000011 /* IOSPortableWalletReceiveKeychainProjection.swift */,
 				A50923CCD400000000000011 /* IOSPortableAndroidSourceProof.swift */,
 				A50923CCD500000000000011 /* IOSPortableIOSSourceProof.swift */,
@@ -17741,6 +17747,7 @@
 				A50923CCDF00000000000002 /* IOSPortableWatchIdentityProof.swift in Sources */,
 				A50923CCD100000000000012 /* IOSPortableWalletReceiveJournalRecord.swift in Sources */,
 				A50923CCD200000000000012 /* IOSPortableWalletReceiveMetadataProjection.swift in Sources */,
+				A50925CCD200000000000022 /* IOSReceiveCoreDataProjection.swift in Sources */,
 				A50923CCD300000000000012 /* IOSPortableWalletReceiveKeychainProjection.swift in Sources */,
 				A50923CCD400000000000012 /* IOSPortableAndroidSourceProof.swift in Sources */,
 				A50923CCD500000000000012 /* IOSPortableIOSSourceProof.swift in Sources */,
@@ -19545,6 +19552,7 @@
 				A50923CCDC00000000000012 /* IOSPortableWatchIdentityProofTests.swift in Sources */,
 				A50923CCD100000000000014 /* IOSPortableWalletReceiveJournalRecordTests.swift in Sources */,
 				A50923CCD200000000000014 /* IOSPortableWalletReceiveMetadataProjectionTests.swift in Sources */,
+				A50925CCD200000000000024 /* IOSReceiveCoreDataProjectionTests.swift in Sources */,
 				A50923CCD200000000000016 /* IOSPortableWalletAssetPresentationTests.swift in Sources */,
 				A50923CCD300000000000014 /* IOSPortableWalletReceiveKeychainProjectionTests.swift in Sources */,
 				A50923CCD600000000000014 /* IOSReceiveInstalledKeyReadbackProofTests.swift in Sources */,
