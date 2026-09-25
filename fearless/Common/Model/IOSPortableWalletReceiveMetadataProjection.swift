@@ -182,3 +182,118 @@ enum IOSPortableReceiveMetadata {
         return value == 1
     }
 }
+
+/// Android's selected chain and chain-selector filter have no equivalent iOS
+/// wallet field. These read-only records describe a future wallet-owned
+/// sidecar; they never write one or authorize receiving a wallet.
+enum IOSForeignDisplayPrefs {
+    private typealias Codec = IOSPortableWalletSemanticMaterial
+
+    enum ProjectionError: Error, Equatable {
+        case invalidWalletBinding
+    }
+
+    enum Destination: Equatable {
+        case walletBoundSidecar
+    }
+
+    struct Candidate: Equatable, CustomStringConvertible, CustomDebugStringConvertible, CustomReflectable {
+        let walletIndex: Int
+        let portableID: Data
+        let destination: Destination
+        let androidSelectedChainID: String?
+        let androidChainSelectFilter: String?
+
+        var description: String {
+            "ForeignDisplayPreferences.Candidate(<redacted>)"
+        }
+
+        var debugDescription: String {
+            description
+        }
+
+        var customMirror: Mirror {
+            Mirror(self, children: ["summary": description])
+        }
+    }
+
+    struct BoundRecord: Equatable, CustomStringConvertible, CustomDebugStringConvertible, CustomReflectable {
+        let destinationMetaID: String
+        let portableID: Data
+        let destination: Destination
+        let androidSelectedChainID: String?
+        let androidChainSelectFilter: String?
+
+        var description: String {
+            "ForeignDisplayPreferences.BoundRecord(<redacted>)"
+        }
+
+        var debugDescription: String {
+            description
+        }
+
+        var customMirror: Mirror {
+            Mirror(self, children: ["summary": description])
+        }
+    }
+
+    static func project(
+        walletIndex: Int,
+        wallet: IOSPortableWalletSemanticMaterial.Wallet,
+        metadata: IOSPortableReceiveMetadata.Projection?
+    ) -> Candidate? {
+        guard let metadata,
+              metadata.androidSelectedChainID != nil || metadata.androidChainSelectFilter != nil else {
+            return nil
+        }
+        return Candidate(
+            walletIndex: walletIndex, portableID: Data(wallet.portableID),
+            destination: .walletBoundSidecar,
+            androidSelectedChainID: metadata.androidSelectedChainID,
+            androidChainSelectFilter: metadata.androidChainSelectFilter
+        )
+    }
+
+    /// Resolves a prospective sidecar against the journal's fresh iOS wallet
+    /// IDs only after that journal proves the complete semantic cohort. This
+    /// remains a read-only projection, not a durable install or readback.
+    static func bind(
+        _ candidates: [Candidate],
+        semantic: Data,
+        journal: IOSPortableWalletReceiveJournalRecord.Record
+    ) throws -> [BoundRecord] {
+        var snapshot: Codec.Snapshot
+        do {
+            try IOSPortableWalletReceiveJournalRecord.verifySemanticMaterial(semantic, for: journal)
+            snapshot = try Codec.decode(semantic)
+        } catch {
+            throw ProjectionError.invalidWalletBinding
+        }
+        defer { snapshot.clearSecrets() }
+        let expected = snapshot.wallets.enumerated().compactMap { index, wallet in
+            project(
+                walletIndex: index,
+                wallet: wallet,
+                metadata: try? IOSPortableReceiveMetadata.decode(wallet.metadata)
+            )
+        }
+        guard candidates == expected else { throw ProjectionError.invalidWalletBinding }
+        var seenWallets = Set<Int>()
+        return try candidates.map { candidate in
+            guard journal.wallets.indices.contains(candidate.walletIndex),
+                  seenWallets.insert(candidate.walletIndex).inserted,
+                  candidate.portableID == journal.wallets[candidate.walletIndex].portableID,
+                  candidate.destination == .walletBoundSidecar,
+                  candidate.androidSelectedChainID != nil || candidate.androidChainSelectFilter != nil else {
+                throw ProjectionError.invalidWalletBinding
+            }
+            let wallet = journal.wallets[candidate.walletIndex]
+            return BoundRecord(
+                destinationMetaID: wallet.metaID, portableID: candidate.portableID,
+                destination: .walletBoundSidecar,
+                androidSelectedChainID: candidate.androidSelectedChainID,
+                androidChainSelectFilter: candidate.androidChainSelectFilter
+            )
+        }
+    }
+}

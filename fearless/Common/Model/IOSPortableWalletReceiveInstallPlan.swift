@@ -44,8 +44,22 @@ enum IOSPortableWalletReceiveInstallPlan {
         let slots: [Slot]
         /// Present only when every metadata value fits current iOS destination
         /// bounds. This is read-only and does not clear the metadata blocker.
-        let metadataProjections: [IOSPortableReceiveMetadata.Projection?]
+        private(set) var metadataProjections: [IOSPortableReceiveMetadata.Projection?]
+        /// Prospective wallet-owned sidecars for Android-only display values.
+        /// No sidecar store or transactional installer exists yet.
+        private(set) var foreignDisplayPreferenceCandidates: [IOSForeignDisplayPrefs.Candidate]
         let blockers: [Blocker]
+
+        /// Resolves candidates against fresh destination wallet IDs from a
+        /// journal for this exact semantic cohort. It does not write sidecars.
+        func prospectiveForeignDisplaySidecars(
+            for journal: IOSPortableWalletReceiveJournalRecord.Record
+        ) throws -> [IOSForeignDisplayPrefs.BoundRecord] {
+            try IOSForeignDisplayPrefs.bind(
+                foreignDisplayPreferenceCandidates,
+                semantic: Codec.encode(snapshot), journal: journal
+            )
+        }
 
         /// Uses the semantic record sequence, not historical source positions.
         /// A future installer must read existing orders under its writer lock and
@@ -59,6 +73,8 @@ enum IOSPortableWalletReceiveInstallPlan {
         /// Best-effort erasure only: Swift copies may retain earlier storage.
         mutating func clearSecrets() {
             snapshot.clearSecrets()
+            metadataProjections.removeAll()
+            foreignDisplayPreferenceCandidates.removeAll()
         }
 
         var description: String {
@@ -177,11 +193,16 @@ enum IOSPortableWalletReceiveInstallPlan {
         do {
             var inventory = Inventory()
             var metadataProjections = [IOSPortableReceiveMetadata.Projection?]()
+            var foreignDisplayPreferenceCandidates = [IOSForeignDisplayPrefs.Candidate]()
             for (walletIndex, wallet) in snapshot.wallets.enumerated() {
                 inventory.metadata += wallet.metadata.count
-                metadataProjections.append(
-                    try? IOSPortableReceiveMetadata.decode(wallet.metadata)
-                )
+                let metadata = try? IOSPortableReceiveMetadata.decode(wallet.metadata)
+                metadataProjections.append(metadata)
+                if let candidate = IOSForeignDisplayPrefs.project(
+                    walletIndex: walletIndex, wallet: wallet, metadata: metadata
+                ) {
+                    foreignDisplayPreferenceCandidates.append(candidate)
+                }
                 if !wallet.initialized {
                     inventory.walletState += 1
                 }
@@ -195,6 +216,7 @@ enum IOSPortableWalletReceiveInstallPlan {
             return Plan(
                 snapshot: snapshot, slots: inventory.slots,
                 metadataProjections: metadataProjections,
+                foreignDisplayPreferenceCandidates: foreignDisplayPreferenceCandidates,
                 blockers: inventory.blockers
             )
         } catch {

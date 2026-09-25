@@ -72,9 +72,10 @@ rejects invalid UTF-8, oversize strings, unknown IDs and noncanonical order.
 The receive plan retains both values and its metadata-install blocker; no iOS
 wallet metadata is changed or installed from them yet. The exact 70-byte
 Android display-metadata vector is asserted by the iOS codec. The final-source
-iOS 18.1 arm64 Release simulator run passed 19/19 semantic-codec and receive
-projection tests with no skips or failures. This establishes byte compatibility,
-not destination installation or replacement-device recovery.
+iOS 18.1 arm64 Release simulator run passed 21/21 semantic-codec, receive
+projection and prospective sidecar tests with no skips or failures. This
+establishes byte and read-only destination compatibility, not installation or
+replacement-device recovery.
 
 The Android `wallet_selected_chain_id<id>` preference feeds the balance and
 asset-management selected chain; `chain_select_filter_applied_<id>` stores a
@@ -83,8 +84,11 @@ chain-selector enum name. These are independent of iOS's Core Data
 network and NFT view. In particular, iOS interprets an empty filter identifier
 as `.chain("")`, not as the absence of a selection. Reusing ID 4 would both
 change display behavior and erase the distinction between absent and explicitly
-empty Android values. A wallet-bound durable destination for IDs 10/11 and its
-atomic install/readback integration are still required. The receive plan keeps
-all three values separately projected and refuses installation. A Release
-simulator regression test proves the independent values and both receive
-blockers even when the Android selected-chain field is explicitly empty.
+empty Android values. The receive plan now describes a prospective sidecar for
+IDs 10/11, bound to the source portable wallet ID. Given a journal for the
+exact semantic cohort, a read-only projection resolves each candidate to its
+fresh iOS destination wallet ID. It keeps absent and explicitly empty values
+distinct and does not map either value to iOS metadata ID 4. No sidecar is
+written, and the plan retains its metadata and transactional-installer blockers.
+A wallet-bound durable destination, atomic installation and readback are still
+required before recovery can be enabled.
