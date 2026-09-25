@@ -14,6 +14,7 @@ final class IOSPortableWatchIdentityProofTests: XCTestCase {
             "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"))
         let ton = Data(repeating: 7, count: 32)
         let rawTon = Data([0]) + (try TonAddressCodec.v4R2AccountHash(publicKey: ton))
+        let approvedChainID = String(repeating: "a", count: 64)
         let watches = [
             watch(0, [
                 field(FieldID.publicKey, substrate), field(FieldID.accountIDOrAddress, substrate),
@@ -32,10 +33,39 @@ final class IOSPortableWatchIdentityProofTests: XCTestCase {
             watch(3, [
                 field(FieldID.publicKey, substrate), field(FieldID.accountIDOrAddress, substrate),
                 field(FieldID.cryptoType, [2]), field(FieldID.watchEcosystem, [4]),
-                field(FieldID.watchChainID, Array("chain-a".utf8))
+                field(FieldID.watchChainID, Array(approvedChainID.utf8))
             ])
         ]
-        XCTAssertEqual(try IOSPortableWatchIdentityProof.verify(encode(watches)), 4)
+        XCTAssertEqual(try IOSPortableWatchIdentityProof.verify(
+            encode(watches), approvedSubstrateGenesisIDs: [approvedChainID]
+        ), 4)
+    }
+
+    func testChainWatchRequiresFrozenCanonicalSubstrateInventory() throws {
+        let publicKey = (1 ... 32).map { UInt8($0) }
+        let chainID = String(repeating: "a", count: 64)
+        let chain = watch(0, [
+            field(FieldID.publicKey, publicKey), field(FieldID.accountIDOrAddress, publicKey),
+            field(FieldID.cryptoType, [2]), field(FieldID.watchEcosystem, [4]),
+            field(FieldID.watchChainID, Array(chainID.utf8))
+        ])
+        let encoded = try encode([chain])
+        XCTAssertThrowsError(try IOSPortableWatchIdentityProof.verify(encoded))
+        XCTAssertThrowsError(try IOSPortableWatchIdentityProof.verify(
+            encoded, approvedSubstrateGenesisIDs: [chainID.uppercased()]
+        ))
+        XCTAssertEqual(try IOSPortableWatchIdentityProof.verify(
+            encoded, approvedSubstrateGenesisIDs: [chainID]
+        ), 1)
+        XCTAssertThrowsError(try IOSPortableWalletReceiveInstallPlan.prepare(
+            encoded, approvedSubstrateGenesisIDs: []
+        ))
+        var plan = try IOSPortableWalletReceiveInstallPlan.prepare(
+            encoded, approvedSubstrateGenesisIDs: [chainID]
+        )
+        defer { plan.clearSecrets() }
+        XCTAssertTrue(plan.blockers.contains(.unprovenWatchIdentities(1)))
+        XCTAssertTrue(plan.blockers.contains(.transactionalInstallerUnavailable))
     }
 
     func testRejectsMismatchedAddressDuplicateIdentityAndMixedCustody() throws {
