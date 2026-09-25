@@ -14,20 +14,25 @@ final class CrossChainConfirmationInteractor {
     private weak var output: CrossChainConfirmationInteractorOutput?
 
     private let teleportData: CrossChainConfirmationData
-    private let xcmServices: XcmExtrinsicServices
+    private let submissionAuthorizer: ReviewedCrossChainSubmissionAuthorizing
     private let operationQueue: OperationQueue
     private let logger: LoggerProtocol
+    private let mutationsEnabled: () -> Bool
 
     init(
         teleportData: CrossChainConfirmationData,
-        xcmServices: XcmExtrinsicServices,
+        submissionAuthorizer: ReviewedCrossChainSubmissionAuthorizing,
         operationQueue: OperationQueue,
-        logger: LoggerProtocol
+        logger: LoggerProtocol,
+        mutationsEnabled: @escaping () -> Bool = {
+            MultiChainFeaturePolicy.current.crossChainMutationsEnabled
+        }
     ) {
         self.teleportData = teleportData
-        self.xcmServices = xcmServices
+        self.submissionAuthorizer = submissionAuthorizer
         self.operationQueue = operationQueue
         self.logger = logger
+        self.mutationsEnabled = mutationsEnabled
     }
 
     // MARK: - Private methods
@@ -42,27 +47,22 @@ extension CrossChainConfirmationInteractor: CrossChainConfirmationInteractorInpu
 
     func submit() {
         Task {
-            let address = teleportData.recipientAddress
-            let chain = teleportData.destChainModel
-            let precision = Int16(teleportData.originChainAsset.asset.precision)
-            guard
-                let destAccountId = try? AddressFactory.accountId(from: address, chain: chain),
-                let destFeeValue = teleportData.destChainFeeDecimal.toSubstrateAmount(precision: precision)
-            else {
-                return
-            }
-
-            let amount = teleportData.amount + destFeeValue
-            let result = await xcmServices.extrinsic.transfer(
-                fromChainId: teleportData.originChainAsset.chain.chainId,
-                assetSymbol: teleportData.originChainAsset.asset.symbol,
-                destChainId: teleportData.destChainModel.chainId,
-                destAccountId: destAccountId,
-                amount: amount
-            )
-
-            await MainActor.run {
-                self.output?.didTransfer(result: result)
+            do {
+                let authorized = try await submissionAuthorizer.authorize()
+                guard mutationsEnabled() else {
+                    throw ReviewedCrossChainSubmissionError.actionsPaused
+                }
+                // This synchronous guard is deliberately adjacent to submit:
+                // no await or other mutable work may be inserted between them.
+                try authorized.finalGuard()
+                let result = try await authorized.executor.submit(authorized.builder)
+                await MainActor.run {
+                    self.output?.didTransfer(result: .success(result))
+                }
+            } catch {
+                await MainActor.run {
+                    self.output?.didTransfer(result: .failure(error))
+                }
             }
         }
     }

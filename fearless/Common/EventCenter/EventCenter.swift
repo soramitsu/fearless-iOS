@@ -49,8 +49,18 @@ extension EventCenter: EventCenterProtocol {
     }
 
     func remove(observer: EventVisitorProtocol) {
+        // Some visitors unregister from deinit. Capturing the visitor in the
+        // asynchronous block would retain an object whose deinit is running.
+        let observerIdentifier = ObjectIdentifier(observer)
+
         syncQueue.async {
-            self.wrappers = self.wrappers.filter { $0.observer != nil && $0.observer !== observer }
+            self.wrappers = self.wrappers.filter { wrapper in
+                guard let currentObserver = wrapper.observer else {
+                    return false
+                }
+
+                return ObjectIdentifier(currentObserver) != observerIdentifier
+            }
         }
     }
 }

@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "platform": "ios",
+  "chain": "ton-mainnet",
+  "assessedAt": "2026-07-16",
+  "status": "blocked",
+  "releaseEnabled": false,
+  "runtimeGuard": {
+    "policyType": "TonProductionSendReleasePolicy",
+    "productionInitializer": "isEnabled: false",
+    "runtimeOverrideAllowed": false,
+    "debugTestOverrideOnly": true
+  },
+  "feeEvidence": {
+    "walletVersion": "Wallet V4R2",
+    "activeMechanism": "tonapi-unsigned-ignore-signature-check-plus-signed-emulation",
+    "unsignedEndpoint": "/v2/traces/emulate?ignore_signature_check=true",
+    "signedEndpoint": "/v2/wallet/emulate",
+    "requiredComparison": "exact-total-fee-nanotons-for-identical-wallet-v4r2-template",
+    "tonApiParityEvidence": "missing",
+    "reviewedAttestedReplacement": "not-provided",
+    "criterionSatisfied": false
+  },
+  "endpointCredentialEvidence": {
+    "requiredOrigin": "https://tonapi.io",
+    "credentialContract": "nonempty-visible-ascii-maximum-4096-bytes",
+    "releaseProvisioningAttestation": "missing",
+    "registryOriginAttestation": "missing",
+    "credentialExposureReview": "missing",
+    "criterionSatisfied": false
+  },
+  "fundedMainnetEvidence": {
+    "walletVersion": "Wallet V4R2",
+    "requiredStages": [
+      "unsigned-emulation",
+      "signed-emulation",
+      "broadcast",
+      "on-chain-reconciliation",
+      "exact-fee-verification",
+      "recipient-credit-verification"
+    ],
+    "evidenceBundle": "missing",
+    "transactionHash": null,
+    "criterionSatisfied": false
+  },
+  "expiredIntentRecoveryEvidence": {
+    "requiredPolicy": "finalized-chain-absence-or-explicit-audited-quarantine",
+    "currentFailClosedBehavior": "block-sender-indefinitely",
+    "finalizedChainAbsenceProcedure": "missing",
+    "auditedQuarantineProcedure": "missing",
+    "selectedProcedure": null,
+    "senderUnblockAllowed": false,
+    "criterionSatisfied": false
+  },
+  "releaseEvidenceBundle": {
+    "immutableBundleId": null,
+    "sha256": null,
+    "reviewers": [],
+    "reviewedAt": null,
+    "allCriteriaSatisfied": false
+  },
+  "blocker": {
+    "code": "ton-live-release-evidence-missing",
+    "reason": "Independent Wallet V4R2 fee-parity or reviewed replacement evidence, exact endpoint credential provisioning attestations, a funded mainnet transfer evidence bundle, and a reviewed finalized-absence or audited-quarantine recovery procedure are not recorded."
+  },
+  "exitCriteria": [
+    "record-independent-exact-tonapi-wallet-v4r2-unsigned-signed-fee-parity-or-publish-a-reviewed-attested-local-replacement",
+    "attest-the-exact-binary-owned-origin-release-credential-provisioning-and-registry-provenance",
+    "record-an-immutable-funded-mainnet-wallet-v4r2-emulation-broadcast-reconciliation-fee-and-recipient-credit-evidence-bundle",
+    "approve-a-finalized-chain-absence-procedure-or-an-explicit-audited-quarantine-and-recovery-procedure-for-expired-bearer-records",
+    "review-the-complete-immutable-evidence-bundle-before-changing-the-production-runtime-policy"
+  ]
+}

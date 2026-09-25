@@ -27,6 +27,19 @@ final class IrohaToriiClientTests: XCTestCase {
             "https://taira.sora.org/v1/accounts/\(Self.encodedAccount)/assets?limit=25&count_mode=bounded&asset=xor%23sora&scope=global"
         )
 
+        transport.enqueue(Self.accountHistoryJSON)
+        _ = try await client.accountHistory(
+            accountID: Self.account,
+            limit: 25,
+            offset: 5,
+            countMode: .bounded,
+            assetID: UniversalWalletRegistry.tairaNativeXorAssetDefinitionId
+        )
+        XCTAssertEqual(
+            transport.lastRequest?.url?.absoluteString,
+            "https://taira.sora.org/v1/accounts/\(Self.encodedAccount)/history?limit=25&offset=5&count_mode=bounded&asset_id=6TEAJqbb8oEPmLncoNiMRbLEK6tw"
+        )
+
         transport.enqueue(Self.transactionStatusJSON)
         _ = try await client.transactionStatus(hash: Self.hash, scope: .global)
         XCTAssertEqual(
@@ -56,6 +69,39 @@ final class IrohaToriiClientTests: XCTestCase {
         XCTAssertEqual(transport.lastRequest?.value(forHTTPHeaderField: "Content-Type"), "application/json")
         XCTAssertEqual(transport.lastRequest?.value(forHTTPHeaderField: "Accept"), "application/json")
         XCTAssertNotNil(transport.lastRequest?.httpBody)
+    }
+
+    func testResolvesCanonicalTairaXORAliasAndDefinitionThroughSDKRoutes() async throws {
+        let transport = FakeIrohaToriiTransport()
+        let client = IrohaToriiClient(transport: transport)
+
+        transport.enqueue(Self.tairaXORAliasResolutionJSON)
+        let resolution = try await client.resolveAssetAlias("xor#universal")
+        XCTAssertEqual(
+            transport.lastRequest?.url?.absoluteString,
+            "https://taira.sora.org/v1/assets/aliases/resolve"
+        )
+        XCTAssertEqual(transport.lastRequest?.httpMethod, "POST")
+        XCTAssertEqual(transport.lastRequest?.value(forHTTPHeaderField: "Content-Type"), "application/json")
+        XCTAssertEqual(
+            try XCTUnwrap(transport.lastRequest?.httpBody)
+                .jsonObject?["alias"] as? String,
+            "xor#universal"
+        )
+        XCTAssertEqual(
+            resolution.assetDefinitionID,
+            UniversalWalletRegistry.tairaNativeXorAssetDefinitionId
+        )
+
+        transport.enqueue(Self.tairaXORDefinitionJSON)
+        let definition = try await client.assetDefinition(selector: "xor#universal")
+        XCTAssertEqual(
+            transport.lastRequest?.url?.absoluteString,
+            "https://taira.sora.org/v1/assets/definitions/xor%23universal"
+        )
+        XCTAssertEqual(definition.id, UniversalWalletRegistry.tairaNativeXorAssetDefinitionId)
+        XCTAssertNotNil(definition.spec)
+        XCTAssertNil(definition.spec?.scale)
     }
 
     func testUsesMinamotoForNexusByDefaultAndAllowsRuntimeOverride() async throws {
@@ -150,6 +196,29 @@ final class IrohaToriiClientTests: XCTestCase {
     }
     """.utf8)
 
+    private static let accountHistoryJSON = Data("""
+    {
+      "items": [
+        {
+          "id": "movement-1",
+          "source": "block_store",
+          "type": "TRANSFER",
+          "timestamp_ms": 1704067200000,
+          "status": "SUCCESS",
+          "result_ok": true,
+          "direction": "outgoing",
+          "account_id": "\(account)",
+          "counterparty_account_id": "i105-peer",
+          "asset_id": "6TEAJqbb8oEPmLncoNiMRbLEK6tw#\(account)",
+          "asset_definition_id": "6TEAJqbb8oEPmLncoNiMRbLEK6tw",
+          "amount": "1.25"
+        }
+      ],
+      "has_more": false,
+      "count_mode": "bounded"
+    }
+    """.utf8)
+
     private static let transactionStatusJSON = Data("""
     {
       "hash": "\(hash)",
@@ -182,4 +251,33 @@ final class IrohaToriiClientTests: XCTestCase {
       }
     }
     """.utf8)
+
+    private static let tairaXORAliasResolutionJSON = Data("""
+    {
+      "alias": "xor#universal",
+      "asset_definition_id": "6TEAJqbb8oEPmLncoNiMRbLEK6tw",
+      "asset_name": "xor",
+      "source": "world_state",
+      "alias_binding": {
+        "alias": "xor#universal",
+        "status": "permanent",
+        "bound_at_ms": 1786967275740
+      }
+    }
+    """.utf8)
+
+    private static let tairaXORDefinitionJSON = Data("""
+    {
+      "id": "6TEAJqbb8oEPmLncoNiMRbLEK6tw",
+      "name": "xor",
+      "alias": "xor#universal",
+      "spec": { "scale": null }
+    }
+    """.utf8)
+}
+
+private extension Data {
+    var jsonObject: [String: Any]? {
+        (try? JSONSerialization.jsonObject(with: self)) as? [String: Any]
+    }
 }

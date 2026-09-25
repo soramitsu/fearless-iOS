@@ -92,7 +92,7 @@ final class BackupPasswordInteractor: BaseAccountImportInteractor {
                 DispatchQueue.main.async {
                     self.output?.showGoogleIssueError()
                 }
-            case .incorectPassword, .incorectJson, .notFound:
+            case .incorectPassword, .incorectJson, .notFound, .readbackMismatch:
                 DispatchQueue.main.async {
                     self.output?.didReceiveBackup(result: .failure(error))
                 }

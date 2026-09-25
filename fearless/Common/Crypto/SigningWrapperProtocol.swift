@@ -3,16 +3,25 @@ import IrohaCrypto
 import SSFKeyPair
 import SSFCrypto
 
-protocol SigningWrapperProtocol: IRSignatureCreatorProtocol {}
+protocol SigningWrapperProtocol: IRSignatureCreatorProtocol {
+    var mutationAuthorization: MutationOperationAuthorization? { get }
+}
 
 extension SigningWrapperProtocol {
+    var mutationAuthorization: MutationOperationAuthorization? { nil }
+
+    private func createAuthorizedSignature(_ action: () throws -> IRSignatureProtocol) throws -> IRSignatureProtocol {
+        if let mutationAuthorization { return try mutationAuthorization.withSignature(action) }
+        return try action()
+    }
+
     func signSr25519(_ originalData: Data, secretKeyData: Data, publicKeyData: Data) throws
         -> IRSignatureProtocol {
         let privateKey = try SNPrivateKey(rawData: secretKeyData)
         let publicKey = try SNPublicKey(rawData: publicKeyData)
 
         let signer = SNSigner(keypair: SNKeypair(privateKey: privateKey, publicKey: publicKey))
-        let signature = try signer.sign(originalData)
+        let signature = try createAuthorizedSignature { try signer.sign(originalData) }
 
         return signature
     }
@@ -25,7 +34,7 @@ extension SigningWrapperProtocol {
 
         let signer = EDSigner(privateKey: privateKey)
 
-        return try signer.sign(originalData)
+        return try createAuthorizedSignature { try signer.sign(originalData) }
     }
 
     func signEcdsa(_ originalData: Data, secretKey: Data) throws -> IRSignatureProtocol {
@@ -37,7 +46,7 @@ extension SigningWrapperProtocol {
         let signer = SECSigner(privateKey: privateKey)
 
         let hashedData = try originalData.blake2b32()
-        return try signer.sign(hashedData)
+        return try createAuthorizedSignature { try signer.sign(hashedData) }
     }
 
     func signEthereumEcdsa(_ originalData: Data, secretKey: Data) throws -> IRSignatureProtocol {
@@ -49,6 +58,6 @@ extension SigningWrapperProtocol {
         let signer = SECSigner(privateKey: privateKey)
 
         let hashedData = try originalData.keccak256()
-        return try signer.sign(hashedData)
+        return try createAuthorizedSignature { try signer.sign(hashedData) }
     }
 }

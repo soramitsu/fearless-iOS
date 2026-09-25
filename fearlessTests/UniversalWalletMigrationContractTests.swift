@@ -8,12 +8,12 @@ final class UniversalWalletMigrationContractTests: XCTestCase {
         clockMillis: { 1_710_000_000_100 }
     )
 
-    func testBlocksNormalAccessWhenLegacyVaultsExistWithoutUniversalWallet() throws {
+    func testPreservesNormalAccessWhenLegacyVaultsExistWithoutUniversalWallet() throws {
         let snapshot = migrationSnapshot(hasUniversalWallet: false, legacyVaults: [Self.legacyVault()])
 
         XCTAssertTrue(snapshot.validationErrors().isEmpty)
-        XCTAssertEqual(snapshot.requiredAction(), UniversalWalletMigrationRequiredAction.migrateBeforeAccess)
-        XCTAssertFalse(snapshot.allowsNormalWalletAccess())
+        XCTAssertEqual(snapshot.requiredAction(), UniversalWalletMigrationRequiredAction.normalAccess)
+        XCTAssertTrue(snapshot.allowsNormalWalletAccess())
         XCTAssertTrue(snapshot.allowsLegacySecretExport())
 
         let json = String(decoding: try JSONEncoder().encode(snapshot), as: UTF8.self)
@@ -88,7 +88,7 @@ final class UniversalWalletMigrationContractTests: XCTestCase {
         let snapshot = builder.build(accounts: [Self.wallet()])
 
         XCTAssertFalse(snapshot.hasUniversalWallet)
-        XCTAssertEqual(snapshot.requiredAction(), .migrateBeforeAccess)
+        XCTAssertEqual(snapshot.requiredAction(), .normalAccess)
         XCTAssertEqual(
             snapshot.legacyVaults.map(\.ecosystem),
             [UniversalWalletEcosystem.substrate.rawValue, UniversalWalletEcosystem.evm.rawValue]
@@ -137,7 +137,7 @@ final class UniversalWalletMigrationContractTests: XCTestCase {
         XCTAssertTrue(snapshot.validationErrors().isEmpty)
     }
 
-    func testBuilderKeepsPartialUniversalWalletBlockedWithLegacyExports() throws {
+    func testBuilderKeepsPartialUniversalWalletUsableWithLegacyExports() throws {
         let solana = try SolanaKeyDerivation.deriveAccount(mnemonic: Self.mnemonic)
         let snapshot = builder.build(
             accounts: [
@@ -153,7 +153,7 @@ final class UniversalWalletMigrationContractTests: XCTestCase {
         )
 
         XCTAssertFalse(snapshot.hasUniversalWallet)
-        XCTAssertEqual(snapshot.requiredAction(), .migrateBeforeAccess)
+        XCTAssertEqual(snapshot.requiredAction(), .normalAccess)
         XCTAssertEqual(
             snapshot.legacyVaults.map(\.ecosystem),
             [UniversalWalletEcosystem.substrate.rawValue, UniversalWalletEcosystem.evm.rawValue]
@@ -161,7 +161,7 @@ final class UniversalWalletMigrationContractTests: XCTestCase {
         XCTAssertTrue(snapshot.validationErrors().isEmpty)
     }
 
-    func testBuilderKeepsMalformedLegacyDataFailClosedWithValidDescriptor() {
+    func testBuilderKeepsLegacyAccessIndependentOfNewNetworkMetadata() {
         let snapshot = builder.build(
             accounts: [
                 Self.wallet(
@@ -175,7 +175,7 @@ final class UniversalWalletMigrationContractTests: XCTestCase {
         let descriptor = snapshot.legacyVaults[0]
 
         XCTAssertFalse(snapshot.hasUniversalWallet)
-        XCTAssertEqual(snapshot.requiredAction(), .migrateBeforeAccess)
+        XCTAssertEqual(snapshot.requiredAction(), .normalAccess)
         XCTAssertEqual(
             snapshot.legacyVaults.map(\.ecosystem),
             [UniversalWalletEcosystem.substrate.rawValue, UniversalWalletEcosystem.evm.rawValue]
@@ -198,7 +198,7 @@ final class UniversalWalletMigrationContractTests: XCTestCase {
         }
 
         let snapshot = try XCTUnwrap(result).get()
-        XCTAssertEqual(snapshot.requiredAction(), .migrateBeforeAccess)
+        XCTAssertEqual(snapshot.requiredAction(), .normalAccess)
         XCTAssertEqual(snapshot.evaluatedAtMillis, 1_710_000_000_100)
         XCTAssertTrue(snapshot.validationErrors().isEmpty)
     }

@@ -4,6 +4,7 @@ import SSFUtils
 import IrohaCrypto
 import SoraKeystore
 import SSFModels
+import UIKit
 
 protocol ProfileViewModelFactoryProtocol: AnyObject {
     func createProfileViewModel(
@@ -26,6 +27,9 @@ enum ProfileOption: UInt, CaseIterable {
     case biometry
     case about
     case accountScore
+    case networkAssets
+    case tonConnect
+    case irohaConnect
 }
 
 final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
@@ -67,6 +71,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             locale: locale
         )
         let profileOptionViewModel = createOptionViewModels(
+            wallet: wallet,
             language: language,
             currency: currency,
             locale: locale,
@@ -121,6 +126,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     }
 
     private func createOptionViewModels(
+        wallet: MetaAccountModel,
         language: Language,
         currency: Currency,
         locale: Locale,
@@ -149,6 +155,18 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return createCurrencyViewModel(from: currency, locale: locale)
             case .accountScore:
                 return createAccountScoreViewModel(locale: locale)
+            case .networkAssets:
+                return createNetworkAssetsViewModel()
+            case .tonConnect:
+                let hasTonAccount = wallet.legacyTonAccount != nil || wallet.chainAccounts.contains {
+                    UniversalWalletChainAccountSupport.chainId(
+                        $0.chainId,
+                        matches: UniversalWalletRegistry.tonMainnetRegistryEntry.chainId
+                    )
+                }
+                return createTonConnectViewModel(hasTonAccount: hasTonAccount)
+            case .irohaConnect:
+                return createIrohaConnectViewModel()
             }
         }
 
@@ -163,6 +181,41 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryImage: nil,
             accessoryType: .arrow,
             option: .walletConnect
+        )
+    }
+
+    private func createNetworkAssetsViewModel() -> ProfileOptionViewModel {
+        ProfileOptionViewModel(
+            title: NSLocalizedString("settings.networks_assets", value: "Networks & Assets", comment: ""),
+            icon: UIImage(systemName: "point.3.connected.trianglepath.dotted"),
+            accessoryTitle: nil,
+            accessoryImage: nil,
+            accessoryType: .arrow,
+            option: .networkAssets
+        )
+    }
+
+    private func createTonConnectViewModel(hasTonAccount: Bool) -> ProfileOptionViewModel {
+        ProfileOptionViewModel(
+            title: "TonConnect",
+            icon: UIImage(systemName: "link.circle"),
+            accessoryTitle: hasTonAccount
+                ? nil
+                : NSLocalizedString("settings.ton_account_required", value: "TON account required", comment: ""),
+            accessoryImage: nil,
+            accessoryType: .arrow,
+            option: .tonConnect
+        )
+    }
+
+    private func createIrohaConnectViewModel() -> ProfileOptionViewModel {
+        ProfileOptionViewModel(
+            title: "IrohaConnect",
+            icon: UIImage(systemName: "link.badge.plus"),
+            accessoryTitle: "SORA 3",
+            accessoryImage: nil,
+            accessoryType: .arrow,
+            option: .irohaConnect
         )
     }
 

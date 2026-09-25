@@ -168,15 +168,7 @@ struct StakingBondMoreConfirmViewFactory {
             accountResponse: accountResponse
         )
 
-        let facade = UserDataStorageFacade.shared
-
-        let mapper = MetaAccountMapper()
-
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
@@ -203,7 +195,7 @@ struct StakingBondMoreConfirmViewFactory {
                 feeProxy: feeProxy,
                 runtimeService: runtimeService,
                 operationManager: operationManager,
-                accountRepository: AnyDataProviderRepository(accountRepository),
+                accountRepository: accountRepository,
                 connection: connection,
                 keystore: keystore,
                 signingWrapper: signingWrapper,

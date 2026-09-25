@@ -71,8 +71,8 @@ final class UniversalWalletV2VectorsTests: XCTestCase {
     func testRegistryDefinesPublicIndexersAndGatedIrohaNetworks() {
         XCTAssertEqual(UniversalWalletRegistry.tonIndexerBaseURL.absoluteString, "https://ti.soramitsu.io")
         XCTAssertEqual(UniversalWalletRegistry.solanaIndexerBaseURL.absoluteString, "https://si.soramitsu.io")
-        XCTAssertEqual(UniversalWalletRegistry.bitcoinMainnetIndexerBaseURL.absoluteString, "https://blockstream.info/api")
-        XCTAssertEqual(UniversalWalletRegistry.bitcoinTestnetIndexerBaseURL.absoluteString, "https://blockstream.info/testnet/api")
+        XCTAssertEqual(UniversalWalletRegistry.bitcoinMainnetIndexerBaseURL.absoluteString, "https://mempool.space/api")
+        XCTAssertEqual(UniversalWalletRegistry.bitcoinTestnetIndexerBaseURL.absoluteString, "https://mempool.space/testnet/api")
 
         XCTAssertEqual(UniversalWalletRegistry.bitcoinMainnet.id, "bitcoin-mainnet")
         XCTAssertEqual(UniversalWalletRegistry.bitcoinMainnet.chainId, "bitcoin:mainnet")
@@ -81,7 +81,7 @@ final class UniversalWalletV2VectorsTests: XCTestCase {
         XCTAssertEqual(UniversalWalletRegistry.bitcoinMainnet.addressHrp, "bc")
         XCTAssertEqual(UniversalWalletRegistry.bitcoinMainnet.accountPath, "m/84'/0'/0'")
         XCTAssertEqual(UniversalWalletRegistry.bitcoinMainnet.firstReceivePath, "m/84'/0'/0'/0/0")
-        XCTAssertEqual(UniversalWalletRegistry.bitcoinMainnet.indexerBaseURL.absoluteString, "https://blockstream.info/api")
+        XCTAssertEqual(UniversalWalletRegistry.bitcoinMainnet.indexerBaseURL.absoluteString, "https://mempool.space/api")
         XCTAssertEqual(UniversalWalletRegistry.bitcoinMainnet.defaultGapLimit, 20)
         XCTAssertEqual(UniversalWalletRegistry.bitcoinMainnet.nativeAsset.id, "BTC")
         XCTAssertEqual(UniversalWalletRegistry.bitcoinMainnet.nativeAsset.symbol, "BTC")
@@ -95,7 +95,7 @@ final class UniversalWalletV2VectorsTests: XCTestCase {
         XCTAssertEqual(UniversalWalletRegistry.bitcoinTestnet.addressHrp, "tb")
         XCTAssertEqual(UniversalWalletRegistry.bitcoinTestnet.accountPath, "m/84'/1'/0'")
         XCTAssertEqual(UniversalWalletRegistry.bitcoinTestnet.firstReceivePath, "m/84'/1'/0'/0/0")
-        XCTAssertEqual(UniversalWalletRegistry.bitcoinTestnet.indexerBaseURL.absoluteString, "https://blockstream.info/testnet/api")
+        XCTAssertEqual(UniversalWalletRegistry.bitcoinTestnet.indexerBaseURL.absoluteString, "https://mempool.space/testnet/api")
         XCTAssertEqual(UniversalWalletRegistry.bitcoinTestnet.defaultGapLimit, 20)
         XCTAssertEqual(UniversalWalletRegistry.bitcoinTestnet.nativeAsset.id, "BTC")
         XCTAssertEqual(UniversalWalletRegistry.bitcoinTestnet.nativeAsset.symbol, "BTC")

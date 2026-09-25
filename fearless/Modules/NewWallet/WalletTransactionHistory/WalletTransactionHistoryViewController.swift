@@ -118,7 +118,7 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
             rootView.separatorView.isHidden = viewModel.filtering != .multiple
 
             handleNextPageOnScroll(scrollView: rootView.tableView)
-        case .unsupported:
+        case .unsupported, .unavailable:
             rootView.tableView.isHidden = false
             rootView.filterButton.isHidden = true
             reloadContent()
@@ -556,7 +556,7 @@ extension WalletTransactionHistoryViewController: EmptyStateDelegate {
         switch state {
         case let .loaded(viewModel):
             return viewModel.sections.isEmpty
-        case .unsupported:
+        case .unsupported, .unavailable:
             return true
         default:
             return false
@@ -579,7 +579,15 @@ extension WalletTransactionHistoryViewController: EmptyStateDataSource {
 
     var titleForEmptyState: String? {
         if case WalletTransactionHistoryViewState.unsupported = state {
-            return R.string.localizable.walletTransactionHistoryUnsupportedMessage(preferredLanguages: selectedLocale.rLanguages)
+            return R.string.localizable.walletTransactionHistoryUnsupportedMessage(
+                preferredLanguages: selectedLocale.rLanguages
+            )
+        }
+
+        if case WalletTransactionHistoryViewState.unavailable = state {
+            return R.string.localizable.walletTransactionHistoryErrorMessage(
+                preferredLanguages: selectedLocale.rLanguages
+            )
         }
 
         return R.string.localizable.walletTransactionHistoryEmptyMessage(preferredLanguages: selectedLocale.rLanguages)

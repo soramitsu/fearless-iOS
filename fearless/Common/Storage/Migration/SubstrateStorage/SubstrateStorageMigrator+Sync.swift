@@ -2,12 +2,17 @@ import Foundation
 
 extension SubstrateStorageMigrator: Migrating {
     func migrate() throws {
-        guard requiresMigration() else {
-            return
+        let recoveryURL = try performMigrationWithRecovery()
+
+        if let recoveryURL {
+            Logger.shared.warning(
+                """
+                Recovered from a Substrate cache migration error by quarantining a verified \
+                cache-only store at \(recoveryURL.path)
+                """
+            )
         }
 
-        performMigration()
-
-        Logger.shared.info("Db migration completed")
+        Logger.shared.info("Substrate DB migration check completed")
     }
 }

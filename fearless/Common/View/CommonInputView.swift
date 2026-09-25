@@ -19,6 +19,12 @@ class CommonInputView: UIView {
         field.textColor = R.color.colorWhite()!
         field.textFont = .p1Paragraph
         field.cursorColor = R.color.colorWhite()!
+        if #available(iOS 17.0, *) {
+            field.textField.accessibilityFrameBlock = { [weak field] in
+                guard let field else { return .zero }
+                return UIAccessibility.convertToScreenCoordinates(field.bounds, in: field)
+            }
+        }
         return field
     }()
 
@@ -27,6 +33,8 @@ class CommonInputView: UIView {
         button.isHidden = true
         return button
     }()
+
+    private let inputContainer = UIFactory.default.createHorizontalStackView()
 
     var text: String? {
         get {
@@ -43,6 +51,7 @@ class CommonInputView: UIView {
         }
         set {
             animatedInputField.title = newValue
+            animatedInputField.textField.accessibilityLabel = newValue
         }
     }
 
@@ -57,6 +66,17 @@ class CommonInputView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        inputContainer.layoutIfNeeded()
+        // AnimatedTextField forwards taps across its full bounds to this input.
+        // Keep the stored frame coherent for direct accessibility consumers too.
+        // On iOS 17+, the dynamic block still takes precedence for VoiceOver.
+        animatedInputField.textField.accessibilityFrame = UIAccessibility.convertToScreenCoordinates(
+            animatedInputField.bounds, in: animatedInputField
+        )
+    }
+
     private func setupLayout() {
         addSubview(backgroundView)
         backgroundView.snp.makeConstraints { make in
@@ -64,18 +84,16 @@ class CommonInputView: UIView {
             make.height.equalTo(52.0)
         }
 
-        let container = UIFactory.default.createHorizontalStackView()
-
-        addSubview(container)
-        container.snp.makeConstraints { make in
+        addSubview(inputContainer)
+        inputContainer.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.top.bottom.equalToSuperview().inset(4.0)
         }
-        container.addArrangedSubview(animatedInputField)
+        inputContainer.addArrangedSubview(animatedInputField)
         animatedInputField.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
         }
-        container.addArrangedSubview(rightButton)
+        inputContainer.addArrangedSubview(rightButton)
         rightButton.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.size.equalTo(52)

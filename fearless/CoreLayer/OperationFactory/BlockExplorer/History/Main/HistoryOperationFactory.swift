@@ -1,15 +1,19 @@
 
-import RobinHood
 import IrohaCrypto
-import SSFUtils
+import RobinHood
 import SSFModels
+import SSFUtils
 
-final class HistoryOperationFactoriesAssembly {
+enum HistoryOperationFactoriesAssembly {
     static func createOperationFactory(
         chain: ChainModel,
         txStorage: AnyDataProviderRepository<TransactionHistoryItem>
     ) -> HistoryOperationFactoryProtocol? {
         let historyUrl = chain.externalApi?.history?.url.absoluteString.lowercased() ?? ""
+
+        if chain.isTonCompatibilityChain {
+            return TonHistoryOperationFactory()
+        }
 
         if BitcoinHistoryOperationFactory.supports(chain: chain) {
             return BitcoinHistoryOperationFactory()
@@ -27,7 +31,8 @@ final class HistoryOperationFactoriesAssembly {
             return BlockscoutHistoryOperationFactory()
         }
 
-        if historyUrl.contains("scope.klaytn") || historyUrl.contains("scope.kaia") {
+        if let historyURL = chain.externalApi?.history?.url,
+           KaiaHistoryOperationFactory.supports(url: historyURL) {
             return KaiaHistoryOperationFactory()
         }
 

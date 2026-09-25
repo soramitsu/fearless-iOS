@@ -12,6 +12,14 @@ if [[ -f "$WORKSPACE_DIR/scripts/audit-branch-flow.sh" ]]; then
   bash "$WORKSPACE_DIR/scripts/test-branch-flow-audit.sh"
 fi
 
+if [[ -f "$WORKSPACE_DIR/scripts/audit-release-signing-gate.sh" ]]; then
+  echo "[run-pr] Running release signing gate audit"
+  bash "$WORKSPACE_DIR/scripts/test-release-signing-gate-audit.sh"
+  bash "$WORKSPACE_DIR/scripts/test-release-signing-gate.sh"
+  bash "$WORKSPACE_DIR/scripts/test-release-signing-bootstrap.sh"
+  bash "$WORKSPACE_DIR/scripts/audit-release-signing-gate.sh"
+fi
+
 if [[ -f "$WORKSPACE_DIR/scripts/audit-public-artifacts.sh" ]]; then
   echo "[run-pr] Running public artifact audit"
   bash "$WORKSPACE_DIR/scripts/audit-public-artifacts.sh"
@@ -23,8 +31,43 @@ if [[ -f "$WORKSPACE_DIR/scripts/audit-todo-debt.sh" ]]; then
   bash "$WORKSPACE_DIR/scripts/audit-todo-debt.sh"
 fi
 
+echo "[run-pr] Verifying tracked TestFlight publication evidence"
+bash "$WORKSPACE_DIR/scripts/test-testflight-publication-readiness-audit.sh"
+bash "$WORKSPACE_DIR/scripts/audit-testflight-publication-readiness.sh"
+bash "$WORKSPACE_DIR/scripts/test-materialize-embedded-framework-dsyms.sh"
+bash "$WORKSPACE_DIR/scripts/test-ios-signed-release-artifact-audit.sh"
+
+if [[ -f "$WORKSPACE_DIR/scripts/test-audit-testflight-upgrade-usability-gate.py" ]]; then
+  echo "[run-pr] Testing privacy-safe TestFlight upgrade recovery contracts"
+  PYTHONDONTWRITEBYTECODE=1 python3 \
+    "$WORKSPACE_DIR/scripts/test-filter-startup-syslog.py"
+  PYTHONDONTWRITEBYTECODE=1 python3 \
+    "$WORKSPACE_DIR/scripts/test-capture-testflight-startup.py"
+  PYTHONDONTWRITEBYTECODE=1 python3 \
+    "$WORKSPACE_DIR/scripts/test-audit-testflight-upgrade-usability-gate.py"
+fi
+
+if [[ -f "$WORKSPACE_DIR/scripts/audit-transaction-builder-tests.sh" ]]; then
+  echo "[run-pr] Running transaction builder coverage audit"
+  bash "$WORKSPACE_DIR/scripts/test-transaction-builder-tests-audit.sh"
+  bash "$WORKSPACE_DIR/scripts/audit-transaction-builder-tests.sh"
+fi
+
+if [[ -f "$WORKSPACE_DIR/scripts/test-coredata-release-gate.sh" ]]; then
+  echo "[run-pr] Testing Core Data Release gate contract"
+  bash "$WORKSPACE_DIR/scripts/test-coredata-release-gate.sh"
+fi
+
+if [[ -f "$WORKSPACE_DIR/scripts/audit-ton-production-send-readiness.sh" ]]; then
+  echo "[run-pr] Checking blocked TON production-send evidence contract"
+  bash "$WORKSPACE_DIR/scripts/test-ton-production-send-readiness-audit.sh"
+  bash "$WORKSPACE_DIR/scripts/audit-ton-production-send-readiness.sh"
+fi
+
 if [[ -f "$WORKSPACE_DIR/scripts/check-iroha-mobile-sdk-release-assets.sh" ]]; then
   echo "[run-pr] Checking Iroha mobile SDK release asset contract"
+  bash "$WORKSPACE_DIR/scripts/test-iroha-production-send-readiness-audit.sh"
+  bash "$WORKSPACE_DIR/scripts/audit-iroha-production-send-readiness.sh"
   bash "$WORKSPACE_DIR/scripts/check-iroha-mobile-sdk-release-assets.sh" --self-test
   if [[ -n "${IROHA_MOBILE_SDK_RELEASE_TAG:-}" ]]; then
     bash "$WORKSPACE_DIR/scripts/check-iroha-mobile-sdk-release-assets.sh" --download --tag "$IROHA_MOBILE_SDK_RELEASE_TAG"
@@ -52,14 +95,8 @@ if [[ -f "$WORKSPACE_DIR/fearless.xcworkspace/contents.xcworkspacedata" ]]; then
     -scheme fearless \
     -clonedSourcePackagesDirPath "$SP_DIR"
 
-  if [[ -x "scripts/deps/prepare-native-crypto-checkout.sh" ]]; then
-    echo "[run-pr] Preparing native crypto checkout"
-    SOURCE_PACKAGES_DIR="$SP_DIR" STRICT_REQUIRED_PATCHES=1 scripts/deps/prepare-native-crypto-checkout.sh "$WORKSPACE_DIR" "$WORKSPACE_DIR/fearless.xcworkspace" fearless
-  fi
-  if [[ -f "scripts/spm-shared-features-fixes.sh" ]]; then
-    echo "[run-pr] Applying required shared-features-spm compatibility fixes"
-    SOURCE_PACKAGES_DIR="$SP_DIR" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$WORKSPACE_DIR"
-  fi
+  SOURCE_PACKAGES_DIR="$SP_DIR" python3 "$WORKSPACE_DIR/scripts/deps/verify-shared-features-source.py" "$WORKSPACE_DIR"
+
 else
   echo "[run-pr] ERROR: Workspace not found at $WORKSPACE_DIR/fearless.xcworkspace" >&2
   exit 1
@@ -99,6 +136,12 @@ if xcodebuild -workspace "$WORKSPACE_DIR/fearless.xcworkspace" \
     -clonedSourcePackagesDirPath "$SP_DIR" \
     -disableAutomaticPackageResolution \
     test
+
+  echo "[run-pr] Running optimized Core Data migration/startup gate"
+  FEARLESS_CORE_DATA_SOURCE_PACKAGES_DIR="$SP_DIR" \
+    bash "$WORKSPACE_DIR/scripts/ci/run-coredata-release-gate.sh" \
+      --stage core \
+      --simulator-udid "$SIM_UDID"
 else
   echo "[run-pr] Simulator build failed; falling back to device build (signing disabled)"
   xcodebuild -workspace "$WORKSPACE_DIR/fearless.xcworkspace" \

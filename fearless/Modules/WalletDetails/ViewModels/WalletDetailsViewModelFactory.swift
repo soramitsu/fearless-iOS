@@ -68,12 +68,17 @@ class WalletDetailsViewModelFactory {
                 && !(flow.wallet.unusedChainIds ?? []).contains($0.chainId)
         }
         let nativeAccounts = filteredChains.filter {
-            flow.wallet.fetch(for: $0.accountRequest())?.isChainAccount == false
+            UniversalWalletChainAccountSupport.isUniversalWalletChain($0.chainId)
+                && flow.wallet.fetch(for: $0.accountRequest()) != nil
+                || flow.wallet.fetch(for: $0.accountRequest())?.isChainAccount == false
                 || (flow.wallet.fetch(for: $0.accountRequest()) == nil
                     && (flow.wallet.unusedChainIds ?? []).contains($0.chainId))
         }
 
-        let customAccounts = filteredChains.filter { flow.wallet.fetch(for: $0.accountRequest())?.isChainAccount == true }
+        let customAccounts = filteredChains.filter {
+            !UniversalWalletChainAccountSupport.isUniversalWalletChain($0.chainId)
+                && flow.wallet.fetch(for: $0.accountRequest())?.isChainAccount == true
+        }
 
         var sections: [WalletDetailsSection] = []
 

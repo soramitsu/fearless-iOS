@@ -1,9 +1,22 @@
 import Foundation
+import SSFModels
 
 enum UniversalWalletRegistry {
-    static let bitcoinMainnetIndexerBaseURL = URL(string: "https://blockstream.info/api")!
-    static let bitcoinTestnetIndexerBaseURL = URL(string: "https://blockstream.info/testnet/api")!
+    static let bitcoinMainnetIndexerBaseURL = URL(string: "https://mempool.space/api")!
+    static let bitcoinTestnetIndexerBaseURL = URL(string: "https://mempool.space/testnet/api")!
+    static let bitcoinIconURL = URL(
+        string: "https://bitcoin.org/img/icons/logotop.svg"
+    )!
+    static let legacyBitcoinIconURL = URL(
+        string: "https://raw.githubusercontent.com/bitpay/bitcoin-brand/887f040f7c44660b84c4000f4a54897ba5518194/bitcoin.svg"
+    )!
+
+    static func isBitcoinIconURL(_ url: URL) -> Bool {
+        url == bitcoinIconURL || url == legacyBitcoinIconURL
+    }
+
     static let tonIndexerBaseURL = URL(string: "https://ti.soramitsu.io")!
+    static let tonNativeAssetId = TonConstants.tonAssetId
     static let solanaIndexerBaseURL = URL(string: "https://si.soramitsu.io")!
     static let solanaMainnetRPCURL = URL(string: "https://api.mainnet-beta.solana.com")!
     static let solanaDevnetRPCURL = URL(string: "https://api.devnet.solana.com")!
@@ -26,6 +39,68 @@ enum UniversalWalletRegistry {
         )
     )
 
+    /// Bitcoin is an app-owned network. It is intentionally merged into the
+    /// downloaded registry at runtime because the shared Substrate/EVM
+    /// registry does not publish a Bitcoin row.
+    static let bitcoinMainnetChainModel: ChainModel = {
+        let asset = AssetModel(
+            id: bitcoinMainnet.nativeAsset.id,
+            name: bitcoinMainnet.name,
+            symbol: bitcoinMainnet.nativeAsset.symbol,
+            precision: UInt16(bitcoinMainnet.nativeAsset.decimals),
+            icon: bitcoinIconURL,
+            currencyId: bitcoinMainnet.nativeAsset.id,
+            color: "F7931A",
+            isUtility: true,
+            isNative: true,
+            staking: nil,
+            purchaseProviders: nil,
+            type: nil,
+            ethereumType: nil,
+            priceProvider: PriceProvider(
+                type: .coingecko,
+                id: "bitcoin",
+                precision: nil
+            ),
+            coingeckoPriceId: "bitcoin"
+        )
+        let indexerNode = ChainNodeModel(
+            url: bitcoinMainnet.indexerBaseURL,
+            name: "Mempool.space Public API",
+            apikey: nil
+        )
+        let history = ChainModel.BlockExplorer(
+            type: "subsquid",
+            url: bitcoinMainnet.indexerBaseURL
+        )
+
+        return ChainModel(
+            rank: 1,
+            disabled: false,
+            chainId: bitcoinMainnet.chainId,
+            parentId: nil,
+            paraId: nil,
+            name: bitcoinMainnet.name,
+            assets: [asset],
+            xcm: nil,
+            nodes: [indexerNode],
+            addressPrefix: 0,
+            types: nil,
+            icon: bitcoinIconURL,
+            options: nil,
+            externalApi: ChainModel.ExternalApiSet(
+                staking: nil,
+                history: history,
+                crowdloans: nil,
+                explorers: nil
+            ),
+            selectedNode: nil,
+            customNodes: nil,
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+    }()
+
     static let bitcoinTestnet = BitcoinNetwork(
         id: "bitcoin-testnet",
         chainId: "bitcoin:testnet",
@@ -43,6 +118,17 @@ enum UniversalWalletRegistry {
             decimals: 8
         )
     )
+
+    static func bitcoinNetwork(for chainId: String) -> BitcoinNetwork? {
+        switch chainId.lowercased() {
+        case bitcoinMainnet.chainId, bitcoinMainnet.id:
+            return bitcoinMainnet
+        case bitcoinTestnet.chainId, bitcoinTestnet.id:
+            return bitcoinTestnet
+        default:
+            return nil
+        }
+    }
 
     static let solanaMainnet = SolanaNetwork(
         id: "solana-mainnet",
@@ -79,8 +165,90 @@ enum UniversalWalletRegistry {
         toriiBaseURL: URL(string: "https://taira.sora.org")!,
         mcpPath: "/v1/mcp",
         enabledByDefault: true,
-        features: ["transfer"]
+        features: ["receive"]
     )
+
+    /// Taira is app-owned until the shared chains registry publishes a native
+    /// Iroha row. These values are pinned to the public Taira profile in the
+    /// reviewed `../iroha` `optimizations` revision `d8544f1d4d3a` and are
+    /// revalidated against Torii before a balance is accepted.
+    ///
+    /// Taira's canonical XOR uses an unconstrained Iroha `NumericSpec`. The
+    /// wallet's fixed-point adapter therefore uses Iroha's maximum permitted
+    /// decimal scale so every valid wire quantity remains exact. The distinct
+    /// scale-9 `xor#sora.universal` definition is discovered as a separate
+    /// held asset and must never replace this native XOR identity.
+    static let tairaNativeXorAssetDefinitionId = "6TEAJqbb8oEPmLncoNiMRbLEK6tw"
+    static let tairaNativeXorAlias = "xor#universal"
+    static let tairaNativeXorPrecision: UInt16 = 28
+    static let tairaChainIconURL = URL(
+        string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/SORA.svg"
+    )!
+    static let tairaXorIconURL = URL(
+        string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XOR.svg"
+    )!
+
+    static let tairaChainModel: ChainModel = {
+        let asset = AssetModel(
+            id: tairaNativeXorAssetDefinitionId,
+            name: "SORA XOR",
+            symbol: "XOR",
+            precision: tairaNativeXorPrecision,
+            icon: tairaXorIconURL,
+            currencyId: tairaNativeXorAlias,
+            color: "2D75FF",
+            isUtility: true,
+            isNative: true,
+            staking: nil,
+            purchaseProviders: nil,
+            type: nil,
+            ethereumType: nil,
+            priceProvider: nil,
+            coingeckoPriceId: nil
+        )
+        let toriiNode = ChainNodeModel(
+            url: taira.toriiBaseURL!,
+            name: "Taira Torii",
+            apikey: nil
+        )
+        let history = ChainModel.BlockExplorer(
+            // History routing is selected by the canonical Iroha chain ID.
+            // `subsquid` is only a persisted carrier accepted by SSFModels.
+            type: "subsquid",
+            url: taira.toriiBaseURL!
+        )
+
+        return ChainModel(
+            rank: 2,
+            disabled: false,
+            chainId: taira.chainId,
+            parentId: nil,
+            paraId: nil,
+            name: "Taira Testnet",
+            assets: [asset],
+            xcm: nil,
+            nodes: [toriiNode],
+            addressPrefix: 0,
+            types: nil,
+            icon: tairaChainIconURL,
+            options: [.testnet],
+            externalApi: ChainModel.ExternalApiSet(
+                staking: nil,
+                history: history,
+                crowdloans: nil,
+                explorers: nil
+            ),
+            selectedNode: nil,
+            customNodes: nil,
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+    }()
+
+    static let appOwnedProductionChains = [
+        bitcoinMainnetChainModel,
+        tairaChainModel
+    ]
 
     static let nexus = IrohaNetwork(
         id: "sora-nexus-mainnet",
@@ -214,6 +382,7 @@ enum UniversalWalletRegistry {
             ),
             derivationPath: network.accountPath,
             slip44CoinType: network.slip44CoinType,
+            features: ["transfer"],
             endpoints: [
                 UniversalWalletRegistryEndpoint(
                     id: "\(network.id)-indexer",
@@ -266,6 +435,14 @@ enum UniversalWalletRegistry {
         _ network: IrohaNetwork,
         displayName: String
     ) -> UniversalWalletChainRegistryEntry {
+        let nativeAsset: UniversalWalletRegistryAsset? = network == taira
+            ? UniversalWalletRegistryAsset(
+                id: tairaNativeXorAssetDefinitionId,
+                symbol: "XOR",
+                decimals: Int(tairaNativeXorPrecision),
+                name: "SORA XOR"
+            )
+            : nil
         let endpoints = network.mcpEndpointURL.map { endpoint in
             [
                 UniversalWalletRegistryEndpoint(
@@ -283,10 +460,171 @@ enum UniversalWalletRegistry {
             chainId: network.chainId,
             displayName: displayName,
             enabledByDefault: network.enabledByDefault,
+            nativeAsset: nativeAsset,
             derivationPath: UniversalWalletDerivationPaths.irohaDefault,
             slip44CoinType: 617,
             features: network.features,
             endpoints: endpoints
         )
+    }
+}
+
+enum UniversalWalletAccountProvisioning {
+    /// Upgrade enrollment only fills absent networks. Existing dedicated keys,
+    /// including keys imported from another phrase, retain their own identity.
+    /// Explicit root recovery uses the stricter validation below before it may
+    /// persist recovery material.
+    static func addingMissingAppOwnedAccounts(
+        to wallet: MetaAccountModel,
+        mnemonic: String
+    ) throws -> MetaAccountModel {
+        var updatedWallet = wallet
+        if !wallet.chainAccounts.contains(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId, matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }) {
+            updatedWallet = try addingBitcoinMainnetAccount(to: updatedWallet, mnemonic: mnemonic)
+        }
+        if !wallet.chainAccounts.contains(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId, matches: UniversalWalletRegistry.taira.chainId
+            )
+        }) {
+            updatedWallet = try addingTairaTestnetAccount(to: updatedWallet, mnemonic: mnemonic)
+        }
+        return updatedWallet
+    }
+
+    static func addingAppOwnedAccounts(
+        to wallet: MetaAccountModel,
+        mnemonic: String
+    ) throws -> MetaAccountModel {
+        let bitcoinPublicKey = try BitcoinKeyDerivation.deriveAccount(
+            mnemonic: mnemonic,
+            network: .mainnet
+        ).publicKey
+        let tairaPublicKey = try IrohaKeyDerivation.deriveAccount(
+            mnemonic: mnemonic
+        ).publicKey
+        let hasBitcoinAccount = try validateExistingAccount(
+            in: wallet,
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
+            candidatePublicKey: bitcoinPublicKey,
+            isStructurallyValid: {
+                UniversalWalletChainAccountSupport.isValidBitcoinAccount($0)
+            }
+        )
+        let hasTairaAccount = try validateExistingAccount(
+            in: wallet,
+            chainId: UniversalWalletRegistry.taira.chainId,
+            candidatePublicKey: tairaPublicKey,
+            isStructurallyValid: UniversalWalletChainAccountSupport.isValidTairaAccount
+        )
+
+        var updatedWallet = wallet
+        if !hasBitcoinAccount {
+            updatedWallet = try addingBitcoinMainnetAccount(
+                to: updatedWallet,
+                mnemonic: mnemonic
+            )
+        }
+        if !hasTairaAccount {
+            updatedWallet = try addingTairaTestnetAccount(
+                to: updatedWallet,
+                mnemonic: mnemonic
+            )
+        }
+
+        return updatedWallet
+    }
+
+    private static func validateExistingAccount(
+        in wallet: MetaAccountModel,
+        chainId: ChainModel.Id,
+        candidatePublicKey: Data,
+        isStructurallyValid: (ChainAccountModel) -> Bool
+    ) throws -> Bool {
+        let accounts = wallet.chainAccounts.filter {
+            UniversalWalletChainAccountSupport.chainId($0.chainId, matches: chainId)
+        }
+        guard accounts.count <= 1 else {
+            throw UniversalWalletRootRecoveryError.existingAccountUsesDifferentPhrase
+        }
+        guard let account = accounts.first else {
+            return false
+        }
+        guard isStructurallyValid(account), account.publicKey == candidatePublicKey else {
+            throw UniversalWalletRootRecoveryError.existingAccountUsesDifferentPhrase
+        }
+
+        return true
+    }
+
+    static func addingBitcoinMainnetAccount(
+        to wallet: MetaAccountModel,
+        mnemonic: String
+    ) throws -> MetaAccountModel {
+        let chainId = UniversalWalletRegistry.bitcoinMainnet.chainId
+        let account = try BitcoinKeyDerivation.deriveAccount(
+            mnemonic: mnemonic,
+            network: .mainnet
+        )
+        if try validateExistingAccount(
+            in: wallet,
+            chainId: chainId,
+            candidatePublicKey: account.publicKey,
+            isStructurallyValid: { UniversalWalletChainAccountSupport.isValidBitcoinAccount($0) }
+        ) {
+            return wallet
+        }
+        let chainAccount = ChainAccountModel(
+            chainId: chainId,
+            accountId: account.publicKey,
+            publicKey: account.publicKey,
+            cryptoType: CryptoType.ecdsa.rawValue,
+            ethereumBased: false
+        )
+
+        var chainAccounts = wallet.chainAccounts
+        chainAccounts.insert(chainAccount)
+
+        guard chainAccounts != wallet.chainAccounts else {
+            return wallet
+        }
+
+        return wallet.replacingChainAccounts(chainAccounts)
+    }
+
+    static func addingTairaTestnetAccount(
+        to wallet: MetaAccountModel,
+        mnemonic: String
+    ) throws -> MetaAccountModel {
+        let chainId = UniversalWalletRegistry.taira.chainId
+        let account = try IrohaKeyDerivation.deriveAccount(mnemonic: mnemonic)
+        if try validateExistingAccount(
+            in: wallet,
+            chainId: chainId,
+            candidatePublicKey: account.publicKey,
+            isStructurallyValid: UniversalWalletChainAccountSupport.isValidTairaAccount
+        ) {
+            return wallet
+        }
+        let chainAccount = ChainAccountModel(
+            chainId: chainId,
+            accountId: account.publicKey,
+            publicKey: account.publicKey,
+            cryptoType: CryptoType.ed25519.rawValue,
+            ethereumBased: false
+        )
+
+        var chainAccounts = wallet.chainAccounts
+        chainAccounts.insert(chainAccount)
+
+        guard chainAccounts != wallet.chainAccounts else {
+            return wallet
+        }
+
+        return wallet.replacingChainAccounts(chainAccounts)
     }
 }

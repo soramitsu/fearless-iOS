@@ -82,12 +82,12 @@ final class AssetManagementViewController: UIViewController, ViewHolder, Hiddabl
         rootView.tableView.separatorStyle = .none
         rootView.tableView.registerClassForCell(AssetManagementTableCell.self)
         rootView.tableView.registerHeaderFooterView(withClass: AssetManagementTableHeaderView.self)
-        rootView.tableView.rowHeight = 55
+        rootView.tableView.rowHeight = UITableView.automaticDimension
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
 
-        rootView.tableView.estimatedRowHeight = 0
-        rootView.tableView.estimatedSectionHeaderHeight = 0
+        rootView.tableView.estimatedRowHeight = 55
+        rootView.tableView.estimatedSectionHeaderHeight = 55
         rootView.tableView.estimatedSectionFooterHeight = 0
 
         rootView.tableView.contentInsetAdjustmentBehavior = .never
@@ -177,9 +177,12 @@ extension AssetManagementViewController: UITableViewDataSource {
         }
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCellWithType(AssetManagementTableCell.self) else {
             return UITableViewCell()
+        }
+        if let model = viewModel?.list[safe: indexPath.section]?.cells[safe: indexPath.row] {
+            cell.bind(viewModel: model)
         }
         return cell
     }
@@ -188,17 +191,6 @@ extension AssetManagementViewController: UITableViewDataSource {
 // MARK: - UITableViewDelegate
 
 extension AssetManagementViewController: UITableViewDelegate {
-    func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        guard
-            let cell = cell as? AssetManagementTableCell,
-            let section = viewModel?.list[safe: indexPath.section],
-            let viewModel = section.cells[safe: indexPath.row]
-        else {
-            return
-        }
-        cell.bind(viewModel: viewModel)
-    }
-
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: false)
         guard let viewModel else {
@@ -224,7 +216,7 @@ extension AssetManagementViewController: UITableViewDelegate {
         guard viewModel?.list[section].hasView == true else {
             return .leastNormalMagnitude
         }
-        return 55
+        return UITableView.automaticDimension
     }
 
     func tableView(_: UITableView, heightForFooterInSection _: Int) -> CGFloat {

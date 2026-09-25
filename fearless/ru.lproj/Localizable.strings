@@ -1,6 +1,12 @@
 "NSCameraUsageDescription" = "Камера используется для сканирования QR кода.";
 "NSFaceIDUsageDescription" = "Fearless использует Face ID, чтобы ограничить несанкционированных пользователей доступа к приложению.Face ID используется для авторизации в приложении";
 "NSPhotoLibraryAddUsageDescription" = "Вы можете сохранить запрос на перевод в виде QR кода";
+"ton.transfer.unknown.title" = "Статус перевода неизвестен";
+"ton.transfer.unknown.message" = "Сеть могла принять этот перевод. Не отправляйте его повторно. Сохраните хеш сообщения и проверьте статус перед дальнейшими действиями:\n%@";
+"ton.transfer.unknown.copy_hash" = "Скопировать хеш сообщения";
+"ton.transfer.prior_confirmed.title" = "Предыдущий перевод подтверждён";
+"ton.transfer.prior_confirmed.message" = "Предыдущий перевод подтверждён. Новый перевод не был отправлен. Проверьте и подтвердите предыдущий хеш перед повторным подтверждением:\n%@";
+"ton.transfer.prior_confirmed.acknowledge" = "Подтвердить и пересчитать комиссию";
 "NSPhotoLibraryUsageDescription" = "Для выбора существующих изображений QR-кодов необходим доступ к библиотеке";
 "about.announcement" = "Следить за новостями в Telegram";
 "about.ask.for.support" = "Обратитесь за поддержкой";
@@ -796,6 +802,7 @@ Euro cash";
 "staking.analytics.period.all" = "все";
 "staking.analytics.rewards.empty.message" = "Нет полученных вознаграждений\
 в выбранный период";
+"staking.analytics.received.rewards" = "Полученные вознаграждения";
 "staking.analytics.stake.allocation" = "Распределение с текущими валидаторами";
 "staking.analytics.stake.empty.message" = "Здесь появятся ваши\
 изменения по стейку";
@@ -1208,3 +1215,52 @@ Euro cash";
 "your.validators.stop.nominating.title" = "Stop nominating";
 "your.validators.validator.total.stake" = "Всего в стейкинге: %@";
 "сurrencies.stub.text" = "Токены";
+
+"tab.portfolio" = "Кошелёк";
+
+"tab.defi" = "Доход";
+
+"tab.polkaswap" = "Обмен";
+
+"tab.cross_chain" = "Перевод";
+
+"ux.switch_wallet" = "Выбрать кошелёк";
+
+"ux.choose_network" = "Выбрать сеть";
+
+"ux.search_assets" = "Поиск активов";
+
+"ux.scan_qr" = "Сканировать QR-код";
+
+"ux.receive_network_instruction" = "Отправляйте на этот адрес только %@ в сети %@.";
+
+"ux.retry" = "Повторить";
+
+"ux.manage_wallets" = "Управление кошельками";
+
+"ux.transfer_networks" = "Перевод между сетями →";
+
+"ux.positions_loading" = "Проверяем ваши позиции и награды.";
+
+"ux.positions_unavailable" = "Не удалось загрузить позиции. Повторите попытку.";
+
+"ux.positions_stale" = "Показаны последние загруженные позиции. Повторите попытку для обновления.";
+
+"ux.positions_empty" = "У вас нет активных позиций";
+
+"ux.positions_explore" = "Выберите способ получения дохода ниже.";
+
+"ux.explore_earn" = "Способы получения дохода";
+
+"ux.refresh_positions" = "Обновить позиции";
+"ux.back" = "Назад";
+"ux.collapsed" = "Свёрнуто";
+"ux.expanded" = "Развёрнуто";
+
+/* Other holdings may not appear because balance checks use the app's asset list. */
+"portfolio.discovery.catalog_only" = "Некоторые токены могут не отображаться";
+
+/* Only shown when network balances need attention. */
+"portfolio.balance.update_failed" = "Не удалось обновить балансы";
+"portfolio.balance.outdated" = "Балансы могут быть устаревшими";
+"portfolio.balance.not_loaded" = "Балансы не загружены";

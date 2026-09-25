@@ -59,7 +59,7 @@ fi
 # Enforce SSF pin, then apply repo-owned package contracts/fixes so SSF packages are stable under Xcode 16+
 if [ -f "scripts/deps/enforce-ssf-pin.sh" ]; then
   echo "\n==> Enforcing shared-features-spm pinned revision"
-  bash scripts/deps/enforce-ssf-pin.sh || true
+  bash scripts/deps/enforce-ssf-pin.sh
 fi
 
 if [ -x "scripts/deps/restore-swiftpm-contract-files.sh" ]; then
@@ -82,39 +82,8 @@ if ! xcodebuild \
   exit 1
 fi
 
-# Patch shared-features-spm manifest and sources in the explicit local checkout.
-if [ -f "scripts/spm-shared-features-fixes.sh" ]; then
-  echo "\n==> Applying shared-features-spm fixes (SSFModels deps, Web3 API drift)"
-  SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$(pwd)"
-fi
-
-verify_native_crypto_state() {
-  if [ ! -f "scripts/deps/prepare-native-crypto-checkout.sh" ]; then
-    return 0
-  fi
-
-  echo "\n==> Preparing native crypto checkout"
-  local status=0
-  if SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" STRICT_REQUIRED_PATCHES=1 bash scripts/deps/prepare-native-crypto-checkout.sh "$(pwd)" "${WORKSPACE}" "${SCHEME}"; then
-    return 0
-  else
-    status=$?
-  fi
-
-  if [[ "$status" == "2" ]]; then
-    echo "Native crypto contract failed because the resolved shared-features-spm checkout is missing." >&2
-    echo "This indicates a package resolution/materialization problem rather than a patched package contract failure." >&2
-  elif [[ "$status" == "3" ]]; then
-    echo "Native crypto preparation failed because Swift Package re-resolution did not succeed." >&2
-    echo "This indicates the checkout could not be materialized consistently before native crypto contract verification." >&2
-  else
-    echo "Native crypto contract failed because the resolved shared-features-spm checkout violates the expected package contract." >&2
-    echo "This indicates the checkout exists, but IrohaCrypto linker/modulemap state is still incorrect." >&2
-  fi
-  exit "$status"
-}
-
-verify_native_crypto_state
+# Verify the exact resolved dependency source without mutating it.
+SOURCE_PACKAGES_DIR="${LOCAL_SOURCE_PACKAGES_DIR}" python3 scripts/deps/verify-shared-features-source.py "$(pwd)"
 
 # Ensure Cuckoo mock generation build phases run even on CI
 unset CI || true
@@ -184,13 +153,11 @@ run_tests() {
 run_tests Debug
 
 if [[ "${HOST_ARCH}" == "x86_64" ]]; then
-  echo "\n==> Skipping Release simulator tests on x86_64 host due to missing native package symbols for simulator linking"
+  echo "\n==> ERROR: Release simulator tests are mandatory and cannot run on this x86_64 host" >&2
+  echo "Dispatch this job to an arm64 macOS runner; a Debug-only result is not release evidence." >&2
+  exit 78
 else
   run_tests Release
 fi
 
-if [[ "${HOST_ARCH}" == "x86_64" ]]; then
-  echo "\n==> Debug tests passed; Release simulator tests were skipped on x86_64 host"
-else
-  echo "\n==> All tests passed in Debug and Release"
-fi
+echo "\n==> All tests passed in Debug and Release"

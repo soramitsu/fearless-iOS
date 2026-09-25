@@ -10,12 +10,14 @@ final class BannersAssembly {
     ) -> BannersModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let walletProvider = UserDataStorageFacade.shared
-            .createStreamableProvider(
-                filter: NSPredicate.selectedMetaAccount(),
-                sortDescriptors: [],
-                mapper: AnyCoreDataMapper(ManagedMetaAccountMapper())
-            )
+        let walletProvider = AccountProviderFactory(
+            storageFacade: UserDataStorageFacade.shared,
+            operationManager: OperationManagerFacade.sharedManager,
+            logger: Logger.shared
+        ).createManagedMetaAccountProvider(
+            for: NSPredicate.selectedMetaAccount(),
+            sortDescriptors: []
+        )
 
         let interactor = BannersInteractor(
             walletProvider: walletProvider,

@@ -36,15 +36,35 @@ actor AssetManagementInteractor {
     private func updateVisibility(
         wallet: MetaAccountModel,
         assetId: String,
+        chainAsset: ChainAsset? = nil,
         hidden: Bool
     ) async -> MetaAccountModel {
-        var visibilities = wallet.assetsVisibility.filter { $0.assetId != assetId }
-        let assetVisibility = AssetVisibility(assetId: assetId, hidden: hidden)
-        visibilities.append(assetVisibility)
-
-        let updatedWallet = wallet.replacingAssetsVisibility(visibilities)
-        performSave(wallet: updatedWallet)
-        return updatedWallet
+        if let chainAsset {
+            let preference: AssetPreference = hidden ? .hidden : .shown
+            AssetVisibilityPreferenceStore.setExplicitlyHidden(
+                hidden,
+                walletId: wallet.metaId,
+                chainAsset: chainAsset
+            )
+            eventCenter.notify(
+                with: AssetVisibilityPreferenceChangedEvent(
+                    walletId: wallet.metaId,
+                    assetKey: chainAsset.assetKey,
+                    preference: preference
+                )
+            )
+        } else {
+            AssetVisibilityPreferenceStore.setExplicitlyHidden(
+                hidden,
+                walletId: wallet.metaId,
+                assetId: assetId
+            )
+        }
+        // Asset presentation is persisted by canonical AssetKey. Keep the
+        // released Core Data relationship untouched: continuously appending
+        // legacy identifiers would make a future same-id asset inherit a user
+        // choice that predates its discovery.
+        return wallet
     }
 
     private func performSave(wallet: MetaAccountModel) {
@@ -73,6 +93,19 @@ extension AssetManagementInteractor: AssetManagementInteractorInput {
             hidden: hidden
         )
         return updatedWallet
+    }
+
+    func change(
+        hidden: Bool,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) async -> MetaAccountModel {
+        await updateVisibility(
+            wallet: wallet,
+            assetId: chainAsset.identifier,
+            chainAsset: chainAsset,
+            hidden: hidden
+        )
     }
 
     func setup(with output: AssetManagementInteractorOutput) async {

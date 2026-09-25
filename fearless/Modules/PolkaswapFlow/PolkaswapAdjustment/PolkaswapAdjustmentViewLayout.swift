@@ -164,7 +164,8 @@ final class PolkaswapAdjustmentViewLayout: UIView {
 
     private func setupNavigationLayout(for container: UIView) {
         container.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
+            make.top.equalTo(safeAreaLayoutGuide.snp.top)
+            make.leading.trailing.equalToSuperview()
             make.height.equalTo(Constants.navigationBarHeight)
         }
 
@@ -205,13 +206,16 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         previewButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
-            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
+            keyboardAdoptableConstraint = make.bottom
+                .equalTo(safeAreaLayoutGuide)
+                .inset(UIConstants.bigOffset)
+                .constraint
         }
 
         bannersViewContainer.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(139)
-            make.bottom.equalToSuperview().inset(UIConstants.actionHeight + UIConstants.bigOffset * 2)
+            make.bottom.equalTo(previewButton.snp.top).offset(-UIConstants.bigOffset)
         }
 
         let switchInputsView = createSwitchInputsView()

@@ -62,6 +62,13 @@ final class RuntimeProvider {
     private(set) var currentWrapper: BaseOperation<RuntimeSnapshot?>?
     private var mutex = NSLock()
 
+    /// Never wait on runtime work from inside a socket's final write boundary.
+    var mutationAuthorizationSpecVersion: UInt32? {
+        guard mutex.try() else { return nil }
+        defer { mutex.unlock() }
+        return snapshot?.specVersion
+    }
+
     private var chainTypes: Data?
     private var initialChainMetadata: RuntimeMetadataItem?
 

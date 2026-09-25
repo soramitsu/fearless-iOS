@@ -33,11 +33,13 @@ struct UniversalWalletMigrationSnapshot: Codable, Equatable {
     }
 
     func requiredAction() -> UniversalWalletMigrationRequiredAction {
-        if hasUniversalWallet {
+        // New-network enrollment is optional for an existing wallet. These
+        // export descriptors are an inventory, not a restriction on its signer.
+        if hasUniversalWallet || !legacyVaults.isEmpty {
             return .normalAccess
         }
 
-        return legacyVaults.isEmpty ? .createUniversalWallet : .migrateBeforeAccess
+        return .createUniversalWallet
     }
 
     func allowsNormalWalletAccess() -> Bool {
@@ -370,13 +372,21 @@ private extension MetaAccountModel {
     }
 
     func legacyVaultDescriptors(cutoffAtMillis: Int64) -> [UniversalWalletLegacyVaultDescriptor] {
-        var descriptors = [
-            legacyVault(
+        var descriptors: [UniversalWalletLegacyVaultDescriptor] = []
+        if substrateAccountId != nil {
+            descriptors.append(legacyVault(
                 ecosystem: .substrate,
                 address: substrateAddress ?? unavailableAddress(for: .substrate),
                 cutoffAtMillis: cutoffAtMillis
-            )
-        ]
+            ))
+        }
+        if let legacyTonAccount {
+            descriptors.append(legacyVault(
+                ecosystem: .ton,
+                address: legacyTonAccount.address,
+                cutoffAtMillis: cutoffAtMillis
+            ))
+        }
 
         if ethereumAddress != nil || ethereumPublicKey != nil {
             descriptors.append(
@@ -421,7 +431,7 @@ private extension MetaAccountModel {
     func hasLegacyRootMaterial(for ecosystem: UniversalWalletEcosystem) -> Bool {
         switch ecosystem {
         case .substrate:
-            return !substrateAccountId.isEmpty && !substratePublicKey.isEmpty
+            return substrateAccountId?.isEmpty == false && substratePublicKey?.isEmpty == false
         case .evm:
             return ethereumAddress != nil || ethereumPublicKey != nil
         case .ton, .bitcoin, .solana, .iroha:
@@ -441,7 +451,7 @@ private extension MetaAccountModel {
     }
 
     var substrateAddress: String? {
-        guard substrateAccountId.count == 32 else {
+        guard let substrateAccountId, substrateAccountId.count == 32 else {
             return nil
         }
 
@@ -457,6 +467,7 @@ private extension MetaAccountModel {
     }
 
     var tonAddress: String? {
+        if let legacyTonAccount { return legacyTonAccount.address }
         guard let account = chainAccount(matching: Self.tonChainIds) else {
             return nil
         }

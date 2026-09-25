@@ -21,29 +21,37 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
         wallet: MetaAccountModel,
         mode: ChainAccountViewMode
     ) -> ChainAccountViewModel {
-        var address: String?
-        if
-            let chainAccountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()),
-            let address1 = try? AddressFactory.address(for: chainAccountResponse.accountId, chain: chainAsset.chain) {
+        var address = UniversalWalletAccountAddressResolver.address(
+            for: chainAsset.chain,
+            wallet: wallet
+        )
+        if address == nil,
+           !UniversalWalletChainAccountSupport.isUniversalWalletChain(
+               chainAsset.chain.chainId
+           ),
+           let chainAccountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()),
+           let address1 = try? AddressFactory.address(for: chainAccountResponse.accountId, chain: chainAsset.chain) {
             address = address1
         }
         let allAssets = Array(chainAsset.chain.assets)
         let chainAssetModel = allAssets.first(where: { $0.id == chainAsset.asset.id })
+        let sendButtonVisible = !UniversalWalletChainAccountSupport.chainId(
+            chainAsset.chain.chainId,
+            matches: UniversalWalletRegistry.taira.chainId
+        ) && !UniversalWalletChainAccountSupport.chainId(
+            chainAsset.chain.chainId,
+            matches: UniversalWalletRegistry.nexus.chainId
+        )
         // Legacy purchaseProviders no longer available; hide Buy button by default
         let buyButtonVisible = false
         let polkaswapButtonVisible = chainAsset.chain.options?.contains(.polkaswap) == true
 
-        var xcmButtomVisible: Bool = false
-        if let availableAssets = chainAsset.chain.xcm?.availableAssets.map({ $0.symbol.lowercased() }) {
-            let symbol = chainAsset.asset.symbol.lowercased()
-            xcmButtomVisible = availableAssets.contains(symbol)
-            if availableAssets.contains(symbol) {
-                xcmButtomVisible = true
-            } else if symbol.lowercased().hasPrefix("xc") {
-                let modifySymbol = String(symbol.dropFirst(2)).lowercased()
-                xcmButtomVisible = availableAssets.contains(modifySymbol)
-            }
-        }
+        let xcmButtomVisible = CuratedAssetRelationshipResolver.hasCuratedXcmDestination(
+            for: chainAsset
+        ) && ReviewedXcmExecutionAuthority.isAvailable
+        let optionsButtonVisible = !UniversalWalletChainAccountSupport.isUniversalWalletChain(
+            chainAsset.chain.chainId
+        )
 
         return ChainAccountViewModel(
             walletName: wallet.name,
@@ -51,9 +59,11 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
             selectedChainIcon: chainAsset.chain.icon.map { RemoteImageViewModel(url: $0) },
             address: address,
             assetModel: chainAssetModel,
+            sendButtonVisible: sendButtonVisible,
             buyButtonVisible: buyButtonVisible,
             polkaswapButtonVisible: polkaswapButtonVisible,
             xcmButtomVisible: xcmButtomVisible,
+            optionsButtonVisible: optionsButtonVisible,
             mode: mode
         )
     }

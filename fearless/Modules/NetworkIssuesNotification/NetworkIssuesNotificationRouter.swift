@@ -22,7 +22,17 @@ final class NetworkIssuesNotificationRouter: NetworkIssuesNotificationRouterInpu
                     self?.showCreate(uniqueChainModel: uniqueChainModel, from: view)
                 }
             case .import:
-                let title = R.string.localizable.alreadyHaveAccount(preferredLanguages: locale?.rLanguages)
+                let usesWalletRootPhrase = UniversalWalletRegistry.bitcoinNetwork(
+                    for: uniqueChainModel.chain.chainId
+                ) != nil || UniversalWalletChainAccountSupport.chainId(
+                    uniqueChainModel.chain.chainId,
+                    matches: UniversalWalletRegistry.taira.chainId
+                )
+                let title = usesWalletRootPhrase
+                    ? "Enter wallet recovery phrase"
+                    : R.string.localizable.alreadyHaveAccount(
+                        preferredLanguages: locale?.rLanguages
+                    )
                 return SheetAlertPresentableAction(title: title, style: .grayBackgroundWhiteText) { [weak self] in
                     self?.showImport(uniqueChainModel: uniqueChainModel, from: view)
                 }

@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "platform": "ios",
+  "distributionChannel": "testflight-external-public-link",
+  "assessedAtUTC": "2026-07-26T13:26:11Z",
+  "evidenceBoundary": {
+    "contract": "tracked-sanitized-publication-snapshot",
+    "observationMethod": "authenticated-app-store-connect-and-unauthenticated-public-link-in-safari",
+    "rawAttestationsTracked": false,
+    "rawAttestationsLocation": "ignored-build-output",
+    "currentStateRevalidationRequired": true
+  },
+  "artifact": {
+    "sourceCommit": "f56b7b896344cfded39456217097747ef9efeacf",
+    "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
+    "marketingVersion": "4.2.0",
+    "buildNumber": "2026.7.26",
+    "preUploadArchiveTreeSHA256": "301f19a4f1232fb05719d85b825ac081196fa5fb6988b58011b7569a4bd9e6fa",
+    "executableSHA256": "cf0318792fc361bbd8704b21b6e1a08c4d81897f23492e4a807eab7f22403568",
+    "signedArchiveAuditReceiptSHA256": "1dbf38740b38403dde9cc7d4b1710cd28fdd5dc6f6f25990a7102020f11d1abc",
+    "preservedDataArchiveRehearsalResultSHA256": "418d22cdd9e673ddfa1f47a49c666df11a740aac6737f6ef2b0328fa1b6a8641"
+  },
+  "upload": {
+    "status": "success",
+    "uploadedAtUTC": "2026-07-26T13:16:00Z",
+    "postUploadArchiveTreeSHA256": "a483a372fe8fd19761d3b0324427c4cf55a4553b4ed7433b34b78517f292cea7",
+    "postUploadArchiveInfoPlistSHA256": "e82ff42b4b47713d1094c420dd7d1abfbfdfe7e7b80c972909936ad64e1e4756",
+    "postUploadAttestationSHA256": "6ede1d8fb981be149a82d69313be0ebc1838291e27d0ecf1c1576c95350b1af9",
+    "xcodeMutation": "Distributions-only",
+    "reconstructedPreUploadArchiveTreeMatched": true,
+    "embeddedAppSignatureVerified": true
+  },
+  "testFlight": {
+    "processingStatus": "testing",
+    "externalTestingActive": true,
+    "externalGroup": {
+      "name": "Public Beta Test",
+      "id": "9410949d-b468-40e5-b2f4-24055e65d270",
+      "testerCount": 122,
+      "buildCount": 2,
+      "containsBuild": true,
+      "publicLinkTesterCount": 120,
+      "publicLinkTesterLimit": 500
+    },
+    "publicLink": {
+      "enabled": true,
+      "shareableToAnyoneWithLink": true,
+      "url": "https://testflight.apple.com/join/012KzFyD",
+      "urlSHA256": "d6599b1b9c0f7e77d9dd80d9185da67c1d864be5df9a7bbf360f245b099a000c",
+      "landingPageResolved": true,
+      "landingPageApplicationName": "Fearless Wallet: DeFi Wallet",
+      "testFlightDeepLinkPresent": true
+    },
+    "whatToTestSHA256": "d5d0c2063934c4ca7dd8bb82af038d79909738c93cf96c11ab63bca8c0b7f272",
+    "automaticTesterNotification": true,
+    "publicationAttestationSHA256": "84e53d78316cf46cc1956d04e86782241d6e575da90fef109acaaf44cb368d4c"
+  },
+  "symbolication": {
+    "status": "degraded-third-party-symbolication",
+    "runtimeInstallLaunchOrMigrationImpact": false,
+    "mainApplicationDSYMPresent": true,
+    "runtimeFrameworkMissingVendorDSYM": "MPQRCoreSDK.framework",
+    "staticStubFrameworkWarnings": [
+      "blake2lib.framework",
+      "libed25519.framework",
+      "sr25519lib.framework"
+    ],
+    "productionFollowUpRequired": true
+  },
+  "readiness": {
+    "status": "blocked",
+    "publicationVerified": true,
+    "externalTestingActive": true,
+    "exactAppleDeliveredInstallVerified": false,
+    "preservedDataPostInstallRehearsalVerified": false,
+    "releaseEnabled": false,
+    "blockerCode": "testflight-exact-build-preserved-data-install-pending",
+    "requiredAction": "Update in place through TestFlight without deleting or clearing app data, then repeat the five-cold-launch and store-integrity rehearsal."
+  }
+}

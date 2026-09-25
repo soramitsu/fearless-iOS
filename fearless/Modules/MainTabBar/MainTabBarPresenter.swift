@@ -14,8 +14,7 @@ final class MainTabBarPresenter {
     private let reachability: ReachabilityManager?
     private let networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol
     private let walletConnectCoordinator: WalletConnectCoordinator
-
-    private var crowdloanListView: UINavigationController?
+    private var wallet: MetaAccountModel
 
     init(
         wireframe: MainTabBarWireframeProtocol,
@@ -25,6 +24,7 @@ final class MainTabBarPresenter {
         networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol,
         reachability: ReachabilityManager?,
         walletConnectCoordinator: WalletConnectCoordinator,
+        wallet: MetaAccountModel,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.wireframe = wireframe
@@ -34,6 +34,7 @@ final class MainTabBarPresenter {
         self.networkStatusPresenter = networkStatusPresenter
         self.reachability = reachability
         self.walletConnectCoordinator = walletConnectCoordinator
+        self.wallet = wallet
         self.localizationManager = localizationManager
 
         applicationHandler.delegate = self
@@ -41,13 +42,6 @@ final class MainTabBarPresenter {
 }
 
 extension MainTabBarPresenter: MainTabBarPresenterProtocol {
-    func presentPolkaswap() {
-        guard let wallet = SelectedWalletSettings.shared.value else {
-            return
-        }
-        wireframe.presentPolkaswap(on: view, wallet: wallet)
-    }
-
     func didLoad(view: MainTabBarViewProtocol) {
         self.view = view
 
@@ -59,12 +53,21 @@ extension MainTabBarPresenter: MainTabBarPresenterProtocol {
 }
 
 extension MainTabBarPresenter: MainTabBarInteractorOutputProtocol {
-    func didReloadSelectedAccount() {
-        crowdloanListView = wireframe.showNewCrowdloan(on: view) as? UINavigationController
+    func didChangeSelectedAccount(_ account: MetaAccountModel) {
+        wallet = account
+        wireframe.reloadWalletDependentViews(on: view, wallet: account)
+    }
+
+    func didPrepareChains() {
+        wireframe.reloadPolkaswapViewIfUnavailable(on: view, wallet: wallet)
     }
 
     func didRequestImportAccount() {
         wireframe.presentAccountImport(on: view)
+    }
+
+    func didRequestPolkamarkt(marketId: String) {
+        view?.openPolkamarkt(marketId: marketId)
     }
 }
 
@@ -83,11 +86,5 @@ extension MainTabBarPresenter: ReachabilityListenerDelegate {
         manager.isReachable
             ? networkStatusPresenter.didDecideReachableStatusPresentation()
             : networkStatusPresenter.didDecideUnreachableStatusPresentation()
-    }
-}
-
-extension MainTabBarPresenter: StakingMainModuleOutput {
-    func didSwitchStakingType(_ type: AssetSelectionStakingType) {
-        wireframe.replaceStaking(on: view, type: type, moduleOutput: self)
     }
 }

@@ -12,7 +12,9 @@ extension SubqueryDelegatorHistoryData: RewardHistoryResponseProtocol {
     func rewardHistory(for address: String) -> [RewardHistoryItemProtocol] {
         delegators.nodes.first { element in
             element.id == address
-        }?.delegatorHistoryElements.nodes ?? []
+        }?.delegatorHistoryElements.nodes.filter { item in
+            item.delegatorId == address
+        } ?? []
     }
 }
 

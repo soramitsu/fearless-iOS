@@ -3,9 +3,1345 @@ import XCTest
 import SoraKeystore
 import RobinHood
 import Cuckoo
+import CoreData
+import IrohaCrypto
 import SoraFoundation
+import struct SSFModels.ChainAccountModel
+import class SSFModels.ChainModel
+
+private let nativeTonRecoveryFixture = "cluster notice abandon frost gospel boring element situate click mix vague replace imitate garment useful crater resource dose tenant theme foam ancient phrase slight"
 
 class AccountImportTests: XCTestCase {
+    private func nativeTonRecoveryOperation(_ keychain: KeystoreProtocol) throws -> BaseOperation<MetaAccountModel> {
+        MetaAccountOperationFactory(keystore: keychain).newMetaAccountOperation(
+            request: MetaAccountImportMnemonicRequest(
+                mnemonic: try LegacyTonMnemonic.validatedForImport(nativeTonRecoveryFixture),
+                username: "Restored TON", substrateDerivationPath: "",
+                ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
+                cryptoType: .sr25519, defaultChainId: nil
+            ), isBackuped: true
+        )
+    }
+
+    func testNativeTonRecoveryKeepsExactIdentityPhraseAndIndependentLegacySecrets() throws {
+        let keychain = NativeTonRecoveryTestKeychain()
+        keychain.values["older-wallet-secret"] = Data([9, 8, 7])
+        let operation = try nativeTonRecoveryOperation(keychain)
+        operation.start()
+        let wallet = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        let legacy = try XCTUnwrap(wallet.legacyTonAccount)
+        XCTAssertEqual(legacy.publicKey.toHex(includePrefix: false), "34eb4b67d64f74d989ce2bc2e3dfddb7ed4cb0eec92f29fbecd05b1eabab0254")
+        XCTAssertNil(wallet.substrateAccountId)
+        XCTAssertNil(wallet.substratePublicKey)
+        XCTAssertNil(wallet.ethereumPublicKey)
+        XCTAssertTrue(wallet.chainAccounts.isEmpty)
+        let entropyTag = KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+        let keyTag = KeystoreTagV2.tonSecretKeyTagForMetaId(wallet.metaId)
+        XCTAssertEqual(try keychain.fetchKey(for: entropyTag), Data(nativeTonRecoveryFixture.utf8))
+        XCTAssertEqual(try legacy.validatedPrivateKey(keychain.fetchKey(for: keyTag)).count, 64)
+        XCTAssertEqual(try legacy.mnemonic(from: keychain.fetchKey(for: entropyTag)).toString(), nativeTonRecoveryFixture)
+        (operation as? PersistenceBoundKeychainOperation)?.commitKeychainChanges()
+        try (operation as? PersistenceBoundKeychainOperation)?.rollbackKeychainChanges()
+        XCTAssertTrue(try keychain.checkKey(for: keyTag))
+        XCTAssertEqual(keychain.values["older-wallet-secret"], Data([9, 8, 7]))
+    }
+
+    func testNativeTonRecoveryRetainsReleasedShortPhraseSupport() throws {
+        // Public vector cross-checked with @ton/crypto native mnemonic derivation.
+        let phrase = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ankle"
+        let keychain = NativeTonRecoveryTestKeychain()
+        let operation = LegacyTonAccountImportOperation(
+            keystore: keychain, phrase: phrase, username: "Older import", isBackuped: true
+        )
+        operation.start()
+        let wallet = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        XCTAssertEqual(wallet.legacyTonAccount?.publicKey.toHex(includePrefix: false),
+                       "f6e89217cdc90b46e58d646b9616b7c163ed87911ebd1783b209c3595749a469")
+        XCTAssertEqual(try keychain.fetchKey(for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId)), Data(phrase.utf8))
+        try (operation as? PersistenceBoundKeychainOperation)?.rollbackKeychainChanges()
+        XCTAssertTrue(keychain.values.isEmpty)
+    }
+
+    func testNativeTonRecoveryRejectsInvalidOrOrdinaryBip39PhraseBeforeWriting() {
+        XCTAssertThrowsError(try LegacyTonMnemonic.validatedForImport("not a recovery phrase"))
+        let keychain = NativeTonRecoveryTestKeychain()
+        let operation = LegacyTonAccountImportOperation(
+            keystore: keychain,
+            phrase: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+            username: "Incorrect format", isBackuped: true
+        )
+        operation.start()
+        XCTAssertThrowsError(try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled))
+        XCTAssertTrue(keychain.values.isEmpty)
+    }
+
+    func testNativeTonRecoveryRollsBackPartialSecretWritesAndCanRetry() throws {
+        let keychain = NativeTonRecoveryTestKeychain()
+        keychain.values["legacy-existing"] = Data([42])
+        keychain.failOnAddNumber = 2
+        let failed = try nativeTonRecoveryOperation(keychain)
+        failed.start()
+        XCTAssertThrowsError(try failed.extractResultData(throwing: BaseOperationError.parentOperationCancelled))
+        XCTAssertEqual(keychain.values, ["legacy-existing": Data([42])])
+        keychain.failOnAddNumber = nil
+        let retry = try nativeTonRecoveryOperation(keychain)
+        retry.start()
+        _ = try retry.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        try (retry as? PersistenceBoundKeychainOperation)?.rollbackKeychainChanges()
+        XCTAssertEqual(keychain.values, ["legacy-existing": Data([42])])
+    }
+
+    func testExplicitNativeTonImportRoutesToNativeFactoryWithoutSubstrateDerivation() {
+        let interactor = MockAccountImportInteractorInputProtocol()
+        var imported: MetaAccountImportRequest?
+        stub(interactor) { stub in
+            when(stub.importMetaAccount(request: any())).then { imported = $0 }
+        }
+        let presenter = AccountImportPresenter(
+            wireframe: MockAccountImportWireframeProtocol(), interactor: interactor,
+            flow: .wallet(step: .substrate)
+        )
+        presenter.didReceiveAccountImport(metadata: MetaAccountImportMetadata(
+            availableSources: AccountImportSource.allCases, defaultSource: .legacyTonMnemonic,
+            availableCryptoTypes: CryptoType.allCases, defaultCryptoType: .sr25519
+        ))
+        presenter.sourceViewModel?.inputHandler.changeValue(to: nativeTonRecoveryFixture)
+        presenter.usernameViewModel?.inputHandler.changeValue(to: "Restored TON")
+        XCTAssertNil(presenter.substrateDerivationPathViewModel)
+        XCTAssertNil(presenter.ethereumDerivationPathViewModel)
+        presenter.proceed()
+        guard case let .mnemonic(data)? = imported?.source else { return XCTFail("Native recovery was not routed") }
+        XCTAssertTrue(data.mnemonic is LegacyTonMnemonic)
+        XCTAssertEqual(data.mnemonic.toString(), nativeTonRecoveryFixture)
+        verify(interactor, never()).createMnemonicFromString(any())
+    }
+
+    func testAddingNativeTonWalletRollsBackSecretsWhenWalletStoreFails() throws {
+        let keychain = NativeTonRecoveryTestKeychain()
+        keychain.values["existing-wallet"] = Data([6])
+        let storageFacade = AlwaysFailingAccountImportStorageFacade()
+        let settings = SelectedWalletSettings(storageFacade: storageFacade, operationQueue: OperationQueue())
+        let repository = AccountRepositoryFactory(storageFacade: storageFacade)
+            .createMetaAccountRepository(for: nil, sortDescriptors: [])
+        let interactor = AddAccount.AccountImportInteractor(
+            accountOperationFactory: MetaAccountOperationFactory(keystore: keychain),
+            accountRepository: AnyDataProviderRepository(repository), operationManager: OperationManager(),
+            settings: settings, keystoreImportService: KeystoreImportService(logger: Logger.shared),
+            eventCenter: MockEventCenterProtocol(), defaultSource: .legacyTonMnemonic
+        )
+        let output = MockAccountImportInteractorOutputProtocol()
+        interactor.presenter = output
+        let failure = expectation(description: "Native import store failure")
+        stub(output) { stub in
+            when(stub.didReceiveAccountImport(error: any())).then { _ in failure.fulfill() }
+            when(stub.didCompleteAccountImport()).then { XCTFail("Failed import was marked complete") }
+        }
+        let operation = try nativeTonRecoveryOperation(keychain)
+        interactor.importAccountUsingOperation(operation)
+        wait(for: [failure], timeout: 10)
+        XCTAssertNil(settings.value)
+        XCTAssertEqual(keychain.values, ["existing-wallet": Data([6])])
+    }
+
+    private func makeMnemonicWalletIdentity(
+        mnemonicString: String,
+        chainAccounts: Set<ChainAccountModel> = []
+    ) throws -> MetaAccountModel {
+        let mnemonic = try IRMnemonicCreator().mnemonic(fromList: mnemonicString)
+        let operation = MetaAccountOperationFactory(keystore: InMemoryKeychain())
+            .newMetaAccountOperation(
+                request: MetaAccountImportMnemonicRequest(
+                    mnemonic: mnemonic,
+                    username: "Universal wallet",
+                    substrateDerivationPath: "",
+                    ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
+                    cryptoType: .sr25519,
+                    defaultChainId: nil
+                ),
+                isBackuped: true
+            )
+        operation.start()
+        let wallet = try operation.extractResultData(
+            throwing: BaseOperationError.parentOperationCancelled
+        )
+
+        return wallet.replacingChainAccounts(chainAccounts)
+    }
+
+    func testTextViewDidChangeSynchronizesSourceViewModelAndPresenterInput() {
+        let expectedInput = String(repeating: "ab", count: 32)
+        let inputHandler = InputHandler(required: true)
+        let sourceViewModel = InputViewModel(inputHandler: inputHandler)
+        let presenter = MockAccountImportPresenterProtocol()
+
+        stub(presenter) { stub in
+            when(stub.flow.get).thenReturn(.wallet(step: .substrate))
+            when(stub.setup()).thenDoNothing()
+            when(stub.validateInput(value: any())).thenDoNothing()
+        }
+
+        let viewController = AccountImportViewController(presenter: presenter)
+        viewController.loadViewIfNeeded()
+        viewController.setSource(viewModel: sourceViewModel)
+        viewController.rootView.textView.text = expectedInput
+
+        viewController.textViewDidChange(viewController.rootView.textView)
+
+        XCTAssertEqual(inputHandler.value, expectedInput)
+        verify(presenter, times(1)).validateInput(value: equal(to: expectedInput))
+    }
+
+    func testMarkedRawWalletSeedBridgeRepairsStableAppOwnedAccounts() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let walletSeed = Data(repeating: 0, count: 32)
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(
+            walletSeed,
+            with: KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId)
+        )
+        try keychain.saveKey(
+            Data(UniversalWalletSeedBridge.contract.utf8),
+            with: KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+        )
+
+        let adopter = UniversalWalletStoredSeedAdopter(keystore: keychain)
+        let adopted = try adopter.adoptStoredSecret(for: wallet)
+        let retried = try adopter.adoptStoredSecret(for: adopted)
+
+        XCTAssertEqual(adopted, retried)
+        XCTAssertTrue(
+            UniversalWalletChainAccountSupport.hasValidDedicatedAccount(
+                in: adopted,
+                for: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        )
+        XCTAssertTrue(
+            UniversalWalletChainAccountSupport.hasValidDedicatedAccount(
+                in: adopted,
+                for: UniversalWalletRegistry.taira.chainId
+            )
+        )
+        XCTAssertEqual(
+            try keychain.fetchKey(
+                for: KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+            ),
+            Data(UniversalWalletSeedBridge.contract.utf8)
+        )
+        XCTAssertEqual(
+            try KeychainUniversalWalletMnemonicProvider(keystore: keychain)
+                .rootMnemonic(for: adopted),
+            try UniversalWalletSeedBridge.mnemonic(fromWalletSeed: walletSeed)
+        )
+    }
+
+    func testUnmarkedLegacyWalletSeedRequiresOriginalRecoveryPhrase() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(
+            Data(repeating: 0, count: 32),
+            with: KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId)
+        )
+
+        XCTAssertThrowsError(
+            try UniversalWalletStoredSeedAdopter(keystore: keychain)
+                .adoptStoredSecret(for: wallet)
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletStoredSeedAdopter.AdoptionError,
+                .storedWalletSeedUnavailable
+            )
+        }
+        XCTAssertTrue(wallet.chainAccounts.isEmpty)
+        XCTAssertFalse(
+            try keychain.checkKey(
+                for: KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+            )
+        )
+    }
+
+    func testStoredRootEntropyAdoptionUsesStandardMnemonicWithoutWritingBridgeMarker() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let mnemonic = try IRMnemonicCreator().mnemonic(
+            fromList: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        )
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(
+            mnemonic.entropy(),
+            with: KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+        )
+
+        let adopted = try UniversalWalletStoredSeedAdopter(keystore: keychain)
+            .adoptStoredSecret(for: wallet)
+        let address = UniversalWalletAccountAddressResolver.address(
+            for: UniversalWalletRegistry.bitcoinMainnetChainModel,
+            wallet: adopted
+        )
+
+        XCTAssertEqual(
+            address,
+            try BitcoinKeyDerivation.deriveAccount(
+                mnemonic: mnemonic.toString(),
+                network: .mainnet
+            ).firstReceiveAddress
+        )
+        XCTAssertFalse(
+            try keychain.checkKey(
+                for: KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+            )
+        )
+    }
+
+    func testMalformedStoredRootEntropyRoutesToExplicitRecovery() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(
+            Data(repeating: 0, count: 31),
+            with: KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+        )
+
+        XCTAssertThrowsError(
+            try UniversalWalletStoredSeedAdopter(keystore: keychain)
+                .adoptStoredSecret(for: wallet)
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletStoredSeedAdopter.AdoptionError,
+                .storedWalletSeedUnavailable
+            )
+        }
+    }
+
+    func testLegacyWalletSeedAdoptionRejectsForeignMarkerAndInvalidSeed() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let sourceTag = KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+        let seedTag = KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId)
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(Data("foreign-v2".utf8), with: sourceTag)
+        try keychain.saveKey(Data(repeating: 0, count: 32), with: seedTag)
+
+        XCTAssertThrowsError(
+            try UniversalWalletStoredSeedAdopter(keystore: keychain)
+                .adoptStoredSecret(for: wallet)
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletStoredSeedAdopter.AdoptionError,
+                .unsupportedSecretSource
+            )
+        }
+
+        try keychain.deleteKey(for: sourceTag)
+        try keychain.updateKey(Data(repeating: 0, count: 31), with: seedTag)
+        XCTAssertThrowsError(
+            try UniversalWalletStoredSeedAdopter(keystore: keychain)
+                .adoptStoredSecret(for: wallet)
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletStoredSeedAdopter.AdoptionError,
+                .storedWalletSeedUnavailable
+            )
+        }
+        XCTAssertFalse(try keychain.checkKey(for: sourceTag))
+    }
+
+    func testWalletSeedImportAutomaticallyCreatesStableSignableBitcoinAccount() throws {
+        let walletSeed = Data(repeating: 0, count: 32)
+        let seedHex = walletSeed.toHex(includePrefix: false)
+        let expectedMnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art"
+        XCTAssertEqual(
+            try UniversalWalletSeedBridge.mnemonic(fromWalletSeed: walletSeed),
+            expectedMnemonic
+        )
+        let expectedBitcoin = try BitcoinKeyDerivation.deriveAccount(
+            mnemonic: expectedMnemonic,
+            network: .mainnet
+        )
+        XCTAssertEqual(
+            expectedBitcoin.publicKey.toHex(includePrefix: false),
+            "03c5db199831f23a3a1575518c8e9e948bfd495481aac442dec64b447ee76bd6fa"
+        )
+        XCTAssertEqual(
+            expectedBitcoin.firstReceiveAddress,
+            "bc1qzmtrqsfuaf6l6kkcsseumq26ukaphfj9skkug6"
+        )
+
+        func importWallet(into keychain: InMemoryKeychain) throws -> MetaAccountModel {
+            let request = MetaAccountImportSeedRequest(
+                substrateSeed: seedHex,
+                ethereumSeed: nil,
+                username: "seed-wallet",
+                substrateDerivationPath: "",
+                ethereumDerivationPath: nil,
+                cryptoType: .sr25519
+            )
+            let operation = MetaAccountOperationFactory(keystore: keychain)
+                .newMetaAccountOperation(request: request, isBackuped: true)
+            operation.start()
+            return try operation.extractResultData(
+                throwing: BaseOperationError.parentOperationCancelled
+            )
+        }
+
+        let firstKeychain = InMemoryKeychain()
+        let firstWallet = try importWallet(into: firstKeychain)
+        let firstBitcoin = try XCTUnwrap(firstWallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+        let firstAddress = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(
+                for: UniversalWalletRegistry.bitcoinMainnetChainModel,
+                wallet: firstWallet
+            )
+        )
+        let firstTaira = try XCTUnwrap(firstWallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.isValidTairaAccount($0)
+        }))
+
+        XCTAssertEqual(firstBitcoin.publicKey, expectedBitcoin.publicKey)
+        XCTAssertEqual(firstAddress, expectedBitcoin.firstReceiveAddress)
+        XCTAssertEqual(
+            firstTaira.publicKey.toHex(includePrefix: false),
+            "2651a79b3da908fbdb63e0756e9be9561c6c4638120c3af0d444670cd088a138"
+        )
+        XCTAssertEqual(
+            UniversalWalletChainAccountSupport.address(
+                for: UniversalWalletRegistry.taira.chainId,
+                publicKey: firstTaira.publicKey
+            ),
+            "testuﾛ1NﾍﾖﾁﾘﾗoEuKﾗﾁK2ｴA9ｸxmxBﾈｴDﾋﾐﾐﾅｴjuXvｾﾍｵn5FAXTS3"
+        )
+        XCTAssertEqual(
+            try KeychainUniversalWalletMnemonicProvider(
+                keystore: firstKeychain
+            ).mnemonic(
+                for: firstWallet,
+                chain: UniversalWalletRegistry.bitcoinMainnetChainModel
+            ),
+            expectedMnemonic
+        )
+        XCTAssertFalse(
+            try firstKeychain.checkKey(
+                for: KeystoreTagV2.entropyTagForMetaId(firstWallet.metaId)
+            ),
+            "The derived app-owned mnemonic must not masquerade as the root wallet mnemonic"
+        )
+        XCTAssertTrue(
+            try firstKeychain.checkKey(
+                for: KeystoreTagV2.substrateSeedTagForMetaId(firstWallet.metaId)
+            )
+        )
+        XCTAssertEqual(
+            try firstKeychain.fetchKey(
+                for: KeystoreTagV2.universalWalletSecretSourceTagForMetaId(
+                    firstWallet.metaId
+                )
+            ),
+            Data(UniversalWalletSeedBridge.contract.utf8)
+        )
+
+        let restoredWallet = try importWallet(into: InMemoryKeychain())
+        let restoredAddress = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(
+                for: UniversalWalletRegistry.bitcoinMainnetChainModel,
+                wallet: restoredWallet
+            )
+        )
+        XCTAssertEqual(restoredAddress, firstAddress)
+    }
+
+    func testLegacyWalletSeedAdoptionNeverReplacesConflictingUniversalAccount() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let malformedTaira = ChainAccountModel(
+            chainId: UniversalWalletRegistry.taira.chainId,
+            accountId: Data(repeating: 7, count: 32),
+            publicKey: Data(repeating: 7, count: 32),
+            cryptoType: CryptoType.sr25519.rawValue,
+            ethereumBased: false
+        )
+        let conflictingWallet = wallet.replacingChainAccounts([malformedTaira])
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(
+            Data(repeating: 0, count: 32),
+            with: KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId)
+        )
+
+        XCTAssertThrowsError(
+            try UniversalWalletStoredSeedAdopter(keystore: keychain)
+                .adoptStoredSecret(for: conflictingWallet)
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletStoredSeedAdopter.AdoptionError,
+                .conflictingUniversalWalletAccount
+            )
+        }
+        XCTAssertEqual(conflictingWallet.chainAccounts, [malformedTaira])
+        XCTAssertFalse(
+            try keychain.checkKey(
+                for: KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+            )
+        )
+    }
+
+    func testMarkedRawSeedBridgeRejectsAccountsFromDifferentPhrase() throws {
+        let existingMnemonic = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        let wallet = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+            to: AccountGenerator.generateMetaAccount(),
+            mnemonic: existingMnemonic
+        )
+        let originalAccounts = wallet.chainAccounts
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(
+            Data(repeating: 0, count: 32),
+            with: KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId)
+        )
+        try keychain.saveKey(
+            Data(UniversalWalletSeedBridge.contract.utf8),
+            with: KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+        )
+
+        XCTAssertThrowsError(
+            try UniversalWalletStoredSeedAdopter(keystore: keychain)
+                .adoptStoredSecret(for: wallet)
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletStoredSeedAdopter.AdoptionError,
+                .conflictingUniversalWalletAccount
+            )
+        }
+        XCTAssertEqual(wallet.chainAccounts, originalAccounts)
+        XCTAssertEqual(
+            try keychain.fetchKey(
+                for: KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+            ),
+            Data(UniversalWalletSeedBridge.contract.utf8)
+        )
+    }
+
+    func testLegacyWalletSeedAdoptionRejectsDuplicateValidBitcoinAliases() throws {
+        let walletSeed = Data(repeating: 0, count: 32)
+        let mnemonic = try UniversalWalletSeedBridge.mnemonic(fromWalletSeed: walletSeed)
+        let candidate = try BitcoinKeyDerivation.deriveAccount(
+            mnemonic: mnemonic,
+            network: .mainnet
+        )
+        let canonical = ChainAccountModel(
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
+            accountId: candidate.publicKey,
+            publicKey: candidate.publicKey,
+            cryptoType: CryptoType.ecdsa.rawValue,
+            ethereumBased: false
+        )
+        let alias = ChainAccountModel(
+            chainId: UniversalWalletRegistry.bitcoinMainnet.id,
+            accountId: candidate.publicKey,
+            publicKey: candidate.publicKey,
+            cryptoType: CryptoType.ecdsa.rawValue,
+            ethereumBased: false
+        )
+        let wallet = AccountGenerator.generateMetaAccount(with: [canonical, alias])
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(
+            walletSeed,
+            with: KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId)
+        )
+        try keychain.saveKey(
+            Data(UniversalWalletSeedBridge.contract.utf8),
+            with: KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+        )
+
+        XCTAssertThrowsError(
+            try UniversalWalletStoredSeedAdopter(keystore: keychain)
+                .adoptStoredSecret(for: wallet)
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletStoredSeedAdopter.AdoptionError,
+                .conflictingUniversalWalletAccount
+            )
+        }
+        XCTAssertEqual(wallet.chainAccounts, [canonical, alias])
+        XCTAssertEqual(
+            try keychain.fetchKey(
+                for: KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+            ),
+            Data(UniversalWalletSeedBridge.contract.utf8)
+        )
+    }
+
+    func testBitcoinRootRecoveryAllowsOnlyWalletMnemonic() {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let view = MockAccountImportViewProtocol()
+        var sourceSelectionEnabled: Bool?
+        stub(view) { stub in
+            stub.setSource(viewModel: any(InputViewModelProtocol.self)).thenDoNothing()
+            stub.setName(
+                viewModel: any(InputViewModelProtocol.self),
+                visible: any(Bool.self)
+            ).thenDoNothing()
+            stub.setSource(
+                type: any(AccountImportSource.self),
+                chainType: any(AccountCreateChainType.self),
+                selectable: any(Bool.self)
+            ).then { sourceSelectionEnabled = $0.2 }
+            stub.show(chainType: any(AccountCreateChainType.self)).thenDoNothing()
+        }
+        let presenter = AccountImportPresenter(
+            wireframe: MockAccountImportWireframeProtocol(),
+            interactor: MockAccountImportInteractorInputProtocol(),
+            flow: .chain(
+                model: UniqueChainModel(
+                    meta: wallet,
+                    chain: UniversalWalletRegistry.bitcoinMainnetChainModel
+                )
+            )
+        )
+        presenter.view = view
+
+        presenter.didReceiveAccountImport(
+            metadata: MetaAccountImportMetadata(
+                availableSources: AccountImportSource.allCases,
+                defaultSource: .keystore,
+                availableCryptoTypes: CryptoType.allCases,
+                defaultCryptoType: .sr25519
+            )
+        )
+
+        XCTAssertEqual(presenter.metadata?.availableSources, [.mnemonic])
+        XCTAssertEqual(presenter.metadata?.defaultSource, .mnemonic)
+        XCTAssertEqual(presenter.metadata?.availableCryptoTypes, [.ecdsa])
+        XCTAssertEqual(presenter.metadata?.defaultCryptoType, .ecdsa)
+        XCTAssertEqual(presenter.selectedSourceType, .mnemonic)
+        XCTAssertEqual(presenter.selectedCryptoType, .ecdsa)
+        XCTAssertEqual(sourceSelectionEnabled, false)
+    }
+
+    func testBitcoinTestnetMetadataDoesNotAdvertiseUnsupportedRawSeedImport() {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let bitcoinTestnetChain = ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: UniversalWalletRegistry.bitcoinTestnet.chainId,
+            parentId: nil,
+            paraId: nil,
+            name: UniversalWalletRegistry.bitcoinTestnet.name,
+            xcm: nil,
+            nodes: [],
+            addressPrefix: 0,
+            types: nil,
+            icon: nil,
+            options: nil,
+            externalApi: nil,
+            selectedNode: nil,
+            customNodes: nil,
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+        let view = MockAccountImportViewProtocol()
+        var sourceSelectionEnabled: Bool?
+        stub(view) { stub in
+            stub.setSource(viewModel: any(InputViewModelProtocol.self)).thenDoNothing()
+            stub.setName(
+                viewModel: any(InputViewModelProtocol.self),
+                visible: any(Bool.self)
+            ).thenDoNothing()
+            stub.setSource(
+                type: any(AccountImportSource.self),
+                chainType: any(AccountCreateChainType.self),
+                selectable: any(Bool.self)
+            ).then { sourceSelectionEnabled = $0.2 }
+            stub.show(chainType: any(AccountCreateChainType.self)).thenDoNothing()
+        }
+        let presenter = AccountImportPresenter(
+            wireframe: MockAccountImportWireframeProtocol(),
+            interactor: MockAccountImportInteractorInputProtocol(),
+            flow: .chain(
+                model: UniqueChainModel(
+                    meta: wallet,
+                    chain: bitcoinTestnetChain
+                )
+            )
+        )
+        presenter.view = view
+
+        presenter.didReceiveAccountImport(
+            metadata: MetaAccountImportMetadata(
+                availableSources: AccountImportSource.allCases,
+                defaultSource: .keystore,
+                availableCryptoTypes: CryptoType.allCases,
+                defaultCryptoType: .sr25519
+            )
+        )
+
+        XCTAssertEqual(presenter.metadata?.availableSources, [.mnemonic])
+        XCTAssertEqual(presenter.metadata?.defaultSource, .mnemonic)
+        XCTAssertEqual(presenter.metadata?.availableCryptoTypes, [.ecdsa])
+        XCTAssertEqual(presenter.metadata?.defaultCryptoType, .ecdsa)
+        XCTAssertEqual(presenter.selectedSourceType, .mnemonic)
+        XCTAssertEqual(presenter.selectedCryptoType, .ecdsa)
+        XCTAssertEqual(sourceSelectionEnabled, false)
+    }
+
+    func testTairaImportMetadataAllowsMnemonicEd25519Only() {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let presenter = AccountImportPresenter(
+            wireframe: MockAccountImportWireframeProtocol(),
+            interactor: MockAccountImportInteractorInputProtocol(),
+            flow: .chain(
+                model: UniqueChainModel(
+                    meta: wallet,
+                    chain: UniversalWalletRegistry.tairaChainModel
+                )
+            )
+        )
+
+        presenter.didReceiveAccountImport(
+            metadata: MetaAccountImportMetadata(
+                availableSources: AccountImportSource.allCases,
+                defaultSource: .keystore,
+                availableCryptoTypes: CryptoType.allCases,
+                defaultCryptoType: .sr25519
+            )
+        )
+
+        XCTAssertEqual(presenter.metadata?.availableSources, [.mnemonic])
+        XCTAssertEqual(presenter.metadata?.defaultSource, .mnemonic)
+        XCTAssertEqual(presenter.metadata?.availableCryptoTypes, [.ed25519])
+        XCTAssertEqual(presenter.metadata?.defaultCryptoType, .ed25519)
+        XCTAssertEqual(presenter.selectedSourceType, .mnemonic)
+        XCTAssertEqual(presenter.selectedCryptoType, .ed25519)
+    }
+
+    func testTairaRecoveryPhraseCreatesBothAccountsAndStoresOnlyRootEntropy() throws {
+        let keychain = InMemoryKeychain()
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let mnemonicString = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        let wallet = try makeMnemonicWalletIdentity(mnemonicString: mnemonicString)
+        let mnemonic = try IRMnemonicCreator().mnemonic(fromList: mnemonicString)
+        let request = ChainAccountImportMnemonicRequest(
+            mnemonic: mnemonic,
+            username: wallet.name,
+            derivationPath: "",
+            cryptoType: .ed25519,
+            isEthereum: false,
+            meta: wallet,
+            chainId: UniversalWalletRegistry.taira.chainId
+        )
+
+        let operation = operationFactory.importChainAccountOperation(request: request)
+        operation.start()
+        let updatedWallet = try operation.extractResultData(
+            throwing: BaseOperationError.parentOperationCancelled
+        )
+        let account = try XCTUnwrap(updatedWallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            )
+        }))
+        let address = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(
+                for: UniversalWalletRegistry.tairaChainModel,
+                wallet: updatedWallet
+            )
+        )
+
+        XCTAssertEqual(account.chainId, UniversalWalletRegistry.taira.chainId)
+        XCTAssertEqual(account.cryptoType, CryptoType.ed25519.rawValue)
+        XCTAssertEqual(account.publicKey.count, 32)
+        XCTAssertNoThrow(
+            try IrohaAddressCodec.parse(
+                address,
+                expectedDiscriminant: UniversalWalletRegistry.taira.chainDiscriminant
+            )
+        )
+        XCTAssertTrue(
+            try keychain.checkKey(
+                for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+            )
+        )
+        XCTAssertFalse(
+            try keychain.checkKey(
+                for: KeystoreTagV2.entropyTagForMetaId(
+                    wallet.metaId,
+                    accountId: account.accountId
+                )
+            )
+        )
+        XCTAssertTrue(
+            UniversalWalletChainAccountSupport.hasValidDedicatedAccount(
+                in: updatedWallet,
+                for: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        )
+        XCTAssertEqual(
+            try KeychainUniversalWalletMnemonicProvider(keystore: keychain).mnemonic(
+                for: updatedWallet,
+                chain: UniversalWalletRegistry.tairaChainModel
+            ),
+            mnemonicString
+        )
+    }
+
+    func testTairaSeedImportFailsClosedWithoutMutatingWallet() throws {
+        let keychain = InMemoryKeychain()
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let wallet = AccountGenerator.generateMetaAccount()
+        let request = ChainAccountImportSeedRequest(
+            seed: String(repeating: "01", count: 32),
+            username: wallet.name,
+            derivationPath: "",
+            cryptoType: .ed25519,
+            isEthereum: false,
+            meta: wallet,
+            chainId: UniversalWalletRegistry.taira.chainId
+        )
+
+        let operation = operationFactory.importChainAccountOperation(request: request)
+        operation.start()
+
+        XCTAssertThrowsError(
+            try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        ) { error in
+            guard case AccountOperationFactoryError.unsupportedNetwork = error else {
+                return XCTFail("Expected Taira seed import to fail closed, got \(error)")
+            }
+        }
+        XCTAssertTrue(wallet.chainAccounts.isEmpty)
+    }
+
+    func testTairaMnemonicImportRestoresSignerWithoutChangingExistingAddress() throws {
+        let keychain = InMemoryKeychain()
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let mnemonicString = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        let tairaWallet = try UniversalWalletAccountProvisioning.addingTairaTestnetAccount(
+            to: try makeMnemonicWalletIdentity(mnemonicString: mnemonicString),
+            mnemonic: mnemonicString
+        )
+        let originalAccount = try XCTUnwrap(tairaWallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.isValidTairaAccount($0)
+        }))
+        let wallet = try makeMnemonicWalletIdentity(
+            mnemonicString: mnemonicString,
+            chainAccounts: [originalAccount]
+        )
+        let request = ChainAccountImportMnemonicRequest(
+            mnemonic: try IRMnemonicCreator().mnemonic(fromList: mnemonicString),
+            username: wallet.name,
+            derivationPath: "",
+            cryptoType: .ed25519,
+            isEthereum: false,
+            meta: wallet,
+            chainId: UniversalWalletRegistry.taira.chainId
+        )
+
+        let operation = operationFactory.importChainAccountOperation(request: request)
+        operation.start()
+        let updatedWallet = try operation.extractResultData(
+            throwing: BaseOperationError.parentOperationCancelled
+        )
+        let restoredAccount = try XCTUnwrap(updatedWallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.isValidTairaAccount($0)
+        }))
+
+        XCTAssertEqual(restoredAccount, originalAccount)
+        XCTAssertTrue(
+            try keychain.checkKey(
+                for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+            )
+        )
+        XCTAssertFalse(
+            try keychain.checkKey(
+                for: KeystoreTagV2.entropyTagForMetaId(
+                    wallet.metaId,
+                    accountId: originalAccount.accountId
+                )
+            )
+        )
+    }
+
+    func testTairaRecoveryRejectsPhraseThatDoesNotMatchWalletIdentity() throws {
+        let keychain = InMemoryKeychain()
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let originalMnemonic = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        let replacementMnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        let walletWithTaira = try UniversalWalletAccountProvisioning.addingTairaTestnetAccount(
+            to: try makeMnemonicWalletIdentity(mnemonicString: originalMnemonic),
+            mnemonic: originalMnemonic
+        )
+        let originalAccount = try XCTUnwrap(walletWithTaira.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.isValidTairaAccount($0)
+        }))
+        let wallet = try makeMnemonicWalletIdentity(
+            mnemonicString: originalMnemonic,
+            chainAccounts: [originalAccount]
+        )
+        let entropyTag = KeystoreTagV2.entropyTagForMetaId(
+            wallet.metaId,
+            accountId: originalAccount.accountId
+        )
+        let existingEntropy = Data("existing-taira-signer".utf8)
+        try keychain.saveKey(existingEntropy, with: entropyTag)
+        let request = ChainAccountImportMnemonicRequest(
+            mnemonic: try IRMnemonicCreator().mnemonic(fromList: replacementMnemonic),
+            username: wallet.name,
+            derivationPath: "",
+            cryptoType: .ed25519,
+            isEthereum: false,
+            meta: wallet,
+            chainId: UniversalWalletRegistry.taira.chainId
+        )
+
+        let operation = operationFactory.importChainAccountOperation(request: request)
+        operation.start()
+
+        XCTAssertThrowsError(
+            try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletRootRecoveryError,
+                .phraseDoesNotMatchWallet
+            )
+        }
+        XCTAssertEqual(try keychain.fetchKey(for: entropyTag), existingEntropy)
+        XCTAssertEqual(
+            wallet.chainAccounts.first(where: {
+                UniversalWalletChainAccountSupport.isValidTairaAccount($0)
+            }),
+            originalAccount
+        )
+        XCTAssertFalse(
+            try keychain.checkKey(for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId))
+        )
+    }
+
+    func testTairaKeystoreImportFailsBeforeParsingOrKeychainWrite() throws {
+        let keychain = InMemoryKeychain()
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let wallet = AccountGenerator.generateMetaAccount()
+        let sentinelTag = KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+        let sentinel = Data("existing-root-entropy".utf8)
+        try keychain.saveKey(sentinel, with: sentinelTag)
+        let request = ChainAccountImportKeystoreRequest(
+            keystore: "not-json",
+            password: "ignored",
+            username: wallet.name,
+            cryptoType: .ed25519,
+            isEthereum: false,
+            meta: wallet,
+            chainId: UniversalWalletRegistry.taira.chainId
+        )
+
+        let operation = operationFactory.importChainAccountOperation(request: request)
+        operation.start()
+
+        XCTAssertThrowsError(
+            try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        ) { error in
+            guard case AccountOperationFactoryError.unsupportedNetwork = error else {
+                return XCTFail("Expected Taira keystore import to fail before parsing, got \(error)")
+            }
+        }
+        XCTAssertEqual(try keychain.fetchKey(for: sentinelTag), sentinel)
+        XCTAssertTrue(wallet.chainAccounts.isEmpty)
+    }
+
+    func testBitcoinRecoveryPhraseCreatesBothAccountsAndStoresOnlyRootEntropy() throws {
+        let keychain = InMemoryKeychain()
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let mnemonicString = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        let wallet = try makeMnemonicWalletIdentity(mnemonicString: mnemonicString)
+        let mnemonic = try IRMnemonicCreator().mnemonic(fromList: mnemonicString)
+        let request = ChainAccountImportMnemonicRequest(
+            mnemonic: mnemonic,
+            username: wallet.name,
+            derivationPath: "",
+            cryptoType: .ecdsa,
+            isEthereum: false,
+            meta: wallet,
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId
+        )
+
+        let operation = operationFactory.importChainAccountOperation(request: request)
+        operation.start()
+        let updatedWallet = try operation.extractResultData(
+            throwing: BaseOperationError.parentOperationCancelled
+        )
+        let account = try XCTUnwrap(updatedWallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+        let address = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(
+                for: UniversalWalletRegistry.bitcoinMainnetChainModel,
+                wallet: updatedWallet
+            )
+        )
+
+        XCTAssertEqual(account.chainId, UniversalWalletRegistry.bitcoinMainnet.chainId)
+        XCTAssertEqual(account.publicKey.count, 33)
+        XCTAssertTrue(address.hasPrefix("bc1q"))
+        XCTAssertTrue(
+            try keychain.checkKey(
+                for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+            )
+        )
+        XCTAssertFalse(
+            try keychain.checkKey(
+                for: KeystoreTagV2.entropyTagForMetaId(
+                    wallet.metaId,
+                    accountId: account.accountId
+                )
+            )
+        )
+        XCTAssertTrue(
+            UniversalWalletChainAccountSupport.hasValidDedicatedAccount(
+                in: updatedWallet,
+                for: UniversalWalletRegistry.taira.chainId
+            )
+        )
+        XCTAssertEqual(
+            try KeychainUniversalWalletMnemonicProvider(keystore: keychain).mnemonic(
+                for: updatedWallet,
+                chain: UniversalWalletRegistry.bitcoinMainnetChainModel
+            ),
+            mnemonicString
+        )
+    }
+
+    func testBitcoinRawSeedImportIsRejectedToProtectSinglePhraseRecovery() throws {
+        let keychain = InMemoryKeychain()
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let wallet = AccountGenerator.generateMetaAccount()
+        let walletSeed = Data(repeating: 0, count: UniversalWalletSeedBridge.walletSeedLength)
+        let request = ChainAccountImportSeedRequest(
+            seed: walletSeed.toHex(includePrefix: false),
+            username: wallet.name,
+            derivationPath: "",
+            cryptoType: .ecdsa,
+            isEthereum: false,
+            meta: wallet,
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId
+        )
+
+        let operation = operationFactory.importChainAccountOperation(request: request)
+        operation.start()
+
+        XCTAssertThrowsError(
+            try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        ) { error in
+            guard case AccountOperationFactoryError.unsupportedNetwork = error else {
+                return XCTFail("Expected chain-specific Bitcoin seed import to fail, got \(error)")
+            }
+        }
+        XCTAssertTrue(wallet.chainAccounts.isEmpty)
+        XCTAssertFalse(
+            try keychain.checkKey(for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId))
+        )
+    }
+
+    func testBitcoinRawSeedImportFailsBeforeParsingOrKeychainWrite() throws {
+        let keychain = MockKeystoreProtocol()
+        stub(keychain) { stub in
+            stub.checkKey(for: any()).thenReturn(false)
+            stub.addKey(any(), with: any()).thenDoNothing()
+            stub.updateKey(any(), with: any()).thenDoNothing()
+        }
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let wallet = AccountGenerator.generateMetaAccount()
+        let invalidLengths = [
+            UniversalWalletSeedBridge.walletSeedLength - 1,
+            UniversalWalletSeedBridge.walletSeedLength + 1
+        ]
+
+        for invalidLength in invalidLengths {
+            let request = ChainAccountImportSeedRequest(
+                seed: Data(repeating: 0, count: invalidLength).toHex(includePrefix: false),
+                username: wallet.name,
+                derivationPath: "",
+                cryptoType: .ecdsa,
+                isEthereum: false,
+                meta: wallet,
+                chainId: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+            let operation = operationFactory.importChainAccountOperation(request: request)
+            operation.start()
+
+            XCTAssertThrowsError(
+                try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            ) { error in
+                guard case AccountOperationFactoryError.unsupportedNetwork = error else {
+                    return XCTFail("Expected Bitcoin seed import to fail before parsing, got \(error)")
+                }
+            }
+        }
+        verify(keychain, times(0)).addKey(any(), with: any())
+        verify(keychain, times(0)).updateKey(any(), with: any())
+        XCTAssertTrue(wallet.chainAccounts.isEmpty)
+    }
+
+    func testBitcoinMnemonicImportRestoresSignerWithoutChangingExistingAddress() throws {
+        let keychain = InMemoryKeychain()
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let mnemonicString = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        let bitcoinWallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+            to: try makeMnemonicWalletIdentity(mnemonicString: mnemonicString),
+            mnemonic: mnemonicString
+        )
+        let originalAccount = try XCTUnwrap(bitcoinWallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+        let wallet = try makeMnemonicWalletIdentity(
+            mnemonicString: mnemonicString,
+            chainAccounts: [originalAccount]
+        )
+        let request = ChainAccountImportMnemonicRequest(
+            mnemonic: try IRMnemonicCreator().mnemonic(fromList: mnemonicString),
+            username: wallet.name,
+            derivationPath: "",
+            cryptoType: .ecdsa,
+            isEthereum: false,
+            meta: wallet,
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId
+        )
+
+        let operation = operationFactory.importChainAccountOperation(request: request)
+        operation.start()
+        let updatedWallet = try operation.extractResultData(
+            throwing: BaseOperationError.parentOperationCancelled
+        )
+        let restoredAccount = try XCTUnwrap(updatedWallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+
+        XCTAssertEqual(restoredAccount.publicKey, originalAccount.publicKey)
+        XCTAssertTrue(
+            try keychain.checkKey(
+                for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+            )
+        )
+        XCTAssertFalse(
+            try keychain.checkKey(
+                for: KeystoreTagV2.entropyTagForMetaId(
+                    wallet.metaId,
+                    accountId: originalAccount.accountId
+                )
+            )
+        )
+    }
+
+    func testBitcoinRecoveryRejectsPhraseThatDoesNotMatchWalletIdentity() throws {
+        let keychain = InMemoryKeychain()
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let originalMnemonic = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        let replacementMnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        let walletWithBitcoin = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+            to: try makeMnemonicWalletIdentity(mnemonicString: originalMnemonic),
+            mnemonic: originalMnemonic
+        )
+        let originalAccount = try XCTUnwrap(walletWithBitcoin.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+        let wallet = try makeMnemonicWalletIdentity(
+            mnemonicString: originalMnemonic,
+            chainAccounts: [originalAccount]
+        )
+        let entropyTag = KeystoreTagV2.entropyTagForMetaId(
+            wallet.metaId,
+            accountId: originalAccount.accountId
+        )
+        let existingEntropy = Data("existing-signer".utf8)
+        try keychain.saveKey(existingEntropy, with: entropyTag)
+        let request = ChainAccountImportMnemonicRequest(
+            mnemonic: try IRMnemonicCreator().mnemonic(fromList: replacementMnemonic),
+            username: wallet.name,
+            derivationPath: "",
+            cryptoType: .ecdsa,
+            isEthereum: false,
+            meta: wallet,
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId
+        )
+
+        let operation = operationFactory.importChainAccountOperation(request: request)
+        operation.start()
+
+        XCTAssertThrowsError(
+            try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletRootRecoveryError,
+                .phraseDoesNotMatchWallet
+            )
+        }
+        XCTAssertEqual(try keychain.fetchKey(for: entropyTag), existingEntropy)
+        XCTAssertEqual(
+            wallet.chainAccounts.first(where: {
+                UniversalWalletChainAccountSupport.chainId(
+                    $0.chainId,
+                    matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+                )
+            })?.publicKey,
+            originalAccount.publicKey
+        )
+        XCTAssertFalse(
+            try keychain.checkKey(for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId))
+        )
+    }
+
+    func testRootRecoveryPreservesExistingBitcoinFromDifferentPhrase() throws {
+        let rootMnemonic = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        let legacyMnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        let rootWallet = try makeMnemonicWalletIdentity(mnemonicString: rootMnemonic)
+        let legacyWallet = try UniversalWalletAccountProvisioning.addingBitcoinMainnetAccount(
+            to: AccountGenerator.generateMetaAccount(),
+            mnemonic: legacyMnemonic
+        )
+        let legacyAccount = try XCTUnwrap(legacyWallet.chainAccounts.first(where: {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }))
+        let wallet = rootWallet.replacingChainAccounts([legacyAccount])
+        let keychain = InMemoryKeychain()
+        let legacyEntropyTag = KeystoreTagV2.entropyTagForMetaId(
+            wallet.metaId,
+            accountId: legacyAccount.accountId
+        )
+        let legacyEntropy = Data("legacy-chain-entropy".utf8)
+        try keychain.saveKey(legacyEntropy, with: legacyEntropyTag)
+        let request = ChainAccountImportMnemonicRequest(
+            mnemonic: try IRMnemonicCreator().mnemonic(fromList: rootMnemonic),
+            username: wallet.name,
+            derivationPath: "",
+            cryptoType: .ecdsa,
+            isEthereum: false,
+            meta: wallet,
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId
+        )
+
+        let operation = MetaAccountOperationFactory(keystore: keychain)
+            .importChainAccountOperation(request: request)
+        operation.start()
+
+        XCTAssertThrowsError(
+            try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        ) { error in
+            XCTAssertEqual(
+                error as? UniversalWalletRootRecoveryError,
+                .existingAccountUsesDifferentPhrase
+            )
+        }
+        XCTAssertEqual(try keychain.fetchKey(for: legacyEntropyTag), legacyEntropy)
+        XCTAssertFalse(
+            try keychain.checkKey(for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId))
+        )
+        XCTAssertEqual(wallet.chainAccounts, [legacyAccount])
+    }
+
+    func testBitcoinTestnetMnemonicImportFailsWithoutKeychainWrite() throws {
+        let keychain = InMemoryKeychain()
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let wallet = AccountGenerator.generateMetaAccount()
+        let mnemonicString = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        let mnemonic = try IRMnemonicCreator().mnemonic(fromList: mnemonicString)
+        let derivedTestnetAccount = try BitcoinKeyDerivation.deriveAccount(
+            mnemonic: mnemonicString,
+            network: .testnet
+        )
+        let entropyTag = KeystoreTagV2.entropyTagForMetaId(
+            wallet.metaId,
+            accountId: derivedTestnetAccount.publicKey
+        )
+        let request = ChainAccountImportMnemonicRequest(
+            mnemonic: mnemonic,
+            username: wallet.name,
+            derivationPath: "",
+            cryptoType: .ecdsa,
+            isEthereum: false,
+            meta: wallet,
+            chainId: UniversalWalletRegistry.bitcoinTestnet.chainId
+        )
+
+        let operation = operationFactory.importChainAccountOperation(request: request)
+        operation.start()
+
+        XCTAssertThrowsError(
+            try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        ) { error in
+            guard case AccountOperationFactoryError.unsupportedNetwork = error else {
+                return XCTFail("Expected testnet import to fail closed, got \(error)")
+            }
+        }
+        XCTAssertFalse(try keychain.checkKey(for: entropyTag))
+    }
+
+    func testUniversalRootRecoveryRollsBackEntropyWhenWalletPersistenceFails() throws {
+        let mnemonicString = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        let mnemonic = try IRMnemonicCreator().mnemonic(fromList: mnemonicString)
+        let wallet = try makeMnemonicWalletIdentity(mnemonicString: mnemonicString)
+        let keychain = InMemoryKeychain()
+        let operationFactory = MetaAccountOperationFactory(keystore: keychain)
+        let request = ChainAccountImportMnemonicRequest(
+            mnemonic: mnemonic,
+            username: wallet.name,
+            derivationPath: "",
+            cryptoType: .ecdsa,
+            isEthereum: false,
+            meta: wallet,
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId
+        )
+        let storageFacade = AlwaysFailingAccountImportStorageFacade()
+        let settings = SelectedWalletSettings(
+            storageFacade: storageFacade,
+            operationQueue: OperationQueue()
+        )
+        let repository = AccountRepositoryFactory(storageFacade: storageFacade)
+            .createMetaAccountRepository(for: nil, sortDescriptors: [])
+        let interactor = AccountImportInteractor(
+            accountOperationFactory: operationFactory,
+            accountRepository: AnyDataProviderRepository(repository),
+            operationManager: OperationManager(),
+            settings: settings,
+            keystoreImportService: KeystoreImportService(logger: Logger.shared),
+            eventCenter: MockEventCenterProtocol(),
+            defaultSource: .mnemonic
+        )
+        let presenter = MockAccountImportInteractorOutputProtocol()
+        interactor.presenter = presenter
+        let failure = expectation(description: "Wallet persistence failure delivered")
+        failure.assertForOverFulfill = true
+
+        stub(presenter) { stub in
+            when(stub.didReceiveAccountImport(error: any(Error.self))).then { _ in
+                failure.fulfill()
+            }
+            when(stub.didCompleteAccountImport()).then {
+                XCTFail("Persistence failure must not complete recovery")
+            }
+        }
+
+        let operation = operationFactory.importChainAccountOperation(request: request)
+        interactor.importAccountUsingOperation(operation)
+
+        wait(for: [failure], timeout: 10)
+        XCTAssertNil(settings.value)
+        XCTAssertFalse(
+            try keychain.checkKey(
+                for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+            )
+        )
+    }
 
     func testMnemonicRestore() {
         // given
@@ -109,9 +1445,10 @@ class AccountImportTests: XCTestCase {
 
         wait(for: [setupExpectation], timeout: Constants.defaultExpectationDuration)
 
-        _ = sourceInputViewModel?.inputHandler.didReceiveReplacement(expectedMnemonic,
-                                                                     for: NSRange(location: 0, length: 0));
-        presenter.validateInput(value: expectedMnemonic)
+        _ = sourceInputViewModel?.inputHandler.didReceiveReplacement(
+            expectedMnemonic,
+            for: NSRange(location: 0, length: 0)
+        )
 
         _ = usernameViewModel?.inputHandler.didReceiveReplacement(expectedUsername,
                                                                   for: NSRange(location: 0, length: 0))
@@ -142,4 +1479,81 @@ class AccountImportTests: XCTestCase {
         XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.substrateSeedTagForMetaId(metaId)))
         XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.ethereumSeedTagForMetaId(metaId)))
     }
+}
+
+private final class AlwaysFailingAccountImportCoreDataService: CoreDataServiceProtocol {
+    let configuration: CoreDataServiceConfigurationProtocol
+
+    init(configuration: CoreDataServiceConfigurationProtocol) {
+        self.configuration = configuration
+    }
+
+    func performAsync(block: @escaping CoreDataContextInvocationBlock) {
+        block(
+            nil,
+            NSError(
+                domain: "AccountImportPersistenceFailure",
+                code: 1
+            )
+        )
+    }
+
+    func close() throws {}
+    func drop() throws {}
+}
+
+private final class AlwaysFailingAccountImportStorageFacade: StorageFacadeProtocol {
+    let databaseService: CoreDataServiceProtocol
+
+    init() {
+        let configuration = UserDataStorageTestFacade().databaseService.configuration
+        databaseService = AlwaysFailingAccountImportCoreDataService(
+            configuration: configuration
+        )
+    }
+
+    func createRepository<T, U>(
+        filter: NSPredicate?,
+        sortDescriptors: [NSSortDescriptor],
+        mapper: AnyCoreDataMapper<T, U>
+    ) -> CoreDataRepository<T, U> where T: Identifiable, U: NSManagedObject {
+        CoreDataRepository(
+            databaseService: databaseService,
+            mapper: mapper,
+            filter: filter,
+            sortDescriptors: sortDescriptors
+        )
+    }
+
+    func createAsyncRepository<T, U>(
+        filter: NSPredicate?,
+        sortDescriptors: [NSSortDescriptor],
+        mapper: AnyCoreDataMapper<T, U>
+    ) -> AsyncCoreDataRepositoryDefault<T, U> where T: Identifiable, U: NSManagedObject {
+        AsyncCoreDataRepositoryDefault(
+            databaseService: databaseService,
+            mapper: mapper,
+            filter: filter,
+            sortDescriptors: sortDescriptors
+        )
+    }
+}
+
+private final class NativeTonRecoveryTestKeychain: KeystoreProtocol {
+    var values: [String: Data] = [:]
+    var failOnAddNumber: Int?
+    private var additions = 0
+    func addKey(_ key: Data, with identifier: String) throws {
+        additions += 1
+        if additions == failOnAddNumber { throw KeystoreError.unexpectedFail }
+        guard values[identifier] == nil else { throw KeystoreError.duplicatedItem }
+        values[identifier] = key
+    }
+    func updateKey(_: Data, with _: String) throws { throw KeystoreError.unexpectedFail }
+    func fetchKey(for identifier: String) throws -> Data {
+        guard let key = values[identifier] else { throw KeystoreError.noKeyFound }
+        return key
+    }
+    func checkKey(for identifier: String) throws -> Bool { values[identifier] != nil }
+    func deleteKey(for identifier: String) throws { values.removeValue(forKey: identifier) }
 }

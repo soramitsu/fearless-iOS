@@ -330,14 +330,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         }
 
         let operationManager = OperationManagerFacade.sharedManager
-        let facade = UserDataStorageFacade.shared
-        let mapper = MetaAccountMapper()
-
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         return StakingAmountInteractor(
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
@@ -349,7 +342,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             operationManager: operationManager,
             chainAsset: chainAsset,
             wallet: selectedAccount,
-            accountRepository: AnyDataProviderRepository(accountRepository),
+            accountRepository: accountRepository,
             strategy: strategy
         )
     }

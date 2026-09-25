@@ -15,7 +15,7 @@ final class BitcoinBalanceSync {
         gapLimit: Int? = nil,
         maxLookahead: Int = BitcoinReceiveDiscovery.defaultMaxLookahead
     ) async throws -> BitcoinBalanceSyncResult {
-        let discoveryResult = try await discovery.discover(
+        let discoveryResult = try await discovery.discoverWallet(
             mnemonic: mnemonic,
             passphrase: passphrase,
             network: network,
@@ -44,6 +44,14 @@ final class BitcoinBalanceSync {
         )
     }
 
+    func balance(
+        address: String,
+        network: BitcoinKeyDerivation.Network,
+        baseURL: String? = nil
+    ) async throws -> BitcoinAddressBalanceResult {
+        try await discovery.balance(address: address, network: network, baseURL: baseURL)
+    }
+
     private func safeAdd(_ left: Int64, _ right: Int64) throws -> Int64 {
         let sum = left.addingReportingOverflow(right)
         guard !sum.overflow else {
@@ -62,7 +70,68 @@ struct BitcoinBalanceSyncResult: Equatable {
     let discovery: BitcoinReceiveDiscoveryResult
 }
 
+actor BitcoinWalletBalanceCache {
+    struct Key: Hashable {
+        let walletId: MetaAccountId
+        let network: BitcoinIndexerNetwork
+        let baseURL: String?
+        let gapLimit: Int
+        let maxLookahead: Int
+    }
+
+    static let shared = BitcoinWalletBalanceCache()
+    static let defaultMaxAge: TimeInterval = 120
+
+    private struct Entry {
+        let value: BitcoinBalanceSyncResult
+        let createdAt: Date
+    }
+
+    private var entries: [Key: Entry] = [:]
+    private var inFlight: [Key: Task<BitcoinBalanceSyncResult, Error>] = [:]
+
+    func value(
+        for key: Key,
+        maxAge: TimeInterval = BitcoinWalletBalanceCache.defaultMaxAge,
+        loader: @escaping () async throws -> BitcoinBalanceSyncResult
+    ) async throws -> BitcoinBalanceSyncResult {
+        if let entry = entries[key],
+           Date().timeIntervalSince(entry.createdAt) <= maxAge {
+            return entry.value
+        }
+
+        if let task = inFlight[key] {
+            return try await task.value
+        }
+
+        let task = Task {
+            try await loader()
+        }
+        inFlight[key] = task
+
+        do {
+            let result = try await task.value
+            entries[key] = Entry(value: result, createdAt: Date())
+            inFlight[key] = nil
+            return result
+        } catch {
+            inFlight[key] = nil
+            throw error
+        }
+    }
+
+    func invalidate(_ key: Key) {
+        entries[key] = nil
+    }
+}
+
 enum BitcoinBalanceSyncError: Error, Equatable {
     case invalidAddressBalance
     case balanceOverflow
+}
+
+struct BitcoinAddressBalanceResult: Equatable {
+    let confirmedSats: Int64
+    let mempoolSats: Int64
+    let totalSats: Int64
 }

@@ -37,6 +37,7 @@ final class CrossChainPresenter {
     private let logger: LoggerProtocol
 
     private let wallet: MetaAccountModel
+    private let reviewedRoute: ReviewedCrossChainRouteContext
     private let viewModelFactory: CrossChainViewModelFactoryProtocol
     private let dataValidatingFactory: SendDataValidatingFactory
 
@@ -85,6 +86,7 @@ final class CrossChainPresenter {
 
     init(
         originChainAsset: ChainAsset,
+        reviewedRoute: ReviewedCrossChainRouteContext,
         wallet: MetaAccountModel,
         viewModelFactory: CrossChainViewModelFactoryProtocol,
         dataValidatingFactory: SendDataValidatingFactory,
@@ -95,6 +97,7 @@ final class CrossChainPresenter {
     ) {
         selectedAmountChainAsset = originChainAsset
         selectedOriginChainModel = originChainAsset.chain
+        self.reviewedRoute = reviewedRoute
         self.wallet = wallet
         self.viewModelFactory = viewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
@@ -379,7 +382,8 @@ final class CrossChainPresenter {
             originChainFee: originChainFee,
             destChainFee: destChainFee,
             destChainFeeDecimal: destChainFeeDecimal,
-            recipientAddress: recipientAddress
+            recipientAddress: recipientAddress,
+            reviewedRoute: reviewedRoute
         )
         guard addressIsValid() else {
             return
@@ -628,7 +632,10 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
 
     func didReceiveAvailableDestChainAssets(_ chainAssets: [ChainAsset]) {
         let filtredChainAssets = chainAssets
-            .filter { $0.chain.chainId != selectedOriginChainModel.chainId }
+            .filter {
+                $0.chain.chainId != selectedOriginChainModel.chainId &&
+                    reviewedRoute.destinationChainIds.contains($0.chain.chainId)
+            }
         availableDestChainModels = filtredChainAssets
             .map { $0.chain }
             .withoutDuplicates()
@@ -639,7 +646,9 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
     }
 
     func didReceiveOrigin(chainAssets: [ChainAsset]) {
-        availableOriginChainAssets = chainAssets
+        availableOriginChainAssets = chainAssets.filter {
+            reviewedRoute.validates(origin: $0)
+        }
     }
 
     func didReceiveExistentialDeposit(result: Result<BigUInt, Error>) {
@@ -712,6 +721,9 @@ extension CrossChainPresenter: SelectAssetModuleOutput {
         guard let chainAsset = chainAsset else {
             return
         }
+        guard reviewedRoute.validates(origin: chainAsset) else {
+            return
+        }
         runLoadingState()
 
         destNetworkFee = nil
@@ -736,6 +748,9 @@ extension CrossChainPresenter: SelectNetworkDelegate {
         contextTag _: Int?
     ) {
         guard let chain = chain else {
+            return
+        }
+        guard reviewedRoute.destinationChainIds.contains(chain.chainId) else {
             return
         }
         runLoadingState()

@@ -1,7 +1,7 @@
 # Universal Wallet V2 Contract
 
-Status: implementation contract for the Bitcoin, Solana, TON, and SORA Nexus
-workstreams.
+Status: implementation contract for the Bitcoin, Solana, TON, Taira Testnet,
+and SORA Nexus workstreams.
 
 ## Goals
 
@@ -137,6 +137,25 @@ Redux/Pinia state, logs, or test fixtures.
 Solana import compatibility may support common existing Solana paths, but new
 Universal Wallet V2 accounts must use `m/44'/501'/0'/0'`.
 
+Canonical Bitcoin and Taira provisioning uses the wallet's authentic BIP39
+root entropy from the protected root-entropy Keychain item. If that item is
+missing, the user may enter the wallet's original recovery phrase. The app must
+first verify that the phrase reproduces the existing Substrate and EVM identity,
+then persist it as the root and provision both Bitcoin and Taira atomically. The
+normal setup route must never generate or import a chain-specific recovery
+phrase.
+
+A 32-byte raw-seed import may still use the versioned compatibility contract
+`raw-wallet-seed-as-bip39-entropy-v1` to derive deterministic app-owned account
+keys. Those generated words are not a canonical whole-wallet recovery phrase:
+normal BIP39 restoration would derive a different Substrate identity, and an
+independently supplied EVM seed cannot be encoded in them. Raw-seed, JSON,
+watch-only, and legacy chain-specific wallets therefore cannot be converted
+safely in place to the one-phrase contract. The app must preserve their existing
+addresses and direct the user to create or restore a canonical mnemonic wallet
+and migrate assets. Protected-data and other non-missing Keychain errors fail
+closed and retry without changing wallet identity.
+
 ## Registry Requirements
 
 Registry files use `schemaVersion = 1` and a top-level `chains` array. Each
@@ -153,19 +172,63 @@ must be rooted at `m`.
 
 Endpoint kinds are `indexer`, `rpc`, `torii-mcp`, and `explorer`. Public URLs
 must be HTTPS; local development URLs may use `http://localhost` or
-`http://127.0.0.1`. Public indexer endpoints are read-only. Broadcasts,
-transaction simulation, and other write operations must use RPC or Torii
-endpoints, never a public indexer endpoint.
+`http://127.0.0.1`. Public indexer entries remain marked read-only: that flag
+describes catalog discovery and prevents generic write routing. Bitcoin's
+separately reviewed transfer service is the sole exception and may POST only a
+fully signed raw transaction to `/tx` on the canonical Mempool.space Esplora
+origin. Other broadcasts, transaction simulation, and write operations must
+use RPC or Torii endpoints.
 
+- Bitcoin mainnet Esplora base URL: `https://mempool.space/api`.
+- Bitcoin testnet Esplora base URL: `https://mempool.space/testnet/api`.
+- The app bundles the canonical orange Bitcoin.org mark and maps both the
+  current Bitcoin.org catalog URL and the previously shipped pinned BitPay URL
+  to that local asset, so branding does not depend on a network image fetch.
+- The app uses one explicit Mempool.space service contract for Bitcoin address,
+  UTXO, fee, history, and raw-transaction broadcast operations. It does not
+  claim decorative multi-provider failover or expose an empty HTTPS node
+  selector. Production Bitcoin balance, history, and transfer services resolve
+  this canonical origin directly, so a stale cached chain row cannot route an
+  upgraded app back to an older provider. Mempool.space learns the queried
+  addresses and broadcast source IP; users who require private infrastructure
+  need a separately reviewed custom endpoint policy.
 - TON indexer base URL: `https://ti.soramitsu.io`.
+- Native TON Wallet V4R2 building, unsigned fee emulation, signed emulation,
+  bounded TonAPI transport, broadcast, and exact-message reconciliation are
+  implemented on iOS, but the production send route remains hard-disabled.
+  Enabling it requires the durable pending-intent, confirmation/unknown-outcome
+  UX, current-schema, and funded-mainnet evidence in `docs/release-checklist.md`.
 - Solana indexer base URL: `https://si.soramitsu.io`.
 - `si.soramitsu.io` is read-only. Transaction simulation and broadcast use the
   configured Solana RPC endpoint directly.
 - Taira testnet is enabled with I105 chain discriminant `369`, Torii root
-  `https://taira.sora.org`, and chain id `iroha3-taira`.
+  `https://taira.sora.org`, and chain id `iroha3-taira`. iOS persists it as an
+  app-owned enabled testnet chain until the shared registry publishes an Iroha
+  row. Existing root-mnemonic wallets are provisioned with the canonical
+  Ed25519 I105 account; safe recovery is mnemonic-only. The read-only wire and
+  catalog source of truth is the sibling Iroha `optimizations` branch at commit
+  `d8544f1d4d3a73c4a17873250a483208c9aafc16`. It defines canonical XOR as
+  `6TEAJqbb8oEPmLncoNiMRbLEK6tw`, alias `xor#universal`, with unconstrained
+  `NumericSpec`; the wallet adapter uses precision `28`. Definition
+  `61CtjvNd9T3THAR65GsMVHr82Bjc`, alias `xor#sora.universal`, is a distinct
+  scale-`9` asset and must not replace or alias the canonical row.
+- Taira iOS support is read-only for release purposes: network/asset display,
+  Torii balance refresh, history routing, and a valid I105 receive address are
+  available, but Send is hidden and rejected before account, cache, signer, or
+  transport construction. Release archives attest
+  `iroha3-taira-sora-org-torii-xor-universal-unconstrained-p28-optimizations-d8544f1d-read-only-v2`.
+  Local derivation does not register or fund an I105 account on-chain.
 - Nexus mainnet uses I105 chain discriminant `753` and chain id
   `sora:nexus:global`, but remains registry-gated until the
   production Torii/TLS endpoint is confirmed.
+- Iroha `features: ["transfer"]` is capability metadata, not a production-send
+  enablement claim. iOS send remains fail closed under
+  `config/iroha-production-send-readiness.json`; see
+  `docs/iroha-production-send-readiness.md` for the pinned upstream blocker.
+- The iOS Nexus operator evidence seam snapshots an exact four-string
+  `wallet-smoke` metadata object and rejects malformed or placeholder hashes
+  before signing. Ordinary wallet transfers omit metadata, and the seam does
+  not alter the unavailable production signer or disabled Nexus default.
 
 ## Normalized Indexer Contract
 

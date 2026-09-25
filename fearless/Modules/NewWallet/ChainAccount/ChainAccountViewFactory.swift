@@ -4,6 +4,7 @@ import SSFUtils
 import RobinHood
 import SoraKeystore
 import SSFModels
+import SSFStorageQueryKit
 
 struct ChainAccountModule {
     let view: ChainAccountViewProtocol?
@@ -56,6 +57,15 @@ enum ChainAccountViewFactory {
             chainRegistry: chainRegistry,
             repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
         )
+        let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
+            chainRegistry: chainRegistry
+        )
+        let accountInfoRemoteService = AccountInfoRemoteServiceDefault(
+            bitcoinBalanceSync: BitcoinBalanceSync(
+                discovery: BitcoinReceiveDiscovery(client: BitcoinIndexerClient())
+            ),
+            storagePerformer: storagePerformer
+        )
         let interactor = ChainAccountInteractor(
             wallet: wallet,
             chainAsset: chainAsset,
@@ -67,7 +77,8 @@ enum ChainAccountViewFactory {
             storageRequestFactory: storageRequestFactory,
             walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
             ethRemoteBalanceFetching: ethereumRemoteBalanceFetching,
-            chainRegistry: chainRegistry
+            chainRegistry: chainRegistry,
+            accountInfoRemoteService: accountInfoRemoteService
         )
 
         let wireframe = ChainAccountWireframe()

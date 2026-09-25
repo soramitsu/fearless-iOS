@@ -244,6 +244,22 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmViewOut
     }
 
     func didTapConfirmButton() {
+        guard MultiChainFeaturePolicy.current.polkaswapMutationsEnabled else {
+            router.presentInfo(
+                message: "Liquidity actions are temporarily disabled by the remote safety switch.",
+                title: "Liquidity actions paused",
+                from: view
+            )
+            return
+        }
+        guard ReviewedLiquidityPoolExecutionAuthority.allowsSubmission(remoteEnabled: true) else {
+            router.presentInfo(
+                message: ReviewedLiquidityPoolExecutionAuthority.unavailableReason,
+                title: "Liquidity actions unavailable",
+                from: view
+            )
+            return
+        }
         let chainAssets = Array(chain.assets)
         guard
             let dexId,

@@ -31,6 +31,8 @@ final class ChainAssetListInteractor {
     private let accountInfoRemoteService: AccountInfoRemoteService
     private let pricesService: PricesServiceProtocol
     private let operationQueue: OperationQueue
+    private let storedSeedAdopter: UniversalWalletStoredSeedAdopting
+    private let walletSettings: SelectedWalletSettings
 
     private let mutex = NSLock()
     private var remoteFetchTimer: Timer?
@@ -55,7 +57,9 @@ final class ChainAssetListInteractor {
         chainRegistry: ChainRegistryProtocol,
         accountInfoRemoteService: AccountInfoRemoteService,
         pricesService: PricesServiceProtocol,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        storedSeedAdopter: UniversalWalletStoredSeedAdopting = UniversalWalletStoredSeedAdopter(),
+        walletSettings: SelectedWalletSettings = .shared
     ) {
         self.wallet = wallet
         self.eventCenter = eventCenter
@@ -71,6 +75,237 @@ final class ChainAssetListInteractor {
         self.accountInfoRemoteService = accountInfoRemoteService
         self.pricesService = pricesService
         self.operationQueue = operationQueue
+        self.storedSeedAdopter = storedSeedAdopter
+        self.walletSettings = walletSettings
+    }
+
+    static func performStoredSeedAdoption(
+        walletSnapshot: MetaAccountModel,
+        adopter: UniversalWalletStoredSeedAdopting,
+        operationQueue: OperationQueue,
+        deliveryQueue: DispatchQueue = .main,
+        completion: @escaping (Result<MetaAccountModel, Error>) -> Void
+    ) {
+        let operation = ClosureOperation {
+            try adopter.adoptStoredSecret(for: walletSnapshot)
+        }
+
+        operation.completionBlock = { [weak operation] in
+            deliverStoredSeedAdoptionResult(
+                from: operation,
+                deliveryQueue: deliveryQueue,
+                completion: completion
+            )
+        }
+
+        operationQueue.addOperation(operation)
+    }
+
+    static func deliverStoredSeedAdoptionResult(
+        from operation: BaseOperation<MetaAccountModel>?,
+        deliveryQueue: DispatchQueue,
+        completion: @escaping (Result<MetaAccountModel, Error>) -> Void
+    ) {
+        // A finished operation can be released as soon as its completion block
+        // returns. Materialize the result before crossing the async queue
+        // boundary so account creation can never disappear silently.
+        let result = operation?.result ?? .failure(BaseOperationError.parentOperationCancelled)
+        deliveryQueue.async {
+            completion(result)
+        }
+    }
+
+    static func mergeStoredSeedAdoption(
+        _ adoptedWallet: MetaAccountModel,
+        into currentWallet: MetaAccountModel
+    ) throws -> MetaAccountModel {
+        guard adoptedWallet.metaId == currentWallet.metaId,
+              adoptedWallet.substrateAccountId == currentWallet.substrateAccountId,
+              adoptedWallet.substratePublicKey == currentWallet.substratePublicKey,
+              adoptedWallet.substrateCryptoType == currentWallet.substrateCryptoType else {
+            throw BaseOperationError.parentOperationCancelled
+        }
+
+        var mergedAccounts = currentWallet.chainAccounts
+        try mergeStoredSeedAccount(
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
+            adoptedAccounts: adoptedWallet.chainAccounts,
+            currentAccounts: currentWallet.chainAccounts,
+            isValid: { account in
+                UniversalWalletChainAccountSupport.isValidBitcoinAccount(account)
+            },
+            into: &mergedAccounts
+        )
+        try mergeStoredSeedAccount(
+            chainId: UniversalWalletRegistry.taira.chainId,
+            adoptedAccounts: adoptedWallet.chainAccounts,
+            currentAccounts: currentWallet.chainAccounts,
+            isValid: UniversalWalletChainAccountSupport.isValidTairaAccount,
+            into: &mergedAccounts
+        )
+
+        return currentWallet.replacingChainAccounts(mergedAccounts)
+    }
+
+    static func performAndPersistStoredSeedAdoption(
+        walletSnapshot: MetaAccountModel,
+        adopter: UniversalWalletStoredSeedAdopting,
+        operationQueue: OperationQueue,
+        walletSettings: SelectedWalletSettings,
+        deliveryQueue: DispatchQueue = .main,
+        currentWallet: @escaping () -> MetaAccountModel?,
+        completion: @escaping (Result<MetaAccountModel, Error>) -> Void
+    ) {
+        performStoredSeedAdoption(
+            walletSnapshot: walletSnapshot,
+            adopter: adopter,
+            operationQueue: operationQueue,
+            deliveryQueue: deliveryQueue
+        ) { result in
+            let adoptedWallet: MetaAccountModel
+            do {
+                adoptedWallet = try result.get()
+            } catch {
+                completion(.failure(error))
+                return
+            }
+
+            guard let interactorWallet = currentWallet(),
+                  let selectedWallet = walletSettings.value else {
+                completion(.failure(BaseOperationError.parentOperationCancelled))
+                return
+            }
+
+            let latestWallet: MetaAccountModel
+            do {
+                latestWallet = try storedSeedAdoptionMergeBase(
+                    walletSnapshot: walletSnapshot,
+                    interactorWallet: interactorWallet,
+                    selectedWallet: selectedWallet
+                )
+            } catch {
+                completion(.failure(error))
+                return
+            }
+
+            let walletToSave: MetaAccountModel
+            do {
+                walletToSave = try mergeStoredSeedAdoption(
+                    adoptedWallet,
+                    into: latestWallet
+                )
+            } catch {
+                completion(.failure(error))
+                return
+            }
+
+            walletSettings.save(
+                value: walletToSave,
+                runningCompletionIn: deliveryQueue
+            ) { result in
+                let savedWallet: MetaAccountModel
+                do {
+                    savedWallet = try result.get()
+                } catch {
+                    completion(.failure(error))
+                    return
+                }
+
+                let activeWallet = walletSettings.value ?? savedWallet
+                do {
+                    let validatedWallet = try validatePersistedStoredSeedAdoption(
+                        adoptedWallet,
+                        activeWallet: activeWallet
+                    )
+                    completion(.success(validatedWallet))
+                } catch {
+                    completion(.failure(error))
+                    return
+                }
+            }
+        }
+    }
+
+    static func storedSeedAdoptionMergeBase(
+        walletSnapshot: MetaAccountModel,
+        interactorWallet: MetaAccountModel,
+        selectedWallet: MetaAccountModel
+    ) throws -> MetaAccountModel {
+        guard interactorWallet.metaId == walletSnapshot.metaId,
+              selectedWallet.metaId == walletSnapshot.metaId else {
+            throw BaseOperationError.parentOperationCancelled
+        }
+
+        if interactorWallet == selectedWallet {
+            return interactorWallet
+        }
+
+        if interactorWallet == walletSnapshot {
+            return selectedWallet
+        }
+
+        if selectedWallet == walletSnapshot {
+            return interactorWallet
+        }
+
+        // Two independently changed payloads cannot be reconciled without
+        // risking loss of a concurrent wallet update. Let the user retry on
+        // the latest stable snapshot instead.
+        throw BaseOperationError.parentOperationCancelled
+    }
+
+    static func validatePersistedStoredSeedAdoption(
+        _ adoptedWallet: MetaAccountModel,
+        activeWallet: MetaAccountModel
+    ) throws -> MetaAccountModel {
+        let validatedWallet = try mergeStoredSeedAdoption(
+            adoptedWallet,
+            into: activeWallet
+        )
+        guard validatedWallet == activeWallet else {
+            throw BaseOperationError.parentOperationCancelled
+        }
+
+        return activeWallet
+    }
+
+    private static func mergeStoredSeedAccount(
+        chainId: ChainModel.Id,
+        adoptedAccounts: Set<ChainAccountModel>,
+        currentAccounts: Set<ChainAccountModel>,
+        isValid: (ChainAccountModel) -> Bool,
+        into mergedAccounts: inout Set<ChainAccountModel>
+    ) throws {
+        let adoptedMatches = adoptedAccounts.filter {
+            UniversalWalletChainAccountSupport.chainId($0.chainId, matches: chainId)
+        }
+        guard adoptedMatches.count == 1,
+              let adoptedAccount = adoptedMatches.first,
+              isValid(adoptedAccount) else {
+            throw UniversalWalletStoredSeedAdopter.AdoptionError
+                .conflictingUniversalWalletAccount
+        }
+
+        let currentMatches = currentAccounts.filter {
+            UniversalWalletChainAccountSupport.chainId($0.chainId, matches: chainId)
+        }
+        guard currentMatches.count <= 1 else {
+            throw UniversalWalletStoredSeedAdopter.AdoptionError
+                .conflictingUniversalWalletAccount
+        }
+
+        if let currentAccount = currentMatches.first {
+            guard isValid(currentAccount),
+                  currentAccount.accountId == adoptedAccount.accountId,
+                  currentAccount.publicKey == adoptedAccount.publicKey,
+                  currentAccount.cryptoType == adoptedAccount.cryptoType,
+                  currentAccount.ethereumBased == adoptedAccount.ethereumBased else {
+                throw UniversalWalletStoredSeedAdopter.AdoptionError
+                    .conflictingUniversalWalletAccount
+            }
+        } else {
+            mergedAccounts.insert(adoptedAccount)
+        }
     }
 
     // MARK: - Private methods
@@ -127,6 +362,72 @@ final class ChainAssetListInteractor {
             guard let result = result else { return }
             self?.output?.didReceiveChainAssets(result: result)
         }
+    }
+
+    private func refreshRemoteBalances(for chainAssets: [ChainAsset]) {
+        let chains = chainAssets.map(\.chain).uniq(predicate: { $0.chainId })
+        let currentWallet = wallet
+
+        Task {
+            let results = await withTaskGroup(
+                of: (ChainModel, [ChainAssetId: AccountInfo?])?.self,
+                returning: [(ChainModel, [ChainAssetId: AccountInfo?])].self
+            ) { group in
+                chains.forEach { chain in
+                    group.addTask {
+                        NetworkScanStateStore.markAttempt(for: chain, walletId: currentWallet.metaId)
+                        do {
+                            let infos = try await self.accountInfoRemoteService.fetchAccountInfos(
+                                for: chain,
+                                wallet: currentWallet
+                            )
+                            NetworkScanStateStore.markSuccess(for: chain, walletId: currentWallet.metaId)
+                            return (chain, infos)
+                        } catch {
+                            NetworkScanStateStore.markFailure(for: chain, walletId: currentWallet.metaId)
+                            if let lastKnownProvider = self.accountInfoRemoteService as? AccountInfoLastKnownBalanceProviding {
+                                let retained = lastKnownProvider.lastKnownAccountInfos(
+                                    for: chain,
+                                    wallet: currentWallet
+                                )
+                                if retained.isNotEmpty {
+                                    return (chain, retained)
+                                }
+                            }
+                            return nil
+                        }
+                    }
+                }
+
+                var values: [(ChainModel, [ChainAssetId: AccountInfo?])] = []
+                for await result in group {
+                    if let result {
+                        values.append(result)
+                    }
+                }
+                return values
+            }
+
+            await MainActor.run {
+                results.forEach { chain, infos in
+                    chain.chainAssets.forEach { chainAsset in
+                        let accountInfo = infos[chainAsset.chainAssetId] ?? nil
+                        self.output?.didReceiveAccountInfo(result: .success(accountInfo), for: chainAsset)
+                    }
+                }
+            }
+        }
+    }
+
+    private func refreshUniversalBalances(for chainAssets: [ChainAsset]) {
+        let universalChainAssets = chainAssets.filter {
+            UniversalWalletChainAccountSupport.isUniversalWalletChain($0.chain.chainId)
+        }
+        guard universalChainAssets.isNotEmpty else {
+            return
+        }
+
+        refreshRemoteBalances(for: universalChainAssets)
     }
 }
 
@@ -186,6 +487,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
                     self?.ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: strongSelf.wallet) { _ in }
                     self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
                     self?.subscribeToAccountInfo(for: chainAssets)
+                    self?.refreshUniversalBalances(for: chainAssets)
                 }
             case let .failure(error):
                 self?.output?.didReceiveChainAssets(result: .failure(error))
@@ -223,6 +525,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         })
 
         ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: wallet) { _ in }
+        refreshRemoteBalances(for: chainAssets)
         pricesService.updatePrices()
     }
 
@@ -230,17 +533,18 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         chainAssetFetching.fetch(
             shouldUseCache: true,
             filters: [
-                .assetNames([
-                    chainAsset.asset.symbol,
-                    "xc\(chainAsset.asset.symbol)"
-                ]),
                 .enabled(wallet: wallet)
             ],
             sortDescriptors: []
         ) { result in
             switch result {
             case let .success(availableChainAssets):
-                completion(availableChainAssets)
+                completion(
+                    CuratedAssetRelationshipResolver.relatedChainAssets(
+                        to: chainAsset,
+                        among: availableChainAssets
+                    )
+                )
             default:
                 completion([])
             }
@@ -248,16 +552,57 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
     }
 
     func hideChainAsset(_ chainAsset: ChainAsset) {
-        var assetsVisibility = wallet.assetsVisibility.filter { $0.assetId != chainAsset.identifier }
-        let assetVisibility = AssetVisibility(assetId: chainAsset.identifier, hidden: true)
-        assetsVisibility.append(assetVisibility)
+        AssetVisibilityPreferenceStore.setExplicitlyHidden(
+            true,
+            walletId: wallet.metaId,
+            chainAsset: chainAsset
+        )
+        output?.updateViewModel(isInitSearchState: false)
+    }
 
-        let updatedWallet = wallet.replacingAssetsVisibility(assetsVisibility)
-        save(updatedWallet, shouldNotify: true)
+    func showChainAsset(_ chainAsset: ChainAsset) {
+        AssetVisibilityPreferenceStore.setExplicitlyHidden(
+            false,
+            walletId: wallet.metaId,
+            chainAsset: chainAsset
+        )
+        output?.updateViewModel(isInitSearchState: false)
     }
 
     func retryConnection(for chainId: ChainModel.Id) {
         chainRegistry.retryConnection(for: chainId)
+    }
+
+    func adoptStoredWalletSeed() {
+        let walletSnapshot = wallet
+        Self.performAndPersistStoredSeedAdoption(
+            walletSnapshot: walletSnapshot,
+            adopter: storedSeedAdopter,
+            operationQueue: operationQueue,
+            walletSettings: walletSettings,
+            currentWallet: { [weak self] in self?.wallet }
+        ) { [weak self] result in
+            guard let self else {
+                return
+            }
+
+            switch result {
+            case let .success(activeWallet):
+                self.wallet = activeWallet
+                self.resetAccountInfoSubscription()
+                self.updateChainAssets(
+                    using: self.filters,
+                    sorts: self.sorts,
+                    useCashe: false
+                )
+                self.eventCenter.notify(
+                    with: MetaAccountModelChangedEvent(account: activeWallet)
+                )
+                self.output?.didAdoptStoredWalletSeed(result: .success(activeWallet))
+            case let .failure(error):
+                self.output?.didAdoptStoredWalletSeed(result: .failure(error))
+            }
+        }
     }
 }
 
@@ -272,14 +617,23 @@ extension ChainAssetListInteractor: AccountInfoSubscriptionAdapterHandler {
 }
 
 extension ChainAssetListInteractor: EventVisitorProtocol {
+    static func invalidateViewModel(
+        for event: AssetVisibilityPreferenceChangedEvent,
+        walletId: MetaAccountId,
+        output: ChainAssetListInteractorOutput?
+    ) {
+        guard event.walletId == walletId else {
+            return
+        }
+
+        output?.updateViewModel(isInitSearchState: false)
+    }
+
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        let chainAccountsChanged = wallet.chainAccounts != event.account.chainAccounts
         output?.didReceiveWallet(wallet: event.account)
 
         if wallet.selectedCurrency != event.account.selectedCurrency {
-            output?.updateViewModel(isInitSearchState: false)
-        }
-
-        if wallet.assetsVisibility != event.account.assetsVisibility {
             output?.updateViewModel(isInitSearchState: false)
         }
 
@@ -288,6 +642,11 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         }
 
         wallet = event.account
+
+        if chainAccountsChanged {
+            resetAccountInfoSubscription()
+            updateChainAssets(using: filters, sorts: sorts, useCashe: false)
+        }
     }
 
     func processChainsUpdated(event _: ChainsUpdatedEvent) {
@@ -305,9 +664,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
 
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
         output?.handleWalletChanged(wallet: event.account)
-        resetAccountInfoSubscription()
         wallet = event.account
+        resetAccountInfoSubscription()
         output?.didReceive(accountInfosByChainAssets: [:])
+        updateChainAssets(using: filters, sorts: sorts, useCashe: false)
     }
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
@@ -316,6 +676,14 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
 
     func processPricesUpdated() {
         getUpdatedChainAssets()
+    }
+
+    func processAssetVisibilityPreferenceChanged(event: AssetVisibilityPreferenceChangedEvent) {
+        Self.invalidateViewModel(
+            for: event,
+            walletId: wallet.metaId,
+            output: output
+        )
     }
 }
 

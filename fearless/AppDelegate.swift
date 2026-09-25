@@ -1,8 +1,6 @@
 import UIKit
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    var window: UIWindow?
-
     var isUnitTesting: Bool {
         ProcessInfo.processInfo.arguments.contains("-UNITTEST")
     }
@@ -11,23 +9,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _: UIApplication,
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        FailClosedSecureUnarchiveFromDataTransformer.register()
+
         guard !isUnitTesting else { return true }
 
-        let rootWindow = FearlessWindow()
-        window = rootWindow
-
-        let presenter = RootPresenterFactory.createPresenter(with: rootWindow)
-        presenter.loadOnLaunch()
-
-        rootWindow.makeKeyAndVisible()
+        URLHandlingService.shared.setup(children: [
+            IrohaConnectURLHandler.shared, LegacyTonConnectURLHandler.shared, GoogleDriveBackupURLHandler.shared
+        ])
         return true
-    }
-
-    func application(
-        _: UIApplication,
-        open url: URL,
-        options _: [UIApplication.OpenURLOptionsKey: Any] = [:]
-    ) -> Bool {
-        URLHandlingService.shared.handle(url: url)
     }
 }

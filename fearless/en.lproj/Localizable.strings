@@ -1,6 +1,12 @@
 "NSCameraUsageDescription" = "The camera is used to capture QR codes";
 "NSFaceIDUsageDescription" = "Fearless uses Face ID to restrict unauthorized users from accessing the app. Face ID is used to authorize within the application";
 "NSPhotoLibraryAddUsageDescription" = "Save transfer request as a QR code";
+"ton.transfer.unknown.title" = "Transfer status is unknown";
+"ton.transfer.unknown.message" = "The network may have accepted this transfer. Do not send it again. Save this message hash and check its status before taking further action:\n%@";
+"ton.transfer.unknown.copy_hash" = "Copy message hash";
+"ton.transfer.prior_confirmed.title" = "Previous transfer confirmed";
+"ton.transfer.prior_confirmed.message" = "A previous transfer was confirmed. This new transfer was not sent. Review and acknowledge the previous hash before confirming again:\n%@";
+"ton.transfer.prior_confirmed.acknowledge" = "Acknowledge and recalculate fee";
 "NSPhotoLibraryUsageDescription" = "Load photos from library";
 "about.announcement" = "Receive Announcements";
 "about.ask.for.support" = "Ask for Support";
@@ -150,6 +156,7 @@
 "backup.select.wallet.create.button" = "Create new account";
 "backup.select.wallet.title" = "Select wallet to import";
 "backup.wallet.backup.google" = "Backup to Google";
+"passkey.backup.drive.confirm.account" = "Use this Google Drive account for encrypted backups?\n%@\nGoogle account ID: %@";
 "backup.wallet.delete.google" = "Delete Google backup";
 "backup.wallet.delete.message" = "If you delete your Google backup, you’ll only be able to recover your wallet with a manual backup of your passphrase";
 "backup.wallet.footer.view.text" = "If you loose access to this device, your funds will be lost, unless you back up!";
@@ -793,6 +800,7 @@ Terms and Conditions and Privacy Policy";
 "staking.analytics.period.all" = "All";
 "staking.analytics.rewards.empty.message" = "No rewards received\
 for the selected period";
+"staking.analytics.received.rewards" = "Received rewards";
 "staking.analytics.stake.allocation" = "Allocation with current validators";
 "staking.analytics.stake.empty.message" = "Your stake changes\
 will appear here";
@@ -1210,3 +1218,53 @@ belongs to the right network";
 "profile.account.score.title" = "Nomis multichain score";
 "scam.info.nomis.name" = "Nomis multi-chain score";
 "scam.info.nomis.subtype.text" = "Proceed with caution";
+
+"tab.portfolio" = "Wallet";
+
+"tab.defi" = "Earn";
+
+"tab.polkaswap" = "Swap";
+
+"tab.cross_chain" = "Transfer";
+
+"ux.switch_wallet" = "Switch wallet";
+
+"ux.choose_network" = "Choose network";
+
+"ux.search_assets" = "Search assets";
+
+"ux.scan_qr" = "Scan QR code";
+
+"ux.receive_network_instruction" = "Send only %@ on %@ to this address.";
+
+"ux.retry" = "Try again";
+
+"ux.manage_wallets" = "Manage wallets";
+
+"ux.transfer_networks" = "Transfer between networks →";
+
+"ux.positions_loading" = "Checking your holdings and rewards.";
+
+"ux.positions_unavailable" = "These positions could not be loaded. Try again.";
+
+"ux.positions_stale" = "Showing your last loaded positions. Try again to update them.";
+
+"ux.positions_empty" = "You have no active positions";
+
+"ux.positions_explore" = "Explore ways to earn below.";
+
+"ux.explore_earn" = "Explore ways to earn";
+
+"ux.refresh_positions" = "Refresh positions";
+
+"ux.back" = "Back";
+"ux.collapsed" = "Collapsed";
+"ux.expanded" = "Expanded";
+
+/* Other holdings may not appear because balance checks use the app's asset list. */
+"portfolio.discovery.catalog_only" = "Some tokens may not appear";
+
+/* Only shown when network balances need attention. */
+"portfolio.balance.update_failed" = "Balance update failed";
+"portfolio.balance.outdated" = "Balances may be outdated";
+"portfolio.balance.not_loaded" = "Balances not loaded";

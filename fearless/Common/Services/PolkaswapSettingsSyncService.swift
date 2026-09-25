@@ -6,6 +6,14 @@ protocol PolkaswapSettingsSyncServiceProtocol {
     func syncUp()
 }
 
+struct PolkaswapSettingsDidUpdate: EventProtocol {
+    let settings: PolkaswapRemoteSettings
+
+    func accept(visitor: EventVisitorProtocol) {
+        visitor.processPolkaswapSettingsDidUpdate(event: self)
+    }
+}
+
 final class PolkaswapSettingsSyncService {
     static let fetchLocalData = false
 
@@ -14,6 +22,7 @@ final class PolkaswapSettingsSyncService {
     private let dataFetchFactory: DataOperationFactoryProtocol
     private let retryStrategy: ReconnectionStrategyProtocol
     private let operationQueue: OperationQueue
+    private let eventCenter: EventCenterProtocol
     private let logger: LoggerProtocol?
 
     private(set) var retryAttempt: Int = 0
@@ -28,6 +37,7 @@ final class PolkaswapSettingsSyncService {
         repository: AnyDataProviderRepository<PolkaswapRemoteSettings>,
         operationQueue: OperationQueue,
         retryStrategy: ReconnectionStrategyProtocol = ExponentialReconnection(),
+        eventCenter: EventCenterProtocol = EventCenter.shared,
         logger: LoggerProtocol? = nil
     ) {
         self.settingsUrl = settingsUrl
@@ -35,6 +45,7 @@ final class PolkaswapSettingsSyncService {
         self.repository = repository
         self.operationQueue = operationQueue
         self.retryStrategy = retryStrategy
+        self.eventCenter = eventCenter
         self.logger = logger
     }
 
@@ -115,6 +126,9 @@ final class PolkaswapSettingsSyncService {
     ) {
         if remote.version != local?.version {
             handle(save: remote, remove: local)
+        } else {
+            complete(result: .success(remote))
+            eventCenter.notify(with: PolkaswapSettingsDidUpdate(settings: remote))
         }
     }
 
@@ -128,8 +142,14 @@ final class PolkaswapSettingsSyncService {
             return [remove.version]
         })
 
-        DispatchQueue.global(qos: .utility).async {
-            self.complete(result: .success(save))
+        localSaveOperation.completionBlock = { [weak self] in
+            do {
+                _ = try localSaveOperation.extractNoCancellableResultData()
+                self?.complete(result: .success(save))
+                self?.eventCenter.notify(with: PolkaswapSettingsDidUpdate(settings: save))
+            } catch {
+                self?.complete(result: .failure(error))
+            }
         }
 
         operationQueue.addOperation(localSaveOperation)

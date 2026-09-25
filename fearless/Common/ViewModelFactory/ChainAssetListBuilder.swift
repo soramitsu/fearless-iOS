@@ -167,27 +167,29 @@ extension ChainAssetListBuilder {
     func getTotalFiatBalance(
         for chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
-        priceData: PriceData?,
         wallet: MetaAccountModel
     ) -> Decimal {
         chainAssets.compactMap { chainAsset -> Decimal? in
-            if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-               let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] {
-                return getFiatBalance(
-                    for: chainAsset,
-                    accountInfo: accountInfo,
-                    priceData: priceData
-                )
+            guard AssetTrustResolver.priceTrust(
+                for: chainAsset,
+                currency: wallet.selectedCurrency
+            ).contributesToPortfolioTotal,
+                let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+                let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] else {
+                return nil
             }
 
-            return nil
+            return getFiatBalance(
+                for: chainAsset,
+                accountInfo: accountInfo,
+                priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+            )
         }.reduce(0, +)
     }
 
     func getFiatBalanceString(
         for chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
-        priceData: PriceData?,
         locale: Locale,
         wallet: MetaAccountModel,
         shouldShowZero: Bool
@@ -195,7 +197,6 @@ extension ChainAssetListBuilder {
         let totalFiatBalance = getTotalFiatBalance(
             for: chainAssets,
             accountInfos: accountInfos,
-            priceData: priceData,
             wallet: wallet
         )
 
@@ -296,39 +297,31 @@ extension ChainAssetListBuilder {
         accountInfos: [ChainAssetKey: AccountInfo?],
         wallet: MetaAccountModel
     ) -> [AssetChainAssets] {
-        let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.normalizedSymbol() })
-
-        return assetNamesSet.compactMap { name in
-            let assetChainAssets = chainAssets.filter { $0.asset.normalizedSymbol() == name && wallet.fetch(for: $0.chain.accountRequest()) != nil }
-            let chainAssetsSorted = assetChainAssets.sorted(by: { ca1, ca2 in
-                sortChainAssets(ca1: ca1, ca2: ca2)
-            })
-            guard let mainChainAsset =
-                chainAssetsSorted.first(where: { $0.isUtility }) ??
-                chainAssetsSorted.first(where: { $0.isNative == true }) ??
-                chainAssetsSorted.first
-            else {
-                return nil
+        let accountAssets = chainAssets.filter {
+            wallet.fetch(for: $0.chain.accountRequest()) != nil
+        }
+        let canonicalAssets = Dictionary(grouping: accountAssets, by: \.assetKey)
+            .compactMap { _, matches in
+                matches.sorted { $0.identifier < $1.identifier }.first
             }
+
+        return canonicalAssets.map { mainChainAsset in
+            let assetChainAssets = [mainChainAsset]
             let totalBalance = getTotalBalance(
                 for: assetChainAssets,
                 accountInfos: accountInfos,
                 wallet: wallet
             )
-            let priceData = mainChainAsset.asset.getPrice(for: wallet.selectedCurrency)
             let totalFiatBalance = getTotalFiatBalance(
                 for: assetChainAssets,
                 accountInfos: accountInfos,
-                priceData: priceData,
                 wallet: wallet
             )
 
-            let enabledAssetIds = wallet.assetsVisibility
-                .filter { !$0.hidden }
-                .map { $0.assetId }
-            let isVisible = enabledAssetIds.contains { enabledAssetId in
-                assetChainAssets.contains(where: { $0.asset.id == enabledAssetId })
-            }
+            let isVisible = AssetVisibilityPreferenceStore.preference(
+                walletId: wallet.metaId,
+                assetKey: mainChainAsset.assetKey
+            ) == .shown
 
             let assetCA = AssetChainAssets(
                 chainAssets: assetChainAssets,
@@ -345,22 +338,19 @@ extension ChainAssetListBuilder {
         chainAssets: [ChainAsset],
         for wallet: MetaAccountModel
     ) -> [ChainAsset] {
-        guard wallet.assetsVisibility.isNotEmpty else {
-            return defaultByPopular(chainAssets: chainAssets)
-        }
         let enabled = enabled(chainAssets: chainAssets, for: wallet)
-        return enabled
+        return enabled.isEmpty ? defaultByPopular(chainAssets: chainAssets) : enabled
     }
 
     func enabled(
         chainAssets: [ChainAsset],
         for wallet: MetaAccountModel
     ) -> [ChainAsset] {
-        let enabledAssetIds: [String] = wallet.assetsVisibility
-            .filter { !$0.hidden }
-            .map { $0.assetId }
-        let enabled = chainAssets.filter {
-            enabledAssetIds.contains($0.identifier)
+        let enabled = chainAssets.filter { chainAsset in
+            AssetVisibilityPreferenceStore.isSelectable(
+                walletId: wallet.metaId,
+                chainAsset: chainAsset
+            )
         }
         return enabled
     }

@@ -32,6 +32,18 @@ final class SendViewLayout: UIView {
         return view
     }()
 
+    let crossNetworkButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle(NSLocalizedString("ux.transfer_networks", value: "Transfer between networks →", comment: ""), for: .normal)
+        button.titleLabel?.font = .p1Paragraph
+        button.titleLabel?.adjustsFontForContentSizeCategory = true
+        button.titleLabel?.numberOfLines = 0
+        button.contentHorizontalAlignment = .leading
+        button.tintColor = R.color.colorPink()
+        button.accessibilityIdentifier = "send.transferNetworks"
+        return button
+    }()
+
     let amountView = SelectableAmountInputView(type: .send)
     let selectNetworkView = UIFactory.default.createNetworkView(selectable: true)
     let scamWarningView: ScamWarningExpandableView = {
@@ -201,6 +213,11 @@ private extension SendViewLayout {
 
         let viewOffset = -2.0 * UIConstants.horizontalInset
 
+        contentView.stackView.addArrangedSubview(crossNetworkButton)
+        crossNetworkButton.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(viewOffset)
+            make.height.greaterThanOrEqualTo(44)
+        }
         contentView.stackView.addArrangedSubview(searchView)
         searchView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(viewOffset)

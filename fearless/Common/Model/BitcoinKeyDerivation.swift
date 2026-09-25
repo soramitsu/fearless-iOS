@@ -1,7 +1,239 @@
 import BigInt
 import CommonCrypto
 import Foundation
+import IrohaCrypto
+import SoraKeystore
+import SSFModels
 import secp256k1
+
+/// Versioned bridge for wallets that were imported from a 32-byte raw wallet
+/// seed instead of BIP39 words. The raw seed is used directly as BIP39 entropy;
+/// no hash, random value, or irreversible synthetic secret is introduced.
+/// Restoring the same raw wallet seed therefore recreates the same app-owned
+/// accounts, while mnemonic wallets continue to use their original entropy.
+enum UniversalWalletSeedBridge {
+    static let contract = "raw-wallet-seed-as-bip39-entropy-v1"
+    static let walletSeedLength = 32
+
+    enum BridgeError: Error, Equatable {
+        case invalidWalletSeedLength
+    }
+
+    static func mnemonic(fromWalletSeed walletSeed: Data) throws -> String {
+        guard walletSeed.count == walletSeedLength else {
+            throw BridgeError.invalidWalletSeedLength
+        }
+
+        return try IRMnemonicCreator()
+            .mnemonic(fromEntropy: walletSeed)
+            .toString()
+    }
+}
+
+protocol UniversalWalletStoredSeedAdopting {
+    func adoptStoredSecret(for wallet: MetaAccountModel) throws -> MetaAccountModel
+}
+
+enum UniversalWalletRootRecoveryError: LocalizedError, ErrorContentConvertible, Equatable {
+    case phraseDoesNotMatchWallet
+    case existingAccountUsesDifferentPhrase
+    case unsupportedWalletIdentity
+
+    var errorDescription: String? {
+        switch self {
+        case .phraseDoesNotMatchWallet:
+            return "That recovery phrase does not recreate this wallet. No accounts or keys were changed."
+        case .existingAccountUsesDifferentPhrase:
+            return "This wallet already contains a Bitcoin or Taira account from a different recovery phrase. It was not replaced because doing so could hide funds."
+        case .unsupportedWalletIdentity:
+            return "This legacy wallet cannot be converted safely to one recovery phrase in place. Create or restore a mnemonic wallet and move the assets to it."
+        }
+    }
+
+    func toErrorContent(for _: Locale?) -> ErrorContent {
+        let title: String
+        switch self {
+        case .phraseDoesNotMatchWallet:
+            title = "Recovery phrase does not match"
+        case .existingAccountUsesDifferentPhrase:
+            title = "Different recovery phrase detected"
+        case .unsupportedWalletIdentity:
+            title = "Wallet migration required"
+        }
+
+        return ErrorContent(
+            title: title,
+            message: errorDescription ?? "The wallet was not changed."
+        )
+    }
+}
+
+/// Restores app-owned accounts only from an established wallet recovery
+/// contract. Authentic BIP39 root entropy is authoritative. A raw seed is used
+/// only when the wallet was imported with the explicit versioned bridge marker;
+/// an ambiguous unmarked seed is never converted into a second phrase.
+final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting {
+    enum AdoptionError: LocalizedError, ErrorContentConvertible, Equatable {
+        case storedWalletSeedUnavailable
+        case unsupportedSecretSource
+        case conflictingUniversalWalletAccount
+
+        var errorDescription: String? {
+            switch self {
+            case .storedWalletSeedUnavailable:
+                return "This device does not have the wallet recovery phrase. Enter the original phrase to add Bitcoin and Taira."
+            case .unsupportedSecretSource:
+                return "This legacy wallet cannot be converted safely to one recovery phrase in place. Create or restore a mnemonic wallet and move the assets to it."
+            case .conflictingUniversalWalletAccount:
+                return "This wallet already contains a Bitcoin or Taira account from a different recovery phrase. Its address and key were preserved; move any funds before migrating to the wallet root."
+            }
+        }
+
+        func toErrorContent(for locale: Locale?) -> ErrorContent {
+            ErrorContent(
+                title: R.string.localizable.commonErrorGeneralTitle(
+                    preferredLanguages: locale?.rLanguages
+                ),
+                message: errorDescription ?? "Bitcoin and Taira accounts were not created."
+            )
+        }
+    }
+
+    private let keystore: KeystoreProtocol
+
+    init(keystore: KeystoreProtocol = Keychain()) {
+        self.keystore = keystore
+    }
+
+    func adoptStoredSecret(for wallet: MetaAccountModel) throws -> MetaAccountModel {
+        // EVM-only and native TON roots have no Substrate recovery contract to
+        // authorize adding Bitcoin or Taira accounts from an incidental entropy tag.
+        if wallet.substrateAccountId == nil { return wallet }
+        try validateNoConflictingAccounts(in: wallet)
+
+        if let rootEntropy = try fetchIfPresent(
+            tag: KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+        ) {
+            let mnemonic: String
+            do {
+                mnemonic = try IRMnemonicCreator()
+                    .mnemonic(fromEntropy: rootEntropy)
+                    .toString()
+            } catch {
+                throw AdoptionError.storedWalletSeedUnavailable
+            }
+            return try updatedWallet(from: wallet, mnemonic: mnemonic)
+        }
+
+        let sourceTag = KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
+        guard let source = try fetchIfPresent(tag: sourceTag) else {
+            throw AdoptionError.storedWalletSeedUnavailable
+        }
+        guard String(data: source, encoding: .utf8) == UniversalWalletSeedBridge.contract else {
+            throw AdoptionError.unsupportedSecretSource
+        }
+
+        guard let walletSeed = try fetchIfPresent(
+            tag: KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId)
+        ) else {
+            throw AdoptionError.storedWalletSeedUnavailable
+        }
+
+        let mnemonic: String
+        do {
+            mnemonic = try UniversalWalletSeedBridge.mnemonic(fromWalletSeed: walletSeed)
+        } catch UniversalWalletSeedBridge.BridgeError.invalidWalletSeedLength {
+            throw AdoptionError.storedWalletSeedUnavailable
+        }
+
+        return try updatedWallet(from: wallet, mnemonic: mnemonic)
+    }
+
+    private func validateNoConflictingAccounts(in wallet: MetaAccountModel) throws {
+        let bitcoinAccounts = wallet.chainAccounts.filter {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            )
+        }
+        let tairaAccounts = wallet.chainAccounts.filter {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            )
+        }
+
+        guard bitcoinAccounts.allSatisfy({
+            UniversalWalletChainAccountSupport.isValidBitcoinAccount($0)
+        }), tairaAccounts.allSatisfy(
+            UniversalWalletChainAccountSupport.isValidTairaAccount
+        ) else {
+            throw AdoptionError.conflictingUniversalWalletAccount
+        }
+    }
+
+    private func updatedWallet(
+        from wallet: MetaAccountModel,
+        mnemonic: String
+    ) throws -> MetaAccountModel {
+        let bitcoinCandidate = try BitcoinKeyDerivation.deriveAccount(
+            mnemonic: mnemonic,
+            network: .mainnet
+        )
+        let tairaCandidate = try IrohaKeyDerivation.deriveAccount(mnemonic: mnemonic)
+
+        try validateExistingAccounts(
+            in: wallet,
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
+            candidatePublicKey: bitcoinCandidate.publicKey,
+            isStructurallyValid: {
+                UniversalWalletChainAccountSupport.isValidBitcoinAccount($0)
+            }
+        )
+        try validateExistingAccounts(
+            in: wallet,
+            chainId: UniversalWalletRegistry.taira.chainId,
+            candidatePublicKey: tairaCandidate.publicKey,
+            isStructurallyValid: UniversalWalletChainAccountSupport.isValidTairaAccount
+        )
+
+        return try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+            to: wallet,
+            mnemonic: mnemonic
+        )
+    }
+
+    private func validateExistingAccounts(
+        in wallet: MetaAccountModel,
+        chainId: ChainModel.Id,
+        candidatePublicKey: Data,
+        isStructurallyValid: (ChainAccountModel) -> Bool
+    ) throws {
+        let accounts = wallet.chainAccounts.filter {
+            UniversalWalletChainAccountSupport.chainId($0.chainId, matches: chainId)
+        }
+        guard accounts.count <= 1 else {
+            throw AdoptionError.conflictingUniversalWalletAccount
+        }
+        guard let account = accounts.first else {
+            return
+        }
+        guard isStructurallyValid(account) else {
+            throw AdoptionError.conflictingUniversalWalletAccount
+        }
+        guard account.publicKey == candidatePublicKey else {
+            throw AdoptionError.conflictingUniversalWalletAccount
+        }
+    }
+
+    private func fetchIfPresent(tag: String) throws -> Data? {
+        do {
+            return try keystore.fetchKey(for: tag)
+        } catch KeystoreError.noKeyFound {
+            return nil
+        }
+    }
+}
 
 enum BitcoinKeyDerivation {
     enum Network: Equatable {
@@ -340,7 +572,8 @@ enum BitcoinKeyDerivation {
     }
 
     private static func normalizeMnemonic(_ mnemonic: String) throws -> String {
-        let words = mnemonic
+        let normalized = mnemonic.decomposedStringWithCompatibilityMapping
+        let words = normalized
             .split(whereSeparator: { $0.isWhitespace })
             .map(String.init)
 
@@ -349,11 +582,13 @@ enum BitcoinKeyDerivation {
         }
 
         return words.joined(separator: " ")
+            .decomposedStringWithCompatibilityMapping
     }
 
     private static func bip39Seed(mnemonic: String, passphrase: String) throws -> Data {
         let password = Array(mnemonic.utf8)
-        let salt = Array("mnemonic\(passphrase)".utf8)
+        let normalizedPassphrase = passphrase.decomposedStringWithCompatibilityMapping
+        let salt = Array("mnemonic\(normalizedPassphrase)".utf8)
         var output = [UInt8](repeating: 0, count: bip39SeedLength)
 
         let status = password.withUnsafeBufferPointer { passwordBuffer in

@@ -31,7 +31,13 @@ protocol ChainAssetListInteractorInput: AnyObject {
     func reload()
     func getAvailableChainAssets(chainAsset: ChainAsset, completion: @escaping (([ChainAsset]) -> Void))
     func hideChainAsset(_ chainAsset: ChainAsset)
+    func showChainAsset(_ chainAsset: ChainAsset)
     func retryConnection(for chainId: ChainModel.Id)
+    func adoptStoredWalletSeed()
+}
+
+extension ChainAssetListInteractorInput {
+    func showChainAsset(_: ChainAsset) {}
 }
 
 protocol ChainAssetListInteractorOutput: AnyObject {
@@ -43,6 +49,7 @@ protocol ChainAssetListInteractorOutput: AnyObject {
     func didReceive(accountInfosByChainAssets: [ChainAsset: AccountInfo?])
     func handleWalletChanged(wallet: MetaAccountModel)
     func didReceive(chainSettings: [ChainSettings])
+    func didAdoptStoredWalletSeed(result: Result<MetaAccountModel, Error>)
 }
 
 protocol ChainAssetListRouterInput:

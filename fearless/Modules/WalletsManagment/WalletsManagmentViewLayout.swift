@@ -10,15 +10,16 @@ final class WalletsManagmentViewLayout: UIView {
     private enum Constants {
         static let headerHeight: CGFloat = 56.0
         static let cornerRadius: CGFloat = 20.0
-        static let backButtonSize: CGFloat = 32.0
+        static let backButtonSize: CGFloat = 44.0
     }
 
     let backButton: UIButton = {
         let backButton = UIButton()
         backButton.setImage(R.image.iconBack(), for: .normal)
+        backButton.accessibilityLabel = NSLocalizedString("ux.back", value: "Back", comment: "Navigation action")
         backButton.imageView?.contentMode = .center
         backButton.backgroundColor = R.color.colorSemiBlack()
-        backButton.layer.cornerRadius = 16
+        backButton.layer.cornerRadius = Constants.backButtonSize / 2
         backButton.clipsToBounds = true
         return backButton
     }()
@@ -26,6 +27,9 @@ final class WalletsManagmentViewLayout: UIView {
     let titleLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.font = .h4Title
+        titleLabel.numberOfLines = 0
+        titleLabel.adjustsFontForContentSizeCategory = true
+        titleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         return titleLabel
     }()
 
@@ -92,15 +96,18 @@ final class WalletsManagmentViewLayout: UIView {
         addSubview(navView)
         navView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
-            make.height.equalTo(Constants.headerHeight)
-        }
-
-        navView.addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { make in
-            make.center.equalToSuperview()
+            make.height.greaterThanOrEqualTo(Constants.headerHeight)
         }
 
         navView.addSubview(backButton)
+        navView.addSubview(titleLabel)
+        titleLabel.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.top.bottom.equalToSuperview().inset(8)
+            make.leading.greaterThanOrEqualTo(backButton.snp.trailing).offset(8)
+            make.trailing.lessThanOrEqualToSuperview().inset(UIConstants.bigOffset)
+        }
+
         backButton.snp.makeConstraints { make in
             make.size.equalTo(Constants.backButtonSize)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)

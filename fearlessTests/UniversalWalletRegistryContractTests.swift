@@ -46,6 +46,29 @@ final class UniversalWalletRegistryContractTests: XCTestCase {
             ].allSatisfy(ids.contains)
         )
 
+        let bitcoinMainnet = try XCTUnwrap(registry.chains.first { $0.id == "bitcoin-mainnet" })
+        XCTAssertTrue(bitcoinMainnet.enabledByDefault)
+        XCTAssertEqual(bitcoinMainnet.features, ["transfer"])
+        XCTAssertEqual(bitcoinMainnet.endpoints.count, 1)
+        XCTAssertTrue(
+            bitcoinMainnet.endpoints.contains {
+                $0.kind == .indexer &&
+                    $0.url == UniversalWalletRegistry.bitcoinMainnetIndexerBaseURL.absoluteString &&
+                    $0.readOnly
+            }
+        )
+
+        let bitcoinTestnet = try XCTUnwrap(registry.chains.first { $0.id == "bitcoin-testnet" })
+        XCTAssertFalse(bitcoinTestnet.enabledByDefault)
+        XCTAssertEqual(bitcoinTestnet.endpoints.count, 1)
+        XCTAssertTrue(
+            bitcoinTestnet.endpoints.contains {
+                $0.kind == .indexer &&
+                    $0.url == UniversalWalletRegistry.bitcoinTestnetIndexerBaseURL.absoluteString &&
+                    $0.readOnly
+            }
+        )
+
         let solana = try XCTUnwrap(registry.chains.first { $0.id == "solana-mainnet" })
         XCTAssertTrue(
             solana.endpoints.contains {
@@ -72,7 +95,10 @@ final class UniversalWalletRegistryContractTests: XCTestCase {
         )
 
         let taira = try XCTUnwrap(registry.chains.first { $0.id == "taira-testnet" })
-        XCTAssertEqual(taira.features, ["transfer"])
+        XCTAssertEqual(taira.features, ["receive"])
+        XCTAssertEqual(taira.nativeAsset?.id, "6TEAJqbb8oEPmLncoNiMRbLEK6tw")
+        XCTAssertEqual(taira.nativeAsset?.symbol, "XOR")
+        XCTAssertEqual(taira.nativeAsset?.decimals, 28)
         XCTAssertTrue(
             taira.endpoints.contains {
                 $0.kind == .toriiMcp &&

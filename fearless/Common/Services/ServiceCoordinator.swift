@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import SoraKeystore
 import SoraFoundation
 import RobinHood
@@ -23,6 +24,11 @@ final class ServiceCoordinator {
     private let walletConnect: WalletConnectService
     private let walletAssetsObserver: WalletAssetsObserver
     private let pricesService: PricesServiceProtocol
+    private let appOwnedMnemonicProvider: UniversalWalletRootMnemonicProviding
+    private let notificationCenter: NotificationCenter
+    private let appOwnedProvisioningLock = NSLock()
+    private var appOwnedProvisioningWalletIds = Set<MetaAccountId>()
+    private var appOwnedProvisioningObservers: [NSObjectProtocol] = []
 
     init(
         walletSettings: SelectedWalletSettings,
@@ -32,7 +38,9 @@ final class ServiceCoordinator {
         polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol,
         walletConnect: WalletConnectService,
         walletAssetsObserver: WalletAssetsObserver,
-        pricesService: PricesServiceProtocol
+        pricesService: PricesServiceProtocol,
+        bitcoinMnemonicProvider: UniversalWalletRootMnemonicProviding = KeychainUniversalWalletMnemonicProvider(),
+        notificationCenter: NotificationCenter = .default
     ) {
         self.walletSettings = walletSettings
         self.accountInfoService = accountInfoService
@@ -42,6 +50,12 @@ final class ServiceCoordinator {
         self.walletConnect = walletConnect
         self.walletAssetsObserver = walletAssetsObserver
         self.pricesService = pricesService
+        appOwnedMnemonicProvider = bitcoinMnemonicProvider
+        self.notificationCenter = notificationCenter
+    }
+
+    deinit {
+        removeAppOwnedProvisioningObservers()
     }
 }
 
@@ -50,28 +64,138 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         if let seletedMetaAccount = walletSettings.value {
             accountInfoService.update(selectedMetaAccount: seletedMetaAccount)
             walletAssetsObserver.update(wallet: seletedMetaAccount)
+            provisionAppOwnedAccountsIfNeeded(for: seletedMetaAccount)
         }
     }
 
     func setup() {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        chainRegistry.syncUp()
         chainRegistry.subscribeToChains()
+        chainRegistry.syncUp()
 
         githubPhishingService.setup()
         accountInfoService.setup()
         scamSyncService.syncUp()
         polkaswapSettingsService.syncUp()
         walletConnect.setup()
+        LegacyTonConnectCoordinator.shared.setup()
         walletAssetsObserver.setup()
         pricesService.setup()
+        observeAppOwnedProvisioningRetryEvents()
+
+        if let selectedMetaAccount = walletSettings.value {
+            provisionAppOwnedAccountsIfNeeded(for: selectedMetaAccount)
+        }
     }
 
     func throttle() {
         githubPhishingService.throttle()
         accountInfoService.throttle()
         walletConnect.throttle()
+        LegacyTonConnectCoordinator.shared.throttle()
         walletAssetsObserver.throttle()
+        removeAppOwnedProvisioningObservers()
+    }
+}
+
+private extension ServiceCoordinator {
+    func observeAppOwnedProvisioningRetryEvents() {
+        guard appOwnedProvisioningObservers.isEmpty else {
+            return
+        }
+
+        let retry: (Notification) -> Void = { [weak self] _ in
+            guard let self, let wallet = self.walletSettings.value else {
+                return
+            }
+            self.provisionAppOwnedAccountsIfNeeded(for: wallet)
+        }
+        appOwnedProvisioningObservers = [
+            notificationCenter.addObserver(
+                forName: UIApplication.protectedDataDidBecomeAvailableNotification,
+                object: nil,
+                queue: .main,
+                using: retry
+            ),
+            notificationCenter.addObserver(
+                forName: UIApplication.didBecomeActiveNotification,
+                object: nil,
+                queue: .main,
+                using: retry
+            )
+        ]
+    }
+
+    func removeAppOwnedProvisioningObservers() {
+        appOwnedProvisioningObservers.forEach { notificationCenter.removeObserver($0) }
+        appOwnedProvisioningObservers.removeAll()
+    }
+
+    func provisionAppOwnedAccountsIfNeeded(for wallet: MetaAccountModel) {
+        appOwnedProvisioningLock.lock()
+        let shouldProvision = appOwnedProvisioningWalletIds.insert(wallet.metaId).inserted
+        appOwnedProvisioningLock.unlock()
+        guard shouldProvision else {
+            return
+        }
+
+        DispatchQueue.global(qos: .utility).async { [self] in
+            do {
+                guard let mnemonic = try appOwnedMnemonicProvider.rootMnemonic(for: wallet) else {
+                    finishAppOwnedProvisioning(for: wallet.metaId)
+                    return
+                }
+
+                let updatedWallet = try UniversalWalletAccountProvisioning.addingMissingAppOwnedAccounts(
+                    to: wallet,
+                    mnemonic: mnemonic
+                )
+                guard updatedWallet != wallet else {
+                    finishAppOwnedProvisioning(for: wallet.metaId)
+                    return
+                }
+                let accepted = walletSettings.save(
+                    value: updatedWallet,
+                    ifCurrentValueSatisfies: { $0 == wallet },
+                    runningCompletionIn: .main
+                ) { [weak self] result in
+                    guard let self else {
+                        return
+                    }
+
+                    self.finishAppOwnedProvisioning(for: wallet.metaId)
+                    switch result {
+                    case let .success(savedWallet):
+                        guard self.walletSettings.value == savedWallet else {
+                            return
+                        }
+                        self.accountInfoService.update(selectedMetaAccount: savedWallet)
+                        self.walletAssetsObserver.update(wallet: savedWallet)
+                        EventCenter.shared.notify(
+                            with: MetaAccountModelChangedEvent(account: savedWallet)
+                        )
+                    case let .failure(error):
+                        Logger.shared.error(
+                            "App-owned account provisioning failed: \(error.localizedDescription)"
+                        )
+                    }
+                }
+                if !accepted {
+                    finishAppOwnedProvisioning(for: wallet.metaId)
+                }
+            } catch {
+                finishAppOwnedProvisioning(for: wallet.metaId)
+                Logger.shared.error(
+                    "App-owned account provisioning failed: \(error.localizedDescription)"
+                )
+            }
+        }
+    }
+
+    func finishAppOwnedProvisioning(for walletId: MetaAccountId) {
+        appOwnedProvisioningLock.lock()
+        appOwnedProvisioningWalletIds.remove(walletId)
+        appOwnedProvisioningLock.unlock()
     }
 }
 
@@ -122,6 +246,11 @@ extension ServiceCoordinator {
             eventCenter: EventCenter.shared,
             logger: logger
         )
+        let dynamicAssetCatalogInjector = DynamicAssetCatalogInjectorImpl(
+            chainModelRepository: AsyncAnyRepository(tonChainRepository),
+            eventCenter: EventCenter.shared,
+            logger: logger
+        )
 
         let tonRemoteBalanceFetching = TonRemoteBalanceFetchingImpl(
             chainRegistry: chainRegistry,
@@ -152,13 +281,14 @@ extension ServiceCoordinator {
             tonRemoteBalanceFetching: tonRemoteBalanceFetching,
             bitcoinBalanceSync: BitcoinBalanceSync(discovery: BitcoinReceiveDiscovery(client: BitcoinIndexerClient())),
             solanaBalanceSync: SolanaBalanceSync(client: SolanaIndexerClient()),
+            dynamicAssetCatalogInjector: dynamicAssetCatalogInjector,
             storagePerformer: storagePerformer
         )
 
         let walletAssetsObserver = WalletAssetsObserverImpl(
             wallet: selectedMetaAccount,
             chainRegistry: chainRegistry,
-            accountInfoRemote: accountInfoRemote,
+            assetDiscoveryService: AssetDiscoveryServiceAdapter(accountInfoRemote: accountInfoRemote),
             eventCenter: EventCenter.shared,
             logger: logger,
             userDefaultsStorage: SettingsManager.shared

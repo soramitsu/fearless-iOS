@@ -3,10 +3,18 @@ import Kingfisher
 import SVGKit
 
 final class RemoteImageViewModel: NSObject {
+    private static let bundledBitcoinLogoCacheKey = "fearless.bundle.bitcoin-logo.bitcoinorg-f7931a-v1"
+    private static let bundledBitcoinLogo = UIImage(named: "bitcoinLogo")
+    private static let bundledBitcoinLogoData = bundledBitcoinLogo?.pngData()
+
     let url: URL
+    let fallbackImage: UIImage?
+    let imageSource: Source
 
     init(url: URL) {
         self.url = url
+        fallbackImage = Self.fallbackImage(for: url)
+        imageSource = Self.imageSource(for: url)
     }
 
     init?(url: URL?) {
@@ -14,6 +22,8 @@ final class RemoteImageViewModel: NSObject {
             return nil
         }
         self.url = url
+        fallbackImage = Self.fallbackImage(for: url)
+        imageSource = Self.imageSource(for: url)
     }
 
     init?(string: String?) {
@@ -24,6 +34,26 @@ final class RemoteImageViewModel: NSObject {
             return nil
         }
         self.url = url
+        fallbackImage = Self.fallbackImage(for: url)
+        imageSource = Self.imageSource(for: url)
+    }
+
+    private static func fallbackImage(for url: URL) -> UIImage? {
+        UniversalWalletRegistry.isBitcoinIconURL(url) ? bundledBitcoinLogo : nil
+    }
+
+    private static func imageSource(for url: URL) -> Source {
+        if UniversalWalletRegistry.isBitcoinIconURL(url),
+           let data = bundledBitcoinLogoData {
+            return .provider(
+                RawImageDataProvider(
+                    data: data,
+                    cacheKey: bundledBitcoinLogoCacheKey
+                )
+            )
+        }
+
+        return .network(url)
     }
 }
 
@@ -50,7 +80,8 @@ extension RemoteImageViewModel: ImageViewModelProtocol {
         }
 
         imageView.kf.setImage(
-            with: url,
+            with: imageSource,
+            placeholder: fallbackImage,
             options: options
         )
     }
@@ -73,7 +104,8 @@ extension RemoteImageViewModel: ImageViewModelProtocol {
         }
 
         imageView.kf.setImage(
-            with: url,
+            with: imageSource,
+            placeholder: fallbackImage,
             options: options,
             completionHandler: completionHandler
         )
@@ -101,8 +133,8 @@ extension RemoteImageViewModel: ImageViewModelProtocol {
         }
 
         imageView.kf.setImage(
-            with: url,
-            placeholder: placholder,
+            with: imageSource,
+            placeholder: placholder ?? fallbackImage,
             options: options
         )
     }

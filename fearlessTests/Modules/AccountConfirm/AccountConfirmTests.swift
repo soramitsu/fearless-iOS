@@ -8,6 +8,137 @@ import SoraFoundation
 
 class AccountConfirmTests: XCTestCase {
 
+    func testEventCenterRemovalFromObserverDeinitDoesNotRetainObserver() {
+        let syncQueue = DispatchQueue(label: "co.jp.soramitsu.fearless.tests.event-center")
+        let eventCenter = EventCenter(syncQueue: syncQueue)
+        weak var weakObserver: DeinitRemovingEventVisitor?
+
+        autoreleasepool {
+            var observer: DeinitRemovingEventVisitor? = DeinitRemovingEventVisitor(eventCenter: eventCenter)
+            weakObserver = observer
+            eventCenter.add(observer: observer!, dispatchIn: .main)
+            syncQueue.sync {}
+
+            observer = nil
+        }
+
+        XCTAssertNil(weakObserver)
+        syncQueue.sync {}
+    }
+
+    func testBitcoinPhraseConfirmationPersistsBothAccountsUnderWalletRoot() throws {
+        let storageFacade = UserDataStorageTestFacade()
+        let settings = SelectedWalletSettings(
+            storageFacade: storageFacade,
+            operationQueue: OperationQueue()
+        )
+        let mnemonic = try IRMnemonicCreator().mnemonic(
+            fromList: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        )
+        let identityOperation = MetaAccountOperationFactory(keystore: InMemoryKeychain())
+            .newMetaAccountOperation(
+                request: MetaAccountImportMnemonicRequest(
+                    mnemonic: mnemonic,
+                    username: "Universal wallet",
+                    substrateDerivationPath: "",
+                    ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
+                    cryptoType: .sr25519,
+                    defaultChainId: nil
+                ),
+                isBackuped: true
+            )
+        identityOperation.start()
+        let wallet = try identityOperation.extractResultData(
+            throwing: BaseOperationError.parentOperationCancelled
+        ).replacingChainAccounts([])
+        let keychain = InMemoryKeychain()
+        let request = ChainAccountImportMnemonicRequest(
+            mnemonic: mnemonic,
+            username: wallet.name,
+            derivationPath: "",
+            cryptoType: .sr25519,
+            isEthereum: false,
+            meta: wallet,
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId
+        )
+        let repository = AccountRepositoryFactory(storageFacade: storageFacade)
+            .createMetaAccountRepository(for: nil, sortDescriptors: [])
+        let eventCenter = MockEventCenterProtocol()
+        let interactor = AccountConfirmInteractor(
+            flow: .chain(request),
+            accountOperationFactory: MetaAccountOperationFactory(keystore: keychain),
+            accountRepository: AnyDataProviderRepository(repository),
+            settings: settings,
+            operationManager: OperationManager(),
+            eventCenter: eventCenter
+        )
+        let presenter = MockAccountConfirmInteractorOutputProtocol()
+        interactor.presenter = presenter
+        let completion = expectation(description: "Bitcoin account persisted")
+        completion.assertForOverFulfill = true
+        var completionCount = 0
+        var selectedAccountChangedCount = 0
+
+        stub(presenter) { stub in
+            when(stub.didCompleteConfirmation()).then {
+                completionCount += 1
+                completion.fulfill()
+            }
+            when(stub.didReceive(error: any(Error.self))).then { error in
+                XCTFail("Unexpected Bitcoin account creation error: \(error)")
+                completion.fulfill()
+            }
+        }
+        stub(eventCenter) { stub in
+            stub.notify(with: any()).then { event in
+                if event is SelectedAccountChanged {
+                    selectedAccountChangedCount += 1
+                }
+            }
+        }
+
+        interactor.confirm(words: mnemonic.allWords())
+        interactor.confirm(words: mnemonic.allWords())
+
+        wait(for: [completion], timeout: 10)
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(selectedAccountChangedCount, 1)
+        let updatedWallet = try XCTUnwrap(settings.value)
+        let bitcoinAccount = try XCTUnwrap(
+            updatedWallet.chainAccounts.first(where: {
+                UniversalWalletChainAccountSupport.isValidBitcoinAccount($0)
+            })
+        )
+
+        XCTAssertTrue(
+            try keychain.checkKey(
+                for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+            )
+        )
+        XCTAssertFalse(
+            try keychain.checkKey(
+                for: KeystoreTagV2.entropyTagForMetaId(
+                    wallet.metaId,
+                    accountId: bitcoinAccount.accountId
+                )
+            )
+        )
+        XCTAssertTrue(
+            UniversalWalletChainAccountSupport.hasValidDedicatedAccount(
+                in: updatedWallet,
+                for: UniversalWalletRegistry.taira.chainId
+            )
+        )
+        XCTAssertEqual(
+            try KeychainUniversalWalletMnemonicProvider(keystore: keychain)
+                .mnemonic(
+                    for: updatedWallet,
+                    chain: UniversalWalletRegistry.bitcoinMainnetChainModel
+                ),
+            mnemonic.toString()
+        )
+    }
+
     func testMnemonicConfirm() throws {
         // given
 
@@ -115,5 +246,38 @@ class AccountConfirmTests: XCTestCase {
 
         XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.substrateSeedTagForMetaId(metaId)))
         XCTAssertTrue(try keychain.checkKey(for: KeystoreTagV2.ethereumSeedTagForMetaId(metaId)))
+
+        let appOwnedAccounts = selectedAccount.chainAccounts.filter {
+            UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.bitcoinMainnet.chainId
+            ) || UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            )
+        }
+        XCTAssertEqual(appOwnedAccounts.count, 2)
+        for account in appOwnedAccounts {
+            XCTAssertFalse(
+                try keychain.checkKey(
+                    for: KeystoreTagV2.entropyTagForMetaId(
+                        metaId,
+                        accountId: account.accountId
+                    )
+                )
+            )
+        }
+    }
+}
+
+private final class DeinitRemovingEventVisitor: EventVisitorProtocol {
+    private let eventCenter: EventCenterProtocol
+
+    init(eventCenter: EventCenterProtocol) {
+        self.eventCenter = eventCenter
+    }
+
+    deinit {
+        eventCenter.remove(observer: self)
     }
 }

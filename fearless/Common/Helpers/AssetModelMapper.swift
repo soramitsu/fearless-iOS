@@ -51,7 +51,11 @@ extension AssetModelMapper: CoreDataMapperProtocol {
         } else {
             staking = nil
         }
-        let purchaseProviders: [SSFModels.PurchaseProvider]? = entity.purchaseProviders?.compactMap {
+        let storedPurchaseProviders: [String]? = try? SafeTransformableValueReader.read(
+            from: entity,
+            key: "purchaseProviders"
+        )
+        let purchaseProviders: [SSFModels.PurchaseProvider]? = storedPurchaseProviders?.compactMap {
             SSFModels.PurchaseProvider(rawValue: $0)
         }
 

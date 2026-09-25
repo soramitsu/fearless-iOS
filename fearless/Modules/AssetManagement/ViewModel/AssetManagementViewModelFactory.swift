@@ -161,11 +161,9 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
             locale: locale,
             wallet: wallet
         ) ?? "0"
-        let priceData = cell.chainAsset.asset.getPrice(for: wallet.selectedCurrency)
         let price = getFiatBalanceString(
             for: [cell.chainAsset],
             accountInfos: accountInfos,
-            priceData: priceData,
             locale: locale,
             wallet: wallet,
             shouldShowZero: true
@@ -173,7 +171,6 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
         let decimalPrice = getTotalFiatBalance(
             for: [cell.chainAsset],
             accountInfos: accountInfos,
-            priceData: priceData,
             wallet: wallet
         )
         let balance = BalanceViewModel(
@@ -203,11 +200,9 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
                 locale: locale,
                 wallet: wallet
             ) ?? "0"
-            let priceData = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
             let price = getFiatBalanceString(
                 for: [chainAsset],
                 accountInfos: accountInfos,
-                priceData: priceData,
                 locale: locale,
                 wallet: wallet,
                 shouldShowZero: true
@@ -215,7 +210,6 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
             let decimalPrice = getTotalFiatBalance(
                 for: [chainAsset],
                 accountInfos: accountInfos,
-                priceData: priceData,
                 wallet: wallet
             )
             let balance = BalanceViewModel(
@@ -277,10 +271,10 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
         wallet: MetaAccountModel,
         chainAsset: ChainAsset
     ) -> Bool {
-        let isHidden = wallet.assetsVisibility.contains(where: {
-            $0.assetId == chainAsset.identifier && $0.hidden
-        })
-        return isHidden
+        AssetVisibilityPreferenceStore.isExplicitlyHidden(
+            walletId: wallet.metaId,
+            chainAsset: chainAsset
+        )
     }
 
     private func createFilterButtonTitle(

@@ -63,6 +63,11 @@ final class AssetManagementAssembly {
             eventCenter: EventCenter.shared,
             logger: Logger.shared
         )
+        let dynamicAssetCatalogInjector = DynamicAssetCatalogInjectorImpl(
+            chainModelRepository: AsyncAnyRepository(tonChainRepository),
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared
+        )
 
         let tonRemoteBalanceFetching = TonRemoteBalanceFetchingImpl(
             chainRegistry: chainRegistry,
@@ -79,13 +84,14 @@ final class AssetManagementAssembly {
             tonRemoteBalanceFetching: tonRemoteBalanceFetching,
             bitcoinBalanceSync: BitcoinBalanceSync(discovery: BitcoinReceiveDiscovery(client: BitcoinIndexerClient())),
             solanaBalanceSync: SolanaBalanceSync(client: SolanaIndexerClient()),
+            dynamicAssetCatalogInjector: dynamicAssetCatalogInjector,
             storagePerformer: storagePerformer
         )
 
         let walletAssetsObserver = WalletAssetsObserverImpl(
             wallet: wallet,
             chainRegistry: chainRegistry,
-            accountInfoRemote: accountInfoRemote,
+            assetDiscoveryService: AssetDiscoveryServiceAdapter(accountInfoRemote: accountInfoRemote),
             eventCenter: EventCenter.shared,
             logger: Logger.shared,
             userDefaultsStorage: SettingsManager.shared

@@ -47,7 +47,7 @@ final class FWSegmentedControl: UIControl {
     }
 
     private var segmentWidth: CGFloat {
-        backgroundView.frame.width / CGFloat(numberOfSegments)
+        numberOfSegments > 0 ? backgroundView.bounds.width / CGFloat(numberOfSegments) : 0
     }
 
     private var startPosition: CGFloat = 0
@@ -94,7 +94,7 @@ final class FWSegmentedControl: UIControl {
 
     private func setupLayout() {
         addSubview(containerView)
-        containerView.frame = frame
+        containerView.frame = bounds
         let frame = containerView.bounds
 
         containerView.addSubview(backgroundView)
@@ -193,6 +193,7 @@ final class FWSegmentedControl: UIControl {
     // MARK: - Slider position
 
     private func moveToNearestPoint(basedOn gesture: UIGestureRecognizer, velocity: CGPoint? = nil) {
+        guard numberOfSegments > 0, sliderView.bounds.width > 0 else { return }
         var location = gesture.location(in: self)
         if let velocity = velocity {
             let offset = velocity.x / 13

@@ -23,6 +23,14 @@ final class SafeArray<T>: Collection {
         self.array = array
     }
 
+    /// Search one captured array without holding its queue while evaluating a
+    /// caller's predicate. Collection's default iteration locks each index
+    /// separately and is unsafe when a concurrent writer removes an element.
+    func first(where predicate: (Element) throws -> Bool) rethrows -> Element? {
+        let snapshot = concurrentQueue.sync { self.array }
+        return try snapshot.first(where: predicate)
+    }
+
     func replace(array: [T]) {
         concurrentQueue.async(flags: .barrier) {
             self.array = array

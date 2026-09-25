@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "repository": "https://github.com/soramitsu/fearless-starscream",
+  "revision": "c26d9665fc44fd55aa1170427b1aef007a944fd7",
+  "tree": "d4f521899950b579064ac188ee7901e0ad4b69a9",
+  "baseRevision": "3e1de9baeab87de379e0cb01c64d5db18fbf130f",
+  "reviewUrl": "https://github.com/soramitsu/fearless-starscream/pull/5"
+}

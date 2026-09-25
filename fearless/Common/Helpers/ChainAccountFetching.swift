@@ -11,6 +11,7 @@ struct ChainAccountResponse: Equatable {
     let isEthereumBased: Bool
     let isChainAccount: Bool
     let walletId: String
+    var legacyTonAddress: String?
 }
 
 enum ChainAccountFetchingError: Error {
@@ -33,6 +34,7 @@ extension ChainAccountResponse {
     }
 
     private func displayAddress() throws -> AccountAddress {
+        if let legacyTonAddress { return legacyTonAddress }
         if UniversalWalletChainAccountSupport.isUniversalWalletChain(chainId) {
             guard let address = UniversalWalletChainAccountSupport.address(for: chainId, publicKey: publicKey) else {
                 throw ChainAccountFetchingError.accountNotExists
@@ -48,8 +50,29 @@ extension ChainAccountResponse {
 
 extension MetaAccountModel {
     func fetch(for request: ChainAccountRequest) -> ChainAccountResponse? {
+        if UniversalWalletChainAccountSupport.chainId(request.chainId, matches: TonChainSelection.mainnetChainId),
+           let legacyTonAccount {
+            return ChainAccountResponse(
+                chainId: request.chainId, accountId: legacyTonAccount.serializedAddress,
+                publicKey: legacyTonAccount.publicKey, name: name, cryptoType: .ed25519,
+                addressPrefix: request.addressPrefix, isEthereumBased: false,
+                isChainAccount: false, walletId: metaId, legacyTonAddress: legacyTonAccount.address
+            )
+        }
         if let chainAccount = chainAccounts.first(where: {
-            UniversalWalletChainAccountSupport.chainId($0.chainId, matches: request.chainId)
+            guard UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: request.chainId
+            ) else {
+                return false
+            }
+            if UniversalWalletChainAccountSupport.chainId(
+                request.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            ) {
+                return UniversalWalletChainAccountSupport.isValidTairaAccount($0)
+            }
+            return true
         }) {
             guard let cryptoType = CryptoType(rawValue: chainAccount.cryptoType) else {
                 return nil
@@ -90,7 +113,8 @@ extension MetaAccountModel {
             )
         }
 
-        guard let cryptoType = CryptoType(rawValue: substrateCryptoType) else {
+        guard let substrateAccountId, let substratePublicKey,
+              let cryptoType = CryptoType(rawValue: substrateCryptoType) else {
             return nil
         }
 

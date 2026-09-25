@@ -29,9 +29,27 @@ extension WalletConnectServiceDelegate {
     func didChange(sessions _: [Session]) {}
 }
 
+enum WalletConnectGroupIdentifierResolver {
+    static let productionBundleIdentifier = "jp.co.soramitsu.fearlesswallet"
+    static let developmentBundleIdentifier = "jp.co.soramitsu.fearlesswallet.dev"
+    static let productionGroupIdentifier = "group.jp.co.soramitsu.fearlesswallet"
+    static let developmentGroupIdentifier = "group.jp.co.soramitsu.fearlesswallet.walletconnect"
+
+    static func resolve(bundleIdentifier: String?) -> String? {
+        if bundleIdentifier == productionBundleIdentifier {
+            return productionGroupIdentifier
+        }
+
+        if bundleIdentifier == developmentBundleIdentifier {
+            return developmentGroupIdentifier
+        }
+
+        return nil
+    }
+}
+
 final class WalletConnectServiceImpl: WalletConnectService {
     static let shared = WalletConnectServiceImpl()
-    private static let walletConnectGroupIdentifier = "group.com.walletconnect.sdk"
 
     private var listeners: [WeakWrapper] = []
     private var cancellablesBag = Set<AnyCancellable>()
@@ -41,6 +59,17 @@ final class WalletConnectServiceImpl: WalletConnectService {
     // MARK: - ApplicationServiceProtocol
 
     func setup() {
+        guard
+            let groupIdentifier = WalletConnectGroupIdentifierResolver.resolve(
+                bundleIdentifier: Bundle.main.bundleIdentifier
+            )
+        else {
+            Logger.shared.error(
+                "WalletConnect setup skipped for an unsupported application identity"
+            )
+            return
+        }
+
         #if canImport(FearlessKeys)
             #if F_DEV
                 let projectId = WalletConnectDebug.projectId
@@ -51,7 +80,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
             let projectId = WalletConnect.projectId
         #endif
         Networking.configure(
-            groupIdentifier: Self.walletConnectGroupIdentifier,
+            groupIdentifier: groupIdentifier,
             projectId: projectId,
             socketFactory: WalletConnectSocketFactory()
         )

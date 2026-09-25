@@ -12,7 +12,7 @@ final class MainNftContainerViewController: UIViewController, ViewHolder {
     // MARK: Private properties
 
     private let output: MainNftContainerViewOutput
-    private var viewModels: [NftListCellModel]?
+    private var viewModels: [NftNetworkSectionModel]?
 
     // MARK: - Constructor
 
@@ -47,6 +47,11 @@ final class MainNftContainerViewController: UIViewController, ViewHolder {
         rootView.collectionView.dataSource = self
         rootView.collectionView.delegate = self
         rootView.collectionView.registerClassForCell(NftCollectionCell.self)
+        rootView.collectionView.register(
+            NftNetworkCollectionHeader.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: NftNetworkCollectionHeader.reuseID
+        )
 
         if let refreshControl = rootView.tableView.refreshControl {
             refreshControl.addTarget(self, action: #selector(actionRefresh), for: .valueChanged)
@@ -109,7 +114,7 @@ final class MainNftContainerViewController: UIViewController, ViewHolder {
 // MARK: - MainNftContainerViewInput
 
 extension MainNftContainerViewController: MainNftContainerViewInput {
-    func didReceive(viewModels: [NftListCellModel]?) {
+    func didReceive(viewModels: [NftNetworkSectionModel]?) {
         self.viewModels = viewModels
         rootView.tableView.reloadData()
         rootView.collectionView.reloadData()
@@ -129,12 +134,20 @@ extension MainNftContainerViewController: Localizable {
 }
 
 extension MainNftContainerViewController: UITableViewDelegate, UITableViewDataSource {
-    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+    func numberOfSections(in _: UITableView) -> Int {
+        viewModels?.count ?? 1
+    }
+
+    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
         if let viewModels = viewModels {
-            return viewModels.count
+            return viewModels[safe: section]?.items.count ?? 0
         }
 
         return 10
+    }
+
+    func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
+        viewModels?[safe: section]?.networkTitle
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -146,12 +159,12 @@ extension MainNftContainerViewController: UITableViewDelegate, UITableViewDataSo
         guard let nftCell = cell as? NftListCell else {
             return
         }
-        let viewModel = viewModels?[safe: indexPath.row]
+        let viewModel = viewModels?[safe: indexPath.section]?.items[safe: indexPath.row]
         nftCell.bind(viewModel: viewModel)
     }
 
     func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let cellModel = viewModels?[safe: indexPath.row] else {
+        guard let cellModel = viewModels?[safe: indexPath.section]?.items[safe: indexPath.row] else {
             return
         }
 
@@ -167,9 +180,13 @@ extension MainNftContainerViewController: UICollectionViewDataSource, UICollecti
         return CGSize(width: size, height: 233)
     }
 
-    func collectionView(_: UICollectionView, numberOfItemsInSection _: Int) -> Int {
+    func numberOfSections(in _: UICollectionView) -> Int {
+        viewModels?.count ?? 1
+    }
+
+    func collectionView(_: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if let viewModels = viewModels {
-            return viewModels.count
+            return viewModels[safe: section]?.items.count ?? 0
         }
 
         return 10
@@ -177,14 +194,14 @@ extension MainNftContainerViewController: UICollectionViewDataSource, UICollecti
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithType(NftCollectionCell.self, forIndexPath: indexPath)
-        if let cellModel = viewModels?[safe: indexPath.item] {
+        if let cellModel = viewModels?[safe: indexPath.section]?.items[safe: indexPath.item] {
             cell.bind(cellModel: cellModel)
         }
         return cell
     }
 
     func collectionView(_: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let viewModel = viewModels?[safe: indexPath.item] else {
+        guard let viewModel = viewModels?[safe: indexPath.section]?.items[safe: indexPath.item] else {
             return
         }
 
@@ -195,8 +212,33 @@ extension MainNftContainerViewController: UICollectionViewDataSource, UICollecti
         guard let nftCell = cell as? NftCollectionCell else {
             return
         }
-        let viewModel = viewModels?[safe: indexPath.row]
+        let viewModel = viewModels?[safe: indexPath.section]?.items[safe: indexPath.row]
         nftCell.bind(cellModel: viewModel)
+    }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        viewForSupplementaryElementOfKind kind: String,
+        at indexPath: IndexPath
+    ) -> UICollectionReusableView {
+        guard kind == UICollectionView.elementKindSectionHeader else {
+            return UICollectionReusableView()
+        }
+        let header = collectionView.dequeueReusableSupplementaryView(
+            ofKind: kind,
+            withReuseIdentifier: NftNetworkCollectionHeader.reuseID,
+            for: indexPath
+        ) as? NftNetworkCollectionHeader
+        header?.bind(title: viewModels?[safe: indexPath.section]?.networkTitle)
+        return header ?? UICollectionReusableView()
+    }
+
+    func collectionView(
+        _: UICollectionView,
+        layout _: UICollectionViewLayout,
+        referenceSizeForHeaderInSection section: Int
+    ) -> CGSize {
+        viewModels?[safe: section] == nil ? .zero : CGSize(width: 1, height: 38)
     }
 }
 
@@ -232,6 +274,32 @@ extension MainNftContainerViewController: EmptyStateDataSource {
 extension MainNftContainerViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
         guard let viewModels = viewModels else { return false }
-        return viewModels.isEmpty
+        return viewModels.flatMap(\.items).isEmpty
+    }
+}
+
+final class NftNetworkCollectionHeader: UICollectionReusableView {
+    static let reuseID = "NftNetworkCollectionHeader"
+    private let label: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.textColor = R.color.colorWhite() ?? .white
+        return label
+    }()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        addSubview(label)
+        label.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.centerY.equalToSuperview()
+        }
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    func bind(title: String?) {
+        label.text = title
     }
 }

@@ -9,7 +9,7 @@ final class BitcoinIndexerContractTests: XCTestCase {
         )
         XCTAssertEqual(
             try BitcoinIndexerRoutes.utxosURL(address: Self.testnetAddress, network: .testnet).absoluteString,
-            "https://blockstream.info/testnet/api/address/\(Self.testnetAddress)/utxo"
+            "https://mempool.space/testnet/api/address/\(Self.testnetAddress)/utxo"
         )
         XCTAssertEqual(
             try BitcoinIndexerRoutes.transactionsURL(
@@ -36,11 +36,11 @@ final class BitcoinIndexerContractTests: XCTestCase {
         )
         XCTAssertEqual(
             try BitcoinIndexerRoutes.feeEstimatesURL().absoluteString,
-            "https://blockstream.info/api/fee-estimates"
+            "https://mempool.space/api/fee-estimates"
         )
         XCTAssertEqual(
             try BitcoinIndexerRoutes.broadcastTransactionURL(network: .testnet).absoluteString,
-            "https://blockstream.info/testnet/api/tx"
+            "https://mempool.space/testnet/api/tx"
         )
         XCTAssertEqual(try BitcoinIndexerRoutes.normalizeBroadcastTransactionBody("  00AA  "), "00aa")
     }

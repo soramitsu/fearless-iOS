@@ -14,6 +14,19 @@ protocol LiquidityPoolSupplyConfirmInteractorOutput: AnyObject {
     func didReceiveSubmitError(error: Error)
 }
 
+enum ReviewedLiquidityPoolExecutionAuthority {
+    // The production operation service performs two runtime/storage/balance/
+    // fee authorization rounds and a synchronous signer/context guard directly
+    // beside submit. Runtime, account and remote-switch failures remain visible
+    // as capability errors instead of removing the DeFi destination.
+    static let isAvailable = true
+    static let unavailableReason = "Liquidity actions require a signable SORA account and an available reviewed runtime call."
+
+    static func allowsSubmission(remoteEnabled: Bool) -> Bool {
+        remoteEnabled && isAvailable
+    }
+}
+
 final class LiquidityPoolSupplyConfirmInteractor {
     // MARK: - Private properties
 
@@ -69,6 +82,30 @@ extension LiquidityPoolSupplyConfirmInteractor: LiquidityPoolSupplyConfirmIntera
     }
 
     func submit(supplyLiquidityInfo: SupplyLiquidityInfo) {
+        guard MultiChainFeaturePolicy.current.polkaswapMutationsEnabled else {
+            output?.didReceiveSubmitError(
+                error: NSError(
+                    domain: "jp.co.soramitsu.fearless.liquidity",
+                    code: 1,
+                    userInfo: [
+                        NSLocalizedDescriptionKey: "Liquidity actions are temporarily disabled by the remote safety switch."
+                    ]
+                )
+            )
+            return
+        }
+        guard ReviewedLiquidityPoolExecutionAuthority.allowsSubmission(remoteEnabled: true) else {
+            output?.didReceiveSubmitError(
+                error: NSError(
+                    domain: "jp.co.soramitsu.fearless.liquidity",
+                    code: 2,
+                    userInfo: [
+                        NSLocalizedDescriptionKey: ReviewedLiquidityPoolExecutionAuthority.unavailableReason
+                    ]
+                )
+            )
+            return
+        }
         Task {
             do {
                 let hash = try await lpOperationService.submit(liquidityOperation: .substrateSupplyLiquidity(supplyLiquidityInfo))

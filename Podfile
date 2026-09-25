@@ -1,4 +1,4 @@
-platform :ios, '14.1'
+platform :ios, '15.0'
 
 source 'https://github.com/soramitsu/SSFSpecs.git'
 source 'https://github.com/CocoaPods/Specs.git'
@@ -53,7 +53,7 @@ end
 post_install do |installer|
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
-            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.1'
+            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
             config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
             # Force Swift 5 mode for Pods to avoid Swift 6-only diagnostics on CI toolchains
             config.build_settings['SWIFT_VERSION'] = '5.10'

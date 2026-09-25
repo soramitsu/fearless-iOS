@@ -37,7 +37,11 @@ final class WalletConnectCoordinatorRouterImpl: WalletConnectCoordinatorRouter {
     }
 
     private func prepareWindow() {
-        coveringWindow = UIWindow(frame: UIScreen.main.bounds)
+        guard let windowScene = SceneWindowFinder.activeWindow()?.windowScene else {
+            return
+        }
+
+        coveringWindow = UIWindow(windowScene: windowScene)
 
         if let coveringWindow = coveringWindow {
             coveringWindow.windowLevel = UIWindow.Level.alert + 1

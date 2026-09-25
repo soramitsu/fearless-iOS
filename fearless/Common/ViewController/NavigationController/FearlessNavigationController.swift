@@ -77,13 +77,11 @@ class FearlessNavigationController: UINavigationController, UINavigationControll
             presentingViewController != nil,
             let rootViewController = viewControllers.first,
             rootViewController.navigationItem.leftBarButtonItem == nil {
-            let closeItem = UIBarButtonItem(
-                image: R.image.iconClose(),
-                style: .plain,
-                target: self,
-                action: #selector(actionClose)
-            )
-            rootViewController.navigationItem.leftBarButtonItem = closeItem
+            let closeButton = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
+            closeButton.setImage(R.image.iconClose(), for: .normal)
+            closeButton.accessibilityLabel = NSLocalizedString("common.close", value: "Close", comment: "Navigation action")
+            closeButton.addTarget(self, action: #selector(actionClose), for: .touchUpInside)
+            rootViewController.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: closeButton)
         }
     }
 

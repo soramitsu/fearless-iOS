@@ -61,6 +61,21 @@ final class SendViewController: UIViewController, ViewHolder {
     }
 
     private func configure() {
+        let presentingTabBar = tabBarController as? MainTabBarViewController
+            ?? presentingViewController as? MainTabBarViewController
+            ?? presentingViewController?.tabBarController as? MainTabBarViewController
+            ?? navigationController?.presentingViewController?.tabBarController as? MainTabBarViewController
+            ?? navigationController?.presentingViewController as? MainTabBarViewController
+        rootView.crossNetworkButton.isHidden = presentingTabBar == nil
+        rootView.crossNetworkButton.addAction(UIAction { [weak self, weak presentingTabBar] _ in
+            guard let self, let presentingTabBar else { return }
+            self.view.endEditing(true)
+            if self.navigationController?.presentingViewController != nil {
+                self.dismiss(animated: true) { presentingTabBar.select(destination: .crossChain) }
+            } else {
+                presentingTabBar.select(destination: .crossChain)
+            }
+        }, for: .touchUpInside)
         rootView.searchView.textField.delegate = self
         rootView.amountView.textField.delegate = self
 

@@ -292,14 +292,15 @@ extension CrossChainInteractor: CrossChainInteractorInput {
 
         guard
             let originalChainAsset,
-            let asset = destinationChain.assets.first(where: { $0.normalizedSymbol().lowercased() == originalChainAsset.asset.normalizedSymbol().lowercased() })
+            let destinationChainAsset = CuratedAssetRelationshipResolver.relatedChainAssets(
+                to: originalChainAsset,
+                among: destinationChain.chainAssets
+            ).first(where: { $0.chain.chainId == destinationChain.chainId })
         else {
             return
         }
 
-        let chainAsset = ChainAsset(chain: destinationChain, asset: asset)
-
-        deps?.destinationExistentialDepositService?.fetchExistentialDeposit(chainAsset: chainAsset, completion: { [weak self] result in
+        deps?.destinationExistentialDepositService?.fetchExistentialDeposit(chainAsset: destinationChainAsset, completion: { [weak self] result in
             DispatchQueue.main.async {
                 self?.output?.didReceiveDestinationExistentialDeposit(result: result)
             }
@@ -310,7 +311,10 @@ extension CrossChainInteractor: CrossChainInteractorInput {
         guard
             let destinationChain,
             let originalChainAsset,
-            let asset = destinationChain.assets.first(where: { $0.normalizedSymbol().lowercased() == originalChainAsset.asset.normalizedSymbol().lowercased() }),
+            let chainAsset = CuratedAssetRelationshipResolver.relatedChainAssets(
+                to: originalChainAsset,
+                among: destinationChain.chainAssets
+            ).first(where: { $0.chain.chainId == destinationChain.chainId }),
             address.isNotEmpty
         else {
             return
@@ -319,7 +323,6 @@ extension CrossChainInteractor: CrossChainInteractorInput {
         Task {
             do {
                 let accountId = try AddressFactory.accountId(from: address, chain: destinationChain)
-                let chainAsset = ChainAsset(chain: destinationChain, asset: asset)
                 let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
                 let request = SystemAccountRequest(accountId: accountIdVariant, chainAsset: chainAsset)
                 let accountInfo: AccountInfo? = try await deps?.destinationStorageRequestPerformer?.performSingle(request)

@@ -128,8 +128,6 @@ struct StakingRebondConfirmationViewFactory {
 
         let keystore = Keychain()
         let feeProxy = ExtrinsicFeeProxy()
-        let facade = UserDataStorageFacade.shared
-        let mapper = MetaAccountMapper()
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
@@ -137,11 +135,7 @@ struct StakingRebondConfirmationViewFactory {
             selectedMetaAccount: wallet
         )
 
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -182,7 +176,7 @@ struct StakingRebondConfirmationViewFactory {
                 operationManager: operationManager,
                 keystore: keystore,
                 connection: connection,
-                accountRepository: AnyDataProviderRepository(accountRepository),
+                accountRepository: accountRepository,
                 output: viewModelState,
                 callFactory: callFactory
             )
@@ -218,7 +212,7 @@ struct StakingRebondConfirmationViewFactory {
                 operationManager: operationManager,
                 keystore: keystore,
                 connection: connection,
-                accountRepository: AnyDataProviderRepository(accountRepository),
+                accountRepository: accountRepository,
                 output: viewModelState,
                 signingWrapper: signingWrapper
             )

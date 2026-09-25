@@ -224,6 +224,7 @@ final class WalletTransactionHistoryInteractor {
                 logger?.debug("Loading page with context \(String(describing: pagination.context)) failed")
 
                 dataLoadingState = .loaded(page: previousPage, nextContext: currentPage.context)
+                presenter?.didReceiveHistoryFailure(hasCachedHistory: pages.contains { !$0.transactions.isEmpty })
             } else {
                 logger?.debug("Unexpected pagination context \(String(describing: pagination.context))")
             }
@@ -232,6 +233,7 @@ final class WalletTransactionHistoryInteractor {
                 logger?.debug("Loading page with context \(String(describing: pagination.context)) failed")
 
                 dataLoadingState = .filtered(page: previousPage, nextContext: currentPage.context)
+                presenter?.didReceiveHistoryFailure(hasCachedHistory: pages.contains { !$0.transactions.isEmpty })
             } else {
                 logger?.debug("Unexpected failed page with context \(String(describing: pagination.context))")
             }

@@ -134,7 +134,7 @@ private extension WalletDetailsViewLayout {
             make.top.equalTo(walletView.snp.bottom).offset(UIConstants.defaultOffset)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.height.equalTo(48)
+            make.height.greaterThanOrEqualTo(48)
         }
 
         addSubview(container)

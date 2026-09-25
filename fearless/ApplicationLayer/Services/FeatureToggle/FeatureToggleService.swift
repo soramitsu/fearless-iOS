@@ -19,6 +19,8 @@ final class FeatureToggleProvider {
 
     private let networkOperationFactory: NetworkOperationFactoryProtocol
     private let operationQueue: OperationQueue
+    private let stateLock = NSLock()
+    private var refreshTimer: DispatchSourceTimer?
 
     private(set) var snapshot: FeatureToggleConfig?
     private(set) var pendingRequests: [PendingRequest] = []
@@ -34,15 +36,30 @@ final class FeatureToggleProvider {
             try setup()
         } catch {
             snapshot = FeatureToggleConfig.defaultConfig
+            MultiChainFeaturePolicy.update(FeatureToggleConfig.defaultConfig)
         }
+        let timer = DispatchSource.makeTimerSource(queue: DispatchQueue.global(qos: .utility))
+        timer.schedule(
+            deadline: .now() + MutationAuthorizationAuthority.refreshInterval,
+            repeating: MutationAuthorizationAuthority.refreshInterval
+        )
+        timer.setEventHandler { [weak self] in
+            do { try self?.setup() }
+            catch { self?.handleDefault() }
+        }
+        refreshTimer = timer
+        timer.resume()
     }
+
+    deinit { refreshTimer?.cancel() }
 
     private func setup() throws {
         guard let featureToggleURL = ApplicationConfig.shared.featureToggleURL else {
             throw FeatureToggleServiceError.urlBroken
         }
 
-        let fetchConfigOperation: BaseOperation<FeatureToggleConfig?> = networkOperationFactory.fetchData(from: featureToggleURL)
+        let fetchConfigOperation: BaseOperation<FeatureToggleConfig?> =
+            networkOperationFactory.fetchData(from: featureToggleURL)
 
         fetchConfigOperation.completionBlock = { [weak self] in
             self?.handleCompletion(result: fetchConfigOperation.result)
@@ -57,10 +74,13 @@ final class FeatureToggleProvider {
     ) {
         let request = PendingRequest(resultClosure: closure, queue: queue)
 
+        stateLock.lock()
         if let snapshot = snapshot {
+            stateLock.unlock()
             deliver(snapshot: snapshot, to: request)
         } else {
             pendingRequests.append(request)
+            stateLock.unlock()
         }
     }
 
@@ -68,8 +88,9 @@ final class FeatureToggleProvider {
         switch result {
         case let .success(snapshot):
             if let snapshot = snapshot {
-                self.snapshot = snapshot
-                resolveRequests()
+                complete(with: snapshot)
+            } else {
+                handleDefault()
             }
         case .failure:
             handleDefault()
@@ -79,17 +100,17 @@ final class FeatureToggleProvider {
     }
 
     private func handleDefault() {
-        snapshot = FeatureToggleConfig.defaultConfig
-        resolveRequests()
+        complete(with: FeatureToggleConfig.defaultConfig)
     }
 
-    private func resolveRequests() {
-        guard !pendingRequests.isEmpty, let snapshot = snapshot else {
-            return
-        }
+    private func complete(with snapshot: FeatureToggleConfig) {
+        MultiChainFeaturePolicy.update(snapshot)
 
+        stateLock.lock()
+        self.snapshot = snapshot
         let requests = pendingRequests
         pendingRequests = []
+        stateLock.unlock()
 
         requests.forEach { deliver(snapshot: snapshot, to: $0) }
     }
@@ -104,9 +125,13 @@ final class FeatureToggleProvider {
 extension FeatureToggleProvider: FeatureToggleProviderProtocol {
     func fetchConfigOperation() -> BaseOperation<FeatureToggleConfig> {
         AwaitOperation { [weak self] in
-            try await withCheckedThrowingContinuation { continuation in
-                self?.fetchConfig(runCompletionIn: nil) { factory in
-                    continuation.resume(with: .success(factory))
+            guard let self else {
+                return FeatureToggleConfig.defaultConfig
+            }
+
+            return await withCheckedContinuation { continuation in
+                self.fetchConfig(runCompletionIn: nil) { config in
+                    continuation.resume(returning: config)
                 }
             }
         }

@@ -12,6 +12,7 @@ import SSFExtrinsicKit
 import SSFNetwork
 import SSFChainRegistry
 import SSFChainConnection
+import SSFStorageQueryKit
 #if canImport(SSFAssetManagmentStorage)
     import SSFAssetManagmentStorage
 #endif
@@ -64,6 +65,15 @@ final class SendAssembly {
             accountScoreFetching: accountStatisticsFetcher,
             localizationManager: LocalizationManager.shared
         )
+        let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
+            chainRegistry: ChainRegistryFacade.sharedRegistry
+        )
+        let accountInfoRemoteService = AccountInfoRemoteServiceDefault(
+            bitcoinBalanceSync: BitcoinBalanceSync(
+                discovery: BitcoinReceiveDiscovery(client: BitcoinIndexerClient())
+            ),
+            storagePerformer: storagePerformer
+        )
         let interactor = SendInteractor(
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -74,7 +84,8 @@ final class SendAssembly {
             chainAssetFetching: chainAssetFetching,
             dependencyContainer: dependencyContainer,
             addressChainDefiner: addressChainDefiner,
-            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository)
+            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository),
+            accountInfoRemoteService: accountInfoRemoteService
         )
         let router = SendRouter()
 

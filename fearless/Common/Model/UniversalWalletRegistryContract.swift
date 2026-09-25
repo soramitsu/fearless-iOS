@@ -244,7 +244,7 @@ enum UniversalWalletRegistryValidationError: String, Error, CaseIterable {
 }
 
 enum UniversalWalletRegistryContractValidator {
-    static let featureIds: Set<String> = ["transfer", "offline-cash", "sccp", "governance"]
+    static let featureIds: Set<String> = ["receive", "transfer", "offline-cash", "sccp", "governance"]
 
     static func isPublicOrLocalURL(_ value: String) -> Bool {
         matches(value, #"^(https://[^\s]+|http://(?:localhost|127\.0\.0\.1)(?::[0-9]+)?(?:/[^\s]*)?)$"#)

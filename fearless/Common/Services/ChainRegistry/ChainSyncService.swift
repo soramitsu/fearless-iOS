@@ -12,8 +12,13 @@ protocol ChainSyncServiceProtocol {
 
 enum ChainSyncServiceError: Error {
     case missingLocalFile
+    case emptyRemotePayload
+    case invalidRemoteChain(String)
+    case duplicateRemoteChainIdentifier(String)
 }
 
+// Sync validation stays with the state it guards.
+// swiftlint:disable:next type_body_length
 final class ChainSyncService {
     static let fetchLocalData = false
     static let historyExplorerCompatibilityType = "subsquid"
@@ -26,6 +31,11 @@ final class ChainSyncService {
         let removedItems: [ChainModel]
     }
 
+    private struct AppOwnedCatalogPersistence {
+        let canonicalChains: [ChainModel]
+        let changes: SyncChanges
+    }
+
     private let chainsUrl: URL
     private let dataFetchFactory: DataOperationFactoryProtocol
     private let repository: AnyDataProviderRepository<ChainModel>
@@ -34,11 +44,16 @@ final class ChainSyncService {
     private let applicationHandler: ApplicationHandlerProtocol
     private let operationQueue: OperationQueue
     private let logger: LoggerProtocol?
+    private let malformedChainCleanupOperationFactory: (() -> BaseOperation<Void>)?
 
     private var retryAttempt: Int = 0
-    private var isSyncing: Bool = false
+    private var isSyncInFlight = false
+    private var isCooldownActive = false
+    private var reservationIdentifier: UInt = 0
+    private var timerReservationIdentifier: UInt?
     private let mutex = NSLock()
-    private var timer = CountdownTimer(notificationInterval: 300)
+    private let timer: CountdownTimerProtocol
+    private let cooldownTimerQueue: DispatchQueue
 
     private lazy var scheduler = Scheduler(with: self, callbackQueue: DispatchQueue.global())
 
@@ -50,7 +65,12 @@ final class ChainSyncService {
         operationQueue: OperationQueue,
         retryStrategy: ReconnectionStrategyProtocol = ExponentialReconnection(),
         logger: LoggerProtocol? = nil,
-        applicationHandler: ApplicationHandlerProtocol
+        applicationHandler: ApplicationHandlerProtocol,
+        malformedChainCleanupOperationFactory: (() -> BaseOperation<Void>)? = nil,
+        cooldownTimer: CountdownTimerProtocol = CountdownTimer(
+            notificationInterval: 300
+        ),
+        cooldownTimerQueue: DispatchQueue = .main
     ) {
         self.chainsUrl = chainsUrl
         self.dataFetchFactory = dataFetchFactory
@@ -60,21 +80,75 @@ final class ChainSyncService {
         self.retryStrategy = retryStrategy
         self.logger = logger
         self.applicationHandler = applicationHandler
+        self.malformedChainCleanupOperationFactory = malformedChainCleanupOperationFactory
+        timer = cooldownTimer
+        self.cooldownTimerQueue = cooldownTimerQueue
         timer.delegate = self
     }
 
-    private func performSyncUpIfNeeded() {
-        guard !isSyncing else {
+    private func performSyncUpIfNeeded(
+        cancelScheduledRetry: Bool = false,
+        installApplicationDelegate: Bool = false
+    ) {
+        mutex.lock()
+
+        if cancelScheduledRetry, retryAttempt > 0 {
+            scheduler.cancel()
+        }
+
+        if installApplicationDelegate,
+           applicationHandler.delegate == nil {
+            applicationHandler.delegate = self
+        }
+
+        guard !isSyncInFlight, !isCooldownActive else {
+            mutex.unlock()
             logger?.debug("Tried to sync up chains but already syncing")
             return
         }
 
-        DispatchQueue.main.async {
-            self.timer.start(with: 300)
-        }
+        isSyncInFlight = true
+        isCooldownActive = true
+        reservationIdentifier &+= 1
+        let currentReservationIdentifier = reservationIdentifier
         retryAttempt += 1
+        let currentRetryAttempt = retryAttempt
+        mutex.unlock()
 
-        logger?.debug("Will start chain sync with attempt \(retryAttempt)")
+        cooldownTimerQueue.async {
+            self.mutex.lock()
+            let shouldStartTimer =
+                self.isCooldownActive &&
+                self.reservationIdentifier == currentReservationIdentifier
+            self.mutex.unlock()
+
+            guard shouldStartTimer else {
+                return
+            }
+
+            // CountdownTimer.start() synchronously stops its previous run.
+            // Keep every timer mutation on this serial queue, and stop the old
+            // run before publishing the new reservation.
+            self.timer.stop()
+
+            self.mutex.lock()
+            let timerIsCurrent =
+                self.isCooldownActive &&
+                self.reservationIdentifier == currentReservationIdentifier
+            if timerIsCurrent {
+                self.timerReservationIdentifier =
+                    currentReservationIdentifier
+            }
+            self.mutex.unlock()
+
+            if timerIsCurrent {
+                self.timer.start(with: 300)
+            }
+        }
+
+        logger?.debug(
+            "Will start chain sync with attempt \(currentRetryAttempt)"
+        )
 
         let event = ChainSyncDidStart()
         eventCenter.notify(with: event)
@@ -82,14 +156,151 @@ final class ChainSyncService {
         executeSync()
     }
 
-    private func setApplicationDelegateIfNeeded() {
-        guard applicationHandler.delegate == nil else {
+    private func executeSync() {
+        guard let malformedChainCleanupOperationFactory else {
+            persistAppOwnedChainsThenExecuteRemoteSync()
             return
         }
-        applicationHandler.delegate = self
+
+        let cleanupOperation = malformedChainCleanupOperationFactory()
+        cleanupOperation.completionBlock = { [weak self, weak cleanupOperation] in
+            do {
+                guard let cleanupOperation else {
+                    throw BaseOperationError.parentOperationCancelled
+                }
+
+                _ = try cleanupOperation.extractNoCancellableResultData()
+                self?.persistAppOwnedChainsThenExecuteRemoteSync()
+            } catch {
+                self?.complete(result: .failure(error))
+            }
+        }
+        operationQueue.addOperation(cleanupOperation)
     }
 
-    private func executeSync() {
+    private func persistAppOwnedChainsThenExecuteRemoteSync() {
+        persistAppOwnedChains { [weak self] result in
+            guard let self else {
+                return
+            }
+
+            switch result {
+            case let .success(persistence):
+                let changes = persistence.changes
+                if changes.newOrUpdatedItems.isNotEmpty ||
+                    changes.removedItems.isNotEmpty {
+                    logger?.debug(
+                        "Persisted app-owned chain catalog before remote sync: " +
+                            persistence.canonicalChains.map(\.chainId).joined(separator: ", ")
+                    )
+                    eventCenter.notify(
+                        with: ChainsUpdatedEvent(
+                            updatedChains: persistence.canonicalChains
+                        )
+                    )
+                }
+
+                executeRemoteSync()
+            case let .failure(error):
+                complete(result: .failure(error))
+            }
+        }
+    }
+
+    private func persistAppOwnedChains(
+        completion: @escaping (Result<AppOwnedCatalogPersistence, Error>) -> Void
+    ) {
+        let fetchOperation = repository.fetchAllOperation(
+            with: RepositoryFetchOptions()
+        )
+        let processingOperation: BaseOperation<AppOwnedCatalogPersistence> =
+            ClosureOperation {
+                let localChains = try fetchOperation
+                    .extractNoCancellableResultData()
+                let canonicalChains = Self.preservingLocalNodePreferences(
+                    remoteChains: UniversalWalletRegistry.appOwnedProductionChains,
+                    localChains: localChains
+                )
+                let canonicalIds = Set(canonicalChains.map(\.chainId))
+                let localMapping = localChains.reduce(
+                    into: [ChainModel.Id: ChainModel]()
+                ) { mapping, chain in
+                    mapping[chain.chainId] = chain
+                }
+                let newOrUpdatedChains = canonicalChains.filter { chain in
+                    localMapping[chain.chainId] != chain
+                }
+                let obsoleteAliases = localChains.filter { localChain in
+                    guard !canonicalIds.contains(localChain.chainId) else {
+                        return false
+                    }
+
+                    return canonicalChains.contains { canonicalChain in
+                        UniversalWalletChainAccountSupport.chainId(
+                            localChain.chainId,
+                            matches: canonicalChain.chainId
+                        )
+                    }
+                }
+
+                return AppOwnedCatalogPersistence(
+                    canonicalChains: canonicalChains,
+                    changes: SyncChanges(
+                        newOrUpdatedItems: newOrUpdatedChains,
+                        removedItems: obsoleteAliases
+                    )
+                )
+            }
+        processingOperation.addDependency(fetchOperation)
+        processingOperation.completionBlock = {
+            [weak self, weak processingOperation] in
+            do {
+                guard
+                    let self,
+                    let processingOperation
+                else {
+                    throw BaseOperationError.parentOperationCancelled
+                }
+
+                let persistence = try processingOperation
+                    .extractNoCancellableResultData()
+                let changes = persistence.changes
+                guard changes.newOrUpdatedItems.isNotEmpty ||
+                    changes.removedItems.isNotEmpty else {
+                    completion(.success(persistence))
+                    return
+                }
+
+                let saveOperation = self.repository.saveOperation({
+                    changes.newOrUpdatedItems
+                }, {
+                    changes.removedItems.map(\.identifier)
+                })
+                saveOperation.completionBlock = { [weak saveOperation] in
+                    do {
+                        guard let saveOperation else {
+                            throw BaseOperationError.parentOperationCancelled
+                        }
+
+                        _ = try saveOperation.extractNoCancellableResultData()
+                        completion(.success(persistence))
+                    } catch {
+                        completion(.failure(error))
+                    }
+                }
+                self.operationQueue.addOperation(saveOperation)
+            } catch {
+                completion(.failure(error))
+            }
+        }
+
+        operationQueue.addOperations(
+            [fetchOperation, processingOperation],
+            waitUntilFinished: false
+        )
+    }
+
+    private func executeRemoteSync() {
         if Self.fetchLocalData {
             do {
                 let localData = try fetchLocalData()
@@ -133,9 +344,9 @@ final class ChainSyncService {
         let obj = try JSONSerialization.jsonObject(with: data, options: [])
         guard var array = obj as? [[String: Any]] else { return data }
 
-        for i in 0 ..< array.count {
-            if array[i]["properties"] == nil {
-                let prefixValue = array[i]["addressPrefix"]
+        for index in 0 ..< array.count {
+            if array[index]["properties"] == nil {
+                let prefixValue = array[index]["addressPrefix"]
                 let prefixString: String
 
                 if let intValue = prefixValue as? Int {
@@ -148,10 +359,10 @@ final class ChainSyncService {
                     prefixString = "0"
                 }
 
-                array[i]["properties"] = ["addressPrefix": prefixString]
+                array[index]["properties"] = ["addressPrefix": prefixString]
             }
 
-            normalizeBlockExplorerTypes(in: &array[i])
+            normalizeBlockExplorerTypes(in: &array[index])
         }
 
         return try JSONSerialization.data(withJSONObject: array, options: [])
@@ -220,7 +431,35 @@ final class ChainSyncService {
     }
 
     private func handle(remoteChains: [ChainModel]) {
-        let normalizedRemoteChains = remoteChains.map { normalizeSoraNexusChainAssets($0) }
+        guard remoteChains.isNotEmpty else {
+            complete(result: .failure(ChainSyncServiceError.emptyRemotePayload))
+            return
+        }
+
+        let normalizedRemoteChains: [ChainModel]
+        do {
+            let remoteOnlyChains = Self.removingAppOwnedChainAliases(
+                from: remoteChains.map { normalizeSoraNexusChainAssets($0) }
+            )
+            guard remoteOnlyChains.isNotEmpty else {
+                complete(
+                    result: .failure(ChainSyncServiceError.emptyRemotePayload)
+                )
+                return
+            }
+
+            let downloadedChains = try Self.sanitizingRemoteChains(
+                remoteOnlyChains
+            )
+
+            normalizedRemoteChains = try Self.sanitizingRemoteChains(
+                Self.mergingAppOwnedProductionChains(into: downloadedChains)
+            )
+        } catch {
+            complete(result: .failure(error))
+            return
+        }
+
         let localFetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 
         let processingOperation: BaseOperation<(
@@ -262,6 +501,107 @@ final class ChainSyncService {
         )
     }
 
+    static func sanitizingRemoteChains(
+        _ remoteChains: [ChainModel]
+    ) throws -> [ChainModel] {
+        var seenIdentifiers = Set<String>()
+
+        return try remoteChains.map { chain in
+            let canonicalIdentifier = chain.chainId.trimmingCharacters(
+                in: .whitespacesAndNewlines
+            )
+            guard
+                canonicalIdentifier.isNotEmpty,
+                canonicalIdentifier == chain.chainId,
+                !canonicalIdentifier.hasPrefix(
+                    ChainModelMapper.quarantinedChainIdentifierPrefix
+                ),
+                chain.name.trimmingCharacters(
+                    in: .whitespacesAndNewlines
+                ).isNotEmpty
+            else {
+                throw ChainSyncServiceError.invalidRemoteChain(
+                    chain.chainId
+                )
+            }
+
+            guard seenIdentifiers.insert(chain.chainId).inserted else {
+                throw ChainSyncServiceError
+                    .duplicateRemoteChainIdentifier(chain.chainId)
+            }
+
+            let usableNodesByURL = chain.nodes
+                .filter { node in
+                    ChainModelMapper.isUsableNodeURL(node.url)
+                        && node.name.trimmingCharacters(
+                            in: .whitespacesAndNewlines
+                        ).isNotEmpty
+                        && ChainModelMapper.isNodeCompatibleWithRuntime(
+                            node,
+                            for: chain
+                        )
+                }
+                .sorted { lhs, rhs in
+                    if lhs.url.absoluteString != rhs.url.absoluteString {
+                        return lhs.url.absoluteString
+                            < rhs.url.absoluteString
+                    }
+
+                    if lhs.name != rhs.name {
+                        return lhs.name < rhs.name
+                    }
+
+                    let lhsQueryName = lhs.apikey?.queryName ?? ""
+                    let rhsQueryName = rhs.apikey?.queryName ?? ""
+                    if lhsQueryName != rhsQueryName {
+                        return lhsQueryName < rhsQueryName
+                    }
+
+                    return (lhs.apikey?.keyName ?? "")
+                        < (rhs.apikey?.keyName ?? "")
+                }
+                .reduce(into: [URL: ChainNodeModel]()) { result, node in
+                    if result[node.url] == nil {
+                        result[node.url] = node
+                    }
+                }
+
+            guard chain.disabled || usableNodesByURL.isNotEmpty else {
+                throw ChainSyncServiceError.invalidRemoteChain(
+                    chain.chainId
+                )
+            }
+
+            return chain
+                .replacingNodes(Set(usableNodesByURL.values))
+                .replacingCustomNodes([])
+                .replacingSelectedNode(nil)
+        }
+    }
+
+    static func mergingAppOwnedProductionChains(
+        into remoteChains: [ChainModel]
+    ) -> [ChainModel] {
+        let appOwnedChains = UniversalWalletRegistry.appOwnedProductionChains
+
+        return removingAppOwnedChainAliases(from: remoteChains) + appOwnedChains
+    }
+
+    static func removingAppOwnedChainAliases(
+        from remoteChains: [ChainModel]
+    ) -> [ChainModel] {
+        let appOwnedChainIds = UniversalWalletRegistry.appOwnedProductionChains.map(\.chainId)
+
+        return remoteChains.filter { remoteChain in
+            !appOwnedChainIds.contains { appOwnedChainId in
+                UniversalWalletChainAccountSupport.chainId(
+                    remoteChain.chainId,
+                    matches: appOwnedChainId
+                )
+            }
+        }
+    }
+
     private func normalizeSoraNexusChainAssets(_ chain: ChainModel) -> ChainModel {
         guard isSoraNexus(chain) else {
             return chain
@@ -275,7 +615,7 @@ final class ChainSyncService {
             return chain
         }
 
-        var updatedChain = chain
+        let updatedChain = chain
         let xorAsset = AssetModel(
             id: "b5a44630-920e-43ee-809f-61890d0888b0",
             name: "sora",
@@ -311,11 +651,12 @@ final class ChainSyncService {
         remoteChains: [ChainModel],
         localChains: [ChainModel]
     ) {
-        remoteChains.forEach { chain in
-            chain.selectedNode = localChains.first(where: { $0.chainId == chain.chainId })?.selectedNode
-        }
+        let mergedRemoteChains = Self.preservingLocalNodePreferences(
+            remoteChains: remoteChains,
+            localChains: localChains
+        )
 
-        let remoteMapping = remoteChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
+        let remoteMapping = mergedRemoteChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
             mapping[item.chainId] = item
         }
 
@@ -323,7 +664,22 @@ final class ChainSyncService {
             mapping[item.chainId] = item
         }
 
-        let newOrUpdated: [ChainModel] = remoteChains.compactMap { remoteItem in
+        let appOwnedChainIds = UniversalWalletRegistry.appOwnedProductionChains
+            .map(\.chainId)
+        let obsoleteAppOwnedAliases = localChains.filter { localItem in
+            remoteMapping[localItem.chainId] == nil &&
+                appOwnedChainIds.contains { appOwnedChainId in
+                    UniversalWalletChainAccountSupport.chainId(
+                        localItem.chainId,
+                        matches: appOwnedChainId
+                    )
+                }
+        }
+        let obsoleteAppOwnedAliasIds = Set(
+            obsoleteAppOwnedAliases.map(\.chainId)
+        )
+
+        var newOrUpdated: [ChainModel] = mergedRemoteChains.compactMap { remoteItem in
             if let localItem = localMapping[remoteItem.chainId] {
                 return localItem != remoteItem ? remoteItem : nil
             } else {
@@ -331,13 +687,77 @@ final class ChainSyncService {
             }
         }
 
-        let removed = localChains.compactMap { localItem in
-            let isRemoved = remoteMapping[localItem.chainId] == nil
-            return isRemoved ? localItem : nil
+        let disabledOmittedChains: [ChainModel] = localChains.compactMap {
+            localItem -> ChainModel? in
+            guard
+                !localItem.chainId.hasPrefix(
+                    ChainModelMapper.quarantinedChainIdentifierPrefix
+                ),
+                remoteMapping[localItem.chainId] == nil,
+                !obsoleteAppOwnedAliasIds.contains(localItem.chainId),
+                !localItem.disabled
+            else {
+                return nil
+            }
+
+            return localItem.replacingDisabled(true)
         }
 
-        let syncChanges = SyncChanges(newOrUpdatedItems: newOrUpdated, removedItems: removed)
+        newOrUpdated.append(contentsOf: disabledOmittedChains)
+
+        let syncChanges = SyncChanges(
+            newOrUpdatedItems: newOrUpdated,
+            removedItems: obsoleteAppOwnedAliases
+        )
         handle(syncChanges: syncChanges)
+    }
+
+    static func preservingLocalNodePreferences(
+        remoteChains: [ChainModel],
+        localChains: [ChainModel]
+    ) -> [ChainModel] {
+        let localMapping = localChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, chain in
+            mapping[chain.chainId] = chain
+        }
+
+        return remoteChains.map { remoteChain in
+            guard let localChain = localMapping[remoteChain.chainId] else {
+                return remoteChain
+            }
+
+            let localCustomNodes = Set(
+                (localChain.customNodes ?? []).filter {
+                    ChainModelMapper.isUsableNodeURL($0.url)
+                        && $0.name.trimmingCharacters(
+                            in: .whitespacesAndNewlines
+                        ).isNotEmpty
+                        && ChainModelMapper
+                        .isNodeCompatibleWithRuntime(
+                            $0,
+                            for: remoteChain
+                        )
+                }
+            )
+            let selectedNode: ChainNodeModel?
+
+            if let localSelectedNode = localChain.selectedNode,
+               ChainModelMapper.isNodeCompatibleWithRuntime(
+                   localSelectedNode,
+                   for: remoteChain
+               ) {
+                selectedNode = remoteChain.nodes.first {
+                    $0.url == localSelectedNode.url
+                } ?? localCustomNodes.first {
+                    $0.url == localSelectedNode.url
+                }
+            } else {
+                selectedNode = nil
+            }
+
+            return remoteChain
+                .replacingCustomNodes(Array(localCustomNodes))
+                .replacingSelectedNode(selectedNode)
+        }
     }
 
     private func handle(syncChanges: SyncChanges) {
@@ -347,9 +767,22 @@ final class ChainSyncService {
             syncChanges.removedItems.map { $0.identifier }
         })
 
-        localSaveOperation.completionBlock = {
+        localSaveOperation.completionBlock = { [weak self, weak localSaveOperation] in
+            let result: Result<SyncChanges, Error>
+
+            do {
+                guard let localSaveOperation else {
+                    throw BaseOperationError.parentOperationCancelled
+                }
+
+                _ = try localSaveOperation.extractNoCancellableResultData()
+                result = .success(syncChanges)
+            } catch {
+                result = .failure(error)
+            }
+
             DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-                self?.complete(result: .success(syncChanges))
+                self?.complete(result: result)
             }
         }
 
@@ -388,7 +821,10 @@ final class ChainSyncService {
                 )
             }
 
+            mutex.lock()
+            isSyncInFlight = false
             retryAttempt = 0
+            mutex.unlock()
 
             let event = ChainSyncDidComplete(
                 newOrUpdatedChains: changes.newOrUpdatedItems,
@@ -398,7 +834,15 @@ final class ChainSyncService {
             eventCenter.notify(with: event)
         case let .failure(error):
             logger?.error("Sync failed with error: \(error)")
-            timer.stop()
+            mutex.lock()
+            let failedReservationIdentifier = reservationIdentifier
+            isSyncInFlight = false
+            isCooldownActive = false
+            reservationIdentifier &+= 1
+            mutex.unlock()
+            stopCooldownTimer(
+                forFailedReservation: failedReservationIdentifier
+            )
             let event = ChainSyncDidFail(error: error)
             eventCenter.notify(with: event)
 
@@ -406,8 +850,33 @@ final class ChainSyncService {
         }
     }
 
+    private func stopCooldownTimer(
+        forFailedReservation failedReservationIdentifier: UInt
+    ) {
+        cooldownTimerQueue.async {
+            self.mutex.lock()
+            let shouldStopTimer =
+                self.timerReservationIdentifier ==
+                failedReservationIdentifier
+            if shouldStopTimer {
+                self.timerReservationIdentifier = nil
+            }
+            self.mutex.unlock()
+
+            if shouldStopTimer {
+                self.timer.stop()
+            }
+        }
+    }
+
     private func retry() {
-        if let nextDelay = retryStrategy.reconnectAfter(attempt: retryAttempt) {
+        mutex.lock()
+        let currentRetryAttempt = retryAttempt
+        mutex.unlock()
+
+        if let nextDelay = retryStrategy.reconnectAfter(
+            attempt: currentRetryAttempt
+        ) {
             logger?.debug("Scheduling chain sync retry after \(nextDelay)")
 
             scheduler.notifyAfter(nextDelay)
@@ -417,42 +886,38 @@ final class ChainSyncService {
 
 extension ChainSyncService: ChainSyncServiceProtocol {
     func syncUp() {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
-        if retryAttempt > 0 {
-            scheduler.cancel()
-        }
-
-        setApplicationDelegateIfNeeded()
-        performSyncUpIfNeeded()
+        performSyncUpIfNeeded(
+            cancelScheduledRetry: true,
+            installApplicationDelegate: true
+        )
     }
 }
 
 extension ChainSyncService: SchedulerDelegate {
     func didTrigger(scheduler _: SchedulerProtocol) {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
         performSyncUpIfNeeded()
     }
 }
 
 extension ChainSyncService: CountdownTimerDelegate {
-    func didStart(with _: TimeInterval) {
-        isSyncing = true
-    }
+    func didStart(with _: TimeInterval) {}
 
     func didCountdown(remainedInterval _: TimeInterval) {}
 
     func didStop(with _: TimeInterval) {
-        isSyncing = false
+        mutex.lock()
+        defer { mutex.unlock() }
+
+        guard case .stopped = timer.state else {
+            return
+        }
+
+        guard timerReservationIdentifier == reservationIdentifier else {
+            return
+        }
+
+        isCooldownActive = false
+        timerReservationIdentifier = nil
     }
 }
 

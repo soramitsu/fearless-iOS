@@ -26,8 +26,10 @@ final class ChainAccountInteractor {
     private var currentDependencies: BalanceInfoDependencies?
     private let ethRemoteBalanceFetching: EthereumRemoteBalanceFetching
     private let chainRegistry: ChainRegistryProtocol
+    private let accountInfoRemoteService: AccountInfoRemoteService
 
     private var remoteFetchTimer: Timer?
+    private var hasLegacyCrowdloan = false
 
     init(
         wallet: MetaAccountModel,
@@ -40,7 +42,8 @@ final class ChainAccountInteractor {
         storageRequestFactory: StorageRequestFactoryProtocol,
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
         ethRemoteBalanceFetching: EthereumRemoteBalanceFetching,
-        chainRegistry: ChainRegistryProtocol
+        chainRegistry: ChainRegistryProtocol,
+        accountInfoRemoteService: AccountInfoRemoteService
     ) {
         self.wallet = wallet
         self.chainAsset = chainAsset
@@ -53,13 +56,13 @@ final class ChainAccountInteractor {
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
         self.ethRemoteBalanceFetching = ethRemoteBalanceFetching
         self.chainRegistry = chainRegistry
+        self.accountInfoRemoteService = accountInfoRemoteService
     }
 
     private func getAvailableChainAssets() {
         chainAssetFetching.fetch(
             shouldUseCache: true,
             filters: [
-                .assetNames([chainAsset.asset.symbol, "xc\(chainAsset.asset.symbol)"]),
                 .enabledChains,
                 .enabled(wallet: wallet)
             ],
@@ -71,7 +74,10 @@ final class ChainAccountInteractor {
 
             switch result {
             case let .success(availableChainAssets):
-                strongSelf.availableChainAssets = availableChainAssets
+                strongSelf.availableChainAssets = CuratedAssetRelationshipResolver.relatedChainAssets(
+                    to: strongSelf.chainAsset,
+                    among: availableChainAssets
+                )
             default:
                 strongSelf.availableChainAssets = []
             }
@@ -81,6 +87,13 @@ final class ChainAccountInteractor {
     }
 
     private func fetchChainAssetBasedData() {
+        if UniversalWalletChainAccountSupport.isUniversalWalletChain(
+            chainAsset.chain.chainId
+        ) {
+            fetchUniversalChainAssetData()
+            return
+        }
+
         guard let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else {
             return
         }
@@ -103,6 +116,60 @@ final class ChainAccountInteractor {
                     chainAsset: chainAsset,
                     listener: strongSelf
                 )
+            }
+        }
+    }
+
+    private func fetchUniversalChainAssetData() {
+        guard let accountId = wallet.fetch(
+            for: chainAsset.chain.accountRequest()
+        )?.accountId else {
+            return
+        }
+
+        presenter?.didReceiveBalanceLocks(.zero)
+        presenter?.didReceiveAssetFrozen(.zero)
+        presenter?.didReceiveMinimumBalance(result: .success(.zero))
+
+        let requestedChainAsset = chainAsset
+        let requestedWallet = wallet
+        Task { [weak self] in
+            guard let self else {
+                return
+            }
+
+            do {
+                let accountInfo = try await accountInfoRemoteService.fetchAccountInfo(
+                    for: requestedChainAsset,
+                    wallet: requestedWallet
+                )
+                await MainActor.run {
+                    guard
+                        self.wallet.metaId == requestedWallet.metaId,
+                        self.chainAsset.chainAssetId == requestedChainAsset.chainAssetId
+                    else {
+                        return
+                    }
+                    self.presenter?.didReceive(
+                        accountInfo: accountInfo,
+                        for: requestedChainAsset,
+                        accountId: accountId
+                    )
+                }
+            } catch {
+                await MainActor.run {
+                    guard
+                        self.wallet.metaId == requestedWallet.metaId,
+                        self.chainAsset.chainAssetId == requestedChainAsset.chainAssetId
+                    else {
+                        return
+                    }
+                    self.presenter?.didReceive(
+                        accountInfo: nil,
+                        for: requestedChainAsset,
+                        accountId: accountId
+                    )
+                }
             }
         }
     }
@@ -140,6 +207,17 @@ final class ChainAccountInteractor {
                     self.presenter?.didReceiveAssetFrozenError(error)
                 })
             }
+
+            if self.chainAsset.chain.isRelaychain, self.chainAsset.isUtility {
+                let legacyLock = (try? await balanceLocksFetcher.fetchCrowdloanLocks(for: accountId)) ?? .zero
+                await MainActor.run {
+                    self.hasLegacyCrowdloan = legacyLock > .zero
+                }
+            } else {
+                await MainActor.run {
+                    self.hasLegacyCrowdloan = false
+                }
+            }
         }
     }
 
@@ -161,6 +239,13 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     }
 
     func getAvailableExportOptions(for address: String) {
+        if UniversalWalletChainAccountSupport.isUniversalWalletChain(
+            chainAsset.chain.chainId
+        ) {
+            presenter?.didReceiveExportOptions(options: [])
+            return
+        }
+
         fetchChainAccountFor(
             meta: wallet,
             chain: chainAsset.chain,
@@ -214,8 +299,8 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     }
 
     func checkIsClaimAvailable() -> Bool {
-        guard
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
+        guard hasLegacyCrowdloan,
+              let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
         else {
             return false
         }

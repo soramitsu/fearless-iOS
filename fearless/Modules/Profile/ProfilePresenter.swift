@@ -94,6 +94,20 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             break
         case .walletConnect:
             wireframe.showWalletConnect(from: view)
+        case .networkAssets:
+            guard let selectedWallet else { return }
+            wireframe.showNetworkAssets(from: view, wallet: selectedWallet)
+        case .tonConnect:
+            guard let selectedWallet else { return }
+            let hasTonAccount = selectedWallet.legacyTonAccount != nil || selectedWallet.chainAccounts.contains {
+                UniversalWalletChainAccountSupport.chainId(
+                    $0.chainId,
+                    matches: UniversalWalletRegistry.tonMainnetRegistryEntry.chainId
+                )
+            }
+            wireframe.showTonConnectCapability(from: view, hasTonAccount: hasTonAccount)
+        case .irohaConnect:
+            wireframe.showIrohaConnect(from: view)
         }
     }
 

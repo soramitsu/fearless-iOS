@@ -56,7 +56,6 @@ final class WalletConnectActiveSessionsViewLayout: UIView {
         searchView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.defaultOffset)
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.height.equalTo(32)
         }
 
         addSubview(tableView)

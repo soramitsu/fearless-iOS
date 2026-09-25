@@ -25,10 +25,14 @@ protocol EventVisitorProtocol: AnyObject {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent)
     func processStakingUpdatedEvent()
     func processRemoteSubscriptionWasUpdated(event: WalletRemoteSubscriptionWasUpdatedEvent)
+    func processRemoteAccountInfoUpdated(event: RemoteAccountInfoUpdatedEvent)
     func processChainsSetupCompleted()
     func processLogout()
     func processAccountScoreSettingsChanged()
     func processPricesUpdated()
+    func processAssetVisibilityPreferenceChanged(event: AssetVisibilityPreferenceChangedEvent)
+    func processPolkamarktDeepLinkRequested(event: PolkamarktDeepLinkRequested)
+    func processPolkaswapSettingsDidUpdate(event: PolkaswapSettingsDidUpdate)
 }
 
 extension EventVisitorProtocol {
@@ -56,8 +60,12 @@ extension EventVisitorProtocol {
     func processMetaAccountChanged(event _: MetaAccountModelChangedEvent) {}
     func processStakingUpdatedEvent() {}
     func processRemoteSubscriptionWasUpdated(event _: WalletRemoteSubscriptionWasUpdatedEvent) {}
+    func processRemoteAccountInfoUpdated(event _: RemoteAccountInfoUpdatedEvent) {}
     func processChainsSetupCompleted() {}
     func processLogout() {}
     func processAccountScoreSettingsChanged() {}
     func processPricesUpdated() {}
+    func processAssetVisibilityPreferenceChanged(event _: AssetVisibilityPreferenceChangedEvent) {}
+    func processPolkamarktDeepLinkRequested(event _: PolkamarktDeepLinkRequested) {}
+    func processPolkaswapSettingsDidUpdate(event _: PolkaswapSettingsDidUpdate) {}
 }

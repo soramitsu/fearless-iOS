@@ -123,7 +123,7 @@ private extension AccountImportViewController {
             if uploadViewActive {
                 isEnabled = isEnabled && sourceViewModel?.inputHandler.normalizedValue.isNotEmpty ?? false
             } else if textViewActive {
-                isEnabled = isEnabled && !rootView.textView.text.isEmpty
+                isEnabled = isEnabled && viewModel.inputHandler.normalizedValue.isNotEmpty
             }
         }
 
@@ -228,8 +228,8 @@ extension AccountImportViewController: AccountImportViewProtocol {
 
     func setSource(type: AccountImportSource, chainType: AccountCreateChainType, selectable: Bool) {
         switch type {
-        case .mnemonic:
-            rootView.setAdvancedVisibility(true)
+        case .mnemonic, .legacyTonMnemonic:
+            rootView.setAdvancedVisibility(type == .mnemonic && (chainType.includeSubstrate || chainType.includeEthereum))
 
             rootView.textViewContainer.isHidden = false
 
@@ -239,7 +239,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
             switch chainType {
             case .substrate, .both:
                 rootView.setAdvancedVisibility(true)
-            case .ethereum:
+            case .ethereum, .universal:
                 rootView.setAdvancedVisibility(false)
             }
             rootView.textViewContainer.isHidden = false
@@ -458,7 +458,13 @@ extension AccountImportViewController: AnimatedTextFieldDelegate {
 }
 
 extension AccountImportViewController: UITextViewDelegate {
-    func textViewDidChange(_: UITextView) {
+    func textViewDidChange(_ textView: UITextView) {
+        if let model = sourceViewModel,
+           model.inputHandler.value != textView.text {
+            model.inputHandler.changeValue(to: textView.text)
+            presenter.validateInput(value: model.inputHandler.normalizedValue)
+        }
+
         rootView.updateTextViewPlaceholder()
         updateNextButton()
     }
@@ -477,11 +483,15 @@ extension AccountImportViewController: UITextViewDelegate {
             return false
         }
 
-        _ = model.inputHandler.didReceiveReplacement(text, for: range)
+        let shouldApply = model.inputHandler.didReceiveReplacement(text, for: range)
 
-        presenter.validateInput(value: model.inputHandler.value)
+        if !shouldApply, textView.text != model.inputHandler.value {
+            textView.text = model.inputHandler.value
+        }
 
-        return true
+        presenter.validateInput(value: model.inputHandler.normalizedValue)
+
+        return shouldApply
     }
 }
 

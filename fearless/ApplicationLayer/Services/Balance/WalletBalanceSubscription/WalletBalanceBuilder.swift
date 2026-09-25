@@ -15,17 +15,19 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         _ metaAccounts: [MetaAccountModel],
         _ chainAssets: [ChainAsset]
     ) -> [MetaAccountId: WalletBalanceInfo]? {
+        let resolvedAccountInfos = mergingRemoteLastKnownBalances(
+            into: accountInfos,
+            wallets: metaAccounts,
+            chainAssets: chainAssets
+        )
         let walletBalanceMap = metaAccounts.reduce(
             [MetaAccountId: WalletBalanceInfo]()
         ) { (result, wallet) -> [MetaAccountId: WalletBalanceInfo]? in
 
-            let splitedChainAssets = split(chainAssets, for: wallet)
-            let enabledChainAssets = splitedChainAssets.enabled
-
             let enabledAssetFiatBalanceInfo = countBalance(
-                for: enabledChainAssets,
+                for: chainAssets,
                 wallet,
-                accountInfos
+                resolvedAccountInfos
             )
 
             let enabledAssetFiatBalance = enabledAssetFiatBalanceInfo.totalBalance
@@ -46,7 +48,7 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
                 dayChangeValue: totalDayChange,
                 currency: wallet.selectedCurrency,
                 prices: PriceDataHelper.prices(for: wallet.selectedCurrency, from: chainAssets),
-                accountInfos: accountInfos
+                accountInfos: resolvedAccountInfos
             )
 
             var result = result
@@ -55,6 +57,38 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         }
 
         return walletBalanceMap
+    }
+
+    private func mergingRemoteLastKnownBalances(
+        into accountInfos: [ChainAssetKey: AccountInfo?],
+        wallets: [MetaAccountModel],
+        chainAssets: [ChainAsset]
+    ) -> [ChainAssetKey: AccountInfo?] {
+        var result = accountInfos
+
+        wallets.forEach { wallet in
+            chainAssets.forEach { chainAsset in
+                guard
+                    UniversalWalletChainAccountSupport.isUniversalWalletChain(
+                        chainAsset.chain.chainId
+                    ),
+                    let accountId = wallet.fetch(
+                        for: chainAsset.chain.accountRequest()
+                    )?.accountId,
+                    let wrapped = RemoteLastKnownBalanceStore.load(
+                        chain: chainAsset.chain,
+                        walletId: wallet.metaId
+                    )[chainAsset.chainAssetId],
+                    let accountInfo = wrapped
+                else {
+                    return
+                }
+
+                result[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
+            }
+        }
+
+        return result
     }
 
     private func countBalance(
@@ -99,25 +133,6 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         )
     }
 
-    private func split(
-        _ chainAssets: [ChainAsset],
-        for metaAccount: MetaAccountModel
-    ) -> (enabled: [ChainAsset], disabled: [ChainAsset]) {
-        var enabledChainAssets: [ChainAsset] = []
-        var disabledChainAssets: [ChainAsset] = []
-
-        chainAssets.forEach { chainAsset in
-            let assetsVisibility = metaAccount.assetsVisibility
-            if assetsVisibility.first(where: { $0.assetId == chainAsset.identifier })?.hidden == true {
-                disabledChainAssets.append(chainAsset)
-            } else {
-                enabledChainAssets.append(chainAsset)
-            }
-        }
-
-        return (enabled: enabledChainAssets, disabled: disabledChainAssets)
-    }
-
     private func getFiatBalance(
         for chainAsset: ChainAsset,
         _ accountInfo: AccountInfo?,
@@ -128,8 +143,12 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
             accountInfo
         )
 
-        guard let priceData = chainAsset.asset.getPrice(for: currency),
-              let priceDecimal = Decimal(string: priceData.price)
+        guard AssetTrustResolver.priceTrust(
+            for: chainAsset,
+            currency: currency
+        ).contributesToPortfolioTotal,
+            let priceData = chainAsset.asset.getPrice(for: currency),
+            let priceDecimal = Decimal(string: priceData.price)
         else {
             return AssetFiatBalanceInfo(total: .zero, dayChange: .zero)
         }

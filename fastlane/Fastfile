@@ -1,0 +1,357 @@
+# frozen_string_literal: true
+
+require "fileutils"
+require "open3"
+require "pathname"
+require "spaceship"
+require "fastlane_core/ipa_file_analyser"
+require_relative "lib/fearless_testflight"
+
+default_platform(:ios)
+
+ROOT = File.expand_path("..", __dir__)
+APP_ID = FearlessTestFlight::APP_ID
+BUNDLE_IDENTIFIER = FearlessTestFlight::BUNDLE_IDENTIFIER
+
+def lane_option(options, key, env_key, required: true)
+  candidate = options[key] || ENV[env_key]
+  candidate = candidate.strip if candidate.respond_to?(:strip)
+  candidate = nil if candidate.respond_to?(:empty?) && candidate.empty?
+  UI.user_error!("#{env_key} is required") if required && candidate.nil?
+  candidate
+end
+
+def positive_integer(value, label)
+  parsed = Integer(value.to_s, 10)
+  UI.user_error!("#{label} must be positive") unless parsed.positive?
+  parsed
+rescue ArgumentError, TypeError
+  UI.user_error!("#{label} must be a positive integer")
+end
+
+def find_one_evidence_file(pattern, label)
+  matches = Dir.glob(pattern).select { |path| File.file?(path) && !File.symlink?(path) }
+  UI.user_error!("no #{label} matched #{pattern}") if matches.empty?
+  UI.user_error!("multiple #{label} files matched #{pattern}: #{matches.join(', ')}") if matches.length > 1
+  File.expand_path(matches.first)
+end
+
+def resolve_evidence_paths(options, version, build_number)
+  upload = lane_option(options, :upload_receipt, "TESTFLIGHT_UPLOAD_RECEIPT", required: false)
+  upload ||= find_one_evidence_file(
+    File.join(ROOT, "build", "upload", "#{version}-#{build_number}-*", "testflight-upload-receipt.json"),
+    "TestFlight upload receipt"
+  )
+  upload = File.expand_path(upload, ROOT)
+
+  signed = lane_option(options, :signed_audit, "TESTFLIGHT_SIGNED_AUDIT", required: false)
+  signed ||= find_one_evidence_file(
+    File.join(ROOT, "build", "release", "#{version}-#{build_number}-*", "signed-archive-audit.json"),
+    "signed archive audit"
+  )
+  [File.expand_path(signed, ROOT), upload]
+end
+
+def authenticate_connect_api!
+  auth = FearlessTestFlight.resolve_auth(ENV)
+  api_key = nil
+
+  if auth.fetch(:mode) == "app-store-connect-api-key"
+    api_key = app_store_connect_api_key(
+      key_id: auth.fetch(:key_id),
+      issuer_id: auth[:issuer_id],
+      key_filepath: auth.fetch(:key_filepath),
+      duration: 1200,
+      set_spaceship_token: true
+    )
+  else
+    Spaceship::ConnectAPI.login(
+      auth.fetch(:user),
+      auth.fetch(:session_password),
+      use_portal: false,
+      use_tunes: true,
+      tunes_team_id: ENV["FASTLANE_ITC_TEAM_ID"]
+    )
+  end
+
+  [auth.fetch(:mode), api_key]
+rescue FearlessTestFlight::ContractError => e
+  UI.user_error!(e.message)
+end
+
+def exact_app!
+  app = Spaceship::ConnectAPI::App.get(app_id: APP_ID, includes: nil)
+  UI.user_error!("App Store Connect app #{APP_ID} was not found") unless app
+  UI.user_error!("App Store Connect bundle mismatch for app #{APP_ID}: #{app.bundle_id}") unless app.bundle_id == BUNDLE_IDENTIFIER
+  app
+end
+
+def wait_for_build!(app, version, build_number, timeout, poll_interval)
+  UI.message("Waiting for exact TestFlight build #{version} (#{build_number})")
+  FearlessTestFlight.wait_for_exact_build(
+    version: version,
+    build_number: build_number,
+    timeout: timeout,
+    poll_interval: poll_interval,
+    fetch_builds: lambda {
+      Spaceship::ConnectAPI::Build.all(
+        app_id: app.id,
+        version: version,
+        build_number: build_number,
+        platform: Spaceship::ConnectAPI::Platform::IOS,
+        limit: Spaceship::ConnectAPI::Platform::ALL.size
+      )
+    }
+  )
+rescue FearlessTestFlight::ContractError => e
+  UI.user_error!(e.message)
+end
+
+def exact_tester!(app, tester_email)
+  candidates = app.get_beta_testers(
+    filter: { email: tester_email },
+    includes: "betaGroups",
+    limit: 200
+  ).select { |tester| tester.email.to_s.casecmp?(tester_email) }
+  UI.user_error!("tester is not registered for this app") if candidates.empty?
+  UI.user_error!("App Store Connect returned duplicate testers for the target email") if candidates.length > 1
+  candidates.first
+end
+
+def assigned_groups(groups, build)
+  FearlessTestFlight.groups_containing_build(
+    groups: groups,
+    build_id: build.id,
+    fetch_builds: ->(group) { group.fetch_builds }
+  )
+end
+
+def finalize_internal_build!(evidence:, auth_mode:, app:, build:, tester_email:, requested_group_id:, receipt_path:)
+  groups_before = app.get_beta_groups(limit: 200)
+  tester = exact_tester!(app, tester_email)
+  target = FearlessTestFlight.resolve_target_group(
+    groups: groups_before,
+    tester: tester,
+    requested_group_id: requested_group_id
+  )
+
+  assigned_before = assigned_groups(groups_before, build)
+  external_before = assigned_before.reject { |group| group.is_internal_group == true }
+  unless external_before.empty?
+    ids = external_before.map { |group| group.id.to_s }.sort.join(",")
+    UI.user_error!("exact build is already assigned to external group(s) #{ids}; refusing to mutate public/external distribution")
+  end
+
+  target_was_assigned = assigned_before.any? { |group| group.id.to_s == target.id.to_s }
+  unless target_was_assigned
+    UI.message("Assigning exact build #{build.app_version} (#{build.version}) to internal group #{target.id}")
+    build.add_beta_groups(beta_groups: [target])
+  end
+
+  groups_after = app.get_beta_groups(limit: 200)
+  assigned_after = assigned_groups(groups_after, build)
+  target_after = groups_after.find { |group| group.id.to_s == target.id.to_s }
+  UI.user_error!("target internal group disappeared during verification") unless target_after
+  UI.user_error!("target group changed from internal to external during verification") unless target_after.is_internal_group == true
+  UI.user_error!("App Store Connect did not persist the exact internal-group assignment") unless assigned_after.any? { |group| group.id.to_s == target.id.to_s }
+
+  external_after = assigned_after.reject { |group| group.is_internal_group == true }
+  unless external_after.empty?
+    ids = external_after.map { |group| group.id.to_s }.sort.join(",")
+    UI.user_error!("external distribution appeared during finalization (#{ids}); publication is not verified")
+  end
+
+  tester_after = exact_tester!(app, tester_email)
+  tester_group_ids = Array(tester_after.beta_groups).map { |group| group.id.to_s }
+  UI.user_error!("target tester membership disappeared during finalization") unless tester_group_ids.include?(target.id.to_s)
+
+  receipt = FearlessTestFlight.publication_receipt(
+    evidence: evidence,
+    auth_mode: auth_mode,
+    app: app,
+    build: build,
+    tester_email: tester_email,
+    target_group: target_after,
+    assignment_performed: !target_was_assigned,
+    assigned_groups: assigned_after
+  )
+  FearlessTestFlight.write_json_atomic(receipt_path, receipt)
+  UI.success("Verified exact internal TestFlight publication; receipt: #{receipt_path}")
+  receipt_path
+rescue FearlessTestFlight::ContractError => e
+  UI.user_error!(e.message)
+end
+
+def validate_archive!(archive_path, signed_audit)
+  UI.user_error!("archive must be an absolute .xcarchive directory") unless Pathname.new(archive_path).absolute? && archive_path.end_with?(".xcarchive")
+  FearlessTestFlight.require_no_symlink_ancestors!(archive_path, "archive path")
+  UI.user_error!("archive is missing or is a symlink: #{archive_path}") unless File.directory?(archive_path) && !File.symlink?(archive_path)
+
+  hash_script = File.join(ROOT, "scripts", "ci", "hash-ios-archive.sh")
+  output, error, status = Open3.capture3("bash", hash_script, archive_path)
+  UI.user_error!("archive hashing failed: #{error}") unless status.success?
+  actual_hash = output.lines.last.to_s.strip
+  UI.user_error!("archive tree digest does not match the signed audit") unless actual_hash == signed_audit.fetch("archiveTreeSHA256")
+end
+
+def verify_ipa!(ipa_path, version, build_number)
+  analyser = FastlaneCore::IpaFileAnalyser
+  UI.user_error!("exported IPA bundle identifier mismatch") unless analyser.fetch_app_identifier(ipa_path) == BUNDLE_IDENTIFIER
+  UI.user_error!("exported IPA marketing version mismatch") unless analyser.fetch_app_version(ipa_path) == version
+  UI.user_error!("exported IPA build number mismatch") unless analyser.fetch_app_build(ipa_path) == build_number
+  UI.user_error!("exported IPA platform mismatch") unless analyser.fetch_app_platform(ipa_path) == "ios"
+end
+
+platform :ios do
+  desc "Finalize an already-uploaded exact build into one verified internal TestFlight group"
+  lane :finalize_existing do |options|
+    version = lane_option(options, :version, "TESTFLIGHT_VERSION")
+    build_number = lane_option(options, :build, "TESTFLIGHT_BUILD")
+    FearlessTestFlight.validate_release_identity!(version: version, build_number: build_number)
+    tester_email = lane_option({}, :unused, "TESTFLIGHT_TESTER_EMAIL")
+    requested_group_id = lane_option(options, :group_id, "TESTFLIGHT_INTERNAL_GROUP_ID", required: false)
+    timeout = positive_integer(options[:timeout] || ENV.fetch("TESTFLIGHT_PROCESSING_TIMEOUT", "3600"), "processing timeout")
+    poll_interval = positive_integer(options[:poll_interval] || ENV.fetch("TESTFLIGHT_PROCESSING_POLL_INTERVAL", "30"), "processing poll interval")
+    signed_audit_path, upload_receipt_path = resolve_evidence_paths(options, version, build_number)
+
+    evidence = FearlessTestFlight.validate_evidence(
+      signed_audit_path: signed_audit_path,
+      upload_receipt_path: upload_receipt_path,
+      version: version,
+      build_number: build_number
+    )
+    auth_mode, = authenticate_connect_api!
+    app = exact_app!
+    build = wait_for_build!(app, version, build_number, timeout, poll_interval)
+    release_key = "#{version}-#{build_number}-#{evidence.fetch(:git_commit)[0, 10]}"
+    receipt_path = File.join(ROOT, "build", "upload", release_key, "testflight-internal-publication-receipt.json")
+
+    finalize_internal_build!(
+      evidence: evidence,
+      auth_mode: auth_mode,
+      app: app,
+      build: build,
+      tester_email: tester_email,
+      requested_group_id: requested_group_id,
+      receipt_path: receipt_path
+    )
+  rescue FearlessTestFlight::ContractError => e
+    UI.user_error!(e.message)
+  end
+
+  desc "Export and upload an existing audited archive, then verify its internal TestFlight assignment"
+  lane :publish_archive do |options|
+    version = lane_option(options, :version, "TESTFLIGHT_VERSION")
+    build_number = lane_option(options, :build, "TESTFLIGHT_BUILD")
+    FearlessTestFlight.validate_release_identity!(version: version, build_number: build_number)
+    archive_path = File.expand_path(lane_option(options, :archive, "TESTFLIGHT_ARCHIVE"), ROOT)
+    signed_audit_path = File.expand_path(lane_option(options, :signed_audit, "TESTFLIGHT_SIGNED_AUDIT"), ROOT)
+    tester_email = lane_option({}, :unused, "TESTFLIGHT_TESTER_EMAIL")
+    requested_group_id = lane_option(options, :group_id, "TESTFLIGHT_INTERNAL_GROUP_ID", required: false)
+    timeout = positive_integer(options[:timeout] || ENV.fetch("TESTFLIGHT_PROCESSING_TIMEOUT", "3600"), "processing timeout")
+    poll_interval = positive_integer(options[:poll_interval] || ENV.fetch("TESTFLIGHT_PROCESSING_POLL_INTERVAL", "30"), "processing poll interval")
+
+    signed = FearlessTestFlight.read_json(signed_audit_path, label: "signed archive audit")
+    FearlessTestFlight.require_equal!(signed["audit"], "fearless-ios-signed-production-archive", "signed archive audit type")
+    FearlessTestFlight.require_equal!(signed["bundleIdentifier"], BUNDLE_IDENTIFIER, "signed archive bundle identifier")
+    FearlessTestFlight.require_equal!(signed["marketingVersion"], version, "signed archive marketing version")
+    FearlessTestFlight.require_equal!(signed["buildNumber"], build_number, "signed archive build number")
+    FearlessTestFlight.require_commit!(signed["gitCommit"], "signed archive source commit")
+    FearlessTestFlight.require_sha256!(signed["archiveTreeSHA256"], "signed archive tree digest")
+    FearlessTestFlight.require_sha256!(signed["executableSHA256"], "signed archive executable digest")
+    validate_archive!(archive_path, signed)
+
+    auth_mode, api_key = authenticate_connect_api!
+    app = exact_app!
+    existing = Spaceship::ConnectAPI::Build.all(
+      app_id: app.id,
+      version: version,
+      build_number: build_number,
+      platform: Spaceship::ConnectAPI::Platform::IOS,
+      limit: Spaceship::ConnectAPI::Platform::ALL.size
+    )
+    UI.user_error!("exact build already exists in App Store Connect; use ios finalize_existing instead of uploading a duplicate") if FearlessTestFlight.exact_build(existing, version: version, build_number: build_number)
+
+    export_root = File.join(ROOT, "build", "fastlane", "#{version}-#{build_number}-#{signed.fetch('gitCommit')[0, 10]}")
+    FearlessTestFlight.require_no_symlink_ancestors!(export_root, "Fastlane export path")
+    FileUtils.mkdir_p(export_root, mode: 0o700)
+    FearlessTestFlight.require_no_symlink_ancestors!(export_root, "Fastlane export path")
+    export_path = Dir.mktmpdir("export-", export_root)
+    sh(
+      "xcodebuild", "-exportArchive",
+      "-archivePath", archive_path,
+      "-exportOptionsPlist", File.join(ROOT, "fastlane", "ExportOptions.plist"),
+      "-exportPath", export_path
+    )
+    ipa_paths = Dir.glob(File.join(export_path, "*.ipa"))
+    UI.user_error!("archive export did not produce exactly one IPA") unless ipa_paths.length == 1
+    ipa_path = ipa_paths.first
+    verify_ipa!(ipa_path, version, build_number)
+
+    upload_options = {
+      ipa: ipa_path,
+      apple_id: APP_ID,
+      app_identifier: BUNDLE_IDENTIFIER,
+      app_platform: "ios",
+      app_version: version,
+      build_number: build_number,
+      skip_submission: true,
+      skip_waiting_for_build_processing: true,
+      wait_processing_timeout_duration: timeout,
+      wait_processing_interval: poll_interval
+    }
+    upload_options[:api_key] = api_key if api_key
+    unless api_key
+      application_password = ENV["FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD"].to_s.strip
+      UI.user_error!("FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD is required to upload when using Apple-ID session authentication") if application_password.empty?
+      upload_options[:username] = ENV.fetch("FASTLANE_USER")
+      upload_options[:team_id] = ENV["FASTLANE_ITC_TEAM_ID"] if ENV["FASTLANE_ITC_TEAM_ID"]
+    end
+    upload_to_testflight(**upload_options)
+
+    release_key = "#{version}-#{build_number}-#{signed.fetch('gitCommit')[0, 10]}"
+    upload_dir = File.join(ROOT, "build", "upload", release_key)
+    upload_receipt_path = File.join(upload_dir, "testflight-upload-receipt.json")
+    upload_receipt = {
+      "schemaVersion" => 1,
+      "audit" => "fearless-fastlane-testflight-upload",
+      "verdict" => "pass",
+      "bundleIdentifier" => BUNDLE_IDENTIFIER,
+      "marketingVersion" => version,
+      "buildVersion" => build_number,
+      "gitCommit" => signed.fetch("gitCommit"),
+      "archiveTreeSHA256" => signed.fetch("archiveTreeSHA256"),
+      "executableSHA256" => signed.fetch("executableSHA256"),
+      "uploadMethod" => "fastlane-pilot-2.238.0",
+      "uploadedAtUTC" => Time.now.utc.iso8601,
+      "appleUploadAccepted" => true,
+      "appleProcessingState" => "uploaded-awaiting-processing",
+      "appStoreConnectBuildUploadId" => nil,
+      "appStoreConnectBuildUploadFileId" => nil,
+      "appStoreConnectBuildId" => nil,
+      "hashes" => {
+        "signedArchiveAuditSHA256" => FearlessTestFlight.sha256_file(signed_audit_path)
+      }
+    }
+    FearlessTestFlight.write_json_atomic(upload_receipt_path, upload_receipt)
+    evidence = FearlessTestFlight.validate_evidence(
+      signed_audit_path: signed_audit_path,
+      upload_receipt_path: upload_receipt_path,
+      version: version,
+      build_number: build_number
+    )
+    build = wait_for_build!(app, version, build_number, timeout, poll_interval)
+    publication_receipt_path = File.join(upload_dir, "testflight-internal-publication-receipt.json")
+    finalize_internal_build!(
+      evidence: evidence,
+      auth_mode: auth_mode,
+      app: app,
+      build: build,
+      tester_email: tester_email,
+      requested_group_id: requested_group_id,
+      receipt_path: publication_receipt_path
+    )
+  rescue FearlessTestFlight::ContractError => e
+    UI.user_error!(e.message)
+  end
+end

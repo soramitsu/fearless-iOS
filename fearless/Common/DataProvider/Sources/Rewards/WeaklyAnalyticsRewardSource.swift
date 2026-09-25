@@ -1,7 +1,6 @@
 import Foundation
 import RobinHood
 import SSFUtils
-import BigInt
 
 final class ParachainWeaklyAnalyticsRewardSource {
     typealias Model = [SubqueryRewardItemData]
@@ -33,20 +32,10 @@ extension ParachainWeaklyAnalyticsRewardSource: SingleValueProviderSourceProtoco
 
         let mappingOperation = ClosureOperation<[SubqueryRewardItemData]?> {
             let rewards = try rewardOperation.extractNoCancellableResultData()
-            return rewards.rewardHistory(for: address).compactMap { wrappedReward in
-                guard
-                    let timestamp = Int64(wrappedReward.timestampInSeconds)
-                else {
-                    return nil
-                }
-                return SubqueryRewardItemData(
-                    eventId: wrappedReward.id,
-                    timestamp: timestamp,
-                    validatorAddress: "",
-                    era: EraIndex(0),
-                    stashAddress: address,
-                    amount: wrappedReward.amount,
-                    isReward: wrappedReward.type == .reward
+            return rewards.rewardHistory(for: address).compactMap {
+                SubqueryRewardItemData(
+                    rewardHistoryItem: $0,
+                    stashAddress: address
                 )
             }
         }

@@ -13,6 +13,17 @@ class RootViewLayout: UIView {
         return imageView
     }()
 
+    let statusLabel: UILabel = {
+        let label = UILabel()
+        label.accessibilityIdentifier = "fearless.root.setup-status"
+        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.textColor = .white
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.isHidden = true
+        return label
+    }()
+
     var locale = Locale.current {
         didSet {
             if locale != oldValue {
@@ -40,6 +51,7 @@ class RootViewLayout: UIView {
     private func setupLayout() {
         addSubview(backgroundImageView)
         addSubview(fearlessLogoImageView)
+        addSubview(statusLabel)
 
         backgroundImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -47,6 +59,13 @@ class RootViewLayout: UIView {
 
         fearlessLogoImageView.snp.makeConstraints { make in
             make.center.equalToSuperview()
+        }
+
+        statusLabel.snp.makeConstraints { make in
+            make.top.equalTo(fearlessLogoImageView.snp.bottom).offset(32)
+            make.leading.greaterThanOrEqualToSuperview().offset(32)
+            make.trailing.lessThanOrEqualToSuperview().inset(32)
+            make.centerX.equalToSuperview()
         }
     }
 }

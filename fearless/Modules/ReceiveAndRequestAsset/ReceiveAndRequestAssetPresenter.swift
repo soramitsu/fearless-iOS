@@ -69,6 +69,7 @@ final class ReceiveAndRequestAssetPresenter {
 
         view?.didReceive(viewModel: ReceiveAssetViewModel(
             asset: chainAsset.asset.symbolUppercased,
+            networkName: chainAsset.chain.name,
             accountName: wallet.name,
             address: address,
             isSora: chainAsset.chain.isSora

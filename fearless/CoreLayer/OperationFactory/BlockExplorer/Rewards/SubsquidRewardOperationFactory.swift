@@ -1,7 +1,6 @@
 import Foundation
 import RobinHood
 import SSFUtils
-import SoraFoundation
 import SSFModels
 
 enum ArrosquidRewardOperationFactoryError: Error {
@@ -36,44 +35,53 @@ final class ArrowsquidRewardOperationFactory {
         """
     }
 
+    private func prepareTimestampFilter(
+        startTimestamp: Int64?,
+        endTimestamp: Int64?
+    ) -> String {
+        var bounds = [String]()
+        if let startTimestamp {
+            bounds.append("timestamp_gte: \(startTimestamp)")
+        }
+        if let endTimestamp {
+            bounds.append("timestamp_lte: \(endTimestamp)")
+        }
+
+        guard !bounds.isEmpty else {
+            return ""
+        }
+
+        return "AND: { \(bounds.joined(separator: ", ")) },"
+    }
+
     private func prepareDelegatorHistoryRequest(
         address: String,
         startTimestamp: Int64?,
         endTimestamp: Int64?
     ) -> String {
-        let timestampFilter: String = {
-            let locale = LocalizationManager.shared.selectedLocale
-            guard startTimestamp != nil || endTimestamp != nil else { return "" }
-
-            var result = "AND: {"
-            let dateFormatter = DateFormatter.suibsquidInputDate.value(for: locale)
-            if let startTimestamp = startTimestamp {
-                let startDate = Date(timeIntervalSince1970: TimeInterval(startTimestamp))
-                let startDateString = dateFormatter.string(from: startDate)
-                result.append("timestamp_gte:\"\(startDateString)\"")
-            }
-
-            if let endTimestamp = endTimestamp {
-                let endDate = Date(timeIntervalSince1970: TimeInterval(endTimestamp))
-                let endDateString = dateFormatter.string(from: endDate)
-                result.append("timestamp_lte:\"\(endDateString)\"")
-            }
-            result.append("}")
-            return result
-        }()
+        let timestampFilter = prepareTimestampFilter(
+            startTimestamp: startTimestamp,
+            endTimestamp: endTimestamp
+        )
 
         return """
         query MyQuery {
-          rewards(orderBy: timestamp_DESC, where: {accountId_containsInsensitive: "\(address)", \(timestampFilter)}) {
+          historyElements(
+            orderBy: timestamp_DESC,
+            where: { address_eq: "\(address)", \(timestampFilter) reward_isNull: false }
+          ) {
             id
-            accountId
-            amount
-            blockNumber
-            round
+            blockHeight
             timestamp
+            address
+            reward {
+              amount
+              era
+              stash
+              validator
+            }
           }
         }
-
         """
     }
 
@@ -82,30 +90,17 @@ final class ArrowsquidRewardOperationFactory {
         startTimestamp: Int64?,
         endTimestamp: Int64?
     ) -> String {
-        let timestampFilter: String = {
-            let locale = LocalizationManager.shared.selectedLocale
-            guard startTimestamp != nil || endTimestamp != nil else { return "" }
-
-            var result = "AND: {"
-            let dateFormatter = DateFormatter.suibsquidInputDate.value(for: locale)
-            if let startTimestamp = startTimestamp {
-                let startDate = Date(timeIntervalSince1970: TimeInterval(startTimestamp))
-                let startDateString = dateFormatter.string(from: startDate)
-                result.append("timestamp_gte:\"\(startDateString)\"")
-            }
-
-            if let endTimestamp = endTimestamp {
-                let endDate = Date(timeIntervalSince1970: TimeInterval(endTimestamp))
-                let endDateString = dateFormatter.string(from: endDate)
-                result.append("timestamp_lte:\"\(endDateString)\"")
-            }
-            result.append("}")
-            return result
-        }()
+        let timestampFilter = prepareTimestampFilter(
+            startTimestamp: startTimestamp,
+            endTimestamp: endTimestamp
+        )
 
         return """
         query MyQuery {
-          historyElements(orderBy: timestamp_DESC, where: {address_eq: "\(address)", \(timestampFilter), reward_isNull: false}) {
+          historyElements(
+            orderBy: timestamp_DESC,
+            where: { address_eq: "\(address)", \(timestampFilter) reward_isNull: false }
+          ) {
             timestamp
                 id
                 address
@@ -229,6 +224,15 @@ extension ArrowsquidRewardOperationFactory: RewardOperationFactoryProtocol {
         startTimestamp: Int64?,
         endTimestamp: Int64?
     ) -> BaseOperation<RewardHistoryResponseProtocol> {
+        guard RewardHistoryRequestValidator.isValid(
+            address: address,
+            startTimestamp: startTimestamp,
+            endTimestamp: endTimestamp,
+            maximumTimestamp: Int64(Int32.max)
+        ) else {
+            return BaseOperation.createWithError(RewardHistoryRequestError.invalidParameters)
+        }
+
         let queryString = prepareDelegatorHistoryRequest(
             address: address,
             startTimestamp: startTimestamp,
@@ -281,6 +285,15 @@ extension ArrowsquidRewardOperationFactory: RewardOperationFactoryProtocol {
         startTimestamp: Int64?,
         endTimestamp: Int64?
     ) -> BaseOperation<RewardOrSlashResponse> {
+        guard RewardHistoryRequestValidator.isValid(
+            address: address,
+            startTimestamp: startTimestamp,
+            endTimestamp: endTimestamp,
+            maximumTimestamp: Int64(Int32.max)
+        ) else {
+            return BaseOperation.createWithError(RewardHistoryRequestError.invalidParameters)
+        }
+
         let queryString = prepareHistoryRequestForAddress(
             address,
             startTimestamp: startTimestamp,

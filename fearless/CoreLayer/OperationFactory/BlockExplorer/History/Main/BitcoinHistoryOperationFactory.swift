@@ -34,7 +34,7 @@ final class BitcoinHistoryOperationFactory {
     }
 
     private func historyBaseURL(for chain: ChainModel) -> String? {
-        chain.externalApi?.history?.url.absoluteString
+        network(for: chain).defaultBaseURL.absoluteString
     }
 
     private func isSupportedBitcoinAsset(_ asset: AssetModel) -> Bool {

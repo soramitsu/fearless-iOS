@@ -55,7 +55,7 @@ if [ -x scripts/deps/restore-swiftpm-contract-files.sh ]; then
 fi
 if [ -x scripts/deps/enforce-ssf-pin.sh ]; then
   echo "==> Enforcing shared-features-spm pinned revision"
-  scripts/deps/enforce-ssf-pin.sh || true
+  scripts/deps/enforce-ssf-pin.sh
 fi
 if [ -x scripts/deps/check-dependency-contracts.sh ]; then
   echo "==> Validating dependency contracts"
@@ -99,23 +99,8 @@ if command -v git-lfs >/dev/null 2>&1; then
   fi
 fi
 
-# 4) Apply native crypto contracts to the resolved SourcePackages checkout
-if [ -x scripts/deps/prepare-native-crypto-checkout.sh ]; then
-  echo "==> Preparing native crypto checkout"
-  if ! SOURCE_PACKAGES_DIR="$(pwd)/SourcePackages" STRICT_REQUIRED_PATCHES=1 scripts/deps/prepare-native-crypto-checkout.sh "$(pwd)" "$WORKSPACE" "$SCHEME"; then
-    echo "ERROR: Native crypto checkout preparation failed during local setup" >&2
-    exit 1
-  fi
-fi
-
-# 5) Apply required shared-features-spm compatibility fixes
-if [ -f scripts/spm-shared-features-fixes.sh ]; then
-  echo "==> Applying required shared-features-spm compatibility fixes"
-  if ! SOURCE_PACKAGES_DIR="$(pwd)/SourcePackages" ALLOW_DERIVEDDATA_FALLBACK=0 STRICT_REQUIRED_PATCHES=1 bash scripts/spm-shared-features-fixes.sh "$(pwd)"; then
-    echo "ERROR: shared-features-spm compatibility fixes failed during local setup" >&2
-    exit 1
-  fi
-fi
+# 4) Verify the exact resolved dependency source.
+SOURCE_PACKAGES_DIR="$(pwd)/SourcePackages" python3 scripts/deps/verify-shared-features-source.py "$(pwd)"
 
 cat <<EOF
 

@@ -4,7 +4,6 @@ import SSFXCM
 import SSFChainRegistry
 import SSFModels
 import SSFCrypto
-import SoraKeystore
 import SSFUtils
 
 final class CrossChainDepsContainer {
@@ -13,7 +12,7 @@ final class CrossChainDepsContainer {
     }
 
     struct CrossChainConfirmationDeps {
-        let xcmServices: XcmExtrinsicServices
+        let xcmServices: XcmReadOnlyServices
         let destinationExistentialDepositService: ExistentialDepositServiceProtocol?
         let destinationStorageRequestPerformer: StorageRequestPerformer?
     }
@@ -78,57 +77,20 @@ final class CrossChainDepsContainer {
         wallet: MetaAccountModel,
         originalChainAsset: ChainAsset,
         originalRuntimeMetadataItem: RuntimeMetadataItemProtocol?
-    ) throws -> XcmExtrinsicServices {
+    ) throws -> XcmReadOnlyServices {
         let request = originalChainAsset.chain.accountRequest()
         guard let response = wallet.fetch(for: request) else {
             throw DepsError.missingChainResponse
         }
 
-        let cryptoType = response.cryptoType
-        let accountId = response.accountId
-
-        let secretKeyData = try fetchSecretKey(
-            for: originalChainAsset.chain,
-            metaId: wallet.metaId,
-            accountResponse: response
-        )
-
-        let signingWrapperData = XcmAssembly.SigningWrapperData(
-            publicKeyData: response.publicKey,
-            secretKeyData: secretKeyData
-        )
-
-        let fromChainData = XcmAssembly.FromChainData(
+        return XcmAssembly.createReadOnlyServices(
             chainId: originalChainAsset.chain.chainId,
-            cryptoType: cryptoType,
+            cryptoType: response.cryptoType,
             chainMetadata: originalRuntimeMetadataItem,
-            accountId: accountId,
-            signingWrapperData: signingWrapperData,
-            chainType: originalChainAsset.chain.chainBaseType
-        )
-
-        let sourceConfig = ApplicationConfig.shared
-        let services = XcmAssembly.createExtrincisServices(
-            fromChainData: fromChainData,
-            sourceConfig: sourceConfig,
+            accountId: response.accountId,
+            chainType: originalChainAsset.chain.chainBaseType,
+            sourceConfig: ApplicationConfig.shared,
             chainRegistry: chainRegistry
         )
-
-        return services
-    }
-
-    private func fetchSecretKey(
-        for chain: ChainModel,
-        metaId: String,
-        accountResponse: ChainAccountResponse
-    ) throws -> Data {
-        let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
-        let tag: String = chain.isEthereumBased
-            ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId)
-            : KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId)
-
-        let keystore = Keychain()
-        let secretKey = try keystore.fetchKey(for: tag)
-        return secretKey
     }
 }

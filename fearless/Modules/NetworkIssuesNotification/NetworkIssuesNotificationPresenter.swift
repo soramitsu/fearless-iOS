@@ -49,7 +49,14 @@ final class NetworkIssuesNotificationPresenter {
 
     private func showMissingAccountOptions(chain: ChainModel) {
         let unused = (wallet.unusedChainIds ?? []).contains(chain.chainId)
-        let options: [MissingAccountOption?] = [.create, .import, unused ? nil : .skip]
+        let usesWalletRootPhrase = UniversalWalletRegistry.bitcoinNetwork(for: chain.chainId) != nil ||
+            UniversalWalletChainAccountSupport.chainId(
+                chain.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            )
+        let options: [MissingAccountOption?] = usesWalletRootPhrase
+            ? [.import, unused ? nil : .skip]
+            : [.create, .import, unused ? nil : .skip]
 
         router.presentAccountOptions(
             from: view,

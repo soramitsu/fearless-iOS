@@ -53,6 +53,15 @@ extension PolkaswapSwapConfirmationPresenter: PolkaswapSwapConfirmationViewOutpu
     }
 
     func didTapConfirmButton() {
+        guard MultiChainFeaturePolicy.current.polkaswapMutationsEnabled else {
+            router.presentInfo(
+                message: "Swaps are temporarily disabled by the remote safety switch. No transaction was submitted.",
+                title: "Polkaswap actions paused",
+                from: view
+            )
+            return
+        }
+
         view?.didStartLoading()
         interactor.submit()
     }

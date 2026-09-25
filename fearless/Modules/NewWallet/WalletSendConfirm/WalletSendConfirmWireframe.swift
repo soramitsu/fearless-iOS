@@ -20,6 +20,20 @@ final class WalletSendConfirmWireframe: WalletSendConfirmWireframeProtocol {
         title: String,
         chainAsset: ChainAsset
     ) {
+        complete(
+            on: view,
+            title: title,
+            chainAsset: chainAsset,
+            presentationCompletion: nil
+        )
+    }
+
+    private func complete(
+        on view: ControllerBackedProtocol?,
+        title: String,
+        chainAsset: ChainAsset,
+        presentationCompletion: (() -> Void)?
+    ) {
         let presenter = view?.controller.navigationController?.presentingViewController
 
         let controller = AllDoneAssembly.configureModule(chainAsset: chainAsset, hashString: title)?.view.controller
@@ -33,8 +47,28 @@ final class WalletSendConfirmWireframe: WalletSendConfirmWireframeProtocol {
         view?.controller.navigationController?.dismiss(animated: true) {
             if let presenter = presenter as? ControllerBackedProtocol,
                let controller = controller {
-                presenter.controller.present(controller, animated: true)
+                presenter.controller.present(
+                    controller,
+                    animated: true,
+                    completion: presentationCompletion
+                )
             }
         }
+    }
+}
+
+extension WalletSendConfirmWireframe: WalletSendConfirmCompletionPresenting {
+    func completeAfterPresentation(
+        on view: ControllerBackedProtocol?,
+        title: String,
+        chainAsset: ChainAsset,
+        completion: @escaping () -> Void
+    ) {
+        complete(
+            on: view,
+            title: title,
+            chainAsset: chainAsset,
+            presentationCompletion: completion
+        )
     }
 }

@@ -1,0 +1,242 @@
+import RobinHood
+import SSFNetwork
+import XCTest
+@testable import fearless
+
+final class FeatureToggleProviderTests: XCTestCase {
+    func testUnsignedAndMalformedSignedConfigurationCannotEnableNewMutations() throws {
+        defer { MultiChainFeaturePolicy.update(.defaultConfig) }
+        for token in [nil, "invalid", String(repeating: "a", count: 8193)] as [String?] {
+            MultiChainFeaturePolicy.update(FeatureToggleConfig(
+                pendulumCaseEnabled: true, nftEnabled: true,
+                polkaswapMutationsEnabled: true,
+                demeterMutationsEnabled: true, polkamarktMutationsEnabled: true,
+                crossChainMutationsEnabled: true, assetDiscoveryShadowMode: false,
+                signedMutationAuthorization: token
+            ))
+            let current = MultiChainFeaturePolicy.current
+            XCTAssertFalse(current.demeterMutationsEnabled)
+            XCTAssertFalse(current.polkamarktMutationsEnabled)
+            XCTAssertFalse(current.crossChainMutationsEnabled)
+            XCTAssertTrue(current.polkaswapMutationsEnabled)
+            XCTAssertEqual(current.pendulumCaseEnabled, true)
+            XCTAssertEqual(current.nftEnabled, true)
+            XCTAssertFalse(current.assetDiscoveryShadowMode)
+        }
+        for decoder in [JSONDecoder(), GithubJSONDecoder()] {
+            let decoded = try decoder.decode(FeatureToggleConfig.self, from: Data(
+                #"{"mutation_authorization":"bounded-wire-token"}"#.utf8
+            ))
+            XCTAssertEqual(decoded.signedMutationAuthorization, "bounded-wire-token")
+        }
+        XCTAssertThrowsError(try JSONDecoder().decode(FeatureToggleConfig.self, from: Data(
+            #"{"mutation_authorization":"one","mutationAuthorization":"another"}"#.utf8
+        )))
+    }
+    func testNilNetworkConfigFallsBackAndFinishesFetchOperation() throws {
+        let context = makeProvider(networkPayload: Data("null".utf8), suspendNetwork: true)
+        let fetchOperation = context.provider.fetchConfigOperation()
+
+        let config = try execute(fetchOperation, on: context.fetchQueue) {
+            context.networkQueue.isSuspended = false
+        }
+        assertDefault(config)
+    }
+
+    func testMalformedNetworkConfigFallsBackAndFinishesFetchOperation() throws {
+        let context = makeProvider(networkPayload: Data("{".utf8))
+        let config = try execute(context.provider.fetchConfigOperation(), on: context.fetchQueue)
+
+        assertDefault(config)
+    }
+
+    func testValidNetworkConfigIsDeliveredWithoutDefaultSubstitution() throws {
+        let context = makeProvider(
+            networkPayload: Data(
+                #"{"pendulumCaseEnabled":true,"nftEnabled":false}"#.utf8
+            )
+        )
+        let config = try execute(context.provider.fetchConfigOperation(), on: context.fetchQueue)
+
+        XCTAssertEqual(config.pendulumCaseEnabled, true)
+        XCTAssertEqual(config.nftEnabled, false)
+        XCTAssertTrue(config.polkaswapMutationsEnabled)
+        XCTAssertFalse(config.demeterMutationsEnabled)
+        XCTAssertFalse(config.polkamarktMutationsEnabled)
+        XCTAssertFalse(config.crossChainMutationsEnabled)
+        XCTAssertTrue(config.assetDiscoveryShadowMode)
+    }
+
+    func testMultiChainFlagsDecodeWithoutChangingLegacyFields() throws {
+        let context = makeProvider(
+            networkPayload: Data(
+                #"{"pendulumCaseEnabled":true,"nftEnabled":true,"polkaswapMutationsEnabled":false,"demeterMutationsEnabled":true,"polkamarktMutationsEnabled":true,"crossChainMutationsEnabled":true,"assetDiscoveryShadowMode":false}"#.utf8
+            )
+        )
+        let config = try execute(context.provider.fetchConfigOperation(), on: context.fetchQueue)
+
+        XCTAssertEqual(config.pendulumCaseEnabled, true)
+        XCTAssertEqual(config.nftEnabled, true)
+        XCTAssertFalse(config.polkaswapMutationsEnabled)
+        XCTAssertTrue(config.demeterMutationsEnabled)
+        XCTAssertTrue(config.polkamarktMutationsEnabled)
+        XCTAssertTrue(config.crossChainMutationsEnabled)
+        XCTAssertFalse(config.assetDiscoveryShadowMode)
+    }
+
+    func testProductionLegacyPayloadKeepsExistingPolkaswapAvailable() throws {
+        let context = makeProvider(
+            networkPayload: Data(
+                #"{"pendulum_case_enabled":false,"nft_enabled":false,"dapp_enabled":false}"#.utf8
+            )
+        )
+        let config = try execute(context.provider.fetchConfigOperation(), on: context.fetchQueue)
+
+        XCTAssertTrue(config.polkaswapMutationsEnabled)
+        XCTAssertFalse(config.demeterMutationsEnabled)
+        XCTAssertFalse(config.polkamarktMutationsEnabled)
+        XCTAssertFalse(config.crossChainMutationsEnabled)
+    }
+
+    func testProductionLegacyPayloadCanExplicitlyPausePolkaswap() throws {
+        let context = makeProvider(
+            networkPayload: Data(
+                #"{"polkaswap_mutations_enabled":false}"#.utf8
+            )
+        )
+        let config = try execute(context.provider.fetchConfigOperation(), on: context.fetchQueue)
+
+        XCTAssertFalse(config.polkaswapMutationsEnabled)
+    }
+
+    func testConcurrentPendingFetchesAllResolveExactlyOnce() throws {
+        let context = makeProvider(
+            networkPayload: Data(
+                #"{"pendulumCaseEnabled":true,"nftEnabled":false}"#.utf8
+            ),
+            suspendNetwork: true
+        )
+        let operations = (0 ..< 32).map { _ in context.provider.fetchConfigOperation() }
+        let completion = expectation(description: "all fetches resolve")
+        completion.expectedFulfillmentCount = operations.count
+        completion.assertForOverFulfill = true
+
+        operations.forEach { operation in
+            operation.completionBlock = {
+                completion.fulfill()
+            }
+            context.fetchQueue.addOperation(operation)
+        }
+
+        context.networkQueue.isSuspended = false
+        wait(for: [completion], timeout: 3)
+
+        for operation in operations {
+            let config = try result(of: operation)
+            XCTAssertEqual(config.pendulumCaseEnabled, true)
+            XCTAssertEqual(config.nftEnabled, false)
+        }
+    }
+
+    func testFetchCreatedBeforeProviderDeallocationReturnsDefault() throws {
+        let networkQueue = OperationQueue()
+        networkQueue.isSuspended = true
+        var provider: FeatureToggleProvider? = FeatureToggleProvider(
+            networkOperationFactory: JSONNetworkOperationFactoryStub(payload: Data("null".utf8)),
+            operationQueue: networkQueue
+        )
+        let fetchOperation = try XCTUnwrap(provider).fetchConfigOperation()
+        provider = nil
+
+        let config = try execute(fetchOperation, on: OperationQueue())
+        assertDefault(config)
+
+        networkQueue.cancelAllOperations()
+        networkQueue.isSuspended = false
+    }
+
+    private func makeProvider(
+        networkPayload: Data,
+        suspendNetwork: Bool = false
+    ) -> ProviderContext {
+        let networkQueue = OperationQueue()
+        networkQueue.isSuspended = suspendNetwork
+        let fetchQueue = OperationQueue()
+        fetchQueue.maxConcurrentOperationCount = 8
+
+        return ProviderContext(
+            provider: FeatureToggleProvider(
+                networkOperationFactory: JSONNetworkOperationFactoryStub(payload: networkPayload),
+                operationQueue: networkQueue
+            ),
+            networkQueue: networkQueue,
+            fetchQueue: fetchQueue
+        )
+    }
+
+    private func execute(
+        _ operation: BaseOperation<FeatureToggleConfig>,
+        on queue: OperationQueue,
+        beforeWait: () -> Void = {}
+    ) throws -> FeatureToggleConfig {
+        let completion = expectation(description: "feature toggle fetch completes")
+        operation.completionBlock = {
+            completion.fulfill()
+        }
+        queue.addOperation(operation)
+        beforeWait()
+        wait(for: [completion], timeout: 3)
+        return try result(of: operation)
+    }
+
+    private func result(
+        of operation: BaseOperation<FeatureToggleConfig>
+    ) throws -> FeatureToggleConfig {
+        switch operation.result {
+        case let .success(config):
+            return config
+        case let .failure(error):
+            throw error
+        case .none:
+            throw FeatureToggleProviderTestError.missingOperationResult
+        }
+    }
+
+    private func assertDefault(
+        _ config: FeatureToggleConfig,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        XCTAssertEqual(config.pendulumCaseEnabled, false, file: file, line: line)
+        XCTAssertEqual(config.nftEnabled, true, file: file, line: line)
+        XCTAssertTrue(config.polkaswapMutationsEnabled, file: file, line: line)
+        XCTAssertFalse(config.demeterMutationsEnabled, file: file, line: line)
+        XCTAssertFalse(config.polkamarktMutationsEnabled, file: file, line: line)
+        XCTAssertFalse(config.crossChainMutationsEnabled, file: file, line: line)
+        XCTAssertTrue(config.assetDiscoveryShadowMode, file: file, line: line)
+    }
+}
+
+private enum FeatureToggleProviderTestError: Error {
+    case missingOperationResult
+}
+
+private struct ProviderContext {
+    let provider: FeatureToggleProvider
+    let networkQueue: OperationQueue
+    let fetchQueue: OperationQueue
+}
+
+private final class JSONNetworkOperationFactoryStub: NetworkOperationFactoryProtocol {
+    private let payload: Data
+
+    init(payload: Data) {
+        self.payload = payload
+    }
+
+    func fetchData<T: Decodable>(from _: URL) -> BaseOperation<T> {
+        ClosureOperation {
+            try JSONDecoder().decode(T.self, from: self.payload)
+        }
+    }
+}

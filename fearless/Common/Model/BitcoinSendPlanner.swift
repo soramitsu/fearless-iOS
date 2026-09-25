@@ -120,7 +120,13 @@ final class BitcoinSendPlanner {
         error plannerError: BitcoinSendPlannerError
     ) throws -> String {
         do {
-            return try BitcoinIndexerRoutes.normalizeAddress(address, network: network)
+            let keyNetwork: BitcoinKeyDerivation.Network = network == .mainnet
+                ? .mainnet
+                : .testnet
+            return try BitcoinTransactionBuilder.normalizeP2wpkhAddress(
+                address,
+                network: keyNetwork
+            )
         } catch {
             throw plannerError
         }
@@ -142,7 +148,7 @@ final class BitcoinSendPlanner {
         }
     }
 
-    private static let maxSources = 100
+    static let maxSources = 100
 }
 
 struct BitcoinSendPlan: Equatable {

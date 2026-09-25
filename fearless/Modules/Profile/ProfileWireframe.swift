@@ -115,6 +115,45 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         view?.controller.present(navigation, animated: true)
     }
 
+    func showNetworkAssets(from view: ControllerBackedProtocol?, wallet: MetaAccountModel) {
+        guard let module = NetworkManagmentAssembly.configureModule(
+            wallet: wallet,
+            chains: nil,
+            contextTag: nil,
+            moduleOutput: nil
+        ) else {
+            return
+        }
+
+        view?.controller.present(module.view.controller, animated: true)
+    }
+
+    func showTonConnectCapability(from view: ControllerBackedProtocol?, hasTonAccount: Bool) {
+        if hasTonAccount, let controller = view?.controller {
+            DispatchQueue.main.async {
+                LegacyTonConnectCoordinator.shared.presentSessions(from: controller)
+            }
+            return
+        }
+        let message = "Select or restore your TON wallet in Wallets & Accounts to connect applications."
+        let alert = UIAlertController(
+            title: "TonConnect",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(
+            UIAlertAction(
+                title: NSLocalizedString("common.ok", value: "OK", comment: ""),
+                style: .default
+            )
+        )
+        view?.controller.present(alert, animated: true)
+    }
+
+    func showIrohaConnect(from view: ControllerBackedProtocol?) {
+        IrohaConnectCoordinator.shared.presentLanding(from: view?.controller)
+    }
+
     // MARK: Private
 
     private func showPinSetup(from view: ProfileViewProtocol?) {

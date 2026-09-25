@@ -28,7 +28,7 @@ protocol CrossChainRouterInput: PresentDismissable, SheetAlertPresentable, Error
     func showConfirmation(
         from view: ControllerBackedProtocol?,
         data: CrossChainConfirmationData,
-        xcmServices: XcmExtrinsicServices
+        xcmServices: XcmReadOnlyServices
     )
 
     func presentScan(

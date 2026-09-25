@@ -20,12 +20,15 @@ final class AssetManagementViewLayout: UIView {
         let button = UIButton()
         button.setTitleColor(R.color.colorPink(), for: .normal)
         button.titleLabel?.font = .p0Paragraph
+        button.titleLabel?.adjustsFontForContentSizeCategory = true
+        button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
+        button.setContentCompressionResistancePriority(.required, for: .vertical)
         return button
     }()
 
-    let filterNetworksButton: UIButton = {
-        let button = UIButton()
-        button.titleLabel?.font = .p0Paragraph
+    let filterNetworksButton: SelectedNetworkButton = {
+        let button = SelectedNetworkButton()
+        button.accessibilityLabel = NSLocalizedString("ux.choose_network", value: "Choose network", comment: "")
         return button
     }()
 
@@ -44,6 +47,9 @@ final class AssetManagementViewLayout: UIView {
     let manageAssetStubLabel: UILabel = {
         let label = UILabel()
         label.font = .h5Title
+        label.adjustsFontForContentSizeCategory = true
+        label.numberOfLines = 0
+        label.setContentCompressionResistancePriority(.required, for: .vertical)
         return label
     }()
 
@@ -71,18 +77,13 @@ final class AssetManagementViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        navigationBar.setLeftViews([doneButton])
-        navigationBar.setRightViews([filterNetworksButton])
-    }
-
     func setAddAssetButton(visible: Bool) {
         addAssetButton.isHidden = visible
     }
 
     func setFilter(title: String) {
-        filterNetworksButton.setTitle(title, for: .normal)
+        filterNetworksButton.set(text: title, image: nil)
+        filterNetworksButton.accessibilityValue = title
     }
 
     // MARK: - Private methods
@@ -97,11 +98,16 @@ final class AssetManagementViewLayout: UIView {
             addAssetButton
         ].forEach { addSubview($0) }
         container.addSubview(tableView)
+        navigationBar.setLeftViews([doneButton])
+        navigationBar.setRightViews([filterNetworksButton])
+        ([doneButton, filterNetworksButton] as [UIControl]).forEach { button in
+            button.snp.makeConstraints { make in make.height.greaterThanOrEqualTo(44) }
+        }
 
         navigationBar.snp.makeConstraints { make in
             make.top.equalToSuperview()
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(56)
+            make.height.greaterThanOrEqualTo(68)
         }
 
         searchTextField.snp.makeConstraints { make in
@@ -132,6 +138,7 @@ final class AssetManagementViewLayout: UIView {
 
     private func applyLocalization() {
         manageAssetStubLabel.text = R.string.localizable.walletManageAssets(preferredLanguages: locale.rLanguages)
+        tableView.accessibilityLabel = manageAssetStubLabel.text
         doneButton.setTitle(R.string.localizable.commonDone(preferredLanguages: locale.rLanguages), for: .normal)
         searchTextField.textField.placeholder = R.string.localizable.commonSearch(preferredLanguages: locale.rLanguages)
     }

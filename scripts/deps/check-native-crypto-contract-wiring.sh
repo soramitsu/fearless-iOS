@@ -21,30 +21,37 @@ ensure_absent() {
   local pattern="$1"
   local label="$2"
 
-  if /usr/bin/grep -RInF "$pattern" "$ROOT" --exclude-dir=.git --exclude="$(basename "$0")" >/dev/null 2>&1; then
+  # Release workspaces contain ignored DerivedData, archives, and package
+  # checkouts. Search the reviewed source index so generated binaries cannot
+  # turn this source-wiring assertion into an unbounded filesystem crawl.
+  git -C "$ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1 ||
+    fail "Root is not a Git worktree: $ROOT"
+  if git -C "$ROOT" grep -nF "$pattern" \
+    -- . \
+    ":(exclude)scripts/deps/$(basename "$0")" >/dev/null 2>&1; then
     fail "$label"
   fi
 }
 
 ensure_contains \
   "$ROOT/scripts/test-matrix.sh" \
-  "scripts/deps/prepare-native-crypto-checkout.sh" \
-  "test-matrix.sh is not wired to prepare-native-crypto-checkout.sh"
+  "scripts/deps/verify-shared-features-source.py" \
+  "test-matrix.sh is not wired to verify-shared-features-source.py"
 
 ensure_contains \
   "$ROOT/scripts/dev-setup.sh" \
-  "scripts/deps/prepare-native-crypto-checkout.sh" \
-  "dev-setup.sh is not wired to prepare-native-crypto-checkout.sh"
+  "scripts/deps/verify-shared-features-source.py" \
+  "dev-setup.sh is not wired to verify-shared-features-source.py"
 
 ensure_contains \
   "$ROOT/scripts/ci/bootstrap.sh" \
-  "scripts/deps/prepare-native-crypto-checkout.sh" \
-  "ci/bootstrap.sh is not wired to prepare-native-crypto-checkout.sh"
+  "scripts/deps/verify-shared-features-source.py" \
+  "ci/bootstrap.sh is not wired to verify-shared-features-source.py"
 
 ensure_contains \
   "$ROOT/scripts/ci/run-pr.sh" \
-  "scripts/deps/prepare-native-crypto-checkout.sh" \
-  "ci/run-pr.sh is not wired to prepare-native-crypto-checkout.sh"
+  "scripts/deps/verify-shared-features-source.py" \
+  "ci/run-pr.sh is not wired to verify-shared-features-source.py"
 
 ensure_absent "scripts/spm-iroha-hotfix.sh" "Legacy spm-iroha-hotfix.sh reference still exists"
 ensure_absent "apply-native-crypto-contracts.sh" "Removed apply-native-crypto-contracts.sh reference still exists"

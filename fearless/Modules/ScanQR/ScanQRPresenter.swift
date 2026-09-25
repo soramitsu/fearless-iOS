@@ -21,6 +21,7 @@ final class ScanQRPresenter: NSObject {
 
     private weak var view: ScanQRViewInput?
     private weak var moduleOutput: ScanQRModuleOutput?
+    private weak var rawCodeOutput: ScanQRRawCodeOutput?
 
     private let router: ScanQRRouterInput
     private let interactor: ScanQRInteractorInput
@@ -35,12 +36,14 @@ final class ScanQRPresenter: NSObject {
         router: ScanQRRouterInput,
         logger: LoggerProtocol,
         moduleOutput: ScanQRModuleOutput?,
+        rawCodeOutput: ScanQRRawCodeOutput? = nil,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.router = router
         self.logger = logger
         self.moduleOutput = moduleOutput
+        self.rawCodeOutput = rawCodeOutput
 
         self.localizationManager = localizationManager
     }
@@ -199,6 +202,27 @@ extension ScanQRPresenter: QRCaptureServiceDelegate {
     }
 
     func qrCapture(service _: QRCaptureServiceProtocol, didMatch code: String) {
+        if let rawCodeOutput {
+            guard rawCodeOutput.shouldAccept(rawCode: code) else {
+                DispatchQueue.main.async { [weak self] in
+                    self?.view?.present(
+                        message: "This QR code is not a valid IrohaConnect pairing request.",
+                        animated: true
+                    )
+                }
+                return
+            }
+
+            interactor.stopScanning()
+            DispatchQueue.main.async { [weak self, weak rawCodeOutput] in
+                guard let self else { return }
+                router.close(view: view) {
+                    rawCodeOutput?.didFinishWith(rawCode: code)
+                }
+            }
+            return
+        }
+
         interactor.lookingMatcher(for: code)
     }
 
