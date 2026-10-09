@@ -1,9 +1,12 @@
 import Foundation
 
 enum UniversalWalletRegistry {
+    static let tairaChainId = "fc56984b-2be7-431d-840e-21514d1883f0"
+    static let tairaXorAssetDefinitionId = "6TEAJqbb8oEPmLncoNiMRbLEK6tw"
     static let bitcoinMainnetIndexerBaseURL = URL(string: "https://blockstream.info/api")!
     static let bitcoinTestnetIndexerBaseURL = URL(string: "https://blockstream.info/testnet/api")!
     static let tonIndexerBaseURL = URL(string: "https://ti.soramitsu.io")!
+    static let tonNativeAssetId = TonConstants.tonAssetId
     static let solanaIndexerBaseURL = URL(string: "https://si.soramitsu.io")!
     static let solanaMainnetRPCURL = URL(string: "https://api.mainnet-beta.solana.com")!
     static let solanaDevnetRPCURL = URL(string: "https://api.devnet.solana.com")!
@@ -74,12 +77,17 @@ enum UniversalWalletRegistry {
 
     static let taira = IrohaNetwork(
         id: "taira-testnet",
-        chainId: "iroha3-taira",
+        chainId: tairaChainId,
         chainDiscriminant: 369,
         toriiBaseURL: URL(string: "https://taira.sora.org")!,
         mcpPath: "/v1/mcp",
         enabledByDefault: true,
-        features: ["transfer"]
+        features: ["transfer"],
+        nativeAsset: IrohaNativeAsset(
+            id: tairaXorAssetDefinitionId,
+            symbol: "XOR",
+            decimals: 9
+        )
     )
 
     static let nexus = IrohaNetwork(
@@ -149,6 +157,27 @@ enum UniversalWalletRegistry {
         let mcpPath: String
         let enabledByDefault: Bool
         let features: [String]
+        let nativeAsset: IrohaNativeAsset?
+
+        init(
+            id: String,
+            chainId: String,
+            chainDiscriminant: Int,
+            toriiBaseURL: URL?,
+            mcpPath: String,
+            enabledByDefault: Bool,
+            features: [String],
+            nativeAsset: IrohaNativeAsset? = nil
+        ) {
+            self.id = id
+            self.chainId = chainId
+            self.chainDiscriminant = chainDiscriminant
+            self.toriiBaseURL = toriiBaseURL
+            self.mcpPath = mcpPath
+            self.enabledByDefault = enabledByDefault
+            self.features = features
+            self.nativeAsset = nativeAsset
+        }
 
         var mcpEndpointURL: URL? {
             guard let toriiBaseURL = toriiBaseURL else {
@@ -161,6 +190,12 @@ enum UniversalWalletRegistry {
                     url.appendingPathComponent(String(component))
                 }
         }
+    }
+
+    struct IrohaNativeAsset: Equatable {
+        let id: String
+        let symbol: String
+        let decimals: Int
     }
 
     struct BitcoinNetwork: Equatable {
@@ -283,6 +318,14 @@ enum UniversalWalletRegistry {
             chainId: network.chainId,
             displayName: displayName,
             enabledByDefault: network.enabledByDefault,
+            nativeAsset: network.nativeAsset.map { asset in
+                UniversalWalletRegistryAsset(
+                    id: asset.id,
+                    symbol: asset.symbol,
+                    decimals: asset.decimals,
+                    name: asset.symbol
+                )
+            },
             derivationPath: UniversalWalletDerivationPaths.irohaDefault,
             slip44CoinType: 617,
             features: network.features,

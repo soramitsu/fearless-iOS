@@ -123,7 +123,7 @@ final class UniversalWalletV2VectorsTests: XCTestCase {
         XCTAssertFalse(UniversalWalletRegistry.solanaDevnet.enabledByDefault)
 
         XCTAssertEqual(UniversalWalletRegistry.taira.id, "taira-testnet")
-        XCTAssertEqual(UniversalWalletRegistry.taira.chainId, "iroha3-taira")
+        XCTAssertEqual(UniversalWalletRegistry.taira.chainId, "fc56984b-2be7-431d-840e-21514d1883f0")
         XCTAssertEqual(UniversalWalletRegistry.taira.chainDiscriminant, 369)
         XCTAssertEqual(UniversalWalletRegistry.taira.toriiBaseURL?.absoluteString, "https://taira.sora.org")
         XCTAssertEqual(UniversalWalletRegistry.taira.mcpPath, "/v1/mcp")

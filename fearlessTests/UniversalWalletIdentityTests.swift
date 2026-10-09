@@ -165,7 +165,7 @@ final class UniversalWalletIdentityTests: XCTestCase {
                 accountId: "iroha-taira",
                 ecosystem: .iroha,
                 address: "testuﾛ1Pcﾅ2ﾗtﾉaﾘLﾕｽ2MヱﾐﾎｳﾓヱﾇﾆｲMﾒSﾏﾑヱﾇJヱFmJﾇMs6YN687Y",
-                chainId: "iroha3-taira",
+                chainId: "fc56984b-2be7-431d-840e-21514d1883f0",
                 derivationPath: UniversalWalletDerivationPaths.irohaDefault,
                 publicKeyHex: hex32
             )

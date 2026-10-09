@@ -8,20 +8,28 @@ final class EthereumConnectionPool: ConnectionPoolProtocol {
 
     private(set) var connectionsByChainIds: [ChainModel.Id: Web3.Eth] = [:]
     private weak var delegate: ConnectionPoolDelegate?
+    private let nodeFetching: EthereumNodeFetchingProtocol
 
     private lazy var lock = NSLock()
 
+    init(
+        nodeFetching: EthereumNodeFetchingProtocol =
+            EthereumNodeFetching()
+    ) {
+        self.nodeFetching = nodeFetching
+    }
+
     func setupConnection(for chain: SSFModels.ChainModel) throws -> Web3.Eth {
-        if let connection = connectionsByChainIds[chain.chainId] {
-            return connection
-        }
-
-        let ws = try EthereumNodeFetching().getNode(for: chain)
-
         lock.lock()
         defer {
             lock.unlock()
         }
+
+        if let connection = connectionsByChainIds[chain.chainId] {
+            return connection
+        }
+
+        let ws = try nodeFetching.getNode(for: chain)
 
         connectionsByChainIds[chain.chainId] = ws
 
@@ -42,6 +50,11 @@ final class EthereumConnectionPool: ConnectionPoolProtocol {
     }
 
     func resetConnection(for chainId: ChainModel.Id) {
+        lock.lock()
+        defer {
+            lock.unlock()
+        }
+
         connectionsByChainIds = connectionsByChainIds.filter { $0.key != chainId }
     }
 }

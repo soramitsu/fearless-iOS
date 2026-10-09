@@ -73,7 +73,7 @@ enum IrohaToriiRoutes {
             queryItems.append(URLQueryItem(name: "asset", value: try normalizeAssetSelector(asset)))
         }
         if let scope {
-            queryItems.append(URLQueryItem(name: "scope", value: try normalizeScope(scope)))
+            queryItems.append(URLQueryItem(name: "scope", value: try normalizeAccountAssetScope(scope)))
         }
 
         return try makeURL(
@@ -82,12 +82,16 @@ enum IrohaToriiRoutes {
         )
     }
 
-    static func assetDefinitionsURL(baseURL: String? = nil) throws -> URL {
-        try makeURL("\(normalizeBaseURL(try resolvedBaseURL(baseURL)))/v1/assets/definitions")
-    }
-
-    static func submitTransactionURL(baseURL: String? = nil) throws -> URL {
-        try makeURL("\(normalizeBaseURL(try resolvedBaseURL(baseURL)))/v1/pipeline/transactions")
+    static func assetDefinitionsURL(
+        baseURL: String? = nil,
+        limit: Int? = nil,
+        offset: Int64? = nil,
+        countMode: IrohaToriiCountMode? = nil
+    ) throws -> URL {
+        try makeURL(
+            base: "\(normalizeBaseURL(try resolvedBaseURL(baseURL)))/v1/assets/definitions",
+            queryItems: pageQuery(limit: limit, offset: offset, countMode: countMode)
+        )
     }
 
     static func transactionStatusURL(
@@ -123,7 +127,11 @@ enum IrohaToriiRoutes {
         }
 
         let isLocal = host == "localhost" || host == "127.0.0.1"
-        guard scheme == "https" || isLocal else {
+        guard scheme == "https" || (scheme == "http" && isLocal),
+              url.user == nil,
+              url.password == nil,
+              url.query == nil,
+              url.fragment == nil else {
             throw IrohaToriiRouteError.invalidBaseURL
         }
 
@@ -135,12 +143,33 @@ enum IrohaToriiRoutes {
     }
 
     static func normalizeAssetSelector(_ asset: String) throws -> String {
-        let normalized = asset.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !normalized.isEmpty,
-              normalized.count <= 256,
-              !containsASCIIWhitespaceOrControl(normalized),
-              normalized.range(of: "[/?]", options: .regularExpression) == nil else {
+        try normalizeAssetDefinitionId(asset)
+    }
+
+    static func normalizeAssetDefinitionId(_ assetDefinitionId: String) throws -> String {
+        guard assetDefinitionId == assetDefinitionId.trimmingCharacters(in: .whitespacesAndNewlines),
+              matches(assetDefinitionId, "^[1-9A-HJ-NP-Za-km-z]{20,64}$") else {
             throw IrohaToriiRouteError.invalidAsset
+        }
+
+        return assetDefinitionId
+    }
+
+    static func normalizeAccountAssetScope(_ scope: String) throws -> String {
+        let normalized = scope.trimmingCharacters(in: .whitespacesAndNewlines)
+        if normalized == "global" {
+            return normalized
+        }
+
+        let prefix = "dataspace:"
+        guard normalized.hasPrefix(prefix) else {
+            throw IrohaToriiRouteError.invalidScope
+        }
+        let rawValue = String(normalized.dropFirst(prefix.count))
+        guard matches(rawValue, "^(0|[1-9][0-9]*)$"),
+              let value = UInt64(rawValue),
+              String(value) == rawValue else {
+            throw IrohaToriiRouteError.invalidScope
         }
 
         return normalized
@@ -163,15 +192,6 @@ enum IrohaToriiRoutes {
         }
 
         return try requireToriiBaseURL(network)
-    }
-
-    private static func normalizeScope(_ scope: String) throws -> String {
-        let normalized = scope.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard normalized == "global" || matches(normalized, "^dataspace:[A-Za-z0-9._:-]{1,128}$") else {
-            throw IrohaToriiRouteError.invalidScope
-        }
-
-        return normalized
     }
 
     private static func normalizePath(_ path: String) throws -> String {
@@ -200,15 +220,11 @@ enum IrohaToriiRoutes {
     }
 
     private static func normalizeHash(_ hash: String) throws -> String {
-        let normalized = hash
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .dropPrefix("0x")
-            .lowercased()
-        guard matches(normalized, "^[0-9a-f]{64}$") else {
+        guard matches(hash, "^[0-9a-f]{63}[13579bdf]$") else {
             throw IrohaToriiRouteError.invalidHash
         }
 
-        return normalized
+        return hash
     }
 
     private static func normalizeJSONRPCID(_ id: String) throws -> String {
@@ -437,6 +453,7 @@ struct IrohaAssetDefinitionListItem: Codable, Equatable {
     let ownedBy: String?
     let metadata: [String: IrohaJSONValue]?
     let aliasBinding: [String: IrohaJSONValue]?
+    let spec: IrohaAssetDefinitionSpec?
 
     private enum CodingKeys: String, CodingKey {
         case id
@@ -445,29 +462,64 @@ struct IrohaAssetDefinitionListItem: Codable, Equatable {
         case ownedBy = "owned_by"
         case metadata
         case aliasBinding = "alias_binding"
+        case spec
     }
 }
 
-struct IrohaTransactionSubmissionReceipt: Codable, Equatable {
-    let payload: IrohaTransactionSubmissionPayload
-    let signature: IrohaJSONValue?
+struct IrohaAssetDefinitionSpec: Codable, Equatable {
+    let scale: Int?
 }
 
-struct IrohaTransactionSubmissionPayload: Codable, Equatable {
-    let txHash: String
+struct IrohaToriiFanoutStatus: Equatable {
+    let attempted: Int
+    let succeeded: Int
+    let failed: Int
+    let denied: Int
+    let unavailable: Int
+    let notFound: Int
+
+    var isValid: Bool {
+        guard attempted > 0,
+              succeeded >= 0,
+              failed >= 0,
+              denied >= 0,
+              unavailable >= 0,
+              notFound >= 0,
+              succeeded <= attempted,
+              failed == attempted - succeeded,
+              denied <= failed,
+              unavailable <= failed - denied,
+              notFound <= failed - denied - unavailable else {
+            return false
+        }
+
+        return true
+    }
+
+    var isComplete: Bool {
+        isValid && succeeded == attempted && failed == 0 &&
+            denied == 0 && unavailable == 0 && notFound == 0
+    }
+}
+
+enum IrohaToriiReadError: Error, Equatable {
+    case malformedResponseHeaders
+    case malformedFanoutHeaders
+    case invalidJSONContentType
+    case invalidJSONRPCResponse
+    case degraded(IrohaToriiFanoutStatus)
+    case emptySuccessfulResponse
+}
+
+struct IrohaTransactionSubmissionReceiptBody: Codable, Equatable {
+    let payload: IrohaTransactionSubmissionHashPayload
+}
+
+struct IrohaTransactionSubmissionHashPayload: Codable, Equatable {
     let entrypointHash: String
-    let signedTransactionHash: String?
-    let submittedAtMs: Int64
-    let submittedAtHeight: Int64
-    let signer: IrohaJSONValue?
 
     private enum CodingKeys: String, CodingKey {
-        case txHash = "tx_hash"
         case entrypointHash = "entrypoint_hash"
-        case signedTransactionHash = "signed_transaction_hash"
-        case submittedAtMs = "submitted_at_ms"
-        case submittedAtHeight = "submitted_at_height"
-        case signer
     }
 }
 
@@ -486,7 +538,7 @@ struct IrohaPipelineTransactionStatusResponse: Codable, Equatable {
 }
 
 struct IrohaPipelineTransactionStatus: Codable, Equatable {
-    let kind: String
+    let kind: IrohaPipelineTransactionStatusKind
     let blockHeight: Int64?
     let rejectionReason: IrohaJSONValue?
 
@@ -495,6 +547,61 @@ struct IrohaPipelineTransactionStatus: Codable, Equatable {
         case blockHeight = "block_height"
         case rejectionReason = "rejection_reason"
     }
+}
+
+enum IrohaPipelineTransactionStatusKind: String, Codable, Equatable {
+    case queued = "Queued"
+    case approved = "Approved"
+    case committed = "Committed"
+    case applied = "Applied"
+    case rejected = "Rejected"
+    case expired = "Expired"
+}
+
+struct IrohaMcpRouteResponse<Body: Codable & Equatable>: Codable, Equatable {
+    let status: Int
+    let headers: [String: String]
+    let contentType: String
+    let body: Body
+
+    private enum CodingKeys: String, CodingKey {
+        case status
+        case headers
+        case contentType = "content_type"
+        case body
+    }
+}
+
+struct IrohaSubmitAndWaitOutcome: Codable, Equatable {
+    let status: Int
+    let hash: String
+    let transactionHash: String
+    let terminalKind: IrohaPipelineTransactionStatusKind
+    let terminalStatuses: [IrohaPipelineTransactionStatusKind]
+    let attempts: Int64
+    let elapsedMilliseconds: Int64
+    let submit: IrohaMcpRouteResponse<IrohaTransactionSubmissionReceiptBody>
+    let finalStatus: IrohaMcpRouteResponse<IrohaPipelineTransactionStatusResponse>
+
+    private enum CodingKeys: String, CodingKey {
+        case status
+        case hash
+        case transactionHash = "tx_hash"
+        case terminalKind = "terminal_kind"
+        case terminalStatuses = "terminal_statuses"
+        case attempts
+        case elapsedMilliseconds = "elapsed_ms"
+        case submit
+        case finalStatus = "final_status"
+    }
+}
+
+enum IrohaSubmitAndWaitError: Error, Equatable {
+    case rejected(String)
+    case expired(String)
+    case timeout(String)
+    case rpc(String)
+    case invalidResponse
 }
 
 struct IrohaErrorEnvelope: Codable, Equatable {
@@ -518,7 +625,7 @@ struct IrohaMcpJsonRPCRequest: Codable, Equatable {
 }
 
 struct IrohaMcpJsonRPCResponse: Codable, Equatable {
-    let jsonrpc: String
+    let jsonrpc: String?
     let id: IrohaJSONValue?
     let result: IrohaJSONValue?
     let error: IrohaMcpJsonRPCError?

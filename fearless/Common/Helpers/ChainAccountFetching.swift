@@ -33,6 +33,10 @@ extension ChainAccountResponse {
     }
 
     private func displayAddress() throws -> AccountAddress {
+        if UniversalWalletChainAccountSupport.isNonCanonicalIrohaIdentity(chainId) {
+            throw ChainAccountFetchingError.accountNotExists
+        }
+
         if UniversalWalletChainAccountSupport.isUniversalWalletChain(chainId) {
             guard let address = UniversalWalletChainAccountSupport.address(for: chainId, publicKey: publicKey) else {
                 throw ChainAccountFetchingError.accountNotExists
@@ -48,6 +52,10 @@ extension ChainAccountResponse {
 
 extension MetaAccountModel {
     func fetch(for request: ChainAccountRequest) -> ChainAccountResponse? {
+        guard !UniversalWalletChainAccountSupport.isNonCanonicalIrohaIdentity(request.chainId) else {
+            return nil
+        }
+
         if let chainAccount = chainAccounts.first(where: {
             UniversalWalletChainAccountSupport.chainId($0.chainId, matches: request.chainId)
         }) {

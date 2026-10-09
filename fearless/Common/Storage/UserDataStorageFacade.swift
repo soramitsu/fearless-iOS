@@ -3,7 +3,7 @@ import RobinHood
 import CoreData
 
 enum UserStorageParams {
-    static let modelVersion: UserStorageVersion = .version12
+    static let modelVersion: UserStorageVersion = .version14
     static let modelDirectory: String = "Modules_SSFAccountManagmentStorage.bundle//UserDataModel.momd"
     static let databaseName = "UserDataModel.sqlite"
 
@@ -26,32 +26,44 @@ class UserDataStorageFacade: StorageFacadeProtocol {
 
     let databaseService: CoreDataServiceProtocol
 
-    private init() {
-        let modelName = UserStorageParams.modelVersion.rawValue
+    private convenience init() {
         let bundle = Bundle.main
 
-        let omoURL = bundle.url(
-            forResource: modelName,
-            withExtension: "omo",
-            subdirectory: UserStorageParams.modelDirectory
+        let modelURL = UserStorageParams.modelVersion.modelURL(
+            in: bundle,
+            legacyModelDirectory: UserStorageParams.modelDirectory
         )
 
-        let momURL = bundle.url(
-            forResource: modelName,
-            withExtension: "mom",
-            subdirectory: UserStorageParams.modelDirectory
+        self.init(
+            modelURL: modelURL,
+            databaseDirectory: UserStorageParams.storageDirectoryURL
         )
+    }
 
-        let modelURL = omoURL ?? momURL
+    init(
+        modelURL: URL?,
+        databaseDirectory: URL
+    ) {
+        let resolvedModelURL: URL
+        if let modelURL {
+            resolvedModelURL = modelURL
+        } else {
+            Logger.shared.error(
+                "Required User Core Data model resource is unavailable"
+            )
+            resolvedModelURL = Bundle.main.bundleURL.appendingPathComponent(
+                "__fearless_missing_user_model_\(UUID().uuidString).mom"
+            )
+        }
 
         let persistentSettings = CoreDataPersistentSettings(
-            databaseDirectory: UserStorageParams.storageDirectoryURL,
+            databaseDirectory: databaseDirectory,
             databaseName: UserStorageParams.databaseName,
             incompatibleModelStrategy: .ignore
         )
 
         let configuration = CoreDataServiceConfiguration(
-            modelURL: modelURL!,
+            modelURL: resolvedModelURL,
             storageType: .persistent(settings: persistentSettings)
         )
 

@@ -31,7 +31,6 @@ extension WalletConnectServiceDelegate {
 
 final class WalletConnectServiceImpl: WalletConnectService {
     static let shared = WalletConnectServiceImpl()
-    private static let walletConnectGroupIdentifier = "group.com.walletconnect.sdk"
 
     private var listeners: [WeakWrapper] = []
     private var cancellablesBag = Set<AnyCancellable>()
@@ -50,8 +49,10 @@ final class WalletConnectServiceImpl: WalletConnectService {
         #else
             let projectId = WalletConnect.projectId
         #endif
+        let groupIdentifier = "group." +
+            (Bundle.main.bundleIdentifier ?? "jp.co.soramitsu.fearlesswallet")
         Networking.configure(
-            groupIdentifier: Self.walletConnectGroupIdentifier,
+            groupIdentifier: groupIdentifier,
             projectId: projectId,
             socketFactory: WalletConnectSocketFactory()
         )

@@ -4,10 +4,14 @@ import IrohaCrypto
 
 class MultiassetV2MigrationPolicy: NSEntityMigrationPolicy {
     override func createDestinationInstances(
-        forSource _: NSManagedObject,
-        in _: NSEntityMapping,
-        manager _: NSMigrationManager
+        forSource source: NSManagedObject,
+        in mapping: NSEntityMapping,
+        manager: NSMigrationManager
     ) throws {
-        // TODO: tech debt
+        try super.createDestinationInstances(
+            forSource: source,
+            in: mapping,
+            manager: manager
+        )
     }
 }

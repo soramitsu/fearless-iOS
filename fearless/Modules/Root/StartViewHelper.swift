@@ -6,6 +6,7 @@ enum StartView {
     case pinSetup
     case login
     case broken
+    case unsupportedWallet
     case onboarding(OnboardingConfigWrapper)
 }
 
@@ -15,41 +16,71 @@ protocol StartViewHelperProtocol {
 
 final class StartViewHelper: StartViewHelperProtocol {
     private let keystore: KeystoreProtocol
-    private let selectedWalletSettings: SelectedWalletSettings
+    private let selectedWalletSettingsProvider: () -> SelectedWalletSettings
+    private lazy var selectedWalletSettings = selectedWalletSettingsProvider()
     private let userDefaultsStorage: SettingsManagerProtocol
 
     init(
         keystore: KeystoreProtocol,
-        selectedWalletSettings: SelectedWalletSettings,
+        selectedWalletSettingsProvider: @escaping () -> SelectedWalletSettings,
         userDefaultsStorage: SettingsManagerProtocol
     ) {
         self.keystore = keystore
-        self.selectedWalletSettings = selectedWalletSettings
+        self.selectedWalletSettingsProvider = selectedWalletSettingsProvider
         self.userDefaultsStorage = userDefaultsStorage
+    }
+
+    convenience init(
+        keystore: KeystoreProtocol,
+        selectedWalletSettings: SelectedWalletSettings,
+        userDefaultsStorage: SettingsManagerProtocol
+    ) {
+        self.init(
+            keystore: keystore,
+            selectedWalletSettingsProvider: { selectedWalletSettings },
+            userDefaultsStorage: userDefaultsStorage
+        )
     }
 
     func startView(onboardingConfig: OnboardingConfigWrapper?) -> StartView {
         do {
-            if let config = onboardingConfig {
-                return StartView.onboarding(config)
-            }
-
-            if !selectedWalletSettings.hasValue {
+            switch selectedWalletSettings.storeState {
+            case .ready:
+                guard selectedWalletSettings.hasValue else {
+                    return .broken
+                }
+            case .empty:
+                if let config = onboardingConfig {
+                    return .onboarding(config)
+                }
                 try keystore.deleteKeyIfExists(for: KeystoreTag.pincode.rawValue)
-
-                return StartView.login
+                return .login
+            case .unsupportedOnly:
+                let pincodeExists = try keystore.checkKey(for: KeystoreTag.pincode.rawValue)
+                if pincodeExists {
+                    return .unsupportedWallet
+                }
+                if let config = onboardingConfig {
+                    return .onboarding(config)
+                }
+                return .login
+            case .unresolved, .unavailable:
+                return .broken
             }
 
+            if let config = onboardingConfig {
+                return .onboarding(config)
+            }
             let pincodeExists = try keystore.checkKey(for: KeystoreTag.pincode.rawValue)
 
             if pincodeExists {
-                return StartView.pin
+                return .pin
             } else {
-                return StartView.pinSetup
+                return .pinSetup
             }
 
         } catch {
-            return StartView.broken
+            return .broken
         }
     }
 }

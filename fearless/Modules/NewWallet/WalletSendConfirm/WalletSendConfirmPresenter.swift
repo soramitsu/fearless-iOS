@@ -5,6 +5,22 @@ import SoraFoundation
 import IrohaCrypto
 import SwiftUI
 import SSFModels
+import UIKit
+
+struct TonUnknownOutcomeRecoveryModel: Equatable {
+    let messageHashHex: String
+
+    init?(messageHashHex: String) {
+        guard messageHashHex.utf8.count == 64,
+              messageHashHex.utf8.allSatisfy({ byte in
+                  (48 ... 57).contains(byte) || (97 ... 102).contains(byte)
+              })
+        else {
+            return nil
+        }
+        self.messageHashHex = messageHashHex
+    }
+}
 
 struct SendLoadingCollector {
     var feeReady: Bool = false
@@ -48,6 +64,9 @@ final class WalletSendConfirmPresenter {
     private var fee: Decimal?
     private var minimumBalance: BigUInt?
     private var eqUilibriumTotalBalance: Decimal?
+    private var pendingTonFeePresentation: BigUInt?
+    private var confirmingTonFeePresentation: BigUInt?
+    private var viewModelGeneration: UInt64 = 0
 
     private var loadingCollector = SendLoadingCollector()
     private var priceData: PriceData? {
@@ -78,16 +97,19 @@ final class WalletSendConfirmPresenter {
         self.call = call
         self.wallet = wallet
         self.scamInfo = scamInfo
-        self.feeViewModel = feeViewModel
+        self.feeViewModel = chainAsset.chain.isTonCompatibilityChain ? nil : feeViewModel
         self.localizationManager = localizationManager
-        if let feeViewModel {
+        if let feeViewModel, !chainAsset.chain.isTonCompatibilityChain {
             fee = Decimal(string: feeViewModel.amount)
         }
-        loadingCollector.feeReady = feeViewModel != nil
+        loadingCollector.feeReady = !chainAsset.chain.isTonCompatibilityChain && feeViewModel != nil
     }
 
     private func provideViewModel() {
-        Task {
+        viewModelGeneration = viewModelGeneration == UInt64.max ? 1 : viewModelGeneration + 1
+        let generation = viewModelGeneration
+        Task { @MainActor [weak self] in
+            guard let self else { return }
             let amount = Decimal.fromSubstrateAmount(call.amount, precision: Int16(chainAsset.asset.precision)) ?? .zero
             let parameters = WalletSendConfirmViewModelFactoryParameters(
                 amount: amount,
@@ -106,9 +128,38 @@ final class WalletSendConfirmPresenter {
                 parameters: parameters
             )
 
-            await MainActor.run {
-                self.view?.didReceive(state: .loaded(viewModel))
+            guard generation == viewModelGeneration else { return }
+            view?.didReceive(state: .loaded(viewModel))
+            confirmPendingTonFeePresentationIfNeeded()
+        }
+    }
+
+    @MainActor
+    private func confirmPendingTonFeePresentationIfNeeded() {
+        guard chainAsset.chain.isTonCompatibilityChain,
+              let rawFee = pendingTonFeePresentation,
+              confirmingTonFeePresentation != rawFee
+        else {
+            return
+        }
+        confirmingTonFeePresentation = rawFee
+        interactor.confirmFeePresentation(fee: rawFee) { [weak self] accepted in
+            guard let self else { return }
+            guard pendingTonFeePresentation == rawFee else {
+                if confirmingTonFeePresentation == rawFee {
+                    confirmingTonFeePresentation = nil
+                }
+                return
             }
+            confirmingTonFeePresentation = nil
+            guard accepted else {
+                loadingCollector.feeReady = false
+                checkLoadingState()
+                return
+            }
+            pendingTonFeePresentation = nil
+            loadingCollector.feeReady = true
+            checkLoadingState()
         }
     }
 
@@ -170,9 +221,18 @@ final class WalletSendConfirmPresenter {
             return
         }
         let utilityPriceData = utilityAsset.asset.getPrice(for: wallet.selectedCurrency)
+        let feeUsageCase: NumberFormatterUsageCase = chainAsset.chain.isTonCompatibilityChain
+            ? .exactCrypto(fractionDigits: Int(utilityAsset.asset.precision))
+            : .detailsCrypto
 
         let viewModel = fee
-            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: utilityPriceData, usageCase: .detailsCrypto) }?
+            .map {
+                balanceViewModelFactory.balanceFromPrice(
+                    $0,
+                    priceData: utilityPriceData,
+                    usageCase: feeUsageCase
+                )
+            }?
             .value(for: selectedLocale)
         feeViewModel = viewModel
     }
@@ -222,9 +282,161 @@ final class WalletSendConfirmPresenter {
     }
 
     private func checkLoadingState() {
-        DispatchQueue.main.async { [unowned self] in
-            self.view?.didReceive(isLoading: !self.loadingCollector.isReady)
+        let update = { [weak self] in
+            guard let self else { return }
+            view?.didReceive(isLoading: !loadingCollector.isReady)
         }
+        if Thread.isMainThread {
+            update()
+        } else {
+            DispatchQueue.main.async(execute: update)
+        }
+    }
+
+    private func presentTonUnknownOutcome(messageHashHex: String) -> Bool {
+        guard let recovery = TonUnknownOutcomeRecoveryModel(
+            messageHashHex: messageHashHex
+        ) else {
+            return false
+        }
+
+        let copyAction = SheetAlertPresentableAction(
+            title: tonRecoveryLocalizedString(
+                key: "ton.transfer.unknown.copy_hash",
+                fallback: "Copy message hash"
+            ),
+            style: .pinkBackgroundWhiteText
+        ) {
+            UIPasteboard.general.string = recovery.messageHashHex
+        }
+        let messageTemplate = tonRecoveryLocalizedString(
+            key: "ton.transfer.unknown.message",
+            fallback: "The network may have accepted this transfer. Do not send it again. " +
+                "Save this message hash and check its status before taking further action:\n%@"
+        )
+        let viewModel = SheetAlertPresentableViewModel(
+            title: tonRecoveryLocalizedString(
+                key: "ton.transfer.unknown.title",
+                fallback: "Transfer status is unknown"
+            ),
+            message: String(
+                format: messageTemplate,
+                locale: selectedLocale,
+                recovery.messageHashHex
+            ),
+            actions: [copyAction],
+            closeAction: R.string.localizable.commonClose(
+                preferredLanguages: selectedLocale.rLanguages
+            ),
+            icon: R.image.iconWarningBig()
+        )
+        wireframe.present(viewModel: viewModel, from: view)
+        return true
+    }
+
+    private func presentTonPriorTransferConfirmed(
+        identity: TonTransferIntentIdentity,
+        messageHashHex: String
+    ) -> Bool {
+        guard let recovery = TonUnknownOutcomeRecoveryModel(
+            messageHashHex: messageHashHex
+        ) else {
+            return false
+        }
+
+        pendingTonFeePresentation = nil
+        confirmingTonFeePresentation = nil
+        loadingCollector.feeReady = false
+        checkLoadingState()
+
+        let acknowledgeAction = SheetAlertPresentableAction(
+            title: tonRecoveryLocalizedString(
+                key: "ton.transfer.prior_confirmed.acknowledge",
+                fallback: "Acknowledge and recalculate fee"
+            ),
+            style: .pinkBackgroundWhiteText
+        ) { [weak self] in
+            guard let self else { return }
+            interactor.acknowledgeSubmittedTransfer(
+                hash: recovery.messageHashHex,
+                recoveredIdentity: identity
+            ) { [weak self] acknowledged in
+                guard let self else { return }
+                if acknowledged {
+                    interactor.refreshFee()
+                } else if let view {
+                    wireframe.presentExtrinsicFailed(from: view, locale: selectedLocale)
+                }
+            }
+        }
+        let messageTemplate = tonRecoveryLocalizedString(
+            key: "ton.transfer.prior_confirmed.message",
+            fallback: "A previous transfer was confirmed. This new transfer was not sent. " +
+                "Review and acknowledge the previous hash before confirming again:\n%@"
+        )
+        let viewModel = SheetAlertPresentableViewModel(
+            title: tonRecoveryLocalizedString(
+                key: "ton.transfer.prior_confirmed.title",
+                fallback: "Previous transfer confirmed"
+            ),
+            message: String(
+                format: messageTemplate,
+                locale: selectedLocale,
+                recovery.messageHashHex
+            ),
+            actions: [acknowledgeAction],
+            closeAction: R.string.localizable.commonClose(
+                preferredLanguages: selectedLocale.rLanguages
+            ),
+            icon: R.image.iconWarningBig()
+        )
+        wireframe.present(viewModel: viewModel, from: view)
+        return true
+    }
+
+    private func completeTransferAfterVisibleReceipt(hash: String) {
+        guard chainAsset.chain.isTonCompatibilityChain else {
+            wireframe.complete(on: view, title: hash, chainAsset: chainAsset)
+            return
+        }
+        guard let completionWireframe = wireframe as? WalletSendConfirmCompletionPresenting else {
+            // A custom router without a presentation callback may show success, but it must
+            // not delete the durable tombstone on an unobservable scheduling boundary.
+            wireframe.complete(on: view, title: hash, chainAsset: chainAsset)
+            return
+        }
+        completionWireframe.completeAfterPresentation(
+            on: view,
+            title: hash,
+            chainAsset: chainAsset
+        ) { [weak self] in
+            self?.interactor.acknowledgeSubmittedTransfer(
+                hash: hash,
+                recoveredIdentity: nil
+            ) { [weak self] acknowledged in
+                if !acknowledged {
+                    self?.logger?.error("TON confirmed receipt acknowledgement failed; tombstone retained")
+                }
+            }
+        }
+    }
+
+    private func tonRecoveryLocalizedString(key: String, fallback: String) -> String {
+        for language in selectedLocale.rLanguages ?? [] {
+            if let path = Bundle.main.path(forResource: language, ofType: "lproj"),
+               let bundle = Bundle(path: path) {
+                return bundle.localizedString(
+                    forKey: key,
+                    value: fallback,
+                    table: "Localizable"
+                )
+            }
+        }
+        return Bundle.main.localizedString(
+            forKey: key,
+            value: fallback,
+            table: "Localizable"
+        )
     }
 }
 
@@ -253,6 +465,9 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
     }
 
     func setup() {
+        if chainAsset.chain.isTonCompatibilityChain {
+            view?.didReceive(isLoading: true)
+        }
         interactor.setup()
         provideViewModel()
         loadingCollector.utilityBalanceReady = chainAsset.isUtility
@@ -263,6 +478,9 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
     }
 
     func didTapConfirmButton() {
+        guard !chainAsset.chain.isTonCompatibilityChain || loadingCollector.isReady else {
+            return
+        }
         switch call {
         case .transfer:
             validateAndSubmitTransfer()
@@ -278,10 +496,22 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
 
         switch result {
         case let .success(hash):
-
-            wireframe.complete(on: view, title: hash, chainAsset: chainAsset)
+            completeTransferAfterVisibleReceipt(hash: hash)
         case let .failure(error):
             guard let view = view else {
+                return
+            }
+
+            if case let TransferServiceError.tonPriorTransferConfirmed(identity, messageHashHex) = error,
+               presentTonPriorTransferConfirmed(
+                   identity: identity,
+                   messageHashHex: messageHashHex
+               ) {
+                return
+            }
+
+            if case let TransferServiceError.tonBroadcastOutcomeUnknown(messageHashHex) = error,
+               presentTonUnknownOutcome(messageHashHex: messageHashHex) {
                 return
             }
 
@@ -347,10 +577,17 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
         switch result {
         case let .success(dispatchInfo):
             guard let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset) else { return }
-            fee = BigUInt(string: dispatchInfo.fee).map {
+            let rawFee = BigUInt(string: dispatchInfo.fee)
+            fee = rawFee.map {
                 Decimal.fromSubstrateAmount($0, precision: Int16(utilityAsset.asset.precision))
             } ?? nil
             updateFeeViewModel()
+            if chainAsset.chain.isTonCompatibilityChain {
+                pendingTonFeePresentation = rawFee
+                confirmingTonFeePresentation = nil
+                loadingCollector.feeReady = false
+                view?.didReceive(isLoading: true)
+            }
             provideViewModel()
             let amount = Decimal.fromSubstrateAmount(call.amount, precision: Int16(chainAsset.asset.precision)) ?? .zero
             let tipPaymentChainAsset = interactor.getFeePaymentChainAsset(for: chainAsset)
@@ -359,9 +596,17 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
 
             let fullAmount = amount + fee.or(.zero) + tip
             interactor.fetchEquilibriumTotalBalance(chainAsset: chainAsset, amount: fullAmount)
-            loadingCollector.feeReady = true
-            checkLoadingState()
+            if !chainAsset.chain.isTonCompatibilityChain {
+                loadingCollector.feeReady = true
+                checkLoadingState()
+            }
         case let .failure(error):
+            if chainAsset.chain.isTonCompatibilityChain {
+                pendingTonFeePresentation = nil
+                confirmingTonFeePresentation = nil
+                loadingCollector.feeReady = false
+                view?.didReceive(isLoading: true)
+            }
             logger?.error("Did receive fee error: \(error)")
         }
     }

@@ -5,6 +5,7 @@ enum NumberFormatterUsageCase {
     case listCrypto
     case listCryptoWith(minimumFractionDigits: Int, maximumFractionDigits: Int)
     case detailsCrypto
+    case exactCrypto(fractionDigits: Int)
     case fiat
     case percent
     case inputCrypto
@@ -36,6 +37,13 @@ extension NumberFormatter {
         case .detailsCrypto:
             return NumberFormatter.defaultDetailsCryptoFormatter(
                 locale: locale,
+                rounding: rounding,
+                usesIntGrouping: usesIntGrouping
+            )
+        case let .exactCrypto(fractionDigits):
+            return NumberFormatter.defaultExactCryptoFormatter(
+                locale: locale,
+                fractionDigits: fractionDigits,
                 rounding: rounding,
                 usesIntGrouping: usesIntGrouping
             )
@@ -75,6 +83,22 @@ extension NumberFormatter {
         formatter.locale = locale
         formatter.minimumFractionDigits = 0
         formatter.maximumFractionDigits = 8
+        formatter.roundingMode = rounding
+        formatter.usesGroupingSeparator = usesIntGrouping
+        return formatter
+    }
+
+    private static func defaultExactCryptoFormatter(
+        locale: Locale,
+        fractionDigits: Int,
+        rounding: NumberFormatter.RoundingMode = .down,
+        usesIntGrouping: Bool = false
+    ) -> NumberFormatter {
+        let formatter = NumberFormatter()
+        formatter.locale = locale
+        formatter.minimumIntegerDigits = 1
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = max(0, min(fractionDigits, 38))
         formatter.roundingMode = rounding
         formatter.usesGroupingSeparator = usesIntGrouping
         return formatter

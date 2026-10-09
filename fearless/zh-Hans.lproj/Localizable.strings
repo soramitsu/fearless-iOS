@@ -1,6 +1,12 @@
 "NSCameraUsageDescription" = "相机用于捕捉二维码";
 "NSFaceIDUsageDescription" = "Fearless使用Face ID来限制未经授权的用户访问该应用程序。Face ID用于在应用程序内进行授权。";
 "NSPhotoLibraryAddUsageDescription" = "将转账请求保存为二维码";
+"ton.transfer.unknown.title" = "转账状态未知";
+"ton.transfer.unknown.message" = "网络可能已经接受此转账。请勿再次发送。请保存此消息哈希，并在执行其他操作前检查其状态：\n%@";
+"ton.transfer.unknown.copy_hash" = "复制消息哈希";
+"ton.transfer.prior_confirmed.title" = "之前的转账已确认";
+"ton.transfer.prior_confirmed.message" = "之前的转账已确认。本次新转账尚未发送。再次确认前，请核对并确认之前的哈希：\n%@";
+"ton.transfer.prior_confirmed.acknowledge" = "确认并重新计算手续费";
 "NSPhotoLibraryUsageDescription" = "从图库加载照片";
 "about.announcement" = "接收通知";
 "about.ask.for.support" = "寻求支持";
@@ -799,6 +805,7 @@
 "staking.analytics.period.all" = "全部";
 "staking.analytics.rewards.empty.message" = "没有收到奖励\
 所选期间";
+"staking.analytics.received.rewards" = "已收到的奖励";
 "staking.analytics.stake.allocation" = "使用当前验证人进行分配";
 "staking.analytics.stake.empty.message" = "您的质押发生变化\
 会出现在这里";

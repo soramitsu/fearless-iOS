@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "platform": "ios",
+  "distributionChannel": "testflight-external-public-link",
+  "assessedAt": "2026-07-16",
+  "evidenceSource": {
+    "method": "interactive-safari-visual-inspection",
+    "observedAt": "2026-07-16",
+    "locale": "ja",
+    "screenshotArtifact": null,
+    "appStoreConnectApiAttestation": null,
+    "currentStateRevalidationRequired": true
+  },
+  "account": {
+    "provider": "Soramitsu Co., Ltd.",
+    "signedInObserved": true
+  },
+  "app": {
+    "displayName": "Fearless Wallet: DeFi Wallet",
+    "appStoreConnectRecordMatched": true
+  },
+  "externalGroup": {
+    "name": "Public Beta Test",
+    "headerTesterCount": 120,
+    "headerBuildCount": 1,
+    "publicLinkEnabled": true
+  },
+  "build": {
+    "marketingVersion": "4.2.0",
+    "buildNumber": "2026.7.15",
+    "displayIdentifier": "4.2.0 (2026.7.15)",
+    "reviewStatus": "in-review",
+    "observedLocalizedStatus": "審査中",
+    "submittedForReview": true,
+    "externalBetaApproved": false,
+    "daysUntilExpiry": 90,
+    "deviceInstallVerified": false
+  },
+  "publicLink": {
+    "enabled": true,
+    "url": "https://testflight.apple.com/join/012KzFyD",
+    "urlSha256": "d6599b1b9c0f7e77d9dd80d9185da67c1d864be5df9a7bbf360f245b099a000c",
+    "host": "testflight.apple.com",
+    "path": "/join/012KzFyD",
+    "testerLimit": 500,
+    "publicLinkTesterCount": 118,
+    "remainingPublicLinkCapacity": 382,
+    "shareableToAnyoneWithLink": true
+  },
+  "landingPage": {
+    "resolvedInSafari": true,
+    "url": "https://testflight.apple.com/join/012KzFyD",
+    "title": "Join the beta for Fearless Wallet: DeFi Wallet - TestFlight - Apple",
+    "appDescriptionPresent": true,
+    "callToAction": "View in TestFlight",
+    "appleOwnedPage": true,
+    "currentBuildIdentityVisible": false,
+    "currentBuildInstallabilityProven": false
+  },
+  "readiness": {
+    "status": "blocked",
+    "linkEnabled": true,
+    "linkResolves": true,
+    "submittedForReview": true,
+    "externalBetaApproved": false,
+    "deviceInstallVerified": false,
+    "releaseEnabled": false
+  },
+  "blocker": {
+    "code": "testflight-external-beta-review-pending",
+    "reason": "The exact external build is still in TestFlight review, and no clean-device installation of that build through the public link has been verified."
+  },
+  "exitCriteria": [
+    "observe-external-beta-approval-for-exact-build-4.2.0-2026.7.15",
+    "install-from-the-public-link-on-a-clean-eligible-device-and-confirm-the-exact-version-and-build",
+    "record-reviewed-install-evidence-without-credentials-or-device-identifiers",
+    "revalidate-live-app-store-connect-and-public-landing-page-state-before-changing-release-enabled"
+  ]
+}

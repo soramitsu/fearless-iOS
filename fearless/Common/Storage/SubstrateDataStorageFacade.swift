@@ -25,15 +25,38 @@ class SubstrateDataStorageFacade: StorageFacadeProtocol {
 
     let databaseService: CoreDataServiceProtocol
 
-    private init() {
+    private convenience init() {
         let modelName = "SubstrateDataModel"
         let modelURL = Bundle.main.url(forResource: modelName, withExtension: "momd")
-        let databaseName = "\(modelName).sqlite"
 
         let baseURL = FileManager.default.urls(
             for: .documentDirectory,
             in: .userDomainMask
         ).first?.appendingPathComponent("CoreData")
+
+        self.init(
+            modelURL: modelURL,
+            databaseDirectory: baseURL!,
+            databaseName: "\(modelName).sqlite"
+        )
+    }
+
+    init(
+        modelURL: URL?,
+        databaseDirectory: URL,
+        databaseName: String = SubstrateStorageParams.databaseName
+    ) {
+        let resolvedModelURL: URL
+        if let modelURL {
+            resolvedModelURL = modelURL
+        } else {
+            Logger.shared.error(
+                "Required Substrate Core Data model resource is unavailable"
+            )
+            resolvedModelURL = Bundle.main.bundleURL.appendingPathComponent(
+                "__fearless_missing_substrate_model_\(UUID().uuidString).momd"
+            )
+        }
 
         let options = [
             NSMigratePersistentStoresAutomaticallyOption: true,
@@ -41,14 +64,14 @@ class SubstrateDataStorageFacade: StorageFacadeProtocol {
         ]
 
         let persistentSettings = CoreDataPersistentSettings(
-            databaseDirectory: baseURL!,
+            databaseDirectory: databaseDirectory,
             databaseName: databaseName,
             incompatibleModelStrategy: .ignore,
             options: options
         )
 
         let configuration = CoreDataServiceConfiguration(
-            modelURL: modelURL!,
+            modelURL: resolvedModelURL,
             storageType: .persistent(settings: persistentSettings)
         )
 

@@ -10,7 +10,11 @@ class MultiassetV9MigrationPolicy: NSEntityMigrationPolicy {
     ) throws {
         try super.createDestinationInstances(forSource: wallet, in: mapping, manager: manager)
 
-        guard let assetIdsEnabled = wallet.value(forKey: "assetIdsEnabled") as? [String] else {
+        let assetIdsEnabled: [String]? = try? SafeTransformableValueReader.read(
+            from: wallet,
+            key: "assetIdsEnabled"
+        )
+        guard let assetIdsEnabled else {
             return
         }
 

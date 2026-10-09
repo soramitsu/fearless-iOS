@@ -1,6 +1,12 @@
 "NSCameraUsageDescription" = "QRコードを撮るためにカメラを使用する";
 "NSFaceIDUsageDescription" = "フィアレスは顔認証を使用して、権限のないユーザーがアプリにアクセスすることを制限します。顔認証は、アプリ内での認証に使用されます";
 "NSPhotoLibraryAddUsageDescription" = "QRコードで取引申請を保存する";
+"ton.transfer.unknown.title" = "送金ステータスを確認できません";
+"ton.transfer.unknown.message" = "ネットワークがこの送金を受け付けた可能性があります。再送しないでください。このメッセージハッシュを保存し、次の操作を行う前にステータスを確認してください:\n%@";
+"ton.transfer.unknown.copy_hash" = "メッセージハッシュをコピー";
+"ton.transfer.prior_confirmed.title" = "以前の送金が確認されました";
+"ton.transfer.prior_confirmed.message" = "以前の送金が確認されました。この新しい送金は送信されていません。再度確認する前に、以前のハッシュを確認して承認してください:\n%@";
+"ton.transfer.prior_confirmed.acknowledge" = "承認して手数料を再計算";
 "NSPhotoLibraryUsageDescription" = "ライブラリーから写真をアップロードする";
 "about.announcement" = "お知らせを受け取る";
 "about.ask.for.support" = "サポートを求める";
@@ -791,6 +797,7 @@
 "staking.analytics.period.all" = "全て";
 "staking.analytics.rewards.empty.message" = "選択した期間の\
 報酬は受け取っていません";
+"staking.analytics.received.rewards" = "受け取った報酬";
 "staking.analytics.stake.allocation" = "現在のバリデーターによる割り当て";
 "staking.analytics.stake.empty.message" = "ステークの変更がここに表示されます";
 "staking.analytics.staking.was.active" = "ステーキングはアクティブでした";

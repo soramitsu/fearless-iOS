@@ -22,6 +22,24 @@ protocol WalletSendConfirmInteractorInputProtocol: AnyObject {
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset?
     func fetchEquilibriumTotalBalance(chainAsset: ChainAsset, amount: Decimal)
     func provideConstants()
+    func confirmFeePresentation(fee: BigUInt, completion: @escaping (Bool) -> Void)
+    func acknowledgeSubmittedTransfer(
+        hash: String,
+        recoveredIdentity: TonTransferIntentIdentity?,
+        completion: @escaping (Bool) -> Void
+    )
+    func refreshFee()
+}
+
+/// Production success routing invokes the callback only after the all-done controller has
+/// actually been presented. TON keeps its confirmed tombstone until this receipt boundary.
+protocol WalletSendConfirmCompletionPresenting: AnyObject {
+    func completeAfterPresentation(
+        on view: ControllerBackedProtocol?,
+        title: String,
+        chainAsset: ChainAsset,
+        completion: @escaping () -> Void
+    )
 }
 
 protocol WalletSendConfirmInteractorOutputProtocol: AnyObject {

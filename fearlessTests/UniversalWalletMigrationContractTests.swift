@@ -137,6 +137,46 @@ final class UniversalWalletMigrationContractTests: XCTestCase {
         XCTAssertTrue(snapshot.validationErrors().isEmpty)
     }
 
+    func testBuilderRejectsNoncanonicalIrohaChainIdentities() throws {
+        let bitcoin = try BitcoinKeyDerivation.deriveAccount(mnemonic: Self.mnemonic, network: .mainnet)
+        let solana = try SolanaKeyDerivation.deriveAccount(mnemonic: Self.mnemonic)
+        let iroha = try IrohaKeyDerivation.deriveAccount(mnemonic: Self.mnemonic)
+        let ton = try TonKeyDerivation.deriveAccount(mnemonic: Self.mnemonic)
+
+        for chainId in [
+            UniversalWalletRegistry.taira.id,
+            UniversalWalletRegistry.taira.chainId.uppercased(),
+            UniversalWalletRegistry.nexus.id,
+            "unknown-iroha-chain"
+        ] {
+            let snapshot = builder.build(
+                accounts: [
+                    Self.wallet(
+                        chainAccounts: [
+                            Self.chainAccount(
+                                chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
+                                publicKey: bitcoin.publicKey,
+                                cryptoType: CryptoType.ecdsa.rawValue
+                            ),
+                            Self.chainAccount(
+                                chainId: UniversalWalletRegistry.solanaMainnet.chainId,
+                                publicKey: solana.publicKey
+                            ),
+                            Self.chainAccount(chainId: chainId, publicKey: iroha.publicKey),
+                            Self.chainAccount(
+                                chainId: "ton:mainnet",
+                                publicKey: ton.publicKey
+                            )
+                        ]
+                    )
+                ]
+            )
+
+            XCTAssertFalse(snapshot.hasUniversalWallet, "Unexpected migration completion for \(chainId)")
+            XCTAssertEqual(snapshot.requiredAction(), .migrateBeforeAccess)
+        }
+    }
+
     func testBuilderKeepsPartialUniversalWalletBlockedWithLegacyExports() throws {
         let solana = try SolanaKeyDerivation.deriveAccount(mnemonic: Self.mnemonic)
         let snapshot = builder.build(

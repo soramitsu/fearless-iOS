@@ -21,6 +21,23 @@ protocol AccountInfoRemoteService {
     ) async throws -> AccountInfo?
 }
 
+enum IrohaAssetConfigurationError: Error, Equatable {
+    case invalidNetworkIdentity(String)
+    case truncatedDefinitions
+    case truncatedBalances
+    case nonCanonicalDefinition(String)
+    case duplicateDefinition(String)
+    case missingDefinition(String)
+    case missingScale(String)
+    case nativeProfileMismatch(assetId: String, symbol: String, precision: UInt16)
+    case precisionMismatch(assetId: String, wallet: UInt16, torii: Int)
+    case invalidQuantity(assetId: String, quantity: String, precision: UInt16)
+    case invalidAccountAssets(String)
+    case balanceOverflow(String)
+}
+
+private let maxIrohaNumeric = (BigUInt(1) << 511) - 1
+
 protocol SolanaBalanceSyncing {
     func balances(
         wallet: String,
@@ -125,6 +142,10 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         for chain: ChainModel,
         wallet: MetaAccountModel
     ) async throws -> [ChainAssetId: AccountInfo?] {
+        if UniversalWalletChainAccountSupport.isNonCanonicalIrohaProfile(chain) {
+            throw IrohaAssetConfigurationError.invalidNetworkIdentity(chain.chainId)
+        }
+
         switch chainKind(for: chain) {
         case .ethereum:
             guard wallet.fetch(for: chain.accountRequest())?.accountId != nil else {
@@ -154,6 +175,10 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         for chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) async throws -> AccountInfo? {
+        if UniversalWalletChainAccountSupport.isNonCanonicalIrohaProfile(chainAsset.chain) {
+            throw IrohaAssetConfigurationError.invalidNetworkIdentity(chainAsset.chain.chainId)
+        }
+
         switch chainKind(for: chainAsset.chain) {
         case .ethereum:
             guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
@@ -234,10 +259,10 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
     }
 
     private func irohaNetwork(for chain: ChainModel) -> UniversalWalletRegistry.IrohaNetwork? {
-        switch chain.chainId.lowercased() {
-        case UniversalWalletRegistry.taira.chainId, UniversalWalletRegistry.taira.id:
+        switch chain.chainId {
+        case UniversalWalletRegistry.taira.chainId:
             return UniversalWalletRegistry.taira
-        case UniversalWalletRegistry.nexus.chainId, UniversalWalletRegistry.nexus.id:
+        case UniversalWalletRegistry.nexus.chainId:
             return UniversalWalletRegistry.nexus
         default:
             return nil
@@ -579,29 +604,58 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
             return accountInfos
         }
 
-        do {
-            let response = try await irohaToriiClient.accountAssets(
-                accountID: address,
-                baseURL: irohaBalanceBaseURL(for: chain),
-                limit: IrohaToriiRoutes.maxLimit,
-                offset: nil,
-                countMode: .bounded,
-                asset: nil,
-                scope: nil,
+        let baseURL = irohaBalanceBaseURL(for: chain)
+        let definitions = try await irohaToriiClient.assetDefinitions(
+            baseURL: baseURL,
+            limit: IrohaToriiRoutes.maxLimit,
+            offset: 0,
+            countMode: .bounded
+        )
+        guard !definitions.hasMore,
+              definitions.countMode == IrohaToriiCountMode.bounded.rawValue else {
+            throw IrohaAssetConfigurationError.truncatedDefinitions
+        }
+        let definitionsById = try irohaDefinitionsByCanonicalId(definitions.items)
+        let response = try await irohaToriiClient.accountAssets(
+            accountID: address,
+            baseURL: baseURL,
+            limit: IrohaToriiRoutes.maxLimit,
+            offset: 0,
+            countMode: .bounded,
+            asset: nil,
+            scope: nil,
+            network: network
+        )
+        guard !response.hasMore,
+              response.countMode == IrohaToriiCountMode.bounded.rawValue else {
+            throw IrohaAssetConfigurationError.truncatedBalances
+        }
+        try validateIrohaAccountAssets(response.items, address: address)
+
+        for chainAsset in chain.chainAssets {
+            let assetId: String
+            do {
+                assetId = try IrohaToriiRoutes.normalizeAssetDefinitionId(chainAsset.asset.id)
+            } catch {
+                throw IrohaAssetConfigurationError.nonCanonicalDefinition(chainAsset.asset.id)
+            }
+            guard let definition = definitionsById[assetId] else {
+                throw IrohaAssetConfigurationError.missingDefinition(assetId)
+            }
+            let profilePrecision = try irohaProfilePrecision(
+                for: chainAsset.asset,
+                canonicalAssetId: assetId,
                 network: network
             )
-
-            chain.chainAssets.forEach { chainAsset in
-                accountInfos[chainAsset.chainAssetId] = irohaAccountInfo(
-                    for: chainAsset,
-                    address: address,
-                    response: response
-                )
-            }
-        } catch is CancellationError {
-            throw CancellationError()
-        } catch {
-            return accountInfos
+            let precision = try irohaPrecision(
+                expectedPrecision: profilePrecision,
+                definition: definition
+            )
+            accountInfos[chainAsset.chainAssetId] = try irohaAccountInfo(
+                canonicalAssetId: assetId,
+                precision: precision,
+                response: response
+            )
         }
 
         return accountInfos
@@ -612,58 +666,143 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
     }
 
     private func irohaAccountInfo(
-        for chainAsset: ChainAsset,
-        address: String,
+        canonicalAssetId: String,
+        precision: UInt16,
         response: IrohaAccountAssetListResponse
-    ) -> AccountInfo? {
-        let amounts = response.items
-            .filter { irohaAccountAsset($0, matchesAddress: address) && irohaAccountAsset($0, matchesAsset: chainAsset.asset) }
-            .compactMap { irohaPlanks(from: $0.quantity, precision: chainAsset.asset.precision) }
+    ) throws -> AccountInfo? {
+        let matchingItems = response.items.filter {
+            $0.asset == canonicalAssetId
+        }
+        let amounts = try matchingItems.map { item -> BigUInt in
+            guard let amount = irohaPlanks(from: item.quantity, precision: precision) else {
+                throw IrohaAssetConfigurationError.invalidQuantity(
+                    assetId: canonicalAssetId,
+                    quantity: item.quantity,
+                    precision: precision
+                )
+            }
+            return amount
+        }
 
         guard !amounts.isEmpty else {
             return nil
         }
 
-        let amount = amounts.reduce(BigUInt.zero, +)
+        let scaleFactor = (0 ..< Int(precision)).reduce(BigUInt(1)) { factor, _ in
+            factor * 10
+        }
+        let maxBalanceInPlanks = maxIrohaNumeric * scaleFactor
+        let amount = try amounts.reduce(BigUInt.zero) { total, value in
+            guard total <= maxBalanceInPlanks,
+                  value <= maxBalanceInPlanks - total else {
+                throw IrohaAssetConfigurationError.balanceOverflow(canonicalAssetId)
+            }
+            return total + value
+        }
         return AccountInfo(ethBalance: amount)
     }
 
-    private func irohaAccountAsset(
-        _ item: IrohaAccountAssetListItem,
-        matchesAddress address: String
-    ) -> Bool {
-        guard let accountId = item.accountID, !accountId.isEmpty else {
-            return true
+    private func validateIrohaAccountAssets(
+        _ items: [IrohaAccountAssetListItem],
+        address: String
+    ) throws {
+        var seenAssetScopes = Set<String>()
+        for item in items {
+            guard item.accountID == address else {
+                throw IrohaAssetConfigurationError.invalidAccountAssets("account_id")
+            }
+            guard item.assetID == nil else {
+                throw IrohaAssetConfigurationError.invalidAccountAssets("asset_id")
+            }
+            let canonicalAsset: String
+            do {
+                canonicalAsset = try IrohaToriiRoutes.normalizeAssetDefinitionId(item.asset)
+            } catch {
+                throw IrohaAssetConfigurationError.invalidAccountAssets("asset")
+            }
+            guard canonicalAsset == item.asset else {
+                throw IrohaAssetConfigurationError.invalidAccountAssets("asset")
+            }
+            guard let scope = item.scope else {
+                throw IrohaAssetConfigurationError.invalidAccountAssets("scope")
+            }
+            let canonicalScope: String
+            do {
+                canonicalScope = try IrohaToriiRoutes.normalizeAccountAssetScope(scope)
+            } catch {
+                throw IrohaAssetConfigurationError.invalidAccountAssets("scope")
+            }
+            guard canonicalScope == scope else {
+                throw IrohaAssetConfigurationError.invalidAccountAssets("scope")
+            }
+            guard seenAssetScopes.insert("\(canonicalAsset)\u{0}\(canonicalScope)").inserted else {
+                throw IrohaAssetConfigurationError.invalidAccountAssets("duplicate_asset_scope")
+            }
         }
-
-        return accountId == address
     }
 
-    private func irohaAccountAsset(
-        _ item: IrohaAccountAssetListItem,
-        matchesAsset asset: AssetModel
-    ) -> Bool {
-        let chainAssetIds = [
-            asset.id,
-            asset.currencyId
-        ].compactMap { $0 }
-
-        let itemAssetIds = [
-            item.asset,
-            item.assetID,
-            item.assetName,
-            item.assetAlias
-        ].compactMap { $0 }
-
-        return itemAssetIds.contains { itemId in
-            chainAssetIds.contains(itemId)
+    private func irohaDefinitionsByCanonicalId(
+        _ definitions: [IrohaAssetDefinitionListItem]
+    ) throws -> [String: IrohaAssetDefinitionListItem] {
+        try definitions.reduce(into: [:]) { result, definition in
+            let id: String
+            do {
+                id = try IrohaToriiRoutes.normalizeAssetDefinitionId(definition.id)
+            } catch {
+                throw IrohaAssetConfigurationError.nonCanonicalDefinition(definition.id)
+            }
+            guard result[id] == nil else {
+                throw IrohaAssetConfigurationError.duplicateDefinition(id)
+            }
+            result[id] = definition
         }
+    }
+
+    private func irohaProfilePrecision(
+        for asset: AssetModel,
+        canonicalAssetId: String,
+        network: UniversalWalletRegistry.IrohaNetwork
+    ) throws -> UInt16 {
+        guard let nativeAsset = network.nativeAsset, nativeAsset.id == canonicalAssetId else {
+            return asset.precision
+        }
+        guard asset.symbol == nativeAsset.symbol, Int(asset.precision) == nativeAsset.decimals else {
+            throw IrohaAssetConfigurationError.nativeProfileMismatch(
+                assetId: canonicalAssetId,
+                symbol: asset.symbol,
+                precision: asset.precision
+            )
+        }
+
+        return UInt16(nativeAsset.decimals)
+    }
+
+    private func irohaPrecision(
+        expectedPrecision: UInt16,
+        definition: IrohaAssetDefinitionListItem
+    ) throws -> UInt16 {
+        guard let scale = definition.spec?.scale else {
+            throw IrohaAssetConfigurationError.missingScale(definition.id)
+        }
+        guard scale >= 0,
+              scale <= Int(UInt16.max),
+              UInt16(scale) == expectedPrecision else {
+            throw IrohaAssetConfigurationError.precisionMismatch(
+                assetId: definition.id,
+                wallet: expectedPrecision,
+                torii: scale
+            )
+        }
+
+        return UInt16(scale)
     }
 
     private func irohaPlanks(from quantity: String, precision: UInt16) -> BigUInt? {
         let normalized = quantity.trimmingCharacters(in: .whitespacesAndNewlines)
-        let pattern = #"^(0|[1-9][0-9]*)(\.[0-9]+)?$"#
-        guard normalized.range(of: pattern, options: .regularExpression) != nil else {
+        let pattern = #"^(0|[1-9][0-9]*)(\.[0-9]*[1-9])?$"#
+        guard normalized == quantity,
+              precision <= 28,
+              normalized.range(of: pattern, options: .regularExpression) != nil else {
             return nil
         }
 
@@ -674,7 +813,11 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
 
         let integerPart = String(parts[0])
         let fractionPart = parts.count == 2 ? String(parts[1]) : ""
-        guard fractionPart.count <= Int(precision) else {
+        let digits = integerPart + fractionPart
+        guard fractionPart.count <= Int(precision),
+              digits.count <= 154,
+              let mantissa = BigUInt(digits),
+              mantissa <= maxIrohaNumeric else {
             return nil
         }
 

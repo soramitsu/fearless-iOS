@@ -488,12 +488,12 @@ private extension MetaAccountModel {
     }
 
     var irohaAddress: String? {
-        chainAccount(matching: Self.tairaChainIds).flatMap {
+        chainAccount(matchingExactly: Self.tairaChainIds).flatMap {
             UniversalWalletChainAccountSupport.address(
                 for: UniversalWalletRegistry.taira.chainId,
                 publicKey: $0.publicKey
             )
-        } ?? chainAccount(matching: Self.nexusChainIds).flatMap {
+        } ?? chainAccount(matchingExactly: Self.nexusChainIds).flatMap {
             UniversalWalletChainAccountSupport.address(
                 for: UniversalWalletRegistry.nexus.chainId,
                 publicKey: $0.publicKey
@@ -503,6 +503,10 @@ private extension MetaAccountModel {
 
     func chainAccount(matching chainIds: Set<String>) -> ChainAccountModel? {
         chainAccounts.first { chainIds.contains($0.chainId.lowercased()) }
+    }
+
+    func chainAccount(matchingExactly chainIds: Set<String>) -> ChainAccountModel? {
+        chainAccounts.first { chainIds.contains($0.chainId) }
     }
 
     func unavailableAddress(for ecosystem: UniversalWalletEcosystem) -> String {
@@ -543,13 +547,11 @@ private extension MetaAccountModel {
     ]
 
     static let tairaChainIds: Set<String> = [
-        UniversalWalletRegistry.taira.chainId,
-        UniversalWalletRegistry.taira.id
+        UniversalWalletRegistry.taira.chainId
     ]
 
     static let nexusChainIds: Set<String> = [
-        UniversalWalletRegistry.nexus.chainId,
-        UniversalWalletRegistry.nexus.id
+        UniversalWalletRegistry.nexus.chainId
     ]
 }
 

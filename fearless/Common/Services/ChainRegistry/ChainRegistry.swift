@@ -16,14 +16,211 @@ import HTTPTypes
 enum TonAPITransportError: Error {
     case invalidRequestURL(path: String, method: HTTPRequest.Method, baseURL: URL)
     case notHTTPResponse(URLResponse)
+    case missingResponse
+    case responseTooLarge(actualBytes: Int, maximumBytes: Int)
 }
 
-private final class TonAPIURLSessionTransport: ClientTransport, @unchecked Sendable {
-    private let session: URLSession
+enum TonAPITransportPolicy {
+    static let requestTimeout: TimeInterval = 15
+    static let resourceTimeout: TimeInterval = 30
+    static let maximumResponseBytes = 2 * 1024 * 1024
+    static let maximumRequestBodyBytes = 1 * 1024 * 1024
+    static let followsRedirects = false
+}
 
-    init(configuration: URLSessionConfiguration = .default) {
-        session = URLSession(configuration: configuration)
+/// Authentication-bearing API calls must never follow a redirect because Foundation otherwise
+/// decides header forwarding after the server has already selected the next origin.
+final class TonAPINoRedirectDelegate: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
+    static func redirectedRequest(_: URLRequest) -> URLRequest? {
+        nil
     }
+
+    func urlSession(
+        _: URLSession,
+        task _: URLSessionTask,
+        willPerformHTTPRedirection _: HTTPURLResponse,
+        newRequest request: URLRequest,
+        completionHandler: @escaping (URLRequest?) -> Void
+    ) {
+        completionHandler(Self.redirectedRequest(request))
+    }
+}
+
+final class TonAPIBoundedSessionDelegate: NSObject, URLSessionDataDelegate, @unchecked Sendable {
+    private final class RequestCancellationState: @unchecked Sendable {
+        let lock = NSLock()
+        var isCancelled = false
+    }
+
+    private struct RequestState {
+        var data = Data()
+        var response: URLResponse?
+        let continuation: CheckedContinuation<(Data, URLResponse), Error>
+    }
+
+    private let maximumResponseBytes: Int
+    private let lock = NSLock()
+    private var states: [Int: RequestState] = [:]
+
+    init(maximumResponseBytes: Int) {
+        self.maximumResponseBytes = maximumResponseBytes
+    }
+
+    var inFlightRequestCount: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return states.count
+    }
+
+    func data(for request: URLRequest, session: URLSession) async throws -> (Data, URLResponse) {
+        let task = session.dataTask(with: request)
+        let cancellationState = RequestCancellationState()
+
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                cancellationState.lock.lock()
+                let wasCancelled = cancellationState.isCancelled
+                if !wasCancelled {
+                    lock.lock()
+                    states[task.taskIdentifier] = RequestState(continuation: continuation)
+                    lock.unlock()
+                }
+                cancellationState.lock.unlock()
+
+                if wasCancelled {
+                    task.cancel()
+                    continuation.resume(throwing: CancellationError())
+                } else {
+                    task.resume()
+                }
+            }
+        } onCancel: {
+            self.cancel(task: task, cancellationState: cancellationState)
+        }
+    }
+
+    func urlSession(
+        _: URLSession,
+        task _: URLSessionTask,
+        willPerformHTTPRedirection _: HTTPURLResponse,
+        newRequest _: URLRequest,
+        completionHandler: @escaping (URLRequest?) -> Void
+    ) {
+        completionHandler(nil)
+    }
+
+    func urlSession(
+        _: URLSession,
+        dataTask: URLSessionDataTask,
+        didReceive response: URLResponse,
+        completionHandler: @escaping (URLSession.ResponseDisposition) -> Void
+    ) {
+        if response.expectedContentLength > Int64(maximumResponseBytes) {
+            resolveOversized(task: dataTask, actualBytes: Int(response.expectedContentLength))
+            completionHandler(.cancel)
+            return
+        }
+
+        lock.lock()
+        if var state = states[dataTask.taskIdentifier] {
+            state.response = response
+            states[dataTask.taskIdentifier] = state
+        }
+        lock.unlock()
+        completionHandler(.allow)
+    }
+
+    func urlSession(_: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        var oversizedActual: Int?
+        lock.lock()
+        if var state = states[dataTask.taskIdentifier] {
+            let (nextCount, overflowed) = state.data.count.addingReportingOverflow(data.count)
+            if overflowed || nextCount > maximumResponseBytes {
+                oversizedActual = overflowed ? Int.max : nextCount
+            } else {
+                state.data.append(data)
+                states[dataTask.taskIdentifier] = state
+            }
+        }
+        lock.unlock()
+
+        if let oversizedActual {
+            resolveOversized(task: dataTask, actualBytes: oversizedActual)
+            dataTask.cancel()
+        }
+    }
+
+    func urlSession(
+        _: URLSession,
+        task: URLSessionTask,
+        didCompleteWithError error: Error?
+    ) {
+        lock.lock()
+        let state = states.removeValue(forKey: task.taskIdentifier)
+        lock.unlock()
+        guard let state else {
+            return
+        }
+
+        if let error {
+            state.continuation.resume(throwing: error)
+        } else if let response = state.response {
+            state.continuation.resume(returning: (state.data, response))
+        } else {
+            state.continuation.resume(throwing: TonAPITransportError.missingResponse)
+        }
+    }
+
+    private func resolveOversized(task: URLSessionTask, actualBytes: Int) {
+        lock.lock()
+        let state = states.removeValue(forKey: task.taskIdentifier)
+        lock.unlock()
+        state?.continuation.resume(
+            throwing: TonAPITransportError.responseTooLarge(
+                actualBytes: actualBytes,
+                maximumBytes: maximumResponseBytes
+            )
+        )
+    }
+
+    private func cancel(
+        task: URLSessionTask,
+        cancellationState: RequestCancellationState
+    ) {
+        cancellationState.lock.lock()
+        cancellationState.isCancelled = true
+        lock.lock()
+        let state = states.removeValue(forKey: task.taskIdentifier)
+        lock.unlock()
+        cancellationState.lock.unlock()
+
+        task.cancel()
+        state?.continuation.resume(throwing: CancellationError())
+    }
+}
+
+final class TonAPIURLSessionTransport: ClientTransport, @unchecked Sendable {
+    private let session: URLSession
+    private let delegate: TonAPIBoundedSessionDelegate
+
+    init(configuration: URLSessionConfiguration? = nil) {
+        let configuration = configuration ?? .ephemeral
+        configuration.timeoutIntervalForRequest = TonAPITransportPolicy.requestTimeout
+        configuration.timeoutIntervalForResource = TonAPITransportPolicy.resourceTimeout
+        configuration.requestCachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+        configuration.urlCache = nil
+        configuration.httpCookieStorage = nil
+        delegate = TonAPIBoundedSessionDelegate(
+            maximumResponseBytes: TonAPITransportPolicy.maximumResponseBytes
+        )
+        session = URLSession(
+            configuration: configuration,
+            delegate: delegate,
+            delegateQueue: nil
+        )
+    }
+
+    var inFlightRequestCount: Int { delegate.inFlightRequestCount }
 
     func send(
         _ request: HTTPRequest,
@@ -34,7 +231,7 @@ private final class TonAPIURLSessionTransport: ClientTransport, @unchecked Senda
         var urlRequest = try await URLRequest(request, body: body, baseURL: baseURL)
         urlRequest.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
 
-        let (data, response) = try await session.data(for: urlRequest)
+        let (data, response) = try await delegate.data(for: urlRequest, session: session)
         let httpResponse = try HTTPResponse.from(urlResponse: response)
         let responseBody: HTTPBody? = data.isEmpty ? nil : HTTPBody(data)
         return (httpResponse, responseBody)
@@ -51,7 +248,9 @@ private struct TonAPIAuthorizationMiddleware: ClientMiddleware {
         operationID _: String,
         next: @Sendable(HTTPRequest, HTTPBody?, URL) async throws -> (HTTPResponse, HTTPBody?)
     ) async throws -> (HTTPResponse, HTTPBody?) {
-        guard !token.isEmpty else {
+        guard TonAPIClientFactory.isValidAuthorizationToken(token),
+              TonAPIClientFactory.canAttachAuthorization(to: baseURL)
+        else {
             return try await next(request, body, baseURL)
         }
 
@@ -62,16 +261,73 @@ private struct TonAPIAuthorizationMiddleware: ClientMiddleware {
 }
 
 final class TonAPIClientFactory {
+    static let canonicalAuthenticatedOrigin = URL(string: "https://tonapi.io")!
+    /// Binary-owned allowlist for operations that expose a signed bearer BOC.
+    /// Read-only balance clients may still use other valid registry nodes, but native
+    /// submission must remain pinned to an independently reviewed exact origin.
+    static let reviewedProductionSendOrigins = [canonicalAuthenticatedOrigin]
+
     private let tonAPIURL: URL
     private let token: String
 
-    init(tonAPIURL: URL, token: String) {
-        self.tonAPIURL = tonAPIURL
-        self.token = token
+    var serverURL: URL { tonAPIURL }
+    var usesAuthorization: Bool { Self.isValidAuthorizationToken(token) }
+    var hasReviewedProductionSendCredential: Bool {
+        usesAuthorization && Self.isReviewedProductionSendServerURL(tonAPIURL)
     }
 
-    func tonAPIClient() -> Client {
-        let transport = TonAPIURLSessionTransport()
+    init(tonAPIURL: URL, token: String) {
+        self.tonAPIURL = tonAPIURL
+        self.token = Self.canAttachAuthorization(to: tonAPIURL) && Self.isValidAuthorizationToken(token) ? token : ""
+    }
+
+    static func isValidServerURL(_ url: URL) -> Bool {
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              components.scheme?.lowercased() == "https",
+              components.host?.isEmpty == false,
+              components.user == nil,
+              components.password == nil,
+              components.query == nil,
+              components.fragment == nil,
+              components.percentEncodedPath.isEmpty || components.percentEncodedPath == "/"
+        else {
+            return false
+        }
+        return true
+    }
+
+    static func canAttachAuthorization(to url: URL) -> Bool {
+        hasExactOrigin(url, canonical: canonicalAuthenticatedOrigin)
+    }
+
+    static func isValidAuthorizationToken(_ token: String) -> Bool {
+        let bytes = Array(token.utf8)
+        return !bytes.isEmpty && bytes.count <= 4096 && bytes.allSatisfy { byte in
+            (0x21 ... 0x7E).contains(byte)
+        }
+    }
+
+    static func isReviewedProductionSendServerURL(_ url: URL) -> Bool {
+        reviewedProductionSendOrigins.contains { canonical in
+            hasExactOrigin(url, canonical: canonical)
+        }
+    }
+
+    private static func hasExactOrigin(_ url: URL, canonical: URL) -> Bool {
+        guard isValidServerURL(url),
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let canonical = URLComponents(url: canonical, resolvingAgainstBaseURL: false)
+        else {
+            return false
+        }
+
+        return components.scheme?.lowercased() == canonical.scheme?.lowercased() &&
+            components.host?.lowercased() == canonical.host?.lowercased() &&
+            components.port == canonical.port
+    }
+
+    func tonAPIClient(configuration: URLSessionConfiguration? = nil) -> Client {
+        let transport = TonAPIURLSessionTransport(configuration: configuration)
         let middlewares: [any ClientMiddleware] = token.isEmpty ? [] : [TonAPIAuthorizationMiddleware(token: token)]
 
         return Client(
@@ -88,9 +344,24 @@ private extension URLRequest {
         body: HTTPBody?,
         baseURL: URL
     ) async throws {
+        let requestPath = request.path ?? ""
         guard
+            TonAPIClientFactory.isValidServerURL(baseURL),
             var baseURLComponents = URLComponents(string: baseURL.absoluteString),
-            let requestURLComponents = URLComponents(string: request.path ?? "")
+            let requestURLComponents = URLComponents(string: requestPath),
+            requestURLComponents.scheme == nil,
+            requestURLComponents.host == nil,
+            requestURLComponents.user == nil,
+            requestURLComponents.password == nil,
+            requestURLComponents.fragment == nil,
+            requestURLComponents.percentEncodedPath.hasPrefix("/"),
+            !requestURLComponents.percentEncodedPath.hasPrefix("//"),
+            let decodedPath = requestURLComponents.percentEncodedPath.removingPercentEncoding,
+            decodedPath.hasPrefix("/"),
+            !decodedPath.hasPrefix("//"),
+            !decodedPath.contains("\\"),
+            !decodedPath.split(separator: "/", omittingEmptySubsequences: false).contains("."),
+            !decodedPath.split(separator: "/", omittingEmptySubsequences: false).contains("..")
         else {
             throw TonAPITransportError.invalidRequestURL(
                 path: request.path ?? "<nil>",
@@ -99,7 +370,10 @@ private extension URLRequest {
             )
         }
 
-        baseURLComponents.percentEncodedPath += requestURLComponents.percentEncodedPath
+        // Valid server URLs may use either an empty path or a single trailing slash.
+        // The generated operation path is already absolute, so replacement avoids a
+        // double slash such as https://tonapi.io//v2/... without permitting base paths.
+        baseURLComponents.percentEncodedPath = requestURLComponents.percentEncodedPath
         baseURLComponents.percentEncodedQuery = requestURLComponents.percentEncodedQuery
 
         guard let resolvedURL = baseURLComponents.url else {
@@ -118,7 +392,10 @@ private extension URLRequest {
         }
 
         if let body {
-            httpBody = try await Data(collecting: body, upTo: .max)
+            httpBody = try await Data(
+                collecting: body,
+                upTo: TonAPITransportPolicy.maximumRequestBodyBytes
+            )
         }
     }
 }
@@ -248,12 +525,22 @@ final class ChainRegistry {
                 do {
                     switch change {
                     case let .insert(newChain):
-                        try self.handleInsert(newChain)
+                        if !newChain.disabled {
+                            try self.handleInsert(newChain)
+                        }
                     case let .update(updatedChain):
                         let currentChain = self.chains.first { $0.chainId == updatedChain.chainId }
-                        if let chain = currentChain,
-                           chain.nodes != updatedChain.nodes || chain.selectedNode != updatedChain.selectedNode {
-                            try self.handleUpdate(updatedChain)
+                        if updatedChain.disabled {
+                            if currentChain != nil {
+                                self.handleDelete(updatedChain.chainId)
+                            }
+                        } else if let chain = currentChain {
+                            if chain.nodes != updatedChain.nodes ||
+                                chain.selectedNode != updatedChain.selectedNode {
+                                try self.handleUpdate(updatedChain)
+                            }
+                        } else {
+                            try self.handleInsert(updatedChain)
                         }
                     case let .delete(chainId):
                         self.handleDelete(chainId)
@@ -349,14 +636,18 @@ final class ChainRegistry {
         }
 
         clearRuntimeSubscription(for: updatedChain.chainId)
+        runtimeProviderPool.destroyRuntimeProvider(for: updatedChain.chainId)
+        runtimeSyncService.unregister(chainId: updatedChain.chainId)
+        substrateConnectionPool.resetConnection(for: updatedChain.chainId)
+        chains = chains.filter { $0.chainId != updatedChain.chainId }
 
         let connection = try substrateConnectionPool.setupConnection(for: updatedChain)
         let chainTypes = chainsTypesMap[updatedChain.chainId]
 
         runtimeProviderPool.setupRuntimeProvider(for: updatedChain, chainTypes: chainTypes)
+        runtimeSyncService.register(chain: updatedChain, with: connection)
         setupRuntimeVersionSubscription(for: updatedChain, connection: connection)
 
-        chains = chains.filter { $0.chainId != updatedChain.chainId }
         chains.append(updatedChain)
     }
 
@@ -364,6 +655,7 @@ final class ChainRegistry {
         runtimeProviderPool.destroyRuntimeProvider(for: chainId)
         clearRuntimeSubscription(for: chainId)
         runtimeSyncService.unregister(chainId: chainId)
+        resetSubstrateConnection(for: chainId)
         chains = chains.filter { $0.chainId != chainId }
     }
 
@@ -395,13 +687,15 @@ final class ChainRegistry {
             return
         }
 
+        ethereumConnectionPool.resetConnection(for: updatedChain.chainId)
+        chains = chains.filter { $0.chainId != updatedChain.chainId }
+
         do {
             _ = try ethereumConnectionPool.setupConnection(for: updatedChain)
         } catch {
             logger?.customError(error)
         }
 
-        chains = chains.filter { $0.chainId != updatedChain.chainId }
         chains.append(updatedChain)
     }
 
@@ -422,8 +716,7 @@ final class ChainRegistry {
         chains = chains.filter { $0.chainId != chain.chainId }
         chains.append(chain)
 
-        let token = currentTonApiKey
-        guard let node = Self.resolveTonNode(for: chain) else {
+        guard let baseURL = try? Self.tonAPIBaseURL(for: chain) else {
             logger?.error("Missing TON node URL")
             if tonApiChainId == chain.chainId {
                 tonApiClientFactory = nil
@@ -440,7 +733,8 @@ final class ChainRegistry {
             return
         }
 
-        tonApiClientFactory = TonAPIClientFactory(tonAPIURL: node.url, token: token)
+        let token = TonAPIClientFactory.canAttachAuthorization(to: baseURL) ? currentTonApiKey : ""
+        tonApiClientFactory = TonAPIClientFactory(tonAPIURL: baseURL, token: token)
         tonApiChainId = chain.chainId
     }
 
@@ -569,12 +863,13 @@ extension ChainRegistry: ChainRegistryProtocol {
                 return cachedTonApiClientFactory
             }
 
-            guard let node = Self.resolveTonNode(for: selectedTonChain) else {
+            guard let baseURL = try? Self.tonAPIBaseURL(for: selectedTonChain) else {
                 logger?.error("Missing TON node URL")
                 return nil
             }
 
-            return TonAPIClientFactory(tonAPIURL: node.url, token: currentTonApiKey)
+            let token = TonAPIClientFactory.canAttachAuthorization(to: baseURL) ? currentTonApiKey : ""
+            return TonAPIClientFactory(tonAPIURL: baseURL, token: token)
         }
 
         guard let resolvedTonApiClientFactory else {
@@ -582,6 +877,26 @@ extension ChainRegistry: ChainRegistryProtocol {
         }
 
         return resolvedTonApiClientFactory
+    }
+
+    /// Creates a client for the exact chain being sent from. This deliberately does not use
+    /// the environment-toggle/global TON selection used by balance subscriptions.
+    func getTonApiClientFactory(for chain: ChainModel) throws -> TonAPIClientFactory {
+        let baseURL = try Self.tonAPIBaseURL(for: chain)
+        guard TonAPIClientFactory.isReviewedProductionSendServerURL(baseURL) else {
+            throw ChainRegistryError.connectionUnavailable
+        }
+        let token = TonAPIClientFactory.canAttachAuthorization(to: baseURL) ? currentTonApiKey : ""
+        return TonAPIClientFactory(tonAPIURL: baseURL, token: token)
+    }
+
+    static func tonAPIBaseURL(for chain: ChainModel) throws -> URL {
+        guard let node = resolveTonNode(for: chain),
+              TonAPIClientFactory.isValidServerURL(node.url)
+        else {
+            throw ChainRegistryError.connectionUnavailable
+        }
+        return node.url
     }
 
     func chainsSubscribe(

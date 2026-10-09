@@ -1,6 +1,12 @@
 "NSCameraUsageDescription" = "Máy ảnh được sử dụng để chụp mã QR";
 "NSFaceIDUsageDescription" = "Fearless sử dụng Face ID để hạn chế người dùng trái phép truy cập vào ứng dụng. Face ID được sử dụng để xác thực truy cập ứng dụng";
 "NSPhotoLibraryAddUsageDescription" = "Lưu yêu cầu chuyển dưới dạng mã QR";
+"ton.transfer.unknown.title" = "Không xác định được trạng thái chuyển tiền";
+"ton.transfer.unknown.message" = "Mạng có thể đã chấp nhận giao dịch này. Không gửi lại. Hãy lưu mã băm thông điệp này và kiểm tra trạng thái trước khi thực hiện hành động khác:\n%@";
+"ton.transfer.unknown.copy_hash" = "Sao chép mã băm thông điệp";
+"ton.transfer.prior_confirmed.title" = "Giao dịch trước đã được xác nhận";
+"ton.transfer.prior_confirmed.message" = "Một giao dịch trước đã được xác nhận. Giao dịch mới này chưa được gửi. Hãy xem lại và xác nhận mã băm trước đó trước khi xác nhận lại:\n%@";
+"ton.transfer.prior_confirmed.acknowledge" = "Xác nhận và tính lại phí";
 "NSPhotoLibraryUsageDescription" = "Tải ảnh từ thư viện";
 "about.announcement" = "Nhận thông báo";
 "about.ask.for.support" = "Yêu cầu hỗ trợ";
@@ -799,6 +805,7 @@ Xin lưu ý rằng việc ký giao dịch này sẽ phải chịu phí giao dị
 "staking.analytics.period.all" = "Tất cả";
 "staking.analytics.rewards.empty.message" = "Không có phần thưởng\
 trong khoảng thời gian đã chọn";
+"staking.analytics.received.rewards" = "Phần thưởng đã nhận";
 "staking.analytics.stake.allocation" = "Phân bổ validator hiện tại";
 "staking.analytics.stake.empty.message" = "Stake của bạn thay đổi\
 sẽ xuất hiện ở đây";

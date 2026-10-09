@@ -1,6 +1,12 @@
 "NSCameraUsageDescription" = "A câmara é usada para capturar o código QR";
 "NSFaceIDUsageDescription" = "Identificação facial usada para autorização na aplicação";
 "NSPhotoLibraryAddUsageDescription" = "Guardar pedido de transferência como um código QR";
+"ton.transfer.unknown.title" = "O estado da transferência é desconhecido";
+"ton.transfer.unknown.message" = "A rede pode ter aceitado esta transferência. Não a envie novamente. Guarde este hash da mensagem e verifique o estado antes de continuar:\n%@";
+"ton.transfer.unknown.copy_hash" = "Copiar hash da mensagem";
+"ton.transfer.prior_confirmed.title" = "Transferência anterior confirmada";
+"ton.transfer.prior_confirmed.message" = "Uma transferência anterior foi confirmada. Esta nova transferência não foi enviada. Revise e confirme o hash anterior antes de confirmar novamente:\n%@";
+"ton.transfer.prior_confirmed.acknowledge" = "Confirmar e recalcular a taxa";
 "NSPhotoLibraryUsageDescription" = "Fazer upload de fotos da biblioteca";
 "about.announcement" = "Receber Alertas";
 "about.ask.for.support" = "Pedir Apoio";
@@ -804,6 +810,7 @@ Estes documentos são cruciais para uma experiência segura e positiva do utiliz
 "staking.analytics.period.all" = "Tudo";
 "staking.analytics.rewards.empty.message" = "Sem recompensas recebidas\
 para o período selecionado";
+"staking.analytics.received.rewards" = "Recompensas recebidas";
 "staking.analytics.stake.allocation" = "Alocação com validadores atuais";
 "staking.analytics.stake.empty.message" = "As suas alterações de stake\
 aparecerão aqui";

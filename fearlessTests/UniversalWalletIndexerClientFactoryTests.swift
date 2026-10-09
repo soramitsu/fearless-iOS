@@ -4,7 +4,10 @@ import XCTest
 final class UniversalWalletIndexerClientFactoryTests: XCTestCase {
     func testCreatesClientsOverSharedTransport() async throws {
         let transport = FakeUniversalWalletHTTPTransport()
-        let factory = UniversalWalletIndexerClientFactory(transport: transport)
+        let factory = UniversalWalletIndexerClientFactory(
+            transport: transport,
+            irohaTransport: transport
+        )
 
         transport.enqueue(Self.bitcoinAddressJSON)
         _ = try await factory.bitcoinClient().address(address: Self.bitcoinAddress)
@@ -15,7 +18,7 @@ final class UniversalWalletIndexerClientFactoryTests: XCTestCase {
         XCTAssertEqual(transport.requests.map { $0.url?.host }, ["blockstream.info", "si.soramitsu.io"])
     }
 
-    private final class FakeUniversalWalletHTTPTransport: UniversalWalletHTTPTransport {
+    private final class FakeUniversalWalletHTTPTransport: IrohaToriiHTTPTransport {
         private var queuedResponses: [Data] = []
         private(set) var requests: [URLRequest] = []
 
@@ -26,6 +29,10 @@ final class UniversalWalletIndexerClientFactoryTests: XCTestCase {
         func perform(_ request: URLRequest) async throws -> Data {
             requests.append(request)
             return queuedResponses.isEmpty ? Data("{}".utf8) : queuedResponses.removeFirst()
+        }
+
+        func performResponse(_ request: URLRequest) async throws -> UniversalWalletHTTPResponse {
+            UniversalWalletHTTPResponse(data: try await perform(request), headers: [:])
         }
     }
 

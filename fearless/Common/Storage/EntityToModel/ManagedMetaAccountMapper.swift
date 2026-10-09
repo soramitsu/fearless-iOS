@@ -51,6 +51,10 @@ extension ManagedMetaAccountMapper: CoreDataMapperProtocol {
 
             order = maybeLastItem?.order ?? 0
 
+            guard order < Int32.max else {
+                throw MetaAccountMapperError.walletOrderOverflow
+            }
+
             entity.order = order + 1
         } else {
             entity.order = Int32(bitPattern: model.order)

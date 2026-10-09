@@ -1,6 +1,12 @@
 "NSCameraUsageDescription" = "The camera is used to capture QR codes";
 "NSFaceIDUsageDescription" = "Fearless uses Face ID to restrict unauthorized users from accessing the app. Face ID is used to authorize within the application";
 "NSPhotoLibraryAddUsageDescription" = "Save transfer request as a QR code";
+"ton.transfer.unknown.title" = "Transfer status is unknown";
+"ton.transfer.unknown.message" = "The network may have accepted this transfer. Do not send it again. Save this message hash and check its status before taking further action:\n%@";
+"ton.transfer.unknown.copy_hash" = "Copy message hash";
+"ton.transfer.prior_confirmed.title" = "Previous transfer confirmed";
+"ton.transfer.prior_confirmed.message" = "A previous transfer was confirmed. This new transfer was not sent. Review and acknowledge the previous hash before confirming again:\n%@";
+"ton.transfer.prior_confirmed.acknowledge" = "Acknowledge and recalculate fee";
 "NSPhotoLibraryUsageDescription" = "Load photos from library";
 "about.announcement" = "Receive Announcements";
 "about.ask.for.support" = "Ask for Support";
@@ -793,6 +799,7 @@ Terms and Conditions and Privacy Policy";
 "staking.analytics.period.all" = "All";
 "staking.analytics.rewards.empty.message" = "No rewards received\
 for the selected period";
+"staking.analytics.received.rewards" = "Received rewards";
 "staking.analytics.stake.allocation" = "Allocation with current validators";
 "staking.analytics.stake.empty.message" = "Your stake changes\
 will appear here";

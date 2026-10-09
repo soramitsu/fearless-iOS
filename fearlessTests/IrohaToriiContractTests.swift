@@ -18,21 +18,21 @@ final class IrohaToriiContractTests: XCTestCase {
                 accountID: Self.account,
                 limit: 25,
                 countMode: .bounded,
-                asset: "xor#sora",
+                asset: Self.assetDefinitionId,
                 scope: "global"
             ).absoluteString,
-            "https://taira.sora.org/v1/accounts/\(Self.encodedAccount)/assets?limit=25&count_mode=bounded&asset=xor%23sora&scope=global"
+            "https://taira.sora.org/v1/accounts/\(Self.encodedAccount)/assets?limit=25&count_mode=bounded&asset=\(Self.assetDefinitionId)&scope=global"
         )
         XCTAssertEqual(
-            try IrohaToriiRoutes.assetDefinitionsURL().absoluteString,
-            "https://taira.sora.org/v1/assets/definitions"
+            try IrohaToriiRoutes.assetDefinitionsURL(
+                limit: IrohaToriiRoutes.maxLimit,
+                offset: 0,
+                countMode: .bounded
+            ).absoluteString,
+            "https://taira.sora.org/v1/assets/definitions?limit=500&offset=0&count_mode=bounded"
         )
         XCTAssertEqual(
-            try IrohaToriiRoutes.submitTransactionURL().absoluteString,
-            "https://taira.sora.org/v1/pipeline/transactions"
-        )
-        XCTAssertEqual(
-            try IrohaToriiRoutes.transactionStatusURL(hash: "0x\(Self.hash)", scope: .global).absoluteString,
+            try IrohaToriiRoutes.transactionStatusURL(hash: Self.hash, scope: .global).absoluteString,
             "https://taira.sora.org/v1/pipeline/transactions/status?hash=\(Self.hash)&scope=global"
         )
         XCTAssertEqual(
@@ -51,6 +51,16 @@ final class IrohaToriiContractTests: XCTestCase {
         XCTAssertThrowsError(try IrohaToriiRoutes.normalizeBaseURL("not a url")) { error in
             XCTAssertEqual(error as? IrohaToriiRouteError, .invalidBaseURL)
         }
+        for unsafeBaseURL in [
+            "https://user:secret@taira.sora.org",
+            "https://taira.sora.org?route=attacker",
+            "https://taira.sora.org#route",
+            "ftp://localhost:8080"
+        ] {
+            XCTAssertThrowsError(try IrohaToriiRoutes.normalizeBaseURL(unsafeBaseURL)) { error in
+                XCTAssertEqual(error as? IrohaToriiRouteError, .invalidBaseURL)
+            }
+        }
         XCTAssertEqual(
             try IrohaToriiRoutes.requireToriiBaseURL(UniversalWalletRegistry.nexus),
             "https://minamoto.sora.org"
@@ -64,8 +74,18 @@ final class IrohaToriiContractTests: XCTestCase {
         XCTAssertThrowsError(try IrohaToriiRoutes.accountAssetsURL(accountID: Self.account, asset: "../bad")) { error in
             XCTAssertEqual(error as? IrohaToriiRouteError, .invalidAsset)
         }
+        XCTAssertThrowsError(try IrohaToriiRoutes.accountAssetsURL(accountID: Self.account, asset: "xor#universal")) { error in
+            XCTAssertEqual(error as? IrohaToriiRouteError, .invalidAsset)
+        }
         XCTAssertThrowsError(try IrohaToriiRoutes.accountAssetsURL(accountID: Self.account, scope: "bad/scope")) { error in
             XCTAssertEqual(error as? IrohaToriiRouteError, .invalidScope)
+        }
+        for scope in ["rewards", "dataspace:01", "dataspace:18446744073709551616"] {
+            XCTAssertThrowsError(
+                try IrohaToriiRoutes.accountAssetsURL(accountID: Self.account, scope: scope)
+            ) { error in
+                XCTAssertEqual(error as? IrohaToriiRouteError, .invalidScope)
+            }
         }
         XCTAssertThrowsError(try IrohaToriiRoutes.accountsURL(limit: 0)) { error in
             XCTAssertEqual(error as? IrohaToriiRouteError, .invalidLimit)
@@ -79,11 +99,35 @@ final class IrohaToriiContractTests: XCTestCase {
         XCTAssertThrowsError(try IrohaToriiRoutes.transactionStatusURL(hash: "not-a-hash")) { error in
             XCTAssertEqual(error as? IrohaToriiRouteError, .invalidHash)
         }
+        XCTAssertThrowsError(
+            try IrohaToriiRoutes.transactionStatusURL(hash: String(repeating: "a", count: 64))
+        ) { error in
+            XCTAssertEqual(error as? IrohaToriiRouteError, .invalidHash)
+        }
+        for nonCanonicalHash in ["0x\(Self.hash)", Self.hash.uppercased(), " \(Self.hash)"] {
+            XCTAssertThrowsError(try IrohaToriiRoutes.transactionStatusURL(hash: nonCanonicalHash)) { error in
+                XCTAssertEqual(error as? IrohaToriiRouteError, .invalidHash)
+            }
+        }
         XCTAssertThrowsError(try IrohaToriiRoutes.mcpJSONRPCRequest(method: "tools/list", id: "../bad")) { error in
             XCTAssertEqual(error as? IrohaToriiRouteError, .invalidJSONRPCID)
         }
         XCTAssertThrowsError(try IrohaToriiRoutes.mcpJSONRPCRequest(method: "../bad", id: "1")) { error in
             XCTAssertEqual(error as? IrohaToriiRouteError, .invalidMCPMethod)
+        }
+    }
+
+    func testRejectsPaddedAssetDefinitionIdentifiersWithoutCanonicalizing() {
+        for paddedAssetDefinitionId in [
+            " \(Self.assetDefinitionId)",
+            "\(Self.assetDefinitionId) ",
+            "\n\(Self.assetDefinitionId)\t"
+        ] {
+            XCTAssertThrowsError(
+                try IrohaToriiRoutes.normalizeAssetDefinitionId(paddedAssetDefinitionId)
+            ) { error in
+                XCTAssertEqual(error as? IrohaToriiRouteError, .invalidAsset)
+            }
         }
     }
 
@@ -93,7 +137,7 @@ final class IrohaToriiContractTests: XCTestCase {
           "items": [
             {
               "account_id": "\(Self.account)",
-              "asset": "xor#sora",
+              "asset": "\(Self.assetDefinitionId)",
               "quantity": "340282366920938463463374607431768211455",
               "scope": "global"
             }
@@ -115,15 +159,15 @@ final class IrohaToriiContractTests: XCTestCase {
         {
           "hash": "\(Self.hash)",
           "status": {
-            "kind": "committed",
+            "kind": "Committed",
             "block_height": 42
           },
           "scope": "global",
-          "resolved_from": "pipeline"
+          "resolved_from": "state"
         }
         """
         let status = try JSONDecoder().decode(IrohaPipelineTransactionStatusResponse.self, from: Data(statusJSON.utf8))
-        XCTAssertEqual(status.status.kind, "committed")
+        XCTAssertEqual(status.status.kind, .committed)
         XCTAssertEqual(status.status.blockHeight, 42)
 
         let request = try IrohaToriiRoutes.mcpJSONRPCRequest(
@@ -140,5 +184,6 @@ final class IrohaToriiContractTests: XCTestCase {
 
     private static let account = "testuﾛ1Pcﾅ2ﾗtﾉaﾘLﾕｽ2MヱﾐﾎｳﾓヱﾇﾆｲMﾒSﾏﾑヱﾇJヱFmJﾇMs6YN687Y"
     private static let encodedAccount = "testu%EF%BE%9B1Pc%EF%BE%852%EF%BE%97t%EF%BE%89a%EF%BE%98L%EF%BE%95%EF%BD%BD2M%E3%83%B1%EF%BE%90%EF%BE%8E%EF%BD%B3%EF%BE%93%E3%83%B1%EF%BE%87%EF%BE%86%EF%BD%B2M%EF%BE%92S%EF%BE%8F%EF%BE%91%E3%83%B1%EF%BE%87J%E3%83%B1FmJ%EF%BE%87Ms6YN687Y"
-    private static let hash = String(repeating: "a", count: 64)
+    private static let hash = String(repeating: "a", count: 63) + "1"
+    private static let assetDefinitionId = "6TEAJqbb8oEPmLncoNiMRbLEK6tw"
 }

@@ -3,12 +3,10 @@ import Foundation
 // TODO: Move this logic to app loading state
 extension UserStorageMigrator: Migrating {
     func migrate() throws {
-        guard requiresMigration() else {
-            return
+        let migrationPerformed = try performMigration()
+
+        if migrationPerformed {
+            Logger.shared.info("Db migration completed")
         }
-
-        performMigration()
-
-        Logger.shared.info("Db migration completed")
     }
 }

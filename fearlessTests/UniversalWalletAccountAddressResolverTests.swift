@@ -111,6 +111,56 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         XCTAssertNil(address)
     }
 
+    func testResolvesRealTonMainnetAddressFromMatchingChainAccountPublicKey() throws {
+        let account = try TonKeyDerivation.deriveAccount(mnemonic: Self.mnemonic)
+        let wallet = walletWithChainAccount(
+            chainId: TonChainSelection.mainnetChainId,
+            publicKey: account.publicKey,
+            cryptoType: CryptoType.ed25519.rawValue
+        )
+
+        let address = UniversalWalletAccountAddressResolver.address(
+            for: Self.chain(TonChainSelection.mainnetChainId),
+            wallet: wallet
+        )
+
+        XCTAssertEqual(address, account.addressNonBounceable)
+    }
+
+    func testTonAddressResolutionRejectsMissingMalformedAndTestnetAccounts() throws {
+        XCTAssertNil(
+            UniversalWalletAccountAddressResolver.address(
+                for: Self.chain(TonChainSelection.mainnetChainId),
+                wallet: AccountGenerator.generateMetaAccount()
+            )
+        )
+
+        let malformed = walletWithChainAccount(
+            chainId: TonChainSelection.mainnetChainId,
+            publicKey: Data(repeating: 1, count: 31),
+            cryptoType: CryptoType.ed25519.rawValue
+        )
+        XCTAssertNil(
+            UniversalWalletAccountAddressResolver.address(
+                for: Self.chain(TonChainSelection.mainnetChainId),
+                wallet: malformed
+            )
+        )
+
+        let account = try TonKeyDerivation.deriveAccount(mnemonic: Self.mnemonic)
+        let testnetOnly = walletWithChainAccount(
+            chainId: TonChainSelection.testnetChainId,
+            publicKey: account.publicKey,
+            cryptoType: CryptoType.ed25519.rawValue
+        )
+        XCTAssertNil(
+            UniversalWalletAccountAddressResolver.address(
+                for: Self.chain(TonChainSelection.mainnetChainId),
+                wallet: testnetOnly
+            )
+        )
+    }
+
     func testSolanaAddressResolutionRejectsMalformedPublicKey() {
         let wallet = walletWithChainAccount(
             chainId: UniversalWalletRegistry.solanaMainnet.chainId,
@@ -224,12 +274,141 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         XCTAssertNil(address)
     }
 
+    func testIrohaAddressResolutionRejectsAliasesCaseMutationsAndUnknownIdentifiers() throws {
+        let account = try IrohaKeyDerivation.deriveAccount(mnemonic: Self.mnemonic)
+        let canonicalChainId = UniversalWalletRegistry.taira.chainId
+        let wallet = walletWithChainAccount(
+            chainId: canonicalChainId,
+            publicKey: account.publicKey,
+            cryptoType: CryptoType.ed25519.rawValue
+        )
+
+        for nonCanonicalChainId in [
+            UniversalWalletRegistry.taira.id,
+            UniversalWalletRegistry.taira.id.uppercased(),
+            canonicalChainId.uppercased(),
+            UniversalWalletRegistry.nexus.id,
+            UniversalWalletRegistry.nexus.id.uppercased(),
+            "iroha3-taira",
+            "IROHA3-TAIRA",
+            "unknown-iroha-chain"
+        ] {
+            let chain = Self.chain(
+                nonCanonicalChainId,
+                assets: nonCanonicalChainId == "unknown-iroha-chain" ? [Self.irohaAsset] : []
+            )
+            XCTAssertEqual(
+                UniversalWalletChainAccountSupport.isNonCanonicalIrohaIdentity(
+                    nonCanonicalChainId
+                ),
+                nonCanonicalChainId != "unknown-iroha-chain"
+            )
+            XCTAssertFalse(UniversalWalletChainAccountSupport.isUniversalWalletChain(nonCanonicalChainId))
+            XCTAssertEqual(
+                UniversalWalletChainAccountSupport.canonicalChainId(for: nonCanonicalChainId),
+                nonCanonicalChainId
+            )
+            XCTAssertFalse(
+                UniversalWalletChainAccountSupport.chainId(canonicalChainId, matches: nonCanonicalChainId)
+            )
+            XCTAssertFalse(
+                UniversalWalletChainAccountSupport.chainId(nonCanonicalChainId, matches: canonicalChainId)
+            )
+            XCTAssertNil(
+                UniversalWalletChainAccountSupport.address(
+                    for: nonCanonicalChainId,
+                    publicKey: account.publicKey
+                )
+            )
+            XCTAssertNil(
+                UniversalWalletAccountAddressResolver.address(
+                    for: chain,
+                    wallet: wallet
+                )
+            )
+        }
+
+        let aliasWallet = walletWithChainAccount(
+            chainId: UniversalWalletRegistry.taira.id,
+            publicKey: account.publicKey,
+            cryptoType: CryptoType.ed25519.rawValue
+        )
+        XCTAssertNil(
+            UniversalWalletAccountAddressResolver.address(
+                for: Self.chain(canonicalChainId),
+                wallet: aliasWallet
+            )
+        )
+        XCTAssertNil(
+            UniversalWalletAccountAddressResolver.address(
+                for: Self.chain(UniversalWalletRegistry.taira.id),
+                wallet: aliasWallet
+            )
+        )
+        XCTAssertNil(
+            aliasWallet.fetch(for: Self.chain(UniversalWalletRegistry.taira.id).accountRequest())
+        )
+    }
+
+    func testIrohaAddressResolutionRejectsWhitespaceWrappedKnownIdentities() throws {
+        let account = try IrohaKeyDerivation.deriveAccount(mnemonic: Self.mnemonic)
+        let wallet = walletWithChainAccount(
+            chainId: UniversalWalletRegistry.taira.chainId,
+            publicKey: account.publicKey,
+            cryptoType: CryptoType.ed25519.rawValue
+        )
+        let whitespaceWrappedIdentities = [
+            " \(UniversalWalletRegistry.taira.id) ",
+            "\n\(UniversalWalletRegistry.taira.chainId)\t",
+            "\t\(UniversalWalletRegistry.taira.chainId.uppercased())\n",
+            " \(UniversalWalletRegistry.nexus.id)\n",
+            "\r\n\(UniversalWalletRegistry.nexus.chainId) ",
+            " iroha3-taira ",
+            "\tIROHA3-TAIRA\n"
+        ]
+
+        for chainId in whitespaceWrappedIdentities {
+            let chain = Self.chain(chainId)
+
+            XCTAssertTrue(
+                UniversalWalletChainAccountSupport.isNonCanonicalIrohaIdentity(chainId)
+            )
+            XCTAssertFalse(
+                UniversalWalletChainAccountSupport.isUniversalWalletChain(chainId)
+            )
+            XCTAssertNil(wallet.fetch(for: chain.accountRequest()))
+            XCTAssertNil(
+                UniversalWalletAccountAddressResolver.address(
+                    for: chain,
+                    wallet: wallet
+                )
+            )
+        }
+
+        for canonicalChainId in [
+            UniversalWalletRegistry.taira.chainId,
+            UniversalWalletRegistry.nexus.chainId
+        ] {
+            XCTAssertFalse(
+                UniversalWalletChainAccountSupport.isNonCanonicalIrohaIdentity(
+                    canonicalChainId
+                )
+            )
+            XCTAssertTrue(
+                UniversalWalletChainAccountSupport.isUniversalWalletChain(
+                    canonicalChainId
+                )
+            )
+        }
+    }
+
     func testFetchFailsClosedForUniversalWalletChainWithoutMatchingChainAccount() {
         let wallet = AccountGenerator.generateMetaAccount()
 
         XCTAssertNil(wallet.fetch(for: Self.chain(UniversalWalletRegistry.bitcoinMainnet.chainId).accountRequest()))
         XCTAssertNil(wallet.fetch(for: Self.chain(UniversalWalletRegistry.solanaMainnet.chainId).accountRequest()))
         XCTAssertNil(wallet.fetch(for: Self.chain(UniversalWalletRegistry.taira.chainId).accountRequest()))
+        XCTAssertNil(wallet.fetch(for: Self.chain(TonChainSelection.mainnetChainId).accountRequest()))
     }
 
     func testFetchMatchesRegistryIdToCanonicalUniversalWalletChainAccount() throws {
@@ -270,7 +449,7 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
             cryptoType: CryptoType.ed25519.rawValue
         )
         let irohaAddress = try XCTUnwrap(
-            irohaWallet.fetch(for: Self.chain(UniversalWalletRegistry.nexus.id).accountRequest())?.toAddress()
+            irohaWallet.fetch(for: Self.chain(UniversalWalletRegistry.nexus.chainId).accountRequest())?.toAddress()
         )
         XCTAssertEqual(
             try IrohaAddressCodec.parse(
@@ -352,7 +531,10 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         return AccountGenerator.generateMetaAccount(with: [account])
     }
 
-    private static func chain(_ chainId: String) -> ChainModel {
+    private static func chain(
+        _ chainId: String,
+        assets: Set<AssetModel> = []
+    ) -> ChainModel {
         ChainModel(
             rank: nil,
             disabled: false,
@@ -360,7 +542,7 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
             parentId: nil,
             paraId: nil,
             name: "Test",
-            assets: [],
+            assets: assets,
             xcm: nil,
             nodes: [
                 ChainNodeModel(
@@ -380,6 +562,14 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
     }
 
     private static let mnemonic = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+    private static let irohaAsset = AssetModel(
+        id: UniversalWalletRegistry.tairaXorAssetDefinitionId,
+        name: "XOR",
+        symbol: "XOR",
+        precision: 9,
+        isUtility: true,
+        isNative: true
+    )
 }
 
 private final class AccountFetchingHarness: AccountFetching {}

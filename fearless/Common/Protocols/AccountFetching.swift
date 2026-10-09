@@ -73,13 +73,15 @@ extension AccountFetching {
             return true
         }
 
-        guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) else {
+        guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId),
+              !UniversalWalletChainAccountSupport.isNonCanonicalIrohaIdentity(chain.chainId) else {
             closure(.failure(ChainAccountFetchingError.accountNotExists))
             return false
         }
 
         for chainAccount in meta.chainAccounts {
-            guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(chainAccount.chainId) else {
+            guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(chainAccount.chainId),
+                  !UniversalWalletChainAccountSupport.isNonCanonicalIrohaIdentity(chainAccount.chainId) else {
                 continue
             }
 
@@ -164,14 +166,16 @@ extension AccountFetching {
                             responses.append(nativeChainAccount)
                         }
 
-                        guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) else {
+                        guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId),
+                              !UniversalWalletChainAccountSupport.isNonCanonicalIrohaIdentity(chain.chainId) else {
                             continue
                         }
 
                         for chainAccount in meta.chainAccounts {
                             guard
                                 chainAccount.chainId != chain.chainId,
-                                !UniversalWalletChainAccountSupport.isUniversalWalletChain(chainAccount.chainId)
+                                !UniversalWalletChainAccountSupport.isUniversalWalletChain(chainAccount.chainId),
+                                !UniversalWalletChainAccountSupport.isNonCanonicalIrohaIdentity(chainAccount.chainId)
                             else {
                                 continue
                             }
@@ -223,12 +227,14 @@ extension AccountFetching {
                             return
                         }
 
-                        guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) else {
+                        guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId),
+                              !UniversalWalletChainAccountSupport.isNonCanonicalIrohaIdentity(chain.chainId) else {
                             continue
                         }
 
                         for chainAccount in meta.chainAccounts {
-                            guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(chainAccount.chainId) else {
+                            guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(chainAccount.chainId),
+                                  !UniversalWalletChainAccountSupport.isNonCanonicalIrohaIdentity(chainAccount.chainId) else {
                                 continue
                             }
 
