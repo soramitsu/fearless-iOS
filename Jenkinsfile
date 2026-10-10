@@ -1,4 +1,4 @@
-@Library('jenkins-library') _
+@Library('jenkins-library@feaature/DOPS-3049/add-vars-to-jira-workflow-func') _
 
 // Job properties
 def jobParams = [
