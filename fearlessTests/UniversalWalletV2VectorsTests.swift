@@ -1,7 +1,183 @@
-import XCTest
 @testable import fearless
+import IrohaCrypto
+import RobinHood
+import SoraKeystore
+import SSFModels
+import SSFUtils
+import XCTest
 
 final class UniversalWalletV2VectorsTests: XCTestCase {
+    func testTwelveWordMnemonicColdRestoreMatchesGoldenAddresses() throws {
+        try assertColdRestoreMatchesGoldenVector(id: "import12")
+    }
+
+    func testTwentyFourWordMnemonicColdRestoreMatchesGoldenAddresses() throws {
+        try assertColdRestoreMatchesGoldenVector(id: "default24")
+    }
+
+    func testLegacyMnemonicWalletsEnrollMissingNetworksFromPersistedRoot() throws {
+        for vector in try loadFixture().vectors {
+            let imported = try importGoldenWallet(vector)
+            let legacy = imported.wallet.replacingChainAccounts(Set(imported.wallet.chainAccounts.filter {
+                $0.chainId == UniversalWalletRegistry.bitcoinMainnet.chainId ||
+                    $0.chainId == UniversalWalletRegistry.taira.chainId
+            }))
+            let provider = KeychainUniversalWalletMnemonicProvider(keystore: imported.keystore)
+            let upgraded = try UniversalWalletAccountProvisioning.addingMissingAppOwnedAccounts(
+                to: legacy, mnemonic: XCTUnwrap(provider.rootMnemonic(for: legacy))
+            )
+            let persisted = try JSONDecoder().decode(MetaAccountModel.self, from: JSONEncoder().encode(upgraded))
+            XCTAssertTrue(legacy.chainAccounts.isSubset(of: persisted.chainAccounts))
+            XCTAssertEqual(persisted, imported.wallet)
+            XCTAssertEqual(try UniversalWalletAccountProvisioning.addingMissingAppOwnedAccounts(
+                to: persisted, mnemonic: vector.mnemonic), persisted)
+            _ = try goldenAddresses(for: persisted, keystore: imported.keystore, vector: vector)
+        }
+    }
+
+    private func assertColdRestoreMatchesGoldenVector(id: String) throws {
+        let vector = try XCTUnwrap(try loadFixture().vectors.first { $0.id == id })
+        let original = try importGoldenWallet(vector)
+        let restored = try importGoldenWallet(vector)
+
+        XCTAssertNotEqual(original.wallet.metaId, restored.wallet.metaId)
+        XCTAssertNil(
+            try KeychainUniversalWalletMnemonicProvider(keystore: restored.keystore)
+                .rootMnemonic(for: original.wallet),
+            "Restore must not depend on the original wallet's stored secrets"
+        )
+        XCTAssertEqual(
+            try goldenAddresses(for: original.wallet, keystore: original.keystore, vector: vector),
+            try goldenAddresses(for: restored.wallet, keystore: restored.keystore, vector: vector)
+        )
+    }
+
+    private func importGoldenWallet(
+        _ vector: UniversalWalletVector
+    ) throws -> (wallet: MetaAccountModel, keystore: InMemoryKeychain) {
+        let keystore = InMemoryKeychain()
+        let operation = try MetaAccountOperationFactory(keystore: keystore).newMetaAccountOperation(
+            request: MetaAccountImportMnemonicRequest(
+                mnemonic: IRMnemonicCreator().mnemonic(fromList: vector.mnemonic),
+                username: vector.id,
+                substrateDerivationPath: UniversalWalletDerivationPaths.substrateRoot,
+                ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
+                cryptoType: .sr25519,
+                defaultChainId: nil
+            ),
+            isBackuped: true
+        )
+        OperationQueue().addOperations([operation], waitUntilFinished: true)
+        let imported = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        let persisted = try JSONDecoder().decode(MetaAccountModel.self, from: JSONEncoder().encode(imported))
+        XCTAssertEqual(persisted, imported)
+        return (persisted, keystore)
+    }
+
+    private func goldenAddresses(
+        for wallet: MetaAccountModel,
+        keystore: InMemoryKeychain,
+        vector: UniversalWalletVector
+    ) throws -> [String: String] {
+        let provider = KeychainUniversalWalletMnemonicProvider(keystore: keystore)
+        let mnemonic = try XCTUnwrap(provider.rootMnemonic(for: wallet))
+        XCTAssertEqual(mnemonic, vector.mnemonic)
+        let substrate = try XCTUnwrap(vector.expected["substrate"] as? [String: Any])
+        let substrateKey = try XCTUnwrap(wallet.substratePublicKey)
+        XCTAssertEqual(substrateKey.hexString, substrate["publicKeyHex"] as? String)
+        XCTAssertEqual(wallet.substrateCryptoType, CryptoType.sr25519.rawValue)
+        let substrateAddress = try substrateKey.toAddress(using: .substrate(0))
+        XCTAssertEqual(substrateAddress, substrate["polkadotAddress"] as? String)
+
+        let evm = try XCTUnwrap(vector.expected["evm"] as? [String: Any])
+        let evmAddress = try XCTUnwrap(wallet.ethereumAddress).toAddress(using: .ethereum)
+        XCTAssertEqual(evmAddress.lowercased(), (evm["address"] as? String)?.lowercased())
+
+        let bitcoin = try XCTUnwrap(vector.expected["bitcoin"] as? [String: Any])
+        let bitcoinMainnet = try XCTUnwrap(bitcoin["mainnet"] as? [String: Any])
+        let bitcoinAddress = try XCTUnwrap(UniversalWalletAccountAddressResolver.address(
+            for: UniversalWalletRegistry.bitcoinMainnetChainModel, wallet: wallet
+        ))
+        XCTAssertEqual(bitcoinAddress, bitcoinMainnet["firstReceiveAddress"] as? String)
+        XCTAssertEqual(try provider.mnemonic(for: wallet, chain: UniversalWalletRegistry.bitcoinMainnetChainModel), mnemonic)
+
+        let iroha = try XCTUnwrap(vector.expected["iroha"] as? [String: Any])
+        let taira = try XCTUnwrap(iroha["taira"] as? [String: Any])
+        let nexus = try XCTUnwrap(iroha["nexus"] as? [String: Any])
+        let tairaAccount = try XCTUnwrap(wallet.chainAccounts.first {
+            UniversalWalletChainAccountSupport.isValidTairaAccount($0)
+        })
+        XCTAssertEqual(tairaAccount.publicKey.hexString, taira["publicKeyHex"] as? String)
+        let tairaAddress = try XCTUnwrap(UniversalWalletAccountAddressResolver.address(
+            for: UniversalWalletRegistry.tairaChainModel, wallet: wallet
+        ))
+        XCTAssertEqual(tairaAddress, taira["i105"] as? String)
+        XCTAssertEqual(try provider.mnemonic(for: wallet, chain: UniversalWalletRegistry.tairaChainModel), mnemonic)
+
+        // Exercise the real offline account row with an empty runtime registry.
+        let nexusRows = WalletDetailsViewModelFactory().buildNormalViewModel(
+            flow: .normal(wallet: wallet), chains: [], locale: Locale(identifier: "en"), searchText: "Nexus"
+        ).sections.flatMap(\.viewModels)
+        XCTAssertEqual(nexusRows.count, 1)
+        let nexusRow = try XCTUnwrap(nexusRows.first)
+        let nexusAddress = try XCTUnwrap(nexusRow.address)
+        XCTAssertEqual(nexusAddress, nexus["i105"] as? String)
+        XCTAssertEqual(nexusRow.account?.toAddress(), nexusAddress)
+        XCTAssertEqual(nexusRow.account?.publicKey.hexString, nexus["publicKeyHex"] as? String)
+        XCTAssertNotEqual(nexusAddress, tairaAddress)
+        XCTAssertTrue(nexusRow.chain.disabled)
+        XCTAssertTrue(nexusRow.chain.nodes.isEmpty)
+        XCTAssertFalse(UniversalWalletRegistry.nexus.enabledByDefault)
+        XCTAssertTrue(UniversalWalletRegistry.taira.enabledByDefault)
+
+        XCTAssertEqual(Set(wallet.chainAccounts.map(\.chainId)), [
+            UniversalWalletRegistry.bitcoinMainnet.chainId,
+            UniversalWalletRegistry.bitcoinTestnet.chainId,
+            UniversalWalletRegistry.solanaMainnet.chainId,
+            UniversalWalletRegistry.tonMainnetRegistryEntry.chainId,
+            UniversalWalletRegistry.taira.chainId
+        ])
+        let testnet = try XCTUnwrap(bitcoin["testnet"] as? [String: Any])
+        let solana = try XCTUnwrap(vector.expected["solana"] as? [String: Any])
+        let ton = try XCTUnwrap(vector.expected["ton"] as? [String: Any])
+        let cases = [
+            (UniversalWalletRegistry.bitcoinTestnet.chainId, testnet, "firstReceiveAddress"),
+            (UniversalWalletRegistry.solanaMainnet.chainId, solana, "address"),
+            (UniversalWalletRegistry.tonMainnetRegistryEntry.chainId, ton, "addressNonBounceable")
+        ]
+        var addresses = [
+            "substrate": substrateAddress, "evm": evmAddress, "bitcoin": bitcoinAddress,
+            "taira": tairaAddress, "nexus": nexusAddress
+        ]
+        for (chainId, expected, addressKey) in cases {
+            let chain = UniversalWalletAccountAddressResolverTests.chain(chainId)
+            let account = try XCTUnwrap(wallet.fetch(for: chain.accountRequest()))
+            XCTAssertTrue(account.isChainAccount)
+            if let expectedPublicKey = expected["publicKeyHex"] as? String {
+                XCTAssertEqual(account.publicKey.hexString, expectedPublicKey)
+            }
+            let address = try XCTUnwrap(UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet))
+            XCTAssertEqual(address, expected[addressKey] as? String)
+            XCTAssertEqual(account.toAddress(), address)
+            XCTAssertEqual(try provider.mnemonic(for: wallet, chain: chain), mnemonic)
+            addresses[chainId] = address
+        }
+        let tonChain = UniversalWalletAccountAddressResolverTests.chain(TonChainSelection.mainnetChainId)
+        let credentials = try provider.tonSigningCredentials(for: wallet, chain: tonChain)
+        XCTAssertNil(credentials.legacyNativePrivateKey)
+        let tonAddress = try XCTUnwrap(ton["addressNonBounceable"] as? String)
+        let signingAccount = try TonKeyDerivation.signingAccount(for: TonNativeSendRequest(
+            mnemonic: credentials.mnemonic,
+            senderAddress: tonAddress,
+            recipientAddress: tonAddress,
+            amountNanotons: "1",
+            bounce: false
+        ))
+        XCTAssertEqual(signingAccount.publicKey.hexString, ton["publicKeyHex"] as? String)
+        XCTAssertEqual(signingAccount.addressNonBounceable, tonAddress)
+        return addresses
+    }
+
     func testGoldenVectorsDefineEveryUniversalWalletEcosystem() throws {
         let fixture = try loadFixture()
 
@@ -251,7 +427,9 @@ final class UniversalWalletV2VectorsTests: XCTestCase {
             let account = try SolanaKeyDerivation.deriveAccount(mnemonic: vector.mnemonic)
 
             XCTAssertEqual(account.derivationPath, UniversalWalletDerivationPaths.solanaDefault)
-            XCTAssertEqual(account.publicKey.hexString, expected["publicKeyHex"] as? String)
+            if let expectedPublicKey = expected["publicKeyHex"] as? String {
+                XCTAssertEqual(account.publicKey.hexString, expectedPublicKey)
+            }
             XCTAssertEqual(account.address, expected["address"] as? String)
             XCTAssertEqual(account.privateKey.count, 32)
             XCTAssertEqual(account.chainCode.count, 32)

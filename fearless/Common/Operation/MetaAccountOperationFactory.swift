@@ -464,36 +464,17 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 ethereumBased: true
             )
 
-            let bitcoinAccount = try BitcoinKeyDerivation.deriveAccount(
-                mnemonic: request.mnemonic.toString(),
-                network: .mainnet
-            )
-            let bitcoinChainAccount = ChainAccountModel(
-                chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
-                accountId: bitcoinAccount.publicKey,
-                publicKey: bitcoinAccount.publicKey,
-                cryptoType: CryptoType.ecdsa.rawValue,
-                ethereumBased: false
-            )
-            let tairaAccount = try IrohaKeyDerivation.deriveAccount(
-                mnemonic: request.mnemonic.toString()
-            )
-            let tairaChainAccount = ChainAccountModel(
-                chainId: UniversalWalletRegistry.taira.chainId,
-                accountId: tairaAccount.publicKey,
-                publicKey: tairaAccount.publicKey,
-                cryptoType: CryptoType.ed25519.rawValue,
-                ethereumBased: false
-            )
-
-            let metaAccount = try createMetaAccount(
+            let baseMetaAccount = try createMetaAccount(
                 name: request.username,
                 substratePublicKey: substrateQuery.publicKey,
                 substrateCryptoType: request.cryptoType,
                 ethereumPublicKey: ethereumQuery.publicKey,
                 isBackuped: isBackuped,
-                defaultChainId: request.defaultChainId,
-                chainAccounts: [bitcoinChainAccount, tairaChainAccount]
+                defaultChainId: request.defaultChainId
+            )
+            let metaAccount = try UniversalWalletAccountProvisioning.addingMissingAppOwnedAccounts(
+                to: baseMetaAccount,
+                mnemonic: request.mnemonic.toString()
             )
 
             let metaId = metaAccount.metaId

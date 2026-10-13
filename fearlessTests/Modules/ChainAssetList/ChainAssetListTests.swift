@@ -342,7 +342,7 @@ final class ChainAssetListTests: XCTestCase {
         wait(for: [reload], timeout: Constants.defaultExpectationDuration)
 
         XCTAssertEqual(reloadedWallet, adoptedWallet)
-        XCTAssertEqual(reloadedWallet?.chainAccounts.count, 2)
+        XCTAssertEqual(reloadedWallet?.chainAccounts.count, 5)
     }
 
     func testMissingStoredSeedFailsVisiblyWithoutMutatingPersistedWallet() throws {
@@ -450,7 +450,7 @@ final class ChainAssetListTests: XCTestCase {
 
         XCTAssertEqual(savedWallet?.name, newerWallet.name)
         XCTAssertEqual(savedWallet?.unusedChainIds, newerWallet.unusedChainIds)
-        XCTAssertEqual(savedWallet?.chainAccounts.count, 2)
+        XCTAssertEqual(savedWallet?.chainAccounts.count, 5)
 
         let reloadedSettings = SelectedWalletSettings(
             storageFacade: storageFacade,
@@ -551,6 +551,25 @@ final class ChainAssetListTests: XCTestCase {
             mergedWallet.chainAccounts,
             adoptedWallet.chainAccounts
         )
+    }
+
+    func testStoredSeedAdoptionPreservesConcurrentDedicatedKeysForNewNetworks() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let adopted = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+            to: wallet, mnemonic: "legal winner thank year wave sausage worth useful legal winner thank yellow"
+        )
+        let independent = try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
+            to: wallet, mnemonic: "letter advice cage absurd amount doctor acoustic avoid letter advice cage above"
+        )
+        let dedicated = Set(independent.chainAccounts.filter {
+            $0.chainId != UniversalWalletRegistry.bitcoinMainnet.chainId &&
+                $0.chainId != UniversalWalletRegistry.taira.chainId
+        })
+        let current = wallet.replacingChainAccounts(dedicated)
+        let merged = try ChainAssetListInteractor.mergeStoredSeedAdoption(adopted, into: current)
+        XCTAssertTrue(dedicated.isSubset(of: merged.chainAccounts))
+        XCTAssertEqual(merged.chainAccounts.count, 5)
+        XCTAssertEqual(try ChainAssetListInteractor.mergeStoredSeedAdoption(adopted, into: merged), merged)
     }
 
     func testStoredSeedAdoptionRejectsConcurrentDifferentBitcoinAccount() throws {

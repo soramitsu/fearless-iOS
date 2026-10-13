@@ -298,7 +298,7 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         XCTAssertEqual(upgraded.substratePublicKey, imported.substratePublicKey)
         XCTAssertEqual(upgraded.ethereumAddress, imported.ethereumAddress)
         XCTAssertEqual(upgraded.ethereumPublicKey, imported.ethereumPublicKey)
-        XCTAssertEqual(upgraded.chainAccounts.count, imported.chainAccounts.count + 1)
+        XCTAssertEqual(upgraded.chainAccounts.count, imported.chainAccounts.count + 4)
         let taira = try XCTUnwrap(upgraded.chainAccounts.first {
             $0.chainId == UniversalWalletRegistry.taira.chainId
         })
@@ -320,8 +320,55 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         let wallet = AccountGenerator.generateMetaAccount(with: [existing])
         let upgraded = try UniversalWalletAccountProvisioning.addingMissingAppOwnedAccounts(to: wallet, mnemonic: Self.mnemonic)
         XCTAssertTrue(upgraded.chainAccounts.contains(existing))
-        XCTAssertEqual(upgraded.chainAccounts.count, 2)
+        XCTAssertEqual(upgraded.chainAccounts.count, 5)
         XCTAssertEqual(try UniversalWalletAccountProvisioning.addingMissingAppOwnedAccounts(to: upgraded, mnemonic: Self.mnemonic), upgraded)
+    }
+
+    func testAutomaticUpgradePreservesIndependentKeysForEveryNewNetworkAlias() throws {
+        let otherPhrase = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        let bitcoin = try BitcoinKeyDerivation.deriveAccount(mnemonic: otherPhrase, network: .testnet)
+        let solana = try SolanaKeyDerivation.deriveAccount(mnemonic: otherPhrase)
+        let ton = try TonKeyDerivation.deriveAccount(mnemonic: otherPhrase)
+        let existing: Set<ChainAccountModel> = [
+            ChainAccountModel(chainId: UniversalWalletRegistry.bitcoinTestnet.id,
+                accountId: bitcoin.publicKey, publicKey: bitcoin.publicKey,
+                cryptoType: CryptoType.ecdsa.rawValue, ethereumBased: false),
+            ChainAccountModel(chainId: UniversalWalletRegistry.solanaMainnet.id,
+                accountId: solana.publicKey, publicKey: solana.publicKey,
+                cryptoType: CryptoType.ed25519.rawValue, ethereumBased: false),
+            ChainAccountModel(chainId: TonChainSelection.mainnetChainId,
+                accountId: ton.publicKey, publicKey: ton.publicKey,
+                cryptoType: CryptoType.ed25519.rawValue, ethereumBased: false)
+        ]
+        let wallet = AccountGenerator.generateMetaAccount(with: existing)
+        let upgraded = try UniversalWalletAccountProvisioning.addingMissingAppOwnedAccounts(to: wallet, mnemonic: Self.mnemonic)
+        XCTAssertTrue(existing.isSubset(of: upgraded.chainAccounts))
+        XCTAssertEqual(upgraded.chainAccounts.count, 5)
+        XCTAssertEqual(try UniversalWalletAccountProvisioning.addingMissingAppOwnedAccounts(to: upgraded, mnemonic: Self.mnemonic), upgraded)
+        let keychain = InMemoryKeychain()
+        try keychain.saveKey(IRMnemonicCreator().mnemonic(fromList: Self.mnemonic).entropy(),
+                             with: fearless.KeystoreTagV2.entropyTagForMetaId(wallet.metaId))
+        let provider = KeychainUniversalWalletMnemonicProvider(keystore: keychain)
+        for account in existing {
+            XCTAssertEqual(upgraded.fetch(for: Self.chain(account.chainId).accountRequest())?.publicKey, account.publicKey)
+            XCTAssertNil(try provider.mnemonic(for: upgraded, chain: Self.chain(account.chainId)))
+            try keychain.saveKey(IRMnemonicCreator().mnemonic(fromList: otherPhrase).entropy(),
+                                 with: fearless.KeystoreTagV2.entropyTagForMetaId(wallet.metaId, accountId: account.accountId))
+            XCTAssertEqual(try provider.mnemonic(for: upgraded, chain: Self.chain(account.chainId)), otherPhrase)
+        }
+    }
+
+    func testAutomaticUpgradeNeverShadowsExistingNativeTonIdentity() throws {
+        var wallet = AccountGenerator.generateMetaAccount()
+        wallet.legacyTonAccount = try LegacyNativeTonFixture.account()
+        let upgraded = try UniversalWalletAccountProvisioning.addingMissingAppOwnedAccounts(to: wallet, mnemonic: Self.mnemonic)
+        XCTAssertEqual(upgraded.legacyTonAccount, wallet.legacyTonAccount)
+        XCTAssertFalse(upgraded.chainAccounts.contains {
+            UniversalWalletChainAccountSupport.chainId($0.chainId, matches: TonChainSelection.mainnetChainId)
+        })
+        XCTAssertEqual(upgraded.chainAccounts.count, 4)
+        XCTAssertEqual(UniversalWalletAccountAddressResolver.address(for: Self.chain(TonChainSelection.mainnetChainId), wallet: upgraded),
+                       wallet.legacyTonAccount?.address)
     }
 
     func testTairaProvisioningDoesNotReplaceDedicatedAccountFromAnotherPhrase() throws {
@@ -332,7 +379,7 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         XCTAssertThrowsError(try UniversalWalletAccountProvisioning.addingTairaTestnetAccount(to: original, mnemonic: Self.mnemonic))
         let upgraded = try UniversalWalletAccountProvisioning.addingMissingAppOwnedAccounts(to: original, mnemonic: Self.mnemonic)
         XCTAssertTrue(original.chainAccounts.isSubset(of: upgraded.chainAccounts))
-        XCTAssertEqual(upgraded.chainAccounts.count, original.chainAccounts.count + 1)
+        XCTAssertEqual(upgraded.chainAccounts.count, original.chainAccounts.count + 4)
     }
 
     func testTairaProductionChainIsEnabledRankedTestnetWithCanonicalXOR() throws {
@@ -353,6 +400,120 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         XCTAssertEqual(node.url, UniversalWalletRegistry.taira.toriiBaseURL)
         XCTAssertTrue(ChainModelMapper.isNodeCompatibleWithRuntime(node, for: chain))
         XCTAssertTrue(UniversalWalletRegistry.appOwnedProductionChains.contains(chain))
+    }
+
+    func testRestoredAccountAddressesRemainVisibleWithoutRuntimeChains() throws {
+        let wallet = try UniversalWalletAccountProvisioning.addingMissingAppOwnedAccounts(
+            to: AccountGenerator.generateMetaAccount(), mnemonic: Self.mnemonic
+        )
+        let factory = WalletDetailsViewModelFactory()
+        let rows = factory.buildNormalViewModel(flow: .normal(wallet: wallet), chains: [],
+            locale: Locale(identifier: "en"), searchText: nil).sections.flatMap(\.viewModels)
+        XCTAssertEqual(Set(rows.map { $0.chain.chainId }), [
+            UniversalWalletRegistry.bitcoinTestnet.chainId,
+            UniversalWalletRegistry.solanaMainnet.chainId,
+            UniversalWalletRegistry.tonMainnetRegistryEntry.chainId,
+            UniversalWalletRegistry.nexus.chainId
+        ])
+        for row in rows {
+            XCTAssertNotNil(row.address)
+            XCTAssertFalse(row.accountMissing)
+            XCTAssertTrue(row.chain.disabled)
+            XCTAssertTrue(row.chain.nodes.isEmpty)
+            XCTAssertTrue(row.chain.assets.isEmpty)
+            let actions = WalletDetailsPresenter.baseActions(for: row.chain)
+            XCTAssertEqual(actions.count, 1)
+            if case .copyAddress? = actions.first {} else { XCTFail("Expected address copying only") }
+        }
+        let realChain = Self.chain(UniversalWalletRegistry.solanaMainnet.id)
+        let runtimeRows = factory.buildNormalViewModel(flow: .normal(wallet: wallet), chains: [realChain],
+            locale: Locale(identifier: "en"), searchText: nil).sections.flatMap(\.viewModels)
+        let solanaRows = runtimeRows.filter {
+            UniversalWalletChainAccountSupport.chainId($0.chain.chainId, matches: realChain.chainId)
+        }
+        XCTAssertEqual(solanaRows.count, 1)
+        XCTAssertEqual(solanaRows.first?.chain, realChain)
+    }
+
+    func testWalletDetailsExposeOfflineNexusAddressWithoutRuntimeRegistry() throws {
+        let wallet = try UniversalWalletAccountProvisioning.addingTairaTestnetAccount(
+            to: AccountGenerator.generateMetaAccount(), mnemonic: Self.mnemonic
+        )
+        let factory = WalletDetailsViewModelFactory()
+        let viewModel = factory.buildNormalViewModel(
+            flow: .normal(wallet: wallet), chains: [], locale: Locale(identifier: "en"), searchText: "Nexus"
+        )
+        let row = try XCTUnwrap(viewModel.sections.flatMap(\.viewModels).first)
+        let address = try XCTUnwrap(row.address)
+        let tairaAddress = try XCTUnwrap(UniversalWalletAccountAddressResolver.address(
+            for: UniversalWalletRegistry.tairaChainModel, wallet: wallet
+        ))
+        let parsed = try IrohaAddressCodec.parse(
+            address, expectedDiscriminant: UniversalWalletRegistry.nexus.chainDiscriminant
+        )
+        let tairaParsed = try IrohaAddressCodec.parse(
+            tairaAddress, expectedDiscriminant: UniversalWalletRegistry.taira.chainDiscriminant
+        )
+
+        XCTAssertEqual(row.chain.chainId, UniversalWalletRegistry.nexus.chainId)
+        XCTAssertEqual(parsed.publicKeyHex, tairaParsed.publicKeyHex)
+        XCTAssertNotEqual(address, tairaAddress)
+        XCTAssertEqual(row.account?.toAddress(), address, "The copy action must receive the Nexus address")
+        XCTAssertFalse(row.accountMissing)
+        XCTAssertTrue(row.actionsAvailable)
+        XCTAssertFalse(row.cellInactive)
+        XCTAssertTrue(row.chain.disabled)
+        XCTAssertTrue(row.chain.assets.isEmpty)
+        XCTAssertTrue(row.chain.nodes.isEmpty)
+        XCTAssertNil(row.chain.externalApi)
+        XCTAssertFalse(UniversalWalletRegistry.nexus.enabledByDefault)
+        XCTAssertFalse(UniversalWalletRegistry.appOwnedProductionChains.contains { $0.chainId == row.chain.chainId })
+        let actions = WalletDetailsPresenter.baseActions(for: row.chain)
+        XCTAssertEqual(actions.count, 1)
+        if case .copyAddress = actions[0] {} else {
+            XCTFail("Offline Nexus must offer copy address")
+        }
+
+        let export = factory.buildExportViewModel(
+            flow: .normal(wallet: wallet), chains: [], locale: Locale(identifier: "en"), searchText: nil
+        )
+        XCTAssertTrue(export.sections.isEmpty)
+    }
+
+    func testOfflineNexusDetailsPreserveDedicatedIdentityAndRejectGenericKeys() throws {
+        let key = try IrohaKeyDerivation.deriveAccount(mnemonic: Self.mnemonic).publicKey
+        let dedicated = walletWithChainAccount(
+            chainId: UniversalWalletRegistry.nexus.chainId,
+            publicKey: key, cryptoType: CryptoType.ed25519.rawValue
+        )
+        let dedicatedWithTaira = try UniversalWalletAccountProvisioning.addingTairaTestnetAccount(
+            to: dedicated,
+            mnemonic: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        )
+        let factory = WalletDetailsViewModelFactory()
+        let row = try XCTUnwrap(factory.buildNormalViewModel(
+            flow: .normal(wallet: dedicatedWithTaira),
+            chains: [WalletDetailsViewModelFactory.offlineNexusChain, Self.chain(UniversalWalletRegistry.nexus.id)],
+            locale: Locale(identifier: "en"), searchText: nil
+        ).sections.flatMap(\.viewModels).first)
+        XCTAssertEqual(row.address, UniversalWalletChainAccountSupport.address(
+            for: UniversalWalletRegistry.nexus.chainId, publicKey: key
+        ))
+
+        let malformed = try UniversalWalletAccountProvisioning.addingTairaTestnetAccount(
+            to: walletWithChainAccount(
+                chainId: UniversalWalletRegistry.nexus.chainId,
+                publicKey: key, cryptoType: CryptoType.sr25519.rawValue
+            ),
+            mnemonic: Self.mnemonic
+        )
+        for wallet in [AccountGenerator.generateMetaAccount(), malformed] {
+            let missingRow = try XCTUnwrap(factory.buildNormalViewModel(
+                flow: .normal(wallet: wallet), chains: [], locale: Locale(identifier: "en"), searchText: nil
+            ).sections.flatMap(\.viewModels).first)
+            XCTAssertNil(missingRow.address)
+            XCTAssertTrue(missingRow.accountMissing)
+        }
     }
 
     func testTairaDetailsExposeReceiveAddressButHideSend() throws {
@@ -1229,7 +1390,7 @@ final class UniversalWalletAccountAddressResolverTests: XCTestCase {
         return AccountGenerator.generateMetaAccount(with: [account])
     }
 
-    fileprivate static func chain(_ chainId: String) -> ChainModel {
+    static func chain(_ chainId: String) -> ChainModel {
         ChainModel(
             rank: nil,
             disabled: false,

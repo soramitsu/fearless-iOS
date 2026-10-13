@@ -2,6 +2,14 @@
 
 This document mirrors the structure used in the Android repository’s roadmap and adapts it for iOS. The authoritative product roadmap and delivery plans are maintained in Aha! and on the public dev board.
 
+## Universal wallet restoration — 2026-10-13
+
+Mnemonic creation, import, and missing-account enrollment now include Bitcoin mainnet and testnet, Solana, BIP39 TON, and Taira. The app derives these accounts from the existing wallet recovery phrase; it does not create another secret. Stored-seed adoption also persists the complete account set. If the runtime registry omits Bitcoin testnet, Solana, or TON, account details still exposes the restored address in a copy-only row without adding network endpoints.
+
+Upgrade enrollment preserves existing chain aliases, independently imported keys, and native TON identities. Keychain recovery selects a phrase only when its derived public key matches the account. Network release settings are unchanged: Taira stays enabled, and Nexus stays offline with its address available to copy.
+
+Regression coverage exercises both shared 12- and 24-word vectors through mnemonic import, model persistence, legacy enrollment, address resolution, and TON signing-key selection. Additional checks cover idempotency, independently imported accounts, native TON preservation, and concurrent stored-seed adoption.
+
 ## Full support for Polkadot SDK release: polkadot-stable2503
 
 Why: Align the wallet with the latest stable Polkadot SDK, ensuring type/metadata compatibility and correct decoding/encoding across chains.

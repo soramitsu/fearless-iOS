@@ -144,6 +144,33 @@ final class ChainAssetListInteractor {
             into: &mergedAccounts
         )
 
+        for chainId in [UniversalWalletRegistry.bitcoinTestnet.chainId,
+                        UniversalWalletRegistry.solanaMainnet.chainId,
+                        UniversalWalletRegistry.tonMainnetRegistryEntry.chainId] {
+            // These networks are enrolled only when absent. Keep any dedicated
+            // key installed before or during adoption, including native TON.
+            guard !currentWallet.chainAccounts.contains(where: {
+                UniversalWalletChainAccountSupport.chainId($0.chainId, matches: chainId)
+            }) else { continue }
+            if chainId == UniversalWalletRegistry.tonMainnetRegistryEntry.chainId,
+               currentWallet.legacyTonAccount != nil { continue }
+            try mergeStoredSeedAccount(
+                chainId: chainId,
+                adoptedAccounts: adoptedWallet.chainAccounts,
+                currentAccounts: currentWallet.chainAccounts,
+                isValid: { account in
+                    if chainId == UniversalWalletRegistry.bitcoinTestnet.chainId {
+                        return UniversalWalletChainAccountSupport.isValidBitcoinAccount(account, chainId: chainId)
+                    }
+                    return account.cryptoType == CryptoType.ed25519.rawValue &&
+                        !account.ethereumBased && account.accountId == account.publicKey &&
+                        account.publicKey.count == 32 &&
+                        UniversalWalletChainAccountSupport.address(for: chainId, publicKey: account.publicKey) != nil
+                },
+                into: &mergedAccounts
+            )
+        }
+
         return currentWallet.replacingChainAccounts(mergedAccounts)
     }
 
