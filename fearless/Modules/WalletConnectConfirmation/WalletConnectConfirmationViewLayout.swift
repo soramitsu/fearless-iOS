@@ -29,26 +29,6 @@ final class WalletConnectConfirmationViewLayout: UIView {
         return label
     }()
 
-    let amountLabel: UILabel = {
-        let label = UILabel()
-        label.font = .h1Title
-        label.textAlignment = .center
-        return label
-    }()
-
-    var walletView: DetailsTriangularedView = {
-        let view = DetailsTriangularedView()
-        view.fillColor = R.color.colorSemiBlack()!
-        view.highlightedFillColor = R.color.colorSemiBlack()!
-        view.titleLabel.font = .p1Paragraph
-        view.titleLabel.textColor = R.color.colorStrokeGray()
-        view.iconView.image = R.image.iconBirdGreen()
-        view.strokeColor = R.color.colorWhite8()!
-        view.borderWidth = 1
-        view.layout = .singleTitle
-        return view
-    }()
-
     let infoBackground: TriangularedView = {
         let view = TriangularedView()
         view.fillColor = R.color.colorSemiBlack()!
@@ -64,17 +44,8 @@ final class WalletConnectConfirmationViewLayout: UIView {
         UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
     }()
 
-    lazy var dAppView: TitleValueView = {
-        createMultiView()
-    }()
-
-    lazy var hostView: TitleValueView = {
-        createMultiView()
-    }()
-
-    lazy var chainNameView: TitleValueView = {
-        createMultiView()
-    }()
+    /// The rows of the request, in the order the view model gives them.
+    private(set) var rowViews: [TitleValueView] = []
 
     lazy var rawDataView: TitleValueView = {
         createMultiView()
@@ -109,12 +80,27 @@ final class WalletConnectConfirmationViewLayout: UIView {
     func bind(viewModel: WalletConnectConfirmationViewModel) {
         symbolView.bind(viewModel: viewModel.symbolViewModel)
         methodNameLabel.text = viewModel.method
-        amountLabel.text = viewModel.amount
-        walletView.title = viewModel.walletName
 
-        dAppView.valueLabel.text = viewModel.dApp
-        hostView.valueLabel.text = viewModel.host
-        chainNameView.valueLabel.text = viewModel.chain
+        rowViews.forEach { $0.removeFromSuperview() }
+        rowViews = viewModel.rows.map { row in
+            let view = createMultiView()
+            view.titleLabel.text = row.title
+            view.valueLabel.text = row.value
+            if row.isMultiline {
+                view.valueLabel.numberOfLines = 0
+                view.valueLabel.lineBreakMode = .byWordWrapping
+            }
+            return view
+        }
+
+        for (index, rowView) in rowViews.enumerated() {
+            infoViewsStackView.insertArrangedSubview(rowView, at: index)
+            rowView.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+                make.height.greaterThanOrEqualTo(UIConstants.cellHeight)
+            }
+        }
+
         rawDataView.valueLabel.attributedText = viewModel.rawData
     }
 
@@ -150,34 +136,19 @@ final class WalletConnectConfirmationViewLayout: UIView {
 
         contentView.addArrangedSubview(symbolView)
         contentView.addArrangedSubview(methodNameLabel)
-        contentView.addArrangedSubview(amountLabel)
-        contentView.addArrangedSubview(walletView)
         contentView.addArrangedSubview(infoBackground)
-
-        walletView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(UIConstants.cellHeight54)
-        }
 
         infoBackground.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
         }
 
-        contentView.setCustomSpacing(UIConstants.accessoryItemsSpacing, after: amountLabel)
-        contentView.setCustomSpacing(UIConstants.hugeOffset, after: walletView)
+        contentView.setCustomSpacing(UIConstants.hugeOffset, after: methodNameLabel)
         contentView.setCustomSpacing(UIConstants.hugeOffset, after: infoBackground)
 
-        [
-            dAppView,
-            hostView,
-            chainNameView,
-            rawDataView
-        ].forEach { view in
-            infoViewsStackView.addArrangedSubview(view)
-            view.snp.makeConstraints { make in
-                make.leading.trailing.equalToSuperview()
-                make.height.equalTo(UIConstants.cellHeight)
-            }
+        infoViewsStackView.addArrangedSubview(rawDataView)
+        rawDataView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(UIConstants.cellHeight)
         }
     }
 
@@ -185,19 +156,17 @@ final class WalletConnectConfirmationViewLayout: UIView {
         let view = TitleValueView()
         view.titleLabel.font = .h5Title
         view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.titleLabel.setContentHuggingPriority(.required, for: .horizontal)
+        view.titleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         view.valueLabel.font = .h5Title
         view.valueLabel.textColor = R.color.colorWhite()
         view.valueLabel.lineBreakMode = .byTruncatingMiddle
         view.borderView.isHidden = true
-        view.equalsLabelsWidth = true
         return view
     }
 
     private func applyLocalization() {
         navigationBar.setTitle(R.string.localizable.commonPreview(preferredLanguages: locale.rLanguages))
-        dAppView.titleLabel.text = "dApp"
-        hostView.titleLabel.text = "host"
-        chainNameView.titleLabel.text = R.string.localizable.commonNetwork(preferredLanguages: locale.rLanguages)
         rawDataView.titleLabel.text = R.string.localizable.commonTransactionRawData(preferredLanguages: locale.rLanguages)
         confirmButton.imageWithTitleView?.title = R.string.localizable.commonSign(preferredLanguages: locale.rLanguages)
     }

@@ -1,6 +1,9 @@
 import CryptoKit
 import FearlessWalletConnect
 import Security
+import SoraKeystore
+import SSFModels
+import SSFUtils
 import UIKit
 import XCTest
 @testable import fearless
@@ -979,29 +982,22 @@ final class WalletConnectSigningPolicyTests: XCTestCase {
         XCTAssertEqual(responses.recorded.map(\.response), [.error(.userRejected)])
     }
 
-    func testSigner_whenSigningUnavailable_thenFailsBeforeReadingKeys() async {
-        let signer = WalletConnectSignerImpl(wallet: AccountGenerator.generateMetaAccount(), policy: .production)
-        let chain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 0)
-        let methods: [WalletConnectMethod] = [
-            .polkadotSignMessage,
-            .polkadotSignTransaction,
-            .ethereumPersonalSign,
-            .ethereumSignTypeDataV4,
-            .ethereumSignTransaction,
-            .ethereumSendTransaction
-        ]
+    func testSigner_whenSigningUnavailable_thenFailsBeforeReadingKeys() async throws {
+        let keystore = RecordingKeystore()
+        let signer = WalletConnectSignerImpl(policy: .production, keystore: keystore)
 
-        for method in methods {
+        for request in try Self.makeSigningRequests() {
             do {
-                _ = try await signer.sign(params: AnyCodable("0x00"), chain: chain, method: method)
-                XCTFail("\(method) must not sign while signing is unavailable")
+                _ = try await signer.sign(request: request)
+                XCTFail("\(request.method) must not sign while signing is unavailable")
             } catch WalletConnectSigningError.unavailable {
-                // A missing account or key would throw a different error, so this also
-                // shows the policy is checked before the wallet's keys are looked up.
+                // Checked before the account binding and before any key lookup.
             } catch {
-                XCTFail("\(method) failed with \(error) instead of the signing policy")
+                XCTFail("\(request.method) failed with \(error) instead of the signing policy")
             }
         }
+
+        XCTAssertTrue(keystore.reads.isEmpty, "No key may be read while signing is unavailable")
     }
 
     func testUnavailableNotice_saysNothingWasSignedAndOffersOnlyClose() {
@@ -1069,6 +1065,81 @@ final class WalletConnectSigningPolicyTests: XCTestCase {
 
     // MARK: - Helpers
 
+    private static func makeSigningRequests() throws -> [WalletConnectSigningRequest] {
+        let request = try makeRequest()
+        let wallet = AccountGenerator.generateMetaAccount()
+        let substrateChain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 0)
+        let substrateAccount = try XCTUnwrap(wallet.fetch(for: substrateChain.accountRequest()))
+        let ethereumChain = WalletConnectTestFixtures.ethereumChain()
+        let ethereumAccount = try XCTUnwrap(wallet.fetch(for: ethereumChain.accountRequest()))
+        let payload = TransactionPayload(
+            address: "",
+            blockHash: "0x00",
+            blockNumber: "0x00",
+            era: "0x00",
+            genesisHash: "0x00",
+            method: "0x00",
+            nonce: "0x00",
+            signedExtensions: [],
+            specVersion: "0x00",
+            tip: "0x00",
+            transactionVersion: "0x00",
+            version: 4
+        )
+        let extrinsic = WalletConnectPolkadotExtrinsic(
+            payload: payload,
+            specVersion: 1,
+            transactionVersion: 1,
+            nonce: 0,
+            era: .immortal,
+            tip: 0,
+            call: RuntimeCall(moduleName: "System", callName: "remark", args: JSON.dictionaryValue([:])),
+            transfer: nil,
+            fee: 0
+        )
+        let quote = WalletConnectEthereumTransactionQuote(
+            chainId: 1,
+            from: ethereumAccount.accountId,
+            to: Data(count: 20),
+            value: 0,
+            data: Data(),
+            nonce: 0,
+            gasLimit: 21000,
+            fee: .legacy(gasPrice: 1),
+            tokenCall: nil
+        )
+        let typedData = WalletConnectTypedData(
+            signingInput: Data(count: 66),
+            primaryType: "Mail",
+            domainName: nil,
+            verifyingContract: nil,
+            allowance: nil
+        )
+        let message = WalletConnectMessage(bytes: Data([0x00]))
+
+        let contents: [(WalletConnectMethod, ChainModel, ChainAccountResponse, WalletConnectSigningRequest.Content)] = [
+            (.polkadotSignMessage, substrateChain, substrateAccount, .polkadotMessage(message)),
+            (.polkadotSignTransaction, substrateChain, substrateAccount, .polkadotTransaction(extrinsic)),
+            (.ethereumPersonalSign, ethereumChain, ethereumAccount, .ethereumMessage(message)),
+            (.ethereumSignTypeDataV4, ethereumChain, ethereumAccount, .ethereumTypedData(typedData)),
+            (.ethereumSignTransaction, ethereumChain, ethereumAccount, .ethereumTransaction(quote)),
+            (.ethereumSendTransaction, ethereumChain, ethereumAccount, .ethereumTransaction(quote))
+        ]
+
+        return contents.map { method, chain, account, content in
+            WalletConnectSigningRequest(
+                request: request,
+                method: method,
+                chain: chain,
+                wallet: wallet,
+                account: account,
+                content: content,
+                preview: "",
+                rawDetails: .null
+            )
+        }
+    }
+
     private static func makeRequest() throws -> Request {
         try Request(
             topic: "walletconnect-signing-policy",
@@ -1126,6 +1197,25 @@ private final class ResponseRecorder {
         lock.unlock()
         onRecord()
     }
+}
+
+private final class RecordingKeystore: KeystoreProtocol {
+    private(set) var reads: [String] = []
+
+    func addKey(_: Data, with _: String) throws {}
+    func updateKey(_: Data, with _: String) throws {}
+
+    func fetchKey(for identifier: String) throws -> Data {
+        reads.append(identifier)
+        throw KeystoreError.noKeyFound
+    }
+
+    func checkKey(for identifier: String) throws -> Bool {
+        reads.append(identifier)
+        return false
+    }
+
+    func deleteKey(for _: String) throws {}
 }
 
 private final class DelegateRecorder: WalletConnectServiceDelegate {

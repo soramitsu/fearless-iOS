@@ -26,20 +26,18 @@ final class WalletConnectConfirmationInteractor {
 
 extension WalletConnectConfirmationInteractor: WalletConnectConfirmationInteractorInput {
     func reject() async throws {
-        let signDecision: WalletConnectSignDecision = .rejected(request: inputData.resuest, error: .userRejected)
+        let request = inputData.signingRequest.request
+        let signDecision: WalletConnectSignDecision = .rejected(request: request, error: .userRejected)
         try await walletConnect.submit(signDecision: signDecision)
     }
 
     func approve() async throws -> String? {
-        let signature = try await signer.sign(
-            params: inputData.payload.payload,
-            chain: inputData.chain,
-            method: inputData.method
-        )
-        let signDecision: WalletConnectSignDecision = .signed(request: inputData.resuest, signature: signature)
+        let signingRequest = inputData.signingRequest
+        let signature = try await signer.sign(request: signingRequest)
+        let signDecision: WalletConnectSignDecision = .signed(request: signingRequest.request, signature: signature)
         try await walletConnect.submit(signDecision: signDecision)
 
-        guard case .ethereumSendTransaction = inputData.method else {
+        guard case .ethereumSendTransaction = signingRequest.method else {
             return nil
         }
         return try? signature.get(String.self)

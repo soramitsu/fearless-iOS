@@ -10,7 +10,7 @@ final class WalletConnectConfirmationAssembly {
         let interactor = WalletConnectConfirmationInteractor(
             walletConnect: WalletConnectServiceImpl.shared,
             inputData: inputData,
-            signer: WalletConnectSignerImpl(wallet: inputData.wallet)
+            signer: WalletConnectSignerImpl()
         )
         let router = WalletConnectConfirmationRouter()
 

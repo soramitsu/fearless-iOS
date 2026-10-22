@@ -40,13 +40,13 @@ final class WalletConnectConfirmationPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
-        let viewModel = viewModelFactory.buildViewModel()
+        let viewModel = viewModelFactory.buildViewModel(locale: selectedLocale)
         view?.didReceive(viewModel: viewModel)
     }
 
     private func showAllDone(hash: String?) {
         router.showAllDone(
-            chain: inputData.chain,
+            chain: inputData.signingRequest.chain,
             hashString: hash,
             view: view
         ) { [weak self, weak view] in
@@ -76,7 +76,7 @@ extension WalletConnectConfirmationPresenter: WalletConnectConfirmationViewOutpu
     }
 
     func rawDataDidTapped() {
-        router.showRawData(json: inputData.payload.txDetails, from: view)
+        router.showRawData(json: inputData.signingRequest.rawDetails, from: view)
     }
 
     func confirmDidTapped() {
@@ -111,7 +111,11 @@ extension WalletConnectConfirmationPresenter: WalletConnectConfirmationInteracto
 // MARK: - Localizable
 
 extension WalletConnectConfirmationPresenter: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        if view?.isSetup == true {
+            provideViewModel()
+        }
+    }
 }
 
 extension WalletConnectConfirmationPresenter: WalletConnectConfirmationModuleInput {}

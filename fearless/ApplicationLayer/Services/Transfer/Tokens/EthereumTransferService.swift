@@ -137,78 +137,44 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
         }
     }
 
-    // MARK: - WalletConnectTransferService
+    // MARK: - WalletConnectEthereumTransferService
 
-    func sign(
-        transaction: EthereumTransaction,
-        chain: ChainModel
-    ) throws -> EthereumData {
-        let chainId = EthereumQuantity(chain.chainId.hexToBytes())
-        let signed = try transaction.sign(with: privateKey, chainId: chainId)
-
-        return try signed.rawTransaction()
+    func sign(quote: WalletConnectEthereumTransactionQuote) throws -> EthereumData {
+        try signedTransaction(for: quote).rawTransaction()
     }
 
-    func send(
-        transaction: EthereumTransaction,
-        chain: ChainModel
-    ) async throws -> EthereumData {
-        guard
-            let receiverAddress = transaction.to,
-            let senderAddress = transaction.from
-        else {
-            throw TransferServiceError.transferFailed(reason: "Wallet connect invalid params")
-        }
-        let quantity: EthereumQuantity
-        if let value = transaction.value {
-            quantity = value
-        } else {
-            quantity = EthereumQuantity(quantity: .zero)
-        }
-
-        let call = EthereumCall(
-            from: senderAddress,
-            to: receiverAddress,
-            gas: transaction.gasLimit,
-            gasPrice: transaction.gasPrice,
-            value: transaction.value,
-            data: transaction.data
-        )
-        let nonce = try await queryNonce(ethereumAddress: senderAddress)
-        let gasPrice = try await queryGasPrice()
-        let gasLimit = try await queryGasLimit(call: call)
-        let tx = EthereumTransaction(
-            nonce: nonce,
-            gasPrice: gasPrice,
-            maxFeePerGas: gasPrice,
-            maxPriorityFeePerGas: gasPrice,
-            gasLimit: gasLimit,
-            from: senderAddress,
-            to: receiverAddress,
-            value: quantity,
-            data: transaction.data,
-            accessList: [:],
-            transactionType: .eip1559
-        )
-        guard let chainId = BigUInt(string: chain.chainId) else {
-            throw EthereumSignedTransaction.Error.chainIdNotSet(msg: "EIP1559 transactions need a chainId")
-        }
-        let chainIdValue = EthereumQuantity(quantity: chainId)
-        let rawTransaction = try tx.sign(with: privateKey, chainId: chainIdValue)
+    func send(quote: WalletConnectEthereumTransactionQuote) async throws -> EthereumData {
+        let signedTransaction = try signedTransaction(for: quote)
 
         return try await withCheckedThrowingContinuation { continuation in
             do {
-                try ws.sendRawTransaction(transaction: rawTransaction) { resp in
+                try ws.sendRawTransaction(transaction: signedTransaction) { resp in
                     if let hash = resp.result {
                         continuation.resume(with: .success(hash))
                     } else if let error = resp.error {
                         continuation.resume(with: .failure(error))
+                    } else {
+                        continuation.resume(with: .failure(TransferServiceError.unexpected))
                     }
                 }
             } catch {
                 continuation.resume(with: .failure(error))
             }
         }
+    }
+
+    private func signedTransaction(
+        for quote: WalletConnectEthereumTransactionQuote
+    ) throws -> EthereumSignedTransaction {
+        // Only the key of the account the confirmation showed may sign.
+        guard privateKey.address.rawAddress == Array(quote.from) else {
+            throw TransferServiceError.transferFailed(reason: "The quote is for another account")
+        }
+
+        return try quote.makeTransaction().sign(
+            with: privateKey,
+            chainId: EthereumQuantity(quantity: quote.chainId)
+        )
     }
 
     // MARK: Transfers

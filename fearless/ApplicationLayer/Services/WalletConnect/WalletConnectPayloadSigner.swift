@@ -3,5 +3,5 @@ import SSFModels
 import FearlessWalletConnect
 
 protocol WalletConnectPayloadSigner {
-    func sign(params: AnyCodable) async throws -> AnyCodable
+    func sign() async throws -> AnyCodable
 }

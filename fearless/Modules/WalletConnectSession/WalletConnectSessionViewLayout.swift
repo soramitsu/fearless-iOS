@@ -103,7 +103,7 @@ final class WalletConnectSessionViewLayout: UIView {
 
     func bind(viewModel: WalletConnectSessionViewModel) {
         titleLabel.text = viewModel.dApp
-        messageView.subtitle = viewModel.payload.stringRepresentation
+        messageView.subtitle = viewModel.messagePreview
         warningLabel.attributedText = viewModel.warning
     }
 

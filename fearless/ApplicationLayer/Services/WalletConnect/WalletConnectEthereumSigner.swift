@@ -3,14 +3,14 @@ import FearlessWalletConnect
 import SSFUtils
 import Web3
 import SSFModels
-import SoraKeystore
 import SSFSigner
 
 final class WalletConnectEthereumSignerImpl: WalletConnectPayloadSigner {
     enum SignType {
-        case bytes(transactionSigner: TransactionSignerProtocol)
-        case sendTransaction(transferService: WalletConnectEthereumTransferService, chain: ChainModel)
-        case signTransaction(transferService: WalletConnectEthereumTransferService, chain: ChainModel)
+        case message(WalletConnectMessage, transactionSigner: TransactionSignerProtocol)
+        case typedData(WalletConnectTypedData, transactionSigner: TransactionSignerProtocol)
+        case sendTransaction(WalletConnectEthereumTransactionQuote, transferService: WalletConnectEthereumTransferService)
+        case signTransaction(WalletConnectEthereumTransactionQuote, transferService: WalletConnectEthereumTransferService)
     }
 
     private let signType: SignType
@@ -19,59 +19,34 @@ final class WalletConnectEthereumSignerImpl: WalletConnectPayloadSigner {
         self.signType = signType
     }
 
-    func sign(params: AnyCodable) async throws -> AnyCodable {
+    func sign() async throws -> AnyCodable {
         switch signType {
-        case let .bytes(transactionSigner):
-            return try signBytes(params, transactionSigner: transactionSigner)
-        case let .sendTransaction(transferService, chain):
-            return try await sendTransaction(params, chain: chain, transferService: transferService)
-        case let .signTransaction(transferService, chain):
-            return try signSignTransaction(params, chain: chain, transferService: transferService)
+        case let .message(message, transactionSigner):
+            guard let prefixedMessage = message.bytes.ethereumPersonalSignMessage() else {
+                throw WalletConnectRequestError.unsupported
+            }
+            return try signHashed(prefixedMessage, transactionSigner: transactionSigner)
+        case let .typedData(typedData, transactionSigner):
+            return try signHashed(typedData.signingInput, transactionSigner: transactionSigner)
+        case let .sendTransaction(quote, transferService):
+            return AnyCodable(try await transferService.send(quote: quote))
+        case let .signTransaction(quote, transferService):
+            return AnyCodable(try transferService.sign(quote: quote))
         }
     }
 
     // MARK: - Private methods
 
-    private func signBytes(
-        _ params: AnyCodable,
+    /// The signer hashes the input with Keccak-256. Signatures returned to dApps use the
+    /// JSON-RPC recovery id convention (27 or 28), which `ecrecover` expects.
+    private func signHashed(
+        _ input: Data,
         transactionSigner: TransactionSignerProtocol
     ) throws -> AnyCodable {
-        let bytes = try params.get(Data.self)
-        let signedHex = try transactionSigner.sign(bytes)
-
-        return AnyCodable(signedHex.rawData().toHex(includePrefix: true))
-    }
-
-    private func sendTransaction(
-        _ params: AnyCodable,
-        chain: ChainModel,
-        transferService: WalletConnectEthereumTransferService
-    ) async throws -> AnyCodable {
-        let transactionData = try params.get(Data.self)
-        let transaction = try JSONDecoder().decode(WalletConnectEthereumTransaction.self, from: transactionData)
-        let web3Transaction = try transaction.mapToWeb3()
-
-        let result = try await transferService.send(
-            transaction: web3Transaction,
-            chain: chain
-        )
-
-        return AnyCodable(result)
-    }
-
-    private func signSignTransaction(
-        _ params: AnyCodable,
-        chain: ChainModel,
-        transferService: WalletConnectEthereumTransferService
-    ) throws -> AnyCodable {
-        let transactionData = try params.get(Data.self)
-        let transaction = try JSONDecoder().decode(WalletConnectEthereumTransaction.self, from: transactionData)
-        let web3Transaction = try transaction.mapToWeb3()
-
-        let rawTransaction = try transferService.sign(
-            transaction: web3Transaction,
-            chain: chain
-        )
-        return AnyCodable(rawTransaction)
+        var signature = try transactionSigner.sign(input).rawData()
+        if signature.count == 65, signature[64] < 27 {
+            signature[64] += 27
+        }
+        return AnyCodable(signature.toHex(includePrefix: true))
     }
 }

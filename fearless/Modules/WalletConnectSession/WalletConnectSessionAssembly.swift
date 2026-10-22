@@ -34,13 +34,8 @@ enum WalletConnectSessionAssembly {
         )
         let router = WalletConnectSessionRouter(onGoToConfirmation: onGoToConfirmation)
 
-        let walletConnectModelFactory = WalletConnectModelFactoryImpl()
-        let walletConnectPayloaFactory = WalletConnectPayloadFactoryImpl()
         let viewModelFactory = WalletConnectSessionViewModelFactoryImpl(
-            request: request,
             session: session,
-            walletConnectModelFactory: walletConnectModelFactory,
-            walletConnectPayloaFactory: walletConnectPayloaFactory,
             assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
             accountScoreFetcher: accountScoreFetcher,
             settings: SettingsManager.shared
@@ -49,7 +44,7 @@ enum WalletConnectSessionAssembly {
             request: request,
             session: session,
             viewModelFactory: viewModelFactory,
-            walletConnectModelFactory: walletConnectModelFactory,
+            preparer: WalletConnectRequestPreparer(),
             logger: logger,
             interactor: interactor,
             router: router,

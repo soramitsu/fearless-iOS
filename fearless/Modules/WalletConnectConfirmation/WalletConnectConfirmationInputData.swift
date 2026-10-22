@@ -3,10 +3,6 @@ import SSFModels
 import FearlessWalletConnect
 
 struct WalletConnectConfirmationInputData {
-    let wallet: MetaAccountModel
-    let chain: ChainModel
-    let resuest: Request
+    let signingRequest: WalletConnectSigningRequest
     let session: Session
-    let method: WalletConnectMethod
-    let payload: WalletConnectPayload
 }
