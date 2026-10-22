@@ -56,6 +56,7 @@
 		9002ECA9B819990D473F95BA /* HexColorValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D21849A41A2F4573EA86CC5 /* HexColorValidationTests.swift */; };
 		2E119E9A98D0018D1DFC3F8A /* NetworkDateParsingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E88C7644F811162F7F8D3AD /* NetworkDateParsingTests.swift */; };
 		FF26D6B731581C9CA1DAD936 /* PricesServiceSubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CD4A119D13D3900A6732CC1 /* PricesServiceSubscriptionTests.swift */; };
+		3EAFF017611DFC0F6F040ABA /* WalletConnectPairingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BB0E81FB111857D76148885 /* WalletConnectPairingTests.swift */; };
 		FAF04A710000000000000006 /* SendViewLayout+Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF04A710000000000000005 /* SendViewLayout+Typography.swift */; };
 		B07B0EBBBD37418D837830F1 /* SolanaSendFormWarningPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47CCD62882FC4AB3865C6CAF /* SolanaSendFormWarningPresenter.swift */; };
 		FAF04A710000000000000004 /* SolanaSendFormLifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF04A710000000000000003 /* SolanaSendFormLifecycle.swift */; };
@@ -3329,6 +3330,7 @@
 		2D21849A41A2F4573EA86CC5 /* HexColorValidationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HexColorValidationTests.swift; sourceTree = "<group>"; };
 		2E88C7644F811162F7F8D3AD /* NetworkDateParsingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkDateParsingTests.swift; sourceTree = "<group>"; };
 		1CD4A119D13D3900A6732CC1 /* PricesServiceSubscriptionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PricesServiceSubscriptionTests.swift; sourceTree = "<group>"; };
+		4BB0E81FB111857D76148885 /* WalletConnectPairingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectPairingTests.swift; sourceTree = "<group>"; };
 		FAF04A710000000000000005 /* SendViewLayout+Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SendViewLayout+Typography.swift"; sourceTree = "<group>"; };
 		47CCD62882FC4AB3865C6CAF /* SolanaSendFormWarningPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaSendFormWarningPresenter.swift; sourceTree = "<group>"; };
 		FAF04A710000000000000003 /* SolanaSendFormLifecycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SolanaSendFormLifecycle.swift"; sourceTree = "<group>"; };
@@ -15943,6 +15945,7 @@
 			isa = PBXGroup;
 			children = (
 				C09161B39D8F8E8468364F56 /* WalletConnectLegacyStorageContinuityTests.swift */,
+				4BB0E81FB111857D76148885 /* WalletConnectPairingTests.swift */,
 			);
 			path = WalletConnect;
 			sourceTree = "<group>";
@@ -19722,6 +19725,7 @@
 				CD58C269EF909D96E1D20823 /* SendGateContinuityTests.swift in Sources */,
 				02BFDF245724236F801AC98B /* RetiredSoraCardDataCleanupTests.swift in Sources */,
 				46BCF969912A279E6D20B6FD /* RetiredSoraCardResourcesTests.swift in Sources */,
+				3EAFF017611DFC0F6F040ABA /* WalletConnectPairingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

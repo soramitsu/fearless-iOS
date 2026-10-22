@@ -89,9 +89,11 @@ final class WalletConnectServiceImpl: WalletConnectService {
 
     typealias ClientFactory = (_ groupIdentifier: String) -> WalletConnectClient?
     typealias Responder = (Request, RPCResult) async throws -> Void
+    typealias Pairer = (WalletConnectURI) async throws -> Void
 
     private let signingPolicy: WalletConnectSigningPolicy
     private let responder: Responder?
+    private let pairer: Pairer?
     private let clientFactory: ClientFactory
     private let notificationCenter: NotificationCenter
     private var listeners: [WeakWrapper] = []
@@ -107,11 +109,13 @@ final class WalletConnectServiceImpl: WalletConnectService {
     init(
         signingPolicy: WalletConnectSigningPolicy = .production,
         respond: Responder? = nil,
+        pair: Pairer? = nil,
         clientFactory: @escaping ClientFactory = WalletConnectServiceImpl.makeClient,
         notificationCenter: NotificationCenter = .default
     ) {
         self.signingPolicy = signingPolicy
         responder = respond
+        pairer = pair
         self.clientFactory = clientFactory
         self.notificationCenter = notificationCenter
     }
@@ -189,17 +193,33 @@ final class WalletConnectServiceImpl: WalletConnectService {
     }
 
     func connect(uri: String) async throws {
+        let preferredLanguages = LocalizationManager.shared.selectedLocale.rLanguages
+
+        // A new connection is only useful for signing, so it opens together with signing.
+        guard signingPolicy.isEnabled else {
+            let title = R.string.localizable.walletConnectConnectionUnavailableTitle(
+                preferredLanguages: preferredLanguages
+            )
+            let message = R.string.localizable.walletConnectConnectionUnavailableMessage(
+                preferredLanguages: preferredLanguages
+            )
+            throw ConvenienceContentError(title: title, message: message)
+        }
+
         let walletConnectUri: WalletConnectURI
 
         do {
             walletConnectUri = try WalletConnectURI(uriString: uri)
         } catch {
-            let preferredLanguages = LocalizationManager.shared.selectedLocale.rLanguages
             let title = R.string.localizable.walletConnectInvalidUrlTitle(preferredLanguages: preferredLanguages)
             let message = R.string.localizable.walletConnectInvalidUrlMessage(preferredLanguages: preferredLanguages)
             throw ConvenienceContentError(title: title, message: message)
         }
 
+        if let pairer = pairer {
+            try await pairer(walletConnectUri)
+            return
+        }
         guard let client = client else {
             throw WalletConnectServiceError.unavailable
         }

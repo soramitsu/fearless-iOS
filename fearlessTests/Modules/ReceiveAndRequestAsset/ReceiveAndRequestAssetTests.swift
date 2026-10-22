@@ -1890,8 +1890,8 @@ final class ReceiveQRGenerationOwnershipTests: XCTestCase {
         interactor.lookingMatcher(for: address)
         XCTAssertEqual(output.matches.count, 1, "Frames after a match must not deliver twice")
         interactor.startScanning()
-        interactor.lookingMatcher(for: "ws://public-qr-fixture")
-        XCTAssertEqual(output.matches.last?.uri, "ws://public-qr-fixture")
+        interactor.lookingMatcher(for: "wc:public-qr-fixture@2")
+        XCTAssertEqual(output.matches.last?.uri, "wc:public-qr-fixture@2")
         interactor.startScanning()
         interactor.stopScanning()
         interactor.lookingMatcher(for: address)
@@ -1909,7 +1909,7 @@ final class ReceiveQRGenerationOwnershipTests: XCTestCase {
         // retire that capture and start the next one before draining main.
         let queued = DispatchSemaphore(value: 0)
         DispatchQueue.global().async {
-            interactor.lookingMatcher(for: "ws://public-obsolete-capture")
+            interactor.lookingMatcher(for: "wc:public-obsolete-capture@2")
             queued.signal()
         }
         XCTAssertEqual(queued.wait(timeout: .now() + 2), .success)
@@ -1918,9 +1918,9 @@ final class ReceiveQRGenerationOwnershipTests: XCTestCase {
         await fulfillment(of: [stale], timeout: 0.3)
         XCTAssertTrue(output.matches.isEmpty)
         output.onMatch = nil
-        interactor.lookingMatcher(for: "ws://public-current-capture")
+        interactor.lookingMatcher(for: "wc:public-current-capture@2")
         XCTAssertEqual(output.matches.count, 1)
-        XCTAssertEqual(output.matches.last?.uri, "ws://public-current-capture")
+        XCTAssertEqual(output.matches.last?.uri, "wc:public-current-capture@2")
     }
 
     private struct Fixture {
