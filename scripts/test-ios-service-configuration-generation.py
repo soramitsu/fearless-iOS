@@ -118,6 +118,20 @@ class ServiceConfigurationGenerationTests(unittest.TestCase):
         )
         self.assertIn('enum MoonPayCIKeys {', rendered)
 
+    def test_nomis_account_scoring_credentials_use_their_reviewed_environment_names(self):
+        self.assertEqual(
+            {argument: GENERATOR.ARGUMENT_ENVIRONMENT[argument] for argument in ["nomisClientId", "nomisApiKey"]},
+            {"nomisClientId": "FL_NOMIS_CLIENT_ID", "nomisApiKey": "FL_NOMIS_API_KEY"},
+        )
+        rendered = GENERATOR.render(TEMPLATE, {"FL_NOMIS_CLIENT_ID": "synthetic-client", "FL_NOMIS_API_KEY": "synthetic-key"})
+        self.assertIn(
+            'enum NomisApiKeys {\n'
+            '    static var nomisClientId: String = "synthetic-client"\n'
+            '    static var nomisApiKey: String = "synthetic-key"\n'
+            '}\n',
+            rendered,
+        )
+
     def test_unset_optional_values_are_empty_not_sourcery_booleans(self):
         rendered = GENERATOR.render(TEMPLATE, {"FL_TON_API_KEY": "fixture-ton-key"})
         self.assertIn('tonApiKey: String = "fixture-ton-key"', rendered)

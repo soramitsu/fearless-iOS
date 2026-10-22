@@ -40,6 +40,9 @@ ARGUMENT_ENVIRONMENT = {
     "tonApiKeyDebug": "FL_TON_API_KEY_DEBUG",
     # Optional: a Solana mainnet JSON-RPC provider asked before the public nodes.
     "solanaRpcProviderURL": "FL_SOLANA_RPC_URL",
+    # Nomis account scoring (X-ClientId and X-API-Key request headers).
+    "nomisClientId": "FL_NOMIS_CLIENT_ID",
+    "nomisApiKey": "FL_NOMIS_API_KEY",
 }
 PLACEHOLDER = re.compile(r'"\{\{\s*argument\.(\w+)\s*\}\}"')
 ENVIRONMENT_ALIASES = {"FL_TON_API_KEY": ("FL_IOS_TON_API_KEY",)}

@@ -78,7 +78,7 @@ class AuditTests(unittest.TestCase):
 
     def test_valid_preflight_allows_empty_source_plist_and_optional_settings(self):
         result = A.audit(self.root)
-        self.assertEqual(33, len(result['fields']))
+        self.assertEqual(35, len(result['fields']))
         self.assertEqual(len(A.REQUIRED), sum(f['required'] for f in result['fields'].values()))
         self.assertTrue(all(not row['present'] and row['sha256'] is None for name, row in result['fields'].items() if name not in A.REQUIRED))
         encoded = json.dumps(result)
@@ -114,6 +114,13 @@ class AuditTests(unittest.TestCase):
         self.assertEqual([], [name for name in SCHEMA if name.startswith(retired)])
         self.assertFalse(any(name.startswith(retired) for name in A.REQUIRED))
         self.assertTrue({'MoonPayCIKeys.secretKey', 'MoonPayCIKeys.testSecretKey', 'MoonPayCIKeys.publicKey'} <= set(SCHEMA))
+
+    def test_nomis_account_scoring_credentials_are_optional(self):
+        # Without them the signer omits the Nomis headers and the score shows as unavailable.
+        fields = {'NomisApiKeys.nomisClientId', 'NomisApiKeys.nomisApiKey'}
+        self.assertLessEqual(fields, set(SCHEMA))
+        self.assertFalse(fields & A.REQUIRED)
+        A.validate_values(self.fields | {field: '' for field in fields}, SCHEMA)
 
     def test_dwellir_is_optional_with_catalog_connection_fallback(self):
         field = 'DwellirNodeApiKey.dwellirApiKey'
