@@ -6130,25 +6130,6 @@
 		C6FBA6D92C65EA56008B18D9 /* AssetRepositoryFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetRepositoryFactory.swift; sourceTree = "<group>"; };
 		C6FBA6DB2C69E006008B18D9 /* PriceDataHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceDataHelper.swift; sourceTree = "<group>"; };
 		C6FBA6DD2C72E0FD008B18D9 /* PricesUpdated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricesUpdated.swift; sourceTree = "<group>"; };
-		C6FBA6FC2C743D21008B18D9 /* OKXDexAggregatorService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexAggregatorService.swift; sourceTree = "<group>"; };
-		C6FBA6FE2C743D45008B18D9 /* OKXDexRequestSigner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexRequestSigner.swift; sourceTree = "<group>"; };
-		C6FBA7002C743D51008B18D9 /* OKXDexSwapRequestParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexSwapRequestParameters.swift; sourceTree = "<group>"; };
-		C6FBA7012C743D51008B18D9 /* OKXDexAllTokensRequestParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexAllTokensRequestParameters.swift; sourceTree = "<group>"; };
-		C6FBA7022C743D51008B18D9 /* OKXDexApproveRequestParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexApproveRequestParameters.swift; sourceTree = "<group>"; };
-		C6FBA7032C743D52008B18D9 /* OKXDexLiquiditySourceRequestParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexLiquiditySourceRequestParameters.swift; sourceTree = "<group>"; };
-		C6FBA7042C743D52008B18D9 /* OKXDexQuotesRequestParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexQuotesRequestParameters.swift; sourceTree = "<group>"; };
-		C6FBA70A2C743D5D008B18D9 /* OKXResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXResponse.swift; sourceTree = "<group>"; };
-		C6FBA70B2C743D5D008B18D9 /* OKXToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXToken.swift; sourceTree = "<group>"; };
-		C6FBA70C2C743D5D008B18D9 /* OKXSupportedChain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXSupportedChain.swift; sourceTree = "<group>"; };
-		C6FBA70D2C743D5D008B18D9 /* OKXDexQuote.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexQuote.swift; sourceTree = "<group>"; };
-		C6FBA70E2C743D5E008B18D9 /* OKXSwap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXSwap.swift; sourceTree = "<group>"; };
-		C6FBA70F2C743D5E008B18D9 /* OKXDexProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexProtocol.swift; sourceTree = "<group>"; };
-		C6FBA7102C743D5E008B18D9 /* OKXDexRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexRouter.swift; sourceTree = "<group>"; };
-		C6FBA7112C743D5E008B18D9 /* OKXDexSubrouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexSubrouter.swift; sourceTree = "<group>"; };
-		C6FBA7122C743D5E008B18D9 /* OKXApproveTransaction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXApproveTransaction.swift; sourceTree = "<group>"; };
-		C6FBA7132C743D5F008B18D9 /* OKXLiquiditySource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXLiquiditySource.swift; sourceTree = "<group>"; };
-		C6FBA7142C743D5F008B18D9 /* OKXQuote.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXQuote.swift; sourceTree = "<group>"; };
-		C6FBA7152C743D5F008B18D9 /* OKXSwapTransaction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXSwapTransaction.swift; sourceTree = "<group>"; };
 		C705CA1083C1EE58426D90CD /* AllDoneInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AllDoneInteractor.swift; sourceTree = "<group>"; };
 		C7416F3AFA5F4D1130B1C410 /* WalletTransactionDetailsWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletTransactionDetailsWireframe.swift; sourceTree = "<group>"; };
 		C74A2166B054240BD5D925B6 /* UsernameSetupViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernameSetupViewFactory.swift; sourceTree = "<group>"; };
@@ -13769,64 +13750,6 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
-		C6FBA6E52C743BDD008B18D9 /* okx-dex-aggregator */ = {
-			isa = PBXGroup;
-			children = (
-				C6FBA6FC2C743D21008B18D9 /* OKXDexAggregatorService.swift */,
-				C6FBA6E82C743C31008B18D9 /* Network */,
-			);
-			path = "okx-dex-aggregator";
-			sourceTree = "<group>";
-		};
-		C6FBA6E82C743C31008B18D9 /* Network */ = {
-			isa = PBXGroup;
-			children = (
-				C6FBA6FE2C743D45008B18D9 /* OKXDexRequestSigner.swift */,
-				C6FBA6F02C743C88008B18D9 /* Response */,
-				C6FBA6EF2C743C82008B18D9 /* Request */,
-			);
-			path = Network;
-			sourceTree = "<group>";
-		};
-		C6FBA6EF2C743C82008B18D9 /* Request */ = {
-			isa = PBXGroup;
-			children = (
-				C6FBA6F12C743C96008B18D9 /* Parameters */,
-			);
-			path = Request;
-			sourceTree = "<group>";
-		};
-		C6FBA6F02C743C88008B18D9 /* Response */ = {
-			isa = PBXGroup;
-			children = (
-				C6FBA7122C743D5E008B18D9 /* OKXApproveTransaction.swift */,
-				C6FBA70F2C743D5E008B18D9 /* OKXDexProtocol.swift */,
-				C6FBA70D2C743D5D008B18D9 /* OKXDexQuote.swift */,
-				C6FBA7102C743D5E008B18D9 /* OKXDexRouter.swift */,
-				C6FBA7112C743D5E008B18D9 /* OKXDexSubrouter.swift */,
-				C6FBA7132C743D5F008B18D9 /* OKXLiquiditySource.swift */,
-				C6FBA7142C743D5F008B18D9 /* OKXQuote.swift */,
-				C6FBA70A2C743D5D008B18D9 /* OKXResponse.swift */,
-				C6FBA70C2C743D5D008B18D9 /* OKXSupportedChain.swift */,
-				C6FBA70E2C743D5E008B18D9 /* OKXSwap.swift */,
-				C6FBA7152C743D5F008B18D9 /* OKXSwapTransaction.swift */,
-				C6FBA70B2C743D5D008B18D9 /* OKXToken.swift */,
-			);
-			path = Response;
-			sourceTree = "<group>";
-		};
-		C6FBA6F12C743C96008B18D9 /* Parameters */ = {
-			isa = PBXGroup;
-			children = (
-				C6FBA7012C743D51008B18D9 /* OKXDexAllTokensRequestParameters.swift */,
-				C6FBA7022C743D51008B18D9 /* OKXDexApproveRequestParameters.swift */,
-				C6FBA7032C743D52008B18D9 /* OKXDexLiquiditySourceRequestParameters.swift */,
-				C6FBA7042C743D52008B18D9 /* OKXDexQuotesRequestParameters.swift */,
-				C6FBA7002C743D51008B18D9 /* OKXDexSwapRequestParameters.swift */,
-			);
-			path = Parameters;
-			sourceTree = "<group>";
-		};
 		C7AEDB8341B78EC46F6F98DC /* UsernameSetup */ = {
 			isa = PBXGroup;
 			children = (
@@ -15321,7 +15244,6 @@
 		FA38C9A32760700B005C5577 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				C6FBA6E52C743BDD008B18D9 /* okx-dex-aggregator */,
 				FAD5FF232C463BEE003201F5 /* AccountStatistics */,
 				FA09AD332C37AB9400BE0B9C /* TransactionObserver */,
 				FA34EE902B98711F0042E73E /* CrowdloanService.swift */,
