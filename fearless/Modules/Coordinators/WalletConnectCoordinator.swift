@@ -1,5 +1,4 @@
 import Foundation
-import JSONRPC
 import SoraFoundation
 import FearlessWalletConnect
 import UIKit
@@ -14,9 +13,19 @@ final class WalletConnectCoordinator: DefaultCoordinator {
     private let lockState: ApplicationLockState
     private let notificationCenter: NotificationCenter
     private let isApplicationActive: () -> Bool
-    private let makeRequestFlow: (WalletConnectCoordinatorRouter, Request, Session?) -> FlowCoordinator
-    private let makeProposalFlow: (WalletConnectCoordinatorRouter, Session.Proposal) -> FlowCoordinator
-    private let signingUnavailableNotice: WalletConnectSigningUnavailableNoticePresenter
+    private let makeRequestFlow: (
+        WalletConnectCoordinatorRouter,
+        Request,
+        Session?,
+        WalletConnectVerification
+    ) -> FlowCoordinator
+    private let makeProposalFlow: (
+        WalletConnectCoordinatorRouter,
+        Session.Proposal,
+        WalletConnectVerification
+    ) -> FlowCoordinator
+    private let signingUnavailableNotice: WalletConnectNoticePresenter
+    private let scamNotice: WalletConnectNoticePresenter
     private var lockObserver: NSObjectProtocol?
 
     /// Requests already queued or on screen. The SDK sends the oldest pending request
@@ -33,12 +42,24 @@ final class WalletConnectCoordinator: DefaultCoordinator {
         lockState: ApplicationLockState = .shared,
         notificationCenter: NotificationCenter = .default,
         isApplicationActive: @escaping () -> Bool = { UIApplication.shared.applicationState == .active },
-        signingUnavailableNotice: WalletConnectSigningUnavailableNoticePresenter = .init(),
-        makeRequestFlow: @escaping (WalletConnectCoordinatorRouter, Request, Session?) -> FlowCoordinator = {
-            WalletConnectSessionCoordinator(router: $0, request: $1, session: $2)
+        signingUnavailableNotice: WalletConnectNoticePresenter = WalletConnectNoticePresenter { locale in
+            WalletConnectNoticePresenter.signingUnavailableViewModel(locale: locale)
         },
-        makeProposalFlow: @escaping (WalletConnectCoordinatorRouter, Session.Proposal) -> FlowCoordinator = {
-            WalletConnectProposalCoordinator(router: $0, proposal: $1)
+        scamNotice: WalletConnectNoticePresenter = WalletConnectNoticePresenter.scamBlocked(),
+        makeRequestFlow: @escaping (
+            WalletConnectCoordinatorRouter,
+            Request,
+            Session?,
+            WalletConnectVerification
+        ) -> FlowCoordinator = {
+            WalletConnectSessionCoordinator(router: $0, request: $1, session: $2, verification: $3)
+        },
+        makeProposalFlow: @escaping (
+            WalletConnectCoordinatorRouter,
+            Session.Proposal,
+            WalletConnectVerification
+        ) -> FlowCoordinator = {
+            WalletConnectProposalCoordinator(router: $0, proposal: $1, verification: $2)
         }
     ) {
         self.walletConnect = walletConnect
@@ -47,6 +68,7 @@ final class WalletConnectCoordinator: DefaultCoordinator {
         self.notificationCenter = notificationCenter
         self.isApplicationActive = isApplicationActive
         self.signingUnavailableNotice = signingUnavailableNotice
+        self.scamNotice = scamNotice
         self.makeRequestFlow = makeRequestFlow
         self.makeProposalFlow = makeProposalFlow
         super.init()
@@ -59,6 +81,7 @@ final class WalletConnectCoordinator: DefaultCoordinator {
         ) { [weak self] _ in
             self?.presentNextIfPossible()
             self?.signingUnavailableNotice.presentPendingNoticeIfPossible()
+            self?.scamNotice.presentPendingNoticeIfPossible()
         }
     }
 
@@ -101,23 +124,27 @@ final class WalletConnectCoordinator: DefaultCoordinator {
 // MARK: - WalletConnectServiceDelegate
 
 extension WalletConnectCoordinator: WalletConnectServiceDelegate {
-    func sign(request: Request, session: Session?) {
+    func sign(request: Request, session: Session?, verification: WalletConnectVerification) {
         let requestId = request.id.string
         guard queuedRequestIds.insert(requestId).inserted else {
             return
         }
 
-        enqueue(makeRequestFlow(router, request, session)) { [weak self] in
+        enqueue(makeRequestFlow(router, request, session, verification)) { [weak self] in
             self?.queuedRequestIds.remove(requestId)
         }
     }
 
-    func session(proposal: Session.Proposal) {
-        enqueue(makeProposalFlow(router, proposal))
+    func session(proposal: Session.Proposal, verification: WalletConnectVerification) {
+        enqueue(makeProposalFlow(router, proposal, verification))
     }
 
     func signingUnavailable(request _: Request, session _: Session?) {
         signingUnavailableNotice.requestNotice()
+    }
+
+    func blockedScam(origin: String) {
+        scamNotice.requestNotice(origin: origin)
     }
 }
 
@@ -127,33 +154,55 @@ extension WalletConnectCoordinator: ApplicationHandlerDelegate {
     func didReceiveDidBecomeActive(notification _: Notification) {
         presentNextIfPossible()
         signingUnavailableNotice.presentPendingNoticeIfPossible()
+        scamNotice.presentPendingNoticeIfPossible()
     }
 }
 
-/// Tells the user that a dApp request was declined because WalletConnect signing is
-/// unavailable (`WalletConnectSigningPolicy`). Requests that arrive together, or while
-/// the app is in the background or locked, share one notice.
-final class WalletConnectSigningUnavailableNoticePresenter {
+/// Tells the user that dApp requests were declined, for example because WalletConnect
+/// signing is unavailable (`WalletConnectSigningPolicy`) or WalletConnect Verify flags
+/// the app as a scam. Requests that arrive together, or while the app is in the
+/// background or locked, share one notice.
+final class WalletConnectNoticePresenter {
     private let topViewController: () -> UIViewController?
     private let isApplicationActive: () -> Bool
+    private let makeViewModel: (Locale, String?) -> SheetAlertPresentableViewModel
     private weak var noticeController: UIViewController?
+    private var origin: String?
     private(set) var isNoticePending = false
 
     init(
         topViewController: @escaping () -> UIViewController? = { UIApplication.topViewController() },
         isApplicationActive: @escaping () -> Bool = {
             UIApplication.shared.applicationState == .active && !ApplicationLockState.shared.isLocked
-        }
+        },
+        makeViewModel: @escaping (Locale, String?) -> SheetAlertPresentableViewModel
     ) {
         self.topViewController = topViewController
         self.isApplicationActive = isApplicationActive
+        self.makeViewModel = makeViewModel
+    }
+
+    convenience init(
+        topViewController: @escaping () -> UIViewController? = { UIApplication.topViewController() },
+        isApplicationActive: @escaping () -> Bool = {
+            UIApplication.shared.applicationState == .active && !ApplicationLockState.shared.isLocked
+        },
+        makeViewModel: @escaping (Locale) -> SheetAlertPresentableViewModel
+    ) {
+        self.init(
+            topViewController: topViewController,
+            isApplicationActive: isApplicationActive,
+            makeViewModel: { locale, _ in makeViewModel(locale) }
+        )
     }
 
     var isPresentingNotice: Bool {
         noticeController?.presentingViewController != nil
     }
 
-    func requestNotice() {
+    /// `origin` names the app the notice is about; the latest one is shown.
+    func requestNotice(origin: String? = nil) {
+        self.origin = origin ?? self.origin
         isNoticePending = true
         presentPendingNoticeIfPossible()
     }
@@ -174,7 +223,7 @@ final class WalletConnectSigningUnavailableNoticePresenter {
         }
 
         let controller = SheetAletViewController(
-            viewModel: Self.makeViewModel(locale: LocalizationManager.shared.selectedLocale)
+            viewModel: makeViewModel(LocalizationManager.shared.selectedLocale, origin)
         )
         controller.modalPresentationStyle = .custom
         controller.modalTransitioningFactory = ModalSheetBlurPresentationFactory(configuration: .fearlessBlur)
@@ -190,11 +239,28 @@ final class WalletConnectSigningUnavailableNoticePresenter {
         isNoticePending = false
     }
 
-    static func makeViewModel(locale: Locale) -> SheetAlertPresentableViewModel {
+    static func signingUnavailableViewModel(locale: Locale) -> SheetAlertPresentableViewModel {
         let languages = locale.rLanguages
         return SheetAlertPresentableViewModel(
             title: R.string.localizable.walletConnectSigningUnavailableTitle(preferredLanguages: languages),
             message: R.string.localizable.walletConnectSigningUnavailableMessage(preferredLanguages: languages),
+            actions: [],
+            closeAction: R.string.localizable.commonClose(preferredLanguages: languages),
+            icon: nil
+        )
+    }
+
+    static func scamBlocked() -> WalletConnectNoticePresenter {
+        WalletConnectNoticePresenter(makeViewModel: { locale, origin in
+            scamBlockedViewModel(origin: origin ?? "", locale: locale)
+        })
+    }
+
+    static func scamBlockedViewModel(origin: String, locale: Locale) -> SheetAlertPresentableViewModel {
+        let languages = locale.rLanguages
+        return SheetAlertPresentableViewModel(
+            title: R.string.localizable.walletConnectScamBlockedTitle(preferredLanguages: languages),
+            message: R.string.localizable.walletConnectScamBlockedMessage(origin, preferredLanguages: languages),
             actions: [],
             closeAction: R.string.localizable.commonClose(preferredLanguages: languages),
             icon: nil

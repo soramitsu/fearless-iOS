@@ -30,6 +30,7 @@ final class WalletConnectSessionPresenter {
 
     private let request: Request
     private let session: Session?
+    private let verification: WalletConnectVerification
     private let viewModelFactory: WalletConnectSessionViewModelFactory
     private let preparer: WalletConnectRequestPreparing
 
@@ -44,6 +45,7 @@ final class WalletConnectSessionPresenter {
     init(
         request: Request,
         session: Session?,
+        verification: WalletConnectVerification,
         viewModelFactory: WalletConnectSessionViewModelFactory,
         preparer: WalletConnectRequestPreparing,
         logger: LoggerProtocol,
@@ -53,6 +55,7 @@ final class WalletConnectSessionPresenter {
     ) {
         self.request = request
         self.session = session
+        self.verification = verification
         self.viewModelFactory = viewModelFactory
         self.preparer = preparer
         self.interactor = interactor
@@ -136,7 +139,8 @@ final class WalletConnectSessionPresenter {
 
         let inputData = WalletConnectConfirmationInputData(
             signingRequest: signingRequest,
-            session: session
+            session: session,
+            verification: verification
         )
         view?.didStopLoading()
         router.showConfirmation(inputData: inputData)

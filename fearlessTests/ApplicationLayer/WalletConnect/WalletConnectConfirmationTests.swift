@@ -21,7 +21,10 @@ final class WalletConnectConfirmationTests: XCTestCase {
 
         let rows = try viewModel(for: .ethereumTransaction(quote), chain: Fixtures.ethereumChain()).rows
 
-        XCTAssertEqual(rows.map(\.kind), [.network, .recipient, .amount, .fee, .wallet, .account, .app, .website])
+        XCTAssertEqual(
+            rows.map(\.kind),
+            [.network, .recipient, .amount, .fee, .wallet, .account, .app, .website, .verification]
+        )
         XCTAssertEqual(rows[0].value, "Ethereum")
         XCTAssertEqual(rows[1].value, recipient.toHex(includePrefix: true))
         XCTAssertEqual(rows[2].value, "1.5 ETH")
@@ -66,7 +69,7 @@ final class WalletConnectConfirmationTests: XCTestCase {
 
         let rows = try viewModel(for: .ethereumMessage(message), chain: Fixtures.ethereumChain()).rows
 
-        XCTAssertEqual(rows.map(\.kind), [.network, .message, .fee, .wallet, .account, .app, .website])
+        XCTAssertEqual(rows.map(\.kind), [.network, .message, .fee, .wallet, .account, .app, .website, .verification])
         XCTAssertEqual(rows[1].value, "Sign in to Example")
         XCTAssertEqual(rows[2].value, R.string.localizable.walletConnectConfirmationNoFee(preferredLanguages: ["en"]))
         XCTAssertTrue(rows[1].isMultiline)
@@ -151,6 +154,17 @@ final class WalletConnectConfirmationTests: XCTestCase {
         }
     }
 
+    func testVerification_isTheLastRow() throws {
+        let rows = try viewModel(
+            for: .ethereumMessage(WalletConnectMessage(bytes: Data("Hi".utf8))),
+            chain: WalletConnectTestFixtures.ethereumChain(),
+            verification: .mismatch
+        ).rows
+
+        XCTAssertEqual(rows.last?.kind, .verification)
+        XCTAssertEqual(rows.last?.value, "Domain mismatch")
+    }
+
     // MARK: - Helpers
 
     private func makeQuote(
@@ -174,7 +188,8 @@ final class WalletConnectConfirmationTests: XCTestCase {
     private func viewModel(
         for content: WalletConnectSigningRequest.Content,
         chain: ChainModel,
-        locale: Locale? = nil
+        locale: Locale? = nil,
+        verification: WalletConnectVerification = .verified
     ) throws -> WalletConnectConfirmationViewModel {
         let keystore = InMemoryKeychain()
         let wallet: fearless.MetaAccountModel
@@ -206,7 +221,11 @@ final class WalletConnectConfirmationTests: XCTestCase {
         )
 
         let factory = WalletConnectConfirmationViewModelFactoryImpl(
-            inputData: WalletConnectConfirmationInputData(signingRequest: signingRequest, session: session)
+            inputData: WalletConnectConfirmationInputData(
+                signingRequest: signingRequest,
+                session: session,
+                verification: verification
+            )
         )
         return factory.buildViewModel(locale: locale ?? english)
     }

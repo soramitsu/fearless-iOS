@@ -5,15 +5,18 @@ final class WalletConnectSessionCoordinator: DefaultCoordinator, CoordinatorFini
     private let router: WalletConnectCoordinatorRouter
     private let request: Request
     private let session: Session?
+    private let verification: WalletConnectVerification
 
     init(
         router: WalletConnectCoordinatorRouter,
         request: Request,
-        session: Session?
+        session: Session?,
+        verification: WalletConnectVerification
     ) {
         self.router = router
         self.request = request
         self.session = session
+        self.verification = verification
     }
 
     // MARK: - CoordinatorFinishOutput
@@ -29,7 +32,11 @@ final class WalletConnectSessionCoordinator: DefaultCoordinator, CoordinatorFini
     // MARK: - Private methods
 
     private func runFlow() {
-        let module = WalletConnectSessionAssembly.configureModule(request: request, session: session) { [weak self] inputData in
+        let module = WalletConnectSessionAssembly.configureModule(
+            request: request,
+            session: session,
+            verification: verification
+        ) { [weak self] inputData in
             self?.presentConfirmation(inputData: inputData)
         }
         guard let controller = module?.view.controller else {

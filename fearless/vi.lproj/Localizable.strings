@@ -1139,7 +1139,8 @@ vào tài khoản của bạn để phân biệt với lượng stake còn lại
 "wallet.connect.verify.title" = "Xác minh";
 "wallet.connect.verify.valid" = "Tên miền đã xác minh";
 "wallet.connect.verify.unknown" = "Tên miền chưa được xác minh";
-"wallet.connect.verify.invalid" = "Tên miền không khớp: ứng dụng này có thể không phải là trang web mà nó tự nhận";
+"wallet.connect.verify.invalid" = "Tên miền không khớp";
+"wallet.connect.verify.invalid.warning" = "Ứng dụng này có thể không phải là trang web mà nó tự nhận. Chỉ tiếp tục nếu bạn tin tưởng nó.";
 "wallet.connect.verify.scam" = "Bị gắn cờ là lừa đảo đã biết";
 "wallet.connect.scam.blocked.title" = "Yêu cầu đã bị chặn";
 "wallet.connect.scam.blocked.message" = "WalletConnect Verify đã gắn cờ %@ là lừa đảo đã biết. Fearless đã từ chối yêu cầu và không có gì được kết nối hay ký.";

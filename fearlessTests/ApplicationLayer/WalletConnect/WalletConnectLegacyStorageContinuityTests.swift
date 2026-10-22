@@ -1002,7 +1002,7 @@ final class WalletConnectSigningPolicyTests: XCTestCase {
 
     func testUnavailableNotice_saysNothingWasSignedAndOffersOnlyClose() {
         let locale = Locale(identifier: "en")
-        let viewModel = WalletConnectSigningUnavailableNoticePresenter.makeViewModel(locale: locale)
+        let viewModel = WalletConnectNoticePresenter.signingUnavailableViewModel(locale: locale)
 
         XCTAssertEqual(viewModel.title, "WalletConnect signing isn't available in this version")
         XCTAssertEqual(
@@ -1019,11 +1019,11 @@ final class WalletConnectSigningPolicyTests: XCTestCase {
     }
 
     func testUnavailableNotice_isTranslatedInEveryShippedLocale() {
-        let english = WalletConnectSigningUnavailableNoticePresenter.makeViewModel(locale: Locale(identifier: "en"))
+        let english = WalletConnectNoticePresenter.signingUnavailableViewModel(locale: Locale(identifier: "en"))
         let shipped = Bundle.main.localizations.filter { $0 != "en" && $0 != "Base" }
         XCTAssertFalse(shipped.isEmpty)
         for identifier in shipped {
-            let viewModel = WalletConnectSigningUnavailableNoticePresenter.makeViewModel(
+            let viewModel = WalletConnectNoticePresenter.signingUnavailableViewModel(
                 locale: Locale(identifier: identifier)
             )
 
@@ -1040,9 +1040,10 @@ final class WalletConnectSigningPolicyTests: XCTestCase {
             window.rootViewController = nil
         }
         var isActive = false
-        let notice = WalletConnectSigningUnavailableNoticePresenter(
+        let notice = WalletConnectNoticePresenter(
             topViewController: { root },
-            isApplicationActive: { isActive }
+            isApplicationActive: { isActive },
+            makeViewModel: WalletConnectNoticePresenter.signingUnavailableViewModel(locale:)
         )
 
         notice.requestNotice()
@@ -1222,7 +1223,7 @@ private final class DelegateRecorder: WalletConnectServiceDelegate {
     private(set) var signRequests: [Request] = []
     private(set) var unavailableRequests: [Request] = []
 
-    func sign(request: Request, session _: Session?) {
+    func sign(request: Request, session _: Session?, verification _: WalletConnectVerification) {
         signRequests.append(request)
     }
 

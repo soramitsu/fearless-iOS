@@ -1083,7 +1083,8 @@ Lembre-se de fazer uma cópia de segurança da sua chave e guardá-la num local 
 "wallet.connect.verify.title" = "Verificação";
 "wallet.connect.verify.valid" = "Domínio verificado";
 "wallet.connect.verify.unknown" = "Domínio não verificado";
-"wallet.connect.verify.invalid" = "O domínio não corresponde: esta aplicação pode não ser o site que afirma ser";
+"wallet.connect.verify.invalid" = "O domínio não corresponde";
+"wallet.connect.verify.invalid.warning" = "Esta aplicação pode não ser o site que afirma ser. Continue apenas se confiar nela.";
 "wallet.connect.verify.scam" = "Assinalada como burla conhecida";
 "wallet.connect.scam.blocked.title" = "Pedido bloqueado";
 "wallet.connect.scam.blocked.message" = "O WalletConnect Verify assinalou %@ como uma burla conhecida. A Fearless recusou o pedido e nada foi ligado nem assinado.";

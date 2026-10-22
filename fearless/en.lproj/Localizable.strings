@@ -1134,7 +1134,8 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "wallet.connect.verify.title" = "Verification";
 "wallet.connect.verify.valid" = "Verified domain";
 "wallet.connect.verify.unknown" = "Domain not verified";
-"wallet.connect.verify.invalid" = "Domain mismatch: this app may not be the website it claims to be";
+"wallet.connect.verify.invalid" = "Domain mismatch";
+"wallet.connect.verify.invalid.warning" = "This app may not be the website it claims to be. Continue only if you trust it.";
 "wallet.connect.verify.scam" = "Flagged as a known scam";
 "wallet.connect.scam.blocked.title" = "Request blocked";
 "wallet.connect.scam.blocked.message" = "WalletConnect Verify flagged %@ as a known scam. Fearless declined the request, and nothing was connected or signed.";

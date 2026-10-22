@@ -1137,7 +1137,8 @@
 "wallet.connect.verify.title" = "验证";
 "wallet.connect.verify.valid" = "已验证的域名";
 "wallet.connect.verify.unknown" = "域名未验证";
-"wallet.connect.verify.invalid" = "域名不匹配：此应用可能并非其声称的网站";
+"wallet.connect.verify.invalid" = "域名不匹配";
+"wallet.connect.verify.invalid.warning" = "此应用可能并非其声称的网站。只有在您信任它时才继续。";
 "wallet.connect.verify.scam" = "已被标记为已知诈骗";
 "wallet.connect.scam.blocked.title" = "请求已拦截";
 "wallet.connect.scam.blocked.message" = "WalletConnect Verify 已将 %@ 标记为已知诈骗。Fearless 已拒绝该请求，未进行任何连接或签名。";

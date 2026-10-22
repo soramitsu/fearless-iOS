@@ -1,8 +1,7 @@
-import Commons
+import FearlessWalletConnect
 import Foundation
 import SoraKeystore
 import UIKit
-import WalletConnectSign
 import XCTest
 @testable import fearless
 
@@ -112,7 +111,7 @@ final class WalletConnectAuthorizationAndLockTests: XCTestCase {
         let fixture = CoordinatorFixture()
         fixture.lockState.lock(with: fixture.lockScreen)
 
-        fixture.coordinator.sign(request: try Self.makeRequest(), session: nil)
+        fixture.coordinator.sign(request: try Self.makeRequest(), session: nil, verification: .verified)
 
         XCTAssertEqual(fixture.flows.count, 1)
         XCTAssertEqual(fixture.flows.first?.starts, 0, "Nothing may appear above the PIN screen")
@@ -126,13 +125,13 @@ final class WalletConnectAuthorizationAndLockTests: XCTestCase {
         let fixture = CoordinatorFixture()
         let request = try Self.makeRequest()
 
-        fixture.coordinator.sign(request: request, session: nil)
-        fixture.coordinator.sign(request: request, session: nil)
+        fixture.coordinator.sign(request: request, session: nil, verification: .verified)
+        fixture.coordinator.sign(request: request, session: nil, verification: .verified)
 
         XCTAssertEqual(fixture.flows.count, 1)
 
         fixture.flows.first?.finishFlow?()
-        fixture.coordinator.sign(request: try Self.makeRequest(), session: nil)
+        fixture.coordinator.sign(request: try Self.makeRequest(), session: nil, verification: .verified)
 
         XCTAssertEqual(fixture.flows.count, 2)
         XCTAssertEqual(fixture.flows.last?.starts, 1)
@@ -141,8 +140,8 @@ final class WalletConnectAuthorizationAndLockTests: XCTestCase {
     func testCoordinator_whenARequestIsOnScreen_thenTheNextOneWaits() throws {
         let fixture = CoordinatorFixture()
 
-        fixture.coordinator.sign(request: try Self.makeRequest(), session: nil)
-        fixture.coordinator.sign(request: try Self.makeRequest(), session: nil)
+        fixture.coordinator.sign(request: try Self.makeRequest(), session: nil, verification: .verified)
+        fixture.coordinator.sign(request: try Self.makeRequest(), session: nil, verification: .verified)
 
         XCTAssertEqual(fixture.flows.map(\.starts), [1, 0])
 
@@ -227,7 +226,8 @@ final class WalletConnectAuthorizationAndLockTests: XCTestCase {
             walletConnect: service,
             inputData: WalletConnectConfirmationInputData(
                 signingRequest: signingRequest,
-                session: session
+                session: session,
+                verification: .verified
             ),
             signer: signer,
             authorizer: authorizer
@@ -283,12 +283,12 @@ private final class CoordinatorFixture {
             lockState: lockState,
             notificationCenter: notificationCenter,
             isApplicationActive: { true },
-            makeRequestFlow: { [unowned self] router, _, _ in
+            makeRequestFlow: { [unowned self] router, _, _, _ in
                 let flow = FlowSpy(router: router as? RouterSpy)
                 flows.append(flow)
                 return flow
             },
-            makeProposalFlow: { [unowned self] router, _ in
+            makeProposalFlow: { [unowned self] router, _, _ in
                 let flow = FlowSpy(router: router as? RouterSpy)
                 flows.append(flow)
                 return flow

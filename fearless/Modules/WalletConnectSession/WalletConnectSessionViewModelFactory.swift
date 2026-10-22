@@ -15,17 +15,20 @@ protocol WalletConnectSessionViewModelFactory {
 
 final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewModelFactory {
     private let session: Session?
+    private let verification: WalletConnectVerification
     private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
     private let accountScoreFetcher: AccountStatisticsFetching
     private let settings: SettingsManagerProtocol
 
     init(
         session: Session?,
+        verification: WalletConnectVerification,
         assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol,
         accountScoreFetcher: AccountStatisticsFetching,
         settings: SettingsManagerProtocol
     ) {
         self.session = session
+        self.verification = verification
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
         self.accountScoreFetcher = accountScoreFetcher
         self.settings = settings
@@ -49,6 +52,8 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
 
         return WalletConnectSessionViewModel(
             dApp: dApp,
+            verification: verification.title(for: locale),
+            verificationColor: verification.color,
             warning: createWarning(locale: locale),
             walletViewModel: walletViewModel,
             messagePreview: messagePreview(for: signingRequest),
@@ -125,7 +130,9 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
 
     private func createWarning(locale: Locale) -> NSAttributedString {
         let warningLabel = R.string.localizable.commonWarningCapitalized(preferredLanguages: locale.rLanguages)
-        let warningMessage = R.string.localizable.walletConnectSignWarningMessage(preferredLanguages: locale.rLanguages)
+        // A domain mismatch is the more specific warning.
+        let warningMessage = verification.warning(for: locale) ??
+            R.string.localizable.walletConnectSignWarningMessage(preferredLanguages: locale.rLanguages)
         let warningFullString = [warningLabel, warningMessage].joined(separator: " ")
         let warning = NSMutableAttributedString(string: warningFullString)
 

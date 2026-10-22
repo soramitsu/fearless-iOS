@@ -47,18 +47,22 @@ protocol WalletConnectService: ApplicationServiceProtocol {
 }
 
 protocol WalletConnectServiceDelegate: AnyObject {
-    func session(proposal: Session.Proposal)
-    func sign(request: Request, session: Session?)
+    func session(proposal: Session.Proposal, verification: WalletConnectVerification)
+    func sign(request: Request, session: Session?, verification: WalletConnectVerification)
     /// A dApp asked for a signature while signing is unavailable. The request was
     /// already declined; nothing was signed.
     func signingUnavailable(request: Request, session: Session?)
+    /// WalletConnect Verify flags the app as a known scam. Its proposal or request was
+    /// already declined; nothing was connected or signed.
+    func blockedScam(origin: String)
     func didChange(sessions: [Session])
 }
 
 extension WalletConnectServiceDelegate {
-    func session(proposal _: Session.Proposal) {}
-    func sign(request _: Request, session _: Session?) {}
+    func session(proposal _: Session.Proposal, verification _: WalletConnectVerification) {}
+    func sign(request _: Request, session _: Session?, verification _: WalletConnectVerification) {}
     func signingUnavailable(request _: Request, session _: Session?) {}
+    func blockedScam(origin _: String) {}
     func didChange(sessions _: [Session]) {}
 }
 
@@ -92,10 +96,12 @@ final class WalletConnectServiceImpl: WalletConnectService {
     typealias ClientFactory = (_ groupIdentifier: String) -> WalletConnectClient?
     typealias Responder = (Request, RPCResult) async throws -> Void
     typealias Pairer = (WalletConnectURI) async throws -> Void
+    typealias ProposalRejecter = (Session.Proposal) async throws -> Void
 
     private let signingPolicy: WalletConnectSigningPolicy
     private let responder: Responder?
     private let pairer: Pairer?
+    private let proposalRejecter: ProposalRejecter?
     private let clientFactory: ClientFactory
     private let notificationCenter: NotificationCenter
     private var listeners: [WeakWrapper] = []
@@ -112,12 +118,14 @@ final class WalletConnectServiceImpl: WalletConnectService {
         signingPolicy: WalletConnectSigningPolicy = .production,
         respond: Responder? = nil,
         pair: Pairer? = nil,
+        rejectProposal: ProposalRejecter? = nil,
         clientFactory: @escaping ClientFactory = WalletConnectServiceImpl.makeClient,
         notificationCenter: NotificationCenter = .default
     ) {
         self.signingPolicy = signingPolicy
         responder = respond
         pairer = pair
+        proposalRejecter = rejectProposal
         self.clientFactory = clientFactory
         self.notificationCenter = notificationCenter
     }
@@ -269,25 +277,57 @@ final class WalletConnectServiceImpl: WalletConnectService {
         }
     }
 
-    /// Routes a dApp request. While signing is unavailable the dApp is told the user
-    /// rejected it, no confirmation opens and no key is read.
-    func handle(request: Request, session: Session?) {
-        guard signingPolicy.isEnabled else {
+    /// Routes a session proposal with what WalletConnect Verify reports about the app.
+    /// A proposal from an app Verify flags as a scam is declined and never shown.
+    func handle(proposal: Session.Proposal, context: VerifyContext?) {
+        let verification = WalletConnectVerification(context: context)
+        guard verification != .scam else {
+            Task { [weak self] in
+                do {
+                    try await self?.reject(proposal: proposal)
+                } catch {
+                    Logger.shared.error("WalletConnect could not decline a proposal from a flagged app")
+                }
+            }
+            notifyBlockedScam(origin: context?.origin ?? proposal.proposer.url)
+            return
+        }
+
+        listeners.forEach {
+            ($0.target as? WalletConnectServiceDelegate)?.session(proposal: proposal, verification: verification)
+        }
+    }
+
+    /// Routes a dApp request. While signing is unavailable, or when WalletConnect Verify
+    /// flags the app as a scam, the dApp is told the user rejected it, no confirmation
+    /// opens and no key is read.
+    func handle(request: Request, session: Session?, context: VerifyContext? = nil) {
+        let verification = WalletConnectVerification(context: context)
+        guard verification != .scam, signingPolicy.isEnabled else {
             Task { [weak self] in
                 do {
                     try await self?.respond(request, .error(.userRejected))
                 } catch {
-                    Logger.shared.error("WalletConnect could not decline a request while signing is unavailable")
+                    Logger.shared.error("WalletConnect could not decline a request")
                 }
             }
-            listeners.forEach {
-                ($0.target as? WalletConnectServiceDelegate)?.signingUnavailable(request: request, session: session)
+
+            if verification == .scam {
+                notifyBlockedScam(origin: context?.origin ?? session?.peer.url ?? "")
+            } else {
+                listeners.forEach {
+                    ($0.target as? WalletConnectServiceDelegate)?.signingUnavailable(request: request, session: session)
+                }
             }
             return
         }
 
         listeners.forEach {
-            ($0.target as? WalletConnectServiceDelegate)?.sign(request: request, session: session)
+            ($0.target as? WalletConnectServiceDelegate)?.sign(
+                request: request,
+                session: session,
+                verification: verification
+            )
         }
     }
 
@@ -348,6 +388,24 @@ final class WalletConnectServiceImpl: WalletConnectService {
         try await client.respond(topic: request.topic, requestId: request.id, response: response)
     }
 
+    private func reject(proposal: Session.Proposal) async throws {
+        if let proposalRejecter = proposalRejecter {
+            try await proposalRejecter(proposal)
+            return
+        }
+        guard let client = client else {
+            throw WalletConnectServiceError.unavailable
+        }
+        try await client.reject(proposalId: proposal.id, reason: .userRejected)
+    }
+
+    private func notifyBlockedScam(origin: String) {
+        let host = WalletConnectVerification.host(of: origin)
+        listeners.forEach {
+            ($0.target as? WalletConnectServiceDelegate)?.blockedScam(origin: host)
+        }
+    }
+
     private func logContinuity() {
         legacyStorageMigrator?.logContinuity(activeTopics: Set(getSessions().map(\.topic)))
     }
@@ -365,17 +423,15 @@ final class WalletConnectServiceImpl: WalletConnectService {
                 }
 
                 switch event {
-                case let .sessionProposal(proposal, _):
-                    self.listeners.forEach {
-                        ($0.target as? WalletConnectServiceDelegate)?.session(proposal: proposal)
-                    }
+                case let .sessionProposal(proposal, context):
+                    self.handle(proposal: proposal, context: context)
                 case let .sessionsChanged(sessions):
                     self.listeners.forEach {
                         ($0.target as? WalletConnectServiceDelegate)?.didChange(sessions: sessions)
                     }
-                case let .sessionRequest(request, _):
+                case let .sessionRequest(request, context):
                     let session = client.currentSessions.first { $0.topic == request.topic }
-                    self.handle(request: request, session: session)
+                    self.handle(request: request, session: session, context: context)
                 case .sessionDeleted, .proposalExpired, .requestExpired, .sessionPinged:
                     break
                 }

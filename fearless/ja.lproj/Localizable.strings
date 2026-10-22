@@ -1128,7 +1128,8 @@
 "wallet.connect.verify.title" = "検証";
 "wallet.connect.verify.valid" = "検証済みのドメイン";
 "wallet.connect.verify.unknown" = "未検証のドメイン";
-"wallet.connect.verify.invalid" = "ドメインが一致しません：このアプリは表示しているウェブサイトではない可能性があります";
+"wallet.connect.verify.invalid" = "ドメインが一致しません";
+"wallet.connect.verify.invalid.warning" = "このアプリは表示しているウェブサイトではない可能性があります。信頼できる場合にのみ続行してください。";
 "wallet.connect.verify.scam" = "既知の詐欺として報告されています";
 "wallet.connect.scam.blocked.title" = "リクエストをブロックしました";
 "wallet.connect.scam.blocked.message" = "WalletConnect Verify により %@ は既知の詐欺として報告されています。Fearless はリクエストを拒否しました。何も接続・署名されていません。";

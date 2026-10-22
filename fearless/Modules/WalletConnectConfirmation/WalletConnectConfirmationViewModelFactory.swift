@@ -208,6 +208,11 @@ final class WalletConnectConfirmationViewModelFactoryImpl: WalletConnectConfirma
                 kind: .website,
                 title: R.string.localizable.walletConnectConfirmationWebsite(preferredLanguages: languages),
                 value: host
+            ),
+            Row(
+                kind: .verification,
+                title: R.string.localizable.walletConnectVerifyTitle(preferredLanguages: languages),
+                value: inputData.verification.title(for: locale)
             )
         ]
     }

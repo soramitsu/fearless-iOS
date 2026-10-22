@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		17B842AFBACB0E633D15B403 /* WalletConnectVerification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D86E2B7EABA04A97DDB6383 /* WalletConnectVerification.swift */; };
 		2352FEBEF95148726F49FC1A /* WalletConnectRequestPreparationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A38E452E8E06B035E14D3BE /* WalletConnectRequestPreparationTests.swift */; };
 		CE8EC3ED0D9FE0FE2411EDE7 /* EraValidatorServiceRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 717E35672D713ED61747E947 /* EraValidatorServiceRequestTests.swift */; };
 		C6B3A863DD469F5BE0426B53 /* AssetHubTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E49BAEB7C7DD730EBA8C49 /* AssetHubTestSupport.swift */; };
@@ -60,6 +61,7 @@
 		3EAFF017611DFC0F6F040ABA /* WalletConnectPairingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BB0E81FB111857D76148885 /* WalletConnectPairingTests.swift */; };
 		5A8C85952089D8F76A6A94FB /* WalletConnectConfirmationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95733E35C11AE9CAE85BAE34 /* WalletConnectConfirmationTests.swift */; };
 		95999564E3AA56D4E4233BA3 /* WalletConnectTestFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC06DC8A3768EE9ED313BA3C /* WalletConnectTestFixtures.swift */; };
+		B6ABC460A516CEEA3CAB100C /* WalletConnectVerifyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26076B4225EB94199FAA2BDB /* WalletConnectVerifyTests.swift */; };
 		C7C2A769CC4D17B7042C4A6E /* WalletConnectEthereumRequestPreparer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C7933802360213D9D9095E /* WalletConnectEthereumRequestPreparer.swift */; };
 		E788FF69A5075596C74A5D4D /* ApplicationLockState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8EA440B2D475548CD3C6D59 /* ApplicationLockState.swift */; };
 		F346DDC696505AD2E19512C1 /* WalletConnectAuthorizationAndLockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C27E51D2D85A24DB5D5143 /* WalletConnectAuthorizationAndLockTests.swift */; };
@@ -3287,6 +3289,8 @@
 /* Begin PBXFileReference section */
 		16C27E51D2D85A24DB5D5143 /* WalletConnectAuthorizationAndLockTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectAuthorizationAndLockTests.swift; sourceTree = "<group>"; };
 		1A38E452E8E06B035E14D3BE /* WalletConnectRequestPreparationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectRequestPreparationTests.swift; sourceTree = "<group>"; };
+		26076B4225EB94199FAA2BDB /* WalletConnectVerifyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectVerifyTests.swift; sourceTree = "<group>"; };
+		2D86E2B7EABA04A97DDB6383 /* WalletConnectVerification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectVerification.swift; sourceTree = "<group>"; };
 		717E35672D713ED61747E947 /* EraValidatorServiceRequestTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EraValidatorServiceRequestTests.swift; sourceTree = "<group>"; };
 		45E49BAEB7C7DD730EBA8C49 /* AssetHubTestSupport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetHubTestSupport.swift; sourceTree = "<group>"; };
 		7F7FB3CE2C1B544FB365748C /* asset-hub-westend-vectors.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "asset-hub-westend-vectors.json"; sourceTree = "<group>"; };
@@ -14035,6 +14039,7 @@
 				FA7254012AC2E48400EC47A6 /* WalletConnectPolkadotTransaction.swift */,
 				FA7254022AC2E48400EC47A6 /* WalletConnectSignDecision.swift */,
 				FA7254042AC2E48400EC47A6 /* WalletConnectSigningRequest.swift */,
+				2D86E2B7EABA04A97DDB6383 /* WalletConnectVerification.swift */,
 				FA7254052AC2E48400EC47A6 /* WalletConnectMethod.swift */,
 			);
 			path = Model;
@@ -15958,6 +15963,7 @@
 				1A38E452E8E06B035E14D3BE /* WalletConnectRequestPreparationTests.swift */,
 				95733E35C11AE9CAE85BAE34 /* WalletConnectConfirmationTests.swift */,
 				16C27E51D2D85A24DB5D5143 /* WalletConnectAuthorizationAndLockTests.swift */,
+				26076B4225EB94199FAA2BDB /* WalletConnectVerifyTests.swift */,
 			);
 			path = WalletConnect;
 			sourceTree = "<group>";
@@ -19390,6 +19396,7 @@
 				62AC3C6E4FC6E9C772757D9A /* RetiredSoraCardDataCleanup.swift in Sources */,
 				C7C2A769CC4D17B7042C4A6E /* WalletConnectEthereumRequestPreparer.swift in Sources */,
 				E788FF69A5075596C74A5D4D /* ApplicationLockState.swift in Sources */,
+				17B842AFBACB0E633D15B403 /* WalletConnectVerification.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -19742,6 +19749,7 @@
 				2352FEBEF95148726F49FC1A /* WalletConnectRequestPreparationTests.swift in Sources */,
 				5A8C85952089D8F76A6A94FB /* WalletConnectConfirmationTests.swift in Sources */,
 				F346DDC696505AD2E19512C1 /* WalletConnectAuthorizationAndLockTests.swift in Sources */,
+				B6ABC460A516CEEA3CAB100C /* WalletConnectVerifyTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -16,6 +16,7 @@ struct WalletConnectConfirmationViewModel {
             case account
             case app
             case website
+            case verification
         }
 
         let kind: Kind

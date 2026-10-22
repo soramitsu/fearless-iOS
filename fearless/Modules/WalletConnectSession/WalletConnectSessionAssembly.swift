@@ -10,6 +10,7 @@ enum WalletConnectSessionAssembly {
     static func configureModule(
         request: Request,
         session: Session?,
+        verification: WalletConnectVerification,
         onGoToConfirmation: ((WalletConnectConfirmationInputData) -> Void)?
     ) -> WalletConnectSessionModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
@@ -36,6 +37,7 @@ enum WalletConnectSessionAssembly {
 
         let viewModelFactory = WalletConnectSessionViewModelFactoryImpl(
             session: session,
+            verification: verification,
             assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
             accountScoreFetcher: accountScoreFetcher,
             settings: SettingsManager.shared
@@ -43,6 +45,7 @@ enum WalletConnectSessionAssembly {
         let presenter = WalletConnectSessionPresenter(
             request: request,
             session: session,
+            verification: verification,
             viewModelFactory: viewModelFactory,
             preparer: WalletConnectRequestPreparer(),
             logger: logger,

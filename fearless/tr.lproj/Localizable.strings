@@ -1135,7 +1135,8 @@ Anahtarınızın yedeğini almayı ve onu güvenli ve gizli bir yerde (ö.o., bi
 "wallet.connect.verify.title" = "Doğrulama";
 "wallet.connect.verify.valid" = "Doğrulanmış alan adı";
 "wallet.connect.verify.unknown" = "Doğrulanmamış alan adı";
-"wallet.connect.verify.invalid" = "Alan adı eşleşmiyor: bu uygulama iddia ettiği web sitesi olmayabilir";
+"wallet.connect.verify.invalid" = "Alan adı eşleşmiyor";
+"wallet.connect.verify.invalid.warning" = "Bu uygulama iddia ettiği web sitesi olmayabilir. Yalnızca güveniyorsanız devam edin.";
 "wallet.connect.verify.scam" = "Bilinen dolandırıcılık olarak işaretlendi";
 "wallet.connect.scam.blocked.title" = "İstek engellendi";
 "wallet.connect.scam.blocked.message" = "WalletConnect Verify, %@ adresini bilinen bir dolandırıcılık olarak işaretledi. Fearless isteği reddetti; hiçbir şey bağlanmadı veya imzalanmadı.";

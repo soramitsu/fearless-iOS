@@ -48,6 +48,14 @@ final class WalletConnectSessionViewLayout: UIView {
         return label
     }()
 
+    private let verificationLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.font = .p2Paragraph
+        return label
+    }()
+
     let tableView: SelfSizingTableView = {
         let tableView = SelfSizingTableView()
         tableView.backgroundColor = R.color.colorBlack19()
@@ -103,6 +111,8 @@ final class WalletConnectSessionViewLayout: UIView {
 
     func bind(viewModel: WalletConnectSessionViewModel) {
         titleLabel.text = viewModel.dApp
+        verificationLabel.text = viewModel.verification
+        verificationLabel.textColor = viewModel.verificationColor
         messageView.subtitle = viewModel.messagePreview
         warningLabel.attributedText = viewModel.warning
     }
@@ -162,7 +172,9 @@ final class WalletConnectSessionViewLayout: UIView {
         contentStackView.addArrangedSubview(imageViewContainer)
         contentStackView.setCustomSpacing(16, after: imageViewContainer)
         contentStackView.addArrangedSubview(titleLabel)
-        contentStackView.setCustomSpacing(16, after: titleLabel)
+        contentStackView.setCustomSpacing(4, after: titleLabel)
+        contentStackView.addArrangedSubview(verificationLabel)
+        contentStackView.setCustomSpacing(16, after: verificationLabel)
         contentStackView.addArrangedSubview(tableView)
         contentStackView.setCustomSpacing(16, after: tableView)
         contentStackView.addArrangedSubview(messageView)
@@ -183,6 +195,7 @@ final class WalletConnectSessionViewLayout: UIView {
         [
             actionButton,
             titleLabel,
+            verificationLabel,
             messageView,
             warningView
         ].forEach { view in
