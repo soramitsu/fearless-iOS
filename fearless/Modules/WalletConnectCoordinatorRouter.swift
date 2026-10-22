@@ -13,7 +13,34 @@ final class WalletConnectCoordinatorRouterImpl: WalletConnectCoordinatorRouter {
         coveringWindow != nil
     }
 
-    private var coveringWindow: UIWindow?
+    private(set) var coveringWindow: UIWindow?
+    private let lockState: ApplicationLockState
+    private let notificationCenter: NotificationCenter
+    private let windowScene: () -> UIWindowScene?
+    private var lockObserver: NSObjectProtocol?
+
+    init(
+        lockState: ApplicationLockState = .shared,
+        notificationCenter: NotificationCenter = .default,
+        windowScene: @escaping () -> UIWindowScene? = { SceneWindowFinder.activeWindow()?.windowScene }
+    ) {
+        self.lockState = lockState
+        self.notificationCenter = notificationCenter
+        self.windowScene = windowScene
+        lockObserver = notificationCenter.addObserver(
+            forName: ApplicationLockState.didChangeNotification,
+            object: lockState,
+            queue: .main
+        ) { [weak self] _ in
+            self?.updateVisibility()
+        }
+    }
+
+    deinit {
+        if let lockObserver = lockObserver {
+            notificationCenter.removeObserver(lockObserver)
+        }
+    }
 
     func setRoot(controller: UIViewController) {
         prepareWindow()
@@ -37,7 +64,7 @@ final class WalletConnectCoordinatorRouterImpl: WalletConnectCoordinatorRouter {
     }
 
     private func prepareWindow() {
-        guard let windowScene = SceneWindowFinder.activeWindow()?.windowScene else {
+        guard let windowScene = windowScene() else {
             return
         }
 
@@ -48,6 +75,25 @@ final class WalletConnectCoordinatorRouterImpl: WalletConnectCoordinatorRouter {
             coveringWindow.isHidden = false
             coveringWindow.backgroundColor = .clear
             coveringWindow.rootViewController = UIViewController()
+            coveringWindow.makeKeyAndVisible()
+        }
+
+        updateVisibility()
+    }
+
+    /// The request window sits above the app's window, so it is hidden while the PIN
+    /// screen locks the app and shown again once the app is unlocked.
+    private func updateVisibility() {
+        guard let coveringWindow = coveringWindow else {
+            return
+        }
+
+        if lockState.isLocked {
+            coveringWindow.isHidden = true
+            coveringWindow.windowScene?.windows
+                .first { $0 !== coveringWindow && !$0.isHidden && $0.windowLevel == .normal }?
+                .makeKey()
+        } else {
             coveringWindow.makeKeyAndVisible()
         }
     }

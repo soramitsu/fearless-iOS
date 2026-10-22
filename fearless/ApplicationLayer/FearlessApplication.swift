@@ -72,6 +72,9 @@ class FearlessApplication: UIApplication {
 
             window.rootViewController?.dismiss(animated: false)
             window.rootViewController?.present(pincodeViewController, animated: false)
+            // Prompts in their own windows, such as WalletConnect requests, stay
+            // behind the PIN screen until it is unlocked.
+            ApplicationLockState.shared.lock(with: pincodeViewController)
         }
     }
 

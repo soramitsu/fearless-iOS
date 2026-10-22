@@ -26,6 +26,8 @@ struct WalletConnectSigningPolicy: Equatable {
 
 enum WalletConnectSigningError: Error {
     case unavailable
+    /// The user did not confirm with the PIN or biometrics.
+    case notAuthorized
 }
 
 enum WalletConnectServiceError: Error {

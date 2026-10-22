@@ -20,6 +20,7 @@ final class WalletConnectConfirmationPresenter {
 
     private let inputData: WalletConnectConfirmationInputData
     private let viewModelFactory: WalletConnectConfirmationViewModelFactory
+    private var isSigning = false
 
     // MARK: - Constructors
 
@@ -80,16 +81,29 @@ extension WalletConnectConfirmationPresenter: WalletConnectConfirmationViewOutpu
     }
 
     func confirmDidTapped() {
+        guard !isSigning else {
+            return
+        }
+
+        isSigning = true
         view?.didStartLoading()
         Task {
             do {
                 let hash = try await interactor.approve()
                 await MainActor.run {
+                    isSigning = false
                     showAllDone(hash: hash)
+                    view?.didStopLoading()
+                }
+            } catch WalletConnectSigningError.notAuthorized {
+                // The user closed the PIN screen; the request stays open to retry or reject.
+                await MainActor.run {
+                    isSigning = false
                     view?.didStopLoading()
                 }
             } catch {
                 await MainActor.run {
+                    isSigning = false
                     view?.didStopLoading()
                     show(error: error)
                 }

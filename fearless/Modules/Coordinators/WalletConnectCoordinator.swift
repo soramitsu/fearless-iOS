@@ -1,53 +1,100 @@
 import Foundation
+import JSONRPC
 import SoraFoundation
 import FearlessWalletConnect
 import UIKit
 
 final class WalletConnectCoordinator: DefaultCoordinator {
+    typealias FlowCoordinator = DefaultCoordinator & CoordinatorFinishOutput
+
     // MARK: - Private properties
 
-    private let walletConnect: WalletConnectService = WalletConnectServiceImpl.shared
-    private lazy var router: WalletConnectCoordinatorRouter = {
-        WalletConnectCoordinatorRouterImpl()
-    }()
+    private let walletConnect: WalletConnectService
+    private let router: WalletConnectCoordinatorRouter
+    private let lockState: ApplicationLockState
+    private let notificationCenter: NotificationCenter
+    private let isApplicationActive: () -> Bool
+    private let makeRequestFlow: (WalletConnectCoordinatorRouter, Request, Session?) -> FlowCoordinator
+    private let makeProposalFlow: (WalletConnectCoordinatorRouter, Session.Proposal) -> FlowCoordinator
+    private let signingUnavailableNotice: WalletConnectSigningUnavailableNoticePresenter
+    private var lockObserver: NSObjectProtocol?
+
+    /// Requests already queued or on screen. The SDK sends the oldest pending request
+    /// again whenever another one arrives, so a request is queued only once.
+    private var queuedRequestIds: Set<String> = []
 
     private lazy var applicationHandler: ApplicationHandler = {
         ApplicationHandler()
     }()
 
-    private let signingUnavailableNotice: WalletConnectSigningUnavailableNoticePresenter
-
-    init(signingUnavailableNotice: WalletConnectSigningUnavailableNoticePresenter = .init()) {
+    init(
+        walletConnect: WalletConnectService = WalletConnectServiceImpl.shared,
+        router: WalletConnectCoordinatorRouter = WalletConnectCoordinatorRouterImpl(),
+        lockState: ApplicationLockState = .shared,
+        notificationCenter: NotificationCenter = .default,
+        isApplicationActive: @escaping () -> Bool = { UIApplication.shared.applicationState == .active },
+        signingUnavailableNotice: WalletConnectSigningUnavailableNoticePresenter = .init(),
+        makeRequestFlow: @escaping (WalletConnectCoordinatorRouter, Request, Session?) -> FlowCoordinator = {
+            WalletConnectSessionCoordinator(router: $0, request: $1, session: $2)
+        },
+        makeProposalFlow: @escaping (WalletConnectCoordinatorRouter, Session.Proposal) -> FlowCoordinator = {
+            WalletConnectProposalCoordinator(router: $0, proposal: $1)
+        }
+    ) {
+        self.walletConnect = walletConnect
+        self.router = router
+        self.lockState = lockState
+        self.notificationCenter = notificationCenter
+        self.isApplicationActive = isApplicationActive
         self.signingUnavailableNotice = signingUnavailableNotice
+        self.makeRequestFlow = makeRequestFlow
+        self.makeProposalFlow = makeProposalFlow
         super.init()
         walletConnect.set(listener: self)
         applicationHandler.delegate = self
+        lockObserver = notificationCenter.addObserver(
+            forName: ApplicationLockState.didChangeNotification,
+            object: lockState,
+            queue: .main
+        ) { [weak self] _ in
+            self?.presentNextIfPossible()
+            self?.signingUnavailableNotice.presentPendingNoticeIfPossible()
+        }
+    }
+
+    deinit {
+        if let lockObserver = lockObserver {
+            notificationCenter.removeObserver(lockObserver)
+        }
     }
 
     // MARK: - private methods
 
+    /// Starts the oldest waiting flow once the app is active and unlocked, and nothing
+    /// else is on screen. While the PIN screen locks the app, flows wait in the queue.
     private func presentNextIfPossible() {
-        guard childCoordinators.isNotEmpty, let nextCoordinator = childCoordinators.first, !router.isBusy else {
+        guard
+            isApplicationActive(),
+            !lockState.isLocked,
+            !router.isBusy,
+            let nextCoordinator = childCoordinators.first
+        else {
             return
         }
         nextCoordinator.start()
     }
 
-    private func startIfPossible(with coordinator: DefaultCoordinator) {
-        let applicationState = UIApplication.shared.applicationState
-        switch applicationState {
-        case .active:
-            addChildCoordinator(coordinator)
-            guard !router.isBusy else {
-                return
+    private func enqueue(_ coordinator: FlowCoordinator, onFinish: (() -> Void)? = nil) {
+        var flow = coordinator
+        flow.finishFlow = { [weak self, weak coordinator] in
+            onFinish?()
+            self?.removeChildCoordinator(coordinator)
+            self?.router.dismiss { [weak self] in
+                self?.presentNextIfPossible()
             }
-            coordinator.start()
-
-        case .background, .inactive:
-            addChildCoordinator(coordinator)
-        @unknown default:
-            preconditionFailure()
         }
+        addChildCoordinator(flow)
+        presentNextIfPossible()
     }
 }
 
@@ -55,25 +102,18 @@ final class WalletConnectCoordinator: DefaultCoordinator {
 
 extension WalletConnectCoordinator: WalletConnectServiceDelegate {
     func sign(request: Request, session: Session?) {
-        let coordinator = WalletConnectSessionCoordinator(router: router, request: request, session: session)
-        coordinator.finishFlow = { [weak self, weak coordinator] in
-            self?.removeChildCoordinator(coordinator)
-            self?.router.dismiss { [weak self] in
-                self?.presentNextIfPossible()
-            }
+        let requestId = request.id.string
+        guard queuedRequestIds.insert(requestId).inserted else {
+            return
         }
-        startIfPossible(with: coordinator)
+
+        enqueue(makeRequestFlow(router, request, session)) { [weak self] in
+            self?.queuedRequestIds.remove(requestId)
+        }
     }
 
     func session(proposal: Session.Proposal) {
-        let coordinator = WalletConnectProposalCoordinator(router: router, proposal: proposal)
-        coordinator.finishFlow = { [weak self, weak coordinator] in
-            self?.removeChildCoordinator(coordinator)
-            self?.router.dismiss { [weak self] in
-                self?.presentNextIfPossible()
-            }
-        }
-        startIfPossible(with: coordinator)
+        enqueue(makeProposalFlow(router, proposal))
     }
 
     func signingUnavailable(request _: Request, session _: Session?) {
@@ -92,7 +132,7 @@ extension WalletConnectCoordinator: ApplicationHandlerDelegate {
 
 /// Tells the user that a dApp request was declined because WalletConnect signing is
 /// unavailable (`WalletConnectSigningPolicy`). Requests that arrive together, or while
-/// the app is in the background, share one notice.
+/// the app is in the background or locked, share one notice.
 final class WalletConnectSigningUnavailableNoticePresenter {
     private let topViewController: () -> UIViewController?
     private let isApplicationActive: () -> Bool
@@ -101,7 +141,9 @@ final class WalletConnectSigningUnavailableNoticePresenter {
 
     init(
         topViewController: @escaping () -> UIViewController? = { UIApplication.topViewController() },
-        isApplicationActive: @escaping () -> Bool = { UIApplication.shared.applicationState == .active }
+        isApplicationActive: @escaping () -> Bool = {
+            UIApplication.shared.applicationState == .active && !ApplicationLockState.shared.isLocked
+        }
     ) {
         self.topViewController = topViewController
         self.isApplicationActive = isApplicationActive

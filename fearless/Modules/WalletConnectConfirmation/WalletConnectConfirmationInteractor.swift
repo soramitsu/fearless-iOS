@@ -10,15 +10,18 @@ final class WalletConnectConfirmationInteractor {
     private let walletConnect: WalletConnectService
     private let inputData: WalletConnectConfirmationInputData
     private let signer: WalletConnectSigner
+    private let authorizer: WalletConnectSigningAuthorizing
 
     init(
         walletConnect: WalletConnectService,
         inputData: WalletConnectConfirmationInputData,
-        signer: WalletConnectSigner
+        signer: WalletConnectSigner,
+        authorizer: WalletConnectSigningAuthorizing
     ) {
         self.walletConnect = walletConnect
         self.inputData = inputData
         self.signer = signer
+        self.authorizer = authorizer
     }
 }
 
@@ -32,6 +35,11 @@ extension WalletConnectConfirmationInteractor: WalletConnectConfirmationInteract
     }
 
     func approve() async throws -> String? {
+        // Nothing is signed until the user confirms with the PIN or biometrics.
+        guard await authorizer.authorize() else {
+            throw WalletConnectSigningError.notAuthorized
+        }
+
         let signingRequest = inputData.signingRequest
         let signature = try await signer.sign(request: signingRequest)
         let signDecision: WalletConnectSignDecision = .signed(request: signingRequest.request, signature: signature)
