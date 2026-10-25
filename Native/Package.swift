@@ -395,6 +395,10 @@ let package = Package(
         ),
 
         //Tests targets
+        .testTarget(
+            name: "NativeCompatibilityTests",
+            dependencies: ["scrypt", "SoraKeystore", "SSFPools"]
+        ),
         .target(
             name: "RuntimeMetadataFixtures",
             exclude: ["README.md"],

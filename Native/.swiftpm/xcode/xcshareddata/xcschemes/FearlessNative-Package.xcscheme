@@ -709,6 +709,14 @@
 
          <TestableReference skipped = "NO"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "AuthorizedWriteTests" BuildableName = "AuthorizedWriteTests" BlueprintName = "AuthorizedWriteTests" ReferencedContainer = "container:"></BuildableReference></TestableReference>
          <TestableReference skipped = "NO"><BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "LegacyTransportTests" BuildableName = "LegacyTransportTests" BlueprintName = "LegacyTransportTests" ReferencedContainer = "container:"></BuildableReference></TestableReference>
+         <TestableReference skipped = "NO">
+            <BuildableReference BuildableIdentifier = "primary"
+               BlueprintIdentifier = "NativeCompatibilityTests"
+               BuildableName = "NativeCompatibilityTests"
+               BlueprintName = "NativeCompatibilityTests"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
