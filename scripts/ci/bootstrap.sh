@@ -64,7 +64,9 @@ if [[ -f fearless.xcworkspace/contents.xcworkspacedata ]]; then
   if [[ -x scripts/deps/check-dependency-contracts.sh ]]; then
     scripts/deps/check-dependency-contracts.sh
   fi
-  xcodebuild -resolvePackageDependencies -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath "$SP_DIR"
+  # Hosted runner repository caches can contain missing/stale bare checkouts.
+  # Resolve into this job's source directory without consulting that shared cache.
+  xcodebuild -resolvePackageDependencies -disablePackageRepositoryCache -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath "$SP_DIR"
 else
   echo "[bootstrap] WARNING: Workspace not found; skipping SPM resolve"
 fi

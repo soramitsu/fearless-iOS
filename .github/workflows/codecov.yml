@@ -115,6 +115,7 @@ jobs:
           SP_DIR="$PWD/SourcePackages"
           mkdir -p "$SP_DIR"
           xcodebuild -resolvePackageDependencies \
+            -disablePackageRepositoryCache \
             -workspace fearless.xcworkspace \
             -scheme fearless \
             -clonedSourcePackagesDirPath "$SP_DIR"
@@ -164,6 +165,7 @@ jobs:
             -scheme fearless.tests \
             -clonedSourcePackagesDirPath "$SP_DIR" \
             -disableAutomaticPackageResolution \
+            -disablePackageRepositoryCache \
             -destination "$DESTINATION" \
             -enableCodeCoverage YES \
             -resultBundlePath "$RESULT_BUNDLE" \
