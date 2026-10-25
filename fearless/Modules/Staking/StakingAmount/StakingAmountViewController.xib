@@ -218,7 +218,7 @@
                                                         <userDefinedRuntimeAttribute type="number" keyPath="_rightInset">
                                                             <real key="value" value="16"/>
                                                         </userDefinedRuntimeAttribute>
-                                                        <userDefinedRuntimeAttribute type="boolean" keyPath="_isSelected" value="YES"/>
+                                                        <userDefinedRuntimeAttribute type="boolean" keyPath="privateIsSelected" value="YES"/>
                                                     </userDefinedRuntimeAttributes>
                                                     <connections>
                                                         <action selector="actionRestake" destination="-1" eventType="touchDown" id="w8F-Nv-Z7s"/>
@@ -291,7 +291,7 @@
                                                             <real key="value" value="16"/>
                                                         </userDefinedRuntimeAttribute>
                                                         <userDefinedRuntimeAttribute type="image" keyPath="_selectionIcon" value="listCheckmarkIcon"/>
-                                                        <userDefinedRuntimeAttribute type="boolean" keyPath="_isSelected" value="NO"/>
+                                                        <userDefinedRuntimeAttribute type="boolean" keyPath="privateIsSelected" value="NO"/>
                                                     </userDefinedRuntimeAttributes>
                                                     <connections>
                                                         <action selector="actionPayout" destination="-1" eventType="touchDown" id="PXo-hw-FZu"/>
@@ -384,7 +384,7 @@
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_rightInset">
                                                     <real key="value" value="16"/>
                                                 </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="boolean" keyPath="_isSelected" value="YES"/>
+                                                <userDefinedRuntimeAttribute type="boolean" keyPath="privateIsSelected" value="YES"/>
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="r2r-X8-ATe" customClass="DetailsTriangularedView" customModule="fearless" customModuleProvider="target">
@@ -449,7 +449,7 @@
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconFearlessSmall"/>
                                                 <userDefinedRuntimeAttribute type="string" keyPath="title" value="Learn more about Payouts"/>
-                                                <userDefinedRuntimeAttribute type="number" keyPath="_layout">
+                                                <userDefinedRuntimeAttribute type="number" keyPath="privateLayout">
                                                     <integer key="value" value="2"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="color" keyPath="titleColor">

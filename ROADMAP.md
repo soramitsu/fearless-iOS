@@ -265,3 +265,7 @@ Verification matrix (execute manually):
 - Contributing: ./CONTRIBUTING.md
 
 For the most accurate and up‑to‑date details, always refer to the Aha! roadmap and dev board links above.
+
+### Interface Builder selector compatibility (2026-10-25)
+
+Adapt the historical private-selector naming fix to the current app: four custom inspectable properties now use explicit privateSubtitle/privateSubtitleColor/privateLayout/privateIsSelected names, and all corresponding XIB key paths match. Preserve the existing XIB layout and values. This avoids emitting the old underscore selectors from these custom controls; distribution acceptance still requires the normal signed upload checks.

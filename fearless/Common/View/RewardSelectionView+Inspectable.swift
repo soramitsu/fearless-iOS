@@ -291,7 +291,7 @@ extension RewardSelectionView {
     }
 
     @IBInspectable
-    private var _isSelected: Bool {
+    private var privateIsSelected: Bool {
         get {
             isSelected
         }

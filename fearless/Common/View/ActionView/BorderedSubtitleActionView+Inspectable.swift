@@ -70,7 +70,7 @@ extension BorderedSubtitleActionView {
     }
 
     @IBInspectable
-    private var _subtitle: String? {
+    private var privateSubtitle: String? {
         get {
             actionControl.contentView.subtitleLabelView.text
         }
@@ -81,7 +81,7 @@ extension BorderedSubtitleActionView {
     }
 
     @IBInspectable
-    private var _subtitleColor: UIColor? {
+    private var privateSubtitleColor: UIColor? {
         get {
             actionControl.contentView.subtitleLabelView.textColor
         }
