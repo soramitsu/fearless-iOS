@@ -96,6 +96,18 @@ def verify(root):
         tracked_binaries = {path.removeprefix("Native/") for path in tracked if path}
         if tracked_binaries != set(binaries):
             raise ValueError("Native binary provenance must match tracked files; ignored local files cannot qualify a clean checkout")
+    if (root / ".git").exists():
+        tracked = subprocess.run(
+            ["git", "ls-files", "-z", "--", "Native/Sources", "Native/Tests"], cwd=root,
+            check=True, capture_output=True,
+        ).stdout.decode().split("\0")
+        actual_sources = {
+            path.relative_to(root).as_posix()
+            for directory in ("Sources", "Tests")
+            for path in (native / directory).rglob("*") if path.is_file()
+        }
+        if actual_sources != {path for path in tracked if path}:
+            raise ValueError("Native source files must be tracked, including generated mocks used by tests")
     for relative, digest in binaries.items():
         if not relative.startswith("Binaries/") or not re.fullmatch(r"[0-9a-f]{64}", digest):
             raise ValueError("Invalid native binary provenance entry")

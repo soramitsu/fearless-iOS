@@ -50,6 +50,14 @@ class NativeSourceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "match tracked files"):
             VERIFIER.verify(self.root)
 
+    def test_ignored_generated_mock_is_rejected(self):
+        subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
+        subprocess.run(["git", "add", "-f", "Native/Binaries/example"], cwd=self.root, check=True)
+        self.write(".gitignore", "*.generated.swift\n")
+        self.write("Native/Sources/Mocks/Example.generated.swift", "struct ExampleMock {}")
+        with self.assertRaisesRegex(ValueError, "source files must be tracked"):
+            VERIFIER.verify(self.root)
+
     def test_remote_internal_package_is_rejected(self):
         self.write("Native/Package.swift", 'Package(name: "FearlessNative", url: "https://github.com/soramitsu/shared-features-spm.git")')
         with self.assertRaisesRegex(ValueError, "Retired internal"):
