@@ -64,7 +64,7 @@ final class ChainsIssuesCenter: ChainsIssuesCenterProtocol {
     }
 
     func removeIssuesListener(_ listener: ChainsIssuesCenterListener) {
-        issuesListeners = issuesListeners.filter { $0 !== listener }
+        issuesListeners = issuesListeners.filter { $0.target !== listener }
     }
 
     func forceNotify() {

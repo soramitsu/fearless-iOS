@@ -50,7 +50,7 @@ public final class NetworkIssuesCenterImpl: NetworkIssuesCenterProtocol {
     }
 
     public func removeIssuesListener(_ listener: ConnectionIssuesCenterListener) {
-        issuesListeners = issuesListeners.filter { $0 !== listener }
+        issuesListeners = issuesListeners.filter { $0.target !== listener }
     }
 
     public func forceNotify() {

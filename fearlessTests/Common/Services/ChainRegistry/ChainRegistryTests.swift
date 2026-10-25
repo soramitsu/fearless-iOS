@@ -5,6 +5,8 @@ import SSFRuntimeCodingService
 import SSFUtils
 import Web3
 import XCTest
+@testable import class SSFChainConnection.NetworkIssuesCenterImpl
+import protocol SSFChainConnection.ConnectionIssuesCenterListener
 @testable import fearless
 
 final class ChainRegistryTests: XCTestCase {
@@ -554,5 +556,135 @@ private final class NoopRuntimeProvider: RuntimeProviderProtocol {
         -> RuntimeCoderFactoryProtocol {
         throw SSFRuntimeCodingService.RuntimeProviderError
             .providerUnavailable
+    }
+}
+
+final class IssuesCenterListenerRemovalTests: XCTestCase {
+    func testNativeRemovalUnsubscribesEveryRegistrationAndPreservesOtherListeners() {
+        let center = NetworkIssuesCenterImpl.shared
+        let removed = NativeIssuesListenerSpy()
+        let retained = NativeIssuesListenerSpy()
+        defer {
+            center.removeIssuesListener(removed)
+            center.removeIssuesListener(retained)
+        }
+        center.addIssuesListener(removed, getExisting: false)
+        center.addIssuesListener(removed, getExisting: false)
+        center.addIssuesListener(retained, getExisting: false)
+        center.forceNotify()
+        XCTAssertEqual(removed.notificationCount, 2)
+        XCTAssertEqual(retained.notificationCount, 1)
+
+        center.removeIssuesListener(removed)
+        center.removeIssuesListener(removed)
+        center.forceNotify()
+        XCTAssertEqual(removed.notificationCount, 2)
+        XCTAssertEqual(retained.notificationCount, 2)
+    }
+
+    func testAppNetworkRemovalUnsubscribesEveryRegistrationAndPreservesOtherListeners() {
+        let center = NetworkIssuesCenter.shared
+        let removed = NetworkIssuesListenerSpy()
+        let retained = NetworkIssuesListenerSpy()
+        defer {
+            center.removeIssuesListener(removed)
+            center.removeIssuesListener(retained)
+        }
+        center.addIssuesListener(removed, getExisting: false)
+        center.addIssuesListener(removed, getExisting: false)
+        center.addIssuesListener(retained, getExisting: false)
+        center.forceNotify()
+        XCTAssertEqual(removed.notificationCount, 2)
+        XCTAssertEqual(retained.notificationCount, 1)
+
+        center.removeIssuesListener(removed)
+        center.removeIssuesListener(removed)
+        center.forceNotify()
+        XCTAssertEqual(removed.notificationCount, 2)
+        XCTAssertEqual(retained.notificationCount, 2)
+    }
+
+    func testAppChainRemovalUnsubscribesEveryRegistrationAndPreservesOtherListeners() {
+        let center = ChainsIssuesCenter(
+            wallet: AccountGenerator.generateMetaAccount(),
+            networkIssuesCenter: NoopNetworkIssuesCenter(),
+            eventCenter: EventCenter(),
+            missingAccountHelper: NoMissingAccounts(),
+            accountInfoFetcher: NoIssueAccountInfo()
+        )
+        let removed = ChainsIssuesListenerSpy()
+        let retained = ChainsIssuesListenerSpy()
+        center.addIssuesListener(removed, getExisting: false)
+        center.addIssuesListener(removed, getExisting: false)
+        center.addIssuesListener(retained, getExisting: false)
+        center.handleChainsWithIssues([])
+        XCTAssertEqual(removed.notificationCount, 2)
+        XCTAssertEqual(retained.notificationCount, 1)
+
+        center.removeIssuesListener(removed)
+        center.removeIssuesListener(removed)
+        center.handleChainsWithIssues([])
+        XCTAssertEqual(removed.notificationCount, 2)
+        XCTAssertEqual(retained.notificationCount, 2)
+    }
+}
+
+private final class NativeIssuesListenerSpy: ConnectionIssuesCenterListener {
+    private(set) var notificationCount = 0
+
+    func handleChainsWithIssues(_: [ChainModel.Id]) {
+        notificationCount += 1
+    }
+}
+
+private final class NetworkIssuesListenerSpy: NetworkIssuesCenterListener {
+    private(set) var notificationCount = 0
+
+    func handleChainsWithIssues(_: [ChainModel]) {
+        notificationCount += 1
+    }
+}
+
+private final class ChainsIssuesListenerSpy: ChainsIssuesCenterListener {
+    private(set) var notificationCount = 0
+
+    func handleChainsIssues(_: [ChainIssue]) {
+        notificationCount += 1
+    }
+}
+
+private struct NoMissingAccounts: MissingAccountFetcherProtocol {
+    func fetchMissingAccounts(for _: MetaAccountModel, complection: @escaping ([ChainModel]) -> Void) {
+        complection([])
+    }
+}
+
+private struct NoIssueAccountInfo: AccountInfoFetchingProtocol {
+    func fetch(
+        for chainAsset: ChainAsset,
+        accountId _: AccountId,
+        completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
+    ) {
+        completionBlock(chainAsset, nil)
+    }
+
+    func fetch(
+        for _: [ChainAsset],
+        wallet _: MetaAccountModel,
+        completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
+    ) {
+        completionBlock([:])
+    }
+
+    func fetch(for chainAsset: ChainAsset, accountId _: AccountId) async throws -> (ChainAsset, AccountInfo?) {
+        (chainAsset, nil)
+    }
+
+    func fetch(for _: [ChainAsset], wallet _: MetaAccountModel) async throws -> [ChainAsset: AccountInfo?] {
+        [:]
+    }
+
+    func fetchByUniqKey(for _: [ChainAsset], wallet _: MetaAccountModel) async throws -> [ChainAssetKey: AccountInfo?] {
+        [:]
     }
 }

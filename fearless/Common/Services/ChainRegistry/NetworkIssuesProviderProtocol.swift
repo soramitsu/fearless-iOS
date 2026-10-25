@@ -54,7 +54,7 @@ final class NetworkIssuesCenter: NetworkIssuesCenterProtocol {
     }
 
     func removeIssuesListener(_ listener: NetworkIssuesCenterListener) {
-        issuesListeners = issuesListeners.filter { $0 !== listener }
+        issuesListeners = issuesListeners.filter { $0.target !== listener }
     }
 
     func forceNotify() {
