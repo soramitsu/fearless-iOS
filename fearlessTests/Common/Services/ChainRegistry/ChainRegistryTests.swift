@@ -629,19 +629,87 @@ final class IssuesCenterListenerRemovalTests: XCTestCase {
     }
 }
 
+final class IssuesCenterReachabilityTests: XCTestCase {
+    func testNativeUnreachableConnectionNotifiesOnceAndClearsWhenConnected() {
+        let center = NetworkIssuesCenterImpl.shared
+        let chainId = UUID().uuidString
+        let listener = NativeIssuesListenerSpy()
+        let lateListener = NativeIssuesListenerSpy()
+        defer {
+            center.removeIssuesListener(listener)
+            center.removeIssuesListener(lateListener)
+            center.handle(chain: chainId, state: .connected)
+        }
+        center.addIssuesListener(listener, getExisting: false)
+
+        center.handle(chain: chainId, state: .notReachable)
+        XCTAssertTrue(listener.lastChainIds.contains(chainId))
+        XCTAssertEqual(listener.notificationCount, 1)
+        center.addIssuesListener(lateListener, getExisting: true)
+        XCTAssertTrue(lateListener.lastChainIds.contains(chainId))
+
+        center.handle(chain: chainId, state: .notReachable)
+        center.handle(chain: chainId, state: .connecting(attempt: 0))
+        XCTAssertEqual(listener.notificationCount, 1)
+        XCTAssertTrue(listener.lastChainIds.contains(chainId))
+
+        center.handle(chain: chainId, state: .connected)
+        XCTAssertFalse(listener.lastChainIds.contains(chainId))
+        XCTAssertFalse(lateListener.lastChainIds.contains(chainId))
+        XCTAssertEqual(listener.notificationCount, 2)
+        center.handle(chain: chainId, state: .connected)
+        XCTAssertEqual(listener.notificationCount, 2)
+    }
+
+    func testAppUnreachableConnectionNotifiesOnceAndClearsWhenConnected() throws {
+        let center = NetworkIssuesCenter.shared
+        let chain = try XCTUnwrap(ChainModelGenerator.generate(count: 1).first)
+        let listener = NetworkIssuesListenerSpy()
+        let lateListener = NetworkIssuesListenerSpy()
+        defer {
+            center.removeIssuesListener(listener)
+            center.removeIssuesListener(lateListener)
+            center.processChainReconnecting(event: ChainReconnectingEvent(chain: chain, state: .connected))
+        }
+        center.addIssuesListener(listener, getExisting: false)
+
+        center.processChainReconnecting(event: ChainReconnectingEvent(chain: chain, state: .notReachable))
+        XCTAssertTrue(listener.lastChainIds.contains(chain.chainId))
+        XCTAssertEqual(listener.notificationCount, 1)
+        center.addIssuesListener(lateListener, getExisting: true)
+        XCTAssertTrue(lateListener.lastChainIds.contains(chain.chainId))
+
+        center.processChainReconnecting(event: ChainReconnectingEvent(chain: chain, state: .notReachable))
+        center.processChainReconnecting(event: ChainReconnectingEvent(chain: chain, state: .connecting(attempt: 0)))
+        XCTAssertEqual(listener.notificationCount, 1)
+        XCTAssertTrue(listener.lastChainIds.contains(chain.chainId))
+
+        center.processChainReconnecting(event: ChainReconnectingEvent(chain: chain, state: .connected))
+        XCTAssertFalse(listener.lastChainIds.contains(chain.chainId))
+        XCTAssertFalse(lateListener.lastChainIds.contains(chain.chainId))
+        XCTAssertEqual(listener.notificationCount, 2)
+        center.processChainReconnecting(event: ChainReconnectingEvent(chain: chain, state: .connected))
+        XCTAssertEqual(listener.notificationCount, 2)
+    }
+}
+
 private final class NativeIssuesListenerSpy: ConnectionIssuesCenterListener {
     private(set) var notificationCount = 0
+    private(set) var lastChainIds: Set<ChainModel.Id> = []
 
-    func handleChainsWithIssues(_: [ChainModel.Id]) {
+    func handleChainsWithIssues(_ chains: [ChainModel.Id]) {
         notificationCount += 1
+        lastChainIds = Set(chains)
     }
 }
 
 private final class NetworkIssuesListenerSpy: NetworkIssuesCenterListener {
     private(set) var notificationCount = 0
+    private(set) var lastChainIds: Set<ChainModel.Id> = []
 
-    func handleChainsWithIssues(_: [ChainModel]) {
+    func handleChainsWithIssues(_ chains: [ChainModel]) {
         notificationCount += 1
+        lastChainIds = Set(chains.map(\.chainId))
     }
 }
 
@@ -686,5 +754,245 @@ private struct NoIssueAccountInfo: AccountInfoFetchingProtocol {
 
     func fetchByUniqKey(for _: [ChainAsset], wallet _: MetaAccountModel) async throws -> [ChainAssetKey: AccountInfo?] {
         [:]
+    }
+}
+
+final class RemoteSubscriptionCompletionTests: XCTestCase {
+    func testFailureCompletesAllWaitersOnceAndAllowsRetry() throws {
+        let operations = ControlledSubscriptionOperations()
+        let service = makeService(operations: operations)
+        let completed = expectation(description: "both initial waiters fail")
+        completed.assertForOverFulfill = true
+        completed.expectedFulfillmentCount = 2
+        var callbackCount = 0
+        for _ in 0 ..< 2 {
+            service.attachToSubscription(with: [], chainId: "test", cacheKey: "key", queue: .main) { result in
+                if case let .failure(error) = result {
+                    XCTAssertNotNil(error as? ChainRegistryError)
+                } else {
+                    XCTFail("Missing runtime must fail initialization")
+                }
+                callbackCount += 1
+                completed.fulfill()
+            }
+        }
+        XCTAssertEqual(operations.targets.count, 1)
+        let first = try XCTUnwrap(operations.targets.first)
+        first.completionBlock?()
+        first.completionBlock?()
+        wait(for: [completed], timeout: 1)
+        XCTAssertEqual(callbackCount, 2)
+
+        let retried = expectation(description: "retry has its own completion")
+        retried.assertForOverFulfill = true
+        service.attachToSubscription(with: [], chainId: "test", cacheKey: "key", queue: .main) { result in
+            if case .success = result {
+                XCTFail("Missing runtime must still fail")
+            }
+            callbackCount += 1
+            retried.fulfill()
+        }
+        guard operations.targets.count == 2 else {
+            XCTFail("Failed initialization must release the pending entry for retry")
+            return
+        }
+        operations.targets[1].completionBlock?()
+        wait(for: [retried], timeout: 1)
+        XCTAssertEqual(callbackCount, 3)
+    }
+
+    func testDetachedOldSuccessCannotCompleteReplacementRequest() throws {
+        let operations = ControlledSubscriptionOperations()
+        let service = makeService(operations: operations)
+        let detachedCallback = expectation(description: "detached waiter is not called")
+        detachedCallback.isInverted = true
+        let originalId = service.attachToSubscription(
+            with: [], chainId: "test", cacheKey: "key", queue: .main
+        ) { _ in detachedCallback.fulfill() }
+        let old = try XCTUnwrap(operations.targets.first)
+        service.detachFromSubscription("key", subscriptionId: originalId, queue: .main, closure: nil)
+        XCTAssertTrue(old.isCancelled)
+
+        let prematureCallback = expectation(description: "old completion does not complete new waiter")
+        prematureCallback.isInverted = true
+        let currentCallback = expectation(description: "replacement reports its own result")
+        currentCallback.assertForOverFulfill = true
+        var completingCurrent = false
+        service.attachToSubscription(with: [], chainId: "test", cacheKey: "key", queue: .main) { result in
+            guard completingCurrent else {
+                prematureCallback.fulfill()
+                return
+            }
+            if case .success = result {
+                XCTFail("The replacement has no runtime")
+            }
+            currentCallback.fulfill()
+        }
+        XCTAssertEqual(operations.targets.count, 2)
+        old.result = .success(StorageSubscriptionContainer(
+            engine: MockConnection(),
+            children: [],
+            logger: Logger.shared
+        ))
+        old.completionBlock?()
+        wait(for: [detachedCallback, prematureCallback], timeout: 0.2)
+
+        completingCurrent = true
+        operations.targets[1].completionBlock?()
+        wait(for: [currentCallback], timeout: 1)
+    }
+
+    func testCancelledCurrentInitializationCompletesOnceAndAllowsRetry() throws {
+        let operations = ControlledSubscriptionOperations()
+        let service = makeService(operations: operations)
+        let completed = expectation(description: "cancelled initialization finishes")
+        completed.assertForOverFulfill = true
+        service.attachToSubscription(with: [], chainId: "test", cacheKey: "key", queue: .main) { result in
+            if case let .failure(error) = result {
+                guard case .parentOperationCancelled = error as? BaseOperationError else {
+                    return XCTFail("Expected operation cancellation, received \(error)")
+                }
+            } else {
+                XCTFail("Cancellation cannot succeed")
+            }
+            completed.fulfill()
+        }
+        let first = try XCTUnwrap(operations.targets.first)
+        first.cancel()
+        first.result = nil
+        first.completionBlock?()
+        first.completionBlock?()
+        wait(for: [completed], timeout: 1)
+        service.attachToSubscription(with: [], chainId: "test", cacheKey: "key", queue: .main, closure: nil)
+        XCTAssertEqual(operations.targets.count, 2)
+    }
+
+    func testSuccessfulInitializationCompletesOnceAndReusesActiveSubscription() throws {
+        let operations = ControlledSubscriptionOperations()
+        let service = makeService(operations: operations)
+        let completed = expectation(description: "initial subscription succeeds")
+        completed.assertForOverFulfill = true
+        var callbackCount = 0
+        let firstId = service.attachToSubscription(
+            with: [], chainId: "test", cacheKey: "key", queue: .main
+        ) { result in
+            if case .failure = result {
+                XCTFail("Expected the controlled successful result")
+            }
+            callbackCount += 1
+            completed.fulfill()
+        }
+        let first = try XCTUnwrap(operations.targets.first)
+        first.result = .success(StorageSubscriptionContainer(
+            engine: MockConnection(),
+            children: [],
+            logger: Logger.shared
+        ))
+        first.completionBlock?()
+        first.completionBlock?()
+        wait(for: [completed], timeout: 1)
+        XCTAssertEqual(callbackCount, 1)
+        let reused = expectation(description: "active subscription is reused")
+        reused.assertForOverFulfill = true
+        let secondId = service.attachToSubscription(
+            with: [], chainId: "test", cacheKey: "key", queue: .main
+        ) { result in
+            if case .failure = result {
+                XCTFail("Active subscription should succeed")
+            }
+            reused.fulfill()
+        }
+        wait(for: [reused], timeout: 1)
+        XCTAssertEqual(operations.targets.count, 1)
+        service.detachFromSubscription("key", subscriptionId: firstId, queue: .main, closure: nil)
+        service.detachFromSubscription("key", subscriptionId: secondId, queue: .main, closure: nil)
+    }
+
+    private func makeService(
+        operations: ControlledSubscriptionOperations
+    ) -> RemoteSubscriptionService<ChainStorageItem> {
+        let registry = MockChainRegistryProtocol()
+        stub(registry) { $0.getRuntimeProvider(for: any()).thenReturn(nil) }
+        return RemoteSubscriptionService(
+            chainRegistry: registry,
+            repository: AnyDataProviderRepository(SubscriptionTestRepository()),
+            operationManager: operations,
+            logger: Logger.shared
+        )
+    }
+}
+
+private final class ControlledSubscriptionOperations: OperationManagerProtocol {
+    private(set) var targets: [BaseOperation<StorageSubscriptionContainer>] = []
+
+    func enqueue(operations: [Operation], in _: OperationMode) {
+        // Missing-runtime wrappers contain one pre-failed operation. Keep its real completion
+        // handler under test control to exercise late and repeated delivery without networking.
+        XCTAssertEqual(operations.count, 1)
+        if let target = operations.last as? BaseOperation<StorageSubscriptionContainer> {
+            targets.append(target)
+        } else {
+            XCTFail("Expected the subscription initialization target")
+        }
+    }
+}
+
+private final class SubscriptionTestRepository:
+    DataProviderRepositoryProtocol {
+    typealias Model = ChainStorageItem
+
+    func fetchOperation(
+        by _: @escaping () throws -> [String],
+        options _: RepositoryFetchOptions
+    ) -> BaseOperation<[ChainStorageItem]> {
+        ClosureOperation { [] }
+    }
+
+    func fetchOperation(
+        by _: @escaping () throws -> String,
+        options _: RepositoryFetchOptions
+    ) -> BaseOperation<ChainStorageItem?> {
+        ClosureOperation { nil }
+    }
+
+    func fetchAllOperation(
+        with _: RepositoryFetchOptions
+    ) -> BaseOperation<[ChainStorageItem]> {
+        ClosureOperation { [] }
+    }
+
+    func fetchOperation(
+        by _: RepositorySliceRequest,
+        options _: RepositoryFetchOptions
+    ) -> BaseOperation<[ChainStorageItem]> {
+        ClosureOperation { [] }
+    }
+
+    func saveOperation(
+        _: @escaping () throws -> [ChainStorageItem],
+        _: @escaping () throws -> [String]
+    ) -> BaseOperation<Void> {
+        ClosureOperation { () }
+    }
+
+    func saveBatchOperation(
+        _: @escaping () throws -> [ChainStorageItem],
+        _: @escaping () throws -> [String]
+    ) -> BaseOperation<Void> {
+        ClosureOperation { () }
+    }
+
+    func replaceOperation(
+        _: @escaping () throws -> [ChainStorageItem]
+    ) -> BaseOperation<Void> {
+        ClosureOperation { () }
+    }
+
+    func fetchCountOperation() -> BaseOperation<Int> {
+        ClosureOperation { 0 }
+    }
+
+    func deleteAllOperation() -> BaseOperation<Void> {
+        ClosureOperation { () }
     }
 }

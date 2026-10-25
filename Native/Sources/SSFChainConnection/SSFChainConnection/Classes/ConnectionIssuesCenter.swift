@@ -68,7 +68,7 @@ public final class NetworkIssuesCenterImpl: NetworkIssuesCenterProtocol {
             if chainsWithIssues.contains(chain) {
                 chainsWithIssues.remove(chain)
             }
-        case .notConnected:
+        case .notConnected, .notReachable:
             chainsWithIssues.insert(chain)
         default:
             break

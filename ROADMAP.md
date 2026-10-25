@@ -1,5 +1,19 @@
 # Roadmap — Fearless Wallet iOS
 
+## Connection issues and subscription setup completion — 25 October 2026
+
+App and Native issue centers now classify unreachable WebSocket connections as
+network issues, notify once, and clear the issue when connected. Subscription
+setup reports failure/cancellation to current waiters, releases pending state for
+retry, and ignores delayed completion belonging to a detached request.
+
+Two reachability regressions and three subscription completion regressions fail
+against the prior behavior. The final cached app build and all 11 focused
+reachability, subscription, listener and chain-registry tests pass with no skips.
+Tests use local mocks, including the transport; no network writes are performed.
+Native ownership verification and all 16 adversarial guard tests pass. Existing
+signed-device/distribution qualification gates are unchanged.
+
 ## Public recovery integration — 25 October 2026
 
 Integrate the missing-account restoration from public commit `bb9c50d29` into the

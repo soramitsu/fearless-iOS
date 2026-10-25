@@ -72,7 +72,7 @@ final class NetworkIssuesCenter: NetworkIssuesCenterProtocol {
             if chainsWithIssues.contains(chain) {
                 chainsWithIssues.remove(chain)
             }
-        case .notConnected:
+        case .notConnected, .notReachable:
             if !chainsWithIssues.contains(where: { $0.chainId == chain.chainId }) {
                 chainsWithIssues.insert(chain)
             }
