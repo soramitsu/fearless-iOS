@@ -4,6 +4,7 @@
 import hashlib
 import importlib.util
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -37,6 +38,17 @@ class NativeSourceTests(unittest.TestCase):
 
     def test_owned_sources_and_pinned_external_dependencies_pass(self):
         self.assertEqual(VERIFIER.verify(self.root)["nativeBinaryFiles"], 1)
+
+    def test_tracked_native_binary_inventory_passes(self):
+        subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
+        subprocess.run(["git", "add", "-f", "Native/Binaries/example"], cwd=self.root, check=True)
+        VERIFIER.verify(self.root)
+
+    def test_ignored_local_binary_cannot_qualify_clean_checkout(self):
+        subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
+        self.write(".gitignore", "Native/Binaries/\n")
+        with self.assertRaisesRegex(ValueError, "match tracked files"):
+            VERIFIER.verify(self.root)
 
     def test_remote_internal_package_is_rejected(self):
         self.write("Native/Package.swift", 'Package(name: "FearlessNative", url: "https://github.com/soramitsu/shared-features-spm.git")')
