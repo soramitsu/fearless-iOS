@@ -1,0 +1,26 @@
+//
+//  Engine.swift
+//  Starscream
+//
+//  Created by Dalton Cherry on 6/15/19.
+//  Copyright © 2019 Vluxe. All rights reserved.
+//
+
+import Foundation
+
+public protocol EngineDelegate: AnyObject {
+    func didReceive(event: WebSocketEvent)
+}
+
+internal protocol ConnectionGenerationDelegate: EngineDelegate {
+    func didReceive(event: WebSocketEvent, generation: ConnectionGeneration)
+}
+
+public protocol Engine {
+    func register(delegate: EngineDelegate)
+    func start(request: URLRequest)
+    func stop(closeCode: UInt16)
+    func forceStop()
+    func write(data: Data, opcode: FrameOpCode, completion: (() -> ())?)
+    func write(string: String, completion: (() -> ())?)
+}

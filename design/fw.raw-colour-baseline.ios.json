@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "1f062bf14b6895be84648f2691b808f71d0fa7de",
+  "rule": "Direct UIColor(red: or UIColor(hex: in production fearless/**/*.swift, excluding Common/DesignSystem; exact full-call source contexts and occurrence counts.",
+  "sites": [
+    {
+      "path": "fearless/Common/Helpers/HexColorConverter.swift",
+      "source": "return UIColor(\n            red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,\n            green: CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0,\n            blue: CGFloat(rgbValue & 0x0000FF) / 255.0,\n            alpha: CGFloat(1.0)\n        )",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/BalanceLocksDetail/BalanceLocksDetailViewLayout.swift",
+      "source": "bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/ClaimCrowdloanRewards/ClaimCrowdloanRewardsViewLayout.swift",
+      "source": "bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/NFT/NftSendConfirm/NftSendConfirmViewLayout.swift",
+      "source": "bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/NewWallet/WalletSendConfirm/WalletSendConfirmViewLayout.swift",
+      "source": "bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/Pincode/CheckPincode/View/PinViewConfigurator.swift",
+      "source": "pinView.numpadView?.highlightedTitleColor = UIColor(\n            red: 255 / 255,\n            green: 255 / 255,\n            blue: 255 / 255,\n            alpha: 0.5\n        )",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/Pincode/CheckPincode/View/PinViewConfigurator.swift",
+      "source": "pinView.numpadView?.shadowColor = UIColor(\n            red: 47 / 255,\n            green: 128 / 255,\n            blue: 124 / 255,\n            alpha: 0.3\n        )",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/Staking/StakingBondMore/StakingBondMoreViewLayout.swift",
+      "source": "bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/Staking/StakingPayoutConfirmation/StakingPayoutConfirmationViewLayout.swift",
+      "source": "bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/Staking/StakingRedeemConfirmation/View/StakingRedeemConfirmationLayout.swift",
+      "source": "bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/Staking/StakingUnbondConfirm/View/StakingUnbondConfirmLayout.swift",
+      "source": "bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/Staking/StakingUnbondSetup/View/StakingUnbondSetupLayout.swift",
+      "source": "bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/StakingPool/Join/StakingPoolJoinChoosePool/StakingPoolJoinChoosePoolViewLayout.swift",
+      "source": "bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/StakingPool/Join/StakingPoolJoinChoosePool/StakingPoolJoinChoosePoolViewLayout.swift",
+      "source": "button.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/StakingPool/Join/StakingPoolJoinConfig/StakingPoolJoinConfigViewLayout.swift",
+      "source": "bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/StakingPool/Join/StakingPoolJoinConfirm/StakingPoolJoinConfirmViewLayout.swift",
+      "source": "bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/StakingPool/Join/StakingPoolStart/StakingPoolStartViewLayout.swift",
+      "source": "bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/StakingPool/StakingPoolCreate/StakingPoolCreateViewLayout.swift",
+      "source": "bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/StakingPool/StakingPoolInfo/StakingPoolInfoViewLayout.swift",
+      "source": "bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/StakingPool/StakingPoolManagement/StakingPoolManagementViewLayout.swift",
+      "source": "bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/StakingPool/StakingPoolManagement/StakingPoolManagementViewLayout.swift",
+      "source": "optionsButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    },
+    {
+      "path": "fearless/Modules/StakingPoolCreateConfirm/StakingPoolCreateConfirmViewLayout.swift",
+      "source": "bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
+      "count": 1
+    }
+  ]
+}

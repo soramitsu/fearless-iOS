@@ -26,7 +26,7 @@ enum PinViewConfigurator {
             blue: 255 / 255,
             alpha: 0.5
         )
-        pinView.numpadView?.titleFont = R.font.soraRc0040417Regular(size: 25)!
+        pinView.numpadView?.titleFont = UIFont.legacySora(size: 25, weight: .regular)
         pinView.securedCharacterFieldsView?.strokeWidth = 2
         pinView.securedCharacterFieldsView?.fieldRadius = 6
         pinView.verticalSpacing = 79

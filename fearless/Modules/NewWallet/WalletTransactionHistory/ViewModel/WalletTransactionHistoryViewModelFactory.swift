@@ -357,6 +357,10 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             receiveAmountString = amountFormatter.value(for: locale).stringFromDecimal(amountValue) ?? ""
         }
 
+        if receiveAsset == nil, chainAsset.chain.isTonCompatibilityChain, let symbol = data.context?["tonSwapOutputSymbol"] {
+            receiveAmountString += " " + symbol
+        }
+
         let sendAmountDecimal = AmountDecimal(string: data.details) ?? AmountDecimal(value: .zero)
         let sendAsset = chainAsset.chain.chainAssets.first(where: {
             $0.asset.currencyId == data.peerId
@@ -370,6 +374,9 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
                 .stringFromDecimal(sendAmountDecimal.decimalValue) ?? ""
         }
 
+        if sendAsset == nil, chainAsset.chain.isTonCompatibilityChain, let symbol = data.context?["tonSwapInputSymbol"] {
+            sendAmount += " " + symbol
+        }
         let amountString = [sendAmount, receiveAmountString].joined(separator: "-")
 
         let date = Date(timeIntervalSince1970: TimeInterval(data.timestamp))

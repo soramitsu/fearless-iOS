@@ -11,7 +11,7 @@ extension ApplicationStatusPresentable {
         with viewModel: ApplicationStatusAlertEvent,
         animated: Bool
     ) {
-        guard let window = UIApplication.shared.keyWindow as? ApplicationStatusPresentable else {
+        guard let window = SceneWindowFinder.statusPresentableWindow() else {
             return
         }
         window.presentStatus(with: viewModel, animated: animated)
@@ -21,7 +21,7 @@ extension ApplicationStatusPresentable {
         with viewModel: ApplicationStatusAlertEvent?,
         animated: Bool
     ) {
-        guard let window = UIApplication.shared.keyWindow as? ApplicationStatusPresentable else {
+        guard let window = SceneWindowFinder.statusPresentableWindow() else {
             return
         }
         window.dismissStatus(with: viewModel, animated: animated)

@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SnapKit
 
 protocol ReceiveAndRequestAssetViewOutput: AnyObject {
     func didLoad(view: ReceiveAndRequestAssetViewInput)
@@ -46,6 +47,21 @@ final class ReceiveAndRequestAssetViewController: UIViewController, ViewHolder, 
         output.didLoad(view: self)
         bindActions()
         configure()
+        rootView.locale = selectedLocale
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if FWAppearance.receivePresentationRestyled { setupKeyboardHandler() }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
+    }
+
+    deinit {
+        amountInputViewModel?.observable.remove(observer: self)
     }
 
     // MARK: - Private methods
@@ -79,6 +95,12 @@ final class ReceiveAndRequestAssetViewController: UIViewController, ViewHolder, 
 // MARK: - ReceiveAndRequestAssetViewInput
 
 extension ReceiveAndRequestAssetViewController: ReceiveAndRequestAssetViewInput {
+    func didStartQRGeneration() {
+        rootView.qrView.qrImageView.image = nil
+        rootView.qrView.alpha = 0
+        rootView.shareButton.set(enabled: false)
+    }
+
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?) {
         rootView.bind(assetViewModel: assetBalanceViewModel)
     }
@@ -89,14 +111,18 @@ extension ReceiveAndRequestAssetViewController: ReceiveAndRequestAssetViewInput 
 
     func didReceive(image: UIImage) {
         rootView.qrView.qrImageView.image = image
+        rootView.qrView.alpha = 1
+        rootView.shareButton.set(enabled: true)
     }
 
     func didReceive(amountInputViewModel: IAmountInputViewModel?) {
+        self.amountInputViewModel?.observable.remove(observer: self)
         self.amountInputViewModel = amountInputViewModel
         if let amountViewModel = amountInputViewModel {
-            amountViewModel.observable.remove(observer: self)
             amountViewModel.observable.add(observer: self)
             rootView.amountView.inputFieldText = amountViewModel.displayAmount
+        } else {
+            rootView.amountView.inputFieldText = nil
         }
     }
 }
@@ -105,7 +131,15 @@ extension ReceiveAndRequestAssetViewController: ReceiveAndRequestAssetViewInput 
 
 extension ReceiveAndRequestAssetViewController: Localizable {
     func applyLocalization() {
+        guard isViewLoaded else { return }
         rootView.locale = selectedLocale
+        if FWAppearance.receivePresentationRestyled,
+           let accessory = rootView.amountView.textField.inputAccessoryView as? AmountInputAccessoryView {
+            accessory.items?.first { $0.action == #selector(AmountInputAccessoryView.actionSelect100) }?.title =
+                R.string.localizable.commonMax(preferredLanguages: selectedLocale.rLanguages).uppercased()
+            accessory.items?.first { $0.action == #selector(AmountInputAccessoryView.actionSelectDone) }?.title =
+                R.string.localizable.commonDone(preferredLanguages: selectedLocale.rLanguages)
+        }
     }
 }
 
@@ -141,5 +175,32 @@ extension ReceiveAndRequestAssetViewController: UITextFieldDelegate {
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
+    }
+}
+
+extension ReceiveAndRequestAssetViewController: KeyboardViewAdoptable {
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { 0 }
+
+    func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
+        guard FWAppearance.receivePresentationRestyled else { return }
+        let localFrame = view.convert(frame, from: nil)
+        let scale = max(1, view.window?.screen.scale ?? traitCollection.displayScale)
+        let overlap = frame.isEmpty ? 0 : max(0, view.bounds.maxY - localFrame.minY - view.safeAreaInsets.bottom)
+        // Keep the visible scroll boundary above a keyboard edge between physical pixels.
+        rootView.keyboardAdoptableConstraint?.update(inset: ceil(overlap * scale) / scale)
+        view.layoutIfNeeded()
+        let field = rootView.amountView.textField
+        if !frame.isEmpty, field.isFirstResponder {
+            let scroll = rootView.contentView.scrollView
+            scroll.scrollRectToVisible(field.convert(field.bounds, to: scroll), animated: false)
+        }
+    }
+
+    func keyboardWillChangeFrame(notification: Notification) {
+        guard FWAppearance.receivePresentationRestyled,
+              let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+        updateWhileKeyboardFrameChanging(frame.cgRectValue)
     }
 }

@@ -3,7 +3,9 @@ import SoraKeystore
 import RobinHood
 import SSFUtils
 import SSFModels
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 struct StakingBalanceViewFactory {
     static func createView(
@@ -66,13 +68,8 @@ struct StakingBalanceViewFactory {
         wallet _: MetaAccountModel,
         strategy: StakingBalanceStrategy
     ) -> StakingBalanceInteractor? {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
-
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        return StakingBalanceInteractor(
+        StakingBalanceInteractor(
             chainAsset: chainAsset,
-            priceLocalSubscriber: priceLocalSubscriber,
             strategy: strategy
         )
     }
@@ -109,15 +106,7 @@ struct StakingBalanceViewFactory {
             operationManager: operationManager
         )
 
-        let facade = UserDataStorageFacade.shared
-
-        let mapper = MetaAccountMapper()
-
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let eraCountdownOperationFactory = EraCountdownOperationFactory(
             storageRequestFactory: storageRequestFactory
@@ -149,7 +138,7 @@ struct StakingBalanceViewFactory {
                 operationManager: operationManager,
                 eraCountdownOperationFactory: eraCountdownOperationFactory,
                 connection: connection,
-                accountRepository: AnyDataProviderRepository(accountRepository),
+                accountRepository: accountRepository,
                 chainAsset: chainAsset,
                 wallet: wallet
             )

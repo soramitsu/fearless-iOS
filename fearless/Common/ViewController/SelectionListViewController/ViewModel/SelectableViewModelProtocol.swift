@@ -12,8 +12,8 @@ protocol SelectableViewModelProtocol: AnyObject {
 }
 
 private enum Constants {
-    static var isSelectedKey = "co.jp.fearless.selectable.selected"
-    static var observersKey = "co.jp.fearless.observers"
+    static var isSelectedKey: UInt8 = 0
+    static var observersKey: UInt8 = 0
 }
 
 private struct Observation {

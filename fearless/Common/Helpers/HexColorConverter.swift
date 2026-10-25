@@ -1,6 +1,6 @@
 import UIKit
 
-final class HexColorConverter {
+enum HexColorConverter {
     static func uiColorToHexRGB(color: UIColor) -> String {
         color.hexRGB
     }
@@ -19,12 +19,14 @@ final class HexColorConverter {
             cString.remove(at: cString.startIndex)
         }
 
-        if cString.count != 6 {
+        if cString.utf8.count != 6 || !cString.utf8.allSatisfy({
+            (48 ... 57).contains($0) || (65 ... 70).contains($0)
+        }) {
             return nil
         }
 
         var rgbValue: UInt64 = 0
-        Scanner(string: cString).scanHexInt64(&rgbValue)
+        guard Scanner(string: cString).scanHexInt64(&rgbValue) else { return nil }
 
         return UIColor(
             red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,

@@ -10,6 +10,9 @@ import SSFSigner
 import SSFCrypto
 import Foundation
 import SSFRuntimeCodingService
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 struct SendDependencies {
     let wallet: MetaAccountModel
@@ -23,31 +26,194 @@ struct SendDependencies {
     let storageRequestPerformer: StorageRequestPerformer?
 }
 
+enum UniversalWalletSendRoutingError: Error, Equatable {
+    case unsupported(chainId: String)
+    case tonProductionSendDisabled
+    case irohaProductionSendDisabled
+    case bitcoinSendPaused
+    case solanaSendPaused
+}
+
+/// Native TON routing remains disabled in production until funded mainnet evidence is recorded.
+/// There is intentionally no environment-variable, remote-config, or runtime-toggle override.
+struct TonProductionSendReleasePolicy: Equatable {
+    let isEnabled: Bool
+
+    private init(isEnabled: Bool) {
+        self.isEnabled = isEnabled
+    }
+
+    static let production = TonProductionSendReleasePolicy(isEnabled: false)
+    #if DEBUG
+        static let enabledForTests = TonProductionSendReleasePolicy(isEnabled: true)
+    #endif
+}
+
+/// Bitcoin and Solana sends ship enabled in 4.2.0 (CEO release decision: nobody
+/// wants a receive-only wallet). The remote feature_toggle can only veto them,
+/// through `bitcoin_send_enabled` / `solana_send_enabled` set to false; it can
+/// never enable a send this policy compiles off.
+struct UniversalSendReleasePolicy: Equatable {
+    let isBitcoinEnabled: Bool
+    let isSolanaEnabled: Bool
+
+    private init(isBitcoinEnabled: Bool, isSolanaEnabled: Bool) {
+        self.isBitcoinEnabled = isBitcoinEnabled
+        self.isSolanaEnabled = isSolanaEnabled
+    }
+
+    static let production = UniversalSendReleasePolicy(isBitcoinEnabled: true, isSolanaEnabled: true)
+    #if DEBUG
+        static func compiledForTests(
+            isBitcoinEnabled: Bool,
+            isSolanaEnabled: Bool
+        ) -> UniversalSendReleasePolicy {
+            UniversalSendReleasePolicy(isBitcoinEnabled: isBitcoinEnabled, isSolanaEnabled: isSolanaEnabled)
+        }
+    #endif
+}
+
+enum UniversalSendNetwork: Equatable {
+    case bitcoin
+    case solana
+}
+
+/// Combines the compiled send policy with remembered remote vetoes. Send checks it
+/// when it routes a network and again right before a transfer is signed, so a veto
+/// that arrives while the confirm screen is open still prevents the broadcast.
+struct UniversalSendGate {
+    private let policy: UniversalSendReleasePolicy
+    private let remoteConfig: () -> FeatureToggleConfig
+
+    init(
+        policy: UniversalSendReleasePolicy,
+        remoteConfig: @escaping () -> FeatureToggleConfig = { MultiChainFeaturePolicy.current }
+    ) {
+        self.policy = policy
+        self.remoteConfig = remoteConfig
+    }
+
+    static let production = UniversalSendGate(policy: .production)
+
+    func isEnabled(_ network: UniversalSendNetwork) -> Bool {
+        let config = remoteConfig()
+        switch network {
+        case .bitcoin:
+            return policy.isBitcoinEnabled && config.bitcoinSendEnabled
+        case .solana:
+            return policy.isSolanaEnabled && config.solanaSendEnabled
+        }
+    }
+
+    func requireTransfer(on network: UniversalSendNetwork) throws {
+        guard !isEnabled(network) else {
+            return
+        }
+        switch network {
+        case .bitcoin:
+            throw TransferServiceError.bitcoinSendPaused
+        case .solana:
+            throw TransferServiceError.solanaSendPaused
+        }
+    }
+}
+
 final class SendDepencyContainer {
     private let wallet: MetaAccountModel
     private let operationManager: OperationManagerProtocol
+    private let tonRemote: TonTransferRemoteProtocol?
+    private let tonMnemonicProvider: UniversalWalletMnemonicProviding
+    private let tonPendingCoordinator: TonPendingIntentCoordinator?
+    private let tonSendReleasePolicy: TonProductionSendReleasePolicy
+    private let universalSendGate = UniversalSendGate.production
     private var currentDependecies: SendDependencies?
+    private var currentDependenciesKey: ChainAssetKey?
     private var cachedDependencies: [ChainAssetKey: SendDependencies] = [:]
 
-    init(wallet: MetaAccountModel, operationManager: OperationManagerProtocol) {
-        self.wallet = wallet
-        self.operationManager = operationManager
+    convenience init(
+        wallet: MetaAccountModel,
+        operationManager: OperationManagerProtocol,
+        tonRemote: TonTransferRemoteProtocol? = nil,
+        tonMnemonicProvider: UniversalWalletMnemonicProviding = KeychainUniversalWalletMnemonicProvider()
+    ) {
+        self.init(
+            wallet: wallet,
+            operationManager: operationManager,
+            tonRemote: tonRemote,
+            tonMnemonicProvider: tonMnemonicProvider,
+            tonPendingCoordinator: nil,
+            releasePolicy: .production
+        )
     }
 
-    func prepareDepencies(
-        chainAsset: ChainAsset,
-        runtimeItem: RuntimeMetadataItem?
-    ) async throws -> SendDependencies {
+    #if DEBUG
+        convenience init(
+            wallet: MetaAccountModel,
+            operationManager: OperationManagerProtocol,
+            tonRemote: TonTransferRemoteProtocol? = nil,
+            tonMnemonicProvider: UniversalWalletMnemonicProviding = KeychainUniversalWalletMnemonicProvider(),
+            tonPendingCoordinator: TonPendingIntentCoordinator = TonPendingIntentCoordinator(),
+            tonSendReleasePolicy: TonProductionSendReleasePolicy
+        ) {
+            self.init(
+                wallet: wallet,
+                operationManager: operationManager,
+                tonRemote: tonRemote,
+                tonMnemonicProvider: tonMnemonicProvider,
+                tonPendingCoordinator: tonPendingCoordinator,
+                releasePolicy: tonSendReleasePolicy
+            )
+        }
+    #endif
+
+    private init(
+        wallet: MetaAccountModel,
+        operationManager: OperationManagerProtocol,
+        tonRemote: TonTransferRemoteProtocol?,
+        tonMnemonicProvider: UniversalWalletMnemonicProviding,
+        tonPendingCoordinator: TonPendingIntentCoordinator?,
+        releasePolicy: TonProductionSendReleasePolicy
+    ) {
+        self.wallet = wallet
+        self.operationManager = operationManager
+        self.tonRemote = tonRemote
+        self.tonMnemonicProvider = tonMnemonicProvider
+        self.tonPendingCoordinator = tonPendingCoordinator
+        tonSendReleasePolicy = releasePolicy
+    }
+
+    @MainActor
+    func prepareDepencies(chainAsset: ChainAsset) async throws -> SendDependencies {
+        // This guard must precede account lookup, dependency cache access, and all service or
+        // transport construction. Release builds have no initializer capable of enabling it.
+        if chainAsset.chain.isTonCompatibilityChain, !tonSendReleasePolicy.isEnabled, wallet.legacyTonAccount == nil {
+            throw UniversalWalletSendRoutingError.tonProductionSendDisabled
+        }
+        // A remote Bitcoin/Solana veto is checked here too, before the cache can hand back a
+        // service that was built while sending was still allowed.
+        try requireUniversalSendEnabled(for: chainAsset.chain)
+        if isUniversalWalletIroha(chainAsset.chain) {
+            throw UniversalWalletSendRoutingError.irohaProductionSendDisabled
+        }
+
         guard let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             throw ChainAccountFetchingError.accountNotExists
         }
 
-        if let dependencies = cachedDependencies[chainAsset.uniqueKey(accountId: accountResponse.accountId)] {
+        let dependenciesKey = chainAsset.uniqueKey(accountId: accountResponse.accountId)
+        if let dependencies = cachedDependencies[dependenciesKey] {
+            if currentDependenciesKey != dependenciesKey {
+                currentDependecies?.transferService.unsubscribe()
+                currentDependecies = dependencies
+                currentDependenciesKey = dependenciesKey
+            }
             return dependencies
         }
-        currentDependecies?.transferService.unsubscribe()
+        if currentDependenciesKey != dependenciesKey {
+            currentDependecies?.transferService.unsubscribe()
+        }
 
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainRegistry: ChainRegistryProtocol = ChainRegistryFacade.sharedRegistry
         let runtimeService = chainRegistry.getRuntimeProvider(
             for: chainAsset.chain.chainId
         )
@@ -60,7 +226,7 @@ final class SendDepencyContainer {
 
         let equilibruimTotalBalanceService = createEqTotalBalanceService(chainAsset: chainAsset)
 
-        let transferService = try await createTransferService(for: chainAsset, runtimeItem: runtimeItem)
+        let transferService = try createTransferService(for: chainAsset)
         let polkaswapService = createPolkaswapService(chainAsset: chainAsset, chainRegistry: chainRegistry)
         let accountInfoFetching = createAccountInfoFetching(for: chainAsset)
 
@@ -83,8 +249,9 @@ final class SendDepencyContainer {
             storageRequestPerformer: storageRequestPerformer
         )
 
-        cachedDependencies[chainAsset.uniqueKey(accountId: accountResponse.accountId)] = dependencies
+        cachedDependencies[dependenciesKey] = dependencies
         currentDependecies = dependencies
+        currentDependenciesKey = dependenciesKey
 
         return dependencies
     }
@@ -105,55 +272,91 @@ final class SendDepencyContainer {
         return substrateAccountInfoFetching
     }
 
-    private func createTransferService(for chainAsset: ChainAsset, runtimeItem: RuntimeMetadataItem?) async throws -> TransferServiceProtocol {
+    private func createTransferService(for chainAsset: ChainAsset) throws -> TransferServiceProtocol {
         guard
             let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest())
         else {
             throw ChainAccountFetchingError.accountNotExists
         }
 
-        switch chainAsset.chain.chainBaseType {
-        case .substrate:
-            guard let nativeRuntimeService = ChainRegistryFacade.sharedRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+        if isUniversalWalletBitcoin(chainAsset.chain) {
+            try requireUniversalSendEnabled(for: chainAsset.chain)
+            return BitcoinTransferService(wallet: wallet, chain: chainAsset.chain, sendGate: universalSendGate)
+        }
+
+        if isUniversalWalletSolana(chainAsset.chain) {
+            try requireUniversalSendEnabled(for: chainAsset.chain)
+            return try SolanaTransferService(wallet: wallet, chain: chainAsset.chain, sendGate: universalSendGate)
+        }
+
+        if isUniversalWalletIroha(chainAsset.chain) {
+            return IrohaTransferService(wallet: wallet, chain: chainAsset.chain)
+        }
+
+        if chainAsset.chain.isTonCompatibilityChain {
+            guard tonSendReleasePolicy.isEnabled || wallet.legacyTonAccount != nil else {
+                throw UniversalWalletSendRoutingError.tonProductionSendDisabled
+            }
+            let chainId = chainAsset.chain.chainId.lowercased()
+            guard !(chainAsset.chain.options ?? []).contains(.testnet),
+                  chainId == TonChainSelection.mainnetChainId ||
+                  chainId == UniversalWalletRegistry.tonMainnetRegistryEntry.chainId ||
+                  chainId == UniversalWalletRegistry.tonMainnetRegistryEntry.id
+            else {
+                throw UniversalWalletSendRoutingError.unsupported(chainId: chainAsset.chain.chainId)
+            }
+            guard TonTransferService.supportsAsset(chainAsset, allowLegacyJettons: wallet.legacyTonAccount != nil) else {
+                throw UniversalWalletSendRoutingError.unsupported(
+                    chainId: "\(chainAsset.chain.chainId)/\(chainAsset.asset.id)"
+                )
+            }
+
+            let remote: TonTransferRemoteProtocol
+            if let tonRemote {
+                remote = tonRemote
+            } else {
+                let chainRegistry = ChainRegistryFacade.sharedRegistry as! ChainRegistry
+                let factory = try chainRegistry.getTonApiClientFactory(for: chainAsset.chain)
+                guard factory.serverURL == ChainRegistry.resolveTonNode(for: chainAsset.chain)?.url else {
+                    throw UniversalWalletSendRoutingError.unsupported(chainId: chainAsset.chain.chainId)
+                }
+                remote = TonAPIRemoteClient(factory: factory)
+            }
+
+            #if DEBUG
+                if let tonPendingCoordinator {
+                    return TonTransferService(
+                        wallet: wallet,
+                        chain: chainAsset.chain,
+                        remote: remote,
+                        mnemonicProvider: tonMnemonicProvider,
+                        pendingCoordinator: tonPendingCoordinator
+                    )
+                }
+            #endif
+
+            return TonTransferService(
+                wallet: wallet,
+                chain: chainAsset.chain,
+                remote: remote,
+                mnemonicProvider: tonMnemonicProvider
+            )
+        }
+
+        if chainAsset.chain.chainBaseType == .substrate {
+            guard let nativeRuntimeService = (ChainRegistryFacade.sharedRegistry as ChainRegistryProtocol).getRuntimeProvider(for: chainAsset.chain.chainId) else {
                 throw ChainRegistryError.runtimeMetadaUnavailable
             }
 
-            let chainSyncService = SSFChainRegistry.ChainSyncService(
-                chainsUrl: ApplicationConfig.shared.chainsSourceUrl,
-                operationQueue: OperationQueue(),
-                dataFetchFactory: SSFNetwork.NetworkOperationFactory()
-            )
-
-            let chainsTypesSyncService = SSFChainRegistry.ChainsTypesSyncService(
-                url: ApplicationConfig.shared.chainTypesSourceUrl,
-                dataOperationFactory: SSFNetwork.NetworkOperationFactory(),
-                operationQueue: OperationQueue()
-            )
-
-            let runtimeSyncService = SSFChainRegistry.RuntimeSyncService(dataOperationFactory: NetworkOperationFactory())
-
-            let chainRegistry = SSFChainRegistry.ChainRegistry(
-                runtimeProviderPool: SSFChainRegistry.RuntimeProviderPool(),
-                connectionPool: SSFChainRegistry.ConnectionPool(),
-                chainSyncService: chainSyncService,
-                chainsTypesSyncService: chainsTypesSyncService,
-                runtimeSyncService: runtimeSyncService
-            )
-            let connection = try await chainRegistry.getSubstrateConnection(for: chainAsset.chain)
-
-            let runtimeService = try await chainRegistry.getRuntimeProvider(
-                chainId: chainAsset.chain.chainId,
-                usedRuntimePaths: [:],
-                runtimeItem: runtimeItem
-            )
-
+            let chainRegistryConcrete = ChainRegistryFacade.sharedRegistry as! ChainRegistry
+            let connection = try chainRegistryConcrete.getSubstrateConnection(for: chainAsset.chain)
             let operationManager = OperationManagerFacade.sharedManager
 
             let extrinsicService = SSFExtrinsicKit.ExtrinsicService(
                 accountId: accountResponse.accountId,
                 chainFormat: chainAsset.chain.chainFormat.asSfCrypto(),
                 cryptoType: accountResponse.cryptoType,
-                runtimeRegistry: runtimeService,
+                runtimeRegistry: nativeRuntimeService,
                 engine: connection,
                 operationManager: operationManager
             )
@@ -166,7 +369,9 @@ final class SendDepencyContainer {
 
             let callFactory = SubstrateCallFactoryDefault(runtimeService: nativeRuntimeService)
             return SubstrateTransferService(extrinsicService: extrinsicService, callFactory: callFactory, signer: signer)
-        case .ethereum:
+        }
+
+        if chainAsset.chain.chainBaseType == .ethereum {
             let secretKey = try fetchSecretKey(for: chainAsset.chain, accountResponse: accountResponse)
 
             guard let address = accountResponse.toAddress() else {
@@ -179,9 +384,56 @@ final class SendDepencyContainer {
 
             return EthereumTransferService(
                 ws: ws,
-                privateKey: try EthereumPrivateKey(privateKey: secretKey.bytes),
+                privateKey: try EthereumPrivateKey(privateKey: Array(secretKey)),
                 senderAddress: address
             )
+        }
+
+        throw UniversalWalletSendRoutingError.unsupported(chainId: chainAsset.chain.chainId)
+    }
+
+    private func requireUniversalSendEnabled(for chain: ChainModel) throws {
+        if isUniversalWalletBitcoin(chain), !universalSendGate.isEnabled(.bitcoin) {
+            throw UniversalWalletSendRoutingError.bitcoinSendPaused
+        }
+        if isUniversalWalletSolana(chain), !universalSendGate.isEnabled(.solana) {
+            throw UniversalWalletSendRoutingError.solanaSendPaused
+        }
+    }
+
+    private func isUniversalWalletBitcoin(_ chain: ChainModel) -> Bool {
+        switch chain.chainId.lowercased() {
+        case UniversalWalletRegistry.bitcoinMainnet.chainId,
+             UniversalWalletRegistry.bitcoinMainnet.id,
+             UniversalWalletRegistry.bitcoinTestnet.chainId,
+             UniversalWalletRegistry.bitcoinTestnet.id:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private func isUniversalWalletIroha(_ chain: ChainModel) -> Bool {
+        switch chain.chainId.lowercased() {
+        case UniversalWalletRegistry.taira.chainId,
+             UniversalWalletRegistry.taira.id,
+             UniversalWalletRegistry.nexus.chainId,
+             UniversalWalletRegistry.nexus.id:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private func isUniversalWalletSolana(_ chain: ChainModel) -> Bool {
+        switch chain.chainId.lowercased() {
+        case UniversalWalletRegistry.solanaMainnet.chainId,
+             UniversalWalletRegistry.solanaMainnet.id,
+             UniversalWalletRegistry.solanaDevnet.chainId,
+             UniversalWalletRegistry.solanaDevnet.id:
+            return true
+        default:
+            return false
         }
     }
 
@@ -222,7 +474,7 @@ final class SendDepencyContainer {
             operationManager: operationManager
         )
         let repositoryFacade = SubstrateDataStorageFacade.shared
-        let settingsRepository: CoreDataRepository<PolkaswapRemoteSettings, CDPolkaswapRemoteSettings> =
+        let settingsRepository: CoreDataRepository<PolkaswapRemoteSettings, SSFAssetManagmentStorage.CDPolkaswapRemoteSettings> =
             repositoryFacade.createRepository(
                 filter: nil,
                 sortDescriptors: [],

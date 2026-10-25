@@ -28,7 +28,8 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
         }
 
         return try await withCheckedThrowingContinuation { [weak self] continuation in
-            let fetchCollectionsOperation = operationFactory.fetchCollections(
+            guard let self else { return }
+            let fetchCollectionsOperation = self.operationFactory.fetchCollections(
                 chain: chain,
                 address: address,
                 excludeFilters: excludeFilters
@@ -44,7 +45,7 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
                 }
             }
 
-            self?.operationQueue.addOperations(fetchCollectionsOperation.allOperations, waitUntilFinished: true)
+            self.operationQueue.addOperations(fetchCollectionsOperation.allOperations, waitUntilFinished: true)
         }
     }
 
@@ -58,7 +59,8 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
         }
 
         return try await withCheckedThrowingContinuation { [weak self] continuation in
-            let fetchNftsOperation = operationFactory.fetchNFTs(
+            guard let self else { return }
+            let fetchNftsOperation = self.operationFactory.fetchNFTs(
                 chain: chain,
                 address: address,
                 excludeFilters: excludeFilters
@@ -74,7 +76,7 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
                 }
             }
 
-            self?.operationQueue.addOperations(fetchNftsOperation.allOperations, waitUntilFinished: false)
+            self.operationQueue.addOperations(fetchNftsOperation.allOperations, waitUntilFinished: false)
         }
     }
 

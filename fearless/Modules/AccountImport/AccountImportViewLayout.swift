@@ -20,10 +20,13 @@ final class AccountImportViewLayout: UIView {
         )
     }
 
+    let adaptiveEntry = FWAppearance.walletEntryRestyled
+
     var locale = Locale.current {
         didSet {
             if locale != oldValue {
                 setupLocalization()
+                applyTypography()
             }
         }
     }
@@ -343,18 +346,52 @@ final class AccountImportViewLayout: UIView {
     )
 
     var keyboardAdoptableConstraint: Constraint?
+    private var uploadHeight: Constraint?
+    private var advancedHeaderHeight: Constraint?
+    private var placeholderBottom: Constraint?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
         setupLayout()
+        setupLocalization()
+        applyTypography()
         configure()
         backgroundColor = R.color.colorBlack()
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if previousTraitCollection?.preferredContentSizeCategory != traitCollection.preferredContentSizeCategory ||
+            previousTraitCollection?.legibilityWeight != traitCollection.legibilityWeight {
+            applyTypography()
+        }
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard adaptiveEntry else { return }
+        let uploadInset = 2 * UIConstants.bigOffset + 2 * uploadView.iconRadius + uploadView.horizontalSpacing
+        let uploadWidth = max(1, contentView.bounds.width - uploadInset)
+        uploadView.titleLabel.preferredMaxLayoutWidth = uploadWidth
+        uploadView.subtitleLabel?.preferredMaxLayoutWidth = uploadWidth
+        let uploadSize = CGSize(width: uploadWidth, height: .greatestFiniteMagnitude)
+        let titleHeight = uploadView.titleLabel.sizeThatFits(uploadSize).height
+        let subtitleHeight = uploadView.subtitleLabel?.sizeThatFits(uploadSize).height ?? 0
+        uploadHeight?.update(offset: max(60, ceil(titleHeight + subtitleHeight) + 32))
+        let headerInset = expandableControl.plusIndicator.intrinsicContentSize.width + expandableControl
+            .horizontalSpacing
+        let headerWidth = max(1, contentView.bounds.width - headerInset)
+        expandableControl.titleLabel.preferredMaxLayoutWidth = headerWidth
+        let headerSize = CGSize(width: headerWidth, height: .greatestFiniteMagnitude)
+        advancedHeaderHeight?
+            .update(offset: max(60, ceil(expandableControl.titleLabel.sizeThatFits(headerSize).height) + 32))
+        expandableControl.invalidateLayout()
     }
 
     func updateInputViewState(_ state: ErrorPresentableInputField.State) {
@@ -365,6 +402,11 @@ final class AccountImportViewLayout: UIView {
 extension AccountImportViewLayout {
     func updateTextViewPlaceholder() {
         textPlaceholderLabel.isHidden = !textView.text.isEmpty
+        if textPlaceholderLabel.isHidden {
+            placeholderBottom?.deactivate()
+        } else {
+            placeholderBottom?.activate()
+        }
     }
 
     func set(chainType: AccountCreateChainType) {
@@ -394,6 +436,34 @@ extension AccountImportViewLayout {
 }
 
 private extension AccountImportViewLayout {
+    func applyTypography() {
+        guard adaptiveEntry else { return }
+        usernameTextField.configureAdaptiveCaption(locale: locale, compatibleWith: traitCollection)
+        chainView.configureWrapping(locale: locale, compatibleWith: traitCollection)
+        nextButton.configureWrappingTitle(locale: locale, compatibleWith: traitCollection)
+        passwordTextField.configureAdaptiveCaption(locale: locale, compatibleWith: traitCollection)
+        [sourceTypeView, substrateCryptoTypeView, ethereumCryptoTypeView]
+            .forEach { $0.configureWrapping(locale: locale, compatibleWith: traitCollection) }
+        [usernameFooterLabel, textPlaceholderLabel, substrateDerivationPathLabel, ethereumDerivationPathLabel].forEach {
+            $0.numberOfLines = 0
+            $0.font = .fw(.bodyS, locale: locale, compatibleWith: traitCollection)
+        }
+        warningLabel.numberOfLines = 0
+        warningLabel.font = .fw(.bodyM, locale: locale, compatibleWith: traitCollection)
+        textView.font = .fw(.bodyL, locale: locale, compatibleWith: traitCollection)
+        [substrateDerivationPathField, ethereumDerivationPathField].forEach {
+            $0.font = .fw(.bodyL, locale: locale, compatibleWith: traitCollection)
+            $0.invalidateIntrinsicContentSize()
+        }
+        uploadView.titleLabel.numberOfLines = 0
+        uploadView.titleLabel.font = .fw(.bodyS, locale: locale, compatibleWith: traitCollection)
+        uploadView.subtitleLabel?.font = .fw(.bodyL, locale: locale, compatibleWith: traitCollection)
+        expandableControl.titleLabel.numberOfLines = 0
+        expandableControl.titleLabel.font = .fw(.labelL, locale: locale, compatibleWith: traitCollection)
+        expandableControl.invalidateLayout()
+        setNeedsLayout()
+    }
+
     func configure() {
         contentView.stackView.arrangedSubviews.forEach { $0.backgroundColor = R.color.colorBlack() }
 
@@ -422,7 +492,8 @@ private extension AccountImportViewLayout {
         sourceTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
             .importSourcePickerTitle(preferredLanguages: locale.rLanguages)
 
-        chainView.actionControl.contentView.titleLabel.text = R.string.localizable.commonNetwork(preferredLanguages: locale.rLanguages)
+        chainView.actionControl.contentView.titleLabel.text = R.string.localizable
+            .commonNetwork(preferredLanguages: locale.rLanguages)
 
         usernameTextField.title = R.string.localizable
             .usernameSetupChooseTitle(preferredLanguages: locale.rLanguages)
@@ -450,6 +521,12 @@ private extension AccountImportViewLayout {
         nextButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
         nextButton.invalidateLayout()
+        if adaptiveEntry {
+            nextButton.configureWrappingTitle(locale: locale, compatibleWith: traitCollection)
+            if let bar = ethereumDerivationPathField.inputAccessoryView as? UIToolbar {
+                bar.items?.last?.title = R.string.localizable.commonClose(preferredLanguages: locale.rLanguages)
+            }
+        }
     }
 
     @objc func actionExpand() {
@@ -467,14 +544,18 @@ private extension AccountImportViewLayout {
         }
     }
 
-    // swiftlint:disable function_body_length
+    // swiftlint:disable:next function_body_length
     func setupLayout() {
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.bottom.equalToSuperview().inset(Constants.contentBottomOffset)
+            if adaptiveEntry {
+                keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
+            } else {
+                make.bottom.equalToSuperview().inset(Constants.contentBottomOffset)
+            }
         }
 
         sourceTypeViewContainer.addSubview(sourceTypeView)
@@ -498,7 +579,11 @@ private extension AccountImportViewLayout {
             make.top.equalToSuperview().offset(UIConstants.defaultOffset)
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
             make.leading.trailing.equalToSuperview()
-            make.height.greaterThanOrEqualTo(UIConstants.actionHeight)
+            if adaptiveEntry {
+                uploadHeight = make.height.equalTo(60).constraint
+            } else {
+                make.height.greaterThanOrEqualTo(UIConstants.actionHeight)
+            }
         }
         contentView.stackView.addArrangedSubview(uploadViewContainer)
 
@@ -560,6 +645,9 @@ private extension AccountImportViewLayout {
         textPlaceholderLabel.snp.makeConstraints { make in
             make.leading.top.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            if adaptiveEntry {
+                placeholderBottom = make.bottom.lessThanOrEqualToSuperview().inset(UIConstants.bigOffset).constraint
+            }
         }
         contentView.stackView.addArrangedSubview(textViewContainer)
 
@@ -571,8 +659,31 @@ private extension AccountImportViewLayout {
         }
         contentView.stackView.addArrangedSubview(passwordContainerView)
 
+        setupAdvancedLayout()
+
+        if adaptiveEntry {
+            contentView.stackView.addArrangedSubview(nextButton)
+            contentView.stackView.layoutMargins.bottom = 24
+            nextButton.snp.makeConstraints { $0.height.greaterThanOrEqualTo(56) }
+        } else {
+            addSubview(nextButton)
+            nextButton.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+                make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+                make.height.equalTo(UIConstants.actionHeight)
+                keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
+            }
+        }
+    }
+
+    // swiftlint:disable:next function_body_length
+    func setupAdvancedLayout() {
         expandableControlContainerView.snp.makeConstraints { make in
-            make.height.equalTo(UIConstants.expandableViewHeight)
+            if adaptiveEntry {
+                advancedHeaderHeight = make.height.equalTo(60).constraint
+            } else {
+                make.height.equalTo(UIConstants.expandableViewHeight)
+            }
         }
         expandableControlContainerView.addSubview(expandableControlBorderedView)
         expandableControlBorderedView.snp.makeConstraints { make in
@@ -588,58 +699,84 @@ private extension AccountImportViewLayout {
 
         advancedStackView.addArrangedSubview(substrateCryptoTypeView)
         substrateCryptoTypeView.snp.makeConstraints { make in
-            make.height.equalTo(UIConstants.actionHeight)
+            if adaptiveEntry {
+                make.height.greaterThanOrEqualTo(60)
+            } else {
+                make.height.equalTo(UIConstants.actionHeight)
+            }
         }
 
         substrateDerivationContainerView.addSubview(substrateDerivationPathField)
         substrateDerivationPathField.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview().offset(UIConstants.defaultOffset)
+            if adaptiveEntry {
+                make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            } else {
+                make.top.bottom.equalToSuperview().offset(UIConstants.defaultOffset)
+            }
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
         }
         substrateDerivationContainerView.addSubview(substrateDerivationPathImage)
         substrateDerivationPathImage.snp.makeConstraints { make in
             make.size.equalTo(Constants.derivationImageSize)
-            make.leading.equalTo(substrateDerivationPathField.snp.trailing).offset(Constants.dervationFieldToImageSpacing)
+            make.leading.equalTo(substrateDerivationPathField.snp.trailing)
+                .offset(Constants.dervationFieldToImageSpacing)
             make.centerY.equalToSuperview()
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
         advancedStackView.addArrangedSubview(substrateDerivationContainerView)
         substrateDerivationContainerView.snp.makeConstraints { make in
-            make.height.equalTo(UIConstants.actionHeight)
+            if adaptiveEntry {
+                make.height.greaterThanOrEqualTo(60)
+            } else {
+                make.height.equalTo(UIConstants.actionHeight)
+            }
         }
 
         advancedStackView.addArrangedSubview(substrateDerivationPathLabel)
         substrateDerivationPathLabel.snp.makeConstraints { make in
-            make.height.equalTo(Constants.derivationPathLabelHeight)
+            if !adaptiveEntry { make.height.equalTo(Constants.derivationPathLabelHeight) }
         }
 
         advancedStackView.addArrangedSubview(ethereumCryptoTypeView)
         ethereumCryptoTypeView.snp.makeConstraints { make in
-            make.height.equalTo(UIConstants.actionHeight)
+            if adaptiveEntry {
+                make.height.greaterThanOrEqualTo(60)
+            } else {
+                make.height.equalTo(UIConstants.actionHeight)
+            }
         }
 
         ethereumDerivationContainerView.addSubview(ethereumDerivationPathField)
         ethereumDerivationPathField.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview().offset(UIConstants.defaultOffset)
+            if adaptiveEntry {
+                make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            } else {
+                make.top.bottom.equalToSuperview().offset(UIConstants.defaultOffset)
+            }
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
         }
         ethereumDerivationContainerView.addSubview(ethereumDerivationPathImage)
         ethereumDerivationPathImage.snp.makeConstraints { make in
             make.size.equalTo(Constants.derivationImageSize)
-            make.leading.equalTo(ethereumDerivationPathField.snp.trailing).offset(Constants.dervationFieldToImageSpacing)
+            make.leading.equalTo(ethereumDerivationPathField.snp.trailing)
+                .offset(Constants.dervationFieldToImageSpacing)
             make.centerY.equalToSuperview()
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
         advancedStackView.addArrangedSubview(ethereumDerivationContainerView)
         ethereumDerivationContainerView.snp.makeConstraints { make in
-            make.height.equalTo(UIConstants.actionHeight)
+            if adaptiveEntry {
+                make.height.greaterThanOrEqualTo(60)
+            } else {
+                make.height.equalTo(UIConstants.actionHeight)
+            }
         }
 
         advancedStackView.addArrangedSubview(ethereumDerivationPathLabel)
         ethereumDerivationPathLabel.snp.makeConstraints { make in
-            make.height.equalTo(Constants.derivationPathLabelHeight)
+            if !adaptiveEntry { make.height.equalTo(Constants.derivationPathLabelHeight) }
         }
 
         advancedContainerView.addSubview(advancedStackView)
@@ -649,19 +786,15 @@ private extension AccountImportViewLayout {
             make.leading.trailing.equalToSuperview()
         }
         contentView.stackView.addArrangedSubview(advancedContainerView)
-
-        addSubview(nextButton)
-        nextButton.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.height.equalTo(UIConstants.actionHeight)
-            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
-        }
     }
 }
 
 extension AccountImportViewLayout {
     func handleKeyboard(frame: CGRect) {
+        if adaptiveEntry {
+            keyboardAdoptableConstraint?.update(inset: frame.height)
+            return
+        }
         nextButton.snp.updateConstraints { make in
             make.bottom.equalTo(safeAreaLayoutGuide).inset(frame.height + UIConstants.bigOffset)
         }

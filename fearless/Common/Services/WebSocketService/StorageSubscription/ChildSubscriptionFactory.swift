@@ -1,12 +1,10 @@
 import Foundation
 import RobinHood
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 protocol ChildSubscriptionFactoryProtocol {
-    func createEventEmittingSubscription(
-        keys: SubscriptionStorageKeys,
-        eventFactory: @escaping EventEmittingFactoryClosure
-    ) -> StorageChildSubscribing
-
     func createEmptyHandlingSubscription(keys: SubscriptionStorageKeys) -> StorageChildSubscribing
 }
 
@@ -17,7 +15,7 @@ final class ChildSubscriptionFactory {
     let logger: LoggerProtocol
 
     private lazy var repository: AnyDataProviderRepository<ChainStorageItem> = {
-        let coreDataRepository: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
+        let coreDataRepository: CoreDataRepository<ChainStorageItem, SSFAssetManagmentStorage.CDChainStorageItem> =
             storageFacade.createRepository()
 
         return AnyDataProviderRepository(coreDataRepository)
@@ -37,21 +35,6 @@ final class ChildSubscriptionFactory {
 }
 
 extension ChildSubscriptionFactory: ChildSubscriptionFactoryProtocol {
-    func createEventEmittingSubscription(
-        keys: SubscriptionStorageKeys,
-        eventFactory: @escaping EventEmittingFactoryClosure
-    ) -> StorageChildSubscribing {
-        EventEmittingStorageSubscription(
-            remoteStorageKey: keys.remote,
-            localStorageKey: keys.local,
-            storage: repository,
-            operationManager: operationManager,
-            logger: logger,
-            eventCenter: eventCenter,
-            eventFactory: eventFactory
-        )
-    }
-
     func createEmptyHandlingSubscription(keys: SubscriptionStorageKeys) -> StorageChildSubscribing {
         EmptyHandlingStorageSubscription(
             remoteStorageKey: keys.remote,

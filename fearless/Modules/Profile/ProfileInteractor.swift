@@ -2,6 +2,7 @@ import Foundation
 import SoraKeystore
 import IrohaCrypto
 import RobinHood
+import SSFModels
 
 enum ProfileInteractorError: Error {
     case noSelectedAccount

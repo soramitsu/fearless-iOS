@@ -3,7 +3,16 @@ import RobinHood
 import SSFModels
 import SoraFoundation
 
-final class WalletTransactionHistoryDependencyContainer {
+enum WalletTransactionHistoryDependencyContainerError: Error {
+    case unsupported
+}
+
+protocol WalletTransactionHistoryDependencyContaining: AnyObject {
+    var dependencies: WalletTransactionHistoryDependencyContainer.WalletTransactionHistoryDependencies? { get set }
+    func createDependencies(for chainAsset: ChainAsset, selectedAccount: MetaAccountModel) throws
+}
+
+final class WalletTransactionHistoryDependencyContainer: WalletTransactionHistoryDependencyContaining {
     struct WalletTransactionHistoryDependencies {
         let dataProvider: SingleValueProvider<AssetTransactionPageData>?
         let historyService: HistoryServiceProtocol
@@ -16,7 +25,7 @@ final class WalletTransactionHistoryDependencyContainer {
         self.selectedAccount = selectedAccount
     }
 
-    func createDependencies(for chainAsset: ChainAsset, selectedAccount: MetaAccountModel) {
+    func createDependencies(for chainAsset: ChainAsset, selectedAccount: MetaAccountModel) throws {
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 
@@ -26,7 +35,7 @@ final class WalletTransactionHistoryDependencyContainer {
                 txStorage: AnyDataProviderRepository(txStorage)
             )
         else {
-            return
+            throw WalletTransactionHistoryDependencyContainerError.unsupported
         }
 
         let dataProviderFactory = HistoryDataProviderFactory(
@@ -39,7 +48,7 @@ final class WalletTransactionHistoryDependencyContainer {
             $0.items as? [WalletTransactionHistoryFilter]
         }.reduce([], +)
 
-        if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
+        if let address = UniversalWalletAccountAddressResolver.address(for: chainAsset.chain, wallet: selectedAccount) {
             dataProvider = try? dataProviderFactory.createDataProvider(
                 for: address,
                 asset: chainAsset.asset,
@@ -70,7 +79,7 @@ final class WalletTransactionHistoryDependencyContainer {
         if chain.hasStakingRewardHistory || chain.isSora {
             filters.insert(WalletTransactionHistoryFilter(type: .reward, selected: true), at: 1)
         }
-        if chain.hasPolkaswap {
+        if chain.hasPolkaswap || chain.isTonCompatibilityChain {
             filters.insert(WalletTransactionHistoryFilter(type: .swap, selected: true), at: 0)
             filters.removeAll(where: { $0.type == .other })
         }

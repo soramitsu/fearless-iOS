@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 import SSFUtils
 import BigInt
 
@@ -25,7 +26,7 @@ struct StakingLedger: Decodable, Equatable {
             stash = try container.decode(Data.self, forKey: .stash)
         } catch {
             let stashString = try container.decode(String.self, forKey: .stash)
-            stash = Data(hex: stashString)
+            stash = try Data(hexStringSSF: stashString)
         }
         total = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .total).value
         active = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .active).value

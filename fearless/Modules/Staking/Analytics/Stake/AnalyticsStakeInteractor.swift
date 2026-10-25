@@ -7,24 +7,20 @@ final class AnalyticsStakeInteractor {
     weak var presenter: AnalyticsStakeInteractorOutputProtocol!
 
     let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
 
     private let operationManager: OperationManagerProtocol
     private let chainAsset: ChainAsset
     private let selectedAccountAddress: AccountAddress
 
-    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var stashItemProvider: StreamableProvider<StashItem>?
 
     init(
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         operationManager: OperationManagerProtocol,
         selectedAccountAddress: AccountAddress,
         chainAsset: ChainAsset
     ) {
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.operationManager = operationManager
         self.selectedAccountAddress = selectedAccountAddress
         self.chainAsset = chainAsset
@@ -33,8 +29,6 @@ final class AnalyticsStakeInteractor {
 
 extension AnalyticsStakeInteractor: AnalyticsStakeInteractorInputProtocol {
     func setup() {
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
-
         stashItemProvider = subscribeStashItemProvider(for: selectedAccountAddress)
     }
 
@@ -54,12 +48,6 @@ extension AnalyticsStakeInteractor: AnalyticsStakeInteractorInputProtocol {
             }
         }
         operationManager.enqueue(operations: fetchOperation.allOperations, in: .transient)
-    }
-}
-
-extension AnalyticsStakeInteractor: PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
-        presenter.didReceivePriceData(result: result)
     }
 }
 

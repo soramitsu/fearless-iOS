@@ -38,7 +38,6 @@ final class StakingPoolInfoAssembly {
         stakingSettings.setup()
 
         guard
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
             let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
             let settings = stakingSettings.value
         else {
@@ -81,7 +80,6 @@ final class StakingPoolInfoAssembly {
         }
         eraValidatorService.setup()
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let storageOperationFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager
@@ -119,7 +117,6 @@ final class StakingPoolInfoAssembly {
         )
 
         let interactor = StakingPoolInfoInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset,
             operationManager: operationManager,
             runtimeService: runtimeService,

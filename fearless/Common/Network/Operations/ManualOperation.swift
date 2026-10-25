@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-final class ManualOperation<ResultType>: BaseOperation<ResultType> {
+final class ManualOperation<ResultType>: BaseOperation<ResultType>, @unchecked Sendable {
     private let lockQueue = DispatchQueue(label: "jp.co.soramitsu.asyncoperation", attributes: .concurrent)
 
     override var isAsynchronous: Bool {
@@ -61,7 +61,9 @@ final class ManualOperation<ResultType>: BaseOperation<ResultType> {
     }
 
     func finish() {
-        isExecuting = false
-        isFinished = true
+        if isExecuting {
+            isExecuting = false
+            isFinished = true
+        }
     }
 }

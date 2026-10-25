@@ -21,7 +21,6 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
         extrinsicService: ExtrinsicServiceProtocol,
         crowdloanLocalSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol,
         walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol,
         signingWrapper: SigningWrapperProtocol,
         bonusService: CrowdloanBonusServiceProtocol?,
@@ -44,7 +43,6 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
                 walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
                 selectedMetaAccount: selectedMetaAccount
             ),
-            priceLocalSubscriber: priceLocalSubscriber,
             jsonLocalSubscriptionFactory: jsonLocalSubscriptionFactory,
             operationManager: operationManager,
             existentialDepositService: existentialDepositService,

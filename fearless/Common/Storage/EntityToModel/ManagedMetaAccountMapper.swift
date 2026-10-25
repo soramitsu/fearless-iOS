@@ -1,7 +1,9 @@
 import Foundation
 import RobinHood
 import CoreData
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 final class ManagedMetaAccountMapper {
     var entityIdentifierFieldName: String { #keyPath(CDMetaAccount.metaId) }
@@ -37,7 +39,7 @@ extension ManagedMetaAccountMapper: CoreDataMapperProtocol {
         let order: Int32
 
         if isNew {
-            let fetchRequest: NSFetchRequest<CDMetaAccount> = CDMetaAccount.fetchRequest()
+            let fetchRequest = NSFetchRequest<CDMetaAccount>(entityName: "CDMetaAccount")
             fetchRequest.includesPendingChanges = true
             fetchRequest.includesSubentities = false
             let sortDescriptor = NSSortDescriptor(key: #keyPath(CDMetaAccount.order), ascending: false)
@@ -48,6 +50,10 @@ extension ManagedMetaAccountMapper: CoreDataMapperProtocol {
             let maybeLastItem = try context.fetch(fetchRequest).first
 
             order = maybeLastItem?.order ?? 0
+
+            guard order < Int32.max else {
+                throw MetaAccountMapperError.walletOrderOverflow
+            }
 
             entity.order = order + 1
         } else {

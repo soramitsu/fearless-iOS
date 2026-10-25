@@ -8,12 +8,14 @@ import SSFStorageQueryKit
 final class AssetManagementAssembly {
     static func configureModule(
         networkFilter: NetworkManagmentFilter?,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        visibilityFilter: ManageAssetsFilter = .all
     ) -> AssetManagementModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-        let chainRepository = ChainRepositoryFactory().createRepository()
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain()
+        )
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue
@@ -38,14 +40,11 @@ final class AssetManagementAssembly {
         let repository = SubstrateRepositoryFactory(
             storageFacade: UserDataStorageFacade.shared
         ).createAccountInfoStorageItemRepository()
-        let ethereumBalanceRepositoryWrapper = EthereumBalanceRepositoryCacheWrapper(
+        let ethereumBalanceRepositoryWrapper = BalanceRepositoryCacheWrapper(
             logger: Logger.shared,
             repository: repository,
             operationManager: OperationManagerFacade.sharedManager
         )
-
-        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-            SubstrateDataStorageFacade.shared.createAsyncRepository()
 
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
@@ -53,19 +52,45 @@ final class AssetManagementAssembly {
             repositoryWrapper: ethereumBalanceRepositoryWrapper
         )
 
+        let tonBalanceRepositoryWrapper = BalanceRepositoryCacheWrapper(
+            logger: Logger.shared,
+            repository: repository,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let tonChainRepository = ChainRepositoryFactory().createAsyncRepository()
+        let tonJettonInjector = TonJettonInjectorImpl(
+            chainModelRepository: AsyncAnyRepository(tonChainRepository),
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared
+        )
+        let dynamicAssetCatalogInjector = DynamicAssetCatalogInjectorImpl(
+            chainModelRepository: AsyncAnyRepository(tonChainRepository),
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared
+        )
+
+        let tonRemoteBalanceFetching = TonRemoteBalanceFetchingImpl(
+            chainRegistry: chainRegistry,
+            repositoryWrapper: tonBalanceRepositoryWrapper,
+            jettonInjector: tonJettonInjector
+        )
+
         let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
             chainRegistry: chainRegistry
         )
 
         let accountInfoRemote = AccountInfoRemoteServiceDefault(
-            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository),
             ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
+            tonRemoteBalanceFetching: tonRemoteBalanceFetching,
+            bitcoinBalanceSync: BitcoinBalanceSync(discovery: BitcoinReceiveDiscovery(client: BitcoinFailoverIndexerClient())),
+            solanaBalanceSync: SolanaRpcBalanceSync.mainnet,
+            dynamicAssetCatalogInjector: dynamicAssetCatalogInjector,
             storagePerformer: storagePerformer
         )
 
         let interactor = AssetManagementInteractor(
             chainAssetFetching: chainAssetFetching,
-            priceLocalSubscriber: priceLocalSubscriber,
             accountInfoFetchingProvider: accountInfoFetchingProvider,
             eventCenter: EventCenter.shared,
             accountInfoRemoteService: accountInfoRemote
@@ -79,7 +104,8 @@ final class AssetManagementAssembly {
             viewModelFactory: viewModelFactory,
             interactor: interactor,
             router: router,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            visibilityFilter: visibilityFilter
         )
 
         let view = AssetManagementViewController(

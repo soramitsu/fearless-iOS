@@ -6,7 +6,7 @@ import SSFRuntimeCodingService
 
 protocol StakingPayoutConfirmationrelaychainStrategyOutput {
     func didRecieve(account: ChainAccountResponse, rewardAmount: Decimal)
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset)
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, chainAsset: ChainAsset)
     func didReceiveRewardDestination(result: Result<RewardDestination<DisplayAddress>?, Error>)
     func didReceiveFee(result: Result<Decimal, Error>)
     func didStartPayout()
@@ -151,7 +151,8 @@ final class StakingPayoutConfirmationRelayachainStrategy: AccountFetching {
 
     private func createFeeOperationWrapper() -> CompoundOperationWrapper<Decimal>? {
         let payoutsUnwrapped = payouts
-        guard !payoutsUnwrapped.isEmpty else { return nil }
+        guard !payoutsUnwrapped.isEmpty,
+              let feeAsset = chainAsset.chain.utilityChainAssets().first else { return nil }
         guard let feeClosure = createExtrinsicBuilderClosure(for: payouts) else { return nil }
 
         let feeOperation = extrinsicOperationFactory.estimateFeeOperation(
@@ -159,7 +160,7 @@ final class StakingPayoutConfirmationRelayachainStrategy: AccountFetching {
         )
 
         let dependencies = feeOperation.allOperations
-        let precision = Int16(chainAsset.asset.precision)
+        let precision = Int16(feeAsset.asset.precision)
 
         let mergeOperation = ClosureOperation<Decimal> {
             let result = try feeOperation.targetOperation.extractNoCancellableResultData()
@@ -207,9 +208,9 @@ extension StakingPayoutConfirmationRelayachainStrategy: StakingPayoutConfirmatio
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-            let chainAssets: [ChainAsset] = chainAsset.isUtility ? [chainAsset] : [chainAsset, chainAsset.chain.utilityChainAssets().first].compactMap { $0 }
-            accountInfoSubscriptionAdapter.subscribe(chainsAssets: chainAssets, handler: self, deliveryOn: .main, notifyJustWhenUpdated: false)
+        if let feeAsset = chainAsset.chain.utilityChainAssets().first,
+           let accountId = wallet.fetch(for: feeAsset.chain.accountRequest())?.accountId {
+            accountInfoSubscriptionAdapter.subscribe(chainAsset: feeAsset, accountId: accountId, handler: self)
         }
 
         provideRewardAmount()
@@ -237,8 +238,8 @@ extension StakingPayoutConfirmationRelayachainStrategy: StakingPayoutConfirmatio
 }
 
 extension StakingPayoutConfirmationRelayachainStrategy: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
-        output?.didReceiveAccountInfo(result: result, accountId: accountId, chainAsset: chainAsset)
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset: ChainAsset) {
+        output?.didReceiveAccountInfo(result: result, chainAsset: chainAsset)
     }
 }
 
@@ -280,5 +281,3 @@ extension StakingPayoutConfirmationRelayachainStrategy: RelaychainStakingLocalSt
 // MARK: - SingleValueProviderSubscriber, SingleValueSubscriptionHandler, AnyProviderAutoCleaning
 
 extension StakingPayoutConfirmationRelayachainStrategy: AnyProviderAutoCleaning {}
-
-// MARK: - SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler

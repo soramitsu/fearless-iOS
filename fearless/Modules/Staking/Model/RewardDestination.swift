@@ -22,23 +22,6 @@ extension RewardDestination: Equatable where A == AccountAddress {
             self = .payout(account: address)
         }
     }
-
-    @available(*, deprecated, message: "Use init(payee:stashItem:chainFormat:) instead")
-    init(payee: RewardDestinationArg, stashItem: StashItem, chain _: Chain) throws {
-        switch payee {
-        case .staked:
-            self = .restake
-        case .stash:
-            self = .payout(account: stashItem.stash)
-        case .controller:
-            self = .payout(account: stashItem.controller)
-        case let .account(accountId):
-            let address = try accountId.toAddress(using: ChainFormat.substrate(42))
-            self = .payout(account: address)
-        case let .address(address):
-            self = .payout(account: address)
-        }
-    }
 }
 
 extension RewardDestination where A == ChainAccountResponse {

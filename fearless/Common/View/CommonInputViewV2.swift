@@ -30,6 +30,12 @@ class CommonInputViewV2: UIView {
         field.textColor = R.color.colorWhite()!
         field.textFont = .p1Paragraph
         field.cursorColor = R.color.colorWhite()!
+        if #available(iOS 17.0, *) {
+            field.textField.accessibilityFrameBlock = { [weak field] in
+                guard let field else { return .zero }
+                return UIAccessibility.convertToScreenCoordinates(field.bounds, in: field)
+            }
+        }
         return field
     }()
 
@@ -48,6 +54,7 @@ class CommonInputViewV2: UIView {
         }
         set {
             animatedInputField.title = newValue
+            animatedInputField.textField.accessibilityLabel = newValue
         }
     }
 
@@ -60,6 +67,16 @@ class CommonInputViewV2: UIView {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        // AnimatedTextField forwards taps across its full bounds to this input.
+        // Keep the stored frame coherent for direct accessibility consumers too.
+        // On iOS 17+, the dynamic block still takes precedence for VoiceOver.
+        animatedInputField.textField.accessibilityFrame = UIAccessibility.convertToScreenCoordinates(
+            animatedInputField.bounds, in: animatedInputField
+        )
     }
 
     private func setupLayout() {

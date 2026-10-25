@@ -38,7 +38,10 @@ class BaseStakingState: StakingStateProtocol {
                     commonData: commonData
                 )
             case .none:
-                return
+                newState = InitialRelaychainStakingState(
+                    stateMachine: stateMachine,
+                    commonData: commonData
+                )
             }
 
             stateMachine.transit(to: newState)
@@ -75,12 +78,6 @@ class BaseStakingState: StakingStateProtocol {
 
     func process(accountInfo: AccountInfo?) {
         commonData = commonData.byReplacing(accountInfo: accountInfo)
-
-        stateMachine?.transit(to: self)
-    }
-
-    func process(price: PriceData?) {
-        commonData = commonData.byReplacing(price: price)
 
         stateMachine?.transit(to: self)
     }

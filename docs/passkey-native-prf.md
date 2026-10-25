@@ -1,0 +1,42 @@
+# Native iOS PRF ceremony plumbing
+
+The native PRF path is available only on iOS 18 and later. The app minimum remains iOS 15, and the existing string-only passkey executor and wallet flows are unchanged. Production recovery remains disabled. The default PRF verification adapter always fails closed; this increment cannot enroll a recoverable credential or claim Google Password Manager qualification.
+
+`PasskeyBackupPRFRequestFactory` uses the installed AuthenticationServices APIs, not a web view: registration requests set `prf = .inputValues(.saltInput1(prfSalt))`; assertions restrict `allowedCredentials` to one credential and use that credential's `perCredentialInputValues`. Both require user verification. The caller must generate a fresh 32-byte salt for a new wrapper, retain it in the public wrapper record, and supply that exact salt again to recover that wrapper. The factory rejects other lengths. Salt freshness/entropy cannot be inferred from arbitrary caller bytes and remains the caller's responsibility. No additional application PRF prehash is applied.
+
+The platform result's `SymmetricKey` is retained only in a local, non-Codable result with redacted description and reflection. Public WebAuthn JSON is constructed by the existing allowlist serializer, whose extension result remains empty; no PRF output is sent to the challenge service, Drive, telemetry or logs. Unexpected second output, missing assertion output, wrong-sized output, and substituted credential IDs are rejected. The native executor serializes sessions, cancels the controller, ignores retired-session callbacks and checks task cancellation before returning a result. This does not guarantee zeroization of all Swift or OS copies.
+
+The enrollment precondition has the following sequence:
+
+1. Receive a native registration result and verify its exact public transcript through a server adapter. Before that succeeds, no local PRF bytes can be obtained from the gate.
+2. If registration returned a 32-byte PRF result, the verified local result may be taken once. Owner authorization, provider/device acceptance, local-decryption acceptance, generation publication and final enrollment remain separate requirements.
+3. If registration omitted PRF output (including support-only output), request a fresh server assertion challenge. The local gate requires a different ceremony ID and challenge, the same storage namespace, original salt and newly registered credential ID. It does not generate a replacement challenge itself.
+4. Obtain the native assertion for that exact credential and salt, then verify its public transcript with the server. Only a matching receipt allows one release of the local output. Cancellation, failed verification or a mismatched receipt leaves the gate closed.
+
+The [WebAuthn PRF specification](https://www.w3.org/TR/webauthn-3/#prf-extension) permits creation to omit PRF output; a successful registration or a support flag alone is not evidence that recovery key derivation succeeded.
+
+On a replacement device, `PasskeyBackupPRFRestoreGate` accepts only a
+credential-directed assertion for the credential and public salt in the
+selected wrapper. It verifies that assertion's exact public transcript through
+the challenge-service verifier before releasing the local PRF result once.
+Registration output from the original device is neither available nor accepted
+at this gate. Its default verifier fails closed, and this primitive does not
+bootstrap owner access or establish that Google Password Manager synced the
+credential; those require the separate discoverable-passkey flow and real
+cross-device tests.
+
+## Server adapter boundary
+
+`PasskeyBackupPRFVerifier` accepts only public ceremony context, credential ID and WebAuthn JSON. Its receipt must match the credential ID and a SHA-256 binding over a domain prefix `FPBK-PRF-VERIFY-v1` followed by length-prefixed fields: RP ID, ceremony kind, server ceremony ID, storage key, challenge, public PRF salt, credential ID and the exact UTF-8 public response JSON. Lengths are four-byte big-endian byte counts. No secret PRF result appears in the request or binding.
+
+This is an internal adapter contract, not a new HTTP endpoint or an authorization grant. `ChallengeServicePasskeyBackupPRFVerifier` now completes the exact registration or credential-directed assertion through the authorized one-use challenge route, verifies the returned storage key and constructs a local binding receipt from a typed native result. It never sends local PRF output. The challenge service verifies the WebAuthn signature, RP/origin and user verification; its completion response does not attest client-side decryption or backup availability. The adapter does not reconcile an uncertain registration commit, integrate owner lifecycle or qualify the selected provider. Default composition still fails closed. Test fixtures do not constitute device proof.
+
+If a registration committed but the backup upload or local verification fails, the iOS workflow calls a dedicated incomplete-registration compensation method. Its exact authorized revoke body includes `confirmFinalRecoveryRemoval: true` to remove the unverified credential. Ordinary revoke and backup deletion omit that field and therefore remain blocked by the server while live credentials exist. No user-facing confirmed removal or backup-key rotation flow is qualified yet; independently deployed challenge and owner stores also require atomic lifecycle integration.
+
+## Provider qualification and evidence
+
+The installed Xcode 27 iOS SDK declares native platform PRF request/result APIs available from iOS 18. Apple's [AuthenticationServices updates](https://developer.apple.com/documentation/updates/authenticationservices) describe PRF keys and third-party credential extension inputs. Google's [GPM iOS documentation](https://developer.chrome.com/blog/passkeys-gpm-ios) describes Chrome as a user-selected AutoFill provider on iOS 17+, with passkeys synchronized to Android. Chromium's immutable [provider PRF bridge](https://chromium.googlesource.com/experimental/chromium/src/+/89a2c0041e524f14a1e547803205905e6f9c2019/ios/chrome/credential_provider_extension/passkey_util.swift) and [provider request implementation](https://chromium.googlesource.com/chromium/src/ios/+/43f79e6b7c7b41c879747f6baa5efa0da7aae837/chrome/credential_provider_extension/passkey_request_details.mm) process native PRF extension requests and results. These sources establish an available integration path; they do not establish behavior of an installed shipping Chrome build.
+
+The relying-party API does not let this app select GPM by bundle ID or authenticate the selected password-manager identity from a generic platform credential. Neither a Google Drive login, an AAGUID alone nor the presence of PRF output is treated as GPM qualification. Real iOS/Chrome versions, native GPM PRF output, same-credential/same-salt parity across Android and iOS, loss of every original device, required Google/GPM recovery factors, cancellation and secret-leak checks still need signed acceptance evidence. The Google email-rename divergence described in `passkey-google-drive.md` also remains open.
+
+Focused tests exercise the real SDK request/PRF data types with synthetic public transcripts and keys. They verify request restrictions, local-only output, missing creation output, default denial, exact receipt binding, fallback freshness, cancellation, duplicate verification, single output release and stale controller callbacks. They do not present real credential UI or contact an account/server.

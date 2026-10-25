@@ -1,0 +1,6 @@
+framework module sorawallet {
+    umbrella header "sorawallet.h"
+
+    export *
+    module * { export * }
+}

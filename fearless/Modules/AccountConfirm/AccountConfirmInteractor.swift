@@ -1,7 +1,7 @@
-import UIKit
-import SoraKeystore
 import IrohaCrypto
 import RobinHood
+import SoraKeystore
+import UIKit
 
 class AccountConfirmInteractor: BaseAccountConfirmInteractor {
     private(set) var settings: SelectedWalletSettings
@@ -33,41 +33,47 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
             return
         }
 
-        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
-            let accountItem = try importOperation
+        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation {
+            try importOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            self?.settings.save(value: accountItem)
-
-            return accountItem
         }
 
         saveOperation.completionBlock = { [weak self] in
+            let result = saveOperation.result
+            saveOperation.completionBlock = nil
             DispatchQueue.main.async {
-                self?.currentOperation = nil
-
-                switch saveOperation.result {
-                case .success:
-                    do {
-                        let accountItem = try importOperation
-                            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-                        self?.settings.setup()
-                        self?.eventCenter.notify(with: SelectedAccountChanged(account: accountItem))
-                        self?.presenter?.didCompleteConfirmation()
-                    } catch {
-                        self?.presenter?.didReceive(error: error)
+                guard let self else {
+                    ImportKeychainPersistence.rollback(importOperation, after: BaseOperationError.parentOperationCancelled)
+                    return
+                }
+                switch result {
+                case let .success(accountItem):
+                    self.settings.save(value: accountItem, runningCompletionIn: .main) { [weak self] result in
+                        self?.currentOperation = nil
+                        switch result {
+                        case let .success(savedAccount):
+                            (importOperation as? PersistenceBoundKeychainOperation)?.commitKeychainChanges()
+                            self?.eventCenter.notify(with: SelectedAccountChanged(account: savedAccount))
+                            self?.presenter?.didCompleteConfirmation()
+                        case let .failure(error):
+                            let failure = ImportKeychainPersistence.rollback(importOperation, after: error)
+                            self?.presenter?.didReceive(error: failure)
+                        }
                     }
                 case let .failure(error):
-                    self?.presenter?.didReceive(error: error)
-
+                    self.currentOperation = nil
+                    let failure = ImportKeychainPersistence.rollback(importOperation, after: error)
+                    self.presenter?.didReceive(error: failure)
                 case .none:
-                    let error = BaseOperationError.parentOperationCancelled
-                    self?.presenter?.didReceive(error: error)
+                    self.currentOperation = nil
+                    let failure = ImportKeychainPersistence.rollback(importOperation, after: BaseOperationError.parentOperationCancelled)
+                    self.presenter?.didReceive(error: failure)
                 }
             }
         }
 
         saveOperation.addDependency(importOperation)
+        currentOperation = saveOperation
 
         operationManager.enqueue(
             operations: [importOperation, saveOperation],

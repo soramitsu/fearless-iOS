@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "ownership": "soramitsu/fearless-iOS",
+  "sourceRoot": "Native",
+  "imports": [
+    {
+      "repository": "soramitsu/shared-features-spm",
+      "revision": "c9592e0690e5700e7dfeccccdf536ded6e1c9474",
+      "tree": "dac6a025c399f4cee01b8e3c9e8834cc2f803b96"
+    },
+    {
+      "repository": "soramitsu/fearless-starscream",
+      "revision": "c26d9665fc44fd55aa1170427b1aef007a944fd7",
+      "tree": "d4f521899950b579064ac188ee7901e0ad4b69a9"
+    }
+  ],
+  "nativeBinaries": {
+    "Binaries/sorawallet.xcframework/Info.plist": "ffca0291124f175e36fc5ee312e951a2d7387e7724060a77ff62f71abef46745",
+    "Binaries/sorawallet.xcframework/ios-arm64/dSYMs/sorawallet.framework.dSYM/Contents/Info.plist": "c0a20ce87802a9004d25a14289308152bd51d96bf9a5374b37d878eaaac7e0e4",
+    "Binaries/sorawallet.xcframework/ios-arm64/dSYMs/sorawallet.framework.dSYM/Contents/Resources/DWARF/sorawallet": "479556e0375583fefb7649be7634798f3148207ffcd08e587f41fb77762c024c",
+    "Binaries/sorawallet.xcframework/ios-arm64/dSYMs/sorawallet.framework.dSYM/Contents/Resources/Relocations/aarch64/sorawallet.yml": "e90ff2224431e53bcf67221e6ff6966fb2322f2a75eed6fcfc06b2409d810078",
+    "Binaries/sorawallet.xcframework/ios-arm64/sorawallet.framework/Headers/sorawallet.h": "104407ae4b4ba14281d31bb9f3d8fa483cc5d4ac87c80a34a18c90c993c9ffb8",
+    "Binaries/sorawallet.xcframework/ios-arm64/sorawallet.framework/Info.plist": "a2b4970c0f3b88e8b4fc7ed1d950f8bbc8b47dd6cb58948e0e4884bf707f0847",
+    "Binaries/sorawallet.xcframework/ios-arm64/sorawallet.framework/Modules/module.modulemap": "6d04065b2ea6e8ca2a835197c1d614c4ddecd6b42f794db6b34a226d1e33cb7a",
+    "Binaries/sorawallet.xcframework/ios-arm64/sorawallet.framework/sorawallet": "acaf61f4a79fd5e33002a24298f36c981249752d411a60d01182f197d671a214",
+    "Binaries/sorawallet.xcframework/ios-arm64_x86_64-simulator/dSYMs/sorawallet.framework.dSYM/Contents/Info.plist": "c0a20ce87802a9004d25a14289308152bd51d96bf9a5374b37d878eaaac7e0e4",
+    "Binaries/sorawallet.xcframework/ios-arm64_x86_64-simulator/dSYMs/sorawallet.framework.dSYM/Contents/Resources/DWARF/sorawallet": "e44529be36553086662ddd63ee95c463d3a41d8300315ea5d827e376f65b7974",
+    "Binaries/sorawallet.xcframework/ios-arm64_x86_64-simulator/sorawallet.framework/Headers/sorawallet.h": "104407ae4b4ba14281d31bb9f3d8fa483cc5d4ac87c80a34a18c90c993c9ffb8",
+    "Binaries/sorawallet.xcframework/ios-arm64_x86_64-simulator/sorawallet.framework/Info.plist": "287fe3a45de1f92dcbd97950b6ea584ff824edaa875fdff1163fb3f9d4e0a220",
+    "Binaries/sorawallet.xcframework/ios-arm64_x86_64-simulator/sorawallet.framework/Modules/module.modulemap": "0bdba3e4d100331748cbb8c1e0eba4bdf65468081b7074b4f981360bd7d8b2ff",
+    "Binaries/sorawallet.xcframework/ios-arm64_x86_64-simulator/sorawallet.framework/sorawallet": "8edddc4081fd9182ff37acc8c6386e4290768f7d93e238ffd34080b0829a23f1",
+    "Binaries/sr25519lib.xcframework/Info.plist": "4c4cd2cf3bb1db2feb292845aa2ef8fa2a7d3817f3da57b7a286b3dde7979b3d",
+    "Binaries/sr25519lib.xcframework/ios-arm64/sr25519lib.framework/Headers/sr25519.h": "1a2ac0ff0a2f60bc428041e9626e4c5c131e31c80ff389f44fad3405ac81d8a9",
+    "Binaries/sr25519lib.xcframework/ios-arm64/sr25519lib.framework/Headers/sr25519lib.h": "4924e757a6d16671fd44c7c9ab58a13abf78ec47b90e70c0184e21f031018d0b",
+    "Binaries/sr25519lib.xcframework/ios-arm64/sr25519lib.framework/Info.plist": "998f3bfb551b680a8f8737b576c5444d34a17ac6fa244d75babb2973602ded53",
+    "Binaries/sr25519lib.xcframework/ios-arm64/sr25519lib.framework/Modules/module.modulemap": "1dec5ba0eed89d97f7ce8d7321ced39eff1749c4f88c442cd304989a87e20d21",
+    "Binaries/sr25519lib.xcframework/ios-arm64/sr25519lib.framework/_CodeSignature/CodeDirectory": "d72af0e75d519016cc8c1fa0251dc518f9958c5b829fc7dd5b2b414abdc66a5e",
+    "Binaries/sr25519lib.xcframework/ios-arm64/sr25519lib.framework/_CodeSignature/CodeRequirements": "987920904eab650e75788c054aa0b0524e6a80bfc71aa32df8d237a61743f986",
+    "Binaries/sr25519lib.xcframework/ios-arm64/sr25519lib.framework/_CodeSignature/CodeResources": "15cf6cf03dd8b119c2774c865c7d4256afff4f6fa78395d8eaf4a21f43d99f63",
+    "Binaries/sr25519lib.xcframework/ios-arm64/sr25519lib.framework/_CodeSignature/CodeSignature": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "Binaries/sr25519lib.xcframework/ios-arm64/sr25519lib.framework/sr25519lib": "4af3fff90ef0e6fe87bd7528f71dc888ae974dac470f190a87f245f68f2682d4",
+    "Binaries/sr25519lib.xcframework/ios-arm64_x86_64-simulator/sr25519lib.framework/Headers/sr25519.h": "1a2ac0ff0a2f60bc428041e9626e4c5c131e31c80ff389f44fad3405ac81d8a9",
+    "Binaries/sr25519lib.xcframework/ios-arm64_x86_64-simulator/sr25519lib.framework/Headers/sr25519lib.h": "4924e757a6d16671fd44c7c9ab58a13abf78ec47b90e70c0184e21f031018d0b",
+    "Binaries/sr25519lib.xcframework/ios-arm64_x86_64-simulator/sr25519lib.framework/Info.plist": "f196ef71fc4e26ba23b91be3805481e2e4439300ecf85658793a5d38d1b729d7",
+    "Binaries/sr25519lib.xcframework/ios-arm64_x86_64-simulator/sr25519lib.framework/Modules/module.modulemap": "1dec5ba0eed89d97f7ce8d7321ced39eff1749c4f88c442cd304989a87e20d21",
+    "Binaries/sr25519lib.xcframework/ios-arm64_x86_64-simulator/sr25519lib.framework/_CodeSignature/CodeDirectory": "f0d9ffa0c60b483b1ac4343620d310281f433e049156cbeee8896450d9b76f38",
+    "Binaries/sr25519lib.xcframework/ios-arm64_x86_64-simulator/sr25519lib.framework/_CodeSignature/CodeRequirements": "987920904eab650e75788c054aa0b0524e6a80bfc71aa32df8d237a61743f986",
+    "Binaries/sr25519lib.xcframework/ios-arm64_x86_64-simulator/sr25519lib.framework/_CodeSignature/CodeResources": "a88fb354bd906e213166d57d991ac59942c1aac37d49b9f19ccf2f7d1a0b37c9",
+    "Binaries/sr25519lib.xcframework/ios-arm64_x86_64-simulator/sr25519lib.framework/_CodeSignature/CodeSignature": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "Binaries/sr25519lib.xcframework/ios-arm64_x86_64-simulator/sr25519lib.framework/libsr25519crust.a": "7cf16e0951f25f35f74b3b388bb219ad5a35b8ff9a97abd5473a5448396e3cba",
+    "Binaries/sr25519lib.xcframework/ios-arm64_x86_64-simulator/sr25519lib.framework/sr25519lib": "7cf16e0951f25f35f74b3b388bb219ad5a35b8ff9a97abd5473a5448396e3cba"
+  },
+  "licenseImport": {
+    "repository": "soramitsu/shared-features-spm",
+    "revision": "0cfcc1f77810847d356e95ac524d8d359b23d3f2",
+    "scope": "First-party Apache-2.0 and retained alternative MIT notices; third-party licenses preserved"
+  }
+}

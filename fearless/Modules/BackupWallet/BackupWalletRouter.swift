@@ -78,17 +78,29 @@ final class BackupWalletRouter: BackupWalletRouterInput {
         from view: ControllerBackedProtocol?,
         moduleOutput: BackupCreatePasswordModuleOutput?
     ) {
-        let exportFlow: ExportFlow = .multiple(wallet: wallet, accounts: accounts)
-        let createPassportFlow: BackupCreatePasswordFlow = .backupWallet(flow: exportFlow, options: options)
-        guard let module = BackupCreatePasswordAssembly
-            .configureModule(with: createPassportFlow, moduleOutput: moduleOutput) else {
-            return
-        }
+        // The backup reads and uploads the stored recovery phrase, so it asks for the
+        // PIN or biometrics like the phrase, seed and JSON exports above.
+        authorize(
+            animated: true,
+            cancellable: true,
+            from: view
+        ) { isAuthorized in
+            guard isAuthorized else {
+                return
+            }
 
-        view?.controller.navigationController?.pushViewController(
-            module.view.controller,
-            animated: true
-        )
+            let exportFlow: ExportFlow = .multiple(wallet: wallet, accounts: accounts)
+            let createPassportFlow: BackupCreatePasswordFlow = .backupWallet(flow: exportFlow, options: options)
+            guard let module = BackupCreatePasswordAssembly
+                .configureModule(with: createPassportFlow, moduleOutput: moduleOutput) else {
+                return
+            }
+
+            view?.controller.navigationController?.pushViewController(
+                module.view.controller,
+                animated: true
+            )
+        }
     }
 
     func showWalletDetails(

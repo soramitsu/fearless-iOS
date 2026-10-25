@@ -9,10 +9,13 @@ final class UsernameSetupViewLayout: UIView {
         static let contentBottomOffset: CGFloat = 92
     }
 
+    let adaptiveEntry = FWAppearance.walletEntryRestyled
+
     var locale = Locale.current {
         didSet {
             if locale != oldValue {
                 applyLocalization()
+                applyTypography()
             }
         }
     }
@@ -85,7 +88,26 @@ final class UsernameSetupViewLayout: UIView {
         super.init(frame: frame)
 
         setupLayout()
+        applyLocalization()
+        applyTypography()
         backgroundColor = R.color.colorBlack19()
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if previousTraitCollection?.preferredContentSizeCategory != traitCollection.preferredContentSizeCategory ||
+            previousTraitCollection?.legibilityWeight != traitCollection.legibilityWeight {
+            applyTypography()
+        }
+    }
+
+    private func applyTypography() {
+        guard adaptiveEntry else { return }
+        usernameTextField.configureAdaptiveCaption(locale: locale, compatibleWith: traitCollection)
+        chainView.configureWrapping(locale: locale, compatibleWith: traitCollection)
+        nextButton.configureWrappingTitle(locale: locale, compatibleWith: traitCollection)
+        hintLabel.font = .fw(.bodyS, locale: locale, compatibleWith: traitCollection)
+        setNeedsLayout()
     }
 
     @available(*, unavailable)
@@ -96,6 +118,10 @@ final class UsernameSetupViewLayout: UIView {
 
 extension UsernameSetupViewLayout {
     func handleKeyboard(frame: CGRect) {
+        if adaptiveEntry {
+            keyboardAdoptableConstraint?.update(inset: frame.height)
+            return
+        }
         nextButton.snp.updateConstraints { make in
             make.bottom.equalTo(safeAreaLayoutGuide).inset(frame.height + UIConstants.bigOffset)
         }
@@ -109,7 +135,11 @@ private extension UsernameSetupViewLayout {
             make.top.equalTo(safeAreaLayoutGuide)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.bottom.equalToSuperview().inset(Constants.contentBottomOffset)
+            if adaptiveEntry {
+                keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
+            } else {
+                make.bottom.equalToSuperview().inset(Constants.contentBottomOffset)
+            }
         }
 
         chainViewContainer.addSubview(chainView)
@@ -136,12 +166,18 @@ private extension UsernameSetupViewLayout {
         }
         contentView.stackView.addArrangedSubview(hintLabelContainer)
 
-        addSubview(nextButton)
-        nextButton.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.height.equalTo(UIConstants.actionHeight)
-            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
+        if adaptiveEntry {
+            contentView.stackView.addArrangedSubview(nextButton)
+            contentView.stackView.layoutMargins.bottom = 24
+            nextButton.snp.makeConstraints { $0.height.greaterThanOrEqualTo(56) }
+        } else {
+            addSubview(nextButton)
+            nextButton.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+                make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+                make.height.equalTo(UIConstants.actionHeight)
+                keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
+            }
         }
     }
 
@@ -149,8 +185,10 @@ private extension UsernameSetupViewLayout {
         nextButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
         nextButton.invalidateLayout()
+        if adaptiveEntry { nextButton.configureWrappingTitle(locale: locale, compatibleWith: traitCollection) }
         hintLabel.text = R.string.localizable.usernameSetupHint(preferredLanguages: locale.rLanguages)
         usernameTextField.title = R.string.localizable.usernameSetupChooseTitle(preferredLanguages: locale.rLanguages)
-        chainView.actionControl.contentView.titleLabel.text = R.string.localizable.commonNetwork(preferredLanguages: locale.rLanguages)
+        chainView.actionControl.contentView.titleLabel.text = R.string.localizable
+            .commonNetwork(preferredLanguages: locale.rLanguages)
     }
 }

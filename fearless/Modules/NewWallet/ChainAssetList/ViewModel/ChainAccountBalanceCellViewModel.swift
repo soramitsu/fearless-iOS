@@ -6,6 +6,7 @@ struct ChainAccountBalanceCellViewModel: Hashable {
     let assetContainsChainAssets: [ChainAsset]
     let chainIconViewViewModel: ChainCollectionViewModel
     let chainAsset: ChainAsset
+    let metadataTrust: AssetMetadataTrustInfo
     let assetName: String?
     let assetInfo: AssetBalanceDisplayInfo?
     let imageViewModel: RemoteImageViewModel?
@@ -14,14 +15,18 @@ struct ChainAccountBalanceCellViewModel: Hashable {
     let totalAmountString: ShimmeredLabelState
     let options: [ChainOptionsViewModel]?
     var isColdBoot: Bool
-    var priceDataWasUpdated: Bool
     let locale: Locale
     let hideButtonIsVisible: Bool
+    let swipeActionsEnabled: Bool
+    /// "Transferable X" under the total balance when part of it is staked, locked or reserved.
+    var transferableString: String?
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(chainAsset.chainAssetId)
         hasher.combine(balanceString)
+        hasher.combine(transferableString)
         hasher.combine(isColdBoot)
+        hasher.combine(swipeActionsEnabled)
     }
 }
 
@@ -30,12 +35,14 @@ extension ChainAccountBalanceCellViewModel: Equatable {
         lhs.assetContainsChainAssets == rhs.assetContainsChainAssets &&
             lhs.chainIconViewViewModel == rhs.chainIconViewViewModel &&
             lhs.chainAsset == rhs.chainAsset &&
+            lhs.metadataTrust == rhs.metadataTrust &&
             lhs.assetName == rhs.assetName &&
             lhs.assetInfo == rhs.assetInfo &&
             lhs.balanceString == rhs.balanceString &&
             lhs.priceAttributedString == rhs.priceAttributedString &&
             lhs.totalAmountString == rhs.totalAmountString &&
             lhs.options == rhs.options &&
-            lhs.priceDataWasUpdated == rhs.priceDataWasUpdated
+            lhs.swipeActionsEnabled == rhs.swipeActionsEnabled &&
+            lhs.transferableString == rhs.transferableString
     }
 }

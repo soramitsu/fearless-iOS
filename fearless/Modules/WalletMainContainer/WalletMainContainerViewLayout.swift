@@ -1,10 +1,10 @@
 import UIKit
+import SnapKit
 
 final class WalletMainContainerViewLayout: UIView {
     private enum Constants {
-        static let walletIconSize: CGFloat = 40.0
-        static let accessoryButtonSize: CGFloat = 32.0
-        static let issuesButtonSize = CGSize(width: 140, height: 24)
+        static let walletIconSize: CGFloat = 44.0
+        static let accessoryButtonSize: CGFloat = 44.0
     }
 
     var locale: Locale = .current {
@@ -26,6 +26,9 @@ final class WalletMainContainerViewLayout: UIView {
         return view
     }()
 
+    let headerScrollView = UIScrollView()
+    private var headerHeightLimit: Constraint?
+
     // MARK: - Navigation view properties
 
     private let navigationContainerView = UIView()
@@ -36,10 +39,14 @@ final class WalletMainContainerViewLayout: UIView {
         return button
     }()
 
+    let accountScoreView = AccountScoreView()
+
     private let walletNameTitle: UILabel = {
         let label = UILabel()
         label.font = .h4Title
-        label.textAlignment = .center
+        label.textAlignment = .left
+        label.adjustsFontForContentSizeCategory = true
+        label.numberOfLines = 2
         return label
     }()
 
@@ -74,11 +81,12 @@ final class WalletMainContainerViewLayout: UIView {
 
     // MARK: - FWSegmentedControl
 
+    let segmentContainer = UIView()
     let segmentedControl = FWSegmentedControl()
 
     // MARK: - UIPageViewController
 
-    private let pageViewControllerContainer = UIView()
+    let pageViewControllerContainer = UIView()
 
     let pageViewController: UIPageViewController = {
         let pageController = UIPageViewController(
@@ -93,6 +101,8 @@ final class WalletMainContainerViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
+        updateHeaderScrolling()
+        applyLocalization()
     }
 
     @available(*, unavailable)
@@ -100,24 +110,47 @@ final class WalletMainContainerViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        updateHeaderScrolling()
+        updateTypography()
+    }
+
+    private func updateHeaderScrolling() {
+        if FWAppearance.walletHeaderRestyled || traitCollection.preferredContentSizeCategory.isAccessibilityCategory {
+            headerHeightLimit?.activate()
+        } else {
+            headerHeightLimit?.deactivate()
+        }
+    }
+
     // MARK: - Public methods
 
     func bind(viewModel: WalletMainContainerViewModel) {
         walletNameTitle.text = viewModel.walletName
         selectNetworkButton.set(text: viewModel.selectedFilter, image: viewModel.selectedFilterImage)
+        selectNetworkButton.accessibilityValue = viewModel.selectedFilter
+        switchWalletButton.accessibilityValue = viewModel.walletName
         if let address = viewModel.address {
             addressCopyableLabel.isHidden = false
             addressCopyableLabel.bind(title: address)
         } else {
             addressCopyableLabel.isHidden = true
         }
+
+        accountScoreView.bind(viewModel: viewModel.accountScoreViewModel)
     }
 
     func addBalance(_ view: UIView) {
+        (view as? BalanceInfoViewLayout)?.configurePortfolioPresentation(locale: locale)
         walletBalanceViewContainer.addSubview(view)
         view.snp.makeConstraints { make in
-            make.center.equalToSuperview()
+            make.edges.equalToSuperview()
         }
+    }
+
+    func bind(accountScoreViewModel: AccountScoreViewModel) {
+        accountScoreView.bind(viewModel: accountScoreViewModel)
     }
 
     // MARK: - Private methods
@@ -128,6 +161,27 @@ final class WalletMainContainerViewLayout: UIView {
             R.string.localizable.nftsStub(preferredLanguages: locale.rLanguages)
         ]
         segmentedControl.setSegmentItems(localizedItems)
+        guard FWAppearance.walletHeaderRestyled else { return }
+        switchWalletButton.accessibilityLabel = PortfolioHeaderText.string("ux.switch_wallet", locale: locale)
+        selectNetworkButton.accessibilityLabel = PortfolioHeaderText.string("ux.choose_network", locale: locale)
+        searchButton.accessibilityLabel = PortfolioHeaderText.string("ux.search_assets", locale: locale)
+        scanQRButton.accessibilityLabel = PortfolioHeaderText.string("ux.scan_qr", locale: locale)
+        addressCopyableLabel.accessibilityLabel = R.string.localizable
+            .commonCopyAddress(preferredLanguages: locale.rLanguages)
+        walletBalanceViewContainer.subviews.compactMap { $0 as? BalanceInfoViewLayout }.forEach {
+            $0.configurePortfolioPresentation(locale: locale)
+        }
+        updateTypography()
+    }
+
+    private func updateTypography() {
+        guard FWAppearance.walletHeaderRestyled else { return }
+        walletNameTitle.numberOfLines = 0
+        walletNameTitle.lineBreakMode = .byCharWrapping
+        walletNameTitle.setContentCompressionResistancePriority(.required, for: .vertical)
+        walletNameTitle.font = .fw(.titleS, locale: locale, compatibleWith: traitCollection)
+        selectNetworkButton.applyTypography(.fw(.bodyM, locale: locale, compatibleWith: traitCollection))
+        addressCopyableLabel.applyTypography(.fw(.bodyS, locale: locale, compatibleWith: traitCollection))
     }
 
     // MARK: - Private layout methods
@@ -138,90 +192,100 @@ final class WalletMainContainerViewLayout: UIView {
             make.edges.equalToSuperview()
         }
 
-        addSubview(contentView)
-        contentView.snp.makeConstraints { make in
+        addSubview(headerScrollView)
+        headerScrollView.addSubview(contentView)
+        headerScrollView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(5)
             make.leading.trailing.equalToSuperview()
+            make.height.equalTo(contentView.snp.height).priority(.high)
+            headerHeightLimit = make.height.lessThanOrEqualTo(safeAreaLayoutGuide.snp.height).multipliedBy(0.55)
+                .constraint
+        }
+        contentView.snp.makeConstraints { make in
+            make.edges.equalTo(headerScrollView.contentLayoutGuide)
+            make.width.equalTo(headerScrollView.frameLayoutGuide)
         }
 
         setupNavigationViewLayout()
         setupWalletBalanceLayout()
         setupSegmentedLayout()
         setupListLayout()
+
+        segmentContainer.isHidden = true
     }
 
     private func setupNavigationViewLayout() {
-        navigationContainerView.addSubview(switchWalletButton)
+        let identityRow = UIStackView(arrangedSubviews: [switchWalletButton, walletNameTitle])
+        identityRow.axis = .horizontal
+        identityRow.alignment = .center
+        identityRow.spacing = 12
         switchWalletButton.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.leading.equalToSuperview()
             make.size.equalTo(Constants.walletIconSize)
         }
-
-        let walletInfoVStackView = UIFactory.default.createVerticalStackView(spacing: 6)
-        walletInfoVStackView.alignment = .center
-        walletInfoVStackView.distribution = .fill
-
-        navigationContainerView.addSubview(walletInfoVStackView)
-        walletInfoVStackView.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.top.bottom.equalToSuperview()
-            make.leading.greaterThanOrEqualTo(switchWalletButton.snp.trailing)
-        }
-
-        walletInfoVStackView.addArrangedSubview(walletNameTitle)
-        walletInfoVStackView.addArrangedSubview(selectNetworkButton)
+        let toolsRow = UIStackView(arrangedSubviews: [UIView(), searchButton, scanQRButton])
+        toolsRow.axis = .horizontal
+        toolsRow.alignment = .center
+        toolsRow.spacing = 8
         selectNetworkButton.snp.makeConstraints { make in
-            make.height.equalTo(22)
+            make.height.greaterThanOrEqualTo(Constants.accessoryButtonSize)
+            make.width.greaterThanOrEqualTo(Constants.accessoryButtonSize)
         }
-
-        walletNameTitle.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.minimalOffset)
+        [searchButton, scanQRButton].forEach { button in
+            button.snp.makeConstraints { make in make.size.equalTo(Constants.accessoryButtonSize) }
         }
-
-        let accessoryButtonHStackView = UIFactory.default.createHorizontalStackView(spacing: 8)
-        navigationContainerView.addSubview(accessoryButtonHStackView)
-        accessoryButtonHStackView.snp.makeConstraints { make in
-            make.leading.greaterThanOrEqualTo(walletInfoVStackView.snp.trailing)
-            make.trailing.equalToSuperview()
-            make.centerY.equalToSuperview()
-        }
-
-        [scanQRButton, searchButton].forEach { button in
-            accessoryButtonHStackView.addArrangedSubview(button)
-            button.snp.makeConstraints { make in
-                make.size.equalTo(Constants.accessoryButtonSize)
-            }
-        }
-
+        let headerStack = UIStackView(arrangedSubviews: [identityRow, selectNetworkButton, toolsRow])
+        headerStack.axis = .vertical
+        headerStack.spacing = 12
+        navigationContainerView.addSubview(headerStack)
+        headerStack.snp.makeConstraints { make in make.edges.equalToSuperview() }
         contentView.addArrangedSubview(navigationContainerView)
         navigationContainerView.snp.makeConstraints { make in
             make.width.equalTo(contentView.snp.width).offset(-2.0 * UIConstants.horizontalInset)
         }
+        switchWalletButton.accessibilityLabel = NSLocalizedString(
+            "ux.switch_wallet",
+            value: "Switch wallet",
+            comment: ""
+        )
+        selectNetworkButton.accessibilityLabel = NSLocalizedString(
+            "ux.choose_network",
+            value: "Choose network",
+            comment: ""
+        )
+        searchButton.accessibilityLabel = NSLocalizedString("ux.search_assets", value: "Search assets", comment: "")
+        scanQRButton.accessibilityLabel = NSLocalizedString("ux.scan_qr", value: "Scan QR code", comment: "")
     }
 
     private func setupWalletBalanceLayout() {
+        // Account score is secondary context, below the balance rather than beside navigation.
         addressCopyableLabel.snp.makeConstraints { make in
             make.width.lessThanOrEqualTo(200)
-            make.height.equalTo(24)
+            make.height.greaterThanOrEqualTo(44)
         }
 
         walletBalanceViewContainer.snp.makeConstraints { make in
-            make.height.equalTo(58)
+            make.height.greaterThanOrEqualTo(58)
         }
 
         walletBalanceVStackView.distribution = .fill
+        walletBalanceVStackView.alignment = .center
         walletBalanceVStackView.addArrangedSubview(walletBalanceViewContainer)
         walletBalanceVStackView.addArrangedSubview(addressCopyableLabel)
+        walletBalanceVStackView.addArrangedSubview(accountScoreView)
         walletBalanceVStackView.setCustomSpacing(4, after: addressCopyableLabel)
 
-        contentView.setCustomSpacing(32, after: navigationContainerView)
+        contentView.setCustomSpacing(20, after: navigationContainerView)
         contentView.addArrangedSubview(walletBalanceVStackView)
+        walletBalanceVStackView.snp.makeConstraints { make in
+            make.width.equalTo(contentView.snp.width).offset(-2.0 * UIConstants.horizontalInset)
+        }
+        walletBalanceViewContainer.snp.makeConstraints { make in
+            make.width.equalTo(walletBalanceVStackView)
+        }
     }
 
     private func setupSegmentedLayout() {
-        contentView.setCustomSpacing(32, after: walletBalanceVStackView)
-        let segmentContainer = UIView()
+        contentView.setCustomSpacing(20, after: walletBalanceVStackView)
         contentView.addArrangedSubview(segmentContainer)
         segmentContainer.addSubview(segmentedControl)
         segmentedControl.snp.makeConstraints { make in
@@ -235,12 +299,23 @@ final class WalletMainContainerViewLayout: UIView {
         addSubview(pageViewControllerContainer)
         pageViewControllerContainer.addSubview(pageViewController.view)
         pageViewControllerContainer.snp.makeConstraints { make in
-            make.top.equalTo(contentView.snp.bottom).offset(8)
+            make.top.equalTo(headerScrollView.snp.bottom).offset(8)
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalToSuperview()
+            make.bottom.equalTo(safeAreaLayoutGuide)
         }
         pageViewController.view.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+    }
+}
+
+/// Resource lookup follows the selected app locale, including its region fallback.
+enum PortfolioHeaderText {
+    static func string(_ key: String, locale: Locale) -> String {
+        let path = Bundle.main.path(forResource: locale.identifier, ofType: "lproj")
+            ?? locale.languageCode.flatMap { Bundle.main.path(forResource: $0, ofType: "lproj") }
+            ?? Bundle.main.path(forResource: "en", ofType: "lproj")
+        let bundle = path.flatMap(Bundle.init(path:)) ?? .main
+        return bundle.localizedString(forKey: key, value: nil, table: "Localizable")
     }
 }

@@ -1,6 +1,8 @@
 import Foundation
 import SoraFoundation
 import SSFCloudStorage
+import SSFModels
+import SoraKeystore
 
 protocol BackupWalletViewModelFactoryProtocol {
     func createViewModel(
@@ -33,6 +35,13 @@ enum BackupWalletOptions: Int, CaseIterable {
 
 final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
     private lazy var assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
+    private let accountScoreFetcher: AccountStatisticsFetching
+    private let settings: SettingsManagerProtocol
+
+    init(accountScoreFetcher: AccountStatisticsFetching, settings: SettingsManagerProtocol) {
+        self.accountScoreFetcher = accountScoreFetcher
+        self.settings = settings
+    }
 
     func createViewModel(
         from wallet: MetaAccountModel,
@@ -68,8 +77,7 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
         backupAccounts: [OpenBackupAccount]?,
         locale: Locale
     ) -> [ProfileOptionViewModelProtocol] {
-        let publicKey = wallet.substratePublicKey
-        let address = try? AddressFactory.address(for: publicKey, chainFormat: .substrate(42))
+        let address = wallet.backupAddress
 
         var backupOptions: [BackupWalletOptions] = exportOptions.map { BackupWalletOptions(exportOptions: $0) }
         if backupAccounts?.contains(where: { $0.address == address }) == true {
@@ -146,6 +154,9 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
         balance: WalletBalanceInfo?,
         locale: Locale
     ) -> WalletsManagmentCellViewModel {
+        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
+        let accountScoreViewModel = AccountScoreViewModel(fetcher: accountScoreFetcher, address: address, chain: nil, settings: settings, eventCenter: EventCenter.shared, logger: Logger.shared)
+
         var fiatBalance: String = ""
         var dayChange: NSAttributedString?
         if let balance = balance {
@@ -153,8 +164,8 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
             fiatBalance = formatter.stringFromDecimal(balance.totalFiatValue) ?? ""
             dayChange = getDayChangeAttributedString(
                 currency: balance.currency,
-                dayChange: balance.dayChangePercent,
-                dayChangeValue: balance.dayChangeValue,
+                dayChange: balance.totalDayChangePercent,
+                dayChangeValue: balance.totalDayChangeValue,
                 locale: locale
             )
         }
@@ -163,7 +174,9 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
             isSelected: false,
             walletName: wallet.name,
             fiatBalance: fiatBalance,
-            dayChange: dayChange
+            dayChange: dayChange,
+            accountScoreViewModel: accountScoreViewModel,
+            balanceCaption: balance?.allHoldingsCaption
         )
     }
 

@@ -1,12 +1,38 @@
 import Foundation
 @testable import fearless
 import RobinHood
+import SSFRuntimeCodingService
+import SSFUtils
 
 final class RuntimeCodingServiceStub {
     let factory : RuntimeCoderFactoryProtocol
 
     init(factory: RuntimeCoderFactoryProtocol) {
         self.factory = factory
+    }
+}
+
+// Minimal test-only RuntimeCoderFactory implementation to avoid using
+// inaccessible initializers from SSFRuntimeCodingService.
+final class TestRuntimeCoderFactory: RuntimeCoderFactoryProtocol {
+    private let catalog: TypeRegistryCatalogProtocol
+    let specVersion: UInt32
+    let txVersion: UInt32
+    let metadata: RuntimeMetadata
+
+    init(catalog: TypeRegistryCatalogProtocol, specVersion: UInt32, txVersion: UInt32, metadata: RuntimeMetadata) {
+        self.catalog = catalog
+        self.specVersion = specVersion
+        self.txVersion = txVersion
+        self.metadata = metadata
+    }
+
+    func createEncoder() -> DynamicScaleEncoding {
+        DynamicScaleEncoder(registry: catalog, version: UInt64(specVersion))
+    }
+
+    func createDecoder(from data: Data) throws -> DynamicScaleDecoding {
+        try DynamicScaleDecoder(data: data, registry: catalog, version: UInt64(specVersion))
     }
 }
 
@@ -17,6 +43,10 @@ extension RuntimeCodingServiceStub: RuntimeCodingServiceProtocol {
     
     func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
         ClosureOperation { self.factory }
+    }
+    
+    func fetchCoderFactory() async throws -> RuntimeCoderFactoryProtocol {
+        factory
     }
     
     func fetchCoderFactoryOperation(with timeout: TimeInterval, closure: RuntimeMetadataClosure?) -> BaseOperation<RuntimeCoderFactoryProtocol> {
@@ -41,7 +71,7 @@ extension RuntimeCodingServiceStub {
             runtimeMetadata: runtimeMetadata
         )
 
-        return RuntimeCoderFactory(
+        return TestRuntimeCoderFactory(
             catalog: typeCatalog,
             specVersion: specVersion,
             txVersion: txVersion,

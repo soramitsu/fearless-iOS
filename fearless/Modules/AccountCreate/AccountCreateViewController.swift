@@ -11,9 +11,9 @@ final class AccountCreateViewController: UIViewController, ViewHolder {
     private var ethereumDerivationPathModel: InputViewModelProtocol?
     private var isFirstLayoutCompleted: Bool = false
 
-    private lazy var locale: Locale = {
+    private var locale: Locale {
         localizationManager?.selectedLocale ?? Locale.current
-    }()
+    }
 
     init(presenter: AccountCreatePresenterProtocol) {
         self.presenter = presenter
@@ -57,13 +57,14 @@ final class AccountCreateViewController: UIViewController, ViewHolder {
 
 private extension AccountCreateViewController {
     func setupNavigationItem() {
-        let infoItem = UIBarButtonItem(
-            image: R.image.iconInfo(),
-            style: .plain,
-            target: self,
-            action: #selector(actionOpenInfo)
+        if rootView.adaptiveCreate { navigationItem.titleView = UIView() }
+        let infoButton = UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
+        infoButton.setImage(R.image.iconInfo(), for: .normal)
+        infoButton.addTarget(self, action: #selector(actionOpenInfo), for: .touchUpInside)
+        infoButton.accessibilityLabel = R.string.localizable.commonInfo(
+            preferredLanguages: locale.rLanguages
         )
-        navigationItem.rightBarButtonItem = infoItem
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: infoButton)
         switch presenter.flow {
         case .wallet, .chain:
             title = R.string.localizable.accountCreateTitle(preferredLanguages: locale.rLanguages)
@@ -91,7 +92,7 @@ private extension AccountCreateViewController {
         mnemonicView.wordFontInColumn = .p0Paragraph
         mnemonicView.backgroundColor = R.color.colorBlack19()
 
-        rootView.contentView.stackView.insertArrangedSubview(mnemonicView, at: 1)
+        rootView.contentView.stackView.insertArrangedSubview(mnemonicView, at: rootView.adaptiveCreate ? 2 : 1)
 
         rootView.mnemonicView = mnemonicView
     }
@@ -171,6 +172,7 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
 
         rootView.substrateCryptoTypeView.actionControl.contentView.invalidateLayout()
         rootView.substrateCryptoTypeView.actionControl.invalidateLayout()
+        rootView.substrateCryptoTypeView.invalidateLayout()
     }
 
     func setEthereumCrypto(model: TitleWithSubtitleViewModel) {
@@ -185,7 +187,9 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
     func bind(substrateViewModel: InputViewModelProtocol) {
         substrateDerivationPathModel = substrateViewModel
 
-        rootView.substrateDerivationPathField.text = substrateViewModel.inputHandler.value
+        if rootView.substrateDerivationPathField.text != substrateViewModel.inputHandler.value {
+            rootView.substrateDerivationPathField.text = substrateViewModel.inputHandler.value
+        }
 
         let attributedPlaceholder = NSAttributedString(
             string: R.string.localizable.substrateSecretDerivationPath(
@@ -193,15 +197,23 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
             ),
             attributes: [.foregroundColor: R.color.colorGray()!]
         )
-        rootView.substrateDerivationPathField.attributedPlaceholder = attributedPlaceholder
+        rootView.substrateDerivationPathField.attributedPlaceholder = rootView
+            .adaptiveCreate ? nil : attributedPlaceholder
+        rootView.substrateDerivationPathField.accessibilityLabel = attributedPlaceholder.string
+            .trimmingCharacters(in: .whitespacesAndNewlines)
 
-        rootView.substrateDerivationPathLabel.text = R.string.localizable.example(substrateViewModel.placeholder, preferredLanguages: locale.rLanguages)
+        rootView.substrateDerivationPathLabel.text = R.string.localizable.example(
+            substrateViewModel.placeholder,
+            preferredLanguages: locale.rLanguages
+        )
     }
 
     func bind(ethereumViewModel: InputViewModelProtocol) {
         ethereumDerivationPathModel = ethereumViewModel
 
-        rootView.ethereumDerivationPathField.text = ethereumViewModel.inputHandler.value
+        if rootView.ethereumDerivationPathField.text != ethereumViewModel.inputHandler.value {
+            rootView.ethereumDerivationPathField.text = ethereumViewModel.inputHandler.value
+        }
 
         let attributedPlaceholder = NSAttributedString(
             string: R.string.localizable.ethereumSecretDerivationPath(
@@ -209,8 +221,14 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
             ),
             attributes: [.foregroundColor: R.color.colorGray()!]
         )
-        rootView.ethereumDerivationPathField.attributedPlaceholder = attributedPlaceholder
-        rootView.ethereumDerivationPathLabel.text = R.string.localizable.example(ethereumViewModel.placeholder, preferredLanguages: locale.rLanguages)
+        rootView.ethereumDerivationPathField.attributedPlaceholder = rootView
+            .adaptiveCreate ? nil : attributedPlaceholder
+        rootView.ethereumDerivationPathField.accessibilityLabel = attributedPlaceholder.string
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        rootView.ethereumDerivationPathLabel.text = R.string.localizable.example(
+            ethereumViewModel.placeholder,
+            preferredLanguages: locale.rLanguages
+        )
     }
 
     func didCompleteCryptoTypeSelection() {
@@ -268,6 +286,9 @@ extension AccountCreateViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
             setupLocalization()
+            setupNavigationItem()
+            if let substrateDerivationPathModel { bind(substrateViewModel: substrateDerivationPathModel) }
+            if let ethereumDerivationPathModel { bind(ethereumViewModel: ethereumDerivationPathModel) }
             view.setNeedsLayout()
         }
     }
@@ -279,10 +300,18 @@ extension AccountCreateViewController: KeyboardViewAdoptable {
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 
     func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat {
-        UIConstants.bigOffset
+        rootView.adaptiveCreate ? 0 : UIConstants.bigOffset
     }
 
     func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
+        if rootView.adaptiveCreate {
+            rootView.contentView.scrollView.contentInset = .zero
+            if let responder = rootView.firstResponder {
+                let rect = responder.convert(responder.bounds, to: rootView.contentView.scrollView)
+                rootView.contentView.scrollView.scrollRectToVisible(rect.insetBy(dx: 0, dy: -8), animated: true)
+            }
+            return
+        }
         if let responder = rootView.firstResponder {
             var inset = rootView.contentView.scrollView.contentInset
             var responderFrame: CGRect

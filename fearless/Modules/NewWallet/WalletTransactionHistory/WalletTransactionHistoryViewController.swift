@@ -29,6 +29,7 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
     let presenter: WalletTransactionHistoryPresenterProtocol
 
     private var state: WalletTransactionHistoryViewState = .loading
+    private var isShowingHistoryRecovery = false
 
     private var draggableState: DraggableState = .compact
     private var compactInsets: UIEdgeInsets = .zero
@@ -65,7 +66,7 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        presenter.setup()
+        presenter.setup(with: self)
 
         setupLocalization()
 
@@ -81,6 +82,8 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
             for: .touchUpInside
         )
 
+        rootView.retryButton.addTarget(self, action: #selector(retryHistoryClicked), for: .touchUpInside)
+        rootView.explorerButton.addTarget(self, action: #selector(viewHistoryOnExplorerClicked), for: .touchUpInside)
         rootView.typeSwitcher.delegate = self
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
@@ -98,6 +101,8 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
     }
 
     func applyState(_: WalletTransactionHistoryViewState) {
+        isShowingHistoryRecovery = false
+        rootView.recoveryView.isHidden = true
         switch state {
         case .loading:
             rootView.tableView.isHidden = true
@@ -118,9 +123,9 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
             rootView.separatorView.isHidden = viewModel.filtering != .multiple
 
             handleNextPageOnScroll(scrollView: rootView.tableView)
-        case .unsupported:
+        case .unsupported, .unavailable, .explorerOnly:
             rootView.tableView.isHidden = false
-            rootView.filterButton.isHidden = false
+            rootView.filterButton.isHidden = true
             reloadContent()
         }
 
@@ -165,12 +170,38 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
         }
     }
 
+    @objc private func retryHistoryClicked() {
+        presenter.retryHistory()
+    }
+
+    @objc private func viewHistoryOnExplorerClicked() {
+        presenter.viewHistoryOnExplorer()
+    }
+
     @objc private func filtersButtonClicked() {
         presenter.didTapFiltersButton()
     }
 }
 
 extension WalletTransactionHistoryViewController: WalletTransactionHistoryViewProtocol {
+    func didReceiveHistoryFailure(canViewExplorer: Bool) {
+        isShowingHistoryRecovery = true
+        switch state {
+        case .unsupported:
+            rootView.recoveryNotice = .unsupported
+        case .explorerOnly:
+            rootView.recoveryNotice = .explorerOnly
+        default:
+            rootView.recoveryNotice = .unavailable
+        }
+        rootView.recoveryView.isHidden = false
+        rootView.explorerButton.isHidden = !canViewExplorer
+        // Retrying a network this app has no history for gives the same answer; the explorer
+        // shows the transfers instead.
+        rootView.retryButton.isHidden = rootView.recoveryNotice != .unavailable && canViewExplorer
+        updateLoadingAndEmptyState(animated: true)
+    }
+
     func didReceive(state: WalletTransactionHistoryViewState) {
         self.state = state
         applyState(state)
@@ -328,13 +359,9 @@ extension WalletTransactionHistoryViewController: Draggable {
     }
 
     func animate(progress: Double, from _: DraggableState, to newState: DraggableState, finalFrame: CGRect) {
-        UIView.beginAnimations(nil, context: nil)
-
         draggableView.frame = finalFrame
         updateHeaderHeight(for: newState, progress: progress, forcesLayoutUpdate: didSetupLayout)
         updateContent(for: newState, progress: progress, forcesLayoutUpdate: didSetupLayout)
-
-        UIView.commitAnimations()
     }
 
     fileprivate func update(for draggableState: DraggableState, progress: Double, forcesLayoutUpdate: Bool) {
@@ -557,10 +584,11 @@ extension WalletTransactionHistoryViewController: Draggable {
 
 extension WalletTransactionHistoryViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
+        guard !isShowingHistoryRecovery else { return false }
         switch state {
         case let .loaded(viewModel):
             return viewModel.sections.isEmpty
-        case .unsupported:
+        case .unsupported, .unavailable, .explorerOnly:
             return true
         default:
             return false
@@ -583,7 +611,19 @@ extension WalletTransactionHistoryViewController: EmptyStateDataSource {
 
     var titleForEmptyState: String? {
         if case WalletTransactionHistoryViewState.unsupported = state {
-            return R.string.localizable.walletTransactionHistoryUnsupportedMessage(preferredLanguages: selectedLocale.rLanguages)
+            return R.string.localizable.walletTransactionHistoryUnsupportedMessage(
+                preferredLanguages: selectedLocale.rLanguages
+            )
+        }
+
+        if case WalletTransactionHistoryViewState.unavailable = state {
+            return R.string.localizable.walletTransactionHistoryErrorMessage(
+                preferredLanguages: selectedLocale.rLanguages
+            )
+        }
+
+        if case WalletTransactionHistoryViewState.explorerOnly = state {
+            return WalletTransactionHistoryViewLayout.explorerOnlyMessage(locale: selectedLocale)
         }
 
         return R.string.localizable.walletTransactionHistoryEmptyMessage(preferredLanguages: selectedLocale.rLanguages)

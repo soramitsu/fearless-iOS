@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "sources": [
+    {
+      "name": "iroha-ed25519",
+      "repository": "https://github.com/hyperledger/iroha-ed25519.git",
+      "revision": "12de1cb51948a81512d333b5081fb77e7904114b",
+      "tag": "1.3.1",
+      "configuration": "EDIMPL=ref10 HASH=sha3_brainhub RANDOM=dev_urandom BUILD=STATIC",
+      "destination": "Sources/libed25519/iroha-ed25519",
+      "files": {
+        "LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+        "include/ed25519/ed25519.h": "80c4ebb11757a568f6bea556519d89673706e5d1493a7ce723845aa4c0fa8632",
+        "include/ed25519/ed25519/crypto_types.h": "165e30497d977f02aecf7fb9b3f940faecc3dcd22bf37037ccac835500cd0a76",
+        "include/ed25519/ed25519/crypto_verify.h": "f6d22a3d3368bb8c436b2c866fd1000e67a03d3566129b7103bf9fe161e628c0",
+        "include/ed25519/ed25519/ed25519.h": "d6f04e2baff79be110ceadd4f8776d221317be6cd80262a5dd13a1a67b072bcd",
+        "include/ed25519/ed25519/errcode.h": "a4eb3412452c9456a230be90a19a416719d86a51f72bc667541ac0cb104eb2bc",
+        "include/ed25519/ed25519/randombytes.h": "0cc6a001b83deaacf002b91d2d52022df391238903e1ab5f030acc37a5cd4dc1",
+        "include/ed25519/ed25519/sha256.h": "7c09c60781de74e34427759746a08cef03618c11aa79dee27aca1b1a7231cd7e",
+        "include/ed25519/ed25519/sha512.h": "acdaabbc2b6bbf7cf3f593fc6707691904d3c65704ebc61c1f07f7525d536d2a",
+        "lib/ed25519/ref10/README": "b3e260f30c12b94fd3cd957b91ea9fb4ad6dbc91cf4f94884780a3fb67a2c6a4",
+        "lib/ed25519/ref10/base.h": "dac873e5965b34e29a14b56bc63f9434fbba16b3513daf53c7b0b2d07b614ac0",
+        "lib/ed25519/ref10/base2.h": "1dbe1b61a3b7689d840eec4be7569261d719e67cf9ed5ad1b51c5e34583bec94",
+        "lib/ed25519/ref10/d.h": "4729f3315d4815f5f3cb47d3f176ad0e907471aa3a9afc8d80484d2da98723a2",
+        "lib/ed25519/ref10/d2.h": "0248fcb39acf255d78e0d19d6d605275a1939a7f61001f58f376569ecc0c5256",
+        "lib/ed25519/ref10/ed25519.c": "931a0ba18d0f97fc4f66e9db832f8aec0dfe7aa3f3d3b5ee549729fcc38bc4e4",
+        "lib/ed25519/ref10/fe.h": "188d856bf77c3200b3216781bcdfe26d18b940e97287c82808eb02c6c283fa85",
+        "lib/ed25519/ref10/fe_0.c": "825fc6d85b392d15c9b26c26ad2ccfb664a1c09658d8e2d26c54e37ac6e8b509",
+        "lib/ed25519/ref10/fe_1.c": "a7ab32148848f7c44bc78b1e6d53c7bd633f629694b3b2dc075cc06d5eb17054",
+        "lib/ed25519/ref10/fe_add.c": "f838729610a80bb3a988fdfe1a8a9e9ab01648006492adf1ff35b544a38cf398",
+        "lib/ed25519/ref10/fe_cmov.c": "dc5f5993f3268ee20a333407e2d4b7a26a38ce1f8be7ce20b11c7d8f05efe03d",
+        "lib/ed25519/ref10/fe_copy.c": "0f91f42eac64053f508537fff726561d2e21cd88f5f7fa304f34f419545a9121",
+        "lib/ed25519/ref10/fe_frombytes.c": "23b1b726a9e6789eeb88c49584ba085ce54886e6f38a4eafab4777ace91f4fe6",
+        "lib/ed25519/ref10/fe_invert.c": "504b694c38ab523f9514164a6f19dfa2987e5561525e4ebb1964c33028b0a6fb",
+        "lib/ed25519/ref10/fe_isnegative.c": "c15116f89c80c6d393e6aa2e8ef6ad8b164e7b61f04bd208064f61e70f394697",
+        "lib/ed25519/ref10/fe_isnonzero.c": "661769cbec452cab6987189587eb762363fb272d74551732942ecd684c042daf",
+        "lib/ed25519/ref10/fe_mul.c": "a26eca12ae1b752c2a4e779b3f069d22ec4ae96cb48b339570ac9ec4661750a5",
+        "lib/ed25519/ref10/fe_neg.c": "3ce85c334bbe9fa2e7e231d2319ec3d29cd03781c7b3108570635348652732c5",
+        "lib/ed25519/ref10/fe_pow22523.c": "c6fca170f96ae1decbf89b9a0eef5e3973e3332fb064d8a39da20535148fdbc7",
+        "lib/ed25519/ref10/fe_sq.c": "c050de90da02312d11e47bcc30c0812ad39463a6e8e68a0161da8e93a7d26c5b",
+        "lib/ed25519/ref10/fe_sq2.c": "cdb227153a6d3e3272dbc2db7546314627e7d3f79835ea83aa9ad7c09369f5ab",
+        "lib/ed25519/ref10/fe_sub.c": "1a2afa4c5fc5fcec3dfd1344dbb41ba3b1c93acea47f74b413216b9c8f374c11",
+        "lib/ed25519/ref10/fe_tobytes.c": "678b10c1f49937ceccabddbaebe0982dea91a2620bdd81e29207178a959d97aa",
+        "lib/ed25519/ref10/ge.h": "827267cd894408c3e10443a51c257ce5dfc93ad032eff178a101d12cc9d1ace7",
+        "lib/ed25519/ref10/ge_add.c": "cc236e58ad907a18671f2b5782ff9f4d2383a9848bc589b9fda83b3ecc55c05a",
+        "lib/ed25519/ref10/ge_add.h": "ac78e776b39f2eb09cb6588bb86f34f3cf970f81d124136920bf8ba5c3e8b3b8",
+        "lib/ed25519/ref10/ge_double_scalarmult.c": "225189d7203c85950c21a0a19120919bcc2cf91b50fa6c7453106321b362c463",
+        "lib/ed25519/ref10/ge_frombytes.c": "6e65ae1c056f1dc11da16b2bd4aabad151db3abcd5ab7fbfaca7e784c18496d1",
+        "lib/ed25519/ref10/ge_madd.c": "daf288d47d4d7356821912391ad2279a7ae5696a28bde7830b1660672ab5e6b4",
+        "lib/ed25519/ref10/ge_madd.h": "a39615f652006291a3fb0299728243191937b98e0e91fc8bf8196f96075a8d60",
+        "lib/ed25519/ref10/ge_msub.c": "a7e060f539ad7a19428491fce2328ab2d5a6b5e1967a41e24bea8c80fe526a15",
+        "lib/ed25519/ref10/ge_msub.h": "ee0e1ecc451b7b30ea9ba9c71035d371414ce26267ca94523b12877a01c84e82",
+        "lib/ed25519/ref10/ge_p1p1_to_p2.c": "be6e9b143c304c652534eea0fa9c92031005db7c83b824e7cf95581c093f9983",
+        "lib/ed25519/ref10/ge_p1p1_to_p3.c": "ce67bc193d4d9c81ff18532ab5c1e74ccf519e8349ed19ff112feb22df27a3d2",
+        "lib/ed25519/ref10/ge_p2_0.c": "1277df80612424d2eeb17e6700687b6fa24bfb5549f774c2112bc20fc39ebcfb",
+        "lib/ed25519/ref10/ge_p2_dbl.c": "3d6aba9a349542b8350c5bbc8f69252d463b14605ad65d35241e89812482e780",
+        "lib/ed25519/ref10/ge_p2_dbl.h": "68aece7c0d6d99f8c6a91b4708d85336f060f9dfe171c1484097c4e380d1f884",
+        "lib/ed25519/ref10/ge_p3_0.c": "e11b72f763151ef2ce652a0bf7991673b01e6ce74f15e90fd4af28cde505a52b",
+        "lib/ed25519/ref10/ge_p3_dbl.c": "343ec8eddef9d91d130e3bbf443cdd64d226cd129530fede2126a837e31aab49",
+        "lib/ed25519/ref10/ge_p3_to_cached.c": "7fb03b81ba8d513990c3ed90128fcb8bbff1012d8a4e7573fb50a0c0c6af0fcf",
+        "lib/ed25519/ref10/ge_p3_to_p2.c": "1a29bfa686815c7c694d6cd2c660314f00e2bc53278478b7d8d51ede5133c34d",
+        "lib/ed25519/ref10/ge_p3_tobytes.c": "232f48e92a096e1a9c5c18ce2bc80583d42236740501bff7d57eb9b9cc6310f4",
+        "lib/ed25519/ref10/ge_precomp_0.c": "602db7879544d2084b3a6b21b33950b2b6974fabc36a8c867ad7207ac7a7b115",
+        "lib/ed25519/ref10/ge_scalarmult_base.c": "04cc86b60a1f0e9fd1e37d858a342ead3b0f409794c1f99966b3a8c42974f2dc",
+        "lib/ed25519/ref10/ge_sub.c": "b1efea5ffb664ce1302099db84073cd959a4f9754f62ea73a1c58aac47e8f2df",
+        "lib/ed25519/ref10/ge_sub.h": "ee9a421a8a9778518748c93c1e9e7a08032601bfea0b5a7ecf266d1fc1b6a95d",
+        "lib/ed25519/ref10/ge_tobytes.c": "6a54bfa8dbe907892fdb5b8f11581e3c6afaca1d9bf8f452ba9d6af3ea72ec6b",
+        "lib/ed25519/ref10/pow22523.h": "32a9c7273c98fe428c7e1349f940e346960e84219b2d3c3cd0ada753e305fd86",
+        "lib/ed25519/ref10/pow225521.h": "7ab9170e5237fa676da2acd90cfe72a0357852114aeb937e210dc7dd6b9ff3df",
+        "lib/ed25519/ref10/sc.h": "8ca4cb1ddc03571b62d668853f652b6116a8a93c439e32a529924bc0acc16c9d",
+        "lib/ed25519/ref10/sc_muladd.c": "63356fe94a7c4c1c5ba0cbee458e476802d8326042374acd08e3c1ecc5ebd124",
+        "lib/ed25519/ref10/sc_reduce.c": "57c414af47d9301197fbdde87b982738b56a49eb2c6502f61a4536842021cf01",
+        "lib/ed25519/ref10/sqrtm1.h": "eb5c2da31ae65159d3a2aa590dcac6594a384a731f918828c6e0d99fc1844b86",
+        "lib/hash/sha3_brainhub/sha3.c": "19b5726c6b9f68559e10a652d903d3a897a48e90eca65145c9769d0ea756175f",
+        "lib/hash/sha3_brainhub/sha3.h": "1011d9137eff795867ed0baf6eabee6efaefe69406bd978a46aeac30f80a748d",
+        "lib/hash/sha3_brainhub/sha3_256.c": "cce0d8f9789cf9087e3b277468cd3c317632157faf731bafc9459b2b81c14bfe",
+        "lib/hash/sha3_brainhub/sha3_512.c": "03874f6e93f317a98f3febeffad368cb9fd7cd86a25e674f8529219aa4df7a92",
+        "lib/randombytes/urandom/urandom.c": "1e7ae7d93d3cb4f2d76e7cd7e02fa94c8569d03613766debd605d1f5831d150c"
+      }
+    },
+    {
+      "name": "ed25519-sha2",
+      "repository": "https://github.com/ERussel/ed25519.git",
+      "revision": "c4b36871110f4e82c3ecc7eddb6f0835a3484f6e",
+      "upstream": {
+        "repository": "https://github.com/orlp/ed25519.git",
+        "revision": "7fa6712ef5d581a6981ec2b08ee623314cd1d1c4"
+      },
+      "destination": "Sources/libed25519/ed25519-sha2",
+      "files": {
+        "include/ed25519_sha2.h": "5f7b900b98470ba4abb651fc9bce482a5983a14d28a509e9bc041e4d507fdb4d",
+        "include/sha2_512.h": "4828212d736777b6217bedaa886e8379562831da4d0bcc2129f49ee27eae1a35",
+        "license.txt": "f68d76b9c1c2271422e55134ea94cf71f2ac3fc3ed6a7ec6b83a1a0538753214",
+        "src/add_scalar.c": "c57cccdefd079610f33d1c3f140bd1116c0cbf470f98c855722ee8a24525647d",
+        "src/fe.c": "71082937da43def6ecaf7811c23410bd8ea763969dfec67383f8129b12b1926d",
+        "src/fe.h": "0476ae2ebb86978d1e0b9fbeb63dcddd7566d6b74806db47dda7688df74aaafb",
+        "src/fixedint.h": "451fd529865e7fc69156f4cbe7c548857704ae4913768ad9ed7103656efdfc17",
+        "src/ge.c": "c3bb834817edea83d843828a75af19867b93144d15140eadfd9784d40cf11409",
+        "src/ge.h": "b16be2ea1731d9212933e7beeaef6882145fdcdaebdff9996efb5cf97faa2651",
+        "src/key_exchange.c": "46df76c9e991f1e503bd99ef5dedd2ed780a72116c94106ccd3366394ebec9c3",
+        "src/keypair.c": "818c430e7f93d55d31cf112e08815a8b4a99a41bc56afb816309ec5391f3569f",
+        "src/precomp_data.h": "c7d63a8b7ecd7bc6a3ac2b826a540a69dee0fc7e8bf3b00ef5dd98ce00a7c224",
+        "src/sc.c": "c1bdb840416b34e79ceb7472d1a4ac4b1407c47b4c982cad981c72142ef42407",
+        "src/sc.h": "b0ef537b4d4dad7bd2910e2a663a02a7ac25b473511a929c3c609d82f9bdf87d",
+        "src/seed.c": "e5d9af5efc5695d196bd797ca723cc80fc00ff58c138b202089cba349d808233",
+        "src/sha512.c": "7a25d184cbbf74f71818d4d7451935bcd8cc4fefeed64c1d4c33141e255fe847",
+        "src/sign.c": "68610115081d97dd0e980a9641941c185a113f842268d69853e47cec2f0c1079",
+        "src/verify.c": "60756fe3aacd02e74ce468f9ae16c4c5cc76955ac1fa50cdad66536a7ba2c983"
+      }
+    },
+    {
+      "name": "blake2_mjosref",
+      "repository": "https://github.com/ERussel/blake2_mjosref.git",
+      "revision": "39589d99aee9a968af22179351cf4d86f3079b97",
+      "upstream": {
+        "repository": "https://github.com/mjosaarinen/blake2_mjosref.git",
+        "revision": "3491779dbf2465596b3db121701922cf7a9fd0a2"
+      },
+      "destination": "Sources/blake2lib/blake2_mjosref",
+      "files": {
+        "LICENSE": "36ffd9dc085d529a7e60e1276d73ae5a030b020313e6c5408593a6ae2af39673",
+        "blake2b.c": "871667950437b9273aa6bfed7c305c71cbda1b908f7d189e361346137ba31e0d",
+        "blake2s.c": "98c23bd5735693522cd5a0053f7aca4e637f0fdecea81c7f97383db6d94140b1",
+        "include/blake2/blake2b.h": "4ab7cacd2264cd9f25bfdab2846852d79b6b380811f0f2841fbfa3490e66dd78",
+        "include/blake2/blake2s.h": "d678ecb0247645fa753b42cf4b1f82f63f2e2c1d14f2fc544e5c6822cfb85af2"
+      }
+    }
+  ],
+  "generated": {
+    "Sources/libed25519/iroha-ed25519-build/ed25519_export.h": {
+      "sha256": "3d08f63d010124794351f97f3b63d2f8517e0adfb23b4f3deded9f5201481a0e",
+      "legacy": "Binaries/libed25519.xcframework/ios-arm64/libed25519.framework/Headers/ed25519_export.h",
+      "origin": "CMake GenerateExportHeader output of the iroha-ed25519 1.3.1 static build (found through the build directory include path); committed as IrohaCryptoImp/include/ed25519_export.h in soramitsu/ios-crypto 95be0ac"
+    },
+    "Sources/libed25519/iroha-ed25519-build/dummy/ed25519_dummy.c": {
+      "sha256": "7d4d01eb02b14d0517941ec3a5b6582ef6fb1b8264734786b1d47301b21db8dd",
+      "origin": "Written by iroha-ed25519 1.3.1 cmake/ed25519_merge_libraries.cmake; the version string is the one in ed25519_dummy.c.o of the replaced archive"
+    }
+  },
+  "legacyRevision": "eebd107feb8a8899fbd09f1ff41d313a20d895cd",
+  "legacyHeaders": {
+    "Sources/libed25519/include/libed25519/ed25519.h": {
+      "sha256": "c628d1631359146c06a1b481ad2dcc72849bc91223f860f4d7434adc0bdf3099",
+      "legacy": "Binaries/libed25519.xcframework/ios-arm64/libed25519.framework/Headers/ed25519.h"
+    },
+    "Sources/libed25519/include/libed25519/ed25519_export.h": {
+      "sha256": "3d08f63d010124794351f97f3b63d2f8517e0adfb23b4f3deded9f5201481a0e",
+      "legacy": "Binaries/libed25519.xcframework/ios-arm64/libed25519.framework/Headers/ed25519_export.h"
+    },
+    "Sources/libed25519/include/libed25519/ed25519_sha2.h": {
+      "sha256": "5f7b900b98470ba4abb651fc9bce482a5983a14d28a509e9bc041e4d507fdb4d",
+      "legacy": "Binaries/libed25519.xcframework/ios-arm64/libed25519.framework/Headers/ed25519_sha2.h"
+    },
+    "Sources/libed25519/include/libed25519/libed25519.h": {
+      "sha256": "d5099206d0484759cfa73d78cfbcc827d38469d0baa5ad523662d0a6f0942b87",
+      "legacy": "Binaries/libed25519.xcframework/ios-arm64/libed25519.framework/Headers/libed25519.h"
+    },
+    "Sources/blake2lib/include/blake2lib/blake2b.h": {
+      "sha256": "4ab7cacd2264cd9f25bfdab2846852d79b6b380811f0f2841fbfa3490e66dd78",
+      "legacy": "Binaries/blake2lib.xcframework/ios-arm64/blake2lib.framework/Headers/blake2b.h"
+    },
+    "Sources/blake2lib/include/blake2lib/blake2s.h": {
+      "sha256": "d678ecb0247645fa753b42cf4b1f82f63f2e2c1d14f2fc544e5c6822cfb85af2",
+      "legacy": "Binaries/blake2lib.xcframework/ios-arm64/blake2lib.framework/Headers/blake2s.h"
+    },
+    "Sources/blake2lib/include/blake2lib/blake2lib.h": {
+      "sha256": "436509649f413aeb4a1b4c9210f5f88877143bb11b122d0daa77d84307f562cc",
+      "legacy": "Binaries/blake2lib.xcframework/ios-arm64/blake2lib.framework/Headers/blake2lib.h"
+    }
+  },
+  "local": {
+    "Sources/libed25519/libed25519_vers.c": {
+      "sha256": "a91f35305a85aefa982bff3e341d3110703d7498e07a3f404a71d575e63225fc",
+      "origin": "Version symbols of the replaced framework (Xcode Apple Generic Versioning, version 1)"
+    },
+    "Sources/blake2lib/blake2lib_vers.c": {
+      "sha256": "235e4eea7e8f07ba51f7ea52159ebd975c3e1eb4ec4eea2d59fb693274800630",
+      "origin": "Version symbols of the replaced framework (Xcode Apple Generic Versioning, version 1)"
+    }
+  }
+}

@@ -10,10 +10,10 @@
     </dependencies>
     <customFonts key="customFonts">
         <array key="sora-Bold.otf">
-            <string>sora-rc004-0417-Bold</string>
+            <string>Sora-Bold</string>
         </array>
         <array key="sora-Regular.otf">
-            <string>sora-rc004-0417-Regular</string>
+            <string>Sora-Regular</string>
         </array>
     </customFonts>
     <objects>
@@ -37,7 +37,7 @@
                 </view>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Estimate your earning" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="myC-5u-uc4">
                     <rect key="frame" x="16" y="15" width="343" height="16.5"/>
-                    <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="14"/>
+                    <fontDescription key="fontDescription" name="Sora-Bold" family="Sora" pointSize="14"/>
                     <color key="textColor" name="colorWhite"/>
                     <nil key="highlightedColor"/>
                 </label>
@@ -90,19 +90,19 @@
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1.75% monthly " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YYL-EZ-wi8">
                                     <rect key="frame" x="0.0" y="0.0" width="85" height="14"/>
-                                    <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
+                                    <fontDescription key="fontDescription" name="Sora-Regular" family="Sora" pointSize="12"/>
                                     <color key="textColor" name="colorGreen"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0.164 KSM" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3nV-gc-IyG">
                                     <rect key="frame" x="0.0" y="16" width="79.5" height="19"/>
-                                    <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="16"/>
+                                    <fontDescription key="fontDescription" name="Sora-Regular" family="Sora" pointSize="16"/>
                                     <color key="textColor" name="colorWhite"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$24.92" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qhc-rB-Oh5">
                                     <rect key="frame" x="0.0" y="37" width="37" height="14"/>
-                                    <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
+                                    <fontDescription key="fontDescription" name="Sora-Regular" family="Sora" pointSize="12"/>
                                     <color key="textColor" white="0.64000000000000001" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <nil key="highlightedColor"/>
                                 </label>
@@ -113,19 +113,19 @@
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="16.22% yearly" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="e3f-R1-5gs">
                                     <rect key="frame" x="0.0" y="0.0" width="77" height="14"/>
-                                    <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
+                                    <fontDescription key="fontDescription" name="Sora-Regular" family="Sora" pointSize="12"/>
                                     <color key="textColor" name="colorGreen"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2.151 KSM" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2xC-LX-L1O">
                                     <rect key="frame" x="0.0" y="16" width="79.5" height="19"/>
-                                    <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="16"/>
+                                    <fontDescription key="fontDescription" name="Sora-Regular" family="Sora" pointSize="16"/>
                                     <color key="textColor" name="colorWhite"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$326.9" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Eux-FQ-Q6o">
                                     <rect key="frame" x="0.0" y="37" width="37" height="14"/>
-                                    <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
+                                    <fontDescription key="fontDescription" name="Sora-Regular" family="Sora" pointSize="12"/>
                                     <color key="textColor" white="0.64000000000000001" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <nil key="highlightedColor"/>
                                 </label>
@@ -153,17 +153,17 @@
                             <color key="value" name="colorLightGray"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="string" keyPath="title" value="Amount"/>
-                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Regular"/>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="Sora-Regular"/>
                         <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
                             <real key="value" value="12"/>
                         </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="string" keyPath="_priceFontName" value="sora-rc004-0417-Regular"/>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_priceFontName" value="Sora-Regular"/>
                         <userDefinedRuntimeAttribute type="number" keyPath="_priceFontSize">
                             <real key="value" value="12"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="string" keyPath="priceText" value="$4,818"/>
                         <userDefinedRuntimeAttribute type="string" keyPath="balanceText" value="Balance: 100 KSM"/>
-                        <userDefinedRuntimeAttribute type="string" keyPath="_balanceFontName" value="sora-rc004-0417-Regular"/>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_balanceFontName" value="Sora-Regular"/>
                         <userDefinedRuntimeAttribute type="number" keyPath="_balanceFontSize">
                             <real key="value" value="12"/>
                         </userDefinedRuntimeAttribute>
@@ -177,7 +177,7 @@
                         <userDefinedRuntimeAttribute type="color" keyPath="symbolColor">
                             <color key="value" name="colorWhite"/>
                         </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="string" keyPath="_symbolFontName" value="sora-rc004-0417-Bold"/>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_symbolFontName" value="Sora-Bold"/>
                         <userDefinedRuntimeAttribute type="number" keyPath="_symbolFontSize">
                             <real key="value" value="16"/>
                         </userDefinedRuntimeAttribute>
@@ -185,7 +185,7 @@
                         <userDefinedRuntimeAttribute type="color" keyPath="fieldColor">
                             <color key="value" name="colorWhite"/>
                         </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="string" keyPath="_filedFontName" value="sora-rc004-0417-Bold"/>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_filedFontName" value="Sora-Bold"/>
                         <userDefinedRuntimeAttribute type="number" keyPath="_fieldFontSize">
                             <real key="value" value="16"/>
                         </userDefinedRuntimeAttribute>

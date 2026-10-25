@@ -1,30 +1,81 @@
-import UIKit
-import SoraKeystore
-import SoraFoundation
 import RobinHood
+import SoraFoundation
+import SoraKeystore
 import SSFNetwork
+import UIKit
 
 final class RootPresenterFactory: RootPresenterFactoryProtocol {
+    struct Dependencies {
+        let settings: SettingsManager
+        let selectedWalletSettingsProvider: () -> SelectedWalletSettings
+        let chainRegistryProvider: () -> ChainRegistryProtocol
+        let storagePreflightProvider: RootStoragePreflightProvider
+        let applicationConfig: ApplicationConfigProtocol
+        let eventCenter: EventCenterProtocol
+        let logger: LoggerProtocol?
+        let localizationManager: LocalizationManagerProtocol
+        let onboardingService: OnboardingServiceProtocol
+        let onboardingConfigResolver: OnboardingConfigVersionResolver
+        let keystore: KeystoreProtocol
+        let protectedDataAvailabilityMonitor:
+            RootProtectedDataAvailabilityMonitoring
+
+        static var `default`: Dependencies {
+            Dependencies(
+                settings: SettingsManager.shared,
+                selectedWalletSettingsProvider: {
+                    SelectedWalletSettings.shared
+                },
+                chainRegistryProvider: {
+                    ChainRegistryFacade.sharedRegistry
+                },
+                storagePreflightProvider: {
+                    RootCoreDataStoragePreflight(
+                        databaseService: SubstrateDataStorageFacade.shared.databaseService
+                    )
+                },
+                applicationConfig: ApplicationConfig.shared,
+                eventCenter: EventCenter.shared,
+                logger: Logger.shared,
+                localizationManager: LocalizationManager.shared,
+                onboardingService: OnboardingService(
+                    networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
+                    operationQueue: OperationQueue()
+                ),
+                onboardingConfigResolver: OnboardingConfigVersionResolver(userDefaultsStorage: SettingsManager.shared),
+                keystore: Keychain(),
+                protectedDataAvailabilityMonitor:
+                RootUIApplicationProtectedDataAvailabilityMonitor()
+            )
+        }
+    }
+
     static func createPresenter(with window: UIWindow) -> RootPresenterProtocol {
+        createPresenter(with: window, dependencies: .default)
+    }
+
+    static func createPresenter(with window: UIWindow, dependencies: Dependencies) -> RootPresenterProtocol {
         let wireframe = RootWireframe()
-        let settings = SettingsManager.shared
-        let keychain = Keychain()
+        let startupRouteValidationStore = RootStartupRouteValidationStore()
         let startViewHelper = StartViewHelper(
-            keystore: keychain,
-            selectedWalletSettings: SelectedWalletSettings.shared,
-            userDefaultsStorage: SettingsManager.shared
+            keystore: dependencies.keystore,
+            selectedWalletSettingsProvider:
+            dependencies.selectedWalletSettingsProvider,
+            userDefaultsStorage: dependencies.settings,
+            startupRouteValidationStore: startupRouteValidationStore,
+            updateSecurityNotice: UpdateSecurityNoticeTracker(settings: dependencies.settings)
         )
 
         let languageMigrator = SelectedLanguageMigrator(
-            localizationManager: LocalizationManager.shared
+            localizationManager: dependencies.localizationManager
         )
 
         let dbMigrator = UserStorageMigrator(
             targetVersion: UserStorageParams.modelVersion,
             storeURL: UserStorageParams.storageURL,
             modelDirectory: UserStorageParams.modelDirectory,
-            keystore: keychain,
-            settings: settings,
+            keystore: dependencies.keystore,
+            settings: dependencies.settings,
             fileManager: FileManager.default
         )
 
@@ -36,39 +87,60 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         )
 
         let presenter = RootPresenter(
-            localizationManager: LocalizationManager.shared,
+            localizationManager: dependencies.localizationManager,
             startViewHelper: startViewHelper
         )
 
-        let assetManagementMigrator = AssetManagementMigratorAssembly.createDefaultMigrator()
-
-        let migrators: [Migrating] = [
-            languageMigrator,
-            dbMigrator,
-            substrateDbMigrator
+        let migrationSteps = [
+            RootSetupMigrationStep(phase: .userStorageMigration, migrator: RetainedDataStartupRecovery()),
+            RootSetupMigrationStep(
+                phase: .languageMigration,
+                migrator: languageMigrator
+            ),
+            RootSetupMigrationStep(
+                phase: .userStorageMigration,
+                migrator: dbMigrator
+            ),
+            RootSetupMigrationStep(
+                phase: .substrateMigration,
+                migrator: substrateDbMigrator
+            ),
+            RootSetupMigrationStep(phase: .substrateMigration, migrator: RetainedContactStartupRecovery())
         ]
 
-        let service = OnboardingService(
-            networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
-            operationQueue: OperationQueue()
-        )
-
-        let resolver = OnboardingConfigVersionResolver(userDefaultsStorage: SettingsManager.shared)
-
         let interactor = RootInteractor(
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            settings: SelectedWalletSettings.shared,
-            applicationConfig: ApplicationConfig.shared,
-            eventCenter: EventCenter.shared,
-            migrators: migrators,
-            logger: Logger.shared,
-            onboardingService: service,
-            onboardingConfigResolver: resolver
+            chainRegistryProvider: dependencies.chainRegistryProvider,
+            storagePreflightProvider: dependencies.storagePreflightProvider,
+            settingsProvider: dependencies.selectedWalletSettingsProvider,
+            applicationConfig: dependencies.applicationConfig,
+            eventCenter: dependencies.eventCenter,
+            migrationSteps: migrationSteps,
+            logger: dependencies.logger,
+            onboardingService: dependencies.onboardingService,
+            onboardingConfigResolver: dependencies.onboardingConfigResolver,
+            protectedDataAvailabilityMonitor:
+            dependencies.protectedDataAvailabilityMonitor,
+            pincodeAvailabilityProvider: {
+                try dependencies.keystore.checkKey(
+                    for: KeystoreTag.pincode.rawValue
+                )
+            },
+            pincodeRemoval: {
+                let retained = RetainedStoreSetAside(storeURL: UserStorageParams.storageURL, rootName: RetainedStoreSetAside.userRootName, fileManager: .default)
+                // An empty list after recovery is not consent to forget the
+                // existing authentication protecting retained keys and records.
+                guard try retained.retainedArchiveURLs().isEmpty,
+                      try EmergencyWalletMaterialReader.walletTags().isEmpty else { return }
+                try dependencies.keystore.deleteKeyIfExists(
+                    for: KeystoreTag.pincode.rawValue
+                )
+            },
+            startupRouteValidationStore: startupRouteValidationStore
         )
 
         let view = RootViewController(
             presenter: presenter,
-            localizationManager: LocalizationManager.shared
+            localizationManager: dependencies.localizationManager
         )
 
         presenter.window = window

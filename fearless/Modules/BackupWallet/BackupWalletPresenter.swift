@@ -22,9 +22,7 @@ final class BackupWalletPresenter {
 
     private let logger: LoggerProtocol
     private let wallet: MetaAccountModel
-    private lazy var viewModelFactory: BackupWalletViewModelFactoryProtocol = {
-        BackupWalletViewModelFactory()
-    }()
+    private var viewModelFactory: BackupWalletViewModelFactoryProtocol
 
     private var balanceInfo: WalletBalanceInfo?
     private var chains: [ChainModel] = []
@@ -42,12 +40,15 @@ final class BackupWalletPresenter {
         interactor: BackupWalletInteractorInput,
         router: BackupWalletRouterInput,
         logger: LoggerProtocol,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        viewModelFactory: BackupWalletViewModelFactoryProtocol
     ) {
         self.wallet = wallet
         self.interactor = interactor
         self.router = router
         self.logger = logger
+        self.viewModelFactory = viewModelFactory
+
         self.localizationManager = localizationManager
     }
 
@@ -77,9 +78,11 @@ final class BackupWalletPresenter {
         case .json:
             router.showKeystoreExport(flow: flow, from: view)
         case .backupGoogle, .removeGoogle:
-            let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
+            let address42 = wallet.backupAddress
             if backupAccounts.or([]).contains(where: { $0.address == address42 }) {
                 removeBackupFromGoogle()
+            } else if let reason = GoogleDriveBackupContent.unsupportedReason(for: wallet) {
+                showGoogleBackupUnavailable(reason: reason)
             } else {
                 router.showCreatePassword(
                     wallet: wallet,
@@ -90,6 +93,55 @@ final class BackupWalletPresenter {
                 )
             }
         }
+    }
+
+    /// Explains before a password is chosen why this wallet cannot go to Google Drive, and
+    /// offers the backups that do hold it.
+    private func showGoogleBackupUnavailable(reason: BackupCreatePasswordError) {
+        let languages = selectedLocale.rLanguages
+        let message: String
+        switch reason {
+        case .nativeTonWalletNotSupported:
+            message = R.string.localizable.backupGoogleTonUnsupportedMessage(preferredLanguages: languages)
+        default:
+            message = R.string.localizable.backupGoogleSubstrateUnsupportedMessage(preferredLanguages: languages)
+        }
+
+        // The export opens once the sheet is gone; it starts with an authorization screen.
+        var chosenOption: BackupWalletOptions?
+        let actions = exportOptions.map { exportOption -> SheetAlertPresentableAction in
+            let option = BackupWalletOptions(exportOptions: exportOption)
+            let title: String
+            switch option {
+            case .seed:
+                title = R.string.localizable.backupWalletSeed(preferredLanguages: languages)
+            case .json:
+                title = R.string.localizable.backupWalletJson(preferredLanguages: languages)
+            default:
+                title = R.string.localizable.backupRisksWarningsContinueButton(preferredLanguages: languages)
+            }
+            return SheetAlertPresentableAction(
+                title: title,
+                style: .pinkBackgroundWhiteText,
+                button: UIFactory.default.createMainActionButton()
+            ) {
+                chosenOption = option
+            }
+        }
+
+        let viewModel = SheetAlertPresentableViewModel(
+            title: R.string.localizable.backupGoogleNotCreatedTitle(preferredLanguages: languages),
+            message: message,
+            actions: actions,
+            closeAction: R.string.localizable.commonClose(preferredLanguages: languages),
+            dismissCompletion: { [weak self] in
+                guard let option = chosenOption else {
+                    return
+                }
+                self?.startBackup(with: option)
+            }
+        )
+        router.present(viewModel: viewModel, from: view)
     }
 
     private func prepareChainAccountInfos() -> [ChainAccountInfo] {
@@ -185,11 +237,15 @@ final class BackupWalletPresenter {
     }
 
     private func showReplacedAccountAlert() {
+        let accountsNotRestored = GoogleDriveBackupContent.accountsNotRestored(from: wallet)
         let message: String
-        if wallet.chainAccounts.count == 1,
-           let chainAccount = wallet.chainAccounts.first,
+        if accountsNotRestored.count == 1,
+           let chainAccount = accountsNotRestored.first,
            let chain = chains.first(where: { $0.chainId == chainAccount.chainId }),
-           let address = try? chainAccount.accountId.toAddress(using: chain.chainFormat) {
+           let address = UniversalWalletChainAccountSupport.address(
+               for: chainAccount.chainId,
+               publicKey: chainAccount.publicKey
+           ) ?? (try? chainAccount.accountId.toAddress(using: chain.chainFormat)) {
             message = R.string.localizable
                 .backupWalletReplaceAccountsAlert(chain.name, address, preferredLanguages: selectedLocale.rLanguages)
         } else {
@@ -244,7 +300,11 @@ extension BackupWalletPresenter: BackupWalletViewOutput {
             router.presentSuccessNotification(text, from: view)
             backupIsCompleted = false
         }
-        if wallet.chainAccounts.isNotEmpty, !googleAuthorized, !replacedAccountAlertDidShown {
+        // Bitcoin, Solana and Taira accounts come back with the wallet's own phrase or seed;
+        // only accounts imported for one network need a backup of their own.
+        if GoogleDriveBackupContent.accountsNotRestored(from: wallet).isNotEmpty,
+           !googleAuthorized,
+           !replacedAccountAlertDidShown {
             showReplacedAccountAlert()
             return
         }
@@ -290,7 +350,7 @@ extension BackupWalletPresenter: BackupWalletInteractorOutput {
                 .commonDone(preferredLanguages: selectedLocale.rLanguages)
             router.presentSuccessNotification(text, from: view)
 
-            let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
+            let address42 = wallet.backupAddress
             backupAccounts?.removeAll(where: { $0.address == address42 })
             provideViewModel()
         case let .failure(failure):

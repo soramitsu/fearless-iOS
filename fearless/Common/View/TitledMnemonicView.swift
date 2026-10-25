@@ -10,6 +10,18 @@ final class TitledMnemonicView: UIView {
 
     private var calculatedTitleHeight: CGFloat = 0.0
     private var calculatedTitleWidth: CGFloat = 0.0
+    private var calculatedContentHeight: CGFloat = 0.0
+
+    func configureWrapping(locale: Locale, compatibleWith traits: UITraitCollection) {
+        titleLabel.font = .fw(.bodyS, locale: locale, compatibleWith: traits)
+        contentView.adaptsToAvailableWidth = true
+        contentView.indexFontInColumn = .fw(.monoS, locale: locale, compatibleWith: traits)
+        contentView.wordFontInColumn = .fw(.phraseWord, locale: locale, compatibleWith: traits)
+        contentView.verticalSpacingInColumn = 12
+        calculatedTitleWidth = -1
+        invalidateIntrinsicContentSize()
+        setNeedsLayout()
+    }
 
     var horizontalSpacing: CGFloat = 9 {
         didSet {
@@ -88,6 +100,14 @@ final class TitledMnemonicView: UIView {
             width: bounds.width,
             height: bounds.height - top
         )
+        if contentView.adaptsToAvailableWidth {
+            contentView.layoutIfNeeded()
+            let height = contentView.intrinsicContentSize.height
+            if calculatedContentHeight != height {
+                calculatedContentHeight = height
+                invalidateIntrinsicContentSize()
+            }
+        }
     }
 
     private func configure() {

@@ -20,7 +20,7 @@ final class ValidatorSearchViewController: UIViewController, ViewHolder, Importa
     }()
 
     private lazy var searchActivityIndicator: UIActivityIndicatorView = {
-        let activityIndicator = UIActivityIndicatorView(style: .white)
+        let activityIndicator = UIActivityIndicatorView(style: .medium)
         activityIndicator.color = R.color.colorWhite()
         return activityIndicator
     }()

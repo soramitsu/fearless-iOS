@@ -51,10 +51,9 @@ final class CrossChainRouter: CrossChainRouterInput {
 
     func showConfirmation(
         from view: ControllerBackedProtocol?,
-        data: CrossChainConfirmationData,
-        xcmServices: XcmExtrinsicServices
+        data: CrossChainConfirmationData
     ) {
-        guard let module = CrossChainConfirmationAssembly.configureModule(with: data, xcmServices: xcmServices) else {
+        guard let module = CrossChainConfirmationAssembly.configureModule(with: data) else {
             return
         }
         view?.controller.navigationController?.pushViewController(

@@ -36,10 +36,10 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
 
     private var contentStackView: UIStackView = {
         let stackView = UIStackView()
-        stackView.spacing = 0
+        stackView.spacing = 2
         stackView.axis = .vertical
-        stackView.distribution = .fillEqually
-        stackView.alignment = .leading
+        stackView.distribution = .fill
+        stackView.alignment = .fill
         return stackView
     }()
 
@@ -60,6 +60,17 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         return view
     }()
 
+    /// "Transferable X" under the total balance when they differ.
+    private let transferableLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p2Paragraph
+        label.textColor = R.color.colorLightGray()
+        label.textAlignment = .right
+        label.adjustsFontForContentSizeCategory = true
+        label.isHidden = true
+        return label
+    }()
+
     private var priceView: HorizontalKeyValueView = {
         let view = HorizontalKeyValueView()
         let style = HorizontalKeyValueView.Style(
@@ -72,14 +83,28 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         return view
     }()
 
-    private var chainInfoContainerView = UIView()
+    private let chainInfoContainerView = UIStackView()
+    private let metadataStackView = UIStackView()
     private var chainIconsView = ChainCollectionView()
     private var skeletonView: SkrullableView?
+    private var isRestyledLoading = false
+    private var loadingTargetFrames: [CGRect] = []
 
     private lazy var hideButton = SwipeCellButton.createHideButton(locale: locale)
     private lazy var showButton = SwipeCellButton.createShowButton(locale: locale)
 
     private var locale: Locale?
+    private var showsNetwork = false
+    private var isNestedToken = false
+
+    override var cloudViewEdgeInsets: UIEdgeInsets {
+        var insets = super.cloudViewEdgeInsets
+        if isNestedToken {
+            insets.left += FWAppearance.portfolioListRestyled && traitCollection.preferredContentSizeCategory
+                .isAccessibilityCategory ? 12 : 16
+        }
+        return insets
+    }
 
     // MARK: - Lifecycle
 
@@ -88,6 +113,7 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
 
         configure()
         setupLayout()
+        updateTextLayout()
     }
 
     @available(*, unavailable)
@@ -108,10 +134,22 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
 
     // MARK: - Public methods
 
-    func bind(to viewModel: ChainAccountBalanceCellViewModel) {
+    func bind(to viewModel: ChainAccountBalanceCellViewModel, showsNetwork: Bool = false, indented: Bool = false) {
+        if FWAppearance.portfolioListRestyled {
+            locale = viewModel.locale
+            hideButton = SwipeCellButton.createHideButton(locale: locale)
+            showButton = SwipeCellButton.createShowButton(locale: locale)
+        }
+        self.showsNetwork = showsNetwork
+        isNestedToken = indented
+        cloudView.snp.updateConstraints { make in
+            make.leading.equalToSuperview().offset(cloudViewEdgeInsets.left)
+        }
         viewModel.imageViewModel?.cancel(on: assetIconImageView)
 
         balanceView.valueLabel.apply(state: viewModel.balanceString)
+        transferableLabel.text = viewModel.transferableString
+        transferableLabel.isHidden = viewModel.transferableString == nil
         priceView.valueLabel.apply(state: viewModel.totalAmountString)
         priceView.keyLabel.apply(state: viewModel.priceAttributedString)
 
@@ -120,6 +158,7 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
             animated: false
         )
 
+        chainOptionsView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         if let options = viewModel.options {
             options.forEach { option in
                 let view = ChainOptionsView()
@@ -132,9 +171,44 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         setDeactivated(!viewModel.chainAsset.chain.isSupported)
         controlSkeleton(for: viewModel)
         chainIconsView.bind(viewModel: viewModel.chainIconViewViewModel)
-        rightMenuButtons = viewModel.hideButtonIsVisible ? [hideButton] : []
+        chainOptionsView.isHidden = viewModel.options?.isEmpty != false
+        chainIconsView.isHidden = viewModel.chainIconViewViewModel.chainImages.isEmpty
+        metadataStackView.isHidden = chainOptionsView.isHidden && chainIconsView.isHidden
+        leftMenuButtons = viewModel.swipeActionsEnabled ? createLeftButtons() : []
+        if !viewModel.swipeActionsEnabled {
+            rightMenuButtons = []
+        } else if viewModel.metadataTrust.trust != .verified {
+            rightMenuButtons = [hideButton, showButton]
+        } else {
+            rightMenuButtons = viewModel.hideButtonIsVisible ? [hideButton] : []
+        }
 
         locale = viewModel.locale
+        updateTextLayout()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard FWAppearance.portfolioListRestyled, isRestyledLoading else { return }
+        contentStackView.layoutIfNeeded()
+        balanceView.layoutIfNeeded()
+        priceView.layoutIfNeeded()
+        let size = contentStackView.bounds.size
+        let frames = [priceView.keyLabel, balanceView.valueLabel, priceView.valueLabel].map {
+            $0.convert($0.bounds, to: contentStackView)
+        }
+        guard size.width > 0, size.height > 0,
+              skeletonView?.bounds.size != size || frames != loadingTargetFrames else { return }
+        loadingTargetFrames = frames
+        skeletonView?.stopSkrulling()
+        skeletonView?.removeFromSuperview()
+        skeletonView = nil
+        setupLoadingSkeleton()
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        updateTextLayout()
     }
 
     // MARK: - Private methods
@@ -165,6 +239,7 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         cloudView.addSubview(backgroundTriangularedView)
         backgroundTriangularedView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
+            make.height.greaterThanOrEqualTo(LayoutConstants.cellHeight - cloudViewEdgeInsets.top)
         }
 
         backgroundTriangularedView.addSubview(assetIconImageView)
@@ -204,33 +279,33 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
             make.trailing.equalToSuperview()
         }
 
+        contentStackView.addArrangedSubview(transferableLabel)
+        transferableLabel.setContentHuggingPriority(.defaultHigh, for: .vertical)
+
         contentStackView.addArrangedSubview(priceView)
         priceView.setContentHuggingPriority(.defaultLow, for: .vertical)
         priceView.snp.makeConstraints { make in
             make.trailing.equalToSuperview()
         }
 
-        chainInfoContainerView.addSubview(chainNameLabel)
-        chainNameLabel.snp.makeConstraints { make in
-            make.leading.top.bottom.equalToSuperview()
-        }
-        chainInfoContainerView.addSubview(chainOptionsView)
-        chainOptionsView.snp.makeConstraints { make in
-            make.leading.equalTo(chainNameLabel.snp.trailing).offset(UIConstants.bigOffset)
-            make.top.bottom.equalToSuperview()
-        }
-        chainInfoContainerView.addSubview(chainIconsView)
+        chainInfoContainerView.axis = .vertical
+        chainInfoContainerView.spacing = 4
+        chainInfoContainerView.addArrangedSubview(chainNameLabel)
+        chainInfoContainerView.addArrangedSubview(metadataStackView)
+        metadataStackView.spacing = UIConstants.defaultOffset
+        metadataStackView.alignment = .center
+        metadataStackView.addArrangedSubview(chainOptionsView)
+        metadataStackView.addArrangedSubview(chainIconsView)
         chainIconsView.snp.makeConstraints { make in
-            make.leading.greaterThanOrEqualTo(chainOptionsView.snp.trailing).offset(UIConstants.bigOffset)
-            make.top.bottom.trailing.equalToSuperview()
-            make.width.equalTo(90).priority(.low)
+            make.width.equalTo(90)
+            make.height.equalTo(16)
         }
     }
 }
 
 extension ChainAccountBalanceTableCell: DeactivatableView {
     var deactivatableViews: [UIView] {
-        [assetIconImageView, chainNameLabel, balanceView, priceView]
+        [assetIconImageView, chainNameLabel, balanceView, transferableLabel, priceView]
     }
 }
 
@@ -238,17 +313,30 @@ extension ChainAccountBalanceTableCell: DeactivatableView {
 
 extension ChainAccountBalanceTableCell {
     private func controlSkeleton(for viewModel: ChainAccountBalanceCellViewModel) {
-        let chainName = viewModel.assetName?.uppercased()
+        let trustSuffix: String
+        func trustText(_ key: String, fallback: String) -> String {
+            FWAppearance.portfolioListRestyled
+                ? PortfolioStrings.text(key, locale: viewModel.locale)
+                : NSLocalizedString(key, value: fallback, comment: "")
+        }
+        switch viewModel.metadataTrust.trust {
+        case .verified:
+            trustSuffix = trustText("portfolio.asset.verified", fallback: "Verified")
+        case .unverified:
+            trustSuffix = trustText("portfolio.asset.detected", fallback: "Detected")
+        case .missing:
+            trustSuffix = trustText("portfolio.asset.metadata_missing", fallback: "Metadata missing")
+        }
+        let subtitle = showsNetwork ? viewModel.chainAsset.chain.name : viewModel.assetName?.uppercased()
+        let chainName = [subtitle, trustSuffix.uppercased()]
+            .compactMap { $0 }
+            .joined(separator: " · ")
         let chainSymbol = viewModel.chainAsset.asset.symbolUppercased
         chainNameLabel.apply(state: .updating(chainName))
         balanceView.keyLabel.apply(state: .updating(chainSymbol))
         assetIconImageView.startShimmeringAnimation()
         if viewModel.isColdBoot {
             startLoading()
-            return
-        }
-
-        guard viewModel.priceDataWasUpdated else {
             return
         }
 
@@ -259,6 +347,15 @@ extension ChainAccountBalanceTableCell {
     }
 
     private func startLoading() {
+        if FWAppearance.portfolioListRestyled {
+            isRestyledLoading = true
+            priceView.keyLabel.alpha = 0
+            priceView.valueLabel.alpha = 0
+            balanceView.valueLabel.alpha = 0
+            transferableLabel.alpha = 0
+            setNeedsLayout()
+            return
+        }
         layoutIfNeeded()
         guard skeletonView == nil, backgroundTriangularedView.frame.size != .zero else {
             return
@@ -267,11 +364,19 @@ extension ChainAccountBalanceTableCell {
         priceView.keyLabel.alpha = 0
         priceView.valueLabel.alpha = 0
         balanceView.valueLabel.alpha = 0
+        transferableLabel.alpha = 0
 
         setupLoadingSkeleton()
     }
 
     private func stopLoadingIfNeeded() {
+        if FWAppearance.portfolioListRestyled {
+            isRestyledLoading = false
+            priceView.keyLabel.alpha = 1
+            priceView.valueLabel.alpha = 1
+            balanceView.valueLabel.alpha = 1
+            transferableLabel.alpha = 1
+        }
         guard skeletonView != nil else {
             return
         }
@@ -283,6 +388,7 @@ extension ChainAccountBalanceTableCell {
         priceView.keyLabel.alpha = 1
         priceView.valueLabel.alpha = 1
         balanceView.valueLabel.alpha = 1
+        transferableLabel.alpha = 1
     }
 
     private func setupLoadingSkeleton() {
@@ -309,8 +415,33 @@ extension ChainAccountBalanceTableCell {
         skeletonView.startSkrulling()
     }
 
+    private func createRestyledLoadingSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
+        let placements: [(UIView, CGSize)] = [
+            (priceView.keyLabel, LayoutConstants.priceRowSize),
+            (balanceView.valueLabel, LayoutConstants.balanceRowSize),
+            (priceView.valueLabel, LayoutConstants.balancePriceRowSize)
+        ]
+        let stacked = traitCollection.preferredContentSizeCategory.isAccessibilityCategory
+        return placements.map { label, preferredSize in
+            let frame = label.convert(label.bounds, to: contentStackView)
+            let size = CGSize(
+                width: min(preferredSize.width, spaceSize.width),
+                height: min(preferredSize.height, spaceSize.height)
+            )
+            let positionX = label !== priceView.keyLabel && !stacked ? frame.maxX - size.width : frame.minX
+            let position = CGPoint(
+                x: max(0, min(positionX, spaceSize.width - size.width)),
+                y: max(size.height / 2, min(frame.midY, spaceSize.height - size.height / 2))
+            )
+            return SingleSkeleton.createRow(spaceSize: spaceSize, position: position, size: size)
+        }
+    }
+
     private func createLoadingSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
-        [
+        if FWAppearance.portfolioListRestyled {
+            return createRestyledLoadingSkeletons(for: spaceSize)
+        }
+        return [
             SingleSkeleton.createRow(
                 under: priceView.keyLabel,
                 containerView: contentStackView,
@@ -344,5 +475,64 @@ extension ChainAccountBalanceTableCell {
                 size: LayoutConstants.balancePriceRowSize
             )
         ]
+    }
+}
+
+private extension ChainAccountBalanceTableCell {
+    func updateTextLayout() {
+        if FWAppearance.portfolioListRestyled {
+            chainNameLabel.font = .fw(.labelM, compatibleWith: traitCollection)
+            balanceView.keyLabel.font = .fw(.titleS, compatibleWith: traitCollection)
+            balanceView.valueLabel.font = .fw(.numberL, compatibleWith: traitCollection)
+            transferableLabel.font = .fw(.bodyS, compatibleWith: traitCollection)
+            priceView.keyLabel.font = .fw(.numberS, compatibleWith: traitCollection)
+            priceView.valueLabel.font = .fw(.numberM, compatibleWith: traitCollection)
+            updateAccessibleColumns()
+        }
+        let axis: NSLayoutConstraint.Axis = traitCollection.preferredContentSizeCategory.isAccessibilityCategory
+            ? .vertical : .horizontal
+        balanceView.axis = axis
+        priceView.axis = axis
+        [
+            chainNameLabel,
+            balanceView.keyLabel,
+            balanceView.valueLabel,
+            transferableLabel,
+            priceView.keyLabel,
+            priceView.valueLabel
+        ].forEach {
+            $0.numberOfLines = 0
+            $0.lineBreakMode = FWAppearance.portfolioListRestyled ? .byWordWrapping : .byCharWrapping
+            $0.setContentCompressionResistancePriority(.required, for: .vertical)
+        }
+    }
+
+    func updateAccessibleColumns() {
+        let stacked = traitCollection.preferredContentSizeCategory.isAccessibilityCategory
+        cloudView.snp.updateConstraints { $0.leading.equalToSuperview().offset(cloudViewEdgeInsets.left) }
+        assetIconImageView.snp.remakeConstraints { make in
+            make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.size.equalTo(stacked ? 28 : LayoutConstants.iconSize)
+            if stacked {
+                make.top.equalToSuperview().inset(UIConstants.defaultOffset)
+            } else {
+                make.centerY.equalToSuperview()
+            }
+        }
+        separatorView.isHidden = stacked
+        contentStackView.snp.remakeConstraints { make in
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            if stacked {
+                make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
+                make.top.equalTo(assetIconImageView.snp.bottom).offset(UIConstants.defaultOffset)
+            } else {
+                make.leading.equalTo(separatorView.snp.trailing).offset(UIConstants.defaultOffset)
+                make.top.equalToSuperview().inset(UIConstants.defaultOffset)
+            }
+        }
+        balanceView.valueLabel.textAlignment = stacked ? .left : .right
+        priceView.valueLabel.textAlignment = stacked ? .left : .right
+        transferableLabel.textAlignment = stacked ? .left : .right
     }
 }

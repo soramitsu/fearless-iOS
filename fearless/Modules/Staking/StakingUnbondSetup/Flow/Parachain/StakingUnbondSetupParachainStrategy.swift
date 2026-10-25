@@ -64,10 +64,8 @@ final class StakingUnbondSetupParachainStrategy: RuntimeConstantFetching, Accoun
 extension StakingUnbondSetupParachainStrategy: StakingUnbondSetupStrategy {
     func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String) {
         guard let builderClosure = builderClosure,
-              let extrinsicService = extrinsicService,
-              let amount = StakingConstants.maxAmount.toSubstrateAmount(
-                  precision: Int16(chainAsset.asset.precision)
-              ) else {
+              let extrinsicService = extrinsicService
+        else {
             return
         }
 

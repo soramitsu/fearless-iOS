@@ -14,6 +14,21 @@ final class SelectableAmountInputView: UIView {
     }
 
     private let type: SelectableAmountInputViewType
+    private var sendPresentation = false
+    private var displayedBalance: String?
+
+    private let amountReadoutLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = R.color.colorWhite()
+        label.numberOfLines = 0
+        label.lineBreakMode = .byCharWrapping
+        label.textAlignment = .right
+        label.isAccessibilityElement = false
+        label.isUserInteractionEnabled = false
+        label.isHidden = true
+        label.setContentCompressionResistancePriority(.required, for: .vertical)
+        return label
+    }()
 
     private let triangularedBackgroundView: TriangularedView = {
         let view = TriangularedView()
@@ -126,6 +141,7 @@ final class SelectableAmountInputView: UIView {
     // MARK: - Public methods
 
     func bind(viewModel: AssetBalanceViewModelProtocol?) {
+        displayedBalance = viewModel?.balance
         guard let viewModel = viewModel else {
             iconView.image = R.image.addressPlaceholder()
             symbolLabel.text = R.string.localizable
@@ -166,6 +182,7 @@ final class SelectableAmountInputView: UIView {
     }
 
     private func applyLocalization() {
+        if sendPresentation, let displayedBalance { applyType(for: displayedBalance) }
         switch type {
         case .send:
             titleLabel.text = R.string.localizable
@@ -179,7 +196,26 @@ final class SelectableAmountInputView: UIView {
         }
     }
 
+    @objc private func updateAmountPresentation() {
+        guard sendPresentation else { return }
+        let editing = textField.isFirstResponder
+        // Keep the same native editor, delegate, cursor and accessibility value. Outside editing,
+        // a full-size multiline readout supplies the space a single-line field cannot reserve.
+        amountReadoutLabel.text = editing ? nil : (textField.text?.isEmpty == false ? textField.text : "0")
+        amountReadoutLabel.isHidden = editing
+        textField.textColor = editing ? R.color.colorWhite() : .clear
+        textField.attributedPlaceholder = NSAttributedString(string: "0", attributes: [
+            .foregroundColor: editing ? R.color.colorWhite()! : UIColor.clear, .font: textField.font!
+        ])
+        setNeedsLayout()
+    }
+
     private func configure() {
+        textField.addTarget(
+            self,
+            action: #selector(updateAmountPresentation),
+            for: [.editingDidBegin, .editingChanged, .editingDidEnd]
+        )
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
         addGestureRecognizer(tapGesture)
 
@@ -196,6 +232,7 @@ final class SelectableAmountInputView: UIView {
         symbolStackView.addArrangedSubview(symbolLabel)
         symbolStackView.addArrangedSubview(iconSelect)
         addSubview(textField)
+        addSubview(amountReadoutLabel)
         addSubview(balanceLabel)
 
         symbolLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
@@ -252,6 +289,54 @@ final class SelectableAmountInputView: UIView {
 }
 
 extension SelectableAmountInputView {
+    /// Preserve the editor and its delegates while allowing the Send card to grow.
+    func configureSendPresentation(locale: Locale, traits: UITraitCollection) {
+        sendPresentation = true
+        self.locale = locale
+        titleLabel.font = .fw(.bodyS, locale: locale, compatibleWith: traits)
+        priceLabel.font = .fw(.numberM, locale: locale, compatibleWith: traits)
+        balanceLabel.font = .fw(.bodyM, locale: locale, compatibleWith: traits)
+        symbolLabel.font = .fw(.titleS, locale: locale, compatibleWith: traits)
+        textField.font = .fw(.displayL, locale: locale, compatibleWith: traits)
+        amountReadoutLabel.font = textField.font
+        textField.attributedPlaceholder = NSAttributedString(string: "0", attributes: [
+            .foregroundColor: R.color.colorWhite()!, .font: textField.font!
+        ])
+        [titleLabel, priceLabel, balanceLabel, symbolLabel].forEach {
+            $0.numberOfLines = 0
+            $0.lineBreakMode = .byCharWrapping
+            $0.setContentCompressionResistancePriority(.required, for: .vertical)
+        }
+        titleLabel.snp.remakeConstraints { $0.leading.trailing.top.equalToSuperview().inset(12) }
+        priceLabel.snp.remakeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(12)
+            make.top.equalTo(titleLabel.snp.bottom).offset(6)
+        }
+        symbolStackView.alignment = .center
+        symbolStackView.snp.remakeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(12)
+            make.top.equalTo(priceLabel.snp.bottom).offset(8)
+            make.height.greaterThanOrEqualTo(44)
+        }
+        iconSelect.snp.remakeConstraints { $0.size.equalTo(16) }
+        textField.snp.remakeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(12)
+            make.top.equalTo(symbolStackView.snp.bottom).offset(8)
+            make.height.greaterThanOrEqualTo(ceil(textField.font!.lineHeight) + 12)
+        }
+        amountReadoutLabel.snp.remakeConstraints { make in
+            make.leading.trailing.equalTo(textField)
+            make.top.equalTo(textField).offset(6)
+            make.bottom.equalTo(textField).offset(-6)
+        }
+        balanceLabel.snp.remakeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview().inset(12)
+            make.top.equalTo(textField.snp.bottom).offset(8)
+        }
+        updateAmountPresentation()
+        setNeedsLayout()
+    }
+
     var title: String? {
         get {
             titleLabel.text
@@ -302,7 +387,8 @@ extension SelectableAmountInputView {
         }
 
         set {
-            textField.text = newValue
+            if textField.text != newValue { textField.text = newValue }
+            updateAmountPresentation()
             setNeedsLayout()
         }
     }

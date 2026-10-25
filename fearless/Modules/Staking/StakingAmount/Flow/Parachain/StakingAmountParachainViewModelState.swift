@@ -11,6 +11,7 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
 
     let wallet: MetaAccountModel
     let chainAsset: ChainAsset
+    let rewardChainAsset: ChainAsset?
     private var networkStakingInfo: NetworkStakingInfo?
     private var minStake: Decimal?
     private(set) var minimalBalance: Decimal?
@@ -26,12 +27,14 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
         amount: Decimal?,
-        callFactory: SubstrateCallFactoryProtocol
+        callFactory: SubstrateCallFactoryProtocol,
+        rewardChainAsset: ChainAsset?
     ) {
         self.dataValidatingFactory = dataValidatingFactory
         self.wallet = wallet
         self.chainAsset = chainAsset
         self.callFactory = callFactory
+        self.rewardChainAsset = rewardChainAsset
 
         if let amount = amount {
             inputResult = .absolute(amount)

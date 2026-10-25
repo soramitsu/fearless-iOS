@@ -15,12 +15,12 @@ final class CrowdloanContributionConfirmPresenter {
     let assetInfo: AssetBalanceDisplayInfo
     let logger: LoggerProtocol?
     let chainAsset: ChainAsset
+    let selectedCurrency: Currency
     private var displayAddress: DisplayAddress?
     private var crowdloan: Crowdloan?
     private var displayInfo: CrowdloanDisplayInfo?
     private var totalBalanceValue: BigUInt?
     private var balance: Decimal?
-    private var priceData: PriceData?
     private var fee: Decimal?
     private var blockNumber: BlockNumber?
     private var blockDuration: BlockTime?
@@ -57,6 +57,10 @@ final class CrowdloanContributionConfirmPresenter {
         )
     }
 
+    private var priceData: PriceData? {
+        chainAsset.asset.getPrice(for: selectedCurrency)
+    }
+
     init(
         interactor: CrowdloanContributionConfirmInteractorInputProtocol,
         wireframe: CrowdloanContributionConfirmWireframeProtocol,
@@ -68,7 +72,8 @@ final class CrowdloanContributionConfirmPresenter {
         assetInfo: AssetBalanceDisplayInfo,
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        selectedCurrency: Currency
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -80,6 +85,7 @@ final class CrowdloanContributionConfirmPresenter {
         self.assetInfo = assetInfo
         self.logger = logger
         self.chainAsset = chainAsset
+        self.selectedCurrency = selectedCurrency
         self.localizationManager = localizationManager
     }
 
@@ -345,18 +351,6 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmInt
             provideConfirmationViewModel()
         case let .failure(error):
             logger?.error("Did receive leasing period error: \(error)")
-        }
-    }
-
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-
-            provideAssetVewModel()
-            provideFeeViewModel()
-        case let .failure(error):
-            logger?.error("Did receive price error: \(error)")
         }
     }
 

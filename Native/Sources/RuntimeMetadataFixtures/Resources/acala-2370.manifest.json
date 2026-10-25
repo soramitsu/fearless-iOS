@@ -1,0 +1,258 @@
+{
+  "chain": "Acala",
+  "genesisHash": "0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",
+  "specVersion": 2370,
+  "fetched": "2026-10-24",
+  "source": "state_getMetadata (V14)",
+  "sourceBytes": 173281,
+  "sourceSha256": "2e732236bd4f23f0ec8427ce5c89fd78b4cfca8e04cd5181d7f96a7fc80447d6",
+  "fixtureBytes": 32907,
+  "fixtureSha256": "2c190e76d96a72927f5748dda4e49abbd9e7dd9758c7b5701ef72efa0203fb8e",
+  "typeCount": {
+    "source": 768,
+    "fixture": 153
+  },
+  "pallets": [
+    {
+      "name": "PolkadotXcm",
+      "moduleIndex": 51,
+      "calls": [
+        {
+          "name": "send",
+          "index": 0,
+          "position": 0,
+          "fields": [
+            "dest",
+            "message"
+          ]
+        },
+        {
+          "name": "teleport_assets",
+          "index": 1,
+          "position": 1,
+          "fields": [
+            "dest",
+            "beneficiary",
+            "assets",
+            "fee_asset_item"
+          ]
+        },
+        {
+          "name": "reserve_transfer_assets",
+          "index": 2,
+          "position": 2,
+          "fields": [
+            "dest",
+            "beneficiary",
+            "assets",
+            "fee_asset_item"
+          ]
+        },
+        {
+          "name": "execute",
+          "index": 3,
+          "position": 3,
+          "fields": [
+            "message",
+            "max_weight"
+          ]
+        },
+        {
+          "name": "force_xcm_version",
+          "index": 4,
+          "position": 4,
+          "fields": [
+            "location",
+            "version"
+          ]
+        },
+        {
+          "name": "force_default_xcm_version",
+          "index": 5,
+          "position": 5,
+          "fields": [
+            "maybe_xcm_version"
+          ]
+        },
+        {
+          "name": "force_subscribe_version_notify",
+          "index": 6,
+          "position": 6,
+          "fields": [
+            "location"
+          ]
+        },
+        {
+          "name": "force_unsubscribe_version_notify",
+          "index": 7,
+          "position": 7,
+          "fields": [
+            "location"
+          ]
+        },
+        {
+          "name": "limited_reserve_transfer_assets",
+          "index": 8,
+          "position": 8,
+          "fields": [
+            "dest",
+            "beneficiary",
+            "assets",
+            "fee_asset_item",
+            "weight_limit"
+          ]
+        },
+        {
+          "name": "limited_teleport_assets",
+          "index": 9,
+          "position": 9,
+          "fields": [
+            "dest",
+            "beneficiary",
+            "assets",
+            "fee_asset_item",
+            "weight_limit"
+          ]
+        },
+        {
+          "name": "force_suspension",
+          "index": 10,
+          "position": 10,
+          "fields": [
+            "suspended"
+          ]
+        },
+        {
+          "name": "transfer_assets",
+          "index": 11,
+          "position": 11,
+          "fields": [
+            "dest",
+            "beneficiary",
+            "assets",
+            "fee_asset_item",
+            "weight_limit"
+          ]
+        },
+        {
+          "name": "claim_assets",
+          "index": 12,
+          "position": 12,
+          "fields": [
+            "assets",
+            "beneficiary"
+          ]
+        },
+        {
+          "name": "transfer_assets_using_type_and_then",
+          "index": 13,
+          "position": 13,
+          "fields": [
+            "dest",
+            "assets",
+            "assets_transfer_type",
+            "remote_fees_id",
+            "fees_transfer_type",
+            "custom_xcm_on_dest",
+            "weight_limit"
+          ]
+        },
+        {
+          "name": "add_authorized_alias",
+          "index": 14,
+          "position": 14,
+          "fields": [
+            "aliaser",
+            "expires"
+          ]
+        },
+        {
+          "name": "remove_authorized_alias",
+          "index": 15,
+          "position": 15,
+          "fields": [
+            "aliaser"
+          ]
+        },
+        {
+          "name": "remove_all_authorized_aliases",
+          "index": 16,
+          "position": 16,
+          "fields": []
+        }
+      ]
+    },
+    {
+      "name": "XTokens",
+      "moduleIndex": 54,
+      "calls": [
+        {
+          "name": "transfer",
+          "index": 0,
+          "position": 0,
+          "fields": [
+            "currency_id",
+            "amount",
+            "dest",
+            "dest_weight_limit"
+          ]
+        },
+        {
+          "name": "transfer_multiasset",
+          "index": 1,
+          "position": 1,
+          "fields": [
+            "asset",
+            "dest",
+            "dest_weight_limit"
+          ]
+        },
+        {
+          "name": "transfer_with_fee",
+          "index": 2,
+          "position": 2,
+          "fields": [
+            "currency_id",
+            "amount",
+            "fee",
+            "dest",
+            "dest_weight_limit"
+          ]
+        },
+        {
+          "name": "transfer_multiasset_with_fee",
+          "index": 3,
+          "position": 3,
+          "fields": [
+            "asset",
+            "fee",
+            "dest",
+            "dest_weight_limit"
+          ]
+        },
+        {
+          "name": "transfer_multicurrencies",
+          "index": 4,
+          "position": 4,
+          "fields": [
+            "currencies",
+            "fee_item",
+            "dest",
+            "dest_weight_limit"
+          ]
+        },
+        {
+          "name": "transfer_multiassets",
+          "index": 5,
+          "position": 5,
+          "fields": [
+            "assets",
+            "fee_item",
+            "dest",
+            "dest_weight_limit"
+          ]
+        }
+      ]
+    }
+  ]
+}

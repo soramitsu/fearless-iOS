@@ -16,6 +16,8 @@ class BaseAccountImportInteractor {
     let operationManager: OperationManagerProtocol
     let keystoreImportService: KeystoreImportServiceProtocol
     let defaultSource: AccountImportSource
+    /// The network of the per-chain account being imported; nil while a wallet is imported.
+    private(set) var uniqueChainImportChainId: ChainModel.Id?
 
     init(
         accountOperationFactory: MetaAccountOperationFactoryProtocol,
@@ -75,6 +77,7 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
     }
 
     func importMetaAccount(request: MetaAccountImportRequest) {
+        uniqueChainImportChainId = nil
         let operation: BaseOperation<MetaAccountModel>
         switch request.source {
         case let .mnemonic(data):
@@ -112,6 +115,7 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
     }
 
     func importUniqueChain(request: UniqueChainImportRequest) {
+        uniqueChainImportChainId = request.chain.chainId
         let operation: BaseOperation<MetaAccountModel>
         switch request.source {
         case let .mnemonic(data):

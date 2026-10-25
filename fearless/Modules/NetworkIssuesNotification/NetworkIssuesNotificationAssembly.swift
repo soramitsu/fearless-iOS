@@ -11,7 +11,10 @@ final class NetworkIssuesNotificationAssembly {
         let localizationManager = LocalizationManager.shared
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
-        let accountRepository = accountRepositoryFactory.createRepository()
+        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(
+            for: nil,
+            sortDescriptors: []
+        )
 
         let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let chainSettingsRepostiry = chainSettingsRepositoryFactory.createRepository()

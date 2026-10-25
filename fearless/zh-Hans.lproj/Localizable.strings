@@ -1,6 +1,14 @@
+"about.font.licenses" = "字体许可";
+"about.font.licenses.unavailable" = "无法加载字体许可。";
 "NSCameraUsageDescription" = "相机用于捕捉二维码";
 "NSFaceIDUsageDescription" = "Fearless使用Face ID来限制未经授权的用户访问该应用程序。Face ID用于在应用程序内进行授权。";
 "NSPhotoLibraryAddUsageDescription" = "将转账请求保存为二维码";
+"ton.transfer.unknown.title" = "转账状态未知";
+"ton.transfer.unknown.message" = "网络可能已经接受此转账。请勿再次发送。请保存此消息哈希，并在执行其他操作前检查其状态：\n%@";
+"ton.transfer.unknown.copy_hash" = "复制消息哈希";
+"ton.transfer.prior_confirmed.title" = "之前的转账已确认";
+"ton.transfer.prior_confirmed.message" = "之前的转账已确认。本次新转账尚未发送。再次确认前，请核对并确认之前的哈希：\n%@";
+"ton.transfer.prior_confirmed.acknowledge" = "确认并重新计算手续费";
 "NSPhotoLibraryUsageDescription" = "从图库加载照片";
 "about.announcement" = "接收通知";
 "about.ask.for.support" = "寻求支持";
@@ -64,6 +72,19 @@
 "account.needed.message" = "您还没有此网络的账户，您可以创建或导入一个账户。";
 "account.needed.title" = "所需账户";
 "account.option" = "账户选项";
+"account.stats.avg.transaction.time.title" = "Avg. transaction time";
+"account.stats.description.text" = "Your Multichain Score is based on your onchain journey through 3 ecosystems: Ethereum, Polygon and Binance Smart Chain";
+"account.stats.error.message" = "Unable to retrieve account score information. Please try again later.";
+"account.stats.hold.tokens.usd.title" = "Hold tokens USD";
+"account.stats.max.transaction.time.title" = "Max transaction time";
+"account.stats.min.transactions.time.title" = "Min transaction time";
+"account.stats.native.balance.usd.title" = "Native balance USD";
+"account.stats.rejected.transactions.title" = "Rejected transactions";
+"account.stats.title" = "Your score";
+"account.stats.total.transactions.title" = "Total transactions";
+"account.stats.updated.title" = "Updated";
+"account.stats.wallet.age.title" = "Wallet age";
+"account.stats.wallet.option.title" = "Show wallet score";
 "account.template" = "%s账户";
 "account.unique.secret" = "拥有独特密钥的账户";
 "accounts.add.account" = "添加一个账户";
@@ -91,10 +112,14 @@
 "application.status.view.copied.description" = "钱包地址已成功复制";
 "application.status.view.copied.title" = "地址已复制";
 "application.status.view.hash.copied.description" = "哈希值已成功复制";
+"application.status.view.hash.copied.description" = "哈希成功复制";
+"application.status.view.hash.copied.title" = "哈希已复制";
 "application.status.view.hash.copied.title" = "哈希已复制";
 "application.status.view.offline.description" = "请检查您的连接并重试";
 "application.status.view.offline.title" = "看起来你离线了";
 "application.status.view.reconnected.description" = "连接成功恢复";
+"application.status.view.reconnected.description" = "连接成功恢复";
+"application.status.view.reconnected.title" = "重新连接";
 "application.status.view.reconnected.title" = "重新连接";
 "applied.fearless.wallet.bonus" = "Fearless钱包奖励已生效";
 "apply.fearless.wallet.bonus" = "点按即可申请Fearless钱包奖金";
@@ -117,6 +142,7 @@
 "backup.create.password.not.matched" = "密码不匹配";
 "backup.create.password.password.field.title" = "设置密码";
 "backup.create.password.screen.title" = "创建备份密码";
+"backup.create.password.too.short" = "请至少使用 %@ 个字符";
 "backup.create.password.warning" = "我知道如果我忘记了密码，就没有办法找回它。";
 "backup.mnemonic.description" = "记得按照下面的顺序记录你的文字。使用非数字化的方式进行备份。";
 "backup.mnemonic.title" = "请记下你的助记词。";
@@ -154,6 +180,7 @@
 为了确保替换后的链账户的安全性，在继续当前流程之前，我们建议您先单独备份它。一旦成功备份了替换后的链账户，就可以放心地进行当前流程。";
 "backup.wallet.seed" = "显示原始种子";
 "backup.wallet.title" = "备份钱包";
+"balance.locks.blocked.row.title" = "受阻";
 "balance.locks.governance.row.title" = "治理";
 "balance.locks.liquidity.pools.row.title" = "流动性池";
 "balance.locks.nomination.pools.row.title" = "提名池";
@@ -177,6 +204,7 @@
 "common.action.receive" = "接收";
 "common.action.send" = "发送";
 "common.action.teleport" = "传送";
+"common.activation.required" = "需要激活";
 "common.add" = "添加";
 "common.address" = "地址";
 "common.advanced" = "高级";
@@ -249,6 +277,7 @@
 "common.message" = "消息";
 "common.methods" = "方法";
 "common.module" = "模块";
+"common.more" = "More";
 "common.my.networks" = "我的网络";
 "common.name" = "名字";
 "common.network" = "网络";
@@ -262,6 +291,8 @@
 "common.not.enough.balance.message" = "抱歉，您的资金不足以支付指定金额。";
 "common.not.enough.fee.message" = "抱歉，您的资金不足以支付网络费用。";
 "common.ok" = "好的";
+"update.security.notice.title" = "您的移动钱包是安全的";
+"update.security.notice.message" = "iOS 和 Android 版 Fearless 未受旧版 Fearless Chrome 扩展程序安全问题的影响。\n\n如果您在 2026 年 10 月 23 日之前使用过该 Chrome 扩展程序，请创建一个新钱包，并将资金转入新钱包。";
 "common.paste" = "粘贴";
 "common.payout" = "支付";
 "common.preview" = "预览";
@@ -281,6 +312,7 @@
 "common.search.start.title" = "搜索结果将会在这里显示";
 "common.secret.derivation.path" = "秘密派生路径";
 "common.select" = "选择";
+"common.select" = "选择";
 "common.select.all" = "全选";
 "common.select.asset" = "选择资产";
 "common.select.network" = "选择网络";
@@ -291,7 +323,7 @@
 "common.sign" = "签署";
 "common.skip" = "跳过";
 "common.staking" = "质押";
-"common.start" = "Start";
+"common.start" = "开始";
 "common.terms.and.conditions" = "条款和条件";
 "common.till.date" = "截止到 %s";
 "common.time.left" = "剩余时间";
@@ -396,6 +428,7 @@
 "error.invalid.address" = "所选链的地址无效";
 "error.message.enter.the.name" = "输入名称...";
 "error.message.enter.the.url.address" = "输入URL地址...";
+"error.scan.qr.disabled.asset" = "您要转移的资产要么不受支持,要么已被关闭。请前往资产管理,激活该资产,然后再次扫描二维码。";
 "error.unsupported.asset" = "您正在尝试转移一种目前该应用不支持的资产。请选择另一种资产或请求另一个二维码。";
 "ethereum.crypto.type" = "以太坊密钥对加密类型";
 "ethereum.secret.derivation.path" = "以太坊密钥派生路径";
@@ -461,6 +494,28 @@
 "label.testnet" = "测试网";
 "language.title" = "语言";
 "learn.more.about.crowdloans" = "了解更多关于众贷的信息";
+"lp.apy.alert.text" = "提供流动性的农场奖励";
+"lp.apy.alert.title" = "战略奖励APY";
+"lp.apy.title" = "战略奖励APY";
+"lp.available.pools.title" = "可用的流动池";
+"lp.banner.action.details.title" = "Show details";
+"lp.banner.text" = "Invest your funds in Liquidity\npools and receive rewards";
+"lp.confirm.liquidity.screen.title" = "确认流动性";
+"lp.confirm.liquidity.warning.text" = "输出是估计的。如果价格变动超过0.5%，您的交易将会回滚。";
+"lp.network.fee.alert.text" = "网络费用用于确保 SORA 系统的增长和稳定性能。";
+"lp.network.fee.alert.title" = "网络费用";
+"lp.pool.details.title" = "流动池详情";
+"lp.pool.remove.warning.text" = "移除流动性池代币会按照您在池中所占份额的比例，将您的头寸转换回当前汇率下的基础代币。已累积的费用将包含在您收到的金额中。";
+"lp.pool.remove.warning.title" = "注意";
+"lp.remove.button.title" = "移除流动性";
+"lp.remove.liquidity.screen.title" = "移除流动性";
+"lp.reward.token.text" = "赚取%@";
+"lp.reward.token.title" = "奖励支付以";
+"lp.slippage.title" = "滑点";
+"lp.supply.button.title" = "供应流动性";
+"lp.supply.liquidity.screen.title" = "供应流动性";
+"lp.token.pooled.text" = "你提供流动性的%@";
+"lp.user.pools.title" = "用户流动池";
 "manage.assets.account.missing.text" = "添加一个账户...";
 "manage.assets.search.hint" = "按资产搜索";
 "members.common" = "成员";
@@ -486,6 +541,7 @@
 "network.info.address" = "节点地址";
 "network.info.name" = "节点名称";
 "network.info.title" = "节点信息";
+"network.issue.main" = "连接错误:无法连接到网络。请重试。";
 "network.issue.network.unavailible" = "网络不可用";
 "network.issue.node.unavailable" = "节点不可用";
 "network.issue.notofication" = "通知";
@@ -505,8 +561,10 @@
 "nft.collection.title" = "收藏品";
 "nft.creator.title" = "创作者";
 "nft.list.empty.message" = "目前还没有任何NFT。购买或铸造NFT以在此处查看。";
+"nft.load.error" = "Failed to load NFTs";
 "nft.owner.title" = "拥有";
 "nft.share.address" = "我要接收的公共地址：%s";
+"nft.spam.warning" = "小心某些 NFT 收藏品可能是骗局或垃圾邮件,在参与之前请先验证其真实性。保持安全!";
 "nft.stub.text" = "NFT即将到来";
 "nft.stub.title" = "对不起！";
 "nft.tokenid.title" = "代币ID";
@@ -591,17 +649,20 @@
 "polkaswap.disclaimer.title" = "免责声明";
 "polkaswap.liqudity.fee.info" = "每笔交易的一部分（0.3%）作为协议激励，将支付给流动性提供者。";
 "polkaswap.liquidity.provider.fee" = "流动性提供者费用";
+"polkaswap.liquidity.provider.fee" = "流动性提供者费用";
 "polkaswap.market.alert.choose.action" = "选择资产";
 "polkaswap.market.alert.message" = "您还没有完成兑换调整。一个或两个资产尚未选择，因此市场选择不可用。";
 "polkaswap.market.alert.title" = "市场选择不可用";
 "polkaswap.market.algorithm.title" = "市场算法";
 "polkaswap.market.smart.description" = "SMART流动性路由通过从所有可用市场中仅选择最佳价格选项，确保任何交易的最佳价格。在可用时，将使用Token Bonding Curve（TBC）作为流动性，前提是资产价格比其他来源更实惠，在此之后才会利用XYK池。";
 "polkaswap.market.stub" = "市场：";
+"polkaswap.market.stub" = "市场";
 "polkaswap.market.tbc.description" = "TBC — 仅从Token Bonding Curve（一级市场）购买。价格可能与XYK池（二级市场）相比不利，但随着时间推移，通过获得的奖励价值可能会更加有利。";
 "polkaswap.market.xyk.description" = "XYK — 只从XYK池（二级市场）购买。传统的XYK池兑换，任何人都可以通过改变做市商在x*y=k曲线上的位置来买卖资产。";
 "polkaswap.max.received" = "最大可卖数量";
 "polkaswap.maximum.sold.info" = "如果在确认之前出现大幅不利的价格波动，您的交易将会撤销。";
 "polkaswap.min.received" = "最小接收量";
+"polkaswap.min.received" = "最小接收数量";
 "polkaswap.minimum.received.info" = "如果在确认之前出现大幅不利的价格波动，您的交易将会撤销。";
 "polkaswap.network.fee" = "网络费用";
 "polkaswap.network.fee.info" = "网络费用是为了确保SORA系统的增长和稳定性能而使用的。";
@@ -657,13 +718,13 @@
 "pools.limit.has.reached.error.message" = "这个网络的池子数量已经达到了上限";
 "pools.limit.has.reached.error.title" = "你不能创建更多的池子";
 "profile.about.title" = "关于";
+"profile.account.score.title" = "Nomis multichain score";
 "profile.accounts.title" = "账户";
 "profile.language.title" = "语言";
 "profile.logout.description" = "此操作将导致删除该设备上的所有账户。在继续之前，请确保已备份您的密码短语。";
 "profile.logout.title" = "登出";
 "profile.network.title" = "网路";
 "profile.pincode.change.title" = "更改PIN码";
-"profile.soracard.title" = "SORA卡";
 "profile.title" = "设置";
 "profile.wallets.title" = "钱包";
 "receive.note.text" = "注意：这是一个Polkadot和Kusama钱包。请只从Polkadot和Kusama区块链发送资产。";
@@ -684,8 +745,11 @@
 "scam.additional.stub" = "附加：";
 "scam.description.donation.stub" = "此地址已被标记为可疑。我们强烈建议您不要向该账户发送%s。";
 "scam.description.exchange.stub" = "这个地址被标记为交易所，请注意存款和提款地址可能不同。";
-"scam.description.sanctions.stub" = "由于与受制裁国家相关的实体，此地址已被标记。我们强烈建议您不要向此账户发送%s。";
-"scam.description.scam.stub" = "这个地址因涉嫌欺诈行为而被标记。我们强烈建议您不要向该账户转账%s。";
+"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
+"scam.description.sanctions.stub" = "由于与受制裁国家相关的实体,此地址已被标记。我们强烈建议您不要向此账户发送%s。";
+"scam.description.scam.stub" = "此地址已被标记存在诈骗嫌疑。我们强烈建议您不要将{asset}发送到此账户。";
+"scam.info.nomis.name" = "Nomis multi-chain score";
+"scam.info.nomis.subtype.text" = "Proceed with caution";
 "scam.name.stub" = "姓名：";
 "scam.reason.stub" = "原因：";
 "scam.warning.alert.subtitle" = "我们强烈建议您不要向此账户发送%s。";
@@ -704,7 +768,7 @@
 "select.save.type" = "选择保存类型";
 "select.suggested.validators.warning" = "算法验证人建议并不构成金融咨询或建议。质押是一项高风险活动，算法验证人的建议并不能完全减轻这种风险。由算法推荐的验证人仍然有可能离开候选池。由算法推荐的验证人也可以在被推荐和/或选择后随时更改其参数（例如佣金率等）。您可能因此或其他原因而失去奖励。只有在进行尽职调查并慎重考虑所涉及风险后，根据自己的判断决定质押代币和采用验证人建议。";
 "select.validators.disclaimer" = "免责声明：算法验证人建议并不构成金融咨询或建议。质押是一项高风险活动，算法验证人的建议并不能完全消除这种风险。由算法提供的验证人仍然可能被惩罚。由算法提供的验证人也可以在被推荐和/或选择后随时更改其参数（例如佣金率等）。您可能因为这些原因或其他原因而失去代币或奖励。请在进行尽职调查并慎重考虑所涉及风险后，根据自己的判断谨慎质押代币和使用验证人建议。";
-"send.all.title" = "发送所有代币并收获账户";
+"send.all.title" = "发送所有代币，并允许关闭此网络上的账户";
 "send.confirm.amount.title" = "正在发送\n%@";
 "send.fund.title" = "发送资金";
 "settings.add.wallet" = "添加钱包";
@@ -714,13 +778,6 @@
 "sora.bridge.amount.less.fee" = "您尝试转账的金额不足以支付%s网络上的交易费用。尽管交易无法完成，您仍将在Sora网络上被收取费用。";
 "sora.bridge.low.amaunt.polkadot.alert" = "目前，为了确保稳定性和安全性，跨链最低金额为1.1 DOT。感谢您的理解。";
 "sora.bridge.low.amount.alert" = "目前，为了确保SORA网络的稳定性和安全性，跨链桥转账的最低金额为0.05 KSM。感谢您的理解。";
-"sora.card.status.failure.text" = "KYC已终止或以其他方式失败。";
-"sora.card.status.failure.title" = "验证失败";
-"sora.card.status.pending.title" = "验证正在进行中";
-"sora.card.status.rejected.text" = "您的申请未通过。要了解更多关于失败原因的信息，请阅读以下附加说明。";
-"sora.card.status.rejected.title" = "验证被拒绝";
-"sora.card.status.success.text" = "您的KYC验证已成功，我们正在准备发送给您SORA卡！";
-"sora.card.status.success.title" = "验证成功！";
 "sr25519.selection.subtitle" = "sr25519（推荐）";
 "sr25519.selection.title" = "施诺克尔";
 "stacking.stash.account" = "存储账户";
@@ -745,6 +802,7 @@
 "staking.analytics.period.all" = "全部";
 "staking.analytics.rewards.empty.message" = "没有收到奖励\
 所选期间";
+"staking.analytics.received.rewards" = "已收到的奖励";
 "staking.analytics.stake.allocation" = "使用当前验证人进行分配";
 "staking.analytics.stake.empty.message" = "您的质押发生变化\
 会出现在这里";
@@ -835,20 +893,23 @@
 "staking.pool.create.root" = "Root";
 "staking.pool.create.stateToggler" = "状态切换器";
 "staking.pool.create.title" = "创建一个池子";
+"staking.pool.create.title" = "创建一个池";
 "staking.pool.info.title" = "池信息";
 "staking.pool.management.select.validators.subtitle" = "要继续，您应该\n选择验证人";
+"staking.pool.management.select.validators.subtitle" = "为了继续，你应该\n选择验证人";
+"staking.pool.management.select.validators.title" = "选择池验证人";
 "staking.pool.management.select.validators.title" = "选择池验证人";
 "staking.pool.rewards.delay.text" = "随时质押。您将在%s之后开始赚取利息";
 "staking.pool.select.validators.manual" = "手动选择";
 "staking.pool.select.validators.suggested" = "选择建议的";
 "staking.pool.sort.pool.members" = "成员人数";
 "staking.pool.stake.info.title" = "质押池信息";
-"staking.pool.start.apr.text" = "每年赚取%s";
+"staking.pool.start.apr.text" = "每年赚取%@";
 "staking.pool.start.create.button.title" = "创建池";
 "staking.pool.start.earn.reward.title" = "质押您的\n %s即可获得奖励";
 "staking.pool.start.join.button.title" = "加入池";
 "staking.pool.start.reward.freq.text" = "奖励每%s支付一次";
-"staking.pool.start.unstake.period.text" = "随时可以解除质押。在能够使用资金和已获得的利息之前，您需要等待%s。";
+"staking.pool.start.unstake.period.text" = "随时可以解除质押。在能够使用资金和已获得的利息之前，您需要等待%@。";
 "staking.rebond" = "返回质押";
 "staking.rebond.all" = "重新绑定所有";
 "staking.rebond.custom.amount" = "重新绑定自定义金额";
@@ -894,6 +955,7 @@
 "staking.rewards.title" = "奖励";
 "staking.round.title" = "轮次 # %@";
 "staking.select.suggested" = "选择推荐的";
+"staking.select.validators.confirm.title" = "选择验证人";
 "staking.select.validators.confirm.title" = "选择验证人";
 "staking.select.validators.custom.button.title" = "自己选择";
 "staking.select.validators.custom.desc" = "你应该相信你的提名人有能力和诚实地行事，仅仅基于他们当前的盈利能力来做决策可能会导致利润减少甚至资金损失。";
@@ -1010,13 +1072,6 @@
 "tabbar.crowdloan.title" = "众贷";
 "tabbar.crowdloan.title_v1.9.0" = "众贷";
 "tabbar.settings.title" = "设置";
-"terms.and.conditions.accept.and.continue" = "接受并继续";
-"terms.and.conditions.description" = "我们希望您了解SORA卡服务的工作原理，以及谁需要您的详细信息和为什么。审阅这些政策将有助于您放心地继续使用该应用程序。";
-"terms.and.conditions.general.terms" = "使用条款";
-"terms.and.conditions.privacy.policy" = "隐私政策";
-"terms.and.conditions.sora.community.alert.main" = "SORA社区不会收集您的任何个人数据，";
-"terms.and.conditions.sora.community.alert.secondary" = "但是要获得SORA卡和IBAN账户，您需要通过一家发卡机构进行KYC验证。";
-"terms.and.conditions.title" = "条款与条件";
 "tranaction.history.others.tab.title" = "其他";
 "transaction.detail.date" = "日期";
 "transaction.detail.status" = "状态";
@@ -1025,9 +1080,9 @@
 "transaction.details.from" = "从";
 "transaction.details.hash.title" = "外部哈希";
 "transaction.details.view.etherscan" = "在Etherscan上查看";
+"transaction.details.view.oklink" = "在OKX浏览器中查看";
 "transaction.details.view.polkascan" = "在Polkascan中查看";
 "transaction.details.view.reefscan" = "在Reefscan中查看";
-"transaction.details.view.oklink" = "View in OKX explorer";
 "transaction.details.view.subscan" = "在Subscan中查看";
 "transaction.list.header" = "所有交易";
 "transaction.status.completed" = "已完成";
@@ -1043,8 +1098,9 @@
 "username.setup.title" = "创建一个账户";
 "username.setup.title.2.0" = "创建一个新的钱包";
 "validator.info.comission.title" = "佣金";
+"validator.info.min.stake.alert.text" = "活跃提名人中的最低质押金额为%s。要获得奖励,您需要质押更多。";
+"validator.info.min.stake.among.active.nominators.text" = "活跃提名人的最低质押";
 "validators.list.empty.message" = "未找到验证人";
-"verify.phone.number.title" = "验证您的电话号码";
 "vesting.claim.disclaimer.text" = "由于每个平行链的独特归属计划，我们的应用无法显示可认领的锁定代币数量。请注意，如果预计金额微不足道且与涉及的交易费用相当，发起认领可能是不切实际的。要全面了解您的锁定余额，请咨询Subscan区块浏览器。我们敦促您仔细评估信息，并根据自己的判断继续操作。";
 "vesting.claim.disclaimer.title" = "关于代币申领的重要通知：";
 "vesting.locked.title" = "归属锁定";
@@ -1052,6 +1108,7 @@
 "view.wallet" = "查看钱包";
 "wallet.account.locks.democracy" = "民主";
 "wallet.account.locks.vesting" = "归属";
+"wallet.all.assets.hidden" = "你已经隐藏所有资产";
 "wallet.asset.buy" = "购买";
 "wallet.asset.buy.with" = "购买%s用";
 "wallet.asset.receive" = "接收";
@@ -1071,6 +1128,8 @@
 "wallet.connect.invalid.url.message" = "我们的应用程序仅支持Wallet Connect SDK v2，不支持已弃用的SDK v1。请使用适当的版本以确保成功连接。";
 "wallet.connect.invalid.url.title" = "警告：不支持 Wallet Connect SDK v1";
 "wallet.connect.sign.warning.message" = "警告：签署此消息可能会产生危险的副作用。只有在您完全信任的网站上，才使用您的整个账户签署消息。";
+"wallet.connect.signing.unavailable.message" = "已连接的应用请求 Fearless 签名。该请求已被拒绝，没有任何内容被签名。您可以照常使用钱包，并在个人资料的 WalletConnect 中断开应用连接。";
+"wallet.connect.signing.unavailable.title" = "此版本暂不支持 WalletConnect 签名";
 "wallet.contacts.empty.title" = "您的账户和您发送转账的联系人将会显示在这里";
 "wallet.contacts.empty.title_v1.10" = "您的账户和联系人\
 您发送给谁的转账会出现在这里";
@@ -1087,6 +1146,29 @@
 "wallet.history.title_v1.9.0" = "历史";
 "wallet.manage.assets" = "管理资产";
 "wallet.managment.select.wallet.title" = "选择您的钱包";
+"wallet.name.unnamed" = "未命名钱包";
+"wallet.chain.accounts.section" = "存有其他账户的网络";
+"wallet.chain.accounts.use.stored" = "使用已存储的账户 %@";
+"wallet.chain.accounts.use.wallet" = "使用此钱包自身的账户";
+"wallet.chain.accounts.switch.title" = "要切换 %@ 的账户吗？";
+"wallet.chain.accounts.switch.message" = "%1$@ 将成为此钱包在 %2$@ 上显示和使用的地址。被替换的账户仍会保存在此钱包中，你可以随时切换回来。";
+"wallet.chain.accounts.switch.confirm" = "切换账户";
+"wallet.chain.accounts.notice.title" = "发现旧版网络账户";
+"wallet.chain.accounts.notice.message" = "Fearless 在以下网络中发现了来自早期版本、但上一版本未显示的网络账户：%@。\n\n没有任何内容被更改或删除：各网络都保留了你一直使用的地址。如果你曾通过这些旧账户中的某个账户接收资金，请打开钱包，并在相应网络中选择该账户。";
+"wallet.chain.accounts.notice.action" = "查看账户";
+"wallet.records.sheet.title" = "部分已存储的记录无法显示";
+"wallet.records.sheet.kept" = "没有任何内容被删除。这些记录及其密钥仍保存在此设备上。请勿删除应用，否则这些记录及其密钥也会被删除。";
+"wallet.records.sheet.next" = "要立即使用这类钱包，请使用其助记词、原始种子词或 JSON 文件重新导入。导入会将其添加为新钱包，不会更改任何已存储的内容。";
+"export.seed.unavailable.title" = "未显示原始种子词";
+"export.seed.missing.message" = "此设备未存储此账户的原始种子词。账户仍可照常使用。你可以使用其他导出方式（例如 JSON 文件）来备份此账户。";
+"export.seed.mismatch.message" = "为此账户存储的原始种子词会恢复出另一个地址，因此不会显示。账户仍可照常使用。你可以使用其他导出方式（例如 JSON 文件）来备份此账户。";
+"backup.google.not.created.title" = "未能创建 Google Drive 备份";
+"backup.google.ton.unsupported.message" = "Google Drive 备份保存钱包的 Polkadot 生态系统密钥和 Ethereum 密钥。此 TON 钱包有自己的 TON 助记词短语，这类备份无法恢复该短语。未上传任何内容，您的钱包也未发生变化。请记下钱包的助记词短语并离线保存，以此备份钱包。";
+"backup.google.substrate.unsupported.message" = "Google Drive 备份只能恢复具有 Polkadot 生态系统密钥的钱包，而此钱包没有该密钥。未上传任何内容，您的钱包也未发生变化。请改用其他备份方式备份钱包。";
+"backup.google.material.message" = "未能完成将此钱包已存储的密钥备份到 Google Drive 所需的准备工作。未上传任何内容，您的钱包未发生变化，仍可照常使用。请使用其他备份方式备份钱包，例如助记词短语或 JSON 文件。";
+"backup.google.readback.message" = "未能从 Google Drive 读回与写入时完全一致的备份，因此此钱包未被标记为已备份。您的钱包未发生变化。请重试，或使用其他备份方式备份钱包。";
+"backup.google.partial.title" = "部分账户未包含在此备份中";
+"backup.google.partial.message" = "您的钱包已备份到 Google Drive。恢复此备份会恢复钱包中的 Polkadot 生态系统账户和 Ethereum 账户，但不会恢复以下账户，因为用于生成这些账户密钥的数据未包含在此备份中：\n%@\n这些账户仍可在此设备上使用。在依赖此备份之前，请单独备份这些账户。";
 "wallet.options.delete" = "删除钱包";
 "wallet.options.details" = "钱包详情";
 "wallet.options.export" = "导出钱包";
@@ -1110,6 +1192,7 @@
 "wallet.send.balance.total.after.transfer" = "转账后的总额";
 "wallet.send.confirm.title" = "确认转账";
 "wallet.send.dead.recipient.message" = "您的转账将失败，因为目标账户上的最终金额将低于最低余额。请尝试增加金额。";
+"wallet.send.dead.recipient.message.v2" = "您的转账将失败,因为目标账户的最终金额(%1$s)将低于最低余额(%2$s)。请增加%3$s的金额。";
 "wallet.send.dead.recipient.title" = "金额太低";
 "wallet.send.eth.dead.recipient.message" = "接收方账户中的以太币余额不足，导致无法完成ERC20代币转账。请确保接收方有足够的以太币来进行转账。";
 "wallet.send.existential.warning" = "您的转账将从区块存储中移除该账户，因为这将使总余额低于最低余额要求。";
@@ -1130,9 +1213,11 @@
 "what.accounts.for.export" = "您想导出钱包中的哪些账户？";
 "xcm.cross.chain.button.title" = "跨链";
 "xcm.cross.chain.invalid.address.message" = "根据提供的地址，您正在尝试在错误的网络上进行转账。";
+"xcm.cross.chain.invalid.address.message" = "根据提供的地址，您正在尝试在错误的网络上进行转账。";
 "xcm.cross.chain.invalid.address.title" = "不是网络地址";
 "xcm.destination.network.fee.title" = "目标网络费用";
 "xcm.destination.network.title" = "目标网络";
+"xcm.low.amaunt.assetSymbol.alert" = "目前,为确保稳定性和安全性,需要最低金额%@作为跨链费用。我们感谢您的理解。";
 "xcm.mywallets.button.title" = "我的钱包";
 "xcm.origin.network.fee.title" = "原始网络费用";
 "xcm.origin.network.title" = "原始网络";
@@ -1141,129 +1226,272 @@
 "your.validators.stop.nominating.title" = "停止提名";
 "your.validators.validator.total.stake" = "总质押：%@";
 "сurrencies.stub.text" = "货币";
-"cant.fetch.refresh" = "无法获取数据，请点击刷新。";
-"card.attention.text" = "注意";
-"card.hub.manage.card" = "管理 SORA 卡";
-"card.hub.manage.card.alert.message" = "请安装官方的 SORA 卡应用程序来管理您的 SORA 卡。点击“确定”以前往 App Store。";
-"card.hub.manage.card.alert.title" = "下载 SORA 卡应用";
-"card.hub.settings.logout.button" = "退出登录";
-"card.hub.settings.logout.description" = "您即将退出 SORA 卡。您仍然可以使用 SORA 卡独立应用程序，但余额将不再在 SORA 钱包中可用。";
-"card.hub.settings.logout.title" = "退出 SORA 卡";
-"card.hub.settings.title" = "卡片设置";
-"card.hub.title" = "卡片详情";
-"card.hub.update.button" = "立即更新";
-"card.hub.update.description" = "您正在使用过时的应用版本，部分功能可能无法正常工作。";
-"card.hub.update.title" = "更新应用至最新版本";
-"card.issuance.screen.free.card.description" = "免费发行一张卡：\
-在您的SORA账户中持有、质押或提供至少价值%@欧元的XOR的流动性。";
-"card.issuance.screen.free.card.get.xor" = "获得%@个XOR。";
-"card.issuance.screen.paid.card.description" = "发卡一次性费用";
-"card.issuance.screen.paid.card.note" = "注：付费卡发行将在稍后阶段提供。";
-"card.issuance.screen.paid.card.pay.euro" = "支付%@欧元的发行费用";
-"card.issuance.screen.paid.card.title" = "%@欧元发行费";
-"card.issuance.screen.title" = "卡片发行";
-"card.or" = "或者";
-"card.update.button" = "更新应用程序";
-"card.update.title" = "请更新应用程序至最新版本以使用SORA卡";
-"cardhub.coming.soon" = "即将推出卡片管理功能";
-"cardhub.exchange" = "兑换";
-"cardhub.freeze" = "冻结";
-"cardhub.iban.title" = "IBAN账户详情";
-"cardhub.top.up" = "充值";
-"cardhub.transfer" = "转账";
-"change.email.title" = "更改您的电子邮件";
-"common.back" = "后退";
-"common.change.email" = "使用另一个电子邮件";
-"common.no.spam" = "不要垃圾邮件！只是为了保护您的账户";
-"common.resend.code" = "重新发送验证码";
-"common.resend.link" = "重新发送链接";
-"common.resend.timer" = "重新发送在%02d:% 02d";
-"common.send.code" = "发送短信代码";
-"common.send.link" = "发送链接";
-"common.support" = "支持";
-"common.try.again" = "请再试一次";
-"common.user.not.found" = "未找到手机号码，请重新检查并重试。";
-"details.already.have.card" = "我已经有一张卡了";
-"details.already.used.free.try" = "您已经使用了免费尝试";
-"details.annual.service.fee" = "年服务费€0";
-"details.description" = "在您的SORA钱包中获得一个欧元IBAN账户和可访问的借记卡";
-"details.enough.xor.desription" = "你有足够的XOR";
-"details.free.card.issuance" = "免费发卡";
-"details.free.card.issuance.conditions.euro" = "或%@欧元的申请费";
-"details.free.card.issuance.conditions.xor" = "如果您在SORA账户中持有、质押或提供至少价值%@欧元的XOR的流动性";
-"details.get.more.xor" = "获取更多的XOR";
-"details.issue.card" = "免费发卡";
-"details.need.xor.desription" = "您需要%@更多 XOR (€ %@ )";
-"details.title" = "使用法定货币或加密货币充值SORA卡，可在线支付、门店消费或从ATM机取款";
-"enter.email.description" = "魔法链接将发送\n到您的电子邮件";
-"enter.email.input.field.label" = "电子邮件";
-"enter.email.title" = "请输入您的电子邮件";
-"enter.phone.number.description" = "您将通过短信收到\n验证码";
-"enter.phone.number.phone.input.field.label" = "电话号码";
-"entry.card.info" = "卡片信息";
-"get.more.xor.dialog.buy.option" = "用卡购买XOR";
-"get.more.xor.dialog.deposit.option" = "接收 XOR";
-"get.more.xor.dialog.description" = "你可以使用 XOR 进行兑换或用欧元购买";
-"get.more.xor.dialog.swap.option" = "用加密货币兑换XOR";
-"get.prepared.alert" = "您只有%@免费尝试机会通过 KYC 流程。此后的所有其他尝试都将花费 € %@ 。下次更新应用程序后将提供付费尝试。";
-"get.prepared.need" = "完成KYC需要：";
-"get.prepared.ok.title" = "好的，我准备好了";
-"get.prepared.personal.info.description" = "请填写表格，包括您的姓名和地址。";
-"get.prepared.personal.info.title" = "提交个人信息";
-"get.prepared.proof.address.description" = "包含您的全名和地址且不超过 3 个月的正式文件（水电费账单、银行对账单、政府声明或信件）。";
-"get.prepared.proof.address.note" = "请注意：像Revolut和N26这样的新型银行的声明目前不被视为有效的地址证明。";
-"get.prepared.proof.address.title" = "提交地址证明照片";
-"get.prepared.submit.id.photo.description" = "护照、驾照、身份证或居住许可证";
-"get.prepared.submit.id.photo.title" = "提交您的身份证明照片";
-"get.prepared.take.selfie.description" = "在过程中将提供指导";
-"get.prepared.take.selfie.title" = "自拍";
-"get.prepared.title" = "做好准备";
-"iban.frozen.description" = "您的国际银行账号(IBAN)已被冻结。\
-欲了解更多信息，请联系%@。";
-"iban.pending.description" = "您的 IBAN 正在等待签发。\
-如果等待时间超过 72 小时，请通过%@联系我们";
-"iban.suspended.description" = "您的IBAN已被暂停使用。\
-如需了解更多信息，请联系%@。";
-"kyc.result.verification.in.progress" = "正在进行验证";
-"kyc.result.verification.in.progress.description" = "您已成功完成KYC申请。审核正在进行中，您可以很快收到决定。\n\n通常情况下，决定会在同一天做出，在某些情况下可能需要最多3天时间。";
-"log.out" = "退出登录";
-"login.title" = "登录或注册";
-"no.free.kyc.attempts.description" = "您已经使用了免费的尝试次数来完成KYC过程。\n\n我们恳请您等待下一次应用程序升级以进行付费尝试。";
-"no.free.kyc.attempts.title" = "没有更多的免费尝试";
-"otp.error.message.wrong.code" = "代码不正确。请再试一次。";
-"paid.attempts.available.later" = "付费尝试将在后期提供";
-"payment.widget.unavailable.confirm" = "是的，我理解。";
-"payment.widget.unavailable.description" = "对于不便我们深表歉意。\n我们正在努力解决此问题。\n请稍后再试。";
-"payment.widget.unavailable.message" = "支付小部件目前不可用。";
-"payment.widget.unavailable.title" = "小部件不可用";
-"select.country.title" = "选择您所在的国家/地区";
-"status.not.started" = "获取SORA卡";
-"terms.and.conditions.confirm.description" = "继续操作即表示您已阅读、理解并接受这些政策。";
-"terms.and.conditions.sora.community.alert" = "SORA社区不会收集任何个人数据，如果您想获得SORA卡和IBAN账户，您需要直接与发卡机构完成KYC流程。";
-"unsupported.countries.disclaimer" = "目前来自某些国家的居民无法申请SORA卡。";
-"unsupported.countries.link" = "查看列表";
-"user.registration.first.name.input.filed.label" = "名";
-"user.registration.last.name.input.filed.label" = "姓";
-"user.registration.title" = "介绍一下自己";
-"verification.failed.description" = "KYC已终止或未能通过验证。";
-"verification.failed.title" = "验证失败";
-"verification.rejected.description" = "您的申请已被拒绝。";
-"verification.rejected.screen.attempts.price.disclaimer" = "每次其他尝试都会花费你%@欧元。";
-"verification.rejected.screen.attempts.used" = "您已经使用完了免费的KYC尝试次数。";
-"verification.rejected.screen.try.again.for.euros" = "再试一次，%@欧元。";
-"verification.rejected.screen.try.again.for.free" = "免费重试";
-"verification.rejected.support" = "支持";
-"verification.rejected.title" = "验证被拒绝";
-"verification.successful.description" = "您的 KYC 验证成功，我们已经准备向您发送 SORA 卡！";
-"verification.successful.title" = "申请已批准";
-"verify.email.description" = "请点击已发送\n至%@\n的魔法链接进行跟踪。\
-邮件可能需要几分钟才能到达，请在5分钟后检查您的垃圾邮件文件夹，以防未收到该邮件。";
-"verify.email.resend" = "%@以后重新发送";
-"verify.email.title" = "验证您的电子邮件";
-"verify.phone.number.code.input.field.label" = "短信验证码";
-"verify.phone.number.description" = "输入已发送到\n%@的短信验证码";
-"verify.phone.number.send.code" = "发送验证码";
-"balance.locks.blocked.row.title" = "Blocked";
-"wallet.send.dead.recipient.message.v2" = "Your transfer will fail since the final amount (%s) on the destination account will be less than the minimal balance (%s). Please increase the amount by %s";
-"nft.spam.warning" = "Beware of a scam/spam NFT collection – verify authenticity before engaging. Stay safe!";
-"wallet.all.assets.hidden" = "You have hidden all assets";
+
+/* Other holdings may not appear because balance checks use the app's asset list. */
+"portfolio.discovery.catalog_only" = "部分代币可能不会显示";
+
+/* Only shown when network balances need attention. */
+"portfolio.balance.update_failed" = "余额更新失败";
+"portfolio.balance.outdated" = "余额可能已过时";
+"portfolio.balance.not_loaded" = "余额尚未加载";
+
+"wallet.transaction.history.view.explorer" = "在区块浏览器中查看";
+
+/* Wallet cards: the balance counts assets hidden from the portfolio. */
+"portfolio.balance.incl_hidden" = "含隐藏资产";
+
+/* Under the wallet-wide total: the selected networks and their part of it. */
+"portfolio.header.showing_filtered" = "显示 %@ · %@";
+
+/* Portfolio row: the part of the balance that can be sent now. */
+"portfolio.asset.transferable" = "可转让 %@";
+
+/* Portfolio row of a testnet token. */
+"portfolio.asset.testnet_no_value" = "无价值";
+
+/* Portfolio row of a funded asset without a trusted price. */
+"portfolio.asset.price_unavailable" = "价格不可用";
+
+/* Under the portfolio: what the total leaves out. Hidden and testnet captions open Manage assets. */
+"portfolio.exclusions.hidden.one" = "%d 个隐藏资产未计入 · 管理";
+"portfolio.exclusions.hidden.other" = "%d 个隐藏资产未计入 · 管理";
+"portfolio.exclusions.testnet.one" = "%d 个测试网资产未计入 · 管理";
+"portfolio.exclusions.testnet.other" = "%d 个测试网资产未计入 · 管理";
+"portfolio.exclusions.unpriced.one" = "%d 个无价格资产未计入";
+"portfolio.exclusions.unpriced.other" = "%d 个无价格资产未计入";
+"portfolio.exclusions.pool_stakes" = "未计入资金池质押";
+
+/* Notice above the portfolio: assets hidden in the previous version now hold funds. */
+"portfolio.hidden_funds.title.one" = "%d 个隐藏资产持有资金";
+"portfolio.hidden_funds.title.other" = "%d 个隐藏资产持有资金";
+"portfolio.hidden_funds.message" = "隐藏的资产不计入总额。请查看它们，或继续隐藏。";
+"portfolio.hidden_funds.review" = "查看";
+"portfolio.hidden_funds.keep_hidden" = "继续隐藏";
+
+/* Bitcoin, Solana and Taira account setup from the wallet's own recovery phrase. */
+"universal.setup.title" = "同一个助记词";
+"universal.setup.message" = "Bitcoin、Solana 和 Taira 使用与此钱包相同的助记词。添加其中任意一个即可同时配置这三个网络，不会创建新的助记词。";
+"universal.setup.action" = "通过钱包助记词添加";
+"universal.recovery.title" = "需要钱包助记词";
+"universal.recovery.message" = "请输入创建或恢复此钱包时使用的助记词。添加 Bitcoin、Solana 和 Taira 之前，会先与现有钱包核对。绝不会创建第二个助记词。通过原始种子词或 JSON 文件导入且没有助记词的钱包无法添加它们：请在钱包列表中创建或恢复一个带助记词的钱包，并将资产转移过去。";
+"universal.recovery.action" = "输入钱包助记词";
+"universal.open.wallets.action" = "打开钱包列表";
+"universal.unsupported.title" = "需要带助记词的钱包";
+"universal.unsupported.message" = "此钱包仅由 TON 助记词或 Ethereum 密钥创建，因此无法添加 Bitcoin、Solana 和 Taira 账户。未做任何更改。如需使用它们，请在钱包列表中创建或恢复一个带助记词的钱包，然后将资产转移过去。";
+"universal.unsupported.source.message" = "为此钱包存储的密钥无法安全地转换为一个助记词，因此未添加 Bitcoin、Solana 和 Taira。未做任何更改。请在钱包列表中创建或恢复一个带助记词的钱包，并将资产转移过去。";
+"universal.adoption.seed.unavailable" = "此设备上没有该钱包的助记词。请输入原始助记词以添加 Bitcoin、Solana 和 Taira。";
+"universal.adoption.conflict" = "此钱包已包含来自另一个助记词的 Bitcoin 或 Taira 账户。其地址和密钥均已保留，未替换任何内容；在切换到此钱包助记词的账户之前，请先转出其中的资金。";
+"universal.seed.unreadable" = "无法读取钱包种子。请解锁此设备后重试。如果仍然失败，请导入钱包的助记词。";
+"universal.recovery.mismatch.title" = "助记词不匹配";
+"universal.recovery.mismatch.message" = "该助记词无法还原此钱包。未更改任何账户或密钥。";
+"universal.recovery.different.phrase.title" = "检测到不同的助记词";
+"universal.recovery.different.phrase.message" = "此钱包已包含来自另一个助记词的 Bitcoin 或 Taira 账户。为避免资金被隐藏，未将其替换。";
+
+/* Import of Bitcoin, Solana or Taira: the wallet's own phrase restores the whole wallet. */
+"universal.import.entire.wallet" = "整个钱包";
+
+/* Raw seed export of a wallet: accounts whose seed is not shown. */
+"export.seed.partial.message" = "以下账户的原始种子词未显示，因为此设备上没有保存，或保存的种子词会恢复出不同的地址：\n%@\n这些账户仍可照常使用。请用 JSON 文件备份它们。在完成备份之前，此钱包不会被标记为已备份。";
+
+/* Solana token send: the amount is only held across several token accounts of the mint. */
+"solana.transfer.token_balance_split.title" = "余额分散在多个代币账户中";
+"solana.transfer.token_balance_split.message" = "此代币的余额分散在多个代币账户中，没有任何一个账户单独持有这个金额。请先发送较小的金额，再发送剩余部分。未发送任何内容。";
+
+/* Retained data and authenticated emergency recovery */
+"recovery.title" = "访问已保存的数据";
+"recovery.network_message" = "无法读取部分已保存的网络数据。钱包和恢复资料单独存储。以前的联系人、自定义节点和连接数据仍保留在此设备上。使用新的网络数据继续后，请重新连接应用并添加所需的自定义节点。";
+"recovery.wallet_message" = "钱包列表需要处理。已保存的钱包记录和恢复资料仍保留在此设备上。请保留 Fearless 及其数据。即使资料无法通过验证，您也可以在身份验证后查看或导出。";
+"recovery.free_storage" = "请释放至少 %@ 的设备存储空间，然后重试。";
+"recovery.retry" = "重试";
+"recovery.fresh_network" = "使用新的网络数据继续";
+"recovery.restore_access" = "恢复钱包访问";
+"recovery.english" = "使用英语继续";
+"recovery.export" = "紧急恢复资料";
+"recovery.previous_data" = "以前的应用数据";
+"recovery.help" = "获取帮助";
+"recovery.authenticate" = "请验证身份以访问保留的恢复资料。";
+"recovery.read_failed" = "无法读取已保存的数据。请将其保留在此设备上并重试。";
+"recovery.close" = "关闭";
+"recovery.share" = "分享";
+"recovery.export_warning" = "此导出包含按原样保存并以 Base64 编码的秘密恢复资料。资料可能不完整或无效，并非经过验证的钱包备份。任何收到资料的人都可能控制您的资金。请仅保存到可信的位置。无法读取的条目会单独列出。切勿发送给客服。";
+"recovery.locked" = "已锁定。请关闭此页面并重新验证身份。";
+"recovery.restore_access_warning" = "您可以导入恢复短语以恢复访问。如果钱包列表无法读取，原始数据将保留在此设备上。密钥和当前 PIN 将保留。如果没有其他副本，请先导出已保存的恢复资料。";
+"recovery.continue" = "继续";
+"recovery.advanced" = "高级";
+"recovery.archive_message" = "以前的数据保持不变。每个归档都会使用当前版本重新检查。恢复时也会保留当前数据的副本。";
+"recovery.no_archives" = "此处没有以前的应用数据。";
+"recovery.checking" = "正在检查以前的数据…";
+"recovery.wallet_data" = "钱包数据";
+"recovery.network_data" = "网络数据";
+"recovery.restore" = "恢复";
+"recovery.not_ready" = "此版本暂时无法恢复该归档。归档保持不变，并在每次启动时重新检查。紧急恢复资料仍然可用。";
+"recovery.restore_warning" = "在下次启动时恢复这些数据吗？当前数据也将保留。密钥和 PIN 不会更改。确认后请关闭并重新打开 Fearless。";
+"recovery.restore_queued" = "已安排恢复。请打开应用切换器，向上轻扫 Fearless 以关闭它，然后重新打开 Fearless。恢复将在钱包打开前执行。";
+
+"send.network.unavailable" = "此代币在 %@ 上不可用。";
+"send.confirm.test_tokens_no_value" = "测试代币没有价值";
+"portfolio.zero_networks" = "%d 个网络 · 无余额";
+
+"portfolio.lens.tokens" = "代币";
+"portfolio.lens.networks" = "网络";
+"portfolio.network_count" = "%d 个网络";
+"portfolio.price_unavailable" = "暂无价格";
+"portfolio.partial_value" = "%d 个网络暂无价格";
+"portfolio.custom_order" = "自定义顺序";
+"portfolio.popular_tokens" = "热门代币 · %d";
+"portfolio.zero_tokens" = "无余额 · %d 个代币";
+"portfolio.expand" = "展开";
+"portfolio.collapse" = "收起";
+"portfolio.hide_group" = "隐藏 %@？";
+"portfolio.choose_network" = "选择网络";
+
+// Manage assets visibility and separate network sections.
+"manage_assets.auto" = "自动";
+"manage_assets.auto_zero" = "自动 · 无余额";
+"manage_assets.shown" = "已显示";
+"manage_assets.hidden" = "已隐藏";
+"manage_assets.testnets" = "测试网络";
+"manage_assets.testnets_caption" = "测试代币没有价值，不计入总额。";
+"manage_assets.unverified" = "未验证";
+"manage_assets.unverified_caption" = "未验证的代币可能不安全，不计入总额。";
+
+"manage_assets.all" = "全部";
+
+"manage_assets.reset_auto" = "恢复自动";
+
+"manage_assets.mixed" = "部分显示";
+
+"manage_assets.show_group" = "在所有网络显示%@";
+
+"manage_assets.hide_group" = "在所有网络隐藏%@";
+
+"manage_assets.reset_order" = "重置排序";
+"manage_assets.reset_order_message" = "恢复此钱包的默认资产排序？资产显示设置将保持不变。";
+
+"portfolio.empty_ready" = "钱包已准备就绪";
+"portfolio.empty_fund" = "选择资产和网络以接收或购买代币。";
+"portfolio.buy" = "购买";
+"portfolio.buy_unavailable" = "这些网络暂不支持购买。您可以通过转账接收代币。";
+"portfolio.funding_unavailable" = "请添加受支持网络的账户以接收代币。此处暂不支持购买。";
+
+"portfolio.empty_networks" = "热门网络 · 暂无余额";
+
+/* Static Welcome presentation. */
+"welcome.title" = "您的密钥，连接每条链。";
+"welcome.body" = "自主保管 Polkadot、Ethereum、TON、Bitcoin、Solana 和 SORA 上的资产。";
+"welcome.create" = "创建新钱包";
+"welcome.restore" = "我已有钱包";
+
+"import.legacy_ton_phrase" = "旧版 TON 恢复助记词";
+"import.legacy_ton_phrase_placeholder" = "输入旧版 TON 恢复助记词";
+
+"recovery.startup_updating" = "正在完成更新…";
+"recovery.startup_opening" = "正在打开钱包…";
+"recovery.startup_keep_open" = "请保持 Fearless 打开。";
+
+"ux.switch_wallet" = "切换钱包";
+
+"ux.choose_network" = "选择网络";
+
+"ux.search_assets" = "搜索资产";
+
+"ux.scan_qr" = "扫描二维码";
+
+/* Portfolio list trust and disclosure state */
+"portfolio.asset.verified" = "已验证";
+"portfolio.asset.detected" = "已检测";
+"portfolio.asset.metadata_missing" = "缺少元数据";
+"portfolio.asset.detected_count" = "检测到的资产（%d）";
+"portfolio.asset.detected_review" = "信任前请先核查";
+"ux.expanded" = "已展开";
+"ux.collapsed" = "已折叠";
+
+"ux.transfer_networks" = "跨网络转账 →";
+
+"ux.receive_network_instruction" = "仅向此地址发送 %2$@ 网络上的 %1$@。";
+
+"export.json.partial.title" = "备份不完整";
+"export.json.partial.message" = "无法导出以下账户：\n%@\n您的钱包和密钥未发生变化。导出可用文件并不代表此钱包的备份已完成。";
+"export.json.partial.action" = "导出可用文件";
+
+"pincode.save.failed" = "无法保存PIN码。请重新输入并确认。";
+
+"backup.status.save.failed" = "无法保存备份状态。请重试。";
+
+"export.mnemonic.unavailable.title" = "未显示恢复助记词";
+"export.mnemonic.partial.message" = "无法验证以下账户保存的助记词或派生路径：\n%@\n密钥未被更改。请为这些账户导出JSON备份。此次助记词导出不会将钱包标记为已备份。";
+
+/* Native TON exact-phrase address selection, before persistence. */
+"import.ton.choose_address" = "选择 TON 地址";
+"import.ton.spacing_warning" = "空格和换行可能改变旧版 TON 地址。请将两个地址与原钱包对比，再选择要恢复的地址。选择前不会导入任何内容。";
+"import.ton.as_typed" = "按原样输入";
+"import.ton.normalized" = "标准空格";
+
+// Exact legacy TON spacing recovery
+"export.ton.exact.title" = "原始 TON 助记词";
+"export.ton.exact.warning" = "此 TON 备份中的空格或换行符会影响恢复结果。请使用“复制原始助记词”以保留它们。改变空格可能会恢复另一个地址。复制的助记词仅保留在此设备上，并在一分钟后过期。";
+"export.ton.exact.copy" = "复制原始助记词";
+
+/* Significant legacy TON spacing is display-only; raw confirmation tokens remain unchanged. */
+"confirmation.exact.details" = "请按原始顺序选择所有条目。空条目保留多余的空格或开头、结尾的空格。方括号中的名称表示换行、制表符及其他空白字符。请完整保留原始助记词的每个条目。";
+"confirmation.exact.empty" = "空条目";
+"confirmation.exact.line.break" = "换行";
+"confirmation.exact.tab" = "制表符";
+"confirmation.exact.carriage.return" = "回车";
+
+/* Preserved Solana payment with unavailable original cluster identity. */
+"solana.transfer.recovery_unavailable.title" = "需要核查已保存的转账";
+"solana.transfer.recovery_unavailable.message" = "无法验证此已保存转账的原始网络。Fearless 已保留转账记录。目前无法查询状态或重试。在确认原始转账结果之前，请勿另行发送替代转账。\n%@";
+
+"solana.transfer.recovery_unreadable.message" = "Fearless 无法读取此钱包和 Solana 网络的已保存转账记录。原始数据已保留。由于先前转账的结果未知，无法发起新转账、查询状态或重试。在确认原转账结果之前，请勿发送替代转账。钱包的其他功能仍可使用。";
+
+/* Solana send, recovery and history */
+"solana.transfer.recipient_invalid.title" = "这不是 Solana 地址";
+"solana.transfer.recipient_invalid.message" = "请检查地址后重试。未发送任何内容。";
+"solana.transfer.recipient_token_account.title" = "这是代币账户，不是钱包";
+"solana.transfer.recipient_token_account.message" = "这看起来是代币账户，而不是钱包地址。发送到这里的资金可能会丢失。请向收款人索取其 Solana 钱包地址。未发送任何内容。";
+"solana.transfer.recipient_program.title" = "这是程序，不是钱包";
+"solana.transfer.recipient_program.message" = "此地址属于 Solana 程序。发送到这里的资金将被锁定。请向收款人索取其 Solana 钱包地址。未发送任何内容。";
+"solana.transfer.below_new_account_minimum.title" = "金额过小，无法开设新账户";
+"solana.transfer.below_new_account_minimum.message" = "此地址还没有 SOL。Solana 要求至少 %@ SOL 才能开设该账户。请至少发送这个金额。未发送任何内容。";
+"solana.transfer.remainder_below_minimum.title" = "请保留更多 SOL 或全部发送";
+"solana.transfer.remainder_below_minimum.message" = "Solana 要求钱包余额要么为零，要么至少保留 %@ SOL。请全部发送（最大）或至少保留这个金额。未发送任何内容。";
+"solana.transfer.insufficient_sol.title" = "SOL 不足";
+"solana.transfer.insufficient_sol.message" = "此钱包的 SOL 不足以支付转账金额和网络手续费；如果收款人首次持有此代币，还需支付 Solana 为其开设账户的费用。请充值 SOL 或减少金额。未发送任何内容。";
+"solana.transfer.insufficient_token.title" = "代币不足";
+"solana.transfer.insufficient_token.message" = "此钱包的单个账户中没有这么多此代币。请减少金额后重试。未发送任何内容。";
+"solana.transfer.token_program_unsupported.title" = "暂时无法发送此代币";
+"solana.transfer.token_program_unsupported.message" = "此版本可以发送 SOL 和标准 SPL 代币。此代币使用尚不支持的 Token-2022。它仍保留在您的钱包中，您也仍然可以接收它。";
+"solana.transfer.copy_signature" = "复制交易 ID";
+"solana.transfer.unknown.title" = "转账状态未知";
+"solana.transfer.unknown.message" = "Solana 网络可能已经接受了此转账。请勿从其他钱包或应用再次发送。Fearless 已保存已签名的交易：重试会发送同一笔交易，因此不会重复付款。Solana 转账会在约两分钟内完成或过期。\n%@";
+"solana.transfer.unknown.retry" = "重试发送";
+"solana.transfer.prior_unresolved.title" = "之前的转账仍在处理中";
+"solana.transfer.prior_unresolved.message" = "Fearless 仍在确认您之前的 Solana 转账是否已发送，因此本次转账未发送。Solana 转账会在约两分钟内完成或过期，请届时再试。\n%@";
+"solana.transfer.prior_sent.title" = "您之前的转账已发送";
+"solana.transfer.prior_sent.message" = "您之前的 Solana 转账已到达网络，因此本次转账未发送。再次发送前，请检查余额和手续费。\n%@";
+"solana.transfer.prior_not_sent.title" = "您之前的转账未能完成";
+"solana.transfer.prior_not_sent.message" = "您之前的 Solana 转账未获网络确认，因此没有资金为此离开您的钱包。本次转账也未发送。请检查后重新发送。\n%@";
+"solana.transfer.failed.title" = "转账失败";
+"solana.transfer.failed.message" = "Solana 网络已处理此转账，但转账失败，因此金额未离开您的钱包。网络手续费已被收取。\n%@";
+"solana.transfer.not_sent.title" = "此转账未发送";
+"solana.transfer.not_sent.no_connection" = "Fearless 无法连接 Solana 网络，因此没有任何资金离开您的钱包。请检查网络连接后重试。";
+"solana.transfer.not_sent.rejected" = "Solana 网络未接受此转账，因此没有任何资金离开您的钱包。请检查金额和手续费后重试。";
+"solana.transfer.not_sent.expired" = "此转账在 Solana 网络确认前已过期，因此没有任何资金离开您的钱包。您可以重新发送。";
+"solana.transfer.unverified.title" = "无法核实此转账";
+"solana.transfer.unverified.message" = "Fearless 无法确认这笔 Solana 转账是否已到达网络。再次发送前，请先查看余额，并在 Solscan 上查询这笔交易。\n%@";
+"solana.transfer.prior_unverified.title" = "无法核实您之前的转账";
+"solana.transfer.prior_unverified.message" = "Fearless 无法确认您之前的 Solana 转账是否已到达网络，因此本次转账未发送。请查看余额，并在 Solscan 上查询之前的交易。如果之前的转账没有成功，请再次确认本次转账。\n%@";
+"send.unavailable.solana_paused.title" = "Solana 发送功能暂时已暂停";
+"send.unavailable.solana_paused.message" = "我们正在检查此版本的 Solana 发送功能。您的 SOL、代币和余额不受影响，您仍可以在 Solana 上接收。";
+"send.unavailable.network.title" = "%@ 暂不支持发送";
+"send.unavailable.asset.message" = "此版本无法在此网络上发送该资产。您的余额不受影响，您仍可以接收它。";
+"send.unavailable.account.title" = "此钱包中没有 %@ 账户";
+"send.unavailable.account.message" = "此钱包在该网络上没有账户，因此无法从中发送。请选择其他网络或钱包。";
+"send.unavailable.not_prepared.title" = "无法准备此转账";
+"send.unavailable.not_prepared.message" = "Fearless 无法连接 %@ 来准备此转账。未发送任何内容。请检查网络连接后重试。";
+"wallet.transaction.history.solana.explorer.message" = "在 Solscan 上查看您的完整 Solana 历史记录";
+
+/* Solana confirm: recipient token account deposit */
+"solana.transfer.account_creation.title" = "收款人账户开设";
+"solana.transfer.account_creation.included" = "已包含在网络手续费中";

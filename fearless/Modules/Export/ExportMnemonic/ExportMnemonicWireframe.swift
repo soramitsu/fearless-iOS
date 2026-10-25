@@ -7,7 +7,18 @@ final class ExportMnemonicWireframe: ExportMnemonicWireframeProtocol {
         wallet: MetaAccountModel,
         from view: ExportGenericViewProtocol?
     ) {
-        guard let confirmationView = ExportMnemonicConfirmViewFactory.createViewForMnemonic(mnemonic, wallet: wallet) else {
+        openConfirmationForMnemonic(mnemonic, wallet: wallet, backupProof: nil, from: view)
+    }
+
+    func openConfirmationForMnemonic(
+        _ mnemonic: IRMnemonicProtocol,
+        wallet: MetaAccountModel,
+        backupProof: VerifiedMnemonicBackup?,
+        from view: ExportGenericViewProtocol?
+    ) {
+        guard let confirmationView = ExportMnemonicConfirmViewFactory.createViewForMnemonic(
+            mnemonic, wallet: wallet, backupProof: backupProof
+        ) else {
             return
         }
 

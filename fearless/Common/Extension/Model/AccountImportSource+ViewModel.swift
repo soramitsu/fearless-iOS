@@ -6,6 +6,8 @@ extension AccountImportSource {
         case .mnemonic:
             return R.string.localizable
                 .importMnemonic(preferredLanguages: locale.rLanguages)
+        case .legacyTonMnemonic:
+            return R.string.localizable.importLegacy_ton_phrase(preferredLanguages: locale.rLanguages)
         case .seed:
             return R.string.localizable
                 .importRawSeed(preferredLanguages: locale.rLanguages)

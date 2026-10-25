@@ -16,16 +16,24 @@ final class AccountCreateViewLayout: UIView {
     }
 
     let flow: AccountCreateFlow
+    let adaptiveCreate = FWAppearance.accountCreateRestyled
+    private var advancedHeaderHeight: Constraint?
+    let headingLabel = UILabel()
+    private let substrateDerivationCaption = UILabel()
+    private let ethereumDerivationCaption = UILabel()
 
     var locale = Locale.current {
         didSet {
             if locale != oldValue {
                 applyLocalization()
+                applyTypography()
             }
         }
     }
 
-    var mnemonicView: MnemonicDisplayView?
+    var mnemonicView: MnemonicDisplayView? {
+        didSet { applyMnemonicTypography() }
+    }
 
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
@@ -220,8 +228,34 @@ final class AccountCreateViewLayout: UIView {
         super.init(frame: .zero)
         setupLayout()
         configure()
+        applyLocalization()
+        applyTypography()
 
         backgroundColor = R.color.colorBlack19()
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if previousTraitCollection?.preferredContentSizeCategory != traitCollection.preferredContentSizeCategory ||
+            previousTraitCollection?.legibilityWeight != traitCollection.legibilityWeight {
+            applyTypography()
+        }
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard adaptiveCreate else { return }
+        let inset = expandableControl.plusIndicator.intrinsicContentSize.width + expandableControl.horizontalSpacing
+        let width = max(1, contentView.bounds.width - inset)
+        expandableControl.titleLabel.preferredMaxLayoutWidth = width
+        advancedHeaderHeight?.update(offset: max(
+            60,
+            ceil(
+                expandableControl.titleLabel.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
+                    .height
+            ) + 32
+        ))
+        expandableControl.invalidateLayout()
     }
 
     @available(*, unavailable)
@@ -246,6 +280,10 @@ extension AccountCreateViewLayout {
     }
 
     func handleKeyboard(frame: CGRect) {
+        if adaptiveCreate {
+            keyboardAdoptableConstraint?.update(inset: frame.height)
+            return
+        }
         nextButton.snp.updateConstraints { make in
             make.bottom.equalTo(safeAreaLayoutGuide).inset(frame.height + UIConstants.bigOffset)
         }
@@ -253,6 +291,43 @@ extension AccountCreateViewLayout {
 }
 
 private extension AccountCreateViewLayout {
+    func applyMnemonicTypography() {
+        guard adaptiveCreate, let mnemonicView else { return }
+        mnemonicView.adaptsToAvailableWidth = true
+        mnemonicView.indexFontInColumn = .fw(.monoS, locale: locale, compatibleWith: traitCollection)
+        mnemonicView.wordFontInColumn = .fw(.phraseWord, locale: locale, compatibleWith: traitCollection)
+        mnemonicView.verticalSpacingInColumn = 12
+    }
+
+    func applyTypography() {
+        guard adaptiveCreate else { return }
+        applyMnemonicTypography()
+        headingLabel.font = .fw(.titleL, locale: locale, compatibleWith: traitCollection)
+        detailsLabel.font = .fw(.bodyL, locale: locale, compatibleWith: traitCollection)
+        [nextButton, backupButton]
+            .forEach { $0.configureWrappingTitle(locale: locale, compatibleWith: traitCollection) }
+        [substrateCryptoTypeView, ethereumCryptoTypeView]
+            .forEach { $0.configureWrapping(locale: locale, compatibleWith: traitCollection) }
+        [
+            substrateDerivationCaption,
+            ethereumDerivationCaption,
+            substrateDerivationPathLabel,
+            ethereumDerivationPathLabel
+        ].forEach {
+            $0.numberOfLines = 0
+            $0.textColor = R.color.colorLightGray()
+            $0.font = .fw(.bodyS, locale: locale, compatibleWith: traitCollection)
+        }
+        [substrateDerivationPathField, ethereumDerivationPathField].forEach {
+            $0.font = .fw(.bodyL, locale: locale, compatibleWith: traitCollection)
+            $0.invalidateIntrinsicContentSize()
+        }
+        expandableControl.titleLabel.numberOfLines = 0
+        expandableControl.titleLabel.font = .fw(.labelL, locale: locale, compatibleWith: traitCollection)
+        expandableControl.invalidateLayout()
+        setNeedsLayout()
+    }
+
     private func configure() {
         contentView.stackView.arrangedSubviews.forEach { $0.backgroundColor = R.color.colorBlack19() }
         advancedContainerView.isHidden = !expandableControl.isActivated
@@ -298,9 +373,21 @@ private extension AccountCreateViewLayout {
             make.top.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.bottom.equalToSuperview().inset(Constants.contentBottomOffset)
+            if adaptiveCreate {
+                keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
+            } else {
+                make.bottom.equalToSuperview().inset(Constants.contentBottomOffset)
+            }
         }
 
+        if adaptiveCreate {
+            headingLabel.numberOfLines = 0
+            headingLabel.textColor = R.color.colorWhite()
+            headingLabel.accessibilityTraits = .header
+            contentView.stackView.addArrangedSubview(headingLabel)
+            contentView.stackView.spacing = 16
+            contentView.stackView.layoutMargins.bottom = 24
+        }
         detailsLabelView.addSubview(detailsLabel)
         detailsLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
@@ -310,8 +397,17 @@ private extension AccountCreateViewLayout {
         }
         contentView.stackView.addArrangedSubview(detailsLabelView)
 
+        setupAdvancedLayout()
+        setupActionLayout()
+    }
+
+    private func setupAdvancedLayout() {
         expandableControlContainerView.snp.makeConstraints { make in
-            make.height.equalTo(UIConstants.expandableViewHeight)
+            if adaptiveCreate {
+                advancedHeaderHeight = make.height.equalTo(60).constraint
+            } else {
+                make.height.equalTo(UIConstants.expandableViewHeight)
+            }
         }
         expandableControlContainerView.addSubview(expandableControl)
         expandableControl.snp.makeConstraints { make in
@@ -321,73 +417,50 @@ private extension AccountCreateViewLayout {
         contentView.stackView.addArrangedSubview(expandableControlContainerView)
 
         advancedContainerView.addArrangedSubview(substrateCryptoTypeView)
-        substrateCryptoTypeView.snp.makeConstraints { make in
-            make.height.equalTo(UIConstants.actionHeight)
+        if !adaptiveCreate {
+            substrateCryptoTypeView.snp.makeConstraints { $0.height.equalTo(UIConstants.actionHeight) }
         }
 
-        substrateDerivationContainerView.addSubview(substrateDerivationPathField)
-        substrateDerivationPathField.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview().offset(UIConstants.defaultOffset)
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-        }
-        substrateDerivationContainerView.addSubview(substrateDerivationPathImage)
-        substrateDerivationPathImage.snp.makeConstraints { make in
-            make.size.equalTo(Constants.derivationImageSize)
-            make.leading.equalTo(substrateDerivationPathField.snp.trailing).offset(Constants.dervationFieldToImageSpacing)
-            make.centerY.equalToSuperview()
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-        }
-
-        advancedContainerView.addArrangedSubview(substrateDerivationContainerView)
-        substrateDerivationContainerView.snp.makeConstraints { make in
-            make.height.equalTo(UIConstants.actionHeight)
-        }
-
-        advancedContainerView.addArrangedSubview(substrateDerivationPathLabel)
-        substrateDerivationPathLabel.snp.makeConstraints { make in
-            make.height.equalTo(Constants.derivationPathLabelHeight)
-        }
+        setupDerivationField(
+            field: substrateDerivationPathField, caption: substrateDerivationCaption,
+            image: substrateDerivationPathImage, container: substrateDerivationContainerView,
+            example: substrateDerivationPathLabel
+        )
 
         advancedContainerView.addArrangedSubview(ethereumCryptoTypeView)
-        ethereumCryptoTypeView.snp.makeConstraints { make in
-            make.height.equalTo(UIConstants.actionHeight)
+        if !adaptiveCreate {
+            ethereumCryptoTypeView.snp.makeConstraints { $0.height.equalTo(UIConstants.actionHeight) }
         }
 
-        ethereumDerivationContainerView.addSubview(ethereumDerivationPathField)
-        ethereumDerivationPathField.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview().offset(UIConstants.defaultOffset)
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-        }
-        ethereumDerivationContainerView.addSubview(ethereumDerivationPathImage)
-        ethereumDerivationPathImage.snp.makeConstraints { make in
-            make.size.equalTo(Constants.derivationImageSize)
-            make.leading.equalTo(ethereumDerivationPathField.snp.trailing).offset(Constants.dervationFieldToImageSpacing)
-            make.centerY.equalToSuperview()
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-        }
-
-        advancedContainerView.addArrangedSubview(ethereumDerivationContainerView)
-        ethereumDerivationContainerView.snp.makeConstraints { make in
-            make.height.equalTo(UIConstants.actionHeight)
-        }
-
-        advancedContainerView.addArrangedSubview(ethereumDerivationPathLabel)
-        ethereumDerivationPathLabel.snp.makeConstraints { make in
-            make.height.equalTo(Constants.derivationPathLabelHeight)
-        }
+        setupDerivationField(
+            field: ethereumDerivationPathField, caption: ethereumDerivationCaption,
+            image: ethereumDerivationPathImage, container: ethereumDerivationContainerView,
+            example: ethereumDerivationPathLabel
+        )
 
         contentView.stackView.addArrangedSubview(advancedContainerView)
+    }
 
-        addSubview(buttonVStackView)
-        buttonVStackView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            keyboardAdoptableConstraint = make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset).constraint
+    private func setupActionLayout() {
+        if adaptiveCreate {
+            contentView.stackView.addArrangedSubview(buttonVStackView)
+        } else {
+            addSubview(buttonVStackView)
+            buttonVStackView.snp.makeConstraints { make in
+                make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+                make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+                keyboardAdoptableConstraint = make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
+                    .constraint
+            }
         }
 
         buttonVStackView.addArrangedSubview(nextButton)
         nextButton.snp.makeConstraints { make in
-            make.height.equalTo(UIConstants.actionHeight)
+            if adaptiveCreate {
+                make.height.greaterThanOrEqualTo(56)
+            } else {
+                make.height.equalTo(UIConstants.actionHeight)
+            }
             make.leading.trailing.equalToSuperview()
         }
 
@@ -395,12 +468,54 @@ private extension AccountCreateViewLayout {
         case .wallet:
             buttonVStackView.addArrangedSubview(backupButton)
             backupButton.snp.makeConstraints { make in
-                make.height.equalTo(UIConstants.actionHeight)
+                if adaptiveCreate {
+                    make.height.greaterThanOrEqualTo(56)
+                } else {
+                    make.height.equalTo(UIConstants.actionHeight)
+                }
             }
         case .chain:
             backupButton.isHidden = true
         case .backup:
             expandableControl.isHidden = true
+            if adaptiveCreate { expandableControlContainerView.isHidden = true }
+        }
+    }
+
+    private func setupDerivationField(
+        field: UITextField, caption: UILabel, image: UIImageView,
+        container: TriangularedView, example: UILabel
+    ) {
+        if adaptiveCreate {
+            container.addSubview(caption)
+            caption.snp.makeConstraints {
+                $0.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+                $0.top.equalToSuperview().offset(12)
+            }
+        }
+        container.addSubview(field)
+        field.snp.makeConstraints { make in
+            if adaptiveCreate {
+                make.top.equalTo(caption.snp.bottom).offset(8)
+                make.bottom.equalToSuperview().inset(12)
+                make.height.greaterThanOrEqualTo(32)
+            } else {
+                make.top.bottom.equalToSuperview().offset(UIConstants.defaultOffset)
+            }
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+        }
+        container.addSubview(image)
+        image.snp.makeConstraints { make in
+            make.size.equalTo(Constants.derivationImageSize)
+            make.leading.equalTo(field.snp.trailing).offset(Constants.dervationFieldToImageSpacing)
+            if adaptiveCreate { make.centerY.equalTo(field) } else { make.centerY.equalToSuperview() }
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+        }
+        advancedContainerView.addArrangedSubview(container)
+        advancedContainerView.addArrangedSubview(example)
+        if !adaptiveCreate {
+            container.snp.makeConstraints { $0.height.equalTo(UIConstants.actionHeight) }
+            example.snp.makeConstraints { $0.height.equalTo(Constants.derivationPathLabelHeight) }
         }
     }
 
@@ -410,15 +525,29 @@ private extension AccountCreateViewLayout {
 
         switch flow {
         case .wallet, .chain:
+            headingLabel.text = R.string.localizable.accountCreateTitle(preferredLanguages: locale.rLanguages)
             detailsLabel.text = R.string.localizable.accountCreateDetails(preferredLanguages: locale.rLanguages)
             nextButton.imageWithTitleView?.title = R.string.localizable
                 .accountConfirmationTitle(preferredLanguages: locale.rLanguages)
         case .backup:
+            headingLabel.text = R.string.localizable.backupMnemonicTitle(preferredLanguages: locale.rLanguages)
             detailsLabel.text = R.string.localizable.backupMnemonicDescription(preferredLanguages: locale.rLanguages)
             nextButton.imageWithTitleView?.title = R.string.localizable
                 .commonContinue(preferredLanguages: locale.rLanguages)
         }
         backupButton.imageWithTitleView?.title = R.string.localizable
             .btnBackupWithGoogle(preferredLanguages: locale.rLanguages)
+        substrateDerivationCaption.text = R.string.localizable
+            .substrateSecretDerivationPath(preferredLanguages: locale.rLanguages)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        ethereumDerivationCaption.text = R.string.localizable
+            .ethereumSecretDerivationPath(preferredLanguages: locale.rLanguages)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        (ethereumDerivationPathField.inputAccessoryView as? UIToolbar)?.items?.last?.title = R.string.localizable
+            .commonClose(preferredLanguages: locale.rLanguages)
+        if adaptiveCreate {
+            [nextButton, backupButton]
+                .forEach { $0.configureWrappingTitle(locale: locale, compatibleWith: traitCollection) }
+        }
     }
 }

@@ -4,7 +4,9 @@ import SoraKeystore
 import RobinHood
 import SSFUtils
 import SSFModels
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
     static func createView(
@@ -63,14 +65,9 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
         wallet: MetaAccountModel,
         strategy: StakingUnbondSetupStrategy
     ) -> StakingUnbondSetupInteractor? {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
-
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        return StakingUnbondSetupInteractor(
+        StakingUnbondSetupInteractor(
             chainAsset: chainAsset,
             wallet: wallet,
-            priceLocalSubscriber: priceLocalSubscriber,
             strategy: strategy
         )
     }
@@ -112,14 +109,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
         )
 
         let feeProxy = ExtrinsicFeeProxy()
-        let facade = UserDataStorageFacade.shared
-        let mapper = MetaAccountMapper()
-
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -151,7 +141,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 wallet: wallet,
                 chainAsset: chainAsset,
                 connection: connection,
-                accountRepository: AnyDataProviderRepository(accountRepository),
+                accountRepository: accountRepository,
                 output: viewModelState,
                 extrinsicService: extrinsicService,
                 callFactory: callFactory

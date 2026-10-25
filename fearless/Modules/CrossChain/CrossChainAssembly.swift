@@ -5,16 +5,22 @@ import RobinHood
 import SSFXCM
 import SSFNetwork
 import SSFModels
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 final class CrossChainAssembly {
     static func configureModule(
         with chainAsset: ChainAsset,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        reviewedRoute: ReviewedCrossChainRouteContext
     ) -> CrossChainModuleCreationResult? {
+        guard ReviewedXcmExecutionAuthority.isAvailable,
+              reviewedRoute.validates(origin: chainAsset) else {
+            return nil
+        }
         let localizationManager = LocalizationManager.shared
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        let repositoryFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -22,6 +28,7 @@ final class CrossChainAssembly {
         )
 
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
         let operationQueue = OperationQueue()
@@ -32,7 +39,7 @@ final class CrossChainAssembly {
         )
 
         let depsContainer = CrossChainDepsContainer(wallet: wallet)
-        let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
+        let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, SSFAssetManagmentStorage.CDRuntimeMetadataItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 
         let addressChainDefiner = AddressChainDefiner(
@@ -56,10 +63,11 @@ final class CrossChainAssembly {
         }
 
         let interactor = CrossChainInteractor(
+            reviewedRoute: reviewedRoute,
             chainAssetFetching: chainAssetFetching,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-            priceLocalSubscriber: priceLocalSubscriber,
             depsContainer: depsContainer,
+            originFeeEstimator: ReviewedCrossChainOriginFeeEstimator(chainRegistry: chainRegistry),
             runtimeItemRepository: AnyDataProviderRepository(runtimeMetadataRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             logger: Logger.shared,
@@ -74,6 +82,7 @@ final class CrossChainAssembly {
         let viewModelFactory = CrossChainViewModelFactory(iconGenerator: iconGenerator)
         let presenter = CrossChainPresenter(
             originChainAsset: chainAsset,
+            reviewedRoute: reviewedRoute,
             wallet: wallet,
             viewModelFactory: viewModelFactory,
             dataValidatingFactory: dataValidatingFactory,

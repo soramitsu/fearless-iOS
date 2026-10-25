@@ -1,7 +1,9 @@
 import Foundation
 import RobinHood
 import SSFModels
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 import SSFRuntimeCodingService
 
 protocol WalletLocalSubscriptionFactoryProtocol {

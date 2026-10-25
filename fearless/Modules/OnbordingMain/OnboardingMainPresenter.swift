@@ -173,7 +173,7 @@ extension OnboardingMainPresenter: OnboardingMainInteractorOutputProtocol {
     func didReceiveFeatureToggleConfig(result: Result<FeatureToggleConfig, Error>?) {
         switch result {
         case let .success(config):
-            view?.didReceive(preinstalledWalletEnabled: config.pendulumCaseEnabled == true)
+            view?.didReceive(preinstalledWalletEnabled: PreinstalledWalletImportPolicy.isAvailable(remote: config))
         default:
             break
         }

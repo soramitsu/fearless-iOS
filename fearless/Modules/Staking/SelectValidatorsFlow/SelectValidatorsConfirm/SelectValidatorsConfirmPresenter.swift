@@ -8,7 +8,6 @@ final class SelectValidatorsConfirmPresenter {
     let wireframe: SelectValidatorsConfirmWireframeProtocol
     let interactor: SelectValidatorsConfirmInteractorInputProtocol
 
-    private(set) var priceData: PriceData?
     private(set) var balance: Decimal?
 
     let logger: LoggerProtocol?
@@ -16,6 +15,11 @@ final class SelectValidatorsConfirmPresenter {
     let viewModelState: SelectValidatorsConfirmViewModelState
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let chainAsset: ChainAsset
+    let wallet: MetaAccountModel
+
+    private var priceData: PriceData? {
+        chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+    }
 
     init(
         interactor: SelectValidatorsConfirmInteractorInputProtocol,
@@ -24,6 +28,7 @@ final class SelectValidatorsConfirmPresenter {
         viewModelState: SelectValidatorsConfirmViewModelState,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -33,6 +38,7 @@ final class SelectValidatorsConfirmPresenter {
         self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
         self.chainAsset = chainAsset
+        self.wallet = wallet
     }
 
     private func handle(error: Error) {
@@ -138,18 +144,6 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmPresenterProt
 }
 
 extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmInteractorOutputProtocol {
-    func didReceivePrice(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-
-            provideAsset(viewModelState: viewModelState)
-            provideFee(viewModelState: viewModelState)
-        case let .failure(error):
-            handle(error: error)
-        }
-    }
-
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):

@@ -1,9 +1,9 @@
 import Foundation
 import SoraFoundation
 import SSFXCM
+import SSFChainRegistry
 import SSFModels
 import SSFCrypto
-import SoraKeystore
 import SSFUtils
 
 final class CrossChainDepsContainer {
@@ -12,29 +12,48 @@ final class CrossChainDepsContainer {
     }
 
     struct CrossChainConfirmationDeps {
-        let xcmServices: XcmExtrinsicServices
+        let xcmServices: XcmReadOnlyServices
         let destinationExistentialDepositService: ExistentialDepositServiceProtocol?
         let destinationStorageRequestPerformer: StorageRequestPerformer?
     }
 
+    private let cacheLock = NSLock()
     private var cachedDependencies: [String: CrossChainConfirmationDeps] = [:]
     private let wallet: MetaAccountModel
+    private let chainRegistry: ChainRegistryProtocol & SSFChainRegistry.ChainRegistryProtocol
     private lazy var operationQueue: OperationQueue = {
         OperationQueue()
     }()
 
-    init(wallet: MetaAccountModel) {
+    init(
+        wallet: MetaAccountModel,
+        chainRegistry: ChainRegistryProtocol & SSFChainRegistry.ChainRegistryProtocol = ChainRegistryFacade.sharedRegistry
+    ) {
         self.wallet = wallet
+        self.chainRegistry = chainRegistry
     }
 
     // MARK: - Public methods
 
+    /// Building the read-only XCM services starts remote configuration fetches, so the form builds them once per origin
+    /// chain, runtime version and destination and reuses them for every amount it quotes.
     func prepareDepsFor(
         originalChainAsset: ChainAsset,
         originalRuntimeMetadataItem: RuntimeMetadataItemProtocol?,
         destChainModel: ChainModel?
     ) throws -> CrossChainConfirmationDeps {
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let cacheKey = [
+            originalChainAsset.chain.chainId,
+            originalRuntimeMetadataItem.map { "\($0.version).\($0.txVersion)" } ?? "no-runtime",
+            destChainModel?.chainId ?? "no-destination"
+        ].joined(separator: "|")
+
+        cacheLock.lock()
+        defer { cacheLock.unlock() }
+
+        if let cached = cachedDependencies[cacheKey] {
+            return cached
+        }
 
         let xcmServices = try createXcmService(
             wallet: wallet,
@@ -65,6 +84,8 @@ final class CrossChainDepsContainer {
             destinationStorageRequestPerformer: storageRequestPerformer
         )
 
+        // One form serves one route, so only the latest graph is worth keeping.
+        cachedDependencies = [cacheKey: deps]
         return deps
     }
 
@@ -74,57 +95,20 @@ final class CrossChainDepsContainer {
         wallet: MetaAccountModel,
         originalChainAsset: ChainAsset,
         originalRuntimeMetadataItem: RuntimeMetadataItemProtocol?
-    ) throws -> XcmExtrinsicServices {
+    ) throws -> XcmReadOnlyServices {
         let request = originalChainAsset.chain.accountRequest()
         guard let response = wallet.fetch(for: request) else {
             throw DepsError.missingChainResponse
         }
 
-        let cryptoType = response.cryptoType
-        let accountId = response.accountId
-
-        let secretKeyData = try fetchSecretKey(
-            for: originalChainAsset.chain,
-            metaId: wallet.metaId,
-            accountResponse: response
-        )
-
-        let signingWrapperData = XcmAssembly.SigningWrapperData(
-            publicKeyData: response.publicKey,
-            secretKeyData: secretKeyData
-        )
-
-        let fromChainData = XcmAssembly.FromChainData(
+        return XcmAssembly.createReadOnlyServices(
             chainId: originalChainAsset.chain.chainId,
-            cryptoType: cryptoType,
+            cryptoType: response.cryptoType,
             chainMetadata: originalRuntimeMetadataItem,
-            accountId: accountId,
-            signingWrapperData: signingWrapperData,
-            chainType: originalChainAsset.chain.chainBaseType
+            accountId: response.accountId,
+            chainType: originalChainAsset.chain.chainBaseType,
+            sourceConfig: ApplicationConfig.shared,
+            chainRegistry: chainRegistry
         )
-
-        let sourceConfig = ApplicationConfig.shared
-        let services = XcmAssembly.createExtrincisServices(
-            fromChainData: fromChainData,
-            sourceConfig: sourceConfig,
-            chainRegistry: ChainRegistryFacade.sharedRegistry
-        )
-
-        return services
-    }
-
-    private func fetchSecretKey(
-        for chain: ChainModel,
-        metaId: String,
-        accountResponse: ChainAccountResponse
-    ) throws -> Data {
-        let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
-        let tag: String = chain.isEthereumBased
-            ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId)
-            : KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId)
-
-        let keystore = Keychain()
-        let secretKey = try keystore.fetchKey(for: tag)
-        return secretKey
     }
 }

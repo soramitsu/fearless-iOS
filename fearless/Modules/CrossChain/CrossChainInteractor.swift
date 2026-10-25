@@ -11,12 +11,9 @@ protocol CrossChainInteractorOutput: AnyObject {
         accountId: AccountId,
         chainAsset: ChainAsset
     )
-    func didReceivePricesData(
-        result: Result<[PriceData], Error>
-    )
     func didReceiveAvailableDestChainAssets(_ chainAssets: [ChainAsset])
     func didReceiveDestinationFee(result: Result<DestXcmFee, Error>)
-    func didReceiveOriginFee(result: SSFExtrinsicKit.FeeExtrinsicResult)
+    func didReceiveOriginFee(result: Result<BigUInt, Error>)
     func didReceiveOrigin(chainAssets: [ChainAsset])
     func didSetup()
     func didReceiveExistentialDeposit(result: Result<BigUInt, Error>)
@@ -27,22 +24,44 @@ protocol CrossChainInteractorOutput: AnyObject {
     func didReceiveAssetAccountInfoError(error: Error)
 }
 
+enum CrossChainFormError: LocalizedError, Equatable {
+    case destinationAssetUnavailable
+    case destinationExistentialDepositUnavailable
+
+    var errorDescription: String? {
+        switch self {
+        case .destinationAssetUnavailable:
+            return NSLocalizedString(
+                "cross_chain.destination_asset_unavailable",
+                value: "The asset this route delivers is missing from the destination network's current registry, so the transfer cannot be reviewed.",
+                comment: ""
+            )
+        case .destinationExistentialDepositUnavailable:
+            return NSLocalizedString(
+                "cross_chain.destination_minimum_unavailable",
+                value: "The destination network's minimum balance is unavailable. Try again in a moment.",
+                comment: ""
+            )
+        }
+    }
+}
+
 final class CrossChainInteractor {
     // MARK: - Private properties
 
     private weak var output: CrossChainInteractorOutput?
 
+    private let reviewedRoute: ReviewedCrossChainRouteContext
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private let depsContainer: CrossChainDepsContainer
+    private let originFeeEstimator: ReviewedCrossChainOriginFeeEstimating
     private let runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>
     private let operationQueue: OperationQueue
     private let logger: LoggerProtocol
     private let wallet: MetaAccountModel
     private let addressChainDefiner: AddressChainDefiner
     private let existentialDepositService: ExistentialDepositServiceProtocol
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private var destinationChain: ChainModel?
     private var originalChainAsset: ChainAsset?
     private let storageRequestPerformer: StorageRequestPerformer?
@@ -64,10 +83,11 @@ final class CrossChainInteractor {
     }
 
     init(
+        reviewedRoute: ReviewedCrossChainRouteContext,
         chainAssetFetching: ChainAssetFetchingProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         depsContainer: CrossChainDepsContainer,
+        originFeeEstimator: ReviewedCrossChainOriginFeeEstimating,
         runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>,
         operationQueue: OperationQueue,
         logger: LoggerProtocol,
@@ -76,10 +96,11 @@ final class CrossChainInteractor {
         existentialDepositService: ExistentialDepositServiceProtocol,
         storageRequestPerformer: StorageRequestPerformer?
     ) {
+        self.reviewedRoute = reviewedRoute
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.depsContainer = depsContainer
+        self.originFeeEstimator = originFeeEstimator
         self.runtimeItemRepository = runtimeItemRepository
         self.operationQueue = operationQueue
         self.logger = logger
@@ -107,6 +128,8 @@ final class CrossChainInteractor {
         operationQueue.addOperation(runtimeItemsOperation)
     }
 
+    /// The container builds the read-only XCM services once per origin chain, runtime and destination and returns the
+    /// same instance afterwards, so calling this on every amount change costs a dictionary lookup.
     private func refreshDeps(originalChainAsset: ChainAsset?) throws {
         guard let originalChainAsset else {
             return
@@ -130,65 +153,31 @@ final class CrossChainInteractor {
         )
     }
 
-    private func fetchPrices(for chainAssets: [ChainAsset]) {
-        guard chainAssets.isNotEmpty else {
-            output?.didReceivePricesData(result: .success([]))
-            return
+    /// Destinations and selectable origin assets come from the reviewed definition. SSFXCM's discovery matches by
+    /// symbol and would also list directions the registry does not review.
+    private func provideReviewedChainAssets(for chainAsset: ChainAsset) {
+        let originChainAssets = chainAsset.chain.chainAssets.filter { reviewedRoute.validates(origin: $0) }
+
+        chainAssetFetching.fetch(
+            shouldUseCache: true,
+            filters: [.chainIds(Array(reviewedRoute.destinationChainIds))],
+            sortDescriptors: []
+        ) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case let .success(destinationChainAssets):
+                    self?.output?.didReceiveAvailableDestChainAssets(destinationChainAssets)
+                default:
+                    self?.output?.didReceiveAvailableDestChainAssets([])
+                }
+                self?.output?.didReceiveOrigin(chainAssets: originChainAssets)
+            }
         }
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 
-    private func getAvailableDestChainAssets(for chainAsset: ChainAsset) {
-        Task {
-            do {
-                try refreshDeps(originalChainAsset: chainAsset)
-
-                let availableChainIds = try await deps?.xcmServices
-                    .availableDestionationFetching
-                    .getAvailableDestinationChains(
-                        originalChainId: chainAsset.chain.chainId,
-                        assetSymbol: chainAsset.asset.symbol
-                    ) ?? []
-
-                let availableOriginAsset = try await deps?.xcmServices
-                    .availableDestionationFetching
-                    .getAvailableAssets(
-                        originalChainId: chainAsset.chain.chainId,
-                        destinationChainId: nil
-                    )
-                    .map { $0.lowercased() }
-
-                let availableChainAssets = chainAsset.chain
-                    .chainAssets
-                    .filter {
-                        let symbol = $0.asset.symbol.lowercased()
-                        if availableOriginAsset?.contains(symbol) == true {
-                            return true
-                        } else if symbol.hasPrefix("xc") {
-                            let modifySymbol = String(symbol.dropFirst(2))
-                            return availableOriginAsset?.contains(modifySymbol) == true
-                        }
-                        return false
-                    }
-
-                chainAssetFetching.fetch(
-                    shouldUseCache: true,
-                    filters: [.chainIds(availableChainIds)],
-                    sortDescriptors: []
-                ) { result in
-                    DispatchQueue.main.async {
-                        switch result {
-                        case let .success(availableChainAssets):
-                            self.output?.didReceiveAvailableDestChainAssets(availableChainAssets)
-                        default:
-                            self.output?.didReceiveAvailableDestChainAssets([])
-                        }
-                        self.output?.didReceiveOrigin(chainAssets: availableChainAssets)
-                    }
-                }
-            } catch {
-                logger.customError(error)
-            }
+    private func reviewedDestinationChainAsset(in destinationChain: ChainModel) -> ChainAsset? {
+        ReviewedXcmRouteRegistry.definition(for: reviewedRoute).flatMap {
+            ReviewedXcmRouteRegistry.destinationChainAsset(for: $0, in: destinationChain)
         }
     }
 
@@ -237,41 +226,47 @@ extension CrossChainInteractor: CrossChainInteractorInput {
     func estimateFee(originChainAsset: ChainAsset, destinationChainModel: ChainModel, amount: Decimal?) {
         let unwrappedAmount = amount.or(0)
         let inputAmount = (unwrappedAmount > 0) ? unwrappedAmount : 1
-        let substrateAmout = inputAmount.toSubstrateAmount(precision: Int16(originChainAsset.asset.precision)) ?? BigUInt.zero
+        let substrateAmount = inputAmount.toSubstrateAmount(precision: Int16(originChainAsset.asset.precision)) ?? BigUInt(1)
 
         try? refreshDeps(originalChainAsset: originChainAsset)
+        let destinationFeeFetcher = deps?.xcmServices.destinationFeeFetcher
+        let definition = ReviewedXcmRouteRegistry.definition(for: reviewedRoute)
 
-        guard let destAccountId = wallet.fetch(for: destinationChainModel.accountRequest())?.accountId else {
-            return
-        }
-        Task {
-            guard let originalFee = await deps?.xcmServices.extrinsic.estimateOriginalFee(
-                fromChainId: originChainAsset.chain.chainId,
-                assetSymbol: originChainAsset.asset.symbolUppercased,
-                destChainId: destinationChainModel.chainId,
-                destAccountId: destAccountId,
-                amount: substrateAmout
-            ) else {
-                return
+        // Every request ends in a callback, so the form never waits forever on a quote that failed.
+        Task { [weak self] in
+            guard let self else { return }
+            let result: Result<BigUInt, Error>
+            if let definition, reviewedRoute.validates(origin: originChainAsset) {
+                do {
+                    let fee = try await originFeeEstimator.estimateOriginFee(
+                        definition: definition,
+                        wallet: wallet,
+                        amount: substrateAmount
+                    )
+                    result = .success(fee)
+                } catch {
+                    result = .failure(error)
+                }
+            } else {
+                result = .failure(ReviewedCrossChainSubmissionError.unreviewedRoute)
             }
-
-            DispatchQueue.main.async { [weak self] in
-                self?.output?.didReceiveOriginFee(result: originalFee)
+            await MainActor.run {
+                self.output?.didReceiveOriginFee(result: result)
             }
         }
-        Task {
-            guard let destinationFee = await deps?
-                .xcmServices
-                .destinationFeeFetcher
-                .estimateFee(
+        Task { [weak self] in
+            guard let self else { return }
+            let result: Result<DestXcmFee, Error>
+            if let destinationFeeFetcher {
+                result = await destinationFeeFetcher.estimateFee(
                     destinationChainId: destinationChainModel.chainId,
                     token: originChainAsset.asset.symbolUppercased
                 )
-            else {
-                return
+            } else {
+                result = .failure(ReviewedCrossChainSubmissionError.destinationFeeUnavailable)
             }
-            DispatchQueue.main.async { [weak self] in
-                self?.output?.didReceiveDestinationFee(result: destinationFee)
+            await MainActor.run {
+                self.output?.didReceiveDestinationFee(result: result)
             }
         }
     }
@@ -285,12 +280,11 @@ extension CrossChainInteractor: CrossChainInteractorInput {
         originalChainAsset = originChainAsset
         let originalUtilityChainAsset = originChainAsset?.chain.utilityChainAssets().first
         let chainAssets: [ChainAsset] = [originalUtilityChainAsset, originChainAsset].compactMap { $0 }
-        fetchPrices(for: chainAssets)
         subscribeToAccountInfo(for: chainAssets)
         guard let originChainAsset = originChainAsset else {
             return
         }
-        getAvailableDestChainAssets(for: originChainAsset)
+        provideReviewedChainAssets(for: originChainAsset)
         guard let edChainAsset = originalUtilityChainAsset else {
             return
         }
@@ -306,36 +300,56 @@ extension CrossChainInteractor: CrossChainInteractorInput {
         self.destinationChain = destinationChain
         try? refreshDeps(originalChainAsset: originalChainAsset)
 
+        // The recipient receives the asset the reviewed definition names on the destination chain. Its catalog ID
+        // differs from the origin's, so it is never looked up by the origin asset ID or by symbol.
         guard
-            let originalChainAsset,
-            let asset = destinationChain.assets.first(where: { $0.normalizedSymbol().lowercased() == originalChainAsset.asset.normalizedSymbol().lowercased() })
+            let destinationAsset = ReviewedXcmRouteRegistry.definition(for: reviewedRoute)?.execution.destinationAsset,
+            let destinationChainAsset = reviewedDestinationChainAsset(in: destinationChain)
         else {
+            DispatchQueue.main.async { [weak self] in
+                self?.output?.didReceiveDestinationExistentialDeposit(
+                    result: .failure(CrossChainFormError.destinationAssetUnavailable)
+                )
+            }
             return
         }
 
-        let chainAsset = ChainAsset(chain: destinationChain, asset: asset)
-
-        deps?.destinationExistentialDepositService?.fetchExistentialDeposit(chainAsset: chainAsset, completion: { [weak self] result in
-            DispatchQueue.main.async {
-                self?.output?.didReceiveDestinationExistentialDeposit(result: result)
+        switch destinationAsset.existentialDeposit {
+        case .none:
+            DispatchQueue.main.async { [weak self] in
+                self?.output?.didReceiveDestinationExistentialDeposit(result: .success(.zero))
             }
-        })
+        case .balancesConstant:
+            guard let existentialDepositService = deps?.destinationExistentialDepositService else {
+                DispatchQueue.main.async { [weak self] in
+                    self?.output?.didReceiveDestinationExistentialDeposit(
+                        result: .failure(CrossChainFormError.destinationExistentialDepositUnavailable)
+                    )
+                }
+                return
+            }
+            existentialDepositService.fetchExistentialDeposit(chainAsset: destinationChainAsset) { [weak self] result in
+                DispatchQueue.main.async {
+                    self?.output?.didReceiveDestinationExistentialDeposit(result: result)
+                }
+            }
+        }
     }
 
     func fetchDestinationAccountInfo(address: String) {
-        guard
-            let destinationChain,
-            let originalChainAsset,
-            let asset = destinationChain.assets.first(where: { $0.normalizedSymbol().lowercased() == originalChainAsset.asset.normalizedSymbol().lowercased() }),
-            address.isNotEmpty
-        else {
+        guard let destinationChain, address.isNotEmpty else {
+            return
+        }
+        guard let chainAsset = reviewedDestinationChainAsset(in: destinationChain) else {
+            DispatchQueue.main.async { [weak self] in
+                self?.output?.didReceiveDestinationAccountInfoError(error: CrossChainFormError.destinationAssetUnavailable)
+            }
             return
         }
 
         Task {
             do {
                 let accountId = try AddressFactory.accountId(from: address, chain: destinationChain)
-                let chainAsset = ChainAsset(chain: destinationChain, asset: asset)
                 let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
                 let request = SystemAccountRequest(accountId: accountIdVariant, chainAsset: chainAsset)
                 let accountInfo: AccountInfo? = try await deps?.destinationStorageRequestPerformer?.performSingle(request)
@@ -365,13 +379,5 @@ extension CrossChainInteractor: AccountInfoSubscriptionAdapterHandler {
             accountId: accountId,
             chainAsset: chainAsset
         )
-    }
-}
-
-// MARK: - PriceLocalStorageSubscriber
-
-extension CrossChainInteractor: PriceLocalSubscriptionHandler {
-    func handlePrices(result: Result<[PriceData], Error>) {
-        output?.didReceivePricesData(result: result)
     }
 }

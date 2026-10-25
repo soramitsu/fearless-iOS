@@ -106,7 +106,9 @@ final class StakingAccountResolverV13: BaseStakingAccountResolver {
         ledgerDecoding?.addDependency(codingFactory)
 
         let mapOperation = ClosureOperation<DecodedChanges> {
-            let controller = (try controllerDecoding?.extractNoCancellableResultData()).map { Data(hex: $0) }
+            let controller = (try controllerDecoding?.extractNoCancellableResultData()).map {
+                (try? Data(hexStringSSF: $0)) ?? Data()
+            }
             let ledger = try ledgerDecoding?.extractNoCancellableResultData()
 
             return DecodedChanges(controller: controller, ledger: ledger)

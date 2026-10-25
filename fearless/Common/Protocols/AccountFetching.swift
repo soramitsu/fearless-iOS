@@ -73,7 +73,16 @@ extension AccountFetching {
             return true
         }
 
+        guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) else {
+            closure(.failure(ChainAccountFetchingError.accountNotExists))
+            return false
+        }
+
         for chainAccount in meta.chainAccounts {
+            guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(chainAccount.chainId) else {
+                continue
+            }
+
             let chainFormat: ChainFormat = chainAccount.ethereumBased ? .ethereum : .substrate(chain.addressPrefix)
             if let chainAddress = try? chainAccount.accountId.toAddress(using: chainFormat),
                chainAddress == address {
@@ -82,7 +91,7 @@ extension AccountFetching {
                     accountId: chainAccount.accountId,
                     publicKey: chainAccount.publicKey,
                     name: meta.name,
-                    cryptoType: CryptoType(rawValue: meta.substrateCryptoType) ?? .sr25519,
+                    cryptoType: CryptoType(rawValue: chainAccount.cryptoType) ?? .sr25519,
                     addressPrefix: chain.addressPrefix,
                     isEthereumBased: chainAccount.ethereumBased,
                     isChainAccount: true,
@@ -155,15 +164,29 @@ extension AccountFetching {
                             responses.append(nativeChainAccount)
                         }
 
+                        guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) else {
+                            continue
+                        }
+
                         for chainAccount in meta.chainAccounts {
+                            // A 20-byte Ethereum account has no address on a Substrate chain,
+                            // and a Substrate account has none on an Ethereum chain.
+                            guard
+                                chainAccount.chainId != chain.chainId,
+                                chainAccount.ethereumBased == chain.isEthereumBased,
+                                !UniversalWalletChainAccountSupport.isUniversalWalletChain(chainAccount.chainId)
+                            else {
+                                continue
+                            }
+
                             responses.append(ChainAccountResponse(
                                 chainId: chain.chainId,
                                 accountId: chainAccount.accountId,
                                 publicKey: chainAccount.publicKey,
                                 name: meta.name,
-                                cryptoType: CryptoType(rawValue: meta.substrateCryptoType) ?? .sr25519,
+                                cryptoType: CryptoType(rawValue: chainAccount.cryptoType) ?? .sr25519,
                                 addressPrefix: chain.addressPrefix,
-                                isEthereumBased: false,
+                                isEthereumBased: chainAccount.ethereumBased,
                                 isChainAccount: true,
                                 walletId: meta.metaId
                             ))
@@ -203,7 +226,15 @@ extension AccountFetching {
                             return
                         }
 
+                        guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) else {
+                            continue
+                        }
+
                         for chainAccount in meta.chainAccounts {
+                            guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(chainAccount.chainId) else {
+                                continue
+                            }
+
                             let chainFormat: ChainFormat = chainAccount.ethereumBased ? .ethereum : .substrate(chain.addressPrefix)
                             if let chainAddress = try? chainAccount.accountId.toAddress(using: chainFormat),
                                chainAddress == address {
@@ -211,9 +242,10 @@ extension AccountFetching {
                                 return
                             }
                         }
-                        closure(.failure(ChainAccountFetchingError.accountNotExists))
-                        return
                     }
+
+                    closure(.failure(ChainAccountFetchingError.accountNotExists))
+                    return
                 } else {
                     closure(.failure(BaseOperationError.parentOperationCancelled))
                     return

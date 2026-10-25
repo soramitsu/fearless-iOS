@@ -1,0 +1,4 @@
+[toolchain]
+channel = "1.97.1"
+profile = "minimal"
+targets = ["aarch64-apple-ios", "aarch64-apple-ios-sim", "x86_64-apple-ios"]

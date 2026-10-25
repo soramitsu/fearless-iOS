@@ -2,6 +2,30 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>FWRestyleReceivePresentation</key>
+	<string>$(FW_RESTYLE_RECEIVE_PRESENTATION)</string>
+	<key>FWRestyleSendPresentation</key>
+	<string>$(FW_RESTYLE_SEND_PRESENTATION)</string>
+	<key>FWRestyleAssetManagement</key>
+	<string>$(FW_RESTYLE_ASSET_MANAGEMENT)</string>
+	<key>FWRestylePortfolioList</key>
+	<string>$(FW_RESTYLE_PORTFOLIO_LIST)</string>
+	<key>FWRestyleWalletHeader</key>
+	<string>$(FW_RESTYLE_WALLET_HEADER)</string>
+	<key>FWRestyleStartupRecovery</key>
+	<string>$(FW_RESTYLE_STARTUP_RECOVERY)</string>
+	<key>FWRestyleExportGeneric</key>
+	<string>$(FW_RESTYLE_EXPORT_GENERIC)</string>
+	<key>FWRestyleAccountExportPassword</key>
+	<string>$(FW_RESTYLE_ACCOUNT_EXPORT_PASSWORD)</string>
+	<key>FWRestyleAccountConfirm</key>
+	<string>$(FW_RESTYLE_ACCOUNT_CONFIRM)</string>
+	<key>FWRestyleAccountCreate</key>
+	<string>$(FW_RESTYLE_ACCOUNT_CREATE)</string>
+	<key>FWRestyleWalletEntry</key>
+	<string>$(FW_RESTYLE_WALLET_ENTRY)</string>
+	<key>FWRestyleWelcome</key>
+	<string>$(FW_RESTYLE_WELCOME)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -49,11 +73,41 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>fearless</string>
+				<string>tc</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleURLName</key>
+			<string>jp.co.soramitsu.fearlesswallet.irohaconnect</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>irohaconnect</string>
+				<string>iroha</string>
 			</array>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>FearlessBitcoinBrandContract</key>
+	<string>bitcoinorg-bundled-f7931a-v1</string>
+	<key>FearlessBitcoinServiceContract</key>
+	<string>mempool-space-public-esplora-v1</string>
+	<key>FearlessBitcoinSupportContract</key>
+	<string>bip84-mainnet-v1</string>
+	<key>FearlessBuildConfiguration</key>
+	<string>$(CONFIGURATION)</string>
+	<key>FearlessEnableTestability</key>
+	<string>$(ENABLE_TESTABILITY)</string>
+	<key>FearlessGitCommit</key>
+	<string>$(FEARLESS_GIT_COMMIT)</string>
+	<key>FearlessSwiftOptimizationLevel</key>
+	<string>$(SWIFT_OPTIMIZATION_LEVEL)</string>
+	<key>FearlessTairaTestnetSupportContract</key>
+	<string>iroha3-taira-sora-org-torii-xor-universal-unconstrained-p28-optimizations-d8544f1d-read-only-v2</string>
+	<key>FearlessUniversalWalletSecretContract</key>
+	<string>bip39-root-or-confirmed-raw-seed-v2</string>
 	<key>GIDClientID</key>
 	<string></string>
 	<key>ITSAppUsesNonExemptEncryption</key>
@@ -65,14 +119,33 @@
 	<key>NSCameraUsageDescription</key>
 	<string>This App needs Camera Permission to scan QR code</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>This app require the access to Microphone to pass KYC</string>
+	<string>Fearless Wallet does not use the microphone.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>sora-Bold.otf</string>
 		<string>sora-ExtraBold.otf</string>
 		<string>sora-Regular.otf</string>
 		<string>sora-SemiBold.otf</string>
+		<string>JetBrainsMono-Regular.ttf</string>
+		<string>JetBrainsMono-Medium.ttf</string>
 	</array>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneConfigurationName</key>
+					<string>Default Configuration</string>
+					<key>UISceneDelegateClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

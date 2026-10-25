@@ -41,6 +41,31 @@ class DetailsTriangularedView: BackgroundedContentControl, ShimmeredProtocol {
 
     private var lazyIconView: UIImageView?
     private var lazyActionView: UIImageView?
+    private var wrappingHeight: NSLayoutConstraint?
+    private var wrappingSubtitleLines = 0
+    private var wrappingAction = false
+
+    /// Opt in the export presentation rows without changing other detail controls.
+    func configureWrapping(
+        locale: Locale, compatibleWith traits: UITraitCollection,
+        subtitleLines: Int? = nil, reservesAction: Bool = false
+    ) {
+        wrappingAction = reservesAction
+        if wrappingHeight == nil {
+            NSLayoutConstraint.deactivate(constraints.filter {
+                $0.firstItem === self && $0.firstAttribute == .height && $0.secondItem == nil
+            })
+            wrappingHeight = heightAnchor.constraint(equalToConstant: 56)
+            wrappingHeight?.isActive = true
+        }
+        titleLabel.numberOfLines = 0
+        titleLabel.font = .fw(.bodyS, locale: locale, compatibleWith: traits)
+        if let subtitleLines = subtitleLines { wrappingSubtitleLines = subtitleLines }
+        subtitleLabel?.numberOfLines = wrappingSubtitleLines
+        subtitleLabel?.lineBreakMode = wrappingSubtitleLines == 1 ? .byTruncatingMiddle : .byWordWrapping
+        subtitleLabel?.font = .fw(.bodyL, locale: locale, compatibleWith: traits)
+        setNeedsLayout()
+    }
 
     var horizontalSpacing: CGFloat = UIConstants.defaultOffset {
         didSet {
@@ -93,6 +118,11 @@ class DetailsTriangularedView: BackgroundedContentControl, ShimmeredProtocol {
 
         contentView?.frame = bounds
 
+        if wrappingHeight != nil {
+            layoutWrappingContent()
+            return
+        }
+
         if let actionView = lazyActionView {
             actionView.frame = CGRect(
                 x: bounds.maxX - bounds.height,
@@ -121,6 +151,33 @@ class DetailsTriangularedView: BackgroundedContentControl, ShimmeredProtocol {
     }
 
     // MARK: - Public methods
+
+    private func layoutWrappingContent() {
+        let iconWidth: CGFloat = lazyIconView == nil ? 0 : LayoutConstants.iconSize + horizontalSpacing
+        let labelX = contentInsets.left + iconWidth
+        let actionWidth: CGFloat = wrappingAction && lazyActionView?.isHidden == false ? 36 : 0
+        let width = max(1, bounds.width - labelX - contentInsets.right - actionWidth)
+        let titleHeight = ceil(titleLabel.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude)).height)
+        let subtitleHeight = ceil(
+            subtitleLabel?.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
+                .height ?? 0
+        )
+        titleLabel.frame = CGRect(x: labelX, y: contentInsets.top, width: width, height: titleHeight)
+        subtitleLabel?.frame = CGRect(x: labelX, y: titleLabel.frame.maxY + 8, width: width, height: subtitleHeight)
+        lazyIconView?.frame = CGRect(
+            x: contentInsets.left,
+            y: contentInsets.top,
+            width: LayoutConstants.iconSize,
+            height: LayoutConstants.iconSize
+        )
+        if wrappingAction, let action = lazyActionView {
+            action.frame = CGRect(
+                x: bounds.width - contentInsets.right - 24, y: max(0, (bounds.height - 24) / 2), width: 24, height: 24
+            )
+        }
+        let height = max(56, contentInsets.top + titleHeight + 8 + subtitleHeight + contentInsets.bottom)
+        if wrappingHeight?.constant != height { wrappingHeight?.constant = height }
+    }
 
     func setupCopiable(for label: DetailsTriangularedView.Copiable) {
         actionView.image = R.image.iconCopy()
@@ -265,7 +322,8 @@ class DetailsTriangularedView: BackgroundedContentControl, ShimmeredProtocol {
         subtitleLabel.frame = subtitleRect
 
         if let iconView = lazyIconView {
-            let iconViewY = iconShouldCenterVertically ? (bounds.midY - LayoutConstants.iconSize / 2) : UIConstants.defaultOffset
+            let iconViewY = iconShouldCenterVertically ? (bounds.midY - LayoutConstants.iconSize / 2) : UIConstants
+                .defaultOffset
             iconView.frame = CGRect(
                 x: bounds.minX + contentInsets.left,
                 y: iconViewY,
@@ -331,7 +389,8 @@ class DetailsTriangularedView: BackgroundedContentControl, ShimmeredProtocol {
         }
 
         let titleInsets: UIEdgeInsets = additionalInfoView?.titleEdgeInsets ?? .zero
-        let additionalWidth = (additionalInfoView?.intrinsicContentSize.width ?? 0.0) + titleInsets.left + titleInsets.right
+        let additionalWidth = (additionalInfoView?.intrinsicContentSize.width ?? 0.0) + titleInsets.left + titleInsets
+            .right
         additionalInfoView?.frame = CGRect(
             x: titleLabel.frame.origin.x + titleLabel.frame.size.width + UIConstants.defaultOffset,
             y: bounds.minY + contentInsets.top,

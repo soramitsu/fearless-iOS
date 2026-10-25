@@ -11,6 +11,7 @@ struct ChainAccountResponse: Equatable {
     let isEthereumBased: Bool
     let isChainAccount: Bool
     let walletId: String
+    var legacyTonAddress: String?
 }
 
 enum ChainAccountFetchingError: Error {
@@ -19,25 +20,90 @@ enum ChainAccountFetchingError: Error {
 
 extension ChainAccountResponse {
     func toDisplayAddress() throws -> DisplayAddress {
-        let chainFormat: ChainFormat = isEthereumBased ? .ethereum : .substrate(addressPrefix)
-        let address = try accountId.toAddress(using: chainFormat)
+        let address = try displayAddress()
 
         return DisplayAddress(address: address, username: name)
     }
 
     func toAddress() -> AccountAddress? {
-        let chainFormat: ChainFormat = isEthereumBased ? .ethereum : .substrate(addressPrefix)
-        return try? accountId.toAddress(using: chainFormat)
+        try? displayAddress()
     }
 
     func chainFormat() -> ChainFormat {
         isEthereumBased ? .ethereum : .substrate(addressPrefix)
     }
+
+    private func displayAddress() throws -> AccountAddress {
+        if let legacyTonAddress { return legacyTonAddress }
+        if UniversalWalletChainAccountSupport.isUniversalWalletChain(chainId) {
+            guard let address = UniversalWalletChainAccountSupport.address(for: chainId, publicKey: publicKey) else {
+                throw ChainAccountFetchingError.accountNotExists
+            }
+
+            return address
+        }
+
+        let chainFormat: ChainFormat = isEthereumBased ? .ethereum : .substrate(addressPrefix)
+        return try accountId.toAddress(using: chainFormat)
+    }
 }
 
 extension MetaAccountModel {
+    /// The response a stored per-chain account of this wallet gives on its own chain,
+    /// whether or not it is the account in use there.
+    func response(
+        for chainAccount: ChainAccountModel,
+        request: ChainAccountRequest
+    ) -> ChainAccountResponse? {
+        guard
+            UniversalWalletChainAccountSupport.chainId(chainAccount.chainId, matches: request.chainId),
+            chainAccount.ethereumBased == request.isEthereumBased,
+            let cryptoType = CryptoType(rawValue: chainAccount.cryptoType)
+        else {
+            return nil
+        }
+
+        return ChainAccountResponse(
+            chainId: request.chainId,
+            accountId: chainAccount.accountId,
+            publicKey: chainAccount.publicKey,
+            name: name,
+            cryptoType: cryptoType,
+            addressPrefix: request.addressPrefix,
+            isEthereumBased: request.isEthereumBased,
+            isChainAccount: true,
+            walletId: metaId
+        )
+    }
+
     func fetch(for request: ChainAccountRequest) -> ChainAccountResponse? {
-        if let chainAccount = chainAccounts.first(where: { $0.chainId == request.chainId }) {
+        if UniversalWalletChainAccountSupport.chainId(request.chainId, matches: TonChainSelection.mainnetChainId),
+           let legacyTonAccount {
+            return ChainAccountResponse(
+                chainId: request.chainId, accountId: legacyTonAccount.serializedAddress,
+                publicKey: legacyTonAccount.publicKey, name: name, cryptoType: .ed25519,
+                addressPrefix: request.addressPrefix, isEthereumBased: false,
+                isChainAccount: false, walletId: metaId, legacyTonAddress: legacyTonAccount.address
+            )
+        }
+        if let chainAccount = chainAccounts.first(where: {
+            guard UniversalWalletChainAccountSupport.chainId(
+                $0.chainId,
+                matches: request.chainId
+            ) else {
+                return false
+            }
+            if UniversalWalletChainAccountSupport.chainId(
+                request.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            ) {
+                return UniversalWalletChainAccountSupport.isValidTairaAccount($0)
+            }
+            if UniversalWalletRegistry.solanaNetwork(for: request.chainId) != nil {
+                return UniversalWalletChainAccountSupport.isValidSolanaAccount($0, chainId: request.chainId)
+            }
+            return true
+        }) {
             guard let cryptoType = CryptoType(rawValue: chainAccount.cryptoType) else {
                 return nil
             }
@@ -53,6 +119,10 @@ extension MetaAccountModel {
                 isChainAccount: true,
                 walletId: metaId
             )
+        }
+
+        guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(request.chainId) else {
+            return nil
         }
 
         if request.isEthereumBased {
@@ -73,7 +143,8 @@ extension MetaAccountModel {
             )
         }
 
-        guard let cryptoType = CryptoType(rawValue: substrateCryptoType) else {
+        guard let substrateAccountId, let substratePublicKey,
+              let cryptoType = CryptoType(rawValue: substrateCryptoType) else {
             return nil
         }
 

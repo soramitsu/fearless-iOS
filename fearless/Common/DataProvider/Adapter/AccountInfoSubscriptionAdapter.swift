@@ -80,6 +80,7 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
     }()
 
     private var deliveryQueue: DispatchQueue?
+    private var deliveryGeneration = UUID()
     private let lock = ReaderWriterLock()
 
     // MARK: - Constructor
@@ -95,11 +96,18 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
     // MARK: - Public methods
 
     func reset() {
-        subscriptions.values.forEach { subscription in
-            subscription.removeObserver(wrapper)
+        lock.exclusivelyWrite { [self] in
+            deliveryGeneration = UUID()
+            subscriptions.values.forEach { subscription in
+                subscription.removeObserver(wrapper)
+            }
+            subscriptions = [:]
+            // Provider callbacks retain the old wrapper weakly. Disconnect it so
+            // a delayed callback cannot be rebound to a later subscription.
+            wrapper.walletLocalSubscriptionHandler = nil
+            wrapper = AccountInfoSubscriptionProviderWrapper(factory: walletLocalSubscriptionFactory, handler: self)
+            handler = nil
         }
-
-        subscriptions = [:]
     }
 
     func update(wallet: MetaAccountModel) {
@@ -126,11 +134,10 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
         deliveryOn queue: DispatchQueue?,
         notifyJustWhenUpdated: Bool
     ) {
-        self.handler = handler
-        deliveryQueue = queue
-
         lock.exclusivelyWrite { [weak self] in
             guard let strongSelf = self else { return }
+            strongSelf.handler = handler
+            strongSelf.deliveryQueue = queue
 
             strongSelf.subscriptions[chainAsset.chainAssetId]?.removeObserver(strongSelf.wrapper)
             strongSelf.subscriptions[chainAsset.chainAssetId] = nil
@@ -182,8 +189,12 @@ extension AccountInfoSubscriptionAdapter: WalletLocalStorageSubscriber, WalletLo
         accountId: AccountId,
         chainAsset: ChainAsset
     ) {
-        deliveryQueue?.async {
-            self.handler?.handleAccountInfo(
+        let (target, queue, generation) = lock.concurrentlyRead {
+            (handler, deliveryQueue, deliveryGeneration)
+        }
+        queue?.async { [weak self, weak target] in
+            guard let self, self.lock.concurrentlyRead({ self.deliveryGeneration == generation }) else { return }
+            target?.handleAccountInfo(
                 result: result,
                 accountId: accountId,
                 chainAsset: chainAsset

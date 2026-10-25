@@ -5,6 +5,7 @@ import SSFModels
 protocol AccountExportPasswordViewProtocol: ControllerBackedProtocol {
     func setPasswordInputViewModel(_ viewModel: InputViewModelProtocol)
     func setPasswordConfirmationViewModel(_ viewModel: InputViewModelProtocol)
+    func setExporting(_ exporting: Bool)
     func set(error: AccountExportPasswordError)
 }
 
@@ -12,6 +13,10 @@ protocol AccountExportPasswordPresenterProtocol: AnyObject {
     var flow: ExportFlow { get }
 
     func setup()
+    func didAppearView()
+    func willLeaveView()
+    func didCancelLeavingView()
+    func didLeaveView()
     func proceed()
 }
 
@@ -42,4 +47,23 @@ protocol AccountExportPasswordWireframeProtocol: ErrorPresentable, SheetAlertPre
 
 protocol AccountExportPasswordViewFactoryProtocol: AnyObject {
     static func createView(flow: ExportFlow) -> AccountExportPasswordViewProtocol?
+}
+
+extension AccountExportPasswordViewProtocol {
+    func setExporting(_: Bool) {}
+}
+
+extension AccountExportPasswordPresenterProtocol {
+    func didFinishLeavingView(cancelled: Bool) {
+        if cancelled {
+            didCancelLeavingView()
+        } else {
+            didLeaveView()
+        }
+    }
+
+    func didAppearView() {}
+    func willLeaveView() {}
+    func didCancelLeavingView() {}
+    func didLeaveView() {}
 }

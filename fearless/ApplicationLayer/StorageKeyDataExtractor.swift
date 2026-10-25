@@ -6,10 +6,6 @@ import SSFModels
 final class StorageKeyDataExtractor {
     private let runtimeService: RuntimeCodingServiceProtocol
 
-    private lazy var storageKeyFactory = {
-        StorageKeyFactory()
-    }()
-
     init(runtimeService: RuntimeCodingServiceProtocol) {
         self.runtimeService = runtimeService
     }

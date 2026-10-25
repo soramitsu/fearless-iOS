@@ -56,9 +56,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        guard
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             return nil
         }
 

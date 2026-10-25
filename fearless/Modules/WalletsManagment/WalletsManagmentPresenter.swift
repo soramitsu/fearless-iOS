@@ -18,6 +18,7 @@ final class WalletsManagmentPresenter {
     private var balances: [MetaAccountId: WalletBalanceInfo] = [:]
 
     private var featureToggleConfig = FeatureToggleConfig.defaultConfig
+    private var walletRecordsReport = StoredWalletRecordsReport.empty
 
     // MARK: - Constructors
 
@@ -54,6 +55,16 @@ final class WalletsManagmentPresenter {
         DispatchQueue.main.async { [weak self] in
             self?.view?.didReceiveViewModels(viewModels)
         }
+    }
+
+    private func provideRecordsNotice() {
+        view?.didReceiveRecordsNotice(
+            StoredWalletRecordsNoticeText.summary(
+                wallets: walletRecordsReport.unavailableWalletCount,
+                chainAccounts: walletRecordsReport.unusableChainAccountCount,
+                locale: selectedLocale
+            )
+        )
     }
 
     private func showImport() {
@@ -127,7 +138,7 @@ final class WalletsManagmentPresenter {
         )
 
         var actions = [mnemonicAction, rawAction, jsonAction, googleAction]
-        if featureToggleConfig.pendulumCaseEnabled == true {
+        if PreinstalledWalletImportPolicy.isAvailable(remote: featureToggleConfig) {
             actions.append(preinstalledAction)
         }
         actions.append(cancelAction)
@@ -182,6 +193,46 @@ extension WalletsManagmentPresenter: WalletsManagmentViewOutput {
         self.view = view
         interactor.setup(with: self)
     }
+
+    func didTapAccountScore(address: String?) {
+        router.presentAccountScore(address: address, from: view)
+    }
+
+    func didTapRecordsNotice() {
+        let preferredLanguages = selectedLocale.rLanguages
+        // The sheet closes before its action runs, so the import choices are
+        // presented once it is gone.
+        var shouldShowImport = false
+        var shouldShowExport = false
+        let importAction = SheetAlertPresentableAction(
+            title: R.string.localizable.importWallet(preferredLanguages: preferredLanguages),
+            style: .pinkBackgroundWhiteText
+        ) {
+            shouldShowImport = true
+        }
+        let viewModel = SheetAlertPresentableViewModel(
+            title: R.string.localizable.walletRecordsSheetTitle(preferredLanguages: preferredLanguages),
+            message: StoredWalletRecordsNoticeText.explanation(
+                wallets: walletRecordsReport.unavailableWalletCount,
+                chainAccounts: walletRecordsReport.unusableChainAccountCount,
+                locale: selectedLocale
+            ),
+            actions: [importAction, SheetAlertPresentableAction(title: RecoveryText.string("export"), style: .pinkBackgroundWhiteText) {
+                shouldShowExport = true
+            }],
+            closeAction: R.string.localizable.commonClose(preferredLanguages: preferredLanguages),
+            dismissCompletion: { [weak self] in
+                if shouldShowExport {
+                    RetainedDataRestoreRouter.shared.showEmergencyMaterial(from: self?.view)
+                } else if shouldShowImport {
+                    self?.showImport()
+                }
+            },
+            icon: R.image.iconWarningBig()
+        )
+
+        router.present(viewModel: viewModel, from: view)
+    }
 }
 
 // MARK: - WalletsManagmentInteractorOutput
@@ -225,6 +276,11 @@ extension WalletsManagmentPresenter: WalletsManagmentInteractorOutput {
             break
         }
     }
+
+    func didReceiveWalletRecordsReport(_ report: StoredWalletRecordsReport) {
+        walletRecordsReport = report
+        provideRecordsNotice()
+    }
 }
 
 // MARK: - Localizable
@@ -232,6 +288,7 @@ extension WalletsManagmentPresenter: WalletsManagmentInteractorOutput {
 extension WalletsManagmentPresenter: Localizable {
     func applyLocalization() {
         provideViewModel()
+        provideRecordsNotice()
     }
 }
 

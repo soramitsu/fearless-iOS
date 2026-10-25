@@ -50,7 +50,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         //  Only relaychain
         provideMaxNominatorsPerValidator(from: runtimeService)
 
-        performPriceSubscription()
         performAccountInfoSubscription()
 
         //  Only relaychain
@@ -99,6 +98,20 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
     private func updateAfterChainAssetSave() {
         guard let newSelectedChainAsset = stakingSettings.value else {
+            selectedChainAsset.map { clearChainRemoteSubscription(for: $0.chain.chainId) }
+            clearAccountRemoteSubscription()
+            accountInfoSubscriptionAdapter.reset()
+            clearStashControllerSubscription()
+            clear(streamableProvider: &controllerAccountProvider)
+            clearNominatorsLimitProviders()
+            clear(dataProvider: &delegatorStateProvider)
+            collatorIds = nil
+            selectedChainAsset = nil
+            selectedAccount = nil
+            rewardChainAsset = nil
+            sharedState.eraValidatorService.throttle()
+            sharedState.rewardCalculationService.throttle()
+            presenter?.didReceive(newChainAsset: nil)
             return
         }
 
@@ -122,10 +135,8 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
         provideNewChain()
 
-        clear(singleValueProvider: &priceProvider)
         clear(dataProvider: &delegatorStateProvider)
         collatorIds = nil
-        performPriceSubscription()
         provideRewardChainAsset()
 
         clearNominatorsLimitProviders()
@@ -302,25 +313,15 @@ extension StakingMainInteractor: EventVisitorProtocol {
         provideRewardCalculator(from: sharedState.rewardCalculationService)
     }
 
-    func processChainsUpdated(event: ChainsUpdatedEvent) {
-        guard event.updatedChains.contains(where: {
-            $0.identifier == selectedChainAsset?.chain.identifier
-        }) else { return }
+    func processChainsUpdated(event _: ChainsUpdatedEvent) {
+        stakingSettings.setup()
         updateAfterChainAssetSave()
         updateAfterSelectedAccountChange()
-    }
-
-    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
-        guard selectedWalletSettings.value?.selectedCurrency != event.account.selectedCurrency else {
-            return
-        }
-        priceProvider?.refresh()
     }
 }
 
 extension StakingMainInteractor: ApplicationHandlerDelegate {
     func didReceiveDidBecomeActive(notification _: Notification) {
-        priceProvider?.refresh()
         totalRewardProvider?.refresh()
         rewardAnalyticsProvider?.refresh()
     }

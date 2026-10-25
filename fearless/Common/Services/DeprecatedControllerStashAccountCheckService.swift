@@ -58,12 +58,11 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
                     continuation.resume(with: .failure(error))
                 }
             }
-            operationQueue.addOperation(fetchOperation)
+            self?.operationQueue.addOperation(fetchOperation)
         }
     }
 
     func checkAccountDeprecations(wallet: MetaAccountModel) async throws -> DeprecatedAccountIssue? {
-        print("start")
         guard let possibleChainAssets = try? await getPossibleChainAssets() else { return nil }
         let chains = Array(Set(possibleChainAssets.compactMap { $0.chain }))
         var chainsRuntimesDict: [ChainModel: RuntimeCoderFactoryProtocol] = [:]
@@ -83,7 +82,6 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
                 argumentName: "controller"
             )) == false
         }
-        print("define deprecated chains finished")
         var caIssues = try await withThrowingTaskGroup(of: ControllerAccountIssue?.self, body: { group in
             for chainAsset in deprecatedChainAssets {
                 group.addTask { [weak self, chainsRuntimesDict] in
@@ -166,7 +164,7 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
                     continuation.resume(with: .failure(error))
                 }
             }
-            operationQueue.addOperation(chainsOperation)
+            self?.operationQueue.addOperation(chainsOperation)
         }
     }
 
@@ -185,7 +183,7 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
                     continuation.resume(with: .failure(error))
                 }
             }
-            operationQueue.addOperation(runtimeOperation)
+            self?.operationQueue.addOperation(runtimeOperation)
         }
     }
 

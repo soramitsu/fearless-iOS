@@ -50,13 +50,8 @@ struct AnalyticsRewardsViewFactory {
         chainAsset: ChainAsset,
         strategy: AnalyticsRewardsStrategy
     ) -> AnalyticsRewardsInteractor {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
-
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        return AnalyticsRewardsInteractor(
+        AnalyticsRewardsInteractor(
             strategy: strategy,
-            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset,
             wallet: wallet
         )

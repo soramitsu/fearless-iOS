@@ -4,7 +4,9 @@ import SoraKeystore
 import RobinHood
 import SSFModels
 import SSFUtils
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 struct StakingBondMoreConfirmViewFactory {
     static func createView(
@@ -108,12 +110,7 @@ struct StakingBondMoreConfirmViewFactory {
         wallet: MetaAccountModel,
         strategy: StakingBondMoreConfirmationStrategy
     ) -> StakingBondMoreConfirmationInteractor? {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
-
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        return StakingBondMoreConfirmationInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
+        StakingBondMoreConfirmationInteractor(
             chainAsset: chainAsset,
             wallet: wallet,
             strategy: strategy
@@ -171,15 +168,7 @@ struct StakingBondMoreConfirmViewFactory {
             accountResponse: accountResponse
         )
 
-        let facade = UserDataStorageFacade.shared
-
-        let mapper = MetaAccountMapper()
-
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
@@ -206,7 +195,7 @@ struct StakingBondMoreConfirmViewFactory {
                 feeProxy: feeProxy,
                 runtimeService: runtimeService,
                 operationManager: operationManager,
-                accountRepository: AnyDataProviderRepository(accountRepository),
+                accountRepository: accountRepository,
                 connection: connection,
                 keystore: keystore,
                 signingWrapper: signingWrapper,

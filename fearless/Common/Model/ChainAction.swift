@@ -12,6 +12,10 @@ enum ChainAction {
     case replace
     case reefscan(url: URL)
     case claimCrowdloanRewards
+    /// Use a per-chain account the wallet keeps stored but does not use on this chain.
+    case useStoredAccount(address: String)
+    /// Go back from a per-chain account to the wallet's own account on this chain.
+    case useWalletAccount
 
     var icon: UIImage? {
         switch self {
@@ -23,13 +27,14 @@ enum ChainAction {
             return R.image.iconCopy()
         case .polkascan, .subscan, .etherscan, .reefscan, .oklink:
             return R.image.iconOpenWeb()
-        case .replace:
+        case .replace, .useStoredAccount, .useWalletAccount:
             return R.image.iconReplace()
         case .claimCrowdloanRewards:
             return R.image.iconInfo()
         }
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     func localizableTitle(for locale: Locale) -> String {
         switch self {
         case .export:
@@ -51,9 +56,30 @@ enum ChainAction {
         case .reefscan:
             return R.string.localizable.transactionDetailsViewReefscan(preferredLanguages: locale.rLanguages)
         case .claimCrowdloanRewards:
-            return R.string.localizable.poolStakingManagementClaimTitle(preferredLanguages: locale.rLanguages)
+            return NSLocalizedString(
+                "asset.legacy_crowdloan",
+                value: "Legacy crowdloan",
+                comment: "Contextual recovery action for a historical crowdloan lock"
+            )
         case .oklink:
             return R.string.localizable.transactionDetailsViewOklink(preferredLanguages: locale.rLanguages)
+        case let .useStoredAccount(address):
+            return R.string.localizable.walletChainAccountsUseStored(
+                Self.shortened(address),
+                preferredLanguages: locale.rLanguages
+            )
+        case .useWalletAccount:
+            return R.string.localizable.walletChainAccountsUseWallet(preferredLanguages: locale.rLanguages)
         }
+    }
+
+    /// Enough of both ends to tell two accounts apart in a one-line menu row.
+    static func shortened(_ address: String) -> String {
+        let visibleCharacters = 8
+        guard address.count > visibleCharacters * 2 + 1 else {
+            return address
+        }
+
+        return "\(address.prefix(visibleCharacters))…\(address.suffix(visibleCharacters))"
     }
 }

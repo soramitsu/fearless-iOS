@@ -55,21 +55,19 @@ final class BackupWalletInteractor {
     }
 
     private func fetchChains() {
-        let fetchOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
-
-        fetchOperation.completionBlock = { [weak self] in
-            switch fetchOperation.result {
-            case let .success(chains):
-                self?.output?.didReceive(chains: chains)
-            case let .failure(error):
-                self?.output?.didReceive(error: error)
-            case .none:
-                let error = BaseOperationError.parentOperationCancelled
-                self?.output?.didReceive(error: error)
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                let chains = try await chainRepository.fetchAllAsync()
+                await MainActor.run { [weak self] in
+                    self?.output?.didReceive(chains: chains)
+                }
+            } catch {
+                await MainActor.run { [weak self] in
+                    self?.output?.didReceive(error: error)
+                }
             }
         }
-
-        operationManager.enqueue(operations: [fetchOperation], in: .transient)
     }
 
     private func provideAvailableExportOptions() {
@@ -107,8 +105,8 @@ extension BackupWalletInteractor: BackupWalletInteractorInput {
     }
 
     func removeBackupFromGoogle() {
-        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
-        let account = OpenBackupAccount(address: address42 ?? wallet.substratePublicKey.toHex())
+        let address42 = wallet.backupAddress
+        let account = OpenBackupAccount(address: wallet.backupAddress)
 
         Task {
             do {

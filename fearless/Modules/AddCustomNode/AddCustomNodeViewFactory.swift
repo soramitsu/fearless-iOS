@@ -2,10 +2,13 @@ import Foundation
 import RobinHood
 import SoraFoundation
 import SSFModels
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 struct AddCustomNodeViewFactory {
     static func createView(chain: ChainModel, moduleOutput: AddCustomNodeModuleOutput?) -> AddCustomNodeViewProtocol? {
-        let repository: CoreDataRepository<ChainModel, CDChain> = ChainRepositoryFactory().createRepository(
+        let repository: CoreDataRepository<ChainModel, SSFAssetManagmentStorage.CDChain> = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
@@ -13,7 +16,7 @@ struct AddCustomNodeViewFactory {
 
         let mapper = ChainNodeModelMapper()
 
-        let nodeRepository: CoreDataRepository<ChainNodeModel, CDChainNode> = facade.createRepository(
+        let nodeRepository: CoreDataRepository<ChainNodeModel, SSFAssetManagmentStorage.CDChainNode> = facade.createRepository(
             filter: nil,
             sortDescriptors: [],
             mapper: AnyCoreDataMapper(mapper)

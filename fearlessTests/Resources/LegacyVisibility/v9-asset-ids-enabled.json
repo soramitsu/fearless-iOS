@@ -1,0 +1,34 @@
+{
+ "format": "fearless.ios-legacy-visibility-fixture",
+ "version": 1,
+ "id": "v9-asset-ids-enabled",
+ "description": "Rows converted by MultiassetV9MigrationPolicy: bare asset ids and a symbol, hidden = true.",
+ "generator": "LegacyVisibility/generate.py",
+ "registrySha256": "fa6f0e23cd87dfb3e5536980591dd22ae30e49bf59d04dc2a0b31fc53237ea66",
+ "wallet": {
+  "ecosystem": "regular",
+  "legacyTon": false,
+  "accounts": [
+   "evm",
+   "substrate"
+  ],
+  "assetsVisibility": [
+   {
+    "assetId": "887a17c7-1370-4de0-97dd-5422e294fa75",
+    "hidden": true
+   },
+   {
+    "assetId": "1e0c2ec6-935f-49bd-a854-5e12ee6c9f1b",
+    "hidden": true
+   },
+   {
+    "assetId": "PHA",
+    "hidden": true
+   }
+  ]
+ },
+ "balances": {
+  "48239ef607d7928874027a43a67689209727dfb3d3dc5e5b03a39bdc2eda771a : 1e0c2ec6-935f-49bd-a854-5e12ee6c9f1b": "800000000000",
+  "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3 : 887a17c7-1370-4de0-97dd-5422e294fa75": "5000000000"
+ }
+}

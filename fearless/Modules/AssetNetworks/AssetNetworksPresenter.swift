@@ -18,7 +18,6 @@ final class AssetNetworksPresenter {
 
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var chainAssets: [ChainAsset] = []
-    private var prices: PriceDataUpdated = ([], false)
     private var filterValue: AssetNetworksFilter = .allNetworks
     private var sort: AssetNetworksSortType = .fiat
     private var chainsWithIssue: [ChainIssue] = []
@@ -46,7 +45,6 @@ final class AssetNetworksPresenter {
         let viewModels = viewModelFactory.buildViewModels(
             chainAssets: chainAssets,
             accountInfos: accountInfos,
-            prices: prices,
             wallet: wallet,
             locale: selectedLocale,
             filter: filterValue,
@@ -137,23 +135,6 @@ extension AssetNetworksPresenter: AssetNetworksInteractorOutput {
         case let .failure(error):
             Logger.shared.customError(error)
         }
-    }
-
-    func didReceivePricesData(result: Result<[PriceData], Error>) {
-        switch result {
-        case let .success(priceDataResult):
-            let priceDataUpdated = (pricesData: priceDataResult, updated: true)
-            prices = priceDataUpdated
-        case .failure:
-            guard !prices.updated else {
-                return
-            }
-
-            let priceDataUpdated = (pricesData: [], updated: true) as PriceDataUpdated
-            prices = priceDataUpdated
-        }
-
-        provideViewModel()
     }
 
     func didReceive(chainSettings: [ChainSettings]) {

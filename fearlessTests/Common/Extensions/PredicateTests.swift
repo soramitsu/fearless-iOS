@@ -76,10 +76,15 @@ class PredicateTests: XCTestCase {
 
     func testWebsocketPredicate() {
         XCTAssertTrue(NSPredicate.websocket.evaluate(with: "wss://cc3-5.kusama.network"))
-        XCTAssertTrue(NSPredicate.websocket.evaluate(with: "ws://cc3-5.kusama.network"))
         XCTAssertTrue(NSPredicate.websocket.evaluate(with: "wss://ws.validator.dev.polkadot-rust.soramitsu.co.jp:443"))
         XCTAssertTrue(NSPredicate.websocket.evaluate(with: "wss://48.1.1.2/"))
-        XCTAssertTrue(NSPredicate.websocket.evaluate(with: "ws://142.42.1.1:8080/"))
+        XCTAssertTrue(NSPredicate.websocket.evaluate(with: "wss://142.42.1.1:8080/"))
+
+        // Cleartext and scheme-less node addresses are refused.
+        XCTAssertFalse(NSPredicate.websocket.evaluate(with: "ws://cc3-5.kusama.network"))
+        XCTAssertFalse(NSPredicate.websocket.evaluate(with: "ws://142.42.1.1:8080/"))
+        XCTAssertFalse(NSPredicate.websocket.evaluate(with: "//cc3-5.kusama.network"))
+        XCTAssertFalse(NSPredicate.websocket.evaluate(with: "https://cc3-5.kusama.network"))
 
         XCTAssertFalse(NSPredicate.websocket.evaluate(with: "wss://??"))
         XCTAssertFalse(NSPredicate.websocket.evaluate(with: "wss://foo.bar?q=Spaces should be encoded"))

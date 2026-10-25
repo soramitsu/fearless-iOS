@@ -35,6 +35,7 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
         case chainIds([ChainModel.Id])
         case supportNfts
         case enabled(wallet: MetaAccountModel)
+        case enabledChains
 
         var searchText: String? {
             switch self {
@@ -239,10 +240,14 @@ private extension ChainAssetsFetching {
         case let .assetNames(names):
             return chainAssets.filter { names.map { $0.lowercased() }.contains($0.asset.symbol.lowercased()) }
         case let .enabled(wallet):
-            let enabled: [String] = wallet.assetsVisibility
-                .filter { !$0.hidden }
-                .map { $0.assetId }
-            return chainAssets.filter { enabled.contains($0.identifier) }
+            return chainAssets.filter {
+                AssetVisibilityPreferenceStore.isSelectable(
+                    walletId: wallet.metaId,
+                    chainAsset: $0
+                )
+            }
+        case .enabledChains:
+            return chainAssets.filter { !$0.chain.disabled }
         }
     }
 
@@ -304,68 +309,69 @@ private extension ChainAssetsFetching {
     }
 
     func sortByPrice(chainAssets: [ChainAsset], order: SortOrder) -> [ChainAsset] {
-        chainAssets.sorted {
-            switch order {
-            case .ascending:
-                return $0.asset.price ?? 0 < $1.asset.price ?? 0
-            case .descending:
-                return $0.asset.price ?? 0 > $1.asset.price ?? 0
-            }
-        }
-    }
-
-    func sortByAssetName(chainAssets: [ChainAsset], order: SortOrder) -> [ChainAsset] {
-        chainAssets.sorted {
+        // Price list is not available in the current AssetModel; fall back to symbol
+        chainAssets.sorted(by: {
             switch order {
             case .ascending:
                 return $0.asset.symbol < $1.asset.symbol
             case .descending:
                 return $0.asset.symbol > $1.asset.symbol
             }
-        }
+        })
+    }
+
+    func sortByAssetName(chainAssets: [ChainAsset], order: SortOrder) -> [ChainAsset] {
+        chainAssets.sorted(by: {
+            switch order {
+            case .ascending:
+                return $0.asset.symbol < $1.asset.symbol
+            case .descending:
+                return $0.asset.symbol > $1.asset.symbol
+            }
+        })
     }
 
     private func sortByChainName(chainAssets: [ChainAsset], order: SortOrder) -> [ChainAsset] {
-        chainAssets.sorted {
+        chainAssets.sorted(by: {
             switch order {
             case .ascending:
                 return $0.chain.name < $1.chain.name
             case .descending:
                 return $0.chain.name > $1.chain.name
             }
-        }
+        })
     }
 
     func sortByTestnet(chainAssets: [ChainAsset], order: SortOrder) -> [ChainAsset] {
-        chainAssets.sorted {
+        chainAssets.sorted(by: {
             switch order {
             case .ascending:
                 return $0.chain.isTestnet.intValue < $1.chain.isTestnet.intValue
             case .descending:
                 return $0.chain.isTestnet.intValue > $1.chain.isTestnet.intValue
             }
-        }
+        })
     }
 
     func sortByPolkadotOrKusama(chainAssets: [ChainAsset], order: SortOrder) -> [ChainAsset] {
-        chainAssets.sorted {
+        chainAssets.sorted(by: {
             switch order {
             case .ascending:
                 return $0.chain.isPolkadotOrKusama.intValue < $1.chain.isPolkadotOrKusama.intValue
             case .descending:
                 return $0.chain.isPolkadotOrKusama.intValue > $1.chain.isPolkadotOrKusama.intValue
             }
-        }
+        })
     }
 
     func sortByAssetId(chainAssets: [ChainAsset], order: SortOrder) -> [ChainAsset] {
-        chainAssets.sorted {
+        chainAssets.sorted(by: {
             switch order {
             case .ascending:
                 return $0.asset.id < $1.asset.id
             case .descending:
                 return $0.asset.id > $1.asset.id
             }
-        }
+        })
     }
 }

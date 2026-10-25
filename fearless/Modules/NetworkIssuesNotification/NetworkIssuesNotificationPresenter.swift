@@ -49,12 +49,10 @@ final class NetworkIssuesNotificationPresenter {
 
     private func showMissingAccountOptions(chain: ChainModel) {
         let unused = (wallet.unusedChainIds ?? []).contains(chain.chainId)
-        let options: [MissingAccountOption?] = [.create, .import, unused ? nil : .skip]
-
         router.presentAccountOptions(
             from: view,
             locale: selectedLocale,
-            options: options.compactMap { $0 },
+            options: Self.missingAccountOptions(for: chain, unused: unused),
             uniqueChainModel: UniqueChainModel(
                 meta: wallet,
                 chain: chain
@@ -62,6 +60,21 @@ final class NetworkIssuesNotificationPresenter {
         ) { [weak self] chain in
             self?.interactor.markUnused(chain: chain)
         }
+    }
+
+    /// Bitcoin, Solana and Taira come from the wallet's own recovery phrase: they are imported
+    /// with it, never created from a new phrase.
+    static func missingAccountOptions(for chain: ChainModel, unused: Bool) -> [MissingAccountOption] {
+        let usesWalletRootPhrase = UniversalWalletRegistry.bitcoinNetwork(for: chain.chainId) != nil ||
+            UniversalWalletRegistry.solanaNetwork(for: chain.chainId) != nil ||
+            UniversalWalletChainAccountSupport.chainId(
+                chain.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            )
+        let options: [MissingAccountOption?] = usesWalletRootPhrase
+            ? [.import, unused ? nil : .skip]
+            : [.create, .import, unused ? nil : .skip]
+        return options.compactMap { $0 }
     }
 
     private func showSheetAlert(for chain: ChainModel) {

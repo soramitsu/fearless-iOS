@@ -3,9 +3,13 @@ import SSFUtils
 
 extension JSONRPCOperation {
     static func failureOperation(_ error: Error) -> JSONRPCOperation<P, T> {
-        let mockEngine = WebSocketEngine(connectionName: nil, url: ApplicationConfig.shared.wiki, autoconnect: false)
+        let mockEngine = WebSocketEngine(
+            connectionName: nil,
+            url: URL(string: "https://wiki.fearlesswallet.io")!,
+            autoconnect: false
+        )
         let operation = JSONRPCOperation<P, T>(engine: mockEngine, method: "")
-        operation.result = .failure(error)
+        operation.result = Result.failure(error)
         return operation
     }
 }

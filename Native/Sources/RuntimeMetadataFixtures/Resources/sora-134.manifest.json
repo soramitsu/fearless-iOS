@@ -1,0 +1,58 @@
+{
+  "chain": "SORA",
+  "genesisHash": "0x7e4e32d0feafd4f9c9414b0be86373f9a1efa904809b683453a9af6856d38ad5",
+  "specVersion": 134,
+  "fetched": "2026-10-24",
+  "source": "state_getMetadata (V14)",
+  "sourceBytes": 625665,
+  "sourceSha256": "70fb15b7f598a58fc71a174af66df68b9136a2e87ec51dcd56aa279165cd6ba4",
+  "fixtureBytes": 5558,
+  "fixtureSha256": "18ae8afab77c6eb1f427b6d346fc017dd1a6b7d2ffde5744f89bcf166e2d6f69",
+  "typeCount": {
+    "source": 1050,
+    "fixture": 56
+  },
+  "pallets": [
+    {
+      "name": "BridgeProxy",
+      "moduleIndex": 103,
+      "calls": [
+        {
+          "name": "burn",
+          "index": 0,
+          "position": 0,
+          "fields": [
+            "network_id",
+            "asset_id",
+            "recipient",
+            "amount"
+          ]
+        },
+        {
+          "name": "add_limited_asset",
+          "index": 1,
+          "position": 1,
+          "fields": [
+            "asset_id"
+          ]
+        },
+        {
+          "name": "remove_limited_asset",
+          "index": 2,
+          "position": 2,
+          "fields": [
+            "asset_id"
+          ]
+        },
+        {
+          "name": "update_transfer_limit",
+          "index": 3,
+          "position": 3,
+          "fields": [
+            "settings"
+          ]
+        }
+      ]
+    }
+  ]
+}

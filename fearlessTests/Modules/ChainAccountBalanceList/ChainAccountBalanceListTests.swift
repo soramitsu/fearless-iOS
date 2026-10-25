@@ -148,7 +148,6 @@
 //                                                 assetRepository: assetRepository,
 //                                                 accountInfoSubscriptionAdapter: adapter,
 //                                                 operationQueue: operationQueue,
-//                                                 priceLocalSubscriber: priceLocalSubscriber,
 //                                                 eventCenter: EventCenter.shared)
 //    }
 //}

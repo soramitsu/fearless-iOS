@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 import SSFRuntimeCodingService
 import SSFModels
 import SSFUtils
@@ -219,7 +222,7 @@ extension EraValidatorService {
             let activeEraSuffix = try activeEra.scaleEncoded().toHex()
 
             let filter = NSPredicate.filterByIdPrefix(baseLocalKey)
-            let newRepository: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
+            let newRepository: CoreDataRepository<ChainStorageItem, SSFAssetManagmentStorage.CDChainStorageItem> =
                 storageFacade.createRepository(filter: filter)
 
             return newRepository.replaceOperation {
@@ -417,7 +420,7 @@ extension EraValidatorService {
         erasStakersKeyOperation.completionBlock = { [weak self] in
             self?.syncQueue.async {
                 switch erasStakersKeyOperation.result {
-                case let .success(prefixKeys):
+                case .success:
                     if let factory = erasStakersKeyOperation.codingFactory {
                         self?.updateIfNeeded(activeEra: activeEra, codingFactory: factory, completion: completion)
                     } else {
@@ -453,7 +456,7 @@ extension EraValidatorService {
 
         let filter = NSPredicate.filterByIdPrefix(localPrefixKey)
 
-        let repository: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
+        let repository: CoreDataRepository<ChainStorageItem, SSFAssetManagmentStorage.CDChainStorageItem> =
             storageFacade.createRepository(filter: filter)
 
         let localValidatorsOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())

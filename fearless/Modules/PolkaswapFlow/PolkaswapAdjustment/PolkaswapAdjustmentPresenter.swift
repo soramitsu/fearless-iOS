@@ -3,6 +3,19 @@ import SoraFoundation
 import BigInt
 import SSFModels
 
+enum PolkaswapQuoteResponsePolicy {
+    static func shouldAccept(
+        response: PolkaswapQuoteParams,
+        latest: PolkaswapQuoteParams?,
+        currentFromAssetId: String?,
+        currentToAssetId: String?
+    ) -> Bool {
+        response == latest &&
+            response.fromAssetId == currentFromAssetId &&
+            response.toAssetId == currentToAssetId
+    }
+}
+
 // swiftlint:disable file_length type_body_length
 final class PolkaswapAdjustmentPresenter {
     private enum InputTag: Int {
@@ -21,6 +34,7 @@ final class PolkaswapAdjustmentPresenter {
     private weak var confirmationScreenModuleInput: PolkaswapSwapConfirmationModuleInput?
     private let router: PolkaswapAdjustmentRouterInput
     private let interactor: PolkaswapAdjustmentInteractorInput
+    weak var bannersModuleInput: BannersModuleInput?
 
     private let wallet: MetaAccountModel
     private let viewModelFactory: PolkaswapAdjustmentViewModelFactoryProtocol
@@ -32,17 +46,20 @@ final class PolkaswapAdjustmentPresenter {
     private var swapVariant: SwapVariant = .desiredInput
     private var swapFromChainAsset: ChainAsset?
     private var swapToChainAsset: ChainAsset?
-    private var prices: [PriceData]?
     private var marketSource: SwapMarketSourceProtocol?
     private var polkaswapDexForRoute: PolkaswapDex?
     private var calcalatedAmounts: SwapQuoteAmounts?
     private var detailsViewModel: PolkaswapAdjustmentDetailsViewModel?
     private var quotesWorkItem: DispatchWorkItem?
+    private var latestQuoteParams: PolkaswapQuoteParams?
 
     private var slippadgeTolerance: Float = Constants.slippadgeTolerance
     private var selectedLiquiditySourceType: LiquiditySourceType {
         didSet {
-            view?.didReceive(market: selectedLiquiditySourceType)
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.view?.didReceive(market: self.selectedLiquiditySourceType)
+            }
         }
     }
 
@@ -102,14 +119,17 @@ final class PolkaswapAdjustmentPresenter {
         guard swapFromInputResult != nil || swapToInputResult != nil else {
             return
         }
-
-        view?.setButtonLoadingState(isLoading: true)
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.setButtonLoadingState(isLoading: true)
+        }
         loadingCollector.reset()
     }
 
     private func checkLoadingState() {
         if loadingCollector.isReady {
-            view?.setButtonLoadingState(isLoading: false)
+            DispatchQueue.main.async { [weak self] in
+                self?.view?.setButtonLoadingState(isLoading: false)
+            }
         }
     }
 
@@ -125,9 +145,7 @@ final class PolkaswapAdjustmentPresenter {
             for: swapFromChainAsset
         )
 
-        let swapFromPrice = prices?.first(where: { priceData in
-            swapFromChainAsset?.asset.priceId == priceData.priceId
-        })
+        let swapFromPrice = swapFromChainAsset?.asset.getPrice(for: wallet.selectedCurrency)
 
         let viewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
             inputAmount,
@@ -139,9 +157,11 @@ final class PolkaswapAdjustmentPresenter {
             .createBalanceInputViewModel(inputAmount)
             .value(for: selectedLocale)
 
-        view?.didReceiveSwapFrom(viewModel: viewModel)
-        if updateAmountInput {
-            view?.didReceiveSwapFrom(amountInputViewModel: inputViewModel)
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveSwapFrom(viewModel: viewModel)
+            if updateAmountInput {
+                self?.view?.didReceiveSwapFrom(amountInputViewModel: inputViewModel)
+            }
         }
 
         loadingCollector.fromReady = true
@@ -156,9 +176,7 @@ final class PolkaswapAdjustmentPresenter {
             for: swapToChainAsset
         )
 
-        let swapToPrice = prices?.first(where: { priceData in
-            swapToChainAsset?.asset.priceId == priceData.priceId
-        })
+        let swapToPrice = swapToChainAsset?.asset.getPrice(for: wallet.selectedCurrency)
 
         let viewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
             inputAmount,
@@ -170,9 +188,11 @@ final class PolkaswapAdjustmentPresenter {
             .createBalanceInputViewModel(inputAmount)
             .value(for: selectedLocale)
 
-        view?.didReceiveSwapTo(viewModel: viewModel)
-        if updateAmountInput {
-            view?.didReceiveSwapTo(amountInputViewModel: inputViewModel)
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveSwapTo(viewModel: viewModel)
+            if updateAmountInput {
+                self?.view?.didReceiveSwapTo(amountInputViewModel: inputViewModel)
+            }
         }
 
         loadingCollector.toReady = true
@@ -197,11 +217,20 @@ final class PolkaswapAdjustmentPresenter {
 
     private func fetchQuotes() {
         quotesWorkItem?.cancel()
+        quotesWorkItem = nil
+        latestQuoteParams = nil
+        invalidateCalculatedQuote()
+
         guard let swapFromChainAsset = swapFromChainAsset,
               let swapToChainAsset = swapToChainAsset,
-              let swapFromAssetId = swapFromChainAsset.asset.currencyId,
-              let swapToAssetId = swapToChainAsset.asset.currencyId,
               let marketSourcer = marketSource
+        else {
+            return
+        }
+
+        guard
+            let swapFromAssetId = swapFromChainAsset.asset.currencyId,
+            let swapToAssetId = swapToChainAsset.asset.currencyId
         else {
             return
         }
@@ -239,16 +268,46 @@ final class PolkaswapAdjustmentPresenter {
             liquiditySources: liquiditySources,
             filterMode: selectedLiquiditySourceType.filterMode
         )
+        latestQuoteParams = quoteParams
 
         let task = DispatchWorkItem { [weak self] in
             self?.interactor.fetchQuotes(with: quoteParams)
         }
         quotesWorkItem = task
-        DispatchQueue.global().asyncAfter(deadline: .now() + Constants.quotesRequestDelay, execute: task)
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.quotesRequestDelay, execute: task)
     }
 
     private func subscribeToPoolUpdates() {
         interactor.subscribeOnBlocks()
+    }
+
+    private func activateCurrentPair() {
+        guard let polkaswapRemoteSettings,
+              let swapFromChainAsset,
+              let swapToChainAsset
+        else {
+            return
+        }
+
+        marketSource = SwapMarketSource(
+            fromAssetId: swapFromChainAsset.asset.currencyId,
+            toAssetId: swapToChainAsset.asset.currencyId,
+            remoteSettings: polkaswapRemoteSettings
+        )
+        interactor.didReceive(swapFromChainAsset, swapToChainAsset)
+        subscribeToPoolUpdates()
+        fetchQuotes()
+
+        let slip = BigUInt(integerLiteral: UInt64(slippadgeTolerance))
+        interactor.estimateFee(
+            dexId: "0",
+            fromAssetId: swapFromChainAsset.asset.currencyId ?? "",
+            toAssetId: swapToChainAsset.asset.currencyId ?? "",
+            swapVariant: swapVariant,
+            swapAmount: SwapAmount(type: swapVariant, desired: .zero, slip: slip),
+            filter: selectedLiquiditySourceType.filterMode,
+            liquiditySourceType: selectedLiquiditySourceType
+        )
     }
 
     private func provideAmount(
@@ -296,10 +355,12 @@ final class PolkaswapAdjustmentPresenter {
             swapVariant: swapVariant,
             availableDexIds: polkaswapRemoteSettings.availableDexIds,
             slippadgeTolerance: slippadgeTolerance,
-            prices: prices,
             locale: selectedLocale
         )
-        view?.didReceiveDetails(viewModel: detailsViewModel)
+
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveDetails(viewModel: detailsViewModel)
+        }
 
         loadingCollector.detailsReady = true
         checkLoadingState()
@@ -316,7 +377,11 @@ final class PolkaswapAdjustmentPresenter {
             swapFromInputResult = .absolute(amounts.toAmount)
             provideFromAssetVewModel()
         }
-        view?.didReceive(variant: swapVariant)
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.view?.didReceive(variant: self.swapVariant)
+        }
     }
 
     private func fetchSwapFee(amounts: SwapQuoteAmounts) {
@@ -355,9 +420,7 @@ final class PolkaswapAdjustmentPresenter {
             .createBalanceViewModelFactory(for: xorChainAsset)
         let feeViewModel = balanceViewModelFactory.balanceFromPrice(
             swapFromFee,
-            priceData: prices?.first(where: { price in
-                price.priceId == xorChainAsset.asset.priceId
-            }),
+            priceData: xorChainAsset.asset.getPrice(for: wallet.selectedCurrency),
             isApproximately: true,
             usageCase: .detailsCrypto
         ).value(for: selectedLocale)
@@ -371,12 +434,29 @@ final class PolkaswapAdjustmentPresenter {
     }
 
     private func invalidateParams() {
+        quotesWorkItem?.cancel()
+        quotesWorkItem = nil
+        latestQuoteParams = nil
+        invalidateCalculatedQuote()
         calcalatedAmounts = nil
         swapFromInputResult = nil
         swapToInputResult = nil
         provideFromAssetVewModel()
         provideToAssetVewModel()
-        view?.didReceiveDetails(viewModel: nil)
+
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveDetails(viewModel: nil)
+        }
+    }
+
+    private func invalidateCalculatedQuote() {
+        calcalatedAmounts = nil
+        polkaswapDexForRoute = nil
+        detailsViewModel = nil
+
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveDetails(viewModel: nil)
+        }
     }
 
     private func preparePreviewParams() -> PolkaswapPreviewParams? {
@@ -499,6 +579,12 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
     func viewDidAppear() {
         interactor.fetchDisclaimerVisible()
         disclaimerWasShown = true
+
+        #if F_RELEASE
+            bannersModuleInput?.update(banners: [.liquidityPools])
+        #else
+            bannersModuleInput?.update(banners: [.liquidityPools, .liquidityPoolsTest])
+        #endif
     }
 
     func didLoad(view: PolkaswapAdjustmentViewInput) {
@@ -655,6 +741,15 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
     }
 
     func didTapPreviewButton() {
+        guard MultiChainFeaturePolicy.current.polkaswapMutationsEnabled else {
+            router.presentInfo(
+                message: "Swaps are temporarily disabled by the remote safety switch. Your balances and market data remain available.",
+                title: "Polkaswap actions paused",
+                from: view
+            )
+            return
+        }
+
         guard let networkFee = networkFee,
               let params = preparePreviewParams(),
               let amounts = calcalatedAmounts
@@ -721,19 +816,6 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
 extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
     func didReceive(error: Error) {
         logger.error("\(error)")
-    }
-
-    func didReceivePricesData(result: Result<[PriceData], Error>) {
-        switch result {
-        case let .success(priceData):
-            prices = priceData
-        case let .failure(error):
-            prices = []
-            logger.error("\(error)")
-        }
-
-        provideFromAssetVewModel()
-        provideToAssetVewModel()
     }
 
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {
@@ -834,9 +916,12 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
     }
 
     func didReceiveSwapValues(_ valuesMap: [SwapValues], params: PolkaswapQuoteParams, errors: [Error]) {
-        guard params.fromAssetId == swapFromChainAsset?.asset.currencyId,
-              params.toAssetId == swapToChainAsset?.asset.currencyId
-        else {
+        guard PolkaswapQuoteResponsePolicy.shouldAccept(
+            response: params,
+            latest: latestQuoteParams,
+            currentFromAssetId: swapFromChainAsset?.asset.currencyId,
+            currentToAssetId: swapToChainAsset?.asset.currencyId
+        ) else {
             return
         }
 
@@ -851,7 +936,15 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
     }
 
     func didReceiveSettings(settings: PolkaswapRemoteSettings?) {
+        let previousSettings = polkaswapRemoteSettings
         polkaswapRemoteSettings = settings
+
+        guard let settings, settings != previousSettings else {
+            return
+        }
+
+        fetchSwapFee(amounts: .mockQuoteAmount)
+        activateCurrentPair()
     }
 
     func updateQuotes() {
@@ -885,8 +978,7 @@ extension PolkaswapAdjustmentPresenter: SelectAssetModuleOutput {
         view?.didUpdating()
         guard let rawValue = contextTag,
               let input = InputTag(rawValue: rawValue),
-              let chainAsset = chainAsset,
-              let polkaswapRemoteSettings = polkaswapRemoteSettings
+              let chainAsset = chainAsset
         else {
             return
         }
@@ -901,26 +993,7 @@ extension PolkaswapAdjustmentPresenter: SelectAssetModuleOutput {
         }
 
         runLoadingState()
-
-        marketSource = SwapMarketSource(
-            fromAssetId: swapFromChainAsset?.asset.currencyId,
-            toAssetId: swapToChainAsset?.asset.currencyId,
-            remoteSettings: polkaswapRemoteSettings
-        )
-        interactor.didReceive(swapFromChainAsset, swapToChainAsset)
-        subscribeToPoolUpdates()
-        fetchQuotes()
-
-        let slip = BigUInt(integerLiteral: UInt64(slippadgeTolerance))
-        interactor.estimateFee(
-            dexId: "0",
-            fromAssetId: swapFromChainAsset?.asset.currencyId ?? "",
-            toAssetId: swapToChainAsset?.asset.currencyId ?? "",
-            swapVariant: swapVariant,
-            swapAmount: SwapAmount(type: swapVariant, desired: .zero, slip: slip),
-            filter: selectedLiquiditySourceType.filterMode,
-            liquiditySourceType: selectedLiquiditySourceType
-        )
+        activateCurrentPair()
     }
 }
 
@@ -929,7 +1002,10 @@ extension PolkaswapAdjustmentPresenter: SelectAssetModuleOutput {
 extension PolkaswapAdjustmentPresenter: PolkaswapTransaktionSettingsModuleOutput {
     func didReceive(market: LiquiditySourceType, slippadgeTolerance: Float) {
         loadingCollector.detailsReady = false
-        view?.setButtonLoadingState(isLoading: true)
+
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.setButtonLoadingState(isLoading: true)
+        }
 
         if selectedLiquiditySourceType != market {
             selectedLiquiditySourceType = market
@@ -942,6 +1018,18 @@ extension PolkaswapAdjustmentPresenter: PolkaswapTransaktionSettingsModuleOutput
                 return
             }
             detailsViewModel = provideDetailsViewModel(with: calcalatedAmounts)
+        }
+    }
+}
+
+// MARK: - BannersModuleOutput
+
+extension PolkaswapAdjustmentPresenter: BannersModuleOutput {
+    func reloadBannersView() {}
+
+    func didTapCloseBanners() {
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.hideBanners()
         }
     }
 }

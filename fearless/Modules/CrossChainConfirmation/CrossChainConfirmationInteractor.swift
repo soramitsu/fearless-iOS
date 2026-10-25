@@ -3,9 +3,12 @@ import SSFXCM
 import RobinHood
 import BigInt
 import SSFModels
+import SSFUtils
 
 protocol CrossChainConfirmationInteractorOutput: AnyObject {
-    func didTransfer(result: Result<String, Error>)
+    func didTransfer(result: Result<ReviewedCrossChainSubmissionResult, Error>)
+    /// The same transfer was handed to the network earlier and its outcome is unresolved. Nothing was signed or sent.
+    func didFindUnresolvedSubmission(_ record: ReviewedCrossChainSubmissionRecord)
 }
 
 final class CrossChainConfirmationInteractor {
@@ -14,23 +17,116 @@ final class CrossChainConfirmationInteractor {
     private weak var output: CrossChainConfirmationInteractorOutput?
 
     private let teleportData: CrossChainConfirmationData
-    private let xcmServices: XcmExtrinsicServices
+    private let submissionAuthorizer: ReviewedCrossChainSubmissionAuthorizing
+    private let journal: ReviewedCrossChainSubmissionJournaling
     private let operationQueue: OperationQueue
     private let logger: LoggerProtocol
+    private let mutationsEnabled: () -> Bool
+    private let now: () -> Date
 
     init(
         teleportData: CrossChainConfirmationData,
-        xcmServices: XcmExtrinsicServices,
+        submissionAuthorizer: ReviewedCrossChainSubmissionAuthorizing,
+        journal: ReviewedCrossChainSubmissionJournaling = ReviewedCrossChainSubmissionJournal.shared,
         operationQueue: OperationQueue,
-        logger: LoggerProtocol
+        logger: LoggerProtocol,
+        mutationsEnabled: @escaping () -> Bool = {
+            MultiChainFeaturePolicy.current.crossChainMutationsEnabled
+        },
+        now: @escaping () -> Date = Date.init
     ) {
         self.teleportData = teleportData
-        self.xcmServices = xcmServices
+        self.submissionAuthorizer = submissionAuthorizer
+        self.journal = journal
         self.operationQueue = operationQueue
         self.logger = logger
+        self.mutationsEnabled = mutationsEnabled
+        self.now = now
     }
 
     // MARK: - Private methods
+
+    private var summary: String {
+        [
+            teleportData.displayAmount,
+            teleportData.originChainAsset.asset.symbolUppercased,
+            "\(teleportData.originChainAsset.chain.name) → \(teleportData.destChainModel.name)",
+            teleportData.recipientAddress
+        ].joined(separator: " ")
+    }
+
+    private func submitAuthorized(
+        _ authorized: ReviewedCrossChainAuthorizedSubmission
+    ) async throws -> ReviewedCrossChainSubmissionResult {
+        let startedAt = now()
+        var record = ReviewedCrossChainSubmissionRecord(
+            transferKey: authorized.transferKey,
+            intentSha256: authorized.intentSha256,
+            status: .submitting,
+            extrinsicHash: nil,
+            blockHash: nil,
+            summary: summary,
+            createdAt: startedAt,
+            updatedAt: startedAt
+        )
+        // Written before the extrinsic can leave the app: a crash or kill after this point still leaves a record
+        // that asks the user before the same transfer is sent again.
+        do {
+            try journal.save(record)
+        } catch {
+            throw ReviewedCrossChainDispatchError.journalUnavailable
+        }
+
+        let receipt: ReviewedCrossChainSubmissionReceipt
+        do {
+            // This synchronous guard is deliberately adjacent to submit:
+            // no await or other mutable work may be inserted between them.
+            try authorized.finalGuard()
+            receipt = try await authorized.executor.submit(authorized.builder)
+        } catch {
+            if Self.provesNothingWasSent(error) {
+                journal.remove(transferKey: record.transferKey)
+                throw error
+            }
+            record.status = .inDoubt
+            record.updatedAt = now()
+            try? journal.save(record)
+            throw ReviewedCrossChainDispatchError.submissionInDoubt
+        }
+
+        record.status = .inDoubt
+        record.extrinsicHash = receipt.extrinsicHash
+        record.updatedAt = now()
+        try? journal.save(record)
+
+        switch await authorized.executor.dispatchOutcome(for: receipt) {
+        case .failed:
+            // The runtime rejected it in its block: nothing was burned, so sending it again cannot pay twice.
+            journal.remove(transferKey: record.transferKey)
+            throw ReviewedCrossChainDispatchError.extrinsicFailed(extrinsicHash: receipt.extrinsicHash)
+        case let .succeeded(blockHash):
+            record.status = .awaitingBridge
+            record.blockHash = blockHash
+            record.updatedAt = now()
+            try? journal.save(record)
+            return .awaitingBridge(extrinsicHash: receipt.extrinsicHash)
+        case .unknown:
+            return .unconfirmed(extrinsicHash: receipt.extrinsicHash)
+        }
+    }
+
+    /// Local authorization refusals and explicit author-RPC pool rejections happen before admission.
+    /// An already-imported transaction (1013) or an unclassified RPC error can follow acceptance.
+    static func provesNothingWasSent(_ error: Error) -> Bool {
+        if error is ReviewedCrossChainSubmissionError || error is MutationAuthorizationError {
+            return true
+        }
+        guard let rpcError = error as? JSONRPCError else { return false }
+        // Substrate author/error.rs: format/verification failures and explicit pool refusals.
+        // Keep this platform-owned classification aligned with the reviewed RPC contract.
+        return [1001, 1002, 1010, 1011, 1012, 1014, 1015, 1016, 1018, 1019, 1020, 1021]
+            .contains(rpcError.code)
+    }
 }
 
 // MARK: - CrossChainConfirmationInteractorInput
@@ -40,29 +136,27 @@ extension CrossChainConfirmationInteractor: CrossChainConfirmationInteractorInpu
         self.output = output
     }
 
-    func submit() {
+    func submit(confirmingRepeat: Bool) {
         Task {
-            let address = teleportData.recipientAddress
-            let chain = teleportData.destChainModel
-            let precision = Int16(teleportData.originChainAsset.asset.precision)
-            guard
-                let destAccountId = try? AddressFactory.accountId(from: address, chain: chain),
-                let destFeeValue = teleportData.destChainFeeDecimal.toSubstrateAmount(precision: precision)
-            else {
-                return
-            }
-
-            let amount = teleportData.amount + destFeeValue
-            let result = await xcmServices.extrinsic.transfer(
-                fromChainId: teleportData.originChainAsset.chain.chainId,
-                assetSymbol: teleportData.originChainAsset.asset.symbol,
-                destChainId: teleportData.destChainModel.chainId,
-                destAccountId: destAccountId,
-                amount: amount
-            )
-
-            await MainActor.run {
-                self.output?.didTransfer(result: result)
+            do {
+                let authorized = try await submissionAuthorizer.authorize()
+                guard mutationsEnabled() else {
+                    throw ReviewedCrossChainSubmissionError.actionsPaused
+                }
+                if !confirmingRepeat, let unresolved = journal.unresolved(for: authorized.transferKey, now: now()) {
+                    await MainActor.run {
+                        self.output?.didFindUnresolvedSubmission(unresolved)
+                    }
+                    return
+                }
+                let result = try await submitAuthorized(authorized)
+                await MainActor.run {
+                    self.output?.didTransfer(result: .success(result))
+                }
+            } catch {
+                await MainActor.run {
+                    self.output?.didTransfer(result: .failure(error))
+                }
             }
         }
     }

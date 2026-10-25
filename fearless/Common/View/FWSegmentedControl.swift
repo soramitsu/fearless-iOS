@@ -41,13 +41,40 @@ final class FWSegmentedControl: UIControl {
     private let sliderView = SliderView()
 
     private var segments: [String] = []
+    private var wrapsTitles = false
+    private var measuredHeight: CGFloat = 0
+
+    func configureWrapping(locale: Locale, traits: UITraitCollection) {
+        wrapsTitles = true
+        isAccessibilityElement = false
+        defaultFont = .fw(.bodyM, locale: locale, compatibleWith: traits)
+        highlightFont = .fw(.titleS, locale: locale, compatibleWith: traits)
+        invalidateIntrinsicContentSize()
+        setNeedsLayout()
+    }
+
+    override var intrinsicContentSize: CGSize {
+        guard wrapsTitles else { return super.intrinsicContentSize }
+        let width = max(1, bounds.width / CGFloat(max(1, numberOfSegments)) - 16)
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.lineBreakMode = .byCharWrapping
+        let heights = segments.flatMap { title in
+            [defaultFont, highlightFont].map { font -> CGFloat in
+                label.text = title
+                label.font = font
+                return label.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude)).height
+            }
+        }
+        return CGSize(width: UIView.noIntrinsicMetric, height: max(44, ceil(heights.max() ?? 0) + 20))
+    }
 
     private var numberOfSegments: Int {
         segments.count
     }
 
     private var segmentWidth: CGFloat {
-        backgroundView.frame.width / CGFloat(numberOfSegments)
+        numberOfSegments > 0 ? backgroundView.bounds.width / CGFloat(numberOfSegments) : 0
     }
 
     private var startPosition: CGFloat = 0
@@ -68,6 +95,13 @@ final class FWSegmentedControl: UIControl {
         super.layoutSubviews()
         setupLayout()
         setupSegments()
+        if wrapsTitles {
+            let height = intrinsicContentSize.height
+            if measuredHeight != height {
+                measuredHeight = height
+                invalidateIntrinsicContentSize()
+            }
+        }
     }
 
     // MARK: Public methods
@@ -81,7 +115,10 @@ final class FWSegmentedControl: UIControl {
         }
 
         self.segments = segments
+        selectedSegmentIndex = min(selectedSegmentIndex, segments.count - 1)
         setupSegments()
+        if wrapsTitles { invalidateIntrinsicContentSize() }
+        setNeedsLayout()
     }
 
     // MARK: - Setup
@@ -94,7 +131,7 @@ final class FWSegmentedControl: UIControl {
 
     private func setupLayout() {
         addSubview(containerView)
-        containerView.frame = frame
+        containerView.frame = bounds
         let frame = containerView.bounds
 
         containerView.addSubview(backgroundView)
@@ -107,7 +144,7 @@ final class FWSegmentedControl: UIControl {
 
         containerView.addSubview(sliderView)
         sliderView.frame = CGRect(
-            x: 0,
+            x: CGFloat(selectedSegmentIndex) * segmentWidth,
             y: 0,
             width: segmentWidth,
             height: backgroundView.frame.height
@@ -127,6 +164,7 @@ final class FWSegmentedControl: UIControl {
 
             backgroundView.addSubview(defaultLabel)
         }
+        if wrapsTitles { updateAccessibility() }
     }
 
     private func setupAutoresizingMasks() {
@@ -148,7 +186,11 @@ final class FWSegmentedControl: UIControl {
             width: segmentWidth,
             height: backgroundView.frame.height
         )
-        let label = UILabel(frame: rect)
+        let label = UILabel(frame: wrapsTitles ? rect.insetBy(dx: 8, dy: 0) : rect)
+        if wrapsTitles {
+            label.numberOfLines = 0
+            label.lineBreakMode = .byCharWrapping
+        }
         label.text = text
         label.textAlignment = .center
         label.font = selected ? highlightFont : defaultFont
@@ -193,6 +235,7 @@ final class FWSegmentedControl: UIControl {
     // MARK: - Slider position
 
     private func moveToNearestPoint(basedOn gesture: UIGestureRecognizer, velocity: CGPoint? = nil) {
+        guard numberOfSegments > 0, sliderView.bounds.width > 0 else { return }
         var location = gesture.location(in: self)
         if let velocity = velocity {
             let offset = velocity.x / 13
@@ -260,4 +303,30 @@ final class FWSegmentedControl: UIControl {
             sliderMaskView.shadowOpacity = 0
         }
     }
+}
+
+private extension FWSegmentedControl {
+    func updateAccessibility() {
+        accessibilityElements = segments.enumerated().map { index, title in
+            let element = ReceiveSegmentAccessibilityElement(accessibilityContainer: self)
+            element.accessibilityLabel = title
+            element.accessibilityTraits = selectedSegmentIndex == index ? [.button, .selected] : [.button]
+            if !isEnabled { element.accessibilityTraits.insert(.notEnabled) }
+            element.accessibilityFrameInContainerSpace = CGRect(
+                x: CGFloat(index) * segmentWidth, y: 0, width: segmentWidth, height: bounds.height
+            )
+            element.activation = { [weak self] in
+                guard let self, self.isEnabled, !self.isHidden, self.isUserInteractionEnabled else { return false }
+                self.move(to: index)
+                self.delegate?.didSelect(index)
+                return true
+            }
+            return element
+        }
+    }
+}
+
+private final class ReceiveSegmentAccessibilityElement: UIAccessibilityElement {
+    var activation: (() -> Bool)?
+    override func accessibilityActivate() -> Bool { activation?() ?? false }
 }

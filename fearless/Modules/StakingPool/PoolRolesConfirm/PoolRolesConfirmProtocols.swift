@@ -21,7 +21,6 @@ protocol PoolRolesConfirmInteractorInput: AnyObject {
 }
 
 protocol PoolRolesConfirmInteractorOutput: AnyObject {
-    func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceive(extrinsicResult: SubmitExtrinsicResult)
     func didReceive(accounts: [MetaAccountModel])

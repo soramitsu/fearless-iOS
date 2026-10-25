@@ -1,6 +1,14 @@
+"about.font.licenses" = "Yazı tipi lisansları";
+"about.font.licenses.unavailable" = "Yazı tipi lisansları yüklenemedi.";
 "NSCameraUsageDescription" = "Kamera, QR kodunu yakalamak için kullanılır";
 "NSFaceIDUsageDescription" = "Face ID uygulamada yetkilendirme için kullanılır";
 "NSPhotoLibraryAddUsageDescription" = "Transfer isteğini QR Kodu olarak kaydet";
+"ton.transfer.unknown.title" = "Transfer durumu bilinmiyor";
+"ton.transfer.unknown.message" = "Ağ bu transferi kabul etmiş olabilir. Tekrar göndermeyin. Bu mesaj karmasını kaydedin ve başka bir işlem yapmadan önce durumunu kontrol edin:\n%@";
+"ton.transfer.unknown.copy_hash" = "Mesaj karmasını kopyala";
+"ton.transfer.prior_confirmed.title" = "Önceki transfer onaylandı";
+"ton.transfer.prior_confirmed.message" = "Önceki bir transfer onaylandı. Bu yeni transfer gönderilmedi. Yeniden onaylamadan önce önceki karmayı inceleyip kabul edin:\n%@";
+"ton.transfer.prior_confirmed.acknowledge" = "Kabul et ve ücreti yeniden hesapla";
 "NSPhotoLibraryUsageDescription" = "Kitaplıktan fotoğraf yükle";
 "about.announcement" = "Duyuruları Alın";
 "about.ask.for.support" = "Destek İsteyin";
@@ -64,6 +72,19 @@
 "account.needed.message" = "Bu ağ için hesabınız yok, hesap oluşturabilir veya içe aktarabilirsiniz";
 "account.needed.title" = "Hesap gerekli";
 "account.option" = "Hesap seçeneği";
+"account.stats.avg.transaction.time.title" = "Avg. transaction time";
+"account.stats.description.text" = "Your Multichain Score is based on your onchain journey through 3 ecosystems: Ethereum, Polygon and Binance Smart Chain";
+"account.stats.error.message" = "Unable to retrieve account score information. Please try again later.";
+"account.stats.hold.tokens.usd.title" = "Hold tokens USD";
+"account.stats.max.transaction.time.title" = "Max transaction time";
+"account.stats.min.transactions.time.title" = "Min transaction time";
+"account.stats.native.balance.usd.title" = "Native balance USD";
+"account.stats.rejected.transactions.title" = "Rejected transactions";
+"account.stats.title" = "Your score";
+"account.stats.total.transactions.title" = "Total transactions";
+"account.stats.updated.title" = "Updated";
+"account.stats.wallet.age.title" = "Wallet age";
+"account.stats.wallet.option.title" = "Show wallet score";
 "account.template" = "%s hesabı";
 "account.unique.secret" = "Eşsiz gizli bilgili hesaplar";
 "accounts.add.account" = "Hesap ekle";
@@ -91,10 +112,14 @@
 "application.status.view.copied.description" = "Cüzdan adresi başarıyla kopyalandı";
 "application.status.view.copied.title" = "Adres kopyalandı";
 "application.status.view.hash.copied.description" = "Hash başarıyla kopyalandı";
+"application.status.view.hash.copied.description" = "Hash başarıyla kopyalandı";
+"application.status.view.hash.copied.title" = "Hash kopyalandı";
 "application.status.view.hash.copied.title" = "Hash kopyalandı";
 "application.status.view.offline.description" = "Lütfen bağlantınızı kontrol edin ve tekrar deneyin";
 "application.status.view.offline.title" = "Çevrimdışı olduğunuz anlaşılıyor";
 "application.status.view.reconnected.description" = "Bağlantı başarıyla kuruldu";
+"application.status.view.reconnected.description" = "Bağlantı başarıyla kuruldu";
+"application.status.view.reconnected.title" = "Yeniden bağlandı";
 "application.status.view.reconnected.title" = "Yeniden bağlandı";
 "applied.fearless.wallet.bonus" = "Fearless wallet bonusu uygulandı";
 "apply.fearless.wallet.bonus" = "Fearless wallet bonusuna katılmak için tıklayın";
@@ -121,6 +146,7 @@ Girmeniz gerekecek.";
 "backup.create.password.not.matched" = "Şifre eşleşmiyor";
 "backup.create.password.password.field.title" = "Şifreyi belirle";
 "backup.create.password.screen.title" = "Yedek şifre oluştur";
+"backup.create.password.too.short" = "En az %@ karakter kullanın";
 "backup.create.password.warning" = "Şifremi unutursam geri almanın hiç bir\
 Yolu olmadığını biliyorum";
 "backup.mnemonic.description" = "Kelimelerinizi aşağıda göründükleri sırayla kaydetmeyi unutmayın. Yedekleme için dijital olmayan bir yol kullanın.";
@@ -157,6 +183,7 @@ Yolu olmadığını biliyorum";
 "backup.wallet.replace.several.alert" = "Şu anda ana anahtar çiftinin değiştirilmesiyle eklenen birkaç zincir hesabınız var ve bu hesapta belirli bir anahtar çifti bulunuyor. Ancak mevcut cüzdan yedekleme (dışa aktarma) akışımızın birden fazla anahtar çiftinin depolanmasını desteklemediğini lütfen unutmayın. Sonuç olarak yalnızca ana anahtar çiftinizi kaydedebilirsiniz. \n  \n Değiştirdiğiniz zincir hesabınızın güvenliğini sağlamak için mevcut akışa geçmeden önce öncelikle hesabınızı ayrı olarak yedeklemenizi öneririz. Değiştirdiğiniz zincir hesabınızı başarıyla yedekledikten sonra herhangi bir endişe yaşamadan mevcut akışa geçebilirsiniz.";
 "backup.wallet.seed" = "Ham Tohumu Göster";
 "backup.wallet.title" = "Yedekleme cüzdanı";
+"balance.locks.blocked.row.title" = "Blocked";
 "balance.locks.governance.row.title" = "Yönetim";
 "balance.locks.liquidity.pools.row.title" = "Likidite Havuzları";
 "balance.locks.nomination.pools.row.title" = "Adaylık havuzları";
@@ -180,6 +207,7 @@ Yolu olmadığını biliyorum";
 "common.action.receive" = "Almak";
 "common.action.send" = "Gönder";
 "common.action.teleport" = "Işınlanma";
+"common.activation.required" = "Activation Required";
 "common.add" = "Ekle";
 "common.address" = "Adres";
 "common.advanced" = "Gelişmiş";
@@ -252,6 +280,7 @@ Yolu olmadığını biliyorum";
 "common.message" = "İleti";
 "common.methods" = "Yöntemler";
 "common.module" = "Modül";
+"common.more" = "More";
 "common.my.networks" = "Ağlarım";
 "common.name" = "İsim";
 "common.network" = "Ağ";
@@ -265,6 +294,8 @@ Yolu olmadığını biliyorum";
 "common.not.enough.balance.message" = "Üzgünüz, belirtilen tutarı yatırmak için yeterli miktar yok.";
 "common.not.enough.fee.message" = "Üzgünüz, ağ ücretini ödemek için yeterli tutar yok";
 "common.ok" = "Tamam";
+"update.security.notice.title" = "Mobil cüzdanınız güvende";
+"update.security.notice.message" = "iOS ve Android için Fearless, eski Fearless Chrome uzantısındaki güvenlik sorunundan etkilenmedi.\n\nChrome uzantısını 23 Ekim 2026'dan önce kullandıysanız yeni bir cüzdan oluşturun ve fonlarınızı bu cüzdana taşıyın.";
 "common.paste" = "Yapıştırmak";
 "common.payout" = "Ödeme";
 "common.preview" = "Ön izleme";
@@ -284,6 +315,7 @@ Yolu olmadığını biliyorum";
 "common.search.start.title" = "Arama sonuçları burada görünecek.";
 "common.secret.derivation.path" = "Özel anahtar türetme yolu";
 "common.select" = "Seçmek";
+"common.select" = "Seçme";
 "common.select.all" = "Hepsini seç";
 "common.select.asset" = "Varlık seçin";
 "common.select.network" = "Ağ Seçin";
@@ -399,6 +431,7 @@ Yolu olmadığını biliyorum";
 "error.invalid.address" = "Seçilen zincir için geçersiz adres";
 "error.message.enter.the.name" = "İsmi girin…";
 "error.message.enter.the.url.address" = "URL bağlantısını girin...";
+"error.scan.qr.disabled.asset" = "The asset you want to transfer is either unsupported or turned off. Go to Asset Management, activate the asset, and then scan the QR code again.";
 "error.unsupported.asset" = "Şu anda Uygulamada desteklenmeyen bir varlığın aktarımını yapmaya çalışıyorsunuz. Lütfen başka bir varlık seçin veya başka bir QR kodu isteyin.";
 "ethereum.crypto.type" = "Ethereum anahtar çifti türü";
 "ethereum.secret.derivation.path" = "Ethereum gizli türetme yolu";
@@ -464,6 +497,28 @@ Kaynak: %@";
 "label.testnet" = "Testnet";
 "language.title" = "Dil";
 "learn.more.about.crowdloans" = "Crowdloan'lar hakkında daha fazla öğrenin";
+"lp.apy.alert.text" = "Likidite sağlanmasına yönelik tarım ödülü";
+"lp.apy.alert.title" = "Stratejik Bonus APY";
+"lp.apy.title" = "Stratejik Bonus APY";
+"lp.available.pools.title" = "Mevcut havuzlar";
+"lp.banner.action.details.title" = "Show details";
+"lp.banner.text" = "Invest your funds in Liquidity\npools and receive rewards";
+"lp.confirm.liquidity.screen.title" = "Likiditeyi Doğrula";
+"lp.confirm.liquidity.warning.text" = "Çıktı tahminidir. Fiyatın %0,5'ten fazla değişmesi durumunda işleminiz geri alınacaktır.";
+"lp.network.fee.alert.text" = "Ağ ücreti, SORA sisteminin büyümesini ve istikrarlı performansını sağlamak için kullanılır.";
+"lp.network.fee.alert.title" = "Şebeke ücreti";
+"lp.pool.details.title" = "Havuz detayları";
+"lp.pool.remove.warning.text" = "Havuz tokenlarını kaldırmak, pozisyonunuzu havuzdaki payınızla orantılı olarak mevcut oranda temel tokenlara dönüştürür. Tahakkuk eden ücretler, aldığınız tutarlara dahildir.";
+"lp.pool.remove.warning.title" = "NOT";
+"lp.remove.button.title" = "Likiditeyi Kaldır";
+"lp.remove.liquidity.screen.title" = "Likiditeyi Kaldır";
+"lp.reward.token.text" = "%@ Kazanın";
+"lp.reward.token.title" = "Ödül Ödemesi";
+"lp.slippage.title" = "Kayma";
+"lp.supply.button.title" = "Arz Likiditesinin";
+"lp.supply.liquidity.screen.title" = "Arz Likiditesinin";
+"lp.token.pooled.text" = "%@ Havuzunuz";
+"lp.user.pools.title" = "Kullanıcı havuzları";
 "manage.assets.account.missing.text" = "Bir hesap ekle";
 "manage.assets.search.hint" = "Tokene veya ağa göre ara";
 "members.common" = "Üyeler";
@@ -484,6 +539,7 @@ Kaynak: %@";
 "network.info.address" = "Node adresi";
 "network.info.name" = "Node adı";
 "network.info.title" = "Node Bilgisi";
+"network.issue.main" = "Connection Error: Unable to connect to the network. Please try again.";
 "network.issue.network.unavailible" = "Ağ kullanılamıyor";
 "network.issue.node.unavailable" = "Düğüm kullanılamıyor";
 "network.issue.notofication" = "Bildiri";
@@ -504,8 +560,10 @@ Kaynak: %@";
 "nft.creator.title" = "Yaratıcı";
 "nft.list.empty.message" = "Henüz NFT yok\
 burada görmek için NFT'leri satın alın veya bastırın";
+"nft.load.error" = "Failed to load NFTs";
 "nft.owner.title" = "Sahip olunan.";
 "nft.share.address" = "Alacağım genel adresim:%s";
+"nft.spam.warning" = "Beware of a scam/spam NFT collection – verify authenticity before engaging. Stay safe!";
 "nft.stub.text" = "NFT'ler yakında geliyor";
 "nft.stub.title" = "Sumimasen!";
 "nft.tokenid.title" = "Jeton kimliği";
@@ -589,16 +647,19 @@ burada görmek için NFT'leri satın alın veya bastırın";
 "polkaswap.disclaimer.title" = "Sorumluluk reddi beyanı";
 "polkaswap.liqudity.fee.info" = "Her işlemin bir kısmı (%0,3) protokol teşviki olarak likidite sağlayıcılarına gidiyor.";
 "polkaswap.liquidity.provider.fee" = "Likidite Sağlayıcı Ücreti";
+"polkaswap.liquidity.provider.fee" = "Likidite Sağlayıcı Ücreti";
 "polkaswap.market.alert.choose.action" = "Varlık seçin";
 "polkaswap.market.alert.message" = "Takas ayarlamalarını tamamlamadınız. Varlıklardan biri veya her ikisi de seçilmediğinden pazar seçimi kullanılamıyor.";
 "polkaswap.market.alert.title" = "Pazar seçimi kullanılamıyor";
 "polkaswap.market.algorithm.title" = "Piyasa algoritması";
 "polkaswap.market.smart.description" = "SMART likidite yönlendirmesi, mevcut tüm piyasalardan yalnızca en iyi fiyat seçeneklerini birleştirerek herhangi bir işlem için en iyi fiyatı sağlar. Mevcut olduğunda, varlık fiyatı XYK havuzunun kullanıldığı diğer kaynaklardan daha uygun olduğu sürece likidite için Token Bağlama Eğrisi (TBC) kullanılacaktır.";
 "polkaswap.market.stub" = "Pazar:";
+"polkaswap.market.stub" = "Pazar";
 "polkaswap.market.tbc.description" = "TBC - yalnızca Token Bağlama Eğrisinden (Birincil Piyasa) satın alma. Fiyatın XYK havuzuna (İkincil Piyasa) göre olumsuz hale gelme olasılığı vardır, ancak kazanılmış ödüllerden elde edilen değer zamanla çok daha avantajlı hale gelebilir.";
 "polkaswap.market.xyk.description" = "XYK — yalnızca XYK havuzundan (İkincil Piyasa) satın alma. Piyasa yapıcının x*y=k eğrisindeki konumunu değiştirerek herkesin varlık alıp satabildiği geleneksel XYK havuz takası.";
 "polkaswap.max.received" = "Maksimum satılanlar";
 "polkaswap.maximum.sold.info" = "Onaylanmadan önce büyük, olumsuz bir fiyat hareketi olması durumunda işleminiz geri alınacaktır.";
+"polkaswap.min.received" = "Minimum alınan miktar";
 "polkaswap.min.received" = "Minimum alınan miktar";
 "polkaswap.minimum.received.info" = "Onaylanmadan önce büyük, olumsuz bir fiyat hareketi olması durumunda işleminiz geri alınacaktır.";
 "polkaswap.network.fee" = "Ağ ücreti";
@@ -655,13 +716,13 @@ burada görmek için NFT'leri satın alın veya bastırın";
 "pools.limit.has.reached.error.message" = "Bu ağdaki havuz sınırına ulaşıldı";
 "pools.limit.has.reached.error.title" = "Daha fazla havuz oluşturamazsınız";
 "profile.about.title" = "Hakkında";
+"profile.account.score.title" = "Nomis multichain score";
 "profile.accounts.title" = "Hesaplar";
 "profile.language.title" = "Dil";
 "profile.logout.description" = "Bu işlem ,cihazdaki tüm hesapların silinmesine neden olacak. Devam etmeden önce anahtar kelimelerinizi yedeklediğinizden emin olun.";
 "profile.logout.title" = "Çıkış yap";
 "profile.network.title" = "Ağlar";
 "profile.pincode.change.title" = "PIN kodunu değiştir.";
-"profile.soracard.title" = "SORA Kartı";
 "profile.title" = "Ayarlar";
 "profile.wallets.title" = "Cüzdanlar";
 "receive.note.text" = "NOT: Bu bir Polkadot & Kusama cüzdanıdır. Lütfen yalnızca Polkadot ve Kusama blok zincirindeki varlıkları gönderin.";
@@ -682,8 +743,11 @@ burada görmek için NFT'leri satın alın veya bastırın";
 "scam.additional.stub" = "Ek olarak:";
 "scam.description.donation.stub" = "Bu adres şüpheli olarak işaretlendi. göndermemenizi şiddetle tavsiye ederiz.%sbu hesaba.";
 "scam.description.exchange.stub" = "Bu adres bir borsa olarak işaretlenmiştir, para yatırma ve çekme adresleri farklı olabileceğinden dikkatli olun.";
+"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
 "scam.description.sanctions.stub" = "Bu adres, yaptırım altındaki bir ülkeyle bağlantılı bir kuruluş nedeniyle işaretlendi. göndermemenizi şiddetle tavsiye ederiz.%sbu hesaba.";
 "scam.description.scam.stub" = "Bu adres dolandırıcılık kanıtı nedeniyle işaretlendi. göndermemenizi şiddetle tavsiye ederiz.%sbu hesaba.";
+"scam.info.nomis.name" = "Nomis multi-chain score";
+"scam.info.nomis.subtype.text" = "Proceed with caution";
 "scam.name.stub" = "İsim:";
 "scam.reason.stub" = "Sebep:";
 "scam.warning.alert.subtitle" = "göndermemenizi şiddetle tavsiye ederiz.%sbu hesaba.";
@@ -702,7 +766,7 @@ burada görmek için NFT'leri satın alın veya bastırın";
 "select.save.type" = "Kayıt türü seçin";
 "select.suggested.validators.warning" = "Algoritmik doğrulayıcı önerileri finansal danışmanlık veya tavsiye teşkil etmez. Staking yüksek riskli bir faaliyettir ve algoritmik doğrulayıcı önerileri bu riski mutlaka azaltmaz. Algoritmanın önerdiği bir doğrulayıcı yine de aday havuzundan çıkabilir. Algoritma tarafından önerilen bir doğrulayıcı, önerildikten ve/veya seçildikten sonra herhangi bir zamanda parametrelerini (örn. komisyon oranları vb.) değiştirebilir. Bu veya başka nedenlerden dolayı ödüllerinizi kaybedebilirsiniz. Durum tespiti yaptıktan ve ilgili riskleri dikkatlice değerlendirdikten sonra, yalnızca kendi takdirinize bağlı olarak tokenları stake edin ve doğrulayıcı önerilerini kullanın.";
 "select.validators.disclaimer" = "SORUMLULUK REDDİ: Algoritmanın validatör tavsiyeleri finansal danışmanlık veya tavsiye teşkil etmez. Stake yapmak yüksek riskli bir faaliyettir ve algoritmanın validatör tavsiyeleri bu riski azaltmaz. Algoritma tarafından önerilen bir validatör yine de durabilir. Algoritma tarafından önerilen bir validatör, önerildikten ve/veya seçildikten sonra herhangi bir zamanda parametrelerini (örneğin komisyon oranlarını vb.) değiştirebilir. Bu veya başka nedenlerle tokenlerinizi veya ödüllerinizi kaybedebilirsiniz. Durum tespiti yapıldıktan sonra ve ilgili riskleri dikkatlice değerlendirdikten sonra, yalnızca kendi takdirinize bağlı olarak tokenlerinizi stake edin ve validatör tavsiyelerini kullanın.";
-"send.all.title" = "Send all tokens and reap the account";
+"send.all.title" = "Bu ağdaki tüm tokenları gönder ve hesabın kapatılmasına izin ver";
 "send.confirm.amount.title" = "gönderiliyor\n%@";
 "send.fund.title" = "Fon gönder";
 "settings.add.wallet" = "Cüzdan ekle";
@@ -712,13 +776,6 @@ burada görmek için NFT'leri satın alın veya bastırın";
 "sora.bridge.amount.less.fee" = "Aktarmaya çalıştığınız tutar, işlem ücretlerini karşılamaya yetmiyor. %sAğ İşlem gerçekleşmese de Sora ağındaki ücretler sizden yine de tahsil edilecektir.";
 "sora.bridge.low.amaunt.polkadot.alert" = "Şu anda bir dk. Stabilite ve güvenliği sağlamak için köprüleme için miktar 1,1 DOT. Anlayışınız için minnettarız.";
 "sora.bridge.low.amount.alert" = "Şu anda bir dk. SORA Ağının istikrarını ve güvenliğini sağlamak amacıyla köprüleme için miktar 0,05 KSM. Anlayışınız için minnettarız.";
-"sora.card.status.failure.text" = "KYC sonlandırıldı veya başka şekilde başarısız oldu";
-"sora.card.status.failure.title" = "Doğrulama başarısız oldu!";
-"sora.card.status.pending.title" = "Doğrulama devam ediyor";
-"sora.card.status.rejected.text" = "Başvurunuz başarısız oldu. Başarısızlığın nedeni hakkında daha fazla bilgi edinmek için lütfen aşağıdaki ek açıklamayı okuyun.";
-"sora.card.status.rejected.title" = "Doğrulama reddedildi";
-"sora.card.status.success.text" = "KYC doğrulamanız başarılı oldu ve size SORA kartınızı göndermeye hazırlanıyoruz!";
-"sora.card.status.success.title" = "Doğrulama başarılı";
 "sr25519.selection.subtitle" = "sr25519 (önerilen)";
 "sr25519.selection.title" = "Schnorrkel";
 "stacking.stash.account" = "Stash hesabı";
@@ -743,6 +800,7 @@ burada görmek için NFT'leri satın alın veya bastırın";
 "staking.analytics.period.all" = "Tüm";
 "staking.analytics.rewards.empty.message" = "Seçilen zaman aralığında\
 hiç ödül alınmadı";
+"staking.analytics.received.rewards" = "Alınan ödüller";
 "staking.analytics.stake.allocation" = "Mevcut validatörlerle stake tahsisi";
 "staking.analytics.stake.empty.message" = "Bahis değişiklikleriniz burada görünecek";
 "staking.analytics.staking.was.active" = "Staking aktifti";
@@ -832,21 +890,24 @@ hiç ödül alınmadı";
 "staking.pool.create.root" = "Kök";
 "staking.pool.create.stateToggler" = "Durum değiştirici";
 "staking.pool.create.title" = "Havuz oluştur";
+"staking.pool.create.title" = "Havuz oluştur";
 "staking.pool.info.title" = "Havuz Bilgisi";
 "staking.pool.management.select.validators.subtitle" = "Devam etmek için \n doğrulayıcıları seçmelisiniz";
+"staking.pool.management.select.validators.subtitle" = "Devam etmek için \n doğrulayıcıları seçmelisiniz";
 "staking.pool.management.select.validators.title" = "Select pool validators";
+"staking.pool.management.select.validators.title" = "Havuz doğrulayıcılarını seçin";
 "staking.pool.rewards.delay.text" = "İstediğiniz zaman bahis yapın. Sonrasında faiz kazanmaya başlayacaksınız%s";
 "staking.pool.select.validators.manual" = "Manuel olarak seç";
 "staking.pool.select.validators.suggested" = "Önerileni seç";
 "staking.pool.sort.pool.members" = "Üye sayısı";
 "staking.pool.stake.info.title" = "Havuz Bahis Bilgisi";
-"staking.pool.start.apr.text" = "Para kazanmak%syıl başına";
+"staking.pool.start.apr.text" = "Para kazanmak%@yıl başına";
 "staking.pool.start.create.button.title" = "Havuz oluştur";
 "staking.pool.start.earn.reward.title" = "Payınızı yatırdığınızda ödüller kazanın\n%s";
 "staking.pool.start.join.button.title" = "Havuza katıl";
 "staking.pool.start.reward.freq.text" = "Ödüller her yıl ödenir%s";
 "staking.pool.start.unstake.period.text" = "İstediğiniz zaman bahisten çıkın. Paranızı ve kazandığınız faizi harcayabilmeniz için Belirlenen süreyi beklemeniz gerekecektir.\
-%s";
+%@";
 "staking.rebond" = "Rebond";
 "staking.rebond.all" = "Hepsini yeniden bağla.";
 "staking.rebond.custom.amount" = "Özel tutarı yeniden bağlama";
@@ -892,6 +953,7 @@ hiç ödül alınmadı";
 "staking.rewards.title" = "Ödüller";
 "staking.round.title" = "yuvarlak #%@";
 "staking.select.suggested" = "Önerileni seçin";
+"staking.select.validators.confirm.title" = "Doğrulayıcıları seçme";
 "staking.select.validators.confirm.title" = "Doğrulayıcıları seçme";
 "staking.select.validators.custom.button.title" = "Kendiniz seçin";
 "staking.select.validators.custom.desc" = "Adaylarınızın yetkin ve dürüst hareket edeceğine güvenmelisiniz, kararınızı tamamen mevcut karlılıklarına dayandırmak kârın azalmasına ve hatta fon kaybına yol açabilir";
@@ -1008,13 +1070,6 @@ Anahtarınızın yedeğini almayı ve onu güvenli ve gizli bir yerde (ö.o., bi
 "tabbar.crowdloan.title" = "Crowdloanlar";
 "tabbar.crowdloan.title_v1.9.0" = "Crowdloans";
 "tabbar.settings.title" = "Ayarlar";
-"terms.and.conditions.accept.and.continue" = "Kabul Et ve Devam Et";
-"terms.and.conditions.description" = "SORA Kart hizmetlerinin tam olarak nasıl çalıştığını, bilgilerinize kimin ve neden ihtiyaç duyduğunu bilmenizi istiyoruz. Bu politikaları gözden geçirmek, uygulamayı gönül rahatlığıyla kullanmaya devam etmenize yardımcı olacaktır.";
-"terms.and.conditions.general.terms" = "Genel Kullanım Koşulları";
-"terms.and.conditions.privacy.policy" = "Gizlilik Politikası";
-"terms.and.conditions.sora.community.alert.main" = "SORA topluluğu hiçbir kişisel verinizi toplamaz,";
-"terms.and.conditions.sora.community.alert.secondary" = "ancak SORA Kartını ve IBAN hesabını almak için kartı veren kuruluşla KYC sürecinden geçmeniz gerekir.";
-"terms.and.conditions.title" = "Şartlar ve koşullar";
 "tranaction.history.others.tab.title" = "Diğerleri";
 "transaction.detail.date" = "Tarih";
 "transaction.detail.status" = "Durum";
@@ -1023,9 +1078,9 @@ Anahtarınızın yedeğini almayı ve onu güvenli ve gizli bir yerde (ö.o., bi
 "transaction.details.from" = "Gönderen";
 "transaction.details.hash.title" = "Harici Hash";
 "transaction.details.view.etherscan" = "Etherscan'da görüntüle";
+"transaction.details.view.oklink" = "View in OKX  explorer";
 "transaction.details.view.polkascan" = "Polkascan'de görüntüle";
 "transaction.details.view.reefscan" = "Reefscan'da görüntüle";
-"transaction.details.view.oklink" = "View in OKX explorer";
 "transaction.details.view.subscan" = "Subscan'da Görüntüle";
 "transaction.list.header" = "Tüm işlemler";
 "transaction.status.completed" = "Tamamlandı";
@@ -1036,13 +1091,14 @@ Anahtarınızın yedeğini almayı ve onu güvenli ve gizli bir yerde (ö.o., bi
 "try.again" = "Tekrar deneyin";
 "update.needed.text" = "Güncelleme Gerekiyor";
 "username.setup.choose.title" = "Cüzdan takma adı";
-"username.setup.hint" = "Bu hesabın adı ve adreslerinizin altında nasıl görüneceği. Zincir üzerindeki bir kimlikle başkalarının görünümüne de sunulabilir";
+"username.setup.hint" = "Bu takma ad yalnızca size gösterilecek ve mobil cihazınızda yerel olarak saklanacaktır.";
 "username.setup.hint.2.0" = "Örnek: Tasarruflar, Yatırımlar, Kitlesel Krediler, Staking. Bu takma ad yalnızca size gösterilecek ve mobil cihazınızda yerel olarak saklanacaktır.";
 "username.setup.title" = "Hesap oluştur";
 "username.setup.title.2.0" = "Yeni bir cüzdan oluştur";
 "validator.info.comission.title" = "Komisyon";
+"validator.info.min.stake.alert.text" = "Minimum stake among active nominators is %s. To get rewards you have to stake more.";
+"validator.info.min.stake.among.active.nominators.text" = "Minimum stake among active nominators";
 "validators.list.empty.message" = "Doğrulayıcı bulunamadı";
-"verify.phone.number.title" = "Verify your phone number";
 "vesting.claim.disclaimer.text" = "Her parachain'in benzersiz hak kazanma programları nedeniyle, uygulamamız talep edilmeye uygun kilitli tokenlerin miktarını görüntüleyemiyor. Olası tutarın marjinal olması ve söz konusu işlem ücretiyle karşılaştırılabilir olması durumunda, hak talebinde bulunmanın pratik olmayabileceğini lütfen unutmayın. Kilitli bakiyelerinize ilişkin kapsamlı bilgiler için Subscan blok araştırmacısına başvurun. Bilgileri dikkatlice değerlendirmenizi ve kendi takdirinize göre ilerlemenizi öneririz.";
 "vesting.claim.disclaimer.title" = "Token Taleplerine İlişkin Önemli Uyarı:";
 "vesting.locked.title" = "Vesting Kilitli";
@@ -1050,6 +1106,7 @@ Anahtarınızın yedeğini almayı ve onu güvenli ve gizli bir yerde (ö.o., bi
 "view.wallet" = "Cüzdanı görün";
 "wallet.account.locks.democracy" = "Demokrasi";
 "wallet.account.locks.vesting" = "Vesting";
+"wallet.all.assets.hidden" = "Değiştirilebilir jetonlar";
 "wallet.asset.buy" = "Satın Alın";
 "wallet.asset.buy.with" = "%s ile al";
 "wallet.asset.receive" = "Al";
@@ -1069,6 +1126,8 @@ Anahtarınızın yedeğini almayı ve onu güvenli ve gizli bir yerde (ö.o., bi
 "wallet.connect.invalid.url.message" = "Uygulamamız yalnızca Wallet Connect SDK v2'yi destekler ve kullanımdan kaldırılan SDK v1'i desteklemez. Başarılı bir bağlantı için lütfen uygun sürümü kullanın.";
 "wallet.connect.invalid.url.title" = "Uyarı: Wallet Connect SDK v1 Desteklenmiyor";
 "wallet.connect.sign.warning.message" = "Bu mesajı imzalamanın tehlikeli yan etkileri olabilir. Yalnızca hesabınızın tamamıyla tamamen güvendiğiniz sitelerden gelen mesajları imzalayın.";
+"wallet.connect.signing.unavailable.message" = "Bağlı bir uygulama Fearless'tan imza istedi. İstek reddedildi ve hiçbir şey imzalanmadı. Cüzdanınızı her zamanki gibi kullanmaya devam edebilir, uygulamaların bağlantısını profilinizdeki WalletConnect bölümünden kesebilirsiniz.";
+"wallet.connect.signing.unavailable.title" = "WalletConnect ile imzalama bu sürümde kullanılamıyor";
 "wallet.contacts.empty.title" = "Transfer yaptığınız hesaplarınız ve kişileriniz burada görünecek.";
 "wallet.contacts.empty.title_v1.10" = "Hesaplarınız ve transfer\
 yaptığınız kişileriniz\
@@ -1086,6 +1145,29 @@ burada görünecektir";
 "wallet.history.title_v1.9.0" = "Geçmiş";
 "wallet.manage.assets" = "Varlıkları yönetin";
 "wallet.managment.select.wallet.title" = "Cüzdanınızı seçin";
+"wallet.name.unnamed" = "Adsız cüzdan";
+"wallet.chain.accounts.section" = "Başka bir hesabın saklandığı ağlar";
+"wallet.chain.accounts.use.stored" = "Saklanan %@ hesabını kullan";
+"wallet.chain.accounts.use.wallet" = "Bu cüzdanın kendi hesabını kullan";
+"wallet.chain.accounts.switch.title" = "%@ ağındaki hesap değiştirilsin mi?";
+"wallet.chain.accounts.switch.message" = "%1$@, bu cüzdanın %2$@ ağında gösterdiği ve kullandığı adres olacak. Yerine geçtiği hesap bu cüzdanda saklanmaya devam edecek ve istediğiniz zaman eski hesaba dönebileceksiniz.";
+"wallet.chain.accounts.switch.confirm" = "Hesabı değiştir";
+"wallet.chain.accounts.notice.title" = "Eski ağ hesapları bulundu";
+"wallet.chain.accounts.notice.message" = "Fearless, önceki sürümün göstermediği, daha eski bir sürümden kalan ağ hesapları buldu. Bu hesapların bulunduğu ağlar: %@.\n\nHiçbir şey değişmedi ve hiçbir şey silinmedi: her ağda, kullanmakta olduğunuz adres korunuyor. Bu eski hesaplardan birine para geldiyse cüzdanı açın ve o hesabı ait olduğu ağ için seçin.";
+"wallet.chain.accounts.notice.action" = "Hesapları incele";
+"wallet.records.sheet.title" = "Saklanan bazı kayıtlar gösterilemiyor";
+"wallet.records.sheet.kept" = "Hiçbir şey silinmedi. Bu kayıtlar ve anahtarları bu cihazda kalmaya devam ediyor. Uygulamayı silmeyin: bu işlem onları da siler.";
+"wallet.records.sheet.next" = "Böyle bir cüzdanı şimdi kullanmak için kurtarma ifadesi, ham kaynak veya JSON dosyasıyla yeniden içe aktarın. İçe aktarma işlemi cüzdanı yeni bir cüzdan olarak ekler ve saklanan hiçbir şeyi değiştirmez.";
+"export.seed.unavailable.title" = "Ham kaynak gösterilmiyor";
+"export.seed.missing.message" = "Bu cihazda bu hesap için ham kaynak bulunmuyor. Hesap eskisi gibi çalışıyor. JSON dosyası gibi başka bir dışa aktarma seçeneğiyle yedeğini alabilirsiniz.";
+"export.seed.mismatch.message" = "Bu hesap için saklanan ham kaynak farklı bir adresi geri yükleyeceğinden gösterilmiyor. Hesap eskisi gibi çalışıyor. JSON dosyası gibi başka bir dışa aktarma seçeneğiyle yedeğini alabilirsiniz.";
+"backup.google.not.created.title" = "Google Drive yedeği oluşturulamadı";
+"backup.google.ton.unsupported.message" = "Google Drive yedeği, bir cüzdanın Polkadot ekosistemi ve Ethereum anahtarlarını saklar. Bu TON cüzdanının kendine ait bir TON anımsatıcı ifadesi vardır ve bu tür bir yedek, bu ifadeyi geri yükleyemez. Hiçbir şey yüklenmedi ve cüzdanınızda değişiklik olmadı. Yedeklemek için cüzdanınızın anımsatıcı ifadesini bir yere yazın ve çevrimdışı saklayın.";
+"backup.google.substrate.unsupported.message" = "Google Drive yedeği yalnızca Polkadot ekosistemi için bir anahtarı olan cüzdanları geri yükleyebilir. Bu cüzdanda böyle bir anahtar yok. Hiçbir şey yüklenmedi ve cüzdanınızda değişiklik olmadı. Cüzdanınızı yedeklemek için diğer yedekleme seçeneklerinden birini kullanın.";
+"backup.google.material.message" = "Bu cüzdan için saklanan anahtarlar, bir Google Drive yedeği oluşturmak üzere hazırlanamadı. Hiçbir şey yüklenmedi, cüzdanınız değişmedi ve eskisi gibi çalışıyor. Anımsatıcı ifade veya JSON dosyası gibi diğer yedekleme seçeneklerinden biriyle cüzdanınızı yedekleyin.";
+"backup.google.readback.message" = "Yedek, Google Drive'dan tam olarak kaydedildiği hâliyle okunamadığı için bu cüzdan yedeklenmiş olarak işaretlenmedi. Cüzdanınızda değişiklik olmadı. Tekrar deneyin veya diğer yedekleme seçeneklerinden biriyle cüzdanınızı yedekleyin.";
+"backup.google.partial.title" = "Bazı hesaplar bu yedekte yer almıyor";
+"backup.google.partial.message" = "Cüzdanınız Google Drive'a yedeklendi. Bu yedeği geri yüklemek, cüzdanınızın Polkadot ekosistemindeki ve Ethereum'daki hesaplarını geri getirir. Ancak aşağıdaki hesaplar geri yüklenmez, çünkü anahtarları bu yedekte bulunmayan kaynak verilerden türetilmiştir:\n%@\nBu hesaplar bu cihazda çalışmaya devam eder. Bu yedeğe güvenmeden önce bu hesapları ayrı olarak yedekleyin.";
 "wallet.options.delete" = "Cüzdanı Sil";
 "wallet.options.details" = "Cüzdan Detayları";
 "wallet.options.export" = "Cüzdanı Dışa Aktar";
@@ -1109,6 +1191,7 @@ ait olduğundan emin olun.";
 "wallet.send.balance.total.after.transfer" = "Transfer sonrası toplamı";
 "wallet.send.confirm.title" = "Transferi onaylayın";
 "wallet.send.dead.recipient.message" = "Hedef hesaptaki son tutar, yaratılış bakiyesinden daha az olacağından dolayı transferiniz başarısız olacak. Lütfen miktarı arttırın.";
+"wallet.send.dead.recipient.message.v2" = "Your transfer will fail since the final amount (%1$s) on the destination account will be less than the minimal balance (%2$s). Please increase the amount by %3$s";
 "wallet.send.dead.recipient.title" = "Miktar çok düşük";
 "wallet.send.eth.dead.recipient.message" = "Alıcının hesabındaki yetersiz Ethereum bakiyesi, ERC20 token transferinin tamamlanmasını engeller. Lütfen alıcının aktarıma devam etmek için yeterli Ethereum'a sahip olduğundan emin olun.";
 "wallet.send.existential.warning" = "Transferiniz, toplam bakiyeyi yaratılış bakiyesinden daha düşük yapacağı için hesabı blockstore'dan kaldıracaktır";
@@ -1129,9 +1212,13 @@ ait olduğundan emin olun.";
 "what.accounts.for.export" = "Dışa aktarmak istediğin hesaplar hangileri?";
 "xcm.cross.chain.button.title" = "Çapraz Zincir";
 "xcm.cross.chain.invalid.address.message" = "Verilen adrese göre yanlış ağ üzerinden transfer yapmaya çalışıyorsunuz.";
+"xcm.cross.chain.invalid.address.message" = "Verilen adrese göre yanlış ağ \
+Üzerinden transfer yapmaya \
+Çalışıyorsunuz.";
 "xcm.cross.chain.invalid.address.title" = "Ağ adresi değil";
 "xcm.destination.network.fee.title" = "Hedef Ağ ücreti";
 "xcm.destination.network.title" = "Hedef ağ";
+"xcm.low.amaunt.assetSymbol.alert" = "Currently, there's a min. amount %@ for bridging to ensure the stability and security. We appreciate your understanding.";
 "xcm.mywallets.button.title" = "Cüzdanlarım";
 "xcm.origin.network.fee.title" = "Menşe ağ ücreti";
 "xcm.origin.network.title" = "Köken ağı";
@@ -1140,7 +1227,272 @@ ait olduğundan emin olun.";
 "your.validators.stop.nominating.title" = "Aday göstermeyi bırak";
 "your.validators.validator.total.stake" = "Toplam yatırılan miktar:%@";
 "сurrencies.stub.text" = "Para birimleri";
-"balance.locks.blocked.row.title" = "Blocked";
-"wallet.send.dead.recipient.message.v2" = "Your transfer will fail since the final amount (%s) on the destination account will be less than the minimal balance (%s). Please increase the amount by %s";
-"nft.spam.warning" = "Beware of a scam/spam NFT collection – verify authenticity before engaging. Stay safe!";
-"wallet.all.assets.hidden" = "You have hidden all assets";
+
+/* Other holdings may not appear because balance checks use the app's asset list. */
+"portfolio.discovery.catalog_only" = "Bazı tokenler görüntülenmeyebilir";
+
+/* Only shown when network balances need attention. */
+"portfolio.balance.update_failed" = "Bakiyeler güncellenemedi";
+"portfolio.balance.outdated" = "Bakiyeler güncel olmayabilir";
+"portfolio.balance.not_loaded" = "Bakiyeler yüklenmedi";
+
+"wallet.transaction.history.view.explorer" = "Blok gezgininde görüntüle";
+
+/* Wallet cards: the balance counts assets hidden from the portfolio. */
+"portfolio.balance.incl_hidden" = "gizliler dahil";
+
+/* Under the wallet-wide total: the selected networks and their part of it. */
+"portfolio.header.showing_filtered" = "Gösterilen: %@ · %@";
+
+/* Portfolio row: the part of the balance that can be sent now. */
+"portfolio.asset.transferable" = "Aktarılabilir %@";
+
+/* Portfolio row of a testnet token. */
+"portfolio.asset.testnet_no_value" = "Değeri yok";
+
+/* Portfolio row of a funded asset without a trusted price. */
+"portfolio.asset.price_unavailable" = "Fiyat yok";
+
+/* Under the portfolio: what the total leaves out. Hidden and testnet captions open Manage assets. */
+"portfolio.exclusions.hidden.one" = "%d gizli varlık dahil edilmedi · Yönet";
+"portfolio.exclusions.hidden.other" = "%d gizli varlık dahil edilmedi · Yönet";
+"portfolio.exclusions.testnet.one" = "%d test ağı varlığı dahil edilmedi · Yönet";
+"portfolio.exclusions.testnet.other" = "%d test ağı varlığı dahil edilmedi · Yönet";
+"portfolio.exclusions.unpriced.one" = "Fiyatı olmayan %d varlık dahil edilmedi";
+"portfolio.exclusions.unpriced.other" = "Fiyatı olmayan %d varlık dahil edilmedi";
+"portfolio.exclusions.pool_stakes" = "Havuzdaki stake'ler dahil değil";
+
+/* Notice above the portfolio: assets hidden in the previous version now hold funds. */
+"portfolio.hidden_funds.title.one" = "%d gizli varlıkta bakiye var";
+"portfolio.hidden_funds.title.other" = "%d gizli varlıkta bakiye var";
+"portfolio.hidden_funds.message" = "Gizli varlıklar toplamınıza dahil edilmez. Onları inceleyin veya gizli tutun.";
+"portfolio.hidden_funds.review" = "İncele";
+"portfolio.hidden_funds.keep_hidden" = "Gizli tut";
+
+/* Bitcoin, Solana and Taira account setup from the wallet's own recovery phrase. */
+"universal.setup.title" = "Tek kurtarma ifadesi";
+"universal.setup.message" = "Bitcoin, Solana ve Taira bu cüzdanla aynı kurtarma ifadesini kullanır. Birini eklemek üçünü birden ayarlar ve yeni bir ifade oluşturulmaz.";
+"universal.setup.action" = "Cüzdan ifadesinden ekle";
+"universal.recovery.title" = "Cüzdan ifadesi gerekli";
+"universal.recovery.message" = "Bu cüzdanı oluşturmak veya geri yüklemek için kullanılan kurtarma ifadesini girin. Bitcoin, Solana ve Taira eklenmeden önce mevcut cüzdanla karşılaştırılarak doğrulanır. Asla ikinci bir ifade oluşturulmaz. İfadesi olmadan ham kaynaktan veya JSON dosyasından içe aktarılan bir cüzdan bunları ekleyemez: cüzdan listesinde kurtarma ifadeli bir cüzdan oluşturun veya geri yükleyin ve varlıklarınızı oraya taşıyın.";
+"universal.recovery.action" = "Cüzdan kurtarma ifadesini gir";
+"universal.open.wallets.action" = "Cüzdan listesini aç";
+"universal.unsupported.title" = "Kurtarma ifadeli bir cüzdan gerekli";
+"universal.unsupported.message" = "Bu cüzdan yalnızca bir TON ifadesinden veya bir Ethereum anahtarından oluşturuldu, bu yüzden Bitcoin, Solana ve Taira hesapları eklenemez. Hiçbir şey değiştirilmedi. Bunları kullanmak için cüzdan listesinde kurtarma ifadeli bir cüzdan oluşturun veya geri yükleyin, ardından varlıklarınızı oraya taşıyın.";
+"universal.unsupported.source.message" = "Bu cüzdan için saklanan anahtar güvenli bir şekilde tek bir kurtarma ifadesine dönüştürülemediğinden Bitcoin, Solana ve Taira eklenmedi. Hiçbir şey değiştirilmedi. Cüzdan listesinde kurtarma ifadeli bir cüzdan oluşturun veya geri yükleyin ve varlıklarınızı oraya taşıyın.";
+"universal.adoption.seed.unavailable" = "Bu cihazda cüzdanın kurtarma ifadesi yok. Bitcoin, Solana ve Taira eklemek için orijinal ifadeyi girin.";
+"universal.adoption.conflict" = "Bu cüzdanda farklı bir kurtarma ifadesinden gelen bir Bitcoin veya Taira hesabı zaten var. Adresi ve anahtarı korundu, hiçbir şey değiştirilmedi; bu cüzdanın ifadesindeki hesaplara geçmeden önce oradaki fonları taşıyın.";
+"universal.seed.unreadable" = "Cüzdan kaynağı okunamadı. Bu cihazın kilidini açıp tekrar deneyin. Yine başarısız olursa cüzdanın kurtarma ifadesini içe aktarın.";
+"universal.recovery.mismatch.title" = "Kurtarma ifadesi eşleşmiyor";
+"universal.recovery.mismatch.message" = "Bu kurtarma ifadesi bu cüzdanı yeniden oluşturmuyor. Hiçbir hesap veya anahtar değiştirilmedi.";
+"universal.recovery.different.phrase.title" = "Farklı bir kurtarma ifadesi algılandı";
+"universal.recovery.different.phrase.message" = "Bu cüzdanda farklı bir kurtarma ifadesinden gelen bir Bitcoin veya Taira hesabı zaten var. Fonları gizleyebileceği için değiştirilmedi.";
+
+/* Import of Bitcoin, Solana or Taira: the wallet's own phrase restores the whole wallet. */
+"universal.import.entire.wallet" = "Cüzdanın tamamı";
+
+/* Raw seed export of a wallet: accounts whose seed is not shown. */
+"export.seed.partial.message" = "Aşağıdaki hesapların ham kaynağı gösterilmiyor; çünkü bu cihazda saklanmıyor veya saklanan kaynak farklı bir adresi geri yükler:\n%@\nBu hesaplar eskisi gibi çalışır. Onları bir JSON dosyasıyla yedekleyin. Bu yapılana kadar cüzdan yedeklenmiş olarak işaretlenmez.";
+
+/* Solana token send: the amount is only held across several token accounts of the mint. */
+"solana.transfer.token_balance_split.title" = "Bakiye birden fazla token hesabında";
+"solana.transfer.token_balance_split.message" = "Bu tokenin bakiyesi birden fazla token hesabına bölünmüş ve hiçbiri bu tutarı tek başına tutmuyor. Önce daha küçük bir tutar gönderin, ardından kalanını gönderin. Hiçbir şey gönderilmedi.";
+
+/* Retained data and authenticated emergency recovery */
+"recovery.title" = "Kayıtlı verilere erişin";
+"recovery.network_message" = "Kayıtlı ağ verilerinin bir kısmı okunamadı. Cüzdanlarınız ve kurtarma bilgileriniz ayrı saklanır. Önceki kişiler, özel düğümler ve bağlantı verileri bu cihazda kalır. Yeni ağ verileriyle devam ettikten sonra uygulamaları yeniden bağlayın ve gerekli özel düğümleri ekleyin.";
+"recovery.wallet_message" = "Cüzdan listenizle ilgilenilmesi gerekiyor. Kayıtlı cüzdanlar ve kurtarma bilgileri bu cihazda kalır. Fearless ve verilerini burada koruyun. Bilgiler doğrulanamasa bile kimlik doğrulamasından sonra görüntülenebilir veya dışa aktarılabilir.";
+"recovery.free_storage" = "En az %@ depolama alanı boşaltıp tekrar deneyin.";
+"recovery.retry" = "Tekrar dene";
+"recovery.fresh_network" = "Yeni ağ verileriyle devam et";
+"recovery.restore_access" = "Cüzdan erişimini geri yükle";
+"recovery.english" = "İngilizce devam et";
+"recovery.export" = "Acil kurtarma bilgileri";
+"recovery.previous_data" = "Önceki uygulama verileri";
+"recovery.help" = "Yardım al";
+"recovery.authenticate" = "Saklanan kurtarma bilgilerine erişmek için kimliğinizi doğrulayın.";
+"recovery.read_failed" = "Kayıtlı veriler okunamadı. Bu cihazda saklayıp tekrar deneyin.";
+"recovery.close" = "Kapat";
+"recovery.share" = "Paylaş";
+"recovery.export_warning" = "Bu dışa aktarım, gizli kurtarma bilgilerini saklandığı haliyle Base64 kodlamasında içerir. Eksik veya geçersiz olabilir; doğrulanmış bir cüzdan yedeği değildir. Bilgileri alan herkes fonlarınızı kontrol edebilir. Yalnızca güvendiğiniz bir yere kaydedin. Okunamayan kayıtlar ayrı listelenir. Asla destek ekibine göndermeyin.";
+"recovery.locked" = "Kilitlendi. Bu ekranı kapatıp tekrar kimliğinizi doğrulayın.";
+"recovery.restore_access_warning" = "Erişimi geri yüklemek için kurtarma ifadesini içe aktarabilirsiniz. Liste okunamıyorsa asıl veriler bu cihazda korunur. Anahtarlar ve mevcut PIN saklanır. Başka kopyanız yoksa önce kayıtlı kurtarma bilgilerini dışa aktarın.";
+"recovery.continue" = "Devam et";
+"recovery.advanced" = "Gelişmiş";
+"recovery.archive_message" = "Önceki veriler değiştirilmeden saklanır. Her arşiv mevcut sürümle yeniden denetlenir. Geri yükleme sırasında mevcut verilerinizin kopyası da saklanır.";
+"recovery.no_archives" = "Önceki uygulama verileri yok.";
+"recovery.checking" = "Önceki veriler denetleniyor…";
+"recovery.wallet_data" = "Cüzdan verileri";
+"recovery.network_data" = "Ağ verileri";
+"recovery.restore" = "Geri yükle";
+"recovery.not_ready" = "Bu sürüm henüz bu arşivi geri yükleyemiyor. Arşiv değiştirilmeden korunur ve her açılışta yeniden denetlenir. Acil kurtarma bilgileri kullanılabilir.";
+"recovery.restore_warning" = "Bu veriler sonraki açılışta geri yüklensin mi? Mevcut verileriniz de saklanır. Anahtarlar ve PIN değişmez. Onaydan sonra Fearless uygulamasını kapatıp yeniden açın.";
+"recovery.restore_queued" = "Geri yükleme planlandı. Uygulama değiştiriciyi açın, Fearless uygulamasını kapatmak için yukarı kaydırın, ardından Fearless uygulamasını yeniden açın. Geri yükleme cüzdan açılmadan önce gerçekleşir.";
+
+"send.network.unavailable" = "Bu token %@ ağında kullanılamıyor.";
+"send.confirm.test_tokens_no_value" = "Test tokenlerinin değeri yoktur";
+"portfolio.zero_networks" = "%d ağ · bakiye yok";
+
+"portfolio.lens.tokens" = "Tokenler";
+"portfolio.lens.networks" = "Ağlar";
+"portfolio.network_count" = "%d ağ";
+"portfolio.price_unavailable" = "Fiyat mevcut değil";
+"portfolio.partial_value" = "%d ağda fiyat yok";
+"portfolio.custom_order" = "Özel sıralama";
+"portfolio.popular_tokens" = "Popüler tokenler · %d";
+"portfolio.zero_tokens" = "Bakiye yok · %d token";
+"portfolio.expand" = "Genişlet";
+"portfolio.collapse" = "Daralt";
+"portfolio.hide_group" = "%@ gizlensin mi?";
+"portfolio.choose_network" = "Bir ağ seçin";
+
+// Manage assets visibility and separate network sections.
+"manage_assets.auto" = "Otomatik";
+"manage_assets.auto_zero" = "Otomatik · bakiye yok";
+"manage_assets.shown" = "Gösteriliyor";
+"manage_assets.hidden" = "Gizli";
+"manage_assets.testnets" = "Test ağları";
+"manage_assets.testnets_caption" = "Test tokenlerinin değeri yoktur ve toplamlara dahil edilmez.";
+"manage_assets.unverified" = "Doğrulanmamış";
+"manage_assets.unverified_caption" = "Doğrulanmamış tokenler güvensiz olabilir. Toplamlara dahil edilmez.";
+
+"manage_assets.all" = "Tümü";
+
+"manage_assets.reset_auto" = "Otomatiğe sıfırla";
+
+"manage_assets.mixed" = "Karma";
+
+"manage_assets.show_group" = "%@ tüm ağlarda göster";
+
+"manage_assets.hide_group" = "%@ tüm ağlarda gizle";
+
+"manage_assets.reset_order" = "Sıralamayı sıfırla";
+"manage_assets.reset_order_message" = "Bu cüzdan için varsayılan varlık sıralaması geri yüklensin mi? Varlık görünürlüğü tercihleriniz aynı kalacak.";
+
+"portfolio.empty_ready" = "Cüzdanınız hazır";
+"portfolio.empty_fund" = "Token almak veya satın almak için varlık ve ağ seçin.";
+"portfolio.buy" = "Satın al";
+"portfolio.buy_unavailable" = "Bu ağlarda satın alma kullanılamıyor. Transfer yoluyla token alabilirsiniz.";
+"portfolio.funding_unavailable" = "Token almak için desteklenen bir ağda hesap ekleyin. Burada satın alma kullanılamıyor.";
+
+"portfolio.empty_networks" = "Popüler ağlar · henüz bakiye yok";
+
+/* Static Welcome presentation. */
+"welcome.title" = "Anahtarlarınız. Her ağ.";
+"welcome.body" = "Polkadot, Ethereum, TON, Bitcoin, Solana ve SORA varlıklarınızın kontrolü sizde.";
+"welcome.create" = "Yeni cüzdan oluştur";
+"welcome.restore" = "Zaten bir cüzdanım var";
+
+"import.legacy_ton_phrase" = "Eski TON kurtarma ifadesi";
+"import.legacy_ton_phrase_placeholder" = "Eski TON kurtarma ifadenizi girin";
+
+"recovery.startup_updating" = "Güncelleme tamamlanıyor…";
+"recovery.startup_opening" = "Cüzdanınız açılıyor…";
+"recovery.startup_keep_open" = "Fearless açık kalsın.";
+
+"ux.switch_wallet" = "Cüzdan değiştir";
+
+"ux.choose_network" = "Ağ seç";
+
+"ux.search_assets" = "Varlık ara";
+
+"ux.scan_qr" = "QR kodunu tara";
+
+/* Portfolio list trust and disclosure state */
+"portfolio.asset.verified" = "Doğrulandı";
+"portfolio.asset.detected" = "Tespit edildi";
+"portfolio.asset.metadata_missing" = "Meta veriler eksik";
+"portfolio.asset.detected_count" = "Tespit edilen varlıklar (%d)";
+"portfolio.asset.detected_review" = "Güvenmeden önce inceleyin";
+"ux.expanded" = "Genişletildi";
+"ux.collapsed" = "Daraltıldı";
+
+"ux.transfer_networks" = "Ağlar arasında transfer →";
+
+"ux.receive_network_instruction" = "Bu adrese yalnızca %@ varlığını %@ ağı üzerinden gönderin.";
+
+"export.json.partial.title" = "Yedekleme tamamlanmadı";
+"export.json.partial.message" = "Bu hesaplar dışa aktarılamadı:\n%@\nCüzdanınız ve anahtarlarınız değişmedi. Kullanılabilir dosyaları dışa aktarmak bu cüzdanın yedeklemesini tamamlamaz.";
+"export.json.partial.action" = "Kullanılabilir dosyaları dışa aktar";
+
+"pincode.save.failed" = "PIN kaydedilemedi. Tekrar denemek için PIN’i yeniden girip onaylayın.";
+
+"backup.status.save.failed" = "Yedekleme durumu kaydedilemedi. Tekrar deneyin.";
+
+"export.mnemonic.unavailable.title" = "Kurtarma ifadesi gösterilmiyor";
+"export.mnemonic.partial.message" = "Bu hesaplar için kayıtlı ifade veya türetme yolu doğrulanamadı:\n%@\nAnahtarları değişmedi. Bu hesaplar için JSON yedeği dışa aktarın. Bu ifade dışa aktarımı cüzdanı yedeklenmiş olarak işaretlemez.";
+
+/* Native TON exact-phrase address selection, before persistence. */
+"import.ton.choose_address" = "TON adresinizi seçin";
+"import.ton.spacing_warning" = "Boşluklar ve satır sonları eski TON adresini değiştirebilir. İki adresi de önceki cüzdanınızla karşılaştırın ve geri yüklemek istediğinizi seçin. Seçim yapana kadar hiçbir şey içe aktarılmaz.";
+"import.ton.as_typed" = "Yazıldığı gibi";
+"import.ton.normalized" = "Standart boşluklar";
+
+// Exact legacy TON spacing recovery
+"export.ton.exact.title" = "Tam TON ifadesi";
+"export.ton.exact.warning" = "Bu TON yedeğindeki boşluklar veya satır sonları önemlidir. Bunları korumak için Tam ifadeyi kopyala seçeneğini kullanın. Boşlukları değiştirmek farklı bir adresi geri yükleyebilir. Kopyalanan ifade yalnızca bu cihazda kalır ve bir dakika sonra süresi dolar.";
+"export.ton.exact.copy" = "Tam ifadeyi kopyala";
+
+/* Significant legacy TON spacing is display-only; raw confirmation tokens remain unchanged. */
+"confirmation.exact.details" = "Her öğeyi özgün sırasıyla seçin. Boş öğe, fazladan veya baştaki ya da sondaki boşluğu korur. Köşeli parantez içindeki adlar satır sonlarını, sekmeleri ve diğer boşluk karakterlerini belirtir. Her öğeyi özgün ifadede olduğu gibi koruyun.";
+"confirmation.exact.empty" = "Boş öğe";
+"confirmation.exact.line.break" = "Satır sonu";
+"confirmation.exact.tab" = "Sekme";
+"confirmation.exact.carriage.return" = "Satır başı";
+
+/* Preserved Solana payment with unavailable original cluster identity. */
+"solana.transfer.recovery_unavailable.title" = "Kaydedilen transfer incelenmeli";
+"solana.transfer.recovery_unavailable.message" = "Bu kaydedilmiş transferin ilk ağı doğrulanamıyor. Fearless transfer kaydını sakladı. Durum kontrolü ve yeniden gönderim kullanılamıyor. İlk transferin sonucu belirlenene kadar yerine yeni bir transfer göndermeyin.\n%@";
+
+"solana.transfer.recovery_unreadable.message" = "Fearless, bu cüzdan ve Solana ağı için kaydedilmiş transfer kaydını okuyamıyor. Özgün veriler korunmuştur. Önceki transferin sonucu bilinmediğinden yeni transfer gönderme, durum kontrolü ve yeniden deneme kullanılamaz. Özgün transferin sonucu netleşene kadar yerine başka bir transfer göndermeyin. Diğer cüzdan işlevleri kullanılabilir.";
+
+/* Solana send, recovery and history */
+"solana.transfer.recipient_invalid.title" = "Bu bir Solana adresi değil";
+"solana.transfer.recipient_invalid.message" = "Adresi kontrol edip tekrar deneyin. Hiçbir şey gönderilmedi.";
+"solana.transfer.recipient_token_account.title" = "Bu bir cüzdan değil, token hesabı";
+"solana.transfer.recipient_token_account.message" = "Bu bir cüzdan adresi değil, token hesabı gibi görünüyor. Buraya gönderilen fonlar kaybolabilir. Alıcıdan Solana cüzdan adresini isteyin. Hiçbir şey gönderilmedi.";
+"solana.transfer.recipient_program.title" = "Bu bir cüzdan değil, program";
+"solana.transfer.recipient_program.message" = "Bu adres bir Solana programına ait. Buraya gönderilen fonlar kilitlenir. Alıcıdan Solana cüzdan adresini isteyin. Hiçbir şey gönderilmedi.";
+"solana.transfer.below_new_account_minimum.title" = "Tutar yeni bir hesap için çok düşük";
+"solana.transfer.below_new_account_minimum.message" = "Bu adreste henüz SOL yok. Solana, bu adresi açmak için en az %@ SOL gerektirir. En az bu kadar gönderin. Hiçbir şey gönderilmedi.";
+"solana.transfer.remainder_below_minimum.title" = "Daha fazla SOL bırakın veya tamamını gönderin";
+"solana.transfer.remainder_below_minimum.message" = "Solana, bir cüzdanda ya hiç bakiye kalmamasını ya da en az %@ SOL kalmasını gerektirir. Tamamını gönderin (maks) veya en az bu kadar bırakın. Hiçbir şey gönderilmedi.";
+"solana.transfer.insufficient_sol.title" = "Yeterli SOL yok";
+"solana.transfer.insufficient_sol.message" = "Bu cüzdanda tutar ve ağ ücreti için, alıcı bu tokeni ilk kez alıyorsa Solana'nın onun için açacağı hesap için de yeterli SOL yok. SOL ekleyin veya tutarı düşürün. Hiçbir şey gönderilmedi.";
+"solana.transfer.insufficient_token.title" = "Yeterli token yok";
+"solana.transfer.insufficient_token.message" = "Bu cüzdanın tek bir hesabında bu tokenden o kadar yok. Tutarı düşürüp tekrar deneyin. Hiçbir şey gönderilmedi.";
+"solana.transfer.token_program_unsupported.title" = "Bu token henüz gönderilemiyor";
+"solana.transfer.token_program_unsupported.message" = "Bu sürüm SOL ve standart SPL tokenlerini gönderebilir. Bu token henüz desteklenmeyen Token-2022'yi kullanıyor. Token cüzdanınızda kalır ve almaya devam edebilirsiniz.";
+"solana.transfer.copy_signature" = "İşlem kimliğini kopyala";
+"solana.transfer.unknown.title" = "Transfer durumu bilinmiyor";
+"solana.transfer.unknown.message" = "Solana ağı bu transferi kabul etmiş olabilir. Başka bir cüzdandan veya uygulamadan tekrar göndermeyin. Fearless imzalı işlemi sakladı: yeniden denemek aynı işlemi gönderir, bu yüzden iki kez ödeme yapılamaz. Bir Solana transferi yaklaşık iki dakika içinde tamamlanır veya süresi dolar.\n%@";
+"solana.transfer.unknown.retry" = "Göndermeyi yeniden dene";
+"solana.transfer.prior_unresolved.title" = "Önceki bir transfer hâlâ sürüyor";
+"solana.transfer.prior_unresolved.message" = "Fearless önceki Solana transferinizin gönderilip gönderilmediğini hâlâ kontrol ediyor, bu yüzden bu transfer gönderilmedi. Bir Solana transferi yaklaşık iki dakika içinde tamamlanır veya süresi dolar. O zaman tekrar deneyin.\n%@";
+"solana.transfer.prior_sent.title" = "Önceki transferiniz gönderildi";
+"solana.transfer.prior_sent.message" = "Önceki Solana transferiniz ağa ulaştı, bu yüzden bu transfer gönderilmedi. Tekrar göndermeden önce bakiyeyi ve ücreti kontrol edin.\n%@";
+"solana.transfer.prior_not_sent.title" = "Önceki transferiniz gerçekleşmedi";
+"solana.transfer.prior_not_sent.message" = "Önceki Solana transferiniz ağ tarafından onaylanmadı, bu yüzden onun için cüzdanınızdan hiçbir şey çıkmadı. Bu transfer de gönderilmedi. Gözden geçirip tekrar gönderin.\n%@";
+"solana.transfer.failed.title" = "Transfer başarısız oldu";
+"solana.transfer.failed.message" = "Solana ağı bu transferi işledi ancak transfer başarısız oldu, bu yüzden tutar cüzdanınızdan çıkmadı. Ağ ücreti alındı.\n%@";
+"solana.transfer.not_sent.title" = "Bu transfer gönderilmedi";
+"solana.transfer.not_sent.no_connection" = "Fearless Solana ağına ulaşamadı, bu yüzden cüzdanınızdan hiçbir şey çıkmadı. Bağlantınızı kontrol edip tekrar deneyin.";
+"solana.transfer.not_sent.rejected" = "Solana ağı bu transferi kabul etmedi, bu yüzden cüzdanınızdan hiçbir şey çıkmadı. Tutarı ve ücreti gözden geçirip tekrar deneyin.";
+"solana.transfer.not_sent.expired" = "Bu transferin süresi Solana ağı onaylamadan doldu, bu yüzden cüzdanınızdan hiçbir şey çıkmadı. Tekrar gönderebilirsiniz.";
+"solana.transfer.unverified.title" = "Bu transfer doğrulanamadı";
+"solana.transfer.unverified.message" = "Fearless bu Solana transferinin ağa ulaşıp ulaşmadığını doğrulayamadı. Tekrar göndermeden önce bakiyenizi kontrol edin ve işlemi Solscan'de arayın.\n%@";
+"solana.transfer.prior_unverified.title" = "Önceki transferiniz doğrulanamadı";
+"solana.transfer.prior_unverified.message" = "Fearless önceki Solana transferinizin ağa ulaşıp ulaşmadığını doğrulayamadı, bu yüzden bu transfer gönderilmedi. Bakiyenizi kontrol edin ve önceki işlemi Solscan'de arayın. Gerçekleşmediyse bu transferi yeniden onaylayın.\n%@";
+"send.unavailable.solana_paused.title" = "Solana gönderimi şu anda duraklatıldı";
+"send.unavailable.solana_paused.message" = "Bu sürüm için Solana gönderimini kontrol ediyoruz. SOL'unuz, tokenleriniz ve bakiyeleriniz etkilenmez; Solana'da almaya devam edebilirsiniz.";
+"send.unavailable.network.title" = "%@ ağında gönderim kullanılamıyor";
+"send.unavailable.asset.message" = "Bu sürüm bu varlığı bu ağda gönderemiyor. Bakiyeniz etkilenmez ve almaya devam edebilirsiniz.";
+"send.unavailable.account.title" = "Bu cüzdanda %@ hesabı yok";
+"send.unavailable.account.message" = "Bu cüzdanın bu ağda hesabı yok, bu yüzden gönderilecek bir şey yok. Başka bir ağ veya cüzdan seçin.";
+"send.unavailable.not_prepared.title" = "Bu transfer hazırlanamadı";
+"send.unavailable.not_prepared.message" = "Fearless bu transferi hazırlamak için %@ ağına ulaşamadı. Hiçbir şey gönderilmedi. Bağlantınızı kontrol edip tekrar deneyin.";
+"wallet.transaction.history.solana.explorer.message" = "Solana geçmişinizin tamamını Solscan'de görün";
+
+/* Solana confirm: recipient token account deposit */
+"solana.transfer.account_creation.title" = "Alıcı hesabı kurulumu";
+"solana.transfer.account_creation.included" = "Ağ ücretine dahildir";

@@ -32,11 +32,9 @@ final class ChainConnectionVisibilityHelper {
     }
 
     private func hasVisibleAsset(_ chain: ChainModel, wallet: MetaAccountModel?) -> Bool {
-        guard let wallet, wallet.assetsVisibility.isNotEmpty else {
-            return true
-        }
-        let chainAssetIds = chain.chainAssets.map { $0.identifier }
-        let hasVisible = wallet.assetsVisibility.contains(where: { chainAssetIds.contains($0.assetId) && !$0.hidden })
-        return hasVisible
+        // Presentation preferences must never disconnect a network and suppress
+        // background discovery. A compatible account is sufficient.
+        guard let wallet else { return true }
+        return wallet.fetch(for: chain.accountRequest()) != nil
     }
 }

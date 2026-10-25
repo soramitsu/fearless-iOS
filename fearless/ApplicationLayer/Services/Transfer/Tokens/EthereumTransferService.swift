@@ -107,7 +107,14 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
                 try subscribe()
             }
         } catch {
-            listener.didReceiveFeeError(feeError: error)
+            Task {
+                do {
+                    let fee = try await estimateFee(for: transfer)
+                    listener.didReceiveFee(fee: fee)
+                } catch {
+                    listener.didReceiveFeeError(feeError: error)
+                }
+            }
         }
     }
 

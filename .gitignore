@@ -38,11 +38,17 @@ Carthage/Build
 # screenshots whenever they are needed.
 # For more information about the recommended setup visit:
 # https://docs.fastlane.tools/best-practices/source-control/#source-control
-#fastlane/report.xml
-#fastlane/Preview.html
-#fastlane/screenshots
-#fastlane/test_output
-fastlane/
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+fastlane/.env
+fastlane/.env.*
+!fastlane/.env.example
+fastlane/*.p8
+fastlane/AuthKey_*.p8
+.bundle/
+vendor/bundle/
 # Code Injection
 #
 # After new code Injection tools there's a generated folder /iOSInjectionProject
@@ -56,6 +62,33 @@ Tests/Mocks/CommonMocks.swift
 Tests/Mocks/ModuleMocks.swift
 #
 # Generamba
-Templates/
+/Templates/
 # Misc
 **/.DS_Store
+**/__pycache__/
+
+# Swift Package Manager
+SourcePackages/
+.swiftpm/
+.build/
+
+# Ignore project-level SPM resolved file; use workspace-level only
+fearless.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+# Private pod/env helper
+.env.private
+
+# Local temporary files and generated review artifacts
+/tmp/
+/.tmp/
+/tmp-*/
+/.tmp-*/
+*.tmp
+/output/
+/.playwright-cli/
+/playwright-report/
+/test-results/
+/review-output/
+/review-artifacts/
+# Dated local acceptance and review reports
+/docs/validation/20*/
+/docs/legacy-upgrade-audit-20*.md

@@ -1,17 +1,13 @@
 import Foundation
-import os
 import SSFXCM
 
 protocol ApplicationConfigProtocol {
     var termsURL: URL { get }
     var privacyPolicyURL: URL { get }
-    var devStatusURL: URL { get }
-    var roadmapURL: URL { get }
     var supportEmail: String { get }
     var websiteURL: URL { get }
     var version: String { get }
     var opensourceURL: URL { get }
-    var appName: String { get }
     var logoURL: URL { get }
     var purchaseAppName: String { get }
     var moonPayApiKey: String { get }
@@ -36,10 +32,27 @@ protocol ApplicationConfigProtocol {
     var appVersionURL: URL? { get }
     var scamListCsvURL: URL? { get }
     var polkaswapSettingsURL: URL? { get }
+    var polkaswapIndexerURL: URL { get }
 }
 
 final class ApplicationConfig {
     static let shared = ApplicationConfig()
+    private static let resolvedVersion: String = {
+        let bundle = Bundle(for: ApplicationConfig.self)
+        let infoDictionary = bundle.infoDictionary ?? [:]
+
+        guard
+            let mainVersion = infoDictionary["CFBundleShortVersionString"] as? String,
+            !mainVersion.isEmpty,
+            let buildNumber = infoDictionary["CFBundleVersion"] as? String,
+            !buildNumber.isEmpty
+        else {
+            NSLog("ApplicationConfig: missing bundle version metadata, falling back to unknown version")
+            return "unknown"
+        }
+
+        return "\(mainVersion).\(buildNumber)"
+    }()
 }
 
 extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
@@ -51,14 +64,6 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
         URL(string: "https://fearlesswallet.io/privacy")!
     }
 
-    var devStatusURL: URL {
-        URL(string: "https://soramitsucoltd.aha.io/shared/343e5db57d53398e3f26d0048158c4a2")!
-    }
-
-    var roadmapURL: URL {
-        URL(string: "https://soramitsucoltd.aha.io/shared/97bc3006ee3c1baa0598863615cf8d14")!
-    }
-
     var supportEmail: String {
         "fearless@soramitsu.co.jp"
     }
@@ -67,29 +72,13 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
         URL(string: "https://fearlesswallet.io")!
     }
 
-    // swiftlint:disable force_cast
     var version: String {
-        let bundle = Bundle(for: ApplicationConfig.self)
-
-        let mainVersion = bundle.infoDictionary?["CFBundleShortVersionString"] as! String
-        let buildNumber = bundle.infoDictionary?["CFBundleVersion"] as! String
-
-        return "\(mainVersion).\(buildNumber)"
+        ApplicationConfig.resolvedVersion
     }
-
-    // swiftlint:enable force_cast
 
     var opensourceURL: URL {
         URL(string: "https://github.com/soramitsu/fearless-iOS")!
     }
-
-    // swiftlint:disable force_cast
-    var appName: String {
-        let bundle = Bundle(for: ApplicationConfig.self)
-        return bundle.infoDictionary?["CFBundleDisplayName"] as! String
-    }
-
-    // swiftlint:enable force_cast
 
     var logoURL: URL {
         // swiftlint:disable:next line_length
@@ -102,7 +91,7 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
     }
 
     var moonPayApiKey: String {
-        "pk_live_Boi6Rl107p7XuJWBL8GJRzGWlmUSoxbz"
+        MoonPayKeys.publicKey
     }
 
     var purchaseRedirect: URL {
@@ -162,9 +151,9 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
 
     var chainsSourceUrl: URL {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/v9/chains_dev.json", branch: .developFree)
+            GitHubUrl.url(suffix: "chains/v13/chains_dev.json", environment: .development)
         #else
-            GitHubUrl.url(suffix: "chains/v9/chains.json")
+            GitHubUrl.url(suffix: "chains/v13/chains.json")
         #endif
     }
 
@@ -191,11 +180,15 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
     }
 
     var polkaswapSettingsURL: URL? {
-        GitHubUrl.url(suffix: "polkaswapSettings.json", url: .fearlessUtils, branch: .v4)
+        GitHubUrl.url(suffix: "legacy/v4/polkaswapSettings.json", environment: nil)
+    }
+
+    var polkaswapIndexerURL: URL {
+        URL(string: "https://pi.soramitsu.io/graphql")!
     }
 
     var fiatsURL: URL? {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/android/v2/fiat/fiats.json")
+        GitHubUrl.url(suffix: "legacy/android/v2/fiat/fiats.json", environment: nil)
     }
 
     var poolStakingAboutURL: URL? {
@@ -208,35 +201,38 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
 
     var featureToggleURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "appConfigs/feature_toggle", branch: .developFree)
+            GitHubUrl.url(suffix: "appConfigs/feature_toggle", environment: .development)
         #else
             GitHubUrl.url(suffix: "appConfigs/feature_toggle")
         #endif
     }
 
     var onboardingConfig: URL? {
-        GitHubUrl.url(suffix: "appConfigs/onboarding/mobile v2.json", branch: .developFree)
+        #if F_DEV
+            GitHubUrl.url(suffix: "appConfigs/onboarding/mobile v2.json", environment: .development)
+        #else
+            GitHubUrl.url(suffix: "appConfigs/onboarding/mobile v2.json")
+        #endif
+    }
+
+    var nomisAccountScoreURL: URL {
+        URL(string: "https://api.nomis.cc/api/v1/multichain-score/wallet/")!
+    }
+
+    var okxDexAggregatorURL: URL {
+        URL(string: "https://www.okx.com")!
     }
 }
 
 private enum GitHubUrl {
-    enum BaseUrl: String {
-        case sharedUtils = "https://raw.githubusercontent.com/soramitsu/shared-features-utils/"
-        case fearlessUtils = "https://raw.githubusercontent.com/soramitsu/fearless-utils/"
+    enum Environment: String {
+        case production
+        case development
     }
 
-    enum DefaultBranch: String {
-        case master
-        case develop
-        case v4
-        case developFree = "develop-free"
-        case xcmLocationDevelop = "updated-xcm-locations"
-        case rococo = "feature/rococo"
-        case newEvms = "new-evms"
-        case masterReef = "master-reef"
-    }
-
-    static func url(suffix: String, url: BaseUrl = .sharedUtils, branch: DefaultBranch = .master) -> URL {
-        URL(string: url.rawValue)!.appendingPathComponent(branch.rawValue).appendingPathComponent(suffix)
+    static func url(suffix: String, environment: Environment? = .production) -> URL {
+        let base = URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/")!
+        let directory = environment.map { base.appendingPathComponent($0.rawValue) } ?? base
+        return directory.appendingPathComponent(suffix)
     }
 }

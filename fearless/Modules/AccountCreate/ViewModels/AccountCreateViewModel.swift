@@ -6,7 +6,7 @@ struct AccountCreateViewModel: InputViewModelProtocol {
     let inputHandler: InputHandling
     let autocapitalization: UITextAutocapitalizationType
 
-    public init(
+    init(
         inputHandler: InputHandling,
         title: String = "",
         placeholder: String = "",

@@ -5,6 +5,10 @@ final class AccountConfirmPresenter {
     weak var view: AccountConfirmViewProtocol?
     var wireframe: AccountConfirmWireframeProtocol
     var interactor: AccountConfirmInteractorInputProtocol
+    private var isLeaving = false
+    private var isDeparturePending = false
+    private var deferredConfirmation: Result<Void, Error>?
+    private var confirming = false
 
     init(
         interactor: AccountConfirmInteractorInputProtocol,
@@ -28,7 +32,8 @@ final class AccountConfirmPresenter {
             style: .pinkBackgroundWhiteText,
             button: UIFactory.default.createMainActionButton()
         ) { [weak self] in
-            self?.interactor.skipConfirmation()
+            guard let self, !self.isLeaving, !self.isDeparturePending, !self.confirming else { return }
+            self.interactor.skipConfirmation()
         }
         let action = [cancelAction, confirmAction]
         let alertTitle = R.string.localizable
@@ -47,26 +52,52 @@ final class AccountConfirmPresenter {
 }
 
 extension AccountConfirmPresenter: AccountConfirmPresenterProtocol {
+    func willLeaveView() {
+        isDeparturePending = true
+    }
+
+    func didCancelLeavingView() {
+        guard !isLeaving else { return }
+        isDeparturePending = false
+        guard let result = deferredConfirmation else { return }
+        deferredConfirmation = nil
+        switch result {
+        case .success: didCompleteConfirmation()
+        case let .failure(error): didReceive(error: error)
+        }
+    }
+
+    func didLeaveView() {
+        isLeaving = true
+        deferredConfirmation = nil
+    }
+
     func didLoad(view: AccountConfirmViewProtocol) {
         self.view = view
         interactor.requestWords()
     }
 
     func requestWords() {
+        guard !isLeaving, !isDeparturePending, !confirming else { return }
         interactor.requestWords()
     }
 
     func confirm(words: [String]) {
+        guard !isLeaving, !isDeparturePending, !confirming else { return }
+        confirming = true
         interactor.confirm(words: words)
     }
 
     func skip() {
+        guard !isLeaving, !isDeparturePending, !confirming else { return }
         showNotBackedupAlert()
     }
 }
 
 extension AccountConfirmPresenter: AccountConfirmInteractorOutputProtocol {
     func didReceive(words: [String], afterConfirmationFail: Bool) {
+        guard !isLeaving else { return }
+        confirming = false
         if afterConfirmationFail {
             let locale = localizationManager?.selectedLocale
             let title = R.string.localizable
@@ -87,10 +118,22 @@ extension AccountConfirmPresenter: AccountConfirmInteractorOutputProtocol {
     }
 
     func didCompleteConfirmation() {
+        guard !isLeaving else { return }
+        if isDeparturePending {
+            if deferredConfirmation == nil { deferredConfirmation = .success(()) }
+            return
+        }
+        isLeaving = true
         wireframe.proceed(from: view, flow: interactor.flow)
     }
 
     func didReceive(error: Error) {
+        guard !isLeaving else { return }
+        if isDeparturePending {
+            if deferredConfirmation == nil { deferredConfirmation = .failure(error) }
+            return
+        }
+        confirming = false
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         guard !wireframe.present(error: error, from: view, locale: locale) else {

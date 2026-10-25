@@ -1,6 +1,7 @@
 import Foundation
 @testable import fearless
 import RobinHood
+import SSFModels
 
 final class CrowdloanLocalSubscriptionFactoryStub: CrowdloanLocalSubscriptionFactoryProtocol {
     let blockNumber: BlockNumber?
@@ -12,7 +13,7 @@ final class CrowdloanLocalSubscriptionFactoryStub: CrowdloanLocalSubscriptionFac
     }
 
     func getBlockNumberProvider(
-        for chainId: ChainModel.Id
+        for chainId: SSFModels.ChainModel.Id
     ) throws -> AnyDataProvider<DecodedBlockNumber> {
         let localIdentifierFactory = LocalStorageKeyFactory()
 
@@ -30,7 +31,7 @@ final class CrowdloanLocalSubscriptionFactoryStub: CrowdloanLocalSubscriptionFac
 
     func getCrowdloanFundsProvider(
         for paraId: ParaId,
-        chainId: ChainModel.Id
+        chainId: SSFModels.ChainModel.Id
     ) throws -> AnyDataProvider<DecodedCrowdloanFunds> {
         let localIdentifierFactory = LocalStorageKeyFactory()
 

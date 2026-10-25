@@ -76,8 +76,6 @@ final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarW
     // MARK: - Private methods
 
     private func configure() {
-        hideKeyboardWhenTappedAround()
-
         rootView.amountView.selectHandler = { [weak self] in
             self?.output.didTapSelectAsset()
         }
@@ -103,19 +101,19 @@ final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarW
             self?.output.didTapPasteButton()
         }
 
-//        let locale = localizationManager?.selectedLocale ?? Locale.current
-//        let accessoryView = UIFactory
-//            .default
-//            .createAmountAccessoryView(for: self, locale: locale)
-//        rootView.amountView.textField.inputAccessoryView = accessoryView
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        let accessoryView = UIFactory
+            .default
+            .createAmountAccessoryView(for: self, locale: locale)
+        rootView.amountView.textField.inputAccessoryView = accessoryView
         rootView.amountView.textField.delegate = self
         rootView.searchView.textField.delegate = self
         updatePreviewButton()
     }
 
     private func updatePreviewButton() {
-        let isEnabled = amountInputViewModel?.isValid == true && rootView.searchView.textField.text.or("").isNotEmpty
-        rootView.actionButton.set(enabled: isEnabled)
+        let isEnabled = amountInputViewModel?.isValid == true && rootView.searchView.textField.text.or("").isNotEmpty && rootView.searchView.isValid
+        rootView.actionButton.set(enabled: isEnabled, changeStyle: true)
     }
 }
 
@@ -156,7 +154,7 @@ extension CrossChainViewController: CrossChainViewInput {
         rootView.bind(originalSelectNetworkViewModel: originSelectNetworkViewModel)
     }
 
-    func didReceive(destSelectNetworkViewModel: SelectNetworkViewModel) {
+    func didReceive(destSelectNetworkViewModel: SelectNetworkViewModel?) {
         rootView.bind(destSelectNetworkViewModel: destSelectNetworkViewModel)
     }
 

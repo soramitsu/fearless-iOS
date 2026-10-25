@@ -74,7 +74,7 @@
         <string>era</string>
       </dict>
     </dict>
-    <key>verification.rejected.screen.attempts.left</key>
+    <key>wallet.records.notice.wallets</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@format@</string>
@@ -84,8 +84,58 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string>Không thể hiển thị %li ví đã lưu</string>
         <key>other</key>
-        <string>Bạn còn %li lần thử KYC miễn phí nữa</string>
+        <string>Không thể hiển thị %li ví đã lưu</string>
+      </dict>
+    </dict>
+    <key>wallet.records.notice.accounts</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Không thể sử dụng %li tài khoản mạng</string>
+        <key>other</key>
+        <string>Không thể sử dụng %li tài khoản mạng</string>
+      </dict>
+    </dict>
+    <key>wallet.records.sheet.wallets</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Không thể hiển thị %li ví đã lưu trên thiết bị này trong phiên bản Fearless này.</string>
+        <key>other</key>
+        <string>Không thể hiển thị %li ví đã lưu trên thiết bị này trong phiên bản Fearless này.</string>
+      </dict>
+    </dict>
+    <key>wallet.records.sheet.accounts</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Không thể sử dụng %li tài khoản mạng được lưu trong các ví của bạn. Ví chứa tài khoản đó vẫn dùng được và sử dụng tài khoản riêng của mình trên mạng đó.</string>
+        <key>other</key>
+        <string>Không thể sử dụng %li tài khoản mạng được lưu trong các ví của bạn. Các ví chứa những tài khoản đó vẫn dùng được và sử dụng tài khoản riêng của mình trên các mạng đó.</string>
       </dict>
     </dict>
   </dict>

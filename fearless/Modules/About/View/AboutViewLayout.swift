@@ -20,6 +20,8 @@ final class AboutViewLayout: UIView {
     private let aboutTitle: UILabel = {
         let label = UILabel()
         label.font = .h2Title
+        label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = R.color.colorWhite()
         return label
     }()
@@ -30,9 +32,11 @@ final class AboutViewLayout: UIView {
         return gradient
     }()
 
+    private let headerContainer = UIView()
+
     let tableView: UITableView = {
         let view = UITableView()
-        view.backgroundColor = R.color.colorBlack()
+        view.backgroundColor = .clear
         view.separatorStyle = .none
         view.contentInset = UIEdgeInsets(
             top: 0,
@@ -55,6 +59,7 @@ final class AboutViewLayout: UIView {
 
     func applyLocalization() {
         aboutTitle.text = R.string.localizable.aboutTitle(preferredLanguages: locale.rLanguages)
+        setNeedsLayout()
     }
 
     // MARK: - Constructors
@@ -69,6 +74,30 @@ final class AboutViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory {
+            setNeedsLayout()
+        }
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        let width = tableView.bounds.width
+        guard width > 0 else { return }
+        aboutTitle.preferredMaxLayoutWidth = max(1, width - 2 * UIConstants.bigOffset)
+        let size = headerContainer.systemLayoutSizeFitting(
+            CGSize(width: width, height: UIView.layoutFittingCompressedSize.height),
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        )
+        let frame = CGRect(x: 0, y: 0, width: width, height: ceil(size.height))
+        if headerContainer.frame != frame {
+            headerContainer.frame = frame
+            tableView.tableHeaderView = headerContainer
+        }
+    }
+
     // MARK: - Private methods
 
     private func setupLayout() {
@@ -77,38 +106,30 @@ final class AboutViewLayout: UIView {
             make.edges.equalToSuperview()
         }
 
-        let gradientContainer = UIView()
-        gradientContainer.backgroundColor = .clear
-        addSubview(gradientContainer)
-        gradientContainer.snp.makeConstraints { make in
-            make.top.equalToSuperview()
-            make.leading.trailing.equalToSuperview()
+        addSubview(tableView)
+        tableView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
+        tableView.tableHeaderView = headerContainer
 
-        gradientContainer.addSubview(gradientView)
+        headerContainer.addSubview(gradientView)
         gradientView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
 
-        gradientContainer.addSubview(logoImageView)
+        headerContainer.addSubview(logoImageView)
         logoImageView.snp.makeConstraints { make in
             make.width.equalTo(142)
             make.height.equalTo(61)
             make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(88)
+            make.top.equalToSuperview().offset(24)
         }
 
-        gradientContainer.addSubview(aboutTitle)
+        headerContainer.addSubview(aboutTitle)
         aboutTitle.snp.makeConstraints { make in
             make.top.equalTo(logoImageView.snp.bottom).offset(4)
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().offset(-UIConstants.bigOffset)
-        }
-
-        addSubview(tableView)
-        tableView.snp.makeConstraints { make in
-            make.top.equalTo(gradientContainer.snp.bottom)
-            make.leading.trailing.bottom.equalToSuperview()
         }
     }
 }

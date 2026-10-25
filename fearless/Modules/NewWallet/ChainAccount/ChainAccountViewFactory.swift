@@ -4,6 +4,7 @@ import SSFUtils
 import RobinHood
 import SoraKeystore
 import SSFModels
+import SSFStorageQueryKit
 
 struct ChainAccountModule {
     let view: ChainAccountViewProtocol?
@@ -23,6 +24,7 @@ enum ChainAccountViewFactory {
         let operationManager = OperationManagerFacade.sharedManager
         let eventCenter = EventCenter.shared
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
@@ -44,10 +46,9 @@ enum ChainAccountViewFactory {
             operationManager: operationManager
         )
 
-        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
-        let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(
+        let ethereumBalanceRepositoryCacheWrapper = BalanceRepositoryCacheWrapper(
             logger: Logger.shared,
             repository: accountInfoRepository,
             operationManager: OperationManagerFacade.sharedManager
@@ -55,6 +56,16 @@ enum ChainAccountViewFactory {
         let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
             chainRegistry: chainRegistry,
             repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
+        )
+        let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
+            chainRegistry: chainRegistry
+        )
+        let accountInfoRemoteService = AccountInfoRemoteServiceDefault(
+            bitcoinBalanceSync: BitcoinBalanceSync(
+                discovery: BitcoinReceiveDiscovery(client: BitcoinFailoverIndexerClient())
+            ),
+            solanaBalanceSync: SolanaRpcBalanceSync.mainnet,
+            storagePerformer: storagePerformer
         )
         let interactor = ChainAccountInteractor(
             wallet: wallet,
@@ -67,7 +78,8 @@ enum ChainAccountViewFactory {
             storageRequestFactory: storageRequestFactory,
             walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
             ethRemoteBalanceFetching: ethereumRemoteBalanceFetching,
-            chainRegistry: chainRegistry
+            chainRegistry: chainRegistry,
+            accountInfoRemoteService: accountInfoRemoteService
         )
 
         let wireframe = ChainAccountWireframe()

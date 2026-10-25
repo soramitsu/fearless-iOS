@@ -4,6 +4,15 @@ private final class WordColumnView: UIView {
     private var indexes: [UILabel] = []
     private var words: [UILabel] = []
 
+    var maximumWidth: CGFloat? {
+        didSet {
+            guard maximumWidth != oldValue else { return }
+            applyWordStyle(to: words)
+            invalidateIntrinsicContentSize()
+            setNeedsLayout()
+        }
+    }
+
     var horizontalSpacing: CGFloat = 16.0 {
         didSet {
             invalidateIntrinsicContentSize()
@@ -49,59 +58,45 @@ private final class WordColumnView: UIView {
     }
 
     override var intrinsicContentSize: CGSize {
-        let indexSize = indexes.reduce(CGSize(width: 0.0, height: 0.0)) { result, indexLabel in
-            let indexSize = indexLabel.intrinsicContentSize
-            return CGSize(
-                width: max(result.width, indexSize.width),
-                height: result.height + indexSize.height
-            )
+        guard !words.isEmpty else { return .zero }
+        let indexWidth = indexes.map { $0.intrinsicContentSize.width }.max() ?? 0
+        let available = maximumWidth.map { max(1, $0 - indexWidth - horizontalSpacing) } ?? .greatestFiniteMagnitude
+        var width: CGFloat = 0
+        var height: CGFloat = 0
+        for (index, word) in words.enumerated() {
+            let size = word.sizeThatFits(CGSize(width: available, height: .greatestFiniteMagnitude))
+            width = max(width, size.width)
+            height += max(size.height, indexes[index].intrinsicContentSize.height)
         }
-
-        let wordsSize = words.reduce(CGSize(width: 0.0, height: 0.0)) { result, wordLabel in
-            let wordSize = wordLabel.intrinsicContentSize
-            return CGSize(
-                width: max(result.width, wordSize.width),
-                height: result.height + wordSize.height
-            )
-        }
-
         return CGSize(
-            width: indexSize.width + horizontalSpacing + wordsSize.width,
-            height: max(indexSize.height, wordsSize.height) + CGFloat(words.count - 1) * verticalSpacing
+            width: indexWidth + horizontalSpacing + width,
+            height: height + CGFloat(words.count - 1) * verticalSpacing
         )
     }
 
     override func layoutSubviews() {
         super.layoutSubviews()
-
-        let maxIndexWidth: CGFloat = indexes.reduce(CGFloat(0.0)) { result, label in
-            max(result, label.intrinsicContentSize.width)
-        }
-
-        var currentOffset: CGFloat = 0.0
-
-        for (index, wordLabel) in words.enumerated() {
+        let indexWidth = indexes.map { $0.intrinsicContentSize.width }.max() ?? 0
+        let available = maximumWidth.map { max(1, $0 - indexWidth - horizontalSpacing) } ?? .greatestFiniteMagnitude
+        var offset: CGFloat = 0
+        for (index, word) in words.enumerated() {
             let indexLabel = indexes[index]
-            let wordSize = wordLabel.intrinsicContentSize
+            let wordSize = word.sizeThatFits(CGSize(width: available, height: .greatestFiniteMagnitude))
             let indexSize = indexLabel.intrinsicContentSize
-
             let height = max(wordSize.height, indexSize.height)
-
             indexLabel.frame = CGRect(
-                x: 0.0,
-                y: currentOffset + height / 2.0 - indexSize.height / 2.0,
+                x: 0,
+                y: offset + (height - indexSize.height) / 2,
                 width: indexSize.width,
                 height: indexSize.height
             )
-
-            wordLabel.frame = CGRect(
-                x: maxIndexWidth + horizontalSpacing,
-                y: currentOffset + height / 2.0 - wordSize.height / 2.0,
+            word.frame = CGRect(
+                x: indexWidth + horizontalSpacing,
+                y: offset + (height - wordSize.height) / 2,
                 width: wordSize.width,
                 height: wordSize.height
             )
-
-            currentOffset += height + verticalSpacing
+            offset += height + verticalSpacing
         }
     }
 
@@ -134,11 +129,14 @@ private final class WordColumnView: UIView {
             indexes.append(contentsOf: newIndexes)
             words.append(contentsOf: newWords)
         } else if words.count > count {
-            let removedIndexes = indexes.dropLast(words.count - count)
-            let removedWords = words.dropLast(words.count - count)
+            let removedCount = words.count - count
+            let removedIndexes = indexes.suffix(removedCount)
+            let removedWords = words.suffix(removedCount)
 
             removedIndexes.forEach { $0.removeFromSuperview() }
             removedWords.forEach { $0.removeFromSuperview() }
+            indexes.removeLast(removedCount)
+            words.removeLast(removedCount)
         }
     }
 
@@ -153,11 +151,29 @@ private final class WordColumnView: UIView {
         list.forEach { label in
             label.textColor = wordTitleColor
             label.font = wordFont
+            label.numberOfLines = maximumWidth == nil ? 1 : 0
+            label.lineBreakMode = .byCharWrapping
         }
     }
 }
 
 final class MnemonicDisplayView: UIView {
+    var adaptsToAvailableWidth = false {
+        didSet {
+            guard adaptsToAvailableWidth != oldValue else { return }
+            if !adaptsToAvailableWidth {
+                allColumns.forEach { $0.maximumWidth = nil }
+                if !boundWords.isEmpty { bindColumns(count: requestedColumns) }
+            }
+            invalidateIntrinsicContentSize()
+            setNeedsLayout()
+        }
+    }
+
+    private var boundWords: [String] = []
+    private var requestedColumns = 1
+    private var measuredHeight: CGFloat = 0
+
     var columnsSpacing: CGFloat = 50.0 {
         didSet {
             invalidateIntrinsicContentSize()
@@ -275,9 +291,19 @@ final class MnemonicDisplayView: UIView {
     }
 
     override func layoutSubviews() {
+        if adaptsToAvailableWidth, !boundWords.isEmpty, bounds.width > 0 {
+            let count = fittingColumnCount()
+            if count != allColumns.count { bindColumns(count: count) }
+            let width = max(1, (bounds.width - CGFloat(count - 1) * columnsSpacing) / CGFloat(count))
+            allColumns.forEach { $0.maximumWidth = width }
+        }
         super.layoutSubviews()
 
         let totalSize = intrinsicContentSize
+        if measuredHeight != totalSize.height {
+            measuredHeight = totalSize.height
+            invalidateIntrinsicContentSize()
+        }
 
         var offset: CGFloat = bounds.size.width / 2.0 - totalSize.width / 2.0
 
@@ -294,19 +320,50 @@ final class MnemonicDisplayView: UIView {
     }
 
     func bind(words: [String], columnsCount: Int) {
-        guard columnsCount > 0, words.count % columnsCount == 0 else {
+        defer {
+            invalidateIntrinsicContentSize()
+            setNeedsLayout()
+        }
+
+        guard !words.isEmpty, columnsCount > 0, words.count % columnsCount == 0 else {
+            boundWords = []
+            requestedColumns = 1
+            setupColumns(count: 1)
+            mainColumn.bind(words: [], starting: 1)
             return
         }
 
-        let wordsPerColumn = words.count / columnsCount
+        boundWords = words
+        requestedColumns = columnsCount
+        bindColumns(count: fittingColumnCount())
+    }
 
-        setupColumns(count: columnsCount)
+    private func fittingColumnCount() -> Int {
+        guard adaptsToAvailableWidth, bounds.width > 0 else { return requestedColumns }
+        for count in stride(from: requestedColumns, through: 1, by: -1) where boundWords.count % count == 0 {
+            let rows = boundWords.count / count
+            var width = CGFloat(count - 1) * columnsSpacing
+            for column in 0 ..< count {
+                let range = (column * rows) ..< ((column + 1) * rows)
+                let wordWidth = range
+                    .map { (boundWords[$0] as NSString).size(withAttributes: [.font: mainColumn.wordFont]).width }
+                    .max() ?? 0
+                let indexWidth = range
+                    .map { (String($0 + 1) as NSString).size(withAttributes: [.font: mainColumn.indexFont]).width }
+                    .max() ?? 0
+                width += ceil(wordWidth) + ceil(indexWidth) + mainColumn.horizontalSpacing
+            }
+            if width <= bounds.width { return count }
+        }
+        return 1
+    }
 
-        for columnIndex in 0 ..< columnsCount {
-            let start = columnIndex * wordsPerColumn
-            let end = (columnIndex + 1) * wordsPerColumn
-
-            allColumns[columnIndex].bind(words: Array(words[start ..< end]), starting: start + 1)
+    private func bindColumns(count: Int) {
+        let rows = boundWords.count / count
+        setupColumns(count: count)
+        for column in 0 ..< count {
+            let start = column * rows
+            allColumns[column].bind(words: Array(boundWords[start ..< (start + rows)]), starting: start + 1)
         }
     }
 
@@ -336,8 +393,10 @@ final class MnemonicDisplayView: UIView {
 
             otherColumns.append(contentsOf: newColumns)
         } else if allColumns.count > count {
-            let removedColumns = otherColumns.dropLast(allColumns.count - count)
+            let removedCount = allColumns.count - count
+            let removedColumns = otherColumns.suffix(removedCount)
             removedColumns.forEach { $0.removeFromSuperview() }
+            otherColumns.removeLast(removedCount)
         }
     }
 }

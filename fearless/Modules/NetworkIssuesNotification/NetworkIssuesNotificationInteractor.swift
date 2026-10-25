@@ -33,17 +33,15 @@ final class NetworkIssuesNotificationInteractor {
     // MARK: - Private methods
 
     private func save(_ updatedAccount: MetaAccountModel) {
-        let saveOperation = accountRepository.saveOperation {
-            [updatedAccount]
-        } _: {
-            []
-        }
-
-        saveOperation.completionBlock = { [weak self] in
+        Task { [weak self] in
+            guard let self else { return }
+            // Save updated account
+            try? await accountRepository.saveAsync(insert: [updatedAccount], delete: [])
+            // Persist in SelectedWalletSettings and notify on main
             SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
                 switch result {
                 case let .success(wallet):
-                    DispatchQueue.main.async {
+                    DispatchQueue.main.async { [weak self] in
                         self?.wallet = wallet
                         self?.output?.didReceiveWallet(wallet: wallet)
                         self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: wallet))
@@ -53,37 +51,32 @@ final class NetworkIssuesNotificationInteractor {
                 }
             }
         }
-
-        operationQueue.addOperation(saveOperation)
     }
 
     private func save(chainSettings: ChainSettings) {
-        let saveOperation = chainSettingsRepository.saveOperation {
-            [chainSettings]
-        } _: {
-            []
+        Task { [weak self] in
+            guard let self else { return }
+            try? await chainSettingsRepository.saveAsync(insert: [chainSettings], delete: [])
+            await MainActor.run { [weak self] in
+                self?.fetchChainSettings()
+                self?.chainsIssuesCenter.forceNotify()
+            }
         }
-
-        saveOperation.completionBlock = { [weak self] in
-            self?.fetchChainSettings()
-
-            self?.chainsIssuesCenter.forceNotify()
-        }
-
-        operationQueue.addOperation(saveOperation)
     }
 
     private func fetchChainSettings() {
-        let fetchChainSettingsOperation = chainSettingsRepository.fetchAllOperation(with: RepositoryFetchOptions())
-
-        fetchChainSettingsOperation.completionBlock = { [weak self] in
-            let chainSettings = (try? fetchChainSettingsOperation.extractNoCancellableResultData()) ?? []
-            DispatchQueue.main.async {
-                self?.output?.didReceive(chainSettings: chainSettings)
+        Task { [weak self] in
+            guard let self else { return }
+            let settings: [ChainSettings]
+            do {
+                settings = try await chainSettingsRepository.fetchAllAsync()
+            } catch {
+                settings = []
+            }
+            await MainActor.run { [weak self] in
+                self?.output?.didReceive(chainSettings: settings)
             }
         }
-
-        operationQueue.addOperation(fetchChainSettingsOperation)
     }
 }
 
@@ -99,18 +92,12 @@ extension NetworkIssuesNotificationInteractor: NetworkIssuesNotificationInteract
     }
 
     func mute(chain: ChainModel) {
-        let fetchChainSettingsOperation = chainSettingsRepository.fetchOperation(by: {
-            chain.chainId
-        }, options: RepositoryFetchOptions())
-
-        fetchChainSettingsOperation.completionBlock = { [weak self] in
-            var chainSettings = (try? fetchChainSettingsOperation.extractNoCancellableResultData()) ?? ChainSettings.defaultSettings(for: chain.chainId)
-
+        Task { [weak self] in
+            guard let self else { return }
+            var chainSettings = (try? await chainSettingsRepository.fetchAsync(by: chain.chainId)) ?? ChainSettings.defaultSettings(for: chain.chainId)
             chainSettings.setIssueMuted(true)
-            self?.save(chainSettings: chainSettings)
+            self.save(chainSettings: chainSettings)
         }
-
-        operationQueue.addOperation(fetchChainSettingsOperation)
     }
 
     func setup(with output: NetworkIssuesNotificationInteractorOutput) {

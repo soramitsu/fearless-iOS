@@ -1,5 +1,6 @@
 import Foundation
 import SSFUtils
+import SSFModels
 
 struct EventRecord: Decodable {
     enum CodingKeys: String, CodingKey {
@@ -58,8 +59,6 @@ enum Phase: Decodable {
     }
 }
 
-struct EventWrapper: Decodable {}
-
 struct Event: Decodable {
     let section: String
     let method: String
@@ -102,7 +101,13 @@ enum ExtrinsicStatus: Decodable {
             debugDescription: "Unexpected extrinsic state"
         )
 
-        let type = try (decoded.dictValue?.keys.first ?? decoded.stringValue).unwrap(throwing: decodingError)
+        if let status = decoded.stringValue {
+            guard status == Self.readyField else { throw decodingError }
+            self = .ready
+            return
+        }
+
+        let type = try (decoded.dictValue?.keys.first).unwrap(throwing: decodingError)
         let value = try decoded[type].unwrap(throwing: decodingError)
 
         switch type {

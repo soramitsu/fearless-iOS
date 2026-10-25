@@ -3,6 +3,9 @@ protocol AccountConfirmViewProtocol: ControllerBackedProtocol {
 }
 
 protocol AccountConfirmPresenterProtocol: AnyObject {
+    func willLeaveView()
+    func didCancelLeavingView()
+    func didLeaveView()
     func didLoad(view: AccountConfirmViewProtocol)
     func requestWords()
     func confirm(words: [String])
@@ -37,4 +40,10 @@ protocol AccountConfirmViewFactoryProtocol: AnyObject {
     static func createViewForSwitch(
         flow: AccountConfirmFlow
     ) -> AccountConfirmViewProtocol?
+}
+
+extension AccountConfirmPresenterProtocol {
+    func willLeaveView() {}
+    func didCancelLeavingView() {}
+    func didLeaveView() {}
 }

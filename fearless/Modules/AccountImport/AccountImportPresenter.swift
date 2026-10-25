@@ -1,8 +1,9 @@
 import Foundation
-import SoraFoundation
+import IrohaCrypto
 import Rswift
-import SSFUtils
+import SoraFoundation
 import SSFModels
+import SSFUtils
 
 // swiftlint:disable function_body_length file_length
 enum AccountImportContext: String {
@@ -113,6 +114,7 @@ final class AccountImportPresenter: NSObject {
 
     private(set) var selectedSourceType: AccountImportSource?
     private(set) var selectedCryptoType: CryptoType?
+    private var cryptoTypeSelectable = false
 
     private(set) var sourceViewModel: InputViewModelProtocol?
     private(set) var usernameViewModel: InputViewModelProtocol?
@@ -121,7 +123,14 @@ final class AccountImportPresenter: NSObject {
     private(set) var ethereumDerivationPathViewModel: InputViewModelProtocol?
 
     private lazy var jsonDeserializer = JSONSerialization()
-    private var input: String?
+    private var isImportInProgress = false
+    private var isPersistencePending = false
+    private var hasCommittedImport = false
+    private var didNavigateAfterImport = false
+    private var isImportPresentationSuspended = false
+    private var isApplicationActive = true
+    private var requiresExplicitImportCompletion = false
+    private let nativeTonImport: NativeTonImportCoordinator
     private var inputState: ErrorPresentableInputField.State = .normal {
         didSet {
             view?.didChangeState(inputState)
@@ -131,15 +140,117 @@ final class AccountImportPresenter: NSObject {
     init(
         wireframe: AccountImportWireframeProtocol,
         interactor: AccountImportInteractorInputProtocol,
-        flow: AccountImportFlow
+        flow: AccountImportFlow,
+        nativeTonImport: NativeTonImportCoordinator = NativeTonImportCoordinator()
     ) {
         self.wireframe = wireframe
         self.interactor = interactor
         self.flow = flow
+        self.nativeTonImport = nativeTonImport
+        super.init()
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(importApplicationWillResignActive),
+            name: UIApplication.willResignActiveNotification, object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(importApplicationDidBecomeActive),
+            name: UIApplication.didBecomeActiveNotification, object: nil
+        )
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }
 
 private extension AccountImportPresenter {
+    var ownsImportPresentation: Bool {
+        guard
+            !isImportPresentationSuspended, isApplicationActive, !didNavigateAfterImport,
+            UIApplication.shared.applicationState != .background,
+            let controller = view?.controller,
+            controller.viewIfLoaded?.window != nil,
+            !controller.isBeingDismissed, !controller.isMovingFromParent,
+            controller.navigationController.map({ $0.topViewController === controller }) ?? true
+        else { return false }
+        return true
+    }
+
+    @objc func importApplicationWillResignActive() {
+        isApplicationActive = false
+        if isPersistencePending { requiresExplicitImportCompletion = true }
+        nativeTonImport.cancel()
+    }
+
+    @objc func importApplicationDidBecomeActive() {
+        // Becoming active never replays a completion. Continue explicitly finishes
+        // an acknowledged import without issuing another key/store transaction.
+        isApplicationActive = true
+    }
+
+    func persistMetaAccount(request: MetaAccountImportRequest) {
+        guard ownsImportPresentation, isImportInProgress, !isPersistencePending, !hasCommittedImport else { return }
+        isPersistencePending = true
+        updateImportPersistenceView()
+        interactor.importMetaAccount(request: request)
+    }
+
+    func persistUniqueChain(request: UniqueChainImportRequest) {
+        guard ownsImportPresentation, isImportInProgress, !isPersistencePending, !hasCommittedImport else { return }
+        isPersistencePending = true
+        updateImportPersistenceView()
+        interactor.importUniqueChain(request: request)
+    }
+
+    func updateImportPersistenceView() {
+        (view as? AccountImportPersistenceView)?.bindImportPersistence(
+            pending: isPersistencePending, committed: hasCommittedImport
+        )
+    }
+
+    func finishCommittedImport() {
+        guard hasCommittedImport, ownsImportPresentation,
+              view?.controller.presentedViewController == nil else { return }
+        didNavigateAfterImport = true
+        wireframe.proceed(from: view, flow: flow)
+    }
+
+    var isDedicatedBitcoinChainFlow: Bool {
+        guard case let .chain(model) = flow else {
+            return false
+        }
+
+        return UniversalWalletRegistry.bitcoinNetwork(for: model.chain.chainId) != nil
+    }
+
+    var isDedicatedUniversalChainFlow: Bool {
+        guard case let .chain(model) = flow else {
+            return false
+        }
+
+        // Bitcoin, Solana and Taira come from the wallet's own recovery phrase
+        // (`UniversalRootRecoveryOperation`): no raw seed, JSON or derivation options.
+        return isDedicatedBitcoinChainFlow ||
+            UniversalWalletRegistry.solanaNetwork(for: model.chain.chainId) != nil ||
+            UniversalWalletChainAccountSupport.chainId(
+                model.chain.chainId,
+                matches: UniversalWalletRegistry.taira.chainId
+            )
+    }
+
+    var dedicatedUniversalCryptoType: CryptoType {
+        guard case let .chain(model) = flow,
+              UniversalWalletRegistry.solanaNetwork(for: model.chain.chainId) != nil ||
+              UniversalWalletChainAccountSupport.chainId(
+                  model.chain.chainId,
+                  matches: UniversalWalletRegistry.taira.chainId
+              ) else {
+            return .ecdsa
+        }
+
+        return .ed25519
+    }
+
     func applySourceType(
         _ value: String = "",
         preferredData: PreferredData? = nil
@@ -150,8 +261,17 @@ private extension AccountImportPresenter {
 
         switch flow {
         case let .chain(model):
-            let chainType: AccountCreateChainType = model.chain.isEthereumBased ? .ethereum : .substrate
-            view?.setSource(type: selectedSourceType, chainType: chainType, selectable: true)
+            let chainType: AccountCreateChainType
+            if isDedicatedUniversalChainFlow {
+                chainType = .universal
+            } else {
+                chainType = model.chain.isEthereumBased ? .ethereum : .substrate
+            }
+            view?.setSource(
+                type: selectedSourceType,
+                chainType: chainType,
+                selectable: !isDedicatedUniversalChainFlow
+            )
         case let .wallet(step):
             switch step {
             case .substrate:
@@ -178,55 +298,44 @@ private extension AccountImportPresenter {
         }
         applyUsernameViewModel(username)
         applyPasswordViewModel()
-        applyAdvanced(preferredData?.cryptoType)
+        if isDedicatedUniversalChainFlow {
+            substrateDerivationPathViewModel = nil
+            ethereumDerivationPathViewModel = nil
+            view?.show(chainType: .universal)
+        } else {
+            applyAdvanced(preferredData?.cryptoType)
+        }
+    }
+
+    func sourcePlaceholder(for source: AccountImportSource) -> String {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        switch source {
+        case .mnemonic:
+            return R.string.localizable.importMnemonic(preferredLanguages: locale.rLanguages)
+        case .legacyTonMnemonic:
+            return R.string.localizable.importLegacy_ton_phrase_placeholder(preferredLanguages: locale.rLanguages)
+        case .seed:
+            return flow.isEthereumFlow ?
+                R.string.localizable.accountImportEthereumRawSeedPlaceholder(preferredLanguages: locale.rLanguages) :
+                R.string.localizable.accountImportSubstrateRawSeedPlaceholder(preferredLanguages: locale.rLanguages)
+        case .keystore:
+            return R.string.localizable.accountImportRecoveryJsonPlaceholder(preferredLanguages: locale.rLanguages)
+        }
     }
 
     func applySourceTextViewModel(_ value: String = "") {
-        guard let selectedSourceType = selectedSourceType else {
-            return
-        }
-
-        let viewModel: InputViewModelProtocol
-
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
+        guard let selectedSourceType = selectedSourceType else { return }
+        let inputHandler: InputHandling
         switch selectedSourceType {
         case .mnemonic:
-            let placeholder = R.string.localizable
-                .importMnemonic(preferredLanguages: locale.rLanguages)
-            let normalizer = MnemonicTextNormalizer()
-            let inputHandler = InputHandler(
-                value: value,
-                normalizer: normalizer
-            )
-            viewModel = InputViewModel(inputHandler: inputHandler, placeholder: placeholder)
-        case .seed:
-            var placeholder: String
-            if flow.isEthereumFlow {
-                placeholder = R.string.localizable
-                    .accountImportEthereumRawSeedPlaceholder(preferredLanguages: locale.rLanguages)
-            } else {
-                placeholder = R.string.localizable
-                    .accountImportSubstrateRawSeedPlaceholder(preferredLanguages: locale.rLanguages)
-            }
-            let inputHandler = InputHandler(
-                value: value
-            )
-            viewModel = InputViewModel(inputHandler: inputHandler, placeholder: placeholder)
-        case .keystore:
-            let placeholder = R.string.localizable
-                .accountImportRecoveryJsonPlaceholder(preferredLanguages: locale.rLanguages)
-            let inputHandler = InputHandler(
-                value: value
-            )
-            viewModel = InputViewModel(
-                inputHandler: inputHandler,
-                placeholder: placeholder
-            )
+            inputHandler = InputHandler(value: value, normalizer: MnemonicTextNormalizer())
+        case .legacyTonMnemonic, .seed, .keystore:
+            inputHandler = InputHandler(value: value)
         }
-
+        let viewModel = InputViewModel(
+            inputHandler: inputHandler, placeholder: sourcePlaceholder(for: selectedSourceType)
+        )
         sourceViewModel = viewModel
-
         view?.setSource(viewModel: viewModel)
     }
 
@@ -260,7 +369,7 @@ private extension AccountImportPresenter {
         }
 
         switch selectedSourceType {
-        case .mnemonic, .seed:
+        case .mnemonic, .legacyTonMnemonic, .seed:
             passwordViewModel = nil
         case .keystore:
             let viewModel = InputViewModel(inputHandler: InputHandler(required: true))
@@ -278,6 +387,11 @@ private extension AccountImportPresenter {
             return
         }
         switch selectedSourceType {
+        case .legacyTonMnemonic:
+            selectedCryptoType = .ed25519
+            substrateDerivationPathViewModel = nil
+            ethereumDerivationPathViewModel = nil
+            view?.show(chainType: .universal)
         case .mnemonic:
             applyCryptoTypeViewModel(cryptoType)
 
@@ -311,7 +425,9 @@ private extension AccountImportPresenter {
         }
     }
 
-    func applyCryptoTypeViewModel(_ preselectedCryptoType: CryptoType? = nil) {
+    func applyCryptoTypeViewModel(
+        _ preselectedCryptoType: CryptoType? = nil, preservingSelectability: Bool = false
+    ) {
         guard let cryptoType = selectedCryptoType else {
             return
         }
@@ -325,12 +441,15 @@ private extension AccountImportPresenter {
 
         let selectable: Bool
 
-        if preselectedCryptoType != nil {
+        if preservingSelectability {
+            selectable = cryptoTypeSelectable
+        } else if preselectedCryptoType != nil {
             selectable = false
         } else {
             selectable = (metadata?.availableCryptoTypes.count ?? 0) > 1
         }
 
+        cryptoTypeSelectable = selectable
         view?.setSelectedCrypto(model: SelectableViewModel(
             underlyingViewModel: viewModel,
             selectable: selectable
@@ -497,6 +616,13 @@ private extension AccountImportPresenter {
     }
 
     func createAccount(data: AccountImportRequestData) {
+        guard ownsImportPresentation, !isImportInProgress, !hasCommittedImport else {
+            return
+        }
+
+        requiresExplicitImportCompletion = false
+        isImportInProgress = true
+
         switch flow {
         case let .chain(model):
             let derivationPath = model.chain.isEthereumBased
@@ -520,9 +646,12 @@ private extension AccountImportPresenter {
 
     func importMetaAccount(data: AccountImportRequestData, step: AccountCreationStep) {
         switch (data.selectedSourceType, step) {
-        case (.mnemonic, _):
+        case (.mnemonic, _), (.legacyTonMnemonic, _):
             let mnemonicString = data.source
-            guard let mnemonic = interactor.createMnemonicFromString(mnemonicString) else {
+            let parsed: IRMnemonicProtocol? = data.selectedSourceType == .legacyTonMnemonic
+                ? (try? LegacyTonMnemonic.validatedForImport(mnemonicString))
+                : interactor.createMnemonicFromString(mnemonicString)
+            guard let mnemonic = parsed else {
                 didReceiveAccountImport(error: AccountCreateError.invalidMnemonicFormat)
                 return
             }
@@ -538,7 +667,7 @@ private extension AccountImportPresenter {
                 cryptoType: data.selectedCryptoType,
                 defaultChainId: nil
             )
-            interactor.importMetaAccount(request: request)
+            persistMetaAccount(request: request)
         case (.seed, .substrate):
             askIfNeedAddEthereum { [weak self] in
                 self?.showSecondStep(data: data)
@@ -556,7 +685,7 @@ private extension AccountImportPresenter {
                     cryptoType: data.selectedCryptoType,
                     defaultChainId: nil
                 )
-                self?.interactor.importMetaAccount(request: request)
+                self?.persistMetaAccount(request: request)
             }
         case (.keystore, .substrate):
             askIfNeedAddEthereum { [weak self] in
@@ -575,7 +704,7 @@ private extension AccountImportPresenter {
                     cryptoType: data.selectedCryptoType,
                     defaultChainId: nil
                 )
-                self?.interactor.importMetaAccount(request: request)
+                self?.persistMetaAccount(request: request)
             }
         case let (.seed, .ethereum(previousStepData)):
             let sourceData = MetaAccountImportRequestSource.SeedImportRequestData(
@@ -591,7 +720,7 @@ private extension AccountImportPresenter {
                 cryptoType: previousStepData.cryptoType,
                 defaultChainId: nil
             )
-            interactor.importMetaAccount(request: request)
+            persistMetaAccount(request: request)
         case let (.keystore, .ethereum(previousStepData)):
             let sourceData = MetaAccountImportRequestSource.KeystoreImportRequestData(
                 substrateKeystore: previousStepData.source,
@@ -606,7 +735,7 @@ private extension AccountImportPresenter {
                 cryptoType: previousStepData.cryptoType,
                 defaultChainId: nil
             )
-            interactor.importMetaAccount(request: request)
+            persistMetaAccount(request: request)
         }
     }
 
@@ -625,6 +754,9 @@ private extension AccountImportPresenter {
     func importUniqueChain(data: UniqueChainImportRequestData) {
         var source: UniqueChainImportRequestSource
         switch data.selectedSourceType {
+        case .legacyTonMnemonic:
+            didReceiveAccountImport(error: AccountCreateError.invalidMnemonicFormat)
+            return
         case .mnemonic:
             guard let mnemonic = interactor.createMnemonicFromString(data.source) else {
                 didReceiveAccountImport(error: AccountCreateError.invalidMnemonicFormat)
@@ -655,7 +787,7 @@ private extension AccountImportPresenter {
             meta: data.meta,
             chain: data.chain
         )
-        interactor.importUniqueChain(request: request)
+        persistUniqueChain(request: request)
     }
 
     func validateSource(with value: String) -> Error? {
@@ -664,6 +796,9 @@ private extension AccountImportPresenter {
         }
 
         switch selectedSourceType {
+        case .legacyTonMnemonic:
+            // Native TON validation and candidate derivation run off the main thread.
+            return nil
         case .mnemonic:
             return validateMnemonic(value: value)
         case .seed:
@@ -685,14 +820,21 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         }
         if case let .chain(model) = flow {
             let viewModel = UniqueChainViewModel(
-                text: model.chain.name,
-                icon: model.chain.icon.map { RemoteImageViewModel(url: $0) }
+                text: isDedicatedUniversalChainFlow
+                    ? R.string.localizable.universalImportEntireWallet(
+                        preferredLanguages: localizationManager?.selectedLocale.rLanguages
+                    )
+                    : model.chain.name,
+                icon: isDedicatedUniversalChainFlow
+                    ? nil
+                    : model.chain.icon.map { RemoteImageViewModel(url: $0) }
             )
             view?.setUniqueChain(viewModel: viewModel)
         }
     }
 
     func selectSourceType() {
+        guard ownsImportPresentation, !isImportInProgress, !hasCommittedImport else { return }
         if let metadata = metadata {
             let context = AccountImportContext.sourceType.rawValue as NSString
             let selectedSourceType = self.selectedSourceType ?? metadata.defaultSource
@@ -708,6 +850,7 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
     }
 
     func selectCryptoType() {
+        guard ownsImportPresentation, !isImportInProgress, !hasCommittedImport else { return }
         if let metadata = metadata {
             let context = AccountImportContext.cryptoType.rawValue as NSString
             let selectedType = selectedCryptoType ?? metadata.defaultCryptoType
@@ -722,6 +865,7 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
     }
 
     func activateUpload() {
+        guard ownsImportPresentation, !isImportInProgress, !hasCommittedImport else { return }
         let locale = localizationManager?.selectedLocale
 
         let pasteTitle = R.string.localizable
@@ -729,7 +873,6 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         let pasteAction = SheetAlertPresentableAction(title: pasteTitle) { [weak self] in
             if let json = UIPasteboard.general.string {
                 self?.interactor.deriveMetadataFromKeystore(json)
-                self?.input = json
             }
         }
         let selectFileTitle = R.string.localizable
@@ -861,14 +1004,23 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
     }
 
     func proceed() {
+        guard ownsImportPresentation else { return }
+        if hasCommittedImport {
+            finishCommittedImport()
+            return
+        }
         guard
+            !isImportInProgress, !nativeTonImport.isPending,
             let selectedSourceType = selectedSourceType,
             let selectedCryptoType = selectedCryptoType,
             let usernameViewModel = usernameViewModel,
-            let input = input?.trimmingCharacters(in: .whitespacesAndNewlines)
+            let sourceViewModel = sourceViewModel
         else {
             return
         }
+        let input = selectedSourceType == .legacyTonMnemonic
+            ? sourceViewModel.inputHandler.value
+            : sourceViewModel.inputHandler.normalizedValue.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if let error = validateSource(with: input) {
             _ = wireframe.present(
@@ -916,12 +1068,39 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             resolveEmptyDerivationPath(data: data)
             return
         }
-        createAccount(data: data)
+        if selectedSourceType == .legacyTonMnemonic {
+            guard let owner = view?.controller else { return }
+            nativeTonImport.start(
+                phrase: input, locale: selectedLocale, from: owner,
+                isCurrent: { [weak self] in
+                    self?.selectedSourceType == .legacyTonMnemonic &&
+                        self?.sourceViewModel?.inputHandler.value == data.source &&
+                        self?.usernameViewModel?.inputHandler.value == data.username
+                }, completion: { [weak self] result in
+                    guard let self, self.ownsImportPresentation,
+                          !self.isImportInProgress, !self.hasCommittedImport else { return }
+                    switch result {
+                    case let .failure(error):
+                        self.didReceiveAccountImport(error: error)
+                    case let .success(mnemonic):
+                        self.requiresExplicitImportCompletion = false
+                        self.isImportInProgress = true
+                        let source = MetaAccountImportRequestSource.MnemonicImportRequestData(
+                            mnemonic: mnemonic, substrateDerivationPath: "", ethereumDerivationPath: ""
+                        )
+                        self.persistMetaAccount(request: MetaAccountImportRequest(
+                            source: .mnemonic(data: source), username: data.username,
+                            cryptoType: data.selectedCryptoType, defaultChainId: nil
+                        ))
+                    }
+                }
+            )
+        } else {
+            createAccount(data: data)
+        }
     }
 
     func validateInput(value: String) {
-        input = value
-
         guard AccountImportPresenter.onFlyValidationEnabled else {
             inputState = .normal
             return
@@ -948,19 +1127,43 @@ private extension Optional where Wrapped == String {
 
 extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
     func didReceiveAccountImport(metadata: MetaAccountImportMetadata) {
-        self.metadata = metadata
+        let effectiveMetadata: MetaAccountImportMetadata
+        if isDedicatedUniversalChainFlow {
+            effectiveMetadata = MetaAccountImportMetadata(
+                availableSources: [.mnemonic],
+                defaultSource: .mnemonic,
+                availableCryptoTypes: [dedicatedUniversalCryptoType],
+                defaultCryptoType: dedicatedUniversalCryptoType
+            )
+        } else if case .wallet(step: .substrate) = flow {
+            effectiveMetadata = metadata
+        } else {
+            effectiveMetadata = MetaAccountImportMetadata(
+                availableSources: metadata.availableSources.filter { $0 != .legacyTonMnemonic },
+                defaultSource: metadata.defaultSource == .legacyTonMnemonic ? .mnemonic : metadata.defaultSource,
+                availableCryptoTypes: metadata.availableCryptoTypes,
+                defaultCryptoType: metadata.defaultCryptoType
+            )
+        }
+        self.metadata = effectiveMetadata
 
-        selectedSourceType = metadata.defaultSource
-        selectedCryptoType = metadata.defaultCryptoType
+        selectedSourceType = effectiveMetadata.defaultSource
+        selectedCryptoType = effectiveMetadata.defaultCryptoType
 
         applySourceType()
     }
 
     func didCompleteAccountImport() {
-        wireframe.proceed(from: view, flow: flow)
+        didAcknowledgeAccountImport(selectionIsCurrent: true)
     }
 
     func didReceiveAccountImport(error: Error) {
+        guard !hasCommittedImport, !didNavigateAfterImport else { return }
+        isImportInProgress = false
+        isPersistencePending = false
+        updateImportPersistenceView()
+        guard !requiresExplicitImportCompletion, ownsImportPresentation,
+              view?.controller.presentedViewController == nil else { return }
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         guard !wireframe.present(error: error, from: view, locale: locale) else {
@@ -986,7 +1189,6 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
             wireframe.present(viewModel: viewModel, from: view)
             return
         }
-        input = text
         selectedSourceType = .keystore
         let preferredData = PreferredData(jsonData: preferredInfo)
         applySourceType(text, preferredData: preferredData)
@@ -1050,9 +1252,18 @@ extension AccountImportPresenter: ModalPickerViewControllerDelegate {
 
 extension AccountImportPresenter: Localizable {
     func applyLocalization() {
-        if let view = view, view.isSetup {
-            applySourceType()
+        guard let view = view, view.isSetup else { return }
+        // A locale change only changes captions. Keep every draft handler, its
+        // normalizer, metadata restrictions and the expanded/validation state.
+        if let current = sourceViewModel, let source = selectedSourceType {
+            let localized = InputViewModel(
+                inputHandler: current.inputHandler, title: current.title,
+                placeholder: sourcePlaceholder(for: source), autocapitalization: current.autocapitalization
+            )
+            sourceViewModel = localized
+            view.setSource(viewModel: localized)
         }
+        applyCryptoTypeViewModel(preservingSelectability: true)
     }
 }
 
@@ -1087,5 +1298,59 @@ extension AccountImportPresenter: UIDocumentPickerDelegate {
             viewModel: alertViewModel,
             from: view
         )
+    }
+}
+
+protocol AccountImportPresentationOwning: NativeTonImportLifecycleOwning {
+    func suspendPendingImportPresentation()
+    func resumeImportPresentation()
+}
+
+protocol AccountImportAcknowledgementReceiving: AnyObject {
+    func didAcknowledgeAccountImport(selectionIsCurrent: Bool)
+}
+
+extension AccountImportInteractorOutputProtocol {
+    func completeAccountImport(selectionIsCurrent: Bool) {
+        if let owner = self as? AccountImportAcknowledgementReceiving {
+            owner.didAcknowledgeAccountImport(selectionIsCurrent: selectionIsCurrent)
+        } else {
+            didCompleteAccountImport()
+        }
+    }
+}
+
+extension AccountImportPresenter: AccountImportAcknowledgementReceiving {
+    func didAcknowledgeAccountImport(selectionIsCurrent: Bool) {
+        guard isPersistencePending, !hasCommittedImport else { return }
+        isImportInProgress = false
+        isPersistencePending = false
+        hasCommittedImport = true
+        requiresExplicitImportCompletion = requiresExplicitImportCompletion || !selectionIsCurrent
+        updateImportPersistenceView()
+        if !requiresExplicitImportCompletion { finishCommittedImport() }
+    }
+}
+
+/// Leaving revokes presentation, not persistence. Acknowledged keys remain committed.
+extension AccountImportPresenter: AccountImportPresentationOwning {
+    func suspendPendingImportPresentation() {
+        // A chooser may cover the form before any persistence is issued. Only an
+        // outstanding write needs a terminal Continue after a covering transition.
+        guard isPersistencePending else { return }
+        isImportPresentationSuspended = true
+        requiresExplicitImportCompletion = true
+    }
+
+    func cancelPendingNativeTonImport() {
+        isImportPresentationSuspended = true
+        if isPersistencePending { requiresExplicitImportCompletion = true }
+        nativeTonImport.cancel()
+    }
+
+    func resumeImportPresentation() {
+        // Also restores a cancelled interactive Back gesture. Late acknowledgements
+        // still require an explicit Continue after ownership has been interrupted.
+        isImportPresentationSuspended = false
     }
 }

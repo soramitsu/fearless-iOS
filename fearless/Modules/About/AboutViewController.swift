@@ -1,5 +1,5 @@
-import UIKit
 import SoraUI
+import UIKit
 
 final class AboutViewController: UIViewController, AdaptiveDesignable, ViewHolder {
     typealias RootViewType = AboutViewLayout
@@ -50,6 +50,11 @@ final class AboutViewController: UIViewController, AdaptiveDesignable, ViewHolde
     private func configureTableView() {
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
+        rootView.tableView.estimatedRowHeight = Constants.rowHeight
+        rootView.tableView.rowHeight = UITableView.automaticDimension
+        if #available(iOS 16.0, *) {
+            rootView.tableView.selfSizingInvalidation = .enabledIncludingConstraints
+        }
         rootView.tableView.registerClassForCell(AboutTableViewCell.self)
     }
 
@@ -78,7 +83,9 @@ final class AboutViewController: UIViewController, AdaptiveDesignable, ViewHolde
 }
 
 extension AboutViewController: UITableViewDataSource {
-    func numberOfSections(in _: UITableView) -> Int { 1 }
+    func numberOfSections(in _: UITableView) -> Int {
+        1
+    }
 
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         guard case let .loaded(rows) = state else {
@@ -97,7 +104,7 @@ extension AboutViewController: UITableViewDataSource {
 
 extension AboutViewController: UITableViewDelegate {
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
-        Constants.rowHeight
+        UITableView.automaticDimension
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -107,10 +114,10 @@ extension AboutViewController: UITableViewDelegate {
             return
         }
 
-        if let url = rows[indexPath.row].url {
-            presenter.activate(url: url)
-        } else {
-            presenter.activateWriteUs()
+        switch rows[indexPath.row].action {
+        case let .website(url): presenter.activate(url: url)
+        case .email: presenter.activateWriteUs()
+        case .fontLicenses: presenter.activateFontLicenses()
         }
     }
 }

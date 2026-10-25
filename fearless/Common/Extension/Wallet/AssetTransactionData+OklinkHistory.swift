@@ -22,8 +22,8 @@ extension AssetTransactionData {
         let feeDecimal = Decimal(string: item.txFee, locale: Locale(identifier: "en_EN")) ?? .zero
 
         let fee = AssetTransactionFee(
-            identifier: asset.identifier,
-            assetId: asset.identifier,
+            identifier: asset.id,
+            assetId: asset.id,
             amount: AmountDecimal(value: feeDecimal),
             context: nil
         )

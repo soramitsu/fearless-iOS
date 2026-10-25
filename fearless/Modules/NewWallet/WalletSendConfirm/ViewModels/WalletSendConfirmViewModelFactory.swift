@@ -13,6 +13,8 @@ struct WalletSendConfirmViewModelFactoryParameters {
     let locale: Locale
     let scamInfo: ScamInfo?
     let assetModel: AssetModel
+    let chain: ChainModel
+    var accountCreationDepositViewModel: BalanceViewModelProtocol?
 }
 
 protocol WalletSendConfirmViewModelFactoryProtocol {
@@ -53,6 +55,9 @@ class WalletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtoc
             shadowColor: shadowColor
         )
         return WalletSendConfirmViewModel(
+            networkName: Self.networkName(chain: parameters.chain, asset: parameters.assetModel),
+            networkIsTestnet: PortfolioTestnetChainList.bundled.isTestnet(parameters.chain),
+            networkIcon: parameters.chain.icon.map { RemoteImageViewModel(url: $0) },
             amountAttributedString: amountAttributedString,
             amountString: inputAmount,
             senderNameString: parameters.wallet.name,
@@ -65,7 +70,17 @@ class WalletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtoc
             tipAmountString: parameters.tipViewModel?.amount ?? "",
             tipPriceString: parameters.tipViewModel?.price ?? "",
             showWarning: parameters.scamInfo != nil,
-            symbolViewModel: symbolViewModel
+            symbolViewModel: symbolViewModel,
+            accountCreationAmountString: parameters.accountCreationDepositViewModel?.amount ?? "",
+            accountCreationPriceString: parameters.accountCreationDepositViewModel?.price ?? ""
         )
+    }
+
+    static func networkName(chain: ChainModel, asset: AssetModel) -> String {
+        switch asset.ethereumType {
+        case .erc20: return chain.name + " · ERC-20"
+        case .bep20: return chain.name + " · BEP-20"
+        default: return chain.name
+        }
     }
 }

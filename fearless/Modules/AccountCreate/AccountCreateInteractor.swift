@@ -17,7 +17,7 @@ final class AccountCreateInteractor {
 extension AccountCreateInteractor: AccountCreateInteractorInputProtocol {
     func setup() {
         do {
-            let mnemonic = try mnemonicCreator.randomMnemonic(.entropy128)
+            let mnemonic = try mnemonicCreator.randomMnemonic(.entropy256)
 
             presenter.didReceive(mnemonic: mnemonic.allWords())
         } catch {

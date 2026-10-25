@@ -101,30 +101,27 @@ class RemoteSubscriptionService<T: StorageWrapper> {
 
         let wrapper = subscriptionOperation(using: requests, chainId: chainId)
 
-        wrapper.targetOperation.completionBlock = { [weak self] in
-            switch wrapper.targetOperation.result {
-            case let .failure(error):
-                self?.logger.error("chain: \(chainId) has error: \(error)")
-            case let .success(container):
-                DispatchQueue.global(qos: .default).async {
-                    self?.mutex.lock()
-
-                    defer {
-                        self?.mutex.unlock()
-                    }
-
-                    self?.handleSubscriptionInitResult(.success(container), cacheKey: cacheKey)
-                }
-            default:
-                break
-            }
-        }
-
         let pending = Pending(
             subscriptionIds: [subscriptionId],
             wrapper: wrapper,
             callbacks: [:]
         )
+
+        wrapper.targetOperation.completionBlock = { [weak self, weak pending] in
+            DispatchQueue.global(qos: .default).async {
+                guard let self = self, let pending = pending else { return }
+                self.mutex.lock()
+                defer { self.mutex.unlock() }
+
+                // A detached operation may finish after a new request reuses this key.
+                guard self.pendingSubscriptions[cacheKey] === pending else { return }
+                let result = pending.wrapper.targetOperation.result
+                if case let .failure(error) = result {
+                    self.logger.error("chain: \(chainId) has error: \(error)")
+                }
+                self.handleSubscriptionInitResult(result, cacheKey: cacheKey)
+            }
+        }
 
         if let closure = closure {
             pending.callbacks[subscriptionId] = Callback(queue: queue ?? .main, closure: closure)

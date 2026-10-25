@@ -14,6 +14,10 @@ enum SettingsKey: String {
     case referralEthereumAccount
     case selectedCurrency
     case shouldPlayAssetManagementAnimateKey
+    case accountScoreEnabled
+    case acknowledgedRecordsNotShown
+    case acknowledgedStoredChainAccounts
+    case updateSecurityNotice
 }
 
 extension SettingsManagerProtocol {
@@ -28,20 +32,6 @@ extension SettingsManagerProtocol {
             } else {
                 removeValue(for: SettingsKey.biometryEnabled.rawValue)
             }
-        }
-    }
-
-    var selectedConnection: ConnectionItem {
-        get {
-            if let nodeItem = value(of: ConnectionItem.self, for: SettingsKey.selectedConnection.rawValue) {
-                return nodeItem
-            } else {
-                return .defaultConnection
-            }
-        }
-
-        set {
-            set(value: newValue, for: SettingsKey.selectedConnection.rawValue)
         }
     }
 
@@ -89,6 +79,46 @@ extension SettingsManagerProtocol {
         }
         set {
             set(value: newValue, for: SettingsKey.shouldPlayAssetManagementAnimateKey.rawValue)
+        }
+    }
+
+    var accountScoreEnabled: Bool? {
+        get {
+            bool(for: SettingsKey.accountScoreEnabled.rawValue) ?? true
+        }
+
+        set {
+            if let existingValue = newValue {
+                set(value: existingValue, for: SettingsKey.accountScoreEnabled.rawValue)
+            } else {
+                removeValue(for: SettingsKey.accountScoreEnabled.rawValue)
+            }
+        }
+    }
+
+    /// The counts of stored records that could not be shown when the user was last told.
+    var acknowledgedRecordsNotShown: String? {
+        get {
+            string(for: SettingsKey.acknowledgedRecordsNotShown.rawValue)
+        }
+
+        set {
+            if let existingValue = newValue {
+                set(value: existingValue, for: SettingsKey.acknowledgedRecordsNotShown.rawValue)
+            } else {
+                removeValue(for: SettingsKey.acknowledgedRecordsNotShown.rawValue)
+            }
+        }
+    }
+
+    /// The stored per-chain accounts the user was already told about.
+    var acknowledgedStoredChainAccounts: [String] {
+        get {
+            value(of: [String].self, for: SettingsKey.acknowledgedStoredChainAccounts.rawValue) ?? []
+        }
+
+        set {
+            set(value: newValue, for: SettingsKey.acknowledgedStoredChainAccounts.rawValue)
         }
     }
 }

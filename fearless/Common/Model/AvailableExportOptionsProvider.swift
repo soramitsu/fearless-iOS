@@ -1,4 +1,5 @@
 import SoraKeystore
+import SSFModels
 protocol AvailableExportOptionsProviderProtocol {
     func getAvailableExportOptions(
         for account: MetaAccountModel,
@@ -10,13 +11,18 @@ protocol AvailableExportOptionsProviderProtocol {
 }
 
 final class AvailableExportOptionsProvider: AvailableExportOptionsProviderProtocol {
-    let keystore = Keychain()
+    let keystore: KeystoreProtocol
+
+    init(keystore: KeystoreProtocol = Keychain()) { self.keystore = keystore }
 
     func getAvailableExportOptions(
         for account: MetaAccountModel,
         accountId: AccountId?,
         isEthereum: Bool
     ) -> [ExportOption] {
+        if let ton = account.legacyTonAccount, accountId == nil {
+            return nativeTonExportOptions(ton: ton, metaId: account.metaId)
+        }
         var options: [ExportOption] = []
 
         if mnemonicAvailable(for: account, accountId: accountId, isEthereum: isEthereum) {
@@ -33,6 +39,9 @@ final class AvailableExportOptionsProvider: AvailableExportOptionsProviderProtoc
     }
 
     func getAvailableExportOptions(for wallet: MetaAccountModel, accountId: AccountId?) -> [ExportOption] {
+        if let ton = wallet.legacyTonAccount, accountId == nil {
+            return nativeTonExportOptions(ton: ton, metaId: wallet.metaId)
+        }
         var options: [ExportOption] = []
 
         if mnemonicAvailable(for: wallet, accountId: accountId, isEthereum: true),
@@ -50,6 +59,12 @@ final class AvailableExportOptionsProvider: AvailableExportOptionsProviderProtoc
 }
 
 private extension AvailableExportOptionsProvider {
+    func nativeTonExportOptions(ton: LegacyTonAccount, metaId: String) -> [ExportOption] {
+        guard let phrase = try? keystore.fetchKey(for: KeystoreTagV2.entropyTagForMetaId(metaId)),
+              (try? ton.mnemonic(from: phrase)) != nil else { return [] }
+        return [.mnemonic]
+    }
+
     func mnemonicAvailable(for account: MetaAccountModel, accountId: AccountId?, isEthereum: Bool) -> Bool {
         let entropyTag = KeystoreTagV2.entropyTagForMetaId(account.metaId, accountId: accountId)
         let entropy = try? keystore.fetchKey(for: entropyTag)
@@ -80,6 +95,28 @@ private extension AvailableExportOptionsProvider {
             accountId: accountId
         )
         let substrateSeed = try? keystore.fetchKey(for: substrateTag)
-        return ethereumSeed != nil || substrateSeed != nil
+        if ethereumSeed != nil || substrateSeed != nil {
+            return true
+        }
+
+        // The 4.0.x releases kept a per-chain account's seed only under the wallet-level tag.
+        // Offer it for that account only if it recreates the account.
+        guard
+            let accountId,
+            let chainAccount = account.chainAccounts.first(where: { $0.accountId == accountId }),
+            !chainAccount.ethereumBased,
+            let cryptoType = CryptoType(rawValue: chainAccount.cryptoType)
+        else {
+            return false
+        }
+
+        let export = try? VerifiedSeedExportReader(keystore: keystore).fetchSeed(
+            metaId: account.metaId,
+            accountId: accountId,
+            publicKey: chainAccount.publicKey,
+            cryptoType: cryptoType,
+            ethereumBased: false
+        )
+        return export != nil
     }
 }

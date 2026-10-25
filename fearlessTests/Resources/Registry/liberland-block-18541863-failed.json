@@ -1,0 +1,15 @@
+{
+ "blockNumber": 18541863,
+ "blockHash": "0xd3c098c5294c1ea7f49e3fa206e15afdfff009e68c73ff68cbd4704ec45c2c76",
+ "extrinsicIndex": 1,
+ "extrinsics": [
+  "0x280403000b8e701c6ea101",
+  "0xd1028400502cd23e15746bd76d5708225cf698ceb592d63d24b4fcc9e15338013613da05015c949ae8a2801fa910d54cb2f3c8ae0dffd6d9151846a5f89606d873a9866645bf494837a0c4b6c1535df883b86b73601b3107d821a3a944ee03fe2adee95d8835029d0e0000003e030800010100000000204aa9d1010000000000000000000037dbed35270100000000000000000000502cd23e15746bd76d5708225cf698ceb592d63d24b4fcc9e15338013613da0501"
+ ],
+ "events": "0x08000000000000004248ed4355170200000001000000000103510400000002286bee2538000000",
+ "methods": [
+  "system.ExtrinsicFailed"
+ ],
+ "specVersion": 34,
+ "note": "Real records of extrinsic 0 from the block, plus a System.ExtrinsicFailed record for extrinsic 1 encoded with the spec 34 types and checked by decoding it with polkadot.js."
+}

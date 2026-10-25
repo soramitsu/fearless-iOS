@@ -150,11 +150,6 @@ final class RelaychainValidatorOperationFactory {
 
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
-        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
-            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
-            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
-        ) != nil
-
         let maxNominatorsOperation: BaseOperation<UInt32> =
             createConstOperation(
                 dependingOn: runtimeOperation,
@@ -267,11 +262,6 @@ final class RelaychainValidatorOperationFactory {
 
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
-        let hasNominatorsLimit = runtimeService.snapshot?.metadata.getConstant(
-            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
-            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
-        ) != nil
-
         let rewardCalculatorOperation = rewardService.fetchCalculatorOperation()
 
         let maxNominatorsOperation: BaseOperation<UInt32> = createConstOperation(
@@ -350,11 +340,6 @@ final class RelaychainValidatorOperationFactory {
         let rewardCalculatorOperation = rewardService.fetchCalculatorOperation()
 
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
-
-        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
-            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
-            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
-        ) != nil
 
         let maxNominatorsOperation: BaseOperation<UInt32> = createConstOperation(
             dependingOn: runtimeOperation,
@@ -687,7 +672,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
     }
 
     func fetchAllValidators() -> CompoundOperationWrapper<[ElectedValidatorInfo]> {
-        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+        guard chainRegistry.getConnection(for: chain.chainId) != nil else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
         }
 
@@ -701,11 +686,6 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
                 dependingOn: runtimeOperation,
                 path: .slashDeferDuration
             )
-
-        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
-            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
-            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
-        ) != nil
 
         let maxNominatorsOperation: BaseOperation<UInt32> =
             createConstOperation(
@@ -817,10 +797,6 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
 
     // swiftlint:disable function_body_length
     func allElectedOperation() -> CompoundOperationWrapper<[ElectedValidatorInfo]> {
-        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
-            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
-        }
-
         guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
         }
@@ -832,11 +808,6 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
                 dependingOn: runtimeOperation,
                 path: .slashDeferDuration
             )
-
-        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
-            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
-            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
-        ) != nil
 
         let maxNominatorsOperation: BaseOperation<UInt32> =
             createConstOperation(
@@ -964,11 +935,11 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
     func activeValidatorsOperation(
         for nominatorAddress: AccountAddress
     ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
-        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+        guard chainRegistry.getConnection(for: chain.chainId) != nil else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
         }
 
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+        guard chainRegistry.getRuntimeProvider(for: chain.chainId) != nil else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
         }
 
@@ -1028,11 +999,11 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
     func pendingValidatorsOperation(
         for accountIds: [AccountId]
     ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
-        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+        guard chainRegistry.getConnection(for: chain.chainId) != nil else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
         }
 
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+        guard chainRegistry.getRuntimeProvider(for: chain.chainId) != nil else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
         }
 
@@ -1081,7 +1052,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
     func wannabeValidatorsOperation(
         for accountIdList: [AccountId]
     ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
-        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+        guard chainRegistry.getConnection(for: chain.chainId) != nil else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
         }
 

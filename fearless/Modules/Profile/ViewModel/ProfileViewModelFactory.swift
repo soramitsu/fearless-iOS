@@ -1,9 +1,10 @@
 import Foundation
-import SoraFoundation
-import SSFUtils
 import IrohaCrypto
+import SoraFoundation
 import SoraKeystore
 import SSFModels
+import SSFUtils
+import UIKit
 
 protocol ProfileViewModelFactoryProtocol: AnyObject {
     func createProfileViewModel(
@@ -25,6 +26,12 @@ enum ProfileOption: UInt, CaseIterable {
     case changePincode
     case biometry
     case about
+    case accountScore
+    case networkAssets
+    case tonConnect
+    case irohaConnect
+    case previousData
+    case emergencyMaterial
 }
 
 final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
@@ -34,17 +41,23 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private let biometry: BiometryAuthProtocol
     private let settings: SettingsManagerProtocol
     private lazy var assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
+    private let accountScoreFetcher: AccountStatisticsFetching
+    private let irohaConnectPolicy: IrohaConnectReleasePolicy
 
     // MARK: - Constructors
 
     init(
         iconGenerator: IconGenerating,
         biometry: BiometryAuthProtocol,
-        settings: SettingsManagerProtocol
+        settings: SettingsManagerProtocol,
+        accountScoreFetcher: AccountStatisticsFetching,
+        irohaConnectPolicy: IrohaConnectReleasePolicy = .production
     ) {
         self.iconGenerator = iconGenerator
         self.biometry = biometry
         self.settings = settings
+        self.accountScoreFetcher = accountScoreFetcher
+        self.irohaConnectPolicy = irohaConnectPolicy
     }
 
     // MARK: - Public methods
@@ -63,18 +76,18 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             locale: locale
         )
         let profileOptionViewModel = createOptionViewModels(
+            wallet: wallet,
             language: language,
             currency: currency,
             locale: locale,
             missingAccountIssue: missingAccountIssue
         )
         let logoutViewModel = createLogoutViewModel(locale: locale)
-        let viewModel = ProfileViewModel(
+        return ProfileViewModel(
             profileUserViewModel: profileUserViewModel,
             profileOptionViewModel: profileOptionViewModel,
             logoutViewModel: logoutViewModel
         )
-        return viewModel
     }
 
     // MARK: - Private methods
@@ -82,8 +95,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private func tokenFormatter(for currency: Currency, locale: Locale) -> TokenFormatter {
         let balanceDisplayInfo = AssetBalanceDisplayInfo.forCurrency(currency)
         let balanceTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: balanceDisplayInfo, usageCase: .detailsCrypto)
-        let balanceTokenFormatterValue = balanceTokenFormatter.value(for: locale)
-        return balanceTokenFormatterValue
+        return balanceTokenFormatter.value(for: locale)
     }
 
     private func createUserViewModel(
@@ -91,34 +103,40 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         balance: WalletBalanceInfo?,
         locale: Locale
     ) -> WalletsManagmentCellViewModel {
-        var fiatBalance: String = ""
+        var fiatBalance = ""
         var dayChange: NSAttributedString?
         if let balance = balance {
             let formatter = tokenFormatter(for: balance.currency, locale: locale)
             fiatBalance = formatter.stringFromDecimal(balance.totalFiatValue) ?? ""
             dayChange = getDayChangeAttributedString(
                 currency: balance.currency,
-                dayChange: balance.dayChangePercent,
-                dayChangeValue: balance.dayChangeValue,
+                dayChange: balance.totalDayChangePercent,
+                dayChangeValue: balance.totalDayChangeValue,
                 locale: locale
             )
         }
+
+        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
+        let accountScoreViewModel = AccountScoreViewModel(fetcher: accountScoreFetcher, address: address, chain: nil, settings: settings, eventCenter: EventCenter.shared, logger: Logger.shared)
 
         return WalletsManagmentCellViewModel(
             isSelected: false,
             walletName: wallet.name,
             fiatBalance: fiatBalance,
-            dayChange: dayChange
+            dayChange: dayChange,
+            accountScoreViewModel: accountScoreViewModel,
+            balanceCaption: balance?.allHoldingsCaption
         )
     }
 
     private func createOptionViewModels(
+        wallet: MetaAccountModel,
         language: Language,
         currency: Currency,
         locale: Locale,
         missingAccountIssue: [ChainIssue]
     ) -> [ProfileOptionViewModelProtocol] {
-        let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
+        ProfileOption.allCases.compactMap { option -> ProfileOptionViewModel? in
             switch option {
             case .walletConnect:
                 return createWalletConnectViewModel(locale: locale)
@@ -139,10 +157,31 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return createBiometryViewModel()
             case .currency:
                 return createCurrencyViewModel(from: currency, locale: locale)
+            case .accountScore:
+                return createAccountScoreViewModel(locale: locale)
+            case .networkAssets:
+                return createNetworkAssetsViewModel()
+            case .tonConnect:
+                let hasTonAccount = wallet.legacyTonAccount != nil || wallet.chainAccounts.contains {
+                    UniversalWalletChainAccountSupport.chainId(
+                        $0.chainId,
+                        matches: UniversalWalletRegistry.tonMainnetRegistryEntry.chainId
+                    )
+                }
+                return createTonConnectViewModel(hasTonAccount: hasTonAccount)
+            case .previousData, .emergencyMaterial:
+                return ProfileOptionViewModel(
+                    title: RecoveryText.string(option == .previousData ? "previous_data" : "export"),
+                    icon: UIImage(systemName: "archivebox"),
+                    accessoryTitle: nil,
+                    accessoryImage: nil,
+                    accessoryType: .arrow,
+                    option: option
+                )
+            case .irohaConnect:
+                return irohaConnectPolicy.isEnabled ? createIrohaConnectViewModel() : nil
             }
         }
-
-        return optionViewModels
     }
 
     private func createWalletConnectViewModel(locale _: Locale) -> ProfileOptionViewModel {
@@ -156,10 +195,45 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         )
     }
 
+    private func createNetworkAssetsViewModel() -> ProfileOptionViewModel {
+        ProfileOptionViewModel(
+            title: NSLocalizedString("settings.networks_assets", value: "Networks & Assets", comment: ""),
+            icon: UIImage(systemName: "point.3.connected.trianglepath.dotted"),
+            accessoryTitle: nil,
+            accessoryImage: nil,
+            accessoryType: .arrow,
+            option: .networkAssets
+        )
+    }
+
+    private func createTonConnectViewModel(hasTonAccount: Bool) -> ProfileOptionViewModel {
+        ProfileOptionViewModel(
+            title: "TonConnect",
+            icon: UIImage(systemName: "link.circle"),
+            accessoryTitle: hasTonAccount
+                ? nil
+                : NSLocalizedString("settings.ton_account_required", value: "TON account required", comment: ""),
+            accessoryImage: nil,
+            accessoryType: .arrow,
+            option: .tonConnect
+        )
+    }
+
+    private func createIrohaConnectViewModel() -> ProfileOptionViewModel {
+        ProfileOptionViewModel(
+            title: "IrohaConnect",
+            icon: UIImage(systemName: "link.badge.plus"),
+            accessoryTitle: "SORA 3",
+            accessoryImage: nil,
+            accessoryType: .arrow,
+            option: .irohaConnect
+        )
+    }
+
     private func createLogoutViewModel(locale: Locale) -> ProfileOptionViewModelProtocol {
         let title = R.string.localizable
             .profileLogoutTitle(preferredLanguages: locale.rLanguages)
-        let viewModel = ProfileOptionViewModel(
+        return ProfileOptionViewModel(
             title: title,
             icon: R.image.iconSettingsLogout()!,
             accessoryTitle: nil,
@@ -167,7 +241,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryType: .arrow,
             option: nil
         )
-        return viewModel
     }
 
     private func createBiometryViewModel() -> ProfileOptionViewModel? {
@@ -181,7 +254,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title = "Face ID"
         }
 
-        let viewModel = ProfileOptionViewModel(
+        return ProfileOptionViewModel(
             title: title,
             icon: biometry.availableBiometryType.accessoryIconSettings,
             accessoryTitle: nil,
@@ -189,7 +262,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryType: .switcher(settings.biometryEnabled ?? false),
             option: .biometry
         )
-        return viewModel
     }
 
     private func createAccountListViewModel(
@@ -198,7 +270,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     ) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .profileWalletsTitle(preferredLanguages: locale.rLanguages)
-        let viewModel = ProfileOptionViewModel(
+        return ProfileOptionViewModel(
             title: title,
             icon: R.image.iconSettingsWallet()!,
             accessoryTitle: nil,
@@ -206,7 +278,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryType: .arrow,
             option: .accountList
         )
-        return viewModel
     }
 
     private func createChangePincode(for locale: Locale) -> ProfileOptionViewModel {
@@ -226,7 +297,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         let title = R.string.localizable
             .languageTitle(preferredLanguages: locale.rLanguages)
         let subtitle = language?.title(in: locale)?.capitalized
-        let viewModel = ProfileOptionViewModel(
+        return ProfileOptionViewModel(
             title: title,
             icon: R.image.iconSettingsLanguage()!,
             accessoryTitle: subtitle,
@@ -234,14 +305,12 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryType: .arrow,
             option: .language
         )
-
-        return viewModel
     }
 
     private func createPolkaswapDisclaimer(locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .polkaswapDisclaimerSettings(preferredLanguages: locale.rLanguages)
-        let viewModel = ProfileOptionViewModel(
+        return ProfileOptionViewModel(
             title: title,
             icon: R.image.pinkPolkaswap()!,
             accessoryTitle: nil,
@@ -249,8 +318,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryType: .arrow,
             option: .polkaswapDisclaimer
         )
-
-        return viewModel
     }
 
     private func createAboutViewModel(for locale: Locale) -> ProfileOptionViewModel {
@@ -270,7 +337,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         let title = R.string.localizable
             .commonCurrency(preferredLanguages: locale.rLanguages)
         let subtitle = currency.id.uppercased()
-        let viewModel = ProfileOptionViewModel(
+        return ProfileOptionViewModel(
             title: title,
             icon: R.image.iconCurrency()!,
             accessoryTitle: subtitle,
@@ -278,9 +345,20 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryType: .arrow,
             option: .currency
         )
-
-        return viewModel
     }
+
+    private func createAccountScoreViewModel(locale: Locale) -> ProfileOptionViewModel? {
+        ProfileOptionViewModel(
+            title: R.string.localizable.profileAccountScoreTitle(preferredLanguages: locale.rLanguages),
+            icon: R.image.iconProfleAccountScore(),
+            accessoryTitle: nil,
+            accessoryImage: nil,
+            accessoryType: .switcher(settings.accountScoreEnabled ?? false),
+            option: .accountScore
+        )
+    }
+
+    // MARK: Additional
 
     private func getDayChangeAttributedString(
         currency: Currency,

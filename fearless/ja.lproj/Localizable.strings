@@ -1,6 +1,14 @@
+"about.font.licenses" = "フォントライセンス";
+"about.font.licenses.unavailable" = "フォントライセンスを読み込めませんでした。";
 "NSCameraUsageDescription" = "QRコードを撮るためにカメラを使用する";
 "NSFaceIDUsageDescription" = "フィアレスは顔認証を使用して、権限のないユーザーがアプリにアクセスすることを制限します。顔認証は、アプリ内での認証に使用されます";
 "NSPhotoLibraryAddUsageDescription" = "QRコードで取引申請を保存する";
+"ton.transfer.unknown.title" = "送金ステータスを確認できません";
+"ton.transfer.unknown.message" = "ネットワークがこの送金を受け付けた可能性があります。再送しないでください。このメッセージハッシュを保存し、次の操作を行う前にステータスを確認してください:\n%@";
+"ton.transfer.unknown.copy_hash" = "メッセージハッシュをコピー";
+"ton.transfer.prior_confirmed.title" = "以前の送金が確認されました";
+"ton.transfer.prior_confirmed.message" = "以前の送金が確認されました。この新しい送金は送信されていません。再度確認する前に、以前のハッシュを確認して承認してください:\n%@";
+"ton.transfer.prior_confirmed.acknowledge" = "承認して手数料を再計算";
 "NSPhotoLibraryUsageDescription" = "ライブラリーから写真をアップロードする";
 "about.announcement" = "お知らせを受け取る";
 "about.ask.for.support" = "サポートを求める";
@@ -64,6 +72,17 @@
 "account.needed.message" = "このネットワークのアカウントがありません。アカウントを作成またはインポートできます";
 "account.needed.title" = "アカウントが必要";
 "account.option" = "アカウントオプション";
+"account.stats.avg.transaction.time.title" = "Avg. transaction time";
+"account.stats.description.text" = "Your Multichain Score is based on your onchain journey through 3 ecosystems: Ethereum, Polygon and Binance Smart Chain";
+"account.stats.hold.tokens.usd.title" = "Hold tokens USD";
+"account.stats.max.transaction.time.title" = "Max transaction time";
+"account.stats.min.transactions.time.title" = "Min transaction time";
+"account.stats.native.balance.usd.title" = "Native balance USD";
+"account.stats.rejected.transactions.title" = "Rejected transactions";
+"account.stats.title" = "Your score";
+"account.stats.total.transactions.title" = "Total transactions";
+"account.stats.updated.title" = "Updated";
+"account.stats.wallet.age.title" = "Wallet age";
 "account.template" = "%sアカウント";
 "account.unique.secret" = "一意のシークレットを持つアカウント";
 "accounts.add.account" = "アカウントを追加";
@@ -91,10 +110,14 @@
 "application.status.view.copied.description" = "ウォレットのアドレスが正常にコピーされました";
 "application.status.view.copied.title" = "アドレスをコピーしました";
 "application.status.view.hash.copied.description" = "ハッシュが正常にコピーされました";
+"application.status.view.hash.copied.description" = "ハッシュが正常にコピーされました";
+"application.status.view.hash.copied.title" = "ハッシュをコピーしました";
 "application.status.view.hash.copied.title" = "ハッシュをコピーしました";
 "application.status.view.offline.description" = "インターネット接続を確認し、もう一度お試しください";
 "application.status.view.offline.title" = "インターネットに繋がってないようです";
 "application.status.view.reconnected.description" = "接続が正常に復元されました";
+"application.status.view.reconnected.description" = "接続が正常に復元されました";
+"application.status.view.reconnected.title" = "再接続されました";
 "application.status.view.reconnected.title" = "再接続されました";
 "applied.fearless.wallet.bonus" = "フィアレス・ウォレットのボーナスが適用されました";
 "apply.fearless.wallet.bonus" = "タップしてフィアレス・ウォレットのボーナスを適用";
@@ -117,6 +140,7 @@
 "backup.create.password.not.matched" = "パスワードが一致しません";
 "backup.create.password.password.field.title" = "パスワードを設定";
 "backup.create.password.screen.title" = "バックアップ・パスワードの作成";
+"backup.create.password.too.short" = "%@文字以上で入力してください";
 "backup.create.password.warning" = "パスワードを忘れた場合、取り戻す方法がないことを理解しています";
 "backup.mnemonic.description" = "以下に表示されるのと同じ順序で単語を記録してください。バックアップはデジタルではない方法でしてください";
 "backup.mnemonic.title" = "あなたのニーモニックを書き留めてください";
@@ -152,6 +176,7 @@
 "backup.wallet.replace.several.alert" = "あなたは現在、メインのキー・ペアを置き換えて追加した複数のチェーンアカウントを持っており、それぞれに特定のキー・ペアを所有しています。しかし、現在のウォレットのバックアップ(エクスポート)機能は、複数のキー・ペアの保存をサポートしていないのでご注意ください。現状、保存できるのはメインのキー・ペアのみとなります。 \n \n チェーンアカウントの安全性を確保するため、現在のフローを進める前に、まず別個にバックアップすることをお勧めします。置き換えたチェーンアカウントのバックアップに成功したら、何の心配もなくフローを進むことができます。";
 "backup.wallet.seed" = "シードを表示";
 "backup.wallet.title" = "ウォレットのバックアップ";
+"balance.locks.blocked.row.title" = "Blocked";
 "balance.locks.governance.row.title" = "Governance";
 "balance.locks.liquidity.pools.row.title" = "Liquidity Pools";
 "balance.locks.nomination.pools.row.title" = "Nomination Pools";
@@ -175,6 +200,7 @@
 "common.action.receive" = "受け取る";
 "common.action.send" = "送る";
 "common.action.teleport" = "テレポート";
+"common.activation.required" = "Activation Required";
 "common.add" = "追加";
 "common.address" = "アドレス";
 "common.advanced" = "高度な";
@@ -247,6 +273,7 @@
 "common.message" = "Message";
 "common.methods" = "メソッド";
 "common.module" = "モジュール";
+"common.more" = "More";
 "common.my.networks" = "私のネットワーク";
 "common.name" = "名前";
 "common.network" = "ネットワーク";
@@ -260,6 +287,8 @@
 "common.not.enough.balance.message" = "指定された金額を使用するための残高がありません";
 "common.not.enough.fee.message" = "残念ながら、ネットワーク手数料を支払うための資金が足りません";
 "common.ok" = "OK";
+"update.security.notice.title" = "モバイルウォレットは安全です";
+"update.security.notice.message" = "iOS版およびAndroid版のFearlessは、旧Fearless Chrome拡張機能のセキュリティ問題の影響を受けていません。\n\n2026年10月23日より前にこのChrome拡張機能を使用していた場合は、新しいウォレットを作成し、資金をそのウォレットに移してください。";
 "common.paste" = "ペースト";
 "common.payout" = "配当性向";
 "common.preview" = "プレビュー";
@@ -278,6 +307,7 @@
 "common.search.results.number" = "検索結果： %d";
 "common.search.start.title" = "検索結果はここに表示されます";
 "common.secret.derivation.path" = "秘密の派生パス(Derivation Path)";
+"common.select" = "選択";
 "common.select" = "選択";
 "common.select.all" = "全て選択";
 "common.select.asset" = "アセットの選択";
@@ -394,6 +424,7 @@
 "error.invalid.address" = "選択したチェーンのアドレスが無効です";
 "error.message.enter.the.name" = "名前を入力してください…";
 "error.message.enter.the.url.address" = "URLアドレスを入力してください…";
+"error.scan.qr.disabled.asset" = "The asset you want to transfer is either unsupported or turned off. Go to Asset Management, activate the asset, and then scan the QR code again.";
 "error.unsupported.asset" = "現在アプリでサポートされていないアセットを送信しようとしています。別のアセットを選択するか、別のQRコードをリクエストしてください";
 "ethereum.crypto.type" = "イーサリアム(Ethereum)キー・ペアの暗号方式";
 "ethereum.secret.derivation.path" = "イーサリアム(Ethereum)の秘密の派生パス(Derivation Path)";
@@ -459,6 +490,28 @@
 "label.testnet" = "試験ネットワーク";
 "language.title" = "言語";
 "learn.more.about.crowdloans" = "クラウドローン(Crowdloan)についてさらに学ぶ";
+"lp.apy.alert.text" = "流動性提供のためのファーミング報酬";
+"lp.apy.alert.title" = "戦略的ボーナス年利";
+"lp.apy.title" = "戦略的ボーナス年利";
+"lp.available.pools.title" = "利用可能なプール";
+"lp.banner.action.details.title" = "Show details";
+"lp.banner.text" = "Invest your funds in Liquidity\npools and receive rewards";
+"lp.confirm.liquidity.screen.title" = "流動性を確認";
+"lp.confirm.liquidity.warning.text" = "出力は推定です。価格が0.5%以上変動した場合、取引は元に戻されます。";
+"lp.network.fee.alert.text" = "ネットワーク手数料はSORAシステムの成長と安定したパフォーマンスを確保するために使用されます。";
+"lp.network.fee.alert.title" = "ネットワーク手数料";
+"lp.pool.details.title" = "プールの詳細";
+"lp.pool.remove.warning.text" = "プールトークンを削除すると、あなたのポジションが現在のレートで元のトークンに戻されます。プール内のシェアに比例します。受け取る金額には累積された手数料が含まれます。";
+"lp.pool.remove.warning.title" = "注";
+"lp.remove.button.title" = "流動性を削除";
+"lp.remove.liquidity.screen.title" = "流動性を削除";
+"lp.reward.token.text" = "%@ を獲得";
+"lp.reward.token.title" = "報酬の支払い先";
+"lp.slippage.title" = "スリッページ";
+"lp.supply.button.title" = "流動性を供給";
+"lp.supply.liquidity.screen.title" = "流動性を供給";
+"lp.token.pooled.text" = " %@ プール済み";
+"lp.user.pools.title" = "ユーザープール";
 "manage.assets.account.missing.text" = "アカウントを追加...";
 "manage.assets.search.hint" = "トークンまたはネットワークで検索";
 "members.common" = "会員";
@@ -485,6 +538,7 @@
 "network.info.address" = "ノードアドレス";
 "network.info.name" = "ノード名";
 "network.info.title" = "ノード情報";
+"network.issue.main" = "Connection Error: Unable to connect to the network. Please try again.";
 "network.issue.network.unavailible" = "ネットワークは利用できません";
 "network.issue.node.unavailable" = "ノードは利用できません";
 "network.issue.notofication" = "お知らせ";
@@ -504,8 +558,10 @@
 "nft.collection.title" = "コレクション";
 "nft.creator.title" = "作成者";
 "nft.list.empty.message" = "There aren't any NFTs yet. Buy or mint NFTs to see them here.";
+"nft.load.error" = "Failed to load NFTs";
 "nft.owner.title" = "所有";
 "nft.share.address" = "受信するパブリック・アドレス： %s";
+"nft.spam.warning" = "Beware of a scam/spam NFT collection – verify authenticity before engaging. Stay safe!";
 "nft.stub.text" = "NFTがもうすぐ登場します";
 "nft.stub.title" = "失礼しました";
 "nft.tokenid.title" = "トークンID";
@@ -589,17 +645,20 @@
 "polkaswap.disclaimer.title" = "免責事項";
 "polkaswap.liqudity.fee.info" = "各取引の一部(0.3%)は、プロトコル・インセンティブとして流動性プロバイダー(LP)に送られます";
 "polkaswap.liquidity.provider.fee" = "流動性プロバイダー手数料";
+"polkaswap.liquidity.provider.fee" = "流動性プロバイダー手数料";
 "polkaswap.market.alert.choose.action" = "アセットの選択";
 "polkaswap.market.alert.message" = "スワップ調整が完了していません。一方または両方のアセットが選択されていないため、マーケット選択は利用できません";
 "polkaswap.market.alert.title" = "マーケット選択は利用できません";
 "polkaswap.market.algorithm.title" = "マーケット・アルゴリズム";
 "polkaswap.market.smart.description" = "SMART流動性ルーティングは、利用可能な全てのマーケットから最良の価格オプションだけ組み合わせることで、あらゆるトランザクションの最良の価格を保証します。XYKプールや他のプールが利用される場合より資産価格が手頃であれば、可能な限りトークン・ボンディング・カーブ(TBC)が流動性に使用されます";
 "polkaswap.market.stub" = "マーケット：";
+"polkaswap.market.stub" = "マーケット";
 "polkaswap.market.tbc.description" = "TBC ー トークン・ボンディング・カーブ(プライマリー・マーケット)からのみの購入。XYKプール(セカンダリー・マーケット)と比較して不利な価格になる可能性がありますが、既得権報酬から得られる価値は、時間の経過とともにはるかに有利になる可能性があります";
 "polkaswap.market.xyk.description" = "XYK — XYKプール(セカンダリー・マーケット)からのみ購入します。x*y=k 曲線上のマーケット・メーカーの位置をシフトすることで、誰でもアセットを売買できる従来のXYKプールスワップ";
 "polkaswap.max.received" = "最大販売数";
 "polkaswap.maximum.sold.info" = "確認される前に大きくて不利な価格変動があった場合、トランザクションは元に戻ります";
 "polkaswap.min.received" = "受信した最少";
+"polkaswap.min.received" = "最少受信";
 "polkaswap.minimum.received.info" = "確認される前に大きくて不利な価格変動があった場合、トランザクションは元に戻ります";
 "polkaswap.network.fee" = "ネットワーク手数料";
 "polkaswap.network.fee.info" = "ネットワーク手数料は、SORAシステムの発展と安定したパフォーマンスを確保するために使用されます";
@@ -661,7 +720,6 @@
 "profile.logout.title" = "ログアウト";
 "profile.network.title" = "通信網";
 "profile.pincode.change.title" = "PINコードを変更する";
-"profile.soracard.title" = "SORAカード";
 "profile.title" = "設定";
 "profile.wallets.title" = "ウォレット";
 "receive.note.text" = "注：これはポルカドット(Polkadot)とクサマ(Kusama)用のウォレットです。ポルカドット(Polkadot)とクサマ(Kusama)ブロックチェーンからのアセットのみ送信してください";
@@ -702,7 +760,7 @@
 "select.save.type" = "保存形式を選択";
 "select.suggested.validators.warning" = "アルゴリズム・バリデーターの提案は、金融に関する相談や助言に該当するものではありません。ステーキングはハイリスクな活動であり、アルゴリズムによるバリデーターの提案は、必ずしもこのリスクを軽減するものではありません。アルゴリズムによって提案されたバリデーターは、候補から外れる可能性があります。アルゴリズムによって提案されたバリデーターは、提案および/または選択された後、いつでもパラメーター(例：手数料率など)を変更することができます。これらの理由や他の理由で報酬を失う可能性があります。関連するリスクを注意して慎重に検討した上で、ご自身の判断でトークンをステークし、バリデーターの提案を使用するようにしてください";
 "select.validators.disclaimer" = "免責事項：アルゴリズム・バリデーターの提案は、金融に関する相談や助言に該当するものではありません。ステーキングはハイリスクな活動であり、アルゴリズムによるバリデーターの提案は、必ずしもこのリスクを軽減するものではありません。アルゴリズムによって提案されたバリデーターは、切り取られる可能性があります。アルゴリズムによって提案されたバリデーターは、提案および/または選択された後、いつでもパラメーター(例：手数料率など)を変更することができます。これらの理由や他の理由でトークンや報酬を失う可能性があります。関連するリスクを注意して慎重に検討した上で、ご自身の判断でトークンをステークし、バリデーターの提案を使用するようにしてください";
-"send.all.title" = "Send all tokens and reap the account";
+"send.all.title" = "すべてのトークンを送信し、このネットワーク上のアカウントの削除を許可する";
 "send.confirm.amount.title" = "送信中\n%@";
 "send.fund.title" = "資金を送る";
 "settings.add.wallet" = "ウォレットを追加";
@@ -712,13 +770,6 @@
 "sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the %s network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";
 "sora.bridge.low.amaunt.polkadot.alert" = "Currently, there's a min. amount 1.1 DOT for bridging to ensure the stability and security. We appreciate your understanding.";
 "sora.bridge.low.amount.alert" = "現在、SORAネットワークの安定性と安全性を確保するため、ブリッジングには最低0.05 KSMが設定されています。ご理解のほどよろしくお願いいたします。";
-"sora.card.status.failure.text" = "本人確認(KYC)処理が終了したか、そうでなければ失敗しました";
-"sora.card.status.failure.title" = "検証失敗";
-"sora.card.status.pending.title" = "検証中";
-"sora.card.status.rejected.text" = "アプリが失敗しました。失敗の理由については、次の追加説明をお読みください";
-"sora.card.status.rejected.title" = "検証が拒否されました";
-"sora.card.status.success.text" = "本人確認(KYC)の検証を通過し、すでにSORAカードをお送りする準備を進めています！";
-"sora.card.status.success.title" = "検証成功！";
 "sr25519.selection.subtitle" = "sr25519（推奨）";
 "sr25519.selection.title" = "Schnorrkel";
 "stacking.stash.account" = "スタッシュ・アカウント";
@@ -743,6 +794,7 @@
 "staking.analytics.period.all" = "全て";
 "staking.analytics.rewards.empty.message" = "選択した期間の\
 報酬は受け取っていません";
+"staking.analytics.received.rewards" = "受け取った報酬";
 "staking.analytics.stake.allocation" = "現在のバリデーターによる割り当て";
 "staking.analytics.stake.empty.message" = "ステークの変更がここに表示されます";
 "staking.analytics.staking.was.active" = "ステーキングはアクティブでした";
@@ -832,20 +884,23 @@
 "staking.pool.create.root" = "ルート";
 "staking.pool.create.stateToggler" = "状態トグラー";
 "staking.pool.create.title" = "プールを作成";
+"staking.pool.create.title" = "プールを作成";
 "staking.pool.info.title" = "プール情報";
 "staking.pool.management.select.validators.subtitle" = "続行するには、\nバリデーターを選択してください";
+"staking.pool.management.select.validators.subtitle" = "続行するには、\nバリデーターを選択してください";
+"staking.pool.management.select.validators.title" = "プールバリデーターの選択";
 "staking.pool.management.select.validators.title" = "プールバリデーターの選択";
 "staking.pool.rewards.delay.text" = "いつでもステークできます。%s以降に利息が発生します";
 "staking.pool.select.validators.manual" = "手動で選択";
 "staking.pool.select.validators.suggested" = "提案されたものを選択";
 "staking.pool.sort.pool.members" = "会員数";
 "staking.pool.stake.info.title" = "プールステーク情報";
-"staking.pool.start.apr.text" = "毎年%sを獲得";
+"staking.pool.start.apr.text" = "毎年%@を獲得";
 "staking.pool.start.create.button.title" = "プールを作成";
 "staking.pool.start.earn.reward.title" = "%s\nをステークすると報酬を獲得できます";
 "staking.pool.start.join.button.title" = "プールに参加";
 "staking.pool.start.reward.freq.text" = "報酬は%s毎に支払われます";
-"staking.pool.start.unstake.period.text" = "いつでもステーク解除できます。資金と獲得した利息を使うには、%sまで待つ必要があります";
+"staking.pool.start.unstake.period.text" = "いつでもステーク解除できます。資金と獲得した利息を使うには、%@まで待つ必要があります";
 "staking.rebond" = "ステークに戻る";
 "staking.rebond.all" = "全て再ボンド";
 "staking.rebond.custom.amount" = "カスタム量を再ボンド";
@@ -891,6 +946,7 @@
 "staking.rewards.title" = "報酬";
 "staking.round.title" = "ラウンド #%@";
 "staking.select.suggested" = "提案されたものを選択";
+"staking.select.validators.confirm.title" = "バリデーターの選択";
 "staking.select.validators.confirm.title" = "バリデーターの選択";
 "staking.select.validators.custom.button.title" = "自分で選択してください";
 "staking.select.validators.custom.desc" = "ノミネーターが有能かつ誠実に行動することを信頼すべきです。現在の収益性だけで判断すると、利益の減少や資金喪失につながる可能性があります";
@@ -1007,13 +1063,6 @@
 "tabbar.crowdloan.title" = "クラウドローン";
 "tabbar.crowdloan.title_v1.9.0" = "クラウドローン";
 "tabbar.settings.title" = "設定";
-"terms.and.conditions.accept.and.continue" = "同意して続行";
-"terms.and.conditions.description" = "SORAカードのサービスがどのように機能し、誰が、何のためにあなたの詳細情報を必要としているのかを正確に知っていただきたいと思います。これらのポリシーを確認することで、安心してアプリを使い続けることができます";
-"terms.and.conditions.general.terms" = "一般利用規約";
-"terms.and.conditions.privacy.policy" = "個人情報保護方針";
-"terms.and.conditions.sora.community.alert.main" = "SORAコミュニティはあなたの個人データを収集しません";
-"terms.and.conditions.sora.community.alert.secondary" = "ただし、SORAカードと IBANアカウントを取得するには、カード発行会社との本人確認(KYC)の処理を通過する必要があります";
-"terms.and.conditions.title" = "規約と条件";
 "tranaction.history.others.tab.title" = "Others";
 "transaction.detail.date" = "日付";
 "transaction.detail.status" = "状態";
@@ -1022,9 +1071,9 @@
 "transaction.details.from" = "から";
 "transaction.details.hash.title" = "外形的ハッシュ";
 "transaction.details.view.etherscan" = "イーサスキャン(Etherscan)で見る";
+"transaction.details.view.oklink" = "View in OKX  explorer";
 "transaction.details.view.polkascan" = "ポルカスキャン(Polkascan)で見る";
 "transaction.details.view.reefscan" = "View in Reefscan";
-"transaction.details.view.oklink" = "View in OKX explorer";
 "transaction.details.view.subscan" = "サブスキャン(Subscan)で見る";
 "transaction.list.header" = "全てのトランザクション";
 "transaction.status.completed" = "完了";
@@ -1040,8 +1089,9 @@
 "username.setup.title" = "アカウントを作成する";
 "username.setup.title.2.0" = "新しいウォレットを作成";
 "validator.info.comission.title" = "コミッション";
+"validator.info.min.stake.alert.text" = "Minimum stake among active nominators is %s. To get rewards you have to stake more.";
+"validator.info.min.stake.among.active.nominators.text" = "Minimum stake among active nominators";
 "validators.list.empty.message" = "バリデーターが見つかりません";
-"verify.phone.number.title" = "Verify your phone number";
 "vesting.claim.disclaimer.text" = "Due to the unique vesting schedules of each parachain, our app is unable to display the quantity of locked tokens eligible for claiming. Please be advised that initiating a claim may be impractical if the prospective amount is marginal and comparable to the transaction fee involved. For comprehensive insights into your locked balances, consult the Subscan blockexplorer. We urge you to assess the information carefully and proceed at your own discretion.";
 "vesting.claim.disclaimer.title" = "Important Notice Regarding Token Claims:";
 "vesting.locked.title" = "Vesting Locked";
@@ -1049,6 +1099,7 @@
 "view.wallet" = "ウォレットを見る";
 "wallet.account.locks.democracy" = "民主主義";
 "wallet.account.locks.vesting" = "権利確定";
+"wallet.all.assets.hidden" = "全アセットを非表示にしました";
 "wallet.asset.buy" = "購入";
 "wallet.asset.buy.with" = "で購入";
 "wallet.asset.receive" = "受け取る";
@@ -1068,6 +1119,8 @@
 "wallet.connect.invalid.url.message" = "当アプリはWallet Connect SDK v2のみをサポートしており、非推奨のSDK v1はサポートしておりません。適切なバージョンを使用して正しく接続してください";
 "wallet.connect.invalid.url.title" = "警告： Wallet Connect SDK v1 はサポートされていません";
 "wallet.connect.sign.warning.message" = "このメッセージに署名すると、危険な副作用が生じる可能性があります。全てのアカウントにおいて、完全に信頼できるサイトからのメッセージのみに署名してください";
+"wallet.connect.signing.unavailable.message" = "接続中のアプリが Fearless に署名を求めました。リクエストは拒否され、何も署名されていません。ウォレットはこれまでどおりご利用いただけます。アプリの接続はプロフィールの WalletConnect から解除できます。";
+"wallet.connect.signing.unavailable.title" = "このバージョンでは WalletConnect の署名を利用できません";
 "wallet.contacts.empty.title" = "送信先のアカウントと連絡先がここに表示されます";
 "wallet.contacts.empty.title_v1.10" = "送信先のアカウントと連絡先がここに表示されます";
 "wallet.contacts.search.placeholder" = "アカウントのアドレスまたはアカウント名";
@@ -1083,6 +1136,29 @@
 "wallet.history.title_v1.9.0" = "履歴";
 "wallet.manage.assets" = "アセットの管理";
 "wallet.managment.select.wallet.title" = "ウォレットを選択";
+"wallet.name.unnamed" = "名前のないウォレット";
+"wallet.chain.accounts.section" = "別のアカウントが保存されているネットワーク";
+"wallet.chain.accounts.use.stored" = "保存されているアカウント %@ を使用";
+"wallet.chain.accounts.use.wallet" = "このウォレット固有のアカウントを使用";
+"wallet.chain.accounts.switch.title" = "%@ のアカウントを切り替えますか？";
+"wallet.chain.accounts.switch.message" = "%2$@ でこのウォレットが表示・使用するアドレスが %1$@ に切り替わります。切り替え前のアカウントはこのウォレットに保存されたままで、いつでも元に戻せます。";
+"wallet.chain.accounts.switch.confirm" = "アカウントを切り替える";
+"wallet.chain.accounts.notice.title" = "以前のネットワークアカウントが見つかりました";
+"wallet.chain.accounts.notice.message" = "Fearless は、以前のバージョンから保存されているものの、直前のバージョンでは表示されていなかったネットワークアカウントを、次のネットワークで見つけました：%@。\n\n何も変更・削除されていません。各ネットワークでは、これまで使用していたアドレスがそのまま使われます。これらの古いアカウントのいずれかで資金を受け取ったことがある場合は、ウォレットを開き、対応するネットワークでそのアカウントを選択してください。";
+"wallet.chain.accounts.notice.action" = "アカウントを確認";
+"wallet.records.sheet.title" = "保存データの一部を表示できません";
+"wallet.records.sheet.kept" = "何も削除されていません。これらのデータとその鍵は、このデバイスに残っています。アプリを削除しないでください。削除すると、これらも削除されます。";
+"wallet.records.sheet.next" = "該当するウォレットを今すぐ使用するには、復元フレーズ、シード、または JSON ファイルで再度インポートしてください。インポートすると新しいウォレットとして追加され、すでに保存されている内容は何も変更されません。";
+"export.seed.unavailable.title" = "シードは表示されません";
+"export.seed.missing.message" = "このデバイスには、このアカウントのシードが保存されていません。アカウントはこれまでどおり使用できます。JSON ファイルなど、別のエクスポート方法でバックアップできます。";
+"export.seed.mismatch.message" = "このアカウント用に保存されているシードを使うと別のアドレスが復元されるため、シードは表示されません。アカウントはこれまでどおり使用できます。JSON ファイルなど、別のエクスポート方法でバックアップできます。";
+"backup.google.not.created.title" = "Google Driveのバックアップを作成できませんでした";
+"backup.google.ton.unsupported.message" = "Google Driveのバックアップには、ウォレットのPolkadotとその関連ネットワーク用の鍵、およびEthereum用の鍵が保存されます。このTONウォレットには専用のTON復元フレーズがあり、このようなバックアップからそのフレーズを復元することはできません。何もアップロードされておらず、ウォレットにも変更はありません。復元フレーズを書き留め、インターネットに接続しない形で保管して、ウォレットをバックアップしてください。";
+"backup.google.substrate.unsupported.message" = "Google Driveのバックアップで復元できるのは、Polkadotとその関連ネットワーク用の鍵を持つウォレットのみです。このウォレットにはその鍵がありません。何もアップロードされておらず、ウォレットにも変更はありません。ほかのバックアップ方法でバックアップしてください。";
+"backup.google.material.message" = "保存されているこのウォレットの鍵を、Google Driveへのバックアップ用に準備できませんでした。何もアップロードされておらず、ウォレットに変更はなく、これまでどおり使えます。復元フレーズやJSONファイルなど、ほかのバックアップ方法を使ってバックアップしてください。";
+"backup.google.readback.message" = "Google Driveからバックアップを、書き込んだとおりに読み戻せなかったため、このウォレットはバックアップ済みとして記録されていません。ウォレットに変更はありません。もう一度試すか、ほかのバックアップ方法を使ってバックアップしてください。";
+"backup.google.partial.title" = "このバックアップには含まれていないアカウントがあります";
+"backup.google.partial.message" = "ウォレットはGoogle Driveにバックアップされました。このバックアップからは、ウォレットのPolkadotおよび関連ネットワークのアカウントとEthereumのアカウントを復元できます。ただし、以下のアカウントは、鍵の生成元となるデータがこのバックアップに含まれていないため、復元されません：\n%@\nこれらのアカウントは、このデバイスで引き続き使用できます。このバックアップに頼る前に、これらのアカウントを個別にバックアップしてください。";
 "wallet.options.delete" = "ウォレットを削除";
 "wallet.options.details" = "ウォレットの詳細";
 "wallet.options.export" = "ウォレットをエクスポート";
@@ -1105,6 +1181,7 @@
 "wallet.send.balance.total.after.transfer" = "送信後の合計";
 "wallet.send.confirm.title" = "送信を確認";
 "wallet.send.dead.recipient.message" = "宛先アカウントの最終金額が既存の預金より少ないため、送信は失敗します。量を増やしてみてください";
+"wallet.send.dead.recipient.message.v2" = "Your transfer will fail since the final amount (%1$s) on the destination account will be less than the minimal balance (%2$s). Please increase the amount by %3$s";
 "wallet.send.dead.recipient.title" = "金額が少なすぎる";
 "wallet.send.eth.dead.recipient.message" = "受信者のアカウントのイーサリアム(Ethereum)残高が不十分な場合、ERC20トークン転送が完了しません。受信者が転送を続行するのに十分なイーサリアムを持っていることを確認してください";
 "wallet.send.existential.warning" = "送信すると、残高が最少預金よりも少なくなるため、ブロックストアからアカウントが削除されます";
@@ -1125,9 +1202,11 @@
 "what.accounts.for.export" = "ウォレット内のどのアカウントをエクスポートしますか?";
 "xcm.cross.chain.button.title" = "クロス・チェーン";
 "xcm.cross.chain.invalid.address.message" = "提供されたアドレスによると、間違ったネットワークで送信しようとしています";
+"xcm.cross.chain.invalid.address.message" = "提供されたアドレスによると、間違ったネットワークで送信しようとしています";
 "xcm.cross.chain.invalid.address.title" = "ネットワーク・アドレスではありません";
 "xcm.destination.network.fee.title" = "宛先ネットワーク手数料";
 "xcm.destination.network.title" = "宛先ネットワーク";
+"xcm.low.amaunt.assetSymbol.alert" = "Currently, there's a min. amount %@ for bridging to ensure the stability and security. We appreciate your understanding.";
 "xcm.mywallets.button.title" = "私のウォレット";
 "xcm.origin.network.fee.title" = "元ネットワーク手数料";
 "xcm.origin.network.title" = "元ネットワーク";
@@ -1136,7 +1215,305 @@
 "your.validators.stop.nominating.title" = "ノミネートを中止";
 "your.validators.validator.total.stake" = "総ステーク：%@";
 "сurrencies.stub.text" = "通貨";
-"balance.locks.blocked.row.title" = "Blocked";
-"wallet.send.dead.recipient.message.v2" = "Your transfer will fail since the final amount (%s) on the destination account will be less than the minimal balance (%s). Please increase the amount by %s";
-"nft.spam.warning" = "Beware of a scam/spam NFT collection – verify authenticity before engaging. Stay safe!";
-"wallet.all.assets.hidden" = "You have hidden all assets";
+"account.stats.wallet.option.title" = "Show wallet score";
+"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
+"account.stats.error.message" = "Unable to retrieve account score information. Please try again later.";
+"profile.account.score.title" = "Nomis multichain score";
+"scam.info.nomis.name" = "Nomis multi-chain score";
+"scam.info.nomis.subtype.text" = "Proceed with caution";
+
+"tab.portfolio" = "ウォレット";
+
+"tab.defi" = "運用";
+
+"tab.polkaswap" = "交換";
+
+"tab.cross_chain" = "送金";
+
+"ux.switch_wallet" = "ウォレットを切り替え";
+
+"ux.choose_network" = "ネットワークを選択";
+
+"ux.search_assets" = "資産を検索";
+
+"ux.scan_qr" = "QRコードをスキャン";
+
+"ux.receive_network_instruction" = "このアドレスには %@ を %@ ネットワークでのみ送金してください。";
+
+"ux.retry" = "再試行";
+
+"ux.manage_wallets" = "ウォレットを管理";
+
+"ux.transfer_networks" = "ネットワーク間の送金 →";
+
+"ux.positions_loading" = "保有資産と報酬を確認しています。";
+
+"ux.positions_unavailable" = "ポジションを読み込めませんでした。再試行してください。";
+
+"ux.positions_stale" = "前回のポジションを表示しています。再試行して更新してください。";
+
+"ux.positions_empty" = "現在ポジションはありません";
+
+"ux.positions_explore" = "以下から運用方法を選択できます。";
+
+"ux.explore_earn" = "運用方法を探す";
+
+"ux.refresh_positions" = "ポジションを更新";
+"ux.back" = "戻る";
+"ux.collapsed" = "折りたたみ済み";
+"ux.expanded" = "展開済み";
+
+/* Other holdings may not appear because balance checks use the app's asset list. */
+"portfolio.discovery.catalog_only" = "一部のトークンが表示されない場合があります";
+
+/* Only shown when network balances need attention. */
+"portfolio.balance.update_failed" = "残高を更新できませんでした";
+"portfolio.balance.outdated" = "残高が古い可能性があります";
+"portfolio.balance.not_loaded" = "残高が読み込まれていません";
+
+"wallet.transaction.history.view.explorer" = "エクスプローラーで表示";
+
+/* Wallet cards: the balance counts assets hidden from the portfolio. */
+"portfolio.balance.incl_hidden" = "非表示を含む";
+
+/* Under the wallet-wide total: the selected networks and their part of it. */
+"portfolio.header.showing_filtered" = "表示中：%@ · %@";
+
+/* Portfolio row: the part of the balance that can be sent now. */
+"portfolio.asset.transferable" = "送信可能 %@";
+
+/* Portfolio row of a testnet token. */
+"portfolio.asset.testnet_no_value" = "価値なし";
+
+/* Portfolio row of a funded asset without a trusted price. */
+"portfolio.asset.price_unavailable" = "価格を取得できません";
+
+/* Under the portfolio: what the total leaves out. Hidden and testnet captions open Manage assets. */
+"portfolio.exclusions.hidden.one" = "非表示のアセット%d件は含まれていません · 管理";
+"portfolio.exclusions.hidden.other" = "非表示のアセット%d件は含まれていません · 管理";
+"portfolio.exclusions.testnet.one" = "テストネットのアセット%d件は含まれていません · 管理";
+"portfolio.exclusions.testnet.other" = "テストネットのアセット%d件は含まれていません · 管理";
+"portfolio.exclusions.unpriced.one" = "価格のないアセット%d件は含まれていません";
+"portfolio.exclusions.unpriced.other" = "価格のないアセット%d件は含まれていません";
+"portfolio.exclusions.pool_stakes" = "プールのステークは含まれていません";
+
+/* Notice above the portfolio: assets hidden in the previous version now hold funds. */
+"portfolio.hidden_funds.title.one" = "非表示のアセット%d件に資金があります";
+"portfolio.hidden_funds.title.other" = "非表示のアセット%d件に資金があります";
+"portfolio.hidden_funds.message" = "非表示のアセットは合計に含まれません。確認するか、非表示のままにしてください。";
+"portfolio.hidden_funds.review" = "確認する";
+"portfolio.hidden_funds.keep_hidden" = "非表示のままにする";
+
+/* Bitcoin, Solana and Taira account setup from the wallet's own recovery phrase. */
+"universal.setup.title" = "ひとつの復元フレーズ";
+"universal.setup.message" = "Bitcoin、Solana、Taira はこのウォレットと同じ復元フレーズを使います。いずれかを追加すると 3 つすべてが設定され、新しいフレーズは作成されません。";
+"universal.setup.action" = "ウォレットのフレーズから追加";
+"universal.recovery.title" = "ウォレットのフレーズが必要です";
+"universal.recovery.message" = "このウォレットの作成または復元に使った復元フレーズを入力してください。Bitcoin、Solana、Taira を追加する前に、既存のウォレットと一致するか確認されます。2 つ目のフレーズが作成されることはありません。フレーズなしでシードまたは JSON ファイルからインポートしたウォレットには追加できません。ウォレット一覧で復元フレーズ付きのウォレットを作成または復元し、資産をそちらへ移してください。";
+"universal.recovery.action" = "ウォレットの復元フレーズを入力";
+"universal.open.wallets.action" = "ウォレット一覧を開く";
+"universal.unsupported.title" = "復元フレーズのウォレットが必要です";
+"universal.unsupported.message" = "このウォレットは TON のフレーズまたは Ethereum の鍵だけから作成されているため、Bitcoin、Solana、Taira のアカウントを追加できません。何も変更されていません。これらを使うには、ウォレット一覧で復元フレーズ付きのウォレットを作成または復元し、資産をそちらへ移してください。";
+"universal.unsupported.source.message" = "このウォレットに保存された鍵は安全にひとつの復元フレーズへ変換できないため、Bitcoin、Solana、Taira は追加されませんでした。何も変更されていません。ウォレット一覧で復元フレーズ付きのウォレットを作成または復元し、資産をそちらへ移してください。";
+"universal.adoption.seed.unavailable" = "この端末にはウォレットの復元フレーズがありません。Bitcoin、Solana、Taira を追加するには元のフレーズを入力してください。";
+"universal.adoption.conflict" = "このウォレットには別の復元フレーズから作られた Bitcoin または Taira のアカウントがすでにあります。そのアドレスと鍵は保持され、何も置き換えられていません。このウォレットのフレーズのアカウントに切り替える前に、そこにある資金を移してください。";
+"universal.seed.unreadable" = "ウォレットのシードを読み取れませんでした。端末のロックを解除してもう一度お試しください。それでも失敗する場合は、ウォレットの復元フレーズをインポートしてください。";
+"universal.recovery.mismatch.title" = "復元フレーズが一致しません";
+"universal.recovery.mismatch.message" = "その復元フレーズではこのウォレットを再現できません。アカウントや鍵は変更されていません。";
+"universal.recovery.different.phrase.title" = "別の復元フレーズが検出されました";
+"universal.recovery.different.phrase.message" = "このウォレットには別の復元フレーズから作られた Bitcoin または Taira のアカウントがすでにあります。置き換えると資金が見えなくなるおそれがあるため、置き換えていません。";
+
+/* Import of Bitcoin, Solana or Taira: the wallet's own phrase restores the whole wallet. */
+"universal.import.entire.wallet" = "ウォレット全体";
+
+/* Raw seed export of a wallet: accounts whose seed is not shown. */
+"export.seed.partial.message" = "以下のアカウントのシードは表示されません。この端末に保存されていないか、保存されているシードでは別のアドレスが復元されるためです:\n%@\nこれらのアカウントはこれまでどおり使えます。JSON ファイルでバックアップしてください。バックアップするまで、このウォレットはバックアップ済みとして扱われません。";
+
+/* Solana token send: the amount is only held across several token accounts of the mint. */
+"solana.transfer.token_balance_split.title" = "残高が複数のトークンアカウントに分かれています";
+"solana.transfer.token_balance_split.message" = "このトークンの残高は複数のトークンアカウントに分かれていて、この金額を単独で保有しているアカウントはありません。まず少ない金額を送り、その後で残りを送ってください。何も送信されていません。";
+
+/* Retained data and authenticated emergency recovery */
+"recovery.title" = "保存済みデータへのアクセス";
+"recovery.network_message" = "保存済みネットワークデータの一部を読み取れませんでした。ウォレットと復元用データは別に保存されています。以前の連絡先、カスタムノード、接続データはこのデバイスに保持されています。新しいネットワークデータで続行した後、アプリを再接続し、必要なカスタムノードを追加してください。";
+"recovery.wallet_message" = "ウォレット一覧に問題があります。保存済みのウォレット情報と復元用データはこのデバイスに保持されています。Fearlessとそのデータをそのまま保持してください。検証できないデータも、認証後に表示または書き出しできます。";
+"recovery.free_storage" = "デバイスの空き容量を少なくとも%@確保し、もう一度お試しください。";
+"recovery.retry" = "再試行";
+"recovery.fresh_network" = "新しいネットワークデータで続行";
+"recovery.restore_access" = "ウォレットへのアクセスを復元";
+"recovery.english" = "英語で続行";
+"recovery.export" = "緊急用の復元データ";
+"recovery.previous_data" = "以前のアプリデータ";
+"recovery.help" = "ヘルプ";
+"recovery.authenticate" = "保存済みの復元データにアクセスするには認証してください。";
+"recovery.read_failed" = "保存済みデータを読み取れませんでした。このデバイスに保持したまま、再試行してください。";
+"recovery.close" = "閉じる";
+"recovery.share" = "共有";
+"recovery.export_warning" = "この書き出しには、保存時のままの秘密の復元データがBase64形式で含まれます。不完全または無効な可能性があり、検証済みのウォレットバックアップではありません。受け取った人が資金を操作できる可能性があります。信頼できる場所にのみ保存してください。読み取れなかった項目は別に記載されます。サポートには絶対に送信しないでください。";
+"recovery.locked" = "ロックされました。この画面を閉じ、再認証してデータを表示してください。";
+"recovery.restore_access_warning" = "復元フレーズをインポートしてアクセスを復元できます。一覧が読み取れない場合、元のデータはこのデバイスに保持されます。鍵と現在のPINは保持されます。他にコピーがない場合は、先に保存済みの復元データを書き出してください。";
+"recovery.continue" = "続行";
+"recovery.advanced" = "詳細設定";
+"recovery.archive_message" = "以前のデータは変更せず保持されています。各アーカイブは現在のバージョンで再確認されます。復元時には現在のデータのコピーも保持されます。";
+"recovery.no_archives" = "以前のアプリデータはありません。";
+"recovery.checking" = "以前のデータを確認中…";
+"recovery.wallet_data" = "ウォレットデータ";
+"recovery.network_data" = "ネットワークデータ";
+"recovery.restore" = "復元";
+"recovery.not_ready" = "このバージョンではまだ復元できません。アーカイブは変更せず保持され、起動のたびに再確認されます。緊急用の復元データは引き続き利用できます。";
+"recovery.restore_warning" = "次の起動時にこのデータを復元しますか？現在のデータも保持されます。鍵とPINは変更されません。確認後、Fearlessを閉じて再度開いてください。";
+"recovery.restore_queued" = "復元を予約しました。アプリスイッチャーでFearlessを上にスワイプして終了し、もう一度開いてください。ウォレットが開く前に復元されます。";
+
+"send.network.unavailable" = "このトークンは %@ では利用できません。";
+"send.confirm.test_tokens_no_value" = "テストトークンに価値はありません";
+"portfolio.zero_networks" = "%d ネットワーク・残高なし";
+
+"portfolio.lens.tokens" = "トークン";
+"portfolio.lens.networks" = "ネットワーク";
+"portfolio.network_count" = "%dネットワーク";
+"portfolio.price_unavailable" = "価格を取得できません";
+"portfolio.partial_value" = "価格未取得のネットワーク：%d";
+"portfolio.custom_order" = "カスタム順序";
+"portfolio.popular_tokens" = "人気のトークン · %d";
+"portfolio.zero_tokens" = "残高なし · %dトークン";
+"portfolio.expand" = "展開";
+"portfolio.collapse" = "折りたたむ";
+"portfolio.hide_group" = "%@を非表示にしますか？";
+"portfolio.choose_network" = "ネットワークを選択";
+
+// Manage assets visibility and separate network sections.
+"manage_assets.auto" = "自動";
+"manage_assets.auto_zero" = "自動 · 残高なし";
+"manage_assets.shown" = "表示";
+"manage_assets.hidden" = "非表示";
+"manage_assets.testnets" = "テストネット";
+"manage_assets.testnets_caption" = "テスト用トークンに価値はなく、合計には含まれません。";
+"manage_assets.unverified" = "未検証";
+"manage_assets.unverified_caption" = "未検証のトークンは安全でない可能性があります。合計には含まれません。";
+
+"manage_assets.all" = "すべて";
+
+"manage_assets.reset_auto" = "自動に戻す";
+
+"manage_assets.mixed" = "一部表示";
+
+"manage_assets.show_group" = "すべてのネットワークで%@を表示";
+
+"manage_assets.hide_group" = "すべてのネットワークで%@を非表示";
+
+"manage_assets.reset_order" = "並び順をリセット";
+"manage_assets.reset_order_message" = "このウォレットの資産の並び順を初期設定に戻しますか？資産の表示設定は変わりません。";
+
+"portfolio.empty_ready" = "ウォレットの準備ができました";
+"portfolio.empty_fund" = "受け取る、または購入する資産とネットワークを選択してください。";
+"portfolio.buy" = "購入";
+"portfolio.buy_unavailable" = "これらのネットワークでは購入できません。トークンを受け取ることはできます。";
+"portfolio.funding_unavailable" = "トークンを受け取るには、対応ネットワークのアカウントを追加してください。ここでは購入できません。";
+
+"portfolio.empty_networks" = "主なネットワーク · 残高はまだありません";
+
+/* Static Welcome presentation. */
+"welcome.title" = "あなたの鍵で、すべてのチェーンへ。";
+"welcome.body" = "Polkadot、Ethereum、TON、Bitcoin、Solana、SORAの資産を自分で管理。";
+"welcome.create" = "新しいウォレットを作成";
+"welcome.restore" = "すでにウォレットを持っている";
+
+"import.legacy_ton_phrase" = "旧形式の TON リカバリーフレーズ";
+"import.legacy_ton_phrase_placeholder" = "旧形式の TON リカバリーフレーズを入力してください";
+
+"recovery.startup_updating" = "更新を完了しています…";
+"recovery.startup_opening" = "ウォレットを開いています…";
+"recovery.startup_keep_open" = "Fearlessを開いたままにしてください。";
+
+/* Portfolio list trust and disclosure state */
+"portfolio.asset.verified" = "確認済み";
+"portfolio.asset.detected" = "検出済み";
+"portfolio.asset.metadata_missing" = "メタデータなし";
+"portfolio.asset.detected_count" = "検出された資産（%d）";
+"portfolio.asset.detected_review" = "信頼する前に確認してください";
+
+"export.json.partial.title" = "バックアップが未完了です";
+"export.json.partial.message" = "次のアカウントをエクスポートできませんでした：\n%@\nウォレットと鍵は変更されていません。利用可能なファイルをエクスポートしても、このウォレットのバックアップは完了しません。";
+"export.json.partial.action" = "利用可能なファイルをエクスポート";
+
+"pincode.save.failed" = "PINを保存できませんでした。もう一度入力し、確認してください。";
+
+"backup.status.save.failed" = "バックアップの状態を保存できませんでした。もう一度お試しください。";
+
+"export.mnemonic.unavailable.title" = "リカバリーフレーズを表示できません";
+"export.mnemonic.partial.message" = "次のアカウントの保存済みフレーズまたは派生パスを検証できませんでした：\n%@\n鍵は変更されていません。これらのアカウントをJSONでバックアップしてください。このフレーズのエクスポートではウォレットはバックアップ済みになりません。";
+
+/* Native TON exact-phrase address selection, before persistence. */
+"import.ton.choose_address" = "TON アドレスを選択";
+"import.ton.spacing_warning" = "空白や改行によって旧 TON ウォレットのアドレスが変わる場合があります。両方のアドレスを以前のウォレットと照合し、復元するアドレスを選択してください。選択するまでインポートされません。";
+"import.ton.as_typed" = "入力したとおり";
+"import.ton.normalized" = "標準の空白";
+
+// Exact legacy TON spacing recovery
+"export.ton.exact.title" = "正確なTONフレーズ";
+"export.ton.exact.warning" = "このTONバックアップでは空白や改行が重要です。「正確なフレーズをコピー」でそのまま保持してください。空白を変更すると別のアドレスが復元される場合があります。コピーしたフレーズはこの端末だけに保存され、1分後に期限切れになります。";
+"export.ton.exact.copy" = "正確なフレーズをコピー";
+
+/* Significant legacy TON spacing is display-only; raw confirmation tokens remain unchanged. */
+"confirmation.exact.details" = "すべての項目を元の順序で選んでください。空の項目は、余分なスペースや先頭・末尾のスペースを保持します。角括弧内の名前は、改行、タブ、その他の空白文字を示します。元のフレーズの項目をすべて保持してください。";
+"confirmation.exact.empty" = "空の項目";
+"confirmation.exact.line.break" = "改行";
+"confirmation.exact.tab" = "タブ";
+"confirmation.exact.carriage.return" = "復帰";
+
+/* Preserved Solana payment with unavailable original cluster identity. */
+"solana.transfer.recovery_unavailable.title" = "保存された送金の確認が必要です";
+"solana.transfer.recovery_unavailable.message" = "保存された送金の元のネットワークを確認できません。Fearless は送金記録を保持しています。状態の確認と再送信は利用できません。元の送金結果が判明するまで、代わりの送金を行わないでください。\n%@";
+
+"solana.transfer.recovery_unreadable.message" = "このウォレットとSolanaネットワークの保存済み送金記録をFearlessで読み取れません。元のデータは保持されています。以前の送金結果が不明なため、新しい送金、状況確認、再送は利用できません。元の送金結果が確認できるまで、代わりの送金を行わないでください。ウォレットのその他の機能は利用できます。";
+
+/* Solana send, recovery and history */
+"solana.transfer.recipient_invalid.title" = "Solana のアドレスではありません";
+"solana.transfer.recipient_invalid.message" = "アドレスを確認して、もう一度お試しください。何も送信されていません。";
+"solana.transfer.recipient_token_account.title" = "これはウォレットではなくトークンアカウントです";
+"solana.transfer.recipient_token_account.message" = "これはウォレットアドレスではなく、トークンアカウントのようです。ここに送った資金は失われる可能性があります。受取人に Solana ウォレットのアドレスを確認してください。何も送信されていません。";
+"solana.transfer.recipient_program.title" = "これはウォレットではなくプログラムです";
+"solana.transfer.recipient_program.message" = "このアドレスは Solana のプログラムのものです。ここに送った資金はロックされます。受取人に Solana ウォレットのアドレスを確認してください。何も送信されていません。";
+"solana.transfer.below_new_account_minimum.title" = "新しいアカウントには金額が少なすぎます";
+"solana.transfer.below_new_account_minimum.message" = "このアドレスにはまだ SOL がありません。Solana でこのアカウントを開くには %@ SOL 以上が必要です。その金額以上を送ってください。何も送信されていません。";
+"solana.transfer.remainder_below_minimum.title" = "SOL をもっと残すか、全額を送ってください";
+"solana.transfer.remainder_below_minimum.message" = "Solana では、ウォレットの残高を 0 にするか、%@ SOL 以上残す必要があります。全額（最大）を送るか、その金額以上を残してください。何も送信されていません。";
+"solana.transfer.insufficient_sol.title" = "SOL が不足しています";
+"solana.transfer.insufficient_sol.message" = "このウォレットの SOL では、送金額とネットワーク手数料に加え、初めてこのトークンを受け取る相手の場合は Solana が開設するアカウントの費用をまかなえません。SOL を追加するか、金額を減らしてください。何も送信されていません。";
+"solana.transfer.insufficient_token.title" = "トークンが不足しています";
+"solana.transfer.insufficient_token.message" = "このウォレットには、1 つのアカウントにそれだけのこのトークンがありません。金額を減らして、もう一度お試しください。何も送信されていません。";
+"solana.transfer.token_program_unsupported.title" = "このトークンはまだ送金できません";
+"solana.transfer.token_program_unsupported.message" = "このバージョンで送金できるのは SOL と標準の SPL トークンです。このトークンはまだ対応していない Token-2022 を使用しています。トークンはウォレットに残り、引き続き受け取ることもできます。";
+"solana.transfer.copy_signature" = "トランザクション ID をコピー";
+"solana.transfer.unknown.title" = "送金ステータスを確認できません";
+"solana.transfer.unknown.message" = "Solana ネットワークがこの送金を受け付けた可能性があります。別のウォレットやアプリから再送しないでください。Fearless は署名済みのトランザクションを保持しています。再試行すると同じトランザクションが送信されるため、二重に支払われることはありません。Solana の送金は約 2 分以内に完了するか期限切れになります。\n%@";
+"solana.transfer.unknown.retry" = "送信を再試行";
+"solana.transfer.prior_unresolved.title" = "以前の送金がまだ処理中です";
+"solana.transfer.prior_unresolved.message" = "Fearless は以前の Solana 送金が送信されたかどうかをまだ確認中のため、この送金は送信されていません。Solana の送金は約 2 分以内に完了するか期限切れになります。その後でもう一度お試しください。\n%@";
+"solana.transfer.prior_sent.title" = "以前の送金は送信されました";
+"solana.transfer.prior_sent.message" = "以前の Solana 送金はネットワークに届いたため、この送金は送信されていません。もう一度送る前に残高と手数料を確認してください。\n%@";
+"solana.transfer.prior_not_sent.title" = "以前の送金は完了しませんでした";
+"solana.transfer.prior_not_sent.message" = "以前の Solana 送金はネットワークで確認されなかったため、その分の資金はウォレットから出ていません。この送金も送信されていません。内容を確認して、もう一度送ってください。\n%@";
+"solana.transfer.failed.title" = "送金に失敗しました";
+"solana.transfer.failed.message" = "Solana ネットワークはこの送金を処理しましたが失敗したため、送金額はウォレットから出ていません。ネットワーク手数料は請求されました。\n%@";
+"solana.transfer.not_sent.title" = "この送金は送信されませんでした";
+"solana.transfer.not_sent.no_connection" = "Fearless が Solana ネットワークに接続できなかったため、ウォレットからは何も出ていません。接続を確認して、もう一度お試しください。";
+"solana.transfer.not_sent.rejected" = "Solana ネットワークがこの送金を受け付けなかったため、ウォレットからは何も出ていません。金額と手数料を確認してから、もう一度お試しください。";
+"solana.transfer.not_sent.expired" = "この送金は Solana ネットワークで確認される前に期限切れになったため、ウォレットからは何も出ていません。もう一度送ることができます。";
+"solana.transfer.unverified.title" = "この送金を確認できませんでした";
+"solana.transfer.unverified.message" = "この Solana 送金がネットワークに届いたかどうかを Fearless で確認できませんでした。もう一度送る前に、残高を確認し、Solscan でこのトランザクションを調べてください。\n%@";
+"solana.transfer.prior_unverified.title" = "以前の送金を確認できませんでした";
+"solana.transfer.prior_unverified.message" = "以前の Solana 送金がネットワークに届いたかどうかを Fearless で確認できなかったため、この送金は送信されていません。残高を確認し、Solscan で以前のトランザクションを調べてください。完了していなかった場合は、この送金をもう一度確定してください。\n%@";
+"send.unavailable.solana_paused.title" = "Solana の送金は現在一時停止しています";
+"send.unavailable.solana_paused.message" = "このバージョンの Solana 送金を確認しています。SOL、トークン、残高に影響はなく、Solana での受け取りは引き続き可能です。";
+"send.unavailable.network.title" = "%@ では送金できません";
+"send.unavailable.asset.message" = "このバージョンでは、このネットワークでこの資産を送金できません。残高に影響はなく、受け取りは引き続き可能です。";
+"send.unavailable.account.title" = "このウォレットには %@ のアカウントがありません";
+"send.unavailable.account.message" = "このウォレットにはこのネットワークのアカウントがないため、送金できるものがありません。別のネットワークまたはウォレットを選択してください。";
+"send.unavailable.not_prepared.title" = "この送金を準備できませんでした";
+"send.unavailable.not_prepared.message" = "Fearless はこの送金を準備するために %@ に接続できませんでした。何も送信されていません。接続を確認して、もう一度お試しください。";
+"wallet.transaction.history.solana.explorer.message" = "Solana の全履歴は Solscan で確認できます";
+
+/* Solana confirm: recipient token account deposit */
+"solana.transfer.account_creation.title" = "受取人アカウントの開設";
+"solana.transfer.account_creation.included" = "ネットワーク手数料に含まれます";

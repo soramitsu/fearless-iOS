@@ -225,7 +225,6 @@
 //            extrinsicService: extrinsicService,
 //            crowdloanLocalSubscriptionFactory: crowdloanSubscriptionFactory,
 //            walletLocalSubscriptionFactory: walletSubscriptionFactory,
-//            priceLocalSubscriber: priceProviderFactory,
 //            jsonLocalSubscriptionFactory: jsonProviderFactory,
 //            operationManager: OperationManager()
 //        )

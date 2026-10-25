@@ -1,7 +1,7 @@
 import UIKit
 
 class BaseTopBar: UIView {
-    var leftStackView: UIStackView = UIFactory.default.createHorizontalStackView()
+    var leftStackView: UIStackView = UIFactory.default.createHorizontalStackView(spacing: 8)
     var centerStackView: UIStackView = UIFactory.default.createHorizontalStackView()
     var rightStackView: UIStackView = UIFactory.default.createHorizontalStackView()
 

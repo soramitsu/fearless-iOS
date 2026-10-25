@@ -6,24 +6,6 @@ protocol NftCollectionViewModelFactoryProtocol {
 
 final class NftCollectionViewModelFactory: NftCollectionViewModelFactoryProtocol {
     func buildViewModel(from collection: NFTCollection, locale: Locale) -> NftCollectionViewModel {
-        let cellModels: [NftCellViewModel] = collection.nfts?.compactMap {
-            var imageViewModel: RemoteImageViewModel?
-            if let url = $0.thumbnailURL {
-                imageViewModel = RemoteImageViewModel(url: url)
-            }
-
-            let type: NftType = collection.nfts?.contains($0) == true ? .owned : .available
-
-            return NftCellViewModel(
-                imageViewModel: imageViewModel,
-                name: $0.displayName,
-                description: $0.description,
-                type: type,
-                nft: $0,
-                locale: locale
-            )
-        } ?? []
-
         let ownedCellModels = buildCellModels(
             from: collection.nfts ?? [],
             type: .owned,

@@ -3,10 +3,6 @@ import SoraUI
 import SoraFoundation
 
 class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDependable {
-    private enum Constants {
-        static var cancelBottomMargin: CGFloat = 30.0
-    }
-
     var presenter: PinSetupPresenterProtocol!
     var mode = PinView.Mode.create
 
@@ -32,6 +28,9 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
     @IBOutlet private var pinViewCenterConstraint: NSLayoutConstraint!
 
     private var cancelButton: UIButton?
+    private var authorizationDeparturePending = false
+    private let contentScrollView = UIScrollView()
+    private let saveErrorLabel = UILabel()
 
     @IBOutlet var topLabel: UILabel!
 
@@ -48,46 +47,63 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
         }
 
         setupLocalization()
-        adjustLayoutConstraints()
+        configureScrollableContent()
         setupAccessibilityIdentifiers()
 
         presenter.didLoad(view: self)
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        guard isMovingFromParent || isBeingDismissed || navigationController?.isBeingDismissed == true else { return }
+        if mode == .create {
+            presenter.cancel()
+        } else {
+            authorizationDeparturePending = true
+            presenter.willLeaveView()
+            transitionCoordinator?.animate(alongsideTransition: nil) { [weak self] context in
+                guard let self, context.isCancelled, self.authorizationDeparturePending else { return }
+                self.authorizationDeparturePending = false
+                self.presenter.didCancelLeavingView()
+            }
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        guard authorizationDeparturePending else { return }
+        authorizationDeparturePending = false
+        presenter.didLeaveView()
+    }
+
+    override func viewSafeAreaInsetsDidChange() {
+        super.viewSafeAreaInsetsDidChange()
+        updateNavigationBarTopInset()
+    }
+
     // MARK: Configure
 
     private func configureNavigationBar() {
-        navigationBarTop.constant = UIApplication.shared.statusBarFrame.size.height
-
         navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         navigationBar.shadowImage = UIImage()
         navigationBar.tintColor = R.color.colorWhite()!
         navigationBar.delegate = self
+
+        updateNavigationBarTopInset()
+    }
+
+    private func updateNavigationBarTopInset() {
+        let statusBarHeight = SceneWindowFinder.statusBarHeight(from: view.window?.windowScene)
+        navigationBarTop.constant = max(statusBarHeight, view.safeAreaInsets.top)
     }
 
     private func configureCancelButton() {
         let cancelButton = UIButton()
         cancelButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(cancelButton)
-
-        let bottomMargin = -Constants.cancelBottomMargin * designScaleRatio.height
-
-        if #available(iOS 11.0, *) {
-            cancelButton.bottomAnchor.constraint(
-                equalTo: view.safeAreaLayoutGuide.bottomAnchor,
-                constant: bottomMargin
-            ).isActive = true
-        } else {
-            cancelButton.bottomAnchor.constraint(
-                equalTo: view.bottomAnchor,
-                constant: bottomMargin
-            ).isActive = true
-        }
-
-        cancelButton.trailingAnchor.constraint(equalTo: pinView.trailingAnchor).isActive = true
-
         cancelButton.setTitleColor(R.color.colorWhite()!, for: .normal)
-        cancelButton.titleLabel?.font = UIFont.p1Paragraph
+        cancelButton.titleLabel?.numberOfLines = 0
+        cancelButton.titleLabel?.textAlignment = .center
+        cancelButton.heightAnchor.constraint(greaterThanOrEqualToConstant: 48).isActive = true
 
         cancelButton.addTarget(
             self,
@@ -130,9 +146,11 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
             for: .normal
         )
 
+        saveErrorLabel.text = R.string.localizable.pincodeSaveFailed(preferredLanguages: locale.rLanguages)
         topLabel.text = localizableTopTitle.value(for: locale)
 
         updateTitleLabelState()
+        updateTypography()
     }
 
     // MARK: Accessibility
@@ -146,48 +164,76 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
 
     // MARK: Layout
 
-    private func adjustLayoutConstraints() {
-        let designScaleRatio = self.designScaleRatio
-
-        if isAdaptiveHeightDecreased || isAdaptiveWidthDecreased {
-            let scale = min(designScaleRatio.width, designScaleRatio.height)
-
-            if let numpadView = pinView.numpadView {
-                pinView.numpadView?.keyRadius *= scale
-
-                if let titleFont = numpadView.titleFont {
-                    numpadView.titleFont = UIFont(name: titleFont.fontName, size: scale * titleFont.pointSize)
-                }
-            }
-
-            if let currentFieldsView = pinView.characterFieldsView {
-                let font = currentFieldsView.fieldFont
-
-                if let newFont = UIFont(name: font.fontName, size: scale * font.pointSize) {
-                    currentFieldsView.fieldFont = newFont
-                }
-            }
-
-            pinView.securedCharacterFieldsView?.fieldRadius *= scale
+    private func configureScrollableContent() {
+        // Keep the existing PIN control and its input delegates. Only its layout
+        // moves out of the fixed-height nib constraints into scrollable content.
+        let content = UIStackView()
+        content.axis = .vertical
+        content.spacing = 16
+        content.translatesAutoresizingMaskIntoConstraints = false
+        saveErrorLabel.numberOfLines = 0
+        saveErrorLabel.textAlignment = .center
+        saveErrorLabel.textColor = R.color.colorWhite()
+        saveErrorLabel.accessibilityIdentifier = "PinSaveFailure"
+        saveErrorLabel.isHidden = true
+        for element in [topLabel, titleLabel, saveErrorLabel, pinView].compactMap({ $0 }) {
+            element.removeFromSuperview()
+            element.setContentCompressionResistancePriority(.required, for: .vertical)
+            content.addArrangedSubview(element)
         }
-
-        if isAdaptiveHeightDecreased {
-            pinView.verticalSpacing *= designScaleRatio.height
-
-            if let cancelButton = cancelButton {
-                pinView.verticalSpacing -= cancelButton.intrinsicContentSize.height
-                pinViewCenterConstraint.constant -= cancelButton.intrinsicContentSize.height
-            }
-
-            pinView.numpadView?.verticalSpacing *= designScaleRatio.height
-            pinView.characterFieldsView?.fieldSize.height *= designScaleRatio.height
-            pinView.securedCharacterFieldsView?.fieldSize.height *= designScaleRatio.height
+        if let cancelButton = cancelButton {
+            content.addArrangedSubview(cancelButton)
         }
+        for label in [topLabel, titleLabel].compactMap({ $0 }) {
+            label.numberOfLines = 0
+            label.lineBreakMode = .byWordWrapping
+            label.textAlignment = .center
+        }
+        contentScrollView.translatesAutoresizingMaskIntoConstraints = false
+        contentScrollView.contentInsetAdjustmentBehavior = .never
+        contentScrollView.alwaysBounceVertical = false
+        contentScrollView.addSubview(content)
+        view.addSubview(contentScrollView)
+        NSLayoutConstraint.activate([
+            contentScrollView.topAnchor.constraint(equalTo: navigationBar.bottomAnchor),
+            contentScrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            contentScrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            contentScrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            content.leadingAnchor.constraint(equalTo: contentScrollView.contentLayoutGuide.leadingAnchor, constant: 16),
+            content.trailingAnchor.constraint(
+                equalTo: contentScrollView.contentLayoutGuide.trailingAnchor, constant: -16
+            ),
+            content.topAnchor.constraint(equalTo: contentScrollView.contentLayoutGuide.topAnchor, constant: 16),
+            content.bottomAnchor.constraint(equalTo: contentScrollView.contentLayoutGuide.bottomAnchor, constant: -16),
+            content.widthAnchor.constraint(equalTo: contentScrollView.frameLayoutGuide.widthAnchor, constant: -32)
+        ])
+    }
 
-        if isAdaptiveWidthDecreased {
-            pinView.numpadView?.horizontalSpacing *= designScaleRatio.width
-            pinView.characterFieldsView?.fieldSize.width *= designScaleRatio.width
-            pinView.securedCharacterFieldsView?.fieldSize.width *= designScaleRatio.width
+    private func updateTypography() {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        topLabel.font = .fw(.titleM, locale: locale, compatibleWith: traitCollection)
+        titleLabel.font = .fw(.bodyM, locale: locale, compatibleWith: traitCollection)
+        saveErrorLabel.font = .fw(.bodyM, locale: locale, compatibleWith: traitCollection)
+        cancelButton?.titleLabel?.font = .fw(.labelL, locale: locale, compatibleWith: traitCollection)
+        let weight: UIFont.Weight = traitCollection.legibilityWeight == .bold ? .semibold : .regular
+        let digits = UIFontMetrics(forTextStyle: .title2).scaledFont(
+            for: .monospacedDigitSystemFont(ofSize: 25, weight: weight), compatibleWith: traitCollection
+        )
+        pinView.numpadView?.titleFont = digits
+        pinView.numpadView?.keyRadius = max(28, ceil(digits.lineHeight / 2 + 8))
+        pinView.numpadView?.horizontalSpacing = 12
+        pinView.numpadView?.verticalSpacing = 12
+        pinView.verticalSpacing = 24
+        pinView.invalidateLayout()
+        view.setNeedsLayout()
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        guard isViewLoaded else { return }
+        if previousTraitCollection?.preferredContentSizeCategory != traitCollection.preferredContentSizeCategory ||
+            previousTraitCollection?.legibilityWeight != traitCollection.legibilityWeight {
+            updateTypography()
         }
     }
 
@@ -199,6 +245,21 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
 }
 
 extension PinSetupViewController: PinSetupViewProtocol {
+    func resetAuthenticationInput() {
+        pinView.reset(shouldAnimateError: false)
+    }
+
+    func didFailSavingPin() {
+        pinView.resetCreationState(animated: false)
+        updateTitleLabelState()
+        saveErrorLabel.isHidden = false
+        view.layoutIfNeeded()
+        contentScrollView.scrollRectToVisible(
+            saveErrorLabel.convert(saveErrorLabel.bounds, to: contentScrollView), animated: false
+        )
+        UIAccessibility.post(notification: .announcement, argument: saveErrorLabel.text)
+    }
+
     func didRequestBiometryUsage(biometryType: AvailableBiometryType, completionBlock: @escaping (Bool) -> Void) {
         var title: String?
         var message: String?
@@ -222,14 +283,14 @@ extension PinSetupViewController: PinSetupViewProtocol {
         let useAction = UIAlertAction(
             title: R.string.localizable.commonUse(preferredLanguages: languages),
             style: .default
-        ) { (_: UIAlertAction) -> Void in
+        ) { (_: UIAlertAction) in
             completionBlock(true)
         }
 
         let skipAction = UIAlertAction(
             title: R.string.localizable.commonSkip(preferredLanguages: languages),
             style: .cancel
-        ) { (_: UIAlertAction) -> Void in
+        ) { (_: UIAlertAction) in
             completionBlock(false)
         }
 

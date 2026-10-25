@@ -4,6 +4,7 @@ class CheckPincodePresenter: PinSetupPresenterProtocol {
     private weak var view: PinSetupViewProtocol?
     private let interactor: LocalAuthInteractorInputProtocol
     private let moduleOutput: CheckPincodeModuleOutput
+    private var finished = false
 
     init(
         interactor: LocalAuthInteractorInputProtocol,
@@ -24,14 +25,19 @@ class CheckPincodePresenter: PinSetupPresenterProtocol {
     }
 
     func cancel() {
+        guard !finished else { return }
+        finished = true
+        interactor.cancelAuth()
         moduleOutput.close(view: view)
     }
 
     func activateBiometricAuth() {
+        guard !finished else { return }
         interactor.startAuth(with: self)
     }
 
     func submit(pin: String) {
+        guard !finished else { return }
         interactor.process(pin: pin)
     }
 }
@@ -39,7 +45,8 @@ class CheckPincodePresenter: PinSetupPresenterProtocol {
 extension CheckPincodePresenter: LocalAuthInteractorOutputProtocol {
     func didEnterWrongPincode() {
         DispatchQueue.main.async { [weak self] in
-            self?.view?.didReceiveWrongPincode()
+            guard let self = self, !self.finished else { return }
+            self.view?.didReceiveWrongPincode()
         }
     }
 
@@ -47,7 +54,10 @@ extension CheckPincodePresenter: LocalAuthInteractorOutputProtocol {
 
     func didCompleteAuth() {
         DispatchQueue.main.async { [weak self] in
-            self?.moduleOutput.didCheck()
+            guard let self = self, !self.finished else { return }
+            self.finished = true
+            self.interactor.cancelAuth()
+            self.moduleOutput.didCheck()
         }
     }
 

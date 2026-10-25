@@ -9,7 +9,6 @@ final class StakingRewardPayoutsPresenter {
     var interactor: StakingRewardPayoutsInteractorInputProtocol!
 
     private var payoutsInfo: PayoutsInfo?
-    private var priceData: PriceData?
     private var eraCountdown: EraCountdown?
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
@@ -37,7 +36,7 @@ final class StakingRewardPayoutsPresenter {
 
         let viewModel = viewModelFactory.createPayoutsViewModel(
             payoutsInfo: payoutsInfo,
-            priceData: priceData,
+            priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency),
             eraCountdown: eraCountdown,
             erasPerDay: chainAsset.chain.erasPerDay
         )
@@ -115,17 +114,6 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
                 R.string.localizable.commonErrorNoDataRetrieved(preferredLanguages: locale.rLanguages)
             }
             view?.reload(with: .error(errorDescription))
-        }
-    }
-
-    func didReceive(priceResult: Result<PriceData?, Error>) {
-        switch priceResult {
-        case let .success(priceData):
-            self.priceData = priceData
-            updateView()
-        case .failure:
-            priceData = nil
-            updateView()
         }
     }
 

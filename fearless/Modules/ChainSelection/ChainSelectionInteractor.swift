@@ -35,15 +35,19 @@ final class ChainSelectionInteractor {
             handleChains(result: .success(chainModels))
             return
         }
-        let fetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
-
-        fetchOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                self?.handleChains(result: fetchOperation.result)
+        Task { [weak self] in
+            guard let self else { return }
+            let result: Result<[ChainModel], Error>
+            do {
+                let chains = try await repository.fetchAllAsync()
+                result = .success(chains)
+            } catch {
+                result = .failure(error)
+            }
+            await MainActor.run { [weak self] in
+                self?.handleChains(result: result)
             }
         }
-
-        operationQueue.addOperation(fetchOperation)
     }
 
     private func handleChains(result: Result<[ChainModel], Error>?) {

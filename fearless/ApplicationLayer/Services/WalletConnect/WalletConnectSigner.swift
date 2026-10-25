@@ -22,9 +22,11 @@ final class WalletConnectSignerImpl: WalletConnectSigner {
     }()
 
     private let wallet: MetaAccountModel
+    private let policy: WalletConnectSigningPolicy
 
-    init(wallet: MetaAccountModel) {
+    init(wallet: MetaAccountModel, policy: WalletConnectSigningPolicy = .production) {
         self.wallet = wallet
+        self.policy = policy
     }
 
     func sign(
@@ -32,6 +34,11 @@ final class WalletConnectSignerImpl: WalletConnectSigner {
         chain: ChainModel,
         method: WalletConnectMethod
     ) async throws -> AnyCodable {
+        // Checked before any key is read; see `WalletConnectSigningPolicy`.
+        guard policy.isEnabled else {
+            throw WalletConnectSigningError.unavailable
+        }
+
         let signer: WalletConnectPayloadSigner
         switch method {
         case .polkadotSignTransaction:
@@ -118,7 +125,8 @@ final class WalletConnectSignerImpl: WalletConnectSigner {
         }
 
         let secretKey = try extractPrivateKey(for: chain)
-        let privateKey = try EthereumPrivateKey(privateKey: secretKey.bytes)
+        // web3-swift expects [UInt8]; convert Data to an Array<UInt8>
+        let privateKey = try EthereumPrivateKey(privateKey: Array(secretKey))
 
         guard let senderAddress = wallet.fetch(for: chain.accountRequest())?.toAddress() else {
             throw AutoNamespacesError.requiredAccountsNotSatisfied

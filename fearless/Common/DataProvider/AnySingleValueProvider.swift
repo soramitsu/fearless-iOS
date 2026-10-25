@@ -1,8 +1,8 @@
 import Foundation
 import RobinHood
 
-public class AnySingleValueProvider<T>: SingleValueProviderProtocol {
-    public typealias Model = T
+class AnySingleValueProvider<T>: SingleValueProviderProtocol {
+    typealias Model = T
 
     private let fetchClosure: (((Result<T?, Error>?) -> Void)?) -> CompoundOperationWrapper<T?>
 
@@ -18,9 +18,9 @@ public class AnySingleValueProvider<T>: SingleValueProviderProtocol {
 
     private let refreshClosure: () -> Void
 
-    public private(set) var executionQueue: OperationQueue
+    private(set) var executionQueue: OperationQueue
 
-    public init<U: SingleValueProviderProtocol>(_ dataProvider: U) where U.Model == Model {
+    init<U: SingleValueProviderProtocol>(_ dataProvider: U) where U.Model == Model {
         fetchClosure = dataProvider.fetch(with:)
         addObserverClosure = dataProvider.addObserver
         removeObserverClosure = dataProvider.removeObserver
@@ -28,11 +28,11 @@ public class AnySingleValueProvider<T>: SingleValueProviderProtocol {
         executionQueue = dataProvider.executionQueue
     }
 
-    public func fetch(with completionBlock: ((Result<T?, Error>?) -> Void)?) -> CompoundOperationWrapper<T?> {
+    func fetch(with completionBlock: ((Result<T?, Error>?) -> Void)?) -> CompoundOperationWrapper<T?> {
         fetchClosure(completionBlock)
     }
 
-    public func addObserver(
+    func addObserver(
         _ observer: AnyObject,
         deliverOn queue: DispatchQueue?,
         executing updateBlock: @escaping ([DataProviderChange<Model>]) -> Void,
@@ -42,11 +42,11 @@ public class AnySingleValueProvider<T>: SingleValueProviderProtocol {
         addObserverClosure(observer, queue, updateBlock, failureBlock, options)
     }
 
-    public func removeObserver(_ observer: AnyObject) {
+    func removeObserver(_ observer: AnyObject) {
         removeObserverClosure(observer)
     }
 
-    public func refresh() {
+    func refresh() {
         refreshClosure()
     }
 }

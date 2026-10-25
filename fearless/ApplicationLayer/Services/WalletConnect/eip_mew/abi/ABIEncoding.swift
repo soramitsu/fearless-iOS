@@ -6,6 +6,7 @@
 import Foundation
 import BigInt
 import CryptoSwift
+import SSFModels
 
 // swiftlint:disable identifier_name
 
@@ -114,7 +115,7 @@ public extension ABIEncoder {
                 return convertToData(value as AnyObject, type: type)
             }
             if d.hasHexPrefix() {
-                return Data(hex: d)
+                return try? Data(hexStringSSF: d)
             }
             let str = d.data(using: .utf8)
             if str != nil {
@@ -229,7 +230,7 @@ public extension ABIEncoder {
             if let string = value as? String {
                 var dataGuess: Data?
                 if string.hasHexPrefix() {
-                    dataGuess = Data(hex: string.lowercased())
+                    dataGuess = try? Data(hexStringSSF: string.lowercased())
                 } else {
                     dataGuess = string.data(using: .utf8)
                 }

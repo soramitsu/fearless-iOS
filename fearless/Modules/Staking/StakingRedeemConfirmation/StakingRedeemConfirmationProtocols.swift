@@ -23,9 +23,7 @@ protocol StakingRedeemConfirmationInteractorInputProtocol: AnyObject {
     func submit(builderClosure: ExtrinsicBuilderClosure?)
 }
 
-protocol StakingRedeemConfirmationInteractorOutputProtocol: AnyObject {
-    func didReceivePriceData(result: Result<PriceData?, Error>)
-}
+protocol StakingRedeemConfirmationInteractorOutputProtocol: AnyObject {}
 
 protocol StakingRedeemConfirmationWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     StakingErrorPresentable, AddressOptionsPresentable, AnyDismissable {

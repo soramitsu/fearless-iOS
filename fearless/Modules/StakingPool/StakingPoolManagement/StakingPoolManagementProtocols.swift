@@ -40,8 +40,6 @@ protocol StakingPoolManagementInteractorInput: AnyObject {
 }
 
 protocol StakingPoolManagementInteractorOutput: AnyObject {
-    func didReceive(priceData: PriceData?)
-    func didReceive(priceError: Error)
     func didReceive(stakeInfo: StakingPoolMember?)
     func didReceive(stakeInfoError: Error)
     func didReceive(eraStakersInfo: EraStakersInfo)

@@ -265,7 +265,7 @@ extension DetailsTriangularedView {
     }
 
     @IBInspectable
-    private var _layout: UInt8 {
+    private var privateLayout: UInt8 {
         get {
             switch layout {
             case .largeIconTitleSubtitle:

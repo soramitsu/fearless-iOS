@@ -1,17 +1,20 @@
 import UIKit
 import SoraFoundation
-
 import SnapKit
 
-final class SendViewController: UIViewController, ViewHolder {
+final class SendViewController: UIViewController, ViewHolder, SolanaSendFormViewState {
     typealias RootViewType = SendViewLayout
-
-    // MARK: Private properties
 
     private let output: SendViewOutput
     private let initialData: SendFlowInitialData
+    private lazy var formLifecycle = SolanaSendFormLifecycle(
+        controller: self, scope: output as? SolanaSendFormScopeManaging
+    )
+
+    var allowsSendFormContinuation: Bool { formLifecycle.isAvailable }
 
     private var amountInputViewModel: IAmountInputViewModel?
+    private var pendingAmountUpdate: (() -> Void)?
 
     // MARK: - Constructor
 
@@ -42,6 +45,7 @@ final class SendViewController: UIViewController, ViewHolder {
         output.didLoad(view: self)
         setupLocalization()
         configure()
+        _ = formLifecycle
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -49,18 +53,48 @@ final class SendViewController: UIViewController, ViewHolder {
         setupKeyboardHandler()
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        formLifecycle.resumeIfAvailable()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        cancelPendingAmountUpdate()
+        formLifecycle.willDisappear()
+    }
+
+    override func present(_ controller: UIViewController, animated: Bool, completion: (() -> Void)? = nil) {
+        formLifecycle.willPresent(controller)
+        super.present(controller, animated: animated, completion: completion)
+    }
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         clearKeyboardHandler()
     }
-
-    // MARK: - Private methods
 
     private func setupLocalization() {
         rootView.locale = selectedLocale
     }
 
     private func configure() {
+        let presentingTabBar = tabBarController as? MainTabBarViewController
+            ?? presentingViewController as? MainTabBarViewController
+            ?? presentingViewController?.tabBarController as? MainTabBarViewController
+            ?? navigationController?.presentingViewController?.tabBarController as? MainTabBarViewController
+            ?? navigationController?.presentingViewController as? MainTabBarViewController
+        rootView.crossNetworkButton.isHidden = presentingTabBar == nil
+        rootView.crossNetworkButton.addAction(UIAction { [weak self, weak presentingTabBar] _ in
+            guard let self, let presentingTabBar else { return }
+            (self.output as? SolanaSendFormScopeManaging)?.suspendSendForm()
+            self.view.endEditing(true)
+            if self.navigationController?.presentingViewController != nil {
+                self.dismiss(animated: true) { presentingTabBar.select(destination: .crossChain) }
+            } else {
+                presentingTabBar.select(destination: .crossChain)
+            }
+        }, for: .touchUpInside)
         rootView.searchView.textField.delegate = self
         rootView.amountView.textField.delegate = self
 
@@ -99,15 +133,17 @@ final class SendViewController: UIViewController, ViewHolder {
     }
 
     private func updateActionButton() {
-        let isEnabled = (amountInputViewModel?.isValid == true) && rootView.searchView.textField.text?.isNotEmpty == true
+        let isEnabled = amountInputViewModel?.isValid == true && rootView.searchView.textField.text?.isNotEmpty == true
         rootView.actionButton.set(enabled: isEnabled)
     }
 
     @objc private func continueButtonClicked() {
+        guard amountInputViewModel?.isValid == true, (amountInputViewModel?.decimalAmount ?? 0) > 0 else { return }
         output.didTapContinueButton()
     }
 
     @objc private func backButtonClicked() {
+        cancelPendingAmountUpdate()
         output.didTapBackButton()
     }
 
@@ -159,12 +195,14 @@ extension SendViewController: SendViewInput {
     }
 
     func didReceive(amountInputViewModel: IAmountInputViewModel?) {
+        cancelPendingAmountUpdate()
+        self.amountInputViewModel?.observable.remove(observer: self)
         self.amountInputViewModel = amountInputViewModel
         if let amountViewModel = amountInputViewModel {
-            amountViewModel.observable.remove(observer: self)
             amountViewModel.observable.add(observer: self)
             rootView.amountView.inputFieldText = amountViewModel.displayAmount
         }
+        updateActionButton()
     }
 
     func didReceive(selectNetworkViewModel: SelectNetworkViewModel) {
@@ -198,6 +236,12 @@ extension SendViewController: SendViewInput {
 
     func didReceive(viewModel: RecipientViewModel) {
         rootView.bind(viewModel: viewModel)
+        updateActionButton()
+    }
+
+    func didReceive(accountScoreViewModel: AccountScoreViewModel?) {
+        rootView.bind(accountScoreViewModel: accountScoreViewModel)
+        updateActionButton()
     }
 
     func didStartLoading() {
@@ -248,6 +292,7 @@ extension SendViewController: UITextFieldDelegate {
 
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
         if textField == rootView.searchView.textField {
+            rootView.actionButton.set(enabled: false)
             output.searchTextDidChanged("")
         }
         return true
@@ -296,24 +341,58 @@ extension SendViewController: AmountInputAccessoryViewDelegate {
 extension SendViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
         rootView.amountView.inputFieldText = amountInputViewModel?.displayAmount
+        cancelPendingAmountUpdate()
+        pendingAmountUpdate = output.didEditAmount(amountInputViewModel?.decimalAmount ?? 0)
+        updateActionButton()
+        perform(#selector(updateAmount), with: nil, afterDelay: 0.75)
+    }
 
-        let amount = amountInputViewModel?.decimalAmount ?? 0.0
-        output.updateAmount(amount)
+    private func cancelPendingAmountUpdate() {
+        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(updateAmount), object: nil)
+        pendingAmountUpdate = nil
+    }
+
+    @objc private func updateAmount() {
+        let update = pendingAmountUpdate
+        pendingAmountUpdate = nil
+        guard allowsSendFormContinuation else { return }
+        update?()
     }
 }
 
-// MARK: - Localizable
-
 extension SendViewController: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        guard isViewLoaded, FWAppearance.sendPresentationRestyled else { return }
+        setupLocalization()
+    }
 }
 
 extension SendViewController: KeyboardViewAdoptable {
-    var target: Constraint? { rootView.keyboardAdoptableConstraint }
+    var target: Constraint? {
+        rootView.keyboardAdoptableConstraint
+    }
 
     func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat {
         UIConstants.bigOffset
     }
 
-    func updateWhileKeyboardFrameChanging(_: CGRect) {}
+    func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
+        guard FWAppearance.sendPresentationRestyled else { return }
+        let localFrame = view.convert(frame, from: nil)
+        let overlap = frame.isEmpty ? 0 : max(0, view.bounds.maxY - localFrame.minY - view.safeAreaInsets.bottom)
+        rootView.keyboardAdoptableConstraint?.update(inset: overlap)
+        view.layoutIfNeeded()
+        if !frame.isEmpty, rootView.amountView.textField.isFirstResponder {
+            let scroll = rootView.contentView.scrollView
+            scroll.scrollRectToVisible(
+                rootView.amountView.textField.convert(rootView.amountView.textField.bounds, to: scroll), animated: false
+            )
+        }
+    }
+
+    func keyboardWillChangeFrame(notification: Notification) {
+        guard FWAppearance.sendPresentationRestyled,
+              let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+        updateWhileKeyboardFrameChanging(frame.cgRectValue)
+    }
 }

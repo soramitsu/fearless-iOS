@@ -51,7 +51,11 @@ final class ScamWarningExpandableView: UIView {
     }()
 
     private let mainCloudView = UIView()
-    private let expandableCloudView = UIView()
+    private let expandableCloudView: UIView = {
+        let view = UIView()
+        view.isHidden = true
+        return view
+    }()
 
     private let nameLabel: UILabel = {
         let label = UILabel()
@@ -222,6 +226,7 @@ final class ScamWarningExpandableView: UIView {
     @objc private func handleTapGesture() {
         let isOpen = indicator.isActivated
         let offset = isOpen ? -Constants.expandViewHeight : 0
+        expandableCloudView.isHidden = isOpen
         expandableCloudView.snp.updateConstraints { make in
             make.top.equalTo(mainCloudView.snp.bottom).offset(offset)
         }

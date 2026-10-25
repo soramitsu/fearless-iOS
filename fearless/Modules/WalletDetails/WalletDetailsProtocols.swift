@@ -3,7 +3,6 @@ import SSFModels
 
 protocol WalletDetailsViewOutputProtocol {
     func didLoad(ui: WalletDetailsViewProtocol)
-    func updateData()
     func didTapCloseButton()
     func didTapExportButton()
     func showActions(for chain: ChainModel, account: ChainAccountResponse?)
@@ -17,9 +16,9 @@ protocol WalletDetailsViewProtocol: ControllerBackedProtocol, HiddableBarWhenPus
 
 protocol WalletDetailsInteractorInputProtocol: AnyObject {
     func setup()
-    func update(walletName: String)
     func getAvailableExportOptions(for chainAccount: ChainAccountInfo)
     func markUnused(chain: ChainModel)
+    func selectChainAccount(_ selection: ChainAccountSelection, chain: ChainModel)
 }
 
 protocol WalletDetailsInteractorOutputProtocol: AnyObject {
@@ -27,6 +26,7 @@ protocol WalletDetailsInteractorOutputProtocol: AnyObject {
     func didReceiveExportOptions(options: [ExportOption], for chainAccount: ChainAccountInfo)
     func didReceive(error: Error)
     func didReceive(updatedFlow: WalletDetailsFlow)
+    func didReceive(storedChainAccounts: [ChainAccountModel])
 }
 
 protocol WalletDetailsWireframeProtocol: ErrorPresentable,
@@ -34,7 +34,6 @@ protocol WalletDetailsWireframeProtocol: ErrorPresentable,
     ModalAlertPresenting,
     AuthorizationPresentable,
     AnyDismissable {
-    func close(_ view: WalletDetailsViewProtocol)
     func presentActions(
         from view: ControllerBackedProtocol?,
         items: [ChainAction],

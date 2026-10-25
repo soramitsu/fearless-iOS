@@ -9,6 +9,10 @@ final class TitleCopyableValueView: TitleValueView {
         return button
     }()
 
+    override init(skeletonSize: CGSize = .zero) {
+        super.init(skeletonSize: skeletonSize)
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupCopyButton()

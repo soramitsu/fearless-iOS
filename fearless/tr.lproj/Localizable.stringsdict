@@ -82,5 +82,69 @@
 			<string>%li dönem</string>
 		</dict>
 	</dict>
+	<key>wallet.records.notice.wallets</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@format@</string>
+		<key>format</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>li</string>
+			<key>one</key>
+			<string>Saklanan %li cüzdan gösterilemiyor</string>
+			<key>other</key>
+			<string>Saklanan %li cüzdan gösterilemiyor</string>
+		</dict>
+	</dict>
+	<key>wallet.records.notice.accounts</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@format@</string>
+		<key>format</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>li</string>
+			<key>one</key>
+			<string>%li ağ hesabı kullanılamıyor</string>
+			<key>other</key>
+			<string>%li ağ hesabı kullanılamıyor</string>
+		</dict>
+	</dict>
+	<key>wallet.records.sheet.wallets</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@format@</string>
+		<key>format</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>li</string>
+			<key>one</key>
+			<string>Bu cihazda saklanan %li cüzdan, Fearless'ın bu sürümünde gösterilemiyor.</string>
+			<key>other</key>
+			<string>Bu cihazda saklanan %li cüzdan, Fearless'ın bu sürümünde gösterilemiyor.</string>
+		</dict>
+	</dict>
+	<key>wallet.records.sheet.accounts</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@format@</string>
+		<key>format</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>li</string>
+			<key>one</key>
+			<string>Cüzdanlarınızda saklanan %li ağ hesabı kullanılamıyor. Bu hesabın cüzdanı kullanılabilir durumda kalır ve bu ağda kendi hesabını kullanır.</string>
+			<key>other</key>
+			<string>Cüzdanlarınızda saklanan %li ağ hesabı kullanılamıyor. Bu hesapların cüzdanları kullanılabilir durumda kalır ve ilgili ağlarda kendi hesaplarını kullanır.</string>
+		</dict>
+	</dict>
 </dict>
 </plist>

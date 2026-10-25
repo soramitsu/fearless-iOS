@@ -1,12 +1,14 @@
 import Foundation
 import RobinHood
 import SoraFoundation
+import SoraKeystore
 
 final class WalletDetailsViewFactory {
     static func createView(
         flow: WalletDetailsFlow
     ) -> WalletDetailsViewProtocol {
         let chainsRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
@@ -16,7 +18,11 @@ final class WalletDetailsViewFactory {
             operationManager: OperationManagerFacade.sharedManager,
             eventCenter: EventCenter.shared,
             repository: AccountRepositoryFactory.createRepository(),
-            availableExportOptionsProvider: AvailableExportOptionsProvider()
+            availableExportOptionsProvider: AvailableExportOptionsProvider(),
+            walletRecordsInspector: AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+                .createStoredWalletRecordsInspector(),
+            walletRecordsNoticeTracker: StoredWalletRecordsNoticeTracker(settings: SettingsManager.shared),
+            selectedWalletSettings: SelectedWalletSettings.shared
         )
 
         let wireframe = WalletDetailsWireframe()

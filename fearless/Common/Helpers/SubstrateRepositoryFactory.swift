@@ -1,12 +1,17 @@
 import Foundation
 import RobinHood
 import SSFSingleValueCache
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 protocol SubstrateRepositoryFactoryProtocol {
     func createChainStorageItemRepository() -> AnyDataProviderRepository<ChainStorageItem>
     func createStashItemRepository() -> AnyDataProviderRepository<StashItem>
-    func createSingleValueRepository() throws -> AnyDataProviderRepository<SingleValueProviderObject>
+    func createSingleValueRepository() -> AnyDataProviderRepository<SingleValueProviderObject>
 }
 
 final class SubstrateRepositoryFactory: SubstrateRepositoryFactoryProtocol {
@@ -17,7 +22,7 @@ final class SubstrateRepositoryFactory: SubstrateRepositoryFactoryProtocol {
     }
 
     func createChainStorageItemRepository() -> AnyDataProviderRepository<ChainStorageItem> {
-        let repository: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
+        let repository: CoreDataRepository<ChainStorageItem, SSFAssetManagmentStorage.CDChainStorageItem> =
             storageFacade.createRepository()
 
         return AnyDataProviderRepository(repository)
@@ -44,8 +49,8 @@ final class SubstrateRepositoryFactory: SubstrateRepositoryFactoryProtocol {
         return AnyDataProviderRepository(repository)
     }
 
-    func createSingleValueRepository() throws -> AnyDataProviderRepository<SingleValueProviderObject> {
-        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = try SingleValueCacheRepositoryFactoryDefault().createSingleValueCacheRepository()
+    func createSingleValueRepository() -> AnyDataProviderRepository<SingleValueProviderObject> {
+        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = SingleValueCacheRepositoryFactoryDefault().createSingleValueCacheRepository()
         return AnyDataProviderRepository(repository)
     }
 }

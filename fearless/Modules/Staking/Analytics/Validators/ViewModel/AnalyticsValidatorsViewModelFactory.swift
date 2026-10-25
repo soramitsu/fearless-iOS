@@ -4,8 +4,21 @@ import BigInt
 import IrohaCrypto
 import SSFModels
 
-// swiftlint:disable function_body_length
+// swiftlint:disable:next type_body_length
 final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFactoryProtocol {
+    private struct RewardAllocation {
+        let amountsByValidator: [AccountAddress: Decimal]
+        let totalAmount: Decimal
+
+        static let empty = RewardAllocation(amountsByValidator: [:], totalAmount: .zero)
+    }
+
+    private struct ValidatorProgress {
+        let percents: Double
+        let amount: Double
+        let text: String
+    }
+
     private let iconGenerator: IconGenerating
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let chain: ChainModel
@@ -24,6 +37,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         self.iconGenerator = iconGenerator
     }
 
+    // swiftlint:disable:next function_body_length function_parameter_count
     func createViewModel(
         eraValidatorInfos: [SubqueryEraValidatorInfo],
         eraRange: EraRange,
@@ -36,29 +50,34 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     ) -> AnalyticsValidatorsViewModel {
         percentFormatter.locale = locale
 
-        let totalEras: Int = {
-            if eraRange.end + 1 >= eraRange.start {
-                // totalEras == 0 is unacceptable for later calculations and UX,
-                // so condider totalEras to be at least 1
-                return max(Int(eraRange.end + 1 - eraRange.start), 1)
-            } else {
-                return 1
-            }
-        }()
-
-        let erasWhenStaked = countErasWhenStaked(eraValidatorInfos: eraValidatorInfos)
-        let totalRewards = totalRewardOfStash(address: stashAddress, rewards: rewards)
-        let validatorsAddresses = nomination.targets.compactMap { accountId in
-            try? AddressFactory.address(for: accountId, chain: chain)
+        let totalEras = totalEras(in: eraRange)
+        let validEraValidatorInfos = eraValidatorInfos.filter {
+            $0.era >= eraRange.start && $0.era <= eraRange.end
         }
+        let erasWhenStaked = countErasWhenStaked(eraValidatorInfos: validEraValidatorInfos)
+
+        var seenValidatorAddresses = Set<AccountAddress>()
+        let validatorsAddresses = nomination.targets.compactMap { accountId in
+            guard accountId.count == chain.accountIdLenght else {
+                return nil
+            }
+            return try? AddressFactory.address(for: accountId, chain: chain)
+        }.filter { address in
+            seenValidatorAddresses.insert(address).inserted
+        }
+        let rewardAllocation = createRewardAllocation(
+            validatorAddresses: validatorsAddresses,
+            stashAddress: stashAddress,
+            rewards: rewards
+        )
 
         let validatorsViewModel: [AnalyticsValidatorItemViewModel] = validatorsAddresses.map { address in
             let icon = try? iconGenerator.generateFromAddress(address)
             let validatorName = (identitiesByAddress?[address]?.displayName) ?? address
-            let (progressPercents, amount, progressText): (Double, Double, String) = {
+            let progress: ValidatorProgress = {
                 switch page {
                 case .activity:
-                    let infos = eraValidatorInfos.filter { $0.address == address }
+                    let infos = validEraValidatorInfos.filter { $0.address == address }
                     let distinctEras = Set<EraIndex>(infos.map(\.era))
                     let distinctErasCount = distinctEras.count
 
@@ -68,23 +87,25 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                         erasCount: distinctErasCount,
                         locale: locale
                     )
-                    return (percents, Double(distinctErasCount), text)
+                    return ValidatorProgress(
+                        percents: percents,
+                        amount: Double(distinctErasCount),
+                        text: text
+                    )
                 case .rewards:
-                    let rewardsOfValidator = rewards.filter { reward in
-                        reward.stashAddress == stashAddress && reward.validatorAddress == address
-                    }
-                    let totalAmount = rewardsOfValidator.reduce(Decimal(0)) { amount, info in
-                        let decimal = Decimal.fromSubstrateAmount(
-                            info.amount,
-                            precision: Int16(asset.precision)
-                        )
-                        return amount + (decimal ?? 0.0)
-                    }
+                    let totalAmount = rewardAllocation.amountsByValidator[address] ?? .zero
                     let totalAmountText = balanceViewModelFactory
                         .amountFromValue(totalAmount, usageCase: .listCrypto).value(for: locale)
-                    let amountDouble = NSDecimalNumber(decimal: totalAmount).doubleValue
-                    let percents = amountDouble / totalRewards
-                    return (percents, amountDouble, totalAmountText)
+                    let amountDouble = finiteDouble(from: totalAmount)
+                    let percents = rewardShare(
+                        amount: totalAmount,
+                        totalAmount: rewardAllocation.totalAmount
+                    )
+                    return ValidatorProgress(
+                        percents: percents,
+                        amount: amountDouble,
+                        text: totalAmountText
+                    )
                 }
             }()
 
@@ -93,31 +114,31 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                 case .activity:
                     return R.string.localizable
                         .stakingAnalyticsValidatorsErasCounter(
-                            format: Int(amount),
+                            format: Int(progress.amount),
                             preferredLanguages: locale.rLanguages
                         )
                 case .rewards:
-                    return percentFormatter.string(from: progressPercents as NSNumber) ?? ""
+                    return percentFormatter.string(from: progress.percents as NSNumber) ?? ""
                 }
             }()
 
             let mainValueText: String = {
                 switch page {
                 case .activity:
-                    return percentFormatter.string(from: progressPercents as NSNumber) ?? ""
+                    return percentFormatter.string(from: progress.percents as NSNumber) ?? ""
                 case .rewards:
-                    return progressText
+                    return progress.text
                 }
             }()
 
             return .init(
                 icon: icon,
                 validatorName: validatorName,
-                amount: amount,
-                progressPercents: progressPercents,
+                amount: progress.amount,
+                progressPercents: progress.percents,
                 mainValueText: mainValueText,
                 secondaryValueText: secondaryValueText,
-                progressFullDescription: progressText,
+                progressFullDescription: progress.text,
                 validatorAddress: address
             )
         }
@@ -126,9 +147,9 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         let listTitle = determineListTitle(page: page, locale: locale)
         let chartCenterText = createChartCenterText(
             page: page,
-            validators: validatorsViewModel,
             totalEras: totalEras,
             erasWhenStaked: erasWhenStaked,
+            totalRewards: rewardAllocation.totalAmount,
             locale: locale
         )
 
@@ -167,9 +188,9 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
     private func createChartCenterText(
         page: AnalyticsValidatorsPage,
-        validators: [AnalyticsValidatorItemViewModel],
         totalEras: Int,
         erasWhenStaked: Int,
+        totalRewards: Decimal,
         locale: Locale
     ) -> NSAttributedString {
         switch page {
@@ -190,13 +211,16 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                 )
             )
         case .rewards:
-            let totalRewards = validators.map(\.amount).reduce(0.0, +)
-            let totalRewardsText = balanceViewModelFactory.amountFromValue(Decimal(totalRewards), usageCase: .listCrypto)
+            let totalRewardsText = balanceViewModelFactory.amountFromValue(totalRewards, usageCase: .listCrypto)
                 .value(for: locale)
+            let totalPercentage = totalRewards > .zero ? 1.0 : 0.0
+            let totalPercentageText = percentFormatter.string(from: totalPercentage as NSNumber) ?? ""
+
             return createChartCenterText(
-                firstLine: "TODO in next release",
+                firstLine: R.string.localizable
+                    .stakingAnalyticsReceivedRewards(preferredLanguages: locale.rLanguages),
                 secondLine: totalRewardsText,
-                thirdLine: "100%"
+                thirdLine: totalPercentageText
             )
         }
     }
@@ -250,21 +274,6 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
         return distinctEras.count
     }
 
-    func totalRewardOfStash(
-        address: AccountAddress,
-        rewards: [SubqueryRewardItemData]
-    ) -> Double {
-        let rewardsOfStash = rewards.filter { $0.stashAddress == address && $0.isReward }
-        let totalAmount = rewardsOfStash.reduce(Decimal(0)) { amount, info in
-            let decimal = Decimal.fromSubstrateAmount(
-                info.amount,
-                precision: Int16(asset.precision)
-            )
-            return amount + (decimal ?? 0.0)
-        }
-        return NSDecimalNumber(decimal: totalAmount).doubleValue
-    }
-
     private func findInactiveSegment(
         page: AnalyticsValidatorsPage,
         totalEras: Int,
@@ -307,4 +316,95 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             )
         )
     }
+}
+
+private extension AnalyticsValidatorsViewModelFactory {
+    func totalEras(in eraRange: EraRange) -> Int {
+        guard eraRange.end >= eraRange.start else {
+            return 1
+        }
+
+        return Int(UInt64(eraRange.end) - UInt64(eraRange.start) + 1)
+    }
+
+    private func createRewardAllocation(
+        validatorAddresses: [AccountAddress],
+        stashAddress: AccountAddress,
+        rewards: [SubqueryRewardItemData]
+    ) -> RewardAllocation {
+        guard
+            let precision = Int16(exactly: asset.precision),
+            !validatorAddresses.isEmpty
+        else {
+            return .empty
+        }
+
+        let validatorAddressSet = Set(validatorAddresses)
+        var seenEventIds = Set<String>()
+        var substrateAmountsByValidator = [AccountAddress: BigUInt]()
+
+        for reward in rewards {
+            let eventId = reward.eventId.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard
+                reward.isReward,
+                reward.stashAddress == stashAddress,
+                validatorAddressSet.contains(reward.validatorAddress),
+                !eventId.isEmpty,
+                seenEventIds.insert(eventId).inserted
+            else {
+                continue
+            }
+
+            substrateAmountsByValidator[reward.validatorAddress, default: .zero] += reward.amount
+        }
+
+        let totalSubstrateAmount = substrateAmountsByValidator.values.reduce(BigUInt.zero, +)
+        guard
+            let totalAmount = Decimal.fromSubstrateAmount(totalSubstrateAmount, precision: precision),
+            isValidAmount(totalAmount)
+        else {
+            return .empty
+        }
+
+        var amountsByValidator = [AccountAddress: Decimal]()
+        for (address, amount) in substrateAmountsByValidator {
+            guard
+                let decimalAmount = Decimal.fromSubstrateAmount(amount, precision: precision),
+                isValidAmount(decimalAmount)
+            else {
+                return .empty
+            }
+            amountsByValidator[address] = decimalAmount
+        }
+
+        return RewardAllocation(amountsByValidator: amountsByValidator, totalAmount: totalAmount)
+    }
+
+    func finiteDouble(from amount: Decimal) -> Double {
+        let value = NSDecimalNumber(decimal: amount).doubleValue
+        return value.isFinite && value >= 0.0 ? value : 0.0
+    }
+
+    func isValidAmount(_ amount: Decimal) -> Bool {
+        let value = NSDecimalNumber(decimal: amount).doubleValue
+        return value.isFinite && value >= 0.0
+    }
+
+    func rewardShare(amount: Decimal, totalAmount: Decimal) -> Double {
+        guard totalAmount > .zero else {
+            return 0.0
+        }
+
+        let value = NSDecimalNumber(decimal: amount)
+            .dividing(by: NSDecimalNumber(decimal: totalAmount))
+            .doubleValue
+
+        guard value.isFinite else {
+            return 0.0
+        }
+
+        return min(max(value, 0.0), 1.0)
+    }
+
+    // swiftlint:disable:next file_length
 }

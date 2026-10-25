@@ -3,9 +3,7 @@ import SoraUI
 import SoraFoundation
 
 final class AccountExportPasswordViewController: UIViewController, ImportantViewProtocol {
-    private enum Constants {
-        static let bottomOffset: CGFloat = 8.0
-    }
+    private let errorBottomOffset: CGFloat = 8.0
 
     @IBOutlet private var scrollView: UIScrollView!
     @IBOutlet private var contentView: UIView!
@@ -18,6 +16,9 @@ final class AccountExportPasswordViewController: UIViewController, ImportantView
     @IBOutlet private var passwordInputEye: RoundedButton!
     @IBOutlet private var passwordConfirmEye: RoundedButton!
     private var errorView: ImageWithTitleView?
+    private var isExporting = false
+    private var displayedError: AccountExportPasswordError?
+    private var adaptiveLayout: AccountExportPasswordAdaptiveLayout?
 
     var presenter: AccountExportPasswordPresenterProtocol!
 
@@ -38,17 +39,49 @@ final class AccountExportPasswordViewController: UIViewController, ImportantView
 
         setupLocalization()
         setupTextFields()
+        setupAdaptiveLayout()
 
         updateNextButton()
 
         presenter.setup()
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        presenter.didAppearView()
+    }
+
+    override func willMove(toParent parent: UIViewController?) {
+        if parent == nil, isViewLoaded { presenter.willLeaveView() }
+        super.willMove(toParent: parent)
+    }
+
+    override func didMove(toParent parent: UIViewController?) {
+        super.didMove(toParent: parent)
+        if parent == nil, isViewLoaded { presenter.didLeaveView() }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if isMovingFromParent || isBeingDismissed || navigationController?.isBeingDismissed == true {
+            presenter.willLeaveView()
+            if let transitionCoordinator {
+                transitionCoordinator.animate(alongsideTransition: nil) { [weak self] context in
+                    self?.presenter.didFinishLeavingView(cancelled: context.isCancelled)
+                }
+            } else { presenter.didLeaveView() }
+        }
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
         if keyboardHandler == nil {
-            setupKeyboardHandler()
+            if adaptiveLayout != nil {
+                keyboardHandler = FearlessKeyboardHandler(with: self)
+            } else {
+                setupKeyboardHandler()
+            }
         }
     }
 
@@ -56,6 +89,38 @@ final class AccountExportPasswordViewController: UIViewController, ImportantView
         super.viewDidDisappear(animated)
 
         clearKeyboardHandler()
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        guard isViewLoaded,
+              previousTraitCollection?.preferredContentSizeCategory != traitCollection.preferredContentSizeCategory ||
+              previousTraitCollection?.legibilityWeight != traitCollection.legibilityWeight else { return }
+        refreshAdaptivePresentation()
+    }
+
+    private func setupAdaptiveLayout() {
+        guard FWAppearance.accountExportPasswordRestyled,
+              let password = passwordInputField as? AccountExportPasswordField,
+              let confirmation = passwordConfirmField as? AccountExportPasswordField else { return }
+        adaptiveLayout = AccountExportPasswordAdaptiveLayout(
+            root: view, scroll: scrollView, content: contentView, source: typeView, hint: hintLabel,
+            fields: [password, confirmation], action: actionButton, contentBottom: contentBottom
+        )
+        navigationItem.titleView = UIView()
+        refreshAdaptivePresentation()
+    }
+
+    private func refreshAdaptivePresentation() {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        adaptiveLayout?.refresh(
+            title: title,
+            source: typeView,
+            action: actionButton,
+            locale: locale,
+            traits: traitCollection
+        )
+        adaptiveLayout?.setError(displayedError?.toErrorContent(for: locale).message)
     }
 
     private func setupLocalization() {
@@ -84,6 +149,7 @@ final class AccountExportPasswordViewController: UIViewController, ImportantView
 
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale?.rLanguages)
+        refreshAdaptivePresentation()
     }
 
     private func setupTextFields() {
@@ -118,7 +184,7 @@ final class AccountExportPasswordViewController: UIViewController, ImportantView
         view.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
         view.bottomAnchor.constraint(
             equalTo: contentView.bottomAnchor,
-            constant: -Constants.bottomOffset
+            constant: -errorBottomOffset
         ).isActive = true
 
         errorView = view
@@ -127,6 +193,8 @@ final class AccountExportPasswordViewController: UIViewController, ImportantView
     }
 
     private func clearErrorView() {
+        displayedError = nil
+        adaptiveLayout?.setError(nil)
         errorView?.removeFromSuperview()
         errorView = nil
     }
@@ -135,9 +203,9 @@ final class AccountExportPasswordViewController: UIViewController, ImportantView
         let offset: CGFloat
 
         if let errorView = errorView {
-            offset = errorView.intrinsicContentSize.height + 2.0 * Constants.bottomOffset
+            offset = errorView.intrinsicContentSize.height + 2.0 * errorBottomOffset
         } else {
-            offset = Constants.bottomOffset
+            offset = errorBottomOffset
         }
 
         contentBottom.constant = offset
@@ -145,7 +213,7 @@ final class AccountExportPasswordViewController: UIViewController, ImportantView
     }
 
     private func updateNextButton() {
-        actionButton.set(enabled: inputCompleted)
+        actionButton.set(enabled: inputCompleted && !isExporting)
     }
 
     private func toggleSecurity(_ textField: UITextField, eyeButton: RoundedButton) {
@@ -167,7 +235,7 @@ final class AccountExportPasswordViewController: UIViewController, ImportantView
 
         updateNextButton()
 
-        if errorView != nil {
+        if errorView != nil || displayedError != nil {
             clearErrorView()
         }
     }
@@ -179,7 +247,7 @@ final class AccountExportPasswordViewController: UIViewController, ImportantView
 
         updateNextButton()
 
-        if errorView != nil {
+        if errorView != nil || displayedError != nil {
             clearErrorView()
         }
     }
@@ -198,6 +266,11 @@ final class AccountExportPasswordViewController: UIViewController, ImportantView
 }
 
 extension AccountExportPasswordViewController: AccountExportPasswordViewProtocol {
+    func setExporting(_ exporting: Bool) {
+        isExporting = exporting
+        updateNextButton()
+    }
+
     func setPasswordInputViewModel(_ viewModel: InputViewModelProtocol) {
         passwordInputViewModel = viewModel
         updateNextButton()
@@ -209,6 +282,11 @@ extension AccountExportPasswordViewController: AccountExportPasswordViewProtocol
     }
 
     func set(error: AccountExportPasswordError) {
+        displayedError = error
+        if let adaptiveLayout {
+            adaptiveLayout.setError(error.toErrorContent(for: localizationManager?.selectedLocale).message)
+            return
+        }
         if errorView == nil {
             setupErrorView()
         }
@@ -273,7 +351,11 @@ extension AccountExportPasswordViewController: KeyboardAdoptable {
         if contentInsets.bottom > 0.0 {
             let targetView: UIView?
 
-            if passwordInputField.isFirstResponder {
+            if adaptiveLayout != nil, passwordInputField.textField.isFirstResponder {
+                targetView = passwordInputField.textField
+            } else if adaptiveLayout != nil, passwordConfirmField.textField.isFirstResponder {
+                targetView = passwordConfirmField.textField
+            } else if passwordInputField.isFirstResponder {
                 targetView = passwordInputField
             } else if passwordConfirmField.isFirstResponder {
                 targetView = passwordConfirmField
@@ -299,5 +381,20 @@ extension AccountExportPasswordViewController: Localizable {
             setupLocalization()
             view.setNeedsLayout()
         }
+    }
+}
+
+extension AccountExportPasswordViewController: KeyboardHandlerDelegate {
+    func keyboardWillShow(notification: Notification) {
+        keyboardWillChangeFrame(notification: notification)
+    }
+
+    func keyboardWillHide(notification: Notification) {
+        keyboardWillChangeFrame(notification: notification)
+    }
+
+    func keyboardWillChangeFrame(notification: Notification) {
+        guard let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+        updateWhileKeyboardFrameChanging(frame.cgRectValue)
     }
 }

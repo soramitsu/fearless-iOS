@@ -1,7 +1,7 @@
 import UIKit
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    var window: UIWindow?
+    private lazy var retiredSoraCardDataCleanup = RetiredSoraCardDataCleanup()
 
     var isUnitTesting: Bool {
         ProcessInfo.processInfo.arguments.contains("-UNITTEST")
@@ -11,23 +11,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _: UIApplication,
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        FailClosedSecureUnarchiveFromDataTransformer.register()
+
         guard !isUnitTesting else { return true }
 
-        let rootWindow = FearlessWindow()
-        window = rootWindow
+        URLHandlingService.shared.setup(children: [
+            IrohaConnectURLHandler.shared, LegacyTonConnectURLHandler.shared, GoogleDriveBackupURLHandler.shared
+        ])
 
-        let presenter = RootPresenterFactory.createPresenter(with: rootWindow)
-        presenter.loadOnLaunch()
-
-        rootWindow.makeKeyAndVisible()
+        // Not part of startup: it never blocks or fails the wallet opening.
+        retiredSoraCardDataCleanup.runIfNeeded()
         return true
-    }
-
-    func application(
-        _: UIApplication,
-        open url: URL,
-        options _: [UIApplication.OpenURLOptionsKey: Any] = [:]
-    ) -> Bool {
-        URLHandlingService.shared.handle(url: url)
     }
 }

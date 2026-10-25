@@ -1,4 +1,5 @@
 import Foundation
+import SSFXCM
 import SoraFoundation
 import BigInt
 import SSFModels
@@ -8,24 +9,11 @@ enum BalanceType {
     case orml(balance: Decimal?, utilityBalance: Decimal?)
 }
 
-enum ExistentialDepositValidationParameters {
-    case utility(spendingAmount: Decimal?, totalAmount: Decimal?, minimumBalance: Decimal?)
-    case orml(minimumBalance: Decimal?, feeAndTip: Decimal?, utilityBalance: Decimal?)
-    case equilibrium(minimumBalance: Decimal?, totalBalance: Decimal?)
-
-    var minimumBalance: Decimal? {
-        switch self {
-        case let .utility(_, _, minimumBalance):
-            return minimumBalance
-        case let .orml(minimumBalance, _, _):
-            return minimumBalance
-        case let .equilibrium(minimumBalance, _):
-            return minimumBalance
-        }
-    }
-}
-
 class SendDataValidatingFactory: NSObject {
+    private lazy var xcmAmountInspector: AppXcmMinAmountInspector = {
+        AppXcmMinAmountInspectorImpl()
+    }()
+
     weak var view: (Localizable & ControllerBackedProtocol)?
     var basePresentable: BaseErrorPresentable
 
@@ -85,11 +73,14 @@ class SendDataValidatingFactory: NSObject {
     }
 
     func exsitentialDepositIsNotViolated(
-        parameters: ExistentialDepositValidationParameters,
-        locale: Locale,
+        spending: Decimal,
+        balance: Decimal,
+        minimumBalance: Decimal,
         chainAsset: ChainAsset,
+        locale: Locale,
         canProceedIfViolated: Bool = true,
         sendAllEnabled: Bool = false,
+        warningPresentable: BaseErrorPresentable? = nil,
         proceedAction: @escaping () -> Void,
         setMaxAction: @escaping () -> Void,
         cancelAction: @escaping () -> Void
@@ -99,17 +90,18 @@ class SendDataValidatingFactory: NSObject {
                 return
             }
 
+            guard let presentable = warningPresentable ?? self?.basePresentable else { return }
             let symbol = chainAsset.chain.utilityAssets().first?.symbolUppercased ?? chainAsset.asset.symbolUppercased
-            let existentianDepositValue = "\(parameters.minimumBalance ?? .zero) \(symbol)"
+            let existentianDepositValue = "\(minimumBalance) \(symbol)"
 
             if !canProceedIfViolated {
-                self?.basePresentable.presentExistentialDepositError(
+                presentable.presentExistentialDepositError(
                     existentianDepositValue: existentianDepositValue,
                     from: view,
                     locale: locale
                 )
             }
-            self?.basePresentable.presentExistentialDepositWarning(
+            presentable.presentExistentialDepositWarning(
                 existentianDepositValue: existentianDepositValue,
                 from: view,
                 proceedHandler: proceedAction,
@@ -124,51 +116,13 @@ class SendDataValidatingFactory: NSObject {
             if sendAllEnabled, canProceedIfViolated {
                 return true
             }
-            switch parameters {
-            case let .utility(spendingAmount, totalAmount, minimumBalance):
-                guard let spendingAmount = spendingAmount else {
-                    return true
-                }
-
-                if case .ormlChain = chainAsset.chainAssetType {
-                    return true
-                }
-
-                if
-                    let totalAmount = totalAmount,
-                    let minimumBalance = minimumBalance,
-                    totalAmount >= spendingAmount {
-                    return totalAmount - spendingAmount >= minimumBalance
-                } else {
-                    return false
-                }
-            case let .orml(minimumBalance, feeAndTip, utilityBalance):
-                guard minimumBalance ?? 0 > 0 else {
-                    return true
-                }
-                guard let feeAndTip = feeAndTip else {
-                    return true
-                }
-
-                if let utilityBalance = utilityBalance, let minimumBalance = minimumBalance {
-                    return utilityBalance - feeAndTip >= minimumBalance
-                } else {
-                    return false
-                }
-            case let .equilibrium(minimumBalance, totalBalance):
-                guard let minimumBalance = minimumBalance,
-                      let totalBalance = totalBalance
-                else {
-                    return false
-                }
-
-                return totalBalance > minimumBalance
-            }
+            return balance - spending >= minimumBalance
         })
     }
 
     func destinationExistentialDepositIsNotViolated(
-        parameters: ExistentialDepositValidationParameters,
+        willReceived: Decimal,
+        minimumBalance: Decimal,
         locale: Locale,
         chainAsset: ChainAsset
     ) -> DataValidating {
@@ -184,119 +138,59 @@ class SendDataValidatingFactory: NSObject {
                 return true
             }
 
-            switch parameters {
-            case let .utility(spendingAmount, totalAmount, minimumBalance):
-                guard let spendingAmount = spendingAmount else {
-                    return true
-                }
-
-                if case .ormlChain = chainAsset.chainAssetType {
-                    return true
-                }
-
-                if
-                    let totalAmount = totalAmount,
-                    let minimumBalance = minimumBalance,
-                    totalAmount >= spendingAmount {
-                    return totalAmount - spendingAmount >= minimumBalance
-                } else {
-                    return false
-                }
-            case let .orml(minimumBalance, feeAndTip, utilityBalance):
-                guard minimumBalance ?? 0 > 0 else {
-                    return true
-                }
-                guard let feeAndTip = feeAndTip else {
-                    return true
-                }
-
-                if let utilityBalance = utilityBalance, let minimumBalance = minimumBalance {
-                    return utilityBalance - feeAndTip >= minimumBalance
-                } else {
-                    return false
-                }
-            case let .equilibrium(minimumBalance, totalBalance):
-                guard let minimumBalance = minimumBalance,
-                      let totalBalance = totalBalance
-                else {
-                    return false
-                }
-
-                return totalBalance > minimumBalance
-            }
+            return willReceived >= minimumBalance
         })
     }
 
-    func soraBridgeViolated(
-        originCHainId: ChainModel.Id,
-        destChainId: ChainModel.Id?,
-        amount: Decimal,
+    /// The reviewed minimum of the exact origin asset and direction, in its base units. An unknown minimum or an
+    /// unreviewed route stops the transfer instead of passing unchecked.
+    func reviewedBridgeMinimumIsNotViolated(
+        amount: BigUInt?,
+        origin: ChainAsset,
+        destination: ChainModel?,
         locale: Locale
     ) -> DataValidating {
-        ErrorConditionViolation(onError: { [weak self] in
-            guard let view = self?.view else {
+        var failure: AppXcmMinAmountError = .ruleUnavailable
+        return ErrorConditionViolation(onError: { [weak self] in
+            guard let self, let view = self.view else {
                 return
             }
 
-            self?.basePresentable.presentSoraBridgeLowAmountError(
-                from: view,
-                originChainId: originCHainId,
-                locale: locale
-            )
-        }, preservesCondition: {
-            guard let destChainId = destChainId else {
+            switch failure {
+            case let .minAmountError(minimum):
+                self.basePresentable.presentSoraBridgeLowAmountError(
+                    from: view,
+                    locale: locale,
+                    assetAmount: minimum
+                )
+            case .ruleUnavailable:
+                (self.basePresentable as? SheetAlertPresentable)?.present(
+                    message: NSLocalizedString(
+                        "cross_chain.minimum_unavailable",
+                        value: "The reviewed minimum for this exact asset and direction is unavailable, so the transfer was not prepared.",
+                        comment: ""
+                    ),
+                    title: R.string.localizable.commonWarning(preferredLanguages: locale.rLanguages),
+                    closeAction: R.string.localizable.commonClose(preferredLanguages: locale.rLanguages),
+                    from: view,
+                    actions: []
+                )
+            }
+        }, preservesCondition: { [weak self] in
+            guard let self, let amount, let destination else {
+                failure = .ruleUnavailable
                 return false
             }
-            let originKnownChain = Chain(chainId: originCHainId)
-            let destKnownChain = Chain(chainId: destChainId)
-
-            switch (originKnownChain, destKnownChain) {
-            case (.kusama, .soraMain):
-                return amount >= 0.05
-            case (.polkadot, .soraMain), (.soraMain, .polkadot):
-                return amount >= 1.1
-            default:
+            do {
+                try self.xcmAmountInspector.inspectMin(amount: amount, origin: origin, destination: destination)
                 return true
+            } catch let error as AppXcmMinAmountError {
+                failure = error
+                return false
+            } catch {
+                failure = .ruleUnavailable
+                return false
             }
         })
-    }
-
-    func soraBridgeAmountLessFeeViolated(
-        originCHainId: ChainModel.Id,
-        destChainId: ChainModel.Id?,
-        amount: Decimal,
-        fee: Decimal?,
-        locale: Locale
-    ) -> DataValidating {
-        WarningConditionViolation { [weak self] delegate in
-            guard let view = self?.view else {
-                return
-            }
-            let title = R.string.localizable.commonWarning(preferredLanguages: locale.rLanguages)
-            let originKnownChain = Chain(chainId: originCHainId)?.rawValue ?? ""
-            let message = R.string.localizable.soraBridgeAmountLessFee(originKnownChain, preferredLanguages: locale.rLanguages)
-            self?.basePresentable.presentWarning(
-                for: title,
-                message: message,
-                action: { delegate.didCompleteWarningHandling() },
-                view: view,
-                locale: locale
-            )
-        } preservesCondition: {
-            guard let destChainId = destChainId, let fee = fee else {
-                return false
-            }
-            let originKnownChain = Chain(chainId: originCHainId)
-            let destKnownChain = Chain(chainId: destChainId)
-
-            switch (originKnownChain, destKnownChain) {
-            case (.soraMain, .kusama):
-                return amount > fee
-            case (.soraMain, .polkadot):
-                return amount > fee
-            default:
-                return true
-            }
-        }
     }
 }

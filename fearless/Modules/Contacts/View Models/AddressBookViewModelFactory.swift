@@ -1,4 +1,6 @@
 import Foundation
+import SSFModels
+import SoraKeystore
 
 protocol AddressBookViewModelFactoryProtocol {
     func buildCellViewModels(
@@ -15,6 +17,20 @@ struct ContactsTableSectionModel {
 }
 
 final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
+    private let accountScoreFetcher: AccountStatisticsFetching
+    private let chain: ChainModel
+    private let settings: SettingsManagerProtocol
+
+    init(
+        accountScoreFetcher: AccountStatisticsFetching,
+        chain: ChainModel,
+        settings: SettingsManagerProtocol
+    ) {
+        self.accountScoreFetcher = accountScoreFetcher
+        self.chain = chain
+        self.settings = settings
+    }
+
     func buildCellViewModels(
         savedContacts: [Contact],
         recentContacts: [ContactType],
@@ -22,9 +38,20 @@ final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
         locale: Locale
     ) -> [ContactsTableSectionModel] {
         let recentContactsViewModels = recentContacts.map { contactType in
-            ContactTableCellModel(
+
+            let accountScoreViewModel = AccountScoreViewModel(
+                fetcher: accountScoreFetcher,
+                address: contactType.address,
+                chain: chain,
+                settings: settings,
+                eventCenter: EventCenter.shared,
+                logger: Logger.shared
+            )
+
+            return ContactTableCellModel(
                 contactType: contactType,
-                delegate: cellsDelegate
+                delegate: cellsDelegate,
+                accountScoreViewModel: accountScoreViewModel
             )
         }
         let recentContactsSection = ContactsTableSectionModel(
@@ -43,7 +70,16 @@ final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
                 contact.name.first?.lowercased() == firstLetter.lowercased()
             }
             let cellModels = contacts.map { contact in
-                ContactTableCellModel(contactType: .saved(contact), delegate: cellsDelegate)
+                let accountScoreViewModel = AccountScoreViewModel(
+                    fetcher: accountScoreFetcher,
+                    address: contact.address,
+                    chain: chain,
+                    settings: settings,
+                    eventCenter: EventCenter.shared,
+                    logger: Logger.shared
+                )
+
+                return ContactTableCellModel(contactType: .saved(contact), delegate: cellsDelegate, accountScoreViewModel: accountScoreViewModel)
             }
             return ContactsTableSectionModel(name: String(firstLetter), cellViewModels: cellModels)
         }

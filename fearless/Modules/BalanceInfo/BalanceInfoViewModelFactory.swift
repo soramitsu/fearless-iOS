@@ -68,14 +68,29 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
                 infoButtonEnabled: infoButtonEnabled,
                 locale: locale
             )
+        case let .networkManagement(wallet):
+            guard let info = balances[wallet.metaId] else {
+                return zeroBalanceViewModel(
+                    balanceString: wallet.selectedCurrency.symbol + "0",
+                    infoButtonEnabled: false
+                )
+            }
+            balanceInfoViewModel = buildWalletBalance(
+                with: info,
+                locale: locale,
+                filteredPart: info.filteredPart
+            )
         }
 
         return balanceInfoViewModel
     }
 
+    /// The portfolio total, wallet-wide whatever the network filter, with the filtered
+    /// networks' part as "Showing {network} · {amount}" (portfolio contract §3).
     private func buildWalletBalance(
         with balanceInfo: WalletBalanceInfo,
-        locale: Locale
+        locale: Locale,
+        filteredPart: WalletBalanceFilteredPart? = nil
     ) -> BalanceInfoViewModel {
         let balanceTokenFormatterValue = tokenFormatter(
             for: balanceInfo.currency,
@@ -93,7 +108,10 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
         return BalanceInfoViewModel(
             dayChangeAttributedString: dayChangeAttributedString,
             balanceString: totalBalance,
-            infoButtonEnabled: false
+            infoButtonEnabled: false,
+            filteredPartString: filteredPart.flatMap {
+                filteredPartString($0, formatter: balanceTokenFormatterValue, locale: locale)
+            }
         )
     }
 
@@ -112,15 +130,17 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
             )
         }
 
+        // The asset's own change, also when the asset is hidden from the portfolio.
         let dayChangeAttributedString = getDayChangeAttributedString(
             currency: balanceInfo.currency,
-            dayChange: balanceInfo.dayChangePercent,
-            dayChangeValue: balanceInfo.dayChangeValue,
+            dayChange: balanceInfo.totalDayChangePercent,
+            dayChangeValue: balanceInfo.totalDayChangeValue,
             locale: locale
         )
 
         let displayInfo = chainAsset.asset.displayInfo
-        let assetFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo, usageCase: .listCrypto).value(for: locale)
+        let assetFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo, usageCase: .listCrypto)
+            .value(for: locale)
 
         let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
         guard
@@ -155,12 +175,13 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
             return zeroBalanceViewModel(balanceString: "0", infoButtonEnabled: infoButtonEnabled)
         }
         let displayInfo = chainAsset.asset.displayInfo
-        let assetFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo, usageCase: .listCrypto).value(for: locale)
+        let assetFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo, usageCase: .listCrypto)
+            .value(for: locale)
 
         let dayChangeAttributedString = getDayChangeAttributedString(
             currency: balanceInfo.currency,
-            dayChange: balanceInfo.dayChangePercent,
-            dayChangeValue: balanceInfo.dayChangeValue,
+            dayChange: balanceInfo.totalDayChangePercent,
+            dayChangeValue: balanceInfo.totalDayChangeValue,
             locale: locale
         )
 
@@ -256,5 +277,49 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
         }
 
         return priceWithChangeAttributed
+    }
+}
+
+private extension BalanceInfoViewModelFactory {
+    func filteredPartString(
+        _ filteredPart: WalletBalanceFilteredPart,
+        formatter: TokenFormatter,
+        locale: Locale
+    ) -> String? {
+        let networkName: String
+        switch filteredPart.filter {
+        case .all:
+            return nil
+        case .chain:
+            guard let name = filteredPart.networkName else {
+                return nil
+            }
+            networkName = name
+        case .popular:
+            networkName = R.string.localizable.networkManagementPopular(preferredLanguages: locale.rLanguages)
+        case .favourite:
+            networkName = R.string.localizable.networkManagmentFavourite(preferredLanguages: locale.rLanguages)
+        }
+
+        guard let amount = formatter.stringFromDecimal(filteredPart.fiatBalance) else {
+            return nil
+        }
+
+        if FWAppearance.walletHeaderRestyled {
+            return String(
+                format: PortfolioHeaderText.string("portfolio.header.showing_filtered", locale: locale),
+                networkName,
+                amount
+            )
+        }
+        return String(
+            format: NSLocalizedString(
+                "portfolio.header.showing_filtered",
+                value: "Showing %@ · %@",
+                comment: "Under the wallet-wide total: the selected networks and their part of it"
+            ),
+            networkName,
+            amount
+        )
     }
 }

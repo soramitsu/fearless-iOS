@@ -53,7 +53,7 @@ extension NftCollectionInteractor: NftCollectionInteractorInput {
                         nextId: nextTokenId
                     )
                     nextTokenId = nftBatch.nextTokenId
-                    let ids = nftBatch.nfts?.compactMap { $0.tokenId }
+
                     let availableNfts = nftBatch.nfts?.filter { collection.nfts?.contains($0) != true } ?? []
                     if let _ = collection.availableNfts {
                         collection.availableNfts?.append(contentsOf: availableNfts)

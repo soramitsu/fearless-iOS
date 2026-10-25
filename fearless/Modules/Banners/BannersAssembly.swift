@@ -3,23 +3,25 @@ import SoraFoundation
 import RobinHood
 
 final class BannersAssembly {
-    static func configureModule(output: BannersModuleOutput?) -> BannersModuleCreationResult? {
+    static func configureModule(
+        output: BannersModuleOutput?,
+        type: BannersModuleType,
+        wallet: MetaAccountModel?
+    ) -> BannersModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let walletProvider = UserDataStorageFacade.shared
-            .createStreamableProvider(
-                filter: NSPredicate.selectedMetaAccount(),
-                sortDescriptors: [],
-                mapper: AnyCoreDataMapper(ManagedMetaAccountMapper())
-            )
-
-        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
-        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
+        let walletProvider = AccountProviderFactory(
+            storageFacade: UserDataStorageFacade.shared,
+            operationManager: OperationManagerFacade.sharedManager,
+            logger: Logger.shared
+        ).createManagedMetaAccountProvider(
+            for: NSPredicate.selectedMetaAccount(),
+            sortDescriptors: []
+        )
 
         let interactor = BannersInteractor(
             walletProvider: walletProvider,
-            repository: accountRepository,
-            operationQueue: OperationQueue()
+            eventCenter: EventCenter.shared
         )
 
         let router = BannersRouter()
@@ -29,7 +31,9 @@ final class BannersAssembly {
             moduleOutput: output,
             interactor: interactor,
             router: router,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            type: type,
+            wallet: wallet
         )
 
         let view = BannersViewController(

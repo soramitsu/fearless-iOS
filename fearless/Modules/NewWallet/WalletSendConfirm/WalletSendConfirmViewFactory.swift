@@ -5,6 +5,7 @@ import SoraFoundation
 import SoraKeystore
 import SSFModels
 import RobinHood
+import SSFStorageQueryKit
 
 enum SendConfirmTransferCall {
     case transfer(Transfer)
@@ -24,13 +25,7 @@ enum SendConfirmTransferCall {
         case let .transfer(transfer):
             return transfer.receiver
         case let .xorlessTransfer(xorlessTransfer):
-            let bokoloId = String(data: xorlessTransfer.additionalData, encoding: .utf8)
-            if let bokoloAddress = bokoloId, bokoloAddress.isNotEmpty {
-                return bokoloAddress
-            } else if let receiver = try? AddressFactory.address(for: xorlessTransfer.receiver, chainFormat: .substrate(69)) {
-                return receiver
-            }
-            return ""
+            return (try? AddressFactory.address(for: xorlessTransfer.receiver, chainFormat: .substrate(69))) ?? ""
         }
     }
 
@@ -50,15 +45,16 @@ enum WalletSendConfirmViewFactory {
         chainAsset: ChainAsset,
         call: SendConfirmTransferCall,
         scamInfo: ScamInfo?,
-        feeViewModel: BalanceViewModelProtocol?
+        feeViewModel: BalanceViewModelProtocol?,
+        selection: SelectedWalletAuthority.Lease? = nil
     ) -> WalletSendConfirmViewProtocol? {
-        guard let interactor = createInteractor(
+        guard selection?.isCurrent ?? true else { return nil }
+        let interactor = createInteractor(
             wallet: wallet,
             chainAsset: chainAsset,
-            call: call
-        ) else {
-            return nil
-        }
+            call: call,
+            selection: selection
+        )
 
         let wireframe = WalletSendConfirmWireframe()
 
@@ -102,49 +98,36 @@ enum WalletSendConfirmViewFactory {
     private static func createInteractor(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        call: SendConfirmTransferCall
-    ) -> WalletSendConfirmInteractor? {
-        guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
-            return nil
-        }
-
+        call: SendConfirmTransferCall,
+        selection: SelectedWalletAuthority.Lease?
+    ) -> WalletSendConfirmInteractor {
         let operationManager = OperationManagerFacade.sharedManager
-
-        let feeProxy = ExtrinsicFeeProxy()
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        guard let accountResponse = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest()) else {
-            return nil
-        }
-
-        let keystore = Keychain()
-        let signingWrapper = SigningWrapper(
-            keystore: keystore,
-            metaId: selectedMetaAccount.metaId,
-            accountResponse: accountResponse
-        )
         let dependencyContainer = SendDepencyContainer(
             wallet: wallet,
             operationManager: operationManager
         )
-        let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
+        let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
+            chainRegistry: ChainRegistryFacade.sharedRegistry
+        )
+        let accountInfoRemoteService = AccountInfoRemoteServiceDefault(
+            bitcoinBalanceSync: BitcoinBalanceSync(
+                discovery: BitcoinReceiveDiscovery(client: BitcoinFailoverIndexerClient())
+            ),
+            solanaBalanceSync: SolanaRpcBalanceSync.mainnet,
+            storagePerformer: storagePerformer
+        )
         return WalletSendConfirmInteractor(
-            selectedMetaAccount: selectedMetaAccount,
+            selectedMetaAccount: wallet,
             chainAsset: chainAsset,
             call: call,
-            feeProxy: feeProxy,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
-                selectedMetaAccount: selectedMetaAccount
+                selectedMetaAccount: wallet
             ),
-            priceLocalSubscriber: priceLocalSubscriber,
-            operationManager: operationManager,
-            signingWrapper: signingWrapper,
             dependencyContainer: dependencyContainer,
             wallet: wallet,
-            runtimeItemRepository: AnyDataProviderRepository(runtimeMetadataRepository),
-            operationQueue: OperationQueue()
+            accountInfoRemoteService: accountInfoRemoteService,
+            selection: selection
         )
     }
 }

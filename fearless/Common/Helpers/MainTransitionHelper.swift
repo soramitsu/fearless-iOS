@@ -3,7 +3,7 @@ import SoraUI
 
 struct MainTransitionHelper {
     static func transitToMainTabBarController(
-        selectingIndex: Int = MainTabBarViewFactory.walletIndex,
+        selectingIndex: Int = MainTabBarDestination.portfolio.rawValue,
         closing controller: UIViewController,
         animated: Bool,
         completionBlock: ((Bool) -> Void)? = nil
@@ -12,8 +12,7 @@ struct MainTransitionHelper {
             presentingController.dismiss(animated: animated, completion: nil)
         }
 
-        guard let tabBarController = UIApplication.shared
-            .delegate?.window??.rootViewController as? UITabBarController
+        guard let tabBarController = SceneWindowFinder.activeWindow()?.rootViewController as? UITabBarController
         else {
             return
         }

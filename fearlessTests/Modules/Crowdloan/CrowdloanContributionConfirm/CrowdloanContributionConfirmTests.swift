@@ -1,7 +1,9 @@
 import XCTest
 @testable import fearless
 import SoraKeystore
+#if canImport(CommonWallet)
 import CommonWallet
+#endif
 import RobinHood
 import SoraFoundation
 import SSFUtils
@@ -241,7 +243,6 @@ class CrowdloanContributionConfirmTests: XCTestCase {
 //            extrinsicService: extrinsicService,
 //            crowdloanLocalSubscriptionFactory: crowdloanSubscriptionFactory,
 //            walletLocalSubscriptionFactory: walletSubscriptionFactory,
-//            priceLocalSubscriber: priceProviderFactory,
 //            jsonLocalSubscriptionFactory: jsonProviderFactory,
 //            signingWrapper: signingWrapper,
 //            bonusService: nil,

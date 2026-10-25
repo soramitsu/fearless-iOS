@@ -28,11 +28,42 @@ final class NetworkFeeView: UIView {
     let activityIndicator: UIActivityIndicatorView = {
         let view = UIActivityIndicatorView()
         view.hidesWhenStopped = true
-        view.style = .white
+        view.style = .medium
         return view
     }()
 
     private(set) var fiatLabel: UILabel?
+    private var presentationLocale: Locale?
+    private var presentationTraits: UITraitCollection?
+
+    func configureSendPresentation(locale: Locale, traits: UITraitCollection) {
+        presentationLocale = locale
+        presentationTraits = traits
+        titleLabel.font = .fw(.bodyS, locale: locale, compatibleWith: traits)
+        tokenLabel.font = .fw(.numberL, locale: locale, compatibleWith: traits)
+        fiatLabel?.font = .fw(.numberM, locale: locale, compatibleWith: traits)
+        [titleLabel, tokenLabel, fiatLabel].compactMap { $0 }.forEach {
+            $0.numberOfLines = 0
+            $0.lineBreakMode = .byCharWrapping
+            $0.setContentCompressionResistancePriority(.required, for: .vertical)
+        }
+        titleLabel.snp.remakeConstraints { $0.leading.trailing.top.equalToSuperview() }
+        tokenLabel.snp.remakeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.top.equalTo(titleLabel.snp.bottom).offset(8)
+            make.height.greaterThanOrEqualTo(ceil(tokenLabel.font.lineHeight))
+            if fiatLabel == nil { make.bottom.equalToSuperview() }
+        }
+        fiatLabel?.snp.remakeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(tokenLabel.snp.bottom).offset(6)
+        }
+        activityIndicator.snp.remakeConstraints { make in
+            make.trailing.equalToSuperview()
+            make.centerY.equalTo(tokenLabel)
+        }
+        setNeedsLayout()
+    }
 
     var locale = Locale.current {
         didSet {
@@ -145,6 +176,9 @@ final class NetworkFeeView: UIView {
             removeFiatLabelIfNeeded()
         }
 
+        if let presentationLocale, let presentationTraits {
+            configureSendPresentation(locale: presentationLocale, traits: presentationTraits)
+        }
         setNeedsLayout()
     }
 }

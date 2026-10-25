@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 import SSFUtils
 
 struct Nomination: Codable, Equatable {
@@ -17,7 +18,7 @@ struct Nomination: Codable, Equatable {
             targets = try container.decode([Data].self, forKey: .targets)
         } catch {
             let targetsHex = try container.decode([String].self, forKey: .targets)
-            targets = targetsHex.compactMap { Data(hex: $0) }
+            targets = targetsHex.compactMap { try? Data(hexStringSSF: $0) }
         }
 
         submittedIn = try container.decode(StringScaleMapper<UInt32>.self, forKey: .submittedIn).value

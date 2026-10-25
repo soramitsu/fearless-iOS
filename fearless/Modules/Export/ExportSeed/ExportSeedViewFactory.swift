@@ -1,7 +1,7 @@
 import Foundation
-import SoraKeystore
 import RobinHood
 import SoraFoundation
+import SoraKeystore
 
 final class ExportSeedViewFactory: ExportSeedViewFactoryProtocol {
     static func createViewForAddress(flow: ExportFlow) -> ExportGenericViewProtocol? {
@@ -21,15 +21,14 @@ final class ExportSeedViewFactory: ExportSeedViewFactoryProtocol {
         )
 
         let keychain = Keychain()
-        let repository = AccountRepositoryFactory.createRepository()
 
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
         let interactor = ExportSeedInteractor(
-            keystore: keychain,
-            accountRepository: AnyDataProviderRepository(repository),
+            seedReader: VerifiedSeedExportReader(keystore: keychain),
+            backupMarker: SelectedWalletSettings.shared,
             operationManager: OperationManagerFacade.sharedManager,
             chainRepository: AnyDataProviderRepository(chainRepository),
             eventCenter: EventCenter.shared

@@ -32,12 +32,25 @@ enum ShimmeredLabelState: Hashable {
     }
 }
 
-final class ShimmeredLabel: UILabel, ShimmeredProtocol {
+final class ShimmeredLabel: SkeletonLabel, ShimmeredProtocol {
     private var state: ShimmeredLabelState?
 
     // MARK: - Public methods
 
-    func apply(state: ShimmeredLabelState) {
+    init() {
+        super.init(skeletonSize: .zero)
+    }
+
+    override init(skeletonSize: CGSize) {
+        super.init(skeletonSize: skeletonSize)
+    }
+
+    func apply(state: ShimmeredLabelState?) {
+        guard let state else {
+            updateTextWithLoading(nil)
+            return
+        }
+
         self.state = state
         switch state {
         case .stopShimmering:

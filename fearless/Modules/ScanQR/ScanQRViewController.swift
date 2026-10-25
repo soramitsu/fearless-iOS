@@ -155,9 +155,11 @@ extension ScanQRViewController: ScanQRViewInput {
     }
 
     func present(message: String, animated _: Bool) {
-        rootView.messageLabel.text = message
-        rootView.messageLabel.alpha = 1.0
-        scheduleMessageHide()
+        DispatchQueue.main.async {
+            self.rootView.messageLabel.text = message
+            self.rootView.messageLabel.alpha = 1.0
+            self.scheduleMessageHide()
+        }
     }
 }
 

@@ -41,6 +41,11 @@ extension AboutPresenter: AboutPresenterProtocol {
         show(url: url)
     }
 
+    func activateFontLicenses() {
+        guard let view else { return }
+        wireframe.showFontLicenses(from: view, locale: selectedLocale)
+    }
+
     func activateWriteUs() {
         if let view = view {
             let message = SocialMessage(

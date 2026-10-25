@@ -32,20 +32,28 @@ final class NetworkManagmentInteractor {
         self.eventCenter = eventCenter
     }
 
+    deinit {
+        eventCenter.remove(observer: self)
+    }
+
     private func fetchChains() {
         if let chainModels = chainModels {
             handleChains(result: .success(chainModels))
             return
         }
-        let fetchOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
-
-        fetchOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                self?.handleChains(result: fetchOperation.result)
+        Task { [weak self] in
+            guard let self else { return }
+            let result: Result<[ChainModel], Error>
+            do {
+                let chains = try await chainRepository.fetchAllAsync()
+                result = .success(chains)
+            } catch {
+                result = .failure(error)
+            }
+            await MainActor.run { [weak self] in
+                self?.handleChains(result: result)
             }
         }
-
-        operationQueue.addOperation(fetchOperation)
     }
 
     private func handleChains(result: Result<[ChainModel], Error>?) {
@@ -102,6 +110,25 @@ extension NetworkManagmentInteractor: NetworkManagmentInteractorInput {
 
     func setup(with output: NetworkManagmentInteractorOutput) {
         self.output = output
+        eventCenter.add(observer: self, dispatchIn: .main)
+        fetchChains()
+    }
+}
+
+extension NetworkManagmentInteractor: EventVisitorProtocol {
+    func processChainsUpdated(event _: ChainsUpdatedEvent) {
+        guard chainModels == nil else {
+            return
+        }
+
+        fetchChains()
+    }
+
+    func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
+        guard chainModels == nil else {
+            return
+        }
+
         fetchChains()
     }
 }

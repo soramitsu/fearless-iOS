@@ -18,7 +18,7 @@ extension ApplicationSettingsPresentable {
         var currentController = view?.controller
 
         if currentController == nil {
-            currentController = UIApplication.shared.delegate?.window??.rootViewController
+            currentController = SceneWindowFinder.activeWindow()?.rootViewController
         }
 
         guard let controller = currentController else {

@@ -7,9 +7,10 @@ extension AssetTransactionData {
     static func createTransaction(
         from item: AlchemyHistoryElement,
         address: String
-    ) -> AssetTransactionData {
-        let peerAddress = item.from == address ? item.to : item.from
-        let type = item.from == address ? TransactionType.outgoing :
+    ) -> AssetTransactionData? {
+        guard let value = item.value, let asset = item.asset else { return nil }
+        let peerAddress = item.from.lowercased() == address.lowercased() ? (item.to ?? "") : item.from
+        let type = item.from.lowercased() == address.lowercased() ? TransactionType.outgoing :
             TransactionType.incoming
 
         let timestamp: Int64 = {
@@ -25,15 +26,15 @@ extension AssetTransactionData {
         }()
 
         return AssetTransactionData(
-            transactionId: item.uniqueId,
+            transactionId: item.hash,
             status: .commited,
-            assetId: item.asset,
+            assetId: asset,
             peerId: "",
             peerFirstName: nil,
             peerLastName: nil,
             peerName: peerAddress,
             details: "",
-            amount: AmountDecimal(value: item.value),
+            amount: AmountDecimal(value: value),
             fees: [],
             timestamp: timestamp,
             type: type.rawValue,

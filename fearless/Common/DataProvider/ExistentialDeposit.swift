@@ -41,35 +41,8 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
             return
         }
 
-        if
-            let existentialDeposit = chainAsset.asset.existentialDeposit,
-            let result = BigUInt(string: existentialDeposit) {
-            completion(.success(result))
-            return
-        }
-
         switch chainAsset.chainAssetType {
-        case .normal, .ormlChain, .soraAsset:
-            fetchConstant(
-                for: .existentialDeposit,
-                runtimeCodingService: runtimeService,
-                operationManager: operationManager
-            ) { result in
-                completion(result)
-            }
-        case
-            .ormlAsset,
-            .foreignAsset,
-            .stableAssetPoolToken,
-            .liquidCrowdloan,
-            .vToken,
-            .vsToken,
-            .stable,
-            .assetId,
-            .token2,
-            .xcm:
-            fetchSubAssetsExistentialDeposit(chainAsset: chainAsset, completion: completion)
-        case .equilibrium:
+        case .equilibrium?:
             fetchConstant(
                 for: .equilibriumExistentialDeposit,
                 runtimeCodingService: runtimeService,
@@ -77,10 +50,14 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
             ) { result in
                 completion(result)
             }
-        case .assets:
-            fetchAssetsExistentialDeposit(chainAsset: chainAsset, completion: completion)
-        case .none:
-            break
+        default:
+            fetchConstant(
+                for: .existentialDeposit,
+                runtimeCodingService: runtimeService,
+                operationManager: operationManager
+            ) { result in
+                completion(result)
+            }
         }
     }
 
@@ -138,7 +115,7 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
             return
         }
         guard let currencyId = chainAsset.asset.currencyId else {
-            completion(.failure(ConvenienceError(error: "missing currency id \(chainAsset.debugName)")))
+            completion(.failure(ChainRegistryError.runtimeMetadaUnavailable))
             return
         }
         let assetsDetailsPath = StorageCodingPath.assetsAssetDetail

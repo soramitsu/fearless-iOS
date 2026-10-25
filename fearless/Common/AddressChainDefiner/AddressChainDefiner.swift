@@ -1,7 +1,7 @@
 import RobinHood
 import SSFModels
 
-enum AddressValidationResult {
+enum AddressValidationResult: Equatable {
     case valid(String)
     case sameAddress(String)
     case invalid(String?)
@@ -35,8 +35,6 @@ final class AddressChainDefiner {
     private let chainModelRepository: AnyDataProviderRepository<ChainModel>
     private let wallet: MetaAccountModel
 
-    var chains: [ChainModel]?
-
     init(
         operationManager: OperationManagerProtocol,
         chainModelRepository: AnyDataProviderRepository<ChainModel>,
@@ -56,6 +54,9 @@ final class AddressChainDefiner {
                 let chains = try? fetchOperation.extractNoCancellableResultData()
                 let posssibleChains = chains?.filter { [weak self, address] chain in
                     guard let strongSelf = self else { return false }
+                    guard strongSelf.chainIsEnabled(chain: chain) else {
+                        return false
+                    }
                     return strongSelf.validate(address: address, for: chain).isValidOrSame
                 }
                 continuation.resume(returning: posssibleChains)
@@ -64,12 +65,89 @@ final class AddressChainDefiner {
     }
 
     func validate(address: String?, for chain: ChainModel) -> AddressValidationResult {
-        guard let address = address, address.isNotEmpty, let accoundId = (try? AddressFactory.accountId(from: address, chain: chain)) else {
+        guard let address = address, address.isNotEmpty else {
+            return .invalid(address)
+        }
+
+        if let universalResult = Self.validateUniversalAddress(
+            address,
+            for: chain,
+            wallet: wallet
+        ) {
+            return universalResult
+        }
+
+        guard let accoundId = try? AddressFactory.accountId(from: address, chain: chain) else {
             return .invalid(address)
         }
         if accoundId == wallet.substrateAccountId || accoundId == wallet.ethereumAddress {
             return .sameAddress(address)
         }
         return .valid(address)
+    }
+
+    static func validateUniversalAddress(
+        _ address: String,
+        for chain: ChainModel,
+        wallet: MetaAccountModel
+    ) -> AddressValidationResult? {
+        if UniversalWalletRegistry.solanaNetwork(for: chain.chainId) != nil {
+            return validateSolanaAddress(address, for: chain, wallet: wallet)
+        }
+
+        let network: BitcoinKeyDerivation.Network
+        switch chain.chainId.lowercased() {
+        case UniversalWalletRegistry.bitcoinMainnet.chainId,
+             UniversalWalletRegistry.bitcoinMainnet.id:
+            network = .mainnet
+        case UniversalWalletRegistry.bitcoinTestnet.chainId,
+             UniversalWalletRegistry.bitcoinTestnet.id:
+            network = .testnet
+        default:
+            return nil
+        }
+
+        // Any address type the wallet can pay (1…, 3…, bc1q…, bc1p…), on this network only.
+        guard let normalizedAddress = BitcoinAddressSupport.recipient(address, network: network)?.address else {
+            return .invalid(address)
+        }
+
+        let ownAddress = UniversalWalletAccountAddressResolver.address(
+            for: chain,
+            wallet: wallet
+        )
+        if ownAddress?.caseInsensitiveCompare(normalizedAddress) == .orderedSame {
+            return .sameAddress(normalizedAddress)
+        }
+
+        return .valid(normalizedAddress)
+    }
+
+    /// A Solana recipient is a base58 key of 32 bytes. Whether that key may receive this
+    /// transfer (a wallet, not a token account or a program) is checked on the chain before
+    /// anything is signed.
+    private static func validateSolanaAddress(
+        _ address: String,
+        for chain: ChainModel,
+        wallet: MetaAccountModel
+    ) -> AddressValidationResult {
+        guard let key = try? SolanaTransferTransactionBuilder.normalizeRecipientAddress(address) else {
+            return .invalid(address)
+        }
+        if UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet) == key {
+            return .sameAddress(key)
+        }
+        return .valid(key)
+    }
+
+    private func chainIsEnabled(chain: ChainModel) -> Bool {
+        let chainAssets = chain.chainAssets
+        let enabled = chainAssets.filter { chainAsset in
+            AssetVisibilityPreferenceStore.isSelectable(
+                walletId: wallet.metaId,
+                chainAsset: chainAsset
+            )
+        }
+        return enabled.isNotEmpty
     }
 }

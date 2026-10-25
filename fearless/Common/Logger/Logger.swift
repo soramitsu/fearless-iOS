@@ -124,10 +124,36 @@ extension Logger: LoggerProtocol {
     func customError(error: Error, file: String, function: String, line: Int) {
         log.custom(
             level: .error,
-            message: "\(error)",
+            message: error.logSafeDescription,
             file: file,
             function: function,
             line: line
+        )
+    }
+}
+
+extension Error {
+    /// This error for a log line. A node URL can carry an API key in its path, and URLError
+    /// keeps the URL it failed on in its user info, so a URLError is reduced to its code and
+    /// every other URL in the description is replaced.
+    var logSafeDescription: String {
+        LogRedaction.description(of: self)
+    }
+}
+
+enum LogRedaction {
+    static func description(of error: Error) -> String {
+        if let urlError = error as? URLError {
+            return "URLError(\(urlError.code.rawValue))"
+        }
+        return redactingURLs(in: String(describing: error))
+    }
+
+    static func redactingURLs(in text: String) -> String {
+        text.replacingOccurrences(
+            of: #"[A-Za-z][A-Za-z0-9+.\-]*://[^\s"'<>]+"#,
+            with: "<url>",
+            options: .regularExpression
         )
     }
 }

@@ -20,6 +20,7 @@ enum AboutRow: CaseIterable {
     case email
     case terms
     case privacy
+    case fontLicenses
 }
 
 final class AboutViewModelFactory: AboutViewModelFactoryProtocol {
@@ -29,11 +30,11 @@ final class AboutViewModelFactory: AboutViewModelFactoryProtocol {
         self.about = about
     }
 
-    // swiftlint:disable cyclomatic_complexity function_body_length
+    // swiftlint:disable:next cyclomatic_complexity function_body_length
     func createAboutItemViewModels(locale: Locale) -> [AboutViewModel] {
         let rLanguages = locale.rLanguages
 
-        let aboutViewModels = AboutRow.allCases.map { aboutRow -> AboutViewModel in
+        return AboutRow.allCases.map { aboutRow -> AboutViewModel in
             switch aboutRow {
             case .web:
                 return createAboutItem(
@@ -132,6 +133,13 @@ final class AboutViewModelFactory: AboutViewModelFactoryProtocol {
                     icon: R.image.iconCheckMark(),
                     url: about.legal.termsUrl
                 )
+            case .fontLicenses:
+                return AboutViewModel(
+                    title: R.string.localizable.aboutFontLicenses(preferredLanguages: rLanguages),
+                    subtitle: "Sora · JetBrains Mono",
+                    icon: R.image.iconCheckMark(),
+                    action: .fontLicenses
+                )
             case .privacy:
                 return createAboutItem(
                     title: R.string.localizable
@@ -142,8 +150,6 @@ final class AboutViewModelFactory: AboutViewModelFactoryProtocol {
                 )
             }
         }
-
-        return aboutViewModels
     }
 
     private func createAboutItem(
@@ -152,7 +158,8 @@ final class AboutViewModelFactory: AboutViewModelFactoryProtocol {
         icon: UIImage?,
         url: URL?
     ) -> AboutViewModel {
-        AboutViewModel(title: title, subtitle: subtitle, icon: icon, url: url)
+        let action = url.map(AboutViewModel.Action.website) ?? .email
+        return AboutViewModel(title: title, subtitle: subtitle, icon: icon, action: action)
     }
 
     private func createSubtitle(from url: URL) -> String? {

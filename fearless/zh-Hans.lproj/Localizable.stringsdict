@@ -75,7 +75,7 @@
         <string>%li时间段</string>
       </dict>
     </dict>
-    <key>verification.rejected.screen.attempts.left</key>
+    <key>wallet.records.notice.wallets</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@format@</string>
@@ -85,8 +85,58 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string>%li 个已存储的钱包无法显示</string>
         <key>other</key>
-        <string>您还有%li次免费的KYC尝试</string>
+        <string>%li 个已存储的钱包无法显示</string>
+      </dict>
+    </dict>
+    <key>wallet.records.notice.accounts</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li 个网络账户无法使用</string>
+        <key>other</key>
+        <string>%li 个网络账户无法使用</string>
+      </dict>
+    </dict>
+    <key>wallet.records.sheet.wallets</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>此设备上存储的 %li 个钱包无法在此版本的 Fearless 中显示。</string>
+        <key>other</key>
+        <string>此设备上存储的 %li 个钱包无法在此版本的 Fearless 中显示。</string>
+      </dict>
+    </dict>
+    <key>wallet.records.sheet.accounts</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li 个存储在你钱包中的网络账户无法使用。该账户所属的钱包仍可使用，并会在该网络上使用钱包自身的账户。</string>
+        <key>other</key>
+        <string>%li 个存储在你钱包中的网络账户无法使用。这些账户所属的钱包仍可使用，并会在相应网络上使用各钱包自身的账户。</string>
       </dict>
     </dict>
   </dict>

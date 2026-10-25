@@ -4,7 +4,9 @@ import SoraKeystore
 import RobinHood
 import SSFUtils
 import SSFModels
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewFactoryProtocol {
     static func createView(
@@ -23,8 +25,6 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
             flow: flow,
             dataValidatingFactory: dataValidatingFactory
         ), let interactor = createInteractor(
-            chainAsset: chainAsset,
-            wallet: wallet,
             container: container
         ) else {
             return nil
@@ -61,7 +61,6 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
     ) -> StakingRedeemConfirmationPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-
             selectedMetaAccount: wallet
         )
 
@@ -73,23 +72,15 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
             viewModelState: container.viewModelState,
             dataValidatingFactory: dataValidatingFactory,
             chainAsset: chainAsset,
+            wallet: wallet,
             logger: Logger.shared
         )
     }
 
     private static func createInteractor(
-        chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
         container: StakingRedeemConfirmationDependencyContainer
     ) -> StakingRedeemConfirmationInteractor? {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
-
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        return StakingRedeemConfirmationInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
-            chainAsset: chainAsset,
-            wallet: wallet,
+        StakingRedeemConfirmationInteractor(
             strategy: container.strategy
         )
     }
@@ -147,15 +138,7 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
             storageRequestFactory: storageOperationFactory
         )
 
-        let facade = UserDataStorageFacade.shared
-
-        let mapper = MetaAccountMapper()
-
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -191,7 +174,7 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
                 engine: connection,
                 operationManager: operationManager,
                 keystore: Keychain(),
-                accountRepository: AnyDataProviderRepository(accountRepository)
+                accountRepository: accountRepository
             )
             let viewModelFactory = StakingRedeemConfirmationRelaychainViewModelFactory(
                 asset: chainAsset.asset,

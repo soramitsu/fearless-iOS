@@ -11,6 +11,7 @@ final class MainTabBarInteractor {
     private let eventCenter: EventCenterProtocol
     private let keystoreImportService: KeystoreImportServiceProtocol
     private let serviceCoordinator: ServiceCoordinatorProtocol
+    private let selectedWalletProvider: () -> MetaAccountModel?
 
     deinit {
         stopServices()
@@ -19,13 +20,15 @@ final class MainTabBarInteractor {
     init(
         eventCenter: EventCenterProtocol,
         serviceCoordinator: ServiceCoordinatorProtocol,
-        keystoreImportService: KeystoreImportServiceProtocol
+        keystoreImportService: KeystoreImportServiceProtocol,
+        selectedWalletProvider: @escaping () -> MetaAccountModel? = {
+            SelectedWalletSettings.shared.value
+        }
     ) {
         self.eventCenter = eventCenter
         self.keystoreImportService = keystoreImportService
         self.serviceCoordinator = serviceCoordinator
-
-        startServices()
+        self.selectedWalletProvider = selectedWalletProvider
     }
 
     private func startServices() {
@@ -35,6 +38,12 @@ final class MainTabBarInteractor {
     private func stopServices() {
         serviceCoordinator.throttle()
     }
+
+    private func requestPolkaswapRecovery() {
+        DispatchQueue.main.async { [weak self] in
+            self?.presenter?.didPrepareChains()
+        }
+    }
 }
 
 extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
@@ -43,19 +52,56 @@ extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
 
         eventCenter.add(observer: self, dispatchIn: nil)
         keystoreImportService.add(observer: self)
+        startServices()
 
         if keystoreImportService.definition != nil {
             presenter?.didRequestImportAccount()
         }
+        if let marketId = PolkamarktDeepLinkHandler.consumePending() {
+            presenter?.didRequestPolkamarkt(marketId: marketId)
+        }
+
+        presenter?.didPrepareChains()
     }
 }
 
 extension MainTabBarInteractor: EventVisitorProtocol {
-    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        guard selectedWalletProvider()?.metaId == event.account.metaId else {
+            return
+        }
+        DispatchQueue.main.async { [weak self] in
+            guard self?.selectedWalletProvider()?.metaId == event.account.metaId else {
+                return
+            }
+            self?.presenter?.didChangeSelectedAccount(event.account)
+        }
+    }
+
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
         serviceCoordinator.updateOnAccountChange()
         DispatchQueue.main.async {
-            self.presenter?.didReloadSelectedAccount()
+            self.presenter?.didChangeSelectedAccount(event.account)
         }
+    }
+
+    func processPolkamarktDeepLinkRequested(event: PolkamarktDeepLinkRequested) {
+        _ = PolkamarktDeepLinkHandler.consumePending()
+        DispatchQueue.main.async {
+            self.presenter?.didRequestPolkamarkt(marketId: event.marketId)
+        }
+    }
+
+    func processChainsSetupCompleted() {
+        requestPolkaswapRecovery()
+    }
+
+    func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
+        requestPolkaswapRecovery()
+    }
+
+    func processChainsUpdated(event _: ChainsUpdatedEvent) {
+        requestPolkaswapRecovery()
     }
 }
 

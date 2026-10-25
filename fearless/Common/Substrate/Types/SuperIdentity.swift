@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 import SSFUtils
 
 struct SuperIdentity: Codable {
@@ -20,7 +21,7 @@ struct SuperIdentity: Codable {
             parentAccountId = try container.decode(Data.self)
         } catch {
             let parentAccountIdString = try container.decode(String.self)
-            parentAccountId = Data(hex: parentAccountIdString)
+            parentAccountId = try Data(hexStringSSF: parentAccountIdString)
         }
         data = try container.decode(ChainData.self)
     }

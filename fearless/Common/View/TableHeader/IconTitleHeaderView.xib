@@ -20,7 +20,7 @@
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="string" keyPath="title" value="WESTEND"/>
                         <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconWestendSmallBg"/>
-                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Bold"/>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="Sora-Bold"/>
                         <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
                             <real key="value" value="10"/>
                         </userDefinedRuntimeAttribute>

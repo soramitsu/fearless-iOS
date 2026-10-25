@@ -16,6 +16,9 @@ final class WalletDetailsInteractor {
     private let eventCenter: EventCenterProtocol
     private let repository: AnyDataProviderRepository<MetaAccountModel>
     private let availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
+    private let walletRecordsInspector: StoredWalletRecordsInspecting
+    private let walletRecordsNoticeTracker: StoredWalletRecordsNoticeTracking
+    private let selectedWalletSettings: SelectedWalletSettings
 
     init(
         flow: WalletDetailsFlow,
@@ -23,7 +26,10 @@ final class WalletDetailsInteractor {
         operationManager: OperationManagerProtocol,
         eventCenter: EventCenterProtocol,
         repository: AnyDataProviderRepository<MetaAccountModel>,
-        availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
+        availableExportOptionsProvider: AvailableExportOptionsProviderProtocol,
+        walletRecordsInspector: StoredWalletRecordsInspecting,
+        walletRecordsNoticeTracker: StoredWalletRecordsNoticeTracking,
+        selectedWalletSettings: SelectedWalletSettings
     ) {
         self.flow = flow
         self.chainsRepository = chainsRepository
@@ -31,6 +37,9 @@ final class WalletDetailsInteractor {
         self.eventCenter = eventCenter
         self.repository = repository
         self.availableExportOptionsProvider = availableExportOptionsProvider
+        self.walletRecordsInspector = walletRecordsInspector
+        self.walletRecordsNoticeTracker = walletRecordsNoticeTracker
+        self.selectedWalletSettings = selectedWalletSettings
         self.eventCenter.add(observer: self)
     }
 }
@@ -74,24 +83,31 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
         switch flow {
         case .normal:
             fetchChainsWithAccounts()
+            fetchStoredChainAccounts(acknowledging: false)
         case let .export(_, accounts):
             presenter.didReceive(chains: accounts.map(\.chain))
         }
     }
 
-    func update(walletName: String) {
-        let updatedWallet = flow.wallet.replacingName(walletName)
-        let saveOperation = repository.saveOperation {
-            [updatedWallet]
-        } _: {
-            []
+    func selectChainAccount(_ selection: ChainAccountSelection, chain: ChainModel) {
+        let walletId = flow.wallet.metaId
+        let selectOperation = walletRecordsInspector.selectChainAccountOperation(
+            ChainAccountSelectionUpdate(chainId: chain.chainId, selection: selection),
+            walletId: walletId
+        )
+
+        selectOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let wallet = try selectOperation.extractNoCancellableResultData()
+                    self?.didSelectChainAccount(in: wallet)
+                } catch {
+                    self?.presenter.didReceive(error: error)
+                }
+            }
         }
 
-        saveOperation.completionBlock = { [eventCenter] in
-            eventCenter.notify(with: WalletNameChanged(wallet: updatedWallet))
-        }
-
-        operationManager.enqueue(operations: [saveOperation], in: .transient)
+        operationManager.enqueue(operations: [selectOperation], in: .transient)
     }
 
     func getAvailableExportOptions(for chainAccount: ChainAccountInfo) {
@@ -127,6 +143,49 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
 }
 
 private extension WalletDetailsInteractor {
+    /// The store already holds the switch. Hand the wallet as stored to everything that
+    /// shows its addresses or balances.
+    func didSelectChainAccount(in wallet: MetaAccountModel) {
+        if case .normal = flow {
+            flow = .normal(wallet: wallet)
+        }
+        // The user made this switch here, so there is nothing left to announce about it.
+        fetchStoredChainAccounts(acknowledging: true)
+
+        guard selectedWalletSettings.value?.metaId == wallet.metaId else {
+            eventCenter.notify(with: MetaAccountModelChangedEvent(account: wallet))
+            return
+        }
+
+        selectedWalletSettings.save(value: wallet, runningCompletionIn: .main) { [weak self] result in
+            switch result {
+            case let .success(savedWallet):
+                self?.eventCenter.notify(with: SelectedAccountChanged(account: savedWallet))
+            case let .failure(error):
+                self?.presenter.didReceive(error: error)
+            }
+        }
+    }
+
+    func fetchStoredChainAccounts(acknowledging: Bool) {
+        let walletId = flow.wallet.metaId
+        let reportOperation = walletRecordsInspector.fetchReportOperation()
+
+        reportOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                guard let report = try? reportOperation.extractNoCancellableResultData() else {
+                    return
+                }
+                if acknowledging {
+                    self?.walletRecordsNoticeTracker.acknowledgeStoredChainAccounts(of: walletId, in: report)
+                }
+                self?.presenter.didReceive(storedChainAccounts: report.alternatives(for: walletId))
+            }
+        }
+
+        operationManager.enqueue(operations: [reportOperation], in: .transient)
+    }
+
     func fetchChainsWithAccounts() {
         let fetchOperation = chainsRepository.fetchAllOperation(with: RepositoryFetchOptions())
 

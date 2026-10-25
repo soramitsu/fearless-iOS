@@ -1,6 +1,14 @@
+"about.font.licenses" = "Licenças de tipos de letra";
+"about.font.licenses.unavailable" = "Não foi possível carregar as licenças dos tipos de letra.";
 "NSCameraUsageDescription" = "A câmara é usada para capturar o código QR";
 "NSFaceIDUsageDescription" = "Identificação facial usada para autorização na aplicação";
 "NSPhotoLibraryAddUsageDescription" = "Guardar pedido de transferência como um código QR";
+"ton.transfer.unknown.title" = "O estado da transferência é desconhecido";
+"ton.transfer.unknown.message" = "A rede pode ter aceite esta transferência. Não a envie novamente. Guarde este hash da mensagem e verifique o estado antes de continuar:\n%@";
+"ton.transfer.unknown.copy_hash" = "Copiar hash da mensagem";
+"ton.transfer.prior_confirmed.title" = "Transferência anterior confirmada";
+"ton.transfer.prior_confirmed.message" = "Uma transferência anterior foi confirmada. Esta nova transferência não foi enviada. Reveja e confirme o hash anterior antes de voltar a confirmar:\n%@";
+"ton.transfer.prior_confirmed.acknowledge" = "Confirmar e recalcular a taxa";
 "NSPhotoLibraryUsageDescription" = "Fazer upload de fotos da biblioteca";
 "about.announcement" = "Receber Alertas";
 "about.ask.for.support" = "Pedir Apoio";
@@ -117,6 +125,7 @@
 "backup.create.password.not.matched" = "A palavra-passe não corresponde";
 "backup.create.password.password.field.title" = "Definir senha";
 "backup.create.password.screen.title" = "Criar senha de backup";
+"backup.create.password.too.short" = "Utilize pelo menos %@ caracteres";
 "backup.create.password.warning" = "Entendo que se eu esquecer minha senha não há como recuperá-la";
 "backup.mnemonic.description" = "Lembre-se de registrar suas palavras na mesma ordem em que aparecem abaixo. Use uma forma não digital de backup.";
 "backup.mnemonic.title" = "Escreva a sua mnemónica";
@@ -260,6 +269,8 @@
 "common.not.enough.balance.message" = "Desculpe, não tem fundos suficientes para gastar a quantia especificada";
 "common.not.enough.fee.message" = "Desculpe, não tem fundos suficientes para pagar a taxa da rede.";
 "common.ok" = "OK";
+"update.security.notice.title" = "A sua carteira móvel está segura";
+"update.security.notice.message" = "A Fearless para iOS e Android não foi afetada pelo problema de segurança da antiga extensão Fearless para Chrome.\n\nSe utilizou a extensão para Chrome antes de 23 de outubro de 2026, crie uma nova carteira e transfira os seus fundos para ela.";
 "common.paste" = "Colar";
 "common.payout" = "Pagamento";
 "common.preview" = "Visualização";
@@ -668,7 +679,6 @@ Estes documentos são cruciais para uma experiência segura e positiva do utiliz
 "profile.logout.title" = "Sair";
 "profile.network.title" = "Redes";
 "profile.pincode.change.title" = "Alterar código PIN";
-"profile.soracard.title" = "Cartão SORA";
 "profile.title" = "Configurações";
 "profile.wallets.title" = "Carteiras";
 "receive.note.text" = "NOTA: Esta é uma carteira Polkadot & Kusama. Envie apenas ativos da blockchain Polkadot & Kusama.";
@@ -709,7 +719,7 @@ Estes documentos são cruciais para uma experiência segura e positiva do utiliz
 "select.save.type" = "Selecione o tipo de guardar";
 "select.suggested.validators.warning" = "As sugestões do validador algorítmico não constituem  uma consulta ou aconselhamento financeiro. O staking é uma atividade de alto risco e as sugestões do validador algorítmico não atenuam necessariamente esse risco. Um validador sugerido pelo algoritmo ainda poderia sair do grupo de candidatos. Um validador sugerido pelo algoritmo também poderia alterar seus parâmetros (por exemplo, taxas de comissão, etc.) a qualquer momento após ter sido sugerido e/ou selecionado. Você pode perder recompensas por esses ou outros motivos. Aposte apenas tokens e use sugestões do validador a seu critério, após realizar a devida diligência e considerar cuidadosamente os riscos envolvidos.";
 "select.validators.disclaimer" = "RESPONSABILIDADE: As sugestões de validador algorítmico não constituem uma consulta ou conselho financeiro. O staking é uma atividade de alto risco, e as sugestões de validador algorítmico não mitigam necessariamente este risco. Um validador sugerido pelo algoritmo pode ainda ser penalizado. Um validador sugerido pelo algoritmo pode também alterar os seus parâmetros (por exemplo, taxas de comissão, etc.) em qualquer altura depois de ter sido sugerido e/ou selecionado. Pode perder tokens ou recompensas por estas, ou outras razões. Apenas faça stake de tokens e utilize as sugestões do validador ao seu próprio critério, após ter realizado a devida diligência e considerado cuidadosamente os riscos envolvidos.";
-"send.all.title" = "Send all tokens and reap the account";
+"send.all.title" = "Enviar todos os tokens e permitir o encerramento da conta nesta rede";
 "send.confirm.amount.title" = "Enviando \n %@";
 "send.fund.title" = "Enviar fundo";
 "settings.add.wallet" = "Adicionar carteira";
@@ -719,13 +729,6 @@ Estes documentos são cruciais para uma experiência segura e positiva do utiliz
 "sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the %s network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";
 "sora.bridge.low.amaunt.polkadot.alert" = "Currently, there's a min. amount 1.1 DOT for bridging to ensure the stability and security. We appreciate your understanding.";
 "sora.bridge.low.amount.alert" = "Currently, there's a min. amount 0.05 KSM for bridging to ensure the stability and security of the SORA Network. We appreciate your understanding.";
-"sora.card.status.failure.text" = "O KYC foi encerrado ou falhou.";
-"sora.card.status.failure.title" = "Falha na verificação";
-"sora.card.status.pending.title" = "Verificação em andamento";
-"sora.card.status.rejected.text" = "Seu aplicativo falhou. Para ler mais sobre o motivo da falha, leia a seguinte descrição adicional.";
-"sora.card.status.rejected.title" = "Verificação rejeitada";
-"sora.card.status.success.text" = "A sua verificação KYC foi bem sucedida e já estamos a preparar o envio do cartão SORA!";
-"sora.card.status.success.title" = "Verificação bem-sucedida";
 "sr25519.selection.subtitle" = "sr25519 (recomendado)";
 "sr25519.selection.title" = "Schnorrkel";
 "stacking.stash.account" = "Conta stash";
@@ -750,6 +753,7 @@ Estes documentos são cruciais para uma experiência segura e positiva do utiliz
 "staking.analytics.period.all" = "Tudo";
 "staking.analytics.rewards.empty.message" = "Sem recompensas recebidas\
 para o período selecionado";
+"staking.analytics.received.rewards" = "Recompensas recebidas";
 "staking.analytics.stake.allocation" = "Alocação com validadores atuais";
 "staking.analytics.stake.empty.message" = "As suas alterações de stake\
 aparecerão aqui";
@@ -849,12 +853,12 @@ para a sua conta para evitar o staking do restante.";
 "staking.pool.select.validators.suggested" = "Selecionar sugeridos";
 "staking.pool.sort.pool.members" = "Número de membros";
 "staking.pool.stake.info.title" = "Informações sobre a pool de staking";
-"staking.pool.start.apr.text" = "Ganhe %s por ano";
+"staking.pool.start.apr.text" = "Ganhe %@ por ano";
 "staking.pool.start.create.button.title" = "Crie uma pool";
 "staking.pool.start.earn.reward.title" = "Ganhe recompensas ao fazer stake do seu \n %s";
 "staking.pool.start.join.button.title" = "Juntar-se à pool";
 "staking.pool.start.reward.freq.text" = "As recompensas são pagas a cada %s";
-"staking.pool.start.unstake.period.text" = "Desfaça seu stake a qualquer momento. Você precisará esperar %s antes de poder gastar seus fundos e os juros que você ganhou.";
+"staking.pool.start.unstake.period.text" = "Desfaça seu stake a qualquer momento. Você precisará esperar %@ antes de poder gastar seus fundos e os juros que você ganhou.";
 "staking.rebond" = "Retornar para stake";
 "staking.rebond.all" = "Revincular todos";
 "staking.rebond.custom.amount" = "Revincular montante personalizado";
@@ -1017,13 +1021,6 @@ Lembre-se de fazer uma cópia de segurança da sua chave e guardá-la num local 
 "tabbar.crowdloan.title" = "Crowdloans";
 "tabbar.crowdloan.title_v1.9.0" = "Crowdloans";
 "tabbar.settings.title" = "Configurações";
-"terms.and.conditions.accept.and.continue" = "Aceitar e continuar";
-"terms.and.conditions.description" = "Queremos que você saiba exatamente como funcionam os serviços do Cartão SORA, quem e por que precisa dos seus dados. A revisão dessas políticas ajudará você a continuar usando o aplicativo com tranquilidade.";
-"terms.and.conditions.general.terms" = "Termos gerais de utilização";
-"terms.and.conditions.privacy.policy" = "Política de Privacidade";
-"terms.and.conditions.sora.community.alert.main" = "A comunidade SORA não coleta nenhum dos seus dados pessoais,";
-"terms.and.conditions.sora.community.alert.secondary" = "mas para obter o cartão SORA e a conta IBAN você precisa passar pelo processo KYC com um emissor do cartão.";
-"terms.and.conditions.title" = "Termos e Condições";
 "tranaction.history.others.tab.title" = "Others";
 "transaction.detail.date" = "Data";
 "transaction.detail.status" = "Status";
@@ -1051,7 +1048,6 @@ Lembre-se de fazer uma cópia de segurança da sua chave e guardá-la num local 
 "username.setup.title.2.0" = "Criar nova carteira";
 "validator.info.comission.title" = "Comissão";
 "validators.list.empty.message" = "Não foram encontrados validadores";
-"verify.phone.number.title" = "Verify your phone number";
 "vesting.claim.disclaimer.text" = "Due to the unique vesting schedules of each parachain, our app is unable to display the quantity of locked tokens eligible for claiming. Please be advised that initiating a claim may be impractical if the prospective amount is marginal and comparable to the transaction fee involved. For comprehensive insights into your locked balances, consult the Subscan blockexplorer. We urge you to assess the information carefully and proceed at your own discretion.";
 "vesting.claim.disclaimer.title" = "Important Notice Regarding Token Claims:";
 "vesting.locked.title" = "Vesting Locked";
@@ -1078,6 +1074,8 @@ Lembre-se de fazer uma cópia de segurança da sua chave e guardá-la num local 
 "wallet.connect.invalid.url.message" = "Nosso App tem compatibilidade apenas com a Wallet Connect SKD v2, não com a descontinuada SDK v1. Por favor, use a versão apropriada para conectar-se com sucesso.";
 "wallet.connect.invalid.url.title" = "Aviso: Wallet Connect SDK v1 não é compatível";
 "wallet.connect.sign.warning.message" = "Assinar esta mensagem pode ter efeitos colaterais perigosos. Assine apenas mensagens de sites em que você confia totalmente com toda a sua conta.";
+"wallet.connect.signing.unavailable.message" = "Uma aplicação ligada pediu à Fearless para assinar. O pedido foi recusado e nada foi assinado. Pode continuar a usar a sua carteira normalmente e desligar aplicações em WalletConnect, no seu perfil.";
+"wallet.connect.signing.unavailable.title" = "A assinatura WalletConnect não está disponível nesta versão";
 "wallet.contacts.empty.title" = "A suas contas e contatos para quem estava enviando transferências aparecerão aqui";
 "wallet.contacts.empty.title_v1.10" = "Suas contas e contatos\
 para quem estava enviando\
@@ -1096,6 +1094,29 @@ as operações aparecerão aqui";
 "wallet.history.title_v1.9.0" = "Histórico";
 "wallet.manage.assets" = "Gerir ativos";
 "wallet.managment.select.wallet.title" = "Selecione sua carteira";
+"wallet.name.unnamed" = "Carteira sem nome";
+"wallet.chain.accounts.section" = "Redes com outra conta guardada";
+"wallet.chain.accounts.use.stored" = "Usar a conta guardada %@";
+"wallet.chain.accounts.use.wallet" = "Usar a conta própria desta carteira";
+"wallet.chain.accounts.switch.title" = "Mudar de conta na rede %@?";
+"wallet.chain.accounts.switch.message" = "%1$@ passará a ser o endereço que esta carteira mostra e utiliza na rede %2$@. A conta substituída continuará guardada nesta carteira, e pode voltar à conta anterior a qualquer momento.";
+"wallet.chain.accounts.switch.confirm" = "Mudar de conta";
+"wallet.chain.accounts.notice.title" = "Contas de rede antigas encontradas";
+"wallet.chain.accounts.notice.message" = "Fearless encontrou contas de rede de uma versão mais antiga que a versão anterior não mostrava, nas seguintes redes: %@.\n\nNada foi alterado nem eliminado: cada rede mantém o endereço que tem utilizado. Se recebeu fundos numa destas contas antigas, abra a carteira e escolha essa conta para a respetiva rede.";
+"wallet.chain.accounts.notice.action" = "Rever contas";
+"wallet.records.sheet.title" = "Não é possível mostrar alguns registos guardados";
+"wallet.records.sheet.kept" = "Nada foi eliminado. Estes registos e as respetivas chaves continuam neste dispositivo. Não elimine a aplicação: isso iria removê-los.";
+"wallet.records.sheet.next" = "Para utilizar uma carteira destas agora, importe-a novamente com a sua frase de recuperação, seed primária ou ficheiro JSON. A importação adiciona-a como uma nova carteira e não altera nada do que já está guardado.";
+"export.seed.unavailable.title" = "Seed primária não mostrada";
+"export.seed.missing.message" = "Este dispositivo não tem nenhuma seed primária para esta conta. A conta funciona como antes. Pode fazer uma cópia de segurança da conta com outra opção de exportação, como um ficheiro JSON.";
+"export.seed.mismatch.message" = "A seed primária guardada para esta conta restauraria um endereço diferente, pelo que não é mostrada. A conta funciona como antes. Pode fazer uma cópia de segurança da conta com outra opção de exportação, como um ficheiro JSON.";
+"backup.google.not.created.title" = "Cópia de segurança no Google Drive não criada";
+"backup.google.ton.unsupported.message" = "Uma cópia de segurança no Google Drive contém as chaves de uma carteira para o ecossistema Polkadot e para Ethereum. Esta carteira TON tem a sua própria frase mnemônica TON, que este tipo de cópia de segurança não consegue restaurar. Nada foi enviado e a sua carteira mantém-se inalterada. Faça uma cópia de segurança anotando a sua frase mnemônica e guardando-a sem ligação à Internet.";
+"backup.google.substrate.unsupported.message" = "Uma cópia de segurança no Google Drive só permite restaurar uma carteira que tenha uma chave para o ecossistema Polkadot, e esta carteira não tem nenhuma. Nada foi enviado e a sua carteira mantém-se inalterada. Utilize uma das outras opções para criar uma cópia de segurança.";
+"backup.google.material.message" = "Não foi possível preparar as chaves guardadas para esta carteira para criar uma cópia de segurança no Google Drive. Nada foi enviado, e a sua carteira mantém-se inalterada e funciona como antes. Crie uma cópia de segurança com uma das outras opções, como a frase mnemônica ou um ficheiro JSON.";
+"backup.google.readback.message" = "Não foi possível ler a cópia de segurança do Google Drive exatamente como foi gravada, pelo que esta carteira não está assinalada como tendo uma cópia de segurança. A sua carteira mantém-se inalterada. Tente novamente ou crie uma cópia de segurança com uma das outras opções.";
+"backup.google.partial.title" = "Algumas contas não estão incluídas nesta cópia de segurança";
+"backup.google.partial.message" = "Foi criada uma cópia de segurança da sua carteira no Google Drive. Ao restaurar esta cópia de segurança, recupera as contas da sua carteira no ecossistema Polkadot e na rede Ethereum, mas não as contas abaixo, porque as chaves destas contas são geradas a partir de dados que esta cópia de segurança não contém:\n%@\nEstas contas continuam a funcionar neste dispositivo. Faça uma cópia de segurança destas contas em separado antes de depender desta cópia de segurança.";
 "wallet.options.delete" = "Deletar carteira";
 "wallet.options.details" = "Detalhes da carteira";
 "wallet.options.export" = "Exportar carteira";
@@ -1151,128 +1172,288 @@ pertence à rede certa";
 "your.validators.stop.nominating.title" = "Deixar de nomear";
 "your.validators.validator.total.stake" = "Total em stake: %@";
 "сurrencies.stub.text" = "Moedas";
-"cant.fetch.refresh" = "Não é possível obter dados, toque para atualizar.";
-"card.attention.text" = "Atenção";
-"card.hub.manage.card" = "Manage SORA Card";
-"card.hub.manage.card.alert.message" = "To manage your SORA Card, please install the official SORA Card App. Tap OK to be directed to the App Store.";
-"card.hub.manage.card.alert.title" = "Download SORA Card App";
-"card.hub.settings.logout.button" = "Terminar sessão";
-"card.hub.settings.logout.description" = "Está prestes a terminar a sessão no Cartão SORA. Continuará a ter acesso à aplicação autónoma do Cartão SORA, mas o saldo deixará de estar disponível na Carteira SORA.";
-"card.hub.settings.logout.title" = "Sair do Cartão SORA";
-"card.hub.settings.title" = "Definições do cartão";
-"card.hub.title" = "Card details";
-"card.hub.update.button" = "Update now";
-"card.hub.update.description" = "You are using an outdated version of the app, some part might not be working as intended.";
-"card.hub.update.title" = "Update app to latest version";
-"card.issuance.screen.free.card.description" = "Para emitir um cartão GRATUITAMENTE: \
-Mantenha, faça STAKE ou forneça liquidez de um valor mínimo de XOR equivalente a €%@ na sua conta SORA";
-"card.issuance.screen.free.card.get.xor" = "Obter %@ XOR";
-"card.issuance.screen.paid.card.description" = "Taxa única para emitir um cartão";
-"card.issuance.screen.paid.card.note" = "Nota: a emissão de cartão pago estará disponível posteriormente.";
-"card.issuance.screen.paid.card.pay.euro" = "Pagar €%@ de taxa de emissão";
-"card.issuance.screen.paid.card.title" = "€%@ taxa de emissão";
-"card.issuance.screen.title" = "Emissão de cartão";
-"card.or" = "ou";
-"card.update.button" = "Update app";
-"card.update.title" = "Update app to latest version to access SORA Card";
-"cardhub.coming.soon" = "O gerenciamento de cartões estará disponível em breve";
-"cardhub.exchange" = "Intercâmbio";
-"cardhub.freeze" = "Congelar";
-"cardhub.iban.title" = "Detalhes da conta IBAN";
-"cardhub.top.up" = "Completar";
-"cardhub.transfer" = "Transferir";
-"change.email.title" = "Alterar seu e-mail";
-"common.back" = "Back";
-"common.change.email" = "Usar outro e-mail";
-"common.no.spam" = "Não é spam! Apenas para proteger a sua conta";
-"common.resend.code" = "Reenviar código";
-"common.resend.link" = "Reenviar link";
-"common.resend.timer" = "Reenviar em %02d:%02d";
-"common.send.code" = "Enviar código SMS";
-"common.send.link" = "Enviar Link";
-"common.support" = "Apoio";
-"common.try.again" = "Tentar novamente";
-"common.user.not.found" = "Não foi encontrado nenhum número de telemóvel, verifique-o novamente e tente de novo.";
-"details.already.have.card" = "Já tenho um cartão";
-"details.already.used.free.try" = "Já utilizou a sua tentativa gratuita";
-"details.annual.service.fee" = "€0 de taxa de serviço anual";
-"details.description" = "Obtenha uma conta Euro IBAN e um cartão de débito acessíveis na sua carteira SORA";
-"details.enough.xor.desription" = "Tem XOR suficiente";
-"details.free.card.issuance" = "Emissão gratuita de cartão";
-"details.free.card.issuance.conditions.euro" = "ou %@ € taxa de candidatura";
-"details.free.card.issuance.conditions.xor" = "Se tiver, fizer STAKE ou fornecer liquidez a um valor mínimo de XOR de %@ na sua conta SORA";
-"details.get.more.xor" = "Obter mais XOR";
-"details.issue.card" = "Emitir cartão gratuitamente";
-"details.need.xor.desription" = "Precisa de mais %@ XOR (€%@)";
-"details.title" = "Recarregue o cartão SORA com fiat ou cripto e pague online, na loja ou saque em uma ATM";
-"enter.email.description" = "Link mágico será enviado\npara seu e-mail";
-"enter.email.input.field.label" = "E-mail";
-"enter.email.title" = "Introduza o seu e-mail";
-"enter.phone.number.description" = "Receberá um código de verificação por SMS";
-"enter.phone.number.phone.input.field.label" = "Número de telefone";
-"entry.card.info" = "Card info";
-"get.more.xor.dialog.buy.option" = "Comprar XOR com EUR";
-"get.more.xor.dialog.deposit.option" = "Depósito XOR";
-"get.more.xor.dialog.description" = "Pode trocar por XOR ou comprar com euros";
-"get.more.xor.dialog.swap.option" = "Troque crypto por XOR";
-"get.prepared.alert" = "Você tem apenas %@ tentativas gratuitas para passar no processo KYC. Todas as outras tentativas depois disso custarão € %@ . As tentativas pagas estarão disponíveis após a próxima atualização do aplicativo.";
-"get.prepared.need" = "Para completar o KYC, é necessário";
-"get.prepared.ok.title" = "OK, estou pronto";
-"get.prepared.personal.info.description" = "Preencher o formulário com o seu nome e endereço";
-"get.prepared.personal.info.title" = "Enviar as suas informações pessoais";
-"get.prepared.proof.address.description" = "Um documento oficial (conta de luz, extrato bancário, extrato do governo ou correspondência) que contenha seu nome completo e endereço, e que não tenha mais de 3 meses.";
-"get.prepared.proof.address.note" = "Nota: Atualmente, extratos de neobancos como Revolut e N26 não são vistos como comprovante de endereço válido.";
-"get.prepared.proof.address.title" = "Enviar uma fotografia do comprovativo de morada";
-"get.prepared.submit.id.photo.description" = "Passaporte, carta de condução, bilhete de identidade ou autorização de residência";
-"get.prepared.submit.id.photo.title" = "Envie uma foto do seu documento de identificação";
-"get.prepared.take.selfie.description" = "As orientações serão fornecidas durante o processo";
-"get.prepared.take.selfie.title" = "Tirar uma selfie";
-"get.prepared.title" = "Preparar-se";
-"iban.frozen.description" = "Your IBAN has been frozen.\
-To find out more, contact %@";
-"iban.pending.description" = "A emissão do seu IBAN está pendente.\
- Caso a espera seja superior a 72h contacte-nos através de %@";
-"iban.suspended.description" = "Your IBAN has been suspended.\
-To find out more, contact %@";
-"kyc.result.verification.in.progress" = "Verificação em curso";
-"kyc.result.verification.in.progress.description" = "Concluiu com sucesso a sua aplicação KYC. A revisão está pendente e pode esperar uma decisão em breve.\n\nNormalmente, a decisão é tomada no mesmo dia e, em alguns casos, pode demorar até 3 dias.";
-"log.out" = "Terminar sessão";
-"login.title" = "Iniciar sessão ou Inscrever-se";
-"no.free.kyc.attempts.description" = "Utilizou a sua tentativa gratuita para passar o processo KYC. Pedimos-lhe que aguarde até à próxima atualização da aplicação para prosseguir com as tentativas pagas.";
-"no.free.kyc.attempts.title" = "Acabaram-se as tentativas gratuitas";
-"otp.error.message.wrong.code" = "Código incorreto. Por favor, tente novamente.";
-"paid.attempts.available.later" = "Paid attempts will be available at a later stage";
-"payment.widget.unavailable.confirm" = "Sim, compreendo";
-"payment.widget.unavailable.description" = "Pedimos desculpa pelo incómodo.\nEstamos a trabalhar diligentemente para resolver o problema.\nPor favor, tente novamente mais tarde.";
-"payment.widget.unavailable.message" = "O widget de pagamento está atualmente indisponível";
-"payment.widget.unavailable.title" = "Widget indisponível";
-"select.country.title" = "Escolha o seu país";
-"status.not.started" = "Obter o cartão SORA";
-"terms.and.conditions.confirm.description" = "Ao continuar, o utilizador confirma que leu, compreendeu e aceitou estas políticas";
-"terms.and.conditions.sora.community.alert" = "A comunidade SORA não recolhe quaisquer dados pessoais. Para obter o cartão SORA e a conta IBAN, terá de concluir um processo KYC diretamente com o emissor do cartão.";
-"unsupported.countries.disclaimer" = "Os residentes de determinados países não podem solicitar o cartão SORA neste momento";
-"unsupported.countries.link" = "Ver a lista";
-"user.registration.first.name.input.filed.label" = "Nome próprio";
-"user.registration.last.name.input.filed.label" = "Apelido";
-"user.registration.title" = "Apresente-se";
-"verification.failed.description" = "O KYC foi encerrado ou falhou.";
-"verification.failed.title" = "Falha na verificação";
-"verification.rejected.description" = "A sua candidatura foi rejeitada.";
-"verification.rejected.screen.attempts.price.disclaimer" = "Todas as outras tentativas custarão € %@";
-"verification.rejected.screen.attempts.used" = "Utilizou as suas tentativas gratuitas de KYC.";
-"verification.rejected.screen.try.again.for.euros" = "Tente novamente por € %@";
-"verification.rejected.screen.try.again.for.free" = "Tente novamente gratuitamente";
-"verification.rejected.support" = "Apoio";
-"verification.rejected.title" = "Verificação rejeitada";
-"verification.successful.description" = "A sua verificação KYC foi bem sucedida e já estamos a preparar o envio do cartão SORA!";
-"verification.successful.title" = "Aplicação aprovada";
-"verify.email.description" = "Siga o link mágico que foi enviado \n para %@";
-"verify.email.resend" = "REENVIAR EM %@";
-"verify.email.title" = "Verifique seu e-mail";
-"verify.phone.number.code.input.field.label" = "Código SMS";
-"verify.phone.number.description" = "Introduzir o código SMS que foi enviado para\n%@";
-"verify.phone.number.send.code" = "ENVIAR CÓDIGO";
 "balance.locks.blocked.row.title" = "Blocked";
 "wallet.send.dead.recipient.message.v2" = "Your transfer will fail since the final amount (%s) on the destination account will be less than the minimal balance (%s). Please increase the amount by %s";
 "nft.spam.warning" = "Beware of a scam/spam NFT collection – verify authenticity before engaging. Stay safe!";
 "wallet.all.assets.hidden" = "You have hidden all assets";
+"xcm.low.amaunt.assetSymbol.alert" = "Currently, there's a min. amount %@ for bridging to ensure the stability and security. We appreciate your understanding.";
+"common.more" = "More";
+"common.activation.required" = "Activation Required";
+"error.scan.qr.disabled.asset" = "The asset you want to transfer is either unsupported or turned off. Go to Asset Management, activate the asset, and then scan the QR code again.";
+"account.stats.wallet.option.title" = "Show wallet score";
+"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
+"account.stats.error.message" = "Unable to retrieve account score information. Please try again later.";
+"profile.account.score.title" = "Nomis multichain score";
+"scam.info.nomis.name" = "Nomis multi-chain score";
+"scam.info.nomis.subtype.text" = "Proceed with caution";
+
+/* Other holdings may not appear because balance checks use the app's asset list. */
+"portfolio.discovery.catalog_only" = "Alguns tokens podem não aparecer";
+
+/* Only shown when network balances need attention. */
+"portfolio.balance.update_failed" = "Falha ao atualizar os saldos";
+"portfolio.balance.outdated" = "Os saldos podem estar desatualizados";
+"portfolio.balance.not_loaded" = "Saldos não carregados";
+
+"wallet.transaction.history.view.explorer" = "Ver no explorador";
+
+/* Wallet cards: the balance counts assets hidden from the portfolio. */
+"portfolio.balance.incl_hidden" = "incl. ocultos";
+
+/* Under the wallet-wide total: the selected networks and their part of it. */
+"portfolio.header.showing_filtered" = "A mostrar %@ · %@";
+
+/* Portfolio row: the part of the balance that can be sent now. */
+"portfolio.asset.transferable" = "Transferível %@";
+
+/* Portfolio row of a testnet token. */
+"portfolio.asset.testnet_no_value" = "Sem valor";
+
+/* Portfolio row of a funded asset without a trusted price. */
+"portfolio.asset.price_unavailable" = "Preço indisponível";
+
+/* Under the portfolio: what the total leaves out. Hidden and testnet captions open Manage assets. */
+"portfolio.exclusions.hidden.one" = "%d ativo oculto não incluído · Gerir";
+"portfolio.exclusions.hidden.other" = "%d ativos ocultos não incluídos · Gerir";
+"portfolio.exclusions.testnet.one" = "%d ativo de rede de testes não incluído · Gerir";
+"portfolio.exclusions.testnet.other" = "%d ativos de redes de testes não incluídos · Gerir";
+"portfolio.exclusions.unpriced.one" = "%d ativo sem preço não incluído";
+"portfolio.exclusions.unpriced.other" = "%d ativos sem preço não incluídos";
+"portfolio.exclusions.pool_stakes" = "Stakes em pools não incluídos";
+
+/* Notice above the portfolio: assets hidden in the previous version now hold funds. */
+"portfolio.hidden_funds.title.one" = "%d ativo oculto tem fundos";
+"portfolio.hidden_funds.title.other" = "%d ativos ocultos têm fundos";
+"portfolio.hidden_funds.message" = "Os ativos ocultos não estão incluídos no seu total. Reveja-os ou mantenha-os ocultos.";
+"portfolio.hidden_funds.review" = "Rever";
+"portfolio.hidden_funds.keep_hidden" = "Manter ocultos";
+
+/* Bitcoin, Solana and Taira account setup from the wallet's own recovery phrase. */
+"universal.setup.title" = "Uma única frase de recuperação";
+"universal.setup.message" = "Bitcoin, Solana e Taira utilizam a mesma frase de recuperação desta carteira. Adicionar uma delas configura as três, e não é criada nenhuma frase nova.";
+"universal.setup.action" = "Adicionar a partir da frase da carteira";
+"universal.recovery.title" = "É necessária a frase da carteira";
+"universal.recovery.message" = "Introduza a frase de recuperação utilizada para criar ou restaurar esta carteira. Será verificada com a carteira existente antes de Bitcoin, Solana e Taira serem adicionadas. Nunca é criada uma segunda frase. Uma carteira importada a partir de uma seed primária ou de um ficheiro JSON sem a frase não as pode adicionar: crie ou restaure uma carteira com frase de recuperação na lista de carteiras e transfira os seus ativos para ela.";
+"universal.recovery.action" = "Introduzir a frase de recuperação da carteira";
+"universal.open.wallets.action" = "Abrir lista de carteiras";
+"universal.unsupported.title" = "É necessária uma carteira com frase de recuperação";
+"universal.unsupported.message" = "Esta carteira foi criada apenas a partir de uma frase TON ou de uma chave Ethereum, pelo que não é possível adicionar-lhe contas Bitcoin, Solana e Taira. Nada foi alterado. Para as utilizar, crie ou restaure uma carteira com frase de recuperação na lista de carteiras e depois transfira os seus ativos para ela.";
+"universal.unsupported.source.message" = "A chave guardada para esta carteira não pode ser convertida com segurança numa única frase de recuperação, pelo que Bitcoin, Solana e Taira não foram adicionadas. Nada foi alterado. Crie ou restaure uma carteira com frase de recuperação na lista de carteiras e transfira os seus ativos para ela.";
+"universal.adoption.seed.unavailable" = "Este dispositivo não tem a frase de recuperação da carteira. Introduza a frase original para adicionar Bitcoin, Solana e Taira.";
+"universal.adoption.conflict" = "Esta carteira já contém uma conta Bitcoin ou Taira de outra frase de recuperação. O endereço e a chave foram mantidos e nada foi substituído; transfira os fundos dessa conta antes de passar para as contas da frase desta carteira.";
+"universal.seed.unreadable" = "Não foi possível ler a seed da carteira. Desbloqueie este dispositivo e tente novamente. Se continuar a falhar, importe a frase de recuperação da carteira.";
+"universal.recovery.mismatch.title" = "A frase de recuperação não corresponde";
+"universal.recovery.mismatch.message" = "Essa frase de recuperação não recria esta carteira. Nenhuma conta ou chave foi alterada.";
+"universal.recovery.different.phrase.title" = "Detetada outra frase de recuperação";
+"universal.recovery.different.phrase.message" = "Esta carteira já contém uma conta Bitcoin ou Taira de outra frase de recuperação. Não foi substituída porque isso poderia ocultar fundos.";
+
+/* Import of Bitcoin, Solana or Taira: the wallet's own phrase restores the whole wallet. */
+"universal.import.entire.wallet" = "Carteira completa";
+
+/* Raw seed export of a wallet: accounts whose seed is not shown. */
+"export.seed.partial.message" = "A seed primária das contas abaixo não é apresentada, porque este dispositivo não a tem ou a que tem restauraria outro endereço:\n%@\nContinuam a funcionar como antes. Faça uma cópia de segurança com um ficheiro JSON. Esta carteira não fica marcada como tendo cópia de segurança até que o faça.";
+
+/* Solana token send: the amount is only held across several token accounts of the mint. */
+"solana.transfer.token_balance_split.title" = "Saldo dividido por várias contas de token";
+"solana.transfer.token_balance_split.message" = "O saldo deste token está dividido por várias contas de token, e nenhuma delas tem esse montante sozinha. Envie primeiro um montante menor e depois o restante. Nada foi enviado.";
+
+/* Retained data and authenticated emergency recovery */
+"recovery.title" = "Aceder aos dados guardados";
+"recovery.network_message" = "Não foi possível ler alguns dados de rede guardados. As carteiras e o material de recuperação são guardados separadamente. Contactos, nós personalizados e ligações anteriores permanecem neste dispositivo. Depois de continuar com novos dados de rede, volte a ligar as aplicações e adicione os nós personalizados necessários.";
+"recovery.wallet_message" = "A lista de carteiras precisa de atenção. Os registos e o material de recuperação permanecem neste dispositivo. Mantenha o Fearless e os seus dados aqui. Pode autenticar-se para ver ou exportar o material, mesmo quando não é possível validá-lo.";
+"recovery.free_storage" = "Liberte pelo menos %@ de armazenamento e tente novamente.";
+"recovery.retry" = "Tentar novamente";
+"recovery.fresh_network" = "Continuar com novos dados de rede";
+"recovery.restore_access" = "Restaurar acesso à carteira";
+"recovery.english" = "Continuar em inglês";
+"recovery.export" = "Material de recuperação de emergência";
+"recovery.previous_data" = "Dados anteriores da aplicação";
+"recovery.help" = "Obter ajuda";
+"recovery.authenticate" = "Autentique-se para aceder ao material de recuperação guardado.";
+"recovery.read_failed" = "Não foi possível ler os dados. Mantenha-os neste dispositivo e tente novamente.";
+"recovery.close" = "Fechar";
+"recovery.share" = "Partilhar";
+"recovery.export_warning" = "Esta exportação contém material secreto de recuperação exatamente como foi guardado, codificado em Base64. Pode estar incompleto ou ser inválido; não é uma cópia de segurança verificada. Quem o receber poderá controlar os seus fundos. Guarde-o apenas num local de confiança. Os itens ilegíveis são listados separadamente. Nunca o envie ao suporte.";
+"recovery.locked" = "Bloqueado. Feche este ecrã e autentique-se novamente.";
+"recovery.restore_access_warning" = "Pode importar uma frase de recuperação para restaurar o acesso. Se a lista for ilegível, os dados originais serão mantidos neste dispositivo. As chaves e o PIN atual serão preservados. Exporte primeiro o material guardado se não tiver outra cópia.";
+"recovery.continue" = "Continuar";
+"recovery.advanced" = "Avançadas";
+"recovery.archive_message" = "Os dados anteriores permanecem inalterados. Cada arquivo é verificado novamente com a versão atual. A restauração também guarda uma cópia dos dados atuais.";
+"recovery.no_archives" = "Não existem dados anteriores da aplicação.";
+"recovery.checking" = "A verificar dados anteriores…";
+"recovery.wallet_data" = "Dados da carteira";
+"recovery.network_data" = "Dados de rede";
+"recovery.restore" = "Restaurar";
+"recovery.not_ready" = "Esta versão ainda não consegue restaurar este arquivo. É mantido inalterado e verificado em cada arranque. O material de recuperação de emergência continua disponível.";
+"recovery.restore_warning" = "Restaurar estes dados na próxima abertura? Os dados atuais também serão guardados. As chaves e o PIN não serão alterados. Feche e volte a abrir o Fearless após confirmar.";
+"recovery.restore_queued" = "Restauração agendada. Abra o seletor de aplicações, deslize o Fearless para cima para o fechar e abra-o novamente. A restauração ocorre antes de abrir a carteira.";
+
+"send.network.unavailable" = "Este token não está disponível em %@.";
+"send.confirm.test_tokens_no_value" = "Os tokens de teste não têm valor";
+"portfolio.zero_networks" = "Redes sem saldo: %d";
+
+"portfolio.lens.tokens" = "Tokens";
+"portfolio.lens.networks" = "Redes";
+"portfolio.network_count" = "Redes: %d";
+"portfolio.price_unavailable" = "Preço indisponível";
+"portfolio.partial_value" = "Redes sem preço: %d";
+"portfolio.custom_order" = "Ordem personalizada";
+"portfolio.popular_tokens" = "Tokens populares · %d";
+"portfolio.zero_tokens" = "Sem saldo · %d tokens";
+"portfolio.expand" = "Expandir";
+"portfolio.collapse" = "Recolher";
+"portfolio.hide_group" = "Ocultar %@?";
+"portfolio.choose_network" = "Escolher uma rede";
+
+"ux.collapsed" = "Recolhido";
+
+"ux.expanded" = "Expandido";
+
+// Manage assets visibility and separate network sections.
+"manage_assets.auto" = "Automático";
+"manage_assets.auto_zero" = "Automático · sem saldo";
+"manage_assets.shown" = "Visível";
+"manage_assets.hidden" = "Oculto";
+"manage_assets.testnets" = "Redes de teste";
+"manage_assets.testnets_caption" = "Os tokens de teste não têm valor e são excluídos dos totais.";
+"manage_assets.unverified" = "Não verificados";
+"manage_assets.unverified_caption" = "Os tokens não verificados podem não ser seguros. São excluídos dos totais.";
+
+"manage_assets.all" = "Todos";
+
+"manage_assets.reset_auto" = "Repor automático";
+
+"manage_assets.mixed" = "Misto";
+
+"manage_assets.show_group" = "Mostrar %@ em todas as redes";
+
+"manage_assets.hide_group" = "Ocultar %@ em todas as redes";
+
+"manage_assets.reset_order" = "Repor ordem";
+"manage_assets.reset_order_message" = "Repor a ordem predefinida dos ativos desta carteira? As opções de visibilidade dos ativos serão mantidas.";
+
+"portfolio.empty_ready" = "A sua carteira está pronta";
+"portfolio.empty_fund" = "Escolha um ativo e uma rede para receber ou comprar tokens.";
+"portfolio.buy" = "Comprar";
+"portfolio.buy_unavailable" = "A compra não está disponível nestas redes. Pode receber tokens por transferência.";
+"portfolio.funding_unavailable" = "Adicione uma conta numa rede compatível para receber tokens. A compra não está disponível aqui.";
+
+"portfolio.empty_networks" = "Redes populares · ainda sem saldo";
+
+/* Static Welcome presentation. */
+"welcome.title" = "As suas chaves. Todas as redes.";
+"welcome.body" = "Custódia própria para Polkadot, Ethereum, TON, Bitcoin, Solana e SORA.";
+"welcome.create" = "Criar uma nova carteira";
+"welcome.restore" = "Já tenho uma carteira";
+
+"import.legacy_ton_phrase" = "Frase de recuperação TON antiga";
+"import.legacy_ton_phrase_placeholder" = "Introduza a sua frase de recuperação TON antiga";
+
+"recovery.startup_updating" = "A concluir a atualização…";
+"recovery.startup_opening" = "A abrir a carteira…";
+"recovery.startup_keep_open" = "Mantenha o Fearless aberto.";
+
+"ux.switch_wallet" = "Mudar de carteira";
+
+"ux.choose_network" = "Escolher rede";
+
+"ux.search_assets" = "Pesquisar ativos";
+
+"ux.scan_qr" = "Ler código QR";
+
+/* Portfolio list trust and disclosure state */
+"portfolio.asset.verified" = "Verificado";
+"portfolio.asset.detected" = "Detetado";
+"portfolio.asset.metadata_missing" = "Metadados em falta";
+"portfolio.asset.detected_count" = "Ativos detetados (%d)";
+"portfolio.asset.detected_review" = "Verifique antes de confiar";
+
+"ux.transfer_networks" = "Transferir entre redes →";
+
+"ux.receive_network_instruction" = "Envie apenas %@ na rede %@ para este endereço.";
+
+"export.json.partial.title" = "Cópia de segurança incompleta";
+"export.json.partial.message" = "Não foi possível exportar estas contas:\n%@\nA sua carteira e as suas chaves não foram alteradas. Exportar os ficheiros disponíveis não conclui a cópia de segurança desta carteira.";
+"export.json.partial.action" = "Exportar ficheiros disponíveis";
+
+"pincode.save.failed" = "Não foi possível guardar o PIN. Introduza-o e confirme-o novamente para tentar de novo.";
+
+"backup.status.save.failed" = "Não foi possível guardar o estado da cópia de segurança. Tente novamente.";
+
+"export.mnemonic.unavailable.title" = "Frase de recuperação não apresentada";
+"export.mnemonic.partial.message" = "Não foi possível verificar a frase ou o caminho de derivação guardado para estas contas:\n%@\nAs chaves não foram alteradas. Exporte uma cópia JSON destas contas. Esta exportação da frase não marca a carteira como tendo cópia de segurança.";
+
+/* Native TON exact-phrase address selection, before persistence. */
+"import.ton.choose_address" = "Escolha o seu endereço TON";
+"import.ton.spacing_warning" = "Os espaços e as quebras de linha podem alterar um endereço TON antigo. Compare os dois endereços com a sua carteira anterior e escolha o que pretende restaurar. Nada é importado antes da escolha.";
+"import.ton.as_typed" = "Como introduzido";
+"import.ton.normalized" = "Espaçamento padrão";
+
+// Exact legacy TON spacing recovery
+"export.ton.exact.title" = "Frase TON exata";
+"export.ton.exact.warning" = "Os espaços e as quebras de linha desta cópia de segurança TON são importantes. Use Copiar frase exata para os preservar. Alterar os espaços pode restaurar outro endereço. A frase copiada permanece apenas neste dispositivo e expira após um minuto.";
+"export.ton.exact.copy" = "Copiar frase exata";
+
+/* Significant legacy TON spacing is display-only; raw confirmation tokens remain unchanged. */
+"confirmation.exact.details" = "Escolha todas as entradas pela ordem original. Uma entrada vazia preserva um espaço adicional, inicial ou final. Os nomes entre parênteses retos identificam quebras de linha, tabulações e outros espaços em branco. Mantenha todas as entradas exatamente como na frase original.";
+"confirmation.exact.empty" = "Entrada vazia";
+"confirmation.exact.line.break" = "Quebra de linha";
+"confirmation.exact.tab" = "Tabulação";
+"confirmation.exact.carriage.return" = "Retorno de carro";
+
+/* Preserved Solana payment with unavailable original cluster identity. */
+"solana.transfer.recovery_unavailable.title" = "A transferência guardada precisa de revisão";
+"solana.transfer.recovery_unavailable.message" = "Não é possível verificar a rede original desta transferência guardada. A Fearless manteve o registo da transferência. A consulta do estado e o reenvio estão indisponíveis. Não envie uma transferência de substituição até que o resultado da transferência original seja esclarecido.\n%@";
+
+"solana.transfer.recovery_unreadable.message" = "A Fearless não consegue ler o registo de transferência guardado para esta carteira e rede Solana. Os dados originais foram preservados. Não é possível enviar uma nova transferência, consultar o estado ou tentar novamente porque o resultado anterior é desconhecido. Não envie uma transferência de substituição até esclarecer o resultado da original. As outras funções da carteira continuam disponíveis.";
+
+/* Solana send, recovery and history */
+"solana.transfer.recipient_invalid.title" = "Este não é um endereço Solana";
+"solana.transfer.recipient_invalid.message" = "Verifique o endereço e tente novamente. Nada foi enviado.";
+"solana.transfer.recipient_token_account.title" = "Esta é uma conta de token, não uma carteira";
+"solana.transfer.recipient_token_account.message" = "Isto parece ser uma conta de token, não um endereço de carteira. Os fundos enviados para aqui podem perder-se. Peça ao destinatário o endereço da carteira Solana. Nada foi enviado.";
+"solana.transfer.recipient_program.title" = "Isto é um programa, não uma carteira";
+"solana.transfer.recipient_program.message" = "Este endereço pertence a um programa Solana. Os fundos enviados para aqui ficariam bloqueados. Peça ao destinatário o endereço da carteira Solana. Nada foi enviado.";
+"solana.transfer.below_new_account_minimum.title" = "Montante demasiado baixo para uma conta nova";
+"solana.transfer.below_new_account_minimum.message" = "Este endereço ainda não tem SOL. A Solana exige pelo menos %@ SOL para o abrir. Envie pelo menos esse montante. Nada foi enviado.";
+"solana.transfer.remainder_below_minimum.title" = "Deixe mais SOL ou envie tudo";
+"solana.transfer.remainder_below_minimum.message" = "A Solana exige que uma carteira fique sem saldo ou com pelo menos %@ SOL. Envie tudo (max) ou deixe pelo menos esse montante. Nada foi enviado.";
+"solana.transfer.insufficient_sol.title" = "SOL insuficiente";
+"solana.transfer.insufficient_sol.message" = "Esta carteira não tem SOL suficiente para o montante e a taxa de rede e, se o destinatário receber este token pela primeira vez, para a conta que a Solana abre para ele. Adicione SOL ou reduza o montante. Nada foi enviado.";
+"solana.transfer.insufficient_token.title" = "Tokens insuficientes";
+"solana.transfer.insufficient_token.message" = "Esta carteira não tem tantos tokens deste tipo numa só conta. Reduza o montante e tente novamente. Nada foi enviado.";
+"solana.transfer.token_program_unsupported.title" = "Este token ainda não pode ser enviado";
+"solana.transfer.token_program_unsupported.message" = "Esta versão pode enviar SOL e tokens SPL padrão. Este token usa Token-2022, que ainda não é suportado. O token continua na sua carteira e pode continuar a recebê-lo.";
+"solana.transfer.copy_signature" = "Copiar ID da transação";
+"solana.transfer.unknown.title" = "O estado da transferência é desconhecido";
+"solana.transfer.unknown.message" = "A rede Solana pode ter aceite esta transferência. Não a envie novamente a partir de outra carteira ou aplicação. A Fearless guardou a transação assinada: tentar novamente envia essa mesma transação, por isso não pode pagar duas vezes. Uma transferência Solana conclui-se ou expira em cerca de dois minutos.\n%@";
+"solana.transfer.unknown.retry" = "Tentar enviar novamente";
+"solana.transfer.prior_unresolved.title" = "Uma transferência anterior ainda está em curso";
+"solana.transfer.prior_unresolved.message" = "A Fearless ainda está a verificar se a sua transferência Solana anterior foi enviada, por isso esta não foi enviada. Uma transferência Solana conclui-se ou expira em cerca de dois minutos. Tente novamente depois disso.\n%@";
+"solana.transfer.prior_sent.title" = "A sua transferência anterior foi enviada";
+"solana.transfer.prior_sent.message" = "A sua transferência Solana anterior chegou à rede, por isso esta não foi enviada. Verifique o saldo e a taxa antes de enviar novamente.\n%@";
+"solana.transfer.prior_not_sent.title" = "A sua transferência anterior não foi concluída";
+"solana.transfer.prior_not_sent.message" = "A sua transferência Solana anterior não foi confirmada pela rede, por isso nada saiu da sua carteira por causa dela. Esta transferência também não foi enviada. Reveja-a e envie novamente.\n%@";
+"solana.transfer.failed.title" = "A transferência falhou";
+"solana.transfer.failed.message" = "A rede Solana processou esta transferência, mas ela falhou, por isso o montante não saiu da sua carteira. A taxa de rede foi cobrada.\n%@";
+"solana.transfer.not_sent.title" = "Esta transferência não foi enviada";
+"solana.transfer.not_sent.no_connection" = "A Fearless não conseguiu contactar a rede Solana, por isso nada saiu da sua carteira. Verifique a ligação e tente novamente.";
+"solana.transfer.not_sent.rejected" = "A rede Solana não aceitou esta transferência, por isso nada saiu da sua carteira. Reveja o montante e a taxa e tente novamente.";
+"solana.transfer.not_sent.expired" = "Esta transferência expirou antes de a rede Solana a confirmar, por isso nada saiu da sua carteira. Pode enviá-la novamente.";
+"solana.transfer.unverified.title" = "Não foi possível verificar esta transferência";
+"solana.transfer.unverified.message" = "A Fearless não conseguiu confirmar se esta transferência Solana chegou à rede. Verifique o seu saldo e procure a transação no Solscan antes de enviar novamente.\n%@";
+"solana.transfer.prior_unverified.title" = "Não foi possível verificar a sua transferência anterior";
+"solana.transfer.prior_unverified.message" = "A Fearless não conseguiu confirmar se a sua transferência Solana anterior chegou à rede, por isso esta transferência não foi enviada. Verifique o seu saldo e procure a transação anterior no Solscan. Se não tiver sido concluída, confirme esta transferência novamente.\n%@";
+"send.unavailable.solana_paused.title" = "O envio de Solana está pausado de momento";
+"send.unavailable.solana_paused.message" = "Estamos a verificar o envio de Solana nesta versão. O seu SOL, os tokens e os saldos não são afetados, e pode continuar a receber na Solana.";
+"send.unavailable.network.title" = "O envio não está disponível na rede %@";
+"send.unavailable.asset.message" = "Esta versão não consegue enviar este ativo nesta rede. O seu saldo não é afetado, e pode continuar a recebê-lo.";
+"send.unavailable.account.title" = "Esta carteira não tem conta na rede %@";
+"send.unavailable.account.message" = "Esta carteira não tem conta nesta rede, por isso não há nada para enviar a partir dela. Escolha outra rede ou carteira.";
+"send.unavailable.not_prepared.title" = "Não foi possível preparar esta transferência";
+"send.unavailable.not_prepared.message" = "A Fearless não conseguiu contactar a rede %@ para preparar esta transferência. Nada foi enviado. Verifique a ligação e tente novamente.";
+"wallet.transaction.history.solana.explorer.message" = "Veja o seu histórico completo de Solana no Solscan";
+
+/* Solana confirm: recipient token account deposit */
+"solana.transfer.account_creation.title" = "Abertura da conta do destinatário";
+"solana.transfer.account_creation.included" = "Incluído na taxa de rede";

@@ -41,6 +41,54 @@ class TitleMultiValueView: UIView {
     }()
 
     private var skeletonView: SkrullableView?
+    private var sendReviewLayout = false
+    private var sendReviewLoading = false
+    private var skeletonFrames: [CGRect] = []
+
+    /// An explicit opt-in for full-width transaction review values.
+    func configureSendReview(
+        locale: Locale, traits: UITraitCollection, topStyle: FWFontStyle, bottomStyle: FWFontStyle
+    ) {
+        sendReviewLayout = true
+        titleLabel.font = .fw(.bodyS, locale: locale, compatibleWith: traits)
+        valueTop.font = .fw(topStyle, locale: locale, compatibleWith: traits)
+        valueBottom.font = .fw(bottomStyle, locale: locale, compatibleWith: traits)
+        [titleLabel, valueTop, valueBottom].forEach {
+            $0.numberOfLines = 0
+            $0.lineBreakMode = .byCharWrapping
+            $0.textAlignment = .left
+            $0.setContentCompressionResistancePriority(.required, for: .vertical)
+        }
+        valueLabelsStack.alignment = .fill
+        valueLabelsStack.spacing = 6
+        titleLabel.snp.remakeConstraints { make in
+            make.leading.trailing.top.equalToSuperview()
+        }
+        valueLabelsStack.snp.remakeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(titleLabel.snp.bottom).offset(8)
+        }
+        valueTop.snp.remakeConstraints { $0.height.greaterThanOrEqualTo(ceil(valueTop.font.lineHeight)).priority(999) }
+        valueBottom.snp.remakeConstraints {
+            $0.height.greaterThanOrEqualTo(ceil(valueBottom.font.lineHeight)).priority(999)
+        }
+        setNeedsLayout()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard sendReviewLayout, sendReviewLoading, bounds.width > 0, bounds.height > 0 else { return }
+        valueLabelsStack.layoutIfNeeded()
+        let frames = [
+            bounds, valueTop.convert(valueTop.bounds, to: self), valueBottom.convert(valueBottom.bounds, to: self)
+        ]
+        guard skeletonView == nil || skeletonFrames != frames else { return }
+        skeletonView?.stopSkrulling()
+        skeletonView?.removeFromSuperview()
+        skeletonView = nil
+        skeletonFrames = frames
+        setupSkeleton()
+    }
 
     var equalsLabelsWidth: Bool = false {
         didSet {
@@ -119,6 +167,13 @@ class TitleMultiValueView: UIView {
     }
 
     func startLoadingIfNeeded() {
+        if sendReviewLayout {
+            sendReviewLoading = true
+            valueTop.alpha = 0
+            valueBottom.alpha = 0
+            setNeedsLayout()
+            return
+        }
         guard skeletonView == nil else {
             return
         }
@@ -130,6 +185,8 @@ class TitleMultiValueView: UIView {
     }
 
     func stopLoadingIfNeeded() {
+        sendReviewLoading = false
+        skeletonFrames = []
         valueTop.alpha = 1.0
         valueBottom.alpha = 1.0
 
@@ -168,6 +225,15 @@ class TitleMultiValueView: UIView {
     }
 
     private func createSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
+        if sendReviewLayout {
+            return [valueTop, valueBottom].filter { !$0.isHidden }.enumerated().map { index, label in
+                let frame = label.convert(label.bounds, to: self)
+                let size = CGSize(width: min(index == 0 ? 96 : 72, frame.width), height: min(12, frame.height))
+                return SingleSkeleton.createRow(
+                    spaceSize: spaceSize, position: CGPoint(x: frame.minX, y: frame.midY), size: size
+                )
+            }
+        }
         let bigRowSize = CGSize(width: 72.0, height: 12.0)
         let smallRowSize = CGSize(width: 57.0, height: 6.0)
 

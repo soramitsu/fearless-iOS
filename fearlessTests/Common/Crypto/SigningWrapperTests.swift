@@ -9,12 +9,12 @@ class SigningWrapperTests: XCTestCase {
     static let substrateSeed: String = "18691a833f2c7f8c8738519ad04ac8e1ce16fc160c738ce36708defbd841e23c"
     static let ethereumSeed: String = "0xe0fa453f7646c45cbeecac10d4f48eb90868ec15d91cf0a46d9cf974f7862edf"
 
-    private static var testSettings: SelectedWalletSettings = {
+    private static var testSettings: SelectedWalletSettings {
         SelectedWalletSettings(
             storageFacade: UserDataStorageTestFacade(),
             operationQueue: OperationQueue()
         )
-    }()
+    }
 
     func testSr25519CreationFromMnemonicAndSigning() throws {
         let keychain = InMemoryKeychain()
@@ -74,7 +74,7 @@ class SigningWrapperTests: XCTestCase {
             settings: settings
         )
 
-        try performEd25519SigningTest(keychain: keychain, settings: settings)
+        try performEd25519SigningTest(keychain: keychain, settings: settings, expectedStoredSecretLength: 32)
     }
 
     func testEd25519CreationFromSeedAndSigning() throws {
@@ -87,7 +87,7 @@ class SigningWrapperTests: XCTestCase {
                                                             keychain: keychain,
                                                             settings: settings)
 
-        try performEd25519SigningTest(keychain: keychain, settings: settings)
+        try performEd25519SigningTest(keychain: keychain, settings: settings, expectedStoredSecretLength: 32)
     }
 
     func testEd25519CreationFromKeystoreAndSigning() throws {
@@ -108,7 +108,7 @@ class SigningWrapperTests: XCTestCase {
             cryptoType: .ed25519
         )
 
-        try performEd25519SigningTest(keychain: keychain, settings: settings)
+        try performEd25519SigningTest(keychain: keychain, settings: settings, expectedStoredSecretLength: 64)
     }
 
     func testEcdsaCreationFromMnemonicAndSigning() throws {
@@ -170,17 +170,23 @@ class SigningWrapperTests: XCTestCase {
                                            settings: SelectedWalletSettings) throws {
         let originalData = Self.message.data(using: .utf8)!
 
-        guard let metaAccount = settings.value else { return }
+        let metaAccount = try XCTUnwrap(settings.value)
 
-        let publicKeyData = metaAccount.substratePublicKey
+        guard let accountResponse = makeChainAccountResponse(
+            for: metaAccount,
+            cryptoType: .sr25519,
+            isEthereumBased: false
+        ) else {
+            XCTFail("Missing substrate account response")
+            return
+        }
+
+        let publicKeyData = accountResponse.publicKey
 
         let signer = SigningWrapper(
             keystore: keychain,
             metaId: metaAccount.metaId,
-            accountId: nil,
-            isEthereumBased: false,
-            cryptoType: .sr25519,
-            publicKeyData: publicKeyData
+            accountResponse: accountResponse
         )
 
         let signature = try signer.sign(originalData)
@@ -195,24 +201,43 @@ class SigningWrapperTests: XCTestCase {
                                       using: publicKey))
     }
 
-    private func performEd25519SigningTest(keychain: KeystoreProtocol,
-                                           settings: SelectedWalletSettings) throws {
+    private func performEd25519SigningTest(
+        keychain: KeystoreProtocol,
+        settings: SelectedWalletSettings,
+        expectedStoredSecretLength: Int
+    ) throws {
         let originalData = Self.message.data(using: .utf8)!
 
-        guard let metaAccount = settings.value else { return }
+        let metaAccount = try XCTUnwrap(settings.value)
 
-        let publicKeyData = metaAccount.substratePublicKey
+        guard let accountResponse = makeChainAccountResponse(
+            for: metaAccount,
+            cryptoType: .ed25519,
+            isEthereumBased: false
+        ) else {
+            XCTFail("Missing substrate account response")
+            return
+        }
+
+        let publicKeyData = accountResponse.publicKey
 
         let signer = SigningWrapper(
             keystore: keychain,
             metaId: metaAccount.metaId,
-            accountId: nil,
-            isEthereumBased: false,
-            cryptoType: .ed25519,
-            publicKeyData: publicKeyData
+            accountResponse: accountResponse
         )
 
+        let storedKeyTag = KeystoreTagV2.substrateSecretKeyTagForMetaId(
+            signer.metaId,
+            accountId: signer.accountId
+        )
+        let storedSecret = try keychain.fetchKey(for: storedKeyTag)
+        XCTAssertEqual(storedSecret.count, expectedStoredSecretLength)
+
         let signature = try signer.sign(originalData)
+        XCTAssertEqual(try signer.sign(originalData).rawData(), signature.rawData())
+        XCTAssertNotEqual(try signer.sign(Data()).rawData(), signature.rawData())
+        XCTAssertEqual(try keychain.fetchKey(for: storedKeyTag), storedSecret)
 
         let verifier = EDSignatureVerifier()
 
@@ -227,17 +252,23 @@ class SigningWrapperTests: XCTestCase {
                                            settings: SelectedWalletSettings) throws {
         let originalData = Self.message.data(using: .utf8)!
 
-        guard let metaAccount = settings.value else { return }
+        let metaAccount = try XCTUnwrap(settings.value)
 
-        let publicKeyData = metaAccount.substratePublicKey
+        guard let accountResponse = makeChainAccountResponse(
+            for: metaAccount,
+            cryptoType: .ecdsa,
+            isEthereumBased: false
+        ) else {
+            XCTFail("Missing substrate account response")
+            return
+        }
+
+        let publicKeyData = accountResponse.publicKey
 
         let signer = SigningWrapper(
             keystore: keychain,
             metaId: metaAccount.metaId,
-            accountId: nil,
-            isEthereumBased: false,
-            cryptoType: .ecdsa,
-            publicKeyData: publicKeyData
+            accountResponse: accountResponse
         )
 
         let signature = try signer.sign(originalData)
@@ -256,16 +287,22 @@ class SigningWrapperTests: XCTestCase {
                                            settings: SelectedWalletSettings) throws {
         let originalData = Self.message.data(using: .utf8)!
 
-        guard let metaAccount = settings.value else { return }
-        guard let publicKeyData = metaAccount.ethereumPublicKey else { return }
+        let metaAccount = try XCTUnwrap(settings.value)
+        guard let accountResponse = makeChainAccountResponse(
+            for: metaAccount,
+            cryptoType: .ecdsa,
+            isEthereumBased: true
+        ) else {
+            XCTFail("Missing ethereum account response")
+            return
+        }
+
+        let publicKeyData = accountResponse.publicKey
 
         let signer = SigningWrapper(
             keystore: keychain,
             metaId: metaAccount.metaId,
-            accountId: nil,
-            isEthereumBased: true,
-            cryptoType: .ecdsa,
-            publicKeyData: publicKeyData
+            accountResponse: accountResponse
         )
 
         let signature = try signer.sign(originalData)
@@ -279,4 +316,147 @@ class SigningWrapperTests: XCTestCase {
                                       forOriginalData: verificationData,
                                       usingPublicKey: publicKey))
     }
+
+    private func makeChainAccountResponse(
+        for metaAccount: MetaAccountModel,
+        cryptoType: CryptoType,
+        isEthereumBased: Bool,
+        isChainAccount: Bool = false,
+        addressPrefix: UInt16 = 0
+    ) -> ChainAccountResponse? {
+        if isEthereumBased {
+            guard
+                let accountId = metaAccount.ethereumAddress,
+                let publicKey = metaAccount.ethereumPublicKey
+            else {
+                return nil
+            }
+
+            return ChainAccountResponse(
+                chainId: "test-chain",
+                accountId: accountId,
+                publicKey: publicKey,
+                name: metaAccount.name,
+                cryptoType: cryptoType,
+                addressPrefix: addressPrefix,
+                isEthereumBased: true,
+                isChainAccount: isChainAccount,
+                walletId: metaAccount.metaId
+            )
+        } else {
+            guard let accountId = metaAccount.substrateAccountId, let publicKey = metaAccount.substratePublicKey else { return nil }
+            return ChainAccountResponse(
+                chainId: "test-chain",
+                accountId: accountId,
+                publicKey: publicKey,
+                name: metaAccount.name,
+                cryptoType: cryptoType,
+                addressPrefix: addressPrefix,
+                isEthereumBased: false,
+                isChainAccount: isChainAccount,
+                walletId: metaAccount.metaId
+            )
+        }
+    }
+}
+
+extension SigningWrapperTests {
+    func testDeniedMutationNeverReadsWalletKey() throws {
+        for (crypto, ethereum) in guardedSigningVariants {
+            let (wallet, account, keychain) = try guardedSigningFixture(crypto: crypto, ethereum: ethereum)
+            let authorization = try MutationOperationAuthorization(
+                intentSha256: String(repeating: "a", count: 64), validateContext: {}
+            ) { _ in throw MutationAuthorizationError.denied }
+            let signer = SigningWrapper(keystore: keychain, metaId: wallet.metaId,
+                                        accountResponse: account, mutationAuthorization: authorization)
+            XCTAssertThrowsError(try signer.sign(Data(Self.message.utf8)))
+            XCTAssertEqual(keychain.fetches, 0)
+        }
+    }
+
+    func testRevocationDuringKeyReadPreventsNativeSignature() throws {
+        for (crypto, ethereum) in guardedSigningVariants {
+            let (wallet, account, keychain) = try guardedSigningFixture(crypto: crypto, ethereum: ethereum)
+            var allowed = true
+            var boundaries = 0
+            keychain.afterFetch = { allowed = false }
+            let authorization = try MutationOperationAuthorization(
+                intentSha256: String(repeating: "a", count: 64), validateContext: {}
+            ) { action in
+                boundaries += 1
+                guard allowed else { throw MutationAuthorizationError.denied }
+                try action()
+            }
+            let signer = SigningWrapper(keystore: keychain, metaId: wallet.metaId,
+                                        accountResponse: account, mutationAuthorization: authorization)
+            XCTAssertThrowsError(try signer.sign(Data(Self.message.utf8)))
+            XCTAssertEqual(keychain.fetches, 1)
+            XCTAssertEqual(boundaries, 2, "Native preparation must be followed by a separate authorization")
+        }
+    }
+
+    func testAuthorizedSignaturesVerifyOriginalWalletIdentityAndCannotBeReused() throws {
+        for (crypto, ethereum) in guardedSigningVariants {
+            let (wallet, account, keychain) = try guardedSigningFixture(crypto: crypto, ethereum: ethereum)
+            var boundaries = 0
+            let authorization = try MutationOperationAuthorization(
+                intentSha256: String(repeating: "a", count: 64), validateContext: {}
+            ) { action in boundaries += 1; try action() }
+            let signer = SigningWrapper(keystore: keychain, metaId: wallet.metaId,
+                                        accountResponse: account, mutationAuthorization: authorization)
+            let original = Data(Self.message.utf8)
+            let signature = try signer.sign(original)
+            if ethereum || crypto == .ecdsa {
+                let digest = try ethereum ? original.keccak256() : original.blake2b32()
+                XCTAssertTrue(SECSignatureVerifier().verify(signature, forOriginalData: digest,
+                                                           usingPublicKey: try SECPublicKey(rawData: account.publicKey)))
+            } else if crypto == .ed25519 {
+                XCTAssertTrue(EDSignatureVerifier().verify(signature, forOriginalData: original,
+                                                          usingPublicKey: try EDPublicKey(rawData: account.publicKey)))
+            } else {
+                XCTAssertTrue(SNSignatureVerifier().verify(try SNSignature(rawData: signature.rawData()),
+                                                          forOriginalData: original,
+                                                          using: try SNPublicKey(rawData: account.publicKey)))
+            }
+            XCTAssertEqual(boundaries, 2)
+            XCTAssertEqual(keychain.fetches, 1)
+            XCTAssertThrowsError(try signer.sign(Data("another transaction".utf8)))
+            XCTAssertEqual(keychain.fetches, 1)
+        }
+    }
+
+    private var guardedSigningVariants: [(CryptoType, Bool)] {
+        [(.sr25519, false), (.ed25519, false), (.ecdsa, false), (.ecdsa, true)]
+    }
+
+    private func guardedSigningFixture(crypto: CryptoType, ethereum: Bool) throws
+        -> (MetaAccountModel, ChainAccountResponse, MutationTrackingKeychain) {
+        let keychain = InMemoryKeychain()
+        let settings = Self.testSettings
+        try AccountCreationHelper.createMetaAccountFromSeed(
+            substrateSeed: Self.substrateSeed, ethereumSeed: Self.ethereumSeed,
+            cryptoType: crypto, keychain: keychain, settings: settings
+        )
+        let wallet = try XCTUnwrap(settings.value)
+        let account = try XCTUnwrap(makeChainAccountResponse(for: wallet, cryptoType: crypto,
+                                                             isEthereumBased: ethereum))
+        return (wallet, account, MutationTrackingKeychain(base: keychain))
+    }
+}
+
+private final class MutationTrackingKeychain: KeystoreProtocol {
+    let base: KeystoreProtocol
+    var fetches = 0
+    var afterFetch: (() -> Void)?
+    init(base: KeystoreProtocol) { self.base = base }
+    func addKey(_ key: Data, with identifier: String) throws { try base.addKey(key, with: identifier) }
+    func updateKey(_ key: Data, with identifier: String) throws { try base.updateKey(key, with: identifier) }
+    func fetchKey(for identifier: String) throws -> Data {
+        fetches += 1
+        let value = try base.fetchKey(for: identifier)
+        afterFetch?()
+        return value
+    }
+    func checkKey(for identifier: String) throws -> Bool { try base.checkKey(for: identifier) }
+    func deleteKey(for identifier: String) throws { try base.deleteKey(for: identifier) }
 }

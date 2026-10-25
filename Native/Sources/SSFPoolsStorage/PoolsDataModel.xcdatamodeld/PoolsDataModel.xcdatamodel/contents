@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22222" systemVersion="23A344" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="CDAccountPool" representedClassName="CDAccountPool" syncable="YES" codeGenerationType="class">
+        <attribute name="accountId" attributeType="String"/>
+        <attribute name="apy" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
+        <attribute name="baseAssetId" attributeType="String"/>
+        <attribute name="baseAssetPooled" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
+        <attribute name="chainId" attributeType="String"/>
+        <attribute name="identifier" optional="YES" attributeType="String"/>
+        <attribute name="poolId" attributeType="String"/>
+        <attribute name="rewardAssetId" attributeType="String"/>
+        <attribute name="targetAssetId" attributeType="String"/>
+        <attribute name="targetAssetPooled" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="poolId"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="CDLiquidityPair" representedClassName="CDLiquidityPair" syncable="YES" codeGenerationType="class">
+        <attribute name="baseAssetId" attributeType="String"/>
+        <attribute name="chainId" attributeType="String"/>
+        <attribute name="identifier" optional="YES" attributeType="String"/>
+        <attribute name="pairId" attributeType="String"/>
+        <attribute name="reserves" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
+        <attribute name="rewardAssetId" attributeType="String"/>
+        <attribute name="targetAssetId" attributeType="String"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="pairId"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+</model>

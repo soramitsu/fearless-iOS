@@ -76,9 +76,22 @@ final class ChainAccountPresenter {
         guard
             case var .value(accountInfoValue) = accountInfo,
             case let .value(frozenValue) = frozen,
-            case let .value(balanceValue) = balance,
             case let .value(balanceLocksValue) = balanceLocks
         else {
+            DispatchQueue.main.async { [weak self] in
+                self?.view?.didReceive(balanceViewModel: nil)
+            }
+            return
+        }
+
+        let balanceValue: WalletBalanceInfo?
+        if case let .value(value) = balance {
+            balanceValue = value
+        } else if UniversalWalletChainAccountSupport.isUniversalWalletChain(
+            chainAsset.chain.chainId
+        ) {
+            balanceValue = nil
+        } else {
             DispatchQueue.main.async { [weak self] in
                 self?.view?.didReceive(balanceViewModel: nil)
             }
@@ -93,7 +106,11 @@ final class ChainAccountPresenter {
         }
 
         let free = accountInfoValue?.data.sendAvailable ?? BigUInt.zero
-        let priceData = balanceValue?.prices.first(where: { $0.priceId == chainAsset.asset.priceId })
+        let registryPrice = balanceValue?.prices.first(where: { $0.priceId == chainAsset.asset.priceId })
+            ?? chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+        // `untrustedAssets` withholds the registry price of a look-alike token,
+        // whatever its shared price id is worth.
+        let priceData = PortfolioUntrustedPriceList.bundled.contains(chainAsset) ? nil : registryPrice
         let freeBalance = Decimal.fromSubstrateAmount(
             free,
             precision: Int16(chainAsset.asset.precision)
@@ -101,14 +118,40 @@ final class ChainAccountPresenter {
 
         let transferrableBalance = freeBalance - frozenValue.or(.zero)
         let transferrableValue = balanceViewModelFactory.balanceFromPrice(transferrableBalance, priceData: priceData, usageCase: .detailsCrypto)
-        let totalLocked = balanceLocksValue.or(.zero) + frozenValue.or(.zero)
-        let lockedValue = balanceViewModelFactory.balanceFromPrice(totalLocked, priceData: priceData, usageCase: .detailsCrypto)
 
-        let balanceViewModel = ChainAccountBalanceViewModel(
-            transferrableValue: transferrableValue,
-            lockedValue: lockedValue,
-            hasLockedTokens: totalLocked > Decimal.zero
-        )
+        let balanceViewModel: ChainAccountBalanceViewModel
+        if UniversalWalletRegistry.bitcoinNetwork(for: chainAsset.chain.chainId) != nil {
+            // Bitcoin has no locks. Its second row is what the wallet received or got back as
+            // change that still waits for a block: counted in the total, not yet spendable.
+            let pendingBalance = Decimal.fromSubstrateAmount(
+                accountInfoValue?.data.frozen ?? .zero,
+                precision: Int16(chainAsset.asset.precision)
+            ) ?? Decimal.zero
+            balanceViewModel = ChainAccountBalanceViewModel(
+                transferrableValue: transferrableValue,
+                lockedValue: balanceViewModelFactory.balanceFromPrice(
+                    pendingBalance,
+                    priceData: priceData,
+                    usageCase: .detailsCrypto
+                ),
+                hasLockedTokens: false,
+                lockedTitle: LocalizableResource { _ in
+                    NSLocalizedString(
+                        "bitcoin.balance.pending_confirmation",
+                        value: "Pending confirmation",
+                        comment: "Bitcoin received or returned as change, waiting for its first confirmation"
+                    )
+                }
+            )
+        } else {
+            let totalLocked = balanceLocksValue.or(.zero) + frozenValue.or(.zero)
+            let lockedValue = balanceViewModelFactory.balanceFromPrice(totalLocked, priceData: priceData, usageCase: .detailsCrypto)
+            balanceViewModel = ChainAccountBalanceViewModel(
+                transferrableValue: transferrableValue,
+                lockedValue: lockedValue,
+                hasLockedTokens: totalLocked > Decimal.zero
+            )
+        }
 
         DispatchQueue.main.async { [weak self] in
             self?.view?.didReceive(balanceViewModel: balanceViewModel)
@@ -132,7 +175,9 @@ final class ChainAccountPresenter {
                 }
             }
 
-            let providersAggregator = PurchaseAggregator(providers: availableProviders)
+            let providersAggregator = PurchaseAggregator.defaultAggregator(
+                with: availableProviders.isEmpty ? nil : availableProviders
+            )
             actions = providersAggregator.buildPurchaseActions(asset: chainAsset.asset, address: address)
         }
         return actions
@@ -201,6 +246,16 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     }
 
     func didTapSendButton() {
+        guard !UniversalWalletChainAccountSupport.chainId(
+            chainAsset.chain.chainId,
+            matches: UniversalWalletRegistry.taira.chainId
+        ), !UniversalWalletChainAccountSupport.chainId(
+            chainAsset.chain.chainId,
+            matches: UniversalWalletRegistry.nexus.chainId
+        ) else {
+            return
+        }
+
         wireframe.presentSendFlow(
             from: view,
             chainAsset: chainAsset,
@@ -281,10 +336,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
     }
 
     func didReceiveExportOptions(options: [ExportOption]) {
-        var items: [ChainAction] = []
-        items.append(.export)
-        if !chainAsset.chain.isEthereum { items.append(.switchNode) }
-        items.append(.replace)
+        var items = Self.baseActions(for: chainAsset.chain)
         if interactor.checkIsClaimAvailable() { items.append(.claimCrowdloanRewards) }
 
         let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
@@ -354,7 +406,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
     func didReceiveBalanceLocksError(_ error: Error) {
         balanceLocks = .value(nil)
         provideBalanceViewModel()
-        logger.error("Did receive balance locks error: \(error)")
+        logger.error("Did receive balance locks error: \(error.logSafeDescription)")
     }
 
     func didReceiveWalletBalancesResult(_ result: WalletBalancesResult) {
@@ -375,18 +427,40 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
             self.minimumBalance = .value(minimumBalance)
         case let .failure(error):
             minimumBalance = .value(nil)
-            logger.error("Did receive minimum balance error: \(error)")
+            logger.error("Did receive minimum balance error: \(error.logSafeDescription)")
         }
     }
 
     func didReceive(accountInfo: AccountInfo?, for _: ChainAsset, accountId _: AccountId) {
         self.accountInfo = .value(accountInfo)
+        if UniversalWalletChainAccountSupport.isUniversalWalletChain(
+            chainAsset.chain.chainId
+        ) {
+            balanceInfoModule.replace(
+                infoType: .chainAsset(wallet: wallet, chainAsset: chainAsset)
+            )
+        }
         provideBalanceViewModel()
     }
 
     func didReceiveWallet(wallet: MetaAccountModel) {
         self.wallet = wallet
         provideViewModel()
+    }
+}
+
+extension ChainAccountPresenter {
+    static func baseActions(for chain: ChainModel) -> [ChainAction] {
+        if UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) {
+            return []
+        }
+
+        var actions: [ChainAction] = [.export]
+        if !chain.isEthereum {
+            actions.append(.switchNode)
+        }
+        actions.append(.replace)
+        return actions
     }
 }
 
