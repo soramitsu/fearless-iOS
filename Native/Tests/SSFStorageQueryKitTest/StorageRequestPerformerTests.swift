@@ -1,5 +1,6 @@
 import BigInt
 import MocksBasket
+import RobinHood
 import SSFChainConnection
 import SSFChainRegistry
 import SSFCrypto
@@ -94,6 +95,73 @@ final class StorageRequestPerformerTests: XCTestCase {
     }
 
     // MARK: - performSingle with cache options
+
+    func testOnAllPerformsRemoteWhenRepositoryFetchFails() async throws {
+        let repository = FailingCacheRepository()
+        let performer = try await createPerformer(
+            answering: timestampRequest, with: timestampValue,
+            cacheStorage: AsyncAnyRepository(repository)
+        )
+        let responses = try await collect(
+            await performer.performSingle(timestampRequest, withCacheOptions: .onAll, chain: chain)
+                as AsyncThrowingStream<CachedStorageResponse<String>, Error>
+        )
+        XCTAssertEqual(responses.map(\.value), [expectedTimestamp])
+        XCTAssertEqual(responses.map(\.type), [.remote])
+    }
+
+    func testCacheOnlyPropagatesRepositoryFailure() async throws {
+        let performer = try await createPerformer(
+            answering: timestampRequest, with: timestampValue,
+            cacheStorage: AsyncAnyRepository(FailingCacheRepository())
+        )
+        do {
+            _ = try await collect(
+                await performer.performSingle(timestampRequest, withCacheOptions: .onCache, chain: chain)
+                    as AsyncThrowingStream<CachedStorageResponse<String>, Error>
+            )
+            XCTFail("Expected repository failure")
+        } catch {
+            XCTAssertTrue(error is FailingCacheRepository.Failure)
+        }
+    }
+
+    func testCacheDoesNotReturnAnotherChainsValueForTheSameStorageKey() async throws {
+        let performer = try await createPerformer(answering: timestampRequest, with: timestampValue)
+        try await fetchUntilCached(timestampRequest, performer: performer, expected: expectedTimestamp)
+        let otherChain = ChainModel(
+            rank: 0, disabled: false, chainId: UUID().uuidString, paraId: nil,
+            name: "Isolated chain", xcm: nil, nodes: [], addressPrefix: 0, icon: nil,
+            iosMinAppVersion: nil, identityChain: nil
+        )
+        let cached = try await collect(
+            await performer.performSingle(timestampRequest, withCacheOptions: .onCache, chain: otherChain)
+                as AsyncThrowingStream<CachedStorageResponse<String>, Error>
+        )
+        XCTAssertTrue(cached.isEmpty, "A matching runtime key from a different chain is not this chain's cache")
+    }
+
+    func testRemoteFailureTerminatesCachedStream() async throws {
+        let engine = JSONRPCEngineMock()
+        engine.completionResult = "wrong response type"
+        let performer = StorageRequestPerformerDefault(chainRegistry: StubChainRegistry(
+            runtimeProvider: polkadotRuntimeService, connection: engine
+        ))
+        let stream: AsyncThrowingStream<CachedStorageResponse<String>, Error> =
+            await performer.performSingle(timestampRequest, withCacheOptions: .onAll, chain: chain)
+        let finished = expectation(description: "Remote error reaches stream consumer")
+        let consumer = Task {
+            do {
+                for try await _ in stream {}
+            } catch {
+                XCTAssertTrue(error is JSONRPCEngineMockError)
+                finished.fulfill()
+            }
+        }
+        await fulfillment(of: [finished], timeout: 2)
+        consumer.cancel()
+    }
+
 
     func testCacheOnAllSingleYieldsTheCachedAndTheRemoteValue() async throws {
         let performer = try await createPerformer(answering: timestampRequest, with: timestampValue)
@@ -337,7 +405,8 @@ final class StorageRequestPerformerTests: XCTestCase {
     /// keyed by it, so a response under any other key never reaches it.
     private func createPerformer(
         answering request: StorageRequest,
-        with value: String
+        with value: String,
+        cacheStorage: AsyncAnyRepository<SingleValueProviderObject>? = nil
     ) async throws -> StorageRequestPerformerDefault {
         let codingFactory = try await polkadotRuntimeService.fetchCoderFactory()
         let keys = try StorageRequestKeyEncodingWorkerFactoryDefault().buildFactory(
@@ -350,16 +419,20 @@ final class StorageRequestPerformerTests: XCTestCase {
         return createPerformer(with: [StorageUpdate(
             blockHash: nil,
             changes: keys.map { [$0.toHex(includePrefix: true), value] }
-        )])
+        )], cacheStorage: cacheStorage)
     }
 
-    private func createPerformer(with result: [StorageUpdate]) -> StorageRequestPerformerDefault {
+    private func createPerformer(
+        with result: [StorageUpdate],
+        cacheStorage: AsyncAnyRepository<SingleValueProviderObject>? = nil
+    ) -> StorageRequestPerformerDefault {
         let engine = JSONRPCEngineMock()
         engine.completionResult = result
-        return StorageRequestPerformerDefault(chainRegistry: StubChainRegistry(
-            runtimeProvider: polkadotRuntimeService,
-            connection: engine
-        ))
+        let registry = StubChainRegistry(runtimeProvider: polkadotRuntimeService, connection: engine)
+        if let cacheStorage {
+            return StorageRequestPerformerDefault(chainRegistry: registry, cacheStorage: cacheStorage)
+        }
+        return StorageRequestPerformerDefault(chainRegistry: registry)
     }
 
     /// The remote response is saved in the background, so a test that needs the cache waits for it.
@@ -452,4 +525,24 @@ private final class StubChainRegistry: ChainRegistryProtocol {
 struct ValidatorPrefs: Codable, Equatable {
     @StringCodable var commission: BigUInt
     let blocked: Bool
+}
+
+
+private actor FailingCacheRepository: AsyncCoreDataRepository {
+    typealias Model = SingleValueProviderObject
+    enum Failure: Error { case read }
+
+    func fetch(by _: [String], options _: RepositoryFetchOptions) async throws -> [Model] {
+        throw Failure.read
+    }
+
+    func fetch(by _: String, options _: RepositoryFetchOptions) async throws -> Model? {
+        throw Failure.read
+    }
+
+    func fetchAll(with _: RepositoryFetchOptions) async throws -> [Model] {
+        throw Failure.read
+    }
+
+    func save(models _: [Model], deleteIds _: [String]) async {}
 }
