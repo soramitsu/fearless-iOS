@@ -1,5 +1,20 @@
 # Roadmap — Fearless Wallet iOS
 
+## OKLink history pagination — 25 October 2026
+
+The remaining OKLink history factory now sends its page cursor and preserves the
+provider's next page, including when token filtering removes every returned row.
+It rejects malformed cursors, invalid page metadata and responses for a different
+requested page; provider failures still propagate. This adapts the bounded
+pagination fix from the historical swap branch without enabling its transaction UI.
+
+Cached simulator build-for-testing and all 44 focused history/provider tests pass
+with zero failures or skips, including five new pagination regressions. Pinned
+SwiftFormat and native ownership verification pass. Scoped SwiftLint retains four
+inherited source findings with no new rule/file occurrences. Final formatting only
+changes whitespace, with equivalence recorded against the tested source. Live
+provider availability and signed distribution are separate qualifications.
+
 ## Historical branch runtime fixes — 25 October 2026
 
 Adapt nine bounded fixes from the reviewed modernize/fw-adoptation branches:

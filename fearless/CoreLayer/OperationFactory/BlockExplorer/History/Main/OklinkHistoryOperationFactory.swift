@@ -18,9 +18,13 @@ final class OklinkHistoryOperationFactory {
         return decoded
     }
 
-    static func historyURL(address: String, url: URL, asset: AssetModel) -> URL? {
+    static func historyURL(address: String, url: URL, asset: AssetModel, page: String? = nil) -> URL? {
+        let requestedPage = page ?? "1"
+        guard let pageNumber = Int(requestedPage), pageNumber > 0,
+              String(pageNumber) == requestedPage else { return nil }
         var urlComponents = URLComponents(string: url.absoluteString)
-        var queryItems = urlComponents?.queryItems ?? []
+        var queryItems = (urlComponents?.queryItems ?? []).filter { $0.name != "page" }
+        queryItems.append(URLQueryItem(name: "page", value: requestedPage))
         queryItems.append(URLQueryItem(name: "address", value: address))
         queryItems.append(URLQueryItem(name: "symbol", value: asset.symbol))
 
@@ -39,9 +43,12 @@ final class OklinkHistoryOperationFactory {
     private func createOperation(
         address: String,
         url: URL,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        page: String?
     ) -> BaseOperation<OklinkHistoryResponse> {
-        guard let urlWithParameters = Self.historyURL(address: address, url: url, asset: chainAsset.asset) else {
+        guard let urlWithParameters = Self.historyURL(
+            address: address, url: url, asset: chainAsset.asset, page: page
+        ) else {
             return BaseOperation.createWithError(SubqueryHistoryOperationFactoryError.urlMissing)
         }
 
@@ -77,24 +84,47 @@ final class OklinkHistoryOperationFactory {
         )
     }
 
+    static func mapResponse(
+        _ response: OklinkHistoryResponse,
+        address: String,
+        asset: AssetModel,
+        chain: ChainModel,
+        requestedPage: String = "1"
+    ) throws -> AssetTransactionPageData {
+        guard let data = try response.validatedData().first else {
+            return AssetTransactionPageData(transactions: [])
+        }
+        guard let currentPage = Int(data.page), currentPage > 0,
+              data.page == requestedPage,
+              let totalPage = Int(data.totalPage), totalPage >= 0,
+              currentPage <= totalPage || (totalPage == 0 && data.transactionLists.isEmpty)
+        else { throw OklinkHistoryError.invalidPagination }
+
+        let transactions = data.transactionLists
+            .filter { asset.ethereumType == .normal ? true : $0.tokenContractAddress.lowercased() == asset.id.lowercased() }
+            .sorted(by: { $0.transactionTime > $1.transactionTime })
+            .compactMap {
+                AssetTransactionData.createTransaction(from: $0, address: address, chain: chain, asset: asset)
+            }.filter { $0.amount.decimalValue > 0 }
+
+        // Advance from provider metadata even when asset filtering removes every row.
+        // currentPage < totalPage also makes incrementing currentPage overflow-safe.
+        let context = currentPage < totalPage ? ["page": String(currentPage + 1)] : nil
+        return AssetTransactionPageData(transactions: transactions, context: context)
+    }
+
     private func createMapOperation(
         dependingOn remoteOperation: BaseOperation<OklinkHistoryResponse>,
         address: String,
         asset: AssetModel,
-        chain: ChainModel
+        chain: ChainModel,
+        requestedPage: String
     ) -> BaseOperation<AssetTransactionPageData?> {
         ClosureOperation {
-            let response = try remoteOperation.extractNoCancellableResultData()
-            let remoteTransactions = try response.validatedData().first?.transactionLists
-
-            let transactions = remoteTransactions?
-                .filter { asset.ethereumType == .normal ? true : $0.tokenContractAddress.lowercased() == asset.id.lowercased() }
-                .sorted(by: { $0.transactionTime > $1.transactionTime })
-                .compactMap {
-                    AssetTransactionData.createTransaction(from: $0, address: address, chain: chain, asset: asset)
-                }.filter { $0.amount.decimalValue > 0 } ?? []
-
-            return AssetTransactionPageData(transactions: transactions)
+            try Self.mapResponse(
+                remoteOperation.extractNoCancellableResultData(),
+                address: address, asset: asset, chain: chain, requestedPage: requestedPage
+            )
         }
     }
 }
@@ -105,7 +135,7 @@ extension OklinkHistoryOperationFactory: HistoryOperationFactoryProtocol {
         chain: ChainModel,
         address: String,
         filters _: [WalletTransactionHistoryFilter],
-        pagination _: Pagination
+        pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
         guard let baseUrl = chain.externalApi?.history?.url else {
             return CompoundOperationWrapper.createWithError(SubqueryHistoryOperationFactoryError.urlMissing)
@@ -114,14 +144,16 @@ extension OklinkHistoryOperationFactory: HistoryOperationFactoryProtocol {
         let remoteOperation = createOperation(
             address: address,
             url: baseUrl,
-            chainAsset: ChainAsset(chain: chain, asset: asset)
+            chainAsset: ChainAsset(chain: chain, asset: asset),
+            page: pagination.context?["page"]
         )
 
         let mapOperation = createMapOperation(
             dependingOn: remoteOperation,
             address: address,
             asset: asset,
-            chain: chain
+            chain: chain,
+            requestedPage: pagination.context?["page"] ?? "1"
         )
 
         mapOperation.addDependency(remoteOperation)
@@ -145,6 +177,7 @@ struct OklinkHistoryResponse: Codable {
 enum OklinkHistoryError: Error, Equatable {
     case invalidHTTPResponse
     case providerRejected
+    case invalidPagination
 }
 
 struct OklinkData: Codable {
