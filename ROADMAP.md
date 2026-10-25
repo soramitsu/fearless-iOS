@@ -1,5 +1,12 @@
 # Roadmap — Fearless Wallet iOS
 
+## Retired shared-package templates — 25 October 2026
+
+Remove the unused temporary IrohaCrypto umbrella, module-map and linker-setting
+templates. No tracked build or script consumes them; the active headers, module
+map and linker settings are already owned by Native. Native source verification
+and all 16 existing guard regressions pass. No compiled source or binary changed.
+
 ## OKLink history pagination — 25 October 2026
 
 The remaining OKLink history factory now sends its page cursor and preserves the

@@ -1,3 +1,0 @@
-            linkerSettings: [
-                .linkedFramework("sorawallet")
-            ]
