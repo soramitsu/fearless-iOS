@@ -103,6 +103,7 @@ final class StakingMainPresenter {
         let commonData = stateMachine.viewState { (state: BaseStakingState) in state.commonData }
 
         guard let address = commonData?.address, let chainAsset = commonData?.chainAsset else {
+            view?.didReceive(viewModel: nil)
             return
         }
 
@@ -114,6 +115,9 @@ final class StakingMainPresenter {
         )
 
         view?.didReceive(viewModel: viewModel)
+        if let stories = StoriesFactory().createModel(for: chainAsset.stakingType) {
+            view?.didReceive(stories: stories)
+        }
     }
 
     func setupValidators(for bondedState: BondedState) {
@@ -608,17 +612,16 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         handle(error: eraStakersInfoError)
     }
 
-    func didReceive(newChainAsset: ChainAsset) {
+    func didReceive(newChainAsset: ChainAsset?) {
         networkStakingInfo = nil
+        balance = nil
+        controllerAccount = nil
+        nomination = nil
 
         stateMachine.state.process(chainAsset: newChainAsset)
 
         provideMainViewModel()
         provideStakingInfo()
-
-        if let stories = StoriesFactory().createModel(for: newChainAsset.stakingType) {
-            view?.didReceive(stories: stories)
-        }
     }
 
     func didReceive(networkStakingInfo: NetworkStakingInfo) {

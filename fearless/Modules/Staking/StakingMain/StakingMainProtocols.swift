@@ -5,7 +5,7 @@ import BigInt
 import SSFModels
 
 protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
-    func didReceive(viewModel: StakingMainViewModel)
+    func didReceive(viewModel: StakingMainViewModel?)
     func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?)
     func didReceiveStakingState(viewModel: StakingViewState)
     func expandNetworkInfoView(_ isExpanded: Bool)
@@ -68,7 +68,7 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceive(networkStakingInfoError: Error)
     func didReceive(payee: RewardDestinationArg?)
     func didReceive(payeeError: Error)
-    func didReceive(newChainAsset: ChainAsset)
+    func didReceive(newChainAsset: ChainAsset?)
     func didReceieve(subqueryRewards: Result<[SubqueryRewardItemData]?, Error>, period: AnalyticsPeriod)
     func didReceiveMinNominatorBond(result: Result<BigUInt?, Error>)
     func didReceiveCounterForNominators(result: Result<UInt32?, Error>)

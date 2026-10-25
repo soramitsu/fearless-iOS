@@ -32658,9 +32658,9 @@ class MockStakingMainViewProtocol: StakingMainViewProtocol, Cuckoo.ProtocolMock,
     }
 
 
-    func didReceive(viewModel p0: StakingMainViewModel) {
+    func didReceive(viewModel p0: StakingMainViewModel?) {
         return cuckoo_manager.call(
-            "didReceive(viewModel p0: StakingMainViewModel)",
+            "didReceive(viewModel p0: StakingMainViewModel?)",
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -32747,10 +32747,10 @@ class MockStakingMainViewProtocol: StakingMainViewProtocol, Cuckoo.ProtocolMock,
             return .init(manager: cuckoo_manager, name: "localizationManager")
         }
         
-        func didReceive<M1: Cuckoo.Matchable>(viewModel p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingMainViewModel)> where M1.MatchedType == StakingMainViewModel {
-            let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewModel)>] = [wrap(matchable: p0) { $0 }]
+        func didReceive<M1: Cuckoo.OptionalMatchable>(viewModel p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingMainViewModel?)> where M1.OptionalMatchedType == StakingMainViewModel {
+            let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewModel?)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self,
-                method: "didReceive(viewModel p0: StakingMainViewModel)",
+                method: "didReceive(viewModel p0: StakingMainViewModel?)",
                 parameterMatchers: matchers
             ))
         }
@@ -32829,10 +32829,10 @@ class MockStakingMainViewProtocol: StakingMainViewProtocol, Cuckoo.ProtocolMock,
         
         
         @discardableResult
-        func didReceive<M1: Cuckoo.Matchable>(viewModel p0: M1) -> Cuckoo.__DoNotUse<(StakingMainViewModel), Void> where M1.MatchedType == StakingMainViewModel {
-            let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewModel)>] = [wrap(matchable: p0) { $0 }]
+        func didReceive<M1: Cuckoo.OptionalMatchable>(viewModel p0: M1) -> Cuckoo.__DoNotUse<(StakingMainViewModel?), Void> where M1.OptionalMatchedType == StakingMainViewModel {
+            let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewModel?)>] = [wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
-                "didReceive(viewModel p0: StakingMainViewModel)",
+                "didReceive(viewModel p0: StakingMainViewModel?)",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -32936,7 +32936,7 @@ class StakingMainViewProtocolStub:StakingMainViewProtocol, @unchecked Sendable {
 
 
     
-    func didReceive(viewModel p0: StakingMainViewModel) {
+    func didReceive(viewModel p0: StakingMainViewModel?) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -34175,9 +34175,9 @@ class MockStakingMainInteractorOutputProtocol: StakingMainInteractorOutputProtoc
         )
     }
 
-    func didReceive(newChainAsset p0: SSFModels.ChainAsset) {
+    func didReceive(newChainAsset p0: SSFModels.ChainAsset?) {
         return cuckoo_manager.call(
-            "didReceive(newChainAsset p0: SSFModels.ChainAsset)",
+            "didReceive(newChainAsset p0: SSFModels.ChainAsset?)",
             parameters: (p0),
             escapingParameters: (p0),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
@@ -34518,10 +34518,10 @@ class MockStakingMainInteractorOutputProtocol: StakingMainInteractorOutputProtoc
             ))
         }
         
-        func didReceive<M1: Cuckoo.Matchable>(newChainAsset p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(SSFModels.ChainAsset)> where M1.MatchedType == SSFModels.ChainAsset {
-            let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainAsset)>] = [wrap(matchable: p0) { $0 }]
+        func didReceive<M1: Cuckoo.OptionalMatchable>(newChainAsset p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(SSFModels.ChainAsset?)> where M1.OptionalMatchedType == SSFModels.ChainAsset {
+            let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainAsset?)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self,
-                method: "didReceive(newChainAsset p0: SSFModels.ChainAsset)",
+                method: "didReceive(newChainAsset p0: SSFModels.ChainAsset?)",
                 parameterMatchers: matchers
             ))
         }
@@ -34924,10 +34924,10 @@ class MockStakingMainInteractorOutputProtocol: StakingMainInteractorOutputProtoc
         
         
         @discardableResult
-        func didReceive<M1: Cuckoo.Matchable>(newChainAsset p0: M1) -> Cuckoo.__DoNotUse<(SSFModels.ChainAsset), Void> where M1.MatchedType == SSFModels.ChainAsset {
-            let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainAsset)>] = [wrap(matchable: p0) { $0 }]
+        func didReceive<M1: Cuckoo.OptionalMatchable>(newChainAsset p0: M1) -> Cuckoo.__DoNotUse<(SSFModels.ChainAsset?), Void> where M1.OptionalMatchedType == SSFModels.ChainAsset {
+            let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainAsset?)>] = [wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
-                "didReceive(newChainAsset p0: SSFModels.ChainAsset)",
+                "didReceive(newChainAsset p0: SSFModels.ChainAsset?)",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -35208,7 +35208,7 @@ class StakingMainInteractorOutputProtocolStub:StakingMainInteractorOutputProtoco
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-    func didReceive(newChainAsset p0: SSFModels.ChainAsset) {
+    func didReceive(newChainAsset p0: SSFModels.ChainAsset?) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

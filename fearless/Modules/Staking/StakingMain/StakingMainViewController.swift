@@ -469,12 +469,27 @@ extension StakingMainViewController: StakingMainViewProtocol {
         networkInfoView?.bind(viewModel: viewModel)
     }
 
-    func didReceive(viewModel: StakingMainViewModel) {
+    func didReceive(viewModel: StakingMainViewModel?) {
         guard viewIfLoaded != nil else {
             return
         }
         assetIconViewModel?.cancel(on: assetSelectionView.iconView)
 
+        guard let viewModel else {
+            assetIconViewModel = nil
+            balanceViewModel = nil
+            assetSelectionView.title = ""
+            assetSelectionView.subtitle = nil
+            assetSelectionView.iconImage = nil
+            networkInfoView?.bind(chainName: "")
+            networkInfoView?.bind(viewModel: nil)
+            networkInfoContainerView.isHidden = true
+            storiesModel = nil
+            networkInfoView?.collectionView.reloadData()
+            return
+        }
+
+        networkInfoContainerView.isHidden = false
         assetIconViewModel = viewModel.assetIcon
         balanceViewModel = viewModel.balanceViewModel
 

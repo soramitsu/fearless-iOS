@@ -160,7 +160,7 @@
       "commit": "f2ed4ccf1d3a6376b60ebd69d823a3f7748ddc4b",
       "sourcePath": "chains/v13/chains_dev.json",
       "upstreamSha256": "5726b01a5364d955e250939c71082c03f97da0dc9512ac9d120c6a2085173d05",
-      "ownedSha256": "a560e9b5974823855df815f9b43a495eb96bfc53cc89509d493c1192d45f45f1"
+      "ownedSha256": "97da306bd729c9b571d4483a9258210d425c6abe32da06d7a2ef721e26f508d4"
     },
     {
       "path": "development/chains/v9/chains_dev.json",
@@ -168,7 +168,7 @@
       "commit": "f2ed4ccf1d3a6376b60ebd69d823a3f7748ddc4b",
       "sourcePath": "chains/v9/chains_dev.json",
       "upstreamSha256": "628b6749b14ee787323ba3d72c1c351f2cbff02ca47782796f4dce81bad34a07",
-      "ownedSha256": "3aa1417fd52344f5736ca17632ac14abc4a378bcf613a7a35e03dbf4ee8c7a7d"
+      "ownedSha256": "946ff648583f0b0a4cc099bdb9d0fdf4e9502fe626c90106f51d7ce17587e203"
     },
     {
       "path": "development/fiat/fiats.json",
@@ -4048,7 +4048,7 @@
       "commit": "ca1c2655ff541ae5942d820423962d34fd29d7f9",
       "sourcePath": "chains/v13/chains.json",
       "upstreamSha256": "79a583f08f71139a31e00c825c746891cef50c04aa81318aaa492807757b9cec",
-      "ownedSha256": "e2c3208e72abb3ecc656824b70fb520bc13909c6d525dd3f28c0d8c1eac165d8"
+      "ownedSha256": "373462d72052835bd02bf38018cb83478194bed96759c542120773aaae35d37b"
     },
     {
       "path": "production/chains/v2/chains.json",
@@ -4064,7 +4064,7 @@
       "commit": "ca1c2655ff541ae5942d820423962d34fd29d7f9",
       "sourcePath": "chains/v9/chains.json",
       "upstreamSha256": "7bf099748b92db438635025bb5009bb77e966b3473008a48969a261da7998f57",
-      "ownedSha256": "af96b94d99441ecbc0b4e6fc039b01dd91be5a6287af02420afca3a9dc0d6e01"
+      "ownedSha256": "1ab96e624590262d10e64602d596fefcf005e963b3b27ce0a090313282010346"
     },
     {
       "path": "production/fiat/fiats.json",
@@ -8256,6 +8256,18 @@
       "changes": [
         "Rehost bundled startup fallback dependencies in iOS-owned remote-config/legacy/master",
         "Apply the existing Latest Mainnet filename and absent Rootstock artwork corrections to the bundled fallback"
+      ]
+    },
+    {
+      "files": [
+        "remote-config/production/chains/v13/chains.json",
+        "remote-config/production/chains/v9/chains.json",
+        "remote-config/development/chains/v13/chains_dev.json",
+        "remote-config/development/chains/v9/chains_dev.json",
+        "fearless/Modules/LiquidityPools/LiquidityPoolDetails/Resources/chains.json"
+      ],
+      "changes": [
+        "Disable unreachable Reef Mainnet in app-owned catalogs after retaining unavailable chain parents and clearing stale staking selection; configured RPC returned HTTP502 on 2026-10-25. Legacy shared feeds remain unchanged."
       ]
     }
   ]

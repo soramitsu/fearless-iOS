@@ -38,7 +38,10 @@ class BaseStakingState: StakingStateProtocol {
                     commonData: commonData
                 )
             case .none:
-                return
+                newState = InitialRelaychainStakingState(
+                    stateMachine: stateMachine,
+                    commonData: commonData
+                )
             }
 
             stateMachine.transit(to: newState)

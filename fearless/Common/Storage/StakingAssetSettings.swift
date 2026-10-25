@@ -40,11 +40,12 @@ final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
         let fetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 
         let mappingOperation = ClosureOperation<ChainAsset?> { [weak self] in
-            let chains = try fetchOperation.extractNoCancellableResultData()
+            let chains = try fetchOperation.extractNoCancellableResultData().filter { !$0.disabled }
 
             if
                 let selectedChain = chains.first(where: { $0.chainId == maybeChainAssetId?.chainId }),
                 let selectedAsset = selectedChain.assets.first(where: { $0.id == maybeChainAssetId?.assetId }),
+                selectedAsset.staking != nil,
                 self?.wallet.fetch(for: selectedChain.accountRequest()) != nil {
                 return ChainAsset(chain: selectedChain, asset: selectedAsset)
             }
@@ -66,16 +67,16 @@ final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
 
         mappingOperation.addDependency(fetchOperation)
 
-        mappingOperation.completionBlock = {
-            do {
-                let result = try mappingOperation.extractNoCancellableResultData()
-                completionClosure(.success(result))
-            } catch {
-                completionClosure(.failure(error))
-            }
-        }
+        // The staking view factory reads `value` immediately after setup. Finish
+        // this local database read before publishing the selected asset.
+        operationQueue.addOperations([fetchOperation, mappingOperation], waitUntilFinished: true)
 
-        operationQueue.addOperations([fetchOperation, mappingOperation], waitUntilFinished: false)
+        do {
+            let result = try mappingOperation.extractNoCancellableResultData()
+            completionClosure(.success(result))
+        } catch {
+            completionClosure(.failure(error))
+        }
     }
 
     override func performSave(

@@ -16,6 +16,7 @@ permissions:
 jobs:
   build:
     runs-on: macOS-latest
+    timeout-minutes: 120
     permissions:
       contents: read
       id-token: write
@@ -132,25 +133,10 @@ jobs:
             exit 1
           fi
           HOST_ARCH="$(uname -m)"
-          SIM_INFO="$(xcrun simctl list devices available | awk -v udid="$UDID" '
-            /^-- iOS / { os=$3; next }
-            {
-              if (index($0, udid) > 0) {
-                line = $0
-                sub(/[[:space:]]*\([A-Fa-f0-9-]{36}\).*/, "", line)
-                gsub(/^[[:space:]]+|[[:space:]]+$/, "", line)
-                print line "|" os
-                exit
-              }
-            }
-          ')"
-          if [ -n "$SIM_INFO" ]; then
-            SIM_NAME="${SIM_INFO%%|*}"
-            SIM_OS="${SIM_INFO##*|}"
-            DESTINATION="platform=iOS Simulator,OS=${SIM_OS},name=${SIM_NAME}"
-          else
-            DESTINATION="platform=iOS Simulator,id=$UDID"
-          fi
+          # Boot and wait for the exact selected device before Xcode starts tests.
+          # A dead simulator service must fail this job instead of hanging silently.
+          python3 -c 'import subprocess, sys; subprocess.run(["xcrun", "simctl", "bootstatus", sys.argv[1], "-b"], check=True, timeout=180)' "$UDID"
+          DESTINATION="platform=iOS Simulator,id=$UDID"
           case "$HOST_ARCH" in
             arm64|x86_64)
               DESTINATION="${DESTINATION},arch=${HOST_ARCH}"
@@ -167,6 +153,7 @@ jobs:
             -disableAutomaticPackageResolution \
             -disablePackageRepositoryCache \
             -destination "$DESTINATION" \
+            -parallel-testing-enabled NO \
             -enableCodeCoverage YES \
             -resultBundlePath "$RESULT_BUNDLE" \
             build test | tee "$LOG_FILE" | xcpretty --test; then
