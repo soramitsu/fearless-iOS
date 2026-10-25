@@ -6,7 +6,7 @@
     "chainId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
     "precision": 10,
     "priceId": "polkadot",
-    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/tokens/coloured/DOT.svg",
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/legacy/master/icons/tokens/coloured/DOT.svg",
     "color": "FF0066"
   },
   {
@@ -16,7 +16,7 @@
     "chainId": "fe58ea77779b7abda7da4ec526d14db9b1e9cd40a217c34892af80a9b332b76d",
     "precision": 18,
     "priceId": "moonbeam",
-    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/tokens/coloured/GLMR.svg",
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/legacy/master/icons/tokens/coloured/GLMR.svg",
     "color": "FFFFFF"
   },
   {
@@ -26,7 +26,7 @@
     "chainId": "eth",
     "precision": 18,
     "priceId": "ethereum",
-    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/tokens/coloured/ETH.svg",
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/legacy/master/icons/tokens/coloured/ETH.svg",
     "color": "FFFFFF"
   },
   {
@@ -36,7 +36,7 @@
     "chainId": "eth",
     "precision": 18,
     "priceId": "dai",
-    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/tokens/coloured/DAI.svg",
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/legacy/master/icons/tokens/coloured/DAI.svg",
     "color": "FFFFFF"
   }
 ]

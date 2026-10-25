@@ -37,6 +37,24 @@ class ConfigTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "retired config URL"):
             check.validate(self.root)
 
+    def test_bundled_fallback_rejects_retired_host(self):
+        self.document({})
+        bundled = self.root / check.BUNDLED_CONFIG
+        bundled.mkdir(parents=True)
+        (bundled / "chains.json").write_text(json.dumps({
+            "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icon.svg"
+        }))
+        with self.assertRaisesRegex(ValueError, "chains.json: retired config URL"):
+            check.validate(self.root)
+
+    def test_bundled_fallback_checks_owned_asset_exists(self):
+        self.document({})
+        bundled = self.root / check.BUNDLED_CONFIG
+        bundled.mkdir(parents=True)
+        (bundled / "assets.json").write_text(json.dumps({"icon": check.BASE + "missing.svg"}))
+        with self.assertRaisesRegex(ValueError, "assets.json: missing owned asset"):
+            check.validate(self.root)
+
     def test_escape_from_owned_directory_fails(self):
         (self.root / "outside.svg").write_text("<svg/>")
         self.document({"url": check.BASE + "../outside.svg"})

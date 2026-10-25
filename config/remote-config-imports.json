@@ -3883,6 +3883,30 @@
       "ownedSha256": "ffd3d3091050a78f19aa716dbf5fe191db1c607622e1d1ca966be558fc0ba376"
     },
     {
+      "path": "legacy/master/icons/tokens/coloured/DAI.svg",
+      "repository": "soramitsu/fearless-utils",
+      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
+      "sourcePath": "icons/tokens/coloured/DAI.svg",
+      "upstreamSha256": "4b996c294c22822115f281b7085cfa94a212231d6c2a3ff5220c218f92ec8e7a",
+      "ownedSha256": "4b996c294c22822115f281b7085cfa94a212231d6c2a3ff5220c218f92ec8e7a"
+    },
+    {
+      "path": "legacy/master/icons/tokens/coloured/DOT.svg",
+      "repository": "soramitsu/fearless-utils",
+      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
+      "sourcePath": "icons/tokens/coloured/DOT.svg",
+      "upstreamSha256": "d26c5ec3540e0445ac82b2c2f29d1e34790b8b71abfca2ba34757bb41275496c",
+      "ownedSha256": "d26c5ec3540e0445ac82b2c2f29d1e34790b8b71abfca2ba34757bb41275496c"
+    },
+    {
+      "path": "legacy/master/icons/tokens/coloured/ETH.svg",
+      "repository": "soramitsu/fearless-utils",
+      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
+      "sourcePath": "icons/tokens/coloured/ETH.svg",
+      "upstreamSha256": "c211e2da001c748f9745dca6325d8e6eb9c916efe0d817bdf2af0397f6cf9dab",
+      "ownedSha256": "c211e2da001c748f9745dca6325d8e6eb9c916efe0d817bdf2af0397f6cf9dab"
+    },
+    {
       "path": "legacy/master/icons/tokens/coloured/GLMR.svg",
       "repository": "soramitsu/fearless-utils",
       "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
@@ -8223,6 +8247,16 @@
         "legacy/master/crowdloan/icons/litentry.png": "legacy/master/crowdloan/icons/Litentry.png",
         "production/icons/chains/white/litentry.svg": "production/icons/chains/white/Litentry.svg"
       }
+    },
+    {
+      "files": [
+        "fearless/Modules/LiquidityPools/LiquidityPoolDetails/Resources/chains.json",
+        "fearless/Modules/LiquidityPools/LiquidityPoolDetails/Resources/assets.json"
+      ],
+      "changes": [
+        "Rehost bundled startup fallback dependencies in iOS-owned remote-config/legacy/master",
+        "Apply the existing Latest Mainnet filename and absent Rootstock artwork corrections to the bundled fallback"
+      ]
     }
   ]
 }

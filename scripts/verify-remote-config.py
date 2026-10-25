@@ -8,6 +8,7 @@ from urllib.parse import unquote, urlsplit
 REPOSITORY = "fearless-iOS"
 BASE = "https://raw.githubusercontent.com/soramitsu/" + REPOSITORY + "/master/remote-config/"
 RETIRED = ("/soramitsu/shared-features-utils/", "/soramitsu/fearless-utils/")
+BUNDLED_CONFIG = Path("fearless/Modules/LiquidityPools/LiquidityPoolDetails/Resources")
 
 
 def validate(root):
@@ -34,7 +35,9 @@ def validate(root):
                 if relative not in inventory or config.resolve() not in target.parents or not target.is_file():
                     failures.append(str(source) + ": missing owned asset " + relative)
 
-    for file in sorted(config.rglob("*")):
+    # Startup can use these bundled catalogs before the remote refresh succeeds.
+    documents = set(config.rglob("*")) | set((root / BUNDLED_CONFIG).glob("*.json"))
+    for file in sorted(documents):
         if not file.is_file() or (file.suffix != ".json" and file.name != "feature_toggle"):
             continue
         counts["documents"] += 1

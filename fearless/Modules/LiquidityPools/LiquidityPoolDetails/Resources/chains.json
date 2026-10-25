@@ -14,7 +14,7 @@
         },
         "crowdloans": {
             "type": "github",
-            "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/crowdloan/polkadot.json"
+            "url": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/legacy/master/crowdloan/polkadot.json"
         },
         "explorers": [{
             "type": "subscan",
@@ -152,7 +152,7 @@
             },
             "crowdloans": {
                 "type": "github",
-                "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/crowdloan/kusama.json"
+                "url": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/legacy/master/crowdloan/kusama.json"
             },
             "explorers": [{
                 "type": "subscan",
@@ -266,7 +266,7 @@
         "externalApi": {
             "crowdloans": {
                 "type": "github",
-                "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/crowdloan/westend.json"
+                "url": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/legacy/master/crowdloan/westend.json"
             },
             "explorers": [{
                 "type": "subscan",
@@ -1471,7 +1471,7 @@
                 "currencyId": "10810581592933651521121702237638664357",
                 "precision": 12,
                 "priceId": "karura",
-                "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/tokens/coloured/KAR.svg",
+                "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/legacy/master/icons/tokens/coloured/KAR.svg",
                 "color": "FFFFFF"
             }
         ],
@@ -1879,7 +1879,7 @@
         "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/Bifrost.svg",
         "addressPrefix": 6,
         "types": {
-            "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/bifrost.json",
+            "url": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/legacy/master/type_registry/bifrost.json",
             "overridesCommon": true
         }
     },
@@ -2469,7 +2469,7 @@
                 "precision": 18,
                 "currencyId": "18446744073709551619",
                 "priceId": "moonbeam",
-                "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/tokens/coloured/GLMR.svg",
+                "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/legacy/master/icons/tokens/coloured/GLMR.svg",
                 "color": "FFFFFF"
             }
         ],
@@ -4996,7 +4996,7 @@
                 "name": "sora tbc dollar",
                 "currencyId": "0x02000a0000000000000000000000000000000000000000000000000000000000",
                 "precision": 18,
-                "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/tokens/coloured/TBCD.svg",
+                "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/legacy/master/icons/tokens/coloured/TBCD.svg",
                 "color":"6D8954",
                 "type": "soraAsset",
                 "isNative": true
@@ -5327,7 +5327,7 @@
                 "name": "sora tbc dollar",
                 "currencyId": "0x02000a0000000000000000000000000000000000000000000000000000000000",
                 "precision": 18,
-                "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/tokens/coloured/TBCD.svg",
+                "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/legacy/master/icons/tokens/coloured/TBCD.svg",
                 "color":"6D8954",
                 "type": "soraAsset",
                 "isNative": true,
@@ -5342,7 +5342,7 @@
                 "symbol": "hmx",
                 "currencyId": "0x002d4e9e03f192cc33b128319a049f353db98fbf4d98f717fd0b7f66a0462142",
                 "precision": 18,
-                "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/tokens/coloured/HMX.svg",
+                "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/legacy/master/icons/tokens/coloured/HMX.svg",
                 "color":"FFFFFF",
                 "type": "soraAsset",
                 "isNative": true,
@@ -8222,7 +8222,6 @@
               "name": "Mycrypto https node"
             }
         ],
-        "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/rootstock.svg",
         "addressPrefix": 0,
         "options": [
           "ethereum",
@@ -8339,7 +8338,7 @@
               "name": "Latest https node"
             }
         ],
-        "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/latest.svg",
+        "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/latestchain.svg",
         "addressPrefix": 0,
         "options": [
             "ethereum",
