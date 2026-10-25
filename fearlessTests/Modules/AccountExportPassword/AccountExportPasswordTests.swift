@@ -1361,8 +1361,8 @@ final class BackupMarkerDurabilityTests: XCTestCase {
         return Fixture(wallet: wallet, source: source, storage: storage, facade: facade, settings: settings, queue: queue, events: Events())
     }
 
-    private func waitUntil(_ predicate: () -> Bool) async {
-        for _ in 0 ..< 200 {
+    private func waitUntil(timeout: TimeInterval = 2, _ predicate: () -> Bool) async {
+        for _ in 0 ..< Int(timeout * 100) {
             if predicate() { return }
             try? await Task.sleep(nanoseconds: 10_000_000)
         }
@@ -1835,7 +1835,10 @@ final class BackupMarkerDurabilityTests: XCTestCase {
                 let (window, _) = try await host(controller)
                 defer { window.isHidden = true; window.rootViewController = nil }
                 if !json {
-                    f.wireframe.sheets.first?.dismissCompletion?()
+                    // UIKit delivers viewDidAppear asynchronously under simulator load.
+                    // Do not silently skip the real initial warning's dismissal callback.
+                    await waitUntil(timeout: 10) { f.wireframe.sheets.first?.dismissCompletion != nil }
+                    try XCTUnwrap(f.wireframe.sheets.first?.dismissCompletion)()
                     f.seed.didReceive(exportData: [f.seedData], notShown: [])
                     f.wireframe.sheets.removeAll()
                 }
@@ -1886,7 +1889,8 @@ final class BackupMarkerDurabilityTests: XCTestCase {
             let (window, _) = try await host(controller)
             defer { window.isHidden = true; window.rootViewController = nil }
             if !json {
-                f.wireframe.sheets.first?.dismissCompletion?()
+                await waitUntil(timeout: 10) { f.wireframe.sheets.first?.dismissCompletion != nil }
+                try XCTUnwrap(f.wireframe.sheets.first?.dismissCompletion)()
                 f.wireframe.sheets.removeAll()
             }
             try share(f, json: json)
@@ -1909,7 +1913,8 @@ final class BackupMarkerDurabilityTests: XCTestCase {
             let (window, navigation) = try await host(controller)
             defer { window.isHidden = true; window.rootViewController = nil }
             if !json {
-                f.wireframe.sheets.first?.dismissCompletion?()
+                await waitUntil(timeout: 10) { f.wireframe.sheets.first?.dismissCompletion != nil }
+                try XCTUnwrap(f.wireframe.sheets.first?.dismissCompletion)()
                 f.wireframe.sheets.removeAll()
             }
             try share(f, json: json)
