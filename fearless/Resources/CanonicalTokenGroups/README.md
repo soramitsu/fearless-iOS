@@ -1,22 +1,17 @@
-# Shared portfolio configuration (IOSUX-5)
+# App-owned portfolio configuration
 
-Byte copies of the files the root workspace repository owns (see its `docs/portfolio-contract.md`):
+These three JSON catalogs are owned by the iOS application:
 
-| Bundled file | Root source |
-|---|---|
-| `canonical-asset-groups.v1.json` | `config/token-groups/canonical-asset-groups.v1.json` |
-| `testnet-chain-ids.v1.json` | `config/portfolio/testnet-chain-ids.v1.json` |
-| `default-visible-at-zero.v1.json` | `config/portfolio/default-visible-at-zero.v1.json` |
+- `canonical-asset-groups.v1.json`: reviewed asset groups and untrusted prices.
+- `testnet-chain-ids.v1.json`: testnet identities.
+- `default-visible-at-zero.v1.json`: default zero-balance visibility.
 
-`CanonicalTokenGroupCatalog`, `PortfolioTestnetChainList` and `PortfolioZeroDefaultList` read them
-from the app bundle; `PortfolioUntrustedPriceList` reads `untrustedAssets` from the groups file. There
-is no remote override in 4.2.0.
+`CanonicalTokenGroupCatalog`, `PortfolioTestnetChainList`, and
+`PortfolioZeroDefaultList` read them from the app bundle. There is no remote
+override in 4.2.0. The registry source URL points to this application's owned
+configuration; the frozen registry snapshot and approved membership remain
+recorded in the catalogs and test fixtures.
 
-Never edit these copies by hand. Change the root file, then from the workspace root run
-
-```sh
-node scripts/sync-canonical-asset-groups.mjs --apps ios
-```
-
-which copies the files and rewrites the sha256 pins in
-`fearlessTests/Common/Model/CanonicalTokenGroupCatalogTests.swift`. This README is not bundled.
+Review changes here together with the byte commitments and behavioral tests in
+`fearlessTests/Common/Model/CanonicalTokenGroupCatalogTests.swift`. No sibling
+workspace checkout or shared-file synchronization script is required.

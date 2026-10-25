@@ -848,7 +848,7 @@ final class MnemonicExportOwnershipTests: XCTestCase {
         for index in exports.indices {
             XCTAssertNil(reader.backupProof(wallet: wallet, exports: exports.enumerated().filter { $0.offset != index }.map(\.element)))
         }
-        XCTAssertNil(reader.backupProof(wallet: wallet, exports: [exports[0], exports[0], exports[0], exports[0]]))
+        XCTAssertNil(reader.backupProof(wallet: wallet, exports: Array(repeating: exports[0], count: exports.count)))
     }
 
     func testSubstrateAlgorithmsAndEthereumRoundTripOriginalKeys() throws {
@@ -856,7 +856,7 @@ final class MnemonicExportOwnershipTests: XCTestCase {
             let keys = InMemoryKeychain()
             let wallet = try makeWallet(keys, crypto: crypto)
             let output = record(wallet: wallet, accounts: try fullAccounts(wallet), keys: keys)
-            XCTAssertEqual(output.models.count, 4)
+            XCTAssertEqual(output.models.count, 5)
             XCTAssertTrue(output.models.allSatisfy { $0.backupProof != nil })
             let request = MetaAccountImportMnemonicRequest(
                 mnemonic: try XCTUnwrap(output.models.first?.mnemonic), username: "Restored public fixture",
@@ -879,7 +879,7 @@ final class MnemonicExportOwnershipTests: XCTestCase {
         let wallet = try makeWallet(keys)
         try keys.deleteKey(for: KeystoreTagV2.ethereumDerivationTagForMetaId(wallet.metaId))
         let output = record(wallet: wallet, accounts: try fullAccounts(wallet), keys: keys)
-        XCTAssertEqual(output.models.count, 3)
+        XCTAssertEqual(output.models.count, 4)
         XCTAssertEqual(output.notShown.count, 1)
         XCTAssertTrue(output.models.allSatisfy { $0.backupProof == nil })
         XCTAssertEqual(output.notShown.first?.chain.chainId, "mnemonic-ethereum")
@@ -904,7 +904,7 @@ final class MnemonicExportOwnershipTests: XCTestCase {
         let customChain = ChainAccountRecordsFixture.chain(id: "mnemonic-custom")
         let custom = ChainAccountInfo(chain: customChain, account: try XCTUnwrap(wallet.fetch(for: customChain.accountRequest())))
         let output = record(wallet: wallet, accounts: try fullAccounts(wallet) + [custom], keys: keys)
-        XCTAssertEqual(output.models.count, 5)
+        XCTAssertEqual(output.models.count, 6)
         XCTAssertTrue(output.notShown.isEmpty)
         XCTAssertTrue(output.models.allSatisfy { $0.backupProof == nil })
         XCTAssertEqual(output.models.last?.mnemonic.toString(), otherPhrase)
@@ -998,7 +998,7 @@ final class MnemonicExportOwnershipTests: XCTestCase {
         try keys.saveKey(IRMnemonicCreator().mnemonic(fromList: otherPhrase).entropy(),
                          with: KeystoreTagV2.entropyTagForMetaId(wallet.metaId, accountId: bitcoin.publicKey))
         let output = record(wallet: wallet, accounts: try fullAccounts(wallet), keys: keys)
-        XCTAssertEqual(output.models.count, 4)
+        XCTAssertEqual(output.models.count, 5)
         XCTAssertTrue(output.notShown.isEmpty)
         XCTAssertTrue(output.models.allSatisfy { $0.backupProof == nil })
         XCTAssertEqual(output.models.first { $0.chain.chainId == stored.chainId }?.mnemonic.toString(), otherPhrase)
@@ -1108,7 +1108,8 @@ final class MnemonicExportOwnershipTests: XCTestCase {
     private func fullAccounts(_ wallet: MetaAccountModel) throws -> [ChainAccountInfo] {
         let chains = [ChainAccountRecordsFixture.chain(id: "mnemonic-substrate"),
                       ChainAccountRecordsFixture.chain(id: "mnemonic-ethereum", ethereumBased: true),
-                      UniversalWalletRegistry.bitcoinMainnetChainModel, UniversalWalletRegistry.tairaChainModel]
+                      UniversalWalletRegistry.bitcoinMainnetChainModel, UniversalWalletRegistry.tairaChainModel,
+                      UniversalWalletRegistry.solanaMainnetChainModel]
         return try chains.map { ChainAccountInfo(chain: $0, account: try XCTUnwrap(wallet.fetch(for: $0.accountRequest()))) }
     }
 

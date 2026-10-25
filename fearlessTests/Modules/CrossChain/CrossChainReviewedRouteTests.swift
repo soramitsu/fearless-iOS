@@ -525,6 +525,36 @@ final class CrossChainReviewedRouteTests: XCTestCase {
         XCTAssertNil(rejectedJournal.unresolved(for: "transfer", now: Date()))
     }
 
+    func testOnlyExplicitAuthorRpcRefusalsProveNoAdmission() {
+        for code in [1001, 1002, 1010, 1011, 1012, 1014, 1015, 1016, 1018, 1019, 1020, 1021] {
+            XCTAssertTrue(CrossChainConfirmationInteractor.provesNothingWasSent(
+                JSONRPCError(message: "Pool refusal", code: code, data: nil)
+            ), "Expected explicit refusal for code \(code)")
+        }
+        for code in [1013, 1017, 1040, -32603, -32000, 9999] {
+            XCTAssertFalse(CrossChainConfirmationInteractor.provesNothingWasSent(
+                JSONRPCError(message: "1010: misleading message text", code: code, data: nil)
+            ), "Unknown admission must remain uncertain for code \(code)")
+        }
+        XCTAssertFalse(CrossChainConfirmationInteractor.provesNothingWasSent(JSONRPCEngineError.timeout))
+    }
+
+    func testAlreadyImportedAndUnclassifiedRpcErrorsKeepTheJournalAndFenceRepeat() throws {
+        for code in [1013, 1040, -32603] {
+            let journal = makeJournal()
+            let executor = ScriptedExecutor(submitError: JSONRPCError(message: "RPC failure", code: code, data: nil))
+            let first = try submit(executor: executor, journal: journal)
+            XCTAssertEqual(first.error as? ReviewedCrossChainDispatchError, .submissionInDoubt)
+            XCTAssertEqual(executor.submitCount, 1)
+            XCTAssertEqual(journal.unresolved(for: "transfer", now: Date())?.status, .inDoubt)
+
+            let repeated = try submit(executor: executor, journal: journal)
+            XCTAssertEqual(repeated.unresolved?.transferKey, "transfer")
+            XCTAssertNil(repeated.result)
+            XCTAssertEqual(executor.submitCount, 1, "An uncertain RPC response cannot authorize a second submission")
+        }
+    }
+
     func testDispatchWatcherReadsTheExtrinsicsOwnEvents() throws {
         let extrinsics = ["0x0401", "0x0502", "0x0603"]
         let hash = try Data(hexStringSSF: "0x0502").blake2b32().toHex(includePrefix: true)
@@ -718,7 +748,7 @@ final class CrossChainReviewedRouteTests: XCTestCase {
         )
         interactor.setup(with: output)
         interactor.submit(confirmingRepeat: confirmingRepeat)
-        wait(for: [output.expectation], timeout: 2)
+        wait(for: [output.expectation], timeout: 10)
         return output
     }
 

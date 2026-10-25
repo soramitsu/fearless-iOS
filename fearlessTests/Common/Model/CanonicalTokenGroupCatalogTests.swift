@@ -4,16 +4,14 @@ import XCTest
 @testable import fearless
 import SSFModels
 
-/// IOSUX-5: the bundled copies of the shared portfolio files (root `config/token-groups/` and
-/// `config/portfolio/`, see docs/portfolio-contract.md) and the catalog that resolves registry assets
-/// to reviewed token groups. The registry snapshot fixture is the one the root files were reviewed against.
+/// App-owned portfolio catalogs resolve registry assets to reviewed token groups.
+/// The frozen registry fixture retains the reviewed membership and receiving identities.
 final class CanonicalTokenGroupCatalogTests: XCTestCase {
-    // sha256 pins of the bundled copies (critique T-17). The root
-    // scripts/sync-canonical-asset-groups.mjs copies the files and rewrites these constants;
-    // never edit a bundled copy by hand.
-    private static let CANONICAL_ASSET_GROUPS_SHA256 = "c8875a2e1b8e3a1a0fb4e90962004ce219033a9d5c5dbd49067b5a7ebcfa454e"
-    private static let TESTNET_CHAIN_IDS_SHA256 = "a3a5433f496e5575c770fdc253277be80fbcf3c97eaa7b37a6b199a2b6e44629"
-    private static let DEFAULT_VISIBLE_AT_ZERO_SHA256 = "a331788fbcd263ccaf4bcc7d3c83c7430d7c25ac7f9b4e2513606f67b68f20b6"
+    // Byte commitments for the app-owned catalogs. The ownership migration changed only
+    // registry.source; approved membership, registry snapshot and receiving identities are unchanged.
+    private static let CANONICAL_ASSET_GROUPS_SHA256 = "8caafa5c20915c8949b1b74145763621d8c4149459466633d9a697bf83e06d08"
+    private static let TESTNET_CHAIN_IDS_SHA256 = "f45ac84298427552a7e6d8991a3b07a677fedd4b062127e3190cd2291175ac47"
+    private static let DEFAULT_VISIBLE_AT_ZERO_SHA256 = "dded1e9a4e0b492004f09c74cc92fd0cfdae7f12197deb5add84462942c45116"
 
     /// Byte copy of the root `config/portfolio/parity-cases.v1.json` in the test bundle's `Registry/`.
     private static let parityCasesSha256 = "aab5746a3bf2aa75d661266c75ebea37138cde8aacd426e08508c06d2e5daa81"
@@ -52,7 +50,7 @@ final class CanonicalTokenGroupCatalogTests: XCTestCase {
 
         for (name, pinned) in pins {
             let url = try XCTUnwrap(Bundle.main.url(forResource: name, withExtension: "json"), name)
-            XCTAssertEqual(sha256(try Data(contentsOf: url)), pinned, "\(name).json drifted from the root file")
+            XCTAssertEqual(sha256(try Data(contentsOf: url)), pinned, "\(name).json drifted from the reviewed app-owned bytes")
         }
     }
 

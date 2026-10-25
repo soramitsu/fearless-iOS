@@ -115,11 +115,17 @@ final class CrossChainConfirmationInteractor {
         }
     }
 
-    /// A refusal from the final guard or the authorization stage machine happens before any byte is sent, and a JSON-RPC
-    /// error is the node's reply that it rejected the extrinsic. Any other failure can follow a hand-over the node
-    /// accepted.
+    /// Local authorization refusals and explicit author-RPC pool rejections happen before admission.
+    /// An already-imported transaction (1013) or an unclassified RPC error can follow acceptance.
     static func provesNothingWasSent(_ error: Error) -> Bool {
-        error is ReviewedCrossChainSubmissionError || error is MutationAuthorizationError || error is JSONRPCError
+        if error is ReviewedCrossChainSubmissionError || error is MutationAuthorizationError {
+            return true
+        }
+        guard let rpcError = error as? JSONRPCError else { return false }
+        // Substrate author/error.rs: format/verification failures and explicit pool refusals.
+        // Keep this platform-owned classification aligned with the reviewed RPC contract.
+        return [1001, 1002, 1010, 1011, 1012, 1014, 1015, 1016, 1018, 1019, 1020, 1021]
+            .contains(rpcError.code)
     }
 }
 
