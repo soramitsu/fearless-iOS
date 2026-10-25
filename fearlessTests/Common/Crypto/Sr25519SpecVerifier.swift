@@ -475,7 +475,12 @@ private enum Keccak {
     static func permute(_ state: inout [UInt8]) {
         var lanes = Limbs.fromLittleEndian(state) // lane (x, y) at x + 5y
         for constant in roundConstants {
-            let c = (0 ..< 5).map { x in lanes[x] ^ lanes[x + 5] ^ lanes[x + 10] ^ lanes[x + 15] ^ lanes[x + 20] }
+            var c = [UInt64](repeating: 0, count: 5)
+            for x in 0 ..< 5 {
+                for y in 0 ..< 5 {
+                    c[x] ^= lanes[x + 5 * y]
+                }
+            }
             for x in 0 ..< 5 {
                 let d = c[(x + 4) % 5] ^ rotateLeft(c[(x + 1) % 5], 1)
                 for y in 0 ..< 5 {
