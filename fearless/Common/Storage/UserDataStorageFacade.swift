@@ -4,7 +4,7 @@ import CoreData
 
 enum UserStorageParams {
     static let modelVersion: UserStorageVersion = .version14
-    static let modelDirectory: String = "Modules_SSFAccountManagmentStorage.bundle//UserDataModel.momd"
+    static let modelDirectory: String = "FearlessNative_SSFAccountManagmentStorage.bundle/UserDataModel.momd"
     static let databaseName = "UserDataModel.sqlite"
 
     static let storageDirectoryURL: URL = {

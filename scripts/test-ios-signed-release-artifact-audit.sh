@@ -178,7 +178,7 @@ PY
   done
   printf '%s\n' "opaque production profile" >"$APP/embedded.mobileprovision"
   mkdir -p \
-    "$APP/Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd" \
+    "$APP/FearlessNative_SSFAccountManagmentStorage.bundle/UserDataModel.momd" \
     "$APP/SubstrateDataModel.momd"
   local resource
   local -a resources=(
@@ -186,18 +186,18 @@ PY
     "LegacyEcosystemUserDataModel_v12.mom"
     "LegacyPublicSubstrateDataModel_v8.mom"
     "LegacyPublicSubstrateDataModel_v9.mom"
-    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/UserDataModel.mom"
-    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel.mom"
-    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v2.mom"
-    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v3.mom"
-    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v4.mom"
-    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v5.mom"
-    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v6.mom"
-    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v7.mom"
-    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v8.mom"
-    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v9.mom"
-    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v10.mom"
-    "Modules_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v11.mom"
+    "FearlessNative_SSFAccountManagmentStorage.bundle/UserDataModel.momd/UserDataModel.mom"
+    "FearlessNative_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel.mom"
+    "FearlessNative_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v2.mom"
+    "FearlessNative_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v3.mom"
+    "FearlessNative_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v4.mom"
+    "FearlessNative_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v5.mom"
+    "FearlessNative_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v6.mom"
+    "FearlessNative_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v7.mom"
+    "FearlessNative_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v8.mom"
+    "FearlessNative_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v9.mom"
+    "FearlessNative_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v10.mom"
+    "FearlessNative_SSFAccountManagmentStorage.bundle/UserDataModel.momd/MultiassetUserDataModel_v11.mom"
     "SubstrateDataModel.momd/SubstrateDataModel.mom"
     "SubstrateDataModel.momd/SubstrateDataModel_v2.mom"
     "SubstrateDataModel.momd/SubstrateDataModel_v3.mom"
