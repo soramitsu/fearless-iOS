@@ -35,7 +35,9 @@ jobs:
 
       - name: Enforce raw-colour baseline shrink against actual Git base
         env:
-          FW_COLOUR_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before || 'HEAD^' }}
+          # Release/hotfix branches integrate into master; a private or divergent
+          # previous branch tip is not the source-integration baseline.
+          FW_COLOUR_BASE_REF: ${{ github.event.pull_request.base.sha || (github.ref == 'refs/heads/master' && github.event.before) || 'refs/remotes/origin/master' }}
         run: |
           set -euo pipefail
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/check-raw-colours.py --ci

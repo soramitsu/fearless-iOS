@@ -134,7 +134,7 @@ final class IrohaConnectSakuraView: UIView {
         staticPetals = positions.map { position in
             let petal = CAShapeLayer()
             petal.path = Self.petalPath(size: 12).cgPath
-            petal.fillColor = UIColor(red: 0.98, green: 0.63, blue: 0.78, alpha: 0.45).cgColor
+            petal.fillColor = R.color.irohaConnectSakuraPetal()!.cgColor
             petal.position = CGPoint(x: bounds.width * position.0, y: bounds.height * position.1)
             petal.setAffineTransform(CGAffineTransform(rotationAngle: position.2))
             layer.addSublayer(petal)
@@ -146,7 +146,7 @@ final class IrohaConnectSakuraView: UIView {
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: 32, height: 44))
         return renderer.image { context in
             context.cgContext.translateBy(x: 16, y: 20)
-            UIColor(red: 0.98, green: 0.64, blue: 0.79, alpha: 0.9).setFill()
+            R.color.irohaConnectSakuraParticle()!.setFill()
             context.cgContext.addPath(petalPath(size: 14).cgPath)
             context.cgContext.fillPath()
         }
@@ -186,8 +186,8 @@ private final class IrohaConnectBackgroundView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         gradient.colors = [
-            UIColor(red: 0.07, green: 0.04, blue: 0.09, alpha: 1).cgColor,
-            UIColor(red: 0.15, green: 0.05, blue: 0.12, alpha: 1).cgColor,
+            R.color.irohaConnectSurfaceStart()!.cgColor,
+            R.color.irohaConnectSurfaceEnd()!.cgColor,
             UIColor.black.cgColor
         ]
         gradient.locations = [0, 0.55, 1]
@@ -244,7 +244,7 @@ final class IrohaConnectPromptViewController: UIViewController, ControllerBacked
         view.addSubview(sakura)
 
         let eyebrow = makeLabel(text: "IROHA CONNECT", style: .caption1, weight: .semibold)
-        eyebrow.textColor = UIColor(red: 1, green: 0.66, blue: 0.82, alpha: 1)
+        eyebrow.textColor = R.color.irohaConnectEyebrow()!
         eyebrow.accessibilityTraits.insert(.header)
 
         let isSignature = prompt.payloadDigest != nil
@@ -365,7 +365,7 @@ final class IrohaConnectPromptViewController: UIViewController, ControllerBacked
     private func configurePrimaryButton(isSignature: Bool) {
         var configuration = UIButton.Configuration.filled()
         configuration.title = isSignature ? "Review with PIN" : "Connect with PIN"
-        configuration.baseBackgroundColor = UIColor(red: 0.95, green: 0.26, blue: 0.58, alpha: 1)
+        configuration.baseBackgroundColor = R.color.irohaConnectActionFill()!
         configuration.baseForegroundColor = .white
         configuration.cornerStyle = .large
         approveButton.configuration = configuration
@@ -434,7 +434,7 @@ final class IrohaConnectLandingViewController: UIViewController, ControllerBacke
         let mark = UILabel()
         mark.text = "桜"
         mark.textAlignment = .center
-        mark.textColor = UIColor(red: 1, green: 0.68, blue: 0.83, alpha: 1)
+        mark.textColor = R.color.irohaConnectMark()!
         mark.font = .systemFont(ofSize: 64, weight: .ultraLight)
         mark.accessibilityLabel = "Sakura"
 
@@ -507,7 +507,7 @@ final class IrohaConnectLandingViewController: UIViewController, ControllerBacke
         configuration.image = UIImage(systemName: image)
         configuration.imagePadding = 10
         configuration.baseForegroundColor = .white
-        configuration.baseBackgroundColor = UIColor(red: 0.95, green: 0.26, blue: 0.58, alpha: 1)
+        configuration.baseBackgroundColor = R.color.irohaConnectActionFill()!
         configuration.cornerStyle = .large
         button.configuration = configuration
         button.addTarget(self, action: selector, for: .touchUpInside)

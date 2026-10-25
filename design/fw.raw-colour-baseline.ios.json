@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sourceCommit": "9415f7f7b8f37b1807229655c300f7d40e32d7fe",
+  "sourceCommit": "1f062bf14b6895be84648f2691b808f71d0fa7de",
   "rule": "Direct UIColor(red: or UIColor(hex: in production fearless/**/*.swift, excluding Common/DesignSystem; exact full-call source contexts and occurrence counts.",
   "sites": [
     {
@@ -16,41 +16,6 @@
     {
       "path": "fearless/Modules/ClaimCrowdloanRewards/ClaimCrowdloanRewardsViewLayout.swift",
       "source": "bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)",
-      "count": 1
-    },
-    {
-      "path": "fearless/Modules/IrohaConnect/IrohaConnectViews.swift",
-      "source": "UIColor(red: 0.07, green: 0.04, blue: 0.09, alpha: 1).cgColor,",
-      "count": 1
-    },
-    {
-      "path": "fearless/Modules/IrohaConnect/IrohaConnectViews.swift",
-      "source": "UIColor(red: 0.15, green: 0.05, blue: 0.12, alpha: 1).cgColor,",
-      "count": 1
-    },
-    {
-      "path": "fearless/Modules/IrohaConnect/IrohaConnectViews.swift",
-      "source": "UIColor(red: 0.98, green: 0.64, blue: 0.79, alpha: 0.9).setFill()",
-      "count": 1
-    },
-    {
-      "path": "fearless/Modules/IrohaConnect/IrohaConnectViews.swift",
-      "source": "configuration.baseBackgroundColor = UIColor(red: 0.95, green: 0.26, blue: 0.58, alpha: 1)",
-      "count": 2
-    },
-    {
-      "path": "fearless/Modules/IrohaConnect/IrohaConnectViews.swift",
-      "source": "eyebrow.textColor = UIColor(red: 1, green: 0.66, blue: 0.82, alpha: 1)",
-      "count": 1
-    },
-    {
-      "path": "fearless/Modules/IrohaConnect/IrohaConnectViews.swift",
-      "source": "mark.textColor = UIColor(red: 1, green: 0.68, blue: 0.83, alpha: 1)",
-      "count": 1
-    },
-    {
-      "path": "fearless/Modules/IrohaConnect/IrohaConnectViews.swift",
-      "source": "petal.fillColor = UIColor(red: 0.98, green: 0.63, blue: 0.78, alpha: 0.45).cgColor",
       "count": 1
     },
     {
