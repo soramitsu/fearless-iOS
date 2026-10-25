@@ -1937,7 +1937,9 @@ final class BackupMarkerDurabilityTests: XCTestCase {
         let chains = [ChainAccountRecordsFixture.chain(id: "proof-substrate"),
                       ChainAccountRecordsFixture.chain(id: "proof-ethereum", ethereumBased: true),
                       UniversalWalletRegistry.bitcoinMainnetChainModel, UniversalWalletRegistry.tairaChainModel,
-                      UniversalWalletRegistry.solanaMainnetChainModel]
+                      UniversalWalletRegistry.solanaMainnetChainModel,
+                      ChainAccountRecordsFixture.chain(id: UniversalWalletRegistry.bitcoinTestnet.chainId),
+                      ChainAccountRecordsFixture.chain(id: UniversalWalletRegistry.tonMainnetRegistryEntry.chainId)]
         let reader = VerifiedMnemonicExportReader(keystore: keys)
         let exports = try chains.map { chain in
             try reader.fetch(wallet: wallet, info: ChainAccountInfo(chain: chain, account: XCTUnwrap(wallet.fetch(for: chain.accountRequest()))))
