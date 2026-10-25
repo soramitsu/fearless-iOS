@@ -4,61 +4,68 @@ import SSFModels
 import SSFSingleValueCache
 
 protocol PriceProviderFactoryProtocol {
-    func getPricesProvider(currencies: [Currency]?) -> AnySingleValueProvider<[PriceData]>
+    func getPricesProvider(currencies: [Currency]?, chainAssets: [ChainAsset]) -> AnySingleValueProvider<[PriceData]>
+    func updatePricesProvider(currencies: [Currency]?, chainAssets: [ChainAsset])
+    func pricesProviderNeedsFollowUpFetch() -> Bool
 }
 
-class PriceProviderFactory {
-    static let shared = PriceProviderFactory(storageFacade: SubstrateDataStorageFacade.shared)
-
-    private var providers: [AssetModel.PriceId: WeakWrapper] = [:]
-    private var remoteFetchTimer: Timer?
-
-    private let storageFacade: StorageFacadeProtocol
+final class PriceProviderFactory: PriceProviderFactoryProtocol {
     private lazy var executionQueue: OperationQueue = {
         let queue = OperationQueue()
         queue.qualityOfService = .userInitiated
         return queue
     }()
 
-    private init(storageFacade: StorageFacadeProtocol) {
-        self.storageFacade = storageFacade
-    }
+    private let providerLock = NSLock()
+    private var priceDataSource: PriceDataSource?
+    private var pricesProvider: AnySingleValueProvider<[PriceData]>?
 
-    private func clearIfNeeded() {
-        providers = providers.filter { $0.value.target != nil }
-    }
-}
+    func getPricesProvider(currencies: [Currency]?, chainAssets: [ChainAsset]) -> AnySingleValueProvider<[SSFModels.PriceData]> {
+        providerLock.lock()
+        defer { providerLock.unlock() }
 
-extension PriceProviderFactory: PriceProviderFactoryProtocol {
-    func getPricesProvider(currencies: [Currency]?) -> AnySingleValueProvider<[SSFModels.PriceData]> {
-        let identifier = currencies?.compactMap { $0.id }.sorted().joined(separator: ".") ?? PriceDataSource.defaultIdentifier
-
-        if let provider = providers[identifier]?.target as? SingleValueProvider<[PriceData]> {
-            if remoteFetchTimer == nil {
-                DispatchQueue.main.async {
-                    self.remoteFetchTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false, block: { [weak self] timer in
-                        timer.invalidate()
-                        self?.remoteFetchTimer = nil
-                    })
-                }
-                provider.refresh()
-            }
-            return AnySingleValueProvider(provider)
+        if let pricesProvider, let priceDataSource {
+            priceDataSource.update(currencies: currencies, chainAssets: chainAssets)
+            return pricesProvider
         }
 
         let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = SingleValueCacheRepositoryFactoryDefault().createSingleValueCacheRepository()
-        let source = PriceDataSource(currencies: currencies)
-        let trigger: DataProviderEventTrigger = [.onInitialization, .onFetchPage]
+        let repositoryWrapper = AnyDataProviderRepository(repository)
+        let source = PriceDataSource(
+            currencies: currencies,
+            chainAssets: chainAssets,
+            priceCacheReader: PriceDataCacheReader(
+                repository: repositoryWrapper,
+                identifier: PriceDataSource.defaultIdentifier
+            )
+        )
+        let trigger: DataProviderEventTrigger = [.onFetchPage, .onAddObserver]
         let provider = SingleValueProvider(
-            targetIdentifier: source.identifier,
+            targetIdentifier: PriceDataSource.defaultIdentifier,
             source: AnySingleValueProviderSource(source),
-            repository: AnyDataProviderRepository(repository),
+            repository: repositoryWrapper,
             updateTrigger: trigger,
             executionQueue: executionQueue
         )
 
-        providers[identifier] = WeakWrapper(target: provider)
+        let typeErasedProvider = AnySingleValueProvider(provider)
+        priceDataSource = source
+        pricesProvider = typeErasedProvider
+        return typeErasedProvider
+    }
 
-        return AnySingleValueProvider(provider)
+    func updatePricesProvider(
+        currencies: [Currency]?,
+        chainAssets: [ChainAsset]
+    ) {
+        providerLock.lock()
+        priceDataSource?.update(currencies: currencies, chainAssets: chainAssets)
+        providerLock.unlock()
+    }
+
+    func pricesProviderNeedsFollowUpFetch() -> Bool {
+        providerLock.lock()
+        defer { providerLock.unlock() }
+        return priceDataSource?.needsFollowUpFetch == true
     }
 }

@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import SSFModels
 
 protocol SelectCurrencyViewModelFactoryProtocol {
     func buildViewModel(

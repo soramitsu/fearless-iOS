@@ -15,6 +15,9 @@ class LocalAuthInteractor {
     private(set) var settingsManager: SettingsManagerProtocol
     private(set) var biometryAuth: BiometryAuthProtocol
     private(set) var locale: Locale
+    private(set) var state = LocalAuthState.waitingPincode
+    private(set) var pincode: String?
+    private var generation: UInt64 = 0
 
     init(
         secretManager: SecretStoreManagerProtocol,
@@ -28,76 +31,54 @@ class LocalAuthInteractor {
         self.locale = locale
     }
 
-    private(set) var state = LocalAuthState.waitingPincode {
-        didSet(oldValue) {
-            if oldValue != state {
-                DispatchQueue.main.async {
-                    self.presenter?.didChangeState(to: self.state)
-                }
-            }
+    // State and ownership live on the main queue, including replies from secret/biometric providers.
+    private func onMain(_ action: @escaping () -> Void) {
+        if Thread.isMainThread { action() } else { DispatchQueue.main.async(execute: action) }
+    }
+
+    private func changeState(to next: LocalAuthState) {
+        guard state != next else { return }
+        state = next
+        presenter?.didChangeState(to: next)
+    }
+
+    private func deliver(_ attempt: UInt64, action: @escaping (LocalAuthInteractorOutputProtocol) -> Void) {
+        DispatchQueue.main.async { [weak self, weak output = presenter] in
+            guard let self = self, self.generation == attempt, let output = output,
+                  self.presenter === output else { return }
+            action(output)
         }
     }
 
-    private(set) var pincode: String?
-
-    private func performBiometryAuth() {
-        guard state == .checkingBiometry else { return }
-
-        let biometryUsageOptional = settingsManager.biometryEnabled
-
-        guard let biometryUsage = biometryUsageOptional, biometryUsage else {
-            state = .waitingPincode
+    private func performBiometryAuth(attempt: UInt64) {
+        guard generation == attempt, state == .checkingBiometry else { return }
+        guard settingsManager.biometryEnabled == true, biometryAuth.availableBiometryType != .none else {
+            changeState(to: .waitingPincode)
             return
         }
-
-        guard biometryAuth.availableBiometryType != .none else {
-            state = .waitingPincode
-            return
-        }
-
         biometryAuth.authenticate(
             localizedReason: R.string.localizable.askBiometryReason(preferredLanguages: locale.rLanguages),
-            completionQueue: .global(qos: .userInteractive)
-        ) { [weak self] (result: Bool) -> Void in
-
-            self?.processBiometryAuth(result: result)
+            completionQueue: .main
+        ) { [weak self] result in
+            self?.onMain { [weak self] in
+                self?.processBiometryAuth(result: result, attempt: attempt)
+            }
         }
     }
 
-    private func processBiometryAuth(result: Bool) {
-        guard state == .checkingBiometry else {
-            return
-        }
-
-        if result {
-            state = .completed
-            DispatchQueue.global(qos: .utility).async {
-                self.presenter?.didCompleteAuth()
-            }
-            return
-        }
-
-        state = .waitingPincode
+    private func processBiometryAuth(result: Bool, attempt: UInt64) {
+        guard generation == attempt, state == .checkingBiometry else { return }
+        changeState(to: result ? .completed : .waitingPincode)
+        if result { deliver(attempt) { $0.didCompleteAuth() } }
     }
 
-    private func processStored(pin: String?) {
-        guard state == .checkingPincode else {
-            return
-        }
-
-        if pincode == pin {
-            state = .completed
-            pincode = nil
-            DispatchQueue.global(qos: .utility).async {
-                self.presenter?.didCompleteAuth()
-            }
-
-        } else {
-            state = .waitingPincode
-            pincode = nil
-            DispatchQueue.global(qos: .userInteractive).async {
-                self.presenter?.didEnterWrongPincode()
-            }
+    private func processStored(pin: String?, attempt: UInt64) {
+        guard generation == attempt, state == .checkingPincode else { return }
+        let matches = pin != nil && pincode == pin
+        pincode = nil
+        changeState(to: matches ? .completed : .waitingPincode)
+        deliver(attempt) { output in
+            if matches { output.didCompleteAuth() } else { output.didEnterWrongPincode() }
         }
     }
 }
@@ -113,25 +94,52 @@ extension LocalAuthInteractor: LocalAuthInteractorInputProtocol {
     }
 
     func startAuth(with output: LocalAuthInteractorOutputProtocol) {
-        presenter = output
-        guard state == .waitingPincode else { return }
-
-        state = .checkingBiometry
-        performBiometryAuth()
+        onMain { [weak self] in
+            guard let self = self else { return }
+            if self.presenter !== output {
+                self.generation &+= 1
+                self.biometryAuth.cancelAuthentication()
+                self.pincode = nil
+                self.state = .waitingPincode
+                self.presenter = output
+            }
+            guard self.state == .waitingPincode else { return }
+            self.generation &+= 1
+            let attempt = self.generation
+            self.changeState(to: .checkingBiometry)
+            self.performBiometryAuth(attempt: attempt)
+        }
     }
 
     func process(pin: String) {
-        guard state == .waitingPincode || state == .checkingBiometry else { return }
+        onMain { [weak self] in
+            guard let self = self, self.presenter != nil,
+                  self.state == .waitingPincode || self.state == .checkingBiometry else { return }
+            self.generation &+= 1
+            self.biometryAuth.cancelAuthentication()
+            let attempt = self.generation
+            self.pincode = pin
+            self.changeState(to: .checkingPincode)
+            guard self.generation == attempt, self.state == .checkingPincode else { return }
+            self.secretManager.loadSecret(
+                for: KeystoreTag.pincode.rawValue,
+                completionQueue: .main
+            ) { [weak self] secret in
+                self?.onMain { [weak self] in
+                    self?.processStored(pin: secret?.toUTF8String(), attempt: attempt)
+                }
+            }
+        }
+    }
 
-        pincode = pin
-
-        state = .checkingPincode
-
-        secretManager.loadSecret(
-            for: KeystoreTag.pincode.rawValue,
-            completionQueue: .global(qos: .userInteractive)
-        ) { [weak self] (secret: SecretDataRepresentable?) -> Void in
-            self?.processStored(pin: secret?.toUTF8String())
+    func cancelAuth() {
+        onMain { [weak self] in
+            guard let self = self else { return }
+            self.generation &+= 1
+            self.biometryAuth.cancelAuthentication()
+            self.pincode = nil
+            self.presenter = nil
+            self.state = .waitingPincode
         }
     }
 }

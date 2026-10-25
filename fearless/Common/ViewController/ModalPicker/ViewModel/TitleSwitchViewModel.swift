@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import SSFModels
 
 class TitleSwitchTableViewCellModel {
     let icon: UIImage?

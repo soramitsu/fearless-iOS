@@ -4,7 +4,9 @@ import SoraKeystore
 import RobinHood
 import SSFModels
 import SSFUtils
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol {
     static func createView(
@@ -74,7 +76,8 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
             balanceViewModelFactory: balanceViewModelFactory,
             viewModelState: container.viewModelState,
             dataValidatingFactory: dataValidatingFactory,
-            chainAsset: chainAsset
+            chainAsset: chainAsset,
+            wallet: wallet
         )
     }
 
@@ -83,12 +86,7 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
         wallet: MetaAccountModel,
         strategy: StakingUnbondConfirmStrategy
     ) -> StakingUnbondConfirmInteractor? {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
-
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        return StakingUnbondConfirmInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
+        StakingUnbondConfirmInteractor(
             chainAsset: chainAsset,
             wallet: wallet,
             strategy: strategy
@@ -132,14 +130,7 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
         )
 
         let feeProxy = ExtrinsicFeeProxy()
-        let facade = UserDataStorageFacade.shared
-        let mapper = MetaAccountMapper()
-
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             selectedMetaAccount: wallet
@@ -174,7 +165,7 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
                 wallet: wallet,
                 connection: connection,
                 keystore: Keychain(),
-                accountRepository: AnyDataProviderRepository(accountRepository),
+                accountRepository: accountRepository,
                 callFactory: callFactory
             )
             let viewModelFactory = StakingUnbondConfirmRelaychainViewModelFactory(

@@ -27,7 +27,6 @@ final class StakingPoolManagementAssembly {
         stakingSettings.setup()
 
         guard
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
             let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
             let settings = stakingSettings.value
         else {
@@ -79,8 +78,6 @@ final class StakingPoolManagementAssembly {
             operationManager: operationManager,
             logger: logger
         )
-
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
             operationManager: operationManager,
@@ -146,7 +143,6 @@ final class StakingPoolManagementAssembly {
         )
 
         let interactor = StakingPoolManagementInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
             stakingPoolOperationFactory: stakingPoolOperationFactory,
             chainAsset: chainAsset,
             wallet: wallet,

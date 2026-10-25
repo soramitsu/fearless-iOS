@@ -3,7 +3,9 @@ import SoraKeystore
 import RobinHood
 import SSFUtils
 import SSFModels
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 struct StakingBondMoreViewFactory {
     static func createView(
@@ -63,11 +65,7 @@ struct StakingBondMoreViewFactory {
         wallet: MetaAccountModel,
         strategy: StakingBondMoreStrategy
     ) -> StakingBondMoreInteractor? {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
         let interactor = StakingBondMoreInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset,
             wallet: wallet,
 
@@ -121,15 +119,7 @@ struct StakingBondMoreViewFactory {
             logger: Logger.shared
         )
 
-        let facade = UserDataStorageFacade.shared
-
-        let mapper = MetaAccountMapper()
-
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -152,7 +142,7 @@ struct StakingBondMoreViewFactory {
                 output: viewModelState,
                 chainAsset: chainAsset,
                 wallet: wallet,
-                accountRepository: AnyDataProviderRepository(accountRepository),
+                accountRepository: accountRepository,
                 connection: connection,
                 extrinsicService: extrinsicService,
                 feeProxy: feeProxy,

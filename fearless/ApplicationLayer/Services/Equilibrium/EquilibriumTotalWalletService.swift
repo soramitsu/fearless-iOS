@@ -66,15 +66,13 @@ final class EquilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtoc
     }
 
     func totalBalanceAfterTransfer(chainAsset: ChainAsset, amount: Decimal) -> Decimal? {
-        let request = equilibriumChainAsset.chain.accountRequest()
         guard oraclePricesMap.isNotEmpty,
-              let accountId = wallet.fetch(for: request)?.accountId,
-              let currencyId = UInt64(chainAsset.asset.currencyId.or("")),
+              let currencyIdString = chainAsset.asset.currencyId,
+              let currencyId = UInt64(currencyIdString),
               let equlibriumTotalBalance = equlibriumTotalBalance else {
             return nil
         }
         let precision = Int16(equilibriumChainAsset.asset.precision)
-        let uniqueKey = chainAsset.uniqueKey(accountId: accountId)
         let price = oraclePricesMap[currencyId].or(.zero)
 
         let priceDecimal = Decimal

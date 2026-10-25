@@ -1,9 +1,19 @@
 import Foundation
-import SoraKeystore
 import SoraFoundation
+import SoraKeystore
 
 class PinViewFactory: PinViewFactoryProtocol {
     static func createPinSetupView() -> PinSetupViewProtocol? {
+        createPinSetupView(keystore: Keychain())
+    }
+
+    static func createPinSetupView(keystore: KeystoreProtocol) -> PinSetupViewProtocol? {
+        // Recovery can reach onboarding while the existing PIN still protects
+        // retained records and keys. Importing must never replace that PIN.
+        // An inaccessible keychain also cannot authorize creating a new PIN.
+        guard (try? keystore.checkKey(for: KeystoreTag.pincode.rawValue)) == false else {
+            return createSecuredPinView()
+        }
         let pinSetupView = PinSetupViewController(nib: R.nib.pinSetupViewController)
 
         pinSetupView.mode = .create
@@ -72,8 +82,7 @@ class PinViewFactory: PinViewFactoryProtocol {
         )
         let presenter = LocalAuthPresenter(
             wireframe: wireframe,
-            interactor: interactor,
-            userDefaultsStorage: SettingsManager.shared
+            interactor: interactor
         )
 
         pinVerifyView.presenter = presenter
@@ -86,25 +95,31 @@ class PinViewFactory: PinViewFactoryProtocol {
         with wireframe: ScreenAuthorizationWireframeProtocol,
         cancellable: Bool
     ) -> PinSetupViewProtocol? {
-        let pinVerifyView = PinSetupViewController(nib: R.nib.pinSetupViewController)
-        pinVerifyView.cancellable = cancellable
-
-        pinVerifyView.mode = .securedInput
-
         let interactor = LocalAuthInteractor(
             secretManager: KeychainManager.shared(with: .userInteractive),
             settingsManager: SettingsManager.shared,
             biometryAuth: BiometryAuth(),
             locale: LocalizationManager.shared.selectedLocale
         )
-        let presenter = ScreenAuthorizationPresenter(
-            wireframe: wireframe,
-            interactor: interactor
+        return createScreenAuthorizationView(
+            with: wireframe,
+            cancellable: cancellable,
+            interactor: interactor,
+            localizationManager: LocalizationManager.shared
         )
+    }
 
-        pinVerifyView.presenter = presenter
-        pinVerifyView.localizationManager = LocalizationManager.shared
-
+    static func createScreenAuthorizationView(
+        with wireframe: ScreenAuthorizationWireframeProtocol,
+        cancellable: Bool,
+        interactor: LocalAuthInteractorInputProtocol,
+        localizationManager: LocalizationManagerProtocol
+    ) -> PinSetupViewProtocol? {
+        let pinVerifyView = PinSetupViewController(nib: R.nib.pinSetupViewController)
+        pinVerifyView.cancellable = cancellable
+        pinVerifyView.mode = .securedInput
+        pinVerifyView.presenter = ScreenAuthorizationPresenter(wireframe: wireframe, interactor: interactor)
+        pinVerifyView.localizationManager = localizationManager
         return pinVerifyView
     }
 
@@ -124,8 +139,7 @@ class PinViewFactory: PinViewFactoryProtocol {
         )
         let presenter = LocalAuthPresenter(
             wireframe: wireframe,
-            interactor: interactor,
-            userDefaultsStorage: SettingsManager.shared
+            interactor: interactor
         )
 
         pinVerifyView.presenter = presenter

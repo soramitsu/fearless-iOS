@@ -11,7 +11,7 @@
     </dependencies>
     <customFonts key="customFonts">
         <array key="sora-Regular.otf">
-            <string>sora-rc004-0417-Regular</string>
+            <string>Sora-Regular</string>
         </array>
     </customFonts>
     <objects>
@@ -67,17 +67,17 @@
                                                     <color key="value" name="colorLightGray"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="string" keyPath="title" value="Amount"/>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Regular"/>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="Sora-Regular"/>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
                                                     <real key="value" value="12"/>
                                                 </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="_priceFontName" value="sora-rc004-0417-Regular"/>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_priceFontName" value="Sora-Regular"/>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_priceFontSize">
                                                     <real key="value" value="12"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="string" keyPath="priceText" value="$4,818"/>
                                                 <userDefinedRuntimeAttribute type="string" keyPath="balanceText" value="Available: 100 KSM"/>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="_balanceFontName" value="sora-rc004-0417-Regular"/>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_balanceFontName" value="Sora-Regular"/>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_balanceFontSize">
                                                     <real key="value" value="12"/>
                                                 </userDefinedRuntimeAttribute>
@@ -91,7 +91,7 @@
                                                 <userDefinedRuntimeAttribute type="color" keyPath="symbolColor">
                                                     <color key="value" name="colorWhite"/>
                                                 </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="_symbolFontName" value="sora-rc004-0417-Bold"/>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_symbolFontName" value="Sora-Bold"/>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_symbolFontSize">
                                                     <real key="value" value="16"/>
                                                 </userDefinedRuntimeAttribute>
@@ -99,7 +99,7 @@
                                                 <userDefinedRuntimeAttribute type="color" keyPath="fieldColor">
                                                     <color key="value" name="colorWhite"/>
                                                 </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="_filedFontName" value="sora-rc004-0417-Bold"/>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_filedFontName" value="Sora-Bold"/>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_fieldFontSize">
                                                     <real key="value" value="16"/>
                                                 </userDefinedRuntimeAttribute>
@@ -147,7 +147,7 @@
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Choose reward destination" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lpA-xa-zKw">
                                                     <rect key="frame" x="0.0" y="0.0" width="343" height="0.0"/>
-                                                    <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
+                                                    <fontDescription key="fontDescription" name="Sora-Regular" family="Sora" pointSize="14"/>
                                                     <color key="textColor" name="colorWhite"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
@@ -177,19 +177,19 @@
                                                         <userDefinedRuntimeAttribute type="color" keyPath="titleColor">
                                                             <color key="value" name="colorWhite"/>
                                                         </userDefinedRuntimeAttribute>
-                                                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Bold"/>
+                                                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="Sora-Bold"/>
                                                         <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
                                                             <real key="value" value="14"/>
                                                         </userDefinedRuntimeAttribute>
                                                         <userDefinedRuntimeAttribute type="string" keyPath="amountTitle" value="4.12 KSM"/>
-                                                        <userDefinedRuntimeAttribute type="string" keyPath="_amountFontName" value="sora-rc004-0417-Bold"/>
+                                                        <userDefinedRuntimeAttribute type="string" keyPath="_amountFontName" value="Sora-Bold"/>
                                                         <userDefinedRuntimeAttribute type="number" keyPath="_amountFontSize">
                                                             <real key="value" value="12"/>
                                                         </userDefinedRuntimeAttribute>
                                                         <userDefinedRuntimeAttribute type="color" keyPath="amountTitleColor">
                                                             <color key="value" name="colorWhite"/>
                                                         </userDefinedRuntimeAttribute>
-                                                        <userDefinedRuntimeAttribute type="string" keyPath="_priceFontName" value="sora-rc004-0417-Regular"/>
+                                                        <userDefinedRuntimeAttribute type="string" keyPath="_priceFontName" value="Sora-Regular"/>
                                                         <userDefinedRuntimeAttribute type="number" keyPath="_priceFontSize">
                                                             <real key="value" value="12"/>
                                                         </userDefinedRuntimeAttribute>
@@ -198,7 +198,7 @@
                                                         </userDefinedRuntimeAttribute>
                                                         <userDefinedRuntimeAttribute type="string" keyPath="priceTitle" value="$433.65"/>
                                                         <userDefinedRuntimeAttribute type="string" keyPath="incomeTitle" value="16.22% APY"/>
-                                                        <userDefinedRuntimeAttribute type="string" keyPath="_incomeFontName" value="sora-rc004-0417-Regular"/>
+                                                        <userDefinedRuntimeAttribute type="string" keyPath="_incomeFontName" value="Sora-Regular"/>
                                                         <userDefinedRuntimeAttribute type="number" keyPath="_incomeFontSize">
                                                             <real key="value" value="12"/>
                                                         </userDefinedRuntimeAttribute>
@@ -250,19 +250,19 @@
                                                         <userDefinedRuntimeAttribute type="color" keyPath="titleColor">
                                                             <color key="value" name="colorWhite"/>
                                                         </userDefinedRuntimeAttribute>
-                                                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Bold"/>
+                                                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="Sora-Bold"/>
                                                         <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
                                                             <real key="value" value="14"/>
                                                         </userDefinedRuntimeAttribute>
                                                         <userDefinedRuntimeAttribute type="string" keyPath="amountTitle" value="4.12 KSM"/>
-                                                        <userDefinedRuntimeAttribute type="string" keyPath="_amountFontName" value="sora-rc004-0417-Bold"/>
+                                                        <userDefinedRuntimeAttribute type="string" keyPath="_amountFontName" value="Sora-Bold"/>
                                                         <userDefinedRuntimeAttribute type="number" keyPath="_amountFontSize">
                                                             <real key="value" value="12"/>
                                                         </userDefinedRuntimeAttribute>
                                                         <userDefinedRuntimeAttribute type="color" keyPath="amountTitleColor">
                                                             <color key="value" name="colorWhite"/>
                                                         </userDefinedRuntimeAttribute>
-                                                        <userDefinedRuntimeAttribute type="string" keyPath="_priceFontName" value="sora-rc004-0417-Regular"/>
+                                                        <userDefinedRuntimeAttribute type="string" keyPath="_priceFontName" value="Sora-Regular"/>
                                                         <userDefinedRuntimeAttribute type="number" keyPath="_priceFontSize">
                                                             <real key="value" value="12"/>
                                                         </userDefinedRuntimeAttribute>
@@ -271,7 +271,7 @@
                                                         </userDefinedRuntimeAttribute>
                                                         <userDefinedRuntimeAttribute type="string" keyPath="priceTitle" value="$433.65"/>
                                                         <userDefinedRuntimeAttribute type="string" keyPath="incomeTitle" value="16.22% APY"/>
-                                                        <userDefinedRuntimeAttribute type="string" keyPath="_incomeFontName" value="sora-rc004-0417-Regular"/>
+                                                        <userDefinedRuntimeAttribute type="string" keyPath="_incomeFontName" value="Sora-Regular"/>
                                                         <userDefinedRuntimeAttribute type="number" keyPath="_incomeFontSize">
                                                             <real key="value" value="12"/>
                                                         </userDefinedRuntimeAttribute>
@@ -313,7 +313,7 @@
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Your reward destination" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QO7-vh-uiW">
                                             <rect key="frame" x="16" y="24" width="343" height="0.0"/>
-                                            <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
+                                            <fontDescription key="fontDescription" name="Sora-Regular" family="Sora" pointSize="14"/>
                                             <color key="textColor" name="colorWhite"/>
                                             <nil key="highlightedColor"/>
                                         </label>
@@ -343,19 +343,19 @@
                                                 <userDefinedRuntimeAttribute type="color" keyPath="titleColor">
                                                     <color key="value" name="colorWhite"/>
                                                 </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Bold"/>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="Sora-Bold"/>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
                                                     <real key="value" value="14"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="string" keyPath="amountTitle" value="4.12 KSM"/>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="_amountFontName" value="sora-rc004-0417-Bold"/>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_amountFontName" value="Sora-Bold"/>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_amountFontSize">
                                                     <real key="value" value="12"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="color" keyPath="amountTitleColor">
                                                     <color key="value" name="colorWhite"/>
                                                 </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="_priceFontName" value="sora-rc004-0417-Regular"/>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_priceFontName" value="Sora-Regular"/>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_priceFontSize">
                                                     <real key="value" value="12"/>
                                                 </userDefinedRuntimeAttribute>
@@ -364,7 +364,7 @@
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="string" keyPath="priceTitle" value="$433.65"/>
                                                 <userDefinedRuntimeAttribute type="string" keyPath="incomeTitle" value="16.22% APY"/>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="_incomeFontName" value="sora-rc004-0417-Regular"/>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_incomeFontName" value="Sora-Regular"/>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_incomeFontSize">
                                                     <real key="value" value="12"/>
                                                 </userDefinedRuntimeAttribute>
@@ -467,7 +467,7 @@
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_rightInset">
                                                     <real key="value" value="40"/>
                                                 </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Regular"/>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="Sora-Regular"/>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
                                                     <real key="value" value="14"/>
                                                 </userDefinedRuntimeAttribute>
@@ -536,7 +536,7 @@
                         <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
                             <color key="value" name="colorWhite"/>
                         </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Bold"/>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="Sora-Bold"/>
                         <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
                             <real key="value" value="14"/>
                         </userDefinedRuntimeAttribute>

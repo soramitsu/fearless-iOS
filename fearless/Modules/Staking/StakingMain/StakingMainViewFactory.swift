@@ -182,6 +182,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         )
 
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
@@ -203,7 +204,6 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedAccount
             ),
-            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
             stakingServiceFactory: serviceFactory,
             accountProviderFactory: accountProviderFactory,
             eventCenter: EventCenter.shared,

@@ -1,5 +1,5 @@
-import UIKit
 import SnapKit
+import UIKit
 
 final class AboutTableViewCell: UITableViewCell {
     // MARK: - UI
@@ -8,6 +8,9 @@ final class AboutTableViewCell: UITableViewCell {
         let label = UILabel()
         label.textColor = R.color.colorWhite()
         label.font = .p1Paragraph
+        label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
+        label.setContentCompressionResistancePriority(.required, for: .vertical)
         return label
     }()
 
@@ -15,6 +18,9 @@ final class AboutTableViewCell: UITableViewCell {
         let label = UILabel()
         label.textColor = R.color.colorLightGray()
         label.font = .p2Paragraph
+        label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
+        label.setContentCompressionResistancePriority(.required, for: .vertical)
         return label
     }()
 
@@ -27,6 +33,7 @@ final class AboutTableViewCell: UITableViewCell {
     private let arrowImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.iconSmallArrow()
+        imageView.contentMode = .scaleAspectFit
         return imageView
     }()
 
@@ -42,6 +49,28 @@ final class AboutTableViewCell: UITableViewCell {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func systemLayoutSizeFitting(
+        _ targetSize: CGSize,
+        withHorizontalFittingPriority horizontalFittingPriority: UILayoutPriority,
+        verticalFittingPriority: UILayoutPriority
+    ) -> CGSize {
+        // A multiline label needs the final row width before UIKit measures its height.
+        // Otherwise long localized titles can retain a one-line estimate at large type.
+        let accessoryWidth = arrowImageView.image?.size.width ?? 0
+        let textWidth = max(
+            1,
+            targetSize.width - 2 * UIConstants.bigOffset - 24
+                - 2 * UIConstants.accessoryItemsSpacing - accessoryWidth
+        )
+        titleLabel.preferredMaxLayoutWidth = textWidth
+        descriptionLabel.preferredMaxLayoutWidth = textWidth
+        return super.systemLayoutSizeFitting(
+            targetSize,
+            withHorizontalFittingPriority: horizontalFittingPriority,
+            verticalFittingPriority: verticalFittingPriority
+        )
     }
 
     // MARK: - Public methods
@@ -62,6 +91,7 @@ final class AboutTableViewCell: UITableViewCell {
 
     private func setupLayout() {
         let separatorView = UIFactory.default.createSeparatorView()
+        contentView.heightAnchor.constraint(greaterThanOrEqualToConstant: 48).isActive = true
         contentView.addSubview(separatorView)
         separatorView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.separatorHeight)
@@ -87,8 +117,9 @@ final class AboutTableViewCell: UITableViewCell {
 
         contentView.addSubview(arrowImageView)
         arrowImageView.snp.makeConstraints { make in
+            make.size.equalTo(arrowImageView.image?.size ?? CGSize(width: 8, height: 12))
             make.centerY.equalToSuperview()
-            make.leading.greaterThanOrEqualTo(textStackView.snp.trailing).offset(UIConstants.accessoryItemsSpacing)
+            make.leading.equalTo(textStackView.snp.trailing).offset(UIConstants.accessoryItemsSpacing)
             make.trailing.equalToSuperview().offset(-UIConstants.bigOffset)
         }
     }

@@ -9,14 +9,14 @@ final class EthereumWalletRemoteSubscriptionService {
     private let logger: LoggerProtocol
     private let repository: AnyDataProviderRepository<AccountInfoStorageWrapper>
     private let operationManager: OperationManagerProtocol
-    private let repositoryWrapper: EthereumBalanceRepositoryCacheWrapper
+    private let repositoryWrapper: BalanceRepositoryCacheWrapper
 
     init(
         chainRegistry: ChainRegistryProtocol,
         logger: LoggerProtocol,
         repository: AnyDataProviderRepository<AccountInfoStorageWrapper>,
         operationManager: OperationManagerProtocol,
-        repositoryWrapper: EthereumBalanceRepositoryCacheWrapper
+        repositoryWrapper: BalanceRepositoryCacheWrapper
     ) {
         self.chainRegistry = chainRegistry
         self.logger = logger
@@ -107,8 +107,8 @@ extension EthereumWalletRemoteSubscriptionService: WalletRemoteSubscriptionServi
                     try? self?.handleNewBlock(ws: ws, chainAsset: chainAsset, accountId: accountId)
                 }
             } catch {
-                return continuation.resume(with: .failure(error))
                 logger.error("EthereumWalletRemoteSubscriptionService:attachToAccountInfo:error: \(error.localizedDescription)")
+                return continuation.resume(with: .failure(error))
             }
         }
 

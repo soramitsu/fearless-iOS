@@ -59,22 +59,29 @@ struct SheetAlertPresentableAction {
     let title: String
     let button: TriangularedButton
     let handler: (() -> Void)?
+    let handlerAfterDismissal: Bool
+    let beforeDismissal: (() -> Void)?
     let style: SheetAlertPresentableActionStyle
 
     init(
         title: String,
         style: SheetAlertPresentableActionStyle = .defaultStyle,
         button: TriangularedButton = UIFactory.default.createMainActionButton(),
+        handlerAfterDismissal: Bool = false,
+        beforeDismissal: (() -> Void)? = nil,
         handler: (() -> Void)? = nil
     ) {
         self.title = title
         self.button = button
         self.handler = handler
+        self.handlerAfterDismissal = handlerAfterDismissal
+        self.beforeDismissal = beforeDismissal
         self.style = style
     }
 }
 
 struct SheetAlertPresentableViewModel {
+    let presentationID: UUID
     let title: String
     let titleStyle: SheetAlertPresentableStyle
     let message: String?
@@ -85,6 +92,9 @@ struct SheetAlertPresentableViewModel {
     let dismissCompletion: (() -> Void)?
     let icon: UIImage?
     let actionAxis: NSLayoutConstraint.Axis
+    let scrollableContent: Bool
+    /// False leaves the actions as the only way to close the sheet.
+    let showsCloseButton: Bool
 
     init(
         title: String,
@@ -96,7 +106,10 @@ struct SheetAlertPresentableViewModel {
         closeAction: String?,
         dismissCompletion: (() -> Void)? = nil,
         icon: UIImage? = R.image.iconWarning(),
-        actionAxis: NSLayoutConstraint.Axis = .vertical
+        actionAxis: NSLayoutConstraint.Axis = .vertical,
+        scrollableContent: Bool = false,
+        showsCloseButton: Bool = true,
+        presentationID: UUID = UUID()
     ) {
         self.title = title
         self.titleStyle = titleStyle
@@ -108,6 +121,9 @@ struct SheetAlertPresentableViewModel {
         self.dismissCompletion = dismissCompletion
         self.icon = icon
         self.actionAxis = actionAxis
+        self.scrollableContent = scrollableContent
+        self.showsCloseButton = showsCloseButton
+        self.presentationID = presentationID
     }
 }
 

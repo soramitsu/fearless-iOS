@@ -1,4 +1,4 @@
 "NSCameraUsageDescription" = "Camera is used to capture QR code";
 "NSFaceIDUsageDescription" = "Fearless uses Face ID to restrict unauthorized users from accessing the app.";
-"NSPhotoLibraryUsageDescription" = "Load photos from library";
+"NSPhotoLibraryUsageDescription" = "Access to the library is needed to select existing images of QR codes";
 "NSPhotoLibraryAddUsageDescription" = "Save transfer request as a qr code";

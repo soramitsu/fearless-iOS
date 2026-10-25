@@ -11,10 +11,15 @@ final class SelectedNetworkButton: UIControl {
     }
 
     private let iconImageView = UIImageView()
+    private var usesWrappingTypography = false
 
     private let title: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
+        label.adjustsFontForContentSizeCategory = true
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        label.setContentCompressionResistancePriority(.required, for: .vertical)
         return label
     }()
 
@@ -35,9 +40,18 @@ final class SelectedNetworkButton: UIControl {
         fatalError("init(coder:) has not been implemented")
     }
 
+    /// Opt-in typography and text-safe corners; other owners retain their legacy appearance.
+    func applyTypography(_ font: UIFont) {
+        title.font = font
+        usesWrappingTypography = true
+        setNeedsLayout()
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
-        layer.cornerRadius = bounds.height / 2
+        // A tall multiline capsule would clip the title's first and last lines. Keep
+        // the ordinary 44-point control's curvature while allowing its height to grow.
+        layer.cornerRadius = usesWrappingTypography ? min(22, bounds.height / 2) : bounds.height / 2
         clipsToBounds = true
     }
 
@@ -55,6 +69,8 @@ final class SelectedNetworkButton: UIControl {
     }
 
     private func setup() {
+        isAccessibilityElement = true
+        accessibilityTraits = .button
         backgroundColor = R.color.colorWhite8()
         let container = UIFactory.default.createHorizontalStackView(spacing: 4)
         container.alignment = .center

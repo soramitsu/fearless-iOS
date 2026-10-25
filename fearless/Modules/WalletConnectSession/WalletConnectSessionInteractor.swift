@@ -40,31 +40,35 @@ final class WalletConnectSessionInteractor {
     }
 
     private func fetchChainModels() {
-        let operation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
-
-        operation.completionBlock = { [weak self] in
+        Task { [weak self] in
+            guard let self else { return }
+            let result: Result<[ChainModel], Error>
             do {
-                let chainModels = try operation.extractNoCancellableResultData()
-                self?.output?.didReceive(chainsResult: .success(chainModels))
+                let chains = try await chainRepository.fetchAllAsync()
+                result = .success(chains)
             } catch {
-                self?.output?.didReceive(chainsResult: .failure(error))
+                result = .failure(error)
+            }
+            await MainActor.run { [weak self] in
+                self?.output?.didReceive(chainsResult: result)
             }
         }
-
-        operationQueue.addOperation(operation)
     }
 
     private func fetchWallets() {
-        let operation = walletRepository.fetchAllOperation(with: RepositoryFetchOptions())
-
-        operation.completionBlock = { [weak self] in
-            guard let result = operation.result else {
-                return
+        Task { [weak self] in
+            guard let self else { return }
+            let result: Result<[MetaAccountModel], Error>
+            do {
+                let wallets = try await walletRepository.fetchAllAsync()
+                result = .success(wallets)
+            } catch {
+                result = .failure(error)
             }
-            self?.output?.didReceive(walletsResult: result)
+            await MainActor.run { [weak self] in
+                self?.output?.didReceive(walletsResult: result)
+            }
         }
-
-        operationQueue.addOperation(operation)
     }
 }
 

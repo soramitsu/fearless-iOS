@@ -5,4 +5,5 @@ struct WalletMainContainerViewModel {
     let selectedFilter: String
     let selectedFilterImage: ImageViewModelProtocol?
     let address: String?
+    let accountScoreViewModel: AccountScoreViewModel?
 }

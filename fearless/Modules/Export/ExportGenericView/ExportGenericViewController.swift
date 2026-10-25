@@ -1,7 +1,7 @@
-import UIKit
 import SoraFoundation
 import SoraUI
 import SSFModels
+import UIKit
 
 final class ExportGenericViewController: UIViewController, ImportantViewProtocol {
     private enum Constants {
@@ -39,6 +39,8 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
     private var alreadyDisplayedMnemonics: [[String]]?
 
     private var viewModel: MultipleExportGenericViewModelProtocol?
+    private var adaptiveLayout: ExportGenericAdaptiveLayout?
+    private var backupFailureView: UIView?
 
     private var shouldShowAdvanced: Bool {
         guard let option = viewModel?.option, let flow = viewModel?.flow else {
@@ -107,6 +109,12 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
         setupSourceTypeView()
         setupExpandableActionView()
         setupAnimatingView()
+        if FWAppearance.exportGenericRestyled {
+            adaptiveLayout = ExportGenericAdaptiveLayout(
+                root: view, container: containerView, buttons: buttonsStackView, expandable: expandableControl
+            )
+            navigationItem.titleView = UIView()
+        }
     }
 
     override func viewDidLoad() {
@@ -120,10 +128,49 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
         setAdvancedContainer(visibility: shouldShowAdvanced)
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
 
         presenter.didLoadView()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if isBeingDismissed || navigationController?.isBeingDismissed == true {
+            if let transitionCoordinator {
+                transitionCoordinator.animate(alongsideTransition: nil) { [weak self] context in
+                    if !context.isCancelled {
+                        self?.presenter.didLeaveView()
+                    }
+                }
+            } else {
+                presenter.didLeaveView()
+            }
+        }
+    }
+
+    override func didMove(toParent parent: UIViewController?) {
+        super.didMove(toParent: parent)
+        if parent == nil, isViewLoaded {
+            presenter.didLeaveView()
+        }
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        adaptiveLayout?.updateWidth()
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        guard isViewLoaded,
+              previousTraitCollection?.preferredContentSizeCategory != traitCollection.preferredContentSizeCategory
+              || previousTraitCollection?.legibilityWeight != traitCollection.legibilityWeight else { return }
+        refreshAdaptiveLayout()
+    }
+
+    private func refreshAdaptiveLayout() {
+        adaptiveLayout?.refresh(title: title, locale: selectedLocale, traits: traitCollection)
     }
 
     private func setupLocalization() {
@@ -138,6 +185,9 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
         }
         sourceTypeView.title = R.string.localizable
             .importSourcePickerTitle(preferredLanguages: locale.rLanguages)
+        if adaptiveLayout != nil {
+            networkView?.title = R.string.localizable.commonNetwork(preferredLanguages: locale.rLanguages)
+        }
         expandableControl.titleLabel.text = R.string.localizable
             .commonAdvanced(preferredLanguages: locale.rLanguages)
 
@@ -145,6 +195,7 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
         accessoryActionButton?.imageWithTitleView?.title = accessoryOptionTitle?.value(for: locale)
 
         updateFromViewModel(locale)
+        refreshAdaptiveLayout()
     }
 
     private func updateFromViewModel(_ locale: Locale) {
@@ -166,7 +217,7 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
 
         sourceTypeView.subtitle = viewModel.option.titleForLocale(locale, ethereumBased: nil)
         var views: [UIView] = []
-        viewModel.viewModels.forEach { exportViewModel in
+        for exportViewModel in viewModel.viewModels {
             if let view = setupExportDataView(exportViewModel) {
                 views.append(view)
             }
@@ -196,6 +247,7 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
             view.isHidden = !expandableControl.isActivated
         }
         setAdvancedContainer(visibility: shouldShowAdvanced)
+        refreshAdaptiveLayout()
     }
 
     @objc private func actionMain() {
@@ -251,6 +303,15 @@ extension ExportGenericViewController {
     }
 
     private func setupButtonsContainerView() {
+        if FWAppearance.exportGenericRestyled {
+            containerView.stackView.addArrangedSubview(buttonsStackView)
+            buttonsStackView.widthAnchor.constraint(
+                equalTo: view.widthAnchor, constant: -2 * UIConstants.horizontalInset
+            ).isActive = true
+            containerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
+            containerView.scrollView.contentInset.bottom = 24
+            return
+        }
         view.addSubview(buttonsStackView)
 
         buttonsStackView.snp.makeConstraints { make in
@@ -304,7 +365,8 @@ extension ExportGenericViewController {
             for: .touchUpInside
         )
 
-        button.imageWithTitleView?.title = R.string.localizable.exportSubstrateTitle(preferredLanguages: selectedLocale.rLanguages)
+        button.imageWithTitleView?.title = R.string.localizable
+            .exportSubstrateTitle(preferredLanguages: selectedLocale.rLanguages)
 
         exportSubstrateButton = button
     }
@@ -328,7 +390,8 @@ extension ExportGenericViewController {
             for: .touchUpInside
         )
 
-        button.imageWithTitleView?.title = R.string.localizable.exportEthereumTitle(preferredLanguages: selectedLocale.rLanguages)
+        button.imageWithTitleView?.title = R.string.localizable
+            .exportEthereumTitle(preferredLanguages: selectedLocale.rLanguages)
 
         exportEthereumButton = button
     }
@@ -382,6 +445,11 @@ extension ExportGenericViewController {
         }
 
         let newOptionView = exportViewModel.accept(binder: binder, locale: selectedLocale)
+        if let exactView = newOptionView as? ExactMnemonicExportView {
+            exactView.copyRequested = { [weak self] phrase in
+                (self?.presenter as? ExactMnemonicExportCopying)?.copyExactMnemonic(phrase) == true
+            }
+        }
         newOptionView.backgroundColor = R.color.colorBlack19()!
         newOptionView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -477,8 +545,7 @@ extension ExportGenericViewController {
     ) {
         var views: [UIView] = []
 
-        viewModel.viewModels.forEach { exportViewModel in
-
+        for exportViewModel in viewModel.viewModels {
             let containerView = uiFactory.createVerticalStackView(spacing: 8)
 
             self.containerView.stackView.addArrangedSubview(containerView)
@@ -615,6 +682,66 @@ extension ExportGenericViewController: Localizable {
 }
 
 extension ExportGenericViewController: ExportGenericViewProtocol {
+    func showBackupStatusFailure(retry: @escaping () -> Void) {
+        backupFailureView?.removeFromSuperview()
+        let status = UIStackView()
+        status.axis = .vertical
+        status.spacing = 12
+        let message = UILabel()
+        message.text = R.string.localizable.backupStatusSaveFailed(preferredLanguages: selectedLocale.rLanguages)
+        message.font = UIFont.preferredFont(forTextStyle: .body, compatibleWith: traitCollection)
+        message.adjustsFontForContentSizeCategory = true
+        message.textColor = R.color.colorWhite()
+        message.numberOfLines = 0
+        message.lineBreakMode = .byWordWrapping
+        message.setContentCompressionResistancePriority(.required, for: .vertical)
+        message.accessibilityIdentifier = "BackupStatusFailure"
+        status.addArrangedSubview(message)
+        for (title, identifier, action) in [
+            (
+                R.string.localizable.commonRetry(preferredLanguages: selectedLocale.rLanguages),
+                "BackupStatusRetry", Optional(retry)
+            ),
+            (
+                R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages),
+                "BackupStatusCancel", nil
+            )
+        ] {
+            let button = UIButton(type: .system)
+            var configuration = UIButton.Configuration.filled()
+            configuration.title = title
+            configuration.baseBackgroundColor = R.color.colorPink()
+            configuration.baseForegroundColor = R.color.colorWhite()
+            configuration.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12)
+            button.configuration = configuration
+            button.titleLabel?.numberOfLines = 0
+            button.accessibilityIdentifier = identifier
+            button.heightAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
+            button.addAction(UIAction { [weak self, weak status] _ in
+                status?.removeFromSuperview()
+                self?.backupFailureView = nil
+                action?()
+            }, for: .touchUpInside)
+            status.addArrangedSubview(button)
+        }
+        containerView.stackView.addArrangedSubview(status)
+        status.widthAnchor.constraint(equalTo: containerView.stackView.widthAnchor).isActive = true
+        backupFailureView = status
+        revealBackupFailure(message)
+    }
+
+    private func revealBackupFailure(_ message: UILabel) {
+        view.layoutIfNeeded()
+        let scroll = containerView.scrollView
+        let top = message.convert(message.bounds, to: scroll).minY - scroll.adjustedContentInset.top
+        let bottom = max(
+            -scroll.adjustedContentInset.top,
+            scroll.contentSize.height - scroll.bounds.height + scroll.adjustedContentInset.bottom
+        )
+        scroll.setContentOffset(CGPoint(x: 0, y: min(top, bottom)), animated: false)
+        UIAccessibility.post(notification: .layoutChanged, argument: message)
+    }
+
     func set(viewModel: MultipleExportGenericViewModelProtocol) {
         self.viewModel = viewModel
 

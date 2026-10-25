@@ -36,7 +36,7 @@ public struct RLPBigInt {
     }
 
     private var _data: [UInt8] {
-        value.toTwosComplement().bytes
+        Array(value.toTwosComplement())
     }
 }
 

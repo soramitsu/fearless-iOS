@@ -3,10 +3,8 @@ import RobinHood
 import SSFModels
 import SoraFoundation
 
-extension AssetModel: Identifiable {
-    public var identifier: String { id }
-
-    public var displayInfo: AssetBalanceDisplayInfo {
+public extension AssetModel {
+    var displayInfo: AssetBalanceDisplayInfo {
         AssetBalanceDisplayInfo(
             displayPrecision: 5,
             assetPrecision: Int16(bitPattern: precision),
@@ -17,7 +15,7 @@ extension AssetModel: Identifiable {
         )
     }
 
-    public func displayInfo(with chainIcon: URL?) -> AssetBalanceDisplayInfo {
+    func displayInfo(with chainIcon: URL?) -> AssetBalanceDisplayInfo {
         AssetBalanceDisplayInfo(
             displayPrecision: 5,
             assetPrecision: Int16(bitPattern: precision),
@@ -28,7 +26,7 @@ extension AssetModel: Identifiable {
         )
     }
 
-    public func normalizedSymbol() -> String {
+    func normalizedSymbol() -> String {
         guard symbol.hasPrefix("xc") else {
             return symbol
         }

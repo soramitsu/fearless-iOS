@@ -4,7 +4,9 @@ import SoraKeystore
 import RobinHood
 import SSFUtils
 import SSFModels
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 struct StakingRebondConfirmationViewFactory {
     static func createView(
@@ -35,6 +37,7 @@ struct StakingRebondConfirmationViewFactory {
 
         let presenter = createPresenter(
             chainAsset: chainAsset,
+            wallet: wallet,
             interactor: interactor,
             wireframe: wireframe,
             dataValidatingFactory: dataValidatingFactory,
@@ -56,6 +59,7 @@ struct StakingRebondConfirmationViewFactory {
     // swiftlint:disable function_parameter_count
     private static func createPresenter(
         chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         interactor: StakingRebondConfirmationInteractorInputProtocol,
         wireframe: StakingRebondConfirmationWireframeProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
@@ -68,6 +72,7 @@ struct StakingRebondConfirmationViewFactory {
             dataValidatingFactory: dataValidatingFactory,
             chainAsset: chainAsset,
             viewModelState: container.viewModelState,
+            wallet: wallet,
             logger: Logger.shared
         )
     }
@@ -78,11 +83,7 @@ struct StakingRebondConfirmationViewFactory {
         wallet: MetaAccountModel,
         container: StakingRebondConfirmationDependencyContainer
     ) -> StakingRebondConfirmationInteractor? {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        return StakingRebondConfirmationInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
+        StakingRebondConfirmationInteractor(
             chainAsset: chainAsset,
             wallet: wallet,
             strategy: container.strategy
@@ -127,8 +128,6 @@ struct StakingRebondConfirmationViewFactory {
 
         let keystore = Keychain()
         let feeProxy = ExtrinsicFeeProxy()
-        let facade = UserDataStorageFacade.shared
-        let mapper = MetaAccountMapper()
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
@@ -136,11 +135,7 @@ struct StakingRebondConfirmationViewFactory {
             selectedMetaAccount: wallet
         )
 
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -181,7 +176,7 @@ struct StakingRebondConfirmationViewFactory {
                 operationManager: operationManager,
                 keystore: keystore,
                 connection: connection,
-                accountRepository: AnyDataProviderRepository(accountRepository),
+                accountRepository: accountRepository,
                 output: viewModelState,
                 callFactory: callFactory
             )
@@ -217,7 +212,7 @@ struct StakingRebondConfirmationViewFactory {
                 operationManager: operationManager,
                 keystore: keystore,
                 connection: connection,
-                accountRepository: AnyDataProviderRepository(accountRepository),
+                accountRepository: accountRepository,
                 output: viewModelState,
                 signingWrapper: signingWrapper
             )

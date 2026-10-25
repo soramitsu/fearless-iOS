@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFModels
+import SoraKeystore
 
 protocol WalletsManagmentViewModelFactoryProtocol {
     func buildViewModel(
@@ -13,9 +14,14 @@ protocol WalletsManagmentViewModelFactoryProtocol {
 
 final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryProtocol {
     private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
+    private let accountScoreFetcher: AccountStatisticsFetching
 
-    init(assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol) {
+    init(
+        assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol,
+        accountScoreFetcher: AccountStatisticsFetching
+    ) {
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
+        self.accountScoreFetcher = accountScoreFetcher
     }
 
     func buildViewModel(
@@ -35,12 +41,23 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
                 isSelected = selectedWalletId == nil ? false : managedMetaAccount.info.metaId == selectedWalletId
             }
 
+            let address = managedMetaAccount.info.ethereumAddress?.toHex(includePrefix: true)
+            let accountScoreViewModel = AccountScoreViewModel(
+                fetcher: accountScoreFetcher,
+                address: address,
+                chain: nil,
+                settings: SettingsManager.shared,
+                eventCenter: EventCenter.shared,
+                logger: Logger.shared
+            )
+
             guard let walletBalance = balances[key] else {
                 return WalletsManagmentCellViewModel(
                     isSelected: isSelected,
                     walletName: managedMetaAccount.info.name,
                     fiatBalance: nil,
-                    dayChange: nil
+                    dayChange: nil,
+                    accountScoreViewModel: accountScoreViewModel
                 )
             }
 
@@ -58,14 +75,17 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
                     isSelected: isSelected,
                     walletName: managedMetaAccount.info.name,
                     fiatBalance: fiatBalance,
-                    dayChange: nil
+                    dayChange: nil,
+                    accountScoreViewModel: accountScoreViewModel
                 )
             }
 
+            // Every holding, hidden ones included, so nobody deletes or backs up a wallet
+            // that looks empty because its funds are hidden.
             let dayChange = getDayChangeAttributedString(
                 currency: walletBalance.currency,
-                dayChange: walletBalance.dayChangePercent,
-                dayChangeValue: walletBalance.dayChangeValue,
+                dayChange: walletBalance.totalDayChangePercent,
+                dayChangeValue: walletBalance.totalDayChangeValue,
                 locale: locale
             )
 
@@ -73,7 +93,9 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
                 isSelected: isSelected,
                 walletName: managedMetaAccount.info.name,
                 fiatBalance: totalFiatValue,
-                dayChange: dayChange
+                dayChange: dayChange,
+                accountScoreViewModel: accountScoreViewModel,
+                balanceCaption: walletBalance.allHoldingsCaption
             )
             return viewModel
         }

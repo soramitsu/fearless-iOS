@@ -25,7 +25,6 @@ final class StakingPoolMainPresenter {
     private var accountInfo: AccountInfo?
     private var balance: Decimal?
     private var rewardCalculatorEngine: RewardCalculatorEngineProtocol?
-    private var priceData: PriceData?
     private var era: EraIndex?
     private var eraStakersInfo: EraStakersInfo?
     private var eraCountdown: EraCountdown?
@@ -92,7 +91,7 @@ final class StakingPoolMainPresenter {
             for: chainAsset,
             accountInfo: accountInfo,
             amount: inputResult?.absoluteValue(from: balance ?? 0.0),
-            priceData: priceData,
+            priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency),
             calculatorEngine: rewardCalculatorEngine
         )
 
@@ -107,14 +106,15 @@ final class StakingPoolMainPresenter {
               let pendingRewards = pendingRewards,
               let poolInfo = poolInfo
         else {
-            view?.didReceiveNominatorStateViewModel(nil)
+            DispatchQueue.main.async { [weak self] in
+                self?.view?.didReceiveNominatorStateViewModel(nil)
+            }
 
             return nil
         }
 
         let viewModel = viewModelFactory.buildNominatorStateViewModel(
             stakeInfo: stakeInfo,
-            priceData: priceData,
             chainAsset: chainAsset,
             era: era,
             poolInfo: poolInfo,
@@ -122,7 +122,9 @@ final class StakingPoolMainPresenter {
             pendingRewards: pendingRewards
         )
 
-        view?.didReceiveNominatorStateViewModel(viewModel)
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveNominatorStateViewModel(viewModel)
+        }
 
         guard let status = viewModel?.value(for: selectedLocale).status else {
             return nil
@@ -195,7 +197,9 @@ extension StakingPoolMainPresenter: StakingPoolMainViewOutput {
         self.view = view
         interactor.setup(with: self)
 
-        view.didReceiveNominatorStateViewModel(nil)
+        DispatchQueue.main.async {
+            view.didReceiveNominatorStateViewModel(nil)
+        }
     }
 
     func didTapSelectAsset() {
@@ -352,13 +356,6 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
         self.rewardCalculatorEngine = rewardCalculatorEngine
 
         provideRewardEstimationViewModel()
-    }
-
-    func didReceive(priceData: PriceData?) {
-        self.priceData = priceData
-
-        provideRewardEstimationViewModel()
-        provideStakeInfoViewModel()
     }
 
     func didReceive(wallet: MetaAccountModel) {

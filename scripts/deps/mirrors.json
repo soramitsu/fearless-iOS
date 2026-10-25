@@ -1,0 +1,9 @@
+{
+  "object" : [
+    {
+      "mirror" : "https://github.com/soramitsu/web3-swift",
+      "original" : "https://github.com/bnsports/Web3.swift.git"
+    }
+  ],
+  "version" : 1
+}

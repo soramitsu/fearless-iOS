@@ -49,7 +49,11 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
             self?.runtimeProviders[chain.chainId] = runtimeProvider
         }
 
-        runtimeProvider.setupHot()
+        if let concrete = runtimeProvider as? RuntimeProvider {
+            concrete.setupHot()
+        } else {
+            runtimeProvider.setup()
+        }
 
         return runtimeProvider
     }
@@ -78,7 +82,7 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
     }
 
     func destroyRuntimeProvider(for chainId: ChainModel.Id) {
-        let runtimeProvider = runtimeProviders[chainId]
+        let runtimeProvider = lock.concurrentlyRead { runtimeProviders[chainId] }
         runtimeProvider?.cleanup()
 
         lock.exclusivelyWrite { [weak self] in

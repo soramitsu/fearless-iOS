@@ -2,6 +2,10 @@ import Foundation
 import RobinHood
 import SSFUtils
 
+enum SubstrateOperationFactoryError: Error {
+    case connectionUnavailable
+}
+
 protocol SubstrateOperationFactoryProtocol: AnyObject {
     func fetchChainOperation(_ url: URL) -> BaseOperation<String>
 }
@@ -17,9 +21,8 @@ final class SubstrateOperationFactory: SubstrateOperationFactoryProtocol {
         let engine = WebSocketEngine(
             connectionName: nil,
             url: url,
-            reachabilityManager: nil,
-            reconnectionStrategy: nil,
-            logger: nil
+            reconnectionStrategy: ExponentialReconnection(),
+            logger: logger
         )
 
         return JSONRPCListOperation(engine: engine, method: RPCMethod.chain)

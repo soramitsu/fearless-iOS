@@ -1,6 +1,5 @@
 import UIKit
 import SoraFoundation
-import SoraKeystore
 
 final class PolkaswapSwapConfirmationAssembly {
     static func configureModule(
@@ -8,40 +7,10 @@ final class PolkaswapSwapConfirmationAssembly {
         completeClosure: (() -> Void)?
     ) -> PolkaswapSwapConfirmationModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
-        let request = params.soraChinAsset.chain.accountRequest()
-
-        guard let accountResponse = params.wallet.fetch(for: request),
-              let runtimeService = chainRegistry.getRuntimeProvider(for: params.soraChinAsset.chain.chainId),
-              let connection = chainRegistry.getConnection(for: params.soraChinAsset.chain.chainId)
-        else {
-            return nil
-        }
-
-        let signingWrapper = SigningWrapper(
-            keystore: Keychain(),
-            metaId: params.wallet.metaId,
-            accountResponse: accountResponse
-        )
-
-        let operationManager = OperationManagerFacade.sharedManager
-        let extrinsicService = ExtrinsicService(
-            accountId: accountResponse.accountId,
-            chainFormat: params.soraChinAsset.chain.chainFormat,
-            cryptoType: accountResponse.cryptoType,
-            runtimeRegistry: runtimeService,
-            engine: connection,
-            operationManager: operationManager
-        )
-
-        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
-
-        let interactor = PolkaswapSwapConfirmationInteractor(
-            params: params,
-            signingWrapper: signingWrapper,
-            extrinsicService: extrinsicService,
-            callFactory: callFactory
-        )
+        // Runtime, connection, account, signer, builder and executor are all
+        // resolved by the authorizer at submit time; assembly state is preview
+        // state only and is never granted submission authority.
+        let interactor = PolkaswapSwapConfirmationInteractor(params: params)
         let router = PolkaswapSwapConfirmationRouter()
 
         let presenter = PolkaswapSwapConfirmationPresenter(

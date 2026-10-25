@@ -1,12 +1,23 @@
 import Foundation
-import RobinHood
-
 import IrohaCrypto
-import SSFUtils
+import RobinHood
 import SSFModels
-import FearlessKeys
+import SSFUtils
 
 final class OklinkHistoryOperationFactory {
+    static func decodeResponse(_ data: Data?, response: URLResponse?) throws -> OklinkHistoryResponse {
+        guard let response = response as? HTTPURLResponse,
+              (200 ... 299).contains(response.statusCode) else {
+            throw OklinkHistoryError.invalidHTTPResponse
+        }
+        guard let data else {
+            throw SubqueryHistoryOperationFactoryError.incorrectInputData
+        }
+        let decoded = try JSONDecoder().decode(OklinkHistoryResponse.self, from: data)
+        _ = try decoded.validatedData()
+        return decoded
+    }
+
     private func createOperation(
         address: String,
         url: URL,
@@ -46,31 +57,20 @@ final class OklinkHistoryOperationFactory {
         }
 
         let resultFactory = AnyNetworkResultFactory<OklinkHistoryResponse> { data, response, error in
-
             do {
-                if let data = data {
-                    let response = try JSONDecoder().decode(
-                        OklinkHistoryResponse.self,
-                        from: data
-                    )
-
-                    return .success(response)
-                } else if let error = error {
+                if let error {
                     return .failure(error)
-                } else {
-                    return .failure(SubqueryHistoryOperationFactoryError.incorrectInputData)
                 }
+                return .success(try Self.decodeResponse(data, response: response))
             } catch {
                 return .failure(error)
             }
         }
 
-        let operation = NetworkOperation(
+        return NetworkOperation(
             requestFactory: requestFactory,
             resultFactory: resultFactory
         )
-
-        return operation
     }
 
     private func createMapOperation(
@@ -80,7 +80,8 @@ final class OklinkHistoryOperationFactory {
         chain: ChainModel
     ) -> BaseOperation<AssetTransactionPageData?> {
         ClosureOperation {
-            let remoteTransactions = try remoteOperation.extractNoCancellableResultData().data.first?.transactionLists
+            let response = try remoteOperation.extractNoCancellableResultData()
+            let remoteTransactions = try response.validatedData().first?.transactionLists
 
             let transactions = remoteTransactions?
                 .filter { asset.ethereumType == .normal ? true : $0.tokenContractAddress.lowercased() == asset.id.lowercased() }
@@ -128,6 +129,18 @@ extension OklinkHistoryOperationFactory: HistoryOperationFactoryProtocol {
 struct OklinkHistoryResponse: Codable {
     let code, msg: String
     let data: [OklinkData]
+
+    func validatedData() throws -> [OklinkData] {
+        guard code == "0" else {
+            throw OklinkHistoryError.providerRejected
+        }
+        return data
+    }
+}
+
+enum OklinkHistoryError: Error, Equatable {
+    case invalidHTTPResponse
+    case providerRejected
 }
 
 struct OklinkData: Codable {

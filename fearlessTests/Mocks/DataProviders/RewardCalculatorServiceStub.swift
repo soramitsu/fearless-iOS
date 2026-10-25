@@ -9,7 +9,7 @@ final class RewardCalculatorServiceStub: RewardCalculatorServiceProtocol {
         self.engine = engine
     }
 
-    func update(to chain: Chain) {}
+    // legacy API placeholder removed; protocol no longer requires chain updates
 
     func setup() {}
 

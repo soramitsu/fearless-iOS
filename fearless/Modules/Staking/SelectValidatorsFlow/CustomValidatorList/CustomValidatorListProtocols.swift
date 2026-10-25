@@ -22,14 +22,6 @@ protocol CustomValidatorListPresenterProtocol: SelectedValidatorListDelegate {
     func searchTextDidChange(_ text: String?)
 }
 
-protocol CustomValidatorListInteractorInputProtocol: AnyObject {
-    func setup()
-}
-
-protocol CustomValidatorListInteractorOutputProtocol: AnyObject {
-    func didReceivePriceData(result: Result<PriceData?, Error>)
-}
-
 protocol CustomValidatorListWireframeProtocol: SheetAlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func present(
         chainAsset: ChainAsset,

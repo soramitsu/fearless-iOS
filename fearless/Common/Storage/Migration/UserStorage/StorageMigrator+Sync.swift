@@ -1,14 +1,13 @@
 import Foundation
 
-// TODO: Move this logic to app loading state
+// RootInteractor runs this synchronous adapter on its single-worker migration
+// queue. Successful return opens the startup barrier for storage preflight.
 extension UserStorageMigrator: Migrating {
     func migrate() throws {
-        guard requiresMigration() else {
-            return
+        let migrationPerformed = try performMigration()
+
+        if migrationPerformed {
+            Logger.shared.info("Db migration completed")
         }
-
-        performMigration()
-
-        Logger.shared.info("Db migration completed")
     }
 }

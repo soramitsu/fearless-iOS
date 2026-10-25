@@ -2,6 +2,10 @@ import Foundation
 import RobinHood
 import SSFUtils
 import SSFModels
+import SSFStorageQueryKit
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 enum StakingServiceFactoryError: Error {
     case stakingUnavailable
@@ -130,19 +134,9 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         validatorService: EraValidatorServiceProtocol
     ) throws -> RewardCalculatorServiceProtocol {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
-            throw ChainRegistryError.runtimeMetadaUnavailable
-        }
-
-        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
-            throw ChainRegistryError.connectionUnavailable
-        }
-
         let operationManager = OperationManagerFacade.sharedManager
-        let storageRequestPerformer = StorageRequestPerformerDefault(
-            runtimeService: runtimeService,
-            connection: connection
+        let storageRequestPerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
+            chainRegistry: chainRegistry
         )
 
         return ReefRewardCalculatorService(
@@ -161,15 +155,8 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         validatorService: EraValidatorServiceProtocol
     ) throws -> RewardCalculatorServiceProtocol {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
-            throw ChainRegistryError.runtimeMetadaUnavailable
-        }
-
-        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
-            throw ChainRegistryError.runtimeMetadaUnavailable
-        }
-
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
@@ -194,7 +181,7 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
 
         let repositoryFacade = SubstrateDataStorageFacade.shared
         let mapper = PolkaswapSettingMapper()
-        let settingsRepository: CoreDataRepository<PolkaswapRemoteSettings, CDPolkaswapRemoteSettings> =
+        let settingsRepository: CoreDataRepository<PolkaswapRemoteSettings, SSFAssetManagmentStorage.CDPolkaswapRemoteSettings> =
             repositoryFacade.createRepository(
                 filter: nil,
                 sortDescriptors: [],
@@ -206,9 +193,8 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
             operationManager: operationManager
         )
 
-        let storageRequestPerformer = StorageRequestPerformerDefault(
-            runtimeService: runtimeService,
-            connection: connection
+        let storageRequestPerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
+            chainRegistry: chainRegistry
         )
 
         return SoraRewardCalculatorService(

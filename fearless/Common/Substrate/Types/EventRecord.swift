@@ -1,5 +1,6 @@
 import Foundation
 import SSFUtils
+import SSFModels
 
 struct EventRecord: Decodable {
     enum CodingKeys: String, CodingKey {
@@ -57,8 +58,6 @@ enum Phase: Decodable {
         }
     }
 }
-
-struct EventWrapper: Decodable {}
 
 struct Event: Decodable {
     let section: String

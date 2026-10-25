@@ -1,13 +1,27 @@
-import UIKit
-import SSFCloudStorage
+import IrohaCrypto
 import RobinHood
 import SoraKeystore
-import IrohaCrypto
+import SSFCloudStorage
 import SSFModels
+import UIKit
 
 protocol BackupCreatePasswordInteractorOutput: AnyObject {
     func didReceive(error: Error)
-    func didComplete()
+    /// The backup is on Google Drive and read back intact. `accountsNotRestored` are the
+    /// wallet's Bitcoin, Solana and Taira accounts that restoring it would not give back.
+    func didComplete(accountsNotRestored: [ChainAccountModel])
+}
+
+enum BackupCreatePasswordError: Error {
+    case incompleteBackupMaterial
+    case unavailableCloudStorage
+    case cloudBackupReadbackMismatch
+    /// The backup format has no slot for a TON phrase.
+    case nativeTonWalletNotSupported
+    /// Every restore of the backup format needs the wallet's Substrate key.
+    case walletWithoutSubstrateAccount
+    /// The stored phrase does not recreate the wallet's own accounts.
+    case unverifiedRecoveryPhrase
 }
 
 final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
@@ -22,6 +36,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
 
     private let settings: SelectedWalletSettings
     private let eventCenter: EventCenterProtocol
+    private let logger: LoggerProtocol
     private var currentOperation: Operation?
     private let createPasswordFlow: BackupCreatePasswordFlow
 
@@ -36,7 +51,8 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         eventCenter: EventCenterProtocol,
         secretManager: SecretStoreManagerProtocol,
         keystore: KeystoreProtocol,
-        exportJsonWrapper: KeystoreExportWrapperProtocol
+        exportJsonWrapper: KeystoreExportWrapperProtocol,
+        logger: LoggerProtocol = Logger.shared
     ) {
         self.settings = settings
         self.eventCenter = eventCenter
@@ -44,6 +60,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         self.secretManager = secretManager
         self.keystore = keystore
         self.exportJsonWrapper = exportJsonWrapper
+        self.logger = logger
 
         var flow: AccountConfirmFlow?
         if let mnemonicRequest = createPasswordFlow.mnemonicRequest {
@@ -63,53 +80,63 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             return
         }
 
-        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
-            let accountItem = try importOperation
+        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation {
+            try importOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            self?.settings.save(value: accountItem)
-
-            return accountItem
         }
 
         saveOperation.completionBlock = { [weak self] in
-            self?.currentOperation = nil
-            self?.handleCreateAccountOperation(result: saveOperation.result)
+            let result = saveOperation.result
+            saveOperation.completionBlock = nil
+            DispatchQueue.main.async {
+                guard let self else {
+                    ImportKeychainPersistence.rollback(importOperation, after: BaseOperationError.parentOperationCancelled)
+                    return
+                }
+                self.handleCreateAccountOperation(result: result, importOperation: importOperation)
+            }
         }
 
         saveOperation.addDependency(importOperation)
-
-        operationManager.enqueue(
-            operations: [importOperation, saveOperation],
-            in: .transient
-        )
+        currentOperation = saveOperation
+        operationManager.enqueue(operations: [importOperation, saveOperation], in: .transient)
     }
 
-    // MARK: - Private methods
-
-    // create new wallet with google backup flow
-    private func handleCreateAccountOperation(result: Result<MetaAccountModel, Error>?) {
+    /// The local wallet acknowledgement owns the keys. A later cloud failure cannot undo it.
+    private func handleCreateAccountOperation(
+        result: Result<MetaAccountModel, Error>?, importOperation: BaseOperation<MetaAccountModel>
+    ) {
         switch result {
         case let .success(wallet):
-            settings.setup()
-            eventCenter.notify(with: SelectedAccountChanged(account: wallet))
-            switch flow {
-            case let .wallet(request):
-                saveBackupAccount(wallet: wallet, requestType: .mnemonic(request))
-            default:
-                break
+            settings.save(value: wallet, runningCompletionIn: .main) { [weak self] result in
+                self?.currentOperation = nil
+                switch result {
+                case let .success(savedWallet):
+                    (importOperation as? PersistenceBoundKeychainOperation)?.commitKeychainChanges()
+                    guard let self else { return }
+                    self.eventCenter.notify(with: SelectedAccountChanged(account: savedWallet))
+                    if case let .wallet(request) = self.flow {
+                        self.saveBackupAccount(wallet: savedWallet, requestType: .mnemonic(request))
+                    }
+                case let .failure(error):
+                    let failure = ImportKeychainPersistence.rollback(importOperation, after: error)
+                    self?.output?.didReceive(error: failure)
+                }
             }
-
         case let .failure(error):
-            output?.didReceive(error: error)
-
+            currentOperation = nil
+            let failure = ImportKeychainPersistence.rollback(importOperation, after: error)
+            output?.didReceive(error: failure)
         case .none:
-            let error = BaseOperationError.parentOperationCancelled
-            output?.didReceive(error: error)
+            currentOperation = nil
+            let failure = ImportKeychainPersistence.rollback(importOperation, after: BaseOperationError.parentOperationCancelled)
+            output?.didReceive(error: failure)
         }
     }
 
     private func saveBackupAccount(wallet: MetaAccountModel, requestType: BackupCreatePasswordFlow.RequestType) {
         guard let password = password else {
+            output?.didReceive(error: BackupCreatePasswordError.incompleteBackupMaterial)
             return
         }
 
@@ -128,7 +155,11 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         seeds: [ExportSeedData],
         password: String
     ) {
-        let substrateRestoreSeed = seeds.first(where: { $0.chain.chainBaseType == .substrate })
+        guard !seeds.isEmpty else {
+            output?.didReceive(error: BackupCreatePasswordError.incompleteBackupMaterial)
+            return
+        }
+        let substrateRestoreSeed = seeds.first(where: { !$0.chain.isEthereumBased })
         let ethereumRestoreSeed = seeds.first(where: { $0.chain.isEthereumBased })
 
         let substrateSeed = substrateRestoreSeed?.seed.toHex(includePrefix: true)
@@ -138,14 +169,16 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             ethSeed: ethSeed
         )
         let cryptoType = CryptoType(rawValue: wallet.substrateCryptoType)
-        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
 
+        // The Ethereum seed is the private key itself and needs no path, but iOS releases before
+        // 4.2 import it only when the backup also carries one. An empty path keeps the key as it
+        // is; Android ignores the path for a seed.
         let account = OpenBackupAccount(
             name: wallet.name,
-            address: address42 ?? wallet.substratePublicKey.toHex(),
+            address: wallet.backupAddress,
             cryptoType: cryptoType?.stringValue.uppercased(),
             substrateDerivationPath: substrateRestoreSeed?.derivationPath,
-            ethDerivationPath: ethereumRestoreSeed?.derivationPath,
+            ethDerivationPath: ethereumRestoreSeed.map { $0.derivationPath ?? "" },
             backupAccountType: [.seed],
             encryptedSeed: seed
         )
@@ -157,7 +190,11 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         jsons: [RestoreJson],
         password: String
     ) {
-        let substrateRestoreJson = jsons.first(where: { $0.chain.chainBaseType == .substrate })
+        guard !jsons.isEmpty else {
+            output?.didReceive(error: BackupCreatePasswordError.incompleteBackupMaterial)
+            return
+        }
+        let substrateRestoreJson = jsons.first(where: { !$0.chain.isEthereumBased })
         let ethereumRestoreJson = jsons.first(where: { $0.chain.isEthereumBased })
 
         let json = OpenBackupAccount.Json(
@@ -165,11 +202,10 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             ethJson: ethereumRestoreJson?.data
         )
         let cryptoType = CryptoType(rawValue: wallet.substrateCryptoType)
-        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
 
         let account = OpenBackupAccount(
             name: wallet.name,
-            address: address42 ?? wallet.substratePublicKey.toHex(),
+            address: wallet.backupAddress,
             cryptoType: cryptoType?.stringValue.uppercased(),
             backupAccountType: [.json],
             json: json
@@ -182,10 +218,9 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         request: MetaAccountImportMnemonicRequest,
         password: String
     ) {
-        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
         let account = OpenBackupAccount(
             name: request.username,
-            address: address42 ?? wallet.substratePublicKey.toHex(),
+            address: wallet.backupAddress,
             passphrase: request.mnemonic.toString(),
             cryptoType: request.cryptoType.stringValue.uppercased(),
             substrateDerivationPath: request.substrateDerivationPath,
@@ -200,151 +235,255 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         password: String,
         wallet: MetaAccountModel
     ) {
+        guard let cloudStorage = cloudStorage else {
+            output?.didReceive(error: BackupCreatePasswordError.unavailableCloudStorage)
+            return
+        }
         Task {
             do {
-                try await cloudStorage?.saveBackup(account: account, password: password)
-                didBackuped(wallet: wallet)
-                await MainActor.run {
-                    self.output?.didComplete()
+                let downloaded = try await cloudStorage.saveBackupAndImport(
+                    account: account, password: password
+                )
+                guard Self.matchesReadback(downloaded, expected: account) else {
+                    throw BackupCreatePasswordError.cloudBackupReadbackMismatch
+                }
+                let accountsNotRestored = GoogleDriveBackupContent.appOwnedAccountsNotRestored(
+                    from: wallet,
+                    by: downloaded
+                )
+                didBackuped(wallet: wallet) { result in
+                    DispatchQueue.main.async { [weak self] in
+                        switch result {
+                        case .success:
+                            self?.output?.didComplete(accountsNotRestored: accountsNotRestored)
+                        case let .failure(error):
+                            self?.output?.didReceive(error: error)
+                        }
+                    }
                 }
             } catch {
-                self.output?.didReceive(error: error)
+                await MainActor.run { self.output?.didReceive(error: error) }
             }
         }
     }
 
-    private func didBackuped(wallet: MetaAccountModel) {
+    private static func matchesReadback(_ actual: OpenBackupAccount, expected: OpenBackupAccount) -> Bool {
+        actual.address == expected.address &&
+            actual.name == expected.name &&
+            actual.cryptoType == expected.cryptoType &&
+            actual.substrateDerivationPath == expected.substrateDerivationPath &&
+            actual.ethDerivationPath == expected.ethDerivationPath &&
+            actual.backupAccountType == expected.backupAccountType &&
+            actual.passphrase == expected.passphrase &&
+            actual.json?.substrateJson == expected.json?.substrateJson &&
+            actual.json?.ethJson == expected.json?.ethJson &&
+            actual.encryptedSeed?.substrateSeed == expected.encryptedSeed?.substrateSeed &&
+            actual.encryptedSeed?.ethSeed == expected.encryptedSeed?.ethSeed
+    }
+
+    private func didBackuped(wallet: MetaAccountModel, completion: @escaping (Result<Void, Error>) -> Void) {
         let updatedWallet = wallet.replacingIsBackuped(true)
         let saveOperation = accountRepository.saveOperation {
             [updatedWallet]
         } _: {
             []
         }
+        saveOperation.completionBlock = { [weak saveOperation] in
+            do {
+                guard let saveOperation = saveOperation else {
+                    throw BaseOperationError.parentOperationCancelled
+                }
+                _ = try saveOperation.extractNoCancellableResultData()
+                completion(.success(()))
+            } catch {
+                completion(.failure(error))
+            }
+        }
         operationManager.enqueue(operations: [saveOperation], in: .transient)
     }
 
-    private func saveMnemonic(
+    /// Uploads the most complete backup the wallet's stored keys prove: its recovery phrase,
+    /// otherwise its raw seeds, otherwise JSON files of its keys. A phrase or a seed is used
+    /// only if it recreates the wallet's own accounts, so a wallet is never marked as backed up
+    /// by a file that restores another address.
+    private func backupWallet(
+        _ wallet: MetaAccountModel,
+        accounts: [ChainAccountInfo],
+        options: [ExportOption],
+        password: String
+    ) {
+        let requestType: BackupCreatePasswordFlow.RequestType
+        do {
+            let content = try GoogleDriveBackupContent(wallet: wallet, accounts: accounts)
+            requestType = try backupMaterial(
+                wallet: wallet,
+                content: content,
+                options: options,
+                password: password
+            )
+        } catch let error as BackupCreatePasswordError {
+            output?.didReceive(error: error)
+            return
+        } catch {
+            logger.error("Google Drive backup has no usable key material: \(error)")
+            output?.didReceive(error: BackupCreatePasswordError.incompleteBackupMaterial)
+            return
+        }
+
+        saveBackupAccount(wallet: wallet, requestType: requestType)
+    }
+}
+
+// MARK: - Google Drive backup material
+
+private extension BackupCreatePasswordInteractor {
+    func backupMaterial(
+        wallet: MetaAccountModel,
+        content: GoogleDriveBackupContent,
+        options: [ExportOption],
+        password: String
+    ) throws -> BackupCreatePasswordFlow.RequestType {
+        if options.contains(.mnemonic), let ethereum = content.ethereum {
+            do {
+                let request = try verifiedMnemonicRequest(
+                    wallet: wallet,
+                    substrate: content.substrate,
+                    ethereum: ethereum
+                )
+                return .mnemonic(request)
+            } catch {
+                logger.warning("Google Drive backup does not use the recovery phrase: \(error)")
+            }
+        }
+
+        if options.contains(.seed) {
+            do {
+                return try .seeds(verifiedSeeds(wallet: wallet, accounts: content.accounts))
+            } catch {
+                logger.warning("Google Drive backup does not use the raw seeds: \(error)")
+            }
+        }
+
+        guard options.contains(.keystore) else {
+            throw BackupCreatePasswordError.incompleteBackupMaterial
+        }
+
+        return try .jsons(keystoreJsons(wallet: wallet, accounts: content.accounts, password: password))
+    }
+
+    func verifiedMnemonicRequest(
         wallet: MetaAccountModel,
         substrate: ChainAccountInfo,
         ethereum: ChainAccountInfo
-    ) {
-        do {
-            let substrateAccountId = substrate.account.isChainAccount ? substrate.account.accountId : nil
-            let ethereumAccountId = ethereum.account.isChainAccount ? ethereum.account.accountId : nil
-            let entropyTag = KeystoreTagV2.entropyTagForMetaId(wallet.metaId, accountId: substrateAccountId)
-            let entropy = try keystore.fetchKey(for: entropyTag)
+    ) throws -> MetaAccountImportMnemonicRequest {
+        let substrateAccountId = substrate.account.isChainAccount ? substrate.account.accountId : nil
+        let ethereumAccountId = ethereum.account.isChainAccount ? ethereum.account.accountId : nil
+        let entropyTag = KeystoreTagV2.entropyTagForMetaId(wallet.metaId, accountId: substrateAccountId)
+        let entropy = try keystore.fetchKey(for: entropyTag)
 
-            let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
+        let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
 
-            let substrateDerivationTag = KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId, accountId: substrateAccountId)
-            let ethereumDerivationTag = KeystoreTagV2.ethereumDerivationTagForMetaId(wallet.metaId, accountId: ethereumAccountId)
+        let substrateDerivationTag = KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId, accountId: substrateAccountId)
+        let ethereumDerivationTag = KeystoreTagV2.ethereumDerivationTagForMetaId(wallet.metaId, accountId: ethereumAccountId)
 
-            let substrateDerivationPath: String = try keystore.fetchDeriviationForAddress(substrateDerivationTag) ?? ""
-            guard let ethereumDerivationPath: String = try keystore.fetchDeriviationForAddress(ethereumDerivationTag) else {
-                throw ConvenienceError(error: "Can't fetch derivation path for ethereum account")
-            }
-
-            let request = MetaAccountImportMnemonicRequest(
-                mnemonic: mnemonic,
-                username: wallet.name,
-                substrateDerivationPath: substrateDerivationPath,
-                ethereumDerivationPath: ethereumDerivationPath,
-                cryptoType: substrate.account.cryptoType,
-                defaultChainId: nil
-            )
-            saveBackupAccount(wallet: wallet, requestType: .mnemonic(request))
-        } catch {
-            output?.didReceive(error: error)
+        let substrateDerivationPath: String = try keystore.fetchDeriviationForAddress(substrateDerivationTag) ?? ""
+        guard let ethereumDerivationPath: String = try keystore.fetchDeriviationForAddress(ethereumDerivationTag) else {
+            throw ConvenienceError(error: "Can't fetch derivation path for ethereum account")
         }
+
+        // The phrase is the wallet's backup only if importing it recreates both of its accounts.
+        let derivation = MetaAccountOperationFactory(keystore: keystore)
+        let substratePublicKey = try derivation.publicKeyForExportEntropy(
+            entropy,
+            derivationPath: substrateDerivationPath,
+            cryptoType: substrate.account.cryptoType,
+            ethereumBased: false
+        )
+        let ethereumAddress = try derivation.publicKeyForExportEntropy(
+            entropy,
+            derivationPath: ethereumDerivationPath,
+            cryptoType: .ecdsa,
+            ethereumBased: true
+        ).ethereumAddressFromPublicKey()
+
+        guard
+            substratePublicKey == substrate.account.publicKey,
+            ethereumAddress == ethereum.account.accountId
+        else {
+            throw BackupCreatePasswordError.unverifiedRecoveryPhrase
+        }
+
+        return MetaAccountImportMnemonicRequest(
+            mnemonic: mnemonic,
+            username: wallet.name,
+            substrateDerivationPath: substrateDerivationPath,
+            ethereumDerivationPath: ethereumDerivationPath,
+            cryptoType: substrate.account.cryptoType,
+            defaultChainId: nil
+        )
     }
 
-    private func saveKeystore(
+    func keystoreJsons(
         wallet: MetaAccountModel,
         accounts: [ChainAccountInfo],
         password: String
-    ) {
-        var jsons: [RestoreJson] = []
-
-        for chainAccount in accounts {
-            if let data = try? exportJsonWrapper.export(
+    ) throws -> [RestoreJson] {
+        let jsons = try accounts.map { chainAccount -> RestoreJson in
+            let address = try AddressFactory.address(
+                for: chainAccount.account.accountId, chain: chainAccount.chain
+            )
+            let data = try exportJsonWrapper.export(
                 chainAccount: chainAccount.account,
                 password: password,
-                address: AddressFactory.address(for: chainAccount.account.accountId, chain: chainAccount.chain),
+                address: address,
                 metaId: wallet.metaId,
                 accountId: chainAccount.account.isChainAccount ? chainAccount.account.accountId : nil,
                 genesisHash: nil
-            ), let result = String(data: data, encoding: .utf8) {
-                do {
-                    let fileUrl = try URL(fileURLWithPath: NSTemporaryDirectory() + "/\(AddressFactory.address(for: chainAccount.account.accountId, chain: chainAccount.chain)).json")
-                    try result.write(toFile: fileUrl.path, atomically: true, encoding: .utf8)
-                    let json = RestoreJson(
-                        data: result,
-                        chain: chainAccount.chain,
-                        cryptoType: nil,
-                        fileURL: fileUrl
-                    )
-
-                    jsons.append(json)
-                } catch {
-                    output?.didReceive(error: error)
-                }
+            )
+            guard let result = String(data: data, encoding: .utf8) else {
+                throw BackupCreatePasswordError.incompleteBackupMaterial
             }
+            let fileURL = URL(fileURLWithPath: NSTemporaryDirectory() + "/\(address).json")
+            try result.write(to: fileURL, atomically: true, encoding: .utf8)
+            return RestoreJson(data: result, chain: chainAccount.chain, cryptoType: nil, fileURL: fileURL)
         }
-        saveBackupAccount(wallet: wallet, requestType: .jsons(jsons))
+        guard !jsons.isEmpty else {
+            throw BackupCreatePasswordError.incompleteBackupMaterial
+        }
+        return jsons
     }
 
-    private func saveSeed(
+    func verifiedSeeds(
         wallet: MetaAccountModel,
         accounts: [ChainAccountInfo]
-    ) {
-        var seeds: [ExportSeedData] = []
+    ) throws -> [ExportSeedData] {
+        // A seed that does not recreate its account must never be uploaded as its backup.
+        let seedReader = VerifiedSeedExportReader(keystore: keystore)
 
-        for chainAccount in accounts {
+        let seeds = try accounts.map { chainAccount -> ExportSeedData in
             let chain = chainAccount.chain
             let account = chainAccount.account
             let accountId = account.isChainAccount ? account.accountId : nil
 
-            do {
-                let seedTag = chain.isEthereumBased
-                    ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
-                    : KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId, accountId: accountId)
+            let export = try seedReader.fetchSeed(
+                metaId: wallet.metaId,
+                accountId: accountId,
+                publicKey: account.publicKey,
+                cryptoType: account.cryptoType,
+                ethereumBased: chain.isEthereumBased
+            )
 
-                var optionalSeed: Data? = try keystore.fetchKey(for: seedTag)
-
-                let keyTag = chain.isEthereumBased
-                    ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
-                    : KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
-
-                if optionalSeed == nil, account.cryptoType.supportsSeedFromSecretKey {
-                    optionalSeed = try keystore.fetchKey(for: keyTag)
-                }
-
-                guard let seed = optionalSeed else {
-                    throw ExportSeedInteractorError.missingSeed
-                }
-
-                //  We shouldn't show derivation path for ethereum seed. So just provide nil to hide it
-                let derivationPathTag = chain.isEthereumBased
-                    ? nil : KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId, accountId: accountId)
-
-                var derivationPath: String?
-                if let tag = derivationPathTag {
-                    derivationPath = try keystore.fetchDeriviationForAddress(tag)
-                }
-
-                let seedData = ExportSeedData(
-                    seed: seed,
-                    derivationPath: derivationPath,
-                    chain: chain,
-                    cryptoType: account.cryptoType
-                )
-
-                seeds.append(seedData)
-            } catch {
-                output?.didReceive(error: error)
-            }
+            return ExportSeedData(
+                seed: export.seed,
+                derivationPath: export.derivationPath,
+                chain: chain,
+                cryptoType: account.cryptoType
+            )
         }
-        saveBackupAccount(wallet: wallet, requestType: .seeds(seeds))
+        guard !seeds.isEmpty else {
+            throw BackupCreatePasswordError.incompleteBackupMaterial
+        }
+        return seeds
     }
 }
 
@@ -364,29 +503,13 @@ extension BackupCreatePasswordInteractor: BackupCreatePasswordInteractorInput {
         case let .backupWallet(flow, options):
             switch flow {
             case let .multiple(wallet, accounts):
-                let ethereum = accounts.first(where: { $0.chain.isEthereumBased })
-                guard let substrate = accounts.first(where: { $0.chain.chainBaseType == .substrate }) else {
-                    return
-                }
-                let accounts = [substrate, ethereum].compactMap { $0 }
-
-                if options.contains(.mnemonic) {
-                    guard let ethereum = ethereum else {
-                        return
-                    }
-                    saveMnemonic(
-                        wallet: wallet,
-                        substrate: substrate,
-                        ethereum: ethereum
-                    )
-                } else if options.contains(.seed) {
-                    saveSeed(wallet: wallet, accounts: accounts)
-                } else if options.contains(.keystore) {
-                    saveKeystore(wallet: wallet, accounts: accounts, password: password)
+                // Verifying the phrase and encrypting JSON files takes a moment; keep it off the main thread.
+                DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                    self?.backupWallet(wallet, accounts: accounts, options: options, password: password)
                 }
             case .single:
                 // not support chain account backup
-                break
+                output?.didReceive(error: BackupCreatePasswordError.incompleteBackupMaterial)
             }
         }
     }

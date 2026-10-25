@@ -1,0 +1,5 @@
+import GoogleAPIClientForREST_Drive
+import GoogleAPIClientForRESTCore
+import SSFCloudStorage
+
+final class GoogleServiceTicketMock: GoogleServiceTicket {}

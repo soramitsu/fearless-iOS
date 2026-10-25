@@ -30,8 +30,8 @@ protocol BaseErrorPresentable {
     )
     func presentSoraBridgeLowAmountError(
         from view: ControllerBackedProtocol,
-        originChainId: ChainModel.Id,
-        locale: Locale
+        locale: Locale,
+        assetAmount: String
     )
     func presentWarning(
         for title: String,
@@ -224,20 +224,10 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
 
     func presentSoraBridgeLowAmountError(
         from view: ControllerBackedProtocol,
-        originChainId: ChainModel.Id,
-        locale: Locale
+        locale: Locale,
+        assetAmount: String
     ) {
-        let originKnownChain = Chain(chainId: originChainId)
-        let message: String?
-        switch originKnownChain {
-        case .kusama:
-            message = R.string.localizable.soraBridgeLowAmountAlert(preferredLanguages: locale.rLanguages)
-        case .polkadot, .soraMain:
-            message = R.string.localizable.soraBridgeLowAmauntPolkadotAlert(preferredLanguages: locale.rLanguages)
-        default:
-            message = nil
-        }
-
+        let message: String? = R.string.localizable.xcmLowAmauntAssetSymbolAlert(assetAmount, preferredLanguages: locale.rLanguages)
         let title = R.string.localizable.commonAttention(preferredLanguages: locale.rLanguages)
         let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
         present(message: message, title: title, closeAction: closeTitle, from: view, actions: [])

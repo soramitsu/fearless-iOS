@@ -41,10 +41,6 @@ final class StakingMainPresenter {
         return stateMachine.viewState { (state: BondedState) in state.rewardEstimationAmount }
     }
 
-    var priceData: PriceData? {
-        stateMachine.viewState { (state: BaseStakingState) in state.commonData.price }
-    }
-
     private var balance: Decimal?
     private var networkStakingInfo: NetworkStakingInfo?
     private var controllerAccount: ChainAccountResponse?
@@ -85,7 +81,9 @@ final class StakingMainPresenter {
                     with: networkStakingInfo,
                     chainAsset: chainAsset,
                     minNominatorBond: commonData?.minNominatorBond,
-                    priceData: commonData?.price,
+                    priceData: commonData?.chainAsset?.asset.getPrice(
+                        for: selectedMetaAccount.selectedCurrency
+                    ),
                     selectedMetaAccount: selectedMetaAccount
                 )
             view?.didRecieveNetworkStakingInfo(viewModel: networkStakingInfoViewModel)
@@ -501,15 +499,6 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         }
     }
 
-    func didReceive(price: PriceData?) {
-        stateMachine.state.process(price: price)
-        provideStakingInfo()
-    }
-
-    func didReceive(priceError: Error) {
-        handle(error: priceError)
-    }
-
     func didReceive(totalReward: TotalRewardItem) {
         stateMachine.state.process(totalReward: totalReward)
     }
@@ -755,10 +744,6 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func didReceive(rewardChainAsset: ChainAsset?) {
         stateMachine.state.process(rewardChainAsset: rewardChainAsset)
-    }
-
-    func didReceive(rewardAssetPrice: PriceData?) {
-        stateMachine.state.process(rewardAssetPrice: rewardAssetPrice)
     }
 }
 

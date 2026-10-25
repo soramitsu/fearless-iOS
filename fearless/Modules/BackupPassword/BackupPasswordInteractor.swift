@@ -1,6 +1,6 @@
-import UIKit
 import RobinHood
 import SSFCloudStorage
+import UIKit
 
 protocol BackupPasswordInteractorOutput: AnyObject {
     func didReceiveBackup(result: Result<OpenBackupAccount, Error>)
@@ -40,34 +40,39 @@ final class BackupPasswordInteractor: BaseAccountImportInteractor {
     }
 
     override func importAccountUsingOperation(_ importOperation: BaseOperation<MetaAccountModel>) {
-        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
+        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation {
             let accountItem = try importOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            let updatedWallet = accountItem.replacingIsBackuped(true)
-            self?.settings.save(value: updatedWallet)
-
-            return updatedWallet
+            return accountItem.replacingIsBackuped(true)
         }
 
         saveOperation.completionBlock = { [weak self] in
+            let result = saveOperation.result
+            saveOperation.completionBlock = nil
             DispatchQueue.main.async {
-                switch saveOperation.result {
-                case .success:
-                    do {
-                        let accountItem = try importOperation
-                            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-                        self?.settings.setup()
-                        self?.output?.didCompleteAccountImport()
-                        self?.eventCenter.notify(with: SelectedAccountChanged(account: accountItem))
-                    } catch {
-                        self?.output?.didReceiveAccountImport(error: error)
+                guard let self else {
+                    ImportKeychainPersistence.rollback(importOperation, after: BaseOperationError.parentOperationCancelled)
+                    return
+                }
+                switch result {
+                case let .success(accountItem):
+                    self.settings.save(value: accountItem, runningCompletionIn: .main) { [weak self] result in
+                        switch result {
+                        case let .success(savedAccount):
+                            (importOperation as? PersistenceBoundKeychainOperation)?.commitKeychainChanges()
+                            self?.output?.didCompleteAccountImport()
+                            self?.eventCenter.notify(with: SelectedAccountChanged(account: savedAccount))
+                        case let .failure(error):
+                            let failure = ImportKeychainPersistence.rollback(importOperation, after: error)
+                            self?.output?.didReceiveAccountImport(error: failure)
+                        }
                     }
                 case let .failure(error):
-                    self?.output?.didReceiveAccountImport(error: error)
-
+                    let failure = ImportKeychainPersistence.rollback(importOperation, after: error)
+                    self.output?.didReceiveAccountImport(error: failure)
                 case .none:
-                    let error = BaseOperationError.parentOperationCancelled
-                    self?.output?.didReceiveAccountImport(error: error)
+                    let failure = ImportKeychainPersistence.rollback(importOperation, after: BaseOperationError.parentOperationCancelled)
+                    self.output?.didReceiveAccountImport(error: failure)
                 }
             }
         }
@@ -88,7 +93,7 @@ final class BackupPasswordInteractor: BaseAccountImportInteractor {
                 DispatchQueue.main.async {
                     self.output?.showGoogleIssueError()
                 }
-            case .incorectPassword, .incorectJson, .notFound:
+            case .incorectPassword, .incorectJson, .notFound, .readbackMismatch:
                 DispatchQueue.main.async {
                     self.output?.didReceiveBackup(result: .failure(error))
                 }

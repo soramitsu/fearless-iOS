@@ -72,5 +72,61 @@
         <string>%li 時代</string>
       </dict>
     </dict>
+    <key>wallet.records.notice.wallets</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>other</key>
+        <string>%li 件の保存済みウォレットを表示できません</string>
+      </dict>
+    </dict>
+    <key>wallet.records.notice.accounts</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>other</key>
+        <string>%li 件のネットワークアカウントを使用できません</string>
+      </dict>
+    </dict>
+    <key>wallet.records.sheet.wallets</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>other</key>
+        <string>このデバイスに保存されている %li 件のウォレットは、このバージョンの Fearless では表示できません。</string>
+      </dict>
+    </dict>
+    <key>wallet.records.sheet.accounts</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>other</key>
+        <string>ウォレットに保存されている %li 件のネットワークアカウントを使用できません。該当するウォレットは引き続き使用でき、各ネットワークではウォレット固有のアカウントが使われます。</string>
+      </dict>
+    </dict>
   </dict>
 </plist>

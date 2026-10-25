@@ -25,7 +25,7 @@ final class StakingPoolMainRouter: StakingPoolMainRouterInput {
         type: AssetSelectionStakingType,
         delegate: AssetSelectionDelegate
     ) {
-        let stakingFilter: AssetSelectionFilter = { chainAsset in chainAsset.staking != nil }
+        let stakingFilter: AssetSelectionFilter = { asset in asset.staking != nil }
 
         guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
               let selectionView = AssetSelectionViewFactory.createView(

@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-struct PolkaswapRemoteSettings: Codable, Identifiable {
+struct PolkaswapRemoteSettings: Codable, Identifiable, Equatable {
     var identifier: String { version }
 
     let version: String

@@ -23,6 +23,7 @@ protocol StakingAmountViewModelState: StakingAmountUserInputHandler {
     var payoutAccount: ChainAccountResponse? { get }
     var learnMoreUrl: URL? { get }
     var continueAvailable: Bool { get }
+    var rewardChainAsset: ChainAsset? { get }
 
     func setStateListener(_ stateListener: StakingAmountModelStateListener?)
     func validators(using locale: Locale) -> [DataValidating]

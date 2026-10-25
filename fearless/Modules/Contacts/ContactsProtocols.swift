@@ -26,7 +26,7 @@ protocol ContactsInteractorOutput: AnyObject {
     func didReceiveError(_ error: Error)
 }
 
-protocol ContactsRouterInput: PresentDismissable, ErrorPresentable, SheetAlertPresentable {
+protocol ContactsRouterInput: PresentDismissable, ErrorPresentable, SheetAlertPresentable, AccountScorePresentable {
     func createContact(
         address: String?,
         chain: ChainModel,

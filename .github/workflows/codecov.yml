@@ -1,21 +1,225 @@
 name: Codecov Fearless
 
 on:
+  push:
+    branches:
+      - develop
+      - master
   pull_request:
     branches:
       - develop
+      - master
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: macOS-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
-      
-      - name: Install Dependencies & Test
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+
+      - name: Codecov uploader supply-chain audit
         run: |
-          pod install --repo-update
-          set -o pipefail && xcodebuild test -workspace fearless.xcworkspace -scheme fearless -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.2' build test | xcpretty --test
+          bash ./scripts/test-codecov-workflow-audit.sh
+          bash ./scripts/audit-codecov-workflow.sh
+
+      - name: Branch flow audit
+        run: |
+          bash ./scripts/audit-branch-flow.sh
+          bash ./scripts/test-branch-flow-audit.sh
+
+      - name: Release signing gate audit
+        run: |
+          bash ./scripts/test-release-signing-gate-audit.sh
+          bash ./scripts/test-release-signing-gate.sh
+          bash ./scripts/test-release-signing-bootstrap.sh
+          bash ./scripts/audit-release-signing-gate.sh
+
+      - name: Audit public artifacts
+        run: ./scripts/audit-public-artifacts.sh
+
+      - name: TODO debt audit
+        run: |
+          bash ./scripts/test-todo-debt-audit.sh
+          bash ./scripts/audit-todo-debt.sh
+
+      - name: TestFlight publication evidence
+        run: |
+          bash ./scripts/test-testflight-publication-readiness-audit.sh
+          bash ./scripts/audit-testflight-publication-readiness.sh
+
+      - name: Codecov executable coverage contract
+        run: |
+          bash ./scripts/test-codecov-coverage-contract.sh
+          bash ./scripts/audit-codecov-coverage-contract.sh
+
+      - name: Transaction builder coverage audit
+        run: |
+          bash ./scripts/test-transaction-builder-tests-audit.sh
+          bash ./scripts/audit-transaction-builder-tests.sh
+
+      - name: TON production send readiness
+        run: |
+          bash ./scripts/test-ton-production-send-readiness-audit.sh
+          bash ./scripts/audit-ton-production-send-readiness.sh
+
+      - name: Iroha mobile SDK release asset contract
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IROHA_MOBILE_SDK_RELEASE_TAG: ${{ vars.IROHA_MOBILE_SDK_RELEASE_TAG }}
+          IROHA_MOBILE_SDK_RELEASE_REPO: ${{ vars.IROHA_MOBILE_SDK_RELEASE_REPO }}
+        run: |
+          bash ./scripts/test-iroha-production-send-readiness-audit.sh
+          bash ./scripts/audit-iroha-production-send-readiness.sh
+          bash ./scripts/check-iroha-mobile-sdk-release-assets.sh --self-test
+          if [[ -n "${IROHA_MOBILE_SDK_RELEASE_TAG:-}" ]]; then
+            bash ./scripts/check-iroha-mobile-sdk-release-assets.sh --download --tag "$IROHA_MOBILE_SDK_RELEASE_TAG"
+          else
+            echo "IROHA_MOBILE_SDK_RELEASE_TAG is not configured; real release asset validation skipped."
+          fi
+
+      - name: Private overlay audit self-test
+        run: bash ./scripts/test-private-overlay-boundary.sh
+
+      - name: Bootstrap Dependencies
+        run: |
+          bash scripts/ci/bootstrap.sh
+
+      - name: Native source ownership and regression checks
+        run: |
+          python3 scripts/test-remote-config.py
+          python3 scripts/verify-remote-config.py
+          python3 scripts/deps/test-native-source.py
+          python3 scripts/deps/verify-native-source.py "$(pwd)"
+          python3 Native/scripts/test-xcm-read-only-boundary.py
+          python3 Native/scripts/test-authorized-rpc.py
+
+      - name: Upload native source provenance
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ios-native-source-provenance
+          path: config/native-sources.json
+          if-no-files-found: error
+
+      - name: Build & Test (Simulator)
+        run: |
+          set -o pipefail
+          # Resolve SPM into a stable workspace path, then verify immutable source
+          SP_DIR="$PWD/SourcePackages"
+          mkdir -p "$SP_DIR"
+          xcodebuild -resolvePackageDependencies \
+            -workspace fearless.xcworkspace \
+            -scheme fearless \
+            -clonedSourcePackagesDirPath "$SP_DIR"
+          SOURCE_PACKAGES_DIR="$SP_DIR" python3 scripts/deps/verify-native-source.py "$(pwd)"
+          echo "Available simulators (before selection):" && xcrun simctl list devices | sed -n '1,100p'
+          UDID_RAW="$(LOG_PREFIX='[codecov]' PREFERRED_NAME='iPhone 16' ALLOW_CREATE=1 BOOT_SIMULATOR=0 bash scripts/ci/select-simulator.sh)"
+          UDID="$(printf '%s\n' "$UDID_RAW" | awk 'match($0, /[A-Fa-f0-9-]{36}/) { print substr($0, RSTART, RLENGTH); exit }')"
+          if [ -z "$UDID" ]; then
+            echo "Failed to select simulator UDID. Raw selector output: $UDID_RAW" >&2
+            exit 1
+          fi
+          if ! [[ "$UDID" =~ ^[A-Fa-f0-9-]{36}$ ]]; then
+            echo "Extracted simulator UDID has invalid format: $UDID" >&2
+            exit 1
+          fi
+          HOST_ARCH="$(uname -m)"
+          SIM_INFO="$(xcrun simctl list devices available | awk -v udid="$UDID" '
+            /^-- iOS / { os=$3; next }
+            {
+              if (index($0, udid) > 0) {
+                line = $0
+                sub(/[[:space:]]*\([A-Fa-f0-9-]{36}\).*/, "", line)
+                gsub(/^[[:space:]]+|[[:space:]]+$/, "", line)
+                print line "|" os
+                exit
+              }
+            }
+          ')"
+          if [ -n "$SIM_INFO" ]; then
+            SIM_NAME="${SIM_INFO%%|*}"
+            SIM_OS="${SIM_INFO##*|}"
+            DESTINATION="platform=iOS Simulator,OS=${SIM_OS},name=${SIM_NAME}"
+          else
+            DESTINATION="platform=iOS Simulator,id=$UDID"
+          fi
+          case "$HOST_ARCH" in
+            arm64|x86_64)
+              DESTINATION="${DESTINATION},arch=${HOST_ARCH}"
+              ;;
+          esac
+          echo "Using destination: $DESTINATION"
+          LOG_FILE="$PWD/build/codecov-xcodebuild.log"
+          RESULT_BUNDLE="$PWD/build/CodecovTests.xcresult"
+          mkdir -p "$PWD/build"
+          if ! xcodebuild \
+            -workspace fearless.xcworkspace \
+            -scheme fearless.tests \
+            -clonedSourcePackagesDirPath "$SP_DIR" \
+            -disableAutomaticPackageResolution \
+            -destination "$DESTINATION" \
+            -enableCodeCoverage YES \
+            -resultBundlePath "$RESULT_BUNDLE" \
+            build test | tee "$LOG_FILE" | xcpretty --test; then
+            echo "Build/Test failed. Key errors from $LOG_FILE:" >&2
+            if command -v rg >/dev/null 2>&1; then
+              rg -n " error: |\\*\\* (BUILD|TEST) FAILED \\*\\*" "$LOG_FILE" -S | tail -n 100 >&2 || true
+            else
+              grep -nE " error: |\\*\\* (BUILD|TEST) FAILED \\*\\*" "$LOG_FILE" | tail -n 100 >&2 || true
+            fi
+            exit 1
+          fi
+          COVERAGE_PROFILE="$(
+            find "$HOME/Library/Developer/Xcode/DerivedData" \
+              -type f -name '*.profdata' -print -quit
+          )"
+          if [[ -z "$COVERAGE_PROFILE" ]]; then
+            echo "Tests passed but Xcode produced no coverage profile." >&2
+            exit 1
+          fi
+          xcrun llvm-profdata show "$COVERAGE_PROFILE" >/dev/null || {
+            echo "Xcode produced an unreadable coverage profile: $COVERAGE_PROFILE" >&2
+            exit 1
+          }
+          test -d "$RESULT_BUNDLE" || {
+            echo "Xcode did not produce the required result bundle." >&2
+            exit 1
+          }
+
+      - name: Signed Release archive gate
+        if: github.event_name == 'push'
+        env:
+          IOS_RELEASE_SIGNING_REQUIRED: '1'
+          IOS_RELEASE_CERTIFICATE_P12_BASE64: ${{ secrets.IOS_RELEASE_CERTIFICATE_P12_BASE64 }}
+          IOS_RELEASE_CERTIFICATE_PASSWORD: ${{ secrets.IOS_RELEASE_CERTIFICATE_PASSWORD }}
+          IOS_RELEASE_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_RELEASE_PROVISIONING_PROFILE_BASE64 }}
+        run: bash ./scripts/ci/run-release-signing-ci.sh
 
       - name: Upload coverage to Codecov
-        run: bash <(curl -s https://codecov.io/bash) -J 'fearless'
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          fail_ci_if_error: true
+          plugins: xcode
+          swift_project: fearless
+          use_oidc: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+
+  jenkins-pr-merge:
+    name: continuous-integration/jenkins/pr-merge
+    runs-on: ubuntu-latest
+    needs: build
+    if: always()
+    steps:
+      - name: Require iOS build job success
+        run: |
+          if [[ "${{ needs.build.result }}" != "success" ]]; then
+            echo "Required iOS build job did not pass: ${{ needs.build.result }}" >&2
+            exit 1
+          fi
+          echo "Jenkins compatibility context is backed by the GitHub Actions build job."

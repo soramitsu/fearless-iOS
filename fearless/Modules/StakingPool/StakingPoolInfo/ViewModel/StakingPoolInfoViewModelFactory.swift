@@ -6,7 +6,6 @@ protocol StakingPoolInfoViewModelFactoryProtocol {
     func buildViewModel(
         validators: YourValidatorsModel,
         stakingPool: StakingPool,
-        priceData: PriceData?,
         locale: Locale,
         roles: StakingPoolRoles,
         wallet: MetaAccountModel
@@ -33,7 +32,6 @@ extension StakingPoolInfoViewModelFactory: StakingPoolInfoViewModelFactoryProtoc
     func buildViewModel(
         validators: YourValidatorsModel,
         stakingPool: StakingPool,
-        priceData: PriceData?,
         locale: Locale,
         roles: StakingPoolRoles,
         wallet: MetaAccountModel
@@ -42,6 +40,7 @@ extension StakingPoolInfoViewModelFactory: StakingPoolInfoViewModelFactoryProtoc
             stakingPool.info.points,
             precision: Int16(chainAsset.asset.precision)
         ) ?? 0.0
+        let priceData = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
         let stakedAmountViewModel = balanceViewModelFactory.balanceFromPrice(staked, priceData: priceData, usageCase: .detailsCrypto)
         let validatorsCountAttributedString = NSMutableAttributedString(string: "\(validators.allValidators.count)" + "    ")
 

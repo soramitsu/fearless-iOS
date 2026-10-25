@@ -32,7 +32,6 @@ final class StakingPoolCreateAssembly {
         )
 
         let feeProxy = ExtrinsicFeeProxy()
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
         let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
@@ -46,7 +45,6 @@ final class StakingPoolCreateAssembly {
             selectedMetaAccount: wallet
         )
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let requestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager
@@ -67,7 +65,6 @@ final class StakingPoolCreateAssembly {
 
         let interactor = StakingPoolCreateInteractor(
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset,
             wallet: wallet,
             extrinsicService: extrinsicService,

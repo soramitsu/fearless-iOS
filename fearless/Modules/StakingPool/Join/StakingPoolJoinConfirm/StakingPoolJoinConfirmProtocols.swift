@@ -22,7 +22,6 @@ protocol StakingPoolJoinConfirmInteractorInput: AnyObject {
 }
 
 protocol StakingPoolJoinConfirmInteractorOutput: AnyObject {
-    func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceive(extrinsicResult: SubmitExtrinsicResult)
     func didReceive(palletIdResult: Result<Data, Error>)

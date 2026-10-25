@@ -14,9 +14,9 @@ final class UsernameSetupViewController: UIViewController, ViewHolder {
     private var viewModel: InputViewModelProtocol?
     private var isFirstLayoutCompleted: Bool = false
 
-    private lazy var locale: Locale = {
+    private var locale: Locale {
         localizationManager?.selectedLocale ?? Locale.current
-    }()
+    }
 
     init(
         presenter: UsernameSetupPresenterProtocol,
@@ -51,10 +51,6 @@ final class UsernameSetupViewController: UIViewController, ViewHolder {
         setupKeyboardHandler()
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-    }
-
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         clearKeyboardHandler()
@@ -72,6 +68,7 @@ private extension UsernameSetupViewController {
     }
 
     func setupLocalization() {
+        setupNavigationItem()
         rootView.locale = locale
     }
 
@@ -149,6 +146,7 @@ extension UsernameSetupViewController: UsernameSetupViewProtocol {
     func bindUniqueChain(viewModel: UniqueChainViewModel) {
         rootView.chainViewContainer.isHidden = false
         rootView.chainView.actionControl.contentView.subtitleLabelView.text = viewModel.text
+        rootView.chainView.invalidateLayout()
         let imageView = rootView.chainView.actionControl.contentView.subtitleImageView
         viewModel.icon?.loadImage(
             on: imageView,
@@ -173,10 +171,18 @@ extension UsernameSetupViewController: KeyboardViewAdoptable {
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 
     func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat {
-        UIConstants.bigOffset
+        rootView.adaptiveEntry ? 0 : UIConstants.bigOffset
     }
 
     func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
+        if rootView.adaptiveEntry {
+            rootView.contentView.scrollView.contentInset.bottom = 0
+            if let responder = rootView.firstResponder {
+                let rect = responder.convert(responder.bounds, to: rootView.contentView.scrollView)
+                rootView.contentView.scrollView.scrollRectToVisible(rect.insetBy(dx: 0, dy: -8), animated: true)
+            }
+            return
+        }
         if let responder = rootView.firstResponder {
             var inset = rootView.contentView.scrollView.contentInset
             var responderFrame: CGRect

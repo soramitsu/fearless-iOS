@@ -1,0 +1,420 @@
+import XCTest
+import BigInt
+import SSFModels
+@testable import fearless
+
+final class BitcoinSendServiceTests: XCTestCase {
+    func testPreparesSignedTransactionFromSelectedUtxosWithoutBroadcasting() async throws {
+        let client = FakeBitcoinIndexerClient()
+        let prepared = try await BitcoinSendService(client: client).prepare(Self.request())
+
+        XCTAssertEqual(prepared.plan.feeSats, 282)
+        XCTAssertEqual(prepared.plan.changeSats, 49_718)
+        XCTAssertEqual(prepared.transaction.txid, Self.expectedTxid)
+        XCTAssertEqual(prepared.transaction.txHex, Self.expectedTxHex)
+        XCTAssertNil(client.lastBroadcastTxHex)
+    }
+
+    func testSendsSignedTransactionAndRequiresMatchingBroadcastTxid() async throws {
+        let client = FakeBitcoinIndexerClient(
+            broadcastResponse: Self.expectedTxid.uppercased(),
+            feeRates: [2, BitcoinFeeEstimator.maxFeeRateSatPerVbyte]
+        )
+        let result = try await BitcoinSendService(client: client).send(Self.request(baseURL: "https://bitcoin.example/api"))
+
+        XCTAssertEqual(result.broadcastTxid, Self.expectedTxid)
+        XCTAssertEqual(result.prepared.transaction.txid, Self.expectedTxid)
+        XCTAssertEqual(client.lastBroadcastTxHex, Self.expectedTxHex)
+        XCTAssertEqual(client.lastBroadcastNetwork, .mainnet)
+        XCTAssertEqual(client.lastBroadcastBaseURL, "https://bitcoin.example/api")
+    }
+
+    /// "Max": the fee is quoted for every coin into one output, and the amount is the balance
+    /// minus that fee. The signed transaction then has no change output and pays exactly the
+    /// quoted fee; nothing is silently absorbed.
+    func testSendAllProducesNoChangeTransactionMatchingQuote() async throws {
+        let client = FakeBitcoinIndexerClient()
+        let planner = BitcoinSendPlanner(client: client)
+        let quote = try await planner.maxSend(
+            sources: [BitcoinUtxoSource(address: Self.mainnetAddress)],
+            recipientAddress: Self.mainnetRecipient,
+            feeRateSatPerVbyte: 2
+        )
+        XCTAssertEqual(quote.spendableSats, 100_000)
+        XCTAssertEqual(quote.feeSats, 220, "110 vB at 2 sat/vB")
+
+        let prepared = try await BitcoinSendService(client: client).prepare(
+            BitcoinSendRequest(
+                mnemonic: Self.mnemonic,
+                amountSats: quote.maxAmountSats,
+                sources: [BitcoinUtxoSource(address: Self.mainnetAddress)],
+                recipientAddress: Self.mainnetRecipient,
+                changeAddress: Self.mainnetAddress,
+                feeRateSatPerVbyte: 2,
+                expectedFeeSats: quote.feeSats
+            )
+        )
+
+        XCTAssertEqual(prepared.plan.amountSats, 99780)
+        XCTAssertEqual(prepared.plan.feeSats, quote.feeSats)
+        XCTAssertEqual(prepared.plan.changeSats, 0)
+        XCTAssertNil(prepared.plan.changeAddress)
+        XCTAssertEqual(prepared.transaction.feeSats, quote.feeSats)
+        XCTAssertEqual(prepared.transaction.changeSats, 0)
+        XCTAssertEqual(prepared.transaction.outputTotalSats, 99780)
+        XCTAssertEqual(prepared.transaction.vsize, 110)
+    }
+
+    /// A node that answers with a different transaction ID took something. The wallet cannot
+    /// call that a failure and plan again; it reports the outcome of its own transaction as
+    /// unknown.
+    func testBroadcastTxidMismatch_thenOutcomeIsUnknownForTheSignedTransaction() async {
+        let client = FakeBitcoinIndexerClient(broadcastResponse: String(repeating: "22", count: 32))
+
+        do {
+            _ = try await BitcoinSendService(client: client, statusPolling: .once).send(Self.request())
+            XCTFail("Expected Bitcoin send service txid mismatch")
+        } catch {
+            XCTAssertEqual(
+                error as? BitcoinSendServiceError,
+                .broadcastOutcomeUnknown(txid: Self.expectedTxid)
+            )
+        }
+    }
+
+    func testBitcoinTransferServiceEstimatesFeeAndSendsFromUniversalWalletAccount() async throws {
+        let chain = Self.bitcoinChain(historyBaseURL: "https://bitcoin.example/api")
+        let wallet = try Self.walletWithBitcoinAccount(
+            chainId: UniversalWalletRegistry.bitcoinMainnet.id,
+            network: .mainnet
+        )
+        let client = FakeBitcoinIndexerClient(broadcastResponse: Self.expectedTxid.uppercased())
+        let service = BitcoinTransferService(
+            wallet: wallet,
+            chain: chain,
+            client: client,
+            mnemonicProvider: FakeBitcoinMnemonicProvider(mnemonic: Self.mnemonic)
+        )
+        let transfer = Self.transfer(chain: chain)
+
+        let fee = try await service.estimateFee(for: transfer)
+        let txid = try await service.submit(transfer: transfer)
+
+        XCTAssertEqual(fee, BigUInt(282))
+        XCTAssertEqual(txid, Self.expectedTxid)
+        XCTAssertEqual(client.lastFeeNetwork, .mainnet)
+        XCTAssertEqual(
+            client.lastFeeBaseURL,
+            UniversalWalletRegistry.bitcoinMainnetIndexerBaseURL.absoluteString
+        )
+        XCTAssertEqual(client.feeEstimateCallCount, 1)
+        XCTAssertEqual(client.lastUtxosAddress, Self.mainnetAddress)
+        XCTAssertEqual(client.lastUtxosNetwork, .mainnet)
+        XCTAssertEqual(
+            client.lastUtxosBaseURL,
+            UniversalWalletRegistry.bitcoinMainnetIndexerBaseURL.absoluteString
+        )
+        XCTAssertEqual(client.lastBroadcastTxHex, Self.expectedTxHex)
+        XCTAssertEqual(client.lastBroadcastNetwork, .mainnet)
+        XCTAssertEqual(
+            client.lastBroadcastBaseURL,
+            UniversalWalletRegistry.bitcoinMainnetIndexerBaseURL.absoluteString
+        )
+    }
+
+    func testBitcoinTransferServiceRejectsMissingMnemonicRootMaterial() async throws {
+        let chain = Self.bitcoinChain()
+        let wallet = try Self.walletWithBitcoinAccount(chainId: UniversalWalletRegistry.bitcoinMainnet.chainId)
+        let client = FakeBitcoinIndexerClient()
+        let service = BitcoinTransferService(
+            wallet: wallet,
+            chain: chain,
+            client: client,
+            mnemonicProvider: FakeBitcoinMnemonicProvider(mnemonic: nil)
+        )
+
+        do {
+            _ = try await service.estimateFee(for: Self.transfer(chain: chain))
+            XCTFail("Expected Bitcoin fee estimation to reject missing signing material")
+        } catch TransferServiceError.cannotEstimateFee(let reason) {
+            XCTAssertTrue(reason.contains("mnemonic"))
+        } catch {
+            XCTFail("Unexpected fee error: \(error)")
+        }
+
+        do {
+            _ = try await service.submit(transfer: Self.transfer(chain: chain))
+            XCTFail("Expected Bitcoin transfer service to reject missing mnemonic material")
+        } catch TransferServiceError.transferFailed(let reason) {
+            XCTAssertTrue(reason.contains("fee quote"))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+        XCTAssertNil(client.lastFeeNetwork)
+        XCTAssertNil(client.lastUtxosAddress)
+        XCTAssertNil(client.lastBroadcastTxHex)
+    }
+
+    func testBitcoinTransferServiceRejectsMnemonicMismatchBeforeIndexerCalls() async throws {
+        let chain = Self.bitcoinChain(historyBaseURL: "https://bitcoin.example/api")
+        let wallet = try Self.walletWithBitcoinAccount(chainId: UniversalWalletRegistry.bitcoinMainnet.chainId)
+        let client = FakeBitcoinIndexerClient()
+        let service = BitcoinTransferService(
+            wallet: wallet,
+            chain: chain,
+            client: client,
+            mnemonicProvider: FakeBitcoinMnemonicProvider(mnemonic: Self.otherMnemonic)
+        )
+
+        do {
+            _ = try await service.estimateFee(for: Self.transfer(chain: chain))
+            XCTFail("Expected Bitcoin fee estimation to reject mismatched mnemonic material")
+        } catch TransferServiceError.cannotEstimateFee(let reason) {
+            XCTAssertTrue(reason.contains("does not match selected wallet"))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+        XCTAssertNil(client.lastFeeNetwork)
+        XCTAssertNil(client.lastUtxosAddress)
+        XCTAssertNil(client.lastBroadcastTxHex)
+    }
+
+    func testBitcoinTransferServiceDiscoversFundedBIP84AddressBeyondIndexZero() async throws {
+        let chain = Self.bitcoinChain(historyBaseURL: "https://bitcoin.example/api")
+        let wallet = try Self.walletWithBitcoinAccount(
+            chainId: UniversalWalletRegistry.bitcoinMainnet.chainId
+        )
+        let indexOneAddress = try BitcoinKeyDerivation.deriveKey(
+            mnemonic: Self.mnemonic,
+            derivationPath: BitcoinKeyDerivation.getReceivePath(index: 1),
+            network: .mainnet
+        ).address
+        let client = FakeBitcoinIndexerClient(fundedAddresses: [indexOneAddress])
+        let service = BitcoinTransferService(
+            wallet: wallet,
+            chain: chain,
+            client: client,
+            mnemonicProvider: FakeBitcoinMnemonicProvider(mnemonic: Self.mnemonic)
+        )
+
+        _ = try await service.estimateFee(for: Self.transfer(chain: chain))
+
+        XCTAssertEqual(client.lastUtxosAddress, indexOneAddress)
+    }
+
+    private final class FakeBitcoinIndexerClient: BitcoinIndexerClientProtocol {
+        private let broadcastResponse: String
+        private(set) var lastBroadcastTxHex: String?
+        private(set) var lastBroadcastNetwork: BitcoinIndexerNetwork?
+        private(set) var lastBroadcastBaseURL: String?
+        private(set) var lastFeeNetwork: BitcoinIndexerNetwork?
+        private(set) var lastFeeBaseURL: String?
+        private(set) var lastUtxosAddress: String?
+        private(set) var lastUtxosNetwork: BitcoinIndexerNetwork?
+        private(set) var lastUtxosBaseURL: String?
+        private(set) var feeEstimateCallCount = 0
+        private let fundedAddresses: Set<String>
+        private var feeRates: [Double]
+
+        init(
+            broadcastResponse: String = BitcoinSendServiceTests.expectedTxid,
+            fundedAddresses: Set<String> = [BitcoinSendServiceTests.mainnetAddress],
+            feeRates: [Double] = [2]
+        ) {
+            self.broadcastResponse = broadcastResponse
+            self.fundedAddresses = Set(fundedAddresses.map { $0.lowercased() })
+            self.feeRates = feeRates
+        }
+
+        func address(
+            address: String,
+            network: BitcoinIndexerNetwork,
+            baseURL: String?
+        ) async throws -> BitcoinEsploraAddress {
+            let isFundedSource = fundedAddresses.contains(address.lowercased())
+            let balance: Int64 = isFundedSource ? 100_000 : 0
+            let transactionCount = isFundedSource ? 1 : 0
+
+            return BitcoinEsploraAddress(
+                address: address,
+                chainStats: BitcoinEsploraStats(
+                    fundedTxoCount: transactionCount,
+                    fundedTxoSum: balance,
+                    spentTxoCount: 0,
+                    spentTxoSum: 0,
+                    txCount: transactionCount
+                ),
+                mempoolStats: BitcoinEsploraStats(
+                    fundedTxoCount: 0,
+                    fundedTxoSum: 0,
+                    spentTxoCount: 0,
+                    spentTxoSum: 0,
+                    txCount: 0
+                )
+            )
+        }
+
+        func utxos(
+            address: String,
+            network: BitcoinIndexerNetwork,
+            baseURL: String?
+        ) async throws -> [BitcoinEsploraUtxo] {
+            lastUtxosAddress = address
+            lastUtxosNetwork = network
+            lastUtxosBaseURL = baseURL
+
+            guard fundedAddresses.contains(address.lowercased()) else {
+                return []
+            }
+
+            return [
+                BitcoinEsploraUtxo(
+                    txid: BitcoinSendServiceTests.txid,
+                    vout: 1,
+                    value: 100_000,
+                    status: BitcoinEsploraTxStatus(confirmed: true, blockHash: nil, blockHeight: nil, blockTime: nil)
+                )
+            ]
+        }
+
+        func transactions(
+            address: String,
+            network: BitcoinIndexerNetwork,
+            baseURL: String?,
+            lastSeenTxid: String?,
+            mempool: Bool
+        ) async throws -> [BitcoinEsploraTransaction] {
+            return []
+        }
+
+        func feeEstimates(
+            network: BitcoinIndexerNetwork,
+            baseURL: String?
+        ) async throws -> [String: Double] {
+            lastFeeNetwork = network
+            lastFeeBaseURL = baseURL
+            feeEstimateCallCount += 1
+
+            let feeRate = feeRates.isEmpty ? 2 : feeRates.removeFirst()
+            return ["2": feeRate]
+        }
+
+        func broadcastTransaction(
+            txHex: String,
+            network: BitcoinIndexerNetwork,
+            baseURL: String?
+        ) async throws -> String {
+            lastBroadcastTxHex = txHex
+            lastBroadcastNetwork = network
+            lastBroadcastBaseURL = baseURL
+
+            return broadcastResponse
+        }
+    }
+
+    private struct FakeBitcoinMnemonicProvider: BitcoinMnemonicProviding {
+        let mnemonic: String?
+
+        func mnemonic(for _: MetaAccountModel, chain _: ChainModel) throws -> String? {
+            mnemonic
+        }
+    }
+
+    private static let mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+    private static let otherMnemonic = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+    private static let mainnetAddress = "bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu"
+    private static let mainnetRecipient = "bc1qslk39wvggqa0vl8nd6jckaz54dw3vk45c5w60m"
+    private static let txid = String(repeating: "11", count: 32)
+    private static let expectedTxid = "94c9b9d5070f24e06725b1000d9b1a0d46473d07b59088aca35e3d3da345023d"
+    private static let expectedTxHex = "0200000000010111111111111111111111111111111111111111111111111111111111111111110100000000ffffffff0250c300000000000016001487ed12b988403af67cf36ea58b7454ab5d165ab436c2000000000000160014c0cebcd6c3d3ca8c75dc5ec62ebe55330ef910e202473044022009ec0c24a20c4346c6516065723e2e83e6a7e4dd278fb66e27f36d9108d7ef4c022077f115bfbd68a2bc7a4c100766d9cceaf5300bcfcdc775be0248e7fb5a58216801210330d54fd0dd420a6e5f8d3624f5f3482cae350f79d5f0753bf5beef9c2d91af3c00000000"
+    private static let asset = AssetModel(
+        id: "BTC",
+        name: "Bitcoin",
+        symbol: "BTC",
+        precision: 8,
+        isUtility: true,
+        isNative: true
+    )
+
+    private static func request(baseURL: String? = nil) -> BitcoinSendRequest {
+        BitcoinSendRequest(
+            mnemonic: mnemonic,
+            amountSats: 50_000,
+            sources: [BitcoinUtxoSource(address: mainnetAddress)],
+            recipientAddress: mainnetRecipient,
+            changeAddress: mainnetAddress,
+            feeRateSatPerVbyte: 2,
+            baseURL: baseURL
+        )
+    }
+
+    private static func transfer(chain: ChainModel) -> Transfer {
+        Transfer(
+            chainAsset: ChainAsset(chain: chain, asset: asset),
+            amount: BigUInt(50_000),
+            receiver: mainnetRecipient,
+            tip: nil,
+            appId: nil
+        )
+    }
+
+    private static func walletWithBitcoinAccount(
+        chainId: String,
+        network: BitcoinKeyDerivation.Network = .mainnet
+    ) throws -> MetaAccountModel {
+        let account = try BitcoinKeyDerivation.deriveAccount(mnemonic: mnemonic, network: network)
+        let chainAccount = ChainAccountModel(
+            chainId: chainId,
+            accountId: account.publicKey,
+            publicKey: account.publicKey,
+            cryptoType: CryptoType.ecdsa.rawValue,
+            ethereumBased: false
+        )
+
+        return AccountGenerator.generateMetaAccount(with: [chainAccount])
+    }
+
+    private static func bitcoinChain(
+        chainId: String = UniversalWalletRegistry.bitcoinMainnet.chainId,
+        historyBaseURL: String? = nil
+    ) -> ChainModel {
+        let externalApi = historyBaseURL.map {
+            ChainModel.ExternalApiSet(
+                staking: nil,
+                history: ChainModel.BlockExplorer(
+                    type: "subsquid",
+                    url: URL(string: $0)!
+                ),
+                crowdloans: nil,
+                explorers: nil
+            )
+        }
+
+        return ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: chainId,
+            parentId: nil,
+            paraId: nil,
+            name: "Bitcoin",
+            assets: [asset],
+            xcm: nil,
+            nodes: [
+                ChainNodeModel(
+                    url: URL(string: "https://bitcoin.node.example")!,
+                    name: "Bitcoin",
+                    apikey: nil
+                )
+            ],
+            addressPrefix: 0,
+            types: nil,
+            icon: nil,
+            options: nil,
+            externalApi: externalApi,
+            selectedNode: nil,
+            customNodes: nil,
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+    }
+}

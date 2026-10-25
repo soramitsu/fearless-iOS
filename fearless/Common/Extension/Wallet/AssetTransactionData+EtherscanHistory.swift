@@ -1,5 +1,4 @@
 import Foundation
-
 import SoraFoundation
 import SSFModels
 
@@ -10,8 +9,8 @@ extension AssetTransactionData {
         chain: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
-        let peerAddress = item.from == address ? item.to : item.from
-        let type = item.from == address ? TransactionType.outgoing :
+        let peerAddress = item.from?.lowercased() == address.lowercased() ? item.to : item.from
+        let type = item.from?.lowercased() == address.lowercased() ? TransactionType.outgoing :
             TransactionType.incoming
 
         let timestamp: Int64 = {
@@ -29,8 +28,8 @@ extension AssetTransactionData {
         let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(utilityAsset.precision)) ?? .zero
 
         let fee = AssetTransactionFee(
-            identifier: asset.identifier,
-            assetId: asset.identifier,
+            identifier: utilityAsset.id,
+            assetId: utilityAsset.id,
             amount: AmountDecimal(value: feeDecimal),
             context: nil
         )
@@ -38,8 +37,8 @@ extension AssetTransactionData {
 
         return AssetTransactionData(
             transactionId: item.hash ?? "",
-            status: .commited,
-            assetId: item.contractAddress ?? "",
+            status: item.isFailed ? .rejected : .commited,
+            assetId: asset.id,
             peerId: "",
             peerFirstName: nil,
             peerLastName: nil,

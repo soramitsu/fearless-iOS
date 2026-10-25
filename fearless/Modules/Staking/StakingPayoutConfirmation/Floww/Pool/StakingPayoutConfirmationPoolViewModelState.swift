@@ -20,7 +20,7 @@ final class StakingPayoutConfirmationPoolViewModelState: StakingPayoutConfirmati
         self.stateListener = stateListener
     }
 
-    func validators(using locale: Locale, prices _: [PriceData]) -> [DataValidating] {
+    func validators(using locale: Locale) -> [DataValidating] {
         [
             dataValidatingFactory.has(fee: fee, locale: locale) { [weak self] in
                 self?.stateListener?.provideFee()

@@ -1,0 +1,93 @@
+{
+ "format": "fearless.ios-legacy-visibility-fixture",
+ "version": 1,
+ "id": "404-ton-optout",
+ "description": "4.0.4 TON wallet: everything without a hidden row was listed, so hidden rows are the user's. Jetton A is hidden and funded, B hidden at zero, C re-enabled, D never toggled, E no longer exists.",
+ "generator": "LegacyVisibility/generate.py",
+ "registrySha256": "fa6f0e23cd87dfb3e5536980591dd22ae30e49bf59d04dc2a0b31fc53237ea66",
+ "wallet": {
+  "ecosystem": "ton",
+  "legacyTon": true,
+  "accounts": [
+   "ton"
+  ],
+  "assetsVisibility": [
+   {
+    "assetId": "-239 : 0:0db9a1adff43e4658261f3e9ab1ae05b14814f1dc2b9437870c25679b08a4399",
+    "hidden": true
+   },
+   {
+    "assetId": "-239 : 0:6bbd8bd1a0a933d6ad8facc209f592e7a5e7acd6773cd6c7ec0d91299a6b4041",
+    "hidden": true
+   },
+   {
+    "assetId": "-239 : 0:c22d4876078d5b454360c0810596b67b3c9b09b76c6a1d7d376c030fbfa74eb0",
+    "hidden": false
+   },
+   {
+    "assetId": "-239 : 0:e90fe4454720ae59579637e15b8f5f4c5e46bb4c4a95f299239b4089cdc31bf9",
+    "hidden": true
+   }
+  ]
+ },
+ "balances": {
+  "-239 : 0:0db9a1adff43e4658261f3e9ab1ae05b14814f1dc2b9437870c25679b08a4399": "50000000000",
+  "-239 : 0:82c8f0c3c9ae2300532e6f544e31b4d5feaab833343fc879ddf2f2c660ba1eb0": "2000000000",
+  "-239 : 0:c22d4876078d5b454360c0810596b67b3c9b09b76c6a1d7d376c030fbfa74eb0": "1000000000",
+  "-239 : 2ba4723a-74b4-4a6f-a888-e51937773807-239": "3000000000"
+ },
+ "extraAssets": [
+  {
+   "chainId": "-239",
+   "id": "0:0db9a1adff43e4658261f3e9ab1ae05b14814f1dc2b9437870c25679b08a4399",
+   "currencyId": "0:8501a243ae4ac07297e613a497403b8d7b633d73d9866ee4cfe392b05f390914",
+   "symbol": "FUNDHID",
+   "name": "Jetton A",
+   "precision": 9,
+   "format": "4.0.4"
+  },
+  {
+   "chainId": "-239",
+   "id": "0:6bbd8bd1a0a933d6ad8facc209f592e7a5e7acd6773cd6c7ec0d91299a6b4041",
+   "currencyId": "0:893004a3e837b572e1a6eda317359a4d336d0986572d88019e02cbdbba7a2a63",
+   "symbol": "SPAM",
+   "name": "Jetton B",
+   "precision": 9,
+   "format": "4.0.4"
+  },
+  {
+   "chainId": "-239",
+   "id": "0:c22d4876078d5b454360c0810596b67b3c9b09b76c6a1d7d376c030fbfa74eb0",
+   "currencyId": "0:20d79b1cd5250c5c43c92a87ff95afed4d84a727dd4047fd24b60bdecf2ce4e8",
+   "symbol": "REON",
+   "name": "Jetton C",
+   "precision": 9,
+   "format": "4.0.4"
+  },
+  {
+   "chainId": "-239",
+   "id": "0:82c8f0c3c9ae2300532e6f544e31b4d5feaab833343fc879ddf2f2c660ba1eb0",
+   "currencyId": "0:5795ae6141cb00fcbd143bf54ce9cdb0f048f0ba77cdb143e5ebe360df1ee8af",
+   "symbol": "NEWJET",
+   "name": "Jetton D",
+   "precision": 9,
+   "format": "4.0.4"
+  },
+  {
+   "chainId": "-239",
+   "id": "0:8501a243ae4ac07297e613a497403b8d7b633d73d9866ee4cfe392b05f390914",
+   "currencyId": "0:8501a243ae4ac07297e613a497403b8d7b633d73d9866ee4cfe392b05f390914",
+   "symbol": "FUNDHID",
+   "name": "Jetton A",
+   "precision": 9,
+   "format": "release"
+  }
+ ],
+ "userHidden": [
+  "-239 : 0:0db9a1adff43e4658261f3e9ab1ae05b14814f1dc2b9437870c25679b08a4399",
+  "-239 : 0:6bbd8bd1a0a933d6ad8facc209f592e7a5e7acd6773cd6c7ec0d91299a6b4041"
+ ],
+ "unmatched": [
+  "-239 : 0:e90fe4454720ae59579637e15b8f5f4c5e46bb4c4a95f299239b4089cdc31bf9"
+ ]
+}

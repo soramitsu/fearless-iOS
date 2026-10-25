@@ -1,0 +1,29 @@
+Fearless shared features
+Copyright Soramitsu Co., Ltd.
+
+Soramitsu-owned source code in this repository is licensed under the Apache
+License, Version 2.0 (see LICENSE), including RobinHood and SoraKeystore.
+Existing copyright notices are retained.
+
+The following modules also retain their original MIT license as an alternative:
+SSFChainConnection, SSFCloudStorage, SSFCrypto, SSFEraKit, SSFExtrinsicKit,
+SSFModels, SSFRuntimeCodingService, SSFSigner, SSFStorageQueryKit, and SSFUtils.
+Their Sources/<module>/LICENSE files contain the original copyright and MIT
+permission notices and identify the Apache-2.0 OR MIT choice.
+
+Third-party components retain their own terms and notices:
+- Sources/keccak/: CC0 1.0; see Sources/keccak/License.md.
+- Sources/scrypt/: upstream scrypt/libcperciva code, including Colin Percival's
+  BSD-2-Clause notices in crypto_scrypt*.c and include/scrypt.h. The sse2neon.h
+  compatibility header is MIT-licensed by the SSE2NEON Contributors. The root
+  Apache license does not relicense this vendored directory.
+- native/sr25519crust/: Apache-2.0; see its LICENSE and the Soramitsu, Paritytech,
+  and @polkadot/wasm-schnorrkel attribution in src/lib.rs.
+- tools/sourcery-2.1.3/: MIT-licensed Sourcery by Krzysztof Zabłocki; see its
+  LICENSE. Bundled documentation and libraries retain their own embedded notices.
+- Binaries/: prebuilt frameworks retain their upstream terms and notices. In
+  particular, MPQRCoreSDK contains MasterCard and Muchamad Chozinul Amri notices.
+  The root Apache license does not relicense third-party binary components.
+
+External package dependencies retain their respective licenses. Preserve their
+license and attribution files when redistributing them.

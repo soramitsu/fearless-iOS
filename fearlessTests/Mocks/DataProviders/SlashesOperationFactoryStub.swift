@@ -2,6 +2,8 @@ import Foundation
 @testable import fearless
 import RobinHood
 import SSFUtils
+import SSFModels
+import SSFRuntimeCodingService
 
 final class SlashesOperationFactoryStub: SlashesOperationFactoryProtocol {
     let slashingSpans: SlashingSpans?
@@ -13,7 +15,8 @@ final class SlashesOperationFactoryStub: SlashesOperationFactoryProtocol {
     func createSlashingSpansOperationForStash(
         _ stashAddress: AccountAddress,
         engine: JSONRPCEngine,
-        runtimeService: RuntimeCodingServiceProtocol) -> CompoundOperationWrapper<SlashingSpans?> {
+        runtimeService: RuntimeCodingServiceProtocol,
+        chainAsset: SSFModels.ChainAsset) -> CompoundOperationWrapper<SlashingSpans?> {
         return CompoundOperationWrapper.createWithResult(slashingSpans)
     }
 }

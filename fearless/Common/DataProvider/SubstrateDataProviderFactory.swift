@@ -1,5 +1,8 @@
 import Foundation
 import RobinHood
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 protocol SubstrateDataProviderFactoryProtocol {
     func createStashItemProvider(for address: String) -> StreamableProvider<StashItem>
@@ -39,9 +42,11 @@ final class SubstrateDataProviderFactory: SubstrateDataProviderFactoryProtocol {
             predicate: { $0.stash == address || $0.controller == address }
         )
 
-        observable.start { [weak self] error in
+        let logger = logger
+
+        observable.start { error in
             if let error = error {
-                self?.logger?.error("Did receive error: \(error)")
+                logger?.error("Did receive error: \(error)")
             }
         }
 
@@ -55,13 +60,13 @@ final class SubstrateDataProviderFactory: SubstrateDataProviderFactoryProtocol {
 
     func createStorageProvider(for key: String) -> StreamableProvider<ChainStorageItem> {
         let filter = NSPredicate.filterStorageItemsBy(identifier: key)
-        let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
+        let storage: CoreDataRepository<ChainStorageItem, SSFAssetManagmentStorage.CDChainStorageItem> =
             facade.createRepository(filter: filter)
         let source = EmptyStreamableSource<ChainStorageItem>()
         let observable = CoreDataContextObservable(
             service: facade.databaseService,
             mapper: AnyCoreDataMapper(storage.dataMapper),
-            predicate: { $0.identifier == key }
+            predicate: { (object: SSFAssetManagmentStorage.CDChainStorageItem) in object.identifier == key }
         )
 
         observable.start { error in

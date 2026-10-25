@@ -1,0 +1,6 @@
+app_identifier(ENV.fetch("FASTLANE_APP_IDENTIFIER", "jp.co.soramitsu.fearlesswallet"))
+team_id(ENV.fetch("FASTLANE_TEAM_ID", "YLWWUD25VZ"))
+
+# The numeric App Store Connect app ID is enforced in Fastfile. Appfile's
+# `apple_id` field means login username, so it is intentionally not set here.
+# API-key authentication is preferred; a generated FASTLANE_SESSION is fallback.

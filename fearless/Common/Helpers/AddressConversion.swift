@@ -17,9 +17,7 @@ enum ChainFormat {
     }
 }
 
-enum AddressFactory {
-    private static let substrateFactory = SS58AddressFactory()
-
+struct AddressFactory {
     private static func chainFormat(of chain: ChainModel) -> ChainFormat {
         chain.isEthereumBased ? .ethereum : .substrate(chain.addressPrefix)
     }
@@ -43,6 +41,23 @@ enum AddressFactory {
         case .substrate:
             return Data(count: SubstrateConstants.accountIdLength)
         }
+    }
+
+    // Instance wrappers for compatibility where an AddressFactory instance is injected
+    func address(for accountId: AccountId, chain: ChainModel) throws -> AccountAddress {
+        try AddressFactory.address(for: accountId, chain: chain)
+    }
+
+    func address(for accountId: AccountId, chainFormat: ChainFormat) throws -> AccountAddress {
+        try AddressFactory.address(for: accountId, chainFormat: chainFormat)
+    }
+
+    func accountId(from address: AccountAddress, chain: ChainModel) throws -> AccountId {
+        try AddressFactory.accountId(from: address, chain: chain)
+    }
+
+    func randomAccountId(for chain: ChainModel) -> AccountId {
+        AddressFactory.randomAccountId(for: chain)
     }
 }
 

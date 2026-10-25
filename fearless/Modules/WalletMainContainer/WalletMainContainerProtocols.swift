@@ -7,6 +7,7 @@ typealias WalletMainContainerModuleCreationResult = (
 
 protocol WalletMainContainerViewInput: ControllerBackedProtocol, HiddableBarWhenPushed {
     func didReceiveViewModel(_ viewModel: WalletMainContainerViewModel)
+    func didReceiveNftAvailability(isNftAvailable: Bool)
 }
 
 protocol WalletMainContainerViewOutput: AnyObject {
@@ -17,11 +18,13 @@ protocol WalletMainContainerViewOutput: AnyObject {
     func didTapSelectNetwork()
     func didTapOnBalance()
     func addressDidCopied()
+    func didTapAccountScore()
 }
 
 protocol WalletMainContainerInteractorInput: AnyObject {
     func setup(with output: WalletMainContainerInteractorOutput)
     func walletConnect(uri: String) async throws
+    func acknowledge(_ notice: StoredWalletRecordsNotice)
 }
 
 protocol WalletMainContainerInteractorOutput: AnyObject {
@@ -30,9 +33,11 @@ protocol WalletMainContainerInteractorOutput: AnyObject {
     func didReceiveError(_ error: Error)
     func didReceiveControllerAccountIssue(issue: ControllerAccountIssue, hasStashItem: Bool)
     func didReceiveStashAccountIssue(address: String)
+    func didReceiveNftAvailability(isNftAvailable: Bool)
+    func didReceiveStoredWalletRecordsNotices(_ notices: [StoredWalletRecordsNotice])
 }
 
-protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable, AccountManagementPresentable {
+protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable, AccountManagementPresentable, AccountScorePresentable {
     func showWalletManagment(
         from view: WalletMainContainerViewInput?,
         moduleOutput: WalletsManagmentModuleOutput?
@@ -61,7 +66,8 @@ protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable
         wallet: MetaAccountModel
     )
 
-    func showMainStaking()
+    func showMainStaking(from view: WalletMainContainerViewInput?)
+    func showWalletDetails(from view: WalletMainContainerViewInput?, wallet: MetaAccountModel)
 }
 
 protocol WalletMainContainerModuleInput: AnyObject {}

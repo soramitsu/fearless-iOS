@@ -13,6 +13,8 @@ final class WalletDetailsPresenter {
 
     private var chains: [ChainModel] = []
     private var searchText: String?
+    /// Per-chain accounts the wallet keeps stored but does not use at the moment.
+    private var storedChainAccounts: [ChainAccountModel] = []
 
     init(
         interactor: WalletDetailsInteractorInputProtocol,
@@ -41,10 +43,6 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
         view = ui
         view?.didReceive(locale: selectedLocale)
         interactor.setup()
-    }
-
-    func updateData() {
-//        TODO: Will required when add chain acounts changes
     }
 
     func didTapCloseButton() {
@@ -81,6 +79,9 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
         let options: [MissingAccountOption?] = [.create, .import, unused ? nil : .skip]
 
         guard let account = account else {
+            guard !UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) else {
+                return
+            }
             wireframe.presentAccountOptions(
                 from: view,
                 locale: selectedLocale,
@@ -92,6 +93,14 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
             ) { [weak self] chain in
                 self?.interactor.markUnused(chain: chain)
             }
+            return
+        }
+
+        if UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) {
+            didReceiveExportOptions(
+                options: [],
+                for: ChainAccountInfo(chain: chain, account: account)
+            )
             return
         }
 
@@ -109,7 +118,9 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
         guard let address = chainAccount.account.toAddress() else {
             return
         }
+        let storedAccounts = storedAccountsByAddress(for: chainAccount.chain)
         let items: [ChainAction] = createActions(for: chainAccount.chain, address: address)
+            + accountSelectionActions(for: chainAccount, storedAddresses: storedAccounts.keys.sorted())
         let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
             guard let self = self,
                   let view = self.view
@@ -160,6 +171,8 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
                 )
             case let .oklink(url: url):
                 self.wireframe.present(from: view, url: url)
+            case .useStoredAccount, .useWalletAccount:
+                self.confirmAccountSelection(for: action, storedAccounts: storedAccounts, chain: chainAccount.chain)
             }
         }
         wireframe.presentActions(
@@ -179,6 +192,11 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
         flow = updatedFlow
         provideViewModel(chains: chains)
     }
+
+    func didReceive(storedChainAccounts: [ChainAccountModel]) {
+        self.storedChainAccounts = storedChainAccounts
+        provideViewModel(chains: chains)
+    }
 }
 
 private extension WalletDetailsPresenter {
@@ -188,6 +206,7 @@ private extension WalletDetailsPresenter {
             let viewModel = viewModelFactory.buildNormalViewModel(
                 flow: flow,
                 chains: chains,
+                chainsWithStoredAccounts: chains.filter { !storedAccountsByAddress(for: $0).isEmpty },
                 locale: selectedLocale,
                 searchText: searchText
             )
@@ -203,38 +222,131 @@ private extension WalletDetailsPresenter {
         }
     }
 
+    /// The stored accounts the user can switch to on this chain, by the address each has there.
+    func storedAccountsByAddress(for chain: ChainModel) -> [String: ChainAccountModel] {
+        guard flow.actionsAvailable, !UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) else {
+            return [:]
+        }
+
+        var accounts: [String: ChainAccountModel] = [:]
+        for storedAccount in storedChainAccounts {
+            if let address = flow.wallet.response(for: storedAccount, request: chain.accountRequest())?.toAddress() {
+                accounts[address] = storedAccount
+            }
+        }
+
+        return accounts
+    }
+
+    /// The address the wallet's own account has on this chain, if the wallet has one for it.
+    func walletAccountAddress(for chain: ChainModel) -> String? {
+        let withoutChainAccounts = flow.wallet.replacingChainAccounts([])
+        return withoutChainAccounts.fetch(for: chain.accountRequest())?.toAddress()
+    }
+
+    func accountSelectionActions(for chainAccount: ChainAccountInfo, storedAddresses: [String]) -> [ChainAction] {
+        var actions: [ChainAction] = storedAddresses.map { .useStoredAccount(address: $0) }
+
+        if
+            flow.actionsAvailable,
+            chainAccount.account.isChainAccount,
+            !UniversalWalletChainAccountSupport.isUniversalWalletChain(chainAccount.chain.chainId),
+            walletAccountAddress(for: chainAccount.chain) != nil {
+            actions.append(.useWalletAccount)
+        }
+
+        return actions
+    }
+
+    func confirmAccountSelection(
+        for action: ChainAction,
+        storedAccounts: [String: ChainAccountModel],
+        chain: ChainModel
+    ) {
+        switch action {
+        case let .useStoredAccount(storedAddress):
+            guard let storedAccount = storedAccounts[storedAddress] else {
+                return
+            }
+            confirmAccountSelection(
+                .chainAccount(accountId: storedAccount.accountId, publicKey: storedAccount.publicKey),
+                address: storedAddress,
+                chain: chain
+            )
+        case .useWalletAccount:
+            guard let walletAddress = walletAccountAddress(for: chain) else {
+                return
+            }
+            confirmAccountSelection(.walletAccount, address: walletAddress, chain: chain)
+        default:
+            break
+        }
+    }
+
+    /// Switching changes the address shown and used on the chain, so it is never done on one tap.
+    func confirmAccountSelection(_ selection: ChainAccountSelection, address: String, chain: ChainModel) {
+        let languages = selectedLocale.rLanguages
+        let confirmAction = SheetAlertPresentableAction(
+            title: R.string.localizable.walletChainAccountsSwitchConfirm(preferredLanguages: languages),
+            style: .pinkBackgroundWhiteText
+        ) { [weak self] in
+            self?.interactor.selectChainAccount(selection, chain: chain)
+        }
+        let viewModel = SheetAlertPresentableViewModel(
+            title: R.string.localizable.walletChainAccountsSwitchTitle(chain.name, preferredLanguages: languages),
+            message: R.string.localizable.walletChainAccountsSwitchMessage(
+                address, chain.name, preferredLanguages: languages
+            ),
+            actions: [confirmAction],
+            closeAction: R.string.localizable.commonCancel(preferredLanguages: languages),
+            icon: R.image.iconWarningBig()
+        )
+
+        wireframe.present(viewModel: viewModel, from: view)
+    }
+
     func createActions(for chain: ChainModel, address: String) -> [ChainAction] {
-        var actions: [ChainAction] = [.copyAddress, .switchNode, .export, .replace]
+        var actions = Self.baseActions(for: chain)
         if let explorers = chain.externalApi?.explorers {
-            let explorerActions: [ChainAction] = explorers.compactMap {
-                switch $0.type {
+            let explorerActions: [ChainAction] = explorers.compactMap { explorer -> ChainAction? in
+                switch explorer.type {
                 case .subscan:
-                    if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
+                    if explorer.types.contains(.account), let url = explorer.explorerUrl(for: address, type: .account) {
                         return .subscan(url: url)
                     }
                 case .polkascan:
-                    if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
+                    if explorer.types.contains(.account), let url = explorer.explorerUrl(for: address, type: .account) {
                         return .polkascan(url: url)
                     }
                 case .etherscan:
-                    if $0.types.contains(.address), let url = $0.explorerUrl(for: address, type: .address) {
+                    if explorer.types.contains(.address), let url = explorer.explorerUrl(for: address, type: .address) {
                         return .etherscan(url: url)
                     }
                 case .reef:
-                    if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
-                        return .polkascan(url: url)
+                    if explorer.types.contains(.account), let url = explorer.explorerUrl(for: address, type: .account) {
+                        return .reefscan(url: url)
+                    }
+                case .oklink:
+                    if explorer.types.contains(.address), let url = explorer.explorerUrl(for: address, type: .address) {
+                        return .oklink(url: url)
                     }
                 case .unknown:
                     return nil
-                case .oklink:
-                    if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
-                        return .oklink(url: url)
-                    }
                 }
                 return nil
             }
             actions.append(contentsOf: explorerActions)
         }
         return actions
+    }
+}
+
+extension WalletDetailsPresenter {
+    static func baseActions(for chain: ChainModel) -> [ChainAction] {
+        if UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId) {
+            return [.copyAddress]
+        }
+
+        return [.copyAddress, .switchNode, .export, .replace]
     }
 }

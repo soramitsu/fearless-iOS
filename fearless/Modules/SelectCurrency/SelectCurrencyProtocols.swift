@@ -1,3 +1,5 @@
+import SSFModels
+
 typealias SelectCurrencyModuleCreationResult = (view: SelectCurrencyViewInput, input: SelectCurrencyModuleInput)
 
 protocol SelectCurrencyViewInput: ControllerBackedProtocol {

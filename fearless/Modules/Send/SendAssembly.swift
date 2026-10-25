@@ -12,6 +12,10 @@ import SSFExtrinsicKit
 import SSFNetwork
 import SSFChainRegistry
 import SSFChainConnection
+import SSFStorageQueryKit
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 final class SendAssembly {
     static func configureModule(
@@ -26,10 +30,10 @@ final class SendAssembly {
             operationManager: operationManager
         )
         let repositoryFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-        let mapper: CodableCoreDataMapper<ScamInfo, CDScamInfo> =
-            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDScamInfo.address))
-        let scamRepository: CoreDataRepository<ScamInfo, CDScamInfo> =
+        let mapper: CodableCoreDataMapper<ScamInfo, SSFAssetManagmentStorage.CDScamInfo> =
+            // Use literal to avoid module-qualified #keyPath limitation
+            CodableCoreDataMapper(entityIdentifierFieldName: "address")
+        let scamRepository: CoreDataRepository<ScamInfo, SSFAssetManagmentStorage.CDScamInfo> =
             repositoryFacade.createRepository(
                 filter: nil,
                 sortDescriptors: [],
@@ -39,6 +43,7 @@ final class SendAssembly {
             repository: AnyDataProviderRepository(scamRepository)
         )
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
         let operationQueue = OperationQueue()
@@ -52,26 +57,44 @@ final class SendAssembly {
             chainModelRepository: AnyDataProviderRepository(chainRepository),
             wallet: wallet
         )
-        let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
+        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, SSFAssetManagmentStorage.CDRuntimeMetadataItem> =
+            SubstrateDataStorageFacade.shared.createAsyncRepository()
+        let accountStatisticsFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerDefault(), signer: NomisRequestSigner())
+        let scamInfoFetcher = ScamInfoFetcher(
+            scamServiceOperationFactory: scamServiceOperationFactory,
+            accountScoreFetching: accountStatisticsFetcher,
+            localizationManager: LocalizationManager.shared
+        )
+        let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
+            chainRegistry: ChainRegistryFacade.sharedRegistry
+        )
+        let accountInfoRemoteService = AccountInfoRemoteServiceDefault(
+            bitcoinBalanceSync: BitcoinBalanceSync(
+                discovery: BitcoinReceiveDiscovery(client: BitcoinFailoverIndexerClient())
+            ),
+            solanaBalanceSync: SolanaRpcBalanceSync.mainnet,
+            storagePerformer: storagePerformer
+        )
         let interactor = SendInteractor(
-            feeProxy: ExtrinsicFeeProxy(),
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: wallet
             ),
-            priceLocalSubscriber: priceLocalSubscriber,
             operationManager: operationManager,
-            scamServiceOperationFactory: scamServiceOperationFactory,
+            scamInfoFetching: scamInfoFetcher,
             chainAssetFetching: chainAssetFetching,
             dependencyContainer: dependencyContainer,
             addressChainDefiner: addressChainDefiner,
-            runtimeItemRepository: AnyDataProviderRepository(runtimeMetadataRepository),
-            operationQueue: OperationQueue()
+            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository),
+            accountInfoRemoteService: accountInfoRemoteService
         )
         let router = SendRouter()
 
-        let viewModelFactory = SendViewModelFactory(iconGenerator: UniversalIconGenerator())
+        let viewModelFactory = SendViewModelFactory(
+            iconGenerator: UniversalIconGenerator(),
+            accountScoreFetcher: accountStatisticsFetcher,
+            settings: SettingsManager.shared
+        )
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
         let presenter = SendPresenter(
             interactor: interactor,
@@ -79,7 +102,6 @@ final class SendAssembly {
             localizationManager: localizationManager,
             viewModelFactory: viewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
-            qrParser: SubstrateQRParser(),
             logger: Logger.shared,
             wallet: wallet,
             initialData: initialData

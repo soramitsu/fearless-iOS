@@ -1,7 +1,8 @@
 import Foundation
 import SoraFoundation
-import SSFUtils
 import SSFModels
+import SSFQRService
+import SSFUtils
 
 final class WalletMainContainerPresenter {
     // MARK: Private properties
@@ -20,6 +21,9 @@ final class WalletMainContainerPresenter {
 
     private var selectedChains: [ChainModel]?
     private var selectedNetworkManagmentFilter: NetworkManagmentFilter?
+    private var pendingStoredRecordsNotices: [StoredWalletRecordsNotice] = []
+    private let updateSecurityNotice: UpdateSecurityNoticeTracking
+    private var isUpdateSecurityNoticeActive = false
 
     // MARK: - Constructors
 
@@ -31,6 +35,7 @@ final class WalletMainContainerPresenter {
         viewModelFactory: WalletMainContainerViewModelFactoryProtocol,
         interactor: WalletMainContainerInteractorInput,
         router: WalletMainContainerRouterInput,
+        updateSecurityNotice: UpdateSecurityNoticeTracking,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.balanceInfoModuleInput = balanceInfoModuleInput
@@ -40,6 +45,7 @@ final class WalletMainContainerPresenter {
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
         self.router = router
+        self.updateSecurityNotice = updateSecurityNotice
 
         self.localizationManager = localizationManager
     }
@@ -63,7 +69,7 @@ final class WalletMainContainerPresenter {
             do {
                 try await interactor.walletConnect(uri: uri)
             } catch {
-                await MainActor.run(body: {
+                _ = await MainActor.run(body: {
                     router.present(error: error, from: view, locale: selectedLocale)
                 })
             }
@@ -85,6 +91,11 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
         self.view = view
         interactor.setup(with: self)
         provideViewModel()
+
+        if updateSecurityNotice.isPending {
+            isUpdateSecurityNoticeActive = true
+            presentUpdateSecurityNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
+        }
     }
 
     func didTapOnSwitchWallet() {
@@ -112,6 +123,11 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
             from: view,
             wallet: wallet
         )
+    }
+
+    func didTapAccountScore() {
+        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
+        router.presentAccountScore(address: address, from: view)
     }
 }
 
@@ -161,7 +177,7 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         wallet = account
         provideViewModel()
 
-        balanceInfoModuleInput?.replace(infoType: .wallet(wallet: account))
+        balanceInfoModuleInput?.replace(infoType: .networkManagement(wallet: account))
     }
 
     func didReceiveControllerAccountIssue(issue: ControllerAccountIssue, hasStashItem: Bool) {
@@ -178,7 +194,7 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
                         wallet: issue.wallet
                     )
                 } else {
-                    strongSelf.router.showMainStaking()
+                    strongSelf.router.showMainStaking(from: strongSelf.view)
                 }
             }
         }
@@ -216,6 +232,162 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
             from: view,
             actions: [action]
         )
+    }
+
+    func didReceiveNftAvailability(isNftAvailable: Bool) {
+        view?.didReceiveNftAvailability(isNftAvailable: isNftAvailable)
+    }
+
+    func didReceiveStoredWalletRecordsNotices(_ notices: [StoredWalletRecordsNotice]) {
+        pendingStoredRecordsNotices = notices
+        presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
+    }
+}
+
+// MARK: - Stored wallet records notices
+
+private struct StoredRecordsNoticeContent {
+    let title: String
+    let message: String
+    let actions: [SheetAlertPresentableAction]
+}
+
+private enum StoredRecordsNoticeConstants {
+    static let presentationRetries = 5
+    static let retryDelay: TimeInterval = 1
+}
+
+private extension WalletMainContainerPresenter {
+    /// Shows the pending notices one after another. A notice counts as shown only once the
+    /// user has closed it; one that could not be presented stays pending for the next launch.
+    func presentNextStoredRecordsNotice(retriesLeft: Int) {
+        // The update notice goes first; these follow once it is closed.
+        guard !isUpdateSecurityNoticeActive, let notice = pendingStoredRecordsNotices.first else {
+            return
+        }
+
+        guard
+            let controller = view?.controller,
+            controller.viewIfLoaded?.window != nil,
+            controller.presentedViewController == nil
+        else {
+            guard retriesLeft > 0 else {
+                return
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + StoredRecordsNoticeConstants.retryDelay) { [weak self] in
+                self?.presentNextStoredRecordsNotice(retriesLeft: retriesLeft - 1)
+            }
+            return
+        }
+
+        // The sheet closes before its action runs, so the next screen opens once it is gone.
+        var followUp: (() -> Void)?
+        let content = storedRecordsNoticeContent(for: notice) { followUp = $0 }
+        let viewModel = SheetAlertPresentableViewModel(
+            title: content.title,
+            message: content.message,
+            actions: content.actions,
+            closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
+            dismissCompletion: { [weak self] in
+                self?.interactor.acknowledge(notice)
+                self?.pendingStoredRecordsNotices.removeAll { $0 == notice }
+
+                if let followUp {
+                    followUp()
+                } else {
+                    self?.presentNextStoredRecordsNotice(
+                        retriesLeft: StoredRecordsNoticeConstants.presentationRetries
+                    )
+                }
+            },
+            icon: R.image.iconWarningBig()
+        )
+
+        router.present(viewModel: viewModel, from: view)
+    }
+
+    /// Like the stored-record notices, it counts as shown only once the user has closed it;
+    /// one that could not be presented stays pending for the next launch.
+    func presentUpdateSecurityNotice(retriesLeft: Int) {
+        guard
+            let controller = view?.controller,
+            controller.viewIfLoaded?.window != nil,
+            controller.presentedViewController == nil
+        else {
+            guard retriesLeft > 0 else {
+                finishUpdateSecurityNotice(acknowledged: false)
+                return
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + StoredRecordsNoticeConstants.retryDelay) { [weak self] in
+                self?.presentUpdateSecurityNotice(retriesLeft: retriesLeft - 1)
+            }
+            return
+        }
+
+        let viewModel = SheetAlertPresentableViewModel.updateSecurityNotice(locale: selectedLocale) { [weak self] in
+            self?.finishUpdateSecurityNotice(acknowledged: true)
+        }
+
+        router.present(viewModel: viewModel, from: view)
+    }
+
+    func finishUpdateSecurityNotice(acknowledged: Bool) {
+        if acknowledged {
+            updateSecurityNotice.acknowledge()
+        }
+        isUpdateSecurityNoticeActive = false
+        presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
+    }
+
+    func storedRecordsNoticeContent(
+        for notice: StoredWalletRecordsNotice,
+        onAction: @escaping (@escaping () -> Void) -> Void
+    ) -> StoredRecordsNoticeContent {
+        let languages = selectedLocale.rLanguages
+
+        switch notice {
+        case let .recordsNotShown(wallets, chainAccounts):
+            let importAction = SheetAlertPresentableAction(
+                title: R.string.localizable.importWallet(preferredLanguages: languages),
+                style: .pinkBackgroundWhiteText
+            ) { [weak self] in
+                onAction {
+                    self?.router.showImportWallet(defaultSource: .mnemonic, from: self?.view)
+                }
+            }
+
+            return StoredRecordsNoticeContent(
+                title: R.string.localizable.walletRecordsSheetTitle(preferredLanguages: languages),
+                message: StoredWalletRecordsNoticeText.explanation(
+                    wallets: wallets, chainAccounts: chainAccounts, locale: selectedLocale
+                ),
+                actions: [importAction, SheetAlertPresentableAction(title: RecoveryText.string("export"), style: .pinkBackgroundWhiteText) { [weak self] in
+                    onAction { RetainedDataRestoreRouter.shared.showEmergencyMaterial(from: self?.view) }
+                }]
+            )
+        case let .storedChainAccounts(walletIds, walletNames):
+            var actions: [SheetAlertPresentableAction] = []
+            if walletIds.contains(wallet.metaId) {
+                let detailsAction = SheetAlertPresentableAction(
+                    title: R.string.localizable.walletChainAccountsNoticeAction(preferredLanguages: languages),
+                    style: .pinkBackgroundWhiteText
+                ) { [weak self] in
+                    onAction {
+                        guard let self else { return }
+                        self.router.showWalletDetails(from: self.view, wallet: self.wallet)
+                    }
+                }
+                actions.append(detailsAction)
+            }
+
+            return StoredRecordsNoticeContent(
+                title: R.string.localizable.walletChainAccountsNoticeTitle(preferredLanguages: languages),
+                message: R.string.localizable.walletChainAccountsNoticeMessage(
+                    walletNames.joined(separator: ", "), preferredLanguages: languages
+                ),
+                actions: actions
+            )
+        }
     }
 }
 
@@ -258,7 +430,7 @@ extension WalletMainContainerPresenter: ScanQRModuleOutput {
                 wallet: wallet,
                 initialData: .init(qrInfoType: qrInfoType)
             )
-        case let .uri(uri):
+        case let .walletConnect(uri):
             walletConnect(with: uri)
         }
     }

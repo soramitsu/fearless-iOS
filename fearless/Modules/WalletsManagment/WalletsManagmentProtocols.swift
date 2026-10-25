@@ -3,6 +3,7 @@ typealias WalletsManagmentModuleCreationResult = (view: WalletsManagmentViewInpu
 
 protocol WalletsManagmentViewInput: ControllerBackedProtocol {
     func didReceiveViewModels(_ viewModels: [WalletsManagmentCellViewModel])
+    func didReceiveRecordsNotice(_ notice: String?)
 }
 
 protocol WalletsManagmentViewOutput: AnyObject {
@@ -12,6 +13,8 @@ protocol WalletsManagmentViewOutput: AnyObject {
     func didTapOptions(for indexPath: IndexPath)
     func didTapClose()
     func didTap(on indexPath: IndexPath)
+    func didTapAccountScore(address: String?)
+    func didTapRecordsNotice()
 }
 
 protocol WalletsManagmentInteractorInput: AnyObject {
@@ -26,9 +29,10 @@ protocol WalletsManagmentInteractorOutput: AnyObject {
     func didReceive(error: Error)
     func didCompleteSelection()
     func didReceiveFeatureToggleConfig(result: Result<FeatureToggleConfig, Error>?)
+    func didReceiveWalletRecordsReport(_ report: StoredWalletRecordsReport)
 }
 
-protocol WalletsManagmentRouterInput: SheetAlertPresentable, ErrorPresentable {
+protocol WalletsManagmentRouterInput: SheetAlertPresentable, ErrorPresentable, AccountScorePresentable {
     func showOptions(
         from view: WalletsManagmentViewInput?,
         metaAccount: ManagedMetaAccountModel,

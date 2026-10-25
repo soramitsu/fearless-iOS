@@ -371,13 +371,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             self?.presentable.presentPoolRootUnbondingTooHigh(
                 minimalBond: amountWithSymbolString,
                 from: view,
-                locale: locale,
-                action: {
-                    if let webPresentable = self?.presentable as? WebPresentable,
-                       let url = URL(string: URLConstants.polkadotJsPlus) {
-                        webPresentable.showWeb(url: url, from: view, style: .automatic)
-                    }
-                }
+                locale: locale
             )
         }, preservesCondition: {
             if let amount = amount,

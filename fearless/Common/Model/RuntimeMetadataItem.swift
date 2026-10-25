@@ -1,3 +1,4 @@
+import CoreData
 import Foundation
 import RobinHood
 import SSFUtils
@@ -52,3 +53,58 @@ extension RuntimeMetadataItem: Identifiable {
 }
 
 extension RuntimeMetadataItem: RuntimeMetadataItemProtocol {}
+
+/// Keeps the generic Codable mapper's valid serialization behavior while
+/// converting damaged Core Data getter exceptions into a catchable,
+/// payload-free Swift error during runtime hot boot.
+final class RuntimeMetadataMapper: CoreDataMapperProtocol {
+    typealias DataProviderModel = RuntimeMetadataItem
+    typealias CoreDataEntity = CDRuntimeMetadataItem
+
+    private let mapper =
+        CodableCoreDataMapper<
+            RuntimeMetadataItem,
+            CDRuntimeMetadataItem
+        >()
+
+    var entityIdentifierFieldName: String {
+        mapper.entityIdentifierFieldName
+    }
+
+    func transform(
+        entity: CDRuntimeMetadataItem
+    ) throws -> RuntimeMetadataItem {
+        var item: RuntimeMetadataItem?
+
+        try SafeObjectiveCExceptionBoundary.perform {
+            item = try self.mapper.transform(entity: entity)
+        }
+
+        guard let item else {
+            throw SafeTransformableValueReaderError
+                .objectiveCException
+        }
+
+        return item
+    }
+
+    func populate(
+        entity: CDRuntimeMetadataItem,
+        from model: RuntimeMetadataItem,
+        using context: NSManagedObjectContext
+    ) throws {
+        try SafeObjectiveCExceptionBoundary.perform {
+            try self.mapper.populate(
+                entity: entity,
+                from: model,
+                using: context
+            )
+        }
+    }
+
+    func dict(
+        for model: RuntimeMetadataItem
+    ) throws -> [String: Any] {
+        try mapper.dict(for: model)
+    }
+}

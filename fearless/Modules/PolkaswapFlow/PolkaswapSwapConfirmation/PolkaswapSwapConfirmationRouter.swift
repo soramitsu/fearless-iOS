@@ -9,8 +9,6 @@ final class PolkaswapSwapConfirmationRouter: PolkaswapSwapConfirmationRouterInpu
         chainAsset: ChainAsset,
         completeClosure: (() -> Void)?
     ) {
-        let presenter = view?.controller.navigationController?.presentingViewController
-
         if let controller = AllDoneAssembly.configureModule(chainAsset: chainAsset, hashString: hashString, closure: {
             completeClosure?()
             view?.controller.navigationController?.popViewController(animated: true)

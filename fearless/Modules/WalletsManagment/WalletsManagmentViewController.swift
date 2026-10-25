@@ -60,6 +60,7 @@ final class WalletsManagmentViewController: UIViewController, ViewHolder {
         rootView.addNewWalletButton.addTarget(self, action: #selector(addNewWalletTapped), for: .touchUpInside)
         rootView.importWalletButton.addTarget(self, action: #selector(importWalletTapped), for: .touchUpInside)
         rootView.backButton.addTarget(self, action: #selector(closeDidTapped), for: .touchUpInside)
+        rootView.recordsNoticeView.addTarget(self, action: #selector(recordsNoticeTapped), for: .touchUpInside)
     }
 
     // MARK: - Actions
@@ -75,6 +76,10 @@ final class WalletsManagmentViewController: UIViewController, ViewHolder {
     @objc private func closeDidTapped() {
         output.didTapClose()
     }
+
+    @objc private func recordsNoticeTapped() {
+        output.didTapRecordsNotice()
+    }
 }
 
 // MARK: - WalletsManagmentViewInput
@@ -82,6 +87,10 @@ final class WalletsManagmentViewController: UIViewController, ViewHolder {
 extension WalletsManagmentViewController: WalletsManagmentViewInput {
     func didReceiveViewModels(_ viewModels: [WalletsManagmentCellViewModel]) {
         self.viewModels = viewModels
+    }
+
+    func didReceiveRecordsNotice(_ notice: String?) {
+        rootView.bind(recordsNotice: notice)
     }
 }
 
@@ -137,5 +146,9 @@ extension WalletsManagmentViewController: WalletsManagmentTableCellDelegate {
             return
         }
         output.didTapOptions(for: indexPath)
+    }
+
+    func didTapAccountScore(address: String?) {
+        output.didTapAccountScore(address: address)
     }
 }

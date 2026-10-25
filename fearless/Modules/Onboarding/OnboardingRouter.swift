@@ -5,7 +5,10 @@ final class OnboardingRouter: OnboardingRouterInput {
     private lazy var navigationController = FearlessNavigationController()
 
     func showMain() {
-        guard let mainViewController = MainTabBarViewFactory.createView()?.controller else {
+        let presentingWindow = SceneWindowFinder.statusPresentableWindow()
+        guard let mainViewController = MainTabBarViewFactory
+            .createView(presentingWindow: presentingWindow)?
+            .controller else {
             return
         }
 

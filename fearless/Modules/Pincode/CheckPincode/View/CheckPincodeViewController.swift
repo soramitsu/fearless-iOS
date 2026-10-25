@@ -49,6 +49,20 @@ final class CheckPincodeViewController: UIViewController, ViewHolder, Localizabl
 }
 
 extension CheckPincodeViewController: PinSetupViewProtocol {
+    func didFailSavingPin() {
+        didStopLoading()
+        let languages = localizationManager?.selectedLocale.rLanguages
+        let alert = UIAlertController(
+            title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: languages),
+            message: R.string.localizable.pincodeSaveFailed(preferredLanguages: languages),
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(
+            title: R.string.localizable.commonOk(preferredLanguages: languages), style: .default
+        ))
+        present(alert, animated: true)
+    }
+
     func didRequestBiometryUsage(biometryType: AvailableBiometryType, completionBlock: @escaping (Bool) -> Void) {
         var title: String?
         var message: String?
@@ -72,14 +86,14 @@ extension CheckPincodeViewController: PinSetupViewProtocol {
         let useAction = UIAlertAction(
             title: R.string.localizable.commonUse(preferredLanguages: languages),
             style: .default
-        ) { (_: UIAlertAction) -> Void in
+        ) { (_: UIAlertAction) in
             completionBlock(true)
         }
 
         let skipAction = UIAlertAction(
             title: R.string.localizable.commonSkip(preferredLanguages: languages),
             style: .cancel
-        ) { (_: UIAlertAction) -> Void in
+        ) { (_: UIAlertAction) in
             completionBlock(false)
         }
 

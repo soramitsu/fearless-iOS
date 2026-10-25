@@ -3,7 +3,9 @@ import SoraFoundation
 import SoraKeystore
 import RobinHood
 import SSFModels
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol {
     static func createView(
@@ -95,7 +97,6 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
@@ -105,20 +106,11 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
 
         let feeProxy = ExtrinsicFeeProxy()
 
-        let facade = UserDataStorageFacade.shared
-
-        let mapper = MetaAccountMapper()
-
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         return StakingRebondSetupInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedAccount
@@ -131,7 +123,7 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
             selectedAccount: selectedAccount,
             connection: connection,
             extrinsicService: extrinsicService,
-            accountRepository: AnyDataProviderRepository(accountRepository),
+            accountRepository: accountRepository,
             callFactory: callFactory
         )
     }

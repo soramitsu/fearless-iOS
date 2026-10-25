@@ -26,6 +26,7 @@ final class WalletDetailsViewLayout: UIView {
         return searchTextField
     }()
 
+    let container = UIView()
     let tableView: UITableView = {
         let view = UITableView(frame: .zero, style: .grouped)
         view.backgroundColor = R.color.colorBlack19()
@@ -133,14 +134,19 @@ private extension WalletDetailsViewLayout {
             make.top.equalTo(walletView.snp.bottom).offset(UIConstants.defaultOffset)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.height.equalTo(48)
+            make.height.greaterThanOrEqualTo(48)
         }
 
-        addSubview(tableView)
-        tableView.snp.makeConstraints { make in
+        addSubview(container)
+        container.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.top.equalTo(searchTextField.snp.bottom).offset(UIConstants.bigOffset)
             keyboardAdoptableConstraint = make.bottom.equalTo(safeAreaLayoutGuide).constraint
+        }
+
+        container.addSubview(tableView)
+        tableView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
 
         addSubview(exportButton)

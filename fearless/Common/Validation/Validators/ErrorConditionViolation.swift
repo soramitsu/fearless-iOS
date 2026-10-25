@@ -22,3 +22,26 @@ final class ErrorConditionViolation: DataValidating {
         return .error
     }
 }
+
+final class ErrorThrowingViolation: DataValidating {
+    private let preservesCondition: () -> String?
+    private let onError: (_ text: String) -> Void
+
+    init(
+        onError: @escaping (_ text: String) -> Void,
+        preservesCondition: @escaping () -> String?
+    ) {
+        self.preservesCondition = preservesCondition
+        self.onError = onError
+    }
+
+    func validate(notifying _: DataValidatingDelegate) -> DataValidationProblem? {
+        guard let textError = preservesCondition() else {
+            return nil
+        }
+
+        onError(textError)
+
+        return .error
+    }
+}

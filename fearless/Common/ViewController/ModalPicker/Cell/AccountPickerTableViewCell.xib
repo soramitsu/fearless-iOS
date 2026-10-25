@@ -9,7 +9,7 @@
     </dependencies>
     <customFonts key="customFonts">
         <array key="sora-Regular.otf">
-            <string>sora-rc004-0417-Regular</string>
+            <string>Sora-Regular</string>
         </array>
     </customFonts>
     <objects>
@@ -32,7 +32,7 @@
                     </view>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Russel" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KGM-0W-CuT">
                         <rect key="frame" x="64" y="18.5" width="293" height="18"/>
-                        <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
+                        <fontDescription key="fontDescription" name="Sora-Regular" family="Sora" pointSize="14"/>
                         <color key="textColor" name="colorWhite"/>
                         <nil key="highlightedColor"/>
                     </label>

@@ -10,7 +10,7 @@
     </dependencies>
     <customFonts key="customFonts">
         <array key="sora-Bold.otf">
-            <string>sora-rc004-0417-Bold</string>
+            <string>Sora-Bold</string>
         </array>
     </customFonts>
     <objects>
@@ -44,7 +44,7 @@
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Staking" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ypp-bS-mpc">
                                             <rect key="frame" x="16" y="14" width="310" height="38"/>
-                                            <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="30"/>
+                                            <fontDescription key="fontDescription" name="Sora-Bold" family="Sora" pointSize="30"/>
                                             <color key="textColor" name="colorWhite"/>
                                             <nil key="highlightedColor"/>
                                         </label>

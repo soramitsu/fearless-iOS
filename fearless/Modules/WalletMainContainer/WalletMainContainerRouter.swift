@@ -76,21 +76,6 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
         view?.controller.navigationController?.present(module.view.controller, animated: true)
     }
 
-    func showIssueNotification(
-        from view: WalletMainContainerViewInput?,
-        issues: [ChainIssue],
-        wallet: MetaAccountModel
-    ) {
-        guard let module = NetworkIssuesNotificationAssembly.configureModule(
-            wallet: wallet,
-            issues: issues
-        ) else {
-            return
-        }
-
-        view?.controller.present(module.view.controller, animated: true)
-    }
-
     func showSendFlow(
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
@@ -120,9 +105,31 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showMainStaking() {
-        if let tabBar = UIApplication.shared.keyWindow?.rootViewController as? MainTabBarViewController? {
-            tabBar?.selectedIndex = 2
+    func showMainStaking(from view: WalletMainContainerViewInput?) {
+        guard
+            let tabBar = view?.controller.tabBarController as? MainTabBarViewController
+        else {
+            return
         }
+
+        tabBar.select(destination: .defi)
+
+        guard
+            let navigationController = tabBar.selectedViewController as? UINavigationController,
+            let defiHub = navigationController.viewControllers.first as? DeFiHubViewController
+        else {
+            return
+        }
+
+        defiHub.showStaking()
+    }
+
+    func showWalletDetails(from view: WalletMainContainerViewInput?, wallet: MetaAccountModel) {
+        let module = WalletDetailsViewFactory.createView(flow: .normal(wallet: wallet))
+        let navigationController = FearlessNavigationController(
+            rootViewController: module.controller
+        )
+
+        view?.controller.present(navigationController, animated: true)
     }
 }

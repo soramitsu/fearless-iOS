@@ -74,7 +74,7 @@
 			<string>%li Zaman</string>
 		</dict>
 	</dict>
-	<key>verification.rejected.screen.attempts.left</key>
+	<key>wallet.records.notice.wallets</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@format@</string>
@@ -84,8 +84,58 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>li</string>
+			<key>one</key>
+			<string>%li dompet tersimpan tidak dapat ditampilkan</string>
 			<key>other</key>
-			<string>Anda memiliki %li upaya KYC gratis lagi</string>
+			<string>%li dompet tersimpan tidak dapat ditampilkan</string>
+		</dict>
+	</dict>
+	<key>wallet.records.notice.accounts</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@format@</string>
+		<key>format</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>li</string>
+			<key>one</key>
+			<string>%li akun jaringan tidak dapat digunakan</string>
+			<key>other</key>
+			<string>%li akun jaringan tidak dapat digunakan</string>
+		</dict>
+	</dict>
+	<key>wallet.records.sheet.wallets</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@format@</string>
+		<key>format</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>li</string>
+			<key>one</key>
+			<string>%li dompet yang tersimpan di perangkat ini tidak dapat ditampilkan dalam versi Fearless ini.</string>
+			<key>other</key>
+			<string>%li dompet yang tersimpan di perangkat ini tidak dapat ditampilkan dalam versi Fearless ini.</string>
+		</dict>
+	</dict>
+	<key>wallet.records.sheet.accounts</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@format@</string>
+		<key>format</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>li</string>
+			<key>one</key>
+			<string>%li akun jaringan yang tersimpan di dompet Anda tidak dapat digunakan. Dompet yang menyimpan akun tersebut tetap tersedia dan menggunakan akun miliknya sendiri di jaringan tersebut.</string>
+			<key>other</key>
+			<string>%li akun jaringan yang tersimpan di dompet Anda tidak dapat digunakan. Dompet yang menyimpan akun-akun tersebut tetap tersedia dan menggunakan akun miliknya sendiri di jaringan terkait.</string>
 		</dict>
 	</dict>
 </dict>

@@ -44,16 +44,16 @@
                                 <userDefinedRuntimeAttribute type="number" keyPath="_rightInset">
                                     <real key="value" value="16"/>
                                 </userDefinedRuntimeAttribute>
-                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Regular"/>
+                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="Sora-Regular"/>
                                 <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
                                     <real key="value" value="12"/>
                                 </userDefinedRuntimeAttribute>
-                                <userDefinedRuntimeAttribute type="string" keyPath="_placeholderFontName" value="sora-rc004-0417-Regular"/>
+                                <userDefinedRuntimeAttribute type="string" keyPath="_placeholderFontName" value="Sora-Regular"/>
                                 <userDefinedRuntimeAttribute type="number" keyPath="_placeholderFontSize">
                                     <real key="value" value="14"/>
                                 </userDefinedRuntimeAttribute>
                                 <userDefinedRuntimeAttribute type="string" keyPath="title" value="Node address"/>
-                                <userDefinedRuntimeAttribute type="string" keyPath="_textFontName" value="sora-rc004-0417-Regular"/>
+                                <userDefinedRuntimeAttribute type="string" keyPath="_textFontName" value="Sora-Regular"/>
                                 <userDefinedRuntimeAttribute type="number" keyPath="_textFontSize">
                                     <real key="value" value="14"/>
                                 </userDefinedRuntimeAttribute>
@@ -151,16 +151,16 @@
                                 <userDefinedRuntimeAttribute type="number" keyPath="_rightInset">
                                     <real key="value" value="16"/>
                                 </userDefinedRuntimeAttribute>
-                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Regular"/>
+                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="Sora-Regular"/>
                                 <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
                                     <real key="value" value="12"/>
                                 </userDefinedRuntimeAttribute>
-                                <userDefinedRuntimeAttribute type="string" keyPath="_placeholderFontName" value="sora-rc004-0417-Regular"/>
+                                <userDefinedRuntimeAttribute type="string" keyPath="_placeholderFontName" value="Sora-Regular"/>
                                 <userDefinedRuntimeAttribute type="number" keyPath="_placeholderFontSize">
                                     <real key="value" value="14"/>
                                 </userDefinedRuntimeAttribute>
                                 <userDefinedRuntimeAttribute type="string" keyPath="title" value="Name"/>
-                                <userDefinedRuntimeAttribute type="string" keyPath="_textFontName" value="sora-rc004-0417-Regular"/>
+                                <userDefinedRuntimeAttribute type="string" keyPath="_textFontName" value="Sora-Regular"/>
                                 <userDefinedRuntimeAttribute type="number" keyPath="_textFontSize">
                                     <real key="value" value="14"/>
                                 </userDefinedRuntimeAttribute>
@@ -224,11 +224,11 @@
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="string" keyPath="title" value="Kusama"/>
                         <userDefinedRuntimeAttribute type="string" keyPath="subtitle" value="Schnorrkel sr25519 (recommended) "/>
-                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Regular"/>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="Sora-Regular"/>
                         <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
                             <real key="value" value="12"/>
                         </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="string" keyPath="_subtitleFontName" value="sora-rc004-0417-Regular"/>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_subtitleFontName" value="Sora-Regular"/>
                         <userDefinedRuntimeAttribute type="number" keyPath="_subtitleFontSize">
                             <real key="value" value="14"/>
                         </userDefinedRuntimeAttribute>

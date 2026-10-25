@@ -6,9 +6,3 @@ protocol ProfileUserViewModelProtocol {
     var details: String { get }
     var icon: DrawableIcon? { get }
 }
-
-struct ProfileUserViewModel: ProfileUserViewModelProtocol {
-    let name: String
-    let details: String
-    let icon: DrawableIcon?
-}

@@ -2,6 +2,8 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SSFUtils
+import SSFNetwork
+import SoraKeystore
 
 final class WalletMainContainerAssembly {
     static func configureModule(
@@ -16,22 +18,6 @@ final class WalletMainContainerAssembly {
 
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: []
-        )
-
-        let missingAccountHelper = MissingAccountFetcher(
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
-        let userRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared
-        )
-
-        let accountInfoRepository = userRepositoryFactory.createAccountInfoStorageItemRepository()
-        let accountInfoFetcher = AccountInfoFetching(
-            accountInfoRepository: AnyDataProviderRepository(accountInfoRepository),
-            chainRegistry: chainRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
         let storageOperationFactory = StorageRequestFactory(
@@ -49,6 +35,15 @@ final class WalletMainContainerAssembly {
             walletRepository: AnyDataProviderRepository(accountRepository),
             stashItemRepository: substrateRepositoryFactory.createStashItemRepository()
         )
+        let accountScoreFetcher = NomisAccountStatisticsFetcher(
+            networkWorker: NetworkWorkerDefault(),
+            signer: NomisRequestSigner()
+        )
+
+        let featureToggleProvider = FeatureToggleProvider(
+            networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
+            operationQueue: OperationQueue()
+        )
 
         let interactor = WalletMainContainerInteractor(
             accountRepository: AnyDataProviderRepository(accountRepository),
@@ -58,7 +53,11 @@ final class WalletMainContainerAssembly {
             eventCenter: EventCenter.shared,
             deprecatedAccountsCheckService: deprecatedAccountsCheckService,
             applicationHandler: ApplicationHandler(),
-            walletConnectService: walletConnect
+            walletConnectService: walletConnect,
+            featureToggleService: featureToggleProvider,
+            walletRecordsInspector: AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+                .createStoredWalletRecordsInspector(),
+            walletRecordsNoticeTracker: StoredWalletRecordsNoticeTracker(settings: SettingsManager.shared)
         )
 
         let router = WalletMainContainerRouter()
@@ -71,14 +70,19 @@ final class WalletMainContainerAssembly {
             return nil
         }
 
+        let viewModelFactory = WalletMainContainerViewModelFactory(
+            accountScoreFetcher: accountScoreFetcher,
+            settings: SettingsManager.shared
+        )
         let presenter = WalletMainContainerPresenter(
             balanceInfoModuleInput: balanceInfoModule.input,
             assetListModuleInput: assetListModule.input,
             nftModuleInput: nftModule.input,
             wallet: wallet,
-            viewModelFactory: WalletMainContainerViewModelFactory(),
+            viewModelFactory: viewModelFactory,
             interactor: interactor,
             router: router,
+            updateSecurityNotice: UpdateSecurityNoticeTracker(settings: SettingsManager.shared),
             localizationManager: localizationManager
         )
 
@@ -97,7 +101,7 @@ final class WalletMainContainerAssembly {
     private static func configureBalanceInfoModule(
         wallet: MetaAccountModel
     ) -> BalanceInfoModuleCreationResult? {
-        BalanceInfoAssembly.configureModule(with: .wallet(wallet: wallet))
+        BalanceInfoAssembly.configureModule(with: .networkManagement(wallet: wallet))
     }
 
     private static func configureAssetListModule(

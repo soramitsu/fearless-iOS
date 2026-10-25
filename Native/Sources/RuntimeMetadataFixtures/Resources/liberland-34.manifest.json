@@ -1,0 +1,85 @@
+{
+  "chain": "Liberland",
+  "genesisHash": "0x6bd89e052d67a45bb60a9a23e8581053d5e0d619f15cb9865946937e690c42d6",
+  "specVersion": 34,
+  "fetched": "2026-10-24",
+  "source": "state_getMetadata (V14)",
+  "sourceBytes": 256552,
+  "sourceSha256": "f2ab92748611c65c351fa9ec0b0de0f11644d71115210b7c927cd1c97fb71943",
+  "fixtureBytes": 1751,
+  "fixtureSha256": "745622f21bba69959a48ffc6689fa8e2b9997b3f0204e233886cb21c1d8e0b79",
+  "typeCount": {
+    "source": 750,
+    "fixture": 21
+  },
+  "pallets": [
+    {
+      "name": "SoraBridgeApp",
+      "moduleIndex": 81,
+      "calls": [
+        {
+          "name": "mint",
+          "index": 0,
+          "position": 0,
+          "fields": [
+            "asset_id",
+            "sender",
+            "recipient",
+            "amount"
+          ]
+        },
+        {
+          "name": "finalize_asset_registration",
+          "index": 1,
+          "position": 1,
+          "fields": [
+            "asset_id",
+            "sidechain_asset_id",
+            "asset_kind",
+            "sidechain_precision"
+          ]
+        },
+        {
+          "name": "incoming_thischain_asset_registration",
+          "index": 2,
+          "position": 2,
+          "fields": [
+            "asset_id",
+            "sidechain_asset_id"
+          ]
+        },
+        {
+          "name": "burn",
+          "index": 3,
+          "position": 3,
+          "fields": [
+            "network_id",
+            "asset_id",
+            "recipient",
+            "amount"
+          ]
+        },
+        {
+          "name": "register_sidechain_asset",
+          "index": 4,
+          "position": 4,
+          "fields": [
+            "network_id",
+            "sidechain_asset",
+            "symbol",
+            "name"
+          ]
+        },
+        {
+          "name": "update_transaction_status",
+          "index": 5,
+          "position": 5,
+          "fields": [
+            "message_id",
+            "message_status"
+          ]
+        }
+      ]
+    }
+  ]
+}

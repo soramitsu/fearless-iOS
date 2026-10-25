@@ -12,14 +12,12 @@ final class SelectAssetAssembly {
         searchTextsViewModel: TextSearchViewModel?,
         output: SelectAssetModuleOutput,
         contextTag: Int? = nil,
-        isFullSize: Bool = false
+        isFullSize: Bool = false,
+        isEmbed: Bool = false
     ) -> SelectAssetModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
-
-        let assetRepository = SubstrateDataStorageFacade.shared.createRepository(
-            mapper: AnyCoreDataMapper(AssetModelMapper())
-        )
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
@@ -36,15 +34,10 @@ final class SelectAssetAssembly {
             selectedMetaAccount: wallet
         )
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
         let interactor = SelectAssetInteractor(
             chainAssetFetching: chainAssetFetching,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-            priceLocalSubscriber: priceLocalSubscriber,
-            assetRepository: AnyDataProviderRepository(assetRepository),
             chainAssets: chainAssets,
-            operationQueue: operationQueue,
             wallet: wallet
         )
         let router = SelectAssetRouter()
@@ -67,7 +60,8 @@ final class SelectAssetAssembly {
         let view = SelectAssetViewController(
             isFullSize: isFullSize,
             output: presenter,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            embed: isEmbed
         )
         if !isFullSize {
             view.modalPresentationStyle = .custom

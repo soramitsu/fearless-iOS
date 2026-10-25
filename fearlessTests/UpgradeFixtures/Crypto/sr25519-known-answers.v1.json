@@ -1,0 +1,714 @@
+{
+ "format": "fearless.ios.sr25519-known-answers",
+ "version": 1,
+ "warning": "Every secret in this file is a published test vector. Never fund these wallets.",
+ "generatedBy": "scripts/deps/sr25519-provenance/cross-check-slices.py",
+ "writer": {
+  "description": "Stored keys and 'shipped' signatures were produced by the device slice of sr25519lib.xcframework at the shared-features-spm revision that fearless-iOS tag 4.0.4 pins, executed in an arm64 simulator process.",
+  "sharedFeaturesRevision": "53e0a4bbea854ab32e97392365c3e523b9a0dc66",
+  "deviceSliceSha256": "5a8a6a2cf08ffa66f071d4cefab159d51de8a49842bcd44f479b765f901c8886"
+ },
+ "reference": {
+  "@polkadot/keyring": "14.0.3",
+  "@polkadot/util-crypto": "14.0.3",
+  "@scure/sr25519": "0.2.0",
+  "goldenWalletsSha256": "73be6c57484ebec9370e444680c06a62de37892fcec32e7f5cf3f26653f28f9d",
+  "androidParityKeypairsSha256": "e100e551893ac690b10f5d8788c885b74d0034b5a79a574a31e68b37addfcc8d",
+  "androidParityKeystoresSha256": "e2341a3fadcc1b189f19df0309d568a36909ef81b2a6c19905d20e492c2148a4"
+ },
+ "signingContext": "substrate",
+ "messages": {
+  "empty": "",
+  "text": "466561726c6573732073723235353139206b6e6f776e20616e73776572",
+  "payloadHash": "9a3f6f3c8f5d0c1e2b4a6978504132241c0e7f6a5b4c3d2e1f00112233445566",
+  "longPayload": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b"
+ },
+ "wallets": [
+  {
+   "id": "GW-M1/root",
+   "golden": "GW-M1",
+   "import": "mnemonic",
+   "mnemonic": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+   "derivationPath": "",
+   "miniSecret": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "nonceDeterministic": true,
+   "stored": {
+    "substrateSecretKey": "2ec306fc1c5bc2f0e3a2c7a6ec6014ca4a0823a7d7d42ad5e9d7f376a1c36c0d14a2ddb1ef1df4adba49f3a4d8c0f6205117907265f09a53ccf07a4e8616dfd8",
+    "substratePublicKey": "66933bd1f37070ef87bd1198af3dacceb095237f803f3d32b173e6b425ed7972"
+   },
+   "ss58": {
+    "0": "13KVd4f2a4S5pLp4gTTFezyXdPWx27vQ9vS6xBXJ9yWVd7xo",
+    "2": "Etp93jqLeBY8TczVXDJQoWNvMoY8VBSXoYNBYou5ghUBeC1",
+    "42": "5EPCUjPxiHAcNooYipQFWr9NmmXJKpNG5RhcntXwbtUySrgH"
+   },
+   "goldenChecks": [
+    "GW-M1/sr25519/root/publicKey",
+    "GW-M1/sr25519/root/ss58-0",
+    "GW-M1/sr25519/root/ss58-2",
+    "GW-M1/sr25519/root/ss58-42"
+   ],
+   "signatures": [
+    {
+     "message": "empty",
+     "writer": "shipped",
+     "signature": "d48a9ab16ed3e47fd21c23c430e1a54c24b93a4c3ee9655801041649ac82e625e265439bcf2fe4c66ad5e11b4ede2c8427d69a64b78d97d07f21d6ba5bb72f8c"
+    },
+    {
+     "message": "text",
+     "writer": "shipped",
+     "signature": "9c63d5241dec5827af820cfa5730c2c334b76bd8e218c35a99c638e6c974e235d08bff61a543b46aa507d1e09236c9e91363d3efcc5be46dd1cd5f6b00b9158a"
+    },
+    {
+     "message": "payloadHash",
+     "writer": "shipped",
+     "signature": "82f92279ca8f3128d12dedce6ffe328aa118cd178415f8008ae97e013d4032442663d6ec71ef2479c8d815152beaa33a781c6b1ef30b7a7d780e5f6cd844358a"
+    },
+    {
+     "message": "longPayload",
+     "writer": "shipped",
+     "signature": "42a5371d9632f57fbbba521deb61bd3f95bf612f4f733bec2492fc5cb8d5f5241498044e81865e0fe9eaf20e666e0561c8e39d377421922a3d78b14e2c8b5c82"
+    },
+    {
+     "message": "empty",
+     "writer": "reference",
+     "signature": "1a2defce0430f640dcd3e47b46f02e389057836aa7dda5b86eaa979dd5428450f7ca2aad9baa4fc7e7d192c5beb64b28fdb9764b3f3792beddf98f8f4f3af38d"
+    },
+    {
+     "message": "text",
+     "writer": "reference",
+     "signature": "c4fc63b37360871f5a082a056f603adde0cf15dea8e3ef50efb96b18124dc60063f796a1ac9b64a1821e39a71d497396a64addb44a7b654c91ea175f0f4ad08b"
+    },
+    {
+     "message": "payloadHash",
+     "writer": "reference",
+     "signature": "f49718d5f6b6228d8dc41b9cb19c570bf93ec92a42435139fdd8c468953de63d29992a2902d756d08fcb1b41dd51975a9b6a96b9a3fabd784272a87018395b8b"
+    },
+    {
+     "message": "longPayload",
+     "writer": "reference",
+     "signature": "1c7368744f334b3a8a70bac88fa78a409e4b429ff6b9bd21c2f9f9d9ac19dd5baffd5a5e193d85894d20043de1b4e36ab51c56550c59584e5c47589a5fc02689"
+    }
+   ]
+  },
+  {
+   "id": "GW-M4/hard-password",
+   "golden": "GW-M4",
+   "import": "mnemonic",
+   "mnemonic": "legal winner thank year wave sausage worth useful legal winner thank yellow",
+   "derivationPath": "//polkadot//0///p@ss",
+   "miniSecret": "4d5b6df428f7b1877853e4b40c53f025bdfde90031fafc220acbd03539eb0a99",
+   "nonceDeterministic": true,
+   "stored": {
+    "substrateSecretKey": "935109c90c9ac6ce9665073b94ecb68e8540398f47b6eb271dbfaf66aeec1208022e119a55d7c8308de1eda9cf421ea042858db3ee5f91a58bef5ab69f841878",
+    "substratePublicKey": "42553f1a8a44bd93a8412a09320f8c85b14c124ce3b8a82dcbabf4a866cc731d"
+   },
+   "ss58": {
+    "0": "12VyV4omniN6N6sVAifzHsQyYvEtvwNeZ7ZtBZRcVo8YuVLg",
+    "2": "E5J13taZJ7YgDgQynS33fwpqtXV3Jdgvzg9QviDRWKXU8eo",
+    "42": "5DZgLjYhvw6cvZryD5cz9iaphJFFEdpWUcqQ2GSFwi72j1eG"
+   },
+   "goldenChecks": [
+    "GW-M4/sr25519/hard-password/publicKey",
+    "GW-M4/sr25519/hard-password/ss58-0"
+   ],
+   "signatures": [
+    {
+     "message": "empty",
+     "writer": "shipped",
+     "signature": "a6c35e0dcd61851d053df6f864c1bf0a52cc4c8485dbffb1001dfdac6e9bf677b60f7d6ff61dfcfb0bf9cebc119b1b7805eabb977d438d77ae25e944a37aad83"
+    },
+    {
+     "message": "text",
+     "writer": "shipped",
+     "signature": "44edb5441b2ea877bbfb3f1224c07531b27e1b1f215aa6793b0a02ab099a85796ea6593b25a6ced28e882f2566032d35f915dee0a6ac4868b0a80fa7dfc8c48e"
+    },
+    {
+     "message": "payloadHash",
+     "writer": "shipped",
+     "signature": "faacefe0cdca4ef979ab6179969c66498955096a905b0da47c0711c2880a112aa58b1ab689c4d540e6767a39af554eb7cf48d326d88a7b55e909ecc8c0462a8b"
+    },
+    {
+     "message": "longPayload",
+     "writer": "shipped",
+     "signature": "60da783cc5d5c886bd57950254c888fdb1c44ec336c3868f555e78d508c45202376cf34c4412e17208ab2d4056de8b7d58c1d796c1af5c4063afb99f1849af84"
+    },
+    {
+     "message": "empty",
+     "writer": "reference",
+     "signature": "620e3176c4586381b257add214b804f602e7f3ea14939408ac127bb6c6eb955d0c56c6f2c07036dec9659c7cfa14855dac91eb67ab10ec6d6b4601eca5c6408a"
+    },
+    {
+     "message": "text",
+     "writer": "reference",
+     "signature": "ba4a38900107266adb890d21a74930190ea3b43ab296a1832f54d890455b4008dec365b1135ff9a33fe2bf0866a9250951e9896ef91a2e4dd05551ff716f4a82"
+    },
+    {
+     "message": "payloadHash",
+     "writer": "reference",
+     "signature": "c6474be853a345ce01079665fa1cf8d6af9c19200db471e9bae50f8d2ccf9f68df5303eb250ba84dffb4a420634c682fe723153078cdd2251cedc81e2f4a5e8d"
+    },
+    {
+     "message": "longPayload",
+     "writer": "reference",
+     "signature": "7278b8cac6bac266f8d9ae17a7db2761c21b03515d8b102bc938cc9f6d75720c4381e02abea568c63a2e7d8928038ef1a36f1d0ffa4224eb7450f658a3b4f684"
+    }
+   ]
+  },
+  {
+   "id": "GW-M5/hard-soft",
+   "golden": "GW-M5",
+   "import": "mnemonic",
+   "mnemonic": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+   "derivationPath": "//polkadot/0",
+   "miniSecret": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "nonceDeterministic": false,
+   "stored": {
+    "substrateSecretKey": "78d4d9285d2c5b951b9cd593ddb8498b91af52f7161cede47d44a8076cd0560cca9123474f0ac4a8ccaa7a7c6edc4baed615831b3c5a142eb195b4a0d60c71f8",
+    "substratePublicKey": "c2cb78846562cdbf41fcd022f38316e050829010e4805a2658b8e0a59eb3312b"
+   },
+   "ss58": {
+    "0": "15QQjX54qES39Qp8cGuNrmNQn6sPH9Zon2kc91PK49gyWiZN",
+    "2": "GyjFW9sbpBVTXd4RLfRcZuG559yPWpr9ursNNfuyrsx5VQa",
+    "42": "5GU7bBozyTAZhsocedrNicYFvUsjar1fhY27yiPxW4fTLDKr"
+   },
+   "goldenChecks": [
+    "GW-M5/sr25519/hard-soft/publicKey",
+    "GW-M5/sr25519/hard-soft/ss58-0"
+   ],
+   "signatures": [
+    {
+     "message": "empty",
+     "writer": "shipped",
+     "signature": "a85ade5cd6b577dd702956b7c65368909c801961e7b06ee6aec53efc7bd8b72da00220cb61a67bb5bd6ef665f1297b6199b926448bedcc960d2ddcdd85c53e82"
+    },
+    {
+     "message": "text",
+     "writer": "shipped",
+     "signature": "3683822c7c809189aee06c0b7772908ecef31d97983cd77408882d02aa4f632fc3e36423307e2cf628e865144450300f19c7f51670392748e78cbea703e47d82"
+    },
+    {
+     "message": "payloadHash",
+     "writer": "shipped",
+     "signature": "be2be1d8c68f451f67e352e240ac4d88eb9f032b106f803e1f35f44b4577380cfcb33828e16a790c3f41f5c04b7e1805aab98d462140bc04225b20d6db3bbf88"
+    },
+    {
+     "message": "longPayload",
+     "writer": "shipped",
+     "signature": "9cf87d3b176974faa22dd403867a3da7d78064fde1efccec6e01c549c4dece417cb865ad9fecfe7f0793626b5c8776fd30b74356fa4b02d6537a01656c0b1985"
+    },
+    {
+     "message": "empty",
+     "writer": "reference",
+     "signature": "42c7d0f3dcd608484aa8951b0b0eeee1336a0ea3454c625b99366bb965caba4c25b2dcb9bda61563efd19240ed940761a705ca0d1fdf179ef58eb27a038ae088"
+    },
+    {
+     "message": "text",
+     "writer": "reference",
+     "signature": "9a2830f8edd5b886a293d73552ec58cd267cdd7bfdec576f77dcbc281a86374caf9d480415a78b0240d1d49e6e634b4aba88ed0166745e405349b873ddda2280"
+    },
+    {
+     "message": "payloadHash",
+     "writer": "reference",
+     "signature": "fc672ade989490c7def1d530d25a2fc15fbdfca5f157a8382f70b1bdee1822576835cd53efe56b0773732fdbd25bb0e363b4e3c60dfef48f8476521a4c303382"
+    },
+    {
+     "message": "longPayload",
+     "writer": "reference",
+     "signature": "8485fd45dd45710afce973d5eadd45eeadb0f3bbaf1acc44f16933c5f26f626e3947790a89c2c23baf6993e010b52927895e69868f8fe76c5887b89e8bdfc38f"
+    }
+   ]
+  },
+  {
+   "id": "GW-M5/soft",
+   "golden": "GW-M5",
+   "import": "mnemonic",
+   "mnemonic": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+   "derivationPath": "/0",
+   "miniSecret": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "nonceDeterministic": false,
+   "stored": {
+    "substrateSecretKey": "7ff11b8116db778978d26ca30391ffe35b34f203a61da9f6e6e73a3a59bc4e04e04f5ddaeaa115aec02f6021a3f642ec20f46cd5a04cc205b441372b42bcb5a3",
+    "substratePublicKey": "0c4f096369eaeea12066045a810c9e5ea73b81d420c1b606324050ec477ab676"
+   },
+   "ss58": {
+    "0": "1H946gSKhhSKfnXR8ekj9EDH4DCzfSB8zAVfG3GtfauiuaQ",
+    "2": "CrTa5mF6HStdnbTECQoUwm4a2Vo72hDWsGktdKspNmtHUJG",
+    "42": "5CLqumRNTvRxt8n1TVbkazQ4RSDZJMt34VS1Vy3vLaZPYJom"
+   },
+   "goldenChecks": [
+    "GW-M5/sr25519/soft/publicKey",
+    "GW-M5/sr25519/soft/ss58-42"
+   ],
+   "signatures": [
+    {
+     "message": "empty",
+     "writer": "shipped",
+     "signature": "36bbc8c7fe1b00481973270dc4ece5ed012342a86ce1a72046a43e7d80d64851b556a47efe0272551031eab697adad84c4843487bbbb96793a33f92de6f87382"
+    },
+    {
+     "message": "text",
+     "writer": "shipped",
+     "signature": "c8c484dd8e30b5d8e0a8066d7dced29d3fd7ab74eec19e71d7e57ddaf2b2b15880c6bf0a0b4c17ed9c4f2a348820ae7487d8a3c1cf2730d0510f241fa6d9d280"
+    },
+    {
+     "message": "payloadHash",
+     "writer": "shipped",
+     "signature": "a4a0f05a6a7c822bf2da20fb709df4ffa6337ce76c2dd8a889fe0b035b6fbc214ce93c63f55304b11c8d76e3ca4aac1b3243ac761e5523661dfd388c2154fe8c"
+    },
+    {
+     "message": "longPayload",
+     "writer": "shipped",
+     "signature": "86589a83db42d3f3efe128ea24d84cd0fa647747d0432f007ef37c052308c6637b44d45f716187e8a722136038a13ba707849e335699f698d037dfe30f5a5b8c"
+    },
+    {
+     "message": "empty",
+     "writer": "reference",
+     "signature": "b8040f8976575097b6e0dbdbcfcc434980cc7d752266531e3f29e395bfe74250a6cf9733e578458110ab0b634bd84132130d12ce11d153e10d717e4719dc508b"
+    },
+    {
+     "message": "text",
+     "writer": "reference",
+     "signature": "c4c40f6a93a193b0a0521cd918027c23fd8ab08df381e2a40f6dafb81559925f8605e7f0f4bb7160e8b7c55e49f2a7933f33e75b128470e0c60768b538e39f82"
+    },
+    {
+     "message": "payloadHash",
+     "writer": "reference",
+     "signature": "e4fe09161ef7ecab90c8679ed09611d3e4a334f1ba02660a426dcc628d075f3519d9ebafb2d8226ce4555ab58b066ff87a96c448ef7b18d5b6bb733513709386"
+    },
+    {
+     "message": "longPayload",
+     "writer": "reference",
+     "signature": "4c98963ad95a471d2f9bff637e25b63433ec4270440d13bfc9c5fbf442a9d76772d38be7b68fae55a21257db24ea618c20e54bda9219fda29e37cdb5c9b46d8a"
+    }
+   ]
+  },
+  {
+   "id": "GW-S1/raw-seed",
+   "golden": "GW-S1",
+   "import": "seed",
+   "seed": "e5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a",
+   "derivationPath": "",
+   "miniSecret": "e5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a",
+   "nonceDeterministic": true,
+   "stored": {
+    "substrateSecretKey": "33a6f3093f158a7109f679410bef1a0c54168145e0cecb4df006c1c2fffb1f09925a225d97aa00682d6a59b95b18780c10d7032336e88f3442b42361f4a66011",
+    "substratePublicKey": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d"
+   },
+   "ss58": {
+    "0": "15oF4uVJwmo4TdGW7VfQxNLavjCXviqxT9S1MgbjMNHr6Sp5",
+    "2": "HNZata7iMYWmk5RvZRTiAsSDhV8366zq2YGb3tLH5Upf74F",
+    "42": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+   },
+   "goldenChecks": [
+    "GW-S1/sr25519/seed/publicKey",
+    "GW-S1/sr25519/seed/ss58-0",
+    "GW-S1/sr25519/seed/ss58-42"
+   ],
+   "signatures": [
+    {
+     "message": "empty",
+     "writer": "shipped",
+     "signature": "387096e6cd7958cc36192622d30f1510a5eea5fa1102c7b2fb4ec7e508215578547e8668fd29a4907c4107f101a37df7e136d16df3d0c6513bde83081763fb80"
+    },
+    {
+     "message": "text",
+     "writer": "shipped",
+     "signature": "6a26e90bc576cf1f693ba5dc30eb034cf6bc7b16f601e05495ef39ba8ea85e0a4f97b15d7e5d2b8fdaa6cb6e60a1d4e9f8ed9ff6b97b0918a0d7f2a37f6ea185"
+    },
+    {
+     "message": "payloadHash",
+     "writer": "shipped",
+     "signature": "9486c993a5d4622604d6187b4f87e71f1adad615d76287821d54bec9db5d295c62f53a1e1fe0a1ca98a5430310514164776cd819be54fb5a06398d82aa45008d"
+    },
+    {
+     "message": "longPayload",
+     "writer": "shipped",
+     "signature": "9e5c29d160c6e5e08d422b794e6fd47531d9323944094b68833b856630f796018580dc07ccd9eac3dc57399cb6a1cce96c22dbb88f828e8eb90f8c7998f56389"
+    },
+    {
+     "message": "empty",
+     "writer": "reference",
+     "signature": "72ff049d0ff1860c79a68b2a9091d4b7be3c2ff01f95ac371d1c34ae52ea667b447e4827b15c2ee0855510c811ec3ff10e49abc35055f1ceb363073dbe67b38b"
+    },
+    {
+     "message": "text",
+     "writer": "reference",
+     "signature": "a87177c7f758aa5d88ad05f6965c862cc93240a047c5941ba0a865deae5a6c5fb95d6fb1150232518b23e19637729c70c3456224d24080a7c1910bd367565e84"
+    },
+    {
+     "message": "payloadHash",
+     "writer": "reference",
+     "signature": "f6b6ea784e01713bc79a9ac993ac7134fb7866a7400e52c173e4fdfa60567a6c019afedf55036751303d677199e428293fc3cc24cca009ff082e8b2b235a318e"
+    },
+    {
+     "message": "longPayload",
+     "writer": "reference",
+     "signature": "b0efb73e73e01baafeb5921310cac0e4b281e7ddb888fd021f24ce513632e95f9e307b5b92e98721878ef55f001dec3a499dcecbeb51cce2a3b72569d70c7581"
+    }
+   ]
+  }
+ ],
+ "refused": [
+  {
+   "id": "mismatched-keypair",
+   "signerError": 4,
+   "substrateSecretKey": "2ec306fc1c5bc2f0e3a2c7a6ec6014ca4a0823a7d7d42ad5e9d7f376a1c36c0d14a2ddb1ef1df4adba49f3a4d8c0f6205117907265f09a53ccf07a4e8616dfd8",
+   "substratePublicKey": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d"
+  },
+  {
+   "id": "non-canonical-secret",
+   "signerError": 2,
+   "substrateSecretKey": "edd3f55c1a631258d69cf7a2def9de140000000000000000000000000000001014a2ddb1ef1df4adba49f3a4d8c0f6205117907265f09a53ccf07a4e8616dfd8",
+   "substratePublicKey": "66933bd1f37070ef87bd1198af3dacceb095237f803f3d32b173e6b425ed7972"
+  },
+  {
+   "id": "invalid-public",
+   "signerError": 3,
+   "substrateSecretKey": "2ec306fc1c5bc2f0e3a2c7a6ec6014ca4a0823a7d7d42ad5e9d7f376a1c36c0d14a2ddb1ef1df4adba49f3a4d8c0f6205117907265f09a53ccf07a4e8616dfd8",
+   "substratePublicKey": "0100000000000000000000000000000000000000000000000000000000000000"
+  }
+ ],
+ "derivations": [
+  {
+   "seed": "fac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e",
+   "path": "",
+   "secretScalar": "05d65584630d16cd4af6d0bec10f34bb504a5dcb62dba2122d49f5a663763d0a",
+   "nonce": "fd190cce74df356432b410bd64682309d6dedb27c76845daf388557cbac3ca34",
+   "publicKey": "46ebddef8cd9bb167dc30878d7113b7e168e6f0646beffd77d69d39bad76b47a"
+  },
+  {
+   "seed": "fac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e",
+   "path": "//polkadot",
+   "secretScalar": "3f324bcc884358b2a34cd0926ed3bb25552d834af72273a8b7d8e314aa31290d",
+   "nonce": "9b33e9385b3bf080217bfab6308b1f096146bb1ed41336c1e85bce6df212105d",
+   "publicKey": "f606519cb8726753885cd4d0f518804a69a5e0badf36fee70feadd8044081730"
+  },
+  {
+   "seed": "fac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e",
+   "path": "//kusama",
+   "secretScalar": "f45678d33d22bc82a46e2858e6f77e5283ed8acadf21a21272cdde357495810d",
+   "nonce": "44b772a90e4977d43e8c68b33765a851fef7aba4c416623c27b02a4d78439a7e",
+   "publicKey": "64a31235d4bf9b37cfed3afa8aa60754675f9c4915430454d365c05112784d05"
+  },
+  {
+   "seed": "fac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e",
+   "path": "//polkadot/0",
+   "secretScalar": "ac78678dd56b21a4c21a559e996942000814af750e69e402c5644324948a4000",
+   "nonce": null,
+   "publicKey": "1ea8e6c8824b7540dd58badd8f5384715c67b0ececdebf07d356ba88c0530019"
+  },
+  {
+   "seed": "fac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e",
+   "path": "/0",
+   "secretScalar": "79344d08b92e53ca00fd8afe9cdc7af851541249c4886e9e11327010dcb9420c",
+   "nonce": null,
+   "publicKey": "b696d3a7fbc9dd6648e18fd56169b90f3be49714133eaa464cbfd6ca79ab1310"
+  },
+  {
+   "seed": "fac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e",
+   "path": "/soft",
+   "secretScalar": "c1d7cdfab7edbcba2272c6336e4f3990b0af5dbda23d667221b397a02805a00e",
+   "nonce": null,
+   "publicKey": "84aedc0aba19f398f70dbcbc94b318e1e8d4eab5854e4d8de569bc4890afa45e"
+  },
+  {
+   "seed": "fac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e",
+   "path": "//1//2/3",
+   "secretScalar": "7cdbc162e22403533e8cc2d9d8ad10b0f4c280fafcc093317fbe29af8f84570b",
+   "nonce": null,
+   "publicKey": "d46bc0005b78c1e7a149e53618c02ab91a75262bcc293d95b6b95de8932dad74"
+  },
+  {
+   "seed": "fac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e",
+   "path": "//hard/soft",
+   "secretScalar": "f9fb0895be5c0f4d983f125b11242f920610d0eeec2e67f56132bc1502aa8104",
+   "nonce": null,
+   "publicKey": "881cdc4ff2029648b2f49d00cc7dd6f91d04789097502e05ab8a444911e7372a"
+  },
+  {
+   "seed": "fac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e",
+   "path": "//0",
+   "secretScalar": "187749f4973e6fbd808a09e238f042c222f0e510c55ec171bb028d82c40ddd0d",
+   "nonce": "7be7c693358d9636a65442b6b7d904ed458914c9eb4da42df1bd4743d2ffa7f5",
+   "publicKey": "2afba9278e30ccf6a6ceb3a8b6e336b70068f045c666f2e7f4f9cc5f47db8972"
+  },
+  {
+   "seed": "fac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e",
+   "path": "//ポルカ/1",
+   "secretScalar": "56f68b6f9bc47470fcf830ed0d66208548e44af047e1bac5350d5e88ce7ad602",
+   "nonce": null,
+   "publicKey": "5a3bd40567107df8cecaf69e92ae06f37f8a8915c1fec3c607194b6ec22fef18"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "",
+   "secretScalar": "2ec306fc1c5bc2f0e3a2c7a6ec6014ca4a0823a7d7d42ad5e9d7f376a1c36c0d",
+   "nonce": "14a2ddb1ef1df4adba49f3a4d8c0f6205117907265f09a53ccf07a4e8616dfd8",
+   "publicKey": "66933bd1f37070ef87bd1198af3dacceb095237f803f3d32b173e6b425ed7972"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "//polkadot",
+   "secretScalar": "dfb77f0e34ced0b747f30641b8cb98198fb56b4869e09aa0dc06c0cb8970f308",
+   "nonce": "2bf3a389a52120b68d1674c67c5bc1c3802fc7264df155ba2da36b01ed86f570",
+   "publicKey": "1254bc913cfc8d181e2d80641c4206144c06f813f26ca5bc13ca57f9a0a49470"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "//kusama",
+   "secretScalar": "288cba63ecae310428b4064df53282ad913d1cc874ea51764bcc01cac37c310e",
+   "nonce": "df64d21fd6525c7767c073adcc0ef6f458830eeabfb644ad7b3d32b2d5037e1d",
+   "publicKey": "02781d31a11de9dd0f82dbd8850a13a0e03719538d9ddb2f07fbfa6a0c522174"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "//polkadot/0",
+   "secretScalar": "78d4d9285d2c5b951b9cd593ddb8498b91af52f7161cede47d44a8076cd0560c",
+   "nonce": null,
+   "publicKey": "c2cb78846562cdbf41fcd022f38316e050829010e4805a2658b8e0a59eb3312b"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "/0",
+   "secretScalar": "7ff11b8116db778978d26ca30391ffe35b34f203a61da9f6e6e73a3a59bc4e04",
+   "nonce": null,
+   "publicKey": "0c4f096369eaeea12066045a810c9e5ea73b81d420c1b606324050ec477ab676"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "/soft",
+   "secretScalar": "52f51d0d767ae92464b22d2d6ed128b96ad18ef777e036e8b9a86aa30e7e5206",
+   "nonce": null,
+   "publicKey": "201854fe65987d8bf30ae6ebe6df154dfd18a9b551ec0bd81a1faad0ab7de806"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "//1//2/3",
+   "secretScalar": "4d23eb9ef9c271a2e5dcd7433f4426969880fc84926b4f4db36615255b1e1405",
+   "nonce": null,
+   "publicKey": "884fa9450c149b79715f1c895c6cbbefe6dda102eb0d0f8cad8e705c90bbb50c"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "//hard/soft",
+   "secretScalar": "8c601c9579784f82ed4463dd4502c2a4f98ea1414dfde72522a759879a6eb205",
+   "nonce": null,
+   "publicKey": "a4ab85b3f6ab6c3166b2cf6def47c3977bf6e8f45fb593d7aaefbcbf25919d67"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "//0",
+   "secretScalar": "8491e5398431cfa719c13edfd90053ca69eaad2b03e2a79cf0b7edefff16bf0f",
+   "nonce": "7ce29f7eb4d9309652f2118481a2c1d9909a6f267baf7152ea4f2d2de4a1bdc4",
+   "publicKey": "5244eb2b8a9f975c603485c5a76eeec41fdad88aa6ef204b7c56691940ad1671"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "//ポルカ/1",
+   "secretScalar": "153e24e9b5c739d26714b2bd7b73e4ae8092584062822b1ade99cff528d79f0a",
+   "nonce": null,
+   "publicKey": "a690144aee6b445041870ebcb605c56cefc53d9c8521ec15bcc0215a811a220c"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "",
+   "secretScalar": "2ec306fc1c5bc2f0e3a2c7a6ec6014ca4a0823a7d7d42ad5e9d7f376a1c36c0d",
+   "nonce": "14a2ddb1ef1df4adba49f3a4d8c0f6205117907265f09a53ccf07a4e8616dfd8",
+   "publicKey": "66933bd1f37070ef87bd1198af3dacceb095237f803f3d32b173e6b425ed7972"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "//polkadot",
+   "secretScalar": "dfb77f0e34ced0b747f30641b8cb98198fb56b4869e09aa0dc06c0cb8970f308",
+   "nonce": "2bf3a389a52120b68d1674c67c5bc1c3802fc7264df155ba2da36b01ed86f570",
+   "publicKey": "1254bc913cfc8d181e2d80641c4206144c06f813f26ca5bc13ca57f9a0a49470"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "//kusama",
+   "secretScalar": "288cba63ecae310428b4064df53282ad913d1cc874ea51764bcc01cac37c310e",
+   "nonce": "df64d21fd6525c7767c073adcc0ef6f458830eeabfb644ad7b3d32b2d5037e1d",
+   "publicKey": "02781d31a11de9dd0f82dbd8850a13a0e03719538d9ddb2f07fbfa6a0c522174"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "//polkadot/0",
+   "secretScalar": "78d4d9285d2c5b951b9cd593ddb8498b91af52f7161cede47d44a8076cd0560c",
+   "nonce": null,
+   "publicKey": "c2cb78846562cdbf41fcd022f38316e050829010e4805a2658b8e0a59eb3312b"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "/0",
+   "secretScalar": "7ff11b8116db778978d26ca30391ffe35b34f203a61da9f6e6e73a3a59bc4e04",
+   "nonce": null,
+   "publicKey": "0c4f096369eaeea12066045a810c9e5ea73b81d420c1b606324050ec477ab676"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "/soft",
+   "secretScalar": "52f51d0d767ae92464b22d2d6ed128b96ad18ef777e036e8b9a86aa30e7e5206",
+   "nonce": null,
+   "publicKey": "201854fe65987d8bf30ae6ebe6df154dfd18a9b551ec0bd81a1faad0ab7de806"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "//1//2/3",
+   "secretScalar": "4d23eb9ef9c271a2e5dcd7433f4426969880fc84926b4f4db36615255b1e1405",
+   "nonce": null,
+   "publicKey": "884fa9450c149b79715f1c895c6cbbefe6dda102eb0d0f8cad8e705c90bbb50c"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "//hard/soft",
+   "secretScalar": "8c601c9579784f82ed4463dd4502c2a4f98ea1414dfde72522a759879a6eb205",
+   "nonce": null,
+   "publicKey": "a4ab85b3f6ab6c3166b2cf6def47c3977bf6e8f45fb593d7aaefbcbf25919d67"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "//0",
+   "secretScalar": "8491e5398431cfa719c13edfd90053ca69eaad2b03e2a79cf0b7edefff16bf0f",
+   "nonce": "7ce29f7eb4d9309652f2118481a2c1d9909a6f267baf7152ea4f2d2de4a1bdc4",
+   "publicKey": "5244eb2b8a9f975c603485c5a76eeec41fdad88aa6ef204b7c56691940ad1671"
+  },
+  {
+   "seed": "4ed8d4b17698ddeaa1f1559f152f87b5d472f725ca86d341bd0276f1b61197e2",
+   "path": "//ポルカ/1",
+   "secretScalar": "153e24e9b5c739d26714b2bd7b73e4ae8092584062822b1ade99cff528d79f0a",
+   "nonce": null,
+   "publicKey": "a690144aee6b445041870ebcb605c56cefc53d9c8521ec15bcc0215a811a220c"
+  },
+  {
+   "seed": "6fa2796b0071cac425d8a7851038318c2c37dcebfe4bae73197ce93e75909bd2",
+   "path": "",
+   "secretScalar": "ad8a44476e667ef8eab356d1d6f09303f21ba1ac44a3f8b96210bdd603d1900b",
+   "nonce": "b25d15f130020fffc3261f584f84168e7a6f0009f6c3abb2f3fa460f493b0595",
+   "publicKey": "625e25364c7b68e0a83065ccb40afed43f8fe933e669b24f3d69a57eddb3b715"
+  },
+  {
+   "seed": "6fa2796b0071cac425d8a7851038318c2c37dcebfe4bae73197ce93e75909bd2",
+   "path": "//polkadot",
+   "secretScalar": "41dcb5ae97036e1cb92324baccd091b64e014d35ffcc770d3292b34898866d0d",
+   "nonce": "99017098f85012fc2c6329018c2c6e22d51dfa81d1148a1fcdce79c22fd636aa",
+   "publicKey": "269412acb6a9f2717946ed02414efc22459c69ff1a24979bcacb00448e6b3e57"
+  },
+  {
+   "seed": "6fa2796b0071cac425d8a7851038318c2c37dcebfe4bae73197ce93e75909bd2",
+   "path": "//kusama",
+   "secretScalar": "b172cd75bc9add53942e2241a3dad169906b74204ac4cd42546e94e56148170d",
+   "nonce": "f0801c26add8e4bc2ebfae89ed647f8c2b9ba89582cff5c87c6cc169ec210c06",
+   "publicKey": "f00d8715e2face851f5b78bd98cefe359258d197900ee3d454c1da13cc9a7354"
+  },
+  {
+   "seed": "6fa2796b0071cac425d8a7851038318c2c37dcebfe4bae73197ce93e75909bd2",
+   "path": "//polkadot/0",
+   "secretScalar": "c9256407f177eec6f6b91f9a689a03486a0243be4455ebca2eec4b1f159b7e06",
+   "nonce": null,
+   "publicKey": "26bfcd80ecc0674d26b928bdb140162eb6d7740d3a01d20533b8f07a171fd46a"
+  },
+  {
+   "seed": "6fa2796b0071cac425d8a7851038318c2c37dcebfe4bae73197ce93e75909bd2",
+   "path": "/0",
+   "secretScalar": "78afdd6713d765536746d19229bf9062200127a191ecb320e4de718945f7ee0c",
+   "nonce": null,
+   "publicKey": "50630669798fa575e08cdcf9cda553996e9d28ebe7e363759d86910c36a96d3f"
+  },
+  {
+   "seed": "6fa2796b0071cac425d8a7851038318c2c37dcebfe4bae73197ce93e75909bd2",
+   "path": "/soft",
+   "secretScalar": "079627ddde3cbd7c8824682f2a1416e7a8f636e953db7122c4f476c490c17a01",
+   "nonce": null,
+   "publicKey": "6860418651801d8d685088e87c731414c5326bec3730d3c0c49a74aaeb66d57a"
+  },
+  {
+   "seed": "6fa2796b0071cac425d8a7851038318c2c37dcebfe4bae73197ce93e75909bd2",
+   "path": "//1//2/3",
+   "secretScalar": "7c0d8c0a543a90f51c65212460f0f98fe30e8f9a6b6056582027e0adb307af00",
+   "nonce": null,
+   "publicKey": "58a10891798f8743085296c79b39f46b159f8d3bd647b7e59a5f8c88d97f983c"
+  },
+  {
+   "seed": "6fa2796b0071cac425d8a7851038318c2c37dcebfe4bae73197ce93e75909bd2",
+   "path": "//hard/soft",
+   "secretScalar": "697395412356afabcd937bed11cc1a1d6277c163672fc8fa29af3a5ba9e0fa0d",
+   "nonce": null,
+   "publicKey": "60368e7618eae4f067260921a005e932a3c08a7845dc8c952d6a8b49128d0e62"
+  },
+  {
+   "seed": "6fa2796b0071cac425d8a7851038318c2c37dcebfe4bae73197ce93e75909bd2",
+   "path": "//0",
+   "secretScalar": "b0c365d800def4720306d416781ffbfb6bbd3bbd66907f42a8ba945ea0d4f90a",
+   "nonce": "f11d0379db9a5152123f225a970d48482bce8c779972cf2743ba72652bbbdc3d",
+   "publicKey": "2621d61eb7dc578366e21f197a343b49dfeb4c0aade440c014f67ead72ce642c"
+  },
+  {
+   "seed": "6fa2796b0071cac425d8a7851038318c2c37dcebfe4bae73197ce93e75909bd2",
+   "path": "//ポルカ/1",
+   "secretScalar": "cd0d563a1d5c88838a7e582b64efe87e202422f0731c3509bedfab438521c200",
+   "nonce": null,
+   "publicKey": "9a85b4222f63ca802f8e19dc4a53a6e489fc1003b32fc322d013d57145ca8d6e"
+  }
+ ],
+ "keystores": [
+  {
+   "id": "GW-J1/sr25519",
+   "of": "GW-M1/root",
+   "writer": "@polkadot/keyring 14.0.3 toJson",
+   "password": "Legacy-json-pässwörd",
+   "json": "{\"encoded\":\"+Neuj55/0P1iZIwQ7uUZsi8M1Gzz9tl071DBr4QKkckAAAIAAQAAAAgAAACL+gFGllXQPJENY7E54byLuveu2AYicXMguFNtdFNWeHB0uh9O9LhVx1pN0WrxiAWS9a4r/KwLfG/v1D7Bi5EdjLgWKyqBKEFXFN0v1kbowOBkSANs7OR8MNaGcS+ZxBelXjYUWXHE6JtJNfGyyJ436/nTrv+Y7qcL4VzEwJDErUMaJqWQ0MIj7ZFPUEwfJIOdU1aYi/u7KjcMEo6D\",\"encoding\":{\"content\":[\"pkcs8\",\"sr25519\"],\"type\":[\"scrypt\",\"xsalsa20-poly1305\"],\"version\":\"3\"},\"address\":\"5EPCUjPxiHAcNooYipQFWr9NmmXJKpNG5RhcntXwbtUySrgH\",\"meta\":{\"name\":\"GW-J1\"}}",
+   "stored": {
+    "substrateSecretKey": "2ec306fc1c5bc2f0e3a2c7a6ec6014ca4a0823a7d7d42ad5e9d7f376a1c36c0d14a2ddb1ef1df4adba49f3a4d8c0f6205117907265f09a53ccf07a4e8616dfd8",
+    "substratePublicKey": "66933bd1f37070ef87bd1198af3dacceb095237f803f3d32b173e6b425ed7972"
+   }
+  },
+  {
+   "id": "GW-J1/sr25519-soft",
+   "of": "GW-M5/soft",
+   "writer": "@polkadot/keyring 14.0.3 toJson",
+   "password": "Legacy-json-pässwörd",
+   "json": "{\"encoded\":\"j1IWxwYe7fBOpJfqc9lmezwfrbxCzWm6gfnKMXr17QwAAAIAAQAAAAgAAAAlCk9Pr6a/2jXl7gb74NnYRtGsojJXwfHAP2EIAmlG1sxe9WJZzBgfcAXc435v55tGSE/T/d6JXPcF73dF/7aZYB5DwRjsq+M5StCBr1uSH0MKky/JG49wh47x52FSV3tJhxjXfswVfmi2w52RtFPc4A6l88FxWr5gaOH2pmGXVnkdSVs6Smd7wIT8yVOPzUIDMtlZdoM9lrnuLQAT\",\"encoding\":{\"content\":[\"pkcs8\",\"sr25519\"],\"type\":[\"scrypt\",\"xsalsa20-poly1305\"],\"version\":\"3\"},\"address\":\"5CLqumRNTvRxt8n1TVbkazQ4RSDZJMt34VS1Vy3vLaZPYJom\",\"meta\":{\"name\":\"GW-J1 soft\"}}",
+   "stored": {
+    "substrateSecretKey": "7ff11b8116db778978d26ca30391ffe35b34f203a61da9f6e6e73a3a59bc4e04cffb6f3ffcc8b1c5105660bfa597f7823956d5e86a8b0a2b1fb920cbacd5052c",
+    "substratePublicKey": "0c4f096369eaeea12066045a810c9e5ea73b81d420c1b606324050ec477ab676"
+   }
+  },
+  {
+   "id": "android-parity/polkadotjs-sr25519-legacy",
+   "writer": "@polkadot/keyring 14.0.3 pkcs8 + legacy xsalsa20-poly1305 (no scrypt)",
+   "password": "fearless-parity-test",
+   "json": "{\"encoded\":\"Cy+nopbiiziH2mmdatfTnHDSqqghVSG/7G/xbjmoZnROErd2l4Bw++qrQ26Aa7uHIAhumN2c3ggvUJR1MHrghf3nED4zX/hNOzknmKkkf/XH5z04wriqR5i4f/G87yu+AKv/ksdiKBIR3izOHWLulTIVGjRIRnizuQ0ytqwCKOKfiHGtOv2kq5NXC409vU1L+ERIeF1CxDyprq6doA\\u003d\\u003d\",\"encoding\":{\"content\":[\"pkcs8\",\"sr25519\"],\"type\":[\"xsalsa20-poly1305\"],\"version\":\"2\"},\"address\":\"143Epgrghu1kDdRnDNkegsr6nUrEhCYG33ZLfh82gV7P8dhk\",\"meta\":{\"name\":\"parity sr25519\",\"genesisHash\":\"0x91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3\"}}",
+   "rejected": true
+  },
+  {
+   "id": "android-parity/polkadotjs-sr25519-scrypt",
+   "writer": "@polkadot/keyring 14.0.3 toJson (scrypt + xsalsa20-poly1305)",
+   "password": "fearless-parity-test",
+   "json": "{\"encoded\":\"aI0CWvpECIaaRElEVdbYIJjije12qPQn+Yiju0AzhCEAAAIAAQAAAAgAAAAb/q9EtsMRWTD4FddzoBaHgCB9vrmzJAFwBbLTjuL7dSKMDZRE4dQ3SO/H+fYr409k7eCJaIb2M2qjrSqIhxYa9BizNBfLMJctI05jWiiEcgIQZVsFQpXQNMYIBR4kV4bDeY8b19XC1HvsFBbx281f3hj+FGWxnh8fhNY/vkeunUgVoR/JMbyXGkD6/8T5RA9aaYMFNunZnsG4bMDZ\",\"encoding\":{\"content\":[\"pkcs8\",\"sr25519\"],\"type\":[\"scrypt\",\"xsalsa20-poly1305\"],\"version\":\"3\"},\"address\":\"143Epgrghu1kDdRnDNkegsr6nUrEhCYG33ZLfh82gV7P8dhk\",\"meta\":{\"name\":\"parity sr25519\",\"genesisHash\":\"0x91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3\"}}",
+   "stored": {
+    "substrateSecretKey": "809f6d171011d05ea85ef2ca8d17e4abe15725cc9484765961872f98aebb590fb7811d0dcccea8f8a6f21f31d42b0dc915c6c06186818eee36df84ff98bc5497",
+    "substratePublicKey": "8669b8876c06cd577bf9e1c2353f2bc5d00bd6d72a76aff3fb1f99fbe5cac64b"
+   }
+  },
+  {
+   "id": "android-parity/polkadotjs-sr25519-soft",
+   "writer": "@polkadot/keyring 14.0.3 toJson (scrypt + xsalsa20-poly1305)",
+   "password": "fearless-parity-test",
+   "json": "{\"encoded\":\"Rsjpf6Jqkn068GYYbOaawUzdG4oGJHwTzKtMppszUhUAAAIAAQAAAAgAAABRsdt20qROHcE7PDLbETB6a+zfX03lyPts/kJPcDm45V884e/HF6e8PVlmMx9tqH8XHqRy5MnHwNN1GhBnGngEbxPtM0XxzUPJDvWfXXDMTLaJ2z582jdnxfdirxP4wI8bAfXC3JlPYx8mx2EWNgYWu89p5uzkvMOvdtoNwcw4rMAt0J5Wpk+wCnpwRsLX1hDVHoCHdgVPy7I1IAGH\",\"encoding\":{\"content\":[\"pkcs8\",\"sr25519\"],\"type\":[\"scrypt\",\"xsalsa20-poly1305\"],\"version\":\"3\"},\"address\":\"15yZcprVeuERvTWwtqSFFQojbUmyoAF42b51J5cHXUPTwUCZ\",\"meta\":{\"name\":\"parity sr25519\",\"genesisHash\":\"0x91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3\"}}",
+   "stored": {
+    "substrateSecretKey": "a778c7c1f0bd78601f184c0aba25c032feab6673c4ee602a386fa751b14767097aa7f13dac8e03b2cb9dcbe6694d9471d023003eabda93c05189825411572d91",
+    "substratePublicKey": "dc147a32787cf326fc490d93889f499734ad01e7338a961b6af920927c5e2677"
+   }
+  },
+  {
+   "id": "android-parity/fearless-4.2.0-encoder-SR25519",
+   "writer": "Fearless Android 4.2.0 JsonSeedEncoder",
+   "password": "pw-0-SR25519",
+   "json": "{\"address\":\"15oF4uVJwmo4TdGW7VfQxNLavjCXviqxT9S1MgbjMNHr6Sp5\",\"encoded\":\"+GLInmZgT1SnYjkQyPJDYve4+OCEHRTpi/qTkWgg+VYAgAAAAQAAAAgAAACQJlUW+BinUCVg71duo79I3PHO/qnIRiYELVOVmbuyc6zIWsBwMaq2+mWZhjVVUrIgkuVtGHdhEJ4ExgiCSoW/eHQoyaerqw+t9JgMsSlpKqef983vnjOgxkHl+P89Ou7tnZhHeIicciCrt1QNBU4ejGGSDhHo+iQ/z13oH8CIwLfKQFtQ+Lp8P1Rzsp3Tadv2xgmy4jjXUx6YNMgY\",\"encoding\":{\"content\":[\"pkcs8\",\"sr25519\"],\"type\":[\"scrypt\",\"xsalsa20-poly1305\"],\"version\":\"3\"},\"meta\":{\"name\":\"acc\",\"genesisHash\":\"0x91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3\",\"whenCreated\":1791591824373}}",
+   "stored": {
+    "substrateSecretKey": "26a89e002001a8164d8361ebb27a71f5482a93167792c7d0a93d5a95ca2b9a0a7933a8af8e30955c39fdd6f3832aa2bf7586142dc951e8fd6f204b9827f4c98e",
+    "substratePublicKey": "8c9044e2f594b3ddd34a3e850e3c841c49d99dda715db73f776f83ffb9146b72"
+   }
+  }
+ ]
+}

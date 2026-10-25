@@ -399,7 +399,6 @@ extension StakingPoolMainInteractor: PriceLocalStorageSubscriber, PriceLocalSubs
 
         switch result {
         case let .success(priceData):
-            print("did receive price data: ", priceId)
             output?.didReceive(priceData: priceData)
         case let .failure(error):
             output?.didReceive(priceError: error)

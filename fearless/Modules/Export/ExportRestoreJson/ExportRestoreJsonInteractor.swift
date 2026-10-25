@@ -1,6 +1,6 @@
 import Foundation
-import UIKit
 import IrohaCrypto
+import UIKit
 
 final class ExportRestoreJsonInteractor {
     private let settings: SelectedWalletSettings
@@ -19,10 +19,13 @@ final class ExportRestoreJsonInteractor {
 }
 
 extension ExportRestoreJsonInteractor: ExportRestoreJsonInteractorProtocol {
-    func walletDidBackuped() {
-        let backupedWallet = wallet.replacingIsBackuped(true)
-        settings.save(value: backupedWallet)
-        let event = MetaAccountModelChangedEvent(account: backupedWallet)
-        eventCenter.notify(with: event)
+    func walletDidBackuped(completion: @escaping (Result<Void, Error>) -> Void) {
+        let events = eventCenter
+        settings.recordBackup(of: wallet) { result in
+            if case let .success(savedWallet) = result {
+                events.notify(with: MetaAccountModelChangedEvent(account: savedWallet))
+            }
+            completion(result.map { _ in () })
+        }
     }
 }

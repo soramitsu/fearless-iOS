@@ -4,7 +4,9 @@ import RobinHood
 import SoraFoundation
 import SSFModels
 import SSFUtils
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 struct StakingRewardDestConfirmViewFactory {
     static func createView(
@@ -40,6 +42,7 @@ struct StakingRewardDestConfirmViewFactory {
             dataValidatingFactory: dataValidatingFactory,
             chain: chain,
             asset: asset,
+            wallet: selectedAccount,
             logger: Logger.shared
         )
 
@@ -90,7 +93,6 @@ struct StakingRewardDestConfirmViewFactory {
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
@@ -105,20 +107,11 @@ struct StakingRewardDestConfirmViewFactory {
             accountResponse: accountResponse
         )
 
-        let facade = UserDataStorageFacade.shared
-
-        let mapper = MetaAccountMapper()
-
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         return StakingRewardDestConfirmInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -134,7 +127,7 @@ struct StakingRewardDestConfirmViewFactory {
             signingWrapper: signingWrapper,
             connection: connection,
             keystore: keystore,
-            accountRepository: AnyDataProviderRepository(accountRepository),
+            accountRepository: accountRepository,
             callFactory: callFactory
         )
     }

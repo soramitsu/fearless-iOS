@@ -12,9 +12,12 @@ protocol CrossChainConfirmationRouterInput:
     ModalAlertPresenting,
     SheetAlertPresentable
 {
+    /// Shows the submitted transfer with its hash; `title` and `description` say that the bridge still has to deliver it.
     func complete(
         on view: ControllerBackedProtocol?,
+        hash: String?,
         title: String,
+        description: String,
         chainAsset: ChainAsset
     )
 }

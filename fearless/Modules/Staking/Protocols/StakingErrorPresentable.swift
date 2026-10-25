@@ -52,8 +52,7 @@ protocol StakingErrorPresentable: BaseErrorPresentable, WarningPresentable, AnyD
     func presentPoolRootUnbondingTooHigh(
         minimalBond: String,
         from view: ControllerBackedProtocol,
-        locale: Locale?,
-        action: @escaping () -> Void
+        locale: Locale?
     )
     func presentMaximumPoolsCountReached(from view: ControllerBackedProtocol?, locale: Locale?)
 }
@@ -250,8 +249,7 @@ extension StakingErrorPresentable where Self: SheetAlertPresentable & ErrorPrese
     func presentPoolRootUnbondingTooHigh(
         minimalBond: String,
         from view: ControllerBackedProtocol,
-        locale: Locale?,
-        action: @escaping () -> Void
+        locale: Locale?
     ) {
         let title = R.string.localizable.poolRootUnbondTooHighTitle(
             preferredLanguages: locale?.rLanguages
@@ -260,13 +258,11 @@ extension StakingErrorPresentable where Self: SheetAlertPresentable & ErrorPrese
             minimalBond,
             preferredLanguages: locale?.rLanguages
         )
-        let polkadotJsPlusAction = SheetAlertPresentableAction(
-            title: R.string.localizable.polkadotJsPlusActionTitle(preferredLanguages: locale?.rLanguages),
-            handler: action
-        )
+        // The alert used to link polkadotjs.plus over cleartext HTTP; that domain no
+        // longer resolves and anyone could register it, so the link was removed.
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
 
-        present(message: message, title: title, closeAction: closeAction, from: view, actions: [polkadotJsPlusAction])
+        present(message: message, title: title, closeAction: closeAction, from: view)
     }
 
     func presentMaximumPoolsCountReached(from view: ControllerBackedProtocol?, locale: Locale?) {

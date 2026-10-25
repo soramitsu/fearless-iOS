@@ -14,7 +14,7 @@ final class OnboardingStartViewLayout: UIView {
     private let label: UILabel = {
         let label = UILabel()
         label.textColor = R.color.colorWhite()
-        label.font = R.font.soraRc0040417Bold(size: 38)
+        label.font = UIFont.legacySora(size: 38, weight: .bold)
         label.numberOfLines = 0
         label.textAlignment = .center
         return label

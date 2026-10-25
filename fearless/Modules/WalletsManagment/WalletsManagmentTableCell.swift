@@ -4,6 +4,7 @@ import SoraUI
 
 protocol WalletsManagmentTableCellDelegate: AnyObject {
     func didTapOptionsCell(with indexPath: IndexPath?)
+    func didTapAccountScore(address: String?)
 }
 
 final class WalletsManagmentTableCell: UITableViewCell {
@@ -45,6 +46,14 @@ final class WalletsManagmentTableCell: UITableViewCell {
         return label
     }()
 
+    private let balanceCaptionLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p3Paragraph
+        label.textColor = R.color.colorStrokeGray()
+        label.isHidden = true
+        return label
+    }()
+
     private let dayChangeLabel: UILabel = {
         let label = UILabel()
         label.font = .p3Paragraph
@@ -58,6 +67,8 @@ final class WalletsManagmentTableCell: UITableViewCell {
         button.isHidden = true
         return button
     }()
+
+    private let accountScoreView = AccountScoreView()
 
     private var skeletonView: SkrullableView?
 
@@ -90,11 +101,19 @@ final class WalletsManagmentTableCell: UITableViewCell {
         backgroundTriangularedView.setGradientBorder(highlighted: viewModel.isSelected, animated: false)
 
         fiatBalanceLabel.text = viewModel.fiatBalance
+        balanceCaptionLabel.text = viewModel.balanceCaption
+        balanceCaptionLabel.isHidden = viewModel.balanceCaption == nil
 
         if viewModel.fiatBalance == nil {
             startLoadingIfNeeded()
         } else {
             stopLoadingIfNeeded()
+        }
+
+        accountScoreView.bind(viewModel: viewModel.accountScoreViewModel)
+
+        accountScoreView.starView.didFinishTouchingCosmos = { [weak self] _ in
+            self?.delegate?.didTapAccountScore(address: viewModel.accountScoreViewModel?.address)
         }
     }
 
@@ -131,8 +150,15 @@ final class WalletsManagmentTableCell: UITableViewCell {
             make.top.bottom.equalToSuperview().inset(UIConstants.minimalOffset)
         }
 
+        let balanceRow = UIFactory.default.createHorizontalStackView(spacing: UIConstants.minimalOffset)
+        balanceRow.alignment = .firstBaseline
+        balanceRow.addArrangedSubview(fiatBalanceLabel)
+        balanceRow.addArrangedSubview(balanceCaptionLabel)
+        fiatBalanceLabel.setContentHuggingPriority(.required, for: .horizontal)
+        balanceCaptionLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+
         vStackView.addArrangedSubview(walletNameLabel)
-        vStackView.addArrangedSubview(fiatBalanceLabel)
+        vStackView.addArrangedSubview(balanceRow)
         vStackView.addArrangedSubview(dayChangeLabel)
 
         backgroundTriangularedView.addSubview(optionsButton)
@@ -141,6 +167,14 @@ final class WalletsManagmentTableCell: UITableViewCell {
             make.size.equalTo(Constants.optionsButtonSize)
             make.trailing.equalToSuperview()
             make.leading.equalTo(vStackView.snp.trailing).offset(UIConstants.defaultOffset)
+        }
+
+        backgroundTriangularedView.addSubview(accountScoreView)
+        accountScoreView.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.trailing.equalTo(optionsButton.snp.leading).offset(-8)
+            make.height.equalTo(15)
+            make.width.equalTo(32)
         }
     }
 }
@@ -173,6 +207,7 @@ extension WalletsManagmentTableCell: SkeletonLoadable {
         }
 
         fiatBalanceLabel.alpha = 0.0
+        balanceCaptionLabel.alpha = 0.0
         dayChangeLabel.alpha = 0.0
 
         setupSkeleton()
@@ -188,6 +223,7 @@ extension WalletsManagmentTableCell: SkeletonLoadable {
         skeletonView = nil
 
         fiatBalanceLabel.alpha = 1.0
+        balanceCaptionLabel.alpha = 1.0
         dayChangeLabel.alpha = 1.0
     }
 

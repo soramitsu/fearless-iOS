@@ -4,7 +4,9 @@ import SSFUtils
 import SoraKeystore
 import RobinHood
 import SSFModels
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 struct ControllerAccountConfirmationViewFactory {
     static func createView(
@@ -83,7 +85,6 @@ struct ControllerAccountConfirmationViewFactory {
         )
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
@@ -100,20 +101,12 @@ struct ControllerAccountConfirmationViewFactory {
 
         let feeProxy = ExtrinsicFeeProxy()
 
-        let facade = UserDataStorageFacade.shared
-
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager
         )
 
-        let mapper = MetaAccountMapper()
-
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
@@ -123,13 +116,12 @@ struct ControllerAccountConfirmationViewFactory {
                 selectedMetaAccount: selectedAccount
             ),
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            priceLocalSubscriber: priceLocalSubscriber,
             runtimeService: runtimeService,
             extrinsicService: extrinsicService,
             signingWrapper: signingWrapper,
             feeProxy: feeProxy,
             controllerAccountItem: controllerAccountItem,
-            accountRepository: AnyDataProviderRepository(accountRepository),
+            accountRepository: accountRepository,
             operationManager: operationManager,
             storageRequestFactory: storageRequestFactory,
             engine: connection,

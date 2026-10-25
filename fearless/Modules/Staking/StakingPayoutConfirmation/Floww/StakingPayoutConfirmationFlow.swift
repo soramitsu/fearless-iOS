@@ -27,7 +27,7 @@ protocol StakingPayoutConfirmationViewModelState: StakingPayoutConfirmationUserI
     var builderClosure: ExtrinsicBuilderClosure? { get }
 
     func setStateListener(_ stateListener: StakingPayoutConfirmationModelStateListener?)
-    func validators(using locale: Locale, prices: [PriceData]) -> [DataValidating]
+    func validators(using locale: Locale) -> [DataValidating]
 }
 
 struct StakingPayoutConfirmationDependencyContainer {

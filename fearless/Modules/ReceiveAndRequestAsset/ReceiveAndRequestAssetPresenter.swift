@@ -5,6 +5,7 @@ import SSFUtils
 import SSFQRService
 
 protocol ReceiveAndRequestAssetViewInput: ControllerBackedProtocol {
+    func didStartQRGeneration()
     func didReceive(viewModel: ReceiveAssetViewModel)
     func didReceive(image: UIImage)
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?)
@@ -28,16 +29,18 @@ final class ReceiveAndRequestAssetPresenter {
 
     private let wallet: MetaAccountModel
     private var chainAsset: ChainAsset
-    private let qrService: QRServiceProtocol
+    private let qrService: QRService
     private let sharingFactory: AccountShareFactoryProtocol
 
-    private var qrOperation: Operation?
+    private var qrOperation: Task<UIImage?, Error>?
+    private var qrGeneration = UUID()
+    private var currentQRImage: UIImage?
+    private var isClosed = false
     private var inputResult: AmountInputResult?
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
-    private var pricesData: [PriceData]? = []
 
     private var address: String? {
-        wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
+        UniversalWalletAccountAddressResolver.address(for: chainAsset.chain, wallet: wallet)
     }
 
     // MARK: - Constructors
@@ -45,7 +48,7 @@ final class ReceiveAndRequestAssetPresenter {
     init(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        qrService: QRServiceProtocol,
+        qrService: QRService,
         sharingFactory: AccountShareFactoryProtocol,
         interactor: ReceiveAndRequestAssetInteractorInput,
         router: ReceiveAndRequestAssetRouterInput,
@@ -70,6 +73,7 @@ final class ReceiveAndRequestAssetPresenter {
 
         view?.didReceive(viewModel: ReceiveAssetViewModel(
             asset: chainAsset.asset.symbolUppercased,
+            networkName: chainAsset.chain.name,
             accountName: wallet.name,
             address: address,
             isSora: chainAsset.chain.isSora
@@ -81,7 +85,7 @@ final class ReceiveAndRequestAssetPresenter {
         let inputAmount = inputResult?.absoluteValue(from: balance) ?? 0.0
         let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, chainAsset: chainAsset)
 
-        let priceData = pricesData?.first(where: { $0.priceId == chainAsset.asset.priceId })
+        let priceData = AssetTrustResolver.displayPrice(for: chainAsset, currency: wallet.selectedCurrency)
 
         let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
             inputAmount,
@@ -133,56 +137,74 @@ final class ReceiveAndRequestAssetPresenter {
 
     private func generateQR() {
         cancelQRGeneration()
+        guard !isClosed else { return }
+        view?.didStartQRGeneration()
 
-        guard let account = wallet.fetch(for: chainAsset.chain.accountRequest()), let address = account.toAddress() else {
-            processOperation(result: .failure(ChainAccountFetchingError.accountNotExists))
-            return
-        }
-        var qrType: QRType = .address(address)
-        if chainAsset.chain.isSora {
-            let balance = getBalance()
-            var inputAmount = inputResult?.absoluteValue(from: balance).stringWithPointSeparator
-            if
-                chainAsset.asset.currencyId == BokoloConstants.bokoloCashAssetCurrencyId,
-                var input = inputResult?.absoluteValue(from: balance) {
-                var drounded = Decimal()
-                NSDecimalRound(&drounded, &input, 2, .plain)
-                inputAmount = input.stringWithPointSeparator
-            }
-            let addressInfo = SoraQRInfo(
-                prefix: SubstrateQRConstants.prefix,
-                address: address,
-                rawPublicKey: account.publicKey,
-                username: wallet.name,
-                assetId: chainAsset.asset.currencyId ?? "",
-                amount: inputAmount
-            )
-            qrType = .addressInfo(addressInfo)
-        }
+        // Freeze the account, asset and amount before asynchronous work begins.
+        let qrType: QRType
         do {
-            qrOperation = try qrService.generate(
-                with: qrType,
-                qrSize: Constants.qrSize,
-                runIn: .main
-            ) { [weak self] operationResult in
-                if let result = operationResult {
-                    self?.qrOperation = nil
-                    self?.processOperation(result: result)
-                }
-            }
+            qrType = try makeQRType()
         } catch {
             processOperation(result: .failure(error))
+            return
+        }
+        let generation = qrGeneration
+        let service = qrService
+        qrOperation = Task { [weak self] in
+            let result: Result<UIImage, Error>
+            do {
+                try Task.checkCancellation()
+                result = .success(try await service.generate(with: qrType, qrSize: Constants.qrSize))
+            } catch {
+                result = .failure(error)
+            }
+            await MainActor.run { [weak self] in
+                guard !Task.isCancelled, let self, self.qrGeneration == generation, !self.isClosed else {
+                    return
+                }
+                self.qrOperation = nil
+                self.processOperation(result: result)
+            }
+            return try? result.get()
         }
     }
 
+    private func makeQRType() throws -> QRType {
+        guard let address else { throw ChainAccountFetchingError.accountNotExists }
+        guard chainAsset.chain.isSora else { return .address(address) }
+        guard let account = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
+            throw ChainAccountFetchingError.accountNotExists
+        }
+        let balance = getBalance()
+        var inputAmount = inputResult?.absoluteValue(from: balance).stringWithPointSeparator
+        if
+            chainAsset.asset.currencyId == BokoloConstants.bokoloCashAssetCurrencyId,
+            var input = inputResult?.absoluteValue(from: balance) {
+            var drounded = Decimal()
+            NSDecimalRound(&drounded, &input, 2, .plain)
+            inputAmount = drounded.stringWithPointSeparator
+        }
+        return .addressInfo(SoraQRInfo(
+            prefix: SubstrateQRConstants.prefix,
+            address: address,
+            rawPublicKey: account.publicKey,
+            username: wallet.name,
+            assetId: chainAsset.asset.currencyId ?? "",
+            amount: inputAmount
+        ))
+    }
+
     private func cancelQRGeneration() {
+        qrGeneration = UUID()
         qrOperation?.cancel()
         qrOperation = nil
+        currentQRImage = nil
     }
 
     private func processOperation(result: Result<UIImage, Error>) {
         switch result {
         case let .success(image):
+            currentQRImage = image
             view?.didReceive(image: image)
         case let .failure(error):
             router.present(error: error, from: view, locale: selectedLocale)
@@ -197,13 +219,14 @@ extension ReceiveAndRequestAssetPresenter: ReceiveAndRequestAssetViewOutput {
         router.showSelectAsset(
             from: view,
             wallet: wallet,
-            selectedAssetId: chainAsset.asset.identifier,
+            selectedAssetId: chainAsset.asset.id,
             chainAssets: chainAsset.chain.chainAssets,
             output: self
         )
     }
 
     func didLoad(view: ReceiveAndRequestAssetViewInput) {
+        isClosed = false
         self.view = view
         interactor.setup(with: self)
 
@@ -218,6 +241,7 @@ extension ReceiveAndRequestAssetPresenter: ReceiveAndRequestAssetViewOutput {
     }
 
     func share(qrImage: UIImage) {
+        guard !isClosed, currentQRImage === qrImage else { return }
         guard let address = address else {
             assertionFailure()
             return
@@ -235,11 +259,14 @@ extension ReceiveAndRequestAssetPresenter: ReceiveAndRequestAssetViewOutput {
     }
 
     func close() {
+        isClosed = true
+        cancelQRGeneration()
+        view?.didStartQRGeneration()
         router.dismiss(view: view)
     }
 
     func presentAccountOptions() {
-        guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress(), let view = view else {
+        guard let address = address, let view = view else {
             return
         }
 
@@ -267,16 +294,6 @@ extension ReceiveAndRequestAssetPresenter: ReceiveAndRequestAssetViewOutput {
 // MARK: - ReceiveAndRequestAssetInteractorOutput
 
 extension ReceiveAndRequestAssetPresenter: ReceiveAndRequestAssetInteractorOutput {
-    func didReceivePricesData(result: Result<[SSFModels.PriceData], Error>) {
-        switch result {
-        case let .success(prices):
-            pricesData = prices
-            provideAssetVewModel()
-        case let .failure(failure):
-            Logger.shared.customError(failure)
-        }
-    }
-
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: SSFModels.ChainAsset) {
         switch result {
         case let .success(accountInfo):
@@ -284,10 +301,15 @@ extension ReceiveAndRequestAssetPresenter: ReceiveAndRequestAssetInteractorOutpu
                 return
             }
             let key = chainAsset.uniqueKey(accountId: accountId)
+            let previousAmount = inputResult?.absoluteValue(from: getBalance())
             accountInfos[key] = accountInfo
             if self.chainAsset == chainAsset {
                 provideAssetVewModel()
                 provideInputViewModel()
+                if case .rate? = inputResult,
+                   previousAmount != inputResult?.absoluteValue(from: getBalance()) {
+                    generateQR()
+                }
             }
         case let .failure(failure):
             Logger.shared.customError(failure)

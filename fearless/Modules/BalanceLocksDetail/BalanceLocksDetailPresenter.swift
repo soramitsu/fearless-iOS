@@ -11,6 +11,7 @@ final class BalanceLocksDetailPresenter {
     private let logger: LoggerProtocol?
     private let viewModelFactory: BalanceLockDetailViewModelFactory
     private let chainAsset: ChainAsset
+    private let selectedCurrency: Currency
 
     private var nominationPoolLocks: NoneStateOptional<StakingLocks?> = .none
     private var stakingLocks: NoneStateOptional<StakingLocks?> = .none
@@ -20,7 +21,6 @@ final class BalanceLocksDetailPresenter {
     private var totalLocks: NoneStateOptional<Decimal?> = .none
     private var assetFrozen: NoneStateOptional<Decimal?> = .none
     private var assetBlocked: NoneStateOptional<Decimal?> = .none
-    private var priceData: PriceData?
 
     // MARK: - Constructors
 
@@ -30,13 +30,15 @@ final class BalanceLocksDetailPresenter {
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol?,
         viewModelFactory: BalanceLockDetailViewModelFactory,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        selectedCurrency: Currency
     ) {
         self.interactor = interactor
         self.router = router
         self.logger = logger
         self.viewModelFactory = viewModelFactory
         self.chainAsset = chainAsset
+        self.selectedCurrency = selectedCurrency
         self.localizationManager = localizationManager
     }
 
@@ -51,7 +53,7 @@ final class BalanceLocksDetailPresenter {
 
         let viewModel = viewModelFactory.buildStakingLocksViewModel(
             stakingLocks: stakingLocks,
-            priceData: priceData
+            priceData: chainAsset.asset.getPrice(for: selectedCurrency)
         )
 
         await view?.didReceiveStakingLocksViewModel(viewModel)
@@ -66,7 +68,7 @@ final class BalanceLocksDetailPresenter {
 
         let viewModel = viewModelFactory.buildNominationPoolLocksViewModel(
             nominationPoolLocks: nominationPoolLocks,
-            priceData: priceData
+            priceData: chainAsset.asset.getPrice(for: selectedCurrency)
         )
 
         await view?.didReceivePoolLocksViewModel(viewModel)
@@ -77,14 +79,17 @@ final class BalanceLocksDetailPresenter {
     private func provideCrowdloanViewModel() async {
         guard
             chainAsset.chain.isRelaychain,
-            let crowdloanLocks = crowdloanLocks.value
+            let receivedCrowdloanLocks = crowdloanLocks.value,
+            let crowdloanLocks = receivedCrowdloanLocks,
+            crowdloanLocks > .zero
         else {
+            await view?.didReceiveCrowdloanLocksViewModel(nil)
             return
         }
 
         let viewModel = viewModelFactory.buildCrowdloanLocksViewModel(
             crowdloanLocks: crowdloanLocks,
-            priceData: priceData
+            priceData: chainAsset.asset.getPrice(for: selectedCurrency)
         )
 
         await view?.didReceiveCrowdloanLocksViewModel(viewModel)
@@ -100,10 +105,16 @@ final class BalanceLocksDetailPresenter {
 
         let viewModel = viewModelFactory.buildVestingLocksViewModel(
             vestingLocks: vestingLocks,
-            priceData: priceData
+            priceData: chainAsset.asset.getPrice(for: selectedCurrency)
         )
 
         await view?.didReceiveCrowdloanLocksViewModel(viewModel)
+
+        // Provide a one-line hint for Asset Hubs per runtime changes
+        let hint = chainAsset.chain.paraId == "1000"
+            ? "Uses Relay Chain block time on Asset Hubs"
+            : nil
+        await view?.didReceiveVestingHint(hint)
     }
 
     private func provideGovernanceViewModel() async {
@@ -112,7 +123,7 @@ final class BalanceLocksDetailPresenter {
         }
         let viewModel = viewModelFactory.buildGovernanceLocksViewModel(
             governanceLocks: governanceLocks,
-            priceData: priceData
+            priceData: chainAsset.asset.getPrice(for: selectedCurrency)
         )
 
         await view?.didReceiveGovernanceLocksViewModel(viewModel)
@@ -135,7 +146,7 @@ final class BalanceLocksDetailPresenter {
             governanceLocks: governanceLocks,
             crowdloanLocks: crowdloanLocks,
             vestingLocks: vestingLocks,
-            priceData: priceData
+            priceData: chainAsset.asset.getPrice(for: selectedCurrency)
         )
 
         await view?.didReceiveTotalLocksViewModel(viewModel)
@@ -163,7 +174,7 @@ final class BalanceLocksDetailPresenter {
 
         let viewModel = viewModelFactory.buildAssetFrozenViewModel(
             assetFrozen: assetFrozen,
-            priceData: priceData
+            priceData: chainAsset.asset.getPrice(for: selectedCurrency)
         )
 
         await view?.didReceiveAssetFrozenViewModel(viewModel)
@@ -178,7 +189,7 @@ final class BalanceLocksDetailPresenter {
 
         let viewModel = viewModelFactory.buildAssetBlockedViewModel(
             assetBlocked: assetBlocked,
-            priceData: priceData
+            priceData: chainAsset.asset.getPrice(for: selectedCurrency)
         )
 
         await view?.didReceiveAssetBlockedViewModel(viewModel)
@@ -202,23 +213,6 @@ extension BalanceLocksDetailPresenter: BalanceLocksDetailViewOutput {
 // MARK: - BalanceLocksDetailInteractorOutput
 
 extension BalanceLocksDetailPresenter: BalanceLocksDetailInteractorOutput {
-    func didReceivePrice(_ price: PriceData?) {
-        priceData = price
-
-        Task {
-            await provideStakingViewModel()
-            await providePoolsViewModel()
-            await provideGovernanceViewModel()
-            await provideCrowdloanViewModel()
-            await provideVestingViewModel()
-            await provideTotalViewModel()
-        }
-    }
-
-    func didReceivePriceError(_ error: Error) {
-        logger?.error(error.localizedDescription)
-    }
-
     func didReceiveStakingLocks(_ stakingLocks: StakingLocks?) async {
         self.stakingLocks = .value(stakingLocks)
         await provideStakingViewModel()

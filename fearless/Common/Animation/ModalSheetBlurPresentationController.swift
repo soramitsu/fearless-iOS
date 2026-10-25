@@ -75,9 +75,21 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
         animateBackgroundAlpha(fromValue: 0.0, toValue: 1)
     }
 
+    override func presentationTransitionDidEnd(_ completed: Bool) {
+        if completed {
+            containerView?.alpha = 1
+        }
+    }
+
+    override func dismissalTransitionDidEnd(_ completed: Bool) {
+        if !completed {
+            containerView?.alpha = 1
+        }
+    }
+
     override func dismissalTransitionWillBegin() {
         if
-            let window = UIApplication.shared.keyWindow,
+            let window = SceneWindowFinder.activeWindow(),
             let transitionView = window.subviews.first(
                 where: { $0.tag == ModalSheetBlurPresentationAppearanceAnimator.UITransitionViewFearlessTag }
             ),
@@ -98,8 +110,11 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
             self.containerView?.alpha = toValue
         }
 
-        presentingViewController.transitionCoordinator?
-            .animate(alongsideTransition: animationBlock, completion: nil)
+        let coordinator = presentedViewController.transitionCoordinator
+            ?? presentingViewController.transitionCoordinator
+        if coordinator?.animate(alongsideTransition: animationBlock, completion: nil) != true {
+            containerView?.alpha = toValue
+        }
     }
 
     func dismiss(animated: Bool) {

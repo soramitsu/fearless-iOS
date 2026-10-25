@@ -3,7 +3,9 @@ import SoraFoundation
 import SoraKeystore
 import RobinHood
 import SSFModels
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 final class PoolRolesConfirmAssembly {
     static func configureModule(
@@ -35,26 +37,15 @@ final class PoolRolesConfirmAssembly {
         )
 
         let feeProxy = ExtrinsicFeeProxy()
-
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let signingWrapper = SigningWrapper(
             keystore: Keychain(),
             metaId: wallet.metaId,
             accountResponse: accountResponse
         )
 
-        let facade = UserDataStorageFacade.shared
-
-        let mapper = MetaAccountMapper()
-
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
@@ -64,9 +55,8 @@ final class PoolRolesConfirmAssembly {
             poolId: poolId,
             roles: roles,
             signingWrapper: signingWrapper,
-            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset,
-            accountRepository: AnyDataProviderRepository(accountRepository),
+            accountRepository: accountRepository,
             operationManager: OperationManagerFacade.sharedManager,
             callFactory: callFactory
         )

@@ -1,0 +1,6 @@
+use_frameworks!
+target 'SSFChainConnection_Tests' do
+  pod 'SSFChainConnection', :path => '../'
+  
+  
+end

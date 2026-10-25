@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 import SSFUtils
 import BigInt
 
@@ -59,7 +60,7 @@ extension RewardDestinationArg: Codable {
         case Self.accountField:
             do {
                 let data = try container.decode(String.self)
-                self = .account(Data(hex: data))
+                self = .account(try Data(hexStringSSF: data))
             } catch {
                 let data = try container.decode(Data.self)
                 self = .account(data)

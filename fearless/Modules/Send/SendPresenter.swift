@@ -3,6 +3,7 @@ import SoraFoundation
 import BigInt
 import SSFUtils
 import SSFModels
+import SSFQRService
 
 final class SendPresenter {
     enum State {
@@ -15,6 +16,12 @@ final class SendPresenter {
         case validateAll
     }
 
+    private enum UnavailableNextStep {
+        case close
+        case receive
+        case retry
+    }
+
     // MARK: Private properties
 
     private weak var view: SendViewInput?
@@ -23,39 +30,162 @@ final class SendPresenter {
     private let dataValidatingFactory: SendDataValidatingFactory
     private let logger: LoggerProtocol?
     private let wallet: MetaAccountModel
-    private let qrParser: QRParser
+    private let formScope: SolanaSendFormScope
     private let viewModelFactory: SendViewModelFactoryProtocol
+    private let tokenCatalog: CanonicalTokenGroupCatalog
     private var initialData: SendFlowInitialData
 
     private weak var moduleOutput: SendModuleOutput?
 
-    private var recipientAddress: String?
+    private var recipientAddress: String? {
+        didSet {
+            if oldValue != recipientAddress {
+                formScope.invalidate()
+                invalidateScamWarning()
+            }
+        }
+    }
+
+    /// The Solana recipient refusal last shown, so it is explained once per address.
+    private var presentedTransferRefusal: String?
+    private var selectionGeneration = 0
+    private let conversionScope = SendRequestScope()
+    private let scamPresentationScope = SendRequestScope()
     private var selectedChain: ChainModel?
     private var selectedChainAsset: ChainAsset? {
         didSet {
-            checkSendAllVisibility()
-
+            if oldValue != selectedChainAsset {
+                formScope.invalidate()
+                invalidateScamWarning()
+            }
+            if oldValue?.assetKey != selectedChainAsset?.assetKey {
+                selectionGeneration += 1
+                conversionScope.begin()
+            }
+            if let oldValue, oldValue.assetKey != selectedChainAsset?.assetKey {
+                inputResult = nil
+                sendAllEnabled = false
+                balance = nil
+                balanceUnavailable = false
+                utilityBalance = nil
+                frozenBalance = nil
+                fee = nil
+                feeViewModel = nil
+                tip = nil
+                tipValue = nil
+                minimumBalance = nil
+                assetAccountInfo = .none
+                eqUilibriumTotalBalance = nil
+                bokoloSwapValues = nil
+                view?.switchEnableSendAllState(enabled: false)
+                view?.didReceive(feeViewModel: nil)
+                view?.didReceive(tipViewModel: nil)
+            }
             DispatchQueue.main.async {
+                self.checkSendAllVisibility()
                 self.view?.setInputAccessoryView(visible: self.selectedChainAsset?.isBokolo == false)
             }
         }
     }
 
-    private var assetAccountInfo: NoneStateOptional<AssetAccountInfo?> = .none
-    private var frozenBalance: Decimal?
-    private var selectedAsset: AssetModel?
-    private var balance: Decimal?
-    private var utilityBalance: Decimal?
-    private var prices: [PriceData] = []
-    private var tip: Decimal?
-    private var tipValue: BigUInt?
-    private var fee: Decimal?
-    private var minimumBalance: BigUInt?
-    private var inputResult: AmountInputResult?
-    private var scamInfo: ScamInfo?
+    private var assetAccountInfo: NoneStateOptional<AssetAccountInfo?> = .none {
+        didSet { formScope.invalidate() }
+    }
+
+    private var frozenBalance: Decimal? {
+        didSet {
+            if oldValue != frozenBalance {
+                formScope.invalidate()
+            }
+        }
+    }
+
+    private var balance: Decimal? {
+        didSet {
+            if oldValue != balance {
+                formScope.invalidate()
+            }
+        }
+    }
+
+    /// The selected asset's remote balance read failed. No amount is shown for it: neither an
+    /// older one nor zero.
+    private var balanceUnavailable = false
+
+    private var utilityBalance: Decimal? {
+        didSet {
+            if oldValue != utilityBalance {
+                formScope.invalidate()
+            }
+        }
+    }
+
+    private var tip: Decimal? {
+        didSet {
+            if oldValue != tip {
+                formScope.invalidate()
+            }
+        }
+    }
+
+    private var tipValue: BigUInt? {
+        didSet {
+            if oldValue != tipValue {
+                formScope.invalidate()
+            }
+        }
+    }
+
+    private var fee: Decimal? {
+        didSet {
+            if oldValue != fee {
+                formScope.invalidate()
+            }
+        }
+    }
+
+    private var minimumBalance: BigUInt? {
+        didSet {
+            if oldValue != minimumBalance {
+                formScope.invalidate()
+            }
+        }
+    }
+
+    private var amountInputRevision = UUID()
+    private var inputResult: AmountInputResult? {
+        didSet {
+            amountInputRevision = UUID()
+            formScope.invalidate()
+        }
+    }
+
+    private var scamInfo: ScamInfo? {
+        didSet {
+            if oldValue != scamInfo {
+                formScope.invalidate()
+            }
+        }
+    }
+
     private var state: State = .normal
-    private var eqUilibriumTotalBalance: Decimal?
-    private var sendAllEnabled: Bool = false
+    private var eqUilibriumTotalBalance: Decimal? {
+        didSet {
+            if oldValue != eqUilibriumTotalBalance {
+                formScope.invalidate()
+            }
+        }
+    }
+
+    private var sendAllEnabled: Bool = false {
+        didSet {
+            if oldValue != sendAllEnabled {
+                formScope.invalidate()
+            }
+        }
+    }
+
+    private var isPresentingUnavailableReason = false
     private var balanceMinusFeeAndTip: Decimal {
         let feePaymentChainAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset)
         if feePaymentChainAsset?.identifier != selectedChainAsset?.identifier {
@@ -71,7 +201,7 @@ final class SendPresenter {
     private var fullAmount: Decimal {
         let feePaymentChainAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset)
         if feePaymentChainAsset?.identifier != selectedChainAsset?.identifier {
-            return (balance ?? 0)
+            return balance ?? 0
         }
         return (balance ?? 0) + (fee ?? 0) + (tip ?? 0)
     }
@@ -81,7 +211,6 @@ final class SendPresenter {
 
     // MARK: - Bokolo cash properties
 
-    private var bokoloCashId: Data?
     private var bokoloSwapValues: (swap: SwapValues, fee: Decimal?)?
 
     // MARK: - Constructors
@@ -92,19 +221,21 @@ final class SendPresenter {
         localizationManager: LocalizationManagerProtocol,
         viewModelFactory: SendViewModelFactoryProtocol,
         dataValidatingFactory: SendDataValidatingFactory,
-        qrParser: QRParser,
         logger: LoggerProtocol? = nil,
         wallet: MetaAccountModel,
-        initialData: SendFlowInitialData
+        initialData: SendFlowInitialData,
+        tokenCatalog: CanonicalTokenGroupCatalog = .bundled,
+        selectedWalletSettings: SelectedWalletSettings = .shared
     ) {
         self.interactor = interactor
         self.router = router
         self.viewModelFactory = viewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
-        self.qrParser = qrParser
         self.logger = logger
         self.wallet = wallet
+        formScope = SolanaSendFormScope(selection: selectedWalletSettings.sendAuthority.capture(for: wallet))
         self.initialData = initialData
+        self.tokenCatalog = tokenCatalog
 
         self.localizationManager = localizationManager
     }
@@ -124,7 +255,7 @@ final class SendPresenter {
             return nil
         }
 
-        if let factory = balanceViewModelFactoryByAsset[chainAsset.asset.id] {
+        if let factory = balanceViewModelFactoryByAsset[chainAsset.identifier] {
             return factory
         }
 
@@ -135,19 +266,19 @@ final class SendPresenter {
             selectedMetaAccount: wallet
         )
 
-        balanceViewModelFactoryByAsset[chainAsset.asset.id] = balanceViewModelFactory
+        balanceViewModelFactoryByAsset[chainAsset.identifier] = balanceViewModelFactory
         return balanceViewModelFactory
     }
 
     private func provideAssetVewModel() {
-        guard let chainAsset = selectedChainAsset, case let .value(assetInfo) = assetAccountInfo else { return }
-        let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
+        guard let chainAsset = selectedChainAsset, case .value = assetAccountInfo else { return }
+        let priceData = AssetTrustResolver.displayPrice(for: chainAsset, currency: wallet.selectedCurrency)
         let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: chainAsset)
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndTip) ?? 0.0
 
         let viewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
             inputAmount,
-            balance: freeBalance,
+            balance: balanceUnavailable ? nil : freeBalance,
             priceData: priceData,
             selectable: initialData.selectableAsset
         ).value(for: selectedLocale)
@@ -166,7 +297,7 @@ final class SendPresenter {
               let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset)
         else { return }
 
-        let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
+        let priceData = AssetTrustResolver.displayPrice(for: chainAsset, currency: wallet.selectedCurrency)
         let viewModel = tip
             .map { balanceViewModelFactory
                 .balanceFromPrice(
@@ -198,7 +329,7 @@ final class SendPresenter {
             let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset)
         else { return }
 
-        let priceData = prices.first(where: { $0.priceId == utilityAsset.asset.priceId })
+        let priceData = utilityAsset.asset.getPrice(for: wallet.selectedCurrency)
         let viewModel = fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
@@ -224,8 +355,10 @@ final class SendPresenter {
 
         let inputViewModel = balanceViewModelFactory?.createBalanceInputViewModel(inputAmount)
             .value(for: selectedLocale)
+        let revision = amountInputRevision
 
         DispatchQueue.main.async {
+            guard self.amountInputRevision == revision else { return }
             self.view?.didReceive(amountInputViewModel: inputViewModel)
             let isVisible = chainAsset.chain.externalApi?.history != nil
             self.view?.setHistoryButton(isVisible: isVisible)
@@ -234,18 +367,15 @@ final class SendPresenter {
 
     private func provideNetworkViewModel(for chain: ChainModel, canEdit: Bool) {
         let viewModel = viewModelFactory.buildNetworkViewModel(chain: chain, canEdit: canEdit)
+        let generation = selectionGeneration
         DispatchQueue.main.async {
+            guard self.selectionGeneration == generation else { return }
             self.view?.didReceive(selectNetworkViewModel: viewModel)
         }
     }
 
     private func refreshFee(for chainAsset: ChainAsset, address: String?) {
         switch initialData {
-        case .bokoloCash:
-            guard let transfer = prepareXorlessTransfer() else {
-                return
-            }
-            interactor.didReceive(xorlessTransfer: transfer)
         case .address, .chainAsset, .soraMainnet:
             if selectedChainAsset?.isBokolo == true {
                 guard let transfer = prepareXorlessTransfer() else {
@@ -270,12 +400,21 @@ final class SendPresenter {
         }
     }
 
+    private func invalidateScamWarning() {
+        interactor.invalidateScamInfo()
+        didReceive(scamInfo: nil)
+    }
+
     private func handle(newAddress: String) {
-        guard newAddress.isNotEmpty else {
-            return
+        if let chainAsset = selectedChainAsset {
+            let accountScoreViewModel = viewModelFactory.buildAccountScoreViewModel(address: newAddress, chain: chainAsset.chain)
+            DispatchQueue.main.async {
+                self.view?.didReceive(accountScoreViewModel: accountScoreViewModel)
+            }
         }
-        recipientAddress = newAddress
-        guard let chainAsset = selectedChainAsset else { return }
+
+        recipientAddress = newAddress.isEmpty ? nil : newAddress
+        guard newAddress.isNotEmpty, let chainAsset = selectedChainAsset else { return }
         let viewModel = viewModelFactory.buildRecipientViewModel(
             address: newAddress,
             isValid: interactor.validate(address: newAddress, for: chainAsset.chain).isValid,
@@ -287,37 +426,46 @@ final class SendPresenter {
         }
 
         interactor.updateSubscriptions(for: chainAsset)
-        interactor.fetchScamInfo(for: newAddress)
+        interactor.fetchScamInfo(for: newAddress, chain: chainAsset.chain)
     }
 
     private func handle(selectedChain: ChainModel?) {
-        self.selectedChain = selectedChain
+        guard let selectedChain else { return }
         switch state {
         case .initialSelection:
-            if let chain = selectedChain {
-                defineOrSelectAsset(for: chain)
-            }
+            self.selectedChain = selectedChain
             state = .normal
+            defineOrSelectAsset(for: selectedChain)
         case .normal:
-            let optionalAsset: AssetModel? = selectedAsset ?? selectedChainAsset?.asset
-            if
-                let selectedChain = selectedChain,
-                let selectedAsset = optionalAsset,
-                let selectedChainAsset = selectedChain.chainAssets.first(where: {
-                    $0.asset.symbol.lowercased() == selectedAsset.symbol.lowercased()
-                }) {
-                self.selectedChainAsset = selectedChainAsset
-                handle(selectedChainAsset: selectedChainAsset)
+            guard let current = selectedChainAsset else { return }
+            guard let member = SendNetworkSelection.member(for: current, on: selectedChain, catalog: tokenCatalog) else {
+                router.present(
+                    message: R.string.localizable.sendNetworkUnavailable(selectedChain.name, preferredLanguages: selectedLocale.rLanguages),
+                    title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+                    closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
+                    from: view
+                )
+                return
             }
+            self.selectedChain = selectedChain
+            selectedChainAsset = member
+            handle(selectedChainAsset: member)
         }
-        if selectedChainAsset == nil {
-            router.dismiss(view: view)
+    }
+
+    private func provideNetworkSelection(for chainAsset: ChainAsset) {
+        provideNetworkViewModel(for: chainAsset.chain, canEdit: false)
+        guard tokenCatalog.group(for: chainAsset) != nil else { return }
+        let generation = selectionGeneration
+        interactor.defineAvailableChains(for: chainAsset, wallet: wallet) { [weak self] chains in
+            guard let self, self.selectionGeneration == generation, self.selectedChainAsset?.assetKey == chainAsset.assetKey else { return }
+            self.provideNetworkViewModel(for: chainAsset.chain, canEdit: (chains?.count ?? 0) > 1)
         }
     }
 
     private func handle(selectedChainAsset: ChainAsset) {
         fee = nil
-        provideNetworkViewModel(for: selectedChainAsset.chain, canEdit: true)
+        provideNetworkSelection(for: selectedChainAsset)
         provideAssetVewModel()
         provideInputViewModel()
         if let recipientAddress = recipientAddress {
@@ -374,20 +522,31 @@ final class SendPresenter {
         )
     }
 
-    private func showSameAddressAlert(_ address: String, successCompletion: @escaping (String) -> Void) {
+    private func showSameAddressAlert(
+        _ address: String, formReceipt: UUID?, successCompletion: @escaping (String) -> Void
+    ) {
         let action = SheetAlertPresentableAction(
             title: R.string.localizable.commonProceed(preferredLanguages: selectedLocale.rLanguages)
         ) {
             successCompletion(address)
         }
-        router.present(
-            message: R.string.localizable
-                .sameAddressTransferWarningMessage(preferredLanguages: selectedLocale.rLanguages),
-            title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
-            closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages),
-            from: view,
-            actions: [action]
+        let message = R.string.localizable.sameAddressTransferWarningMessage(
+            preferredLanguages: selectedLocale.rLanguages
         )
+        let title = R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages)
+        let close = R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages)
+        guard let formReceipt else {
+            router.present(message: message, title: title, closeAction: close, from: view, actions: [action])
+            return
+        }
+        let presentationID = UUID()
+        let model = SheetAlertPresentableViewModel(
+            title: title, message: message, actions: [action], closeAction: close,
+            dismissCompletion: { [weak self] in self?.formScope.endPresentation(presentationID) },
+            presentationID: presentationID
+        )
+        formScope.bindPresentation(presentationID, to: formReceipt)
+        router.presentFormWarning(viewModel: model, from: view)
     }
 
     private func showIncorrectAddressAlert() {
@@ -408,16 +567,68 @@ final class SendPresenter {
         router.present(viewModel: alertViewModel, from: view)
     }
 
+    private func presentUnavailable(reason: SendUnavailableReason, chainAsset: ChainAsset) {
+        isPresentingUnavailableReason = true
+        let languages = selectedLocale.rLanguages
+        var nextStep = UnavailableNextStep.close
+        var actions: [SheetAlertPresentableAction] = []
+        if reason.offersReceive {
+            actions.append(SheetAlertPresentableAction(
+                title: R.string.localizable.commonActionReceive(preferredLanguages: languages),
+                style: .pinkBackgroundWhiteText
+            ) {
+                nextStep = .receive
+            })
+        }
+        if reason.offersRetry {
+            actions.append(SheetAlertPresentableAction(
+                title: R.string.localizable.commonRetry(preferredLanguages: languages),
+                style: .pinkBackgroundWhiteText
+            ) {
+                nextStep = .retry
+            })
+        }
+
+        let viewModel = SheetAlertPresentableViewModel(
+            title: reason.title(for: selectedLocale),
+            message: reason.message(for: selectedLocale),
+            actions: actions,
+            closeAction: R.string.localizable.commonClose(preferredLanguages: languages),
+            // Every way out of the sheet ends here, so the choice decides the next screen.
+            dismissCompletion: { [weak self] in
+                guard let self else { return }
+                switch nextStep {
+                case .close:
+                    router.dismiss(view: view)
+                case .receive:
+                    router.presentReceive(leavingSendFlowFrom: view, chainAsset: chainAsset, wallet: wallet)
+                case .retry:
+                    isPresentingUnavailableReason = false
+                    interactor.updateSubscriptions(for: chainAsset)
+                }
+            },
+            icon: R.image.iconWarningBig()
+        )
+        router.present(viewModel: viewModel, from: view)
+    }
+
     private func showUnsupportedAssetAlert() {
         let dissmissAction = SheetAlertPresentableAction(
             title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
         ) { [weak self] in
             self?.router.dismiss(view: self?.view)
         }
+        let assetManagementAction = SheetAlertPresentableAction(
+            title: R.string.localizable.walletManageAssets(preferredLanguages: selectedLocale.rLanguages),
+            style: .pinkBackgroundWhiteText
+        ) { [weak self] in
+            guard let self else { return }
+            self.router.showManageAsset(from: self.view, wallet: self.wallet)
+        }
         let alertViewModel = SheetAlertPresentableViewModel(
-            title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
-            message: R.string.localizable.errorUnsupportedAsset(preferredLanguages: selectedLocale.rLanguages),
-            actions: [dissmissAction],
+            title: R.string.localizable.commonActionReceive(preferredLanguages: selectedLocale.rLanguages),
+            message: R.string.localizable.errorScanQrDisabledAsset(preferredLanguages: selectedLocale.rLanguages),
+            actions: [assetManagementAction, dissmissAction],
             closeAction: nil,
             dismissCompletion: { [weak self] in
                 self?.router.dismiss(view: self?.view)
@@ -426,7 +637,52 @@ final class SendPresenter {
         router.present(viewModel: alertViewModel, from: view)
     }
 
-    private func validateAddress(with chainAsset: ChainAsset, successCompletion: @escaping (String) -> Void) {
+    private func isCurrentFormReceipt(_ receipt: UUID?) -> Bool {
+        guard let receipt else { return true }
+        if let visibility = view as? SolanaSendFormViewState, !visibility.allowsSendFormContinuation {
+            formScope.suspend()
+            return false
+        }
+        return formScope.isCurrent(receipt)
+    }
+
+    private func consumeFormReceipt(_ receipt: UUID?) -> Bool {
+        guard isCurrentFormReceipt(receipt) else { return false }
+        guard let receipt else { return true }
+        return formScope.consume(receipt)
+    }
+
+    private func formAction(_ receipt: UUID?, action: @escaping (SendPresenter) -> Void) -> () -> Void {
+        { [weak self] in
+            guard let self else { return }
+            guard consumeFormReceipt(receipt) else { return }
+            action(self)
+        }
+    }
+
+    private func warningPresenter(for receipt: UUID?) -> BaseErrorPresentable? {
+        guard let receipt else { return nil }
+        return SolanaSendFormWarningPresenter { [weak self] model, view in
+            guard let self, self.isCurrentFormReceipt(receipt) else { return }
+            let owned = SheetAlertPresentableViewModel(
+                title: model.title, titleStyle: model.titleStyle, message: model.message,
+                messageStyle: model.messageStyle, actions: model.actions, isInfo: model.isInfo,
+                closeAction: model.closeAction,
+                dismissCompletion: { [weak self] in
+                    self?.formScope.endPresentation(model.presentationID)
+                    model.dismissCompletion?()
+                },
+                icon: model.icon, actionAxis: model.actionAxis, scrollableContent: model.scrollableContent,
+                presentationID: model.presentationID
+            )
+            self.formScope.bindPresentation(model.presentationID, to: receipt)
+            self.router.presentFormWarning(viewModel: owned, from: view)
+        }
+    }
+
+    private func validateAddress(
+        with chainAsset: ChainAsset, formReceipt: UUID? = nil, successCompletion: @escaping (String) -> Void
+    ) {
         switch interactor.validate(address: recipientAddress, for: chainAsset.chain) {
         case let .valid(address):
             successCompletion(address)
@@ -438,6 +694,7 @@ final class SendPresenter {
             Task {
                 let possibleChains = await interactor.getPossibleChains(for: address)
                 await MainActor.run {
+                    guard isCurrentFormReceipt(formReceipt) else { return }
                     guard let possibleChains = possibleChains, possibleChains.isNotEmpty else {
                         showInvalidAddressAlert()
                         return
@@ -447,25 +704,42 @@ final class SendPresenter {
                 }
             }
         case let .sameAddress(address):
-            showSameAddressAlert(address, successCompletion: successCompletion)
+            showSameAddressAlert(address, formReceipt: formReceipt, successCompletion: successCompletion)
         }
+    }
+
+    private func validateAmountInput(with chainAsset: ChainAsset, completion: @escaping () -> Void) {
+        let ownsSolana = UniversalWalletRegistry.solanaNetwork(for: chainAsset.chain.chainId) != nil
+        if ownsSolana, let visibility = view as? SolanaSendFormViewState {
+            guard visibility.allowsSendFormContinuation else { formScope.suspend(); return }
+            formScope.resume()
+        }
+        let receipt = ownsSolana ? formScope.begin(awaitingAddress: false) : nil
+        guard !ownsSolana || receipt != nil else { return }
+        validateInputData(
+            with: "", chainAsset: chainAsset,
+            validationCase: .validateAmount(completionHandler: completion), formReceipt: receipt
+        )
     }
 
     private func validateInputData(
         with address: String,
         chainAsset: ChainAsset,
-        validationCase: ValidationCase
+        validationCase: ValidationCase,
+        formReceipt: UUID? = nil
     ) {
+        guard isCurrentFormReceipt(formReceipt) else { return }
+        let warningPresentable = warningPresenter(for: formReceipt)
         let sendAmountDecimal = inputResult?.absoluteValue(from: balanceMinusFeeAndTip)
         let spendingValue = (sendAmountDecimal ?? 0) + (fee ?? 0) + (tip ?? 0)
 
-        let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment) ?
+        let balanceType: BalanceType = !chainAsset.isUtility ?
             .orml(balance: balance, utilityBalance: utilityBalance) : .utility(balance: utilityBalance)
         var minimumBalanceDecimal: Decimal?
         if let minBalance = minimumBalance {
             let feePaymentChainAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset).or(chainAsset)
 
-            let precision = chainAsset.chain.isUtilityFeePayment ? feePaymentChainAsset.asset.precision : chainAsset.asset.precision
+            let precision = feePaymentChainAsset.asset.precision
             minimumBalanceDecimal = Decimal.fromSubstrateAmount(
                 minBalance,
                 precision: Int16(precision)
@@ -474,57 +748,48 @@ final class SendPresenter {
             minimumBalanceDecimal = .zero
         }
 
-        let shouldPayInAnotherUtilityToken = !chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment
-        var edParameters: ExistentialDepositValidationParameters = shouldPayInAnotherUtilityToken ?
-            .orml(
-                minimumBalance: minimumBalanceDecimal,
-                feeAndTip: (fee ?? 0) + (tip ?? 0),
-                utilityBalance: utilityBalance
-            ) :
-            .utility(
-                spendingAmount: spendingValue,
-                totalAmount: balance,
-                minimumBalance: minimumBalanceDecimal
-            )
-        if chainAsset.chain.isEquilibrium {
-            edParameters = .equilibrium(
-                minimumBalance: minimumBalanceDecimal,
-                totalBalance: eqUilibriumTotalBalance
-            )
+        let spending: Decimal
+        if chainAsset.isUtility {
+            spending = spendingValue
+        } else {
+            spending = fee.or(.zero)
         }
+
         var validators: [DataValidating?]
         switch validationCase {
         case let .validateAmount(handler):
             validators = [minimumBalance != nil ? dataValidatingFactory.exsitentialDepositIsNotViolated(
-                parameters: edParameters,
-                locale: selectedLocale,
+                spending: spending,
+                balance: eqUilibriumTotalBalance ?? utilityBalance.or(.zero),
+                minimumBalance: minimumBalanceDecimal.or(.zero),
                 chainAsset: chainAsset,
+                locale: selectedLocale,
                 sendAllEnabled: sendAllEnabled,
-                proceedAction: { [weak self] in
-                    guard let self else {
-                        return
-                    }
-
-                    self.sendAllEnabled = true
-                    self.view?.switchEnableSendAllState(enabled: self.sendAllEnabled)
+                warningPresentable: warningPresentable,
+                proceedAction: formAction(formReceipt) { presenter in
+                    presenter.sendAllEnabled = true
+                    presenter.view?.switchEnableSendAllState(enabled: true)
                     handler()
                 },
-                setMaxAction: { [weak self] in
-                    self?.sendAllEnabled = true
-                    self?.view?.switchEnableSendAllState(enabled: true)
-                    self?.selectAmountPercentage(1, validate: false)
+                setMaxAction: formAction(formReceipt) { presenter in
+                    presenter.sendAllEnabled = true
+                    presenter.view?.switchEnableSendAllState(enabled: true)
+                    presenter.selectAmountPercentage(1, validate: false)
                 },
-                cancelAction: { [weak self] in
-                    self?.sendAllEnabled = false
-                    self?.view?.switchEnableSendAllState(enabled: false)
-                    self?.selectAmountPercentage(0, validate: false)
+                cancelAction: formAction(formReceipt) { presenter in
+                    presenter.sendAllEnabled = false
+                    presenter.view?.switchEnableSendAllState(enabled: false)
+                    presenter.selectAmountPercentage(0, validate: false)
                 }
             ) : nil]
         case .validateAll:
             validators = [
-                dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
-                    self?.refreshFee(for: chainAsset, address: address)
-                }),
+                dataValidatingFactory.has(
+                    fee: fee, locale: selectedLocale,
+                    onError: formAction(formReceipt) { presenter in
+                        presenter.refreshFee(for: chainAsset, address: address)
+                    }
+                ),
                 dataValidatingFactory.canPayFeeAndAmount(
                     balanceType: balanceType,
                     feeAndTip: (fee ?? 0) + (tip ?? 0),
@@ -532,23 +797,26 @@ final class SendPresenter {
                     locale: selectedLocale
                 ),
                 dataValidatingFactory.exsitentialDepositIsNotViolated(
-                    parameters: edParameters,
-                    locale: selectedLocale,
+                    spending: spending,
+                    balance: eqUilibriumTotalBalance ?? utilityBalance.or(.zero),
+                    minimumBalance: minimumBalanceDecimal.or(.zero),
                     chainAsset: chainAsset,
+                    locale: selectedLocale,
                     sendAllEnabled: sendAllEnabled,
-                    proceedAction: { [weak self] in
-                        self?.sendAllEnabled = true
-                        self?.view?.switchEnableSendAllState(enabled: true)
+                    warningPresentable: warningPresentable,
+                    proceedAction: formAction(formReceipt) { presenter in
+                        presenter.sendAllEnabled = true
+                        presenter.view?.switchEnableSendAllState(enabled: true)
                     },
-                    setMaxAction: { [weak self] in
-                        self?.sendAllEnabled = true
-                        self?.view?.switchEnableSendAllState(enabled: true)
-                        self?.selectAmountPercentage(1)
+                    setMaxAction: formAction(formReceipt) { presenter in
+                        presenter.sendAllEnabled = true
+                        presenter.view?.switchEnableSendAllState(enabled: true)
+                        presenter.selectAmountPercentage(1)
                     },
-                    cancelAction: { [weak self] in
-                        self?.sendAllEnabled = false
-                        self?.view?.switchEnableSendAllState(enabled: false)
-                        self?.selectAmountPercentage(0)
+                    cancelAction: formAction(formReceipt) { presenter in
+                        presenter.sendAllEnabled = false
+                        presenter.view?.switchEnableSendAllState(enabled: false)
+                        presenter.selectAmountPercentage(0)
                     }
                 )
             ]
@@ -556,13 +824,15 @@ final class SendPresenter {
         DataValidationRunner(validators: validators.compactMap { $0 }).runValidation { [weak self] in
             switch validationCase {
             case let .validateAmount(handler):
-                handler()
+                self?.formAction(formReceipt, action: { _ in handler() })()
             case .validateAll:
                 guard
                     let strongSelf = self,
+                    strongSelf.consumeFormReceipt(formReceipt),
                     let amount = sendAmountDecimal?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
                 else { return }
-                let appId: BigUInt? = chainAsset.chain.options?.contains(.checkAppId) == true ? .zero : nil
+                // SSF ChainOptions no longer includes .checkAppId; appId is not used
+                let appId: BigUInt? = nil
 
                 let transfer = Transfer(
                     chainAsset: chainAsset,
@@ -577,7 +847,8 @@ final class SendPresenter {
                     chainAsset: chainAsset,
                     call: .transfer(transfer),
                     scamInfo: strongSelf.scamInfo,
-                    feeViewModel: nil
+                    feeViewModel: strongSelf.feeViewModel,
+                    selection: formReceipt == nil ? nil : strongSelf.formScope.selection
                 )
             }
         }
@@ -632,7 +903,8 @@ final class SendPresenter {
                 chainAsset: bokoloChainAsset,
                 call: .xorlessTransfer(transfer),
                 scamInfo: nil,
-                feeViewModel: strongSelf.feeViewModel
+                feeViewModel: strongSelf.feeViewModel,
+                selection: nil
             )
         }
     }
@@ -640,7 +912,7 @@ final class SendPresenter {
     private func provideBokoloFeeViewModel(for chainAsset: ChainAsset) {
         guard let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: chainAsset) else { return }
 
-        let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
+        let priceData = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
         let viewModel = bokoloSwapValues?.fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
@@ -666,7 +938,7 @@ final class SendPresenter {
 
             selectedChainAsset = qrChainAsset
 
-            var isUserInteractiveAmount: Bool = true
+            var isUserInteractiveAmount = true
             if let qrAmount = Decimal(string: qrInfo.amount ?? "") {
                 inputResult = .absolute(qrAmount)
                 isUserInteractiveAmount = false
@@ -688,71 +960,6 @@ final class SendPresenter {
         }
     }
 
-    private func handleBokoloCash(qrInfo: BokoloCashQRInfo) {
-        recipientAddress = BokoloConstants.bokoloCasheBridgeAddress
-        Task {
-            let possibleChains = await self.interactor.getPossibleChains(for: BokoloConstants.bokoloCasheBridgeAddress)
-            #if F_DEV
-                let chainAsset = possibleChains?
-                    .first(where: { chain in
-                        switch chain.knownChainEquivalent {
-                        case .soraTest: return true
-                        default: return false
-                        }
-                    })?.chainAssets
-                    .first(where: { $0.asset.currencyId == BokoloConstants.bokoloCashAssetCurrencyId })
-
-            #else
-                let chainAsset = possibleChains?
-                    .first(where: { chain in
-                        switch chain.knownChainEquivalent {
-                        case .soraMain: return true
-                        default: return false
-                        }
-                    })?.chainAssets
-                    .first(where: { $0.asset.currencyId == BokoloConstants.bokoloCashAssetCurrencyId })
-            #endif
-
-            guard
-                let qrChainAsset = chainAsset,
-                let bokoloCashId = qrInfo.address.data(using: .utf8)
-            else {
-                showUnsupportedAssetAlert()
-                return
-            }
-
-            selectedChainAsset = qrChainAsset
-
-            var isUserInteractiveAmount: Bool = true
-            if var qrAmount = Decimal(string: qrInfo.transactionAmount ?? ""), qrAmount != .zero {
-                var drounded = Decimal()
-                NSDecimalRound(&drounded, &qrAmount, 2, .plain)
-                inputResult = .absolute(qrAmount)
-                isUserInteractiveAmount = false
-            }
-
-            let viewModel = viewModelFactory.buildRecipientViewModel(
-                address: qrInfo.address,
-                isValid: true,
-                canEditing: false
-            )
-
-            interactor.updateSubscriptions(for: qrChainAsset)
-            self.bokoloCashId = bokoloCashId
-            await MainActor.run { [isUserInteractiveAmount] in
-                view?.didReceive(viewModel: viewModel)
-                provideInputViewModel()
-                let networkViewModel = SelectNetworkViewModel(
-                    chainName: "Bokolo cash",
-                    iconViewModel: BundleImageViewModel(image: R.image.bokolocash()),
-                    canEdit: false
-                )
-                view?.didReceive(selectNetworkViewModel: networkViewModel)
-                view?.didBlockUserInteractive(isUserInteractiveAmount: isUserInteractiveAmount)
-            }
-        }
-    }
-
     private func prepareXorlessTransfer() -> XorlessTransfer? {
         do {
             guard let selectedChainAsset = selectedChainAsset else {
@@ -760,12 +967,7 @@ final class SendPresenter {
             }
 
             let receiver: Data
-            if case .bokoloCash = initialData {
-                receiver = try AddressFactory.accountId(
-                    from: BokoloConstants.bokoloCasheBridgeAddress,
-                    chain: selectedChainAsset.chain
-                )
-            } else if let recipientAddress = recipientAddress {
+            if let recipientAddress = recipientAddress {
                 receiver = try AddressFactory.accountId(from: recipientAddress, chain: selectedChainAsset.chain)
             } else {
                 receiver = AddressFactory.randomAccountId(for: selectedChainAsset.chain)
@@ -782,7 +984,7 @@ final class SendPresenter {
             let feeReserve = BigUInt(10_000_000_000_000_000)
 
             let dexId = String(bokoloSwapValues?.swap.dexId ?? 0)
-            let transfer = XorlessTransfer(
+            return XorlessTransfer(
                 dexId: dexId,
                 assetId: SoraAssetId(wrappedValue: BokoloConstants.bokoloCashAssetCurrencyId),
                 receiver: receiver,
@@ -791,9 +993,8 @@ final class SendPresenter {
                 maxAmountIn: maxAmountIn ?? .zero,
                 selectedSourceTypes: [],
                 filterMode: PolkaswapCallFilterModeType(wrappedName: filterMode.code, wrappedValue: nil),
-                additionalData: bokoloCashId ?? Data()
+                additionalData: Data()
             )
-            return transfer
         } catch {
             logger?.customError(error)
             return nil
@@ -801,12 +1002,16 @@ final class SendPresenter {
     }
 
     private func checkXorFeePaymentPossibles() {
+        let request = conversionScope.begin()
+        let generation = selectionGeneration
+        bokoloSwapValues = nil
         guard
             let xorBalance = utilityBalance,
             let xorFee = fee
         else {
             DispatchQueue.main.async { [weak self] in
-                self?.view?.didReceive(feeViewModel: nil)
+                guard let self, self.conversionScope.isCurrent(request) else { return }
+                self.view?.didReceive(feeViewModel: nil)
             }
             return
         }
@@ -814,26 +1019,30 @@ final class SendPresenter {
         if xorBalance > xorFee {
             provideFeeViewModel()
         } else {
-            Task {
-                guard
-                    let bokoloChainAsset = selectedChainAsset,
-                    let xorChainAsset = interactor.getFeePaymentChainAsset(for: bokoloChainAsset),
-                    let feeValue = xorFee.toSubstrateAmount(precision: Int16(xorChainAsset.asset.precision))
+            feeViewModel = nil
+            view?.didReceive(feeViewModel: nil)
+            Task { @MainActor [weak self] in
+                guard let self, self.selectionGeneration == generation, self.conversionScope.isCurrent(request),
+                      let bokoloChainAsset = selectedChainAsset,
+                      let xorChainAsset = interactor.getFeePaymentChainAsset(for: bokoloChainAsset),
+                      let feeValue = xorFee.toSubstrateAmount(precision: Int16(xorChainAsset.asset.precision))
                 else {
                     return
                 }
-                guard let bokoloSwap = try await interactor.convert(
-                    chainAsset: xorChainAsset,
-                    toChainAsset: bokoloChainAsset,
-                    amount: feeValue
-                ) else {
-                    return
-                }
-                let bokoloAmount = BigUInt(bokoloSwap.amount) ?? .zero
-                let bokoloFee = Decimal.fromSubstrateAmount(bokoloAmount, precision: Int16(bokoloChainAsset.asset.precision))
-                bokoloSwapValues = (bokoloSwap, bokoloFee)
-                await MainActor.run {
+                do {
+                    guard let bokoloSwap = try await interactor.convert(
+                        chainAsset: xorChainAsset,
+                        toChainAsset: bokoloChainAsset,
+                        amount: feeValue
+                    ), selectionGeneration == generation, conversionScope.isCurrent(request) else { return }
+                    let bokoloAmount = BigUInt(bokoloSwap.amount) ?? .zero
+                    let bokoloFee = Decimal.fromSubstrateAmount(bokoloAmount, precision: Int16(bokoloChainAsset.asset.precision))
+                    bokoloSwapValues = (bokoloSwap, bokoloFee)
                     provideBokoloFeeViewModel(for: bokoloChainAsset)
+                } catch {
+                    guard selectionGeneration == generation, conversionScope.isCurrent(request), !(error is CancellationError) else { return }
+                    view?.didStopFeeCalculation()
+                    router.present(error: error, from: view, locale: selectedLocale)
                 }
             }
         }
@@ -851,7 +1060,7 @@ extension SendPresenter: SendViewOutput {
         case let .chainAsset(chainAsset):
             selectedChainAsset = chainAsset
             interactor.updateSubscriptions(for: chainAsset)
-            provideNetworkViewModel(for: chainAsset.chain, canEdit: true)
+            provideNetworkSelection(for: chainAsset)
             provideInputViewModel()
         case let .address(address):
             recipientAddress = address
@@ -873,24 +1082,17 @@ extension SendPresenter: SendViewOutput {
             }
         case let .soraMainnet(qrInfo):
             handleSora(qrInfo: qrInfo)
-        case let .bokoloCash(bokoloCashQRInfo):
-            handleBokoloCash(qrInfo: bokoloCashQRInfo)
         }
     }
 
     func selectAmountPercentage(_ percentage: Float, validate: Bool = true) {
         inputResult = .rate(Decimal(Double(percentage)))
         if let chainAsset = selectedChainAsset, validate {
-            validateInputData(
-                with: "",
-                chainAsset: chainAsset,
-                validationCase: .validateAmount(completionHandler: { [weak self] in
-                    self?.inputResult = .rate(Decimal(Double(percentage)))
-                    self?.provideAssetVewModel()
-                    self?.provideInputViewModel()
-                    self?.refreshFee(for: chainAsset, address: self?.recipientAddress)
-                })
-            )
+            validateAmountInput(with: chainAsset) { [weak self] in
+                self?.inputResult = .rate(Decimal(Double(percentage)))
+                self?.provideAssetVewModel()
+                self?.provideInputViewModel()
+            }
         }
 
         provideAssetVewModel()
@@ -899,17 +1101,28 @@ extension SendPresenter: SendViewOutput {
         refreshFee(for: chainAsset, address: recipientAddress)
     }
 
+    func didEditAmount(_ newValue: Decimal) -> () -> Void {
+        // Commit the visible draft now and bind deferred work to its original input and form lifetime.
+        inputResult = .absolute(newValue)
+        let revision = amountInputRevision
+        let lifetime = formScope.inputLifetime
+        let ownsSolana = selectedChainAsset.map {
+            UniversalWalletRegistry.solanaNetwork(for: $0.chain.chainId) != nil
+        } ?? false
+        return { [weak self] in
+            guard let self, let lifetime, self.formScope.inputLifetime == lifetime,
+                  self.amountInputRevision == revision else { return }
+            guard !ownsSolana || self.formScope.selection.isCurrent else { return }
+            self.updateAmount(newValue)
+        }
+    }
+
     func updateAmount(_ newValue: Decimal) {
         inputResult = .absolute(newValue)
         if let chainAsset = selectedChainAsset {
-            validateInputData(
-                with: "",
-                chainAsset: chainAsset,
-                validationCase: .validateAmount(completionHandler: { [weak self] in
-                    self?.provideAssetVewModel()
-                    self?.refreshFee(for: chainAsset, address: self?.recipientAddress)
-                })
-            )
+            validateAmountInput(with: chainAsset) { [weak self] in
+                self?.provideAssetVewModel()
+            }
         }
 
         provideAssetVewModel()
@@ -918,6 +1131,7 @@ extension SendPresenter: SendViewOutput {
     }
 
     func didTapBackButton() {
+        formScope.suspend()
         router.dismiss(view: view)
     }
 
@@ -926,11 +1140,22 @@ extension SendPresenter: SendViewOutput {
         if chainAsset.isBokolo {
             validateXorlessTransfer()
         } else {
-            validateAddress(with: chainAsset) { [weak self] address in
-                self?.validateInputData(
+            let ownsSolana = UniversalWalletRegistry.solanaNetwork(for: chainAsset.chain.chainId) != nil
+            if ownsSolana, let visibility = view as? SolanaSendFormViewState {
+                guard visibility.allowsSendFormContinuation else { formScope.suspend(); return }
+                formScope.resume()
+            }
+            let receipt = ownsSolana ? formScope.begin() : nil
+            guard !ownsSolana || receipt != nil else { return }
+            validateAddress(with: chainAsset, formReceipt: receipt) { [weak self] address in
+                guard let self else { return }
+                guard isCurrentFormReceipt(receipt) else { return }
+                if let receipt, !formScope.acceptAddress(receipt) { return }
+                validateInputData(
                     with: address,
                     chainAsset: chainAsset,
-                    validationCase: .validateAll
+                    validationCase: .validateAll,
+                    formReceipt: receipt
                 )
             }
         }
@@ -955,16 +1180,19 @@ extension SendPresenter: SendViewOutput {
         router.showSelectAsset(
             from: view,
             wallet: wallet,
-            selectedAssetId: selectedChainAsset?.asset.identifier,
+            selectedAssetId: selectedChainAsset?.asset.id,
             chainAssets: nil,
             output: self
         )
     }
 
     func didTapSelectNetwork() {
-        guard let chainAsset = selectedChainAsset else { return }
-        interactor.defineAvailableChains(for: chainAsset.asset, wallet: wallet) { [weak self] chains in
-            guard let strongSelf = self, let availableChains = chains else { return }
+        guard let chainAsset = selectedChainAsset, tokenCatalog.group(for: chainAsset) != nil else { return }
+        let generation = selectionGeneration
+        interactor.defineAvailableChains(for: chainAsset, wallet: wallet) { [weak self] chains in
+            guard let strongSelf = self, let availableChains = chains, availableChains.count > 1,
+                  strongSelf.selectionGeneration == generation,
+                  strongSelf.selectedChainAsset?.assetKey == chainAsset.assetKey else { return }
             strongSelf.router.showSelectNetwork(
                 from: strongSelf.view,
                 wallet: strongSelf.wallet,
@@ -1001,14 +1229,20 @@ extension SendPresenter: SendInteractorOutput {
     }
 
     func didReceive(scamInfo: ScamInfo?) {
+        let request = scamPresentationScope.begin()
         self.scamInfo = scamInfo
-        view?.didReceive(scamInfo: scamInfo)
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.scamPresentationScope.isCurrent(request) else { return }
+            self.view?.didReceive(scamInfo: scamInfo)
+        }
     }
 
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
             if chainAsset == selectedChainAsset {
+                balanceUnavailable = false
                 balance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
                         $0.data.sendAvailable,
@@ -1036,7 +1270,20 @@ extension SendPresenter: SendInteractorOutput {
                 provideAssetVewModel()
             }
         case let .failure(error):
-            logger?.error("Did receive account info error: \(error)")
+            logger?.error("Did receive account info error: \(error.logSafeDescription)")
+            // A one-shot remote read that failed leaves no current balance, so no amount is
+            // shown: neither one read earlier nor zero reads as available or as Max. Subscribed
+            // balances keep their last update until the next one, as before.
+            if chainAsset == selectedChainAsset,
+               UniversalWalletRegistry.readsBalanceRemotely(chainAsset.chain.chainId) {
+                balanceUnavailable = true
+                balance = nil
+                if chainAsset.isUtility {
+                    utilityBalance = nil
+                }
+                checkSendAllVisibility()
+                provideAssetVewModel()
+            }
         }
     }
 
@@ -1048,21 +1295,7 @@ extension SendPresenter: SendInteractorOutput {
             logger?.info("Did receive minimum balance \(minimumBalance)")
         case let .failure(error):
             checkSendAllVisibility()
-            logger?.error("Did receive minimum balance error: \(error)")
-        }
-    }
-
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            if let priceData = priceData {
-                prices.append(priceData)
-            }
-            provideAssetVewModel()
-            handleFeeReceived()
-            provideTipViewModel()
-        case let .failure(error):
-            logger?.error("Did receive price error: \(error)")
+            logger?.error("Did receive minimum balance error: \(error.logSafeDescription)")
         }
     }
 
@@ -1086,8 +1319,25 @@ extension SendPresenter: SendInteractorOutput {
                 break
             }
         case let .failure(error):
-            logger?.error("Did receive fee error: \(error)")
+            logger?.error("Did receive fee error: \(error.logSafeDescription)")
+            presentTransferRefusalIfNeeded(error)
         }
+    }
+
+    /// Solana refuses some recipients before anything is signed (a token account, a program).
+    /// The fee quote finds out first, so the reason is shown here, once per address, instead
+    /// of leaving the fee empty with no explanation.
+    private func presentTransferRefusalIfNeeded(_ error: Error) {
+        guard let refusal = error as? SolanaTransferRefusal else {
+            return
+        }
+
+        let key = "\(recipientAddress ?? "")|\(refusal)"
+        guard presentedTransferRefusal != key else {
+            return
+        }
+        presentedTransferRefusal = key
+        router.present(error: refusal, from: view, locale: selectedLocale)
     }
 
     func didReceiveTip(result: Result<BigUInt, Error>) {
@@ -1101,7 +1351,7 @@ extension SendPresenter: SendInteractorOutput {
             provideTipViewModel()
             refreshFee(for: chainAsset, address: address)
         case let .failure(error):
-            logger?.error("Did receive tip error: \(error)")
+            logger?.error("Did receive tip error: \(error.logSafeDescription)")
             // Even though no tip received, let's refresh fee, because we didn't load it at start
             guard let chainAsset = selectedChainAsset, let address = recipientAddress else { return }
             refreshFee(for: chainAsset, address: address)
@@ -1140,6 +1390,24 @@ extension SendPresenter: SendInteractorOutput {
     func didReceiveDependencies(for chainAsset: ChainAsset) {
         refreshFee(for: chainAsset, address: recipientAddress)
     }
+
+    func didReceiveDependenciesError(_ error: Error, for chainAsset: ChainAsset) {
+        logger?.error("Did receive send dependencies error: \(error.logSafeDescription)")
+        // A late result for a network the user already left, or a repeat while the sheet is
+        // up (each recipient edit re-routes), must not stack another sheet.
+        guard
+            !isPresentingUnavailableReason,
+            selectedChainAsset?.chainAssetId == chainAsset.chainAssetId
+        else {
+            return
+        }
+
+        view?.didStopFeeCalculation()
+        presentUnavailable(
+            reason: SendUnavailableReason(dependenciesError: error, chain: chainAsset.chain),
+            chainAsset: chainAsset
+        )
+    }
 }
 
 // MARK: - ScanQRModuleOutput
@@ -1152,8 +1420,6 @@ extension SendPresenter: ScanQRModuleOutput {
 
         initialData = SendFlowInitialData(qrInfoType: qrInfo)
         switch qrInfo {
-        case let .bokoloCash(qrInfo):
-            handleBokoloCash(qrInfo: qrInfo)
         case let .sora(qrInfo):
             handleSora(qrInfo: qrInfo)
         case let .cex(qrInfo):
@@ -1176,31 +1442,17 @@ extension SendPresenter: SendModuleInput {}
 
 extension SendPresenter: SelectAssetModuleOutput {
     func assetSelection(didCompleteWith chainAsset: ChainAsset?, contextTag _: Int?) {
-        selectedAsset = chainAsset?.asset
-        if let asset = chainAsset?.asset {
-            if let chain = chainAsset?.chain {
-                handle(selectedChain: chain)
-            } else {
-                state = .normal
-                interactor.defineAvailableChains(for: asset, wallet: wallet) { [weak self] chains in
-                    if let availableChains = chains, let strongSelf = self {
-                        if availableChains.count == 1 {
-                            self?.handle(selectedChain: availableChains.first)
-                        } else {
-                            strongSelf.router.showSelectNetwork(
-                                from: strongSelf.view,
-                                wallet: strongSelf.wallet,
-                                selectedChainId: strongSelf.selectedChainAsset?.chain.chainId,
-                                chainModels: availableChains,
-                                delegate: strongSelf
-                            )
-                        }
-                    }
-                }
+        guard let chainAsset else {
+            if selectedChainAsset == nil {
+                router.dismiss(view: view)
             }
-        } else if selectedChainAsset == nil {
-            router.dismiss(view: view)
+            return
         }
+        // The picker already returned an exact network asset; never re-derive it from its ticker.
+        state = .normal
+        selectedChain = chainAsset.chain
+        selectedChainAsset = chainAsset
+        handle(selectedChainAsset: chainAsset)
     }
 }
 
@@ -1220,4 +1472,18 @@ extension SendPresenter: SelectNetworkDelegate {
 
 extension SendPresenter: Localizable {
     func applyLocalization() {}
+}
+
+extension SendPresenter: SolanaSendFormScopeManaging {
+    func resumeSendForm() {
+        formScope.resume()
+    }
+
+    func suspendSendForm() {
+        formScope.suspend()
+    }
+
+    func ownsSendFormPresentation(_ identifier: UUID) -> Bool {
+        formScope.ownsPresentation(identifier)
+    }
 }

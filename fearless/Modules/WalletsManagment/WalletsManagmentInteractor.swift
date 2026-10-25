@@ -13,6 +13,7 @@ final class WalletsManagmentInteractor {
     private let eventCenter: EventCenter
     private let shouldSaveSelected: Bool
     private let featureToggleService: FeatureToggleProviderProtocol
+    private let walletRecordsInspector: StoredWalletRecordsInspecting
     init(
         shouldSaveSelected: Bool,
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
@@ -20,7 +21,8 @@ final class WalletsManagmentInteractor {
         operationQueue: OperationQueue,
         settings: SelectedWalletSettings,
         eventCenter: EventCenter,
-        featureToggleService: FeatureToggleProviderProtocol
+        featureToggleService: FeatureToggleProviderProtocol,
+        walletRecordsInspector: StoredWalletRecordsInspecting
     ) {
         self.shouldSaveSelected = shouldSaveSelected
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
@@ -29,6 +31,7 @@ final class WalletsManagmentInteractor {
         self.settings = settings
         self.eventCenter = eventCenter
         self.featureToggleService = featureToggleService
+        self.walletRecordsInspector = walletRecordsInspector
     }
 
     // MARK: - Private methods
@@ -46,16 +49,37 @@ final class WalletsManagmentInteractor {
     }
 
     private func fetchWallets() {
-        let operation = metaAccountRepository.fetchAllOperation(with: RepositoryFetchOptions())
-
-        operation.completionBlock = { [weak self] in
-            guard let result = operation.result else {
-                return
+        Task { [weak self] in
+            guard let self else { return }
+            let result: Result<[ManagedMetaAccountModel], Error>
+            do {
+                let items = try await metaAccountRepository.fetchAllAsync()
+                result = .success(items)
+            } catch {
+                result = .failure(error)
             }
-            self?.output?.didReceiveWallets(result)
+            await MainActor.run { [weak self] in
+                self?.output?.didReceiveWallets(result)
+            }
+        }
+        fetchWalletRecordsReport()
+    }
+
+    /// The list shows only wallets that can be read. Fetch what it leaves out together
+    /// with it, so a stored wallet is never missing without a word.
+    private func fetchWalletRecordsReport() {
+        let reportOperation = walletRecordsInspector.fetchReportOperation()
+
+        reportOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                guard let report = try? reportOperation.extractNoCancellableResultData() else {
+                    return
+                }
+                self?.output?.didReceiveWalletRecordsReport(report)
+            }
         }
 
-        operationQueue.addOperation(operation)
+        operationQueue.addOperation(reportOperation)
     }
 
     private func fetchBalances() {

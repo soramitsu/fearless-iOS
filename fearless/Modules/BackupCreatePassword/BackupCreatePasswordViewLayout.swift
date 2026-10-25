@@ -97,6 +97,14 @@ final class BackupCreatePasswordViewLayout: UIView {
         }
     }
 
+    func setPasswordTooShort() {
+        passwordMatchLabel.text = R.string.localizable.backupCreatePasswordTooShort(
+            "\(NSPredicate.backupPasswordMinimumLength)",
+            preferredLanguages: locale.rLanguages
+        )
+        passwordMatchLabel.textColor = R.color.colorStrokeGray()!
+    }
+
     // MARK: - Private methods
 
     private func setupLayout() {

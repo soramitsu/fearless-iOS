@@ -57,7 +57,7 @@ final class BackupPasswordPresenter {
     private func proceed(with backup: OpenBackupAccount) {
         do {
             guard
-                let backupAccountTypes = backup.backupAccountType,
+                let backupAccountTypes = backup.backupAccountType ?? inferredAccountTypes(of: backup),
                 let backupCryptoType = backup.cryptoType?.lowercased(),
                 let name = backup.name
             else {
@@ -109,11 +109,14 @@ final class BackupPasswordPresenter {
             throw ConvenienceError(error: "Can't create SeedImportRequestData")
         }
 
+        // The Ethereum seed is the private key itself; the import uses it as it is whatever the
+        // path says, but only when a path is present. iOS before 4.2 wrote seed backups without one.
+        let ethereumSeed = backup.encryptedSeed?.ethSeed
         let sourceData = MetaAccountImportRequestSource.SeedImportRequestData(
             substrateSeed: substrateSeed,
-            ethereumSeed: backup.encryptedSeed?.ethSeed,
+            ethereumSeed: ethereumSeed,
             substrateDerivationPath: backup.substrateDerivationPath ?? "",
-            ethereumDerivationPath: backup.ethDerivationPath
+            ethereumDerivationPath: ethereumSeed == nil ? backup.ethDerivationPath : backup.ethDerivationPath ?? ""
         )
         return sourceData
     }
@@ -149,19 +152,33 @@ final class BackupPasswordPresenter {
     ) throws -> MetaAccountImportRequestSource.MnemonicImportRequestData {
         guard
             let passphrase = backup.passphrase,
-            let mnemonic = interactor.createMnemonicFromString(passphrase),
-            let substrateDerivationPath = backup.substrateDerivationPath,
-            let ethDerivationPath = backup.ethDerivationPath
+            let mnemonic = interactor.createMnemonicFromString(passphrase)
         else {
             throw ConvenienceError(error: "Can't create MnemonicImportRequestData")
         }
 
+        // A backup without a path means the empty path, as Android restores it.
         let sourceData = MetaAccountImportRequestSource.MnemonicImportRequestData(
             mnemonic: mnemonic,
-            substrateDerivationPath: substrateDerivationPath,
-            ethereumDerivationPath: ethDerivationPath
+            substrateDerivationPath: backup.substrateDerivationPath ?? "",
+            ethereumDerivationPath: backup.ethDerivationPath ?? ""
         )
         return sourceData
+    }
+
+    /// Backups written before the type list existed (Android 1.x) hold only a phrase; any
+    /// other backup without a list is read by the material it carries.
+    private func inferredAccountTypes(of backup: OpenBackupAccount) -> [OpenBackupAccount.BackupAccountType]? {
+        if backup.passphrase?.isEmpty == false {
+            return [.passphrase]
+        }
+        if backup.encryptedSeed?.substrateSeed?.isEmpty == false {
+            return [.seed]
+        }
+        if backup.json?.substrateJson?.isEmpty == false {
+            return [.json]
+        }
+        return nil
     }
 
     private func showCommonError() {

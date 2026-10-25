@@ -5,6 +5,7 @@ class PinSetupPresenter: PinSetupPresenterProtocol {
     private weak var view: PinSetupViewProtocol?
     private var interactor: PinSetupInteractorInputProtocol
     private var wireframe: PinSetupWireframeProtocol
+    private var completed = false
 
     init(
         interactor: PinSetupInteractorInputProtocol,
@@ -14,6 +15,8 @@ class PinSetupPresenter: PinSetupPresenterProtocol {
         self.wireframe = wireframe
     }
 
+    deinit { interactor.cancel() }
+
     func didLoad(view: PinSetupViewProtocol) {
         self.view = view
 
@@ -22,9 +25,15 @@ class PinSetupPresenter: PinSetupPresenterProtocol {
 
     func activateBiometricAuth() {}
 
-    func cancel() {}
+    func cancel() {
+        guard !completed else { return }
+        completed = true
+        interactor.cancel()
+        view?.didStopLoading()
+    }
 
     func submit(pin: String) {
+        guard !completed else { return }
         interactor.process(pin: pin)
     }
 }
@@ -35,21 +44,30 @@ extension PinSetupPresenter: PinSetupInteractorOutputProtocol {
         completionBlock: @escaping (Bool) -> Void
     ) {
         DispatchQueue.main.async { [weak self] in
-            self?.view?.didRequestBiometryUsage(biometryType: type, completionBlock: completionBlock)
+            guard let self = self, !self.completed else { return }
+            self.view?.didRequestBiometryUsage(biometryType: type, completionBlock: completionBlock)
         }
     }
 
     func didSavePin() {
         DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else { return }
+            guard let strongSelf = self, !strongSelf.completed else { return }
+            strongSelf.completed = true
+            strongSelf.view?.didStopLoading()
             strongSelf.wireframe.showMain(from: strongSelf.view)
         }
     }
 
     func didChangeState(to state: PinSetupInteractor.PinSetupState) {
-        guard case .submitedPincode = state else {
-            return
+        guard !completed else { return }
+        switch state {
+        case .submitingPincode:
+            view?.didStartLoading()
+        case .saveFailed:
+            view?.didStopLoading()
+            view?.didFailSavingPin()
+        default:
+            break
         }
-        view?.didStartLoading()
     }
 }

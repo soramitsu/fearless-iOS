@@ -1,9 +1,5 @@
 import Foundation
 
-enum YourValidatorListFlowError: Error {
-    case validatorBlocked
-}
-
 enum YourValidatorListFlow {
     case relaychain
     case pool

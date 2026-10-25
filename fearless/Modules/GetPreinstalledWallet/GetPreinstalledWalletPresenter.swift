@@ -1,4 +1,5 @@
 import Foundation
+import SSFQRService
 import SoraFoundation
 import AVFoundation
 
@@ -85,15 +86,8 @@ final class GetPreinstalledWalletPresenter: NSObject {
         }
     }
 
-    private func handleQRExtractionService(error: QRExtractionServiceError) {
-        switch error {
-        case .noFeatures:
-            view?.present(message: L10n.InvoiceScan.Error.noInfo, animated: true)
-        case .detectorUnavailable, .invalidImage:
-            view?.present(message: L10n.InvoiceScan.Error.invalidImage, animated: true)
-        case .plainAddress:
-            break
-        }
+    private func handleQRExtractionService() {
+        view?.present(message: L10n.InvoiceScan.Error.noInfo, animated: true)
     }
 
     private func handleImageGallery(error: ImageGalleryError) {
@@ -198,15 +192,12 @@ extension GetPreinstalledWalletPresenter: GetPreinstalledWalletInteractorOutput 
             return
         }
 
-        if let extractionError = error as? QRExtractionServiceError {
-            handleQRExtractionService(error: extractionError)
+        if let imageGalleryError = error as? ImageGalleryError {
+            handleImageGallery(error: imageGalleryError)
             return
         }
 
-        if let imageGalleryError = error as? ImageGalleryError {
-            handleImageGallery(error: imageGalleryError)
-        }
-
+        handleQRExtractionService()
         processingIsActive = false
 
         logger.error("Unexpected qr service error \(error)")

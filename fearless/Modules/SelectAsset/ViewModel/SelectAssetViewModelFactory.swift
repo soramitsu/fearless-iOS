@@ -3,6 +3,7 @@ import SoraFoundation
 import SSFModels
 
 final class SelectAssetCellViewModel: SelectableViewModelProtocol {
+    let assetKey: AssetKey
     let name: String
     let symbol: String
     let icon: ImageViewModelProtocol?
@@ -14,6 +15,7 @@ final class SelectAssetCellViewModel: SelectableViewModelProtocol {
     let fiatBalanceDecimal: Decimal?
 
     init(
+        assetKey: AssetKey,
         name: String,
         symbol: String,
         icon: ImageViewModelProtocol?,
@@ -23,6 +25,7 @@ final class SelectAssetCellViewModel: SelectableViewModelProtocol {
         balanceDecimal: Decimal?,
         fiatBalanceDecimal: Decimal?
     ) {
+        self.assetKey = assetKey
         self.name = name
         self.symbol = symbol
         self.icon = icon
@@ -39,7 +42,6 @@ protocol SelectAssetViewModelFactoryProtocol {
         wallet: MetaAccountModel,
         chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
-        prices: PriceDataUpdated,
         locale: Locale,
         selectedAssetId: String?
     ) -> [SelectAssetCellViewModel]
@@ -56,7 +58,6 @@ final class SelectAssetViewModelFactory: SelectAssetViewModelFactoryProtocol {
         wallet: MetaAccountModel,
         chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
-        prices: PriceDataUpdated,
         locale: Locale,
         selectedAssetId: String?
     ) -> [SelectAssetCellViewModel] {
@@ -68,7 +69,7 @@ final class SelectAssetViewModelFactory: SelectAssetViewModelFactoryProtocol {
             }
             let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] ?? nil
 
-            let priceData = prices.pricesData.first(where: { $0.priceId == chainAsset.asset.priceId })
+            let priceData = AssetTrustResolver.displayPrice(for: chainAsset, currency: wallet.selectedCurrency)
             fiatBalanceByChainAsset[chainAsset] = getFiatBalance(
                 for: chainAsset,
                 accountInfo: accountInfo,
@@ -77,8 +78,7 @@ final class SelectAssetViewModelFactory: SelectAssetViewModelFactoryProtocol {
         }
 
         let selectAssetCellModels: [SelectAssetCellViewModel] = chainAssets.compactMap { chainAsset in
-            let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
-            let priceData = prices.pricesData.first(where: { $0.priceId == priceId })
+            let priceData = AssetTrustResolver.displayPrice(for: chainAsset, currency: wallet.selectedCurrency)
 
             return buildSelectAssetCellViewModel(
                 chainAsset: chainAsset,
@@ -134,6 +134,7 @@ private extension SelectAssetViewModelFactory {
         )
 
         return SelectAssetCellViewModel(
+            assetKey: chainAsset.assetKey,
             name: chainAsset.chain.name,
             symbol: chainAsset.asset.symbolUppercased,
             icon: chainAsset.asset.icon.map { RemoteImageViewModel(url: $0) },
@@ -244,8 +245,7 @@ private extension SelectAssetViewModelFactory {
     func sortAssetList(
         wallet: MetaAccountModel,
         chainAssets: [ChainAsset],
-        accountInfos: [ChainAssetKey: AccountInfo?],
-        priceData: [PriceData]
+        accountInfos: [ChainAssetKey: AccountInfo?]
     ) -> [ChainAsset] {
         func fetchAccountIds(
             for ca1: ChainAsset,
@@ -290,11 +290,8 @@ private extension SelectAssetViewModelFactory {
             let ca1AccountInfo = accountInfos[ca1.uniqueKey(accountId: accountIds.ca1AccountId)] ?? nil
             let ca2AccountInfo = accountInfos[ca2.uniqueKey(accountId: accountIds.ca2AccountId)] ?? nil
 
-            let ca1PriceId = ca1.asset.priceId ?? ca1.asset.id
-            let ca1PriceData = priceData.first(where: { $0.priceId == ca1PriceId })
-
-            let ca2PriceId = ca2.asset.priceId ?? ca2.asset.id
-            let ca2PriceData = priceData.first(where: { $0.priceId == ca2PriceId })
+            let ca1PriceData = AssetTrustResolver.displayPrice(for: ca1, currency: wallet.selectedCurrency)
+            let ca2PriceData = AssetTrustResolver.displayPrice(for: ca2, currency: wallet.selectedCurrency)
 
             let fiatBalanceCa1 = getFiatBalance(for: ca1, accountInfo: ca1AccountInfo, priceData: ca1PriceData)
             let fiatBalanceCa2 = getFiatBalance(for: ca2, accountInfo: ca2AccountInfo, priceData: ca2PriceData)

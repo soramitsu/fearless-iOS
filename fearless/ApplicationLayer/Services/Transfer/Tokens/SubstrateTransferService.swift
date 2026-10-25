@@ -46,9 +46,7 @@ final class SubstrateTransferService: TransferServiceProtocol {
                 resultBuilder = resultBuilder.with(tip: tip)
             }
 
-            if let appId = transfer.appId {
-                resultBuilder = resultBuilder.with(appId: appId)
-            }
+            // appId support was removed from SSFExtrinsicKit; no-op if provided
 
             return resultBuilder
         }
@@ -89,9 +87,7 @@ final class SubstrateTransferService: TransferServiceProtocol {
                 resultBuilder = resultBuilder.with(tip: tip)
             }
 
-            if let appId = transfer.appId {
-                resultBuilder = resultBuilder.with(appId: appId)
-            }
+            // appId support was removed from SSFExtrinsicKit; no-op if provided
 
             return resultBuilder
         }
@@ -129,9 +125,7 @@ final class SubstrateTransferService: TransferServiceProtocol {
                 resultBuilder = resultBuilder.with(tip: tip)
             }
 
-            if let appId = transfer.appId {
-                resultBuilder = resultBuilder.with(appId: appId)
-            }
+            // appId support was removed from SSFExtrinsicKit; no-op if provided
 
             return resultBuilder
         }

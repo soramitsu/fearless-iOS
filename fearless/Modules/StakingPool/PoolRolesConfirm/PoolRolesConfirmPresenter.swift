@@ -16,7 +16,6 @@ final class PoolRolesConfirmPresenter {
     private let wallet: MetaAccountModel
     private let roles: StakingPoolRoles
 
-    private var priceData: PriceData?
     private var fee: Decimal?
     private var accounts: [MetaAccountModel]?
 
@@ -47,6 +46,7 @@ final class PoolRolesConfirmPresenter {
     // MARK: - Private methods
 
     private func provideFeeViewModel() {
+        let priceData = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
         let feeViewModel = fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
@@ -92,17 +92,6 @@ extension PoolRolesConfirmPresenter: PoolRolesConfirmInteractorOutput {
 
     func didReceive(error: Error) {
         logger.error(error.localizedDescription)
-    }
-
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-
-            provideFeeViewModel()
-        case let .failure(error):
-            logger.error(error.localizedDescription)
-        }
     }
 
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {

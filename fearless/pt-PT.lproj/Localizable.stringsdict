@@ -82,7 +82,7 @@
         <string>eras</string>
       </dict>
     </dict>
-    <key>verification.rejected.screen.attempts.left</key>
+    <key>wallet.records.notice.wallets</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@format@</string>
@@ -93,9 +93,57 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Você tem mais %li tentativa gratuita de KYC</string>
+        <string>Não é possível mostrar %li carteira guardada</string>
         <key>other</key>
-        <string>Você tem mais %li tentativas gratuitas de KYC</string>
+        <string>Não é possível mostrar %li carteiras guardadas</string>
+      </dict>
+    </dict>
+    <key>wallet.records.notice.accounts</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Não é possível utilizar %li conta de rede</string>
+        <key>other</key>
+        <string>Não é possível utilizar %li contas de rede</string>
+      </dict>
+    </dict>
+    <key>wallet.records.sheet.wallets</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Não é possível mostrar %li carteira guardada neste dispositivo nesta versão de Fearless.</string>
+        <key>other</key>
+        <string>Não é possível mostrar %li carteiras guardadas neste dispositivo nesta versão de Fearless.</string>
+      </dict>
+    </dict>
+    <key>wallet.records.sheet.accounts</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Não é possível utilizar %li conta de rede guardada nas suas carteiras. A respetiva carteira continua disponível e utiliza a sua própria conta nessa rede.</string>
+        <key>other</key>
+        <string>Não é possível utilizar %li contas de rede guardadas nas suas carteiras. As respetivas carteiras continuam disponíveis e utilizam as suas próprias contas nessas redes.</string>
       </dict>
     </dict>
   </dict>

@@ -4,6 +4,23 @@ import UIKit
 final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable {
     lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
 
+    private let authorizationViewFactory: (ScreenAuthorizationWireframeProtocol, Bool) -> PinSetupViewProtocol?
+
+    init(
+        authorizationViewFactory: @escaping (ScreenAuthorizationWireframeProtocol, Bool) -> PinSetupViewProtocol? = {
+            PinViewFactory.createScreenAuthorizationView(with: $0, cancellable: $1)
+        }
+    ) {
+        self.authorizationViewFactory = authorizationViewFactory
+    }
+
+    func createAuthorizationView(
+        with wireframe: ScreenAuthorizationWireframeProtocol,
+        cancellable: Bool
+    ) -> PinSetupViewProtocol? {
+        authorizationViewFactory(wireframe, cancellable)
+    }
+
     func showAccountDetails(
         from view: ProfileViewProtocol?,
         metaAccount: MetaAccountModel
@@ -62,7 +79,7 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
     }
 
     func logout(from _: ProfileViewProtocol?) {
-        if let window = UIApplication.shared.windows.first {
+        if let window = SceneWindowFinder.activeWindow() {
             window.rootViewController?.dismiss(animated: true, completion: nil)
             window.rootViewController = nil
             let presenter = RootPresenterFactory.createPresenter(with: window)
@@ -113,6 +130,45 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         let navigation = FearlessNavigationController(rootViewController: controller)
 
         view?.controller.present(navigation, animated: true)
+    }
+
+    func showNetworkAssets(from view: ControllerBackedProtocol?, wallet: MetaAccountModel) {
+        guard let module = NetworkManagmentAssembly.configureModule(
+            wallet: wallet,
+            chains: nil,
+            contextTag: nil,
+            moduleOutput: nil
+        ) else {
+            return
+        }
+
+        view?.controller.present(module.view.controller, animated: true)
+    }
+
+    func showTonConnectCapability(from view: ControllerBackedProtocol?, hasTonAccount: Bool) {
+        if hasTonAccount, let controller = view?.controller {
+            DispatchQueue.main.async {
+                LegacyTonConnectCoordinator.shared.presentSessions(from: controller)
+            }
+            return
+        }
+        let message = "Select or restore your TON wallet in Wallets & Accounts to connect applications."
+        let alert = UIAlertController(
+            title: "TonConnect",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(
+            UIAlertAction(
+                title: NSLocalizedString("common.ok", value: "OK", comment: ""),
+                style: .default
+            )
+        )
+        view?.controller.present(alert, animated: true)
+    }
+
+    func showIrohaConnect(from view: ControllerBackedProtocol?) {
+        IrohaConnectCoordinator.shared.presentLanding(from: view?.controller)
     }
 
     // MARK: Private

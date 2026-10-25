@@ -63,6 +63,8 @@ struct ExportMnemonicViewModel: ExportGenericViewModelProtocol {
 
     let ethereumBased: Bool
 
+    var exactPhrase: String?
+
     func accept(binder: ExportGenericViewModelBinding, locale: Locale) -> UIView {
         binder.bind(mnemonicViewModel: self, locale: locale)
     }

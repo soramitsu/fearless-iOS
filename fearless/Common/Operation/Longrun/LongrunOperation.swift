@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-class LongrunOperation<T>: BaseOperation<T> {
+class LongrunOperation<T>: BaseOperation<T>, @unchecked Sendable {
     private let lockQueue = DispatchQueue(label: "co.jp.soramitsu.longrunOperation", attributes: .concurrent)
 
     override var isAsynchronous: Bool {

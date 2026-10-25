@@ -8,4 +8,7 @@ struct CrossChainConfirmationViewModel {
     let amount: String
     let originalChainFee: BalanceViewModelProtocol
     let destChainFee: BalanceViewModelProtocol
+    let originPreservationNote: String?
+    /// What the origin burns when it differs from the amount: the amount plus the destination fee added to the burn.
+    let totalBurned: String?
 }

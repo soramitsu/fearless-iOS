@@ -1,6 +1,6 @@
-import UIKit
 import SoraFoundation
 import SSFUtils
+import UIKit
 
 final class ProfileViewController: UIViewController, ViewHolder {
     typealias RootViewType = ProfileViewLayout
@@ -13,6 +13,62 @@ final class ProfileViewController: UIViewController, ViewHolder {
         static let detailsCellHeight: CGFloat = 86.0
         static let headerInsets = UIEdgeInsets(top: 0.0, left: 16.0, bottom: 16, right: 16.0)
         static let tableViewFooterHeight: CGFloat = 40.0
+    }
+
+    private enum SettingsSection: Int, CaseIterable {
+        case profile
+        case walletsAccounts
+        case networksAssets
+        case connections
+        case security
+        case preferences
+        case advanced
+        case about
+        case logout
+
+        var title: String? {
+            switch self {
+            case .profile, .logout:
+                return nil
+            case .walletsAccounts:
+                return NSLocalizedString("settings.wallets_accounts", value: "Wallets & Accounts", comment: "")
+            case .networksAssets:
+                return NSLocalizedString("settings.networks_assets", value: "Networks & Assets", comment: "")
+            case .connections:
+                return NSLocalizedString("settings.connections", value: "Connections", comment: "")
+            case .security:
+                return NSLocalizedString("settings.security", value: "Security", comment: "")
+            case .preferences:
+                return NSLocalizedString("settings.preferences", value: "Preferences", comment: "")
+            case .advanced:
+                return RecoveryText.string("advanced")
+            case .about:
+                return NSLocalizedString("settings.about", value: "About", comment: "")
+            }
+        }
+
+        var options: Set<ProfileOption> {
+            switch self {
+            case .profile, .logout:
+                return []
+            case .walletsAccounts:
+                return [.accountList]
+            case .networksAssets:
+                return [.networkAssets]
+            case .connections:
+                return IrohaConnectReleasePolicy.production.isEnabled
+                    ? [.walletConnect, .tonConnect, .irohaConnect]
+                    : [.walletConnect, .tonConnect]
+            case .security:
+                return [.changePincode, .biometry]
+            case .preferences:
+                return [.currency, .language, .polkaswapDisclaimer, .accountScore]
+            case .advanced:
+                return [.previousData, .emergencyMaterial]
+            case .about:
+                return [.about]
+            }
+        }
     }
 
     // MARK: - Private properties
@@ -132,11 +188,20 @@ final class ProfileViewController: UIViewController, ViewHolder {
             return UITableViewCell()
         }
     }
+
+    private func options(
+        for section: SettingsSection,
+        viewModel: ProfileViewModelProtocol
+    ) -> [ProfileOptionViewModelProtocol] {
+        viewModel.profileOptionViewModel.filter { optionViewModel in
+            optionViewModel.option.map(section.options.contains) == true
+        }
+    }
 }
 
 extension ProfileViewController: UITableViewDataSource {
     func numberOfSections(in _: UITableView) -> Int {
-        2
+        SettingsSection.allCases.count
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection _: Int) -> UIView? {
@@ -157,15 +222,20 @@ extension ProfileViewController: UITableViewDataSource {
     }
 
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard case let .loaded(viewModel) = state else { return 0 }
+        guard case let .loaded(viewModel) = state,
+              let section = SettingsSection(rawValue: section) else { return 0 }
         switch section {
-        case 0:
-            return viewModel.profileOptionViewModel.count + 2
-        case 1:
+        case .profile:
+            return 2
+        case .logout:
             return 1
         default:
-            return 0
+            return options(for: section, viewModel: viewModel).count
         }
+    }
+
+    func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
+        SettingsSection(rawValue: section)?.title
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -173,26 +243,34 @@ extension ProfileViewController: UITableViewDataSource {
             return UITableViewCell()
         }
 
-        switch indexPath.section {
-        case 0:
+        guard let section = SettingsSection(rawValue: indexPath.section) else {
+            return UITableViewCell()
+        }
+
+        switch section {
+        case .profile:
             switch indexPath.row {
             case 0:
                 return prepareProfileSectionCell(tableView, indexPath: indexPath)
             case 1:
                 return prepareProfileDetailsCell(tableView, with: viewModel.profileUserViewModel)
             default:
-                let optionViewModel = viewModel.profileOptionViewModel[indexPath.row - 2]
-                return prepareProfileCell(tableView, indexPath: indexPath, with: optionViewModel)
+                return UITableViewCell()
             }
-        case 1:
+        case .logout:
             return prepareProfileCell(tableView, indexPath: indexPath, with: viewModel.logoutViewModel)
         default:
-            assertionFailure("wrong index apth for cell")
-            return UITableViewCell()
+            guard let optionViewModel = options(for: section, viewModel: viewModel)[safe: indexPath.row] else {
+                return UITableViewCell()
+            }
+            return prepareProfileCell(tableView, indexPath: indexPath, with: optionViewModel)
         }
     }
 
     func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        guard SettingsSection(rawValue: indexPath.section) == .profile else {
+            return Constants.optionCellHeight
+        }
         switch indexPath.row {
         case 0:
             return Constants.sectionCellHeight
@@ -207,22 +285,19 @@ extension ProfileViewController: UITableViewDataSource {
 extension ProfileViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        if indexPath.section == 0 {
+        guard let section = SettingsSection(rawValue: indexPath.section) else {
+            return
+        }
+
+        if section == .profile {
             if indexPath.row == 1 {
                 presenter.activateAccountDetails()
-            } else if indexPath.row >= 2 {
-                guard
-                    case let .loaded(viewModel) = state,
-                    let option = viewModel.profileOptionViewModel[indexPath.row - 2].option
-                else {
-                    return
-                }
-
-                presenter.activateOption(option)
             }
-        }
-        if indexPath.section == 1 {
+        } else if section == .logout {
             presenter.logout()
+        } else if case let .loaded(viewModel) = state,
+                  let option = options(for: section, viewModel: viewModel)[safe: indexPath.row]?.option {
+            presenter.activateOption(option)
         }
     }
 }
@@ -250,5 +325,9 @@ extension ProfileViewController: Localizable {
 extension ProfileViewController: WalletsManagmentTableCellDelegate {
     func didTapOptionsCell(with _: IndexPath?) {
         presenter.activateAccountDetails()
+    }
+
+    func didTapAccountScore(address: String?) {
+        presenter.didTapAccountScore(address: address)
     }
 }

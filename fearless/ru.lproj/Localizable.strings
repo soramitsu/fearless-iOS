@@ -1,7 +1,15 @@
+"about.font.licenses" = "Лицензии шрифтов";
+"about.font.licenses.unavailable" = "Не удалось загрузить лицензии шрифтов.";
 "NSCameraUsageDescription" = "Камера используется для сканирования QR кода.";
 "NSFaceIDUsageDescription" = "Fearless использует Face ID, чтобы ограничить несанкционированных пользователей доступа к приложению.Face ID используется для авторизации в приложении";
 "NSPhotoLibraryAddUsageDescription" = "Вы можете сохранить запрос на перевод в виде QR кода";
-"NSPhotoLibraryUsageDescription" = "Загрузить изображения из библиотеки";
+"ton.transfer.unknown.title" = "Статус перевода неизвестен";
+"ton.transfer.unknown.message" = "Сеть могла принять этот перевод. Не отправляйте его повторно. Сохраните хеш сообщения и проверьте статус перед дальнейшими действиями:\n%@";
+"ton.transfer.unknown.copy_hash" = "Скопировать хеш сообщения";
+"ton.transfer.prior_confirmed.title" = "Предыдущий перевод подтверждён";
+"ton.transfer.prior_confirmed.message" = "Предыдущий перевод подтверждён. Новый перевод не был отправлен. Проверьте и подтвердите предыдущий хеш перед повторным подтверждением:\n%@";
+"ton.transfer.prior_confirmed.acknowledge" = "Подтвердить и пересчитать комиссию";
+"NSPhotoLibraryUsageDescription" = "Для выбора существующих изображений QR-кодов необходим доступ к библиотеке";
 "about.announcement" = "Следить за новостями в Telegram";
 "about.ask.for.support" = "Обратитесь за поддержкой";
 "about.contact.email" = "Контактный адрес электронной почты";
@@ -64,6 +72,19 @@
 "account.needed.message" = "У вас нет учетной записи в этой сети, вы можете создать или импортировать учетную запись.";
 "account.needed.title" = "Необходим аккаунт";
 "account.option" = "Account option";
+"account.stats.avg.transaction.time.title" = "Avg. transaction time";
+"account.stats.description.text" = "Your Multichain Score is based on your onchain journey through 3 ecosystems: Ethereum, Polygon and Binance Smart Chain";
+"account.stats.error.message" = "Unable to retrieve account score information. Please try again later.";
+"account.stats.hold.tokens.usd.title" = "Hold tokens USD";
+"account.stats.max.transaction.time.title" = "Max transaction time";
+"account.stats.min.transactions.time.title" = "Min transaction time";
+"account.stats.native.balance.usd.title" = "Native balance USD";
+"account.stats.rejected.transactions.title" = "Rejected transactions";
+"account.stats.title" = "Your score";
+"account.stats.total.transactions.title" = "Total transactions";
+"account.stats.updated.title" = "Updated";
+"account.stats.wallet.age.title" = "Wallet age";
+"account.stats.wallet.option.title" = "Show wallet score";
 "account.template" = "%s аккаунт";
 "account.unique.secret" = "Аккаунты с измененным ключом";
 "accounts.add.account" = "Добавить аккаунт";
@@ -91,11 +112,15 @@
 "application.status.view.copied.description" = "Адрес кошелька скопирован";
 "application.status.view.copied.title" = "Адрес скопирован";
 "application.status.view.hash.copied.description" = "Хеш удачно скопирован";
+"application.status.view.hash.copied.description" = "Хеш скопирован";
+"application.status.view.hash.copied.title" = "Хеш скопирован";
 "application.status.view.hash.copied.title" = "Хеш скопирован";
 "application.status.view.offline.description" = "Пожалуйста, проверьте Ваше соединение и повторите попытку";
 "application.status.view.offline.title" = "Похоже, что вы не в сети.";
 "application.status.view.reconnected.description" = "Соединения успешно восстановлено";
+"application.status.view.reconnected.description" = "Соединение успешно восстановлено";
 "application.status.view.reconnected.title" = "Подключено";
+"application.status.view.reconnected.title" = "Переподключено";
 "applied.fearless.wallet.bonus" = "Бонус кошелька Fearless применен";
 "apply.fearless.wallet.bonus" = "Нажмите, чтобы применить бонус кошелька Fearless";
 "ask.biometry.reason" = "Авторизуйтесь для доступа к аккаунту";
@@ -117,6 +142,7 @@
 "backup.create.password.not.matched" = "Password doesn’t matched";
 "backup.create.password.password.field.title" = "Set password";
 "backup.create.password.screen.title" = "Создать резервный пароль";
+"backup.create.password.too.short" = "Используйте не менее %@ символов";
 "backup.create.password.warning" = "I understand that if I forget my password there is no way to retrieve it";
 "backup.mnemonic.description" = "Не забудьте записать слова в том порядке, в котором они указаны ниже. Используйте нецифровой способ резервного копирования.";
 "backup.mnemonic.title" = "Запишите мнемоническую фразу";
@@ -152,6 +178,7 @@
 "backup.wallet.replace.several.alert" = "You currently have several chain accounts that has been added by replacing the main key pair, and it possesses a specific one. However, please note that our current wallet backup (export) flow does not support the storage of multiple key pairs. As a result, you can only save your main key pair. \n \n To ensure the safety of your replaced chain account, we recommend that you first back it up separately before proceeding with the current flow. Once you have successfully backed up your replaced chain account, you can proceed to the current flow without any concerns.";
 "backup.wallet.seed" = "Show Raw Seed";
 "backup.wallet.title" = "Backup wallet";
+"balance.locks.blocked.row.title" = "Blocked";
 "balance.locks.governance.row.title" = "Governance";
 "balance.locks.liquidity.pools.row.title" = "Liquidity Pools";
 "balance.locks.nomination.pools.row.title" = "Nomination Pools";
@@ -176,6 +203,7 @@ Euro cash";
 "common.action.receive" = "Получить";
 "common.action.send" = "Перевести";
 "common.action.teleport" = "Телепорт";
+"common.activation.required" = "Activation Required";
 "common.add" = "Добавить";
 "common.address" = "Адрес";
 "common.advanced" = "Продвинутый";
@@ -248,6 +276,7 @@ Euro cash";
 "common.message" = "Message";
 "common.methods" = "Methods";
 "common.module" = "Модуль";
+"common.more" = "More";
 "common.my.networks" = "My networks";
 "common.name" = "Имя";
 "common.network" = "Сеть";
@@ -261,6 +290,8 @@ Euro cash";
 "common.not.enough.balance.message" = "К сожалению, у вас недостаточно средств для совершения данной операции";
 "common.not.enough.fee.message" = "К сожалению, у вас недостаточно средств для оплаты сетевого сбора.";
 "common.ok" = "OK";
+"update.security.notice.title" = "Ваш мобильный кошелёк в безопасности";
+"update.security.notice.message" = "Проблема безопасности в старом расширении Fearless для Chrome не затронула приложения Fearless для iOS и Android.\n\nЕсли вы пользовались расширением для Chrome до 23 октября 2026 года, создайте новый кошелёк и переведите на него свои средства.";
 "common.paste" = "Вставить";
 "common.payout" = "Выплаты";
 "common.preview" = "Предварительный просмотр";
@@ -279,6 +310,7 @@ Euro cash";
 "common.search.results.number" = "Результаты поиска: %li";
 "common.search.start.title" = "Здесь появятся результаты поиска";
 "common.secret.derivation.path" = "Последовательность для вывода секрета";
+"common.select" = "Выбрать";
 "common.select" = "Выбрать";
 "common.select.all" = "Select all";
 "common.select.asset" = "Выбор актива";
@@ -395,6 +427,7 @@ Euro cash";
 "error.invalid.address" = "Неверный адрес для выбранной сети";
 "error.message.enter.the.name" = "Введите имя…";
 "error.message.enter.the.url.address" = "Введите URL-адрес…";
+"error.scan.qr.disabled.asset" = "The asset you want to transfer is either unsupported or turned off. Go to Asset Management, activate the asset, and then scan the QR code again.";
 "error.unsupported.asset" = "You're trying to make a transfer of the asset which isn't currently supported on the App. Please choose another asset or request another QR code.";
 "ethereum.crypto.type" = "Тип криптографической пары ключей Ethereum";
 "ethereum.secret.derivation.path" = "Путь деривации секрета Ethereum";
@@ -460,6 +493,28 @@ Euro cash";
 "label.testnet" = "Testnet";
 "language.title" = "Язык";
 "learn.more.about.crowdloans" = "Узнайте больше о Crowdloans";
+"lp.apy.alert.text" = "Вознаграждение за предоставление ликвидности";
+"lp.apy.alert.title" = "Стратегический бонус APY";
+"lp.apy.title" = "Стратегический бонус APY";
+"lp.available.pools.title" = "Доступные пулы";
+"lp.banner.action.details.title" = "Show details";
+"lp.banner.text" = "Invest your funds in Liquidity\npools and receive rewards";
+"lp.confirm.liquidity.screen.title" = "Подтвердите ликвидность";
+"lp.confirm.liquidity.warning.text" = "Оценка результата. Если цена изменится более чем на 0.5%, ваша транзакция будет отменена";
+"lp.network.fee.alert.text" = "Комиссия сети используется для обеспечения роста и стабильной работы системы SORA.";
+"lp.network.fee.alert.title" = "Комиссия сети";
+"lp.pool.details.title" = "Детали пула ликвидности";
+"lp.pool.remove.warning.text" = "Удаление токенов из пула конвертирует вашу позицию обратно в исходные токены по текущему курсу, пропорционально вашей доле в пуле. Начисленные комиссии включены в получаемые вами суммы.";
+"lp.pool.remove.warning.title" = "ПРИМЕЧАНИЕ";
+"lp.remove.button.title" = "Убрать ликвидность";
+"lp.remove.liquidity.screen.title" = "Убрать ликвидность";
+"lp.reward.token.text" = "Заработать %@";
+"lp.reward.token.title" = "Выплата вознаграждений в";
+"lp.slippage.title" = "Проскальзывание";
+"lp.supply.button.title" = "Добавить ликвидность";
+"lp.supply.liquidity.screen.title" = "Добавить ликвидность";
+"lp.token.pooled.text" = "Ваши %@ добавлены в пул";
+"lp.user.pools.title" = "Пулы пользователя";
 "manage.assets.account.missing.text" = "Добавить аккаунт...";
 "manage.assets.search.hint" = "Поиск по токену";
 "members.common" = "Участники";
@@ -483,6 +538,7 @@ Euro cash";
 "network.info.address" = "Адрес ноды";
 "network.info.name" = "Имя ноды";
 "network.info.title" = "Информация ноды";
+"network.issue.main" = "Connection Error: Unable to connect to the network. Please try again.";
 "network.issue.network.unavailible" = "Сеть не доступа";
 "network.issue.node.unavailable" = "Нода не доступна";
 "network.issue.notofication" = "Уведомления";
@@ -502,8 +558,10 @@ Euro cash";
 "nft.collection.title" = "Collection";
 "nft.creator.title" = "Creator";
 "nft.list.empty.message" = "There aren't any NFTs yet. Buy or mint NFTs to see them here.";
+"nft.load.error" = "Failed to load NFTs";
 "nft.owner.title" = "Owned";
 "nft.share.address" = "My public address to receive: %s";
+"nft.spam.warning" = "Beware of a scam/spam NFT collection – verify authenticity before engaging. Stay safe!";
 "nft.stub.text" = "NFTs скоро будут здесь";
 "nft.stub.title" = "Извините!";
 "nft.tokenid.title" = "Token ID";
@@ -519,7 +577,7 @@ Euro cash";
 "node.selection.delete.node.title" = "Удалить выбранную ноду?";
 "onboarding.create.account" = "Создать аккаунт";
 "onboarding.create.wallet" = "Создать кошелёк";
-"onboarding.preinstalled.wallet.button.text" = "Get a pre-installed wallet";
+"onboarding.preinstalled.wallet.button.text" = "Получить предустановленный кошелёк";
 "onboarding.restore.account" = "Восстановить";
 "onboarding.restore.wallet" = "У меня уже есть кошелек";
 "onboarding.start.title" = "The DeFi Wallet For The Future";
@@ -588,17 +646,20 @@ Euro cash";
 "polkaswap.disclaimer.title" = "Disclaimer";
 "polkaswap.liqudity.fee.info" = "A portion of each trade (0.3%) goes to liquidity providers as a protocol incentive.";
 "polkaswap.liquidity.provider.fee" = "Комиссия поставщика ликвидности";
+"polkaswap.liquidity.provider.fee" = "Liquidity Provider Fee ";
 "polkaswap.market.alert.choose.action" = "Choose asset";
 "polkaswap.market.alert.message" = "You haven't completed the swap adjustments. One or both assets haven't been chosen, so the market selection isn't available.";
 "polkaswap.market.alert.title" = "Market selection isn't available";
 "polkaswap.market.algorithm.title" = "Market algorithm";
 "polkaswap.market.smart.description" = "SMART liquidity routing ensures the best price for any transaction by combining only the best price options from all available markets. When available, Token Bonding Curve (TBC) will be used for liquidity as long as the asset price is more affordable than from other sources, upon which the XYK pool is utilized.";
 "polkaswap.market.stub" = "Рынок:";
+"polkaswap.market.stub" = "Market";
 "polkaswap.market.tbc.description" = "TBC — buying only from the Token Bonding Curve (Primary Market). There is a possibility that the price can become unfavorable compared to the XYK pool (Secondary Market), but the value received from the vested rewards might turn out to be much more favorable over time.";
 "polkaswap.market.xyk.description" = "XYK — buying only from the XYK pool (Secondary Market). Traditional XYK pool swap where anyone can buy or sell assets by shifting the market maker’s position on the x*y=k curve.";
 "polkaswap.max.received" = "Maximums sold ";
 "polkaswap.maximum.sold.info" = "Your transaction will revert if there is a large, unfavorable price movement before it is confirmed.";
 "polkaswap.min.received" = "Будет получено минимум";
+"polkaswap.min.received" = "Min received ";
 "polkaswap.minimum.received.info" = "Your transaction will revert if there is a large, unfavorable price movement before it is confirmed.";
 "polkaswap.network.fee" = "Network fee ";
 "polkaswap.network.fee.info" = "Network fee is used to ensure SORA system's growth and stable performance.";
@@ -654,13 +715,13 @@ Euro cash";
 "pools.limit.has.reached.error.message" = "Достигнут лимит пулов в этой сети";
 "pools.limit.has.reached.error.title" = "Вы не можете создать больше пулов";
 "profile.about.title" = "О приложении";
+"profile.account.score.title" = "Nomis multichain score";
 "profile.accounts.title" = "Аккаунты";
 "profile.language.title" = "Язык";
 "profile.logout.description" = "Это действие приведет к удалению всех учетных записей с этого устройства. Прежде чем продолжить, убедитесь, что вы сделали резервную копию своей парольной фразы.";
 "profile.logout.title" = "Выйти";
 "profile.network.title" = "Сеть";
 "profile.pincode.change.title" = "Изменить PIN-код";
-"profile.soracard.title" = "SORA Card";
 "profile.title" = "Настройки";
 "profile.wallets.title" = "Кошельки";
 "receive.note.text" = "Примечание: Это Polkadot&Kusama кошелек. Пожалуйста, отправляйте только токены Polkadot&Kusama экосистемы";
@@ -681,8 +742,11 @@ Euro cash";
 "scam.additional.stub" = "Дополнительно:";
 "scam.description.donation.stub" = "Этот адрес подозрителен. Мы настоятельно рекомендуем вам не отправлять %s на этот аккаунт.";
 "scam.description.exchange.stub" = "This address is marked as an exchange, be careful as the deposit and withdrawal addresses may different.";
+"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
 "scam.description.sanctions.stub" = "This address has been flagged due to an entity related to a country under sanctions. We strongly recommend that you don't send %s to this account.";
 "scam.description.scam.stub" = "Этот адрес был помечен в связи с доказательствами мошенничества. Мы настоятельно рекомендуем вам не отправлять %s на этот аккаунт.";
+"scam.info.nomis.name" = "Nomis multi-chain score";
+"scam.info.nomis.subtype.text" = "Proceed with caution";
 "scam.name.stub" = "Имя:";
 "scam.reason.stub" = "Причина:";
 "scam.warning.alert.subtitle" = "Мы настоятельно рекомендуем не отправлять %s на это аккаунт.";
@@ -701,7 +765,7 @@ Euro cash";
 "select.save.type" = "Выберите тип сохранения";
 "select.suggested.validators.warning" = "DISCLAIMER: Предложения алгоритмических валидаторов не являются финансовыми консультациями или советами. Стейкинг - это деятельность с высоким риском, и предложения алгоритмических валидаторов не обязательно снижают этот риск. Валидатор, предложенный алгоритмом, все равно может быть слэширован. Валидатор, предложенный алгоритмом, также может изменить свои параметры (например, размер комиссии и т.д.) в любое время после того, как он был предложен и/или выбран. Вы можете потерять токены или вознаграждения по этим или другим причинам. Ставьте токены и используйте предложения валидаторов только по своему усмотрению, после проведения должной проверки и тщательного рассмотрения сопутствующих рисков.";
 "select.validators.disclaimer" = "DISCLAIMER: Предложения алгоритмических валидаторов не являются финансовыми консультациями или советами. Стейкинг - это деятельность с высоким риском, и предложения алгоритмических валидаторов не обязательно снижают этот риск. Валидатор, предложенный алгоритмом, все равно может быть слэширован. Валидатор, предложенный алгоритмом, также может изменить свои параметры (например, размер комиссии и т.д.) в любое время после того, как он был предложен и/или выбран. Вы можете потерять токены или вознаграждения по этим или другим причинам. Ставьте токены и используйте предложения валидаторов только по своему усмотрению, после проведения должной проверки и тщательного рассмотрения сопутствующих рисков.";
-"send.all.title" = "Send all tokens and reap the account";
+"send.all.title" = "Отправить все токены и разрешить закрытие аккаунта в этой сети";
 "send.confirm.amount.title" = "Отправка\n%@";
 "send.fund.title" = "Отправить средства";
 "settings.add.wallet" = "Добавить кошелёк";
@@ -711,13 +775,6 @@ Euro cash";
 "sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the %s network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";
 "sora.bridge.low.amaunt.polkadot.alert" = "Currently, there's a min. amount 1.1 DOT for bridging to ensure the stability and security. We appreciate your understanding.";
 "sora.bridge.low.amount.alert" = "Currently, there's a min. amount 0.05 KSM for bridging to ensure the stability and security of the SORA Network. We appreciate your understanding.";
-"sora.card.status.failure.text" = "The KYC was terminated or it failed otherwise.";
-"sora.card.status.failure.title" = "Verification failed";
-"sora.card.status.pending.title" = "Verification in progress";
-"sora.card.status.rejected.text" = "Your application has failed. To read more about the reason of the failure, please read the following additional description.";
-"sora.card.status.rejected.title" = "Verification rejected";
-"sora.card.status.success.text" = "Your KYC verification is successful and we are already preparing to send you the SORA card!";
-"sora.card.status.success.title" = "Verification successful!";
 "sr25519.selection.subtitle" = "sr25519 (рекомендованный)";
 "sr25519.selection.title" = "Schnorrkel";
 "stacking.stash.account" = "Стэш аккаунт";
@@ -742,6 +799,7 @@ Euro cash";
 "staking.analytics.period.all" = "все";
 "staking.analytics.rewards.empty.message" = "Нет полученных вознаграждений\
 в выбранный период";
+"staking.analytics.received.rewards" = "Полученные вознаграждения";
 "staking.analytics.stake.allocation" = "Распределение с текущими валидаторами";
 "staking.analytics.stake.empty.message" = "Здесь появятся ваши\
 изменения по стейку";
@@ -833,20 +891,23 @@ Euro cash";
 "staking.pool.create.root" = "Root";
 "staking.pool.create.stateToggler" = "State toggler";
 "staking.pool.create.title" = "Создать пул";
+"staking.pool.create.title" = "Создать пул";
 "staking.pool.info.title" = "Информация о пуле";
 "staking.pool.management.select.validators.subtitle" = "Для продолжения необходимо выбрать валидаторов";
+"staking.pool.management.select.validators.subtitle" = "Чтобы продолжить, Вам нужно \n выбрать валидаторов";
 "staking.pool.management.select.validators.title" = "Выберите валидаторов пула";
+"staking.pool.management.select.validators.title" = "Выберите валидаторов для пула";
 "staking.pool.rewards.delay.text" = "Делайте ставки в любое время. Вы начнете зарабатывать проценты после %s";
 "staking.pool.select.validators.manual" = "Выберите вручную";
 "staking.pool.select.validators.suggested" = "Выбрать предложенный";
 "staking.pool.sort.pool.members" = "Количество участников";
 "staking.pool.stake.info.title" = "Информация о пуле";
-"staking.pool.start.apr.text" = "Зарабатывайте %s за год";
+"staking.pool.start.apr.text" = "Зарабатывайте %@ за год";
 "staking.pool.start.create.button.title" = "Создать пул";
 "staking.pool.start.earn.reward.title" = "Получайте вознаграждения, когда стейкаете свои\n%s";
 "staking.pool.start.join.button.title" = "Присоединиться к пулу";
 "staking.pool.start.reward.freq.text" = "Вознаграждения выплачиваются каждые %s";
-"staking.pool.start.unstake.period.text" = "Отмените стейк в любое время. Вам нужно будет подождать %s, прежде чем вы сможете потратить свои средства и заработанные проценты";
+"staking.pool.start.unstake.period.text" = "Отмените стейк в любое время. Вам нужно будет подождать %@, прежде чем вы сможете потратить свои средства и заработанные проценты";
 "staking.rebond" = "Вернуть в стейк";
 "staking.rebond.all" = "Ребонд все";
 "staking.rebond.custom.amount" = "Специальная сумма ребондирования";
@@ -892,6 +953,7 @@ Euro cash";
 "staking.rewards.title" = "Вознаграждения";
 "staking.round.title" = "раунд #%@";
 "staking.select.suggested" = "Select suggested";
+"staking.select.validators.confirm.title" = "Выбор валидаторов";
 "staking.select.validators.confirm.title" = "Выбор валидаторов";
 "staking.select.validators.custom.button.title" = "Выбрать самому";
 "staking.select.validators.custom.desc" = "Вы должны доверять своим валидаторам, чтобы они действовали грамотно и честно. Принятие решения исключительно на основе их текущей прибыльности может привести к снижению прибыли или даже потере средств.";
@@ -1010,13 +1072,6 @@ Euro cash";
 "tabbar.crowdloan.title" = "Краудлоуны";
 "tabbar.crowdloan.title_v1.9.0" = "Краудлоуны";
 "tabbar.settings.title" = "Настройки";
-"terms.and.conditions.accept.and.continue" = "Accept & Continue";
-"terms.and.conditions.description" = "We want you to know exactly how SORA Card services work, who and why needs your details. Reviewing these policies will help you continue using the app with peace of mind.";
-"terms.and.conditions.general.terms" = "General Terms of Use";
-"terms.and.conditions.privacy.policy" = "Политикой конфиденциальности";
-"terms.and.conditions.sora.community.alert.main" = "SORA community does not collect any of your personal data, ";
-"terms.and.conditions.sora.community.alert.secondary" = "but to get the SORA Card and IBAN account you need to go through KYC process with a card issuer.";
-"terms.and.conditions.title" = "Terms & Conditions";
 "tranaction.history.others.tab.title" = "Others";
 "transaction.detail.date" = "Дата";
 "transaction.detail.status" = "Статус";
@@ -1025,9 +1080,9 @@ Euro cash";
 "transaction.details.from" = "От";
 "transaction.details.hash.title" = "Хеш транзакции";
 "transaction.details.view.etherscan" = "Посмотреть в Etherscan";
+"transaction.details.view.oklink" = "View in OKX  explorer";
 "transaction.details.view.polkascan" = "Посмотреть в Polkascan";
 "transaction.details.view.reefscan" = "View in Reefscan";
-"transaction.details.view.oklink" = "View in OKX explorer";
 "transaction.details.view.subscan" = "Просмотреть в Subscan";
 "transaction.list.header" = "Все транзакции";
 "transaction.status.completed" = "Успешно";
@@ -1043,8 +1098,9 @@ Euro cash";
 "username.setup.title" = "Создать аккаунт";
 "username.setup.title.2.0" = "Создать новый кошелек";
 "validator.info.comission.title" = "Comission";
+"validator.info.min.stake.alert.text" = "Minimum stake among active nominators is %s. To get rewards you have to stake more.";
+"validator.info.min.stake.among.active.nominators.text" = "Minimum stake among active nominators";
 "validators.list.empty.message" = "Валидаторы не найдены";
-"verify.phone.number.title" = "Verify your phone number";
 "vesting.claim.disclaimer.text" = "Due to the unique vesting schedules of each parachain, our app is unable to display the quantity of locked tokens eligible for claiming. Please be advised that initiating a claim may be impractical if the prospective amount is marginal and comparable to the transaction fee involved. For comprehensive insights into your locked balances, consult the Subscan blockexplorer. We urge you to assess the information carefully and proceed at your own discretion.";
 "vesting.claim.disclaimer.title" = "Important Notice Regarding Token Claims:";
 "vesting.locked.title" = "Vesting Locked";
@@ -1052,6 +1108,7 @@ Euro cash";
 "view.wallet" = "Посмотреть кошелек";
 "wallet.account.locks.democracy" = "Демократия";
 "wallet.account.locks.vesting" = "Вестинг";
+"wallet.all.assets.hidden" = "You have hidden all assets";
 "wallet.asset.buy" = "Купить";
 "wallet.asset.buy.with" = "Купить %s с";
 "wallet.asset.receive" = "Получить";
@@ -1071,6 +1128,8 @@ Euro cash";
 "wallet.connect.invalid.url.message" = "Our App only supports Wallet Connect SDK v2 and does not support the deprecated SDK v1. Please use the appropriate version for a successful connection.";
 "wallet.connect.invalid.url.title" = "Warning: Wallet Connect SDK v1 Not Supported";
 "wallet.connect.sign.warning.message" = "Signing this message can have dangerous side effect. Only sign message from sites you fully trust with your entire account.";
+"wallet.connect.signing.unavailable.message" = "Подключённое приложение запросило подпись у Fearless. Запрос отклонён, ничего не подписано. Вы можете пользоваться кошельком как обычно и отключить приложения в разделе WalletConnect вашего профиля.";
+"wallet.connect.signing.unavailable.title" = "Подпись через WalletConnect недоступна в этой версии";
 "wallet.contacts.empty.title" = "Здесь появятся ваши аккаунты и контакты, которым вы отправляли переводы";
 "wallet.contacts.empty.title_v1.10" = "Здесь появятся ваши\
 аккаунты и контакты, которым\
@@ -1089,6 +1148,29 @@ Euro cash";
 "wallet.history.title_v1.9.0" = "История";
 "wallet.manage.assets" = "Управление активами";
 "wallet.managment.select.wallet.title" = "Select your wallet";
+"wallet.name.unnamed" = "Кошелёк без названия";
+"wallet.chain.accounts.section" = "Сети с другим сохранённым аккаунтом";
+"wallet.chain.accounts.use.stored" = "Использовать сохранённый аккаунт %@";
+"wallet.chain.accounts.use.wallet" = "Использовать собственный аккаунт этого кошелька";
+"wallet.chain.accounts.switch.title" = "Сменить аккаунт в сети %@?";
+"wallet.chain.accounts.switch.message" = "В сети %2$@ этот кошелёк будет показывать и использовать адрес %1$@. Заменяемый аккаунт останется сохранённым в этом кошельке, и вы сможете в любой момент переключиться обратно.";
+"wallet.chain.accounts.switch.confirm" = "Сменить аккаунт";
+"wallet.chain.accounts.notice.title" = "Найдены старые сетевые аккаунты";
+"wallet.chain.accounts.notice.message" = "Fearless обнаружил сетевые аккаунты из более ранней версии, которые не отображались в предыдущей версии, в сетях: %@.\n\nНичего не изменилось и ничего не было удалено: в каждой сети остаётся адрес, которым вы пользовались. Если вы получали средства на один из этих старых аккаунтов, откройте кошелёк и выберите этот аккаунт для его сети.";
+"wallet.chain.accounts.notice.action" = "Просмотреть аккаунты";
+"wallet.records.sheet.title" = "Некоторые сохранённые записи не удаётся отобразить";
+"wallet.records.sheet.kept" = "Ничего не было удалено. Эти записи и их ключи остаются на этом устройстве. Не удаляйте приложение: это приведёт к их удалению.";
+"wallet.records.sheet.next" = "Чтобы сейчас пользоваться таким кошельком, импортируйте его снова с помощью фразы восстановления, сида или файла JSON. При импорте он добавится как новый кошелёк, а уже сохранённые данные не изменятся.";
+"export.seed.unavailable.title" = "Сид не отображается";
+"export.seed.missing.message" = "На этом устройстве нет сида для этого аккаунта. Аккаунт работает как прежде. Вы можете сделать его резервную копию с помощью другого варианта экспорта, например в файл JSON.";
+"export.seed.mismatch.message" = "При восстановлении из сохранённого для этого аккаунта сида получился бы другой адрес, поэтому сид не отображается. Аккаунт работает как прежде. Вы можете сделать его резервную копию с помощью другого варианта экспорта, например в файл JSON.";
+"backup.google.not.created.title" = "Резервная копия в Google Drive не создана";
+"backup.google.ton.unsupported.message" = "Резервная копия в Google Drive содержит ключи кошелька для экосистемы Polkadot и для Ethereum. У этого кошелька TON есть собственная мнемоническая фраза TON, которую невозможно восстановить из такой резервной копии. Ничего не было загружено, и ваш кошелёк остался без изменений. Чтобы создать резервную копию, запишите его мнемоническую фразу и храните её без подключения к интернету.";
+"backup.google.substrate.unsupported.message" = "Из резервной копии в Google Drive можно восстановить только кошелёк с ключом для экосистемы Polkadot, а у этого кошелька такого ключа нет. Ничего не было загружено, и ваш кошелёк остался без изменений. Создайте резервную копию одним из других способов.";
+"backup.google.material.message" = "Не удалось подготовить сохранённые ключи этого кошелька для резервного копирования в Google Drive. Ничего не было загружено, а ваш кошелёк не изменился и работает как раньше. Создайте резервную копию одним из других способов, например с помощью мнемонической фразы или файла JSON.";
+"backup.google.readback.message" = "Не удалось прочитать резервную копию из Google Drive точно в том виде, в котором она была записана, поэтому этот кошелёк не отмечен как имеющий резервную копию. Ваш кошелёк не изменился. Попробуйте ещё раз или создайте резервную копию одним из других способов.";
+"backup.google.partial.title" = "Некоторые аккаунты не включены в эту резервную копию";
+"backup.google.partial.message" = "Для вашего кошелька создана резервная копия в Google Drive. Восстановление из этой копии вернёт аккаунты кошелька в экосистеме Polkadot и в сети Ethereum, но не перечисленные ниже аккаунты, поскольку их ключи получены из исходных данных, которых нет в этой резервной копии:\n%@\nЭти аккаунты продолжают работать на этом устройстве. Сделайте резервную копию этих аккаунтов отдельно, прежде чем полагаться на эту резервную копию.";
 "wallet.options.delete" = "Удалить кошелек";
 "wallet.options.details" = "Детали кошелька";
 "wallet.options.export" = "Экспортировать кошелек";
@@ -1113,6 +1195,7 @@ Euro cash";
 "wallet.send.balance.total.after.transfer" = "Общий после перевода";
 "wallet.send.confirm.title" = "Подтвердить";
 "wallet.send.dead.recipient.message" = "Ваш перевод не состоится, так как окончательная сумма на целевом счете будет меньше, чем минимальный баланс. Пожалуйста, попробуйте увеличить сумму.";
+"wallet.send.dead.recipient.message.v2" = "Your transfer will fail since the final amount (%1$s) on the destination account will be less than the minimal balance (%2$s). Please increase the amount by %3$s";
 "wallet.send.dead.recipient.title" = "Сумма слишком мала";
 "wallet.send.eth.dead.recipient.message" = "Insufficient Ethereum balance in the recipient's account prevents the completion of ERC20 token transfer. Please ensure the receiver has enough Ethereum to proceed with the transfer.";
 "wallet.send.existential.warning" = "Ваш перевод удалит аккаунт, так как общий баланс станет ниже минимального.";
@@ -1133,9 +1216,11 @@ Euro cash";
 "what.accounts.for.export" = "Какие аккаунты в кошельке вы хотите экспортировать?";
 "xcm.cross.chain.button.title" = "Cross Chain";
 "xcm.cross.chain.invalid.address.message" = "According to the address provided you're trying to make a transfer on the wrong network.";
+"xcm.cross.chain.invalid.address.message" = "According to the address provided you're trying to make a transfer on the wrong network.";
 "xcm.cross.chain.invalid.address.title" = "Is not network address";
 "xcm.destination.network.fee.title" = "Destination Network Fee";
 "xcm.destination.network.title" = "Destination network";
+"xcm.low.amaunt.assetSymbol.alert" = "Currently, there's a min. amount %@ for bridging to ensure the stability and security. We appreciate your understanding.";
 "xcm.mywallets.button.title" = "My wallets";
 "xcm.origin.network.fee.title" = "Origin Network Fee";
 "xcm.origin.network.title" = "Origin network";
@@ -1144,128 +1229,299 @@ Euro cash";
 "your.validators.stop.nominating.title" = "Stop nominating";
 "your.validators.validator.total.stake" = "Всего в стейкинге: %@";
 "сurrencies.stub.text" = "Токены";
-"cant.fetch.refresh" = "Не удается получить данные, нажмите, чтобы обновить.";
-"card.attention.text" = "Внимание";
-"card.hub.manage.card" = "Управление картой SORA";
-"card.hub.manage.card.alert.message" = "Для управления картой SORA Card установите официальное приложение SORA Card. Нажмите OK, чтобы перейти в App Store.";
-"card.hub.manage.card.alert.title" = "Скачать приложение SORA Card";
-"card.hub.settings.logout.button" = "Выйти";
-"card.hub.settings.logout.description" = "Вы собираетесь выйти из SORA Card. У вас по-прежнему будет доступ непосредственно в приложении SORA Card, но баланс больше не будет доступен для вас в кошельке SORA.";
-"card.hub.settings.logout.title" = "Выйти из SORA Card";
-"card.hub.settings.title" = "Настройки карты";
-"card.hub.title" = "Card details";
-"card.hub.update.button" = "Обновите сейчас";
-"card.hub.update.description" = "Вы используете устаревшую версию приложения, некоторые части могут работать не так, как задумано.";
-"card.hub.update.title" = "Обновите приложение до последней версии";
-"card.issuance.screen.free.card.description" = "Чтобы выпустить карту БЕСПЛАТНО: \
-Храните, стейкайте или предоставляйте ликвидность XOR на сумму не менее €%@ на своем счете SORA";
-"card.issuance.screen.free.card.get.xor" = "Получить %@ XOR";
-"card.issuance.screen.paid.card.description" = "Единовременная плата за выпуск карты";
-"card.issuance.screen.paid.card.note" = "Примечание: выпуск платной карты будет доступен позднее.";
-"card.issuance.screen.paid.card.pay.euro" = "Оплатить €%@ комиссию за выпуск";
-"card.issuance.screen.paid.card.title" = "€%@ комиссия за выпуск";
-"card.issuance.screen.title" = "Выпуск карты";
-"card.or" = "или";
-"card.update.button" = "Обновите приложение";
-"card.update.title" = "Обновите приложение до последней версии, чтобы получить доступ к SORA Card";
-"cardhub.coming.soon" = "Управление картами скоро появится";
-"cardhub.exchange" = "Обмен";
-"cardhub.freeze" = "Заморозить";
-"cardhub.iban.title" = "Данные счета IBAN";
-"cardhub.top.up" = "Пополнить";
-"cardhub.transfer" = "Передача";
-"change.email.title" = "Сменить свой email";
-"common.back" = "Назад";
-"common.change.email" = "Использовать другой email";
-"common.no.spam" = "Никакого спама! Только для защиты вашего аккаунта";
-"common.resend.code" = "Отправить код снова";
-"common.resend.link" = "Отправить ссылку повторно";
-"common.resend.timer" = "Отправить повторно в %02d:% 02d";
-"common.send.code" = "Отправить SMS-код";
-"common.send.link" = "Отправить ссылку";
-"common.support" = "Поддержка";
-"common.try.again" = "Повторить";
-"common.user.not.found" = "Номер мобильного телефона не найден, проверьте его еще раз и повторите попытку.";
-"details.already.have.card" = "У меня уже есть карта";
-"details.already.used.free.try" = "Вы уже использовали свою бесплатную попытку";
-"details.annual.service.fee" = "€0 годовая плата за обслуживание";
-"details.description" = "Получите европейский IBAN-счет и дебетовую карту, доступные в вашем кошельке SORA";
-"details.enough.xor.desription" = "У вас достаточно XOR";
-"details.free.card.issuance" = "Бесплатный выпуск карты";
-"details.free.card.issuance.conditions.euro" = "или €%@ регистрационный взнос";
-"details.free.card.issuance.conditions.xor" = "Если вы храните, стейкаете или предоставляете ликвидность в XOR стоимостью не менее €%@ на вашем аккаунте SORA";
-"details.get.more.xor" = "Получить больше XOR";
-"details.issue.card" = "Получение карты бесплатно";
-"details.need.xor.desription" = "Вам нужно еще %@ XOR (€ %@ )";
-"details.title" = "Пополняйте SORA Card фиатом или криптовалютой и оплачивайте покупки онлайн, в магазине или снимайте деньги в банкомате";
-"enter.email.description" = "Волшебная ссылка будет отправлена\nна ваш email";
-"enter.email.input.field.label" = "Электронная почта";
-"enter.email.title" = "Введите свой email";
-"enter.phone.number.description" = "Вы получите\nкод подтверждения по SMS";
-"enter.phone.number.phone.input.field.label" = "Номер телефона";
-"entry.card.info" = "Информация о карте";
-"get.more.xor.dialog.buy.option" = "Купить XOR с помощью карты";
-"get.more.xor.dialog.deposit.option" = "Получить XOR";
-"get.more.xor.dialog.description" = "Вы можете обменять на XOR или купить за евро";
-"get.more.xor.dialog.swap.option" = "Обменять криптовалюту на XOR";
-"get.prepared.alert" = "У вас есть только %@ бесплатных попыток пройти процедуру KYC. Каждая следующая попытка после этого будет стоить € %@ . Платные попытки станут доступны после следующего обновления приложения.";
-"get.prepared.need" = "Для завершения KYC вам необходимо:";
-"get.prepared.ok.title" = "Хорошо, я готов";
-"get.prepared.personal.info.description" = "Заполните форму, указав свое имя и адрес";
-"get.prepared.personal.info.title" = "Отправьте свою личную информацию";
-"get.prepared.proof.address.description" = "Официальный документ (счет за коммунальные услуги, выписка из банка, выписка из правительства или корреспонденция), содержащий ваше полное имя и адрес и не старше 3 месяцев.";
-"get.prepared.proof.address.note" = "Примечание. Заявления таких необанков, как Revolut и N26, в настоящее время не считаются действительным подтверждением адреса.";
-"get.prepared.proof.address.title" = "Предоставьте фотографию документа, подтверждающего адрес";
-"get.prepared.submit.id.photo.description" = "Паспорт, водительские права, удостоверение личности или вид на жительство";
-"get.prepared.submit.id.photo.title" = "Предоставьте фотографию документа, удостоверяющего вашу личность";
-"get.prepared.take.selfie.description" = "Руководство будет предоставлено в ходе процесса";
-"get.prepared.take.selfie.title" = "Сделайте селфи";
-"get.prepared.title" = "Подготовьтесь";
-"iban.frozen.description" = "Ваш IBAN был заморожен.\
-Чтобы узнать больше, свяжитесь с %@";
-"iban.pending.description" = "Выдача вашего IBAN ожидается.\
-В случае ожидания более 72 часов свяжитесь с нами по адресу %@";
-"iban.suspended.description" = "Ваш IBAN был приостановлен.\
-Чтобы узнать больше, свяжитесь с %@";
-"kyc.result.verification.in.progress" = "Выполняется проверка";
-"kyc.result.verification.in.progress.description" = "Вы успешно завершили подачу заявки на KYC. Решение на стадии рассмотрения, и вы можете ожидать его в ближайшее время.\n\nОбычно решение принимается в тот же день, но в некоторых случаях может потребоваться до 3 дней.";
-"log.out" = "Выйти";
-"login.title" = "Войдите или зарегистрируйтесь";
-"no.free.kyc.attempts.description" = "Вы использовали все бесплатные попытки прохождения процедуры KYC.\n\nПросим вас дождаться следующего обновления приложения, чтобы продолжить с оплачиваемыми попытками.";
-"no.free.kyc.attempts.title" = "Нет больше бесплатных попыток";
-"otp.error.message.wrong.code" = "Неверный код. Пожалуйста, попробуйте еще раз.";
-"paid.attempts.available.later" = "Платные попытки будут доступны позднее";
-"payment.widget.unavailable.confirm" = "Да, я понимаю";
-"payment.widget.unavailable.description" = "Приносим извинения за неудобства. Мы прилагаем все усилия для решения данной проблемы. Пожалуйста, повторите попытку позже.";
-"payment.widget.unavailable.message" = "Виджет оплаты в настоящее время недоступен";
-"payment.widget.unavailable.title" = "Виджет недоступен";
-"select.country.title" = "Выберите свою страну";
-"status.not.started" = "Получить SORA Card";
-"terms.and.conditions.confirm.description" = "Продолжая, вы подтверждаете, что прочитали, поняли и приняли эти правила";
-"terms.and.conditions.sora.community.alert" = "Чтобы получить учетную запись IBAN, необходимую для SORA Card, пользователи должны пройти процедуру KYC у эмитента карты. Это обязательное соответствие. Сообщество SORA не собирает и не будет собирать какие-либо ваши личные данные.";
-"unsupported.countries.disclaimer" = "Жители некоторых стран не могут подать заявку на получение SORA Card в данный момент";
-"unsupported.countries.link" = "Посмотреть список";
-"user.registration.first.name.input.filed.label" = "Имя";
-"user.registration.last.name.input.filed.label" = "Фамилия";
-"user.registration.title" = "Представьтесь";
-"verification.failed.description" = "KYC был прекращен или не прошел иным образом.";
-"verification.failed.title" = "Проверка не прошла";
-"verification.rejected.description" = "Ваша заявка была отклонена.";
-"verification.rejected.screen.attempts.price.disclaimer" = "Любая другая попытка будет стоить вам €%@";
-"verification.rejected.screen.attempts.used" = "Вы использовали свои бесплатные попытки KYC.";
-"verification.rejected.screen.try.again.for.euros" = "Повторить снова за €%@";
-"verification.rejected.screen.try.again.for.free" = "Попробуйте еще раз бесплатно";
-"verification.rejected.support" = "Поддержка";
-"verification.rejected.title" = "Заявка отклонена";
-"verification.successful.description" = "Ваша проверка KYC прошла успешно, и мы уже готовимся отправить вам SORA Card!";
-"verification.successful.title" = "Заявка одобрена";
-"verify.email.description" = "Перейдите по волшебной ссылке, которая была отправлена\nна %@ \nДоставка письма может занять несколько минут. Пожалуйста, проверьте папку со спамом, если вы не получили письмо в течение 5 минут.";
-"verify.email.resend" = "ПОВТОРНО ОТПРАВИТЬ В %@";
-"verify.email.title" = "Подтвердите ваш email";
-"verify.phone.number.code.input.field.label" = "SMS-код";
-"verify.phone.number.description" = "Введите SMS-код, который был отправлен\n%@";
-"verify.phone.number.send.code" = "ОТПРАВИТЬ КОД";
-"balance.locks.blocked.row.title" = "Заблокировано";
-"wallet.send.dead.recipient.message.v2" = "Your transfer will fail since the final amount (%s) on the destination account will be less than the minimal balance (%s). Please increase the amount by %s";
-"nft.spam.warning" = "Beware of a scam/spam NFT collection – verify authenticity before engaging. Stay safe!";
-"wallet.all.assets.hidden" = "You have hidden all assets";
+
+"tab.portfolio" = "Кошелёк";
+
+"tab.defi" = "Доход";
+
+"tab.polkaswap" = "Обмен";
+
+"tab.cross_chain" = "Перевод";
+
+"ux.switch_wallet" = "Выбрать кошелёк";
+
+"ux.choose_network" = "Выбрать сеть";
+
+"ux.search_assets" = "Поиск активов";
+
+"ux.scan_qr" = "Сканировать QR-код";
+
+"ux.receive_network_instruction" = "Отправляйте на этот адрес только %@ в сети %@.";
+
+"ux.retry" = "Повторить";
+
+"ux.manage_wallets" = "Управление кошельками";
+
+"ux.transfer_networks" = "Перевод между сетями →";
+
+"ux.positions_loading" = "Проверяем ваши позиции и награды.";
+
+"ux.positions_unavailable" = "Не удалось загрузить позиции. Повторите попытку.";
+
+"ux.positions_stale" = "Показаны последние загруженные позиции. Повторите попытку для обновления.";
+
+"ux.positions_empty" = "У вас нет активных позиций";
+
+"ux.positions_explore" = "Выберите способ получения дохода ниже.";
+
+"ux.explore_earn" = "Способы получения дохода";
+
+"ux.refresh_positions" = "Обновить позиции";
+"ux.back" = "Назад";
+"ux.collapsed" = "Свёрнуто";
+"ux.expanded" = "Развёрнуто";
+
+/* Other holdings may not appear because balance checks use the app's asset list. */
+"portfolio.discovery.catalog_only" = "Некоторые токены могут не отображаться";
+
+/* Only shown when network balances need attention. */
+"portfolio.balance.update_failed" = "Не удалось обновить балансы";
+"portfolio.balance.outdated" = "Балансы могут быть устаревшими";
+"portfolio.balance.not_loaded" = "Балансы не загружены";
+
+"wallet.transaction.history.view.explorer" = "Открыть в обозревателе блоков";
+
+/* Wallet cards: the balance counts assets hidden from the portfolio. */
+"portfolio.balance.incl_hidden" = "вкл. скрытые";
+
+/* Under the wallet-wide total: the selected networks and their part of it. */
+"portfolio.header.showing_filtered" = "Показано: %@ · %@";
+
+/* Portfolio row: the part of the balance that can be sent now. */
+"portfolio.asset.transferable" = "Доступно %@";
+
+/* Portfolio row of a testnet token. */
+"portfolio.asset.testnet_no_value" = "Без стоимости";
+
+/* Portfolio row of a funded asset without a trusted price. */
+"portfolio.asset.price_unavailable" = "Цена недоступна";
+
+/* Under the portfolio: what the total leaves out. Hidden and testnet captions open Manage assets. */
+"portfolio.exclusions.hidden.one" = "%d скрытый актив не учтён · Управление";
+"portfolio.exclusions.hidden.other" = "Не учтено скрытых активов: %d · Управление";
+"portfolio.exclusions.testnet.one" = "%d актив тестовой сети не учтён · Управление";
+"portfolio.exclusions.testnet.other" = "Не учтено активов тестовых сетей: %d · Управление";
+"portfolio.exclusions.unpriced.one" = "%d актив без цены не учтён";
+"portfolio.exclusions.unpriced.other" = "Не учтено активов без цены: %d";
+"portfolio.exclusions.pool_stakes" = "Стейки в пулах не учтены";
+
+/* Notice above the portfolio: assets hidden in the previous version now hold funds. */
+"portfolio.hidden_funds.title.one" = "%d скрытый актив содержит средства";
+"portfolio.hidden_funds.title.other" = "Скрытых активов со средствами: %d";
+"portfolio.hidden_funds.message" = "Скрытые активы не учитываются в общем балансе. Проверьте их или оставьте скрытыми.";
+"portfolio.hidden_funds.review" = "Проверить";
+"portfolio.hidden_funds.keep_hidden" = "Оставить скрытыми";
+
+/* Bitcoin, Solana and Taira account setup from the wallet's own recovery phrase. */
+"universal.setup.title" = "Одна фраза восстановления";
+"universal.setup.message" = "Bitcoin, Solana и Taira используют ту же фразу восстановления, что и этот кошелёк. Добавление одной из этих сетей настраивает все три, новая фраза не создаётся.";
+"universal.setup.action" = "Добавить из фразы кошелька";
+"universal.recovery.title" = "Нужна фраза кошелька";
+"universal.recovery.message" = "Введите фразу восстановления, с помощью которой этот кошелёк был создан или восстановлен. Перед добавлением Bitcoin, Solana и Taira она будет сверена с существующим кошельком. Вторая фраза никогда не создаётся. Кошелёк, импортированный из сида или файла JSON без фразы, не может их добавить: создайте или восстановите кошелёк с фразой восстановления в списке кошельков и перенесите на него активы.";
+"universal.recovery.action" = "Ввести фразу восстановления кошелька";
+"universal.open.wallets.action" = "Открыть список кошельков";
+"universal.unsupported.title" = "Нужен кошелёк с фразой восстановления";
+"universal.unsupported.message" = "Этот кошелёк создан только из фразы TON или только из ключа Ethereum, поэтому добавить в него аккаунты Bitcoin, Solana и Taira нельзя. Ничего не изменено. Чтобы пользоваться ими, создайте или восстановите кошелёк с фразой восстановления в списке кошельков и перенесите на него активы.";
+"universal.unsupported.source.message" = "Ключ, сохранённый для этого кошелька, нельзя безопасно превратить в одну фразу восстановления, поэтому Bitcoin, Solana и Taira не добавлены. Ничего не изменено. Создайте или восстановите кошелёк с фразой восстановления в списке кошельков и перенесите на него активы.";
+"universal.adoption.seed.unavailable" = "На этом устройстве нет фразы восстановления кошелька. Введите исходную фразу, чтобы добавить Bitcoin, Solana и Taira.";
+"universal.adoption.conflict" = "В этом кошельке уже есть аккаунт Bitcoin или Taira из другой фразы восстановления. Его адрес и ключ сохранены, ничего не заменено; переведите с него средства, прежде чем переходить на аккаунты фразы этого кошелька.";
+"universal.seed.unreadable" = "Не удалось прочитать сид кошелька. Разблокируйте устройство и попробуйте снова. Если ошибка повторится, импортируйте фразу восстановления кошелька.";
+"universal.recovery.mismatch.title" = "Фраза восстановления не совпадает";
+"universal.recovery.mismatch.message" = "Эта фраза восстановления не воссоздаёт этот кошелёк. Аккаунты и ключи не изменены.";
+"universal.recovery.different.phrase.title" = "Обнаружена другая фраза восстановления";
+"universal.recovery.different.phrase.message" = "В этом кошельке уже есть аккаунт Bitcoin или Taira из другой фразы восстановления. Он не заменён, потому что это могло бы скрыть средства.";
+
+/* Import of Bitcoin, Solana or Taira: the wallet's own phrase restores the whole wallet. */
+"universal.import.entire.wallet" = "Весь кошелёк";
+
+/* Raw seed export of a wallet: accounts whose seed is not shown. */
+"export.seed.partial.message" = "Сид аккаунтов ниже не показан: на этом устройстве его нет, либо сохранённый сид восстановил бы другой адрес:\n%@\nОни работают как прежде. Сохраните их резервную копию в виде файла JSON. Пока вы этого не сделаете, кошелёк не будет отмечен как сохранённый.";
+
+/* Solana token send: the amount is only held across several token accounts of the mint. */
+"solana.transfer.token_balance_split.title" = "Баланс хранится на нескольких токен-счетах";
+"solana.transfer.token_balance_split.message" = "Баланс этого токена распределён по нескольким токен-счетам, и ни на одном из них нет всей этой суммы. Сначала отправьте меньшую сумму, затем остаток. Ничего не отправлено.";
+
+/* Retained data and authenticated emergency recovery */
+"recovery.title" = "Доступ к сохранённым данным";
+"recovery.network_message" = "Не удалось прочитать часть сетевых данных. Кошельки и данные восстановления хранятся отдельно. Прежние контакты, пользовательские узлы и подключения остаются на устройстве. После перехода к новым сетевым данным заново подключите приложения и добавьте нужные узлы.";
+"recovery.wallet_message" = "Список кошельков требует внимания. Записи кошельков и данные восстановления остаются на устройстве. Сохраните Fearless и его данные. После аутентификации их можно просмотреть или экспортировать, даже если проверить их не удаётся.";
+"recovery.free_storage" = "Освободите не менее %@ памяти и повторите попытку.";
+"recovery.retry" = "Повторить";
+"recovery.fresh_network" = "Продолжить с новыми сетевыми данными";
+"recovery.restore_access" = "Восстановить доступ к кошельку";
+"recovery.english" = "Продолжить на английском";
+"recovery.export" = "Экстренные данные восстановления";
+"recovery.previous_data" = "Предыдущие данные приложения";
+"recovery.help" = "Получить помощь";
+"recovery.authenticate" = "Пройдите аутентификацию для доступа к сохранённым данным восстановления.";
+"recovery.read_failed" = "Не удалось прочитать данные. Сохраните их на устройстве и повторите попытку.";
+"recovery.close" = "Закрыть";
+"recovery.share" = "Поделиться";
+"recovery.export_warning" = "Экспорт содержит секретные данные восстановления в исходном виде, закодированные в Base64. Они могут быть неполными или неверными; это не проверенная резервная копия кошелька. Получатель может получить контроль над средствами. Сохраняйте их только в надёжном месте. Непрочитанные записи указаны отдельно. Никогда не отправляйте их в поддержку.";
+"recovery.locked" = "Заблокировано. Закройте экран и снова пройдите аутентификацию.";
+"recovery.restore_access_warning" = "Для восстановления доступа можно импортировать фразу восстановления. Если список не читается, исходные данные останутся на устройстве. Ключи и текущий PIN будут сохранены. Сначала экспортируйте данные восстановления, если у вас нет другой копии.";
+"recovery.continue" = "Продолжить";
+"recovery.advanced" = "Дополнительно";
+"recovery.archive_message" = "Прежние данные сохраняются без изменений. Каждый архив заново проверяется текущей версией. При восстановлении также сохраняется копия текущих данных.";
+"recovery.no_archives" = "Предыдущих данных приложения нет.";
+"recovery.checking" = "Проверка предыдущих данных…";
+"recovery.wallet_data" = "Данные кошелька";
+"recovery.network_data" = "Сетевые данные";
+"recovery.restore" = "Восстановить";
+"recovery.not_ready" = "Эта версия пока не может восстановить архив. Он сохраняется без изменений и проверяется при каждом запуске. Экстренные данные восстановления остаются доступны.";
+"recovery.restore_warning" = "Восстановить данные при следующем запуске? Текущие данные тоже будут сохранены. Ключи и PIN не изменятся. После подтверждения закройте и снова откройте Fearless.";
+"recovery.restore_queued" = "Восстановление запланировано. Откройте переключатель приложений, смахните Fearless вверх, чтобы закрыть его, затем откройте Fearless снова. Восстановление произойдёт до открытия кошелька.";
+
+"send.network.unavailable" = "Этот токен недоступен в сети %@.";
+"send.confirm.test_tokens_no_value" = "Тестовые токены не имеют стоимости";
+"portfolio.zero_networks" = "Сетей без средств: %d";
+
+"portfolio.lens.tokens" = "Токены";
+"portfolio.lens.networks" = "Сети";
+"portfolio.network_count" = "Сетей: %d";
+"portfolio.price_unavailable" = "Цена недоступна";
+"portfolio.partial_value" = "Сетей без цены: %d";
+"portfolio.custom_order" = "Свой порядок";
+"portfolio.popular_tokens" = "Популярные токены · %d";
+"portfolio.zero_tokens" = "Нет баланса · токенов: %d";
+"portfolio.expand" = "Развернуть";
+"portfolio.collapse" = "Свернуть";
+"portfolio.hide_group" = "Скрыть %@?";
+"portfolio.choose_network" = "Выберите сеть";
+
+// Manage assets visibility and separate network sections.
+"manage_assets.auto" = "Автоматически";
+"manage_assets.auto_zero" = "Автоматически · нет баланса";
+"manage_assets.shown" = "Показан";
+"manage_assets.hidden" = "Скрыт";
+"manage_assets.testnets" = "Тестовые сети";
+"manage_assets.testnets_caption" = "Тестовые токены не имеют стоимости и не учитываются в общей сумме.";
+"manage_assets.unverified" = "Непроверенные";
+"manage_assets.unverified_caption" = "Непроверенные токены могут быть небезопасны. Они не учитываются в общей сумме.";
+
+"manage_assets.all" = "Все";
+
+"manage_assets.reset_auto" = "Сбросить на автоматически";
+
+"manage_assets.mixed" = "Частично";
+
+"manage_assets.show_group" = "Показать %@ во всех сетях";
+
+"manage_assets.hide_group" = "Скрыть %@ во всех сетях";
+
+"manage_assets.reset_order" = "Сбросить порядок";
+"manage_assets.reset_order_message" = "Восстановить порядок активов по умолчанию для этого кошелька? Настройки видимости активов сохранятся.";
+
+"portfolio.empty_ready" = "Ваш кошелёк готов";
+"portfolio.empty_fund" = "Выберите актив и сеть для получения или покупки токенов.";
+"portfolio.buy" = "Купить";
+"portfolio.buy_unavailable" = "Покупка в этих сетях недоступна. Вы можете получить токены переводом.";
+"portfolio.funding_unavailable" = "Добавьте аккаунт поддерживаемой сети для получения токенов. Покупка здесь недоступна.";
+
+"portfolio.empty_networks" = "Популярные сети · баланс пока нулевой";
+
+/* Static Welcome presentation. */
+"welcome.title" = "Ваши ключи. Все сети.";
+"welcome.body" = "Самостоятельное хранение активов в Polkadot, Ethereum, TON, Bitcoin, Solana и SORA.";
+"welcome.create" = "Создать новый кошелёк";
+"welcome.restore" = "У меня уже есть кошелёк";
+
+"import.legacy_ton_phrase" = "Фраза восстановления старого TON-кошелька";
+"import.legacy_ton_phrase_placeholder" = "Введите фразу восстановления TON-кошелька старого формата";
+
+"recovery.startup_updating" = "Завершаем обновление…";
+"recovery.startup_opening" = "Открываем кошелёк…";
+"recovery.startup_keep_open" = "Не закрывайте Fearless.";
+
+/* Portfolio list trust and disclosure state */
+"portfolio.asset.verified" = "Проверено";
+"portfolio.asset.detected" = "Обнаружено";
+"portfolio.asset.metadata_missing" = "Нет метаданных";
+"portfolio.asset.detected_count" = "Обнаруженные активы (%d)";
+"portfolio.asset.detected_review" = "Проверьте, прежде чем доверять";
+
+"export.json.partial.title" = "Резервная копия неполная";
+"export.json.partial.message" = "Не удалось экспортировать эти аккаунты:\n%@\nКошелёк и ключи не изменены. Экспорт доступных файлов не завершает резервное копирование этого кошелька.";
+"export.json.partial.action" = "Экспортировать доступные файлы";
+
+"pincode.save.failed" = "Не удалось сохранить PIN-код. Введите и подтвердите его ещё раз.";
+
+"backup.status.save.failed" = "Не удалось сохранить статус резервной копии. Повторите попытку.";
+
+"export.mnemonic.unavailable.title" = "Фраза восстановления не показана";
+"export.mnemonic.partial.message" = "Не удалось проверить сохранённую фразу или путь деривации для этих счетов:\n%@\nИх ключи не изменены. Экспортируйте для них резервную копию JSON. Этот экспорт фразы не помечает кошелёк как сохранённый.";
+
+/* Native TON exact-phrase address selection, before persistence. */
+"import.ton.choose_address" = "Выберите адрес TON";
+"import.ton.spacing_warning" = "Пробелы и переносы строк могут изменить адрес старого кошелька TON. Сравните оба адреса с прежним кошельком и выберите нужный для восстановления. До выбора импорт не выполняется.";
+"import.ton.as_typed" = "Как введено";
+"import.ton.normalized" = "Стандартные пробелы";
+
+// Exact legacy TON spacing recovery
+"export.ton.exact.title" = "Точная фраза TON";
+"export.ton.exact.warning" = "Пробелы и переносы строк в этой резервной копии TON имеют значение. Нажмите «Копировать точную фразу», чтобы сохранить их. Изменение пробелов может восстановить другой адрес. Скопированная фраза остаётся на этом устройстве и удаляется из буфера через минуту.";
+"export.ton.exact.copy" = "Копировать точную фразу";
+
+/* Significant legacy TON spacing is display-only; raw confirmation tokens remain unchanged. */
+"confirmation.exact.details" = "Выберите все элементы в исходном порядке. Пустой элемент сохраняет дополнительный пробел или пробел в начале либо конце фразы. Названия в скобках обозначают переносы строк, табуляцию и другие пробельные символы. Сохраните каждый элемент исходной фразы.";
+"confirmation.exact.empty" = "Пустой элемент";
+"confirmation.exact.line.break" = "Перенос строки";
+"confirmation.exact.tab" = "Табуляция";
+"confirmation.exact.carriage.return" = "Возврат каретки";
+
+/* Preserved Solana payment with unavailable original cluster identity. */
+"solana.transfer.recovery_unavailable.title" = "Сохранённый перевод требует проверки";
+"solana.transfer.recovery_unavailable.message" = "Не удалось подтвердить исходную сеть сохранённого перевода. Fearless сохранил запись о переводе. Проверка статуса и повторная отправка недоступны. Не отправляйте новый перевод взамен этого, пока его результат не будет выяснен.\n%@";
+
+"solana.transfer.recovery_unreadable.message" = "Fearless не может прочитать сохранённую запись перевода для этого кошелька и сети Solana. Исходные данные сохранены. Новый перевод, проверка статуса и повторная отправка недоступны, поскольку результат предыдущего перевода неизвестен. Не отправляйте замену, пока исходный перевод не будет выяснен. Остальные функции кошелька доступны.";
+
+/* Solana send, recovery and history */
+"solana.transfer.recipient_invalid.title" = "Это не адрес Solana";
+"solana.transfer.recipient_invalid.message" = "Проверьте адрес и повторите попытку. Ничего не отправлено.";
+"solana.transfer.recipient_token_account.title" = "Это токен-счёт, а не кошелёк";
+"solana.transfer.recipient_token_account.message" = "Похоже, это токен-счёт, а не адрес кошелька. Средства, отправленные сюда, могут быть потеряны. Попросите у получателя адрес его кошелька Solana. Ничего не отправлено.";
+"solana.transfer.recipient_program.title" = "Это программа, а не кошелёк";
+"solana.transfer.recipient_program.message" = "Этот адрес принадлежит программе Solana. Средства, отправленные сюда, будут заблокированы. Попросите у получателя адрес его кошелька Solana. Ничего не отправлено.";
+"solana.transfer.below_new_account_minimum.title" = "Сумма слишком мала для нового счёта";
+"solana.transfer.below_new_account_minimum.message" = "На этом адресе ещё нет SOL. Чтобы открыть его, Solana требует не менее %@ SOL. Отправьте как минимум эту сумму. Ничего не отправлено.";
+"solana.transfer.remainder_below_minimum.title" = "Оставьте больше SOL или отправьте всё";
+"solana.transfer.remainder_below_minimum.message" = "Solana требует, чтобы на кошельке не оставалось ничего или оставалось не менее %@ SOL. Отправьте всё (кнопка «Все») или оставьте как минимум эту сумму. Ничего не отправлено.";
+"solana.transfer.insufficient_sol.title" = "Недостаточно SOL";
+"solana.transfer.insufficient_sol.message" = "На этом кошельке недостаточно SOL для суммы и комиссии сети, а если получатель впервые получает этот токен, то и для счёта, который Solana для него откроет. Пополните SOL или уменьшите сумму. Ничего не отправлено.";
+"solana.transfer.insufficient_token.title" = "Недостаточно токенов";
+"solana.transfer.insufficient_token.message" = "Ни на одном счёте этого кошелька нет такого количества этого токена. Уменьшите сумму и повторите попытку. Ничего не отправлено.";
+"solana.transfer.token_program_unsupported.title" = "Этот токен пока нельзя отправить";
+"solana.transfer.token_program_unsupported.message" = "Эта версия может отправлять SOL и стандартные токены SPL. Этот токен использует Token-2022, который пока не поддерживается. Он остаётся в вашем кошельке, и вы по-прежнему можете его получать.";
+"solana.transfer.copy_signature" = "Скопировать ID транзакции";
+"solana.transfer.unknown.title" = "Статус перевода неизвестен";
+"solana.transfer.unknown.message" = "Сеть Solana могла принять этот перевод. Не отправляйте его повторно из другого кошелька или приложения. Fearless сохранил подписанную транзакцию: повторная отправка передаёт ту же транзакцию, поэтому двойной оплаты не будет. Перевод в Solana завершается или истекает примерно за две минуты.\n%@";
+"solana.transfer.unknown.retry" = "Повторить отправку";
+"solana.transfer.prior_unresolved.title" = "Предыдущий перевод ещё обрабатывается";
+"solana.transfer.prior_unresolved.message" = "Fearless ещё проверяет, был ли отправлен ваш предыдущий перевод в Solana, поэтому этот перевод не отправлен. Перевод в Solana завершается или истекает примерно за две минуты. Повторите попытку после этого.\n%@";
+"solana.transfer.prior_sent.title" = "Ваш предыдущий перевод отправлен";
+"solana.transfer.prior_sent.message" = "Ваш предыдущий перевод в Solana дошёл до сети, поэтому этот перевод не отправлен. Проверьте баланс и комиссию, прежде чем отправлять снова.\n%@";
+"solana.transfer.prior_not_sent.title" = "Ваш предыдущий перевод не прошёл";
+"solana.transfer.prior_not_sent.message" = "Ваш предыдущий перевод в Solana не был подтверждён сетью, поэтому средства с кошелька за него не списаны. Этот перевод тоже не отправлен. Проверьте его и отправьте снова.\n%@";
+"solana.transfer.failed.title" = "Перевод не выполнен";
+"solana.transfer.failed.message" = "Сеть Solana обработала этот перевод, но он завершился ошибкой, поэтому сумма не списана с кошелька. Комиссия сети была удержана.\n%@";
+"solana.transfer.not_sent.title" = "Этот перевод не отправлен";
+"solana.transfer.not_sent.no_connection" = "Fearless не удалось связаться с сетью Solana, поэтому средства не списаны с кошелька. Проверьте подключение и повторите попытку.";
+"solana.transfer.not_sent.rejected" = "Сеть Solana не приняла этот перевод, поэтому средства не списаны с кошелька. Проверьте сумму и комиссию и повторите попытку.";
+"solana.transfer.not_sent.expired" = "Срок действия этого перевода истёк до подтверждения сетью Solana, поэтому средства не списаны с кошелька. Вы можете отправить его снова.";
+"solana.transfer.unverified.title" = "Не удалось проверить этот перевод";
+"solana.transfer.unverified.message" = "Fearless не удалось подтвердить, дошёл ли этот перевод в Solana до сети. Прежде чем отправлять снова, проверьте баланс и найдите транзакцию в Solscan.\n%@";
+"solana.transfer.prior_unverified.title" = "Не удалось проверить ваш предыдущий перевод";
+"solana.transfer.prior_unverified.message" = "Fearless не удалось подтвердить, дошёл ли ваш предыдущий перевод в Solana до сети, поэтому этот перевод не отправлен. Проверьте баланс и найдите предыдущую транзакцию в Solscan. Если она не прошла, подтвердите этот перевод ещё раз.\n%@";
+"send.unavailable.solana_paused.title" = "Отправка Solana сейчас приостановлена";
+"send.unavailable.solana_paused.message" = "Мы проверяем отправку Solana в этой версии. Ваши SOL, токены и балансы не затронуты, и вы по-прежнему можете получать средства в Solana.";
+"send.unavailable.network.title" = "Отправка недоступна в сети %@";
+"send.unavailable.asset.message" = "Эта версия не может отправить этот актив в этой сети. Ваш баланс не затронут, и вы по-прежнему можете его получать.";
+"send.unavailable.account.title" = "В этом кошельке нет счёта в сети %@";
+"send.unavailable.account.message" = "В этом кошельке нет счёта в этой сети, поэтому отправлять с него нечего. Выберите другую сеть или кошелёк.";
+"send.unavailable.not_prepared.title" = "Не удалось подготовить этот перевод";
+"send.unavailable.not_prepared.message" = "Fearless не удалось связаться с сетью %@, чтобы подготовить этот перевод. Ничего не отправлено. Проверьте подключение и повторите попытку.";
+"wallet.transaction.history.solana.explorer.message" = "Полная история Solana в Solscan";
+
+/* Solana confirm: recipient token account deposit */
+"solana.transfer.account_creation.title" = "Открытие счёта получателя";
+"solana.transfer.account_creation.included" = "Входит в комиссию сети";

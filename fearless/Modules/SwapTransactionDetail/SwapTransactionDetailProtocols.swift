@@ -20,9 +20,7 @@ protocol SwapTransactionDetailInteractorInput: AnyObject {
     func setup(with output: SwapTransactionDetailInteractorOutput)
 }
 
-protocol SwapTransactionDetailInteractorOutput: AnyObject {
-    func didReceive(priceData: PriceData?)
-}
+protocol SwapTransactionDetailInteractorOutput: AnyObject {}
 
 protocol SwapTransactionDetailRouterInput: PresentDismissable, SharingPresentable, ApplicationStatusPresentable, WebPresentable {}
 

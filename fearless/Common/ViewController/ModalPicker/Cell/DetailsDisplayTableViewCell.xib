@@ -9,7 +9,7 @@
     </dependencies>
     <customFonts key="customFonts">
         <array key="sora-Regular.otf">
-            <string>sora-rc004-0417-Regular</string>
+            <string>Sora-Regular</string>
         </array>
     </customFonts>
     <objects>
@@ -24,13 +24,13 @@
                 <subviews>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="249" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="Reserved" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aqq-pJ-WR6">
                         <rect key="frame" x="20" y="19.5" width="346.5" height="16.5"/>
-                        <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
+                        <fontDescription key="fontDescription" name="Sora-Regular" family="Sora" pointSize="14"/>
                         <color key="textColor" name="colorLightGray"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0.5" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BT3-m9-vvu">
                         <rect key="frame" x="374.5" y="19.5" width="19.5" height="16.5"/>
-                        <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
+                        <fontDescription key="fontDescription" name="Sora-Regular" family="Sora" pointSize="14"/>
                         <color key="textColor" name="colorWhite"/>
                         <nil key="highlightedColor"/>
                     </label>

@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SoraKeystore
+import SSFStorageQueryKit
 
 final class ChainAssetListAssembly {
     static func configureModule(
@@ -23,10 +24,9 @@ final class ChainAssetListAssembly {
             operationQueue: OperationQueue()
         )
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let dependencyContainer = ChainAssetListDependencyContainer()
 
-        let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(
+        let ethereumBalanceRepositoryCacheWrapper = BalanceRepositoryCacheWrapper(
             logger: Logger.shared,
             repository: accountInfoRepository,
             operationManager: OperationManagerFacade.sharedManager
@@ -36,6 +36,7 @@ final class ChainAssetListAssembly {
             repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
         )
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
         let chainAssetFetching = ChainAssetsFetching(
@@ -58,12 +59,49 @@ final class ChainAssetListAssembly {
             missingAccountHelper: missingAccountHelper,
             accountInfoFetcher: accountInfoFetcher
         )
-
         let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let chainSettingsRepostiry = chainSettingsRepositoryFactory.createAsyncRepository()
+        let operationQueue = OperationManagerFacade.sharedDefaultQueue
+        let pricesService = PricesService.shared
+        let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
+            chainRegistry: chainRegistry
+        )
+
+        let tonBalanceRepositoryWrapper = BalanceRepositoryCacheWrapper(
+            logger: Logger.shared,
+            repository: accountInfoRepository,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let dynamicChainRepository = ChainRepositoryFactory().createAsyncRepository()
+        let tonJettonInjector = TonJettonInjectorImpl(
+            chainModelRepository: AsyncAnyRepository(dynamicChainRepository),
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared
+        )
+        let dynamicAssetCatalogInjector = DynamicAssetCatalogInjectorImpl(
+            chainModelRepository: AsyncAnyRepository(dynamicChainRepository),
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared
+        )
+
+        let tonRemoteBalanceFetching = TonRemoteBalanceFetchingImpl(
+            chainRegistry: chainRegistry,
+            repositoryWrapper: tonBalanceRepositoryWrapper,
+            jettonInjector: tonJettonInjector
+        )
+
+        let accountInfoRemoteService = AccountInfoRemoteServiceDefault(
+            ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
+            tonRemoteBalanceFetching: tonRemoteBalanceFetching,
+            bitcoinBalanceSync: BitcoinBalanceSync(discovery: BitcoinReceiveDiscovery(client: BitcoinFailoverIndexerClient())),
+            solanaBalanceSync: SolanaRpcBalanceSync.mainnet,
+            dynamicAssetCatalogInjector: dynamicAssetCatalogInjector,
+            storagePerformer: storagePerformer
+        )
+
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
-            priceLocalSubscriber: priceLocalSubscriber,
             eventCenter: EventCenter.shared,
             accountRepository: AnyDataProviderRepository(accountRepository),
             accountInfoFetchingProvider: accountInfoFetching,
@@ -73,11 +111,15 @@ final class ChainAssetListAssembly {
             userDefaultsStorage: SettingsManager.shared,
             chainsIssuesCenter: chainsIssuesCenter,
             chainSettingsRepository: AsyncAnyRepository(chainSettingsRepostiry),
-            chainRegistry: ChainRegistryFacade.sharedRegistry
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            accountInfoRemoteService: accountInfoRemoteService,
+            pricesService: pricesService,
+            operationQueue: operationQueue
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(
-            assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
+            assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
+            sendVetoedChainIds: { PortfolioVisibilityContext.sendVetoedChainIds(gate: .production) }
         )
 
         let presenter = ChainAssetListPresenter(
@@ -101,6 +143,6 @@ final class ChainAssetListAssembly {
     }
 
     private static func configureBannersModule(moduleOutput: BannersModuleOutput?) -> BannersModuleCreationResult? {
-        BannersAssembly.configureModule(output: moduleOutput)
+        BannersAssembly.configureModule(output: moduleOutput, type: .independent, wallet: nil)
     }
 }

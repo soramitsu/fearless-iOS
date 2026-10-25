@@ -1,7 +1,26 @@
-import Foundation
+import UIKit
 import SSFModels
 
 final class ChainAssetListRouter: ChainAssetListRouterInput {
+    func showFundingOptions(from view: ControllerBackedProtocol?, title: String, options: [PortfolioFundingOption], locale: Locale) {
+        guard let controller = view?.controller, controller.presentedViewController == nil, !options.isEmpty else { return }
+        let picker = PortfolioFundingPickerViewController(title: title, options: options, locale: locale)
+        let navigation = UINavigationController(rootViewController: picker)
+        navigation.modalPresentationStyle = .fullScreen
+        controller.present(navigation, animated: true)
+    }
+
+    func showGroupHideConfirmation(from view: ControllerBackedProtocol?, viewModel: SheetAlertPresentableViewModel) {
+        guard let controller = view?.controller, controller.presentedViewController == nil else { return }
+        controller.present(PortfolioGroupHideViewController(viewModel: viewModel), animated: true)
+    }
+
+    func showPurchase(from view: ControllerBackedProtocol?, action: PurchaseAction) {
+        guard let controller = view?.controller, controller.presentedViewController == nil,
+              let purchase = PurchaseViewFactory.createView(for: action) else { return }
+        controller.present(FearlessNavigationController(rootViewController: purchase.controller), animated: true)
+    }
+
     func showAssetNetworks(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset
@@ -119,9 +138,10 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
     func showManageAsset(
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
-        filter: NetworkManagmentFilter?
+        filter: NetworkManagmentFilter?,
+        visibilityFilter: ManageAssetsFilter
     ) {
-        let module = AssetManagementAssembly.configureModule(networkFilter: filter, wallet: wallet)
+        let module = AssetManagementAssembly.configureModule(networkFilter: filter, wallet: wallet, visibilityFilter: visibilityFilter)
 
         guard let controller = module?.view.controller else {
             return
@@ -138,6 +158,17 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
         guard let module = NetworkIssuesNotificationAssembly.configureModule(
             wallet: wallet,
             issues: issues
+        ) else {
+            return
+        }
+
+        view?.controller.present(module.view.controller, animated: true)
+    }
+
+    func showWalletManagment(from view: ControllerBackedProtocol?) {
+        guard let module = WalletsManagmentAssembly.configureModule(
+            shouldSaveSelected: true,
+            moduleOutput: nil
         ) else {
             return
         }

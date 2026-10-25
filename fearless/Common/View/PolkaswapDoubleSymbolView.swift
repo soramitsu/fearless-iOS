@@ -8,6 +8,11 @@ struct PolkaswapDoubleSymbolViewModel {
     let rightShadowColor: CGColor?
 }
 
+enum PolkaswapDoubleSymbolViewMode {
+    case filled
+    case centered
+}
+
 final class PolkaswapDoubleSymbolView: UIView {
     private enum Constants {
         static let imageViewSize = CGSize(width: 41, height: 41)
@@ -21,6 +26,16 @@ final class PolkaswapDoubleSymbolView: UIView {
     private let rightContainer = UIView()
     private let leftImageView = UIImageView()
     private let rightImageView = UIImageView()
+
+    private var imageSize: CGSize?
+    private var mode: PolkaswapDoubleSymbolViewMode = .centered
+
+    init(imageSize: CGSize?, mode: PolkaswapDoubleSymbolViewMode) {
+        self.imageSize = imageSize
+        self.mode = mode
+        super.init(frame: .zero)
+        setupLayout()
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -39,14 +54,15 @@ final class PolkaswapDoubleSymbolView: UIView {
     }
 
     func bind(viewModel: PolkaswapDoubleSymbolViewModel) {
+        let size = imageSize ?? Constants.imageViewSize
         viewModel.rightViewModel?.loadImage(
             on: rightImageView,
-            targetSize: Constants.imageViewSize,
+            targetSize: size,
             animated: true
         )
         viewModel.leftViewModel?.loadImage(
             on: leftImageView,
-            targetSize: Constants.imageViewSize,
+            targetSize: size,
             animated: true
         )
         leftContainer.layer.shadowColor = viewModel.leftShadowColor
@@ -54,28 +70,44 @@ final class PolkaswapDoubleSymbolView: UIView {
     }
 
     private func setupLayout() {
-        leftContainer.backgroundColor = R.color.colorBlack()
-        rightContainer.backgroundColor = R.color.colorBlack()
+        let size = imageSize ?? Constants.imageViewSize
+
+        addSubview(rightContainer)
+        addSubview(leftContainer)
 
         leftContainer.addSubview(leftImageView)
-        leftImageView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(Constants.imageViewInset)
-            make.size.equalTo(Constants.imageViewSize)
-        }
-
         rightContainer.addSubview(rightImageView)
-        rightImageView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(Constants.imageViewInset)
-            make.size.equalTo(Constants.imageViewSize)
+
+        switch mode {
+        case .filled:
+            leftImageView.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.size.equalTo(size)
+            }
+
+            rightImageView.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+                make.size.equalTo(size)
+            }
+        case .centered:
+            leftContainer.backgroundColor = R.color.colorBlack()
+            rightContainer.backgroundColor = R.color.colorBlack()
+
+            leftImageView.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(Constants.imageViewInset)
+                make.size.equalTo(size)
+            }
+
+            rightImageView.snp.makeConstraints { make in
+                make.edges.equalToSuperview().inset(Constants.imageViewInset)
+                make.size.equalTo(size)
+            }
         }
 
         [leftContainer, rightContainer].forEach { view in
             view.layer.shadowRadius = Constants.shadowRadius
             view.layer.shadowOpacity = Constants.shadowOpacity
         }
-
-        addSubview(rightContainer)
-        addSubview(leftContainer)
 
         leftContainer.snp.makeConstraints { make in
             make.top.leading.bottom.equalToSuperview()

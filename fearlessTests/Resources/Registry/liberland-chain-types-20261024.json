@@ -1,0 +1,1 @@
+{"chainId":"6bd89e052d67a45bb60a9a23e8581053d5e0d619f15cb9865946937e690c42d6","runtime_id":16,"types":{},"versioning":[{"runtime_range":[0,null],"types":{"Balance":"u128","Index":"u32","GenericEvent":"kitchensink_runtime::RuntimeEvent","GenericCall":"kitchensink_runtime::RuntimeCall"}}]}

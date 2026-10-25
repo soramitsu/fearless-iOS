@@ -1,10 +1,23 @@
 import UIKit
 import SoraFoundation
+import SSFQRService
 
 final class ScanQRAssembly {
     static func configureModule(
-        moduleOutput: ScanQRModuleOutput,
-        matchers: [QRMatcherProtocol] = ScanQRAssembly.defaultMatchers
+        moduleOutput: ScanQRModuleOutput
+    ) -> ScanQRModuleCreationResult? {
+        configureModule(moduleOutput: moduleOutput, rawCodeOutput: nil)
+    }
+
+    static func configureRawModule(
+        rawCodeOutput: ScanQRRawCodeOutput
+    ) -> ScanQRModuleCreationResult? {
+        configureModule(moduleOutput: nil, rawCodeOutput: rawCodeOutput)
+    }
+
+    private static func configureModule(
+        moduleOutput: ScanQRModuleOutput?,
+        rawCodeOutput: ScanQRRawCodeOutput?
     ) -> ScanQRModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
@@ -13,8 +26,10 @@ final class ScanQRAssembly {
             delegateQueue: nil
         )
 
+        let qrService = WalletQRService()
+
         let interactor = ScanQRInteractor(
-            qrExtractionService: QRExtractionService(processingQueue: .global()),
+            qrService: qrService,
             qrScanService: qrScanService
         )
         let router = ScanQRRouter()
@@ -24,7 +39,7 @@ final class ScanQRAssembly {
             router: router,
             logger: Logger.shared,
             moduleOutput: moduleOutput,
-            matchers: matchers,
+            rawCodeOutput: rawCodeOutput,
             localizationManager: LocalizationManager.shared
         )
 
@@ -35,13 +50,4 @@ final class ScanQRAssembly {
 
         return (view, presenter)
     }
-
-    static var defaultMatchers: [QRMatcherProtocol] {
-        [
-            QRInfoMatcher(decoder: QRCoderFactory().createDecoder()),
-            QRUriMatcherImpl(scheme: "wc")
-        ]
-    }
-
-    static let wcSchemeMatcher = QRUriMatcherImpl(scheme: "wc")
 }

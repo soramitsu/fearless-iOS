@@ -96,22 +96,6 @@ final class ExtrinsicOperationFactory {
     let engine: JSONRPCEngine
     let eraOperationFactory: ExtrinsicEraOperationFactoryProtocol
 
-    @available(*, deprecated, message: "Use init(accountId:cryptoType:) instead")
-    init(
-        address: String,
-        cryptoType _: CryptoType,
-        runtimeRegistry: RuntimeCodingServiceProtocol,
-        engine: JSONRPCEngine,
-        eraOperationFactory: ExtrinsicEraOperationFactoryProtocol = MortalEraOperationFactory()
-    ) {
-        accountId = (try? address.toAccountId()) ?? Data(repeating: 0, count: 32)
-        chainFormat = .ethereum
-        cryptoType = .ecdsa
-        self.runtimeRegistry = runtimeRegistry
-        self.engine = engine
-        self.eraOperationFactory = eraOperationFactory
-    }
-
     init(
         accountId: AccountId,
         chainFormat: ChainFormat,
@@ -321,22 +305,25 @@ extension ExtrinsicOperationFactory: ExtrinsicOperationFactoryProtocol {
 
         let submitOperation = JSONRPCListOperation<String>(
             engine: engine,
-            method: "author_submitAndWatchExtrinsic", // TODO: add to fearless utils
+            method: "author_submitAndWatchExtrinsic",
             parameters: nil,
-            timeout: 60
+            timeout: 60,
+            requestOptions: signer.mutationAuthorization.map { JSONRPCOptions(writeAuthorization: $0) } ?? JSONRPCOptions()
         )
         submitOperation.configurationBlock = {
             do {
-                guard let extrinsic = try builderWrapper
+                guard let bytes = try builderWrapper
                     .targetOperation
                     .extractNoCancellableResultData()
-                    .first?
-                    .toHex(includePrefix: true)
+                    .first
                 else {
                     throw BaseOperationError.unexpectedDependentResult
                 }
 
-                submitOperation.parameters = [extrinsic]
+                try signer.mutationAuthorization?.bindSubmission(
+                    extrinsic: bytes, method: "author_submitAndWatchExtrinsic"
+                )
+                submitOperation.parameters = [bytes.toHex(includePrefix: true)]
             } catch {
                 submitOperation.result = .failure(error)
             }
@@ -365,6 +352,9 @@ extension ExtrinsicOperationFactory: ExtrinsicOperationFactoryProtocol {
         signer: SigningWrapperProtocol,
         numberOfExtrinsics: Int
     ) -> CompoundOperationWrapper<[SubmitExtrinsicResult]> {
+        guard signer.mutationAuthorization == nil || numberOfExtrinsics == 1 else {
+            return CompoundOperationWrapper.createWithError(MutationAuthorizationError.changedIntent)
+        }
         let signingClosure: (Data) throws -> Data = { data in
             try signer.sign(data).rawData()
         }
@@ -379,14 +369,16 @@ extension ExtrinsicOperationFactory: ExtrinsicOperationFactoryProtocol {
             (0 ..< numberOfExtrinsics).map { index in
                 let submitOperation = JSONRPCListOperation<String>(
                     engine: engine,
-                    method: RPCMethod.submitExtrinsic
+                    method: RPCMethod.submitExtrinsic,
+                    requestOptions: signer.mutationAuthorization.map { JSONRPCOptions(writeAuthorization: $0) } ?? JSONRPCOptions()
                 )
 
                 submitOperation.configurationBlock = {
                     do {
                         let extrinsics = try builderWrapper.targetOperation.extractNoCancellableResultData()
-                        let extrinsic = extrinsics[index].toHex(includePrefix: true)
-
+                        let bytes = extrinsics[index]
+                        let extrinsic = bytes.toHex(includePrefix: true)
+                        try signer.mutationAuthorization?.bindSubmission(extrinsic: bytes, method: RPCMethod.submitExtrinsic)
                         submitOperation.parameters = [extrinsic]
                     } catch {
                         submitOperation.result = .failure(error)

@@ -3,7 +3,9 @@ import SoraKeystore
 import RobinHood
 import SSFUtils
 import SSFModels
-import SSFAccountManagmentStorage
+#if canImport(SSFAccountManagmentStorage)
+    import SSFAccountManagmentStorage
+#endif
 
 struct StakingRewardDestSetupViewFactory {
     static func createView(
@@ -15,8 +17,7 @@ struct StakingRewardDestSetupViewFactory {
         guard let interactor = try? createInteractor(
             chain: chain,
             asset: asset,
-            selectedAccount: selectedAccount,
-            rewardChainAsset: rewardChainAsset
+            selectedAccount: selectedAccount
         ) else {
             return nil
         }
@@ -57,6 +58,7 @@ struct StakingRewardDestSetupViewFactory {
             chain: chain,
             asset: asset,
             selectedAccount: selectedAccount,
+            rewardChainAsset: rewardChainAsset,
             logger: Logger.shared
         )
 
@@ -75,8 +77,7 @@ struct StakingRewardDestSetupViewFactory {
     private static func createInteractor(
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount: MetaAccountModel,
-        rewardChainAsset: ChainAsset?
+        selectedAccount: MetaAccountModel
     ) throws -> StakingRewardDestSetupInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let chainAsset = ChainAsset(chain: chain, asset: asset)
@@ -97,7 +98,6 @@ struct StakingRewardDestSetupViewFactory {
 
         let feeProxy = ExtrinsicFeeProxy()
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
@@ -105,14 +105,7 @@ struct StakingRewardDestSetupViewFactory {
             logger: Logger.shared
         )
 
-        let facade = UserDataStorageFacade.shared
-        let mapper = MetaAccountMapper()
-
-        let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
-            filter: nil,
-            sortDescriptors: [],
-            mapper: AnyCoreDataMapper(mapper)
-        )
+        let accountRepository = AccountRepositoryFactory.createRepository()
 
         let stakingSettings = StakingAssetSettings(
             storageFacade: substrateStorageFacade,
@@ -162,8 +155,7 @@ struct StakingRewardDestSetupViewFactory {
         let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         return StakingRewardDestSetupInteractor(
-            accountRepository: AnyDataProviderRepository(accountRepository),
-            priceLocalSubscriber: priceLocalSubscriber,
+            accountRepository: accountRepository,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -177,8 +169,7 @@ struct StakingRewardDestSetupViewFactory {
             chainAsset: chainAsset,
             selectedAccount: selectedAccount,
             connection: connection,
-            callFactory: callFactory,
-            rewardChainAsset: rewardChainAsset
+            callFactory: callFactory
         )
     }
 }

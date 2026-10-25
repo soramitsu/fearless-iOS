@@ -11,6 +11,7 @@ final class WalletTransactionHistoryPresenter {
     private var chainAsset: ChainAsset
     private let logger: LoggerProtocol
 
+    private var historyRecoveryNeeded = false
     private var filters: [FilterSet]?
     private(set) var viewModels: [WalletTransactionHistorySection] = []
 
@@ -53,12 +54,23 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
         interactor.applyFilters(filters)
     }
 
-    func setup() {
+    func setup(with view: WalletTransactionHistoryViewProtocol) {
+        self.view = view
         interactor.setup(with: self)
     }
 
     func loadNext() -> Bool {
-        interactor.loadNext()
+        historyRecoveryNeeded ? false : interactor.loadNext()
+    }
+
+    func retryHistory() {
+        view?.didStartLoading()
+        interactor.reload()
+    }
+
+    func viewHistoryOnExplorer() {
+        guard let view, let url = interactor.historyExplorerURL() else { return }
+        wireframe.showHistoryExplorer(url: url, from: view)
     }
 
     func didTapFiltersButton() {
@@ -85,6 +97,37 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
 }
 
 extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorOutputProtocol {
+    func didReceiveUnsupported() {
+        historyRecoveryNeeded = true
+        view?.didStopLoading()
+        if offersExplorerInsteadOfEmptyHistory {
+            presentExplorerOnlyHistory()
+            return
+        }
+        view?.didReceive(state: .unsupported)
+        view?.didReceiveHistoryFailure(canViewExplorer: interactor.historyExplorerURL() != nil)
+    }
+
+    func didReceiveHistoryFailure(hasCachedHistory: Bool) {
+        historyRecoveryNeeded = true
+        view?.didStopLoading()
+        // A provider failure must never look like an empty history. Loaded rows stay visible.
+        if !hasCachedHistory, offersExplorerInsteadOfEmptyHistory {
+            presentExplorerOnlyHistory()
+            return
+        }
+        if !hasCachedHistory {
+            view?.didReceive(state: .unavailable)
+        }
+        view?.didReceiveHistoryFailure(canViewExplorer: interactor.historyExplorerURL() != nil)
+    }
+
+    func didResetHistory() {
+        historyRecoveryNeeded = false
+        viewModels = []
+        view?.didReceive(state: .loading)
+    }
+
     func didReceive(filters: [FilterSet]) {
         self.filters = filters
     }
@@ -93,10 +136,10 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
         pageData: AssetTransactionPageData,
         reload: Bool
     ) {
+        historyRecoveryNeeded = false
         view?.didStopLoading()
-        guard chainAsset.chain.externalApi?.history != nil else {
-            let state: WalletTransactionHistoryViewState = .unsupported
-            view?.didReceive(state: state)
+        guard chainAsset.chain.externalApi?.history != nil || offersExplorerInsteadOfEmptyHistory else {
+            didReceiveUnsupported()
             return
         }
 
@@ -111,6 +154,10 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
             )
 
             self.viewModels = viewModels
+            if offersExplorerInsteadOfEmptyHistory, viewModels.allSatisfy(\.items.isEmpty) {
+                presentExplorerOnlyHistory()
+                return
+            }
             let viewModel = WalletTransactionHistoryViewModel(
                 sections: viewModels,
                 lastChanges: viewChanges,
@@ -122,17 +169,34 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
                 : .loaded(viewModel: viewModel)
             view?.didReceive(state: state)
         } catch {
-            logger.error("\(error)")
-            view?.didReceive(state: .unsupported)
+            logger.error("History could not be displayed")
+            didReceiveHistoryFailure(hasCachedHistory: !self.viewModels.isEmpty)
         }
+    }
+
+    /// Solana history comes from an optional indexer that may be missing, serve another cluster
+    /// (its rows are then refused before they reach this screen) or have nothing for the wallet.
+    /// The public explorer always has the full record, so the screen never ends in an empty
+    /// list or a "not supported" notice: it offers the explorer link instead.
+    private var offersExplorerInsteadOfEmptyHistory: Bool {
+        UniversalWalletRegistry.solanaNetwork(for: chainAsset.chain.chainId) != nil
+    }
+
+    private func presentExplorerOnlyHistory() {
+        view?.didReceive(state: .explorerOnly)
+        view?.didReceiveHistoryFailure(canViewExplorer: interactor.historyExplorerURL() != nil)
     }
 
     private func buildFiltering(for chain: ChainModel) -> WalletTransactionHistoryViewFilterMode {
         if chain.isReef {
             return .single
         }
+        guard let explorerType = chain.externalApi?.history?.type, explorerType.hasFilters else {
+            return .disabled
+        }
 
-        return (chainAsset.chain.externalApi?.history?.type != .etherscan && chainAsset.chain.externalApi?.history != nil) ? .multiple : .disabled
+        let supportsMultiple = explorerType != .etherscan && chain.externalApi?.history != nil
+        return supportsMultiple ? .multiple : .disabled
     }
 }
 

@@ -17,6 +17,10 @@ final class ExportGenericViewModelBinder: ExportGenericViewModelBinding {
         detailsView.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
         detailsView.title = stringViewModel.option.titleForLocale(locale, ethereumBased: stringViewModel.ethereumBased)
         detailsView.subtitle = stringViewModel.data
+        if FWAppearance.exportGenericRestyled {
+            // JSON keeps its bounded preview; wrapping captions must not turn a large file into an unbounded row.
+            detailsView.configureWrapping(locale: locale, compatibleWith: .current, subtitleLines: 1)
+        }
 
         return detailsView
     }
@@ -24,18 +28,30 @@ final class ExportGenericViewModelBinder: ExportGenericViewModelBinding {
     func bind(multilineViewModel: ExportStringViewModel, locale: Locale) -> UIView {
         let detailsView = uiFactory.createMultilinedTriangularedView()
 
-        detailsView.titleLabel.text = multilineViewModel.option.titleForLocale(locale, ethereumBased: multilineViewModel.ethereumBased)
+        detailsView.titleLabel.text = multilineViewModel.option.titleForLocale(
+            locale,
+            ethereumBased: multilineViewModel.ethereumBased
+        )
         detailsView.subtitleLabel.text = multilineViewModel.data
+        if FWAppearance.exportGenericRestyled {
+            detailsView.configureWrapping(locale: locale, compatibleWith: .current)
+        }
 
         return detailsView
     }
 
     func bind(mnemonicViewModel: ExportMnemonicViewModel, locale: Locale) -> UIView {
+        if let phrase = mnemonicViewModel.exactPhrase {
+            return ExactMnemonicExportView(phrase: phrase, locale: locale)
+        }
         let title = R.string.localizable.exportMnemonicHint(preferredLanguages: locale.rLanguages)
         let icon = R.image.iconAlert()
 
         let mnemonicView = uiFactory.createTitledMnemonicView(title, icon: icon)
         mnemonicView.contentView.bind(words: mnemonicViewModel.mnemonic, columnsCount: 2)
+        if FWAppearance.exportGenericRestyled {
+            mnemonicView.configureWrapping(locale: locale, compatibleWith: .current)
+        }
 
         return mnemonicView
     }

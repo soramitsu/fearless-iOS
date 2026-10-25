@@ -8,11 +8,14 @@ protocol AboutViewProtocol: ControllerBackedProtocol {
 protocol AboutPresenterProtocol: AnyObject {
     func didLoad(view: AboutViewProtocol)
 
+    func activateFontLicenses()
     func activateWriteUs()
     func activate(url: URL)
 }
 
-protocol AboutWireframeProtocol: WebPresentable, EmailPresentable, SheetAlertPresentable {}
+protocol AboutWireframeProtocol: WebPresentable, EmailPresentable, SheetAlertPresentable {
+    func showFontLicenses(from view: AboutViewProtocol, locale: Locale)
+}
 
 protocol AboutViewFactoryProtocol: AnyObject {
     static func createView() -> AboutViewProtocol?

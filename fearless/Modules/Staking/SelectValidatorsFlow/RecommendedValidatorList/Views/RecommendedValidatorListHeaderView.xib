@@ -10,7 +10,7 @@
     </dependencies>
     <customFonts key="customFonts">
         <array key="sora-Bold.otf">
-            <string>sora-rc004-0417-Bold</string>
+            <string>Sora-Bold</string>
         </array>
     </customFonts>
     <objects>
@@ -22,13 +22,13 @@
             <subviews>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="REWARDS(APY)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dbN-Ch-NcU">
                     <rect key="frame" x="285.5" y="21" width="73.5" height="12"/>
-                    <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="10"/>
+                    <fontDescription key="fontDescription" name="Sora-Bold" family="Sora" pointSize="10"/>
                     <color key="textColor" name="colorLightGray"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="SELECTED (16 OF 16)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Xsj-wC-Hcc">
                     <rect key="frame" x="16" y="21" width="99.5" height="12"/>
-                    <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="10"/>
+                    <fontDescription key="fontDescription" name="Sora-Bold" family="Sora" pointSize="10"/>
                     <color key="textColor" name="colorLightGray"/>
                     <nil key="highlightedColor"/>
                 </label>

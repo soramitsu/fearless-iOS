@@ -25,9 +25,7 @@ protocol StakingBondMoreInteractorInputProtocol: AnyObject {
     func estimateFee(reuseIdentifier: String?, builderClosure: ExtrinsicBuilderClosure?)
 }
 
-protocol StakingBondMoreInteractorOutputProtocol: AnyObject {
-    func didReceivePriceData(result: Result<PriceData?, Error>)
-}
+protocol StakingBondMoreInteractorOutputProtocol: AnyObject {}
 
 protocol StakingBondMoreWireframeProtocol: SheetAlertPresentable, ErrorPresentable, StakingErrorPresentable, AnyDismissable {
     func showConfirmation(

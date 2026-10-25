@@ -3,6 +3,11 @@ import UIKit
 typealias AuthorizationCompletionBlock = (Bool) -> Void
 
 protocol AuthorizationPresentable: ScreenAuthorizationWireframeProtocol {
+    func createAuthorizationView(
+        with wireframe: ScreenAuthorizationWireframeProtocol,
+        cancellable: Bool
+    ) -> PinSetupViewProtocol?
+
     func authorize(
         animated: Bool,
         cancellable: Bool,
@@ -15,17 +20,15 @@ protocol AuthorizationAccessible {
     var isAuthorizing: Bool { get }
 }
 
-private let authorization = UUID().uuidString
-
 private enum AuthorizationConstants {
-    static var completionBlockKey: String = "co.jp.fearless.auth.delegate"
-    static var authorizationViewKey: String = "co.jp.fearless.auth.view"
+    static var completionBlockKey: UInt8 = 0
+    static var authorizationViewKey: UInt8 = 0
 }
 
 extension AuthorizationAccessible {
     var isAuthorizing: Bool {
         let view = objc_getAssociatedObject(
-            authorization,
+            self,
             &AuthorizationConstants.authorizationViewKey
         )
             as? PinSetupViewProtocol
@@ -37,13 +40,13 @@ extension AuthorizationAccessible {
 extension AuthorizationPresentable {
     private var completionBlock: AuthorizationCompletionBlock? {
         get {
-            objc_getAssociatedObject(authorization, &AuthorizationConstants.completionBlockKey)
+            objc_getAssociatedObject(self, &AuthorizationConstants.completionBlockKey)
                 as? AuthorizationCompletionBlock
         }
 
         set {
             objc_setAssociatedObject(
-                authorization,
+                self,
                 &AuthorizationConstants.completionBlockKey,
                 newValue,
                 .OBJC_ASSOCIATION_RETAIN
@@ -53,13 +56,13 @@ extension AuthorizationPresentable {
 
     private var authorizationView: PinSetupViewProtocol? {
         get {
-            objc_getAssociatedObject(authorization, &AuthorizationConstants.authorizationViewKey)
+            objc_getAssociatedObject(self, &AuthorizationConstants.authorizationViewKey)
                 as? PinSetupViewProtocol
         }
 
         set {
             objc_setAssociatedObject(
-                authorization,
+                self,
                 &AuthorizationConstants.authorizationViewKey,
                 newValue,
                 .OBJC_ASSOCIATION_RETAIN
@@ -73,6 +76,13 @@ extension AuthorizationPresentable {
 }
 
 extension AuthorizationPresentable {
+    func createAuthorizationView(
+        with wireframe: ScreenAuthorizationWireframeProtocol,
+        cancellable: Bool
+    ) -> PinSetupViewProtocol? {
+        PinViewFactory.createScreenAuthorizationView(with: wireframe, cancellable: cancellable)
+    }
+
     func authorize(animated: Bool, with completionBlock: @escaping AuthorizationCompletionBlock) {
         authorize(animated: animated, cancellable: false, with: completionBlock)
     }
@@ -104,7 +114,7 @@ extension AuthorizationPresentable {
             return
         }
 
-        guard let authorizationView = PinViewFactory.createScreenAuthorizationView(
+        guard let authorizationView = createAuthorizationView(
             with: self,
             cancellable: cancellable
         ) else {
@@ -123,19 +133,28 @@ extension AuthorizationPresentable {
 
 extension AuthorizationPresentable {
     func showAuthorizationCompletion(with result: Bool) {
-        guard let completionBlock = completionBlock else {
+        guard let completionBlock, let authorizationView else {
+            self.completionBlock = nil
+            self.authorizationView = nil
             return
         }
-
         self.completionBlock = nil
-
-        guard let authorizationView = authorizationView else {
-            return
-        }
-
-        authorizationView.controller.presentingViewController?.dismiss(animated: true) {
+        let controller = authorizationView.controller
+        let complete = { [weak self, weak controller] in
+            guard let self, let controller, self.authorizationView?.controller === controller else { return }
             self.authorizationView = nil
             completionBlock(result)
+        }
+        if controller.isBeingDismissed {
+            if let coordinator = controller.transitionCoordinator,
+               coordinator.animate(alongsideTransition: nil, completion: { _ in complete() }) {
+                return
+            }
+            DispatchQueue.main.async(execute: complete)
+        } else if let presentingController = controller.presentingViewController {
+            presentingController.dismiss(animated: true, completion: complete)
+        } else {
+            complete()
         }
     }
 }

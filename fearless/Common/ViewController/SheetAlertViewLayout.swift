@@ -1,19 +1,22 @@
 import Foundation
 import UIKit
+import SoraFoundation
 
 final class SheetAlertViewLayout: UIView {
     private enum Constants {
         static let cornerRadius: CGFloat = 20.0
         static let imageViewContainerSize: CGFloat = 80.0
         static let imageViewSize = CGSize(width: 48, height: 42)
-        static let closeButton: CGFloat = 32.0
+        static let closeButton: CGFloat = 44.0
         static var popupWindowHeightRatio: CGFloat {
-            let window = UIApplication.shared.windows.first
+            let window = SceneWindowFinder.activeWindow()
             let topPadding = window?.safeAreaInsets.top ?? .zero
             let bottomPadding = window?.safeAreaInsets.bottom ?? .zero
             return (window?.frame.height ?? UIScreen.main.bounds.height * 0.7) - topPadding - bottomPadding
         }
     }
+
+    var dismissAndHandle: ((@escaping () -> Void) -> Void)?
 
     private let viewModel: SheetAlertPresentableViewModel
 
@@ -21,6 +24,9 @@ final class SheetAlertViewLayout: UIView {
         let button = UIButton()
         button.backgroundColor = R.color.colorSemiBlack()
         button.setImage(R.image.iconClose(), for: .normal)
+        button.accessibilityLabel = R.string.localizable.commonClose(
+            preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages
+        )
         return button
     }()
 
@@ -38,6 +44,7 @@ final class SheetAlertViewLayout: UIView {
     }()
 
     private let imageViewContainer = UIView()
+    private let contentScrollView = UIScrollView()
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView()
         let image = viewModel.isInfo ? R.image.iconInfoGrayFill() : R.image.iconWarningBig()
@@ -70,7 +77,7 @@ final class SheetAlertViewLayout: UIView {
         actionsStackView.axis = viewModel.actionAxis
         super.init(frame: .zero)
         applyStyle(viewModel: viewModel)
-        setupLayout()
+        if viewModel.scrollableContent { setupScrollableLayout() } else { setupLayout() }
         bind(viewModel: viewModel)
     }
 
@@ -83,7 +90,17 @@ final class SheetAlertViewLayout: UIView {
         super.layoutSubviews()
         closeButton.rounded()
         imageViewContainer.rounded()
-        descriptionLabelLayoutSubviews()
+        if !viewModel.scrollableContent { descriptionLabelLayoutSubviews() }
+    }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        updateScrollableFonts()
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        updateScrollableFonts()
     }
 
     private func bind(viewModel: SheetAlertPresentableViewModel) {
@@ -128,6 +145,10 @@ final class SheetAlertViewLayout: UIView {
         actions.forEach { action in
             let button = createButton(with: action)
             actionsStackView.addArrangedSubview(button)
+            if viewModel.scrollableContent {
+                button.snp.makeConstraints { $0.leading.trailing.equalToSuperview() }
+                return
+            }
             switch actionAxis {
             case .horizontal:
                 actionsStackView.distribution = .fillEqually
@@ -159,9 +180,20 @@ final class SheetAlertViewLayout: UIView {
         button.imageWithTitleView?.titleColor = action.style.titleColor
 
         button.imageWithTitleView?.title = action.title
+        if viewModel.scrollableContent {
+            if button.wrappingLabel == nil { button.snp.removeConstraints() }
+            button.configureWrappingTitle(
+                locale: LocalizationManager.shared.selectedLocale, compatibleWith: traitCollection
+            )
+        }
         button.addAction { [unowned self] in
-            self.closeButton.sendActions(for: .touchUpInside)
-            action.handler?()
+            action.beforeDismissal?()
+            if action.handlerAfterDismissal, let dismissAndHandle = self.dismissAndHandle {
+                dismissAndHandle { action.handler?() }
+            } else {
+                self.closeButton.sendActions(for: .touchUpInside)
+                action.handler?()
+            }
         }
         return button
     }
@@ -179,7 +211,7 @@ final class SheetAlertViewLayout: UIView {
             make.centerX.equalToSuperview()
         }
 
-        if !viewModel.isInfo {
+        if !viewModel.isInfo, viewModel.showsCloseButton {
             addSubview(closeButton)
             closeButton.snp.makeConstraints { make in
                 make.top.trailing.equalToSuperview().inset(20)
@@ -251,6 +283,71 @@ final class SheetAlertViewLayout: UIView {
             actionsStackView.snp.makeConstraints { make in
                 make.leading.trailing.equalToSuperview()
             }
+        }
+    }
+}
+
+private extension SheetAlertViewLayout {
+    func updateScrollableFonts() {
+        guard viewModel.scrollableContent else { return }
+        titleLabel.font = .legacySora(size: 18, weight: .bold, textStyle: .title3, compatibleWith: traitCollection)
+        descriptionLabel.font = .legacySora(
+            size: 16, weight: .regular, textStyle: .body, compatibleWith: traitCollection
+        )
+        for case let button as TriangularedButton in actionsStackView.arrangedSubviews {
+            button.configureWrappingTitle(
+                locale: LocalizationManager.shared.selectedLocale, compatibleWith: traitCollection
+            )
+        }
+    }
+
+    func setupScrollableLayout() {
+        backgroundColor = R.color.colorBlack19()!
+        layer.cornerRadius = Constants.cornerRadius
+        clipsToBounds = true
+        actionsStackView.axis = .vertical
+        let indicator = UIFactory.default.createIndicatorView()
+        addSubview(indicator)
+        indicator.snp.makeConstraints {
+            $0.size.equalTo(UIConstants.indicatorSize)
+            $0.top.centerX.equalToSuperview()
+        }
+        if viewModel.showsCloseButton {
+            addSubview(closeButton)
+            closeButton.snp.makeConstraints {
+                $0.top.trailing.equalToSuperview().inset(20)
+                $0.size.equalTo(Constants.closeButton)
+            }
+        }
+        addSubview(contentScrollView)
+        contentScrollView.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(76)
+            $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+        }
+        contentScrollView.addSubview(contentStackView)
+        contentStackView.snp.makeConstraints {
+            $0.top.bottom.equalTo(contentScrollView.contentLayoutGuide)
+            $0.leading.trailing.equalTo(contentScrollView.contentLayoutGuide).inset(UIConstants.horizontalInset)
+            $0.width.equalTo(contentScrollView.frameLayoutGuide).offset(-2 * UIConstants.horizontalInset)
+        }
+        setupScrollableContent()
+    }
+
+    func setupScrollableContent() {
+        imageViewContainer.backgroundColor = R.color.colorBlack()
+        imageViewContainer.snp.makeConstraints { $0.size.equalTo(Constants.imageViewContainerSize) }
+        imageViewContainer.addSubview(imageView)
+        imageView.snp.makeConstraints {
+            $0.center.equalToSuperview()
+            $0.size.equalTo(Constants.imageViewSize)
+        }
+        for element in [imageViewContainer, titleLabel, descriptionLabel, actionsStackView] {
+            contentStackView.addArrangedSubview(element)
+            contentStackView.setCustomSpacing(24, after: element)
+        }
+        for element in [titleLabel, descriptionLabel, actionsStackView] {
+            element.snp.makeConstraints { $0.leading.trailing.equalToSuperview() }
         }
     }
 }

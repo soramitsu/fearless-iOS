@@ -8,7 +8,10 @@ protocol PinSetupViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
 
     func didChangeAccessoryState(enabled: Bool, availableBiometryType: AvailableBiometryType)
 
+    func didFailSavingPin()
+
     func didReceiveWrongPincode()
+    func resetAuthenticationInput()
 }
 
 protocol PinSetupPresenterProtocol: AnyObject {
@@ -16,9 +19,13 @@ protocol PinSetupPresenterProtocol: AnyObject {
     func cancel()
     func activateBiometricAuth()
     func submit(pin: String)
+    func willLeaveView()
+    func didLeaveView()
+    func didCancelLeavingView()
 }
 
 protocol PinSetupInteractorInputProtocol: AnyObject {
+    func cancel()
     func process(pin: String)
 }
 
@@ -45,17 +52,12 @@ protocol PinViewFactoryProtocol: AnyObject {
     static func createPinCheckView() -> PinSetupViewProtocol?
 }
 
-enum PinAppearanceAnimationConstants {
-    static let type = CATransitionType.moveIn
-    static let subtype = CATransitionSubtype.fromTop
-    static let timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
-    static let duration = 0.3
-    static let animationKey = "pin.transitionIn"
+extension PinSetupViewProtocol {
+    func resetAuthenticationInput() {}
 }
 
-enum PinDismissAnimationConstants {
-    static let type = CATransitionType.fade
-    static let timingFunction = CAMediaTimingFunctionName.easeOut
-    static let duration = 0.3
-    static let animationKey = "pin.transitionOut"
+extension PinSetupPresenterProtocol {
+    func willLeaveView() {}
+    func didLeaveView() {}
+    func didCancelLeavingView() {}
 }

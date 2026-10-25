@@ -10,7 +10,7 @@
     </dependencies>
     <customFonts key="customFonts">
         <array key="sora-Regular.otf">
-            <string>sora-rc004-0417-Regular</string>
+            <string>Sora-Regular</string>
         </array>
     </customFonts>
     <objects>
@@ -54,7 +54,7 @@
                     </imageView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="249" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="Passphrase" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumScaleFactor="0.80000000000000004" translatesAutoresizingMaskIntoConstraints="NO" id="OG9-GY-G1z">
                         <rect key="frame" x="58" y="20.5" width="216" height="18"/>
-                        <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
+                        <fontDescription key="fontDescription" name="Sora-Regular" family="Sora" pointSize="14"/>
                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <nil key="highlightedColor"/>
                     </label>
@@ -65,7 +65,7 @@
                     </imageView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="English" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uKm-od-zaZ">
                         <rect key="frame" x="279" y="20.5" width="52" height="18"/>
-                        <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
+                        <fontDescription key="fontDescription" name="Sora-Regular" family="Sora" pointSize="14"/>
                         <color key="textColor" name="colorWhite"/>
                         <nil key="highlightedColor"/>
                     </label>

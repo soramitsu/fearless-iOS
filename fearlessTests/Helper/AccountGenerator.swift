@@ -1,14 +1,15 @@
 import Foundation
 @testable import fearless
+import SSFModels
 
 enum AccountGenerator {
-    static func generateMetaAccount(generatingChainAccounts count: Int) -> MetaAccountModel {
+    static func generateMetaAccount(generatingChainAccounts count: Int) -> fearless.MetaAccountModel {
         let chainAccounts = (0..<count).map { _ in generateChainAccount() }
         return generateMetaAccount(with: Set(chainAccounts))
     }
 
-    static func generateMetaAccount(with chainAccounts: Set<ChainAccountModel> = []) -> MetaAccountModel {
-        return MetaAccountModel(
+    static func generateMetaAccount(with chainAccounts: Set<ChainAccountModel> = []) -> fearless.MetaAccountModel {
+        fearless.MetaAccountModel(
             metaId: UUID().uuidString,
             name: UUID().uuidString,
             substrateAccountId: Data.random(of: 32)!,
@@ -18,22 +19,24 @@ enum AccountGenerator {
             ethereumPublicKey: Data.random(of: 20)!,
             chainAccounts: chainAccounts,
             assetKeysOrder: nil,
-            assetFilterOptions: [],
             canExportEthereumMnemonic: true,
             unusedChainIds: nil,
             selectedCurrency: Currency.defaultCurrency(),
-            chainIdForFilter: nil,
-            assetsVisibility: []
+            networkManagmentFilter: nil,
+            assetsVisibility: [],
+            hasBackup: true,
+            favouriteChainIds: []
         )
     }
 
     static func generateChainAccount() -> ChainAccountModel {
-        ChainAccountModel(
+        let isEthereum = Bool.random()
+        return SSFModels.ChainAccountModel(
             chainId: Data.random(of: 32)!.toHex(),
             accountId: Data.random(of: 32)!,
             publicKey: Data.random(of: 32)!,
             cryptoType: 0,
-            ethereumBased: Bool.random()
+            ethereumBased: isEthereum
         )
     }
 }

@@ -6,12 +6,119 @@ protocol ChainAssetListBuilder {
     var assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol { get }
 }
 
+extension ChainAssetListBuilder {
+    var assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol {
+        AssetBalanceFormatterFactory()
+    }
+}
+
 struct AssetChainAssets {
     let chainAssets: [ChainAsset]
     let mainChainAsset: ChainAsset
     let totalBalance: Decimal
     let totalFiatBalance: Decimal
     let isVisible: Bool
+}
+
+/// How one holding counts in the portfolio value (root `docs/portfolio-contract.md` §3). The
+/// header, the network subtotals and the rows use the same roles, so rows add up to the header.
+enum PortfolioValueRole: Equatable {
+    /// Counted in the header total, its network subtotal and its row.
+    case counted
+    /// The user hid it: left out of the header and subtotals and labelled
+    /// "N hidden assets not included". Wallet management still counts it ("incl. hidden").
+    case hidden
+    /// No trusted price: it adds no fiat and is labelled "N assets without price not included".
+    case unpriced
+    /// Test tokens have no value and are never counted, hidden or not.
+    case testnet
+    /// Detected, unverified metadata: never counted.
+    case unverified
+}
+
+/// One asset of one wallet, valued by the portfolio definition.
+struct PortfolioHoldingValue: Equatable {
+    let role: PortfolioValueRole
+    /// The total balance, free + reserved: staked, locked and reserved funds included.
+    let amount: Decimal
+    /// What can be sent now, free − frozen. Rows show it beside the total when it differs.
+    let transferable: Decimal
+    /// `amount` × the asset's own trusted price; zero without one.
+    let fiat: Decimal
+    let dayChange: Decimal
+
+    var isFunded: Bool {
+        amount > .zero
+    }
+}
+
+/// What the portfolio total leaves out, for the captions under the list and the
+/// "incl. hidden" wallet cards.
+struct PortfolioExclusions: Equatable {
+    /// Hidden assets that hold a balance.
+    var hiddenCount = 0
+    var hiddenFundedAssetKeys: [AssetKey] = []
+    /// The trusted fiat value of those hidden balances and its 24h change.
+    var hiddenFiat: Decimal = .zero
+    var hiddenDayChange: Decimal = .zero
+    /// Funded assets on test networks, hidden or not: test tokens have no value.
+    var testnetCount = 0
+    /// Funded assets that add no fiat because they have no trusted price.
+    var unpricedCount = 0
+    /// A counted native holding sits on a network with nomination pools. Pool stakes
+    /// are outside free + reserved, so the total does not include them.
+    var poolStakesExcluded = false
+
+    var isEmpty: Bool {
+        hiddenCount == 0 && testnetCount == 0 && unpricedCount == 0 && !poolStakesExcluded
+    }
+}
+
+/// The portfolio value of one wallet over a set of assets.
+struct PortfolioTotals: Equatable {
+    /// The portfolio total: neither hidden, nor on a testnet, nor without a trusted price.
+    var fiat: Decimal = .zero
+    var dayChange: Decimal = .zero
+    var exclusions = PortfolioExclusions()
+
+    /// Every valued holding, hidden ones included: wallet management, backup and delete
+    /// show it, so a wallet whose funds are all hidden never looks empty (critique D-12).
+    var allHoldingsFiat: Decimal {
+        fiat + exclusions.hiddenFiat
+    }
+
+    var allHoldingsDayChange: Decimal {
+        dayChange + exclusions.hiddenDayChange
+    }
+
+    mutating func add(_ value: PortfolioHoldingValue, of chainAsset: ChainAsset) {
+        guard value.isFunded else {
+            return
+        }
+
+        switch value.role {
+        case .counted:
+            fiat += value.fiat
+            dayChange += value.dayChange
+            let isNative = chainAsset.asset.isUtility || chainAsset.asset.isNative
+            if isNative, chainAsset.chain.options?.contains(.poolStaking) == true {
+                exclusions.poolStakesExcluded = true
+            }
+        case .hidden:
+            exclusions.hiddenCount += 1
+            if !exclusions.hiddenFundedAssetKeys.contains(chainAsset.assetKey) {
+                exclusions.hiddenFundedAssetKeys.append(chainAsset.assetKey)
+            }
+            exclusions.hiddenFiat += value.fiat
+            exclusions.hiddenDayChange += value.dayChange
+        case .unpriced:
+            exclusions.unpricedCount += 1
+        case .testnet:
+            exclusions.testnetCount += 1
+        case .unverified:
+            break
+        }
+    }
 }
 
 extension ChainAssetListBuilder {
@@ -161,27 +268,29 @@ extension ChainAssetListBuilder {
     func getTotalFiatBalance(
         for chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
-        priceData: PriceData?,
         wallet: MetaAccountModel
     ) -> Decimal {
         chainAssets.compactMap { chainAsset -> Decimal? in
-            if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-               let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] {
-                return getFiatBalance(
-                    for: chainAsset,
-                    accountInfo: accountInfo,
-                    priceData: priceData
-                )
+            guard AssetTrustResolver.priceTrust(
+                for: chainAsset,
+                currency: wallet.selectedCurrency
+            ).contributesToPortfolioTotal,
+                let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+                let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] else {
+                return nil
             }
 
-            return nil
+            return getFiatBalance(
+                for: chainAsset,
+                accountInfo: accountInfo,
+                priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+            )
         }.reduce(0, +)
     }
 
     func getFiatBalanceString(
         for chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
-        priceData: PriceData?,
         locale: Locale,
         wallet: MetaAccountModel,
         shouldShowZero: Bool
@@ -189,7 +298,6 @@ extension ChainAssetListBuilder {
         let totalFiatBalance = getTotalFiatBalance(
             for: chainAssets,
             accountInfos: accountInfos,
-            priceData: priceData,
             wallet: wallet
         )
 
@@ -228,6 +336,155 @@ extension ChainAssetListBuilder {
         let totalBalanceDecimal = priceDecimal * balance
 
         return totalBalanceDecimal
+    }
+
+    // MARK: - Portfolio value
+
+    // The functions above value the transferable amount and stay as they are for Send,
+    // the asset pickers and AssetNetworks. The portfolio (rows, subtotals, header) values
+    // the total balance with the functions below.
+
+    /// The total balance, free + reserved.
+    func getPortfolioBalance(
+        for chainAsset: ChainAsset,
+        accountInfo: AccountInfo?
+    ) -> Decimal {
+        guard let accountInfo else {
+            return .zero
+        }
+
+        return Decimal.fromSubstrateAmount(
+            accountInfo.data.total,
+            precision: chainAsset.asset.displayInfo.assetPrecision
+        ) ?? .zero
+    }
+
+    /// The total balance times `priceData`; zero without a price.
+    func getPortfolioFiatBalance(
+        for chainAsset: ChainAsset,
+        accountInfo: AccountInfo?,
+        priceData: PriceData?
+    ) -> Decimal {
+        guard let price = priceData?.price,
+              let priceDecimal = Decimal(string: price) else {
+            return .zero
+        }
+
+        return priceDecimal * getPortfolioBalance(for: chainAsset, accountInfo: accountInfo)
+    }
+
+    func portfolioValueRole(
+        for chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        testnets: PortfolioTestnetChainList = .bundled,
+        userDefaults: UserDefaults = .standard
+    ) -> PortfolioValueRole {
+        if testnets.isTestnet(chainAsset.chain) {
+            return .testnet
+        }
+
+        guard AssetTrustResolver.metadataTrust(for: chainAsset, userDefaults: userDefaults).trust == .verified else {
+            return .unverified
+        }
+
+        let preference = AssetVisibilityPreferenceStore.preference(
+            walletId: wallet.metaId,
+            assetKey: chainAsset.assetKey,
+            userDefaults: userDefaults
+        )
+        if preference == .hidden {
+            return .hidden
+        }
+
+        return AssetTrustResolver.priceTrust(
+            for: chainAsset,
+            currency: wallet.selectedCurrency
+        ).contributesToPortfolioTotal ? .counted : .unpriced
+    }
+
+    func portfolioValue(
+        for chainAsset: ChainAsset,
+        accountInfo: AccountInfo?,
+        wallet: MetaAccountModel,
+        testnets: PortfolioTestnetChainList = .bundled,
+        userDefaults: UserDefaults = .standard
+    ) -> PortfolioHoldingValue {
+        let role = portfolioValueRole(
+            for: chainAsset,
+            wallet: wallet,
+            testnets: testnets,
+            userDefaults: userDefaults
+        )
+        let amount = getPortfolioBalance(for: chainAsset, accountInfo: accountInfo)
+        let transferable = getBalance(for: chainAsset, accountInfo: accountInfo)
+
+        // Hidden holdings keep their value for wallet management; testnet, unverified
+        // and unpriced holdings have none.
+        let priceData: PriceData?
+        switch role {
+        case .counted, .hidden:
+            priceData = AssetTrustResolver.trustedPrice(for: chainAsset, currency: wallet.selectedCurrency)
+        case .unpriced, .testnet, .unverified:
+            priceData = nil
+        }
+        let fiat = getPortfolioFiatBalance(for: chainAsset, accountInfo: accountInfo, priceData: priceData)
+
+        return PortfolioHoldingValue(
+            role: role,
+            amount: amount,
+            transferable: transferable,
+            fiat: fiat,
+            dayChange: fiat * (priceData?.fiatDayChange ?? .zero) / 100
+        )
+    }
+
+    /// The portfolio value of `wallet` over `chainAssets`. Assets without a balance add
+    /// nothing, so they are not classified.
+    func portfolioTotals(
+        for chainAssets: [ChainAsset],
+        accountInfos: [ChainAssetKey: AccountInfo?],
+        wallet: MetaAccountModel,
+        testnets: PortfolioTestnetChainList = .bundled,
+        userDefaults: UserDefaults = .standard
+    ) -> PortfolioTotals {
+        var totals = PortfolioTotals()
+
+        for chainAsset in chainAssets {
+            guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+                  let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] ?? nil,
+                  accountInfo.data.total > 0 else {
+                continue
+            }
+
+            totals.add(
+                portfolioValue(
+                    for: chainAsset,
+                    accountInfo: accountInfo,
+                    wallet: wallet,
+                    testnets: testnets,
+                    userDefaults: userDefaults
+                ),
+                of: chainAsset
+            )
+        }
+
+        return totals
+    }
+
+    /// Hidden assets that hold a balance and their trusted fiat value, for the
+    /// "N hidden assets not included" caption.
+    func hiddenSummary(
+        wallet: MetaAccountModel,
+        chainAssets: [ChainAsset],
+        accountInfos: [ChainAssetKey: AccountInfo?]
+    ) -> (count: Int, fiat: Decimal) {
+        let exclusions = portfolioTotals(
+            for: chainAssets,
+            accountInfos: accountInfos,
+            wallet: wallet
+        ).exclusions
+
+        return (count: exclusions.hiddenCount, fiat: exclusions.hiddenFiat)
     }
 
     func getPriceAttributedString(
@@ -288,43 +545,33 @@ extension ChainAssetListBuilder {
     func createAssetChainAssets(
         from chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
-        pricesData: [PriceData],
         wallet: MetaAccountModel
     ) -> [AssetChainAssets] {
-        let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.symbolUppercased })
-
-        return assetNamesSet.compactMap { name in
-            let assetChainAssets = chainAssets.filter { $0.asset.symbolUppercased == name && wallet.fetch(for: $0.chain.accountRequest()) != nil }
-            let chainAssetsSorted = assetChainAssets.sorted(by: { ca1, ca2 in
-                sortChainAssets(ca1: ca1, ca2: ca2)
-            })
-            guard let mainChainAsset =
-                chainAssetsSorted.first(where: { $0.isUtility }) ??
-                chainAssetsSorted.first(where: { $0.isNative == true }) ??
-                chainAssetsSorted.first
-            else {
-                return nil
+        let accountAssets = chainAssets.filter {
+            wallet.fetch(for: $0.chain.accountRequest()) != nil
+        }
+        let canonicalAssets = Dictionary(grouping: accountAssets, by: \.assetKey)
+            .compactMap { _, matches in
+                matches.sorted { $0.identifier < $1.identifier }.first
             }
+
+        return canonicalAssets.map { mainChainAsset in
+            let assetChainAssets = [mainChainAsset]
             let totalBalance = getTotalBalance(
                 for: assetChainAssets,
                 accountInfos: accountInfos,
                 wallet: wallet
             )
-            let priceId = mainChainAsset.asset.priceId ?? mainChainAsset.asset.id
-            let priceData = pricesData.first(where: { $0.priceId == priceId })
             let totalFiatBalance = getTotalFiatBalance(
                 for: assetChainAssets,
                 accountInfos: accountInfos,
-                priceData: priceData,
                 wallet: wallet
             )
 
-            let enabledAssetIds = wallet.assetsVisibility
-                .filter { !$0.hidden }
-                .map { $0.assetId }
-            let isVisible = enabledAssetIds.contains { enabledAssetId in
-                assetChainAssets.contains(where: { $0.asset.id == enabledAssetId })
-            }
+            let isVisible = AssetVisibilityPreferenceStore.preference(
+                walletId: wallet.metaId,
+                assetKey: mainChainAsset.assetKey
+            ) == .shown
 
             let assetCA = AssetChainAssets(
                 chainAssets: assetChainAssets,
@@ -341,14 +588,19 @@ extension ChainAssetListBuilder {
         chainAssets: [ChainAsset],
         for wallet: MetaAccountModel
     ) -> [ChainAsset] {
-        guard wallet.assetsVisibility.isNotEmpty else {
-            return defaultByPopular(chainAssets: chainAssets)
-        }
-        let enabledAssetIds: [String] = wallet.assetsVisibility
-            .filter { !$0.hidden }
-            .map { $0.assetId }
-        let enabled = chainAssets.filter {
-            enabledAssetIds.contains($0.identifier)
+        let enabled = enabled(chainAssets: chainAssets, for: wallet)
+        return enabled.isEmpty ? defaultByPopular(chainAssets: chainAssets) : enabled
+    }
+
+    func enabled(
+        chainAssets: [ChainAsset],
+        for wallet: MetaAccountModel
+    ) -> [ChainAsset] {
+        let enabled = chainAssets.filter { chainAsset in
+            AssetVisibilityPreferenceStore.isSelectable(
+                walletId: wallet.metaId,
+                chainAsset: chainAsset
+            )
         }
         return enabled
     }
@@ -370,7 +622,7 @@ extension ChainAssetListBuilder {
         case .all, .none:
             byFilterChainAssets = chainAssets
         case .popular:
-            byFilterChainAssets = chainAssets.filter { $0.chain.rank != nil }
+            byFilterChainAssets = chainAssets.filter { $0.chain.rank != nil && !PortfolioTestnetChainList.bundled.isTestnet($0.chain) }
         case .favourite:
             byFilterChainAssets = chainAssets.filter { wallet.favouriteChainIds.contains($0.chain.chainId) }
         }
@@ -380,7 +632,9 @@ extension ChainAssetListBuilder {
         }
 
         let bySearch = byFilterChainAssets.filter {
-            $0.asset.symbol.lowercased().contains(search.lowercased()) || $0.asset.name.lowercased().contains(search.lowercased())
+            [$0.asset.symbol, $0.asset.name, $0.chain.name].contains {
+                $0.range(of: search, options: [.caseInsensitive, .diacriticInsensitive]) != nil
+            }
         }
         return bySearch
     }

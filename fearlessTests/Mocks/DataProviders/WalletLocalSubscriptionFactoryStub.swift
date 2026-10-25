@@ -2,6 +2,8 @@ import Foundation
 @testable import fearless
 import RobinHood
 import BigInt
+import SSFModels
+import SSFRuntimeCodingService
 
 final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryProtocol {
     var operationManager: RobinHood.OperationManagerProtocol
@@ -13,9 +15,9 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
 
     func getAccountProvider(
         for accountId: AccountId,
-        chainAsset: ChainAsset
+        chainAsset: SSFModels.ChainAsset
     ) throws -> StreamableProvider<AccountInfoStorageWrapper> {
-        let codingPath = chainAsset.storagePath
+        let codingPath = substrateStoragePath(for: chainAsset)
 
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
@@ -25,34 +27,72 @@ final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryPr
         return getProvider(for: localKey)
     }
 
-    func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {
+    func getRuntimeProvider(for chainId: SSFModels.ChainModel.Id) -> SSFRuntimeCodingService.RuntimeProviderProtocol? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         return chainRegistry.getRuntimeProvider(for: chainId)
     }
 
     private func getProvider(for key: String) -> StreamableProvider<AccountInfoStorageWrapper> {
-        let facade = SubstrateDataStorageFacade.shared
+        // Local minimal in-file stubs to avoid target-membership issues
+        final class TestEmptyRepository<T: Identifiable>: DataProviderRepositoryProtocol {
+            typealias Model = T
+            func fetchOperation(by modelIdsClosure: @escaping () throws -> [String], options: RepositoryFetchOptions) -> BaseOperation<[T]> { ClosureOperation { [] } }
+            func fetchOperation(by modelIdClosure: @escaping () throws -> String, options: RepositoryFetchOptions) -> BaseOperation<T?> { ClosureOperation { nil } }
+            func fetchAllOperation(with options: RepositoryFetchOptions) -> BaseOperation<[T]> { ClosureOperation { [] } }
+            func fetchOperation(by request: RepositorySliceRequest, options: RepositoryFetchOptions) -> BaseOperation<[T]> { ClosureOperation { [] } }
+            func saveOperation(_ updateModelsBlock: @escaping () throws -> [T], _ deleteIdsBlock: @escaping () throws -> [String]) -> BaseOperation<Void> { ClosureOperation { () } }
+            func saveBatchOperation(_ updateModelsBlock: @escaping () throws -> [T], _ deleteIdsBlock: @escaping () throws -> [String]) -> BaseOperation<Void> { ClosureOperation { () } }
+            func replaceOperation(_ newModelsBlock: @escaping () throws -> [T]) -> BaseOperation<Void> { ClosureOperation { () } }
+            func fetchCountOperation() -> BaseOperation<Int> { ClosureOperation { 0 } }
+            func deleteAllOperation() -> BaseOperation<Void> { ClosureOperation { () } }
+        }
 
-        let mapper: CodableCoreDataMapper<AccountInfoStorageWrapper, CDAccountInfo> =
-            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDAccountInfo.identifier))
+        final class TestRepositoryObservable<T>: DataProviderRepositoryObservable {
+            typealias Model = T
+            func start(completionBlock: @escaping (Error?) -> Void) { completionBlock(nil) }
+            func stop(completionBlock: @escaping (Error?) -> Void) { completionBlock(nil) }
+            func addObserver(_ observer: AnyObject, deliverOn queue: DispatchQueue, executing updateBlock: @escaping ([DataProviderChange<T>]) -> Void) {}
+            func removeObserver(_ observer: AnyObject) {}
+        }
 
-        let filter = NSPredicate.filterStorageItemsBy(identifier: key)
-        let storage: CoreDataRepository<AccountInfoStorageWrapper, CDAccountInfo> =
-            facade.createRepository(filter: filter)
         let source = EmptyStreamableSource<AccountInfoStorageWrapper>()
-        let observable = CoreDataContextObservable(
-            service: facade.databaseService,
-            mapper: AnyCoreDataMapper(mapper),
-            predicate: { $0.identifier == key },
-            processingQueue: processingQueue
-        )
+        let repository = TestEmptyRepository<AccountInfoStorageWrapper>()
+        let observable = TestRepositoryObservable<AccountInfoStorageWrapper>()
 
         return StreamableProvider(
             source: AnyStreamableSource(source),
-            repository: AnyDataProviderRepository(storage),
+            repository: AnyDataProviderRepository(repository),
             observable: AnyDataProviderRepositoryObservable(observable),
             operationManager: operationManager,
             serialQueue: processingQueue
         )
+    }
+
+    private func substrateStoragePath(for chainAsset: SSFModels.ChainAsset) -> fearless.StorageCodingPath {
+        guard let substrateType = chainAsset.chainAssetType else {
+            return .account
+        }
+
+        switch substrateType {
+        case .normal, .equilibrium:
+            return .account
+        case
+            .ormlChain,
+            .ormlAsset,
+            .foreignAsset,
+            .stableAssetPoolToken,
+            .liquidCrowdloan,
+            .vToken,
+            .vsToken,
+            .stable,
+            .assetId,
+            .token2,
+            .xcm:
+            return .tokens
+        case .assets:
+            return .assetsAccount
+        case .soraAsset:
+            return chainAsset.isUtility ? .account : .tokens
+        }
     }
 }

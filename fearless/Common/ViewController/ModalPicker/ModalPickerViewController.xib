@@ -35,7 +35,7 @@
                                 <userDefinedRuntimeAttribute type="color" keyPath="titleColor">
                                     <color key="value" name="colorWhite"/>
                                 </userDefinedRuntimeAttribute>
-                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Bold"/>
+                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="Sora-Bold"/>
                                 <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
                                     <real key="value" value="18"/>
                                 </userDefinedRuntimeAttribute>

@@ -17,11 +17,14 @@ final class StakingRebondSetupPresenter {
     private var inputAmount: Decimal?
     private var balance: Decimal?
     private var fee: Decimal?
-    private var priceData: PriceData?
     private var stashItem: StashItem?
     private var controller: ChainAccountResponse?
     private var stakingLedger: StakingLedger?
     private var activeEraInfo: ActiveEraInfo?
+
+    private var priceData: PriceData? {
+        asset.getPrice(for: selectedAccount.selectedCurrency)
+    }
 
     var unbonding: Decimal? {
         if
@@ -164,17 +167,6 @@ extension StakingRebondSetupPresenter: StakingRebondSetupInteractorOutputProtoco
             provideAssetViewModel()
         case let .failure(error):
             logger?.error("Staking ledger subscription error: \(error)")
-        }
-    }
-
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-            provideAssetViewModel()
-            provideFeeViewModel()
-        case let .failure(error):
-            logger?.error("Price data subscription error: \(error)")
         }
     }
 

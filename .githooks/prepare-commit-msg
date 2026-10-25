@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+MSG_FILE="$1"
+# If commit is a merge or has a message already, still ensure signoff trailer exists.
+# Append Signed-off-by if missing.
+if ! grep -qi '^Signed-off-by:' "$MSG_FILE"; then
+  NAME_EMAIL="$(git config user.name) <$(git config user.email)>"
+  printf '\nSigned-off-by: %s\n' "$NAME_EMAIL" >> "$MSG_FILE"
+fi

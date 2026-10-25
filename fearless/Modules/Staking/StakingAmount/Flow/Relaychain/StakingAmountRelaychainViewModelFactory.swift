@@ -7,15 +7,18 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol
     private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.rewardDestViewModelFactory = rewardDestViewModelFactory
         self.chainAsset = chainAsset
+        self.wallet = wallet
     }
 
     func buildViewModel(
@@ -57,7 +60,7 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
         }
 
         let reward: CalculatedReward?
-        let price = viewModelState.rewardAssetPrice ?? priceData
+        let price = viewModelState.rewardChainAsset?.asset.getPrice(for: wallet.selectedCurrency) ?? priceData
 
         if let calculator = calculator {
             let restake = calculator.calculatorReturn(

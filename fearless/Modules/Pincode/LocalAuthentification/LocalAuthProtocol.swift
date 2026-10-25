@@ -6,6 +6,7 @@ protocol LocalAuthInteractorInputProtocol: AnyObject {
 
     func startAuth(with output: LocalAuthInteractorOutputProtocol)
     func process(pin: String)
+    func cancelAuth()
 }
 
 protocol LocalAuthInteractorOutputProtocol: AnyObject {

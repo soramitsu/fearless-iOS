@@ -102,7 +102,7 @@
         <string>%li эры</string>
       </dict>
     </dict>
-    <key>verification.rejected.screen.attempts.left</key>
+    <key>wallet.records.notice.wallets</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@format@</string>
@@ -113,13 +113,73 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>У вас осталась %li бесплатная попытка</string>
+        <string>Не удаётся отобразить %li сохранённый кошелёк</string>
         <key>few</key>
-        <string>У вас осталось %li бесплатные попытки</string>
+        <string>Не удаётся отобразить %li сохранённых кошелька</string>
         <key>many</key>
-        <string>У вас осталось %li бесплатных попыток</string>
+        <string>Не удаётся отобразить %li сохранённых кошельков</string>
         <key>other</key>
-        <string>У вас осталось %li бесплатные попытки</string>
+        <string>Не удаётся отобразить %li сохранённых кошельков</string>
+      </dict>
+    </dict>
+    <key>wallet.records.notice.accounts</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Не удаётся использовать %li сетевой аккаунт</string>
+        <key>few</key>
+        <string>Не удаётся использовать %li сетевых аккаунта</string>
+        <key>many</key>
+        <string>Не удаётся использовать %li сетевых аккаунтов</string>
+        <key>other</key>
+        <string>Не удаётся использовать %li сетевых аккаунтов</string>
+      </dict>
+    </dict>
+    <key>wallet.records.sheet.wallets</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>В этой версии Fearless не удаётся отобразить %li кошелёк, сохранённый на этом устройстве.</string>
+        <key>few</key>
+        <string>В этой версии Fearless не удаётся отобразить %li кошелька, сохранённых на этом устройстве.</string>
+        <key>many</key>
+        <string>В этой версии Fearless не удаётся отобразить %li кошельков, сохранённых на этом устройстве.</string>
+        <key>other</key>
+        <string>В этой версии Fearless не удаётся отобразить %li кошельков, сохранённых на этом устройстве.</string>
+      </dict>
+    </dict>
+    <key>wallet.records.sheet.accounts</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Не удаётся использовать %li сетевой аккаунт, сохранённый в ваших кошельках. Его кошелёк остаётся доступным и использует в этой сети собственный аккаунт.</string>
+        <key>few</key>
+        <string>Не удаётся использовать %li сетевых аккаунта, сохранённых в ваших кошельках. Их кошельки остаются доступными и используют в этих сетях собственные аккаунты.</string>
+        <key>many</key>
+        <string>Не удаётся использовать %li сетевых аккаунтов, сохранённых в ваших кошельках. Их кошельки остаются доступными и используют в этих сетях собственные аккаунты.</string>
+        <key>other</key>
+        <string>Не удаётся использовать %li сетевых аккаунтов, сохранённых в ваших кошельках. Их кошельки остаются доступными и используют в этих сетях собственные аккаунты.</string>
       </dict>
     </dict>
   </dict>

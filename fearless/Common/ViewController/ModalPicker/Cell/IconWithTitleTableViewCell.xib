@@ -9,7 +9,7 @@
     </dependencies>
     <customFonts key="customFonts">
         <array key="sora-Regular.otf">
-            <string>sora-rc004-0417-Regular</string>
+            <string>Sora-Regular</string>
         </array>
     </customFonts>
     <objects>
@@ -27,7 +27,7 @@
                     </imageView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Kusama" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uEb-gg-hd8">
                         <rect key="frame" x="59" y="18" width="310" height="19"/>
-                        <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="16"/>
+                        <fontDescription key="fontDescription" name="Sora-Regular" family="Sora" pointSize="16"/>
                         <color key="textColor" name="colorWhite"/>
                         <nil key="highlightedColor"/>
                     </label>

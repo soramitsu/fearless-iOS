@@ -9,6 +9,15 @@ extension NSPredicate {
         NSPredicate(format: "SELF == ''")
     }
 
+    /// A new Google Drive backup holds the recovery phrase encrypted with this
+    /// password, so it needs enough length to resist offline guessing. Restoring
+    /// keeps accepting any password an earlier backup was made with.
+    static var backupPassword: NSPredicate {
+        NSPredicate(format: "SELF MATCHES %@", "(?s).{\(backupPasswordMinimumLength),}")
+    }
+
+    static let backupPasswordMinimumLength = 8
+
     // TODO: Add deriviationPathHardSoftNumericPassword?
     // TODO: Add deriviationPathHardSoftNumeric?
 
@@ -37,11 +46,13 @@ extension NSPredicate {
         return NSPredicate(format: "SELF MATCHES %@", format)
     }
 
+    /// Node addresses a user enters. Only TLS (`wss://`) is accepted: a cleartext
+    /// node could forge balances, nonces, fees and the runtime metadata that decides
+    /// what the user signs.
     static var websocket: NSPredicate {
         let format = "^" +
-            // protocol identifier (optional)
-            // short syntax // still required
-            "(?:(?:(?:wss?):)?\\/\\/)" +
+            // protocol identifier (TLS only)
+            "(?:wss:\\/\\/)" +
             // user:pass BasicAuth (optional)
             "(?:\\S+(?::\\S*)?@)?" +
             "(?:" +

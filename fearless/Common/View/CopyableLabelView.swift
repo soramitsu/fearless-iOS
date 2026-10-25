@@ -12,6 +12,7 @@ final class CopyableLabelView: UIView {
         let label = UILabel()
         label.lineBreakMode = .byTruncatingMiddle
         label.font = UIFont.p2Paragraph
+        label.adjustsFontForContentSizeCategory = true
         return label
     }()
 
@@ -33,6 +34,11 @@ final class CopyableLabelView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    /// Opt-in typography for rebuilt owners; existing consumers retain their legacy role.
+    func applyTypography(_ font: UIFont) {
+        label.font = font
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
         layer.cornerRadius = frame.height / 2
@@ -40,6 +46,12 @@ final class CopyableLabelView: UIView {
 
     func bind(title: String) {
         label.text = title
+        accessibilityValue = title
+    }
+
+    override func accessibilityActivate() -> Bool {
+        handleTap()
+        return true
     }
 
     private func gestureConfigure() {
@@ -53,6 +65,9 @@ final class CopyableLabelView: UIView {
     }
 
     private func setupLayout() {
+        isAccessibilityElement = true
+        accessibilityTraits = .button
+        accessibilityLabel = R.string.localizable.commonCopyAddress()
         layer.masksToBounds = true
         backgroundColor = R.color.colorWhite8()
 
@@ -72,6 +87,7 @@ final class CopyableLabelView: UIView {
         hStackView.addArrangedSubview(iconImageView)
 
         label.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        label.setContentCompressionResistancePriority(.required, for: .vertical)
         label.setContentHuggingPriority(.defaultLow, for: .horizontal)
     }
 }

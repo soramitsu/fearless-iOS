@@ -1,0 +1,19 @@
+autogen_warning = "/* THIS FILE WAS AUTOMATICALLY GENERATED. DO NOT EDIT. Ref: https://github.com/Warchant/sr25519-crust */"
+include_guard = "__SR25519_INCLUDE_GUARD_H__"
+include_version = true
+line_length = 80
+tab_width = 2
+language = "C"
+style = "Both"
+documentation_style = "Doxy"
+
+[fn]
+args = "Vertical"
+rename_args = "SnakeCase"
+
+[struct]
+# A rule to use to rename field names
+rename_fields = "SnakeCase"
+
+[parse.expand]
+features = ["cbindgen"]

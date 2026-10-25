@@ -1,13 +1,16 @@
 enum ChainEcosystem: String, Equatable {
+    case substrate
     case kusama
     case polkadot
     case ethereum
+    case ethereumBased
+    case ton
 
     var isKusama: Bool {
         switch self {
         case .kusama:
             return true
-        case .polkadot, .ethereum:
+        case .substrate, .polkadot, .ethereum, .ethereumBased, .ton:
             return false
         }
     }
@@ -16,16 +19,16 @@ enum ChainEcosystem: String, Equatable {
         switch self {
         case .polkadot:
             return true
-        case .kusama, .ethereum:
+        case .substrate, .kusama, .ethereum, .ethereumBased, .ton:
             return false
         }
     }
 
     var isEthereum: Bool {
         switch self {
-        case .ethereum:
+        case .ethereum, .ethereumBased:
             return true
-        case .kusama, .polkadot:
+        case .substrate, .kusama, .polkadot, .ton:
             return false
         }
     }

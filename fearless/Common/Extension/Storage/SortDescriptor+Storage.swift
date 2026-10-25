@@ -1,21 +1,11 @@
 import Foundation
-import SSFAccountManagmentStorage
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 extension NSSortDescriptor {
-    static var accountsByOrder: NSSortDescriptor {
-        NSSortDescriptor(key: #keyPath(CDMetaAccount.order), ascending: true)
-    }
-
-    // TODO: remove
-    static var connectionsByOrder: NSSortDescriptor {
-        NSSortDescriptor(key: #keyPath(CDChain.addressPrefix), ascending: true)
-    }
-
-    static var contactsByTime: NSSortDescriptor {
-        NSSortDescriptor(key: #keyPath(CDContactItem.updatedAt), ascending: false)
-    }
-
     static var chainsByAddressPrefix: NSSortDescriptor {
-        NSSortDescriptor(key: #keyPath(CDChain.addressPrefix), ascending: true)
+        // Use literal to avoid module-qualified #keyPath limitation
+        NSSortDescriptor(key: "addressPrefix", ascending: true)
     }
 }

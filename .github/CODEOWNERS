@@ -1,0 +1,23 @@
+# Owners must have write access to this repository.
+
+* @soramitsu/fearless
+
+/.github/ @soramitsu/devops-team
+/AGENTS.md @soramitsu/fearless @soramitsu/ios-developers
+/CONTRIBUTING.md @soramitsu/fearless @soramitsu/ios-developers
+/README.md @soramitsu/fearless @soramitsu/ios-developers
+/docs/release-checklist.md @soramitsu/fearless @soramitsu/devops-team
+/docs/rollback-checklist.md @soramitsu/fearless @soramitsu/devops-team
+/scripts/audit-public-artifacts.sh @soramitsu/fearless @soramitsu/ios-developers @soramitsu/security
+
+/fearless.xcodeproj/ @soramitsu/fearless @soramitsu/ios-developers
+/fearless.xcworkspace/ @soramitsu/fearless @soramitsu/ios-developers
+/fearless/ @soramitsu/fearless @soramitsu/ios-developers
+/fearless/Common/Model/ @soramitsu/fearless @soramitsu/ios-developers @soramitsu/security
+/fearless/Common/Keys/ @soramitsu/fearless @soramitsu/ios-developers @soramitsu/security
+/fearless/Common/Network/Wallet/ @soramitsu/fearless @soramitsu/ios-developers @soramitsu/security
+/fearless/CoreLayer/CoreComponents/Storage/Keys/ @soramitsu/fearless @soramitsu/ios-developers @soramitsu/security
+/**/*Key* @soramitsu/fearless @soramitsu/ios-developers @soramitsu/security
+/**/*Keychain* @soramitsu/fearless @soramitsu/ios-developers @soramitsu/security
+/**/*Keystore* @soramitsu/fearless @soramitsu/ios-developers @soramitsu/security
+/**/*Signer* @soramitsu/fearless @soramitsu/ios-developers @soramitsu/security

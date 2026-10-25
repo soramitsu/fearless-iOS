@@ -1,0 +1,6 @@
+framework module IrohaCrypto {
+    umbrella "."
+
+    export *
+    module * { export * }
+}

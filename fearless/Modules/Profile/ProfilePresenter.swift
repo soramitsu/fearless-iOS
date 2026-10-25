@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SoraKeystore
+import SSFModels
 
 final class ProfilePresenter {
     private weak var view: ProfileViewProtocol?
@@ -10,6 +11,7 @@ final class ProfilePresenter {
     private let settings: SettingsManagerProtocol
     private let viewModelFactory: ProfileViewModelFactoryProtocol
     private let eventCenter: EventCenter
+    private let irohaConnectPolicy: IrohaConnectReleasePolicy
 
     private var selectedWallet: MetaAccountModel?
     private var selectedCurrency: Currency?
@@ -23,7 +25,8 @@ final class ProfilePresenter {
         logger: LoggerProtocol,
         settings: SettingsManagerProtocol,
         eventCenter: EventCenter,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        irohaConnectPolicy: IrohaConnectReleasePolicy = .production
     ) {
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
@@ -31,6 +34,7 @@ final class ProfilePresenter {
         self.logger = logger
         self.settings = settings
         self.eventCenter = eventCenter
+        self.irohaConnectPolicy = irohaConnectPolicy
         self.localizationManager = localizationManager
 
         self.eventCenter.add(
@@ -76,6 +80,10 @@ extension ProfilePresenter: ProfilePresenterProtocol {
 
     func activateOption(_ option: ProfileOption) {
         switch option {
+        case .previousData:
+            RetainedDataRestoreRouter.shared.showPreviousData(from: view)
+        case .emergencyMaterial:
+            RetainedDataRestoreRouter.shared.showEmergencyMaterial(from: view)
         case .accountList:
             wireframe.showAccountSelection(from: view, moduleOutput: self)
         case .changePincode:
@@ -89,10 +97,25 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         case .currency:
             guard let selectedWallet = selectedWallet else { return }
             wireframe.showSelectCurrency(from: view, with: selectedWallet)
-        case .biometry:
+        case .biometry, .accountScore:
             break
         case .walletConnect:
             wireframe.showWalletConnect(from: view)
+        case .networkAssets:
+            guard let selectedWallet else { return }
+            wireframe.showNetworkAssets(from: view, wallet: selectedWallet)
+        case .tonConnect:
+            guard let selectedWallet else { return }
+            let hasTonAccount = selectedWallet.legacyTonAccount != nil || selectedWallet.chainAccounts.contains {
+                UniversalWalletChainAccountSupport.chainId(
+                    $0.chainId,
+                    matches: UniversalWalletRegistry.tonMainnetRegistryEntry.chainId
+                )
+            }
+            wireframe.showTonConnectCapability(from: view, hasTonAccount: hasTonAccount)
+        case .irohaConnect:
+            guard irohaConnectPolicy.isEnabled else { return }
+            wireframe.showIrohaConnect(from: view)
         }
     }
 
@@ -101,6 +124,11 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         switch option {
         case .biometry:
             settings.biometryEnabled = isOn
+        case .accountScore:
+            settings.accountScoreEnabled = isOn
+
+            let event = AccountScoreSettingsChanged()
+            eventCenter.notify(with: event)
         default:
             break
         }
@@ -140,6 +168,10 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         )
 
         wireframe.present(viewModel: viewModel, from: view)
+    }
+
+    func didTapAccountScore(address: String?) {
+        wireframe.presentAccountScore(address: address, from: view)
     }
 }
 

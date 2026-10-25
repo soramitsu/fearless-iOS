@@ -162,7 +162,7 @@ final class BackupCreatePasswordViewController: UIViewController, ViewHolder, Hi
         }
 
         updateNextButton()
-        rootView.setPassword(isMatched: inputCompleted)
+        updatePasswordHint()
     }
 
     @objc private func actionConfirmationInputChange() {
@@ -171,6 +171,15 @@ final class BackupCreatePasswordViewController: UIViewController, ViewHolder, Hi
         }
 
         updateNextButton()
+        updatePasswordHint()
+    }
+
+    private func updatePasswordHint() {
+        guard passwordInputViewModel?.inputHandler.completed ?? false else {
+            rootView.setPasswordTooShort()
+            return
+        }
+
         rootView.setPassword(isMatched: inputCompleted)
     }
 }

@@ -1,17 +1,18 @@
-import UIKit
 import RobinHood
+import SSFQRService
+import UIKit
 
 final class GetPreinstalledWalletInteractor: BaseAccountImportInteractor {
     // MARK: - Private properties
 
     private weak var output: GetPreinstalledWalletInteractorOutput?
-    private let qrExtractionService: QRExtractionServiceProtocol
+    private let qrService: QRService
     private let qrScanService: QRCaptureServiceProtocol
     private let settings: SelectedWalletSettings
     private let eventCenter: EventCenterProtocol
 
     init(
-        qrExtractionService: QRExtractionServiceProtocol,
+        qrService: QRService,
         qrScanService: QRCaptureServiceProtocol,
         accountOperationFactory: MetaAccountOperationFactoryProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
@@ -21,7 +22,7 @@ final class GetPreinstalledWalletInteractor: BaseAccountImportInteractor {
         settings: SelectedWalletSettings,
         eventCenter: EventCenterProtocol
     ) {
-        self.qrExtractionService = qrExtractionService
+        self.qrService = qrService
         self.qrScanService = qrScanService
         self.settings = settings
         self.eventCenter = eventCenter
@@ -36,35 +37,39 @@ final class GetPreinstalledWalletInteractor: BaseAccountImportInteractor {
     }
 
     override func importAccountUsingOperation(_ importOperation: BaseOperation<MetaAccountModel>) {
-        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
+        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation {
             let accountItem = try importOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            let updatedWallet = accountItem.replacingIsBackuped(true)
-            self?.settings.save(value: updatedWallet)
-
-            return updatedWallet
+            return accountItem.replacingIsBackuped(true)
         }
 
         saveOperation.completionBlock = { [weak self] in
+            let result = saveOperation.result
+            saveOperation.completionBlock = nil
             DispatchQueue.main.async {
-                switch saveOperation.result {
-                case .success:
-                    do {
-                        let accountItem = try importOperation
-                            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-                        self?.settings.setup()
-                        self?.output?.didCompleteAccountImport()
-                        self?.eventCenter.notify(with: SelectedAccountChanged(account: accountItem))
-                    } catch {
-                        self?.output?.didReceiveAccountImport(error: error)
+                guard let self else {
+                    ImportKeychainPersistence.rollback(importOperation, after: BaseOperationError.parentOperationCancelled)
+                    return
+                }
+                switch result {
+                case let .success(accountItem):
+                    self.settings.save(value: accountItem, runningCompletionIn: .main) { [weak self] result in
+                        switch result {
+                        case let .success(savedAccount):
+                            (importOperation as? PersistenceBoundKeychainOperation)?.commitKeychainChanges()
+                            self?.output?.didCompleteAccountImport()
+                            self?.eventCenter.notify(with: SelectedAccountChanged(account: savedAccount))
+                        case let .failure(error):
+                            let failure = ImportKeychainPersistence.rollback(importOperation, after: error)
+                            self?.output?.didReceiveAccountImport(error: failure)
+                        }
                     }
-
                 case let .failure(error):
-                    self?.output?.didReceiveAccountImport(error: error)
-
+                    let failure = ImportKeychainPersistence.rollback(importOperation, after: error)
+                    self.output?.didReceiveAccountImport(error: failure)
                 case .none:
-                    let error = BaseOperationError.parentOperationCancelled
-                    self?.output?.didReceiveAccountImport(error: error)
+                    let failure = ImportKeychainPersistence.rollback(importOperation, after: BaseOperationError.parentOperationCancelled)
+                    self.output?.didReceiveAccountImport(error: failure)
                 }
             }
         }
@@ -87,21 +92,14 @@ extension GetPreinstalledWalletInteractor: GetPreinstalledWalletInteractorInput 
     }
 
     func extractQr(from image: UIImage) {
-        qrExtractionService.extract(
-            from: image,
-            dispatchCompletionIn: .main
-        ) { [weak self] result in
-            switch result {
-            case let .success(code):
-                self?.output?.handleMatched(code: code)
-            case let .failure(error):
-                if case let QRExtractionServiceError.plainAddress(address) = error {
-                    self?.output?.handleAddress(address)
-                    return
-                }
-
-                self?.output?.handleQRService(error: error)
+        do {
+            let matcher = try qrService.extractQrCode(from: image)
+            guard let preinstalledWallet = matcher.address else {
+                throw ConvenienceError(error: "Matches has't preinstalled wallet")
             }
+            output?.handleAddress(preinstalledWallet)
+        } catch {
+            output?.handleQRService(error: error)
         }
     }
 

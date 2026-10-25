@@ -56,7 +56,6 @@ final class BalanceLocksFetchingDefault {
 
     private func fetchPoolPendingRewards(for accountId: AccountId) async throws -> BigUInt? {
         let operation = stakingPoolOperationFactory.fetchPendingRewards(accountId: accountId)
-        operationQueue.addOperations(operation.allOperations, waitUntilFinished: false)
 
         return try await withCheckedThrowingContinuation { continuation in
             operation.targetOperation.completionBlock = {
@@ -67,6 +66,8 @@ final class BalanceLocksFetchingDefault {
                     return continuation.resume(with: .failure(error))
                 }
             }
+
+            operationQueue.addOperations(operation.allOperations, waitUntilFinished: false)
         }
     }
 
@@ -100,12 +101,7 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
     }
 
     func fetchStakingLocks(for accountId: AccountId) async throws -> StakingLocks {
-        guard chainAsset.asset.staking != nil else {
-            throw BalanceLocksFetchingError.stakingNotFound
-        }
-
-        let controller = try await fetchStakingController(accountId: accountId)
-        guard let controller else {
+        guard chainAsset.chain.hasStakingRewardHistory || chainAsset.chain.isSora else {
             throw BalanceLocksFetchingError.stakingNotFound
         }
 
@@ -156,7 +152,7 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
     }
 
     func fetchNominationPoolLocks(for accountId: AccountId) async throws -> StakingLocks {
-        guard chainAsset.asset.staking != nil else {
+        guard chainAsset.chain.hasStakingRewardHistory || chainAsset.chain.isSora else {
             throw BalanceLocksFetchingError.stakingNotFound
         }
 

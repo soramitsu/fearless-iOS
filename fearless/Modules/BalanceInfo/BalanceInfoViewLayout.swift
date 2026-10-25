@@ -6,6 +6,8 @@ final class BalanceInfoViewLayout: UIView {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textAlignment = .center
+        label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
         return label
     }()
 
@@ -14,11 +16,26 @@ final class BalanceInfoViewLayout: UIView {
     private let balanceLabel: UILabel = {
         let label = UILabel()
         label.font = .h1Title
-        label.lineBreakMode = .byTruncatingMiddle
+        label.lineBreakMode = .byCharWrapping
         label.textAlignment = .center
+        label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
         return label
     }()
 
+    private let filteredPartLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p2Paragraph
+        label.textColor = R.color.colorLightGray()
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
+        label.isHidden = true
+        return label
+    }()
+
+    private let vStackView = UIFactory.default.createVerticalStackView(spacing: 2)
+    private var portfolioLocale: Locale?
     private var skeletonView: SkrullableView?
 
     override init(frame: CGRect) {
@@ -31,14 +48,42 @@ final class BalanceInfoViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    /// Only WalletMainContainer opts into the portfolio total's presentation roles.
+    func configurePortfolioPresentation(locale: Locale) {
+        guard FWAppearance.walletHeaderRestyled else { return }
+        if portfolioLocale == nil {
+            vStackView.removeArrangedSubview(balanceContainerView)
+            vStackView.insertArrangedSubview(balanceContainerView, at: 0)
+            filteredPartLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+            balanceLabel.accessibilityTraits.insert(.header)
+            balanceLabel.textColor = R.color.fwTextPrimary()
+            filteredPartLabel.textColor = R.color.fwTextSecondary()
+        }
+        portfolioLocale = locale
+        updatePortfolioTypography()
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        updatePortfolioTypography()
+    }
+
+    private func updatePortfolioTypography() {
+        guard let locale = portfolioLocale else { return }
+        balanceLabel.font = .fw(.displayXL, locale: locale, compatibleWith: traitCollection)
+        priceLabel.font = .fw(.labelM, locale: locale, compatibleWith: traitCollection)
+        filteredPartLabel.font = .fw(.bodyS, locale: locale, compatibleWith: traitCollection)
+    }
+
     func bind(viewModel: BalanceInfoViewModel?) {
         priceLabel.attributedText = viewModel?.dayChangeAttributedString
         balanceLabel.text = viewModel?.balanceString
-
-        balanceLabel.layoutIfNeeded()
-        priceLabel.layoutIfNeeded()
+        filteredPartLabel.text = viewModel?.filteredPartString
+        filteredPartLabel.isHidden = viewModel?.filteredPartString == nil
 
         if viewModel == nil {
+            balanceLabel.layoutIfNeeded()
+            priceLabel.layoutIfNeeded()
             startLoadingIfNeeded()
         } else {
             stopLoadingIfNeeded()
@@ -48,18 +93,18 @@ final class BalanceInfoViewLayout: UIView {
     private func setupLayout() {
         balanceContainerView.addArrangedSubview(balanceLabel)
 
-        let vStackView = UIFactory.default.createVerticalStackView(spacing: 2)
         vStackView.alignment = .fill
         addSubview(vStackView)
         vStackView.snp.makeConstraints { make in
-            make.center.equalToSuperview()
+            make.edges.equalToSuperview()
         }
 
         vStackView.addArrangedSubview(priceLabel)
         vStackView.addArrangedSubview(balanceContainerView)
+        vStackView.addArrangedSubview(filteredPartLabel)
 
-        balanceLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
-        priceLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        balanceLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        priceLabel.setContentCompressionResistancePriority(.required, for: .vertical)
     }
 }
 
@@ -149,12 +194,18 @@ extension BalanceInfoViewLayout: SkeletonLoadable {
         return [
             SingleSkeleton.createRow(
                 spaceSize: spaceSize,
-                position: CGPoint(x: UIConstants.offset12 + UIConstants.normalAddressIconSize.width + UIConstants.hugeOffset, y: spaceSize.height / 2),
+                position: CGPoint(
+                    x: UIConstants.offset12 + UIConstants.normalAddressIconSize.width + UIConstants.hugeOffset,
+                    y: spaceSize.height / 2
+                ),
                 size: titleSize
             ),
             SingleSkeleton.createRow(
                 spaceSize: spaceSize,
-                position: CGPoint(x: UIConstants.offset12 + UIConstants.normalAddressIconSize.width + UIConstants.hugeOffset, y: spaceSize.height / 2 + defaultHeight / 2 + UIConstants.offset12),
+                position: CGPoint(
+                    x: UIConstants.offset12 + UIConstants.normalAddressIconSize.width + UIConstants.hugeOffset,
+                    y: spaceSize.height / 2 + defaultHeight / 2 + UIConstants.offset12
+                ),
                 size: incomeSize
             )
         ]

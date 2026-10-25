@@ -82,5 +82,69 @@
         <string>outros</string>
       </dict>
     </dict>
+    <key>wallet.records.notice.wallets</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Não é possível exibir %li carteira armazenada</string>
+        <key>other</key>
+        <string>Não é possível exibir %li carteiras armazenadas</string>
+      </dict>
+    </dict>
+    <key>wallet.records.notice.accounts</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Não é possível usar %li conta de rede</string>
+        <key>other</key>
+        <string>Não é possível usar %li contas de rede</string>
+      </dict>
+    </dict>
+    <key>wallet.records.sheet.wallets</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Não é possível exibir %li carteira armazenada neste dispositivo nesta versão do Fearless.</string>
+        <key>other</key>
+        <string>Não é possível exibir %li carteiras armazenadas neste dispositivo nesta versão do Fearless.</string>
+      </dict>
+    </dict>
+    <key>wallet.records.sheet.accounts</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Não é possível usar %li conta de rede armazenada nas suas carteiras. A carteira dessa conta continua disponível e usa sua própria conta nessa rede.</string>
+        <key>other</key>
+        <string>Não é possível usar %li contas de rede armazenadas nas suas carteiras. As carteiras dessas contas continuam disponíveis e usam suas próprias contas nessas redes.</string>
+      </dict>
+    </dict>
   </dict>
 </plist>

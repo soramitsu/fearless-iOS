@@ -6,20 +6,22 @@ protocol OnboardingStartViewOutput: AnyObject {
     func didTapStartButton()
 }
 
-final class OnboardingStartViewController: UIViewController, ViewHolder {
-    typealias RootViewType = OnboardingStartViewLayout
-
+final class OnboardingStartViewController: UIViewController {
     // MARK: Private properties
 
     private let output: OnboardingStartViewOutput
+    private let welcomeAppearanceEnabled: Bool
+    private(set) var welcomeView: FWWelcomeView?
 
     // MARK: - Constructor
 
     init(
         output: OnboardingStartViewOutput,
-        localizationManager: LocalizationManagerProtocol?
+        localizationManager: LocalizationManagerProtocol?,
+        welcomeAppearanceEnabled: Bool = FWAppearance.welcomeRestyled
     ) {
         self.output = output
+        self.welcomeAppearanceEnabled = welcomeAppearanceEnabled
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
     }
@@ -32,11 +34,18 @@ final class OnboardingStartViewController: UIViewController, ViewHolder {
     // MARK: - Life cycle
 
     override func loadView() {
-        view = OnboardingStartViewLayout()
+        if welcomeAppearanceEnabled {
+            let welcome = FWWelcomeView(mode: .introduction)
+            welcomeView = welcome
+            view = welcome
+        } else {
+            view = OnboardingStartViewLayout()
+        }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        applyLocalization()
         output.didLoad(view: self)
         configure()
     }
@@ -44,7 +53,13 @@ final class OnboardingStartViewController: UIViewController, ViewHolder {
     // MARK: - Private methods
 
     private func configure() {
-        rootView.startButton.addAction { [weak self] in
+        let button: UIControl?
+        if let welcomeView {
+            button = welcomeView.primaryButton
+        } else {
+            button = (view as? OnboardingStartViewLayout)?.startButton
+        }
+        button?.addAction { [weak self] in
             self?.output.didTapStartButton()
         }
     }
@@ -58,6 +73,12 @@ extension OnboardingStartViewController: OnboardingStartViewInput {}
 
 extension OnboardingStartViewController: Localizable {
     func applyLocalization() {
-        rootView.locale = selectedLocale
+        // SoraFoundation calls this when the manager is assigned, before loadView.
+        guard isViewLoaded else { return }
+        if let welcomeView {
+            welcomeView.locale = selectedLocale
+        } else {
+            (view as? OnboardingStartViewLayout)?.locale = selectedLocale
+        }
     }
 }

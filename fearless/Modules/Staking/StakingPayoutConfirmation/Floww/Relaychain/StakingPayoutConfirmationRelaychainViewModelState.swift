@@ -6,8 +6,6 @@ final class StakingPayoutConfirmationRelaychainViewModelState: StakingPayoutConf
     var fee: Decimal?
     var builderClosure: ExtrinsicBuilderClosure?
     private var balance: Decimal?
-    private var utilityBalance: Decimal?
-
     private(set) var rewardAmount: Decimal = 0.0
     private(set) var account: ChainAccountResponse?
     private(set) var rewardDestination: RewardDestination<DisplayAddress>?
@@ -20,29 +18,14 @@ final class StakingPayoutConfirmationRelaychainViewModelState: StakingPayoutConf
         self.stateListener = stateListener
     }
 
-    private func calculateRewardAssetRate(prices: [PriceData]) -> Decimal? {
-        guard
-            let utilityTokenPriceData = prices.first(where: { $0.priceId == chainAsset.chain.utilityAssets().first?.priceId }),
-            let rewardTokenPriceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId }),
-            let utilityTokenPrice = Decimal(string: utilityTokenPriceData.price),
-            let rewardTokenPrice = Decimal(string: rewardTokenPriceData.price)
-        else {
-            return nil
-        }
-
-        return utilityTokenPrice / rewardTokenPrice
-    }
-
-    func validators(using locale: Locale, prices: [PriceData]) -> [DataValidating] {
-        let rewardAssetRate: Decimal = chainAsset.isUtility ? 1 : calculateRewardAssetRate(prices: prices).or(1)
-        let rewardAmount = rewardAmount / rewardAssetRate
-        return [
+    func validators(using locale: Locale) -> [DataValidating] {
+        [
             dataValidatingFactory.has(fee: fee, locale: locale) { [weak self] in
                 self?.stateListener?.provideFee()
             },
 
             dataValidatingFactory.rewardIsHigherThanFee(
-                reward: rewardAmount,
+                reward: rewardInFeeAsset,
                 fee: fee,
                 locale: locale
             ),
@@ -53,6 +36,19 @@ final class StakingPayoutConfirmationRelaychainViewModelState: StakingPayoutConf
                 locale: locale
             )
         ]
+    }
+
+    private var rewardInFeeAsset: Decimal? {
+        guard let feeAsset = chainAsset.chain.utilityChainAssets().first else { return nil }
+        if feeAsset.asset.id == chainAsset.asset.id { return rewardAmount }
+        guard let rewardPriceData = chainAsset.asset.getPrice(for: wallet.selectedCurrency),
+              let feePriceData = feeAsset.asset.getPrice(for: wallet.selectedCurrency),
+              let rewardPrice = Decimal(string: rewardPriceData.price),
+              let feePrice = Decimal(string: feePriceData.price),
+              !rewardPrice.isNaN, !feePrice.isNaN,
+              rewardPrice > .zero, feePrice > .zero else { return nil }
+        let converted = rewardAmount * rewardPrice / feePrice
+        return converted.isNaN ? nil : converted
     }
 
     init(
@@ -95,21 +91,23 @@ extension StakingPayoutConfirmationRelaychainViewModelState: StakingPayoutConfir
         }
     }
 
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset: ChainAsset) {
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, chainAsset receivedAsset: ChainAsset) {
+        guard let feeAsset = chainAsset.chain.utilityChainAssets().first,
+              receivedAsset.chain.chainId == feeAsset.chain.chainId,
+              receivedAsset.asset.id == feeAsset.asset.id else { return }
         switch result {
         case let .success(accountInfo):
-            guard chainAsset == self.chainAsset.chain.utilityChainAssets().first else {
-                return
-            }
             if let availableValue = accountInfo?.data.stakingAvailable {
                 balance = Decimal.fromSubstrateAmount(
                     availableValue,
-                    precision: Int16(chainAsset.asset.precision)
+                    precision: Int16(feeAsset.asset.precision)
                 )
             } else {
                 balance = 0.0
             }
+
         case let .failure(error):
+            balance = nil
             logger?.error("Account Info subscription error: \(error)")
         }
     }

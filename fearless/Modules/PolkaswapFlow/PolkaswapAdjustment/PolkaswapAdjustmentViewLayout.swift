@@ -75,6 +75,8 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         return button
     }()
 
+    let bannersViewContainer = UIView()
+
     var locale: Locale = .current {
         didSet {
             applyLocalization()
@@ -141,6 +143,17 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         setInfoImage(for: minMaxReceivedView.titleLabel, text: text)
     }
 
+    func addBanners(_ view: UIView) {
+        bannersViewContainer.addSubview(view)
+        view.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+    }
+
+    func removeBanners() {
+        bannersViewContainer.removeFromSuperview()
+    }
+
     // MARK: - Private methods
 
     private func setupLayout() {
@@ -151,7 +164,8 @@ final class PolkaswapAdjustmentViewLayout: UIView {
 
     private func setupNavigationLayout(for container: UIView) {
         container.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
+            make.top.equalTo(safeAreaLayoutGuide.snp.top)
+            make.leading.trailing.equalToSuperview()
             make.height.equalTo(Constants.navigationBarHeight)
         }
 
@@ -180,6 +194,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
 
     private func setupContentsLayout() {
         addSubview(contentView)
+        addSubview(bannersViewContainer)
         addSubview(previewButton)
 
         contentView.snp.makeConstraints { make in
@@ -191,7 +206,16 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         previewButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
-            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
+            keyboardAdoptableConstraint = make.bottom
+                .equalTo(safeAreaLayoutGuide)
+                .inset(UIConstants.bigOffset)
+                .constraint
+        }
+
+        bannersViewContainer.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.height.equalTo(139)
+            make.bottom.equalTo(previewButton.snp.top).offset(-UIConstants.bigOffset)
         }
 
         let switchInputsView = createSwitchInputsView()

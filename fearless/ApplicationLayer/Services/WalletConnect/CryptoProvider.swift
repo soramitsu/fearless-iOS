@@ -1,12 +1,12 @@
 import Foundation
-import Auth
 import Web3
+import WalletConnectSigner
 import CryptoSwift
 
 struct DefaultCryptoProvider: CryptoProvider {
     public func recoverPubKey(signature: EthereumSignature, message: Data) throws -> Data {
         let publicKey = try EthereumPublicKey(
-            message: message.bytes,
+            message: Array(message),
             v: EthereumQuantity(quantity: BigUInt(signature.v)),
             r: EthereumQuantity(signature.r),
             s: EthereumQuantity(signature.s)

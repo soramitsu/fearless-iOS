@@ -1,0 +1,22 @@
+[package]
+name = "sr25519crust"
+version = "0.1.0"
+license = "Apache-2.0"
+authors = ["Bogdan Vaneev <warchantua@gmail.com>"]
+edition = "2018"
+build = "build.rs"
+
+[lib]
+name = "sr25519crust"
+# probably we need to add dylib/lib/dll for mac/linux/windows
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+schnorrkel = { version="=0.11.5" }
+
+[dev-dependencies]
+hex-literal = "0.3.1"
+rand = "0.8.0"
+
+[build-dependencies]
+cbindgen = "=0.29.4"

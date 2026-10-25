@@ -1,0 +1,273 @@
+{
+  "chain": "Polkadot Asset Hub",
+  "genesisHash": "0x68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f",
+  "specVersion": 2005000,
+  "fetched": "2026-10-24",
+  "source": "state_getMetadata (V14)",
+  "sourceBytes": 639268,
+  "sourceSha256": "104f632e638db176eefdc69bc06f7d096593330fd2766ac28b3e01205509beba",
+  "fixtureBytes": 32285,
+  "fixtureSha256": "7b206a893bd776640a05d3df52983b285cd93ef569a70dce66c7332776591ea2",
+  "typeCount": {
+    "source": 1061,
+    "fixture": 151
+  },
+  "pallets": [
+    {
+      "name": "Balances",
+      "moduleIndex": 10,
+      "calls": [
+        {
+          "name": "transfer_allow_death",
+          "index": 0,
+          "position": 0,
+          "fields": [
+            "dest",
+            "value"
+          ]
+        },
+        {
+          "name": "force_transfer",
+          "index": 2,
+          "position": 1,
+          "fields": [
+            "source",
+            "dest",
+            "value"
+          ]
+        },
+        {
+          "name": "transfer_keep_alive",
+          "index": 3,
+          "position": 2,
+          "fields": [
+            "dest",
+            "value"
+          ]
+        },
+        {
+          "name": "transfer_all",
+          "index": 4,
+          "position": 3,
+          "fields": [
+            "dest",
+            "keep_alive"
+          ]
+        },
+        {
+          "name": "force_unreserve",
+          "index": 5,
+          "position": 4,
+          "fields": [
+            "who",
+            "amount"
+          ]
+        },
+        {
+          "name": "upgrade_accounts",
+          "index": 6,
+          "position": 5,
+          "fields": [
+            "who"
+          ]
+        },
+        {
+          "name": "force_set_balance",
+          "index": 8,
+          "position": 6,
+          "fields": [
+            "who",
+            "new_free"
+          ]
+        },
+        {
+          "name": "force_adjust_total_issuance",
+          "index": 9,
+          "position": 7,
+          "fields": [
+            "direction",
+            "delta"
+          ]
+        },
+        {
+          "name": "burn",
+          "index": 10,
+          "position": 8,
+          "fields": [
+            "value",
+            "keep_alive"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PolkadotXcm",
+      "moduleIndex": 31,
+      "calls": [
+        {
+          "name": "send",
+          "index": 0,
+          "position": 0,
+          "fields": [
+            "dest",
+            "message"
+          ]
+        },
+        {
+          "name": "teleport_assets",
+          "index": 1,
+          "position": 1,
+          "fields": [
+            "dest",
+            "beneficiary",
+            "assets",
+            "fee_asset_item"
+          ]
+        },
+        {
+          "name": "reserve_transfer_assets",
+          "index": 2,
+          "position": 2,
+          "fields": [
+            "dest",
+            "beneficiary",
+            "assets",
+            "fee_asset_item"
+          ]
+        },
+        {
+          "name": "execute",
+          "index": 3,
+          "position": 3,
+          "fields": [
+            "message",
+            "max_weight"
+          ]
+        },
+        {
+          "name": "force_xcm_version",
+          "index": 4,
+          "position": 4,
+          "fields": [
+            "location",
+            "version"
+          ]
+        },
+        {
+          "name": "force_default_xcm_version",
+          "index": 5,
+          "position": 5,
+          "fields": [
+            "maybe_xcm_version"
+          ]
+        },
+        {
+          "name": "force_subscribe_version_notify",
+          "index": 6,
+          "position": 6,
+          "fields": [
+            "location"
+          ]
+        },
+        {
+          "name": "force_unsubscribe_version_notify",
+          "index": 7,
+          "position": 7,
+          "fields": [
+            "location"
+          ]
+        },
+        {
+          "name": "limited_reserve_transfer_assets",
+          "index": 8,
+          "position": 8,
+          "fields": [
+            "dest",
+            "beneficiary",
+            "assets",
+            "fee_asset_item",
+            "weight_limit"
+          ]
+        },
+        {
+          "name": "limited_teleport_assets",
+          "index": 9,
+          "position": 9,
+          "fields": [
+            "dest",
+            "beneficiary",
+            "assets",
+            "fee_asset_item",
+            "weight_limit"
+          ]
+        },
+        {
+          "name": "force_suspension",
+          "index": 10,
+          "position": 10,
+          "fields": [
+            "suspended"
+          ]
+        },
+        {
+          "name": "transfer_assets",
+          "index": 11,
+          "position": 11,
+          "fields": [
+            "dest",
+            "beneficiary",
+            "assets",
+            "fee_asset_item",
+            "weight_limit"
+          ]
+        },
+        {
+          "name": "claim_assets",
+          "index": 12,
+          "position": 12,
+          "fields": [
+            "assets",
+            "beneficiary"
+          ]
+        },
+        {
+          "name": "transfer_assets_using_type_and_then",
+          "index": 13,
+          "position": 13,
+          "fields": [
+            "dest",
+            "assets",
+            "assets_transfer_type",
+            "remote_fees_id",
+            "fees_transfer_type",
+            "custom_xcm_on_dest",
+            "weight_limit"
+          ]
+        },
+        {
+          "name": "add_authorized_alias",
+          "index": 14,
+          "position": 14,
+          "fields": [
+            "aliaser",
+            "expires"
+          ]
+        },
+        {
+          "name": "remove_authorized_alias",
+          "index": 15,
+          "position": 15,
+          "fields": [
+            "aliaser"
+          ]
+        },
+        {
+          "name": "remove_all_authorized_aliases",
+          "index": 16,
+          "position": 16,
+          "fields": []
+        }
+      ]
+    }
+  ]
+}

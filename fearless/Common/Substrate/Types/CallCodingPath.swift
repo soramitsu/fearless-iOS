@@ -1,7 +1,7 @@
 import Foundation
 
 enum CallCodingPath: Equatable, Codable, CaseIterable {
-    #warning("Do not forget added new case in allCases")
+    // Keep this list in sync with concrete enum cases that can be exhaustively enumerated.
     static var allCases: [CallCodingPath] {
         [
             .transfer,

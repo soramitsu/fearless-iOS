@@ -7,12 +7,14 @@ final class BalanceLocksDetailViewController: UIViewController, ViewHolder {
     // MARK: Private properties
 
     private let output: BalanceLocksDetailViewOutput
+    private let isLegacyCrowdloanContext: Bool
 
     private var stakingViewModel: BalanceLocksDetailStakingViewModel?
     private var poolViewModel: BalanceLocksDetailPoolViewModel?
     private var liquidityPoolsViewModel: LocalizableResource<BalanceViewModelProtocol>?
     private var governanceViewModel: LocalizableResource<BalanceViewModelProtocol>?
     private var crowdloanViewModel: LocalizableResource<BalanceViewModelProtocol>?
+    private var vestingHint: String?
     private var totalViewModel: LocalizableResource<BalanceViewModelProtocol>?
     private var assetFrozenViewModel: LocalizableResource<BalanceViewModelProtocol>?
     private var assetBlockedViewModel: LocalizableResource<BalanceViewModelProtocol>?
@@ -21,9 +23,11 @@ final class BalanceLocksDetailViewController: UIViewController, ViewHolder {
 
     init(
         output: BalanceLocksDetailViewOutput,
+        isLegacyCrowdloanContext: Bool,
         localizationManager: LocalizationManagerProtocol?
     ) {
         self.output = output
+        self.isLegacyCrowdloanContext = isLegacyCrowdloanContext
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
     }
@@ -67,6 +71,18 @@ extension BalanceLocksDetailViewController: BalanceLocksDetailViewInput {
         crowdloanViewModel = viewModel
 
         rootView.crowdloansView.bindBalance(viewModel: viewModel?.value(for: selectedLocale))
+        rootView.crowdloansView.isHidden = viewModel == nil
+        rootView.crowdloansView.titleLabel.text = isLegacyCrowdloanContext
+            ? NSLocalizedString("asset.legacy_crowdloan", value: "Legacy crowdloan", comment: "")
+            : NSLocalizedString("asset.vesting", value: "Vesting", comment: "")
+        // If there is a vesting hint (parachain/Asset Hub case), show it under the value
+        rootView.crowdloansView.valueBottom.text = vestingHint
+    }
+
+    @MainActor func didReceiveVestingHint(_ hint: String?) async {
+        vestingHint = hint
+        // Refresh bottom value if view model is already set
+        rootView.crowdloansView.valueBottom.text = vestingHint
     }
 
     @MainActor func didReceiveStakingLocksViewModel(_ viewModel: BalanceLocksDetailStakingViewModel?) async {

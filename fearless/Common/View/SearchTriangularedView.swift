@@ -1,6 +1,7 @@
 import UIKit
 import SoraUI
 import SSFUtils
+import SnapKit
 
 final class SearchTriangularedView: UIView {
     enum LayoutConstants {
@@ -10,6 +11,21 @@ final class SearchTriangularedView: UIView {
         static let clearButtonSize: CGFloat = 16
         static let pasteButtonSize: CGFloat = 76
     }
+
+    private var sendPresentation = false
+    private var sendPlaceholderBottom: Constraint?
+    let sendPlaceholderLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        label.textColor = R.color.colorAlmostWhite()
+        label.isUserInteractionEnabled = false
+        label.isAccessibilityElement = false
+        label.setContentCompressionResistancePriority(.required, for: .vertical)
+        return label
+    }()
+
+    var isValid = false
 
     var onPasteTapped: (() -> Void)?
     private let withPasteButton: Bool
@@ -85,6 +101,8 @@ final class SearchTriangularedView: UIView {
         return view
     }()
 
+    let accountScoreView = AccountScoreView()
+
     init(withPasteButton: Bool = false) {
         self.withPasteButton = withPasteButton
         super.init(frame: .zero)
@@ -100,7 +118,14 @@ final class SearchTriangularedView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func bind(accountScoreViewModel: AccountScoreViewModel?) {
+        textField.text = accountScoreViewModel?.address
+        accountScoreView.bind(viewModel: accountScoreViewModel)
+        refreshSendPlaceholder()
+    }
+
     func updateState(icon: DrawableIcon?, clearButtonIsHidden: Bool? = nil) {
+        refreshSendPlaceholder()
         if let text = textField.text, text.isNotEmpty {
             cleanButton.isHidden = false
             pasteButton.isHidden = true
@@ -147,13 +172,24 @@ final class SearchTriangularedView: UIView {
             .default
             .createVerticalStackView(spacing: UIConstants.minimalOffset)
         addSubview(vStackView)
+
+        vStackView.addArrangedSubview(titleLabel)
+
+        let hStackView = UIFactory.default.createHorizontalStackView(spacing: 4)
+        vStackView.addArrangedSubview(hStackView)
+
+        hStackView.addArrangedSubview(textField)
+        hStackView.addArrangedSubview(accountScoreView)
+
+        accountScoreView.snp.makeConstraints { make in
+            make.width.equalTo(32)
+        }
+
         vStackView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(LayoutConstants.verticalOffset)
             make.leading.equalTo(addressImage.snp.trailing).offset(UIConstants.defaultOffset)
             make.bottom.equalToSuperview().inset(LayoutConstants.verticalOffset)
         }
-        vStackView.addArrangedSubview(titleLabel)
-        vStackView.addArrangedSubview(textField)
 
         addSubview(cleanButton)
         cleanButton.snp.makeConstraints { make in
@@ -188,5 +224,83 @@ final class SearchTriangularedView: UIView {
     @objc
     private func pasteTapped() {
         onPasteTapped?()
+    }
+}
+
+extension SearchTriangularedView {
+    func configureSendPresentation(locale: Locale, traits: UITraitCollection) {
+        if !sendPresentation, let labels = titleLabel.superview {
+            sendPresentation = true
+            setupSendPlaceholder()
+            backgroundView.snp.remakeConstraints { $0.edges.equalToSuperview() }
+            addressImage.snp.removeConstraints()
+            cleanButton.snp.removeConstraints()
+            pasteButton.snp.removeConstraints()
+            let icon = UIView()
+            icon.addSubview(addressImage)
+            addressImage.snp.makeConstraints { $0.edges.equalToSuperview() }
+            icon.addSubview(placeholderImage)
+            placeholderImage.snp.remakeConstraints { $0.edges.equalToSuperview() }
+            icon.snp.makeConstraints { $0.size.equalTo(32) }
+            let row = UIStackView(arrangedSubviews: [icon, UIView(), pasteButton, cleanButton])
+            row.alignment = .center
+            row.spacing = 8
+            addSubview(row)
+            row.snp.makeConstraints { make in
+                make.leading.trailing.top.equalToSuperview().inset(12)
+                make.height.greaterThanOrEqualTo(44)
+            }
+            cleanButton.snp.makeConstraints { $0.size.equalTo(44) }
+            pasteButton.snp.makeConstraints { $0.width.equalTo(self).multipliedBy(0.6) }
+            labels.snp.remakeConstraints { make in
+                make.leading.trailing.bottom.equalToSuperview().inset(12)
+                make.top.equalTo(row.snp.bottom).offset(8)
+            }
+        }
+        self.locale = locale
+        titleLabel.font = .fw(.bodyS, locale: locale, compatibleWith: traits)
+        titleLabel.numberOfLines = 0
+        textField.font = .fw(.monoM, locale: locale, compatibleWith: traits)
+        textField.snp.remakeConstraints { make in
+            make.edges.equalToSuperview()
+            make.height.greaterThanOrEqualTo(ceil(textField.font!.lineHeight) + 8)
+        }
+        pasteButton.configureWrappingTitle(locale: locale, compatibleWith: traits)
+        sendPlaceholderLabel.font = .fw(.bodyM, locale: locale, compatibleWith: traits)
+        refreshSendPlaceholder()
+        setNeedsLayout()
+    }
+
+    private func setupSendPlaceholder() {
+        guard let row = textField.superview as? UIStackView,
+              let index = row.arrangedSubviews.firstIndex(of: textField) else { return }
+        row.removeArrangedSubview(textField)
+        textField.removeFromSuperview()
+        let container = UIView()
+        row.insertArrangedSubview(container, at: index)
+        row.alignment = .center
+        container.addSubview(textField)
+        container.addSubview(sendPlaceholderLabel)
+        sendPlaceholderLabel.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.top.equalToSuperview().offset(4)
+            sendPlaceholderBottom = make.bottom.lessThanOrEqualToSuperview().inset(4).constraint
+        }
+        textField.addTarget(self, action: #selector(refreshSendPlaceholder), for: .editingChanged)
+    }
+
+    @objc private func refreshSendPlaceholder() {
+        guard sendPresentation else { return }
+        textField.attributedPlaceholder = nil
+        textField.placeholder = nil
+        sendPlaceholderLabel.text = R.string.localizable.searchTextfieldPlaceholder(
+            preferredLanguages: locale.rLanguages
+        )
+        textField.accessibilityLabel = titleLabel.text
+        textField.accessibilityHint = sendPlaceholderLabel.text
+        let empty = textField.text?.isEmpty != false
+        sendPlaceholderLabel.isHidden = !empty
+        if empty { sendPlaceholderBottom?.activate() } else { sendPlaceholderBottom?.deactivate() }
+        setNeedsLayout()
     }
 }

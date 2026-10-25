@@ -9,6 +9,29 @@ enum RuntimeProviderError: Error {
 }
 
 final class RuntimeProvider {
+    // Local factory to avoid Xcode project reference issues
+    private struct RuntimeCoderFactoryImpl: RuntimeCoderFactoryProtocol {
+        let catalog: TypeRegistryCatalogProtocol
+        let specVersion: UInt32
+        let txVersion: UInt32
+        let metadata: RuntimeMetadata
+
+        init(snapshot: RuntimeSnapshot) {
+            catalog = snapshot.typeRegistryCatalog
+            specVersion = snapshot.specVersion
+            txVersion = snapshot.txVersion
+            metadata = snapshot.metadata
+        }
+
+        func createEncoder() -> DynamicScaleEncoding {
+            DynamicScaleEncoder(registry: catalog, version: UInt64(specVersion))
+        }
+
+        func createDecoder(from data: Data) throws -> DynamicScaleDecoding {
+            try DynamicScaleDecoder(data: data, registry: catalog, version: UInt64(specVersion))
+        }
+    }
+
     struct PendingRequest {
         let resultClosure: (RuntimeCoderFactoryProtocol?) -> Void
         let queue: DispatchQueue?
@@ -38,6 +61,13 @@ final class RuntimeProvider {
     private(set) var pendingRequests: [PendingRequest] = []
     private(set) var currentWrapper: BaseOperation<RuntimeSnapshot?>?
     private var mutex = NSLock()
+
+    /// Never wait on runtime work from inside a socket's final write boundary.
+    var mutationAuthorizationSpecVersion: UInt32? {
+        guard mutex.try() else { return nil }
+        defer { mutex.unlock() }
+        return snapshot?.specVersion
+    }
 
     private var chainTypes: Data?
     private var initialChainMetadata: RuntimeMetadataItem?
@@ -168,14 +198,7 @@ final class RuntimeProvider {
     }
 
     private func deliver(snapshot: RuntimeSnapshot?, to request: PendingRequest) {
-        let coderFactory = snapshot.map {
-            RuntimeCoderFactory(
-                catalog: $0.typeRegistryCatalog,
-                specVersion: $0.specVersion,
-                txVersion: $0.txVersion,
-                metadata: $0.metadata
-            )
-        }
+        let coderFactory = snapshot.map { RuntimeCoderFactoryImpl(snapshot: $0) }
 
         dispatchInQueueWhenPossible(request.queue) {
             request.resultClosure(coderFactory)

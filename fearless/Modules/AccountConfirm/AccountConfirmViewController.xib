@@ -11,7 +11,7 @@
     </dependencies>
     <customFonts key="customFonts">
         <array key="sora-Regular.otf">
-            <string>sora-rc004-0417-Regular</string>
+            <string>Sora-Regular</string>
         </array>
     </customFonts>
     <objects>
@@ -65,7 +65,7 @@
                                 </view>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Choose words in the right order" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h9t-43-ypk">
                                     <rect key="frame" x="0.0" y="186" width="382" height="20.333333333333343"/>
-                                    <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="16"/>
+                                    <fontDescription key="fontDescription" name="Sora-Regular" family="Sora" pointSize="16"/>
                                     <color key="textColor" name="colorWhite"/>
                                     <nil key="highlightedColor"/>
                                 </label>
@@ -134,7 +134,7 @@
                                     <color key="value" name="colorHighlightedAccent"/>
                                 </userDefinedRuntimeAttribute>
                                 <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Next"/>
-                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Bold"/>
+                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="Sora-Bold"/>
                                 <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
                                     <real key="value" value="14"/>
                                 </userDefinedRuntimeAttribute>

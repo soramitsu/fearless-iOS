@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol ProfileViewProtocol: ControllerBackedProtocol {
     func didReceive(state: ProfileViewState)
@@ -10,6 +11,7 @@ protocol ProfilePresenterProtocol: AnyObject {
     func activateOption(_ option: ProfileOption)
     func logout()
     func switcherValueChanged(isOn: Bool, index: Int)
+    func didTapAccountScore(address: String?)
 }
 
 protocol ProfileInteractorInputProtocol: AnyObject {
@@ -32,7 +34,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     WebPresentable,
     ModalAlertPresenting,
     AddressOptionsPresentable,
-    AccountManagementPresentable {
+    AccountManagementPresentable, AccountScorePresentable {
     func showAccountDetails(
         from view: ProfileViewProtocol?,
         metaAccount: MetaAccountModel
@@ -53,8 +55,17 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     func close(view: ControllerBackedProtocol?)
     func showPolkaswapDisclaimer(from view: ControllerBackedProtocol?)
     func showWalletConnect(from view: ControllerBackedProtocol?)
+    func showNetworkAssets(from view: ControllerBackedProtocol?, wallet: MetaAccountModel)
+    func showTonConnectCapability(from view: ControllerBackedProtocol?, hasTonAccount: Bool)
+    func showIrohaConnect(from view: ControllerBackedProtocol?)
 }
 
 protocol ProfileViewFactoryProtocol: AnyObject {
     static func createView() -> ProfileViewProtocol?
+}
+
+extension ProfileWireframeProtocol {
+    func showNetworkAssets(from _: ControllerBackedProtocol?, wallet _: MetaAccountModel) {}
+    func showTonConnectCapability(from _: ControllerBackedProtocol?, hasTonAccount _: Bool) {}
+    func showIrohaConnect(from _: ControllerBackedProtocol?) {}
 }

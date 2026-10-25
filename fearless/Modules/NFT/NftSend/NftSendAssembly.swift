@@ -5,6 +5,10 @@ import SoraKeystore
 import Web3
 import RobinHood
 import SSFUtils
+import SSFNetwork
+#if canImport(SSFAssetManagmentStorage)
+    import SSFAssetManagmentStorage
+#endif
 
 enum NftSendAssemblyError: Error {
     case substrateNftNotImplemented
@@ -16,9 +20,10 @@ enum NftSendAssembly {
             let localizationManager = LocalizationManager.shared
 
             let repositoryFacade = SubstrateDataStorageFacade.shared
-            let mapper: CodableCoreDataMapper<ScamInfo, CDScamInfo> =
-                CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDScamInfo.address))
-            let scamRepository: CoreDataRepository<ScamInfo, CDScamInfo> =
+            let mapper: CodableCoreDataMapper<ScamInfo, SSFAssetManagmentStorage.CDScamInfo> =
+                // Use literal to avoid module-qualified #keyPath limitation
+                CodableCoreDataMapper(entityIdentifierFieldName: "address")
+            let scamRepository: CoreDataRepository<ScamInfo, SSFAssetManagmentStorage.CDScamInfo> =
                 repositoryFacade.createRepository(
                     filter: nil,
                     sortDescriptors: [],
@@ -44,13 +49,19 @@ enum NftSendAssembly {
                 logger: Logger.shared
             )
             let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(walletLocalSubscriptionFactory: walletLocalSubscriptionFactory, selectedMetaAccount: wallet)
+
+            let accountStatisticsFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerDefault(), signer: NomisRequestSigner())
+            let scamInfoFetcher = ScamInfoFetcher(
+                scamServiceOperationFactory: scamServiceOperationFactory,
+                accountScoreFetching: accountStatisticsFetcher,
+                localizationManager: LocalizationManager.shared
+            )
             let interactor = NftSendInteractor(
                 transferService: transferService,
                 operationManager: OperationManagerFacade.sharedManager,
-                scamServiceOperationFactory: scamServiceOperationFactory,
+                scamInfoFetching: scamInfoFetcher,
                 addressChainDefiner: addressChainDefiner,
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-                priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
                 chain: nft.chain,
                 wallet: wallet
             )
@@ -65,7 +76,11 @@ enum NftSendAssembly {
                 wallet: wallet,
                 logger: Logger.shared,
                 viewModelFactory:
-                SendViewModelFactory(iconGenerator: UniversalIconGenerator()),
+                SendViewModelFactory(
+                    iconGenerator: UniversalIconGenerator(),
+                    accountScoreFetcher: accountStatisticsFetcher,
+                    settings: SettingsManager.shared
+                ),
                 dataValidatingFactory: dataValidatingFactory
             )
 
@@ -89,10 +104,7 @@ enum NftSendAssembly {
         }
         let keystore = Keychain()
 
-        switch chain.chainBaseType {
-        case .substrate:
-            throw NftSendAssemblyError.substrateNftNotImplemented
-        case .ethereum:
+        if chain.chainBaseType == .ethereum {
             let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
             let tag: String = KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
 
@@ -108,10 +120,12 @@ enum NftSendAssembly {
 
             return EthereumNftTransferService(
                 ws: ws,
-                privateKey: try EthereumPrivateKey(privateKey: secretKey.bytes),
+                privateKey: try EthereumPrivateKey(privateKey: Array(secretKey)),
                 senderAddress: address,
                 logger: Logger.shared
             )
+        } else {
+            throw NftSendAssemblyError.substrateNftNotImplemented
         }
     }
 }

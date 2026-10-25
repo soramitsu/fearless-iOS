@@ -1,9 +1,11 @@
-import UIKit
-import SoraUI
 import SoraFoundation
+import SoraUI
+import UIKit
 
 final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
     var presenter: OnboardingMainPresenterProtocol!
+    var welcomeAppearanceEnabled = FWAppearance.welcomeRestyled
+    private(set) var welcomeView: FWWelcomeView?
 
     @IBOutlet private var termsLabel: UILabel!
     @IBOutlet private var signUpButton: TriangularedButton!
@@ -17,8 +19,6 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
 
     @IBOutlet private var termsBottomConstraint: NSLayoutConstraint!
 
-    var localizationManager: LocalizationManagerProtocol?
-
     var termDecorator: AttributedStringDecoratorProtocol?
 
     // MARK: Appearance
@@ -26,14 +26,40 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setupLocalization()
-        configureLogoView()
-        configureTermsLabel()
-        adjustLayout()
-
+        if welcomeAppearanceEnabled {
+            configureWelcome()
+        } else {
+            setupLocalization()
+            configureLogoView()
+            configureTermsLabel()
+            adjustLayout()
+            preInstalledButton.isHidden = true
+            configureLegacyRecoveryAction()
+        }
         presenter.setup()
+    }
 
-        preInstalledButton.isHidden = true
+    private func configureLegacyRecoveryAction() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: RecoveryText.string("previous_data"),
+            style: .plain,
+            target: self,
+            action: #selector(showRecoveryData)
+        )
+    }
+
+    private func configureWelcome() {
+        let welcome = FWWelcomeView(mode: .walletChoice)
+        welcomeView = welcome
+        view = welcome
+        welcome.locale = selectedLocale
+        welcome.primaryButton.addAction { [weak self] in self?.presenter.activateSignup() }
+        welcome.restoreButton.addAction { [weak self] in self?.presenter.activateAccountRestore() }
+        welcome.preinstalledButton.addAction { [weak self] in self?.presenter.didTapGetPreinstalled() }
+        // Keep the same authenticated route, with a wrapping, scalable target.
+        welcome.recoveryButton.addTarget(self, action: #selector(showRecoveryData), for: .touchUpInside)
+        welcome.termsButton.addAction { [weak self] in self?.presenter.activateTerms() }
+        welcome.privacyButton.addAction { [weak self] in self?.presenter.activatePrivacy() }
     }
 
     private func configureTermsLabel() {
@@ -51,7 +77,9 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
             .usernameSetupTitle20(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
         restoreButton.imageWithTitleView?.title = R.string.localizable
             .onboardingRestoreWallet(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
-        preInstalledButton.imageWithTitleView?.title = R.string.localizable.onboardingPreinstalledWalletButtonText(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
+        preInstalledButton.imageWithTitleView?.title = R.string.localizable.onboardingPreinstalledWalletButtonText(
+            preferredLanguages: localizationManager?.selectedLocale.rLanguages
+        )
         preInstalledButton.imageWithTitleView?.iconImage = R.image.iconPreinstalledWallet()
         let text = NSAttributedString(string: R.string.localizable
             .onboardingTermsAndConditions1(preferredLanguages: localizationManager?.selectedLocale.rLanguages))
@@ -68,6 +96,10 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
             restoreWidthConstraint.constant *= designScaleRatio.width
             signupWidthConstraint.constant *= designScaleRatio.width
         }
+    }
+
+    @objc private func showRecoveryData() {
+        RetainedDataRestoreRouter.shared.showPreviousData(from: self)
     }
 
     // MARK: Action
@@ -99,6 +131,23 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
 
 extension OnboardingMainViewController: OnboardingMainViewProtocol {
     func didReceive(preinstalledWalletEnabled: Bool) {
-        preInstalledButton.isHidden = !preinstalledWalletEnabled
+        if let welcomeView {
+            welcomeView.preinstalledButton.isHidden = !preinstalledWalletEnabled
+        } else {
+            preInstalledButton.isHidden = !preinstalledWalletEnabled
+        }
+    }
+}
+
+extension OnboardingMainViewController: Localizable {
+    func applyLocalization() {
+        guard isViewLoaded else { return }
+        if let welcomeView {
+            welcomeView.locale = selectedLocale
+        } else {
+            termDecorator = CompoundAttributedStringDecorator.legal(for: selectedLocale)
+            setupLocalization()
+            configureTermsLabel()
+        }
     }
 }

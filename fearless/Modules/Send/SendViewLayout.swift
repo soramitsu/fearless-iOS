@@ -3,12 +3,9 @@ import SnapKit
 
 final class SendViewLayout: UIView {
     enum LayoutConstants {
-        static let verticalOffset: CGFloat = 25
         static let stackActionHeight: CGFloat = 32
         static let stackViewSpacing: CGFloat = 12
-        static let bottomContainerHeight: CGFloat = 120
         static let stackSubviewHeight: CGFloat = 64
-        static let optionsImageSize: CGFloat = 16
     }
 
     let navigationBar: BaseNavigationBar = {
@@ -30,6 +27,18 @@ final class SendViewLayout: UIView {
         view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
         view.stackView.spacing = LayoutConstants.stackViewSpacing
         return view
+    }()
+
+    let crossNetworkButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle(NSLocalizedString("ux.transfer_networks", value: "Transfer between networks →", comment: ""), for: .normal)
+        button.titleLabel?.font = .p1Paragraph
+        button.titleLabel?.adjustsFontForContentSizeCategory = true
+        button.titleLabel?.numberOfLines = 0
+        button.contentHorizontalAlignment = .leading
+        button.tintColor = R.color.colorPink()
+        button.accessibilityIdentifier = "send.transferNetworks"
+        return button
     }()
 
     let amountView = SelectableAmountInputView(type: .send)
@@ -106,18 +115,27 @@ final class SendViewLayout: UIView {
     }()
 
     let sendAllSwitch: UISwitch = {
-        let switchView = UISwitch()
+        let switchView = SendAllSwitch()
         switchView.onTintColor = R.color.colorPink()
         return switchView
     }()
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        if FWAppearance.sendPresentationRestyled {
+            navigationBar.configureSendTitle(navigationTitleLabel, in: contentView.stackView, traits: traitCollection)
+        }
+    }
+
     var locale = Locale.current {
         didSet {
-            if locale != oldValue {
+            if locale != oldValue || FWAppearance.sendPresentationRestyled {
                 applyLocalization()
             }
         }
     }
+
+    let accountScoreView = AccountScoreView()
 
     var keyboardAdoptableConstraint: Constraint?
 
@@ -127,6 +145,20 @@ final class SendViewLayout: UIView {
         backgroundColor = R.color.colorBlack19()
 
         setupLayout()
+        if FWAppearance.sendPresentationRestyled { setupAdaptiveLayout() }
+        if #available(iOS 17.0, *) {
+            registerForTraitChanges(
+                [UITraitPreferredContentSizeCategory.self, UITraitLegibilityWeight.self]
+            ) { (view: SendViewLayout, _: UITraitCollection) in
+                view.updateTypography()
+            }
+        }
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if #available(iOS 17.0, *) { return }
+        updateTypography()
     }
 
     @available(*, unavailable)
@@ -166,6 +198,10 @@ final class SendViewLayout: UIView {
         scamWarningView.bind(scamInfo: scamInfo, assetName: amountView.symbol ?? "")
     }
 
+    func bind(accountScoreViewModel: AccountScoreViewModel?) {
+        searchView.bind(accountScoreViewModel: accountScoreViewModel)
+    }
+
     func bind(viewModel: RecipientViewModel) {
         searchView.textField.text = viewModel.address
         searchView.updateState(icon: viewModel.icon, clearButtonIsHidden: !viewModel.canEditing)
@@ -177,6 +213,49 @@ final class SendViewLayout: UIView {
 }
 
 private extension SendViewLayout {
+    func setupAdaptiveLayout() {
+        bottomContainer.removeFromSuperview()
+        contentView.stackView.addArrangedSubview(bottomContainer)
+        bottomContainer.snp.remakeConstraints { $0.width.equalTo(self).offset(-2 * UIConstants.bigOffset) }
+        contentView.snp.remakeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.top.equalTo(navigationBar.snp.bottom)
+            keyboardAdoptableConstraint = make.bottom.equalTo(safeAreaLayoutGuide).constraint
+        }
+        contentView.stackView.layoutMargins.bottom = UIConstants.bigOffset
+        for item in [searchView as UIView, amountView, selectNetworkView, feeView, tipView] {
+            item.snp.remakeConstraints { $0.width.equalTo(self).offset(-2 * UIConstants.bigOffset) }
+        }
+        sendAllContainerView.snp.remakeConstraints { make in
+            make.leading.trailing.top.equalToSuperview()
+            make.height.greaterThanOrEqualTo(46)
+        }
+        sendAllLabel.snp.remakeConstraints { make in
+            make.leading.top.bottom.equalToSuperview()
+            make.trailing.equalTo(sendAllSwitch.snp.leading).offset(-12)
+        }
+        sendAllSwitch.snp.remakeConstraints { make in
+            make.trailing.equalToSuperview().offset(-max(0, sendAllSwitch.alignmentRectInsets.right))
+            make.centerY.equalToSuperview()
+            make.width.equalTo(max(44, sendAllSwitch.intrinsicContentSize.width))
+            make.top.greaterThanOrEqualToSuperview()
+            make.bottom.lessThanOrEqualToSuperview()
+        }
+        optionsStackView.axis = .vertical
+        optionsStackView.distribution = .fill
+        optionsStackView.snp.remakeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.top.equalTo(sendAllContainerView.snp.bottom).offset(12)
+        }
+        actionButton.snp.remakeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(optionsStackView.snp.bottom).offset(12)
+        }
+        navigationTitleLabel.numberOfLines = 0
+        navigationTitleLabel.textAlignment = .center
+        updateTypography()
+    }
+
     func setupLayout() {
         addSubview(navigationBar)
         addSubview(contentView)
@@ -195,6 +274,11 @@ private extension SendViewLayout {
 
         let viewOffset = -2.0 * UIConstants.horizontalInset
 
+        contentView.stackView.addArrangedSubview(crossNetworkButton)
+        crossNetworkButton.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(viewOffset)
+            make.height.greaterThanOrEqualTo(44)
+        }
         contentView.stackView.addArrangedSubview(searchView)
         searchView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(viewOffset)
@@ -254,19 +338,19 @@ private extension SendViewLayout {
         sendAllContainerView.addSubview(sendAllLabel)
         sendAllLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview()
-            make.top.bottom.equalToSuperview().offset(4)
+            make.top.bottom.equalToSuperview().inset(4)
         }
-
         sendAllContainerView.addSubview(sendAllSwitch)
         sendAllSwitch.snp.makeConstraints { make in
             make.leading.greaterThanOrEqualTo(sendAllLabel.snp.trailing).offset(4)
-            make.trailing.equalToSuperview()
+            make.trailing.equalToSuperview().offset(-max(0, sendAllSwitch.alignmentRectInsets.right))
+            make.width.equalTo(sendAllSwitch.intrinsicContentSize.width)
             make.centerY.equalToSuperview()
         }
-
         bottomContainer.addSubview(sendAllContainerView)
         sendAllContainerView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
+            make.height.greaterThanOrEqualTo(46)
             make.bottom.equalTo(optionsStackView.snp.top).offset(-UIConstants.bigOffset)
             make.top.equalToSuperview()
         }
@@ -307,5 +391,9 @@ private extension SendViewLayout {
         selectNetworkView.title = R.string.localizable.commonNetwork(preferredLanguages: locale.rLanguages)
 
         sendAllLabel.text = R.string.localizable.sendAllTitle(preferredLanguages: locale.rLanguages)
+        if FWAppearance.sendPresentationRestyled {
+            crossNetworkButton.setTitle(PortfolioStrings.text("ux.transfer_networks", locale: locale), for: .normal)
+            updateTypography()
+        }
     }
 }

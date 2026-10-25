@@ -82,7 +82,7 @@
         <string>%li eras</string>
       </dict>
     </dict>
-    <key>verification.rejected.screen.attempts.left</key>
+    <key>wallet.records.notice.wallets</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@format@</string>
@@ -93,9 +93,57 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>You have %li more free KYC attempt</string>
+        <string>%li stored wallet can't be shown</string>
         <key>other</key>
-        <string>You have %li more free KYC attempts</string>
+        <string>%li stored wallets can't be shown</string>
+      </dict>
+    </dict>
+    <key>wallet.records.notice.accounts</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li network account can't be used</string>
+        <key>other</key>
+        <string>%li network accounts can't be used</string>
+      </dict>
+    </dict>
+    <key>wallet.records.sheet.wallets</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li wallet stored on this device can't be shown in this version of Fearless.</string>
+        <key>other</key>
+        <string>%li wallets stored on this device can't be shown in this version of Fearless.</string>
+      </dict>
+    </dict>
+    <key>wallet.records.sheet.accounts</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li network account stored in your wallets can't be used. Its wallet stays available and uses its own account on that network.</string>
+        <key>other</key>
+        <string>%li network accounts stored in your wallets can't be used. Their wallets stay available and use their own accounts on those networks.</string>
       </dict>
     </dict>
   </dict>

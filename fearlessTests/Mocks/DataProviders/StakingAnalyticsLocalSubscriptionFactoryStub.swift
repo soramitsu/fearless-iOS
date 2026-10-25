@@ -1,5 +1,6 @@
 import Foundation
 @testable import fearless
+import SSFModels
 
 class StakingAnalyticsLocalSubscriptionFactoryStub {
     let weaklyAnalytics: [SubqueryRewardItemData]?
@@ -11,7 +12,7 @@ class StakingAnalyticsLocalSubscriptionFactoryStub {
 
 extension StakingAnalyticsLocalSubscriptionFactoryStub: StakingAnalyticsLocalSubscriptionFactoryProtocol {
     func getWeaklyAnalyticsProvider(
-        chainAsset: ChainAsset,
+        chainAsset: SSFModels.ChainAsset,
         for address: AccountAddress,
         url: URL
     ) -> AnySingleValueProvider<[SubqueryRewardItemData]>? {

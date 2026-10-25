@@ -1,0 +1,35 @@
+fearless/ApplicationLayer/Services/WalletConnect/eip_mew/SignTypedData.swift	// TODO: check with metamask test cases v4
+fearless/Common/Extension/Foundation/NSPredicate+Filter.swift	// TODO: Remove
+fearless/Common/Extension/Foundation/NSPredicate+Validation.swift	// TODO: Add deriviationPathHardSoftNumeric?
+fearless/Common/Extension/Foundation/NSPredicate+Validation.swift	// TODO: Add deriviationPathHardSoftNumericPassword?
+fearless/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeHotBootSnapshotFactory.swift	// TODO: think about it
+fearless/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeSnapshotOperationFactory.swift	// TODO: think about it
+fearless/Modules/AddAccount/Interactors/AddAccount+AccountConfirmInteractor.swift	// TODO: Check how to convert this to chain account import
+fearless/Modules/PolkaswapFlow/PolkaswapAdjustment/PolkaswapAdjustmentPresenter.swift	// TODO: - need think about this
+fearless/Modules/Profile/ProfileViewFactory.swift	// TODO: Eth account info fetching
+fearless/Modules/Staking/SelectValidatorsFlow/ValidatorInfo/Flow/Parachain/ValidatorInfoParachainViewModelFactory.swift	// TODO: Has slashes real value
+fearlessTests/Modules/ControllerAccountConfirmation/ControllerAccountConfirmationTests.swift	// TODO
+fearlessTests/Modules/StakingUnbondSetup/StakingUnbondSetupTests.swift	// TODO
+# Third-party TON SDK 1.0.4 source, pinned and documented in Packages/ton-swift/FEARLESS_PATCHES.md.
+Packages/ton-swift/Source/TonSwift/Cells/Bitstring.swift	/// TODO: might be useful to re-align bitstring in such case and only require that `length` is byte-aligned.
+Packages/ton-swift/Source/TonSwift/Cells/Dictionary.swift	// TODO: review this decision to return empty dicts from exotic cells
+Packages/ton-swift/Tests/TonSwiftTests/Cells/BocTest.swift	// TODO: create tests for large and files
+Packages/ton-swift/Tests/TonSwiftTests/Cells/BuilderTest.swift	// TODO: - create tests for int, varUint, varInt, coins, address, external address
+Packages/ton-swift/Tests/TonSwiftTests/Cells/SliceTest.swift	// TODO: - create tests for int, varUint, varInt, coins, address
+# Existing debt imported with app-owned native modules and third-party sources.
+Native/Sources/SSFRuntimeCodingService/SSFRuntimeCodingService/Classes/RuntimeSnapshotFactory.swift	// TODO: think about it
+Native/Sources/SSFTransferService/Transfers/XorlessTransfer.swift	// TODO: - Move to polkaswap package
+Native/Sources/Starscream/Framer/FoundationHTTPServerHandler.swift	//TODO: add other values to make a proper response here...
+Native/Sources/Starscream/Framer/FoundationHTTPServerHandler.swift	//TODO: also sec key thing (Sec-WebSocket-Key)
+Native/Sources/Starscream/Framer/FoundationHTTPServerHandler.swift	//TODO: build response header
+Native/Sources/Starscream/Framer/FoundationHTTPServerHandler.swift	//TODO: parse data
+Native/Sources/Starscream/Server/WebSocketServer.swift	//TODO: support TLS cert adding/binding
+Native/Sources/scrypt/sse2neon.h	/* FIXME: #pragma GCC push_options is only available on GCC */
+Native/Sources/scrypt/sse2neon.h	/* FIXME: issue with large values because of result saturation */
+Native/Sources/scrypt/sse2neon.h	/* FIXME: optimized for NEON */
+Native/Sources/scrypt/sse2neon.h	// FIXME: _mm_getcsr() implementation supports reading the rounding mode only.
+Native/Sources/scrypt/sse2neon.h	// FIXME: _mm_setcsr() implementation supports changing the rounding mode only.
+Native/Sources/scrypt/sse2neon.h	float32x2_t a02 = vset_lane_f32(a0, a22, 1); /* TODO: use vzip ?*/
+Native/Tests/SSFStorageQueryKitTest/StorageRequestPerformerTests.swift	// TODO: - Transfer this model to staking package
+Native/Tests/Starscream/FuzzingTests.swift	//TODO: the rest of them.
+Native/Tests/Starscream/MockServer.swift	//TODO: force disconnect
