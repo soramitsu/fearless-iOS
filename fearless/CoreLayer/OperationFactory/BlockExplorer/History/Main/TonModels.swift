@@ -611,10 +611,8 @@ extension TonNFT {
             collection = TonNFTCollection(address: address, name: nftCollection.name, description: nftCollection.description)
         }
 
-        if imageURL == nil,
-           let previewURLString = nftItem.previews?[2].url,
-           let previewURL = URL(string: previewURLString) {
-            imageURL = previewURL
+        if imageURL == nil {
+            imageURL = Self.fallbackImageURL(from: nftItem.previews)
         }
 
         var sale: Sale?
@@ -639,6 +637,18 @@ extension TonNFT {
         dns = nftItem.dns
         self.sale = sale
         self.isHidden = isHidden
+    }
+
+    private static func fallbackImageURL(from previews: [Components.Schemas.ImagePreview]?) -> URL? {
+        guard let previews else { return nil }
+        let preferredSizes: [PreviewSize] = [.size500, .size1500, .size100, .size5]
+        for size in preferredSizes {
+            if let preview = previews.first(where: { PreviewSize(rawValue: $0.resolution) == size }),
+               let url = URL(string: preview.url) {
+                return url
+            }
+        }
+        return previews.compactMap { URL(string: $0.url) }.first
     }
 
     private static func mapPreviews(_ previews: [Components.Schemas.ImagePreview]?) -> Preview {

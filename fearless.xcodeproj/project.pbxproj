@@ -7,6 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9F85B1FB416AB5622C560377 /* ABIEventDecodingRegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7B363EB6E16981B6A317BCB /* ABIEventDecodingRegressionTests.swift */; };
+		B8629766D501EF7F3DDE20F0 /* TonNFTPreviewRegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 097174B5B1A158D1E9A237E5 /* TonNFTPreviewRegressionTests.swift */; };
+		A3619122B36347E2AE2E36B0 /* OperationCombiningLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB1D73181D071035875D7AE /* OperationCombiningLifecycleTests.swift */; };
+		9FA25258C6383F4D526E8F4C /* ExtrinsicStatusDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F976F758C6AC3C43F28ADB3A /* ExtrinsicStatusDecodingTests.swift */; };
+		739B85507661A0889D4D62C4 /* OklinkRequestRegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E62720E571314ADDE3CB0AF /* OklinkRequestRegressionTests.swift */; };
+		27FA6EF57ACCA478C5ABA7DD /* ScamTypeNormalizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90A44BB3FC29E3C6C9C79B92 /* ScamTypeNormalizationTests.swift */; };
+		9002ECA9B819990D473F95BA /* HexColorValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D21849A41A2F4573EA86CC5 /* HexColorValidationTests.swift */; };
+		2E119E9A98D0018D1DFC3F8A /* NetworkDateParsingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E88C7644F811162F7F8D3AD /* NetworkDateParsingTests.swift */; };
+		FF26D6B731581C9CA1DAD936 /* PricesServiceSubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CD4A119D13D3900A6732CC1 /* PricesServiceSubscriptionTests.swift */; };
 		FAF04A710000000000000006 /* SendViewLayout+Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF04A710000000000000005 /* SendViewLayout+Typography.swift */; };
 		B07B0EBBBD37418D837830F1 /* SolanaSendFormWarningPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47CCD62882FC4AB3865C6CAF /* SolanaSendFormWarningPresenter.swift */; };
 		FAF04A710000000000000004 /* SolanaSendFormLifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF04A710000000000000003 /* SolanaSendFormLifecycle.swift */; };
@@ -3394,6 +3403,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D7B363EB6E16981B6A317BCB /* ABIEventDecodingRegressionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ABIEventDecodingRegressionTests.swift; sourceTree = "<group>"; };
+		097174B5B1A158D1E9A237E5 /* TonNFTPreviewRegressionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TonNFTPreviewRegressionTests.swift; sourceTree = "<group>"; };
+		1DB1D73181D071035875D7AE /* OperationCombiningLifecycleTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OperationCombiningLifecycleTests.swift; sourceTree = "<group>"; };
+		F976F758C6AC3C43F28ADB3A /* ExtrinsicStatusDecodingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExtrinsicStatusDecodingTests.swift; sourceTree = "<group>"; };
+		9E62720E571314ADDE3CB0AF /* OklinkRequestRegressionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OklinkRequestRegressionTests.swift; sourceTree = "<group>"; };
+		90A44BB3FC29E3C6C9C79B92 /* ScamTypeNormalizationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScamTypeNormalizationTests.swift; sourceTree = "<group>"; };
+		2D21849A41A2F4573EA86CC5 /* HexColorValidationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HexColorValidationTests.swift; sourceTree = "<group>"; };
+		2E88C7644F811162F7F8D3AD /* NetworkDateParsingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkDateParsingTests.swift; sourceTree = "<group>"; };
+		1CD4A119D13D3900A6732CC1 /* PricesServiceSubscriptionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PricesServiceSubscriptionTests.swift; sourceTree = "<group>"; };
 		FAF04A710000000000000005 /* SendViewLayout+Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SendViewLayout+Typography.swift"; sourceTree = "<group>"; };
 		47CCD62882FC4AB3865C6CAF /* SolanaSendFormWarningPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaSendFormWarningPresenter.swift; sourceTree = "<group>"; };
 		FAF04A710000000000000003 /* SolanaSendFormLifecycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SolanaSendFormLifecycle.swift"; sourceTree = "<group>"; };
@@ -9792,6 +9810,15 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				D7B363EB6E16981B6A317BCB /* ABIEventDecodingRegressionTests.swift */,
+				097174B5B1A158D1E9A237E5 /* TonNFTPreviewRegressionTests.swift */,
+				1DB1D73181D071035875D7AE /* OperationCombiningLifecycleTests.swift */,
+				F976F758C6AC3C43F28ADB3A /* ExtrinsicStatusDecodingTests.swift */,
+				9E62720E571314ADDE3CB0AF /* OklinkRequestRegressionTests.swift */,
+				90A44BB3FC29E3C6C9C79B92 /* ScamTypeNormalizationTests.swift */,
+				2D21849A41A2F4573EA86CC5 /* HexColorValidationTests.swift */,
+				2E88C7644F811162F7F8D3AD /* NetworkDateParsingTests.swift */,
+				1CD4A119D13D3900A6732CC1 /* PricesServiceSubscriptionTests.swift */,
 				1C0A34030000000000000002 /* IrohaConnect Tests */,
 				FB2608140000000000000011 /* SoraSubqueryPriceFetcherTests.swift */,
 				84FACB2B25F562CB00F32ED4 /* Resources */,
@@ -20182,6 +20209,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9F85B1FB416AB5622C560377 /* ABIEventDecodingRegressionTests.swift in Sources */,
+				B8629766D501EF7F3DDE20F0 /* TonNFTPreviewRegressionTests.swift in Sources */,
+				A3619122B36347E2AE2E36B0 /* OperationCombiningLifecycleTests.swift in Sources */,
+				9FA25258C6383F4D526E8F4C /* ExtrinsicStatusDecodingTests.swift in Sources */,
+				739B85507661A0889D4D62C4 /* OklinkRequestRegressionTests.swift in Sources */,
+				27FA6EF57ACCA478C5ABA7DD /* ScamTypeNormalizationTests.swift in Sources */,
+				9002ECA9B819990D473F95BA /* HexColorValidationTests.swift in Sources */,
+				2E119E9A98D0018D1DFC3F8A /* NetworkDateParsingTests.swift in Sources */,
+				FF26D6B731581C9CA1DAD936 /* PricesServiceSubscriptionTests.swift in Sources */,
 				1C0A34010000000000000009 /* IrohaConnectProtocolTests.swift in Sources */,
 				1C0A3401000000000000000A /* IrohaConnectAccountProviderTests.swift in Sources */,
 				84B66A1826FE05B00038B963 /* ChainRegistryStub.swift in Sources */,

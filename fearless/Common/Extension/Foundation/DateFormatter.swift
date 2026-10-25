@@ -4,6 +4,8 @@ import SoraFoundation
 extension DateFormatter {
     static var iso: DateFormatter {
         let df = DateFormatter()
+        df.locale = Locale(identifier: "en_US_POSIX")
+        df.calendar = Calendar(identifier: .gregorian)
         df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
         df.timeZone = TimeZone(abbreviation: "UTC")
         return df
@@ -52,6 +54,9 @@ extension DateFormatter {
     static var giantsquidDate: LocalizableResource<DateFormatter> {
         LocalizableResource { _ in
             let dateFormatter = DateFormatter()
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+            dateFormatter.calendar = Calendar(identifier: .gregorian)
+            dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
             dateFormatter.dateFormat = DateStringFormat.subsquid.rawValue
             return dateFormatter
         }
@@ -60,6 +65,9 @@ extension DateFormatter {
     static var suibsquidInputDate: LocalizableResource<DateFormatter> {
         LocalizableResource { _ in
             let dateFormatter = DateFormatter()
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+            dateFormatter.calendar = Calendar(identifier: .gregorian)
+            dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
             dateFormatter.dateFormat = DateStringFormat.subsquidInput.rawValue
             return dateFormatter
         }
@@ -68,6 +76,9 @@ extension DateFormatter {
     static var alchemyDate: LocalizableResource<DateFormatter> {
         LocalizableResource { _ in
             let dateFormatter = DateFormatter()
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+            dateFormatter.calendar = Calendar(identifier: .gregorian)
+            dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
             dateFormatter.dateFormat = DateStringFormat.alchemy.rawValue
             return dateFormatter
         }

@@ -9,29 +9,32 @@ protocol PricesServiceProtocol {
 
 final class PricesService: PricesServiceProtocol {
     static let shared: PricesServiceProtocol = PricesService.create()
-    private let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let chainRepository: AnyDataProviderRepository<ChainModel>
     private let walletRepository: AnyDataProviderRepository<MetaAccountModel>
     private let operationQueue: OperationQueue
     private let logger: Logger
+    private var subscriptionRevision: UInt64 = 0
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private let eventCenter: EventCenter
     private var chainAssets: [ChainAsset] = []
     private var currencies: [SSFModels.Currency] = []
     private var lastRequestDate: Date?
 
-    private init(
+    init(
         chainRepository: AnyDataProviderRepository<ChainModel>,
         walletRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationQueue: OperationQueue,
         logger: Logger,
-        eventCenter: EventCenter
+        eventCenter: EventCenter,
+        priceLocalSubscriber: PriceLocalStorageSubscriber = PriceLocalStorageSubscriberImpl.shared
     ) {
         self.chainRepository = chainRepository
         self.walletRepository = walletRepository
         self.operationQueue = operationQueue
         self.logger = logger
         self.eventCenter = eventCenter
+        self.priceLocalSubscriber = priceLocalSubscriber
     }
 
     func setup() {
@@ -45,7 +48,9 @@ final class PricesService: PricesServiceProtocol {
             let chains = try chainsOperation.extractNoCancellableResultData()
             let chainAssets = chains.map(\.chainAssets).reduce([], +).uniq(predicate: { $0.chainAssetId })
 
-            self?.observePrices(for: chainAssets, currencies: currencies)
+            self?.withState { service in
+                service.observePrices(for: chainAssets, currencies: currencies)
+            }
         }
         subscribeOperation.addDependency(walletsOperation)
         subscribeOperation.addDependency(chainsOperation)
@@ -53,7 +58,9 @@ final class PricesService: PricesServiceProtocol {
     }
 
     func updatePrices() {
-        pricesProvider?.refresh()
+        withState { service in
+            service.pricesProvider?.refresh()
+        }
     }
 }
 
@@ -74,19 +81,30 @@ extension PricesService: PriceLocalSubscriptionHandler {
 }
 
 extension PricesService: EventVisitorProtocol {
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        withState { service in
+            service.observePrices(for: service.chainAssets, currencies: [event.account.selectedCurrency])
+        }
+    }
+
     func processChainSyncDidComplete(event: ChainSyncDidComplete) {
-        let updatedChainAssets = event.newOrUpdatedChains.map(\.chainAssets).reduce([], +).uniq(predicate: { $0.chainAssetId })
-        observePrices(for: updatedChainAssets, currencies: currencies)
+        withState { service in
+            let updatedChainAssets = event.newOrUpdatedChains.map(\.chainAssets).reduce([], +).uniq(predicate: { $0.chainAssetId })
+            service.observePrices(for: updatedChainAssets, currencies: service.currencies)
+        }
     }
 
     func processChainsUpdated(event: ChainsUpdatedEvent) {
-        let updatedChainAssets = event.updatedChains.map(\.chainAssets).reduce([], +).uniq(predicate: { $0.chainAssetId })
-        observePrices(for: updatedChainAssets, currencies: currencies)
+        withState { service in
+            let updatedChainAssets = event.updatedChains.map(\.chainAssets).reduce([], +).uniq(predicate: { $0.chainAssetId })
+            service.observePrices(for: updatedChainAssets, currencies: service.currencies)
+        }
     }
 
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
-        let currency = event.account.selectedCurrency
-        observePrices(for: chainAssets, currencies: [currency])
+        withState { service in
+            service.observePrices(for: service.chainAssets, currencies: [event.account.selectedCurrency])
+        }
     }
 
     func processLogout() {
@@ -95,6 +113,19 @@ extension PricesService: EventVisitorProtocol {
 }
 
 private extension PricesService {
+    // The subscriber also owns its subscriptions on Main. Keep the service scope
+    // there so a background repository completion never blocks Main through a lock.
+    func withState(_ update: @escaping (PricesService) -> Void) {
+        if Thread.isMainThread {
+            update(self)
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                update(self)
+            }
+        }
+    }
+
     static func create() -> PricesServiceProtocol {
         let chainRepository = ChainRepositoryFactory().createRepository()
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
@@ -114,22 +145,29 @@ private extension PricesService {
             !oldAssets.contains(newAsset)
         }
         let oldCurrencies = self.currencies
-        let uniqueCurencies = currencies.filter { newCurrency in
+        let uniqueCurrencies = currencies.filter { newCurrency in
             !oldCurrencies.contains(newCurrency)
         }
-        let timeFromLastRequst = Date().timeIntervalSince(lastRequestDate ?? Date.distantPast)
-        if uniqueAssets.isNotEmpty || uniqueCurencies.isNotEmpty || timeFromLastRequst > 30 {
+        let timeFromLastRequest = Date().timeIntervalSince(lastRequestDate ?? Date.distantPast)
+        if uniqueAssets.isNotEmpty || uniqueCurrencies.isNotEmpty || timeFromLastRequest > 30 {
             let updatedAssets = oldAssets + uniqueAssets
-            let updatedCurrencies = currencies + uniqueCurencies
+            let updatedCurrencies = oldCurrencies + uniqueCurrencies
 
-            pricesProvider = priceLocalSubscriber.subscribeToPrices(
+            // Publish the accumulated scope before subscribing: a provider may
+            // synchronously deliver an event that adds another currency.
+            self.chainAssets = updatedAssets
+            self.currencies = updatedCurrencies
+            lastRequestDate = Date()
+            subscriptionRevision &+= 1
+            let revision = subscriptionRevision
+            let provider = priceLocalSubscriber.subscribeToPrices(
                 for: updatedAssets,
                 currencies: updatedCurrencies,
                 listener: self
             )
-            self.chainAssets = updatedAssets
-            self.currencies = currencies
-            lastRequestDate = Date()
+            if revision == subscriptionRevision {
+                pricesProvider = provider
+            }
         }
     }
 

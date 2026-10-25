@@ -225,7 +225,8 @@ public extension ABIDecoder {
     }
 
     static func decodeLog(event: ABI.Element.Event, eventLogTopics: [Data], eventLogData: Data) -> [String: Any]? {
-        if event.topic != eventLogTopics[0], !event.anonymous {
+        let signatureTopicCount = event.anonymous ? 0 : 1
+        if !event.anonymous, eventLogTopics.first != event.topic {
             return nil
         }
         var eventContent = [String: Any]()
@@ -235,19 +236,16 @@ public extension ABIDecoder {
         let indexedInputs = event.inputs.filter { (inp) -> Bool in
             inp.indexed
         }
-        if logs.count == 1, !indexedInputs.isEmpty {
-            return nil
-        }
         let nonIndexedInputs = event.inputs.filter { (inp) -> Bool in
             !inp.indexed
         }
         let nonIndexedTypes = nonIndexedInputs.compactMap { (inp) -> ABI.Element.ParameterType in
             inp.type
         }
-        guard logs.count == indexedInputs.count + 1 else { return nil }
+        guard logs.count == indexedInputs.count + signatureTopicCount else { return nil }
         var indexedValues = [AnyObject]()
         for i in 0 ..< indexedInputs.count {
-            let data = logs[i + 1]
+            let data = logs[i + signatureTopicCount]
             let input = indexedInputs[i]
             if !input.type.isStatic || input.type.isArray || input.type.memoryUsage != 32 {
                 let (v, _) = ABIDecoder.decodeSignleType(type: .bytes(length: 32), data: data)

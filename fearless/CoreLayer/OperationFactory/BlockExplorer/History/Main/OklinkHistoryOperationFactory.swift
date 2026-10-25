@@ -18,26 +18,30 @@ final class OklinkHistoryOperationFactory {
         return decoded
     }
 
-    private func createOperation(
-        address: String,
-        url: URL,
-        chainAsset: ChainAsset
-    ) -> BaseOperation<OklinkHistoryResponse> {
+    static func historyURL(address: String, url: URL, asset: AssetModel) -> URL? {
         var urlComponents = URLComponents(string: url.absoluteString)
-        var queryItems = urlComponents?.queryItems
-        queryItems?.append(URLQueryItem(name: "address", value: address))
-        queryItems?.append(URLQueryItem(name: "symbol", value: chainAsset.asset.symbol))
+        var queryItems = urlComponents?.queryItems ?? []
+        queryItems.append(URLQueryItem(name: "address", value: address))
+        queryItems.append(URLQueryItem(name: "symbol", value: asset.symbol))
 
-        switch chainAsset.asset.ethereumType {
+        switch asset.ethereumType {
         case .erc20:
-            queryItems?.append(URLQueryItem(name: "protocolType", value: "token_20"))
+            queryItems.append(URLQueryItem(name: "protocolType", value: "token_20"))
         case .bep20, .normal, .none:
             break
         }
 
         urlComponents?.queryItems = queryItems
 
-        guard let urlWithParameters = urlComponents?.url else {
+        return urlComponents?.url
+    }
+
+    private func createOperation(
+        address: String,
+        url: URL,
+        chainAsset: ChainAsset
+    ) -> BaseOperation<OklinkHistoryResponse> {
+        guard let urlWithParameters = Self.historyURL(address: address, url: url, asset: chainAsset.asset) else {
             return BaseOperation.createWithError(SubqueryHistoryOperationFactoryError.urlMissing)
         }
 
@@ -61,7 +65,7 @@ final class OklinkHistoryOperationFactory {
                 if let error {
                     return .failure(error)
                 }
-                return .success(try Self.decodeResponse(data, response: response))
+                return try .success(Self.decodeResponse(data, response: response))
             } catch {
                 return .failure(error)
             }

@@ -1,5 +1,28 @@
 # Roadmap — Fearless Wallet iOS
 
+## Historical branch runtime fixes — 25 October 2026
+
+Adapt nine bounded fixes from the reviewed modernize/fw-adoptation branches:
+ABI signature/anonymous-event bounds, short TON NFT preview arrays, operation
+start/cancel ownership, accumulated wallet-currency subscriptions, runtime ready
+status, queryless OKLink endpoints, normalized scam labels, strict hex colors and
+locale/calendar-independent network dates. Price subscription state now belongs
+to Main, with queued background updates and reentrant revision protection.
+
+Original-source and overlap regressions reproduced the affected behavior,
+including four array-access crashes and cancellation during factory creation.
+Review also reproduced and replaced an intermediate price-subscription lock
+inversion. Final Debug build-for-testing and all 58 focused tests pass with zero
+failures or skips (21 new regressions and 37 existing price/history controls).
+Pinned SwiftFormat passes; scoped SwiftLint has no new rule/file occurrences
+versus its 20 inherited findings. Native ownership and all 16 adversarial guard
+tests pass; no Native source or binary bytes changed. Intermediate failed runs
+and two corrected fixture assertions remain in the historical-runtime-fixes
+validation receipts. Tests use local fixtures, with no network writes.
+
+This does not merge the historical SDK/UI restructuring or qualify unverified
+provider migrations, live providers, signed devices or store distribution.
+
 ## Connection issues and subscription setup completion — 25 October 2026
 
 App and Native issue centers now classify unreachable WebSocket connections as

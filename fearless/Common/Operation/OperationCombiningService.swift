@@ -18,9 +18,15 @@ final class OperationCombiningService<T>: Longrunable {
     let operationManager: OperationManagerProtocol
     let operationsPerBatch: Int
 
-    private(set) var state: State = .waiting
+    private let stateLock = NSLock()
+    private var storedState: State = .waiting
+    private var operations: [Operation] = []
 
-    private var wrappers: [CompoundOperationWrapper<T>]?
+    var state: State {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        return storedState
+    }
 
     init(
         operationManager: OperationManagerProtocol,
@@ -33,12 +39,14 @@ final class OperationCombiningService<T>: Longrunable {
     }
 
     func start(with completionClosure: @escaping (Result<ResultType, Error>) -> Void) {
-        guard state == .waiting else {
+        stateLock.lock()
+        guard storedState == .waiting else {
+            stateLock.unlock()
             completionClosure(.failure(OperationCombiningServiceError.alreadyRunningOrFinished))
             return
         }
-
-        state = .waiting
+        storedState = .running
+        stateLock.unlock()
 
         do {
             let wrappers = try operationsClosure()
@@ -61,8 +69,7 @@ final class OperationCombiningService<T>: Longrunable {
             }
 
             mapOperation.completionBlock = { [weak self] in
-                self?.state = .finished
-                self?.wrappers = nil
+                self?.finish()
 
                 do {
                     let result = try mapOperation.extractNoCancellableResultData()
@@ -75,20 +82,44 @@ final class OperationCombiningService<T>: Longrunable {
             let dependencies = wrappers.flatMap(\.allOperations)
             dependencies.forEach { mapOperation.addDependency($0) }
 
-            operationManager.enqueue(operations: dependencies + [mapOperation], in: .transient)
+            let pendingOperations = dependencies + [mapOperation]
+            stateLock.lock()
+            guard storedState == .running else {
+                stateLock.unlock()
+                // The synchronous factory may finish after cancellation. None of
+                // its newly returned work may escape into the operation queue.
+                mapOperation.completionBlock = nil
+                pendingOperations.forEach { $0.cancel() }
+                completionClosure(.failure(BaseOperationError.parentOperationCancelled))
+                return
+            }
+            operations = pendingOperations
+            stateLock.unlock()
+
+            // Cancellation after publication cancels this exact set, including
+            // the result operation, even if enqueue has not happened yet.
+            operationManager.enqueue(operations: pendingOperations, in: .transient)
 
         } catch {
+            finish()
             completionClosure(.failure(error))
         }
     }
 
     func cancel() {
-        if state == .running {
-            wrappers?.forEach { $0.cancel() }
-            wrappers = nil
-        }
+        stateLock.lock()
+        let pendingOperations = operations
+        operations = []
+        storedState = .finished
+        stateLock.unlock()
+        pendingOperations.forEach { $0.cancel() }
+    }
 
-        state = .finished
+    private func finish() {
+        stateLock.lock()
+        operations = []
+        storedState = .finished
+        stateLock.unlock()
     }
 }
 
