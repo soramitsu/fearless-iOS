@@ -1011,7 +1011,7 @@ final class CrossChainReviewedRouteTests: XCTestCase {
     static func registryChains() throws -> [ChainModel] {
         if let cachedChains { return cachedChains }
         let url = try XCTUnwrap(Bundle(for: CrossChainReviewedRouteTests.self).url(
-            forResource: "chains_v13_20261009", withExtension: "json", subdirectory: "Registry"
+            forResource: "chains_v13_owned_20261029", withExtension: "json", subdirectory: "Registry"
         ))
         let data = try Data(contentsOf: url)
         let chains: [ChainModel]
@@ -1133,6 +1133,192 @@ final class CrossChainReviewedRouteTests: XCTestCase {
             recipientAddress: "recipient",
             reviewedRoute: ReviewedCrossChainRouteContext(definition: definition, providerId: "sora-liberland-xcm")
         )
+    }
+}
+
+/// The app reads its chain list and XCM files from `remote-config/production` in this repository. These tests read the
+/// same files from the checkout and hold them to the compiled route registry, so an edit cannot quietly hide a reviewed
+/// route, change an identity or a precision it depends on, or bring back a retired direction.
+final class CrossChainOwnedRemoteConfigTests: XCTestCase {
+    private static let liberlandId = ReviewedXcmRouteRegistry.liberlandChainId
+    private static let soraId = ReviewedXcmRouteRegistry.soraChainId
+
+    /// Networks that can no longer receive anything: Moonbeam (2004), Moonriver (2023) and Parallel (2012) are no
+    /// longer registered on their relay chains, and SORA's parachains on Polkadot (2025) and Kusama (2011) are halted.
+    private static let deadChainIds: Set<ChainModel.Id> = [
+        "fe58ea77779b7abda7da4ec526d14db9b1e9cd40a217c34892af80a9b332b76d",
+        "401a1f9dca3da46f5c4091016c8a2f26dcea05865116b286f60f668207d1474b",
+        "e61a41c53f5dcd0beb09df93b34402aada44cb05117b71059cce40a2723a4e97",
+        "e92d165ad41e41e215d09713788173aecfdbe34d3bed29409d33a2ef03980738",
+        "6d8d9f145c2177fa83512492cdd80a71e29f22473f4a8943a6292149ac319fb9"
+    ]
+
+    func testOwnedChainListResolvesEveryReviewedRouteExactly() throws {
+        let chains = try Self.ownedChains()
+        let chainsById = Dictionary(chains.map { ($0.chainId, $0) }, uniquingKeysWith: { first, _ in first })
+        XCTAssertEqual(chainsById.count, chains.count, "Chain ids must be unique")
+        let sora = try XCTUnwrap(chainsById[Self.soraId])
+
+        XCTAssertEqual(ReviewedXcmRouteRegistry.routes.map(\.originSymbol).sorted(), ["LLD", "LLM", "XOR"])
+        for definition in ReviewedXcmRouteRegistry.routes {
+            let symbol = definition.originSymbol
+            let (origin, destinationNames) = try XCTUnwrap(
+                ReviewedXcmRouteRegistry.validatedOrigin(for: definition, chainsById: chainsById),
+                symbol
+            )
+            XCTAssertEqual(destinationNames, [sora.name], symbol)
+            XCTAssertEqual(origin.chain.chainId, Self.liberlandId, symbol)
+            XCTAssertEqual(origin.asset.id, definition.originAssetId, symbol)
+            XCTAssertEqual(origin.asset.precision, definition.originPrecision, symbol)
+            XCTAssertTrue(definition.execution.asset.validates(origin.asset), symbol)
+            XCTAssertFalse(origin.chain.disabled, symbol)
+            XCTAssertEqual(origin.chain.xcm?.xcmVersion, .V3, symbol)
+            XCTAssertEqual(
+                origin.chain.xcm?.availableAssets.filter { $0.id == definition.xcmAssetId }.count,
+                1,
+                symbol
+            )
+
+            let destination = try XCTUnwrap(ReviewedXcmRouteRegistry.destinationChainAsset(for: definition, in: sora))
+            let reviewedDestination = try XCTUnwrap(definition.execution.destinationAsset)
+            XCTAssertEqual(destination.asset.id, reviewedDestination.catalogAssetId, symbol)
+            XCTAssertEqual(destination.asset.precision, reviewedDestination.precision, symbol)
+            XCTAssertEqual(destination.asset.currencyId, reviewedDestination.currencyId, symbol)
+
+            let context = ReviewedCrossChainRouteContext(
+                definition: definition,
+                providerId: ReviewedXcmRouteRegistry.providerId(for: definition)
+            )
+            XCTAssertEqual(ReviewedXcmRouteRegistry.definition(for: context), definition, symbol)
+            XCTAssertTrue(context.validates(origin: origin, destination: sora), symbol)
+            XCTAssertNoThrow(
+                try ReviewedCrossChainSubmissionValidator.validateReviewedRoute(
+                    origin: origin,
+                    destination: sora,
+                    reviewedRoute: context,
+                    executionAdapterAvailable: true
+                ),
+                symbol
+            )
+            // Every node of the origin is reached over TLS.
+            XCTAssertFalse(origin.chain.nodes.isEmpty, symbol)
+            XCTAssertTrue(origin.chain.nodes.allSatisfy { $0.url.scheme?.lowercased() == "wss" }, symbol)
+        }
+    }
+
+    func testOwnedChainListOffersNoRetiredDirection() throws {
+        let chains = try Self.ownedChains()
+        let chainsById = Dictionary(chains.map { ($0.chainId, $0) }, uniquingKeysWith: { first, _ in first })
+
+        for definition in ReviewedXcmRouteRegistry.retiredRoutes {
+            let origin = try XCTUnwrap(chainsById[definition.originChainId], definition.originSymbol)
+            let offered = (origin.xcm?.availableDestinations ?? []).filter { destination in
+                definition.destinationChainIds.contains(destination.chainId) &&
+                    destination.assets.contains { $0.id == definition.xcmAssetId }
+            }
+            XCTAssertTrue(offered.isEmpty, "\(definition.originSymbol) to \(definition.execution.destinationChainId)")
+            XCTAssertNil(ReviewedXcmRouteRegistry.validatedOrigin(for: definition, chainsById: chainsById))
+        }
+        // The chains stay in the list, because saved balances and addresses refer to them.
+        XCTAssertEqual(
+            Set(Self.deadChainIds.compactMap { chainsById[$0]?.paraId }),
+            ["2004", "2023", "2012", "2025", "2011"]
+        )
+        for chain in chains {
+            for destination in chain.xcm?.availableDestinations ?? [] {
+                XCTAssertFalse(Self.deadChainIds.contains(destination.chainId), "\(chain.name) -> \(destination.chainId)")
+            }
+        }
+    }
+
+    func testOwnedFeeFileAgreesWithTheRegistryAndNamesNoDeadDestination() throws {
+        let chains = try Self.ownedChains()
+        let chainsById = Dictionary(chains.map { ($0.chainId, $0) }, uniquingKeysWith: { first, _ in first })
+        let fees = try JSONDecoder().decode([XcmFee].self, from: Self.ownedFile("xcm/v2/xcm_fees.json"))
+
+        XCTAssertTrue(fees.allSatisfy { !Self.deadChainIds.contains($0.chainId) })
+        XCTAssertEqual(Set(fees.map(\.chainId)).count, fees.count, "One fee entry per destination")
+
+        // The reviewed routes use their compiled fee; the file must not contradict it.
+        let soraFees = try XCTUnwrap(fees.first { $0.chainId == Self.soraId })
+        for definition in ReviewedXcmRouteRegistry.routes {
+            let rows = soraFees.destXcmFee.filter { $0.symbol == definition.originSymbol }
+            XCTAssertLessThanOrEqual(rows.count, 1, definition.originSymbol)
+            guard let row = rows.first else { continue }
+            let precision = try XCTUnwrap(row.precision.flatMap { Int16($0) }, definition.originSymbol)
+            XCTAssertEqual(UInt16(precision), definition.execution.destinationAsset?.precision, definition.originSymbol)
+            let fee = try XCTUnwrap(row.feeInPlanks, definition.originSymbol)
+            XCTAssertEqual(
+                Decimal.fromSubstrateAmount(fee, precision: precision),
+                Decimal.fromSubstrateAmount(
+                    try ReviewedXcmRouteRegistry.destinationFee(for: definition),
+                    precision: Int16(definition.originPrecision)
+                ),
+                definition.originSymbol
+            )
+        }
+        // Only Liberland's own assets arrive there; every stated precision is the one in Liberland's catalog.
+        let liberland = try XCTUnwrap(chainsById[Self.liberlandId])
+        let liberlandFees = try XCTUnwrap(fees.first { $0.chainId == Self.liberlandId })
+        for row in liberlandFees.destXcmFee {
+            let asset = try XCTUnwrap(liberland.assets.first { $0.symbol.uppercased() == row.symbol.uppercased() })
+            XCTAssertEqual(row.precision, String(asset.precision), row.symbol)
+        }
+    }
+
+    func testOwnedTokenLocationsUseWellFormedIdsAndNoDeadParachain() throws {
+        let data = try Self.ownedFile("xcm/v2/xcm_token_locations.json")
+        let groups = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [[String: Any]])
+        let uuid = try NSRegularExpression(pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+        let deadParachains: [ChainModel.Id: Set<Int>] = [
+            "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3": [2004, 2012, 2025],
+            "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe": [2011, 2023]
+        ]
+
+        for group in groups {
+            let chainId = try XCTUnwrap(group["chainId"] as? String)
+            // Locations keyed by SORA Mainnet served only transfers through SORA's halted parachains.
+            XCTAssertNotEqual(chainId, Self.soraId)
+            for asset in try XCTUnwrap(group["assets"] as? [[String: Any]]) {
+                let id = try XCTUnwrap(asset["id"] as? String)
+                XCTAssertEqual(uuid.numberOfMatches(in: id, range: NSRange(id.startIndex..., in: id)), 1, id)
+                let parachains = (asset["interiors"] as? [[String: Any]] ?? []).compactMap { $0["parachain"] as? Int }
+                XCTAssertTrue(
+                    Set(parachains).isDisjoint(with: deadParachains[chainId] ?? []),
+                    "\(id) names a parachain that can no longer receive"
+                )
+            }
+        }
+    }
+
+    // MARK: - Owned files
+
+    private static var cachedChains: [ChainModel]?
+
+    /// `remote-config/production` of the checkout these tests were built from.
+    private static func ownedFile(_ path: String) throws -> Data {
+        let repository = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        return try Data(contentsOf: repository.appendingPathComponent("remote-config/production/\(path)"))
+    }
+
+    private static func ownedChains() throws -> [ChainModel] {
+        if let cachedChains { return cachedChains }
+        let data = try ownedFile("chains/v13/chains.json")
+        let chains: [ChainModel]
+        if let decoded = try? JSONDecoder().decode([ChainModel].self, from: data) {
+            chains = decoded
+        } else {
+            chains = try JSONDecoder().decode(
+                [ChainModel].self,
+                from: ChainSyncService.coerceChainsPayloadForCompatibility(data)
+            )
+        }
+        cachedChains = chains
+        return chains
     }
 }
 
