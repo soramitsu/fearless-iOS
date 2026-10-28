@@ -7,7 +7,7 @@ repository on 2026-10-29: the chain list release builds read
 live files under `remote-config/production` instead, so every edit there is checked against the compiled route
 registry.
 
-- sha256: `373462d72052835bd02bf38018cb83478194bed96759c542120773aaae35d37b`
+- sha256: `0546203ea2bb0b56a9563200334e9e3ba4675540fd08dab6888be6c6328c81ae`
 - 116 chains
 
 `chains_v13_20261009.json` is a byte copy of

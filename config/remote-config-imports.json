@@ -160,7 +160,7 @@
       "commit": "f2ed4ccf1d3a6376b60ebd69d823a3f7748ddc4b",
       "sourcePath": "chains/v13/chains_dev.json",
       "upstreamSha256": "5726b01a5364d955e250939c71082c03f97da0dc9512ac9d120c6a2085173d05",
-      "ownedSha256": "97da306bd729c9b571d4483a9258210d425c6abe32da06d7a2ef721e26f508d4"
+      "ownedSha256": "8c02de0fce958b81d23e4fbb03b2b216e11c4d08a65404369d033d94c6f7af76"
     },
     {
       "path": "development/chains/v9/chains_dev.json",
@@ -168,7 +168,7 @@
       "commit": "f2ed4ccf1d3a6376b60ebd69d823a3f7748ddc4b",
       "sourcePath": "chains/v9/chains_dev.json",
       "upstreamSha256": "628b6749b14ee787323ba3d72c1c351f2cbff02ca47782796f4dce81bad34a07",
-      "ownedSha256": "946ff648583f0b0a4cc099bdb9d0fdf4e9502fe626c90106f51d7ce17587e203"
+      "ownedSha256": "90b63d65935f7178b04bda399b6aba979bef164a76cd40b87c57a7a12b2e83bf"
     },
     {
       "path": "development/fiat/fiats.json",
@@ -4048,7 +4048,7 @@
       "commit": "ca1c2655ff541ae5942d820423962d34fd29d7f9",
       "sourcePath": "chains/v13/chains.json",
       "upstreamSha256": "79a583f08f71139a31e00c825c746891cef50c04aa81318aaa492807757b9cec",
-      "ownedSha256": "373462d72052835bd02bf38018cb83478194bed96759c542120773aaae35d37b"
+      "ownedSha256": "0546203ea2bb0b56a9563200334e9e3ba4675540fd08dab6888be6c6328c81ae"
     },
     {
       "path": "production/chains/v2/chains.json",
@@ -4056,7 +4056,7 @@
       "commit": "ca1c2655ff541ae5942d820423962d34fd29d7f9",
       "sourcePath": "chains/v2/chains.json",
       "upstreamSha256": "b7626f25e62a4e7a2bd9bfcb94e8cfdeca53c269f32c3a9551601a4a77c0e66b",
-      "ownedSha256": "01a6e3ba703a4594b1a032905413041891f9e777bb6a1d7700866f26fa3cd255"
+      "ownedSha256": "44af385f2608cf27a644c338ef0067aa60aa1c0d2663a43609bc20f097f35752"
     },
     {
       "path": "production/chains/v9/chains.json",
@@ -4064,7 +4064,7 @@
       "commit": "ca1c2655ff541ae5942d820423962d34fd29d7f9",
       "sourcePath": "chains/v9/chains.json",
       "upstreamSha256": "7bf099748b92db438635025bb5009bb77e966b3473008a48969a261da7998f57",
-      "ownedSha256": "1ab96e624590262d10e64602d596fefcf005e963b3b27ce0a090313282010346"
+      "ownedSha256": "b1c561a4744128ac3008239ac787ae7472811fd0f957046dab493e3eedc54adc"
     },
     {
       "path": "production/fiat/fiats.json",
@@ -8283,6 +8283,18 @@
         "Remove the token location with the malformed ASTR id 5ab1e8d-81ed-4130-9d29-55b549cc6bab; it equals the Astar catalog asset id, which stays unchanged, and no route reads it",
         "Set the Liberland destination fee precision of XOR to 18, the precision of XOR on Liberland",
         "Chain lists and their XCM routes are unchanged"
+      ]
+    },
+    {
+      "files": [
+        "remote-config/production/chains/v13/chains.json",
+        "remote-config/production/chains/v9/chains.json",
+        "remote-config/production/chains/v2/chains.json",
+        "remote-config/development/chains/v13/chains_dev.json",
+        "remote-config/development/chains/v9/chains_dev.json"
+      ],
+      "changes": [
+        "Keep XCM availableDestinations only for routes with a bundled definition: Polkadot -> Polkadot Asset Hub DOT, Kusama -> Kusama Asset Hub KSM and Liberland -> SORA LLD, LLM, XOR. Live dry runs on 2026-10-28 found Karura -> Kusama Asset Hub RMRK trapping funds on Asset Hub, RMRK from Kusama Asset Hub, Karura -> Bifrost BNC and Bifrost -> Karura KSM refused at the origin, and Rococo gone; no current build executes the other routes. Nothing outside availableDestinations changed."
       ]
     }
   ]

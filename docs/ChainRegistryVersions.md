@@ -6,8 +6,8 @@ from `remote-config/` here, through `https://raw.githubusercontent.com/soramitsu
 
 | Artifact | Path | Size (bytes) | SHA256 |
 | --- | --- | ---: | --- |
-| Prod chains list | `remote-config/production/chains/v13/chains.json` | 300,939 | `373462d72052835bd02bf38018cb83478194bed96759c542120773aaae35d37b` |
-| Dev chains list | `remote-config/development/chains/v13/chains_dev.json` | 332,518 | `97da306bd729c9b571d4483a9258210d425c6abe32da06d7a2ef721e26f508d4` |
+| Prod chains list | `remote-config/production/chains/v13/chains.json` | 298,148 | `0546203ea2bb0b56a9563200334e9e3ba4675540fd08dab6888be6c6328c81ae` |
+| Dev chains list | `remote-config/development/chains/v13/chains_dev.json` | 329,157 | `8c02de0fce958b81d23e4fbb03b2b216e11c4d08a65404369d033d94c6f7af76` |
 | Prod chain types | `remote-config/production/chains/all_chains_types.json` | 415,606 | `ced6c59d8fb198dada4f43994fb5c3d9ea7109a5f691cc278ead97bcc7fcb90e` |
 | Dev chain types | `remote-config/development/chains/all_chains_types.json` | 408,802 | `d270d62d4f9a0f1c0bacea7bb7909df513d083ee600ec76fbd41b04f55893d2d` |
 
