@@ -1498,3 +1498,6 @@ thuộc đúng mạng";
 /* Solana confirm: recipient token account deposit */
 "solana.transfer.account_creation.title" = "Thiết lập tài khoản người nhận";
 "solana.transfer.account_creation.included" = "Đã gồm trong phí mạng";
+
+/* Cross-chain confirm: the record of recent transfers cannot be read, so nothing new is sent for a day */
+"cross_chain.dispatch.journal_unreadable" = "Fearless không thể đọc bản ghi các giao dịch chuyển chuỗi chéo gần đây, nên không thể biết giao dịch này đã được gửi hay chưa. Chưa có gì được gửi. Hãy kiểm tra lịch sử của tài khoản nguồn. Bạn có thể thực hiện giao dịch chuyển chuỗi chéo mới sau 24 giờ kể từ khi bản ghi không đọc được.";

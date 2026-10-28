@@ -1525,3 +1525,6 @@ Euro cash";
 /* Solana confirm: recipient token account deposit */
 "solana.transfer.account_creation.title" = "Открытие счёта получателя";
 "solana.transfer.account_creation.included" = "Входит в комиссию сети";
+
+/* Cross-chain confirm: the record of recent transfers cannot be read, so nothing new is sent for a day */
+"cross_chain.dispatch.journal_unreadable" = "Fearless не может прочитать запись о недавних кросс-чейн переводах, поэтому не может определить, был ли этот перевод уже отправлен. Ничего не отправлено. Проверьте историю исходного счёта. Новые кросс-чейн переводы снова станут доступны через 24 часа после того, как запись стала нечитаемой.";

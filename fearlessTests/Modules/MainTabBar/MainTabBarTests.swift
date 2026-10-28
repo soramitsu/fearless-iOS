@@ -2386,7 +2386,7 @@ final class MainTabBarTests: XCTestCase {
         XCTAssertEqual(output.error as? ReviewedCrossChainSubmissionError, .selectedWalletChanged)
         XCTAssertEqual(executor.submitCount, 0)
         // Nothing left the app, so no record may ask the user about a transfer that never happened.
-        XCTAssertNil(journal.unresolved(for: "final-guard-transfer", now: Date()))
+        XCTAssertTrue(try journal.unresolved(for: "final-guard-transfer", now: Date()).isEmpty)
     }
 
     func testHeldIrohaAssetInjectionPreservesMissingMetadataTrust() async throws {
@@ -4242,7 +4242,7 @@ private final class ReviewedCrossChainConfirmationOutputSpy: CrossChainConfirmat
         expectation.fulfill()
     }
 
-    func didFindUnresolvedSubmission(_: ReviewedCrossChainSubmissionRecord) {
+    func didFindUnresolvedSubmission(_: [ReviewedCrossChainSubmissionRecord]) {
         expectation.fulfill()
     }
 }

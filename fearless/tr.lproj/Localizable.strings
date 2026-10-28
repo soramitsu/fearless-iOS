@@ -1496,3 +1496,6 @@ ait olduğundan emin olun.";
 /* Solana confirm: recipient token account deposit */
 "solana.transfer.account_creation.title" = "Alıcı hesabı kurulumu";
 "solana.transfer.account_creation.included" = "Ağ ücretine dahildir";
+
+/* Cross-chain confirm: the record of recent transfers cannot be read, so nothing new is sent for a day */
+"cross_chain.dispatch.journal_unreadable" = "Fearless son çapraz zincir transferlerinin kaydını okuyamıyor, bu yüzden bu transferin daha önce gönderilip gönderilmediğini anlayamıyor. Hiçbir şey gönderilmedi. Kaynak hesabın geçmişini kontrol edin. Yeni çapraz zincir transferleri, kayıt okunamaz hale geldikten 24 saat sonra yeniden yapılabilir.";

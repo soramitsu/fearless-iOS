@@ -469,13 +469,13 @@ final class CrossChainReviewedRouteTests: XCTestCase {
         let executor = ScriptedExecutor(submitError: JSONRPCEngineError.timeout)
         executor.onSubmit = {
             // The record must already exist while the extrinsic is being handed over.
-            XCTAssertEqual(journal.unresolved(for: "transfer", now: Date())?.status, .submitting)
+            XCTAssertEqual((try? journal.unresolved(for: "transfer", now: Date()))?.first?.status, .submitting)
         }
         let output = try submit(executor: executor, journal: journal)
 
         XCTAssertEqual(output.error as? ReviewedCrossChainDispatchError, .submissionInDoubt)
         XCTAssertEqual(executor.submitCount, 1)
-        XCTAssertEqual(journal.unresolved(for: "transfer", now: Date())?.status, .inDoubt)
+        XCTAssertEqual(try journal.unresolved(for: "transfer", now: Date()).first?.status, .inDoubt)
     }
 
     func testRepeatingAnUnresolvedTransferNeedsExplicitConfirmation() throws {
@@ -484,7 +484,7 @@ final class CrossChainReviewedRouteTests: XCTestCase {
 
         let first = try submit(executor: executor, journal: journal)
         XCTAssertEqual(first.result, .unconfirmed(extrinsicHash: "0xhash"))
-        XCTAssertEqual(journal.unresolved(for: "transfer", now: Date())?.extrinsicHash, "0xhash")
+        XCTAssertEqual(try journal.unresolved(for: "transfer", now: Date()).first?.extrinsicHash, "0xhash")
 
         let second = try submit(executor: executor, journal: journal)
         XCTAssertEqual(second.unresolved?.transferKey, "transfer")
@@ -495,7 +495,7 @@ final class CrossChainReviewedRouteTests: XCTestCase {
         XCTAssertEqual(executor.submitCount, 2)
 
         // A day later the record no longer stands in the way.
-        XCTAssertNil(journal.unresolved(for: "transfer", now: Date().addingTimeInterval(25 * 60 * 60)))
+        XCTAssertTrue(try journal.unresolved(for: "transfer", now: Date().addingTimeInterval(25 * 60 * 60)).isEmpty)
     }
 
     func testDispatchOutcomeDecidesWhatTheUserSees() throws {
@@ -503,7 +503,7 @@ final class CrossChainReviewedRouteTests: XCTestCase {
         let failed = try submit(executor: ScriptedExecutor(outcome: .failed(blockHash: "0xblock")), journal: failedJournal)
         XCTAssertEqual(failed.error as? ReviewedCrossChainDispatchError, .extrinsicFailed(extrinsicHash: "0xhash"))
         // Nothing was burned, so nothing should ask before a retry.
-        XCTAssertNil(failedJournal.unresolved(for: "transfer", now: Date()))
+        XCTAssertTrue(try failedJournal.unresolved(for: "transfer", now: Date()).isEmpty)
 
         let succeededJournal = makeJournal()
         let succeeded = try submit(
@@ -511,7 +511,7 @@ final class CrossChainReviewedRouteTests: XCTestCase {
             journal: succeededJournal
         )
         XCTAssertEqual(succeeded.result, .awaitingBridge(extrinsicHash: "0xhash"))
-        let record = try XCTUnwrap(succeededJournal.unresolved(for: "transfer", now: Date()))
+        let record = try XCTUnwrap(try succeededJournal.unresolved(for: "transfer", now: Date()).first)
         XCTAssertEqual(record.status, .awaitingBridge)
         XCTAssertEqual(record.blockHash, "0xblock")
 
@@ -522,7 +522,7 @@ final class CrossChainReviewedRouteTests: XCTestCase {
         )
         let rejected = try submit(executor: ScriptedExecutor(submitError: rejection), journal: rejectedJournal)
         XCTAssertTrue(rejected.error is JSONRPCError)
-        XCTAssertNil(rejectedJournal.unresolved(for: "transfer", now: Date()))
+        XCTAssertTrue(try rejectedJournal.unresolved(for: "transfer", now: Date()).isEmpty)
     }
 
     func testOnlyExplicitAuthorRpcRefusalsProveNoAdmission() {
@@ -546,13 +546,103 @@ final class CrossChainReviewedRouteTests: XCTestCase {
             let first = try submit(executor: executor, journal: journal)
             XCTAssertEqual(first.error as? ReviewedCrossChainDispatchError, .submissionInDoubt)
             XCTAssertEqual(executor.submitCount, 1)
-            XCTAssertEqual(journal.unresolved(for: "transfer", now: Date())?.status, .inDoubt)
+            XCTAssertEqual(try journal.unresolved(for: "transfer", now: Date()).first?.status, .inDoubt)
 
             let repeated = try submit(executor: executor, journal: journal)
             XCTAssertEqual(repeated.unresolved?.transferKey, "transfer")
             XCTAssertNil(repeated.result)
             XCTAssertEqual(executor.submitCount, 1, "An uncertain RPC response cannot authorize a second submission")
         }
+    }
+
+    func testARepeatThatEndsInARefusalNeverClearsTheEarlierAttempt() throws {
+        let rejection = JSONRPCError(message: "1010: Invalid Transaction", code: 1010, data: nil)
+        let repeatEndings: [ScriptedExecutor] = [
+            // The node refuses the repeat, for example because the first attempt already used the funds.
+            ScriptedExecutor(submitError: rejection, extrinsicHash: "0xsecond"),
+            // A local refusal right before hand-off.
+            ScriptedExecutor(submitError: MutationAuthorizationError.denied, extrinsicHash: "0xsecond"),
+            // The runtime rejects the repeat in its block.
+            ScriptedExecutor(outcome: .failed(blockHash: "0xblock"), extrinsicHash: "0xsecond")
+        ]
+
+        for repeatExecutor in repeatEndings {
+            let journal = makeJournal()
+            let first = try submit(executor: ScriptedExecutor(outcome: .unknown, extrinsicHash: "0xfirst"), journal: journal)
+            XCTAssertEqual(first.result, .unconfirmed(extrinsicHash: "0xfirst"))
+
+            let repeated = try submit(executor: repeatExecutor, journal: journal, confirmingRepeat: true)
+            XCTAssertNotNil(repeated.error)
+            XCTAssertEqual(repeatExecutor.submitCount, 1)
+
+            // The first attempt may have burned the funds, so a third try still has to ask.
+            let third = ScriptedExecutor(outcome: .unknown, extrinsicHash: "0xthird")
+            let fenced = try submit(executor: third, journal: journal)
+            XCTAssertEqual(fenced.unresolvedAttempts.map(\.extrinsicHash), ["0xfirst"])
+            XCTAssertEqual(third.submitCount, 0)
+        }
+    }
+
+    func testEveryUnresolvedAttemptIsKeptAndShown() throws {
+        let journal = makeJournal()
+        _ = try submit(executor: ScriptedExecutor(outcome: .unknown, extrinsicHash: "0xfirst"), journal: journal)
+        let second = ScriptedExecutor(submitError: JSONRPCEngineError.timeout, extrinsicHash: "0xsecond")
+        let inDoubt = try submit(executor: second, journal: journal, confirmingRepeat: true)
+        XCTAssertEqual(inDoubt.error as? ReviewedCrossChainDispatchError, .submissionInDoubt)
+
+        let third = ScriptedExecutor(outcome: .unknown)
+        let fenced = try submit(executor: third, journal: journal)
+        XCTAssertEqual(third.submitCount, 0)
+        XCTAssertEqual(fenced.unresolvedAttempts.count, 2)
+        XCTAssertEqual(Set(fenced.unresolvedAttempts.map(\.status)), [.inDoubt])
+        XCTAssertEqual(fenced.unresolvedAttempts.compactMap(\.extrinsicHash), ["0xfirst"])
+        XCTAssertEqual(Set(fenced.unresolvedAttempts.compactMap(\.attemptId)).count, 2)
+    }
+
+    func testRecordsWrittenBeforeAttemptsWereKeptApartStillFence() throws {
+        let suiteName = "CrossChainReviewedRouteTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        addTeardownBlock { defaults.removePersistentDomain(forName: suiteName) }
+        let now = Date()
+        // The format the journal wrote before it kept attempts apart: one record per transfer key, no attempt id.
+        let legacy = #"{"transfer":{"createdAt":\#(Int(now.timeIntervalSince1970 * 1000)),"extrinsicHash":"0xlegacy","intentSha256":"\#(String(repeating: "b", count: 64))","status":"inDoubt","summary":"2 LLD","transferKey":"transfer","updatedAt":\#(Int(now.timeIntervalSince1970 * 1000))}}"#
+        defaults.set(Data(legacy.utf8), forKey: "cross_chain.submission_journal.v1")
+        let journal = ReviewedCrossChainSubmissionJournal(userDefaults: defaults, logger: nil)
+
+        let legacyRecord = try XCTUnwrap(try journal.unresolved(for: "transfer", now: now).first)
+        XCTAssertNil(legacyRecord.attemptId)
+        XCTAssertEqual(legacyRecord.extrinsicHash, "0xlegacy")
+
+        let refused = ScriptedExecutor(submitError: JSONRPCError(message: "Pool refusal", code: 1010, data: nil))
+        _ = try submit(executor: refused, journal: journal, confirmingRepeat: true)
+        XCTAssertEqual(try journal.unresolved(for: "transfer", now: Date()).map(\.extrinsicHash), ["0xlegacy"])
+    }
+
+    func testAnUnreadableJournalStopsNewTransfersForOneConfirmationWindow() throws {
+        let suiteName = "CrossChainReviewedRouteTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        addTeardownBlock { defaults.removePersistentDomain(forName: suiteName) }
+        defaults.set(Data("not a journal".utf8), forKey: "cross_chain.submission_journal.v1")
+        let journal = ReviewedCrossChainSubmissionJournal(userDefaults: defaults, logger: nil)
+        let executor = ScriptedExecutor(outcome: .unknown)
+
+        // The damaged records may hold an attempt of this very transfer, so nothing is sent, not even a repeat.
+        for confirmingRepeat in [false, true] {
+            let refused = try submit(executor: executor, journal: journal, confirmingRepeat: confirmingRepeat)
+            XCTAssertEqual(refused.error as? ReviewedCrossChainDispatchError, .journalUnreadable)
+        }
+        XCTAssertEqual(executor.submitCount, 0)
+        XCTAssertThrowsError(try journal.unresolved(for: "transfer", now: Date().addingTimeInterval(23 * 60 * 60)))
+        XCTAssertNotNil(defaults.data(forKey: "cross_chain.submission_journal.v1.unreadable"))
+
+        // A day after the damage was found, none of those records could still stand in the way.
+        let dayLater = Date().addingTimeInterval(25 * 60 * 60)
+        let resumed = try submit(executor: executor, journal: journal, now: { dayLater })
+        XCTAssertEqual(resumed.result, .unconfirmed(extrinsicHash: "0xhash"))
+        XCTAssertEqual(executor.submitCount, 1)
+        XCTAssertNil(defaults.data(forKey: "cross_chain.submission_journal.v1.unreadable"))
+        XCTAssertEqual(try journal.unresolved(for: "transfer", now: dayLater).count, 1)
+        try assertEveryBundledLocalizationHas("cross_chain.dispatch.journal_unreadable")
     }
 
     func testDispatchWatcherReadsTheExtrinsicsOwnEvents() throws {
@@ -643,9 +733,77 @@ final class CrossChainReviewedRouteTests: XCTestCase {
         )
     }
 
+    func testAFailureCountsOnlyFromAFinalizedBlock() async throws {
+        let failed = try Self.blockFixture("liberland-block-18541863-failed")
+        let succeeded = try Self.blockFixture("liberland-block-18541863")
+        let inBlock = #"{"inBlock":"\#(failed.blockHash)"}"#
+        let finalized = #"{"finalized":"\#(failed.blockHash)"}"#
+
+        // Seen only in a best block, which can be retracted: the transfer stays in doubt.
+        let bestBlockFailure = try await watchOutcome(of: failed, statuses: [inBlock])
+        XCTAssertEqual(bestBlockFailure, .unknown)
+        let endedSubscription = try await watchOutcome(of: failed, statuses: [inBlock], endsSubscription: true)
+        XCTAssertEqual(endedSubscription, .unknown)
+        let finalizedFailure = try await watchOutcome(of: failed, statuses: [inBlock, finalized])
+        XCTAssertEqual(finalizedFailure, .failed(blockHash: failed.blockHash))
+
+        // A success keeps the record either way, so a best block is enough to report it.
+        let bestBlockSuccess = try await watchOutcome(of: succeeded, statuses: [inBlock])
+        XCTAssertEqual(bestBlockSuccess, .succeeded(blockHash: succeeded.blockHash))
+        let nothingIncluded = try await watchOutcome(of: succeeded, statuses: [#""ready""#])
+        XCTAssertEqual(nothingIncluded, .unknown)
+
+        XCTAssertEqual(
+            ReviewedCrossChainDispatchWatcher.settled(.failed(blockHash: "0xblock"), isFinalized: false),
+            .unknown
+        )
+        XCTAssertEqual(
+            ReviewedCrossChainDispatchWatcher.settled(.failed(blockHash: "0xblock"), isFinalized: true),
+            .failed(blockHash: "0xblock")
+        )
+    }
+
     // MARK: - Helpers
 
     private static var cachedChains: [ChainModel]?
+
+    fileprivate static func blockFixture(_ name: String) throws -> LiberlandBlockFixture {
+        let url = try XCTUnwrap(Bundle(for: CrossChainReviewedRouteTests.self).url(
+            forResource: name, withExtension: "json", subdirectory: "Registry"
+        ))
+        return try JSONDecoder().decode(LiberlandBlockFixture.self, from: Data(contentsOf: url))
+    }
+
+    /// Every localization the app bundles carries `key`, so no language falls back to the key or another language.
+    func assertEveryBundledLocalizationHas(_ key: String, file: StaticString = #filePath, line: UInt = #line) throws {
+        for language in ["en", "id", "ja", "pt-PT", "ru", "tr", "vi", "zh-Hans"] {
+            let bundle = try XCTUnwrap(
+                Bundle.main.path(forResource: language, ofType: "lproj").flatMap(Bundle.init(path:)),
+                language,
+                file: file,
+                line: line
+            )
+            let value = bundle.localizedString(forKey: key, value: "missing", table: nil)
+            XCTAssertNotEqual(value, "missing", "\(language): \(key)", file: file, line: line)
+            XCTAssertFalse(value.isEmpty, "\(language): \(key)", file: file, line: line)
+        }
+    }
+
+    /// Runs the dispatch watcher against `block` while the node reports `statuses` for the block's signed extrinsic.
+    private func watchOutcome(
+        of block: LiberlandBlockFixture,
+        statuses: [String],
+        endsSubscription: Bool = false
+    ) async throws -> ReviewedCrossChainDispatchOutcome {
+        let engine = ScriptedWatchEngine(block: block, statuses: statuses, endsSubscription: endsSubscription)
+        let watcher = ReviewedCrossChainDispatchWatcher(
+            connection: engine,
+            runtime: RuntimeCodingServiceStub(factory: try Self.liberlandCoderFactory()),
+            timeout: 0.5
+        )
+        let hash = try Data(hexStringSSF: block.extrinsics[block.extrinsicIndex]).blake2b32().toHex(includePrefix: true)
+        return await watcher.outcome(subscriptionId: "subscription", extrinsicHash: hash)
+    }
 
     static func registryChains() throws -> [ChainModel] {
         if let cachedChains { return cachedChains }
@@ -727,7 +885,8 @@ final class CrossChainReviewedRouteTests: XCTestCase {
     private func submit(
         executor: ScriptedExecutor,
         journal: ReviewedCrossChainSubmissionJournal,
-        confirmingRepeat: Bool = false
+        confirmingRepeat: Bool = false,
+        now: @escaping () -> Date = Date.init
     ) throws -> ConfirmationOutputSpy {
         let output = ConfirmationOutputSpy(expectation: expectation(description: "submission ended"))
         let interactor = CrossChainConfirmationInteractor(
@@ -744,7 +903,8 @@ final class CrossChainReviewedRouteTests: XCTestCase {
             journal: journal,
             operationQueue: OperationQueue(),
             logger: Logger.shared,
-            mutationsEnabled: { true }
+            mutationsEnabled: { true },
+            now: now
         )
         interactor.setup(with: output)
         interactor.submit(confirmingRepeat: confirmingRepeat)
@@ -1123,12 +1283,18 @@ private struct AuthorizerStub: ReviewedCrossChainSubmissionAuthorizing {
 private final class ScriptedExecutor: ReviewedCrossChainExtrinsicExecuting {
     private let submitError: Error?
     private let outcome: ReviewedCrossChainDispatchOutcome
+    private let extrinsicHash: String
     var onSubmit: (() -> Void)?
     private(set) var submitCount = 0
 
-    init(submitError: Error? = nil, outcome: ReviewedCrossChainDispatchOutcome = .unknown) {
+    init(
+        submitError: Error? = nil,
+        outcome: ReviewedCrossChainDispatchOutcome = .unknown,
+        extrinsicHash: String = "0xhash"
+    ) {
         self.submitError = submitError
         self.outcome = outcome
+        self.extrinsicHash = extrinsicHash
     }
 
     func estimateFee(_: @escaping ExtrinsicBuilderClosure) async throws -> RuntimeDispatchInfo {
@@ -1141,7 +1307,7 @@ private final class ScriptedExecutor: ReviewedCrossChainExtrinsicExecuting {
         if let submitError {
             throw submitError
         }
-        return ReviewedCrossChainSubmissionReceipt(subscriptionId: "subscription", extrinsicHash: "0xhash")
+        return ReviewedCrossChainSubmissionReceipt(subscriptionId: "subscription", extrinsicHash: extrinsicHash)
     }
 
     func dispatchOutcome(for _: ReviewedCrossChainSubmissionReceipt) async -> ReviewedCrossChainDispatchOutcome {
@@ -1153,7 +1319,8 @@ private final class ConfirmationOutputSpy: CrossChainConfirmationInteractorOutpu
     let expectation: XCTestExpectation
     private(set) var result: ReviewedCrossChainSubmissionResult?
     private(set) var error: Error?
-    private(set) var unresolved: ReviewedCrossChainSubmissionRecord?
+    private(set) var unresolvedAttempts: [ReviewedCrossChainSubmissionRecord] = []
+    var unresolved: ReviewedCrossChainSubmissionRecord? { unresolvedAttempts.first }
 
     init(expectation: XCTestExpectation) {
         self.expectation = expectation
@@ -1169,10 +1336,85 @@ private final class ConfirmationOutputSpy: CrossChainConfirmationInteractorOutpu
         expectation.fulfill()
     }
 
-    func didFindUnresolvedSubmission(_ record: ReviewedCrossChainSubmissionRecord) {
-        unresolved = record
+    func didFindUnresolvedSubmission(_ records: [ReviewedCrossChainSubmissionRecord]) {
+        unresolvedAttempts = records
         expectation.fulfill()
     }
+}
+
+/// A node for the dispatch watcher: it answers the block and its `System.Events` from a fixture and, once the watcher
+/// subscribes, reports the scripted extrinsic statuses in order and optionally ends the subscription.
+private final class ScriptedWatchEngine: JSONRPCEngine {
+    var connectionName: String?
+    var url: URL?
+    var pendingEngineRequests: [JSONRPCRequest] { [] }
+
+    private let block: LiberlandBlockFixture
+    private let statuses: [String]
+    private let endsSubscription: Bool
+
+    init(block: LiberlandBlockFixture, statuses: [String], endsSubscription: Bool) {
+        self.block = block
+        self.statuses = statuses
+        self.endsSubscription = endsSubscription
+    }
+
+    func callMethod<P: Codable, T: Decodable>(
+        _ method: String,
+        params _: P?,
+        options _: JSONRPCOptions,
+        completion closure: ((Result<T, Error>) -> Void)?
+    ) throws -> UInt16 {
+        let result: Any
+        switch method {
+        case RPCMethod.getChainBlock:
+            let header: [String: Any] = [
+                "digest": ["logs": [String]()],
+                "extrinsicsRoot": "0x00",
+                "number": "0x0",
+                "stateRoot": "0x00",
+                "parentHash": "0x00"
+            ]
+            result = ["block": ["header": header, "extrinsics": block.extrinsics], "justification": NSNull()]
+        case RPCMethod.getStorage:
+            result = block.events
+        default:
+            closure?(.failure(JSONRPCEngineError.unknownError))
+            return 0
+        }
+        let data = try JSONSerialization.data(withJSONObject: [result])
+        closure?(Result { try JSONDecoder().decode([T].self, from: data)[0] })
+        return 0
+    }
+
+    func subscribe<P: Codable, T: Decodable>(
+        _: String,
+        params _: P?,
+        updateClosure _: @escaping (T) -> Void,
+        failureClosure _: @escaping (Error, Bool) -> Void
+    ) throws -> UInt16 {
+        0
+    }
+
+    func addSubscription(_ subscription: JSONRPCSubscribing) {
+        let statuses = statuses
+        let endsSubscription = endsSubscription
+        DispatchQueue.global().async {
+            for status in statuses {
+                let update = #"{"jsonrpc":"2.0","method":"author_extrinsicUpdate","params":{"subscription":"subscription","result":\#(status)}}"#
+                try? subscription.handle(data: Data(update.utf8))
+            }
+            if endsSubscription {
+                subscription.handle(error: JSONRPCEngineError.remoteCancelled, unsubscribed: true)
+            }
+        }
+    }
+
+    func cancelForIdentifier(_: UInt16) {}
+    func generateRequestId() -> UInt16 { 1 }
+    func connectIfNeeded() {}
+    func disconnectIfNeeded() {}
+    func unsubsribe(_: UInt16) throws {}
 }
 
 private extension ChainModel {

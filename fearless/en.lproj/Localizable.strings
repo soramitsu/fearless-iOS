@@ -1530,3 +1530,6 @@ belongs to the right network";
 /* Solana confirm: recipient token account deposit */
 "solana.transfer.account_creation.title" = "Recipient account setup";
 "solana.transfer.account_creation.included" = "Included in the network fee";
+
+/* Cross-chain confirm: the record of recent transfers cannot be read, so nothing new is sent for a day */
+"cross_chain.dispatch.journal_unreadable" = "Fearless cannot read its record of recent cross-chain transfers, so it cannot tell whether this one was already sent. Nothing was sent. Check the origin account's history. New cross-chain transfers are possible again 24 hours after the record became unreadable.";
