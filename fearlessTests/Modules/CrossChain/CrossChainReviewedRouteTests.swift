@@ -1,4 +1,5 @@
 import BigInt
+import IrohaCrypto
 import RobinHood
 import SSFModels
 import SSFRuntimeCodingService
@@ -328,6 +329,38 @@ final class CrossChainReviewedRouteTests: XCTestCase {
                 )
             )
         }
+    }
+
+    func testTheReviewedBurnIsSignedAgainstTheCatalogGenesisWithoutAskingTheNodeAgain() throws {
+        let catalogGenesis = try Data(hexStringSSF: Self.liberlandId)
+        // The node answers block 0 with another network's genesis hash.
+        let nodeGenesis = try Data(hexStringSSF: Self.soraId)
+
+        let pinned = try signReviewedBurn(
+            pinnedGenesisHash: ReviewedCrossChainGenesisReader.signingGenesisHash(for: Self.liberlandId)
+        )
+        XCTAssertEqual(pinned.engine.blockHashRequests, [blockNumberHex(100)], "Only the era's block may be asked for")
+        let payload = try XCTUnwrap(pinned.signer.payloads.first)
+        XCTAssertEqual(pinned.signer.payloads.count, 1)
+        XCTAssertNotNil(payload.range(of: catalogGenesis))
+        XCTAssertNil(payload.range(of: nodeGenesis))
+        XCTAssertNotNil(pinned.engine.submitted)
+
+        // Without the pin the factory signs whatever the node says block 0 is.
+        let unpinned = try signReviewedBurn(pinnedGenesisHash: nil)
+        XCTAssertTrue(unpinned.engine.blockHashRequests.contains(blockNumberHex(0)))
+        XCTAssertNotNil(try XCTUnwrap(unpinned.signer.payloads.first).range(of: nodeGenesis))
+
+        XCTAssertEqual(
+            ReviewedCrossChainGenesisReader.signingGenesisHash(for: Self.liberlandId.uppercased()),
+            "0x" + Self.liberlandId
+        )
+        XCTAssertTrue(
+            ReviewedCrossChainGenesisReader.matches(
+                genesisHash: ReviewedCrossChainGenesisReader.signingGenesisHash(for: Self.liberlandId),
+                chainId: Self.liberlandId
+            )
+        )
     }
 
     func testNegotiatorRefusesAnyOtherPalletOrCallIndex() throws {
@@ -787,6 +820,53 @@ final class CrossChainReviewedRouteTests: XCTestCase {
             XCTAssertNotEqual(value, "missing", "\(language): \(key)", file: file, line: line)
             XCTAssertFalse(value.isEmpty, "\(language): \(key)", file: file, line: line)
         }
+    }
+
+    /// Builds, signs and submits the reviewed LLD burn through the app's extrinsic factory with Liberland's runtime,
+    /// against a node that answers every read.
+    private func signReviewedBurn(
+        pinnedGenesisHash: String?,
+        amount: BigUInt = 1_100_000_000_000
+    ) throws -> (engine: ExtrinsicRPCRecorder, signer: PayloadRecordingSigner, call: Data) {
+        let factory = try Self.liberlandCoderFactory()
+        let lld = try XCTUnwrap(ReviewedXcmRouteRegistry.routes.first { $0.originSymbol == "LLD" })
+        let capability = try ReviewedCrossChainRuntimeNegotiator().negotiate(
+            factory: factory,
+            specVersion: 34,
+            descriptor: lld.execution
+        )
+        let recipient = Data(repeating: 7, count: 32)
+        let engine = ExtrinsicRPCRecorder()
+        let signer = PayloadRecordingSigner()
+        let operationFactory = ExtrinsicOperationFactory(
+            accountId: Data(repeating: 1, count: 32),
+            chainFormat: .substrate(42),
+            cryptoType: .sr25519,
+            runtimeRegistry: RuntimeCodingServiceStub(factory: factory),
+            engine: engine,
+            pinnedGenesisHash: pinnedGenesisHash,
+            eraOperationFactory: FixedEraOperationFactory()
+        )
+        let wrapper = operationFactory.submitAndWatch(
+            try ReviewedCrossChainCallBuilder().builder(
+                definition: lld,
+                capability: capability,
+                destinationAccountId: recipient,
+                amount: amount
+            ),
+            signer: signer
+        )
+        OperationQueue().addOperations(wrapper.allOperations, waitUntilFinished: true)
+        guard case let .success(submission)? = wrapper.targetOperation.result else {
+            throw BaseOperationError.unexpectedDependentResult
+        }
+        XCTAssertEqual(try submission.result.get(), "subscription")
+        let call = try ReviewedCrossChainCallLayout.expected(
+            execution: lld.execution,
+            destinationAccountId: recipient,
+            amount: amount
+        )
+        return (engine, signer, call)
     }
 
     /// Runs the dispatch watcher against `block` while the node reports `statuses` for the block's signed extrinsic.
@@ -1415,6 +1495,106 @@ private final class ScriptedWatchEngine: JSONRPCEngine {
     func connectIfNeeded() {}
     func disconnectIfNeeded() {}
     func unsubsribe(_: UInt16) throws {}
+}
+
+/// `chain_getBlockHash`'s parameter as the extrinsic factory writes it: four big-endian bytes.
+private func blockNumberHex(_ number: UInt32) -> String {
+    String(format: "0x%08x", number)
+}
+
+/// A node for the extrinsic factory: nonce 0, a fixed hash for every block it is asked about except block 0, which it
+/// answers with SORA's genesis hash, and a subscription for the submitted extrinsic, which it keeps.
+private final class ExtrinsicRPCRecorder: JSONRPCEngine {
+    var connectionName: String?
+    var url: URL?
+    var pendingEngineRequests: [JSONRPCRequest] { [] }
+
+    private let lock = NSLock()
+    private var blockHashParameters: [String] = []
+    private var submittedExtrinsic: Data?
+
+    var blockHashRequests: [String] {
+        lock.lock()
+        defer { lock.unlock() }
+        return blockHashParameters
+    }
+
+    var submitted: Data? {
+        lock.lock()
+        defer { lock.unlock() }
+        return submittedExtrinsic
+    }
+
+    func callMethod<P: Codable, T: Decodable>(
+        _ method: String,
+        params: P?,
+        options _: JSONRPCOptions,
+        completion closure: ((Result<T, Error>) -> Void)?
+    ) throws -> UInt16 {
+        let parameters = (params as? [String]) ?? []
+        let answer: Any
+        switch method {
+        case RPCMethod.getExtrinsicNonce:
+            answer = 0
+        case RPCMethod.getBlockHash:
+            lock.lock()
+            blockHashParameters.append(contentsOf: parameters)
+            lock.unlock()
+            answer = parameters == [blockNumberHex(0)]
+                ? "0x" + ReviewedXcmRouteRegistry.soraChainId
+                : "0x" + String(repeating: "11", count: 32)
+        case "author_submitAndWatchExtrinsic":
+            let extrinsic = try parameters.first.map { try Data(hexStringSSF: $0) }
+            lock.lock()
+            submittedExtrinsic = extrinsic
+            lock.unlock()
+            answer = "subscription"
+        default:
+            closure?(.failure(JSONRPCEngineError.unknownError))
+            return 0
+        }
+        let data = try JSONSerialization.data(withJSONObject: [answer])
+        closure?(Result { try JSONDecoder().decode([T].self, from: data)[0] })
+        return 0
+    }
+
+    func subscribe<P: Codable, T: Decodable>(
+        _: String,
+        params _: P?,
+        updateClosure _: @escaping (T) -> Void,
+        failureClosure _: @escaping (Error, Bool) -> Void
+    ) throws -> UInt16 {
+        0
+    }
+
+    func addSubscription(_: JSONRPCSubscribing) {}
+    func cancelForIdentifier(_: UInt16) {}
+    func generateRequestId() -> UInt16 { 1 }
+    func connectIfNeeded() {}
+    func disconnectIfNeeded() {}
+    func unsubsribe(_: UInt16) throws {}
+}
+
+/// Signs with a fixed test key and keeps every payload it was asked to sign.
+private final class PayloadRecordingSigner: SigningWrapperProtocol {
+    private(set) var payloads: [Data] = []
+
+    func sign(_ originalData: Data) throws -> IRSignatureProtocol {
+        payloads.append(originalData)
+        return try DummySigner(cryptoType: .sr25519).sign(originalData)
+    }
+}
+
+/// A mortal era born at block 100, so the only block hash the factory needs is that block's.
+private struct FixedEraOperationFactory: ExtrinsicEraOperationFactoryProtocol {
+    func createOperation(
+        from _: JSONRPCEngine,
+        runtimeService _: RuntimeCodingServiceProtocol
+    ) -> CompoundOperationWrapper<ExtrinsicEraParameters> {
+        CompoundOperationWrapper(targetOperation: ClosureOperation {
+            ExtrinsicEraParameters(blockNumber: 100, extrinsicEra: .mortal(period: 64, phase: 36))
+        })
+    }
 }
 
 private extension ChainModel {

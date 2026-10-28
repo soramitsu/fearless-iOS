@@ -312,8 +312,10 @@ protocol ReviewedCrossChainGenesisReading {
     func genesisHash(connection: JSONRPCEngine) async throws -> String
 }
 
-/// Reads block 0's hash from the node the extrinsic would be sent to. The signature commits to that hash, so a node of
-/// another network would get an extrinsic only that network accepts while the user believes it went to the origin.
+/// Reads block 0's hash from the node the extrinsic would be sent to, so that a node of another network is refused
+/// before anything is built. The extrinsic is then signed against `signingGenesisHash`, the catalog chain id this check
+/// compared with, and never against a later answer from a node: a node of another network gets a signature only the
+/// origin network accepts.
 struct ReviewedCrossChainGenesisReader: ReviewedCrossChainGenesisReading {
     func genesisHash(connection: JSONRPCEngine) async throws -> String {
         try await withCheckedThrowingContinuation { continuation in
@@ -334,6 +336,11 @@ struct ReviewedCrossChainGenesisReader: ReviewedCrossChainGenesisReading {
         let normalized = genesisHash.lowercased()
         let hash = normalized.hasPrefix("0x") ? String(normalized.dropFirst(2)) : normalized
         return hash.count == 64 && hash == chainId.lowercased()
+    }
+
+    /// The genesis hash a reviewed extrinsic signs: the catalog chain id of its origin network.
+    static func signingGenesisHash(for chainId: ChainModel.Id) -> String {
+        "0x" + chainId.lowercased()
     }
 }
 
@@ -1009,6 +1016,8 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
         ) else {
             throw ReviewedCrossChainSubmissionError.wrongNetwork
         }
+        // What the extrinsic service signs (see `makeFreshContext`), bound into the intent below.
+        let signingGenesisHash = ReviewedCrossChainGenesisReader.signingGenesisHash(for: context.origin.chain.chainId)
 
         // Two independent passes deliberately repeat current runtime-call
         // negotiation, destination fee, exact balance, minimum and origin-fee
@@ -1034,7 +1043,7 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
             context.origin.asset.id, String(context.origin.asset.precision),
             context.destination.chainId, context.destinationAccountId.toHex(),
             data.amount.description, final.burnAmount.description, final.originFee.description,
-            genesisHash.lowercased(), final.capability.moduleName, final.capability.callName,
+            signingGenesisHash, final.capability.moduleName, final.capability.callName,
             String(final.capability.callIndex.palletIndex), String(final.capability.callIndex.callIndex),
             final.encodedCall.toHex(), transferKey
         ])
@@ -1188,7 +1197,8 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
             cryptoType: account.cryptoType,
             runtimeRegistry: runtime,
             engine: connection,
-            operationManager: OperationManagerFacade.sharedManager
+            operationManager: OperationManagerFacade.sharedManager,
+            genesisHash: ReviewedCrossChainGenesisReader.signingGenesisHash(for: originChain.chainId)
         )
         return Context(
             wallet: wallet,
