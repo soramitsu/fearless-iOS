@@ -39,29 +39,6 @@
         ]
       },
       {
-        "id": "31b03360-5c73-4733-a72d-65daf4600315",
-        "symbol": "GLMR",
-        "versions": ["v1", "v3"],
-        "interiors": [
-          {
-            "palletInstance": 10
-          }
-        ]
-      },
-      {
-        "id": "e9be3a4f-77c8-4861-8607-b7a76a690ac7",
-        "symbol": "GLMR",
-        "versions": ["v1", "v3"],
-        "interiors": [
-          {
-            "parachain": 2004
-          },
-          {
-            "palletInstance": 10
-          }
-        ]
-      },
-      {
         "id": "0c7df36b-4ebd-4e66-a78b-77fa08b54c54",
         "symbol": "ACA",
         "versions": ["v1"],
@@ -163,13 +140,6 @@
             }
           }
         ]
-      },
-      {
-        "id": "5ab1e8d-81ed-4130-9d29-55b549cc6bab",
-        "symbol": "ASTR",
-        "versions": ["v3"],
-        "parents": 0,
-        "interiors": []
       }
     ]
   },
@@ -209,29 +179,6 @@
               "length": 2,
               "data": "0x0001000000000000000000000000000000000000000000000000000000000000"
             }
-          }
-        ]
-      },
-      {
-        "id": "5b1a0b8f-74c9-4073-b288-0d2ca16dfb77",
-        "symbol": "MOVR",
-        "versions": ["v3"],
-        "interiors": [
-          {
-            "palletInstance": 10
-          }
-        ]
-      },
-      {
-        "id": "d5647f60-f838-4343-a33a-83c6e9fe1845",
-        "symbol": "MOVR",
-        "versions": ["v3"],
-        "interiors": [
-          {
-            "parachain": 2023
-          },
-          {
-            "palletInstance": 10
           }
         ]
       },
@@ -296,28 +243,6 @@
           }
         ]
       }
-    ]
-  },
-  {
-    "name": "Sora Mainnet",
-    "chainId": "7e4e32d0feafd4f9c9414b0be86373f9a1efa904809b683453a9af6856d38ad5",
-    "assets": [
-        {
-          "id": "7528bb5b-2aa9-4a70-a4ed-3476aec0f87d",
-          "symbol": "ACA",
-          "versions": ["v3"],
-          "interiors": [
-            {
-              "parachain": 2000
-            },
-            {
-              "generalKeyV3": {
-                "length": 2,
-                "data": "0x0000000000000000000000000000000000000000000000000000000000000000"
-              }
-            }
-          ]
-        }
     ]
   }
 ]

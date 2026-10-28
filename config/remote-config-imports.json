@@ -2872,7 +2872,7 @@
       "commit": "f2ed4ccf1d3a6376b60ebd69d823a3f7748ddc4b",
       "sourcePath": "xcm/v2/xcm_fees.json",
       "upstreamSha256": "f636253a83b41515fe160e26ab19ae91180d43b36018fc547ca2f01ff94f3a12",
-      "ownedSha256": "f636253a83b41515fe160e26ab19ae91180d43b36018fc547ca2f01ff94f3a12"
+      "ownedSha256": "dcbf881c92e23972dfe9804547e15341cd6bb9092a8f68339379aefb17f41e8f"
     },
     {
       "path": "development/xcm/v2/xcm_token_locations.json",
@@ -2880,7 +2880,7 @@
       "commit": "f2ed4ccf1d3a6376b60ebd69d823a3f7748ddc4b",
       "sourcePath": "xcm/v2/xcm_token_locations.json",
       "upstreamSha256": "aa9120458c189ed9872f8de6cc01e8f001ea661971270276cfc4a1d08be8dc71",
-      "ownedSha256": "aa9120458c189ed9872f8de6cc01e8f001ea661971270276cfc4a1d08be8dc71"
+      "ownedSha256": "7404509cf2ccac73443ba93cfa1df9f9e2fe45143e299b0c4647de26263afcdf"
     },
     {
       "path": "legacy/android/2.0.2/icons/fiat/aed.svg",
@@ -8208,7 +8208,7 @@
       "commit": "ca1c2655ff541ae5942d820423962d34fd29d7f9",
       "sourcePath": "xcm/v2/xcm_fees.json",
       "upstreamSha256": "5a8a356c8b0feaa285e427c47c3c7991f22ddea55e97d1cff954f3ec22596bde",
-      "ownedSha256": "5a8a356c8b0feaa285e427c47c3c7991f22ddea55e97d1cff954f3ec22596bde"
+      "ownedSha256": "b0befa7ab83bb5a9455bccce3de7f5efc38904008c42e9dbb0bf54655af87f99"
     },
     {
       "path": "production/xcm/v2/xcm_token_locations.json",
@@ -8216,7 +8216,7 @@
       "commit": "e11b90f707bd9b4e424f97a135565018a5e8eb42",
       "sourcePath": "xcm/v2/xcm_token_locations.json",
       "upstreamSha256": "a63c4db237dc572144eb08221f20dd2fe63847b5fdc7e8c63a92a1275dce27af",
-      "ownedSha256": "a63c4db237dc572144eb08221f20dd2fe63847b5fdc7e8c63a92a1275dce27af"
+      "ownedSha256": "7404509cf2ccac73443ba93cfa1df9f9e2fe45143e299b0c4647de26263afcdf"
     }
   ],
   "correctedUpstreamPaths": [
@@ -8268,6 +8268,21 @@
       ],
       "changes": [
         "Disable unreachable Reef Mainnet in app-owned catalogs after retaining unavailable chain parents and clearing stale staking selection; configured RPC returned HTTP502 on 2026-10-25. Legacy shared feeds remain unchanged."
+      ]
+    },
+    {
+      "files": [
+        "remote-config/production/xcm/v2/xcm_fees.json",
+        "remote-config/production/xcm/v2/xcm_token_locations.json",
+        "remote-config/development/xcm/v2/xcm_fees.json",
+        "remote-config/development/xcm/v2/xcm_token_locations.json"
+      ],
+      "changes": [
+        "Remove fee and token-location entries for networks no longer registered on their relay chains (Moonbeam 2004, Moonriver 2023, Parallel 2012) and, in development, for Rococo and the ROC fees of SORA test",
+        "Remove SORA Mainnet fee rows and the SORA Mainnet token-location group for tokens that reach SORA only through its halted parachains (Kusama 2011, Polkadot 2025): KSM, DOT, ACA and ASTR",
+        "Remove the token location with the malformed ASTR id 5ab1e8d-81ed-4130-9d29-55b549cc6bab; it equals the Astar catalog asset id, which stays unchanged, and no route reads it",
+        "Set the Liberland destination fee precision of XOR to 18, the precision of XOR on Liberland",
+        "Chain lists and their XCM routes are unchanged"
       ]
     }
   ]
