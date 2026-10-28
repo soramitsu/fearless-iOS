@@ -363,6 +363,29 @@ final class CrossChainReviewedRouteTests: XCTestCase {
         )
     }
 
+    func testTheSignedExtrinsicEndsInExactlyTheAuthorizedCall() throws {
+        let burn = try signReviewedBurn(
+            pinnedGenesisHash: ReviewedCrossChainGenesisReader.signingGenesisHash(for: Self.liberlandId)
+        )
+        let extrinsic = try XCTUnwrap(burn.engine.submitted)
+        XCTAssertTrue(MutationOperationAuthorization.extrinsic(extrinsic, endsWithCall: burn.call))
+
+        let lld = try XCTUnwrap(ReviewedXcmRouteRegistry.routes.first { $0.originSymbol == "LLD" })
+        let otherAmount = try ReviewedCrossChainCallLayout.expected(
+            execution: lld.execution,
+            destinationAccountId: Data(repeating: 7, count: 32),
+            amount: 1_100_000_000_001
+        )
+        let otherRecipient = try ReviewedCrossChainCallLayout.expected(
+            execution: lld.execution,
+            destinationAccountId: Data(repeating: 8, count: 32),
+            amount: 1_100_000_000_000
+        )
+        XCTAssertFalse(MutationOperationAuthorization.extrinsic(extrinsic, endsWithCall: otherAmount))
+        XCTAssertFalse(MutationOperationAuthorization.extrinsic(extrinsic, endsWithCall: otherRecipient))
+        XCTAssertFalse(MutationOperationAuthorization.extrinsic(extrinsic + Data([0]), endsWithCall: burn.call))
+    }
+
     func testNegotiatorRefusesAnyOtherPalletOrCallIndex() throws {
         let factory = try Self.liberlandCoderFactory()
         let negotiator = ReviewedCrossChainRuntimeNegotiator()

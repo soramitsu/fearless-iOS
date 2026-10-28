@@ -1047,7 +1047,13 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
             String(final.capability.callIndex.palletIndex), String(final.capability.callIndex.callIndex),
             final.encodedCall.toHex(), transferKey
         ])
-        let authorization = try MultiChainFeaturePolicy.authorization(for: .xcm, intentSha256: intent) {
+        // The call bytes the intent names were checked against the reviewed layout; the extrinsic that is finally
+        // signed must carry exactly these bytes, whatever coder encodes it then.
+        let authorization = try MultiChainFeaturePolicy.authorization(
+            for: .xcm,
+            intentSha256: intent,
+            expectedCall: final.encodedCall
+        ) {
             try self.validateCurrentContext(context, checkPolicy: false)
         }
         let signer = SigningWrapper(
