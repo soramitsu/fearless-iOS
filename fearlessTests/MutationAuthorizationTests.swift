@@ -425,6 +425,47 @@ final class MutationAuthorizationTests: XCTestCase {
         XCTAssertThrowsError(try MutationAuthorizationReleaseBinding.makeAuthority(bundle: Bundle(for: Self.self)))
     }
 
+    func testProvisioningFollowsOnlyTheBundledTrustAndItsCompiledCapabilities() throws {
+        XCTAssertFalse(MutationAuthorizationReleaseBinding.isProvisioned(.xcm))
+        XCTAssertFalse(MutationAuthorizationReleaseBinding.isProvisioned(.xcm, bundle: Bundle(for: Self.self)))
+
+        let inputs = try releaseInputs(Fixture.load())
+        func bundle(_ files: [String: Data]) throws -> Bundle {
+            let directory = FileManager.default.temporaryDirectory
+                .appendingPathComponent("MutationAuthorizationTests-\(UUID().uuidString).bundle")
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            addTeardownBlock { try? FileManager.default.removeItem(at: directory) }
+            let info: [String: Any] = [
+                "CFBundleIdentifier": "jp.co.soramitsu.fearlesswallet",
+                "CFBundleVersion": "2026.8.34",
+                "CFBundlePackageType": "BNDL"
+            ]
+            try PropertyListSerialization.data(fromPropertyList: info, format: .xml, options: 0)
+                .write(to: directory.appendingPathComponent("Info.plist"))
+            for (name, data) in files {
+                try data.write(to: directory.appendingPathComponent(name))
+            }
+            return try XCTUnwrap(Bundle(url: directory))
+        }
+        let complete: [String: Data] = [
+            "mutation_authorization_policy.json": inputs.policy,
+            "mutation_authorization_trust.json": inputs.trust,
+            "mutation_route_manifest.json": inputs.routes,
+            "mutation_route_inventory.json": inputs.routeFile
+        ]
+
+        let provisioned = try bundle(complete)
+        XCTAssertTrue(MutationAuthorizationReleaseBinding.isProvisioned(.xcm, bundle: provisioned))
+        // The policy compiles in XCM only.
+        XCTAssertFalse(MutationAuthorizationReleaseBinding.isProvisioned(.demeter, bundle: provisioned))
+        var unreviewedRoutes = complete
+        unreviewedRoutes["mutation_route_inventory.json"] = Data("other".utf8)
+        XCTAssertFalse(MutationAuthorizationReleaseBinding.isProvisioned(.xcm, bundle: try bundle(unreviewedRoutes)))
+        var missingTrust = complete
+        missingTrust["mutation_authorization_trust.json"] = nil
+        XCTAssertFalse(MutationAuthorizationReleaseBinding.isProvisioned(.xcm, bundle: try bundle(missingTrust)))
+    }
+
     func testReleaseBindingCannotSubstituteAnUnrelatedFileEvenWithMatchingHashPins() throws {
         for name in ["unrelated.json", "../mutation_route_inventory.json", "Mutation_route_inventory.json"] {
             let inputs = try releaseInputs(Fixture.load(), routeName: name)

@@ -89,6 +89,10 @@ enum ReviewedCrossChainSubmissionValidator {
         mutationsEnabled: Bool,
         executionAdapterAvailable: Bool = ReviewedXcmExecutionAuthority.isAvailable
     ) throws {
+        // A build without bundled trust can never send, whatever the remote switch says; report that, not the switch.
+        guard executionAdapterAvailable else {
+            throw ReviewedCrossChainSubmissionError.executionAdapterUnavailable
+        }
         guard mutationsEnabled else {
             throw ReviewedCrossChainSubmissionError.actionsPaused
         }
@@ -978,6 +982,7 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
     private let keystore: KeystoreProtocol
     private let selectedWallet: () -> MetaAccountModel?
     private let mutationsEnabled: () -> Bool
+    private let executionAvailable: Bool
 
     init(
         data: CrossChainConfirmationData,
@@ -990,7 +995,8 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
         selectedWallet: @escaping () -> MetaAccountModel? = { SelectedWalletSettings.shared.value },
         mutationsEnabled: @escaping () -> Bool = {
             MultiChainFeaturePolicy.current.crossChainMutationsEnabled
-        }
+        },
+        executionAvailable: Bool = ReviewedXcmExecutionAuthority.isAvailable
     ) {
         self.data = data
         expectedWalletId = data.wallet.metaId
@@ -1003,6 +1009,7 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
         self.keystore = keystore
         self.selectedWallet = selectedWallet
         self.mutationsEnabled = mutationsEnabled
+        self.executionAvailable = executionAvailable
     }
 
     func authorize() async throws -> ReviewedCrossChainAuthorizedSubmission {
@@ -1182,7 +1189,8 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
             origin: origin,
             destination: destination,
             reviewedRoute: data.reviewedRoute,
-            mutationsEnabled: mutationsEnabled()
+            mutationsEnabled: mutationsEnabled(),
+            executionAdapterAvailable: executionAvailable
         )
         let account = try validateSigningAccount(wallet: wallet, chain: originChain)
         guard let destinationAccountId = try? AddressFactory.accountId(
@@ -1228,6 +1236,9 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
     }
 
     private func validatePolicyAndWallet() throws {
+        guard executionAvailable else {
+            throw ReviewedCrossChainSubmissionError.executionAdapterUnavailable
+        }
         guard mutationsEnabled() else {
             throw ReviewedCrossChainSubmissionError.actionsPaused
         }
@@ -1262,7 +1273,8 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
         try ReviewedCrossChainSubmissionValidator.validateReviewedRoute(
             origin: currentOrigin,
             destination: destination,
-            reviewedRoute: data.reviewedRoute
+            reviewedRoute: data.reviewedRoute,
+            executionAdapterAvailable: executionAvailable
         )
         _ = try validateSigningAccount(
             wallet: wallet,

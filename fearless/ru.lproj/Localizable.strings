@@ -1528,3 +1528,6 @@ Euro cash";
 
 /* Cross-chain confirm: the record of recent transfers cannot be read, so nothing new is sent for a day */
 "cross_chain.dispatch.journal_unreadable" = "Fearless не может прочитать запись о недавних кросс-чейн переводах, поэтому не может определить, был ли этот перевод уже отправлен. Ничего не отправлено. Проверьте историю исходного счёта. Новые кросс-чейн переводы снова станут доступны через 24 часа после того, как запись стала нечитаемой.";
+
+/* Cross-chain: a reviewed route that this build cannot send */
+"cross_chain.unavailable_in_version" = "Недоступно в этой версии Fearless.";

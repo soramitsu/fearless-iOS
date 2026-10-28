@@ -70,12 +70,22 @@ struct CrossChainProviderCapability: Equatable {
 }
 
 /// Only the exact Liberland `soraBridgeApp.burn` descriptors in
-/// `ReviewedXcmRouteRegistry.routes` are executable. The SORA `bridgeProxy.burn`
-/// directions are retired (`retiredRoutes`), and every other bridge/XCM
-/// direction remains an explicit unavailable provider state.
+/// `ReviewedXcmRouteRegistry.routes` are executable, and only in a build that
+/// bundles reviewed mutation trust for XCM (`MutationAuthorizationReleaseBinding`).
+/// No remote value can supply that trust, so without it the reviewed routes are
+/// shown as not available in this version rather than offered and refused at
+/// confirmation. The SORA `bridgeProxy.burn` directions are retired
+/// (`retiredRoutes`), and every other bridge/XCM direction remains an explicit
+/// unavailable provider state.
 enum ReviewedXcmExecutionAuthority {
-    static let isAvailable = true
-    static let unavailableReason = "No exact reviewed Liberland bridge call is available for this wallet and current production registry."
+    static let isAvailable = MutationAuthorizationReleaseBinding.isProvisioned(.xcm)
+    static var unavailableReason: String {
+        NSLocalizedString(
+            "cross_chain.unavailable_in_version",
+            value: "Not available in this version of Fearless.",
+            comment: ""
+        )
+    }
 }
 
 extension CrossChainRouteProvider {
@@ -941,6 +951,52 @@ enum ReviewedRetiredBridgeRouteCatalog {
     }
 }
 
+/// Read-only rows for the reviewed Liberland → SORA routes in a build that bundles no mutation trust for XCM. They name
+/// what a provisioned build offers and say that this version cannot send it, so no form is opened only to be refused at
+/// confirmation.
+enum ReviewedUnprovisionedRouteCatalog {
+    static var routes: [ReviewedUnavailableCrossChainRouteDefinition] {
+        ReviewedXcmRouteRegistry.liberlandRoutes.map { definition in
+            let providerId = ReviewedXcmRouteRegistry.providerId(for: definition)
+            let destinationChainId = definition.execution.destinationChainId
+            let minimum = definition.execution.minimumAmount
+                .flatMap { Decimal(string: $0) }
+                .map { $0 / pow(Decimal(10), Int(definition.originPrecision)) }
+            return ReviewedUnavailableCrossChainRouteDefinition(
+                id: [
+                    "unavailable-v1",
+                    providerId,
+                    definition.originChainId,
+                    destinationChainId,
+                    definition.originAssetId
+                ].joined(separator: ":"),
+                providerId: providerId,
+                originNetworkName: "Liberland",
+                originChainId: definition.originChainId,
+                originEcosystem: "substrate",
+                destinationNetworkName: "SORA Mainnet",
+                destinationChainId: destinationChainId,
+                destinationEcosystem: "substrate",
+                originCatalogAssetId: definition.originAssetId,
+                originCanonicalAssetId: definition.execution.asset.canonicalAssetId(
+                    originCatalogId: definition.originAssetId
+                ),
+                originRouteAssetId: definition.xcmAssetId,
+                destinationCatalogAssetId: definition.execution.destinationAsset?.catalogAssetId,
+                destinationRouteAssetId: definition.xcmAssetId,
+                symbol: definition.originSymbol,
+                precision: definition.originPrecision,
+                minimumAmount: minimum.map { "\($0)" },
+                protocolName: "Liberland bridge · XCM v3",
+                feeDisplay: "Not quoted in this version",
+                estimatedTimeDisplay: definition.estimatedTimeDisplay,
+                warnings: ["No funds are submitted while this route remains unavailable."],
+                unavailableReason: ReviewedXcmExecutionAuthority.unavailableReason
+            )
+        }
+    }
+}
+
 enum ReviewedSoraEvmRouteCatalog {
     static let routes: [ReviewedUnavailableCrossChainRouteDefinition] = [
         ReviewedUnavailableCrossChainRouteDefinition(
@@ -1033,13 +1089,29 @@ struct SoraSubstrateBridgeRouteProvider: CrossChainRouteProvider {
 struct LiberlandXcmRouteProvider: CrossChainRouteProvider {
     let identifier = "sora-liberland-xcm"
     let displayName = "SORA ↔ Liberland"
-    let unavailableReason = "No reviewed Liberland → SORA burn route is available for this wallet and current production registry. Add a local account or refresh network metadata."
-    let reviewedUnavailableRoutes = ReviewedRetiredBridgeRouteCatalog.routes.filter {
-        $0.providerId == "sora-liberland-xcm"
+    /// Without it the reviewed Liberland → SORA burns are listed as unavailable rows, never as origins to open.
+    let isExecutionAvailable: Bool
+
+    init(isExecutionAvailable: Bool = ReviewedXcmExecutionAuthority.isAvailable) {
+        self.isExecutionAvailable = isExecutionAvailable
+    }
+
+    var unavailableReason: String {
+        isExecutionAvailable
+            ? "No reviewed Liberland → SORA burn route is available for this wallet and current production registry. Add a local account or refresh network metadata."
+            : ReviewedXcmExecutionAuthority.unavailableReason
+    }
+
+    var reviewedUnavailableRoutes: [ReviewedUnavailableCrossChainRouteDefinition] {
+        let retired = ReviewedRetiredBridgeRouteCatalog.routes.filter { $0.providerId == identifier }
+        return isExecutionAvailable ? retired : ReviewedUnprovisionedRouteCatalog.routes + retired
     }
 
     func origins(wallet: MetaAccountModel, chains: [ChainModel]) -> [CrossChainOriginRoute] {
-        ReviewedXcmRouteResolver.origins(
+        guard isExecutionAvailable else {
+            return []
+        }
+        return ReviewedXcmRouteResolver.origins(
             providerId: identifier,
             protocolName: "Liberland bridge · XCM v3",
             definitions: ReviewedXcmRouteRegistry.liberlandRoutes,

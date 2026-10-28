@@ -59,14 +59,15 @@ final class CrossChainReviewedRouteTests: XCTestCase {
                     origin: origin,
                     destination: sora,
                     reviewedRoute: context,
-                    mutationsEnabled: true
+                    mutationsEnabled: true,
+                    executionAdapterAvailable: true
                 ),
                 definition.originSymbol
             )
         }
 
         let wallet = AccountGenerator.generateMetaAccount()
-        let liberlandOrigins = LiberlandXcmRouteProvider().origins(wallet: wallet, chains: chains)
+        let liberlandOrigins = LiberlandXcmRouteProvider(isExecutionAvailable: true).origins(wallet: wallet, chains: chains)
         XCTAssertEqual(Set(liberlandOrigins.map(\.chainAsset.asset.symbolUppercased)), ["LLD", "LLM", "XOR"])
         XCTAssertTrue(SoraSubstrateBridgeRouteProvider().origins(wallet: wallet, chains: chains).isEmpty)
 
@@ -86,6 +87,79 @@ final class CrossChainReviewedRouteTests: XCTestCase {
                 definition.originSymbol
             )
         }
+    }
+
+    func testWithoutBundledTrustTheReviewedRoutesAreShownAsNotAvailable() async throws {
+        // Like every production build so far, the test build bundles no mutation trust.
+        XCTAssertFalse(MutationAuthorizationReleaseBinding.isProvisioned(.xcm))
+        XCTAssertFalse(ReviewedXcmExecutionAuthority.isAvailable)
+
+        let chains = try Self.registryChains()
+        let wallet = AccountGenerator.generateMetaAccount()
+        let provider = LiberlandXcmRouteProvider()
+        let origins = provider.origins(wallet: wallet, chains: chains)
+        XCTAssertTrue(origins.isEmpty, "Nothing may be offered that this build cannot send")
+        let capability = provider.capability(for: origins)
+        XCTAssertFalse(capability.isAvailable)
+        XCTAssertEqual(capability.reason, ReviewedXcmExecutionAuthority.unavailableReason)
+
+        let rows = provider.reviewedUnavailableRoutes.filter { $0.originChainId == Self.liberlandId }
+        XCTAssertEqual(rows.map(\.symbol).sorted(), ["LLD", "LLM", "XOR"])
+        XCTAssertTrue(rows.allSatisfy {
+            !$0.isExecutable && $0.unavailableReason == ReviewedXcmExecutionAuthority.unavailableReason &&
+                $0.destinationChainId == Self.soraId
+        })
+        XCTAssertEqual(rows.first { $0.symbol == "LLD" }?.minimumDisplay, "1.1 LLD")
+        XCTAssertEqual(
+            provider.reviewedUnavailableRoutes.count,
+            rows.count + LiberlandXcmRouteProvider(isExecutionAvailable: true).reviewedUnavailableRoutes.count
+        )
+
+        // The provider row names the version, not a remote switch.
+        let root = CrossChainRootViewController(wallet: wallet, providers: [provider])
+        root.loadViewIfNeeded()
+        let table = UITableView()
+        table.register(UITableViewCell.self, forCellReuseIdentifier: "CrossChainOriginCell")
+        let providerRow = root.tableView(table, cellForRowAt: IndexPath(row: 0, section: 1))
+        let providerText = (providerRow.contentConfiguration as? UIListContentConfiguration)?.secondaryText
+        XCTAssertEqual(providerText, ReviewedXcmExecutionAuthority.unavailableReason)
+
+        // No form opens, and every later check reports the version rather than the switch.
+        let definition = try XCTUnwrap(ReviewedXcmRouteRegistry.routes.first { $0.originSymbol == "LLD" })
+        let context = ReviewedCrossChainRouteContext(definition: definition, providerId: "sora-liberland-xcm")
+        let origin = try XCTUnwrap(
+            chains.first { $0.chainId == Self.liberlandId }?.chainAssets.first { $0.asset.id == definition.originAssetId }
+        )
+        let sora = try XCTUnwrap(chains.first { $0.chainId == Self.soraId })
+        XCTAssertNil(CrossChainAssembly.configureModule(with: origin, wallet: wallet, reviewedRoute: context))
+        XCTAssertThrowsError(
+            try ReviewedCrossChainSubmissionValidator.validate(
+                origin: origin,
+                destination: sora,
+                reviewedRoute: context,
+                mutationsEnabled: false
+            )
+        ) { error in
+            XCTAssertEqual(error as? ReviewedCrossChainSubmissionError, .executionAdapterUnavailable)
+        }
+        let data = try makeConfirmationData()
+        let authorizer = ReviewedCrossChainSubmissionAuthorizer(
+            data: data,
+            destinationFeeProvider: DestinationFeeStub(),
+            selectedWallet: { data.wallet },
+            mutationsEnabled: { false }
+        )
+        do {
+            _ = try await authorizer.authorize()
+            XCTFail("An unprovisioned build must not authorize")
+        } catch {
+            XCTAssertEqual(error as? ReviewedCrossChainSubmissionError, .executionAdapterUnavailable)
+        }
+        XCTAssertEqual(
+            ReviewedCrossChainSubmissionError.executionAdapterUnavailable.localizedDescription,
+            ReviewedXcmExecutionAuthority.unavailableReason
+        )
+        try assertEveryBundledLocalizationHas("cross_chain.unavailable_in_version")
     }
 
     func testDestinationIsNeverFoundByTheOriginAssetIdOrSymbol() throws {
@@ -1518,6 +1592,12 @@ private final class ScriptedWatchEngine: JSONRPCEngine {
     func connectIfNeeded() {}
     func disconnectIfNeeded() {}
     func unsubsribe(_: UInt16) throws {}
+}
+
+private struct DestinationFeeStub: XcmDestinationFeeFetching {
+    func estimateFee(destinationChainId _: String, token _: String) async -> Result<DestXcmFee, Error> {
+        .failure(ReviewedCrossChainSubmissionError.destinationFeeUnavailable)
+    }
 }
 
 /// `chain_getBlockHash`'s parameter as the extrinsic factory writes it: four big-endian bytes.

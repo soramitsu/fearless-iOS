@@ -1634,7 +1634,8 @@ final class MainTabBarTests: XCTestCase {
         XCTAssertTrue(walletXcmRoutes.isEmpty)
         XCTAssertTrue(soraSubstrateRoutes.isEmpty)
         XCTAssertTrue(liberlandRoutes.isEmpty)
-        XCTAssertTrue(ReviewedXcmExecutionAuthority.isAvailable)
+        // Tests run in a build that bundles no mutation trust, like every production build so far.
+        XCTAssertFalse(ReviewedXcmExecutionAuthority.isAvailable)
         // Every SORA bridgeProxy.burn direction is retired; only the Liberland burns can be executed.
         XCTAssertTrue(ReviewedXcmRouteRegistry.soraSubstrateRoutes.isEmpty)
         XCTAssertEqual(ReviewedXcmRouteRegistry.liberlandRoutes.count, 3)
@@ -1762,7 +1763,7 @@ final class MainTabBarTests: XCTestCase {
             retiredBridgeRoutes.filter { $0.providerId == "polkaswap-sora-substrate" }
         )
         XCTAssertEqual(
-            LiberlandXcmRouteProvider().reviewedUnavailableRoutes,
+            LiberlandXcmRouteProvider(isExecutionAvailable: true).reviewedUnavailableRoutes,
             retiredBridgeRoutes.filter { $0.providerId == "sora-liberland-xcm" }
         )
         XCTAssertTrue(walletProvider.origins(wallet: wallet, chains: []).isEmpty)
@@ -1936,14 +1937,16 @@ final class MainTabBarTests: XCTestCase {
             CrossChainAssembly.configureModule(
                 with: exactOrigin,
                 wallet: AccountGenerator.generateMetaAccount(),
-                reviewedRoute: context
+                reviewedRoute: context,
+                executionAvailable: true
             )
         )
         XCTAssertThrowsError(
             try ReviewedCrossChainSubmissionValidator.validateReviewedRoute(
                 origin: exactOrigin,
                 destination: destination,
-                reviewedRoute: context
+                reviewedRoute: context,
+                executionAdapterAvailable: true
             )
         ) { error in
             XCTAssertEqual(error as? ReviewedCrossChainSubmissionError, .unreviewedRoute)
@@ -2120,7 +2123,8 @@ final class MainTabBarTests: XCTestCase {
             CrossChainAssembly.configureModule(
                 with: exactOrigin,
                 wallet: AccountGenerator.generateMetaAccount(),
-                reviewedRoute: context
+                reviewedRoute: context,
+                executionAvailable: true
             )
         )
 
@@ -2129,7 +2133,8 @@ final class MainTabBarTests: XCTestCase {
                 origin: exactOrigin,
                 destination: destination,
                 reviewedRoute: context,
-                mutationsEnabled: false
+                mutationsEnabled: false,
+                executionAdapterAvailable: true
             )
         ) { error in
             XCTAssertEqual(error as? ReviewedCrossChainSubmissionError, .actionsPaused)
@@ -2139,7 +2144,8 @@ final class MainTabBarTests: XCTestCase {
                 origin: exactOrigin,
                 destination: destination,
                 reviewedRoute: context,
-                mutationsEnabled: true
+                mutationsEnabled: true,
+                executionAdapterAvailable: true
             )
         )
         // The signed-authority boundary holds the policy lock before checking
@@ -2149,7 +2155,8 @@ final class MainTabBarTests: XCTestCase {
             try ReviewedCrossChainSubmissionValidator.validateReviewedRoute(
                 origin: exactOrigin,
                 destination: destination,
-                reviewedRoute: context
+                reviewedRoute: context,
+                executionAdapterAvailable: true
             )
         )
         XCTAssertThrowsError(
@@ -2194,7 +2201,8 @@ final class MainTabBarTests: XCTestCase {
             try ReviewedCrossChainSubmissionValidator.validateReviewedRoute(
                 origin: ChainAsset(chain: origin, asset: sameSymbolDifferentIdentity),
                 destination: destination,
-                reviewedRoute: context
+                reviewedRoute: context,
+                executionAdapterAvailable: true
             )
         ) { error in
             XCTAssertEqual(error as? ReviewedCrossChainSubmissionError, .unreviewedRoute)
