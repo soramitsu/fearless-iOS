@@ -145,7 +145,6 @@ final class CrossChainReviewedRouteTests: XCTestCase {
         let data = try makeConfirmationData()
         let authorizer = ReviewedCrossChainSubmissionAuthorizer(
             data: data,
-            destinationFeeProvider: DestinationFeeStub(),
             selectedWallet: { data.wallet },
             mutationsEnabled: { false }
         )
@@ -228,6 +227,33 @@ final class CrossChainReviewedRouteTests: XCTestCase {
         wait(for: [missingAnswered], timeout: 2)
         XCTAssertThrowsError(try lldOutput.destinationExistentialDeposit?.get()) { error in
             XCTAssertEqual(error as? CrossChainFormError, .destinationAssetUnavailable)
+        }
+    }
+
+    func testTheDestinationFeeIsCompiledWithTheRoute() throws {
+        for definition in ReviewedXcmRouteRegistry.routes {
+            XCTAssertEqual(definition.execution.destinationFee, "0", definition.originSymbol)
+            XCTAssertEqual(try ReviewedXcmRouteRegistry.destinationFee(for: definition), .zero)
+        }
+        for definition in ReviewedXcmRouteRegistry.retiredRoutes {
+            XCTAssertThrowsError(try ReviewedXcmRouteRegistry.destinationFee(for: definition)) { error in
+                XCTAssertEqual(error as? ReviewedCrossChainSubmissionError, .destinationFeeUnavailable)
+            }
+        }
+
+        // The form quotes the compiled fee; no remote fee file is involved.
+        let chains = try Self.registryChains()
+        let liberland = try XCTUnwrap(chains.first { $0.chainId == Self.liberlandId })
+        let sora = try XCTUnwrap(chains.first { $0.chainId == Self.soraId })
+        for symbol in ["LLD", "LLM", "XOR"] {
+            let definition = try XCTUnwrap(ReviewedXcmRouteRegistry.routes.first { $0.originSymbol == symbol })
+            let origin = try XCTUnwrap(liberland.chainAssets.first { $0.asset.id == definition.originAssetId })
+            let (interactor, output) = try makeInteractor(symbol: symbol)
+            let answered = expectation(description: "\(symbol) destination fee")
+            output.onDestinationFee = { answered.fulfill() }
+            interactor.estimateFee(originChainAsset: origin, destinationChainModel: sora, amount: 2)
+            wait(for: [answered], timeout: 2)
+            XCTAssertEqual(try output.destinationFee?.get(), .zero, symbol)
         }
     }
 
@@ -1186,11 +1212,7 @@ private final class PresenterHarness {
 
     func feedFees() {
         presenter.didReceiveOriginFee(result: .success(BigUInt(10_000_000_000)))
-        let fee = try? JSONDecoder().decode(
-            DestXcmFee.self,
-            from: Data(#"{"feeInPlanks":"0","symbol":"\#(origin.asset.symbolUppercased)","precision":"18"}"#.utf8)
-        )
-        presenter.didReceiveDestinationFee(result: fee.map { .success($0) } ?? .failure(CommonError.internal))
+        presenter.didReceiveDestinationFee(result: .success(.zero))
     }
 
     func soraAddress(byte: UInt8) -> String {
@@ -1316,11 +1338,18 @@ private final class CrossChainRouterSpy: CrossChainRouterInput {
 
 private final class CrossChainInteractorOutputSpy: CrossChainInteractorOutput {
     var onDestinationExistentialDeposit: (() -> Void)?
+    var onDestinationFee: (() -> Void)?
     private(set) var destinationExistentialDeposit: Result<BigUInt, Error>?
+    private(set) var destinationFee: Result<Decimal, Error>?
 
     func didReceiveAccountInfo(result _: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {}
     func didReceiveAvailableDestChainAssets(_: [ChainAsset]) {}
-    func didReceiveDestinationFee(result _: Result<DestXcmFee, Error>) {}
+
+    func didReceiveDestinationFee(result: Result<Decimal, Error>) {
+        destinationFee = result
+        onDestinationFee?()
+    }
+
     func didReceiveOriginFee(result _: Result<BigUInt, Error>) {}
     func didReceiveOrigin(chainAssets _: [ChainAsset]) {}
     func didSetup() {}
@@ -1592,12 +1621,6 @@ private final class ScriptedWatchEngine: JSONRPCEngine {
     func connectIfNeeded() {}
     func disconnectIfNeeded() {}
     func unsubsribe(_: UInt16) throws {}
-}
-
-private struct DestinationFeeStub: XcmDestinationFeeFetching {
-    func estimateFee(destinationChainId _: String, token _: String) async -> Result<DestXcmFee, Error> {
-        .failure(ReviewedCrossChainSubmissionError.destinationFeeUnavailable)
-    }
 }
 
 /// `chain_getBlockHash`'s parameter as the extrinsic factory writes it: four big-endian bytes.

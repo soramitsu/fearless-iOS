@@ -1,3 +1,4 @@
+import BigInt
 import UIKit
 import SoraKeystore
 import SSFModels
@@ -244,6 +245,10 @@ struct ReviewedCrossChainExecutionDescriptor: Equatable {
     /// Required before a route can execute; without it the form and the submission validator cannot find what the
     /// recipient receives.
     var destinationAsset: ReviewedCrossChainDestinationAsset?
+    /// Base units of the origin representation that the burn adds for the destination network, compiled with the
+    /// route. The remote fee file is unsigned and never consulted for a reviewed route. Required before a route can
+    /// execute.
+    var destinationFee: String?
 
     var fingerprint: String {
         [
@@ -254,7 +259,8 @@ struct ReviewedCrossChainExecutionDescriptor: Equatable {
             recipient.fingerprint,
             minimumAmount ?? "none",
             callIndex.map { "call-\($0.palletIndex).\($0.callIndex)" } ?? "call-unpinned",
-            destinationAsset?.fingerprint ?? "destination-unpinned"
+            destinationAsset?.fingerprint ?? "destination-unpinned",
+            destinationFee.map { "destination-fee-\($0)" } ?? "destination-fee-unpinned"
         ].joined(separator: "|")
     }
 
@@ -462,7 +468,9 @@ enum ReviewedXcmRouteRegistry {
 
     /// The only executable routes: Liberland to SORA. Liberland's `SoraBridgeApp` declares no minimum, and its assets
     /// pallet keeps a minimum balance of one base unit for LLM and XOR, so only LLD carries a reviewed minimum. On SORA,
-    /// `Balances.ExistentialDeposit` is 0 and the `Tokens` pallet keeps no minimum balance.
+    /// `Balances.ExistentialDeposit` is 0 and the `Tokens` pallet keeps no minimum balance. The burn adds no
+    /// destination fee, the value the fee files have always listed for these routes; changing it takes a new review
+    /// and release.
     static let routes: [ReviewedXcmRouteDefinition] = [
         ReviewedXcmRouteDefinition(
             originChainId: liberlandChainId,
@@ -488,7 +496,8 @@ enum ReviewedXcmRouteRegistry {
                     currencyId: "0x00073edd278e1bd6a7f9d0b27d4f3e93b73c8f0832b58a4df13c69611a99f156",
                     precision: 18,
                     existentialDeposit: .none
-                )
+                ),
+                destinationFee: "0"
             )
         ),
         ReviewedXcmRouteDefinition(
@@ -515,7 +524,8 @@ enum ReviewedXcmRouteRegistry {
                     currencyId: "0x0200000000000000000000000000000000000000000000000000000000000000",
                     precision: 18,
                     existentialDeposit: .balancesConstant
-                )
+                ),
+                destinationFee: "0"
             )
         ),
         ReviewedXcmRouteDefinition(
@@ -545,7 +555,8 @@ enum ReviewedXcmRouteRegistry {
                     currencyId: "0x00513be65493a7fc3e2128d4230061a530acf40478a4affa20bbba27a310673e",
                     precision: 18,
                     existentialDeposit: .none
-                )
+                ),
+                destinationFee: "0"
             )
         )
     ]
@@ -565,6 +576,14 @@ enum ReviewedXcmRouteRegistry {
             ) == context
         }
         return matches.count == 1 ? matches[0] : nil
+    }
+
+    /// The destination fee compiled with a reviewed route, in base units of the origin representation.
+    static func destinationFee(for definition: ReviewedXcmRouteDefinition) throws -> BigUInt {
+        guard let fee = definition.execution.destinationFee.flatMap({ BigUInt($0, radix: 10) }) else {
+            throw ReviewedCrossChainSubmissionError.destinationFeeUnavailable
+        }
+        return fee
     }
 
     /// The one catalog row on the destination chain that the reviewed definition names as what the recipient receives.

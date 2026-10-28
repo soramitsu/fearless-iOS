@@ -10,19 +10,8 @@ final class CrossChainConfirmationAssembly {
     ) -> CrossChainConfirmationModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        // The setup screen may use the shared cached estimator for previews.
-        // Confirmation uses a no-cache provider and repeats the exact fee read
-        // in both authorization passes.
-        let destinationFeeProvider = XcmDestinationFeeFetcher(
-            sourceUrl: ApplicationConfig.shared.destinationFeeSourceUrl,
-            networkOperationFactory: NetworkOperationFactory(),
-            operationQueue: OperationQueue(),
-            useCache: false
-        )
-        let submissionAuthorizer = ReviewedCrossChainSubmissionAuthorizer(
-            data: data,
-            destinationFeeProvider: destinationFeeProvider
-        )
+        // Both authorization passes use the destination fee compiled with the reviewed route.
+        let submissionAuthorizer = ReviewedCrossChainSubmissionAuthorizer(data: data)
 
         let interactor = CrossChainConfirmationInteractor(
             teleportData: data,

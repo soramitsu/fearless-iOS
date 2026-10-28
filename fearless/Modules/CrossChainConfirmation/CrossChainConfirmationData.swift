@@ -420,8 +420,9 @@ final class ReviewedCrossChainBalanceProvider: ReviewedCrossChainBalanceProvidin
 }
 
 enum ReviewedCrossChainSubmissionBoundaryValidator {
-    /// The destination fee comes from an unsigned remote file and is fetched again at submission. Only the fee the
-    /// user reviewed may be added to the burn: a different value, higher or lower, is a stale or tampered quote.
+    /// The destination fee is compiled with the reviewed route (`ReviewedXcmRouteRegistry.destinationFee(for:)`). Only
+    /// the fee the user reviewed may be added to the burn: a different value, higher or lower, means the confirmation
+    /// was built from something else.
     static func requireConfirmedDestinationFee(
         fresh: BigUInt,
         confirmed: Decimal,
@@ -443,8 +444,8 @@ enum ReviewedCrossChainSubmissionBoundaryValidator {
         guard requestedAmount > .zero, burnAmount >= requestedAmount, originFee > .zero else {
             throw ReviewedCrossChainSubmissionError.invalidAmount
         }
-        // The destination fee is added to the burn and comes from an unsigned remote file. A fee above the amount
-        // itself is far outside what the reviewed bridges charge.
+        // The destination fee is added to the burn. A fee above the amount itself is far outside what the reviewed
+        // bridges charge, whatever a definition says.
         guard burnAmount - requestedAmount <= requestedAmount else {
             throw ReviewedCrossChainSubmissionError.destinationFeeTooHigh
         }
@@ -974,7 +975,6 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
     private let data: CrossChainConfirmationData
     private let expectedWalletId: MetaAccountId
     private let expectedRouteFingerprint: String
-    private let destinationFeeProvider: XcmDestinationFeeFetching
     private let callBuilder: ReviewedCrossChainCallBuilding
     private let runtimeNegotiator: ReviewedCrossChainRuntimeNegotiating
     private let genesisReader: ReviewedCrossChainGenesisReading
@@ -986,7 +986,6 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
 
     init(
         data: CrossChainConfirmationData,
-        destinationFeeProvider: XcmDestinationFeeFetching,
         callBuilder: ReviewedCrossChainCallBuilding = ReviewedCrossChainCallBuilder(),
         runtimeNegotiator: ReviewedCrossChainRuntimeNegotiating = ReviewedCrossChainRuntimeNegotiator(),
         genesisReader: ReviewedCrossChainGenesisReading = ReviewedCrossChainGenesisReader(),
@@ -1001,7 +1000,6 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
         self.data = data
         expectedWalletId = data.wallet.metaId
         expectedRouteFingerprint = data.reviewedRoute.routeId
-        self.destinationFeeProvider = destinationFeeProvider
         self.callBuilder = callBuilder
         self.runtimeNegotiator = runtimeNegotiator
         self.genesisReader = genesisReader
@@ -1096,7 +1094,7 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
         guard capability.specVersion == context.runtimeSpecVersion else {
             throw ReviewedCrossChainSubmissionError.runtimeUnavailable
         }
-        let destinationFee = try await destinationFeeInOriginUnits(context)
+        let destinationFee = try ReviewedXcmRouteRegistry.destinationFee(for: context.definition)
         try ReviewedCrossChainSubmissionBoundaryValidator.requireConfirmedDestinationFee(
             fresh: destinationFee,
             confirmed: data.destChainFeeDecimal,
@@ -1146,32 +1144,6 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
             burnAmount: burnAmount,
             originFee: originFee
         )
-    }
-
-    private func destinationFeeInOriginUnits(_ context: Context) async throws -> BigUInt {
-        let result = await destinationFeeProvider.estimateFee(
-            destinationChainId: context.destination.chainId,
-            token: context.definition.originSymbol
-        )
-        guard case let .success(response) = result,
-              response.symbol.caseInsensitiveCompare(context.definition.originSymbol) == .orderedSame,
-              let fee = response.feeInPlanks else {
-            throw ReviewedCrossChainSubmissionError.destinationFeeUnavailable
-        }
-        // Without its precision the fee cannot be scaled to origin units; guessing the origin's could be off by 10^n.
-        guard let destinationPrecision = response.precision.flatMap({ UInt16($0) }) else {
-            throw ReviewedCrossChainSubmissionError.destinationFeeUnavailable
-        }
-        let originPrecision = context.definition.originPrecision
-        if destinationPrecision == originPrecision { return fee }
-        if destinationPrecision < originPrecision {
-            return fee * BigUInt(10).power(Int(originPrecision - destinationPrecision))
-        }
-        let divisor = BigUInt(10).power(Int(destinationPrecision - originPrecision))
-        guard fee % divisor == .zero else {
-            throw ReviewedCrossChainSubmissionError.destinationFeeUnavailable
-        }
-        return fee / divisor
     }
 
     private func makeFreshContext() throws -> Context {
