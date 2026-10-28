@@ -540,6 +540,7 @@ final class ChainSyncService {
                             node,
                             for: chain
                         )
+                        && !isPlaintextWebSocket(node.url)
                 }
                 .sorted { lhs, rhs in
                     if lhs.url.absoluteString != rhs.url.absoluteString {
@@ -577,6 +578,13 @@ final class ChainSyncService {
                 .replacingCustomNodes([])
                 .replacingSelectedNode(nil)
         }
+    }
+
+    /// Chain lists are downloaded unsigned, so a node they name must at least be reached over TLS: over plaintext
+    /// `ws://` anyone on the network path can answer for the chain, including its genesis hash, metadata, nonces, fees
+    /// and dispatch outcomes. Nodes the user keeps on the device are not affected.
+    static func isPlaintextWebSocket(_ url: URL) -> Bool {
+        url.scheme?.lowercased() == "ws"
     }
 
     static func mergingAppOwnedProductionChains(

@@ -1484,3 +1484,9 @@ akan muncul di sini";
 /* Solana confirm: recipient token account deposit */
 "solana.transfer.account_creation.title" = "Penyiapan akun penerima";
 "solana.transfer.account_creation.included" = "Termasuk dalam biaya jaringan";
+
+/* Cross-chain confirm: the record of recent transfers cannot be read, so nothing new is sent for a day */
+"cross_chain.dispatch.journal_unreadable" = "Fearless tidak dapat membaca catatan transfer lintas rantai terbaru, sehingga tidak dapat memastikan apakah transfer ini sudah dikirim. Tidak ada yang dikirim. Periksa riwayat akun asal. Transfer lintas rantai baru dapat dilakukan lagi 24 jam setelah catatan tersebut tidak dapat dibaca.";
+
+/* Cross-chain: a reviewed route that this build cannot send */
+"cross_chain.unavailable_in_version" = "Tidak tersedia di versi Fearless ini.";

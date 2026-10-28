@@ -1,4 +1,5 @@
 import BigInt
+import IrohaCrypto
 import RobinHood
 import SSFModels
 import SSFRuntimeCodingService
@@ -58,14 +59,15 @@ final class CrossChainReviewedRouteTests: XCTestCase {
                     origin: origin,
                     destination: sora,
                     reviewedRoute: context,
-                    mutationsEnabled: true
+                    mutationsEnabled: true,
+                    executionAdapterAvailable: true
                 ),
                 definition.originSymbol
             )
         }
 
         let wallet = AccountGenerator.generateMetaAccount()
-        let liberlandOrigins = LiberlandXcmRouteProvider().origins(wallet: wallet, chains: chains)
+        let liberlandOrigins = LiberlandXcmRouteProvider(isExecutionAvailable: true).origins(wallet: wallet, chains: chains)
         XCTAssertEqual(Set(liberlandOrigins.map(\.chainAsset.asset.symbolUppercased)), ["LLD", "LLM", "XOR"])
         XCTAssertTrue(SoraSubstrateBridgeRouteProvider().origins(wallet: wallet, chains: chains).isEmpty)
 
@@ -85,6 +87,78 @@ final class CrossChainReviewedRouteTests: XCTestCase {
                 definition.originSymbol
             )
         }
+    }
+
+    func testWithoutBundledTrustTheReviewedRoutesAreShownAsNotAvailable() async throws {
+        // Like every production build so far, the test build bundles no mutation trust.
+        XCTAssertFalse(MutationAuthorizationReleaseBinding.isProvisioned(.xcm))
+        XCTAssertFalse(ReviewedXcmExecutionAuthority.isAvailable)
+
+        let chains = try Self.registryChains()
+        let wallet = AccountGenerator.generateMetaAccount()
+        let provider = LiberlandXcmRouteProvider()
+        let origins = provider.origins(wallet: wallet, chains: chains)
+        XCTAssertTrue(origins.isEmpty, "Nothing may be offered that this build cannot send")
+        let capability = provider.capability(for: origins)
+        XCTAssertFalse(capability.isAvailable)
+        XCTAssertEqual(capability.reason, ReviewedXcmExecutionAuthority.unavailableReason)
+
+        let rows = provider.reviewedUnavailableRoutes.filter { $0.originChainId == Self.liberlandId }
+        XCTAssertEqual(rows.map(\.symbol).sorted(), ["LLD", "LLM", "XOR"])
+        XCTAssertTrue(rows.allSatisfy {
+            !$0.isExecutable && $0.unavailableReason == ReviewedXcmExecutionAuthority.unavailableReason &&
+                $0.destinationChainId == Self.soraId
+        })
+        XCTAssertEqual(rows.first { $0.symbol == "LLD" }?.minimumDisplay, "1.1 LLD")
+        XCTAssertEqual(
+            provider.reviewedUnavailableRoutes.count,
+            rows.count + LiberlandXcmRouteProvider(isExecutionAvailable: true).reviewedUnavailableRoutes.count
+        )
+
+        // The provider row names the version, not a remote switch.
+        let root = CrossChainRootViewController(wallet: wallet, providers: [provider])
+        root.loadViewIfNeeded()
+        let table = UITableView()
+        table.register(UITableViewCell.self, forCellReuseIdentifier: "CrossChainOriginCell")
+        let providerRow = root.tableView(table, cellForRowAt: IndexPath(row: 0, section: 1))
+        let providerText = (providerRow.contentConfiguration as? UIListContentConfiguration)?.secondaryText
+        XCTAssertEqual(providerText, ReviewedXcmExecutionAuthority.unavailableReason)
+
+        // No form opens, and every later check reports the version rather than the switch.
+        let definition = try XCTUnwrap(ReviewedXcmRouteRegistry.routes.first { $0.originSymbol == "LLD" })
+        let context = ReviewedCrossChainRouteContext(definition: definition, providerId: "sora-liberland-xcm")
+        let origin = try XCTUnwrap(
+            chains.first { $0.chainId == Self.liberlandId }?.chainAssets.first { $0.asset.id == definition.originAssetId }
+        )
+        let sora = try XCTUnwrap(chains.first { $0.chainId == Self.soraId })
+        XCTAssertNil(CrossChainAssembly.configureModule(with: origin, wallet: wallet, reviewedRoute: context))
+        XCTAssertThrowsError(
+            try ReviewedCrossChainSubmissionValidator.validate(
+                origin: origin,
+                destination: sora,
+                reviewedRoute: context,
+                mutationsEnabled: false
+            )
+        ) { error in
+            XCTAssertEqual(error as? ReviewedCrossChainSubmissionError, .executionAdapterUnavailable)
+        }
+        let data = try makeConfirmationData()
+        let authorizer = ReviewedCrossChainSubmissionAuthorizer(
+            data: data,
+            selectedWallet: { data.wallet },
+            mutationsEnabled: { false }
+        )
+        do {
+            _ = try await authorizer.authorize()
+            XCTFail("An unprovisioned build must not authorize")
+        } catch {
+            XCTAssertEqual(error as? ReviewedCrossChainSubmissionError, .executionAdapterUnavailable)
+        }
+        XCTAssertEqual(
+            ReviewedCrossChainSubmissionError.executionAdapterUnavailable.localizedDescription,
+            ReviewedXcmExecutionAuthority.unavailableReason
+        )
+        try assertEveryBundledLocalizationHas("cross_chain.unavailable_in_version")
     }
 
     func testDestinationIsNeverFoundByTheOriginAssetIdOrSymbol() throws {
@@ -153,6 +227,33 @@ final class CrossChainReviewedRouteTests: XCTestCase {
         wait(for: [missingAnswered], timeout: 2)
         XCTAssertThrowsError(try lldOutput.destinationExistentialDeposit?.get()) { error in
             XCTAssertEqual(error as? CrossChainFormError, .destinationAssetUnavailable)
+        }
+    }
+
+    func testTheDestinationFeeIsCompiledWithTheRoute() throws {
+        for definition in ReviewedXcmRouteRegistry.routes {
+            XCTAssertEqual(definition.execution.destinationFee, "0", definition.originSymbol)
+            XCTAssertEqual(try ReviewedXcmRouteRegistry.destinationFee(for: definition), .zero)
+        }
+        for definition in ReviewedXcmRouteRegistry.retiredRoutes {
+            XCTAssertThrowsError(try ReviewedXcmRouteRegistry.destinationFee(for: definition)) { error in
+                XCTAssertEqual(error as? ReviewedCrossChainSubmissionError, .destinationFeeUnavailable)
+            }
+        }
+
+        // The form quotes the compiled fee; no remote fee file is involved.
+        let chains = try Self.registryChains()
+        let liberland = try XCTUnwrap(chains.first { $0.chainId == Self.liberlandId })
+        let sora = try XCTUnwrap(chains.first { $0.chainId == Self.soraId })
+        for symbol in ["LLD", "LLM", "XOR"] {
+            let definition = try XCTUnwrap(ReviewedXcmRouteRegistry.routes.first { $0.originSymbol == symbol })
+            let origin = try XCTUnwrap(liberland.chainAssets.first { $0.asset.id == definition.originAssetId })
+            let (interactor, output) = try makeInteractor(symbol: symbol)
+            let answered = expectation(description: "\(symbol) destination fee")
+            output.onDestinationFee = { answered.fulfill() }
+            interactor.estimateFee(originChainAsset: origin, destinationChainModel: sora, amount: 2)
+            wait(for: [answered], timeout: 2)
+            XCTAssertEqual(try output.destinationFee?.get(), .zero, symbol)
         }
     }
 
@@ -330,6 +431,61 @@ final class CrossChainReviewedRouteTests: XCTestCase {
         }
     }
 
+    func testTheReviewedBurnIsSignedAgainstTheCatalogGenesisWithoutAskingTheNodeAgain() throws {
+        let catalogGenesis = try Data(hexStringSSF: Self.liberlandId)
+        // The node answers block 0 with another network's genesis hash.
+        let nodeGenesis = try Data(hexStringSSF: Self.soraId)
+
+        let pinned = try signReviewedBurn(
+            pinnedGenesisHash: ReviewedCrossChainGenesisReader.signingGenesisHash(for: Self.liberlandId)
+        )
+        XCTAssertEqual(pinned.engine.blockHashRequests, [blockNumberHex(100)], "Only the era's block may be asked for")
+        let payload = try XCTUnwrap(pinned.signer.payloads.first)
+        XCTAssertEqual(pinned.signer.payloads.count, 1)
+        XCTAssertNotNil(payload.range(of: catalogGenesis))
+        XCTAssertNil(payload.range(of: nodeGenesis))
+        XCTAssertNotNil(pinned.engine.submitted)
+
+        // Without the pin the factory signs whatever the node says block 0 is.
+        let unpinned = try signReviewedBurn(pinnedGenesisHash: nil)
+        XCTAssertTrue(unpinned.engine.blockHashRequests.contains(blockNumberHex(0)))
+        XCTAssertNotNil(try XCTUnwrap(unpinned.signer.payloads.first).range(of: nodeGenesis))
+
+        XCTAssertEqual(
+            ReviewedCrossChainGenesisReader.signingGenesisHash(for: Self.liberlandId.uppercased()),
+            "0x" + Self.liberlandId
+        )
+        XCTAssertTrue(
+            ReviewedCrossChainGenesisReader.matches(
+                genesisHash: ReviewedCrossChainGenesisReader.signingGenesisHash(for: Self.liberlandId),
+                chainId: Self.liberlandId
+            )
+        )
+    }
+
+    func testTheSignedExtrinsicEndsInExactlyTheAuthorizedCall() throws {
+        let burn = try signReviewedBurn(
+            pinnedGenesisHash: ReviewedCrossChainGenesisReader.signingGenesisHash(for: Self.liberlandId)
+        )
+        let extrinsic = try XCTUnwrap(burn.engine.submitted)
+        XCTAssertTrue(MutationOperationAuthorization.extrinsic(extrinsic, endsWithCall: burn.call))
+
+        let lld = try XCTUnwrap(ReviewedXcmRouteRegistry.routes.first { $0.originSymbol == "LLD" })
+        let otherAmount = try ReviewedCrossChainCallLayout.expected(
+            execution: lld.execution,
+            destinationAccountId: Data(repeating: 7, count: 32),
+            amount: 1_100_000_000_001
+        )
+        let otherRecipient = try ReviewedCrossChainCallLayout.expected(
+            execution: lld.execution,
+            destinationAccountId: Data(repeating: 8, count: 32),
+            amount: 1_100_000_000_000
+        )
+        XCTAssertFalse(MutationOperationAuthorization.extrinsic(extrinsic, endsWithCall: otherAmount))
+        XCTAssertFalse(MutationOperationAuthorization.extrinsic(extrinsic, endsWithCall: otherRecipient))
+        XCTAssertFalse(MutationOperationAuthorization.extrinsic(extrinsic + Data([0]), endsWithCall: burn.call))
+    }
+
     func testNegotiatorRefusesAnyOtherPalletOrCallIndex() throws {
         let factory = try Self.liberlandCoderFactory()
         let negotiator = ReviewedCrossChainRuntimeNegotiator()
@@ -469,13 +625,13 @@ final class CrossChainReviewedRouteTests: XCTestCase {
         let executor = ScriptedExecutor(submitError: JSONRPCEngineError.timeout)
         executor.onSubmit = {
             // The record must already exist while the extrinsic is being handed over.
-            XCTAssertEqual(journal.unresolved(for: "transfer", now: Date())?.status, .submitting)
+            XCTAssertEqual((try? journal.unresolved(for: "transfer", now: Date()))?.first?.status, .submitting)
         }
         let output = try submit(executor: executor, journal: journal)
 
         XCTAssertEqual(output.error as? ReviewedCrossChainDispatchError, .submissionInDoubt)
         XCTAssertEqual(executor.submitCount, 1)
-        XCTAssertEqual(journal.unresolved(for: "transfer", now: Date())?.status, .inDoubt)
+        XCTAssertEqual(try journal.unresolved(for: "transfer", now: Date()).first?.status, .inDoubt)
     }
 
     func testRepeatingAnUnresolvedTransferNeedsExplicitConfirmation() throws {
@@ -484,7 +640,7 @@ final class CrossChainReviewedRouteTests: XCTestCase {
 
         let first = try submit(executor: executor, journal: journal)
         XCTAssertEqual(first.result, .unconfirmed(extrinsicHash: "0xhash"))
-        XCTAssertEqual(journal.unresolved(for: "transfer", now: Date())?.extrinsicHash, "0xhash")
+        XCTAssertEqual(try journal.unresolved(for: "transfer", now: Date()).first?.extrinsicHash, "0xhash")
 
         let second = try submit(executor: executor, journal: journal)
         XCTAssertEqual(second.unresolved?.transferKey, "transfer")
@@ -495,7 +651,7 @@ final class CrossChainReviewedRouteTests: XCTestCase {
         XCTAssertEqual(executor.submitCount, 2)
 
         // A day later the record no longer stands in the way.
-        XCTAssertNil(journal.unresolved(for: "transfer", now: Date().addingTimeInterval(25 * 60 * 60)))
+        XCTAssertTrue(try journal.unresolved(for: "transfer", now: Date().addingTimeInterval(25 * 60 * 60)).isEmpty)
     }
 
     func testDispatchOutcomeDecidesWhatTheUserSees() throws {
@@ -503,7 +659,7 @@ final class CrossChainReviewedRouteTests: XCTestCase {
         let failed = try submit(executor: ScriptedExecutor(outcome: .failed(blockHash: "0xblock")), journal: failedJournal)
         XCTAssertEqual(failed.error as? ReviewedCrossChainDispatchError, .extrinsicFailed(extrinsicHash: "0xhash"))
         // Nothing was burned, so nothing should ask before a retry.
-        XCTAssertNil(failedJournal.unresolved(for: "transfer", now: Date()))
+        XCTAssertTrue(try failedJournal.unresolved(for: "transfer", now: Date()).isEmpty)
 
         let succeededJournal = makeJournal()
         let succeeded = try submit(
@@ -511,7 +667,7 @@ final class CrossChainReviewedRouteTests: XCTestCase {
             journal: succeededJournal
         )
         XCTAssertEqual(succeeded.result, .awaitingBridge(extrinsicHash: "0xhash"))
-        let record = try XCTUnwrap(succeededJournal.unresolved(for: "transfer", now: Date()))
+        let record = try XCTUnwrap(try succeededJournal.unresolved(for: "transfer", now: Date()).first)
         XCTAssertEqual(record.status, .awaitingBridge)
         XCTAssertEqual(record.blockHash, "0xblock")
 
@@ -522,7 +678,7 @@ final class CrossChainReviewedRouteTests: XCTestCase {
         )
         let rejected = try submit(executor: ScriptedExecutor(submitError: rejection), journal: rejectedJournal)
         XCTAssertTrue(rejected.error is JSONRPCError)
-        XCTAssertNil(rejectedJournal.unresolved(for: "transfer", now: Date()))
+        XCTAssertTrue(try rejectedJournal.unresolved(for: "transfer", now: Date()).isEmpty)
     }
 
     func testOnlyExplicitAuthorRpcRefusalsProveNoAdmission() {
@@ -546,13 +702,103 @@ final class CrossChainReviewedRouteTests: XCTestCase {
             let first = try submit(executor: executor, journal: journal)
             XCTAssertEqual(first.error as? ReviewedCrossChainDispatchError, .submissionInDoubt)
             XCTAssertEqual(executor.submitCount, 1)
-            XCTAssertEqual(journal.unresolved(for: "transfer", now: Date())?.status, .inDoubt)
+            XCTAssertEqual(try journal.unresolved(for: "transfer", now: Date()).first?.status, .inDoubt)
 
             let repeated = try submit(executor: executor, journal: journal)
             XCTAssertEqual(repeated.unresolved?.transferKey, "transfer")
             XCTAssertNil(repeated.result)
             XCTAssertEqual(executor.submitCount, 1, "An uncertain RPC response cannot authorize a second submission")
         }
+    }
+
+    func testARepeatThatEndsInARefusalNeverClearsTheEarlierAttempt() throws {
+        let rejection = JSONRPCError(message: "1010: Invalid Transaction", code: 1010, data: nil)
+        let repeatEndings: [ScriptedExecutor] = [
+            // The node refuses the repeat, for example because the first attempt already used the funds.
+            ScriptedExecutor(submitError: rejection, extrinsicHash: "0xsecond"),
+            // A local refusal right before hand-off.
+            ScriptedExecutor(submitError: MutationAuthorizationError.denied, extrinsicHash: "0xsecond"),
+            // The runtime rejects the repeat in its block.
+            ScriptedExecutor(outcome: .failed(blockHash: "0xblock"), extrinsicHash: "0xsecond")
+        ]
+
+        for repeatExecutor in repeatEndings {
+            let journal = makeJournal()
+            let first = try submit(executor: ScriptedExecutor(outcome: .unknown, extrinsicHash: "0xfirst"), journal: journal)
+            XCTAssertEqual(first.result, .unconfirmed(extrinsicHash: "0xfirst"))
+
+            let repeated = try submit(executor: repeatExecutor, journal: journal, confirmingRepeat: true)
+            XCTAssertNotNil(repeated.error)
+            XCTAssertEqual(repeatExecutor.submitCount, 1)
+
+            // The first attempt may have burned the funds, so a third try still has to ask.
+            let third = ScriptedExecutor(outcome: .unknown, extrinsicHash: "0xthird")
+            let fenced = try submit(executor: third, journal: journal)
+            XCTAssertEqual(fenced.unresolvedAttempts.map(\.extrinsicHash), ["0xfirst"])
+            XCTAssertEqual(third.submitCount, 0)
+        }
+    }
+
+    func testEveryUnresolvedAttemptIsKeptAndShown() throws {
+        let journal = makeJournal()
+        _ = try submit(executor: ScriptedExecutor(outcome: .unknown, extrinsicHash: "0xfirst"), journal: journal)
+        let second = ScriptedExecutor(submitError: JSONRPCEngineError.timeout, extrinsicHash: "0xsecond")
+        let inDoubt = try submit(executor: second, journal: journal, confirmingRepeat: true)
+        XCTAssertEqual(inDoubt.error as? ReviewedCrossChainDispatchError, .submissionInDoubt)
+
+        let third = ScriptedExecutor(outcome: .unknown)
+        let fenced = try submit(executor: third, journal: journal)
+        XCTAssertEqual(third.submitCount, 0)
+        XCTAssertEqual(fenced.unresolvedAttempts.count, 2)
+        XCTAssertEqual(Set(fenced.unresolvedAttempts.map(\.status)), [.inDoubt])
+        XCTAssertEqual(fenced.unresolvedAttempts.compactMap(\.extrinsicHash), ["0xfirst"])
+        XCTAssertEqual(Set(fenced.unresolvedAttempts.compactMap(\.attemptId)).count, 2)
+    }
+
+    func testRecordsWrittenBeforeAttemptsWereKeptApartStillFence() throws {
+        let suiteName = "CrossChainReviewedRouteTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        addTeardownBlock { defaults.removePersistentDomain(forName: suiteName) }
+        let now = Date()
+        // The format the journal wrote before it kept attempts apart: one record per transfer key, no attempt id.
+        let legacy = #"{"transfer":{"createdAt":\#(Int(now.timeIntervalSince1970 * 1000)),"extrinsicHash":"0xlegacy","intentSha256":"\#(String(repeating: "b", count: 64))","status":"inDoubt","summary":"2 LLD","transferKey":"transfer","updatedAt":\#(Int(now.timeIntervalSince1970 * 1000))}}"#
+        defaults.set(Data(legacy.utf8), forKey: "cross_chain.submission_journal.v1")
+        let journal = ReviewedCrossChainSubmissionJournal(userDefaults: defaults, logger: nil)
+
+        let legacyRecord = try XCTUnwrap(try journal.unresolved(for: "transfer", now: now).first)
+        XCTAssertNil(legacyRecord.attemptId)
+        XCTAssertEqual(legacyRecord.extrinsicHash, "0xlegacy")
+
+        let refused = ScriptedExecutor(submitError: JSONRPCError(message: "Pool refusal", code: 1010, data: nil))
+        _ = try submit(executor: refused, journal: journal, confirmingRepeat: true)
+        XCTAssertEqual(try journal.unresolved(for: "transfer", now: Date()).map(\.extrinsicHash), ["0xlegacy"])
+    }
+
+    func testAnUnreadableJournalStopsNewTransfersForOneConfirmationWindow() throws {
+        let suiteName = "CrossChainReviewedRouteTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        addTeardownBlock { defaults.removePersistentDomain(forName: suiteName) }
+        defaults.set(Data("not a journal".utf8), forKey: "cross_chain.submission_journal.v1")
+        let journal = ReviewedCrossChainSubmissionJournal(userDefaults: defaults, logger: nil)
+        let executor = ScriptedExecutor(outcome: .unknown)
+
+        // The damaged records may hold an attempt of this very transfer, so nothing is sent, not even a repeat.
+        for confirmingRepeat in [false, true] {
+            let refused = try submit(executor: executor, journal: journal, confirmingRepeat: confirmingRepeat)
+            XCTAssertEqual(refused.error as? ReviewedCrossChainDispatchError, .journalUnreadable)
+        }
+        XCTAssertEqual(executor.submitCount, 0)
+        XCTAssertThrowsError(try journal.unresolved(for: "transfer", now: Date().addingTimeInterval(23 * 60 * 60)))
+        XCTAssertNotNil(defaults.data(forKey: "cross_chain.submission_journal.v1.unreadable"))
+
+        // A day after the damage was found, none of those records could still stand in the way.
+        let dayLater = Date().addingTimeInterval(25 * 60 * 60)
+        let resumed = try submit(executor: executor, journal: journal, now: { dayLater })
+        XCTAssertEqual(resumed.result, .unconfirmed(extrinsicHash: "0xhash"))
+        XCTAssertEqual(executor.submitCount, 1)
+        XCTAssertNil(defaults.data(forKey: "cross_chain.submission_journal.v1.unreadable"))
+        XCTAssertEqual(try journal.unresolved(for: "transfer", now: dayLater).count, 1)
+        try assertEveryBundledLocalizationHas("cross_chain.dispatch.journal_unreadable")
     }
 
     func testDispatchWatcherReadsTheExtrinsicsOwnEvents() throws {
@@ -643,14 +889,129 @@ final class CrossChainReviewedRouteTests: XCTestCase {
         )
     }
 
+    func testAFailureCountsOnlyFromAFinalizedBlock() async throws {
+        let failed = try Self.blockFixture("liberland-block-18541863-failed")
+        let succeeded = try Self.blockFixture("liberland-block-18541863")
+        let inBlock = #"{"inBlock":"\#(failed.blockHash)"}"#
+        let finalized = #"{"finalized":"\#(failed.blockHash)"}"#
+
+        // Seen only in a best block, which can be retracted: the transfer stays in doubt.
+        let bestBlockFailure = try await watchOutcome(of: failed, statuses: [inBlock])
+        XCTAssertEqual(bestBlockFailure, .unknown)
+        let endedSubscription = try await watchOutcome(of: failed, statuses: [inBlock], endsSubscription: true)
+        XCTAssertEqual(endedSubscription, .unknown)
+        let finalizedFailure = try await watchOutcome(of: failed, statuses: [inBlock, finalized])
+        XCTAssertEqual(finalizedFailure, .failed(blockHash: failed.blockHash))
+
+        // A success keeps the record either way, so a best block is enough to report it.
+        let bestBlockSuccess = try await watchOutcome(of: succeeded, statuses: [inBlock])
+        XCTAssertEqual(bestBlockSuccess, .succeeded(blockHash: succeeded.blockHash))
+        let nothingIncluded = try await watchOutcome(of: succeeded, statuses: [#""ready""#])
+        XCTAssertEqual(nothingIncluded, .unknown)
+
+        XCTAssertEqual(
+            ReviewedCrossChainDispatchWatcher.settled(.failed(blockHash: "0xblock"), isFinalized: false),
+            .unknown
+        )
+        XCTAssertEqual(
+            ReviewedCrossChainDispatchWatcher.settled(.failed(blockHash: "0xblock"), isFinalized: true),
+            .failed(blockHash: "0xblock")
+        )
+    }
+
     // MARK: - Helpers
 
     private static var cachedChains: [ChainModel]?
 
+    fileprivate static func blockFixture(_ name: String) throws -> LiberlandBlockFixture {
+        let url = try XCTUnwrap(Bundle(for: CrossChainReviewedRouteTests.self).url(
+            forResource: name, withExtension: "json", subdirectory: "Registry"
+        ))
+        return try JSONDecoder().decode(LiberlandBlockFixture.self, from: Data(contentsOf: url))
+    }
+
+    /// Every localization the app bundles carries `key`, so no language falls back to the key or another language.
+    func assertEveryBundledLocalizationHas(_ key: String, file: StaticString = #filePath, line: UInt = #line) throws {
+        for language in ["en", "id", "ja", "pt-PT", "ru", "tr", "vi", "zh-Hans"] {
+            let bundle = try XCTUnwrap(
+                Bundle.main.path(forResource: language, ofType: "lproj").flatMap(Bundle.init(path:)),
+                language,
+                file: file,
+                line: line
+            )
+            let value = bundle.localizedString(forKey: key, value: "missing", table: nil)
+            XCTAssertNotEqual(value, "missing", "\(language): \(key)", file: file, line: line)
+            XCTAssertFalse(value.isEmpty, "\(language): \(key)", file: file, line: line)
+        }
+    }
+
+    /// Builds, signs and submits the reviewed LLD burn through the app's extrinsic factory with Liberland's runtime,
+    /// against a node that answers every read.
+    private func signReviewedBurn(
+        pinnedGenesisHash: String?,
+        amount: BigUInt = 1_100_000_000_000
+    ) throws -> (engine: ExtrinsicRPCRecorder, signer: PayloadRecordingSigner, call: Data) {
+        let factory = try Self.liberlandCoderFactory()
+        let lld = try XCTUnwrap(ReviewedXcmRouteRegistry.routes.first { $0.originSymbol == "LLD" })
+        let capability = try ReviewedCrossChainRuntimeNegotiator().negotiate(
+            factory: factory,
+            specVersion: 34,
+            descriptor: lld.execution
+        )
+        let recipient = Data(repeating: 7, count: 32)
+        let engine = ExtrinsicRPCRecorder()
+        let signer = PayloadRecordingSigner()
+        let operationFactory = ExtrinsicOperationFactory(
+            accountId: Data(repeating: 1, count: 32),
+            chainFormat: .substrate(42),
+            cryptoType: .sr25519,
+            runtimeRegistry: RuntimeCodingServiceStub(factory: factory),
+            engine: engine,
+            pinnedGenesisHash: pinnedGenesisHash,
+            eraOperationFactory: FixedEraOperationFactory()
+        )
+        let wrapper = operationFactory.submitAndWatch(
+            try ReviewedCrossChainCallBuilder().builder(
+                definition: lld,
+                capability: capability,
+                destinationAccountId: recipient,
+                amount: amount
+            ),
+            signer: signer
+        )
+        OperationQueue().addOperations(wrapper.allOperations, waitUntilFinished: true)
+        guard case let .success(submission)? = wrapper.targetOperation.result else {
+            throw BaseOperationError.unexpectedDependentResult
+        }
+        XCTAssertEqual(try submission.result.get(), "subscription")
+        let call = try ReviewedCrossChainCallLayout.expected(
+            execution: lld.execution,
+            destinationAccountId: recipient,
+            amount: amount
+        )
+        return (engine, signer, call)
+    }
+
+    /// Runs the dispatch watcher against `block` while the node reports `statuses` for the block's signed extrinsic.
+    private func watchOutcome(
+        of block: LiberlandBlockFixture,
+        statuses: [String],
+        endsSubscription: Bool = false
+    ) async throws -> ReviewedCrossChainDispatchOutcome {
+        let engine = ScriptedWatchEngine(block: block, statuses: statuses, endsSubscription: endsSubscription)
+        let watcher = ReviewedCrossChainDispatchWatcher(
+            connection: engine,
+            runtime: RuntimeCodingServiceStub(factory: try Self.liberlandCoderFactory()),
+            timeout: 0.5
+        )
+        let hash = try Data(hexStringSSF: block.extrinsics[block.extrinsicIndex]).blake2b32().toHex(includePrefix: true)
+        return await watcher.outcome(subscriptionId: "subscription", extrinsicHash: hash)
+    }
+
     static func registryChains() throws -> [ChainModel] {
         if let cachedChains { return cachedChains }
         let url = try XCTUnwrap(Bundle(for: CrossChainReviewedRouteTests.self).url(
-            forResource: "chains_v13_20261009", withExtension: "json", subdirectory: "Registry"
+            forResource: "chains_v13_owned_20261029", withExtension: "json", subdirectory: "Registry"
         ))
         let data = try Data(contentsOf: url)
         let chains: [ChainModel]
@@ -727,7 +1088,8 @@ final class CrossChainReviewedRouteTests: XCTestCase {
     private func submit(
         executor: ScriptedExecutor,
         journal: ReviewedCrossChainSubmissionJournal,
-        confirmingRepeat: Bool = false
+        confirmingRepeat: Bool = false,
+        now: @escaping () -> Date = Date.init
     ) throws -> ConfirmationOutputSpy {
         let output = ConfirmationOutputSpy(expectation: expectation(description: "submission ended"))
         let interactor = CrossChainConfirmationInteractor(
@@ -744,7 +1106,8 @@ final class CrossChainReviewedRouteTests: XCTestCase {
             journal: journal,
             operationQueue: OperationQueue(),
             logger: Logger.shared,
-            mutationsEnabled: { true }
+            mutationsEnabled: { true },
+            now: now
         )
         interactor.setup(with: output)
         interactor.submit(confirmingRepeat: confirmingRepeat)
@@ -770,6 +1133,192 @@ final class CrossChainReviewedRouteTests: XCTestCase {
             recipientAddress: "recipient",
             reviewedRoute: ReviewedCrossChainRouteContext(definition: definition, providerId: "sora-liberland-xcm")
         )
+    }
+}
+
+/// The app reads its chain list and XCM files from `remote-config/production` in this repository. These tests read the
+/// same files from the checkout and hold them to the compiled route registry, so an edit cannot quietly hide a reviewed
+/// route, change an identity or a precision it depends on, or bring back a retired direction.
+final class CrossChainOwnedRemoteConfigTests: XCTestCase {
+    private static let liberlandId = ReviewedXcmRouteRegistry.liberlandChainId
+    private static let soraId = ReviewedXcmRouteRegistry.soraChainId
+
+    /// Networks that can no longer receive anything: Moonbeam (2004), Moonriver (2023) and Parallel (2012) are no
+    /// longer registered on their relay chains, and SORA's parachains on Polkadot (2025) and Kusama (2011) are halted.
+    private static let deadChainIds: Set<ChainModel.Id> = [
+        "fe58ea77779b7abda7da4ec526d14db9b1e9cd40a217c34892af80a9b332b76d",
+        "401a1f9dca3da46f5c4091016c8a2f26dcea05865116b286f60f668207d1474b",
+        "e61a41c53f5dcd0beb09df93b34402aada44cb05117b71059cce40a2723a4e97",
+        "e92d165ad41e41e215d09713788173aecfdbe34d3bed29409d33a2ef03980738",
+        "6d8d9f145c2177fa83512492cdd80a71e29f22473f4a8943a6292149ac319fb9"
+    ]
+
+    func testOwnedChainListResolvesEveryReviewedRouteExactly() throws {
+        let chains = try Self.ownedChains()
+        let chainsById = Dictionary(chains.map { ($0.chainId, $0) }, uniquingKeysWith: { first, _ in first })
+        XCTAssertEqual(chainsById.count, chains.count, "Chain ids must be unique")
+        let sora = try XCTUnwrap(chainsById[Self.soraId])
+
+        XCTAssertEqual(ReviewedXcmRouteRegistry.routes.map(\.originSymbol).sorted(), ["LLD", "LLM", "XOR"])
+        for definition in ReviewedXcmRouteRegistry.routes {
+            let symbol = definition.originSymbol
+            let (origin, destinationNames) = try XCTUnwrap(
+                ReviewedXcmRouteRegistry.validatedOrigin(for: definition, chainsById: chainsById),
+                symbol
+            )
+            XCTAssertEqual(destinationNames, [sora.name], symbol)
+            XCTAssertEqual(origin.chain.chainId, Self.liberlandId, symbol)
+            XCTAssertEqual(origin.asset.id, definition.originAssetId, symbol)
+            XCTAssertEqual(origin.asset.precision, definition.originPrecision, symbol)
+            XCTAssertTrue(definition.execution.asset.validates(origin.asset), symbol)
+            XCTAssertFalse(origin.chain.disabled, symbol)
+            XCTAssertEqual(origin.chain.xcm?.xcmVersion, .V3, symbol)
+            XCTAssertEqual(
+                origin.chain.xcm?.availableAssets.filter { $0.id == definition.xcmAssetId }.count,
+                1,
+                symbol
+            )
+
+            let destination = try XCTUnwrap(ReviewedXcmRouteRegistry.destinationChainAsset(for: definition, in: sora))
+            let reviewedDestination = try XCTUnwrap(definition.execution.destinationAsset)
+            XCTAssertEqual(destination.asset.id, reviewedDestination.catalogAssetId, symbol)
+            XCTAssertEqual(destination.asset.precision, reviewedDestination.precision, symbol)
+            XCTAssertEqual(destination.asset.currencyId, reviewedDestination.currencyId, symbol)
+
+            let context = ReviewedCrossChainRouteContext(
+                definition: definition,
+                providerId: ReviewedXcmRouteRegistry.providerId(for: definition)
+            )
+            XCTAssertEqual(ReviewedXcmRouteRegistry.definition(for: context), definition, symbol)
+            XCTAssertTrue(context.validates(origin: origin, destination: sora), symbol)
+            XCTAssertNoThrow(
+                try ReviewedCrossChainSubmissionValidator.validateReviewedRoute(
+                    origin: origin,
+                    destination: sora,
+                    reviewedRoute: context,
+                    executionAdapterAvailable: true
+                ),
+                symbol
+            )
+            // Every node of the origin is reached over TLS.
+            XCTAssertFalse(origin.chain.nodes.isEmpty, symbol)
+            XCTAssertTrue(origin.chain.nodes.allSatisfy { $0.url.scheme?.lowercased() == "wss" }, symbol)
+        }
+    }
+
+    func testOwnedChainListOffersNoRetiredDirection() throws {
+        let chains = try Self.ownedChains()
+        let chainsById = Dictionary(chains.map { ($0.chainId, $0) }, uniquingKeysWith: { first, _ in first })
+
+        for definition in ReviewedXcmRouteRegistry.retiredRoutes {
+            let origin = try XCTUnwrap(chainsById[definition.originChainId], definition.originSymbol)
+            let offered = (origin.xcm?.availableDestinations ?? []).filter { destination in
+                definition.destinationChainIds.contains(destination.chainId) &&
+                    destination.assets.contains { $0.id == definition.xcmAssetId }
+            }
+            XCTAssertTrue(offered.isEmpty, "\(definition.originSymbol) to \(definition.execution.destinationChainId)")
+            XCTAssertNil(ReviewedXcmRouteRegistry.validatedOrigin(for: definition, chainsById: chainsById))
+        }
+        // The chains stay in the list, because saved balances and addresses refer to them.
+        XCTAssertEqual(
+            Set(Self.deadChainIds.compactMap { chainsById[$0]?.paraId }),
+            ["2004", "2023", "2012", "2025", "2011"]
+        )
+        for chain in chains {
+            for destination in chain.xcm?.availableDestinations ?? [] {
+                XCTAssertFalse(Self.deadChainIds.contains(destination.chainId), "\(chain.name) -> \(destination.chainId)")
+            }
+        }
+    }
+
+    func testOwnedFeeFileAgreesWithTheRegistryAndNamesNoDeadDestination() throws {
+        let chains = try Self.ownedChains()
+        let chainsById = Dictionary(chains.map { ($0.chainId, $0) }, uniquingKeysWith: { first, _ in first })
+        let fees = try JSONDecoder().decode([XcmFee].self, from: Self.ownedFile("xcm/v2/xcm_fees.json"))
+
+        XCTAssertTrue(fees.allSatisfy { !Self.deadChainIds.contains($0.chainId) })
+        XCTAssertEqual(Set(fees.map(\.chainId)).count, fees.count, "One fee entry per destination")
+
+        // The reviewed routes use their compiled fee; the file must not contradict it.
+        let soraFees = try XCTUnwrap(fees.first { $0.chainId == Self.soraId })
+        for definition in ReviewedXcmRouteRegistry.routes {
+            let rows = soraFees.destXcmFee.filter { $0.symbol == definition.originSymbol }
+            XCTAssertLessThanOrEqual(rows.count, 1, definition.originSymbol)
+            guard let row = rows.first else { continue }
+            let precision = try XCTUnwrap(row.precision.flatMap { Int16($0) }, definition.originSymbol)
+            XCTAssertEqual(UInt16(precision), definition.execution.destinationAsset?.precision, definition.originSymbol)
+            let fee = try XCTUnwrap(row.feeInPlanks, definition.originSymbol)
+            XCTAssertEqual(
+                Decimal.fromSubstrateAmount(fee, precision: precision),
+                Decimal.fromSubstrateAmount(
+                    try ReviewedXcmRouteRegistry.destinationFee(for: definition),
+                    precision: Int16(definition.originPrecision)
+                ),
+                definition.originSymbol
+            )
+        }
+        // Only Liberland's own assets arrive there; every stated precision is the one in Liberland's catalog.
+        let liberland = try XCTUnwrap(chainsById[Self.liberlandId])
+        let liberlandFees = try XCTUnwrap(fees.first { $0.chainId == Self.liberlandId })
+        for row in liberlandFees.destXcmFee {
+            let asset = try XCTUnwrap(liberland.assets.first { $0.symbol.uppercased() == row.symbol.uppercased() })
+            XCTAssertEqual(row.precision, String(asset.precision), row.symbol)
+        }
+    }
+
+    func testOwnedTokenLocationsUseWellFormedIdsAndNoDeadParachain() throws {
+        let data = try Self.ownedFile("xcm/v2/xcm_token_locations.json")
+        let groups = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [[String: Any]])
+        let uuid = try NSRegularExpression(pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+        let deadParachains: [ChainModel.Id: Set<Int>] = [
+            "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3": [2004, 2012, 2025],
+            "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe": [2011, 2023]
+        ]
+
+        for group in groups {
+            let chainId = try XCTUnwrap(group["chainId"] as? String)
+            // Locations keyed by SORA Mainnet served only transfers through SORA's halted parachains.
+            XCTAssertNotEqual(chainId, Self.soraId)
+            for asset in try XCTUnwrap(group["assets"] as? [[String: Any]]) {
+                let id = try XCTUnwrap(asset["id"] as? String)
+                XCTAssertEqual(uuid.numberOfMatches(in: id, range: NSRange(id.startIndex..., in: id)), 1, id)
+                let parachains = (asset["interiors"] as? [[String: Any]] ?? []).compactMap { $0["parachain"] as? Int }
+                XCTAssertTrue(
+                    Set(parachains).isDisjoint(with: deadParachains[chainId] ?? []),
+                    "\(id) names a parachain that can no longer receive"
+                )
+            }
+        }
+    }
+
+    // MARK: - Owned files
+
+    private static var cachedChains: [ChainModel]?
+
+    /// `remote-config/production` of the checkout these tests were built from.
+    private static func ownedFile(_ path: String) throws -> Data {
+        let repository = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        return try Data(contentsOf: repository.appendingPathComponent("remote-config/production/\(path)"))
+    }
+
+    private static func ownedChains() throws -> [ChainModel] {
+        if let cachedChains { return cachedChains }
+        let data = try ownedFile("chains/v13/chains.json")
+        let chains: [ChainModel]
+        if let decoded = try? JSONDecoder().decode([ChainModel].self, from: data) {
+            chains = decoded
+        } else {
+            chains = try JSONDecoder().decode(
+                [ChainModel].self,
+                from: ChainSyncService.coerceChainsPayloadForCompatibility(data)
+            )
+        }
+        cachedChains = chains
+        return chains
     }
 }
 
@@ -849,11 +1398,7 @@ private final class PresenterHarness {
 
     func feedFees() {
         presenter.didReceiveOriginFee(result: .success(BigUInt(10_000_000_000)))
-        let fee = try? JSONDecoder().decode(
-            DestXcmFee.self,
-            from: Data(#"{"feeInPlanks":"0","symbol":"\#(origin.asset.symbolUppercased)","precision":"18"}"#.utf8)
-        )
-        presenter.didReceiveDestinationFee(result: fee.map { .success($0) } ?? .failure(CommonError.internal))
+        presenter.didReceiveDestinationFee(result: .success(.zero))
     }
 
     func soraAddress(byte: UInt8) -> String {
@@ -979,11 +1524,18 @@ private final class CrossChainRouterSpy: CrossChainRouterInput {
 
 private final class CrossChainInteractorOutputSpy: CrossChainInteractorOutput {
     var onDestinationExistentialDeposit: (() -> Void)?
+    var onDestinationFee: (() -> Void)?
     private(set) var destinationExistentialDeposit: Result<BigUInt, Error>?
+    private(set) var destinationFee: Result<Decimal, Error>?
 
     func didReceiveAccountInfo(result _: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {}
     func didReceiveAvailableDestChainAssets(_: [ChainAsset]) {}
-    func didReceiveDestinationFee(result _: Result<DestXcmFee, Error>) {}
+
+    func didReceiveDestinationFee(result: Result<Decimal, Error>) {
+        destinationFee = result
+        onDestinationFee?()
+    }
+
     func didReceiveOriginFee(result _: Result<BigUInt, Error>) {}
     func didReceiveOrigin(chainAssets _: [ChainAsset]) {}
     func didSetup() {}
@@ -1123,12 +1675,18 @@ private struct AuthorizerStub: ReviewedCrossChainSubmissionAuthorizing {
 private final class ScriptedExecutor: ReviewedCrossChainExtrinsicExecuting {
     private let submitError: Error?
     private let outcome: ReviewedCrossChainDispatchOutcome
+    private let extrinsicHash: String
     var onSubmit: (() -> Void)?
     private(set) var submitCount = 0
 
-    init(submitError: Error? = nil, outcome: ReviewedCrossChainDispatchOutcome = .unknown) {
+    init(
+        submitError: Error? = nil,
+        outcome: ReviewedCrossChainDispatchOutcome = .unknown,
+        extrinsicHash: String = "0xhash"
+    ) {
         self.submitError = submitError
         self.outcome = outcome
+        self.extrinsicHash = extrinsicHash
     }
 
     func estimateFee(_: @escaping ExtrinsicBuilderClosure) async throws -> RuntimeDispatchInfo {
@@ -1141,7 +1699,7 @@ private final class ScriptedExecutor: ReviewedCrossChainExtrinsicExecuting {
         if let submitError {
             throw submitError
         }
-        return ReviewedCrossChainSubmissionReceipt(subscriptionId: "subscription", extrinsicHash: "0xhash")
+        return ReviewedCrossChainSubmissionReceipt(subscriptionId: "subscription", extrinsicHash: extrinsicHash)
     }
 
     func dispatchOutcome(for _: ReviewedCrossChainSubmissionReceipt) async -> ReviewedCrossChainDispatchOutcome {
@@ -1153,7 +1711,8 @@ private final class ConfirmationOutputSpy: CrossChainConfirmationInteractorOutpu
     let expectation: XCTestExpectation
     private(set) var result: ReviewedCrossChainSubmissionResult?
     private(set) var error: Error?
-    private(set) var unresolved: ReviewedCrossChainSubmissionRecord?
+    private(set) var unresolvedAttempts: [ReviewedCrossChainSubmissionRecord] = []
+    var unresolved: ReviewedCrossChainSubmissionRecord? { unresolvedAttempts.first }
 
     init(expectation: XCTestExpectation) {
         self.expectation = expectation
@@ -1169,9 +1728,184 @@ private final class ConfirmationOutputSpy: CrossChainConfirmationInteractorOutpu
         expectation.fulfill()
     }
 
-    func didFindUnresolvedSubmission(_ record: ReviewedCrossChainSubmissionRecord) {
-        unresolved = record
+    func didFindUnresolvedSubmission(_ records: [ReviewedCrossChainSubmissionRecord]) {
+        unresolvedAttempts = records
         expectation.fulfill()
+    }
+}
+
+/// A node for the dispatch watcher: it answers the block and its `System.Events` from a fixture and, once the watcher
+/// subscribes, reports the scripted extrinsic statuses in order and optionally ends the subscription.
+private final class ScriptedWatchEngine: JSONRPCEngine {
+    var connectionName: String?
+    var url: URL?
+    var pendingEngineRequests: [JSONRPCRequest] { [] }
+
+    private let block: LiberlandBlockFixture
+    private let statuses: [String]
+    private let endsSubscription: Bool
+
+    init(block: LiberlandBlockFixture, statuses: [String], endsSubscription: Bool) {
+        self.block = block
+        self.statuses = statuses
+        self.endsSubscription = endsSubscription
+    }
+
+    func callMethod<P: Codable, T: Decodable>(
+        _ method: String,
+        params _: P?,
+        options _: JSONRPCOptions,
+        completion closure: ((Result<T, Error>) -> Void)?
+    ) throws -> UInt16 {
+        let result: Any
+        switch method {
+        case RPCMethod.getChainBlock:
+            let header: [String: Any] = [
+                "digest": ["logs": [String]()],
+                "extrinsicsRoot": "0x00",
+                "number": "0x0",
+                "stateRoot": "0x00",
+                "parentHash": "0x00"
+            ]
+            result = ["block": ["header": header, "extrinsics": block.extrinsics], "justification": NSNull()]
+        case RPCMethod.getStorage:
+            result = block.events
+        default:
+            closure?(.failure(JSONRPCEngineError.unknownError))
+            return 0
+        }
+        let data = try JSONSerialization.data(withJSONObject: [result])
+        closure?(Result { try JSONDecoder().decode([T].self, from: data)[0] })
+        return 0
+    }
+
+    func subscribe<P: Codable, T: Decodable>(
+        _: String,
+        params _: P?,
+        updateClosure _: @escaping (T) -> Void,
+        failureClosure _: @escaping (Error, Bool) -> Void
+    ) throws -> UInt16 {
+        0
+    }
+
+    func addSubscription(_ subscription: JSONRPCSubscribing) {
+        let statuses = statuses
+        let endsSubscription = endsSubscription
+        DispatchQueue.global().async {
+            for status in statuses {
+                let update = #"{"jsonrpc":"2.0","method":"author_extrinsicUpdate","params":{"subscription":"subscription","result":\#(status)}}"#
+                try? subscription.handle(data: Data(update.utf8))
+            }
+            if endsSubscription {
+                subscription.handle(error: JSONRPCEngineError.remoteCancelled, unsubscribed: true)
+            }
+        }
+    }
+
+    func cancelForIdentifier(_: UInt16) {}
+    func generateRequestId() -> UInt16 { 1 }
+    func connectIfNeeded() {}
+    func disconnectIfNeeded() {}
+    func unsubsribe(_: UInt16) throws {}
+}
+
+/// `chain_getBlockHash`'s parameter as the extrinsic factory writes it: four big-endian bytes.
+private func blockNumberHex(_ number: UInt32) -> String {
+    String(format: "0x%08x", number)
+}
+
+/// A node for the extrinsic factory: nonce 0, a fixed hash for every block it is asked about except block 0, which it
+/// answers with SORA's genesis hash, and a subscription for the submitted extrinsic, which it keeps.
+private final class ExtrinsicRPCRecorder: JSONRPCEngine {
+    var connectionName: String?
+    var url: URL?
+    var pendingEngineRequests: [JSONRPCRequest] { [] }
+
+    private let lock = NSLock()
+    private var blockHashParameters: [String] = []
+    private var submittedExtrinsic: Data?
+
+    var blockHashRequests: [String] {
+        lock.lock()
+        defer { lock.unlock() }
+        return blockHashParameters
+    }
+
+    var submitted: Data? {
+        lock.lock()
+        defer { lock.unlock() }
+        return submittedExtrinsic
+    }
+
+    func callMethod<P: Codable, T: Decodable>(
+        _ method: String,
+        params: P?,
+        options _: JSONRPCOptions,
+        completion closure: ((Result<T, Error>) -> Void)?
+    ) throws -> UInt16 {
+        let parameters = (params as? [String]) ?? []
+        let answer: Any
+        switch method {
+        case RPCMethod.getExtrinsicNonce:
+            answer = 0
+        case RPCMethod.getBlockHash:
+            lock.lock()
+            blockHashParameters.append(contentsOf: parameters)
+            lock.unlock()
+            answer = parameters == [blockNumberHex(0)]
+                ? "0x" + ReviewedXcmRouteRegistry.soraChainId
+                : "0x" + String(repeating: "11", count: 32)
+        case "author_submitAndWatchExtrinsic":
+            let extrinsic = try parameters.first.map { try Data(hexStringSSF: $0) }
+            lock.lock()
+            submittedExtrinsic = extrinsic
+            lock.unlock()
+            answer = "subscription"
+        default:
+            closure?(.failure(JSONRPCEngineError.unknownError))
+            return 0
+        }
+        let data = try JSONSerialization.data(withJSONObject: [answer])
+        closure?(Result { try JSONDecoder().decode([T].self, from: data)[0] })
+        return 0
+    }
+
+    func subscribe<P: Codable, T: Decodable>(
+        _: String,
+        params _: P?,
+        updateClosure _: @escaping (T) -> Void,
+        failureClosure _: @escaping (Error, Bool) -> Void
+    ) throws -> UInt16 {
+        0
+    }
+
+    func addSubscription(_: JSONRPCSubscribing) {}
+    func cancelForIdentifier(_: UInt16) {}
+    func generateRequestId() -> UInt16 { 1 }
+    func connectIfNeeded() {}
+    func disconnectIfNeeded() {}
+    func unsubsribe(_: UInt16) throws {}
+}
+
+/// Signs with a fixed test key and keeps every payload it was asked to sign.
+private final class PayloadRecordingSigner: SigningWrapperProtocol {
+    private(set) var payloads: [Data] = []
+
+    func sign(_ originalData: Data) throws -> IRSignatureProtocol {
+        payloads.append(originalData)
+        return try DummySigner(cryptoType: .sr25519).sign(originalData)
+    }
+}
+
+/// A mortal era born at block 100, so the only block hash the factory needs is that block's.
+private struct FixedEraOperationFactory: ExtrinsicEraOperationFactoryProtocol {
+    func createOperation(
+        from _: JSONRPCEngine,
+        runtimeService _: RuntimeCodingServiceProtocol
+    ) -> CompoundOperationWrapper<ExtrinsicEraParameters> {
+        CompoundOperationWrapper(targetOperation: ClosureOperation {
+            ExtrinsicEraParameters(blockNumber: 100, extrinsicEra: .mortal(period: 64, phase: 36))
+        })
     }
 }
 

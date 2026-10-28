@@ -1531,6 +1531,48 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
         )
     }
 
+    func testSanitizerRefusesPlaintextWebSocketNodesFromRemoteLists() throws {
+        let baseChain = makeValidChain(
+            generatingAssets: 1,
+            addressPrefix: 42
+        )
+        let secureNode = ChainNodeModel(
+            url: try XCTUnwrap(URL(string: "wss://secure.example")),
+            name: "TLS",
+            apikey: nil
+        )
+        let plaintextNodes: Set<ChainNodeModel> = [
+            ChainNodeModel(
+                url: try XCTUnwrap(URL(string: "ws://plain.example")),
+                name: "Plaintext",
+                apikey: nil
+            ),
+            ChainNodeModel(
+                url: try XCTUnwrap(URL(string: "WS://127.0.0.1:9944")),
+                name: "Plaintext local",
+                apikey: nil
+            )
+        ]
+
+        let sanitized = try ChainSyncService.sanitizingRemoteChains(
+            [copy(baseChain, nodes: plaintextNodes.union([secureNode]))]
+        )
+        XCTAssertEqual(try XCTUnwrap(sanitized.first).nodes, Set([secureNode]))
+
+        // A chain the list names only plaintext nodes for has no usable node at all.
+        XCTAssertThrowsError(
+            try ChainSyncService.sanitizingRemoteChains([copy(baseChain, nodes: plaintextNodes)])
+        )
+        let disabled = try ChainSyncService.sanitizingRemoteChains(
+            [copy(baseChain, disabled: true, nodes: plaintextNodes)]
+        )
+        XCTAssertTrue(try XCTUnwrap(disabled.first).nodes.isEmpty)
+
+        // Nodes kept on the device, such as a local development node, are not remote input.
+        let localNode = try XCTUnwrap(plaintextNodes.first { $0.url.host == "127.0.0.1" })
+        XCTAssertTrue(ChainModelMapper.isNodeCompatibleWithRuntime(localNode, for: baseChain))
+    }
+
     func testPreservingPreferencesDropsRuntimeIncompatibleCustomSelection()
         throws {
         let substrateRemote = makeValidChain(

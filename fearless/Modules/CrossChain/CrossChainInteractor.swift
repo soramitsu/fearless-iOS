@@ -12,7 +12,8 @@ protocol CrossChainInteractorOutput: AnyObject {
         chainAsset: ChainAsset
     )
     func didReceiveAvailableDestChainAssets(_ chainAssets: [ChainAsset])
-    func didReceiveDestinationFee(result: Result<DestXcmFee, Error>)
+    /// The destination fee in units of the origin asset, compiled with the reviewed route.
+    func didReceiveDestinationFee(result: Result<Decimal, Error>)
     func didReceiveOriginFee(result: Result<BigUInt, Error>)
     func didReceiveOrigin(chainAssets: [ChainAsset])
     func didSetup()
@@ -223,13 +224,11 @@ final class CrossChainInteractor {
 // MARK: - CrossChainInteractorInput
 
 extension CrossChainInteractor: CrossChainInteractorInput {
-    func estimateFee(originChainAsset: ChainAsset, destinationChainModel: ChainModel, amount: Decimal?) {
+    func estimateFee(originChainAsset: ChainAsset, destinationChainModel _: ChainModel, amount: Decimal?) {
         let unwrappedAmount = amount.or(0)
         let inputAmount = (unwrappedAmount > 0) ? unwrappedAmount : 1
         let substrateAmount = inputAmount.toSubstrateAmount(precision: Int16(originChainAsset.asset.precision)) ?? BigUInt(1)
 
-        try? refreshDeps(originalChainAsset: originChainAsset)
-        let destinationFeeFetcher = deps?.xcmServices.destinationFeeFetcher
         let definition = ReviewedXcmRouteRegistry.definition(for: reviewedRoute)
 
         // Every request ends in a callback, so the form never waits forever on a quote that failed.
@@ -254,20 +253,19 @@ extension CrossChainInteractor: CrossChainInteractorInput {
                 self.output?.didReceiveOriginFee(result: result)
             }
         }
-        Task { [weak self] in
-            guard let self else { return }
-            let result: Result<DestXcmFee, Error>
-            if let destinationFeeFetcher {
-                result = await destinationFeeFetcher.estimateFee(
-                    destinationChainId: destinationChainModel.chainId,
-                    token: originChainAsset.asset.symbolUppercased
-                )
-            } else {
-                result = .failure(ReviewedCrossChainSubmissionError.destinationFeeUnavailable)
+        // The destination fee is compiled with the reviewed route; the unsigned remote fee file is not read for it.
+        let destinationFee = Result<Decimal, Error> {
+            guard let definition, reviewedRoute.validates(origin: originChainAsset) else {
+                throw ReviewedCrossChainSubmissionError.unreviewedRoute
             }
-            await MainActor.run {
-                self.output?.didReceiveDestinationFee(result: result)
+            let fee = try ReviewedXcmRouteRegistry.destinationFee(for: definition)
+            guard let value = Decimal.fromSubstrateAmount(fee, precision: Int16(definition.originPrecision)) else {
+                throw ReviewedCrossChainSubmissionError.destinationFeeUnavailable
             }
+            return value
+        }
+        DispatchQueue.main.async { [weak self] in
+            self?.output?.didReceiveDestinationFee(result: destinationFee)
         }
     }
 

@@ -8,7 +8,8 @@ import SSFUtils
 protocol CrossChainConfirmationInteractorOutput: AnyObject {
     func didTransfer(result: Result<ReviewedCrossChainSubmissionResult, Error>)
     /// The same transfer was handed to the network earlier and its outcome is unresolved. Nothing was signed or sent.
-    func didFindUnresolvedSubmission(_ record: ReviewedCrossChainSubmissionRecord)
+    /// `records` holds every such attempt, newest first.
+    func didFindUnresolvedSubmission(_ records: [ReviewedCrossChainSubmissionRecord])
 }
 
 final class CrossChainConfirmationInteractor {
@@ -61,6 +62,7 @@ final class CrossChainConfirmationInteractor {
         let startedAt = now()
         var record = ReviewedCrossChainSubmissionRecord(
             transferKey: authorized.transferKey,
+            attemptId: UUID().uuidString,
             intentSha256: authorized.intentSha256,
             status: .submitting,
             extrinsicHash: nil,
@@ -85,7 +87,9 @@ final class CrossChainConfirmationInteractor {
             receipt = try await authorized.executor.submit(authorized.builder)
         } catch {
             if Self.provesNothingWasSent(error) {
-                journal.remove(transferKey: record.transferKey)
+                // Only this attempt is withdrawn. An earlier attempt of the same transfer that may have reached the
+                // network keeps asking before the transfer is sent again.
+                journal.remove(record)
                 throw error
             }
             record.status = .inDoubt
@@ -101,8 +105,9 @@ final class CrossChainConfirmationInteractor {
 
         switch await authorized.executor.dispatchOutcome(for: receipt) {
         case .failed:
-            // The runtime rejected it in its block: nothing was burned, so sending it again cannot pay twice.
-            journal.remove(transferKey: record.transferKey)
+            // The runtime rejected this attempt in a finalized block: it burned nothing and cannot be included again.
+            // Earlier attempts keep their records.
+            journal.remove(record)
             throw ReviewedCrossChainDispatchError.extrinsicFailed(extrinsicHash: receipt.extrinsicHash)
         case let .succeeded(blockHash):
             record.status = .awaitingBridge
@@ -143,7 +148,14 @@ extension CrossChainConfirmationInteractor: CrossChainConfirmationInteractorInpu
                 guard mutationsEnabled() else {
                     throw ReviewedCrossChainSubmissionError.actionsPaused
                 }
-                if !confirmingRepeat, let unresolved = journal.unresolved(for: authorized.transferKey, now: now()) {
+                let unresolved: [ReviewedCrossChainSubmissionRecord]
+                do {
+                    unresolved = try journal.unresolved(for: authorized.transferKey, now: now())
+                } catch {
+                    // An attempt of this transfer may be among the records that cannot be read: fail closed.
+                    throw ReviewedCrossChainDispatchError.journalUnreadable
+                }
+                if !confirmingRepeat, !unresolved.isEmpty {
                     await MainActor.run {
                         self.output?.didFindUnresolvedSubmission(unresolved)
                     }
