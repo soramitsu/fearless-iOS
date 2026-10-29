@@ -6,36 +6,44 @@ final class IrohaToriiContractTests: XCTestCase {
         XCTAssertEqual(try IrohaToriiRoutes.healthURL().absoluteString, "https://taira.sora.org/health")
         XCTAssertEqual(try IrohaToriiRoutes.mcpURL().absoluteString, "https://taira.sora.org/v1/mcp")
         XCTAssertEqual(
-            try IrohaToriiRoutes.accountsURL(limit: 50, offset: 10, countMode: .exact).absoluteString,
-            "https://taira.sora.org/v1/accounts?limit=50&offset=10&count_mode=exact"
+            try IrohaToriiRoutes.accountsURL(limit: 50, cursor: Self.cursor).absoluteString,
+            "https://taira.sora.org/v1/accounts?limit=50&cursor=\(Self.cursor)"
         )
         XCTAssertEqual(
             try IrohaToriiRoutes.accountURL(accountID: Self.account).absoluteString,
             "https://taira.sora.org/v1/accounts/\(Self.encodedAccount)"
         )
         XCTAssertEqual(
+            try IrohaToriiRoutes.accountAssetsURL(accountID: Self.account, limit: 25).absoluteString,
+            "https://taira.sora.org/v1/accounts/\(Self.encodedAccount)/assets?limit=25"
+        )
+        XCTAssertEqual(
             try IrohaToriiRoutes.accountAssetsURL(
                 accountID: Self.account,
-                limit: 25,
-                countMode: .bounded,
-                asset: "xor#sora",
-                scope: "global"
+                limit: 500,
+                cursor: Self.cursor
             ).absoluteString,
-            "https://taira.sora.org/v1/accounts/\(Self.encodedAccount)/assets?limit=25&count_mode=bounded&asset=xor%23sora&scope=global"
+            "https://taira.sora.org/v1/accounts/\(Self.encodedAccount)/assets?limit=500&cursor=\(Self.cursor)"
         )
         XCTAssertEqual(
             try IrohaToriiRoutes.accountHistoryURL(
                 accountID: Self.account,
                 limit: 25,
-                offset: 5,
-                countMode: .bounded,
-                assetID: "xor#universal"
+                cursor: Self.cursor,
+                filter: IrohaToriiRoutes.transferHistoryFilter(
+                    assetDefinitionIDs: [UniversalWalletRegistry.tairaNativeXorAssetDefinitionId]
+                )
             ).absoluteString,
-            "https://taira.sora.org/v1/accounts/\(Self.encodedAccount)/history?limit=25&offset=5&count_mode=bounded&asset_id=xor%23universal"
+            "https://taira.sora.org/v1/accounts/\(Self.encodedAccount)/history?limit=25&cursor=\(Self.cursor)" +
+                "&filter=asset_definition_id%20in%20%5B%226TEAJqbb8oEPmLncoNiMRbLEK6tw%22%5D%20and%20type%20%3D%20%22TRANSFER%22"
         )
         XCTAssertEqual(
             try IrohaToriiRoutes.assetDefinitionsURL().absoluteString,
             "https://taira.sora.org/v1/assets/definitions"
+        )
+        XCTAssertEqual(
+            try IrohaToriiRoutes.assetDefinitionsURL(limit: 500, cursor: Self.cursor).absoluteString,
+            "https://taira.sora.org/v1/assets/definitions?limit=500&cursor=\(Self.cursor)"
         )
         XCTAssertEqual(
             try IrohaToriiRoutes.assetDefinitionURL(selector: "xor#universal").absoluteString,
@@ -79,14 +87,11 @@ final class IrohaToriiContractTests: XCTestCase {
         XCTAssertThrowsError(try IrohaToriiRoutes.accountURL(accountID: "../bad")) { error in
             XCTAssertEqual(error as? IrohaToriiRouteError, .invalidAccountID)
         }
-        XCTAssertThrowsError(try IrohaToriiRoutes.accountAssetsURL(accountID: Self.account, asset: "../bad")) { error in
+        XCTAssertThrowsError(try IrohaToriiRoutes.transferHistoryFilter(assetDefinitionIDs: ["../bad"])) { error in
             XCTAssertEqual(error as? IrohaToriiRouteError, .invalidAsset)
         }
-        XCTAssertThrowsError(try IrohaToriiRoutes.accountHistoryURL(accountID: Self.account, assetID: "../bad")) { error in
+        XCTAssertThrowsError(try IrohaToriiRoutes.transferHistoryFilter(assetDefinitionIDs: [])) { error in
             XCTAssertEqual(error as? IrohaToriiRouteError, .invalidAsset)
-        }
-        XCTAssertThrowsError(try IrohaToriiRoutes.accountAssetsURL(accountID: Self.account, scope: "bad/scope")) { error in
-            XCTAssertEqual(error as? IrohaToriiRouteError, .invalidScope)
         }
         XCTAssertThrowsError(try IrohaToriiRoutes.accountsURL(limit: 0)) { error in
             XCTAssertEqual(error as? IrohaToriiRouteError, .invalidLimit)
@@ -94,8 +99,18 @@ final class IrohaToriiContractTests: XCTestCase {
         XCTAssertThrowsError(try IrohaToriiRoutes.accountsURL(limit: 501)) { error in
             XCTAssertEqual(error as? IrohaToriiRouteError, .invalidLimit)
         }
-        XCTAssertThrowsError(try IrohaToriiRoutes.accountsURL(offset: -1)) { error in
-            XCTAssertEqual(error as? IrohaToriiRouteError, .invalidOffset)
+        for cursor in ["", "AQ8 bad", "AQ8&offset=0", "AQ8=", String(repeating: "A", count: 4097)] {
+            XCTAssertThrowsError(try IrohaToriiRoutes.accountsURL(cursor: cursor)) { error in
+                XCTAssertEqual(error as? IrohaToriiRouteError, .invalidCursor)
+            }
+            XCTAssertThrowsError(try IrohaToriiRoutes.accountHistoryURL(accountID: Self.account, cursor: cursor)) { error in
+                XCTAssertEqual(error as? IrohaToriiRouteError, .invalidCursor)
+            }
+        }
+        for filter in ["", "   ", "type = \"TRANSFER\"\n", String(repeating: "a", count: 2049)] {
+            XCTAssertThrowsError(try IrohaToriiRoutes.accountHistoryURL(accountID: Self.account, filter: filter)) { error in
+                XCTAssertEqual(error as? IrohaToriiRouteError, .invalidFilter)
+            }
         }
         XCTAssertThrowsError(try IrohaToriiRoutes.transactionStatusURL(hash: "not-a-hash")) { error in
             XCTAssertEqual(error as? IrohaToriiRouteError, .invalidHash)
@@ -106,6 +121,37 @@ final class IrohaToriiContractTests: XCTestCase {
         XCTAssertThrowsError(try IrohaToriiRoutes.mcpJSONRPCRequest(method: "../bad", id: "1")) { error in
             XCTAssertEqual(error as? IrohaToriiRouteError, .invalidMCPMethod)
         }
+    }
+
+    func testTransferHistoryFilterQuotesEachAssetDefinitionOnce() throws {
+        XCTAssertEqual(
+            try IrohaToriiRoutes.transferHistoryFilter(
+                assetDefinitionIDs: [
+                    UniversalWalletRegistry.tairaNativeXorAssetDefinitionId,
+                    " \(UniversalWalletRegistry.tairaNativeXorAssetDefinitionId) ",
+                    "61CtjvNd9T3THAR65GsMVHr82Bjc"
+                ]
+            ),
+            #"asset_definition_id in ["6TEAJqbb8oEPmLncoNiMRbLEK6tw", "61CtjvNd9T3THAR65GsMVHr82Bjc"] and type = "TRANSFER""#
+        )
+        XCTAssertEqual(
+            try IrohaToriiRoutes.transferHistoryFilter(assetDefinitionIDs: [#"a"b\c"#]),
+            #"asset_definition_id in ["a\"b\\c"] and type = "TRANSFER""#
+        )
+    }
+
+    func testEncodesFilterLiteralsExactlyIncludingPlusSigns() throws {
+        let url = try IrohaToriiRoutes.accountHistoryURL(
+            accountID: Self.account,
+            filter: #"asset_definition_id in ["a+b&c=d#e"] and type = "TRANSFER""#
+        )
+        let query = try XCTUnwrap(URLComponents(url: url, resolvingAgainstBaseURL: false)?.percentEncodedQuery)
+
+        XCTAssertEqual(
+            query,
+            "filter=asset_definition_id%20in%20%5B%22a%2Bb%26c%3Dd%23e%22%5D%20and%20type%20%3D%20%22TRANSFER%22"
+        )
+        XCTAssertFalse(query.contains("+"))
     }
 
     func testParsesAccountAssetQuantitiesAsStrings() throws {
@@ -119,19 +165,17 @@ final class IrohaToriiContractTests: XCTestCase {
               "scope": "global"
             }
           ],
-          "has_more": false,
-          "count_mode": "exact",
-          "total": 1
+          "next_cursor": "\(Self.cursor)"
         }
         """
         let response = try JSONDecoder().decode(IrohaAccountAssetListResponse.self, from: Data(json.utf8))
 
         XCTAssertEqual(response.items.first?.quantity, "340282366920938463463374607431768211455")
-        XCTAssertEqual(response.countMode, "exact")
-        XCTAssertEqual(response.total, 1)
+        XCTAssertEqual(response.nextCursor, Self.cursor)
+        XCTAssertNil(response.total)
     }
 
-    func testDecodesDeployedTairaLegacyPaginationWithoutInventingMetadata() throws {
+    func testDecodesDeployedTairaCursorPagination() throws {
         let accountAssetsJSON = """
         {
           "items": [
@@ -139,11 +183,12 @@ final class IrohaToriiContractTests: XCTestCase {
               "account_id": "\(Self.account)",
               "asset": "6TEAJqbb8oEPmLncoNiMRbLEK6tw",
               "asset_alias": "xor#universal",
+              "asset_name": "XOR",
               "quantity": "10000",
               "scope": "global"
             }
           ],
-          "total": 1
+          "next_cursor": null
         }
         """
         let accountAssets = try JSONDecoder().decode(
@@ -151,9 +196,7 @@ final class IrohaToriiContractTests: XCTestCase {
             from: Data(accountAssetsJSON.utf8)
         )
         XCTAssertEqual(accountAssets.items.count, 1)
-        XCTAssertNil(accountAssets.hasMore)
-        XCTAssertNil(accountAssets.countMode)
-        XCTAssertEqual(accountAssets.total, 1)
+        XCTAssertNil(accountAssets.nextCursor)
 
         let definitionsJSON = """
         {
@@ -164,7 +207,7 @@ final class IrohaToriiContractTests: XCTestCase {
               "spec": { "scale": null }
             }
           ],
-          "total": 1
+          "next_cursor": "\(Self.cursor)"
         }
         """
         let definitions = try JSONDecoder().decode(
@@ -172,9 +215,17 @@ final class IrohaToriiContractTests: XCTestCase {
             from: Data(definitionsJSON.utf8)
         )
         XCTAssertEqual(definitions.items.first?.id, UniversalWalletRegistry.tairaNativeXorAssetDefinitionId)
-        XCTAssertNil(definitions.hasMore)
-        XCTAssertNil(definitions.countMode)
-        XCTAssertEqual(definitions.total, 1)
+        XCTAssertEqual(definitions.nextCursor, Self.cursor)
+
+        let accountsJSON = """
+        {
+          "items": [{ "id": "\(Self.account)" }],
+          "next_cursor": "\(Self.cursor)"
+        }
+        """
+        let accounts = try JSONDecoder().decode(IrohaAccountListResponse.self, from: Data(accountsJSON.utf8))
+        XCTAssertEqual(accounts.items.map(\.id), [Self.account])
+        XCTAssertEqual(accounts.nextCursor, Self.cursor)
     }
 
     func testDecodesDeployedTairaAccountHistoryProjection() throws {
@@ -190,10 +241,10 @@ final class IrohaToriiContractTests: XCTestCase {
               "account_id": "\(Self.account)"
             },
             {
-              "id": "movement-1",
-              "source": "block_store",
+              "id": "\(Self.hash):\(Self.account):1",
+              "source": "transaction",
               "type": "TRANSFER",
-              "timestamp_ms": 1704067200000,
+              "timestamp_ms": 1793156101069,
               "status": "SUCCESS",
               "result_ok": true,
               "direction": "outgoing",
@@ -201,12 +252,14 @@ final class IrohaToriiContractTests: XCTestCase {
               "counterparty_account_id": "i105-peer",
               "asset_id": "6TEAJqbb8oEPmLncoNiMRbLEK6tw#\(Self.account)",
               "asset_definition_id": "6TEAJqbb8oEPmLncoNiMRbLEK6tw",
-              "amount": "1.25",
-              "tx_hash": "\(Self.hash)"
+              "amount": "25000",
+              "tx_hash": "\(Self.hash)",
+              "block_height": 5507,
+              "block_index": 0,
+              "movement_index": 1
             }
           ],
-          "has_more": false,
-          "count_mode": "bounded"
+          "next_cursor": "\(Self.cursor)"
         }
         """
         let response = try JSONDecoder().decode(
@@ -215,11 +268,12 @@ final class IrohaToriiContractTests: XCTestCase {
         )
 
         XCTAssertEqual(response.items.count, 2)
-        XCTAssertNil(response.total)
+        XCTAssertEqual(response.nextCursor, Self.cursor)
         XCTAssertEqual(response.items[0].type, "RAW_ON_CHAIN")
         XCTAssertNil(response.items[0].amount)
         XCTAssertEqual(response.items[1].assetDefinitionID, UniversalWalletRegistry.tairaNativeXorAssetDefinitionId)
-        XCTAssertEqual(response.items[1].amount, "1.25")
+        XCTAssertEqual(response.items[1].amount, "25000")
+        XCTAssertEqual(response.items[1].transactionHash, Self.hash)
     }
 
     func testParsesTransactionStatusAndMCPJSON() throws {
@@ -318,4 +372,6 @@ final class IrohaToriiContractTests: XCTestCase {
     private static let account = "testuﾛ1Pcﾅ2ﾗtﾉaﾘLﾕｽ2MヱﾐﾎｳﾓヱﾇﾆｲMﾒSﾏﾑヱﾇJヱFmJﾇMs6YN687Y"
     private static let encodedAccount = "testu%EF%BE%9B1Pc%EF%BE%852%EF%BE%97t%EF%BE%89a%EF%BE%98L%EF%BE%95%EF%BD%BD2M%E3%83%B1%EF%BE%90%EF%BE%8E%EF%BD%B3%EF%BE%93%E3%83%B1%EF%BE%87%EF%BE%86%EF%BD%B2M%EF%BE%92S%EF%BE%8F%EF%BE%91%E3%83%B1%EF%BE%87J%E3%83%B1FmJ%EF%BE%87Ms6YN687Y"
     private static let hash = String(repeating: "a", count: 64)
+    /// Shape of a live Taira history cursor (base64url, no padding).
+    private static let cursor = "AQ85p7D_UiA0KVpysGJxmhOHWzUwMTUsbnVsbCxudWxsXQ"
 }

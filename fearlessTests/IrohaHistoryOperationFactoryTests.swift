@@ -37,10 +37,9 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
         let invocation = try XCTUnwrap(client.accountHistoryInvocations.first)
         XCTAssertEqual(invocation.accountID, Self.tairaAddress)
         XCTAssertEqual(invocation.baseURL, "https://taira.sora.org")
-        XCTAssertEqual(invocation.limit, IrohaToriiRoutes.maxLimit)
-        XCTAssertEqual(invocation.offset, 0)
-        XCTAssertEqual(invocation.countMode, .bounded)
-        XCTAssertEqual(invocation.assetID, Self.assetId)
+        XCTAssertEqual(invocation.limit, 10)
+        XCTAssertNil(invocation.cursor)
+        XCTAssertEqual(invocation.filter, Self.xorTransferFilter)
         XCTAssertEqual(invocation.network, UniversalWalletRegistry.taira)
         XCTAssertEqual(client.mcpCalls, 0)
 
@@ -63,7 +62,7 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
                     Self.rawOnChainItem(id: "raw-1"),
                     Self.rawOnChainItem(id: "raw-2")
                 ],
-                hasMore: true
+                nextCursor: "cursor-1"
             ),
             Self.historyResponse(items: [
                 Self.historyItem(id: "movement-1", direction: "incoming", amount: "2"),
@@ -73,18 +72,17 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
 
         let page = try XCTUnwrap(execute(Self.tairaHistoryOperation(client: client, count: 2)))
 
-        XCTAssertEqual(client.accountHistoryInvocations.map(\.offset), [0, 2])
+        XCTAssertEqual(client.accountHistoryInvocations.map(\.cursor), [nil, "cursor-1"])
+        XCTAssertEqual(client.accountHistoryInvocations.map(\.limit), [2, 2])
         XCTAssertEqual(page.transactions.map(\.transactionId), ["movement-1", "movement-2"])
         XCTAssertNil(page.context)
     }
 
-    func testMissingMalformedOrNegativeTairaCursorStartsAtZero() throws {
+    func testContextWithoutCursorStartsFromTheNewestBlock() throws {
         let contexts: [PaginationContext?] = [
             nil,
             [:],
-            [IrohaHistoryOperationFactory.tairaRawOffsetKey: "not-a-number"],
-            [IrohaHistoryOperationFactory.tairaRawOffsetKey: "-1"],
-            [IrohaHistoryOperationFactory.tairaRawOffsetKey: "9223372036854775808"]
+            ["rawOffset": "500"]
         ]
         for context in contexts {
             let client = FakeIrohaToriiClient(historyResponses: [
@@ -93,19 +91,16 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
                 ])
             ])
             let page = try XCTUnwrap(execute(Self.tairaHistoryOperation(client: client, count: 1, context: context)))
-            XCTAssertEqual(client.accountHistoryInvocations.map(\.offset), [0])
+            XCTAssertEqual(client.accountHistoryInvocations.map(\.cursor), [nil])
             XCTAssertEqual(page.transactions.map(\.transactionId), ["first-transfer"])
         }
     }
 
-    func testTairaRawOffsetContextDoesNotDropUnconsumedHistoryItems() throws {
+    func testTairaCursorContextResumesAfterThePreviousPage() throws {
         let client = FakeIrohaToriiClient(historyResponses: [
             Self.historyResponse(
-                items: [
-                    Self.historyItem(id: "movement-1", direction: "outgoing", amount: "1"),
-                    Self.historyItem(id: "movement-2", direction: "incoming", amount: "2")
-                ],
-                hasMore: false
+                items: [Self.historyItem(id: "movement-1", direction: "outgoing", amount: "1")],
+                nextCursor: "cursor-1"
             ),
             Self.historyResponse(items: [
                 Self.historyItem(id: "movement-2", direction: "incoming", amount: "2")
@@ -114,7 +109,7 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
 
         let firstPage = try XCTUnwrap(execute(Self.tairaHistoryOperation(client: client, count: 1)))
         XCTAssertEqual(firstPage.transactions.map(\.transactionId), ["movement-1"])
-        XCTAssertEqual(firstPage.context?[IrohaHistoryOperationFactory.tairaRawOffsetKey], "1")
+        XCTAssertEqual(firstPage.context, [IrohaHistoryOperationFactory.toriiCursorKey: "cursor-1"])
 
         let secondPage = try XCTUnwrap(
             execute(
@@ -125,9 +120,85 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
                 )
             )
         )
-        XCTAssertEqual(client.accountHistoryInvocations.map(\.offset), [0, 1])
+        XCTAssertEqual(client.accountHistoryInvocations.map(\.cursor), [nil, "cursor-1"])
         XCTAssertEqual(secondPage.transactions.map(\.transactionId), ["movement-2"])
         XCTAssertNil(secondPage.context)
+    }
+
+    func testTairaHistoryFollowsEmptyScanWindowsUntilItFindsTransfers() throws {
+        let client = FakeIrohaToriiClient(historyResponses: [
+            Self.historyResponse(items: [], nextCursor: "cursor-1"),
+            Self.historyResponse(items: [], nextCursor: "cursor-2"),
+            Self.historyResponse(items: [], nextCursor: "cursor-3"),
+            Self.historyResponse(
+                items: [Self.historyItem(id: "old-transfer", direction: "incoming", amount: "7")],
+                nextCursor: "cursor-4"
+            )
+        ])
+
+        let page = try XCTUnwrap(execute(Self.tairaHistoryOperation(client: client, count: 100)))
+
+        XCTAssertEqual(client.accountHistoryInvocations.map(\.cursor), [nil, "cursor-1", "cursor-2", "cursor-3"])
+        XCTAssertEqual(page.transactions.map(\.transactionId), ["old-transfer"])
+        XCTAssertEqual(page.context, [IrohaHistoryOperationFactory.toriiCursorKey: "cursor-4"])
+    }
+
+    func testTairaHistoryStopsAtTheRequestBoundAndKeepsTheCursor() throws {
+        let bound = IrohaHistoryOperationFactory.maximumToriiRequestsPerPage
+        let client = FakeIrohaToriiClient(historyResponses: (1 ... bound + 1).map {
+            Self.historyResponse(items: [], nextCursor: "cursor-\($0)")
+        })
+
+        let page = try XCTUnwrap(execute(Self.tairaHistoryOperation(client: client, count: 100)))
+
+        XCTAssertEqual(client.accountHistoryInvocations.count, bound)
+        XCTAssertEqual(
+            client.accountHistoryInvocations.map(\.cursor),
+            [nil] + (1 ..< bound).map { Optional("cursor-\($0)") }
+        )
+        XCTAssertTrue(page.transactions.isEmpty)
+        XCTAssertEqual(page.context, [IrohaHistoryOperationFactory.toriiCursorKey: "cursor-\(bound)"])
+    }
+
+    func testTairaHistoryFailsWhenTheCursorDoesNotAdvance() throws {
+        let cases: [(PaginationContext?, [IrohaAccountHistoryResponse])] = [
+            (nil, [
+                Self.historyResponse(items: [], nextCursor: "cursor-1"),
+                Self.historyResponse(items: [], nextCursor: "cursor-1")
+            ]),
+            ([IrohaHistoryOperationFactory.toriiCursorKey: "cursor-1"], [
+                Self.historyResponse(items: [], nextCursor: "cursor-1")
+            ])
+        ]
+        for (context, responses) in cases {
+            let client = FakeIrohaToriiClient(historyResponses: responses)
+
+            XCTAssertThrowsError(
+                try execute(Self.tairaHistoryOperation(client: client, count: 10, context: context))
+            )
+            XCTAssertEqual(client.accountHistoryInvocations.count, responses.count)
+        }
+    }
+
+    func testTairaHistoryFailsWhenAPageRepeats() throws {
+        let page = [Self.rawOnChainItem(id: "raw-1"), Self.rawOnChainItem(id: "raw-2")]
+        let client = FakeIrohaToriiClient(historyResponses: [
+            Self.historyResponse(items: page, nextCursor: "cursor-1"),
+            Self.historyResponse(items: page, nextCursor: "cursor-2"),
+            Self.historyResponse(items: [Self.historyItem(id: "later", direction: "incoming", amount: "1")])
+        ])
+
+        XCTAssertThrowsError(try execute(Self.tairaHistoryOperation(client: client, count: 10)))
+        XCTAssertEqual(client.accountHistoryInvocations.count, 2)
+    }
+
+    func testTairaHistoryReportsToriiErrorsInsteadOfAnEmptyPage() throws {
+        let client = FakeIrohaToriiClient(historyResponses: [])
+
+        XCTAssertThrowsError(try execute(Self.tairaHistoryOperation(client: client, count: 10))) { error in
+            XCTAssertEqual(error as? TestError, .unexpectedEndpoint)
+        }
+        XCTAssertEqual(client.accountHistoryInvocations.count, 1)
     }
 
     func testMapsSelfTransferAndFailedTransferWithoutMergingTransactionIds() throws {
@@ -311,9 +382,8 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
             let accountID: String
             let baseURL: String?
             let limit: Int?
-            let offset: Int64?
-            let countMode: IrohaToriiCountMode?
-            let assetID: String?
+            let cursor: String?
+            let filter: String?
             let network: UniversalWalletRegistry.IrohaNetwork
         }
 
@@ -339,8 +409,7 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
         func accounts(
             baseURL _: String?,
             limit _: Int?,
-            offset _: Int64?,
-            countMode _: IrohaToriiCountMode?
+            cursor _: String?
         ) async throws -> IrohaAccountListResponse { throw TestError.unexpectedEndpoint }
 
         func account(
@@ -353,10 +422,7 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
             accountID _: String,
             baseURL _: String?,
             limit _: Int?,
-            offset _: Int64?,
-            countMode _: IrohaToriiCountMode?,
-            asset _: String?,
-            scope _: String?,
+            cursor _: String?,
             network _: UniversalWalletRegistry.IrohaNetwork
         ) async throws -> IrohaAccountAssetListResponse { throw TestError.unexpectedEndpoint }
 
@@ -364,9 +430,8 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
             accountID: String,
             baseURL: String?,
             limit: Int?,
-            offset: Int64?,
-            countMode: IrohaToriiCountMode?,
-            assetID: String?,
+            cursor: String?,
+            filter: String?,
             network: UniversalWalletRegistry.IrohaNetwork
         ) async throws -> IrohaAccountHistoryResponse {
             accountHistoryInvocations.append(
@@ -374,9 +439,8 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
                     accountID: accountID,
                     baseURL: baseURL,
                     limit: limit,
-                    offset: offset,
-                    countMode: countMode,
-                    assetID: assetID,
+                    cursor: cursor,
+                    filter: filter,
                     network: network
                 )
             )
@@ -461,16 +525,14 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
         )
     }
 
+    private static let xorTransferFilter =
+        #"asset_definition_id in ["6TEAJqbb8oEPmLncoNiMRbLEK6tw"] and type = "TRANSFER""#
+
     private static func historyResponse(
         items: [IrohaAccountHistoryItem],
-        hasMore: Bool? = false
+        nextCursor: String? = nil
     ) -> IrohaAccountHistoryResponse {
-        IrohaAccountHistoryResponse(
-            items: items,
-            hasMore: hasMore,
-            countMode: IrohaToriiCountMode.bounded.rawValue,
-            total: nil
-        )
+        IrohaAccountHistoryResponse(items: items, nextCursor: nextCursor)
     }
 
     private static func rawOnChainItem(id: String) -> IrohaAccountHistoryItem {

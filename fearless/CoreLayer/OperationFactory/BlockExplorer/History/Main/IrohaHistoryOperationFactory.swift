@@ -6,9 +6,11 @@ import SSFUtils
 
 final class IrohaHistoryOperationFactory {
     static let paginationPageKey = "page"
-    static let tairaRawOffsetKey = "rawOffset"
+    static let toriiCursorKey = "cursor"
 
-    private static let maximumTairaPagesPerRequest = 1000
+    /// Torii scans about 500 blocks per history request, whatever the limit, so one page of
+    /// transfers may take several requests. A page stops after this many.
+    static let maximumToriiRequestsPerPage = 10
 
     private let client: IrohaToriiClientProtocol
 
@@ -60,19 +62,18 @@ final class IrohaHistoryOperationFactory {
         address: String,
         pagination: Pagination
     ) -> BaseOperation<AssetTransactionPageData?> {
+        // Errors reach the caller, so the history screen keeps the rows it has and offers a
+        // retry. An empty page would replace cached history and look like an account without
+        // transfers.
         AwaitOperation { [client] in
-            do {
-                return try await self.fetchIrohaHistoryPage(
-                    client: client,
-                    asset: asset,
-                    chain: chain,
-                    network: network,
-                    address: address,
-                    pagination: pagination
-                )
-            } catch {
-                return AssetTransactionPageData(transactions: [])
-            }
+            try await self.fetchIrohaHistoryPage(
+                client: client,
+                asset: asset,
+                chain: chain,
+                network: network,
+                address: address,
+                pagination: pagination
+            )
         }
     }
 
@@ -86,15 +87,12 @@ final class IrohaHistoryOperationFactory {
     ) async throws -> AssetTransactionPageData {
         let limit = min(pagination.count, IrohaToriiRoutes.maxLimit)
         if network == UniversalWalletRegistry.taira {
-            let rawOffset: Int64 = (pagination.context?[Self.tairaRawOffsetKey])
-                .flatMap { Int64($0) }
-                .flatMap { $0 >= 0 ? $0 : nil } ?? 0
-            return try await fetchTairaHistoryPage(
+            return try await fetchToriiHistoryPage(
                 client: client,
                 asset: asset,
                 network: network,
                 address: address,
-                rawOffset: rawOffset,
+                cursor: pagination.context?[Self.toriiCursorKey],
                 limit: limit,
                 baseURL: historyBaseURL(for: chain, network: network)
             )
@@ -139,68 +137,54 @@ final class IrohaHistoryOperationFactory {
         return AssetTransactionPageData(transactions: transactions, context: nextContext)
     }
 
-    private func fetchTairaHistoryPage(
+    private func fetchToriiHistoryPage(
         client: IrohaToriiClientProtocol,
         asset: AssetModel,
         network: UniversalWalletRegistry.IrohaNetwork,
         address: String,
-        rawOffset: Int64,
+        cursor: String?,
         limit: Int,
         baseURL: String?
     ) async throws -> AssetTransactionPageData {
-        var nextRawOffset = rawOffset
-        var transactions: [AssetTransactionData] = []
+        let filter = try IrohaToriiRoutes.transferHistoryFilter(assetDefinitionIDs: [asset.id])
+        var nextCursor = cursor
+        var seenCursors = Set([cursor].compactMap { $0 })
         var pageFingerprints = Set<String>()
+        var transactions: [AssetTransactionData] = []
+        var requestCount = 0
 
-        for _ in 0 ..< Self.maximumTairaPagesPerRequest {
+        // A filtered page can be empty while older transfers remain. Follow those continuations
+        // up to the bound, then return what was found with the cursor: an account without recent
+        // transfers shows no rows instead of an error, and the next page resumes from the cursor.
+        repeat {
             let response = try await client.accountHistory(
                 accountID: address,
                 baseURL: baseURL,
-                limit: IrohaToriiRoutes.maxLimit,
-                offset: nextRawOffset,
-                countMode: .bounded,
-                assetID: asset.id,
+                limit: limit,
+                cursor: nextCursor,
+                filter: filter,
                 network: network
             )
+            requestCount += 1
+
             let fingerprint = response.items.map(\.id).joined(separator: "\u{1F}")
             guard response.items.isEmpty || pageFingerprints.insert(fingerprint).inserted else {
                 throw ConvenienceError(error: "Iroha account-history pagination repeated a page")
             }
-
-            var consumedItems = 0
-            for item in response.items {
-                consumedItems += 1
-                if let transaction = item.transactionData(accountAddress: address, asset: asset) {
-                    transactions.append(transaction)
-                    if transactions.count == limit {
-                        break
-                    }
-                }
+            transactions += response.items.compactMap {
+                $0.transactionData(accountAddress: address, asset: asset)
             }
 
-            guard let consumedItems64 = Int64(exactly: consumedItems),
-                  nextRawOffset <= Int64.max - consumedItems64 else {
-                throw ConvenienceError(error: "Iroha account-history pagination overflow")
-            }
-            nextRawOffset += consumedItems64
-
-            let hasUnconsumedItems = consumedItems < response.items.count
-            let serverHasMore = response.hasMore ?? (
-                response.items.count >= IrohaToriiRoutes.maxLimit
-            )
-            let hasMore = hasUnconsumedItems || serverHasMore
-
-            if transactions.count == limit || !hasMore {
-                let context = hasMore ? [Self.tairaRawOffsetKey: String(nextRawOffset)] : nil
-                return AssetTransactionPageData(transactions: transactions, context: context)
-            }
-
-            guard consumedItems > 0 else {
+            nextCursor = response.nextCursor.flatMap { $0.isEmpty ? nil : $0 }
+            if let nextCursor, !seenCursors.insert(nextCursor).inserted {
                 throw ConvenienceError(error: "Iroha account-history pagination made no progress")
             }
-        }
+        } while transactions.isEmpty && nextCursor != nil && requestCount < Self.maximumToriiRequestsPerPage
 
-        throw ConvenienceError(error: "Iroha account-history pagination exceeded its page limit")
+        return AssetTransactionPageData(
+            transactions: transactions,
+            context: nextCursor.map { [Self.toriiCursorKey: $0] }
+        )
     }
 
     private func emptyPage() -> CompoundOperationWrapper<AssetTransactionPageData?> {

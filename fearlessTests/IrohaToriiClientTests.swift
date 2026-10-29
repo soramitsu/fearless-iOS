@@ -7,38 +7,50 @@ final class IrohaToriiClientTests: XCTestCase {
         let client = IrohaToriiClient(transport: transport)
 
         transport.enqueue(Self.accountListJSON)
-        _ = try await client.accounts(limit: 50, offset: 10, countMode: .exact)
+        let accounts = try await client.accounts(limit: 50, cursor: Self.cursor)
         XCTAssertEqual(
             transport.lastRequest?.url?.absoluteString,
-            "https://taira.sora.org/v1/accounts?limit=50&offset=10&count_mode=exact"
+            "https://taira.sora.org/v1/accounts?limit=50&cursor=\(Self.cursor)"
         )
         XCTAssertEqual(transport.lastRequest?.httpMethod, "GET")
+        XCTAssertEqual(accounts.nextCursor, Self.nextCursor)
 
         transport.enqueue(Self.accountAssetsJSON)
-        _ = try await client.accountAssets(
-            accountID: Self.account,
-            limit: 25,
-            countMode: .bounded,
-            asset: "xor#sora",
-            scope: "global"
-        )
+        let assets = try await client.accountAssets(accountID: Self.account, limit: 500, cursor: Self.cursor)
         XCTAssertEqual(
             transport.lastRequest?.url?.absoluteString,
-            "https://taira.sora.org/v1/accounts/\(Self.encodedAccount)/assets?limit=25&count_mode=bounded&asset=xor%23sora&scope=global"
+            "https://taira.sora.org/v1/accounts/\(Self.encodedAccount)/assets?limit=500&cursor=\(Self.cursor)"
         )
+        XCTAssertNil(assets.nextCursor)
 
         transport.enqueue(Self.accountHistoryJSON)
-        _ = try await client.accountHistory(
+        let history = try await client.accountHistory(
             accountID: Self.account,
             limit: 25,
-            offset: 5,
-            countMode: .bounded,
-            assetID: UniversalWalletRegistry.tairaNativeXorAssetDefinitionId
+            cursor: Self.cursor,
+            filter: #"type = "TRANSFER""#
         )
         XCTAssertEqual(
             transport.lastRequest?.url?.absoluteString,
-            "https://taira.sora.org/v1/accounts/\(Self.encodedAccount)/history?limit=25&offset=5&count_mode=bounded&asset_id=6TEAJqbb8oEPmLncoNiMRbLEK6tw"
+            "https://taira.sora.org/v1/accounts/\(Self.encodedAccount)/history?limit=25&cursor=\(Self.cursor)" +
+                "&filter=type%20%3D%20%22TRANSFER%22"
         )
+        XCTAssertEqual(history.nextCursor, Self.nextCursor)
+
+        transport.enqueue(Self.assetDefinitionsJSON)
+        _ = try await client.assetDefinitions(limit: 500, cursor: Self.cursor)
+        XCTAssertEqual(
+            transport.lastRequest?.url?.absoluteString,
+            "https://taira.sora.org/v1/assets/definitions?limit=500&cursor=\(Self.cursor)"
+        )
+
+        for url in transport.requestedURLs {
+            let names = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.map(\.name) ?? []
+            XCTAssertTrue(
+                Set(names).isSubset(of: ["filter", "sort", "select", "limit", "cursor", "include_total"]),
+                "Torii list routes reject \(names)"
+            )
+        }
 
         transport.enqueue(Self.transactionStatusJSON)
         _ = try await client.transactionStatus(hash: Self.hash, scope: .global)
@@ -147,6 +159,7 @@ final class IrohaToriiClientTests: XCTestCase {
     private final class FakeIrohaToriiTransport: UniversalWalletHTTPTransport {
         private var queuedResponses: [Data] = []
         private(set) var lastRequest: URLRequest?
+        private(set) var requestedURLs: [URL] = []
 
         func enqueue(_ data: Data) {
             queuedResponses.append(data)
@@ -154,6 +167,7 @@ final class IrohaToriiClientTests: XCTestCase {
 
         func perform(_ request: URLRequest) async throws -> Data {
             lastRequest = request
+            request.url.map { requestedURLs.append($0) }
             return queuedResponses.isEmpty ? Data("{}".utf8) : queuedResponses.removeFirst()
         }
     }
@@ -163,13 +177,13 @@ final class IrohaToriiClientTests: XCTestCase {
     private static let nexusAccount = "sorauﾛ1Pcﾅ2ﾗtﾉaﾘLﾕｽ2MヱﾐﾎｳﾓヱｷﾆｲMﾒSﾏｱヱｷJヱFmJﾇMs6YN687Y"
     private static let encodedNexusAccount = "sorau%EF%BE%9B1Pc%EF%BE%852%EF%BE%97t%EF%BE%89a%EF%BE%98L%EF%BE%95%EF%BD%BD2M%E3%83%B1%EF%BE%90%EF%BE%8E%EF%BD%B3%EF%BE%93%E3%83%B1%EF%BD%B7%EF%BE%86%EF%BD%B2M%EF%BE%92S%EF%BE%8F%EF%BD%B1%E3%83%B1%EF%BD%B7J%E3%83%B1FmJ%EF%BE%87Ms6YN687Y"
     private static let hash = String(repeating: "a", count: 64)
+    private static let cursor = "AQ85p7D_UiA0KVpysGJxmhOHWzUwMTUsbnVsbCxudWxsXQ"
+    private static let nextCursor = "AQ8i6N21Sx9weHBz63OYcjWdWzQ1MTcsbnVsbCxudWxsXQ"
 
     private static let accountListJSON = Data("""
     {
       "items": [{ "id": "\(account)" }],
-      "has_more": false,
-      "count_mode": "exact",
-      "total": 1
+      "next_cursor": "\(nextCursor)"
     }
     """.utf8)
 
@@ -191,8 +205,14 @@ final class IrohaToriiClientTests: XCTestCase {
           "scope": "global"
         }
       ],
-      "has_more": false,
-      "count_mode": "bounded"
+      "next_cursor": null
+    }
+    """.utf8)
+
+    private static let assetDefinitionsJSON = Data("""
+    {
+      "items": [{ "id": "6TEAJqbb8oEPmLncoNiMRbLEK6tw", "alias": "xor#universal", "spec": { "scale": null } }],
+      "next_cursor": null
     }
     """.utf8)
 
@@ -214,8 +234,7 @@ final class IrohaToriiClientTests: XCTestCase {
           "amount": "1.25"
         }
       ],
-      "has_more": false,
-      "count_mode": "bounded"
+      "next_cursor": "\(nextCursor)"
     }
     """.utf8)
 
