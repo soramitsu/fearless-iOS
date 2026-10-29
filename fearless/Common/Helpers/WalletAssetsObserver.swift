@@ -226,9 +226,12 @@ final class AssetDiscoveryServiceAdapter: AssetDiscoveryService {
             switch result {
             case let .success(accountInfos):
                 accountInfosByChain[chain] = accountInfos
-            case .failure:
+            case let .failure(error):
                 failedChainIds.insert(chain.chainId)
-                if let lastKnownProvider = accountInfoRemote as? AccountInfoLastKnownBalanceProviding {
+                if let incomplete = error as? IncompleteAccountInfosError, incomplete.accountInfos.isNotEmpty {
+                    // The scan failed, but the balances it read are fresh.
+                    accountInfosByChain[chain] = incomplete.accountInfos
+                } else if let lastKnownProvider = accountInfoRemote as? AccountInfoLastKnownBalanceProviding {
                     let retained = lastKnownProvider.lastKnownAccountInfos(
                         for: chain,
                         wallet: wallet

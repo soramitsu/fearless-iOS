@@ -24,6 +24,7 @@ final class EthereumNodeFailoverTests: XCTestCase {
         id: token, name: "Optimism", symbol: "OP", precision: 18, isUtility: false, isNative: false, ethereumType: .erc20
     )
     private let accountId = Data(repeating: 0x11, count: 20)
+    private let wallet = AccountGenerator.generateMetaAccount()
 
     override func tearDown() {
         EthereumNodeURLProtocol.clear()
@@ -110,6 +111,49 @@ final class EthereumNodeFailoverTests: XCTestCase {
         } catch {
             XCTAssertTrue(EthereumNodeFailure.isNodeFailure(error), "\(error)")
         }
+    }
+
+    // MARK: - Batches
+
+    func testRevertingTokenLeavesTheEtherBalanceNextToItReadAndCached() async throws {
+        let chain = makeChain(nodes: [Self.reverting, Self.live])
+        let batch = makeBatch([(chain, [Self.reverting, Self.live])])
+        let ether = ChainAsset(chain: chain, asset: Self.etherAsset)
+        let token = ChainAsset(chain: chain, asset: Self.tokenAsset)
+
+        let balances = try await batch.fetching.fetch(for: [ether, token], wallet: wallet)
+
+        XCTAssertEqual(balances[ether]??.data.free, BigUInt(10).power(18))
+        // The token is left out rather than given no balance, and nothing is cached over its balance.
+        XCTAssertFalse(balances.keys.contains(token))
+        let etherKey = try storageKey(ether)
+        XCTAssertEqual(try batch.cachedBalances(), [etherKey: BigUInt(10).power(18)])
+        // A revert is the chain's answer, so the network stays on its node.
+        XCTAssertFalse(EthereumNodeURLProtocol.requests.contains { $0.url == Self.live })
+    }
+
+    func testNetworkWithNoWorkingNodeLeavesTheOtherNetworksBalancesReadAndCached() async throws {
+        let optimism = makeChain(nodes: [Self.dead])
+        // The other-network node serves Ethereum (chain id 1), with 999 of each.
+        let ethereum = makeChain(chainId: "1", name: "Ethereum", nodes: [Self.otherNetwork])
+        let batch = makeBatch([(optimism, [Self.dead]), (ethereum, [Self.otherNetwork])])
+        let assets = [optimism, ethereum].flatMap { chain in
+            [Self.etherAsset, Self.tokenAsset].map { ChainAsset(chain: chain, asset: $0) }
+        }
+
+        let balances = try await batch.fetching.fetch(for: assets, wallet: wallet)
+
+        let read = assets.filter { $0.chain.chainId == ethereum.chainId }
+        let amount = 999 * BigUInt(10).power(18)
+        XCTAssertEqual(Set(balances.keys), Set(read))
+        read.forEach { XCTAssertEqual(balances[$0]??.data.free, amount) }
+        var expected: [String: BigUInt] = [:]
+        for chainAsset in read {
+            let key = try storageKey(chainAsset)
+            expected[key] = amount
+        }
+        XCTAssertEqual(try batch.cachedBalances(), expected)
+        XCTAssertTrue(EthereumNodeURLProtocol.requests.contains { $0.url == Self.dead })
     }
 
     // MARK: - Pool
@@ -242,14 +286,19 @@ final class EthereumNodeFailoverTests: XCTestCase {
         let fetching: EthereumRemoteBalanceFetching
     }
 
-    private func makeChain(nodes: [String], chosen: String? = nil) -> ChainModel {
+    private func makeChain(
+        chainId: ChainModel.Id = "10",
+        name: String = "OP Mainnet",
+        nodes: [String],
+        chosen: String? = nil
+    ) -> ChainModel {
         let nodeModels = nodes.compactMap { URL(string: $0) }.map { ChainNodeModel(url: $0, name: $0.absoluteString, apikey: nil) }
         return ChainModel(
             rank: 1,
             disabled: false,
-            chainId: "10",
+            chainId: chainId,
             paraId: nil,
-            name: "OP Mainnet",
+            name: name,
             assets: [Self.etherAsset, Self.tokenAsset],
             xcm: nil,
             nodes: Set(nodeModels),
@@ -270,12 +319,12 @@ final class EthereumNodeFailoverTests: XCTestCase {
             nodeFetching: EthereumNodeFetching(session: URLSession(configuration: configuration)),
             catalogOrder: FixedCatalogOrder([chain.chainId: nodes.compactMap(URL.init(string:))])
         )
-        let registry = PoolChainRegistry(chain: chain, pool: pool)
+        let registry = PoolChainRegistry(chains: [chain], pool: pool)
         let fetching = EthereumRemoteBalanceFetching(
             chainRegistry: registry,
             repositoryWrapper: BalanceRepositoryCacheWrapper(
                 logger: Logger.shared,
-                repository: AnyDataProviderRepository(DiscardingRepository<AccountInfoStorageWrapper>()),
+                repository: AnyDataProviderRepository(RecordingRepository<AccountInfoStorageWrapper>()),
                 operationManager: OperationManager()
             ),
             nodeReadTimeout: readTimeout
@@ -287,6 +336,51 @@ final class EthereumNodeFailoverTests: XCTestCase {
             token: ChainAsset(chain: chain, asset: Self.tokenAsset),
             pool: pool,
             fetching: fetching
+        )
+    }
+
+    private struct Batch {
+        let fetching: EthereumRemoteBalanceFetching
+        let cache: RecordingRepository<AccountInfoStorageWrapper>
+        let cacheQueue: OperationQueue
+
+        /// The free balances cached, by storage key, once every cache write has finished.
+        func cachedBalances() throws -> [String: BigUInt] {
+            cacheQueue.waitUntilAllOperationsAreFinished()
+            return try cache.saved.mapValues { try JSONDecoder().decode(AccountInfo.self, from: $0.data).data.free }
+        }
+    }
+
+    /// EVM networks that share a pool and a balance cache, each with its nodes in catalog order.
+    private func makeBatch(_ networks: [(chain: ChainModel, nodes: [String])]) -> Batch {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [EthereumNodeURLProtocol.self]
+        let order = Dictionary(uniqueKeysWithValues: networks.map { ($0.chain.chainId, $0.nodes.compactMap(URL.init(string:))) })
+        let pool = EthereumConnectionPool(
+            nodeFetching: EthereumNodeFetching(session: URLSession(configuration: configuration)),
+            catalogOrder: FixedCatalogOrder(order)
+        )
+        let cache = RecordingRepository<AccountInfoStorageWrapper>()
+        let cacheQueue = OperationQueue()
+        let fetching = EthereumRemoteBalanceFetching(
+            chainRegistry: PoolChainRegistry(chains: networks.map { $0.chain }, pool: pool),
+            repositoryWrapper: BalanceRepositoryCacheWrapper(
+                logger: Logger.shared,
+                repository: AnyDataProviderRepository(cache),
+                operationManager: OperationManager(operationQueue: cacheQueue)
+            ),
+            nodeReadTimeout: 5
+        )
+
+        return Batch(fetching: fetching, cache: cache, cacheQueue: cacheQueue)
+    }
+
+    /// Where the balance fetching caches this wallet's balance of `chainAsset`.
+    private func storageKey(_ chainAsset: ChainAsset) throws -> String {
+        let accountId = try XCTUnwrap(wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId)
+        return try LocalStorageKeyFactory().createFromStoragePath(
+            chainAsset.storagePath,
+            chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
         )
     }
 
@@ -428,18 +522,18 @@ private final class FixedCatalogOrder: EthereumNodeCatalogOrderProtocol {
     func record(catalog _: Data) {}
 }
 
-/// The registry's EVM part for one network: connections come from the pool, as `ChainRegistry` hands them out.
+/// The registry's EVM part for some networks: connections come from the pool, as `ChainRegistry` hands them out.
 private final class PoolChainRegistry: ChainRegistryProtocol {
-    let chain: ChainModel
+    let chains: [ChainModel]
     let pool: EthereumConnectionPool
 
-    init(chain: ChainModel, pool: EthereumConnectionPool) {
-        self.chain = chain
+    init(chains: [ChainModel], pool: EthereumConnectionPool) {
+        self.chains = chains
         self.pool = pool
     }
 
-    var availableChainIds: Set<ChainModel.Id>? { [chain.chainId] }
-    var availableChains: [ChainModel] { [chain] }
+    var availableChainIds: Set<ChainModel.Id>? { Set(chains.map(\.chainId)) }
+    var availableChains: [ChainModel] { chains }
     var chainsTypesMap: [String: Data] { [:] }
 
     func resetConnection(for chainId: ChainModel.Id) {
@@ -451,11 +545,11 @@ private final class PoolChainRegistry: ChainRegistryProtocol {
     func getConnection(for _: ChainModel.Id) -> ChainConnection? { nil }
 
     func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth? {
-        chainId == chain.chainId ? try? pool.setupConnection(for: chain) : nil
+        getChain(for: chainId).flatMap { try? pool.setupConnection(for: $0) }
     }
 
     func failoverEthereumConnection(for chainId: ChainModel.Id, failed: Web3.Eth) -> Web3.Eth? {
-        chainId == chain.chainId ? pool.failover(for: chain, failed: failed) : nil
+        getChain(for: chainId).flatMap { pool.failover(for: $0, failed: failed) }
     }
 
     func getTonApiClientFactory() throws -> TonAPIClientFactory {
@@ -465,7 +559,7 @@ private final class PoolChainRegistry: ChainRegistryProtocol {
     func getRuntimeProvider(for _: ChainModel.Id) -> RuntimeProviderProtocol? { nil }
 
     func getChain(for chainId: ChainModel.Id) -> ChainModel? {
-        chainId == chain.chainId ? chain : nil
+        chains.first { $0.chainId == chainId }
     }
 
     func chainsSubscribe(
@@ -481,8 +575,18 @@ private final class PoolChainRegistry: ChainRegistryProtocol {
     func subscribeToChains() {}
 }
 
-private final class DiscardingRepository<T: Identifiable>: DataProviderRepositoryProtocol {
+/// Stores nothing it can be asked for, and keeps what is saved to it, by identifier, for the test to read.
+private final class RecordingRepository<T: Identifiable>: DataProviderRepositoryProtocol {
     typealias Model = T
+
+    private let lock = NSLock()
+    private var recorded: [String: T] = [:]
+
+    var saved: [String: T] {
+        lock.lock()
+        defer { lock.unlock() }
+        return recorded
+    }
 
     func fetchOperation(by _: @escaping () throws -> [String], options _: RepositoryFetchOptions) -> BaseOperation<[T]> {
         ClosureOperation { [] }
@@ -500,12 +604,24 @@ private final class DiscardingRepository<T: Identifiable>: DataProviderRepositor
         ClosureOperation { [] }
     }
 
-    func saveOperation(_: @escaping () throws -> [T], _: @escaping () throws -> [String]) -> BaseOperation<Void> {
-        ClosureOperation { () }
+    func saveOperation(_ updates: @escaping () throws -> [T], _: @escaping () throws -> [String]) -> BaseOperation<Void> {
+        ClosureOperation<Void> { [weak self] in
+            let models = try updates()
+            self?.record(models)
+        }
     }
 
-    func saveBatchOperation(_: @escaping () throws -> [T], _: @escaping () throws -> [String]) -> BaseOperation<Void> {
-        ClosureOperation { () }
+    func saveBatchOperation(_ updates: @escaping () throws -> [T], _: @escaping () throws -> [String]) -> BaseOperation<Void> {
+        ClosureOperation<Void> { [weak self] in
+            let models = try updates()
+            self?.record(models)
+        }
+    }
+
+    private func record(_ models: [T]) {
+        lock.lock()
+        models.forEach { recorded[$0.identifier] = $0 }
+        lock.unlock()
     }
 
     func replaceOperation(_: @escaping () throws -> [T]) -> BaseOperation<Void> {

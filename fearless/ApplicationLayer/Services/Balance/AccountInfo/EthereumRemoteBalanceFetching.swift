@@ -102,6 +102,28 @@ final actor EthereumRemoteBalanceFetching {
         }
     }
 
+    private func fetchAndCache(_ chainAsset: ChainAsset, wallet: MetaAccountModel) async throws -> AccountInfo? {
+        guard
+            let account = wallet.fetch(for: chainAsset.chain.accountRequest()),
+            let address = account.toAddress()
+        else {
+            return nil
+        }
+
+        let accountInfo: AccountInfo?
+        switch chainAsset.asset.ethereumType {
+        case .normal:
+            accountInfo = try await fetchETHBalance(for: chainAsset, address: address)
+        case .erc20, .bep20:
+            accountInfo = try await fetchERC20Balance(for: chainAsset, address: address)
+        case .none:
+            return nil
+        }
+
+        try cache(accountInfo: accountInfo, chainAsset: chainAsset, accountId: account.accountId)
+        return accountInfo
+    }
+
     private func cache(accountInfo: AccountInfo?, chainAsset: ChainAsset, accountId: AccountId) throws {
         guard let accountInfo else { return }
         let storagePath = chainAsset.storagePath
@@ -138,11 +160,17 @@ extension EthereumRemoteBalanceFetching: AccountInfoFetchingProtocol {
         }
     }
 
+    /// The balances read, each cached as it arrives. Every asset is read on its own, so a token whose call reverts or
+    /// a network with no working node fails only its own assets. An asset that could not be read is left out, as the
+    /// cached reads leave out what they cannot read. It keeps its cached balance and is never reported as no balance.
     func fetch(
         for chainAssets: [ChainAsset],
         wallet: MetaAccountModel
     ) async throws -> [ChainAsset: AccountInfo?] {
-        let balances = try await withThrowingTaskGroup(of: (ChainAsset, AccountInfo?)?.self, returning: [ChainAsset: AccountInfo?].self) { [weak self] group in
+        let balances = await withTaskGroup(
+            of: (ChainAsset, Swift.Result<AccountInfo?, Error>).self,
+            returning: [ChainAsset: AccountInfo?].self
+        ) { [weak self] group in
             guard let strongSelf = self else {
                 return [:]
             }
@@ -151,39 +179,26 @@ extension EthereumRemoteBalanceFetching: AccountInfoFetchingProtocol {
 
             chainAssets.forEach { chainAsset in
                 group.addTask {
-                    guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
-                        return (chainAsset, nil)
-                    }
-
-                    switch chainAsset.asset.ethereumType {
-                    case .normal:
-                        let accountInfo = try await strongSelf.fetchETHBalance(for: chainAsset, address: address)
-                        return (chainAsset, accountInfo)
-                    case .erc20, .bep20:
-                        let accountInfo = try await strongSelf.fetchERC20Balance(for: chainAsset, address: address)
-                        return (chainAsset, accountInfo)
-                    case .none:
-                        return (chainAsset, nil)
+                    do {
+                        let accountInfo = try await strongSelf.fetchAndCache(chainAsset, wallet: wallet)
+                        return (chainAsset, .success(accountInfo))
+                    } catch {
+                        return (chainAsset, .failure(error))
                     }
                 }
             }
 
             var result: [ChainAsset: AccountInfo?] = [:]
 
-            for try await accountInfoByChainAsset in group.compactMap({ $0 }) {
-                let chainAsset = accountInfoByChainAsset.0
-                let accountInfo = accountInfoByChainAsset.1
-                if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-                    if let self {
-                        try await self.cache(
-                            accountInfo: accountInfo,
-                            chainAsset: chainAsset,
-                            accountId: accountId
-                        )
-                    }
+            for await read in group {
+                let (chainAsset, balance) = read
+                switch balance {
+                case let .success(accountInfo):
+                    result[chainAsset] = .some(accountInfo)
+                case let .failure(error):
+                    let asset = "\(chainAsset.asset.symbol) on \(chainAsset.chain.name)"
+                    Logger.shared.warning("\(asset) balance not read: \(error.logSafeDescription)")
                 }
-
-                result[chainAsset] = accountInfo
             }
 
             return result
