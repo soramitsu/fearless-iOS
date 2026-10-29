@@ -160,7 +160,7 @@
       "commit": "f2ed4ccf1d3a6376b60ebd69d823a3f7748ddc4b",
       "sourcePath": "chains/v13/chains_dev.json",
       "upstreamSha256": "5726b01a5364d955e250939c71082c03f97da0dc9512ac9d120c6a2085173d05",
-      "ownedSha256": "8c02de0fce958b81d23e4fbb03b2b216e11c4d08a65404369d033d94c6f7af76"
+      "ownedSha256": "6d7a9b95dc02e794c49509dba23dc2fe8979872f0f801dcf34bca3d1e9c4dffb"
     },
     {
       "path": "development/chains/v9/chains_dev.json",
@@ -4048,7 +4048,7 @@
       "commit": "ca1c2655ff541ae5942d820423962d34fd29d7f9",
       "sourcePath": "chains/v13/chains.json",
       "upstreamSha256": "79a583f08f71139a31e00c825c746891cef50c04aa81318aaa492807757b9cec",
-      "ownedSha256": "0546203ea2bb0b56a9563200334e9e3ba4675540fd08dab6888be6c6328c81ae"
+      "ownedSha256": "d26fe9abce1f5562ee01c0b65b163658c109470ac5232d6ddc30dd2a2dbd381d"
     },
     {
       "path": "production/chains/v2/chains.json",
@@ -8295,6 +8295,15 @@
       ],
       "changes": [
         "Keep XCM availableDestinations only for routes with a bundled definition: Polkadot -> Polkadot Asset Hub DOT, Kusama -> Kusama Asset Hub KSM and Liberland -> SORA LLD, LLM, XOR. Live dry runs on 2026-10-28 found Karura -> Kusama Asset Hub RMRK trapping funds on Asset Hub, RMRK from Kusama Asset Hub, Karura -> Bifrost BNC and Bifrost -> Karura KSM refused at the origin, and Rococo gone; no current build executes the other routes. Nothing outside availableDestinations changed."
+      ]
+    },
+    {
+      "files": [
+        "remote-config/production/chains/v13/chains.json",
+        "remote-config/development/chains/v13/chains_dev.json"
+      ],
+      "changes": [
+        "Drop discontinued Blast API nodes; move Dwellir nodes from retired *.dwellir.com hosts to n.dwellir.com hosts that returned the network's genesis on 2026-10-29, and drop the rest unless a network has no other node. Only node entries change."
       ]
     }
   ]
