@@ -5,7 +5,21 @@ final class WalletMainContainerViewLayout: UIView {
     private enum Constants {
         static let walletIconSize: CGFloat = 44.0
         static let accessoryButtonSize: CGFloat = 44.0
+        /// Narrowest regular-width window that shows the wallet beside its asset list.
+        static let splitMinimumWidth: CGFloat = 860
+        static let splitHeaderWidth: CGFloat = 360
+        static let splitSpacing: CGFloat = 24
     }
+
+    /// Where the wallet header and the asset list go: stacked at full width (iPhone
+    /// and compact iPad windows), stacked in a centered column, or side by side.
+    private enum Placement: Equatable {
+        case compact
+        case column
+        case split
+    }
+
+    private var placement: Placement = .compact
 
     var locale: Locale = .current {
         didSet {
@@ -116,8 +130,15 @@ final class WalletMainContainerViewLayout: UIView {
         updateTypography()
     }
 
+    override func layoutSubviews() {
+        updatePlacement()
+        super.layoutSubviews()
+    }
+
     private func updateHeaderScrolling() {
-        if FWAppearance.walletHeaderRestyled || traitCollection.preferredContentSizeCategory.isAccessibilityCategory {
+        // Side by side, the header always scrolls within the window's height.
+        if placement == .split || FWAppearance.walletHeaderRestyled ||
+            traitCollection.preferredContentSizeCategory.isAccessibilityCategory {
             headerHeightLimit?.activate()
         } else {
             headerHeightLimit?.deactivate()
@@ -194,13 +215,6 @@ final class WalletMainContainerViewLayout: UIView {
 
         addSubview(headerScrollView)
         headerScrollView.addSubview(contentView)
-        headerScrollView.snp.makeConstraints { make in
-            make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(5)
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(contentView.snp.height).priority(.high)
-            headerHeightLimit = make.height.lessThanOrEqualTo(safeAreaLayoutGuide.snp.height).multipliedBy(0.55)
-                .constraint
-        }
         contentView.snp.makeConstraints { make in
             make.edges.equalTo(headerScrollView.contentLayoutGuide)
             make.width.equalTo(headerScrollView.frameLayoutGuide)
@@ -298,13 +312,77 @@ final class WalletMainContainerViewLayout: UIView {
     private func setupListLayout() {
         addSubview(pageViewControllerContainer)
         pageViewControllerContainer.addSubview(pageViewController.view)
-        pageViewControllerContainer.snp.makeConstraints { make in
-            make.top.equalTo(headerScrollView.snp.bottom).offset(8)
-            make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(safeAreaLayoutGuide)
-        }
         pageViewController.view.snp.makeConstraints { make in
             make.edges.equalToSuperview()
+        }
+        placeHeaderAndList()
+    }
+}
+
+// MARK: - Adaptive placement
+
+private extension WalletMainContainerViewLayout {
+    func updatePlacement() {
+        let newPlacement: Placement
+        if AdaptiveLayout.isRegularWidth(traitCollection) {
+            newPlacement = bounds.width >= Constants.splitMinimumWidth ? .split : .column
+        } else {
+            newPlacement = .compact
+        }
+        guard newPlacement != placement else {
+            return
+        }
+
+        placement = newPlacement
+        placeHeaderAndList()
+        updateHeaderScrolling()
+    }
+
+    func placeHeaderAndList() {
+        switch placement {
+        case .compact:
+            headerScrollView.snp.remakeConstraints { make in
+                make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(5)
+                make.leading.trailing.equalToSuperview()
+                make.height.equalTo(contentView.snp.height).priority(.high)
+                headerHeightLimit = make.height.lessThanOrEqualTo(safeAreaLayoutGuide.snp.height)
+                    .multipliedBy(0.55).constraint
+            }
+            pageViewControllerContainer.snp.remakeConstraints { make in
+                make.top.equalTo(headerScrollView.snp.bottom).offset(8)
+                make.leading.trailing.equalToSuperview()
+                make.bottom.equalTo(safeAreaLayoutGuide)
+            }
+        case .column:
+            headerScrollView.snp.remakeConstraints { make in
+                make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(5)
+                make.centerX.equalTo(safeAreaLayoutGuide)
+                make.width.equalTo(safeAreaLayoutGuide).priority(.high)
+                make.width.lessThanOrEqualTo(AdaptiveLayout.contentColumnWidth)
+                make.height.equalTo(contentView.snp.height).priority(.high)
+                headerHeightLimit = make.height.lessThanOrEqualTo(safeAreaLayoutGuide.snp.height)
+                    .multipliedBy(0.55).constraint
+            }
+            pageViewControllerContainer.snp.remakeConstraints { make in
+                make.top.equalTo(headerScrollView.snp.bottom).offset(8)
+                make.leading.trailing.equalTo(headerScrollView)
+                make.bottom.equalTo(safeAreaLayoutGuide)
+            }
+        case .split:
+            headerScrollView.snp.remakeConstraints { make in
+                make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(5)
+                make.leading.equalTo(safeAreaLayoutGuide).offset(Constants.splitSpacing)
+                make.width.equalTo(Constants.splitHeaderWidth)
+                make.height.equalTo(contentView.snp.height).priority(.high)
+                headerHeightLimit = make.height.lessThanOrEqualTo(safeAreaLayoutGuide.snp.height)
+                    .offset(-5).constraint
+            }
+            pageViewControllerContainer.snp.remakeConstraints { make in
+                make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(5)
+                make.leading.equalTo(headerScrollView.snp.trailing).offset(Constants.splitSpacing)
+                make.trailing.equalTo(safeAreaLayoutGuide).offset(-Constants.splitSpacing)
+                make.bottom.equalTo(safeAreaLayoutGuide)
+            }
         }
     }
 }
