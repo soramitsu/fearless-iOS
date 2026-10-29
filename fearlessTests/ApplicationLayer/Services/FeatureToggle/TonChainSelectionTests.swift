@@ -3458,21 +3458,6 @@ final class SendDependencyContainerUniversalWalletRoutingTests: XCTestCase {
         ) async throws -> IrohaPipelineTransactionStatusResponse {
             throw AccountInfoRemoteServiceStubError.notImplemented
         }
-
-        func mcpCapabilities(
-            network _: UniversalWalletRegistry.IrohaNetwork,
-            baseURL _: String?
-        ) async throws -> Data {
-            throw AccountInfoRemoteServiceStubError.notImplemented
-        }
-
-        func mcpJSONRPC(
-            _: IrohaMcpJsonRPCRequest,
-            network _: UniversalWalletRegistry.IrohaNetwork,
-            baseURL _: String?
-        ) async throws -> IrohaMcpJsonRPCResponse {
-            throw AccountInfoRemoteServiceStubError.notImplemented
-        }
     }
 
     private struct UniversalWalletMnemonicProviderStub: UniversalWalletMnemonicProviding {
@@ -4593,21 +4578,6 @@ private final class IrohaToriiClientStub: IrohaToriiClientProtocol {
         baseURL _: String?,
         scope _: IrohaTransactionStatusScope
     ) async throws -> IrohaPipelineTransactionStatusResponse {
-        throw AccountInfoRemoteServiceStubError.notImplemented
-    }
-
-    func mcpCapabilities(
-        network _: UniversalWalletRegistry.IrohaNetwork,
-        baseURL _: String?
-    ) async throws -> Data {
-        throw AccountInfoRemoteServiceStubError.notImplemented
-    }
-
-    func mcpJSONRPC(
-        _: IrohaMcpJsonRPCRequest,
-        network _: UniversalWalletRegistry.IrohaNetwork,
-        baseURL _: String?
-    ) async throws -> IrohaMcpJsonRPCResponse {
         throw AccountInfoRemoteServiceStubError.notImplemented
     }
 }

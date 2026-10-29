@@ -60,7 +60,7 @@ final class IrohaToriiClientTests: XCTestCase {
         )
     }
 
-    func testDelegatesMCPAndTransactionWritesWithExplicitTransportContracts() async throws {
+    func testDelegatesTransactionWritesWithExplicitTransportContracts() async throws {
         let transport = FakeIrohaToriiTransport()
         let client = IrohaToriiClient(transport: transport)
 
@@ -71,16 +71,6 @@ final class IrohaToriiClientTests: XCTestCase {
         XCTAssertEqual(transport.lastRequest?.value(forHTTPHeaderField: "Content-Type"), "application/x-norito")
         XCTAssertEqual(transport.lastRequest?.value(forHTTPHeaderField: "Accept"), "application/json")
         XCTAssertEqual(transport.lastRequest?.httpBody, Data([1, 2, 3]))
-
-        transport.enqueue(Self.mcpResponseJSON)
-        _ = try await client.mcpJSONRPC(
-            try IrohaToriiRoutes.mcpJSONRPCRequest(method: "tools/list", id: "1")
-        )
-        XCTAssertEqual(transport.lastRequest?.url?.absoluteString, "https://taira.sora.org/v1/mcp")
-        XCTAssertEqual(transport.lastRequest?.httpMethod, "POST")
-        XCTAssertEqual(transport.lastRequest?.value(forHTTPHeaderField: "Content-Type"), "application/json")
-        XCTAssertEqual(transport.lastRequest?.value(forHTTPHeaderField: "Accept"), "application/json")
-        XCTAssertNotNil(transport.lastRequest?.httpBody)
     }
 
     func testResolvesCanonicalTairaXORAliasAndDefinitionThroughSDKRoutes() async throws {
@@ -120,16 +110,29 @@ final class IrohaToriiClientTests: XCTestCase {
         let transport = FakeIrohaToriiTransport()
         let client = IrohaToriiClient(transport: transport)
 
-        transport.enqueue(Data("{}".utf8))
-        _ = try await client.mcpCapabilities(network: UniversalWalletRegistry.nexus)
-        XCTAssertEqual(transport.lastRequest?.url?.absoluteString, "https://minamoto.sora.org/v1/mcp")
-
-        transport.enqueue(Data("{}".utf8))
-        _ = try await client.mcpCapabilities(
-            network: UniversalWalletRegistry.nexus,
-            baseURL: "https://nexus.example"
+        transport.enqueue(Self.accountHistoryJSON)
+        _ = try await client.accountHistory(
+            accountID: Self.nexusAccount,
+            limit: 10,
+            network: UniversalWalletRegistry.nexus
         )
-        XCTAssertEqual(transport.lastRequest?.url?.absoluteString, "https://nexus.example/v1/mcp")
+        XCTAssertEqual(
+            transport.lastRequest?.url?.absoluteString,
+            "https://minamoto.sora.org/v1/accounts/\(Self.encodedNexusAccount)/history?limit=10"
+        )
+
+        transport.enqueue(Self.accountHistoryJSON)
+        _ = try await client.accountHistory(
+            accountID: Self.nexusAccount,
+            baseURL: "https://nexus.example",
+            cursor: Self.cursor,
+            network: UniversalWalletRegistry.nexus
+        )
+        XCTAssertEqual(
+            transport.lastRequest?.url?.absoluteString,
+            "https://nexus.example/v1/accounts/\(Self.encodedNexusAccount)/history?cursor=\(Self.cursor)"
+        )
+        XCTAssertTrue(transport.requestedURLs.allSatisfy { !$0.path.contains("mcp") })
     }
 
     func testRejectsWrongNetworkIrohaAccountIDsBeforeFetch() async throws {
@@ -257,16 +260,6 @@ final class IrohaToriiClientTests: XCTestCase {
         "entrypoint_hash": "\(hash)",
         "submitted_at_ms": 1,
         "submitted_at_height": 1
-      }
-    }
-    """.utf8)
-
-    private static let mcpResponseJSON = Data("""
-    {
-      "jsonrpc": "2.0",
-      "id": "1",
-      "result": {
-        "ok": true
       }
     }
     """.utf8)

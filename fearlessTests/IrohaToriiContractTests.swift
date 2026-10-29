@@ -4,7 +4,6 @@ import XCTest
 final class IrohaToriiContractTests: XCTestCase {
     func testBuildsTairaToriiEndpointURLsWithValidatedParameters() throws {
         XCTAssertEqual(try IrohaToriiRoutes.healthURL().absoluteString, "https://taira.sora.org/health")
-        XCTAssertEqual(try IrohaToriiRoutes.mcpURL().absoluteString, "https://taira.sora.org/v1/mcp")
         XCTAssertEqual(
             try IrohaToriiRoutes.accountsURL(limit: 50, cursor: Self.cursor).absoluteString,
             "https://taira.sora.org/v1/accounts?limit=50&cursor=\(Self.cursor)"
@@ -61,10 +60,6 @@ final class IrohaToriiContractTests: XCTestCase {
             try IrohaToriiRoutes.transactionStatusURL(hash: "0x\(Self.hash)", scope: .global).absoluteString,
             "https://taira.sora.org/v1/pipeline/transactions/status?hash=\(Self.hash)&scope=global"
         )
-        XCTAssertEqual(
-            try IrohaToriiRoutes.mcpJSONRPCRequest(method: " tools/list ", id: "1").method,
-            "tools/list"
-        )
     }
 
     func testAllowsLocalHTTPBaseURLsButRejectsNonlocalInsecureBaseURLs() throws {
@@ -114,12 +109,6 @@ final class IrohaToriiContractTests: XCTestCase {
         }
         XCTAssertThrowsError(try IrohaToriiRoutes.transactionStatusURL(hash: "not-a-hash")) { error in
             XCTAssertEqual(error as? IrohaToriiRouteError, .invalidHash)
-        }
-        XCTAssertThrowsError(try IrohaToriiRoutes.mcpJSONRPCRequest(method: "tools/list", id: "../bad")) { error in
-            XCTAssertEqual(error as? IrohaToriiRouteError, .invalidJSONRPCID)
-        }
-        XCTAssertThrowsError(try IrohaToriiRoutes.mcpJSONRPCRequest(method: "../bad", id: "1")) { error in
-            XCTAssertEqual(error as? IrohaToriiRouteError, .invalidMCPMethod)
         }
     }
 
@@ -276,7 +265,7 @@ final class IrohaToriiContractTests: XCTestCase {
         XCTAssertEqual(response.items[1].transactionHash, Self.hash)
     }
 
-    func testParsesTransactionStatusAndMCPJSON() throws {
+    func testParsesTransactionStatus() throws {
         let statusJSON = """
         {
           "hash": "\(Self.hash)",
@@ -291,17 +280,6 @@ final class IrohaToriiContractTests: XCTestCase {
         let status = try JSONDecoder().decode(IrohaPipelineTransactionStatusResponse.self, from: Data(statusJSON.utf8))
         XCTAssertEqual(status.status.kind, "committed")
         XCTAssertEqual(status.status.blockHeight, 42)
-
-        let request = try IrohaToriiRoutes.mcpJSONRPCRequest(
-            method: "tools/call",
-            id: "req-1",
-            params: ["name": .string("accounts_list")]
-        )
-        let encoded = try JSONEncoder().encode(request)
-        let decoded = try JSONDecoder().decode(IrohaMcpJsonRPCRequest.self, from: encoded)
-
-        XCTAssertEqual(decoded.jsonrpc, "2.0")
-        XCTAssertEqual(decoded.params?["name"], .string("accounts_list"))
     }
 
     func testDecodesCanonicalAndDistinctTairaXORNumericSpecs() throws {

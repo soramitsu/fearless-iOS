@@ -41,7 +41,6 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
         XCTAssertNil(invocation.cursor)
         XCTAssertEqual(invocation.filter, Self.xorTransferFilter)
         XCTAssertEqual(invocation.network, UniversalWalletRegistry.taira)
-        XCTAssertEqual(client.mcpCalls, 0)
 
         XCTAssertNil(page.context)
         XCTAssertEqual(page.transactions.count, 1)
@@ -259,73 +258,71 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
         XCTAssertNil(page.context)
     }
 
-    func testNexusMcpParsesStructuredContentAndPreservesCustomEndpoint() throws {
-        let client = FakeIrohaToriiClient(
-            mcpResponse: Self.mcpResponse([
-                Self.instruction(
-                    address: Self.nexusAddress,
-                    amount: "12300000000000000000000000000"
+    func testNexusHistoryUsesToriiRESTAndPreservesCustomEndpoint() throws {
+        let client = FakeIrohaToriiClient(historyResponses: [
+            Self.historyResponse(
+                items: [
+                    Self.historyItem(
+                        id: "nexus-movement",
+                        direction: "outgoing",
+                        amount: "1.23",
+                        account: Self.nexusAddress
+                    )
+                ],
+                nextCursor: "nexus-cursor-1"
+            )
+        ])
+
+        let page = try XCTUnwrap(
+            execute(
+                Self.nexusHistoryOperation(
+                    client: client,
+                    chain: Self.irohaChain(
+                        chainId: UniversalWalletRegistry.nexus.chainId,
+                        historyBaseURL: "https://nexus.example"
+                    )
                 )
-            ])
-        )
-        let result = try execute(
-            IrohaHistoryOperationFactory(client: client).fetchTransactionHistoryOperation(
-                asset: Self.irohaAsset,
-                chain: Self.irohaChain(
-                    chainId: UniversalWalletRegistry.nexus.chainId,
-                    historyBaseURL: "https://nexus.example"
-                ),
-                address: Self.nexusAddress,
-                filters: [],
-                pagination: Pagination(count: 10)
             )
         )
 
-        XCTAssertEqual(client.mcpCalls, 1)
-        XCTAssertEqual(client.lastNetwork, UniversalWalletRegistry.nexus)
-        XCTAssertEqual(client.lastBaseURL, "https://nexus.example")
-        XCTAssertEqual(result?.transactions.first?.amount.decimalValue, Decimal(string: "1.23"))
-        XCTAssertEqual(result?.transactions.first?.type, TransactionType.outgoing.rawValue)
+        let invocation = try XCTUnwrap(client.accountHistoryInvocations.first)
+        XCTAssertEqual(client.accountHistoryInvocations.count, 1)
+        XCTAssertEqual(invocation.accountID, Self.nexusAddress)
+        XCTAssertEqual(invocation.baseURL, "https://nexus.example")
+        XCTAssertEqual(invocation.network, UniversalWalletRegistry.nexus)
+        XCTAssertEqual(invocation.limit, 10)
+        XCTAssertNil(invocation.cursor)
+        XCTAssertEqual(invocation.filter, Self.xorTransferFilter)
+        XCTAssertEqual(page.transactions.map(\.transactionId), ["nexus-movement"])
+        XCTAssertEqual(page.transactions.first?.amount.decimalValue, Decimal(string: "1.23"))
+        XCTAssertEqual(page.transactions.first?.type, TransactionType.outgoing.rawValue)
+        XCTAssertEqual(page.context, [IrohaHistoryOperationFactory.toriiCursorKey: "nexus-cursor-1"])
     }
 
-    func testNexusPaginationUsesNonnegativeNumericPageWithZeroFallback() throws {
-        let cases: [(String?, Int64)] = [(nil, 0), ("invalid", 0), ("-1", 0), ("9223372036854775808", 0), ("3", 3)]
-        for (cursor, expectedPage) in cases {
-            let client = FakeIrohaToriiClient()
-            let context = cursor.map { [IrohaHistoryOperationFactory.paginationPageKey: $0] }
-            _ = try execute(
-                IrohaHistoryOperationFactory(client: client).fetchTransactionHistoryOperation(
-                    asset: Self.irohaAsset,
-                    chain: Self.irohaChain(chainId: UniversalWalletRegistry.nexus.chainId),
-                    address: Self.nexusAddress,
-                    filters: [],
-                    pagination: Pagination(count: 10, context: context)
+    func testNexusHistoryPagesByCursorFromItsDefaultToriiAndReportsErrors() throws {
+        let client = FakeIrohaToriiClient(historyResponses: [
+            Self.historyResponse(items: [], nextCursor: "nexus-cursor-2"),
+            Self.historyResponse(items: [])
+        ])
+        let chain = Self.irohaChain(chainId: UniversalWalletRegistry.nexus.chainId)
+
+        let page = try XCTUnwrap(
+            execute(
+                Self.nexusHistoryOperation(
+                    client: client,
+                    chain: chain,
+                    context: [IrohaHistoryOperationFactory.toriiCursorKey: "nexus-cursor-1"]
                 )
             )
-            let request = try XCTUnwrap(client.lastRequest)
-            XCTAssertEqual(request.id, "history-\(expectedPage)")
-            guard case let .object(arguments) = request.params?["arguments"] else {
-                return XCTFail("Missing history request arguments")
-            }
-            XCTAssertEqual(arguments["page"], .int(expectedPage))
+        )
+        XCTAssertEqual(client.accountHistoryInvocations.map(\.cursor), ["nexus-cursor-1", "nexus-cursor-2"])
+        XCTAssertEqual(client.accountHistoryInvocations.map(\.baseURL), ["https://minamoto.sora.org", "https://minamoto.sora.org"])
+        XCTAssertTrue(page.transactions.isEmpty)
+        XCTAssertNil(page.context)
+
+        XCTAssertThrowsError(try execute(Self.nexusHistoryOperation(client: client, chain: chain))) { error in
+            XCTAssertEqual(error as? TestError, .unexpectedEndpoint)
         }
-    }
-
-    func testNexusMcpIsErrorReturnsEmptyPage() throws {
-        let client = FakeIrohaToriiClient(mcpResponse: Self.mcpResponse([], isError: true))
-        let result = try execute(
-            IrohaHistoryOperationFactory(client: client).fetchTransactionHistoryOperation(
-                asset: Self.irohaAsset,
-                chain: Self.irohaChain(chainId: UniversalWalletRegistry.nexus.chainId),
-                address: Self.nexusAddress,
-                filters: [],
-                pagination: Pagination(count: 10)
-            )
-        )
-
-        XCTAssertEqual(client.mcpCalls, 1)
-        XCTAssertEqual(result?.transactions, [])
-        XCTAssertNil(result?.context)
     }
 
     func testTairaHistoryIgnoresStalePersistedEndpointAndUsesCanonicalTorii() throws {
@@ -362,7 +359,6 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
             )
 
             XCTAssertEqual(client.accountHistoryInvocations.count, 0)
-            XCTAssertEqual(client.mcpCalls, 0)
             XCTAssertEqual(result?.transactions, [])
             XCTAssertNil(result?.context)
         }
@@ -388,20 +384,11 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
         }
 
         private var historyResponses: [IrohaAccountHistoryResponse]
-        private let mcpResponse: IrohaMcpJsonRPCResponse
 
         private(set) var accountHistoryInvocations: [AccountHistoryInvocation] = []
-        private(set) var mcpCalls = 0
-        private(set) var lastRequest: IrohaMcpJsonRPCRequest?
-        private(set) var lastNetwork: UniversalWalletRegistry.IrohaNetwork?
-        private(set) var lastBaseURL: String?
 
-        init(
-            historyResponses: [IrohaAccountHistoryResponse] = [],
-            mcpResponse: IrohaMcpJsonRPCResponse = IrohaHistoryOperationFactoryTests.mcpResponse([])
-        ) {
+        init(historyResponses: [IrohaAccountHistoryResponse] = []) {
             self.historyResponses = historyResponses
-            self.mcpResponse = mcpResponse
         }
 
         func health(baseURL _: String?) async throws -> Data { throw TestError.unexpectedEndpoint }
@@ -461,23 +448,6 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
             baseURL _: String?,
             scope _: IrohaTransactionStatusScope
         ) async throws -> IrohaPipelineTransactionStatusResponse { throw TestError.unexpectedEndpoint }
-
-        func mcpCapabilities(
-            network _: UniversalWalletRegistry.IrohaNetwork,
-            baseURL _: String?
-        ) async throws -> Data { throw TestError.unexpectedEndpoint }
-
-        func mcpJSONRPC(
-            _ request: IrohaMcpJsonRPCRequest,
-            network: UniversalWalletRegistry.IrohaNetwork,
-            baseURL: String?
-        ) async throws -> IrohaMcpJsonRPCResponse {
-            mcpCalls += 1
-            lastRequest = request
-            lastNetwork = network
-            lastBaseURL = baseURL
-            return mcpResponse
-        }
     }
 
     private enum TestError: Error { case unexpectedEndpoint }
@@ -525,6 +495,20 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
         )
     }
 
+    private static func nexusHistoryOperation(
+        client: IrohaToriiClientProtocol,
+        chain: ChainModel,
+        context: PaginationContext? = nil
+    ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
+        IrohaHistoryOperationFactory(client: client).fetchTransactionHistoryOperation(
+            asset: irohaAsset,
+            chain: chain,
+            address: nexusAddress,
+            filters: [],
+            pagination: Pagination(count: 10, context: context)
+        )
+    }
+
     private static let xorTransferFilter =
         #"asset_definition_id in ["6TEAJqbb8oEPmLncoNiMRbLEK6tw"] and type = "TRANSFER""#
 
@@ -563,7 +547,8 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
         status: String = "SUCCESS",
         resultOk: Bool? = true,
         assetDefinitionID: String = assetId,
-        transactionHash: String = sharedTransactionHash
+        transactionHash: String = sharedTransactionHash,
+        account: String = tairaAddress
     ) -> IrohaAccountHistoryItem {
         IrohaAccountHistoryItem(
             id: id,
@@ -573,9 +558,9 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
             status: status,
             resultOk: resultOk,
             direction: direction,
-            accountID: tairaAddress,
+            accountID: account,
             counterpartyAccountID: counterparty,
-            assetID: "\(assetDefinitionID)#\(tairaAddress)",
+            assetID: "\(assetDefinitionID)#\(account)",
             assetDefinitionID: assetDefinitionID,
             amount: amount,
             transactionHash: transactionHash,
@@ -626,44 +611,5 @@ final class IrohaHistoryOperationFactoryTests: XCTestCase {
             iosMinAppVersion: nil,
             identityChain: nil
         )
-    }
-
-    private static func mcpResponse(
-        _ instructions: [[String: IrohaJSONValue]],
-        isError: Bool = false
-    ) -> IrohaMcpJsonRPCResponse {
-        IrohaMcpJsonRPCResponse(
-            jsonrpc: "2.0",
-            id: .string("history-0"),
-            result: .object([
-                "isError": .bool(isError),
-                "structuredContent": .object([
-                    "body": .object([
-                        "items": .array(instructions.map { .object($0) })
-                    ])
-                ])
-            ]),
-            error: nil
-        )
-    }
-
-    private static func instruction(address: String, amount: String) -> [String: IrohaJSONValue] {
-        [
-            "transaction_hash": .string(sharedTransactionHash),
-            "created_at": .string("2024-01-01T00:00:00Z"),
-            "transaction_status": .string("Committed"),
-            "box": .object([
-                "json": .object([
-                    "payload": .object([
-                        "variant": .string("Asset"),
-                        "value": .object([
-                            "source": .string("\(assetId)#\(address)"),
-                            "destination": .string(counterparty),
-                            "object": .string(amount)
-                        ])
-                    ])
-                ])
-            ])
-        ]
     }
 }

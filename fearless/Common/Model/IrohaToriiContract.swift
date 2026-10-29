@@ -3,15 +3,12 @@ import Foundation
 enum IrohaToriiRouteError: Error, Equatable {
     case invalidBaseURL
     case missingToriiBaseURL
-    case invalidPath
     case invalidAccountID
     case invalidAsset
     case invalidHash
     case invalidLimit
     case invalidCursor
     case invalidFilter
-    case invalidJSONRPCID
-    case invalidMCPMethod
 }
 
 enum IrohaTransactionStatusScope: String, Codable {
@@ -26,14 +23,6 @@ enum IrohaToriiRoutes {
 
     static func healthURL(baseURL: String? = nil) throws -> URL {
         try makeURL("\(normalizeBaseURL(try resolvedBaseURL(baseURL)))/health")
-    }
-
-    static func mcpURL(
-        network: UniversalWalletRegistry.IrohaNetwork = UniversalWalletRegistry.taira,
-        baseURL: String? = nil
-    ) throws -> URL {
-        let base = try resolvedBaseURL(baseURL, network: network)
-        return try makeURL("\(normalizeBaseURL(base))\(normalizePath(network.mcpPath))")
     }
 
     static func accountsURL(
@@ -141,18 +130,6 @@ enum IrohaToriiRoutes {
         )
     }
 
-    static func mcpJSONRPCRequest(
-        method: String,
-        id: String,
-        params: [String: IrohaJSONValue]? = nil
-    ) throws -> IrohaMcpJsonRPCRequest {
-        IrohaMcpJsonRPCRequest(
-            id: try normalizeJSONRPCID(id),
-            method: try normalizeMCPMethod(method),
-            params: params
-        )
-    }
-
     static func normalizeBaseURL(_ baseURL: String) throws -> String {
         let trimmed = baseURL.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let url = URL(string: trimmed), let scheme = url.scheme, let host = url.host else {
@@ -202,19 +179,6 @@ enum IrohaToriiRoutes {
         return try requireToriiBaseURL(network)
     }
 
-    private static func normalizePath(_ path: String) throws -> String {
-        let normalized = path.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard normalized.hasPrefix("/"),
-              !normalized.contains(".."),
-              !normalized.contains("?"),
-              !normalized.contains("#") else {
-            throw IrohaToriiRouteError.invalidPath
-        }
-
-        return normalized.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-            .isEmpty ? "/" : "/" + normalized.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-    }
-
     private static func normalizePathValue(_ value: String, error: IrohaToriiRouteError) throws -> String {
         let normalized = value.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !normalized.isEmpty,
@@ -234,24 +198,6 @@ enum IrohaToriiRoutes {
             .lowercased()
         guard matches(normalized, "^[0-9a-f]{64}$") else {
             throw IrohaToriiRouteError.invalidHash
-        }
-
-        return normalized
-    }
-
-    private static func normalizeJSONRPCID(_ id: String) throws -> String {
-        let normalized = id.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard matches(normalized, "^[A-Za-z0-9._:-]{1,64}$") else {
-            throw IrohaToriiRouteError.invalidJSONRPCID
-        }
-
-        return normalized
-    }
-
-    private static func normalizeMCPMethod(_ method: String) throws -> String {
-        let normalized = method.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard matches(normalized, "^[A-Za-z][A-Za-z0-9_/.-]{0,127}$") else {
-            throw IrohaToriiRouteError.invalidMCPMethod
         }
 
         return normalized
@@ -649,31 +595,4 @@ struct IrohaErrorEnvelope: Codable, Equatable {
     let code: String
     let message: String
     let details: IrohaJSONValue?
-}
-
-struct IrohaMcpJsonRPCRequest: Codable, Equatable {
-    let jsonrpc: String
-    let id: String
-    let method: String
-    let params: [String: IrohaJSONValue]?
-
-    init(jsonrpc: String = "2.0", id: String, method: String, params: [String: IrohaJSONValue]? = nil) {
-        self.jsonrpc = jsonrpc
-        self.id = id
-        self.method = method
-        self.params = params
-    }
-}
-
-struct IrohaMcpJsonRPCResponse: Codable, Equatable {
-    let jsonrpc: String
-    let id: IrohaJSONValue?
-    let result: IrohaJSONValue?
-    let error: IrohaMcpJsonRPCError?
-}
-
-struct IrohaMcpJsonRPCError: Codable, Equatable {
-    let code: Int
-    let message: String
-    let data: IrohaJSONValue?
 }

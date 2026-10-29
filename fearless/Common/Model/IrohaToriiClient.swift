@@ -29,12 +29,6 @@ protocol IrohaToriiClientProtocol {
     func resolveAssetAlias(_ alias: String, baseURL: String?) async throws -> IrohaAssetAliasResolution
     func submitTransaction(noritoBytes: Data, baseURL: String?) async throws -> IrohaTransactionSubmissionReceipt
     func transactionStatus(hash: String, baseURL: String?, scope: IrohaTransactionStatusScope) async throws -> IrohaPipelineTransactionStatusResponse
-    func mcpCapabilities(network: UniversalWalletRegistry.IrohaNetwork, baseURL: String?) async throws -> Data
-    func mcpJSONRPC(
-        _ request: IrohaMcpJsonRPCRequest,
-        network: UniversalWalletRegistry.IrohaNetwork,
-        baseURL: String?
-    ) async throws -> IrohaMcpJsonRPCResponse
 }
 
 extension IrohaToriiClientProtocol {
@@ -242,31 +236,6 @@ final class IrohaToriiClient: IrohaToriiClientProtocol {
                 scope: scope
             )
         )
-    }
-
-    func mcpCapabilities(
-        network: UniversalWalletRegistry.IrohaNetwork = UniversalWalletRegistry.taira,
-        baseURL: String? = nil
-    ) async throws -> Data {
-        try await transport.perform(
-            urlRequest(url: try IrohaToriiRoutes.mcpURL(network: network, baseURL: resolvedBaseURL(baseURL, network: network)))
-        )
-    }
-
-    func mcpJSONRPC(
-        _ request: IrohaMcpJsonRPCRequest,
-        network: UniversalWalletRegistry.IrohaNetwork = UniversalWalletRegistry.taira,
-        baseURL: String? = nil
-    ) async throws -> IrohaMcpJsonRPCResponse {
-        var urlRequest = urlRequest(
-            url: try IrohaToriiRoutes.mcpURL(network: network, baseURL: resolvedBaseURL(baseURL, network: network)),
-            method: "POST"
-        )
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
-        urlRequest.httpBody = try encoder.encode(request)
-
-        return try decode(try await transport.perform(urlRequest))
     }
 
     private func get<T: Decodable>(_ url: URL) async throws -> T {

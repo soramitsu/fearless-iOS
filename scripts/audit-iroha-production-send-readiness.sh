@@ -530,4 +530,11 @@ for marker in \
   require_fixed "$RELEASE_CHECKLIST" "$marker" "release checklist Iroha gate '$marker'"
 done
 
-echo "[iroha-send-readiness][ios] 15/15 platform alignment, source/binary, parity, protocol, key-lifecycle, receipt, live-evidence, and fail-closed invariants passed."
+# The app calls Torii REST routes directly; the MCP tool endpoint is too slow for wallet reads.
+mcp_hit="$(grep -rIlE '/v1/mcp|tools/call' "$ROOT_DIR/fearless" | sort || true)"
+[[ -z "$mcp_hit" ]] || {
+  printf '%s\n' "$mcp_hit" >&2
+  fail "app sources reference the Torii MCP endpoint; call Torii REST routes instead"
+}
+
+echo "[iroha-send-readiness][ios] 16/16 platform alignment, source/binary, parity, protocol, key-lifecycle, receipt, live-evidence, Torii REST-only, and fail-closed invariants passed."

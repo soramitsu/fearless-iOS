@@ -215,6 +215,9 @@ struct UniversalWalletRegistryEndpoint: Codable, Equatable {
 enum UniversalWalletRegistryEndpointKind: String, Codable {
     case indexer
     case rpc
+    /// Torii REST base URL; the wallet calls Torii routes directly.
+    case torii
+    /// Read for compatibility with older registries; never used for wallet calls.
     case toriiMcp = "torii-mcp"
     case explorer
 }
