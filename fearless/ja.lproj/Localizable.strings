@@ -1517,3 +1517,9 @@
 /* Solana confirm: recipient token account deposit */
 "solana.transfer.account_creation.title" = "受取人アカウントの開設";
 "solana.transfer.account_creation.included" = "ネットワーク手数料に含まれます";
+
+/* Cross-chain confirm: the record of recent transfers cannot be read, so nothing new is sent for a day */
+"cross_chain.dispatch.journal_unreadable" = "Fearless は最近のクロスチェーン送金の記録を読み取れないため、この送金がすでに送信されたかどうかを確認できません。何も送信されていません。送金元アカウントの履歴を確認してください。新しいクロスチェーン送金は、記録が読み取れなくなってから 24 時間後に再び行えます。";
+
+/* Cross-chain: a reviewed route that this build cannot send */
+"cross_chain.unavailable_in_version" = "このバージョンの Fearless では利用できません。";

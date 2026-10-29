@@ -94,6 +94,10 @@ final class ExtrinsicOperationFactory {
     let chainFormat: ChainFormat
     let runtimeRegistry: RuntimeCodingServiceProtocol
     let engine: JSONRPCEngine
+    /// A genesis hash the caller has already checked against the chain it means, such as the catalog chain id. When
+    /// set, extrinsics are signed against it and block 0 is not asked again: a second answer could come from another
+    /// node than the one that was checked.
+    let pinnedGenesisHash: String?
     let eraOperationFactory: ExtrinsicEraOperationFactoryProtocol
 
     init(
@@ -102,6 +106,7 @@ final class ExtrinsicOperationFactory {
         cryptoType: CryptoType,
         runtimeRegistry: RuntimeCodingServiceProtocol,
         engine: JSONRPCEngine,
+        pinnedGenesisHash: String? = nil,
         eraOperationFactory: ExtrinsicEraOperationFactoryProtocol = MortalEraOperationFactory()
     ) {
         self.accountId = accountId
@@ -109,6 +114,7 @@ final class ExtrinsicOperationFactory {
         self.cryptoType = cryptoType
         self.runtimeRegistry = runtimeRegistry
         self.engine = engine
+        self.pinnedGenesisHash = pinnedGenesisHash
         self.eraOperationFactory = eraOperationFactory
     }
 
@@ -411,7 +417,11 @@ extension ExtrinsicOperationFactory: ExtrinsicOperationFactoryProtocol {
     }
 
     func createGenesisBlockHashOperation() -> BaseOperation<String> {
-        createBlockHashOperation(
+        if let pinnedGenesisHash {
+            return ClosureOperation { pinnedGenesisHash }
+        }
+
+        return createBlockHashOperation(
             connection: engine,
             for: { 0 }
         )

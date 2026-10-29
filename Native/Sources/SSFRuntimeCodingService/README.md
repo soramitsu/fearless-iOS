@@ -33,7 +33,7 @@ RuntimeProvider - basic implementation of RuntimeProviderProtocol/RuntimeCodingS
 // operationQueue - Queue used for internal operations executing
 // usedRuntimePaths - Map that used for filter raw metadata and build runtime snapshot only for methods/types used in project
 // chainMetadata - instance of RuntimeMetadataItemProtocol. Representation of raw metadata, consists of chain's genesis hash, metadata spec version, metadata transactionVersion, and raw metadata byte array
-// chainTypes - specific runtime types for chains (see example https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/chains/all_chains_types.json)
+// chainTypes - specific runtime types for chains (see example https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/chains/all_chains_types.json)
 
     public init(
         operationQueue: OperationQueue,
