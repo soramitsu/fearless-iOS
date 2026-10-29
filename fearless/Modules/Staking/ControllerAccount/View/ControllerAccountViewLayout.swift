@@ -77,7 +77,8 @@ final class ControllerAccountViewLayout: UIView {
         addSubview(containerView)
         containerView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
-            make.leading.bottom.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         containerView.stackView.spacing = 16
@@ -131,14 +132,14 @@ final class ControllerAccountViewLayout: UIView {
 
         addSubview(actionButton)
         actionButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
             make.height.equalTo(UIConstants.actionHeight)
         }
 
         addSubview(currentAccountIsControllerHint)
         currentAccountIsControllerHint.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.bottom.equalTo(actionButton.snp.top).offset(-UIConstants.horizontalInset)
         }
     }

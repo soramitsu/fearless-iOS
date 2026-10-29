@@ -46,17 +46,19 @@ final class MultichainAssetSelectionViewLayout: UIView {
 
     private func setupConstraints() {
         topBar.snp.makeConstraints { make in
-            make.leading.trailing.top.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         chainsCollectionView.snp.makeConstraints { make in
             make.top.equalTo(topBar.snp.bottom)
-            make.leading.trailing.equalToSuperview().inset(16)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(16)
             make.height.equalTo(72)
         }
 
         selectAssetContainerView.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(chainsCollectionView.snp.bottom)
         }
     }

@@ -234,13 +234,14 @@ final class ReceiveAndRequestAssetViewLayout: UIView {
         contentView.stackView.addArrangedSubview(addressLabel)
 
         navigationBar.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.height.greaterThanOrEqualTo(68)
         }
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.bigOffset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(copyButton.snp.top)
             make.height.equalTo(480).priority(.medium)
         }
@@ -256,13 +257,13 @@ final class ReceiveAndRequestAssetViewLayout: UIView {
 
         shareButton.snp.makeConstraints { make in
             make.bottom.equalTo(safeAreaLayoutGuide)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.height.equalTo(max(UIConstants.actionHeight, UIFont.h4Title.lineHeight + 20))
         }
 
         copyButton.snp.makeConstraints { make in
             make.bottom.equalTo(shareButton.snp.top).offset(-LayoutConstants.verticalOffset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.height.equalTo(max(UIConstants.actionHeight, UIFont.h4Title.lineHeight + 20))
         }
 

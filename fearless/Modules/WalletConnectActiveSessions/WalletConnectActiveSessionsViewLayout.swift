@@ -49,25 +49,26 @@ final class WalletConnectActiveSessionsViewLayout: UIView {
     private func setupLayout() {
         addSubview(navigationBar)
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         addSubview(searchView)
         searchView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.defaultOffset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
 
         addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.top.equalTo(searchView.snp.bottom).offset(UIConstants.defaultOffset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
 
         addSubview(createNewConnectionButton)
         createNewConnectionButton.snp.makeConstraints { make in
             make.top.equalTo(tableView.snp.bottom).offset(UIConstants.bigOffset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(UIConstants.actionHeight)
         }

@@ -224,7 +224,7 @@ private extension ChainAccountViewLayout {
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(5)
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         setupNavigationViewLayout()

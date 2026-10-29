@@ -351,8 +351,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         actionButton.addTarget(self, action: #selector(actionButtonClicked), for: .touchUpInside)
         actionButton.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.actionHeight)
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.equalTo(view.safeAreaLayoutGuide).offset(UIConstants.bigOffset)
+            make.trailing.equalTo(view.safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(view.safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
     }

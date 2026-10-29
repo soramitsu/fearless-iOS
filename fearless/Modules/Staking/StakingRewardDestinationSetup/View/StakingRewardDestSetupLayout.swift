@@ -72,7 +72,8 @@ final class StakingRewardDestSetupLayout: UIView {
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
-            make.bottom.leading.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.stackView.addArrangedSubview(restakeOptionView)
@@ -112,7 +113,7 @@ final class StakingRewardDestSetupLayout: UIView {
 
         addSubview(actionButton)
         actionButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
             make.height.equalTo(UIConstants.actionHeight)
         }

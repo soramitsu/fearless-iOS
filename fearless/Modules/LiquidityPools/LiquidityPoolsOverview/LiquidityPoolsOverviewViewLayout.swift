@@ -117,14 +117,15 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
             make.top.equalTo(navigationBar.snp.bottom)
             make.bottom.equalToSuperview().inset(24)
             make.width.equalTo(self)
-            make.centerX.equalToSuperview()
+            make.centerX.equalTo(safeAreaLayoutGuide)
         }
         backgroundImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
 
         navigationBar.snp.makeConstraints { make in
-            make.leading.trailing.top.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         userPoolsContainerView.snp.makeConstraints { make in

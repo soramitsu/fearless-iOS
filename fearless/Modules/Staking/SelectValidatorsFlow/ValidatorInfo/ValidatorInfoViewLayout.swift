@@ -292,7 +292,8 @@ final class ValidatorInfoViewLayout: UIView {
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
-            make.bottom.leading.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
     }
 }

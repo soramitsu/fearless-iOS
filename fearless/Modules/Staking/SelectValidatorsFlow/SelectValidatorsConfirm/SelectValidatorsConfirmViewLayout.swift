@@ -161,7 +161,7 @@ final class SelectValidatorsConfirmViewLayout: UIView {
 
         contentView.snp.makeConstraints { make in
             make.top.equalToSuperview()
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
         }
 
         contentView.stackView.addArrangedSubview(stakeAmountView)
@@ -210,7 +210,8 @@ final class SelectValidatorsConfirmViewLayout: UIView {
         addSubview(networkFeeFooterView)
 
         networkFeeFooterView.snp.makeConstraints { make in
-            make.leading.bottom.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(contentView.snp.bottom)
         }
     }

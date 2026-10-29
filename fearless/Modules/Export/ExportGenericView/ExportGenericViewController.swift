@@ -316,8 +316,8 @@ extension ExportGenericViewController {
 
         buttonsStackView.snp.makeConstraints { make in
             make.bottom.equalTo(view.safeAreaLayoutGuide).inset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalTo(view.safeAreaLayoutGuide).inset(UIConstants.bigOffset)
+            make.leading.equalTo(view.safeAreaLayoutGuide).offset(UIConstants.bigOffset)
             make.top.equalTo(containerView.snp.bottom).offset(UIConstants.bigOffset)
         }
     }
@@ -479,7 +479,7 @@ extension ExportGenericViewController {
 
         containerView.snp.makeConstraints { make in
             make.top.equalToSuperview()
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(view.safeAreaLayoutGuide)
         }
 
         var inset = containerView.scrollView.contentInset

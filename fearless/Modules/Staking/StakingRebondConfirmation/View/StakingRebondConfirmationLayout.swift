@@ -90,7 +90,7 @@ final class StakingRebondConfirmationLayout: UIView {
         addSubview(stackView)
         stackView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
         }
 
         stackView.addArrangedSubview(accountView)
@@ -109,7 +109,8 @@ final class StakingRebondConfirmationLayout: UIView {
         addSubview(networkFeeFooterView)
 
         networkFeeFooterView.snp.makeConstraints { make in
-            make.leading.bottom.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
     }
 }

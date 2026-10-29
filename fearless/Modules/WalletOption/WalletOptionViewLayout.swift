@@ -107,7 +107,8 @@ final class WalletOptionViewLayout: UIView {
         let navView = UIView()
         addSubview(navView)
         navView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(Constants.headerHeight)
         }
 
@@ -136,7 +137,7 @@ final class WalletOptionViewLayout: UIView {
         addSubview(vStackView)
         vStackView.snp.makeConstraints { make in
             make.top.equalTo(navView.snp.bottom).offset(UIConstants.accessoryItemsSpacing)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.accessoryItemsSpacing)
         }
 

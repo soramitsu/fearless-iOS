@@ -127,19 +127,20 @@ class StakingStateView: UIView {
 
         addSubview(iconMore)
         iconMore.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(16.0)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(16.0)
             make.top.equalToSuperview().inset(12.0)
         }
 
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.leading.top.equalToSuperview().inset(16.0)
+            make.top.equalToSuperview().inset(16.0)
+            make.leading.equalTo(safeAreaLayoutGuide).inset(16.0)
             make.trailing.lessThanOrEqualTo(iconMore.snp.leading).offset(16.0)
         }
 
         addSubview(stakeContainer)
         stakeContainer.snp.makeConstraints { make in
-            make.leading.equalToSuperview().inset(16.0)
+            make.leading.equalTo(safeAreaLayoutGuide).inset(16.0)
             make.top.equalTo(titleLabel.snp.bottom).offset(17.0)
             make.trailing.equalTo(backgroundView.snp.centerX).offset(2.0)
         }
@@ -151,7 +152,7 @@ class StakingStateView: UIView {
 
         addSubview(rewardsContainer)
         rewardsContainer.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(16.0)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(16.0)
             make.top.equalTo(titleLabel.snp.bottom).offset(17.0)
             make.leading.equalTo(backgroundView.snp.centerX)
         }
@@ -163,7 +164,7 @@ class StakingStateView: UIView {
 
         addSubview(borderView)
         borderView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(16.0)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(16.0)
             make.top.equalTo(stakeContainer.snp.bottom).offset(12.0)
             make.bottom.equalToSuperview()
             make.height.equalTo(44.0)

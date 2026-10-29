@@ -338,7 +338,8 @@ final class ChainAssetListViewLayout: UIView {
 
         addSubview(containerView)
         containerView.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
         }
 

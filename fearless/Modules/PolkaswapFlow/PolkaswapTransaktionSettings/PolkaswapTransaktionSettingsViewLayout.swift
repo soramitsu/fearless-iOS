@@ -119,7 +119,8 @@ final class PolkaswapTransaktionSettingsViewLayout: UIView {
         navigationViewContainer.addSubview(backButton)
         navigationViewContainer.addSubview(titleLabel)
         navigationViewContainer.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(Constants.navigationBarHeight)
         }
 
@@ -138,7 +139,7 @@ final class PolkaswapTransaktionSettingsViewLayout: UIView {
         contentStackView.snp.makeConstraints { make in
             make.top.equalTo(navigationViewContainer.snp.bottom)
                 .offset(UIConstants.accessoryItemsSpacing)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide)
         }
 

@@ -263,11 +263,12 @@ private extension SendViewLayout {
 
         navigationBar.setCenterViews([navigationTitleLabel])
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(navigationBar.snp.bottom)
             make.bottom.equalTo(bottomContainer.snp.top).offset(-UIConstants.bigOffset)
         }
@@ -313,8 +314,8 @@ private extension SendViewLayout {
         }
 
         bottomContainer.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             keyboardAdoptableConstraint =
                 make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset).constraint
         }

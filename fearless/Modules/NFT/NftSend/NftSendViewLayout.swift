@@ -115,18 +115,19 @@ final class NftSendViewLayout: UIView {
 
         actionButton.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.actionHeight)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             keyboardAdoptableConstraint =
                 make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset).constraint
         }
 
         navigationBar.setCenterViews([navigationTitleLabel])
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(navigationBar.snp.bottom)
             make.bottom.equalTo(actionButton.snp.top).offset(-UIConstants.bigOffset)
         }

@@ -49,13 +49,14 @@ final class BackupSelectWalletViewLayout: UIView {
     private func setupLayout() {
         addSubview(navigationBar)
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         addSubview(container)
         container.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.bigOffset)
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         container.addSubview(tableView)
@@ -66,7 +67,7 @@ final class BackupSelectWalletViewLayout: UIView {
         addSubview(createButton)
         createButton.snp.makeConstraints { make in
             make.top.equalTo(container.snp.bottom).offset(UIConstants.bigOffset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
         }

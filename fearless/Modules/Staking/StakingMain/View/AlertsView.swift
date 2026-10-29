@@ -56,21 +56,23 @@ final class AlertsView: UIView {
 
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
         }
 
         let separatorView = UIView.createSeparator(color: R.color.colorWhite()?.withAlphaComponent(0.24))
         addSubview(separatorView)
         separatorView.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(15)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.separatorHeight)
         }
 
         addSubview(alertsStackView)
         alertsStackView.snp.makeConstraints { make in
             make.top.equalTo(separatorView.snp.bottom)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
     }
 
@@ -170,14 +172,14 @@ private class AlertItemView: UIView {
         addSubview(iconImageView)
         iconImageView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(13)
-            make.leading.equalToSuperview()
+            make.leading.equalTo(safeAreaLayoutGuide)
             make.size.equalTo(16)
         }
 
         addSubview(accessoryView)
         accessoryView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(9)
-            make.trailing.equalToSuperview()
+            make.trailing.equalTo(safeAreaLayoutGuide)
             make.size.equalTo(24)
         }
 

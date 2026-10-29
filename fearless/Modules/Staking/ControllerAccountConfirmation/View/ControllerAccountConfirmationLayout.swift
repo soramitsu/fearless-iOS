@@ -51,7 +51,8 @@ final class ControllerAccountConfirmationLayout: UIView {
         addSubview(containerView)
         containerView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
-            make.leading.bottom.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         containerView.stackView.spacing = 16
@@ -69,7 +70,8 @@ final class ControllerAccountConfirmationLayout: UIView {
 
         addSubview(networkFeeFooterView)
         networkFeeFooterView.snp.makeConstraints { make in
-            make.leading.bottom.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
     }
 

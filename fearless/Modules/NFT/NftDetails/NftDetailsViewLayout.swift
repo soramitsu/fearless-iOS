@@ -145,7 +145,8 @@ final class NftDetailsViewLayout: UIView {
 
     private func setupConstraints() {
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.snp.makeConstraints { make in

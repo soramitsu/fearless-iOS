@@ -208,11 +208,12 @@ final class StakingUnbondConfirmLayout: UIView {
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
         }
 
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.stackView.addArrangedSubview(stakeAmountView)
@@ -248,7 +249,8 @@ final class StakingUnbondConfirmLayout: UIView {
         addSubview(networkFeeFooterView)
 
         networkFeeFooterView.snp.makeConstraints { make in
-            make.leading.bottom.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(contentView.snp.bottom)
         }
     }

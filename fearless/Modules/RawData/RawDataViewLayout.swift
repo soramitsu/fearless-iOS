@@ -65,17 +65,18 @@ final class RawDataViewLayout: UIView {
         }
 
         navigationBar.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide)
         }
 
         closeButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(UIConstants.actionHeight)
         }

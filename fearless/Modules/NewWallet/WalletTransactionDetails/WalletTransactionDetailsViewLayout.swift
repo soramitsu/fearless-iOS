@@ -226,13 +226,15 @@ final class WalletTransactionDetailsViewLayout: UIView {
         navigationBar.setCenterViews([navigationTitleLabel])
 
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom)
-            make.bottom.leading.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.stackView.addArrangedSubview(extrinsicHashView)

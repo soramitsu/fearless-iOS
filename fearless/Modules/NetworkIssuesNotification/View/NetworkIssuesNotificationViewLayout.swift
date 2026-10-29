@@ -81,7 +81,8 @@ final class NetworkIssuesNotificationViewLayout: UIView {
         addSubview(navView)
         navView.snp.makeConstraints { make in
             make.height.equalTo(Constants.headerHeight)
-            make.leading.trailing.top.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         navView.addSubview(closeButton)
@@ -116,20 +117,20 @@ final class NetworkIssuesNotificationViewLayout: UIView {
         addSubview(imageViewContainer)
         imageViewContainer.snp.makeConstraints { make in
             make.top.equalTo(navView.snp.bottom).offset(44)
-            make.centerX.equalToSuperview()
+            make.centerX.equalTo(safeAreaLayoutGuide)
         }
 
         addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.top.equalTo(imageViewContainer.snp.bottom).offset(44)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.verticalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.verticalInset)
             make.bottom.greaterThanOrEqualToSuperview().inset(UIConstants.bigOffset)
         }
 
         addSubview(bottomCloseButton)
         bottomCloseButton.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.actionHeight)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.verticalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.verticalInset)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
         }
     }

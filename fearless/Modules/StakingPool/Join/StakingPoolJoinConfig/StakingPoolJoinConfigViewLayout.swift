@@ -110,17 +110,18 @@ final class StakingPoolJoinConfigViewLayout: UIView {
         contentView.stackView.addArrangedSubview(amountView)
 
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(navigationBar.snp.bottom)
             make.bottom.equalTo(feeView.snp.bottom).offset(UIConstants.bigOffset)
         }
 
         feeView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
 

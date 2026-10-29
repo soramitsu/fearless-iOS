@@ -168,24 +168,25 @@ final class StakingPoolStartViewLayout: UIView {
         contentView.stackView.addArrangedSubview(rewardsFreqView)
 
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         createButton.snp.makeConstraints { make in
             make.bottom.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
             make.top.equalTo(joinButton.snp.bottom).offset(UIConstants.defaultOffset)
         }
 
         joinButton.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
         }
 
         contentView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.bigOffset)
             make.bottom.equalTo(joinButton.snp.top).inset(UIConstants.bigOffset)
         }

@@ -119,18 +119,19 @@ final class WalletConnectSessionViewLayout: UIView {
         indicator.snp.makeConstraints { make in
             make.size.equalTo(UIConstants.indicatorSize)
             make.top.equalToSuperview()
-            make.centerX.equalToSuperview()
+            make.centerX.equalTo(safeAreaLayoutGuide)
         }
 
         addSubview(navigationTitle)
         navigationTitle.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(UIConstants.bigOffset)
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
         }
 
         addSubview(closeButton)
         closeButton.snp.makeConstraints { make in
-            make.top.trailing.equalToSuperview().inset(20)
+            make.top.equalToSuperview().inset(20)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(20)
             make.size.equalTo(Constants.closeButton)
         }
 
@@ -150,7 +151,7 @@ final class WalletConnectSessionViewLayout: UIView {
         addSubview(contentStackView)
         contentStackView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(76)
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
         }
 

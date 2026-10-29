@@ -31,13 +31,14 @@ final class StakingBalanceWidgetView: UIView {
 
         addSubview(balanceTitleLabel)
         balanceTitleLabel.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
         }
 
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(balanceTitleLabel.snp.bottom).offset(UIConstants.horizontalInset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.bottom.equalToSuperview().inset(8)
         }
     }
@@ -114,19 +115,20 @@ private final class StakingBalanceWidgetItemView: UIView {
     func setupLayout() {
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.leading.centerY.equalToSuperview()
+            make.centerY.equalToSuperview()
+            make.leading.equalTo(safeAreaLayoutGuide)
         }
 
         addSubview(tokenAmountLabel)
         tokenAmountLabel.snp.makeConstraints { make in
-            make.trailing.equalToSuperview()
+            make.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalToSuperview().inset(7.5)
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing)
         }
 
         addSubview(usdAmountLabel)
         usdAmountLabel.snp.makeConstraints { make in
-            make.trailing.equalToSuperview()
+            make.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(tokenAmountLabel.snp.bottom)
             make.bottom.equalToSuperview().inset(7.5)
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing)

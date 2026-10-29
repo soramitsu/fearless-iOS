@@ -187,8 +187,8 @@ final class WalletTransactionHistoryViewLayout: UIView {
 
         containerView.snp.makeConstraints { make in
             make.top.bottom.equalToSuperview()
-            make.leading.equalToSuperview()
-            make.trailing.equalToSuperview()
+            make.leading.equalTo(safeAreaLayoutGuide)
+            make.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         headerTopStackView.snp.makeConstraints { make in
