@@ -443,8 +443,11 @@ final class ChainSyncService {
 
         let normalizedRemoteChains: [ChainModel]
         do {
-            let remoteOnlyChains = Self.removingAppOwnedChainAliases(
-                from: remoteChains.map { normalizeSoraNexusChainAssets($0) }
+            // A retired network is left out here, so the stored copy is kept disabled below.
+            let remoteOnlyChains = NetworkRetirement.applying(
+                to: Self.removingAppOwnedChainAliases(
+                    from: remoteChains.map { normalizeSoraNexusChainAssets($0) }
+                )
             )
             guard remoteOnlyChains.isNotEmpty else {
                 complete(

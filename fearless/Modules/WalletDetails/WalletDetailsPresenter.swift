@@ -201,12 +201,13 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
 
 private extension WalletDetailsPresenter {
     func provideViewModel(chains: [ChainModel]) {
+        let listedChains = chains.listedForKeyAccess(by: flow.wallet)
         switch flow {
         case .normal:
             let viewModel = viewModelFactory.buildNormalViewModel(
                 flow: flow,
-                chains: chains,
-                chainsWithStoredAccounts: chains.filter { !storedAccountsByAddress(for: $0).isEmpty },
+                chains: listedChains,
+                chainsWithStoredAccounts: listedChains.filter { !storedAccountsByAddress(for: $0).isEmpty },
                 locale: selectedLocale,
                 searchText: searchText
             )
@@ -214,7 +215,7 @@ private extension WalletDetailsPresenter {
         case .export:
             let viewModel = viewModelFactory.buildExportViewModel(
                 flow: flow,
-                chains: chains,
+                chains: listedChains,
                 locale: selectedLocale,
                 searchText: searchText
             )

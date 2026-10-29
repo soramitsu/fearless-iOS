@@ -1171,6 +1171,7 @@
 		84BEE63026CBFDBC00757009 /* ChainRegistryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEE62F26CBFDBC00757009 /* ChainRegistryTests.swift */; };
 		A5090600E0E0000000000002 /* EthereumNodeFetchingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5090600E0E0000000000001 /* EthereumNodeFetchingTests.swift */; };
 		EF0A11E7A1B2C3D4E5F60005 /* EthereumNodeFailoverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0A11E7A1B2C3D4E5F60006 /* EthereumNodeFailoverTests.swift */; };
+		FE4E7A11D0C5C0DE00000003 /* NetworkRetirementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4E7A11D0C5C0DE00000004 /* NetworkRetirementTests.swift */; };
 		84C07EDC24AF1924008FC35B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 84C07EDA24AF1924008FC35B /* InfoPlist.strings */; };
 		84C2F27725E296CD0050A4AD /* RewardDestinationViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C2F27625E296CD0050A4AD /* RewardDestinationViewModelFactory.swift */; };
 		84C2F27D25E297350050A4AD /* CalculatedReward.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C2F27C25E297350050A4AD /* CalculatedReward.swift */; };
@@ -1197,6 +1198,7 @@
 		84CA68D526BE9E62003B9453 /* ChainRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CA68D426BE9E62003B9453 /* ChainRegistry.swift */; };
 		84CA68D726BE9E6F003B9453 /* ChainSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CA68D626BE9E6F003B9453 /* ChainSyncService.swift */; };
 		EF0A11E7A1B2C3D4E5F60003 /* EthereumNodeCatalogOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0A11E7A1B2C3D4E5F60004 /* EthereumNodeCatalogOrder.swift */; };
+		FE4E7A11D0C5C0DE00000001 /* NetworkRetirement.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4E7A11D0C5C0DE00000002 /* NetworkRetirement.swift */; };
 		84CA68D926BE9E7F003B9453 /* SpecVersionSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CA68D826BE9E7F003B9453 /* SpecVersionSubscription.swift */; };
 		84CA68DB26BEA33F003B9453 /* ChainRegistryFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CA68DA26BEA33F003B9453 /* ChainRegistryFactory.swift */; };
 		84CA68DD26BEA60A003B9453 /* ConnectionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CA68DC26BEA60A003B9453 /* ConnectionFactory.swift */; };
@@ -4592,6 +4594,7 @@
 		84BEE62F26CBFDBC00757009 /* ChainRegistryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainRegistryTests.swift; sourceTree = "<group>"; };
 		A5090600E0E0000000000001 /* EthereumNodeFetchingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumNodeFetchingTests.swift; sourceTree = "<group>"; };
 		EF0A11E7A1B2C3D4E5F60006 /* EthereumNodeFailoverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumNodeFailoverTests.swift; sourceTree = "<group>"; };
+		FE4E7A11D0C5C0DE00000004 /* NetworkRetirementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkRetirementTests.swift; sourceTree = "<group>"; };
 		84C07EDD24AF1935008FC35B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		84C07EE524AF1990008FC35B /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		84C2F27625E296CD0050A4AD /* RewardDestinationViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardDestinationViewModelFactory.swift; sourceTree = "<group>"; };
@@ -4620,6 +4623,7 @@
 		84CA68D426BE9E62003B9453 /* ChainRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainRegistry.swift; sourceTree = "<group>"; };
 		84CA68D626BE9E6F003B9453 /* ChainSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainSyncService.swift; sourceTree = "<group>"; };
 		EF0A11E7A1B2C3D4E5F60004 /* EthereumNodeCatalogOrder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumNodeCatalogOrder.swift; sourceTree = "<group>"; };
+		FE4E7A11D0C5C0DE00000002 /* NetworkRetirement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkRetirement.swift; sourceTree = "<group>"; };
 		84CA68D826BE9E7F003B9453 /* SpecVersionSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecVersionSubscription.swift; sourceTree = "<group>"; };
 		84CA68DA26BEA33F003B9453 /* ChainRegistryFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainRegistryFactory.swift; sourceTree = "<group>"; };
 		84CA68DC26BEA60A003B9453 /* ConnectionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionFactory.swift; sourceTree = "<group>"; };
@@ -8860,6 +8864,7 @@
 				84BEE62F26CBFDBC00757009 /* ChainRegistryTests.swift */,
 				A5090600E0E0000000000001 /* EthereumNodeFetchingTests.swift */,
 				EF0A11E7A1B2C3D4E5F60006 /* EthereumNodeFailoverTests.swift */,
+				FE4E7A11D0C5C0DE00000004 /* NetworkRetirementTests.swift */,
 				8469936A26CD1BBE002CC786 /* RuntimePoolTests.swift */,
 				84D9C41026CD361C004AB2AB /* SpecVersionSubscriptionTests.swift */,
 				189CE1DE8D520FEB61152078 /* ChainSyncServiceCompatibilityTests.swift */,
@@ -11161,6 +11166,7 @@
 				84CA68D426BE9E62003B9453 /* ChainRegistry.swift */,
 				84CA68D626BE9E6F003B9453 /* ChainSyncService.swift */,
 				EF0A11E7A1B2C3D4E5F60004 /* EthereumNodeCatalogOrder.swift */,
+				FE4E7A11D0C5C0DE00000002 /* NetworkRetirement.swift */,
 				84CA68D826BE9E7F003B9453 /* SpecVersionSubscription.swift */,
 				84CA68DA26BEA33F003B9453 /* ChainRegistryFactory.swift */,
 				84CA68E026BEAC7C003B9453 /* SpecVersionSubscriptionFactory.swift */,
@@ -18980,6 +18986,7 @@
 				FAF5E9DE27E46DCC005A3448 /* String+VersionComparsion.swift in Sources */,
 				84CA68D726BE9E6F003B9453 /* ChainSyncService.swift in Sources */,
 				EF0A11E7A1B2C3D4E5F60003 /* EthereumNodeCatalogOrder.swift in Sources */,
+				FE4E7A11D0C5C0DE00000001 /* NetworkRetirement.swift in Sources */,
 				8423B0E8251B2DAD00B8687C /* SubstrateOperationFactory.swift in Sources */,
 				076D9D312939F72A002762E3 /* PolkaswapQuoteParams.swift in Sources */,
 				FA72542A2AC2E48500EC47A6 /* WalletConnectChainsResolution.swift in Sources */,
@@ -20318,6 +20325,7 @@
 				84BEE63026CBFDBC00757009 /* ChainRegistryTests.swift in Sources */,
 				A5090600E0E0000000000002 /* EthereumNodeFetchingTests.swift in Sources */,
 				EF0A11E7A1B2C3D4E5F60005 /* EthereumNodeFailoverTests.swift in Sources */,
+				FE4E7A11D0C5C0DE00000003 /* NetworkRetirementTests.swift in Sources */,
 				84F13F1426F20AA2006725FF /* StakingSettingsTests.swift in Sources */,
 				84EAC2F82642EA52003CC2ED /* StakingRebondConfirmationTests.swift in Sources */,
 				84300B2F26C1112300D64514 /* ConnectionPoolTests.swift in Sources */,

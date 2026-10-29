@@ -1219,15 +1219,31 @@ final class CrossChainOwnedRemoteConfigTests: XCTestCase {
             XCTAssertTrue(offered.isEmpty, "\(definition.originSymbol) to \(definition.execution.destinationChainId)")
             XCTAssertNil(ReviewedXcmRouteRegistry.validatedOrigin(for: definition, chainsById: chainsById))
         }
-        // The chains stay in the list, because saved balances and addresses refer to them.
-        XCTAssertEqual(
-            Set(Self.deadChainIds.compactMap { chainsById[$0]?.paraId }),
-            ["2004", "2023", "2012", "2025", "2011"]
-        )
+        // Dead networks are left out of the list. Installed apps keep their stored copy disabled
+        // (`ChainSyncService`), so saved balances and addresses are kept.
+        for chainId in Self.deadChainIds {
+            XCTAssertNil(chainsById[chainId], chainId)
+        }
         for chain in chains {
             for destination in chain.xcm?.availableDestinations ?? [] {
                 XCTAssertFalse(Self.deadChainIds.contains(destination.chainId), "\(chain.name) -> \(destination.chainId)")
             }
+        }
+    }
+
+    func testOwnedChainListLeavesOutRetiredNetworksAndRelayStaking() throws {
+        let chains = try Self.ownedChains()
+
+        let listedRetired = chains.filter { NetworkRetirement.retiredChainIds.contains($0.chainId) }
+        XCTAssertEqual(listedRetired.map(\.name), [])
+        XCTAssertEqual(NetworkRetirement.applying(to: chains).count, chains.count)
+
+        for chainId in NetworkRetirement.assetHubMigratedRelayChainIds {
+            let relay = try XCTUnwrap(chains.first { $0.chainId == chainId }, chainId)
+            XCTAssertTrue(relay.assets.allSatisfy { $0.staking == nil }, relay.name)
+            XCTAssertFalse(relay.options?.contains(.poolStaking) ?? false, relay.name)
+            XCTAssertFalse(relay.hasCrowdloans, relay.name)
+            XCTAssertNil(relay.externalApi?.crowdloans, relay.name)
         }
     }
 

@@ -2211,3 +2211,100 @@ private final class ScriptedChainRepository: DataProviderRepositoryProtocol {
         ClosureOperation { () }
     }
 }
+
+final class NetworkRetirementSyncTests: XCTestCase {
+    func testSyncDisablesStoredRetiredNetworkAndRemovesRelayStaking() throws {
+        let payload = """
+        [
+          {
+            "chainId": "\(Chain.polkadot.genesisHash)",
+            "name": "Polkadot",
+            "disabled": false,
+            "addressPrefix": 0,
+            "options": ["crowdloans", "poolStaking"],
+            "nodes": [{"url": "wss://rpc.polkadot.io", "name": "Parity node"}],
+            "assets": [{
+              "id": "dot", "name": "Polkadot", "symbol": "DOT", "precision": 10,
+              "isUtility": true, "isNative": true, "staking": "relaychain"
+            }]
+          },
+          {
+            "chainId": "\(Chain.moonbeam.genesisHash)",
+            "name": "Moonbeam",
+            "disabled": false,
+            "addressPrefix": 1284,
+            "options": ["ethereumBased"],
+            "nodes": [{"url": "wss://wss.api.moonbeam.network", "name": "Moonbeam node"}],
+            "assets": [{
+              "id": "glmr", "name": "Moonbeam", "symbol": "GLMR", "precision": 18,
+              "isUtility": true, "isNative": true, "staking": "parachain"
+            }]
+          }
+        ]
+        """
+        let storedMoonbeam = ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: Chain.moonbeam.genesisHash,
+            paraId: "2004",
+            name: "Moonbeam",
+            assets: [
+                AssetModel(
+                    id: "glmr",
+                    name: "Moonbeam",
+                    symbol: "GLMR",
+                    precision: 18,
+                    isUtility: true,
+                    isNative: true,
+                    staking: .paraChain
+                )
+            ],
+            xcm: nil,
+            nodes: [
+                ChainNodeModel(
+                    url: try XCTUnwrap(URL(string: "wss://wss.api.moonbeam.network")),
+                    name: "Moonbeam node",
+                    apikey: nil
+                )
+            ],
+            addressPrefix: 1284,
+            icon: nil,
+            options: [.ethereumBased],
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+        let repository = ScriptedChainRepository(localChains: [storedMoonbeam])
+        let eventCenter = RecordingChainSyncEventCenter()
+        let completion = expectation(description: "sync completes")
+        eventCenter.onEvent = { event in
+            if event is ChainSyncDidComplete {
+                completion.fulfill()
+            }
+        }
+        let service = ChainSyncService(
+            chainsUrl: try XCTUnwrap(URL(string: "https://chains.example/chains.json")),
+            dataFetchFactory: StaticDataOperationFactory(data: Data(payload.utf8)),
+            repository: AnyDataProviderRepository(repository),
+            eventCenter: eventCenter,
+            operationQueue: OperationQueue(),
+            retryStrategy: NeverReconnectStrategy(),
+            applicationHandler: ApplicationHandler()
+        )
+
+        service.syncUp()
+
+        wait(for: [completion], timeout: 5)
+        let savedMoonbeam = try XCTUnwrap(
+            repository.savedModels.last(where: { $0.chainId == Chain.moonbeam.genesisHash })
+        )
+        XCTAssertTrue(savedMoonbeam.disabled)
+        let savedPolkadot = try XCTUnwrap(
+            repository.savedModels.last(where: { $0.chainId == Chain.polkadot.genesisHash })
+        )
+        XCTAssertFalse(savedPolkadot.disabled)
+        XCTAssertNil(savedPolkadot.assets.first?.staking)
+        XCTAssertEqual(savedPolkadot.options ?? [], [ChainOptions]())
+        XCTAssertTrue(repository.deletedIdentifiers.isEmpty)
+        XCTAssertEqual(eventCenter.failureCount, 0)
+    }
+}
