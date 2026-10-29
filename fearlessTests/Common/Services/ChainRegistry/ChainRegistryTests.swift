@@ -456,14 +456,12 @@ private final class RecordingEthereumNodeFetching:
         return urls
     }
 
-    func getNode(for chain: ChainModel) throws -> Web3.Eth {
-        if let selectedURL = chain.selectedNode?.url {
-            lock.lock()
-            urls.append(selectedURL)
-            lock.unlock()
-        }
+    func getNode(for chain: ChainModel, url: URL) throws -> Web3.Eth {
+        lock.lock()
+        urls.append(url)
+        lock.unlock()
 
-        return try EthereumNodeFetching().getNode(for: chain)
+        return try EthereumNodeFetching().getNode(for: chain, url: url)
     }
 }
 
@@ -994,5 +992,83 @@ private final class SubscriptionTestRepository:
 
     func deleteAllOperation() -> BaseOperation<Void> {
         ClosureOperation { () }
+    }
+}
+
+extension ChainRegistryTests {
+    func testChosenEthereumNodeTakesEffectInSessionAndAutomaticSelectionResumesOnTheNodeMovedTo() throws {
+        let (provider, observable) = makeChainProvider()
+        let first = ChainNodeModel(
+            url: try XCTUnwrap(URL(string: "https://first-rpc.example")),
+            name: "First Ethereum RPC",
+            apikey: nil
+        )
+        let second = ChainNodeModel(
+            url: try XCTUnwrap(URL(string: "https://second-rpc.example")),
+            name: "Second Ethereum RPC",
+            apikey: nil
+        )
+        let chainId = "ethereum-node-choice-chain"
+        let automatic = makeEthereumChain(identifier: chainId, node: first)
+            .replacingNodes([first, second])
+            .replacingSelectedNode(nil)
+        let suite = "ChainRegistryTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let pool = EthereumConnectionPool(
+            nodeFetching: EthereumNodeFetching(),
+            catalogOrder: EthereumNodeCatalogOrder(defaults: defaults)
+        )
+        let registry = ChainRegistry(
+            snapshotHotBootBuilder: NoopSnapshotHotBootBuilder(),
+            runtimeProviderPool: makeRuntimeProviderPool(),
+            connectionPools: [pool],
+            chainSyncService: NoopChainSyncService(),
+            runtimeSyncService: makeRuntimeSyncService(),
+            chainsTypesSyncService: NoopChainsTypesSyncService(),
+            chainProvider: provider,
+            specVersionSubscriptionFactory: makeSubscriptionFactory(),
+            networkIssuesCenter: NoopNetworkIssuesCenter(),
+            eventCenter: NoopEventCenter()
+        )
+        registry.subscribeToChains()
+        XCTAssertTrue(observable.waitUntilObserverAttached())
+
+        XCTAssertTrue(observable.send([.insert(newItem: automatic)]))
+        let firstConnection: Web3.Eth = try waitForValue {
+            registry.getEthereumConnection(for: chainId)
+        }
+        XCTAssertEqual(pool.currentNodeURL(for: chainId), first.url)
+
+        // The first node stops answering, and the network moves on.
+        XCTAssertNotNil(registry.failoverEthereumConnection(for: chainId, failed: firstConnection))
+        XCTAssertEqual(pool.currentNodeURL(for: chainId), second.url)
+
+        // The user chooses the first node as the node selection screen does: a reset, then the saved chain.
+        registry.resetConnection(for: chainId)
+        XCTAssertNil(pool.getConnection(for: chainId))
+        XCTAssertTrue(observable.send([.update(newItem: automatic.replacingSelectedNode(first))]))
+        try waitForCondition {
+            pool.currentNodeURL(for: chainId) == first.url
+        }
+        let chosenConnection = try XCTUnwrap(registry.getEthereumConnection(for: chainId))
+
+        // A node the user chose is kept when it fails: rebuilt, never swapped.
+        let rebuilt = try XCTUnwrap(registry.failoverEthereumConnection(for: chainId, failed: chosenConnection))
+        XCTAssertEqual(pool.currentNodeURL(for: chainId), first.url)
+        XCTAssertFalse(
+            (rebuilt.properties.provider as? EthereumNodeProvider) ===
+                (chosenConnection.properties.provider as? EthereumNodeProvider)
+        )
+
+        // Back to automatic selection: the network resumes on the node it moved to, not on the one that failed.
+        registry.resetConnection(for: chainId)
+        XCTAssertTrue(observable.send([.update(newItem: automatic)]))
+        try waitForCondition {
+            registry.getChain(for: chainId)?.selectedNode == nil &&
+                pool.currentNodeURL(for: chainId) == second.url
+        }
+
+        provider.removeObserver(registry)
     }
 }
