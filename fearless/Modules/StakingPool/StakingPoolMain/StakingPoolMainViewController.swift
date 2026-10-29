@@ -170,11 +170,14 @@ extension StakingPoolMainViewController: KeyboardAdoptable {
     var target: Constraint? { rootView.keyboardAdoptableConstraint }
 
     func offsetFromKeyboardWithInset(_ frame: CGFloat) -> CGFloat {
-        if frame > 0, let tabBar = tabBarController?.tabBar, !tabBar.isHidden {
-            return -tabBar.frame.height
+        guard frame > 0, let tabBar = tabBarController?.tabBar else {
+            return 0
         }
 
-        return 0
+        // A tab bar the iPad sidebar has hidden takes no room above the keyboard.
+        let hiddenBySidebar = (tabBarController as? MainTabBarViewController)?.usesAdaptiveTabs == true
+            && tabBar.isHidden
+        return hiddenBySidebar ? 0 : -tabBar.frame.height
     }
 
     func updateWhileKeyboardFrameChanging(_: CGRect) {}

@@ -13,7 +13,9 @@ final class FearlessWindow: UIWindow {
     private var statusView: ApplicationStatusView?
     private lazy var statusViewBottomInset: CGFloat = {
         var bottomInset: CGFloat = UIConstants.statusViewHeight
-        if let tabBarController = rootViewController as? MainTabBarViewController, !tabBarController.tabBar.isHidden {
+        // The iPad sidebar tabs can hide the tab bar; iPhone keeps its custom bar here.
+        if let tabBarController = rootViewController as? MainTabBarViewController,
+           !(tabBarController.usesAdaptiveTabs && tabBarController.tabBar.isHidden) {
             bottomInset += tabBarController.tabBar.frame.height
         }
         return bottomInset
