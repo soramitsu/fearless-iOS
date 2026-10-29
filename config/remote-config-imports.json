@@ -160,7 +160,7 @@
       "commit": "f2ed4ccf1d3a6376b60ebd69d823a3f7748ddc4b",
       "sourcePath": "chains/v13/chains_dev.json",
       "upstreamSha256": "5726b01a5364d955e250939c71082c03f97da0dc9512ac9d120c6a2085173d05",
-      "ownedSha256": "97da306bd729c9b571d4483a9258210d425c6abe32da06d7a2ef721e26f508d4"
+      "ownedSha256": "4de43640a7c8aff8f63d05d0e58e1fa896267af9b662160251d67c351b273e06"
     },
     {
       "path": "development/chains/v9/chains_dev.json",
@@ -8272,7 +8272,8 @@
     },
     {
       "files": [
-        "remote-config/production/chains/v13/chains.json"
+        "remote-config/production/chains/v13/chains.json",
+        "remote-config/development/chains/v13/chains_dev.json"
       ],
       "changes": [
         "Drop discontinued Blast API nodes; move Dwellir nodes from retired *.dwellir.com hosts to n.dwellir.com hosts that returned the network's genesis on 2026-10-29, and drop the rest unless a network has no other node. Only node entries change."
