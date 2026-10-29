@@ -432,51 +432,30 @@ final class ChainAssetListInteractor {
 
         Task {
             let results = await withTaskGroup(
-                of: (ChainModel, [ChainAssetId: AccountInfo?])?.self,
-                returning: [(ChainModel, [ChainAssetId: AccountInfo?])].self
+                of: [(ChainAsset, AccountInfo?)].self,
+                returning: [(ChainAsset, AccountInfo?)].self
             ) { group in
                 chains.forEach { chain in
                     group.addTask {
-                        NetworkScanStateStore.markAttempt(for: chain, walletId: currentWallet.metaId)
-                        do {
-                            let infos = try await self.accountInfoRemoteService.fetchAccountInfos(
-                                for: chain,
-                                wallet: currentWallet
-                            )
-                            NetworkScanStateStore.markSuccess(for: chain, walletId: currentWallet.metaId)
-                            return (chain, infos)
-                        } catch {
-                            NetworkScanStateStore.markFailure(for: chain, walletId: currentWallet.metaId)
-                            if let lastKnownProvider = self.accountInfoRemoteService as? AccountInfoLastKnownBalanceProviding {
-                                let retained = lastKnownProvider.lastKnownAccountInfos(
-                                    for: chain,
-                                    wallet: currentWallet
-                                )
-                                if retained.isNotEmpty {
-                                    return (chain, retained)
-                                }
-                            }
-                            return nil
-                        }
+                        await Self.remoteAccountInfos(
+                            for: chain,
+                            wallet: currentWallet,
+                            service: self.accountInfoRemoteService
+                        )
                     }
                 }
 
-                var values: [(ChainModel, [ChainAssetId: AccountInfo?])] = []
+                var values: [(ChainAsset, AccountInfo?)] = []
                 for await result in group {
-                    if let result {
-                        values.append(result)
-                    }
+                    values.append(contentsOf: result)
                 }
                 return values
             }
 
             await MainActor.run {
                 guard self.walletScope.isCurrent(request) else { return }
-                results.forEach { chain, infos in
-                    chain.chainAssets.forEach { chainAsset in
-                        let accountInfo = infos[chainAsset.chainAssetId] ?? nil
-                        self.output?.didReceiveAccountInfo(result: .success(accountInfo), for: chainAsset)
-                    }
+                results.forEach { chainAsset, accountInfo in
+                    self.output?.didReceiveAccountInfo(result: .success(accountInfo), for: chainAsset)
                 }
             }
         }
@@ -491,6 +470,44 @@ final class ChainAssetListInteractor {
         }
 
         refreshRemoteBalances(for: universalChainAssets)
+    }
+}
+
+// MARK: - Remote balances
+
+extension ChainAssetListInteractor {
+    /// The balances one network's scan gives the list: what it read, or what the network last knew when the scan
+    /// failed. An asset the scan could not read gets nothing, so the list keeps the balance it shows for it.
+    static func remoteAccountInfos(
+        for chain: ChainModel,
+        wallet: MetaAccountModel,
+        service: AccountInfoRemoteService
+    ) async -> [(ChainAsset, AccountInfo?)] {
+        NetworkScanStateStore.markAttempt(for: chain, walletId: wallet.metaId)
+        let infos: [ChainAssetId: AccountInfo?]
+        var unread = Set<ChainAssetId>()
+        do {
+            infos = try await service.fetchAccountInfos(for: chain, wallet: wallet)
+            NetworkScanStateStore.markSuccess(for: chain, walletId: wallet.metaId)
+        } catch let incomplete as IncompleteAccountInfosError {
+            NetworkScanStateStore.markFailure(for: chain, walletId: wallet.metaId)
+            infos = incomplete.accountInfos
+            unread = incomplete.unreadChainAssetIds
+        } catch {
+            NetworkScanStateStore.markFailure(for: chain, walletId: wallet.metaId)
+            let retained = (service as? AccountInfoLastKnownBalanceProviding)?.lastKnownAccountInfos(
+                for: chain,
+                wallet: wallet
+            ) ?? [:]
+            guard retained.isNotEmpty else {
+                return []
+            }
+            infos = retained
+        }
+
+        return chain.chainAssets
+            .filter { !unread.contains($0.chainAssetId) }
+            .map { ($0, infos[$0.chainAssetId] ?? nil) }
     }
 }
 

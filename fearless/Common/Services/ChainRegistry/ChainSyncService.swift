@@ -45,6 +45,7 @@ final class ChainSyncService {
     private let operationQueue: OperationQueue
     private let logger: LoggerProtocol?
     private let malformedChainCleanupOperationFactory: (() -> BaseOperation<Void>)?
+    private let nodeCatalogOrder: EthereumNodeCatalogOrderProtocol
 
     private var retryAttempt: Int = 0
     private var isSyncInFlight = false
@@ -70,7 +71,8 @@ final class ChainSyncService {
         cooldownTimer: CountdownTimerProtocol = CountdownTimer(
             notificationInterval: 300
         ),
-        cooldownTimerQueue: DispatchQueue = .main
+        cooldownTimerQueue: DispatchQueue = .main,
+        nodeCatalogOrder: EthereumNodeCatalogOrderProtocol = EthereumNodeCatalogOrder.shared
     ) {
         self.chainsUrl = chainsUrl
         self.dataFetchFactory = dataFetchFactory
@@ -83,6 +85,7 @@ final class ChainSyncService {
         self.malformedChainCleanupOperationFactory = malformedChainCleanupOperationFactory
         timer = cooldownTimer
         self.cooldownTimerQueue = cooldownTimerQueue
+        self.nodeCatalogOrder = nodeCatalogOrder
         timer.delegate = self
     }
 
@@ -321,6 +324,8 @@ final class ChainSyncService {
                 do {
                     let data = try operation.extractNoCancellableResultData()
                     let remoteChains = try self.decodeChainsTolerant(from: data)
+                    // Decoding into `ChainModel` loses the catalog's node order, which EVM node selection follows.
+                    self.nodeCatalogOrder.record(catalog: data)
                     self.handle(remoteChains: remoteChains)
                 } catch {
                     self.complete(result: .failure(error))

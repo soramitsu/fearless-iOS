@@ -436,6 +436,9 @@ protocol ChainRegistryProtocol: AnyObject {
     func retryConnection(for chainId: ChainModel.Id)
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
     func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth?
+    /// Replaces `failed`, the EVM connection of a network whose node stopped answering, and returns the connection to
+    /// retry on: the network's next node, or the node the user chose, rebuilt.
+    func failoverEthereumConnection(for chainId: ChainModel.Id, failed: Web3.Eth) -> Web3.Eth?
     func getTonApiClientFactory() throws -> TonAPIClientFactory
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
     func getChain(for chainId: ChainModel.Id) -> ChainModel?
@@ -455,6 +458,9 @@ protocol ChainRegistryProtocol: AnyObject {
 extension ChainRegistryProtocol {
     // Unqualified implementations cannot authorize new-feature signing.
     func getChainForMutationAuthorization(for _: ChainModel.Id) -> ChainModel? { nil }
+
+    // Implementations without EVM node failover keep the failed connection.
+    func failoverEthereumConnection(for _: ChainModel.Id, failed _: Web3.Eth) -> Web3.Eth? { nil }
 }
 
 final class ChainRegistry {
@@ -866,6 +872,19 @@ extension ChainRegistry: ChainRegistryProtocol {
         }
     }
 
+    func failoverEthereumConnection(for chainId: ChainModel.Id, failed: Web3.Eth) -> Web3.Eth? {
+        readLock.concurrentlyRead {
+            guard
+                let ethereumConnectionPool = self.ethereumConnectionPool,
+                let chain = chains.first(where: { $0.chainId == chainId })
+            else {
+                return nil
+            }
+
+            return ethereumConnectionPool.failover(for: chain, failed: failed)
+        }
+    }
+
     func getChain(for chainId: ChainModel.Id) -> ChainModel? {
         readLock.concurrentlyRead { chains.first(where: { $0.chainId == chainId }) }
     }
@@ -971,7 +990,7 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func resetConnection(for chainId: ChainModel.Id) {
-        guard let chain = chains.first(where: { $0.chainId == chainId }) else {
+        guard let chain = getChain(for: chainId) else {
             return
         }
 

@@ -28,6 +28,15 @@ protocol AccountInfoLastKnownBalanceProviding {
     ) -> [ChainAssetId: AccountInfo?]
 }
 
+/// A network scan that could not read every balance, for example an EVM token whose call reverts or a network with no
+/// working node. The scan failed, so the network keeps its "update failed" attention, but the balances it did read
+/// are fresh: they are in `accountInfos` (none when nothing was read), keyed as a full scan's are. The assets it could
+/// not read are left out of it, never reported as no balance.
+struct IncompleteAccountInfosError: Error {
+    let accountInfos: [ChainAssetId: AccountInfo?]
+    let unreadChainAssetIds: Set<ChainAssetId>
+}
+
 struct RemoteAccountInfoUpdatedEvent: EventProtocol {
     let walletId: MetaAccountId
     let chainId: ChainModel.Id
@@ -682,6 +691,12 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
             ($0.key.chainAssetId, $0.value)
         }
         let map = Dictionary(uniqueKeysWithValues: mapped)
+        // The fetcher leaves out every asset it could not read, so one failed asset fails the scan without taking the
+        // balances read with it.
+        let unread = Set(chainAsset.map(\.chainAssetId)).subtracting(map.keys)
+        guard unread.isEmpty else {
+            throw IncompleteAccountInfosError(accountInfos: map, unreadChainAssetIds: unread)
+        }
         return map
     }
 

@@ -433,6 +433,59 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         XCTAssertEqual(storagePerformer.performMixInvocations, 0)
     }
 
+    func testEthereumScanThatCouldNotReadEveryBalanceFailsWithTheBalancesItRead() async throws {
+        let ether = AssetModel(
+            id: "0x01", name: "Unit ETH", symbol: "UETH", precision: 18, isUtility: true, isNative: true, ethereumType: .normal
+        )
+        let token = AssetModel(
+            id: "0x02", name: "Unit token", symbol: "UTKN", precision: 18, isUtility: false, isNative: false, ethereumType: .erc20
+        )
+        let unlisted = AssetModel(
+            id: "0x03", name: "Unit other", symbol: "UOTH", precision: 18, isUtility: false, isNative: false, ethereumType: nil
+        )
+        let chain = makeEthereumChain(with: ether, token, unlisted)
+        let etherAsset = ChainAsset(chain: chain, asset: ether)
+        let tokenAsset = ChainAsset(chain: chain, asset: token)
+        let unlistedAsset = ChainAsset(chain: chain, asset: unlisted)
+        let ethereumFetching = AccountInfoFetchingStub()
+        // The token's read failed, so the fetcher left it out; the asset with nothing to read has no balance.
+        ethereumFetching.fetchManyResult = [etherAsset: AccountInfo(ethBalance: 5), unlistedAsset: nil]
+        let service = AccountInfoRemoteServiceDefault(
+            ethereumRemoteBalanceFetching: ethereumFetching,
+            storagePerformer: StorageRequestPerformerStub()
+        )
+
+        do {
+            _ = try await service.fetchAccountInfos(for: chain, wallet: AccountGenerator.generateMetaAccount())
+            XCTFail("A scan that could not read every balance has failed")
+        } catch let error as IncompleteAccountInfosError {
+            XCTAssertEqual(error.accountInfos.count, 2)
+            XCTAssertEqual((error.accountInfos[etherAsset.chainAssetId] ?? nil)?.data.free, 5)
+            XCTAssertTrue(error.accountInfos.keys.contains(unlistedAsset.chainAssetId))
+            XCTAssertNil(error.accountInfos[unlistedAsset.chainAssetId] ?? nil)
+            XCTAssertEqual(error.unreadChainAssetIds, [tokenAsset.chainAssetId])
+        }
+    }
+
+    func testEthereumScanThatReadNothingFailsWithNoBalance() async throws {
+        let ether = AssetModel(
+            id: "0x01", name: "Unit ETH", symbol: "UETH", precision: 18, isUtility: true, isNative: true, ethereumType: .normal
+        )
+        let chain = makeEthereumChain(with: ether)
+        let service = AccountInfoRemoteServiceDefault(
+            ethereumRemoteBalanceFetching: AccountInfoFetchingStub(),
+            storagePerformer: StorageRequestPerformerStub()
+        )
+
+        do {
+            _ = try await service.fetchAccountInfos(for: chain, wallet: AccountGenerator.generateMetaAccount())
+            XCTFail("A network with no working node has no balance to report")
+        } catch let error as IncompleteAccountInfosError {
+            XCTAssertTrue(error.accountInfos.isEmpty)
+            XCTAssertEqual(error.unreadChainAssetIds, Set(chain.chainAssets.map(\.chainAssetId)))
+        }
+    }
+
     func testFetchAccountInfosThrowsWhenTonServiceMissingForTonCompatibilityChain() async {
         let chain = makeTonLikeChain()
         let wallet = AccountGenerator.generateMetaAccount()
@@ -1381,7 +1434,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         )
     }
 
-    private func makeEthereumChain(with asset: AssetModel) -> ChainModel {
+    private func makeEthereumChain(with assets: AssetModel...) -> ChainModel {
         let node = ChainNodeModel(
             url: URL(string: "https://rpc.unit-eth.test")!,
             name: "Unit ETH",
@@ -1395,7 +1448,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
             parentId: nil,
             paraId: nil,
             name: "Unit Ethereum",
-            assets: Set([asset]),
+            assets: Set(assets),
             xcm: nil,
             nodes: Set([node]),
             addressPrefix: 0,
