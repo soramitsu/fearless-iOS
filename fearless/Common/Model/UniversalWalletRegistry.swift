@@ -280,7 +280,6 @@ enum UniversalWalletRegistry {
         chainId: "iroha3-taira",
         chainDiscriminant: 369,
         toriiBaseURL: URL(string: "https://taira.sora.org")!,
-        mcpPath: "/v1/mcp",
         enabledByDefault: true,
         features: ["receive"]
     )
@@ -373,7 +372,6 @@ enum UniversalWalletRegistry {
         chainId: "sora:nexus:global",
         chainDiscriminant: 753,
         toriiBaseURL: URL(string: "https://minamoto.sora.org")!,
-        mcpPath: "/v1/mcp",
         enabledByDefault: false,
         features: ["transfer", "offline-cash", "sccp", "governance"]
     )
@@ -432,21 +430,8 @@ enum UniversalWalletRegistry {
         let chainId: String
         let chainDiscriminant: Int
         let toriiBaseURL: URL?
-        let mcpPath: String
         let enabledByDefault: Bool
         let features: [String]
-
-        var mcpEndpointURL: URL? {
-            guard let toriiBaseURL = toriiBaseURL else {
-                return nil
-            }
-
-            return mcpPath
-                .split(separator: "/")
-                .reduce(toriiBaseURL) { url, component in
-                    url.appendingPathComponent(String(component))
-                }
-        }
     }
 
     struct BitcoinNetwork: Equatable {
@@ -563,12 +548,12 @@ enum UniversalWalletRegistry {
                 name: "SORA XOR"
             )
             : nil
-        let endpoints = network.mcpEndpointURL.map { endpoint in
+        let endpoints = network.toriiBaseURL.map { toriiBaseURL in
             [
                 UniversalWalletRegistryEndpoint(
-                    id: "\(network.id)-torii-mcp",
-                    kind: .toriiMcp,
-                    url: endpoint.absoluteString,
+                    id: "\(network.id)-torii",
+                    kind: .torii,
+                    url: toriiBaseURL.absoluteString,
                     readOnly: false
                 )
             ]
