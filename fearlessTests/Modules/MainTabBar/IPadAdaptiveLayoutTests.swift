@@ -1,8 +1,8 @@
 import AVFoundation
 import SoraFoundation
+import SoraUI
 import UIKit
 import XCTest
-
 @testable import fearless
 
 final class AdaptiveLayoutTests: XCTestCase {
@@ -214,4 +214,122 @@ private final class FullWidthScreen: UIViewController, AdaptiveFullWidthContent 
 
 private final class AdaptiveTabsPresenterStub: MainTabBarPresenterProtocol {
     func didLoad(view _: MainTabBarViewProtocol) {}
+}
+
+final class IPadPickerPresentationTests: XCTestCase {
+    func testPickerFactoryKeepsTheExistingIPhonePresentation() {
+        XCTAssertTrue(ModalSheetBlurPresentationFactory.forPicker(configuration: .fearless, idiom: .phone)
+            is ModalSheetPresentationFactory)
+        XCTAssertTrue(ModalSheetBlurPresentationFactory.forPicker(configuration: .fearless, idiom: .pad)
+            is ModalSheetBlurPresentationFactory)
+    }
+
+    func testPickerCardFollowsRotationAndReturnsToBottomSheetInCompactWidth() {
+        let picker = UIViewController()
+        picker.preferredContentSize = CGSize(width: 0, height: 300)
+        let presentation = ModalSheetBlurPresentationController(
+            presentedViewController: picker, presenting: UIViewController(),
+            configuration: .fearless, usesPreferredContentSize: true
+        )
+        let container = PickerLayoutContainer(frame: CGRect(x: 0, y: 0, width: 834, height: 1194))
+        presentation.layoutPreferredContent(in: container)
+        XCTAssertEqual(picker.view.frame.width, 560)
+        XCTAssertEqual(picker.view.frame.height, 300)
+        XCTAssertEqual(picker.view.center.x, 417)
+        XCTAssertEqual(picker.view.center.y, 599)
+        XCTAssertEqual(picker.view.layer.cornerRadius, AdaptiveLayout.sheetCornerRadius)
+
+        container.frame = CGRect(x: 0, y: 0, width: 1194, height: 834)
+        presentation.layoutPreferredContent(in: container)
+        XCTAssertEqual(picker.view.center.x, 597)
+        XCTAssertEqual(picker.view.center.y, 419)
+        XCTAssertEqual(picker.view.frame.height, 300)
+
+        container.frame = CGRect(x: 0, y: 0, width: 375, height: 834)
+        container.horizontalSizeClass = .compact
+        presentation.layoutPreferredContent(in: container)
+        XCTAssertEqual(picker.view.frame, CGRect(x: 0, y: 514, width: 375, height: 320))
+        XCTAssertEqual(picker.view.layer.cornerRadius, 0)
+
+        container.frame = CGRect(x: 0, y: 0, width: 834, height: 1194)
+        container.horizontalSizeClass = .regular
+        presentation.layoutPreferredContent(in: container)
+        XCTAssertEqual(picker.view.frame.width, 560)
+        XCTAssertEqual(picker.view.center.x, 417)
+    }
+
+    func testLongPickerKeepsItsHeaderAndScrollableTableInsideTheSafeArea() {
+        let picker = UIViewController()
+        picker.preferredContentSize = CGSize(width: 0, height: 3000)
+        let presentation = ModalSheetBlurPresentationController(
+            presentedViewController: picker, presenting: UIViewController(),
+            configuration: .fearless, usesPreferredContentSize: true
+        )
+        let container = PickerLayoutContainer(frame: CGRect(x: 0, y: 0, width: 500, height: 700))
+        presentation.layoutPreferredContent(in: container)
+        XCTAssertEqual(picker.view.frame, CGRect(x: 24, y: 48, width: 452, height: 608))
+
+        picker.preferredContentSize.height = 140
+        presentation.layoutPreferredContent(in: container)
+        XCTAssertEqual(picker.view.frame.height, 140)
+        XCTAssertEqual(picker.view.center.y, 352)
+    }
+
+    func testPickerSelectionDismissesThroughAppPresentationAndCallsBackOnce() throws {
+        let picker = PickerDismissalSpy()
+        var selections: [Int] = []
+        picker.selectionCallback = { selections.append($0) }
+        let factory = ModalSheetBlurPresentationFactory(configuration: .fearless, usesPreferredContentSize: true)
+        let host = UIViewController()
+        let presentation = try XCTUnwrap(factory.presentationController(
+            forPresented: picker, presenting: host, source: host
+        ) as? ModalSheetBlurPresentationController)
+        XCTAssertTrue(picker.presenter === presentation)
+
+        picker.tableView(UITableView(), didSelectRowAt: IndexPath(row: 2, section: 0))
+
+        XCTAssertEqual(picker.dismissCount, 1)
+        XCTAssertEqual(selections, [2])
+        XCTAssertEqual(picker.selectedIndex, 2)
+    }
+
+    func testInteractiveDismissalTracksTheActiveTransition() throws {
+        let factory = ModalSheetBlurPresentationFactory(configuration: .fearless, usesPreferredContentSize: true)
+        let host = UIViewController()
+        let picker = UIViewController()
+        let presentation = try XCTUnwrap(factory.presentationController(
+            forPresented: picker, presenting: host, source: host
+        ) as? ModalSheetBlurPresentationController)
+        let animator = try XCTUnwrap(factory.animationController(forDismissed: picker))
+        XCTAssertNil(factory.interactionControllerForDismissal(using: animator))
+        let interaction = UIPercentDrivenInteractiveTransition()
+        presentation.interactiveDismissal = interaction
+        XCTAssertTrue(factory.interactionControllerForDismissal(using: animator) === interaction)
+        presentation.interactiveDismissal = nil
+        XCTAssertNil(factory.interactionControllerForDismissal(using: animator))
+    }
+}
+
+private final class PickerLayoutContainer: UIView {
+    var horizontalSizeClass: UIUserInterfaceSizeClass = .regular
+    override var traitCollection: UITraitCollection {
+        UITraitCollection(traitsFrom: [
+            UITraitCollection(userInterfaceIdiom: .pad),
+            UITraitCollection(horizontalSizeClass: horizontalSizeClass)
+        ])
+    }
+
+    override var safeAreaInsets: UIEdgeInsets {
+        UIEdgeInsets(top: 24, left: 0, bottom: 20, right: 0)
+    }
+}
+
+private final class PickerDismissalSpy: ModalPickerViewController<
+    TitleWithSubtitleTableViewCell, TitleWithSubtitleViewModel
+> {
+    var dismissCount = 0
+    override func dismiss(animated _: Bool, completion: (() -> Void)? = nil) {
+        dismissCount += 1
+        completion?()
+    }
 }
