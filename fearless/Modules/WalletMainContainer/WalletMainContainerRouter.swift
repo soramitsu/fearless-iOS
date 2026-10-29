@@ -115,7 +115,7 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
         tabBar.select(destination: .defi)
 
         guard
-            let navigationController = tabBar.selectedViewController as? UINavigationController,
+            let navigationController = tabBar.controller(for: .defi) as? UINavigationController,
             let defiHub = navigationController.viewControllers.first as? DeFiHubViewController
         else {
             return

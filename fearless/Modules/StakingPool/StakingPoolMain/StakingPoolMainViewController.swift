@@ -170,9 +170,8 @@ extension StakingPoolMainViewController: KeyboardAdoptable {
     var target: Constraint? { rootView.keyboardAdoptableConstraint }
 
     func offsetFromKeyboardWithInset(_ frame: CGFloat) -> CGFloat {
-        if frame > 0 {
-            let tabBarHeight = tabBarController?.tabBar.frame.height
-            return -(tabBarHeight ?? 0)
+        if frame > 0, let tabBar = tabBarController?.tabBar, !tabBar.isHidden {
+            return -tabBar.frame.height
         }
 
         return 0

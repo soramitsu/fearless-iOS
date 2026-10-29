@@ -13,11 +13,39 @@ final class FearlessWindow: UIWindow {
     private var statusView: ApplicationStatusView?
     private lazy var statusViewBottomInset: CGFloat = {
         var bottomInset: CGFloat = UIConstants.statusViewHeight
-        if let tabBarController = rootViewController as? MainTabBarViewController {
+        if let tabBarController = rootViewController as? MainTabBarViewController, !tabBarController.tabBar.isHidden {
             bottomInset += tabBarController.tabBar.frame.height
         }
         return bottomInset
     }()
+
+    /// The view the user last started touching. iPad popovers anchor to it so an
+    /// action sheet opens next to the control that requested it.
+    private(set) weak var lastTouchedView: UIView?
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        // Navigation and tab containers center their own screens; a plain root
+        // screen such as the PIN pad is centered here.
+        if let root = rootViewController, !(root is UINavigationController), !(root is UITabBarController) {
+            root.applyAdaptiveContentColumn(
+                containerWidth: bounds.width,
+                containerSafeArea: safeAreaInsets,
+                traits: traitCollection
+            )
+        }
+    }
+
+    override func sendEvent(_ event: UIEvent) {
+        if event.type == .touches,
+           let touch = event.allTouches?.first(where: { $0.phase == .began }),
+           let view = touch.view {
+            lastTouchedView = view
+        }
+
+        super.sendEvent(event)
+    }
 
     override func addSubview(_ view: UIView) {
         super.addSubview(view)

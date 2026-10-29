@@ -46,6 +46,8 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
         blurView.alpha = 0.975
         blurView.tag = ModalSheetBlurPresentationAppearanceAnimator.UIVisualEffectViewFearlessTag
         blurView.frame = containerView?.bounds ?? .zero
+        // iPad sheets stay up through rotation and window resizing.
+        blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         if shouldDissmissWhenTapOnBlurArea {
             let cancellationGesture = UITapGestureRecognizer(
                 target: self,

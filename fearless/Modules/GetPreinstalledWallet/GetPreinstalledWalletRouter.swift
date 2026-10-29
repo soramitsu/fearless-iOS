@@ -39,6 +39,10 @@ class GetPreinstalledWalletRouter: GetPreinstalledWalletRouterInput {
         let imagePicker = UIImagePickerController()
         imagePicker.sourceType = .photoLibrary
         imagePicker.delegate = pickerDelegate
+        if view?.controller.traitCollection.userInterfaceIdiom == .pad {
+            imagePicker.modalPresentationStyle = .popover
+            view?.controller.anchorPopover(of: imagePicker)
+        }
 
         view?.controller.present(
             imagePicker,

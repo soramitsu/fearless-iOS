@@ -7,6 +7,18 @@ enum MainTabBarDestination: Int, CaseIterable {
     case crossChain
     case settings
 
+    /// Stable identifier of the destination's tab in the iPad sidebar and tab bar.
+    var tabIdentifier: String {
+        "fearless.tab.\(self)"
+    }
+
+    init?(tabIdentifier: String) {
+        guard let destination = Self.allCases.first(where: { $0.tabIdentifier == tabIdentifier }) else {
+            return nil
+        }
+        self = destination
+    }
+
     var title: String {
         switch self {
         case .portfolio:
@@ -18,7 +30,12 @@ enum MainTabBarDestination: Int, CaseIterable {
         case .crossChain:
             return NSLocalizedString("tab.cross_chain", value: "Transfer", comment: "")
         case .settings:
-            return NSLocalizedString("tab.settings", value: "Settings", comment: "")
+            // No language has a tab.settings entry; the Settings screen title is translated everywhere.
+            return NSLocalizedString(
+                "tab.settings",
+                value: NSLocalizedString("profile.title", value: "Settings", comment: ""),
+                comment: ""
+            )
         }
     }
 

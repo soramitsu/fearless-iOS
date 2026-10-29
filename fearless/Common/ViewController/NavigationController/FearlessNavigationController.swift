@@ -44,6 +44,13 @@ class FearlessNavigationController: UINavigationController, UINavigationControll
         insertCloseButtonToRootIfNeeded()
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        // Rotation, split view and window resizing all lay the stack out again.
+        viewControllers.forEach { applyContentColumn(to: $0) }
+    }
+
     // MARK: UINavigationControllerDelegate
 
     func navigationController(
@@ -53,6 +60,7 @@ class FearlessNavigationController: UINavigationController, UINavigationControll
     ) {
         updateNavigationBarState(in: viewController, animated: animated)
         setupBackButtonItem(for: viewController)
+        applyContentColumn(to: viewController)
     }
 
     // MARK: Private
@@ -64,6 +72,14 @@ class FearlessNavigationController: UINavigationController, UINavigationControll
         if let navigationDependable = viewController as? NavigationDependable {
             navigationDependable.navigationControlling = self
         }
+    }
+
+    private func applyContentColumn(to viewController: UIViewController) {
+        viewController.applyAdaptiveContentColumn(
+            containerWidth: view.bounds.width,
+            containerSafeArea: view.safeAreaInsets,
+            traits: traitCollection
+        )
     }
 
     private func setupBackButtonItem(for viewController: UIViewController) {

@@ -17,9 +17,14 @@ struct MainTransitionHelper {
             return
         }
 
-        let navigationController = tabBarController.selectedViewController as? UINavigationController
+        // The iPad sidebar tabs do not report selectedIndex; ask the tab bar by destination.
+        let mainTabBar = tabBarController as? MainTabBarViewController
+        let currentIndex = mainTabBar?.selectedDestination?.rawValue ?? tabBarController.selectedIndex
+        let selectedController = mainTabBar?.selectedDestination.flatMap { mainTabBar?.controller(for: $0) }
+            ?? tabBarController.selectedViewController
+        let navigationController = selectedController as? UINavigationController
 
-        guard tabBarController.selectedIndex != selectingIndex else {
+        guard currentIndex != selectingIndex else {
             navigationController?.popToRootViewController(animated: animated)
             controller.hidesBottomBarWhenPushed = false
             return
@@ -27,7 +32,12 @@ struct MainTransitionHelper {
 
         navigationController?.popToRootViewController(animated: false)
 
-        tabBarController.selectedIndex = selectingIndex
+        if let mainTabBar = mainTabBar, mainTabBar.usesAdaptiveTabs,
+           let destination = MainTabBarDestination(rawValue: selectingIndex) {
+            mainTabBar.select(destination: destination)
+        } else {
+            tabBarController.selectedIndex = selectingIndex
+        }
 
         if animated {
             TransitionAnimator(type: .reveal).animate(view: tabBarController.view, completionBlock: completionBlock)

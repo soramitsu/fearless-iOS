@@ -37,6 +37,7 @@ extension TextCopyPresentable {
         alertController.addAction(copy)
         alertController.addAction(cancel)
 
+        view?.controller.anchorPopover(of: alertController)
         view?.controller.present(alertController, animated: true)
     }
 }

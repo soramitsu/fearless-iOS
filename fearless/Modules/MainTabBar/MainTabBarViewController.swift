@@ -10,17 +10,36 @@ final class MainTabBarViewController: UITabBarController {
     private let middleButton = TabBarMiddleButton(frame: .zero)
     private let middleButtonTouchTarget = TabBarMiddleButtonTouchTarget()
     private var accessibleTabs: [MainTabBarDestination: TabBarAccessibilityElement] = [:]
+    /// The root controller of every destination, kept for both tab modes.
+    private var destinationControllers: [UIViewController]
+
+    /// iPad uses UIKit's sidebar-adaptable tabs (iPadOS 18 and later): a sidebar in
+    /// landscape, a floating tab bar in portrait and a bottom tab bar in compact
+    /// windows. iPhone keeps the custom tab bar with the raised Polkaswap button.
+    let usesAdaptiveTabs: Bool
 
     init(
         viewControllers: [UIViewController],
         presenter: MainTabBarPresenterProtocol,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        idiom: UIUserInterfaceIdiom = UIDevice.current.userInterfaceIdiom
     ) {
         self.presenter = presenter
+        destinationControllers = viewControllers
+        if #available(iOS 18.0, *) {
+            usesAdaptiveTabs = idiom == .pad
+        } else {
+            usesAdaptiveTabs = false
+        }
 
         super.init(nibName: nil, bundle: nil)
 
-        self.viewControllers = viewControllers
+        if #available(iOS 18.0, *), usesAdaptiveTabs {
+            mode = .tabSidebar
+            tabs = MainTabBarDestination.allCases.compactMap(makeTab(for:))
+        } else {
+            self.viewControllers = viewControllers
+        }
         self.localizationManager = localizationManager
     }
 
@@ -32,12 +51,20 @@ final class MainTabBarViewController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         delegate = self
-        configureTabBar()
+        if usesAdaptiveTabs {
+            configureAdaptiveTabs()
+        } else {
+            configureTabBar()
+        }
         applyLocalization()
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+
+        guard !usesAdaptiveTabs else {
+            return
+        }
 
         tabBar.sendSubviewToBack(tabBarBackgroundView)
         tabBar.bringSubviewToFront(middleButton)
@@ -179,8 +206,43 @@ final class MainTabBarViewController: UITabBarController {
         middleButtonTouchTarget.isHidden = false
     }
 
+    private func configureAdaptiveTabs() {
+        view.tintColor = R.color.colorPink()
+        if #available(iOS 26.0, *) {
+            tabBarMinimizeBehavior = .never
+        }
+    }
+
+    @available(iOS 18.0, *)
+    private func makeTab(for destination: MainTabBarDestination) -> UITab? {
+        guard let controller = destinationControllers[safe: destination.rawValue] else {
+            return nil
+        }
+
+        return UITab(
+            title: destination.title,
+            image: destination.image,
+            identifier: destination.tabIdentifier
+        ) { _ in
+            controller
+        }
+    }
+
+    /// The destination on screen, in either tab mode.
+    var selectedDestination: MainTabBarDestination? {
+        if #available(iOS 18.0, *), usesAdaptiveTabs {
+            return selectedTab.flatMap { MainTabBarDestination(tabIdentifier: $0.identifier) }
+        }
+        return MainTabBarDestination(rawValue: selectedIndex)
+    }
+
+    /// The root controller of a destination, in either tab mode.
+    func controller(for destination: MainTabBarDestination) -> UIViewController? {
+        destinationControllers[safe: destination.rawValue]
+    }
+
     private func reserveRaisedButtonSpace(in controller: UIViewController) {
-        guard let root = controller.navigationRootViewController() else { return }
+        guard !usesAdaptiveTabs, let root = controller.navigationRootViewController() else { return }
         // Include the selected artwork's 1.05 scale. Only the tab root needs
         // this space; pushed screens that hide the tab bar keep their layout.
         if root.additionalSafeAreaInsets.bottom < 30 {
@@ -189,16 +251,19 @@ final class MainTabBarViewController: UITabBarController {
     }
 
     func select(destination: MainTabBarDestination) {
-        guard viewControllers?.indices.contains(destination.rawValue) == true else {
+        guard let destinationController = controller(for: destination) else {
             return
         }
 
-        if selectedIndex == destination.rawValue,
-           let selectedController = viewControllers?[destination.rawValue] {
-            returnToRoot(of: selectedController)
+        if selectedDestination == destination {
+            returnToRoot(of: destinationController)
         }
-        selectedIndex = destination.rawValue
-        updateMiddleButtonSelection()
+        if #available(iOS 18.0, *), usesAdaptiveTabs {
+            selectedTab = tab(forIdentifier: destination.tabIdentifier)
+        } else {
+            selectedIndex = destination.rawValue
+            updateMiddleButtonSelection()
+        }
     }
 
     private func returnToRoot(of viewController: UIViewController) {
@@ -215,11 +280,19 @@ final class MainTabBarViewController: UITabBarController {
     }
 
     private func updateMiddleButtonSelection() {
+        guard !usesAdaptiveTabs else {
+            return
+        }
+
         middleButton.isSelected = selectedIndex == MainTabBarDestination.polkaswap.rawValue
         updateAccessibleTabs()
     }
 
     private func updateAccessibleTabs() {
+        guard !usesAdaptiveTabs else {
+            return
+        }
+
         let slotWidth = tabBar.bounds.width / CGFloat(MainTabBarDestination.allCases.count)
         for (destination, element) in accessibleTabs {
             element.accessibilityLabel = destination.title
@@ -247,12 +320,23 @@ extension MainTabBarViewController: UITabBarControllerDelegate {
     func tabBarController(_: UITabBarController, didSelect _: UIViewController) {
         updateMiddleButtonSelection()
     }
+
+    @available(iOS 18.0, *)
+    func tabBarController(_: UITabBarController, shouldSelectTab tab: UITab) -> Bool {
+        if
+            tab.identifier == selectedTab?.identifier,
+            let destination = MainTabBarDestination(tabIdentifier: tab.identifier),
+            let destinationController = controller(for: destination) {
+            returnToRoot(of: destinationController)
+        }
+
+        return true
+    }
 }
 
 extension MainTabBarViewController: MainTabBarViewProtocol {
     var isPolkaswapUnavailable: Bool {
-        guard let navigationController = viewControllers?[safe: MainTabBarDestination.polkaswap.rawValue]
-            as? UINavigationController else {
+        guard let navigationController = controller(for: .polkaswap) as? UINavigationController else {
             return false
         }
 
@@ -260,6 +344,27 @@ extension MainTabBarViewController: MainTabBarViewProtocol {
     }
 
     func didReplaceView(for newView: UIViewController, for index: Int) {
+        guard let destination = MainTabBarDestination(rawValue: index),
+              destinationControllers.indices.contains(index) else {
+            return
+        }
+
+        destinationControllers[index] = newView
+
+        if #available(iOS 18.0, *), usesAdaptiveTabs {
+            let selected = selectedDestination
+            var newTabs = tabs
+            if let position = newTabs.firstIndex(where: { $0.identifier == destination.tabIdentifier }),
+               let newTab = makeTab(for: destination) {
+                newTabs[position] = newTab
+            }
+            setTabs(newTabs, animated: false)
+            if let selected = selected {
+                selectedTab = tab(forIdentifier: selected.tabIdentifier)
+            }
+            return
+        }
+
         guard var newViewControllers = viewControllers else {
             return
         }
@@ -272,9 +377,8 @@ extension MainTabBarViewController: MainTabBarViewProtocol {
 
     func openPolkamarkt(marketId: String) {
         select(destination: .defi)
-        guard let navigationController = viewControllers?[safe: MainTabBarDestination.defi.rawValue]
-            as? UINavigationController,
-            let hub = navigationController.viewControllers.first as? DeFiHubViewController else {
+        guard let navigationController = controller(for: .defi) as? UINavigationController,
+              let hub = navigationController.viewControllers.first as? DeFiHubViewController else {
             return
         }
         navigationController.popToRootViewController(animated: false)
@@ -284,6 +388,13 @@ extension MainTabBarViewController: MainTabBarViewProtocol {
 
 extension MainTabBarViewController: Localizable {
     func applyLocalization() {
+        if #available(iOS 18.0, *), usesAdaptiveTabs {
+            MainTabBarDestination.allCases.forEach { destination in
+                tab(forIdentifier: destination.tabIdentifier)?.title = destination.title
+            }
+            return
+        }
+
         MainTabBarDestination.allCases.forEach { destination in
             viewControllers?[safe: destination.rawValue]?.tabBarItem.title = destination.title
             viewControllers?[safe: destination.rawValue]?.tabBarItem.accessibilityLabel = destination.title
