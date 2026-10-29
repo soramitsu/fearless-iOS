@@ -261,12 +261,21 @@ final class UsernameSetupTests: XCTestCase {
             XCTAssertEqual(passwordEditor.text, "public-password")
             XCTAssertEqual(passwordEditor.offset(from: passwordEditor.beginningOfDocument, to: try XCTUnwrap(passwordEditor.selectedTextRange).start), position)
             if root.adaptiveEntry {
+                // Native keyboard notifications must not overwrite the synthetic
+                // viewport while its geometry is being asserted.
+                controller.clearKeyboardHandler()
+                defer { controller.setupKeyboardHandler() }
                 controller.apply(keyboardFrame: CGRect(x: 0, y: 308, width: 320, height: 260), keyboardHidden: false)
                 await waitForLayoutAnimations(window)
-                reveal(passwordEditor, in: root.contentView.scrollView)
+                let scroll = root.contentView.scrollView
+                // The adopter starts an animated reveal. UIScrollView's internal
+                // animation is not covered by the layer-animation wait above.
+                scroll.setContentOffset(scroll.contentOffset, animated: false)
+                reveal(passwordEditor, in: scroll)
                 window.layoutIfNeeded()
                 XCTAssertEqual(root.contentView.scrollView.convert(root.contentView.scrollView.bounds, to: window).maxY, 308, accuracy: 1)
                 XCTAssertLessThanOrEqual(passwordEditor.convert(passwordEditor.bounds, to: window).maxY, 309)
+                XCTAssertTrue(passwordEditor.isFirstResponder)
                 capture(window, name: "secure-import-keyboard-" + category.rawValue)
             }
             await settle(window)
