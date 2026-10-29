@@ -24,16 +24,18 @@ extension ModalSheetBlurPresentationDismissAnimator: UIViewControllerAnimatedTra
         }
 
         let initialFrame = presentedController.view.frame
-        var finalFrame = initialFrame
-        finalFrame.origin.y = transitionContext.containerView.frame.maxY + finalPositionOffset
+        let initialTransform = presentedController.view.transform
+        let distance = transitionContext.containerView.bounds.maxY - initialFrame.minY + finalPositionOffset
 
         let animationBlock: () -> Void = {
-            presentedController.view.frame = finalFrame
+            presentedController.view.transform = CGAffineTransform(translationX: 0, y: distance)
         }
 
         let completionBlock: (Bool) -> Void = { _ in
             if !transitionContext.transitionWasCancelled {
                 presentedController.view.removeFromSuperview()
+            } else {
+                presentedController.view.transform = initialTransform
             }
 
             transitionContext.completeTransition(!transitionContext.transitionWasCancelled)

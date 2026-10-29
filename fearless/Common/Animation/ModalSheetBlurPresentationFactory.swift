@@ -42,7 +42,8 @@ extension ModalSheetBlurPresentationFactory: UIViewControllerTransitioningDelega
             return ModalSheetPresentationAppearanceAnimator(animator: configuration.contentAppearanceAnimator)
         }
         return ModalSheetBlurPresentationAppearanceAnimator(
-            animator: configuration.contentAppearanceAnimator
+            animator: configuration.contentAppearanceAnimator,
+            layout: { [weak self] container in self?.presentation?.layoutPreferredContent(in: container) }
         )
     }
 

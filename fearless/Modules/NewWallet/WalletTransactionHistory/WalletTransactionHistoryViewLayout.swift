@@ -245,6 +245,17 @@ final class WalletTransactionHistoryViewLayout: UIView {
         }
     }
 
+    func setEmbeddedInColumns(_ embedded: Bool) {
+        stripeIconImageView.isHidden = embedded
+        panIndicatorView.isHidden = embedded
+        if embedded {
+            closeButton.isHidden = true
+            backgroundImageView.alpha = 0
+            tableView.isScrollEnabled = true
+            tableView.showsVerticalScrollIndicator = true
+        }
+    }
+
     func setHeaderHeight(_ height: CGFloat) {
         headerView.snp.remakeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.horizontalInset)

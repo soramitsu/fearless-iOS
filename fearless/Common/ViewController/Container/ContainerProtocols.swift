@@ -57,3 +57,8 @@ protocol Draggable: AnyObject {
 
     func animate(progress: Double, from oldState: DraggableState, to newState: DraggableState, finalFrame: CGRect)
 }
+
+/// A list that can be presented beside its summary without sheet controls.
+protocol AdaptiveSidePanel: AnyObject {
+    func setEmbeddedInColumns(_ embedded: Bool)
+}

@@ -32,6 +32,7 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
     private var isShowingHistoryRecovery = false
 
     private var draggableState: DraggableState = .compact
+    private var isSidePanel = false
     private var compactInsets: UIEdgeInsets = .zero
     private var fullInsets: UIEdgeInsets = .zero
 
@@ -338,6 +339,7 @@ extension WalletTransactionHistoryViewController: Draggable {
         }
 
         updateTableViewAfterTransition(to: dragableState, animated: animated)
+        rootView.setEmbeddedInColumns(isSidePanel)
 
         if case .hidden = headerType {
             updateHiddenTypeNavigationItem(for: dragableState, animated: animated)
@@ -406,6 +408,7 @@ extension WalletTransactionHistoryViewController: Draggable {
             rootView.update(tableViewOffset: CGFloat(1.0 - adjustedProgress) * UIConstants.bigOffset)
         }
 
+        rootView.setEmbeddedInColumns(isSidePanel)
         if forcesLayoutUpdate {
             view.layoutIfNeeded()
         }
@@ -683,5 +686,12 @@ extension WalletTransactionHistoryViewController: Localizable {
 extension WalletTransactionHistoryViewController: FWSegmentedControlDelegate {
     func didSelect(_ segmentIndex: Int) {
         presenter.didChangeFiltersSliderValue(index: segmentIndex)
+    }
+}
+
+extension WalletTransactionHistoryViewController: AdaptiveSidePanel {
+    func setEmbeddedInColumns(_ embedded: Bool) {
+        isSidePanel = embedded
+        rootView.setEmbeddedInColumns(embedded)
     }
 }

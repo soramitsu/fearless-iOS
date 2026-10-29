@@ -213,6 +213,7 @@ final class WalletMainContainerViewLayout: UIView {
             make.edges.equalToSuperview()
         }
 
+        headerScrollView.contentInsetAdjustmentBehavior = .never
         addSubview(headerScrollView)
         headerScrollView.addSubview(contentView)
         contentView.snp.makeConstraints { make in
@@ -342,7 +343,7 @@ private extension WalletMainContainerViewLayout {
         switch placement {
         case .compact:
             headerScrollView.snp.remakeConstraints { make in
-                make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(5)
+                make.top.equalTo(AdaptiveLayout.contentLayoutGuide(in: self).snp.top).offset(5)
                 make.leading.trailing.equalToSuperview()
                 make.height.equalTo(contentView.snp.height).priority(.high)
                 headerHeightLimit = make.height.lessThanOrEqualTo(safeAreaLayoutGuide.snp.height)
@@ -355,7 +356,7 @@ private extension WalletMainContainerViewLayout {
             }
         case .column:
             headerScrollView.snp.remakeConstraints { make in
-                make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(5)
+                make.top.equalTo(AdaptiveLayout.contentLayoutGuide(in: self).snp.top).offset(5)
                 make.centerX.equalTo(safeAreaLayoutGuide)
                 make.width.equalTo(safeAreaLayoutGuide).priority(.high)
                 make.width.lessThanOrEqualTo(AdaptiveLayout.contentColumnWidth)
@@ -370,7 +371,7 @@ private extension WalletMainContainerViewLayout {
             }
         case .split:
             headerScrollView.snp.remakeConstraints { make in
-                make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(5)
+                make.top.equalTo(AdaptiveLayout.contentLayoutGuide(in: self).snp.top).offset(5)
                 make.leading.equalTo(safeAreaLayoutGuide).offset(Constants.splitSpacing)
                 make.width.equalTo(Constants.splitHeaderWidth)
                 make.height.equalTo(contentView.snp.height).priority(.high)
@@ -378,7 +379,7 @@ private extension WalletMainContainerViewLayout {
                     .offset(-5).constraint
             }
             pageViewControllerContainer.snp.remakeConstraints { make in
-                make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(5)
+                make.top.equalTo(AdaptiveLayout.contentLayoutGuide(in: self).snp.top).offset(5)
                 make.leading.equalTo(headerScrollView.snp.trailing).offset(Constants.splitSpacing)
                 make.trailing.equalTo(safeAreaLayoutGuide).offset(-Constants.splitSpacing)
                 make.bottom.equalTo(safeAreaLayoutGuide)

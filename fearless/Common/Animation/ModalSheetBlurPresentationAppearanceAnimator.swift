@@ -9,9 +9,11 @@ final class ModalSheetBlurPresentationAppearanceAnimator: NSObject {
     static let UIVisualEffectViewFearlessTag = 013_013
 
     private let animator: BlockViewAnimatorProtocol
+    private let layout: (UIView) -> Void
 
-    init(animator: BlockViewAnimatorProtocol) {
+    init(animator: BlockViewAnimatorProtocol, layout: @escaping (UIView) -> Void) {
         self.animator = animator
+        self.layout = layout
 
         super.init()
     }
@@ -31,40 +33,13 @@ extension ModalSheetBlurPresentationAppearanceAnimator: UIViewControllerAnimated
         }
 
         let containerView = transitionContext.containerView
-        let presentationBounds = containerView.bounds
-
-        var beginFrame = presentationBounds
-        beginFrame.origin.y = presentationBounds.maxY
-        toViewController.view.frame = beginFrame
-
         containerView.insertSubview(toViewController.view, aboveSubview: fromViewController.view)
-        let fillsHeight = (toViewController as? SheetAletViewController)?.scrollableContent == true
-        let showsCard = AdaptiveLayout.isRegularWidth(containerView.traitCollection)
-        if showsCard {
-            layoutAsCard(toViewController.view, in: containerView, fillsHeight: fillsHeight)
-        } else {
-            toViewController.view.snp.makeConstraints { make in
-                if fillsHeight {
-                    make.top.equalTo(containerView.safeAreaLayoutGuide.snp.top)
-                } else {
-                    make.top.greaterThanOrEqualTo(containerView.safeAreaLayoutGuide.snp.top)
-                }
-                make.bottom.equalTo(containerView.snp.bottom)
-                make.width.equalTo(containerView.snp.width)
-            }
-        }
-        toViewController.view.layoutIfNeeded()
-
-        if showsCard {
-            toViewController.view.transform = CGAffineTransform(translationX: 0, y: containerView.bounds.height)
-        }
+        layout(containerView)
+        containerView.layoutIfNeeded()
+        toViewController.view.transform = CGAffineTransform(translationX: 0, y: containerView.bounds.height)
 
         let animationBlock: () -> Void = {
-            if showsCard {
-                toViewController.view.transform = .identity
-            } else {
-                toViewController.view.frame = presentationBounds
-            }
+            toViewController.view.transform = .identity
         }
 
         let completionBlock: (Bool) -> Void = { finished in
@@ -79,32 +54,6 @@ extension ModalSheetBlurPresentationAppearanceAnimator: UIViewControllerAnimated
                 let transitionView = window.subviews.first(where: { $0.tag == Self.UITransitionViewFearlessTag }),
                 let blurView = transitionView.subviews.first(where: { $0.tag == Self.UIVisualEffectViewFearlessTag }) {
                 blurView.alpha = 0
-            }
-        }
-    }
-
-    /// In a regular-width iPad window a bottom sheet would stretch across the whole
-    /// screen; show it as a centered card that keeps its content height instead.
-    /// A sheet whose content scrolls has no height of its own and fills the space
-    /// between the margins.
-    private func layoutAsCard(_ view: UIView, in containerView: UIView, fillsHeight: Bool) {
-        view.layer.cornerRadius = AdaptiveLayout.sheetCornerRadius
-        view.layer.cornerCurve = .continuous
-        view.clipsToBounds = true
-        view.snp.makeConstraints { make in
-            make.centerX.equalTo(containerView.safeAreaLayoutGuide.snp.centerX)
-            make.centerY.equalTo(containerView.safeAreaLayoutGuide.snp.centerY).priority(.high)
-            make.width.equalTo(AdaptiveLayout.sheetWidth).priority(.high)
-            make.width.lessThanOrEqualTo(containerView.safeAreaLayoutGuide.snp.width)
-                .offset(-2 * AdaptiveLayout.sheetMargin)
-            if fillsHeight {
-                make.top.equalTo(containerView.safeAreaLayoutGuide.snp.top).offset(AdaptiveLayout.sheetMargin)
-                make.bottom.equalTo(containerView.safeAreaLayoutGuide.snp.bottom).offset(-AdaptiveLayout.sheetMargin)
-            } else {
-                make.top.greaterThanOrEqualTo(containerView.safeAreaLayoutGuide.snp.top)
-                    .offset(AdaptiveLayout.sheetMargin)
-                make.bottom.lessThanOrEqualTo(containerView.safeAreaLayoutGuide.snp.bottom)
-                    .offset(-AdaptiveLayout.sheetMargin)
             }
         }
     }

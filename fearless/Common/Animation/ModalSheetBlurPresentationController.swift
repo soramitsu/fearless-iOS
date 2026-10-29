@@ -5,6 +5,7 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
     private let configuration: ModalSheetPresentationConfiguration
     private let shouldDissmissWhenTapOnBlurArea: Bool
     private let usesPreferredContentSize: Bool
+    private let intrinsicLayout = AdaptiveSheetLayout()
 
     var interactiveDismissal: UIPercentDrivenInteractiveTransition?
     private var initialTranslation: CGPoint = .zero
@@ -121,7 +122,14 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
     /// Table-based pickers have no intrinsic height. Recalculate their frame for
     /// rotation, split view and Stage Manager, leaving the table free to scroll.
     func layoutPreferredContent(in container: UIView) {
-        guard usesPreferredContentSize, let view = presentedViewController.view else { return }
+        guard let view = presentedViewController.view else { return }
+        if !usesPreferredContentSize {
+            if view.superview === container {
+                let scrolls = (presentedViewController as? SheetAletViewController)?.scrollableContent == true
+                intrinsicLayout.apply(to: view, in: container, fillsHeight: scrolls)
+            }
+            return
+        }
         view.frame = preferredContentFrame(in: container)
         let isCard = AdaptiveLayout.isRegularWidth(container.traitCollection)
         view.layer.cornerRadius = isCard ? AdaptiveLayout.sheetCornerRadius : 0
@@ -130,7 +138,7 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
     }
 
     private func preferredContentFrame(in container: UIView) -> CGRect {
-        let safeFrame = container.bounds.inset(by: container.safeAreaInsets)
+        let safeFrame = container.bounds.inset(by: AdaptiveLayout.contentInsets(in: container))
         let preferredHeight = presentedViewController.preferredContentSize.height
         if AdaptiveLayout.isRegularWidth(container.traitCollection) {
             let width = AdaptiveLayout.sheetCardWidth(containerWidth: safeFrame.width)
