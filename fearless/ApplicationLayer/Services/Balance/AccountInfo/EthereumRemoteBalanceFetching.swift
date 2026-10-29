@@ -5,73 +5,100 @@ import Web3PromiseKit
 import SSFModels
 
 final actor EthereumRemoteBalanceFetching {
+    /// A balance read the node has not answered by then counts as an outage, and the network moves on to its next node.
+    static let nodeReadTimeout: TimeInterval = 15
+
     private let chainRegistry: ChainRegistryProtocol
     private let repositoryWrapper: BalanceRepositoryCacheWrapper
+    private let nodeReadTimeout: TimeInterval
 
     init(
         chainRegistry: ChainRegistryProtocol,
-        repositoryWrapper: BalanceRepositoryCacheWrapper
+        repositoryWrapper: BalanceRepositoryCacheWrapper,
+        nodeReadTimeout: TimeInterval = EthereumRemoteBalanceFetching.nodeReadTimeout
     ) {
         self.chainRegistry = chainRegistry
         self.repositoryWrapper = repositoryWrapper
+        self.nodeReadTimeout = nodeReadTimeout
     }
 
     private func fetchETHBalance(for chainAsset: ChainAsset, address: String) async throws -> AccountInfo? {
-        guard let ws = chainRegistry.getEthereumConnection(for: chainAsset.chain.chainId) else {
-            throw ChainRegistryError.connectionUnavailable
-        }
         let ethereumAddress = try EthereumAddress(rawAddress: address.hexToBytes())
 
-        return try await withCheckedThrowingContinuation { continuation in
-            var nillableContinuation: CheckedContinuation<AccountInfo?, Error>? = continuation
-
+        return try await readOnNode(of: chainAsset.chain) { ws, completion in
             ws.getBalance(address: ethereumAddress, block: .latest) { resp in
-                guard let unwrapedContinuation = nillableContinuation else {
-                    return
-                }
                 if let balance = resp.result {
-                    let accountInfo = AccountInfo(ethBalance: balance.quantity)
-                    unwrapedContinuation.resume(with: .success(accountInfo))
-                    nillableContinuation = nil
+                    completion(.success(AccountInfo(ethBalance: balance.quantity)))
                 } else if let error = resp.error {
-                    unwrapedContinuation.resume(with: .failure(error))
-                    nillableContinuation = nil
+                    completion(.failure(error))
                 } else {
-                    unwrapedContinuation.resume(with: .success(nil))
-                    nillableContinuation = nil
+                    completion(.success(nil))
                 }
             }
         }
     }
 
     private func fetchERC20Balance(for chainAsset: ChainAsset, address: String) async throws -> AccountInfo? {
-        guard let ws = chainRegistry.getEthereumConnection(for: chainAsset.chain.chainId) else {
+        let contractAddress = try EthereumAddress(hex: chainAsset.asset.id, eip55: false)
+        let ethAddress = try EthereumAddress(rawAddress: address.hexToBytes())
+
+        return try await readOnNode(of: chainAsset.chain) { ws, completion in
+            let contract = ws.Contract(type: GenericERC20Contract.self, address: contractAddress)
+            contract.balanceOf(address: ethAddress).call(completion: { response, error in
+                if let response, let balance = response["_balance"] as? BigUInt {
+                    completion(.success(AccountInfo(ethBalance: balance)))
+                } else if let error {
+                    completion(.failure(error))
+                } else {
+                    completion(.success(nil))
+                }
+            })
+        }
+    }
+
+    /// Reads on the network's node within `nodeReadTimeout`. When the node fails, the network moves on to its next
+    /// node and the read is tried there once, so a dead node costs a moment instead of the balance.
+    private func readOnNode<T>(
+        of chain: ChainModel,
+        _ read: @escaping (Web3.Eth, @escaping (Swift.Result<T, Error>) -> Void) -> Void
+    ) async throws -> T {
+        guard var connection = chainRegistry.getEthereumConnection(for: chain.chainId) else {
             throw ChainRegistryError.connectionUnavailable
         }
 
-        let contractAddress = try EthereumAddress(hex: chainAsset.asset.id, eip55: false)
-        let contract = ws.Contract(type: GenericERC20Contract.self, address: contractAddress)
-        let ethAddress = try EthereumAddress(rawAddress: address.hexToBytes())
-        return try await withCheckedThrowingContinuation { continuation in
-            var nillableContinuation: CheckedContinuation<AccountInfo?, Error>? = continuation
-
-            contract.balanceOf(address: ethAddress).call(completion: { response, error in
-                guard let unwrapedContinuation = nillableContinuation else {
-                    return
+        var attempt = 0
+        while true {
+            do {
+                let node = connection
+                return try await Self.firstResult(within: nodeReadTimeout) { completion in
+                    read(node, completion)
+                }
+            } catch {
+                guard EthereumNodeFailure.isNodeFailure(error) else {
+                    throw error
                 }
 
-                if let response = response, let balance = response["_balance"] as? BigUInt {
-                    let accountInfo = AccountInfo(ethBalance: balance)
-                    unwrapedContinuation.resume(with: .success(accountInfo))
-                    nillableContinuation = nil
-                } else if let error = error {
-                    unwrapedContinuation.resume(with: .failure(error))
-                    nillableContinuation = nil
-                } else {
-                    unwrapedContinuation.resume(with: .success(nil))
-                    nillableContinuation = nil
+                let next = chainRegistry.failoverEthereumConnection(for: chain.chainId, failed: connection)
+                guard attempt == 0, let next else {
+                    throw error
                 }
-            })
+                connection = next
+                attempt += 1
+            }
+        }
+    }
+
+    /// The first result `read` reports, or `EthereumNodeError.timeout` when it reports none within `timeout`.
+    private static func firstResult<T>(
+        within timeout: TimeInterval,
+        _ read: @escaping (@escaping (Swift.Result<T, Error>) -> Void) -> Void
+    ) async throws -> T {
+        try await withCheckedThrowingContinuation { continuation in
+            let resumer = SingleResumption(continuation)
+            DispatchQueue.global().asyncAfter(deadline: .now() + timeout) {
+                resumer.resume(with: .failure(EthereumNodeError.timeout))
+            }
+            read { resumer.resume(with: $0) }
         }
     }
 
@@ -209,5 +236,25 @@ extension EthereumRemoteBalanceFetching: AccountInfoFetchingProtocol {
             return (key, accountInfo)
         }
         return Dictionary(uniqueKeysWithValues: mapped)
+    }
+}
+
+/// Resumes a continuation with the first result it is given: transports may answer a request twice, and a timed-out
+/// read may still be answered.
+private final class SingleResumption<T>: @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<T, Error>?
+
+    init(_ continuation: CheckedContinuation<T, Error>) {
+        self.continuation = continuation
+    }
+
+    func resume(with result: Swift.Result<T, Error>) {
+        lock.lock()
+        let pending = continuation
+        continuation = nil
+        lock.unlock()
+
+        pending?.resume(with: result)
     }
 }
