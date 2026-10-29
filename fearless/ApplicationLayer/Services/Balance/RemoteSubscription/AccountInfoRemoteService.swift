@@ -1092,12 +1092,12 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                 tairaXorDefinition = nil
             }
             var items: [IrohaAccountAssetListItem] = []
-            var offset: Int64 = 0
-            var hasMore = true
+            var cursor: String?
             var pageCount = 0
+            var seenCursors = Set<String>()
             var seenPageFingerprints = Set<String>()
 
-            while hasMore {
+            repeat {
                 guard pageCount < 1000 else {
                     throw ConvenienceError(error: "Iroha account-asset pagination exceeded its safety bound")
                 }
@@ -1105,35 +1105,21 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                     accountID: address,
                     baseURL: baseURL,
                     limit: IrohaToriiRoutes.maxLimit,
-                    offset: offset,
-                    countMode: nil,
-                    asset: nil,
-                    scope: nil,
+                    cursor: cursor,
                     network: network
-                )
-                let responseHasMore = try irohaResponseHasMore(
-                    explicit: response.hasMore,
-                    offset: offset,
-                    itemCount: response.items.count,
-                    pageLimit: IrohaToriiRoutes.maxLimit
                 )
                 let fingerprint = response.items.map {
                     [$0.accountID, $0.assetID, $0.asset, $0.quantity, $0.scope]
                         .compactMap { $0 }
                         .joined(separator: "|")
                 }.joined(separator: "\n")
-                guard !responseHasMore || seenPageFingerprints.insert(fingerprint).inserted else {
+                guard response.items.isEmpty || seenPageFingerprints.insert(fingerprint).inserted else {
                     throw ConvenienceError(error: "Iroha account-asset pagination repeated a page")
                 }
                 items.append(contentsOf: response.items)
-                hasMore = responseHasMore && !response.items.isEmpty
-                let pageSize = Int64(response.items.count)
-                guard offset <= Int64.max - pageSize else {
-                    throw ConvenienceError(error: "Iroha account-asset pagination offset overflow")
-                }
-                offset += pageSize
+                cursor = try nextIrohaCursor(response.nextCursor, seenCursors: &seenCursors)
                 pageCount += 1
-            }
+            } while cursor != nil
 
             let registryIds = Set(chain.assets.map(\.id))
             let requiredDefinitionIds = Set(items.compactMap { item -> String? in
@@ -1206,25 +1192,19 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
 
         var definitions: [IrohaAssetDefinitionListItem] = []
         var foundIds = Set<String>()
+        var seenCursors = Set<String>()
         var seenPageFingerprints = Set<String>()
-        var offset: Int64 = 0
+        var cursor: String?
 
         for _ in 0 ..< 1000 {
             let response = try await client.assetDefinitions(
                 baseURL: baseURL,
                 limit: IrohaToriiRoutes.maxLimit,
-                offset: offset,
-                countMode: nil
-            )
-            let responseHasMore = try irohaResponseHasMore(
-                explicit: response.hasMore,
-                offset: offset,
-                itemCount: response.items.count,
-                pageLimit: IrohaToriiRoutes.maxLimit
+                cursor: cursor
             )
             let pageIds = response.items.map(\.id)
             let fingerprint = pageIds.joined(separator: "\n")
-            guard !responseHasMore || seenPageFingerprints.insert(fingerprint).inserted else {
+            guard pageIds.isEmpty || seenPageFingerprints.insert(fingerprint).inserted else {
                 throw ConvenienceError(error: "Iroha asset-definition pagination repeated a page")
             }
 
@@ -1233,39 +1213,29 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
             if requiredAssetIds.isSubset(of: foundIds) {
                 return (definitions, true)
             }
-            guard responseHasMore, response.items.isNotEmpty else {
+            guard let nextCursor = try nextIrohaCursor(response.nextCursor, seenCursors: &seenCursors) else {
                 return (definitions, false)
             }
-
-            let pageSize = Int64(response.items.count)
-            guard offset <= Int64.max - pageSize else {
-                throw ConvenienceError(error: "Iroha asset-definition pagination offset overflow")
-            }
-            offset += pageSize
+            cursor = nextCursor
         }
 
         throw ConvenienceError(error: "Iroha asset-definition pagination exceeded its safety bound")
     }
 
-    private func irohaResponseHasMore(
-        explicit: Bool?,
-        offset: Int64,
-        itemCount: Int,
-        pageLimit: Int
-    ) throws -> Bool {
-        if let explicit {
-            return explicit
+    /// The cursor of the next Torii page, or nil after the last one. A cursor that comes back
+    /// a second time means paging makes no progress, so it fails instead of looping.
+    private func nextIrohaCursor(
+        _ cursor: String?,
+        seenCursors: inout Set<String>
+    ) throws -> String? {
+        guard let cursor, !cursor.isEmpty else {
+            return nil
+        }
+        guard seenCursors.insert(cursor).inserted else {
+            throw ConvenienceError(error: "Iroha pagination made no progress")
         }
 
-        guard offset >= 0, itemCount >= 0, pageLimit > 0 else {
-            throw ConvenienceError(error: "Iroha pagination metadata is invalid")
-        }
-        guard let itemCount64 = Int64(exactly: itemCount),
-              offset <= Int64.max - itemCount64 else {
-            throw ConvenienceError(error: "Iroha pagination offset overflow")
-        }
-
-        return itemCount >= pageLimit
+        return cursor
     }
 
     private func discoveredIrohaAssets(
