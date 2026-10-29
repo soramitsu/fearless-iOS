@@ -98,6 +98,42 @@ final class NetworkRetirementTests: XCTestCase {
         XCTAssertEqual(kept.options, [.poolStaking])
     }
 
+    func testStoredChainsAreRetiredOrStrippedWithoutDeletion() throws {
+        let moonbeam = makeChain(chainId: Chain.moonbeam.genesisHash, name: "Moonbeam", staking: .paraChain)
+        let alreadyDisabled = makeChain(chainId: "1101", name: "Polygon zkEVM").replacingDisabled(true)
+        let polkadot = makeChain(
+            chainId: Chain.polkadot.genesisHash,
+            name: "Polkadot",
+            staking: .relayChain,
+            options: [.poolStaking]
+        )
+        let acala = makeChain(chainId: Chain.acala.genesisHash, name: "Acala")
+
+        let updates = NetworkRetirement.storedUpdates(for: [moonbeam, alreadyDisabled, polkadot, acala])
+
+        XCTAssertEqual(updates.map(\.chainId), [moonbeam.chainId, polkadot.chainId])
+        let retired = try XCTUnwrap(updates.first)
+        XCTAssertTrue(retired.disabled)
+        XCTAssertEqual(retired.assets, moonbeam.assets, "saved balances keep their assets")
+        XCTAssertNil(updates.last?.assets.first?.staking)
+        XCTAssertEqual(updates.last?.options, [ChainOptions]())
+        XCTAssertNil(NetworkRetirement.offered(moonbeam))
+        XCTAssertTrue(NetworkRetirement.offered(acala) === acala)
+    }
+
+    func testWalletScreensKeepARetiredNetworkWhereAStoredAlternativeKeyLives() {
+        let storedAlternative = AccountGenerator.generateChainAccount()
+        let wallet = AccountGenerator.generateMetaAccount()
+        let retired = makeChain(chainId: storedAlternative.chainId, name: "Retired with stored key")
+            .replacingDisabled(true)
+
+        XCTAssertTrue([retired].listedForKeyAccess(by: wallet).isEmpty)
+        XCTAssertEqual(
+            [retired].listedForKeyAccess(by: wallet, storedAccounts: [storedAlternative]).map(\.chainId),
+            [retired.chainId]
+        )
+    }
+
     func testWalletScreensKeepARetiredNetworkWhereTheWalletHasItsOwnKey() {
         let ownAccount = AccountGenerator.generateChainAccount()
         let wallet = AccountGenerator.generateMetaAccount(with: [ownAccount])

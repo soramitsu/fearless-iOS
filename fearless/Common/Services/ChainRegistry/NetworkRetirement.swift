@@ -67,16 +67,32 @@ enum NetworkRetirement {
     ]
 
     static func applying(to chains: [ChainModel]) -> [ChainModel] {
-        chains.compactMap { chain in
-            guard !retiredChainIds.contains(chain.chainId) else {
-                return nil
+        chains.compactMap(offered)
+    }
+
+    /// The chain as this build offers it: nil for a retired network, without relay staking where staking moved
+    /// to Asset Hub. Stored chains go through this too, so it holds before any download succeeds.
+    static func offered(_ chain: ChainModel) -> ChainModel? {
+        guard !retiredChainIds.contains(chain.chainId) else {
+            return nil
+        }
+
+        guard assetHubMigratedRelayChainIds.contains(chain.chainId) else {
+            return chain
+        }
+
+        return chain.removingRelayStaking()
+    }
+
+    /// Stored chains that must change to match this build: a retired network becomes disabled, a migrated relay
+    /// loses its staking. Nothing is deleted, so saved balances and accounts stay.
+    static func storedUpdates(for localChains: [ChainModel]) -> [ChainModel] {
+        localChains.compactMap { local in
+            guard let offered = offered(local) else {
+                return local.disabled ? nil : local.replacingDisabled(true)
             }
 
-            guard assetHubMigratedRelayChainIds.contains(chain.chainId) else {
-                return chain
-            }
-
-            return chain.removingRelayStaking()
+            return offered == local ? nil : offered
         }
     }
 }
@@ -133,9 +149,13 @@ private extension AssetModel {
 
 extension Array where Element == ChainModel {
     /// The chains a wallet screen lists: every enabled one, plus a disabled one where the wallet keeps its own
-    /// account, so a key imported for a network that has since been retired can still be viewed and exported.
-    func listedForKeyAccess(by wallet: MetaAccountModel) -> [ChainModel] {
-        let ownAccountChainIds = Set(wallet.chainAccounts.map(\.chainId))
+    /// account, in use or stored, so a key imported for a network that has since been retired can still be viewed,
+    /// switched back to and exported.
+    func listedForKeyAccess(
+        by wallet: MetaAccountModel,
+        storedAccounts: [ChainAccountModel] = []
+    ) -> [ChainModel] {
+        let ownAccountChainIds = Set(wallet.chainAccounts.map(\.chainId) + storedAccounts.map(\.chainId))
         return filter { !$0.disabled || ownAccountChainIds.contains($0.chainId) }
     }
 }

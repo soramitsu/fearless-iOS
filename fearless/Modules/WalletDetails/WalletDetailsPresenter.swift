@@ -201,7 +201,7 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
 
 private extension WalletDetailsPresenter {
     func provideViewModel(chains: [ChainModel]) {
-        let listedChains = chains.listedForKeyAccess(by: flow.wallet)
+        let listedChains = chains.listedForKeyAccess(by: flow.wallet, storedAccounts: storedChainAccounts)
         switch flow {
         case .normal:
             let viewModel = viewModelFactory.buildNormalViewModel(

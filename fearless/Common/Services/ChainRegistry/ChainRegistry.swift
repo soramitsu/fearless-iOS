@@ -540,20 +540,35 @@ final class ChainRegistry {
             changes.forEach { change in
                 do {
                     switch change {
-                    case let .insert(newChain):
-                        if !newChain.disabled {
+                    case let .insert(storedChain):
+                        // Stored data can predate this build: retirement applies before any download succeeds.
+                        if let newChain = NetworkRetirement.offered(storedChain), !newChain.disabled {
                             try self.handleInsert(newChain)
                         }
-                    case let .update(updatedChain):
-                        let currentChain = self.chains.first { $0.chainId == updatedChain.chainId }
-                        if updatedChain.disabled {
+                    case let .update(storedChain):
+                        let currentChain = self.chains.first { $0.chainId == storedChain.chainId }
+                        guard let updatedChain = NetworkRetirement.offered(storedChain), !updatedChain.disabled else {
                             if currentChain != nil {
-                                self.handleDelete(updatedChain.chainId)
+                                self.handleDelete(storedChain.chainId)
                             }
-                        } else if let chain = currentChain {
-                            if chain.nodes != updatedChain.nodes ||
-                                chain.selectedNode != updatedChain.selectedNode {
+                            return
+                        }
+
+                        if let chain = currentChain {
+                            if self.chainKind(for: chain) != self.chainKind(for: updatedChain) {
+                                // Tear down with the old model's kind, then set up the new one.
+                                self.handleDelete(chain.chainId)
+                                try self.handleInsert(updatedChain)
+                            } else if chain.nodes != updatedChain.nodes ||
+                                chain.selectedNode != updatedChain.selectedNode ||
+                                chain.assets != updatedChain.assets {
+                                // Runtime providers keep their own chain model, so asset changes rebuild them.
                                 try self.handleUpdate(updatedChain)
+                            } else if chain != updatedChain {
+                                // Options or other metadata changed: keep the connection, publish the new model.
+                                self.chains = self.chains.map {
+                                    $0.chainId == updatedChain.chainId ? updatedChain : $0
+                                }
                             }
                         } else {
                             try self.handleInsert(updatedChain)

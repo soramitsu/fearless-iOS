@@ -2307,4 +2307,103 @@ final class NetworkRetirementSyncTests: XCTestCase {
         XCTAssertTrue(repository.deletedIdentifiers.isEmpty)
         XCTAssertEqual(eventCenter.failureCount, 0)
     }
+
+    func testStartupRetiresStoredNetworksEvenWhenTheDownloadFails() throws {
+        let storedMoonbeam = ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: Chain.moonbeam.genesisHash,
+            paraId: "2004",
+            name: "Moonbeam",
+            assets: [
+                AssetModel(id: "glmr", name: "Moonbeam", symbol: "GLMR", precision: 18, isUtility: true, isNative: true)
+            ],
+            xcm: nil,
+            nodes: [
+                ChainNodeModel(
+                    url: try XCTUnwrap(URL(string: "wss://wss.api.moonbeam.network")),
+                    name: "Moonbeam node",
+                    apikey: nil
+                )
+            ],
+            addressPrefix: 1284,
+            icon: nil,
+            options: [.ethereumBased],
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+        let storedPolkadot = ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: Chain.polkadot.genesisHash,
+            paraId: nil,
+            name: "Polkadot",
+            assets: [
+                AssetModel(
+                    id: "dot",
+                    name: "Polkadot",
+                    symbol: "DOT",
+                    precision: 10,
+                    isUtility: true,
+                    isNative: true,
+                    staking: .relayChain
+                )
+            ],
+            xcm: nil,
+            nodes: [
+                ChainNodeModel(
+                    url: try XCTUnwrap(URL(string: "wss://rpc.polkadot.io")),
+                    name: "Parity node",
+                    apikey: nil
+                )
+            ],
+            addressPrefix: 0,
+            icon: nil,
+            options: [.crowdloans, .poolStaking],
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+        let repository = ScriptedChainRepository(localChains: [storedMoonbeam, storedPolkadot])
+        let eventCenter = RecordingChainSyncEventCenter()
+        let failure = expectation(description: "the download fails")
+        eventCenter.onEvent = { event in
+            if event is ChainSyncDidFail {
+                failure.fulfill()
+            }
+        }
+        let service = ChainSyncService(
+            chainsUrl: try XCTUnwrap(URL(string: "https://chains.example/chains.json")),
+            dataFetchFactory: OfflineDataOperationFactory(),
+            repository: AnyDataProviderRepository(repository),
+            eventCenter: eventCenter,
+            operationQueue: OperationQueue(),
+            retryStrategy: NeverReconnectStrategy(),
+            applicationHandler: ApplicationHandler()
+        )
+
+        service.syncUp()
+
+        wait(for: [failure], timeout: 5)
+        let savedMoonbeam = try XCTUnwrap(
+            repository.savedModels.last(where: { $0.chainId == Chain.moonbeam.genesisHash })
+        )
+        XCTAssertTrue(savedMoonbeam.disabled)
+        let savedPolkadot = try XCTUnwrap(
+            repository.savedModels.last(where: { $0.chainId == Chain.polkadot.genesisHash })
+        )
+        XCTAssertFalse(savedPolkadot.disabled)
+        XCTAssertNil(savedPolkadot.assets.first?.staking)
+        XCTAssertEqual(savedPolkadot.options ?? [], [ChainOptions]())
+        XCTAssertTrue(repository.deletedIdentifiers.isEmpty)
+        XCTAssertTrue(
+            eventCenter.lastUpdatedChains?.contains { $0.chainId == Chain.moonbeam.genesisHash } == true,
+            "listeners hear about the retirement before any download"
+        )
+    }
+}
+
+private struct OfflineDataOperationFactory: DataOperationFactoryProtocol {
+    func fetchData(from _: URL) -> BaseOperation<Data> {
+        ClosureOperation<Data> { throw URLError(.notConnectedToInternet) }
+    }
 }

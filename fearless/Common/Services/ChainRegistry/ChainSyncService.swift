@@ -33,6 +33,8 @@ final class ChainSyncService {
 
     private struct AppOwnedCatalogPersistence {
         let canonicalChains: [ChainModel]
+        /// Stored chains this build retires or strips of relay staking, applied before any download.
+        let retirementUpdates: [ChainModel]
         let changes: SyncChanges
     }
 
@@ -198,7 +200,7 @@ final class ChainSyncService {
                     )
                     eventCenter.notify(
                         with: ChainsUpdatedEvent(
-                            updatedChains: persistence.canonicalChains
+                            updatedChains: persistence.canonicalChains + persistence.retirementUpdates
                         )
                     )
                 }
@@ -233,6 +235,9 @@ final class ChainSyncService {
                 let newOrUpdatedChains = canonicalChains.filter { chain in
                     localMapping[chain.chainId] != chain
                 }
+                let retirementUpdates = NetworkRetirement.storedUpdates(
+                    for: localChains.filter { !canonicalIds.contains($0.chainId) }
+                )
                 let obsoleteAliases = localChains.filter { localChain in
                     guard !canonicalIds.contains(localChain.chainId) else {
                         return false
@@ -248,8 +253,9 @@ final class ChainSyncService {
 
                 return AppOwnedCatalogPersistence(
                     canonicalChains: canonicalChains,
+                    retirementUpdates: retirementUpdates,
                     changes: SyncChanges(
-                        newOrUpdatedItems: newOrUpdatedChains,
+                        newOrUpdatedItems: newOrUpdatedChains + retirementUpdates,
                         removedItems: obsoleteAliases
                     )
                 )
