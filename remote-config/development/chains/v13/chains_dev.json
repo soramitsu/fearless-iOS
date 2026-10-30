@@ -226,6 +226,7 @@
       "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
       "paraId": "1000",
       "name": "Kusama AssetHub",
+      "identityChain": "c1af4cb4eb3918e5db15086c0cc5ec17fb334f728b7c65dd44bfe1e174ff8b3f",
       "externalApi": {
         "history": {
           "type": "giantsquid",
@@ -251,6 +252,7 @@
           "priceId": "kusama",
           "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/tokens/coloured/KSM.svg",
           "color": "FFFFFF",
+          "staking": "assetHub",
           "purchaseProviders": [
             "ramp"
           ],
@@ -337,6 +339,7 @@
       "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
       "paraId": "1000",
       "name": "Polkadot AssetHub",
+      "identityChain": "67fa177a097bfa18f77ea95ab56e9bcdfeb0e5b8a40e46298bb93e16b6fc5008",
       "externalApi": {
         "history": {
           "type": "giantsquid",
@@ -363,6 +366,7 @@
           "priceId": "polkadot",
           "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/tokens/coloured/DOT.svg",
           "color": "FF0066",
+          "staking": "assetHub",
           "purchaseProviders": [
             "moonpay",
             "ramp"
@@ -5839,6 +5843,54 @@
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/People.svg",
       "addressPrefix": 2
+    },
+    {
+      "disabled": false,
+      "chainId": "67fa177a097bfa18f77ea95ab56e9bcdfeb0e5b8a40e46298bb93e16b6fc5008",
+      "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+      "paraId": "1004",
+      "name": "Polkadot People",
+      "ecosystem": "substrate",
+      "assets": [
+        {
+          "isUtility": true,
+          "id": "bb56f037-6f96-45e6-9b3c-c9059bf0f731",
+          "name": "polkadot",
+          "symbol": "dot",
+          "precision": 10,
+          "priceId": "polkadot",
+          "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/tokens/coloured/DOT.svg",
+          "color": "FF0066",
+          "type": "normal"
+        }
+      ],
+      "nodes": [
+        {
+          "url": "wss://sys.ibp.network/people-polkadot",
+          "name": "IBP1 node"
+        },
+        {
+          "url": "wss://sys.dotters.network/people-polkadot",
+          "name": "IBP2 node"
+        },
+        {
+          "url": "wss://rpc-people-polkadot.luckyfriday.io",
+          "name": "LuckyFriday node"
+        },
+        {
+          "url": "wss://polkadot-people-rpc.polkadot.io",
+          "name": "Parity node"
+        },
+        {
+          "url": "wss://people-polkadot.public.curie.radiumblock.co/ws",
+          "name": "RadiumBlock node"
+        }
+      ],
+      "options": [
+        "identityChain"
+      ],
+      "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/People.svg",
+      "addressPrefix": 0
     },
     {
       "disabled": false,

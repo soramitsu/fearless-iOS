@@ -157,9 +157,12 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             return
         }
 
-        presenter?.didReceive(selectedWallet: selectedMetaAccount)
-
         selectedAccount = newSelectedAccount
+        presenter?.didReceive(selectedWallet: selectedMetaAccount)
+        if let chainId = selectedChainAsset?.chain.chainId,
+           AssetHubStakingRoute.staking(on: chainId) != nil {
+            provideNetworkStakingInfo()
+        }
         setupAccountRemoteSubscription()
         performAccountInfoSubscription()
         provideSelectedAccount()

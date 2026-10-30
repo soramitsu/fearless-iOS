@@ -79,9 +79,10 @@ enum NetworkRetirement {
     }
 
     /// The chain as this build offers it: nil for a retired or unsupported network, without relay staking where
-    /// staking moved to Asset Hub, and without parachain (collator) staking, which served only Moonbeam, Moonriver and
-    /// Moonbase Alpha and is not built any more. Stored chains go through this too, so it holds before any download
-    /// succeeds.
+    /// staking moved to Asset Hub, and on those Asset Hubs only the direct staking of the relay's native token
+    /// (`AssetHubStakingRoute`). Elsewhere it keeps no `assetHub` staking and no parachain (collator) staking, which
+    /// served only Moonbeam, Moonriver and Moonbase Alpha and is not built any more. Stored chains go through this
+    /// too, so it holds before any download succeeds.
     static func offered(_ chain: ChainModel) -> ChainModel? {
         guard !retiredChainIds.contains(chain.chainId), !unsupportedChainIds.contains(chain.chainId) else {
             return nil
@@ -91,16 +92,21 @@ enum NetworkRetirement {
             return chain.removingRelayStaking()
         }
 
-        guard chain.assets.contains(where: { $0.staking == .paraChain }) else {
+        if AssetHubStakingRoute.staking(on: chain.chainId) != nil {
+            return chain.limitingToAssetHubStaking()
+        }
+
+        guard chain.assets.contains(where: { $0.staking == .assetHub || $0.staking == .paraChain }) else {
             return chain
         }
 
-        return chain.removingParachainStaking()
+        return chain.removingUnofferedStaking()
     }
 
     /// Stored chains that must change to match this build: a retired or unsupported network becomes disabled, a
-    /// migrated relay loses its staking, a parachain-staking asset loses its staking. Nothing is deleted, so saved
-    /// balances and accounts stay.
+    /// migrated relay loses its staking, and an asset loses staking this build does not offer there (parachain
+    /// staking anywhere, `assetHub` staking outside its Asset Hub route). Nothing is deleted, so saved balances and
+    /// accounts stay.
     static func storedUpdates(for localChains: [ChainModel]) -> [ChainModel] {
         localChains.compactMap { local in
             guard let offered = offered(local) else {
@@ -114,17 +120,27 @@ enum NetworkRetirement {
 
 private extension ChainModel {
     func removingRelayStaking() -> ChainModel {
+        replacingStaking(assets: Set(assets.map { $0.removingStaking() }))
+    }
+
+    /// Pool staking and crowdloans are not offered on Asset Hub by this build, whatever a downloaded list says.
+    func limitingToAssetHubStaking() -> ChainModel {
+        replacingStaking(assets: Set(assets.map { asset in
+            AssetHubStakingRoute.offersStaking(asset, on: self) ? asset : asset.removingStaking()
+        }))
+    }
+
+    /// `assetHub` staking belongs to the Asset Hub routes only, and parachain (collator) staking is not built any
+    /// more: elsewhere such an asset keeps no staking.
+    func removingUnofferedStaking() -> ChainModel {
         replacing(
-            assets: Set(assets.map { $0.removingStaking() }),
-            options: options?.filter { $0 != .poolStaking && $0 != .crowdloans }
+            assets: Set(assets.map { $0.staking == .assetHub || $0.staking == .paraChain ? $0.removingStaking() : $0 }),
+            options: options
         )
     }
 
-    func removingParachainStaking() -> ChainModel {
-        replacing(
-            assets: Set(assets.map { $0.staking == .paraChain ? $0.removingStaking() : $0 }),
-            options: options
-        )
+    func replacingStaking(assets: Set<AssetModel>) -> ChainModel {
+        replacing(assets: assets, options: options?.filter { $0 != .poolStaking && $0 != .crowdloans })
     }
 
     func replacing(assets: Set<AssetModel>, options: [ChainOptions]?) -> ChainModel {

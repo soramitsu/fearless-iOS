@@ -270,12 +270,17 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         wireframe.showAccountsSelection(from: view, moduleOutput: self)
     }
 
+    /// Payouts are listed from a staking indexer, or on an Asset Hub route from chain storage.
+    private static func offersPayouts(_ chainAsset: ChainAsset) -> Bool {
+        chainAsset.chain.externalApi?.staking != nil || AssetHubStakingRoute.staking(on: chainAsset.chain.chainId) != nil
+    }
+
     func performManageStakingAction() {
         let managedItems: [StakingManageOption] = {
             if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
                 var options: [StakingManageOption] = []
                 options.append(.stakingBalance)
-                if nominatorState.commonData.chainAsset?.chain.externalApi?.staking != nil {
+                if nominatorState.commonData.chainAsset.map(Self.offersPayouts) == true {
                     options.append(.pendingRewards)
                 }
                 options.append(.rewardDestination)
@@ -295,7 +300,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 
             var options: [StakingManageOption] = []
             options.append(.stakingBalance)
-            if chainAsset?.chain.externalApi?.staking != nil {
+            if chainAsset.map(Self.offersPayouts) == true {
                 options.append(.pendingRewards)
             }
             options.append(.rewardDestination)
@@ -458,7 +463,14 @@ extension StakingMainPresenter: StakingStateMachineDelegate {
 
 extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceive(selectedWallet: MetaAccountModel) {
+        let accountChanged = selectedWallet.metaId != selectedMetaAccount.metaId
         selectedMetaAccount = selectedWallet
+
+        // Asset Hub's unbonding period belongs to the account, so the previous wallet's value is not shown.
+        if accountChanged, let chainId = chainAsset?.chain.chainId, AssetHubStakingRoute.staking(on: chainId) != nil {
+            networkStakingInfo = nil
+            provideStakingInfo()
+        }
     }
 
     private func handle(error: Error) {
@@ -600,6 +612,10 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
     func didReceive(networkStakingInfoError: Error) {
+        if let chainId = chainAsset?.chain.chainId, AssetHubStakingRoute.staking(on: chainId) != nil {
+            networkStakingInfo = nil
+            provideStakingInfo()
+        }
         handle(error: networkStakingInfoError)
     }
 

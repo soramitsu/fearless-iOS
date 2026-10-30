@@ -360,6 +360,8 @@ final class LocalAuthOwnershipTests: XCTestCase {
         func didFailSavingPin() {}
         var wrongPins = 0
         var resets = 0
+        var dismissalBegan = false
+        override var isBeingDismissed: Bool { dismissalBegan || super.isBeingDismissed }
         func resetAuthenticationInput() { resets += 1 }
         func didRequestBiometryUsage(biometryType _: AvailableBiometryType, completionBlock _: @escaping (Bool) -> Void) {}
         func didChangeAccessoryState(enabled _: Bool, availableBiometryType _: AvailableBiometryType) {}
@@ -425,6 +427,23 @@ final class LocalAuthOwnershipTests: XCTestCase {
         f.biometry.answer(1, true)
         try await settle()
         XCTAssertEqual(wireframe.results, [true])
+    }
+
+    func testCorrectPinLandingAfterDismissalBeganCannotAuthorize() async throws {
+        let f = Fixture()
+        let wireframe = Wireframe()
+        let presenter = ScreenAuthorizationPresenter(wireframe: wireframe, interactor: f.interactor)
+        let view = View()
+        presenter.didLoad(view: view)
+        presenter.submit(pin: "123456")
+        // UIKit has begun an external dismissal and has not called viewWillDisappear yet.
+        view.dismissalBegan = true
+        f.secrets.answer(0, "123456")
+        try await settle()
+        XCTAssertTrue(wireframe.results.isEmpty, "A correct PIN that lands while the screen is leaving cannot authorize")
+        presenter.willLeaveView()
+        presenter.didLeaveView()
+        XCTAssertEqual(wireframe.results, [false])
     }
 
     func testCancelledDepartureRestartsInputWithoutAcceptingOldBiometry() async throws {

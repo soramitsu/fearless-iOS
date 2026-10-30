@@ -95,7 +95,7 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
         result.chains.forEach { chain in
             guard
                 let runtimeItem = runtimeItemsMap[chain.chainId],
-                let chainTypes = chainsTypesJson[chain.chainId]
+                let chainTypes = AssetHubStakingRoute.runtimeTypes(for: chain.chainId, existing: chainsTypesJson[chain.chainId])
             else {
                 return
             }

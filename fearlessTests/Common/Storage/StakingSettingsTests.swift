@@ -332,3 +332,83 @@ final class StakingTypeRoutingTests: XCTestCase {
         return ChainAsset(chain: chain, asset: try XCTUnwrap(chain.assets.first))
     }
 }
+
+/// Relay staking moved to Asset Hub: a saved relay choice opens the relay's Asset Hub, where the stake now lives.
+final class StakingAssetHubSettingsTests: XCTestCase {
+    func testSavedRelayChoiceOpensItsAssetHubAndIsRewritten() throws {
+        let route = AssetHubStakingRoute.routes[0]
+        let relay = makeChain(route.relayChainId, parent: nil, assetId: route.nativeAssetId, staking: nil)
+        let hub = makeChain(route.stakingChainId, parent: route.relayChainId, assetId: route.nativeAssetId, staking: .assetHub)
+        let saved = ChainAssetId(chainId: relay.chainId, assetId: route.nativeAssetId)
+        let fixture = try prepare(chains: [relay, hub], saved: saved)
+
+        fixture.settings.setup()
+
+        XCTAssertEqual(fixture.settings.value?.chain.chainId, hub.chainId)
+        XCTAssertEqual(fixture.settings.value?.asset.id, route.nativeAssetId)
+        XCTAssertEqual(fixture.preferences.stakingAsset, ChainAssetId(chainId: hub.chainId, assetId: route.nativeAssetId))
+    }
+
+    func testFallbackPrefersAssetHubOverOtherStakingChains() throws {
+        let route = AssetHubStakingRoute.routes[1]
+        let other = makeChain(String(repeating: "01", count: 32), parent: nil, assetId: "native")
+        let hub = makeChain(route.stakingChainId, parent: route.relayChainId, assetId: route.nativeAssetId, staking: .assetHub)
+        let fixture = try prepare(chains: [other, hub], saved: nil)
+
+        fixture.settings.setup()
+
+        XCTAssertEqual(fixture.settings.value?.chain.chainId, hub.chainId)
+        XCTAssertEqual(fixture.preferences.stakingAsset?.chainId, hub.chainId)
+    }
+
+    func testMigratedRelayCannotBeSavedAsStakingChoice() throws {
+        let route = AssetHubStakingRoute.routes[0]
+        let relay = makeChain(route.relayChainId, parent: nil, assetId: route.nativeAssetId)
+        let fixture = try prepare(chains: [relay], saved: nil)
+        let asset = try XCTUnwrap(relay.assets.first)
+        let refused = XCTestExpectation(description: "relay save refused")
+
+        fixture.settings.save(value: ChainAsset(chain: relay, asset: asset), runningCompletionIn: nil) { result in
+            if case .failure = result { refused.fulfill() }
+        }
+
+        wait(for: [refused], timeout: 30)
+        XCTAssertNil(fixture.preferences.stakingAsset)
+    }
+
+    private func makeChain(
+        _ chainId: String,
+        parent: String?,
+        assetId: String,
+        staking: RawStakingType? = .relayChain
+    ) -> ChainModel {
+        let asset = AssetModel(
+            id: assetId, name: "Native", symbol: "NAT", precision: 10,
+            isUtility: true, isNative: true, staking: staking, type: .normal
+        )
+        return ChainModel(
+            rank: nil, disabled: false, chainId: chainId,
+            parentId: parent, paraId: parent == nil ? nil : "1000", name: "Network", assets: [asset],
+            xcm: nil, nodes: [ChainNodeModel(url: URL(string: "wss://staking-\(chainId.prefix(16)).invalid")!, name: "Test", apikey: nil)],
+            addressPrefix: 0, icon: nil, iosMinAppVersion: nil, identityChain: nil
+        )
+    }
+
+    private func prepare(chains: [ChainModel], saved: ChainAssetId?) throws -> (
+        settings: StakingAssetSettings, preferences: InMemorySettingsManager
+    ) {
+        let facade = SubstrateStorageTestFacade()
+        let queue = OperationQueue()
+        let repository = ChainRepositoryFactory(storageFacade: facade).createRepository()
+        let save = repository.saveOperation({ chains }, { [] })
+        queue.addOperations([save], waitUntilFinished: true)
+        let _: Void = try save.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+        let preferences = InMemorySettingsManager()
+        preferences.stakingAsset = saved
+        let settings = StakingAssetSettings(
+            storageFacade: facade, settings: preferences, operationQueue: queue,
+            wallet: AccountGenerator.generateMetaAccount()
+        )
+        return (settings, preferences)
+    }
+}

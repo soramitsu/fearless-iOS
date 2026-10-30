@@ -51,13 +51,16 @@ class StakingInfoTests: XCTestCase {
             throw XCTSkip("Chain registry integration setup is unavailable in the current environment")
         }
 
+        // Relay staking moved to Asset Hub, so the relay's stake is read there with the relay as era clock.
         guard
-            let chain = chainRegistry.availableChains.first(where: { $0.name == chainName }),
-            let asset = chain.assets.first(where: { $0.symbol.lowercased() == assetSymbol.lowercased() })
-                ?? chain.assets.first(where: \.isUtility)
+            let relay = chainRegistry.availableChains.first(where: { $0.name == chainName }),
+            let route = AssetHubStakingRoute.migrating(relay.chainId),
+            let chain = chainRegistry.availableChains.first(where: { $0.chainId == route.stakingChainId }),
+            let asset = chain.assets.first(where: { $0.id == route.nativeAssetId && $0.staking != nil })
         else {
-            throw XCTSkip("Missing integration test chain or asset for \(chainName)")
+            throw XCTSkip("Missing Asset Hub staking chain or asset for \(chainName)")
         }
+        XCTAssertEqual(asset.symbol.lowercased(), assetSymbol.lowercased())
 
         let chainAsset = ChainAsset(chain: chain, asset: asset)
         let chainFormat = ChainFormat.substrate(expectedPrefix)

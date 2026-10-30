@@ -11,4 +11,5 @@ struct PayoutInfo {
     let validator: Data
     let reward: Decimal
     let identity: AccountIdentity?
+    var page: UInt32?
 }

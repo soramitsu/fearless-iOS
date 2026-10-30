@@ -63,6 +63,17 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         assetPrecision: Int16,
         validatorService: EraValidatorServiceProtocol
     ) throws -> RewardCalculatorServiceProtocol {
+        if AssetHubStakingRoute.staking(on: chainAsset.chain.chainId) != nil {
+            return AssetHubRewardCalculatorService(
+                chainId: chainAsset.chain.chainId, registry: chainRegistry, validators: validatorService,
+                storage: StorageRequestFactory(remoteFactory: StorageKeyFactory(), operationManager: operationManager),
+                manager: operationManager,
+                duration: StakingDurationOperationFactory(clock: StakingRuntimeClock(
+                    runtime: { [chainRegistry] in chainRegistry.getRuntimeProvider(for: $0) },
+                    connection: { [chainRegistry] in chainRegistry.getConnection(for: $0) }
+                ))
+            )
+        }
         switch chainAsset.stakingType {
         case .relaychain:
             return InflationRewardCalculatorService(
