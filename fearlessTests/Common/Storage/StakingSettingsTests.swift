@@ -270,7 +270,7 @@ final class StakingAssetHubSettingsTests: XCTestCase {
         return ChainModel(
             rank: nil, disabled: false, chainId: chainId,
             parentId: parent, paraId: parent == nil ? nil : "1000", name: "Network", assets: [asset],
-            xcm: nil, nodes: [ChainNodeModel(url: URL(string: "wss://staking.invalid")!, name: "Test", apikey: nil)],
+            xcm: nil, nodes: [ChainNodeModel(url: URL(string: "wss://staking-\(chainId.prefix(16)).invalid")!, name: "Test", apikey: nil)],
             addressPrefix: 0, icon: nil, iosMinAppVersion: nil, identityChain: nil
         )
     }
