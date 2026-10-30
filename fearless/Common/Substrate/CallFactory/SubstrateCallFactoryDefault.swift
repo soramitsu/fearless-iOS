@@ -156,10 +156,6 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
                     path: .assetsTransfer
                 )
             }
-            if chainAsset.chain.isReef {
-                return reefTransfer(to: receiver, amount: amount)
-            }
-
             return defaultTransfer(to: receiver, amount: amount)
         case .ormlChain?:
             return ormlChainTransfer(
@@ -319,127 +315,6 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
     func addRemark(_ data: Data) -> any RuntimeCallable {
         let args = AddRemarkCall(remark: data)
         let path: SubstrateCallPath = .addRemark
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
-    }
-
-    func delegate(
-        candidate: AccountId,
-        amount: BigUInt,
-        candidateDelegationCount: UInt32,
-        delegationCount: UInt32
-    ) -> any RuntimeCallable {
-        let args = DelegateCall(
-            candidate: candidate,
-            amount: amount,
-            candidateDelegationCount: candidateDelegationCount,
-            delegationCount: delegationCount
-        )
-
-        let path: SubstrateCallPath = .delegate
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
-    }
-
-    func delegatorBondMore(
-        candidate: AccountId,
-        amount: BigUInt
-    ) -> any RuntimeCallable {
-        let args = DelegatorBondMoreCall(candidate: candidate, more: amount)
-
-        let path: SubstrateCallPath = .delegatorBondMore
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
-    }
-
-    func scheduleDelegatorBondLess(
-        candidate: AccountId,
-        amount: BigUInt
-    ) -> any RuntimeCallable {
-        let args = ScheduleDelegatorBondLessCall(candidate: candidate, less: amount)
-
-        let path: SubstrateCallPath = .scheduleDelegatorBondLess
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
-    }
-
-    func scheduleRevokeDelegation(candidate: AccountId) -> any RuntimeCallable {
-        let args = ScheduleRevokeDelegationCall(collator: candidate)
-
-        let path: SubstrateCallPath = .scheduleRevokeDelegation
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
-    }
-
-    func executeDelegationRequest(
-        delegator: AccountId,
-        collator: AccountId
-    ) -> any RuntimeCallable {
-        let args = ExecuteDelegationRequestCall(delegator: delegator, candidate: collator)
-
-        let path: SubstrateCallPath = .executeDelegationRequest
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
-    }
-
-    func cancelCandidateBondLess() -> any RuntimeCallable {
-        let path: SubstrateCallPath = .cancelCandidateBondLess
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName
-        )
-    }
-
-    func cancelDelegationRequest(candidate: AccountId) -> any RuntimeCallable {
-        let args = CancelDelegationRequestCall(candidate: candidate)
-
-        let path: SubstrateCallPath = .cancelDelegationRequest
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
-    }
-
-    func cancelLeaveDelegators() -> any RuntimeCallable {
-        let path: SubstrateCallPath = .cancelLeaveDelegators
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName
-        )
-    }
-
-    func candidateBondMore(amount: BigUInt) -> any RuntimeCallable {
-        let args = CandidateBondMoreCall(more: amount)
-        let path: SubstrateCallPath = .candidateBondMore
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
-    }
-
-    func scheduleCandidateBondLess(amount: BigUInt) -> any RuntimeCallable {
-        let args = ScheduleCandidateBondLessCall(less: amount)
-        let path: SubstrateCallPath = .scheduleCandidateBondLess
         return RuntimeCall(
             moduleName: path.moduleName,
             callName: path.callName,
@@ -680,19 +555,6 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         let dest: MultiAddress = isEthereumBased ? .accountTo(receiver) : .accoundId(receiver)
         let args = TransferCall(dest: dest, value: amount, currencyId: currencyId)
         let path: SubstrateCallPath = .assetsTransfer
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
-    }
-
-    func reefTransfer(
-        to receiver: AccountId,
-        amount: BigUInt
-    ) -> any RuntimeCallable {
-        let args = TransferCall(dest: .indexedString(receiver), value: amount, currencyId: nil)
-        let path: SubstrateCallPath = .defaultTransfer
         return RuntimeCall(
             moduleName: path.moduleName,
             callName: path.callName,

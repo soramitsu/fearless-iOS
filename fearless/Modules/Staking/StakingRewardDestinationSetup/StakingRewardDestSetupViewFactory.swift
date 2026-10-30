@@ -131,25 +131,10 @@ struct StakingRewardDestSetupViewFactory {
             for: settings.chain
         )
 
-        let storageRequestFactory = StorageRequestFactory(
-            remoteFactory: StorageKeyFactory(),
-            operationManager: OperationManagerFacade.sharedManager
-        )
-
-        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
-        let collatorOperationFactory = ParachainCollatorOperationFactory(
-            asset: asset,
-            chain: chain,
-            storageRequestFactory: storageRequestFactory,
-            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory,
-            chainRegistry: chainRegistry
-        )
-
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(
             for: ChainAsset(chain: settings.chain, asset: settings.asset),
             assetPrecision: settings.assetDisplayInfo.assetPrecision,
-            validatorService: eraValidatorService, collatorOperationFactory: collatorOperationFactory
+            validatorService: eraValidatorService
         )
 
         let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)

@@ -2,10 +2,6 @@ import Foundation
 import SoraFoundation
 
 final class StakingUnbondSetupRelaychainViewModelFactory: StakingUnbondSetupViewModelFactoryProtocol {
-    func buildCollatorViewModel(viewModelState _: StakingUnbondSetupViewModelState, locale _: Locale) -> AccountViewModel? {
-        nil
-    }
-
     func buildAccountViewModel(viewModelState _: StakingUnbondSetupViewModelState, locale _: Locale) -> AccountViewModel? {
         nil
     }

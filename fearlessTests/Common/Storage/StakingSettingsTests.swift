@@ -93,10 +93,11 @@ final class StakingSettingsTests: XCTestCase {
 
     func testLosingLastSelectedChainClearsStakingActionState() throws {
         let machine = StakingStateMachine()
-        let chain = makeChain(id: "01", staking: .paraChain)
+        let chain = makeChain(id: "01")
         let asset = try XCTUnwrap(chain.assets.first)
         machine.state.process(chainAsset: ChainAsset(chain: chain, asset: asset))
-        XCTAssertTrue(machine.state is ParachainState)
+        machine.state.process(stashItem: nil)
+        XCTAssertTrue(machine.state is NoStashState)
 
         machine.state.process(chainAsset: nil)
 
@@ -105,6 +106,21 @@ final class StakingSettingsTests: XCTestCase {
         XCTAssertNil(state.commonData.chainAsset)
         XCTAssertNil(state.commonData.accountInfo)
         XCTAssertNil(state.commonData.address)
+    }
+
+    func testStoredParachainStakingAssetOffersNoStaking() throws {
+        let chain = makeChain(id: "01", staking: .paraChain)
+        let chainAsset = ChainAsset(chain: chain, asset: try XCTUnwrap(chain.assets.first))
+
+        XCTAssertNil(StakingType(rawStakingType: .paraChain))
+        XCTAssertEqual(StakingType(rawStakingType: .relayChain), .relaychain)
+        XCTAssertEqual(chainAsset.rawStakingType, .paraChain)
+        XCTAssertNil(chainAsset.stakingType)
+
+        let machine = StakingStateMachine()
+        machine.state.process(chainAsset: chainAsset)
+
+        XCTAssertTrue(machine.state is InitialRelaychainStakingState)
     }
 
     @MainActor

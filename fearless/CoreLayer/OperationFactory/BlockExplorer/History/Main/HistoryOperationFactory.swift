@@ -4,6 +4,11 @@ import RobinHood
 import SSFModels
 import SSFUtils
 
+enum SubqueryHistoryOperationFactoryError: Error {
+    case urlMissing
+    case incorrectInputData
+}
+
 enum HistoryOperationFactoriesAssembly {
     static func createOperationFactory(
         chain: ChainModel,
@@ -66,8 +71,6 @@ enum HistoryOperationFactoriesAssembly {
         case .etherscan:
             return EtherscanHistoryOperationFactory()
         // .oklink case was removed in newer SSFModels; fallback to giantsquid/subsquid routing elsewhere
-        case .reef:
-            return ReefSubsquidHistoryOperationFactory(txStorage: txStorage)
         // Removed explorers in new enum; fall back to giantsquid/subsquid routing elsewhere
         case .none:
             return nil

@@ -51,16 +51,6 @@ final class SelectValidatorsConfirmViewLayout: UIView {
 
     let feeView: TitleMultiValueView = createTitleMultiValueView()
 
-    let selectedCollatorContainer = UIView()
-    let selectedCollatorTitle: UILabel = {
-        let label = UILabel()
-        label.font = .p2Paragraph
-        label.textColor = R.color.colorWhite()
-        return label
-    }()
-
-    let selectedCollatorView: TitleMultiValueView = createTitleMultiValueView()
-
     private(set) var hintViews: [UIView] = []
 
     let networkFeeFooterView = UIFactory().createCleanNetworkFeeFooterView()

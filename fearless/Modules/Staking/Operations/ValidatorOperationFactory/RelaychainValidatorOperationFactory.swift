@@ -700,7 +700,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
         let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
 
         let allValidatorsOperation: AwaitOperation<[EraValidatorInfo]> = AwaitOperation { [weak self] in
-            guard let self else {
+            guard self != nil else {
                 return []
             }
 
@@ -709,25 +709,12 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
                     return nil
                 }
 
-                var accountId: Data
-
-                if self.chain.isReef {
-                    let extractor = StorageKeyDataExtractor(runtimeService: runtimeService)
-                    let key: String = try await extractor.extractKey(
-                        storageKey: $0.key,
-                        storagePath: .validatorPrefs,
-                        type: .accountId
-                    )
-                    accountId = try key.toAccountId()
-                } else {
-                    let extractor = StorageKeyDataExtractor(runtimeService: runtimeService)
-                    let key: AccountId = try await extractor.extractKey(
-                        storageKey: $0.key,
-                        storagePath: .validatorPrefs,
-                        type: .accountId
-                    )
-                    accountId = key
-                }
+                let extractor = StorageKeyDataExtractor(runtimeService: runtimeService)
+                let accountId: AccountId = try await extractor.extractKey(
+                    storageKey: $0.key,
+                    storagePath: .validatorPrefs,
+                    type: .accountId
+                )
 
                 let exposure = ValidatorExposure(total: .zero, own: .zero, others: [])
 

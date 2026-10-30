@@ -315,14 +315,4 @@ extension StakingAmountPresenter: StakingAmountModelStateListener {
             view?.didReceive(viewModel: viewModel)
         }
     }
-
-    func provideYourRewardDestinationViewModel(viewModelState: StakingAmountViewModelState) {
-        view?.didStopLoading()
-
-        guard let viewModel = viewModelFactory?.buildYourRewardDestinationViewModel(viewModelState: viewModelState, priceData: priceData, calculator: calculator) else {
-            return
-        }
-
-        view?.didReceiveYourRewardDestination(viewModel: viewModel)
-    }
 }

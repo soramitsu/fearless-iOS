@@ -78,8 +78,7 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
             return
         }
 
-        let mode: FiltersMode = chainAsset.chain.isReef ? .singleSelection : .multiSelection
-        wireframe.presentFilters(with: filters, from: view, mode: mode, moduleOutput: self)
+        wireframe.presentFilters(with: filters, from: view, mode: .multiSelection, moduleOutput: self)
     }
 
     func didSelect(viewModel: WalletTransactionHistoryCellViewModel) {
@@ -188,9 +187,6 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
     }
 
     private func buildFiltering(for chain: ChainModel) -> WalletTransactionHistoryViewFilterMode {
-        if chain.isReef {
-            return .single
-        }
         guard let explorerType = chain.externalApi?.history?.type, explorerType.hasFilters else {
             return .disabled
         }

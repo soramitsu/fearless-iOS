@@ -13,14 +13,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         sharedState.relaychainStakingLocalSubscriptionFactory
     }
 
-    var parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol {
-        sharedState.parachainStakingLocalSubscriptionFactory
-    }
-
-    var stakingAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubscriptionFactoryProtocol {
-        sharedState.stakingAnalyticsLocalSubscriptionFactory
-    }
-
     var stakingSettings: StakingAssetSettings { sharedState.settings }
 
     let selectedWalletSettings: SelectedWalletSettings
@@ -40,7 +32,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     let chainAssetFetching: ChainAssetFetchingProtocol
 
     let logger: LoggerProtocol?
-    var collatorOperationFactory: ParachainCollatorOperationFactory
 
     var selectedAccount: ChainAccountResponse?
     var selectedChainAsset: ChainAsset?
@@ -66,9 +57,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     var minNominatorBondProvider: AnyDataProvider<DecodedBigUInt>?
     var counterForNominatorsProvider: AnyDataProvider<DecodedU32>?
     var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
-    var rewardAnalyticsProvider: AnySingleValueProvider<[SubqueryRewardItemData]>?
-    var delegatorStateProvider: AnyDataProvider<DecodedParachainDelegatorState>?
-    var collatorIds: [AccountId]?
 
     init(
         selectedWalletSettings: SelectedWalletSettings,
@@ -85,7 +73,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
         commonSettings: SettingsManagerProtocol,
         logger: LoggerProtocol? = nil,
-        collatorOperationFactory: ParachainCollatorOperationFactory,
         chainAssetFetching: ChainAssetFetchingProtocol
     ) {
         self.selectedWalletSettings = selectedWalletSettings
@@ -102,7 +89,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         self.eraCountdownOperationFactory = eraCountdownOperationFactory
         self.commonSettings = commonSettings
         self.logger = logger
-        self.collatorOperationFactory = collatorOperationFactory
         self.chainAssetFetching = chainAssetFetching
         eventCenter.add(observer: self, dispatchIn: .main)
     }
@@ -128,31 +114,9 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     }
 
     func updateSharedState() {
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
-
         guard let chainAsset = selectedChainAsset else {
             return
         }
-
-        let storageOperationFactory = StorageRequestFactory(
-            remoteFactory: StorageKeyFactory(),
-            operationManager: operationManager
-        )
-
-        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
-
-        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
-
-        let collatorOperationFactory = ParachainCollatorOperationFactory(
-            asset: chainAsset.asset,
-            chain: chainAsset.chain,
-            storageRequestFactory: storageOperationFactory,
-            identityOperationFactory: identityOperationFactory,
-            subqueryOperationFactory: rewardOperationFactory,
-            chainRegistry: chainRegistry
-        )
-
-        self.collatorOperationFactory = collatorOperationFactory
 
         do {
             let eraValidatorService = try stakingServiceFactory.createEraValidatorService(
@@ -162,8 +126,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             let rewardCalculatorService = try stakingServiceFactory.createRewardCalculatorService(
                 for: chainAsset,
                 assetPrecision: Int16(chainAsset.asset.precision),
-                validatorService: eraValidatorService,
-                collatorOperationFactory: collatorOperationFactory
+                validatorService: eraValidatorService
             )
 
             sharedState.eraValidatorService.throttle()
@@ -397,48 +360,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             case .none:
                 break
             }
-        }
-    }
-
-//    Parachain
-
-    func handleDelegatorState(
-        delegatorState: ParachainStakingDelegatorState?,
-        chainAsset _: ChainAsset
-    ) {
-        if let state = delegatorState {
-            fetchCollatorsDelegations(accountIds: state.delegations.map(\.owner))
-
-            let idsOperation: BaseOperation<[AccountId]> = ClosureOperation { state.delegations.map(\.owner) }
-            let idsWrapper = CompoundOperationWrapper(targetOperation: idsOperation)
-
-            let collatorInfosOperation = collatorOperationFactory.candidateInfos(for: idsWrapper)
-            collatorInfosOperation.targetOperation.completionBlock = { [weak self] in
-
-                DispatchQueue.main.async {
-                    do {
-                        let collators = try collatorInfosOperation.targetOperation.extractNoCancellableResultData() ?? []
-
-                        self?.collatorIds = collators.map(\.owner)
-
-                        let delegationInfos: [ParachainStakingDelegationInfo] = state.delegations.compactMap { delegation in
-                            guard let collator = collators.first(where: { $0.owner == delegation.owner }) else {
-                                return nil
-                            }
-                            return ParachainStakingDelegationInfo(
-                                delegation: delegation,
-                                collator: collator
-                            )
-                        }
-                        self?.presenter?.didReceive(delegationInfos: delegationInfos)
-                    } catch {
-                        self?.logger?.error("handleDelegatorState.error: \(error)")
-                    }
-                }
-            }
-            operationManager.enqueue(operations: collatorInfosOperation.allOperations, in: .transient)
-        } else {
-            presenter?.didReceive(delegationInfos: nil)
         }
     }
 }

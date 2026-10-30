@@ -39,22 +39,8 @@ enum ConstantCodingPath: CaseIterable {
             return (moduleName: "System", constantName: "BlockWeights")
         case .blockHashCount:
             return (moduleName: "System", constantName: "BlockHashCount")
-        case .revokeDelegationDelay:
-            return (moduleName: "ParachainStaking", constantName: "RevokeDelegationDelay")
-        case .minDelegation:
-            return (moduleName: "ParachainStaking", constantName: "MinDelegation")
-        case .rewardPaymentDelay:
-            return (moduleName: "ParachainStaking", constantName: "RewardPaymentDelay")
-        case .maxDelegationsPerDelegator:
-            return (moduleName: "ParachainStaking", constantName: "MaxDelegationsPerDelegator")
-        case .maxTopDelegationsPerCandidate:
-            return (moduleName: "ParachainStaking", constantName: "MaxTopDelegationsPerCandidate")
-        case .maxBottomDelegationsPerCandidate:
-            return (moduleName: "ParachainStaking", constantName: "MaxBottomDelegationsPerCandidate")
         case .defaultTip:
             return (moduleName: "Balances", constantName: "DefaultTip")
-        case .candidateBondLessDelay:
-            return (moduleName: "ParachainStaking", constantName: "CandidateBondLessDelay")
         case .nominationPoolsPalletId:
             return (moduleName: "NominationPools", constantName: "PalletId")
         case .historyDepth:
@@ -80,14 +66,7 @@ enum ConstantCodingPath: CaseIterable {
     case minimumContribution
     case blockWeights
     case blockHashCount
-    case revokeDelegationDelay
-    case minDelegation
-    case rewardPaymentDelay
-    case maxDelegationsPerDelegator
-    case maxTopDelegationsPerCandidate
-    case maxBottomDelegationsPerCandidate
     case defaultTip
-    case candidateBondLessDelay
     case nominationPoolsPalletId
     case historyDepth
     case leaseOffset

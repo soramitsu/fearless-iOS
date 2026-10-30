@@ -28,7 +28,6 @@ public enum RawStakingType: String, Codable {
 
 public enum StakingType {
     case relaychain
-    case parachain
     case sora
     case ternoa
 
@@ -36,26 +35,17 @@ public enum StakingType {
         switch self {
         case .relaychain, .sora, .ternoa:
             return true
-        default:
-            return false
         }
     }
 
-    public var isParachain: Bool {
-        switch self {
-        case .parachain:
-            return true
-        default:
-            return false
-        }
-    }
-
-    public init(rawStakingType: RawStakingType) {
+    /// Parachain (collator) staking served only Moonbeam, Moonriver and Moonbase Alpha and is no longer offered:
+    /// a stored or downloaded `parachain` asset still decodes but has no staking type.
+    public init?(rawStakingType: RawStakingType) {
         switch rawStakingType {
         case .relayChain:
             self = .relaychain
         case .paraChain:
-            self = .parachain
+            return nil
         }
     }
 
@@ -66,11 +56,14 @@ public enum StakingType {
         case .ternoa:
             self = .ternoa
         default:
-            guard let stakingType = chainAsset.rawStakingType else {
+            guard
+                let rawStakingType = chainAsset.rawStakingType,
+                let stakingType = StakingType(rawStakingType: rawStakingType)
+            else {
                 return nil
             }
 
-            self = StakingType(rawStakingType: stakingType)
+            self = stakingType
         }
     }
 }

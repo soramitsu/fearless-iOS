@@ -4,7 +4,6 @@ import SSFModels
 
 enum ValidatorInfoFlow {
     case relaychain(validatorInfo: ValidatorInfoProtocol?, address: AccountAddress?)
-    case parachain(candidate: ParachainStakingCandidateInfo)
     case pool(validatorInfo: ValidatorInfoProtocol?, address: AccountAddress?)
 }
 

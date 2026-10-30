@@ -48,9 +48,7 @@ final class StakingRedeemRelaychainViewModelFactory: StakingRedeemViewModelFacto
             senderIcon: icon,
             senderName: relaychainViewModelState.controller?.name,
             amount: amount,
-            title: title,
-            collatorName: nil,
-            collatorIcon: nil
+            title: title
         )
     }
 

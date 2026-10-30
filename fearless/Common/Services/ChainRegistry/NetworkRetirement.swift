@@ -71,21 +71,27 @@ enum NetworkRetirement {
     }
 
     /// The chain as this build offers it: nil for a retired network, without relay staking where staking moved
-    /// to Asset Hub. Stored chains go through this too, so it holds before any download succeeds.
+    /// to Asset Hub, and without parachain (collator) staking, which served only Moonbeam, Moonriver and Moonbase
+    /// Alpha and is not built any more. Stored chains go through this too, so it holds before any download succeeds.
     static func offered(_ chain: ChainModel) -> ChainModel? {
         guard !retiredChainIds.contains(chain.chainId) else {
             return nil
         }
 
-        guard assetHubMigratedRelayChainIds.contains(chain.chainId) else {
+        if assetHubMigratedRelayChainIds.contains(chain.chainId) {
+            return chain.removingRelayStaking()
+        }
+
+        guard chain.assets.contains(where: { $0.staking == .paraChain }) else {
             return chain
         }
 
-        return chain.removingRelayStaking()
+        return chain.removingParachainStaking()
     }
 
     /// Stored chains that must change to match this build: a retired network becomes disabled, a migrated relay
-    /// loses its staking. Nothing is deleted, so saved balances and accounts stay.
+    /// loses its staking, a parachain-staking asset loses its staking. Nothing is deleted, so saved balances and
+    /// accounts stay.
     static func storedUpdates(for localChains: [ChainModel]) -> [ChainModel] {
         localChains.compactMap { local in
             guard let offered = offered(local) else {
@@ -99,6 +105,20 @@ enum NetworkRetirement {
 
 private extension ChainModel {
     func removingRelayStaking() -> ChainModel {
+        replacing(
+            assets: Set(assets.map { $0.removingStaking() }),
+            options: options?.filter { $0 != .poolStaking && $0 != .crowdloans }
+        )
+    }
+
+    func removingParachainStaking() -> ChainModel {
+        replacing(
+            assets: Set(assets.map { $0.staking == .paraChain ? $0.removingStaking() : $0 }),
+            options: options
+        )
+    }
+
+    func replacing(assets: Set<AssetModel>, options: [ChainOptions]?) -> ChainModel {
         ChainModel(
             rank: rank,
             disabled: disabled,
@@ -106,13 +126,13 @@ private extension ChainModel {
             parentId: parentId,
             paraId: paraId,
             name: name,
-            assets: Set(assets.map { $0.removingStaking() }),
+            assets: assets,
             xcm: xcm,
             nodes: nodes,
             addressPrefix: addressPrefix,
             types: types,
             icon: icon,
-            options: options?.filter { $0 != .poolStaking && $0 != .crowdloans },
+            options: options,
             externalApi: externalApi,
             selectedNode: selectedNode,
             customNodes: customNodes,

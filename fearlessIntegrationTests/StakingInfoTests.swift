@@ -75,33 +75,16 @@ class StakingInfoTests: XCTestCase {
             for: chainAsset.chain
         )
 
-        let operationManager: OperationManagerProtocol = OperationManager()
-        let storageRequestFactory = StorageRequestFactory(
-            remoteFactory: StorageKeyFactory(),
-            operationManager: operationManager
-        )
-
         guard chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) != nil,
               chainRegistry.getConnection(for: chainAsset.chain.chainId) != nil
         else {
             throw ChainRegistryError.connectionUnavailable
         }
 
-        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageRequestFactory)
-        let rewardOperationFactory = SubqueryRewardOperationFactory(url: chainAsset.chain.externalApi?.staking?.url)
-        let collatorOperationFactory = ParachainCollatorOperationFactory(
-            asset: chainAsset.asset,
-            chain: chainAsset.chain,
-            storageRequestFactory: storageRequestFactory,
-            identityOperationFactory: identityOperationFactory,
-            subqueryOperationFactory: rewardOperationFactory,
-            chainRegistry: chainRegistry
-        )
-
         let rewardCalculatorService = try stakingServiceFactory.createRewardCalculatorService(
             for: chainAsset,
             assetPrecision: assetPrecision,
-            validatorService: validatorService, collatorOperationFactory: collatorOperationFactory
+            validatorService: validatorService
         )
 
         let chainItemRepository = SubstrateRepositoryFactory(

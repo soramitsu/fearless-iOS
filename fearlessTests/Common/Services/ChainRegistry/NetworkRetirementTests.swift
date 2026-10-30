@@ -98,6 +98,28 @@ final class NetworkRetirementTests: XCTestCase {
         XCTAssertEqual(kept.options, [.poolStaking])
     }
 
+    func testParachainStakingIsNoLongerOfferedOnAListedNetwork() throws {
+        let moonbaseAlpha = makeChain(
+            chainId: Chain.moonbaseAlpha.genesisHash,
+            name: "Moonbase Alpha",
+            staking: .paraChain,
+            options: [.testnet]
+        )
+
+        let offered = try XCTUnwrap(NetworkRetirement.applying(to: [moonbaseAlpha]).first)
+
+        XCTAssertTrue(offered.assets.allSatisfy { $0.staking == nil })
+        XCTAssertEqual(offered.assets.map(\.id), moonbaseAlpha.assets.map(\.id))
+        XCTAssertEqual(offered.options, [.testnet])
+        XCTAssertFalse(offered.disabled)
+        XCTAssertNil(offered.chainAssets.first?.stakingType)
+        XCTAssertEqual(
+            NetworkRetirement.storedUpdates(for: [moonbaseAlpha]).map(\.chainId),
+            [moonbaseAlpha.chainId],
+            "a stored copy loses the staking flag on the next sync"
+        )
+    }
+
     func testStoredChainsAreRetiredOrStrippedWithoutDeletion() throws {
         let moonbeam = makeChain(chainId: Chain.moonbeam.genesisHash, name: "Moonbeam", staking: .paraChain)
         let alreadyDisabled = makeChain(chainId: "1101", name: "Polygon zkEVM").replacingDisabled(true)

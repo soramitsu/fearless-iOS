@@ -6,12 +6,10 @@ import SSFModels
 
 enum StakingAmountFlow {
     case relaychain
-    case parachain
 }
 
 protocol StakingAmountModelStateListener: AnyObject {
     func modelStateDidChanged(viewModelState: StakingAmountViewModelState)
-    func provideYourRewardDestinationViewModel(viewModelState: StakingAmountViewModelState)
 }
 
 protocol StakingAmountViewModelState: StakingAmountUserInputHandler {

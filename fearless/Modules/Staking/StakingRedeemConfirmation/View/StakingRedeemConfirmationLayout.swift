@@ -38,19 +38,6 @@ final class StakingRedeemConfirmationLayout: UIView {
         return view
     }()
 
-    let collatorView: TitleMultiValueView = {
-        let view = TitleMultiValueView()
-        view.titleLabel.font = .h5Title
-        view.titleLabel.textColor = R.color.colorStrokeGray()
-        view.valueTop.font = .h5Title
-        view.valueTop.textColor = R.color.colorWhite()
-        view.valueBottom.font = .p1Paragraph
-        view.valueBottom.textColor = R.color.colorStrokeGray()
-        view.borderView.isHidden = true
-        view.equalsLabelsWidth = true
-        return view
-    }()
-
     let accountView: TitleMultiValueView = {
         let view = TitleMultiValueView()
         view.titleLabel.font = .h5Title
@@ -131,13 +118,6 @@ final class StakingRedeemConfirmationLayout: UIView {
 
         accountView.valueBottom.text = confirmationViewModel.senderAddress
 
-        if let collatorName = confirmationViewModel.collatorName {
-            collatorView.isHidden = false
-            collatorView.valueTop.text = collatorName
-        } else {
-            collatorView.isHidden = true
-        }
-
         if let stakedViewModel = confirmationViewModel.stakeAmountViewModel?.value(for: locale) {
             stakeAmountView.bind(viewModel: stakedViewModel)
         }
@@ -185,7 +165,6 @@ final class StakingRedeemConfirmationLayout: UIView {
 
     private func applyLocalization() {
         accountView.titleLabel.text = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
-        collatorView.titleLabel.text = R.string.localizable.parachainStakingCollator(preferredLanguages: locale.rLanguages)
 
         amountView.titleLabel.text = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
@@ -221,7 +200,6 @@ final class StakingRedeemConfirmationLayout: UIView {
             make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
 
-        infoStackView.addArrangedSubview(collatorView)
         infoStackView.addArrangedSubview(accountView)
         infoStackView.addArrangedSubview(amountView)
         infoStackView.addArrangedSubview(feeView)

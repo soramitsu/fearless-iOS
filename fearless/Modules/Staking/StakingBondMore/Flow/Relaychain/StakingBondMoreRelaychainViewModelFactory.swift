@@ -1,13 +1,7 @@
 import Foundation
 import SoraFoundation
 
-final class StakingBondMoreRelaychainViewModelFactory {
-    private let accountViewModelFactory: AccountViewModelFactoryProtocol
-
-    init(accountViewModelFactory: AccountViewModelFactoryProtocol) {
-        self.accountViewModelFactory = accountViewModelFactory
-    }
-}
+final class StakingBondMoreRelaychainViewModelFactory {}
 
 extension StakingBondMoreRelaychainViewModelFactory: StakingBondMoreViewModelFactoryProtocol {
     func buildHintViewModel(viewModelState _: StakingBondMoreViewModelState, locale: Locale) -> LocalizableResource<String>? {
@@ -16,13 +10,5 @@ extension StakingBondMoreRelaychainViewModelFactory: StakingBondMoreViewModelFac
                 preferredLanguages: locale.rLanguages
             )
         }
-    }
-
-    func buildCollatorViewModel(viewModelState _: StakingBondMoreViewModelState, locale _: Locale) -> AccountViewModel? {
-        nil
-    }
-
-    func buildAccountViewModel(viewModelState _: StakingBondMoreViewModelState, locale _: Locale) -> AccountViewModel? {
-        nil
     }
 }

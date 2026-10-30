@@ -142,12 +142,6 @@ struct StakingRebondConfirmationViewFactory {
             selectedMetaAccount: wallet
         )
 
-        let signingWrapper = SigningWrapper(
-            keystore: keystore,
-            metaId: accountResponse.walletId,
-            accountResponse: accountResponse
-        )
-
         let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         switch flow {
@@ -181,41 +175,6 @@ struct StakingRebondConfirmationViewFactory {
                 callFactory: callFactory
             )
 
-            return StakingRebondConfirmationDependencyContainer(
-                viewModelState: viewModelState,
-                strategy: strategy,
-                viewModelFactory: viewModelFactory
-            )
-        case let .parachain(delegationInfo, request):
-            let viewModelState = StakingRebondConfirmationParachainViewModelState(
-                delegation: delegationInfo,
-                request: request,
-                wallet: wallet,
-                chainAsset: chainAsset,
-                dataValidatingFactory: dataValidatingFactory,
-                logger: logger,
-                callFactory: callFactory
-            )
-            let viewModelFactory = StakingRebondConfirmationParachainViewModelFactory(
-                balanceViewModelFactory: balanceViewModelFactory,
-                chainAsset: chainAsset,
-                wallet: wallet,
-                iconGenerator: UniversalIconGenerator()
-            )
-            let strategy = StakingRebondConfirmationParachainStrategy(
-                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-                chainAsset: chainAsset,
-                wallet: wallet,
-                extrinsicService: extrinsicService,
-                feeProxy: feeProxy,
-                runtimeService: runtimeService,
-                operationManager: operationManager,
-                keystore: keystore,
-                connection: connection,
-                accountRepository: accountRepository,
-                output: viewModelState,
-                signingWrapper: signingWrapper
-            )
             return StakingRebondConfirmationDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,

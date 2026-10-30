@@ -17,11 +17,3 @@ extension SubqueryDelegatorHistoryData: RewardHistoryResponseProtocol {
         } ?? []
     }
 }
-
-extension SubqueryDelegatorHistoryData: DelegatorHistoryResponse {
-    func history(for address: String) -> [DelegatorHistoryItem] {
-        delegators.nodes.first { element in
-            element.id == address
-        }?.delegatorHistoryElements.nodes ?? []
-    }
-}

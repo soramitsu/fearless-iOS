@@ -80,30 +80,6 @@ enum StorageCodingPath: Equatable, CaseIterable, StorageCodingPathProtocol {
             return (moduleName: "Babe", itemName: "GenesisSlot")
         case .balanceLocks:
             return (moduleName: "Balances", itemName: "Locks")
-        case .candidatePool:
-            return (moduleName: "ParachainStaking", itemName: "CandidatePool")
-        case .selectedCandidates:
-            return (moduleName: "ParachainStaking", itemName: "SelectedCandidates")
-        case .candidateInfo:
-            return (moduleName: "ParachainStaking", itemName: "CandidateInfo")
-        case .topDelegations:
-            return (moduleName: "ParachainStaking", itemName: "TopDelegations")
-        case .atStake:
-            return (moduleName: "ParachainStaking", itemName: "AtStake")
-        case .delegatorState:
-            return (moduleName: "ParachainStaking", itemName: "DelegatorState")
-        case .round:
-            return (moduleName: "ParachainStaking", itemName: "Round")
-        case .delegationScheduledRequests:
-            return (moduleName: "ParachainStaking", itemName: "DelegationScheduledRequests")
-        case .collatorCommission:
-            return (moduleName: "ParachainStaking", itemName: "CollatorCommission")
-        case .bottomDelegations:
-            return (moduleName: "ParachainStaking", itemName: "BottomDelegations")
-        case .staked:
-            return (moduleName: "ParachainStaking", itemName: "Total")
-        case .currentBlock:
-            return (moduleName: "System", itemName: "Number")
         case .bondedPools:
             return (moduleName: "NominationPools", itemName: "BondedPools")
         case .stakingPoolMetadata:
@@ -203,18 +179,6 @@ enum StorageCodingPath: Equatable, CaseIterable, StorageCodingPathProtocol {
     case currentSlot
     case genesisSlot
     case balanceLocks
-    case candidatePool
-    case selectedCandidates
-    case candidateInfo
-    case topDelegations
-    case atStake
-    case delegatorState
-    case round
-    case delegationScheduledRequests
-    case collatorCommission
-    case bottomDelegations
-    case staked
-    case currentBlock
     case bondedPools
     case stakingPoolMetadata
     case stakingPoolMinJoinBond

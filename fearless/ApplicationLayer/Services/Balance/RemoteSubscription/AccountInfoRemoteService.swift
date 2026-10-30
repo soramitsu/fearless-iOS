@@ -650,14 +650,8 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
             )
             return request
         case .none:
-            let parametersType: MixStorageRequestParametersType
-            if chainAsset.chain.chainId == Chain.reef.genesisHash || chainAsset.chain.chainId == Chain.scuba.genesisHash {
-                parametersType = .encodable(param: accountId.toHexString())
-            } else {
-                parametersType = .encodable(param: accountId)
-            }
             let request = AccountInfoStorageRequest(
-                parametersType: parametersType,
+                parametersType: .encodable(param: accountId),
                 storagePath: chainAsset.storagePath,
                 requestId: chainAsset.chainAssetId.id
             )

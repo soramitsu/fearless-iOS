@@ -33,8 +33,6 @@ final class SelectedValidatorListRelaychainViewModelState: SelectedValidatorList
             return .relaychainInitiated(targets: selectedValidatorList, maxTargets: maxTargets, bonding: state)
         case let .relaychainExisting(_, maxTargets, state):
             return .relaychainExisting(targets: selectedValidatorList, maxTargets: maxTargets, bonding: state)
-        case .parachain:
-            return nil
         case let .poolInitiated(_, poolId, maxTargets, state):
             return .poolInitiated(poolId: poolId, targets: selectedValidatorList, maxTargets: maxTargets, bonding: state)
         case let .poolExisting(_, poolId, maxTargets, state):

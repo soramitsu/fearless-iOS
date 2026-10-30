@@ -25,24 +25,10 @@ class BaseStakingState: StakingStateProtocol {
                 return
             }
 
-            let newState: BaseStakingState
-            switch chainAsset?.stakingType {
-            case .relaychain, .sora, .ternoa:
-                newState = InitialRelaychainStakingState(
-                    stateMachine: stateMachine,
-                    commonData: commonData
-                )
-            case .parachain:
-                newState = ParachainState(
-                    stateMachine: stateMachine,
-                    commonData: commonData
-                )
-            case .none:
-                newState = InitialRelaychainStakingState(
-                    stateMachine: stateMachine,
-                    commonData: commonData
-                )
-            }
+            let newState = InitialRelaychainStakingState(
+                stateMachine: stateMachine,
+                commonData: commonData
+            )
 
             stateMachine.transit(to: newState)
         }
@@ -59,18 +45,10 @@ class BaseStakingState: StakingStateProtocol {
                 return
             }
 
-            let newState: BaseStakingState
-            if case .parachain = commonData.chainAsset?.stakingType {
-                newState = ParachainState(
-                    stateMachine: stateMachine,
-                    commonData: commonData
-                )
-            } else {
-                newState = InitialRelaychainStakingState(
-                    stateMachine: stateMachine,
-                    commonData: commonData
-                )
-            }
+            let newState = InitialRelaychainStakingState(
+                stateMachine: stateMachine,
+                commonData: commonData
+            )
 
             stateMachine.transit(to: newState)
         }
@@ -143,12 +121,6 @@ class BaseStakingState: StakingStateProtocol {
     func process(validatorPrefs _: ValidatorPrefs?) {}
     func process(totalReward _: TotalRewardItem?) {}
     func process(payee _: RewardDestinationArg?) {}
-    func process(delegationInfos _: [ParachainStakingDelegationInfo]?) {}
-    func process(topDelegations _: [AccountAddress: ParachainStakingDelegations]?) {}
-    func process(bottomDelegations _: [AccountAddress: ParachainStakingDelegations]?) {}
-    func process(scheduledRequests _: [AccountAddress: [ParachainStakingScheduledRequest]]?) {}
-    func process(roundInfo _: ParachainStakingRoundInfo?) {}
-    func process(currentBlock _: UInt32?) {}
 
     func process(eraCountdown: EraCountdown) {
         commonData = commonData.byReplacing(eraCountdown: eraCountdown)

@@ -16,10 +16,6 @@ protocol ValidatorSearchRelaychainDelegate: AnyObject {
     func validatorSearchDidUpdate(selectedValidatorList: [SelectedValidatorInfo])
 }
 
-protocol ValidatorSearchParachainDelegate: AnyObject {
-    func validatorSearchDidUpdate(selectedValidatorList: [ParachainStakingCandidateInfo])
-}
-
 protocol ValidatorSearchViewProtocol: ControllerBackedProtocol, Localizable {
     func didReload(_ viewModel: ValidatorSearchViewModel)
     func didStartSearch()

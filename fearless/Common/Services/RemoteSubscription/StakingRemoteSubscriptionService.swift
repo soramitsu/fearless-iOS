@@ -32,8 +32,6 @@ final class StakingRemoteSubscriptionService: RemoteSubscriptionService<ChainSto
                 .maxNominatorsCount,
                 .counterForNominators
             ]
-        case .parachain:
-            return [.totalIssuance]
         case .none:
             return []
         }
@@ -56,7 +54,6 @@ final class StakingRemoteSubscriptionService: RemoteSubscriptionService<ChainSto
         return try LocalStorageKeyFactory().createKey(from: cacheKeyData, key: chainId)
     }
 
-//    add parachain case
     func attachToGlobalData(
         for chainId: ChainModel.Id,
         queue: DispatchQueue?,
@@ -66,7 +63,6 @@ final class StakingRemoteSubscriptionService: RemoteSubscriptionService<ChainSto
         do {
             let localKeyFactory = LocalStorageKeyFactory()
 
-            //   RelaychainKeys + ParachainKeys - All ParachainStakingKeys
             let localKeys = try Self.globalDataStoragePaths(stakingType: stakingType).map { storagePath in
                 try localKeyFactory.createFromStoragePath(
                     storagePath,

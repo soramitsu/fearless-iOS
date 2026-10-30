@@ -18011,16 +18011,6 @@ class MockSelectValidatorsConfirmPresenterProtocol: SelectValidatorsConfirmPrese
         )
     }
 
-    func selectCollatorAccount() {
-        return cuckoo_manager.call(
-            "selectCollatorAccount()",
-            parameters: (),
-            escapingParameters: (),
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.selectCollatorAccount()
-        )
-    }
-
     func proceed() {
         return cuckoo_manager.call(
             "proceed()",
@@ -18058,14 +18048,6 @@ class MockSelectValidatorsConfirmPresenterProtocol: SelectValidatorsConfirmPrese
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsConfirmPresenterProtocol.self,
                 method: "selectPayoutAccount()",
-                parameterMatchers: matchers
-            ))
-        }
-        
-        func selectCollatorAccount() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsConfirmPresenterProtocol.self,
-                method: "selectCollatorAccount()",
                 parameterMatchers: matchers
             ))
         }
@@ -18127,17 +18109,6 @@ class MockSelectValidatorsConfirmPresenterProtocol: SelectValidatorsConfirmPrese
         }
         
         
-        @discardableResult
-        func selectCollatorAccount() -> Cuckoo.__DoNotUse<(), Void> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
-                "selectCollatorAccount()",
-                callMatcher: callMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: sourceLocation
-            )
-        }
-        
         
         @discardableResult
         func proceed() -> Cuckoo.__DoNotUse<(), Void> {
@@ -18165,10 +18136,6 @@ class SelectValidatorsConfirmPresenterProtocolStub:SelectValidatorsConfirmPresen
     }
     
     func selectPayoutAccount() {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    func selectCollatorAccount() {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -22527,84 +22494,6 @@ class ValidatorSearchRelaychainDelegateStub:ValidatorSearchRelaychainDelegate, @
 }
 
 
-class MockValidatorSearchParachainDelegate: ValidatorSearchParachainDelegate, Cuckoo.ProtocolMock, @unchecked Sendable {
-    typealias MocksType = ValidatorSearchParachainDelegate
-    typealias Stubbing = __StubbingProxy_ValidatorSearchParachainDelegate
-    typealias Verification = __VerificationProxy_ValidatorSearchParachainDelegate
-
-    // Original typealiases
-
-    let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
-
-    private var __defaultImplStub: (any ValidatorSearchParachainDelegate)?
-
-    func enableDefaultImplementation(_ stub: any ValidatorSearchParachainDelegate) {
-        __defaultImplStub = stub
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-
-
-    func validatorSearchDidUpdate(selectedValidatorList p0: [ParachainStakingCandidateInfo]) {
-        return cuckoo_manager.call(
-            "validatorSearchDidUpdate(selectedValidatorList p0: [ParachainStakingCandidateInfo])",
-            parameters: (p0),
-            escapingParameters: (p0),
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.validatorSearchDidUpdate(selectedValidatorList: p0)
-        )
-    }
-
-    struct __StubbingProxy_ValidatorSearchParachainDelegate: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-    
-        init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
-        }
-        
-        func validatorSearchDidUpdate<M1: Cuckoo.Matchable>(selectedValidatorList p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([ParachainStakingCandidateInfo])> where M1.MatchedType == [ParachainStakingCandidateInfo] {
-            let matchers: [Cuckoo.ParameterMatcher<([ParachainStakingCandidateInfo])>] = [wrap(matchable: p0) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockValidatorSearchParachainDelegate.self,
-                method: "validatorSearchDidUpdate(selectedValidatorList p0: [ParachainStakingCandidateInfo])",
-                parameterMatchers: matchers
-            ))
-        }
-    }
-
-    struct __VerificationProxy_ValidatorSearchParachainDelegate: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
-    
-        init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
-        }
-        
-        
-        @discardableResult
-        func validatorSearchDidUpdate<M1: Cuckoo.Matchable>(selectedValidatorList p0: M1) -> Cuckoo.__DoNotUse<([ParachainStakingCandidateInfo]), Void> where M1.MatchedType == [ParachainStakingCandidateInfo] {
-            let matchers: [Cuckoo.ParameterMatcher<([ParachainStakingCandidateInfo])>] = [wrap(matchable: p0) { $0 }]
-            return cuckoo_manager.verify(
-                "validatorSearchDidUpdate(selectedValidatorList p0: [ParachainStakingCandidateInfo])",
-                callMatcher: callMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: sourceLocation
-            )
-        }
-    }
-}
-
-class ValidatorSearchParachainDelegateStub:ValidatorSearchParachainDelegate, @unchecked Sendable {
-
-
-    
-    func validatorSearchDidUpdate(selectedValidatorList p0: [ParachainStakingCandidateInfo]) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-}
-
-
 class MockValidatorSearchViewProtocol: ValidatorSearchViewProtocol, Cuckoo.ProtocolMock, @unchecked Sendable {
     typealias MocksType = ValidatorSearchViewProtocol
     typealias Stubbing = __StubbingProxy_ValidatorSearchViewProtocol
@@ -25304,26 +25193,6 @@ class MockStakingBondMoreViewProtocol: StakingBondMoreViewProtocol, Cuckoo.Proto
         )
     }
 
-    func didReceiveAccount(viewModel p0: AccountViewModel) {
-        return cuckoo_manager.call(
-            "didReceiveAccount(viewModel p0: AccountViewModel)",
-            parameters: (p0),
-            escapingParameters: (p0),
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.didReceiveAccount(viewModel: p0)
-        )
-    }
-
-    func didReceiveCollator(viewModel p0: AccountViewModel) {
-        return cuckoo_manager.call(
-            "didReceiveCollator(viewModel p0: AccountViewModel)",
-            parameters: (p0),
-            escapingParameters: (p0),
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.didReceiveCollator(viewModel: p0)
-        )
-    }
-
     func didReceiveHints(viewModel p0: LocalizableResource<String>?) {
         return cuckoo_manager.call(
             "didReceiveHints(viewModel p0: LocalizableResource<String>?)",
@@ -25383,22 +25252,6 @@ class MockStakingBondMoreViewProtocol: StakingBondMoreViewProtocol, Cuckoo.Proto
             let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<NetworkFeeFooterViewModelProtocol>?)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingBondMoreViewProtocol.self,
                 method: "didReceiveFee(viewModel p0: LocalizableResource<NetworkFeeFooterViewModelProtocol>?)",
-                parameterMatchers: matchers
-            ))
-        }
-        
-        func didReceiveAccount<M1: Cuckoo.Matchable>(viewModel p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountViewModel)> where M1.MatchedType == AccountViewModel {
-            let matchers: [Cuckoo.ParameterMatcher<(AccountViewModel)>] = [wrap(matchable: p0) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockStakingBondMoreViewProtocol.self,
-                method: "didReceiveAccount(viewModel p0: AccountViewModel)",
-                parameterMatchers: matchers
-            ))
-        }
-        
-        func didReceiveCollator<M1: Cuckoo.Matchable>(viewModel p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountViewModel)> where M1.MatchedType == AccountViewModel {
-            let matchers: [Cuckoo.ParameterMatcher<(AccountViewModel)>] = [wrap(matchable: p0) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockStakingBondMoreViewProtocol.self,
-                method: "didReceiveCollator(viewModel p0: AccountViewModel)",
                 parameterMatchers: matchers
             ))
         }
@@ -25480,28 +25333,6 @@ class MockStakingBondMoreViewProtocol: StakingBondMoreViewProtocol, Cuckoo.Proto
         }
         
         
-        @discardableResult
-        func didReceiveAccount<M1: Cuckoo.Matchable>(viewModel p0: M1) -> Cuckoo.__DoNotUse<(AccountViewModel), Void> where M1.MatchedType == AccountViewModel {
-            let matchers: [Cuckoo.ParameterMatcher<(AccountViewModel)>] = [wrap(matchable: p0) { $0 }]
-            return cuckoo_manager.verify(
-                "didReceiveAccount(viewModel p0: AccountViewModel)",
-                callMatcher: callMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: sourceLocation
-            )
-        }
-        
-        
-        @discardableResult
-        func didReceiveCollator<M1: Cuckoo.Matchable>(viewModel p0: M1) -> Cuckoo.__DoNotUse<(AccountViewModel), Void> where M1.MatchedType == AccountViewModel {
-            let matchers: [Cuckoo.ParameterMatcher<(AccountViewModel)>] = [wrap(matchable: p0) { $0 }]
-            return cuckoo_manager.verify(
-                "didReceiveCollator(viewModel p0: AccountViewModel)",
-                callMatcher: callMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: sourceLocation
-            )
-        }
         
         
         @discardableResult
@@ -25561,14 +25392,6 @@ class StakingBondMoreViewProtocolStub:StakingBondMoreViewProtocol, @unchecked Se
     }
     
     func didReceiveFee(viewModel p0: LocalizableResource<NetworkFeeFooterViewModelProtocol>?) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    func didReceiveAccount(viewModel p0: AccountViewModel) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    func didReceiveCollator(viewModel p0: AccountViewModel) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -27587,16 +27410,6 @@ class MockStakingMainPresenterProtocol: StakingMainPresenterProtocol, Cuckoo.Pro
         )
     }
 
-    func performParachainMainAction(for p0: ParachainStakingDelegationInfo) {
-        return cuckoo_manager.call(
-            "performParachainMainAction(for p0: ParachainStakingDelegationInfo)",
-            parameters: (p0),
-            escapingParameters: (p0),
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.performParachainMainAction(for: p0)
-        )
-    }
-
     func performAccountAction() {
         return cuckoo_manager.call(
             "performAccountAction()",
@@ -27617,16 +27430,6 @@ class MockStakingMainPresenterProtocol: StakingMainPresenterProtocol, Cuckoo.Pro
         )
     }
 
-    func performParachainManageStakingAction(for p0: ParachainStakingDelegationInfo) {
-        return cuckoo_manager.call(
-            "performParachainManageStakingAction(for p0: ParachainStakingDelegationInfo)",
-            parameters: (p0),
-            escapingParameters: (p0),
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.performParachainManageStakingAction(for: p0)
-        )
-    }
-
     func performNominationStatusAction() {
         return cuckoo_manager.call(
             "performNominationStatusAction()",
@@ -27644,16 +27447,6 @@ class MockStakingMainPresenterProtocol: StakingMainPresenterProtocol, Cuckoo.Pro
             escapingParameters: (),
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
             defaultCall: __defaultImplStub!.performValidationStatusAction()
-        )
-    }
-
-    func performDelegationStatusAction() {
-        return cuckoo_manager.call(
-            "performDelegationStatusAction()",
-            parameters: (),
-            escapingParameters: (),
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.performDelegationStatusAction()
         )
     }
 
@@ -27804,14 +27597,6 @@ class MockStakingMainPresenterProtocol: StakingMainPresenterProtocol, Cuckoo.Pro
             ))
         }
         
-        func performParachainMainAction<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ParachainStakingDelegationInfo)> where M1.MatchedType == ParachainStakingDelegationInfo {
-            let matchers: [Cuckoo.ParameterMatcher<(ParachainStakingDelegationInfo)>] = [wrap(matchable: p0) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self,
-                method: "performParachainMainAction(for p0: ParachainStakingDelegationInfo)",
-                parameterMatchers: matchers
-            ))
-        }
-        
         func performAccountAction() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self,
@@ -27828,14 +27613,6 @@ class MockStakingMainPresenterProtocol: StakingMainPresenterProtocol, Cuckoo.Pro
             ))
         }
         
-        func performParachainManageStakingAction<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ParachainStakingDelegationInfo)> where M1.MatchedType == ParachainStakingDelegationInfo {
-            let matchers: [Cuckoo.ParameterMatcher<(ParachainStakingDelegationInfo)>] = [wrap(matchable: p0) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self,
-                method: "performParachainManageStakingAction(for p0: ParachainStakingDelegationInfo)",
-                parameterMatchers: matchers
-            ))
-        }
-        
         func performNominationStatusAction() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self,
@@ -27848,14 +27625,6 @@ class MockStakingMainPresenterProtocol: StakingMainPresenterProtocol, Cuckoo.Pro
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self,
                 method: "performValidationStatusAction()",
-                parameterMatchers: matchers
-            ))
-        }
-        
-        func performDelegationStatusAction() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self,
-                method: "performDelegationStatusAction()",
                 parameterMatchers: matchers
             ))
         }
@@ -28013,17 +27782,6 @@ class MockStakingMainPresenterProtocol: StakingMainPresenterProtocol, Cuckoo.Pro
         }
         
         
-        @discardableResult
-        func performParachainMainAction<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(ParachainStakingDelegationInfo), Void> where M1.MatchedType == ParachainStakingDelegationInfo {
-            let matchers: [Cuckoo.ParameterMatcher<(ParachainStakingDelegationInfo)>] = [wrap(matchable: p0) { $0 }]
-            return cuckoo_manager.verify(
-                "performParachainMainAction(for p0: ParachainStakingDelegationInfo)",
-                callMatcher: callMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: sourceLocation
-            )
-        }
-        
         
         @discardableResult
         func performAccountAction() -> Cuckoo.__DoNotUse<(), Void> {
@@ -28049,17 +27807,6 @@ class MockStakingMainPresenterProtocol: StakingMainPresenterProtocol, Cuckoo.Pro
         }
         
         
-        @discardableResult
-        func performParachainManageStakingAction<M1: Cuckoo.Matchable>(for p0: M1) -> Cuckoo.__DoNotUse<(ParachainStakingDelegationInfo), Void> where M1.MatchedType == ParachainStakingDelegationInfo {
-            let matchers: [Cuckoo.ParameterMatcher<(ParachainStakingDelegationInfo)>] = [wrap(matchable: p0) { $0 }]
-            return cuckoo_manager.verify(
-                "performParachainManageStakingAction(for p0: ParachainStakingDelegationInfo)",
-                callMatcher: callMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: sourceLocation
-            )
-        }
-        
         
         @discardableResult
         func performNominationStatusAction() -> Cuckoo.__DoNotUse<(), Void> {
@@ -28084,17 +27831,6 @@ class MockStakingMainPresenterProtocol: StakingMainPresenterProtocol, Cuckoo.Pro
             )
         }
         
-        
-        @discardableResult
-        func performDelegationStatusAction() -> Cuckoo.__DoNotUse<(), Void> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
-                "performDelegationStatusAction()",
-                callMatcher: callMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: sourceLocation
-            )
-        }
         
         
         @discardableResult
@@ -28242,10 +27978,6 @@ class StakingMainPresenterProtocolStub:StakingMainPresenterProtocol, @unchecked 
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-    func performParachainMainAction(for p0: ParachainStakingDelegationInfo) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
     func performAccountAction() {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
@@ -28254,19 +27986,11 @@ class StakingMainPresenterProtocolStub:StakingMainPresenterProtocol, @unchecked 
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-    func performParachainManageStakingAction(for p0: ParachainStakingDelegationInfo) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
     func performNominationStatusAction() {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
     func performValidationStatusAction() {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    func performDelegationStatusAction() {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -28829,66 +28553,6 @@ class MockStakingMainInteractorOutputProtocol: StakingMainInteractorOutputProtoc
         )
     }
 
-    func didReceive(delegationInfos p0: [ParachainStakingDelegationInfo]?) {
-        return cuckoo_manager.call(
-            "didReceive(delegationInfos p0: [ParachainStakingDelegationInfo]?)",
-            parameters: (p0),
-            escapingParameters: (p0),
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.didReceive(delegationInfos: p0)
-        )
-    }
-
-    func didReceiveRound(round p0: ParachainStakingRoundInfo?) {
-        return cuckoo_manager.call(
-            "didReceiveRound(round p0: ParachainStakingRoundInfo?)",
-            parameters: (p0),
-            escapingParameters: (p0),
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.didReceiveRound(round: p0)
-        )
-    }
-
-    func didReceiveCurrentBlock(currentBlock p0: UInt32?) {
-        return cuckoo_manager.call(
-            "didReceiveCurrentBlock(currentBlock p0: UInt32?)",
-            parameters: (p0),
-            escapingParameters: (p0),
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.didReceiveCurrentBlock(currentBlock: p0)
-        )
-    }
-
-    func didReceiveScheduledRequests(requests p0: [AccountAddress: [ParachainStakingScheduledRequest]]?) {
-        return cuckoo_manager.call(
-            "didReceiveScheduledRequests(requests p0: [AccountAddress: [ParachainStakingScheduledRequest]]?)",
-            parameters: (p0),
-            escapingParameters: (p0),
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.didReceiveScheduledRequests(requests: p0)
-        )
-    }
-
-    func didReceiveTopDelegations(delegations p0: [AccountAddress: ParachainStakingDelegations]?) {
-        return cuckoo_manager.call(
-            "didReceiveTopDelegations(delegations p0: [AccountAddress: ParachainStakingDelegations]?)",
-            parameters: (p0),
-            escapingParameters: (p0),
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.didReceiveTopDelegations(delegations: p0)
-        )
-    }
-
-    func didReceiveBottomDelegations(delegations p0: [AccountAddress: ParachainStakingDelegations]?) {
-        return cuckoo_manager.call(
-            "didReceiveBottomDelegations(delegations p0: [AccountAddress: ParachainStakingDelegations]?)",
-            parameters: (p0),
-            escapingParameters: (p0),
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.didReceiveBottomDelegations(delegations: p0)
-        )
-    }
-
     struct __StubbingProxy_StakingMainInteractorOutputProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
@@ -29152,53 +28816,6 @@ class MockStakingMainInteractorOutputProtocol: StakingMainInteractorOutputProtoc
             ))
         }
         
-        func didReceive<M1: Cuckoo.OptionalMatchable>(delegationInfos p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([ParachainStakingDelegationInfo]?)> where M1.OptionalMatchedType == [ParachainStakingDelegationInfo] {
-            let matchers: [Cuckoo.ParameterMatcher<([ParachainStakingDelegationInfo]?)>] = [wrap(matchable: p0) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self,
-                method: "didReceive(delegationInfos p0: [ParachainStakingDelegationInfo]?)",
-                parameterMatchers: matchers
-            ))
-        }
-        
-        func didReceiveRound<M1: Cuckoo.OptionalMatchable>(round p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ParachainStakingRoundInfo?)> where M1.OptionalMatchedType == ParachainStakingRoundInfo {
-            let matchers: [Cuckoo.ParameterMatcher<(ParachainStakingRoundInfo?)>] = [wrap(matchable: p0) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self,
-                method: "didReceiveRound(round p0: ParachainStakingRoundInfo?)",
-                parameterMatchers: matchers
-            ))
-        }
-        
-        func didReceiveCurrentBlock<M1: Cuckoo.OptionalMatchable>(currentBlock p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(UInt32?)> where M1.OptionalMatchedType == UInt32 {
-            let matchers: [Cuckoo.ParameterMatcher<(UInt32?)>] = [wrap(matchable: p0) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self,
-                method: "didReceiveCurrentBlock(currentBlock p0: UInt32?)",
-                parameterMatchers: matchers
-            ))
-        }
-        
-        func didReceiveScheduledRequests<M1: Cuckoo.OptionalMatchable>(requests p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([AccountAddress: [ParachainStakingScheduledRequest]]?)> where M1.OptionalMatchedType == [AccountAddress: [ParachainStakingScheduledRequest]] {
-            let matchers: [Cuckoo.ParameterMatcher<([AccountAddress: [ParachainStakingScheduledRequest]]?)>] = [wrap(matchable: p0) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self,
-                method: "didReceiveScheduledRequests(requests p0: [AccountAddress: [ParachainStakingScheduledRequest]]?)",
-                parameterMatchers: matchers
-            ))
-        }
-        
-        func didReceiveTopDelegations<M1: Cuckoo.OptionalMatchable>(delegations p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([AccountAddress: ParachainStakingDelegations]?)> where M1.OptionalMatchedType == [AccountAddress: ParachainStakingDelegations] {
-            let matchers: [Cuckoo.ParameterMatcher<([AccountAddress: ParachainStakingDelegations]?)>] = [wrap(matchable: p0) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self,
-                method: "didReceiveTopDelegations(delegations p0: [AccountAddress: ParachainStakingDelegations]?)",
-                parameterMatchers: matchers
-            ))
-        }
-        
-        func didReceiveBottomDelegations<M1: Cuckoo.OptionalMatchable>(delegations p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([AccountAddress: ParachainStakingDelegations]?)> where M1.OptionalMatchedType == [AccountAddress: ParachainStakingDelegations] {
-            let matchers: [Cuckoo.ParameterMatcher<([AccountAddress: ParachainStakingDelegations]?)>] = [wrap(matchable: p0) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self,
-                method: "didReceiveBottomDelegations(delegations p0: [AccountAddress: ParachainStakingDelegations]?)",
-                parameterMatchers: matchers
-            ))
-        }
     }
 
     struct __VerificationProxy_StakingMainInteractorOutputProtocol: Cuckoo.VerificationProxy {
@@ -29597,76 +29214,11 @@ class MockStakingMainInteractorOutputProtocol: StakingMainInteractorOutputProtoc
         }
         
         
-        @discardableResult
-        func didReceive<M1: Cuckoo.OptionalMatchable>(delegationInfos p0: M1) -> Cuckoo.__DoNotUse<([ParachainStakingDelegationInfo]?), Void> where M1.OptionalMatchedType == [ParachainStakingDelegationInfo] {
-            let matchers: [Cuckoo.ParameterMatcher<([ParachainStakingDelegationInfo]?)>] = [wrap(matchable: p0) { $0 }]
-            return cuckoo_manager.verify(
-                "didReceive(delegationInfos p0: [ParachainStakingDelegationInfo]?)",
-                callMatcher: callMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: sourceLocation
-            )
-        }
         
         
-        @discardableResult
-        func didReceiveRound<M1: Cuckoo.OptionalMatchable>(round p0: M1) -> Cuckoo.__DoNotUse<(ParachainStakingRoundInfo?), Void> where M1.OptionalMatchedType == ParachainStakingRoundInfo {
-            let matchers: [Cuckoo.ParameterMatcher<(ParachainStakingRoundInfo?)>] = [wrap(matchable: p0) { $0 }]
-            return cuckoo_manager.verify(
-                "didReceiveRound(round p0: ParachainStakingRoundInfo?)",
-                callMatcher: callMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: sourceLocation
-            )
-        }
         
         
-        @discardableResult
-        func didReceiveCurrentBlock<M1: Cuckoo.OptionalMatchable>(currentBlock p0: M1) -> Cuckoo.__DoNotUse<(UInt32?), Void> where M1.OptionalMatchedType == UInt32 {
-            let matchers: [Cuckoo.ParameterMatcher<(UInt32?)>] = [wrap(matchable: p0) { $0 }]
-            return cuckoo_manager.verify(
-                "didReceiveCurrentBlock(currentBlock p0: UInt32?)",
-                callMatcher: callMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: sourceLocation
-            )
-        }
         
-        
-        @discardableResult
-        func didReceiveScheduledRequests<M1: Cuckoo.OptionalMatchable>(requests p0: M1) -> Cuckoo.__DoNotUse<([AccountAddress: [ParachainStakingScheduledRequest]]?), Void> where M1.OptionalMatchedType == [AccountAddress: [ParachainStakingScheduledRequest]] {
-            let matchers: [Cuckoo.ParameterMatcher<([AccountAddress: [ParachainStakingScheduledRequest]]?)>] = [wrap(matchable: p0) { $0 }]
-            return cuckoo_manager.verify(
-                "didReceiveScheduledRequests(requests p0: [AccountAddress: [ParachainStakingScheduledRequest]]?)",
-                callMatcher: callMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: sourceLocation
-            )
-        }
-        
-        
-        @discardableResult
-        func didReceiveTopDelegations<M1: Cuckoo.OptionalMatchable>(delegations p0: M1) -> Cuckoo.__DoNotUse<([AccountAddress: ParachainStakingDelegations]?), Void> where M1.OptionalMatchedType == [AccountAddress: ParachainStakingDelegations] {
-            let matchers: [Cuckoo.ParameterMatcher<([AccountAddress: ParachainStakingDelegations]?)>] = [wrap(matchable: p0) { $0 }]
-            return cuckoo_manager.verify(
-                "didReceiveTopDelegations(delegations p0: [AccountAddress: ParachainStakingDelegations]?)",
-                callMatcher: callMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: sourceLocation
-            )
-        }
-        
-        
-        @discardableResult
-        func didReceiveBottomDelegations<M1: Cuckoo.OptionalMatchable>(delegations p0: M1) -> Cuckoo.__DoNotUse<([AccountAddress: ParachainStakingDelegations]?), Void> where M1.OptionalMatchedType == [AccountAddress: ParachainStakingDelegations] {
-            let matchers: [Cuckoo.ParameterMatcher<([AccountAddress: ParachainStakingDelegations]?)>] = [wrap(matchable: p0) { $0 }]
-            return cuckoo_manager.verify(
-                "didReceiveBottomDelegations(delegations p0: [AccountAddress: ParachainStakingDelegations]?)",
-                callMatcher: callMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: sourceLocation
-            )
-        }
     }
 }
 
@@ -29802,29 +29354,6 @@ class StakingMainInteractorOutputProtocolStub:StakingMainInteractorOutputProtoco
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-    func didReceive(delegationInfos p0: [ParachainStakingDelegationInfo]?) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    func didReceiveRound(round p0: ParachainStakingRoundInfo?) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    func didReceiveCurrentBlock(currentBlock p0: UInt32?) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    func didReceiveScheduledRequests(requests p0: [AccountAddress: [ParachainStakingScheduledRequest]]?) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    func didReceiveTopDelegations(delegations p0: [AccountAddress: ParachainStakingDelegations]?) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    func didReceiveBottomDelegations(delegations p0: [AccountAddress: ParachainStakingDelegations]?) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
 }
 
 
@@ -38481,16 +38010,6 @@ class MockStakingUnbondSetupViewProtocol: StakingUnbondSetupViewProtocol, Cuckoo
         )
     }
 
-    func didReceiveCollator(viewModel p0: AccountViewModel) {
-        return cuckoo_manager.call(
-            "didReceiveCollator(viewModel p0: AccountViewModel)",
-            parameters: (p0),
-            escapingParameters: (p0),
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.didReceiveCollator(viewModel: p0)
-        )
-    }
-
     func didReceiveTitle(viewModel p0: LocalizableResource<String>) {
         return cuckoo_manager.call(
             "didReceiveTitle(viewModel p0: LocalizableResource<String>)",
@@ -38576,14 +38095,6 @@ class MockStakingUnbondSetupViewProtocol: StakingUnbondSetupViewProtocol, Cuckoo
             let matchers: [Cuckoo.ParameterMatcher<(AccountViewModel)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingUnbondSetupViewProtocol.self,
                 method: "didReceiveAccount(viewModel p0: AccountViewModel)",
-                parameterMatchers: matchers
-            ))
-        }
-        
-        func didReceiveCollator<M1: Cuckoo.Matchable>(viewModel p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountViewModel)> where M1.MatchedType == AccountViewModel {
-            let matchers: [Cuckoo.ParameterMatcher<(AccountViewModel)>] = [wrap(matchable: p0) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockStakingUnbondSetupViewProtocol.self,
-                method: "didReceiveCollator(viewModel p0: AccountViewModel)",
                 parameterMatchers: matchers
             ))
         }
@@ -38697,17 +38208,6 @@ class MockStakingUnbondSetupViewProtocol: StakingUnbondSetupViewProtocol, Cuckoo
         }
         
         
-        @discardableResult
-        func didReceiveCollator<M1: Cuckoo.Matchable>(viewModel p0: M1) -> Cuckoo.__DoNotUse<(AccountViewModel), Void> where M1.MatchedType == AccountViewModel {
-            let matchers: [Cuckoo.ParameterMatcher<(AccountViewModel)>] = [wrap(matchable: p0) { $0 }]
-            return cuckoo_manager.verify(
-                "didReceiveCollator(viewModel p0: AccountViewModel)",
-                callMatcher: callMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: sourceLocation
-            )
-        }
-        
         
         @discardableResult
         func didReceiveTitle<M1: Cuckoo.Matchable>(viewModel p0: M1) -> Cuckoo.__DoNotUse<(LocalizableResource<String>), Void> where M1.MatchedType == LocalizableResource<String> {
@@ -38786,10 +38286,6 @@ class StakingUnbondSetupViewProtocolStub:StakingUnbondSetupViewProtocol, @unchec
     }
     
     func didReceiveAccount(viewModel p0: AccountViewModel) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    func didReceiveCollator(viewModel p0: AccountViewModel) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

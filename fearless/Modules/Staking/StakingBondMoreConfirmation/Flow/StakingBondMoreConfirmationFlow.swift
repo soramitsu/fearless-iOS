@@ -3,7 +3,6 @@ import SSFModels
 
 enum StakingBondMoreConfirmationFlow {
     case relaychain(amount: Decimal)
-    case parachain(amount: Decimal, candidate: ParachainStakingCandidateInfo)
     case pool(amount: Decimal)
 }
 

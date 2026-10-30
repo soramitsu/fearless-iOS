@@ -27,16 +27,13 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
     func setup() {
         setupSelectedAccountAndChainAsset()
 
-        //  Only relaychain, check if it ever needed for parachain
         setupChainRemoteSubscription()
         setupAccountRemoteSubscription()
 
         sharedState.eraValidatorService.setup()
         sharedState.rewardCalculationService.setup()
 
-        eraInfoOperationFactory = selectedChainAsset?.stakingType?.isParachain == true
-            ? ParachainStakingInfoOperationFactory()
-            : RelaychainStakingInfoOperationFactory()
+        eraInfoOperationFactory = RelaychainStakingInfoOperationFactory()
 
         provideNewChain()
         provideSelectedAccount()
@@ -55,22 +52,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         //  Only relaychain
         performStashControllerSubscription()
         performNominatorLimitsSubscripion()
-
-        // Parachain
-
-        if let chainAsset = selectedChainAsset,
-           let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-            delegatorStateProvider = subscribeToDelegatorState(
-                for: chainAsset,
-                accountId: accountId
-            )
-
-            if let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain) {
-                subscribeRewardsAnalytics(for: address)
-            }
-        }
-
-        fetchParachainInfo()
 
         //  Should be done by separate task
         provideRewardCalculator(from: sharedState.rewardCalculationService)
@@ -104,8 +85,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             clearStashControllerSubscription()
             clear(streamableProvider: &controllerAccountProvider)
             clearNominatorsLimitProviders()
-            clear(dataProvider: &delegatorStateProvider)
-            collatorIds = nil
             selectedChainAsset = nil
             selectedAccount = nil
             rewardChainAsset = nil
@@ -118,9 +97,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         switch newSelectedChainAsset.stakingType {
         case .relaychain, .sora, .ternoa:
             eraInfoOperationFactory = RelaychainStakingInfoOperationFactory()
-        case .parachain:
-            eraInfoOperationFactory = ParachainStakingInfoOperationFactory()
-
         case .none:
             break
         }
@@ -135,8 +111,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
         provideNewChain()
 
-        clear(dataProvider: &delegatorStateProvider)
-        collatorIds = nil
         provideRewardChainAsset()
 
         clearNominatorsLimitProviders()
@@ -155,95 +129,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         provideNetworkStakingInfo()
         provideRewardCalculator(from: sharedState.rewardCalculationService)
         provideMaxNominatorsPerValidator(from: runtimeService)
-
-        if
-            let chainAsset = selectedChainAsset,
-            let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-            chainAsset.chain.isEthereumBased {
-            delegatorStateProvider = subscribeToDelegatorState(
-                for: chainAsset,
-                accountId: accountId
-            )
-
-            if let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain) {
-                subscribeRewardsAnalytics(for: address)
-            }
-        }
-
-        fetchParachainInfo()
-    }
-
-    func fetchCollatorsDelegations(accountIds: [AccountId]) {
-        let accountIdsClosure = { [accountIds] in
-            accountIds
-        }
-
-        let delegationScheduledRequests = collatorOperationFactory
-            .delegationScheduledRequests(accountIdsClosure: accountIdsClosure)
-
-        delegationScheduledRequests.targetOperation.completionBlock = { [weak self] in
-            let requests = try? delegationScheduledRequests.targetOperation.extractNoCancellableResultData()
-            DispatchQueue.main.async {
-                self?.presenter?.didReceiveScheduledRequests(requests: requests)
-            }
-        }
-
-        let bottomDelegationsOperation = collatorOperationFactory
-            .collatorBottomDelegations(accountIdsClosure: accountIdsClosure)
-
-        bottomDelegationsOperation.targetOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                let bottomDelegations = try? bottomDelegationsOperation.targetOperation.extractNoCancellableResultData()
-                self?.presenter?.didReceiveBottomDelegations(delegations: bottomDelegations)
-            }
-        }
-
-        let topDelegationsOperation = collatorOperationFactory
-            .collatorTopDelegations(accountIdsClosure: accountIdsClosure)
-
-        topDelegationsOperation.targetOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                let topDelegations = try? topDelegationsOperation.targetOperation.extractNoCancellableResultData()
-                self?.presenter?.didReceiveTopDelegations(delegations: topDelegations)
-            }
-        }
-
-        let operations = [
-            delegationScheduledRequests.allOperations,
-            bottomDelegationsOperation.allOperations,
-            topDelegationsOperation.allOperations
-        ].reduce([], +)
-
-        operationManager.enqueue(operations: operations, in: .transient)
-    }
-
-    private func fetchParachainInfo() {
-        let roundOperation = collatorOperationFactory.round()
-        let currentBlockOperation = collatorOperationFactory.currentBlock()
-
-        currentBlockOperation.targetOperation.completionBlock = { [weak self] in
-            let currentBlock = try? currentBlockOperation.targetOperation.extractNoCancellableResultData()
-
-            if let block = currentBlock, let currentBlockValue = UInt32(block) {
-                DispatchQueue.main.async {
-                    self?.presenter?.didReceiveCurrentBlock(currentBlock: currentBlockValue)
-                }
-            }
-        }
-
-        roundOperation.targetOperation.completionBlock = { [weak self] in
-            let roundInfo = try? roundOperation.targetOperation.extractNoCancellableResultData()
-            DispatchQueue.main.async {
-                self?.presenter?.didReceiveRound(round: roundInfo)
-            }
-        }
-
-        let operations = [
-            roundOperation.allOperations,
-            currentBlockOperation.allOperations
-        ].reduce([], +)
-
-        operationManager.enqueue(operations: operations, in: .transient)
     }
 
     private func updateAfterSelectedAccountChange() {
@@ -254,9 +139,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         clearAccountRemoteSubscription()
         accountInfoSubscriptionAdapter.reset()
         clearStashControllerSubscription()
-
-        clear(dataProvider: &delegatorStateProvider)
-        collatorIds = nil
 
         guard let selectedChain = selectedChainAsset?.chain,
               let selectedMetaAccount = selectedWalletSettings.value,
@@ -282,23 +164,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         performAccountInfoSubscription()
         provideSelectedAccount()
         performStashControllerSubscription()
-        fetchParachainInfo()
-
-        if
-            let chainAsset = selectedChainAsset,
-            let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-            chainAsset.chain.isEthereumBased {
-            delegatorStateProvider = subscribeToDelegatorState(
-                for: chainAsset,
-                accountId: accountId
-            )
-
-            if let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain) {
-                subscribeRewardsAnalytics(for: address)
-            }
-        } else {
-            presenter?.didReceive(delegationInfos: [])
-        }
     }
 }
 
@@ -323,6 +188,5 @@ extension StakingMainInteractor: EventVisitorProtocol {
 extension StakingMainInteractor: ApplicationHandlerDelegate {
     func didReceiveDidBecomeActive(notification _: Notification) {
         totalRewardProvider?.refresh()
-        rewardAnalyticsProvider?.refresh()
     }
 }

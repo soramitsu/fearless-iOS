@@ -15,8 +15,6 @@ final class StakingRewardsFetcherAssembly {
             return GiantsquidStakingRewardsFetcher(chain: chain)
         case .sora:
             return SoraStakingRewardsFetcher(chain: chain)
-        case .reef:
-            return ReefStakingRewardsFetcher(chain: chain)
         default:
             throw StakingRewardsFetcherError.missingBlockExplorer(chain: chain.name)
         }

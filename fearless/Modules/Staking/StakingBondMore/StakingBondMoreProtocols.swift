@@ -7,8 +7,6 @@ protocol StakingBondMoreViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveInput(viewModel: LocalizableResource<IAmountInputViewModel>)
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
     func didReceiveFee(viewModel: LocalizableResource<NetworkFeeFooterViewModelProtocol>?)
-    func didReceiveAccount(viewModel: AccountViewModel)
-    func didReceiveCollator(viewModel: AccountViewModel)
     func didReceiveHints(viewModel: LocalizableResource<String>?)
 }
 

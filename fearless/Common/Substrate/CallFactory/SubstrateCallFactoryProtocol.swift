@@ -44,34 +44,6 @@ protocol SubstrateCallFactoryProtocol {
         memo: Data
     ) -> any RuntimeCallable
     func addRemark(_ data: Data) -> any RuntimeCallable
-    func delegate(
-        candidate: AccountId,
-        amount: BigUInt,
-        candidateDelegationCount: UInt32,
-        delegationCount: UInt32
-    ) -> any RuntimeCallable
-    func delegatorBondMore(
-        candidate: AccountId,
-        amount: BigUInt
-    ) -> any RuntimeCallable
-    func scheduleDelegatorBondLess(
-        candidate: AccountId,
-        amount: BigUInt
-    ) -> any RuntimeCallable
-    func scheduleRevokeDelegation(
-        candidate: AccountId
-    ) -> any RuntimeCallable
-    func executeDelegationRequest(
-        delegator: AccountId,
-        collator: AccountId
-    ) -> any RuntimeCallable
-    func cancelCandidateBondLess() -> any RuntimeCallable
-    func cancelDelegationRequest(candidate: AccountId) -> any RuntimeCallable
-    func cancelLeaveDelegators() -> any RuntimeCallable
-    func candidateBondMore(
-        amount: BigUInt
-    ) -> any RuntimeCallable
-    func scheduleCandidateBondLess(amount: BigUInt) -> any RuntimeCallable
     func joinPool(
         poolId: String,
         amount: BigUInt
