@@ -45,7 +45,8 @@ final class WarningAlertViewController: UIViewController, ViewHolder {
 
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-        if let container = view.superview {
+        // iPhone keeps the constraints its presentation animator installs.
+        if UIDevice.current.userInterfaceIdiom == .pad, let container = view.superview {
             adaptiveLayout.apply(to: view, in: container)
         }
     }

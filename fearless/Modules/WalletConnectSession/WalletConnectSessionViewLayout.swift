@@ -148,11 +148,15 @@ final class WalletConnectSessionViewLayout: UIView {
             make.center.equalToSuperview()
         }
 
-        addSubview(contentStackView)
-        contentStackView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(76)
-            make.leading.trailing.equalTo(safeAreaLayoutGuide)
-            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            setupScrollingContent()
+        } else {
+            addSubview(contentStackView)
+            contentStackView.snp.makeConstraints { make in
+                make.top.equalToSuperview().offset(76)
+                make.leading.trailing.equalTo(safeAreaLayoutGuide)
+                make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+            }
         }
 
         contentStackView.addArrangedSubview(imageViewContainer)
@@ -185,6 +189,25 @@ final class WalletConnectSessionViewLayout: UIView {
             view.snp.makeConstraints { make in
                 make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             }
+        }
+    }
+
+    /// An iPad window can be shorter than this request: the card then keeps the
+    /// warning and the action reachable by scrolling its content.
+    private func setupScrollingContent() {
+        let scrollView = UIScrollView()
+        scrollView.alwaysBounceVertical = false
+        addSubview(scrollView)
+        scrollView.addSubview(contentStackView)
+        scrollView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(76)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
+            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+            make.height.equalTo(contentStackView).priority(.low)
+        }
+        contentStackView.snp.makeConstraints { make in
+            make.edges.equalTo(scrollView.contentLayoutGuide)
+            make.width.equalTo(scrollView.frameLayoutGuide)
         }
     }
 

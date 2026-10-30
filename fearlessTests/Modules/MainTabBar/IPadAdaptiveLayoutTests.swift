@@ -79,6 +79,35 @@ final class AdaptiveLayoutTests: XCTestCase {
         XCTAssertEqual(screen.additionalSafeAreaInsets.bottom, 30)
     }
 
+    func testFullScreenPresentationOutsideNavigationCentersItsOwnColumn() {
+        guard #available(iOS 17.0, *) else { return }
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        let scene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first
+        XCTAssertNotNil(scene, "Window traits need a live window scene")
+        let window = scene.map(UIWindow.init(windowScene:)) ?? UIWindow(frame: .zero)
+        window.frame = CGRect(x: 0, y: 0, width: 1194, height: 834)
+        window.traitOverrides.userInterfaceIdiom = .pad
+        window.traitOverrides.horizontalSizeClass = .regular
+        let controller = UIViewController()
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        defer {
+            window.isHidden = true
+            window.rootViewController = nil
+        }
+        window.updateTraitsIfNeeded()
+        controller.view.frame = window.bounds
+        controller.applyAdaptiveContentColumnOutsideNavigation()
+        XCTAssertEqual(controller.additionalSafeAreaInsets.left, 237)
+        XCTAssertEqual(controller.additionalSafeAreaInsets.right, 237)
+
+        let stacked = UIViewController()
+        let navigation = UINavigationController(rootViewController: stacked)
+        stacked.applyAdaptiveContentColumnOutsideNavigation()
+        XCTAssertEqual(stacked.additionalSafeAreaInsets, .zero)
+        XCTAssertNotNil(navigation.topViewController)
+    }
+
     func testFullWidthScreensKeepTheWholeContainer() {
         let screen = FullWidthScreen()
 

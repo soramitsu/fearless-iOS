@@ -145,7 +145,11 @@ final class PolkaswapTransaktionSettingsViewLayout: UIView {
 
         let spacer = UIView()
         spacer.snp.makeConstraints { make in
-            make.height.equalTo(Constants.spacerHeight)
+            let height = make.height.equalTo(Constants.spacerHeight)
+            // An iPad window can be shorter than this sheet; the gap gives way first.
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                height.priority(740)
+            }
         }
 
         contentStackView.addArrangedSubview(selectMarketView)

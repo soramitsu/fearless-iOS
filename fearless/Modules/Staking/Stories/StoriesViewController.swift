@@ -48,6 +48,11 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
         setupGestureRecognizers()
     }
 
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        applyAdaptiveContentColumnOutsideNavigation()
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 

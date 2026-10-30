@@ -81,6 +81,20 @@ extension UIViewController {
         additionalSafeAreaInsets.right = inset
     }
 
+    /// A full-screen presentation outside any navigation stack (the PIN pad over the
+    /// app, stories, startup recovery) centers its own content column. Call it from
+    /// viewWillLayoutSubviews; screens in a navigation stack get the column from it.
+    func applyAdaptiveContentColumnOutsideNavigation() {
+        guard navigationController == nil, parent == nil else {
+            return
+        }
+        applyAdaptiveContentColumn(
+            containerWidth: view.bounds.width,
+            containerSafeArea: view.window?.safeAreaInsets ?? .zero,
+            traits: traitCollection
+        )
+    }
+
     /// Gives an action sheet or share sheet the anchor UIKit requires on iPad, where
     /// presenting an unanchored popover raises an exception. The popover points at
     /// the control the user last touched, or floats in the middle of this screen.

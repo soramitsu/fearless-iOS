@@ -28,6 +28,11 @@ final class StartupRecoveryViewController: UIViewController, ControllerBackedPro
         view = layout
     }
 
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        applyAdaptiveContentColumnOutsideNavigation()
+    }
+
     private func perform(_ action: StartupRecoveryViewModel.Action) {
         switch action {
         case .emergencyExport:
