@@ -799,6 +799,35 @@ final class IPadSheetAlertLayoutTests: XCTestCase {
         XCTAssertEqual(sheet.layer.cornerCurve, .circular)
     }
 
+    func testOwnBottomPanelsBecomeCardsOnlyInRegularWidth() {
+        let container = IPadResizableContainer(frame: CGRect(x: 0, y: 0, width: 1194, height: 834))
+        let panel = UIView()
+        panel.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(panel)
+        panel.heightAnchor.constraint(equalToConstant: 300).isActive = true
+        let placement = AdaptivePanelPlacement(panel: panel, in: container, compact: [
+            panel.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            panel.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            panel.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+        ])
+        placement.update(for: container.traitCollection)
+        container.layoutIfNeeded()
+        XCTAssertEqual(panel.frame, CGRect(x: 317, y: 267, width: 560, height: 300))
+
+        container.sizeClass = .compact
+        container.bounds.size = CGSize(width: 375, height: 667)
+        placement.update(for: container.traitCollection)
+        container.layoutIfNeeded()
+        XCTAssertEqual(panel.frame, CGRect(x: 0, y: 367, width: 375, height: 300))
+
+        container.bounds.size = CGSize(width: 1194, height: 834)
+        placement.update(for: UITraitCollection(traitsFrom: [
+            UITraitCollection(userInterfaceIdiom: .phone), UITraitCollection(horizontalSizeClass: .regular)
+        ]))
+        container.layoutIfNeeded()
+        XCTAssertEqual(panel.frame, CGRect(x: 0, y: 534, width: 1194, height: 300))
+    }
+
     func testScrollingSheetAlertIsPresentedAtFullHeight() throws {
         let alert = SheetAletViewController(viewModel: SheetAlertPresentableViewModel(
             title: "Warning", message: "Message", actions: [], closeAction: nil, scrollableContent: true

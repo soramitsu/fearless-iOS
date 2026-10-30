@@ -174,3 +174,35 @@ final class AdaptiveSheetLayout {
         NSLayoutConstraint.activate(constraints)
     }
 }
+
+/// Places a screen's own bottom panel: its compact constraints on iPhone and in
+/// compact iPad windows, a centered card in a regular-width iPad window.
+final class AdaptivePanelPlacement {
+    private let compact: [NSLayoutConstraint]
+    private let card: [NSLayoutConstraint]
+    private var isCard: Bool?
+
+    init(panel: UIView, in view: UIView, compact: [NSLayoutConstraint]) {
+        self.compact = compact
+        let guide = view.safeAreaLayoutGuide
+        let margin = AdaptiveLayout.sheetMargin
+        let center = panel.centerYAnchor.constraint(equalTo: guide.centerYAnchor)
+        center.priority = .defaultHigh
+        let width = panel.widthAnchor.constraint(equalToConstant: AdaptiveLayout.sheetWidth)
+        width.priority = .defaultHigh
+        card = [
+            panel.centerXAnchor.constraint(equalTo: guide.centerXAnchor), center, width,
+            panel.widthAnchor.constraint(lessThanOrEqualTo: guide.widthAnchor, constant: -2 * margin),
+            panel.topAnchor.constraint(greaterThanOrEqualTo: guide.topAnchor, constant: margin),
+            panel.bottomAnchor.constraint(lessThanOrEqualTo: guide.bottomAnchor, constant: -margin)
+        ]
+    }
+
+    func update(for traits: UITraitCollection) {
+        let showsCard = AdaptiveLayout.isRegularWidth(traits)
+        guard showsCard != isCard else { return }
+        isCard = showsCard
+        NSLayoutConstraint.deactivate(showsCard ? compact : card)
+        NSLayoutConstraint.activate(showsCard ? card : compact)
+    }
+}
