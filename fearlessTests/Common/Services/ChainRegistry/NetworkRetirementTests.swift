@@ -159,10 +159,18 @@ final class NetworkRetirementTests: XCTestCase {
     func testStoredReefAndParachainStakingStillLoadAndKeepKeyAccessAfterCleanup() throws {
         let reefApiUrl = try XCTUnwrap(URL(string: "https://squid.subsquid.io/reef-explorer/graphql"))
         let reefApi = ChainModel.BlockExplorer(type: "reef", url: reefApiUrl)
+        // A stored chain without a node it can connect to reads back disabled, so each one keeps its node.
+        let reefNode = ChainNodeModel(url: try XCTUnwrap(URL(string: "wss://reef.invalid")), name: "Reef", apikey: nil)
+        let moonbaseNode = ChainNodeModel(
+            url: try XCTUnwrap(URL(string: "wss://moonbase.invalid")),
+            name: "Moonbase",
+            apikey: nil
+        )
         let reef = makeChain(
             chainId: Chain.reef.genesisHash,
             name: "Reef Mainnet",
             staking: .relayChain,
+            nodes: [reefNode],
             externalApi: ChainModel.ExternalApiSet(
                 staking: reefApi,
                 history: reefApi,
@@ -179,7 +187,8 @@ final class NetworkRetirementTests: XCTestCase {
             chainId: Chain.moonbaseAlpha.genesisHash,
             name: "Moonbase Alpha",
             staking: .paraChain,
-            options: [.testnet]
+            options: [.testnet],
+            nodes: [moonbaseNode]
         )
         let repository = ChainRepositoryFactory(storageFacade: SubstrateStorageTestFacade()).createRepository()
         let queue = OperationQueue()
@@ -189,6 +198,7 @@ final class NetworkRetirementTests: XCTestCase {
 
         let stored = try fetchAll(from: repository, on: queue)
         let storedReef = try XCTUnwrap(stored.first { $0.chainId == reef.chainId })
+        XCTAssertFalse(storedReef.disabled, "an older list could still enable Reef")
         XCTAssertEqual(storedReef.externalApi?.staking?.type, .reef)
         XCTAssertEqual(storedReef.externalApi?.history?.type, .reef)
         XCTAssertEqual(storedReef.externalApi?.explorers?.first?.type, .reef)
@@ -208,7 +218,7 @@ final class NetworkRetirementTests: XCTestCase {
         let cleanedMoonbase = try XCTUnwrap(cleaned.first { $0.chainId == moonbaseAlpha.chainId })
         XCTAssertFalse(cleanedMoonbase.disabled)
         XCTAssertNil(cleanedMoonbase.assets.first?.staking)
-        XCTAssertTrue(NetworkRetirement.applying(to: cleaned).allSatisfy { $0.chainId == moonbaseAlpha.chainId })
+        XCTAssertEqual(NetworkRetirement.applying(to: cleaned).map(\.chainId), [moonbaseAlpha.chainId])
 
         let reefAccount = ChainAccountModel(
             chainId: reef.chainId,
