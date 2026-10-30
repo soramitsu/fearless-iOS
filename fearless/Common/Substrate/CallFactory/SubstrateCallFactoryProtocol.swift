@@ -30,6 +30,7 @@ protocol SubstrateCallFactoryProtocol {
         targets: [SelectedValidatorInfo]
     ) throws -> any RuntimeCallable
     func payout(validatorId: Data, era: EraIndex) throws -> any RuntimeCallable
+    func payout(validatorId: Data, era: EraIndex, page: UInt32?) throws -> any RuntimeCallable
     func setPayee(for destination: RewardDestinationArg) -> any RuntimeCallable
     func withdrawUnbonded(for numberOfSlashingSpans: UInt32) -> any RuntimeCallable
     func setController(_ controller: AccountAddress, chainAsset: ChainAsset) throws -> any RuntimeCallable
@@ -112,4 +113,11 @@ protocol SubstrateCallFactoryProtocol {
         chainAsset: ChainAsset
     ) throws -> any RuntimeCallable
     func vestingClaim() throws -> any RuntimeCallable
+}
+
+extension SubstrateCallFactoryProtocol {
+    func payout(validatorId: Data, era: EraIndex, page: UInt32?) throws -> any RuntimeCallable {
+        guard page == nil else { throw SubstrateCallFactoryError.callNotFound }
+        return try payout(validatorId: validatorId, era: era)
+    }
 }

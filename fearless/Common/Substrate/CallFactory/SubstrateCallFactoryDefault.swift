@@ -127,6 +127,21 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         return RuntimeCall(moduleName: "NominationPools", callName: "nominate", args: args)
     }
 
+    func payout(validatorId: Data, era: EraIndex, page: UInt32?) throws -> any RuntimeCallable {
+        guard let page = page else { return try payout(validatorId: validatorId, era: era) }
+        guard let metadata = runtimeService.snapshot?.metadata else { throw SubstrateCallFactoryError.metadataUnavailable }
+        let call = try metadata.modules.first(where: { $0.name == "Staking" })?
+            .calls(using: metadata.schemaResolver)?.first(where: { $0.name == "payout_stakers_by_page" })
+        guard call?.arguments.map({ $0.name }) == ["validator_stash", "era", "page"] else {
+            throw SubstrateCallFactoryError.callNotFound
+        }
+        return RuntimeCall(
+            moduleName: "Staking",
+            callName: "payout_stakers_by_page",
+            args: PayoutByPageCall(validatorStash: validatorId, era: era, page: page)
+        )
+    }
+
     func payout(validatorId: Data, era: EraIndex) throws -> any RuntimeCallable {
         let args = PayoutCall(
             validatorStash: validatorId,

@@ -71,17 +71,22 @@ enum NetworkRetirement {
     }
 
     /// The chain as this build offers it: nil for a retired network, without relay staking where staking moved
-    /// to Asset Hub. Stored chains go through this too, so it holds before any download succeeds.
+    /// to Asset Hub, and on those Asset Hubs only the direct staking of the relay's native token (`AssetHubStakingRoute`).
+    /// Stored chains go through this too, so it holds before any download succeeds.
     static func offered(_ chain: ChainModel) -> ChainModel? {
         guard !retiredChainIds.contains(chain.chainId) else {
             return nil
         }
 
-        guard assetHubMigratedRelayChainIds.contains(chain.chainId) else {
-            return chain
+        if assetHubMigratedRelayChainIds.contains(chain.chainId) {
+            return chain.removingRelayStaking()
         }
 
-        return chain.removingRelayStaking()
+        if AssetHubStakingRoute.staking(on: chain.chainId) != nil {
+            return chain.limitingToAssetHubStaking()
+        }
+
+        return chain
     }
 
     /// Stored chains that must change to match this build: a retired network becomes disabled, a migrated relay
@@ -99,6 +104,17 @@ enum NetworkRetirement {
 
 private extension ChainModel {
     func removingRelayStaking() -> ChainModel {
+        replacingStaking(assets: Set(assets.map { $0.removingStaking() }))
+    }
+
+    /// Pool staking and crowdloans are not offered on Asset Hub by this build, whatever a downloaded list says.
+    func limitingToAssetHubStaking() -> ChainModel {
+        replacingStaking(assets: Set(assets.map { asset in
+            AssetHubStakingRoute.offersStaking(asset, on: self) ? asset : asset.removingStaking()
+        }))
+    }
+
+    func replacingStaking(assets: Set<AssetModel>) -> ChainModel {
         ChainModel(
             rank: rank,
             disabled: disabled,
@@ -106,7 +122,7 @@ private extension ChainModel {
             parentId: parentId,
             paraId: paraId,
             name: name,
-            assets: Set(assets.map { $0.removingStaking() }),
+            assets: assets,
             xcm: xcm,
             nodes: nodes,
             addressPrefix: addressPrefix,

@@ -60,6 +60,26 @@ enum StorageCodingPath: Equatable, CaseIterable, StorageCodingPathProtocol {
             return (moduleName: "Staking", itemName: "ErasRewardPoints")
         case .validatorExposureClipped:
             return (moduleName: "Staking", itemName: "ErasStakersClipped")
+        case .validatorIncentiveBudget:
+            return (moduleName: "Staking", itemName: "ErasValidatorIncentiveBudget")
+        case .validatorIncentiveWeight:
+            return (moduleName: "Staking", itemName: "ErasValidatorIncentiveWeight")
+        case .sumValidatorIncentiveWeight:
+            return (moduleName: "Staking", itemName: "ErasSumValidatorIncentiveWeight")
+        case .sumWeightedPoints:
+            return (moduleName: "Staking", itemName: "ErasSumWeightedPoints")
+        case .weightedPointsFormulaStartEra:
+            return (moduleName: "Staking", itemName: "WeightedPointsFormulaStartEra")
+        case .validatorSlashInEra:
+            return (moduleName: "Staking", itemName: "ValidatorSlashInEra")
+        case .claimedRewards:
+            return (moduleName: "Staking", itemName: "ClaimedRewards")
+        case .lastValidatorEra:
+            return (moduleName: "Staking", itemName: "LastValidatorEra")
+        case .areNominatorsSlashable:
+            return (moduleName: "Staking", itemName: "AreNominatorsSlashable")
+        case .bondedEras:
+            return (moduleName: "Staking", itemName: "BondedEras")
         case .eraStartSessionIndex:
             return (moduleName: "Staking", itemName: "ErasStartSessionIndex")
         case .currentSessionIndex:
@@ -193,6 +213,16 @@ enum StorageCodingPath: Equatable, CaseIterable, StorageCodingPathProtocol {
     case totalValidatorReward
     case rewardPointsPerValidator
     case validatorExposureClipped
+    case validatorIncentiveBudget
+    case validatorIncentiveWeight
+    case sumValidatorIncentiveWeight
+    case sumWeightedPoints
+    case weightedPointsFormulaStartEra
+    case validatorSlashInEra
+    case claimedRewards
+    case lastValidatorEra
+    case areNominatorsSlashable
+    case bondedEras
     case eraStartSessionIndex
     case currentSessionIndex
     case electionPhase

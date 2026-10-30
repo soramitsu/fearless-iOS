@@ -10,6 +10,7 @@ extension EraValidatorService {
     private func handleEraDecodingResult(result: Result<ActiveEraInfo, Error>?) {
         guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
             logger?.error(ConvenienceError(error: ChainRegistryError.runtimeMetadaUnavailable.localizedDescription).localizedDescription)
+            didFail(ChainRegistryError.runtimeMetadaUnavailable)
             return
         }
         let isPagedValidatorsRequest = runtimeService.snapshot?.metadata.getStorageMetadata(for: .erasStakersOverview) != nil
@@ -29,14 +30,19 @@ extension EraValidatorService {
             }
         case let .failure(error):
             logger?.error("Did receive era decoding error: \(error)")
+            didFail(error)
         case .none:
             logger?.warning("Error decoding operation canceled")
+            didFail(BaseOperationError.parentOperationCancelled)
         }
     }
 
     func didUpdateActiveEraItem(_ eraItem: ChainStorageItem?) {
+        lastActiveEraItem = eraItem
+
         guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainId) else {
             logger?.error(ConvenienceError(error: ChainRegistryError.runtimeMetadaUnavailable.localizedDescription).localizedDescription)
+            didFail(ChainRegistryError.runtimeMetadaUnavailable)
             return
         }
 

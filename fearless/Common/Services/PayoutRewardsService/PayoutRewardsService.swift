@@ -45,6 +45,12 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
     // swiftlint:disable function_body_length
     func fetchPayoutsOperationWrapper() -> CompoundOperationWrapper<PayoutsInfo> {
         do {
+            if AssetHubStakingRoute.staking(on: chain.chainId) != nil {
+                return AssetHubPayoutsOperationFactory(
+                    chain: chain, account: try AddressFactory.accountId(from: selectedAccountAddress, chain: chain),
+                    runtime: runtimeCodingService, engine: engine
+                ).create()
+            }
             guard let validatorsResolutionFactory = validatorsResolutionFactory else {
                 throw BaseOperationError.unexpectedDependentResult
             }

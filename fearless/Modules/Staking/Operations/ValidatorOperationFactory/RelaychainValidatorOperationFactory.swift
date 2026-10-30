@@ -42,6 +42,13 @@ final class RelaychainValidatorOperationFactory {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
         }
 
+        if AssetHubStakingRoute.staking(on: chain.chainId) != nil {
+            guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+                return .createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+            }
+            return AssetHubSlashesOperationFactory(engine: connection, runtime: runtimeService).unapplied()
+        }
+
         let path = StorageCodingPath.unappliedSlashes
 
         let keyParams: () throws -> [String] = {
@@ -95,6 +102,11 @@ final class RelaychainValidatorOperationFactory {
 
         guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
+        if AssetHubStakingRoute.staking(on: chain.chainId) != nil {
+            return AssetHubSlashesOperationFactory(engine: connection, runtime: runtimeService)
+                .validatorSlashes(ids: validatorIds, submittedIn: nomination.submittedIn)
         }
 
         guard let chainStakingSettings = chain.stakingSettings else {

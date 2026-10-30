@@ -118,6 +118,12 @@ final class ExtrinsicOperationFactory {
         self.eraOperationFactory = eraOperationFactory
     }
 
+    /// Set when the runtime is an Asset Hub staking runtime. Its extrinsics are signed against the genesis hash compiled
+    /// into the route, never a node's answer, with every signed extension checked against the runtime's metadata.
+    private var assetHubStakingRoute: AssetHubStakingRoute? {
+        (runtimeRegistry as? StakingRuntimeIdentifying).flatMap { AssetHubStakingRoute.staking(on: $0.chainId) }
+    }
+
     private func createNonceOperation() -> BaseOperation<UInt32> {
         do {
             let address = try accountId.toAddress(using: chainFormat)
@@ -161,6 +167,7 @@ final class ExtrinsicOperationFactory {
         let currentCryptoType = cryptoType
         let currentAccountId = accountId
         let currentChainFormat = chainFormat
+        let assetHubRoute = assetHubStakingRoute
 
         let nonceOperation = createNonceOperation()
         let codingFactoryOperation = runtimeRegistry.fetchCoderFactoryOperation()
@@ -191,14 +198,24 @@ final class ExtrinsicOperationFactory {
                 accountId: currentAccountId,
                 chainFormat: currentChainFormat.asSfCrypto()
             )
+            if let route = assetHubRoute,
+               genesisHash.replacingOccurrences(of: "0x", with: "") != route.stakingChainId {
+                throw ChainRegistryError.chainUnavailable(chainId: route.stakingChainId)
+            }
+
             let extrinsics: [Data] = try (0 ..< numberOfExtrinsics).map { index in
-                var builder: ExtrinsicBuilderProtocol =
-                    try ExtrinsicBuilder(
+                let initial: ExtrinsicBuilderProtocol
+                if let route = assetHubRoute {
+                    initial = try AssetHubExtrinsicBuilder(factory: codingFactory, genesisHash: route.stakingChainId)
+                } else {
+                    initial = ExtrinsicBuilder(
                         specVersion: codingFactory.specVersion,
                         transactionVersion: codingFactory.txVersion,
-                        genesisHash: genesisHash /* ,
-                         runtimeMetadataProvider: runtimeRegistry */
+                        genesisHash: genesisHash
                     )
+                }
+
+                var builder = try initial
                     .with(address: account)
                     .with(era: era, blockHash: eraBlockHash)
                     .with(nonce: nonce + UInt32(index))
@@ -417,8 +434,8 @@ extension ExtrinsicOperationFactory: ExtrinsicOperationFactoryProtocol {
     }
 
     func createGenesisBlockHashOperation() -> BaseOperation<String> {
-        if let pinnedGenesisHash {
-            return ClosureOperation { pinnedGenesisHash }
+        if let genesisHash = pinnedGenesisHash ?? assetHubStakingRoute?.stakingChainId {
+            return ClosureOperation { genesisHash }
         }
 
         return createBlockHashOperation(

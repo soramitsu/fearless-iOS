@@ -492,7 +492,14 @@ extension StakingMainPresenter: StakingStateMachineDelegate {
 
 extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceive(selectedWallet: MetaAccountModel) {
+        let accountChanged = selectedWallet.metaId != selectedMetaAccount.metaId
         selectedMetaAccount = selectedWallet
+
+        // Asset Hub's unbonding period belongs to the account, so the previous wallet's value is not shown.
+        if accountChanged, let chainId = chainAsset?.chain.chainId, AssetHubStakingRoute.staking(on: chainId) != nil {
+            networkStakingInfo = nil
+            provideStakingInfo()
+        }
     }
 
     private func handle(error: Error) {
@@ -634,6 +641,10 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
     func didReceive(networkStakingInfoError: Error) {
+        if let chainId = chainAsset?.chain.chainId, AssetHubStakingRoute.staking(on: chainId) != nil {
+            networkStakingInfo = nil
+            provideStakingInfo()
+        }
         handle(error: networkStakingInfoError)
     }
 

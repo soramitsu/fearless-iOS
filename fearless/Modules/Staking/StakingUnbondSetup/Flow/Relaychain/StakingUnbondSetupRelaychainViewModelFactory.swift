@@ -15,16 +15,26 @@ final class StakingUnbondSetupRelaychainViewModelFactory: StakingUnbondSetupView
             return nil
         }
 
-        let daysCount = viewModelState.bondingDuration.map { UInt32($0) / viewModelState.chainAsset.chain.erasPerDay }
+        let showsHours = viewModelState.unbondingTime.map { $0 <= TimeInterval.secondsInDay } ?? false
+        let unit = showsHours ? TimeInterval.secondsInHour : TimeInterval.secondsInDay
+        let periodCount: UInt32?
+        if let duration = viewModelState.unbondingTime {
+            periodCount = duration > 0 && duration.isFinite ? UInt32(exactly: ceil(duration / unit)) : nil
+        } else {
+            periodCount = viewModelState.bondingDuration.map { UInt32($0) / viewModelState.chainAsset.chain.erasPerDay }
+        }
         let viewModel: LocalizableResource<TitleWithSubtitleViewModel> = LocalizableResource { locale in
-            guard let daysCount = daysCount else {
+            guard let periodCount = periodCount else {
                 return TitleWithSubtitleViewModel(title: "")
             }
             let title = R.string.localizable.stakingUnstakingPeriod(preferredLanguages: locale.rLanguages)
-            let subtitle = R.string.localizable.commonDaysFormat(
-                format: Int(daysCount),
-                preferredLanguages: locale.rLanguages
-            )
+            let subtitle = showsHours
+                ? R.string.localizable.commonHoursFormat(
+                    format: Int(periodCount), preferredLanguages: locale.rLanguages
+                )
+                : R.string.localizable.commonDaysFormat(
+                    format: Int(periodCount), preferredLanguages: locale.rLanguages
+                )
             return TitleWithSubtitleViewModel(title: title, subtitle: subtitle)
         }
 
