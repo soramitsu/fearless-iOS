@@ -269,3 +269,24 @@ final class FWDesignSystemTests: XCTestCase {
         }
     }
 }
+
+extension FWDesignSystemTests {
+    func testBackgroundDefaultsChangeNeverWaitsForTheMainThread() throws {
+        let defaults = try defaults()
+        let center = NotificationCenter()
+        let effects = FWEffects(defaults: defaults, notificationCenter: center) { .init() }
+        defaults.set("lite", forKey: FWEffects.preferenceKey)
+        let posted = DispatchSemaphore(value: 0)
+        DispatchQueue.global().async {
+            center.post(name: UserDefaults.didChangeNotification, object: defaults)
+            posted.signal()
+        }
+
+        // The main thread waits here as it would for a lock the posting thread holds: the post must not wait for it.
+        XCTAssertEqual(posted.wait(timeout: .now() + 5), .success)
+        let refreshed = expectation(description: "the refresh runs on the main thread")
+        DispatchQueue.main.async { refreshed.fulfill() }
+        wait(for: [refreshed], timeout: 5)
+        XCTAssertEqual(effects.userChoice, .lite)
+    }
+}

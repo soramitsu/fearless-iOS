@@ -3497,3 +3497,52 @@ private final class ExactAssetSelectionOutputSpy: SelectAssetModuleOutput {
         contexts.append(contextTag)
     }
 }
+
+final class NetworkScanStateStoreConcurrencyTests: XCTestCase {
+    func testReadingStateNeverWaitsForAWriteInProgress() throws {
+        let suite = "network-scan-state-" + UUID().uuidString
+        let defaults = try XCTUnwrap(FirstWriteBlockingDefaults(suiteName: suite))
+        addTeardownBlock { defaults.removePersistentDomain(forName: suite) }
+        let chain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 0)
+        let writeFinished = expectation(description: "the write completes once released")
+        DispatchQueue.global().async {
+            NetworkScanStateStore.markSuccess(for: chain, userDefaults: defaults)
+            writeFinished.fulfill()
+        }
+        XCTAssertEqual(defaults.writeEntered.wait(timeout: .now() + 5), .success)
+
+        // The write is now inside UserDefaults, where a main-queue observer could keep it waiting for the main
+        // thread. A read must not wait for it.
+        let readFinished = DispatchSemaphore(value: 0)
+        DispatchQueue.global().async {
+            _ = NetworkScanStateStore.state(for: chain, userDefaults: defaults)
+            readFinished.signal()
+        }
+        let readResult = readFinished.wait(timeout: .now() + 5)
+        defaults.releaseWrite.signal()
+
+        XCTAssertEqual(readResult, .success)
+        wait(for: [writeFinished], timeout: 5)
+        XCTAssertNotNil(NetworkScanStateStore.state(for: chain, userDefaults: defaults).lastSuccess)
+    }
+}
+
+/// Holds its first write inside `set` until the test releases it.
+private final class FirstWriteBlockingDefaults: UserDefaults {
+    let writeEntered = DispatchSemaphore(value: 0)
+    let releaseWrite = DispatchSemaphore(value: 0)
+    private let lock = NSLock()
+    private var heldWrite = false
+
+    override func set(_ value: Any?, forKey defaultName: String) {
+        lock.lock()
+        let isFirstWrite = !heldWrite
+        heldWrite = true
+        lock.unlock()
+        if isFirstWrite {
+            writeEntered.signal()
+            releaseWrite.wait()
+        }
+        super.set(value, forKey: defaultName)
+    }
+}
