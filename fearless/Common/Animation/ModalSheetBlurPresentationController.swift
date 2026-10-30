@@ -124,7 +124,8 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
     func layoutPreferredContent(in container: UIView) {
         guard let view = presentedViewController.view else { return }
         if !usesPreferredContentSize {
-            if view.superview === container {
+            // iPhone sheets keep the constraints their appearance animator installs.
+            if container.traitCollection.userInterfaceIdiom == .pad, view.superview === container {
                 let scrolls = (presentedViewController as? SheetAletViewController)?.scrollableContent == true
                 intrinsicLayout.apply(to: view, in: container, fillsHeight: scrolls)
             }

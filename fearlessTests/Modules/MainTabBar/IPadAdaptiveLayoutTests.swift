@@ -896,6 +896,18 @@ final class IPadSheetAlertLayoutTests: XCTestCase {
         XCTAssertEqual(panel.frame, CGRect(x: 0, y: 534, width: 1194, height: 300))
     }
 
+    func testIPhoneSheetsKeepTheConstraintsOfTheirAnimator() {
+        let sheet = UIViewController()
+        let presentation = ModalSheetBlurPresentationController(
+            presentedViewController: sheet, presenting: UIViewController(), configuration: .fearless
+        )
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: 402, height: 874))
+        container.addSubview(sheet.view)
+        presentation.layoutPreferredContent(in: container)
+        XCTAssertTrue(container.constraints.isEmpty)
+        XCTAssertTrue(sheet.view.translatesAutoresizingMaskIntoConstraints)
+    }
+
     func testScrollingSheetAlertIsPresentedAtFullHeight() throws {
         let alert = SheetAletViewController(viewModel: SheetAlertPresentableViewModel(
             title: "Warning", message: "Message", actions: [], closeAction: nil, scrollableContent: true

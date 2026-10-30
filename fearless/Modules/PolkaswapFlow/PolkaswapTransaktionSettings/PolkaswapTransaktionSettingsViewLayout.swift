@@ -135,21 +135,21 @@ final class PolkaswapTransaktionSettingsViewLayout: UIView {
             make.leading.greaterThanOrEqualTo(backButton.snp.trailing)
         }
 
-        addSubview(contentStackView)
-        contentStackView.snp.makeConstraints { make in
-            make.top.equalTo(navigationViewContainer.snp.bottom)
-                .offset(UIConstants.accessoryItemsSpacing)
-            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
-            make.bottom.equalTo(safeAreaLayoutGuide)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            setupScrollingContent()
+        } else {
+            addSubview(contentStackView)
+            contentStackView.snp.makeConstraints { make in
+                make.top.equalTo(navigationViewContainer.snp.bottom)
+                    .offset(UIConstants.accessoryItemsSpacing)
+                make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
+                make.bottom.equalTo(safeAreaLayoutGuide)
+            }
         }
 
         let spacer = UIView()
         spacer.snp.makeConstraints { make in
-            let height = make.height.equalTo(Constants.spacerHeight)
-            // An iPad window can be shorter than this sheet; the gap gives way first.
-            if UIDevice.current.userInterfaceIdiom == .pad {
-                height.priority(740)
-            }
+            make.height.equalTo(Constants.spacerHeight)
         }
 
         contentStackView.addArrangedSubview(selectMarketView)
@@ -182,6 +182,26 @@ final class PolkaswapTransaktionSettingsViewLayout: UIView {
             saveButton
         ]
         contentViews.forEach { makeCommonConstraints(for: $0) }
+    }
+
+    /// An iPad window can be shorter than these settings: the controls then scroll,
+    /// and fill the sheet as before when there is room.
+    private func setupScrollingContent() {
+        let scrollView = UIScrollView()
+        scrollView.alwaysBounceVertical = false
+        addSubview(scrollView)
+        scrollView.addSubview(contentStackView)
+        scrollView.snp.makeConstraints { make in
+            make.top.equalTo(navigationViewContainer.snp.bottom)
+                .offset(UIConstants.accessoryItemsSpacing)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
+            make.bottom.equalTo(safeAreaLayoutGuide)
+        }
+        contentStackView.snp.makeConstraints { make in
+            make.edges.equalTo(scrollView.contentLayoutGuide)
+            make.width.equalTo(scrollView.frameLayoutGuide)
+            make.height.greaterThanOrEqualTo(scrollView.frameLayoutGuide)
+        }
     }
 
     private func applyLocalization() {

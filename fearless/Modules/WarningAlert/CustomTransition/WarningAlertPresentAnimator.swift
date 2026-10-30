@@ -17,7 +17,7 @@ class WarningAlertPresentAnimator: NSObject, UIViewControllerAnimatedTransitioni
     }
 
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        guard UIDevice.current.userInterfaceIdiom == .pad else {
+        guard transitionContext.containerView.traitCollection.userInterfaceIdiom == .pad else {
             animateBottomSheet(using: transitionContext)
             return
         }
