@@ -74,9 +74,15 @@ final class FWEffects {
             Notification.Name.NSProcessInfoPowerStateDidChange,
             UserDefaults.didChangeNotification
         ]
+        // UserDefaults posts its change on the writing thread. A main-queue observer would make that write wait
+        // for the main thread, which deadlocks a writer that holds a lock the main thread is waiting for.
         observations = names.map { name in
-            notificationCenter.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
-                self?.refresh()
+            notificationCenter.addObserver(forName: name, object: nil, queue: nil) { [weak self] _ in
+                if Thread.isMainThread {
+                    self?.refresh()
+                } else {
+                    DispatchQueue.main.async { self?.refresh() }
+                }
             }
         }
     }
