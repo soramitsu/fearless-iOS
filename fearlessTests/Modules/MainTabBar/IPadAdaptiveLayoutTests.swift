@@ -491,6 +491,45 @@ final class IPadWorkspaceLayoutTests: XCTestCase {
         XCTAssertEqual(layout.tableView.frame.width, 561)
     }
 
+    func testWalletSplitsByTheWidthLeftBesideTheSidebar() {
+        let controller = UIViewController()
+        let layout = WalletMainContainerViewLayout(frame: .zero)
+        controller.view = layout
+        let parent = host(controller, width: 1194, height: 834)
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        let scene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first
+        XCTAssertNotNil(scene, "Safe-area propagation needs a live window scene")
+        let window = scene.map(UIWindow.init(windowScene:)) ?? UIWindow(frame: .zero)
+        window.frame = CGRect(x: 0, y: 0, width: 1194, height: 834)
+        window.rootViewController = parent
+        window.makeKeyAndVisible()
+        defer {
+            window.isHidden = true
+            window.rootViewController = nil
+        }
+        func layOut(width: CGFloat, sidebar: CGFloat) {
+            window.frame.size.width = width
+            parent.view.frame = window.bounds
+            controller.view.frame = parent.view.bounds
+            controller.additionalSafeAreaInsets.left = sidebar
+            layout.safeAreaInsetsDidChange()
+            parent.view.layoutIfNeeded()
+            layout.layoutIfNeeded()
+        }
+        let header = layout.headerScrollView
+        let list = layout.pageViewControllerContainer
+
+        layOut(width: 1194, sidebar: 280)
+        XCTAssertGreaterThanOrEqual(list.frame.minX, header.frame.maxX)
+
+        layOut(width: 900, sidebar: 280)
+        XCTAssertGreaterThanOrEqual(list.frame.minY, header.frame.maxY)
+        XCTAssertEqual(list.frame.width, header.frame.width)
+
+        layOut(width: 900, sidebar: 0)
+        XCTAssertGreaterThanOrEqual(list.frame.minX, header.frame.maxX)
+    }
+
     func testAssetSummaryAndHistoryUseWindowDimensionsAcrossRotationAndResize() {
         let controller = IPadContainerSpy()
         let summary = IPadSummarySpy()
