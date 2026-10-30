@@ -32,6 +32,9 @@ final class EraValidatorService {
     /// The active era storage item last received, read again when a request follows a failure or times out.
     var lastActiveEraItem: ChainStorageItem?
     private var lastRecoveryRead: Date?
+    /// Numbers active era reads. A read that fails after a later read began reports nothing: its failure would
+    /// discard the newer read's data.
+    private var readGeneration = 0
     private let requestTimeout: TimeInterval
     private var eraDataProvider: StreamableProvider<ChainStorageItem>?
     private var pendingRequests: [PendingRequest] = []
@@ -94,6 +97,21 @@ final class EraValidatorService {
         if activeEra != era { snapshot = nil }
         failure = nil
         activeEra = era
+    }
+
+    /// Starts a new active era read and returns its number.
+    func beginActiveEraRead() -> Int {
+        readGeneration += 1
+        return readGeneration
+    }
+
+    func didFail(_ error: Error, read generation: Int) {
+        guard generation == readGeneration else {
+            logger?.warning("Ignoring the failure of a replaced era read: \(error)")
+            return
+        }
+
+        didFail(error)
     }
 
     func didFail(_ error: Error) {

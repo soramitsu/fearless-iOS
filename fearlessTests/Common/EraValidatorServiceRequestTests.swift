@@ -85,6 +85,28 @@ final class EraValidatorServiceRequestTests: XCTestCase {
         }
     }
 
+    func testFailureOfAReplacedReadKeepsTheNewerSnapshot() throws {
+        let fixture = try Fixture()
+        let error = NSError(domain: "era-read", code: 1)
+        fixture.service.syncQueue.sync {
+            let replaced = fixture.service.beginActiveEraRead()
+            _ = fixture.service.beginActiveEraRead()
+            fixture.service.didReceiveSnapshot(EraStakersInfo(activeEra: 5, validators: []))
+            fixture.service.didFail(error, read: replaced)
+        }
+        XCTAssertEqual(try fixture.fetch().activeEra, 5)
+    }
+
+    func testFailureOfTheCurrentReadIsReported() throws {
+        let fixture = try Fixture()
+        let error = NSError(domain: "era-read", code: 2)
+        fixture.service.syncQueue.sync {
+            let current = fixture.service.beginActiveEraRead()
+            fixture.service.didFail(error, read: current)
+        }
+        XCTAssertThrowsError(try fixture.fetch()) { XCTAssertEqual($0 as NSError, error) }
+    }
+
     func testRequestAfterAFailedReadReadsTheActiveEraAgainOncePerTimeout() throws {
         let registry = CountingRegistry()
         let fixture = try Fixture(registry: registry)

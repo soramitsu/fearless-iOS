@@ -7,10 +7,10 @@ import SSFRuntimeCodingService
 private typealias IdentifiableExposure = (Data, ValidatorExposure)
 
 extension EraValidatorService {
-    private func handleEraDecodingResult(result: Result<ActiveEraInfo, Error>?) {
+    private func handleEraDecodingResult(result: Result<ActiveEraInfo, Error>?, read generation: Int) {
         guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
             logger?.error(ConvenienceError(error: ChainRegistryError.runtimeMetadaUnavailable.localizedDescription).localizedDescription)
-            didFail(ChainRegistryError.runtimeMetadaUnavailable)
+            didFail(ChainRegistryError.runtimeMetadaUnavailable, read: generation)
             return
         }
         let isPagedValidatorsRequest = runtimeService.snapshot?.metadata.getStorageMetadata(for: .erasStakersOverview) != nil
@@ -20,7 +20,7 @@ extension EraValidatorService {
             didReceiveActiveEra(era.index)
 
             if isPagedValidatorsRequest {
-                fetchEraStakersPaged(activeEra: era.index) { [weak self] eraStakers in
+                fetchEraStakersPaged(activeEra: era.index, read: generation) { [weak self] eraStakers in
                     self?.didReceiveSnapshot(eraStakers)
                 }
             } else {
@@ -30,19 +30,20 @@ extension EraValidatorService {
             }
         case let .failure(error):
             logger?.error("Did receive era decoding error: \(error)")
-            didFail(error)
+            didFail(error, read: generation)
         case .none:
             logger?.warning("Error decoding operation canceled")
-            didFail(BaseOperationError.parentOperationCancelled)
+            didFail(BaseOperationError.parentOperationCancelled, read: generation)
         }
     }
 
     func didUpdateActiveEraItem(_ eraItem: ChainStorageItem?) {
         lastActiveEraItem = eraItem
+        let generation = beginActiveEraRead()
 
         guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainId) else {
             logger?.error(ConvenienceError(error: ChainRegistryError.runtimeMetadaUnavailable.localizedDescription).localizedDescription)
-            didFail(ChainRegistryError.runtimeMetadaUnavailable)
+            didFail(ChainRegistryError.runtimeMetadaUnavailable, read: generation)
             return
         }
 
@@ -68,7 +69,7 @@ extension EraValidatorService {
 
         decodingOperation.completionBlock = { [weak self] in
             self?.syncQueue.async {
-                self?.handleEraDecodingResult(result: decodingOperation.result)
+                self?.handleEraDecodingResult(result: decodingOperation.result, read: generation)
             }
         }
 

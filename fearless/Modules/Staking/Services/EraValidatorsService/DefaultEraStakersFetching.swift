@@ -267,6 +267,7 @@ extension EraValidatorService {
     private func updateFromRemote(
         activeEra: UInt32,
         codingFactory: RuntimeCoderFactoryProtocol,
+        read generation: Int,
         completion: @escaping ((EraStakersInfo) -> Void)
     ) {
         let exposureWrapper = createStakersOverviewWrapper(activeEra: activeEra, codingFactory: codingFactory)
@@ -310,7 +311,7 @@ extension EraValidatorService {
                     )
                 } catch {
                     self?.logger?.error("Did receive error: \(error)")
-                    self?.didFail(error)
+                    self?.didFail(error, read: generation)
                 }
             }
         }
@@ -345,6 +346,7 @@ extension EraValidatorService {
         validators: [ChainStorageItem],
         activeEra: UInt32,
         codingFactory: RuntimeCoderFactoryProtocol,
+        read generation: Int,
         completion: @escaping ((EraStakersInfo) -> Void)
     ) {
         let localDecoder = decodeLocalValidators(validators, codingFactory: codingFactory)
@@ -384,7 +386,7 @@ extension EraValidatorService {
                     )
                 } catch {
                     self?.logger?.error("Did receive error: \(error)")
-                    self?.didFail(error)
+                    self?.didFail(error, read: generation)
                 }
             }
         }
@@ -396,10 +398,14 @@ extension EraValidatorService {
 
     /// Only the coding factory is needed here. The legacy `ErasStakers` map is not encoded: async staking on Asset
     /// Hub has no such storage, and the exposures are read through the paged overview.
-    private func prepareFactoryAndUpdateIfNeeded(activeEra: UInt32, completion: @escaping ((EraStakersInfo) -> Void)) {
+    private func prepareFactoryAndUpdateIfNeeded(
+        activeEra: UInt32,
+        read generation: Int,
+        completion: @escaping ((EraStakersInfo) -> Void)
+    ) {
         guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainId) else {
             logger?.error(ConvenienceError(error: ChainRegistryError.runtimeMetadaUnavailable.localizedDescription).localizedDescription)
-            didFail(ChainRegistryError.runtimeMetadaUnavailable)
+            didFail(ChainRegistryError.runtimeMetadaUnavailable, read: generation)
             return
         }
 
@@ -409,13 +415,13 @@ extension EraValidatorService {
             self?.syncQueue.async {
                 switch codingFactoryOperation.result {
                 case let .success(factory):
-                    self?.updateIfNeeded(activeEra: activeEra, codingFactory: factory, completion: completion)
+                    self?.updateIfNeeded(activeEra: activeEra, codingFactory: factory, read: generation, completion: completion)
                 case let .failure(error):
                     self?.logger?.error("Coding factory preparation error: \(error)")
-                    self?.didFail(error)
+                    self?.didFail(error, read: generation)
                 case .none:
                     self?.logger?.warning("Did cancel coding factory preparation")
-                    self?.didFail(BaseOperationError.parentOperationCancelled)
+                    self?.didFail(BaseOperationError.parentOperationCancelled, read: generation)
                 }
             }
         }
@@ -426,6 +432,7 @@ extension EraValidatorService {
     private func updateIfNeeded(
         activeEra: UInt32,
         codingFactory: RuntimeCoderFactoryProtocol,
+        read generation: Int,
         completion: @escaping ((EraStakersInfo) -> Void)
     ) {
         guard
@@ -434,7 +441,7 @@ extension EraValidatorService {
                 activeEra: activeEra
             ) else {
             logger?.error("Can't create local storage key prefix key")
-            didFail(EraValidatorServiceError.unexpectedInfo)
+            didFail(EraValidatorServiceError.unexpectedInfo, read: generation)
             return
         }
 
@@ -454,6 +461,7 @@ extension EraValidatorService {
                         self?.updateFromRemote(
                             activeEra: activeEra,
                             codingFactory: codingFactory,
+                            read: generation,
                             completion: completion
                         )
                     } else {
@@ -461,12 +469,13 @@ extension EraValidatorService {
                             validators: validators,
                             activeEra: activeEra,
                             codingFactory: codingFactory,
+                            read: generation,
                             completion: completion
                         )
                     }
                 } catch {
                     self?.logger?.error("Local fetch failed: \(error)")
-                    self?.didFail(error)
+                    self?.didFail(error, read: generation)
                 }
             }
         }
@@ -476,8 +485,9 @@ extension EraValidatorService {
 
     func fetchEraStakersPaged(
         activeEra: UInt32,
+        read generation: Int,
         completion: @escaping ((EraStakersInfo) -> Void)
     ) {
-        prepareFactoryAndUpdateIfNeeded(activeEra: activeEra, completion: completion)
+        prepareFactoryAndUpdateIfNeeded(activeEra: activeEra, read: generation, completion: completion)
     }
 }
