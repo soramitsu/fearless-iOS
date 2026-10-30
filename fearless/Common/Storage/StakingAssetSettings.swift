@@ -86,7 +86,14 @@ final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
         value: ChainAsset,
         completionClosure: @escaping (Result<ChainAsset, Error>) -> Void
     ) {
-        guard AssetHubStakingRoute.migrating(value.chain.chainId) == nil else {
+        // A screen can still hold a stored chain this build does not offer staking on: a migrated relay, an
+        // unsupported network such as Reef, or a parachain-staking asset.
+        let offeredAsset = NetworkRetirement.offered(value.chain)?.assets.first { $0.id == value.asset.id }
+        guard
+            AssetHubStakingRoute.migrating(value.chain.chainId) == nil,
+            !value.chain.disabled,
+            offeredAsset?.offersStaking == true
+        else {
             completionClosure(.failure(StakingServiceFactoryError.stakingUnavailable))
             return
         }

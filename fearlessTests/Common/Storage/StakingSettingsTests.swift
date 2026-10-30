@@ -412,3 +412,103 @@ final class StakingAssetHubSettingsTests: XCTestCase {
         return (settings, preferences)
     }
 }
+
+/// What staking screens may offer or save while stored chains are not cleaned up yet after an upgrade.
+final class StakingChoiceTests: XCTestCase {
+    func testPickerOffersOnlyStakingThisBuildOffersBeforeStoredChainsAreCleanedUp() {
+        let route = AssetHubStakingRoute.routes[0]
+        let migratedRelay = makeChain(route.relayChainId, assetId: route.nativeAssetId, options: [.poolStaking])
+        let hub = makeChain(
+            route.stakingChainId,
+            parent: route.relayChainId,
+            assetId: route.nativeAssetId,
+            staking: .assetHub,
+            options: [.poolStaking]
+        )
+        let reef = makeChain(Chain.reef.genesisHash)
+        let moonbaseAlpha = makeChain(Chain.moonbaseAlpha.genesisHash, staking: .paraChain)
+        let ternoa = makeChain(Chain.ternoa.genesisHash, options: [.poolStaking])
+        let presenter = StakingAssetSelectionPresenter(
+            interactor: MockChainSelectionInteractorInputProtocol(),
+            wireframe: MockAssetSelectionWireframeProtocol(),
+            assetFilter: { $0.offersStaking },
+            type: .normal(chainAsset: nil),
+            selectedMetaAccount: AccountGenerator.generateMetaAccount(),
+            assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
+            localizationManager: LocalizationManager.shared
+        )
+
+        presenter.didReceiveChains(result: .success([migratedRelay, hub, reef, moonbaseAlpha, ternoa]))
+
+        let entries = (0 ..< presenter.numberOfItems).compactMap {
+            (presenter.item(at: $0) as? AssetSelectionTableViewCellModel)?.stakingType
+        }
+        let direct = entries.compactMap { entry -> ChainModel.Id? in
+            guard case let .normal(chainAsset) = entry else { return nil }
+            return chainAsset?.chain.chainId
+        }
+        let pools = entries.compactMap { entry -> ChainModel.Id? in
+            guard case let .pool(chainAsset) = entry else { return nil }
+            return chainAsset?.chain.chainId
+        }
+        XCTAssertEqual(direct, [hub.chainId, ternoa.chainId])
+        XCTAssertEqual(pools, [ternoa.chainId], "no pools on a migrated relay or an Asset Hub")
+    }
+
+    func testSavingAChoiceThisBuildDoesNotOfferIsRefused() throws {
+        let preferences = InMemorySettingsManager()
+        let settings = StakingAssetSettings(
+            storageFacade: SubstrateStorageTestFacade(),
+            settings: preferences,
+            operationQueue: OperationQueue(),
+            wallet: AccountGenerator.generateMetaAccount()
+        )
+        let refused = [
+            makeChain(Chain.reef.genesisHash),
+            makeChain(Chain.moonbaseAlpha.genesisHash, staking: .paraChain),
+            makeChain(Chain.ternoa.genesisHash).replacingDisabled(true)
+        ]
+
+        for chain in refused {
+            XCTAssertFalse(try save(chain, in: settings), chain.chainId)
+        }
+        XCTAssertNil(preferences.stakingAsset)
+
+        let ternoa = makeChain(Chain.ternoa.genesisHash)
+        XCTAssertTrue(try save(ternoa, in: settings))
+        XCTAssertEqual(preferences.stakingAsset?.chainId, ternoa.chainId)
+    }
+
+    private func save(_ chain: ChainModel, in settings: StakingAssetSettings) throws -> Bool {
+        let asset = try XCTUnwrap(chain.assets.first)
+        var succeeded = false
+        let finished = XCTestExpectation(description: "save finished")
+        settings.save(value: ChainAsset(chain: chain, asset: asset), runningCompletionIn: nil) { result in
+            if case .success = result {
+                succeeded = true
+            }
+            finished.fulfill()
+        }
+        wait(for: [finished], timeout: 30)
+        return succeeded
+    }
+
+    private func makeChain(
+        _ chainId: ChainModel.Id,
+        parent: ChainModel.Id? = nil,
+        assetId: AssetModel.Id = "native",
+        staking: RawStakingType = .relayChain,
+        options: [ChainOptions]? = nil
+    ) -> ChainModel {
+        let asset = AssetModel(
+            id: assetId, name: "Native", symbol: "NAT", precision: 10,
+            isUtility: true, isNative: true, staking: staking, type: .normal
+        )
+        return ChainModel(
+            rank: nil, disabled: false, chainId: chainId, parentId: parent, paraId: parent == nil ? nil : "1000",
+            name: "Network", assets: [asset], xcm: nil,
+            nodes: [ChainNodeModel(url: URL(string: "wss://choice-\(chainId.prefix(16)).invalid")!, name: "Test", apikey: nil)],
+            addressPrefix: 0, icon: nil, options: options, iosMinAppVersion: nil, identityChain: nil
+        )
+    }
+}
