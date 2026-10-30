@@ -1,6 +1,7 @@
 import XCTest
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 import BigInt
 import IrohaCrypto
 import RobinHood
@@ -86,7 +87,7 @@ final class AssetHubExtrinsicGenesisTests: XCTestCase {
         XCTAssertEqual(signer.payloads, [expected])
     }
 
-    func testNodeOnAnotherNetworkCannotObtainAssetHubSignature() throws {
+    func testImmortalSigningRefusesANodeWhoseBlockZeroIsAnotherNetwork() throws {
         let runtime = try AssetHubRuntimeFixture(name: "kusama")
         let engine = GenesisEngine(blockZero: Data(repeating: 9, count: 32).toHex())
         let signer = RecordingSigner()
@@ -95,6 +96,39 @@ final class AssetHubExtrinsicGenesisTests: XCTestCase {
             makeFactory(runtime: runtime, engine: engine).submit({ try $0.adding(call: call) }, signer: signer)
         ))
         XCTAssertTrue(signer.payloads.isEmpty)
+    }
+
+    /// A mortal signature asked for by a node of another network is still bound to the hub's genesis, so it is not valid
+    /// there; the node is never asked for block zero.
+    func testMortalSignatureFromAnyNodeIsBoundToTheRouteGenesis() throws {
+        let runtime = try AssetHubRuntimeFixture(name: "polkadot")
+        let checkpoint = Data(repeating: 7, count: 32).toHex()
+        let engine = GenesisEngine(blockZero: Data(repeating: 9, count: 32).toHex(), blockHash: checkpoint)
+        let factory = ExtrinsicOperationFactory(
+            accountId: AssetHubTestSupport.nominator,
+            chainFormat: .substrate(0),
+            cryptoType: .sr25519,
+            runtimeRegistry: runtime,
+            engine: engine,
+            eraOperationFactory: FixedEraFactory(parameters: ExtrinsicEraParameters(
+                blockNumber: 100, extrinsicEra: .mortal(period: 64, phase: 36)
+            ))
+        )
+        let signer = RecordingSigner()
+        let call = SubstrateCallFactoryDefault(runtimeService: runtime).chill()
+
+        _ = try AssetHubTestSupport.execute(factory.submit({ try $0.adding(call: call) }, signer: signer))
+
+        let expected = try AssetHubExtrinsicBuilder(factory: runtime.factory, genesisHash: runtime.chainId)
+            .with(nonce: 7)
+            .with(era: .mortal(period: 64, phase: 36), blockHash: checkpoint)
+            .adding(call: call)
+            .buildSignature(encodingBy: runtime.factory.createEncoder(), metadata: runtime.factory.metadata)
+        XCTAssertEqual(signer.payloads, [expected])
+        let genesis = try Data(hexStringSSF: runtime.chainId)
+        XCTAssertNotNil(expected.range(of: genesis), "The signed payload carries the hub genesis")
+        XCTAssertNil(expected.range(of: Data(repeating: 9, count: 32)), "The node's block zero is not signed")
+        XCTAssertEqual(engine.blockHashParameters, ["0x00000064"], "Only the mortality checkpoint is asked for")
     }
 
     func testPinnedGenesisThatIsNotTheRouteIsRefusedBeforeSigning() throws {
@@ -141,6 +175,17 @@ final class AssetHubExtrinsicGenesisTests: XCTestCase {
         )
     }
 
+    private struct FixedEraFactory: ExtrinsicEraOperationFactoryProtocol {
+        let parameters: ExtrinsicEraParameters
+
+        func createOperation(
+            from _: JSONRPCEngine,
+            runtimeService _: RuntimeCodingServiceProtocol
+        ) -> CompoundOperationWrapper<ExtrinsicEraParameters> {
+            CompoundOperationWrapper.createWithResult(parameters)
+        }
+    }
+
     private final class RecordingSigner: SigningWrapperProtocol {
         private(set) var payloads: [Data] = []
 
@@ -153,8 +198,10 @@ final class AssetHubExtrinsicGenesisTests: XCTestCase {
     /// Answers nonce, block hash and submission; records the methods it was asked.
     private final class GenesisEngine: JSONRPCEngine {
         let blockZero: String
+        let blockHash: String?
         private let lock = NSLock()
         private var recorded: [String] = []
+        private var heights: [String] = []
         private var identifier: UInt16 = 0
         var connectionName: String?
         var url: URL?
@@ -165,22 +212,36 @@ final class AssetHubExtrinsicGenesisTests: XCTestCase {
             return recorded
         }
 
-        init(blockZero: String) {
+        var blockHashParameters: [String] {
+            lock.lock(); defer { lock.unlock() }
+            return heights
+        }
+
+        init(blockZero: String, blockHash: String? = nil) {
             self.blockZero = blockZero
+            self.blockHash = blockHash
         }
 
         func callMethod<P: Codable, T: Decodable>(
             _ method: String,
-            params _: P?,
+            params: P?,
             options _: JSONRPCOptions,
             completion closure: ((Result<T, Error>) -> Void)?
         ) throws -> UInt16 {
             let requestId = generateRequestId()
+            let parameters = try params.map {
+                try JSONSerialization.jsonObject(with: JSONEncoder().encode($0)) as? [Any] ?? []
+            } ?? []
             lock.lock(); recorded.append(method); lock.unlock()
             let answer: Any
             switch method {
             case RPCMethod.getExtrinsicNonce: answer = 7
-            case RPCMethod.getBlockHash: answer = blockZero.hasPrefix("0x") ? blockZero : "0x" + blockZero
+            case RPCMethod.getBlockHash:
+                let height = parameters.first as? String ?? ""
+                lock.lock(); heights.append(height); lock.unlock()
+                let isBlockZero = UInt64(height.replacingOccurrences(of: "0x", with: ""), radix: 16) == 0
+                let hash = isBlockZero ? blockZero : (blockHash ?? blockZero)
+                answer = hash.hasPrefix("0x") ? hash : "0x" + hash
             case RPCMethod.submitExtrinsic: answer = "0x01"
             default:
                 closure?(.failure(NSError(domain: "unexpected \(method)", code: 1)))

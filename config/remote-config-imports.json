@@ -160,7 +160,7 @@
       "commit": "f2ed4ccf1d3a6376b60ebd69d823a3f7748ddc4b",
       "sourcePath": "chains/v13/chains_dev.json",
       "upstreamSha256": "5726b01a5364d955e250939c71082c03f97da0dc9512ac9d120c6a2085173d05",
-      "ownedSha256": "2a79090d0f3b39c45dabfd22e7aebf297e59b87f211b9de62a720619e6d10f21"
+      "ownedSha256": "afe5811da8128206468c39a947348f5738535166f6c43ffa0b50d0b6f4ff45c4"
     },
     {
       "path": "development/chains/v9/chains_dev.json",
@@ -3424,7 +3424,7 @@
       "commit": "ca1c2655ff541ae5942d820423962d34fd29d7f9",
       "sourcePath": "chains/v13/chains.json",
       "upstreamSha256": "79a583f08f71139a31e00c825c746891cef50c04aa81318aaa492807757b9cec",
-      "ownedSha256": "96d4922c90f46c613f3d361729b4c140ecf4be7bd1a8645629b1218fcbcb1bfc"
+      "ownedSha256": "dfd74369af4ca71df676c540fce588086c07069dfb9f5655b0e1280720b4b9f8"
     },
     {
       "path": "production/chains/v2/chains.json",
@@ -7706,7 +7706,7 @@
         "remote-config/development/chains/v13/chains_dev.json"
       ],
       "changes": [
-        "Polkadot Asset Hub (DOT) and Kusama Asset Hub (KSM) offer relay-chain-type staking again: staking moved there from the relays (Kusama 2025-10-07, Polkadot 2025-11-04) and a stake kept its address. Both hubs take their relay's People chain as identity chain, so validator identities resolve. The app follows this only for the hub's native token and offers no pool staking or crowdloans there"
+        "Polkadot Asset Hub (DOT) and Kusama Asset Hub (KSM) offer staking again as \"staking\": \"assetHub\": staking moved there from the relays (Kusama 2025-10-07, Polkadot 2025-11-04) and a stake kept its address. Builds without Asset Hub staking decode the value as no staking, so they never run relay staking code against a hub; never mark the hubs relaychain or poolStaking. Both hubs take their relay's People chain as identity chain, so validator identities resolve; the development list gains the Polkadot People entry from the production list for this. The app follows this only for the hub's native token and offers no pool staking or crowdloans there"
       ]
     }
   ]

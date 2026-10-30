@@ -162,7 +162,7 @@ final class AssetHubOperationIntegrationTests: XCTestCase {
         let route = try XCTUnwrap(AssetHubStakingRoute.staking(on: fixture.runtime.chainId))
         let asset = AssetModel(
             id: route.nativeAssetId, name: "DOT", symbol: "DOT", precision: 10,
-            isUtility: true, isNative: false, staking: .relayChain, type: .normal
+            isUtility: true, isNative: false, staking: .assetHub, type: .normal
         )
         let listed = ChainModel(
             rank: nil, disabled: false, chainId: route.stakingChainId, parentId: route.relayChainId, paraId: "1000",

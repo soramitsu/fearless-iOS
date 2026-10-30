@@ -22,7 +22,8 @@ final class AssetHubStakingTests: XCTestCase {
             ))
             XCTAssertEqual(selected.chain.chainId, route.stakingChainId)
             XCTAssertEqual(selected.asset.id, route.nativeAssetId)
-            XCTAssertEqual(selected.asset.staking, .relayChain)
+            XCTAssertEqual(selected.asset.staking, .assetHub)
+            XCTAssertEqual(selected.stakingType, .relaychain)
             XCTAssertEqual(selected.chain.parentId, route.relayChainId)
             XCTAssertNil(catalog.first(where: { $0.chainId == route.relayChainId })?.assets.first?.staking)
             XCTAssertEqual(NetworkRetirement.applying(to: catalog), catalog)
@@ -37,13 +38,17 @@ final class AssetHubStakingTests: XCTestCase {
         )
         let listed = hub(route, extraAssets: [stablecoin], options: [.poolStaking, .crowdloans, .utilityFeePayment])
         let offered = try XCTUnwrap(NetworkRetirement.offered(listed))
-        XCTAssertEqual(offered.assets.first(where: { $0.id == route.nativeAssetId })?.staking, .relayChain)
+        XCTAssertEqual(offered.assets.first(where: { $0.id == route.nativeAssetId })?.staking, .assetHub)
         XCTAssertNil(offered.assets.first(where: { $0.id == "usdt" })?.staking)
         XCTAssertEqual(offered.options, [.utilityFeePayment])
         XCTAssertEqual(NetworkRetirement.storedUpdates(for: [listed]), [offered])
         XCTAssertEqual(NetworkRetirement.storedUpdates(for: [offered]), [])
 
         XCTAssertNil(NetworkRetirement.offered(hub(route, staking: .paraChain))?.assets.first?.staking)
+        XCTAssertNil(
+            NetworkRetirement.offered(hub(route, staking: .relayChain))?.assets.first?.staking,
+            "Relay staking code never runs against a hub"
+        )
         XCTAssertNil(NetworkRetirement.offered(hub(route, type: .assets))?.assets.first?.staking)
     }
 
@@ -79,6 +84,35 @@ final class AssetHubStakingTests: XCTestCase {
             other.chainAssetId,
             "A saved staking asset outside the routes is kept"
         )
+    }
+
+    func testAssetHubValueIsRelayTypeStakingAndUnknownValuesDecodeToNoStaking() throws {
+        func decode(_ staking: String) throws -> AssetModel {
+            let json = "{\"id\":\"a\",\"name\":\"a\",\"symbol\":\"a\",\"precision\":10,\"staking\":\"\(staking)\"}"
+            return try JSONDecoder().decode(AssetModel.self, from: Data(json.utf8))
+        }
+        XCTAssertEqual(try decode("assetHub").staking, .assetHub)
+        XCTAssertEqual(try decode("relaychain").staking, .relayChain)
+        XCTAssertNil(try decode("futureStakingKind").staking, "A value a build does not know means no staking")
+        XCTAssertEqual(StakingType(rawStakingType: .assetHub), .relaychain)
+        XCTAssertTrue(RawStakingType.assetHub.isRelaychain)
+    }
+
+    func testAssetHubStakingOutsideTheRoutesIsDropped() throws {
+        let asset = AssetModel(
+            id: "native", name: "native", symbol: "N", precision: 10, isUtility: true, isNative: true, staking: .assetHub
+        )
+        let kept = AssetModel(
+            id: "other", name: "other", symbol: "O", precision: 10, isUtility: false, isNative: false, staking: .relayChain
+        )
+        let chain = ChainModel(
+            rank: nil, disabled: false, chainId: "unrelated", paraId: nil, name: "Other", assets: [asset, kept], xcm: nil,
+            nodes: [], addressPrefix: 42, icon: nil, options: [.poolStaking], iosMinAppVersion: nil, identityChain: nil
+        )
+        let offered = try XCTUnwrap(NetworkRetirement.offered(chain))
+        XCTAssertNil(offered.assets.first(where: { $0.id == "native" })?.staking)
+        XCTAssertEqual(offered.assets.first(where: { $0.id == "other" })?.staking, .relayChain)
+        XCTAssertEqual(offered.options, [.poolStaking], "Only the misplaced value is dropped")
     }
 
     func testDurationUsesHubSessionsAndBondingButRelayBabeClock() throws {
@@ -174,7 +208,7 @@ final class AssetHubStakingTests: XCTestCase {
     private func hub(
         _ route: AssetHubStakingRoute,
         parent: String? = nil,
-        staking: RawStakingType = .relayChain,
+        staking: RawStakingType = .assetHub,
         type: SubstrateAssetType = .normal,
         extraAssets: [AssetModel] = [],
         options: [ChainOptions]? = [.utilityFeePayment]

@@ -29,8 +29,9 @@ final class EraValidatorService {
 
     private var snapshot: EraStakersInfo?
     private var failure: Error?
-    /// The active era storage item last received, read again when a request follows a failure.
+    /// The active era storage item last received, read again when a request follows a failure or times out.
     var lastActiveEraItem: ChainStorageItem?
+    private var lastRecoveryRead: Date?
     private let requestTimeout: TimeInterval
     private var eraDataProvider: StreamableProvider<ChainStorageItem>?
     private var pendingRequests: [PendingRequest] = []
@@ -116,9 +117,7 @@ final class EraValidatorService {
             // The next request starts over from the last active era rather than repeating this failure until the era
             // changes, which takes a day on Polkadot.
             self.failure = nil
-            if isActive, let item = lastActiveEraItem {
-                didUpdateActiveEraItem(item)
-            }
+            readActiveEraAgain()
         } else {
             pendingRequests.append(request)
             syncQueue.asyncAfter(deadline: .now() + requestTimeout) { [weak self] in
@@ -126,8 +125,19 @@ final class EraValidatorService {
                       let index = self.pendingRequests.firstIndex(where: { $0.id == request.id }) else { return }
                 let timedOut = self.pendingRequests.remove(at: index)
                 self.deliver(result: .failure(EraValidatorServiceError.requestTimedOut), to: timedOut)
+                self.readActiveEraAgain()
             }
         }
+    }
+
+    /// Reads the last active era item again after a failure or a request that timed out, at most once per request
+    /// timeout, so a lost read is retried without stacking parallel validator downloads.
+    private func readActiveEraAgain() {
+        guard isActive, let item = lastActiveEraItem else { return }
+        let now = Date()
+        if let last = lastRecoveryRead, now.timeIntervalSince(last) < requestTimeout { return }
+        lastRecoveryRead = now
+        didUpdateActiveEraItem(item)
     }
 
     private func deliver(result: Result<EraStakersInfo, Error>, to request: PendingRequest) {

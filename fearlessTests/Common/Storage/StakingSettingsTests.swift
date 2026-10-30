@@ -219,7 +219,7 @@ final class StakingAssetHubSettingsTests: XCTestCase {
     func testSavedRelayChoiceOpensItsAssetHubAndIsRewritten() throws {
         let route = AssetHubStakingRoute.routes[0]
         let relay = makeChain(route.relayChainId, parent: nil, assetId: route.nativeAssetId, staking: nil)
-        let hub = makeChain(route.stakingChainId, parent: route.relayChainId, assetId: route.nativeAssetId)
+        let hub = makeChain(route.stakingChainId, parent: route.relayChainId, assetId: route.nativeAssetId, staking: .assetHub)
         let saved = ChainAssetId(chainId: relay.chainId, assetId: route.nativeAssetId)
         let fixture = try prepare(chains: [relay, hub], saved: saved)
 
@@ -233,7 +233,7 @@ final class StakingAssetHubSettingsTests: XCTestCase {
     func testFallbackPrefersAssetHubOverOtherStakingChains() throws {
         let route = AssetHubStakingRoute.routes[1]
         let other = makeChain(String(repeating: "01", count: 32), parent: nil, assetId: "native")
-        let hub = makeChain(route.stakingChainId, parent: route.relayChainId, assetId: route.nativeAssetId)
+        let hub = makeChain(route.stakingChainId, parent: route.relayChainId, assetId: route.nativeAssetId, staking: .assetHub)
         let fixture = try prepare(chains: [other, hub], saved: nil)
 
         fixture.settings.setup()

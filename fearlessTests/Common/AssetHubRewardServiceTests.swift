@@ -228,3 +228,68 @@ final class AssetHubRewardServiceTests: XCTestCase {
         private func unsupported() -> NSError { NSError(domain: "unexpected storage request", code: 1) }
     }
 }
+
+/// Asset Hub payouts are read from chain storage, so the payouts screen asks for them without a staking indexer.
+final class AssetHubPayoutsScreenTests: XCTestCase {
+    func testHubPayoutsAreRequestedWithoutAStakingIndexer() throws {
+        let hub = AssetHubStakingRoute.routes[0].stakingChainId
+        let fixture = try Fixture(chainAsset: AssetHubTestSupport.makeAsset(chainId: hub, staking: .assetHub))
+        fixture.interactor.reload()
+        XCTAssertEqual(fixture.service.requests, 1)
+    }
+
+    func testChainWithoutIndexerOutsideTheRoutesStillShowsNoPayouts() throws {
+        let fixture = try Fixture(chainAsset: AssetHubTestSupport.makeAsset(chainId: "legacy"))
+        fixture.interactor.reload()
+        XCTAssertEqual(fixture.service.requests, 0)
+        XCTAssertEqual(fixture.output.payoutCounts, [0])
+    }
+
+    private final class Fixture {
+        let service = CountingPayoutService()
+        let output = Output()
+        let interactor: StakingRewardPayoutsInteractor
+
+        init(chainAsset: ChainAsset) throws {
+            let manager = OperationManager()
+            interactor = StakingRewardPayoutsInteractor(
+                stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactory(
+                    chainRegistry: ChainRegistryProtocolStub(),
+                    storageFacade: SubstrateStorageTestFacade(),
+                    operationManager: manager,
+                    logger: Logger.shared
+                ),
+                payoutService: service,
+                chainAsset: chainAsset,
+                eraCountdownOperationFactory: EraCountdownOperationFactory(
+                    storageRequestFactory: StorageRequestFactory(remoteFactory: StorageKeyFactory(), operationManager: manager)
+                ),
+                operationManager: manager,
+                runtimeService: try StakingConstantRuntime(),
+                connection: MockConnection()
+            )
+            interactor.presenter = output
+        }
+    }
+
+    private final class CountingPayoutService: PayoutRewardsServiceProtocol {
+        private(set) var requests = 0
+
+        func fetchPayoutsOperationWrapper() -> CompoundOperationWrapper<PayoutsInfo> {
+            requests += 1
+            return CompoundOperationWrapper(targetOperation: ClosureOperation {
+                PayoutsInfo(activeEra: 1, historyDepth: 84, payouts: [])
+            })
+        }
+    }
+
+    private final class Output: StakingRewardPayoutsInteractorOutputProtocol {
+        private(set) var payoutCounts: [Int] = []
+
+        func didReceive(result: Result<PayoutsInfo, PayoutRewardsServiceError>) {
+            if case let .success(info) = result { payoutCounts.append(info.payouts.count) }
+        }
+
+        func didReceive(eraCountdownResult _: Result<EraCountdown, Error>) {}
+    }
+}

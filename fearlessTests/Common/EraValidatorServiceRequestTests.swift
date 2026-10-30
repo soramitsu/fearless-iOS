@@ -1,5 +1,6 @@
 import RobinHood
 import SSFModels
+import SSFRuntimeCodingService
 import XCTest
 @testable import fearless
 
@@ -84,6 +85,49 @@ final class EraValidatorServiceRequestTests: XCTestCase {
         }
     }
 
+    func testRequestAfterAFailedReadReadsTheActiveEraAgainOncePerTimeout() throws {
+        let registry = CountingRegistry()
+        let fixture = try Fixture(registry: registry)
+        let key = try LocalStorageKeyFactory().createFromStoragePath(.activeEra, chainId: fixture.chain.chainId)
+        let repository: CoreDataRepository<ChainStorageItem, fearless.CDChainStorageItem> = fixture.facade.createRepository()
+        let save = repository.saveOperation({ [ChainStorageItem(identifier: key, data: Data([1, 0, 0, 0, 0]))] }, { [] })
+        OperationQueue().addOperations([save], waitUntilFinished: true)
+        _ = try XCTUnwrap(save.result).get()
+
+        fixture.service.setup()
+        // The subscription delivers the stored era; reading it fails because no runtime is available.
+        wait(for: [registry.expectation(atLeast: 1)], timeout: 30)
+        fixture.drain()
+
+        XCTAssertThrowsError(try fixture.fetch()) { error in
+            guard case ChainRegistryError.runtimeMetadaUnavailable = error else { return XCTFail("Unexpected \(error)") }
+        }
+        wait(for: [registry.expectation(atLeast: 2)], timeout: 30)
+        fixture.drain()
+        XCTAssertThrowsError(try fixture.fetch(), "The read that followed failed again and is reported once")
+        fixture.drain()
+        XCTAssertEqual(registry.runtimeRequests, 2, "Another read waits for the request timeout")
+    }
+
+    private final class CountingRegistry: ChainRegistryProtocolStub, @unchecked Sendable {
+        private let lock = NSLock()
+        private var requests = 0
+
+        var runtimeRequests: Int {
+            lock.lock(); defer { lock.unlock() }
+            return requests
+        }
+
+        override func getRuntimeProvider(for _: ChainModel.Id) -> RuntimeProviderProtocol? {
+            lock.lock(); requests += 1; lock.unlock()
+            return nil
+        }
+
+        func expectation(atLeast count: Int) -> XCTestExpectation {
+            XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in self.runtimeRequests >= count }, object: nil)
+        }
+    }
+
     private final class ProviderFactory: SubstrateDataProviderFactoryProtocol {
         let underlying: SubstrateDataProviderFactory
         private(set) var storageKeys: [String] = []
@@ -109,7 +153,7 @@ final class EraValidatorServiceRequestTests: XCTestCase {
         let provider: ProviderFactory
         let service: EraValidatorService
 
-        init(requestTimeout: TimeInterval = 60) throws {
+        init(requestTimeout: TimeInterval = 60, registry: ChainRegistryProtocol = ChainRegistryProtocolStub()) throws {
             chain = try XCTUnwrap(ChainModelGenerator.generate(count: 1).first)
             provider = ProviderFactory(facade: facade, manager: manager)
             service = EraValidatorService(
@@ -118,7 +162,7 @@ final class EraValidatorServiceRequestTests: XCTestCase {
                 providerFactory: provider,
                 operationManager: manager,
                 eventCenter: EventCenterProtocolStub(),
-                chainRegistry: ChainRegistryProtocolStub(),
+                chainRegistry: registry,
                 requestTimeout: requestTimeout
             )
         }

@@ -60,18 +60,19 @@ struct AssetHubStakingRoute: Equatable {
         return ChainAsset(chain: chain, asset: asset)
     }
 
-    /// On an Asset Hub only the relay's native token stakes, as direct (relay chain) staking. A downloaded list that
-    /// declares staking for any other asset there is not followed.
+    /// On an Asset Hub only the relay's native token stakes, and only when the list marks it `assetHub`: builds
+    /// without Asset Hub staking ignore that value. Staking a list declares for any other asset there, or `assetHub`
+    /// staking on a chain outside the routes, is not followed.
     static func offersStaking(_ asset: AssetModel, on chain: ChainModel) -> Bool {
         guard let route = staking(on: chain.chainId) else {
-            return asset.staking != nil
+            return asset.staking != nil && asset.staking != .assetHub
         }
 
         return chain.parentId == route.relayChainId &&
             asset.id == route.nativeAssetId &&
             asset.isUtility &&
             asset.type == .normal &&
-            asset.staking == .relayChain
+            asset.staking == .assetHub
     }
 
     /// Portable metadata describes these runtimes, so a missing chain types entry is not a missing schema.

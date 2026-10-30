@@ -86,6 +86,10 @@ enum NetworkRetirement {
             return chain.limitingToAssetHubStaking()
         }
 
+        if chain.assets.contains(where: { $0.staking == .assetHub }) {
+            return chain.removingAssetHubStaking()
+        }
+
         return chain
     }
 
@@ -114,7 +118,19 @@ private extension ChainModel {
         }))
     }
 
+    /// `assetHub` staking belongs to the Asset Hub routes only; elsewhere the asset keeps no staking.
+    func removingAssetHubStaking() -> ChainModel {
+        replacing(
+            assets: Set(assets.map { $0.staking == .assetHub ? $0.removingStaking() : $0 }),
+            options: options
+        )
+    }
+
     func replacingStaking(assets: Set<AssetModel>) -> ChainModel {
+        replacing(assets: assets, options: options?.filter { $0 != .poolStaking && $0 != .crowdloans })
+    }
+
+    func replacing(assets: Set<AssetModel>, options: [ChainOptions]?) -> ChainModel {
         ChainModel(
             rank: rank,
             disabled: disabled,
@@ -128,7 +144,7 @@ private extension ChainModel {
             addressPrefix: addressPrefix,
             types: types,
             icon: icon,
-            options: options?.filter { $0 != .poolStaking && $0 != .crowdloans },
+            options: options,
             externalApi: externalApi,
             selectedNode: selectedNode,
             customNodes: customNodes,

@@ -56,13 +56,15 @@ extension StakingMainInteractor {
             return
         }
 
-        // Asset Hub's unbonding period is read for one account: drop a result that arrives after a switch.
+        // Asset Hub's unbonding period is read for one account and is requested again after a wallet switch, so a
+        // result for the previous account is dropped there. Elsewhere the network info does not depend on the account.
+        let accountSpecific = AssetHubStakingRoute.staking(on: chainId) != nil
         let requestedAccountId = selectedAccount?.accountId
         wrapper.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 guard
                     self?.selectedChainAsset?.chain.chainId == chainId,
-                    self?.selectedAccount?.accountId == requestedAccountId
+                    !accountSpecific || self?.selectedAccount?.accountId == requestedAccountId
                 else {
                     return
                 }

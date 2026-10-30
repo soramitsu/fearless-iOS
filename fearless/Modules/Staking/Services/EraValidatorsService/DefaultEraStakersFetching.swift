@@ -84,9 +84,9 @@ extension EraValidatorService {
     private func createStakersOverviewWrapper(
         activeEra: UInt32,
         codingFactory: RuntimeCoderFactoryProtocol
-    ) -> AwaitOperation<[Data: StorageResponse<ValidatorExposureMetadata>]> {
+    ) -> BaseOperation<[Data: StorageResponse<ValidatorExposureMetadata>]> {
         guard let connection = chainRegistry.getConnection(for: chainId) else {
-            return AwaitOperation<[Data: StorageResponse<ValidatorExposureMetadata>]>.createWithError(ChainRegistryError.runtimeMetadaUnavailable) as! AwaitOperation<[Data: StorageResponse<ValidatorExposureMetadata>]>
+            return BaseOperation.createWithError(ChainRegistryError.connectionUnavailable)
         }
 
         let requestFactory = AsyncStorageRequestDefault()
@@ -124,9 +124,9 @@ extension EraValidatorService {
     private func createValidatorOthersWrapper(
         activeEra: UInt32,
         codingFactory: RuntimeCoderFactoryProtocol
-    ) -> AwaitOperation<[Data: ValidatorExposurePage]> {
+    ) -> BaseOperation<[Data: ValidatorExposurePage]> {
         guard let connection = chainRegistry.getConnection(for: chainId) else {
-            return AwaitOperation<[Data: ValidatorExposurePage]>.createWithError(ChainRegistryError.runtimeMetadaUnavailable) as! AwaitOperation<[Data: ValidatorExposurePage]>
+            return BaseOperation.createWithError(ChainRegistryError.connectionUnavailable)
         }
 
         let requestFactory = AsyncStorageRequestDefault()
@@ -310,6 +310,7 @@ extension EraValidatorService {
                     )
                 } catch {
                     self?.logger?.error("Did receive error: \(error)")
+                    self?.didFail(error)
                 }
             }
         }
@@ -383,6 +384,7 @@ extension EraValidatorService {
                     )
                 } catch {
                     self?.logger?.error("Did receive error: \(error)")
+                    self?.didFail(error)
                 }
             }
         }
@@ -392,52 +394,33 @@ extension EraValidatorService {
         operationManager.enqueue(operations: operations, in: .transient)
     }
 
-    private func preparePrefixKeyAndUpdateIfNeeded(activeEra: UInt32, completion: @escaping ((EraStakersInfo) -> Void)) {
+    /// Only the coding factory is needed here. The legacy `ErasStakers` map is not encoded: async staking on Asset
+    /// Hub has no such storage, and the exposures are read through the paged overview.
+    private func prepareFactoryAndUpdateIfNeeded(activeEra: UInt32, completion: @escaping ((EraStakersInfo) -> Void)) {
         guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainId) else {
             logger?.error(ConvenienceError(error: ChainRegistryError.runtimeMetadaUnavailable.localizedDescription).localizedDescription)
+            didFail(ChainRegistryError.runtimeMetadaUnavailable)
             return
         }
 
         let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
 
-        let erasStakersKeyOperation = MapKeyEncodingOperation(
-            path: .erasStakers,
-            storageKeyFactory: StorageKeyFactory(),
-            keyParams: [String(activeEra)]
-        )
-
-        erasStakersKeyOperation.configurationBlock = {
-            do {
-                erasStakersKeyOperation.codingFactory =
-                    try codingFactoryOperation.extractNoCancellableResultData()
-            } catch {
-                erasStakersKeyOperation.result = .failure(error)
-            }
-        }
-
-        erasStakersKeyOperation.addDependency(codingFactoryOperation)
-
-        erasStakersKeyOperation.completionBlock = { [weak self] in
+        codingFactoryOperation.completionBlock = { [weak self] in
             self?.syncQueue.async {
-                switch erasStakersKeyOperation.result {
-                case .success:
-                    if let factory = erasStakersKeyOperation.codingFactory {
-                        self?.updateIfNeeded(activeEra: activeEra, codingFactory: factory, completion: completion)
-                    } else {
-                        self?.logger?.warning("Can't find coding factory or eras key")
-                    }
+                switch codingFactoryOperation.result {
+                case let .success(factory):
+                    self?.updateIfNeeded(activeEra: activeEra, codingFactory: factory, completion: completion)
                 case let .failure(error):
-                    self?.logger?.error("Prefix key encoding error: \(error)")
+                    self?.logger?.error("Coding factory preparation error: \(error)")
+                    self?.didFail(error)
                 case .none:
-                    self?.logger?.warning("Did cancel prefix key encoding")
+                    self?.logger?.warning("Did cancel coding factory preparation")
+                    self?.didFail(BaseOperationError.parentOperationCancelled)
                 }
             }
         }
 
-        operationManager.enqueue(
-            operations: [codingFactoryOperation, erasStakersKeyOperation],
-            in: .transient
-        )
+        operationManager.enqueue(operations: [codingFactoryOperation], in: .transient)
     }
 
     private func updateIfNeeded(
@@ -451,6 +434,7 @@ extension EraValidatorService {
                 activeEra: activeEra
             ) else {
             logger?.error("Can't create local storage key prefix key")
+            didFail(EraValidatorServiceError.unexpectedInfo)
             return
         }
 
@@ -482,6 +466,7 @@ extension EraValidatorService {
                     }
                 } catch {
                     self?.logger?.error("Local fetch failed: \(error)")
+                    self?.didFail(error)
                 }
             }
         }
@@ -493,6 +478,6 @@ extension EraValidatorService {
         activeEra: UInt32,
         completion: @escaping ((EraStakersInfo) -> Void)
     ) {
-        preparePrefixKeyAndUpdateIfNeeded(activeEra: activeEra, completion: completion)
+        prepareFactoryAndUpdateIfNeeded(activeEra: activeEra, completion: completion)
     }
 }
