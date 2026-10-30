@@ -135,6 +135,12 @@ final class WalletMainContainerViewLayout: UIView {
         super.layoutSubviews()
     }
 
+    override func safeAreaInsetsDidChange() {
+        super.safeAreaInsetsDidChange()
+        // The sidebar can appear or hide without changing this view's bounds.
+        setNeedsLayout()
+    }
+
     private func updateHeaderScrolling() {
         // Side by side, the header always scrolls within the window's height.
         if placement == .split || FWAppearance.walletHeaderRestyled ||
@@ -326,7 +332,9 @@ private extension WalletMainContainerViewLayout {
     func updatePlacement() {
         let newPlacement: Placement
         if AdaptiveLayout.isRegularWidth(traitCollection) {
-            newPlacement = bounds.width >= Constants.splitMinimumWidth ? .split : .column
+            // The native tab sidebar narrows the safe area beside the wallet.
+            let usableWidth = bounds.inset(by: safeAreaInsets).width
+            newPlacement = usableWidth >= Constants.splitMinimumWidth ? .split : .column
         } else {
             newPlacement = .compact
         }

@@ -30,12 +30,7 @@ enum MainTabBarDestination: Int, CaseIterable {
         case .crossChain:
             return NSLocalizedString("tab.cross_chain", value: "Transfer", comment: "")
         case .settings:
-            // No language has a tab.settings entry; the Settings screen title is translated everywhere.
-            return NSLocalizedString(
-                "tab.settings",
-                value: NSLocalizedString("profile.title", value: "Settings", comment: ""),
-                comment: ""
-            )
+            return NSLocalizedString("tab.settings", value: "Settings", comment: "")
         }
     }
 

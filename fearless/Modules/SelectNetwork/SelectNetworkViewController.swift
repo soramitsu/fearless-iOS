@@ -51,7 +51,11 @@ final class SelectNetworkViewController: SelectableListViewController<SelectionI
 
     private func setupLayout() {
         rootView.tableView.snp.makeConstraints { make in
-            make.height.equalTo(UIScreen.main.bounds.height)
+            // An iPad card is bounded by its window; the list scrolls in the room it has.
+            let height = make.height.equalTo(UIScreen.main.bounds.height)
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                height.priority(.high)
+            }
         }
     }
 

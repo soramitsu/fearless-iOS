@@ -495,7 +495,7 @@ extension ExportGenericViewController {
         containerView.stackView.setCustomSpacing(Constants.verticalSpacing, after: view)
 
         view.widthAnchor.constraint(
-            equalTo: self.view.widthAnchor,
+            equalTo: self.view.safeAreaLayoutGuide.widthAnchor,
             constant: -2.0 * UIConstants.horizontalInset
         ).isActive = true
 
@@ -513,7 +513,7 @@ extension ExportGenericViewController {
         containerView.stackView.setCustomSpacing(0.0, after: view)
 
         view.widthAnchor.constraint(
-            equalTo: self.view.widthAnchor,
+            equalTo: self.view.safeAreaLayoutGuide.widthAnchor,
             constant: -2.0 * UIConstants.horizontalInset
         ).isActive = true
 
@@ -532,7 +532,7 @@ extension ExportGenericViewController {
         containerView.stackView.addArrangedSubview(bottomSeparator)
 
         bottomSeparator.widthAnchor.constraint(
-            equalTo: self.view.widthAnchor,
+            equalTo: self.view.safeAreaLayoutGuide.widthAnchor,
             constant: -2.0 * UIConstants.horizontalInset
         ).isActive = true
         bottomSeparator.heightAnchor.constraint(equalToConstant: UIConstants.formSeparatorWidth).isActive = true
