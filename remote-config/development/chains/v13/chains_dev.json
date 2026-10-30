@@ -226,6 +226,7 @@
       "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
       "paraId": "1000",
       "name": "Kusama AssetHub",
+      "identityChain": "c1af4cb4eb3918e5db15086c0cc5ec17fb334f728b7c65dd44bfe1e174ff8b3f",
       "externalApi": {
         "history": {
           "type": "giantsquid",
@@ -251,6 +252,7 @@
           "priceId": "kusama",
           "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/tokens/coloured/KSM.svg",
           "color": "FFFFFF",
+          "staking": "relaychain",
           "purchaseProviders": [
             "ramp"
           ],
@@ -363,6 +365,7 @@
           "priceId": "polkadot",
           "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/tokens/coloured/DOT.svg",
           "color": "FF0066",
+          "staking": "relaychain",
           "purchaseProviders": [
             "moonpay",
             "ramp"
