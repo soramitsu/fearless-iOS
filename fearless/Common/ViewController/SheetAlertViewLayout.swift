@@ -191,6 +191,25 @@ final class SheetAlertViewLayout: UIView {
         }
     }
 
+    /// An iPad window can be shorter than an alert with many actions: its content
+    /// then scrolls, and keeps its own height when there is room.
+    private func setupScrollingContentStack() {
+        let scrollView = UIScrollView()
+        scrollView.alwaysBounceVertical = false
+        addSubview(scrollView)
+        scrollView.addSubview(contentStackView)
+        scrollView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(76)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+            make.height.equalTo(contentStackView).priority(.low)
+        }
+        contentStackView.snp.makeConstraints { make in
+            make.edges.equalTo(scrollView.contentLayoutGuide)
+            make.width.equalTo(scrollView.frameLayoutGuide)
+        }
+    }
+
     private func bindActions(actions: [SheetAlertPresentableAction], actionAxis: NSLayoutConstraint.Axis) {
         actions.forEach { action in
             let button = createButton(with: action)
@@ -301,11 +320,15 @@ final class SheetAlertViewLayout: UIView {
             }
         }
 
-        addSubview(contentStackView)
-        contentStackView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(76)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            setupScrollingContentStack()
+        } else {
+            addSubview(contentStackView)
+            contentStackView.snp.makeConstraints { make in
+                make.top.equalToSuperview().offset(76)
+                make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+                make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+            }
         }
 
         contentStackView.addArrangedSubview(imageViewContainer)

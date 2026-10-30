@@ -196,6 +196,7 @@ final class PolkaswapTransaktionSettingsViewLayout: UIView {
                 .offset(UIConstants.accessoryItemsSpacing)
             make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide)
+            make.height.equalTo(contentStackView).priority(.low)
         }
         contentStackView.snp.makeConstraints { make in
             make.edges.equalTo(scrollView.contentLayoutGuide)
