@@ -66,6 +66,20 @@ final class AssetHubNetworkInfoTests: XCTestCase {
         XCTAssertNotNil(view.networkModels.last ?? nil)
     }
 
+    func testManageStakingOffersPendingRewardsOnAHubWithoutAnIndexer() throws {
+        let wireframe = ManageWireframe()
+        let presenter = makePresenter(view: RecordingView(), wireframe: wireframe)
+        presenter.didReceive(newChainAsset: AssetHubTestSupport.makeAsset(chainId: hub, staking: .assetHub))
+        presenter.performManageStakingAction()
+        XCTAssertEqual(wireframe.offersPendingRewards, true)
+
+        let legacy = ManageWireframe()
+        let other = makePresenter(view: RecordingView(), wireframe: legacy)
+        other.didReceive(newChainAsset: AssetHubTestSupport.makeAsset(chainId: "legacy"))
+        other.performManageStakingAction()
+        XCTAssertEqual(legacy.offersPendingRewards, false, "Without an indexer other chains still list no payouts")
+    }
+
     func testAccountPeriodUsesDurationAndRoundsPartialDayUpWithoutInventingZero() throws {
         let asset = AssetHubTestSupport.makeAsset(chainId: hub)
         let factory = NetworkInfoViewModelFactory()
@@ -174,7 +188,10 @@ final class AssetHubNetworkInfoTests: XCTestCase {
         }
     }
 
-    private func makePresenter(view: RecordingView) -> StakingMainPresenter {
+    private func makePresenter(
+        view: RecordingView,
+        wireframe: StakingMainWireframeProtocol = StakingMainWireframeProtocolStub()
+    ) -> StakingMainPresenter {
         let wallet = AccountGenerator.generateMetaAccount()
         let stateFactory = StakingStateViewModelFactory(
             analyticsRewardsViewModelFactoryBuilder: { chainAsset, balanceViewModelFactory in
@@ -198,7 +215,7 @@ final class AssetHubNetworkInfoTests: XCTestCase {
             moduleOutput: nil
         )
         presenter.view = view
-        presenter.wireframe = StakingMainWireframeProtocolStub()
+        presenter.wireframe = wireframe
         return presenter
     }
 
@@ -215,6 +232,22 @@ final class AssetHubNetworkInfoTests: XCTestCase {
 
         override func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?) {
             networkModels.append(viewModel)
+        }
+    }
+
+    private final class ManageWireframe: StakingMainWireframeProtocolStub, @unchecked Sendable {
+        private(set) var offersPendingRewards: Bool?
+
+        override func showManageStaking(
+            from _: StakingMainViewProtocol?,
+            items: [StakingManageOption],
+            delegate _: ModalPickerViewControllerDelegate?,
+            context _: AnyObject?
+        ) {
+            offersPendingRewards = items.contains { option in
+                if case .pendingRewards = option { return true }
+                return false
+            }
         }
     }
 

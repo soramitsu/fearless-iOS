@@ -291,12 +291,17 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         wireframe.showAccountsSelection(from: view, moduleOutput: self)
     }
 
+    /// Payouts are listed from a staking indexer, or on an Asset Hub route from chain storage.
+    private static func offersPayouts(_ chainAsset: ChainAsset) -> Bool {
+        chainAsset.chain.externalApi?.staking != nil || AssetHubStakingRoute.staking(on: chainAsset.chain.chainId) != nil
+    }
+
     func performManageStakingAction() {
         let managedItems: [StakingManageOption] = {
             if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
                 var options: [StakingManageOption] = []
                 options.append(.stakingBalance)
-                if nominatorState.commonData.chainAsset?.chain.externalApi?.staking != nil, nominatorState.commonData.chainAsset?.chain.isReef == false {
+                if nominatorState.commonData.chainAsset.map(Self.offersPayouts) == true, nominatorState.commonData.chainAsset?.chain.isReef == false {
                     options.append(.pendingRewards)
                 }
                 options.append(.rewardDestination)
@@ -316,7 +321,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 
             var options: [StakingManageOption] = []
             options.append(.stakingBalance)
-            if chainAsset?.chain.externalApi?.staking != nil {
+            if chainAsset.map(Self.offersPayouts) == true {
                 options.append(.pendingRewards)
             }
             options.append(.rewardDestination)
