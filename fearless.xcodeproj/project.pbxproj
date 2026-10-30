@@ -2201,7 +2201,6 @@
 		FA44284229D44E51000142EB /* ChainStakingSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA44284129D44E51000142EB /* ChainStakingSettings.swift */; };
 		FA4441342BF75FD90067C633 /* LiquidityPoolListType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4441332BF75FD90067C633 /* LiquidityPoolListType.swift */; };
 		FA4542422C6B367B00610A71 /* BlockExplorerType+Filters.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4542412C6B367B00610A71 /* BlockExplorerType+Filters.swift */; };
-		FA4889672B7F5E360092ABF8 /* GiantsquidExtrinsic.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4889662B7F5E360092ABF8 /* GiantsquidExtrinsic.swift */; };
 		FA4B098E2C47804F001B73F9 /* NomisRequestSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4B098D2C47804F001B73F9 /* NomisRequestSigner.swift */; };
 		FA4B75AF2C6F325F001B954F /* MultichainAssetFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4B75AD2C6F325E001B954F /* MultichainAssetFetching.swift */; };
 		FA4B75B02C6F325F001B954F /* OKXMultichainAssetSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4B75AE2C6F325E001B954F /* OKXMultichainAssetSelection.swift */; };
@@ -5450,7 +5449,6 @@
 		FA44284129D44E51000142EB /* ChainStakingSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainStakingSettings.swift; sourceTree = "<group>"; };
 		FA4441332BF75FD90067C633 /* LiquidityPoolListType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidityPoolListType.swift; sourceTree = "<group>"; };
 		FA4542412C6B367B00610A71 /* BlockExplorerType+Filters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BlockExplorerType+Filters.swift"; sourceTree = "<group>"; };
-		FA4889662B7F5E360092ABF8 /* GiantsquidExtrinsic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiantsquidExtrinsic.swift; sourceTree = "<group>"; };
 		FA4B098D2C47804F001B73F9 /* NomisRequestSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NomisRequestSigner.swift; sourceTree = "<group>"; };
 		FA4B75AD2C6F325E001B954F /* MultichainAssetFetching.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultichainAssetFetching.swift; sourceTree = "<group>"; };
 		FA4B75AE2C6F325E001B954F /* OKXMultichainAssetSelection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXMultichainAssetSelection.swift; sourceTree = "<group>"; };
@@ -15642,7 +15640,6 @@
 				FAFFAE6829AC84B10074AF1F /* GiantsquidTransfer.swift */,
 				FAFFAE6929AC84B10074AF1F /* GiantsquidResponse.swift */,
 				FAFFAE6A29AC84B10074AF1F /* GiantsquidSlash.swift */,
-				FA4889662B7F5E360092ABF8 /* GiantsquidExtrinsic.swift */,
 			);
 			path = Giantsquid;
 			sourceTree = "<group>";
@@ -17151,7 +17148,6 @@
 				AEF507F72625A3280098574D /* ValidatorState+Status.swift in Sources */,
 				843910D9253F8DFB00E3C217 /* StatusPresentable.swift in Sources */,
 				847C963D255351BB002D288F /* ScrollableContainerView.swift in Sources */,
-				FA4889672B7F5E360092ABF8 /* GiantsquidExtrinsic.swift in Sources */,
 				8463A71A25E3116A003B8160 /* BalanceViewModel.swift in Sources */,
 				076D9D35293E34AF002762E3 /* LiquiditySourceType.swift in Sources */,
 				FA286B0B2A3043DB008BD527 /* CrossChainConfirmationViewLayout.swift in Sources */,

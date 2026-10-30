@@ -3,14 +3,8 @@ import SSFUtils
 import RobinHood
 import SSFRuntimeCodingService
 
-enum ChainStakingSettingsType {
-    case `default`
-    case sora
-}
-
 protocol ChainStakingSettings {
     var rewardAssetName: String? { get }
-    var type: ChainStakingSettingsType { get }
 
     func rewardDestinationArg(accountId: AccountId) -> RewardDestinationArg
     func multiAddress(accountId: AccountId) -> MultiAddress
@@ -62,10 +56,6 @@ struct DefaultRelaychainChainStakingSettings: ChainStakingSettings {
         .accoundId(accountId)
     }
 
-    var type: ChainStakingSettingsType {
-        .default
-    }
-
     func rewardDestinationArg(accountId: AccountId) -> RewardDestinationArg {
         .account(accountId)
     }
@@ -99,10 +89,6 @@ struct SoraChainStakingSettings: ChainStakingSettings {
 
     func multiAddress(accountId: AccountId) -> MultiAddress {
         .accountTo(accountId)
-    }
-
-    var type: ChainStakingSettingsType {
-        .sora
     }
 
     func rewardDestinationArg(accountId: AccountId) -> RewardDestinationArg {
