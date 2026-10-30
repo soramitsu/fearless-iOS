@@ -40,22 +40,25 @@ final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
         let fetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 
         let mappingOperation = ClosureOperation<ChainAsset?> { [weak self] in
-            let chains = try fetchOperation.extractNoCancellableResultData().filter { !$0.disabled }
+            // Stored chains may not be normalized yet when staking opens right after an upgrade.
+            let chains = NetworkRetirement.applying(
+                to: try fetchOperation.extractNoCancellableResultData().filter { !$0.disabled }
+            )
 
             if
                 let selectedChain = chains.first(where: { $0.chainId == maybeChainAssetId?.chainId }),
                 let selectedAsset = selectedChain.assets.first(where: { $0.id == maybeChainAssetId?.assetId }),
-                selectedAsset.staking != nil,
+                selectedAsset.offersStaking,
                 self?.wallet.fetch(for: selectedChain.accountRequest()) != nil {
                 return ChainAsset(chain: selectedChain, asset: selectedAsset)
             }
 
             let maybeChain = chains.first { chain in
-                chain.assets.contains(where: { $0.staking != nil }) &&
+                chain.assets.contains(where: { $0.offersStaking }) &&
                     self?.wallet.fetch(for: chain.accountRequest()) != nil
             }
 
-            let maybeAsset = maybeChain?.assets.first { $0.staking != nil }
+            let maybeAsset = maybeChain?.assets.first { $0.offersStaking }
 
             if let chain = maybeChain, let asset = maybeAsset {
                 self?.settings.stakingAsset = ChainAssetId(chainId: chain.chainId, assetId: asset.id)

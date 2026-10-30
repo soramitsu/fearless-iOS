@@ -66,15 +66,24 @@ enum NetworkRetirement {
         Chain.westend.genesisHash
     ]
 
+    /// Networks this build has no code for any more, whatever state the network is in: the Reef-specific balance
+    /// storage keys, staking and history support were removed, so an older stored list that still enables Reef or its
+    /// Scuba testnet must not bring them back. They are kept like retired networks: stored, disabled, exportable.
+    static let unsupportedChainIds: Set<ChainModel.Id> = [
+        Chain.reef.genesisHash,
+        Chain.scuba.genesisHash
+    ]
+
     static func applying(to chains: [ChainModel]) -> [ChainModel] {
         chains.compactMap(offered)
     }
 
-    /// The chain as this build offers it: nil for a retired network, without relay staking where staking moved
-    /// to Asset Hub, and without parachain (collator) staking, which served only Moonbeam, Moonriver and Moonbase
-    /// Alpha and is not built any more. Stored chains go through this too, so it holds before any download succeeds.
+    /// The chain as this build offers it: nil for a retired or unsupported network, without relay staking where
+    /// staking moved to Asset Hub, and without parachain (collator) staking, which served only Moonbeam, Moonriver and
+    /// Moonbase Alpha and is not built any more. Stored chains go through this too, so it holds before any download
+    /// succeeds.
     static func offered(_ chain: ChainModel) -> ChainModel? {
-        guard !retiredChainIds.contains(chain.chainId) else {
+        guard !retiredChainIds.contains(chain.chainId), !unsupportedChainIds.contains(chain.chainId) else {
             return nil
         }
 
@@ -89,9 +98,9 @@ enum NetworkRetirement {
         return chain.removingParachainStaking()
     }
 
-    /// Stored chains that must change to match this build: a retired network becomes disabled, a migrated relay
-    /// loses its staking, a parachain-staking asset loses its staking. Nothing is deleted, so saved balances and
-    /// accounts stay.
+    /// Stored chains that must change to match this build: a retired or unsupported network becomes disabled, a
+    /// migrated relay loses its staking, a parachain-staking asset loses its staking. Nothing is deleted, so saved
+    /// balances and accounts stay.
     static func storedUpdates(for localChains: [ChainModel]) -> [ChainModel] {
         localChains.compactMap { local in
             guard let offered = offered(local) else {
@@ -164,6 +173,14 @@ private extension AssetModel {
             priceProvider: priceProvider,
             coingeckoPriceId: coingeckoPriceId
         )
+    }
+}
+
+extension AssetModel {
+    /// Whether this build offers staking for the asset. A stored `parachain` flag still decodes but no longer counts,
+    /// so screens that read stored chains before `NetworkRetirement` has normalized them never offer it.
+    var offersStaking: Bool {
+        staking.flatMap { StakingType(rawStakingType: $0) } != nil
     }
 }
 

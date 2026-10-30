@@ -123,6 +123,37 @@ final class StakingSettingsTests: XCTestCase {
         XCTAssertTrue(machine.state is InitialRelaychainStakingState)
     }
 
+    func testSavedParachainStakingChoiceFallsBackToSupportedStakingBeforeCleanup() throws {
+        let parachainStaking = makeChain(id: "01", staking: .paraChain)
+        let relayStaking = makeChain(id: "02")
+        let fixture = try prepare(chains: [parachainStaking, relayStaking], selected: parachainStaking)
+
+        fixture.settings.setup()
+
+        XCTAssertEqual(fixture.settings.value?.chain.chainId, relayStaking.chainId)
+        XCTAssertEqual(fixture.settings.value?.stakingType, .relaychain)
+        XCTAssertEqual(fixture.preferences.stakingAsset?.chainId, relayStaking.chainId)
+    }
+
+    func testOnlyParachainStakingLeavesNoStakingChoice() throws {
+        let parachainStaking = makeChain(id: "01", staking: .paraChain)
+        let fixture = try prepare(chains: [parachainStaking], selected: parachainStaking)
+
+        fixture.settings.setup()
+
+        XCTAssertNil(fixture.settings.value)
+    }
+
+    func testStoredEnabledReefIsNotChosenForStakingBeforeCleanup() throws {
+        let reef = makeChain(id: "01", chainId: Chain.reef.genesisHash)
+        let relayStaking = makeChain(id: "02")
+        let fixture = try prepare(chains: [reef, relayStaking], selected: reef)
+
+        fixture.settings.setup()
+
+        XCTAssertEqual(fixture.settings.value?.chain.chainId, relayStaking.chainId)
+    }
+
     @MainActor
     func testUnavailableSelectionClearsHeaderBalanceArtworkAndNetworkWhileKeepingSelector() throws {
         let controller = StakingMainViewController(nib: R.nib.stakingMainViewController)
@@ -195,13 +226,17 @@ final class StakingSettingsTests: XCTestCase {
         func createViewModel(from _: StakingStateProtocol) -> StakingViewState { .undefined }
     }
 
-    private func makeChain(id: String, staking: RawStakingType? = .relayChain) -> ChainModel {
+    private func makeChain(
+        id: String,
+        staking: RawStakingType? = .relayChain,
+        chainId: ChainModel.Id? = nil
+    ) -> ChainModel {
         let asset = AssetModel(
             id: "native", name: "Native", symbol: "NAT", precision: 12,
             isUtility: true, isNative: true, staking: staking
         )
         return ChainModel(
-            rank: nil, disabled: false, chainId: String(repeating: id, count: 32),
+            rank: nil, disabled: false, chainId: chainId ?? String(repeating: id, count: 32),
             parentId: nil, paraId: nil, name: "Network \(id)", assets: [asset],
             xcm: nil, nodes: [ChainNodeModel(url: URL(string: "wss://staking-\(id).invalid")!, name: "Test", apikey: nil)],
             addressPrefix: 42, types: nil, icon: nil,
@@ -227,5 +262,73 @@ final class StakingSettingsTests: XCTestCase {
             wallet: AccountGenerator.generateMetaAccount()
         )
         return (settings, preferences, facade, queue)
+    }
+}
+
+final class StakingTypeRoutingTests: XCTestCase {
+    func testGlobalStakingDataSubscriptionFollowsTheStakingTypesThisBuildOffers() {
+        let relayPaths = StakingRemoteSubscriptionService.globalDataStoragePaths(stakingType: .relaychain)
+
+        XCTAssertEqual(
+            relayPaths,
+            [.activeEra, .currentEra, .totalIssuance, .minNominatorBond, .maxNominatorsCount, .counterForNominators]
+        )
+        XCTAssertEqual(StakingRemoteSubscriptionService.globalDataStoragePaths(stakingType: .sora), relayPaths)
+        XCTAssertEqual(StakingRemoteSubscriptionService.globalDataStoragePaths(stakingType: .ternoa), relayPaths)
+        XCTAssertTrue(
+            StakingRemoteSubscriptionService.globalDataStoragePaths(
+                stakingType: StakingType(rawStakingType: .paraChain)
+            ).isEmpty
+        )
+    }
+
+    func testRewardCalculatorFollowsTheStakingTypesThisBuildOffers() throws {
+        let factory = StakingServiceFactory(
+            chainRegisty: MockChainRegistryProtocol().applyDefault(for: []),
+            storageFacade: SubstrateStorageTestFacade(),
+            eventCenter: MockEventCenterProtocol(),
+            operationManager: OperationManager()
+        )
+        let validatorService = EraValidatorServiceStub(info: EraStakersInfo(activeEra: 1, validators: []))
+
+        let relay = try chainAsset(chainId: String(repeating: "01", count: 32), staking: .relayChain)
+        XCTAssertTrue(
+            try factory.createRewardCalculatorService(for: relay, assetPrecision: 12, validatorService: validatorService)
+                is InflationRewardCalculatorService
+        )
+
+        let ternoa = try chainAsset(chainId: Chain.ternoa.genesisHash, staking: .relayChain)
+        XCTAssertEqual(ternoa.stakingType, .ternoa)
+        XCTAssertTrue(
+            try factory.createRewardCalculatorService(for: ternoa, assetPrecision: 12, validatorService: validatorService)
+                is PortionRewardCalculatorService
+        )
+
+        let sora = try chainAsset(chainId: Chain.soraMain.genesisHash, staking: .relayChain)
+        XCTAssertEqual(sora.stakingType, .sora)
+        XCTAssertTrue(
+            try factory.createRewardCalculatorService(for: sora, assetPrecision: 18, validatorService: validatorService)
+                is SoraRewardCalculatorService
+        )
+
+        let parachain = try chainAsset(chainId: Chain.moonbaseAlpha.genesisHash, staking: .paraChain)
+        XCTAssertThrowsError(
+            try factory.createRewardCalculatorService(for: parachain, assetPrecision: 18, validatorService: validatorService)
+        ) { error in
+            XCTAssertEqual(error as? StakingServiceFactoryError, .stakingUnavailable)
+        }
+    }
+
+    private func chainAsset(chainId: ChainModel.Id, staking: RawStakingType) throws -> ChainAsset {
+        let asset = AssetModel(
+            id: "native", name: "Native", symbol: "NAT", precision: 12,
+            isUtility: true, isNative: true, staking: staking
+        )
+        let chain = ChainModel(
+            rank: nil, disabled: false, chainId: chainId, paraId: nil, name: "Network", assets: [asset],
+            xcm: nil, nodes: [], addressPrefix: 42, icon: nil, options: nil,
+            iosMinAppVersion: nil, identityChain: nil
+        )
+        return ChainAsset(chain: chain, asset: try XCTUnwrap(chain.assets.first))
     }
 }

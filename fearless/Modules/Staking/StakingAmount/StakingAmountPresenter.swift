@@ -63,14 +63,6 @@ final class StakingAmountPresenter {
         ) {
             view?.didReceiveRewardDestination(viewModel: viewModel)
         }
-
-        if let viewModel = viewModelFactory?.buildYourRewardDestinationViewModel(
-            viewModelState: viewModelState,
-            priceData: priceData,
-            calculator: calculator
-        ) {
-            view?.didReceiveYourRewardDestination(viewModel: viewModel)
-        }
     }
 
     private func provideAsset() {

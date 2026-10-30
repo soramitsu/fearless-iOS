@@ -205,8 +205,7 @@ final class CrossChainInteractor {
 
         Task {
             do {
-                let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
-                let request = AssetsAccountRequest(accountId: accountIdVariant, currencyId: currencyId)
+                let request = AssetsAccountRequest(accountId: accountId, currencyId: currencyId)
                 let assetAccountInfo: AssetAccountInfo? = try await storageRequestPerformer?.performSingle(request)
 
                 await MainActor.run {
@@ -348,8 +347,7 @@ extension CrossChainInteractor: CrossChainInteractorInput {
         Task {
             do {
                 let accountId = try AddressFactory.accountId(from: address, chain: destinationChain)
-                let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
-                let request = SystemAccountRequest(accountId: accountIdVariant, chainAsset: chainAsset)
+                let request = SystemAccountRequest(accountId: accountId, chainAsset: chainAsset)
                 let accountInfo: AccountInfo? = try await deps?.destinationStorageRequestPerformer?.performSingle(request)
 
                 await MainActor.run {

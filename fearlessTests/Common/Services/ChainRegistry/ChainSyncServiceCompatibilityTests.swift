@@ -2400,6 +2400,180 @@ final class NetworkRetirementSyncTests: XCTestCase {
             "listeners hear about the retirement before any download"
         )
     }
+
+    func testSyncDecodesReefAndParachainStakingButOffersNeither() throws {
+        let payload = """
+        [
+          {
+            "chainId": "\(Chain.ternoa.genesisHash)",
+            "name": "Ternoa Mainnet",
+            "disabled": false,
+            "addressPrefix": 42,
+            "nodes": [{"url": "wss://mainnet.ternoa.network", "name": "Ternoa node"}],
+            "assets": [{
+              "id": "caps", "name": "Ternoa", "symbol": "CAPS", "precision": 18,
+              "isUtility": true, "isNative": true, "staking": "relaychain"
+            }]
+          },
+          {
+            "chainId": "\(Chain.reef.genesisHash)",
+            "name": "Reef Mainnet",
+            "disabled": false,
+            "addressPrefix": 42,
+            "nodes": [{"url": "wss://rpc.reefscan.com/ws", "name": "Reef node"}],
+            "externalApi": {
+              "staking": {"type": "reef", "url": "https://squid.subsquid.io/reef-explorer/graphql"},
+              "history": {"type": "reef", "url": "https://squid.subsquid.io/reef-explorer/graphql"},
+              "explorers": [{"type": "reef", "types": ["account"], "url": "https://reefscan.com/{type}/{value}"}]
+            },
+            "assets": [{
+              "id": "reef", "name": "Reef", "symbol": "REEF", "precision": 18,
+              "isUtility": true, "isNative": true, "staking": "relaychain"
+            }]
+          },
+          {
+            "chainId": "\(Chain.moonbaseAlpha.genesisHash)",
+            "name": "Moonbase Alpha",
+            "disabled": false,
+            "addressPrefix": 1287,
+            "options": ["ethereumBased", "testnet"],
+            "nodes": [{"url": "wss://wss.api.moonbase.moonbeam.network", "name": "Moonbeam Network node"}],
+            "assets": [{
+              "id": "dev", "name": "Moonbase Alpha", "symbol": "DEV", "precision": 18,
+              "isUtility": true, "isNative": true, "staking": "parachain"
+            }]
+          }
+        ]
+        """
+        let storedReef = ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: Chain.reef.genesisHash,
+            paraId: nil,
+            name: "Reef Mainnet",
+            assets: [
+                AssetModel(
+                    id: "reef",
+                    name: "Reef",
+                    symbol: "REEF",
+                    precision: 18,
+                    isUtility: true,
+                    isNative: true,
+                    staking: .relayChain
+                )
+            ],
+            xcm: nil,
+            nodes: [
+                ChainNodeModel(
+                    url: try XCTUnwrap(URL(string: "wss://rpc.reefscan.com/ws")),
+                    name: "Reef node",
+                    apikey: nil
+                )
+            ],
+            addressPrefix: 42,
+            icon: nil,
+            options: nil,
+            externalApi: ChainModel.ExternalApiSet(
+                explorers: [
+                    ChainModel.ExternalApiExplorer(
+                        type: .reef,
+                        types: [.account],
+                        url: "https://reefscan.com/{type}/{value}"
+                    )
+                ]
+            ),
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+        let repository = ScriptedChainRepository(localChains: [storedReef])
+        let eventCenter = RecordingChainSyncEventCenter()
+        let completion = expectation(description: "sync completes")
+        eventCenter.onEvent = { event in
+            if event is ChainSyncDidComplete {
+                completion.fulfill()
+            }
+        }
+        let service = ChainSyncService(
+            chainsUrl: try XCTUnwrap(URL(string: "https://chains.example/chains.json")),
+            dataFetchFactory: StaticDataOperationFactory(data: Data(payload.utf8)),
+            repository: AnyDataProviderRepository(repository),
+            eventCenter: eventCenter,
+            operationQueue: OperationQueue(),
+            retryStrategy: NeverReconnectStrategy(),
+            applicationHandler: ApplicationHandler()
+        )
+
+        service.syncUp()
+
+        wait(for: [completion], timeout: 5)
+        XCTAssertEqual(eventCenter.failureCount, 0, "the list with Reef and parachain staking still decodes")
+        let savedReef = try XCTUnwrap(repository.savedModels.last(where: { $0.chainId == Chain.reef.genesisHash }))
+        XCTAssertTrue(savedReef.disabled)
+        XCTAssertEqual(savedReef.assets, storedReef.assets)
+        XCTAssertEqual(savedReef.externalApi?.explorers?.first?.type, .reef, "the explorer link stays for key access")
+        let savedMoonbase = try XCTUnwrap(
+            repository.savedModels.last(where: { $0.chainId == Chain.moonbaseAlpha.genesisHash })
+        )
+        XCTAssertFalse(savedMoonbase.disabled)
+        XCTAssertEqual(savedMoonbase.assets.map(\.id), ["dev"])
+        XCTAssertNil(savedMoonbase.assets.first?.staking)
+        let savedTernoa = try XCTUnwrap(
+            repository.savedModels.last(where: { $0.chainId == Chain.ternoa.genesisHash })
+        )
+        XCTAssertEqual(savedTernoa.assets.first?.staking, .relayChain)
+        XCTAssertTrue(repository.deletedIdentifiers.isEmpty)
+    }
+
+    func testStartupDisablesAStoredEnabledReefEvenWhenTheDownloadFails() throws {
+        let storedReef = ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: Chain.reef.genesisHash,
+            paraId: nil,
+            name: "Reef Mainnet",
+            assets: [
+                AssetModel(id: "reef", name: "Reef", symbol: "REEF", precision: 18, isUtility: true, isNative: true)
+            ],
+            xcm: nil,
+            nodes: [
+                ChainNodeModel(
+                    url: try XCTUnwrap(URL(string: "wss://rpc.reefscan.com/ws")),
+                    name: "Reef node",
+                    apikey: nil
+                )
+            ],
+            addressPrefix: 42,
+            icon: nil,
+            options: nil,
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+        let repository = ScriptedChainRepository(localChains: [storedReef])
+        let eventCenter = RecordingChainSyncEventCenter()
+        let failure = expectation(description: "the download fails")
+        eventCenter.onEvent = { event in
+            if event is ChainSyncDidFail {
+                failure.fulfill()
+            }
+        }
+        let service = ChainSyncService(
+            chainsUrl: try XCTUnwrap(URL(string: "https://chains.example/chains.json")),
+            dataFetchFactory: OfflineDataOperationFactory(),
+            repository: AnyDataProviderRepository(repository),
+            eventCenter: eventCenter,
+            operationQueue: OperationQueue(),
+            retryStrategy: NeverReconnectStrategy(),
+            applicationHandler: ApplicationHandler()
+        )
+
+        service.syncUp()
+
+        wait(for: [failure], timeout: 5)
+        let savedReef = try XCTUnwrap(repository.savedModels.last(where: { $0.chainId == Chain.reef.genesisHash }))
+        XCTAssertTrue(savedReef.disabled)
+        XCTAssertEqual(savedReef.assets, storedReef.assets, "saved balances keep their assets")
+        XCTAssertTrue(repository.deletedIdentifiers.isEmpty)
+    }
 }
 
 private struct OfflineDataOperationFactory: DataOperationFactoryProtocol {

@@ -21,7 +21,7 @@ protocol StakingRemoteSubscriptionServiceProtocol {
 
 final class StakingRemoteSubscriptionService: RemoteSubscriptionService<ChainStorageItem>,
     StakingRemoteSubscriptionServiceProtocol {
-    private static func globalDataStoragePaths(stakingType: StakingType?) -> [StorageCodingPath] {
+    static func globalDataStoragePaths(stakingType: StakingType?) -> [StorageCodingPath] {
         switch stakingType {
         case .relaychain, .sora, .ternoa:
             return [

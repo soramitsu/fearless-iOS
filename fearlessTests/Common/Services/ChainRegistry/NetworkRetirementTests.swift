@@ -1,4 +1,5 @@
 import XCTest
+import RobinHood
 import SSFModels
 @testable import fearless
 
@@ -99,24 +100,132 @@ final class NetworkRetirementTests: XCTestCase {
     }
 
     func testParachainStakingIsNoLongerOfferedOnAListedNetwork() throws {
+        let node = ChainNodeModel(
+            url: try XCTUnwrap(URL(string: "wss://wss.api.moonbase.moonbeam.network")),
+            name: "Moonbeam Network node",
+            apikey: nil
+        )
+        let token = AssetModel(
+            id: "token", name: "Token", symbol: "TKN", precision: 6, isUtility: false, isNative: false
+        )
+        let moonbaseAlpha = makeChain(
+            chainId: Chain.moonbaseAlpha.genesisHash,
+            name: "Moonbase Alpha",
+            staking: .paraChain,
+            options: [.testnet],
+            nodes: [node],
+            extraAssets: [token]
+        )
+        .replacingSelectedNode(node)
+
+        let offered = try XCTUnwrap(NetworkRetirement.applying(to: [moonbaseAlpha]).first)
+
+        XCTAssertTrue(offered.assets.allSatisfy { $0.staking == nil })
+        XCTAssertEqual(Set(offered.assets.map(\.id)), Set(moonbaseAlpha.assets.map(\.id)))
+        XCTAssertEqual(offered.assets.first { $0.id == token.id }, token, "assets without staking are untouched")
+        XCTAssertEqual(offered.options, [.testnet])
+        XCTAssertEqual(offered.nodes, moonbaseAlpha.nodes)
+        XCTAssertEqual(offered.selectedNode, node)
+        XCTAssertEqual(offered.addressPrefix, moonbaseAlpha.addressPrefix)
+        XCTAssertFalse(offered.disabled)
+        XCTAssertTrue(offered.chainAssets.allSatisfy { $0.stakingType == nil })
+        XCTAssertFalse(offered.assets.contains { $0.offersStaking })
+        XCTAssertEqual(
+            NetworkRetirement.storedUpdates(for: [moonbaseAlpha]).map(\.chainId),
+            [moonbaseAlpha.chainId],
+            "a stored copy loses the staking flag on the next sync"
+        )
+    }
+
+    func testReefIsNoLongerOfferedButItsStoredCopyIsKept() throws {
+        let reef = makeChain(chainId: Chain.reef.genesisHash, name: "Reef Mainnet", staking: .relayChain)
+        let scuba = makeChain(chainId: Chain.scuba.genesisHash, name: "Reef Scuba Testnet", staking: .relayChain)
+        let ternoa = makeChain(chainId: Chain.ternoa.genesisHash, name: "Ternoa Mainnet", staking: .relayChain)
+
+        XCTAssertEqual(NetworkRetirement.applying(to: [reef, scuba, ternoa]).map(\.chainId), [ternoa.chainId])
+        XCTAssertNil(NetworkRetirement.offered(reef))
+        XCTAssertNil(NetworkRetirement.offered(scuba))
+
+        let updates = NetworkRetirement.storedUpdates(for: [reef, scuba, ternoa])
+        XCTAssertEqual(updates.map(\.chainId), [reef.chainId, scuba.chainId])
+        XCTAssertTrue(updates.allSatisfy(\.disabled))
+        XCTAssertEqual(updates.first?.assets, reef.assets, "saved balances keep their assets")
+        XCTAssertTrue(NetworkRetirement.unsupportedChainIds.isDisjoint(with: NetworkRetirement.retiredChainIds))
+        XCTAssertTrue(
+            NetworkRetirement.unsupportedChainIds.isDisjoint(with: NetworkRetirement.assetHubMigratedRelayChainIds)
+        )
+    }
+
+    func testStoredReefAndParachainStakingStillLoadAndKeepKeyAccessAfterCleanup() throws {
+        let reefApiUrl = try XCTUnwrap(URL(string: "https://squid.subsquid.io/reef-explorer/graphql"))
+        let reefApi = ChainModel.BlockExplorer(type: "reef", url: reefApiUrl)
+        let reef = makeChain(
+            chainId: Chain.reef.genesisHash,
+            name: "Reef Mainnet",
+            staking: .relayChain,
+            externalApi: ChainModel.ExternalApiSet(
+                staking: reefApi,
+                history: reefApi,
+                explorers: [
+                    ChainModel.ExternalApiExplorer(
+                        type: .reef,
+                        types: [.account],
+                        url: "https://reefscan.com/{type}/{value}"
+                    )
+                ]
+            )
+        )
         let moonbaseAlpha = makeChain(
             chainId: Chain.moonbaseAlpha.genesisHash,
             name: "Moonbase Alpha",
             staking: .paraChain,
             options: [.testnet]
         )
+        let repository = ChainRepositoryFactory(storageFacade: SubstrateStorageTestFacade()).createRepository()
+        let queue = OperationQueue()
+        let save = repository.saveOperation({ [reef, moonbaseAlpha] }, { [] })
+        queue.addOperations([save], waitUntilFinished: true)
+        let _: Void = try save.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-        let offered = try XCTUnwrap(NetworkRetirement.applying(to: [moonbaseAlpha]).first)
+        let stored = try fetchAll(from: repository, on: queue)
+        let storedReef = try XCTUnwrap(stored.first { $0.chainId == reef.chainId })
+        XCTAssertEqual(storedReef.externalApi?.staking?.type, .reef)
+        XCTAssertEqual(storedReef.externalApi?.history?.type, .reef)
+        XCTAssertEqual(storedReef.externalApi?.explorers?.first?.type, .reef)
+        let storedMoonbase = try XCTUnwrap(stored.first { $0.chainId == moonbaseAlpha.chainId })
+        XCTAssertEqual(storedMoonbase.assets.first?.staking, .paraChain)
 
-        XCTAssertTrue(offered.assets.allSatisfy { $0.staking == nil })
-        XCTAssertEqual(offered.assets.map(\.id), moonbaseAlpha.assets.map(\.id))
-        XCTAssertEqual(offered.options, [.testnet])
-        XCTAssertFalse(offered.disabled)
-        XCTAssertNil(offered.chainAssets.first?.stakingType)
+        let cleanup = repository.saveOperation({ NetworkRetirement.storedUpdates(for: stored) }, { [] })
+        queue.addOperations([cleanup], waitUntilFinished: true)
+        let _: Void = try cleanup.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+        let cleaned = try fetchAll(from: repository, on: queue)
+        XCTAssertEqual(Set(cleaned.map(\.chainId)), [reef.chainId, moonbaseAlpha.chainId], "nothing is deleted")
+        let cleanedReef = try XCTUnwrap(cleaned.first { $0.chainId == reef.chainId })
+        XCTAssertTrue(cleanedReef.disabled)
+        XCTAssertEqual(cleanedReef.assets.map(\.id), reef.assets.map(\.id))
+        XCTAssertEqual(cleanedReef.externalApi?.explorers?.first?.type, .reef)
+        let cleanedMoonbase = try XCTUnwrap(cleaned.first { $0.chainId == moonbaseAlpha.chainId })
+        XCTAssertFalse(cleanedMoonbase.disabled)
+        XCTAssertNil(cleanedMoonbase.assets.first?.staking)
+        XCTAssertTrue(NetworkRetirement.applying(to: cleaned).allSatisfy { $0.chainId == moonbaseAlpha.chainId })
+
+        let reefAccount = ChainAccountModel(
+            chainId: reef.chainId,
+            accountId: Data(repeating: 1, count: 32),
+            publicKey: Data(repeating: 2, count: 32),
+            cryptoType: 0,
+            ethereumBased: false
+        )
+        let walletWithReefKey = AccountGenerator.generateMetaAccount(with: [reefAccount])
         XCTAssertEqual(
-            NetworkRetirement.storedUpdates(for: [moonbaseAlpha]).map(\.chainId),
-            [moonbaseAlpha.chainId],
-            "a stored copy loses the staking flag on the next sync"
+            Set(cleaned.listedForKeyAccess(by: walletWithReefKey).map(\.chainId)),
+            [reef.chainId, moonbaseAlpha.chainId],
+            "a wallet's own Reef key can still be viewed and exported"
+        )
+        XCTAssertEqual(
+            cleaned.listedForKeyAccess(by: AccountGenerator.generateMetaAccount()).map(\.chainId),
+            [moonbaseAlpha.chainId]
         )
     }
 
@@ -175,7 +284,9 @@ final class NetworkRetirementTests: XCTestCase {
         name: String,
         staking: RawStakingType? = nil,
         options: [ChainOptions]? = nil,
-        nodes: Set<ChainNodeModel> = []
+        nodes: Set<ChainNodeModel> = [],
+        extraAssets: Set<AssetModel> = [],
+        externalApi: ChainModel.ExternalApiSet? = nil
     ) -> ChainModel {
         ChainModel(
             rank: nil,
@@ -183,7 +294,7 @@ final class NetworkRetirementTests: XCTestCase {
             chainId: chainId,
             paraId: nil,
             name: name,
-            assets: [
+            assets: extraAssets.union([
                 AssetModel(
                     id: "\(name)-native",
                     name: name,
@@ -193,14 +304,24 @@ final class NetworkRetirementTests: XCTestCase {
                     isNative: true,
                     staking: staking
                 )
-            ],
+            ]),
             xcm: nil,
             nodes: nodes,
             addressPrefix: 0,
             icon: nil,
             options: options,
+            externalApi: externalApi,
             iosMinAppVersion: nil,
             identityChain: nil
         )
+    }
+
+    private func fetchAll(
+        from repository: CoreDataRepository<ChainModel, CDChain>,
+        on queue: OperationQueue
+    ) throws -> [ChainModel] {
+        let fetch = repository.fetchAllOperation(with: RepositoryFetchOptions())
+        queue.addOperations([fetch], waitUntilFinished: true)
+        return try fetch.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
     }
 }
