@@ -84,42 +84,42 @@ final class ControllerAccountViewLayout: UIView {
         containerView.stackView.spacing = 16
         containerView.stackView.addArrangedSubview(descriptionLabel)
         descriptionLabel.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         containerView.stackView.addArrangedSubview(stashAccountView)
         stashAccountView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(52.0)
         }
 
         containerView.stackView.setCustomSpacing(8, after: stashAccountView)
         containerView.stackView.addArrangedSubview(stashHintView)
         stashHintView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         containerView.stackView.addArrangedSubview(controllerAccountView)
         controllerAccountView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(52.0)
         }
 
         containerView.stackView.setCustomSpacing(8, after: controllerAccountView)
         containerView.stackView.addArrangedSubview(controllerHintView)
         controllerHintView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         containerView.stackView.addArrangedSubview(feeView)
         feeView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(52)
         }
 
         containerView.stackView.addArrangedSubview(learnMoreView)
         learnMoreView.snp.makeConstraints { make in
-            make.width.equalTo(self)
+            make.width.equalTo(safeAreaLayoutGuide)
         }
 
         let bottomSeparator = UIView.createSeparator(color: R.color.colorDarkGray())
@@ -127,7 +127,7 @@ final class ControllerAccountViewLayout: UIView {
         containerView.stackView.setCustomSpacing(0, after: learnMoreView)
         bottomSeparator.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.separatorHeight)
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         addSubview(actionButton)

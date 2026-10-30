@@ -172,7 +172,7 @@ final class StakingUnbondConfirmLayout: UIView {
             }
 
             view.snp.makeConstraints { make in
-                make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+                make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             }
 
             contentView.stackView.setCustomSpacing(Constants.spacingBetweenHints, after: view)

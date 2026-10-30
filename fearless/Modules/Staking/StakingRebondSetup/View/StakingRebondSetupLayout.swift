@@ -58,7 +58,7 @@ final class StakingRebondSetupLayout: UIView {
 
         contentView.stackView.addArrangedSubview(amountInputView)
         amountInputView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
@@ -66,7 +66,7 @@ final class StakingRebondSetupLayout: UIView {
 
         contentView.stackView.addArrangedSubview(networkFeeView)
         networkFeeView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(48.0)
         }
 

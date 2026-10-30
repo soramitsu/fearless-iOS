@@ -59,7 +59,7 @@ final class StakingBalanceViewLayout: UIView {
         scrollView.addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
-            make.width.equalTo(self)
+            make.width.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.addSubview(balanceWidget)

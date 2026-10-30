@@ -78,7 +78,7 @@ final class StakingRewardDestSetupLayout: UIView {
 
         contentView.stackView.addArrangedSubview(restakeOptionView)
         restakeOptionView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(52.0)
         }
 
@@ -86,7 +86,7 @@ final class StakingRewardDestSetupLayout: UIView {
 
         contentView.stackView.addArrangedSubview(payoutOptionView)
         payoutOptionView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(52.0)
         }
 
@@ -94,7 +94,7 @@ final class StakingRewardDestSetupLayout: UIView {
 
         contentView.stackView.addArrangedSubview(accountView)
         accountView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(52.0)
         }
 
@@ -103,12 +103,12 @@ final class StakingRewardDestSetupLayout: UIView {
 
         contentView.stackView.addArrangedSubview(learnMoreView)
         learnMoreView.snp.makeConstraints { make in
-            make.width.equalTo(self)
+            make.width.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.stackView.addArrangedSubview(networkFeeView)
         networkFeeView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         addSubview(actionButton)

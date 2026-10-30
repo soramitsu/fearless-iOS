@@ -216,7 +216,9 @@ private extension SendViewLayout {
     func setupAdaptiveLayout() {
         bottomContainer.removeFromSuperview()
         contentView.stackView.addArrangedSubview(bottomContainer)
-        bottomContainer.snp.remakeConstraints { $0.width.equalTo(self).offset(-2 * UIConstants.bigOffset) }
+        bottomContainer.snp.remakeConstraints {
+            $0.width.equalTo(safeAreaLayoutGuide).offset(-2 * UIConstants.bigOffset)
+        }
         contentView.snp.remakeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.top.equalTo(navigationBar.snp.bottom)
@@ -224,7 +226,7 @@ private extension SendViewLayout {
         }
         contentView.stackView.layoutMargins.bottom = UIConstants.bigOffset
         for item in [searchView as UIView, amountView, selectNetworkView, feeView, tipView] {
-            item.snp.remakeConstraints { $0.width.equalTo(self).offset(-2 * UIConstants.bigOffset) }
+            item.snp.remakeConstraints { $0.width.equalTo(safeAreaLayoutGuide).offset(-2 * UIConstants.bigOffset) }
         }
         sendAllContainerView.snp.remakeConstraints { make in
             make.leading.trailing.top.equalToSuperview()
@@ -277,40 +279,40 @@ private extension SendViewLayout {
 
         contentView.stackView.addArrangedSubview(crossNetworkButton)
         crossNetworkButton.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.greaterThanOrEqualTo(44)
         }
         contentView.stackView.addArrangedSubview(searchView)
         searchView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.equalTo(LayoutConstants.stackSubviewHeight)
         }
 
         contentView.stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
         contentView.stackView.addArrangedSubview(selectNetworkView)
         selectNetworkView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.equalTo(LayoutConstants.stackSubviewHeight)
         }
 
         contentView.stackView.addArrangedSubview(scamWarningView)
         scamWarningView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
         }
 
         contentView.stackView.addArrangedSubview(feeView) { make in
             make.height.equalTo(UIConstants.cellHeight)
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
         }
 
         contentView.stackView.addArrangedSubview(tipView) { make in
             make.height.equalTo(UIConstants.cellHeight)
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
         }
 
         bottomContainer.snp.makeConstraints { make in

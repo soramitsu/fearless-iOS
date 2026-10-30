@@ -168,26 +168,26 @@ final class CrossChainViewLayout: UIView {
 
         contentView.stackView.addArrangedSubview(originSelectNetworkView)
         originSelectNetworkView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.equalTo(LayoutConstants.stackSubviewHeight)
         }
 
         contentView.stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
         contentView.stackView.addArrangedSubview(destSelectNetworkView)
         destSelectNetworkView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.equalTo(LayoutConstants.stackSubviewHeight)
         }
 
         searchView.titleLabel.isHidden = true
         contentView.stackView.addArrangedSubview(searchView)
         searchView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.equalTo(LayoutConstants.stackSubviewHeight)
         }
 
@@ -208,17 +208,17 @@ final class CrossChainViewLayout: UIView {
 
         contentView.stackView.addArrangedSubview(commonButtonsContainer)
         commonButtonsContainer.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
         }
 
         contentView.stackView.addArrangedSubview(originNetworkFeeView)
         originNetworkFeeView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.equalTo(LayoutConstants.networkFeeViewHeight)
         }
         contentView.stackView.addArrangedSubview(destinationNetworkFeeView)
         destinationNetworkFeeView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.equalTo(LayoutConstants.networkFeeViewHeight)
         }
         contentView.stackView.setCustomSpacing(0, after: originNetworkFeeView)

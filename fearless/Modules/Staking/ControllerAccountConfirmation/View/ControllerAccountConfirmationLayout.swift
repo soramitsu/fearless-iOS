@@ -58,13 +58,13 @@ final class ControllerAccountConfirmationLayout: UIView {
         containerView.stackView.spacing = 16
         containerView.stackView.addArrangedSubview(stashAccountView)
         stashAccountView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(52.0)
         }
 
         containerView.stackView.addArrangedSubview(controllerAccountView)
         controllerAccountView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(52.0)
         }
 

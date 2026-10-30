@@ -265,62 +265,62 @@ final class WalletTransactionDetailsViewLayout: UIView {
 
         extrinsicHashView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.triangularedViewHeight)
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         senderView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.triangularedViewHeight)
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         receiverView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.triangularedViewHeight)
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         statusView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.cellHeight)
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         dateView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.cellHeight)
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         amountView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.cellHeight)
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         moduleView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.cellHeight)
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         callView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.cellHeight)
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         feeView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.cellHeight)
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         eraView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.cellHeight)
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         slashView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.cellHeight)
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         rewardView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.cellHeight)
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
     }
 }

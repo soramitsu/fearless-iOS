@@ -134,7 +134,7 @@ final class SelectValidatorsConfirmViewLayout: UIView {
             }
 
             view.snp.makeConstraints { make in
-                make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+                make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             }
 
             infoStackView.setCustomSpacing(9, after: view)

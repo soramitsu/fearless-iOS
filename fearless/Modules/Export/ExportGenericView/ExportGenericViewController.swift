@@ -306,7 +306,7 @@ extension ExportGenericViewController {
         if FWAppearance.exportGenericRestyled {
             containerView.stackView.addArrangedSubview(buttonsStackView)
             buttonsStackView.widthAnchor.constraint(
-                equalTo: view.widthAnchor, constant: -2 * UIConstants.horizontalInset
+                equalTo: view.safeAreaLayoutGuide.widthAnchor, constant: -2 * UIConstants.horizontalInset
             ).isActive = true
             containerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
             containerView.scrollView.contentInset.bottom = 24
@@ -463,7 +463,7 @@ extension ExportGenericViewController {
         insert(subview: newOptionView, after: sourceTypeView)
 
         newOptionView.widthAnchor.constraint(
-            equalTo: view.widthAnchor,
+            equalTo: view.safeAreaLayoutGuide.widthAnchor,
             constant: -2.0 * UIConstants.horizontalInset
         ).isActive = true
 
@@ -551,7 +551,7 @@ extension ExportGenericViewController {
             self.containerView.stackView.addArrangedSubview(containerView)
 
             containerView.widthAnchor.constraint(
-                equalTo: view.widthAnchor,
+                equalTo: view.safeAreaLayoutGuide.widthAnchor,
                 constant: -2.0 * UIConstants.horizontalInset
             ).isActive = true
 
@@ -647,7 +647,7 @@ extension ExportGenericViewController {
         }
 
         networkView.widthAnchor.constraint(
-            equalTo: view.widthAnchor,
+            equalTo: view.safeAreaLayoutGuide.widthAnchor,
             constant: -2.0 * UIConstants.horizontalInset
         ).isActive = true
 

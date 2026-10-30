@@ -54,7 +54,7 @@ final class ValidatorInfoViewLayout: UIView {
 
         stackView.addArrangedSubview(accountView)
         accountView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(52)
         }
 
@@ -69,7 +69,7 @@ final class ValidatorInfoViewLayout: UIView {
 
         stackView.addArrangedSubview(label)
         label.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         label.text = title
@@ -115,7 +115,7 @@ final class ValidatorInfoViewLayout: UIView {
 
         stackView.addArrangedSubview(rowView)
         rowView.snp.makeConstraints { make in
-            make.width.equalTo(self)
+            make.width.equalTo(safeAreaLayoutGuide)
         }
 
         if viewModel.slashed {
@@ -197,7 +197,7 @@ final class ValidatorInfoViewLayout: UIView {
 
         stackView.addArrangedSubview(borderView)
         borderView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         return borderView
@@ -231,7 +231,7 @@ final class ValidatorInfoViewLayout: UIView {
 
         stackView.addArrangedSubview(rowView)
         rowView.snp.makeConstraints { make in
-            make.width.equalTo(self)
+            make.width.equalTo(safeAreaLayoutGuide)
         }
 
         rowContentView?.valueView.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -249,7 +249,7 @@ final class ValidatorInfoViewLayout: UIView {
 
         stackView.addArrangedSubview(view)
         view.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(48)
         }
 
@@ -280,7 +280,7 @@ final class ValidatorInfoViewLayout: UIView {
 
         stackView.addArrangedSubview(rowView)
         rowView.snp.makeConstraints { make in
-            make.width.equalTo(self)
+            make.width.equalTo(safeAreaLayoutGuide)
         }
 
         return rowView

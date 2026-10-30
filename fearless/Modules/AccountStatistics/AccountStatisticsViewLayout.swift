@@ -186,7 +186,7 @@ final class AccountStatisticsViewLayout: UIView {
 
         contentBackgroundView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
-            make.width.equalTo(self)
+            make.width.equalTo(safeAreaLayoutGuide)
         }
 
         ratingView.snp.makeConstraints { make in

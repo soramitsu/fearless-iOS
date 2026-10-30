@@ -136,7 +136,7 @@ final class NftSendViewLayout: UIView {
 
         contentView.stackView.addArrangedSubview(searchView)
         searchView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.equalTo(LayoutConstants.stackSubviewHeight)
         }
 
@@ -157,18 +157,18 @@ final class NftSendViewLayout: UIView {
 
         contentView.stackView.addArrangedSubview(commonButtonsContainer)
         commonButtonsContainer.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
         }
 
         contentView.stackView.addArrangedSubview(feeView)
         feeView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.equalTo(LayoutConstants.networkFeeViewHeight)
         }
 
         contentView.stackView.addArrangedSubview(scamWarningView)
         scamWarningView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.equalTo(LayoutConstants.stackSubviewHeight)
         }
     }
