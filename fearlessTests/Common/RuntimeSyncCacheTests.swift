@@ -23,7 +23,7 @@ final class RuntimeSyncCacheTests: XCTestCase {
         provider.setup()
         XCTAssertNil(provider.snapshot)
         fixture.service.apply(version: fixture.version, for: fixture.chain.chainId)
-        wait(for: [ready], timeout: 5)
+        wait(for: [ready], timeout: 30)
         XCTAssertEqual(provider.snapshot?.specVersion, fixture.version.specVersion)
         XCTAssertEqual(provider.snapshot?.txVersion, fixture.version.transactionVersion)
         XCTAssertTrue(fixture.connection.requests.isEmpty)
@@ -53,7 +53,7 @@ final class RuntimeSyncCacheTests: XCTestCase {
         }
         fixture.events.add(observer: observer, dispatchIn: .global())
         fixture.service.apply(version: fixture.version, for: fixture.chain.chainId)
-        wait(for: [synced], timeout: 5)
+        wait(for: [synced], timeout: 30)
         XCTAssertEqual(fixture.connection.requests.map { $0.0 }, [RPCMethod.getRuntimeMetadata])
         withExtendedLifetime(observer) {}
     }

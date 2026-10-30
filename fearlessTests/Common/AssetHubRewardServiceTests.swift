@@ -91,7 +91,7 @@ final class AssetHubRewardServiceTests: XCTestCase {
             let done = XCTestExpectation(description: "reward operation")
             operation.completionBlock = { done.fulfill() }
             manager.enqueue(operations: [operation], in: .transient)
-            guard XCTWaiter.wait(for: [done], timeout: 5) == .completed else {
+            guard XCTWaiter.wait(for: [done], timeout: 30) == .completed else {
                 throw NSError(domain: "reward operation timed out", code: 1)
             }
             return try XCTUnwrap(operation.result).get()

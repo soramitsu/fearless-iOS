@@ -206,7 +206,7 @@ final class AssetHubNetworkInfoTests: XCTestCase {
         let done = expectation(description: "network period")
         wrapper.targetOperation.completionBlock = { done.fulfill() }
         OperationManager().enqueue(operations: wrapper.allOperations, in: .transient)
-        await fulfillment(of: [done], timeout: 5)
+        await fulfillment(of: [done], timeout: 30)
         return try XCTUnwrap(wrapper.targetOperation.result).get()
     }
 

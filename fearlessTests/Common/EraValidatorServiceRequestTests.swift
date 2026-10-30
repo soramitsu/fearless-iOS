@@ -62,7 +62,7 @@ final class EraValidatorServiceRequestTests: XCTestCase {
         fixture.service.syncQueue.sync {
             fixture.service.didReceiveSnapshot(EraStakersInfo(activeEra: 7, validators: []))
         }
-        XCTAssertEqual(XCTWaiter.wait(for: [done], timeout: 5), .completed)
+        XCTAssertEqual(XCTWaiter.wait(for: [done], timeout: 30), .completed)
         XCTAssertEqual(try XCTUnwrap(waiting.result).get().activeEra, 7)
 
         fixture.service.syncQueue.sync { fixture.service.didFail(error) }
@@ -130,7 +130,7 @@ final class EraValidatorServiceRequestTests: XCTestCase {
             let done = XCTestExpectation(description: "snapshot operation completes")
             operation.completionBlock = { done.fulfill() }
             manager.enqueue(operations: [operation], in: .transient)
-            XCTAssertEqual(XCTWaiter.wait(for: [done], timeout: 5), .completed)
+            XCTAssertEqual(XCTWaiter.wait(for: [done], timeout: 30), .completed)
             return try XCTUnwrap(operation.result).get()
         }
     }

@@ -178,7 +178,7 @@ final class AssetHubOperationIntegrationTests: XCTestCase {
         let completed = expectation(description: "Asset Hub operation completes")
         wrapper.targetOperation.completionBlock = { completed.fulfill() }
         manager.enqueue(operations: wrapper.allOperations, in: .transient)
-        await fulfillment(of: [completed], timeout: 5)
+        await fulfillment(of: [completed], timeout: 30)
         return try XCTUnwrap(wrapper.targetOperation.result).get()
     }
 

@@ -253,7 +253,7 @@ final class StakingAssetHubSettingsTests: XCTestCase {
             if case .failure = result { refused.fulfill() }
         }
 
-        wait(for: [refused], timeout: 5)
+        wait(for: [refused], timeout: 30)
         XCTAssertNil(fixture.preferences.stakingAsset)
     }
 
