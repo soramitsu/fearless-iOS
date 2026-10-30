@@ -44,16 +44,6 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryModuleInput
 }
 
 extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterProtocol {
-    func didChangeFiltersSliderValue(index: Int) {
-        guard let type = WalletTransactionHistoryFilter.HistoryFilterType.type(from: index) else {
-            return
-        }
-
-        let filter = WalletTransactionHistoryFilter(type: type, selected: true)
-        let filters = [FilterSet(title: nil, items: [filter])]
-        interactor.applyFilters(filters)
-    }
-
     func setup(with view: WalletTransactionHistoryViewProtocol) {
         self.view = view
         interactor.setup(with: self)
