@@ -17,6 +17,11 @@ extension EraValidatorService {
 
         switch result {
         case let .success(era):
+            // A replaced read neither moves the active era back nor starts another download; the newer read does.
+            guard isCurrentRead(generation) else {
+                return
+            }
+
             didReceiveActiveEra(era.index)
 
             if isPagedValidatorsRequest {

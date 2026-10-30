@@ -105,8 +105,12 @@ final class EraValidatorService {
         return readGeneration
     }
 
+    func isCurrentRead(_ generation: Int) -> Bool {
+        generation == readGeneration
+    }
+
     func didFail(_ error: Error, read generation: Int) {
-        guard generation == readGeneration else {
+        guard isCurrentRead(generation) else {
             logger?.warning("Ignoring the failure of a replaced era read: \(error)")
             return
         }

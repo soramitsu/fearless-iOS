@@ -97,6 +97,17 @@ final class EraValidatorServiceRequestTests: XCTestCase {
         XCTAssertEqual(try fixture.fetch().activeEra, 5)
     }
 
+    func testOnlyTheLatestReadIsCurrent() throws {
+        let fixture = try Fixture()
+        fixture.service.syncQueue.sync {
+            let first = fixture.service.beginActiveEraRead()
+            XCTAssertTrue(fixture.service.isCurrentRead(first))
+            let second = fixture.service.beginActiveEraRead()
+            XCTAssertFalse(fixture.service.isCurrentRead(first))
+            XCTAssertTrue(fixture.service.isCurrentRead(second))
+        }
+    }
+
     func testFailureOfTheCurrentReadIsReported() throws {
         let fixture = try Fixture()
         let error = NSError(domain: "era-read", code: 2)
