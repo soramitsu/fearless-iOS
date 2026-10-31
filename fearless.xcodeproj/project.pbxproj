@@ -2933,6 +2933,7 @@
 		FAE41F5B2C8CF4C900123456 /* SceneWindowFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE41F5A2C8CF4C900123456 /* SceneWindowFinder.swift */; };
 		FAE5858F2B0764ED00240FE1 /* SoraSubsquidHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5858E2B0764EC00240FE1 /* SoraSubsquidHistoryOperationFactory.swift */; };
 		FAE601022ECA700100000001 /* UniversalWalletV2VectorsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601012ECA700100000001 /* UniversalWalletV2VectorsTests.swift */; };
+		6308DCC4ADAB4E393625535E /* UniversalWalletPasswordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 980DAAEBD739BC477FB9FB76 /* UniversalWalletPasswordTests.swift */; };
 		FAE601042ECA700100000001 /* UniversalWalletEcosystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601032ECA700100000001 /* UniversalWalletEcosystem.swift */; };
 		FAE601062ECA700100000001 /* UniversalWalletRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601052ECA700100000001 /* UniversalWalletRegistry.swift */; };
 		962E09CACE90EB7D56DEBDFF /* UniversalWalletFundsProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A73B2F71F7ACD4F47CF3C2 /* UniversalWalletFundsProbe.swift */; };
@@ -6229,6 +6230,7 @@
 		FAE41F5A2C8CF4C900123456 /* SceneWindowFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneWindowFinder.swift; sourceTree = "<group>"; };
 		FAE5858E2B0764EC00240FE1 /* SoraSubsquidHistoryOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraSubsquidHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		FAE601012ECA700100000001 /* UniversalWalletV2VectorsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletV2VectorsTests.swift; sourceTree = "<group>"; };
+		980DAAEBD739BC477FB9FB76 /* UniversalWalletPasswordTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletPasswordTests.swift; sourceTree = "<group>"; };
 		FAE601032ECA700100000001 /* UniversalWalletEcosystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletEcosystem.swift; sourceTree = "<group>"; };
 		FAE601052ECA700100000001 /* UniversalWalletRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletRegistry.swift; sourceTree = "<group>"; };
 		07A73B2F71F7ACD4F47CF3C2 /* UniversalWalletFundsProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletFundsProbe.swift; sourceTree = "<group>"; };
@@ -9494,6 +9496,7 @@
 				6784511E27C7B7E095FFD4AB /* Modules */,
 				842D1E8F24D20B1500C30A7A /* Constants.swift */,
 				FAE601012ECA700100000001 /* UniversalWalletV2VectorsTests.swift */,
+				980DAAEBD739BC477FB9FB76 /* UniversalWalletPasswordTests.swift */,
 				FAE6010B2ECA700100000001 /* IrohaAddressCodecTests.swift */,
 				FAE601112ECA700100000001 /* SolanaIndexerContractTests.swift */,
 				FAE601192ECA700100000001 /* BitcoinIndexerContractTests.swift */,
@@ -19375,6 +19378,7 @@
 				1C0A3401000000000000000A /* IrohaConnectAccountProviderTests.swift in Sources */,
 				84B66A1826FE05B00038B963 /* ChainRegistryStub.swift in Sources */,
 				FAE601022ECA700100000001 /* UniversalWalletV2VectorsTests.swift in Sources */,
+				6308DCC4ADAB4E393625535E /* UniversalWalletPasswordTests.swift in Sources */,
 				FAE6010C2ECA700100000001 /* IrohaAddressCodecTests.swift in Sources */,
 				FAE601122ECA700100000001 /* SolanaIndexerContractTests.swift in Sources */,
 				FAE601182ECA700100000001 /* BitcoinIndexerContractTests.swift in Sources */,
