@@ -221,6 +221,12 @@ actor BitcoinWalletBalanceCache {
         entries[key] = nil
     }
 
+    /// A wallet that switched to the Bitcoin address its password protects scans another
+    /// account; no scan of the old one may answer for it.
+    func invalidate(walletId: MetaAccountId) {
+        entries = entries.filter { $0.key.walletId != walletId }
+    }
+
     /// Seconds the service asked for (zero if it named none), or `nil` when the failure is not
     /// a rate limit. Offline and server errors are retried on the next refresh as before.
     private static func rateLimitRetryAfter(_ error: Error) -> TimeInterval? {

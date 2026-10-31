@@ -591,6 +591,8 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
     }
 
     func reload() {
+        // Watched old addresses of a password wallet are checked with every refresh.
+        NotificationCenter.default.post(name: .universalWalletPortfolioRefreshed, object: nil)
         guard let chainAssets = chainAssets else {
             return
         }

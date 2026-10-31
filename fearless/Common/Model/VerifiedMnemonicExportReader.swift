@@ -192,60 +192,96 @@ final class VerifiedMnemonicExportReader {
         let provider = KeychainUniversalWalletMnemonicProvider(keystore: keystore)
         // A damaged unrelated root cannot hide a healthy historical child. The
         // fallback below still derives and verifies that child's exact identity.
-        if let root = try? provider.rootMnemonic(for: wallet) {
-            let mnemonic = try IRMnemonicCreator().mnemonic(fromList: root)
-            if let path = try? verifyUniversal(mnemonic: mnemonic, storedPath: nil, account: info.account) {
-                return VerifiedMnemonicExport(mnemonic: mnemonic, derivationPath: path, wallet: wallet, info: info)
+        // A password wallet's account is either the one its password protects or one an
+        // earlier release derived from the words alone; both are the wallet's words. The words
+        // alone never restore a protected account, so its path shows the `///password` too.
+        if let root = try? provider.rootSecret(for: wallet) {
+            let mnemonic = try IRMnemonicCreator().mnemonic(fromList: root.mnemonic)
+            for candidate in root.candidates {
+                if let path = try? verifyUniversal(
+                    mnemonic: mnemonic,
+                    passphrase: candidate.passphrase,
+                    storedPath: nil,
+                    account: info.account
+                ) {
+                    let shownPath = candidate.passphrase.isEmpty ? path : "\(path)///\(candidate.passphrase)"
+                    return VerifiedMnemonicExport(
+                        mnemonic: mnemonic, derivationPath: shownPath, wallet: wallet, info: info
+                    )
+                }
             }
         }
         let accountId = info.account.accountId
         let entropy = try keystore.fetchKey(for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId, accountId: accountId))
         let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
         let path = try readPath(KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId, accountId: accountId))
-        let verifiedPath = try verifyUniversal(mnemonic: mnemonic, storedPath: path, account: info.account)
+        let verifiedPath = try verifyUniversal(
+            mnemonic: mnemonic,
+            passphrase: "",
+            storedPath: path,
+            account: info.account
+        )
         return VerifiedMnemonicExport(mnemonic: mnemonic, derivationPath: verifiedPath, wallet: wallet, info: info)
     }
 
     private func verifyUniversal(
         mnemonic: IRMnemonicProtocol,
+        passphrase: String,
         storedPath: String?,
         account: ChainAccountResponse
     ) throws -> String {
-        let phrase = mnemonic.toString()
-        let result: (publicKey: Data, path: String)
-        let bitcoin = UniversalWalletRegistry.bitcoinNetwork(for: account.chainId)
-        let expectedCrypto: CryptoType = bitcoin == nil ? .ed25519 : .ecdsa
-        if let network = bitcoin {
-            let path = storedPath ?? network.firstReceivePath
-            result = try (
-                BitcoinKeyDerivation
-                    .deriveKey(
-                        mnemonic: phrase,
-                        derivationPath: path,
-                        network: network == UniversalWalletRegistry.bitcoinMainnet ? .mainnet : .testnet
-                    ).publicKey,
-                path
-            )
-        } else {
-            let canonical = UniversalWalletChainAccountSupport.canonicalChainId(for: account.chainId)
-            switch canonical {
-            case UniversalWalletRegistry.solanaMainnet.chainId, UniversalWalletRegistry.solanaDevnet.chainId:
-                let path = storedPath ?? UniversalWalletDerivationPaths.solanaDefault
-                result = try (SolanaKeyDerivation.deriveAccount(mnemonic: phrase, derivationPath: path).publicKey, path)
-            case UniversalWalletRegistry.taira.chainId, UniversalWalletRegistry.nexus.chainId:
-                let path = storedPath ?? UniversalWalletDerivationPaths.irohaDefault
-                result = try (IrohaKeyDerivation.deriveAccount(mnemonic: phrase, derivationPath: path).publicKey, path)
-            case UniversalWalletRegistry.tonMainnetRegistryEntry.chainId:
-                let path = storedPath ?? UniversalWalletDerivationPaths.tonDefault
-                result = try (TonKeyDerivation.deriveAccount(mnemonic: phrase, derivationPath: path).publicKey, path)
-            default: throw UniversalWalletRootRecoveryError.unsupportedWalletIdentity
-            }
-        }
+        let expectedCrypto: CryptoType = UniversalWalletRegistry.bitcoinNetwork(for: account.chainId) == nil
+            ? .ed25519
+            : .ecdsa
+        let result = try universalPublicKey(
+            phrase: mnemonic.toString(),
+            passphrase: passphrase,
+            storedPath: storedPath,
+            chainId: account.chainId
+        )
         guard
             !account.isEthereumBased, account.cryptoType == expectedCrypto,
             account.publicKey == result.publicKey, account.accountId == result.publicKey else {
             throw UniversalWalletRootRecoveryError.phraseDoesNotMatchWallet
         }
         return result.path
+    }
+
+    private func universalPublicKey(
+        phrase: String,
+        passphrase: String,
+        storedPath: String?,
+        chainId: ChainModel.Id
+    ) throws -> (publicKey: Data, path: String) {
+        if let network = UniversalWalletRegistry.bitcoinNetwork(for: chainId) {
+            let path = storedPath ?? network.firstReceivePath
+            let key = try BitcoinKeyDerivation.deriveKey(
+                mnemonic: phrase,
+                passphrase: passphrase,
+                derivationPath: path,
+                network: network == UniversalWalletRegistry.bitcoinMainnet ? .mainnet : .testnet
+            )
+            return (key.publicKey, path)
+        }
+        switch UniversalWalletChainAccountSupport.canonicalChainId(for: chainId) {
+        case UniversalWalletRegistry.solanaMainnet.chainId, UniversalWalletRegistry.solanaDevnet.chainId:
+            let path = storedPath ?? UniversalWalletDerivationPaths.solanaDefault
+            let key = try SolanaKeyDerivation.deriveAccount(
+                mnemonic: phrase, passphrase: passphrase, derivationPath: path
+            )
+            return (key.publicKey, path)
+        case UniversalWalletRegistry.taira.chainId, UniversalWalletRegistry.nexus.chainId:
+            let path = storedPath ?? UniversalWalletDerivationPaths.irohaDefault
+            let key = try IrohaKeyDerivation.deriveAccount(
+                mnemonic: phrase, passphrase: passphrase, derivationPath: path
+            )
+            return (key.publicKey, path)
+        case UniversalWalletRegistry.tonMainnetRegistryEntry.chainId:
+            let path = storedPath ?? UniversalWalletDerivationPaths.tonDefault
+            let key = try TonKeyDerivation.deriveAccount(mnemonic: phrase, passphrase: passphrase, derivationPath: path)
+            return (key.publicKey, path)
+        default:
+            throw UniversalWalletRootRecoveryError.unsupportedWalletIdentity
+        }
     }
 }

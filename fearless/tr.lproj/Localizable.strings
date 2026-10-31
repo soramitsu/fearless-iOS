@@ -1502,3 +1502,19 @@ ait olduğundan emin olun.";
 
 /* Cross-chain: a reviewed route that this build cannot send */
 "cross_chain.unavailable_in_version" = "Fearless'ın bu sürümünde kullanılamaz.";
+
+/* Universal accounts of a wallet with a ///password that still use the address the words alone open */
+"universal.password.notice.title" = "Eski adreslerdeki varlıkları taşıyın";
+"universal.password.notice.message" = "Bu adresler cüzdan şifrenizi kullanmıyor, bu yüzden kurtarma kelimeleriniz tek başına onları açar. Varlıklarını şifreyle korunan yeni adreslere gönderin, ardından Değiştir'e dokunun.";
+"universal.password.notice.row" = "%@\nEski: %@\nYeni: %@";
+"universal.password.notice.switch" = "Değiştir";
+"universal.password.notice.later" = "Sonra";
+"universal.password.notice.copy" = "Yeni %@ adresini kopyala";
+"universal.password.switch.switched" = "%@: yeni adrese geçildi.";
+"universal.password.switch.funded" = "%@: hâlâ varlık içeriyor. Önce yeni adrese taşıyın.";
+"universal.password.switch.unchecked" = "%@: kontrol edilemedi. Daha sonra tekrar deneyin.";
+"universal.password.chain.action" = "Şifreyle korunan adrese geç";
+"universal.password.arrival.title" = "Eski adresinize varlık geldi";
+"universal.password.arrival.message" = "Varlıklar yalnızca kurtarma kelimelerinizle açılan adreslere geldi. Bu cüzdan şifreyle korunan adresleri göstermeye devam eder. Bu varlıkları taşımak için kurtarma kelimelerini şifresiz olarak başka bir cüzdan olarak içe aktarın.";
+"universal.password.arrival.row" = "%@: %@";
+"universal.password.arrival.row.balance" = "%@: %@ (%@)";

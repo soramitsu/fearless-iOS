@@ -19,6 +19,7 @@ protocol WalletDetailsInteractorInputProtocol: AnyObject {
     func getAvailableExportOptions(for chainAccount: ChainAccountInfo)
     func markUnused(chain: ChainModel)
     func selectChainAccount(_ selection: ChainAccountSelection, chain: ChainModel)
+    func switchToPasswordAccount(_ account: UniversalWalletNoPasswordAccount)
 }
 
 protocol WalletDetailsInteractorOutputProtocol: AnyObject {
@@ -27,6 +28,12 @@ protocol WalletDetailsInteractorOutputProtocol: AnyObject {
     func didReceive(error: Error)
     func didReceive(updatedFlow: WalletDetailsFlow)
     func didReceive(storedChainAccounts: [ChainAccountModel])
+    /// Universal accounts the wallet's password does not protect yet.
+    func didReceive(noPasswordAccounts: [UniversalWalletNoPasswordAccount])
+    func didReceive(
+        switchOutcomes: [UniversalWalletSlot: UniversalWalletSwitchOutcome],
+        for accounts: [UniversalWalletNoPasswordAccount]
+    )
 }
 
 protocol WalletDetailsWireframeProtocol: ErrorPresentable,

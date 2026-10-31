@@ -9,6 +9,18 @@ struct MetaAccountImportMnemonicRequest {
     let ethereumDerivationPath: String
     let cryptoType: CryptoType
     let defaultChainId: ChainModel.Id?
+    /// For a wallet with a `///password`: which of Bitcoin, Solana, TON and Taira use it.
+    /// Unless a creation or a funds check says otherwise, the accounts the words alone open
+    /// are kept.
+    var universalWalletEnrollment: UniversalWalletPasswordEnrollment = .unchecked
+
+    /// The wallet password the universal accounts use, from the derivation paths.
+    var universalWalletPassphrase: String {
+        UniversalWalletPassphrase.resolve(
+            substrateDerivationPath: substrateDerivationPath,
+            ethereumDerivationPath: ethereumDerivationPath
+        )
+    }
 }
 
 struct MetaAccountImportSeedRequest {

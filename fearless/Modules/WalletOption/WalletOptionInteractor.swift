@@ -47,7 +47,10 @@ extension WalletOptionInteractor: WalletOptionInteractorInput {
         Task { [weak self] in
             guard let self else { return }
             // Perform deletion by identifier; ignore errors to match prior behavior.
-            try? await metaAccountRepository.saveAsync(insert: [], deleteIds: [wallet.identifier])
+            if (try? await metaAccountRepository.saveAsync(insert: [], deleteIds: [wallet.identifier])) != nil {
+                // Watched old addresses go only with their wallet.
+                UniversalWalletWatchedAccountsStore().forget(walletId: wallet.info.metaId)
+            }
             // Disconnect WC sessions if any; errors are non-fatal for UX here.
             try? await walletConnectDisconnectService.disconnect(wallet: wallet.info)
             await MainActor.run { [weak self] in

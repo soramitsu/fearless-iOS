@@ -1504,3 +1504,19 @@ thuộc đúng mạng";
 
 /* Cross-chain: a reviewed route that this build cannot send */
 "cross_chain.unavailable_in_version" = "Không khả dụng trong phiên bản Fearless này.";
+
+/* Universal accounts of a wallet with a ///password that still use the address the words alone open */
+"universal.password.notice.title" = "Chuyển tiền khỏi địa chỉ cũ";
+"universal.password.notice.message" = "Các địa chỉ này không dùng mật khẩu ví của bạn, nên chỉ cần cụm từ khôi phục là mở được. Hãy gửi tiền sang các địa chỉ mới được bảo vệ bằng mật khẩu, rồi nhấn Chuyển.";
+"universal.password.notice.row" = "%@\nCũ: %@\nMới: %@";
+"universal.password.notice.switch" = "Chuyển";
+"universal.password.notice.later" = "Để sau";
+"universal.password.notice.copy" = "Sao chép địa chỉ %@ mới";
+"universal.password.switch.switched" = "%@: đã chuyển sang địa chỉ mới.";
+"universal.password.switch.funded" = "%@: vẫn còn tiền. Hãy chuyển sang địa chỉ mới trước.";
+"universal.password.switch.unchecked" = "%@: không kiểm tra được. Hãy thử lại sau.";
+"universal.password.chain.action" = "Chuyển sang địa chỉ được bảo vệ bằng mật khẩu";
+"universal.password.arrival.title" = "Có tiền gửi đến địa chỉ cũ của bạn";
+"universal.password.arrival.message" = "Có tiền gửi đến các địa chỉ chỉ cần cụm từ khôi phục là mở được. Ví này vẫn hiển thị các địa chỉ được bảo vệ bằng mật khẩu. Để chuyển số tiền này, hãy nhập cụm từ khôi phục mà không có mật khẩu thành một ví khác.";
+"universal.password.arrival.row" = "%@: %@";
+"universal.password.arrival.row.balance" = "%@: %@ (%@)";

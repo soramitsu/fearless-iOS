@@ -19,6 +19,7 @@ final class WalletDetailsInteractor {
     private let walletRecordsInspector: StoredWalletRecordsInspecting
     private let walletRecordsNoticeTracker: StoredWalletRecordsNoticeTracking
     private let selectedWalletSettings: SelectedWalletSettings
+    private let passwordSwitcher: UniversalWalletPasswordSwitcher
 
     init(
         flow: WalletDetailsFlow,
@@ -29,7 +30,8 @@ final class WalletDetailsInteractor {
         availableExportOptionsProvider: AvailableExportOptionsProviderProtocol,
         walletRecordsInspector: StoredWalletRecordsInspecting,
         walletRecordsNoticeTracker: StoredWalletRecordsNoticeTracking,
-        selectedWalletSettings: SelectedWalletSettings
+        selectedWalletSettings: SelectedWalletSettings,
+        passwordSwitcher: UniversalWalletPasswordSwitcher = UniversalWalletPasswordSwitcher()
     ) {
         self.flow = flow
         self.chainsRepository = chainsRepository
@@ -40,6 +42,7 @@ final class WalletDetailsInteractor {
         self.walletRecordsInspector = walletRecordsInspector
         self.walletRecordsNoticeTracker = walletRecordsNoticeTracker
         self.selectedWalletSettings = selectedWalletSettings
+        self.passwordSwitcher = passwordSwitcher
         self.eventCenter.add(observer: self)
     }
 }
@@ -84,6 +87,7 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
         case .normal:
             fetchChainsWithAccounts()
             fetchStoredChainAccounts(acknowledging: false)
+            fetchNoPasswordAccounts()
         case let .export(_, accounts):
             presenter.didReceive(chains: accounts.map(\.chain))
         }
@@ -142,7 +146,100 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
     }
 }
 
+extension WalletDetailsInteractor {
+    func switchToPasswordAccount(_ account: UniversalWalletNoPasswordAccount) {
+        let wallet = flow.wallet
+        let switcher = passwordSwitcher
+        Task { [weak self] in
+            let result = await switcher.switching([account], in: wallet)
+            await MainActor.run {
+                self?.saveSwitchedWallet(result.wallet, replacing: wallet, outcomes: result.outcomes, for: [account])
+            }
+        }
+    }
+}
+
 private extension WalletDetailsInteractor {
+    func fetchNoPasswordAccounts() {
+        let wallet = flow.wallet
+        let switcher = passwordSwitcher
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            let accounts = switcher.noPasswordAccounts(in: wallet)
+            DispatchQueue.main.async {
+                self?.presenter.didReceive(noPasswordAccounts: accounts)
+            }
+        }
+    }
+
+    /// Saves only over the wallet the switch was computed from.
+    func saveSwitchedWallet(
+        _ updated: MetaAccountModel,
+        replacing original: MetaAccountModel,
+        outcomes: [UniversalWalletSlot: UniversalWalletSwitchOutcome],
+        for accounts: [UniversalWalletNoPasswordAccount]
+    ) {
+        guard updated != original else {
+            presenter.didReceive(switchOutcomes: outcomes, for: accounts)
+            return
+        }
+        let notSaved = outcomes.mapValues { $0 == .switched ? UniversalWalletSwitchOutcome.unchecked : $0 }
+
+        guard selectedWalletSettings.value?.metaId == original.metaId else {
+            let saveOperation = repository.saveOperation({ [updated] }, { [] })
+            saveOperation.completionBlock = { [weak self] in
+                DispatchQueue.main.async {
+                    guard let self else { return }
+                    guard case .success = saveOperation.result else {
+                        self.presenter.didReceive(switchOutcomes: notSaved, for: accounts)
+                        return
+                    }
+                    self.didSwitch(to: updated, outcomes: outcomes, for: accounts)
+                    self.announceSwitch(of: updated, with: MetaAccountModelChangedEvent(account: updated))
+                }
+            }
+            operationManager.enqueue(operations: [saveOperation], in: .transient)
+            return
+        }
+
+        let accepted = selectedWalletSettings.save(
+            value: updated,
+            ifCurrentValueSatisfies: { $0 == original },
+            runningCompletionIn: .main,
+            completionClosure: { [weak self] result in
+                switch result {
+                case let .success(savedWallet):
+                    self?.didSwitch(to: savedWallet, outcomes: outcomes, for: accounts)
+                    self?.announceSwitch(of: savedWallet, with: SelectedAccountChanged(account: savedWallet))
+                case let .failure(error):
+                    self?.presenter.didReceive(error: error)
+                }
+            }
+        )
+        if !accepted {
+            presenter.didReceive(switchOutcomes: notSaved, for: accounts)
+        }
+    }
+
+    func didSwitch(
+        to wallet: MetaAccountModel,
+        outcomes: [UniversalWalletSlot: UniversalWalletSwitchOutcome],
+        for accounts: [UniversalWalletNoPasswordAccount]
+    ) {
+        if case .normal = flow {
+            flow = .normal(wallet: wallet)
+        }
+        fetchNoPasswordAccounts()
+        presenter.didReceive(switchOutcomes: outcomes, for: accounts)
+    }
+
+    /// Drops scans of the old Bitcoin account before anything reads the switched wallet.
+    func announceSwitch(of wallet: MetaAccountModel, with event: EventProtocol) {
+        Task { @MainActor [weak self] in
+            await BitcoinWalletBalanceCache.shared.invalidate(walletId: wallet.metaId)
+            self?.eventCenter.notify(with: event)
+        }
+    }
+
     /// The store already holds the switch. Hand the wallet as stored to everything that
     /// shows its addresses or balances.
     func didSelectChainAccount(in wallet: MetaAccountModel) {

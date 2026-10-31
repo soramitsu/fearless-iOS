@@ -249,13 +249,16 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
         let substrateDerivationPath = (substrateDerivationPathViewModel?.inputHandler.value).nonEmpty(or: "")
         switch unwrappedFlow {
         case .wallet:
+            // Freshly generated words: nothing can have used the accounts they open alone, so
+            // a password protects every universal account from the start.
             let request = MetaAccountImportMnemonicRequest(
                 mnemonic: mnemonic,
                 username: usernameSetup.username,
                 substrateDerivationPath: substrateDerivationPath,
                 ethereumDerivationPath: ethereumDerivationPath,
                 cryptoType: selectedCryptoType,
-                defaultChainId: nil
+                defaultChainId: nil,
+                universalWalletEnrollment: .generated
             )
             wireframe.confirm(
                 from: view,
@@ -279,7 +282,8 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
                 substrateDerivationPath: substrateDerivationPath,
                 ethereumDerivationPath: ethereumDerivationPath,
                 cryptoType: selectedCryptoType,
-                defaultChainId: nil
+                defaultChainId: nil,
+                universalWalletEnrollment: .generated
             )
             wireframe.showBackupCreatePassword(
                 request: request,

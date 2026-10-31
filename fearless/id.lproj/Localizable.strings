@@ -1490,3 +1490,19 @@ akan muncul di sini";
 
 /* Cross-chain: a reviewed route that this build cannot send */
 "cross_chain.unavailable_in_version" = "Tidak tersedia di versi Fearless ini.";
+
+/* Universal accounts of a wallet with a ///password that still use the address the words alone open */
+"universal.password.notice.title" = "Pindahkan dana dari alamat lama";
+"universal.password.notice.message" = "Alamat ini tidak memakai kata sandi dompet Anda, jadi kata pemulihan saja sudah bisa membukanya. Kirim dananya ke alamat baru yang dilindungi kata sandi, lalu ketuk Alihkan.";
+"universal.password.notice.row" = "%@\nLama: %@\nBaru: %@";
+"universal.password.notice.switch" = "Alihkan";
+"universal.password.notice.later" = "Nanti";
+"universal.password.notice.copy" = "Salin alamat %@ baru";
+"universal.password.switch.switched" = "%@: sudah dialihkan ke alamat baru.";
+"universal.password.switch.funded" = "%@: masih berisi dana. Pindahkan dulu ke alamat baru.";
+"universal.password.switch.unchecked" = "%@: tidak dapat diperiksa. Coba lagi nanti.";
+"universal.password.chain.action" = "Alihkan ke alamat yang dilindungi kata sandi";
+"universal.password.arrival.title" = "Dana masuk ke alamat lama Anda";
+"universal.password.arrival.message" = "Dana masuk ke alamat yang bisa dibuka hanya dengan kata pemulihan Anda. Dompet ini tetap menampilkan alamat yang dilindungi kata sandi. Untuk memindahkan dana ini, impor kata pemulihan tanpa kata sandi sebagai dompet lain.";
+"universal.password.arrival.row" = "%@: %@";
+"universal.password.arrival.row.balance" = "%@: %@ (%@)";

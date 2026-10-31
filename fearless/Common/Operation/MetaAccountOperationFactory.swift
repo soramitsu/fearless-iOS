@@ -30,9 +30,14 @@ final class MetaAccountOperationFactory {
     }
 
     private let keystore: KeystoreProtocol
+    private let watchedAccounts: UniversalWalletWatchedAccountsStore
 
-    init(keystore: KeystoreProtocol) {
+    init(
+        keystore: KeystoreProtocol,
+        watchedAccounts: UniversalWalletWatchedAccountsStore = UniversalWalletWatchedAccountsStore()
+    ) {
         self.keystore = keystore
+        self.watchedAccounts = watchedAccounts
     }
 
     /// Reuses the released import derivation recipe without writing Keychain or Core Data.
@@ -88,8 +93,9 @@ private extension MetaAccountOperationFactory {
         replacing previous: MetaAccountModel? = nil,
         _ body: @escaping (MetaAccountOperationFactory) throws -> MetaAccountModel
     ) -> BaseOperation<MetaAccountModel> {
-        PersistenceBoundImportOperation(keystore: keystore, replacing: previous) { transactionalStore in
-            try body(MetaAccountOperationFactory(keystore: transactionalStore))
+        let watchedAccounts = watchedAccounts
+        return PersistenceBoundImportOperation(keystore: keystore, replacing: previous) { transactionalStore in
+            try body(MetaAccountOperationFactory(keystore: transactionalStore, watchedAccounts: watchedAccounts))
         }
     }
 
@@ -353,9 +359,17 @@ private extension MetaAccountOperationFactory {
             }
         }
 
+        // Root recovery checks no funds, so a password wallet's missing networks keep the
+        // accounts the words alone open until the wallet's notice switches them.
         return try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
             to: wallet,
-            mnemonic: mnemonic.toString()
+            mnemonic: mnemonic.toString(),
+            passphrase: UniversalWalletPassphrase.resolve(
+                substrateDerivationPath: substrateDerivationPath,
+                ethereumDerivationPath: try keystore.fetchDeriviationForAddress(
+                    KeystoreTagV2.ethereumDerivationTagForMetaId(wallet.metaId)
+                )
+            )
         )
     }
 
@@ -430,10 +444,20 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             )
             let metaAccount = try UniversalWalletAccountProvisioning.addingMissingAppOwnedAccounts(
                 to: baseMetaAccount,
-                mnemonic: request.mnemonic.toString()
+                mnemonic: request.mnemonic.toString(),
+                passphrase: request.universalWalletPassphrase,
+                enrollment: request.universalWalletEnrollment
             )
 
             let metaId = metaAccount.metaId
+            // Old accounts an import left after finding them empty stay watched for deposits.
+            factory.watchedAccounts.watch(
+                request.universalWalletEnrollment.leftAfterEmptyCheck(
+                    Set(UniversalWalletSlot.allCases),
+                    password: request.universalWalletPassphrase
+                ),
+                in: metaId
+            )
 
             try factory.saveSecretKey(substrateQuery.privateKey, metaId: metaId, ethereumBased: false)
             try factory.saveDerivationPath(request.substrateDerivationPath, metaId: metaId, ethereumBased: false)
