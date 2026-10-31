@@ -1506,3 +1506,10 @@ akan muncul di sini";
 "universal.password.arrival.message" = "Dana masuk ke alamat yang bisa dibuka hanya dengan kata pemulihan Anda. Dompet ini tetap menampilkan alamat yang dilindungi kata sandi. Untuk memindahkan dana ini, impor kata pemulihan tanpa kata sandi sebagai dompet lain.";
 "universal.password.arrival.row" = "%@: %@";
 "universal.password.arrival.row.balance" = "%@: %@ (%@)";
+
+/* Import: an earlier browser extension made a different Substrate account from the path password */
+"substrate.password.choice.title" = "Pilih alamat Anda";
+"substrate.password.choice.message" = "Versi lama ekstensi browser Fearless membuat alamat yang berbeda dari kata sandi ini. Pilih alamat yang menyimpan dana Anda.";
+"substrate.password.choice.nfkd" = "Semua aplikasi Fearless";
+"substrate.password.choice.nfc" = "Ekstensi browser versi lama";
+"substrate.password.choice.asTyped" = "Ekstensi browser 3.0, sesuai ketikan";

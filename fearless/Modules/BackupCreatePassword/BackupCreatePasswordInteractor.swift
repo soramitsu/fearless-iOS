@@ -393,11 +393,13 @@ private extension BackupCreatePasswordInteractor {
 
         // The phrase is the wallet's backup only if importing it recreates both of its accounts.
         let derivation = MetaAccountOperationFactory(keystore: keystore)
-        let substratePublicKey = try derivation.publicKeyForExportEntropy(
+        // A wallet imported with an earlier browser extension's account restores it: the restore
+        // picks the rule whose account the backup is filed under (SubstratePasswordRule).
+        let substrateRestores = try derivation.entropyReproducesPublicKey(
             entropy,
             derivationPath: substrateDerivationPath,
             cryptoType: substrate.account.cryptoType,
-            ethereumBased: false
+            publicKey: substrate.account.publicKey
         )
         let ethereumAddress = try derivation.publicKeyForExportEntropy(
             entropy,
@@ -407,7 +409,7 @@ private extension BackupCreatePasswordInteractor {
         ).ethereumAddressFromPublicKey()
 
         guard
-            substratePublicKey == substrate.account.publicKey,
+            substrateRestores,
             ethereumAddress == ethereum.account.accountId
         else {
             throw BackupCreatePasswordError.unverifiedRecoveryPhrase

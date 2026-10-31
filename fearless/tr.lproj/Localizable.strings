@@ -1518,3 +1518,10 @@ ait olduğundan emin olun.";
 "universal.password.arrival.message" = "Varlıklar yalnızca kurtarma kelimelerinizle açılan adreslere geldi. Bu cüzdan şifreyle korunan adresleri göstermeye devam eder. Bu varlıkları taşımak için kurtarma kelimelerini şifresiz olarak başka bir cüzdan olarak içe aktarın.";
 "universal.password.arrival.row" = "%@: %@";
 "universal.password.arrival.row.balance" = "%@: %@ (%@)";
+
+/* Import: an earlier browser extension made a different Substrate account from the path password */
+"substrate.password.choice.title" = "Adresinizi seçin";
+"substrate.password.choice.message" = "Fearless tarayıcı uzantısının önceki sürümleri bu paroladan farklı bir adres oluşturuyordu. Varlıklarınızın bulunduğu adresi seçin.";
+"substrate.password.choice.nfkd" = "Tüm Fearless uygulamaları";
+"substrate.password.choice.nfc" = "Önceki tarayıcı uzantısı";
+"substrate.password.choice.asTyped" = "Tarayıcı uzantısı 3.0, yazıldığı gibi";

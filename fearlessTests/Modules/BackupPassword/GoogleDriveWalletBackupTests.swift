@@ -538,6 +538,30 @@ final class GoogleDriveWalletBackupTests: XCTestCase {
         }
     }
 
+    /// A wallet imported with the account the browser extension 4.2 made from its path password
+    /// (`SubstratePasswordRule.nfc`) uploads its phrase, and the restore opens that same account.
+    func testWalletImportedWithAnEarlierExtensionRule_whenBackedUp_thenItsPhraseRestoresThatAccount() throws {
+        let vector = try SubstratePasswordVectors.vector("default24-unicode")
+        let keystore = InMemoryKeychain()
+        let wallet = try SubstratePasswordVectors.importWallet(
+            vector, cryptoType: .sr25519, rule: .nfc, keystore: keystore
+        )
+        XCTAssertEqual(
+            wallet.substrateAccountId?.toHex(includePrefix: true),
+            try vector.account("nfc", .sr25519).accountId
+        )
+
+        let run = try backUp(wallet, accounts: accountsOfBackupScreen(for: wallet), keystore: keystore)
+
+        let uploaded = try XCTUnwrap(run.uploaded)
+        XCTAssertEqual(uploaded.backupAccountType, [.passphrase])
+        XCTAssertEqual(uploaded.passphrase, vector.mnemonic)
+        XCTAssertEqual(uploaded.address, wallet.backupAddress)
+        let restored = try restore(uploaded)
+        XCTAssertEqual(restored.substrateAccountId, wallet.substrateAccountId)
+        XCTAssertEqual(restored.substratePublicKey, wallet.substratePublicKey)
+    }
+
     func testEthereumOnlyAndroidBackup_whenRestored_thenNothingIsImportedAndTheErrorIsShown() throws {
         let fixture = AndroidBackupFixture.ethereumOnlySeed
         let backup = try decodeAndroidBackup(fixture.json, password: fixture.password)

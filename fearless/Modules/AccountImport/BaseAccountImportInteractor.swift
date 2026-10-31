@@ -109,7 +109,8 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
                 substrateDerivationPath: data.substrateDerivationPath,
                 ethereumDerivationPath: data.ethereumDerivationPath,
                 cryptoType: request.cryptoType,
-                defaultChainId: request.defaultChainId
+                defaultChainId: request.defaultChainId,
+                substratePasswordRule: data.substratePasswordRule
             )
             guard request.universalWalletPassphrase.isEmpty else {
                 importCheckingNoPasswordFunds(request)

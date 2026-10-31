@@ -1517,3 +1517,10 @@
 "universal.password.arrival.message" = "资金已到达仅凭助记词即可打开的地址。此钱包仍显示受密码保护的地址。要转移这些资金，请不使用密码将助记词导入为另一个钱包。";
 "universal.password.arrival.row" = "%@：%@";
 "universal.password.arrival.row.balance" = "%@：%@（%@）";
+
+/* Import: an earlier browser extension made a different Substrate account from the path password */
+"substrate.password.choice.title" = "选择您的地址";
+"substrate.password.choice.message" = "早期版本的 Fearless 浏览器扩展用此密码生成了另一个地址。请选择存有您资金的那个地址。";
+"substrate.password.choice.nfkd" = "所有 Fearless 应用";
+"substrate.password.choice.nfc" = "早期浏览器扩展";
+"substrate.password.choice.asTyped" = "浏览器扩展 3.0（按输入原样）";

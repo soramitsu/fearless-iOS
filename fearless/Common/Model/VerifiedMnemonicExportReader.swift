@@ -83,10 +83,7 @@ final class VerifiedMnemonicExportReader {
             guard !account.isEthereumBased || storedPath != nil else {
                 throw UniversalWalletRootRecoveryError.phraseDoesNotMatchWallet
             }
-            let publicKey = try derivation.publicKeyForExportEntropy(
-                entropy, derivationPath: storedPath ?? "", cryptoType: account.cryptoType,
-                ethereumBased: account.isEthereumBased
-            )
+            let publicKey = try exportPublicKey(entropy: entropy, path: storedPath ?? "", account: account)
             try verify(publicKey: publicKey, account: account)
             path = storedPath
         }
@@ -162,6 +159,28 @@ final class VerifiedMnemonicExportReader {
         }
         return wallet.substrateAccountId == account.accountId && wallet.substratePublicKey == account.publicKey &&
             wallet.substrateCryptoType == account.cryptoType.rawValue
+    }
+
+    /// The key the entropy and path re-derive for `account`. An import may have opened the account an
+    /// earlier browser extension made from the path's password (SubstratePasswordRule).
+    private func exportPublicKey(entropy: Data, path: String, account: ChainAccountResponse) throws -> Data {
+        let derive = { (rule: SubstratePasswordRule) in
+            try self.derivation.publicKeyForExportEntropy(
+                entropy, derivationPath: path, cryptoType: account.cryptoType,
+                ethereumBased: account.isEthereumBased, passwordRule: rule
+            )
+        }
+        let current = try derive(.nfkd)
+        guard !account.isEthereumBased, current != account.publicKey else {
+            return current
+        }
+        for rule in SubstratePasswordRule.distinctRules(forSubstrateDerivationPath: path).dropFirst() {
+            let candidate = try derive(rule)
+            if candidate == account.publicKey {
+                return candidate
+            }
+        }
+        return current
     }
 
     private func readPath(_ tag: String) throws -> String? {

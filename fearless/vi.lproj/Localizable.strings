@@ -1520,3 +1520,10 @@ thuộc đúng mạng";
 "universal.password.arrival.message" = "Có tiền gửi đến các địa chỉ chỉ cần cụm từ khôi phục là mở được. Ví này vẫn hiển thị các địa chỉ được bảo vệ bằng mật khẩu. Để chuyển số tiền này, hãy nhập cụm từ khôi phục mà không có mật khẩu thành một ví khác.";
 "universal.password.arrival.row" = "%@: %@";
 "universal.password.arrival.row.balance" = "%@: %@ (%@)";
+
+/* Import: an earlier browser extension made a different Substrate account from the path password */
+"substrate.password.choice.title" = "Chọn địa chỉ của bạn";
+"substrate.password.choice.message" = "Các phiên bản trước của tiện ích mở rộng trình duyệt Fearless đã tạo một địa chỉ khác từ mật khẩu này. Hãy chọn địa chỉ đang giữ tiền của bạn.";
+"substrate.password.choice.nfkd" = "Tất cả ứng dụng Fearless";
+"substrate.password.choice.nfc" = "Tiện ích mở rộng trình duyệt trước đây";
+"substrate.password.choice.asTyped" = "Tiện ích mở rộng trình duyệt 3.0, đúng như đã nhập";

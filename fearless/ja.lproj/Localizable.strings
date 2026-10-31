@@ -1539,3 +1539,10 @@
 "universal.password.arrival.message" = "リカバリーフレーズだけで開けるアドレスに資金が届きました。このウォレットはパスワードで保護されたアドレスを表示し続けます。この資金を移動するには、パスワードなしでリカバリーフレーズを別のウォレットとしてインポートしてください。";
 "universal.password.arrival.row" = "%@: %@";
 "universal.password.arrival.row.balance" = "%@: %@（%@）";
+
+/* Import: an earlier browser extension made a different Substrate account from the path password */
+"substrate.password.choice.title" = "アドレスを選択";
+"substrate.password.choice.message" = "以前のFearlessブラウザ拡張機能は、このパスワードから別のアドレスを作成していました。資金があるほうを選んでください。";
+"substrate.password.choice.nfkd" = "すべてのFearlessアプリ";
+"substrate.password.choice.nfc" = "以前のブラウザ拡張機能";
+"substrate.password.choice.asTyped" = "ブラウザ拡張機能 3.0（入力どおり）";

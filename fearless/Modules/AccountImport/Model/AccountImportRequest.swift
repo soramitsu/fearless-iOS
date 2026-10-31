@@ -13,6 +13,9 @@ struct MetaAccountImportMnemonicRequest {
     /// Unless a creation or a funds check says otherwise, the accounts the words alone open
     /// are kept.
     var universalWalletEnrollment: UniversalWalletPasswordEnrollment = .unchecked
+    /// How the Substrate path's password salts the seed; an import may open the account an earlier
+    /// browser extension made (SubstratePasswordRule).
+    var substratePasswordRule: SubstratePasswordRule = .nfkd
 
     /// The wallet password the universal accounts use, from the derivation paths.
     var universalWalletPassphrase: String {
@@ -46,6 +49,7 @@ enum MetaAccountImportRequestSource {
         let mnemonic: IRMnemonicProtocol
         let substrateDerivationPath: String
         let ethereumDerivationPath: String
+        var substratePasswordRule: SubstratePasswordRule = .nfkd
     }
 
     struct SeedImportRequestData {

@@ -595,6 +595,43 @@ private extension AccountImportPresenter {
         }
     }
 
+    func askWhichSubstrateAccount(
+        _ accounts: [SubstratePasswordAccount],
+        choose: @escaping (SubstratePasswordRule) -> Void
+    ) {
+        let languages = selectedLocale.rLanguages
+        let title: (SubstratePasswordRule) -> String = { rule in
+            switch rule {
+            case .nfkd:
+                return R.string.localizable.substratePasswordChoiceNfkd(preferredLanguages: languages)
+            case .nfc:
+                return R.string.localizable.substratePasswordChoiceNfc(preferredLanguages: languages)
+            case .asTyped:
+                return R.string.localizable.substratePasswordChoiceAsTyped(preferredLanguages: languages)
+            }
+        }
+        let lines = accounts.map { "\(title($0.rule)):\n\($0.address)" }
+        let message = ([R.string.localizable.substratePasswordChoiceMessage(preferredLanguages: languages)] + lines)
+            .joined(separator: "\n\n")
+        let actions = accounts.enumerated().map { index, account in
+            SheetAlertPresentableAction(
+                title: title(account.rule),
+                style: index == 0 ? .pinkBackgroundWhiteText : .grayBackgroundWhiteText,
+                handlerAfterDismissal: true,
+                handler: { choose(account.rule) }
+            )
+        }
+        let alertViewModel = SheetAlertPresentableViewModel(
+            title: R.string.localizable.substratePasswordChoiceTitle(preferredLanguages: languages),
+            message: message,
+            actions: actions,
+            closeAction: nil,
+            icon: nil,
+            scrollableContent: true
+        )
+        wireframe.present(viewModel: alertViewModel, from: view)
+    }
+
     func askIfNeedAddEthereum(showHandler: @escaping () -> Void, closeHandler: @escaping () -> Void) {
         let showAction = SheetAlertPresentableAction(
             title: R.string.localizable.commonYes(preferredLanguages: selectedLocale.rLanguages),
@@ -644,7 +681,11 @@ private extension AccountImportPresenter {
         }
     }
 
-    func importMetaAccount(data: AccountImportRequestData, step: AccountCreationStep) {
+    func importMetaAccount(
+        data: AccountImportRequestData,
+        step: AccountCreationStep,
+        substratePasswordRule: SubstratePasswordRule? = nil
+    ) {
         switch (data.selectedSourceType, step) {
         case (.mnemonic, _), (.legacyTonMnemonic, _):
             let mnemonicString = data.source
@@ -655,10 +696,30 @@ private extension AccountImportPresenter {
                 didReceiveAccountImport(error: AccountCreateError.invalidMnemonicFormat)
                 return
             }
+            // An earlier browser extension made a different account from the path's password
+            // (SubstratePasswordRule): the user picks before the wallet is saved.
+            if data.selectedSourceType == .mnemonic, substratePasswordRule == nil,
+               let accounts = try? SubstratePasswordRule.accounts(
+                   mnemonic: mnemonic,
+                   derivationPath: data.substrateDerivationPath,
+                   cryptoType: data.selectedCryptoType
+               ),
+               accounts.count > 1 {
+                isImportInProgress = false
+                askWhichSubstrateAccount(accounts) { [weak self] rule in
+                    guard let self, self.ownsImportPresentation,
+                          !self.isImportInProgress, !self.hasCommittedImport else { return }
+                    self.requiresExplicitImportCompletion = false
+                    self.isImportInProgress = true
+                    self.importMetaAccount(data: data, step: step, substratePasswordRule: rule)
+                }
+                return
+            }
             let sourceData = MetaAccountImportRequestSource.MnemonicImportRequestData(
                 mnemonic: mnemonic,
                 substrateDerivationPath: data.substrateDerivationPath,
-                ethereumDerivationPath: data.ethereumDerivationPath
+                ethereumDerivationPath: data.ethereumDerivationPath,
+                substratePasswordRule: substratePasswordRule ?? .nfkd
             )
             let source = MetaAccountImportRequestSource.mnemonic(data: sourceData)
             let request = MetaAccountImportRequest(

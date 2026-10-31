@@ -1552,3 +1552,10 @@ belongs to the right network";
 "universal.password.arrival.message" = "Funds reached addresses your recovery words alone open. This wallet keeps showing its password-protected addresses. To move these funds, import the recovery words without the password as another wallet.";
 "universal.password.arrival.row" = "%@: %@";
 "universal.password.arrival.row.balance" = "%@: %@ (%@)";
+
+/* Import: an earlier browser extension made a different Substrate account from the path password */
+"substrate.password.choice.title" = "Choose your address";
+"substrate.password.choice.message" = "Earlier versions of the Fearless browser extension made a different address from this password. Choose the one that holds your funds.";
+"substrate.password.choice.nfkd" = "All Fearless apps";
+"substrate.password.choice.nfc" = "Earlier browser extension";
+"substrate.password.choice.asTyped" = "Browser extension 3.0, as typed";

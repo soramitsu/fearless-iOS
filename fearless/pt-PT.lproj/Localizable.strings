@@ -1479,3 +1479,10 @@ pertence à rede certa";
 "universal.password.arrival.message" = "Chegaram fundos a endereços que as palavras de recuperação abrem sozinhas. Esta carteira continua a mostrar os endereços protegidos pela palavra-passe. Para mover estes fundos, importe as palavras de recuperação sem a palavra-passe como outra carteira.";
 "universal.password.arrival.row" = "%@: %@";
 "universal.password.arrival.row.balance" = "%@: %@ (%@)";
+
+/* Import: an earlier browser extension made a different Substrate account from the path password */
+"substrate.password.choice.title" = "Escolha seu endereço";
+"substrate.password.choice.message" = "Versões anteriores da extensão de navegador do Fearless criavam outro endereço a partir desta senha. Escolha aquele que guarda seus fundos.";
+"substrate.password.choice.nfkd" = "Todos os apps Fearless";
+"substrate.password.choice.nfc" = "Extensão de navegador anterior";
+"substrate.password.choice.asTyped" = "Extensão de navegador 3.0, como digitado";

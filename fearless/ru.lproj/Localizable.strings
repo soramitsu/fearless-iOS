@@ -1547,3 +1547,10 @@ Euro cash";
 "universal.password.arrival.message" = "Средства поступили на адреса, которые открывает одна лишь фраза восстановления. Этот кошелёк продолжает показывать адреса, защищённые паролем. Чтобы перевести эти средства, импортируйте фразу восстановления без пароля как другой кошелёк.";
 "universal.password.arrival.row" = "%@: %@";
 "universal.password.arrival.row.balance" = "%@: %@ (%@)";
+
+/* Import: an earlier browser extension made a different Substrate account from the path password */
+"substrate.password.choice.title" = "Выберите адрес";
+"substrate.password.choice.message" = "Прежние версии расширения Fearless для браузера получали из этого пароля другой адрес. Выберите тот, на котором хранятся ваши средства.";
+"substrate.password.choice.nfkd" = "Все приложения Fearless";
+"substrate.password.choice.nfc" = "Прежнее расширение для браузера";
+"substrate.password.choice.asTyped" = "Расширение 3.0, как введено";
