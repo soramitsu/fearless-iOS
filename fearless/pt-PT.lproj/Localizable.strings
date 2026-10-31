@@ -1463,3 +1463,15 @@ pertence à rede certa";
 
 /* Cross-chain: a reviewed route that this build cannot send */
 "cross_chain.unavailable_in_version" = "Não disponível nesta versão do Fearless.";
+
+/* Universal accounts of a wallet with a ///password that still use the address the words alone open */
+"universal.password.notice.title" = "Mova os fundos dos endereços antigos";
+"universal.password.notice.message" = "Estes endereços não usam a palavra-passe da sua carteira, por isso as palavras de recuperação bastam para os abrir. Envie os fundos para os novos endereços protegidos pela palavra-passe e depois toque em Mudar.";
+"universal.password.notice.row" = "%@\nAntigo: %@\nNovo: %@";
+"universal.password.notice.switch" = "Mudar";
+"universal.password.notice.later" = "Mais tarde";
+"universal.password.notice.copy" = "Copiar novo endereço %@";
+"universal.password.switch.switched" = "%@: mudou para o novo endereço.";
+"universal.password.switch.funded" = "%@: ainda tem fundos. Mova-os primeiro para o novo endereço.";
+"universal.password.switch.unchecked" = "%@: não foi possível verificar. Tente mais tarde.";
+"universal.password.chain.action" = "Usar endereço protegido pela palavra-passe";

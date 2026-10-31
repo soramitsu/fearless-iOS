@@ -16,6 +16,8 @@ enum ChainAction {
     case useStoredAccount(address: String)
     /// Go back from a per-chain account to the wallet's own account on this chain.
     case useWalletAccount
+    /// Replace the account the words alone open with the one the wallet password protects.
+    case switchToPasswordAccount
 
     var icon: UIImage? {
         switch self {
@@ -27,7 +29,7 @@ enum ChainAction {
             return R.image.iconCopy()
         case .polkascan, .subscan, .etherscan, .reefscan, .oklink:
             return R.image.iconOpenWeb()
-        case .replace, .useStoredAccount, .useWalletAccount:
+        case .replace, .useStoredAccount, .useWalletAccount, .switchToPasswordAccount:
             return R.image.iconReplace()
         case .claimCrowdloanRewards:
             return R.image.iconInfo()
@@ -70,6 +72,8 @@ enum ChainAction {
             )
         case .useWalletAccount:
             return R.string.localizable.walletChainAccountsUseWallet(preferredLanguages: locale.rLanguages)
+        case .switchToPasswordAccount:
+            return R.string.localizable.universalPasswordChainAction(preferredLanguages: locale.rLanguages)
         }
     }
 

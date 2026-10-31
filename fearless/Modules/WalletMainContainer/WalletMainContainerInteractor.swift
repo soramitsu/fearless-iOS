@@ -20,6 +20,8 @@ final class WalletMainContainerInteractor {
     private let walletRecordsInspector: StoredWalletRecordsInspecting
     private let walletRecordsNoticeTracker: StoredWalletRecordsNoticeTracking
     private var walletRecordsReport: StoredWalletRecordsReport?
+    private let passwordSwitcher: UniversalWalletPasswordSwitcher
+    private let passwordNoticeTracker: UniversalWalletPasswordNoticeTracker
 
     // MARK: - Constructor
 
@@ -34,7 +36,9 @@ final class WalletMainContainerInteractor {
         walletConnectService: WalletConnectService,
         featureToggleService: FeatureToggleProviderProtocol,
         walletRecordsInspector: StoredWalletRecordsInspecting,
-        walletRecordsNoticeTracker: StoredWalletRecordsNoticeTracking
+        walletRecordsNoticeTracker: StoredWalletRecordsNoticeTracking,
+        passwordSwitcher: UniversalWalletPasswordSwitcher = UniversalWalletPasswordSwitcher(),
+        passwordNoticeTracker: UniversalWalletPasswordNoticeTracker = UniversalWalletPasswordNoticeTracker()
     ) {
         self.wallet = wallet
         self.chainRepository = chainRepository
@@ -47,6 +51,8 @@ final class WalletMainContainerInteractor {
         self.featureToggleService = featureToggleService
         self.walletRecordsInspector = walletRecordsInspector
         self.walletRecordsNoticeTracker = walletRecordsNoticeTracker
+        self.passwordSwitcher = passwordSwitcher
+        self.passwordNoticeTracker = passwordNoticeTracker
         applicationHandler.delegate = self
     }
 
@@ -120,6 +126,24 @@ final class WalletMainContainerInteractor {
         operationQueue.addOperation(reportOperation)
     }
 
+    /// Shows once per wallet that its password does not protect some universal accounts yet.
+    private func checkUniversalWalletPassword() {
+        let wallet = self.wallet
+        guard !passwordNoticeTracker.wasShown(for: wallet.metaId) else {
+            return
+        }
+        let switcher = passwordSwitcher
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            let accounts = switcher.noPasswordAccounts(in: wallet)
+            DispatchQueue.main.async {
+                guard let self, !accounts.isEmpty, self.wallet.metaId == wallet.metaId else {
+                    return
+                }
+                self.output?.didReceiveUniversalWalletNoPasswordAccounts(accounts)
+            }
+        }
+    }
+
     private func checkNftAvailability() {
         let fetchOperation = featureToggleService.fetchConfigOperation()
 
@@ -144,6 +168,7 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         fetchNetworkManagmentFilter()
         checkNftAvailability()
         checkStoredWalletRecords()
+        checkUniversalWalletPassword()
     }
 
     func walletConnect(uri: String) async throws {
@@ -160,6 +185,51 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
             walletRecordsNoticeTracker.acknowledgeRecordsNotShown(in: report)
         case .storedChainAccounts:
             walletRecordsNoticeTracker.acknowledgeStoredChainAccounts(in: report)
+        }
+    }
+
+    func acknowledgeUniversalWalletPasswordNotice() {
+        passwordNoticeTracker.markShown(for: wallet.metaId)
+    }
+
+    /// Replaces the old accounts that hold nothing and saves the wallet only if nothing
+    /// changed it in the meantime.
+    func switchNoPasswordAccounts(_ accounts: [UniversalWalletNoPasswordAccount]) {
+        let wallet = self.wallet
+        let switcher = passwordSwitcher
+        Task { [weak self] in
+            let result = await switcher.switching(accounts, in: wallet)
+            await MainActor.run {
+                guard let self else { return }
+                guard result.wallet != wallet else {
+                    self.output?.didReceiveUniversalWalletSwitchOutcomes(result.outcomes, for: accounts)
+                    return
+                }
+                let accepted = SelectedWalletSettings.shared.save(
+                    value: result.wallet,
+                    ifCurrentValueSatisfies: { $0 == wallet },
+                    runningCompletionIn: .main,
+                    completionClosure: { [weak self] saveResult in
+                        switch saveResult {
+                        case let .success(savedWallet):
+                            Task { @MainActor [weak self] in
+                                await BitcoinWalletBalanceCache.shared.invalidate(walletId: savedWallet.metaId)
+                                self?.eventCenter.notify(with: SelectedAccountChanged(account: savedWallet))
+                                self?.output?.didReceiveUniversalWalletSwitchOutcomes(result.outcomes, for: accounts)
+                            }
+                        case let .failure(error):
+                            self?.output?.didReceiveError(error)
+                        }
+                    }
+                )
+                if !accepted {
+                    // Another change to the wallet came first; nothing was switched.
+                    self.output?.didReceiveUniversalWalletSwitchOutcomes(
+                        result.outcomes.mapValues { $0 == .switched ? .unchecked : $0 },
+                        for: accounts
+                    )
+                }
+            }
         }
     }
 }
@@ -192,6 +262,7 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
         output?.didReceiveAccount(wallet)
 
         fetchNetworkManagmentFilter()
+        checkUniversalWalletPassword()
     }
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {

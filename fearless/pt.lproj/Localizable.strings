@@ -1450,3 +1450,15 @@ pertence à rede certa";
 "solana.transfer.recovery_unavailable.message" = "Não é possível verificar a rede original desta transferência guardada. A Fearless manteve o registo da transferência. A consulta do estado e o reenvio estão indisponíveis. Não envie uma transferência de substituição até que o resultado da transferência original seja esclarecido.\n%@";
 
 "solana.transfer.recovery_unreadable.message" = "A Fearless não consegue ler o registo de transferência guardado para esta carteira e rede Solana. Os dados originais foram preservados. Não é possível enviar uma nova transferência, consultar o estado ou tentar novamente porque o resultado anterior é desconhecido. Não envie uma transferência de substituição até esclarecer o resultado da original. As outras funções da carteira continuam disponíveis.";
+
+/* Universal accounts of a wallet with a ///password that still use the address the words alone open */
+"universal.password.notice.title" = "Mova os fundos dos endereços antigos";
+"universal.password.notice.message" = "Estes endereços não usam a senha da sua carteira, então só as palavras de recuperação já os abrem. Envie os fundos para os novos endereços protegidos pela senha e depois toque em Trocar.";
+"universal.password.notice.row" = "%@\nAntigo: %@\nNovo: %@";
+"universal.password.notice.switch" = "Trocar";
+"universal.password.notice.later" = "Depois";
+"universal.password.notice.copy" = "Copiar novo endereço %@";
+"universal.password.switch.switched" = "%@: trocado para o novo endereço.";
+"universal.password.switch.funded" = "%@: ainda tem fundos. Mova-os antes para o novo endereço.";
+"universal.password.switch.unchecked" = "%@: não foi possível verificar. Tente de novo depois.";
+"universal.password.chain.action" = "Usar endereço protegido pela senha";

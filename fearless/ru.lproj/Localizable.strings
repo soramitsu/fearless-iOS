@@ -1531,3 +1531,15 @@ Euro cash";
 
 /* Cross-chain: a reviewed route that this build cannot send */
 "cross_chain.unavailable_in_version" = "Недоступно в этой версии Fearless.";
+
+/* Universal accounts of a wallet with a ///password that still use the address the words alone open */
+"universal.password.notice.title" = "Переведите средства со старых адресов";
+"universal.password.notice.message" = "Эти адреса не используют пароль кошелька, поэтому их открывает одна лишь фраза восстановления. Отправьте средства на новые адреса, защищённые паролем, затем нажмите «Переключить».";
+"universal.password.notice.row" = "%@\nСтарый: %@\nНовый: %@";
+"universal.password.notice.switch" = "Переключить";
+"universal.password.notice.later" = "Позже";
+"universal.password.notice.copy" = "Скопировать новый адрес %@";
+"universal.password.switch.switched" = "%@: переключено на новый адрес.";
+"universal.password.switch.funded" = "%@: на адресе ещё есть средства. Сначала переведите их на новый адрес.";
+"universal.password.switch.unchecked" = "%@: не удалось проверить. Попробуйте позже.";
+"universal.password.chain.action" = "Перейти на адрес, защищённый паролем";

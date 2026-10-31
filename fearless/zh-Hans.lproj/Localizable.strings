@@ -1501,3 +1501,15 @@
 
 /* Cross-chain: a reviewed route that this build cannot send */
 "cross_chain.unavailable_in_version" = "此版本的 Fearless 中不可用。";
+
+/* Universal accounts of a wallet with a ///password that still use the address the words alone open */
+"universal.password.notice.title" = "从旧地址转出资金";
+"universal.password.notice.message" = "这些地址没有使用您的钱包密码，仅凭助记词即可打开。请将资金发送到受密码保护的新地址，然后点击“切换”。";
+"universal.password.notice.row" = "%@\n旧：%@\n新：%@";
+"universal.password.notice.switch" = "切换";
+"universal.password.notice.later" = "稍后";
+"universal.password.notice.copy" = "复制新的 %@ 地址";
+"universal.password.switch.switched" = "%@：已切换到新地址。";
+"universal.password.switch.funded" = "%@：仍有资金。请先转到新地址。";
+"universal.password.switch.unchecked" = "%@：无法检查。请稍后再试。";
+"universal.password.chain.action" = "切换到受密码保护的地址";

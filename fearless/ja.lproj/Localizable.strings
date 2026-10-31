@@ -1523,3 +1523,15 @@
 
 /* Cross-chain: a reviewed route that this build cannot send */
 "cross_chain.unavailable_in_version" = "このバージョンの Fearless では利用できません。";
+
+/* Universal accounts of a wallet with a ///password that still use the address the words alone open */
+"universal.password.notice.title" = "古いアドレスから資金を移動";
+"universal.password.notice.message" = "これらのアドレスはウォレットのパスワードを使っていないため、リカバリーフレーズだけで開けます。資金をパスワードで保護された新しいアドレスに送ってから、［切り替え］をタップしてください。";
+"universal.password.notice.row" = "%@\n旧: %@\n新: %@";
+"universal.password.notice.switch" = "切り替え";
+"universal.password.notice.later" = "後で";
+"universal.password.notice.copy" = "新しい%@アドレスをコピー";
+"universal.password.switch.switched" = "%@: 新しいアドレスに切り替えました。";
+"universal.password.switch.funded" = "%@: まだ資金があります。先に新しいアドレスへ移動してください。";
+"universal.password.switch.unchecked" = "%@: 確認できませんでした。後でもう一度お試しください。";
+"universal.password.chain.action" = "パスワードで保護されたアドレスに切り替え";

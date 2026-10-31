@@ -3,6 +3,7 @@ import SoraFoundation
 import SSFModels
 import SSFQRService
 import SSFUtils
+import UIKit
 
 final class WalletMainContainerPresenter {
     // MARK: Private properties
@@ -22,6 +23,9 @@ final class WalletMainContainerPresenter {
     private var selectedChains: [ChainModel]?
     private var selectedNetworkManagmentFilter: NetworkManagmentFilter?
     private var pendingStoredRecordsNotices: [StoredWalletRecordsNotice] = []
+    /// Universal accounts the selected wallet's password does not protect yet, until the
+    /// once-per-wallet notice about them is shown.
+    private var pendingPasswordNoticeAccounts: [UniversalWalletNoPasswordAccount] = []
     private let updateSecurityNotice: UpdateSecurityNoticeTracking
     private var isUpdateSecurityNoticeActive = false
 
@@ -242,6 +246,21 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         pendingStoredRecordsNotices = notices
         presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
     }
+
+    func didReceiveUniversalWalletNoPasswordAccounts(_ accounts: [UniversalWalletNoPasswordAccount]) {
+        pendingPasswordNoticeAccounts = accounts
+        presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
+    }
+
+    func didReceiveUniversalWalletSwitchOutcomes(
+        _ outcomes: [UniversalWalletSlot: UniversalWalletSwitchOutcome],
+        for accounts: [UniversalWalletNoPasswordAccount]
+    ) {
+        router.present(
+            viewModel: UniversalWalletPasswordNotice.outcomes(outcomes, for: accounts, locale: selectedLocale),
+            from: view
+        )
+    }
 }
 
 // MARK: - Stored wallet records notices
@@ -262,7 +281,11 @@ private extension WalletMainContainerPresenter {
     /// user has closed it; one that could not be presented stays pending for the next launch.
     func presentNextStoredRecordsNotice(retriesLeft: Int) {
         // The update notice goes first; these follow once it is closed.
-        guard !isUpdateSecurityNoticeActive, let notice = pendingStoredRecordsNotices.first else {
+        guard !isUpdateSecurityNoticeActive else {
+            return
+        }
+        guard let notice = pendingStoredRecordsNotices.first else {
+            presentPasswordNotice(retriesLeft: retriesLeft)
             return
         }
 
@@ -328,6 +351,49 @@ private extension WalletMainContainerPresenter {
             self?.finishUpdateSecurityNotice(acknowledged: true)
         }
 
+        router.present(viewModel: viewModel, from: view)
+    }
+
+    /// The last notice: universal accounts the wallet's password does not protect yet. Like
+    /// the others it counts as shown once the user has closed it.
+    func presentPasswordNotice(retriesLeft: Int) {
+        guard !pendingPasswordNoticeAccounts.isEmpty else {
+            return
+        }
+        guard
+            let controller = view?.controller,
+            controller.viewIfLoaded?.window != nil,
+            controller.presentedViewController == nil
+        else {
+            guard retriesLeft > 0 else {
+                return
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + StoredRecordsNoticeConstants.retryDelay) { [weak self] in
+                self?.presentPasswordNotice(retriesLeft: retriesLeft - 1)
+            }
+            return
+        }
+
+        let accounts = pendingPasswordNoticeAccounts
+        pendingPasswordNoticeAccounts = []
+        var followUp: (() -> Void)?
+        let viewModel = UniversalWalletPasswordNotice.notice(
+            for: accounts,
+            locale: selectedLocale,
+            onSwitch: { [weak self] in
+                followUp = { self?.interactor.switchNoPasswordAccounts(accounts) }
+            },
+            onCopy: { [weak self] account in
+                followUp = {
+                    UIPasteboard.general.string = account.newAddress
+                    self?.addressDidCopied()
+                }
+            },
+            onDismiss: { [weak self] in
+                self?.interactor.acknowledgeUniversalWalletPasswordNotice()
+                followUp?()
+            }
+        )
         router.present(viewModel: viewModel, from: view)
     }
 

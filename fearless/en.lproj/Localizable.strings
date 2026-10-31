@@ -1536,3 +1536,15 @@ belongs to the right network";
 
 /* Cross-chain: a reviewed route that this build cannot send */
 "cross_chain.unavailable_in_version" = "Not available in this version of Fearless.";
+
+/* Universal accounts of a wallet with a ///password that still use the address the words alone open */
+"universal.password.notice.title" = "Move funds from old addresses";
+"universal.password.notice.message" = "These addresses don't use your wallet password, so your recovery words alone open them. Send their funds to the new password-protected addresses, then tap Switch.";
+"universal.password.notice.row" = "%@\nOld: %@\nNew: %@";
+"universal.password.notice.switch" = "Switch";
+"universal.password.notice.later" = "Later";
+"universal.password.notice.copy" = "Copy new %@ address";
+"universal.password.switch.switched" = "%@: switched to the new address.";
+"universal.password.switch.funded" = "%@: still holds funds. Move them to the new address first.";
+"universal.password.switch.unchecked" = "%@: couldn't check. Try again later.";
+"universal.password.chain.action" = "Switch to password-protected address";

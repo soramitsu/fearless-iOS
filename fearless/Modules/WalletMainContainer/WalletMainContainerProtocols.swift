@@ -25,6 +25,8 @@ protocol WalletMainContainerInteractorInput: AnyObject {
     func setup(with output: WalletMainContainerInteractorOutput)
     func walletConnect(uri: String) async throws
     func acknowledge(_ notice: StoredWalletRecordsNotice)
+    func acknowledgeUniversalWalletPasswordNotice()
+    func switchNoPasswordAccounts(_ accounts: [UniversalWalletNoPasswordAccount])
 }
 
 protocol WalletMainContainerInteractorOutput: AnyObject {
@@ -35,6 +37,12 @@ protocol WalletMainContainerInteractorOutput: AnyObject {
     func didReceiveStashAccountIssue(address: String)
     func didReceiveNftAvailability(isNftAvailable: Bool)
     func didReceiveStoredWalletRecordsNotices(_ notices: [StoredWalletRecordsNotice])
+    /// The selected wallet has a password that some of its universal accounts do not use.
+    func didReceiveUniversalWalletNoPasswordAccounts(_ accounts: [UniversalWalletNoPasswordAccount])
+    func didReceiveUniversalWalletSwitchOutcomes(
+        _ outcomes: [UniversalWalletSlot: UniversalWalletSwitchOutcome],
+        for accounts: [UniversalWalletNoPasswordAccount]
+    )
 }
 
 protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable, AccountManagementPresentable, AccountScorePresentable {

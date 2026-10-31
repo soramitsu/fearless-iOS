@@ -917,6 +917,7 @@
 		846A2C4B2529F99400731018 /* AccountRepositoryFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846A2C4A2529F99400731018 /* AccountRepositoryFactory.swift */; };
 		60FB0D37515F6B2D789F7692 /* StoredWalletRecordsInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA62B2E4BDDFAEDE246C5EF /* StoredWalletRecordsInspector.swift */; };
 		5913AB35A7BF644D88A3B18C /* UpdateSecurityNotice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 892B188AD168C14D1ABD8E24 /* UpdateSecurityNotice.swift */; };
+		5991E87CA011EA76807B3F84 /* UniversalWalletPasswordNotice.swift in Sources */ = {isa = PBXBuildFile; fileRef = E506207785D7FE9D1C515780 /* UniversalWalletPasswordNotice.swift */; };
 		846A2C4D2529FBB700731018 /* NSPredicate+Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846A2C4C2529FBB700731018 /* NSPredicate+Filter.swift */; };
 		846A2C54252A0FDF00731018 /* FilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846A2C53252A0FDF00731018 /* FilterTests.swift */; };
 		846AC7EF2638D9200075F7DA /* YourValidatorTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846AC7EE2638D9200075F7DA /* YourValidatorTableCell.swift */; };
@@ -2935,6 +2936,7 @@
 		FAE601042ECA700100000001 /* UniversalWalletEcosystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601032ECA700100000001 /* UniversalWalletEcosystem.swift */; };
 		FAE601062ECA700100000001 /* UniversalWalletRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601052ECA700100000001 /* UniversalWalletRegistry.swift */; };
 		962E09CACE90EB7D56DEBDFF /* UniversalWalletFundsProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A73B2F71F7ACD4F47CF3C2 /* UniversalWalletFundsProbe.swift */; };
+		BDAAD6E39E6B3F92A5E21E62 /* UniversalWalletPasswordSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC98BEFF28AA30414DA4EE6A /* UniversalWalletPasswordSwitcher.swift */; };
 		65C8AA08C6589BD29F6D5EA5 /* UniversalWalletPassword.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4180B7F82985942B2852A8C8 /* UniversalWalletPassword.swift */; };
 		FAE601082ECA700100000001 /* UniversalWalletDerivationPaths.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601072ECA700100000001 /* UniversalWalletDerivationPaths.swift */; };
 		FAE6010A2ECA700100000001 /* IrohaAddressCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601092ECA700100000001 /* IrohaAddressCodec.swift */; };
@@ -4194,6 +4196,7 @@
 		846A2C4A2529F99400731018 /* AccountRepositoryFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountRepositoryFactory.swift; sourceTree = "<group>"; };
 		9DA62B2E4BDDFAEDE246C5EF /* StoredWalletRecordsInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredWalletRecordsInspector.swift; sourceTree = "<group>"; };
 		892B188AD168C14D1ABD8E24 /* UpdateSecurityNotice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateSecurityNotice.swift; sourceTree = "<group>"; };
+		E506207785D7FE9D1C515780 /* UniversalWalletPasswordNotice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletPasswordNotice.swift; sourceTree = "<group>"; };
 		846A2C4C2529FBB700731018 /* NSPredicate+Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSPredicate+Filter.swift"; sourceTree = "<group>"; };
 		846A2C53252A0FDF00731018 /* FilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterTests.swift; sourceTree = "<group>"; };
 		846AC7EE2638D9200075F7DA /* YourValidatorTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourValidatorTableCell.swift; sourceTree = "<group>"; };
@@ -6229,6 +6232,7 @@
 		FAE601032ECA700100000001 /* UniversalWalletEcosystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletEcosystem.swift; sourceTree = "<group>"; };
 		FAE601052ECA700100000001 /* UniversalWalletRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletRegistry.swift; sourceTree = "<group>"; };
 		07A73B2F71F7ACD4F47CF3C2 /* UniversalWalletFundsProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletFundsProbe.swift; sourceTree = "<group>"; };
+		AC98BEFF28AA30414DA4EE6A /* UniversalWalletPasswordSwitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletPasswordSwitcher.swift; sourceTree = "<group>"; };
 		4180B7F82985942B2852A8C8 /* UniversalWalletPassword.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletPassword.swift; sourceTree = "<group>"; };
 		FAE601072ECA700100000001 /* UniversalWalletDerivationPaths.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletDerivationPaths.swift; sourceTree = "<group>"; };
 		FAE601092ECA700100000001 /* IrohaAddressCodec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrohaAddressCodec.swift; sourceTree = "<group>"; };
@@ -9809,6 +9813,7 @@
 				FAE601032ECA700100000001 /* UniversalWalletEcosystem.swift */,
 				FAE601052ECA700100000001 /* UniversalWalletRegistry.swift */,
 				07A73B2F71F7ACD4F47CF3C2 /* UniversalWalletFundsProbe.swift */,
+				AC98BEFF28AA30414DA4EE6A /* UniversalWalletPasswordSwitcher.swift */,
 				4180B7F82985942B2852A8C8 /* UniversalWalletPassword.swift */,
 				FAE601072ECA700100000001 /* UniversalWalletDerivationPaths.swift */,
 				FAE601092ECA700100000001 /* IrohaAddressCodec.swift */,
@@ -10100,6 +10105,7 @@
 				846A2C4A2529F99400731018 /* AccountRepositoryFactory.swift */,
 				9DA62B2E4BDDFAEDE246C5EF /* StoredWalletRecordsInspector.swift */,
 				892B188AD168C14D1ABD8E24 /* UpdateSecurityNotice.swift */,
+				E506207785D7FE9D1C515780 /* UniversalWalletPasswordNotice.swift */,
 				844CB57326FA01DD00396E13 /* SubstrateRepositoryFactory.swift */,
 				8493D0DE26FE7D7400A28008 /* ChainRepositoryFactory.swift */,
 				8410DBCA26EA31DE00FE1738 /* AccountProviderFactory.swift */,
@@ -17578,6 +17584,7 @@
 				FAE601042ECA700100000001 /* UniversalWalletEcosystem.swift in Sources */,
 				FAE601062ECA700100000001 /* UniversalWalletRegistry.swift in Sources */,
 				962E09CACE90EB7D56DEBDFF /* UniversalWalletFundsProbe.swift in Sources */,
+				BDAAD6E39E6B3F92A5E21E62 /* UniversalWalletPasswordSwitcher.swift in Sources */,
 				65C8AA08C6589BD29F6D5EA5 /* UniversalWalletPassword.swift in Sources */,
 				FAE601082ECA700100000001 /* UniversalWalletDerivationPaths.swift in Sources */,
 				FAE6010A2ECA700100000001 /* IrohaAddressCodec.swift in Sources */,
@@ -18434,6 +18441,7 @@
 				846A2C4B2529F99400731018 /* AccountRepositoryFactory.swift in Sources */,
 				60FB0D37515F6B2D789F7692 /* StoredWalletRecordsInspector.swift in Sources */,
 				5913AB35A7BF644D88A3B18C /* UpdateSecurityNotice.swift in Sources */,
+				5991E87CA011EA76807B3F84 /* UniversalWalletPasswordNotice.swift in Sources */,
 				AE528E4D26852C380058935A /* ValidatorSearchViewModel.swift in Sources */,
 				F408E9B626B807200043CFE0 /* AnalyticsRewardsHeaderView.swift in Sources */,
 				F4D6FF3926B3E33E002313AF /* AnalyticsContainerViewFactory.swift in Sources */,
