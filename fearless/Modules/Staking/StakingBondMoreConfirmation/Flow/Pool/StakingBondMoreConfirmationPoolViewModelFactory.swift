@@ -45,10 +45,8 @@ final class StakingBondMoreConfirmPoolViewModelFactory: StakingBondMoreConfirmVi
         return StakingBondMoreConfirmViewModel(
             accountViewModel: accountViewModel,
             amountViewModel: amountViewModel,
-            collatorViewModel: nil,
             senderIcon: senderIcon,
-            amount: createStakedAmountViewModel(amount),
-            collatorIcon: nil
+            amount: createStakedAmountViewModel(amount)
         )
     }
 

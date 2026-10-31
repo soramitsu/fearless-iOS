@@ -13,9 +13,10 @@ final class CrossChainAssembly {
     static func configureModule(
         with chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        reviewedRoute: ReviewedCrossChainRouteContext
+        reviewedRoute: ReviewedCrossChainRouteContext,
+        executionAvailable: Bool = ReviewedXcmExecutionAuthority.isAvailable
     ) -> CrossChainModuleCreationResult? {
-        guard ReviewedXcmExecutionAuthority.isAvailable,
+        guard executionAvailable,
               reviewedRoute.validates(origin: chainAsset) else {
             return nil
         }

@@ -187,43 +187,6 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case let .parachain(collator, delegation, readyForRevoke):
-            let viewModelState = StakingRedeemConfirmationParachainViewModelState(
-                chainAsset: chainAsset,
-                wallet: wallet,
-                dataValidatingFactory: dataValidatingFactory,
-                delegation: delegation,
-                collator: collator,
-                readyForRevoke: readyForRevoke,
-                callFactory: callFactory
-            )
-
-            let strategy = StakingRedeemConfirmationParachainStrategy(
-                output: viewModelState,
-                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-                chainAsset: chainAsset,
-                wallet: wallet,
-                extrinsicService: extrinsicService,
-                signingWrapper: signingWrapper,
-                feeProxy: feeProxy,
-                runtimeService: runtimeService,
-                engine: connection,
-                operationManager: operationManager,
-                keystore: Keychain(),
-                eventCenter: EventCenter.shared
-            )
-
-            let viewModelFactory = StakingRedeemConfirmationParachainViewModelFactory(
-                asset: chainAsset.asset,
-                balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: UniversalIconGenerator()
-            )
-
-            return StakingRedeemConfirmationDependencyContainer(
-                viewModelState: viewModelState,
-                strategy: strategy,
-                viewModelFactory: viewModelFactory
-            )
         case .pool:
             let viewModelState = StakingRedeemConfirmationPoolViewModelState(
                 chainAsset: chainAsset,

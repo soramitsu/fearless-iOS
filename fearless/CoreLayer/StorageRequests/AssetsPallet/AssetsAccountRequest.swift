@@ -2,22 +2,14 @@ import Foundation
 import SSFModels
 
 struct AssetsAccountRequest: StorageRequest {
-    let accountId: AccountIdVariant
+    let accountId: AccountId
     let currencyId: CurrencyId
 
     var parametersType: StorageRequestParametersType {
-        switch accountId {
-        case let .accountId(accountId):
-            return .nMap(params: [
-                [NMapKeyParam(value: currencyId)],
-                [NMapKeyParam(value: accountId)]
-            ])
-        case let .address(address):
-            return .nMap(params: [
-                [NMapKeyParam(value: currencyId)],
-                [NMapKeyParam(value: address)]
-            ])
-        }
+        .nMap(params: [
+            [NMapKeyParam(value: currencyId)],
+            [NMapKeyParam(value: accountId)]
+        ])
     }
 
     var storagePath: StorageCodingPath {

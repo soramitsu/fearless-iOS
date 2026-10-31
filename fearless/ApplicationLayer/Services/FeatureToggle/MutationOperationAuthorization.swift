@@ -10,17 +10,23 @@ final class MutationOperationAuthorization: JSONRPCWriteAuthorizing {
     private var stage = Stage.ready
     private let validateContext: () throws -> Void
     private let boundary: Boundary
+    /// The call bytes the confirmed intent names, when it names them. The operation factory encodes the call again
+    /// after authorization, with whatever runtime coder exists then, so the signed extrinsic must carry these bytes.
+    private let expectedCall: Data?
     let intentSha256: String
 
     init(
         intentSha256: String,
+        expectedCall: Data? = nil,
         validateContext: @escaping () throws -> Void,
         boundary: @escaping Boundary
     ) throws {
-        guard MutationAuthorizationVerifier.matches(intentSha256, "[0-9a-f]{64}") else {
+        guard MutationAuthorizationVerifier.matches(intentSha256, "[0-9a-f]{64}"),
+              expectedCall?.isEmpty != true else {
             throw MutationAuthorizationError.changedIntent
         }
         self.intentSha256 = intentSha256
+        self.expectedCall = expectedCall
         self.validateContext = validateContext
         self.boundary = boundary
     }
@@ -48,7 +54,33 @@ final class MutationOperationAuthorization: JSONRPCWriteAuthorizing {
         // Encoding happens in the operation factory, before final writer
         // authorization. The SDK freezes those exact parameters and this guard
         // together; no caller may reuse the guard for a different request.
-        try perform(from: .signed, to: .bound) {}
+        try perform(from: .signed, to: .bound) {
+            // A mismatch consumes the operation: nothing it signed can be sent.
+            if let expectedCall, !Self.extrinsic(extrinsic, endsWithCall: expectedCall) {
+                throw MutationAuthorizationError.changedIntent
+            }
+        }
+    }
+
+    /// A signed extrinsic is `compact(length) ++ version ++ address ++ signature ++ extra ++ call`, so the call is its
+    /// final component. True when the length prefix covers exactly the bytes after it and those end with `call`.
+    static func extrinsic(_ extrinsic: Data, endsWithCall call: Data) -> Bool {
+        let bytes = [UInt8](extrinsic)
+        guard !call.isEmpty, let first = bytes.first else { return false }
+        let length: Int
+        let prefixSize: Int
+        switch first & 0b11 {
+        case 0:
+            (length, prefixSize) = (Int(first >> 2), 1)
+        case 1 where bytes.count >= 2:
+            (length, prefixSize) = (Int(UInt16(bytes[0]) | UInt16(bytes[1]) << 8) >> 2, 2)
+        case 2 where bytes.count >= 4:
+            let value = UInt32(bytes[0]) | UInt32(bytes[1]) << 8 | UInt32(bytes[2]) << 16 | UInt32(bytes[3]) << 24
+            (length, prefixSize) = (Int(value >> 2), 4)
+        default:
+            return false
+        }
+        return length == bytes.count - prefixSize && length > call.count && bytes.suffix(call.count).elementsEqual(call)
     }
 
     func authorize(_ handoff: () throws -> Void) throws {

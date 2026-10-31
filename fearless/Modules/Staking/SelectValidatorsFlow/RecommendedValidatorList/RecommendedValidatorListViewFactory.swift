@@ -81,23 +81,6 @@ final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFac
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case let .parachain(collators, maxTargets, bonding):
-            let viewModelState = RecommendedValidatorListParachainViewModelState(
-                collators: collators,
-                bonding: bonding,
-                maxTargets: maxTargets
-            )
-            let strategy = RecommendedValidatorListParachainStrategy()
-            let viewModelFactory = RecommendedValidatorListParachainViewModelFactory(
-                iconGenerator: UniversalIconGenerator(),
-                balanceViewModelFactory: balanceViewModelFactory,
-                chainAsset: chainAsset
-            )
-            return RecommendedValidatorListDependencyContainer(
-                viewModelState: viewModelState,
-                strategy: strategy,
-                viewModelFactory: viewModelFactory
-            )
         case let .poolInitiated(poolId, validators, maxTargets, bonding):
             let viewModelState = RecommendedValidatorListPoolInitiatedViewModelState(
                 poolId: poolId,

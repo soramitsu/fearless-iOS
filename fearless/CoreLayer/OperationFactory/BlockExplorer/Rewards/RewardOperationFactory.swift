@@ -103,15 +103,6 @@ extension RewardHistoryItemProtocol {
     var attribution: RewardHistoryAttribution? { nil }
 }
 
-protocol CollatorAprInfoProtocol {
-    var collatorId: String { get }
-    var apr: Double { get }
-}
-
-protocol CollatorAprResponse {
-    var collatorAprInfos: [CollatorAprInfoProtocol] { get }
-}
-
 enum RewardOperationFactory {
     static func factory(chain: ChainModel) -> RewardOperationFactoryProtocol {
         let blockExplorer = chain.externalApi?.staking
@@ -126,8 +117,6 @@ enum RewardOperationFactory {
             return GiantsquidRewardOperationFactory(url: blockExplorer?.url, chain: chain)
         case .sora:
             return SoraRewardOperationFactory(url: blockExplorer?.url, chain: chain)
-        case .reef:
-            return ReefRewardOperationFactory(url: blockExplorer?.url, chain: chain)
         // .oklink was removed in newer SSFModels; treat like generic explorers
         case .etherscan:
             return GiantsquidRewardOperationFactory(url: blockExplorer?.url, chain: chain)
@@ -149,13 +138,6 @@ protocol RewardOperationFactoryProtocol {
         startTimestamp: Int64?,
         endTimestamp: Int64?
     ) -> BaseOperation<RewardHistoryResponseProtocol>
-
-    func createAprOperation(
-        for idsClosure: @escaping () throws -> [AccountId],
-        dependingOn roundIdOperation: BaseOperation<String>
-    ) -> BaseOperation<CollatorAprResponse>
-
-    func createLastRoundOperation() -> BaseOperation<String>
 }
 
 extension RewardOperationFactoryProtocol {

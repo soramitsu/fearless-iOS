@@ -42,8 +42,7 @@ final class BalanceLocksFetchingDefault {
     }
 
     private func fetchStakingController(accountId: AccountId) async throws -> AccountId? {
-        let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
-        let controllerRequest = StakingControllerRequest(accountId: accountIdVariant)
+        let controllerRequest = StakingControllerRequest(accountId: accountId)
 
         let controllerAddress: String? = try? await storageRequestPerformer.performSingle(controllerRequest)
         if let controllerAddress {
@@ -76,8 +75,7 @@ final class BalanceLocksFetchingDefault {
             return nil
         }
 
-        let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
-        let request = AssetsAccountRequest(accountId: accountIdVariant, currencyId: currencyId)
+        let request = AssetsAccountRequest(accountId: accountId, currencyId: currencyId)
         let assetAccountInfo: AssetAccountInfo? = try await storageRequestPerformer.performSingle(request)
         return assetAccountInfo
     }
@@ -105,8 +103,7 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
             throw BalanceLocksFetchingError.stakingNotFound
         }
 
-        let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
-        let ledgerRequest = StakingLedgerRequest(accountId: accountIdVariant)
+        let ledgerRequest = StakingLedgerRequest(accountId: accountId)
         let eraRequest = StakingCurrentEraRequest()
 
         async let asyncActiveEra: StringScaleMapper<EraIndex>? = storageRequestPerformer.performSingle(eraRequest)
@@ -211,8 +208,7 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
             throw BalanceLocksFetchingError.noDataFound
         }
 
-        let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
-        let balancesLocksRequest = BalancesLocksRequest(accountId: accountIdVariant)
+        let balancesLocksRequest = BalancesLocksRequest(accountId: accountId)
         let balanceLocks: BalanceLocks? = try await storageRequestPerformer.performSingle(balancesLocksRequest)
         let govLocked = balanceLocks?.first(where: { $0.displayId == "pyconvot" })?.amount
         return Decimal.fromSubstrateAmount(govLocked.or(.zero), precision: Int16(chainAsset.asset.precision)).or(.zero)
@@ -229,8 +225,7 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
     }
 
     func fetchVestingLocks(for accountId: AccountId, currencyId: CurrencyId?) async throws -> Decimal {
-        let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
-        let balancesLocksRequest = BalancesLocksRequest(accountId: accountIdVariant)
+        let balancesLocksRequest = BalancesLocksRequest(accountId: accountId)
         let balanceLocks: BalanceLocks? = try? await storageRequestPerformer.performSingle(balancesLocksRequest)
 
         let balanceLockedRewardsValue = balanceLocks?.first { $0.lockType?.lowercased().contains("vest") == true }.map { lock in
@@ -241,7 +236,7 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
             return balanceLockedRewardsValue
         }
 
-        let tokensLocksRequest = TokensLocksRequest(accountId: accountIdVariant, currencyId: currencyId)
+        let tokensLocksRequest = TokensLocksRequest(accountId: accountId, currencyId: currencyId)
         let tokenLocks: TokenLocks? = try? await storageRequestPerformer.performSingle(tokensLocksRequest)
         let tokenLockedRewardsValue = tokenLocks?.first { $0.lockType?.lowercased().contains("vest") == true }.map { lock in
             Decimal.fromSubstrateAmount(lock.amount, precision: Int16(chainAsset.asset.precision)) ?? .zero
@@ -255,8 +250,7 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
             return .zero
         }
 
-        let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
-        let request = AssetsAccountRequest(accountId: accountIdVariant, currencyId: currencyId)
+        let request = AssetsAccountRequest(accountId: accountId, currencyId: currencyId)
         let assetAccountInfo: AssetAccountInfo? = try await storageRequestPerformer.performSingle(request)
         let locked = assetAccountInfo.flatMap {
             Decimal.fromSubstrateAmount($0.locked, precision: Int16(chainAsset.asset.precision))

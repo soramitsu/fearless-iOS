@@ -1495,3 +1495,9 @@
 /* Solana confirm: recipient token account deposit */
 "solana.transfer.account_creation.title" = "收款人账户开设";
 "solana.transfer.account_creation.included" = "已包含在网络手续费中";
+
+/* Cross-chain confirm: the record of recent transfers cannot be read, so nothing new is sent for a day */
+"cross_chain.dispatch.journal_unreadable" = "Fearless 无法读取最近跨链转账的记录，因此无法确定此转账是否已发送。未发送任何内容。请查看来源账户的历史记录。记录无法读取 24 小时后，即可再次进行新的跨链转账。";
+
+/* Cross-chain: a reviewed route that this build cannot send */
+"cross_chain.unavailable_in_version" = "此版本的 Fearless 中不可用。";

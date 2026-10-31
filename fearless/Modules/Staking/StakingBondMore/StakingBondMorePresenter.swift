@@ -150,25 +150,6 @@ extension StakingBondMorePresenter: StakingBondMoreModelStateListener {
         }
     }
 
-    func provideAccountViewModel() {
-        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
-
-        if let viewModel = viewModelFactory?.buildAccountViewModel(viewModelState: viewModelState, locale: locale) {
-            view?.didReceiveAccount(viewModel: viewModel)
-        }
-    }
-
-    func provideCollatorViewModel() {
-        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
-
-        if let viewModel = viewModelFactory?.buildCollatorViewModel(
-            viewModelState: viewModelState,
-            locale: locale
-        ) {
-            view?.didReceiveCollator(viewModel: viewModel)
-        }
-    }
-
     func provideHintsViewModel() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 

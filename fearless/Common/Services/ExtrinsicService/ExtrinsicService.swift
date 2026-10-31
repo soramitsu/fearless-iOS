@@ -56,20 +56,24 @@ final class ExtrinsicService {
     let operationFactory: ExtrinsicOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
 
+    /// `genesisHash`, when given, is the genesis hash the caller already verified for this chain; extrinsics are signed
+    /// against it instead of a fresh answer from the node.
     init(
         accountId: AccountId,
         chainFormat: ChainFormat,
         cryptoType: CryptoType,
         runtimeRegistry: RuntimeCodingServiceProtocol,
         engine: JSONRPCEngine,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        genesisHash: String? = nil
     ) {
         operationFactory = ExtrinsicOperationFactory(
             accountId: accountId,
             chainFormat: chainFormat,
             cryptoType: cryptoType,
             runtimeRegistry: runtimeRegistry,
-            engine: engine
+            engine: engine,
+            pinnedGenesisHash: genesisHash
         )
 
         self.operationManager = operationManager

@@ -47,9 +47,9 @@
                                                   _privateKey.rawData.bytes,
                                                   NULL, NULL);
 
-    secp256k1_context_destroy(context);
-
     if (status == 0) {
+        secp256k1_context_destroy(context);
+
         if (error) {
             NSString *message = [NSString stringWithFormat:@"Invalid secret key or nonce function failed"];
             *error = [NSError errorWithDomain:NSStringFromClass([self class])
@@ -64,10 +64,12 @@
     unsigned char compactSignature[signatureLength];
     int recid;
 
+    // Serializing takes the context too, so it is destroyed only afterwards.
     secp256k1_ecdsa_recoverable_signature_serialize_compact(context,
                                                             compactSignature,
                                                             &recid,
                                                             &rawSignature);
+    secp256k1_context_destroy(context);
     compactSignature[signatureLength - 1] = (unsigned char)recid;
 
     NSData *signatureData = [NSData dataWithBytes:compactSignature length:[SECSignature length]];

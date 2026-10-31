@@ -84,27 +84,10 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             return nil
         }
 
-        let storageRequestFactory = StorageRequestFactory(
-            remoteFactory: StorageKeyFactory(),
-            operationManager: OperationManagerFacade.sharedManager
-        )
-
-        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
-
-        let collatorOperationFactory = ParachainCollatorOperationFactory(
-            asset: chainAsset.asset,
-            chain: chainAsset.chain,
-            storageRequestFactory: storageRequestFactory,
-            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory,
-            chainRegistry: chainRegistry
-        )
-
         guard let rewardService = try? serviceFactory.createRewardCalculatorService(
             for: chainAsset,
             assetPrecision: settings.assetDisplayInfo.assetPrecision,
-            validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory
+            validatorService: eraValidatorService
         ) else {
             return nil
         }
@@ -206,35 +189,6 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             )
 
             let viewModelFactory = SelectValidatorsStartPoolInitiatedViewModelFactory()
-            return SelectValidatorsStartDependencyContainer(
-                viewModelState: viewModelState,
-                strategy: strategy,
-                viewModelFactory: viewModelFactory
-            )
-        case let .parachain(bonding):
-            let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
-
-            let operationFactory = ParachainCollatorOperationFactory(
-                asset: chainAsset.asset,
-                chain: chainAsset.chain,
-                storageRequestFactory: storageOperationFactory,
-                identityOperationFactory: identityOperationFactory,
-                subqueryOperationFactory: rewardOperationFactory,
-                chainRegistry: chainRegistry
-            )
-
-            let viewModelState = SelectValidatorsStartParachainViewModelState(bonding: bonding, chainAsset: chainAsset)
-
-            let strategy = SelectValidatorsStartParachainStrategy(
-                wallet: wallet,
-                chainAsset: chainAsset,
-                operationFactory: operationFactory,
-                operationManager: operationManager,
-                runtimeService: runtimeService,
-                output: viewModelState
-            )
-
-            let viewModelFactory = SelectValidatorsStartParachainViewModelFactory()
             return SelectValidatorsStartDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,

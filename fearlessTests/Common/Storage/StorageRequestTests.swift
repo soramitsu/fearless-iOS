@@ -12,39 +12,17 @@ final class StorageRequestTests: XCTestCase {
         assertSimpleWorkerType(StakingCurrentEraRequest().parametersType.workerType)
     }
 
-    func testAccountBasedRequestsKeepAccountIdAndAddressVariants() {
+    func testAccountBasedRequestsEncodeTheAccountId() {
         let accountId = Data(repeating: 0x01, count: 32)
-        let address = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehHGKutQY"
 
-        assertEncodable(
-            StakingControllerRequest(accountId: .accountId(accountId)).parametersType,
-            equals: accountId
-        )
-        assertEncodable(
-            StakingControllerRequest(accountId: .address(address)).parametersType,
-            equals: address
-        )
-        XCTAssertEqual(StakingControllerRequest(accountId: .accountId(accountId)).storagePath, .controller)
+        assertEncodable(StakingControllerRequest(accountId: accountId).parametersType, equals: accountId)
+        XCTAssertEqual(StakingControllerRequest(accountId: accountId).storagePath, .controller)
 
-        assertEncodable(
-            StakingLedgerRequest(accountId: .accountId(accountId)).parametersType,
-            equals: accountId
-        )
-        assertEncodable(
-            StakingLedgerRequest(accountId: .address(address)).parametersType,
-            equals: address
-        )
-        XCTAssertEqual(StakingLedgerRequest(accountId: .accountId(accountId)).storagePath, .stakingLedger)
+        assertEncodable(StakingLedgerRequest(accountId: accountId).parametersType, equals: accountId)
+        XCTAssertEqual(StakingLedgerRequest(accountId: accountId).storagePath, .stakingLedger)
 
-        assertEncodable(
-            BalancesLocksRequest(accountId: .accountId(accountId)).parametersType,
-            equals: accountId
-        )
-        assertEncodable(
-            BalancesLocksRequest(accountId: .address(address)).parametersType,
-            equals: address
-        )
-        XCTAssertEqual(BalancesLocksRequest(accountId: .accountId(accountId)).storagePath, .balanceLocks)
+        assertEncodable(BalancesLocksRequest(accountId: accountId).parametersType, equals: accountId)
+        XCTAssertEqual(BalancesLocksRequest(accountId: accountId).storagePath, .balanceLocks)
     }
 
     func testNominationPoolsMembersRequestUsesPoolMembersPath() {
@@ -57,13 +35,10 @@ final class StorageRequestTests: XCTestCase {
 
     func testNMapRequestsPreserveExpectedKeyOrder() {
         let accountId = Data(repeating: 0x03, count: 32)
-        let address = "15VjRaDX9zpbA8LVnbrCAFzrVxN7ixHNsCCHNRSPwY"
         let currencyId: SSFModels.CurrencyId = .assetId(id: "1984")
 
-        let assetsByAccountId = AssetsAccountRequest(accountId: .accountId(accountId), currencyId: currencyId)
-        let assetsByAddress = AssetsAccountRequest(accountId: .address(address), currencyId: currencyId)
-        let tokensByAccountId = TokensLocksRequest(accountId: .accountId(accountId), currencyId: currencyId)
-        let tokensByAddress = TokensLocksRequest(accountId: .address(address), currencyId: currencyId)
+        let assetsByAccountId = AssetsAccountRequest(accountId: accountId, currencyId: currencyId)
+        let tokensByAccountId = TokensLocksRequest(accountId: accountId, currencyId: currencyId)
 
         assertNMap(assetsByAccountId.parametersType) { params in
             XCTAssertEqual(params.count, 2)
@@ -72,40 +47,24 @@ final class StorageRequestTests: XCTestCase {
         }
         XCTAssertEqual(assetsByAccountId.storagePath, .assetsAccount)
 
-        assertNMap(assetsByAddress.parametersType) { params in
-            XCTAssertEqual(params.count, 2)
-            XCTAssertCurrencyId(params[0][0], equals: currencyId)
-            XCTAssertParam(params[1][0], equals: address)
-        }
-
         assertNMap(tokensByAccountId.parametersType) { params in
             XCTAssertEqual(params.count, 2)
             XCTAssertParam(params[0][0], equals: accountId)
             XCTAssertCurrencyId(params[1][0], equals: currencyId)
         }
         XCTAssertEqual(tokensByAccountId.storagePath, .tokensLocks)
-
-        assertNMap(tokensByAddress.parametersType) { params in
-            XCTAssertEqual(params.count, 2)
-            XCTAssertParam(params[0][0], equals: address)
-            XCTAssertCurrencyId(params[1][0], equals: currencyId)
-        }
     }
 
     func testSystemAccountRequestSwitchesBetweenMapAndNMapAccess() {
         let accountId = Data(repeating: 0x04, count: 32)
-        let address = "16ADqpMaowDqS9K5dPqA82nRp8fgfqqxY8P4x"
 
         let chain = ChainModelGenerator.generateChain(generatingAssets: 0, addressPrefix: 0)
         let plainAsset = ChainModelGenerator.generateAssetWithId("plain", symbol: "PLN")
         let utilityChainAsset = ChainAsset(chain: chain, asset: plainAsset)
 
-        let plainRequest = SystemAccountRequest(accountId: .accountId(accountId), chainAsset: utilityChainAsset)
+        let plainRequest = SystemAccountRequest(accountId: accountId, chainAsset: utilityChainAsset)
         assertEncodable(plainRequest.parametersType, equals: accountId)
         XCTAssertEqual(plainRequest.storagePath, .account)
-
-        let addressRequest = SystemAccountRequest(accountId: .address(address), chainAsset: utilityChainAsset)
-        assertEncodable(addressRequest.parametersType, equals: address)
 
         let assetWithCurrencyId = SSFModels.AssetModel(
             id: "asset-with-currency-id",
@@ -127,17 +86,10 @@ final class StorageRequestTests: XCTestCase {
         )
         let chainAsset = ChainAsset(chain: chain, asset: assetWithCurrencyId)
 
-        let accountIdRequest = SystemAccountRequest(accountId: .accountId(accountId), chainAsset: chainAsset)
+        let accountIdRequest = SystemAccountRequest(accountId: accountId, chainAsset: chainAsset)
         assertNMap(accountIdRequest.parametersType) { params in
             XCTAssertEqual(params.count, 2)
             XCTAssertParam(params[0][0], equals: accountId)
-            XCTAssertCurrencyId(params[1][0], equals: .assetId(id: "42"))
-        }
-
-        let addressNMapRequest = SystemAccountRequest(accountId: .address(address), chainAsset: chainAsset)
-        assertNMap(addressNMapRequest.parametersType) { params in
-            XCTAssertEqual(params.count, 2)
-            XCTAssertParam(params[0][0], equals: address)
             XCTAssertCurrencyId(params[1][0], equals: .assetId(id: "42"))
         }
     }

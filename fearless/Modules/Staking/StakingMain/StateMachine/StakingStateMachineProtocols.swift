@@ -12,7 +12,6 @@ protocol StakingStateVisitorProtocol {
     func visit(state: NominatorState)
     func visit(state: PendingValidatorState)
     func visit(state: ValidatorState)
-    func visit(state: ParachainState)
 }
 
 protocol StakingStateProtocol {
@@ -37,12 +36,6 @@ protocol StakingStateProtocol {
     func process(maxNominatorsCount: UInt32?)
     func process(eraCountdown: EraCountdown)
     func process(subqueryRewards: ([SubqueryRewardItemData]?, AnalyticsPeriod))
-    func process(delegationInfos: [ParachainStakingDelegationInfo]?)
-    func process(scheduledRequests: [AccountAddress: [ParachainStakingScheduledRequest]]?)
-    func process(bottomDelegations: [AccountAddress: ParachainStakingDelegations]?)
-    func process(topDelegations: [AccountAddress: ParachainStakingDelegations]?)
-    func process(roundInfo: ParachainStakingRoundInfo?)
-    func process(currentBlock: UInt32?)
     func process(rewardChainAsset: ChainAsset?)
     func process(rewardAssetPrice: PriceData?)
 }

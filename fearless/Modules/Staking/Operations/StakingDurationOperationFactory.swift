@@ -15,10 +15,23 @@ protocol StakingDurationOperationFactoryProtocol {
 }
 
 final class StakingDurationOperationFactory: StakingDurationOperationFactoryProtocol {
+    private let clock: StakingRuntimeClock
+
+    init(clock: StakingRuntimeClock = StakingRuntimeClock()) {
+        self.clock = clock
+    }
+
     func createDurationOperation(
         from runtimeService: RuntimeCodingServiceProtocol
     ) -> CompoundOperationWrapper<StakingDuration> {
+        let clockRuntime: RuntimeCodingServiceProtocol
+        do {
+            clockRuntime = try clock.runtime(for: runtimeService)
+        } catch {
+            return .createWithError(error)
+        }
         let runtimeFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+        let clockFactoryOperation = clockRuntime.fetchCoderFactoryOperation()
 
         let unlockingOperation: BaseOperation<UInt32> = createConstOperation(
             dependingOn: runtimeFactoryOperation,
@@ -31,12 +44,12 @@ final class StakingDurationOperationFactory: StakingDurationOperationFactoryProt
         )
 
         let sessionLengthOperation: BaseOperation<SessionIndex> = createConstOperation(
-            dependingOn: runtimeFactoryOperation,
+            dependingOn: clockFactoryOperation,
             path: .sessionLength
         )
 
         let blockTimeOperation: BaseOperation<Moment> = createConstOperation(
-            dependingOn: runtimeFactoryOperation,
+            dependingOn: clockFactoryOperation,
             path: .babeBlockTime
         )
 
@@ -62,12 +75,13 @@ final class StakingDurationOperationFactory: StakingDurationOperationFactoryProt
 
         constOperations.forEach { constOperation in
             constOperation.addDependency(runtimeFactoryOperation)
+            constOperation.addDependency(clockFactoryOperation)
             mergeOperation.addDependency(constOperation)
         }
 
         return CompoundOperationWrapper(
             targetOperation: mergeOperation,
-            dependencies: [runtimeFactoryOperation] + constOperations
+            dependencies: [runtimeFactoryOperation, clockFactoryOperation] + constOperations
         )
     }
 

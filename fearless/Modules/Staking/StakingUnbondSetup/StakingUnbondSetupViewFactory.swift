@@ -115,11 +115,6 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             selectedMetaAccount: wallet
         )
-        let storageOperationFactory = StorageRequestFactory(
-            remoteFactory: StorageKeyFactory(),
-            operationManager: operationManager
-        )
-        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
         let stakingDurationOperationFactory = StakingDurationOperationFactory()
 
         let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
@@ -153,50 +148,6 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case let .parachain(candidate, delegation):
-            let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
-
-            let operationFactory = ParachainCollatorOperationFactory(
-                asset: chainAsset.asset,
-                chain: chainAsset.chain,
-                storageRequestFactory: storageOperationFactory,
-                identityOperationFactory: identityOperationFactory,
-                subqueryOperationFactory: rewardOperationFactory,
-                chainRegistry: chainRegistry
-            )
-            let viewModelState = StakingUnbondSetupParachainViewModelState(
-                chainAsset: chainAsset,
-                wallet: wallet,
-                dataValidatingFactory: dataValidatingFactory,
-                candidate: candidate,
-                delegation: delegation,
-                callFactory: callFactory
-            )
-            let strategy = StakingUnbondSetupParachainStrategy(
-                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-                runtimeService: runtimeService,
-                operationManager: operationManager,
-                feeProxy: feeProxy,
-                wallet: wallet,
-                chainAsset: chainAsset,
-                connection: connection,
-                output: viewModelState,
-                extrinsicService: extrinsicService,
-                operationFactory: operationFactory,
-                candidate: candidate,
-                delegation: delegation,
-                callFactory: callFactory
-            )
-            let viewModelFactory = StakingUnbondSetupParachainViewModelFactory(
-                accountViewModelFactory:
-                AccountViewModelFactory(iconGenerator: UniversalIconGenerator())
-            )
-            return StakingUnbondSetupDependencyContainer(
-                viewModelState: viewModelState,
-                strategy: strategy,
-                viewModelFactory: viewModelFactory
-            )
-
         case .pool:
             let viewModelState = StakingUnbondSetupPoolViewModelState(
                 chainAsset: chainAsset,

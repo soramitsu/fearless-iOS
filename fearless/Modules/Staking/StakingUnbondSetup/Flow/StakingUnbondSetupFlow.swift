@@ -3,7 +3,6 @@ import SoraFoundation
 
 enum StakingUnbondSetupFlow {
     case relaychain
-    case parachain(candidate: ParachainStakingCandidateInfo, delegation: ParachainStakingDelegation)
     case pool
 }
 
@@ -16,7 +15,6 @@ protocol StakingUnbondSetupModelStateListener: AnyObject {
     func provideBondingDuration()
 
     func provideAccountViewModel()
-    func provideCollatorViewModel()
 
     func updateFeeIfNeeded()
 }
@@ -45,11 +43,6 @@ protocol StakingUnbondSetupViewModelFactoryProtocol {
     func buildBondingDurationViewModel(
         viewModelState: StakingUnbondSetupViewModelState
     ) -> LocalizableResource<TitleWithSubtitleViewModel>?
-
-    func buildCollatorViewModel(
-        viewModelState: StakingUnbondSetupViewModelState,
-        locale: Locale
-    ) -> AccountViewModel?
 
     func buildAccountViewModel(
         viewModelState: StakingUnbondSetupViewModelState,

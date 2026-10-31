@@ -17,14 +17,6 @@ final class WalletTransactionHistoryViewLayout: UIView {
         return imageView
     }()
 
-    let typeSwitcherContainer: UIView = {
-        let view = UIView()
-        view.isHidden = true
-        return view
-    }()
-
-    let typeSwitcher = FWSegmentedControl()
-
     private let containerView = UIView()
     private let backgroundView: TriangularedView = {
         let view = TriangularedView()
@@ -177,8 +169,6 @@ final class WalletTransactionHistoryViewLayout: UIView {
 
         headerView.addSubview(headerContentStackView)
         headerContentStackView.addArrangedSubview(headerTopStackView)
-        headerContentStackView.addArrangedSubview(typeSwitcherContainer)
-        typeSwitcherContainer.addSubview(typeSwitcher)
         headerContentStackView.addArrangedSubview(separatorView)
 
         headerTopStackView.addArrangedSubview(closeButton)
@@ -209,12 +199,6 @@ final class WalletTransactionHistoryViewLayout: UIView {
         headerView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-        }
-
-        typeSwitcher.snp.makeConstraints { make in
-            make.height.equalTo(32)
-            make.width.equalTo(contentView.snp.width).offset(-2.0 * UIConstants.horizontalInset)
-            make.edges.equalToSuperview()
         }
 
         bodyStackView.snp.makeConstraints { make in
@@ -292,8 +276,5 @@ final class WalletTransactionHistoryViewLayout: UIView {
 
     private func applyLocalization() {
         applyRecoveryLocalization()
-        typeSwitcher.setSegmentItems([R.string.localizable.walletFiltersTransfers(preferredLanguages: locale.rLanguages),
-                                      R.string.localizable.stakingRewardsTitle(preferredLanguages: locale.rLanguages),
-                                      R.string.localizable.tranactionHistoryOthersTabTitle(preferredLanguages: locale.rLanguages)])
     }
 }

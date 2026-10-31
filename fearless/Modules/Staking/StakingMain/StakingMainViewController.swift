@@ -7,7 +7,6 @@ import SnapKit
 
 final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private enum Constants {
-        static let delegationRowHeight: CGFloat = 200.0
         static let verticalSpacing: CGFloat = 0.0
         static let bottomInset: CGFloat = 8.0
         static let contentInset = UIEdgeInsets(
@@ -40,7 +39,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private lazy var alertsContainerView = UIView()
     private lazy var alertsView = AlertsView()
     private lazy var analyticsContainerView = UIView()
-    private lazy var tableViewContainer = UIView()
     private lazy var analyticsView = RewardAnalyticsWidgetView()
     private lazy var actionButton: TriangularedButton = {
         let button = TriangularedButton()
@@ -50,18 +48,11 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     private var stateContainerView: UIView?
     private var stateView: LocalizableView?
-    private lazy var tableView: SelfSizingTableView = {
-        let tableView = SelfSizingTableView()
-        tableView.separatorStyle = .none
-        tableView.backgroundColor = UIColor.clear
-        return tableView
-    }()
 
     private var storiesModel: LocalizableResource<StoriesModel>? = StoriesFactory().createModel(for: .relaychain)
 
     private var balanceViewModel: LocalizableResource<String>?
     private var assetIconViewModel: ImageViewModelProtocol?
-    private var delegationViewModels: [DelegationInfoCellModel]?
 
     var iconGenerator: IconGenerating?
     var uiFactory: UIFactoryProtocol?
@@ -78,8 +69,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         setupNetworkInfoView()
         setupAlertsView()
         setupAnalyticsView()
-        setupTableViewLayout()
-        setupTableView()
         setupActionButton()
         setupLocalization()
     }
@@ -281,9 +270,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         stateContainerView = containerView
         self.stateView = stateView
 
-        stackView.removeArrangedSubview(tableViewContainer)
-        stackView.addArrangedSubview(tableViewContainer)
-
         return stateView
     }
 
@@ -326,26 +312,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         return stateView
     }
 
-    private func setupTableViewLayout() {
-        tableViewContainer.addSubview(tableView)
-        tableView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
-            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.top.equalToSuperview().offset(Constants.verticalSpacing)
-            make.bottom.equalToSuperview().inset(Constants.bottomInset)
-        }
-
-        stackView.addArrangedSubview(tableViewContainer)
-    }
-
-    private func setupTableView() {
-        tableView.allowsSelection = false
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.rowHeight = UIConstants.cellHeight
-        tableView.registerClassForCell(DelegationInfoCell.self)
-    }
-
     private func setupActionButton() {
         view.addSubview(actionButton)
         actionButton.addTarget(self, action: #selector(actionButtonClicked), for: .touchUpInside)
@@ -378,19 +344,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         let validatorView = setupValidatorViewIfNeeded()
         validatorView?.delegate = self
         validatorView?.bind(viewModel: viewModel)
-    }
-
-    private func applyRewards(viewModel: StakingEstimationViewModel) {
-        let rewardView = setupRewardEstimationViewIfNeeded()
-        rewardView?.bind(viewModel: viewModel)
-    }
-
-    private func applyDelegations(viewModels: [DelegationInfoCellModel]?) {
-        delegationViewModels = viewModels
-        delegationViewModels?.forEach { model in
-            model.delegate = self
-        }
-        tableView.reloadData()
     }
 
     private func applyAlerts(_ alerts: [StakingAlert]) {
@@ -429,7 +382,6 @@ extension StakingMainViewController: Localizable {
         stateView?.locale = locale
         alertsView.locale = locale
         analyticsView.locale = locale
-        tableView.reloadData()
     }
 
     func applyLocalization() {
@@ -516,12 +468,6 @@ extension StakingMainViewController: StakingMainViewProtocol {
         }
 
         changeActionButtonVisibility(false)
-        if case .delegations = viewModel {
-            tableView.isHidden = false
-        } else {
-            tableView.isHidden = true
-            applyDelegations(viewModels: nil)
-        }
 
         switch viewModel {
         case .undefined:
@@ -535,11 +481,6 @@ extension StakingMainViewController: StakingMainViewProtocol {
             applyAnalyticsRewards(viewModel: analyticsViewModel)
         case let .validator(viewModel, alerts, analyticsViewModel):
             applyValidator(viewModel: viewModel)
-            applyAlerts(alerts)
-            applyAnalyticsRewards(viewModel: analyticsViewModel)
-        case let .delegations(rewardViewModel, delegationViewModels, alerts, analyticsViewModel):
-            applyDelegations(viewModels: delegationViewModels)
-            applyRewards(viewModel: rewardViewModel)
             applyAlerts(alerts)
             applyAnalyticsRewards(viewModel: analyticsViewModel)
         }
@@ -648,16 +589,6 @@ extension StakingMainViewController: UICollectionViewDelegate {
 
 // MARK: - StakingStateViewDelegate
 
-extension StakingMainViewController: DelegationInfoCellModelDelegate {
-    func didReceiveMoreAction(delegationInfo: ParachainStakingDelegationInfo) {
-        presenter?.performParachainManageStakingAction(for: delegationInfo)
-    }
-
-    func didReceiveStatusAction() {
-        presenter?.performDelegationStatusAction()
-    }
-}
-
 extension StakingMainViewController: StakingStateViewDelegate {
     func stakingStateViewDidReceiveMoreAction(_: StakingStateView) {
         presenter?.performManageStakingAction()
@@ -685,38 +616,8 @@ extension StakingMainViewController: AlertsViewDelegate {
             presenter?.performBondMoreAction()
         case .redeemUnbonded:
             presenter?.performRedeemAction()
-        case let .collatorLeaving(_, delegation):
-            presenter?.performParachainManageStakingAction(for: delegation)
-        case let .collatorLowStake(_, delegation):
-            presenter?.performParachainManageStakingAction(for: delegation)
-        case let .parachainRedeemUnbonded(delegation):
-            presenter?.performParachainManageStakingAction(for: delegation)
         case .waitingNextEra:
             break
         }
-    }
-}
-
-extension StakingMainViewController: UITableViewDataSource {
-    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        delegationViewModels?.count ?? 0
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard
-            let cell = tableView.dequeueReusableCellWithType(DelegationInfoCell.self),
-            let viewModel = delegationViewModels?[indexPath.row]
-        else {
-            return UITableViewCell()
-        }
-        viewModel.locale = selectedLocale
-        cell.bind(to: viewModel)
-        return cell
-    }
-}
-
-extension StakingMainViewController: UITableViewDelegate {
-    func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
-        Constants.delegationRowHeight
     }
 }

@@ -1457,3 +1457,9 @@ pertence à rede certa";
 /* Solana confirm: recipient token account deposit */
 "solana.transfer.account_creation.title" = "Abertura da conta do destinatário";
 "solana.transfer.account_creation.included" = "Incluído na taxa de rede";
+
+/* Cross-chain confirm: the record of recent transfers cannot be read, so nothing new is sent for a day */
+"cross_chain.dispatch.journal_unreadable" = "O Fearless não consegue ler o registo das transferências entre cadeias recentes, por isso não consegue saber se esta já foi enviada. Nada foi enviado. Verifique o histórico da conta de origem. Poderá voltar a fazer transferências entre cadeias 24 horas depois de o registo ter ficado ilegível.";
+
+/* Cross-chain: a reviewed route that this build cannot send */
+"cross_chain.unavailable_in_version" = "Não disponível nesta versão do Fearless.";

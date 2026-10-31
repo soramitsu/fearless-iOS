@@ -32,6 +32,21 @@ extension SlashesOperationFactory: SlashesOperationFactoryProtocol {
         runtimeService: RuntimeCodingServiceProtocol,
         chainAsset: ChainAsset
     ) -> CompoundOperationWrapper<SlashingSpans?> {
+        if AssetHubStakingRoute.staking(on: chainAsset.chain.chainId) != nil {
+            let coder = runtimeService.fetchCoderFactoryOperation()
+            let operation = ClosureOperation<SlashingSpans?> {
+                let metadata = try coder.extractNoCancellableResultData().metadata
+                guard metadata.getStorageMetadata(for: .validatorSlashInEra) != nil,
+                      metadata.getStorageMetadata(for: .slashingSpans) == nil else {
+                    throw StakingServiceFactoryError.stakingUnavailable
+                }
+                // The async runtime no longer has slashing spans. Its withdrawal call checks
+                // the offence queue itself; the compatibility span-count argument is ignored.
+                return nil
+            }
+            operation.addDependency(coder)
+            return CompoundOperationWrapper(targetOperation: operation, dependencies: [coder])
+        }
         guard let stakingSettings = chainAsset.chain.stakingSettings else {
             return CompoundOperationWrapper.createWithError(StakingServiceFactoryError.stakingUnavailable)
         }

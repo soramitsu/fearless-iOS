@@ -123,11 +123,6 @@ extension StakingBondMorePoolViewModelState: StakingBondMoreViewModelState {
 }
 
 extension StakingBondMorePoolViewModelState: StakingBondMorePoolStrategyOutput {
-    func didSetup() {
-        stateListener?.provideAccountViewModel()
-        stateListener?.provideCollatorViewModel()
-    }
-
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):

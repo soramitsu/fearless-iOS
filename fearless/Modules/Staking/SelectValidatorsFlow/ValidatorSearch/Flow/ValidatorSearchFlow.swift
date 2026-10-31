@@ -10,12 +10,6 @@ enum ValidatorSearchFlow {
         selectedValidatorList: [SelectedValidatorInfo],
         delegate: ValidatorSearchRelaychainDelegate
     )
-
-    case parachain(
-        validatorList: [ParachainStakingCandidateInfo],
-        selectedValidatorList: [ParachainStakingCandidateInfo],
-        delegate: ValidatorSearchParachainDelegate
-    )
 }
 
 protocol ValidatorSearchModelStateListener: AnyObject {

@@ -41,6 +41,19 @@ final class WalletTransactionHistoryTests: XCTestCase {
         XCTAssertEqual(output.failures, 1)
     }
 
+    func testEmptyPageWithContinuationStillLoadsTheNextPage() throws {
+        // Iroha Torii scans a fixed window of blocks per request, so a page can be empty while
+        // older transfers remain behind its cursor.
+        let (interactor, remote, output) = try fixture()
+        remote.complete(0, .success(AssetTransactionPageData(transactions: [], context: ["cursor": "older-window"])))
+        XCTAssertEqual(output.failures, 0)
+        XCTAssertTrue(interactor.loadNext())
+        XCTAssertEqual(remote.calls.last?.pagination.context, ["cursor": "older-window"])
+        remote.complete(1, .success(page("older")))
+        XCTAssertEqual(interactor.pages.flatMap(\.transactions).map(\.transactionId), ["older"])
+        XCTAssertEqual(output.pages.count, 2)
+    }
+
     func testNilCompletionFailsVisiblyInsteadOfCreatingEmptyHistory() throws {
         for value: Result<AssetTransactionPageData?, Error>? in [nil, .success(nil)] {
             let (_, remote, output) = try fixture()

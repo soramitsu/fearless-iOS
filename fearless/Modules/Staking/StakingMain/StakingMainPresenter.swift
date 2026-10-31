@@ -27,12 +27,6 @@ final class StakingMainPresenter {
     }
 
     var amount: Decimal? {
-        if let amount = stateMachine.viewState(
-            using: { (state: ParachainState) in state.rewardEstimationAmount }
-        ) {
-            return amount
-        }
-
         if let amount = stateMachine
             .viewState(using: { (state: NoStashState) in state.rewardEstimationAmount }) {
             return amount
@@ -235,19 +229,6 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         }
     }
 
-    func performParachainMainAction(for delegation: ParachainStakingDelegationInfo) {
-        let managedItems: [StakingManageOption] = {
-            [.parachainStakingBalance(info: delegation), .yourCollator(info: delegation)]
-        }()
-
-        wireframe.showManageStaking(
-            from: view,
-            items: managedItems,
-            delegate: self,
-            context: managedItems as NSArray
-        )
-    }
-
     func performNominationStatusAction() {
         let optViewModel: SheetAlertPresentableViewModel? = {
             let locale = view?.localizationManager?.selectedLocale
@@ -285,10 +266,13 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         }
     }
 
-    func performDelegationStatusAction() {}
-
     func performAccountAction() {
         wireframe.showAccountsSelection(from: view, moduleOutput: self)
+    }
+
+    /// Payouts are listed from a staking indexer, or on an Asset Hub route from chain storage.
+    private static func offersPayouts(_ chainAsset: ChainAsset) -> Bool {
+        chainAsset.chain.externalApi?.staking != nil || AssetHubStakingRoute.staking(on: chainAsset.chain.chainId) != nil
     }
 
     func performManageStakingAction() {
@@ -296,7 +280,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
                 var options: [StakingManageOption] = []
                 options.append(.stakingBalance)
-                if nominatorState.commonData.chainAsset?.chain.externalApi?.staking != nil, nominatorState.commonData.chainAsset?.chain.isReef == false {
+                if nominatorState.commonData.chainAsset.map(Self.offersPayouts) == true {
                     options.append(.pendingRewards)
                 }
                 options.append(.rewardDestination)
@@ -316,7 +300,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 
             var options: [StakingManageOption] = []
             options.append(.stakingBalance)
-            if chainAsset?.chain.externalApi?.staking != nil {
+            if chainAsset.map(Self.offersPayouts) == true {
                 options.append(.pendingRewards)
             }
             options.append(.rewardDestination)
@@ -324,17 +308,6 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             options.append(.controllerAccount)
             return options
         }()
-
-        wireframe.showManageStaking(
-            from: view,
-            items: managedItems,
-            delegate: self,
-            context: managedItems as NSArray
-        )
-    }
-
-    func performParachainManageStakingAction(for delegation: ParachainStakingDelegationInfo) {
-        let managedItems: [StakingManageOption] = [.parachainStakingBalance(info: delegation), .yourCollator(info: delegation)]
 
         wireframe.showManageStaking(
             from: view,
@@ -468,14 +441,12 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             return nomination != nil ? .includeValidatorsTab : .none
         }()
 
-        let flow: AnalyticsRewardsFlow = chainAsset.stakingType?.isParachain == true ? .parachain : .relaychain
-
         wireframe.showAnalytics(
             from: view,
             mode: isNominator.union(includeValidators),
             chainAsset: chainAsset,
             wallet: selectedAccount,
-            flow: flow
+            flow: .relaychain
         )
     }
 
@@ -492,7 +463,14 @@ extension StakingMainPresenter: StakingStateMachineDelegate {
 
 extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceive(selectedWallet: MetaAccountModel) {
+        let accountChanged = selectedWallet.metaId != selectedMetaAccount.metaId
         selectedMetaAccount = selectedWallet
+
+        // Asset Hub's unbonding period belongs to the account, so the previous wallet's value is not shown.
+        if accountChanged, let chainId = chainAsset?.chain.chainId, AssetHubStakingRoute.staking(on: chainId) != nil {
+            networkStakingInfo = nil
+            provideStakingInfo()
+        }
     }
 
     private func handle(error: Error) {
@@ -634,6 +612,10 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
     func didReceive(networkStakingInfoError: Error) {
+        if let chainId = chainAsset?.chain.chainId, AssetHubStakingRoute.staking(on: chainId) != nil {
+            networkStakingInfo = nil
+            provideStakingInfo()
+        }
         handle(error: networkStakingInfoError)
     }
 
@@ -717,32 +699,6 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func networkInfoViewExpansion(isExpanded: Bool) {
         view?.expandNetworkInfoView(isExpanded)
-    }
-
-//    Parachain
-
-    func didReceive(delegationInfos: [ParachainStakingDelegationInfo]?) {
-        stateMachine.state.process(delegationInfos: delegationInfos)
-    }
-
-    func didReceiveScheduledRequests(requests: [AccountAddress: [ParachainStakingScheduledRequest]]?) {
-        stateMachine.state.process(scheduledRequests: requests)
-    }
-
-    func didReceiveTopDelegations(delegations: [AccountAddress: ParachainStakingDelegations]?) {
-        stateMachine.state.process(topDelegations: delegations)
-    }
-
-    func didReceiveBottomDelegations(delegations: [AccountAddress: ParachainStakingDelegations]?) {
-        stateMachine.state.process(bottomDelegations: delegations)
-    }
-
-    func didReceiveRound(round: ParachainStakingRoundInfo?) {
-        stateMachine.state.process(roundInfo: round)
-    }
-
-    func didReceiveCurrentBlock(currentBlock: UInt32?) {
-        stateMachine.state.process(currentBlock: currentBlock)
     }
 
     func didReceive(rewardChainAsset: ChainAsset?) {
@@ -837,20 +793,6 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                     from: view
                 )
             }
-        case let .yourCollator(info):
-            wireframe.showYourValidatorInfo(
-                chainAsset: chainAsset,
-                selectedAccount: selectedAccount,
-                flow: .parachain(candidate: info.collator),
-                from: view
-            )
-        case let .parachainStakingBalance(info):
-            wireframe.showStakingBalance(
-                from: view,
-                chainAsset: chainAsset,
-                wallet: selectedAccount,
-                flow: .parachain(delegation: info.delegation, collator: info.collator)
-            )
         }
     }
 }

@@ -12,7 +12,6 @@ extension StakingMainInteractor {
         clear(dataProvider: &validatorProvider)
         clear(singleValueProvider: &totalRewardProvider)
         clear(dataProvider: &payeeProvider)
-        clear(singleValueProvider: &rewardAnalyticsProvider)
         clear(streamableProvider: &controllerAccountProvider)
 
         if
@@ -37,7 +36,6 @@ extension StakingMainInteractor {
             }
 
             subscribeToControllerAccount(address: stashItem.controller, chain: chainAsset.chain)
-            subscribeRewardsAnalytics(for: stashItem.stash)
         }
 
         presenter?.didReceive(stashItem: stashItem)
@@ -71,7 +69,6 @@ extension StakingMainInteractor {
         clear(dataProvider: &validatorProvider)
         clear(singleValueProvider: &totalRewardProvider)
         clear(dataProvider: &payeeProvider)
-        clear(singleValueProvider: &rewardAnalyticsProvider)
         clear(streamableProvider: &stashControllerProvider)
     }
 
@@ -140,49 +137,6 @@ extension StakingMainInteractor {
         minNominatorBondProvider = subscribeToMinNominatorBond(for: chainId)
         counterForNominatorsProvider = subscribeToCounterForNominators(for: chainId)
         maxNominatorsCountProvider = subscribeMaxNominatorsCount(for: chainId)
-    }
-
-    func subscribeRewardsAnalytics(for address: AccountAddress) {
-        if let analyticsURL = selectedChainAsset?.chain.externalApi?.staking?.url,
-           selectedChainAsset?.stakingType?.isParachain == true,
-           let chainAsset = selectedChainAsset {
-            rewardAnalyticsProvider = try? subscribeWeaklyRewardAnalytics(chainAsset: chainAsset, for: address, url: analyticsURL)
-        } else {
-            presenter?.didReceieve(
-                subqueryRewards: .success(nil),
-                period: .week
-            )
-        }
-    }
-}
-
-extension StakingMainInteractor: ParachainStakingLocalStorageSubscriber, ParachainStakingLocalSubscriptionHandler {
-    func handleDelegatorState(
-        result: Result<ParachainStakingDelegatorState?, Error>,
-        chainAsset: ChainAsset,
-        accountId _: AccountId
-    ) {
-        guard
-            chainAsset == selectedChainAsset else {
-            return
-        }
-        switch result {
-        case let .success(delegatorState):
-            handleDelegatorState(delegatorState: delegatorState, chainAsset: chainAsset)
-        case let .failure(error):
-            logger?.error(error.localizedDescription)
-        }
-    }
-
-    func handleDelegationScheduledRequests(
-        result _: Result<[ParachainStakingScheduledRequest]?, Error>,
-        chainAsset _: ChainAsset,
-        accountId _: AccountId
-    ) {
-        guard let collatorIds = collatorIds else {
-            return
-        }
-        fetchCollatorsDelegations(accountIds: collatorIds)
     }
 }
 
@@ -292,20 +246,5 @@ extension StakingMainInteractor: AccountInfoSubscriptionAdapterHandler {
         case let .failure(error):
             presenter?.didReceive(balanceError: error)
         }
-    }
-}
-
-extension StakingMainInteractor: StakingAnalyticsLocalStorageSubscriber,
-    StakingAnalyticsLocalSubscriptionHandler {
-    func handleWeaklyRewardAnalytics(
-        result: Result<[SubqueryRewardItemData]?, Error>,
-        address: AccountAddress,
-        url _: URL
-    ) {
-        guard selectedAccount?.toAddress()?.lowercased() == address.lowercased() else {
-            return
-        }
-
-        presenter?.didReceieve(subqueryRewards: result, period: .week)
     }
 }

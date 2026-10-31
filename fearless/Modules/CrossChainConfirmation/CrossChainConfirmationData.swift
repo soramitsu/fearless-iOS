@@ -89,6 +89,10 @@ enum ReviewedCrossChainSubmissionValidator {
         mutationsEnabled: Bool,
         executionAdapterAvailable: Bool = ReviewedXcmExecutionAuthority.isAvailable
     ) throws {
+        // A build without bundled trust can never send, whatever the remote switch says; report that, not the switch.
+        guard executionAdapterAvailable else {
+            throw ReviewedCrossChainSubmissionError.executionAdapterUnavailable
+        }
         guard mutationsEnabled else {
             throw ReviewedCrossChainSubmissionError.actionsPaused
         }
@@ -312,8 +316,10 @@ protocol ReviewedCrossChainGenesisReading {
     func genesisHash(connection: JSONRPCEngine) async throws -> String
 }
 
-/// Reads block 0's hash from the node the extrinsic would be sent to. The signature commits to that hash, so a node of
-/// another network would get an extrinsic only that network accepts while the user believes it went to the origin.
+/// Reads block 0's hash from the node the extrinsic would be sent to, so that a node of another network is refused
+/// before anything is built. The extrinsic is then signed against `signingGenesisHash`, the catalog chain id this check
+/// compared with, and never against a later answer from a node: a node of another network gets a signature only the
+/// origin network accepts.
 struct ReviewedCrossChainGenesisReader: ReviewedCrossChainGenesisReading {
     func genesisHash(connection: JSONRPCEngine) async throws -> String {
         try await withCheckedThrowingContinuation { continuation in
@@ -334,6 +340,11 @@ struct ReviewedCrossChainGenesisReader: ReviewedCrossChainGenesisReading {
         let normalized = genesisHash.lowercased()
         let hash = normalized.hasPrefix("0x") ? String(normalized.dropFirst(2)) : normalized
         return hash.count == 64 && hash == chainId.lowercased()
+    }
+
+    /// The genesis hash a reviewed extrinsic signs: the catalog chain id of its origin network.
+    static func signingGenesisHash(for chainId: ChainModel.Id) -> String {
+        "0x" + chainId.lowercased()
     }
 }
 
@@ -409,8 +420,9 @@ final class ReviewedCrossChainBalanceProvider: ReviewedCrossChainBalanceProvidin
 }
 
 enum ReviewedCrossChainSubmissionBoundaryValidator {
-    /// The destination fee comes from an unsigned remote file and is fetched again at submission. Only the fee the
-    /// user reviewed may be added to the burn: a different value, higher or lower, is a stale or tampered quote.
+    /// The destination fee is compiled with the reviewed route (`ReviewedXcmRouteRegistry.destinationFee(for:)`). Only
+    /// the fee the user reviewed may be added to the burn: a different value, higher or lower, means the confirmation
+    /// was built from something else.
     static func requireConfirmedDestinationFee(
         fresh: BigUInt,
         confirmed: Decimal,
@@ -432,8 +444,8 @@ enum ReviewedCrossChainSubmissionBoundaryValidator {
         guard requestedAmount > .zero, burnAmount >= requestedAmount, originFee > .zero else {
             throw ReviewedCrossChainSubmissionError.invalidAmount
         }
-        // The destination fee is added to the burn and comes from an unsigned remote file. A fee above the amount
-        // itself is far outside what the reviewed bridges charge.
+        // The destination fee is added to the burn. A fee above the amount itself is far outside what the reviewed
+        // bridges charge, whatever a definition says.
         guard burnAmount - requestedAmount <= requestedAmount else {
             throw ReviewedCrossChainSubmissionError.destinationFeeTooHigh
         }
@@ -963,7 +975,6 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
     private let data: CrossChainConfirmationData
     private let expectedWalletId: MetaAccountId
     private let expectedRouteFingerprint: String
-    private let destinationFeeProvider: XcmDestinationFeeFetching
     private let callBuilder: ReviewedCrossChainCallBuilding
     private let runtimeNegotiator: ReviewedCrossChainRuntimeNegotiating
     private let genesisReader: ReviewedCrossChainGenesisReading
@@ -971,10 +982,10 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
     private let keystore: KeystoreProtocol
     private let selectedWallet: () -> MetaAccountModel?
     private let mutationsEnabled: () -> Bool
+    private let executionAvailable: Bool
 
     init(
         data: CrossChainConfirmationData,
-        destinationFeeProvider: XcmDestinationFeeFetching,
         callBuilder: ReviewedCrossChainCallBuilding = ReviewedCrossChainCallBuilder(),
         runtimeNegotiator: ReviewedCrossChainRuntimeNegotiating = ReviewedCrossChainRuntimeNegotiator(),
         genesisReader: ReviewedCrossChainGenesisReading = ReviewedCrossChainGenesisReader(),
@@ -983,12 +994,12 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
         selectedWallet: @escaping () -> MetaAccountModel? = { SelectedWalletSettings.shared.value },
         mutationsEnabled: @escaping () -> Bool = {
             MultiChainFeaturePolicy.current.crossChainMutationsEnabled
-        }
+        },
+        executionAvailable: Bool = ReviewedXcmExecutionAuthority.isAvailable
     ) {
         self.data = data
         expectedWalletId = data.wallet.metaId
         expectedRouteFingerprint = data.reviewedRoute.routeId
-        self.destinationFeeProvider = destinationFeeProvider
         self.callBuilder = callBuilder
         self.runtimeNegotiator = runtimeNegotiator
         self.genesisReader = genesisReader
@@ -996,6 +1007,7 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
         self.keystore = keystore
         self.selectedWallet = selectedWallet
         self.mutationsEnabled = mutationsEnabled
+        self.executionAvailable = executionAvailable
     }
 
     func authorize() async throws -> ReviewedCrossChainAuthorizedSubmission {
@@ -1009,6 +1021,8 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
         ) else {
             throw ReviewedCrossChainSubmissionError.wrongNetwork
         }
+        // What the extrinsic service signs (see `makeFreshContext`), bound into the intent below.
+        let signingGenesisHash = ReviewedCrossChainGenesisReader.signingGenesisHash(for: context.origin.chain.chainId)
 
         // Two independent passes deliberately repeat current runtime-call
         // negotiation, destination fee, exact balance, minimum and origin-fee
@@ -1034,11 +1048,17 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
             context.origin.asset.id, String(context.origin.asset.precision),
             context.destination.chainId, context.destinationAccountId.toHex(),
             data.amount.description, final.burnAmount.description, final.originFee.description,
-            genesisHash.lowercased(), final.capability.moduleName, final.capability.callName,
+            signingGenesisHash, final.capability.moduleName, final.capability.callName,
             String(final.capability.callIndex.palletIndex), String(final.capability.callIndex.callIndex),
             final.encodedCall.toHex(), transferKey
         ])
-        let authorization = try MultiChainFeaturePolicy.authorization(for: .xcm, intentSha256: intent) {
+        // The call bytes the intent names were checked against the reviewed layout; the extrinsic that is finally
+        // signed must carry exactly these bytes, whatever coder encodes it then.
+        let authorization = try MultiChainFeaturePolicy.authorization(
+            for: .xcm,
+            intentSha256: intent,
+            expectedCall: final.encodedCall
+        ) {
             try self.validateCurrentContext(context, checkPolicy: false)
         }
         let signer = SigningWrapper(
@@ -1074,7 +1094,7 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
         guard capability.specVersion == context.runtimeSpecVersion else {
             throw ReviewedCrossChainSubmissionError.runtimeUnavailable
         }
-        let destinationFee = try await destinationFeeInOriginUnits(context)
+        let destinationFee = try ReviewedXcmRouteRegistry.destinationFee(for: context.definition)
         try ReviewedCrossChainSubmissionBoundaryValidator.requireConfirmedDestinationFee(
             fresh: destinationFee,
             confirmed: data.destChainFeeDecimal,
@@ -1126,32 +1146,6 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
         )
     }
 
-    private func destinationFeeInOriginUnits(_ context: Context) async throws -> BigUInt {
-        let result = await destinationFeeProvider.estimateFee(
-            destinationChainId: context.destination.chainId,
-            token: context.definition.originSymbol
-        )
-        guard case let .success(response) = result,
-              response.symbol.caseInsensitiveCompare(context.definition.originSymbol) == .orderedSame,
-              let fee = response.feeInPlanks else {
-            throw ReviewedCrossChainSubmissionError.destinationFeeUnavailable
-        }
-        // Without its precision the fee cannot be scaled to origin units; guessing the origin's could be off by 10^n.
-        guard let destinationPrecision = response.precision.flatMap({ UInt16($0) }) else {
-            throw ReviewedCrossChainSubmissionError.destinationFeeUnavailable
-        }
-        let originPrecision = context.definition.originPrecision
-        if destinationPrecision == originPrecision { return fee }
-        if destinationPrecision < originPrecision {
-            return fee * BigUInt(10).power(Int(originPrecision - destinationPrecision))
-        }
-        let divisor = BigUInt(10).power(Int(destinationPrecision - originPrecision))
-        guard fee % divisor == .zero else {
-            throw ReviewedCrossChainSubmissionError.destinationFeeUnavailable
-        }
-        return fee / divisor
-    }
-
     private func makeFreshContext() throws -> Context {
         guard let wallet = selectedWallet(), wallet.metaId == expectedWalletId else {
             throw ReviewedCrossChainSubmissionError.selectedWalletChanged
@@ -1167,7 +1161,8 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
             origin: origin,
             destination: destination,
             reviewedRoute: data.reviewedRoute,
-            mutationsEnabled: mutationsEnabled()
+            mutationsEnabled: mutationsEnabled(),
+            executionAdapterAvailable: executionAvailable
         )
         let account = try validateSigningAccount(wallet: wallet, chain: originChain)
         guard let destinationAccountId = try? AddressFactory.accountId(
@@ -1188,7 +1183,8 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
             cryptoType: account.cryptoType,
             runtimeRegistry: runtime,
             engine: connection,
-            operationManager: OperationManagerFacade.sharedManager
+            operationManager: OperationManagerFacade.sharedManager,
+            genesisHash: ReviewedCrossChainGenesisReader.signingGenesisHash(for: originChain.chainId)
         )
         return Context(
             wallet: wallet,
@@ -1212,6 +1208,9 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
     }
 
     private func validatePolicyAndWallet() throws {
+        guard executionAvailable else {
+            throw ReviewedCrossChainSubmissionError.executionAdapterUnavailable
+        }
         guard mutationsEnabled() else {
             throw ReviewedCrossChainSubmissionError.actionsPaused
         }
@@ -1246,7 +1245,8 @@ final class ReviewedCrossChainSubmissionAuthorizer: ReviewedCrossChainSubmission
         try ReviewedCrossChainSubmissionValidator.validateReviewedRoute(
             origin: currentOrigin,
             destination: destination,
-            reviewedRoute: data.reviewedRoute
+            reviewedRoute: data.reviewedRoute,
+            executionAdapterAvailable: executionAvailable
         )
         _ = try validateSigningAccount(
             wallet: wallet,

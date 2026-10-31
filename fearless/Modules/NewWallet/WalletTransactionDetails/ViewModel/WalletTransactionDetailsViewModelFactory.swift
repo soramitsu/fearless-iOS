@@ -36,11 +36,7 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
             return nil
         }
 
-        var hash = transaction.transactionId
-        if let reefBlockHash = transaction.context?["reefBlockHash"] {
-            let trimmedBlockHash = reefBlockHash.hasPrefix("0x") ? reefBlockHash.dropFirst(2).prefix(5) : reefBlockHash.prefix(5)
-            hash = [hash, String(trimmedBlockHash)].joined(separator: "-")
-        }
+        let hash = transaction.transactionId
         var status: String
         var statusIcon: UIImage?
         switch transaction.status {

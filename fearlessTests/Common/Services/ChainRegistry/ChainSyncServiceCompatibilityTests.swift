@@ -1531,6 +1531,48 @@ final class ChainSyncServiceCompatibilityTests: XCTestCase {
         )
     }
 
+    func testSanitizerRefusesPlaintextWebSocketNodesFromRemoteLists() throws {
+        let baseChain = makeValidChain(
+            generatingAssets: 1,
+            addressPrefix: 42
+        )
+        let secureNode = ChainNodeModel(
+            url: try XCTUnwrap(URL(string: "wss://secure.example")),
+            name: "TLS",
+            apikey: nil
+        )
+        let plaintextNodes: Set<ChainNodeModel> = [
+            ChainNodeModel(
+                url: try XCTUnwrap(URL(string: "ws://plain.example")),
+                name: "Plaintext",
+                apikey: nil
+            ),
+            ChainNodeModel(
+                url: try XCTUnwrap(URL(string: "WS://127.0.0.1:9944")),
+                name: "Plaintext local",
+                apikey: nil
+            )
+        ]
+
+        let sanitized = try ChainSyncService.sanitizingRemoteChains(
+            [copy(baseChain, nodes: plaintextNodes.union([secureNode]))]
+        )
+        XCTAssertEqual(try XCTUnwrap(sanitized.first).nodes, Set([secureNode]))
+
+        // A chain the list names only plaintext nodes for has no usable node at all.
+        XCTAssertThrowsError(
+            try ChainSyncService.sanitizingRemoteChains([copy(baseChain, nodes: plaintextNodes)])
+        )
+        let disabled = try ChainSyncService.sanitizingRemoteChains(
+            [copy(baseChain, disabled: true, nodes: plaintextNodes)]
+        )
+        XCTAssertTrue(try XCTUnwrap(disabled.first).nodes.isEmpty)
+
+        // Nodes kept on the device, such as a local development node, are not remote input.
+        let localNode = try XCTUnwrap(plaintextNodes.first { $0.url.host == "127.0.0.1" })
+        XCTAssertTrue(ChainModelMapper.isNodeCompatibleWithRuntime(localNode, for: baseChain))
+    }
+
     func testPreservingPreferencesDropsRuntimeIncompatibleCustomSelection()
         throws {
         let substrateRemote = makeValidChain(
@@ -2167,5 +2209,375 @@ private final class ScriptedChainRepository: DataProviderRepositoryProtocol {
 
     func deleteAllOperation() -> BaseOperation<Void> {
         ClosureOperation { () }
+    }
+}
+
+final class NetworkRetirementSyncTests: XCTestCase {
+    func testSyncDisablesStoredRetiredNetworkAndRemovesRelayStaking() throws {
+        let payload = """
+        [
+          {
+            "chainId": "\(Chain.polkadot.genesisHash)",
+            "name": "Polkadot",
+            "disabled": false,
+            "addressPrefix": 0,
+            "options": ["crowdloans", "poolStaking"],
+            "nodes": [{"url": "wss://rpc.polkadot.io", "name": "Parity node"}],
+            "assets": [{
+              "id": "dot", "name": "Polkadot", "symbol": "DOT", "precision": 10,
+              "isUtility": true, "isNative": true, "staking": "relaychain"
+            }]
+          },
+          {
+            "chainId": "\(Chain.moonbeam.genesisHash)",
+            "name": "Moonbeam",
+            "disabled": false,
+            "addressPrefix": 1284,
+            "options": ["ethereumBased"],
+            "nodes": [{"url": "wss://wss.api.moonbeam.network", "name": "Moonbeam node"}],
+            "assets": [{
+              "id": "glmr", "name": "Moonbeam", "symbol": "GLMR", "precision": 18,
+              "isUtility": true, "isNative": true, "staking": "parachain"
+            }]
+          }
+        ]
+        """
+        let storedMoonbeam = ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: Chain.moonbeam.genesisHash,
+            paraId: "2004",
+            name: "Moonbeam",
+            assets: [
+                AssetModel(
+                    id: "glmr",
+                    name: "Moonbeam",
+                    symbol: "GLMR",
+                    precision: 18,
+                    isUtility: true,
+                    isNative: true,
+                    staking: .paraChain
+                )
+            ],
+            xcm: nil,
+            nodes: [
+                ChainNodeModel(
+                    url: try XCTUnwrap(URL(string: "wss://wss.api.moonbeam.network")),
+                    name: "Moonbeam node",
+                    apikey: nil
+                )
+            ],
+            addressPrefix: 1284,
+            icon: nil,
+            options: [.ethereumBased],
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+        let repository = ScriptedChainRepository(localChains: [storedMoonbeam])
+        let eventCenter = RecordingChainSyncEventCenter()
+        let completion = expectation(description: "sync completes")
+        eventCenter.onEvent = { event in
+            if event is ChainSyncDidComplete {
+                completion.fulfill()
+            }
+        }
+        let service = ChainSyncService(
+            chainsUrl: try XCTUnwrap(URL(string: "https://chains.example/chains.json")),
+            dataFetchFactory: StaticDataOperationFactory(data: Data(payload.utf8)),
+            repository: AnyDataProviderRepository(repository),
+            eventCenter: eventCenter,
+            operationQueue: OperationQueue(),
+            retryStrategy: NeverReconnectStrategy(),
+            applicationHandler: ApplicationHandler()
+        )
+
+        service.syncUp()
+
+        wait(for: [completion], timeout: 5)
+        let savedMoonbeam = try XCTUnwrap(
+            repository.savedModels.last(where: { $0.chainId == Chain.moonbeam.genesisHash })
+        )
+        XCTAssertTrue(savedMoonbeam.disabled)
+        let savedPolkadot = try XCTUnwrap(
+            repository.savedModels.last(where: { $0.chainId == Chain.polkadot.genesisHash })
+        )
+        XCTAssertFalse(savedPolkadot.disabled)
+        XCTAssertNil(savedPolkadot.assets.first?.staking)
+        XCTAssertEqual(savedPolkadot.options ?? [], [ChainOptions]())
+        XCTAssertTrue(repository.deletedIdentifiers.isEmpty)
+        XCTAssertEqual(eventCenter.failureCount, 0)
+    }
+
+    func testStartupRetiresStoredNetworksEvenWhenTheDownloadFails() throws {
+        let storedMoonbeam = ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: Chain.moonbeam.genesisHash,
+            paraId: "2004",
+            name: "Moonbeam",
+            assets: [
+                AssetModel(id: "glmr", name: "Moonbeam", symbol: "GLMR", precision: 18, isUtility: true, isNative: true)
+            ],
+            xcm: nil,
+            nodes: [
+                ChainNodeModel(
+                    url: try XCTUnwrap(URL(string: "wss://wss.api.moonbeam.network")),
+                    name: "Moonbeam node",
+                    apikey: nil
+                )
+            ],
+            addressPrefix: 1284,
+            icon: nil,
+            options: [.ethereumBased],
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+        let storedPolkadot = ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: Chain.polkadot.genesisHash,
+            paraId: nil,
+            name: "Polkadot",
+            assets: [
+                AssetModel(
+                    id: "dot",
+                    name: "Polkadot",
+                    symbol: "DOT",
+                    precision: 10,
+                    isUtility: true,
+                    isNative: true,
+                    staking: .relayChain
+                )
+            ],
+            xcm: nil,
+            nodes: [
+                ChainNodeModel(
+                    url: try XCTUnwrap(URL(string: "wss://rpc.polkadot.io")),
+                    name: "Parity node",
+                    apikey: nil
+                )
+            ],
+            addressPrefix: 0,
+            icon: nil,
+            options: [.crowdloans, .poolStaking],
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+        let repository = ScriptedChainRepository(localChains: [storedMoonbeam, storedPolkadot])
+        let eventCenter = RecordingChainSyncEventCenter()
+        let failure = expectation(description: "the download fails")
+        eventCenter.onEvent = { event in
+            if event is ChainSyncDidFail {
+                failure.fulfill()
+            }
+        }
+        let service = ChainSyncService(
+            chainsUrl: try XCTUnwrap(URL(string: "https://chains.example/chains.json")),
+            dataFetchFactory: OfflineDataOperationFactory(),
+            repository: AnyDataProviderRepository(repository),
+            eventCenter: eventCenter,
+            operationQueue: OperationQueue(),
+            retryStrategy: NeverReconnectStrategy(),
+            applicationHandler: ApplicationHandler()
+        )
+
+        service.syncUp()
+
+        wait(for: [failure], timeout: 5)
+        let savedMoonbeam = try XCTUnwrap(
+            repository.savedModels.last(where: { $0.chainId == Chain.moonbeam.genesisHash })
+        )
+        XCTAssertTrue(savedMoonbeam.disabled)
+        let savedPolkadot = try XCTUnwrap(
+            repository.savedModels.last(where: { $0.chainId == Chain.polkadot.genesisHash })
+        )
+        XCTAssertFalse(savedPolkadot.disabled)
+        XCTAssertNil(savedPolkadot.assets.first?.staking)
+        XCTAssertEqual(savedPolkadot.options ?? [], [ChainOptions]())
+        XCTAssertTrue(repository.deletedIdentifiers.isEmpty)
+        XCTAssertTrue(
+            eventCenter.lastUpdatedChains?.contains { $0.chainId == Chain.moonbeam.genesisHash } == true,
+            "listeners hear about the retirement before any download"
+        )
+    }
+
+    func testSyncDecodesReefAndParachainStakingButOffersNeither() throws {
+        let payload = """
+        [
+          {
+            "chainId": "\(Chain.ternoa.genesisHash)",
+            "name": "Ternoa Mainnet",
+            "disabled": false,
+            "addressPrefix": 42,
+            "nodes": [{"url": "wss://mainnet.ternoa.network", "name": "Ternoa node"}],
+            "assets": [{
+              "id": "caps", "name": "Ternoa", "symbol": "CAPS", "precision": 18,
+              "isUtility": true, "isNative": true, "staking": "relaychain"
+            }]
+          },
+          {
+            "chainId": "\(Chain.reef.genesisHash)",
+            "name": "Reef Mainnet",
+            "disabled": false,
+            "addressPrefix": 42,
+            "nodes": [{"url": "wss://rpc.reefscan.com/ws", "name": "Reef node"}],
+            "externalApi": {
+              "staking": {"type": "reef", "url": "https://squid.subsquid.io/reef-explorer/graphql"},
+              "history": {"type": "reef", "url": "https://squid.subsquid.io/reef-explorer/graphql"},
+              "explorers": [{"type": "reef", "types": ["account"], "url": "https://reefscan.com/{type}/{value}"}]
+            },
+            "assets": [{
+              "id": "reef", "name": "Reef", "symbol": "REEF", "precision": 18,
+              "isUtility": true, "isNative": true, "staking": "relaychain"
+            }]
+          },
+          {
+            "chainId": "\(Chain.moonbaseAlpha.genesisHash)",
+            "name": "Moonbase Alpha",
+            "disabled": false,
+            "addressPrefix": 1287,
+            "options": ["ethereumBased", "testnet"],
+            "nodes": [{"url": "wss://wss.api.moonbase.moonbeam.network", "name": "Moonbeam Network node"}],
+            "assets": [{
+              "id": "dev", "name": "Moonbase Alpha", "symbol": "DEV", "precision": 18,
+              "isUtility": true, "isNative": true, "staking": "parachain"
+            }]
+          }
+        ]
+        """
+        let storedReef = ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: Chain.reef.genesisHash,
+            paraId: nil,
+            name: "Reef Mainnet",
+            assets: [
+                AssetModel(
+                    id: "reef",
+                    name: "Reef",
+                    symbol: "REEF",
+                    precision: 18,
+                    isUtility: true,
+                    isNative: true,
+                    staking: .relayChain
+                )
+            ],
+            xcm: nil,
+            nodes: [
+                ChainNodeModel(
+                    url: try XCTUnwrap(URL(string: "wss://rpc.reefscan.com/ws")),
+                    name: "Reef node",
+                    apikey: nil
+                )
+            ],
+            addressPrefix: 42,
+            icon: nil,
+            options: nil,
+            externalApi: ChainModel.ExternalApiSet(
+                explorers: [
+                    ChainModel.ExternalApiExplorer(
+                        type: .reef,
+                        types: [.account],
+                        url: "https://reefscan.com/{type}/{value}"
+                    )
+                ]
+            ),
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+        let repository = ScriptedChainRepository(localChains: [storedReef])
+        let eventCenter = RecordingChainSyncEventCenter()
+        let completion = expectation(description: "sync completes")
+        eventCenter.onEvent = { event in
+            if event is ChainSyncDidComplete {
+                completion.fulfill()
+            }
+        }
+        let service = ChainSyncService(
+            chainsUrl: try XCTUnwrap(URL(string: "https://chains.example/chains.json")),
+            dataFetchFactory: StaticDataOperationFactory(data: Data(payload.utf8)),
+            repository: AnyDataProviderRepository(repository),
+            eventCenter: eventCenter,
+            operationQueue: OperationQueue(),
+            retryStrategy: NeverReconnectStrategy(),
+            applicationHandler: ApplicationHandler()
+        )
+
+        service.syncUp()
+
+        wait(for: [completion], timeout: 5)
+        XCTAssertEqual(eventCenter.failureCount, 0, "the list with Reef and parachain staking still decodes")
+        let savedReef = try XCTUnwrap(repository.savedModels.last(where: { $0.chainId == Chain.reef.genesisHash }))
+        XCTAssertTrue(savedReef.disabled)
+        XCTAssertEqual(savedReef.assets, storedReef.assets)
+        XCTAssertEqual(savedReef.externalApi?.explorers?.first?.type, .reef, "the explorer link stays for key access")
+        let savedMoonbase = try XCTUnwrap(
+            repository.savedModels.last(where: { $0.chainId == Chain.moonbaseAlpha.genesisHash })
+        )
+        XCTAssertFalse(savedMoonbase.disabled)
+        XCTAssertEqual(savedMoonbase.assets.map(\.id), ["dev"])
+        XCTAssertNil(savedMoonbase.assets.first?.staking)
+        let savedTernoa = try XCTUnwrap(
+            repository.savedModels.last(where: { $0.chainId == Chain.ternoa.genesisHash })
+        )
+        XCTAssertEqual(savedTernoa.assets.first?.staking, .relayChain)
+        XCTAssertTrue(repository.deletedIdentifiers.isEmpty)
+    }
+
+    func testStartupDisablesAStoredEnabledReefEvenWhenTheDownloadFails() throws {
+        let storedReef = ChainModel(
+            rank: nil,
+            disabled: false,
+            chainId: Chain.reef.genesisHash,
+            paraId: nil,
+            name: "Reef Mainnet",
+            assets: [
+                AssetModel(id: "reef", name: "Reef", symbol: "REEF", precision: 18, isUtility: true, isNative: true)
+            ],
+            xcm: nil,
+            nodes: [
+                ChainNodeModel(
+                    url: try XCTUnwrap(URL(string: "wss://rpc.reefscan.com/ws")),
+                    name: "Reef node",
+                    apikey: nil
+                )
+            ],
+            addressPrefix: 42,
+            icon: nil,
+            options: nil,
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+        let repository = ScriptedChainRepository(localChains: [storedReef])
+        let eventCenter = RecordingChainSyncEventCenter()
+        let failure = expectation(description: "the download fails")
+        eventCenter.onEvent = { event in
+            if event is ChainSyncDidFail {
+                failure.fulfill()
+            }
+        }
+        let service = ChainSyncService(
+            chainsUrl: try XCTUnwrap(URL(string: "https://chains.example/chains.json")),
+            dataFetchFactory: OfflineDataOperationFactory(),
+            repository: AnyDataProviderRepository(repository),
+            eventCenter: eventCenter,
+            operationQueue: OperationQueue(),
+            retryStrategy: NeverReconnectStrategy(),
+            applicationHandler: ApplicationHandler()
+        )
+
+        service.syncUp()
+
+        wait(for: [failure], timeout: 5)
+        let savedReef = try XCTUnwrap(repository.savedModels.last(where: { $0.chainId == Chain.reef.genesisHash }))
+        XCTAssertTrue(savedReef.disabled)
+        XCTAssertEqual(savedReef.assets, storedReef.assets, "saved balances keep their assets")
+        XCTAssertTrue(repository.deletedIdentifiers.isEmpty)
+    }
+}
+
+private struct OfflineDataOperationFactory: DataOperationFactoryProtocol {
+    func fetchData(from _: URL) -> BaseOperation<Data> {
+        ClosureOperation<Data> { throw URLError(.notConnectedToInternet) }
     }
 }

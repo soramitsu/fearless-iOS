@@ -7,8 +7,8 @@ final class WalletDetailsViewFactory {
     static func createView(
         flow: WalletDetailsFlow
     ) -> WalletDetailsViewProtocol {
+        // Disabled chains too: the presenter keeps those where the wallet has its own account.
         let chainsRepository = ChainRepositoryFactory().createRepository(
-            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 

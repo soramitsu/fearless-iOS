@@ -5,7 +5,6 @@ import SSFModels
 enum SelectValidatorsConfirmFlow {
     case relaychainInitiated(targets: [SelectedValidatorInfo], maxTargets: Int, bonding: InitiatedBonding)
     case relaychainExisting(targets: [SelectedValidatorInfo], maxTargets: Int, bonding: ExistingBonding)
-    case parachain(target: ParachainStakingCandidateInfo, maxTargets: Int, bonding: InitiatedBonding)
     case poolInitiated(poolId: UInt32, targets: [SelectedValidatorInfo], maxTargets: Int, bonding: InitiatedBonding)
     case poolExisting(poolId: UInt32, targets: [SelectedValidatorInfo], maxTargets: Int, bonding: ExistingBonding)
 }
@@ -30,7 +29,6 @@ protocol SelectValidatorsConfirmViewModelState {
     var fee: Decimal? { get }
     var payoutAccountAddress: String? { get }
     var walletAccountAddress: String? { get }
-    var collatorAddress: String? { get }
 
     func setStateListener(_ stateListener: SelectValidatorsConfirmModelStateListener?)
     func validators(using locale: Locale) -> [DataValidating]
@@ -40,7 +38,6 @@ protocol SelectValidatorsConfirmViewModelState {
 extension SelectValidatorsConfirmViewModelState {
     var payoutAccountAddress: String? { nil }
     var walletAccountAddress: String? { nil }
-    var collatorAddress: String? { nil }
 }
 
 // swiftlint:disable type_name
