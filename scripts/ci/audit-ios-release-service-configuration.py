@@ -23,9 +23,10 @@ REQUIRED = frozenset({
     'GoogleBackup.googleUrlScheme',
     'ThirdPartyServicesApiKeys.alchemyApiKey',
     'BlockExplorerApiKeys.etherscanApiKey',
-    'BlockExplorerApiKeys.kaiaScanApiKey',
 })
 # Retired Blast/Goerli fields are no longer consumed by EVM node selection.
+# KaiaScan is optional: no release source holds a provisioned key, and without one
+# Kaia history fails closed (missingAPIKey) with Retry and View on explorer.
 # Dwellir is optional with catalog failover. Retired chain-specific explorer
 # keys remain in the generated schema for compatibility but are not needed by
 # Etherscan V2 history. Rejected OKLink credentials are omitted;
