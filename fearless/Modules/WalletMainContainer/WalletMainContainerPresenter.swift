@@ -457,7 +457,8 @@ private extension WalletMainContainerPresenter {
     /// Funds at an old address the wallet left; its password-protected account stays because it
     /// holds funds too or could not be checked.
     func presentOldAddressArrivals(retriesLeft: Int) {
-        guard !pendingOldAddressArrivals.isEmpty else {
+        // A retry scheduled earlier waits for Switch's outcome, which goes first.
+        guard !pendingOldAddressArrivals.isEmpty, !isSwitchingNoPasswordAccounts, pendingSwitchOutcome == nil else {
             return
         }
         guard

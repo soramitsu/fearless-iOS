@@ -144,7 +144,9 @@ final class WalletMainContainerInteractor {
         DispatchQueue.global(qos: .utility).async { [weak self] in
             let accounts = switcher.noPasswordAccounts(in: wallet)
             DispatchQueue.main.async {
-                guard let self, !accounts.isEmpty, self.wallet.metaId == wallet.metaId else {
+                // The notice may have been shown and closed while the accounts were read.
+                guard let self, !accounts.isEmpty, self.wallet.metaId == wallet.metaId,
+                      !self.passwordNoticeTracker.wasShown(for: wallet.metaId) else {
                     return
                 }
                 self.output?.didReceiveUniversalWalletNoPasswordAccounts(accounts)
