@@ -188,13 +188,15 @@ enum UniversalWalletPasswordEnrollment: Equatable {
         }
     }
 
-    /// Networks an import or enrolment gives the password-protected account after finding the
-    /// one the words alone open empty; those old accounts stay watched (`UniversalWalletWatchedAccountsStore`).
-    func leftAfterEmptyCheck(_ slots: Set<UniversalWalletSlot>, password: String) -> Set<UniversalWalletSlot> {
-        guard case let .imported(keepingNoPassword) = self, !password.isEmpty else {
+    /// Networks an import or enrolment of a password wallet keeps watching
+    /// (`UniversalWalletWatchedAccountsStore`). Imported words may have been used with or without
+    /// the password elsewhere, so whichever account a network did not get stays watched: the old
+    /// one where the check found it empty, the protected one where the old one was kept.
+    func watchedAfterCheck(_ slots: Set<UniversalWalletSlot>, password: String) -> Set<UniversalWalletSlot> {
+        guard case .imported = self, !password.isEmpty else {
             return []
         }
-        return slots.subtracting(keepingNoPassword)
+        return slots
     }
 
     /// Keeps the account the words alone open where it holds funds or could not be checked.
@@ -225,7 +227,7 @@ extension UniversalWalletAccountProvisioning {
             enrollment: enrollment
         )
         watchedAccounts.watch(
-            enrollment.leftAfterEmptyCheck(missingSlots, password: root.passphrase),
+            enrollment.watchedAfterCheck(missingSlots, password: root.passphrase),
             in: wallet.metaId
         )
         return enrolled

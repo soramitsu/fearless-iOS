@@ -632,6 +632,35 @@ private extension AccountImportPresenter {
         wireframe.present(viewModel: alertViewModel, from: view)
     }
 
+    /// The accounts a network's own import can open when the rules read the path's password
+    /// differently, in that network's address format; nil when there is nothing to choose. The
+    /// universal networks derive from the wallet's root instead and never ask.
+    func substratePasswordAccounts(
+        for data: UniqueChainImportRequestData,
+        mnemonic: IRMnemonicProtocol
+    ) -> [SubstratePasswordAccount]? {
+        guard !data.chain.isEthereumBased,
+              !UniversalWalletChainAccountSupport.isUniversalWalletChain(data.chain.chainId),
+              SubstratePasswordRule.distinctRules(forSubstrateDerivationPath: data.derivationPath).count > 1,
+              let accounts = try? SubstratePasswordRule.accounts(
+                  mnemonic: mnemonic,
+                  derivationPath: data.derivationPath,
+                  cryptoType: data.selectedCryptoType
+              ),
+              accounts.count > 1
+        else {
+            return nil
+        }
+        return accounts.map { account in
+            let address = (try? account.publicKey.publicKeyToAccountId().toAddress(using: data.chain.chainFormat))
+            return SubstratePasswordAccount(
+                rule: account.rule,
+                publicKey: account.publicKey,
+                address: address ?? account.address
+            )
+        }
+    }
+
     func askIfNeedAddEthereum(showHandler: @escaping () -> Void, closeHandler: @escaping () -> Void) {
         let showAction = SheetAlertPresentableAction(
             title: R.string.localizable.commonYes(preferredLanguages: selectedLocale.rLanguages),
@@ -697,8 +726,10 @@ private extension AccountImportPresenter {
                 return
             }
             // An earlier browser extension made a different account from the path's password
-            // (SubstratePasswordRule): the user picks before the wallet is saved.
+            // (SubstratePasswordRule): the user picks before the wallet is saved. Accounts are
+            // derived only when the rules read the password differently (never for ASCII).
             if data.selectedSourceType == .mnemonic, substratePasswordRule == nil,
+               SubstratePasswordRule.distinctRules(forSubstrateDerivationPath: data.substrateDerivationPath).count > 1,
                let accounts = try? SubstratePasswordRule.accounts(
                    mnemonic: mnemonic,
                    derivationPath: data.substrateDerivationPath,
@@ -812,7 +843,7 @@ private extension AccountImportPresenter {
         wireframe.showEthereumStep(from: view, with: data)
     }
 
-    func importUniqueChain(data: UniqueChainImportRequestData) {
+    func importUniqueChain(data: UniqueChainImportRequestData, substratePasswordRule: SubstratePasswordRule? = nil) {
         var source: UniqueChainImportRequestSource
         switch data.selectedSourceType {
         case .legacyTonMnemonic:
@@ -823,9 +854,23 @@ private extension AccountImportPresenter {
                 didReceiveAccountImport(error: AccountCreateError.invalidMnemonicFormat)
                 return
             }
+            // One network's account can be one an earlier browser extension made, as in a
+            // whole-wallet import: the user picks before it is saved.
+            if substratePasswordRule == nil, let accounts = substratePasswordAccounts(for: data, mnemonic: mnemonic) {
+                isImportInProgress = false
+                askWhichSubstrateAccount(accounts) { [weak self] rule in
+                    guard let self, self.ownsImportPresentation,
+                          !self.isImportInProgress, !self.hasCommittedImport else { return }
+                    self.requiresExplicitImportCompletion = false
+                    self.isImportInProgress = true
+                    self.importUniqueChain(data: data, substratePasswordRule: rule)
+                }
+                return
+            }
             let sourceData = UniqueChainImportRequestSource.MnemonicImportRequestData(
                 mnemonic: mnemonic,
-                derivationPath: data.derivationPath
+                derivationPath: data.derivationPath,
+                substratePasswordRule: substratePasswordRule ?? .nfkd
             )
             source = UniqueChainImportRequestSource.mnemonic(data: sourceData)
         case .seed:

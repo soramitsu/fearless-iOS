@@ -1539,6 +1539,8 @@
 "universal.password.arrival.message" = "リカバリーフレーズだけで開けるアドレスに資金が届きました。このウォレットはパスワードで保護されたアドレスを表示し続けます。この資金を移動するには、パスワードなしでリカバリーフレーズを別のウォレットとしてインポートしてください。";
 "universal.password.arrival.row" = "%@: %@";
 "universal.password.arrival.row.balance" = "%@: %@（%@）";
+"universal.password.arrival.protected.title" = "別のアドレスに資金が届きました";
+"universal.password.arrival.protected.message" = "このウォレットのパスワードで保護されたアドレスに資金が届きました。リカバリーフレーズだけで開けるアドレスに資金がある間、または確認できない間は、ウォレットはそちらを表示し続け、空になると切り替わります。切り替えるには、その資金をパスワードで保護されたアドレスに送ってください。";
 
 /* Import: an earlier browser extension made a different Substrate account from the path password */
 "substrate.password.choice.title" = "アドレスを選択";

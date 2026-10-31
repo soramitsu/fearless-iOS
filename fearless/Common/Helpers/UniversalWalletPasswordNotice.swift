@@ -56,7 +56,7 @@ enum UniversalWalletPasswordNotice {
         onDismiss: @escaping () -> Void
     ) -> SheetAlertPresentableViewModel {
         let languages = locale.rLanguages
-        let rows = arrivals.map { arrival -> String in
+        let row = { (arrival: UniversalWalletOldAddressArrival) -> String in
             guard let balance = arrival.balance else {
                 return R.string.localizable.universalPasswordArrivalRow(
                     arrival.networkName, arrival.oldAddress, preferredLanguages: languages
@@ -66,12 +66,24 @@ enum UniversalWalletPasswordNotice {
                 arrival.networkName, arrival.oldAddress, balance, preferredLanguages: languages
             )
         }
-        let message = ([R.string.localizable.universalPasswordArrivalMessage(preferredLanguages: languages)] + rows)
-            .joined(separator: "\n\n")
+        let atOld = arrivals.filter { !$0.atProtectedAddress }
+        let atProtected = arrivals.filter(\.atProtectedAddress)
+        var sections: [String] = []
+        if !atOld.isEmpty {
+            sections += [R.string.localizable.universalPasswordArrivalMessage(preferredLanguages: languages)]
+                + atOld.map(row)
+        }
+        if !atProtected.isEmpty {
+            sections += [R.string.localizable.universalPasswordArrivalProtectedMessage(preferredLanguages: languages)]
+                + atProtected.map(row)
+        }
+        let title = atProtected.isEmpty
+            ? R.string.localizable.universalPasswordArrivalTitle(preferredLanguages: languages)
+            : R.string.localizable.universalPasswordArrivalProtectedTitle(preferredLanguages: languages)
 
         return SheetAlertPresentableViewModel(
-            title: R.string.localizable.universalPasswordArrivalTitle(preferredLanguages: languages),
-            message: message,
+            title: title,
+            message: sections.joined(separator: "\n\n"),
             actions: [],
             closeAction: R.string.localizable.commonOk(preferredLanguages: languages),
             dismissCompletion: onDismiss,
@@ -83,7 +95,8 @@ enum UniversalWalletPasswordNotice {
     static func outcomes(
         _ outcomes: [UniversalWalletSlot: UniversalWalletSwitchOutcome],
         for accounts: [UniversalWalletNoPasswordAccount],
-        locale: Locale
+        locale: Locale,
+        onDismiss: (() -> Void)? = nil
     ) -> SheetAlertPresentableViewModel {
         let languages = locale.rLanguages
         let lines = accounts.map { account -> String in
@@ -112,6 +125,7 @@ enum UniversalWalletPasswordNotice {
             message: lines.joined(separator: "\n"),
             actions: [],
             closeAction: R.string.localizable.commonOk(preferredLanguages: languages),
+            dismissCompletion: onDismiss,
             icon: allSwitched ? R.image.iconValidBig() : R.image.iconWarningBig()
         )
     }

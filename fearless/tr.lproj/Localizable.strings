@@ -1518,6 +1518,8 @@ ait olduğundan emin olun.";
 "universal.password.arrival.message" = "Varlıklar yalnızca kurtarma kelimelerinizle açılan adreslere geldi. Bu cüzdan şifreyle korunan adresleri göstermeye devam eder. Bu varlıkları taşımak için kurtarma kelimelerini şifresiz olarak başka bir cüzdan olarak içe aktarın.";
 "universal.password.arrival.row" = "%@: %@";
 "universal.password.arrival.row.balance" = "%@: %@ (%@)";
+"universal.password.arrival.protected.title" = "Başka bir adrese varlık geldi";
+"universal.password.arrival.protected.message" = "Varlıklar bu cüzdanın şifreyle korunan adreslerine geldi. Cüzdan, yalnızca kurtarma kelimelerinizle açılan adreslerde varlık olduğu veya kontrol edilemediği sürece onları gösterir ve boşaldıkları anda geçiş yapar. Geçmek için bu adreslerdeki varlıkları şifreyle korunan adrese gönderin.";
 
 /* Import: an earlier browser extension made a different Substrate account from the path password */
 "substrate.password.choice.title" = "Adresinizi seçin";

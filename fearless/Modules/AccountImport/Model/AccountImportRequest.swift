@@ -86,6 +86,7 @@ struct ChainAccountImportMnemonicRequest {
     let isEthereum: Bool
     let meta: MetaAccountModel
     let chainId: ChainModel.Id
+    var substratePasswordRule: SubstratePasswordRule = .nfkd
 }
 
 struct ChainAccountImportSeedRequest {
@@ -112,6 +113,7 @@ enum UniqueChainImportRequestSource {
     struct MnemonicImportRequestData {
         let mnemonic: IRMnemonicProtocol
         let derivationPath: String
+        var substratePasswordRule: SubstratePasswordRule = .nfkd
     }
 
     struct SeedImportRequestData {

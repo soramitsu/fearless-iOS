@@ -1547,6 +1547,8 @@ Euro cash";
 "universal.password.arrival.message" = "Средства поступили на адреса, которые открывает одна лишь фраза восстановления. Этот кошелёк продолжает показывать адреса, защищённые паролем. Чтобы перевести эти средства, импортируйте фразу восстановления без пароля как другой кошелёк.";
 "universal.password.arrival.row" = "%@: %@";
 "universal.password.arrival.row.balance" = "%@: %@ (%@)";
+"universal.password.arrival.protected.title" = "Средства поступили на другой адрес";
+"universal.password.arrival.protected.message" = "Средства поступили на адреса этого кошелька, защищённые паролем. Кошелёк показывает адреса, которые открывает одна лишь фраза восстановления, пока на них есть средства или их не удаётся проверить, и переключается, как только они опустеют. Чтобы переключиться, отправьте их средства на адрес, защищённый паролем.";
 
 /* Import: an earlier browser extension made a different Substrate account from the path password */
 "substrate.password.choice.title" = "Выберите адрес";

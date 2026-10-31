@@ -116,7 +116,11 @@ final class BackupPasswordPresenter {
         address: String?,
         cryptoType: CryptoType
     ) -> SubstratePasswordRule {
-        guard let address else { return .nfkd }
+        guard let address,
+              SubstratePasswordRule.distinctRules(forSubstrateDerivationPath: data.substrateDerivationPath).count > 1
+        else {
+            return .nfkd
+        }
         let accounts = try? SubstratePasswordRule.accounts(
             mnemonic: data.mnemonic,
             derivationPath: data.substrateDerivationPath,

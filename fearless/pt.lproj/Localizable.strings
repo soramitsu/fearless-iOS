@@ -1466,6 +1466,8 @@ pertence à rede certa";
 "universal.password.arrival.message" = "Chegaram fundos a endereços que só as palavras de recuperação já abrem. Esta carteira continua mostrando os endereços protegidos pela senha. Para mover esses fundos, importe as palavras de recuperação sem a senha como outra carteira.";
 "universal.password.arrival.row" = "%@: %@";
 "universal.password.arrival.row.balance" = "%@: %@ (%@)";
+"universal.password.arrival.protected.title" = "Chegaram fundos a outro endereço";
+"universal.password.arrival.protected.message" = "Chegaram fundos a endereços desta carteira protegidos pela senha. A carteira continua mostrando os endereços que só as palavras de recuperação já abrem enquanto eles tiverem fundos ou não puderem ser verificados, e troca assim que ficarem vazios. Envie os fundos deles para o endereço protegido pela senha para trocar.";
 
 /* Import: an earlier browser extension made a different Substrate account from the path password */
 "substrate.password.choice.title" = "Escolha seu endereço";

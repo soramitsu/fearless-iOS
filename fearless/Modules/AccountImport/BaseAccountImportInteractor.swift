@@ -153,7 +153,8 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
                 cryptoType: request.cryptoType,
                 isEthereum: request.chain.isEthereumBased,
                 meta: request.meta,
-                chainId: request.chain.chainId
+                chainId: request.chain.chainId,
+                substratePasswordRule: data.substratePasswordRule
             )
             operation = accountOperationFactory.importChainAccountOperation(request: request)
         case let .seed(data):

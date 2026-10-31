@@ -1,9 +1,10 @@
 import Foundation
 import SSFModels
 
-/// The accounts the words alone open that a password wallet left for the ones its password
-/// protects (Switch, or an import or enrolment that found them empty). A deposit can land after
-/// the check that let the wallet leave them, so they stay watched for the wallet's lifetime.
+/// The networks of a password wallet where the words open two accounts that may both have been
+/// shown: one the wallet left on Switch, or either one after an import or enrolment, which cannot
+/// tell which one another release or client showed. Whichever account such a network does not
+/// show is watched for the wallet's lifetime, because a deposit can land there at any time.
 final class UniversalWalletWatchedAccountsStore {
     static let watchedKey = "universalWalletWatchedNoPasswordSlots"
     static let notifiedKey = "universalWalletNotifiedOldAddressFunds"
@@ -63,14 +64,20 @@ final class UniversalWalletWatchedAccountsStore {
     }
 }
 
-/// Funds that reached a watched old address while the wallet keeps its password-protected one.
+/// Funds that reached the watched account of a network while the wallet shows the other one,
+/// which holds funds too or could not be checked.
 struct UniversalWalletOldAddressArrival: Equatable {
     let slot: UniversalWalletSlot
+    /// The address the funds reached: an old one the words alone open or, when
+    /// `atProtectedAddress`, the password-protected one.
     let oldAddress: String
     let balance: String?
+    var atProtectedAddress = false
+    /// The wallet whose check found the funds; acknowledging records them for that wallet.
+    var walletId: MetaAccountId?
 
     var notificationKey: String {
-        "\(slot.rawValue)|\(balance ?? "funded")"
+        "\(slot.rawValue)|\(atProtectedAddress ? "protected|" : "")\(oldAddress)|\(balance ?? "funded")"
     }
 
     var networkName: String {
@@ -78,13 +85,16 @@ struct UniversalWalletOldAddressArrival: Equatable {
     }
 }
 
-/// Checks the watched old addresses of a password wallet. Funds there move the network back
-/// to the old address when its password-protected account is confirmed empty; otherwise the
-/// password-protected account stays and the arrival is reported. Nothing is saved here.
+/// Checks the account each watched network of a password wallet does not show. Funds there move
+/// the network to that account when the one it shows is confirmed empty; otherwise the shown
+/// account stays and the arrival is reported. Nothing is saved here.
 final class UniversalWalletWatchedAccountsChecker {
     struct Result: Equatable {
         let wallet: MetaAccountModel
+        /// Networks moved back to the old account the words alone open.
         let movedBack: [UniversalWalletSlot]
+        /// Networks moved to the account the password protects.
+        var movedToProtected: [UniversalWalletSlot] = []
         let arrivals: [UniversalWalletOldAddressArrival]
     }
 
@@ -108,52 +118,92 @@ final class UniversalWalletWatchedAccountsChecker {
             return unchanged
         }
         let wordsOnly = UniversalWalletSecret(mnemonic: root.mnemonic, passphrase: "")
-        // Only networks that hold the password-protected account now; one already back on its
-        // old address is listed by the notice.
-        let protectedSlots = watchedAccounts.watchedSlots(in: wallet.metaId).filter { slot in
-            guard let account = slot.storedAccount(in: wallet),
-                  let protectedKey = try? slot.publicKey(for: root),
-                  let oldKey = try? slot.publicKey(for: wordsOnly) else {
-                return false
-            }
-            return account.publicKey == protectedKey && protectedKey != oldKey
-        }
-        guard !protectedSlots.isEmpty else { return unchanged }
+        let shown = shownAccounts(in: wallet, root: root, wordsOnly: wordsOnly)
+        guard !shown.protected.isEmpty || !shown.old.isEmpty else { return unchanged }
 
+        // The account each network does not show: the old one beside a protected one, and back.
         let probe = fundsProbe()
-        let old = await probe.funds(of: wordsOnly, slots: protectedSlots)
-        let funded = UniversalWalletSlot.allCases.filter { protectedSlots.contains($0) && old[$0]?.state == .funded }
-        guard !funded.isEmpty else { return unchanged }
-        let current = await probe.funds(of: root, slots: Set(funded))
+        let leftOld = await Self.funds(of: wordsOnly, slots: shown.protected, probe: probe)
+        let leftProtected = await Self.funds(of: root, slots: shown.old, probe: probe)
+        let paidOld = shown.protected.filter { leftOld[$0]?.state == .funded }
+        let paidProtected = shown.old.filter { leftProtected[$0]?.state == .funded }
+        guard !paidOld.isEmpty || !paidProtected.isEmpty else { return unchanged }
+        // A network leaves the account it shows only when that account is confirmed empty.
+        let shownProtected = await Self.funds(of: root, slots: paidOld, probe: probe)
+        let shownOld = await Self.funds(of: wordsOnly, slots: paidProtected, probe: probe)
 
         var accounts = wallet.chainAccounts
         var movedBack: [UniversalWalletSlot] = []
+        var movedToProtected: [UniversalWalletSlot] = []
         var arrivals: [UniversalWalletOldAddressArrival] = []
-        for slot in funded {
+        for slot in UniversalWalletSlot.allCases where paidOld.contains(slot) || paidProtected.contains(slot) {
+            let toProtected = paidProtected.contains(slot)
             guard let stored = slot.storedAccount(in: wallet),
-                  let oldKey = try? slot.publicKey(for: wordsOnly),
-                  let oldAddress = UniversalWalletChainAccountSupport.address(for: slot.chainId, publicKey: oldKey)
+                  let key = try? slot.publicKey(for: toProtected ? root : wordsOnly),
+                  let address = UniversalWalletChainAccountSupport.address(for: slot.chainId, publicKey: key)
             else { continue }
-            if current[slot]?.state == .empty {
+            if (toProtected ? shownOld[slot] : shownProtected[slot])?.state == .empty {
                 accounts.remove(stored)
                 accounts.insert(ChainAccountModel(
                     chainId: stored.chainId,
-                    accountId: oldKey,
-                    publicKey: oldKey,
+                    accountId: key,
+                    publicKey: key,
                     cryptoType: stored.cryptoType,
                     ethereumBased: false
                 ))
-                movedBack.append(slot)
+                if toProtected {
+                    movedToProtected.append(slot)
+                } else {
+                    movedBack.append(slot)
+                }
             } else {
-                // Funded or unknown: never hide the password-protected account's funds.
+                // Funded or unknown: never hide the funds of the account the network shows.
                 arrivals.append(UniversalWalletOldAddressArrival(
-                    slot: slot, oldAddress: oldAddress, balance: old[slot]?.balance
+                    slot: slot,
+                    oldAddress: address,
+                    balance: (toProtected ? leftProtected[slot] : leftOld[slot])?.balance,
+                    atProtectedAddress: toProtected,
+                    walletId: wallet.metaId
                 ))
             }
         }
 
         let updated = accounts == wallet.chainAccounts ? wallet : wallet.replacingChainAccounts(accounts)
-        return Result(wallet: updated, movedBack: movedBack, arrivals: arrivals)
+        return Result(wallet: updated, movedBack: movedBack, movedToProtected: movedToProtected, arrivals: arrivals)
+    }
+
+    /// The watched networks that show the account the password protects, and those that show
+    /// the old one the words alone open.
+    private func shownAccounts(
+        in wallet: MetaAccountModel,
+        root: UniversalWalletSecret,
+        wordsOnly: UniversalWalletSecret
+    ) -> (protected: Set<UniversalWalletSlot>, old: Set<UniversalWalletSlot>) {
+        var protected: Set<UniversalWalletSlot> = []
+        var old: Set<UniversalWalletSlot> = []
+        for slot in watchedAccounts.watchedSlots(in: wallet.metaId) {
+            guard let account = slot.storedAccount(in: wallet),
+                  let protectedKey = try? slot.publicKey(for: root),
+                  let oldKey = try? slot.publicKey(for: wordsOnly),
+                  protectedKey != oldKey else {
+                continue
+            }
+            if account.publicKey == protectedKey {
+                protected.insert(slot)
+            } else if account.publicKey == oldKey {
+                old.insert(slot)
+            }
+        }
+        return (protected, old)
+    }
+
+    private static func funds(
+        of secret: UniversalWalletSecret,
+        slots: Set<UniversalWalletSlot>,
+        probe: UniversalWalletFundsProbing
+    ) async -> [UniversalWalletSlot: UniversalWalletFundsReading] {
+        guard !slots.isEmpty else { return [:] }
+        return await probe.funds(of: secret, slots: slots)
     }
 }
 

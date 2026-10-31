@@ -1506,6 +1506,8 @@ akan muncul di sini";
 "universal.password.arrival.message" = "Dana masuk ke alamat yang bisa dibuka hanya dengan kata pemulihan Anda. Dompet ini tetap menampilkan alamat yang dilindungi kata sandi. Untuk memindahkan dana ini, impor kata pemulihan tanpa kata sandi sebagai dompet lain.";
 "universal.password.arrival.row" = "%@: %@";
 "universal.password.arrival.row.balance" = "%@: %@ (%@)";
+"universal.password.arrival.protected.title" = "Dana masuk ke alamat lain";
+"universal.password.arrival.protected.message" = "Dana masuk ke alamat dompet ini yang dilindungi kata sandi. Dompet tetap menampilkan alamat yang bisa dibuka hanya dengan kata pemulihan Anda selama alamat itu berisi dana atau tidak bisa diperiksa, dan beralih begitu alamat itu kosong. Kirim dananya ke alamat yang dilindungi kata sandi untuk beralih.";
 
 /* Import: an earlier browser extension made a different Substrate account from the path password */
 "substrate.password.choice.title" = "Pilih alamat Anda";

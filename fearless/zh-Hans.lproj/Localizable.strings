@@ -1517,6 +1517,8 @@
 "universal.password.arrival.message" = "资金已到达仅凭助记词即可打开的地址。此钱包仍显示受密码保护的地址。要转移这些资金，请不使用密码将助记词导入为另一个钱包。";
 "universal.password.arrival.row" = "%@：%@";
 "universal.password.arrival.row.balance" = "%@：%@（%@）";
+"universal.password.arrival.protected.title" = "资金已到达另一个地址";
+"universal.password.arrival.protected.message" = "资金已到达此钱包受密码保护的地址。只要仅凭助记词即可打开的地址中仍有资金或无法检查，钱包就会继续显示这些地址，一旦它们为空就会切换。如需切换，请将其中的资金发送到受密码保护的地址。";
 
 /* Import: an earlier browser extension made a different Substrate account from the path password */
 "substrate.password.choice.title" = "选择您的地址";

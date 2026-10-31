@@ -263,10 +263,12 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         _ outcomes: [UniversalWalletSlot: UniversalWalletSwitchOutcome],
         for accounts: [UniversalWalletNoPasswordAccount]
     ) {
-        router.present(
-            viewModel: UniversalWalletPasswordNotice.outcomes(outcomes, for: accounts, locale: selectedLocale),
-            from: view
-        )
+        let viewModel = UniversalWalletPasswordNotice.outcomes(
+            outcomes, for: accounts, locale: selectedLocale
+        ) { [weak self] in
+            self?.presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
+        }
+        router.present(viewModel: viewModel, from: view)
     }
 }
 
@@ -385,10 +387,13 @@ private extension WalletMainContainerPresenter {
         let accounts = pendingPasswordNoticeAccounts
         pendingPasswordNoticeAccounts = []
         var followUp: (() -> Void)?
+        // Arrivals that came in while this notice was open follow it, or follow Switch's outcome.
+        var resumesQueue = true
         let viewModel = UniversalWalletPasswordNotice.notice(
             for: accounts,
             locale: selectedLocale,
             onSwitch: { [weak self] in
+                resumesQueue = false
                 followUp = { self?.interactor.switchNoPasswordAccounts(accounts) }
             },
             onCopy: { [weak self] account in
@@ -400,6 +405,9 @@ private extension WalletMainContainerPresenter {
             onDismiss: { [weak self] in
                 self?.interactor.acknowledgeUniversalWalletPasswordNotice()
                 followUp?()
+                if resumesQueue {
+                    self?.presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
+                }
             }
         )
         router.present(viewModel: viewModel, from: view)
@@ -428,7 +436,12 @@ private extension WalletMainContainerPresenter {
         let arrivals = pendingOldAddressArrivals
         pendingOldAddressArrivals = []
         let viewModel = UniversalWalletPasswordNotice.arrivals(arrivals, locale: selectedLocale) { [weak self] in
-            self?.interactor.acknowledgeOldAddressArrivals(arrivals)
+            guard let self else { return }
+            self.interactor.acknowledgeOldAddressArrivals(arrivals)
+            // A check while this was open may have queued the same arrivals again.
+            let shown = Set(arrivals.map(\.notificationKey))
+            self.pendingOldAddressArrivals.removeAll { shown.contains($0.notificationKey) }
+            self.presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
         }
         router.present(viewModel: viewModel, from: view)
     }

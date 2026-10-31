@@ -280,7 +280,7 @@ final class UniversalWalletPasswordTests: XCTestCase {
         let root = try XCTUnwrap(provider.rootSecret(for: earlier))
         XCTAssertEqual(root, UniversalWalletSecret(mnemonic: vector.mnemonic, passphrase: Self.password))
 
-        for solanaFunds in [UniversalWalletFundsState.empty, .funded, .unknown] {
+        for solanaFunds in [UniversalWalletFundsState.funded, .unknown, .empty] {
             let probe = StaticFundsProbe(funds: [.solana: solanaFunds])
             let upgraded = try await UniversalWalletAccountProvisioning.enrollingMissingAccounts(
                 in: earlier, root: root, probe: probe, watchedAccounts: watched
@@ -293,9 +293,10 @@ final class UniversalWalletPasswordTests: XCTestCase {
                 ? passwordKeys(vector)[.solana]
                 : noPasswordKeys(vector.mnemonic)[.solana]
             XCTAssertEqual(try slotKeys(in: persisted)[.solana], expectedSolana)
-            if solanaFunds == .empty {
-                XCTAssertEqual(watched.watchedSlots(in: earlier.metaId), [.solana], "The empty old address stays watched")
-            }
+            XCTAssertEqual(
+                watched.watchedSlots(in: earlier.metaId), [.solana],
+                "Whichever Solana account the wallet did not get stays watched (\(solanaFunds))"
+            )
 
             // Every stored account resolves to the secret that re-derives its key: the
             // signing material for Bitcoin, Solana and Taira, and TON's credentials.
@@ -670,7 +671,10 @@ extension UniversalWalletPasswordTests {
 
         let switched = await switcher.switching([solana], in: wallet)
         XCTAssertEqual(switched.outcomes, [.solana: .switched])
-        XCTAssertEqual(watched.watchedSlots(in: wallet.metaId), [.solana])
+        XCTAssertEqual(
+            watched.watchedSlots(in: wallet.metaId), Set(UniversalWalletSlot.allCases),
+            "An import that kept every old account watches every protected one"
+        )
 
         probe.deposit(at: .solana)
         let result = await checker(provider, probe).check(switched.wallet)
@@ -683,10 +687,11 @@ extension UniversalWalletPasswordTests {
             ""
         )
         XCTAssertTrue(switcher.noPasswordAccounts(in: result.wallet).contains { $0.slot == .solana })
-        XCTAssertEqual(watched.watchedSlots(in: wallet.metaId), [.solana], "It stays watched")
+        XCTAssertTrue(watched.watchedSlots(in: wallet.metaId).contains(.solana), "It stays watched")
     }
 
-    /// An import found the old addresses empty and took the password-protected ones; one of the
+    /// An import found some old addresses empty and took the password-protected ones there, and
+    /// kept the old ones elsewhere. Each network watches the account it did not get; one of the
     /// old addresses is paid later.
     func testOldAddressAnImportFoundEmptyIsWatchedAndComesBackWhenPaid() async throws {
         let vector = try trezorVector()
@@ -698,14 +703,17 @@ extension UniversalWalletPasswordTests {
             ]),
             keystore: keystore
         )
-        XCTAssertEqual(watched.watchedSlots(in: wallet.metaId), [.bitcoinMainnet, .ton, .taira])
+        XCTAssertEqual(watched.watchedSlots(in: wallet.metaId), Set(UniversalWalletSlot.allCases))
         let provider = KeychainUniversalWalletMnemonicProvider(keystore: keystore)
 
         let quiet = StaticFundsProbe(funds: [.bitcoinMainnet: .empty, .ton: .empty, .taira: .empty])
         let unchanged = await checker(provider, quiet).check(wallet)
         XCTAssertEqual(unchanged.wallet, wallet)
-        XCTAssertEqual(quiet.checkedSlots, [[.bitcoinMainnet, .ton, .taira]])
-        XCTAssertTrue(quiet.checkedProtectedSlots.isEmpty, "Nothing arrived, so nothing more is read")
+        XCTAssertEqual(quiet.checkedSlots, [[.bitcoinMainnet, .ton, .taira]], "Old accounts beside protected ones")
+        XCTAssertEqual(
+            quiet.checkedProtectedSlots, [[.bitcoinTestnet, .solana]],
+            "Protected accounts beside kept old ones; nothing arrived, so nothing more is read"
+        )
 
         let paid = StaticFundsProbe(
             funds: [.bitcoinMainnet: .funded, .ton: .empty, .taira: .empty],
@@ -713,7 +721,8 @@ extension UniversalWalletPasswordTests {
         )
         let result = await checker(provider, paid).check(wallet)
         XCTAssertEqual(result.movedBack, [.bitcoinMainnet])
-        XCTAssertEqual(paid.checkedProtectedSlots, [[.bitcoinMainnet]])
+        XCTAssertEqual(result.movedToProtected, [])
+        XCTAssertEqual(paid.checkedProtectedSlots, [[.bitcoinTestnet, .solana], [.bitcoinMainnet]])
         let keys = try slotKeys(in: result.wallet)
         XCTAssertEqual(keys[.bitcoinMainnet], try noPasswordKeys(vector.mnemonic)[.bitcoinMainnet])
         XCTAssertEqual(keys[.ton], try passwordKeys(vector)[.ton])
@@ -769,7 +778,7 @@ extension UniversalWalletPasswordTests {
         let persisted = try JSONDecoder().decode(MetaAccountModel.self, from: JSONEncoder().encode(switched))
 
         let relaunched = UniversalWalletWatchedAccountsStore(userDefaults: try XCTUnwrap(UserDefaults(suiteName: defaultsSuite)))
-        XCTAssertEqual(relaunched.watchedSlots(in: wallet.metaId), [.taira])
+        XCTAssertEqual(relaunched.watchedSlots(in: wallet.metaId), Set(UniversalWalletSlot.allCases))
         probe.deposit(at: .taira)
         let result = await UniversalWalletWatchedAccountsChecker(
             mnemonicProvider: provider, watchedAccounts: relaunched, fundsProbe: { probe }
@@ -788,6 +797,144 @@ extension UniversalWalletPasswordTests {
         let result = await checker(KeychainUniversalWalletMnemonicProvider(keystore: keystore), probe).check(wallet)
         XCTAssertEqual(result.wallet, wallet)
         XCTAssertTrue(probe.checkedSlots.isEmpty)
+        XCTAssertTrue(probe.checkedProtectedSlots.isEmpty)
+    }
+
+    /// A password wallet created on this build has funds at its protected Solana and Taira
+    /// accounts. Its words and password are restored while no balance can be read, so the import
+    /// keeps every old account. Once a check reads Solana's old account empty, Solana shows the
+    /// protected one; Taira's old account holds funds too, so that arrival is reported.
+    func testProtectedAccountsARestoreCouldNotCheckAreShownOnceReadable() async throws {
+        let vector = try trezorVector()
+        let keystore = InMemoryKeychain()
+        let restored = try importWallet(vector.mnemonic, enrollment: .probed([:]), keystore: keystore)
+        XCTAssertEqual(try slotKeys(in: restored), try noPasswordKeys(vector.mnemonic), "Nothing could be checked")
+        XCTAssertEqual(watched.watchedSlots(in: restored.metaId), Set(UniversalWalletSlot.allCases))
+        let provider = KeychainUniversalWalletMnemonicProvider(keystore: keystore)
+
+        let offline = StaticFundsProbe(funds: [:])
+        let stillOffline = await checker(provider, offline).check(restored)
+        XCTAssertEqual(stillOffline.wallet, restored, "Unknown balances move nothing")
+        XCTAssertEqual(offline.checkedProtectedSlots, [Set(UniversalWalletSlot.allCases)])
+
+        let online = StaticFundsProbe(
+            funds: [.solana: .empty, .taira: .funded],
+            protectedFunds: [.solana: .funded, .taira: .funded],
+            balance: "3 XOR"
+        )
+        let result = await checker(provider, online).check(restored)
+        XCTAssertEqual(result.movedToProtected, [.solana])
+        XCTAssertEqual(result.movedBack, [])
+        let keys = try slotKeys(in: result.wallet)
+        XCTAssertEqual(keys[.solana], try passwordKeys(vector)[.solana])
+        XCTAssertEqual(keys[.taira], try noPasswordKeys(vector.mnemonic)[.taira])
+        XCTAssertEqual(keys[.bitcoinMainnet], try noPasswordKeys(vector.mnemonic)[.bitcoinMainnet])
+        let protectedTaira = try XCTUnwrap(passwordKeys(vector)[.taira])
+        XCTAssertEqual(result.arrivals, [UniversalWalletOldAddressArrival(
+            slot: .taira,
+            oldAddress: try XCTUnwrap(UniversalWalletChainAccountSupport.address(
+                for: UniversalWalletSlot.taira.chainId, publicKey: protectedTaira
+            )),
+            balance: "3 XOR",
+            atProtectedAddress: true,
+            walletId: restored.metaId
+        )])
+        XCTAssertEqual(
+            try provider.secret(for: result.wallet, chain: UniversalWalletRegistry.solanaMainnetChainModel)?.passphrase,
+            Self.password,
+            "Solana signs with the password again"
+        )
+    }
+
+    /// An earlier release's wallet switched Taira to its protected account and showed it. Funds
+    /// then reached the old address while the protected one was empty, so Taira went back. A payer
+    /// still sends to the protected address: the arrival is reported while the old address holds
+    /// funds, and Taira shows the protected account again once the old one is empty.
+    func testProtectedAddressStaysWatchedAfterTheNetworkMovesBack() async throws {
+        let vector = try trezorVector()
+        let keystore = InMemoryKeychain()
+        let earlier = try seedEarlierReleaseWallet(vector.mnemonic, keystore: keystore)
+        let provider = KeychainUniversalWalletMnemonicProvider(keystore: keystore)
+        let probe = StaticFundsProbe(funds: [.taira: .empty], protectedFunds: [.taira: .empty], balance: "5 XOR")
+        let switcher = UniversalWalletPasswordSwitcher(
+            mnemonicProvider: provider, fundsProbe: { probe }, watchedAccounts: watched
+        )
+        let taira = try XCTUnwrap(switcher.noPasswordAccounts(in: earlier).first { $0.slot == .taira })
+        let switched = await switcher.switching([taira], in: earlier)
+        XCTAssertEqual(switched.outcomes, [.taira: .switched])
+        XCTAssertEqual(watched.watchedSlots(in: earlier.metaId), [.taira])
+
+        probe.deposit(at: .taira)
+        let back = await checker(provider, probe).check(switched.wallet)
+        XCTAssertEqual(back.movedBack, [.taira])
+        // That release created no Solana account, so the Taira slot is read on its own.
+        XCTAssertEqual(
+            UniversalWalletSlot.taira.storedAccount(in: back.wallet)?.publicKey,
+            try noPasswordKeys(vector.mnemonic)[.taira]
+        )
+
+        probe.deposit(at: .taira, protected: true)
+        let reported = await checker(provider, probe).check(back.wallet)
+        XCTAssertEqual(reported.wallet, back.wallet, "The old account holds funds too, so it stays")
+        XCTAssertEqual(reported.arrivals, [UniversalWalletOldAddressArrival(
+            slot: .taira,
+            oldAddress: taira.newAddress,
+            balance: "5 XOR",
+            atProtectedAddress: true,
+            walletId: earlier.metaId
+        )])
+
+        let emptied = StaticFundsProbe(funds: [.taira: .empty], protectedFunds: [.taira: .funded])
+        let forward = await checker(provider, emptied).check(back.wallet)
+        XCTAssertEqual(forward.movedToProtected, [.taira])
+        XCTAssertEqual(forward.movedBack, [])
+        XCTAssertEqual(UniversalWalletSlot.taira.storedAccount(in: forward.wallet)?.publicKey, taira.newPublicKey)
+        XCTAssertEqual(
+            try provider.secret(for: forward.wallet, chain: UniversalWalletRegistry.tairaChainModel)?.passphrase,
+            Self.password
+        )
+        XCTAssertEqual(watched.watchedSlots(in: earlier.metaId), [.taira], "Taira stays watched either way")
+    }
+
+    /// Funds at a protected address get their own explanation and a title that fits both kinds,
+    /// and they are reported apart from the same balance at the old address.
+    func testArrivalAtAProtectedAddressExplainsThatTheWalletSwitchesToIt() {
+        let languages = Locale(identifier: "en").rLanguages
+        let atProtected = UniversalWalletOldAddressArrival(
+            slot: .solana, oldAddress: "protected-solana", balance: "2 SOL", atProtectedAddress: true
+        )
+        let atOld = UniversalWalletOldAddressArrival(slot: .taira, oldAddress: "old-taira", balance: nil)
+        let oldMessage = R.string.localizable.universalPasswordArrivalMessage(preferredLanguages: languages)
+        let protectedMessage = R.string.localizable
+            .universalPasswordArrivalProtectedMessage(preferredLanguages: languages)
+
+        let onlyProtected = UniversalWalletPasswordNotice.arrivals([atProtected], locale: Locale(identifier: "en")) {}
+        XCTAssertEqual(
+            onlyProtected.title,
+            R.string.localizable.universalPasswordArrivalProtectedTitle(preferredLanguages: languages)
+        )
+        XCTAssertTrue(onlyProtected.message?.hasPrefix(protectedMessage) == true)
+        XCTAssertTrue(onlyProtected.message?.contains("protected-solana (2 SOL)") == true)
+        XCTAssertFalse(onlyProtected.message?.contains(oldMessage) == true)
+
+        let onlyOld = UniversalWalletPasswordNotice.arrivals([atOld], locale: Locale(identifier: "en")) {}
+        XCTAssertEqual(onlyOld.title, R.string.localizable.universalPasswordArrivalTitle(preferredLanguages: languages))
+        XCTAssertFalse(onlyOld.message?.contains(protectedMessage) == true)
+
+        let both = UniversalWalletPasswordNotice.arrivals([atOld, atProtected], locale: Locale(identifier: "en")) {}
+        XCTAssertEqual(both.title, onlyProtected.title)
+        XCTAssertTrue(both.message?.contains(oldMessage) == true)
+        XCTAssertTrue(both.message?.contains(protectedMessage) == true)
+        XCTAssertTrue(both.message?.contains("old-taira") == true)
+
+        let sameBalanceAtOld = UniversalWalletOldAddressArrival(
+            slot: .solana, oldAddress: "old-solana", balance: "2 SOL"
+        )
+        XCTAssertNotEqual(atProtected.notificationKey, sameBalanceAtOld.notificationKey)
+        let sameBalanceElsewhere = UniversalWalletOldAddressArrival(
+            slot: .taira, oldAddress: "other-taira", balance: nil
+        )
+        XCTAssertNotEqual(atOld.notificationKey, sameBalanceElsewhere.notificationKey, "The address is part of the key")
     }
 
     private func checker(

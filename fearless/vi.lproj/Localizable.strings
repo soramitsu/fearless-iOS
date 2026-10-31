@@ -1520,6 +1520,8 @@ thuộc đúng mạng";
 "universal.password.arrival.message" = "Có tiền gửi đến các địa chỉ chỉ cần cụm từ khôi phục là mở được. Ví này vẫn hiển thị các địa chỉ được bảo vệ bằng mật khẩu. Để chuyển số tiền này, hãy nhập cụm từ khôi phục mà không có mật khẩu thành một ví khác.";
 "universal.password.arrival.row" = "%@: %@";
 "universal.password.arrival.row.balance" = "%@: %@ (%@)";
+"universal.password.arrival.protected.title" = "Có tiền gửi đến một địa chỉ khác";
+"universal.password.arrival.protected.message" = "Có tiền gửi đến các địa chỉ được bảo vệ bằng mật khẩu của ví này. Ví vẫn hiển thị các địa chỉ chỉ cần cụm từ khôi phục là mở được khi các địa chỉ đó còn tiền hoặc không kiểm tra được, và sẽ chuyển ngay khi chúng trống. Để chuyển, hãy gửi tiền của chúng sang địa chỉ được bảo vệ bằng mật khẩu.";
 
 /* Import: an earlier browser extension made a different Substrate account from the path password */
 "substrate.password.choice.title" = "Chọn địa chỉ của bạn";

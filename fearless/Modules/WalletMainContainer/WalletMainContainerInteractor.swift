@@ -152,8 +152,8 @@ final class WalletMainContainerInteractor {
         }
     }
 
-    /// Old addresses a password wallet left stay watched: funds there bring the address back
-    /// when its password-protected account is empty, and are reported otherwise.
+    /// The account a watched network of a password wallet does not show stays watched: funds
+    /// there make the network show it when the shown account is empty, and are reported otherwise.
     private func checkWatchedOldAddresses() {
         guard !isCheckingWatchedAccounts else { return }
         isCheckingWatchedAccounts = true
@@ -170,11 +170,19 @@ final class WalletMainContainerInteractor {
     }
 
     private func apply(_ result: UniversalWalletWatchedAccountsChecker.Result, checkedFrom wallet: MetaAccountModel) {
+        // Another wallet was selected during the check, which skipped that wallet's own check:
+        // drop this result and check the selected wallet now.
+        guard wallet.metaId == self.wallet.metaId else {
+            checkWatchedOldAddresses()
+            return
+        }
         let arrivals = watchedAccounts.unnotified(result.arrivals, in: wallet.metaId)
         if !arrivals.isEmpty {
             output?.didReceiveUniversalWalletOldAddressArrivals(arrivals)
         }
-        guard !result.movedBack.isEmpty, result.wallet != wallet else { return }
+        guard !(result.movedBack.isEmpty && result.movedToProtected.isEmpty), result.wallet != wallet else { return }
+        // An old address is back: the notice about it shows once more.
+        let showsOldAddressAgain = !result.movedBack.isEmpty
         // A newer change to the wallet wins; the next check sees the funds again.
         SelectedWalletSettings.shared.save(
             value: result.wallet,
@@ -184,7 +192,9 @@ final class WalletMainContainerInteractor {
                 guard case let .success(savedWallet) = saveResult else { return }
                 Task { @MainActor [weak self] in
                     await BitcoinWalletBalanceCache.shared.invalidate(walletId: savedWallet.metaId)
-                    self?.passwordNoticeTracker.reset(for: savedWallet.metaId)
+                    if showsOldAddressAgain {
+                        self?.passwordNoticeTracker.reset(for: savedWallet.metaId)
+                    }
                     self?.eventCenter.notify(with: SelectedAccountChanged(account: savedWallet))
                 }
             }
@@ -248,7 +258,10 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
     }
 
     func acknowledgeOldAddressArrivals(_ arrivals: [UniversalWalletOldAddressArrival]) {
-        watchedAccounts.markNotified(arrivals, in: wallet.metaId)
+        // Recorded for the wallet whose check found them, even if another one is selected now.
+        for (walletId, found) in Dictionary(grouping: arrivals, by: { $0.walletId ?? wallet.metaId }) {
+            watchedAccounts.markNotified(found, in: walletId)
+        }
     }
 
     /// Replaces the old accounts that hold nothing and saves the wallet only if nothing
@@ -317,8 +330,13 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
             return
         }
 
+        let isAnotherWallet = wallet.metaId != self.wallet.metaId
         self.wallet = wallet
         output?.didReceiveAccount(wallet)
+        if isAnotherWallet {
+            // Arrivals still waiting to be shown belong to the wallet left behind.
+            output?.didReceiveUniversalWalletOldAddressArrivals([])
+        }
 
         fetchNetworkManagmentFilter()
         checkUniversalWalletPassword()

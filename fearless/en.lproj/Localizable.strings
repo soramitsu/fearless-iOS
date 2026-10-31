@@ -1552,6 +1552,8 @@ belongs to the right network";
 "universal.password.arrival.message" = "Funds reached addresses your recovery words alone open. This wallet keeps showing its password-protected addresses. To move these funds, import the recovery words without the password as another wallet.";
 "universal.password.arrival.row" = "%@: %@";
 "universal.password.arrival.row.balance" = "%@: %@ (%@)";
+"universal.password.arrival.protected.title" = "Funds arrived at another address";
+"universal.password.arrival.protected.message" = "Funds reached this wallet's password-protected addresses. The wallet keeps showing the addresses your recovery words alone open while they hold funds or can't be checked, and switches once they are empty. Send their funds to the password-protected address to switch.";
 
 /* Import: an earlier browser extension made a different Substrate account from the path password */
 "substrate.password.choice.title" = "Choose your address";

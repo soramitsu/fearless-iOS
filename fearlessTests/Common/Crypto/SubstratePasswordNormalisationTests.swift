@@ -117,6 +117,44 @@ final class SubstratePasswordNormalisationTests: XCTestCase {
         )
         XCTAssertEqual(seed.seed.toHex(includePrefix: true), try vector.miniSecret("nfc"))
     }
+
+    /// One network's own import (the account replacement flow) opens the account of the rule the
+    /// user picked, and the phrase export still accepts it.
+    func testChainAccountImportWithAnEarlierRule_opensThatRulesAccountAndExportsIt() throws {
+        let vector = try SubstratePasswordVectors.vector("default24-unicode")
+        let keystore = InMemoryKeychain()
+        let wallet = try SubstratePasswordVectors.importWallet(vector, cryptoType: .sr25519, keystore: keystore)
+        let chain = ChainAccountRecordsFixture.chain(id: ChainAccountRecordsFixture.kusamaChainId, prefix: 2)
+        let mnemonic = try IRMnemonicCreator().mnemonic(fromList: vector.mnemonic)
+
+        for (rule, key) in [(SubstratePasswordRule.nfkd, "nfkd"), (.nfc, "nfc")] {
+            let operation = MetaAccountOperationFactory(keystore: keystore).importChainAccountOperation(
+                request: ChainAccountImportMnemonicRequest(
+                    mnemonic: mnemonic,
+                    username: vector.id,
+                    derivationPath: vector.derivationPath,
+                    cryptoType: .sr25519,
+                    isEthereum: false,
+                    meta: wallet,
+                    chainId: chain.chainId,
+                    substratePasswordRule: rule
+                )
+            )
+            OperationQueue().addOperations([operation], waitUntilFinished: true)
+            let updated = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            (operation as? PersistenceBoundKeychainOperation)?.commitKeychainChanges()
+
+            let account = try XCTUnwrap(updated.chainAccounts.first { $0.chainId == chain.chainId }, key)
+            XCTAssertEqual(
+                account.accountId.toHex(includePrefix: true), try vector.account(key, .sr25519).accountId, key
+            )
+            let info = try ChainAccountInfo(
+                chain: chain, account: XCTUnwrap(updated.fetch(for: chain.accountRequest()))
+            )
+            let export = try VerifiedMnemonicExportReader(keystore: keystore).fetch(wallet: updated, info: info)
+            XCTAssertEqual(export.mnemonic.toString(), vector.mnemonic, key)
+        }
+    }
 }
 
 enum SubstratePasswordVectors {

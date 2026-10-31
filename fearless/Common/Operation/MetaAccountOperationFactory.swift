@@ -489,9 +489,9 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             )
 
             let metaId = metaAccount.metaId
-            // Old accounts an import left after finding them empty stay watched for deposits.
+            // The account each network of an imported password wallet did not get stays watched.
             factory.watchedAccounts.watch(
-                request.universalWalletEnrollment.leftAfterEmptyCheck(
+                request.universalWalletEnrollment.watchedAfterCheck(
                     Set(UniversalWalletSlot.allCases),
                     password: request.universalWalletPassphrase
                 ),
@@ -694,7 +694,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 seedSource: .mnemonic(request.mnemonic),
                 derivationPath: request.derivationPath,
                 cryptoType: request.cryptoType,
-                ethereumBased: request.isEthereum
+                ethereumBased: request.isEthereum,
+                passwordRule: request.substratePasswordRule
             )
 
             let metaId = request.meta.metaId
