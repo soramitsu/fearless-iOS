@@ -854,7 +854,7 @@ final class IPadSheetAlertLayoutTests: XCTestCase {
         let layout = AdaptiveSheetLayout()
         layout.apply(to: sheet, in: container, fillsHeight: true)
         container.layoutIfNeeded()
-        XCTAssertEqual(sheet.frame, CGRect(x: 137, y: 24, width: 560, height: 1146))
+        XCTAssertEqual(sheet.frame, cardFrame(width: 560, filling: container))
         XCTAssertEqual(sheet.layer.cornerRadius, AdaptiveLayout.sheetCornerRadius)
         XCTAssertEqual(sheet.layer.cornerCurve, .continuous)
 
@@ -919,7 +919,21 @@ final class IPadSheetAlertLayoutTests: XCTestCase {
         container.addSubview(alert.view)
         presentation.layoutPreferredContent(in: container)
         container.layoutIfNeeded()
-        XCTAssertEqual(alert.view.frame, CGRect(x: 317, y: 24, width: 560, height: 786))
+        XCTAssertEqual(alert.view.frame, cardFrame(width: 560, filling: container))
+    }
+
+    /// A centered card that fills the sheet guide less its margins. On iPad the guide is the
+    /// corner-adapted safe area, whose insets the iOS release decides (none on iOS 27.0, some at
+    /// the top and bottom on iOS 26), so the expected frame is derived from them.
+    private func cardFrame(width: CGFloat, filling container: UIView) -> CGRect {
+        let insets = AdaptiveLayout.contentInsets(in: container)
+        let margin = AdaptiveLayout.sheetMargin
+        return CGRect(
+            x: insets.left + (container.bounds.width - insets.left - insets.right - width) / 2,
+            y: insets.top + margin,
+            width: width,
+            height: container.bounds.height - insets.top - insets.bottom - 2 * margin
+        )
     }
 
     private func descendants(_ view: UIView) -> [UIView] {
